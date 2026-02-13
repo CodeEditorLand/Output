@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("hostService");export{t as $gcb};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IHostService = createDecorator("hostService");
+export {
+  IHostService
+};
+//# sourceMappingURL=host.js.map

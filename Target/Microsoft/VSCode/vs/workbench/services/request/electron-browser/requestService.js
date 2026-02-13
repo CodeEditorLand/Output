@@ -1,1 +1,69 @@
-import{$0l as l}from"../../../../platform/configuration/common/configuration.js";import{$WC as p}from"../../../../platform/instantiation/common/extensions.js";import{$Wo as h,$Vo as m}from"../../../../platform/request/common/request.js";import{$Xu as $}from"../../../../platform/native/common/native.js";import{$Ubb as y}from"../../../../base/parts/request/common/requestImpl.js";import{$zo as z}from"../../../../platform/log/common/log.js";import{localize as b}from"../../../../nls.js";import{$WLb as g}from"../../log/common/logConstants.js";import{$ZC as v}from"../../../../platform/log/common/logService.js";var s=function(n,r,o,e){var i=arguments.length,t=i<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,o):e,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,r,o,e);else for(var c=n.length-1;c>=0;c--)(u=n[c])&&(t=(i<3?u(t):i>3?u(r,o,t):u(r,o))||t);return i>3&&t&&Object.defineProperty(r,o,t),t},a=function(n,r){return function(o,e){r(o,e,n)}};let f=class extends h{constructor(r,o,e){const i=e.createLogger("network",{name:b(16453,null),group:g}),t=new v(i);super(t),this.f=r,this.g=o,this.D(i),this.D(t)}async request(r,o){return r.proxyAuthorization||(r.proxyAuthorization=this.g.inspect("http.proxyAuthorization").userLocalValue),this.c(r,()=>y(r,o,()=>navigator.onLine))}async resolveProxy(r){return this.f.resolveProxy(r)}async lookupAuthorization(r){return this.f.lookupAuthorization(r)}async lookupKerberosAuthorization(r){return this.f.lookupKerberosAuthorization(r)}async loadCertificates(){return this.f.loadCertificates()}};f=s([a(0,$),a(1,l),a(2,z)],f);p(m,f,1);export{f as $UVc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { AbstractRequestService, IRequestService } from "../../../../platform/request/common/request.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { request } from "../../../../base/parts/request/common/requestImpl.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { localize } from "../../../../nls.js";
+import { windowLogGroup } from "../../log/common/logConstants.js";
+import { LogService } from "../../../../platform/log/common/logService.js";
+let NativeRequestService = class NativeRequestService2 extends AbstractRequestService {
+  static {
+    __name(this, "NativeRequestService");
+  }
+  constructor(nativeHostService, configurationService, loggerService) {
+    const logger = loggerService.createLogger(`network`, { name: localize("network", "Network"), group: windowLogGroup });
+    const logService = new LogService(logger);
+    super(logService);
+    this.nativeHostService = nativeHostService;
+    this.configurationService = configurationService;
+    this._register(logger);
+    this._register(logService);
+  }
+  async request(options, token) {
+    if (!options.proxyAuthorization) {
+      options.proxyAuthorization = this.configurationService.inspect("http.proxyAuthorization").userLocalValue;
+    }
+    return this.logAndRequest(options, () => request(options, token, () => navigator.onLine));
+  }
+  async resolveProxy(url) {
+    return this.nativeHostService.resolveProxy(url);
+  }
+  async lookupAuthorization(authInfo) {
+    return this.nativeHostService.lookupAuthorization(authInfo);
+  }
+  async lookupKerberosAuthorization(url) {
+    return this.nativeHostService.lookupKerberosAuthorization(url);
+  }
+  async loadCertificates() {
+    return this.nativeHostService.loadCertificates();
+  }
+};
+NativeRequestService = __decorate([
+  __param(0, INativeHostService),
+  __param(1, IConfigurationService),
+  __param(2, ILoggerService)
+], NativeRequestService);
+registerSingleton(
+  IRequestService,
+  NativeRequestService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  NativeRequestService
+};
+//# sourceMappingURL=requestService.js.map

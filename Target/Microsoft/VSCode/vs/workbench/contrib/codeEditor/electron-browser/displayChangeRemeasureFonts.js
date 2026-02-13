@@ -1,1 +1,43 @@
-import{$7h as h}from"../../../../base/common/async.js";import{$Ed as l}from"../../../../base/common/lifecycle.js";import{$$cb as p}from"../../../../editor/browser/config/fontMeasurements.js";import{$Xu as u}from"../../../../platform/native/common/native.js";import{$jm as b}from"../../../../platform/registry/common/platform.js";import{Extensions as _}from"../../../common/contributions.js";var c=function(o,e,t,n){var i=arguments.length,r=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,n);else for(var a=o.length-1;a>=0;a--)(s=o[a])&&(r=(i<3?s(r):i>3?s(e,t,r):s(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},m=function(o,e){return function(t,n){e(t,n,o)}};let f=class extends l{constructor(e){super(),this.a=this.D(new h(2e3)),this.D(e.onDidChangeDisplay(()=>{this.a.trigger(()=>(p.clearAllFontInfos(),Promise.resolve()))}))}};f=c([m(0,u)],f);b.as(_.Workbench).registerWorkbenchContribution(f,4);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ThrottledDelayer } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { FontMeasurements } from "../../../../editor/browser/config/fontMeasurements.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+let DisplayChangeRemeasureFonts = class DisplayChangeRemeasureFonts2 extends Disposable {
+  static {
+    __name(this, "DisplayChangeRemeasureFonts");
+  }
+  constructor(nativeHostService) {
+    super();
+    this._delayer = this._register(new ThrottledDelayer(2e3));
+    this._register(nativeHostService.onDidChangeDisplay(() => {
+      this._delayer.trigger(() => {
+        FontMeasurements.clearAllFontInfos();
+        return Promise.resolve();
+      });
+    }));
+  }
+};
+DisplayChangeRemeasureFonts = __decorate([
+  __param(0, INativeHostService)
+], DisplayChangeRemeasureFonts);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DisplayChangeRemeasureFonts,
+  4
+  /* LifecyclePhase.Eventually */
+);
+//# sourceMappingURL=displayChangeRemeasureFonts.js.map

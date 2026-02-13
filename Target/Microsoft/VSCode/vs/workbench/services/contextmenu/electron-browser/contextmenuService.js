@@ -1,1 +1,255 @@
-import{$Hm as k,$Im as R}from"../../../../base/common/actions.js";import*as a from"../../../../base/browser/dom.js";import{$ijb as B,$hjb as N}from"../../../../platform/contextview/browser/contextView.js";import{$pp as v}from"../../../../platform/telemetry/common/telemetry.js";import{$fy as H}from"../../../../platform/keybinding/common/keybinding.js";import{$17 as S}from"../../../../base/browser/browser.js";import{$Wm as x}from"../../../../base/common/labels.js";import{$pH as D}from"../../../../platform/notification/common/notification.js";import{$Eb as y}from"../../../../base/common/functional.js";import{$xbb as E}from"../../../../base/parts/contextmenu/electron-browser/contextmenu.js";import{$Ju as M}from"../../../../platform/window/common/window.js";import{$n as p,$m as F}from"../../../../base/common/platform.js";import{$0l as I}from"../../../../platform/configuration/common/configuration.js";import{ContextMenuMenuDelegate as L,$NOc as O}from"../../../../platform/contextview/browser/contextMenuService.js";import{$WC as K}from"../../../../platform/instantiation/common/extensions.js";import{$fk as C}from"../../../../base/common/iconLabels.js";import{$$b as P}from"../../../../base/common/arrays.js";import{$xf as g}from"../../../../base/common/event.js";import{$y0 as q}from"../../../../base/browser/ui/contextview/contextview.js";import{$rL as W}from"../../../../platform/actions/common/actions.js";import{$ro as _}from"../../../../platform/contextkey/common/contextkey.js";import{$Ed as V}from"../../../../base/common/lifecycle.js";var A=function(l,t,e,r){var s=arguments.length,i=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,t,e,r);else for(var o=l.length-1;o>=0;o--)(n=l[o])&&(i=(s<3?n(i):s>3?n(t,e,i):n(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},m=function(l,t){return function(e,r){t(e,r,l)}};let d=class{get onDidShowContextMenu(){return this.a.onDidShowContextMenu}get onDidHideContextMenu(){return this.a.onDidHideContextMenu}constructor(t,e,r,s,i,n,o){function c(h){return h?new b(t,e,r,n,o):new O(e,t,i,r,n,o)}let f=M(s);this.a=c(f),p&&(this.b=s.onDidChangeConfiguration(h=>{if(!h.affectsConfiguration("window.menuStyle"))return;const u=M(s);u!==f&&(this.a.dispose(),this.a=c(u),f=u)}))}dispose(){this.b?.dispose(),this.a.dispose()}showContextMenu(t){this.a.showContextMenu(t)}};d=A([m(0,D),m(1,v),m(2,H),m(3,I),m(4,N),m(5,W),m(6,_)],d);let b=class extends V{constructor(t,e,r,s,i){super(),this.c=t,this.f=e,this.g=r,this.h=s,this.j=i,this.a=this.B.add(new g),this.onDidShowContextMenu=this.a.event,this.b=this.B.add(new g),this.onDidHideContextMenu=this.b.event}showContextMenu(t){t=L.transform(t,this.h,this.j);const e=t.getActions();if(e.length){const r=y(()=>{t.onHide?.(!1),a.$R9.getInstance().resetKeyStatus(),this.b.fire()}),s=this.m(t,e,r),i=t.getAnchor();let n,o,c=S(a.$f9(i)?a.getWindow(i):a.$b9());if(a.$f9(i)){const f=i.getBoundingClientRect(),h={left:f.left,top:f.top,width:f.width,height:f.height},u=a.getWindow(i),$=u.innerWidth,w=u.innerHeight,j=f.left<0||f.top<0||f.right>$||f.bottom>w;c*=a.$T8(i),j?(n=Math.min(Math.max(f.right,0),$),o=Math.min(Math.max(f.bottom,0),w)):t.anchorAxisAlignment===1?(t.anchorAlignment===0?(n=h.left,o=h.top):(n=h.left+h.width,o=h.top),p||a.getWindow(i).screen.height-o<e.length*(F?45:32)&&(o+=h.height)):t.anchorAlignment===0?(n=h.left,o=h.top+h.height):(n=h.left+h.width,o=h.top+h.height),p&&(o+=4/c)}else q(i)&&(n=i.x,o=i.y);typeof n=="number"&&(n=Math.floor(n*c)),typeof o=="number"&&(o=Math.floor(o*c)),E(s,{x:n,y:o,positioningItem:t.autoSelectFirstItem?0:void 0},()=>r()),this.a.fire()}}m(t,e,r,s=new Set){return P(e.map(i=>this.n(t,i,r,s)))}n(t,e,r,s){if(e instanceof k)return{type:"separator"};if(e instanceof R)return s.has(e.id)?void 0:{label:x(C(e.label)).trim(),submenu:this.m(t,e.actions,r,new Set([...s,e.id]))};{let i;e.checked&&(typeof t.getCheckedActionsRepresentation=="function"?i=t.getCheckedActionsRepresentation(e):i="checkbox");const n={label:x(C(e.label)).trim(),checked:!!e.checked,type:i,enabled:!!e.enabled,click:c=>{r(),this.q(e,t,c)}},o=t.getKeyBinding?t.getKeyBinding(e):this.g.lookupKeybinding(e.id);if(o){const c=o.getElectronAccelerator();if(c)n.accelerator=c;else{const f=o.getLabel();f&&(n.label=`${n.label} [${f}]`)}}return n}}async q(t,e,r){e.skipTelemetry||this.f.publicLog2("workbenchActionExecuted",{id:t.id,from:"contextMenu"});const s=e.getActionsContext?e.getActionsContext(r):void 0;try{e.actionRunner?await e.actionRunner.run(t,s):t.enabled&&await t.run(s)}catch(i){this.c.error(i)}}};b=A([m(0,D),m(1,v),m(2,H),m(3,W),m(4,_)],b);K(B,d,1);export{d as $WVc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Separator, SubmenuAction } from "../../../../base/common/actions.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { getZoomFactor } from "../../../../base/browser/browser.js";
+import { unmnemonicLabel } from "../../../../base/common/labels.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+import { popup } from "../../../../base/parts/contextmenu/electron-browser/contextmenu.js";
+import { hasNativeContextMenu } from "../../../../platform/window/common/window.js";
+import { isMacintosh, isWindows } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextMenuMenuDelegate, ContextMenuService as HTMLContextMenuService } from "../../../../platform/contextview/browser/contextMenuService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { stripIcons } from "../../../../base/common/iconLabels.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { isAnchor } from "../../../../base/browser/ui/contextview/contextview.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+let ContextMenuService = class ContextMenuService2 {
+  static {
+    __name(this, "ContextMenuService");
+  }
+  get onDidShowContextMenu() {
+    return this.impl.onDidShowContextMenu;
+  }
+  get onDidHideContextMenu() {
+    return this.impl.onDidHideContextMenu;
+  }
+  constructor(notificationService, telemetryService, keybindingService, configurationService, contextViewService, menuService, contextKeyService) {
+    function createContextMenuService(native) {
+      return native ? new NativeContextMenuService(notificationService, telemetryService, keybindingService, menuService, contextKeyService) : new HTMLContextMenuService(telemetryService, notificationService, contextViewService, keybindingService, menuService, contextKeyService);
+    }
+    __name(createContextMenuService, "createContextMenuService");
+    let isNativeContextMenu = hasNativeContextMenu(configurationService);
+    this.impl = createContextMenuService(isNativeContextMenu);
+    if (isMacintosh) {
+      this.listener = configurationService.onDidChangeConfiguration((e) => {
+        if (!e.affectsConfiguration(
+          "window.menuStyle"
+          /* MenuSettings.MenuStyle */
+        )) {
+          return;
+        }
+        const newIsNativeContextMenu = hasNativeContextMenu(configurationService);
+        if (newIsNativeContextMenu === isNativeContextMenu) {
+          return;
+        }
+        this.impl.dispose();
+        this.impl = createContextMenuService(newIsNativeContextMenu);
+        isNativeContextMenu = newIsNativeContextMenu;
+      });
+    }
+  }
+  dispose() {
+    this.listener?.dispose();
+    this.impl.dispose();
+  }
+  showContextMenu(delegate) {
+    this.impl.showContextMenu(delegate);
+  }
+};
+ContextMenuService = __decorate([
+  __param(0, INotificationService),
+  __param(1, ITelemetryService),
+  __param(2, IKeybindingService),
+  __param(3, IConfigurationService),
+  __param(4, IContextViewService),
+  __param(5, IMenuService),
+  __param(6, IContextKeyService)
+], ContextMenuService);
+let NativeContextMenuService = class NativeContextMenuService2 extends Disposable {
+  static {
+    __name(this, "NativeContextMenuService");
+  }
+  constructor(notificationService, telemetryService, keybindingService, menuService, contextKeyService) {
+    super();
+    this.notificationService = notificationService;
+    this.telemetryService = telemetryService;
+    this.keybindingService = keybindingService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this._onDidShowContextMenu = this._store.add(new Emitter());
+    this.onDidShowContextMenu = this._onDidShowContextMenu.event;
+    this._onDidHideContextMenu = this._store.add(new Emitter());
+    this.onDidHideContextMenu = this._onDidHideContextMenu.event;
+  }
+  showContextMenu(delegate) {
+    delegate = ContextMenuMenuDelegate.transform(delegate, this.menuService, this.contextKeyService);
+    const actions = delegate.getActions();
+    if (actions.length) {
+      const onHide = createSingleCallFunction(() => {
+        delegate.onHide?.(false);
+        dom.ModifierKeyEmitter.getInstance().resetKeyStatus();
+        this._onDidHideContextMenu.fire();
+      });
+      const menu = this.createMenu(delegate, actions, onHide);
+      const anchor = delegate.getAnchor();
+      let x;
+      let y;
+      let zoom = getZoomFactor(dom.isHTMLElement(anchor) ? dom.getWindow(anchor) : dom.getActiveWindow());
+      if (dom.isHTMLElement(anchor)) {
+        const clientRect = anchor.getBoundingClientRect();
+        const elementPosition = { left: clientRect.left, top: clientRect.top, width: clientRect.width, height: clientRect.height };
+        const win = dom.getWindow(anchor);
+        const vw = win.innerWidth;
+        const vh = win.innerHeight;
+        const isClipped = clientRect.left < 0 || clientRect.top < 0 || clientRect.right > vw || clientRect.bottom > vh;
+        zoom *= dom.getDomNodeZoomLevel(anchor);
+        if (isClipped) {
+          x = Math.min(Math.max(clientRect.right, 0), vw);
+          y = Math.min(Math.max(clientRect.bottom, 0), vh);
+        } else {
+          if (delegate.anchorAxisAlignment === 1) {
+            if (delegate.anchorAlignment === 0) {
+              x = elementPosition.left;
+              y = elementPosition.top;
+            } else {
+              x = elementPosition.left + elementPosition.width;
+              y = elementPosition.top;
+            }
+            if (!isMacintosh) {
+              const window = dom.getWindow(anchor);
+              const availableHeightForMenu = window.screen.height - y;
+              if (availableHeightForMenu < actions.length * (isWindows ? 45 : 32)) {
+                y += elementPosition.height;
+              }
+            }
+          } else {
+            if (delegate.anchorAlignment === 0) {
+              x = elementPosition.left;
+              y = elementPosition.top + elementPosition.height;
+            } else {
+              x = elementPosition.left + elementPosition.width;
+              y = elementPosition.top + elementPosition.height;
+            }
+          }
+        }
+        if (isMacintosh) {
+          y += 4 / zoom;
+        }
+      } else if (isAnchor(anchor)) {
+        x = anchor.x;
+        y = anchor.y;
+      } else {
+      }
+      if (typeof x === "number") {
+        x = Math.floor(x * zoom);
+      }
+      if (typeof y === "number") {
+        y = Math.floor(y * zoom);
+      }
+      popup(menu, { x, y, positioningItem: delegate.autoSelectFirstItem ? 0 : void 0 }, () => onHide());
+      this._onDidShowContextMenu.fire();
+    }
+  }
+  createMenu(delegate, entries, onHide, submenuIds = /* @__PURE__ */ new Set()) {
+    return coalesce(entries.map((entry) => this.createMenuItem(delegate, entry, onHide, submenuIds)));
+  }
+  createMenuItem(delegate, entry, onHide, submenuIds) {
+    if (entry instanceof Separator) {
+      return { type: "separator" };
+    }
+    if (entry instanceof SubmenuAction) {
+      if (submenuIds.has(entry.id)) {
+        console.warn(`Found submenu cycle: ${entry.id}`);
+        return void 0;
+      }
+      return {
+        label: unmnemonicLabel(stripIcons(entry.label)).trim(),
+        submenu: this.createMenu(delegate, entry.actions, onHide, /* @__PURE__ */ new Set([...submenuIds, entry.id]))
+      };
+    } else {
+      let type = void 0;
+      if (entry.checked) {
+        if (typeof delegate.getCheckedActionsRepresentation === "function") {
+          type = delegate.getCheckedActionsRepresentation(entry);
+        } else {
+          type = "checkbox";
+        }
+      }
+      const item = {
+        label: unmnemonicLabel(stripIcons(entry.label)).trim(),
+        checked: !!entry.checked,
+        type,
+        enabled: !!entry.enabled,
+        click: /* @__PURE__ */ __name((event) => {
+          onHide();
+          this.runAction(entry, delegate, event);
+        }, "click")
+      };
+      const keybinding = delegate.getKeyBinding ? delegate.getKeyBinding(entry) : this.keybindingService.lookupKeybinding(entry.id);
+      if (keybinding) {
+        const electronAccelerator = keybinding.getElectronAccelerator();
+        if (electronAccelerator) {
+          item.accelerator = electronAccelerator;
+        } else {
+          const label = keybinding.getLabel();
+          if (label) {
+            item.label = `${item.label} [${label}]`;
+          }
+        }
+      }
+      return item;
+    }
+  }
+  async runAction(actionToRun, delegate, event) {
+    if (!delegate.skipTelemetry) {
+      this.telemetryService.publicLog2("workbenchActionExecuted", { id: actionToRun.id, from: "contextMenu" });
+    }
+    const context = delegate.getActionsContext ? delegate.getActionsContext(event) : void 0;
+    try {
+      if (delegate.actionRunner) {
+        await delegate.actionRunner.run(actionToRun, context);
+      } else if (actionToRun.enabled) {
+        await actionToRun.run(context);
+      }
+    } catch (error) {
+      this.notificationService.error(error);
+    }
+  }
+};
+NativeContextMenuService = __decorate([
+  __param(0, INotificationService),
+  __param(1, ITelemetryService),
+  __param(2, IKeybindingService),
+  __param(3, IMenuService),
+  __param(4, IContextKeyService)
+], NativeContextMenuService);
+registerSingleton(
+  IContextMenuService,
+  ContextMenuService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ContextMenuService
+};
+//# sourceMappingURL=contextmenuService.js.map

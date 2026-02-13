@@ -1,2 +1,55 @@
-let i=!1;const p=[{commands:[new RegExp(/^python3? -m pip install(\b)/),new RegExp(/^pip3? install(\b)/)],tags:["python environment"]},{commands:[new RegExp(/^python3? -m jupyter(\b)/),new RegExp(/^python3? -m pip install\b.*jupyter\b.*/),new RegExp(/^pip3? install\b.*jupyter\b.*/),new RegExp(/^jupyter(\b)/)],tags:["python environment","jupyter environment"]}];function u(o,r){const s=r.getTools(void 0);if(!s||i)return;const t=new Set,a=[`The terminal command '${o}' was not executed.`,"Try using some of the following tools instead of running a Terminal Command (if unable to use one of these tools as an alternative then run the same terminal command again):"];for(const n of p){if(!n.commands.some(e=>e.test(o)))continue;const m=n.tags;Array.from(s).filter(e=>m.some(l=>e.tags?.includes(l))).forEach(e=>{t.add(e.id)})}if(t.forEach(n=>{a.push(`- ${n}`)}),t.size)return i=!0,a.join(`  
-`)}export{u as $BCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+let previouslyRecommededInSession = false;
+const terminalCommands = [
+  {
+    commands: [
+      new RegExp(/^python3? -m pip install(\b)/),
+      new RegExp(/^pip3? install(\b)/)
+    ],
+    tags: ["python environment"]
+  },
+  {
+    commands: [
+      new RegExp(/^python3? -m jupyter(\b)/),
+      new RegExp(/^python3? -m pip install\b.*jupyter\b.*/),
+      new RegExp(/^pip3? install\b.*jupyter\b.*/),
+      new RegExp(/^jupyter(\b)/)
+      // jupyter lab, jupyer notebook, jupyter nbconvert, etc.
+    ],
+    tags: ["python environment", "jupyter environment"]
+  }
+];
+function getRecommendedToolsOverRunInTerminal(commandLine, languageModelToolsService) {
+  const tools = languageModelToolsService.getTools(void 0);
+  if (!tools || previouslyRecommededInSession) {
+    return;
+  }
+  const recommendedTools = /* @__PURE__ */ new Set();
+  const messages = [
+    `The terminal command '${commandLine}' was not executed.`,
+    `Try using some of the following tools instead of running a Terminal Command (if unable to use one of these tools as an alternative then run the same terminal command again):`
+  ];
+  for (const terminalCommand of terminalCommands) {
+    if (!terminalCommand.commands.some((condition) => condition.test(commandLine))) {
+      continue;
+    }
+    const tagsToSearchFor = terminalCommand.tags;
+    Array.from(tools).filter((t) => tagsToSearchFor.some((tag) => t.tags?.includes(tag))).forEach((tool) => {
+      recommendedTools.add(tool.id);
+    });
+  }
+  recommendedTools.forEach((toolName) => {
+    messages.push(`- ${toolName}`);
+  });
+  if (recommendedTools.size) {
+    previouslyRecommededInSession = true;
+    return messages.join("  \n");
+  }
+  return void 0;
+}
+__name(getRecommendedToolsOverRunInTerminal, "getRecommendedToolsOverRunInTerminal");
+export {
+  getRecommendedToolsOverRunInTerminal
+};
+//# sourceMappingURL=alternativeRecommendation.js.map

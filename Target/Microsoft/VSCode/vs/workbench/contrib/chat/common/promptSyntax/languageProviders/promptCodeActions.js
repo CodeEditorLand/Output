@@ -1,1 +1,155 @@
-import{$_D as d}from"../../../../../../editor/common/core/range.js";import{localize as f}from"../../../../../../nls.js";import{$bU as T}from"../../tools/languageModelToolsService.js";import{$mT as P,PromptsType as w}from"../promptTypes.js";import{$VT as L}from"../service/promptsService.js";import{PromptHeaderAttributes as N}from"../promptFileParser.js";import{$Rf as j}from"../../../../../../base/common/lazy.js";import{$xT as F}from"../config/promptFileLocations.js";import{$vk as I}from"../../../../../../platform/files/common/files.js";import{$Mmc as S,$Gmc as z}from"./promptValidator.js";import{$iF as D}from"../../../../../../platform/markers/common/markers.js";import{$wlb as V}from"../../../../../../editor/contrib/codeAction/common/types.js";var _=function(o,e,n,t){var i=arguments.length,r=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,n,t);else for(var c=o.length-1;c>=0;c--)(s=o[c])&&(r=(i<3?s(r):i>3?s(e,n,r):s(e,n))||r);return i>3&&r&&Object.defineProperty(e,n,r),r},l=function(o,e){return function(n,t){e(n,t,o)}};let $=class{constructor(e,n,t,i){this.c=e,this.d=n,this.e=t,this.f=i,this._debugDisplayName="PromptCodeActionProvider"}async provideCodeActions(e,n,t,i){const r=P(e.getLanguageId());if(!r||r===w.instructions)return;const s=[],c=this.c.getParsedPromptFile(e);switch(r){case w.agent:this.k(c,r,e,n,s),await this.j(e,s);break;case w.prompt:this.i(c,e,n,s),this.k(c,r,e,n,s);break}if(s.length!==0)return{actions:s,dispose:()=>{}}}g(e,n){return this.f.read({resource:e.uri,owner:z}).filter(i=>n.containsRange(i))}h(e,n,t,i){return{title:t,edit:{edits:i},ranges:[n],diagnostics:this.g(e,n),kind:V.QuickFix.value}}i(e,n,t,i){const r=e.header?.getAttribute(N.mode);if(!r?.range.containsRange(t))return;const s=new d(r.range.startLineNumber,r.range.startColumn,r.range.startLineNumber,r.range.startColumn+r.key.length);i.push(this.h(n,s,f(6970,null),[v(n,{range:s,text:"agent"})]))}async j(e,n){if(e.uri.path.endsWith(F)){const t=this.c.getAgentFileURIFromModeFile(e.uri);if(t&&await this.e.canMove(e.uri,t)){const i={oldResource:e.uri,newResource:t,options:{overwrite:!1,copy:!1}};n.push(this.h(e,new d(1,1,1,4),f(6971,null),[i]))}}}k(e,n,t,i,r){const s=e.header?.getAttribute(N.tools);if(s?.value.type!=="array"||!s.value.range.containsRange(i)||S(n,e.header?.target))return;const c=s.value.items,A=new j(()=>this.d.getDeprecatedFullReferenceNames()),p=[];for(const a of c){if(a.type!=="string")continue;const m=A.value.get(a.value);if(m&&m.size>0){const u=t.getValueInRange(new d(a.range.startLineNumber,a.range.startColumn,a.range.endLineNumber,a.range.startColumn+1));if(m.size===1){const g=Array.from(m)[0],R=u==="'"||u==='"'?u+g+u:g,b={range:a.range,text:R};p.push(b),a.range.containsRange(i)&&r.push(this.h(t,a.range,f(6972,null,g),[v(t,b)]))}else{const g=Array.from(m).sort((h,x)=>h.localeCompare(x)),C=t.getValueInRange(new d(a.range.startLineNumber,a.range.endColumn,a.range.endLineNumber,a.range.endColumn+2)).includes(",")?", ":",",k=g.map(h=>u==="'"||u==='"'?u+h+u:h).join(C),y={range:a.range,text:k};p.push(y),a.range.containsRange(i)&&r.push(this.h(t,a.range,f(6973,null,m.size),[v(t,y)]))}}}(p.length&&r.length===0||p.length>1)&&r.push(this.h(t,s.value.range,f(6974,null),p.map(a=>v(t,a))))}};$=_([l(0,L),l(1,T),l(2,I),l(3,D)],$);function v(o,e){return{versionId:o.getVersionId(),resource:o.uri,textEdit:e}}export{$ as $Smc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { localize } from "../../../../../../nls.js";
+import { ILanguageModelToolsService } from "../../tools/languageModelToolsService.js";
+import { getPromptsTypeForLanguageId, PromptsType } from "../promptTypes.js";
+import { IPromptsService } from "../service/promptsService.js";
+import { PromptHeaderAttributes } from "../promptFileParser.js";
+import { Lazy } from "../../../../../../base/common/lazy.js";
+import { LEGACY_MODE_FILE_EXTENSION } from "../config/promptFileLocations.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { isGithubTarget, MARKERS_OWNER_ID } from "./promptValidator.js";
+import { IMarkerService } from "../../../../../../platform/markers/common/markers.js";
+import { CodeActionKind } from "../../../../../../editor/contrib/codeAction/common/types.js";
+let PromptCodeActionProvider = class PromptCodeActionProvider2 {
+  static {
+    __name(this, "PromptCodeActionProvider");
+  }
+  constructor(promptsService, languageModelToolsService, fileService, markerService) {
+    this.promptsService = promptsService;
+    this.languageModelToolsService = languageModelToolsService;
+    this.fileService = fileService;
+    this.markerService = markerService;
+    this._debugDisplayName = "PromptCodeActionProvider";
+  }
+  async provideCodeActions(model, range, context, token) {
+    const promptType = getPromptsTypeForLanguageId(model.getLanguageId());
+    if (!promptType || promptType === PromptsType.instructions) {
+      return void 0;
+    }
+    const result = [];
+    const promptAST = this.promptsService.getParsedPromptFile(model);
+    switch (promptType) {
+      case PromptsType.agent:
+        this.getUpdateToolsCodeActions(promptAST, promptType, model, range, result);
+        await this.getMigrateModeFileCodeActions(model, result);
+        break;
+      case PromptsType.prompt:
+        this.getUpdateModeCodeActions(promptAST, model, range, result);
+        this.getUpdateToolsCodeActions(promptAST, promptType, model, range, result);
+        break;
+    }
+    if (result.length === 0) {
+      return void 0;
+    }
+    return {
+      actions: result,
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+  getMarkers(model, range) {
+    const markers = this.markerService.read({ resource: model.uri, owner: MARKERS_OWNER_ID });
+    return markers.filter((marker) => range.containsRange(marker));
+  }
+  createCodeAction(model, range, title, edits) {
+    return {
+      title,
+      edit: { edits },
+      ranges: [range],
+      diagnostics: this.getMarkers(model, range),
+      kind: CodeActionKind.QuickFix.value
+    };
+  }
+  getUpdateModeCodeActions(promptFile, model, range, result) {
+    const modeAttr = promptFile.header?.getAttribute(PromptHeaderAttributes.mode);
+    if (!modeAttr?.range.containsRange(range)) {
+      return;
+    }
+    const keyRange = new Range(modeAttr.range.startLineNumber, modeAttr.range.startColumn, modeAttr.range.startLineNumber, modeAttr.range.startColumn + modeAttr.key.length);
+    result.push(this.createCodeAction(model, keyRange, localize("renameToAgent", "Rename to 'agent'"), [asWorkspaceTextEdit(model, { range: keyRange, text: "agent" })]));
+  }
+  async getMigrateModeFileCodeActions(model, result) {
+    if (model.uri.path.endsWith(LEGACY_MODE_FILE_EXTENSION)) {
+      const location = this.promptsService.getAgentFileURIFromModeFile(model.uri);
+      if (location && await this.fileService.canMove(model.uri, location)) {
+        const edit = { oldResource: model.uri, newResource: location, options: { overwrite: false, copy: false } };
+        result.push(this.createCodeAction(model, new Range(1, 1, 1, 4), localize("migrateToAgent", "Migrate to custom agent file"), [edit]));
+      }
+    }
+  }
+  getUpdateToolsCodeActions(promptFile, promptType, model, range, result) {
+    const toolsAttr = promptFile.header?.getAttribute(PromptHeaderAttributes.tools);
+    if (toolsAttr?.value.type !== "array" || !toolsAttr.value.range.containsRange(range)) {
+      return;
+    }
+    if (isGithubTarget(promptType, promptFile.header?.target)) {
+      return;
+    }
+    const values = toolsAttr.value.items;
+    const deprecatedNames = new Lazy(() => this.languageModelToolsService.getDeprecatedFullReferenceNames());
+    const edits = [];
+    for (const item of values) {
+      if (item.type !== "string") {
+        continue;
+      }
+      const newNames = deprecatedNames.value.get(item.value);
+      if (newNames && newNames.size > 0) {
+        const quote = model.getValueInRange(new Range(item.range.startLineNumber, item.range.startColumn, item.range.endLineNumber, item.range.startColumn + 1));
+        if (newNames.size === 1) {
+          const newName = Array.from(newNames)[0];
+          const text = quote === `'` || quote === '"' ? quote + newName + quote : newName;
+          const edit = { range: item.range, text };
+          edits.push(edit);
+          if (item.range.containsRange(range)) {
+            result.push(this.createCodeAction(model, item.range, localize("updateToolName", "Update to '{0}'", newName), [asWorkspaceTextEdit(model, edit)]));
+          }
+        } else {
+          const newNamesArray = Array.from(newNames).sort((a, b) => a.localeCompare(b));
+          const separator = model.getValueInRange(new Range(item.range.startLineNumber, item.range.endColumn, item.range.endLineNumber, item.range.endColumn + 2));
+          const useCommaSpace = separator.includes(",");
+          const delimiterText = useCommaSpace ? ", " : ",";
+          const newNamesText = newNamesArray.map((name) => quote === `'` || quote === '"' ? quote + name + quote : name).join(delimiterText);
+          const edit = { range: item.range, text: newNamesText };
+          edits.push(edit);
+          if (item.range.containsRange(range)) {
+            result.push(this.createCodeAction(model, item.range, localize("expandToolNames", "Expand to {0} tools", newNames.size), [asWorkspaceTextEdit(model, edit)]));
+          }
+        }
+      }
+    }
+    if (edits.length && result.length === 0 || edits.length > 1) {
+      result.push(this.createCodeAction(model, toolsAttr.value.range, localize("updateAllToolNames", "Update all tool names"), edits.map((edit) => asWorkspaceTextEdit(model, edit))));
+    }
+  }
+};
+PromptCodeActionProvider = __decorate([
+  __param(0, IPromptsService),
+  __param(1, ILanguageModelToolsService),
+  __param(2, IFileService),
+  __param(3, IMarkerService)
+], PromptCodeActionProvider);
+function asWorkspaceTextEdit(model, textEdit) {
+  return {
+    versionId: model.getVersionId(),
+    resource: model.uri,
+    textEdit
+  };
+}
+__name(asWorkspaceTextEdit, "asWorkspaceTextEdit");
+export {
+  PromptCodeActionProvider
+};
+//# sourceMappingURL=promptCodeActions.js.map

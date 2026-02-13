@@ -1,8 +1,340 @@
-import{$$h as A,$ji as O}from"../../../../../../base/common/async.js";import{$Ed as p,$zd as j,$Fd as V}from"../../../../../../base/common/lifecycle.js";import{$A as q}from"../../../../../../base/common/platform.js";import{localize as u}from"../../../../../../nls.js";import{$0l as X}from"../../../../../../platform/configuration/common/configuration.js";import{$Mj as R}from"../../../../../../platform/instantiation/common/instantiation.js";import{$ru as M}from"../../../../../../platform/theme/common/themeService.js";import{ThemeIcon as U}from"../../../../../../base/common/themables.js";import{$Clc as z}from"./notebookVisibleCellObserver.js";import{$SGb as v}from"../../notebookEditorExtensions.js";import{$gOb as H,$eOb as L}from"../../notebookEditorWidget.js";import{$5Ib as J,$7Ib as w,$6Ib as Q,$4Ib as K}from"../../notebookIcons.js";import{NotebookCellExecutionState as m,$xQ as I}from"../../../common/notebookCommon.js";import{$XP as B,NotebookExecutionType as W}from"../../../common/notebookExecutionStateService.js";import{$CDb as Y}from"../../../common/notebookService.js";var x=function(r,t,i,e){var s=arguments.length,n=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,i,e);else for(var a=r.length-1;a>=0;a--)(o=r[a])&&(n=(s<3?o(n):s>3?o(t,i,n):o(t,i))||n);return s>3&&n&&Object.defineProperty(t,i,n),n},f=function(r,t){return function(i,e){t(i,e,r)}},D,C;function c(r,t=!0){if(t&&r<1e3)return`${r}ms`;const i=Math.floor(r/1e3/60),e=Math.floor(r/1e3)%60,s=Math.floor(r%1e3/100);return i>0?`${i}m ${e}.${s}s`:`${e}.${s}s`}class N extends p{constructor(t,i){super(),this.c=t,this.f=i,this.a=new Map,this.b=this.D(new z(this.c)),this.D(this.b.onDidChangeVisibleCells(this.h,this)),this.g()}g(){this.a.forEach(j),this.a.clear(),this.h({added:this.b.visibleCells,removed:[]})}h(t){const i=this.c.getViewModel();if(i){for(const e of t.removed)this.a.get(e.handle)?.dispose(),this.a.delete(e.handle);for(const e of t.added)this.a.set(e.handle,this.f(i,e))}}dispose(){super.dispose(),this.a.forEach(j),this.a.clear()}}let b=class extends p{static{this.id="workbench.notebook.statusBar.execState"}constructor(t,i){super(),this.D(new N(t,(e,s)=>i.createInstance(T,e,s)))}};b=x([f(1,R)],b);v(b.id,b);let T=class extends p{static{D=this}static{this.a=500}constructor(t,i,e){super(),this.g=t,this.h=i,this.j=e,this.b=[],this.f=this.D(new V),this.m(),this.D(this.j.onDidChangeExecution(s=>{s.type===W.cell&&s.affectsCell(this.h.uri)&&this.m()})),this.D(this.h.model.onDidChangeInternalMetadata(()=>this.m()))}async m(){const t=this.n();Array.isArray(t)&&(this.b=this.g.deltaCellStatusBarItems(this.b,[{handle:this.h.handle,items:t}]))}n(){const t=this.j.getCellExecution(this.h.uri);if(t?.state===m.Executing&&typeof this.c!="number")this.c=Date.now();else if(t?.state!==m.Executing&&typeof this.c=="number"){const e=D.a-(Date.now()-this.c);if(e>0){this.f.value||(this.f.value=A(()=>{this.c=void 0,this.f.clear(),this.m()},e));return}else this.c=void 0}return this.q(t,this.h.internalMetadata)}q(t,i){const e=t?.state,{lastRunSuccess:s}=i;return!e&&s?[{text:`$(${K.id})`,color:M(L),tooltip:u(10706,null),alignment:1,priority:Number.MAX_SAFE_INTEGER}]:!e&&s===!1?[{text:`$(${J.id})`,color:M(H),tooltip:u(10707,null),alignment:1,priority:Number.MAX_SAFE_INTEGER}]:e===m.Pending||e===m.Unconfirmed?[{text:`$(${Q.id})`,tooltip:u(10708,null),alignment:1,priority:Number.MAX_SAFE_INTEGER}]:e===m.Executing?[{text:`$(${(t?.didPause?w:U.modify(w,"spin")).id})`,tooltip:u(10709,null),alignment:1,priority:Number.MAX_SAFE_INTEGER}]:[]}dispose(){super.dispose(),this.g.deltaCellStatusBarItems(this.b,[{handle:this.h.handle,items:[]}])}};T=D=x([f(2,B)],T);let $=class extends p{static{this.id="workbench.notebook.statusBar.execTimer"}constructor(t,i){super(),this.D(new N(t,(e,s)=>i.createInstance(S,e,s)))}};$=x([f(1,R)],$);v($.id,$);const Z=200;let S=class extends p{static{C=this}static{this.a=100}constructor(t,i,e,s,n){super(),this.h=t,this.j=i,this.m=e,this.n=s,this.q=n,this.b=[],this.g=this.q.getValue(I.cellExecutionTimeVerbosity)==="verbose",this.c=this.D(new O(()=>this.r(),C.a)),this.r(),this.D(this.j.model.onDidChangeInternalMetadata(()=>this.r())),this.D(this.q.onDidChangeConfiguration(o=>{o.affectsConfiguration(I.cellExecutionTimeVerbosity)&&(this.g=this.q.getValue(I.cellExecutionTimeVerbosity)==="verbose",this.r())}))}async r(){let t;const i=this.m.getCellExecution(this.j.uri),e=i?.state,s=this.j.internalMetadata.runStartTime,n=this.j.internalMetadata.runStartTimeAdjustment??0,o=this.j.internalMetadata.runEndTime;if(i?.didPause)t=void 0;else if(e===m.Executing)typeof s=="number"&&(t=this.s(s,Date.now(),n),this.c.schedule());else if(!e&&typeof s=="number"&&typeof o=="number"){const y=Date.now()-s+n,l=o-s,d=this.j.internalMetadata.renderDuration??{};t=this.s(s,o,void 0,{timerDuration:y,executionDuration:l,renderDuration:d})}const a=t?[t]:[];!a.length&&i?this.f||(this.f=A(()=>{this.f=void 0,this.b=this.h.deltaCellStatusBarItems(this.b,[{handle:this.j.handle,items:a}])},Z,this.B)):(this.f?.dispose(),this.f=void 0,this.b=this.h.deltaCellStatusBarItems(this.b,[{handle:this.j.handle,items:a}]))}s(t,i,e=0,s){const n=i-t+e;let o;const a=new Date(i).toLocaleTimeString(q);if(s){const{renderDuration:l,executionDuration:d,timerDuration:G}=s;let E="";for(const h in l){const g=this.n.getRendererInfo(h),P=encodeURIComponent(JSON.stringify({extensionId:g?.extensionId.value??"",issueBody:`Auto-generated text from notebook cell performance - Please add an explanation for the performance issue, including cell content if possible.
-The duration for the renderer, ${g?.displayName??h}, is slower than expected.
-Execution Time: ${c(d)}
-Renderer Duration: ${c(l[h])}
-`})),k=l[h]>200&&d<2e3||l[h]>1e3,_=g?.displayName??h,F=k?`[${_}](command:workbench.action.openIssueReporter?${P})`:`**${_}**`;E+=`- ${F} ${c(l[h])}
-`}E+=`
-*${u(10710,null)}*
-`,o={value:u(10711,null,a,c(d),c(G-d),E),isTrusted:!0}}return{text:this.g?u(10712,null,a,c(n,!1)):c(n,!1),alignment:1,priority:Number.MAX_SAFE_INTEGER-5,tooltip:o}}dispose(){super.dispose(),this.f?.dispose(),this.h.deltaCellStatusBarItems(this.b,[{handle:this.j.handle,items:[]}])}};S=C=x([f(2,B),f(3,Y),f(4,X)],S);export{c as $Elc,N as $Flc,b as $Glc,$ as $Hlc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ExecutionStateCellStatusBarItem_1, TimerCellStatusBarItem_1;
+import { disposableTimeout, RunOnceScheduler } from "../../../../../../base/common/async.js";
+import { Disposable, dispose, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { language } from "../../../../../../base/common/platform.js";
+import { localize } from "../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { themeColorFromId } from "../../../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { NotebookVisibleCellObserver } from "./notebookVisibleCellObserver.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { cellStatusIconError, cellStatusIconSuccess } from "../../notebookEditorWidget.js";
+import { errorStateIcon, executingStateIcon, pendingStateIcon, successStateIcon } from "../../notebookIcons.js";
+import { NotebookCellExecutionState, NotebookSetting } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
+import { INotebookService } from "../../../common/notebookService.js";
+function formatCellDuration(duration, showMilliseconds = true) {
+  if (showMilliseconds && duration < 1e3) {
+    return `${duration}ms`;
+  }
+  const minutes = Math.floor(duration / 1e3 / 60);
+  const seconds = Math.floor(duration / 1e3) % 60;
+  const tenths = Math.floor(duration % 1e3 / 100);
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}.${tenths}s`;
+  } else {
+    return `${seconds}.${tenths}s`;
+  }
+}
+__name(formatCellDuration, "formatCellDuration");
+class NotebookStatusBarController extends Disposable {
+  static {
+    __name(this, "NotebookStatusBarController");
+  }
+  constructor(_notebookEditor, _itemFactory) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._itemFactory = _itemFactory;
+    this._visibleCells = /* @__PURE__ */ new Map();
+    this._observer = this._register(new NotebookVisibleCellObserver(this._notebookEditor));
+    this._register(this._observer.onDidChangeVisibleCells(this._updateVisibleCells, this));
+    this._updateEverything();
+  }
+  _updateEverything() {
+    this._visibleCells.forEach(dispose);
+    this._visibleCells.clear();
+    this._updateVisibleCells({ added: this._observer.visibleCells, removed: [] });
+  }
+  _updateVisibleCells(e) {
+    const vm = this._notebookEditor.getViewModel();
+    if (!vm) {
+      return;
+    }
+    for (const oldCell of e.removed) {
+      this._visibleCells.get(oldCell.handle)?.dispose();
+      this._visibleCells.delete(oldCell.handle);
+    }
+    for (const newCell of e.added) {
+      this._visibleCells.set(newCell.handle, this._itemFactory(vm, newCell));
+    }
+  }
+  dispose() {
+    super.dispose();
+    this._visibleCells.forEach(dispose);
+    this._visibleCells.clear();
+  }
+}
+let ExecutionStateCellStatusBarContrib = class ExecutionStateCellStatusBarContrib2 extends Disposable {
+  static {
+    __name(this, "ExecutionStateCellStatusBarContrib");
+  }
+  static {
+    this.id = "workbench.notebook.statusBar.execState";
+  }
+  constructor(notebookEditor, instantiationService) {
+    super();
+    this._register(new NotebookStatusBarController(notebookEditor, (vm, cell) => instantiationService.createInstance(ExecutionStateCellStatusBarItem, vm, cell)));
+  }
+};
+ExecutionStateCellStatusBarContrib = __decorate([
+  __param(1, IInstantiationService)
+], ExecutionStateCellStatusBarContrib);
+registerNotebookContribution(ExecutionStateCellStatusBarContrib.id, ExecutionStateCellStatusBarContrib);
+let ExecutionStateCellStatusBarItem = class ExecutionStateCellStatusBarItem2 extends Disposable {
+  static {
+    __name(this, "ExecutionStateCellStatusBarItem");
+  }
+  static {
+    ExecutionStateCellStatusBarItem_1 = this;
+  }
+  static {
+    this.MIN_SPINNER_TIME = 500;
+  }
+  constructor(_notebookViewModel, _cell, _executionStateService) {
+    super();
+    this._notebookViewModel = _notebookViewModel;
+    this._cell = _cell;
+    this._executionStateService = _executionStateService;
+    this._currentItemIds = [];
+    this._clearExecutingStateTimer = this._register(new MutableDisposable());
+    this._update();
+    this._register(this._executionStateService.onDidChangeExecution((e) => {
+      if (e.type === NotebookExecutionType.cell && e.affectsCell(this._cell.uri)) {
+        this._update();
+      }
+    }));
+    this._register(this._cell.model.onDidChangeInternalMetadata(() => this._update()));
+  }
+  async _update() {
+    const items = this._getItemsForCell();
+    if (Array.isArray(items)) {
+      this._currentItemIds = this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this._cell.handle, items }]);
+    }
+  }
+  /**
+   *	Returns undefined if there should be no change, and an empty array if all items should be removed.
+   */
+  _getItemsForCell() {
+    const runState = this._executionStateService.getCellExecution(this._cell.uri);
+    if (runState?.state === NotebookCellExecutionState.Executing && typeof this._showedExecutingStateTime !== "number") {
+      this._showedExecutingStateTime = Date.now();
+    } else if (runState?.state !== NotebookCellExecutionState.Executing && typeof this._showedExecutingStateTime === "number") {
+      const timeUntilMin = ExecutionStateCellStatusBarItem_1.MIN_SPINNER_TIME - (Date.now() - this._showedExecutingStateTime);
+      if (timeUntilMin > 0) {
+        if (!this._clearExecutingStateTimer.value) {
+          this._clearExecutingStateTimer.value = disposableTimeout(() => {
+            this._showedExecutingStateTime = void 0;
+            this._clearExecutingStateTimer.clear();
+            this._update();
+          }, timeUntilMin);
+        }
+        return void 0;
+      } else {
+        this._showedExecutingStateTime = void 0;
+      }
+    }
+    const items = this._getItemForState(runState, this._cell.internalMetadata);
+    return items;
+  }
+  _getItemForState(runState, internalMetadata) {
+    const state = runState?.state;
+    const { lastRunSuccess } = internalMetadata;
+    if (!state && lastRunSuccess) {
+      return [{
+        text: `$(${successStateIcon.id})`,
+        color: themeColorFromId(cellStatusIconSuccess),
+        tooltip: localize("notebook.cell.status.success", "Success"),
+        alignment: 1,
+        priority: Number.MAX_SAFE_INTEGER
+      }];
+    } else if (!state && lastRunSuccess === false) {
+      return [{
+        text: `$(${errorStateIcon.id})`,
+        color: themeColorFromId(cellStatusIconError),
+        tooltip: localize("notebook.cell.status.failed", "Failed"),
+        alignment: 1,
+        priority: Number.MAX_SAFE_INTEGER
+      }];
+    } else if (state === NotebookCellExecutionState.Pending || state === NotebookCellExecutionState.Unconfirmed) {
+      return [{
+        text: `$(${pendingStateIcon.id})`,
+        tooltip: localize("notebook.cell.status.pending", "Pending"),
+        alignment: 1,
+        priority: Number.MAX_SAFE_INTEGER
+      }];
+    } else if (state === NotebookCellExecutionState.Executing) {
+      const icon = runState?.didPause ? executingStateIcon : ThemeIcon.modify(executingStateIcon, "spin");
+      return [{
+        text: `$(${icon.id})`,
+        tooltip: localize("notebook.cell.status.executing", "Executing"),
+        alignment: 1,
+        priority: Number.MAX_SAFE_INTEGER
+      }];
+    }
+    return [];
+  }
+  dispose() {
+    super.dispose();
+    this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this._cell.handle, items: [] }]);
+  }
+};
+ExecutionStateCellStatusBarItem = ExecutionStateCellStatusBarItem_1 = __decorate([
+  __param(2, INotebookExecutionStateService)
+], ExecutionStateCellStatusBarItem);
+let TimerCellStatusBarContrib = class TimerCellStatusBarContrib2 extends Disposable {
+  static {
+    __name(this, "TimerCellStatusBarContrib");
+  }
+  static {
+    this.id = "workbench.notebook.statusBar.execTimer";
+  }
+  constructor(notebookEditor, instantiationService) {
+    super();
+    this._register(new NotebookStatusBarController(notebookEditor, (vm, cell) => instantiationService.createInstance(TimerCellStatusBarItem, vm, cell)));
+  }
+};
+TimerCellStatusBarContrib = __decorate([
+  __param(1, IInstantiationService)
+], TimerCellStatusBarContrib);
+registerNotebookContribution(TimerCellStatusBarContrib.id, TimerCellStatusBarContrib);
+const UPDATE_TIMER_GRACE_PERIOD = 200;
+let TimerCellStatusBarItem = class TimerCellStatusBarItem2 extends Disposable {
+  static {
+    __name(this, "TimerCellStatusBarItem");
+  }
+  static {
+    TimerCellStatusBarItem_1 = this;
+  }
+  static {
+    this.UPDATE_INTERVAL = 100;
+  }
+  constructor(_notebookViewModel, _cell, _executionStateService, _notebookService, _configurationService) {
+    super();
+    this._notebookViewModel = _notebookViewModel;
+    this._cell = _cell;
+    this._executionStateService = _executionStateService;
+    this._notebookService = _notebookService;
+    this._configurationService = _configurationService;
+    this._currentItemIds = [];
+    this._isVerbose = this._configurationService.getValue(NotebookSetting.cellExecutionTimeVerbosity) === "verbose";
+    this._scheduler = this._register(new RunOnceScheduler(() => this._update(), TimerCellStatusBarItem_1.UPDATE_INTERVAL));
+    this._update();
+    this._register(this._cell.model.onDidChangeInternalMetadata(() => this._update()));
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(NotebookSetting.cellExecutionTimeVerbosity)) {
+        this._isVerbose = this._configurationService.getValue(NotebookSetting.cellExecutionTimeVerbosity) === "verbose";
+        this._update();
+      }
+    }));
+  }
+  async _update() {
+    let timerItem;
+    const runState = this._executionStateService.getCellExecution(this._cell.uri);
+    const state = runState?.state;
+    const startTime = this._cell.internalMetadata.runStartTime;
+    const adjustment = this._cell.internalMetadata.runStartTimeAdjustment ?? 0;
+    const endTime = this._cell.internalMetadata.runEndTime;
+    if (runState?.didPause) {
+      timerItem = void 0;
+    } else if (state === NotebookCellExecutionState.Executing) {
+      if (typeof startTime === "number") {
+        timerItem = this._getTimeItem(startTime, Date.now(), adjustment);
+        this._scheduler.schedule();
+      }
+    } else if (!state) {
+      if (typeof startTime === "number" && typeof endTime === "number") {
+        const timerDuration = Date.now() - startTime + adjustment;
+        const executionDuration = endTime - startTime;
+        const renderDuration = this._cell.internalMetadata.renderDuration ?? {};
+        timerItem = this._getTimeItem(startTime, endTime, void 0, {
+          timerDuration,
+          executionDuration,
+          renderDuration
+        });
+      }
+    }
+    const items = timerItem ? [timerItem] : [];
+    if (!items.length && !!runState) {
+      if (!this._deferredUpdate) {
+        this._deferredUpdate = disposableTimeout(() => {
+          this._deferredUpdate = void 0;
+          this._currentItemIds = this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this._cell.handle, items }]);
+        }, UPDATE_TIMER_GRACE_PERIOD, this._store);
+      }
+    } else {
+      this._deferredUpdate?.dispose();
+      this._deferredUpdate = void 0;
+      this._currentItemIds = this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this._cell.handle, items }]);
+    }
+  }
+  _getTimeItem(startTime, endTime, adjustment = 0, runtimeInformation) {
+    const duration = endTime - startTime + adjustment;
+    let tooltip;
+    const lastExecution = new Date(endTime).toLocaleTimeString(language);
+    if (runtimeInformation) {
+      const { renderDuration, executionDuration, timerDuration } = runtimeInformation;
+      let renderTimes = "";
+      for (const key in renderDuration) {
+        const rendererInfo = this._notebookService.getRendererInfo(key);
+        const args = encodeURIComponent(JSON.stringify({
+          extensionId: rendererInfo?.extensionId.value ?? "",
+          issueBody: `Auto-generated text from notebook cell performance - Please add an explanation for the performance issue, including cell content if possible.
+The duration for the renderer, ${rendererInfo?.displayName ?? key}, is slower than expected.
+Execution Time: ${formatCellDuration(executionDuration)}
+Renderer Duration: ${formatCellDuration(renderDuration[key])}
+`
+        }));
+        const renderIssueLink = renderDuration[key] > 200 && executionDuration < 2e3 || renderDuration[key] > 1e3;
+        const linkText = rendererInfo?.displayName ?? key;
+        const rendererTitle = renderIssueLink ? `[${linkText}](command:workbench.action.openIssueReporter?${args})` : `**${linkText}**`;
+        renderTimes += `- ${rendererTitle} ${formatCellDuration(renderDuration[key])}
+`;
+      }
+      renderTimes += `
+*${localize("notebook.cell.statusBar.timerTooltip.reportIssueFootnote", "Use the links above to file an issue using the issue reporter.")}*
+`;
+      tooltip = {
+        value: localize("notebook.cell.statusBar.timerTooltip", "**Last Execution** {0}\n\n**Execution Time** {1}\n\n**Overhead Time** {2}\n\n**Render Times**\n\n{3}", lastExecution, formatCellDuration(executionDuration), formatCellDuration(timerDuration - executionDuration), renderTimes),
+        isTrusted: true
+      };
+    }
+    const executionText = this._isVerbose ? localize("notebook.cell.statusBar.timerVerbose", "Last Execution: {0}, Duration: {1}", lastExecution, formatCellDuration(duration, false)) : formatCellDuration(duration, false);
+    return {
+      text: executionText,
+      alignment: 1,
+      priority: Number.MAX_SAFE_INTEGER - 5,
+      tooltip
+    };
+  }
+  dispose() {
+    super.dispose();
+    this._deferredUpdate?.dispose();
+    this._notebookViewModel.deltaCellStatusBarItems(this._currentItemIds, [{ handle: this._cell.handle, items: [] }]);
+  }
+};
+TimerCellStatusBarItem = TimerCellStatusBarItem_1 = __decorate([
+  __param(2, INotebookExecutionStateService),
+  __param(3, INotebookService),
+  __param(4, IConfigurationService)
+], TimerCellStatusBarItem);
+export {
+  ExecutionStateCellStatusBarContrib,
+  NotebookStatusBarController,
+  TimerCellStatusBarContrib,
+  formatCellDuration
+};
+//# sourceMappingURL=executionStatusBarItemController.js.map

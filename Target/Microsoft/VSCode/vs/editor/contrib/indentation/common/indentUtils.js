@@ -1,1 +1,35 @@
-function i(t,f){let o=0;for(let r=0;r<t.length;r++)t.charAt(r)==="	"?o+=f:o++;return o}function u(t,f,o){t=t<0?0:t;let r="";if(!o){const l=Math.floor(t/f);t=t%f;for(let e=0;e<l;e++)r+="	"}for(let l=0;l<t;l++)r+=" ";return r}export{i as $eqb,u as $fqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function getSpaceCnt(str, tabSize) {
+  let spacesCnt = 0;
+  for (let i = 0; i < str.length; i++) {
+    if (str.charAt(i) === "	") {
+      spacesCnt += tabSize;
+    } else {
+      spacesCnt++;
+    }
+  }
+  return spacesCnt;
+}
+__name(getSpaceCnt, "getSpaceCnt");
+function generateIndent(spacesCnt, tabSize, insertSpaces) {
+  spacesCnt = spacesCnt < 0 ? 0 : spacesCnt;
+  let result = "";
+  if (!insertSpaces) {
+    const tabsCnt = Math.floor(spacesCnt / tabSize);
+    spacesCnt = spacesCnt % tabSize;
+    for (let i = 0; i < tabsCnt; i++) {
+      result += "	";
+    }
+  }
+  for (let i = 0; i < spacesCnt; i++) {
+    result += " ";
+  }
+  return result;
+}
+__name(generateIndent, "generateIndent");
+export {
+  generateIndent,
+  getSpaceCnt
+};
+//# sourceMappingURL=indentUtils.js.map

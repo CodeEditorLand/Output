@@ -1,3 +1,502 @@
-import"./media/chatEditingExplanationWidget.css";import{$bk as c}from"../../../../../base/common/codicons.js";import{$Ed as C,$Dd as b}from"../../../../../base/common/lifecycle.js";import{Event as v}from"../../../../../base/common/event.js";import{$H0 as p}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$ as l,$u8 as u,$t8 as f,$U8 as N}from"../../../../../base/browser/dom.js";import{ThemeIcon as w}from"../../../../../base/common/themables.js";import{$_D as L}from"../../../../../editor/common/core/range.js";import{$0I as y}from"../../../../../editor/common/core/editorColorRegistry.js";import{OverviewRulerLane as z}from"../../../../../editor/common/model.js";import{$ru as D}from"../../../../../platform/theme/common/themeService.js";import{$24b as S}from"../chat.js";import*as r from"../../../../../nls.js";import{autorun as H}from"../../../../../base/common/observable.js";function $(d,t){const i=[],e=[];for(let s=d.original.startLineNumber;s<d.original.endLineNumberExclusive;s++){const n=t.originalModel.getLineContent(s);i.push(n)}for(let s=d.modified.startLineNumber;s<d.modified.endLineNumberExclusive;s++){const n=t.modifiedModel.getLineContent(s);e.push(n)}return{originalText:i.join(`
-`),modifiedText:e.join(`
-`)}}function E(d,t=5){if(d.length===0)return[];const i=[];let e=[d[0]];for(let s=1;s<d.length;s++){const n=e[0],o=d[s],h=n.modified.startLineNumber;o.modified.startLineNumber-h<=t?e.push(o):(i.push(e),e=[o])}return e.length>0&&i.push(e),i}class x extends C{static{this.a=0}constructor(t,i,e,s,n,o){super(),this.H=t,this.I=i,this.J=s,this.L=n,this.M=o,this.b=`chat-explanation-widget-${x.a++}`,this.q=new Map,this.s=null,this.t=[],this.u=!0,this.w=!1,this.y=!1,this.z=1,this.G=this.D(new b),this.C=e.modifiedModel.uri,this.F=this.H.createDecorationsCollection(),this.t=this.I.map(a=>{const{originalText:m,modifiedText:g}=$(a,e);return{startLineNumber:a.modified.startLineNumber,endLineNumber:a.modified.endLineNumberExclusive-1,explanation:r.localize(5888,null),read:!1,loading:!0,originalText:m,modifiedText:g}}),this.c=l("div.chat-explanation-widget"),this.f=l("div.chat-explanation-header"),this.g=l("div.chat-explanation-read-indicator"),this.Q(),this.f.appendChild(this.g),this.h=l("span.chat-explanation-title"),this.R(),this.f.appendChild(this.h),this.f.appendChild(l("span.chat-explanation-spacer")),this.m=l("div.chat-explanation-toggle"),this.S(),this.f.appendChild(this.m),this.j=l("div.chat-explanation-dismiss"),this.j.appendChild(p(c.close)),this.j.title=r.localize(5889,null),this.f.appendChild(this.j),this.c.appendChild(this.f),this.n=l("div.chat-explanation-body"),this.U(),this.c.appendChild(this.n);const h=l("div.chat-explanation-arrow");this.c.appendChild(h),this.N(),this.c.classList.add("visible"),this.H.addOverlayWidget(this)}N(){this.G.add(u(this.g,"click",t=>{t.stopPropagation(),this.w=!this.w;for(const i of this.t)i.read=this.w;this.Q(),this.Y()})),this.G.add(u(this.m,"click",t=>{t.stopPropagation(),this.O()})),this.G.add(u(this.f,"click",()=>{this.O()})),this.G.add(u(this.j,"click",t=>{t.stopPropagation(),this.P()}))}O(){this.u=!this.u,this.n.classList.toggle("collapsed",!this.u),this.S(),this.H.layoutOverlayWidget(this)}P(){this.c.classList.add("fadeOut");const t=()=>{this.dispose()},i=setTimeout(t,150);this.c.addEventListener("animationend",()=>{clearTimeout(i),t()},{once:!0})}Q(){f(this.g);const t=this.t.every(e=>e.read),i=this.t.some(e=>e.read);this.w=t,t?(this.g.appendChild(p(c.circle)),this.g.classList.add("read"),this.g.classList.remove("partial","unread"),this.g.title=r.localize(5890,null)):i?(this.g.appendChild(p(c.circleFilled)),this.g.classList.remove("read","unread"),this.g.classList.add("partial"),this.g.title=r.localize(5891,null)):(this.g.appendChild(p(c.circleFilled)),this.g.classList.remove("read","partial"),this.g.classList.add("unread"),this.g.title=r.localize(5892,null))}R(){const t=this.t.length;t===1?this.h.textContent=r.localize(5893,null):this.h.textContent=r.localize(5894,null,t)}S(){f(this.m),this.u?(this.m.appendChild(p(c.chevronUp)),this.m.title=r.localize(5895,null)):(this.m.appendChild(p(c.chevronDown)),this.m.title=r.localize(5896,null))}U(){f(this.n),this.q.clear();for(let t=0;t<this.t.length;t++){const i=this.t[t],e=l("div.chat-explanation-item"),s=l("span.chat-explanation-line-info");i.startLineNumber===i.endLineNumber?s.textContent=r.localize(5897,null,i.startLineNumber):s.textContent=r.localize(5898,null,i.startLineNumber,i.endLineNumber),e.appendChild(s);const n=l("span.chat-explanation-text");if(i.loading){const a=p(w.modify(c.loading,"spin"));a.classList.add("chat-explanation-loading"),n.appendChild(a);const m=document.createTextNode(" "+i.explanation);n.appendChild(m)}else n.textContent=i.explanation;e.appendChild(n);const o=l("div.chat-explanation-item-read");this.X(o,i.read),e.appendChild(o);const h=l("div.chat-explanation-reply-button");h.appendChild(p(c.arrowRight)),h.title=r.localize(5899,null),e.appendChild(h),this.G.add(u(h,"click",async a=>{a.stopPropagation();const m=new L(i.startLineNumber,1,i.endLineNumber,1);let g;this.M?g=await this.J.openSession(this.M):(await this.L.openView(S,!0),g=this.J.lastFocusedWidget),g&&g.attachmentModel.addContext(g.attachmentModel.asFileVariableEntry(this.C,m))})),this.G.add(u(e,"click",a=>{a.stopPropagation(),i.read=!i.read,this.X(o,i.read),this.Q()})),this.G.add(u(e,"mouseenter",()=>{const a=new L(i.startLineNumber,1,i.endLineNumber,this.H.getModel()?.getLineMaxColumn(i.endLineNumber)??1);this.F.set([{range:a,options:{description:"chat-explanation-range-highlight",className:"rangeHighlight",isWholeLine:!0,linesDecorationsClassName:"chat-explanation-range-glyph"}},{range:a,options:{description:"chat-explanation-range-highlight-overview",overviewRuler:{color:D(y),position:z.Full}}}])})),this.G.add(u(e,"mouseleave",()=>{this.F.clear()})),this.q.set(t,{item:e,readIndicator:o,textElement:n}),this.n.appendChild(e)}}setExplanationByLineNumber(t,i,e){for(let s=0;s<this.t.length;s++){const n=this.t[s];if(n.startLineNumber===t&&n.endLineNumber===i)return n.explanation=e,n.loading=!1,this.W(s),!0}return!1}get explanationCount(){return this.t.length}W(t){const i=this.q.get(t),e=this.t[t];i&&e&&(f(i.textElement),i.textElement.textContent=e.explanation)}X(t,i){f(t),i?(t.appendChild(p(c.circle)),t.classList.add("read"),t.classList.remove("unread")):(t.appendChild(p(c.circleFilled)),t.classList.remove("read"),t.classList.add("unread"))}Y(){this.q.forEach(({readIndicator:t},i)=>{const e=this.t[i];this.X(t,e.read)})}layout(t){if(this.y)return;this.z=t;const i=this.H.getOption(75),{contentLeft:e,contentWidth:s,verticalScrollbarWidth:n}=this.H.getLayoutInfo(),o=this.H.getScrollTop(),h=N(this.c)||280;this.s={stackOrdinal:2,preference:{top:this.H.getTopForLineNumber(t)-o-i,left:e+s-(2*n+h)}},this.H.layoutOverlayWidget(this)}toggle(t){this.c.classList.toggle("visible",t),t&&this.t.length>0&&this.layout(this.t[0].startLineNumber)}relayout(){this.z&&this.layout(this.z)}getId(){return this.b}getDomNode(){return this.c}getPosition(){return this.s}dispose(){this.y||(this.y=!0,this.F.clear(),this.H.removeOverlayWidget(this),super.dispose())}}class Q extends C{constructor(t,i,e,s,n){super(),this.g=t,this.h=i,this.j=e,this.m=n,this.a=[],this.b=!1,this.D(this.g.onDidChangeModel(()=>{const o=this.g.getModel()?.uri;if(this.m)if(o&&o.toString()===this.m.toString())for(const h of this.a)h.toggle(this.b),h.relayout();else for(const h of this.a)h.toggle(!1)})),this.D(H(o=>{const a=s.state.read(o).get(this.m);a?(this.f=a.diffInfo,this.c=a.chatSessionResource,this.a.length===0&&this.f&&this.n(this.f,this.c),a.progress==="complete"&&this.q(this.m,a.explanations),this.show()):this.hide()}))}n(t,i){if(t.identical||t.changes.length===0)return;const e=E(t.changes,5);for(const s of e){const n=new x(this.g,s,t,this.h,this.j,i);this.a.push(n),this.D(n),n.layout(s[0].modified.startLineNumber)}this.D(v.any(this.g.onDidScrollChange,this.g.onDidLayoutChange)(()=>{for(const s of this.a)s.relayout()}))}q(t,i){if(!(!this.m||t.toString()!==this.m.toString())){for(const e of i)for(const s of this.a)if(s.setExplanationByLineNumber(e.startLineNumber,e.endLineNumber,e.explanation))break}}show(){this.b=!0;for(const t of this.a)t.toggle(!0),t.relayout()}hide(){this.b=!1;for(const t of this.a)t.toggle(!1)}s(){for(const t of this.a)t.dispose();this.a.length=0}dispose(){this.s(),super.dispose()}}export{x as $ugc,Q as $vgc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/chatEditingExplanationWidget.css";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Event } from "../../../../../base/common/event.js";
+import { renderIcon } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { $, addDisposableListener, clearNode, getTotalWidth } from "../../../../../base/browser/dom.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { overviewRulerRangeHighlight } from "../../../../../editor/common/core/editorColorRegistry.js";
+import { OverviewRulerLane } from "../../../../../editor/common/model.js";
+import { themeColorFromId } from "../../../../../platform/theme/common/themeService.js";
+import { ChatViewId } from "../chat.js";
+import * as nls from "../../../../../nls.js";
+import { autorun } from "../../../../../base/common/observable.js";
+function getChangeTexts(change, diffInfo) {
+  const originalLines = [];
+  const modifiedLines = [];
+  for (let i = change.original.startLineNumber; i < change.original.endLineNumberExclusive; i++) {
+    const line = diffInfo.originalModel.getLineContent(i);
+    originalLines.push(line);
+  }
+  for (let i = change.modified.startLineNumber; i < change.modified.endLineNumberExclusive; i++) {
+    const line = diffInfo.modifiedModel.getLineContent(i);
+    modifiedLines.push(line);
+  }
+  return {
+    originalText: originalLines.join("\n"),
+    modifiedText: modifiedLines.join("\n")
+  };
+}
+__name(getChangeTexts, "getChangeTexts");
+function groupNearbyChanges(changes, lineThreshold = 5) {
+  if (changes.length === 0) {
+    return [];
+  }
+  const groups = [];
+  let currentGroup = [changes[0]];
+  for (let i = 1; i < changes.length; i++) {
+    const firstChange = currentGroup[0];
+    const currentChange = changes[i];
+    const widgetLine = firstChange.modified.startLineNumber;
+    const lastLine = currentChange.modified.startLineNumber;
+    const verticalSpan = lastLine - widgetLine;
+    if (verticalSpan <= lineThreshold) {
+      currentGroup.push(currentChange);
+    } else {
+      groups.push(currentGroup);
+      currentGroup = [currentChange];
+    }
+  }
+  if (currentGroup.length > 0) {
+    groups.push(currentGroup);
+  }
+  return groups;
+}
+__name(groupNearbyChanges, "groupNearbyChanges");
+class ChatEditingExplanationWidget extends Disposable {
+  static {
+    __name(this, "ChatEditingExplanationWidget");
+  }
+  static {
+    this._idPool = 0;
+  }
+  constructor(_editor, _changes, diffInfo, _chatWidgetService, _viewsService, _chatSessionResource) {
+    super();
+    this._editor = _editor;
+    this._changes = _changes;
+    this._chatWidgetService = _chatWidgetService;
+    this._viewsService = _viewsService;
+    this._chatSessionResource = _chatSessionResource;
+    this._id = `chat-explanation-widget-${ChatEditingExplanationWidget._idPool++}`;
+    this._explanationItems = /* @__PURE__ */ new Map();
+    this._position = null;
+    this._explanations = [];
+    this._isExpanded = true;
+    this._isAllRead = false;
+    this._disposed = false;
+    this._startLineNumber = 1;
+    this._eventStore = this._register(new DisposableStore());
+    this._uri = diffInfo.modifiedModel.uri;
+    this._rangeHighlightDecoration = this._editor.createDecorationsCollection();
+    this._explanations = this._changes.map((change) => {
+      const { originalText, modifiedText } = getChangeTexts(change, diffInfo);
+      return {
+        startLineNumber: change.modified.startLineNumber,
+        endLineNumber: change.modified.endLineNumberExclusive - 1,
+        explanation: nls.localize("generatingExplanation", "Generating explanation..."),
+        read: false,
+        loading: true,
+        originalText,
+        modifiedText
+      };
+    });
+    this._domNode = $("div.chat-explanation-widget");
+    this._headerNode = $("div.chat-explanation-header");
+    this._readIndicator = $("div.chat-explanation-read-indicator");
+    this._updateReadIndicator();
+    this._headerNode.appendChild(this._readIndicator);
+    this._titleNode = $("span.chat-explanation-title");
+    this._updateTitle();
+    this._headerNode.appendChild(this._titleNode);
+    this._headerNode.appendChild($("span.chat-explanation-spacer"));
+    this._toggleButton = $("div.chat-explanation-toggle");
+    this._updateToggleButton();
+    this._headerNode.appendChild(this._toggleButton);
+    this._dismissButton = $("div.chat-explanation-dismiss");
+    this._dismissButton.appendChild(renderIcon(Codicon.close));
+    this._dismissButton.title = nls.localize("dismiss", "Dismiss");
+    this._headerNode.appendChild(this._dismissButton);
+    this._domNode.appendChild(this._headerNode);
+    this._bodyNode = $("div.chat-explanation-body");
+    this._buildExplanationItems();
+    this._domNode.appendChild(this._bodyNode);
+    const arrow = $("div.chat-explanation-arrow");
+    this._domNode.appendChild(arrow);
+    this._setupEventHandlers();
+    this._domNode.classList.add("visible");
+    this._editor.addOverlayWidget(this);
+  }
+  _setupEventHandlers() {
+    this._eventStore.add(addDisposableListener(this._readIndicator, "click", (e) => {
+      e.stopPropagation();
+      this._isAllRead = !this._isAllRead;
+      for (const exp of this._explanations) {
+        exp.read = this._isAllRead;
+      }
+      this._updateReadIndicator();
+      this._updateExplanationItemsReadState();
+    }));
+    this._eventStore.add(addDisposableListener(this._toggleButton, "click", (e) => {
+      e.stopPropagation();
+      this._toggleExpanded();
+    }));
+    this._eventStore.add(addDisposableListener(this._headerNode, "click", () => {
+      this._toggleExpanded();
+    }));
+    this._eventStore.add(addDisposableListener(this._dismissButton, "click", (e) => {
+      e.stopPropagation();
+      this._dismiss();
+    }));
+  }
+  _toggleExpanded() {
+    this._isExpanded = !this._isExpanded;
+    this._bodyNode.classList.toggle("collapsed", !this._isExpanded);
+    this._updateToggleButton();
+    this._editor.layoutOverlayWidget(this);
+  }
+  _dismiss() {
+    this._domNode.classList.add("fadeOut");
+    const dispose = /* @__PURE__ */ __name(() => {
+      this.dispose();
+    }, "dispose");
+    const handle = setTimeout(dispose, 150);
+    this._domNode.addEventListener("animationend", () => {
+      clearTimeout(handle);
+      dispose();
+    }, { once: true });
+  }
+  _updateReadIndicator() {
+    clearNode(this._readIndicator);
+    const allRead = this._explanations.every((e) => e.read);
+    const someRead = this._explanations.some((e) => e.read);
+    this._isAllRead = allRead;
+    if (allRead) {
+      this._readIndicator.appendChild(renderIcon(Codicon.circle));
+      this._readIndicator.classList.add("read");
+      this._readIndicator.classList.remove("partial", "unread");
+      this._readIndicator.title = nls.localize("markAsUnread", "Mark as unread");
+    } else if (someRead) {
+      this._readIndicator.appendChild(renderIcon(Codicon.circleFilled));
+      this._readIndicator.classList.remove("read", "unread");
+      this._readIndicator.classList.add("partial");
+      this._readIndicator.title = nls.localize("markAllAsRead", "Mark all as read");
+    } else {
+      this._readIndicator.appendChild(renderIcon(Codicon.circleFilled));
+      this._readIndicator.classList.remove("read", "partial");
+      this._readIndicator.classList.add("unread");
+      this._readIndicator.title = nls.localize("markAsRead", "Mark as read");
+    }
+  }
+  _updateTitle() {
+    const count = this._explanations.length;
+    if (count === 1) {
+      this._titleNode.textContent = nls.localize("oneChange", "1 change");
+    } else {
+      this._titleNode.textContent = nls.localize("nChanges", "{0} changes", count);
+    }
+  }
+  _updateToggleButton() {
+    clearNode(this._toggleButton);
+    if (this._isExpanded) {
+      this._toggleButton.appendChild(renderIcon(Codicon.chevronUp));
+      this._toggleButton.title = nls.localize("collapse", "Collapse");
+    } else {
+      this._toggleButton.appendChild(renderIcon(Codicon.chevronDown));
+      this._toggleButton.title = nls.localize("expand", "Expand");
+    }
+  }
+  _buildExplanationItems() {
+    clearNode(this._bodyNode);
+    this._explanationItems.clear();
+    for (let i = 0; i < this._explanations.length; i++) {
+      const exp = this._explanations[i];
+      const item = $("div.chat-explanation-item");
+      const lineInfo = $("span.chat-explanation-line-info");
+      if (exp.startLineNumber === exp.endLineNumber) {
+        lineInfo.textContent = nls.localize("lineNumber", "Line {0}", exp.startLineNumber);
+      } else {
+        lineInfo.textContent = nls.localize("lineRange", "Lines {0}-{1}", exp.startLineNumber, exp.endLineNumber);
+      }
+      item.appendChild(lineInfo);
+      const text = $("span.chat-explanation-text");
+      if (exp.loading) {
+        const loadingIcon = renderIcon(ThemeIcon.modify(Codicon.loading, "spin"));
+        loadingIcon.classList.add("chat-explanation-loading");
+        text.appendChild(loadingIcon);
+        const loadingText = document.createTextNode(" " + exp.explanation);
+        text.appendChild(loadingText);
+      } else {
+        text.textContent = exp.explanation;
+      }
+      item.appendChild(text);
+      const itemReadIndicator = $("div.chat-explanation-item-read");
+      this._updateItemReadIndicator(itemReadIndicator, exp.read);
+      item.appendChild(itemReadIndicator);
+      const replyButton = $("div.chat-explanation-reply-button");
+      replyButton.appendChild(renderIcon(Codicon.arrowRight));
+      replyButton.title = nls.localize("followUpOnChange", "Follow up on this change");
+      item.appendChild(replyButton);
+      this._eventStore.add(addDisposableListener(replyButton, "click", async (e) => {
+        e.stopPropagation();
+        const range = new Range(exp.startLineNumber, 1, exp.endLineNumber, 1);
+        let chatWidget;
+        if (this._chatSessionResource) {
+          chatWidget = await this._chatWidgetService.openSession(this._chatSessionResource);
+        } else {
+          await this._viewsService.openView(ChatViewId, true);
+          chatWidget = this._chatWidgetService.lastFocusedWidget;
+        }
+        if (chatWidget) {
+          chatWidget.attachmentModel.addContext(chatWidget.attachmentModel.asFileVariableEntry(this._uri, range));
+        }
+      }));
+      this._eventStore.add(addDisposableListener(item, "click", (e) => {
+        e.stopPropagation();
+        exp.read = !exp.read;
+        this._updateItemReadIndicator(itemReadIndicator, exp.read);
+        this._updateReadIndicator();
+      }));
+      this._eventStore.add(addDisposableListener(item, "mouseenter", () => {
+        const range = new Range(exp.startLineNumber, 1, exp.endLineNumber, this._editor.getModel()?.getLineMaxColumn(exp.endLineNumber) ?? 1);
+        this._rangeHighlightDecoration.set([
+          // Line highlight with gutter decoration
+          {
+            range,
+            options: {
+              description: "chat-explanation-range-highlight",
+              className: "rangeHighlight",
+              isWholeLine: true,
+              linesDecorationsClassName: "chat-explanation-range-glyph"
+            }
+          },
+          // Overview ruler indicator
+          {
+            range,
+            options: {
+              description: "chat-explanation-range-highlight-overview",
+              overviewRuler: {
+                color: themeColorFromId(overviewRulerRangeHighlight),
+                position: OverviewRulerLane.Full
+              }
+            }
+          }
+        ]);
+      }));
+      this._eventStore.add(addDisposableListener(item, "mouseleave", () => {
+        this._rangeHighlightDecoration.clear();
+      }));
+      this._explanationItems.set(i, { item, readIndicator: itemReadIndicator, textElement: text });
+      this._bodyNode.appendChild(item);
+    }
+  }
+  /**
+   * Sets the explanation for a change matching the given line number range.
+   * @returns true if a matching explanation was found and updated
+   */
+  setExplanationByLineNumber(startLineNumber, endLineNumber, explanation) {
+    for (let i = 0; i < this._explanations.length; i++) {
+      const exp = this._explanations[i];
+      if (exp.startLineNumber === startLineNumber && exp.endLineNumber === endLineNumber) {
+        exp.explanation = explanation;
+        exp.loading = false;
+        this._updateExplanationText(i);
+        return true;
+      }
+    }
+    return false;
+  }
+  /**
+   * Gets the number of explanations in this widget.
+   */
+  get explanationCount() {
+    return this._explanations.length;
+  }
+  _updateExplanationText(index) {
+    const itemData = this._explanationItems.get(index);
+    const exp = this._explanations[index];
+    if (itemData && exp) {
+      clearNode(itemData.textElement);
+      itemData.textElement.textContent = exp.explanation;
+    }
+  }
+  _updateItemReadIndicator(element, read) {
+    clearNode(element);
+    if (read) {
+      element.appendChild(renderIcon(Codicon.circle));
+      element.classList.add("read");
+      element.classList.remove("unread");
+    } else {
+      element.appendChild(renderIcon(Codicon.circleFilled));
+      element.classList.remove("read");
+      element.classList.add("unread");
+    }
+  }
+  _updateExplanationItemsReadState() {
+    this._explanationItems.forEach(({ readIndicator }, index) => {
+      const exp = this._explanations[index];
+      this._updateItemReadIndicator(readIndicator, exp.read);
+    });
+  }
+  /**
+   * Updates the widget position and layout
+   */
+  layout(startLineNumber) {
+    if (this._disposed) {
+      return;
+    }
+    this._startLineNumber = startLineNumber;
+    const lineHeight = this._editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const { contentLeft, contentWidth, verticalScrollbarWidth } = this._editor.getLayoutInfo();
+    const scrollTop = this._editor.getScrollTop();
+    const widgetWidth = getTotalWidth(this._domNode) || 280;
+    this._position = {
+      stackOrdinal: 2,
+      preference: {
+        top: this._editor.getTopForLineNumber(startLineNumber) - scrollTop - lineHeight,
+        left: contentLeft + contentWidth - (2 * verticalScrollbarWidth + widgetWidth)
+      }
+    };
+    this._editor.layoutOverlayWidget(this);
+  }
+  /**
+   * Shows or hides the widget
+   */
+  toggle(show) {
+    this._domNode.classList.toggle("visible", show);
+    if (show && this._explanations.length > 0) {
+      this.layout(this._explanations[0].startLineNumber);
+    }
+  }
+  /**
+   * Relayouts the widget at its current line number
+   */
+  relayout() {
+    if (this._startLineNumber) {
+      this.layout(this._startLineNumber);
+    }
+  }
+  // IOverlayWidget implementation
+  getId() {
+    return this._id;
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    return this._position;
+  }
+  dispose() {
+    if (this._disposed) {
+      return;
+    }
+    this._disposed = true;
+    this._rangeHighlightDecoration.clear();
+    this._editor.removeOverlayWidget(this);
+    super.dispose();
+  }
+}
+class ChatEditingExplanationWidgetManager extends Disposable {
+  static {
+    __name(this, "ChatEditingExplanationWidgetManager");
+  }
+  constructor(_editor, _chatWidgetService, _viewsService, modelManager, _modelUri) {
+    super();
+    this._editor = _editor;
+    this._chatWidgetService = _chatWidgetService;
+    this._viewsService = _viewsService;
+    this._modelUri = _modelUri;
+    this._widgets = [];
+    this._visible = false;
+    this._register(this._editor.onDidChangeModel(() => {
+      const newUri = this._editor.getModel()?.uri;
+      if (this._modelUri) {
+        if (newUri && newUri.toString() === this._modelUri.toString()) {
+          for (const widget of this._widgets) {
+            widget.toggle(this._visible);
+            widget.relayout();
+          }
+        } else {
+          for (const widget of this._widgets) {
+            widget.toggle(false);
+          }
+        }
+      }
+    }));
+    this._register(autorun((r) => {
+      const state = modelManager.state.read(r);
+      const uriState = state.get(this._modelUri);
+      if (uriState) {
+        this._diffInfo = uriState.diffInfo;
+        this._chatSessionResource = uriState.chatSessionResource;
+        if (this._widgets.length === 0 && this._diffInfo) {
+          this._createWidgets(this._diffInfo, this._chatSessionResource);
+        }
+        if (uriState.progress === "complete") {
+          this._handleExplanations(this._modelUri, uriState.explanations);
+        }
+        this.show();
+      } else {
+        this.hide();
+      }
+    }));
+  }
+  _createWidgets(diffInfo, chatSessionResource) {
+    if (diffInfo.identical || diffInfo.changes.length === 0) {
+      return;
+    }
+    const groups = groupNearbyChanges(diffInfo.changes, 5);
+    for (const group of groups) {
+      const widget = new ChatEditingExplanationWidget(this._editor, group, diffInfo, this._chatWidgetService, this._viewsService, chatSessionResource);
+      this._widgets.push(widget);
+      this._register(widget);
+      widget.layout(group[0].modified.startLineNumber);
+    }
+    this._register(Event.any(this._editor.onDidScrollChange, this._editor.onDidLayoutChange)(() => {
+      for (const widget of this._widgets) {
+        widget.relayout();
+      }
+    }));
+  }
+  _handleExplanations(uri, explanations) {
+    if (!this._modelUri || uri.toString() !== this._modelUri.toString()) {
+      return;
+    }
+    for (const explanation of explanations) {
+      for (const widget of this._widgets) {
+        if (widget.setExplanationByLineNumber(explanation.startLineNumber, explanation.endLineNumber, explanation.explanation)) {
+          break;
+        }
+      }
+    }
+  }
+  /**
+   * Shows all widgets
+   */
+  show() {
+    this._visible = true;
+    for (const widget of this._widgets) {
+      widget.toggle(true);
+      widget.relayout();
+    }
+  }
+  /**
+   * Hides all widgets
+   */
+  hide() {
+    this._visible = false;
+    for (const widget of this._widgets) {
+      widget.toggle(false);
+    }
+  }
+  _clearWidgets() {
+    for (const widget of this._widgets) {
+      widget.dispose();
+    }
+    this._widgets.length = 0;
+  }
+  dispose() {
+    this._clearWidgets();
+    super.dispose();
+  }
+}
+export {
+  ChatEditingExplanationWidget,
+  ChatEditingExplanationWidgetManager
+};
+//# sourceMappingURL=chatEditingExplanationWidget.js.map

@@ -1,1 +1,45 @@
-import{$Nj as S}from"../../instantiation/common/instantiation.js";var t;(function(r){r.McpServersQueryService="McpServersQueryService",r.McpServerWebUri="McpServerWebUriTemplate",r.McpServerVersionUri="McpServerVersionUriTemplate",r.McpServerIdUri="McpServerIdUriTemplate",r.McpServerLatestVersionUri="McpServerLatestVersionUriTemplate",r.McpServerNamedResourceUri="McpServerNamedResourceUriTemplate",r.PublisherUriTemplate="PublisherUriTemplate",r.ContactSupportUri="ContactSupportUri",r.PrivacyPolicyUri="PrivacyPolicyUri",r.TermsOfServiceUri="TermsOfServiceUri",r.ReportUri="ReportUri"})(t||(t={}));var n;(function(r){r.Available="available",r.Unavailable="unavailable"})(n||(n={}));const p=S("IMcpGalleryManifestService");function s(r,v){const[o,e]=v.split("/");for(const i of r.resources){const[a,U]=i.type.split("/");if(a===o){if(!e||U===e)return i.id;break}}}export{p as $BQ,s as $CQ,n as McpGalleryManifestStatus,t as McpGalleryResourceType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+var McpGalleryResourceType;
+(function(McpGalleryResourceType2) {
+  McpGalleryResourceType2["McpServersQueryService"] = "McpServersQueryService";
+  McpGalleryResourceType2["McpServerWebUri"] = "McpServerWebUriTemplate";
+  McpGalleryResourceType2["McpServerVersionUri"] = "McpServerVersionUriTemplate";
+  McpGalleryResourceType2["McpServerIdUri"] = "McpServerIdUriTemplate";
+  McpGalleryResourceType2["McpServerLatestVersionUri"] = "McpServerLatestVersionUriTemplate";
+  McpGalleryResourceType2["McpServerNamedResourceUri"] = "McpServerNamedResourceUriTemplate";
+  McpGalleryResourceType2["PublisherUriTemplate"] = "PublisherUriTemplate";
+  McpGalleryResourceType2["ContactSupportUri"] = "ContactSupportUri";
+  McpGalleryResourceType2["PrivacyPolicyUri"] = "PrivacyPolicyUri";
+  McpGalleryResourceType2["TermsOfServiceUri"] = "TermsOfServiceUri";
+  McpGalleryResourceType2["ReportUri"] = "ReportUri";
+})(McpGalleryResourceType || (McpGalleryResourceType = {}));
+var McpGalleryManifestStatus;
+(function(McpGalleryManifestStatus2) {
+  McpGalleryManifestStatus2["Available"] = "available";
+  McpGalleryManifestStatus2["Unavailable"] = "unavailable";
+})(McpGalleryManifestStatus || (McpGalleryManifestStatus = {}));
+const IMcpGalleryManifestService = createDecorator("IMcpGalleryManifestService");
+function getMcpGalleryManifestResourceUri(manifest, type) {
+  const [name, version] = type.split("/");
+  for (const resource of manifest.resources) {
+    const [r, v] = resource.type.split("/");
+    if (r !== name) {
+      continue;
+    }
+    if (!version || v === version) {
+      return resource.id;
+    }
+    break;
+  }
+  return void 0;
+}
+__name(getMcpGalleryManifestResourceUri, "getMcpGalleryManifestResourceUri");
+export {
+  IMcpGalleryManifestService,
+  McpGalleryManifestStatus,
+  McpGalleryResourceType,
+  getMcpGalleryManifestResourceUri
+};
+//# sourceMappingURL=mcpGalleryManifest.js.map

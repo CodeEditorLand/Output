@@ -1,1 +1,56 @@
-import{$Mj as u}from"../../../../platform/instantiation/common/instantiation.js";import{$LQ as _}from"../../../services/userDataProfile/common/userDataProfile.js";import{$WC as h}from"../../../../platform/instantiation/common/extensions.js";import{$Ml as M}from"../../../../platform/workspace/common/workspace.js";import{$$o as R}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$4N as v}from"../../remote/common/remoteAgentService.js";import{$ap as b}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$aR as j}from"../../userDataProfile/common/remoteUserDataProfiles.js";import{$gR as N,$fR as O}from"../common/mcpWorkbenchManagementService.js";import{$8Q as Q}from"../../../../platform/mcp/common/mcpManagementService.js";import{$FQ as d}from"../../../../platform/mcp/common/mcpManagement.js";import{$yo as g}from"../../../../platform/log/common/log.js";var s=function(f,r,t,m){var p=arguments.length,o=p<3?r:m===null?m=Object.getOwnPropertyDescriptor(r,t):m,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,r,t,m);else for(var n=f.length-1;n>=0;n--)(c=f[n])&&(o=(p<3?c(o):p>3?c(r,t,o):c(r,t))||o);return p>3&&o&&Object.defineProperty(r,t,o),o},e=function(f,r){return function(t,m){r(t,m,f)}};let i=class extends N{constructor(r,t,m,p,o,c,n,l,$){const a=$.createInstance(Q);super(a,r,t,m,p,o,c,n,l,$),this.D(a)}};i=s([e(0,d),e(1,g),e(2,_),e(3,R),e(4,M),e(5,v),e(6,b),e(7,j),e(8,u)],i);h(O,i,1);export{i as $_Nc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IRemoteUserDataProfilesService } from "../../userDataProfile/common/remoteUserDataProfiles.js";
+import { WorkbenchMcpManagementService as BaseWorkbenchMcpManagementService, IWorkbenchMcpManagementService } from "../common/mcpWorkbenchManagementService.js";
+import { McpManagementService } from "../../../../platform/mcp/common/mcpManagementService.js";
+import { IAllowedMcpServersService } from "../../../../platform/mcp/common/mcpManagement.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let WorkbenchMcpManagementService = class WorkbenchMcpManagementService2 extends BaseWorkbenchMcpManagementService {
+  static {
+    __name(this, "WorkbenchMcpManagementService");
+  }
+  constructor(allowedMcpServersService, logService, userDataProfileService, uriIdentityService, workspaceContextService, remoteAgentService, userDataProfilesService, remoteUserDataProfilesService, instantiationService) {
+    const mMcpManagementService = instantiationService.createInstance(McpManagementService);
+    super(mMcpManagementService, allowedMcpServersService, logService, userDataProfileService, uriIdentityService, workspaceContextService, remoteAgentService, userDataProfilesService, remoteUserDataProfilesService, instantiationService);
+    this._register(mMcpManagementService);
+  }
+};
+WorkbenchMcpManagementService = __decorate([
+  __param(0, IAllowedMcpServersService),
+  __param(1, ILogService),
+  __param(2, IUserDataProfileService),
+  __param(3, IUriIdentityService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IRemoteAgentService),
+  __param(6, IUserDataProfilesService),
+  __param(7, IRemoteUserDataProfilesService),
+  __param(8, IInstantiationService)
+], WorkbenchMcpManagementService);
+registerSingleton(
+  IWorkbenchMcpManagementService,
+  WorkbenchMcpManagementService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  WorkbenchMcpManagementService
+};
+//# sourceMappingURL=mcpWorkbenchManagementService.js.map

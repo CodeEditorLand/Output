@@ -1,1 +1,190 @@
-import{$9c as q,$6c as R}from"../../../../../base/common/types.js";import{localize as I,localize2 as a}from"../../../../../nls.js";import{$vL as h,$qL as L,$sL as b,$wL as E}from"../../../../../platform/actions/common/actions.js";import{$0n as s}from"../../../../../platform/contextkey/common/contextkey.js";import{$Kj as D}from"../../../../../platform/instantiation/common/descriptors.js";import{$jm as m}from"../../../../../platform/registry/common/platform.js";import{$aSb as O}from"../../../../browser/editor.js";import{$9M as p}from"../../../../common/editor.js";import{$xL as T}from"../../../../services/editor/common/editorGroupsService.js";import{$BL as x}from"../../../../services/editor/common/editorService.js";import{$wP as A}from"../../../../common/contextkeys.js";import{ChatContextKeys as i}from"../../common/actions/chatContextKeys.js";import{$hW as M,$iW as F,$eW as v}from"../../common/constants.js";import{$HPb as w}from"../actions/chatActions.js";import{$vqc as z,$tqc as $}from"./chatManagementEditor.js";import{$gqc as S,$hqc as g}from"./chatManagementEditorInput.js";import{$XR as y}from"../../common/languageModelsConfiguration.js";import{$bk as j}from"../../../../../base/common/codicons.js";import{$gu as J}from"../../../../../platform/theme/common/iconRegistry.js";import{$Ed as W}from"../../../../../base/common/lifecycle.js";import{$2N as G}from"../../../../common/contributions.js";var _=function(n,e,t,r){var c=arguments.length,o=c<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,t,r);else for(var f=n.length-1;f>=0;f--)(l=n[f])&&(o=(c<3?l(o):c>3?l(e,t,o):l(e,t))||o);return c>3&&o&&Object.defineProperty(e,t,o),o},N=function(n,e){return function(t,r){e(t,r,n)}};const P=J("language-models-open-settings",j.goToFile,I(5911,null)),u=s.and(i.enabled,s.or(i.Entitlement.planFree,i.Entitlement.planPro,i.Entitlement.planProPlus,i.Entitlement.planBusiness,i.Entitlement.planEnterprise,i.Entitlement.internal));m.as(p.EditorPane).registerEditorPane(O.create(z,z.ID,I(5912,null)),[new D(S)]);m.as(p.EditorPane).registerEditorPane(O.create($,$.ID,I(5913,null)),[new D(g)]);class B{canSerialize(e){return!0}serialize(e){return""}deserialize(e){return e.createInstance(S)}}class K{canSerialize(e){return!0}serialize(e){return""}deserialize(e){return e.createInstance(g)}}m.as(p.EditorFactory).registerEditorSerializer(S.ID,B);m.as(p.EditorFactory).registerEditorSerializer(g.ID,K);function C(n){return R(n)?n:void 0}function k(n){q(n)||(n={});const e=n;return{query:C(e?.query),section:C(e?.section)}}let d=class extends W{static{this.ID="workbench.contrib.chatManagementActions"}constructor(e){super(),this.a=e,this.b(),this.c()}b(){this.D(E(class extends h{constructor(){super({id:v,title:a(5914,"Manage Language Models"),category:w,precondition:u,f1:!0})}async run(e,t){const r=e.get(T);return t=k(t),r.activeGroup.openEditor(new g,{pinned:!0})}})),this.D(E(class extends h{constructor(){super({id:"chat.models.action.clearSearchResults",precondition:M,keybinding:{primary:9,weight:100,when:F},title:a(5915,"Clear Models Search Results")})}run(e){const t=e.get(x).activeEditorPane;return t instanceof $&&t.clearSearch(),null}})),this.D(E(class extends h{constructor(){super({id:"workbench.action.openLanguageModelsJson",title:a(5916,"Open Language Models (JSON)"),category:w,precondition:u,f1:!0})}async run(e){await e.get(y).configureLanguageModels()}}))}c(){const e=this.a.configurationFile,t=s.and(M.toNegated(),A.Resource.isEqualTo(e.toString()),s.not("isInDiffEditor"),u);b.appendMenuItem(L.EditorTitle,{command:{id:v,title:a(5917,"Manage Language Models"),icon:P},when:t,group:"navigation",order:1});const r=s.and(M,u);b.appendMenuItem(L.EditorTitle,{command:{id:"workbench.action.openLanguageModelsJson",title:a(5918,"Open Language Models (JSON)"),icon:P},when:r,group:"navigation",order:1})}};d=_([N(0,y)],d);G(d.ID,d,3);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { isObject, isString } from "../../../../../base/common/types.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { SyncDescriptor } from "../../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../../browser/editor.js";
+import { EditorExtensions } from "../../../../common/editor.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { CONTEXT_MODELS_EDITOR, CONTEXT_MODELS_SEARCH_FOCUS, MANAGE_CHAT_COMMAND_ID } from "../../common/constants.js";
+import { CHAT_CATEGORY } from "../actions/chatActions.js";
+import { ChatManagementEditor, ModelsManagementEditor } from "./chatManagementEditor.js";
+import { ChatManagementEditorInput, ModelsManagementEditorInput } from "./chatManagementEditorInput.js";
+import { ILanguageModelsConfigurationService } from "../../common/languageModelsConfiguration.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../../platform/theme/common/iconRegistry.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { registerWorkbenchContribution2 } from "../../../../common/contributions.js";
+const languageModelsOpenSettingsIcon = registerIcon("language-models-open-settings", Codicon.goToFile, localize("languageModelsOpenSettings", "Icon for open language models settings commands."));
+const LANGUAGE_MODELS_ENTITLEMENT_PRECONDITION = ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.or(ChatContextKeys.Entitlement.planFree, ChatContextKeys.Entitlement.planPro, ChatContextKeys.Entitlement.planProPlus, ChatContextKeys.Entitlement.planBusiness, ChatContextKeys.Entitlement.planEnterprise, ChatContextKeys.Entitlement.internal));
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(ChatManagementEditor, ChatManagementEditor.ID, localize("chatManagementEditor", "Chat Management Editor")), [
+  new SyncDescriptor(ChatManagementEditorInput)
+]);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(ModelsManagementEditor, ModelsManagementEditor.ID, localize("modelsManagementEditor", "Models Management Editor")), [
+  new SyncDescriptor(ModelsManagementEditorInput)
+]);
+class ChatManagementEditorInputSerializer {
+  static {
+    __name(this, "ChatManagementEditorInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(input) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return instantiationService.createInstance(ChatManagementEditorInput);
+  }
+}
+class ModelsManagementEditorInputSerializer {
+  static {
+    __name(this, "ModelsManagementEditorInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(input) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return instantiationService.createInstance(ModelsManagementEditorInput);
+  }
+}
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(ChatManagementEditorInput.ID, ChatManagementEditorInputSerializer);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(ModelsManagementEditorInput.ID, ModelsManagementEditorInputSerializer);
+function sanitizeString(arg) {
+  return isString(arg) ? arg : void 0;
+}
+__name(sanitizeString, "sanitizeString");
+function sanitizeOpenManageCopilotEditorArgs(input) {
+  if (!isObject(input)) {
+    input = {};
+  }
+  const args = input;
+  return {
+    query: sanitizeString(args?.query),
+    section: sanitizeString(args?.section)
+  };
+}
+__name(sanitizeOpenManageCopilotEditorArgs, "sanitizeOpenManageCopilotEditorArgs");
+let ChatManagementActionsContribution = class ChatManagementActionsContribution2 extends Disposable {
+  static {
+    __name(this, "ChatManagementActionsContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatManagementActions";
+  }
+  constructor(languageModelsConfigurationService) {
+    super();
+    this.languageModelsConfigurationService = languageModelsConfigurationService;
+    this.registerChatManagementActions();
+    this.registerLanguageModelsEditorTitleActions();
+  }
+  registerChatManagementActions() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: MANAGE_CHAT_COMMAND_ID,
+          title: localize2("openAiManagement", "Manage Language Models"),
+          category: CHAT_CATEGORY,
+          precondition: LANGUAGE_MODELS_ENTITLEMENT_PRECONDITION,
+          f1: true
+        });
+      }
+      async run(accessor, args) {
+        const editorGroupsService = accessor.get(IEditorGroupsService);
+        args = sanitizeOpenManageCopilotEditorArgs(args);
+        return editorGroupsService.activeGroup.openEditor(new ModelsManagementEditorInput(), { pinned: true });
+      }
+    }));
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "chat.models.action.clearSearchResults",
+          precondition: CONTEXT_MODELS_EDITOR,
+          keybinding: {
+            primary: 9,
+            weight: 100,
+            when: CONTEXT_MODELS_SEARCH_FOCUS
+          },
+          title: localize2("models.clearResults", "Clear Models Search Results")
+        });
+      }
+      run(accessor) {
+        const activeEditorPane = accessor.get(IEditorService).activeEditorPane;
+        if (activeEditorPane instanceof ModelsManagementEditor) {
+          activeEditorPane.clearSearch();
+        }
+        return null;
+      }
+    }));
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: "workbench.action.openLanguageModelsJson",
+          title: localize2("openLanguageModelsJson", "Open Language Models (JSON)"),
+          category: CHAT_CATEGORY,
+          precondition: LANGUAGE_MODELS_ENTITLEMENT_PRECONDITION,
+          f1: true
+        });
+      }
+      async run(accessor) {
+        const languageModelsConfigurationService = accessor.get(ILanguageModelsConfigurationService);
+        await languageModelsConfigurationService.configureLanguageModels();
+      }
+    }));
+  }
+  registerLanguageModelsEditorTitleActions() {
+    const modelsConfigurationFile = this.languageModelsConfigurationService.configurationFile;
+    const openModelsManagementEditorWhen = ContextKeyExpr.and(CONTEXT_MODELS_EDITOR.toNegated(), ResourceContextKey.Resource.isEqualTo(modelsConfigurationFile.toString()), ContextKeyExpr.not("isInDiffEditor"), LANGUAGE_MODELS_ENTITLEMENT_PRECONDITION);
+    MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
+      command: {
+        id: MANAGE_CHAT_COMMAND_ID,
+        title: localize2("openAiManagement", "Manage Language Models"),
+        icon: languageModelsOpenSettingsIcon
+      },
+      when: openModelsManagementEditorWhen,
+      group: "navigation",
+      order: 1
+    });
+    const openLanguageModelsJsonWhen = ContextKeyExpr.and(CONTEXT_MODELS_EDITOR, LANGUAGE_MODELS_ENTITLEMENT_PRECONDITION);
+    MenuRegistry.appendMenuItem(MenuId.EditorTitle, {
+      command: {
+        id: "workbench.action.openLanguageModelsJson",
+        title: localize2("openLanguageModelsJson", "Open Language Models (JSON)"),
+        icon: languageModelsOpenSettingsIcon
+      },
+      when: openLanguageModelsJsonWhen,
+      group: "navigation",
+      order: 1
+    });
+  }
+};
+ChatManagementActionsContribution = __decorate([
+  __param(0, ILanguageModelsConfigurationService)
+], ChatManagementActionsContribution);
+registerWorkbenchContribution2(
+  ChatManagementActionsContribution.ID,
+  ChatManagementActionsContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+//# sourceMappingURL=chatManagement.contribution.js.map

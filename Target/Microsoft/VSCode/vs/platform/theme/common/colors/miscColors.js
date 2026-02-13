@@ -1,1 +1,39 @@
-import*as l from"../../../../nls.js";import{$Up as r}from"../../../../base/common/color.js";import{$2p as t,$7p as o}from"../colorUtils.js";import{$hq as a,$gq as c}from"./baseColors.js";const h=t("sash.hoverBorder",c,l.localize(2609,null)),g=t("badge.background",{dark:"#4D4D4D",light:"#C4C4C4",hcDark:r.black,hcLight:"#0F4A85"},l.localize(2610,null)),k=t("badge.foreground",{dark:r.white,light:"#333",hcDark:r.white,hcLight:r.white},l.localize(2611,null)),s=t("activityWarningBadge.foreground",{dark:r.white,light:r.white,hcDark:r.white,hcLight:r.white},l.localize(2612,null)),d=t("activityWarningBadge.background",{dark:"#B27C00",light:"#B27C00",hcDark:null,hcLight:"#B27C00"},l.localize(2613,null)),u=t("activityErrorBadge.foreground",{dark:r.black.lighten(.2),light:r.white,hcDark:null,hcLight:r.black.lighten(.2)},l.localize(2614,null)),p=t("activityErrorBadge.background",{dark:"#F14C4C",light:"#E51400",hcDark:null,hcLight:"#F14C4C"},l.localize(2615,null)),x=t("scrollbar.shadow",{dark:"#000000",light:"#DDDDDD",hcDark:null,hcLight:null},l.localize(2616,null)),B=t("scrollbarSlider.background",{dark:r.fromHex("#797979").transparent(.4),light:r.fromHex("#646464").transparent(.4),hcDark:o(a,.6),hcLight:o(a,.4)},l.localize(2617,null)),D=t("scrollbarSlider.hoverBackground",{dark:r.fromHex("#646464").transparent(.7),light:r.fromHex("#646464").transparent(.7),hcDark:o(a,.8),hcLight:o(a,.8)},l.localize(2618,null)),$=t("scrollbarSlider.activeBackground",{dark:r.fromHex("#BFBFBF").transparent(.4),light:r.fromHex("#000000").transparent(.6),hcDark:a,hcLight:a},l.localize(2619,null)),m=t("scrollbar.background",null,l.localize(2620,null)),f=t("progressBar.background",{dark:r.fromHex("#0E70C0"),light:r.fromHex("#0E70C0"),hcDark:a,hcLight:a},l.localize(2621,null)),q=t("chart.line",{dark:"#236B8E",light:"#236B8E",hcDark:"#236B8E",hcLight:"#236B8E"},l.localize(2622,null)),z=t("chart.axis",{dark:r.fromHex("#BFBFBF").transparent(.4),light:r.fromHex("#000000").transparent(.6),hcDark:a,hcLight:a},l.localize(2623,null)),b=t("chart.guide",{dark:r.fromHex("#BFBFBF").transparent(.2),light:r.fromHex("#000000").transparent(.2),hcDark:a,hcLight:a},l.localize(2624,null));export{x as $Aq,B as $Bq,D as $Cq,$ as $Dq,m as $Eq,f as $Fq,q as $Gq,z as $Hq,b as $Iq,h as $tq,g as $uq,k as $vq,s as $wq,d as $xq,u as $yq,p as $zq};
+import * as nls from "../../../../nls.js";
+import { Color } from "../../../../base/common/color.js";
+import { registerColor, transparent } from "../colorUtils.js";
+import { contrastBorder, focusBorder } from "./baseColors.js";
+const sashHoverBorder = registerColor("sash.hoverBorder", focusBorder, nls.localize("sashActiveBorder", "Border color of active sashes."));
+const badgeBackground = registerColor("badge.background", { dark: "#4D4D4D", light: "#C4C4C4", hcDark: Color.black, hcLight: "#0F4A85" }, nls.localize("badgeBackground", "Badge background color. Badges are small information labels, e.g. for search results count."));
+const badgeForeground = registerColor("badge.foreground", { dark: Color.white, light: "#333", hcDark: Color.white, hcLight: Color.white }, nls.localize("badgeForeground", "Badge foreground color. Badges are small information labels, e.g. for search results count."));
+const activityWarningBadgeForeground = registerColor("activityWarningBadge.foreground", { dark: Color.white, light: Color.white, hcDark: Color.white, hcLight: Color.white }, nls.localize("activityWarningBadge.foreground", "Foreground color of the warning activity badge"));
+const activityWarningBadgeBackground = registerColor("activityWarningBadge.background", { dark: "#B27C00", light: "#B27C00", hcDark: null, hcLight: "#B27C00" }, nls.localize("activityWarningBadge.background", "Background color of the warning activity badge"));
+const activityErrorBadgeForeground = registerColor("activityErrorBadge.foreground", { dark: Color.black.lighten(0.2), light: Color.white, hcDark: null, hcLight: Color.black.lighten(0.2) }, nls.localize("activityErrorBadge.foreground", "Foreground color of the error activity badge"));
+const activityErrorBadgeBackground = registerColor("activityErrorBadge.background", { dark: "#F14C4C", light: "#E51400", hcDark: null, hcLight: "#F14C4C" }, nls.localize("activityErrorBadge.background", "Background color of the error activity badge"));
+const scrollbarShadow = registerColor("scrollbar.shadow", { dark: "#000000", light: "#DDDDDD", hcDark: null, hcLight: null }, nls.localize("scrollbarShadow", "Scrollbar shadow to indicate that the view is scrolled."));
+const scrollbarSliderBackground = registerColor("scrollbarSlider.background", { dark: Color.fromHex("#797979").transparent(0.4), light: Color.fromHex("#646464").transparent(0.4), hcDark: transparent(contrastBorder, 0.6), hcLight: transparent(contrastBorder, 0.4) }, nls.localize("scrollbarSliderBackground", "Scrollbar slider background color."));
+const scrollbarSliderHoverBackground = registerColor("scrollbarSlider.hoverBackground", { dark: Color.fromHex("#646464").transparent(0.7), light: Color.fromHex("#646464").transparent(0.7), hcDark: transparent(contrastBorder, 0.8), hcLight: transparent(contrastBorder, 0.8) }, nls.localize("scrollbarSliderHoverBackground", "Scrollbar slider background color when hovering."));
+const scrollbarSliderActiveBackground = registerColor("scrollbarSlider.activeBackground", { dark: Color.fromHex("#BFBFBF").transparent(0.4), light: Color.fromHex("#000000").transparent(0.6), hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("scrollbarSliderActiveBackground", "Scrollbar slider background color when clicked on."));
+const scrollbarBackground = registerColor("scrollbar.background", null, nls.localize("scrollbarBackground", "Scrollbar track background color."));
+const progressBarBackground = registerColor("progressBar.background", { dark: Color.fromHex("#0E70C0"), light: Color.fromHex("#0E70C0"), hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("progressBarBackground", "Background color of the progress bar that can show for long running operations."));
+const chartLine = registerColor("chart.line", { dark: "#236B8E", light: "#236B8E", hcDark: "#236B8E", hcLight: "#236B8E" }, nls.localize("chartLine", "Line color for the chart."));
+const chartAxis = registerColor("chart.axis", { dark: Color.fromHex("#BFBFBF").transparent(0.4), light: Color.fromHex("#000000").transparent(0.6), hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("chartAxis", "Axis color for the chart."));
+const chartGuide = registerColor("chart.guide", { dark: Color.fromHex("#BFBFBF").transparent(0.2), light: Color.fromHex("#000000").transparent(0.2), hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("chartGuide", "Guide line for the chart."));
+export {
+  activityErrorBadgeBackground,
+  activityErrorBadgeForeground,
+  activityWarningBadgeBackground,
+  activityWarningBadgeForeground,
+  badgeBackground,
+  badgeForeground,
+  chartAxis,
+  chartGuide,
+  chartLine,
+  progressBarBackground,
+  sashHoverBorder,
+  scrollbarBackground,
+  scrollbarShadow,
+  scrollbarSliderActiveBackground,
+  scrollbarSliderBackground,
+  scrollbarSliderHoverBackground
+};
+//# sourceMappingURL=miscColors.js.map

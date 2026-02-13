@@ -1,1 +1,432 @@
-import{$y9 as W,h as M}from"../../../../../../../base/browser/dom.js";import{$Hm as O}from"../../../../../../../base/common/actions.js";import{$sc as ge}from"../../../../../../../base/common/arrays.js";import{$bk as H}from"../../../../../../../base/common/codicons.js";import{$Cb as K}from"../../../../../../../base/common/errors.js";import{$uk as N,$jk as S}from"../../../../../../../base/common/htmlContent.js";import{$Pd as be,$Cd as we}from"../../../../../../../base/common/lifecycle.js";import{Schemas as ve}from"../../../../../../../base/common/network.js";import ke from"../../../../../../../base/common/severity.js";import{$9c as U}from"../../../../../../../base/common/types.js";import{URI as $e}from"../../../../../../../base/common/uri.js";import{$ln as ye}from"../../../../../../../base/common/uuid.js";import{$ZF as Ae}from"../../../../../../../editor/common/languages/language.js";import{$9H as Ce}from"../../../../../../../editor/common/services/model.js";import{$5H as Re}from"../../../../../../../editor/common/services/resolverService.js";import{localize as o}from"../../../../../../../nls.js";import{$0l as Ie}from"../../../../../../../platform/configuration/common/configuration.js";import{$ro as Se}from"../../../../../../../platform/contextkey/common/contextkey.js";import{$Mp as Le}from"../../../../../../../platform/dialogs/common/dialogs.js";import{$jkb as Pe}from"../../../../../../../platform/hover/browser/hover.js";import{$Mj as Te}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$fy as je}from"../../../../../../../platform/keybinding/common/keybinding.js";import{$hp as xe}from"../../../../../../../platform/storage/common/storage.js";import{$2M as Me}from"../../../../../../services/preferences/common/preferences.js";import{$yZb as Oe}from"../../../../../terminal/browser/terminal.js";import{ChatContextKeys as Be}from"../../../../common/actions/chatContextKeys.js";import{$rR as Ve}from"../../../../common/chat.js";import{IChatToolInvocation as Fe}from"../../../../common/chatService/chatService.js";import{$j3b as Ee,$k3b as _e}from"../../../actions/chatToolActions.js";import{$U4b as We}from"../../../chat.js";import{$K2b as He}from"../chatConfirmationWidget.js";import{$E2b as Ke}from"../chatMarkdownContentPart.js";import{$o3b as Ne}from"./chatToolInvocationSubPart.js";var fe=function(l,t,e,s){var a=arguments.length,i=a<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,t,e,s);else for(var A=l.length-1;A>=0;A--)(u=l[A])&&(i=(a<3?u(i):a>3?u(t,e,i):u(t,e))||i);return a>3&&i&&Object.defineProperty(t,e,i),i},n=function(l,t){return function(e,s){t(e,s,l)}},q;(function(l){l.TerminalAutoApproveWarningAccepted="chat.tools.terminal.autoApprove.warningAccepted"})(q||(q={}));let z=class extends Ne{constructor(t,e,s,a,i,u,A,J,G,Z,Q,X,Y,D,ee,te,oe,se,ne,ie,re){super(t),this.c=s,this.m=a,this.n=i,this.q=u,this.s=A,this.t=J,this.u=G,this.w=Z,this.y=Q,this.z=X,this.C=Y,this.F=D,this.G=ee,this.H=te,this.I=oe,this.J=se,this.L=ne,this.codeblocks=[];const T=t.state.get();if(T.type!==1||!T.confirmationMessages?.title)throw new Error("Confirmation messages are missing");e=Ve(e);const{title:L,message:ae,disclaimer:B,terminalCustomActions:h}=T.confirmationMessages,V=e.presentationOverrides?.commandLine??e.confirmation?.commandLine??(e.commandLine.toolEdited??e.commandLine.original).trimStart(),ce=e.confirmation?.cdPrefix??"",le=!!e.presentationOverrides,ue=this.F.getValue("chat.tools.terminal.enableAutoApprove")===!0,pe=this.J.getBoolean("chat.tools.terminal.autoApprove.warningAccepted",-1,!1);let f;if(ue){if(f=[],!pe&&(f.push({label:o(6599,null),data:{type:"enable"}}),f.push(new O),h))for(const C of h)C instanceof O||(C.disabled=!0);h&&f.push(...h),f.length===0&&(f=void 0)}const F={hideToolbar:!0,reserveWidth:19,verticalPadding:5,editorOptions:{wordWrap:"on",readOnly:le,tabFocusMode:!0,ariaLabel:typeof L=="string"?L:L.value}},E=this.C.getLanguageIdByLanguageName(e.presentationOverrides?.language??e.language??"sh")??"shellscript",v=this.D(this.z.createModel(V,this.C.createById(E),this.O(),!0));be(ie.createModelReference(v.uri),this.B);const j=this.D(this.n.get());j.object.render({codeBlockIndex:this.t,codeBlockPartIndex:0,element:this.c.element,languageId:E,renderOptions:F,textModel:Promise.resolve(v),chatSessionResource:this.c.element.sessionResource},this.q()),this.codeblocks.push({codeBlockIndex:this.t,codemapperUri:void 0,elementId:this.c.element.id,focus:()=>j.object.focus(),ownerMarkdownPartId:this.codeblocksPartId,uri:v.uri,uriPromise:Promise.resolve(v.uri),chatSessionResource:this.c.element.sessionResource}),this.D(v.onDidChangeContent(C=>{const g=v.getValue();g!==V?e.commandLine.userEdited=ce+g:e.commandLine.userEdited=void 0}));const P=M(".chat-confirmation-message-terminal",[M(".chat-confirmation-message-terminal-editor@editor"),M(".chat-confirmation-message-terminal-disclaimer@disclaimer")]);W(P.editor,j.object.element),this.D(re.setupDelayedHover(P.editor,{content:ae||"",style:1,position:{hoverPosition:0}}));const x=this.D(this.u.createInstance(He,this.c,{title:L,icon:H.terminal,message:P.root,buttons:this.M(f)}));B&&this.P(P.disclaimer,B,F);const _=Be.Editing.hasToolConfirmation.bindTo(this.G);_.set(!0),this.D(we(()=>_.reset())),this.D(x.onDidClick(async C=>{let g=!0;const R=C.data;let k=0;if(typeof R=="boolean")R&&(k=4,e.autoApproveInfo&&(e.autoApproveInfo=void 0));else if(typeof R!="boolean")switch(R.type){case"enable":{if(await this.N()){if(this.J.store("chat.tools.terminal.autoApprove.warningAccepted",!0,-1,0),e.autoApproveInfo)k=4;else if(h){for(const c of h)c instanceof O||(c.disabled=!1);x.updateButtons(this.M(h)),g=!1}}else g=!1;break}case"skip":{k=5;break}case"newRule":{let w=function(r,m){return r.map(d=>{if(m==="session")return`\`${d.key}\``;const he=N("workbench.action.terminal.chat.openTerminalSettingsLink",m==="workspace"?5:2);return`[\`${d.key}\`](${he.toString()} "${o(6600,null)}")`}).join(", ")};var Ue=w;const b=ge(R.rule),c=b.filter(r=>r.scope==="session"),p=b.filter(r=>r.scope==="workspace"),$=b.filter(r=>r.scope==="user"),me=this.c.element.sessionResource;for(const r of c)this.L.addSessionAutoApproveRule(me,r.key,r.value);if(p.length>0){const m=this.F.inspect("chat.tools.terminal.autoApprove").workspaceValue??{};if(U(m)){const d={...m};for(const y of p)d[y.key]=y.value;await this.F.updateValue("chat.tools.terminal.autoApprove",d,5)}else throw this.I.openSettings({jsonEditor:!0,target:5,revealSetting:{key:"chat.tools.terminal.autoApprove"}}),new K("Cannot add new rule, existing workspace setting is unexpected format")}if($.length>0){const m=this.F.inspect("chat.tools.terminal.autoApprove").userValue??{};if(U(m)){const d={...m};for(const y of $)d[y.key]=y.value;await this.F.updateValue("chat.tools.terminal.autoApprove",d,2)}else throw this.I.openSettings({jsonEditor:!0,target:2,revealSetting:{key:"chat.tools.terminal.autoApprove"}}),new K("Cannot add new rule, existing setting is unexpected format")}const de={isTrusted:{enabledCommands:["workbench.action.terminal.chat.openTerminalSettingsLink"]}},I=[];c.length>0&&I.push(c.length===1?o(6601,null,w(c,"session")):o(6602,null,w(c,"session"))),p.length>0&&I.push(p.length===1?o(6603,null,w(p,"workspace")):o(6604,null,w(p,"workspace"))),$.length>0&&I.push($.length===1?o(6605,null,w($,"user")):o(6606,null,w($,"user"))),I.length>0&&(e.autoApproveInfo=new S(I.join(", "),de)),k=4;break}case"configure":{this.I.openSettings({target:2,query:"@id:chat.tools.terminal.autoApprove"}),g=!1;break}case"sessionApproval":{const b=this.c.element.sessionResource;this.L.setChatSessionAutoApproval(b,!0);const c=N("workbench.action.terminal.chat.disableSessionAutoApproval",b),p={isTrusted:{enabledCommands:["workbench.action.terminal.chat.disableSessionAutoApproval"]}};e.autoApproveInfo=new S(`${o(6607,null)} ([${o(6608,null)}](${c.toString()}))`,p),k=4;break}}g&&(Fe.confirmWith(t,{type:k}),this.H.getWidgetBySessionResource(this.c.element.sessionResource)?.focusInput())})),this.domNode=x.domNode}M(t){const e=(s,a,i=s)=>{const u=this.y.appendKeybinding(i,a);return{label:s,tooltip:u}};return[{...e(o(6609,null),Ee),data:!0,moreActions:t},{...e(o(6610,null),_e,o(6611,null)),data:{type:"skip"},isSecondary:!0}]}async N(){return(await this.w.prompt({type:ke.Info,message:o(6612,null),buttons:[{label:o(6613,null),run:()=>!0}],cancelButton:!0,custom:{icon:H.shield,markdownDetails:[{markdown:new S(o(6614,null))},{markdown:new S(`[${o(6615,null)}](https://code.visualstudio.com/docs/copilot/security#_security-considerations)`)}]}})).result===!0}O(){return $e.from({scheme:ve.vscodeChatCodeBlock,path:ye()})}P(t,e,s){const a=this.D(this.u.createInstance(Ke,{kind:"markdownContent",content:typeof e=="string"?new S().appendMarkdown(e):e},this.c,this.n,!1,this.t,this.m,void 0,this.q(),this.s,{codeBlockRenderOptions:s}));W(t,a.domNode)}};z=fe([n(8,Te),n(9,Le),n(10,je),n(11,Ce),n(12,Ae),n(13,Ie),n(14,Se),n(15,We),n(16,Me),n(17,xe),n(18,Oe),n(19,Re),n(20,Pe)],z);export{z as $F3b,q as TerminalToolConfirmationStorageKeys};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { append, h } from "../../../../../../../base/browser/dom.js";
+import { Separator } from "../../../../../../../base/common/actions.js";
+import { asArray } from "../../../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../../../base/common/codicons.js";
+import { ErrorNoTelemetry } from "../../../../../../../base/common/errors.js";
+import { createCommandUri, MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { thenRegisterOrDispose, toDisposable } from "../../../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../../../base/common/network.js";
+import Severity from "../../../../../../../base/common/severity.js";
+import { isObject } from "../../../../../../../base/common/types.js";
+import { URI } from "../../../../../../../base/common/uri.js";
+import { generateUuid } from "../../../../../../../base/common/uuid.js";
+import { ILanguageService } from "../../../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../../../platform/dialogs/common/dialogs.js";
+import { IHoverService } from "../../../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../../platform/keybinding/common/keybinding.js";
+import { IStorageService } from "../../../../../../../platform/storage/common/storage.js";
+import { IPreferencesService } from "../../../../../../services/preferences/common/preferences.js";
+import { ITerminalChatService } from "../../../../../terminal/browser/terminal.js";
+import { ChatContextKeys } from "../../../../common/actions/chatContextKeys.js";
+import { migrateLegacyTerminalToolSpecificData } from "../../../../common/chat.js";
+import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+import { AcceptToolConfirmationActionId, SkipToolConfirmationActionId } from "../../../actions/chatToolActions.js";
+import { IChatWidgetService } from "../../../chat.js";
+import { ChatCustomConfirmationWidget } from "../chatConfirmationWidget.js";
+import { ChatMarkdownContentPart } from "../chatMarkdownContentPart.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+var TerminalToolConfirmationStorageKeys;
+(function(TerminalToolConfirmationStorageKeys2) {
+  TerminalToolConfirmationStorageKeys2["TerminalAutoApproveWarningAccepted"] = "chat.tools.terminal.autoApprove.warningAccepted";
+})(TerminalToolConfirmationStorageKeys || (TerminalToolConfirmationStorageKeys = {}));
+let ChatTerminalToolConfirmationSubPart = class ChatTerminalToolConfirmationSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatTerminalToolConfirmationSubPart");
+  }
+  constructor(toolInvocation, terminalData, context, renderer, editorPool, currentWidthDelegate, codeBlockModelCollection, codeBlockStartIndex, instantiationService, dialogService, keybindingService, modelService, languageService, configurationService, contextKeyService, chatWidgetService, preferencesService, storageService, terminalChatService, textModelService, hoverService) {
+    super(toolInvocation);
+    this.context = context;
+    this.renderer = renderer;
+    this.editorPool = editorPool;
+    this.currentWidthDelegate = currentWidthDelegate;
+    this.codeBlockModelCollection = codeBlockModelCollection;
+    this.codeBlockStartIndex = codeBlockStartIndex;
+    this.instantiationService = instantiationService;
+    this.dialogService = dialogService;
+    this.keybindingService = keybindingService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this.configurationService = configurationService;
+    this.contextKeyService = contextKeyService;
+    this.chatWidgetService = chatWidgetService;
+    this.preferencesService = preferencesService;
+    this.storageService = storageService;
+    this.terminalChatService = terminalChatService;
+    this.codeblocks = [];
+    const state = toolInvocation.state.get();
+    if (state.type !== 1 || !state.confirmationMessages?.title) {
+      throw new Error("Confirmation messages are missing");
+    }
+    terminalData = migrateLegacyTerminalToolSpecificData(terminalData);
+    const { title, message, disclaimer, terminalCustomActions } = state.confirmationMessages;
+    const initialContent = terminalData.presentationOverrides?.commandLine ?? terminalData.confirmation?.commandLine ?? (terminalData.commandLine.toolEdited ?? terminalData.commandLine.original).trimStart();
+    const cdPrefix = terminalData.confirmation?.cdPrefix ?? "";
+    const isReadOnly = !!terminalData.presentationOverrides;
+    const autoApproveEnabled = this.configurationService.getValue(
+      "chat.tools.terminal.enableAutoApprove"
+      /* TerminalContribSettingId.EnableAutoApprove */
+    ) === true;
+    const autoApproveWarningAccepted = this.storageService.getBoolean("chat.tools.terminal.autoApprove.warningAccepted", -1, false);
+    let moreActions = void 0;
+    if (autoApproveEnabled) {
+      moreActions = [];
+      if (!autoApproveWarningAccepted) {
+        moreActions.push({
+          label: localize("autoApprove.enable", "Enable Auto Approve..."),
+          data: {
+            type: "enable"
+          }
+        });
+        moreActions.push(new Separator());
+        if (terminalCustomActions) {
+          for (const action of terminalCustomActions) {
+            if (!(action instanceof Separator)) {
+              action.disabled = true;
+            }
+          }
+        }
+      }
+      if (terminalCustomActions) {
+        moreActions.push(...terminalCustomActions);
+      }
+      if (moreActions.length === 0) {
+        moreActions = void 0;
+      }
+    }
+    const codeBlockRenderOptions = {
+      hideToolbar: true,
+      reserveWidth: 19,
+      verticalPadding: 5,
+      editorOptions: {
+        wordWrap: "on",
+        readOnly: isReadOnly,
+        tabFocusMode: true,
+        ariaLabel: typeof title === "string" ? title : title.value
+      }
+    };
+    const languageId = this.languageService.getLanguageIdByLanguageName(terminalData.presentationOverrides?.language ?? terminalData.language ?? "sh") ?? "shellscript";
+    const model = this._register(this.modelService.createModel(initialContent, this.languageService.createById(languageId), this._getUniqueCodeBlockUri(), true));
+    thenRegisterOrDispose(textModelService.createModelReference(model.uri), this._store);
+    const editor = this._register(this.editorPool.get());
+    editor.object.render({
+      codeBlockIndex: this.codeBlockStartIndex,
+      codeBlockPartIndex: 0,
+      element: this.context.element,
+      languageId,
+      renderOptions: codeBlockRenderOptions,
+      textModel: Promise.resolve(model),
+      chatSessionResource: this.context.element.sessionResource
+    }, this.currentWidthDelegate());
+    this.codeblocks.push({
+      codeBlockIndex: this.codeBlockStartIndex,
+      codemapperUri: void 0,
+      elementId: this.context.element.id,
+      focus: /* @__PURE__ */ __name(() => editor.object.focus(), "focus"),
+      ownerMarkdownPartId: this.codeblocksPartId,
+      uri: model.uri,
+      uriPromise: Promise.resolve(model.uri),
+      chatSessionResource: this.context.element.sessionResource
+    });
+    this._register(model.onDidChangeContent((e) => {
+      const currentValue = model.getValue();
+      if (currentValue !== initialContent) {
+        terminalData.commandLine.userEdited = cdPrefix + currentValue;
+      } else {
+        terminalData.commandLine.userEdited = void 0;
+      }
+    }));
+    const elements = h(".chat-confirmation-message-terminal", [
+      h(".chat-confirmation-message-terminal-editor@editor"),
+      h(".chat-confirmation-message-terminal-disclaimer@disclaimer")
+    ]);
+    append(elements.editor, editor.object.element);
+    this._register(hoverService.setupDelayedHover(elements.editor, {
+      content: message || "",
+      style: 1,
+      position: {
+        hoverPosition: 0
+        /* HoverPosition.LEFT */
+      }
+    }));
+    const confirmWidget = this._register(this.instantiationService.createInstance(ChatCustomConfirmationWidget, this.context, {
+      title,
+      icon: Codicon.terminal,
+      message: elements.root,
+      buttons: this._createButtons(moreActions)
+    }));
+    if (disclaimer) {
+      this._appendMarkdownPart(elements.disclaimer, disclaimer, codeBlockRenderOptions);
+    }
+    const hasToolConfirmationKey = ChatContextKeys.Editing.hasToolConfirmation.bindTo(this.contextKeyService);
+    hasToolConfirmationKey.set(true);
+    this._register(toDisposable(() => hasToolConfirmationKey.reset()));
+    this._register(confirmWidget.onDidClick(async (button) => {
+      let doComplete = true;
+      const data = button.data;
+      let toolConfirmKind = 0;
+      if (typeof data === "boolean") {
+        if (data) {
+          toolConfirmKind = 4;
+          if (terminalData.autoApproveInfo) {
+            terminalData.autoApproveInfo = void 0;
+          }
+        }
+      } else if (typeof data !== "boolean") {
+        switch (data.type) {
+          case "enable": {
+            const optedIn = await this._showAutoApproveWarning();
+            if (optedIn) {
+              this.storageService.store(
+                "chat.tools.terminal.autoApprove.warningAccepted",
+                true,
+                -1,
+                0
+                /* StorageTarget.USER */
+              );
+              if (terminalData.autoApproveInfo) {
+                toolConfirmKind = 4;
+              } else if (terminalCustomActions) {
+                for (const action of terminalCustomActions) {
+                  if (!(action instanceof Separator)) {
+                    action.disabled = false;
+                  }
+                }
+                confirmWidget.updateButtons(this._createButtons(terminalCustomActions));
+                doComplete = false;
+              }
+            } else {
+              doComplete = false;
+            }
+            break;
+          }
+          case "skip": {
+            toolConfirmKind = 5;
+            break;
+          }
+          case "newRule": {
+            let formatRuleLinks2 = function(rules, scope) {
+              return rules.map((e) => {
+                if (scope === "session") {
+                  return `\`${e.key}\``;
+                }
+                const target = scope === "workspace" ? 5 : 2;
+                const settingsUri = createCommandUri("workbench.action.terminal.chat.openTerminalSettingsLink", target);
+                return `[\`${e.key}\`](${settingsUri.toString()} "${localize("ruleTooltip", "View rule in settings")}")`;
+              }).join(", ");
+            };
+            var formatRuleLinks = formatRuleLinks2;
+            __name(formatRuleLinks2, "formatRuleLinks");
+            const newRules = asArray(data.rule);
+            const sessionRules = newRules.filter((r) => r.scope === "session");
+            const workspaceRules = newRules.filter((r) => r.scope === "workspace");
+            const userRules = newRules.filter((r) => r.scope === "user");
+            const chatSessionResource = this.context.element.sessionResource;
+            for (const rule of sessionRules) {
+              this.terminalChatService.addSessionAutoApproveRule(chatSessionResource, rule.key, rule.value);
+            }
+            if (workspaceRules.length > 0) {
+              const inspect = this.configurationService.inspect(
+                "chat.tools.terminal.autoApprove"
+                /* TerminalContribSettingId.AutoApprove */
+              );
+              const oldValue = inspect.workspaceValue ?? {};
+              if (isObject(oldValue)) {
+                const newValue = { ...oldValue };
+                for (const rule of workspaceRules) {
+                  newValue[rule.key] = rule.value;
+                }
+                await this.configurationService.updateValue(
+                  "chat.tools.terminal.autoApprove",
+                  newValue,
+                  5
+                  /* ConfigurationTarget.WORKSPACE */
+                );
+              } else {
+                this.preferencesService.openSettings({
+                  jsonEditor: true,
+                  target: 5,
+                  revealSetting: {
+                    key: "chat.tools.terminal.autoApprove"
+                    /* TerminalContribSettingId.AutoApprove */
+                  }
+                });
+                throw new ErrorNoTelemetry(`Cannot add new rule, existing workspace setting is unexpected format`);
+              }
+            }
+            if (userRules.length > 0) {
+              const inspect = this.configurationService.inspect(
+                "chat.tools.terminal.autoApprove"
+                /* TerminalContribSettingId.AutoApprove */
+              );
+              const oldValue = inspect.userValue ?? {};
+              if (isObject(oldValue)) {
+                const newValue = { ...oldValue };
+                for (const rule of userRules) {
+                  newValue[rule.key] = rule.value;
+                }
+                await this.configurationService.updateValue(
+                  "chat.tools.terminal.autoApprove",
+                  newValue,
+                  2
+                  /* ConfigurationTarget.USER */
+                );
+              } else {
+                this.preferencesService.openSettings({
+                  jsonEditor: true,
+                  target: 2,
+                  revealSetting: {
+                    key: "chat.tools.terminal.autoApprove"
+                    /* TerminalContribSettingId.AutoApprove */
+                  }
+                });
+                throw new ErrorNoTelemetry(`Cannot add new rule, existing setting is unexpected format`);
+              }
+            }
+            const mdTrustSettings = {
+              isTrusted: {
+                enabledCommands: [
+                  "workbench.action.terminal.chat.openTerminalSettingsLink"
+                  /* TerminalContribCommandId.OpenTerminalSettingsLink */
+                ]
+              }
+            };
+            const parts = [];
+            if (sessionRules.length > 0) {
+              parts.push(sessionRules.length === 1 ? localize("newRule.session", "Session auto approve rule {0} added", formatRuleLinks2(sessionRules, "session")) : localize("newRule.session.plural", "Session auto approve rules {0} added", formatRuleLinks2(sessionRules, "session")));
+            }
+            if (workspaceRules.length > 0) {
+              parts.push(workspaceRules.length === 1 ? localize("newRule.workspace", "Workspace auto approve rule {0} added", formatRuleLinks2(workspaceRules, "workspace")) : localize("newRule.workspace.plural", "Workspace auto approve rules {0} added", formatRuleLinks2(workspaceRules, "workspace")));
+            }
+            if (userRules.length > 0) {
+              parts.push(userRules.length === 1 ? localize("newRule.user", "User auto approve rule {0} added", formatRuleLinks2(userRules, "user")) : localize("newRule.user.plural", "User auto approve rules {0} added", formatRuleLinks2(userRules, "user")));
+            }
+            if (parts.length > 0) {
+              terminalData.autoApproveInfo = new MarkdownString(parts.join(", "), mdTrustSettings);
+            }
+            toolConfirmKind = 4;
+            break;
+          }
+          case "configure": {
+            this.preferencesService.openSettings({
+              target: 2,
+              query: `@id:${"chat.tools.terminal.autoApprove"}`
+            });
+            doComplete = false;
+            break;
+          }
+          case "sessionApproval": {
+            const sessionResource = this.context.element.sessionResource;
+            this.terminalChatService.setChatSessionAutoApproval(sessionResource, true);
+            const disableUri = createCommandUri("workbench.action.terminal.chat.disableSessionAutoApproval", sessionResource);
+            const mdTrustSettings = {
+              isTrusted: {
+                enabledCommands: [
+                  "workbench.action.terminal.chat.disableSessionAutoApproval"
+                  /* TerminalContribCommandId.DisableSessionAutoApproval */
+                ]
+              }
+            };
+            terminalData.autoApproveInfo = new MarkdownString(`${localize("sessionApproval", "All commands will be auto approved for this session")} ([${localize("sessionApproval.disable", "Disable")}](${disableUri.toString()}))`, mdTrustSettings);
+            toolConfirmKind = 4;
+            break;
+          }
+        }
+      }
+      if (doComplete) {
+        IChatToolInvocation.confirmWith(toolInvocation, { type: toolConfirmKind });
+        this.chatWidgetService.getWidgetBySessionResource(this.context.element.sessionResource)?.focusInput();
+      }
+    }));
+    this.domNode = confirmWidget.domNode;
+  }
+  _createButtons(moreActions) {
+    const getLabelAndTooltip = /* @__PURE__ */ __name((label, actionId, tooltipDetail = label) => {
+      const tooltip = this.keybindingService.appendKeybinding(tooltipDetail, actionId);
+      return { label, tooltip };
+    }, "getLabelAndTooltip");
+    return [
+      {
+        ...getLabelAndTooltip(localize("tool.allow", "Allow"), AcceptToolConfirmationActionId),
+        data: true,
+        moreActions
+      },
+      {
+        ...getLabelAndTooltip(localize("tool.skip", "Skip"), SkipToolConfirmationActionId, localize("skip.detail", "Proceed without executing this command")),
+        data: { type: "skip" },
+        isSecondary: true
+      }
+    ];
+  }
+  async _showAutoApproveWarning() {
+    const promptResult = await this.dialogService.prompt({
+      type: Severity.Info,
+      message: localize("autoApprove.title", "Enable terminal auto approve?"),
+      buttons: [{
+        label: localize("autoApprove.button.enable", "Enable"),
+        run: /* @__PURE__ */ __name(() => true, "run")
+      }],
+      cancelButton: true,
+      custom: {
+        icon: Codicon.shield,
+        markdownDetails: [{
+          markdown: new MarkdownString(localize("autoApprove.markdown", "This will enable a configurable subset of commands to run in the terminal autonomously. It provides *best effort protections* and assumes the agent is not acting maliciously."))
+        }, {
+          markdown: new MarkdownString(`[${localize("autoApprove.markdown2", "Learn more about the potential risks and how to avoid them.")}](https://code.visualstudio.com/docs/copilot/security#_security-considerations)`)
+        }]
+      }
+    });
+    return promptResult.result === true;
+  }
+  _getUniqueCodeBlockUri() {
+    return URI.from({
+      scheme: Schemas.vscodeChatCodeBlock,
+      path: generateUuid()
+    });
+  }
+  _appendMarkdownPart(container, message, codeBlockRenderOptions) {
+    const part = this._register(this.instantiationService.createInstance(ChatMarkdownContentPart, {
+      kind: "markdownContent",
+      content: typeof message === "string" ? new MarkdownString().appendMarkdown(message) : message
+    }, this.context, this.editorPool, false, this.codeBlockStartIndex, this.renderer, void 0, this.currentWidthDelegate(), this.codeBlockModelCollection, { codeBlockRenderOptions }));
+    append(container, part.domNode);
+  }
+};
+ChatTerminalToolConfirmationSubPart = __decorate([
+  __param(8, IInstantiationService),
+  __param(9, IDialogService),
+  __param(10, IKeybindingService),
+  __param(11, IModelService),
+  __param(12, ILanguageService),
+  __param(13, IConfigurationService),
+  __param(14, IContextKeyService),
+  __param(15, IChatWidgetService),
+  __param(16, IPreferencesService),
+  __param(17, IStorageService),
+  __param(18, ITerminalChatService),
+  __param(19, ITextModelService),
+  __param(20, IHoverService)
+], ChatTerminalToolConfirmationSubPart);
+export {
+  ChatTerminalToolConfirmationSubPart,
+  TerminalToolConfirmationStorageKeys
+};
+//# sourceMappingURL=chatTerminalToolConfirmationSubPart.js.map

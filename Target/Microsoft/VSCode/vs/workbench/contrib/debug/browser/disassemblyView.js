@@ -1,2 +1,883 @@
-import{$Y$ as X}from"../../../../base/browser/pixelRatio.js";import{$ as x,$v8 as S,$y9 as j}from"../../../../base/browser/dom.js";import{$Zb as y}from"../../../../base/common/arrays.js";import{$xf as ee}from"../../../../base/common/event.js";import{$Ed as te,$zd as O}from"../../../../base/common/lifecycle.js";import{$8 as se}from"../../../../base/common/path.js";import{URI as F}from"../../../../base/common/uri.js";import{$7cb as ie}from"../../../../editor/browser/config/domFontInfo.js";import{$Gdb as ne}from"../../../../editor/browser/editorBrowser.js";import{$ddb as re}from"../../../../editor/common/config/fontInfoFromSettings.js";import{$_D as oe}from"../../../../editor/common/core/range.js";import{$TE as V}from"../../../../editor/common/core/stringBuilder.js";import{$5H as ce}from"../../../../editor/common/services/resolverService.js";import{localize as b}from"../../../../nls.js";import{$0l as de}from"../../../../platform/configuration/common/configuration.js";import{$ro as U}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as ae}from"../../../../platform/instantiation/common/instantiation.js";import{$$rb as le}from"../../../../platform/list/browser/listService.js";import{$yo as he}from"../../../../platform/log/common/log.js";import{$hp as fe}from"../../../../platform/storage/common/storage.js";import{$pp as ue}from"../../../../platform/telemetry/common/telemetry.js";import{$Jq as ge}from"../../../../platform/theme/common/colorRegistry.js";import{$qu as z}from"../../../../platform/theme/common/themeService.js";import{$$o as me}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$vKb as pe}from"../../../browser/parts/editor/editorPane.js";import{$chc as H,$bhc as q}from"./callStackEditorContribution.js";import*as I from"./debugIcons.js";import{$bZ as be,$aY as $e,$lZ as N}from"../common/debug.js";import{$9W as v}from"../common/debugModel.js";import{$LW as we}from"../common/debugSource.js";import{$CW as Ie,$HW as Ce}from"../common/debugUtils.js";import{$BL as Z}from"../../../services/editor/common/editorService.js";import{$ijb as Le}from"../../../../platform/contextview/browser/contextView.js";import{$rL as ye,$qL as Se}from"../../../../platform/actions/common/actions.js";import{$vo as Ae}from"../../../../platform/commands/common/commands.js";import{$rhc as ke,$yic as Be}from"../../../../workbench/contrib/debug/browser/debugCommands.js";import{$gjb as Re}from"../../../../platform/clipboard/common/clipboardService.js";import{$7jb as Te}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";var B=function(u,e,t,s){var n=arguments.length,r=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(u,e,t,s);else for(var o=u.length-1;o>=0;o--)(i=u[o])&&(r=(n<3?i(r):n>3?i(e,t,r):i(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},h=function(u,e){return function(t,s){e(t,s,u)}},m,M,p;const D={allowBreakpoint:!1,isBreakpointSet:!1,isBreakpointEnabled:!1,instructionReference:"",instructionOffset:0,instructionReferenceOffset:0,address:0n,instruction:{address:"-1",instruction:b(8114,null)}};let W=class extends pe{static{m=this}static{this.a=50}constructor(e,t,s,n,r,i,o,c,l,$){super($e,e,t,s,n),this.y=r,this.eb=i,this.fb=o,this.gb=c,this.j=[],this.m=!0,this.r=!1,this.u=new Map,this.w=l.createMenu(Se.DebugDisassemblyContext,$),this.D(this.w),this.c=void 0,this.f=this.D(new ee({leakWarningThreshold:1e3})),this.g=o.state,this.D(r.onDidChangeConfiguration(g=>{if(g.affectsConfiguration("debug")){const f=this.y.getValue("debug").disassemblyView.showSourceCode;this.m!==f?this.m=f:this.c?.rerender()}}))}get fontInfo(){return this.b||(this.b=this.hb(),this.D(this.y.onDidChangeConfiguration(e=>{e.affectsConfiguration("editor")&&(this.b=this.hb())}))),this.b}hb(){return re(this.y.getValue("editor"),X.getInstance(this.window).value)}get currentInstructionAddresses(){return this.fb.getModel().getSessions(!1).map(e=>e.getAllThreads()).reduce((e,t)=>e.concat(t),[]).map(e=>e.getTopStackFrame()).map(e=>e?.instructionPointerReference).map(e=>e?this.getReferenceAddress(e):void 0)}get focusedCurrentInstructionReference(){return this.fb.getViewModel().focusedStackFrame?.thread.getTopStackFrame()?.instructionPointerReference}get focusedCurrentInstructionAddress(){const e=this.focusedCurrentInstructionReference;return e?this.getReferenceAddress(e):void 0}get focusedInstructionReference(){return this.fb.getViewModel().focusedStackFrame?.instructionPointerReference}get focusedInstructionAddress(){const e=this.focusedInstructionReference;return e?this.getReferenceAddress(e):void 0}get isSourceCodeRender(){return this.m}get debugSession(){return this.fb.getViewModel().focusedSession}get onDidChangeStackFrame(){return this.f.event}get focusedAddressAndOffset(){const e=this.c?.getFocusedElements()[0];if(e)return this.getAddressAndOffset(e)}getAddressAndOffset(e){const t=e.instructionReference,s=Number(e.address-this.getReferenceAddress(t));return{reference:t,offset:s,address:e.address}}ab(e){this.m=this.y.getValue("debug").disassemblyView.showSourceCode;const t=this.fontInfo.lineHeight,s=this,n=new class{constructor(){this.headerRowHeight=0}getHeight(i){return s.isSourceCodeRender&&i.showSourceLocation&&i.instruction.location?.path&&i.instruction.line?i.instruction.endLine?t*Math.max(2,i.instruction.endLine-i.instruction.line+2):t*2:t}},r=this.D(this.eb.createInstance(k,this));this.c=this.D(this.eb.createInstance(le,"DisassemblyView",e,n,[{label:"",tooltip:"",weight:0,minimumWidth:this.fontInfo.lineHeight,maximumWidth:this.fontInfo.lineHeight,templateId:A.TEMPLATE_ID,project(i){return i}},{label:b(8115,null),tooltip:"",weight:.3,templateId:k.TEMPLATE_ID,project(i){return i}}],[this.eb.createInstance(A,this),r],{identityProvider:{getId:i=>i.instruction.address},horizontalScrolling:!1,overrideStyles:{listBackground:ge},multipleSelectionSupport:!1,setRowLineHeight:!1,openOnSingleClick:!1,accessibilityProvider:new Ee,mouseSupport:!1})),this.c.domNode.classList.add("disassembly-view"),this.focusedInstructionReference&&this.qb(this.focusedInstructionReference,0),this.D(this.c.onDidScroll(i=>{if(this.c?.row(0)!==D&&!this.r)if(i.oldScrollTop>i.scrollTop&&i.scrollTop<i.height){this.r=!0;const o=Math.floor(i.scrollTop/this.fontInfo.lineHeight);this.kb(m.a).then(c=>{c>0&&this.c.reveal(o+c,0)}).finally(()=>{this.r=!1})}else i.oldScrollTop<i.scrollTop&&i.scrollTop+i.height>i.scrollHeight-i.height&&(this.r=!0,this.lb(m.a).finally(()=>{this.r=!1}))})),this.D(this.c.onContextMenu(i=>this.tb(i))),this.D(this.fb.getViewModel().onDidFocusStackFrame(({stackFrame:i})=>{this.c&&i?.instructionPointerReference&&this.goToInstructionAndOffset(i.instructionPointerReference,0),this.f.fire()})),this.D(this.fb.getModel().onDidChangeBreakpoints(i=>{if(i&&this.c){let o=!1;i.added?.forEach(c=>{if(c instanceof v){const l=this.ob(c.instructionReference,c.offset);l>=0&&(this.c.row(l).isBreakpointSet=!0,this.c.row(l).isBreakpointEnabled=c.enabled,o=!0)}}),i.removed?.forEach(c=>{if(c instanceof v){const l=this.ob(c.instructionReference,c.offset);l>=0&&(this.c.row(l).isBreakpointSet=!1,o=!0)}}),i.changed?.forEach(c=>{if(c instanceof v){const l=this.ob(c.instructionReference,c.offset);l>=0&&this.c.row(l).isBreakpointEnabled!==c.enabled&&(this.c.row(l).isBreakpointEnabled=c.enabled,o=!0)}}),this.j=this.fb.getModel().getInstructionBreakpoints();for(const c of this.j)this.mb(c.instructionReference);o&&this.f.fire()}})),this.D(this.fb.onDidChangeState(i=>{(i===3||i===2)&&this.g!==3&&this.g!==2&&(this.rb(),this.m=this.y.getValue("debug").disassemblyView.showSourceCode),this.g=i,this.f.fire()}))}layout(e){this.c?.layout(e.height)}async goToInstructionAndOffset(e,t,s){let n=this.u.get(e);n===void 0&&(await this.nb(e,0,-m.a,m.a*2),n=this.u.get(e)),n&&this.jb(n+BigInt(t),s)}getReferenceAddress(e){return this.u.get(e)}jb(e,t){if(!this.c||!e)return!1;const s=this.pb(e);return s>=0?(this.c.reveal(s),t&&(this.c.domFocus(),this.c.setFocus([s])),!0):!1}async kb(e){const t=this.c?.row(0);return t?this.nb(t.instructionReference,t.instructionReferenceOffset,t.instructionOffset-e,e):0}async lb(e){const t=this.c?.row(this.c?.length-1);return t?this.nb(t.instructionReference,t.instructionReferenceOffset,t.instructionOffset+1,e):0}async mb(e){if(this.u.has(e))return!0;const t=await this.debugSession?.disassemble(e,0,0,1);if(t&&t.length>0)try{return this.u.set(e,BigInt(t[0].address)),!0}catch{return!1}return!1}async nb(e,t,s,n){const r=this.debugSession,i=await r?.disassemble(e,t,s,n);if(!this.u.has(e)&&s!==0&&await this.nb(e,0,0,m.a),r&&i&&this.c){const o=[];let c,l;for(let d=0;d<i.length;d++){const a=i[d],C=s+d;if(a.location&&(c=a.location,l=void 0),a.line){const P={startLineNumber:a.line,startColumn:a.column??0,endLineNumber:a.endLine??a.line,endColumn:a.endColumn??0};oe.equalsRange(P,l??null)||(l=P,a.location=c)}let L;try{L=BigInt(a.address)}catch{continue}if(L===-1n)continue;const Q={allowBreakpoint:!0,isBreakpointSet:!1,isBreakpointEnabled:!1,instructionReference:e,instructionReferenceOffset:t,instructionOffset:C,instruction:a,address:L};o.push(Q),t===0&&C===0&&this.u.set(e,L)}if(o.length===0)return 0;const $=this.u.get(e),g=this.j.map(d=>{const a=this.u.get(d.instructionReference);if(a)return{enabled:d.enabled,address:a+BigInt(d.offset||0)}});if($!==void 0)for(const d of o){const a=g.find(C=>C?.address===d.address);a&&(d.isBreakpointSet=!0,d.isBreakpointEnabled=a.enabled)}const f=this.c;f.length===1&&this.c.row(0)===D&&f.splice(0,1);const J=o[0].address,Y=o[o.length-1].address,R=y(f.length,d=>Number(f.row(d).address-J)),T=R<0?~R:R,E=y(f.length,d=>Number(f.row(d).address-Y)),_=(E<0?~E:E+1)-T;let w;for(let d=T-1;d>=0;d--){const{instruction:a}=f.row(d);if(a.location&&a.line!==void 0){w=a;break}}const K=d=>d.line!==void 0&&d.location!==void 0&&(!w||!Ce(d.location,w.location)||d.line!==w.line);for(const d of o)K(d.instruction)&&(d.showSourceLocation=!0,w=d.instruction);return f.splice(T,_,o),o.length-_}return 0}ob(e,t){const s=this.u.get(e);return s===void 0?-1:this.pb(s+BigInt(t))}pb(e){const t=this.c;return t&&t.length>0?y(t.length,s=>{const n=t.row(s);return Number(n.address-e)}):-1}qb(e,t){this.c&&(this.r=!0,this.rb(),this.j=this.fb.getModel().getInstructionBreakpoints(),this.nb(e,t,-m.a*4,m.a*8).then(()=>{if(this.c.length>0){let s;const n=this.u.get(e);if(n!==void 0){const r=this.c;s=y(r.length,i=>Number(r.row(i).address-n)),s<0&&(s=~s)}s===void 0&&(s=Math.floor(this.c.length/2)),this.c.reveal(s,.5),this.c.domFocus(),this.c.setFocus([s])}this.r=!1}))}rb(){this.u.clear(),this.c?.splice(0,this.c.length,[D])}tb(e){const t=Te(this.w.getActions({shouldForwardArgs:!0}));this.gb.showContextMenu({getAnchor:()=>e.anchor,getActions:()=>t,getActionsContext:()=>e.element})}};W=m=B([h(1,ue),h(2,z),h(3,fe),h(4,de),h(5,ae),h(6,N),h(7,Le),h(8,ye),h(9,U)],W);let A=class{static{M=this}static{this.TEMPLATE_ID="breakpoint"}constructor(e,t){this.g=e,this.h=t,this.templateId=M.TEMPLATE_ID,this.a="codicon-"+I.$aGb.regular.id,this.b="codicon-"+I.$aGb.disabled.id,this.c="codicon-"+I.$fGb.id,this.d="codicon-"+I.$iGb.id,this.f="codicon-"+I.$jGb.id}renderTemplate(e){e.style.alignSelf="flex-end";const t=j(e,x(".codicon"));t.style.display="flex",t.style.alignItems="center",t.style.justifyContent="center",t.style.height=this.g.fontInfo.lineHeight+"px";const s={element:void 0},n=[this.g.onDidChangeStackFrame(()=>this.j(t,s.element)),S(e,"mouseover",()=>{s.element?.allowBreakpoint&&t.classList.add(this.c)}),S(e,"mouseout",()=>{s.element?.allowBreakpoint&&t.classList.remove(this.c)}),S(e,"click",()=>{if(s.element?.allowBreakpoint){t.classList.add(this.c);const r=s.element.instructionReference,i=Number(s.element.address-this.g.getReferenceAddress(r));s.element.isBreakpointSet?this.h.removeInstructionBreakpoints(r,i):s.element.allowBreakpoint&&!s.element.isBreakpointSet&&this.h.addInstructionBreakpoint({instructionReference:r,offset:i,address:s.element.address,canPersist:!1})}})];return{currentElement:s,icon:t,disposables:n}}renderElement(e,t,s){s.currentElement.element=e,this.j(s.icon,e)}disposeTemplate(e){O(e.disposables),e.disposables=[]}j(e,t){t?.address===this.g.focusedCurrentInstructionAddress?e.classList.add(this.d):t?.address===this.g.focusedInstructionAddress?e.classList.add(this.f):(e.classList.remove(this.d),e.classList.remove(this.f)),e.classList.remove(this.c),t?.isBreakpointSet?t.isBreakpointEnabled?(e.classList.add(this.a),e.classList.remove(this.b)):(e.classList.remove(this.a),e.classList.add(this.b)):(e.classList.remove(this.a),e.classList.remove(this.b))}};A=M=B([h(1,N)],A);let k=class extends te{static{p=this}static{this.TEMPLATE_ID="instruction"}static{this.a=25}static{this.b=30}constructor(e,t,s,n,r,i){super(),this.g=e,this.h=s,this.j=n,this.m=r,this.n=i,this.templateId=p.TEMPLATE_ID,this.c=t.getColorTheme().getColor(q),this.f=t.getColorTheme().getColor(H),this.D(t.onDidColorThemeChange(o=>{this.c=o.getColor(q),this.f=o.getColor(H)}))}renderTemplate(e){const t=j(e,x(".sourcecode")),s=j(e,x(".instruction"));this.w(t),this.w(s);const n={element:void 0},r=[],i=[this.g.onDidChangeStackFrame(()=>this.r(s,t,n.element)),S(t,"dblclick",()=>this.t(n.element?.instruction))];return{currentElement:n,instruction:s,sourcecode:t,cellDisposable:r,disposables:i}}renderElement(e,t,s){this.q(e,t,s)}async q(e,t,s){s.currentElement.element=e;const n=e.instruction;s.sourcecode.innerText="";const r=new V(1e3);if(this.g.isSourceCodeRender&&e.showSourceLocation&&n.location?.path&&n.line!==void 0){const o=this.u(n);if(o){let c;const l=new V(1e4),$=await this.j.createModelReference(o);if(s.currentElement.element!==e)return;if(c=$.object.textEditorModel,s.cellDisposable.push($),c&&s.currentElement.element===e){let g=n.line;for(;g&&g>=1&&g<=c.getLineCount();){const f=c.getLineContent(g);if(l.appendString(`  ${g}: `),l.appendString(f+`
-`),n.endLine&&g<n.endLine){g++;continue}break}s.sourcecode.innerText=l.build()}}}let i=10;if(n.address!=="-1"){r.appendString(n.address),n.address.length<p.a&&(i=p.a-n.address.length);for(let o=0;o<i;o++)r.appendString(" ")}if(n.instructionBytes){r.appendString(n.instructionBytes),i=10,n.instructionBytes.length<p.b&&(i=p.b-n.instructionBytes.length);for(let o=0;o<i;o++)r.appendString(" ")}r.appendString(n.instruction),s.instruction.innerText=r.build(),this.r(s.instruction,s.sourcecode,e)}disposeElement(e,t,s){O(s.cellDisposable),s.cellDisposable=[]}disposeTemplate(e){O(e.disposables),e.disposables=[]}r(e,t,s){s&&this.g.currentInstructionAddresses.includes(s.address)?e.style.background=this.c?.toString()||"transparent":s?.address===this.g.focusedInstructionAddress?e.style.background=this.f?.toString()||"transparent":e.style.background="transparent"}t(e){if(e){const t=this.u(e),s=e.endLine?{startLineNumber:e.line,endLineNumber:e.endLine,startColumn:e.column||1,endColumn:e.endColumn||1073741824}:{startLineNumber:e.line,endLineNumber:e.line,startColumn:e.column||1,endColumn:e.endColumn||1073741824};this.h.openEditor({resource:t,description:b(8116,null),options:{preserveFocus:!1,selection:s,revealIfOpened:!0,selectionRevealType:1,pinned:!1}})}}u(e){const t=e.location.path;return t&&Ie(t)?this.m.asCanonicalUri(F.parse(t)):t&&se(t)?this.m.asCanonicalUri(F.file(t)):we(e.location,e.location.path,this.g.debugSession.getId(),this.m,this.n)}w(e){ie(e,this.g.fontInfo),e.style.whiteSpace="pre"}};k=p=B([h(1,z),h(2,Z),h(3,ce),h(4,me),h(5,he)],k);class Ee{getWidgetAriaLabel(){return b(8117,null)}getAriaLabel(e){let t="";const s=e.instruction;return s.address!=="-1"&&(t+=`${b(8118,null)}: ${s.address}`),s.instructionBytes&&(t+=`, ${b(8119,null)}: ${s.instructionBytes}`),t+=`, ${b(8120,null)}: ${s.instruction}`,t}}let G=class{constructor(e,t,s){s.bufferChangeEvents(()=>{this.c=be.bindTo(s)});const n=()=>{this.b&&(this.b.dispose(),this.b=void 0);const r=e.activeTextEditorControl;if(ne(r)){const i=r.getModel()?.getLanguageId();this.c?.set(!!i&&t.getAdapterManager().someDebuggerInterestedInLanguage(i)),this.b=r.onDidChangeModelLanguage(o=>{this.c?.set(t.getAdapterManager().someDebuggerInterestedInLanguage(o.newLanguage))})}else this.c?.set(!1)};n(),this.a=e.onDidActiveEditorChange(n)}dispose(){this.a.dispose(),this.b?.dispose()}};G=B([h(0,Z),h(1,N),h(2,U)],G);Ae.registerCommand({metadata:{description:Be},id:ke,handler:async(u,e)=>{e?.instruction?.address&&u.get(Re).writeText(e.instruction.address)}});export{W as $ihc,G as $jhc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var DisassemblyView_1, BreakpointRenderer_1, InstructionRenderer_1;
+import { PixelRatio } from "../../../../base/browser/pixelRatio.js";
+import { $, addStandardDisposableListener, append } from "../../../../base/browser/dom.js";
+import { binarySearch2 } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, dispose } from "../../../../base/common/lifecycle.js";
+import { isAbsolute } from "../../../../base/common/path.js";
+import { URI } from "../../../../base/common/uri.js";
+import { applyFontInfo } from "../../../../editor/browser/config/domFontInfo.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { createBareFontInfoFromRawSettings } from "../../../../editor/common/config/fontInfoFromSettings.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { StringBuilder } from "../../../../editor/common/core/stringBuilder.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchTable } from "../../../../platform/list/browser/listService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { focusedStackFrameColor, topStackFrameColor } from "./callStackEditorContribution.js";
+import * as icons from "./debugIcons.js";
+import { CONTEXT_LANGUAGE_SUPPORTS_DISASSEMBLE_REQUEST, DISASSEMBLY_VIEW_ID, IDebugService } from "../common/debug.js";
+import { InstructionBreakpoint } from "../common/debugModel.js";
+import { getUriFromSource } from "../common/debugSource.js";
+import { isUriString, sourcesEqual } from "../common/debugUtils.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { COPY_ADDRESS_ID, COPY_ADDRESS_LABEL } from "../../../../workbench/contrib/debug/browser/debugCommands.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { getFlatContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+const disassemblyNotAvailable = {
+  allowBreakpoint: false,
+  isBreakpointSet: false,
+  isBreakpointEnabled: false,
+  instructionReference: "",
+  instructionOffset: 0,
+  instructionReferenceOffset: 0,
+  address: 0n,
+  instruction: {
+    address: "-1",
+    instruction: localize("instructionNotAvailable", "Disassembly not available.")
+  }
+};
+let DisassemblyView = class DisassemblyView2 extends EditorPane {
+  static {
+    __name(this, "DisassemblyView");
+  }
+  static {
+    DisassemblyView_1 = this;
+  }
+  static {
+    this.NUM_INSTRUCTIONS_TO_LOAD = 50;
+  }
+  constructor(group, telemetryService, themeService, storageService, _configurationService, _instantiationService, _debugService, _contextMenuService, menuService, contextKeyService) {
+    super(DISASSEMBLY_VIEW_ID, group, telemetryService, themeService, storageService);
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._debugService = _debugService;
+    this._contextMenuService = _contextMenuService;
+    this._instructionBpList = [];
+    this._enableSourceCodeRender = true;
+    this._loadingLock = false;
+    this._referenceToMemoryAddress = /* @__PURE__ */ new Map();
+    this.menu = menuService.createMenu(MenuId.DebugDisassemblyContext, contextKeyService);
+    this._register(this.menu);
+    this._disassembledInstructions = void 0;
+    this._onDidChangeStackFrame = this._register(new Emitter({ leakWarningThreshold: 1e3 }));
+    this._previousDebuggingState = _debugService.state;
+    this._register(_configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("debug")) {
+        const newValue = this._configurationService.getValue("debug").disassemblyView.showSourceCode;
+        if (this._enableSourceCodeRender !== newValue) {
+          this._enableSourceCodeRender = newValue;
+        } else {
+          this._disassembledInstructions?.rerender();
+        }
+      }
+    }));
+  }
+  get fontInfo() {
+    if (!this._fontInfo) {
+      this._fontInfo = this.createFontInfo();
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor")) {
+          this._fontInfo = this.createFontInfo();
+        }
+      }));
+    }
+    return this._fontInfo;
+  }
+  createFontInfo() {
+    return createBareFontInfoFromRawSettings(this._configurationService.getValue("editor"), PixelRatio.getInstance(this.window).value);
+  }
+  get currentInstructionAddresses() {
+    return this._debugService.getModel().getSessions(false).map((session) => session.getAllThreads()).reduce((prev, curr) => prev.concat(curr), []).map((thread) => thread.getTopStackFrame()).map((frame) => frame?.instructionPointerReference).map((ref) => ref ? this.getReferenceAddress(ref) : void 0);
+  }
+  // Instruction reference of the top stack frame of the focused stack
+  get focusedCurrentInstructionReference() {
+    return this._debugService.getViewModel().focusedStackFrame?.thread.getTopStackFrame()?.instructionPointerReference;
+  }
+  get focusedCurrentInstructionAddress() {
+    const ref = this.focusedCurrentInstructionReference;
+    return ref ? this.getReferenceAddress(ref) : void 0;
+  }
+  get focusedInstructionReference() {
+    return this._debugService.getViewModel().focusedStackFrame?.instructionPointerReference;
+  }
+  get focusedInstructionAddress() {
+    const ref = this.focusedInstructionReference;
+    return ref ? this.getReferenceAddress(ref) : void 0;
+  }
+  get isSourceCodeRender() {
+    return this._enableSourceCodeRender;
+  }
+  get debugSession() {
+    return this._debugService.getViewModel().focusedSession;
+  }
+  get onDidChangeStackFrame() {
+    return this._onDidChangeStackFrame.event;
+  }
+  get focusedAddressAndOffset() {
+    const element = this._disassembledInstructions?.getFocusedElements()[0];
+    if (!element) {
+      return void 0;
+    }
+    return this.getAddressAndOffset(element);
+  }
+  getAddressAndOffset(element) {
+    const reference = element.instructionReference;
+    const offset = Number(element.address - this.getReferenceAddress(reference));
+    return { reference, offset, address: element.address };
+  }
+  createEditor(parent) {
+    this._enableSourceCodeRender = this._configurationService.getValue("debug").disassemblyView.showSourceCode;
+    const lineHeight = this.fontInfo.lineHeight;
+    const thisOM = this;
+    const delegate = new class {
+      constructor() {
+        this.headerRowHeight = 0;
+      }
+      getHeight(row) {
+        if (thisOM.isSourceCodeRender && row.showSourceLocation && row.instruction.location?.path && row.instruction.line) {
+          if (row.instruction.endLine) {
+            return lineHeight * Math.max(2, row.instruction.endLine - row.instruction.line + 2);
+          } else {
+            return lineHeight * 2;
+          }
+        }
+        return lineHeight;
+      }
+    }();
+    const instructionRenderer = this._register(this._instantiationService.createInstance(InstructionRenderer, this));
+    this._disassembledInstructions = this._register(this._instantiationService.createInstance(WorkbenchTable, "DisassemblyView", parent, delegate, [
+      {
+        label: "",
+        tooltip: "",
+        weight: 0,
+        minimumWidth: this.fontInfo.lineHeight,
+        maximumWidth: this.fontInfo.lineHeight,
+        templateId: BreakpointRenderer.TEMPLATE_ID,
+        project(row) {
+          return row;
+        }
+      },
+      {
+        label: localize("disassemblyTableColumnLabel", "instructions"),
+        tooltip: "",
+        weight: 0.3,
+        templateId: InstructionRenderer.TEMPLATE_ID,
+        project(row) {
+          return row;
+        }
+      }
+    ], [
+      this._instantiationService.createInstance(BreakpointRenderer, this),
+      instructionRenderer
+    ], {
+      identityProvider: { getId: /* @__PURE__ */ __name((e) => e.instruction.address, "getId") },
+      horizontalScrolling: false,
+      overrideStyles: {
+        listBackground: editorBackground
+      },
+      multipleSelectionSupport: false,
+      setRowLineHeight: false,
+      openOnSingleClick: false,
+      accessibilityProvider: new AccessibilityProvider(),
+      mouseSupport: false
+    }));
+    this._disassembledInstructions.domNode.classList.add("disassembly-view");
+    if (this.focusedInstructionReference) {
+      this.reloadDisassembly(this.focusedInstructionReference, 0);
+    }
+    this._register(this._disassembledInstructions.onDidScroll((e) => {
+      if (this._disassembledInstructions?.row(0) === disassemblyNotAvailable) {
+        return;
+      }
+      if (this._loadingLock) {
+        return;
+      }
+      if (e.oldScrollTop > e.scrollTop && e.scrollTop < e.height) {
+        this._loadingLock = true;
+        const prevTop = Math.floor(e.scrollTop / this.fontInfo.lineHeight);
+        this.scrollUp_LoadDisassembledInstructions(DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD).then((loaded) => {
+          if (loaded > 0) {
+            this._disassembledInstructions.reveal(prevTop + loaded, 0);
+          }
+        }).finally(() => {
+          this._loadingLock = false;
+        });
+      } else if (e.oldScrollTop < e.scrollTop && e.scrollTop + e.height > e.scrollHeight - e.height) {
+        this._loadingLock = true;
+        this.scrollDown_LoadDisassembledInstructions(DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD).finally(() => {
+          this._loadingLock = false;
+        });
+      }
+    }));
+    this._register(this._disassembledInstructions.onContextMenu((e) => this.onContextMenu(e)));
+    this._register(this._debugService.getViewModel().onDidFocusStackFrame(({ stackFrame }) => {
+      if (this._disassembledInstructions && stackFrame?.instructionPointerReference) {
+        this.goToInstructionAndOffset(stackFrame.instructionPointerReference, 0);
+      }
+      this._onDidChangeStackFrame.fire();
+    }));
+    this._register(this._debugService.getModel().onDidChangeBreakpoints((bpEvent) => {
+      if (bpEvent && this._disassembledInstructions) {
+        let changed = false;
+        bpEvent.added?.forEach((bp) => {
+          if (bp instanceof InstructionBreakpoint) {
+            const index = this.getIndexFromReferenceAndOffset(bp.instructionReference, bp.offset);
+            if (index >= 0) {
+              this._disassembledInstructions.row(index).isBreakpointSet = true;
+              this._disassembledInstructions.row(index).isBreakpointEnabled = bp.enabled;
+              changed = true;
+            }
+          }
+        });
+        bpEvent.removed?.forEach((bp) => {
+          if (bp instanceof InstructionBreakpoint) {
+            const index = this.getIndexFromReferenceAndOffset(bp.instructionReference, bp.offset);
+            if (index >= 0) {
+              this._disassembledInstructions.row(index).isBreakpointSet = false;
+              changed = true;
+            }
+          }
+        });
+        bpEvent.changed?.forEach((bp) => {
+          if (bp instanceof InstructionBreakpoint) {
+            const index = this.getIndexFromReferenceAndOffset(bp.instructionReference, bp.offset);
+            if (index >= 0) {
+              if (this._disassembledInstructions.row(index).isBreakpointEnabled !== bp.enabled) {
+                this._disassembledInstructions.row(index).isBreakpointEnabled = bp.enabled;
+                changed = true;
+              }
+            }
+          }
+        });
+        this._instructionBpList = this._debugService.getModel().getInstructionBreakpoints();
+        for (const bp of this._instructionBpList) {
+          this.primeMemoryReference(bp.instructionReference);
+        }
+        if (changed) {
+          this._onDidChangeStackFrame.fire();
+        }
+      }
+    }));
+    this._register(this._debugService.onDidChangeState((e) => {
+      if ((e === 3 || e === 2) && (this._previousDebuggingState !== 3 && this._previousDebuggingState !== 2)) {
+        this.clear();
+        this._enableSourceCodeRender = this._configurationService.getValue("debug").disassemblyView.showSourceCode;
+      }
+      this._previousDebuggingState = e;
+      this._onDidChangeStackFrame.fire();
+    }));
+  }
+  layout(dimension) {
+    this._disassembledInstructions?.layout(dimension.height);
+  }
+  async goToInstructionAndOffset(instructionReference, offset, focus) {
+    let addr = this._referenceToMemoryAddress.get(instructionReference);
+    if (addr === void 0) {
+      await this.loadDisassembledInstructions(instructionReference, 0, -DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD, DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD * 2);
+      addr = this._referenceToMemoryAddress.get(instructionReference);
+    }
+    if (addr) {
+      this.goToAddress(addr + BigInt(offset), focus);
+    }
+  }
+  /** Gets the address associated with the instruction reference. */
+  getReferenceAddress(instructionReference) {
+    return this._referenceToMemoryAddress.get(instructionReference);
+  }
+  /**
+   * Go to the address provided. If no address is provided, reveal the address of the currently focused stack frame. Returns false if that address is not available.
+   */
+  goToAddress(address, focus) {
+    if (!this._disassembledInstructions) {
+      return false;
+    }
+    if (!address) {
+      return false;
+    }
+    const index = this.getIndexFromAddress(address);
+    if (index >= 0) {
+      this._disassembledInstructions.reveal(index);
+      if (focus) {
+        this._disassembledInstructions.domFocus();
+        this._disassembledInstructions.setFocus([index]);
+      }
+      return true;
+    }
+    return false;
+  }
+  async scrollUp_LoadDisassembledInstructions(instructionCount) {
+    const first = this._disassembledInstructions?.row(0);
+    if (first) {
+      return this.loadDisassembledInstructions(first.instructionReference, first.instructionReferenceOffset, first.instructionOffset - instructionCount, instructionCount);
+    }
+    return 0;
+  }
+  async scrollDown_LoadDisassembledInstructions(instructionCount) {
+    const last = this._disassembledInstructions?.row(this._disassembledInstructions?.length - 1);
+    if (last) {
+      return this.loadDisassembledInstructions(last.instructionReference, last.instructionReferenceOffset, last.instructionOffset + 1, instructionCount);
+    }
+    return 0;
+  }
+  /**
+   * Sets the memory reference address. We don't just loadDisassembledInstructions
+   * for this, since we can't really deal with discontiguous ranges (we can't
+   * detect _if_ a range is discontiguous since we don't know how much memory
+   * comes between instructions.)
+   */
+  async primeMemoryReference(instructionReference) {
+    if (this._referenceToMemoryAddress.has(instructionReference)) {
+      return true;
+    }
+    const s = await this.debugSession?.disassemble(instructionReference, 0, 0, 1);
+    if (s && s.length > 0) {
+      try {
+        this._referenceToMemoryAddress.set(instructionReference, BigInt(s[0].address));
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+  /** Loads disasembled instructions. Returns the number of instructions that were loaded. */
+  async loadDisassembledInstructions(instructionReference, offset, instructionOffset, instructionCount) {
+    const session = this.debugSession;
+    const resultEntries = await session?.disassemble(instructionReference, offset, instructionOffset, instructionCount);
+    if (!this._referenceToMemoryAddress.has(instructionReference) && instructionOffset !== 0) {
+      await this.loadDisassembledInstructions(instructionReference, 0, 0, DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD);
+    }
+    if (session && resultEntries && this._disassembledInstructions) {
+      const newEntries = [];
+      let lastLocation;
+      let lastLine;
+      for (let i = 0; i < resultEntries.length; i++) {
+        const instruction = resultEntries[i];
+        const thisInstructionOffset = instructionOffset + i;
+        if (instruction.location) {
+          lastLocation = instruction.location;
+          lastLine = void 0;
+        }
+        if (instruction.line) {
+          const currentLine = {
+            startLineNumber: instruction.line,
+            startColumn: instruction.column ?? 0,
+            endLineNumber: instruction.endLine ?? instruction.line,
+            endColumn: instruction.endColumn ?? 0
+          };
+          if (!Range.equalsRange(currentLine, lastLine ?? null)) {
+            lastLine = currentLine;
+            instruction.location = lastLocation;
+          }
+        }
+        let address;
+        try {
+          address = BigInt(instruction.address);
+        } catch {
+          console.error(`Could not parse disassembly address ${instruction.address} (in ${JSON.stringify(instruction)})`);
+          continue;
+        }
+        if (address === -1n) {
+          continue;
+        }
+        const entry = {
+          allowBreakpoint: true,
+          isBreakpointSet: false,
+          isBreakpointEnabled: false,
+          instructionReference,
+          instructionReferenceOffset: offset,
+          instructionOffset: thisInstructionOffset,
+          instruction,
+          address
+        };
+        newEntries.push(entry);
+        if (offset === 0 && thisInstructionOffset === 0) {
+          this._referenceToMemoryAddress.set(instructionReference, address);
+        }
+      }
+      if (newEntries.length === 0) {
+        return 0;
+      }
+      const refBaseAddress = this._referenceToMemoryAddress.get(instructionReference);
+      const bps = this._instructionBpList.map((p) => {
+        const base = this._referenceToMemoryAddress.get(p.instructionReference);
+        if (!base) {
+          return void 0;
+        }
+        return {
+          enabled: p.enabled,
+          address: base + BigInt(p.offset || 0)
+        };
+      });
+      if (refBaseAddress !== void 0) {
+        for (const entry of newEntries) {
+          const bp = bps.find((p) => p?.address === entry.address);
+          if (bp) {
+            entry.isBreakpointSet = true;
+            entry.isBreakpointEnabled = bp.enabled;
+          }
+        }
+      }
+      const da = this._disassembledInstructions;
+      if (da.length === 1 && this._disassembledInstructions.row(0) === disassemblyNotAvailable) {
+        da.splice(0, 1);
+      }
+      const firstAddr = newEntries[0].address;
+      const lastAddr = newEntries[newEntries.length - 1].address;
+      const startN = binarySearch2(da.length, (i) => Number(da.row(i).address - firstAddr));
+      const start = startN < 0 ? ~startN : startN;
+      const endN = binarySearch2(da.length, (i) => Number(da.row(i).address - lastAddr));
+      const end = endN < 0 ? ~endN : endN + 1;
+      const toDelete = end - start;
+      let lastLocated;
+      for (let i = start - 1; i >= 0; i--) {
+        const { instruction } = da.row(i);
+        if (instruction.location && instruction.line !== void 0) {
+          lastLocated = instruction;
+          break;
+        }
+      }
+      const shouldShowLocation = /* @__PURE__ */ __name((instruction) => instruction.line !== void 0 && instruction.location !== void 0 && (!lastLocated || !sourcesEqual(instruction.location, lastLocated.location) || instruction.line !== lastLocated.line), "shouldShowLocation");
+      for (const entry of newEntries) {
+        if (shouldShowLocation(entry.instruction)) {
+          entry.showSourceLocation = true;
+          lastLocated = entry.instruction;
+        }
+      }
+      da.splice(start, toDelete, newEntries);
+      return newEntries.length - toDelete;
+    }
+    return 0;
+  }
+  getIndexFromReferenceAndOffset(instructionReference, offset) {
+    const addr = this._referenceToMemoryAddress.get(instructionReference);
+    if (addr === void 0) {
+      return -1;
+    }
+    return this.getIndexFromAddress(addr + BigInt(offset));
+  }
+  getIndexFromAddress(address) {
+    const disassembledInstructions = this._disassembledInstructions;
+    if (disassembledInstructions && disassembledInstructions.length > 0) {
+      return binarySearch2(disassembledInstructions.length, (index) => {
+        const row = disassembledInstructions.row(index);
+        return Number(row.address - address);
+      });
+    }
+    return -1;
+  }
+  /**
+   * Clears the table and reload instructions near the target address
+   */
+  reloadDisassembly(instructionReference, offset) {
+    if (!this._disassembledInstructions) {
+      return;
+    }
+    this._loadingLock = true;
+    this.clear();
+    this._instructionBpList = this._debugService.getModel().getInstructionBreakpoints();
+    this.loadDisassembledInstructions(instructionReference, offset, -DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD * 4, DisassemblyView_1.NUM_INSTRUCTIONS_TO_LOAD * 8).then(() => {
+      if (this._disassembledInstructions.length > 0) {
+        let targetIndex = void 0;
+        const refBaseAddress = this._referenceToMemoryAddress.get(instructionReference);
+        if (refBaseAddress !== void 0) {
+          const da = this._disassembledInstructions;
+          targetIndex = binarySearch2(da.length, (i) => Number(da.row(i).address - refBaseAddress));
+          if (targetIndex < 0) {
+            targetIndex = ~targetIndex;
+          }
+        }
+        if (targetIndex === void 0) {
+          targetIndex = Math.floor(this._disassembledInstructions.length / 2);
+        }
+        this._disassembledInstructions.reveal(targetIndex, 0.5);
+        this._disassembledInstructions.domFocus();
+        this._disassembledInstructions.setFocus([targetIndex]);
+      }
+      this._loadingLock = false;
+    });
+  }
+  clear() {
+    this._referenceToMemoryAddress.clear();
+    this._disassembledInstructions?.splice(0, this._disassembledInstructions.length, [disassemblyNotAvailable]);
+  }
+  onContextMenu(e) {
+    const actions = getFlatContextMenuActions(this.menu.getActions({ shouldForwardArgs: true }));
+    this._contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+      getActionsContext: /* @__PURE__ */ __name(() => e.element, "getActionsContext")
+    });
+  }
+};
+DisassemblyView = DisassemblyView_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IConfigurationService),
+  __param(5, IInstantiationService),
+  __param(6, IDebugService),
+  __param(7, IContextMenuService),
+  __param(8, IMenuService),
+  __param(9, IContextKeyService)
+], DisassemblyView);
+let BreakpointRenderer = class BreakpointRenderer2 {
+  static {
+    __name(this, "BreakpointRenderer");
+  }
+  static {
+    BreakpointRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "breakpoint";
+  }
+  constructor(_disassemblyView, _debugService) {
+    this._disassemblyView = _disassemblyView;
+    this._debugService = _debugService;
+    this.templateId = BreakpointRenderer_1.TEMPLATE_ID;
+    this._breakpointIcon = "codicon-" + icons.breakpoint.regular.id;
+    this._breakpointDisabledIcon = "codicon-" + icons.breakpoint.disabled.id;
+    this._breakpointHintIcon = "codicon-" + icons.debugBreakpointHint.id;
+    this._debugStackframe = "codicon-" + icons.debugStackframe.id;
+    this._debugStackframeFocused = "codicon-" + icons.debugStackframeFocused.id;
+  }
+  renderTemplate(container) {
+    container.style.alignSelf = "flex-end";
+    const icon = append(container, $(".codicon"));
+    icon.style.display = "flex";
+    icon.style.alignItems = "center";
+    icon.style.justifyContent = "center";
+    icon.style.height = this._disassemblyView.fontInfo.lineHeight + "px";
+    const currentElement = { element: void 0 };
+    const disposables = [
+      this._disassemblyView.onDidChangeStackFrame(() => this.rerenderDebugStackframe(icon, currentElement.element)),
+      addStandardDisposableListener(container, "mouseover", () => {
+        if (currentElement.element?.allowBreakpoint) {
+          icon.classList.add(this._breakpointHintIcon);
+        }
+      }),
+      addStandardDisposableListener(container, "mouseout", () => {
+        if (currentElement.element?.allowBreakpoint) {
+          icon.classList.remove(this._breakpointHintIcon);
+        }
+      }),
+      addStandardDisposableListener(container, "click", () => {
+        if (currentElement.element?.allowBreakpoint) {
+          icon.classList.add(this._breakpointHintIcon);
+          const reference = currentElement.element.instructionReference;
+          const offset = Number(currentElement.element.address - this._disassemblyView.getReferenceAddress(reference));
+          if (currentElement.element.isBreakpointSet) {
+            this._debugService.removeInstructionBreakpoints(reference, offset);
+          } else if (currentElement.element.allowBreakpoint && !currentElement.element.isBreakpointSet) {
+            this._debugService.addInstructionBreakpoint({ instructionReference: reference, offset, address: currentElement.element.address, canPersist: false });
+          }
+        }
+      })
+    ];
+    return { currentElement, icon, disposables };
+  }
+  renderElement(element, index, templateData) {
+    templateData.currentElement.element = element;
+    this.rerenderDebugStackframe(templateData.icon, element);
+  }
+  disposeTemplate(templateData) {
+    dispose(templateData.disposables);
+    templateData.disposables = [];
+  }
+  rerenderDebugStackframe(icon, element) {
+    if (element?.address === this._disassemblyView.focusedCurrentInstructionAddress) {
+      icon.classList.add(this._debugStackframe);
+    } else if (element?.address === this._disassemblyView.focusedInstructionAddress) {
+      icon.classList.add(this._debugStackframeFocused);
+    } else {
+      icon.classList.remove(this._debugStackframe);
+      icon.classList.remove(this._debugStackframeFocused);
+    }
+    icon.classList.remove(this._breakpointHintIcon);
+    if (element?.isBreakpointSet) {
+      if (element.isBreakpointEnabled) {
+        icon.classList.add(this._breakpointIcon);
+        icon.classList.remove(this._breakpointDisabledIcon);
+      } else {
+        icon.classList.remove(this._breakpointIcon);
+        icon.classList.add(this._breakpointDisabledIcon);
+      }
+    } else {
+      icon.classList.remove(this._breakpointIcon);
+      icon.classList.remove(this._breakpointDisabledIcon);
+    }
+  }
+};
+BreakpointRenderer = BreakpointRenderer_1 = __decorate([
+  __param(1, IDebugService)
+], BreakpointRenderer);
+let InstructionRenderer = class InstructionRenderer2 extends Disposable {
+  static {
+    __name(this, "InstructionRenderer");
+  }
+  static {
+    InstructionRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "instruction";
+  }
+  static {
+    this.INSTRUCTION_ADDR_MIN_LENGTH = 25;
+  }
+  static {
+    this.INSTRUCTION_BYTES_MIN_LENGTH = 30;
+  }
+  constructor(_disassemblyView, themeService, editorService, textModelService, uriService, logService) {
+    super();
+    this._disassemblyView = _disassemblyView;
+    this.editorService = editorService;
+    this.textModelService = textModelService;
+    this.uriService = uriService;
+    this.logService = logService;
+    this.templateId = InstructionRenderer_1.TEMPLATE_ID;
+    this._topStackFrameColor = themeService.getColorTheme().getColor(topStackFrameColor);
+    this._focusedStackFrameColor = themeService.getColorTheme().getColor(focusedStackFrameColor);
+    this._register(themeService.onDidColorThemeChange((e) => {
+      this._topStackFrameColor = e.getColor(topStackFrameColor);
+      this._focusedStackFrameColor = e.getColor(focusedStackFrameColor);
+    }));
+  }
+  renderTemplate(container) {
+    const sourcecode = append(container, $(".sourcecode"));
+    const instruction = append(container, $(".instruction"));
+    this.applyFontInfo(sourcecode);
+    this.applyFontInfo(instruction);
+    const currentElement = { element: void 0 };
+    const cellDisposable = [];
+    const disposables = [
+      this._disassemblyView.onDidChangeStackFrame(() => this.rerenderBackground(instruction, sourcecode, currentElement.element)),
+      addStandardDisposableListener(sourcecode, "dblclick", () => this.openSourceCode(currentElement.element?.instruction))
+    ];
+    return { currentElement, instruction, sourcecode, cellDisposable, disposables };
+  }
+  renderElement(element, index, templateData) {
+    this.renderElementInner(element, index, templateData);
+  }
+  async renderElementInner(element, index, templateData) {
+    templateData.currentElement.element = element;
+    const instruction = element.instruction;
+    templateData.sourcecode.innerText = "";
+    const sb = new StringBuilder(1e3);
+    if (this._disassemblyView.isSourceCodeRender && element.showSourceLocation && instruction.location?.path && instruction.line !== void 0) {
+      const sourceURI = this.getUriFromSource(instruction);
+      if (sourceURI) {
+        let textModel = void 0;
+        const sourceSB = new StringBuilder(1e4);
+        const ref = await this.textModelService.createModelReference(sourceURI);
+        if (templateData.currentElement.element !== element) {
+          return;
+        }
+        textModel = ref.object.textEditorModel;
+        templateData.cellDisposable.push(ref);
+        if (textModel && templateData.currentElement.element === element) {
+          let lineNumber = instruction.line;
+          while (lineNumber && lineNumber >= 1 && lineNumber <= textModel.getLineCount()) {
+            const lineContent = textModel.getLineContent(lineNumber);
+            sourceSB.appendString(`  ${lineNumber}: `);
+            sourceSB.appendString(lineContent + "\n");
+            if (instruction.endLine && lineNumber < instruction.endLine) {
+              lineNumber++;
+              continue;
+            }
+            break;
+          }
+          templateData.sourcecode.innerText = sourceSB.build();
+        }
+      }
+    }
+    let spacesToAppend = 10;
+    if (instruction.address !== "-1") {
+      sb.appendString(instruction.address);
+      if (instruction.address.length < InstructionRenderer_1.INSTRUCTION_ADDR_MIN_LENGTH) {
+        spacesToAppend = InstructionRenderer_1.INSTRUCTION_ADDR_MIN_LENGTH - instruction.address.length;
+      }
+      for (let i = 0; i < spacesToAppend; i++) {
+        sb.appendString(" ");
+      }
+    }
+    if (instruction.instructionBytes) {
+      sb.appendString(instruction.instructionBytes);
+      spacesToAppend = 10;
+      if (instruction.instructionBytes.length < InstructionRenderer_1.INSTRUCTION_BYTES_MIN_LENGTH) {
+        spacesToAppend = InstructionRenderer_1.INSTRUCTION_BYTES_MIN_LENGTH - instruction.instructionBytes.length;
+      }
+      for (let i = 0; i < spacesToAppend; i++) {
+        sb.appendString(" ");
+      }
+    }
+    sb.appendString(instruction.instruction);
+    templateData.instruction.innerText = sb.build();
+    this.rerenderBackground(templateData.instruction, templateData.sourcecode, element);
+  }
+  disposeElement(element, index, templateData) {
+    dispose(templateData.cellDisposable);
+    templateData.cellDisposable = [];
+  }
+  disposeTemplate(templateData) {
+    dispose(templateData.disposables);
+    templateData.disposables = [];
+  }
+  rerenderBackground(instruction, sourceCode, element) {
+    if (element && this._disassemblyView.currentInstructionAddresses.includes(element.address)) {
+      instruction.style.background = this._topStackFrameColor?.toString() || "transparent";
+    } else if (element?.address === this._disassemblyView.focusedInstructionAddress) {
+      instruction.style.background = this._focusedStackFrameColor?.toString() || "transparent";
+    } else {
+      instruction.style.background = "transparent";
+    }
+  }
+  openSourceCode(instruction) {
+    if (instruction) {
+      const sourceURI = this.getUriFromSource(instruction);
+      const selection = instruction.endLine ? {
+        startLineNumber: instruction.line,
+        endLineNumber: instruction.endLine,
+        startColumn: instruction.column || 1,
+        endColumn: instruction.endColumn || 1073741824
+      } : {
+        startLineNumber: instruction.line,
+        endLineNumber: instruction.line,
+        startColumn: instruction.column || 1,
+        endColumn: instruction.endColumn || 1073741824
+      };
+      this.editorService.openEditor({
+        resource: sourceURI,
+        description: localize("editorOpenedFromDisassemblyDescription", "from disassembly"),
+        options: {
+          preserveFocus: false,
+          selection,
+          revealIfOpened: true,
+          selectionRevealType: 1,
+          pinned: false
+        }
+      });
+    }
+  }
+  getUriFromSource(instruction) {
+    const path = instruction.location.path;
+    if (path && isUriString(path)) {
+      return this.uriService.asCanonicalUri(URI.parse(path));
+    }
+    if (path && isAbsolute(path)) {
+      return this.uriService.asCanonicalUri(URI.file(path));
+    }
+    return getUriFromSource(instruction.location, instruction.location.path, this._disassemblyView.debugSession.getId(), this.uriService, this.logService);
+  }
+  applyFontInfo(element) {
+    applyFontInfo(element, this._disassemblyView.fontInfo);
+    element.style.whiteSpace = "pre";
+  }
+};
+InstructionRenderer = InstructionRenderer_1 = __decorate([
+  __param(1, IThemeService),
+  __param(2, IEditorService),
+  __param(3, ITextModelService),
+  __param(4, IUriIdentityService),
+  __param(5, ILogService)
+], InstructionRenderer);
+class AccessibilityProvider {
+  static {
+    __name(this, "AccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize("disassemblyView", "Disassembly View");
+  }
+  getAriaLabel(element) {
+    let label = "";
+    const instruction = element.instruction;
+    if (instruction.address !== "-1") {
+      label += `${localize("instructionAddress", "Address")}: ${instruction.address}`;
+    }
+    if (instruction.instructionBytes) {
+      label += `, ${localize("instructionBytes", "Bytes")}: ${instruction.instructionBytes}`;
+    }
+    label += `, ${localize(`instructionText`, "Instruction")}: ${instruction.instruction}`;
+    return label;
+  }
+}
+let DisassemblyViewContribution = class DisassemblyViewContribution2 {
+  static {
+    __name(this, "DisassemblyViewContribution");
+  }
+  constructor(editorService, debugService, contextKeyService) {
+    contextKeyService.bufferChangeEvents(() => {
+      this._languageSupportsDisassembleRequest = CONTEXT_LANGUAGE_SUPPORTS_DISASSEMBLE_REQUEST.bindTo(contextKeyService);
+    });
+    const onDidActiveEditorChangeListener = /* @__PURE__ */ __name(() => {
+      if (this._onDidChangeModelLanguage) {
+        this._onDidChangeModelLanguage.dispose();
+        this._onDidChangeModelLanguage = void 0;
+      }
+      const activeTextEditorControl = editorService.activeTextEditorControl;
+      if (isCodeEditor(activeTextEditorControl)) {
+        const language = activeTextEditorControl.getModel()?.getLanguageId();
+        this._languageSupportsDisassembleRequest?.set(!!language && debugService.getAdapterManager().someDebuggerInterestedInLanguage(language));
+        this._onDidChangeModelLanguage = activeTextEditorControl.onDidChangeModelLanguage((e) => {
+          this._languageSupportsDisassembleRequest?.set(debugService.getAdapterManager().someDebuggerInterestedInLanguage(e.newLanguage));
+        });
+      } else {
+        this._languageSupportsDisassembleRequest?.set(false);
+      }
+    }, "onDidActiveEditorChangeListener");
+    onDidActiveEditorChangeListener();
+    this._onDidActiveEditorChangeListener = editorService.onDidActiveEditorChange(onDidActiveEditorChangeListener);
+  }
+  dispose() {
+    this._onDidActiveEditorChangeListener.dispose();
+    this._onDidChangeModelLanguage?.dispose();
+  }
+};
+DisassemblyViewContribution = __decorate([
+  __param(0, IEditorService),
+  __param(1, IDebugService),
+  __param(2, IContextKeyService)
+], DisassemblyViewContribution);
+CommandsRegistry.registerCommand({
+  metadata: {
+    description: COPY_ADDRESS_LABEL
+  },
+  id: COPY_ADDRESS_ID,
+  handler: /* @__PURE__ */ __name(async (accessor, entry) => {
+    if (entry?.instruction?.address) {
+      const clipboardService = accessor.get(IClipboardService);
+      clipboardService.writeText(entry.instruction.address);
+    }
+  }, "handler")
+});
+export {
+  DisassemblyView,
+  DisassemblyViewContribution
+};
+//# sourceMappingURL=disassemblyView.js.map

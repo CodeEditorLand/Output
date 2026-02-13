@@ -1,1 +1,35 @@
-import{derived as o}from"../../../../../../base/common/observable.js";import{$F as h}from"../../../../../../base/common/platform.js";import{$Ttb as s}from"../../model/inlineCompletionsModel.js";class c{constructor(i,e,t){this.a=i,this.inlineEdit=e,this.tabAction=t,this.editorType=this.a.editorType,this.displayLocation=this.inlineEdit.inlineCompletion.hint,this.inViewPort=o(this,n=>s(this.a.editor,this.inlineEdit.inlineCompletion,n)),this.onDidAccept=this.a.onDidAccept}accept(i){this.a.accept(void 0,i)}handleInlineEditShownNextFrame(i,e){const t=this.inlineEdit.inlineCompletion,n=Date.now();t.addRef(),h(()=>{this.a.handleInlineSuggestionShown(t,i,e,n),t.removeRef()})}}export{c as $ltb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { derived } from "../../../../../../base/common/observable.js";
+import { setTimeout0 } from "../../../../../../base/common/platform.js";
+import { isSuggestionInViewport } from "../../model/inlineCompletionsModel.js";
+class ModelPerInlineEdit {
+  static {
+    __name(this, "ModelPerInlineEdit");
+  }
+  constructor(_model, inlineEdit, tabAction) {
+    this._model = _model;
+    this.inlineEdit = inlineEdit;
+    this.tabAction = tabAction;
+    this.editorType = this._model.editorType;
+    this.displayLocation = this.inlineEdit.inlineCompletion.hint;
+    this.inViewPort = derived(this, (reader) => isSuggestionInViewport(this._model.editor, this.inlineEdit.inlineCompletion, reader));
+    this.onDidAccept = this._model.onDidAccept;
+  }
+  accept(alternativeAction) {
+    this._model.accept(void 0, alternativeAction);
+  }
+  handleInlineEditShownNextFrame(viewKind, viewData) {
+    const item = this.inlineEdit.inlineCompletion;
+    const timeWhenShown = Date.now();
+    item.addRef();
+    setTimeout0(() => {
+      this._model.handleInlineSuggestionShown(item, viewKind, viewData, timeWhenShown);
+      item.removeRef();
+    });
+  }
+}
+export {
+  ModelPerInlineEdit
+};
+//# sourceMappingURL=inlineEditsModel.js.map

@@ -1,1 +1,38 @@
-import{$Nj as t}from"../../../../../../platform/instantiation/common/instantiation.js";const c="onCustomAgentProvider",p="onInstructionsProvider",s="onPromptFileProvider",l="onSkillProvider",u=t("IPromptsService");var n;(function(o){o.local="local",o.user="user",o.extension="extension"})(n||(n={}));var r;(function(o){o.contribution="contribution",o.provider="provider"})(r||(r={}));function v(o){if(typeof o!="object"||o===null)return!1;const e=o;return typeof e.userInvokable=="boolean"&&typeof e.agentInvokable=="boolean"}export{c as $RT,p as $ST,s as $TT,l as $UT,u as $VT,v as $WT,r as ExtensionAgentSourceType,n as PromptsStorage};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../../../platform/instantiation/common/instantiation.js";
+const CUSTOM_AGENT_PROVIDER_ACTIVATION_EVENT = "onCustomAgentProvider";
+const INSTRUCTIONS_PROVIDER_ACTIVATION_EVENT = "onInstructionsProvider";
+const PROMPT_FILE_PROVIDER_ACTIVATION_EVENT = "onPromptFileProvider";
+const SKILL_PROVIDER_ACTIVATION_EVENT = "onSkillProvider";
+const IPromptsService = createDecorator("IPromptsService");
+var PromptsStorage;
+(function(PromptsStorage2) {
+  PromptsStorage2["local"] = "local";
+  PromptsStorage2["user"] = "user";
+  PromptsStorage2["extension"] = "extension";
+})(PromptsStorage || (PromptsStorage = {}));
+var ExtensionAgentSourceType;
+(function(ExtensionAgentSourceType2) {
+  ExtensionAgentSourceType2["contribution"] = "contribution";
+  ExtensionAgentSourceType2["provider"] = "provider";
+})(ExtensionAgentSourceType || (ExtensionAgentSourceType = {}));
+function isCustomAgentVisibility(obj) {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+  const v = obj;
+  return typeof v.userInvokable === "boolean" && typeof v.agentInvokable === "boolean";
+}
+__name(isCustomAgentVisibility, "isCustomAgentVisibility");
+export {
+  CUSTOM_AGENT_PROVIDER_ACTIVATION_EVENT,
+  ExtensionAgentSourceType,
+  INSTRUCTIONS_PROVIDER_ACTIVATION_EVENT,
+  IPromptsService,
+  PROMPT_FILE_PROVIDER_ACTIVATION_EVENT,
+  PromptsStorage,
+  SKILL_PROVIDER_ACTIVATION_EVENT,
+  isCustomAgentVisibility
+};
+//# sourceMappingURL=promptsService.js.map

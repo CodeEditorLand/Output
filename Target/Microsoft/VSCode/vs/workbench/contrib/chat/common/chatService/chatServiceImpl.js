@@ -1,1 +1,1200 @@
-import{$ui as re}from"../../../../../base/common/async.js";import{CancellationToken as ve,$Jf as N}from"../../../../../base/common/cancellation.js";import{$Lm as be}from"../../../../../base/common/errorMessage.js";import{$Db as ye,$Cb as ae}from"../../../../../base/common/errors.js";import{$xf as H}from"../../../../../base/common/event.js";import{$jk as Q}from"../../../../../base/common/htmlContent.js";import{Iterable as De}from"../../../../../base/common/iterator.js";import{$Ed as Ae,$Qd as ce,$Dd as de,$Fd as Pe}from"../../../../../base/common/lifecycle.js";import{$5m as Te}from"../../../../../base/common/marshalling.js";import{Schemas as ke}from"../../../../../base/common/network.js";import{autorun as le,derived as he}from"../../../../../base/common/observable.js";import{$Bh as Ee}from"../../../../../base/common/resources.js";import{$rf as Le}from"../../../../../base/common/stopwatch.js";import{$dd as xe}from"../../../../../base/common/types.js";import{$ln as ue}from"../../../../../base/common/uuid.js";import{$hE as Oe}from"../../../../../editor/common/core/ranges/offsetRange.js";import{localize as fe}from"../../../../../nls.js";import{$0l as Fe}from"../../../../../platform/configuration/common/configuration.js";import{$Mj as Me}from"../../../../../platform/instantiation/common/instantiation.js";import{$yo as Ue}from"../../../../../platform/log/common/log.js";import{$wH as We}from"../../../../../platform/progress/common/progress.js";import{$hp as je}from"../../../../../platform/storage/common/storage.js";import{$Ml as Je}from"../../../../../platform/workspace/common/workspace.js";import{$NR as Ne}from"../../../../services/extensions/common/extensions.js";import{$JU as He}from"../../../mcp/common/mcpTypes.js";import{$sR as ze}from"../chat.js";import{$kW as Ge}from"../participants/chatAgents.js";import{$QV as ge}from"../editing/chatEditingService.js";import{$CS as _e,$wS as V,$zS as Be,$uS as Qe,$DS as me}from"../model/chatModel.js";import{$tmc as Ve}from"../model/chatModelStore.js";import{$8R as Ke,$_R as K,$aS as Y,$bS as Ye,$6R as Xe,$9R as Ze,$5R as X}from"../requestParser/chatParserTypes.js";import{$EV as pe}from"../requestParser/chatRequestParser.js";import{$KV as et}from"./chatService.js";import{$vmc as tt,$umc as st}from"./chatServiceTelemetry.js";import{$aW as nt}from"../chatSessionsService.js";import{$ymc as it}from"../model/chatSessionStore.js";import{$3R as ot}from"../participants/chatSlashCommands.js";import{$Amc as rt}from"../model/chatTransferService.js";import{LocalChatSessionUri as C}from"../model/chatUri.js";import{ChatAgentLocation as q,ChatConfiguration as at,ChatModeKind as we}from"../constants.js";import{$bU as ct}from"../tools/languageModelToolsService.js";import{$xmc as dt}from"../model/chatSessionOperationLog.js";import{$VT as lt}from"../promptSyntax/service/promptsService.js";import{$T1 as ht}from"../hooksExecutionService.js";var Se=function(P,e,t,s){var n=arguments.length,i=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(P,e,t,s);else for(var c=P.length-1;c>=0;c--)(o=P[c])&&(i=(n<3?o(i):n>3?o(e,t,i):o(e,t))||i);return n>3&&i&&Object.defineProperty(e,t,i),i},S=function(P,e){return function(t,s){e(t,s,P)}};const ut="interactive.sessions";let O=class{get yieldRequested(){return this.c}constructor(e,t,s){this.cancellationTokenSource=e,this.requestId=t,this.d=s,this.c=!1}dispose(){this.cancellationTokenSource.dispose()}cancel(){this.requestId&&this.d.cancelToolCallsForRequest(this.requestId),this.cancellationTokenSource.cancel()}setYieldRequested(){this.c=!0}};O=Se([S(2,ct)],O);let Ce=class extends Ae{get transferredSessionResource(){return this.j}get onDidCreateModel(){return this.c.onDidCreateModel}setSaveModelsEnabled(e){this.h=e}waitForModelDisposals(){return this.c.waitForModelDisposals()}get edits2Enabled(){return this.L.getValue(at.Edits2Enabled)}get y(){const e=this.H.getWorkspace();return!e.configuration&&e.folders.length===0}constructor(e,t,s,n,i,o,c,r,m,a,h,l,f){super(),this.z=e,this.C=t,this.F=s,this.G=n,this.H=i,this.I=o,this.J=c,this.L=r,this.M=m,this.N=a,this.O=h,this.P=l,this.Q=f,this.f=this.D(new ce),this.g=new Map,this.h=!0,this.m=this.D(new H),this.onDidSubmitRequest=this.m.event,this.n=this.D(new H),this.onDidPerformUserAction=this.n.event,this.q=this.D(new H),this.onDidReceiveQuestionCarouselAnswer=this.q.event,this.s=this.D(new H),this.onDidDisposeSession=this.s.event,this.t=this.D(new ce),this.c=this.D(n.createInstance(Ve,{createModel:d=>this.bb(d),willDisposeModel:async d=>{const g=C.parseLocalSessionId(d.sessionResource);g&&this.U(d)?d.getRequests().length===0&&!d.customTitle?await this.w.deleteSession(g):this.h&&await this.w.storeSessions([d]):!g&&d.getRequests().length>0&&await this.w.storeSessionsMetadataOnly([d])}})),this.D(this.c.onDidDisposeModel(d=>{this.s.fire({sessionResource:[d.sessionResource],reason:"cleared"})})),this.u=this.G.createInstance(st),this.w=this.D(this.G.createInstance(it)),this.w.migrateDataIfNeeded(()=>this.R());const w=this.w.getTransferredSessionData();w&&(this.W("constructor",`Transferred session ${w}`),this.j=w),this.$(),this.D(e.onWillSaveState(()=>this.S())),this.chatModels=he(this,d=>[...this.c.observable.read(d).values()]),this.requestInProgressObs=he(d=>{const g=this.c.observable.read(d).values();return De.some(g,$=>$.requestInProgress.read(d))})}get editingSessions(){return[...this.c.values()].map(e=>e.editingSession).filter(xe)}isEnabled(e){return this.J.getContributedDefaultAgent(e)!==void 0}R(){const e=this.z.get(ut,this.y?-1:1,"");if(e){const t=this.Z(e),s=Object.keys(t).length;return s>0&&this.X("migrateData",`Restored ${s} persisted sessions`),t}}S(){if(!this.h)return;const e=Array.from(this.c.values()).filter(s=>this.U(s));this.w.storeSessions(e);const t=Array.from(this.c.values()).filter(s=>!C.parseLocalSessionId(s.sessionResource));this.w.storeSessionsMetadataOnly(t)}U(e){return C.parseLocalSessionId(e.sessionResource)?e.initialLocation===q.Chat&&!e.isImported:!1}notifyUserAction(e){if(this.u.notifyUserAction(e),this.n.fire(e),e.action.kind==="chatEditingSessionAction"){const t=this.c.get(e.sessionResource);t&&t.notifyEditingAction(e.action)}}notifyQuestionCarouselAnswer(e,t,s){this.q.fire({requestId:e,resolveId:t,answers:s})}async setChatSessionTitle(e,t){const s=this.c.get(e);s&&s.setCustomTitle(t);const n=C.parseLocalSessionId(e);n&&(await this.w.setSessionTitle(n,t),this.S())}W(e,t){t?this.C.trace(`ChatService#${e}: ${t}`):this.C.trace(`ChatService#${e}`)}X(e,t){t?this.C.info(`ChatService#${e}: ${t}`):this.C.info(`ChatService#${e}`)}Y(e,t){this.C.error(`ChatService#${e} ${t}`)}Z(e){try{const t=Te(JSON.parse(e));if(!Array.isArray(t))throw new Error("Expected array");return t.reduce((n,i)=>{for(const o of i.requests)Array.isArray(o.response)?o.response=o.response.map(c=>typeof c=="string"?new Q(c):c):typeof o.response=="string"&&(o.response=[new Q(o.response)]);return n[i.sessionId]=Be(i),n},{})}catch(t){return this.Y("deserializeChats",`Malformed session data: ${t}. [${e.substring(0,20)}${e.length>20?"...":""}]`),{}}}async $(){const e=await this.w.getIndex();await Promise.all(Object.values(e).map(async t=>{if(!t.hasPendingEdits)return;const s=C.forSession(t.sessionId),n=await this.getOrRestoreSession(s);n?.object.editingSession&&(await ge(n.object.editingSession),n.dispose())}))}async getLocalSessionHistory(){const e=await this.getLiveSessionItems(),t=await this.getHistorySessionItems();return[...e,...t]}async getLiveSessionItems(){return await Promise.all(Array.from(this.c.values()).filter(e=>this.ab(e)).map(async e=>{const t=e.title||fe(6870,null);return{sessionResource:e.sessionResource,title:t,lastMessageDate:e.lastMessageDate,timing:e.timing,isActive:!0,stats:await ze(e),lastResponseState:e.lastRequest?.response?.state??0}}))}async getHistorySessionItems(){const e=await this.w.getIndex();return Object.values(e).filter(t=>!t.isExternal).filter(t=>!this.c.has(C.forSession(t.sessionId))&&t.initialLocation===q.Chat&&!t.isEmpty).map(t=>{const s=C.forSession(t.sessionId);return{...t,sessionResource:s,isActive:this.c.has(s)}})}async getMetadataForSession(e){const s=(await this.w.getIndex())[e.toString()];if(s)return{...s,sessionResource:e,isActive:this.c.has(e)}}ab(e){return!e.isImported&&!!C.parseLocalSessionId(e.sessionResource)&&e.initialLocation===q.Chat}async removeHistoryEntry(e){await this.w.deleteSession(this.lb(e)),this.s.fire({sessionResource:[e],reason:"cleared"})}async clearAllHistoryEntries(){await this.w.clearAllSessions()}startSession(e,t){this.W("startSession");const s=ue(),n=C.forSession(s);return this.c.acquireOrCreate({initialData:void 0,location:e,sessionResource:n,sessionId:s,canUseTools:t?.canUseTools??!0,disableBackgroundKeepAlive:t?.disableBackgroundKeepAlive})}bb(e){const{initialData:t,location:s,sessionResource:n,sessionId:i,canUseTools:o,transferEditingSession:c,disableBackgroundKeepAlive:r,inputState:m}=e,a=this.G.createInstance(_e,t,{initialLocation:s,canUseTools:o,resource:n,sessionId:i,disableBackgroundKeepAlive:r,inputState:m});return s===q.Chat&&a.startEditingSession(!0,c),this.cb(a),a}cb(e){this.W("initializeSession",`Initialize session ${e.sessionResource}`),this.activateDefaultAgent(e.initialLocation).catch(t=>this.C.error(t))}async activateDefaultAgent(e){await this.F.whenInstalledExtensionsRegistered();const t=this.J.getContributedDefaultAgent(e)??this.J.getContributedDefaultAgent(q.Chat);if(!t)throw new ae("No default agent contributed");if(t.isCore||await this.F.activateById(t.extensionId,{activationEvent:`onChatParticipant:${t.id}`,extensionId:t.extensionId,startup:!1}),!this.J.getActivatedAgents().find(n=>n.id===t.id))throw new ae("No default agent registered")}getSession(e){return this.c.get(e)}getActiveSessionReference(e){return this.c.acquireExisting(e)}async getOrRestoreSession(e){this.W("getOrRestoreSession",`${e}`);const t=this.c.acquireExisting(e);if(t)return t;const s=C.parseLocalSessionId(e);if(!s)throw new Error(`Cannot restore non-local session ${e}`);let n;return Ee(this.transferredSessionResource,e)?(this.j=void 0,n=await this.w.readTransferredSession(e)):n=await this.w.readSession(s),n?this.c.acquireOrCreate({initialData:n,location:n.value.initialLocation??q.Chat,sessionResource:e,sessionId:s,canUseTools:!0}):void 0}getSessionTitle(e){if(C.parseLocalSessionId(e))return this.c.get(e)?.title??this.w.getMetadataForSessionSync(e)?.title}loadSessionFromContent(e){const t=e.sessionId??ue(),s=C.forSession(t);return this.c.acquireOrCreate({initialData:{value:e,serializer:new dt},location:e.initialLocation??q.Chat,sessionResource:s,sessionId:t,canUseTools:!0})}async loadSessionForResource(e,t,s){if(e.scheme===ke.vscodeLocalChatSession)return this.getOrRestoreSession(e);const n=this.c.acquireExisting(e);if(n)return n;const i=await this.N.getOrCreateChatSession(e,ve.None),o=e.scheme,c=this.c.acquireOrCreate({initialData:void 0,location:t,sessionResource:e,canUseTools:!1,transferEditingSession:i.transferredState?.editingSession,inputState:i.transferredState?.inputState});c.object.setContributedChatSession({chatSessionResource:e,chatSessionType:o,isUntitled:e.path.startsWith("/untitled-")});const r=c.object,m=new de;m.add(c.object.onDidDispose(()=>{m.dispose(),i.dispose()}));let a;for(const h of i.history)if(h.type==="request"){a&&a.response?.complete();const l=h.prompt,f={text:l,parts:[new Xe(new Oe(0,l.length),{startLineNumber:1,startColumn:1,endLineNumber:1,endColumn:l.length+1},l)]},w=h.participant?this.J.getAgent(h.participant):this.J.getAgent(o);a=r.addRequest(f,h.variableData??{variables:[]},0,void 0,w,void 0,void 0,void 0,void 0,!1,void 0,void 0,h.id)}else if(a)for(const l of h.parts)r.acceptResponseProgress(a,l);if(i.isCompleteObs?.get()&&a?.response?.complete(),i.progressObs&&a&&i.interruptActiveResponseCallback){const h=this.G.createInstance(O,new N,void 0);this.f.set(r.sessionResource,h);const l=m.add(new Pe),f=d=>d.onCancellationRequested(()=>{i.interruptActiveResponseCallback?.().then(g=>{if(!g){const $=this.G.createInstance(O,new N,void 0);this.f.set(r.sessionResource,$),l.value=f($.cancellationTokenSource.token)}})});l.value=f(h.cancellationTokenSource.token);let w=0;m.add(le(d=>{const g=i.progressObs?.read(d)??[],$=i.isCompleteObs?.read(d)??!1;if(g.length>w){const F=g.slice(w);for(const M of F)r?.acceptResponseProgress(a,M);w=g.length}$&&(a.response?.complete(),l.clear())}))}else a&&r.editingSession&&(await ge(r.editingSession),a.response?.complete());return c}getChatSessionFromInternalUri(e){const t=this.c.get(e);if(!t)return;const{contributedChatSession:s}=t;return s}async resendRequest(e,t){const s=this.c.get(e.session.sessionResource);if(!s&&s!==e.session)throw new Error(`Unknown session: ${e.session.sessionResource}`);const n=this.f.get(e.session.sessionResource);n&&(this.W("resendRequest",`Session ${e.session.sessionResource} already has a pending request, cancelling...`),n.cancel());const i=t?.location??s.initialLocation,o=t?.attempt??0,c=!t?.noCommandDetection,r=this.J.getDefaultAgent(i,t?.modeInfo?.kind);s.removeRequest(e.id,1);const m={...t,locationData:e.locationData,attachedContext:e.attachedContext};await this.gb(s,s.sessionResource,e.message,o,c,r,i,m).responseCompletePromise}db(e,t,s,n){const i=n.location??e.initialLocation,o=this.eb(t,s,i,n),c=new V({session:e,message:o,variableData:{variables:[]},timestamp:Date.now(),modeInfo:n.modeInfo,locationData:n.locationData,attachedContext:n.attachedContext,modelId:n.userSelectedModelId,userSelectedTools:n.userSelectedTools?.get()}),r=new re;return this.g.set(c.id,r),e.addPendingRequest(c,n.queue??"queued",{...n,queue:void 0}),n.queue==="steering"&&this.setYieldRequested(t),this.W("sendRequest",`Queued message for session ${t}`),{kind:"queued",deferred:r.p}}async sendRequest(e,t,s){if(this.W("sendRequest",`sessionResource: ${e.toString()}, message: ${t.substring(0,20)}${t.length>20?"[...]":""}}`),!t.trim()&&!s?.slashCommand&&!s?.agentId&&!s?.agentIdSilent)return this.W("sendRequest","Rejected empty message"),{kind:"rejected",reason:"Empty message"};const n=this.c.get(e);if(!n)throw new Error(`Unknown session: ${e}`);const i=this.f.has(e),o=n.getPendingRequests().length>0;if(i)return s?.queue?this.db(n,e,t,s):(this.W("sendRequest",`Session ${e} already has a pending request`),{kind:"rejected",reason:"Request already in progress"});if(s?.queue&&o){const d=this.db(n,e,t,s);return this.hb(n),d}const c=n.getRequests();for(let d=c.length-1;d>=0;d-=1){const g=c[d];g.shouldBeRemovedOnSend&&(g.shouldBeRemovedOnSend.afterUndoStop?g.response?.finalizeUndoState():await this.removeRequest(e,g.id))}const r=s?.location??n.initialLocation,m=s?.attempt??0,a=this.J.getDefaultAgent(r,s?.modeInfo?.kind),h=this.eb(e,t,r,s),l=s?.agentIdSilent?this.J.getAgent(s.agentIdSilent):void 0,f=l??h.parts.find(d=>d instanceof K)?.agent??a,w=h.parts.find(d=>d instanceof Y);return{kind:"sent",data:{...this.gb(n,e,h,m,!s?.noCommandDetection,l??a,r,s),agent:f,slashCommand:w?.command}}}eb(e,t,s,n){let i=n?.parserContext;if(n?.agentId){const c=this.J.getAgent(n.agentId);if(!c)throw new Error(`Unknown agent: ${n.agentId}`);i={selectedAgent:c,mode:n.modeInfo?.kind};const r=n.slashCommand?` ${Ze}${n.slashCommand}`:"";t=`${Ke}${c.name}${r} ${t}`}return this.G.createInstance(pe).parseChatRequest(e,t,s,i)}fb(e){this.t.get(e)?.cancel();const t=new N;return this.t.set(e,t),t.token}gb(e,t,s,n,i,o,c,r){const m=this.fb(t);let a;const h=s.parts.find(b=>b instanceof K),l=s.parts.find(b=>b instanceof Y),f=s.parts.find(b=>b instanceof Ye),w=[...e.getRequests()],d=this.G.createInstance(tt,{agent:h?.agent??o,agentSlashCommandPart:l,commandPart:f,sessionId:e.sessionId,location:e.initialLocation,options:r,enableCommandDetection:i});let g=!1;const $=f?"slashCommand":"string",F=new re;let M=!1;function E(){!M&&a?.response&&(F.complete(a.response),M=!0)}const L=new de,Z=L.add(new N),I=Z.token,Re=async()=>{const b=u=>{if(!I.isCancellationRequested){g=!0;for(let R=0;R<u.length;R++){const v=R===u.length-1,p=u[R];p.kind==="markdownContent"?this.W("sendRequest",`Provider returned progress for session ${e.sessionResource}, ${p.content.value.length} chars`):this.W("sendRequest",`Provider returned progress: ${JSON.stringify(p)}`),e.acceptResponseProgress(a,p,!v)}E()}};let T,se,U;try{U=await this.P.getHooks(I)}catch(u){this.C.warn("[ChatService] Failed to collect hooks:",u)}U&&L.add(this.Q.registerHooks(e.sessionResource,U));const qe=new Le(!1);L.add(I.onCancellationRequested(()=>{this.W("sendRequest",`Request for session ${e.sessionResource} was cancelled`),a&&(d.complete({timeToFirstProgress:void 0,result:"cancelled",totalTime:qe.elapsed(),requestType:$,detectedAgent:T,request:a}),e.cancelRequest(a))}));try{let u,R;if(h||o&&!f){const v=(y,j,A,G,$e)=>{const Ie={variables:[]};a=G??e.addRequest(s,Ie,n,r?.modeInfo,y,j,r?.confirmation,r?.locationData,r?.attachedContext,void 0,r?.userSelectedModelId,r?.userSelectedTools?.get());let k,_;if(G)k=G.variableData,_=X(a.message).message;else{k={variables:this.jb(a.attachedContext)},e.updateRequest(a,k);const J=X(a.message);k=me(k,J.diff),_=J.message}const ie={sessionResource:e.sessionResource,requestId:a.id,agentId:y.id,message:_,command:j?.name,variables:k,enableCommandDetection:A,isParticipantDetected:$e,attempt:n,location:c,locationData:a.locationData,acceptedConfirmationData:r?.acceptedConfirmationData,rejectedConfirmationData:r?.rejectedConfirmationData,userSelectedModelId:r?.userSelectedModelId,userSelectedTools:r?.userSelectedTools?.get(),modeInstructions:r?.modeInfo?.modeInstructions,editedFileEvents:a.editedFileEvents,hooks:U};let oe=!0;return L.add(le(J=>{const B=r?.userSelectedTools?.read(J);if(oe){oe=!1;return}B&&(this.J.setRequestTools(y.id,a.id,B),ie.userSelectedTools=B)})),ie};if(this.L.getValue("chat.detectParticipant.enabled")!==!1&&this.J.hasChatParticipantDetectionProviders()&&!h&&!f&&!l&&i&&(c!==q.EditorInline||!this.L.getValue("inlineChat.enableV2"))&&r?.modeInfo?.kind!==we.Agent&&r?.modeInfo?.kind!==we.Edit&&!r?.agentIdSilent){const y=this.kb(w,c,o.id),j=v(o,void 0,i,void 0,!1),A=await this.J.detectAgentOrCommand(j,y,{location:c},I);A&&this.J.getAgent(A.agent.id)?.locations?.includes(c)&&(a.response?.setAgent(A.agent,A.command),T=A.agent,se=A.command)}const p=T??h?.agent??o,x=se??l?.command;await this.F.activateByEvent(`onChatParticipant:${p.id}`);const D=this.kb(w,c,p.id),W=v(p,x,i,a,!!T);this.ib(e,W,o,I);const z=this.f.get(t);if(z&&!z.requestId&&(z.requestId=W.requestId),E(),e.canUseTools){const y=new et(this.O.autostart(I));y.isEmpty||(b([y]),await y.wait())}const ne=await this.J.invokeAgent(p.id,W,b,D,I);u=ne,R=this.J.getFollowups(p.id,W,ne,D,m)}else if(f&&this.I.hasCommand(f.slashCommand.command)){f.slashCommand.silent!==!0&&(a=e.addRequest(s,{variables:[]},n,r?.modeInfo),E());const v=[];for(const D of e.getRequests())D.response&&(v.push({role:1,content:[{type:"text",value:D.message.text}]}),v.push({role:2,content:[{type:"text",value:D.response.response.toString()}]}));const p=s.text,x=await this.I.executeCommand(f.slashCommand.command,p.substring(f.slashCommand.command.length+1).trimStart(),new We(D=>{b([D])}),v,c,e.sessionResource,I);R=Promise.resolve(x?.followUp),u={}}else throw new Error("Cannot handle request");if(I.isCancellationRequested&&!u)return;{u||(this.W("sendRequest",`Provider returned no response for session ${e.sessionResource}`),u={errorDetails:{message:fe(6871,null)}});const v=u.errorDetails?.responseIsFiltered?"filtered":u.errorDetails&&g?"errorWithOutput":u.errorDetails?"error":"success";d.complete({timeToFirstProgress:u.timings?.firstProgress,totalTime:u.timings?.totalElapsed,result:v,requestType:$,detectedAgent:T,request:a}),e.setResponse(a,u),E(),this.W("sendRequest",`Provider returned response for session ${e.sessionResource}`),ee=!u.errorDetails&&!I.isCancellationRequested,a.response?.complete(),R&&R.then(p=>{e.setFollowups(a,p);const x=l?l.command.name:f?.slashCommand.command;this.u.retrievedFollowups(h?.agent.id??"",x,p?.length??0)})}}catch(u){if(this.C.error(`Error while handling chat request: ${be(u,!0)}`),d.complete({timeToFirstProgress:void 0,totalTime:void 0,result:"error",requestType:$,detectedAgent:T,request:a}),a){const R={errorDetails:{message:u.message}};e.setResponse(a,R),E(),a.response?.complete()}}finally{L.dispose()}};let ee=!1;const te=Re();return this.f.set(e.sessionResource,this.G.createInstance(O,Z,void 0)),te.finally(()=>{this.f.deleteAndDispose(e.sessionResource),ee&&this.hb(e)}),this.m.fire({chatSessionResource:e.sessionResource}),{responseCreatedPromise:F.p,responseCompletePromise:te}}processPendingRequests(e){const t=this.c.get(e);t&&!this.f.has(e)&&this.hb(t)}hb(e){const t=e.dequeuePendingRequest();if(!t)return;this.W("processNextPendingRequest",`Processing queued request for session ${e.sessionResource}`);const s=this.g.get(t.request.id);this.g.delete(t.request.id);const n=t.sendOptions,i=n.location??n.locationData?.type??e.initialLocation,o=this.J.getDefaultAgent(i,n.modeInfo?.kind);if(!o){this.C.warn("processNextPendingRequest",`No default agent for location ${i}`),s?.complete({kind:"rejected",reason:"No default agent available"});return}const c=t.request.message,r=n.agentIdSilent?this.J.getAgent(n.agentIdSilent):void 0,m=r??c.parts.find(l=>l instanceof K)?.agent??o,a=c.parts.find(l=>l instanceof Y),h=this.gb(e,e.sessionResource,c,t.request.attempt,!n.noCommandDetection,r??o,i,n);s?.complete({kind:"sent",data:{...h,agent:m,slashCommand:a?.command}})}ib(e,t,s,n){if(e.getRequests().length!==1||e.customTitle)return;const i=[{request:t,response:[],result:{}}];(async()=>{const c=await this.J.getChatTitle(s.id,i,n);c&&!e.customTitle&&e.setCustomTitle(c)})()}jb(e){return e??=[],e.sort((t,s)=>!t.range&&!s.range?0:t.range?s.range?s.range.start-t.range.start:-1:1),e}kb(e,t,s){const n=[],i=this.J.getAgent(s);for(const o of e){if(!o.response||s!==o.response.agent?.id&&!i?.isDefault&&!i?.canAccessPreviousChatHistory||t===q.EditorInline)continue;const c=X(o.message),r={sessionResource:o.session.sessionResource,requestId:o.id,agentId:o.response.agent?.id??"",message:c.message,command:o.response.slashCommand?.name,variables:me(o.variableData,c.diff),location:q.Chat,editedFileEvents:o.editedFileEvents};n.push({request:r,response:Qe(o.response.response.value),result:o.response.result??{}})}return n}async removeRequest(e,t){const s=this.c.get(e);if(!s)throw new Error(`Unknown session: ${e}`);const n=this.f.get(e);n?.requestId===t&&(n.cancel(),this.f.deleteAndDispose(e)),s.removeRequest(t)}async adoptRequest(e,t){if(!(t instanceof V))throw new TypeError("Can only adopt requests of type ChatRequestModel");const s=this.c.get(e);if(!s)throw new Error(`Unknown session: ${e}`);const n=t.session;if(s.adoptRequest(t),t.response&&!t.response.isComplete){const i=this.f.deleteAndLeak(n.sessionResource);i&&(i.requestId=t.id,this.f.set(s.sessionResource,i))}}async addCompleteRequest(e,t,s,n,i){this.W("addCompleteRequest",`message: ${t}`);const o=this.c.get(e);if(!o)throw new Error(`Unknown session: ${e}`);const c=typeof t=="string"?this.G.createInstance(pe).parseChatRequest(e,t):t,r=o.addRequest(c,s||{variables:[]},n??0,void 0,void 0,void 0,void 0,void 0,void 0,!0);if(typeof i.message=="string")o.acceptResponseProgress(r,{content:new Q(i.message),kind:"markdownContent"});else for(const m of i.message)o.acceptResponseProgress(r,m,!0);o.setResponse(r,i.result||{}),i.followups!==void 0&&o.setFollowups(r,i.followups),r.response?.complete()}cancelCurrentRequestForSession(e){this.W("cancelCurrentRequestForSession",`session: ${e}`),this.f.get(e)?.cancel(),this.f.deleteAndDispose(e)}setYieldRequested(e){const t=this.f.get(e);t&&t.setYieldRequested()}removePendingRequest(e,t){const s=this.c.get(e);s&&s.removePendingRequest(t);const n=this.g.get(t);n&&(n.complete({kind:"rejected",reason:"Request was removed from queue"}),this.g.delete(t))}setPendingRequests(e,t){const s=this.c.get(e);s&&s.setPendingRequests(t)}hasSessions(){return this.w.hasSessions()}async transferChatSession(e,t){if(!C.isLocalSession(e))throw new Error(`Can only transfer local chat sessions. Invalid session: ${e}`);const s=this.c.get(e);if(!s)throw new Error(`Failed to transfer session. Unknown session: ${e}`);if(s.initialLocation!==q.Chat)throw new Error(`Can only transfer chat sessions located in the Chat view. Session ${e} has location=${s.initialLocation}`);await this.w.storeTransferSession({sessionResource:s.sessionResource,timestampInMilliseconds:Date.now(),toWorkspace:t},s),this.M.addWorkspaceToTransferred(t),this.W("transferChatSession",`Transferred session ${s.sessionResource} to workspace ${t.toString()}`)}getChatStorageFolder(){return this.w.getChatStorageFolder()}logChatIndex(){this.w.logIndex()}setTitle(e,t){this.c.get(e)?.setCustomTitle(t)}appendProgress(e,t){const s=this.c.get(e.session.sessionResource);if(!(e instanceof V))throw new ye("Can only append progress to requests of type ChatRequestModel");s?.acceptResponseProgress(e,t)}lb(e){const t=C.parseLocalSessionId(e);if(!t)throw new Error(`Invalid local chat session resource: ${e}`);return t}};Ce=Se([S(0,je),S(1,Ue),S(2,Ne),S(3,Me),S(4,Je),S(5,ot),S(6,Ge),S(7,Fe),S(8,rt),S(9,nt),S(10,He),S(11,lt),S(12,ht)],Ce);export{Ce as $Cmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DeferredPromise } from "../../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { BugIndicatingError, ErrorNoTelemetry } from "../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../../base/common/iterator.js";
+import { Disposable, DisposableResourceMap, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { revive } from "../../../../../base/common/marshalling.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { autorun, derived } from "../../../../../base/common/observable.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { StopWatch } from "../../../../../base/common/stopwatch.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { Progress } from "../../../../../platform/progress/common/progress.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+import { IMcpService } from "../../../mcp/common/mcpTypes.js";
+import { awaitStatsForSession } from "../chat.js";
+import { IChatAgentService } from "../participants/chatAgents.js";
+import { chatEditingSessionIsReady } from "../editing/chatEditingService.js";
+import { ChatModel, ChatRequestModel, normalizeSerializableChatData, toChatHistoryContent, updateRanges } from "../model/chatModel.js";
+import { ChatModelStore } from "../model/chatModelStore.js";
+import { chatAgentLeader, ChatRequestAgentPart, ChatRequestAgentSubcommandPart, ChatRequestSlashCommandPart, ChatRequestTextPart, chatSubcommandLeader, getPromptText } from "../requestParser/chatParserTypes.js";
+import { ChatRequestParser } from "../requestParser/chatRequestParser.js";
+import { ChatMcpServersStarting } from "./chatService.js";
+import { ChatRequestTelemetry, ChatServiceTelemetry } from "./chatServiceTelemetry.js";
+import { IChatSessionsService } from "../chatSessionsService.js";
+import { ChatSessionStore } from "../model/chatSessionStore.js";
+import { IChatSlashCommandService } from "../participants/chatSlashCommands.js";
+import { IChatTransferService } from "../model/chatTransferService.js";
+import { LocalChatSessionUri } from "../model/chatUri.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../constants.js";
+import { ILanguageModelToolsService } from "../tools/languageModelToolsService.js";
+import { ChatSessionOperationLog } from "../model/chatSessionOperationLog.js";
+import { IPromptsService } from "../promptSyntax/service/promptsService.js";
+import { IHooksExecutionService } from "../hooksExecutionService.js";
+const serializedChatKey = "interactive.sessions";
+let CancellableRequest = class CancellableRequest2 {
+  static {
+    __name(this, "CancellableRequest");
+  }
+  get yieldRequested() {
+    return this._yieldRequested;
+  }
+  constructor(cancellationTokenSource, requestId, toolsService) {
+    this.cancellationTokenSource = cancellationTokenSource;
+    this.requestId = requestId;
+    this.toolsService = toolsService;
+    this._yieldRequested = false;
+  }
+  dispose() {
+    this.cancellationTokenSource.dispose();
+  }
+  cancel() {
+    if (this.requestId) {
+      this.toolsService.cancelToolCallsForRequest(this.requestId);
+    }
+    this.cancellationTokenSource.cancel();
+  }
+  setYieldRequested() {
+    this._yieldRequested = true;
+  }
+};
+CancellableRequest = __decorate([
+  __param(2, ILanguageModelToolsService)
+], CancellableRequest);
+let ChatService = class ChatService2 extends Disposable {
+  static {
+    __name(this, "ChatService");
+  }
+  get transferredSessionResource() {
+    return this._transferredSessionResource;
+  }
+  get onDidCreateModel() {
+    return this._sessionModels.onDidCreateModel;
+  }
+  /**
+   * For test use only
+   */
+  setSaveModelsEnabled(enabled) {
+    this._saveModelsEnabled = enabled;
+  }
+  /**
+   * For test use only
+   */
+  waitForModelDisposals() {
+    return this._sessionModels.waitForModelDisposals();
+  }
+  get edits2Enabled() {
+    return this.configurationService.getValue(ChatConfiguration.Edits2Enabled);
+  }
+  get isEmptyWindow() {
+    const workspace = this.workspaceContextService.getWorkspace();
+    return !workspace.configuration && workspace.folders.length === 0;
+  }
+  constructor(storageService, logService, extensionService, instantiationService, workspaceContextService, chatSlashCommandService, chatAgentService, configurationService, chatTransferService, chatSessionService, mcpService, promptsService, hooksExecutionService) {
+    super();
+    this.storageService = storageService;
+    this.logService = logService;
+    this.extensionService = extensionService;
+    this.instantiationService = instantiationService;
+    this.workspaceContextService = workspaceContextService;
+    this.chatSlashCommandService = chatSlashCommandService;
+    this.chatAgentService = chatAgentService;
+    this.configurationService = configurationService;
+    this.chatTransferService = chatTransferService;
+    this.chatSessionService = chatSessionService;
+    this.mcpService = mcpService;
+    this.promptsService = promptsService;
+    this.hooksExecutionService = hooksExecutionService;
+    this._pendingRequests = this._register(new DisposableResourceMap());
+    this._queuedRequestDeferreds = /* @__PURE__ */ new Map();
+    this._saveModelsEnabled = true;
+    this._onDidSubmitRequest = this._register(new Emitter());
+    this.onDidSubmitRequest = this._onDidSubmitRequest.event;
+    this._onDidPerformUserAction = this._register(new Emitter());
+    this.onDidPerformUserAction = this._onDidPerformUserAction.event;
+    this._onDidReceiveQuestionCarouselAnswer = this._register(new Emitter());
+    this.onDidReceiveQuestionCarouselAnswer = this._onDidReceiveQuestionCarouselAnswer.event;
+    this._onDidDisposeSession = this._register(new Emitter());
+    this.onDidDisposeSession = this._onDidDisposeSession.event;
+    this._sessionFollowupCancelTokens = this._register(new DisposableResourceMap());
+    this._sessionModels = this._register(instantiationService.createInstance(ChatModelStore, {
+      createModel: /* @__PURE__ */ __name((props) => this._startSession(props), "createModel"),
+      willDisposeModel: /* @__PURE__ */ __name(async (model) => {
+        const localSessionId = LocalChatSessionUri.parseLocalSessionId(model.sessionResource);
+        if (localSessionId && this.shouldStoreSession(model)) {
+          if (model.getRequests().length === 0 && !model.customTitle) {
+            await this._chatSessionStore.deleteSession(localSessionId);
+          } else if (this._saveModelsEnabled) {
+            await this._chatSessionStore.storeSessions([model]);
+          }
+        } else if (!localSessionId && model.getRequests().length > 0) {
+          await this._chatSessionStore.storeSessionsMetadataOnly([model]);
+        }
+      }, "willDisposeModel")
+    }));
+    this._register(this._sessionModels.onDidDisposeModel((model) => {
+      this._onDidDisposeSession.fire({ sessionResource: [model.sessionResource], reason: "cleared" });
+    }));
+    this._chatServiceTelemetry = this.instantiationService.createInstance(ChatServiceTelemetry);
+    this._chatSessionStore = this._register(this.instantiationService.createInstance(ChatSessionStore));
+    this._chatSessionStore.migrateDataIfNeeded(() => this.migrateData());
+    const transferredData = this._chatSessionStore.getTransferredSessionData();
+    if (transferredData) {
+      this.trace("constructor", `Transferred session ${transferredData}`);
+      this._transferredSessionResource = transferredData;
+    }
+    this.reviveSessionsWithEdits();
+    this._register(storageService.onWillSaveState(() => this.saveState()));
+    this.chatModels = derived(this, (reader) => [...this._sessionModels.observable.read(reader).values()]);
+    this.requestInProgressObs = derived((reader) => {
+      const models = this._sessionModels.observable.read(reader).values();
+      return Iterable.some(models, (model) => model.requestInProgress.read(reader));
+    });
+  }
+  get editingSessions() {
+    return [...this._sessionModels.values()].map((v) => v.editingSession).filter(isDefined);
+  }
+  isEnabled(location) {
+    return this.chatAgentService.getContributedDefaultAgent(location) !== void 0;
+  }
+  migrateData() {
+    const sessionData = this.storageService.get(serializedChatKey, this.isEmptyWindow ? -1 : 1, "");
+    if (sessionData) {
+      const persistedSessions = this.deserializeChats(sessionData);
+      const countsForLog = Object.keys(persistedSessions).length;
+      if (countsForLog > 0) {
+        this.info("migrateData", `Restored ${countsForLog} persisted sessions`);
+      }
+      return persistedSessions;
+    }
+    return;
+  }
+  saveState() {
+    if (!this._saveModelsEnabled) {
+      return;
+    }
+    const liveLocalChats = Array.from(this._sessionModels.values()).filter((session) => this.shouldStoreSession(session));
+    this._chatSessionStore.storeSessions(liveLocalChats);
+    const liveNonLocalChats = Array.from(this._sessionModels.values()).filter((session) => !LocalChatSessionUri.parseLocalSessionId(session.sessionResource));
+    this._chatSessionStore.storeSessionsMetadataOnly(liveNonLocalChats);
+  }
+  /**
+   * Only persist local sessions from chat that are not imported.
+   */
+  shouldStoreSession(session) {
+    if (!LocalChatSessionUri.parseLocalSessionId(session.sessionResource)) {
+      return false;
+    }
+    return session.initialLocation === ChatAgentLocation.Chat && !session.isImported;
+  }
+  notifyUserAction(action) {
+    this._chatServiceTelemetry.notifyUserAction(action);
+    this._onDidPerformUserAction.fire(action);
+    if (action.action.kind === "chatEditingSessionAction") {
+      const model = this._sessionModels.get(action.sessionResource);
+      if (model) {
+        model.notifyEditingAction(action.action);
+      }
+    }
+  }
+  notifyQuestionCarouselAnswer(requestId, resolveId, answers) {
+    this._onDidReceiveQuestionCarouselAnswer.fire({ requestId, resolveId, answers });
+  }
+  async setChatSessionTitle(sessionResource, title) {
+    const model = this._sessionModels.get(sessionResource);
+    if (model) {
+      model.setCustomTitle(title);
+    }
+    const localSessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+    if (localSessionId) {
+      await this._chatSessionStore.setSessionTitle(localSessionId, title);
+      this.saveState();
+    }
+  }
+  trace(method, message) {
+    if (message) {
+      this.logService.trace(`ChatService#${method}: ${message}`);
+    } else {
+      this.logService.trace(`ChatService#${method}`);
+    }
+  }
+  info(method, message) {
+    if (message) {
+      this.logService.info(`ChatService#${method}: ${message}`);
+    } else {
+      this.logService.info(`ChatService#${method}`);
+    }
+  }
+  error(method, message) {
+    this.logService.error(`ChatService#${method} ${message}`);
+  }
+  deserializeChats(sessionData) {
+    try {
+      const arrayOfSessions = revive(JSON.parse(sessionData));
+      if (!Array.isArray(arrayOfSessions)) {
+        throw new Error("Expected array");
+      }
+      const sessions = arrayOfSessions.reduce((acc, session) => {
+        for (const request of session.requests) {
+          if (Array.isArray(request.response)) {
+            request.response = request.response.map((response) => {
+              if (typeof response === "string") {
+                return new MarkdownString(response);
+              }
+              return response;
+            });
+          } else if (typeof request.response === "string") {
+            request.response = [new MarkdownString(request.response)];
+          }
+        }
+        acc[session.sessionId] = normalizeSerializableChatData(session);
+        return acc;
+      }, {});
+      return sessions;
+    } catch (err) {
+      this.error("deserializeChats", `Malformed session data: ${err}. [${sessionData.substring(0, 20)}${sessionData.length > 20 ? "..." : ""}]`);
+      return {};
+    }
+  }
+  /**
+   * todo@connor4312 This will be cleaned up with the globalization of edits.
+   */
+  async reviveSessionsWithEdits() {
+    const idx = await this._chatSessionStore.getIndex();
+    await Promise.all(Object.values(idx).map(async (session) => {
+      if (!session.hasPendingEdits) {
+        return;
+      }
+      const sessionResource = LocalChatSessionUri.forSession(session.sessionId);
+      const sessionRef = await this.getOrRestoreSession(sessionResource);
+      if (sessionRef?.object.editingSession) {
+        await chatEditingSessionIsReady(sessionRef.object.editingSession);
+        sessionRef.dispose();
+      }
+    }));
+  }
+  /**
+   * Returns an array of chat details for all persisted chat sessions that have at least one request.
+   * Chat sessions that have already been loaded into the chat view are excluded from the result.
+   * Imported chat sessions are also excluded from the result.
+   * TODO this is only used by the old "show chats" command which can be removed when the pre-agents view
+   * options are removed.
+   */
+  async getLocalSessionHistory() {
+    const liveSessionItems = await this.getLiveSessionItems();
+    const historySessionItems = await this.getHistorySessionItems();
+    return [...liveSessionItems, ...historySessionItems];
+  }
+  /**
+   * Returns an array of chat details for all local live chat sessions.
+   */
+  async getLiveSessionItems() {
+    return await Promise.all(Array.from(this._sessionModels.values()).filter((session) => this.shouldBeInHistory(session)).map(async (session) => {
+      const title = session.title || localize("newChat", "New Chat");
+      return {
+        sessionResource: session.sessionResource,
+        title,
+        lastMessageDate: session.lastMessageDate,
+        timing: session.timing,
+        isActive: true,
+        stats: await awaitStatsForSession(session),
+        lastResponseState: session.lastRequest?.response?.state ?? 0
+      };
+    }));
+  }
+  /**
+   * Returns an array of chat details for all local chat sessions in history (not currently loaded).
+   */
+  async getHistorySessionItems() {
+    const index = await this._chatSessionStore.getIndex();
+    return Object.values(index).filter((entry) => !entry.isExternal).filter((entry) => !this._sessionModels.has(LocalChatSessionUri.forSession(entry.sessionId)) && entry.initialLocation === ChatAgentLocation.Chat && !entry.isEmpty).map((entry) => {
+      const sessionResource = LocalChatSessionUri.forSession(entry.sessionId);
+      return {
+        ...entry,
+        sessionResource,
+        isActive: this._sessionModels.has(sessionResource)
+      };
+    });
+  }
+  async getMetadataForSession(sessionResource) {
+    const index = await this._chatSessionStore.getIndex();
+    const metadata = index[sessionResource.toString()];
+    if (metadata) {
+      return {
+        ...metadata,
+        sessionResource,
+        isActive: this._sessionModels.has(sessionResource)
+      };
+    }
+    return void 0;
+  }
+  shouldBeInHistory(entry) {
+    return !entry.isImported && !!LocalChatSessionUri.parseLocalSessionId(entry.sessionResource) && entry.initialLocation === ChatAgentLocation.Chat;
+  }
+  async removeHistoryEntry(sessionResource) {
+    await this._chatSessionStore.deleteSession(this.toLocalSessionId(sessionResource));
+    this._onDidDisposeSession.fire({ sessionResource: [sessionResource], reason: "cleared" });
+  }
+  async clearAllHistoryEntries() {
+    await this._chatSessionStore.clearAllSessions();
+  }
+  startSession(location, options) {
+    this.trace("startSession");
+    const sessionId = generateUuid();
+    const sessionResource = LocalChatSessionUri.forSession(sessionId);
+    return this._sessionModels.acquireOrCreate({
+      initialData: void 0,
+      location,
+      sessionResource,
+      sessionId,
+      canUseTools: options?.canUseTools ?? true,
+      disableBackgroundKeepAlive: options?.disableBackgroundKeepAlive
+    });
+  }
+  _startSession(props) {
+    const { initialData, location, sessionResource, sessionId, canUseTools, transferEditingSession, disableBackgroundKeepAlive, inputState } = props;
+    const model = this.instantiationService.createInstance(ChatModel, initialData, { initialLocation: location, canUseTools, resource: sessionResource, sessionId, disableBackgroundKeepAlive, inputState });
+    if (location === ChatAgentLocation.Chat) {
+      model.startEditingSession(true, transferEditingSession);
+    }
+    this.initializeSession(model);
+    return model;
+  }
+  initializeSession(model) {
+    this.trace("initializeSession", `Initialize session ${model.sessionResource}`);
+    this.activateDefaultAgent(model.initialLocation).catch((e) => this.logService.error(e));
+  }
+  async activateDefaultAgent(location) {
+    await this.extensionService.whenInstalledExtensionsRegistered();
+    const defaultAgentData = this.chatAgentService.getContributedDefaultAgent(location) ?? this.chatAgentService.getContributedDefaultAgent(ChatAgentLocation.Chat);
+    if (!defaultAgentData) {
+      throw new ErrorNoTelemetry("No default agent contributed");
+    }
+    if (!defaultAgentData.isCore) {
+      await this.extensionService.activateById(defaultAgentData.extensionId, {
+        activationEvent: `onChatParticipant:${defaultAgentData.id}`,
+        extensionId: defaultAgentData.extensionId,
+        startup: false
+      });
+    }
+    const defaultAgent = this.chatAgentService.getActivatedAgents().find((agent) => agent.id === defaultAgentData.id);
+    if (!defaultAgent) {
+      throw new ErrorNoTelemetry("No default agent registered");
+    }
+  }
+  getSession(sessionResource) {
+    return this._sessionModels.get(sessionResource);
+  }
+  getActiveSessionReference(sessionResource) {
+    return this._sessionModels.acquireExisting(sessionResource);
+  }
+  async getOrRestoreSession(sessionResource) {
+    this.trace("getOrRestoreSession", `${sessionResource}`);
+    const existingRef = this._sessionModels.acquireExisting(sessionResource);
+    if (existingRef) {
+      return existingRef;
+    }
+    const sessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+    if (!sessionId) {
+      throw new Error(`Cannot restore non-local session ${sessionResource}`);
+    }
+    let sessionData;
+    if (isEqual(this.transferredSessionResource, sessionResource)) {
+      this._transferredSessionResource = void 0;
+      sessionData = await this._chatSessionStore.readTransferredSession(sessionResource);
+    } else {
+      sessionData = await this._chatSessionStore.readSession(sessionId);
+    }
+    if (!sessionData) {
+      return void 0;
+    }
+    const sessionRef = this._sessionModels.acquireOrCreate({
+      initialData: sessionData,
+      location: sessionData.value.initialLocation ?? ChatAgentLocation.Chat,
+      sessionResource,
+      sessionId,
+      canUseTools: true
+    });
+    return sessionRef;
+  }
+  // There are some cases where this returns a real string. What happens if it doesn't?
+  // This had titles restored from the index, so just return titles from index instead, sync.
+  getSessionTitle(sessionResource) {
+    const sessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+    if (!sessionId) {
+      return void 0;
+    }
+    return this._sessionModels.get(sessionResource)?.title ?? this._chatSessionStore.getMetadataForSessionSync(sessionResource)?.title;
+  }
+  loadSessionFromContent(data) {
+    const sessionId = data.sessionId ?? generateUuid();
+    const sessionResource = LocalChatSessionUri.forSession(sessionId);
+    return this._sessionModels.acquireOrCreate({
+      initialData: { value: data, serializer: new ChatSessionOperationLog() },
+      location: data.initialLocation ?? ChatAgentLocation.Chat,
+      sessionResource,
+      sessionId,
+      canUseTools: true
+    });
+  }
+  async loadSessionForResource(chatSessionResource, location, token) {
+    if (chatSessionResource.scheme === Schemas.vscodeLocalChatSession) {
+      return this.getOrRestoreSession(chatSessionResource);
+    }
+    const existingRef = this._sessionModels.acquireExisting(chatSessionResource);
+    if (existingRef) {
+      return existingRef;
+    }
+    const providedSession = await this.chatSessionService.getOrCreateChatSession(chatSessionResource, CancellationToken.None);
+    const chatSessionType = chatSessionResource.scheme;
+    const modelRef = this._sessionModels.acquireOrCreate({
+      initialData: void 0,
+      location,
+      sessionResource: chatSessionResource,
+      canUseTools: false,
+      transferEditingSession: providedSession.transferredState?.editingSession,
+      inputState: providedSession.transferredState?.inputState
+    });
+    modelRef.object.setContributedChatSession({
+      chatSessionResource,
+      chatSessionType,
+      isUntitled: chatSessionResource.path.startsWith("/untitled-")
+      //TODO(jospicer)
+    });
+    const model = modelRef.object;
+    const disposables = new DisposableStore();
+    disposables.add(modelRef.object.onDidDispose(() => {
+      disposables.dispose();
+      providedSession.dispose();
+    }));
+    let lastRequest;
+    for (const message of providedSession.history) {
+      if (message.type === "request") {
+        if (lastRequest) {
+          lastRequest.response?.complete();
+        }
+        const requestText = message.prompt;
+        const parsedRequest = {
+          text: requestText,
+          parts: [new ChatRequestTextPart(new OffsetRange(0, requestText.length), { startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: requestText.length + 1 }, requestText)]
+        };
+        const agent = message.participant ? this.chatAgentService.getAgent(message.participant) : this.chatAgentService.getAgent(chatSessionType);
+        lastRequest = model.addRequest(
+          parsedRequest,
+          message.variableData ?? { variables: [] },
+          0,
+          // attempt
+          void 0,
+          agent,
+          void 0,
+          // slashCommand
+          void 0,
+          // confirmation
+          void 0,
+          // locationData
+          void 0,
+          // attachments
+          false,
+          // Do not treat as requests completed, else edit pills won't show.
+          void 0,
+          void 0,
+          message.id
+        );
+      } else {
+        if (lastRequest) {
+          for (const part of message.parts) {
+            model.acceptResponseProgress(lastRequest, part);
+          }
+        }
+      }
+    }
+    if (providedSession.isCompleteObs?.get()) {
+      lastRequest?.response?.complete();
+    }
+    if (providedSession.progressObs && lastRequest && providedSession.interruptActiveResponseCallback) {
+      const initialCancellationRequest = this.instantiationService.createInstance(CancellableRequest, new CancellationTokenSource(), void 0);
+      this._pendingRequests.set(model.sessionResource, initialCancellationRequest);
+      const cancellationListener = disposables.add(new MutableDisposable());
+      const createCancellationListener = /* @__PURE__ */ __name((token2) => {
+        return token2.onCancellationRequested(() => {
+          providedSession.interruptActiveResponseCallback?.().then((userConfirmedInterruption) => {
+            if (!userConfirmedInterruption) {
+              const newCancellationRequest = this.instantiationService.createInstance(CancellableRequest, new CancellationTokenSource(), void 0);
+              this._pendingRequests.set(model.sessionResource, newCancellationRequest);
+              cancellationListener.value = createCancellationListener(newCancellationRequest.cancellationTokenSource.token);
+            }
+          });
+        });
+      }, "createCancellationListener");
+      cancellationListener.value = createCancellationListener(initialCancellationRequest.cancellationTokenSource.token);
+      let lastProgressLength = 0;
+      disposables.add(autorun((reader) => {
+        const progressArray = providedSession.progressObs?.read(reader) ?? [];
+        const isComplete = providedSession.isCompleteObs?.read(reader) ?? false;
+        if (progressArray.length > lastProgressLength) {
+          const newProgress = progressArray.slice(lastProgressLength);
+          for (const progress of newProgress) {
+            model?.acceptResponseProgress(lastRequest, progress);
+          }
+          lastProgressLength = progressArray.length;
+        }
+        if (isComplete) {
+          lastRequest.response?.complete();
+          cancellationListener.clear();
+        }
+      }));
+    } else {
+      if (lastRequest && model.editingSession) {
+        await chatEditingSessionIsReady(model.editingSession);
+        lastRequest.response?.complete();
+      }
+    }
+    return modelRef;
+  }
+  getChatSessionFromInternalUri(sessionResource) {
+    const model = this._sessionModels.get(sessionResource);
+    if (!model) {
+      return;
+    }
+    const { contributedChatSession } = model;
+    return contributedChatSession;
+  }
+  async resendRequest(request, options) {
+    const model = this._sessionModels.get(request.session.sessionResource);
+    if (!model && model !== request.session) {
+      throw new Error(`Unknown session: ${request.session.sessionResource}`);
+    }
+    const cts = this._pendingRequests.get(request.session.sessionResource);
+    if (cts) {
+      this.trace("resendRequest", `Session ${request.session.sessionResource} already has a pending request, cancelling...`);
+      cts.cancel();
+    }
+    const location = options?.location ?? model.initialLocation;
+    const attempt = options?.attempt ?? 0;
+    const enableCommandDetection = !options?.noCommandDetection;
+    const defaultAgent = this.chatAgentService.getDefaultAgent(location, options?.modeInfo?.kind);
+    model.removeRequest(
+      request.id,
+      1
+      /* ChatRequestRemovalReason.Resend */
+    );
+    const resendOptions = {
+      ...options,
+      locationData: request.locationData,
+      attachedContext: request.attachedContext
+    };
+    await this._sendRequestAsync(model, model.sessionResource, request.message, attempt, enableCommandDetection, defaultAgent, location, resendOptions).responseCompletePromise;
+  }
+  queuePendingRequest(model, sessionResource, request, options) {
+    const location = options.location ?? model.initialLocation;
+    const parsedRequest = this.parseChatRequest(sessionResource, request, location, options);
+    const requestModel = new ChatRequestModel({
+      session: model,
+      message: parsedRequest,
+      variableData: { variables: [] },
+      timestamp: Date.now(),
+      modeInfo: options.modeInfo,
+      locationData: options.locationData,
+      attachedContext: options.attachedContext,
+      modelId: options.userSelectedModelId,
+      userSelectedTools: options.userSelectedTools?.get()
+    });
+    const deferred = new DeferredPromise();
+    this._queuedRequestDeferreds.set(requestModel.id, deferred);
+    model.addPendingRequest(requestModel, options.queue ?? "queued", { ...options, queue: void 0 });
+    if (options.queue === "steering") {
+      this.setYieldRequested(sessionResource);
+    }
+    this.trace("sendRequest", `Queued message for session ${sessionResource}`);
+    return { kind: "queued", deferred: deferred.p };
+  }
+  async sendRequest(sessionResource, request, options) {
+    this.trace("sendRequest", `sessionResource: ${sessionResource.toString()}, message: ${request.substring(0, 20)}${request.length > 20 ? "[...]" : ""}}`);
+    if (!request.trim() && !options?.slashCommand && !options?.agentId && !options?.agentIdSilent) {
+      this.trace("sendRequest", "Rejected empty message");
+      return { kind: "rejected", reason: "Empty message" };
+    }
+    const model = this._sessionModels.get(sessionResource);
+    if (!model) {
+      throw new Error(`Unknown session: ${sessionResource}`);
+    }
+    const hasPendingRequest = this._pendingRequests.has(sessionResource);
+    const hasPendingQueue = model.getPendingRequests().length > 0;
+    if (hasPendingRequest) {
+      if (options?.queue) {
+        return this.queuePendingRequest(model, sessionResource, request, options);
+      }
+      this.trace("sendRequest", `Session ${sessionResource} already has a pending request`);
+      return { kind: "rejected", reason: "Request already in progress" };
+    }
+    if (options?.queue && hasPendingQueue) {
+      const queued = this.queuePendingRequest(model, sessionResource, request, options);
+      this.processNextPendingRequest(model);
+      return queued;
+    }
+    const requests = model.getRequests();
+    for (let i = requests.length - 1; i >= 0; i -= 1) {
+      const request2 = requests[i];
+      if (request2.shouldBeRemovedOnSend) {
+        if (request2.shouldBeRemovedOnSend.afterUndoStop) {
+          request2.response?.finalizeUndoState();
+        } else {
+          await this.removeRequest(sessionResource, request2.id);
+        }
+      }
+    }
+    const location = options?.location ?? model.initialLocation;
+    const attempt = options?.attempt ?? 0;
+    const defaultAgent = this.chatAgentService.getDefaultAgent(location, options?.modeInfo?.kind);
+    const parsedRequest = this.parseChatRequest(sessionResource, request, location, options);
+    const silentAgent = options?.agentIdSilent ? this.chatAgentService.getAgent(options.agentIdSilent) : void 0;
+    const agent = silentAgent ?? parsedRequest.parts.find((r) => r instanceof ChatRequestAgentPart)?.agent ?? defaultAgent;
+    const agentSlashCommandPart = parsedRequest.parts.find((r) => r instanceof ChatRequestAgentSubcommandPart);
+    return {
+      kind: "sent",
+      data: {
+        ...this._sendRequestAsync(model, sessionResource, parsedRequest, attempt, !options?.noCommandDetection, silentAgent ?? defaultAgent, location, options),
+        agent,
+        slashCommand: agentSlashCommandPart?.command
+      }
+    };
+  }
+  parseChatRequest(sessionResource, request, location, options) {
+    let parserContext = options?.parserContext;
+    if (options?.agentId) {
+      const agent = this.chatAgentService.getAgent(options.agentId);
+      if (!agent) {
+        throw new Error(`Unknown agent: ${options.agentId}`);
+      }
+      parserContext = { selectedAgent: agent, mode: options.modeInfo?.kind };
+      const commandPart = options.slashCommand ? ` ${chatSubcommandLeader}${options.slashCommand}` : "";
+      request = `${chatAgentLeader}${agent.name}${commandPart} ${request}`;
+    }
+    const parsedRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(sessionResource, request, location, parserContext);
+    return parsedRequest;
+  }
+  refreshFollowupsCancellationToken(sessionResource) {
+    this._sessionFollowupCancelTokens.get(sessionResource)?.cancel();
+    const newTokenSource = new CancellationTokenSource();
+    this._sessionFollowupCancelTokens.set(sessionResource, newTokenSource);
+    return newTokenSource.token;
+  }
+  _sendRequestAsync(model, sessionResource, parsedRequest, attempt, enableCommandDetection, defaultAgent, location, options) {
+    const followupsCancelToken = this.refreshFollowupsCancellationToken(sessionResource);
+    let request;
+    const agentPart = parsedRequest.parts.find((r) => r instanceof ChatRequestAgentPart);
+    const agentSlashCommandPart = parsedRequest.parts.find((r) => r instanceof ChatRequestAgentSubcommandPart);
+    const commandPart = parsedRequest.parts.find((r) => r instanceof ChatRequestSlashCommandPart);
+    const requests = [...model.getRequests()];
+    const requestTelemetry = this.instantiationService.createInstance(ChatRequestTelemetry, {
+      agent: agentPart?.agent ?? defaultAgent,
+      agentSlashCommandPart,
+      commandPart,
+      sessionId: model.sessionId,
+      location: model.initialLocation,
+      options,
+      enableCommandDetection
+    });
+    let gotProgress = false;
+    const requestType = commandPart ? "slashCommand" : "string";
+    const responseCreated = new DeferredPromise();
+    let responseCreatedComplete = false;
+    function completeResponseCreated() {
+      if (!responseCreatedComplete && request?.response) {
+        responseCreated.complete(request.response);
+        responseCreatedComplete = true;
+      }
+    }
+    __name(completeResponseCreated, "completeResponseCreated");
+    const store = new DisposableStore();
+    const source = store.add(new CancellationTokenSource());
+    const token = source.token;
+    const sendRequestInternal = /* @__PURE__ */ __name(async () => {
+      const progressCallback = /* @__PURE__ */ __name((progress) => {
+        if (token.isCancellationRequested) {
+          return;
+        }
+        gotProgress = true;
+        for (let i = 0; i < progress.length; i++) {
+          const isLast = i === progress.length - 1;
+          const progressItem = progress[i];
+          if (progressItem.kind === "markdownContent") {
+            this.trace("sendRequest", `Provider returned progress for session ${model.sessionResource}, ${progressItem.content.value.length} chars`);
+          } else {
+            this.trace("sendRequest", `Provider returned progress: ${JSON.stringify(progressItem)}`);
+          }
+          model.acceptResponseProgress(request, progressItem, !isLast);
+        }
+        completeResponseCreated();
+      }, "progressCallback");
+      let detectedAgent;
+      let detectedCommand;
+      let collectedHooks;
+      try {
+        collectedHooks = await this.promptsService.getHooks(token);
+      } catch (error) {
+        this.logService.warn("[ChatService] Failed to collect hooks:", error);
+      }
+      if (collectedHooks) {
+        store.add(this.hooksExecutionService.registerHooks(model.sessionResource, collectedHooks));
+      }
+      const stopWatch = new StopWatch(false);
+      store.add(token.onCancellationRequested(() => {
+        this.trace("sendRequest", `Request for session ${model.sessionResource} was cancelled`);
+        if (!request) {
+          return;
+        }
+        requestTelemetry.complete({
+          timeToFirstProgress: void 0,
+          result: "cancelled",
+          // Normally timings happen inside the EH around the actual provider. For cancellation we can measure how long the user waited before cancelling
+          totalTime: stopWatch.elapsed(),
+          requestType,
+          detectedAgent,
+          request
+        });
+        model.cancelRequest(request);
+      }));
+      try {
+        let rawResult;
+        let agentOrCommandFollowups = void 0;
+        if (agentPart || defaultAgent && !commandPart) {
+          const prepareChatAgentRequest = /* @__PURE__ */ __name((agent2, command2, enableCommandDetection2, chatRequest, isParticipantDetected) => {
+            const initVariableData = { variables: [] };
+            request = chatRequest ?? model.addRequest(parsedRequest, initVariableData, attempt, options?.modeInfo, agent2, command2, options?.confirmation, options?.locationData, options?.attachedContext, void 0, options?.userSelectedModelId, options?.userSelectedTools?.get());
+            let variableData;
+            let message;
+            if (chatRequest) {
+              variableData = chatRequest.variableData;
+              message = getPromptText(request.message).message;
+            } else {
+              variableData = { variables: this.prepareContext(request.attachedContext) };
+              model.updateRequest(request, variableData);
+              const promptTextResult = getPromptText(request.message);
+              variableData = updateRanges(variableData, promptTextResult.diff);
+              message = promptTextResult.message;
+            }
+            const agentRequest = {
+              sessionResource: model.sessionResource,
+              requestId: request.id,
+              agentId: agent2.id,
+              message,
+              command: command2?.name,
+              variables: variableData,
+              enableCommandDetection: enableCommandDetection2,
+              isParticipantDetected,
+              attempt,
+              location,
+              locationData: request.locationData,
+              acceptedConfirmationData: options?.acceptedConfirmationData,
+              rejectedConfirmationData: options?.rejectedConfirmationData,
+              userSelectedModelId: options?.userSelectedModelId,
+              userSelectedTools: options?.userSelectedTools?.get(),
+              modeInstructions: options?.modeInfo?.modeInstructions,
+              editedFileEvents: request.editedFileEvents,
+              hooks: collectedHooks
+            };
+            let isInitialTools = true;
+            store.add(autorun((reader) => {
+              const tools = options?.userSelectedTools?.read(reader);
+              if (isInitialTools) {
+                isInitialTools = false;
+                return;
+              }
+              if (tools) {
+                this.chatAgentService.setRequestTools(agent2.id, request.id, tools);
+                agentRequest.userSelectedTools = tools;
+              }
+            }));
+            return agentRequest;
+          }, "prepareChatAgentRequest");
+          if (this.configurationService.getValue("chat.detectParticipant.enabled") !== false && this.chatAgentService.hasChatParticipantDetectionProviders() && !agentPart && !commandPart && !agentSlashCommandPart && enableCommandDetection && (location !== ChatAgentLocation.EditorInline || !this.configurationService.getValue(
+            "inlineChat.enableV2"
+            /* InlineChatConfigKeys.EnableV2 */
+          )) && options?.modeInfo?.kind !== ChatModeKind.Agent && options?.modeInfo?.kind !== ChatModeKind.Edit && !options?.agentIdSilent) {
+            const defaultAgentHistory = this.getHistoryEntriesFromModel(requests, location, defaultAgent.id);
+            const chatAgentRequest = prepareChatAgentRequest(defaultAgent, void 0, enableCommandDetection, void 0, false);
+            const result = await this.chatAgentService.detectAgentOrCommand(chatAgentRequest, defaultAgentHistory, { location }, token);
+            if (result && this.chatAgentService.getAgent(result.agent.id)?.locations?.includes(location)) {
+              request.response?.setAgent(result.agent, result.command);
+              detectedAgent = result.agent;
+              detectedCommand = result.command;
+            }
+          }
+          const agent = detectedAgent ?? agentPart?.agent ?? defaultAgent;
+          const command = detectedCommand ?? agentSlashCommandPart?.command;
+          await this.extensionService.activateByEvent(`onChatParticipant:${agent.id}`);
+          const history = this.getHistoryEntriesFromModel(requests, location, agent.id);
+          const requestProps = prepareChatAgentRequest(agent, command, enableCommandDetection, request, !!detectedAgent);
+          this.generateInitialChatTitleIfNeeded(model, requestProps, defaultAgent, token);
+          const pendingRequest = this._pendingRequests.get(sessionResource);
+          if (pendingRequest && !pendingRequest.requestId) {
+            pendingRequest.requestId = requestProps.requestId;
+          }
+          completeResponseCreated();
+          if (model.canUseTools) {
+            const autostartResult = new ChatMcpServersStarting(this.mcpService.autostart(token));
+            if (!autostartResult.isEmpty) {
+              progressCallback([autostartResult]);
+              await autostartResult.wait();
+            }
+          }
+          const agentResult = await this.chatAgentService.invokeAgent(agent.id, requestProps, progressCallback, history, token);
+          rawResult = agentResult;
+          agentOrCommandFollowups = this.chatAgentService.getFollowups(agent.id, requestProps, agentResult, history, followupsCancelToken);
+        } else if (commandPart && this.chatSlashCommandService.hasCommand(commandPart.slashCommand.command)) {
+          if (commandPart.slashCommand.silent !== true) {
+            request = model.addRequest(parsedRequest, { variables: [] }, attempt, options?.modeInfo);
+            completeResponseCreated();
+          }
+          const history = [];
+          for (const modelRequest of model.getRequests()) {
+            if (!modelRequest.response) {
+              continue;
+            }
+            history.push({ role: 1, content: [{ type: "text", value: modelRequest.message.text }] });
+            history.push({ role: 2, content: [{ type: "text", value: modelRequest.response.response.toString() }] });
+          }
+          const message = parsedRequest.text;
+          const commandResult = await this.chatSlashCommandService.executeCommand(commandPart.slashCommand.command, message.substring(commandPart.slashCommand.command.length + 1).trimStart(), new Progress((p) => {
+            progressCallback([p]);
+          }), history, location, model.sessionResource, token);
+          agentOrCommandFollowups = Promise.resolve(commandResult?.followUp);
+          rawResult = {};
+        } else {
+          throw new Error(`Cannot handle request`);
+        }
+        if (token.isCancellationRequested && !rawResult) {
+          return;
+        } else {
+          if (!rawResult) {
+            this.trace("sendRequest", `Provider returned no response for session ${model.sessionResource}`);
+            rawResult = { errorDetails: { message: localize("emptyResponse", "Provider returned null response") } };
+          }
+          const result = rawResult.errorDetails?.responseIsFiltered ? "filtered" : rawResult.errorDetails && gotProgress ? "errorWithOutput" : rawResult.errorDetails ? "error" : "success";
+          requestTelemetry.complete({
+            timeToFirstProgress: rawResult.timings?.firstProgress,
+            totalTime: rawResult.timings?.totalElapsed,
+            result,
+            requestType,
+            detectedAgent,
+            request
+          });
+          model.setResponse(request, rawResult);
+          completeResponseCreated();
+          this.trace("sendRequest", `Provider returned response for session ${model.sessionResource}`);
+          shouldProcessPending = !rawResult.errorDetails && !token.isCancellationRequested;
+          request.response?.complete();
+          if (agentOrCommandFollowups) {
+            agentOrCommandFollowups.then((followups) => {
+              model.setFollowups(request, followups);
+              const commandForTelemetry = agentSlashCommandPart ? agentSlashCommandPart.command.name : commandPart?.slashCommand.command;
+              this._chatServiceTelemetry.retrievedFollowups(agentPart?.agent.id ?? "", commandForTelemetry, followups?.length ?? 0);
+            });
+          }
+        }
+      } catch (err) {
+        this.logService.error(`Error while handling chat request: ${toErrorMessage(err, true)}`);
+        requestTelemetry.complete({
+          timeToFirstProgress: void 0,
+          totalTime: void 0,
+          result: "error",
+          requestType,
+          detectedAgent,
+          request
+        });
+        if (request) {
+          const rawResult = { errorDetails: { message: err.message } };
+          model.setResponse(request, rawResult);
+          completeResponseCreated();
+          request.response?.complete();
+        }
+      } finally {
+        store.dispose();
+      }
+    }, "sendRequestInternal");
+    let shouldProcessPending = false;
+    const rawResponsePromise = sendRequestInternal();
+    this._pendingRequests.set(model.sessionResource, this.instantiationService.createInstance(CancellableRequest, source, void 0));
+    rawResponsePromise.finally(() => {
+      this._pendingRequests.deleteAndDispose(model.sessionResource);
+      if (shouldProcessPending) {
+        this.processNextPendingRequest(model);
+      }
+    });
+    this._onDidSubmitRequest.fire({ chatSessionResource: model.sessionResource });
+    return {
+      responseCreatedPromise: responseCreated.p,
+      responseCompletePromise: rawResponsePromise
+    };
+  }
+  processPendingRequests(sessionResource) {
+    const model = this._sessionModels.get(sessionResource);
+    if (model && !this._pendingRequests.has(sessionResource)) {
+      this.processNextPendingRequest(model);
+    }
+  }
+  /**
+   * Process the next pending request from the model's queue, if any.
+   * Called after a request completes to continue processing queued requests.
+   */
+  processNextPendingRequest(model) {
+    const pendingRequest = model.dequeuePendingRequest();
+    if (!pendingRequest) {
+      return;
+    }
+    this.trace("processNextPendingRequest", `Processing queued request for session ${model.sessionResource}`);
+    const deferred = this._queuedRequestDeferreds.get(pendingRequest.request.id);
+    this._queuedRequestDeferreds.delete(pendingRequest.request.id);
+    const sendOptions = pendingRequest.sendOptions;
+    const location = sendOptions.location ?? sendOptions.locationData?.type ?? model.initialLocation;
+    const defaultAgent = this.chatAgentService.getDefaultAgent(location, sendOptions.modeInfo?.kind);
+    if (!defaultAgent) {
+      this.logService.warn("processNextPendingRequest", `No default agent for location ${location}`);
+      deferred?.complete({ kind: "rejected", reason: "No default agent available" });
+      return;
+    }
+    const parsedRequest = pendingRequest.request.message;
+    const silentAgent = sendOptions.agentIdSilent ? this.chatAgentService.getAgent(sendOptions.agentIdSilent) : void 0;
+    const agent = silentAgent ?? parsedRequest.parts.find((r) => r instanceof ChatRequestAgentPart)?.agent ?? defaultAgent;
+    const agentSlashCommandPart = parsedRequest.parts.find((r) => r instanceof ChatRequestAgentSubcommandPart);
+    const responseState = this._sendRequestAsync(model, model.sessionResource, parsedRequest, pendingRequest.request.attempt, !sendOptions.noCommandDetection, silentAgent ?? defaultAgent, location, sendOptions);
+    deferred?.complete({
+      kind: "sent",
+      data: {
+        ...responseState,
+        agent,
+        slashCommand: agentSlashCommandPart?.command
+      }
+    });
+  }
+  generateInitialChatTitleIfNeeded(model, request, defaultAgent, token) {
+    if (model.getRequests().length !== 1 || model.customTitle) {
+      return;
+    }
+    const singleEntryHistory = [{
+      request,
+      response: [],
+      result: {}
+    }];
+    const generate = /* @__PURE__ */ __name(async () => {
+      const title = await this.chatAgentService.getChatTitle(defaultAgent.id, singleEntryHistory, token);
+      if (title && !model.customTitle) {
+        model.setCustomTitle(title);
+      }
+    }, "generate");
+    void generate();
+  }
+  prepareContext(attachedContextVariables) {
+    attachedContextVariables ??= [];
+    attachedContextVariables.sort((a, b) => {
+      if (!a.range && !b.range) {
+        return 0;
+      }
+      if (!a.range) {
+        return 1;
+      }
+      if (!b.range) {
+        return -1;
+      }
+      return b.range.start - a.range.start;
+    });
+    return attachedContextVariables;
+  }
+  getHistoryEntriesFromModel(requests, location, forAgentId) {
+    const history = [];
+    const agent = this.chatAgentService.getAgent(forAgentId);
+    for (const request of requests) {
+      if (!request.response) {
+        continue;
+      }
+      if (forAgentId !== request.response.agent?.id && !agent?.isDefault && !agent?.canAccessPreviousChatHistory) {
+        continue;
+      }
+      if (location === ChatAgentLocation.EditorInline) {
+        continue;
+      }
+      const promptTextResult = getPromptText(request.message);
+      const historyRequest = {
+        sessionResource: request.session.sessionResource,
+        requestId: request.id,
+        agentId: request.response.agent?.id ?? "",
+        message: promptTextResult.message,
+        command: request.response.slashCommand?.name,
+        variables: updateRanges(request.variableData, promptTextResult.diff),
+        // TODO bit of a hack
+        location: ChatAgentLocation.Chat,
+        editedFileEvents: request.editedFileEvents
+      };
+      history.push({ request: historyRequest, response: toChatHistoryContent(request.response.response.value), result: request.response.result ?? {} });
+    }
+    return history;
+  }
+  async removeRequest(sessionResource, requestId) {
+    const model = this._sessionModels.get(sessionResource);
+    if (!model) {
+      throw new Error(`Unknown session: ${sessionResource}`);
+    }
+    const pendingRequest = this._pendingRequests.get(sessionResource);
+    if (pendingRequest?.requestId === requestId) {
+      pendingRequest.cancel();
+      this._pendingRequests.deleteAndDispose(sessionResource);
+    }
+    model.removeRequest(requestId);
+  }
+  async adoptRequest(sessionResource, request) {
+    if (!(request instanceof ChatRequestModel)) {
+      throw new TypeError("Can only adopt requests of type ChatRequestModel");
+    }
+    const target = this._sessionModels.get(sessionResource);
+    if (!target) {
+      throw new Error(`Unknown session: ${sessionResource}`);
+    }
+    const oldOwner = request.session;
+    target.adoptRequest(request);
+    if (request.response && !request.response.isComplete) {
+      const cts = this._pendingRequests.deleteAndLeak(oldOwner.sessionResource);
+      if (cts) {
+        cts.requestId = request.id;
+        this._pendingRequests.set(target.sessionResource, cts);
+      }
+    }
+  }
+  async addCompleteRequest(sessionResource, message, variableData, attempt, response) {
+    this.trace("addCompleteRequest", `message: ${message}`);
+    const model = this._sessionModels.get(sessionResource);
+    if (!model) {
+      throw new Error(`Unknown session: ${sessionResource}`);
+    }
+    const parsedRequest = typeof message === "string" ? this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(sessionResource, message) : message;
+    const request = model.addRequest(parsedRequest, variableData || { variables: [] }, attempt ?? 0, void 0, void 0, void 0, void 0, void 0, void 0, true);
+    if (typeof response.message === "string") {
+      model.acceptResponseProgress(request, { content: new MarkdownString(response.message), kind: "markdownContent" });
+    } else {
+      for (const part of response.message) {
+        model.acceptResponseProgress(request, part, true);
+      }
+    }
+    model.setResponse(request, response.result || {});
+    if (response.followups !== void 0) {
+      model.setFollowups(request, response.followups);
+    }
+    request.response?.complete();
+  }
+  cancelCurrentRequestForSession(sessionResource) {
+    this.trace("cancelCurrentRequestForSession", `session: ${sessionResource}`);
+    this._pendingRequests.get(sessionResource)?.cancel();
+    this._pendingRequests.deleteAndDispose(sessionResource);
+  }
+  setYieldRequested(sessionResource) {
+    const pendingRequest = this._pendingRequests.get(sessionResource);
+    if (pendingRequest) {
+      pendingRequest.setYieldRequested();
+    }
+  }
+  removePendingRequest(sessionResource, requestId) {
+    const model = this._sessionModels.get(sessionResource);
+    if (model) {
+      model.removePendingRequest(requestId);
+    }
+    const deferred = this._queuedRequestDeferreds.get(requestId);
+    if (deferred) {
+      deferred.complete({ kind: "rejected", reason: "Request was removed from queue" });
+      this._queuedRequestDeferreds.delete(requestId);
+    }
+  }
+  setPendingRequests(sessionResource, requests) {
+    const model = this._sessionModels.get(sessionResource);
+    if (model) {
+      model.setPendingRequests(requests);
+    }
+  }
+  hasSessions() {
+    return this._chatSessionStore.hasSessions();
+  }
+  async transferChatSession(transferredSessionResource, toWorkspace) {
+    if (!LocalChatSessionUri.isLocalSession(transferredSessionResource)) {
+      throw new Error(`Can only transfer local chat sessions. Invalid session: ${transferredSessionResource}`);
+    }
+    const model = this._sessionModels.get(transferredSessionResource);
+    if (!model) {
+      throw new Error(`Failed to transfer session. Unknown session: ${transferredSessionResource}`);
+    }
+    if (model.initialLocation !== ChatAgentLocation.Chat) {
+      throw new Error(`Can only transfer chat sessions located in the Chat view. Session ${transferredSessionResource} has location=${model.initialLocation}`);
+    }
+    await this._chatSessionStore.storeTransferSession({
+      sessionResource: model.sessionResource,
+      timestampInMilliseconds: Date.now(),
+      toWorkspace
+    }, model);
+    this.chatTransferService.addWorkspaceToTransferred(toWorkspace);
+    this.trace("transferChatSession", `Transferred session ${model.sessionResource} to workspace ${toWorkspace.toString()}`);
+  }
+  getChatStorageFolder() {
+    return this._chatSessionStore.getChatStorageFolder();
+  }
+  logChatIndex() {
+    this._chatSessionStore.logIndex();
+  }
+  setTitle(sessionResource, title) {
+    this._sessionModels.get(sessionResource)?.setCustomTitle(title);
+  }
+  appendProgress(request, progress) {
+    const model = this._sessionModels.get(request.session.sessionResource);
+    if (!(request instanceof ChatRequestModel)) {
+      throw new BugIndicatingError("Can only append progress to requests of type ChatRequestModel");
+    }
+    model?.acceptResponseProgress(request, progress);
+  }
+  toLocalSessionId(sessionResource) {
+    const localSessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+    if (!localSessionId) {
+      throw new Error(`Invalid local chat session resource: ${sessionResource}`);
+    }
+    return localSessionId;
+  }
+};
+ChatService = __decorate([
+  __param(0, IStorageService),
+  __param(1, ILogService),
+  __param(2, IExtensionService),
+  __param(3, IInstantiationService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IChatSlashCommandService),
+  __param(6, IChatAgentService),
+  __param(7, IConfigurationService),
+  __param(8, IChatTransferService),
+  __param(9, IChatSessionsService),
+  __param(10, IMcpService),
+  __param(11, IPromptsService),
+  __param(12, IHooksExecutionService)
+], ChatService);
+export {
+  ChatService
+};
+//# sourceMappingURL=chatServiceImpl.js.map

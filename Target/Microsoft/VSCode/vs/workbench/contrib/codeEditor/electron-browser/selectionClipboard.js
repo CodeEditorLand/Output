@@ -1,1 +1,167 @@
-import*as C from"../../../../nls.js";import{$ji as x}from"../../../../base/common/async.js";import{$Ed as b}from"../../../../base/common/lifecycle.js";import*as g from"../../../../base/common/platform.js";import{$1db as S,$Sdb as w,$Xdb as v}from"../../../../editor/browser/editorExtensions.js";import{$_D as D}from"../../../../editor/common/core/range.js";import{$gjb as h}from"../../../../platform/clipboard/common/clipboardService.js";import{$cIb as P}from"../browser/selectionClipboard.js";import{$2N as _}from"../../../common/contributions.js";import{$0l as O}from"../../../../platform/configuration/common/configuration.js";import{EditorContextKeys as R}from"../../../../editor/common/editorContextKeys.js";import{$T7 as j}from"../../../../base/browser/window.js";import{Event as E}from"../../../../base/common/event.js";import{$u8 as L,onDidRegisterWindow as T}from"../../../../base/browser/dom.js";var m=function(s,e,o,r){var i=arguments.length,t=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,o):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,e,o,r);else for(var c=s.length-1;c>=0;c--)(n=s[c])&&(t=(i<3?n(t):i>3?n(e,o,t):n(e,o))||t);return i>3&&t&&Object.defineProperty(e,o,t),t},d=function(s,e){return function(o,r){e(o,r,s)}},p;let f=class extends b{static{p=this}static{this.a=65536}constructor(e,o){if(super(),g.$o){let r=e.getOption(121);this.D(e.onDidChangeConfiguration(t=>{t.hasChanged(121)&&(r=e.getOption(121))}));const i=this.D(new x(()=>{if(!e.hasModel())return;const t=e.getModel();let n=e.getSelections();n=n.slice(0),n.sort(D.compareRangesUsingStarts);let c=0;for(const l of n){if(l.isEmpty())return;c+=t.getValueLengthInRange(l)}if(c>p.a)return;const u=[];for(const l of n)u.push(t.getValueInRange(l,0));const $=u.join(t.getEOL());o.writeText($,"selection")},100));this.D(e.onDidChangeCursorSelection(t=>{r&&t.source!=="restoreState"&&i.schedule()}))}}dispose(){super.dispose()}};f=p=m([d(1,h)],f);let a=class extends b{static{this.ID="workbench.contrib.linuxSelectionClipboardPastePreventer"}constructor(e){super(),this.D(E.runAndSubscribe(T,({window:o,disposables:r})=>{r.add(L(o.document,"mouseup",i=>{i.button===1&&(e.getValue("editor").selectionClipboard||i.preventDefault())}))},{window:j,disposables:this.B}))}};a=m([d(0,O)],a);class y extends w{constructor(){super({id:"editor.action.selectionClipboardPaste",label:C.localize2(7376,"Paste Selection Clipboard"),precondition:R.writable})}async run(e,o,r){const t=await e.get(h).readText("selection");o.trigger("keyboard","paste",{text:t,pasteOnNewLine:!1,multicursorText:null})}}S(P,f,0);g.$o&&(_(a.ID,a,2),v(y));export{f as $wWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SelectionClipboard_1;
+import * as nls from "../../../../nls.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as platform from "../../../../base/common/platform.js";
+import { registerEditorContribution, EditorAction, registerEditorAction } from "../../../../editor/browser/editorExtensions.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { SelectionClipboardContributionID } from "../browser/selectionClipboard.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Event } from "../../../../base/common/event.js";
+import { addDisposableListener, onDidRegisterWindow } from "../../../../base/browser/dom.js";
+let SelectionClipboard = class SelectionClipboard2 extends Disposable {
+  static {
+    __name(this, "SelectionClipboard");
+  }
+  static {
+    SelectionClipboard_1 = this;
+  }
+  static {
+    this.SELECTION_LENGTH_LIMIT = 65536;
+  }
+  constructor(editor, clipboardService) {
+    super();
+    if (platform.isLinux) {
+      let isEnabled = editor.getOption(
+        121
+        /* EditorOption.selectionClipboard */
+      );
+      this._register(editor.onDidChangeConfiguration((e) => {
+        if (e.hasChanged(
+          121
+          /* EditorOption.selectionClipboard */
+        )) {
+          isEnabled = editor.getOption(
+            121
+            /* EditorOption.selectionClipboard */
+          );
+        }
+      }));
+      const setSelectionToClipboard = this._register(new RunOnceScheduler(() => {
+        if (!editor.hasModel()) {
+          return;
+        }
+        const model = editor.getModel();
+        let selections = editor.getSelections();
+        selections = selections.slice(0);
+        selections.sort(Range.compareRangesUsingStarts);
+        let resultLength = 0;
+        for (const sel of selections) {
+          if (sel.isEmpty()) {
+            return;
+          }
+          resultLength += model.getValueLengthInRange(sel);
+        }
+        if (resultLength > SelectionClipboard_1.SELECTION_LENGTH_LIMIT) {
+          return;
+        }
+        const result = [];
+        for (const sel of selections) {
+          result.push(model.getValueInRange(
+            sel,
+            0
+            /* EndOfLinePreference.TextDefined */
+          ));
+        }
+        const textToCopy = result.join(model.getEOL());
+        clipboardService.writeText(textToCopy, "selection");
+      }, 100));
+      this._register(editor.onDidChangeCursorSelection((e) => {
+        if (!isEnabled) {
+          return;
+        }
+        if (e.source === "restoreState") {
+          return;
+        }
+        setSelectionToClipboard.schedule();
+      }));
+    }
+  }
+  dispose() {
+    super.dispose();
+  }
+};
+SelectionClipboard = SelectionClipboard_1 = __decorate([
+  __param(1, IClipboardService)
+], SelectionClipboard);
+let LinuxSelectionClipboardPastePreventer = class LinuxSelectionClipboardPastePreventer2 extends Disposable {
+  static {
+    __name(this, "LinuxSelectionClipboardPastePreventer");
+  }
+  static {
+    this.ID = "workbench.contrib.linuxSelectionClipboardPastePreventer";
+  }
+  constructor(configurationService) {
+    super();
+    this._register(Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => {
+      disposables.add(addDisposableListener(window.document, "mouseup", (e) => {
+        if (e.button === 1) {
+          const config = configurationService.getValue("editor");
+          if (!config.selectionClipboard) {
+            e.preventDefault();
+          }
+        }
+      }));
+    }, { window: mainWindow, disposables: this._store }));
+  }
+};
+LinuxSelectionClipboardPastePreventer = __decorate([
+  __param(0, IConfigurationService)
+], LinuxSelectionClipboardPastePreventer);
+class PasteSelectionClipboardAction extends EditorAction {
+  static {
+    __name(this, "PasteSelectionClipboardAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.selectionClipboardPaste",
+      label: nls.localize2("actions.pasteSelectionClipboard", "Paste Selection Clipboard"),
+      precondition: EditorContextKeys.writable
+    });
+  }
+  async run(accessor, editor, args) {
+    const clipboardService = accessor.get(IClipboardService);
+    const text = await clipboardService.readText("selection");
+    editor.trigger("keyboard", "paste", {
+      text,
+      pasteOnNewLine: false,
+      multicursorText: null
+    });
+  }
+}
+registerEditorContribution(
+  SelectionClipboardContributionID,
+  SelectionClipboard,
+  0
+  /* EditorContributionInstantiation.Eager */
+);
+if (platform.isLinux) {
+  registerWorkbenchContribution2(
+    LinuxSelectionClipboardPastePreventer.ID,
+    LinuxSelectionClipboardPastePreventer,
+    2
+    /* WorkbenchPhase.BlockRestore */
+  );
+  registerEditorAction(PasteSelectionClipboardAction);
+}
+export {
+  SelectionClipboard
+};
+//# sourceMappingURL=selectionClipboard.js.map

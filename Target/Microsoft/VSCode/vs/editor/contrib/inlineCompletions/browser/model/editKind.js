@@ -1,1 +1,203 @@
-const E=new Set([";",",","=","+","-","*","/","{","}","(",")","[","]","<",">",":",".","!","?","&","|","^","%","@","#","~","`","\\","'",'"',"$"]);function I(e){return E.has(e)}function w(e){return/[a-zA-Z0-9_]/.test(e)}function y(e){return e===" "||e==="	"}function h(e){const t=e.split(/\r\n|\r|\n/);if(t.length>1)return{kind:"multiLine",lineCount:t.length};const i=e.length===1;let n;i&&(I(e)?n="syntactical":w(e)?n="identifier":y(e)&&(n="whitespace"));const r=e.match(/[ \t]+/g)||[],s=r.some(u=>u.length>1),o=r.some(u=>u.includes("  ")||u.includes("		")),c=e.split(/\s+/).filter(u=>u.length>0),l=c.length===1&&/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c[0]),a=c.length>1;return{kind:"singleLine",isSingleCharacter:i,singleCharacterKind:n,isWord:l,isMultipleWords:a,isMultipleWhitespace:s,hasDuplicatedWhitespace:o}}class D{constructor(t){this.edits=t}toString(){return JSON.stringify({edits:this.edits})}}function T(e,t,i){if(e.replacements.length!==0)return new D(e.replacements.map(n=>v(n,t,i)))}function f(e){return e.length===0?0:e.split(/\r\n|\r|\n/).length-1}function v(e,t,i){const n=e.replaceRange,r=e.newText,s=n.length,o=r.length,c=f(r);switch(n.isEmpty?"insert":r.length===0?"delete":"replace"){case"insert":return{operation:"insert",properties:N(n.start,r,t,i),charactersInserted:o,charactersDeleted:0,linesInserted:c,linesDeleted:0};case"delete":{const a=t.getValue().substring(n.start,n.endExclusive);return{operation:"delete",properties:O(n.start,n.endExclusive,t),charactersInserted:0,charactersDeleted:s,linesInserted:0,linesDeleted:f(a)}}case"replace":{const a=t.getValue().substring(n.start,n.endExclusive);return{operation:"replace",properties:P(a,r),charactersInserted:o,charactersDeleted:s,linesInserted:c,linesDeleted:f(a)}}}}function N(e,t,i,n){const r=h(t),s=i.getPositionAt(e),o=i.getLineContent(s.lineNumber),c=o.length;let l;const a=o.trim().length===0,u=s.column>c,p=s.column===1;a?l="emptyLine":u?l="endOfLine":p?l="startOfLine":l="middleOfLine";let S;if(n){const d=n.lineNumber,g=s.lineNumber,m=n.column,L=s.column,C=d===g&&m===L,b=d===g&&L<m,k=d===g&&L>m,A=g<d?d-g:void 0,W=g>d?g-d:void 0;S={atCursor:C,beforeCursorOnSameLine:b,afterCursorOnSameLine:k,linesAbove:A,linesBelow:W}}return{textShape:r,locationShape:l,relativeToCursor:S}}function O(e,t,i){const n=i.getValue().substring(e,t),r=h(n),s=i.getPositionAt(e),o=i.getPositionAt(t),c=i.getLineContent(o.lineNumber),l=o.column>c.length,a=s.lineNumber===o.lineNumber&&s.column===1&&o.column>c.length;return{textShape:r,isAtEndOfLine:l,deletesEntireLineContent:a}}function P(e,t){const i=h(e),n=h(t),r=i.kind==="singleLine"&&i.isWord,s=n.kind==="singleLine"&&n.isWord,o=r&&s,c=t.length>e.length,l=t.length<e.length,a=i.kind==="singleLine"&&n.kind==="singleLine",u=i.kind==="singleLine"&&n.kind==="multiLine",p=i.kind==="multiLine"&&n.kind==="singleLine";return{isWordToWordReplacement:o,isAdditive:c,isSubtractive:l,isSingleLineToSingleLine:a,isSingleLineToMultiLine:u,isMultiLineToSingleLine:p}}export{D as $sob,T as $tob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const syntacticalChars = /* @__PURE__ */ new Set([";", ",", "=", "+", "-", "*", "/", "{", "}", "(", ")", "[", "]", "<", ">", ":", ".", "!", "?", "&", "|", "^", "%", "@", "#", "~", "`", "\\", "'", '"', "$"]);
+function isSyntacticalChar(char) {
+  return syntacticalChars.has(char);
+}
+__name(isSyntacticalChar, "isSyntacticalChar");
+function isIdentifierChar(char) {
+  return /[a-zA-Z0-9_]/.test(char);
+}
+__name(isIdentifierChar, "isIdentifierChar");
+function isWhitespaceChar(char) {
+  return char === " " || char === "	";
+}
+__name(isWhitespaceChar, "isWhitespaceChar");
+function analyzeTextShape(text) {
+  const lines = text.split(/\r\n|\r|\n/);
+  if (lines.length > 1) {
+    return {
+      kind: "multiLine",
+      lineCount: lines.length
+    };
+  }
+  const isSingleChar = text.length === 1;
+  let singleCharKind;
+  if (isSingleChar) {
+    if (isSyntacticalChar(text)) {
+      singleCharKind = "syntactical";
+    } else if (isIdentifierChar(text)) {
+      singleCharKind = "identifier";
+    } else if (isWhitespaceChar(text)) {
+      singleCharKind = "whitespace";
+    }
+  }
+  const whitespaceMatches = text.match(/[ \t]+/g) || [];
+  const isMultipleWhitespace = whitespaceMatches.some((ws) => ws.length > 1);
+  const hasDuplicatedWhitespace = whitespaceMatches.some((ws) => ws.includes("  ") || ws.includes("		"));
+  const words = text.split(/\s+/).filter((w) => w.length > 0);
+  const isWord = words.length === 1 && /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(words[0]);
+  const isMultipleWords = words.length > 1;
+  return {
+    kind: "singleLine",
+    isSingleCharacter: isSingleChar,
+    singleCharacterKind: singleCharKind,
+    isWord,
+    isMultipleWords,
+    isMultipleWhitespace,
+    hasDuplicatedWhitespace
+  };
+}
+__name(analyzeTextShape, "analyzeTextShape");
+class InlineSuggestionEditKind {
+  static {
+    __name(this, "InlineSuggestionEditKind");
+  }
+  constructor(edits) {
+    this.edits = edits;
+  }
+  toString() {
+    return JSON.stringify({ edits: this.edits });
+  }
+}
+function computeEditKind(edit, textModel, cursorPosition) {
+  if (edit.replacements.length === 0) {
+    return void 0;
+  }
+  return new InlineSuggestionEditKind(edit.replacements.map((rep) => computeSingleEditKind(rep, textModel, cursorPosition)));
+}
+__name(computeEditKind, "computeEditKind");
+function countLines(text) {
+  if (text.length === 0) {
+    return 0;
+  }
+  return text.split(/\r\n|\r|\n/).length - 1;
+}
+__name(countLines, "countLines");
+function computeSingleEditKind(replacement, textModel, cursorPosition) {
+  const replaceRange = replacement.replaceRange;
+  const newText = replacement.newText;
+  const deletedLength = replaceRange.length;
+  const insertedLength = newText.length;
+  const linesInserted = countLines(newText);
+  const kind = replaceRange.isEmpty ? "insert" : newText.length === 0 ? "delete" : "replace";
+  switch (kind) {
+    case "insert":
+      return {
+        operation: "insert",
+        properties: computeInsertProperties(replaceRange.start, newText, textModel, cursorPosition),
+        charactersInserted: insertedLength,
+        charactersDeleted: 0,
+        linesInserted,
+        linesDeleted: 0
+      };
+    case "delete": {
+      const deletedText = textModel.getValue().substring(replaceRange.start, replaceRange.endExclusive);
+      return {
+        operation: "delete",
+        properties: computeDeleteProperties(replaceRange.start, replaceRange.endExclusive, textModel),
+        charactersInserted: 0,
+        charactersDeleted: deletedLength,
+        linesInserted: 0,
+        linesDeleted: countLines(deletedText)
+      };
+    }
+    case "replace": {
+      const oldText = textModel.getValue().substring(replaceRange.start, replaceRange.endExclusive);
+      return {
+        operation: "replace",
+        properties: computeReplaceProperties(oldText, newText),
+        charactersInserted: insertedLength,
+        charactersDeleted: deletedLength,
+        linesInserted,
+        linesDeleted: countLines(oldText)
+      };
+    }
+  }
+}
+__name(computeSingleEditKind, "computeSingleEditKind");
+function computeInsertProperties(offset, newText, textModel, cursorPosition) {
+  const textShape = analyzeTextShape(newText);
+  const insertPosition = textModel.getPositionAt(offset);
+  const lineContent = textModel.getLineContent(insertPosition.lineNumber);
+  const lineLength = lineContent.length;
+  let locationShape;
+  const isLineEmpty = lineContent.trim().length === 0;
+  const isAtEndOfLine = insertPosition.column > lineLength;
+  const isAtStartOfLine = insertPosition.column === 1;
+  if (isLineEmpty) {
+    locationShape = "emptyLine";
+  } else if (isAtEndOfLine) {
+    locationShape = "endOfLine";
+  } else if (isAtStartOfLine) {
+    locationShape = "startOfLine";
+  } else {
+    locationShape = "middleOfLine";
+  }
+  let relativeToCursor;
+  if (cursorPosition) {
+    const cursorLine = cursorPosition.lineNumber;
+    const insertLine = insertPosition.lineNumber;
+    const cursorColumn = cursorPosition.column;
+    const insertColumn = insertPosition.column;
+    const atCursor = cursorLine === insertLine && cursorColumn === insertColumn;
+    const beforeCursorOnSameLine = cursorLine === insertLine && insertColumn < cursorColumn;
+    const afterCursorOnSameLine = cursorLine === insertLine && insertColumn > cursorColumn;
+    const linesAbove = insertLine < cursorLine ? cursorLine - insertLine : void 0;
+    const linesBelow = insertLine > cursorLine ? insertLine - cursorLine : void 0;
+    relativeToCursor = {
+      atCursor,
+      beforeCursorOnSameLine,
+      afterCursorOnSameLine,
+      linesAbove,
+      linesBelow
+    };
+  }
+  return {
+    textShape,
+    locationShape,
+    relativeToCursor
+  };
+}
+__name(computeInsertProperties, "computeInsertProperties");
+function computeDeleteProperties(startOffset, endOffset, textModel) {
+  const deletedText = textModel.getValue().substring(startOffset, endOffset);
+  const textShape = analyzeTextShape(deletedText);
+  const startPosition = textModel.getPositionAt(startOffset);
+  const endPosition = textModel.getPositionAt(endOffset);
+  const lineContent = textModel.getLineContent(endPosition.lineNumber);
+  const isAtEndOfLine = endPosition.column > lineContent.length;
+  const deletesEntireLineContent = startPosition.lineNumber === endPosition.lineNumber && startPosition.column === 1 && endPosition.column > lineContent.length;
+  return {
+    textShape,
+    isAtEndOfLine,
+    deletesEntireLineContent
+  };
+}
+__name(computeDeleteProperties, "computeDeleteProperties");
+function computeReplaceProperties(oldText, newText) {
+  const oldShape = analyzeTextShape(oldText);
+  const newShape = analyzeTextShape(newText);
+  const oldIsWord = oldShape.kind === "singleLine" && oldShape.isWord;
+  const newIsWord = newShape.kind === "singleLine" && newShape.isWord;
+  const isWordToWordReplacement = oldIsWord && newIsWord;
+  const isAdditive = newText.length > oldText.length;
+  const isSubtractive = newText.length < oldText.length;
+  const isSingleLineToSingleLine = oldShape.kind === "singleLine" && newShape.kind === "singleLine";
+  const isSingleLineToMultiLine = oldShape.kind === "singleLine" && newShape.kind === "multiLine";
+  const isMultiLineToSingleLine = oldShape.kind === "multiLine" && newShape.kind === "singleLine";
+  return {
+    isWordToWordReplacement,
+    isAdditive,
+    isSubtractive,
+    isSingleLineToSingleLine,
+    isSingleLineToMultiLine,
+    isMultiLineToSingleLine
+  };
+}
+__name(computeReplaceProperties, "computeReplaceProperties");
+export {
+  InlineSuggestionEditKind,
+  computeEditKind
+};
+//# sourceMappingURL=editKind.js.map

@@ -1,1 +1,18 @@
-import{$nPc as r}from"../browser/webviewService.js";import{$kXc as c}from"./webviewElement.js";class o extends r{createWebviewElement(t){const e=this.b.createInstance(c,t,this.a);return this.j(e),e}}export{o as $lXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { WebviewService } from "../browser/webviewService.js";
+import { ElectronWebviewElement } from "./webviewElement.js";
+class ElectronWebviewService extends WebviewService {
+  static {
+    __name(this, "ElectronWebviewService");
+  }
+  createWebviewElement(initInfo) {
+    const webview = this._instantiationService.createInstance(ElectronWebviewElement, initInfo, this._webviewThemeDataProvider);
+    this.registerNewWebview(webview);
+    return webview;
+  }
+}
+export {
+  ElectronWebviewService
+};
+//# sourceMappingURL=webviewService.js.map

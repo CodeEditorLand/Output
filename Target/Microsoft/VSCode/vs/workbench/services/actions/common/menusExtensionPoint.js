@@ -1,1 +1,1126 @@
-import{localize as e}from"../../../../nls.js";import{$Uf as S}from"../../../../base/common/strings.js";import*as C from"../../../../base/common/resources.js";import{$KR as I}from"../../extensions/common/extensionsRegistry.js";import{$0n as $}from"../../../../platform/contextkey/common/contextkey.js";import{$qL as t,$sL as h}from"../../../../platform/actions/common/actions.js";import{$Ed as B,$Dd as A}from"../../../../base/common/lifecycle.js";import{ThemeIcon as V}from"../../../../base/common/themables.js";import{$hc as M}from"../../../../base/common/arrays.js";import{$QR as _}from"../../extensions/common/extensions.js";import{Extensions as G}from"../../extensionManagement/common/extensionFeatures.js";import{$jm as H}from"../../../../platform/registry/common/platform.js";import{$Kj as L}from"../../../../platform/instantiation/common/descriptors.js";import{$3 as N}from"../../../../base/common/process.js";import{$jk as E}from"../../../../base/common/htmlContent.js";import{$fy as q}from"../../../../platform/keybinding/common/keybinding.js";var D=function(p,r,c,i){var o=arguments.length,l=o<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,c):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(p,r,c,i);else for(var y=p.length-1;y>=0;y--)(s=p[y])&&(l=(o<3?s(l):o>3?s(r,c,l):s(r,c))||l);return o>3&&l&&Object.defineProperty(r,c,l),l},O=function(p,r){return function(c,i){r(c,i,p)}};const R=[{key:"commandPalette",id:t.CommandPalette,description:e(15668,null),supportsSubmenus:!1},{key:"touchBar",id:t.TouchBarContext,description:e(15669,null),supportsSubmenus:!1},{key:"editor/title",id:t.EditorTitle,description:e(15670,null)},{key:"editor/title/run",id:t.EditorTitleRun,description:e(15671,null)},{key:"editor/context",id:t.EditorContext,description:e(15672,null)},{key:"editor/context/copy",id:t.EditorContextCopy,description:e(15673,null)},{key:"editor/context/share",id:t.EditorContextShare,description:e(15674,null),proposed:"contribShareMenu"},{key:"explorer/context",id:t.ExplorerContext,description:e(15675,null)},{key:"explorer/context/share",id:t.ExplorerContextShare,description:e(15676,null),proposed:"contribShareMenu"},{key:"editor/title/context",id:t.EditorTitleContext,description:e(15677,null)},{key:"editor/title/context/share",id:t.EditorTitleContextShare,description:e(15678,null),proposed:"contribShareMenu"},{key:"debug/callstack/context",id:t.DebugCallStackContext,description:e(15679,null)},{key:"debug/variables/context",id:t.DebugVariablesContext,description:e(15680,null)},{key:"debug/watch/context",id:t.DebugWatchContext,description:e(15681,null)},{key:"debug/toolBar",id:t.DebugToolBar,description:e(15682,null)},{key:"debug/createConfiguration",id:t.DebugCreateConfiguration,proposed:"contribDebugCreateConfiguration",description:e(15683,null)},{key:"notebook/variables/context",id:t.NotebookVariablesContext,description:e(15684,null)},{key:"menuBar/home",id:t.MenubarHomeMenu,description:e(15685,null),proposed:"contribMenuBarHome",supportsSubmenus:!1},{key:"menuBar/edit/copy",id:t.MenubarCopy,description:e(15686,null)},{key:"scm/title",id:t.SCMTitle,description:e(15687,null)},{key:"scm/sourceControl",id:t.SCMSourceControl,description:e(15688,null)},{key:"scm/repositories/title",id:t.SCMSourceControlTitle,description:e(15689,null),proposed:"contribSourceControlTitleMenu"},{key:"scm/repository",id:t.SCMSourceControlInline,description:e(15690,null)},{key:"scm/resourceState/context",id:t.SCMResourceContext,description:e(15691,null)},{key:"scm/resourceFolder/context",id:t.SCMResourceFolderContext,description:e(15692,null)},{key:"scm/resourceGroup/context",id:t.SCMResourceGroupContext,description:e(15693,null)},{key:"scm/change/title",id:t.SCMChangeContext,description:e(15694,null)},{key:"scm/inputBox",id:t.SCMInputBox,description:e(15695,null),proposed:"contribSourceControlInputBoxMenu"},{key:"scm/history/title",id:t.SCMHistoryTitle,description:e(15696,null),proposed:"contribSourceControlHistoryTitleMenu"},{key:"scm/historyItem/context",id:t.SCMHistoryItemContext,description:e(15697,null),proposed:"contribSourceControlHistoryItemMenu"},{key:"scm/historyItemRef/context",id:t.SCMHistoryItemRefContext,description:e(15698,null),proposed:"contribSourceControlHistoryItemMenu"},{key:"scm/artifactGroup/context",id:t.SCMArtifactGroupContext,description:e(15699,null),proposed:"contribSourceControlArtifactGroupMenu"},{key:"scm/artifact/context",id:t.SCMArtifactContext,description:e(15700,null),proposed:"contribSourceControlArtifactMenu"},{key:"statusBar/remoteIndicator",id:t.StatusBarRemoteIndicatorMenu,description:e(15701,null),supportsSubmenus:!1},{key:"terminal/context",id:t.TerminalInstanceContext,description:e(15702,null)},{key:"terminal/title/context",id:t.TerminalTabContext,description:e(15703,null)},{key:"view/title",id:t.ViewTitle,description:e(15704,null)},{key:"viewContainer/title",id:t.ViewContainerTitle,description:e(15705,null),proposed:"contribViewContainerTitle"},{key:"view/item/context",id:t.ViewItemContext,description:e(15706,null)},{key:"comments/comment/editorActions",id:t.CommentEditorActions,description:e(15707,null),proposed:"contribCommentEditorActionsMenu"},{key:"comments/commentThread/title",id:t.CommentThreadTitle,description:e(15708,null)},{key:"comments/commentThread/context",id:t.CommentThreadActions,description:e(15709,null),supportsSubmenus:!1},{key:"comments/commentThread/additionalActions",id:t.CommentThreadAdditionalActions,description:e(15710,null),supportsSubmenus:!0,proposed:"contribCommentThreadAdditionalMenu"},{key:"comments/commentThread/title/context",id:t.CommentThreadTitleContext,description:e(15711,null),proposed:"contribCommentPeekContext"},{key:"comments/comment/title",id:t.CommentTitle,description:e(15712,null)},{key:"comments/comment/context",id:t.CommentActions,description:e(15713,null),supportsSubmenus:!1},{key:"comments/commentThread/comment/context",id:t.CommentThreadCommentContext,description:e(15714,null),proposed:"contribCommentPeekContext"},{key:"commentsView/commentThread/context",id:t.CommentsViewThreadActions,description:e(15715,null),proposed:"contribCommentsViewThreadMenus"},{key:"notebook/toolbar",id:t.NotebookToolbar,description:e(15716,null)},{key:"notebook/kernelSource",id:t.NotebookKernelSource,description:e(15717,null),proposed:"notebookKernelSource"},{key:"notebook/cell/title",id:t.NotebookCellTitle,description:e(15718,null)},{key:"notebook/cell/execute",id:t.NotebookCellExecute,description:e(15719,null)},{key:"interactive/toolbar",id:t.InteractiveToolbar,description:e(15720,null)},{key:"interactive/cell/title",id:t.InteractiveCellTitle,description:e(15721,null)},{key:"issue/reporter",id:t.IssueReporter,description:e(15722,null)},{key:"testing/item/context",id:t.TestItem,description:e(15723,null)},{key:"testing/item/gutter",id:t.TestItemGutter,description:e(15724,null)},{key:"testing/profiles/context",id:t.TestProfilesContext,description:e(15725,null)},{key:"testing/item/result",id:t.TestPeekElement,description:e(15726,null)},{key:"testing/message/context",id:t.TestMessageContext,description:e(15727,null)},{key:"testing/message/content",id:t.TestMessageContent,description:e(15728,null)},{key:"extension/context",id:t.ExtensionContext,description:e(15729,null)},{key:"timeline/title",id:t.TimelineTitle,description:e(15730,null)},{key:"timeline/item/context",id:t.TimelineItemContext,description:e(15731,null)},{key:"ports/item/context",id:t.TunnelContext,description:e(15732,null)},{key:"ports/item/origin/inline",id:t.TunnelOriginInline,description:e(15733,null)},{key:"ports/item/port/inline",id:t.TunnelPortInline,description:e(15734,null)},{key:"file/newFile",id:t.NewFile,description:e(15735,null),supportsSubmenus:!1},{key:"webview/context",id:t.WebviewContext,description:e(15736,null)},{key:"file/share",id:t.MenubarShare,description:e(15737,null),proposed:"contribShareMenu"},{key:"editor/inlineCompletions/actions",id:t.InlineCompletionsActions,description:e(15738,null),supportsSubmenus:!1,proposed:"inlineCompletionsAdditions"},{key:"editor/content",id:t.EditorContent,description:e(15739,null),proposed:"contribEditorContentMenu"},{key:"editor/lineNumber/context",id:t.EditorLineNumberContext,description:e(15740,null)},{key:"mergeEditor/result/title",id:t.MergeInputResultToolbar,description:e(15741,null),proposed:"contribMergeEditorMenus"},{key:"multiDiffEditor/content",id:t.MultiDiffEditorContent,description:e(15742,null),proposed:"contribEditorContentMenu"},{key:"multiDiffEditor/resource/title",id:t.MultiDiffEditorFileToolbar,description:e(15743,null),proposed:"contribMultiDiffEditorMenus"},{key:"diffEditor/gutter/hunk",id:t.DiffEditorHunkToolbar,description:e(15744,null),proposed:"contribDiffEditorGutterToolBarMenus"},{key:"diffEditor/gutter/selection",id:t.DiffEditorSelectionToolbar,description:e(15745,null),proposed:"contribDiffEditorGutterToolBarMenus"},{key:"searchPanel/aiResults/commands",id:t.SearchActionMenu,description:e(15746,null)},{key:"editor/context/chat",id:t.ChatTextEditorMenu,description:e(15747,null),supportsSubmenus:!1,proposed:"chatParticipantPrivate"},{key:"chat/input/editing/sessionToolbar",id:t.ChatEditingSessionChangesToolbar,description:e(15748,null),proposed:"chatSessionsProvider"},{key:"chat/chatSessions",id:t.AgentSessionsContext,description:e(15749,null),supportsSubmenus:!1,proposed:"chatSessionsProvider"},{key:"chatSessions/newSession",id:t.AgentSessionsCreateSubMenu,description:e(15750,null),supportsSubmenus:!1,proposed:"chatSessionsProvider"},{key:"chat/multiDiff/context",id:t.ChatMultiDiffContext,description:e(15751,null),supportsSubmenus:!1,proposed:"chatSessionsProvider"},{key:"chat/editor/inlineGutter",id:t.ChatEditorInlineGutter,description:e(15752,null),supportsSubmenus:!1,proposed:"contribChatEditorInlineGutterMenu"},{key:"chat/contextUsage/actions",id:t.ChatContextUsageActions,description:e(15753,null),proposed:"chatParticipantAdditions"}];var g;(function(p){function r(n){return typeof n.command=="string"}p.isMenuItem=r;function c(n,d){return typeof n.command!="string"?(d.error(e(15754,null,"command")),!1):n.alt&&typeof n.alt!="string"?(d.error(e(15755,null,"alt")),!1):n.when&&typeof n.when!="string"?(d.error(e(15756,null,"when")),!1):n.group&&typeof n.group!="string"?(d.error(e(15757,null,"group")),!1):!0}p.isValidMenuItem=c;function i(n,d){return typeof n.submenu!="string"?(d.error(e(15758,null,"submenu")),!1):n.when&&typeof n.when!="string"?(d.error(e(15759,null,"when")),!1):n.group&&typeof n.group!="string"?(d.error(e(15760,null,"group")),!1):!0}p.isValidSubmenuItem=i;function o(n,d){if(!Array.isArray(n))return d.error(e(15761,null)),!1;for(const k of n)if(r(k)){if(!c(k,d))return!1}else if(!i(k,d))return!1;return!0}p.isValidItems=o;function l(n,d){return typeof n!="object"?(d.error(e(15762,null)),!1):typeof n.id!="string"?(d.error(e(15763,null,"id")),!1):typeof n.label!="string"?(d.error(e(15764,null,"label")),!1):!0}p.isValidSubmenu=l;const s={type:"object",required:["command"],properties:{command:{description:e(15765,null),type:"string"},alt:{description:e(15766,null),type:"string"},when:{description:e(15767,null),type:"string"},group:{description:e(15768,null),type:"string"}}},y={type:"object",required:["submenu"],properties:{submenu:{description:e(15769,null),type:"string"},when:{description:e(15770,null),type:"string"},group:{description:e(15771,null),type:"string"}}},m={type:"object",required:["id","label"],properties:{id:{description:e(15772,null),type:"string"},label:{description:e(15773,null),type:"string"},icon:{description:e(15774,null),anyOf:[{type:"string"},{type:"object",properties:{light:{description:e(15775,null),type:"string"},dark:{description:e(15776,null),type:"string"}}}]}}};p.menusContribution={description:e(15777,null),type:"object",properties:M(R,n=>n.key,n=>({markdownDescription:n.proposed?e(15778,null,n.proposed,n.description):n.description,type:"array",items:n.supportsSubmenus===!1?s:{oneOf:[s,y]}})),additionalProperties:{description:"Submenu",type:"array",items:{oneOf:[s,y]}}},p.submenusContribution={description:e(15779,null),type:"array",items:m};function b(n,d){return n?S(n.command)?(d.error(e(15781,null,"command")),!1):!a(n.title,d,"title")||n.shortTitle&&!a(n.shortTitle,d,"shortTitle")?!1:n.enablement&&typeof n.enablement!="string"?(d.error(e(15782,null,"precondition")),!1):!(n.category&&!a(n.category,d,"category")||!u(n.icon,d)):(d.error(e(15780,null)),!1)}p.isValidCommand=b;function u(n,d){return typeof n>"u"||typeof n=="string"||typeof n.dark=="string"&&typeof n.light=="string"?!0:(d.error(e(15783,null)),!1)}function a(n,d,k){return typeof n>"u"?(d.error(e(15784,null,k)),!1):typeof n=="string"&&S(n)?(d.error(e(15785,null,k)),!1):typeof n!="string"&&(S(n.original)||S(n.value))?(d.error(e(15786,null,`${k}.value`,`${k}.original`)),!1):!0}const f={type:"object",required:["command","title"],properties:{command:{description:e(15787,null),type:"string"},title:{description:e(15788,null),type:"string"},shortTitle:{markdownDescription:e(15789,null),type:"string"},category:{description:e(15790,null),type:"string"},enablement:{description:e(15791,null),type:"string"},icon:{description:e(15792,null),anyOf:[{type:"string"},{type:"object",properties:{light:{description:e(15793,null),type:"string"},dark:{description:e(15794,null),type:"string"}}}]}}};p.commandsContribution={description:e(15795,null),oneOf:[f,{type:"array",items:f}]}})(g||(g={}));const v=new A,F=I.registerExtensionPoint({extensionPoint:"commands",jsonSchema:g.commandsContribution,activationEventsGenerator:function*(p){for(const r of p)r.command&&(yield`onCommand:${r.command}`)}});F.setHandler(p=>{function r(c,i){if(!g.isValidCommand(c,i.collector))return;const{icon:o,enablement:l,category:s,title:y,shortTitle:m,command:b}=c;let u;o&&(typeof o=="string"?u=V.fromString(o)??{dark:C.$Ih(i.description.extensionLocation,o),light:C.$Ih(i.description.extensionLocation,o)}:u={dark:C.$Ih(i.description.extensionLocation,o.dark),light:C.$Ih(i.description.extensionLocation,o.light)});const a=h.getCommand(b);a&&(a.source?i.collector.info(e(15796,null,c.command,a.source.title,a.source.id)):i.collector.info(e(15797,null,c.command))),v.add(h.addCommand({id:b,title:y,source:{id:i.description.identifier.value,title:i.description.displayName??i.description.name},shortTitle:m,tooltip:y,category:s,precondition:$.deserialize(l),icon:u}))}v.clear();for(const c of p){const{value:i}=c;if(Array.isArray(i))for(const o of i)r(o,c);else r(i,c)}});const x=new Map,j=I.registerExtensionPoint({extensionPoint:"submenus",jsonSchema:g.submenusContribution});j.setHandler(p=>{x.clear();for(const r of p){const{value:c,collector:i}=r;for(const[,o]of Object.entries(c)){if(!g.isValidSubmenu(o,i))continue;if(!o.id){i.warn(e(15798,null,o.id));continue}if(x.has(o.id)){i.info(e(15799,null,o.id));continue}if(!o.label){i.warn(e(15800,null,o.label));continue}let l;o.icon&&(typeof o.icon=="string"?l=V.fromString(o.icon)||{dark:C.$Ih(r.description.extensionLocation,o.icon)}:l={dark:C.$Ih(r.description.extensionLocation,o.icon.dark),light:C.$Ih(r.description.extensionLocation,o.icon.light)});const s={id:t.for(`api:${o.id}`),label:o.label,icon:l};x.set(o.id,s)}}});const U=new Map(R.map(p=>[p.key,p])),P=new A,T=new Map,K=I.registerExtensionPoint({extensionPoint:"menus",jsonSchema:g.menusContribution,deps:[j]});K.setHandler(p=>{P.clear(),T.clear();for(const r of p){const{value:c,collector:i}=r;for(const o of Object.entries(c)){if(!g.isValidItems(o[1],i))continue;let l=U.get(o[0]);if(!l){const s=x.get(o[0]);s&&(l={key:o[0],id:s.id,description:""})}if(l){if(l.proposed&&!_(r.description,l.proposed)){i.error(e(15801,null,o[0],l.proposed,r.description.identifier.value));continue}for(const s of o[1]){let y;if(g.isMenuItem(s)){const m=h.getCommand(s.command),b=s.alt&&h.getCommand(s.alt)||void 0;if(!m){i.error(e(15802,null,s.command));continue}s.alt&&!b&&i.warn(e(15803,null,s.alt)),s.command===s.alt&&i.info(e(15804,null)),y={command:m,alt:b,group:void 0,order:void 0,when:void 0}}else{if(l.supportsSubmenus===!1){i.error(e(15805,null));continue}const m=x.get(s.submenu);if(!m){i.error(e(15806,null,s.submenu));continue}let b=T.get(l.id.id);if(b||(b=new Set,T.set(l.id.id,b)),b.has(m.id.id)){i.warn(e(15807,null,s.submenu,o[0]));continue}b.add(m.id.id),y={submenu:m.id,icon:m.icon,title:m.label,group:void 0,order:void 0,when:void 0}}if(s.group){const m=s.group.lastIndexOf("@");m>0?(y.group=s.group.substr(0,m),y.order=Number(s.group.substr(m+1))||void 0):y.group=s.group}if(l.id===t.ViewContainerTitle&&!s.when?.includes("viewContainer == workbench.view.debug")){i.error(e(15808,null,"`viewContainer/title`","`viewContainer == workbench.view.debug`",'"when"'));continue}y.when=$.deserialize(s.when),P.add(h.appendMenuItem(l.id,y))}}}}});let w=class extends B{constructor(r){super(),this.f=r,this.type="table"}shouldRender(r){return!!r.contributes?.commands}render(r){const i=(r.contributes?.commands||[]).map(u=>({id:u.command,title:u.title,keybindings:[],menus:[]})),o=M(i,u=>u.id),l=r.contributes?.menus||{},s=M(i,u=>u.id);if(l.commandPalette)for(const u of l.commandPalette)delete s[u.command];if(Object.keys(s).length){l.commandPalette||(l.commandPalette=[]);for(const u in s)l.commandPalette.push({command:u})}for(const u in l)for(const a of l[u])if(a.when!=="false"&&a.command){let f=o[a.command];f?f.menus.includes(u)||f.menus.push(u):(f={id:a.command,title:"",keybindings:[],menus:[u]},o[f.id]=f,i.push(f))}if((r.contributes?.keybindings?Array.isArray(r.contributes.keybindings)?r.contributes.keybindings:[r.contributes.keybindings]:[]).forEach(u=>{const a=this.g(u);if(!a)return;let f=o[u.command];f?f.keybindings.push(a):(f={id:u.command,title:"",keybindings:[a],menus:[]},o[f.id]=f,i.push(f))}),!i.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const m=[e(15809,null),e(15810,null),e(15811,null),e(15812,null)],b=i.sort((u,a)=>u.id.localeCompare(a.id)).map(u=>[new E().appendMarkdown(`\`${u.id}\``),typeof u.title=="string"?u.title:u.title.value,u.keybindings,new E().appendMarkdown(`${u.menus.sort((a,f)=>a.localeCompare(f)).map(a=>`\`${a}\``).join("&nbsp;")}`)]);return{data:{headers:m,rows:b},dispose:()=>{}}}g(r){let c;switch(N){case"win32":c=r.win;break;case"linux":c=r.linux;break;case"darwin":c=r.mac;break}return this.f.resolveUserBinding(c??r.key)[0]}};w=D([O(0,q)],w);H.as(G.ExtensionFeaturesRegistry).registerExtensionFeature({id:"commands",label:e(15813,null),access:{canToggle:!1},renderer:new L(w)});export{F as $o$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { isFalsyOrWhitespace } from "../../../../base/common/strings.js";
+import * as resources from "../../../../base/common/resources.js";
+import { ExtensionsRegistry } from "../../extensions/common/extensionsRegistry.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { index } from "../../../../base/common/arrays.js";
+import { isProposedApiEnabled } from "../../extensions/common/extensions.js";
+import { Extensions as ExtensionFeaturesExtensions } from "../../extensionManagement/common/extensionFeatures.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { platform } from "../../../../base/common/process.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+const apiMenus = [
+  {
+    key: "commandPalette",
+    id: MenuId.CommandPalette,
+    description: localize("menus.commandPalette", "The Command Palette"),
+    supportsSubmenus: false
+  },
+  {
+    key: "touchBar",
+    id: MenuId.TouchBarContext,
+    description: localize("menus.touchBar", "The touch bar (macOS only)"),
+    supportsSubmenus: false
+  },
+  {
+    key: "editor/title",
+    id: MenuId.EditorTitle,
+    description: localize("menus.editorTitle", "The editor title menu")
+  },
+  {
+    key: "editor/title/run",
+    id: MenuId.EditorTitleRun,
+    description: localize("menus.editorTitleRun", "Run submenu inside the editor title menu")
+  },
+  {
+    key: "editor/context",
+    id: MenuId.EditorContext,
+    description: localize("menus.editorContext", "The editor context menu")
+  },
+  {
+    key: "editor/context/copy",
+    id: MenuId.EditorContextCopy,
+    description: localize("menus.editorContextCopyAs", "'Copy as' submenu in the editor context menu")
+  },
+  {
+    key: "editor/context/share",
+    id: MenuId.EditorContextShare,
+    description: localize("menus.editorContextShare", "'Share' submenu in the editor context menu"),
+    proposed: "contribShareMenu"
+  },
+  {
+    key: "explorer/context",
+    id: MenuId.ExplorerContext,
+    description: localize("menus.explorerContext", "The file explorer context menu")
+  },
+  {
+    key: "explorer/context/share",
+    id: MenuId.ExplorerContextShare,
+    description: localize("menus.explorerContextShare", "'Share' submenu in the file explorer context menu"),
+    proposed: "contribShareMenu"
+  },
+  {
+    key: "editor/title/context",
+    id: MenuId.EditorTitleContext,
+    description: localize("menus.editorTabContext", "The editor tabs context menu")
+  },
+  {
+    key: "editor/title/context/share",
+    id: MenuId.EditorTitleContextShare,
+    description: localize("menus.editorTitleContextShare", "'Share' submenu inside the editor title context menu"),
+    proposed: "contribShareMenu"
+  },
+  {
+    key: "debug/callstack/context",
+    id: MenuId.DebugCallStackContext,
+    description: localize("menus.debugCallstackContext", "The debug callstack view context menu")
+  },
+  {
+    key: "debug/variables/context",
+    id: MenuId.DebugVariablesContext,
+    description: localize("menus.debugVariablesContext", "The debug variables view context menu")
+  },
+  {
+    key: "debug/watch/context",
+    id: MenuId.DebugWatchContext,
+    description: localize("menus.debugWatchContext", "The debug watch view context menu")
+  },
+  {
+    key: "debug/toolBar",
+    id: MenuId.DebugToolBar,
+    description: localize("menus.debugToolBar", "The debug toolbar menu")
+  },
+  {
+    key: "debug/createConfiguration",
+    id: MenuId.DebugCreateConfiguration,
+    proposed: "contribDebugCreateConfiguration",
+    description: localize("menus.debugCreateConfiguation", "The debug create configuration menu")
+  },
+  {
+    key: "notebook/variables/context",
+    id: MenuId.NotebookVariablesContext,
+    description: localize("menus.notebookVariablesContext", "The notebook variables view context menu")
+  },
+  {
+    key: "menuBar/home",
+    id: MenuId.MenubarHomeMenu,
+    description: localize("menus.home", "The home indicator context menu (web only)"),
+    proposed: "contribMenuBarHome",
+    supportsSubmenus: false
+  },
+  {
+    key: "menuBar/edit/copy",
+    id: MenuId.MenubarCopy,
+    description: localize("menus.opy", "'Copy as' submenu in the top level Edit menu")
+  },
+  {
+    key: "scm/title",
+    id: MenuId.SCMTitle,
+    description: localize("menus.scmTitle", "The Source Control title menu")
+  },
+  {
+    key: "scm/sourceControl",
+    id: MenuId.SCMSourceControl,
+    description: localize("menus.scmSourceControl", "The Source Control menu")
+  },
+  {
+    key: "scm/repositories/title",
+    id: MenuId.SCMSourceControlTitle,
+    description: localize("menus.scmSourceControlTitle", "The Source Control Repositories title menu"),
+    proposed: "contribSourceControlTitleMenu"
+  },
+  {
+    key: "scm/repository",
+    id: MenuId.SCMSourceControlInline,
+    description: localize("menus.scmSourceControlInline", "The Source Control repository menu")
+  },
+  {
+    key: "scm/resourceState/context",
+    id: MenuId.SCMResourceContext,
+    description: localize("menus.resourceStateContext", "The Source Control resource state context menu")
+  },
+  {
+    key: "scm/resourceFolder/context",
+    id: MenuId.SCMResourceFolderContext,
+    description: localize("menus.resourceFolderContext", "The Source Control resource folder context menu")
+  },
+  {
+    key: "scm/resourceGroup/context",
+    id: MenuId.SCMResourceGroupContext,
+    description: localize("menus.resourceGroupContext", "The Source Control resource group context menu")
+  },
+  {
+    key: "scm/change/title",
+    id: MenuId.SCMChangeContext,
+    description: localize("menus.changeTitle", "The Source Control inline change menu")
+  },
+  {
+    key: "scm/inputBox",
+    id: MenuId.SCMInputBox,
+    description: localize("menus.input", "The Source Control input box menu"),
+    proposed: "contribSourceControlInputBoxMenu"
+  },
+  {
+    key: "scm/history/title",
+    id: MenuId.SCMHistoryTitle,
+    description: localize("menus.scmHistoryTitle", "The Source Control History title menu"),
+    proposed: "contribSourceControlHistoryTitleMenu"
+  },
+  {
+    key: "scm/historyItem/context",
+    id: MenuId.SCMHistoryItemContext,
+    description: localize("menus.historyItemContext", "The Source Control history item context menu"),
+    proposed: "contribSourceControlHistoryItemMenu"
+  },
+  {
+    key: "scm/historyItemRef/context",
+    id: MenuId.SCMHistoryItemRefContext,
+    description: localize("menus.historyItemRefContext", "The Source Control history item reference context menu"),
+    proposed: "contribSourceControlHistoryItemMenu"
+  },
+  {
+    key: "scm/artifactGroup/context",
+    id: MenuId.SCMArtifactGroupContext,
+    description: localize("menus.artifactGroupContext", "The Source Control artifact group context menu"),
+    proposed: "contribSourceControlArtifactGroupMenu"
+  },
+  {
+    key: "scm/artifact/context",
+    id: MenuId.SCMArtifactContext,
+    description: localize("menus.artifactContext", "The Source Control artifact context menu"),
+    proposed: "contribSourceControlArtifactMenu"
+  },
+  {
+    key: "statusBar/remoteIndicator",
+    id: MenuId.StatusBarRemoteIndicatorMenu,
+    description: localize("menus.statusBarRemoteIndicator", "The remote indicator menu in the status bar"),
+    supportsSubmenus: false
+  },
+  {
+    key: "terminal/context",
+    id: MenuId.TerminalInstanceContext,
+    description: localize("menus.terminalContext", "The terminal context menu")
+  },
+  {
+    key: "terminal/title/context",
+    id: MenuId.TerminalTabContext,
+    description: localize("menus.terminalTabContext", "The terminal tabs context menu")
+  },
+  {
+    key: "view/title",
+    id: MenuId.ViewTitle,
+    description: localize("view.viewTitle", "The contributed view title menu")
+  },
+  {
+    key: "viewContainer/title",
+    id: MenuId.ViewContainerTitle,
+    description: localize("view.containerTitle", "The contributed view container title menu"),
+    proposed: "contribViewContainerTitle"
+  },
+  {
+    key: "view/item/context",
+    id: MenuId.ViewItemContext,
+    description: localize("view.itemContext", "The contributed view item context menu")
+  },
+  {
+    key: "comments/comment/editorActions",
+    id: MenuId.CommentEditorActions,
+    description: localize("commentThread.editorActions", "The contributed comment editor actions"),
+    proposed: "contribCommentEditorActionsMenu"
+  },
+  {
+    key: "comments/commentThread/title",
+    id: MenuId.CommentThreadTitle,
+    description: localize("commentThread.title", "The contributed comment thread title menu")
+  },
+  {
+    key: "comments/commentThread/context",
+    id: MenuId.CommentThreadActions,
+    description: localize("commentThread.actions", "The contributed comment thread context menu, rendered as buttons below the comment editor"),
+    supportsSubmenus: false
+  },
+  {
+    key: "comments/commentThread/additionalActions",
+    id: MenuId.CommentThreadAdditionalActions,
+    description: localize("commentThread.actions", "The contributed comment thread context menu, rendered as buttons below the comment editor"),
+    supportsSubmenus: true,
+    proposed: "contribCommentThreadAdditionalMenu"
+  },
+  {
+    key: "comments/commentThread/title/context",
+    id: MenuId.CommentThreadTitleContext,
+    description: localize("commentThread.titleContext", "The contributed comment thread title's peek context menu, rendered as a right click menu on the comment thread's peek title."),
+    proposed: "contribCommentPeekContext"
+  },
+  {
+    key: "comments/comment/title",
+    id: MenuId.CommentTitle,
+    description: localize("comment.title", "The contributed comment title menu")
+  },
+  {
+    key: "comments/comment/context",
+    id: MenuId.CommentActions,
+    description: localize("comment.actions", "The contributed comment context menu, rendered as buttons below the comment editor"),
+    supportsSubmenus: false
+  },
+  {
+    key: "comments/commentThread/comment/context",
+    id: MenuId.CommentThreadCommentContext,
+    description: localize("comment.commentContext", "The contributed comment context menu, rendered as a right click menu on the an individual comment in the comment thread's peek view."),
+    proposed: "contribCommentPeekContext"
+  },
+  {
+    key: "commentsView/commentThread/context",
+    id: MenuId.CommentsViewThreadActions,
+    description: localize("commentsView.threadActions", "The contributed comment thread context menu in the comments view"),
+    proposed: "contribCommentsViewThreadMenus"
+  },
+  {
+    key: "notebook/toolbar",
+    id: MenuId.NotebookToolbar,
+    description: localize("notebook.toolbar", "The contributed notebook toolbar menu")
+  },
+  {
+    key: "notebook/kernelSource",
+    id: MenuId.NotebookKernelSource,
+    description: localize("notebook.kernelSource", "The contributed notebook kernel sources menu"),
+    proposed: "notebookKernelSource"
+  },
+  {
+    key: "notebook/cell/title",
+    id: MenuId.NotebookCellTitle,
+    description: localize("notebook.cell.title", "The contributed notebook cell title menu")
+  },
+  {
+    key: "notebook/cell/execute",
+    id: MenuId.NotebookCellExecute,
+    description: localize("notebook.cell.execute", "The contributed notebook cell execution menu")
+  },
+  {
+    key: "interactive/toolbar",
+    id: MenuId.InteractiveToolbar,
+    description: localize("interactive.toolbar", "The contributed interactive toolbar menu")
+  },
+  {
+    key: "interactive/cell/title",
+    id: MenuId.InteractiveCellTitle,
+    description: localize("interactive.cell.title", "The contributed interactive cell title menu")
+  },
+  {
+    key: "issue/reporter",
+    id: MenuId.IssueReporter,
+    description: localize("issue.reporter", "The contributed issue reporter menu")
+  },
+  {
+    key: "testing/item/context",
+    id: MenuId.TestItem,
+    description: localize("testing.item.context", "The contributed test item menu")
+  },
+  {
+    key: "testing/item/gutter",
+    id: MenuId.TestItemGutter,
+    description: localize("testing.item.gutter.title", "The menu for a gutter decoration for a test item")
+  },
+  {
+    key: "testing/profiles/context",
+    id: MenuId.TestProfilesContext,
+    description: localize("testing.profiles.context.title", "The menu for configuring testing profiles.")
+  },
+  {
+    key: "testing/item/result",
+    id: MenuId.TestPeekElement,
+    description: localize("testing.item.result.title", "The menu for an item in the Test Results view or peek.")
+  },
+  {
+    key: "testing/message/context",
+    id: MenuId.TestMessageContext,
+    description: localize("testing.message.context.title", "A prominent button overlaying editor content where the message is displayed")
+  },
+  {
+    key: "testing/message/content",
+    id: MenuId.TestMessageContent,
+    description: localize("testing.message.content.title", "Context menu for the message in the results tree")
+  },
+  {
+    key: "extension/context",
+    id: MenuId.ExtensionContext,
+    description: localize("menus.extensionContext", "The extension context menu")
+  },
+  {
+    key: "timeline/title",
+    id: MenuId.TimelineTitle,
+    description: localize("view.timelineTitle", "The Timeline view title menu")
+  },
+  {
+    key: "timeline/item/context",
+    id: MenuId.TimelineItemContext,
+    description: localize("view.timelineContext", "The Timeline view item context menu")
+  },
+  {
+    key: "ports/item/context",
+    id: MenuId.TunnelContext,
+    description: localize("view.tunnelContext", "The Ports view item context menu")
+  },
+  {
+    key: "ports/item/origin/inline",
+    id: MenuId.TunnelOriginInline,
+    description: localize("view.tunnelOriginInline", "The Ports view item origin inline menu")
+  },
+  {
+    key: "ports/item/port/inline",
+    id: MenuId.TunnelPortInline,
+    description: localize("view.tunnelPortInline", "The Ports view item port inline menu")
+  },
+  {
+    key: "file/newFile",
+    id: MenuId.NewFile,
+    description: localize("file.newFile", "The 'New File...' quick pick, shown on welcome page and File menu."),
+    supportsSubmenus: false
+  },
+  {
+    key: "webview/context",
+    id: MenuId.WebviewContext,
+    description: localize("webview.context", "The webview context menu")
+  },
+  {
+    key: "file/share",
+    id: MenuId.MenubarShare,
+    description: localize("menus.share", "Share submenu shown in the top level File menu."),
+    proposed: "contribShareMenu"
+  },
+  {
+    key: "editor/inlineCompletions/actions",
+    id: MenuId.InlineCompletionsActions,
+    description: localize("inlineCompletions.actions", "The actions shown when hovering on an inline completion"),
+    supportsSubmenus: false,
+    proposed: "inlineCompletionsAdditions"
+  },
+  {
+    key: "editor/content",
+    id: MenuId.EditorContent,
+    description: localize("merge.toolbar", "The prominent button in an editor, overlays its content"),
+    proposed: "contribEditorContentMenu"
+  },
+  {
+    key: "editor/lineNumber/context",
+    id: MenuId.EditorLineNumberContext,
+    description: localize("editorLineNumberContext", "The contributed editor line number context menu")
+  },
+  {
+    key: "mergeEditor/result/title",
+    id: MenuId.MergeInputResultToolbar,
+    description: localize("menus.mergeEditorResult", "The result toolbar of the merge editor"),
+    proposed: "contribMergeEditorMenus"
+  },
+  {
+    key: "multiDiffEditor/content",
+    id: MenuId.MultiDiffEditorContent,
+    description: localize("menus.multiDiffEditorContent", "A prominent button overlaying the multi diff editor"),
+    proposed: "contribEditorContentMenu"
+  },
+  {
+    key: "multiDiffEditor/resource/title",
+    id: MenuId.MultiDiffEditorFileToolbar,
+    description: localize("menus.multiDiffEditorResource", "The resource toolbar in the multi diff editor"),
+    proposed: "contribMultiDiffEditorMenus"
+  },
+  {
+    key: "diffEditor/gutter/hunk",
+    id: MenuId.DiffEditorHunkToolbar,
+    description: localize("menus.diffEditorGutterToolBarMenus", "The gutter toolbar in the diff editor"),
+    proposed: "contribDiffEditorGutterToolBarMenus"
+  },
+  {
+    key: "diffEditor/gutter/selection",
+    id: MenuId.DiffEditorSelectionToolbar,
+    description: localize("menus.diffEditorGutterToolBarMenus", "The gutter toolbar in the diff editor"),
+    proposed: "contribDiffEditorGutterToolBarMenus"
+  },
+  {
+    key: "searchPanel/aiResults/commands",
+    id: MenuId.SearchActionMenu,
+    description: localize("searchPanel.aiResultsCommands", "The commands that will contribute to the menu rendered as buttons next to the AI search title")
+  },
+  {
+    key: "editor/context/chat",
+    id: MenuId.ChatTextEditorMenu,
+    description: localize("menus.chatTextEditor", "The Chat submenu in the text editor context menu."),
+    supportsSubmenus: false,
+    proposed: "chatParticipantPrivate"
+  },
+  {
+    key: "chat/input/editing/sessionToolbar",
+    id: MenuId.ChatEditingSessionChangesToolbar,
+    description: localize("menus.chatEditingSessionChangesToolbar", "The Chat Editing widget toolbar menu for session changes."),
+    proposed: "chatSessionsProvider"
+  },
+  {
+    // TODO: rename this to something like: `chatSessions/item/inline`
+    key: "chat/chatSessions",
+    id: MenuId.AgentSessionsContext,
+    description: localize("menus.chatSessions", "The Chat Sessions menu."),
+    supportsSubmenus: false,
+    proposed: "chatSessionsProvider"
+  },
+  {
+    key: "chatSessions/newSession",
+    id: MenuId.AgentSessionsCreateSubMenu,
+    description: localize("menus.chatSessionsNewSession", "Menu for new chat sessions."),
+    supportsSubmenus: false,
+    proposed: "chatSessionsProvider"
+  },
+  {
+    key: "chat/multiDiff/context",
+    id: MenuId.ChatMultiDiffContext,
+    description: localize("menus.chatMultiDiffContext", "The Chat Multi-Diff context menu."),
+    supportsSubmenus: false,
+    proposed: "chatSessionsProvider"
+  },
+  {
+    key: "chat/editor/inlineGutter",
+    id: MenuId.ChatEditorInlineGutter,
+    description: localize("menus.chatEditorInlineGutter", "The inline gutter menu in the chat editor."),
+    supportsSubmenus: false,
+    proposed: "contribChatEditorInlineGutterMenu"
+  },
+  {
+    key: "chat/contextUsage/actions",
+    id: MenuId.ChatContextUsageActions,
+    description: localize("menus.chatContextUsageActions", "Actions in the chat context usage details popup."),
+    proposed: "chatParticipantAdditions"
+  }
+];
+var schema;
+(function(schema2) {
+  function isMenuItem(item) {
+    return typeof item.command === "string";
+  }
+  __name(isMenuItem, "isMenuItem");
+  schema2.isMenuItem = isMenuItem;
+  function isValidMenuItem(item, collector) {
+    if (typeof item.command !== "string") {
+      collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "command"));
+      return false;
+    }
+    if (item.alt && typeof item.alt !== "string") {
+      collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "alt"));
+      return false;
+    }
+    if (item.when && typeof item.when !== "string") {
+      collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "when"));
+      return false;
+    }
+    if (item.group && typeof item.group !== "string") {
+      collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "group"));
+      return false;
+    }
+    return true;
+  }
+  __name(isValidMenuItem, "isValidMenuItem");
+  schema2.isValidMenuItem = isValidMenuItem;
+  function isValidSubmenuItem(item, collector) {
+    if (typeof item.submenu !== "string") {
+      collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "submenu"));
+      return false;
+    }
+    if (item.when && typeof item.when !== "string") {
+      collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "when"));
+      return false;
+    }
+    if (item.group && typeof item.group !== "string") {
+      collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "group"));
+      return false;
+    }
+    return true;
+  }
+  __name(isValidSubmenuItem, "isValidSubmenuItem");
+  schema2.isValidSubmenuItem = isValidSubmenuItem;
+  function isValidItems(items, collector) {
+    if (!Array.isArray(items)) {
+      collector.error(localize("requirearray", "submenu items must be an array"));
+      return false;
+    }
+    for (const item of items) {
+      if (isMenuItem(item)) {
+        if (!isValidMenuItem(item, collector)) {
+          return false;
+        }
+      } else {
+        if (!isValidSubmenuItem(item, collector)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  __name(isValidItems, "isValidItems");
+  schema2.isValidItems = isValidItems;
+  function isValidSubmenu(submenu2, collector) {
+    if (typeof submenu2 !== "object") {
+      collector.error(localize("require", "submenu items must be an object"));
+      return false;
+    }
+    if (typeof submenu2.id !== "string") {
+      collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "id"));
+      return false;
+    }
+    if (typeof submenu2.label !== "string") {
+      collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "label"));
+      return false;
+    }
+    return true;
+  }
+  __name(isValidSubmenu, "isValidSubmenu");
+  schema2.isValidSubmenu = isValidSubmenu;
+  const menuItem = {
+    type: "object",
+    required: ["command"],
+    properties: {
+      command: {
+        description: localize("vscode.extension.contributes.menuItem.command", "Identifier of the command to execute. The command must be declared in the 'commands'-section"),
+        type: "string"
+      },
+      alt: {
+        description: localize("vscode.extension.contributes.menuItem.alt", "Identifier of an alternative command to execute. The command must be declared in the 'commands'-section"),
+        type: "string"
+      },
+      when: {
+        description: localize("vscode.extension.contributes.menuItem.when", "Condition which must be true to show this item"),
+        type: "string"
+      },
+      group: {
+        description: localize("vscode.extension.contributes.menuItem.group", "Group into which this item belongs"),
+        type: "string"
+      }
+    }
+  };
+  const submenuItem = {
+    type: "object",
+    required: ["submenu"],
+    properties: {
+      submenu: {
+        description: localize("vscode.extension.contributes.menuItem.submenu", "Identifier of the submenu to display in this item."),
+        type: "string"
+      },
+      when: {
+        description: localize("vscode.extension.contributes.menuItem.when", "Condition which must be true to show this item"),
+        type: "string"
+      },
+      group: {
+        description: localize("vscode.extension.contributes.menuItem.group", "Group into which this item belongs"),
+        type: "string"
+      }
+    }
+  };
+  const submenu = {
+    type: "object",
+    required: ["id", "label"],
+    properties: {
+      id: {
+        description: localize("vscode.extension.contributes.submenu.id", "Identifier of the menu to display as a submenu."),
+        type: "string"
+      },
+      label: {
+        description: localize("vscode.extension.contributes.submenu.label", "The label of the menu item which leads to this submenu."),
+        type: "string"
+      },
+      icon: {
+        description: localize({ key: "vscode.extension.contributes.submenu.icon", comment: ['do not translate or change "\\$(zap)", \\ in front of $ is important.'] }, '(Optional) Icon which is used to represent the submenu in the UI. Either a file path, an object with file paths for dark and light themes, or a theme icon references, like "\\$(zap)"'),
+        anyOf: [
+          {
+            type: "string"
+          },
+          {
+            type: "object",
+            properties: {
+              light: {
+                description: localize("vscode.extension.contributes.submenu.icon.light", "Icon path when a light theme is used"),
+                type: "string"
+              },
+              dark: {
+                description: localize("vscode.extension.contributes.submenu.icon.dark", "Icon path when a dark theme is used"),
+                type: "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  };
+  schema2.menusContribution = {
+    description: localize("vscode.extension.contributes.menus", "Contributes menu items to the editor"),
+    type: "object",
+    properties: index(apiMenus, (menu) => menu.key, (menu) => ({
+      markdownDescription: menu.proposed ? localize("proposed", 'Proposed API, requires `enabledApiProposal: ["{0}"]` - {1}', menu.proposed, menu.description) : menu.description,
+      type: "array",
+      items: menu.supportsSubmenus === false ? menuItem : { oneOf: [menuItem, submenuItem] }
+    })),
+    additionalProperties: {
+      description: "Submenu",
+      type: "array",
+      items: { oneOf: [menuItem, submenuItem] }
+    }
+  };
+  schema2.submenusContribution = {
+    description: localize("vscode.extension.contributes.submenus", "Contributes submenu items to the editor"),
+    type: "array",
+    items: submenu
+  };
+  function isValidCommand(command, collector) {
+    if (!command) {
+      collector.error(localize("nonempty", "expected non-empty value."));
+      return false;
+    }
+    if (isFalsyOrWhitespace(command.command)) {
+      collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", "command"));
+      return false;
+    }
+    if (!isValidLocalizedString(command.title, collector, "title")) {
+      return false;
+    }
+    if (command.shortTitle && !isValidLocalizedString(command.shortTitle, collector, "shortTitle")) {
+      return false;
+    }
+    if (command.enablement && typeof command.enablement !== "string") {
+      collector.error(localize("optstring", "property `{0}` can be omitted or must be of type `string`", "precondition"));
+      return false;
+    }
+    if (command.category && !isValidLocalizedString(command.category, collector, "category")) {
+      return false;
+    }
+    if (!isValidIcon(command.icon, collector)) {
+      return false;
+    }
+    return true;
+  }
+  __name(isValidCommand, "isValidCommand");
+  schema2.isValidCommand = isValidCommand;
+  function isValidIcon(icon, collector) {
+    if (typeof icon === "undefined") {
+      return true;
+    }
+    if (typeof icon === "string") {
+      return true;
+    } else if (typeof icon.dark === "string" && typeof icon.light === "string") {
+      return true;
+    }
+    collector.error(localize("opticon", "property `icon` can be omitted or must be either a string or a literal like `{dark, light}`"));
+    return false;
+  }
+  __name(isValidIcon, "isValidIcon");
+  function isValidLocalizedString(localized, collector, propertyName) {
+    if (typeof localized === "undefined") {
+      collector.error(localize("requireStringOrObject", "property `{0}` is mandatory and must be of type `string` or `object`", propertyName));
+      return false;
+    } else if (typeof localized === "string" && isFalsyOrWhitespace(localized)) {
+      collector.error(localize("requirestring", "property `{0}` is mandatory and must be of type `string`", propertyName));
+      return false;
+    } else if (typeof localized !== "string" && (isFalsyOrWhitespace(localized.original) || isFalsyOrWhitespace(localized.value))) {
+      collector.error(localize("requirestrings", "properties `{0}` and `{1}` are mandatory and must be of type `string`", `${propertyName}.value`, `${propertyName}.original`));
+      return false;
+    }
+    return true;
+  }
+  __name(isValidLocalizedString, "isValidLocalizedString");
+  const commandType = {
+    type: "object",
+    required: ["command", "title"],
+    properties: {
+      command: {
+        description: localize("vscode.extension.contributes.commandType.command", "Identifier of the command to execute"),
+        type: "string"
+      },
+      title: {
+        description: localize("vscode.extension.contributes.commandType.title", "Title by which the command is represented in the UI"),
+        type: "string"
+      },
+      shortTitle: {
+        markdownDescription: localize("vscode.extension.contributes.commandType.shortTitle", "(Optional) Short title by which the command is represented in the UI. Menus pick either `title` or `shortTitle` depending on the context in which they show commands."),
+        type: "string"
+      },
+      category: {
+        description: localize("vscode.extension.contributes.commandType.category", "(Optional) Category string by which the command is grouped in the UI"),
+        type: "string"
+      },
+      enablement: {
+        description: localize("vscode.extension.contributes.commandType.precondition", "(Optional) Condition which must be true to enable the command in the UI (menu and keybindings). Does not prevent executing the command by other means, like the `executeCommand`-api."),
+        type: "string"
+      },
+      icon: {
+        description: localize({ key: "vscode.extension.contributes.commandType.icon", comment: ['do not translate or change "\\$(zap)", \\ in front of $ is important.'] }, '(Optional) Icon which is used to represent the command in the UI. Either a file path, an object with file paths for dark and light themes, or a theme icon references, like "\\$(zap)"'),
+        anyOf: [
+          {
+            type: "string"
+          },
+          {
+            type: "object",
+            properties: {
+              light: {
+                description: localize("vscode.extension.contributes.commandType.icon.light", "Icon path when a light theme is used"),
+                type: "string"
+              },
+              dark: {
+                description: localize("vscode.extension.contributes.commandType.icon.dark", "Icon path when a dark theme is used"),
+                type: "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  };
+  schema2.commandsContribution = {
+    description: localize("vscode.extension.contributes.commands", "Contributes commands to the command palette."),
+    oneOf: [
+      commandType,
+      {
+        type: "array",
+        items: commandType
+      }
+    ]
+  };
+})(schema || (schema = {}));
+const _commandRegistrations = new DisposableStore();
+const commandsExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "commands",
+  jsonSchema: schema.commandsContribution,
+  activationEventsGenerator: /* @__PURE__ */ __name(function* (contribs) {
+    for (const contrib of contribs) {
+      if (contrib.command) {
+        yield `onCommand:${contrib.command}`;
+      }
+    }
+  }, "activationEventsGenerator")
+});
+commandsExtensionPoint.setHandler((extensions) => {
+  function handleCommand(userFriendlyCommand, extension) {
+    if (!schema.isValidCommand(userFriendlyCommand, extension.collector)) {
+      return;
+    }
+    const { icon, enablement, category, title, shortTitle, command } = userFriendlyCommand;
+    let absoluteIcon;
+    if (icon) {
+      if (typeof icon === "string") {
+        absoluteIcon = ThemeIcon.fromString(icon) ?? { dark: resources.joinPath(extension.description.extensionLocation, icon), light: resources.joinPath(extension.description.extensionLocation, icon) };
+      } else {
+        absoluteIcon = {
+          dark: resources.joinPath(extension.description.extensionLocation, icon.dark),
+          light: resources.joinPath(extension.description.extensionLocation, icon.light)
+        };
+      }
+    }
+    const existingCmd = MenuRegistry.getCommand(command);
+    if (existingCmd) {
+      if (existingCmd.source) {
+        extension.collector.info(localize("dup1", "Command `{0}` already registered by {1} ({2})", userFriendlyCommand.command, existingCmd.source.title, existingCmd.source.id));
+      } else {
+        extension.collector.info(localize("dup0", "Command `{0}` already registered", userFriendlyCommand.command));
+      }
+    }
+    _commandRegistrations.add(MenuRegistry.addCommand({
+      id: command,
+      title,
+      source: { id: extension.description.identifier.value, title: extension.description.displayName ?? extension.description.name },
+      shortTitle,
+      tooltip: title,
+      category,
+      precondition: ContextKeyExpr.deserialize(enablement),
+      icon: absoluteIcon
+    }));
+  }
+  __name(handleCommand, "handleCommand");
+  _commandRegistrations.clear();
+  for (const extension of extensions) {
+    const { value } = extension;
+    if (Array.isArray(value)) {
+      for (const command of value) {
+        handleCommand(command, extension);
+      }
+    } else {
+      handleCommand(value, extension);
+    }
+  }
+});
+const _submenus = /* @__PURE__ */ new Map();
+const submenusExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "submenus",
+  jsonSchema: schema.submenusContribution
+});
+submenusExtensionPoint.setHandler((extensions) => {
+  _submenus.clear();
+  for (const extension of extensions) {
+    const { value, collector } = extension;
+    for (const [, submenuInfo] of Object.entries(value)) {
+      if (!schema.isValidSubmenu(submenuInfo, collector)) {
+        continue;
+      }
+      if (!submenuInfo.id) {
+        collector.warn(localize("submenuId.invalid.id", "`{0}` is not a valid submenu identifier", submenuInfo.id));
+        continue;
+      }
+      if (_submenus.has(submenuInfo.id)) {
+        collector.info(localize("submenuId.duplicate.id", "The `{0}` submenu was already previously registered.", submenuInfo.id));
+        continue;
+      }
+      if (!submenuInfo.label) {
+        collector.warn(localize("submenuId.invalid.label", "`{0}` is not a valid submenu label", submenuInfo.label));
+        continue;
+      }
+      let absoluteIcon;
+      if (submenuInfo.icon) {
+        if (typeof submenuInfo.icon === "string") {
+          absoluteIcon = ThemeIcon.fromString(submenuInfo.icon) || { dark: resources.joinPath(extension.description.extensionLocation, submenuInfo.icon) };
+        } else {
+          absoluteIcon = {
+            dark: resources.joinPath(extension.description.extensionLocation, submenuInfo.icon.dark),
+            light: resources.joinPath(extension.description.extensionLocation, submenuInfo.icon.light)
+          };
+        }
+      }
+      const item = {
+        id: MenuId.for(`api:${submenuInfo.id}`),
+        label: submenuInfo.label,
+        icon: absoluteIcon
+      };
+      _submenus.set(submenuInfo.id, item);
+    }
+  }
+});
+const _apiMenusByKey = new Map(apiMenus.map((menu) => [menu.key, menu]));
+const _menuRegistrations = new DisposableStore();
+const _submenuMenuItems = /* @__PURE__ */ new Map();
+const menusExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "menus",
+  jsonSchema: schema.menusContribution,
+  deps: [submenusExtensionPoint]
+});
+menusExtensionPoint.setHandler((extensions) => {
+  _menuRegistrations.clear();
+  _submenuMenuItems.clear();
+  for (const extension of extensions) {
+    const { value, collector } = extension;
+    for (const entry of Object.entries(value)) {
+      if (!schema.isValidItems(entry[1], collector)) {
+        continue;
+      }
+      let menu = _apiMenusByKey.get(entry[0]);
+      if (!menu) {
+        const submenu = _submenus.get(entry[0]);
+        if (submenu) {
+          menu = {
+            key: entry[0],
+            id: submenu.id,
+            description: ""
+          };
+        }
+      }
+      if (!menu) {
+        continue;
+      }
+      if (menu.proposed && !isProposedApiEnabled(extension.description, menu.proposed)) {
+        collector.error(localize("proposedAPI.invalid", `{0} is a proposed menu identifier. It requires 'package.json#enabledApiProposals: ["{1}"]' and is only available when running out of dev or with the following command line switch: --enable-proposed-api {2}`, entry[0], menu.proposed, extension.description.identifier.value));
+        continue;
+      }
+      for (const menuItem of entry[1]) {
+        let item;
+        if (schema.isMenuItem(menuItem)) {
+          const command = MenuRegistry.getCommand(menuItem.command);
+          const alt = menuItem.alt && MenuRegistry.getCommand(menuItem.alt) || void 0;
+          if (!command) {
+            collector.error(localize("missing.command", "Menu item references a command `{0}` which is not defined in the 'commands' section.", menuItem.command));
+            continue;
+          }
+          if (menuItem.alt && !alt) {
+            collector.warn(localize("missing.altCommand", "Menu item references an alt-command `{0}` which is not defined in the 'commands' section.", menuItem.alt));
+          }
+          if (menuItem.command === menuItem.alt) {
+            collector.info(localize("dupe.command", "Menu item references the same command as default and alt-command"));
+          }
+          item = { command, alt, group: void 0, order: void 0, when: void 0 };
+        } else {
+          if (menu.supportsSubmenus === false) {
+            collector.error(localize("unsupported.submenureference", "Menu item references a submenu for a menu which doesn't have submenu support."));
+            continue;
+          }
+          const submenu = _submenus.get(menuItem.submenu);
+          if (!submenu) {
+            collector.error(localize("missing.submenu", "Menu item references a submenu `{0}` which is not defined in the 'submenus' section.", menuItem.submenu));
+            continue;
+          }
+          let submenuRegistrations = _submenuMenuItems.get(menu.id.id);
+          if (!submenuRegistrations) {
+            submenuRegistrations = /* @__PURE__ */ new Set();
+            _submenuMenuItems.set(menu.id.id, submenuRegistrations);
+          }
+          if (submenuRegistrations.has(submenu.id.id)) {
+            collector.warn(localize("submenuItem.duplicate", "The `{0}` submenu was already contributed to the `{1}` menu.", menuItem.submenu, entry[0]));
+            continue;
+          }
+          submenuRegistrations.add(submenu.id.id);
+          item = { submenu: submenu.id, icon: submenu.icon, title: submenu.label, group: void 0, order: void 0, when: void 0 };
+        }
+        if (menuItem.group) {
+          const idx = menuItem.group.lastIndexOf("@");
+          if (idx > 0) {
+            item.group = menuItem.group.substr(0, idx);
+            item.order = Number(menuItem.group.substr(idx + 1)) || void 0;
+          } else {
+            item.group = menuItem.group;
+          }
+        }
+        if (menu.id === MenuId.ViewContainerTitle && !menuItem.when?.includes("viewContainer == workbench.view.debug")) {
+          collector.error(localize("viewContainerTitle.when", "The {0} menu contribution must check {1} in its {2} clause.", "`viewContainer/title`", "`viewContainer == workbench.view.debug`", '"when"'));
+          continue;
+        }
+        item.when = ContextKeyExpr.deserialize(menuItem.when);
+        _menuRegistrations.add(MenuRegistry.appendMenuItem(menu.id, item));
+      }
+    }
+  }
+});
+let CommandsTableRenderer = class CommandsTableRenderer2 extends Disposable {
+  static {
+    __name(this, "CommandsTableRenderer");
+  }
+  constructor(_keybindingService) {
+    super();
+    this._keybindingService = _keybindingService;
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.commands;
+  }
+  render(manifest) {
+    const rawCommands = manifest.contributes?.commands || [];
+    const commands = rawCommands.map((c) => ({
+      id: c.command,
+      title: c.title,
+      keybindings: [],
+      menus: []
+    }));
+    const byId = index(commands, (c) => c.id);
+    const menus = manifest.contributes?.menus || {};
+    const implicitlyOnCommandPalette = index(commands, (c) => c.id);
+    if (menus["commandPalette"]) {
+      for (const command of menus["commandPalette"]) {
+        delete implicitlyOnCommandPalette[command.command];
+      }
+    }
+    if (Object.keys(implicitlyOnCommandPalette).length) {
+      if (!menus["commandPalette"]) {
+        menus["commandPalette"] = [];
+      }
+      for (const command in implicitlyOnCommandPalette) {
+        menus["commandPalette"].push({ command });
+      }
+    }
+    for (const context in menus) {
+      for (const menu of menus[context]) {
+        if (menu.when === "false") {
+          continue;
+        }
+        if (menu.command) {
+          let command = byId[menu.command];
+          if (command) {
+            if (!command.menus.includes(context)) {
+              command.menus.push(context);
+            }
+          } else {
+            command = { id: menu.command, title: "", keybindings: [], menus: [context] };
+            byId[command.id] = command;
+            commands.push(command);
+          }
+        }
+      }
+    }
+    const rawKeybindings = manifest.contributes?.keybindings ? Array.isArray(manifest.contributes.keybindings) ? manifest.contributes.keybindings : [manifest.contributes.keybindings] : [];
+    rawKeybindings.forEach((rawKeybinding) => {
+      const keybinding = this.resolveKeybinding(rawKeybinding);
+      if (!keybinding) {
+        return;
+      }
+      let command = byId[rawKeybinding.command];
+      if (command) {
+        command.keybindings.push(keybinding);
+      } else {
+        command = { id: rawKeybinding.command, title: "", keybindings: [keybinding], menus: [] };
+        byId[command.id] = command;
+        commands.push(command);
+      }
+    });
+    if (!commands.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("command name", "ID"),
+      localize("command title", "Title"),
+      localize("keyboard shortcuts", "Keyboard Shortcuts"),
+      localize("menuContexts", "Menu Contexts")
+    ];
+    const rows = commands.sort((a, b) => a.id.localeCompare(b.id)).map((command) => {
+      return [
+        new MarkdownString().appendMarkdown(`\`${command.id}\``),
+        typeof command.title === "string" ? command.title : command.title.value,
+        command.keybindings,
+        new MarkdownString().appendMarkdown(`${command.menus.sort((a, b) => a.localeCompare(b)).map((menu) => `\`${menu}\``).join("&nbsp;")}`)
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+  resolveKeybinding(rawKeyBinding) {
+    let key;
+    switch (platform) {
+      case "win32":
+        key = rawKeyBinding.win;
+        break;
+      case "linux":
+        key = rawKeyBinding.linux;
+        break;
+      case "darwin":
+        key = rawKeyBinding.mac;
+        break;
+    }
+    return this._keybindingService.resolveUserBinding(key ?? rawKeyBinding.key)[0];
+  }
+};
+CommandsTableRenderer = __decorate([
+  __param(0, IKeybindingService)
+], CommandsTableRenderer);
+Registry.as(ExtensionFeaturesExtensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "commands",
+  label: localize("commands", "Commands"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(CommandsTableRenderer)
+});
+export {
+  commandsExtensionPoint
+};
+//# sourceMappingURL=menusExtensionPoint.js.map

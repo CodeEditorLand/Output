@@ -1,1 +1,281 @@
-import{Schemas as f}from"../common/network.js";import{$A9 as A}from"./dom.js";import n from"./dompurify/dompurify.js";const T=Object.freeze(["a","abbr","b","bdo","blockquote","br","caption","cite","code","col","colgroup","dd","del","details","dfn","div","dl","dt","em","figcaption","figure","h1","h2","h3","h4","h5","h6","hr","i","img","ins","kbd","label","li","mark","ol","p","pre","q","rp","rt","ruby","s","samp","small","small","source","span","strike","strong","sub","summary","sup","table","tbody","td","tfoot","th","thead","time","tr","tt","u","ul","var","video","wbr"]),h=Object.freeze(["href","target","src","alt","title","for","name","role","tabindex","x-dispatch","required","checked","placeholder","type","start","width","height","align"]),c="vscode-relative-path";function p(t,e){if(e.override==="*")return!0;try{const a=new URL(t,c+"://");return!!(e.override.includes(a.protocol.replace(/:$/,""))||e.allowRelativePaths&&a.protocol===c+":"&&!t.trim().toLowerCase().startsWith(c))}catch{return!1}}function w(t,e){n.addHook("afterSanitizeAttributes",a=>{for(const r of["href","src"])if(a.hasAttribute(r)){const o=a.getAttribute(r);r==="href"?!o.startsWith("#")&&!p(o,t)&&a.removeAttribute(r):p(o,e)||a.removeAttribute(r)}})}const g=Object.freeze({ALLOWED_TAGS:[...T],ALLOWED_ATTR:[...h],ALLOW_UNKNOWN_PROTOCOLS:!0});function C(t,e){return b(t,e,"trusted")}function b(t,e,a){try{const r={...g};e?.allowedTags&&(e.allowedTags.override&&(r.ALLOWED_TAGS=[...e.allowedTags.override]),e.allowedTags.augment&&(r.ALLOWED_TAGS=[...r.ALLOWED_TAGS??[],...e.allowedTags.augment]));let o=[...h];e?.allowedAttributes&&(e.allowedAttributes.override&&(o=[...e.allowedAttributes.override]),e.allowedAttributes.augment&&(o=[...o,...e.allowedAttributes.augment])),o=o.map(i=>typeof i=="string"?i.toLowerCase():{attributeName:i.attributeName.toLowerCase(),shouldKeep:i.shouldKeep});const u=new Set(o.map(i=>typeof i=="string"?i:i.attributeName)),s=new Map;for(const i of o)typeof i=="string"?s.delete(i):s.set(i.attributeName,i);return r.ALLOWED_ATTR=Array.from(u),w({override:e?.allowedLinkProtocols?.override??[f.http,f.https],allowRelativePaths:e?.allowRelativeLinkPaths??!1},{override:e?.allowedMediaProtocols?.override??[f.http,f.https],allowRelativePaths:e?.allowRelativeMediaPaths??!1}),e?.replaceWithPlaintext&&n.addHook("uponSanitizeElement",N),s.size&&n.addHook("uponSanitizeAttribute",(i,l)=>{const d=s.get(l.attrName);if(d){const m=d.shouldKeep(i,l);typeof m=="string"?(l.keepAttr=!0,l.attrValue=m):l.keepAttr=m}else l.keepAttr=u.has(l.attrName)}),a==="dom"?n.sanitize(t,{...r,RETURN_DOM_FRAGMENT:!0}):n.sanitize(t,{...r,RETURN_TRUSTED_TYPE:!0})}finally{n.removeAllHooks()}}const v=["area","base","br","col","command","embed","hr","img","input","keygen","link","meta","param","source","track","wbr"],N=(t,e,a)=>{if(!e.allowedTags[e.tagName]&&e.tagName!=="body"){const r=L(t);r&&(t.nodeType===Node.COMMENT_NODE?t.parentElement?.insertBefore(r,t):t.parentElement?.replaceChild(r,t))}};function L(t){if(!t.ownerDocument)return;let e,a;if(t.nodeType===Node.COMMENT_NODE)e=`<!--${t.textContent}-->`;else if(t instanceof Element){const s=t.tagName.toLowerCase(),i=v.includes(s),l=t.attributes.length?" "+Array.from(t.attributes).map(d=>`${d.name}="${d.value}"`).join(" "):"";e=`<${s}${l}>`,i||(a=`</${s}>`)}else return;const r=document.createDocumentFragment(),o=t.ownerDocument.createTextNode(e);for(r.appendChild(o);t.firstChild;)r.appendChild(t.firstChild);const u=a?t.ownerDocument.createTextNode(a):void 0;return u&&r.appendChild(u),r}function O(t,e,a){const r=b(e,a,"dom");A(t,r)}export{T as $B0,h as $C0,C as $D0,L as $E0,O as $F0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../common/network.js";
+import { reset } from "./dom.js";
+import dompurify from "./dompurify/dompurify.js";
+const basicMarkupHtmlTags = Object.freeze([
+  "a",
+  "abbr",
+  "b",
+  "bdo",
+  "blockquote",
+  "br",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "figcaption",
+  "figure",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "hr",
+  "i",
+  "img",
+  "ins",
+  "kbd",
+  "label",
+  "li",
+  "mark",
+  "ol",
+  "p",
+  "pre",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "small",
+  "small",
+  "source",
+  "span",
+  "strike",
+  "strong",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "tr",
+  "tt",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr"
+]);
+const defaultAllowedAttrs = Object.freeze([
+  "href",
+  "target",
+  "src",
+  "alt",
+  "title",
+  "for",
+  "name",
+  "role",
+  "tabindex",
+  "x-dispatch",
+  "required",
+  "checked",
+  "placeholder",
+  "type",
+  "start",
+  "width",
+  "height",
+  "align"
+]);
+const fakeRelativeUrlProtocol = "vscode-relative-path";
+function validateLink(value, allowedProtocols) {
+  if (allowedProtocols.override === "*") {
+    return true;
+  }
+  try {
+    const url = new URL(value, fakeRelativeUrlProtocol + "://");
+    if (allowedProtocols.override.includes(url.protocol.replace(/:$/, ""))) {
+      return true;
+    }
+    if (allowedProtocols.allowRelativePaths && url.protocol === fakeRelativeUrlProtocol + ":" && !value.trim().toLowerCase().startsWith(fakeRelativeUrlProtocol)) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+__name(validateLink, "validateLink");
+function hookDomPurifyHrefAndSrcSanitizer(allowedLinkProtocols, allowedMediaProtocols) {
+  dompurify.addHook("afterSanitizeAttributes", (node) => {
+    for (const attr of ["href", "src"]) {
+      if (node.hasAttribute(attr)) {
+        const attrValue = node.getAttribute(attr);
+        if (attr === "href") {
+          if (!attrValue.startsWith("#") && !validateLink(attrValue, allowedLinkProtocols)) {
+            node.removeAttribute(attr);
+          }
+        } else {
+          if (!validateLink(attrValue, allowedMediaProtocols)) {
+            node.removeAttribute(attr);
+          }
+        }
+      }
+    }
+  });
+}
+__name(hookDomPurifyHrefAndSrcSanitizer, "hookDomPurifyHrefAndSrcSanitizer");
+const defaultDomPurifyConfig = Object.freeze({
+  ALLOWED_TAGS: [...basicMarkupHtmlTags],
+  ALLOWED_ATTR: [...defaultAllowedAttrs],
+  // We sanitize the src/href attributes later if needed
+  ALLOW_UNKNOWN_PROTOCOLS: true
+});
+function sanitizeHtml(untrusted, config) {
+  return doSanitizeHtml(untrusted, config, "trusted");
+}
+__name(sanitizeHtml, "sanitizeHtml");
+function doSanitizeHtml(untrusted, config, outputType) {
+  try {
+    const resolvedConfig = { ...defaultDomPurifyConfig };
+    if (config?.allowedTags) {
+      if (config.allowedTags.override) {
+        resolvedConfig.ALLOWED_TAGS = [...config.allowedTags.override];
+      }
+      if (config.allowedTags.augment) {
+        resolvedConfig.ALLOWED_TAGS = [...resolvedConfig.ALLOWED_TAGS ?? [], ...config.allowedTags.augment];
+      }
+    }
+    let resolvedAttributes = [...defaultAllowedAttrs];
+    if (config?.allowedAttributes) {
+      if (config.allowedAttributes.override) {
+        resolvedAttributes = [...config.allowedAttributes.override];
+      }
+      if (config.allowedAttributes.augment) {
+        resolvedAttributes = [...resolvedAttributes, ...config.allowedAttributes.augment];
+      }
+    }
+    resolvedAttributes = resolvedAttributes.map((attr) => {
+      if (typeof attr === "string") {
+        return attr.toLowerCase();
+      }
+      return {
+        attributeName: attr.attributeName.toLowerCase(),
+        shouldKeep: attr.shouldKeep
+      };
+    });
+    const allowedAttrNames = new Set(resolvedAttributes.map((attr) => typeof attr === "string" ? attr : attr.attributeName));
+    const allowedAttrPredicates = /* @__PURE__ */ new Map();
+    for (const attr of resolvedAttributes) {
+      if (typeof attr === "string") {
+        allowedAttrPredicates.delete(attr);
+      } else {
+        allowedAttrPredicates.set(attr.attributeName, attr);
+      }
+    }
+    resolvedConfig.ALLOWED_ATTR = Array.from(allowedAttrNames);
+    hookDomPurifyHrefAndSrcSanitizer({
+      override: config?.allowedLinkProtocols?.override ?? [Schemas.http, Schemas.https],
+      allowRelativePaths: config?.allowRelativeLinkPaths ?? false
+    }, {
+      override: config?.allowedMediaProtocols?.override ?? [Schemas.http, Schemas.https],
+      allowRelativePaths: config?.allowRelativeMediaPaths ?? false
+    });
+    if (config?.replaceWithPlaintext) {
+      dompurify.addHook("uponSanitizeElement", replaceWithPlainTextHook);
+    }
+    if (allowedAttrPredicates.size) {
+      dompurify.addHook("uponSanitizeAttribute", (node, e) => {
+        const predicate = allowedAttrPredicates.get(e.attrName);
+        if (predicate) {
+          const result = predicate.shouldKeep(node, e);
+          if (typeof result === "string") {
+            e.keepAttr = true;
+            e.attrValue = result;
+          } else {
+            e.keepAttr = result;
+          }
+        } else {
+          e.keepAttr = allowedAttrNames.has(e.attrName);
+        }
+      });
+    }
+    if (outputType === "dom") {
+      return dompurify.sanitize(untrusted, {
+        ...resolvedConfig,
+        RETURN_DOM_FRAGMENT: true
+      });
+    } else {
+      return dompurify.sanitize(untrusted, {
+        ...resolvedConfig,
+        RETURN_TRUSTED_TYPE: true
+      });
+    }
+  } finally {
+    dompurify.removeAllHooks();
+  }
+}
+__name(doSanitizeHtml, "doSanitizeHtml");
+const selfClosingTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+const replaceWithPlainTextHook = /* @__PURE__ */ __name((node, data, _config) => {
+  if (!data.allowedTags[data.tagName] && data.tagName !== "body") {
+    const replacement = convertTagToPlaintext(node);
+    if (replacement) {
+      if (node.nodeType === Node.COMMENT_NODE) {
+        node.parentElement?.insertBefore(replacement, node);
+      } else {
+        node.parentElement?.replaceChild(replacement, node);
+      }
+    }
+  }
+}, "replaceWithPlainTextHook");
+function convertTagToPlaintext(node) {
+  if (!node.ownerDocument) {
+    return;
+  }
+  let startTagText;
+  let endTagText;
+  if (node.nodeType === Node.COMMENT_NODE) {
+    startTagText = `<!--${node.textContent}-->`;
+  } else if (node instanceof Element) {
+    const tagName = node.tagName.toLowerCase();
+    const isSelfClosing = selfClosingTags.includes(tagName);
+    const attrString = node.attributes.length ? " " + Array.from(node.attributes).map((attr) => `${attr.name}="${attr.value}"`).join(" ") : "";
+    startTagText = `<${tagName}${attrString}>`;
+    if (!isSelfClosing) {
+      endTagText = `</${tagName}>`;
+    }
+  } else {
+    return;
+  }
+  const fragment = document.createDocumentFragment();
+  const textNode = node.ownerDocument.createTextNode(startTagText);
+  fragment.appendChild(textNode);
+  while (node.firstChild) {
+    fragment.appendChild(node.firstChild);
+  }
+  const endTagTextNode = endTagText ? node.ownerDocument.createTextNode(endTagText) : void 0;
+  if (endTagTextNode) {
+    fragment.appendChild(endTagTextNode);
+  }
+  return fragment;
+}
+__name(convertTagToPlaintext, "convertTagToPlaintext");
+function safeSetInnerHtml(node, untrusted, config) {
+  const fragment = doSanitizeHtml(untrusted, config, "dom");
+  reset(node, fragment);
+}
+__name(safeSetInnerHtml, "safeSetInnerHtml");
+export {
+  basicMarkupHtmlTags,
+  convertTagToPlaintext,
+  defaultAllowedAttrs,
+  safeSetInnerHtml,
+  sanitizeHtml
+};
+//# sourceMappingURL=domSanitize.js.map

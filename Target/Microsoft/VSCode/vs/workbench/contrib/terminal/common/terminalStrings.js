@@ -1,1 +1,41 @@
-import{localize as o,localize2 as e}from"../../../../nls.js";const l={terminal:o(13614,null),new:o(13615,null),doNotShowAgain:o(13616,null),currentSessionCategory:o(13617,null),previousSessionCategory:o(13618,null),typeTask:o(13619,null),typeLocal:o(13620,null),actionCategory:e(13623,"Terminal"),focus:e(13624,"Focus Terminal"),focusInstance:e(13625,"Focus Terminal"),focusAndHideAccessibleBuffer:e(13626,"Focus Terminal and Hide Accessible Buffer"),kill:{...e(13627,"Kill Terminal"),short:o(13621,null)},moveToEditor:e(13628,"Move Terminal into Editor Area"),moveIntoNewWindow:e(13629,"Move Terminal into New Window"),newInNewWindow:e(13630,"New Terminal Window"),moveToTerminalPanel:e(13631,"Move Terminal into Panel"),changeIcon:e(13632,"Change Icon..."),changeColor:e(13633,"Change Color..."),split:{...e(13634,"Split Terminal"),short:o(13622,null)},unsplit:e(13635,"Unsplit Terminal"),rename:e(13636,"Rename..."),toggleSizeToContentWidth:e(13637,"Toggle Size to Content Width"),focusHover:e(13638,"Focus Hover"),newWithCwd:e(13639,"Create New Terminal Starting in a Custom Working Directory"),renameWithArgs:e(13640,"Rename the Currently Active Terminal"),scrollToPreviousCommand:e(13641,"Scroll to Previous Command"),scrollToNextCommand:e(13642,"Scroll to Next Command"),revealCommand:e(13643,"Reveal Command in Terminal")};export{l as $tBc};
+import { localize, localize2 } from "../../../../nls.js";
+const terminalStrings = {
+  terminal: localize("terminal", "Terminal"),
+  new: localize("terminal.new", "New Terminal"),
+  doNotShowAgain: localize("doNotShowAgain", "Do Not Show Again"),
+  currentSessionCategory: localize("currentSessionCategory", "current session"),
+  previousSessionCategory: localize("previousSessionCategory", "previous session"),
+  typeTask: localize("task", "Task"),
+  typeLocal: localize("local", "Local"),
+  actionCategory: localize2("terminalCategory", "Terminal"),
+  focus: localize2("workbench.action.terminal.focus", "Focus Terminal"),
+  focusInstance: localize2("workbench.action.terminal.focusInstance", "Focus Terminal"),
+  focusAndHideAccessibleBuffer: localize2("workbench.action.terminal.focusAndHideAccessibleBuffer", "Focus Terminal and Hide Accessible Buffer"),
+  kill: {
+    ...localize2("killTerminal", "Kill Terminal"),
+    short: localize("killTerminal.short", "Kill")
+  },
+  moveToEditor: localize2("moveToEditor", "Move Terminal into Editor Area"),
+  moveIntoNewWindow: localize2("moveIntoNewWindow", "Move Terminal into New Window"),
+  newInNewWindow: localize2("newInNewWindow", "New Terminal Window"),
+  moveToTerminalPanel: localize2("workbench.action.terminal.moveToTerminalPanel", "Move Terminal into Panel"),
+  changeIcon: localize2("workbench.action.terminal.changeIcon", "Change Icon..."),
+  changeColor: localize2("workbench.action.terminal.changeColor", "Change Color..."),
+  split: {
+    ...localize2("splitTerminal", "Split Terminal"),
+    short: localize("splitTerminal.short", "Split")
+  },
+  unsplit: localize2("unsplitTerminal", "Unsplit Terminal"),
+  rename: localize2("workbench.action.terminal.rename", "Rename..."),
+  toggleSizeToContentWidth: localize2("workbench.action.terminal.sizeToContentWidthInstance", "Toggle Size to Content Width"),
+  focusHover: localize2("workbench.action.terminal.focusHover", "Focus Hover"),
+  newWithCwd: localize2("workbench.action.terminal.newWithCwd", "Create New Terminal Starting in a Custom Working Directory"),
+  renameWithArgs: localize2("workbench.action.terminal.renameWithArg", "Rename the Currently Active Terminal"),
+  scrollToPreviousCommand: localize2("workbench.action.terminal.scrollToPreviousCommand", "Scroll to Previous Command"),
+  scrollToNextCommand: localize2("workbench.action.terminal.scrollToNextCommand", "Scroll to Next Command"),
+  revealCommand: localize2("workbench.action.terminal.revealCommand", "Reveal Command in Terminal")
+};
+export {
+  terminalStrings
+};
+//# sourceMappingURL=terminalStrings.js.map

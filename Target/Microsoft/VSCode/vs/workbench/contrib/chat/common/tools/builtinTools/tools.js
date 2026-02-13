@@ -1,1 +1,67 @@
-import{$Ed as T}from"../../../../../../base/common/lifecycle.js";import{$Mj as d}from"../../../../../../platform/instantiation/common/instantiation.js";import{$bU as b}from"../languageModelToolsService.js";import{$cnc as g,$bnc as D}from"./confirmationTool.js";import{$gnc as $,$fnc as _}from"./editFileTool.js";import{$02b as R,$_2b as I}from"./manageTodoListTool.js";import{$b3b as j}from"./runSubagentTool.js";var m=function(s,t,o,n){var c=arguments.length,e=c<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,o):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,o,n);else for(var r=s.length-1;r>=0;r--)(a=s[r])&&(e=(c<3?a(e):c>3?a(t,o,e):a(t,o))||e);return c>3&&e&&Object.defineProperty(t,o,e),e},u=function(s,t){return function(o,n){t(o,n,s)}};let h=class extends T{static{this.ID="chat.builtinTools"}constructor(t,o){super();const n=o.createInstance($);this.D(t.registerTool(_,n));const c=R(),e=this.D(o.createInstance(I));this.D(t.registerTool(c,e));const a=o.createInstance(g);this.D(t.registerTool(D,a));const r=this.D(o.createInstance(j));let i,l;const f=()=>{i?.dispose(),l?.dispose(),t.flushToolUpdates();const p=r.getToolData();i=t.registerTool(p,r),l=t.agentToolSet.addTool(p)};f(),this.D(r.onDidUpdateToolData(f)),this.D({dispose:()=>{i?.dispose(),l?.dispose()}})}};h=m([u(0,b),u(1,d)],h);const W="vscode_fetchWebPage_internal";export{h as $hnc,W as $inc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILanguageModelToolsService } from "../languageModelToolsService.js";
+import { ConfirmationTool, ConfirmationToolData } from "./confirmationTool.js";
+import { EditTool, EditToolData } from "./editFileTool.js";
+import { createManageTodoListToolData, ManageTodoListTool } from "./manageTodoListTool.js";
+import { RunSubagentTool } from "./runSubagentTool.js";
+let BuiltinToolsContribution = class BuiltinToolsContribution2 extends Disposable {
+  static {
+    __name(this, "BuiltinToolsContribution");
+  }
+  static {
+    this.ID = "chat.builtinTools";
+  }
+  constructor(toolsService, instantiationService) {
+    super();
+    const editTool = instantiationService.createInstance(EditTool);
+    this._register(toolsService.registerTool(EditToolData, editTool));
+    const todoToolData = createManageTodoListToolData();
+    const manageTodoListTool = this._register(instantiationService.createInstance(ManageTodoListTool));
+    this._register(toolsService.registerTool(todoToolData, manageTodoListTool));
+    const confirmationTool = instantiationService.createInstance(ConfirmationTool);
+    this._register(toolsService.registerTool(ConfirmationToolData, confirmationTool));
+    const runSubagentTool = this._register(instantiationService.createInstance(RunSubagentTool));
+    let runSubagentRegistration;
+    let toolSetRegistration;
+    const registerRunSubagentTool = /* @__PURE__ */ __name(() => {
+      runSubagentRegistration?.dispose();
+      toolSetRegistration?.dispose();
+      toolsService.flushToolUpdates();
+      const runSubagentToolData = runSubagentTool.getToolData();
+      runSubagentRegistration = toolsService.registerTool(runSubagentToolData, runSubagentTool);
+      toolSetRegistration = toolsService.agentToolSet.addTool(runSubagentToolData);
+    }, "registerRunSubagentTool");
+    registerRunSubagentTool();
+    this._register(runSubagentTool.onDidUpdateToolData(registerRunSubagentTool));
+    this._register({
+      dispose: /* @__PURE__ */ __name(() => {
+        runSubagentRegistration?.dispose();
+        toolSetRegistration?.dispose();
+      }, "dispose")
+    });
+  }
+};
+BuiltinToolsContribution = __decorate([
+  __param(0, ILanguageModelToolsService),
+  __param(1, IInstantiationService)
+], BuiltinToolsContribution);
+const InternalFetchWebPageToolId = "vscode_fetchWebPage_internal";
+export {
+  BuiltinToolsContribution,
+  InternalFetchWebPageToolId
+};
+//# sourceMappingURL=tools.js.map

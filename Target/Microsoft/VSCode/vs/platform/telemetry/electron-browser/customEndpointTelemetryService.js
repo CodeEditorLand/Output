@@ -1,1 +1,4 @@
-import{$YPc as m}from"../../ipc/electron-browser/services.js";import{$rp as o}from"../common/telemetry.js";m(o,"customEndpointTelemetry");
+import { registerSharedProcessRemoteService } from "../../ipc/electron-browser/services.js";
+import { ICustomEndpointTelemetryService } from "../common/telemetry.js";
+registerSharedProcessRemoteService(ICustomEndpointTelemetryService, "customEndpointTelemetry");
+//# sourceMappingURL=customEndpointTelemetryService.js.map

@@ -1,1 +1,61 @@
-import{$ as c,$y9 as d}from"../../../../../../base/browser/dom.js";import{$b_ as b}from"../../../../../../base/browser/ui/button/button.js";import{$bk as $}from"../../../../../../base/common/codicons.js";import{$Ed as _}from"../../../../../../base/common/lifecycle.js";import{ThemeIcon as g}from"../../../../../../base/common/themables.js";import{localize as f}from"../../../../../../nls.js";import{$uo as D}from"../../../../../../platform/commands/common/commands.js";import{$pp as v}from"../../../../../../platform/telemetry/common/telemetry.js";import{$Ijb as w}from"../../../../../../platform/theme/browser/defaultStyles.js";import{$JP as C}from"../../../../../services/chat/common/chatEntitlementService.js";var u=function(r,t,e,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,e,i);else for(var a=r.length-1;a>=0;a--)(n=r[a])&&(o=(s<3?n(o):s>3?n(t,e,o):n(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},l=function(r,t){return function(e,i){t(e,i,r)}};let h=class extends _{constructor(t,e,i,s){super(),this.a=t,this.domNode=c(".chat-rate-limited-widget"),d(this.domNode,c("span")).classList.add(...g.asClassNameArray($.info));const n=d(this.domNode,c(".chat-rate-limited-message")),a=d(n,c("div"));a.textContent=f(6446,null);const m=this.D(new b(n,{...w,supportIcons:!0}));m.label=f(6447,null),m.element.classList.add("chat-rate-limited-button"),this.D(m.onDidClick(async()=>{const p="workbench.action.chat.triggerSetup";i.publicLog2("workbenchActionExecuted",{id:p,from:"chat-response"}),await e.executeCommand(p)}))}hasSameContent(t){return t.kind===this.a.kind&&!!t.errorDetails.isRateLimited}addDisposable(t){this.D(t)}};h=u([l(1,D),l(2,v),l(3,C)],h);export{h as $b1b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, append } from "../../../../../../base/browser/dom.js";
+import { Button } from "../../../../../../base/browser/ui/button/button.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../nls.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { defaultButtonStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
+import { IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
+let ChatAnonymousRateLimitedPart = class ChatAnonymousRateLimitedPart2 extends Disposable {
+  static {
+    __name(this, "ChatAnonymousRateLimitedPart");
+  }
+  constructor(content, commandService, telemetryService, chatEntitlementService) {
+    super();
+    this.content = content;
+    this.domNode = $(".chat-rate-limited-widget");
+    const icon = append(this.domNode, $("span"));
+    icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.info));
+    const messageContainer = append(this.domNode, $(".chat-rate-limited-message"));
+    const message = append(messageContainer, $("div"));
+    message.textContent = localize("anonymousRateLimited", "Continue the conversation by signing in. Your free account gets 50 premium requests a month plus access to more models and AI features.");
+    const signInButton = this._register(new Button(messageContainer, { ...defaultButtonStyles, supportIcons: true }));
+    signInButton.label = localize("enableMoreAIFeatures", "Enable more AI features");
+    signInButton.element.classList.add("chat-rate-limited-button");
+    this._register(signInButton.onDidClick(async () => {
+      const commandId = "workbench.action.chat.triggerSetup";
+      telemetryService.publicLog2("workbenchActionExecuted", { id: commandId, from: "chat-response" });
+      await commandService.executeCommand(commandId);
+    }));
+  }
+  hasSameContent(other) {
+    return other.kind === this.content.kind && !!other.errorDetails.isRateLimited;
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatAnonymousRateLimitedPart = __decorate([
+  __param(1, ICommandService),
+  __param(2, ITelemetryService),
+  __param(3, IChatEntitlementService)
+], ChatAnonymousRateLimitedPart);
+export {
+  ChatAnonymousRateLimitedPart
+};
+//# sourceMappingURL=chatAnonymousRateLimitedPart.js.map

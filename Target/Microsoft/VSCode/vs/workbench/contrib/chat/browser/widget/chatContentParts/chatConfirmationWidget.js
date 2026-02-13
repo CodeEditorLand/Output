@@ -1,1 +1,373 @@
-import*as s from"../../../../../../base/browser/dom.js";import{$b_ as T,$c_ as _}from"../../../../../../base/browser/ui/button/button.js";import{$Fm as O,$Hm as E}from"../../../../../../base/common/actions.js";import{$xf as k}from"../../../../../../base/common/event.js";import{$jk as g}from"../../../../../../base/common/htmlContent.js";import{$Ed as P,$Fd as L}from"../../../../../../base/common/lifecycle.js";import{localize as H}from"../../../../../../nls.js";import{$ikb as N}from"../../../../../../platform/actions/browser/toolbar.js";import{$qL as R}from"../../../../../../platform/actions/common/actions.js";import{$ro as p}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ijb as C}from"../../../../../../platform/contextview/browser/contextView.js";import{$Mj as $}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as W}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$Ukb as D}from"../../../../../../platform/markdown/browser/markdownRenderer.js";import{$Ijb as q}from"../../../../../../platform/theme/browser/defaultStyles.js";import{$m1b as z}from"./chatInlineAnchorWidget.js";import{$k1b as B}from"./chatMarkdownAnchorService.js";import{$E2b as J}from"./chatMarkdownContentPart.js";import"./media/chatConfirmationWidget.css";var w=function(h,e,t,i){var r=arguments.length,n=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,e,t,i);else for(var l=h.length-1;l>=0;l--)(a=h[l])&&(n=(r<3?a(n):r>3?a(e,t,n):a(e,t))||n);return r>3&&n&&Object.defineProperty(e,t,n),n},o=function(h,e){return function(t,i){e(t,i,h)}};let v=class extends P{get title(){return this.f}set title(e){this.f=e;const t=this.g.render(this.j(e),{asyncRenderCallback:()=>this.a.fire()}),i=this.b.value?.element;i?.parentElement?i.replaceWith(t.element):this.c.appendChild(t.element),this.b.value=t}constructor(e,t,i,r){if(super(),this.c=e,this.f=t,this.g=r,this.a=this.D(new k),this.onDidChangeHeight=this.a.event,this.b=this.D(new L),e.classList.add("chat-query-title-part"),this.b.value=r.render(this.j(t),{asyncRenderCallback:()=>this.a.fire()}),e.append(this.b.value.element),i){const n=this.j(i),a=this.D(r.render(n,{asyncRenderCallback:()=>this.a.fire()})),l=document.createElement("small");l.appendChild(a.element),e.append(l)}}j(e){return typeof e=="string"?new g("",{supportThemeIcons:!0}).appendText(e):new g(e.value,{supportThemeIcons:!0,isTrusted:e.isTrusted})}};v=w([o(3,D)],v);let I=class extends P{get onDidClick(){return this.a.event}get domNode(){return this.b}setShowButtons(e){this.domNode.classList.toggle("hideButtons",!e)}constructor(e,t,i,r,n,a){super(),this.f=e,this.g=i,this.j=r,this.a=this.D(new k);const{title:l,subtitle:f,message:j,buttons:x}=t,u=s.h(".chat-confirmation-widget-container@container",[s.h(".chat-confirmation-widget@root",[s.h(".chat-confirmation-widget-title@title"),s.h(".chat-confirmation-widget-message-container",[s.h(".chat-confirmation-widget-message@message"),s.h(".chat-buttons-container@buttonsContainer",[s.h(".chat-buttons@buttons"),s.h(".chat-toolbar@toolbar")])])])]);if(F(u.container,l,j),this.b=u.root,this.D(i.createInstance(v,u.title,l,f)),this.c=u.message,x.forEach(c=>{const d={...q,small:!0,secondary:c.isSecondary,title:c.tooltip,disabled:c.disabled};let b;c.moreActions?b=new _(u.buttons,{...d,contextMenuProvider:n,addPrimaryActionToDropdown:!1,actions:c.moreActions.map(m=>m instanceof E?m:this.D(new O(m.label,m.label,void 0,!m.disabled,()=>(this.a.fire(m),Promise.resolve()))))}):b=new T(u.buttons,d),this.D(b),b.label=c.label,this.D(b.onDidClick(()=>this.a.fire(c))),c.onDidChangeDisablement&&this.D(c.onDidChangeDisablement(m=>b.enabled=!m))}),t?.toolbarData){const c=a.createOverlay([["chatConfirmationPartType",t.toolbarData.partType],["chatConfirmationPartSource",t.toolbarData.partSource]]),d=this.D(i.createChild(new W([p,c])));this.D(d.createInstance(N,u.toolbar,R.ChatConfirmationMenu,{menuOptions:{arg:t.toolbarData.arg,shouldForwardArgs:!0}}))}}m(e){this.c.append(e)}};I=w([o(2,$),o(3,D),o(4,C),o(5,p)],I);let S=class extends I{constructor(e,t,i,r,n,a){super(e,t,i,r,n,a),this.updateMessage(t.message)}updateMessage(e){this.n?.remove();const t=this.D(this.j.render(typeof e=="string"?new g(e):e));this.m(t.element),this.n=t.element}};S=w([o(2,$),o(3,D),o(4,C),o(5,p)],S);let y=class extends P{get onDidClick(){return this.a.event}get domNode(){return this.b}setShowButtons(e){this.domNode.classList.toggle("hideButtons",!e)}get codeblocksPartId(){return this.g.value?.codeblocksPartId}get codeblocks(){return this.g.value?.codeblocks}constructor(e,t,i,r,n,a,l){super(),this.j=e,this.m=i,this.n=r,this.q=n,this.r=l,this.a=this.D(new k),this.g=this.D(new L);const{title:f,subtitle:j,message:x,buttons:u,icon:c}=t,d=s.h(".chat-confirmation-widget-container@container",[s.h(".chat-confirmation-widget2@root",[s.h(".chat-confirmation-widget-title",[s.h(".chat-title@title"),s.h(".chat-toolbar-container@buttonsContainer",[s.h(".chat-toolbar@toolbar")])]),s.h(".chat-confirmation-widget-message@message"),s.h(".chat-confirmation-widget-buttons",[s.h(".chat-buttons@buttons")])])]);if(F(d.container,f,x),this.b=d.root,this.c=d.buttons,this.D(i.createInstance(v,d.title,new g(c?`$(${c.id}) ${typeof f=="string"?f:f.value}`:typeof f=="string"?f:f.value),j)),this.f=d.message,this.updateButtons(u),t?.toolbarData){const b=a.createOverlay([["chatConfirmationPartType",t.toolbarData.partType],["chatConfirmationPartSource",t.toolbarData.partSource]]),m=this.D(i.createChild(new W([p,b])));this.D(m.createInstance(N,d.toolbar,R.ChatConfirmationMenu,{menuOptions:{arg:t.toolbarData.arg,shouldForwardArgs:!0}}))}}updateButtons(e){for(;this.c.children.length>0;)this.c.children[0].remove();for(const t of e){const i={...q,small:!0,secondary:t.isSecondary,title:t.tooltip,disabled:t.disabled};let r;t.moreActions?r=new _(this.c,{...i,contextMenuProvider:this.q,addPrimaryActionToDropdown:!1,actions:t.moreActions.map(n=>n instanceof E?n:this.D(new O(n.label,n.label,void 0,!n.disabled,()=>(this.a.fire(n),Promise.resolve()))))}):r=new T(this.c,i),this.D(r),r.label=t.label,this.D(r.onDidClick(()=>this.a.fire(t))),t.onDidChangeDisablement&&this.D(t.onDidChangeDisablement(n=>r.enabled=!n))}}s(e){if(this.g.clear(),!s.$f9(e)){const t=this.D(this.m.createInstance(J,{kind:"markdownContent",content:typeof e=="string"?new g().appendMarkdown(e):e},this.j,this.j.editorPool,!1,this.j.codeBlockStartIndex,this.n,void 0,this.j.currentWidth.get(),this.j.codeBlockModelCollection,{allowInlineDiffs:!0,horizontalPadding:6}));z(t.domNode,this.m,this.r,this.B),this.g.value=t,e=t.domNode}for(const t of this.f.children)t.remove();this.f.append(e)}};y=w([o(2,$),o(3,D),o(4,C),o(5,p),o(6,B)],y);let A=class extends y{constructor(e,t,i,r,n,a,l){super(e,t,i,r,n,a,l),this.s(t.message)}updateMessage(e){this.t?.remove();const t=this.D(this.n.render(typeof e=="string"?new g(e):e));this.s(t.element),this.t=t.element}};A=w([o(2,$),o(3,D),o(4,C),o(5,p),o(6,B)],A);let M=class extends y{constructor(e,t,i,r,n,a,l){super(e,t,i,r,n,a,l),this.s(t.message)}};M=w([o(2,$),o(3,D),o(4,C),o(5,p),o(6,B)],M);function F(h,e,t){h.tabIndex=0;const i=typeof e=="string"?e:e.value,r=typeof t=="string"?t:t&&"value"in t?t.value:t&&"textContent"in t?t.textContent:"";h.setAttribute("aria-label",H(6453,null,i,r)),h.classList.add("chat-confirmation-widget-container")}export{v as $H2b,S as $I2b,A as $J2b,M as $K2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Button, ButtonWithDropdown } from "../../../../../../base/browser/ui/button/button.js";
+import { Action, Separator } from "../../../../../../base/common/actions.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { IMarkdownRendererService } from "../../../../../../platform/markdown/browser/markdownRenderer.js";
+import { defaultButtonStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
+import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
+import { IChatMarkdownAnchorService } from "./chatMarkdownAnchorService.js";
+import { ChatMarkdownContentPart } from "./chatMarkdownContentPart.js";
+import "./media/chatConfirmationWidget.css";
+let ChatQueryTitlePart = class ChatQueryTitlePart2 extends Disposable {
+  static {
+    __name(this, "ChatQueryTitlePart");
+  }
+  get title() {
+    return this._title;
+  }
+  set title(value) {
+    this._title = value;
+    const next = this._renderer.render(this.toMdString(value), {
+      asyncRenderCallback: /* @__PURE__ */ __name(() => this._onDidChangeHeight.fire(), "asyncRenderCallback")
+    });
+    const previousEl = this._renderedTitle.value?.element;
+    if (previousEl?.parentElement) {
+      previousEl.replaceWith(next.element);
+    } else {
+      this.element.appendChild(next.element);
+    }
+    this._renderedTitle.value = next;
+  }
+  constructor(element, _title, subtitle, _renderer) {
+    super();
+    this.element = element;
+    this._title = _title;
+    this._renderer = _renderer;
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
+    this._renderedTitle = this._register(new MutableDisposable());
+    element.classList.add("chat-query-title-part");
+    this._renderedTitle.value = _renderer.render(this.toMdString(_title), {
+      asyncRenderCallback: /* @__PURE__ */ __name(() => this._onDidChangeHeight.fire(), "asyncRenderCallback")
+    });
+    element.append(this._renderedTitle.value.element);
+    if (subtitle) {
+      const str = this.toMdString(subtitle);
+      const renderedTitle = this._register(_renderer.render(str, {
+        asyncRenderCallback: /* @__PURE__ */ __name(() => this._onDidChangeHeight.fire(), "asyncRenderCallback")
+      }));
+      const wrapper = document.createElement("small");
+      wrapper.appendChild(renderedTitle.element);
+      element.append(wrapper);
+    }
+  }
+  toMdString(value) {
+    if (typeof value === "string") {
+      return new MarkdownString("", { supportThemeIcons: true }).appendText(value);
+    } else {
+      return new MarkdownString(value.value, { supportThemeIcons: true, isTrusted: value.isTrusted });
+    }
+  }
+};
+ChatQueryTitlePart = __decorate([
+  __param(3, IMarkdownRendererService)
+], ChatQueryTitlePart);
+let BaseSimpleChatConfirmationWidget = class BaseSimpleChatConfirmationWidget2 extends Disposable {
+  static {
+    __name(this, "BaseSimpleChatConfirmationWidget");
+  }
+  get onDidClick() {
+    return this._onDidClick.event;
+  }
+  get domNode() {
+    return this._domNode;
+  }
+  setShowButtons(showButton) {
+    this.domNode.classList.toggle("hideButtons", !showButton);
+  }
+  constructor(context, options, instantiationService, _markdownRendererService, contextMenuService, contextKeyService) {
+    super();
+    this.context = context;
+    this.instantiationService = instantiationService;
+    this._markdownRendererService = _markdownRendererService;
+    this._onDidClick = this._register(new Emitter());
+    const { title, subtitle, message, buttons } = options;
+    const elements = dom.h(".chat-confirmation-widget-container@container", [
+      dom.h(".chat-confirmation-widget@root", [
+        dom.h(".chat-confirmation-widget-title@title"),
+        dom.h(".chat-confirmation-widget-message-container", [
+          dom.h(".chat-confirmation-widget-message@message"),
+          dom.h(".chat-buttons-container@buttonsContainer", [
+            dom.h(".chat-buttons@buttons"),
+            dom.h(".chat-toolbar@toolbar")
+          ])
+        ])
+      ])
+    ]);
+    configureAccessibilityContainer(elements.container, title, message);
+    this._domNode = elements.root;
+    this._register(instantiationService.createInstance(ChatQueryTitlePart, elements.title, title, subtitle));
+    this.messageElement = elements.message;
+    buttons.forEach((buttonData) => {
+      const buttonOptions = { ...defaultButtonStyles, small: true, secondary: buttonData.isSecondary, title: buttonData.tooltip, disabled: buttonData.disabled };
+      let button;
+      if (buttonData.moreActions) {
+        button = new ButtonWithDropdown(elements.buttons, {
+          ...buttonOptions,
+          contextMenuProvider: contextMenuService,
+          addPrimaryActionToDropdown: false,
+          actions: buttonData.moreActions.map((action) => {
+            if (action instanceof Separator) {
+              return action;
+            }
+            return this._register(new Action(action.label, action.label, void 0, !action.disabled, () => {
+              this._onDidClick.fire(action);
+              return Promise.resolve();
+            }));
+          })
+        });
+      } else {
+        button = new Button(elements.buttons, buttonOptions);
+      }
+      this._register(button);
+      button.label = buttonData.label;
+      this._register(button.onDidClick(() => this._onDidClick.fire(buttonData)));
+      if (buttonData.onDidChangeDisablement) {
+        this._register(buttonData.onDidChangeDisablement((disabled) => button.enabled = !disabled));
+      }
+    });
+    if (options?.toolbarData) {
+      const overlay = contextKeyService.createOverlay([
+        ["chatConfirmationPartType", options.toolbarData.partType],
+        ["chatConfirmationPartSource", options.toolbarData.partSource]
+      ]);
+      const nestedInsta = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, overlay])));
+      this._register(nestedInsta.createInstance(MenuWorkbenchToolBar, elements.toolbar, MenuId.ChatConfirmationMenu, {
+        // buttonConfigProvider: () => ({ showLabel: false, showIcon: true }),
+        menuOptions: {
+          arg: options.toolbarData.arg,
+          shouldForwardArgs: true
+        }
+      }));
+    }
+  }
+  renderMessage(element) {
+    this.messageElement.append(element);
+  }
+};
+BaseSimpleChatConfirmationWidget = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IMarkdownRendererService),
+  __param(4, IContextMenuService),
+  __param(5, IContextKeyService)
+], BaseSimpleChatConfirmationWidget);
+let SimpleChatConfirmationWidget = class SimpleChatConfirmationWidget2 extends BaseSimpleChatConfirmationWidget {
+  static {
+    __name(this, "SimpleChatConfirmationWidget");
+  }
+  constructor(context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService) {
+    super(context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService);
+    this.updateMessage(options.message);
+  }
+  updateMessage(message) {
+    this._renderedMessage?.remove();
+    const renderedMessage = this._register(this._markdownRendererService.render(typeof message === "string" ? new MarkdownString(message) : message));
+    this.renderMessage(renderedMessage.element);
+    this._renderedMessage = renderedMessage.element;
+  }
+};
+SimpleChatConfirmationWidget = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IMarkdownRendererService),
+  __param(4, IContextMenuService),
+  __param(5, IContextKeyService)
+], SimpleChatConfirmationWidget);
+let BaseChatConfirmationWidget = class BaseChatConfirmationWidget2 extends Disposable {
+  static {
+    __name(this, "BaseChatConfirmationWidget");
+  }
+  get onDidClick() {
+    return this._onDidClick.event;
+  }
+  get domNode() {
+    return this._domNode;
+  }
+  setShowButtons(showButton) {
+    this.domNode.classList.toggle("hideButtons", !showButton);
+  }
+  get codeblocksPartId() {
+    return this.markdownContentPart.value?.codeblocksPartId;
+  }
+  get codeblocks() {
+    return this.markdownContentPart.value?.codeblocks;
+  }
+  constructor(_context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService, chatMarkdownAnchorService) {
+    super();
+    this._context = _context;
+    this.instantiationService = instantiationService;
+    this.markdownRendererService = markdownRendererService;
+    this.contextMenuService = contextMenuService;
+    this.chatMarkdownAnchorService = chatMarkdownAnchorService;
+    this._onDidClick = this._register(new Emitter());
+    this.markdownContentPart = this._register(new MutableDisposable());
+    const { title, subtitle, message, buttons, icon } = options;
+    const elements = dom.h(".chat-confirmation-widget-container@container", [
+      dom.h(".chat-confirmation-widget2@root", [
+        dom.h(".chat-confirmation-widget-title", [
+          dom.h(".chat-title@title"),
+          dom.h(".chat-toolbar-container@buttonsContainer", [
+            dom.h(".chat-toolbar@toolbar")
+          ])
+        ]),
+        dom.h(".chat-confirmation-widget-message@message"),
+        dom.h(".chat-confirmation-widget-buttons", [
+          dom.h(".chat-buttons@buttons")
+        ])
+      ])
+    ]);
+    configureAccessibilityContainer(elements.container, title, message);
+    this._domNode = elements.root;
+    this._buttonsDomNode = elements.buttons;
+    this._register(instantiationService.createInstance(ChatQueryTitlePart, elements.title, new MarkdownString(icon ? `$(${icon.id}) ${typeof title === "string" ? title : title.value}` : typeof title === "string" ? title : title.value), subtitle));
+    this.messageElement = elements.message;
+    this.updateButtons(buttons);
+    if (options?.toolbarData) {
+      const overlay = contextKeyService.createOverlay([
+        ["chatConfirmationPartType", options.toolbarData.partType],
+        ["chatConfirmationPartSource", options.toolbarData.partSource]
+      ]);
+      const nestedInsta = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, overlay])));
+      this._register(nestedInsta.createInstance(MenuWorkbenchToolBar, elements.toolbar, MenuId.ChatConfirmationMenu, {
+        // buttonConfigProvider: () => ({ showLabel: false, showIcon: true }),
+        menuOptions: {
+          arg: options.toolbarData.arg,
+          shouldForwardArgs: true
+        }
+      }));
+    }
+  }
+  updateButtons(buttons) {
+    while (this._buttonsDomNode.children.length > 0) {
+      this._buttonsDomNode.children[0].remove();
+    }
+    for (const buttonData of buttons) {
+      const buttonOptions = { ...defaultButtonStyles, small: true, secondary: buttonData.isSecondary, title: buttonData.tooltip, disabled: buttonData.disabled };
+      let button;
+      if (buttonData.moreActions) {
+        button = new ButtonWithDropdown(this._buttonsDomNode, {
+          ...buttonOptions,
+          contextMenuProvider: this.contextMenuService,
+          addPrimaryActionToDropdown: false,
+          actions: buttonData.moreActions.map((action) => {
+            if (action instanceof Separator) {
+              return action;
+            }
+            return this._register(new Action(action.label, action.label, void 0, !action.disabled, () => {
+              this._onDidClick.fire(action);
+              return Promise.resolve();
+            }));
+          })
+        });
+      } else {
+        button = new Button(this._buttonsDomNode, buttonOptions);
+      }
+      this._register(button);
+      button.label = buttonData.label;
+      this._register(button.onDidClick(() => this._onDidClick.fire(buttonData)));
+      if (buttonData.onDidChangeDisablement) {
+        this._register(buttonData.onDidChangeDisablement((disabled) => button.enabled = !disabled));
+      }
+    }
+  }
+  renderMessage(element) {
+    this.markdownContentPart.clear();
+    if (!dom.isHTMLElement(element)) {
+      const part = this._register(this.instantiationService.createInstance(ChatMarkdownContentPart, {
+        kind: "markdownContent",
+        content: typeof element === "string" ? new MarkdownString().appendMarkdown(element) : element
+      }, this._context, this._context.editorPool, false, this._context.codeBlockStartIndex, this.markdownRendererService, void 0, this._context.currentWidth.get(), this._context.codeBlockModelCollection, {
+        allowInlineDiffs: true,
+        horizontalPadding: 6
+      }));
+      renderFileWidgets(part.domNode, this.instantiationService, this.chatMarkdownAnchorService, this._store);
+      this.markdownContentPart.value = part;
+      element = part.domNode;
+    }
+    for (const child of this.messageElement.children) {
+      child.remove();
+    }
+    this.messageElement.append(element);
+  }
+};
+BaseChatConfirmationWidget = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IMarkdownRendererService),
+  __param(4, IContextMenuService),
+  __param(5, IContextKeyService),
+  __param(6, IChatMarkdownAnchorService)
+], BaseChatConfirmationWidget);
+let ChatConfirmationWidget = class ChatConfirmationWidget2 extends BaseChatConfirmationWidget {
+  static {
+    __name(this, "ChatConfirmationWidget");
+  }
+  constructor(context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService, chatMarkdownAnchorService) {
+    super(context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService, chatMarkdownAnchorService);
+    this.renderMessage(options.message);
+  }
+  updateMessage(message) {
+    this._renderedMessage?.remove();
+    const renderedMessage = this._register(this.markdownRendererService.render(typeof message === "string" ? new MarkdownString(message) : message));
+    this.renderMessage(renderedMessage.element);
+    this._renderedMessage = renderedMessage.element;
+  }
+};
+ChatConfirmationWidget = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IMarkdownRendererService),
+  __param(4, IContextMenuService),
+  __param(5, IContextKeyService),
+  __param(6, IChatMarkdownAnchorService)
+], ChatConfirmationWidget);
+let ChatCustomConfirmationWidget = class ChatCustomConfirmationWidget2 extends BaseChatConfirmationWidget {
+  static {
+    __name(this, "ChatCustomConfirmationWidget");
+  }
+  constructor(context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService, chatMarkdownAnchorService) {
+    super(context, options, instantiationService, markdownRendererService, contextMenuService, contextKeyService, chatMarkdownAnchorService);
+    this.renderMessage(options.message);
+  }
+};
+ChatCustomConfirmationWidget = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IMarkdownRendererService),
+  __param(4, IContextMenuService),
+  __param(5, IContextKeyService),
+  __param(6, IChatMarkdownAnchorService)
+], ChatCustomConfirmationWidget);
+function configureAccessibilityContainer(container, title, message) {
+  container.tabIndex = 0;
+  const titleAsString = typeof title === "string" ? title : title.value;
+  const messageAsString = typeof message === "string" ? message : message && "value" in message ? message.value : message && "textContent" in message ? message.textContent : "";
+  container.setAttribute("aria-label", localize("chat.confirmationWidget.ariaLabel", "Chat Confirmation Dialog {0} {1}", titleAsString, messageAsString));
+  container.classList.add("chat-confirmation-widget-container");
+}
+__name(configureAccessibilityContainer, "configureAccessibilityContainer");
+export {
+  ChatConfirmationWidget,
+  ChatCustomConfirmationWidget,
+  ChatQueryTitlePart,
+  SimpleChatConfirmationWidget
+};
+//# sourceMappingURL=chatConfirmationWidget.js.map

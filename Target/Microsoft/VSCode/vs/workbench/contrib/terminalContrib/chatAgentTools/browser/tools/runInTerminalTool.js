@@ -1,5 +1,119 @@
-import{$ui as $e,$0h as ae}from"../../../../../../base/common/async.js";import{$Jf as ke}from"../../../../../../base/common/cancellation.js";import{$bk as fe}from"../../../../../../base/common/codicons.js";import{$sb as N}from"../../../../../../base/common/errors.js";import{Event as X}from"../../../../../../base/common/event.js";import{$jk as ce}from"../../../../../../base/common/htmlContent.js";import{$Ed as ge,$Dd as xe}from"../../../../../../base/common/lifecycle.js";import{$Oc as De}from"../../../../../../base/common/map.js";import{$ab as we,$6 as Se,$5 as Ae}from"../../../../../../base/common/path.js";import{OS as ye}from"../../../../../../base/common/platform.js";import{$1f as Y}from"../../../../../../base/common/strings.js";import{$ln as ee}from"../../../../../../base/common/uuid.js";import{localize as x}from"../../../../../../nls.js";import{$0l as be}from"../../../../../../platform/configuration/common/configuration.js";import{$Mj as se}from"../../../../../../platform/instantiation/common/instantiation.js";import{$oH as Re}from"../../../../../../platform/label/common/label.js";import{$hp as Pe}from"../../../../../../platform/storage/common/storage.js";import{$yx as Ee}from"../../../../../../platform/terminal/common/terminal.js";import{$4N as Ie}from"../../../../../services/remote/common/remoteAgentService.js";import{$NV as Me}from"../../../../chat/common/chatService/chatService.js";import{$bU as Be,ToolDataSource as Le,ToolInvocationPresentation as Oe}from"../../../../chat/common/tools/languageModelToolsService.js";import{$yZb as Fe,$sZb as Ue}from"../../../../terminal/browser/terminal.js";import{$X6 as Ne}from"../../../../terminal/common/terminal.js";import{$BCc as je}from"../alternativeRecommendation.js";import{$ICc as He}from"../executeStrategy/basicExecuteStrategy.js";import{$JCc as _e}from"../executeStrategy/noneExecuteStrategy.js";import{$KCc as We}from"../executeStrategy/richExecuteStrategy.js";import{$3Cc as Te}from"../outputHelpers.js";import{$2Cc as qe,$VCc as ze,$RCc as ve,$SCc as Je,$TCc as Qe}from"../runInTerminalHelpers.js";import{$4Cc as Ge}from"./commandLinePresenter/nodeCommandLinePresenter.js";import{$6Cc as Ve}from"./commandLinePresenter/pythonCommandLinePresenter.js";import{$8Cc as Ke}from"./commandLinePresenter/rubyCommandLinePresenter.js";import{$_Cc as Ze}from"./commandLinePresenter/sandboxedCommandLinePresenter.js";import{$bDc as Xe}from"../runInTerminalToolTelemetry.js";import{$aDc as Ye}from"../toolTerminalCreator.js";import{$NCc as et}from"../treeSitterCommandParser.js";import{$cDc as tt}from"./commandLineAnalyzer/commandLineAutoApproveAnalyzer.js";import{$dDc as ot}from"./commandLineAnalyzer/commandLineFileWriteAnalyzer.js";import{$eDc as nt}from"./commandLineAnalyzer/commandLineSandboxAnalyzer.js";import{$CDc as it}from"./monitoring/outputMonitor.js";import{OutputMonitorState as st}from"./monitoring/types.js";import{$hS as le,LocalChatSessionUri as te}from"../../../../chat/common/model/chatUri.js";import{URI as ue}from"../../../../../../base/common/uri.js";import{$HDc as rt}from"./commandLineRewriter/commandLineCdPrefixRewriter.js";import{$IDc as at}from"./commandLineRewriter/commandLinePreventHistoryRewriter.js";import{$JDc as ct}from"./commandLineRewriter/commandLinePwshChainOperatorRewriter.js";import{$KDc as lt}from"./commandLineRewriter/commandLineSandboxRewriter.js";import{$Ml as ut}from"../../../../../../platform/workspace/common/workspace.js";import{$06 as mt}from"../../../../../services/history/common/history.js";import{$LDc as dt}from"./terminalCommandArtifactCollector.js";import{$$c as ht,$6c as pt}from"../../../../../../base/common/types.js";import{ChatConfiguration as ft}from"../../../../chat/common/constants.js";import{$U4b as gt}from"../../../../chat/browser/chat.js";import{$gx as wt}from"../../../../../../base/common/numbers.js";var ie=function(y,e,o,t){var i=arguments.length,n=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(y,e,o,t);else for(var c=y.length-1;c>=0;c--)(a=y[c])&&(n=(i<3?a(n):i>3?a(e,o,n):a(e,o))||n);return i>3&&n&&Object.defineProperty(e,o,n),n},p=function(y,e){return function(o,t){e(o,t,y)}},I;const oe="runInTerminal",Ce=["runCommands/runInTerminal"];function yt(y){const e=Je(y);return[`This tool allows you to execute ${e?"Windows PowerShell 5.1":"PowerShell"} commands in a persistent terminal session, preserving environment variables, working directory, and other context across multiple commands.`,"","Command Execution:",e?"- Use semicolons ; to chain commands on one line, NEVER use && even when asked explicitly":"- Prefer ; when chaining commands on one line","- Prefer pipelines | for object-based data flow",'- Never create a sub-shell (eg. powershell -c "command") unless explicitly asked',"","Directory Management:","- Prefer relative paths when navigating directories, only use absolute when the path is far away or the current cwd is not expected","- Remember when isBackground=false is specified, that the shell and cwd are reused until it is moved to the background","- Use $PWD or Get-Location for current directory","- Use Push-Location/Pop-Location for directory stack","","Program Execution:","- Supports .NET, Python, Node.js, and other executables","- Install modules via Install-Module, Install-Package","- Use Get-Command to verify cmdlet/function availability","","Background Processes:","- For long-running tasks (e.g., servers), set isBackground=true","- Returns a terminal ID for checking status and runtime later","- Use Start-Job for background PowerShell jobs","","Output Management:","- Output is automatically truncated if longer than 60KB to prevent context overflow","- Use Select-Object, Where-Object, Format-Table to filter output","- Use -First/-Last parameters to limit results","- For pager commands, add | Out-String or | Format-List","","Best Practices:","- Use proper cmdlet names instead of aliases in scripts",'- Quote paths with spaces: "C:\\Path With Spaces"',"- Prefer PowerShell cmdlets over external commands when available","- Prefer idiomatic PowerShell like Get-ChildItem instead of dir or ls for file listings","- Use Test-Path to check file/directory existence","- Be specific with Select-Object properties to avoid excessive output","- Avoid printing credentials unless absolutely required"].join(`
-`)}const re=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var RunInTerminalTool_1;
+import { DeferredPromise, timeout } from "../../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../../base/common/map.js";
+import { basename, posix, win32 } from "../../../../../../base/common/path.js";
+import { OS } from "../../../../../../base/common/platform.js";
+import { count } from "../../../../../../base/common/strings.js";
+import { generateUuid } from "../../../../../../base/common/uuid.js";
+import { localize } from "../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { IRemoteAgentService } from "../../../../../services/remote/common/remoteAgentService.js";
+import { IChatService } from "../../../../chat/common/chatService/chatService.js";
+import { ILanguageModelToolsService, ToolDataSource, ToolInvocationPresentation } from "../../../../chat/common/tools/languageModelToolsService.js";
+import { ITerminalChatService, ITerminalService } from "../../../../terminal/browser/terminal.js";
+import { ITerminalProfileResolverService } from "../../../../terminal/common/terminal.js";
+import { getRecommendedToolsOverRunInTerminal } from "../alternativeRecommendation.js";
+import { BasicExecuteStrategy } from "../executeStrategy/basicExecuteStrategy.js";
+import { NoneExecuteStrategy } from "../executeStrategy/noneExecuteStrategy.js";
+import { RichExecuteStrategy } from "../executeStrategy/richExecuteStrategy.js";
+import { getOutput } from "../outputHelpers.js";
+import { extractCdPrefix, isFish, isPowerShell, isWindowsPowerShell, isZsh } from "../runInTerminalHelpers.js";
+import { NodeCommandLinePresenter } from "./commandLinePresenter/nodeCommandLinePresenter.js";
+import { PythonCommandLinePresenter } from "./commandLinePresenter/pythonCommandLinePresenter.js";
+import { RubyCommandLinePresenter } from "./commandLinePresenter/rubyCommandLinePresenter.js";
+import { SandboxedCommandLinePresenter } from "./commandLinePresenter/sandboxedCommandLinePresenter.js";
+import { RunInTerminalToolTelemetry } from "../runInTerminalToolTelemetry.js";
+import { ToolTerminalCreator } from "../toolTerminalCreator.js";
+import { TreeSitterCommandParser } from "../treeSitterCommandParser.js";
+import { CommandLineAutoApproveAnalyzer } from "./commandLineAnalyzer/commandLineAutoApproveAnalyzer.js";
+import { CommandLineFileWriteAnalyzer } from "./commandLineAnalyzer/commandLineFileWriteAnalyzer.js";
+import { CommandLineSandboxAnalyzer } from "./commandLineAnalyzer/commandLineSandboxAnalyzer.js";
+import { OutputMonitor } from "./monitoring/outputMonitor.js";
+import { OutputMonitorState } from "./monitoring/types.js";
+import { chatSessionResourceToId, LocalChatSessionUri } from "../../../../chat/common/model/chatUri.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { CommandLineCdPrefixRewriter } from "./commandLineRewriter/commandLineCdPrefixRewriter.js";
+import { CommandLinePreventHistoryRewriter } from "./commandLineRewriter/commandLinePreventHistoryRewriter.js";
+import { CommandLinePwshChainOperatorRewriter } from "./commandLineRewriter/commandLinePwshChainOperatorRewriter.js";
+import { CommandLineSandboxRewriter } from "./commandLineRewriter/commandLineSandboxRewriter.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { IHistoryService } from "../../../../../services/history/common/history.js";
+import { TerminalCommandArtifactCollector } from "./terminalCommandArtifactCollector.js";
+import { isNumber, isString } from "../../../../../../base/common/types.js";
+import { ChatConfiguration } from "../../../../chat/common/constants.js";
+import { IChatWidgetService } from "../../../../chat/browser/chat.js";
+import { clamp } from "../../../../../../base/common/numbers.js";
+const TOOL_REFERENCE_NAME = "runInTerminal";
+const LEGACY_TOOL_REFERENCE_FULL_NAMES = ["runCommands/runInTerminal"];
+function createPowerShellModelDescription(shell) {
+  const isWinPwsh = isWindowsPowerShell(shell);
+  return [
+    `This tool allows you to execute ${isWinPwsh ? "Windows PowerShell 5.1" : "PowerShell"} commands in a persistent terminal session, preserving environment variables, working directory, and other context across multiple commands.`,
+    "",
+    "Command Execution:",
+    // IMPORTANT: PowerShell 5 does not support `&&` so always re-write them to `;`. Note that
+    // the behavior of `&&` differs a little from `;` but in general it's fine
+    isWinPwsh ? "- Use semicolons ; to chain commands on one line, NEVER use && even when asked explicitly" : "- Prefer ; when chaining commands on one line",
+    "- Prefer pipelines | for object-based data flow",
+    '- Never create a sub-shell (eg. powershell -c "command") unless explicitly asked',
+    "",
+    "Directory Management:",
+    "- Prefer relative paths when navigating directories, only use absolute when the path is far away or the current cwd is not expected",
+    "- Remember when isBackground=false is specified, that the shell and cwd are reused until it is moved to the background",
+    "- Use $PWD or Get-Location for current directory",
+    "- Use Push-Location/Pop-Location for directory stack",
+    "",
+    "Program Execution:",
+    "- Supports .NET, Python, Node.js, and other executables",
+    "- Install modules via Install-Module, Install-Package",
+    "- Use Get-Command to verify cmdlet/function availability",
+    "",
+    "Background Processes:",
+    "- For long-running tasks (e.g., servers), set isBackground=true",
+    "- Returns a terminal ID for checking status and runtime later",
+    "- Use Start-Job for background PowerShell jobs",
+    "",
+    "Output Management:",
+    "- Output is automatically truncated if longer than 60KB to prevent context overflow",
+    "- Use Select-Object, Where-Object, Format-Table to filter output",
+    "- Use -First/-Last parameters to limit results",
+    "- For pager commands, add | Out-String or | Format-List",
+    "",
+    "Best Practices:",
+    "- Use proper cmdlet names instead of aliases in scripts",
+    '- Quote paths with spaces: "C:\\Path With Spaces"',
+    "- Prefer PowerShell cmdlets over external commands when available",
+    "- Prefer idiomatic PowerShell like Get-ChildItem instead of dir or ls for file listings",
+    "- Use Test-Path to check file/directory existence",
+    "- Be specific with Select-Object properties to avoid excessive output",
+    "- Avoid printing credentials unless absolutely required"
+  ].join("\n");
+}
+__name(createPowerShellModelDescription, "createPowerShellModelDescription");
+const genericDescription = `
 Command Execution:
 - Use && to chain simple commands on one line
 - Prefer pipelines | over temporary files for data flow
@@ -31,25 +145,1030 @@ Best Practices:
 - Quote variables: "$var" instead of $var to handle spaces
 - Use find with -exec or xargs for file operations
 - Be specific with commands to avoid excessive output
-- Avoid printing credentials unless absolutely required`;function bt(){return["This tool allows you to execute shell commands in a persistent bash terminal session, preserving environment variables, working directory, and other context across multiple commands.",re,"- Use [[ ]] for conditional tests instead of [ ]","- Prefer $() over backticks for command substitution","- Use set -e at start of complex commands to exit on errors"].join(`
-`)}function It(){return["This tool allows you to execute shell commands in a persistent zsh terminal session, preserving environment variables, working directory, and other context across multiple commands.",re,"- Use type to check command type (builtin, function, alias)","- Use jobs, fg, bg for job control","- Use [[ ]] for conditional tests instead of [ ]","- Prefer $() over backticks for command substitution","- Use setopt errexit for strict error handling","- Take advantage of zsh globbing features (**, extended globs)"].join(`
-`)}function Tt(){return["This tool allows you to execute shell commands in a persistent fish terminal session, preserving environment variables, working directory, and other context across multiple commands.",re,"- Use type to check command type (builtin, function, alias)","- Use jobs, fg, bg for job control","- Use test expressions for conditionals (no [[ ]] syntax)","- Prefer command substitution with () syntax","- Variables are arrays by default, use $var[1] for first element","- Use set -e for strict error handling","- Take advantage of fish's autosuggestions and completions"].join(`
-`)}async function $o(y){const o=y.get(se).createInstance(K),t=await o.getCopilotShell(),i=await o.osBackend;let n;return t&&i&&ve(t,i)?n=yt(t):t&&i&&Qe(t,i)?n=It():t&&i&&ze(t,i)?n=Tt():n=bt(),{id:"run_in_terminal",toolReferenceName:oe,legacyToolReferenceFullNames:Ce,displayName:x(13773,null),modelDescription:n,userDescription:x(13774,null),source:Le.Internal,icon:fe.terminal,inputSchema:{type:"object",properties:{command:{type:"string",description:"The command to run in the terminal."},explanation:{type:"string",description:"A one-sentence description of what the command does. This will be shown to the user before the command is run."},goal:{type:"string",description:'A short description of the goal or purpose of the command (e.g., "Install dependencies", "Start development server").'},isBackground:{type:"boolean",description:`Whether the command starts a background process.
+- Avoid printing credentials unless absolutely required`;
+function createBashModelDescription() {
+  return [
+    "This tool allows you to execute shell commands in a persistent bash terminal session, preserving environment variables, working directory, and other context across multiple commands.",
+    genericDescription,
+    "- Use [[ ]] for conditional tests instead of [ ]",
+    "- Prefer $() over backticks for command substitution",
+    "- Use set -e at start of complex commands to exit on errors"
+  ].join("\n");
+}
+__name(createBashModelDescription, "createBashModelDescription");
+function createZshModelDescription() {
+  return [
+    "This tool allows you to execute shell commands in a persistent zsh terminal session, preserving environment variables, working directory, and other context across multiple commands.",
+    genericDescription,
+    "- Use type to check command type (builtin, function, alias)",
+    "- Use jobs, fg, bg for job control",
+    "- Use [[ ]] for conditional tests instead of [ ]",
+    "- Prefer $() over backticks for command substitution",
+    "- Use setopt errexit for strict error handling",
+    "- Take advantage of zsh globbing features (**, extended globs)"
+  ].join("\n");
+}
+__name(createZshModelDescription, "createZshModelDescription");
+function createFishModelDescription() {
+  return [
+    "This tool allows you to execute shell commands in a persistent fish terminal session, preserving environment variables, working directory, and other context across multiple commands.",
+    genericDescription,
+    "- Use type to check command type (builtin, function, alias)",
+    "- Use jobs, fg, bg for job control",
+    "- Use test expressions for conditionals (no [[ ]] syntax)",
+    "- Prefer command substitution with () syntax",
+    "- Variables are arrays by default, use $var[1] for first element",
+    "- Use set -e for strict error handling",
+    "- Take advantage of fish's autosuggestions and completions"
+  ].join("\n");
+}
+__name(createFishModelDescription, "createFishModelDescription");
+async function createRunInTerminalToolData(accessor) {
+  const instantiationService = accessor.get(IInstantiationService);
+  const profileFetcher = instantiationService.createInstance(TerminalProfileFetcher);
+  const shell = await profileFetcher.getCopilotShell();
+  const os = await profileFetcher.osBackend;
+  let modelDescription;
+  if (shell && os && isPowerShell(shell, os)) {
+    modelDescription = createPowerShellModelDescription(shell);
+  } else if (shell && os && isZsh(shell, os)) {
+    modelDescription = createZshModelDescription();
+  } else if (shell && os && isFish(shell, os)) {
+    modelDescription = createFishModelDescription();
+  } else {
+    modelDescription = createBashModelDescription();
+  }
+  return {
+    id: "run_in_terminal",
+    toolReferenceName: TOOL_REFERENCE_NAME,
+    legacyToolReferenceFullNames: LEGACY_TOOL_REFERENCE_FULL_NAMES,
+    displayName: localize("runInTerminalTool.displayName", "Run in Terminal"),
+    modelDescription,
+    userDescription: localize("runInTerminalTool.userDescription", "Run commands in the terminal"),
+    source: ToolDataSource.Internal,
+    icon: Codicon.terminal,
+    inputSchema: {
+      type: "object",
+      properties: {
+        command: {
+          type: "string",
+          description: "The command to run in the terminal."
+        },
+        explanation: {
+          type: "string",
+          description: "A one-sentence description of what the command does. This will be shown to the user before the command is run."
+        },
+        goal: {
+          type: "string",
+          description: 'A short description of the goal or purpose of the command (e.g., "Install dependencies", "Start development server").'
+        },
+        isBackground: {
+          type: "boolean",
+          description: `Whether the command starts a background process.
 
 - If true, a new shell will be spawned where the cwd is the workspace directory and will run asynchronously in the background and you will not see the output.
 
 - If false, a single shell is shared between all non-background terminals where the cwd starts at the workspace directory and is remembered until that terminal is moved to the background, the tool call will block on the command finishing and only then you will get the output.
 
-Examples of background processes: building in watch mode, starting a server. You can check the output of a background process later on by using get_terminal_output.`},timeout:{type:"number",description:"An optional timeout in milliseconds. When provided, the tool will stop tracking the command after this duration and return the output collected so far. Be conservative with the timeout duration, give enough time that the command would complete on a low-end machine. Use 0 for no timeout. If it's not clear how long the command will take then use 0 to avoid prematurely terminating it, never guess too low."}},required:["command","explanation","goal","isBackground","timeout"]}}}var me;(function(y){y.TerminalSession="chat.terminalSessions"})(me||(me={}));const de=["\x1B[I","\x1B[O"],he=x(13775,null);let pe=class extends ge{static{I=this}static{this.r=new Map}static getBackgroundOutput(e){const o=I.r.get(e);if(!o)throw new Error("Invalid terminal ID");return o.getOutput()}static getExecution(e){return I.r.get(e)}static removeExecution(e){const o=I.r.get(e);return o?(o.dispose(),I.r.delete(e),!0):!1}constructor(e,o,t,i,n,a,c,l,h,R,T,C,B){super(),this.s=e,this.t=o,this.u=t,this.w=i,this.y=n,this.z=a,this.C=c,this.F=l,this.G=h,this.H=R,this.I=T,this.J=C,this.L=B,this.n=new De,this.q=this.C.getEnvironment().then(r=>r?.os??ye),this.a=this.w.createInstance(Ye),this.b=this.D(this.w.createInstance(et)),this.c=this.w.createInstance(Xe),this.f=this.w.createInstance(dt),this.g=this.w.createInstance(K),this.h=[this.D(this.w.createInstance(rt)),this.D(this.w.createInstance(ct,this.b)),this.D(this.w.createInstance(at)),this.D(this.w.createInstance(lt))],this.j=[this.D(this.w.createInstance(ot,this.b,(r,$)=>this.H.info(`RunInTerminalTool#CommandLineFileWriteAnalyzer: ${r}`,$))),this.D(this.w.createInstance(tt,this.b,this.c,(r,$)=>this.H.info(`RunInTerminalTool#CommandLineAutoApproveAnalyzer: ${r}`,$))),this.D(this.w.createInstance(nt))],this.m=[this.w.createInstance(Ze),new Ge,new Ve,new Ke],this.D(X.runAndSubscribe(this.t.onDidChangeConfiguration,r=>{(!r||r.affectsConfiguration("chat.tools.terminal.enableAutoApprove"))&&this.t.getValue("chat.tools.terminal.enableAutoApprove")!==!0&&this.F.remove("chat.tools.terminal.autoApprove.warningAccepted",-1)})),this.P(),this.D(this.I.onDidDisposeInstance(r=>{for(const[$,P]of this.n.entries())r===P.instance&&this.n.delete($)})),this.D(this.s.onDidDisposeSession(r=>{for(const $ of r.sessionResource)this.U($)}))}async prepareToolInvocation(e,o){const t=e.parameters,i=e.chatSessionResource??(e.chatSessionId?te.forSession(e.chatSessionId):void 0);let n;if(i){const s=this.n.get(i);s&&!s.isBackground&&(n=s.instance)}const[a,c,l]=await Promise.all([this.q,this.g.getCopilotShell(),(async()=>{let s=await n?.getCwdResource();if(!s){const m=this.u.getLastActiveWorkspaceRoot();s=(m?this.J.getWorkspaceFolder(m)??void 0:void 0)?.uri}return s})()]),h=a===1?"pwsh":"sh",R=ee(),T=`tool-${ee()}`;let C=t.command,B;for(const s of this.h){const m=await s.rewrite({commandLine:C,cwd:l,shell:c,os:a});m&&(C=m.rewritten,B=m.forDisplay,this.H.info(`RunInTerminalTool: Command rewritten by ${s.constructor.name}: ${m.reasoning}`))}const r={kind:"terminal",terminalToolSessionId:R,terminalCommandId:T,commandLine:{original:t.command,toolEdited:C===t.command?void 0:C,forDisplay:B},cwd:l,language:h,isBackground:t.isBackground},$=je(t.command,this.z);if($)return r.alternativeRecommendation=$,{confirmationMessages:void 0,presentation:Oe.Hidden,toolSpecificData:r};const P=C??t.command,f=()=>{const s=this.t.getValue(ft.EligibleForAutoApproval);if(s&&typeof s=="object"){if(Object.prototype.hasOwnProperty.call(s,oe))return s[oe];for(const m of Ce)if(Object.prototype.hasOwnProperty.call(s,m))return s[m]}return!0},W=this.t.getValue("chat.tools.terminal.enableAutoApprove")===!0,E=this.F.getBoolean("chat.tools.terminal.autoApprove.warningAccepted",-1,!1),g=f()&&W&&E,Z={commandLine:P,cwd:l,os:a,shell:c,treeSitterLanguage:ve(c,a)?"powershell":"bash",terminalToolSessionId:R,chatSessionResource:i},D=await Promise.all(this.j.map(s=>s.analyze(Z))),z=D.map(s=>s.disclaimers).filter(s=>!!s).flatMap(s=>s);let J;if(z.length>0){const s=z.map(k=>typeof k=="string"?k:k.value),O=z.some(k=>typeof k!="string")?{supportThemeIcons:!0,isTrusted:{enabledCommands:["workbench.action.terminal.chat.openTerminalSettingsLink"]}}:{supportThemeIcons:!0};J=new ce(`$(${fe.info.id}) `+s.join(" "),O)}const Q=D.every(s=>s.isAutoApproveAllowed),j=f()&&Q?D.map(s=>s.customActions??[]).flat():void 0;let w=we(c,".exe");w==="powershell"&&(w="pwsh");const H=D.some(s=>s.isAutoApproved)&&D.every(s=>s.isAutoApproved!==!1)&&Q,q=g&&H||D.some(s=>s.forceAutoApproval);(q||W&&D.some(s=>s.autoApproveInfo))&&(r.autoApproveInfo=D.find(s=>s.autoApproveInfo)?.autoApproveInfo);const L=(r.commandLine.userEdited??r.commandLine.toolEdited??r.commandLine.original).trimStart(),v=qe(L,c,a);let M;if(v&&l){const m=(a===1?Ae.isAbsolute(v.directory):Se.isAbsolute(v.directory))?ue.from({scheme:l.scheme,authority:l.authority,path:v.directory}):ue.joinPath(l,v.directory),O=this.y.getUriLabel(m),k=L.substring(0,L.length-v.command.length);r.confirmation={commandLine:v.command,cwdLabel:O,cdPrefix:k},M=t.isBackground?x(13776,null,w,O):x(13777,null,w,O)}else r.confirmation={commandLine:L},M=t.isBackground?x(13778,null,w):x(13779,null,w);let S=v?.command??L;for(const s of this.m){const m=await s.present({commandLine:{original:t.command,forDisplay:S},shell:c,os:a});if(m){if(r.presentationOverrides={commandLine:m.commandLine,language:m.language??void 0},v&&r.confirmation?.cwdLabel?M=t.isBackground?x(13780,null,m.languageDisplayName,w,r.confirmation.cwdLabel):x(13781,null,m.languageDisplayName,w,r.confirmation.cwdLabel):M=t.isBackground?x(13782,null,m.languageDisplayName,w):x(13783,null,m.languageDisplayName,w),!m.processOtherPresenters)break;S=m.commandLine}}return{confirmationMessages:q?void 0:{title:M,message:new ce(x(13784,null,t.explanation,t.goal)),disclaimer:J,terminalCustomActions:j},toolSpecificData:r}}async invoke(e,o,t,i){const n=e.toolSpecificData;if(!n)throw new Error("toolSpecificData must be provided for this tool");const a=n.terminalCommandId;if(n.alternativeRecommendation)return{content:[{kind:"text",value:n.alternativeRecommendation}]};const c=e.parameters;this.H.debug(`RunInTerminalTool: Invoking with options ${JSON.stringify(c)}`);let l;const h=e.context?.sessionResource??te.forSession(e.context?.sessionId??"no-chat-session"),R=le(h),T=n.commandLine.userEdited??n.commandLine.toolEdited??n.commandLine.original,C=n.commandLine.userEdited!==void 0&&n.commandLine.userEdited!==n.commandLine.original,B=!C&&n.commandLine.toolEdited!==void 0&&n.commandLine.toolEdited!==n.commandLine.original;if(i.isCancellationRequested)throw new N;let r;const $=!c.isBackground&&!this.n.has(h),P=Date.now(),f=ee(),W=n.terminalToolSessionId,E=new xe;this.H.debug(`RunInTerminalTool: Creating ${c.isBackground?"background":"foreground"} terminal. termId=${f}, chatSessionId=${R}`);const g=await this.N(h,f,W,c.isBackground,i);this.M(g,h);const Z=Date.now()-P,D=await g.instance.xtermReadyPromise;if(!D)throw new Error("Instance was disposed before xterm.js was ready");const z=g.instance.capabilities.get(2);let J=0,Q=!1;E.add(D.raw.onData(d=>{de.includes(d)||(J+=d.length),Q||=d===""}));let j="",w=-1,H,q,L=!1,v=c.isBackground,M,b,S;const V=E.add(new ke(i)),s=c.timeout!==void 0?wt(c.timeout,0,Number.MAX_SAFE_INTEGER):void 0;!c.isBackground&&s!==void 0&&s>0&&this.t.getValue("chat.tools.terminal.enforceTimeoutFromModel")===!0&&(M=ae(s),M.then(()=>{V.token.isCancellationRequested||(L=!0,V.cancel())}));let m;const O=new Promise(d=>{m=d});W&&E.add(this.G.onDidContinueInBackground(d=>{if(d===W){const A=I.r.get(f);A&&A.setBackground(),v=!0,m?.()}}));let k;try{const d=this.w.createInstance(ne,R,f,g,z,c.isBackground);g.shellIntegrationQuality==="none"&&(l="$(info) Enable [shell integration](https://code.visualstudio.com/docs/terminal/shell-integration) to improve command detection"),this.H.debug(`RunInTerminalTool: Using \`${d.strategy.type}\` execute strategy for command \`${T}\``),E.add(d),I.r.set(f,d);const A=X.toPromise(d.strategy.onDidCreateStartMarker);if(E.add(d.strategy.onDidCreateStartMarker(F=>{b||(b=E.add(this.w.createInstance(it,{instance:g.instance,sessionId:e.context?.sessionId,getOutput:u=>d.getOutput(u??F)},void 0,e.context,i,T)))})),k=d.start(T,V.token,a),c.isBackground){if(this.H.debug(`RunInTerminalTool: Starting background execution \`${T}\``),await A,b&&(await X.toPromise(b.onDidFinishCommand),S=b.pollingResult),await this.f.capture(n,g.instance,a),i.isCancellationRequested)throw new N;const F=n.terminalCommandState??{};F.timestamp=F.timestamp??P,n.terminalCommandState=F;let u=C?`Note: The user manually edited the command to \`${T}\`, and that command is now running in terminal with ID=${f}`:B?`Note: The tool simplified the command to \`${T}\`, and that command is now running in terminal with ID=${f}`:`Command is running in terminal with ID=${f}`;return S&&S.modelOutputEvalResponse?u+=`
+Examples of background processes: building in watch mode, starting a server. You can check the output of a background process later on by using ${"get_terminal_output"}.`
+        },
+        timeout: {
+          type: "number",
+          description: "An optional timeout in milliseconds. When provided, the tool will stop tracking the command after this duration and return the output collected so far. Be conservative with the timeout duration, give enough time that the command would complete on a low-end machine. Use 0 for no timeout. If it's not clear how long the command will take then use 0 to avoid prematurely terminating it, never guess too low."
+        }
+      },
+      required: [
+        "command",
+        "explanation",
+        "goal",
+        "isBackground",
+        "timeout"
+      ]
+    }
+  };
+}
+__name(createRunInTerminalToolData, "createRunInTerminalToolData");
+var TerminalToolStorageKeysInternal;
+(function(TerminalToolStorageKeysInternal2) {
+  TerminalToolStorageKeysInternal2["TerminalSession"] = "chat.terminalSessions";
+})(TerminalToolStorageKeysInternal || (TerminalToolStorageKeysInternal = {}));
+const telemetryIgnoredSequences = [
+  "\x1B[I",
+  // Focus in
+  "\x1B[O"
+  // Focus out
+];
+const altBufferMessage = localize("runInTerminalTool.altBufferMessage", "The command opened the alternate buffer.");
+let RunInTerminalTool = class RunInTerminalTool2 extends Disposable {
+  static {
+    __name(this, "RunInTerminalTool");
+  }
+  static {
+    RunInTerminalTool_1 = this;
+  }
+  static {
+    this._activeExecutions = /* @__PURE__ */ new Map();
+  }
+  static getBackgroundOutput(id) {
+    const execution = RunInTerminalTool_1._activeExecutions.get(id);
+    if (!execution) {
+      throw new Error("Invalid terminal ID");
+    }
+    return execution.getOutput();
+  }
+  /**
+   * Gets an active terminal execution by ID. Returns undefined if not found.
+   * Can be used to await the completion of a background terminal command.
+   */
+  static getExecution(id) {
+    return RunInTerminalTool_1._activeExecutions.get(id);
+  }
+  /**
+   * Removes an active terminal execution by ID and disposes it.
+   * @returns true if the execution was found and removed, false otherwise.
+   */
+  static removeExecution(id) {
+    const execution = RunInTerminalTool_1._activeExecutions.get(id);
+    if (!execution) {
+      return false;
+    }
+    execution.dispose();
+    RunInTerminalTool_1._activeExecutions.delete(id);
+    return true;
+  }
+  constructor(_chatService, _configurationService, _historyService, _instantiationService, _labelService, _languageModelToolsService, _remoteAgentService, _storageService, _terminalChatService, _logService, _terminalService, _workspaceContextService, _chatWidgetService) {
+    super();
+    this._chatService = _chatService;
+    this._configurationService = _configurationService;
+    this._historyService = _historyService;
+    this._instantiationService = _instantiationService;
+    this._labelService = _labelService;
+    this._languageModelToolsService = _languageModelToolsService;
+    this._remoteAgentService = _remoteAgentService;
+    this._storageService = _storageService;
+    this._terminalChatService = _terminalChatService;
+    this._logService = _logService;
+    this._terminalService = _terminalService;
+    this._workspaceContextService = _workspaceContextService;
+    this._chatWidgetService = _chatWidgetService;
+    this._sessionTerminalAssociations = new ResourceMap();
+    this._osBackend = this._remoteAgentService.getEnvironment().then((remoteEnv) => remoteEnv?.os ?? OS);
+    this._terminalToolCreator = this._instantiationService.createInstance(ToolTerminalCreator);
+    this._treeSitterCommandParser = this._register(this._instantiationService.createInstance(TreeSitterCommandParser));
+    this._telemetry = this._instantiationService.createInstance(RunInTerminalToolTelemetry);
+    this._commandArtifactCollector = this._instantiationService.createInstance(TerminalCommandArtifactCollector);
+    this._profileFetcher = this._instantiationService.createInstance(TerminalProfileFetcher);
+    this._commandLineRewriters = [
+      this._register(this._instantiationService.createInstance(CommandLineCdPrefixRewriter)),
+      this._register(this._instantiationService.createInstance(CommandLinePwshChainOperatorRewriter, this._treeSitterCommandParser)),
+      this._register(this._instantiationService.createInstance(CommandLinePreventHistoryRewriter)),
+      this._register(this._instantiationService.createInstance(CommandLineSandboxRewriter))
+    ];
+    this._commandLineAnalyzers = [
+      this._register(this._instantiationService.createInstance(CommandLineFileWriteAnalyzer, this._treeSitterCommandParser, (message, args) => this._logService.info(`RunInTerminalTool#CommandLineFileWriteAnalyzer: ${message}`, args))),
+      this._register(this._instantiationService.createInstance(CommandLineAutoApproveAnalyzer, this._treeSitterCommandParser, this._telemetry, (message, args) => this._logService.info(`RunInTerminalTool#CommandLineAutoApproveAnalyzer: ${message}`, args))),
+      this._register(this._instantiationService.createInstance(CommandLineSandboxAnalyzer))
+    ];
+    this._commandLinePresenters = [
+      this._instantiationService.createInstance(SandboxedCommandLinePresenter),
+      new NodeCommandLinePresenter(),
+      new PythonCommandLinePresenter(),
+      new RubyCommandLinePresenter()
+    ];
+    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
+      if (!e || e.affectsConfiguration(
+        "chat.tools.terminal.enableAutoApprove"
+        /* TerminalChatAgentToolsSettingId.EnableAutoApprove */
+      )) {
+        if (this._configurationService.getValue(
+          "chat.tools.terminal.enableAutoApprove"
+          /* TerminalChatAgentToolsSettingId.EnableAutoApprove */
+        ) !== true) {
+          this._storageService.remove(
+            "chat.tools.terminal.autoApprove.warningAccepted",
+            -1
+            /* StorageScope.APPLICATION */
+          );
+        }
+      }
+    }));
+    this._restoreTerminalAssociations();
+    this._register(this._terminalService.onDidDisposeInstance((e) => {
+      for (const [sessionResource, toolTerminal] of this._sessionTerminalAssociations.entries()) {
+        if (e === toolTerminal.instance) {
+          this._sessionTerminalAssociations.delete(sessionResource);
+        }
+      }
+    }));
+    this._register(this._chatService.onDidDisposeSession((e) => {
+      for (const resource of e.sessionResource) {
+        this._cleanupSessionTerminals(resource);
+      }
+    }));
+  }
+  async prepareToolInvocation(context, token) {
+    const args = context.parameters;
+    const chatSessionResource = context.chatSessionResource ?? (context.chatSessionId ? LocalChatSessionUri.forSession(context.chatSessionId) : void 0);
+    let instance;
+    if (chatSessionResource) {
+      const toolTerminal = this._sessionTerminalAssociations.get(chatSessionResource);
+      if (toolTerminal && !toolTerminal.isBackground) {
+        instance = toolTerminal.instance;
+      }
+    }
+    const [os, shell, cwd] = await Promise.all([
+      this._osBackend,
+      this._profileFetcher.getCopilotShell(),
+      (async () => {
+        let cwd2 = await instance?.getCwdResource();
+        if (!cwd2) {
+          const activeWorkspaceRootUri = this._historyService.getLastActiveWorkspaceRoot();
+          const workspaceFolder = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
+          cwd2 = workspaceFolder?.uri;
+        }
+        return cwd2;
+      })()
+    ]);
+    const language = os === 1 ? "pwsh" : "sh";
+    const terminalToolSessionId = generateUuid();
+    const terminalCommandId = `tool-${generateUuid()}`;
+    let rewrittenCommand = args.command;
+    let forDisplayCommand = void 0;
+    for (const rewriter of this._commandLineRewriters) {
+      const rewriteResult = await rewriter.rewrite({
+        commandLine: rewrittenCommand,
+        cwd,
+        shell,
+        os
+      });
+      if (rewriteResult) {
+        rewrittenCommand = rewriteResult.rewritten;
+        forDisplayCommand = rewriteResult.forDisplay;
+        this._logService.info(`RunInTerminalTool: Command rewritten by ${rewriter.constructor.name}: ${rewriteResult.reasoning}`);
+      }
+    }
+    const toolSpecificData = {
+      kind: "terminal",
+      terminalToolSessionId,
+      terminalCommandId,
+      commandLine: {
+        original: args.command,
+        toolEdited: rewrittenCommand === args.command ? void 0 : rewrittenCommand,
+        forDisplay: forDisplayCommand
+      },
+      cwd,
+      language,
+      isBackground: args.isBackground
+    };
+    const alternativeRecommendation = getRecommendedToolsOverRunInTerminal(args.command, this._languageModelToolsService);
+    if (alternativeRecommendation) {
+      toolSpecificData.alternativeRecommendation = alternativeRecommendation;
+      return {
+        confirmationMessages: void 0,
+        presentation: ToolInvocationPresentation.Hidden,
+        toolSpecificData
+      };
+    }
+    const commandLine = rewrittenCommand ?? args.command;
+    const isEligibleForAutoApproval = /* @__PURE__ */ __name(() => {
+      const config = this._configurationService.getValue(ChatConfiguration.EligibleForAutoApproval);
+      if (config && typeof config === "object") {
+        if (Object.prototype.hasOwnProperty.call(config, TOOL_REFERENCE_NAME)) {
+          return config[TOOL_REFERENCE_NAME];
+        }
+        for (const legacyName of LEGACY_TOOL_REFERENCE_FULL_NAMES) {
+          if (Object.prototype.hasOwnProperty.call(config, legacyName)) {
+            return config[legacyName];
+          }
+        }
+      }
+      return true;
+    }, "isEligibleForAutoApproval");
+    const isAutoApproveEnabled = this._configurationService.getValue(
+      "chat.tools.terminal.enableAutoApprove"
+      /* TerminalChatAgentToolsSettingId.EnableAutoApprove */
+    ) === true;
+    const isAutoApproveWarningAccepted = this._storageService.getBoolean("chat.tools.terminal.autoApprove.warningAccepted", -1, false);
+    const isAutoApproveAllowed = isEligibleForAutoApproval() && isAutoApproveEnabled && isAutoApproveWarningAccepted;
+    const commandLineAnalyzerOptions = {
+      commandLine,
+      cwd,
+      os,
+      shell,
+      treeSitterLanguage: isPowerShell(shell, os) ? "powershell" : "bash",
+      terminalToolSessionId,
+      chatSessionResource
+    };
+    const commandLineAnalyzerResults = await Promise.all(this._commandLineAnalyzers.map((e) => e.analyze(commandLineAnalyzerOptions)));
+    const disclaimersRaw = commandLineAnalyzerResults.map((e) => e.disclaimers).filter((e) => !!e).flatMap((e) => e);
+    let disclaimer;
+    if (disclaimersRaw.length > 0) {
+      const disclaimerTexts = disclaimersRaw.map((d) => typeof d === "string" ? d : d.value);
+      const hasMarkdownDisclaimer = disclaimersRaw.some((d) => typeof d !== "string");
+      const mdOptions = hasMarkdownDisclaimer ? { supportThemeIcons: true, isTrusted: { enabledCommands: [
+        "workbench.action.terminal.chat.openTerminalSettingsLink"
+        /* TerminalChatCommandId.OpenTerminalSettingsLink */
+      ] } } : { supportThemeIcons: true };
+      disclaimer = new MarkdownString(`$(${Codicon.info.id}) ` + disclaimerTexts.join(" "), mdOptions);
+    }
+    const analyzersIsAutoApproveAllowed = commandLineAnalyzerResults.every((e) => e.isAutoApproveAllowed);
+    const customActions = isEligibleForAutoApproval() && analyzersIsAutoApproveAllowed ? commandLineAnalyzerResults.map((e) => e.customActions ?? []).flat() : void 0;
+    let shellType = basename(shell, ".exe");
+    if (shellType === "powershell") {
+      shellType = "pwsh";
+    }
+    const wouldBeAutoApproved = (
+      // Does at least one analyzer auto approve
+      commandLineAnalyzerResults.some((e) => e.isAutoApproved) && // No analyzer denies auto approval
+      commandLineAnalyzerResults.every((e) => e.isAutoApproved !== false) && // All analyzers allow auto approval
+      analyzersIsAutoApproveAllowed
+    );
+    const isFinalAutoApproved = (
+      // Is the setting enabled and the user has opted-in
+      isAutoApproveAllowed && // Would be auto-approved based on rules
+      wouldBeAutoApproved || commandLineAnalyzerResults.some((e) => e.forceAutoApproval)
+    );
+    if (isFinalAutoApproved || isAutoApproveEnabled && commandLineAnalyzerResults.some((e) => e.autoApproveInfo)) {
+      toolSpecificData.autoApproveInfo = commandLineAnalyzerResults.find((e) => e.autoApproveInfo)?.autoApproveInfo;
+    }
+    const commandToDisplay = (toolSpecificData.commandLine.userEdited ?? toolSpecificData.commandLine.toolEdited ?? toolSpecificData.commandLine.original).trimStart();
+    const extractedCd = extractCdPrefix(commandToDisplay, shell, os);
+    let confirmationTitle;
+    if (extractedCd && cwd) {
+      const isAbsolutePath = os === 1 ? win32.isAbsolute(extractedCd.directory) : posix.isAbsolute(extractedCd.directory);
+      const directoryUri = isAbsolutePath ? URI.from({ scheme: cwd.scheme, authority: cwd.authority, path: extractedCd.directory }) : URI.joinPath(cwd, extractedCd.directory);
+      const directoryLabel = this._labelService.getUriLabel(directoryUri);
+      const cdPrefix = commandToDisplay.substring(0, commandToDisplay.length - extractedCd.command.length);
+      toolSpecificData.confirmation = {
+        commandLine: extractedCd.command,
+        cwdLabel: directoryLabel,
+        cdPrefix
+      };
+      confirmationTitle = args.isBackground ? localize("runInTerminal.background.inDirectory", "Run `{0}` command in background within `{1}`?", shellType, directoryLabel) : localize("runInTerminal.inDirectory", "Run `{0}` command within `{1}`?", shellType, directoryLabel);
+    } else {
+      toolSpecificData.confirmation = {
+        commandLine: commandToDisplay
+      };
+      confirmationTitle = args.isBackground ? localize("runInTerminal.background", "Run `{0}` command in background?", shellType) : localize("runInTerminal", "Run `{0}` command?", shellType);
+    }
+    const commandForPresenter = extractedCd?.command ?? commandToDisplay;
+    let presenterInput = commandForPresenter;
+    for (const presenter of this._commandLinePresenters) {
+      const presenterResult = await presenter.present({ commandLine: { original: args.command, forDisplay: presenterInput }, shell, os });
+      if (presenterResult) {
+        toolSpecificData.presentationOverrides = {
+          commandLine: presenterResult.commandLine,
+          language: presenterResult.language ?? void 0
+        };
+        if (extractedCd && toolSpecificData.confirmation?.cwdLabel) {
+          confirmationTitle = args.isBackground ? localize("runInTerminal.presentationOverride.background.inDirectory", "Run `{0}` command in `{1}` in background within `{2}`?", presenterResult.languageDisplayName, shellType, toolSpecificData.confirmation.cwdLabel) : localize("runInTerminal.presentationOverride.inDirectory", "Run `{0}` command in `{1}` within `{2}`?", presenterResult.languageDisplayName, shellType, toolSpecificData.confirmation.cwdLabel);
+        } else {
+          confirmationTitle = args.isBackground ? localize("runInTerminal.presentationOverride.background", "Run `{0}` command in `{1}` in background?", presenterResult.languageDisplayName, shellType) : localize("runInTerminal.presentationOverride", "Run `{0}` command in `{1}`?", presenterResult.languageDisplayName, shellType);
+        }
+        if (!presenterResult.processOtherPresenters) {
+          break;
+        }
+        presenterInput = presenterResult.commandLine;
+      }
+    }
+    const confirmationMessages = isFinalAutoApproved ? void 0 : {
+      title: confirmationTitle,
+      message: new MarkdownString(localize("runInTerminal.confirmationMessage", "Explanation: {0}\n\nGoal: {1}", args.explanation, args.goal)),
+      disclaimer,
+      terminalCustomActions: customActions
+    };
+    return {
+      confirmationMessages,
+      toolSpecificData
+    };
+  }
+  async invoke(invocation, _countTokens, _progress, token) {
+    const toolSpecificData = invocation.toolSpecificData;
+    if (!toolSpecificData) {
+      throw new Error("toolSpecificData must be provided for this tool");
+    }
+    const commandId = toolSpecificData.terminalCommandId;
+    if (toolSpecificData.alternativeRecommendation) {
+      return {
+        content: [{
+          kind: "text",
+          value: toolSpecificData.alternativeRecommendation
+        }]
+      };
+    }
+    const args = invocation.parameters;
+    this._logService.debug(`RunInTerminalTool: Invoking with options ${JSON.stringify(args)}`);
+    let toolResultMessage;
+    const chatSessionResource = invocation.context?.sessionResource ?? LocalChatSessionUri.forSession(invocation.context?.sessionId ?? "no-chat-session");
+    const chatSessionId = chatSessionResourceToId(chatSessionResource);
+    const command = toolSpecificData.commandLine.userEdited ?? toolSpecificData.commandLine.toolEdited ?? toolSpecificData.commandLine.original;
+    const didUserEditCommand = toolSpecificData.commandLine.userEdited !== void 0 && toolSpecificData.commandLine.userEdited !== toolSpecificData.commandLine.original;
+    const didToolEditCommand = !didUserEditCommand && toolSpecificData.commandLine.toolEdited !== void 0 && toolSpecificData.commandLine.toolEdited !== toolSpecificData.commandLine.original;
+    if (token.isCancellationRequested) {
+      throw new CancellationError();
+    }
+    let error;
+    const isNewSession = !args.isBackground && !this._sessionTerminalAssociations.has(chatSessionResource);
+    const timingStart = Date.now();
+    const termId = generateUuid();
+    const terminalToolSessionId = toolSpecificData.terminalToolSessionId;
+    const store = new DisposableStore();
+    this._logService.debug(`RunInTerminalTool: Creating ${args.isBackground ? "background" : "foreground"} terminal. termId=${termId}, chatSessionId=${chatSessionId}`);
+    const toolTerminal = await this._initTerminal(chatSessionResource, termId, terminalToolSessionId, args.isBackground, token);
+    this._handleTerminalVisibility(toolTerminal, chatSessionResource);
+    const timingConnectMs = Date.now() - timingStart;
+    const xterm = await toolTerminal.instance.xtermReadyPromise;
+    if (!xterm) {
+      throw new Error("Instance was disposed before xterm.js was ready");
+    }
+    const commandDetection = toolTerminal.instance.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    let inputUserChars = 0;
+    let inputUserSigint = false;
+    store.add(xterm.raw.onData((data) => {
+      if (!telemetryIgnoredSequences.includes(data)) {
+        inputUserChars += data.length;
+      }
+      inputUserSigint ||= data === "";
+    }));
+    let terminalResult = "";
+    let outputLineCount = -1;
+    let exitCode;
+    let altBufferResult;
+    let didTimeout = false;
+    let didMoveToBackground = args.isBackground;
+    let timeoutPromise;
+    let outputMonitor;
+    let pollingResult;
+    const executeCancellation = store.add(new CancellationTokenSource(token));
+    const timeoutValue = args.timeout !== void 0 ? clamp(args.timeout, 0, Number.MAX_SAFE_INTEGER) : void 0;
+    if (!args.isBackground && timeoutValue !== void 0 && timeoutValue > 0) {
+      const shouldEnforceTimeout = this._configurationService.getValue(
+        "chat.tools.terminal.enforceTimeoutFromModel"
+        /* TerminalChatAgentToolsSettingId.EnforceTimeoutFromModel */
+      ) === true;
+      if (shouldEnforceTimeout) {
+        timeoutPromise = timeout(timeoutValue);
+        timeoutPromise.then(() => {
+          if (!executeCancellation.token.isCancellationRequested) {
+            didTimeout = true;
+            executeCancellation.cancel();
+          }
+        });
+      }
+    }
+    let continueInBackgroundResolve;
+    const continueInBackgroundPromise = new Promise((resolve) => {
+      continueInBackgroundResolve = resolve;
+    });
+    if (terminalToolSessionId) {
+      store.add(this._terminalChatService.onDidContinueInBackground((sessionId) => {
+        if (sessionId === terminalToolSessionId) {
+          const execution = RunInTerminalTool_1._activeExecutions.get(termId);
+          if (execution) {
+            execution.setBackground();
+          }
+          didMoveToBackground = true;
+          continueInBackgroundResolve?.();
+        }
+      }));
+    }
+    let executionPromise;
+    try {
+      const execution = this._instantiationService.createInstance(ActiveTerminalExecution, chatSessionId, termId, toolTerminal, commandDetection, args.isBackground);
+      if (toolTerminal.shellIntegrationQuality === "none") {
+        toolResultMessage = "$(info) Enable [shell integration](https://code.visualstudio.com/docs/terminal/shell-integration) to improve command detection";
+      }
+      this._logService.debug(`RunInTerminalTool: Using \`${execution.strategy.type}\` execute strategy for command \`${command}\``);
+      store.add(execution);
+      RunInTerminalTool_1._activeExecutions.set(termId, execution);
+      const startMarkerPromise = Event.toPromise(execution.strategy.onDidCreateStartMarker);
+      store.add(execution.strategy.onDidCreateStartMarker((startMarker) => {
+        if (!outputMonitor) {
+          outputMonitor = store.add(this._instantiationService.createInstance(OutputMonitor, {
+            instance: toolTerminal.instance,
+            sessionId: invocation.context?.sessionId,
+            getOutput: /* @__PURE__ */ __name((marker) => execution.getOutput(marker ?? startMarker), "getOutput")
+          }, void 0, invocation.context, token, command));
+        }
+      }));
+      executionPromise = execution.start(command, executeCancellation.token, commandId);
+      if (args.isBackground) {
+        this._logService.debug(`RunInTerminalTool: Starting background execution \`${command}\``);
+        await startMarkerPromise;
+        if (outputMonitor) {
+          await Event.toPromise(outputMonitor.onDidFinishCommand);
+          pollingResult = outputMonitor.pollingResult;
+        }
+        await this._commandArtifactCollector.capture(toolSpecificData, toolTerminal.instance, commandId);
+        if (token.isCancellationRequested) {
+          throw new CancellationError();
+        }
+        const state = toolSpecificData.terminalCommandState ?? {};
+        state.timestamp = state.timestamp ?? timingStart;
+        toolSpecificData.terminalCommandState = state;
+        let resultText2 = didUserEditCommand ? `Note: The user manually edited the command to \`${command}\`, and that command is now running in terminal with ID=${termId}` : didToolEditCommand ? `Note: The tool simplified the command to \`${command}\`, and that command is now running in terminal with ID=${termId}` : `Command is running in terminal with ID=${termId}`;
+        if (pollingResult && pollingResult.modelOutputEvalResponse) {
+          resultText2 += `
  The command became idle with output:
-${S.modelOutputEvalResponse}`:S&&(u+=`
+${pollingResult.modelOutputEvalResponse}`;
+        } else if (pollingResult) {
+          resultText2 += `
  The command is still running, with output:
-${S.output}`),{toolMetadata:{exitCode:void 0},content:[{kind:"text",value:u}]}}else{const F=await Promise.race([k.then(u=>({type:"completed",result:u})),O.then(()=>({type:"background"}))]);if(F.type==="background"){this.H.debug("RunInTerminalTool: Continue in background triggered, returning output collected so far"),r="continueInBackground";const u=d.getOutput();w=u?Y(u.trim(),`
-`)+1:0,j=u}else{const u=F.result;if(g.receivedUserInput=!1,i.isCancellationRequested)throw new N;if(u.didEnterAltBuffer){const _=n.terminalCommandState??{};_.timestamp=_.timestamp??P,n.terminalCommandState=_,l=he,w=0,r=u.error??"alternateBuffer",q={toolResultMessage:l,toolMetadata:{exitCode:void 0},content:[{kind:"text",value:he}]}}else{await this.f.capture(n,g.instance,a);{const U=n.terminalCommandState??{};U.timestamp=U.timestamp??P,u.exitCode!==void 0&&(U.exitCode=u.exitCode,U.timestamp!==void 0&&(U.duration=U.duration??Math.max(0,Date.now()-U.timestamp))),n.terminalCommandState=U}this.H.debug(`RunInTerminalTool: Finished \`${d.strategy.type}\` execute strategy with exitCode \`${u.exitCode}\`, result.length \`${u.output?.length}\`, error \`${u.error}\``),w=u.output===void 0?0:Y(u.output.trim(),`
-`)+1,H=u.exitCode,r=u.error;const _=[];u.output!==void 0&&_.push(u.output),u.additionalInformation&&_.push(u.additionalInformation),j=_.join(`
-
-`)}}}}catch(d){if(L&&d instanceof N){this.H.debug("RunInTerminalTool: Timeout reached, returning output collected so far"),r="timeout";const A=Te(g.instance,void 0);w=A?Y(A.trim(),`
-`)+1:0,j=A??""}else throw this.H.debug("RunInTerminalTool: Threw exception"),d instanceof N&&await this.f.capture(n,g.instance,a),I.r.get(f)?.dispose(),I.r.delete(f),g.instance.dispose(),r=d instanceof N?"canceled":"unexpectedException",d}finally{M?.cancel(),v&&k?k.catch(A=>{A instanceof N||this.H.error("RunInTerminalTool: Background execution error",A)}):(I.r.get(f)?.dispose(),I.r.delete(f)),E.dispose();const d=Date.now()-P;this.c.logInvoke(g.instance,{terminalToolSessionId:n.terminalToolSessionId,didUserEditCommand:C,didToolEditCommand:B,isBackground:c.isBackground,shellIntegrationQuality:g.shellIntegrationQuality,error:r,isNewSession:$,outputLineCount:w,exitCode:H,timingExecuteMs:d,timingConnectMs:Z,inputUserChars:J,inputUserSigint:Q,terminalExecutionIdleBeforeTimeout:S?.state===st.Idle,pollDurationMs:S?.pollDurationMs,inputToolManualAcceptCount:b?.outputMonitorTelemetryCounters?.inputToolManualAcceptCount,inputToolManualRejectCount:b?.outputMonitorTelemetryCounters?.inputToolManualRejectCount,inputToolManualChars:b?.outputMonitorTelemetryCounters?.inputToolManualChars,inputToolAutoAcceptCount:b?.outputMonitorTelemetryCounters?.inputToolAutoAcceptCount,inputToolAutoChars:b?.outputMonitorTelemetryCounters?.inputToolAutoChars,inputToolManualShownCount:b?.outputMonitorTelemetryCounters?.inputToolManualShownCount,inputToolFreeFormInputCount:b?.outputMonitorTelemetryCounters?.inputToolFreeFormInputCount,inputToolFreeFormInputShownCount:b?.outputMonitorTelemetryCounters?.inputToolFreeFormInputShownCount})}if(q)return q;const G=[];return C?G.push(`Note: The user manually edited the command to \`${T}\`, and this is the output of running that command instead:
-`):B&&G.push(`Note: The tool simplified the command to \`${T}\`, and this is the output of running that command instead:
-`),v&&!c.isBackground&&G.push(`Note: This terminal execution was moved to the background using the ID ${f}
-`),G.push(j),{toolResultMessage:l,toolMetadata:{exitCode:H},toolResultDetails:H!==void 0&&H!==0?{input:T,output:[{type:"embed",isText:!0,value:j}],isError:!0}:void 0,content:[{kind:"text",value:G.join("")}]}}M(e,o){const t=!!this.L.getWidgetBySessionResource(o);this.t.getValue("chat.tools.terminal.outputLocation")==="terminal"&&t&&(this.I.setActiveInstance(e.instance),this.I.revealTerminal(e.instance,!0))}async N(e,o,t,i,n){if(!i){const h=this.n.get(e);if(h&&!h.isBackground)return this.H.debug(`RunInTerminalTool: Using cached terminal with session resource \`${e}\``),this.a.refreshShellIntegrationQuality(h),this.G.registerTerminalInstanceWithToolSession(t,h.instance),h}this.H.debug(`RunInTerminalTool: Creating ${i?"background":"foreground"} terminal with ID=${o}`);const a=await this.g.getCopilotProfile(),c=await this.q,l=await this.a.createTerminal(a,c,n);if(l.isBackground=i,this.G.registerTerminalInstanceWithToolSession(t,l.instance),this.G.registerTerminalInstanceWithChatSession(e,l.instance),this.O(l),this.n.set(e,l),n.isCancellationRequested)throw l.instance.dispose(),new N;return await this.Q(l,e,o,i),l}O(e){const o=e.instance.onData(t=>{de.includes(t)||(e.receivedUserInput=t.length>0)});this.D(e.instance.onDisposed(()=>o.dispose()))}P(){const e=this.F.get("chat.terminalSessions",1,"{}");try{const o=JSON.parse(e);for(const t of this.I.instances)if(t.processId){const i=o[t.processId];if(i){const n=te.forSession(i.sessionId);this.H.debug(`RunInTerminalTool: Restored terminal association for PID ${t.processId}, session ${i.sessionId}`);const a={instance:t,shellIntegrationQuality:i.shellIntegrationQuality,isBackground:i.isBackground};this.n.set(n,a),this.G.registerTerminalInstanceWithChatSession(n,t),this.D(t.onDisposed(()=>{this.S(t.processId)}))}}}catch(o){this.H.debug(`RunInTerminalTool: Failed to restore terminal associations: ${o}`)}}async Q(e,o,t,i){await this.R(e.instance,o,t,e.shellIntegrationQuality,i),this.D(e.instance.onDisposed(()=>{e.instance.processId&&this.S(e.instance.processId)}))}async R(e,o,t,i,n){try{const a=await Promise.race([e.processReady.then(()=>e.processId),ae(5e3).then(()=>{throw new Error("Timeout")})]);if(ht(a)){const c=this.F.get("chat.terminalSessions",1,"{}"),l=JSON.parse(c),h=le(o),R=l[a]||{};l[a]={...R,sessionId:h,shellIntegrationQuality:i,id:t,isBackground:n},this.F.store("chat.terminalSessions",JSON.stringify(l),1,0),this.H.debug(`RunInTerminalTool: Associated terminal PID ${a} with session ${h}`)}}catch(a){this.H.debug(`RunInTerminalTool: Failed to associate terminal with session: ${a}`)}}async S(e){try{const o=this.F.get("chat.terminalSessions",1,"{}"),t=JSON.parse(o);t[e]&&(delete t[e],this.F.store("chat.terminalSessions",JSON.stringify(t),1,0),this.H.debug(`RunInTerminalTool: Removed terminal association for PID ${e}`))}catch(o){this.H.debug(`RunInTerminalTool: Failed to remove terminal association: ${o}`)}}U(e){const o=this.n.get(e);if(o){this.H.debug(`RunInTerminalTool: Cleaning up terminal for disposed chat session ${e}`),this.n.delete(e),o.instance.dispose();const t=[];for(const[i,n]of I.r.entries())n.instance===o.instance&&(n.dispose(),t.push(i));for(const i of t)I.r.delete(i)}}};pe=I=ie([p(0,Me),p(1,be),p(2,mt),p(3,se),p(4,Re),p(5,Be),p(6,Ie),p(7,Pe),p(8,Fe),p(9,Ee),p(10,Ue),p(11,ut),p(12,gt)],pe);let ne=class extends ge{get completionPromise(){return this.c.p}get isBackground(){return this.b}get startMarker(){return this.a}get instance(){return this.f.instance}constructor(e,o,t,i,n,a){super(),this.sessionId=e,this.termId=o,this.g=a,this.f=t,this.b=n,this.c=new $e,this.strategy=this.D(this.h(i)),this.D(this.strategy.onDidCreateStartMarker(c=>{c&&(this.a=c)}))}h(e){switch(this.f.shellIntegrationQuality){case"none":return this.g.createInstance(_e,this.f.instance,()=>this.f.receivedUserInput??!1);case"basic":return this.g.createInstance(He,this.f.instance,()=>this.f.receivedUserInput??!1,e);case"rich":return this.g.createInstance(We,this.f.instance,e)}}async start(e,o,t){try{const i=await this.strategy.execute(e,o,t);return this.c.complete(i),i}catch(i){throw this.c.error(i),i}}setForeground(){this.b=!1}setBackground(){this.b=!0}getOutput(e){return Te(this.instance,e??this.a)}};ne=ie([p(5,se)],ne);let K=class{constructor(e,o,t){this.a=e,this.b=o,this.c=t,this.osBackend=this.c.getEnvironment().then(i=>i?.os??ye)}async getCopilotProfile(){const e=await this.osBackend,o=this.f(e);if(o)return o;const t=await this.b.getDefaultProfile({os:e,remoteAuthority:this.c.getConnection()?.remoteAuthority});return we(t.path)==="cmd.exe"?{...t,path:"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",profileName:"PowerShell"}:{...t,icon:void 0}}async getCopilotShell(){return(await this.getCopilotProfile()).path}f(e){let o;switch(e){case 1:o="chat.tools.terminal.terminalProfile.windows";break;case 2:o="chat.tools.terminal.terminalProfile.osx";break;default:o="chat.tools.terminal.terminalProfile.linux";break}const t=this.a.getValue(o);if(this.g(t))return t}g(e){return e==null||typeof e!="object"?!1:!!("path"in e&&pt(e.path))}};K=ie([p(0,be),p(1,Ne),p(2,Ie)],K);export{$o as $MDc,pe as $NDc,K as $ODc};
+${pollingResult.output}`;
+        }
+        return {
+          toolMetadata: {
+            exitCode: void 0
+            // Background processes don't have immediate exit codes
+          },
+          content: [{
+            kind: "text",
+            value: resultText2
+          }]
+        };
+      } else {
+        const raceResult = await Promise.race([
+          executionPromise.then((result) => ({ type: "completed", result })),
+          continueInBackgroundPromise.then(() => ({ type: "background" }))
+        ]);
+        if (raceResult.type === "background") {
+          this._logService.debug(`RunInTerminalTool: Continue in background triggered, returning output collected so far`);
+          error = "continueInBackground";
+          const backgroundOutput = execution.getOutput();
+          outputLineCount = backgroundOutput ? count(backgroundOutput.trim(), "\n") + 1 : 0;
+          terminalResult = backgroundOutput;
+        } else {
+          const executeResult = raceResult.result;
+          toolTerminal.receivedUserInput = false;
+          if (token.isCancellationRequested) {
+            throw new CancellationError();
+          }
+          if (executeResult.didEnterAltBuffer) {
+            const state = toolSpecificData.terminalCommandState ?? {};
+            state.timestamp = state.timestamp ?? timingStart;
+            toolSpecificData.terminalCommandState = state;
+            toolResultMessage = altBufferMessage;
+            outputLineCount = 0;
+            error = executeResult.error ?? "alternateBuffer";
+            altBufferResult = {
+              toolResultMessage,
+              toolMetadata: {
+                exitCode: void 0
+              },
+              content: [{
+                kind: "text",
+                value: altBufferMessage
+              }]
+            };
+          } else {
+            await this._commandArtifactCollector.capture(toolSpecificData, toolTerminal.instance, commandId);
+            {
+              const state = toolSpecificData.terminalCommandState ?? {};
+              state.timestamp = state.timestamp ?? timingStart;
+              if (executeResult.exitCode !== void 0) {
+                state.exitCode = executeResult.exitCode;
+                if (state.timestamp !== void 0) {
+                  state.duration = state.duration ?? Math.max(0, Date.now() - state.timestamp);
+                }
+              }
+              toolSpecificData.terminalCommandState = state;
+            }
+            this._logService.debug(`RunInTerminalTool: Finished \`${execution.strategy.type}\` execute strategy with exitCode \`${executeResult.exitCode}\`, result.length \`${executeResult.output?.length}\`, error \`${executeResult.error}\``);
+            outputLineCount = executeResult.output === void 0 ? 0 : count(executeResult.output.trim(), "\n") + 1;
+            exitCode = executeResult.exitCode;
+            error = executeResult.error;
+            const resultArr = [];
+            if (executeResult.output !== void 0) {
+              resultArr.push(executeResult.output);
+            }
+            if (executeResult.additionalInformation) {
+              resultArr.push(executeResult.additionalInformation);
+            }
+            terminalResult = resultArr.join("\n\n");
+          }
+        }
+      }
+    } catch (e) {
+      if (didTimeout && e instanceof CancellationError) {
+        this._logService.debug(`RunInTerminalTool: Timeout reached, returning output collected so far`);
+        error = "timeout";
+        const timeoutOutput = getOutput(toolTerminal.instance, void 0);
+        outputLineCount = timeoutOutput ? count(timeoutOutput.trim(), "\n") + 1 : 0;
+        terminalResult = timeoutOutput ?? "";
+      } else {
+        this._logService.debug(`RunInTerminalTool: Threw exception`);
+        if (e instanceof CancellationError) {
+          await this._commandArtifactCollector.capture(toolSpecificData, toolTerminal.instance, commandId);
+        }
+        RunInTerminalTool_1._activeExecutions.get(termId)?.dispose();
+        RunInTerminalTool_1._activeExecutions.delete(termId);
+        toolTerminal.instance.dispose();
+        error = e instanceof CancellationError ? "canceled" : "unexpectedException";
+        throw e;
+      }
+    } finally {
+      timeoutPromise?.cancel();
+      if (didMoveToBackground && executionPromise) {
+        executionPromise.catch((e) => {
+          if (!(e instanceof CancellationError)) {
+            this._logService.error(`RunInTerminalTool: Background execution error`, e);
+          }
+        });
+      } else {
+        RunInTerminalTool_1._activeExecutions.get(termId)?.dispose();
+        RunInTerminalTool_1._activeExecutions.delete(termId);
+      }
+      store.dispose();
+      const timingExecuteMs = Date.now() - timingStart;
+      this._telemetry.logInvoke(toolTerminal.instance, {
+        terminalToolSessionId: toolSpecificData.terminalToolSessionId,
+        didUserEditCommand,
+        didToolEditCommand,
+        isBackground: args.isBackground,
+        shellIntegrationQuality: toolTerminal.shellIntegrationQuality,
+        error,
+        isNewSession,
+        outputLineCount,
+        exitCode,
+        timingExecuteMs,
+        timingConnectMs,
+        inputUserChars,
+        inputUserSigint,
+        terminalExecutionIdleBeforeTimeout: pollingResult?.state === OutputMonitorState.Idle,
+        pollDurationMs: pollingResult?.pollDurationMs,
+        inputToolManualAcceptCount: outputMonitor?.outputMonitorTelemetryCounters?.inputToolManualAcceptCount,
+        inputToolManualRejectCount: outputMonitor?.outputMonitorTelemetryCounters?.inputToolManualRejectCount,
+        inputToolManualChars: outputMonitor?.outputMonitorTelemetryCounters?.inputToolManualChars,
+        inputToolAutoAcceptCount: outputMonitor?.outputMonitorTelemetryCounters?.inputToolAutoAcceptCount,
+        inputToolAutoChars: outputMonitor?.outputMonitorTelemetryCounters?.inputToolAutoChars,
+        inputToolManualShownCount: outputMonitor?.outputMonitorTelemetryCounters?.inputToolManualShownCount,
+        inputToolFreeFormInputCount: outputMonitor?.outputMonitorTelemetryCounters?.inputToolFreeFormInputCount,
+        inputToolFreeFormInputShownCount: outputMonitor?.outputMonitorTelemetryCounters?.inputToolFreeFormInputShownCount
+      });
+    }
+    if (altBufferResult) {
+      return altBufferResult;
+    }
+    const resultText = [];
+    if (didUserEditCommand) {
+      resultText.push(`Note: The user manually edited the command to \`${command}\`, and this is the output of running that command instead:
+`);
+    } else if (didToolEditCommand) {
+      resultText.push(`Note: The tool simplified the command to \`${command}\`, and this is the output of running that command instead:
+`);
+    }
+    if (didMoveToBackground && !args.isBackground) {
+      resultText.push(`Note: This terminal execution was moved to the background using the ID ${termId}
+`);
+    }
+    resultText.push(terminalResult);
+    const isError = exitCode !== void 0 && exitCode !== 0;
+    return {
+      toolResultMessage,
+      toolMetadata: {
+        exitCode
+      },
+      toolResultDetails: isError ? {
+        input: command,
+        output: [{ type: "embed", isText: true, value: terminalResult }],
+        isError: true
+      } : void 0,
+      content: [{
+        kind: "text",
+        value: resultText.join("")
+      }]
+    };
+  }
+  _handleTerminalVisibility(toolTerminal, chatSessionResource) {
+    const chatSessionOpenInWidget = !!this._chatWidgetService.getWidgetBySessionResource(chatSessionResource);
+    if (this._configurationService.getValue(
+      "chat.tools.terminal.outputLocation"
+      /* TerminalChatAgentToolsSettingId.OutputLocation */
+    ) === "terminal" && chatSessionOpenInWidget) {
+      this._terminalService.setActiveInstance(toolTerminal.instance);
+      this._terminalService.revealTerminal(toolTerminal.instance, true);
+    }
+  }
+  // #region Terminal init
+  /**
+   * Initializes a terminal for command execution. For foreground mode, reuses existing cached
+   * terminal from the session. For background mode, always creates a new terminal to allow
+   * parallel execution.
+   */
+  async _initTerminal(chatSessionResource, termId, terminalToolSessionId, isBackground, token) {
+    if (!isBackground) {
+      const cachedTerminal = this._sessionTerminalAssociations.get(chatSessionResource);
+      if (cachedTerminal && !cachedTerminal.isBackground) {
+        this._logService.debug(`RunInTerminalTool: Using cached terminal with session resource \`${chatSessionResource}\``);
+        this._terminalToolCreator.refreshShellIntegrationQuality(cachedTerminal);
+        this._terminalChatService.registerTerminalInstanceWithToolSession(terminalToolSessionId, cachedTerminal.instance);
+        return cachedTerminal;
+      }
+    }
+    this._logService.debug(`RunInTerminalTool: Creating ${isBackground ? "background" : "foreground"} terminal with ID=${termId}`);
+    const profile = await this._profileFetcher.getCopilotProfile();
+    const os = await this._osBackend;
+    const toolTerminal = await this._terminalToolCreator.createTerminal(profile, os, token);
+    toolTerminal.isBackground = isBackground;
+    this._terminalChatService.registerTerminalInstanceWithToolSession(terminalToolSessionId, toolTerminal.instance);
+    this._terminalChatService.registerTerminalInstanceWithChatSession(chatSessionResource, toolTerminal.instance);
+    this._registerInputListener(toolTerminal);
+    this._sessionTerminalAssociations.set(chatSessionResource, toolTerminal);
+    if (token.isCancellationRequested) {
+      toolTerminal.instance.dispose();
+      throw new CancellationError();
+    }
+    await this._setupProcessIdAssociation(toolTerminal, chatSessionResource, termId, isBackground);
+    return toolTerminal;
+  }
+  _registerInputListener(toolTerminal) {
+    const disposable = toolTerminal.instance.onData((data) => {
+      if (!telemetryIgnoredSequences.includes(data)) {
+        toolTerminal.receivedUserInput = data.length > 0;
+      }
+    });
+    this._register(toolTerminal.instance.onDisposed(() => disposable.dispose()));
+  }
+  // #endregion
+  // #region Session management
+  _restoreTerminalAssociations() {
+    const storedAssociations = this._storageService.get("chat.terminalSessions", 1, "{}");
+    try {
+      const associations = JSON.parse(storedAssociations);
+      for (const instance of this._terminalService.instances) {
+        if (instance.processId) {
+          const association = associations[instance.processId];
+          if (association) {
+            const chatSessionResource = LocalChatSessionUri.forSession(association.sessionId);
+            this._logService.debug(`RunInTerminalTool: Restored terminal association for PID ${instance.processId}, session ${association.sessionId}`);
+            const toolTerminal = {
+              instance,
+              shellIntegrationQuality: association.shellIntegrationQuality,
+              isBackground: association.isBackground
+            };
+            this._sessionTerminalAssociations.set(chatSessionResource, toolTerminal);
+            this._terminalChatService.registerTerminalInstanceWithChatSession(chatSessionResource, instance);
+            this._register(instance.onDisposed(() => {
+              this._removeProcessIdAssociation(instance.processId);
+            }));
+          }
+        }
+      }
+    } catch (error) {
+      this._logService.debug(`RunInTerminalTool: Failed to restore terminal associations: ${error}`);
+    }
+  }
+  async _setupProcessIdAssociation(toolTerminal, chatSessionResource, termId, isBackground) {
+    await this._associateProcessIdWithSession(toolTerminal.instance, chatSessionResource, termId, toolTerminal.shellIntegrationQuality, isBackground);
+    this._register(toolTerminal.instance.onDisposed(() => {
+      if (toolTerminal.instance.processId) {
+        this._removeProcessIdAssociation(toolTerminal.instance.processId);
+      }
+    }));
+  }
+  async _associateProcessIdWithSession(terminal, chatSessionResource, id, shellIntegrationQuality, isBackground) {
+    try {
+      const pid = await Promise.race([
+        terminal.processReady.then(() => terminal.processId),
+        timeout(5e3).then(() => {
+          throw new Error("Timeout");
+        })
+      ]);
+      if (isNumber(pid)) {
+        const storedAssociations = this._storageService.get("chat.terminalSessions", 1, "{}");
+        const associations = JSON.parse(storedAssociations);
+        const sessionId = chatSessionResourceToId(chatSessionResource);
+        const existingAssociation = associations[pid] || {};
+        associations[pid] = {
+          ...existingAssociation,
+          sessionId,
+          shellIntegrationQuality,
+          id,
+          isBackground
+        };
+        this._storageService.store(
+          "chat.terminalSessions",
+          JSON.stringify(associations),
+          1,
+          0
+          /* StorageTarget.USER */
+        );
+        this._logService.debug(`RunInTerminalTool: Associated terminal PID ${pid} with session ${sessionId}`);
+      }
+    } catch (error) {
+      this._logService.debug(`RunInTerminalTool: Failed to associate terminal with session: ${error}`);
+    }
+  }
+  async _removeProcessIdAssociation(pid) {
+    try {
+      const storedAssociations = this._storageService.get("chat.terminalSessions", 1, "{}");
+      const associations = JSON.parse(storedAssociations);
+      if (associations[pid]) {
+        delete associations[pid];
+        this._storageService.store(
+          "chat.terminalSessions",
+          JSON.stringify(associations),
+          1,
+          0
+          /* StorageTarget.USER */
+        );
+        this._logService.debug(`RunInTerminalTool: Removed terminal association for PID ${pid}`);
+      }
+    } catch (error) {
+      this._logService.debug(`RunInTerminalTool: Failed to remove terminal association: ${error}`);
+    }
+  }
+  _cleanupSessionTerminals(chatSessionResource) {
+    const toolTerminal = this._sessionTerminalAssociations.get(chatSessionResource);
+    if (toolTerminal) {
+      this._logService.debug(`RunInTerminalTool: Cleaning up terminal for disposed chat session ${chatSessionResource}`);
+      this._sessionTerminalAssociations.delete(chatSessionResource);
+      toolTerminal.instance.dispose();
+      const terminalToRemove = [];
+      for (const [termId, execution] of RunInTerminalTool_1._activeExecutions.entries()) {
+        if (execution.instance === toolTerminal.instance) {
+          execution.dispose();
+          terminalToRemove.push(termId);
+        }
+      }
+      for (const termId of terminalToRemove) {
+        RunInTerminalTool_1._activeExecutions.delete(termId);
+      }
+    }
+  }
+};
+RunInTerminalTool = RunInTerminalTool_1 = __decorate([
+  __param(0, IChatService),
+  __param(1, IConfigurationService),
+  __param(2, IHistoryService),
+  __param(3, IInstantiationService),
+  __param(4, ILabelService),
+  __param(5, ILanguageModelToolsService),
+  __param(6, IRemoteAgentService),
+  __param(7, IStorageService),
+  __param(8, ITerminalChatService),
+  __param(9, ITerminalLogService),
+  __param(10, ITerminalService),
+  __param(11, IWorkspaceContextService),
+  __param(12, IChatWidgetService)
+], RunInTerminalTool);
+let ActiveTerminalExecution = class ActiveTerminalExecution2 extends Disposable {
+  static {
+    __name(this, "ActiveTerminalExecution");
+  }
+  /**
+   * The promise that resolves when the execute strategy completes. Can be awaited to get the
+   * full result with exit code.
+   */
+  get completionPromise() {
+    return this._completionDeferred.p;
+  }
+  get isBackground() {
+    return this._isBackground;
+  }
+  get startMarker() {
+    return this._startMarker;
+  }
+  get instance() {
+    return this._toolTerminal.instance;
+  }
+  constructor(sessionId, termId, toolTerminal, commandDetection, isBackground, _instantiationService) {
+    super();
+    this.sessionId = sessionId;
+    this.termId = termId;
+    this._instantiationService = _instantiationService;
+    this._toolTerminal = toolTerminal;
+    this._isBackground = isBackground;
+    this._completionDeferred = new DeferredPromise();
+    this.strategy = this._register(this._createStrategy(commandDetection));
+    this._register(this.strategy.onDidCreateStartMarker((marker) => {
+      if (marker) {
+        this._startMarker = marker;
+      }
+    }));
+  }
+  _createStrategy(commandDetection) {
+    switch (this._toolTerminal.shellIntegrationQuality) {
+      case "none":
+        return this._instantiationService.createInstance(NoneExecuteStrategy, this._toolTerminal.instance, () => this._toolTerminal.receivedUserInput ?? false);
+      case "basic":
+        return this._instantiationService.createInstance(BasicExecuteStrategy, this._toolTerminal.instance, () => this._toolTerminal.receivedUserInput ?? false, commandDetection);
+      case "rich":
+        return this._instantiationService.createInstance(RichExecuteStrategy, this._toolTerminal.instance, commandDetection);
+    }
+  }
+  /**
+   * Starts the command execution using the execute strategy.
+   * @param commandLine The command to execute
+   * @param token Cancellation token
+   * @param commandId Optional command ID for linking
+   * @returns The execution result
+   */
+  async start(commandLine, token, commandId) {
+    try {
+      const result = await this.strategy.execute(commandLine, token, commandId);
+      this._completionDeferred.complete(result);
+      return result;
+    } catch (e) {
+      this._completionDeferred.error(e);
+      throw e;
+    }
+  }
+  /**
+   * Switches this execution to foreground mode, meaning callers will await its completion.
+   */
+  setForeground() {
+    this._isBackground = false;
+  }
+  /**
+   * Switches this execution to background mode.
+   */
+  setBackground() {
+    this._isBackground = true;
+  }
+  /**
+   * Gets the current output from the terminal.
+   */
+  getOutput(marker) {
+    return getOutput(this.instance, marker ?? this._startMarker);
+  }
+};
+ActiveTerminalExecution = __decorate([
+  __param(5, IInstantiationService)
+], ActiveTerminalExecution);
+let TerminalProfileFetcher = class TerminalProfileFetcher2 {
+  static {
+    __name(this, "TerminalProfileFetcher");
+  }
+  constructor(_configurationService, _terminalProfileResolverService, _remoteAgentService) {
+    this._configurationService = _configurationService;
+    this._terminalProfileResolverService = _terminalProfileResolverService;
+    this._remoteAgentService = _remoteAgentService;
+    this.osBackend = this._remoteAgentService.getEnvironment().then((remoteEnv) => remoteEnv?.os ?? OS);
+  }
+  async getCopilotProfile() {
+    const os = await this.osBackend;
+    const customChatAgentProfile = this._getChatTerminalProfile(os);
+    if (customChatAgentProfile) {
+      return customChatAgentProfile;
+    }
+    const defaultProfile = await this._terminalProfileResolverService.getDefaultProfile({
+      os,
+      remoteAuthority: this._remoteAgentService.getConnection()?.remoteAuthority
+    });
+    if (basename(defaultProfile.path) === "cmd.exe") {
+      return {
+        ...defaultProfile,
+        path: "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        profileName: "PowerShell"
+      };
+    }
+    return { ...defaultProfile, icon: void 0 };
+  }
+  async getCopilotShell() {
+    return (await this.getCopilotProfile()).path;
+  }
+  _getChatTerminalProfile(os) {
+    let profileSetting;
+    switch (os) {
+      case 1:
+        profileSetting = "chat.tools.terminal.terminalProfile.windows";
+        break;
+      case 2:
+        profileSetting = "chat.tools.terminal.terminalProfile.osx";
+        break;
+      case 3:
+      default:
+        profileSetting = "chat.tools.terminal.terminalProfile.linux";
+        break;
+    }
+    const profile = this._configurationService.getValue(profileSetting);
+    if (this._isValidChatAgentTerminalProfile(profile)) {
+      return profile;
+    }
+    return void 0;
+  }
+  _isValidChatAgentTerminalProfile(profile) {
+    if (profile === null || profile === void 0 || typeof profile !== "object") {
+      return false;
+    }
+    if ("path" in profile && isString(profile.path)) {
+      return true;
+    }
+    return false;
+  }
+};
+TerminalProfileFetcher = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ITerminalProfileResolverService),
+  __param(2, IRemoteAgentService)
+], TerminalProfileFetcher);
+export {
+  RunInTerminalTool,
+  TerminalProfileFetcher,
+  createRunInTerminalToolData
+};
+//# sourceMappingURL=runInTerminalTool.js.map

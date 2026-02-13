@@ -1,1 +1,70 @@
-import{Event as n}from"../../../../base/common/event.js";import{$Ed as l}from"../../../../base/common/lifecycle.js";import{$s as b}from"../../../../base/common/platform.js";import{$Bh as p}from"../../../../base/common/resources.js";import{$ap as h}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$cLb as g}from"../../../../platform/userDataSync/common/userDataSync.js";import{$gBb as $}from"../../../services/views/common/viewsService.js";import{$uJb as y}from"../../extensions/common/extensions.js";import{$BL as _}from"../../../services/editor/common/editorService.js";import{$gcb as E}from"../../../services/host/browser/host.js";import{$R_b as R}from"../../../services/preferences/browser/keybindingsEditorInput.js";import{$S_b as v}from"../../../services/preferences/common/preferencesEditorInput.js";var a=function(c,e,r,o){var f=arguments.length,t=f<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,e,r,o);else for(var i=c.length-1;i>=0;i--)(s=c[i])&&(t=(f<3?s(t):f>3?s(e,r,t):s(e,r))||t);return f>3&&t&&Object.defineProperty(e,r,t),t},m=function(c,e){return function(r,o){e(r,o,c)}};let u=class extends l{constructor(e,r,o,f,t){super(),this.a=r;const s=n.filter(n.any(n.map(e.onDidActiveEditorChange,()=>this.b(e.activeEditor)),n.map(n.filter(o.onDidChangeViewContainerVisibility,i=>i.id===y&&i.visible),i=>i.id)),i=>i!==void 0);b?this.D(n.debounce(n.any(n.map(t.onDidChangeFocus,()=>"windowFocus"),n.map(s,i=>i)),(i,d)=>i?[...i,d]:[d],1e3)(i=>f.triggerSync(i,{skipIfSyncedRecently:!0}))):this.D(s(i=>f.triggerSync([i],{skipIfSyncedRecently:!0})))}b(e){if(!e)return;if(e instanceof v)return"settingsEditor";if(e instanceof R)return"keybindingsEditor";const r=e.resource;if(p(r,this.a.defaultProfile.settingsResource))return"settingsEditor";if(p(r,this.a.defaultProfile.keybindingsResource))return"keybindingsEditor"}};u=a([m(0,_),m(1,h),m(2,$),m(3,g),m(4,E)],u);export{u as $iJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IUserDataAutoSyncService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { VIEWLET_ID } from "../../extensions/common/extensions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { KeybindingsEditorInput } from "../../../services/preferences/browser/keybindingsEditorInput.js";
+import { SettingsEditor2Input } from "../../../services/preferences/common/preferencesEditorInput.js";
+let UserDataSyncTrigger = class UserDataSyncTrigger2 extends Disposable {
+  static {
+    __name(this, "UserDataSyncTrigger");
+  }
+  constructor(editorService, userDataProfilesService, viewsService, userDataAutoSyncService, hostService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    const event = Event.filter(Event.any(Event.map(editorService.onDidActiveEditorChange, () => this.getUserDataEditorInputSource(editorService.activeEditor)), Event.map(Event.filter(viewsService.onDidChangeViewContainerVisibility, (e) => e.id === VIEWLET_ID && e.visible), (e) => e.id)), (source) => source !== void 0);
+    if (isWeb) {
+      this._register(Event.debounce(Event.any(Event.map(hostService.onDidChangeFocus, () => "windowFocus"), Event.map(event, (source) => source)), (last, source) => last ? [...last, source] : [source], 1e3)((sources) => userDataAutoSyncService.triggerSync(sources, { skipIfSyncedRecently: true })));
+    } else {
+      this._register(event((source) => userDataAutoSyncService.triggerSync([source], { skipIfSyncedRecently: true })));
+    }
+  }
+  getUserDataEditorInputSource(editorInput) {
+    if (!editorInput) {
+      return void 0;
+    }
+    if (editorInput instanceof SettingsEditor2Input) {
+      return "settingsEditor";
+    }
+    if (editorInput instanceof KeybindingsEditorInput) {
+      return "keybindingsEditor";
+    }
+    const resource = editorInput.resource;
+    if (isEqual(resource, this.userDataProfilesService.defaultProfile.settingsResource)) {
+      return "settingsEditor";
+    }
+    if (isEqual(resource, this.userDataProfilesService.defaultProfile.keybindingsResource)) {
+      return "keybindingsEditor";
+    }
+    return void 0;
+  }
+};
+UserDataSyncTrigger = __decorate([
+  __param(0, IEditorService),
+  __param(1, IUserDataProfilesService),
+  __param(2, IViewsService),
+  __param(3, IUserDataAutoSyncService),
+  __param(4, IHostService)
+], UserDataSyncTrigger);
+export {
+  UserDataSyncTrigger
+};
+//# sourceMappingURL=userDataSyncTrigger.js.map

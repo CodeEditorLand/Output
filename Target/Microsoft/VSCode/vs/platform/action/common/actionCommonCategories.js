@@ -1,1 +1,13 @@
-import{localize2 as e}from"../../../nls.js";const l=Object.freeze({View:e(1817,"View"),Help:e(1818,"Help"),Test:e(1819,"Test"),File:e(1820,"File"),Preferences:e(1821,"Preferences"),Developer:e(1822,"Developer")});export{l as $to};
+import { localize2 } from "../../../nls.js";
+const Categories = Object.freeze({
+  View: localize2("view", "View"),
+  Help: localize2("help", "Help"),
+  Test: localize2("test", "Test"),
+  File: localize2("file", "File"),
+  Preferences: localize2("preferences", "Preferences"),
+  Developer: localize2({ key: "developer", comment: ["A developer on Code itself or someone diagnosing issues in Code"] }, "Developer")
+});
+export {
+  Categories
+};
+//# sourceMappingURL=actionCommonCategories.js.map

@@ -1,1 +1,47 @@
-import{$Ed as s}from"../../../../../../../base/common/lifecycle.js";import{$0Cc as p}from"../../../common/terminalSandboxService.js";var d=function(a,n,e,r){var o=arguments.length,t=o<3?n:r===null?r=Object.getOwnPropertyDescriptor(n,e):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(a,n,e,r);else for(var c=a.length-1;c>=0;c--)(i=a[c])&&(t=(o<3?i(t):o>3?i(n,e,t):i(n,e))||t);return o>3&&t&&Object.defineProperty(n,e,t),t},m=function(a,n){return function(e,r){n(e,r,a)}};let f=class extends s{constructor(n){super(),this.a=n}async rewrite(n){return!await this.a.isEnabled()||!await this.a.getSandboxConfigPath()?void 0:{rewritten:this.a.wrapCommand(n.commandLine),reasoning:"Wrapped command for sandbox execution",forDisplay:n.commandLine}}};f=d([m(0,p)],f);export{f as $KDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { ITerminalSandboxService } from "../../../common/terminalSandboxService.js";
+let CommandLineSandboxRewriter = class CommandLineSandboxRewriter2 extends Disposable {
+  static {
+    __name(this, "CommandLineSandboxRewriter");
+  }
+  constructor(_sandboxService) {
+    super();
+    this._sandboxService = _sandboxService;
+  }
+  async rewrite(options) {
+    if (!await this._sandboxService.isEnabled()) {
+      return void 0;
+    }
+    const sandboxConfigPath = await this._sandboxService.getSandboxConfigPath();
+    if (!sandboxConfigPath) {
+      return void 0;
+    }
+    const wrappedCommand = this._sandboxService.wrapCommand(options.commandLine);
+    return {
+      rewritten: wrappedCommand,
+      reasoning: "Wrapped command for sandbox execution",
+      forDisplay: options.commandLine
+      // show the command that is passed as input. In this case, the output from CommandLinePreventHistoryRewriter
+    };
+  }
+};
+CommandLineSandboxRewriter = __decorate([
+  __param(0, ITerminalSandboxService)
+], CommandLineSandboxRewriter);
+export {
+  CommandLineSandboxRewriter
+};
+//# sourceMappingURL=commandLineSandboxRewriter.js.map

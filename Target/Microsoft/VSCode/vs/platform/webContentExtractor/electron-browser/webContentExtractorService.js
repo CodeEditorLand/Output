@@ -1,1 +1,5 @@
-import{$WPc as t,$YPc as r}from"../../ipc/electron-browser/services.js";import{$HB as o,$GB as e}from"../common/webContentExtractor.js";t(e,"webContentExtractor");r(o,"sharedWebContentExtractor");
+import { registerMainProcessRemoteService, registerSharedProcessRemoteService } from "../../ipc/electron-browser/services.js";
+import { ISharedWebContentExtractorService, IWebContentExtractorService } from "../common/webContentExtractor.js";
+registerMainProcessRemoteService(IWebContentExtractorService, "webContentExtractor");
+registerSharedProcessRemoteService(ISharedWebContentExtractorService, "sharedWebContentExtractor");
+//# sourceMappingURL=webContentExtractorService.js.map

@@ -1,1 +1,92 @@
-import{$vb as a}from"../../../../base/common/errors.js";import{$K1 as m}from"./es5ClassCompat.js";import{$L1 as p}from"./position.js";import{$M1 as f}from"./range.js";var u=function(r,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,i);else for(var w=r.length-1;w>=0;w--)(c=r[w])&&(n=(s<3?c(n):s>3?c(e,t,n):c(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},o,h;(function(r){r[r.LF=1]="LF",r[r.CRLF=2]="CRLF"})(h||(h={}));let l=o=class{static isTextEdit(e){return e instanceof o?!0:!e||typeof e!="object"?!1:f.isRange(e)&&typeof e.newText=="string"}static replace(e,t){return new o(e,t)}static insert(e,t){return o.replace(new f(e,e),t)}static delete(e){return o.replace(e,"")}static setEndOfLine(e){const t=new o(new f(new p(0,0),new p(0,0)),"");return t.newEol=e,t}get range(){return this.a}set range(e){if(e&&!f.isRange(e))throw a("range");this.a=e}get newText(){return this.b||""}set newText(e){if(e&&typeof e!="string")throw a("newText");this.b=e}get newEol(){return this.c}set newEol(e){if(e&&typeof e!="number")throw a("newEol");this.c=e}constructor(e,t){this.a=e,this.b=t}toJSON(){return{range:this.range,newText:this.newText,newEol:this.c}}};l=o=u([m],l);export{l as $O1,h as EndOfLine};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var TextEdit_1;
+import { illegalArgument } from "../../../../base/common/errors.js";
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { Position } from "./position.js";
+import { Range } from "./range.js";
+var EndOfLine;
+(function(EndOfLine2) {
+  EndOfLine2[EndOfLine2["LF"] = 1] = "LF";
+  EndOfLine2[EndOfLine2["CRLF"] = 2] = "CRLF";
+})(EndOfLine || (EndOfLine = {}));
+let TextEdit = TextEdit_1 = class TextEdit2 {
+  static {
+    __name(this, "TextEdit");
+  }
+  static isTextEdit(thing) {
+    if (thing instanceof TextEdit_1) {
+      return true;
+    }
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    return Range.isRange(thing) && typeof thing.newText === "string";
+  }
+  static replace(range, newText) {
+    return new TextEdit_1(range, newText);
+  }
+  static insert(position, newText) {
+    return TextEdit_1.replace(new Range(position, position), newText);
+  }
+  static delete(range) {
+    return TextEdit_1.replace(range, "");
+  }
+  static setEndOfLine(eol) {
+    const ret = new TextEdit_1(new Range(new Position(0, 0), new Position(0, 0)), "");
+    ret.newEol = eol;
+    return ret;
+  }
+  get range() {
+    return this._range;
+  }
+  set range(value) {
+    if (value && !Range.isRange(value)) {
+      throw illegalArgument("range");
+    }
+    this._range = value;
+  }
+  get newText() {
+    return this._newText || "";
+  }
+  set newText(value) {
+    if (value && typeof value !== "string") {
+      throw illegalArgument("newText");
+    }
+    this._newText = value;
+  }
+  get newEol() {
+    return this._newEol;
+  }
+  set newEol(value) {
+    if (value && typeof value !== "number") {
+      throw illegalArgument("newEol");
+    }
+    this._newEol = value;
+  }
+  constructor(range, newText) {
+    this._range = range;
+    this._newText = newText;
+  }
+  toJSON() {
+    return {
+      range: this.range,
+      newText: this.newText,
+      newEol: this._newEol
+    };
+  }
+};
+TextEdit = TextEdit_1 = __decorate([
+  es5ClassCompat
+], TextEdit);
+export {
+  EndOfLine,
+  TextEdit
+};
+//# sourceMappingURL=textEdit.js.map

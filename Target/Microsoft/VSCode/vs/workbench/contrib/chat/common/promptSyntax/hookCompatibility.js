@@ -1,1 +1,96 @@
-import{$ab as h,$_ as d}from"../../../../../base/common/path.js";import{$sT as C,$uT as k}from"./hookSchema.js";import{$3mc as $}from"./hookClaudeCompat.js";var t;(function(o){o.Copilot="copilot",o.Claude="claude"})(t||(t={}));function b(o){const e=h(o.path).toLowerCase(),c=d(o.path);return(e==="settings.json"||e==="settings.local.json")&&c.endsWith(".claude")?t.Claude:t.Copilot}function v(o){return o===t.Claude}function y(o,e,c){const n=new Map;if(!o||typeof o!="object")return n;const s=o;if(s.version!==1)return n;const r=s.hooks;if(!r||typeof r!="object")return n;const a=r;for(const i of Object.keys(a)){const f=C(i);if(!f)continue;const l=a[i];if(!Array.isArray(l))continue;const u=[];for(const m of l){const p=k(m,e,c);p&&u.push(p)}u.length>0&&n.set(f,{hooks:u,originalId:i})}return n}function w(o,e,c,n){const s=b(o);let r;switch(s){case t.Claude:r=$(e,c,n);break;case t.Copilot:default:r=y(e,c,n);break}return{format:s,hooks:r}}function A(o){switch(o){case t.Claude:return"Claude";case t.Copilot:return"GitHub Copilot"}}export{b as $4mc,v as $5mc,y as $6mc,w as $7mc,A as $8mc,t as HookSourceFormat};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { basename, dirname } from "../../../../../base/common/path.js";
+import { normalizeHookTypeId, resolveHookCommand } from "./hookSchema.js";
+import { parseClaudeHooks } from "./hookClaudeCompat.js";
+var HookSourceFormat;
+(function(HookSourceFormat2) {
+  HookSourceFormat2["Copilot"] = "copilot";
+  HookSourceFormat2["Claude"] = "claude";
+})(HookSourceFormat || (HookSourceFormat = {}));
+function getHookSourceFormat(fileUri) {
+  const filename = basename(fileUri.path).toLowerCase();
+  const dir = dirname(fileUri.path);
+  if ((filename === "settings.json" || filename === "settings.local.json") && dir.endsWith(".claude")) {
+    return HookSourceFormat.Claude;
+  }
+  if (filename === "hooks.json") {
+    return HookSourceFormat.Copilot;
+  }
+  return HookSourceFormat.Copilot;
+}
+__name(getHookSourceFormat, "getHookSourceFormat");
+function isReadOnlyHookSource(format) {
+  return format === HookSourceFormat.Claude;
+}
+__name(isReadOnlyHookSource, "isReadOnlyHookSource");
+function parseCopilotHooks(json, workspaceRootUri, userHome) {
+  const result = /* @__PURE__ */ new Map();
+  if (!json || typeof json !== "object") {
+    return result;
+  }
+  const root = json;
+  if (root.version !== 1) {
+    return result;
+  }
+  const hooks = root.hooks;
+  if (!hooks || typeof hooks !== "object") {
+    return result;
+  }
+  const hooksObj = hooks;
+  for (const originalId of Object.keys(hooksObj)) {
+    const hookType = normalizeHookTypeId(originalId);
+    if (!hookType) {
+      continue;
+    }
+    const hookArray = hooksObj[originalId];
+    if (!Array.isArray(hookArray)) {
+      continue;
+    }
+    const commands = [];
+    for (const item of hookArray) {
+      const resolved = resolveHookCommand(item, workspaceRootUri, userHome);
+      if (resolved) {
+        commands.push(resolved);
+      }
+    }
+    if (commands.length > 0) {
+      result.set(hookType, { hooks: commands, originalId });
+    }
+  }
+  return result;
+}
+__name(parseCopilotHooks, "parseCopilotHooks");
+function parseHooksFromFile(fileUri, json, workspaceRootUri, userHome) {
+  const format = getHookSourceFormat(fileUri);
+  let hooks;
+  switch (format) {
+    case HookSourceFormat.Claude:
+      hooks = parseClaudeHooks(json, workspaceRootUri, userHome);
+      break;
+    case HookSourceFormat.Copilot:
+    default:
+      hooks = parseCopilotHooks(json, workspaceRootUri, userHome);
+      break;
+  }
+  return { format, hooks };
+}
+__name(parseHooksFromFile, "parseHooksFromFile");
+function getHookSourceFormatLabel(format) {
+  switch (format) {
+    case HookSourceFormat.Claude:
+      return "Claude";
+    case HookSourceFormat.Copilot:
+      return "GitHub Copilot";
+  }
+}
+__name(getHookSourceFormatLabel, "getHookSourceFormatLabel");
+export {
+  HookSourceFormat,
+  getHookSourceFormat,
+  getHookSourceFormatLabel,
+  isReadOnlyHookSource,
+  parseCopilotHooks,
+  parseHooksFromFile
+};
+//# sourceMappingURL=hookCompatibility.js.map

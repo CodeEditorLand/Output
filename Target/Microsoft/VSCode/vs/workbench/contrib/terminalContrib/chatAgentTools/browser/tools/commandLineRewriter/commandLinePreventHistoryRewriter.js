@@ -1,1 +1,48 @@
-import{$Ed as h}from"../../../../../../../base/common/lifecycle.js";import{$0l as a}from"../../../../../../../platform/configuration/common/configuration.js";import{$UCc as m,$TCc as p}from"../../runInTerminalHelpers.js";var s=function(n,e,r,l){var i=arguments.length,t=i<3?e:l===null?l=Object.getOwnPropertyDescriptor(e,r):l,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,e,r,l);else for(var c=n.length-1;c>=0;c--)(o=n[c])&&(t=(i<3?o(t):i>3?o(e,r,t):o(e,r))||t);return i>3&&t&&Object.defineProperty(e,r,t),t},u=function(n,e){return function(r,l){e(r,l,n)}};let f=class extends h{constructor(e){super(),this.a=e}rewrite(e){if(this.a.getValue("chat.tools.terminal.preventShellHistory")===!0&&(m(e.shell,e.os)||p(e.shell,e.os)))return{rewritten:` ${e.commandLine}`,reasoning:"Prepended with a space to exclude from shell history"}}};f=s([u(0,a)],f);export{f as $IDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../../../platform/configuration/common/configuration.js";
+import { isBash, isZsh } from "../../runInTerminalHelpers.js";
+let CommandLinePreventHistoryRewriter = class CommandLinePreventHistoryRewriter2 extends Disposable {
+  static {
+    __name(this, "CommandLinePreventHistoryRewriter");
+  }
+  constructor(_configurationService) {
+    super();
+    this._configurationService = _configurationService;
+  }
+  rewrite(options) {
+    const preventShellHistory = this._configurationService.getValue(
+      "chat.tools.terminal.preventShellHistory"
+      /* TerminalChatAgentToolsSettingId.PreventShellHistory */
+    ) === true;
+    if (!preventShellHistory) {
+      return void 0;
+    }
+    if (isBash(options.shell, options.os) || isZsh(options.shell, options.os)) {
+      return {
+        rewritten: ` ${options.commandLine}`,
+        reasoning: "Prepended with a space to exclude from shell history"
+      };
+    }
+    return void 0;
+  }
+};
+CommandLinePreventHistoryRewriter = __decorate([
+  __param(0, IConfigurationService)
+], CommandLinePreventHistoryRewriter);
+export {
+  CommandLinePreventHistoryRewriter
+};
+//# sourceMappingURL=commandLinePreventHistoryRewriter.js.map

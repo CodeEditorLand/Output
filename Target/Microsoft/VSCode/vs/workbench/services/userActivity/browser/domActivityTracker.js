@@ -1,1 +1,49 @@
-import*as e from"../../../../base/browser/dom.js";import{$T7 as m}from"../../../../base/browser/window.js";import{Event as v}from"../../../../base/common/event.js";import{$Ed as l,$Fd as p}from"../../../../base/common/lifecycle.js";const A=3e4,s=2,i={passive:!0,capture:!0};class h extends l{constructor(a){super();let o=s;const u=this.D(new e.$G8),c=this.D(new p);c.value=a.markActive();const d=()=>{++o===s&&(c.clear(),u.cancel())},n=t=>{o===s&&(c.value=a.markActive(),u.cancelAndSet(d,A,t)),o=0};this.D(v.runAndSubscribe(e.onDidRegisterWindow,({window:t,disposables:r})=>{r.add(e.$u8(t.document,"touchstart",()=>n(t),i)),r.add(e.$u8(t.document,"mousedown",()=>n(t),i)),r.add(e.$u8(t.document,"keydown",()=>n(t),i))},{window:m,disposables:this.B})),n(m)}}export{h as $wcc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+const CHECK_INTERVAL = 3e4;
+const MIN_INTERVALS_WITHOUT_ACTIVITY = 2;
+const eventListenerOptions = {
+  passive: true,
+  /** does not preventDefault() */
+  capture: true
+  /** should dispatch first (before anyone stopPropagation()) */
+};
+class DomActivityTracker extends Disposable {
+  static {
+    __name(this, "DomActivityTracker");
+  }
+  constructor(userActivityService) {
+    super();
+    let intervalsWithoutActivity = MIN_INTERVALS_WITHOUT_ACTIVITY;
+    const intervalTimer = this._register(new dom.WindowIntervalTimer());
+    const activeMutex = this._register(new MutableDisposable());
+    activeMutex.value = userActivityService.markActive();
+    const onInterval = /* @__PURE__ */ __name(() => {
+      if (++intervalsWithoutActivity === MIN_INTERVALS_WITHOUT_ACTIVITY) {
+        activeMutex.clear();
+        intervalTimer.cancel();
+      }
+    }, "onInterval");
+    const onActivity = /* @__PURE__ */ __name((targetWindow) => {
+      if (intervalsWithoutActivity === MIN_INTERVALS_WITHOUT_ACTIVITY) {
+        activeMutex.value = userActivityService.markActive();
+        intervalTimer.cancelAndSet(onInterval, CHECK_INTERVAL, targetWindow);
+      }
+      intervalsWithoutActivity = 0;
+    }, "onActivity");
+    this._register(Event.runAndSubscribe(dom.onDidRegisterWindow, ({ window, disposables }) => {
+      disposables.add(dom.addDisposableListener(window.document, "touchstart", () => onActivity(window), eventListenerOptions));
+      disposables.add(dom.addDisposableListener(window.document, "mousedown", () => onActivity(window), eventListenerOptions));
+      disposables.add(dom.addDisposableListener(window.document, "keydown", () => onActivity(window), eventListenerOptions));
+    }, { window: mainWindow, disposables: this._store }));
+    onActivity(mainWindow);
+  }
+}
+export {
+  DomActivityTracker
+};
+//# sourceMappingURL=domActivityTracker.js.map

@@ -1,1 +1,163 @@
-import{$Z$ as f}from"../../../base/browser/trustedTypes.js";import{$$b as u}from"../../../base/common/arrays.js";import{$mb as c}from"../../../base/common/errors.js";import{$xf as l}from"../../../base/common/event.js";import{$Ed as m,$Cd as g}from"../../../base/common/lifecycle.js";import{COI as d}from"../../../base/common/network.js";import{$kbb as y}from"../../../base/common/worker/webWorker.js";import{$h as b,$g as $}from"../../../nls.js";class h{static{this.a=0}createWorkerClient(e){let r;const s=++h.a;return e instanceof Worker||S(e)?r=Promise.resolve(e):r=this.b(e),new y(new O(r,s))}b(e){const r=this.getWorkerUrl(e),s=p(e.label,r,this.c(e)),o=new Worker(i?i.createScriptURL(s):s,{name:e.label,type:"module"});return L(o)}c(e){}getWorkerUrl(e){if(!e.esmModuleLocation)throw new Error("Missing esmModuleLocation in WebWorkerDescriptor");return(typeof e.esmModuleLocation=="function"?e.esmModuleLocation():e.esmModuleLocation).toString(!0)}}const i=(()=>{const t=globalThis;return typeof self=="object"&&self.constructor&&self.constructor.name==="DedicatedWorkerGlobalScope"&&t.workerttPolicy!==void 0?t.workerttPolicy:f("defaultWorkerFactory",{createScriptURL:e=>e})})();function I(t,e){if(!t.startsWith("blob:"))throw new URIError("Not a blob-url: "+t);return new Worker(i?i.createScriptURL(t):t,{...e,type:"module"})}function p(t,e,r){if(!(/^((http:)|(https:)|(file:))/.test(e)&&e.substring(0,globalThis.origin.length)!==globalThis.origin)){const o=e.lastIndexOf("?"),n=e.lastIndexOf("#",o),a=o>0?new URLSearchParams(e.substring(o+1,~n?n:void 0)):new URLSearchParams;d.addSearchParam(a,!0,!0),a.toString()?e=`${e}?${a.toString()}#${t}`:e=`${e}#${t}`}const s=new Blob([u([`/*${t}*/`,`globalThis._VSCODE_NLS_MESSAGES = ${JSON.stringify($())};`,`globalThis._VSCODE_NLS_LANGUAGE = ${JSON.stringify(b())};`,`globalThis._VSCODE_FILE_ROOT = ${JSON.stringify(globalThis._VSCODE_FILE_ROOT)};`,"const ttPolicy = globalThis.trustedTypes?.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });","globalThis.workerttPolicy = ttPolicy;",r?"try {":"",`await import(ttPolicy?.createScriptURL(${JSON.stringify(e)}) ?? ${JSON.stringify(e)});`,r?`} catch (err) { console.error(${JSON.stringify(r)}, err); throw err; }`:"","globalThis.postMessage({ type: 'vscode-worker-ready' });",`/*${t}*/`]).join("")],{type:"application/javascript"});return URL.createObjectURL(s)}function L(t){return new Promise((e,r)=>{t.onmessage=function(s){s.data.type==="vscode-worker-ready"&&(t.onmessage=null,e(t))},t.onerror=r})}function S(t){return!!t&&typeof t.then=="function"}class O extends m{constructor(e,r){super(),this.c=this.D(new l),this.onMessage=this.c.event,this.f=this.D(new l),this.onError=this.f.event,this.a=r,this.b=e,this.postMessage("-please-ignore-",[]);const s=o=>{this.f.fire(o)};this.b.then(o=>{o.onmessage=n=>{this.c.fire(n.data)},o.onmessageerror=n=>{this.f.fire(n)},typeof o.addEventListener=="function"&&o.addEventListener("error",s)}),this.D(g(()=>{this.b?.then(o=>{o.onmessage=null,o.onmessageerror=null,o.removeEventListener("error",s),o.terminate()}),this.b=null}))}getId(){return this.a}postMessage(e,r){this.b?.then(s=>{try{s.postMessage(e,r)}catch(o){c(o),c(new Error("FAILED to post message to worker",{cause:o}))}})}}export{h as $c7b,I as $d7b,O as $e7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createTrustedTypesPolicy } from "../../../base/browser/trustedTypes.js";
+import { coalesce } from "../../../base/common/arrays.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { COI } from "../../../base/common/network.js";
+import { WebWorkerClient } from "../../../base/common/worker/webWorker.js";
+import { getNLSLanguage, getNLSMessages } from "../../../nls.js";
+class WebWorkerService {
+  static {
+    __name(this, "WebWorkerService");
+  }
+  static {
+    this._workerIdPool = 0;
+  }
+  createWorkerClient(workerDescriptor) {
+    let worker;
+    const id = ++WebWorkerService._workerIdPool;
+    if (workerDescriptor instanceof Worker || isPromiseLike(workerDescriptor)) {
+      worker = Promise.resolve(workerDescriptor);
+    } else {
+      worker = this._createWorker(workerDescriptor);
+    }
+    return new WebWorkerClient(new WebWorker(worker, id));
+  }
+  _createWorker(descriptor) {
+    const workerRunnerUrl = this.getWorkerUrl(descriptor);
+    const workerUrlWithNls = getWorkerBootstrapUrl(descriptor.label, workerRunnerUrl, this._getWorkerLoadingFailedErrorMessage(descriptor));
+    const worker = new Worker(ttPolicy ? ttPolicy.createScriptURL(workerUrlWithNls) : workerUrlWithNls, { name: descriptor.label, type: "module" });
+    return whenESMWorkerReady(worker);
+  }
+  _getWorkerLoadingFailedErrorMessage(_descriptor) {
+    return void 0;
+  }
+  getWorkerUrl(descriptor) {
+    if (!descriptor.esmModuleLocation) {
+      throw new Error("Missing esmModuleLocation in WebWorkerDescriptor");
+    }
+    const uri = typeof descriptor.esmModuleLocation === "function" ? descriptor.esmModuleLocation() : descriptor.esmModuleLocation;
+    const urlStr = uri.toString(true);
+    return urlStr;
+  }
+}
+const ttPolicy = (() => {
+  const workerGlobalThis = globalThis;
+  if (typeof self === "object" && self.constructor && self.constructor.name === "DedicatedWorkerGlobalScope" && workerGlobalThis.workerttPolicy !== void 0) {
+    return workerGlobalThis.workerttPolicy;
+  } else {
+    return createTrustedTypesPolicy("defaultWorkerFactory", { createScriptURL: /* @__PURE__ */ __name((value) => value, "createScriptURL") });
+  }
+})();
+function createBlobWorker(blobUrl, options) {
+  if (!blobUrl.startsWith("blob:")) {
+    throw new URIError("Not a blob-url: " + blobUrl);
+  }
+  return new Worker(ttPolicy ? ttPolicy.createScriptURL(blobUrl) : blobUrl, { ...options, type: "module" });
+}
+__name(createBlobWorker, "createBlobWorker");
+function getWorkerBootstrapUrl(label, workerScriptUrl, workerLoadingFailedErrorMessage) {
+  if (/^((http:)|(https:)|(file:))/.test(workerScriptUrl) && workerScriptUrl.substring(0, globalThis.origin.length) !== globalThis.origin) {
+  } else {
+    const start = workerScriptUrl.lastIndexOf("?");
+    const end = workerScriptUrl.lastIndexOf("#", start);
+    const params = start > 0 ? new URLSearchParams(workerScriptUrl.substring(start + 1, ~end ? end : void 0)) : new URLSearchParams();
+    COI.addSearchParam(params, true, true);
+    const search = params.toString();
+    if (!search) {
+      workerScriptUrl = `${workerScriptUrl}#${label}`;
+    } else {
+      workerScriptUrl = `${workerScriptUrl}?${params.toString()}#${label}`;
+    }
+  }
+  const blob = new Blob([coalesce([
+    `/*${label}*/`,
+    `globalThis._VSCODE_NLS_MESSAGES = ${JSON.stringify(getNLSMessages())};`,
+    `globalThis._VSCODE_NLS_LANGUAGE = ${JSON.stringify(getNLSLanguage())};`,
+    `globalThis._VSCODE_FILE_ROOT = ${JSON.stringify(globalThis._VSCODE_FILE_ROOT)};`,
+    `const ttPolicy = globalThis.trustedTypes?.createPolicy('defaultWorkerFactory', { createScriptURL: value => value });`,
+    `globalThis.workerttPolicy = ttPolicy;`,
+    workerLoadingFailedErrorMessage ? "try {" : "",
+    `await import(ttPolicy?.createScriptURL(${JSON.stringify(workerScriptUrl)}) ?? ${JSON.stringify(workerScriptUrl)});`,
+    workerLoadingFailedErrorMessage ? `} catch (err) { console.error(${JSON.stringify(workerLoadingFailedErrorMessage)}, err); throw err; }` : "",
+    `globalThis.postMessage({ type: 'vscode-worker-ready' });`,
+    `/*${label}*/`
+  ]).join("")], { type: "application/javascript" });
+  return URL.createObjectURL(blob);
+}
+__name(getWorkerBootstrapUrl, "getWorkerBootstrapUrl");
+function whenESMWorkerReady(worker) {
+  return new Promise((resolve, reject) => {
+    worker.onmessage = function(e) {
+      if (e.data.type === "vscode-worker-ready") {
+        worker.onmessage = null;
+        resolve(worker);
+      }
+    };
+    worker.onerror = reject;
+  });
+}
+__name(whenESMWorkerReady, "whenESMWorkerReady");
+function isPromiseLike(obj) {
+  return !!obj && typeof obj.then === "function";
+}
+__name(isPromiseLike, "isPromiseLike");
+class WebWorker extends Disposable {
+  static {
+    __name(this, "WebWorker");
+  }
+  constructor(worker, id) {
+    super();
+    this._onMessage = this._register(new Emitter());
+    this.onMessage = this._onMessage.event;
+    this._onError = this._register(new Emitter());
+    this.onError = this._onError.event;
+    this.id = id;
+    this.worker = worker;
+    this.postMessage("-please-ignore-", []);
+    const errorHandler = /* @__PURE__ */ __name((ev) => {
+      this._onError.fire(ev);
+    }, "errorHandler");
+    this.worker.then((w) => {
+      w.onmessage = (ev) => {
+        this._onMessage.fire(ev.data);
+      };
+      w.onmessageerror = (ev) => {
+        this._onError.fire(ev);
+      };
+      if (typeof w.addEventListener === "function") {
+        w.addEventListener("error", errorHandler);
+      }
+    });
+    this._register(toDisposable(() => {
+      this.worker?.then((w) => {
+        w.onmessage = null;
+        w.onmessageerror = null;
+        w.removeEventListener("error", errorHandler);
+        w.terminate();
+      });
+      this.worker = null;
+    }));
+  }
+  getId() {
+    return this.id;
+  }
+  postMessage(message, transfer) {
+    this.worker?.then((w) => {
+      try {
+        w.postMessage(message, transfer);
+      } catch (err) {
+        onUnexpectedError(err);
+        onUnexpectedError(new Error(`FAILED to post message to worker`, { cause: err }));
+      }
+    });
+  }
+}
+export {
+  WebWorker,
+  WebWorkerService,
+  createBlobWorker
+};
+//# sourceMappingURL=webWorkerServiceImpl.js.map

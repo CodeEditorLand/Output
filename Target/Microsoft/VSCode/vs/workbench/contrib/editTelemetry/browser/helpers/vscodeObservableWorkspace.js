@@ -1,1 +1,100 @@
-import{$mb as g}from"../../../../../base/common/errors.js";import{$Ed as p,$Dd as b}from"../../../../../base/common/lifecycle.js";import{derived as M,mapObservableArrayCached as x,observableSignalFromEvent as h,observableValue as a,transaction as l}from"../../../../../base/common/observable.js";import{$dd as v}from"../../../../../base/common/types.js";import{$sE as c}from"../../../../../editor/common/core/text/abstractText.js";import{$YK as $}from"../../../../../editor/common/model/textModelStringEdit.js";import{$9H as R}from"../../../../../editor/common/services/model.js";import{$YKc as _,$ZKc as w}from"./observableWorkspace.js";var m=function(r,o,e,t){var i=arguments.length,s=i<3?o:t===null?t=Object.getOwnPropertyDescriptor(o,e):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,o,e,t);else for(var d=r.length-1;d>=0;d--)(n=r[d])&&(s=(i<3?n(s):i>3?n(o,e,s):n(o,e))||s);return i>3&&s&&Object.defineProperty(o,e,s),s},f=function(r,o){return function(e,t){o(e,t,r)}};let u=class extends _{get documents(){return this.b}constructor(o){super(),this.f=o,this.c=new b;const e=h(this,this.f.onModelAdded),t=h(this,this.f.onModelRemoved),i=M(this,n=>(e.read(n),t.read(n),this.f.getModels())),s=x(this,i,(n,d)=>{if(!n.isTooLargeForSyncing())return d.add(new L(n))}).recomputeInitiallyAndOnChange(this.c).map(n=>n.filter(v));this.b=s}dispose(){this.c.dispose()}};u=m([f(0,R)],u);class L extends p{get uri(){return this.textModel.uri}get value(){return this.a}get version(){return this.b}get languageId(){return this.c}constructor(o){super(),this.textModel=o,this.a=a(this,new c(this.textModel.getValue())),this.b=a(this,this.textModel.getVersionId()),this.c=a(this,this.textModel.getLanguageId()),this.D(this.textModel.onDidChangeContent(e=>{l(t=>{const i=$(e.changes);e.detailedReasons.length!==1&&g(new Error(`Unexpected number of detailed reasons: ${e.detailedReasons.length}`));const s=new w(i.replacements,e.detailedReasons[0]);this.a.set(new c(this.textModel.getValue()),t,s),this.b.set(this.textModel.getVersionId(),t)})})),this.D(this.textModel.onDidChangeLanguage(e=>{l(t=>{this.c.set(this.textModel.getLanguageId(),t)})}))}}export{u as $tLc,L as $uLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { onUnexpectedError } from "../../../../../base/common/errors.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { derived, mapObservableArrayCached, observableSignalFromEvent, observableValue, transaction } from "../../../../../base/common/observable.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { StringText } from "../../../../../editor/common/core/text/abstractText.js";
+import { offsetEditFromContentChanges } from "../../../../../editor/common/model/textModelStringEdit.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ObservableWorkspace, StringEditWithReason } from "./observableWorkspace.js";
+let VSCodeWorkspace = class VSCodeWorkspace2 extends ObservableWorkspace {
+  static {
+    __name(this, "VSCodeWorkspace");
+  }
+  get documents() {
+    return this._documents;
+  }
+  constructor(_textModelService) {
+    super();
+    this._textModelService = _textModelService;
+    this._store = new DisposableStore();
+    const onModelAdded = observableSignalFromEvent(this, this._textModelService.onModelAdded);
+    const onModelRemoved = observableSignalFromEvent(this, this._textModelService.onModelRemoved);
+    const models = derived(this, (reader) => {
+      onModelAdded.read(reader);
+      onModelRemoved.read(reader);
+      const models2 = this._textModelService.getModels();
+      return models2;
+    });
+    const documents = mapObservableArrayCached(this, models, (m, store) => {
+      if (m.isTooLargeForSyncing()) {
+        return void 0;
+      }
+      return store.add(new VSCodeDocument(m));
+    }).recomputeInitiallyAndOnChange(this._store).map((d) => d.filter(isDefined));
+    this._documents = documents;
+  }
+  dispose() {
+    this._store.dispose();
+  }
+};
+VSCodeWorkspace = __decorate([
+  __param(0, IModelService)
+], VSCodeWorkspace);
+class VSCodeDocument extends Disposable {
+  static {
+    __name(this, "VSCodeDocument");
+  }
+  get uri() {
+    return this.textModel.uri;
+  }
+  get value() {
+    return this._value;
+  }
+  get version() {
+    return this._version;
+  }
+  get languageId() {
+    return this._languageId;
+  }
+  constructor(textModel) {
+    super();
+    this.textModel = textModel;
+    this._value = observableValue(this, new StringText(this.textModel.getValue()));
+    this._version = observableValue(this, this.textModel.getVersionId());
+    this._languageId = observableValue(this, this.textModel.getLanguageId());
+    this._register(this.textModel.onDidChangeContent((e) => {
+      transaction((tx) => {
+        const edit = offsetEditFromContentChanges(e.changes);
+        if (e.detailedReasons.length !== 1) {
+          onUnexpectedError(new Error(`Unexpected number of detailed reasons: ${e.detailedReasons.length}`));
+        }
+        const change = new StringEditWithReason(edit.replacements, e.detailedReasons[0]);
+        this._value.set(new StringText(this.textModel.getValue()), tx, change);
+        this._version.set(this.textModel.getVersionId(), tx);
+      });
+    }));
+    this._register(this.textModel.onDidChangeLanguage((e) => {
+      transaction((tx) => {
+        this._languageId.set(this.textModel.getLanguageId(), tx);
+      });
+    }));
+  }
+}
+export {
+  VSCodeDocument,
+  VSCodeWorkspace
+};
+//# sourceMappingURL=vscodeObservableWorkspace.js.map

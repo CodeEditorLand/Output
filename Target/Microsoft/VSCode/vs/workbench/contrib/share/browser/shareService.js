@@ -1,1 +1,89 @@
-import{$Mdb as m}from"../../../../editor/browser/services/codeEditorService.js";import{$8E as v}from"../../../../editor/common/languageSelector.js";import{localize as d}from"../../../../nls.js";import{$wL as g}from"../../../../platform/actions/common/actions.js";import{$0n as l,$ro as $,$qo as b}from"../../../../platform/contextkey/common/contextkey.js";import{$oH as S}from"../../../../platform/label/common/label.js";import{$YH as w}from"../../../../platform/quickinput/common/quickInput.js";import{$pp as _}from"../../../../platform/telemetry/common/telemetry.js";import{$$0b as C}from"../../../browser/parts/titlebar/titlebarActions.js";import{$fP as P,$mO as L}from"../../../common/contextkeys.js";var f=function(c,e,r,i){var t=arguments.length,o=t<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,r):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,e,r,i);else for(var n=c.length-1;n>=0;n--)(s=c[n])&&(o=(t<3?s(o):t>3?s(e,r,o):s(e,r))||o);return t>3&&o&&Object.defineProperty(e,r,o),o},a=function(c,e){return function(r,i){e(r,i,c)}};const p=new b("shareProviderCount",0,d(12598,null));let h=class{constructor(e,r,i,t,o){this.d=e,this.e=r,this.f=i,this.g=t,this.h=o,this.c=new Set,this.providerCount=p.bindTo(this.d)}registerShareProvider(e){return this.c.add(e),this.providerCount.set(this.c.size),{dispose:()=>{this.c.delete(e),this.providerCount.set(this.c.size)}}}getShareActions(){return[]}async provideShare(e,r){const i=this.g.getActiveCodeEditor()?.getModel()?.getLanguageId()??"",t=[...this.c.values()].filter(n=>v(n.selector,e.resourceUri,i,!0,void 0,void 0)>0).sort((n,u)=>n.priority-u.priority);if(t.length===0)return;if(t.length===1)return this.h.publicLog2("shareService.share",{providerId:t[0].id}),t[0].provideShare(e,r);const o=t.map(n=>({label:n.label,provider:n})),s=await this.f.pick(o,{canPickMany:!1,placeHolder:d(12599,null,this.e.getUriLabel(e.resourceUri))},r);if(s!==void 0)return this.h.publicLog2("shareService.share",{providerId:s.provider.id}),s.provider.provideShare(e,r)}};h=f([a(0,$),a(1,S),a(2,w),a(3,m),a(4,_)],h);g(class extends C{constructor(){super("workbench.experimental.share.enabled",d(12600,null),d(12601,null),3,l.and(P.toNegated(),l.has("config.window.commandCenter"),l.and(p.notEqualsTo(0),L.notEqualsTo(0))))}});export{p as $QKc,h as $RKc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { score } from "../../../../editor/common/languageSelector.js";
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ToggleTitleBarConfigAction } from "../../../browser/parts/titlebar/titlebarActions.js";
+import { IsCompactTitleBarContext, WorkspaceFolderCountContext } from "../../../common/contextkeys.js";
+const ShareProviderCountContext = new RawContextKey("shareProviderCount", 0, localize("shareProviderCount", "The number of available share providers"));
+let ShareService = class ShareService2 {
+  static {
+    __name(this, "ShareService");
+  }
+  constructor(contextKeyService, labelService, quickInputService, codeEditorService, telemetryService) {
+    this.contextKeyService = contextKeyService;
+    this.labelService = labelService;
+    this.quickInputService = quickInputService;
+    this.codeEditorService = codeEditorService;
+    this.telemetryService = telemetryService;
+    this._providers = /* @__PURE__ */ new Set();
+    this.providerCount = ShareProviderCountContext.bindTo(this.contextKeyService);
+  }
+  registerShareProvider(provider) {
+    this._providers.add(provider);
+    this.providerCount.set(this._providers.size);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._providers.delete(provider);
+        this.providerCount.set(this._providers.size);
+      }, "dispose")
+    };
+  }
+  getShareActions() {
+    return [];
+  }
+  async provideShare(item, token) {
+    const language = this.codeEditorService.getActiveCodeEditor()?.getModel()?.getLanguageId() ?? "";
+    const providers = [...this._providers.values()].filter((p) => score(p.selector, item.resourceUri, language, true, void 0, void 0) > 0).sort((a, b) => a.priority - b.priority);
+    if (providers.length === 0) {
+      return void 0;
+    }
+    if (providers.length === 1) {
+      this.telemetryService.publicLog2("shareService.share", { providerId: providers[0].id });
+      return providers[0].provideShare(item, token);
+    }
+    const items = providers.map((p) => ({ label: p.label, provider: p }));
+    const selected = await this.quickInputService.pick(items, { canPickMany: false, placeHolder: localize("type to filter", "Choose how to share {0}", this.labelService.getUriLabel(item.resourceUri)) }, token);
+    if (selected !== void 0) {
+      this.telemetryService.publicLog2("shareService.share", { providerId: selected.provider.id });
+      return selected.provider.provideShare(item, token);
+    }
+    return;
+  }
+};
+ShareService = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, ILabelService),
+  __param(2, IQuickInputService),
+  __param(3, ICodeEditorService),
+  __param(4, ITelemetryService)
+], ShareService);
+registerAction2(class ToggleShareControl extends ToggleTitleBarConfigAction {
+  static {
+    __name(this, "ToggleShareControl");
+  }
+  constructor() {
+    super("workbench.experimental.share.enabled", localize("toggle.share", "Share"), localize("toggle.shareDescription", "Toggle visibility of the Share action in title bar"), 3, ContextKeyExpr.and(IsCompactTitleBarContext.toNegated(), ContextKeyExpr.has("config.window.commandCenter"), ContextKeyExpr.and(ShareProviderCountContext.notEqualsTo(0), WorkspaceFolderCountContext.notEqualsTo(0))));
+  }
+});
+export {
+  ShareProviderCountContext,
+  ShareService
+};
+//# sourceMappingURL=shareService.js.map

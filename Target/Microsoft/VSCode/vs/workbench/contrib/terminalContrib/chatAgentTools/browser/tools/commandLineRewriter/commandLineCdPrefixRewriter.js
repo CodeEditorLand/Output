@@ -1,1 +1,31 @@
-import{$Ed as c}from"../../../../../../../base/common/lifecycle.js";import{$2Cc as a}from"../../runInTerminalHelpers.js";class i extends c{rewrite(e){if(!e.cwd)return;const r=a(e.commandLine,e.shell,e.os);if(r){let d=r.directory.replace(/(?:[\\\/])$/,""),t=e.cwd.fsPath.replace(/(?:[\\\/])$/,"");if(e.os===1&&(d=d.toLowerCase(),t=t.toLowerCase()),d===t)return{rewritten:r.command,reasoning:"Removed redundant cd command"}}}}export{i as $HDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { extractCdPrefix } from "../../runInTerminalHelpers.js";
+class CommandLineCdPrefixRewriter extends Disposable {
+  static {
+    __name(this, "CommandLineCdPrefixRewriter");
+  }
+  rewrite(options) {
+    if (!options.cwd) {
+      return void 0;
+    }
+    const extracted = extractCdPrefix(options.commandLine, options.shell, options.os);
+    if (extracted) {
+      let cdDirPath = extracted.directory.replace(/(?:[\\\/])$/, "");
+      let cwdFsPath = options.cwd.fsPath.replace(/(?:[\\\/])$/, "");
+      if (options.os === 1) {
+        cdDirPath = cdDirPath.toLowerCase();
+        cwdFsPath = cwdFsPath.toLowerCase();
+      }
+      if (cdDirPath === cwdFsPath) {
+        return { rewritten: extracted.command, reasoning: "Removed redundant cd command" };
+      }
+    }
+    return void 0;
+  }
+}
+export {
+  CommandLineCdPrefixRewriter
+};
+//# sourceMappingURL=commandLineCdPrefixRewriter.js.map

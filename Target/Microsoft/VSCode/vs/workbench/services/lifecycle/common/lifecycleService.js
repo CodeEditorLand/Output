@@ -1,1 +1,133 @@
-import{$xf as h}from"../../../../base/common/event.js";import{$8h as m}from"../../../../base/common/async.js";import{$Ed as p}from"../../../../base/common/lifecycle.js";import{$YN as w}from"./lifecycle.js";import{$yo as d}from"../../../../platform/log/common/log.js";import{$V as b}from"../../../../base/common/performance.js";import{$hp as S,WillSaveStateReason as $}from"../../../../platform/storage/common/storage.js";var l=function(r,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,i);else for(var c=r.length-1;c>=0;c--)(a=r[c])&&(s=(o<3?a(s):o>3?a(t,e,s):a(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},f=function(r,t){return function(e,i){t(e,i,r)}},n;let u=class extends p{static{n=this}static{this.a="lifecyle.lastShutdownReason"}get startupKind(){return this.j}get phase(){return this.m}get willShutdown(){return this.n}constructor(t,e){super(),this.s=t,this.t=e,this.b=this.D(new h),this.onBeforeShutdown=this.b.event,this.c=this.D(new h),this.onWillShutdown=this.c.event,this.f=this.D(new h),this.onDidShutdown=this.f.event,this.g=this.D(new h),this.onBeforeShutdownError=this.g.event,this.h=this.D(new h),this.onShutdownVeto=this.h.event,this.m=1,this.n=!1,this.q=new Map,this.j=this.u(),this.D(this.t.onWillSaveState(i=>{i.reason===$.SHUTDOWN&&this.t.store(n.a,this.r,1,1)}))}u(){const t=this.w()??1;return this.s.trace(`[lifecycle] starting up (startup kind: ${t})`),t}w(){const t=this.t.getNumber(n.a,1);this.t.remove(n.a,1);let e;switch(t){case 3:e=3;break;case 4:e=4;break}return e}set phase(t){if(t<this.phase)throw new Error("Lifecycle cannot go backwards");if(this.m===t)return;this.s.trace(`lifecycle: phase changed (value: ${t})`),this.m=t,b(`code/LifecyclePhase/${w(t)}`);const e=this.q.get(this.m);e&&(e.open(),this.q.delete(this.m))}async when(t){if(t<=this.m)return;let e=this.q.get(t);e||(e=new m,this.q.set(t,e)),await e.wait()}};u=n=l([f(0,d),f(1,S)],u);export{u as $xBb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var AbstractLifecycleService_1;
+import { Emitter } from "../../../../base/common/event.js";
+import { Barrier } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { LifecyclePhaseToString } from "./lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { mark } from "../../../../base/common/performance.js";
+import { IStorageService, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
+let AbstractLifecycleService = class AbstractLifecycleService2 extends Disposable {
+  static {
+    __name(this, "AbstractLifecycleService");
+  }
+  static {
+    AbstractLifecycleService_1 = this;
+  }
+  static {
+    this.LAST_SHUTDOWN_REASON_KEY = "lifecyle.lastShutdownReason";
+  }
+  get startupKind() {
+    return this._startupKind;
+  }
+  get phase() {
+    return this._phase;
+  }
+  get willShutdown() {
+    return this._willShutdown;
+  }
+  constructor(logService, storageService) {
+    super();
+    this.logService = logService;
+    this.storageService = storageService;
+    this._onBeforeShutdown = this._register(new Emitter());
+    this.onBeforeShutdown = this._onBeforeShutdown.event;
+    this._onWillShutdown = this._register(new Emitter());
+    this.onWillShutdown = this._onWillShutdown.event;
+    this._onDidShutdown = this._register(new Emitter());
+    this.onDidShutdown = this._onDidShutdown.event;
+    this._onBeforeShutdownError = this._register(new Emitter());
+    this.onBeforeShutdownError = this._onBeforeShutdownError.event;
+    this._onShutdownVeto = this._register(new Emitter());
+    this.onShutdownVeto = this._onShutdownVeto.event;
+    this._phase = 1;
+    this._willShutdown = false;
+    this.phaseWhen = /* @__PURE__ */ new Map();
+    this._startupKind = this.resolveStartupKind();
+    this._register(this.storageService.onWillSaveState((e) => {
+      if (e.reason === WillSaveStateReason.SHUTDOWN) {
+        this.storageService.store(
+          AbstractLifecycleService_1.LAST_SHUTDOWN_REASON_KEY,
+          this.shutdownReason,
+          1,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      }
+    }));
+  }
+  resolveStartupKind() {
+    const startupKind = this.doResolveStartupKind() ?? 1;
+    this.logService.trace(`[lifecycle] starting up (startup kind: ${startupKind})`);
+    return startupKind;
+  }
+  doResolveStartupKind() {
+    const lastShutdownReason = this.storageService.getNumber(
+      AbstractLifecycleService_1.LAST_SHUTDOWN_REASON_KEY,
+      1
+      /* StorageScope.WORKSPACE */
+    );
+    this.storageService.remove(
+      AbstractLifecycleService_1.LAST_SHUTDOWN_REASON_KEY,
+      1
+      /* StorageScope.WORKSPACE */
+    );
+    let startupKind = void 0;
+    switch (lastShutdownReason) {
+      case 3:
+        startupKind = 3;
+        break;
+      case 4:
+        startupKind = 4;
+        break;
+    }
+    return startupKind;
+  }
+  set phase(value) {
+    if (value < this.phase) {
+      throw new Error("Lifecycle cannot go backwards");
+    }
+    if (this._phase === value) {
+      return;
+    }
+    this.logService.trace(`lifecycle: phase changed (value: ${value})`);
+    this._phase = value;
+    mark(`code/LifecyclePhase/${LifecyclePhaseToString(value)}`);
+    const barrier = this.phaseWhen.get(this._phase);
+    if (barrier) {
+      barrier.open();
+      this.phaseWhen.delete(this._phase);
+    }
+  }
+  async when(phase) {
+    if (phase <= this._phase) {
+      return;
+    }
+    let barrier = this.phaseWhen.get(phase);
+    if (!barrier) {
+      barrier = new Barrier();
+      this.phaseWhen.set(phase, barrier);
+    }
+    await barrier.wait();
+  }
+};
+AbstractLifecycleService = AbstractLifecycleService_1 = __decorate([
+  __param(0, ILogService),
+  __param(1, IStorageService)
+], AbstractLifecycleService);
+export {
+  AbstractLifecycleService
+};
+//# sourceMappingURL=lifecycleService.js.map

@@ -1,1 +1,427 @@
-import{$bc as F}from"../../../../../base/common/arrays.js";import{$jk as b}from"../../../../../base/common/htmlContent.js";import{$Ed as I,$Md as L,$Dd as B}from"../../../../../base/common/lifecycle.js";import{transaction as k}from"../../../../../base/common/observable.js";import{$Ih as $}from"../../../../../base/common/resources.js";import{$Uf as q}from"../../../../../base/common/strings.js";import{ThemeIcon as E}from"../../../../../base/common/themables.js";import{localize as n}from"../../../../../nls.js";import{$0n as K}from"../../../../../platform/contextkey/common/contextkey.js";import{$Iz as S}from"../../../../../platform/extensions/common/extensions.js";import{$Kj as _}from"../../../../../platform/instantiation/common/descriptors.js";import{$Vn as W}from"../../../../../platform/product/common/productService.js";import{$jm as A}from"../../../../../platform/registry/common/platform.js";import{Extensions as O}from"../../../../services/extensionManagement/common/extensionFeatures.js";import{$QR as p}from"../../../../services/extensions/common/extensions.js";import*as C from"../../../../services/extensions/common/extensionsRegistry.js";import{$bU as z,ToolDataSource as N}from"./languageModelToolsService.js";import{$d3b as H}from"./languageModelToolsParametersSchema.js";var M=function(s,o,r,c){var a=arguments.length,e=a<3?o:c===null?c=Object.getOwnPropertyDescriptor(o,r):c,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,o,r,c);else for(var l=s.length-1;l>=0;l--)(t=s[l])&&(e=(a<3?t(e):a>3?t(o,r,e):t(o,r))||e);return a>3&&e&&Object.defineProperty(o,r,e),e},P=function(s,o){return function(r,c){o(r,c,s)}};const j=C.$KR.registerExtensionPoint({extensionPoint:"languageModelTools",activationEventsGenerator:function*(s){for(const o of s)yield`onLanguageModelTool:${o.name}`},jsonSchema:{description:n(7109,null),type:"array",items:{additionalProperties:!1,type:"object",defaultSnippets:[{body:{name:"${1}",modelDescription:"${2}",inputSchema:{type:"object",properties:{"${3:name}":{type:"string",description:"${4:description}"}}}}}],required:["name","displayName","modelDescription"],properties:{name:{description:n(7110,null),type:"string",pattern:"^(?!copilot_|vscode_)[\\w-]+$"},toolReferenceName:{markdownDescription:n(7111,null,"`canBeReferencedInPrompt`"),type:"string",pattern:"^[\\w-]+$"},displayName:{description:n(7112,null),type:"string"},userDescription:{description:n(7113,null),type:"string"},modelDescription:{description:n(7114,null),type:"string"},inputSchema:{description:n(7115,null),$ref:H},canBeReferencedInPrompt:{markdownDescription:n(7116,null,"`ChatRequest#toolReferences`"),type:"boolean"},icon:{markdownDescription:n(7117,null),anyOf:[{type:"string"},{type:"object",properties:{light:{description:n(7118,null),type:"string"},dark:{description:n(7119,null),type:"string"}}}]},when:{markdownDescription:n(7120,null),type:"string"},tags:{description:n(7121,null),type:"array",items:{type:"string",pattern:"^(?!copilot_|vscode_)"}}}}}}),J=C.$KR.registerExtensionPoint({extensionPoint:"languageModelToolSets",deps:[j],jsonSchema:{description:n(7122,null),type:"array",items:{additionalProperties:!1,type:"object",defaultSnippets:[{body:{name:"${1}",description:"${2}",tools:["${3}"]}}],required:["name","description","tools"],properties:{name:{description:n(7123,null),type:"string",pattern:"^[\\w-]+$"},description:{description:n(7124,null),type:"string"},icon:{markdownDescription:n(7125,null),type:"string"},tools:{markdownDescription:n(7126,null),type:"array",minItems:1,items:{type:"string"}}}}}});function D(s,o){return`${s.value}/${o}`}function T(s,o){return`toolset:${s.value}/${o}`}let R=class{static{this.ID="workbench.contrib.toolsExtensionPointHandler"}constructor(o,r){this.a=new L,j.setHandler((c,a)=>{for(const e of a.added)for(const t of e.value){if(!t.name||!t.modelDescription||!t.displayName){e.collector.error(`Extension '${e.description.identifier.value}' CANNOT register tool without name, modelDescription, and displayName: ${JSON.stringify(t)}`);continue}if(!t.name.match(/^[\w-]+$/)){e.collector.error(`Extension '${e.description.identifier.value}' CANNOT register tool with invalid id: ${t.name}. The id must match /^[\\w-]+$/.`);continue}if(t.canBeReferencedInPrompt&&!t.toolReferenceName){e.collector.error(`Extension '${e.description.identifier.value}' CANNOT register tool with 'canBeReferencedInPrompt' set without a 'toolReferenceName': ${JSON.stringify(t)}`);continue}if((t.name.startsWith("copilot_")||t.name.startsWith("vscode_"))&&!p(e.description,"chatParticipantPrivate")){e.collector.error(`Extension '${e.description.identifier.value}' CANNOT register tool with name starting with "vscode_" or "copilot_"`);continue}if(t.tags?.some(d=>d.startsWith("copilot_")||d.startsWith("vscode_"))&&!p(e.description,"chatParticipantPrivate")&&e.collector.error(`Extension '${e.description.identifier.value}' CANNOT register tool with tags starting with "vscode_" or "copilot_"`),t.legacyToolReferenceFullNames&&!p(e.description,"chatParticipantPrivate")){e.collector.error(`Extension '${e.description.identifier.value}' CANNOT use 'legacyToolReferenceFullNames' without the 'chatParticipantPrivate' API proposal enabled`);continue}const l=t.icon;let i;typeof l=="string"?i=E.fromString(l)??{dark:$(e.description.extensionLocation,l),light:$(e.description.extensionLocation,l)}:l&&(i={dark:$(e.description.extensionLocation,l.dark),light:$(e.description.extensionLocation,l.light)});const u=o.defaultChatAgent?.chatExtensionId?S.equals(e.description.identifier,o.defaultChatAgent.chatExtensionId):p(e.description,"chatParticipantPrivate"),h=u?N.Internal:{type:"extension",label:e.description.displayName??e.description.name,extensionId:e.description.identifier},m={...t,source:h,inputSchema:t.inputSchema,id:t.name,icon:i,when:t.when?K.deserialize(t.when):void 0,alwaysDisplayInputOutput:!u};try{const d=r.registerToolData(m);this.a.set(D(e.description.identifier,t.name),d)}catch(d){e.collector.error(`Failed to register tool '${t.name}': ${d}`)}}for(const e of a.removed)for(const t of e.value)this.a.deleteAndDispose(D(e.description.identifier,t.name))}),J.setHandler((c,a)=>{for(const e of a.added){if(!p(e.description,"contribLanguageModelToolSets")){e.collector.error(`Extension '${e.description.identifier.value}' CANNOT register language model tools because the 'contribLanguageModelToolSets' API proposal is not enabled.`);continue}const t=o.defaultChatAgent?.chatExtensionId?S.equals(e.description.identifier,o.defaultChatAgent.chatExtensionId):p(e.description,"chatParticipantPrivate"),l=t?N.Internal:{type:"extension",label:e.description.displayName??e.description.name,extensionId:e.description.identifier};for(const i of e.value){if(q(i.name)){e.collector.error(`Tool set '${i.name}' CANNOT have an empty name`);continue}if(i.legacyFullNames&&!p(e.description,"contribLanguageModelToolSets")){e.collector.error(`Tool set '${i.name}' CANNOT use 'legacyFullNames' without the 'contribLanguageModelToolSets' API proposal enabled`);continue}if(F(i.tools)){e.collector.error(`Tool set '${i.name}' CANNOT have an empty tools array`);continue}const u=[],h=[];for(const f of i.tools){const g=r.getToolByName(f);if(g){u.push(g);continue}const v=r.getToolSetByName(f);if(v){h.push(v);continue}e.collector.warn(`Tool set '${i.name}' CANNOT find tool or tool set by name: ${f}`)}if(h.length===0&&u.length===0){e.collector.error(`Tool set '${i.name}' CANNOT have an empty tools array (none of the tools were found)`);continue}const m=new B,d=i.referenceName??i.name,w=r.getToolSetByName(d),x=t&&w?.source===N.Internal;let y;x?y=w:y=r.createToolSet(l,T(e.description.identifier,i.name),d,{icon:i.icon?E.fromString(i.icon):void 0,description:i.description,legacyFullNames:i.legacyFullNames}),k(f=>{x||m.add(y),u.forEach(g=>m.add(y.addTool(g,f))),h.forEach(g=>m.add(y.addToolSet(g,f)))}),this.a.set(T(e.description.identifier,i.name),m)}}for(const e of a.removed)for(const t of e.value)this.a.deleteAndDispose(T(e.description.identifier,t.name))})}};R=M([P(0,W),P(1,z)],R);class U extends I{constructor(){super(...arguments),this.type="table"}shouldRender(o){return!!o.contributes?.languageModelTools}render(o){const r=o.contributes?.languageModelTools??[];if(!r.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const c=[n(7127,null),n(7128,null),n(7129,null)],a=r.map(e=>[new b(`\`${e.name}\``),e.displayName,e.userDescription??e.modelDescription]);return{data:{headers:c,rows:a},dispose:()=>{}}}}A.as(O.ExtensionFeaturesRegistry).registerExtensionFeature({id:"languageModelTools",label:n(7130,null),access:{canToggle:!1},renderer:new _(U)});class G extends I{constructor(){super(...arguments),this.type="table"}shouldRender(o){return!!o.contributes?.languageModelToolSets}render(o){const r=o.contributes?.languageModelToolSets??[];if(!r.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const c=[n(7131,null),n(7132,null),n(7133,null),n(7134,null)],a=r.map(e=>[new b(`\`${e.name}\``),e.referenceName?new b(`\`#${e.referenceName}\``):"none",e.tools.join(", "),e.description]);return{data:{headers:c,rows:a},dispose:()=>{}}}}A.as(O.ExtensionFeaturesRegistry).registerExtensionFeature({id:"languageModelToolSets",label:n(7135,null),access:{canToggle:!1},renderer:new _(G)});export{T as $e3b,R as $f3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { isFalsyOrEmpty } from "../../../../../base/common/arrays.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Disposable, DisposableMap, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { transaction } from "../../../../../base/common/observable.js";
+import { joinPath } from "../../../../../base/common/resources.js";
+import { isFalsyOrWhitespace } from "../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../../../../platform/instantiation/common/descriptors.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { Extensions } from "../../../../services/extensionManagement/common/extensionFeatures.js";
+import { isProposedApiEnabled } from "../../../../services/extensions/common/extensions.js";
+import * as extensionsRegistry from "../../../../services/extensions/common/extensionsRegistry.js";
+import { ILanguageModelToolsService, ToolDataSource } from "./languageModelToolsService.js";
+import { toolsParametersSchemaSchemaId } from "./languageModelToolsParametersSchema.js";
+const languageModelToolsExtensionPoint = extensionsRegistry.ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "languageModelTools",
+  activationEventsGenerator: /* @__PURE__ */ __name(function* (contributions) {
+    for (const contrib of contributions) {
+      yield `onLanguageModelTool:${contrib.name}`;
+    }
+  }, "activationEventsGenerator"),
+  jsonSchema: {
+    description: localize("vscode.extension.contributes.tools", "Contributes a tool that can be invoked by a language model in a chat session, or from a standalone command. Registered tools can be used by all extensions."),
+    type: "array",
+    items: {
+      additionalProperties: false,
+      type: "object",
+      defaultSnippets: [{
+        body: {
+          name: "${1}",
+          modelDescription: "${2}",
+          inputSchema: {
+            type: "object",
+            properties: {
+              "${3:name}": {
+                type: "string",
+                description: "${4:description}"
+              }
+            }
+          }
+        }
+      }],
+      required: ["name", "displayName", "modelDescription"],
+      properties: {
+        name: {
+          description: localize("toolName", "A unique name for this tool. This name must be a globally unique identifier, and is also used as a name when presenting this tool to a language model."),
+          type: "string",
+          // [\\w-]+ is OpenAI's requirement for tool names
+          pattern: "^(?!copilot_|vscode_)[\\w-]+$"
+        },
+        toolReferenceName: {
+          markdownDescription: localize("toolName2", "If {0} is enabled for this tool, the user may use '#' with this name to invoke the tool in a query. Otherwise, the name is not required. Name must not contain whitespace.", "`canBeReferencedInPrompt`"),
+          type: "string",
+          pattern: "^[\\w-]+$"
+        },
+        displayName: {
+          description: localize("toolDisplayName", "A human-readable name for this tool that may be used to describe it in the UI."),
+          type: "string"
+        },
+        userDescription: {
+          description: localize("toolUserDescription", "A description of this tool that may be shown to the user."),
+          type: "string"
+        },
+        // eslint-disable-next-line local/code-no-localized-model-description
+        modelDescription: {
+          description: localize("toolModelDescription", "A description of this tool that may be used by a language model to select it."),
+          type: "string"
+        },
+        inputSchema: {
+          description: localize("parametersSchema", "A JSON schema for the input this tool accepts. The input must be an object at the top level. A particular language model may not support all JSON schema features. See the documentation for the language model family you are using for more information."),
+          $ref: toolsParametersSchemaSchemaId
+        },
+        canBeReferencedInPrompt: {
+          markdownDescription: localize("canBeReferencedInPrompt", "If true, this tool shows up as an attachment that the user can add manually to their request. Chat participants will receive the tool in {0}.", "`ChatRequest#toolReferences`"),
+          type: "boolean"
+        },
+        icon: {
+          markdownDescription: localize("icon", 'An icon that represents this tool. Either a file path, an object with file paths for dark and light themes, or a theme icon reference, like "\\$(zap)"'),
+          anyOf: [
+            {
+              type: "string"
+            },
+            {
+              type: "object",
+              properties: {
+                light: {
+                  description: localize("icon.light", "Icon path when a light theme is used"),
+                  type: "string"
+                },
+                dark: {
+                  description: localize("icon.dark", "Icon path when a dark theme is used"),
+                  type: "string"
+                }
+              }
+            }
+          ]
+        },
+        when: {
+          markdownDescription: localize("condition", "Condition which must be true for this tool to be enabled. Note that a tool may still be invoked by another extension even when its `when` condition is false."),
+          type: "string"
+        },
+        tags: {
+          description: localize("toolTags", "A set of tags that roughly describe the tool's capabilities. A tool user may use these to filter the set of tools to just ones that are relevant for the task at hand, or they may want to pick a tag that can be used to identify just the tools contributed by this extension."),
+          type: "array",
+          items: {
+            type: "string",
+            pattern: "^(?!copilot_|vscode_)"
+          }
+        }
+      }
+    }
+  }
+});
+const languageModelToolSetsExtensionPoint = extensionsRegistry.ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "languageModelToolSets",
+  deps: [languageModelToolsExtensionPoint],
+  jsonSchema: {
+    description: localize("vscode.extension.contributes.toolSets", "Contributes a set of language model tools that can be used together."),
+    type: "array",
+    items: {
+      additionalProperties: false,
+      type: "object",
+      defaultSnippets: [{
+        body: {
+          name: "${1}",
+          description: "${2}",
+          tools: ["${3}"]
+        }
+      }],
+      required: ["name", "description", "tools"],
+      properties: {
+        name: {
+          description: localize("toolSetName", "A name for this tool set. Used as reference and should not contain whitespace."),
+          type: "string",
+          pattern: "^[\\w-]+$"
+        },
+        description: {
+          description: localize("toolSetDescription", "A description of this tool set."),
+          type: "string"
+        },
+        icon: {
+          markdownDescription: localize("toolSetIcon", "An icon that represents this tool set, like `$(zap)`"),
+          type: "string"
+        },
+        tools: {
+          markdownDescription: localize("toolSetTools", "A list of tools or tool sets to include in this tool set. Cannot be empty and must reference tools by their `toolReferenceName`."),
+          type: "array",
+          minItems: 1,
+          items: {
+            type: "string"
+          }
+        }
+      }
+    }
+  }
+});
+function toToolKey(extensionIdentifier, toolName) {
+  return `${extensionIdentifier.value}/${toolName}`;
+}
+__name(toToolKey, "toToolKey");
+function toToolSetKey(extensionIdentifier, toolName) {
+  return `toolset:${extensionIdentifier.value}/${toolName}`;
+}
+__name(toToolSetKey, "toToolSetKey");
+let LanguageModelToolsExtensionPointHandler = class LanguageModelToolsExtensionPointHandler2 {
+  static {
+    __name(this, "LanguageModelToolsExtensionPointHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.toolsExtensionPointHandler";
+  }
+  constructor(productService, languageModelToolsService) {
+    this._registrationDisposables = new DisposableMap();
+    languageModelToolsExtensionPoint.setHandler((_extensions, delta) => {
+      for (const extension of delta.added) {
+        for (const rawTool of extension.value) {
+          if (!rawTool.name || !rawTool.modelDescription || !rawTool.displayName) {
+            extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT register tool without name, modelDescription, and displayName: ${JSON.stringify(rawTool)}`);
+            continue;
+          }
+          if (!rawTool.name.match(/^[\w-]+$/)) {
+            extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT register tool with invalid id: ${rawTool.name}. The id must match /^[\\w-]+$/.`);
+            continue;
+          }
+          if (rawTool.canBeReferencedInPrompt && !rawTool.toolReferenceName) {
+            extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT register tool with 'canBeReferencedInPrompt' set without a 'toolReferenceName': ${JSON.stringify(rawTool)}`);
+            continue;
+          }
+          if ((rawTool.name.startsWith("copilot_") || rawTool.name.startsWith("vscode_")) && !isProposedApiEnabled(extension.description, "chatParticipantPrivate")) {
+            extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT register tool with name starting with "vscode_" or "copilot_"`);
+            continue;
+          }
+          if (rawTool.tags?.some((tag) => tag.startsWith("copilot_") || tag.startsWith("vscode_")) && !isProposedApiEnabled(extension.description, "chatParticipantPrivate")) {
+            extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT register tool with tags starting with "vscode_" or "copilot_"`);
+          }
+          if (rawTool.legacyToolReferenceFullNames && !isProposedApiEnabled(extension.description, "chatParticipantPrivate")) {
+            extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT use 'legacyToolReferenceFullNames' without the 'chatParticipantPrivate' API proposal enabled`);
+            continue;
+          }
+          const rawIcon = rawTool.icon;
+          let icon;
+          if (typeof rawIcon === "string") {
+            icon = ThemeIcon.fromString(rawIcon) ?? {
+              dark: joinPath(extension.description.extensionLocation, rawIcon),
+              light: joinPath(extension.description.extensionLocation, rawIcon)
+            };
+          } else if (rawIcon) {
+            icon = {
+              dark: joinPath(extension.description.extensionLocation, rawIcon.dark),
+              light: joinPath(extension.description.extensionLocation, rawIcon.light)
+            };
+          }
+          const isBuiltinTool = productService.defaultChatAgent?.chatExtensionId ? ExtensionIdentifier.equals(extension.description.identifier, productService.defaultChatAgent.chatExtensionId) : isProposedApiEnabled(extension.description, "chatParticipantPrivate");
+          const source = isBuiltinTool ? ToolDataSource.Internal : { type: "extension", label: extension.description.displayName ?? extension.description.name, extensionId: extension.description.identifier };
+          const tool = {
+            ...rawTool,
+            source,
+            inputSchema: rawTool.inputSchema,
+            id: rawTool.name,
+            icon,
+            when: rawTool.when ? ContextKeyExpr.deserialize(rawTool.when) : void 0,
+            alwaysDisplayInputOutput: !isBuiltinTool
+          };
+          try {
+            const disposable = languageModelToolsService.registerToolData(tool);
+            this._registrationDisposables.set(toToolKey(extension.description.identifier, rawTool.name), disposable);
+          } catch (e) {
+            extension.collector.error(`Failed to register tool '${rawTool.name}': ${e}`);
+          }
+        }
+      }
+      for (const extension of delta.removed) {
+        for (const tool of extension.value) {
+          this._registrationDisposables.deleteAndDispose(toToolKey(extension.description.identifier, tool.name));
+        }
+      }
+    });
+    languageModelToolSetsExtensionPoint.setHandler((_extensions, delta) => {
+      for (const extension of delta.added) {
+        if (!isProposedApiEnabled(extension.description, "contribLanguageModelToolSets")) {
+          extension.collector.error(`Extension '${extension.description.identifier.value}' CANNOT register language model tools because the 'contribLanguageModelToolSets' API proposal is not enabled.`);
+          continue;
+        }
+        const isBuiltinTool = productService.defaultChatAgent?.chatExtensionId ? ExtensionIdentifier.equals(extension.description.identifier, productService.defaultChatAgent.chatExtensionId) : isProposedApiEnabled(extension.description, "chatParticipantPrivate");
+        const source = isBuiltinTool ? ToolDataSource.Internal : { type: "extension", label: extension.description.displayName ?? extension.description.name, extensionId: extension.description.identifier };
+        for (const toolSet of extension.value) {
+          if (isFalsyOrWhitespace(toolSet.name)) {
+            extension.collector.error(`Tool set '${toolSet.name}' CANNOT have an empty name`);
+            continue;
+          }
+          if (toolSet.legacyFullNames && !isProposedApiEnabled(extension.description, "contribLanguageModelToolSets")) {
+            extension.collector.error(`Tool set '${toolSet.name}' CANNOT use 'legacyFullNames' without the 'contribLanguageModelToolSets' API proposal enabled`);
+            continue;
+          }
+          if (isFalsyOrEmpty(toolSet.tools)) {
+            extension.collector.error(`Tool set '${toolSet.name}' CANNOT have an empty tools array`);
+            continue;
+          }
+          const tools = [];
+          const toolSets = [];
+          for (const toolName of toolSet.tools) {
+            const toolObj = languageModelToolsService.getToolByName(toolName);
+            if (toolObj) {
+              tools.push(toolObj);
+              continue;
+            }
+            const toolSetObj = languageModelToolsService.getToolSetByName(toolName);
+            if (toolSetObj) {
+              toolSets.push(toolSetObj);
+              continue;
+            }
+            extension.collector.warn(`Tool set '${toolSet.name}' CANNOT find tool or tool set by name: ${toolName}`);
+          }
+          if (toolSets.length === 0 && tools.length === 0) {
+            extension.collector.error(`Tool set '${toolSet.name}' CANNOT have an empty tools array (none of the tools were found)`);
+            continue;
+          }
+          const store = new DisposableStore();
+          const referenceName = toolSet.referenceName ?? toolSet.name;
+          const existingToolSet = languageModelToolsService.getToolSetByName(referenceName);
+          const mergeExisting = isBuiltinTool && existingToolSet?.source === ToolDataSource.Internal;
+          let obj;
+          if (mergeExisting) {
+            obj = existingToolSet;
+          } else {
+            obj = languageModelToolsService.createToolSet(source, toToolSetKey(extension.description.identifier, toolSet.name), referenceName, { icon: toolSet.icon ? ThemeIcon.fromString(toolSet.icon) : void 0, description: toolSet.description, legacyFullNames: toolSet.legacyFullNames });
+          }
+          transaction((tx) => {
+            if (!mergeExisting) {
+              store.add(obj);
+            }
+            tools.forEach((tool) => store.add(obj.addTool(tool, tx)));
+            toolSets.forEach((toolSet2) => store.add(obj.addToolSet(toolSet2, tx)));
+          });
+          this._registrationDisposables.set(toToolSetKey(extension.description.identifier, toolSet.name), store);
+        }
+      }
+      for (const extension of delta.removed) {
+        for (const toolSet of extension.value) {
+          this._registrationDisposables.deleteAndDispose(toToolSetKey(extension.description.identifier, toolSet.name));
+        }
+      }
+    });
+  }
+};
+LanguageModelToolsExtensionPointHandler = __decorate([
+  __param(0, IProductService),
+  __param(1, ILanguageModelToolsService)
+], LanguageModelToolsExtensionPointHandler);
+class LanguageModelToolDataRenderer extends Disposable {
+  static {
+    __name(this, "LanguageModelToolDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.languageModelTools;
+  }
+  render(manifest) {
+    const contribs = manifest.contributes?.languageModelTools ?? [];
+    if (!contribs.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("toolTableName", "Name"),
+      localize("toolTableDisplayName", "Display Name"),
+      localize("toolTableDescription", "Description")
+    ];
+    const rows = contribs.map((t) => {
+      return [
+        new MarkdownString(`\`${t.name}\``),
+        t.displayName,
+        t.userDescription ?? t.modelDescription
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "languageModelTools",
+  label: localize("langModelTools", "Language Model Tools"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(LanguageModelToolDataRenderer)
+});
+class LanguageModelToolSetDataRenderer extends Disposable {
+  static {
+    __name(this, "LanguageModelToolSetDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.languageModelToolSets;
+  }
+  render(manifest) {
+    const contribs = manifest.contributes?.languageModelToolSets ?? [];
+    if (!contribs.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("name", "Name"),
+      localize("reference", "Reference Name"),
+      localize("tools", "Tools"),
+      localize("descriptions", "Description")
+    ];
+    const rows = contribs.map((t) => {
+      return [
+        new MarkdownString(`\`${t.name}\``),
+        t.referenceName ? new MarkdownString(`\`#${t.referenceName}\``) : "none",
+        t.tools.join(", "),
+        t.description
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "languageModelToolSets",
+  label: localize("langModelToolSets", "Language Model Tool Sets"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(LanguageModelToolSetDataRenderer)
+});
+export {
+  LanguageModelToolsExtensionPointHandler,
+  toToolSetKey
+};
+//# sourceMappingURL=languageModelToolsContribution.js.map

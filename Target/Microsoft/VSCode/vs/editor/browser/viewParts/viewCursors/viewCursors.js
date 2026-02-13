@@ -1,1 +1,356 @@
-import"./viewCursors.css";import{$09 as d}from"../../../../base/browser/fastDomNode.js";import{$hi as g}from"../../../../base/common/async.js";import{$Wfb as f}from"../../view/viewPart.js";import{$wgb as c,CursorPlurality as l}from"./viewCursor.js";import{TextEditorCursorStyle as n}from"../../../common/config/editorOptions.js";import{$zI as C,$yI as m,$AI as p,$BI as b,$CI as k,$DI as N}from"../../../common/core/editorColorRegistry.js";import{$xu as I}from"../../../../platform/theme/common/themeService.js";import{$ou as y}from"../../../../platform/theme/common/theme.js";import{$G8 as $,getWindow as L}from"../../../../base/browser/dom.js";class a extends f{static{this.BLINK_INTERVAL=500}constructor(e){super(e);const t=this._context.configuration.options;this.a=t.get(104),this.b=t.get(32),this.c=t.get(161),this.f=t.get(33),this.g=t.get(170),this.h=!0,this.j=!1,this.n=!1,this.z=new c(this._context,l.Single),this.C=[],this.F=[],this.s=d(document.createElement("div")),this.s.setAttribute("role","presentation"),this.s.setAttribute("aria-hidden","true"),this.J(),this.s.appendChild(this.z.getDomNode()),this.t=new g,this.u=new $,this.w=!1,this.y=!1,this.I()}dispose(){super.dispose(),this.t.dispose(),this.u.dispose()}getDomNode(){return this.s}onCompositionStart(e){return this.j=!0,this.I(),!0}onCompositionEnd(e){return this.j=!1,this.I(),!0}onConfigurationChanged(e){const t=this._context.configuration.options;this.a=t.get(104),this.b=t.get(32),this.c=t.get(161),this.f=t.get(33),this.g=t.get(170),this.I(),this.J(),this.z.onConfigurationChanged(e);for(let s=0,r=this.C.length;s<r;s++)this.C[s].onConfigurationChanged(e);return!0}G(e,t,s){const r=this.C.length!==t.length||this.f==="explicit"&&s!==3;if(this.z.setPlurality(t.length?l.MultiPrimary:l.Single),this.z.onCursorPositionChanged(e,r),this.I(),this.C.length<t.length){const i=t.length-this.C.length;for(let o=0;o<i;o++){const h=new c(this._context,l.MultiSecondary);this.s.domNode.insertBefore(h.getDomNode().domNode,this.z.getDomNode().domNode.nextSibling),this.C.push(h)}}else if(this.C.length>t.length){const i=this.C.length-t.length;for(let o=0;o<i;o++)this.s.removeChild(this.C[0].getDomNode()),this.C.splice(0,1)}for(let i=0;i<t.length;i++)this.C[i].onCursorPositionChanged(t[i],r)}onCursorStateChanged(e){const t=[];for(let r=0,i=e.selections.length;r<i;r++)t[r]=e.selections[r].getPosition();this.G(t[0],t.slice(1),e.reason);const s=e.selections[0].isEmpty();return this.h!==s&&(this.h=s,this.J()),!0}onDecorationsChanged(e){return!0}onFlushed(e){return!0}onFocusChanged(e){return this.y=e.isFocused,this.I(),!1}onLinesChanged(e){return!0}onLinesDeleted(e){return!0}onLinesInserted(e){return!0}onScrollChanged(e){return!0}onTokensChanged(e){const t=s=>{for(let r=0,i=e.ranges.length;r<i;r++)if(e.ranges[r].fromLineNumber<=s.lineNumber&&s.lineNumber<=e.ranges[r].toLineNumber)return!0;return!1};if(t(this.z.getPosition()))return!0;for(const s of this.C)if(t(s.getPosition()))return!0;return!1}onZonesChanged(e){return!0}H(){return this.j&&!this.g||!this.y?0:this.a?5:this.b}I(){this.t.cancel(),this.u.cancel();const e=this.H(),t=e===0,s=e===5;t?this.N():this.M(),this.w=!1,this.J(),!t&&!s&&(e===1?this.u.cancelAndSet(()=>{this.n?this.N():this.M()},a.BLINK_INTERVAL,L(this.s.domNode)):this.t.setIfNotSet(()=>{this.w=!0,this.J()},a.BLINK_INTERVAL))}J(){this.s.setClassName(this.L())}L(){let e="cursors-layer";switch(this.h||(e+=" has-selection"),this.c){case n.Line:e+=" cursor-line-style";break;case n.Block:e+=" cursor-block-style";break;case n.Underline:e+=" cursor-underline-style";break;case n.LineThin:e+=" cursor-line-thin-style";break;case n.BlockOutline:e+=" cursor-block-outline-style";break;case n.UnderlineThin:e+=" cursor-underline-thin-style";break;default:e+=" cursor-line-style"}if(this.w)switch(this.H()){case 1:e+=" cursor-blink";break;case 2:e+=" cursor-smooth";break;case 3:e+=" cursor-phase";break;case 4:e+=" cursor-expand";break;case 5:e+=" cursor-solid";break;default:e+=" cursor-solid"}else e+=" cursor-solid";return(this.f==="on"||this.f==="explicit")&&(e+=" cursor-smooth-caret-animation"),e}M(){this.z.show();for(let e=0,t=this.C.length;e<t;e++)this.C[e].show();this.n=!0}N(){this.z.hide();for(let e=0,t=this.C.length;e<t;e++)this.C[e].hide();this.n=!1}prepareRender(e){this.z.prepareRender(e);for(let t=0,s=this.C.length;t<s;t++)this.C[t].prepareRender(e)}render(e){const t=[];let s=0;const r=this.z.render(e);r&&(t[s++]=r);for(let i=0,o=this.C.length;i<o;i++){const h=this.C[i].render(e);h&&(t[s++]=h)}this.F=t}getLastRenderData(){return this.F}}I((u,e)=>{const t=[{class:".cursor",foreground:m,background:C},{class:".cursor-primary",foreground:p,background:b},{class:".cursor-secondary",foreground:k,background:N}];for(const s of t){const r=u.getColor(s.foreground);if(r){let i=u.getColor(s.background);i||(i=r.opposite()),e.addRule(`.monaco-editor .cursors-layer ${s.class} { background-color: ${r}; border-color: ${r}; color: ${i}; }`),y(u.type)&&e.addRule(`.monaco-editor .cursors-layer.has-selection ${s.class} { border-left: 1px solid ${i}; border-right: 1px solid ${i}; }`)}}});export{a as $yhb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./viewCursors.css";
+import { createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { TimeoutTimer } from "../../../../base/common/async.js";
+import { ViewPart } from "../../view/viewPart.js";
+import { ViewCursor, CursorPlurality } from "./viewCursor.js";
+import { TextEditorCursorStyle } from "../../../common/config/editorOptions.js";
+import { editorCursorBackground, editorCursorForeground, editorMultiCursorPrimaryForeground, editorMultiCursorPrimaryBackground, editorMultiCursorSecondaryForeground, editorMultiCursorSecondaryBackground } from "../../../common/core/editorColorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { isHighContrast } from "../../../../platform/theme/common/theme.js";
+import { WindowIntervalTimer, getWindow } from "../../../../base/browser/dom.js";
+class ViewCursors extends ViewPart {
+  static {
+    __name(this, "ViewCursors");
+  }
+  static {
+    this.BLINK_INTERVAL = 500;
+  }
+  constructor(context) {
+    super(context);
+    const options = this._context.configuration.options;
+    this._readOnly = options.get(
+      104
+      /* EditorOption.readOnly */
+    );
+    this._cursorBlinking = options.get(
+      32
+      /* EditorOption.cursorBlinking */
+    );
+    this._cursorStyle = options.get(
+      161
+      /* EditorOption.effectiveCursorStyle */
+    );
+    this._cursorSmoothCaretAnimation = options.get(
+      33
+      /* EditorOption.cursorSmoothCaretAnimation */
+    );
+    this._editContextEnabled = options.get(
+      170
+      /* EditorOption.effectiveEditContext */
+    );
+    this._selectionIsEmpty = true;
+    this._isComposingInput = false;
+    this._isVisible = false;
+    this._primaryCursor = new ViewCursor(this._context, CursorPlurality.Single);
+    this._secondaryCursors = [];
+    this._renderData = [];
+    this._domNode = createFastDomNode(document.createElement("div"));
+    this._domNode.setAttribute("role", "presentation");
+    this._domNode.setAttribute("aria-hidden", "true");
+    this._updateDomClassName();
+    this._domNode.appendChild(this._primaryCursor.getDomNode());
+    this._startCursorBlinkAnimation = new TimeoutTimer();
+    this._cursorFlatBlinkInterval = new WindowIntervalTimer();
+    this._blinkingEnabled = false;
+    this._editorHasFocus = false;
+    this._updateBlinking();
+  }
+  dispose() {
+    super.dispose();
+    this._startCursorBlinkAnimation.dispose();
+    this._cursorFlatBlinkInterval.dispose();
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  // --- begin event handlers
+  onCompositionStart(e) {
+    this._isComposingInput = true;
+    this._updateBlinking();
+    return true;
+  }
+  onCompositionEnd(e) {
+    this._isComposingInput = false;
+    this._updateBlinking();
+    return true;
+  }
+  onConfigurationChanged(e) {
+    const options = this._context.configuration.options;
+    this._readOnly = options.get(
+      104
+      /* EditorOption.readOnly */
+    );
+    this._cursorBlinking = options.get(
+      32
+      /* EditorOption.cursorBlinking */
+    );
+    this._cursorStyle = options.get(
+      161
+      /* EditorOption.effectiveCursorStyle */
+    );
+    this._cursorSmoothCaretAnimation = options.get(
+      33
+      /* EditorOption.cursorSmoothCaretAnimation */
+    );
+    this._editContextEnabled = options.get(
+      170
+      /* EditorOption.effectiveEditContext */
+    );
+    this._updateBlinking();
+    this._updateDomClassName();
+    this._primaryCursor.onConfigurationChanged(e);
+    for (let i = 0, len = this._secondaryCursors.length; i < len; i++) {
+      this._secondaryCursors[i].onConfigurationChanged(e);
+    }
+    return true;
+  }
+  _onCursorPositionChanged(position, secondaryPositions, reason) {
+    const pauseAnimation = this._secondaryCursors.length !== secondaryPositions.length || this._cursorSmoothCaretAnimation === "explicit" && reason !== 3;
+    this._primaryCursor.setPlurality(secondaryPositions.length ? CursorPlurality.MultiPrimary : CursorPlurality.Single);
+    this._primaryCursor.onCursorPositionChanged(position, pauseAnimation);
+    this._updateBlinking();
+    if (this._secondaryCursors.length < secondaryPositions.length) {
+      const addCnt = secondaryPositions.length - this._secondaryCursors.length;
+      for (let i = 0; i < addCnt; i++) {
+        const newCursor = new ViewCursor(this._context, CursorPlurality.MultiSecondary);
+        this._domNode.domNode.insertBefore(newCursor.getDomNode().domNode, this._primaryCursor.getDomNode().domNode.nextSibling);
+        this._secondaryCursors.push(newCursor);
+      }
+    } else if (this._secondaryCursors.length > secondaryPositions.length) {
+      const removeCnt = this._secondaryCursors.length - secondaryPositions.length;
+      for (let i = 0; i < removeCnt; i++) {
+        this._domNode.removeChild(this._secondaryCursors[0].getDomNode());
+        this._secondaryCursors.splice(0, 1);
+      }
+    }
+    for (let i = 0; i < secondaryPositions.length; i++) {
+      this._secondaryCursors[i].onCursorPositionChanged(secondaryPositions[i], pauseAnimation);
+    }
+  }
+  onCursorStateChanged(e) {
+    const positions = [];
+    for (let i = 0, len = e.selections.length; i < len; i++) {
+      positions[i] = e.selections[i].getPosition();
+    }
+    this._onCursorPositionChanged(positions[0], positions.slice(1), e.reason);
+    const selectionIsEmpty = e.selections[0].isEmpty();
+    if (this._selectionIsEmpty !== selectionIsEmpty) {
+      this._selectionIsEmpty = selectionIsEmpty;
+      this._updateDomClassName();
+    }
+    return true;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    return true;
+  }
+  onFocusChanged(e) {
+    this._editorHasFocus = e.isFocused;
+    this._updateBlinking();
+    return false;
+  }
+  onLinesChanged(e) {
+    return true;
+  }
+  onLinesDeleted(e) {
+    return true;
+  }
+  onLinesInserted(e) {
+    return true;
+  }
+  onScrollChanged(e) {
+    return true;
+  }
+  onTokensChanged(e) {
+    const shouldRender = /* @__PURE__ */ __name((position) => {
+      for (let i = 0, len = e.ranges.length; i < len; i++) {
+        if (e.ranges[i].fromLineNumber <= position.lineNumber && position.lineNumber <= e.ranges[i].toLineNumber) {
+          return true;
+        }
+      }
+      return false;
+    }, "shouldRender");
+    if (shouldRender(this._primaryCursor.getPosition())) {
+      return true;
+    }
+    for (const secondaryCursor of this._secondaryCursors) {
+      if (shouldRender(secondaryCursor.getPosition())) {
+        return true;
+      }
+    }
+    return false;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  // --- end event handlers
+  // ---- blinking logic
+  _getCursorBlinking() {
+    if (this._isComposingInput && !this._editContextEnabled) {
+      return 0;
+    }
+    if (!this._editorHasFocus) {
+      return 0;
+    }
+    if (this._readOnly) {
+      return 5;
+    }
+    return this._cursorBlinking;
+  }
+  _updateBlinking() {
+    this._startCursorBlinkAnimation.cancel();
+    this._cursorFlatBlinkInterval.cancel();
+    const blinkingStyle = this._getCursorBlinking();
+    const isHidden = blinkingStyle === 0;
+    const isSolid = blinkingStyle === 5;
+    if (isHidden) {
+      this._hide();
+    } else {
+      this._show();
+    }
+    this._blinkingEnabled = false;
+    this._updateDomClassName();
+    if (!isHidden && !isSolid) {
+      if (blinkingStyle === 1) {
+        this._cursorFlatBlinkInterval.cancelAndSet(() => {
+          if (this._isVisible) {
+            this._hide();
+          } else {
+            this._show();
+          }
+        }, ViewCursors.BLINK_INTERVAL, getWindow(this._domNode.domNode));
+      } else {
+        this._startCursorBlinkAnimation.setIfNotSet(() => {
+          this._blinkingEnabled = true;
+          this._updateDomClassName();
+        }, ViewCursors.BLINK_INTERVAL);
+      }
+    }
+  }
+  // --- end blinking logic
+  _updateDomClassName() {
+    this._domNode.setClassName(this._getClassName());
+  }
+  _getClassName() {
+    let result = "cursors-layer";
+    if (!this._selectionIsEmpty) {
+      result += " has-selection";
+    }
+    switch (this._cursorStyle) {
+      case TextEditorCursorStyle.Line:
+        result += " cursor-line-style";
+        break;
+      case TextEditorCursorStyle.Block:
+        result += " cursor-block-style";
+        break;
+      case TextEditorCursorStyle.Underline:
+        result += " cursor-underline-style";
+        break;
+      case TextEditorCursorStyle.LineThin:
+        result += " cursor-line-thin-style";
+        break;
+      case TextEditorCursorStyle.BlockOutline:
+        result += " cursor-block-outline-style";
+        break;
+      case TextEditorCursorStyle.UnderlineThin:
+        result += " cursor-underline-thin-style";
+        break;
+      default:
+        result += " cursor-line-style";
+    }
+    if (this._blinkingEnabled) {
+      switch (this._getCursorBlinking()) {
+        case 1:
+          result += " cursor-blink";
+          break;
+        case 2:
+          result += " cursor-smooth";
+          break;
+        case 3:
+          result += " cursor-phase";
+          break;
+        case 4:
+          result += " cursor-expand";
+          break;
+        case 5:
+          result += " cursor-solid";
+          break;
+        default:
+          result += " cursor-solid";
+      }
+    } else {
+      result += " cursor-solid";
+    }
+    if (this._cursorSmoothCaretAnimation === "on" || this._cursorSmoothCaretAnimation === "explicit") {
+      result += " cursor-smooth-caret-animation";
+    }
+    return result;
+  }
+  _show() {
+    this._primaryCursor.show();
+    for (let i = 0, len = this._secondaryCursors.length; i < len; i++) {
+      this._secondaryCursors[i].show();
+    }
+    this._isVisible = true;
+  }
+  _hide() {
+    this._primaryCursor.hide();
+    for (let i = 0, len = this._secondaryCursors.length; i < len; i++) {
+      this._secondaryCursors[i].hide();
+    }
+    this._isVisible = false;
+  }
+  // ---- IViewPart implementation
+  prepareRender(ctx) {
+    this._primaryCursor.prepareRender(ctx);
+    for (let i = 0, len = this._secondaryCursors.length; i < len; i++) {
+      this._secondaryCursors[i].prepareRender(ctx);
+    }
+  }
+  render(ctx) {
+    const renderData = [];
+    let renderDataLen = 0;
+    const primaryRenderData = this._primaryCursor.render(ctx);
+    if (primaryRenderData) {
+      renderData[renderDataLen++] = primaryRenderData;
+    }
+    for (let i = 0, len = this._secondaryCursors.length; i < len; i++) {
+      const secondaryRenderData = this._secondaryCursors[i].render(ctx);
+      if (secondaryRenderData) {
+        renderData[renderDataLen++] = secondaryRenderData;
+      }
+    }
+    this._renderData = renderData;
+  }
+  getLastRenderData() {
+    return this._renderData;
+  }
+}
+registerThemingParticipant((theme, collector) => {
+  const cursorThemes = [
+    { class: ".cursor", foreground: editorCursorForeground, background: editorCursorBackground },
+    { class: ".cursor-primary", foreground: editorMultiCursorPrimaryForeground, background: editorMultiCursorPrimaryBackground },
+    { class: ".cursor-secondary", foreground: editorMultiCursorSecondaryForeground, background: editorMultiCursorSecondaryBackground }
+  ];
+  for (const cursorTheme of cursorThemes) {
+    const caret = theme.getColor(cursorTheme.foreground);
+    if (caret) {
+      let caretBackground = theme.getColor(cursorTheme.background);
+      if (!caretBackground) {
+        caretBackground = caret.opposite();
+      }
+      collector.addRule(`.monaco-editor .cursors-layer ${cursorTheme.class} { background-color: ${caret}; border-color: ${caret}; color: ${caretBackground}; }`);
+      if (isHighContrast(theme.type)) {
+        collector.addRule(`.monaco-editor .cursors-layer.has-selection ${cursorTheme.class} { border-left: 1px solid ${caretBackground}; border-right: 1px solid ${caretBackground}; }`);
+      }
+    }
+  }
+});
+export {
+  ViewCursors
+};
+//# sourceMappingURL=viewCursors.js.map

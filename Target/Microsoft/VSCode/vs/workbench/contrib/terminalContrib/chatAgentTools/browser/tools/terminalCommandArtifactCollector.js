@@ -1,1 +1,133 @@
-import{$N3b as b}from"../../../../terminal/browser/chatTerminalCommandMirror.js";import{$yx as x}from"../../../../../../platform/terminal/common/terminal.js";var h=function(i,t,r,e){var o=arguments.length,n=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,t,r,e);else for(var u=i.length-1;u>=0;u--)(a=i[u])&&(n=(o<3?a(n):o>3?a(t,r,n):a(t,r))||n);return o>3&&n&&Object.defineProperty(t,r,n),n},p=function(i,t){return function(r,e){t(r,e,i)}};let d=class{constructor(t){this.a=t}async capture(t,r,e){if(e){try{t.terminalCommandUri=this.f(r,e)}catch(a){this.a.warn(`RunInTerminalTool: Failed to create terminal command URI for ${e}`,a)}const o=await this.g(r,e);if(o){t.terminalCommandState={exitCode:o.exitCode,timestamp:o.timestamp,duration:o.duration};const a=await this.b(r,o);a&&(t.terminalCommandOutput=a),this.e(t,r);return}const n=await this.d(r,e);n&&(t.terminalCommandOutput=n,this.a.debug(`RunInTerminalTool: Captured partial command output for ${e}`))}this.e(t,r)}async b(t,r){try{await t.xtermReadyPromise}catch{return}const e=t.xterm;if(e)return b(e,r,(o,n)=>{const a=o==="fallback"?" (fallback)":"";this.a.debug(`RunInTerminalTool: Failed to snapshot command output${a}`,n)})}async d(t,r){try{await t.xtermReadyPromise}catch{return}const e=t.xterm;if(!e)return;const n=t.capabilities.get(2)?.currentCommand;if(n&&n.id===r){const a=n.commandExecutedMarker;if(a&&!a.isDisposed)try{const m=e.raw.buffer.active,f=m.baseY+m.cursorY,l=a.line,c=Math.max(f-l,0);if(c>0){const s=await e.getRangeAsVT(a,void 0,!0);if(s)return{text:s,lineCount:c}}}catch(u){this.a.debug("RunInTerminalTool: Failed to capture partial command output",u)}}}e(t,r){const e=r.xterm?.getXtermTheme();e&&(t.terminalTheme={background:e.background,foreground:e.foreground})}f(t,r){const e=new URLSearchParams(t.resource.query);return e.set("command",r),t.resource.with({query:e.toString()})}async g(t,r){return t.capabilities.get(2)?.commands.find(o=>o.id===r)}};d=h([p(0,x)],d);export{d as $LDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { getCommandOutputSnapshot } from "../../../../terminal/browser/chatTerminalCommandMirror.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+let TerminalCommandArtifactCollector = class TerminalCommandArtifactCollector2 {
+  static {
+    __name(this, "TerminalCommandArtifactCollector");
+  }
+  constructor(_logService) {
+    this._logService = _logService;
+  }
+  async capture(toolSpecificData, instance, commandId) {
+    if (commandId) {
+      try {
+        toolSpecificData.terminalCommandUri = this._createTerminalCommandUri(instance, commandId);
+      } catch (error) {
+        this._logService.warn(`RunInTerminalTool: Failed to create terminal command URI for ${commandId}`, error);
+      }
+      const command = await this._tryGetCommand(instance, commandId);
+      if (command) {
+        toolSpecificData.terminalCommandState = {
+          exitCode: command.exitCode,
+          timestamp: command.timestamp,
+          duration: command.duration
+        };
+        const snapshot = await this._captureCommandOutput(instance, command);
+        if (snapshot) {
+          toolSpecificData.terminalCommandOutput = snapshot;
+        }
+        this._applyTheme(toolSpecificData, instance);
+        return;
+      }
+      const partialSnapshot = await this._capturePartialCommandOutput(instance, commandId);
+      if (partialSnapshot) {
+        toolSpecificData.terminalCommandOutput = partialSnapshot;
+        this._logService.debug(`RunInTerminalTool: Captured partial command output for ${commandId}`);
+      }
+    }
+    this._applyTheme(toolSpecificData, instance);
+  }
+  async _captureCommandOutput(instance, command) {
+    try {
+      await instance.xtermReadyPromise;
+    } catch {
+      return void 0;
+    }
+    const xterm = instance.xterm;
+    if (!xterm) {
+      return void 0;
+    }
+    return getCommandOutputSnapshot(xterm, command, (reason, error) => {
+      const suffix = reason === "fallback" ? " (fallback)" : "";
+      this._logService.debug(`RunInTerminalTool: Failed to snapshot command output${suffix}`, error);
+    });
+  }
+  /**
+   * Captures output from a partial/current command that hasn't finished yet.
+   * This is used when the command is cancelled mid-execution.
+   */
+  async _capturePartialCommandOutput(instance, commandId) {
+    try {
+      await instance.xtermReadyPromise;
+    } catch {
+      return void 0;
+    }
+    const xterm = instance.xterm;
+    if (!xterm) {
+      return void 0;
+    }
+    const commandDetection = instance.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    const currentCommand = commandDetection?.currentCommand;
+    if (currentCommand && currentCommand.id === commandId) {
+      const executedMarker = currentCommand.commandExecutedMarker;
+      if (executedMarker && !executedMarker.isDisposed) {
+        try {
+          const raw = xterm.raw;
+          const buffer = raw.buffer.active;
+          const endLine = buffer.baseY + buffer.cursorY;
+          const startLine = executedMarker.line;
+          const lineCount = Math.max(endLine - startLine, 0);
+          if (lineCount > 0) {
+            const text = await xterm.getRangeAsVT(executedMarker, void 0, true);
+            if (text) {
+              return { text, lineCount };
+            }
+          }
+        } catch (error) {
+          this._logService.debug(`RunInTerminalTool: Failed to capture partial command output`, error);
+        }
+      }
+    }
+    return void 0;
+  }
+  _applyTheme(toolSpecificData, instance) {
+    const theme = instance.xterm?.getXtermTheme();
+    if (theme) {
+      toolSpecificData.terminalTheme = { background: theme.background, foreground: theme.foreground };
+    }
+  }
+  _createTerminalCommandUri(instance, commandId) {
+    const params = new URLSearchParams(instance.resource.query);
+    params.set("command", commandId);
+    return instance.resource.with({ query: params.toString() });
+  }
+  async _tryGetCommand(instance, commandId) {
+    const commandDetection = instance.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    return commandDetection?.commands.find((c) => c.id === commandId);
+  }
+};
+TerminalCommandArtifactCollector = __decorate([
+  __param(0, ITerminalLogService)
+], TerminalCommandArtifactCollector);
+export {
+  TerminalCommandArtifactCollector
+};
+//# sourceMappingURL=terminalCommandArtifactCollector.js.map

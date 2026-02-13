@@ -1,1 +1,10 @@
-import"./floatingMenu.css";import{$1db as m}from"../../../browser/editorExtensions.js";import{$oyb as o}from"./floatingMenu.js";m(o.ID,o,1);
+import "./floatingMenu.css";
+import { registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { FloatingEditorToolbar } from "./floatingMenu.js";
+registerEditorContribution(
+  FloatingEditorToolbar.ID,
+  FloatingEditorToolbar,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+//# sourceMappingURL=floatingMenu.contribution.js.map

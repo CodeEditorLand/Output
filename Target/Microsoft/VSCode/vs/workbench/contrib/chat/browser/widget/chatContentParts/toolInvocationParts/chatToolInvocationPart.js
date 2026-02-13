@@ -1,1 +1,197 @@
-import*as g from"../../../../../../../base/browser/dom.js";import{$xf as P}from"../../../../../../../base/common/event.js";import{$Ed as T,$Dd as j}from"../../../../../../../base/common/lifecycle.js";import{autorun as v,derived as O}from"../../../../../../../base/common/observable.js";import{$Mj as x}from"../../../../../../../platform/instantiation/common/instantiation.js";import{IChatToolInvocation as d}from"../../../../common/chatService/chatService.js";import{$iPb as E}from"../../../../common/tools/chatTodoListService.js";import{$6T as q,$7T as z,ToolInvocationPresentation as L}from"../../../../common/tools/languageModelToolsService.js";import{$p3b as $}from"./chatExtensionsInstallToolSubPart.js";import{$s3b as S}from"./chatInputOutputMarkdownProgressPart.js";import{$D3b as J}from"./chatMcpAppSubPart.js";import{$E3b as U}from"./chatResultListSubPart.js";import{$F3b as N}from"./chatTerminalToolConfirmationSubPart.js";import{$Q3b as W}from"./chatTerminalToolProgressPart.js";import{$V3b as y}from"./chatToolConfirmationSubPart.js";import{$13b as F}from"./chatToolOutputPart.js";import{$23b as k}from"./chatToolPostExecuteConfirmationPart.js";import{$33b as H}from"./chatToolProgressPart.js";import{$43b as Q}from"./chatToolStreamingSubPart.js";var _=function(a,t,i,s){var h=arguments.length,e=h<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,t,i,s);else for(var f=a.length-1;f>=0;f--)(c=a[f])&&(e=(h<3?c(e):h>3?c(t,i,e):c(t,i))||e);return h>3&&e&&Object.defineProperty(t,i,e),e},b=function(a,t){return function(i,s){t(i,s,a)}};let w=class extends T{get codeblocks(){const t=this.a?.codeblocks??[];return this.b&&t.push(...this.b.codeblocks),t}get codeblocksPartId(){return this.a?.codeblocksPartId}constructor(t,i,s,h,e,c,f,C,R,A,M){if(super(),this.f=t,this.g=i,this.h=s,this.j=h,this.m=e,this.n=c,this.q=f,this.s=C,this.t=R,this.u=A,this.w=M,this.c=this.D(new P),this.domNode=g.$(".chat-tool-invocation-part"),t.presentation==="hidden")return;if(t.toolSpecificData?.kind==="todoList"){const r=i.element.sessionResource,o=t.toolSpecificData.todoList.map((n,p)=>{const D=parseInt(n.id,10);return{id:Number.isNaN(D)?p+1:D,title:n.title,status:n.status}});this.w.setTodos(r,o)}if(t.kind==="toolInvocation"){const r=t.state.get().type;this.D(v(o=>{t.state.read(o).type!==r&&m()}))}const l=this.D(new j);let u=document.createElement("div");this.domNode.appendChild(u);const m=()=>{if(l.clear(),t.presentation===L.HiddenAfterComplete&&d.isComplete(t))return;this.a=l.add(this.y()),u.replaceWith(this.a.domNode),u=this.a.domNode;const r=this.a instanceof y||this.a instanceof N||this.a instanceof $||this.a instanceof k;this.domNode.classList.toggle("has-confirmation",r),l.add(this.a.onNeedsRerender(m))},I=this.z();if(I){const r=O(n=>{const p=d.executionConfirmedOrDenied(t,n);return!!p&&p.type!==0&&p.type!==5});let o=document.createElement("div");this.domNode.appendChild(o),this.D(v(n=>{r.read(n)?(this.b=n.store.add(this.u.createInstance(J,this.f,this.c.event,i,I)),o.replaceWith(this.b.domNode),o=this.b.domNode):(this.b=void 0,g.$t8(o))}))}m()}y(){if(this.f.kind==="toolInvocation"){if(this.f.toolSpecificData?.kind==="extensions")return this.u.createInstance($,this.f,this.g);const i=this.f.state.get();if(i.type===0)return this.u.createInstance(Q,this.f,this.g,this.h);if(i.type===1)return this.f.toolSpecificData?.kind==="terminal"?this.u.createInstance(N,this.f,this.f.toolSpecificData,this.g,this.h,this.m,this.n,this.q,this.t):this.u.createInstance(y,this.f,this.g,this.h,this.m,this.n,this.q,this.t);if(i.type===3)return this.u.createInstance(k,this.f,this.g)}if(this.f.toolSpecificData?.kind==="terminal")return this.u.createInstance(W,this.f,this.f.toolSpecificData,this.g,this.h,this.m,this.n,this.t,this.q);const t=d.resultDetails(this.f);return Array.isArray(t)&&t.length?this.u.createInstance(U,this.f,this.g,this.f.pastTenseMessage??this.f.invocationMessage,t,this.j):z(t)?this.u.createInstance(F,this.f,this.g,this.c.event):q(t)?this.u.createInstance(S,this.f,this.g,this.t,this.f.pastTenseMessage??this.f.invocationMessage,this.f.originMessage,t.input,t.output,!!t.isError):this.f.kind==="toolInvocation"&&this.f.toolSpecificData?.kind==="input"&&!d.isComplete(this.f)?this.u.createInstance(S,this.f,this.g,this.t,this.f.invocationMessage,this.f.originMessage,typeof this.f.toolSpecificData.rawInput=="string"?this.f.toolSpecificData.rawInput:JSON.stringify(this.f.toolSpecificData.rawInput,null,2),void 0,!1):this.u.createInstance(H,this.f,this.g,this.h,this.s)}z(){const t=this.f.toolSpecificData;if(t?.kind==="input"&&t.mcpAppData){const i=typeof t.rawInput=="string"?t.rawInput:JSON.stringify(t.rawInput,null,2);return{resourceUri:t.mcpAppData.resourceUri,serverDefinitionId:t.mcpAppData.serverDefinitionId,collectionId:t.mcpAppData.collectionId,input:i,sessionResource:this.g.element.sessionResource}}}onDidRemount(){this.c.fire()}hasSameContent(t,i,s){return(t.kind==="toolInvocation"||t.kind==="toolInvocationSerialized")&&this.f.toolCallId===t.toolCallId}addDisposable(t){this.D(t)}};w=_([b(9,x),b(10,E)],w);export{w as $53b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { Emitter } from "../../../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, derived } from "../../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+import { IChatTodoListService } from "../../../../common/tools/chatTodoListService.js";
+import { isToolResultInputOutputDetails, isToolResultOutputDetails, ToolInvocationPresentation } from "../../../../common/tools/languageModelToolsService.js";
+import { ExtensionsInstallConfirmationWidgetSubPart } from "./chatExtensionsInstallToolSubPart.js";
+import { ChatInputOutputMarkdownProgressPart } from "./chatInputOutputMarkdownProgressPart.js";
+import { ChatMcpAppSubPart } from "./chatMcpAppSubPart.js";
+import { ChatResultListSubPart } from "./chatResultListSubPart.js";
+import { ChatTerminalToolConfirmationSubPart } from "./chatTerminalToolConfirmationSubPart.js";
+import { ChatTerminalToolProgressPart } from "./chatTerminalToolProgressPart.js";
+import { ToolConfirmationSubPart } from "./chatToolConfirmationSubPart.js";
+import { ChatToolOutputSubPart } from "./chatToolOutputPart.js";
+import { ChatToolPostExecuteConfirmationPart } from "./chatToolPostExecuteConfirmationPart.js";
+import { ChatToolProgressSubPart } from "./chatToolProgressPart.js";
+import { ChatToolStreamingSubPart } from "./chatToolStreamingSubPart.js";
+let ChatToolInvocationPart = class ChatToolInvocationPart2 extends Disposable {
+  static {
+    __name(this, "ChatToolInvocationPart");
+  }
+  get codeblocks() {
+    const codeblocks = this.subPart?.codeblocks ?? [];
+    if (this.mcpAppPart) {
+      codeblocks.push(...this.mcpAppPart.codeblocks);
+    }
+    return codeblocks;
+  }
+  get codeblocksPartId() {
+    return this.subPart?.codeblocksPartId;
+  }
+  constructor(toolInvocation, context, renderer, listPool, editorPool, currentWidthDelegate, codeBlockModelCollection, announcedToolProgressKeys, codeBlockStartIndex, instantiationService, chatTodoListService) {
+    super();
+    this.toolInvocation = toolInvocation;
+    this.context = context;
+    this.renderer = renderer;
+    this.listPool = listPool;
+    this.editorPool = editorPool;
+    this.currentWidthDelegate = currentWidthDelegate;
+    this.codeBlockModelCollection = codeBlockModelCollection;
+    this.announcedToolProgressKeys = announcedToolProgressKeys;
+    this.codeBlockStartIndex = codeBlockStartIndex;
+    this.instantiationService = instantiationService;
+    this.chatTodoListService = chatTodoListService;
+    this._onDidRemount = this._register(new Emitter());
+    this.domNode = dom.$(".chat-tool-invocation-part");
+    if (toolInvocation.presentation === "hidden") {
+      return;
+    }
+    if (toolInvocation.toolSpecificData?.kind === "todoList") {
+      const sessionResource = context.element.sessionResource;
+      const todos = toolInvocation.toolSpecificData.todoList.map((todo, index) => {
+        const parsedId = parseInt(todo.id, 10);
+        const id = Number.isNaN(parsedId) ? index + 1 : parsedId;
+        return {
+          id,
+          title: todo.title,
+          status: todo.status
+        };
+      });
+      this.chatTodoListService.setTodos(sessionResource, todos);
+    }
+    if (toolInvocation.kind === "toolInvocation") {
+      const initialState = toolInvocation.state.get().type;
+      this._register(autorun((reader) => {
+        if (toolInvocation.state.read(reader).type !== initialState) {
+          render();
+        }
+      }));
+    }
+    const partStore = this._register(new DisposableStore());
+    let subPartDomNode = document.createElement("div");
+    this.domNode.appendChild(subPartDomNode);
+    const render = /* @__PURE__ */ __name(() => {
+      partStore.clear();
+      if (toolInvocation.presentation === ToolInvocationPresentation.HiddenAfterComplete && IChatToolInvocation.isComplete(toolInvocation)) {
+        return;
+      }
+      this.subPart = partStore.add(this.createToolInvocationSubPart());
+      subPartDomNode.replaceWith(this.subPart.domNode);
+      subPartDomNode = this.subPart.domNode;
+      const isConfirmation = this.subPart instanceof ToolConfirmationSubPart || this.subPart instanceof ChatTerminalToolConfirmationSubPart || this.subPart instanceof ExtensionsInstallConfirmationWidgetSubPart || this.subPart instanceof ChatToolPostExecuteConfirmationPart;
+      this.domNode.classList.toggle("has-confirmation", isConfirmation);
+      partStore.add(this.subPart.onNeedsRerender(render));
+    }, "render");
+    const mcpAppRenderData = this.getMcpAppRenderData();
+    if (mcpAppRenderData) {
+      const shouldRender = derived((r) => {
+        const outcome = IChatToolInvocation.executionConfirmedOrDenied(toolInvocation, r);
+        return !!outcome && outcome.type !== 0 && outcome.type !== 5;
+      });
+      let appDomNode = document.createElement("div");
+      this.domNode.appendChild(appDomNode);
+      this._register(autorun((r) => {
+        if (shouldRender.read(r)) {
+          this.mcpAppPart = r.store.add(this.instantiationService.createInstance(ChatMcpAppSubPart, this.toolInvocation, this._onDidRemount.event, context, mcpAppRenderData));
+          appDomNode.replaceWith(this.mcpAppPart.domNode);
+          appDomNode = this.mcpAppPart.domNode;
+        } else {
+          this.mcpAppPart = void 0;
+          dom.clearNode(appDomNode);
+        }
+      }));
+    }
+    render();
+  }
+  createToolInvocationSubPart() {
+    if (this.toolInvocation.kind === "toolInvocation") {
+      if (this.toolInvocation.toolSpecificData?.kind === "extensions") {
+        return this.instantiationService.createInstance(ExtensionsInstallConfirmationWidgetSubPart, this.toolInvocation, this.context);
+      }
+      const state = this.toolInvocation.state.get();
+      if (state.type === 0) {
+        return this.instantiationService.createInstance(ChatToolStreamingSubPart, this.toolInvocation, this.context, this.renderer);
+      }
+      if (state.type === 1) {
+        if (this.toolInvocation.toolSpecificData?.kind === "terminal") {
+          return this.instantiationService.createInstance(ChatTerminalToolConfirmationSubPart, this.toolInvocation, this.toolInvocation.toolSpecificData, this.context, this.renderer, this.editorPool, this.currentWidthDelegate, this.codeBlockModelCollection, this.codeBlockStartIndex);
+        } else {
+          return this.instantiationService.createInstance(ToolConfirmationSubPart, this.toolInvocation, this.context, this.renderer, this.editorPool, this.currentWidthDelegate, this.codeBlockModelCollection, this.codeBlockStartIndex);
+        }
+      }
+      if (state.type === 3) {
+        return this.instantiationService.createInstance(ChatToolPostExecuteConfirmationPart, this.toolInvocation, this.context);
+      }
+    }
+    if (this.toolInvocation.toolSpecificData?.kind === "terminal") {
+      return this.instantiationService.createInstance(ChatTerminalToolProgressPart, this.toolInvocation, this.toolInvocation.toolSpecificData, this.context, this.renderer, this.editorPool, this.currentWidthDelegate, this.codeBlockStartIndex, this.codeBlockModelCollection);
+    }
+    const resultDetails = IChatToolInvocation.resultDetails(this.toolInvocation);
+    if (Array.isArray(resultDetails) && resultDetails.length) {
+      return this.instantiationService.createInstance(ChatResultListSubPart, this.toolInvocation, this.context, this.toolInvocation.pastTenseMessage ?? this.toolInvocation.invocationMessage, resultDetails, this.listPool);
+    }
+    if (isToolResultOutputDetails(resultDetails)) {
+      return this.instantiationService.createInstance(ChatToolOutputSubPart, this.toolInvocation, this.context, this._onDidRemount.event);
+    }
+    if (isToolResultInputOutputDetails(resultDetails)) {
+      return this.instantiationService.createInstance(ChatInputOutputMarkdownProgressPart, this.toolInvocation, this.context, this.codeBlockStartIndex, this.toolInvocation.pastTenseMessage ?? this.toolInvocation.invocationMessage, this.toolInvocation.originMessage, resultDetails.input, resultDetails.output, !!resultDetails.isError);
+    }
+    if (this.toolInvocation.kind === "toolInvocation" && this.toolInvocation.toolSpecificData?.kind === "input" && !IChatToolInvocation.isComplete(this.toolInvocation)) {
+      return this.instantiationService.createInstance(ChatInputOutputMarkdownProgressPart, this.toolInvocation, this.context, this.codeBlockStartIndex, this.toolInvocation.invocationMessage, this.toolInvocation.originMessage, typeof this.toolInvocation.toolSpecificData.rawInput === "string" ? this.toolInvocation.toolSpecificData.rawInput : JSON.stringify(this.toolInvocation.toolSpecificData.rawInput, null, 2), void 0, false);
+    }
+    return this.instantiationService.createInstance(ChatToolProgressSubPart, this.toolInvocation, this.context, this.renderer, this.announcedToolProgressKeys);
+  }
+  /**
+   * Gets MCP App render data if this tool invocation has MCP App UI.
+   * Returns data from either:
+   * - toolSpecificData.mcpAppData (for in-progress tools)
+   * - result details mcpOutput (for completed tools)
+   */
+  getMcpAppRenderData() {
+    const toolSpecificData = this.toolInvocation.toolSpecificData;
+    if (toolSpecificData?.kind === "input" && toolSpecificData.mcpAppData) {
+      const rawInput = typeof toolSpecificData.rawInput === "string" ? toolSpecificData.rawInput : JSON.stringify(toolSpecificData.rawInput, null, 2);
+      return {
+        resourceUri: toolSpecificData.mcpAppData.resourceUri,
+        serverDefinitionId: toolSpecificData.mcpAppData.serverDefinitionId,
+        collectionId: toolSpecificData.mcpAppData.collectionId,
+        input: rawInput,
+        sessionResource: this.context.element.sessionResource
+      };
+    }
+    return void 0;
+  }
+  onDidRemount() {
+    this._onDidRemount.fire();
+  }
+  hasSameContent(other, followingContent, element) {
+    return (other.kind === "toolInvocation" || other.kind === "toolInvocationSerialized") && this.toolInvocation.toolCallId === other.toolCallId;
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatToolInvocationPart = __decorate([
+  __param(9, IInstantiationService),
+  __param(10, IChatTodoListService)
+], ChatToolInvocationPart);
+export {
+  ChatToolInvocationPart
+};
+//# sourceMappingURL=chatToolInvocationPart.js.map

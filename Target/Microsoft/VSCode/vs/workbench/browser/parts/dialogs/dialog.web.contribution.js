@@ -1,1 +1,94 @@
-import{$gjb as l}from"../../../../platform/clipboard/common/clipboardService.js";import{$Mp as g}from"../../../../platform/dialogs/common/dialogs.js";import{$fy as u}from"../../../../platform/keybinding/common/keybinding.js";import{$flb as b}from"../../../../platform/layout/browser/layoutService.js";import{$yo as $}from"../../../../platform/log/common/log.js";import{$Vn as d}from"../../../../platform/product/common/productService.js";import{$2N as w}from"../../../common/contributions.js";import{$FLc as _}from"./dialogHandler.js";import{$Ed as v}from"../../../../base/common/lifecycle.js";import{$Mj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$Rf as A}from"../../../../base/common/lazy.js";import{$EP as j}from"../../../../platform/opener/common/opener.js";import{$G_b as y}from"../../../../platform/dialogs/browser/dialog.js";import{$Ukb as R}from"../../../../platform/markdown/browser/markdownRenderer.js";var p=function(e,i,t,s){var a=arguments.length,r=a<3?i:s===null?s=Object.getOwnPropertyDescriptor(i,t):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(e,i,t,s);else for(var c=e.length-1;c>=0;c--)(n=e[c])&&(r=(a<3?n(r):a>3?n(i,t,r):n(i,t))||r);return a>3&&r&&Object.defineProperty(i,t,r),r},o=function(e,i){return function(t,s){i(t,s,e)}};let f=class extends v{static{this.ID="workbench.contrib.dialogHandler"}constructor(i,t,s,a,r,n,c,h,m){super(),this.f=i,this.g=n,this.b=new A(()=>new _(t,s,a,r,c,h,m)),this.a=this.f.model,this.D(this.a.onWillShowDialog(()=>{this.c||this.h()})),this.h()}async h(){for(;this.a.dialogs.length;){this.c=this.a.dialogs[0];let i;try{if(this.c.args.confirmArgs){const t=this.c.args.confirmArgs;i=await this.b.value.confirm(t.confirmation)}else if(this.c.args.inputArgs){const t=this.c.args.inputArgs;i=await this.b.value.input(t.input)}else if(this.c.args.promptArgs){const t=this.c.args.promptArgs;i=await this.b.value.prompt(t.prompt)}else{const t=y(this.g);await this.b.value.about(t.title,t.details,t.detailsToCopy)}}catch(t){i=t}this.c.close(i),this.c=void 0}}};f=p([o(0,g),o(1,$),o(2,b),o(3,u),o(4,D),o(5,d),o(6,l),o(7,j),o(8,R)],f);w(f.ID,f,1);export{f as $GLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { BrowserDialogHandler } from "./dialogHandler.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { createBrowserAboutDialogDetails } from "../../../../platform/dialogs/browser/dialog.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+let DialogHandlerContribution = class DialogHandlerContribution2 extends Disposable {
+  static {
+    __name(this, "DialogHandlerContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.dialogHandler";
+  }
+  constructor(dialogService, logService, layoutService, keybindingService, instantiationService, productService, clipboardService, openerService, markdownRendererService) {
+    super();
+    this.dialogService = dialogService;
+    this.productService = productService;
+    this.impl = new Lazy(() => new BrowserDialogHandler(logService, layoutService, keybindingService, instantiationService, clipboardService, openerService, markdownRendererService));
+    this.model = this.dialogService.model;
+    this._register(this.model.onWillShowDialog(() => {
+      if (!this.currentDialog) {
+        this.processDialogs();
+      }
+    }));
+    this.processDialogs();
+  }
+  async processDialogs() {
+    while (this.model.dialogs.length) {
+      this.currentDialog = this.model.dialogs[0];
+      let result = void 0;
+      try {
+        if (this.currentDialog.args.confirmArgs) {
+          const args = this.currentDialog.args.confirmArgs;
+          result = await this.impl.value.confirm(args.confirmation);
+        } else if (this.currentDialog.args.inputArgs) {
+          const args = this.currentDialog.args.inputArgs;
+          result = await this.impl.value.input(args.input);
+        } else if (this.currentDialog.args.promptArgs) {
+          const args = this.currentDialog.args.promptArgs;
+          result = await this.impl.value.prompt(args.prompt);
+        } else {
+          const aboutDialogDetails = createBrowserAboutDialogDetails(this.productService);
+          await this.impl.value.about(aboutDialogDetails.title, aboutDialogDetails.details, aboutDialogDetails.detailsToCopy);
+        }
+      } catch (error) {
+        result = error;
+      }
+      this.currentDialog.close(result);
+      this.currentDialog = void 0;
+    }
+  }
+};
+DialogHandlerContribution = __decorate([
+  __param(0, IDialogService),
+  __param(1, ILogService),
+  __param(2, ILayoutService),
+  __param(3, IKeybindingService),
+  __param(4, IInstantiationService),
+  __param(5, IProductService),
+  __param(6, IClipboardService),
+  __param(7, IOpenerService),
+  __param(8, IMarkdownRendererService)
+], DialogHandlerContribution);
+registerWorkbenchContribution2(
+  DialogHandlerContribution.ID,
+  DialogHandlerContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+export {
+  DialogHandlerContribution
+};
+//# sourceMappingURL=dialog.web.contribution.js.map

@@ -1,1 +1,235 @@
-import{$Ed as S,$Md as b}from"../../../../../base/common/lifecycle.js";import{$Ih as R,$Ch as I}from"../../../../../base/common/resources.js";import{localize as o}from"../../../../../nls.js";import*as _ from"../../../../services/extensions/common/extensionsRegistry.js";import{$VT as w,PromptsStorage as A}from"./service/promptsService.js";import{PromptsType as p}from"./promptTypes.js";import{$vo as T}from"../../../../../platform/commands/common/commands.js";import{CancellationToken as m}from"../../../../../base/common/cancellation.js";import{$Kj as d}from"../../../../../platform/instantiation/common/descriptors.js";import{$jm as f}from"../../../../../platform/registry/common/platform.js";import{Extensions as g}from"../../../../services/extensionManagement/common/extensionFeatures.js";var $=function(s,t,n,c){var a=arguments.length,e=a<3?t:c===null?c=Object.getOwnPropertyDescriptor(t,n):c,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,n,c);else for(var i=s.length-1;i>=0;i--)(l=s[i])&&(e=(a<3?l(e):a>3?l(t,n,e):l(t,n))||e);return a>3&&e&&Object.defineProperty(t,n,e),e},k=function(s,t){return function(n,c){t(n,c,s)}},r;(function(s){s.chatInstructions="chatInstructions",s.chatAgents="chatAgents",s.chatPromptFiles="chatPromptFiles",s.chatSkills="chatSkills"})(r||(r={}));function F(s){return _.$KR.registerExtensionPoint({extensionPoint:s,jsonSchema:{description:o(6910,null,s),type:"array",items:{additionalProperties:!1,type:"object",defaultSnippets:[{body:{path:"./relative/path/to/file.md"}}],required:["path"],properties:{path:{description:o(6911,null),type:"string"},name:{description:o(6912,null),deprecationMessage:o(6913,null),type:"string"},description:{description:o(6914,null),deprecationMessage:o(6915,null),type:"string"}}}}})}const j=F(r.chatPromptFiles),D=F(r.chatInstructions),N=F(r.chatAgents),O=F(r.chatSkills);function y(s){switch(s){case r.chatPromptFiles:return p.prompt;case r.chatInstructions:return p.instructions;case r.chatAgents:return p.agent;case r.chatSkills:return p.skill;default:{const t=s;throw new Error(`Unknown contribution point: ${t}`)}}}function P(s,t,n){return`${s.value}/${t}/${n}`}let v=class{static{this.ID="workbench.contrib.chatPromptFilesExtensionPointHandler"}constructor(t){this.b=t,this.a=new b,this.c(j,r.chatPromptFiles),this.c(D,r.chatInstructions),this.c(N,r.chatAgents),this.c(O,r.chatSkills)}c(t,n){t.setHandler((c,a)=>{for(const e of a.added){const l=y(n);for(const i of e.value){if(!i.path){e.collector.error(o(6916,null,e.description.identifier.value,n));continue}const h=R(e.description.extensionLocation,i.path);if(!I(h,e.description.extensionLocation)){e.collector.error(o(6917,null,e.description.identifier.value,n,i.path));continue}try{const u=this.b.registerContributedFile(l,h,e.description,i.name,i.description);this.a.set(P(e.description.identifier,l,i.path),u)}catch(u){const E=u instanceof Error?u.message:String(u);e.collector.error(o(6918,null,e.description.identifier.value,n,i.path,E))}}}for(const e of a.removed){const l=y(n);for(const i of e.value)this.a.deleteAndDispose(P(e.description.identifier,l,i.path))}})}};v=$([k(0,w)],v);T.registerCommand("_listExtensionPromptFiles",async s=>{const t=s.get(w),[n,c,a,e,l]=await Promise.all([t.listPromptFiles(p.agent,m.None),t.listPromptFiles(p.instructions,m.None),t.listPromptFiles(p.prompt,m.None),t.listPromptFiles(p.skill,m.None),t.listPromptFiles(p.hook,m.None)]),i=[];for(const h of[...n,...c,...a,...e,...l])h.storage===A.extension&&i.push({uri:h.uri.toJSON(),type:h.type});return i});class x extends S{constructor(t){super(),this.a=t,this.type="table"}shouldRender(t){return!!t.contributes?.[this.a]}render(t){const n=t.contributes?.[this.a]??[];if(!n.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const c=[o(6919,null),o(6920,null),o(6921,null)],a=n.map(e=>[e.name??"-",e.description??"-",e.path]);return{data:{headers:c,rows:a},dispose:()=>{}}}}f.as(g.ExtensionFeaturesRegistry).registerExtensionFeature({id:r.chatPromptFiles,label:o(6922,null),access:{canToggle:!1},renderer:new d(x,[r.chatPromptFiles])});f.as(g.ExtensionFeaturesRegistry).registerExtensionFeature({id:r.chatInstructions,label:o(6923,null),access:{canToggle:!1},renderer:new d(x,[r.chatInstructions])});f.as(g.ExtensionFeaturesRegistry).registerExtensionFeature({id:r.chatAgents,label:o(6924,null),access:{canToggle:!1},renderer:new d(x,[r.chatAgents])});f.as(g.ExtensionFeaturesRegistry).registerExtensionFeature({id:r.chatSkills,label:o(6925,null),access:{canToggle:!1},renderer:new d(x,[r.chatSkills])});export{v as $Dmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key2, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key2) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key2, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key2, r) : d(target, key2)) || r;
+  return c > 3 && r && Object.defineProperty(target, key2, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key2) {
+    decorator(target, key2, paramIndex);
+  };
+};
+import { Disposable, DisposableMap } from "../../../../../base/common/lifecycle.js";
+import { joinPath, isEqualOrParent } from "../../../../../base/common/resources.js";
+import { localize } from "../../../../../nls.js";
+import * as extensionsRegistry from "../../../../services/extensions/common/extensionsRegistry.js";
+import { IPromptsService, PromptsStorage } from "./service/promptsService.js";
+import { PromptsType } from "./promptTypes.js";
+import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { SyncDescriptor } from "../../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { Extensions } from "../../../../services/extensionManagement/common/extensionFeatures.js";
+var ChatContributionPoint;
+(function(ChatContributionPoint2) {
+  ChatContributionPoint2["chatInstructions"] = "chatInstructions";
+  ChatContributionPoint2["chatAgents"] = "chatAgents";
+  ChatContributionPoint2["chatPromptFiles"] = "chatPromptFiles";
+  ChatContributionPoint2["chatSkills"] = "chatSkills";
+})(ChatContributionPoint || (ChatContributionPoint = {}));
+function registerChatFilesExtensionPoint(point) {
+  return extensionsRegistry.ExtensionsRegistry.registerExtensionPoint({
+    extensionPoint: point,
+    jsonSchema: {
+      description: localize("chatContribution.schema.description", "Contributes {0} for chat prompts.", point),
+      type: "array",
+      items: {
+        additionalProperties: false,
+        type: "object",
+        defaultSnippets: [{
+          body: {
+            path: "./relative/path/to/file.md"
+          }
+        }],
+        required: ["path"],
+        properties: {
+          path: {
+            description: localize("chatContribution.property.path", "Path to the file relative to the extension root."),
+            type: "string"
+          },
+          name: {
+            description: localize("chatContribution.property.name", "(Optional) Name for this entry."),
+            deprecationMessage: localize("chatContribution.property.name.deprecated", 'Specify "name" in the prompt file itself instead.'),
+            type: "string"
+          },
+          description: {
+            description: localize("chatContribution.property.description", "(Optional) Description of the entry."),
+            deprecationMessage: localize("chatContribution.property.description.deprecated", 'Specify "description" in the prompt file itself instead.'),
+            type: "string"
+          }
+        }
+      }
+    }
+  });
+}
+__name(registerChatFilesExtensionPoint, "registerChatFilesExtensionPoint");
+const epPrompt = registerChatFilesExtensionPoint(ChatContributionPoint.chatPromptFiles);
+const epInstructions = registerChatFilesExtensionPoint(ChatContributionPoint.chatInstructions);
+const epAgents = registerChatFilesExtensionPoint(ChatContributionPoint.chatAgents);
+const epSkills = registerChatFilesExtensionPoint(ChatContributionPoint.chatSkills);
+function pointToType(contributionPoint) {
+  switch (contributionPoint) {
+    case ChatContributionPoint.chatPromptFiles:
+      return PromptsType.prompt;
+    case ChatContributionPoint.chatInstructions:
+      return PromptsType.instructions;
+    case ChatContributionPoint.chatAgents:
+      return PromptsType.agent;
+    case ChatContributionPoint.chatSkills:
+      return PromptsType.skill;
+    default: {
+      const exhaustiveCheck = contributionPoint;
+      throw new Error(`Unknown contribution point: ${exhaustiveCheck}`);
+    }
+  }
+}
+__name(pointToType, "pointToType");
+function key(extensionId, type, path) {
+  return `${extensionId.value}/${type}/${path}`;
+}
+__name(key, "key");
+let ChatPromptFilesExtensionPointHandler = class ChatPromptFilesExtensionPointHandler2 {
+  static {
+    __name(this, "ChatPromptFilesExtensionPointHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.chatPromptFilesExtensionPointHandler";
+  }
+  constructor(promptsService) {
+    this.promptsService = promptsService;
+    this.registrations = new DisposableMap();
+    this.handle(epPrompt, ChatContributionPoint.chatPromptFiles);
+    this.handle(epInstructions, ChatContributionPoint.chatInstructions);
+    this.handle(epAgents, ChatContributionPoint.chatAgents);
+    this.handle(epSkills, ChatContributionPoint.chatSkills);
+  }
+  handle(extensionPoint, contributionPoint) {
+    extensionPoint.setHandler((_extensions, delta) => {
+      for (const ext of delta.added) {
+        const type = pointToType(contributionPoint);
+        for (const raw of ext.value) {
+          if (!raw.path) {
+            ext.collector.error(localize("extension.missing.path", "Extension '{0}' cannot register {1} entry without path.", ext.description.identifier.value, contributionPoint));
+            continue;
+          }
+          const fileUri = joinPath(ext.description.extensionLocation, raw.path);
+          if (!isEqualOrParent(fileUri, ext.description.extensionLocation)) {
+            ext.collector.error(localize("extension.invalid.path", "Extension '{0}' {1} entry '{2}' resolves outside the extension.", ext.description.identifier.value, contributionPoint, raw.path));
+            continue;
+          }
+          try {
+            const d = this.promptsService.registerContributedFile(type, fileUri, ext.description, raw.name, raw.description);
+            this.registrations.set(key(ext.description.identifier, type, raw.path), d);
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            ext.collector.error(localize("extension.registration.failed", "Extension '{0}' {1}. Failed to register {2}: {3}", ext.description.identifier.value, contributionPoint, raw.path, msg));
+          }
+        }
+      }
+      for (const ext of delta.removed) {
+        const type = pointToType(contributionPoint);
+        for (const raw of ext.value) {
+          this.registrations.deleteAndDispose(key(ext.description.identifier, type, raw.path));
+        }
+      }
+    });
+  }
+};
+ChatPromptFilesExtensionPointHandler = __decorate([
+  __param(0, IPromptsService)
+], ChatPromptFilesExtensionPointHandler);
+CommandsRegistry.registerCommand("_listExtensionPromptFiles", async (accessor) => {
+  const promptsService = accessor.get(IPromptsService);
+  const [agents, instructions, prompts, skills, hooks] = await Promise.all([
+    promptsService.listPromptFiles(PromptsType.agent, CancellationToken.None),
+    promptsService.listPromptFiles(PromptsType.instructions, CancellationToken.None),
+    promptsService.listPromptFiles(PromptsType.prompt, CancellationToken.None),
+    promptsService.listPromptFiles(PromptsType.skill, CancellationToken.None),
+    promptsService.listPromptFiles(PromptsType.hook, CancellationToken.None)
+  ]);
+  const result = [];
+  for (const file of [...agents, ...instructions, ...prompts, ...skills, ...hooks]) {
+    if (file.storage === PromptsStorage.extension) {
+      result.push({ uri: file.uri.toJSON(), type: file.type });
+    }
+  }
+  return result;
+});
+class ChatPromptFilesDataRenderer extends Disposable {
+  static {
+    __name(this, "ChatPromptFilesDataRenderer");
+  }
+  constructor(contributionPoint) {
+    super();
+    this.contributionPoint = contributionPoint;
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.[this.contributionPoint];
+  }
+  render(manifest) {
+    const contributions = manifest.contributes?.[this.contributionPoint] ?? [];
+    if (!contributions.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("chatFilesName", "Name"),
+      localize("chatFilesDescription", "Description"),
+      localize("chatFilesPath", "Path")
+    ];
+    const rows = contributions.map((d) => {
+      return [
+        d.name ?? "-",
+        d.description ?? "-",
+        d.path
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: ChatContributionPoint.chatPromptFiles,
+  label: localize("chatPromptFiles", "Chat Prompt Files"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ChatPromptFilesDataRenderer, [ChatContributionPoint.chatPromptFiles])
+});
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: ChatContributionPoint.chatInstructions,
+  label: localize("chatInstructions", "Chat Instructions"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ChatPromptFilesDataRenderer, [ChatContributionPoint.chatInstructions])
+});
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: ChatContributionPoint.chatAgents,
+  label: localize("chatAgents", "Chat Agents"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ChatPromptFilesDataRenderer, [ChatContributionPoint.chatAgents])
+});
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: ChatContributionPoint.chatSkills,
+  label: localize("chatSkills", "Chat Skills"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ChatPromptFilesDataRenderer, [ChatContributionPoint.chatSkills])
+});
+export {
+  ChatPromptFilesExtensionPointHandler
+};
+//# sourceMappingURL=chatPromptFilesContribution.js.map

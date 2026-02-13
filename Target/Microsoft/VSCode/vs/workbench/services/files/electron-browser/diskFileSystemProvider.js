@@ -1,1 +1,112 @@
-import{localize as n}from"../../../../nls.js";import{$o as h}from"../../../../base/common/platform.js";import{$Ix as a}from"../../../../platform/files/common/diskFileSystemProvider.js";import{$Gx as o,$Fx as f}from"../../../../platform/files/common/diskFileSystemProviderClient.js";import{$aQc as l}from"./watcherClient.js";import{$ZC as u}from"../../../../platform/log/common/logService.js";class C extends a{constructor(e,t,r,i){super(r,{watcher:{forceUniversal:!0}}),this.N=t,this.O=i,this.S=void 0,this.f=this.D(new o(e.getChannel(f),{pathCaseSensitive:h,trash:!0})),this.P()}P(){this.D(this.f.onDidChangeFile(e=>this.c.fire(e))),this.D(this.f.onDidWatchError(e=>this.g.fire(e)))}get onDidChangeCapabilities(){return this.f.onDidChangeCapabilities}get capabilities(){return this.f.capabilities}stat(e){return this.f.stat(e)}realpath(e){return this.f.realpath(e)}readdir(e){return this.f.readdir(e)}readFile(e,t){return this.f.readFile(e,t)}readFileStream(e,t,r){return this.f.readFileStream(e,t,r)}writeFile(e,t,r){return this.f.writeFile(e,t,r)}open(e,t){return this.f.open(e,t)}close(e){return this.f.close(e)}read(e,t,r,i,s){return this.f.read(e,t,r,i,s)}write(e,t,r,i,s){return this.f.write(e,t,r,i,s)}mkdir(e){return this.f.mkdir(e)}delete(e,t){return this.f.delete(e,t)}rename(e,t,r){return this.f.rename(e,t,r)}copy(e,t,r){return this.f.copy(e,t,r)}cloneFile(e,t){return this.f.cloneFile(e,t)}u(e,t,r){return new l(i=>e(i),i=>t(i),r,this.N)}H(){throw new Error("Method not implemented in sandbox.")}get U(){return this.S||(this.S=new u(this.O.createLogger("fileWatcher",{name:n(16261,null)}))),this.S}J(e){this.U[e.type](e.message),e.type!=="trace"&&e.type!=="debug"&&super.J(e)}}export{C as $bQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { isLinux } from "../../../../base/common/platform.js";
+import { AbstractDiskFileSystemProvider } from "../../../../platform/files/common/diskFileSystemProvider.js";
+import { DiskFileSystemProviderClient, LOCAL_FILE_SYSTEM_CHANNEL_NAME } from "../../../../platform/files/common/diskFileSystemProviderClient.js";
+import { UniversalWatcherClient } from "./watcherClient.js";
+import { LogService } from "../../../../platform/log/common/logService.js";
+class DiskFileSystemProvider extends AbstractDiskFileSystemProvider {
+  static {
+    __name(this, "DiskFileSystemProvider");
+  }
+  constructor(mainProcessService, utilityProcessWorkerWorkbenchService, logService, loggerService) {
+    super(logService, { watcher: {
+      forceUniversal: true
+      /* send all requests to universal watcher process */
+    } });
+    this.utilityProcessWorkerWorkbenchService = utilityProcessWorkerWorkbenchService;
+    this.loggerService = loggerService;
+    this._watcherLogService = void 0;
+    this.provider = this._register(new DiskFileSystemProviderClient(mainProcessService.getChannel(LOCAL_FILE_SYSTEM_CHANNEL_NAME), { pathCaseSensitive: isLinux, trash: true }));
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.provider.onDidChangeFile((changes) => this._onDidChangeFile.fire(changes)));
+    this._register(this.provider.onDidWatchError((error) => this._onDidWatchError.fire(error)));
+  }
+  //#region File Capabilities
+  get onDidChangeCapabilities() {
+    return this.provider.onDidChangeCapabilities;
+  }
+  get capabilities() {
+    return this.provider.capabilities;
+  }
+  //#endregion
+  //#region File Metadata Resolving
+  stat(resource) {
+    return this.provider.stat(resource);
+  }
+  realpath(resource) {
+    return this.provider.realpath(resource);
+  }
+  readdir(resource) {
+    return this.provider.readdir(resource);
+  }
+  //#endregion
+  //#region File Reading/Writing
+  readFile(resource, opts) {
+    return this.provider.readFile(resource, opts);
+  }
+  readFileStream(resource, opts, token) {
+    return this.provider.readFileStream(resource, opts, token);
+  }
+  writeFile(resource, content, opts) {
+    return this.provider.writeFile(resource, content, opts);
+  }
+  open(resource, opts) {
+    return this.provider.open(resource, opts);
+  }
+  close(fd) {
+    return this.provider.close(fd);
+  }
+  read(fd, pos, data, offset, length) {
+    return this.provider.read(fd, pos, data, offset, length);
+  }
+  write(fd, pos, data, offset, length) {
+    return this.provider.write(fd, pos, data, offset, length);
+  }
+  //#endregion
+  //#region Move/Copy/Delete/Create Folder
+  mkdir(resource) {
+    return this.provider.mkdir(resource);
+  }
+  delete(resource, opts) {
+    return this.provider.delete(resource, opts);
+  }
+  rename(from, to, opts) {
+    return this.provider.rename(from, to, opts);
+  }
+  copy(from, to, opts) {
+    return this.provider.copy(from, to, opts);
+  }
+  //#endregion
+  //#region Clone File
+  cloneFile(from, to) {
+    return this.provider.cloneFile(from, to);
+  }
+  //#endregion
+  //#region File Watching
+  createUniversalWatcher(onChange, onLogMessage, verboseLogging) {
+    return new UniversalWatcherClient((changes) => onChange(changes), (msg) => onLogMessage(msg), verboseLogging, this.utilityProcessWorkerWorkbenchService);
+  }
+  createNonRecursiveWatcher() {
+    throw new Error("Method not implemented in sandbox.");
+  }
+  get watcherLogService() {
+    if (!this._watcherLogService) {
+      this._watcherLogService = new LogService(this.loggerService.createLogger("fileWatcher", { name: localize("fileWatcher", "File Watcher") }));
+    }
+    return this._watcherLogService;
+  }
+  logWatcherMessage(msg) {
+    this.watcherLogService[msg.type](msg.message);
+    if (msg.type !== "trace" && msg.type !== "debug") {
+      super.logWatcherMessage(msg);
+    }
+  }
+}
+export {
+  DiskFileSystemProvider
+};
+//# sourceMappingURL=diskFileSystemProvider.js.map

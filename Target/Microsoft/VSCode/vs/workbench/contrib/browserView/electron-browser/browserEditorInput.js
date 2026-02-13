@@ -1,8 +1,242 @@
-import{$bk as p}from"../../../../base/common/codicons.js";import{$2f as d}from"../../../../base/common/strings.js";import{URI as u}from"../../../../base/common/uri.js";import{$ln as g}from"../../../../base/common/uuid.js";import{BrowserViewUri as f}from"../../../../platform/browserView/common/browserViewUri.js";import{$4H as v}from"../../../common/editor/editorInput.js";import{$qu as b}from"../../../../platform/theme/common/themeService.js";import{$Syb as w}from"../../../common/theme.js";import{localize as D}from"../../../../nls.js";import{$Mj as $}from"../../../../platform/instantiation/common/instantiation.js";import{$mXc as y}from"../common/browserView.js";import{$rd as _}from"../../../../base/common/types.js";import{$WN as N}from"../../../services/lifecycle/common/lifecycle.js";import{$CXc as z}from"./browserEditor.js";import{$pp as C}from"../../../../platform/telemetry/common/telemetry.js";import{$oXc as S}from"./browserViewTelemetry.js";var m=function(e,t,i,r){var o=arguments.length,s=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,i):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(e,t,i,r);else for(var a=e.length-1;a>=0;a--)(n=e[a])&&(s=(o<3?n(s):o>3?n(t,i,s):n(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},c=function(e,t){return function(i,r){t(i,r,e)}},h;const T=e=>`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var BrowserEditorInput_1;
+import { Codicon } from "../../../../base/common/codicons.js";
+import { truncate } from "../../../../base/common/strings.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { BrowserViewUri } from "../../../../platform/browserView/common/browserViewUri.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { TAB_ACTIVE_FOREGROUND } from "../../../common/theme.js";
+import { localize } from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IBrowserViewWorkbenchService } from "../common/browserView.js";
+import { hasKey } from "../../../../base/common/types.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { BrowserEditor } from "./browserEditor.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { logBrowserOpen } from "./browserViewTelemetry.js";
+const LOADING_SPINNER_SVG = /* @__PURE__ */ __name((color) => `
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-		<path d="M8 1a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z" fill="${e}" opacity="0.3"/>
-		<path d="M8 1a7 7 0 0 1 7 7h-1.5A5.5 5.5 0 0 0 8 2.5V1z" fill="${e}">
+		<path d="M8 1a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm0 1.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z" fill="${color}" opacity="0.3"/>
+		<path d="M8 1a7 7 0 0 1 7 7h-1.5A5.5 5.5 0 0 0 8 2.5V1z" fill="${color}">
 			<animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" values="0 8 8;360 8 8"/>
 		</path>
 	</svg>
-`,I=30;let l=class extends v{static{h=this}static{this.ID="workbench.editorinputs.browser"}static{this.a=D(4981,null)}constructor(t,i,r,o,s,n){super(),this.q=i,this.r=r,this.s=o,this.t=s,this.u=n,this.b=t.id,this.c=t,this.D(this.s.onWillShutdown(a=>{this.h&&(a.reason===3?this.h.setVisible(!1):(this.h.dispose(),this.h=void 0))}))}get id(){return this.b}async resolve(){return!this.h&&!this.m&&(this.m=(async()=>(this.h=await this.r.getOrCreateBrowserViewModel(this.b),this.m=void 0,this.D(this.h.onWillDispose(()=>{this.h=void 0})),this.D(this.h.onDidClose(()=>{this.dispose()})),this.D(this.h.onDidChangeTitle(()=>this.g.fire())),this.D(this.h.onDidChangeFavicon(()=>this.g.fire())),this.D(this.h.onDidChangeLoadingState(()=>this.g.fire())),this.D(this.h.onDidNavigate(()=>this.g.fire())),this.c.url&&this.h.url!==this.c.url&&this.h.loadURL(this.c.url),this.h))()),this.h||this.m}get typeId(){return h.ID}get editorId(){return z.ID}get capabilities(){return 10}get resource(){if(this.w)return this.w;const t=this.h?.url??this.c.url??"";return f.forUrl(t,this.b)}getIcon(){if(this.h){if(this.h.loading){const t=this.q.getColorTheme().getColor(w);return u.parse("data:image/svg+xml;utf8,"+encodeURIComponent(T(t?.toString())))}return this.h.favicon?u.parse(this.h.favicon):p.globe}return this.c.favicon?u.parse(this.c.favicon):p.globe}getName(){return d(this.getTitle(),I)}getTitle(){if(this.h&&this.h.url)return this.h.title?this.h.title:u.parse(this.h.url).authority||h.a;if(this.c.title)return this.c.title;const t=this.c.url??"";return u.parse(t).authority||h.a}getDescription(){return this.h?this.h.url:this.c.url}canReopen(){return!0}matches(t){if(super.matches(t))return!0;if(t instanceof h)return this.b===t.b;if(_(t,{resource:!0})&&t.resource?.scheme===f.scheme){const i=f.parse(t.resource);if(i)return this.b===i.id}return!1}copy(){S(this.u,"copyToNewWindow");const t=this.h?.url??this.c.url;return this.t.createInstance(h,{id:g(),url:t,title:this.h?.title??this.c.title,favicon:this.h?.favicon??this.c.favicon})}toUntyped(){return{resource:this.resource,options:{override:h.ID}}}dispose(){this.h&&(this.w=this.resource,this.h.dispose(),this.h=void 0),super.dispose()}serialize(){return{id:this.b,url:this.h?this.h.url:this.c.url,title:this.h?this.h.title:this.c.title,favicon:this.h?this.h.favicon:this.c.favicon}}};l=h=m([c(1,b),c(2,y),c(3,N),c(4,$),c(5,C)],l);class J{canSerialize(t){return t instanceof l}serialize(t){if(this.canSerialize(t))return JSON.stringify(t.serialize())}deserialize(t,i){try{const r=JSON.parse(i);return t.createInstance(l,r)}catch{return}}}export{l as $pXc,J as $qXc};
+`, "LOADING_SPINNER_SVG");
+const MAX_TITLE_LENGTH = 30;
+let BrowserEditorInput = class BrowserEditorInput2 extends EditorInput {
+  static {
+    __name(this, "BrowserEditorInput");
+  }
+  static {
+    BrowserEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.editorinputs.browser";
+  }
+  static {
+    this.DEFAULT_LABEL = localize("browser.editorLabel", "Browser");
+  }
+  constructor(options, themeService, browserViewWorkbenchService, lifecycleService, instantiationService, telemetryService) {
+    super();
+    this.themeService = themeService;
+    this.browserViewWorkbenchService = browserViewWorkbenchService;
+    this.lifecycleService = lifecycleService;
+    this.instantiationService = instantiationService;
+    this.telemetryService = telemetryService;
+    this._id = options.id;
+    this._initialData = options;
+    this._register(this.lifecycleService.onWillShutdown((e) => {
+      if (this._model) {
+        if (e.reason === 3) {
+          void this._model.setVisible(false);
+        } else {
+          this._model.dispose();
+          this._model = void 0;
+        }
+      }
+    }));
+  }
+  get id() {
+    return this._id;
+  }
+  async resolve() {
+    if (!this._model && !this._modelPromise) {
+      this._modelPromise = (async () => {
+        this._model = await this.browserViewWorkbenchService.getOrCreateBrowserViewModel(this._id);
+        this._modelPromise = void 0;
+        this._register(this._model.onWillDispose(() => {
+          this._model = void 0;
+        }));
+        this._register(this._model.onDidClose(() => {
+          this.dispose();
+        }));
+        this._register(this._model.onDidChangeTitle(() => this._onDidChangeLabel.fire()));
+        this._register(this._model.onDidChangeFavicon(() => this._onDidChangeLabel.fire()));
+        this._register(this._model.onDidChangeLoadingState(() => this._onDidChangeLabel.fire()));
+        this._register(this._model.onDidNavigate(() => this._onDidChangeLabel.fire()));
+        if (this._initialData.url && this._model.url !== this._initialData.url) {
+          void this._model.loadURL(this._initialData.url);
+        }
+        return this._model;
+      })();
+    }
+    return this._model || this._modelPromise;
+  }
+  get typeId() {
+    return BrowserEditorInput_1.ID;
+  }
+  get editorId() {
+    return BrowserEditor.ID;
+  }
+  get capabilities() {
+    return 8 | 2;
+  }
+  get resource() {
+    if (this._resourceBeforeDisposal) {
+      return this._resourceBeforeDisposal;
+    }
+    const url = this._model?.url ?? this._initialData.url ?? "";
+    return BrowserViewUri.forUrl(url, this._id);
+  }
+  getIcon() {
+    if (this._model) {
+      if (this._model.loading) {
+        const color = this.themeService.getColorTheme().getColor(TAB_ACTIVE_FOREGROUND);
+        return URI.parse("data:image/svg+xml;utf8," + encodeURIComponent(LOADING_SPINNER_SVG(color?.toString())));
+      }
+      if (this._model.favicon) {
+        return URI.parse(this._model.favicon);
+      }
+      return Codicon.globe;
+    }
+    if (this._initialData.favicon) {
+      return URI.parse(this._initialData.favicon);
+    }
+    return Codicon.globe;
+  }
+  getName() {
+    return truncate(this.getTitle(), MAX_TITLE_LENGTH);
+  }
+  getTitle() {
+    if (this._model && this._model.url) {
+      if (this._model.title) {
+        return this._model.title;
+      }
+      const authority2 = URI.parse(this._model.url).authority;
+      return authority2 || BrowserEditorInput_1.DEFAULT_LABEL;
+    }
+    if (this._initialData.title) {
+      return this._initialData.title;
+    }
+    const url = this._initialData.url ?? "";
+    const authority = URI.parse(url).authority;
+    return authority || BrowserEditorInput_1.DEFAULT_LABEL;
+  }
+  getDescription() {
+    return this._model ? this._model.url : this._initialData.url;
+  }
+  canReopen() {
+    return true;
+  }
+  matches(otherInput) {
+    if (super.matches(otherInput)) {
+      return true;
+    }
+    if (otherInput instanceof BrowserEditorInput_1) {
+      return this._id === otherInput._id;
+    }
+    if (hasKey(otherInput, { resource: true }) && otherInput.resource?.scheme === BrowserViewUri.scheme) {
+      const parsed = BrowserViewUri.parse(otherInput.resource);
+      if (parsed) {
+        return this._id === parsed.id;
+      }
+    }
+    return false;
+  }
+  /**
+   * Creates a copy of this browser editor input with a new unique ID, creating an independent browser view with no linked state.
+   * This is used during Copy into New Window.
+   */
+  copy() {
+    logBrowserOpen(this.telemetryService, "copyToNewWindow");
+    const currentUrl = this._model?.url ?? this._initialData.url;
+    return this.instantiationService.createInstance(BrowserEditorInput_1, {
+      id: generateUuid(),
+      url: currentUrl,
+      title: this._model?.title ?? this._initialData.title,
+      favicon: this._model?.favicon ?? this._initialData.favicon
+    });
+  }
+  toUntyped() {
+    return {
+      resource: this.resource,
+      options: {
+        override: BrowserEditorInput_1.ID
+      }
+    };
+  }
+  dispose() {
+    if (this._model) {
+      this._resourceBeforeDisposal = this.resource;
+      this._model.dispose();
+      this._model = void 0;
+    }
+    super.dispose();
+  }
+  serialize() {
+    return {
+      id: this._id,
+      url: this._model ? this._model.url : this._initialData.url,
+      title: this._model ? this._model.title : this._initialData.title,
+      favicon: this._model ? this._model.favicon : this._initialData.favicon
+    };
+  }
+};
+BrowserEditorInput = BrowserEditorInput_1 = __decorate([
+  __param(1, IThemeService),
+  __param(2, IBrowserViewWorkbenchService),
+  __param(3, ILifecycleService),
+  __param(4, IInstantiationService),
+  __param(5, ITelemetryService)
+], BrowserEditorInput);
+class BrowserEditorSerializer {
+  static {
+    __name(this, "BrowserEditorSerializer");
+  }
+  canSerialize(editorInput) {
+    return editorInput instanceof BrowserEditorInput;
+  }
+  serialize(editorInput) {
+    if (!this.canSerialize(editorInput)) {
+      return void 0;
+    }
+    return JSON.stringify(editorInput.serialize());
+  }
+  deserialize(instantiationService, serializedEditor) {
+    try {
+      const data = JSON.parse(serializedEditor);
+      return instantiationService.createInstance(BrowserEditorInput, data);
+    } catch {
+      return void 0;
+    }
+  }
+}
+export {
+  BrowserEditorInput,
+  BrowserEditorSerializer
+};
+//# sourceMappingURL=browserEditorInput.js.map

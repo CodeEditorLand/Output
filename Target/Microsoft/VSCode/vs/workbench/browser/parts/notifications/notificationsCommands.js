@@ -1,1 +1,311 @@
-import{$vo as h}from"../../../../platform/commands/common/commands.js";import{$0n as y}from"../../../../platform/contextkey/common/contextkey.js";import{$mL as d}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$5w as v}from"../../../../base/common/keyCodes.js";import{$1ac as b}from"../../../common/notifications.js";import{$sL as g,$qL as u}from"../../../../platform/actions/common/actions.js";import{localize as E,localize2 as f}from"../../../../nls.js";import{$Prb as C,$9rb as U}from"../../../../platform/list/browser/listService.js";import{$pp as j}from"../../../../platform/telemetry/common/telemetry.js";import{$hP as l,$iP as N,$jP as p}from"../../../common/contextkeys.js";import{$pH as I,NotificationsFilter as T}from"../../../../platform/notification/common/notification.js";import{$Mj as G}from"../../../../platform/instantiation/common/instantiation.js";import{$Gm as H}from"../../../../base/common/actions.js";import{$YH as q}from"../../../../platform/quickinput/common/quickInput.js";import{$Dd as z}from"../../../../base/common/lifecycle.js";import{$Dib as B,$yib as Q}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";var K=function(a,i,o,n){var t=arguments.length,e=t<3?i:n===null?n=Object.getOwnPropertyDescriptor(i,o):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,i,o,n);else for(var s=a.length-1;s>=0;s--)(r=a[s])&&(e=(t<3?r(e):t>3?r(i,o,e):r(i,o))||e);return t>3&&e&&Object.defineProperty(i,o,e),e},F=function(a,i){return function(o,n){i(o,n,a)}};const R="notifications.showList",L="notifications.hideList",V="notifications.toggleList",$="notifications.hideToasts",S="notifications.focusToasts",k="notifications.focusNextToast",J="notifications.focusPreviousToast",X="notifications.focusFirstToast",Y="notifications.focusLastToast",W="notification.collapse",Z="notification.expand",_="notification.acceptPrimaryAction",ii="notification.toggle",ei="notification.clear",P="notifications.clearAll",x="notifications.toggleDoNotDisturbMode",M="notifications.toggleDoNotDisturbModeBySource";function O(a,i){if(b(i))return i;const o=a.lastFocusedList;if(o instanceof U){let n=o.getFocusedElements()[0];if(b(n)||o.isDOMFocused()&&(n=o.element(0)),b(n))return n}}function Ti(a,i,o){d.registerCommandAndKeybindingRule({id:R,weight:200,primary:v(2089,3116),handler:()=>{i.hide(),a.show()}}),d.registerCommandAndKeybindingRule({id:L,weight:250,when:N,primary:9,handler:()=>a.hide()}),h.registerCommand(V,()=>{a.isVisible?a.hide():(i.hide(),a.show())}),d.registerCommandAndKeybindingRule({id:ei,weight:200,when:l,primary:20,mac:{primary:2049},handler:(t,e)=>{const r=t.get(Q),s=O(t.get(C),e);s&&!s.hasProgress&&(s.close(),r.playSignal(B.clear))}}),d.registerCommandAndKeybindingRule({id:Z,weight:200,when:l,primary:17,handler:(t,e)=>{O(t.get(C),e)?.expand()}}),d.registerCommandAndKeybindingRule({id:_,weight:201,when:y.or(l,p),primary:3103,handler:t=>{const e=t.get(G).createInstance(A),r=O(t.get(C))||o.notifications.at(0);if(!r)return;const s=r.actions?.primary?r.actions.primary.at(0):void 0;s&&(e.run(s,r),r.close(),e.dispose())}}),d.registerCommandAndKeybindingRule({id:W,weight:200,when:l,primary:15,handler:(t,e)=>{O(t.get(C),e)?.collapse()}}),d.registerCommandAndKeybindingRule({id:ii,weight:200,when:l,primary:10,secondary:[3],handler:t=>{O(t.get(C))?.toggle()}}),h.registerCommand($,t=>{i.hide()}),d.registerKeybindingRule({id:$,weight:150,when:p,primary:9}),d.registerKeybindingRule({id:$,weight:300,when:y.and(p,l),primary:9}),h.registerCommand(S,()=>i.focus()),d.registerCommandAndKeybindingRule({id:k,weight:200,when:y.and(l,p),primary:18,handler:()=>{i.focusNext()}}),d.registerCommandAndKeybindingRule({id:J,weight:200,when:y.and(l,p),primary:16,handler:()=>{i.focusPrevious()}}),d.registerCommandAndKeybindingRule({id:X,weight:200,when:y.and(l,p),primary:11,secondary:[14],handler:()=>{i.focusFirst()}}),d.registerCommandAndKeybindingRule({id:Y,weight:200,when:y.and(l,p),primary:12,secondary:[13],handler:()=>{i.focusLast()}}),h.registerCommand(P,()=>a.clearAll()),h.registerCommand(x,t=>{const e=t.get(I);e.setFilter(e.getFilter()===T.ERROR?T.OFF:T.ERROR)}),h.registerCommand(M,t=>{const e=t.get(I),r=t.get(q),s=e.getFilters().sort((c,D)=>c.label.localeCompare(D.label)),w=new z,m=w.add(r.createQuickPick());m.items=s.map(c=>({id:c.id,label:c.label,tooltip:`${c.label} (${c.id})`,filter:c.filter})),m.canSelectMany=!0,m.placeholder=E(3988,null),m.selectedItems=m.items.filter(c=>c.filter===T.OFF),m.show(),w.add(m.onDidAccept(async()=>{for(const c of m.items)e.setFilter({id:c.id,label:c.label,filter:m.selectedItems.includes(c)?T.OFF:T.ERROR});m.hide()})),w.add(m.onDidHide(()=>w.dispose()))});const n=f(3989,"Notifications");g.appendMenuItem(u.CommandPalette,{command:{id:R,title:f(3990,"Show Notifications"),category:n}}),g.appendMenuItem(u.CommandPalette,{command:{id:L,title:f(3991,"Hide Notifications"),category:n},when:N}),g.appendMenuItem(u.CommandPalette,{command:{id:P,title:f(3992,"Clear All Notifications"),category:n}}),g.appendMenuItem(u.CommandPalette,{command:{id:_,title:f(3993,"Accept Notification Primary Action"),category:n}}),g.appendMenuItem(u.CommandPalette,{command:{id:x,title:f(3994,"Toggle Do Not Disturb Mode"),category:n}}),g.appendMenuItem(u.CommandPalette,{command:{id:M,title:f(3995,"Toggle Do Not Disturb Mode By Source..."),category:n}}),g.appendMenuItem(u.CommandPalette,{command:{id:S,title:f(3996,"Focus Notification Toast"),category:n},when:p})}let A=class extends H{constructor(i,o){super(),this.c=i,this.g=o}async u(i,o){this.c.publicLog2("workbenchActionExecuted",{id:i.id,from:"message"});try{await super.u(i,o)}catch(n){this.g.error(n)}}};A=K([F(0,j),F(1,I)],A);export{R as $HLc,L as $ILc,$ as $JLc,W as $KLc,Z as $LLc,_ as $MLc,ei as $NLc,P as $OLc,x as $PLc,M as $QLc,O as $RLc,Ti as $SLc,A as $TLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { isNotificationViewItem } from "../../../common/notifications.js";
+import { MenuRegistry, MenuId } from "../../../../platform/actions/common/actions.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { IListService, WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { NotificationFocusedContext, NotificationsCenterVisibleContext, NotificationsToastsVisibleContext } from "../../../common/contextkeys.js";
+import { INotificationService, NotificationsFilter } from "../../../../platform/notification/common/notification.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ActionRunner } from "../../../../base/common/actions.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+const SHOW_NOTIFICATIONS_CENTER = "notifications.showList";
+const HIDE_NOTIFICATIONS_CENTER = "notifications.hideList";
+const TOGGLE_NOTIFICATIONS_CENTER = "notifications.toggleList";
+const HIDE_NOTIFICATION_TOAST = "notifications.hideToasts";
+const FOCUS_NOTIFICATION_TOAST = "notifications.focusToasts";
+const FOCUS_NEXT_NOTIFICATION_TOAST = "notifications.focusNextToast";
+const FOCUS_PREVIOUS_NOTIFICATION_TOAST = "notifications.focusPreviousToast";
+const FOCUS_FIRST_NOTIFICATION_TOAST = "notifications.focusFirstToast";
+const FOCUS_LAST_NOTIFICATION_TOAST = "notifications.focusLastToast";
+const COLLAPSE_NOTIFICATION = "notification.collapse";
+const EXPAND_NOTIFICATION = "notification.expand";
+const ACCEPT_PRIMARY_ACTION_NOTIFICATION = "notification.acceptPrimaryAction";
+const TOGGLE_NOTIFICATION = "notification.toggle";
+const CLEAR_NOTIFICATION = "notification.clear";
+const CLEAR_ALL_NOTIFICATIONS = "notifications.clearAll";
+const TOGGLE_DO_NOT_DISTURB_MODE = "notifications.toggleDoNotDisturbMode";
+const TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE = "notifications.toggleDoNotDisturbModeBySource";
+function getNotificationFromContext(listService, context) {
+  if (isNotificationViewItem(context)) {
+    return context;
+  }
+  const list = listService.lastFocusedList;
+  if (list instanceof WorkbenchList) {
+    let element = list.getFocusedElements()[0];
+    if (!isNotificationViewItem(element)) {
+      if (list.isDOMFocused()) {
+        element = list.element(0);
+      }
+    }
+    if (isNotificationViewItem(element)) {
+      return element;
+    }
+  }
+  return void 0;
+}
+__name(getNotificationFromContext, "getNotificationFromContext");
+function registerNotificationCommands(center, toasts, model) {
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: SHOW_NOTIFICATIONS_CENTER,
+    weight: 200,
+    primary: KeyChord(
+      2048 | 41,
+      2048 | 1024 | 44
+      /* KeyCode.KeyN */
+    ),
+    handler: /* @__PURE__ */ __name(() => {
+      toasts.hide();
+      center.show();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: HIDE_NOTIFICATIONS_CENTER,
+    weight: 200 + 50,
+    when: NotificationsCenterVisibleContext,
+    primary: 9,
+    handler: /* @__PURE__ */ __name(() => center.hide(), "handler")
+  });
+  CommandsRegistry.registerCommand(TOGGLE_NOTIFICATIONS_CENTER, () => {
+    if (center.isVisible) {
+      center.hide();
+    } else {
+      toasts.hide();
+      center.show();
+    }
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: CLEAR_NOTIFICATION,
+    weight: 200,
+    when: NotificationFocusedContext,
+    primary: 20,
+    mac: {
+      primary: 2048 | 1
+      /* KeyCode.Backspace */
+    },
+    handler: /* @__PURE__ */ __name((accessor, args) => {
+      const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
+      const notification = getNotificationFromContext(accessor.get(IListService), args);
+      if (notification && !notification.hasProgress) {
+        notification.close();
+        accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+      }
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: EXPAND_NOTIFICATION,
+    weight: 200,
+    when: NotificationFocusedContext,
+    primary: 17,
+    handler: /* @__PURE__ */ __name((accessor, args) => {
+      const notification = getNotificationFromContext(accessor.get(IListService), args);
+      notification?.expand();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: ACCEPT_PRIMARY_ACTION_NOTIFICATION,
+    weight: 200 + 1,
+    when: ContextKeyExpr.or(NotificationFocusedContext, NotificationsToastsVisibleContext),
+    primary: 2048 | 1024 | 31,
+    handler: /* @__PURE__ */ __name((accessor) => {
+      const actionRunner = accessor.get(IInstantiationService).createInstance(NotificationActionRunner);
+      const notification = getNotificationFromContext(accessor.get(IListService)) || model.notifications.at(0);
+      if (!notification) {
+        return;
+      }
+      const primaryAction = notification.actions?.primary ? notification.actions.primary.at(0) : void 0;
+      if (!primaryAction) {
+        return;
+      }
+      actionRunner.run(primaryAction, notification);
+      notification.close();
+      actionRunner.dispose();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: COLLAPSE_NOTIFICATION,
+    weight: 200,
+    when: NotificationFocusedContext,
+    primary: 15,
+    handler: /* @__PURE__ */ __name((accessor, args) => {
+      const notification = getNotificationFromContext(accessor.get(IListService), args);
+      notification?.collapse();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: TOGGLE_NOTIFICATION,
+    weight: 200,
+    when: NotificationFocusedContext,
+    primary: 10,
+    secondary: [
+      3
+      /* KeyCode.Enter */
+    ],
+    handler: /* @__PURE__ */ __name((accessor) => {
+      const notification = getNotificationFromContext(accessor.get(IListService));
+      notification?.toggle();
+    }, "handler")
+  });
+  CommandsRegistry.registerCommand(HIDE_NOTIFICATION_TOAST, (accessor) => {
+    toasts.hide();
+  });
+  KeybindingsRegistry.registerKeybindingRule({
+    id: HIDE_NOTIFICATION_TOAST,
+    weight: 200 - 50,
+    // lower when not focused (e.g. let editor suggest win over this command)
+    when: NotificationsToastsVisibleContext,
+    primary: 9
+    /* KeyCode.Escape */
+  });
+  KeybindingsRegistry.registerKeybindingRule({
+    id: HIDE_NOTIFICATION_TOAST,
+    weight: 200 + 100,
+    // higher when focused
+    when: ContextKeyExpr.and(NotificationsToastsVisibleContext, NotificationFocusedContext),
+    primary: 9
+    /* KeyCode.Escape */
+  });
+  CommandsRegistry.registerCommand(FOCUS_NOTIFICATION_TOAST, () => toasts.focus());
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: FOCUS_NEXT_NOTIFICATION_TOAST,
+    weight: 200,
+    when: ContextKeyExpr.and(NotificationFocusedContext, NotificationsToastsVisibleContext),
+    primary: 18,
+    handler: /* @__PURE__ */ __name(() => {
+      toasts.focusNext();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: FOCUS_PREVIOUS_NOTIFICATION_TOAST,
+    weight: 200,
+    when: ContextKeyExpr.and(NotificationFocusedContext, NotificationsToastsVisibleContext),
+    primary: 16,
+    handler: /* @__PURE__ */ __name(() => {
+      toasts.focusPrevious();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: FOCUS_FIRST_NOTIFICATION_TOAST,
+    weight: 200,
+    when: ContextKeyExpr.and(NotificationFocusedContext, NotificationsToastsVisibleContext),
+    primary: 11,
+    secondary: [
+      14
+      /* KeyCode.Home */
+    ],
+    handler: /* @__PURE__ */ __name(() => {
+      toasts.focusFirst();
+    }, "handler")
+  });
+  KeybindingsRegistry.registerCommandAndKeybindingRule({
+    id: FOCUS_LAST_NOTIFICATION_TOAST,
+    weight: 200,
+    when: ContextKeyExpr.and(NotificationFocusedContext, NotificationsToastsVisibleContext),
+    primary: 12,
+    secondary: [
+      13
+      /* KeyCode.End */
+    ],
+    handler: /* @__PURE__ */ __name(() => {
+      toasts.focusLast();
+    }, "handler")
+  });
+  CommandsRegistry.registerCommand(CLEAR_ALL_NOTIFICATIONS, () => center.clearAll());
+  CommandsRegistry.registerCommand(TOGGLE_DO_NOT_DISTURB_MODE, (accessor) => {
+    const notificationService = accessor.get(INotificationService);
+    notificationService.setFilter(notificationService.getFilter() === NotificationsFilter.ERROR ? NotificationsFilter.OFF : NotificationsFilter.ERROR);
+  });
+  CommandsRegistry.registerCommand(TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE, (accessor) => {
+    const notificationService = accessor.get(INotificationService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const sortedFilters = notificationService.getFilters().sort((a, b) => a.label.localeCompare(b.label));
+    const disposables = new DisposableStore();
+    const picker = disposables.add(quickInputService.createQuickPick());
+    picker.items = sortedFilters.map((source) => ({
+      id: source.id,
+      label: source.label,
+      tooltip: `${source.label} (${source.id})`,
+      filter: source.filter
+    }));
+    picker.canSelectMany = true;
+    picker.placeholder = localize("selectSources", "Select sources to enable all notifications from");
+    picker.selectedItems = picker.items.filter((item) => item.filter === NotificationsFilter.OFF);
+    picker.show();
+    disposables.add(picker.onDidAccept(async () => {
+      for (const item of picker.items) {
+        notificationService.setFilter({
+          id: item.id,
+          label: item.label,
+          filter: picker.selectedItems.includes(item) ? NotificationsFilter.OFF : NotificationsFilter.ERROR
+        });
+      }
+      picker.hide();
+    }));
+    disposables.add(picker.onDidHide(() => disposables.dispose()));
+  });
+  const category = localize2("notifications", "Notifications");
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: SHOW_NOTIFICATIONS_CENTER, title: localize2("showNotifications", "Show Notifications"), category } });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: HIDE_NOTIFICATIONS_CENTER, title: localize2("hideNotifications", "Hide Notifications"), category }, when: NotificationsCenterVisibleContext });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: CLEAR_ALL_NOTIFICATIONS, title: localize2("clearAllNotifications", "Clear All Notifications"), category } });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: ACCEPT_PRIMARY_ACTION_NOTIFICATION, title: localize2("acceptNotificationPrimaryAction", "Accept Notification Primary Action"), category } });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: TOGGLE_DO_NOT_DISTURB_MODE, title: localize2("toggleDoNotDisturbMode", "Toggle Do Not Disturb Mode"), category } });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE, title: localize2("toggleDoNotDisturbModeBySource", "Toggle Do Not Disturb Mode By Source..."), category } });
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, { command: { id: FOCUS_NOTIFICATION_TOAST, title: localize2("focusNotificationToasts", "Focus Notification Toast"), category }, when: NotificationsToastsVisibleContext });
+}
+__name(registerNotificationCommands, "registerNotificationCommands");
+let NotificationActionRunner = class NotificationActionRunner2 extends ActionRunner {
+  static {
+    __name(this, "NotificationActionRunner");
+  }
+  constructor(telemetryService, notificationService) {
+    super();
+    this.telemetryService = telemetryService;
+    this.notificationService = notificationService;
+  }
+  async runAction(action, context) {
+    this.telemetryService.publicLog2("workbenchActionExecuted", { id: action.id, from: "message" });
+    try {
+      await super.runAction(action, context);
+    } catch (error) {
+      this.notificationService.error(error);
+    }
+  }
+};
+NotificationActionRunner = __decorate([
+  __param(0, ITelemetryService),
+  __param(1, INotificationService)
+], NotificationActionRunner);
+export {
+  ACCEPT_PRIMARY_ACTION_NOTIFICATION,
+  CLEAR_ALL_NOTIFICATIONS,
+  CLEAR_NOTIFICATION,
+  COLLAPSE_NOTIFICATION,
+  EXPAND_NOTIFICATION,
+  HIDE_NOTIFICATIONS_CENTER,
+  HIDE_NOTIFICATION_TOAST,
+  NotificationActionRunner,
+  SHOW_NOTIFICATIONS_CENTER,
+  TOGGLE_DO_NOT_DISTURB_MODE,
+  TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE,
+  getNotificationFromContext,
+  registerNotificationCommands
+};
+//# sourceMappingURL=notificationsCommands.js.map

@@ -1,1 +1,64 @@
-import{URI as o}from"../../../../base/common/uri.js";import{$5m as i}from"../../../../base/common/marshalling.js";class g{static async getEnvironmentData(t,r,a){const n={remoteAuthority:r,profile:a},e=await t.call("getEnvironmentData",n),s=typeof e.reconnectionGraceTime=="number"&&e.reconnectionGraceTime>=0?e.reconnectionGraceTime:108e5;return{pid:e.pid,connectionToken:e.connectionToken,appRoot:o.revive(e.appRoot),tmpDir:o.revive(e.tmpDir),settingsPath:o.revive(e.settingsPath),mcpResource:o.revive(e.mcpResource),logsPath:o.revive(e.logsPath),extensionHostLogsPath:o.revive(e.extensionHostLogsPath),globalStorageHome:o.revive(e.globalStorageHome),workspaceStorageHome:o.revive(e.workspaceStorageHome),localHistoryHome:o.revive(e.localHistoryHome),userHome:o.revive(e.userHome),os:e.os,arch:e.arch,marks:e.marks,useHostProxy:e.useHostProxy,profiles:i(e.profiles),isUnsupportedGlibc:e.isUnsupportedGlibc,reconnectionGraceTime:s}}static async getExtensionHostExitInfo(t,r,a){const n={remoteAuthority:r,reconnectionToken:a};return t.call("getExtensionHostExitInfo",n)}static getDiagnosticInfo(t,r){return t.call("getDiagnosticInfo",r)}static updateTelemetryLevel(t,r){return t.call("updateTelemetryLevel",{telemetryLevel:r})}static logTelemetry(t,r,a){return t.call("logTelemetry",{eventName:r,data:a})}static flushTelemetry(t){return t.call("flushTelemetry")}static async ping(t){await t.call("ping")}}export{g as $f6};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { revive } from "../../../../base/common/marshalling.js";
+class RemoteExtensionEnvironmentChannelClient {
+  static {
+    __name(this, "RemoteExtensionEnvironmentChannelClient");
+  }
+  static async getEnvironmentData(channel, remoteAuthority, profile) {
+    const args = {
+      remoteAuthority,
+      profile
+    };
+    const data = await channel.call("getEnvironmentData", args);
+    const reconnectionGraceTime = typeof data.reconnectionGraceTime === "number" && data.reconnectionGraceTime >= 0 ? data.reconnectionGraceTime : 108e5;
+    return {
+      pid: data.pid,
+      connectionToken: data.connectionToken,
+      appRoot: URI.revive(data.appRoot),
+      tmpDir: URI.revive(data.tmpDir),
+      settingsPath: URI.revive(data.settingsPath),
+      mcpResource: URI.revive(data.mcpResource),
+      logsPath: URI.revive(data.logsPath),
+      extensionHostLogsPath: URI.revive(data.extensionHostLogsPath),
+      globalStorageHome: URI.revive(data.globalStorageHome),
+      workspaceStorageHome: URI.revive(data.workspaceStorageHome),
+      localHistoryHome: URI.revive(data.localHistoryHome),
+      userHome: URI.revive(data.userHome),
+      os: data.os,
+      arch: data.arch,
+      marks: data.marks,
+      useHostProxy: data.useHostProxy,
+      profiles: revive(data.profiles),
+      isUnsupportedGlibc: data.isUnsupportedGlibc,
+      reconnectionGraceTime
+    };
+  }
+  static async getExtensionHostExitInfo(channel, remoteAuthority, reconnectionToken) {
+    const args = {
+      remoteAuthority,
+      reconnectionToken
+    };
+    return channel.call("getExtensionHostExitInfo", args);
+  }
+  static getDiagnosticInfo(channel, options) {
+    return channel.call("getDiagnosticInfo", options);
+  }
+  static updateTelemetryLevel(channel, telemetryLevel) {
+    return channel.call("updateTelemetryLevel", { telemetryLevel });
+  }
+  static logTelemetry(channel, eventName, data) {
+    return channel.call("logTelemetry", { eventName, data });
+  }
+  static flushTelemetry(channel) {
+    return channel.call("flushTelemetry");
+  }
+  static async ping(channel) {
+    await channel.call("ping");
+  }
+}
+export {
+  RemoteExtensionEnvironmentChannelClient
+};
+//# sourceMappingURL=remoteAgentEnvironmentChannel.js.map

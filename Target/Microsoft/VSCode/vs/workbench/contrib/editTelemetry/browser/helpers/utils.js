@@ -1,1 +1,47 @@
-import{$Bi as f}from"../../../../../base/common/async.js";import{$Cd as p}from"../../../../../base/common/lifecycle.js";import{observableValue as s,runOnChange as i,transaction as m}from"../../../../../base/common/observable.js";function x(n,r,o){return n.reduce((e,t)=>{const u=o(t);return e[u]=(e[u]||0)+r(t),e},{})}function K(n,r,o){const e=s("mapped",n.get());return o.add(i(n,(t,u,d)=>{m(a=>{for(const c of d)e.set(t,a,r(c))})})),e}function b(n,r){return new f(o=>{if(!r.isDisposed)return r.add(i(n,(e,t,u)=>{o.emitOne({value:e,prevValue:t,change:u})})),new Promise(e=>{r.add(p(()=>{e(void 0)}))})})}export{x as $1Kc,K as $2Kc,b as $3Kc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AsyncIterableProducer } from "../../../../../base/common/async.js";
+import { toDisposable } from "../../../../../base/common/lifecycle.js";
+import { observableValue, runOnChange, transaction } from "../../../../../base/common/observable.js";
+function sumByCategory(items, getValue, getCategory) {
+  return items.reduce((acc, item) => {
+    const category = getCategory(item);
+    acc[category] = (acc[category] || 0) + getValue(item);
+    return acc;
+  }, {});
+}
+__name(sumByCategory, "sumByCategory");
+function mapObservableDelta(obs, mapFn, store) {
+  const obsResult = observableValue("mapped", obs.get());
+  store.add(runOnChange(obs, (value, _prevValue, changes) => {
+    transaction((tx) => {
+      for (const c of changes) {
+        obsResult.set(value, tx, mapFn(c));
+      }
+    });
+  }));
+  return obsResult;
+}
+__name(mapObservableDelta, "mapObservableDelta");
+function iterateObservableChanges(obs, store) {
+  return new AsyncIterableProducer((e) => {
+    if (store.isDisposed) {
+      return;
+    }
+    store.add(runOnChange(obs, (value, prevValue, change) => {
+      e.emitOne({ value, prevValue, change });
+    }));
+    return new Promise((res) => {
+      store.add(toDisposable(() => {
+        res(void 0);
+      }));
+    });
+  });
+}
+__name(iterateObservableChanges, "iterateObservableChanges");
+export {
+  iterateObservableChanges,
+  mapObservableDelta,
+  sumByCategory
+};
+//# sourceMappingURL=utils.js.map

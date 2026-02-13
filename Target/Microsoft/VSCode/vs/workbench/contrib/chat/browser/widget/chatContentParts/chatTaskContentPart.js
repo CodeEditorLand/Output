@@ -1,1 +1,55 @@
-import*as l from"../../../../../../base/browser/dom.js";import{$Ed as m}from"../../../../../../base/common/lifecycle.js";import{$Mj as c}from"../../../../../../platform/instantiation/common/instantiation.js";import{$V2b as u}from"./chatProgressContentPart.js";import{$g4b as g}from"./chatReferencesContentPart.js";var f=function(i,e,s,o){var n=arguments.length,t=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,s):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,s,o);else for(var d=i.length-1;d>=0;d--)(r=i[d])&&(t=(n<3?r(t):n>3?r(e,s,t):r(e,s))||t);return n>3&&t&&Object.defineProperty(e,s,t),t},h=function(i,e){return function(s,o){e(s,o,i)}};let p=class extends m{constructor(e,s,o,n,t){if(super(),this.b=e,e.progress.length){this.a=!0;const r=this.D(t.createInstance(g,e.progress,e.content.value,n,s,void 0));this.domNode=l.$(".chat-progress-task"),this.domNode.appendChild(r.domNode)}else{const r=e.kind==="progressTask"?e.isSettled():!0;this.a=r;const d=!r&&!n.element.isComplete,a=this.D(t.createInstance(u,e,o,n,d,!0,void 0,void 0));this.domNode=a.domNode}}hasSameContent(e){return e.kind==="progressTask"&&this.b.kind==="progressTask"&&e.isSettled()!==this.a?!1:e.kind===this.b.kind&&e.progress.length===this.b.progress.length}addDisposable(e){this.D(e)}};p=f([h(4,c)],p);export{p as $32b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ChatProgressContentPart } from "./chatProgressContentPart.js";
+import { ChatCollapsibleListContentPart } from "./chatReferencesContentPart.js";
+let ChatTaskContentPart = class ChatTaskContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatTaskContentPart");
+  }
+  constructor(task, contentReferencesListPool, chatContentMarkdownRenderer, context, instantiationService) {
+    super();
+    this.task = task;
+    if (task.progress.length) {
+      this.isSettled = true;
+      const refsPart = this._register(instantiationService.createInstance(ChatCollapsibleListContentPart, task.progress, task.content.value, context, contentReferencesListPool, void 0));
+      this.domNode = dom.$(".chat-progress-task");
+      this.domNode.appendChild(refsPart.domNode);
+    } else {
+      const isSettled = task.kind === "progressTask" ? task.isSettled() : true;
+      this.isSettled = isSettled;
+      const showSpinner = !isSettled && !context.element.isComplete;
+      const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, task, chatContentMarkdownRenderer, context, showSpinner, true, void 0, void 0));
+      this.domNode = progressPart.domNode;
+    }
+  }
+  hasSameContent(other) {
+    if (other.kind === "progressTask" && this.task.kind === "progressTask" && other.isSettled() !== this.isSettled) {
+      return false;
+    }
+    return other.kind === this.task.kind && other.progress.length === this.task.progress.length;
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatTaskContentPart = __decorate([
+  __param(4, IInstantiationService)
+], ChatTaskContentPart);
+export {
+  ChatTaskContentPart
+};
+//# sourceMappingURL=chatTaskContentPart.js.map

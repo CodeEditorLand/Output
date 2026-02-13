@@ -1,1 +1,106 @@
-import"../colorPicker.css";import*as o from"../../../../../base/browser/dom.js";import{$$9 as l}from"../../../../../base/browser/globalPointerMoveMonitor.js";import{$Up as a,$Tp as c}from"../../../../../base/common/color.js";import{$xf as e}from"../../../../../base/common/event.js";import{$Ed as f}from"../../../../../base/common/lifecycle.js";const n=o.$;class b extends f{constructor(t,s,i){super(),this.q=s,this.r=i,this.m=new e,this.onDidChange=this.m.event,this.n=new e,this.onColorFlushed=this.n.event,this.a=n(".saturation-wrap"),o.$y9(t,this.a),this.c=document.createElement("canvas"),this.c.className="saturation-box",o.$y9(this.a,this.c),this.b=n(".saturation-selection"),o.$y9(this.a,this.b),this.layout(),this.D(o.$u8(this.a,o.$r9.POINTER_DOWN,h=>this.t(h))),this.D(this.q.onDidChangeColor(this.z,this)),this.j=null}get domNode(){return this.a}t(t){if(!t.target||!(t.target instanceof Element))return;this.j=this.D(new l);const s=o.$R8(this.a);t.target!==this.b&&this.u(t.offsetX,t.offsetY),this.j.startMonitoring(t.target,t.pointerId,t.buttons,h=>this.u(h.pageX-s.left,h.pageY-s.top),()=>null);const i=o.$u8(t.target.ownerDocument,o.$r9.POINTER_UP,()=>{this.n.fire(),i.dispose(),this.j&&(this.j.stopMonitoring(!0),this.j=null)},!0)}u(t,s){const i=Math.max(0,Math.min(1,t/this.f)),h=Math.max(0,Math.min(1,1-s/this.g));this.y(i,h),this.m.fire({s:i,v:h})}layout(){this.f=this.a.offsetWidth,this.g=this.a.offsetHeight,this.c.width=this.f*this.r,this.c.height=this.g*this.r,this.w();const t=this.q.color.hsva;this.y(t.s,t.v)}w(){const t=this.q.color.hsva,s=new a(new c(t.h,1,1,1)),i=this.c.getContext("2d"),h=i.createLinearGradient(0,0,this.c.width,0);h.addColorStop(0,"rgba(255, 255, 255, 1)"),h.addColorStop(.5,"rgba(255, 255, 255, 0.5)"),h.addColorStop(1,"rgba(255, 255, 255, 0)");const r=i.createLinearGradient(0,0,0,this.c.height);r.addColorStop(0,"rgba(0, 0, 0, 0)"),r.addColorStop(1,"rgba(0, 0, 0, 1)"),i.rect(0,0,this.c.width,this.c.height),i.fillStyle=a.Format.CSS.format(s),i.fill(),i.fillStyle=h,i.fill(),i.fillStyle=r,i.fill()}y(t,s){this.b.style.left=`${t*this.f}px`,this.b.style.top=`${this.g-s*this.g}px`}z(t){if(this.j&&this.j.isMonitoring())return;this.w();const s=t.hsva;this.y(s.s,s.v)}}export{b as $nub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "../colorPicker.css";
+import * as dom from "../../../../../base/browser/dom.js";
+import { GlobalPointerMoveMonitor } from "../../../../../base/browser/globalPointerMoveMonitor.js";
+import { Color, HSVA } from "../../../../../base/common/color.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+const $ = dom.$;
+class SaturationBox extends Disposable {
+  static {
+    __name(this, "SaturationBox");
+  }
+  constructor(container, model, pixelRatio) {
+    super();
+    this.model = model;
+    this.pixelRatio = pixelRatio;
+    this._onDidChange = new Emitter();
+    this.onDidChange = this._onDidChange.event;
+    this._onColorFlushed = new Emitter();
+    this.onColorFlushed = this._onColorFlushed.event;
+    this._domNode = $(".saturation-wrap");
+    dom.append(container, this._domNode);
+    this._canvas = document.createElement("canvas");
+    this._canvas.className = "saturation-box";
+    dom.append(this._domNode, this._canvas);
+    this.selection = $(".saturation-selection");
+    dom.append(this._domNode, this.selection);
+    this.layout();
+    this._register(dom.addDisposableListener(this._domNode, dom.EventType.POINTER_DOWN, (e) => this.onPointerDown(e)));
+    this._register(this.model.onDidChangeColor(this.onDidChangeColor, this));
+    this.monitor = null;
+  }
+  get domNode() {
+    return this._domNode;
+  }
+  onPointerDown(e) {
+    if (!e.target || !(e.target instanceof Element)) {
+      return;
+    }
+    this.monitor = this._register(new GlobalPointerMoveMonitor());
+    const origin = dom.getDomNodePagePosition(this._domNode);
+    if (e.target !== this.selection) {
+      this.onDidChangePosition(e.offsetX, e.offsetY);
+    }
+    this.monitor.startMonitoring(e.target, e.pointerId, e.buttons, (event) => this.onDidChangePosition(event.pageX - origin.left, event.pageY - origin.top), () => null);
+    const pointerUpListener = dom.addDisposableListener(e.target.ownerDocument, dom.EventType.POINTER_UP, () => {
+      this._onColorFlushed.fire();
+      pointerUpListener.dispose();
+      if (this.monitor) {
+        this.monitor.stopMonitoring(true);
+        this.monitor = null;
+      }
+    }, true);
+  }
+  onDidChangePosition(left, top) {
+    const s = Math.max(0, Math.min(1, left / this.width));
+    const v = Math.max(0, Math.min(1, 1 - top / this.height));
+    this.paintSelection(s, v);
+    this._onDidChange.fire({ s, v });
+  }
+  layout() {
+    this.width = this._domNode.offsetWidth;
+    this.height = this._domNode.offsetHeight;
+    this._canvas.width = this.width * this.pixelRatio;
+    this._canvas.height = this.height * this.pixelRatio;
+    this.paint();
+    const hsva = this.model.color.hsva;
+    this.paintSelection(hsva.s, hsva.v);
+  }
+  paint() {
+    const hsva = this.model.color.hsva;
+    const saturatedColor = new Color(new HSVA(hsva.h, 1, 1, 1));
+    const ctx = this._canvas.getContext("2d");
+    const whiteGradient = ctx.createLinearGradient(0, 0, this._canvas.width, 0);
+    whiteGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+    whiteGradient.addColorStop(0.5, "rgba(255, 255, 255, 0.5)");
+    whiteGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+    const blackGradient = ctx.createLinearGradient(0, 0, 0, this._canvas.height);
+    blackGradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+    blackGradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+    ctx.rect(0, 0, this._canvas.width, this._canvas.height);
+    ctx.fillStyle = Color.Format.CSS.format(saturatedColor);
+    ctx.fill();
+    ctx.fillStyle = whiteGradient;
+    ctx.fill();
+    ctx.fillStyle = blackGradient;
+    ctx.fill();
+  }
+  paintSelection(s, v) {
+    this.selection.style.left = `${s * this.width}px`;
+    this.selection.style.top = `${this.height - v * this.height}px`;
+  }
+  onDidChangeColor(color) {
+    if (this.monitor && this.monitor.isMonitoring()) {
+      return;
+    }
+    this.paint();
+    const hsva = color.hsva;
+    this.paintSelection(hsva.s, hsva.v);
+  }
+}
+export {
+  SaturationBox
+};
+//# sourceMappingURL=colorPickerSaturationBox.js.map

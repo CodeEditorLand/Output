@@ -1,2 +1,308 @@
-import*as b from"../../../../../../base/browser/dom.js";import{$$h as F}from"../../../../../../base/common/async.js";import{$qj as O}from"../../../../../../base/common/buffer.js";import{$bk as j}from"../../../../../../base/common/codicons.js";import{$Ed as M}from"../../../../../../base/common/lifecycle.js";import{$Fh as d,$Ih as C}from"../../../../../../base/common/resources.js";import{$ln as g}from"../../../../../../base/common/uuid.js";import{$ZF as _}from"../../../../../../editor/common/languages/language.js";import{$9H as q}from"../../../../../../editor/common/services/model.js";import{localize as k,localize2 as A}from"../../../../../../nls.js";import{$ikb as B}from"../../../../../../platform/actions/browser/toolbar.js";import{$vL as L,$qL as v,$wL as U}from"../../../../../../platform/actions/common/actions.js";import{$uo as N}from"../../../../../../platform/commands/common/commands.js";import{$ro as H}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ijb as z}from"../../../../../../platform/contextview/browser/contextView.js";import{$Op as V}from"../../../../../../platform/dialogs/common/dialogs.js";import{$vk as S}from"../../../../../../platform/files/common/files.js";import{$Mj as W}from"../../../../../../platform/instantiation/common/instantiation.js";import{$oH as E}from"../../../../../../platform/label/common/label.js";import{$pH as G}from"../../../../../../platform/notification/common/notification.js";import{$uH as K}from"../../../../../../platform/progress/common/progress.js";import{$Ml as X}from"../../../../../../platform/workspace/common/workspace.js";import{$ARb as Y}from"../../../../files/browser/fileConstants.js";import{$rS as Z}from"../../../common/model/chatModel.js";import{$jk as P}from"../../../../../../base/common/htmlContent.js";import{$Ukb as J}from"../../../../../../platform/markdown/browser/markdownRenderer.js";import{$c1b as Q}from"./chatAttachmentsContentPart.js";var D=function(p,e,i,o){var n=arguments.length,r=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,i):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(p,e,i,o);else for(var l=p.length-1;l>=0;l--)(s=p[l])&&(r=(n<3?s(r):n>3?s(e,i,r):s(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r},f=function(p,e){return function(i,o){e(i,o,p)}},y;let R=class extends M{static{y=this}constructor(e,i,o,n,r,s,l,a,t){super(),this.b=e,this.c=i,this.g=o,this.j=n,this.m=r,this.n=s,this.q=l,this.s=a,this.t=t,this.a=[],this.codeblocks=[],this.domNode=this.w()}u(e){return typeof e=="string"?new P("").appendText(e):new P(e.value,{isTrusted:e.isTrusted})}w(){const e=b.$("div");for(let i=0;i<this.c.length;i++){const o=this.c[i];if(o.kind==="code"){const r=[o];for(;i+1<this.c.length&&this.c[i+1].kind==="code";)r.push(this.c[++i]);this.G(r,e);continue}const n=[];for(let r=i;r<this.c.length;r++){const s=this.c[r];if(s.kind!=="data")break;n.push(s)}this.z(n,e),i+=n.length-1}return e}z(e,i){const o=b.h(".chat-collapsible-io-resource-group",[b.h(".chat-collapsible-io-resource-items@items"),b.h(".chat-collapsible-io-resource-actions@actions")]);return this.F(e,o.items,o.actions),i.appendChild(o.root),o.root}static{this.C=100}async F(e,i,o){const n=[],r=[];for(let a=0;a<e.length;a++){const t=e[a];if(t.mimeType&&Z(t.mimeType))if(t.base64Value)n.push({kind:"file",id:g(),name:d(t.uri),fullName:t.uri.path,value:t.uri}),r.push({index:a,part:t});else if(t.value)n.push({kind:"image",id:g(),name:d(t.uri),value:t.value,mimeType:t.mimeType,isURL:!1,references:[{kind:"reference",reference:t.uri}]});else{const m=await this.n.readFile(t.uri).then(h=>h.value.buffer,()=>{});m?n.push({kind:"image",id:g(),name:d(t.uri),value:m,mimeType:t.mimeType,isURL:!1,references:[{kind:"reference",reference:t.uri}]}):n.push({kind:"file",id:g(),name:d(t.uri),fullName:t.uri.path,value:t.uri})}else n.push({kind:"file",id:g(),name:d(t.uri),fullName:t.uri.path,value:t.uri})}if(this.B.isDisposed)return;const s=this.D(this.g.createInstance(Q,{variables:n,limit:5,contentReferences:void 0,domNode:void 0}));s.contextMenuHandler=(a,t)=>{const m=n.indexOf(a),h=e[m];h&&(t.preventDefault(),t.stopPropagation(),this.m.showContextMenu({menuId:v.ChatToolOutputResourceContext,menuActionOptions:{shouldForwardArgs:!0},getAnchor:()=>({x:t.pageX,y:t.pageY}),getActionsContext:()=>({parts:[h]})}))},i.appendChild(s.domNode);const l=this.D(this.g.createInstance(B,o,v.ChatToolOutputResourceToolbar,{menuOptions:{shouldForwardArgs:!0}}));l.context={parts:e},r.length>0&&this.D(F(()=>{for(const{index:a,part:t}of r)try{const m=O(t.base64Value).buffer;n[a]={kind:"image",id:g(),name:d(t.uri),value:m,mimeType:t.mimeType,isURL:!1,references:[{kind:"reference",reference:t.uri}]}}catch{}s.updateVariables(n)},y.C))}G(e,i){const o=e[0];if(o.title){const a=b.$("div.chat-confirmation-widget-title"),t=this.D(this.q.render(this.u(o.title)));a.appendChild(t.element),i.appendChild(a)}const n=e.map(a=>a.data).join(`
-`),r=this.D(this.s.createModel(n,this.t.createById(o.languageId),void 0,!0)),s={languageId:o.languageId,textModel:Promise.resolve(r),codeBlockIndex:o.codeBlockIndex,codeBlockPartIndex:0,element:this.b.element,parentContextKeyService:this.j,renderOptions:o.options,chatSessionResource:this.b.element.sessionResource},l=this.D(this.b.editorPool.get());l.object.render(s,this.b.currentWidth.get()),i.appendChild(l.object.element),this.a.push(l),this.codeblocks.push({ownerMarkdownPartId:o.ownerMarkdownPartId,codeBlockIndex:o.codeBlockIndex,elementId:this.b.element.id,uri:r.uri,uriPromise:Promise.resolve(r.uri),codemapperUri:void 0,chatSessionResource:this.b.element.sessionResource,focus:()=>{}})}layout(e){this.a.forEach(i=>i.object.layout(e))}};R=y=D([f(2,W),f(3,H),f(4,z),f(5,S),f(6,J),f(7,q),f(8,_)],R);class I extends L{static{this.ID="chat.toolOutput.save"}constructor(){super({id:I.ID,title:A(6570,"Save As..."),icon:j.cloudDownload,menu:[{id:v.ChatToolOutputResourceToolbar,group:"navigation",order:1},{id:v.ChatToolOutputResourceContext}]})}async run(e,i){const o=e.get(V),n=e.get(S),r=e.get(G),s=e.get(K),l=e.get(X),a=e.get(N),t=e.get(E),m=await o.defaultFilePath(),h=async(c,u,$)=>{const w=u?C($,d(c.uri)):$;try{if(c.kind==="data")await n.copy(c.uri,w,!0);else{const x=await n.readFile(c.uri);await n.writeFile(w,x.value)}}catch(x){r.error(k(6566,null,d(c.uri),x))}},T=async(c,u)=>{await s.withProgress({location:15,delay:5e3,title:k(6567,null)},async $=>{for(const w of u)await w(),$.report({increment:1,total:u.length})}),l.isInsideWorkspace(c)?a.executeCommand(Y,c):r.info(k(6568,null,t.getUriLabel(c)))};if(i.parts.length===1){const c=i.parts[0],u=await o.pickFileToSave(C(m,d(c.uri)));if(!u)return;await T(u,[()=>h(c,!1,u)])}else{const c=await o.showOpenDialog({title:k(6569,null),canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,defaultUri:l.getWorkspace().folders[0]?.uri});if(!c?.length)return;await T(c[0],i.parts.map(u=>()=>h(u,!0,c[0])))}}}U(I);export{R as $q3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatToolOutputContentSubPart_1;
+import * as dom from "../../../../../../base/browser/dom.js";
+import { disposableTimeout } from "../../../../../../base/common/async.js";
+import { decodeBase64 } from "../../../../../../base/common/buffer.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { basename, joinPath } from "../../../../../../base/common/resources.js";
+import { generateUuid } from "../../../../../../base/common/uuid.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { localize, localize2 } from "../../../../../../nls.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IFileDialogService } from "../../../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { INotificationService } from "../../../../../../platform/notification/common/notification.js";
+import { IProgressService } from "../../../../../../platform/progress/common/progress.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { REVEAL_IN_EXPLORER_COMMAND_ID } from "../../../../files/browser/fileConstants.js";
+import { getAttachableImageExtension } from "../../../common/model/chatModel.js";
+import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { IMarkdownRendererService } from "../../../../../../platform/markdown/browser/markdownRenderer.js";
+import { ChatAttachmentsContentPart } from "./chatAttachmentsContentPart.js";
+let ChatToolOutputContentSubPart = class ChatToolOutputContentSubPart2 extends Disposable {
+  static {
+    __name(this, "ChatToolOutputContentSubPart");
+  }
+  static {
+    ChatToolOutputContentSubPart_1 = this;
+  }
+  constructor(context, parts, _instantiationService, contextKeyService, _contextMenuService, _fileService, _markdownRendererService, modelService, languageService) {
+    super();
+    this.context = context;
+    this.parts = parts;
+    this._instantiationService = _instantiationService;
+    this.contextKeyService = contextKeyService;
+    this._contextMenuService = _contextMenuService;
+    this._fileService = _fileService;
+    this._markdownRendererService = _markdownRendererService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this._editorReferences = [];
+    this.codeblocks = [];
+    this.domNode = this.createOutputContents();
+  }
+  toMdString(value) {
+    if (typeof value === "string") {
+      return new MarkdownString("").appendText(value);
+    }
+    return new MarkdownString(value.value, { isTrusted: value.isTrusted });
+  }
+  createOutputContents() {
+    const container = dom.$("div");
+    for (let i = 0; i < this.parts.length; i++) {
+      const part = this.parts[i];
+      if (part.kind === "code") {
+        const codeParts = [part];
+        while (i + 1 < this.parts.length && this.parts[i + 1].kind === "code") {
+          codeParts.push(this.parts[++i]);
+        }
+        this.addCodeBlock(codeParts, container);
+        continue;
+      }
+      const group = [];
+      for (let k = i; k < this.parts.length; k++) {
+        const part2 = this.parts[k];
+        if (part2.kind !== "data") {
+          break;
+        }
+        group.push(part2);
+      }
+      this.addResourceGroup(group, container);
+      i += group.length - 1;
+    }
+    return container;
+  }
+  addResourceGroup(parts, container) {
+    const el = dom.h(".chat-collapsible-io-resource-group", [
+      dom.h(".chat-collapsible-io-resource-items@items"),
+      dom.h(".chat-collapsible-io-resource-actions@actions")
+    ]);
+    this.fillInResourceGroup(parts, el.items, el.actions);
+    container.appendChild(el.root);
+    return el.root;
+  }
+  static {
+    this.IMAGE_DECODE_DELAY_MS = 100;
+  }
+  async fillInResourceGroup(parts, itemsContainer, actionsContainer) {
+    const entries = [];
+    const deferredImageParts = [];
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (part.mimeType && getAttachableImageExtension(part.mimeType)) {
+        if (part.base64Value) {
+          entries.push({ kind: "file", id: generateUuid(), name: basename(part.uri), fullName: part.uri.path, value: part.uri });
+          deferredImageParts.push({ index: i, part });
+        } else if (part.value) {
+          entries.push({ kind: "image", id: generateUuid(), name: basename(part.uri), value: part.value, mimeType: part.mimeType, isURL: false, references: [{ kind: "reference", reference: part.uri }] });
+        } else {
+          const value = await this._fileService.readFile(part.uri).then((f) => f.value.buffer, () => void 0);
+          if (!value) {
+            entries.push({ kind: "file", id: generateUuid(), name: basename(part.uri), fullName: part.uri.path, value: part.uri });
+          } else {
+            entries.push({ kind: "image", id: generateUuid(), name: basename(part.uri), value, mimeType: part.mimeType, isURL: false, references: [{ kind: "reference", reference: part.uri }] });
+          }
+        }
+      } else {
+        entries.push({ kind: "file", id: generateUuid(), name: basename(part.uri), fullName: part.uri.path, value: part.uri });
+      }
+    }
+    if (this._store.isDisposed) {
+      return;
+    }
+    const attachments = this._register(this._instantiationService.createInstance(ChatAttachmentsContentPart, {
+      variables: entries,
+      limit: 5,
+      contentReferences: void 0,
+      domNode: void 0
+    }));
+    attachments.contextMenuHandler = (attachment, event) => {
+      const index = entries.indexOf(attachment);
+      const part = parts[index];
+      if (part) {
+        event.preventDefault();
+        event.stopPropagation();
+        this._contextMenuService.showContextMenu({
+          menuId: MenuId.ChatToolOutputResourceContext,
+          menuActionOptions: { shouldForwardArgs: true },
+          getAnchor: /* @__PURE__ */ __name(() => ({ x: event.pageX, y: event.pageY }), "getAnchor"),
+          getActionsContext: /* @__PURE__ */ __name(() => ({ parts: [part] }), "getActionsContext")
+        });
+      }
+    };
+    itemsContainer.appendChild(attachments.domNode);
+    const toolbar = this._register(this._instantiationService.createInstance(MenuWorkbenchToolBar, actionsContainer, MenuId.ChatToolOutputResourceToolbar, {
+      menuOptions: {
+        shouldForwardArgs: true
+      }
+    }));
+    toolbar.context = { parts };
+    if (deferredImageParts.length > 0) {
+      this._register(disposableTimeout(() => {
+        for (const { index, part } of deferredImageParts) {
+          try {
+            const value = decodeBase64(part.base64Value).buffer;
+            entries[index] = { kind: "image", id: generateUuid(), name: basename(part.uri), value, mimeType: part.mimeType, isURL: false, references: [{ kind: "reference", reference: part.uri }] };
+          } catch {
+          }
+        }
+        attachments.updateVariables(entries);
+      }, ChatToolOutputContentSubPart_1.IMAGE_DECODE_DELAY_MS));
+    }
+  }
+  addCodeBlock(parts, container) {
+    const firstPart = parts[0];
+    if (firstPart.title) {
+      const title = dom.$("div.chat-confirmation-widget-title");
+      const renderedTitle = this._register(this._markdownRendererService.render(this.toMdString(firstPart.title)));
+      title.appendChild(renderedTitle.element);
+      container.appendChild(title);
+    }
+    const combinedText = parts.map((p) => p.data).join("\n");
+    const textModel = this._register(this.modelService.createModel(combinedText, this.languageService.createById(firstPart.languageId), void 0, true));
+    const data = {
+      languageId: firstPart.languageId,
+      textModel: Promise.resolve(textModel),
+      codeBlockIndex: firstPart.codeBlockIndex,
+      codeBlockPartIndex: 0,
+      element: this.context.element,
+      parentContextKeyService: this.contextKeyService,
+      renderOptions: firstPart.options,
+      chatSessionResource: this.context.element.sessionResource
+    };
+    const editorReference = this._register(this.context.editorPool.get());
+    editorReference.object.render(data, this.context.currentWidth.get());
+    container.appendChild(editorReference.object.element);
+    this._editorReferences.push(editorReference);
+    this.codeblocks.push({
+      ownerMarkdownPartId: firstPart.ownerMarkdownPartId,
+      codeBlockIndex: firstPart.codeBlockIndex,
+      elementId: this.context.element.id,
+      uri: textModel.uri,
+      uriPromise: Promise.resolve(textModel.uri),
+      codemapperUri: void 0,
+      chatSessionResource: this.context.element.sessionResource,
+      focus: /* @__PURE__ */ __name(() => {
+      }, "focus")
+    });
+  }
+  layout(width) {
+    this._editorReferences.forEach((r) => r.object.layout(width));
+  }
+};
+ChatToolOutputContentSubPart = ChatToolOutputContentSubPart_1 = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IContextKeyService),
+  __param(4, IContextMenuService),
+  __param(5, IFileService),
+  __param(6, IMarkdownRendererService),
+  __param(7, IModelService),
+  __param(8, ILanguageService)
+], ChatToolOutputContentSubPart);
+class SaveResourcesAction extends Action2 {
+  static {
+    __name(this, "SaveResourcesAction");
+  }
+  static {
+    this.ID = "chat.toolOutput.save";
+  }
+  constructor() {
+    super({
+      id: SaveResourcesAction.ID,
+      title: localize2("chat.saveResources", "Save As..."),
+      icon: Codicon.cloudDownload,
+      menu: [{
+        id: MenuId.ChatToolOutputResourceToolbar,
+        group: "navigation",
+        order: 1
+      }, {
+        id: MenuId.ChatToolOutputResourceContext
+      }]
+    });
+  }
+  async run(accessor, context) {
+    const fileDialog = accessor.get(IFileDialogService);
+    const fileService = accessor.get(IFileService);
+    const notificationService = accessor.get(INotificationService);
+    const progressService = accessor.get(IProgressService);
+    const workspaceContextService = accessor.get(IWorkspaceContextService);
+    const commandService = accessor.get(ICommandService);
+    const labelService = accessor.get(ILabelService);
+    const defaultFilepath = await fileDialog.defaultFilePath();
+    const savePart = /* @__PURE__ */ __name(async (part, isFolder, uri) => {
+      const target = isFolder ? joinPath(uri, basename(part.uri)) : uri;
+      try {
+        if (part.kind === "data") {
+          await fileService.copy(part.uri, target, true);
+        } else {
+          const contents = await fileService.readFile(part.uri);
+          await fileService.writeFile(target, contents.value);
+        }
+      } catch (e) {
+        notificationService.error(localize("chat.saveResources.error", "Failed to save {0}: {1}", basename(part.uri), e));
+      }
+    }, "savePart");
+    const withProgress = /* @__PURE__ */ __name(async (thenReveal, todo) => {
+      await progressService.withProgress({
+        location: 15,
+        delay: 5e3,
+        title: localize("chat.saveResources.progress", "Saving resources...")
+      }, async (report) => {
+        for (const task of todo) {
+          await task();
+          report.report({ increment: 1, total: todo.length });
+        }
+      });
+      if (workspaceContextService.isInsideWorkspace(thenReveal)) {
+        commandService.executeCommand(REVEAL_IN_EXPLORER_COMMAND_ID, thenReveal);
+      } else {
+        notificationService.info(localize("chat.saveResources.reveal", "Saved resources to {0}", labelService.getUriLabel(thenReveal)));
+      }
+    }, "withProgress");
+    if (context.parts.length === 1) {
+      const part = context.parts[0];
+      const uri = await fileDialog.pickFileToSave(joinPath(defaultFilepath, basename(part.uri)));
+      if (!uri) {
+        return;
+      }
+      await withProgress(uri, [() => savePart(part, false, uri)]);
+    } else {
+      const uris = await fileDialog.showOpenDialog({
+        title: localize("chat.saveResources.title", "Pick folder to save resources"),
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: workspaceContextService.getWorkspace().folders[0]?.uri
+      });
+      if (!uris?.length) {
+        return;
+      }
+      await withProgress(uris[0], context.parts.map((part) => () => savePart(part, true, uris[0])));
+    }
+  }
+}
+registerAction2(SaveResourcesAction);
+export {
+  ChatToolOutputContentSubPart
+};
+//# sourceMappingURL=chatToolOutputContentSubPart.js.map

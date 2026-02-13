@@ -1,1 +1,405 @@
-import*as n from"../../../../base/browser/dom.js";import{$fy as N}from"../../../../platform/keybinding/common/keybinding.js";import{$1tb as w}from"./resizableContentWidget.js";import{$ro as P}from"../../../../platform/contextkey/common/contextkey.js";import{$0l as S}from"../../../../platform/configuration/common/configuration.js";import{$MD as $}from"../../../../platform/accessibility/common/accessibility.js";import{EditorContextKeys as g}from"../../../common/editorContextKeys.js";import{$o0 as C,$m0 as M}from"../../../../base/browser/ui/hover/hoverWidget.js";import{$xf as m}from"../../../../base/common/event.js";var y=function(r,t,o,s){var i=arguments.length,e=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,o):s,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(r,t,o,s);else for(var c=r.length-1;c>=0;c--)(l=r[c])&&(e=(i<3?l(e):i>3?l(t,o,e):l(t,o))||e);return i>3&&e&&Object.defineProperty(t,o,e),e},u=function(r,t){return function(o,s){t(o,s,r)}},h;const p=30;let b=class extends w{static{h=this}static{this.ID="editor.contrib.resizableContentHoverWidget"}static{this.n=new n.$N8(0,0)}get isVisibleFromKeyboard(){return this.q?.source===2}get isVisible(){return this.w.get()??!1}get isFocused(){return this.z.get()??!1}constructor(t,o,s,i,e){const l=t.getOption(75)+8,c=150,a=new n.$N8(c,l);super(t,a),this.H=s,this.I=i,this.J=e,this.u=this.D(new M(!0)),this.C=this.D(new m),this.onDidResize=this.C.event,this.F=this.D(new m),this.onDidScroll=this.F.event,this.G=this.D(new m),this.onContentsChanged=this.G.event,this.s=a,this.w=g.hoverVisible.bindTo(o),this.z=g.hoverFocused.bindTo(o),n.$y9(this.a.domNode,this.u.containerDomNode),this.a.domNode.style.zIndex="50",this.a.domNode.className="monaco-resizable-hover",this.D(this.f.onDidLayoutChange(()=>{this.isVisible&&this.eb()})),this.D(this.f.onDidChangeConfiguration(f=>{f.hasChanged(59)&&this.bb()}));const d=this.D(n.$w9(this.a.domNode));this.D(d.onDidFocus(()=>{this.z.set(!0)})),this.D(d.onDidBlur(()=>{this.z.set(!1)})),this.D(this.u.scrollbar.onScroll(f=>{this.F.fire(f)})),this.ab(void 0),this.f.addContentWidget(this)}dispose(){super.dispose(),this.q?.dispose(),this.f.removeContentWidget(this)}getId(){return h.ID}static L(t,o,s){const i=typeof o=="number"?`${o}px`:o,e=typeof s=="number"?`${s}px`:s;t.style.width=i,t.style.height=e}M(t,o){const s=this.u.contentsDomNode;return h.L(s,t,o)}N(t,o){const s=this.u.containerDomNode;return h.L(s,t,o)}O(t,o){const s=this.u.scrollbar.getDomNode();return h.L(s,t,o)}P(t,o){this.N(t,o),this.O(t,o),this.M(t,o),this.db()}static Q(t,o,s){const i=typeof o=="number"?`${o}px`:o,e=typeof s=="number"?`${s}px`:s;t.style.maxWidth=i,t.style.maxHeight=e}R(t,o){h.Q(this.u.contentsDomNode,t,o),h.Q(this.u.scrollbar.getDomNode(),t,o),h.Q(this.u.containerDomNode,t,o),this.u.containerDomNode.style.setProperty("--vscode-hover-maxWidth",typeof t=="number"?`${t}px`:t),this.db()}S(t){this.R("none","none"),this.P(t.width,t.height)}U(){const t=this.$()??1/0,o=this.Y()??1/0;this.a.maxSize=new n.$N8(t,o),this.R(t,o)}m(t){h.n=new n.$N8(t.width,t.height),this.S(t),this.a.layout(t.height,t.width),this.U(),this.u.scrollbar.scanDomNode(),this.f.layoutContentWidget(this),this.C.fire()}X(){const t=this.q?.showAtPosition;if(t)return this.r===1?this.g(t):this.h(t)}Y(){const t=this.X();if(!t)return;let s=this.u.contentsDomNode.children.length-1;return Array.from(this.u.contentsDomNode.children).forEach(i=>{s+=i.clientHeight}),Math.min(t,s)}Z(){this.u.containerDomNode.style.setProperty("--vscode-hover-whiteSpace","nowrap"),this.u.containerDomNode.style.setProperty("--vscode-hover-sourceWhiteSpace","nowrap");const t=Array.from(this.u.contentsDomNode.children).some(o=>o.scrollWidth>o.clientWidth);return this.u.containerDomNode.style.removeProperty("--vscode-hover-whiteSpace"),this.u.containerDomNode.style.removeProperty("--vscode-hover-sourceWhiteSpace"),t}$(){if(!this.f||!this.f.hasModel())return;const t=this.Z(),o=typeof this.t>"u"?0:this.t;return t||this.u.containerDomNode.clientWidth<o?n.$M8(this.u.containerDomNode.ownerDocument.body).width-14:this.u.containerDomNode.clientWidth}isMouseGettingCloser(t,o){if(!this.q)return!1;if(this.q.initialMousePosX===void 0||this.q.initialMousePosY===void 0)return this.q.initialMousePosX=t,this.q.initialMousePosY=o,!1;const s=n.$R8(this.getDomNode());this.q.closestMouseDistance===void 0&&(this.q.closestMouseDistance=D(this.q.initialMousePosX,this.q.initialMousePosY,s.left,s.top,s.width,s.height));const i=D(t,o,s.left,s.top,s.width,s.height);return i>this.q.closestMouseDistance+4?!1:(this.q.closestMouseDistance=Math.min(this.q.closestMouseDistance,i),!0)}ab(t){this.q?.dispose(),this.q=t,this.w.set(!!t),this.u.containerDomNode.classList.toggle("hidden",!t)}bb(){const{fontSize:t,lineHeight:o}=this.f.getOption(59),s=this.u.contentsDomNode;s.style.fontSize=`${t}px`,s.style.lineHeight=`${o/t}`,Array.prototype.slice.call(this.u.contentsDomNode.getElementsByClassName("code")).forEach(e=>this.f.applyFontInfo(e))}cb(t){const o=this.u.contentsDomNode;o.style.paddingBottom="",o.textContent="",o.appendChild(t)}db(){this.f.layoutContentWidget(this),this.u.onContentsChanged()}eb(){const t=Math.max(this.f.getLayoutInfo().height/4,250,h.n.height),o=Math.max(this.f.getLayoutInfo().width*.66,750,h.n.width);this.a.maxSize=new n.$N8(o,t),this.R(o,t)}fb(t){this.ab(t),this.bb(),this.cb(t.domNode),this.handleContentsChanged(),this.f.render()}getPosition(){return this.q?{position:this.q.showAtPosition,secondaryPosition:this.q.showAtSecondaryPosition,positionAffinity:this.q.shouldAppearBeforeContent?3:void 0,preference:[this.r??1]}:null}show(t){if(!this.f||!this.f.hasModel())return;this.fb(t);const o=n.$Y8(this.u.containerDomNode),s=t.showAtPosition;this.r=this.j(o,s)??1,this.handleContentsChanged(),t.shouldFocus&&this.u.containerDomNode.focus(),this.C.fire();const e=this.u.containerDomNode.ownerDocument.activeElement===this.u.containerDomNode&&C(this.H.getValue("accessibility.verbosity.hover")===!0&&this.I.isScreenReaderOptimized(),this.J.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel()??"");e&&(this.u.contentsDomNode.ariaLabel=this.u.contentsDomNode.textContent+", "+e)}hide(){if(!this.q)return;const t=this.q.shouldFocus||this.z.get();this.ab(void 0),this.a.maxSize=new n.$N8(1/0,1/0),this.a.clearSashHoverState(),this.z.set(!1),this.f.layoutContentWidget(this),t&&this.f.focus()}gb(){const t=this.f.getLayoutInfo();this.a.layout(t.height,t.width),this.P("auto","auto"),this.eb()}setMinimumDimensions(t){this.s=new n.$N8(Math.max(this.s.width,t.width),Math.max(this.s.height,t.height)),this.hb()}hb(){const t=typeof this.t>"u"?this.s.width:Math.min(this.t,this.s.width);this.a.minSize=new n.$N8(t,this.s.height)}handleContentsChanged(){this.gb();const t=this.u.contentsDomNode;let o=n.$Y8(t),s=n.$U8(t)+2;if(this.a.layout(o,s),this.P(s,o),o=n.$Y8(t),s=n.$U8(t),this.t=s,this.hb(),this.a.layout(o,s),this.q?.showAtPosition){const i=n.$Y8(this.u.containerDomNode);this.r=this.j(i,this.q.showAtPosition)}this.db(),this.G.fire()}focus(){this.u.containerDomNode.focus()}scrollUp(){const t=this.u.scrollbar.getScrollPosition().scrollTop,o=this.f.getOption(59);this.u.scrollbar.setScrollPosition({scrollTop:t-o.lineHeight})}scrollDown(){const t=this.u.scrollbar.getScrollPosition().scrollTop,o=this.f.getOption(59);this.u.scrollbar.setScrollPosition({scrollTop:t+o.lineHeight})}scrollLeft(){const t=this.u.scrollbar.getScrollPosition().scrollLeft;this.u.scrollbar.setScrollPosition({scrollLeft:t-p})}scrollRight(){const t=this.u.scrollbar.getScrollPosition().scrollLeft;this.u.scrollbar.setScrollPosition({scrollLeft:t+p})}pageUp(){const t=this.u.scrollbar.getScrollPosition().scrollTop,o=this.u.scrollbar.getScrollDimensions().height;this.u.scrollbar.setScrollPosition({scrollTop:t-o})}pageDown(){const t=this.u.scrollbar.getScrollPosition().scrollTop,o=this.u.scrollbar.getScrollDimensions().height;this.u.scrollbar.setScrollPosition({scrollTop:t+o})}goToTop(){this.u.scrollbar.setScrollPosition({scrollTop:0})}goToBottom(){this.u.scrollbar.setScrollPosition({scrollTop:this.u.scrollbar.getScrollDimensions().scrollHeight})}};b=h=y([u(1,P),u(2,S),u(3,$),u(4,N)],b);function D(r,t,o,s,i,e){const l=o+i/2,c=s+e/2,a=Math.max(Math.abs(r-l)-i/2,0),d=Math.max(Math.abs(t-c)-e/2,0);return Math.sqrt(a*a+d*d)}export{b as $Fub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ContentHoverWidget_1;
+import * as dom from "../../../../base/browser/dom.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ResizableContentWidget } from "./resizableContentWidget.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { getHoverAccessibleViewHint, HoverWidget } from "../../../../base/browser/ui/hover/hoverWidget.js";
+import { Emitter } from "../../../../base/common/event.js";
+const HORIZONTAL_SCROLLING_BY = 30;
+let ContentHoverWidget = class ContentHoverWidget2 extends ResizableContentWidget {
+  static {
+    __name(this, "ContentHoverWidget");
+  }
+  static {
+    ContentHoverWidget_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.resizableContentHoverWidget";
+  }
+  static {
+    this._lastDimensions = new dom.Dimension(0, 0);
+  }
+  get isVisibleFromKeyboard() {
+    return this._renderedHover?.source === 2;
+  }
+  get isVisible() {
+    return this._hoverVisibleKey.get() ?? false;
+  }
+  get isFocused() {
+    return this._hoverFocusedKey.get() ?? false;
+  }
+  constructor(editor, contextKeyService, _configurationService, _accessibilityService, _keybindingService) {
+    const minimumHeight = editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    ) + 8;
+    const minimumWidth = 150;
+    const minimumSize = new dom.Dimension(minimumWidth, minimumHeight);
+    super(editor, minimumSize);
+    this._configurationService = _configurationService;
+    this._accessibilityService = _accessibilityService;
+    this._keybindingService = _keybindingService;
+    this._hover = this._register(new HoverWidget(true));
+    this._onDidResize = this._register(new Emitter());
+    this.onDidResize = this._onDidResize.event;
+    this._onDidScroll = this._register(new Emitter());
+    this.onDidScroll = this._onDidScroll.event;
+    this._onContentsChanged = this._register(new Emitter());
+    this.onContentsChanged = this._onContentsChanged.event;
+    this._minimumSize = minimumSize;
+    this._hoverVisibleKey = EditorContextKeys.hoverVisible.bindTo(contextKeyService);
+    this._hoverFocusedKey = EditorContextKeys.hoverFocused.bindTo(contextKeyService);
+    dom.append(this._resizableNode.domNode, this._hover.containerDomNode);
+    this._resizableNode.domNode.style.zIndex = "50";
+    this._resizableNode.domNode.className = "monaco-resizable-hover";
+    this._register(this._editor.onDidLayoutChange(() => {
+      if (this.isVisible) {
+        this._updateMaxDimensions();
+      }
+    }));
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        59
+        /* EditorOption.fontInfo */
+      )) {
+        this._updateFont();
+      }
+    }));
+    const focusTracker = this._register(dom.trackFocus(this._resizableNode.domNode));
+    this._register(focusTracker.onDidFocus(() => {
+      this._hoverFocusedKey.set(true);
+    }));
+    this._register(focusTracker.onDidBlur(() => {
+      this._hoverFocusedKey.set(false);
+    }));
+    this._register(this._hover.scrollbar.onScroll((e) => {
+      this._onDidScroll.fire(e);
+    }));
+    this._setRenderedHover(void 0);
+    this._editor.addContentWidget(this);
+  }
+  dispose() {
+    super.dispose();
+    this._renderedHover?.dispose();
+    this._editor.removeContentWidget(this);
+  }
+  getId() {
+    return ContentHoverWidget_1.ID;
+  }
+  static _applyDimensions(container, width, height) {
+    const transformedWidth = typeof width === "number" ? `${width}px` : width;
+    const transformedHeight = typeof height === "number" ? `${height}px` : height;
+    container.style.width = transformedWidth;
+    container.style.height = transformedHeight;
+  }
+  _setContentsDomNodeDimensions(width, height) {
+    const contentsDomNode = this._hover.contentsDomNode;
+    return ContentHoverWidget_1._applyDimensions(contentsDomNode, width, height);
+  }
+  _setContainerDomNodeDimensions(width, height) {
+    const containerDomNode = this._hover.containerDomNode;
+    return ContentHoverWidget_1._applyDimensions(containerDomNode, width, height);
+  }
+  _setScrollableElementDimensions(width, height) {
+    const scrollbarDomElement = this._hover.scrollbar.getDomNode();
+    return ContentHoverWidget_1._applyDimensions(scrollbarDomElement, width, height);
+  }
+  _setHoverWidgetDimensions(width, height) {
+    this._setContainerDomNodeDimensions(width, height);
+    this._setScrollableElementDimensions(width, height);
+    this._setContentsDomNodeDimensions(width, height);
+    this._layoutContentWidget();
+  }
+  static _applyMaxDimensions(container, width, height) {
+    const transformedWidth = typeof width === "number" ? `${width}px` : width;
+    const transformedHeight = typeof height === "number" ? `${height}px` : height;
+    container.style.maxWidth = transformedWidth;
+    container.style.maxHeight = transformedHeight;
+  }
+  _setHoverWidgetMaxDimensions(width, height) {
+    ContentHoverWidget_1._applyMaxDimensions(this._hover.contentsDomNode, width, height);
+    ContentHoverWidget_1._applyMaxDimensions(this._hover.scrollbar.getDomNode(), width, height);
+    ContentHoverWidget_1._applyMaxDimensions(this._hover.containerDomNode, width, height);
+    this._hover.containerDomNode.style.setProperty("--vscode-hover-maxWidth", typeof width === "number" ? `${width}px` : width);
+    this._layoutContentWidget();
+  }
+  _setAdjustedHoverWidgetDimensions(size) {
+    this._setHoverWidgetMaxDimensions("none", "none");
+    this._setHoverWidgetDimensions(size.width, size.height);
+  }
+  _updateResizableNodeMaxDimensions() {
+    const maxRenderingWidth = this._findMaximumRenderingWidth() ?? Infinity;
+    const maxRenderingHeight = this._findMaximumRenderingHeight() ?? Infinity;
+    this._resizableNode.maxSize = new dom.Dimension(maxRenderingWidth, maxRenderingHeight);
+    this._setHoverWidgetMaxDimensions(maxRenderingWidth, maxRenderingHeight);
+  }
+  _resize(size) {
+    ContentHoverWidget_1._lastDimensions = new dom.Dimension(size.width, size.height);
+    this._setAdjustedHoverWidgetDimensions(size);
+    this._resizableNode.layout(size.height, size.width);
+    this._updateResizableNodeMaxDimensions();
+    this._hover.scrollbar.scanDomNode();
+    this._editor.layoutContentWidget(this);
+    this._onDidResize.fire();
+  }
+  _findAvailableSpaceVertically() {
+    const position = this._renderedHover?.showAtPosition;
+    if (!position) {
+      return;
+    }
+    return this._positionPreference === 1 ? this._availableVerticalSpaceAbove(position) : this._availableVerticalSpaceBelow(position);
+  }
+  _findMaximumRenderingHeight() {
+    const availableSpace = this._findAvailableSpaceVertically();
+    if (!availableSpace) {
+      return;
+    }
+    const children = this._hover.contentsDomNode.children;
+    let maximumHeight = children.length - 1;
+    Array.from(this._hover.contentsDomNode.children).forEach((hoverPart) => {
+      maximumHeight += hoverPart.clientHeight;
+    });
+    return Math.min(availableSpace, maximumHeight);
+  }
+  _isHoverTextOverflowing() {
+    this._hover.containerDomNode.style.setProperty("--vscode-hover-whiteSpace", "nowrap");
+    this._hover.containerDomNode.style.setProperty("--vscode-hover-sourceWhiteSpace", "nowrap");
+    const overflowing = Array.from(this._hover.contentsDomNode.children).some((hoverElement) => {
+      return hoverElement.scrollWidth > hoverElement.clientWidth;
+    });
+    this._hover.containerDomNode.style.removeProperty("--vscode-hover-whiteSpace");
+    this._hover.containerDomNode.style.removeProperty("--vscode-hover-sourceWhiteSpace");
+    return overflowing;
+  }
+  _findMaximumRenderingWidth() {
+    if (!this._editor || !this._editor.hasModel()) {
+      return;
+    }
+    const overflowing = this._isHoverTextOverflowing();
+    const initialWidth = typeof this._contentWidth === "undefined" ? 0 : this._contentWidth;
+    if (overflowing || this._hover.containerDomNode.clientWidth < initialWidth) {
+      const bodyBoxWidth = dom.getClientArea(this._hover.containerDomNode.ownerDocument.body).width;
+      const horizontalPadding = 14;
+      return bodyBoxWidth - horizontalPadding;
+    } else {
+      return this._hover.containerDomNode.clientWidth;
+    }
+  }
+  isMouseGettingCloser(posx, posy) {
+    if (!this._renderedHover) {
+      return false;
+    }
+    if (this._renderedHover.initialMousePosX === void 0 || this._renderedHover.initialMousePosY === void 0) {
+      this._renderedHover.initialMousePosX = posx;
+      this._renderedHover.initialMousePosY = posy;
+      return false;
+    }
+    const widgetRect = dom.getDomNodePagePosition(this.getDomNode());
+    if (this._renderedHover.closestMouseDistance === void 0) {
+      this._renderedHover.closestMouseDistance = computeDistanceFromPointToRectangle(this._renderedHover.initialMousePosX, this._renderedHover.initialMousePosY, widgetRect.left, widgetRect.top, widgetRect.width, widgetRect.height);
+    }
+    const distance = computeDistanceFromPointToRectangle(posx, posy, widgetRect.left, widgetRect.top, widgetRect.width, widgetRect.height);
+    if (distance > this._renderedHover.closestMouseDistance + 4) {
+      return false;
+    }
+    this._renderedHover.closestMouseDistance = Math.min(this._renderedHover.closestMouseDistance, distance);
+    return true;
+  }
+  _setRenderedHover(renderedHover) {
+    this._renderedHover?.dispose();
+    this._renderedHover = renderedHover;
+    this._hoverVisibleKey.set(!!renderedHover);
+    this._hover.containerDomNode.classList.toggle("hidden", !renderedHover);
+  }
+  _updateFont() {
+    const { fontSize, lineHeight } = this._editor.getOption(
+      59
+      /* EditorOption.fontInfo */
+    );
+    const contentsDomNode = this._hover.contentsDomNode;
+    contentsDomNode.style.fontSize = `${fontSize}px`;
+    contentsDomNode.style.lineHeight = `${lineHeight / fontSize}`;
+    const codeClasses = Array.prototype.slice.call(this._hover.contentsDomNode.getElementsByClassName("code"));
+    codeClasses.forEach((node) => this._editor.applyFontInfo(node));
+  }
+  _updateContent(node) {
+    const contentsDomNode = this._hover.contentsDomNode;
+    contentsDomNode.style.paddingBottom = "";
+    contentsDomNode.textContent = "";
+    contentsDomNode.appendChild(node);
+  }
+  _layoutContentWidget() {
+    this._editor.layoutContentWidget(this);
+    this._hover.onContentsChanged();
+  }
+  _updateMaxDimensions() {
+    const height = Math.max(this._editor.getLayoutInfo().height / 4, 250, ContentHoverWidget_1._lastDimensions.height);
+    const width = Math.max(this._editor.getLayoutInfo().width * 0.66, 750, ContentHoverWidget_1._lastDimensions.width);
+    this._resizableNode.maxSize = new dom.Dimension(width, height);
+    this._setHoverWidgetMaxDimensions(width, height);
+  }
+  _render(renderedHover) {
+    this._setRenderedHover(renderedHover);
+    this._updateFont();
+    this._updateContent(renderedHover.domNode);
+    this.handleContentsChanged();
+    this._editor.render();
+  }
+  getPosition() {
+    if (!this._renderedHover) {
+      return null;
+    }
+    return {
+      position: this._renderedHover.showAtPosition,
+      secondaryPosition: this._renderedHover.showAtSecondaryPosition,
+      positionAffinity: this._renderedHover.shouldAppearBeforeContent ? 3 : void 0,
+      preference: [
+        this._positionPreference ?? 1
+        /* ContentWidgetPositionPreference.ABOVE */
+      ]
+    };
+  }
+  show(renderedHover) {
+    if (!this._editor || !this._editor.hasModel()) {
+      return;
+    }
+    this._render(renderedHover);
+    const widgetHeight = dom.getTotalHeight(this._hover.containerDomNode);
+    const widgetPosition = renderedHover.showAtPosition;
+    this._positionPreference = this._findPositionPreference(widgetHeight, widgetPosition) ?? 1;
+    this.handleContentsChanged();
+    if (renderedHover.shouldFocus) {
+      this._hover.containerDomNode.focus();
+    }
+    this._onDidResize.fire();
+    const hoverFocused = this._hover.containerDomNode.ownerDocument.activeElement === this._hover.containerDomNode;
+    const accessibleViewHint = hoverFocused && getHoverAccessibleViewHint(this._configurationService.getValue("accessibility.verbosity.hover") === true && this._accessibilityService.isScreenReaderOptimized(), this._keybindingService.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel() ?? "");
+    if (accessibleViewHint) {
+      this._hover.contentsDomNode.ariaLabel = this._hover.contentsDomNode.textContent + ", " + accessibleViewHint;
+    }
+  }
+  hide() {
+    if (!this._renderedHover) {
+      return;
+    }
+    const hoverStoleFocus = this._renderedHover.shouldFocus || this._hoverFocusedKey.get();
+    this._setRenderedHover(void 0);
+    this._resizableNode.maxSize = new dom.Dimension(Infinity, Infinity);
+    this._resizableNode.clearSashHoverState();
+    this._hoverFocusedKey.set(false);
+    this._editor.layoutContentWidget(this);
+    if (hoverStoleFocus) {
+      this._editor.focus();
+    }
+  }
+  _removeConstraintsRenderNormally() {
+    const layoutInfo = this._editor.getLayoutInfo();
+    this._resizableNode.layout(layoutInfo.height, layoutInfo.width);
+    this._setHoverWidgetDimensions("auto", "auto");
+    this._updateMaxDimensions();
+  }
+  setMinimumDimensions(dimensions) {
+    this._minimumSize = new dom.Dimension(Math.max(this._minimumSize.width, dimensions.width), Math.max(this._minimumSize.height, dimensions.height));
+    this._updateMinimumWidth();
+  }
+  _updateMinimumWidth() {
+    const width = typeof this._contentWidth === "undefined" ? this._minimumSize.width : Math.min(this._contentWidth, this._minimumSize.width);
+    this._resizableNode.minSize = new dom.Dimension(width, this._minimumSize.height);
+  }
+  handleContentsChanged() {
+    this._removeConstraintsRenderNormally();
+    const contentsDomNode = this._hover.contentsDomNode;
+    let height = dom.getTotalHeight(contentsDomNode);
+    let width = dom.getTotalWidth(contentsDomNode) + 2;
+    this._resizableNode.layout(height, width);
+    this._setHoverWidgetDimensions(width, height);
+    height = dom.getTotalHeight(contentsDomNode);
+    width = dom.getTotalWidth(contentsDomNode);
+    this._contentWidth = width;
+    this._updateMinimumWidth();
+    this._resizableNode.layout(height, width);
+    if (this._renderedHover?.showAtPosition) {
+      const widgetHeight = dom.getTotalHeight(this._hover.containerDomNode);
+      this._positionPreference = this._findPositionPreference(widgetHeight, this._renderedHover.showAtPosition);
+    }
+    this._layoutContentWidget();
+    this._onContentsChanged.fire();
+  }
+  focus() {
+    this._hover.containerDomNode.focus();
+  }
+  scrollUp() {
+    const scrollTop = this._hover.scrollbar.getScrollPosition().scrollTop;
+    const fontInfo = this._editor.getOption(
+      59
+      /* EditorOption.fontInfo */
+    );
+    this._hover.scrollbar.setScrollPosition({ scrollTop: scrollTop - fontInfo.lineHeight });
+  }
+  scrollDown() {
+    const scrollTop = this._hover.scrollbar.getScrollPosition().scrollTop;
+    const fontInfo = this._editor.getOption(
+      59
+      /* EditorOption.fontInfo */
+    );
+    this._hover.scrollbar.setScrollPosition({ scrollTop: scrollTop + fontInfo.lineHeight });
+  }
+  scrollLeft() {
+    const scrollLeft = this._hover.scrollbar.getScrollPosition().scrollLeft;
+    this._hover.scrollbar.setScrollPosition({ scrollLeft: scrollLeft - HORIZONTAL_SCROLLING_BY });
+  }
+  scrollRight() {
+    const scrollLeft = this._hover.scrollbar.getScrollPosition().scrollLeft;
+    this._hover.scrollbar.setScrollPosition({ scrollLeft: scrollLeft + HORIZONTAL_SCROLLING_BY });
+  }
+  pageUp() {
+    const scrollTop = this._hover.scrollbar.getScrollPosition().scrollTop;
+    const scrollHeight = this._hover.scrollbar.getScrollDimensions().height;
+    this._hover.scrollbar.setScrollPosition({ scrollTop: scrollTop - scrollHeight });
+  }
+  pageDown() {
+    const scrollTop = this._hover.scrollbar.getScrollPosition().scrollTop;
+    const scrollHeight = this._hover.scrollbar.getScrollDimensions().height;
+    this._hover.scrollbar.setScrollPosition({ scrollTop: scrollTop + scrollHeight });
+  }
+  goToTop() {
+    this._hover.scrollbar.setScrollPosition({ scrollTop: 0 });
+  }
+  goToBottom() {
+    this._hover.scrollbar.setScrollPosition({ scrollTop: this._hover.scrollbar.getScrollDimensions().scrollHeight });
+  }
+};
+ContentHoverWidget = ContentHoverWidget_1 = __decorate([
+  __param(1, IContextKeyService),
+  __param(2, IConfigurationService),
+  __param(3, IAccessibilityService),
+  __param(4, IKeybindingService)
+], ContentHoverWidget);
+function computeDistanceFromPointToRectangle(pointX, pointY, left, top, width, height) {
+  const x = left + width / 2;
+  const y = top + height / 2;
+  const dx = Math.max(Math.abs(pointX - x) - width / 2, 0);
+  const dy = Math.max(Math.abs(pointY - y) - height / 2, 0);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+__name(computeDistanceFromPointToRectangle, "computeDistanceFromPointToRectangle");
+export {
+  ContentHoverWidget
+};
+//# sourceMappingURL=contentHoverWidget.js.map

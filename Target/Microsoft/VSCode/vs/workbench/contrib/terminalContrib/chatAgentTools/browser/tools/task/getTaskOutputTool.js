@@ -1,5 +1,138 @@
-import{$jk as c}from"../../../../../../../base/common/htmlContent.js";import{$Ed as C,$Dd as R}from"../../../../../../../base/common/lifecycle.js";import{localize as u}from"../../../../../../../nls.js";import{$0l as _}from"../../../../../../../platform/configuration/common/configuration.js";import{$Mj as j}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$pp as x}from"../../../../../../../platform/telemetry/common/telemetry.js";import{ToolDataSource as I}from"../../../../../chat/common/tools/languageModelToolsService.js";import{$R9b as O,$P9b as S}from"../../../../../tasks/common/taskService.js";import{$sZb as A}from"../../../../../terminal/browser/terminal.js";import{$zDc as L,$tDc as w,$xDc as $,$yDc as P,$wDc as N}from"../../taskHelpers.js";import{$2Dc as q,$3Dc as z}from"./taskHelpers.js";var y=function(l,o,s,n){var i=arguments.length,t=i<3?o:n===null?n=Object.getOwnPropertyDescriptor(o,s):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(l,o,s,n);else for(var a=l.length-1;a>=0;a--)(r=l[a])&&(t=(i<3?r(t):i>3?r(o,s,t):r(o,s))||t);return i>3&&t&&Object.defineProperty(o,s,t),t},p=function(l,o){return function(s,n){o(s,n,l)}};const X={id:"get_task_output",toolReferenceName:"getTaskOutput",legacyToolReferenceFullNames:["runTasks/getTaskOutput"],displayName:u(13799,null),modelDescription:"Get the output of a task",source:I.Internal,when:S,inputSchema:{type:"object",properties:{id:{type:"string",description:"The task ID for which to get the output."},workspaceFolder:{type:"string",description:"The workspace folder path containing the task"}},required:["id","workspaceFolder"]}};let D=class extends C{constructor(o,s,n,i,t){super(),this.a=o,this.b=s,this.c=n,this.f=i,this.g=t}async prepareToolInvocation(o,s){const n=o.parameters,i=w(n.id),t=await $(n.id,i,n.workspaceFolder,this.c,this.a,!0);if(!t)return{invocationMessage:new c(u(13800,null,n.id))};const r=t._label;return(await this.a.getActiveTasks()).includes(t)?{invocationMessage:new c(u(13801,null,r))}:{invocationMessage:new c(u(13802,null,r)),pastTenseMessage:new c(u(13803,null,r))}}async invoke(o,s,n,i){const t=o.parameters,r=w(t.id),a=await $(t.id,r,t.workspaceFolder,this.c,this.a,!0);if(!a)return{content:[{kind:"text",value:`Task not found: ${t.id}`}],toolResultMessage:new c(u(13804,null,t.id))};const d=await P(a,t.workspaceFolder,this.c,this.a),M=this.a.getTerminalsForTasks(d??a),f=a._label,m=M?.map(e=>this.b.instances.find(g=>g.resource.path===e?.path&&g.resource.scheme===e.scheme)).filter(e=>!!e);if(!m||m.length===0)return{content:[{kind:"text",value:`Terminal not found for task ${f}`}],toolResultMessage:new c(u(13805,null,f))};const T=new R,h=await L(m,a,this.f,o.context,n,i,T,e=>this.h(e),d,this.a);T.dispose();for(const e of h)this.g.publicLog2?.("copilotChat.getTaskOutputTool.get",{taskId:t.id,bufferLength:e.output.length??0,pollDurationMs:e.pollDurationMs??0,inputToolManualAcceptCount:e.inputToolManualAcceptCount??0,inputToolManualRejectCount:e.inputToolManualRejectCount??0,inputToolManualChars:e.inputToolManualChars??0,inputToolManualShownCount:e.inputToolManualShownCount??0,inputToolFreeFormInputCount:e.inputToolFreeFormInputCount??0,inputToolFreeFormInputShownCount:e.inputToolFreeFormInputShownCount??0});const b=h.map(e=>`Terminal: ${e.name}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { Disposable, DisposableStore } from "../../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../../../../platform/telemetry/common/telemetry.js";
+import { ToolDataSource } from "../../../../../chat/common/tools/languageModelToolsService.js";
+import { ITaskService, TasksAvailableContext } from "../../../../../tasks/common/taskService.js";
+import { ITerminalService } from "../../../../../terminal/browser/terminal.js";
+import { collectTerminalResults, getTaskDefinition, getTaskForTool, resolveDependencyTasks, tasksMatch } from "../../taskHelpers.js";
+import { toolResultDetailsFromResponse, toolResultMessageFromResponse } from "./taskHelpers.js";
+const GetTaskOutputToolData = {
+  id: "get_task_output",
+  toolReferenceName: "getTaskOutput",
+  legacyToolReferenceFullNames: ["runTasks/getTaskOutput"],
+  displayName: localize("getTaskOutputTool.displayName", "Get Task Output"),
+  modelDescription: "Get the output of a task",
+  source: ToolDataSource.Internal,
+  when: TasksAvailableContext,
+  inputSchema: {
+    type: "object",
+    properties: {
+      id: {
+        type: "string",
+        description: "The task ID for which to get the output."
+      },
+      workspaceFolder: {
+        type: "string",
+        description: "The workspace folder path containing the task"
+      }
+    },
+    required: [
+      "id",
+      "workspaceFolder"
+    ]
+  }
+};
+let GetTaskOutputTool = class GetTaskOutputTool2 extends Disposable {
+  static {
+    __name(this, "GetTaskOutputTool");
+  }
+  constructor(_tasksService, _terminalService, _configurationService, _instantiationService, _telemetryService) {
+    super();
+    this._tasksService = _tasksService;
+    this._terminalService = _terminalService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._telemetryService = _telemetryService;
+  }
+  async prepareToolInvocation(context, token) {
+    const args = context.parameters;
+    const taskDefinition = getTaskDefinition(args.id);
+    const task = await getTaskForTool(args.id, taskDefinition, args.workspaceFolder, this._configurationService, this._tasksService, true);
+    if (!task) {
+      return { invocationMessage: new MarkdownString(localize("copilotChat.taskNotFound", "Task not found: `{0}`", args.id)) };
+    }
+    const taskLabel = task._label;
+    const activeTasks = await this._tasksService.getActiveTasks();
+    if (activeTasks.includes(task)) {
+      return { invocationMessage: new MarkdownString(localize("copilotChat.taskAlreadyRunning", "The task `{0}` is already running.", taskLabel)) };
+    }
+    return {
+      invocationMessage: new MarkdownString(localize("copilotChat.checkingTerminalOutput", "Checking output for task `{0}`", taskLabel)),
+      pastTenseMessage: new MarkdownString(localize("copilotChat.checkedTerminalOutput", "Checked output for task `{0}`", taskLabel))
+    };
+  }
+  async invoke(invocation, _countTokens, _progress, token) {
+    const args = invocation.parameters;
+    const taskDefinition = getTaskDefinition(args.id);
+    const task = await getTaskForTool(args.id, taskDefinition, args.workspaceFolder, this._configurationService, this._tasksService, true);
+    if (!task) {
+      return { content: [{ kind: "text", value: `Task not found: ${args.id}` }], toolResultMessage: new MarkdownString(localize("copilotChat.taskNotFound", "Task not found: `{0}`", args.id)) };
+    }
+    const dependencyTasks = await resolveDependencyTasks(task, args.workspaceFolder, this._configurationService, this._tasksService);
+    const resources = this._tasksService.getTerminalsForTasks(dependencyTasks ?? task);
+    const taskLabel = task._label;
+    const terminals = resources?.map((resource) => this._terminalService.instances.find((t) => t.resource.path === resource?.path && t.resource.scheme === resource.scheme)).filter((t) => !!t);
+    if (!terminals || terminals.length === 0) {
+      return { content: [{ kind: "text", value: `Terminal not found for task ${taskLabel}` }], toolResultMessage: new MarkdownString(localize("copilotChat.terminalNotFound", "Terminal not found for task `{0}`", taskLabel)) };
+    }
+    const store = new DisposableStore();
+    const terminalResults = await collectTerminalResults(terminals, task, this._instantiationService, invocation.context, _progress, token, store, (terminalTask) => this._isTaskActive(terminalTask), dependencyTasks, this._tasksService);
+    store.dispose();
+    for (const r of terminalResults) {
+      this._telemetryService.publicLog2?.("copilotChat.getTaskOutputTool.get", {
+        taskId: args.id,
+        bufferLength: r.output.length ?? 0,
+        pollDurationMs: r.pollDurationMs ?? 0,
+        inputToolManualAcceptCount: r.inputToolManualAcceptCount ?? 0,
+        inputToolManualRejectCount: r.inputToolManualRejectCount ?? 0,
+        inputToolManualChars: r.inputToolManualChars ?? 0,
+        inputToolManualShownCount: r.inputToolManualShownCount ?? 0,
+        inputToolFreeFormInputCount: r.inputToolFreeFormInputCount ?? 0,
+        inputToolFreeFormInputShownCount: r.inputToolFreeFormInputShownCount ?? 0
+      });
+    }
+    const details = terminalResults.map((r) => `Terminal: ${r.name}
 Output:
-${e.output}`),F=Array.from(new Set(b)).join(`
-
-`),k=q(h),v=z(void 0,f,k,h,!0,a.configurationProperties.isBackground);return{content:[{kind:"text",value:F}],toolResultMessage:v,toolResultDetails:k}}async h(o){return(await this.a.getBusyTasks())?.some(n=>N(n,o))??!1}};D=y([p(0,O),p(1,A),p(2,_),p(3,j),p(4,x)],D);export{X as $6Dc,D as $7Dc};
+${r.output}`);
+    const uniqueDetails = Array.from(new Set(details)).join("\n\n");
+    const toolResultDetails = toolResultDetailsFromResponse(terminalResults);
+    const toolResultMessage = toolResultMessageFromResponse(void 0, taskLabel, toolResultDetails, terminalResults, true, task.configurationProperties.isBackground);
+    return {
+      content: [{ kind: "text", value: uniqueDetails }],
+      toolResultMessage,
+      toolResultDetails
+    };
+  }
+  async _isTaskActive(task) {
+    const busyTasks = await this._tasksService.getBusyTasks();
+    return busyTasks?.some((t) => tasksMatch(t, task)) ?? false;
+  }
+};
+GetTaskOutputTool = __decorate([
+  __param(0, ITaskService),
+  __param(1, ITerminalService),
+  __param(2, IConfigurationService),
+  __param(3, IInstantiationService),
+  __param(4, ITelemetryService)
+], GetTaskOutputTool);
+export {
+  GetTaskOutputTool,
+  GetTaskOutputToolData
+};
+//# sourceMappingURL=getTaskOutputTool.js.map

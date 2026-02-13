@@ -1,1 +1,85 @@
-import{$xf as g,Event as $}from"../../../../base/common/event.js";import{$Ed as y}from"../../../../base/common/lifecycle.js";import{$8jb as f}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$qL as u,$rL as l}from"../../../../platform/actions/common/actions.js";import{$ro as C}from"../../../../platform/contextkey/common/contextkey.js";import{$FN as j,$EN as m}from"../../../common/views.js";var p=function(s,t,e,n){var r=arguments.length,i=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,n);else for(var h=s.length-1;h>=0;h--)(o=s[h])&&(i=(r<3?o(i):r>3?o(t,e,i):o(t,e))||i);return r>3&&i&&Object.defineProperty(t,e,i),i},c=function(s,t){return function(e,n){t(e,n,s)}};let a=class extends y{constructor(t,e,n,r,i){super(),this.menuId=t,this.c=e,this.f=n,this.g=r,this.h=i,this.b=this.D(new g),this.onDidChange=this.b.event,this.a=this.D(i.createMenu(t,r,{emitEventsForSubmenuChanges:!0})),this.D(this.a.onDidChange(()=>{this.j=void 0,this.b.fire()}))}m(){return this.j||(this.j=f(this.a.getActions(this.f))),this.j}getPrimaryActions(){return this.m().primary}getSecondaryActions(){return this.m().secondary}getContextMenuActions(){if(this.c){const t=this.h.getMenuActions(this.c,this.g,this.f);return f(t).secondary}return[]}};a=p([c(3,C),c(4,l)],a);let d=class extends a{constructor(t,e,n,r,i){const o=r.createScoped(t);o.createKey("viewContainer",e.id);const h=o.createKey("viewContainerLocation",m(n.getViewContainerLocation(e)));super(u.ViewContainerTitle,u.ViewContainerTitleContext,{shouldForwardArgs:!0,renderShortTitle:!0},o,i),this.D(o),this.D($.filter(n.onDidChangeContainerLocation,b=>b.viewContainer===e)(()=>h.set(m(n.getViewContainerLocation(e)))))}};d=p([c(2,j),c(3,C),c(4,l)],d);export{a as $WBb,d as $XBb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { getActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuId, IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IViewDescriptorService, ViewContainerLocationToString } from "../../../common/views.js";
+let ViewMenuActions = class ViewMenuActions2 extends Disposable {
+  static {
+    __name(this, "ViewMenuActions");
+  }
+  constructor(menuId, contextMenuId, options, contextKeyService, menuService) {
+    super();
+    this.menuId = menuId;
+    this.contextMenuId = contextMenuId;
+    this.options = options;
+    this.contextKeyService = contextKeyService;
+    this.menuService = menuService;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this.menu = this._register(menuService.createMenu(menuId, contextKeyService, { emitEventsForSubmenuChanges: true }));
+    this._register(this.menu.onDidChange(() => {
+      this.actions = void 0;
+      this._onDidChange.fire();
+    }));
+  }
+  getActions() {
+    if (!this.actions) {
+      this.actions = getActionBarActions(this.menu.getActions(this.options));
+    }
+    return this.actions;
+  }
+  getPrimaryActions() {
+    return this.getActions().primary;
+  }
+  getSecondaryActions() {
+    return this.getActions().secondary;
+  }
+  getContextMenuActions() {
+    if (this.contextMenuId) {
+      const menu = this.menuService.getMenuActions(this.contextMenuId, this.contextKeyService, this.options);
+      return getActionBarActions(menu).secondary;
+    }
+    return [];
+  }
+};
+ViewMenuActions = __decorate([
+  __param(3, IContextKeyService),
+  __param(4, IMenuService)
+], ViewMenuActions);
+let ViewContainerMenuActions = class ViewContainerMenuActions2 extends ViewMenuActions {
+  static {
+    __name(this, "ViewContainerMenuActions");
+  }
+  constructor(element, viewContainer, viewDescriptorService, contextKeyService, menuService) {
+    const scopedContextKeyService = contextKeyService.createScoped(element);
+    scopedContextKeyService.createKey("viewContainer", viewContainer.id);
+    const viewContainerLocationKey = scopedContextKeyService.createKey("viewContainerLocation", ViewContainerLocationToString(viewDescriptorService.getViewContainerLocation(viewContainer)));
+    super(MenuId.ViewContainerTitle, MenuId.ViewContainerTitleContext, { shouldForwardArgs: true, renderShortTitle: true }, scopedContextKeyService, menuService);
+    this._register(scopedContextKeyService);
+    this._register(Event.filter(viewDescriptorService.onDidChangeContainerLocation, (e) => e.viewContainer === viewContainer)(() => viewContainerLocationKey.set(ViewContainerLocationToString(viewDescriptorService.getViewContainerLocation(viewContainer)))));
+  }
+};
+ViewContainerMenuActions = __decorate([
+  __param(2, IViewDescriptorService),
+  __param(3, IContextKeyService),
+  __param(4, IMenuService)
+], ViewContainerMenuActions);
+export {
+  ViewContainerMenuActions,
+  ViewMenuActions
+};
+//# sourceMappingURL=viewMenuActions.js.map

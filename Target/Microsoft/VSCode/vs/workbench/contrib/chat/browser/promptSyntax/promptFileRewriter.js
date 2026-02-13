@@ -1,1 +1,89 @@
-import{$Mdb as p}from"../../../../../editor/browser/services/codeEditorService.js";import{$aE as f}from"../../../../../editor/common/core/editOperation.js";import{$bU as h}from"../../common/tools/languageModelToolsService.js";import{PromptHeaderAttributes as u}from"../../common/promptSyntax/promptFileParser.js";import{$VT as m}from"../../common/promptSyntax/service/promptsService.js";var d=function(a,e,t,n){var o=arguments.length,r=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,t,n);else for(var i=a.length-1;i>=0;i--)(s=a[i])&&(r=(o<3?s(r):o>3?s(e,t,r):s(e,t))||r);return o>3&&r&&Object.defineProperty(e,t,r),r},l=function(a,e){return function(t,n){e(t,n,a)}};let c=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n}async openAndRewriteTools(e,t,n){const o=await this.a.openCodeEditor({resource:e},this.a.getFocusedCodeEditor());if(!o||!o.hasModel())return;const r=o.getModel(),s=this.b.getParsedPromptFile(r);if(!s.header)return;const i=s.header.getAttribute(u.tools);if(i)if(o.setSelection(i.range),t===void 0){this.d(r,"",i.range);return}else this.rewriteTools(r,t,i.value.range)}rewriteTools(e,t,n){const r=`[${this.c.toFullReferenceNames(t).map(s=>`'${s}'`).join(", ")}]`;this.d(e,r,n)}d(e,t,n){e.pushStackElement(),e.pushEditOperations(null,[f.replaceMove(n,t)],()=>null),e.pushStackElement()}async openAndRewriteName(e,t,n){const o=await this.a.openCodeEditor({resource:e},this.a.getFocusedCodeEditor());if(!o||!o.hasModel())return;const r=o.getModel(),s=this.b.getParsedPromptFile(r);if(!s.header)return;const i=s.header.getAttribute(u.name);i&&(i.value.type==="string"&&i.value.value===t||(o.setSelection(i.range),this.d(r,t,i.value.range)))}};c=d([l(0,p),l(1,m),l(2,h)],c);export{c as $9Yb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { EditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
+import { PromptHeaderAttributes } from "../../common/promptSyntax/promptFileParser.js";
+import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+let PromptFileRewriter = class PromptFileRewriter2 {
+  static {
+    __name(this, "PromptFileRewriter");
+  }
+  constructor(_codeEditorService, _promptsService, _languageModelToolsService) {
+    this._codeEditorService = _codeEditorService;
+    this._promptsService = _promptsService;
+    this._languageModelToolsService = _languageModelToolsService;
+  }
+  async openAndRewriteTools(uri, newTools, token) {
+    const editor = await this._codeEditorService.openCodeEditor({ resource: uri }, this._codeEditorService.getFocusedCodeEditor());
+    if (!editor || !editor.hasModel()) {
+      return;
+    }
+    const model = editor.getModel();
+    const promptAST = this._promptsService.getParsedPromptFile(model);
+    if (!promptAST.header) {
+      return void 0;
+    }
+    const toolsAttr = promptAST.header.getAttribute(PromptHeaderAttributes.tools);
+    if (!toolsAttr) {
+      return void 0;
+    }
+    editor.setSelection(toolsAttr.range);
+    if (newTools === void 0) {
+      this.rewriteAttribute(model, "", toolsAttr.range);
+      return;
+    } else {
+      this.rewriteTools(model, newTools, toolsAttr.value.range);
+    }
+  }
+  rewriteTools(model, newTools, range) {
+    const newToolNames = this._languageModelToolsService.toFullReferenceNames(newTools);
+    const newValue = `[${newToolNames.map((s) => `'${s}'`).join(", ")}]`;
+    this.rewriteAttribute(model, newValue, range);
+  }
+  rewriteAttribute(model, newValue, range) {
+    model.pushStackElement();
+    model.pushEditOperations(null, [EditOperation.replaceMove(range, newValue)], () => null);
+    model.pushStackElement();
+  }
+  async openAndRewriteName(uri, newName, token) {
+    const editor = await this._codeEditorService.openCodeEditor({ resource: uri }, this._codeEditorService.getFocusedCodeEditor());
+    if (!editor || !editor.hasModel()) {
+      return;
+    }
+    const model = editor.getModel();
+    const promptAST = this._promptsService.getParsedPromptFile(model);
+    if (!promptAST.header) {
+      return;
+    }
+    const nameAttr = promptAST.header.getAttribute(PromptHeaderAttributes.name);
+    if (!nameAttr) {
+      return;
+    }
+    if (nameAttr.value.type === "string" && nameAttr.value.value === newName) {
+      return;
+    }
+    editor.setSelection(nameAttr.range);
+    this.rewriteAttribute(model, newName, nameAttr.value.range);
+  }
+};
+PromptFileRewriter = __decorate([
+  __param(0, ICodeEditorService),
+  __param(1, IPromptsService),
+  __param(2, ILanguageModelToolsService)
+], PromptFileRewriter);
+export {
+  PromptFileRewriter
+};
+//# sourceMappingURL=promptFileRewriter.js.map

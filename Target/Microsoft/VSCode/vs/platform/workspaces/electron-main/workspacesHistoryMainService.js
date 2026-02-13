@@ -1,1 +1,407 @@
-import{app as l}from"electron";import{$$b as D}from"../../../base/common/arrays.js";import{$7h as I}from"../../../base/common/async.js";import{$xf as S}from"../../../base/common/event.js";import{$Pm as E,$Xm as F}from"../../../base/common/labels.js";import{$Ed as W}from"../../../base/common/lifecycle.js";import{Schemas as m}from"../../../base/common/network.js";import{$n as g,$m as y}from"../../../base/common/platform.js";import{$Fh as u,$zh as p,$wh as O}from"../../../base/common/resources.js";import{URI as $}from"../../../base/common/uri.js";import{Promises as b}from"../../../base/node/pfs.js";import{localize as c}from"../../../nls.js";import{$Nj as _}from"../../instantiation/common/instantiation.js";import{$pw as j}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$yo as J}from"../../log/common/log.js";import{$yw as L}from"../../storage/electron-main/storageMainService.js";import{$8v as M,$7v as R,$6v as k,$aw as C,$bw as N}from"../common/workspaces.js";import{$Zl as P}from"../../workspace/common/workspace.js";import{$gw as q}from"./workspacesManagementMainService.js";import{$Oc as v}from"../../../base/common/map.js";import{$7u as G}from"../../dialogs/electron-main/dialogMainService.js";import{$5n as H}from"../../environment/electron-main/environmentMainService.js";var U=function(f,t,s,i){var o=arguments.length,e=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,s):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,t,s,i);else for(var n=f.length-1;n>=0;n--)(r=f[n])&&(e=(o<3?r(e):o>3?r(t,s,e):r(t,s))||e);return o>3&&e&&Object.defineProperty(t,s,e),e},h=function(f,t){return function(s,i){t(s,i,f)}},a;const pe=_("workspacesHistoryMainService");let x=class extends W{static{a=this}static{this.a=500}static{this.b="history.recentlyOpenedPathsList"}constructor(t,s,i,o,e,r){super(),this.f=t,this.g=s,this.h=i,this.j=o,this.m=e,this.n=r,this.c=this.D(new S),this.onDidChangeRecentlyOpened=this.c.event,this.I=this.D(new I(800)),this.q()}q(){this.h.when(4).then(()=>this.J()),this.D(this.g.onDidEnterWorkspace(t=>this.addRecentlyOpened([{workspace:t.workspace,remoteAuthority:t.window.remoteAuthority}])))}async addRecentlyOpened(t){let s=[],i=[];for(const e of t)if(k(e))!this.g.isUntitledWorkspace(e.workspace)&&!this.w(s,e.workspace)&&s.push(e);else if(R(e))this.y(s,e.folderUri)||s.push(e);else{const r=this.z(i,e.fileUri),n=e.fileUri.scheme===m.file&&a.H.indexOf(u(e.fileUri))>=0;!r&&!n&&(i.push(e),y&&e.fileUri.scheme===m.file&&!this.n.isPortable&&l.addRecentDocument(e.fileUri.fsPath))}const o=await this.r({workspaces:s,files:i});s=o.workspaces,i=o.files,s.length>a.a&&(s.length=a.a),i.length>a.a&&(i.length=a.a),await this.t({workspaces:s,files:i}),this.c.fire(),g&&!this.n.isPortable&&this.I.trigger(()=>this.O())}async removeRecentlyOpened(t){const s=r=>{const n=this.u(r);for(const d of t)if(p.isEqual(d,n))return!1;return!0},i=await this.getRecentlyOpened(),o=i.workspaces.filter(s),e=i.files.filter(s);(o.length!==i.workspaces.length||e.length!==i.files.length)&&(await this.t({files:e,workspaces:o}),this.c.fire(),g&&!this.n.isPortable&&this.I.trigger(()=>this.O()))}async clearRecentlyOpened(t){if(t?.confirm){const{response:s}=await this.m.showMessageBox({type:"warning",buttons:[c(2786,null),c(2787,null)],message:c(2788,null),detail:c(2789,null),cancelId:1});if(s!==0)return}await this.t({workspaces:[],files:[]}),this.n.isPortable||l.clearRecentDocuments(),this.c.fire()}async getRecentlyOpened(){return this.r()}async r(t){const s=new v(e=>p.getComparisonKey(e));if(t?.workspaces)for(const e of t.workspaces)s.set(this.u(e),e);const i=new v(e=>p.getComparisonKey(e));if(t?.files)for(const e of t.files)i.set(this.u(e),e);const o=await this.s();for(const e of o.workspaces){const r=s.get(this.u(e));r?r.label=r.label??e.label:s.set(this.u(e),e)}for(const e of o.files){const r=i.get(this.u(e));r?r.label=r.label??e.label:i.set(this.u(e),e)}return{workspaces:[...s.values()],files:[...i.values()]}}async s(){await this.j.whenReady;let t;const s=this.j.get(a.b,-1);if(typeof s=="string")try{t=JSON.parse(s)}catch(i){this.f.error("Unexpected error parsing opened paths list",i)}return C(t,this.f)}async t(t){await this.j.whenReady,this.j.store(a.b,JSON.stringify(N(t)),-1,1)}u(t){return R(t)?t.folderUri:M(t)?t.fileUri:t.workspace.configPath}w(t,s){return!!t.find(i=>k(i)&&i.workspace.id===s.id)}y(t,s){return!!t.find(i=>R(i)&&p.isEqual(i.folderUri,s))}z(t,s){return!!t.find(i=>p.isEqual(i.fileUri,s))}static{this.C=7}static{this.F=10}static{this.G=7}static{this.H=["COMMIT_EDITMSG","MERGE_MSG","git-rebase-todo"]}async J(){y&&(this.n.isPortable||(await this.L(),this.D(this.onDidChangeRecentlyOpened(()=>this.L()))))}async L(){if(!y)return;const t=[];if(t.push({type:"tasks",items:[{type:"task",title:c(2790,null),description:c(2791,null),program:process.execPath,args:"-n",iconPath:process.execPath,iconIndex:0}]}),(await this.getRecentlyOpened()).workspaces.length>0){const s=[];for(const e of l.getJumpListSettings().removedItems){const r=e.args;if(r){const n=/^--(folder|file)-uri\s+"([^"]+)"$/.exec(r);n&&s.push($.parse(n[2]))}}await this.removeRecentlyOpened(s);let i=!1;const o=D((await this.getRecentlyOpened()).workspaces.slice(0,a.G).map(e=>{const r=k(e)?e.workspace:e.folderUri,{title:n,description:d}=this.M(r,e.label);let w;return $.isUri(r)?w=`--folder-uri "${r.toString()}"`:(i=!0,w=`--file-uri "${r.configPath.toString()}"`),{type:"task",title:n.substr(0,255),description:d.substr(0,255),program:process.execPath,args:w,iconPath:"explorer.exe",iconIndex:0}}));o.length>0&&t.push({type:"custom",name:i?c(2792,null):c(2793,null),items:o})}t.push({type:"recent"});try{const s=l.setJumpList(t);s&&s!=="ok"&&this.f.warn(`updateWindowsJumpList#setJumpList unexpected result: ${s}`)}catch(s){this.f.warn("updateWindowsJumpList#setJumpList",s)}}M(t,s){if(s)return{title:F(s).name,description:s};if($.isUri(t))return{title:u(t),description:this.N(t)};if(this.g.isUntitledWorkspace(t))return{title:c(2794,null),description:""};let i=u(t.configPath);return i.endsWith(P)&&(i=i.substr(0,i.length-P.length-1)),{title:c(2795,null,i),description:this.N(t.configPath)}}N(t){return t.scheme==="file"?E(t.fsPath):t.toString()}async O(){if(!g)return;l.clearRecentDocuments();const t=await this.getRecentlyOpened(),s=[];let i=0;for(let e=0;e<t.workspaces.length&&i<a.C;e++){const r=this.u(t.workspaces[e]);if(r.scheme===m.file){const n=O(r);await b.exists(n)&&(s.push(n),i++)}}const o=[];for(let e=0;e<t.files.length&&i<a.F;e++){const r=this.u(t.files[e]);if(r.scheme===m.file){const n=O(r);if(a.H.includes(u(r))||s.includes(n))continue;await b.exists(n)&&(o.push(n),i++)}}o.reverse().forEach(e=>l.addRecentDocument(e)),s.reverse().forEach(e=>l.addRecentDocument(e))}};x=a=U([h(0,J),h(1,q),h(2,j),h(3,L),h(4,G),h(5,H)],x);export{pe as $Ny,x as $Oy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var WorkspacesHistoryMainService_1;
+import { app } from "electron";
+import { coalesce } from "../../../base/common/arrays.js";
+import { ThrottledDelayer } from "../../../base/common/async.js";
+import { Emitter } from "../../../base/common/event.js";
+import { normalizeDriveLetter, splitRecentLabel } from "../../../base/common/labels.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { Schemas } from "../../../base/common/network.js";
+import { isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { basename, extUriBiasedIgnorePathCase, originalFSPath } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { Promises } from "../../../base/node/pfs.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IApplicationStorageMainService } from "../../storage/electron-main/storageMainService.js";
+import { isRecentFile, isRecentFolder, isRecentWorkspace, restoreRecentlyOpened, toStoreData } from "../common/workspaces.js";
+import { WORKSPACE_EXTENSION } from "../../workspace/common/workspace.js";
+import { IWorkspacesManagementMainService } from "./workspacesManagementMainService.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+const IWorkspacesHistoryMainService = createDecorator("workspacesHistoryMainService");
+let WorkspacesHistoryMainService = class WorkspacesHistoryMainService2 extends Disposable {
+  static {
+    __name(this, "WorkspacesHistoryMainService");
+  }
+  static {
+    WorkspacesHistoryMainService_1 = this;
+  }
+  static {
+    this.MAX_TOTAL_RECENT_ENTRIES = 500;
+  }
+  static {
+    this.RECENTLY_OPENED_STORAGE_KEY = "history.recentlyOpenedPathsList";
+  }
+  constructor(logService, workspacesManagementMainService, lifecycleMainService, applicationStorageMainService, dialogMainService, environmentMainService) {
+    super();
+    this.logService = logService;
+    this.workspacesManagementMainService = workspacesManagementMainService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.applicationStorageMainService = applicationStorageMainService;
+    this.dialogMainService = dialogMainService;
+    this.environmentMainService = environmentMainService;
+    this._onDidChangeRecentlyOpened = this._register(new Emitter());
+    this.onDidChangeRecentlyOpened = this._onDidChangeRecentlyOpened.event;
+    this.macOSRecentDocumentsUpdater = this._register(new ThrottledDelayer(800));
+    this.registerListeners();
+  }
+  registerListeners() {
+    this.lifecycleMainService.when(
+      4
+      /* LifecycleMainPhase.Eventually */
+    ).then(() => this.handleWindowsJumpList());
+    this._register(this.workspacesManagementMainService.onDidEnterWorkspace((event) => this.addRecentlyOpened([{ workspace: event.workspace, remoteAuthority: event.window.remoteAuthority }])));
+  }
+  //#region Workspaces History
+  async addRecentlyOpened(recentToAdd) {
+    let workspaces = [];
+    let files = [];
+    for (const recent of recentToAdd) {
+      if (isRecentWorkspace(recent)) {
+        if (!this.workspacesManagementMainService.isUntitledWorkspace(recent.workspace) && !this.containsWorkspace(workspaces, recent.workspace)) {
+          workspaces.push(recent);
+        }
+      } else if (isRecentFolder(recent)) {
+        if (!this.containsFolder(workspaces, recent.folderUri)) {
+          workspaces.push(recent);
+        }
+      } else {
+        const alreadyExistsInHistory = this.containsFile(files, recent.fileUri);
+        const shouldBeFiltered = recent.fileUri.scheme === Schemas.file && WorkspacesHistoryMainService_1.COMMON_FILES_FILTER.indexOf(basename(recent.fileUri)) >= 0;
+        if (!alreadyExistsInHistory && !shouldBeFiltered) {
+          files.push(recent);
+          if (isWindows && recent.fileUri.scheme === Schemas.file && !this.environmentMainService.isPortable) {
+            app.addRecentDocument(recent.fileUri.fsPath);
+          }
+        }
+      }
+    }
+    const mergedEntries = await this.mergeEntriesFromStorage({ workspaces, files });
+    workspaces = mergedEntries.workspaces;
+    files = mergedEntries.files;
+    if (workspaces.length > WorkspacesHistoryMainService_1.MAX_TOTAL_RECENT_ENTRIES) {
+      workspaces.length = WorkspacesHistoryMainService_1.MAX_TOTAL_RECENT_ENTRIES;
+    }
+    if (files.length > WorkspacesHistoryMainService_1.MAX_TOTAL_RECENT_ENTRIES) {
+      files.length = WorkspacesHistoryMainService_1.MAX_TOTAL_RECENT_ENTRIES;
+    }
+    await this.saveRecentlyOpened({ workspaces, files });
+    this._onDidChangeRecentlyOpened.fire();
+    if (isMacintosh && !this.environmentMainService.isPortable) {
+      this.macOSRecentDocumentsUpdater.trigger(() => this.updateMacOSRecentDocuments());
+    }
+  }
+  async removeRecentlyOpened(recentToRemove) {
+    const keep = /* @__PURE__ */ __name((recent) => {
+      const uri = this.location(recent);
+      for (const resourceToRemove of recentToRemove) {
+        if (extUriBiasedIgnorePathCase.isEqual(resourceToRemove, uri)) {
+          return false;
+        }
+      }
+      return true;
+    }, "keep");
+    const mru = await this.getRecentlyOpened();
+    const workspaces = mru.workspaces.filter(keep);
+    const files = mru.files.filter(keep);
+    if (workspaces.length !== mru.workspaces.length || files.length !== mru.files.length) {
+      await this.saveRecentlyOpened({ files, workspaces });
+      this._onDidChangeRecentlyOpened.fire();
+      if (isMacintosh && !this.environmentMainService.isPortable) {
+        this.macOSRecentDocumentsUpdater.trigger(() => this.updateMacOSRecentDocuments());
+      }
+    }
+  }
+  async clearRecentlyOpened(options) {
+    if (options?.confirm) {
+      const { response } = await this.dialogMainService.showMessageBox({
+        type: "warning",
+        buttons: [
+          localize({ key: "clearButtonLabel", comment: ["&& denotes a mnemonic"] }, "&&Clear"),
+          localize({ key: "cancel", comment: ["&& denotes a mnemonic"] }, "&&Cancel")
+        ],
+        message: localize("confirmClearRecentsMessage", "Do you want to clear all recently opened files and workspaces?"),
+        detail: localize("confirmClearDetail", "This action is irreversible!"),
+        cancelId: 1
+      });
+      if (response !== 0) {
+        return;
+      }
+    }
+    await this.saveRecentlyOpened({ workspaces: [], files: [] });
+    if (!this.environmentMainService.isPortable) {
+      app.clearRecentDocuments();
+    }
+    this._onDidChangeRecentlyOpened.fire();
+  }
+  async getRecentlyOpened() {
+    return this.mergeEntriesFromStorage();
+  }
+  async mergeEntriesFromStorage(existingEntries) {
+    const mapWorkspaceIdToWorkspace = new ResourceMap((uri) => extUriBiasedIgnorePathCase.getComparisonKey(uri));
+    if (existingEntries?.workspaces) {
+      for (const workspace of existingEntries.workspaces) {
+        mapWorkspaceIdToWorkspace.set(this.location(workspace), workspace);
+      }
+    }
+    const mapFileIdToFile = new ResourceMap((uri) => extUriBiasedIgnorePathCase.getComparisonKey(uri));
+    if (existingEntries?.files) {
+      for (const file of existingEntries.files) {
+        mapFileIdToFile.set(this.location(file), file);
+      }
+    }
+    const recentFromStorage = await this.getRecentlyOpenedFromStorage();
+    for (const recentWorkspaceFromStorage of recentFromStorage.workspaces) {
+      const existingRecentWorkspace = mapWorkspaceIdToWorkspace.get(this.location(recentWorkspaceFromStorage));
+      if (existingRecentWorkspace) {
+        existingRecentWorkspace.label = existingRecentWorkspace.label ?? recentWorkspaceFromStorage.label;
+      } else {
+        mapWorkspaceIdToWorkspace.set(this.location(recentWorkspaceFromStorage), recentWorkspaceFromStorage);
+      }
+    }
+    for (const recentFileFromStorage of recentFromStorage.files) {
+      const existingRecentFile = mapFileIdToFile.get(this.location(recentFileFromStorage));
+      if (existingRecentFile) {
+        existingRecentFile.label = existingRecentFile.label ?? recentFileFromStorage.label;
+      } else {
+        mapFileIdToFile.set(this.location(recentFileFromStorage), recentFileFromStorage);
+      }
+    }
+    return {
+      workspaces: [...mapWorkspaceIdToWorkspace.values()],
+      files: [...mapFileIdToFile.values()]
+    };
+  }
+  async getRecentlyOpenedFromStorage() {
+    await this.applicationStorageMainService.whenReady;
+    let storedRecentlyOpened = void 0;
+    const storedRecentlyOpenedRaw = this.applicationStorageMainService.get(
+      WorkspacesHistoryMainService_1.RECENTLY_OPENED_STORAGE_KEY,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (typeof storedRecentlyOpenedRaw === "string") {
+      try {
+        storedRecentlyOpened = JSON.parse(storedRecentlyOpenedRaw);
+      } catch (error) {
+        this.logService.error("Unexpected error parsing opened paths list", error);
+      }
+    }
+    return restoreRecentlyOpened(storedRecentlyOpened, this.logService);
+  }
+  async saveRecentlyOpened(recent) {
+    await this.applicationStorageMainService.whenReady;
+    this.applicationStorageMainService.store(
+      WorkspacesHistoryMainService_1.RECENTLY_OPENED_STORAGE_KEY,
+      JSON.stringify(toStoreData(recent)),
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  location(recent) {
+    if (isRecentFolder(recent)) {
+      return recent.folderUri;
+    }
+    if (isRecentFile(recent)) {
+      return recent.fileUri;
+    }
+    return recent.workspace.configPath;
+  }
+  containsWorkspace(recents, candidate) {
+    return !!recents.find((recent) => isRecentWorkspace(recent) && recent.workspace.id === candidate.id);
+  }
+  containsFolder(recents, candidate) {
+    return !!recents.find((recent) => isRecentFolder(recent) && extUriBiasedIgnorePathCase.isEqual(recent.folderUri, candidate));
+  }
+  containsFile(recents, candidate) {
+    return !!recents.find((recent) => extUriBiasedIgnorePathCase.isEqual(recent.fileUri, candidate));
+  }
+  static {
+    this.MAX_MACOS_DOCK_RECENT_WORKSPACES = 7;
+  }
+  static {
+    this.MAX_MACOS_DOCK_RECENT_ENTRIES_TOTAL = 10;
+  }
+  static {
+    this.MAX_WINDOWS_JUMP_LIST_ENTRIES = 7;
+  }
+  static {
+    this.COMMON_FILES_FILTER = [
+      "COMMIT_EDITMSG",
+      "MERGE_MSG",
+      "git-rebase-todo"
+    ];
+  }
+  async handleWindowsJumpList() {
+    if (!isWindows) {
+      return;
+    }
+    if (this.environmentMainService.isPortable) {
+      return;
+    }
+    await this.updateWindowsJumpList();
+    this._register(this.onDidChangeRecentlyOpened(() => this.updateWindowsJumpList()));
+  }
+  async updateWindowsJumpList() {
+    if (!isWindows) {
+      return;
+    }
+    const jumpList = [];
+    jumpList.push({
+      type: "tasks",
+      items: [
+        {
+          type: "task",
+          title: localize("newWindow", "New Window"),
+          description: localize("newWindowDesc", "Opens a new window"),
+          program: process.execPath,
+          args: "-n",
+          // force new window
+          iconPath: process.execPath,
+          iconIndex: 0
+        }
+      ]
+    });
+    if ((await this.getRecentlyOpened()).workspaces.length > 0) {
+      const toRemove = [];
+      for (const item of app.getJumpListSettings().removedItems) {
+        const args = item.args;
+        if (args) {
+          const match = /^--(folder|file)-uri\s+"([^"]+)"$/.exec(args);
+          if (match) {
+            toRemove.push(URI.parse(match[2]));
+          }
+        }
+      }
+      await this.removeRecentlyOpened(toRemove);
+      let hasWorkspaces = false;
+      const items = coalesce((await this.getRecentlyOpened()).workspaces.slice(0, WorkspacesHistoryMainService_1.MAX_WINDOWS_JUMP_LIST_ENTRIES).map((recent) => {
+        const workspace = isRecentWorkspace(recent) ? recent.workspace : recent.folderUri;
+        const { title, description } = this.getWindowsJumpListLabel(workspace, recent.label);
+        let args;
+        if (URI.isUri(workspace)) {
+          args = `--folder-uri "${workspace.toString()}"`;
+        } else {
+          hasWorkspaces = true;
+          args = `--file-uri "${workspace.configPath.toString()}"`;
+        }
+        return {
+          type: "task",
+          title: title.substr(0, 255),
+          // Windows seems to be picky around the length of entries
+          description: description.substr(0, 255),
+          // (see https://github.com/microsoft/vscode/issues/111177)
+          program: process.execPath,
+          args,
+          iconPath: "explorer.exe",
+          // simulate folder icon
+          iconIndex: 0
+        };
+      }));
+      if (items.length > 0) {
+        jumpList.push({
+          type: "custom",
+          name: hasWorkspaces ? localize("recentFoldersAndWorkspaces", "Recent Folders & Workspaces") : localize("recentFolders", "Recent Folders"),
+          items
+        });
+      }
+    }
+    jumpList.push({
+      type: "recent"
+      // this enables to show files in the "recent" category
+    });
+    try {
+      const res = app.setJumpList(jumpList);
+      if (res && res !== "ok") {
+        this.logService.warn(`updateWindowsJumpList#setJumpList unexpected result: ${res}`);
+      }
+    } catch (error) {
+      this.logService.warn("updateWindowsJumpList#setJumpList", error);
+    }
+  }
+  getWindowsJumpListLabel(workspace, recentLabel) {
+    if (recentLabel) {
+      return { title: splitRecentLabel(recentLabel).name, description: recentLabel };
+    }
+    if (URI.isUri(workspace)) {
+      return { title: basename(workspace), description: this.renderJumpListPathDescription(workspace) };
+    }
+    if (this.workspacesManagementMainService.isUntitledWorkspace(workspace)) {
+      return { title: localize("untitledWorkspace", "Untitled (Workspace)"), description: "" };
+    }
+    let filename = basename(workspace.configPath);
+    if (filename.endsWith(WORKSPACE_EXTENSION)) {
+      filename = filename.substr(0, filename.length - WORKSPACE_EXTENSION.length - 1);
+    }
+    return { title: localize("workspaceName", "{0} (Workspace)", filename), description: this.renderJumpListPathDescription(workspace.configPath) };
+  }
+  renderJumpListPathDescription(uri) {
+    return uri.scheme === "file" ? normalizeDriveLetter(uri.fsPath) : uri.toString();
+  }
+  async updateMacOSRecentDocuments() {
+    if (!isMacintosh) {
+      return;
+    }
+    app.clearRecentDocuments();
+    const mru = await this.getRecentlyOpened();
+    const workspaceEntries = [];
+    let entries = 0;
+    for (let i = 0; i < mru.workspaces.length && entries < WorkspacesHistoryMainService_1.MAX_MACOS_DOCK_RECENT_WORKSPACES; i++) {
+      const loc = this.location(mru.workspaces[i]);
+      if (loc.scheme === Schemas.file) {
+        const workspacePath = originalFSPath(loc);
+        if (await Promises.exists(workspacePath)) {
+          workspaceEntries.push(workspacePath);
+          entries++;
+        }
+      }
+    }
+    const fileEntries = [];
+    for (let i = 0; i < mru.files.length && entries < WorkspacesHistoryMainService_1.MAX_MACOS_DOCK_RECENT_ENTRIES_TOTAL; i++) {
+      const loc = this.location(mru.files[i]);
+      if (loc.scheme === Schemas.file) {
+        const filePath = originalFSPath(loc);
+        if (WorkspacesHistoryMainService_1.COMMON_FILES_FILTER.includes(basename(loc)) || // skip some well known file entries
+        workspaceEntries.includes(filePath)) {
+          continue;
+        }
+        if (await Promises.exists(filePath)) {
+          fileEntries.push(filePath);
+          entries++;
+        }
+      }
+    }
+    fileEntries.reverse().forEach((fileEntry) => app.addRecentDocument(fileEntry));
+    workspaceEntries.reverse().forEach((workspaceEntry) => app.addRecentDocument(workspaceEntry));
+  }
+};
+WorkspacesHistoryMainService = WorkspacesHistoryMainService_1 = __decorate([
+  __param(0, ILogService),
+  __param(1, IWorkspacesManagementMainService),
+  __param(2, ILifecycleMainService),
+  __param(3, IApplicationStorageMainService),
+  __param(4, IDialogMainService),
+  __param(5, IEnvironmentMainService)
+], WorkspacesHistoryMainService);
+export {
+  IWorkspacesHistoryMainService,
+  WorkspacesHistoryMainService
+};
+//# sourceMappingURL=workspacesHistoryMainService.js.map

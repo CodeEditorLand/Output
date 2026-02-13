@@ -1,1 +1,57 @@
-import{Schemas as f}from"../../../base/common/network.js";function u(e){return e.scheme===f.vscodeRemote?e.authority:void 0}function m(e){if(!e)return;const t=e.indexOf("+");return t<0?e:e.substr(0,t)}function p(e){const{host:t,port:r}=n(e);if(typeof r>"u")throw new Error(`Invalid remote authority: ${e}. It must either be a remote of form <remoteName>+<arg> or a remote host of form <host>:<port>.`);return{host:t,port:r}}function d(e,t){let{host:r,port:o}=n(e);return typeof o>"u"&&(o=t),{host:r,port:o}}function n(e){const t=e.match(/^(\[[0-9a-z:]+\]):(\d+)$/);if(t)return{host:t[1],port:parseInt(t[2],10)};const r=e.match(/^(\[[0-9a-z:]+\])$/);if(r)return{host:r[1],port:void 0};const o=e.match(/(.*):(\d+)$/);return o?{host:o[1],port:parseInt(o[2],10)}:{host:e,port:void 0}}export{u as $$u,m as $_u,p as $av,d as $bv};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../base/common/network.js";
+function getRemoteAuthority(uri) {
+  return uri.scheme === Schemas.vscodeRemote ? uri.authority : void 0;
+}
+__name(getRemoteAuthority, "getRemoteAuthority");
+function getRemoteName(authority) {
+  if (!authority) {
+    return void 0;
+  }
+  const pos = authority.indexOf("+");
+  if (pos < 0) {
+    return authority;
+  }
+  return authority.substr(0, pos);
+}
+__name(getRemoteName, "getRemoteName");
+function parseAuthorityWithPort(authority) {
+  const { host, port } = parseAuthority(authority);
+  if (typeof port === "undefined") {
+    throw new Error(`Invalid remote authority: ${authority}. It must either be a remote of form <remoteName>+<arg> or a remote host of form <host>:<port>.`);
+  }
+  return { host, port };
+}
+__name(parseAuthorityWithPort, "parseAuthorityWithPort");
+function parseAuthorityWithOptionalPort(authority, defaultPort) {
+  let { host, port } = parseAuthority(authority);
+  if (typeof port === "undefined") {
+    port = defaultPort;
+  }
+  return { host, port };
+}
+__name(parseAuthorityWithOptionalPort, "parseAuthorityWithOptionalPort");
+function parseAuthority(authority) {
+  const m1 = authority.match(/^(\[[0-9a-z:]+\]):(\d+)$/);
+  if (m1) {
+    return { host: m1[1], port: parseInt(m1[2], 10) };
+  }
+  const m2 = authority.match(/^(\[[0-9a-z:]+\])$/);
+  if (m2) {
+    return { host: m2[1], port: void 0 };
+  }
+  const m3 = authority.match(/(.*):(\d+)$/);
+  if (m3) {
+    return { host: m3[1], port: parseInt(m3[2], 10) };
+  }
+  return { host: authority, port: void 0 };
+}
+__name(parseAuthority, "parseAuthority");
+export {
+  getRemoteAuthority,
+  getRemoteName,
+  parseAuthorityWithOptionalPort,
+  parseAuthorityWithPort
+};
+//# sourceMappingURL=remoteHosts.js.map

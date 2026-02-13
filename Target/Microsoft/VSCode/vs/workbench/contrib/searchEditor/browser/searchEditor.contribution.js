@@ -1,1 +1,553 @@
-import{$Gh as N,$Bh as j}from"../../../../base/common/resources.js";import{URI as I}from"../../../../base/common/uri.js";import{$Cpb as M,$Epb as H,$Dpb as z}from"../../../../editor/contrib/find/browser/findModel.js";import{localize as w,localize2 as n}from"../../../../nls.js";import{$vL as c,$qL as S,$wL as s}from"../../../../platform/actions/common/actions.js";import{$vo as A}from"../../../../platform/commands/common/commands.js";import{$0n as D,$ro as V}from"../../../../platform/contextkey/common/contextkey.js";import{$Kj as _}from"../../../../platform/instantiation/common/descriptors.js";import{$Mj as g}from"../../../../platform/instantiation/common/instantiation.js";import{$jm as U}from"../../../../platform/registry/common/platform.js";import{$aSb as B}from"../../../browser/editor.js";import{$2N as W}from"../../../common/contributions.js";import{$9M as P,$0M as q}from"../../../common/editor.js";import{$NO as R}from"../../../common/contextkeys.js";import{$gBb as K}from"../../../services/views/common/viewsService.js";import{$Kjc as Q}from"../../search/browser/searchActionsBase.js";import{$5jc as J,$Wjc as G}from"../../search/browser/searchIcons.js";import*as E from"../../search/common/constants.js";import*as o from"./constants.js";import{$Qkc as v}from"./searchEditor.js";import{$Zkc as X,$Vkc as L,$Ykc as C,$Xkc as Y,$Wkc as Z,$Rkc as ee,$Ukc as te,$Tkc as re,$Skc as ie}from"./searchEditorActions.js";import{$Okc as f,$Nkc as p,$Mkc as O}from"./searchEditorInput.js";import{$BL as h}from"../../../services/editor/common/editorService.js";import{$9U as oe}from"../../../services/search/common/search.js";import{RegisteredEditorPriority as ne,$dO as ce}from"../../../services/editor/common/editorResolverService.js";import{$0L as se}from"../../../services/workingCopy/common/workingCopyEditorService.js";import{$Ed as ae}from"../../../../base/common/lifecycle.js";import{$98 as de}from"../../../../base/browser/dom.js";var T=function(t,e,r,i){var l=arguments.length,d=l<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,r):i,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")d=Reflect.decorate(t,e,r,i);else for(var m=t.length-1;m>=0;m--)(u=t[m])&&(d=(l<3?u(d):l>3?u(e,r,d):u(e,r))||d);return l>3&&d&&Object.defineProperty(e,r,d),d},y=function(t,e){return function(r,i){e(r,i,t)}};const le="search.action.openInEditor",ue="search.action.openNewEditorToSide",me="search.action.focusQueryEditorWidget",pe="search.action.focusFilesToInclude",ge="search.action.focusFilesToExclude",he="toggleSearchEditorCaseSensitive",fe="toggleSearchEditorWholeWord",Ee="toggleSearchEditorRegex",Se="increaseSearchEditorContextLines",ye="decreaseSearchEditorContextLines",$e="rerunSearchEditorSearch",be="cleanSearchEditorState",xe="selectAllSearchEditorMatches";U.as(P.EditorPane).registerEditorPane(B.create(v,v.ID,w(12551,null)),[new _(p)]);let $=class{static{this.ID="workbench.contrib.searchEditor"}constructor(e,r){e.registerEditor("*"+O,{id:p.ID,label:w(12552,null),detail:q.providerDisplayName,priority:ne.default},{singlePerResource:!0,canSupportResource:i=>N(i)===O},{createEditorInput:({resource:i})=>({editor:r.invokeFunction(f,{from:"existingFile",fileUri:i})})})}};$=T([y(0,ce),y(1,g)],$);W($.ID,$,1);class Ie{canSerialize(e){return!!e.tryReadConfigSync()}serialize(e){if(!this.canSerialize(e))return;if(e.isDisposed())return JSON.stringify({modelUri:void 0,dirty:!1,config:e.tryReadConfigSync(),name:e.getName(),matchRanges:[],backingUri:e.backingUri?.toString()});let r;(e.modelUri.path||e.modelUri.fragment&&e.isDirty())&&(r=e.modelUri.toString());const i=e.tryReadConfigSync(),l=e.isDirty(),d=l?e.getMatchRanges():[],u=e.backingUri;return JSON.stringify({modelUri:r,dirty:l,config:i,name:e.getName(),matchRanges:d,backingUri:u?.toString()})}deserialize(e,r){const{modelUri:i,dirty:l,config:d,matchRanges:u,backingUri:m}=JSON.parse(r);if(d&&d.query!==void 0)if(i){const x=e.invokeFunction(f,{from:"model",modelUri:I.parse(i),config:d,backupOf:m?I.parse(m):void 0});return x.setDirty(l),x.setMatchRanges(u),x}else return m?e.invokeFunction(f,{from:"existingFile",fileUri:I.parse(m)}):e.invokeFunction(f,{from:"rawData",resultsContents:"",config:d})}}U.as(P.EditorFactory).registerEditorSerializer(p.ID,Ie);A.registerCommand(be,t=>{const e=t.get(h).activeEditorPane;e instanceof v&&e.cleanState()});const a=n(12554,"Search Editor"),k=(t={})=>{const e={},r={includes:"filesToInclude",excludes:"filesToExclude",wholeWord:"matchWholeWord",caseSensitive:"isCaseSensitive",regexp:"isRegexp",useIgnores:"useExcludeSettingsAndIgnoreFiles"};return Object.entries(t).forEach(([i,l])=>{e[r[i]??i]=l}),e},F={description:"Open a new search editor. Arguments passed can include variables like ${relativeFileDirname}.",args:[{name:"Open new Search Editor args",schema:{properties:{query:{type:"string"},filesToInclude:{type:"string"},filesToExclude:{type:"string"},contextLines:{type:"number"},matchWholeWord:{type:"boolean"},isCaseSensitive:{type:"boolean"},isRegexp:{type:"boolean"},useExcludeSettingsAndIgnoreFiles:{type:"boolean"},showIncludesExcludes:{type:"boolean"},triggerSearch:{type:"boolean"},focusResults:{type:"boolean"},onlyOpenEditors:{type:"boolean"}}}}]};s(class extends c{constructor(){super({id:"search.searchEditor.action.deleteFileResults",title:n(12555,"Delete File Results"),keybinding:{weight:100,primary:3073},precondition:o.$3ic,category:a,f1:!0})}async run(t){t.get(V).getContext(de()).getValue(o.$3ic.serialize())&&t.get(h).activeEditorPane.deleteResultBlock()}});s(class extends c{constructor(){super({id:o.$8ic,title:n(12556,"New Search Editor"),category:a,f1:!0,metadata:F})}async run(t,e){await t.get(g).invokeFunction(C,k({location:"new",...e}))}});s(class extends c{constructor(){super({id:o.$9ic,title:n(12557,"Open Search Editor"),category:a,f1:!0,metadata:F})}async run(t,e){await t.get(g).invokeFunction(C,k({location:"reuse",...e}))}});s(class extends c{constructor(){super({id:ue,title:n(12558,"Open New Search Editor to the Side"),category:a,f1:!0,metadata:F})}async run(t,e){await t.get(g).invokeFunction(C,k(e),!0)}});s(class extends c{constructor(){super({id:le,title:n(12559,"Open Results in Editor"),category:a,f1:!0,keybinding:{primary:515,when:D.and(E.$H7b.HasSearchResults,E.$H7b.SearchViewFocusedKey),weight:200,mac:{primary:2051}}})}async run(t){const e=t.get(K),r=t.get(g),i=Q(e);i&&await r.invokeFunction(X,i.searchResult,i.searchIncludePattern.getValue(),i.searchExcludePattern.getValue(),i.searchIncludePattern.onlySearchInOpenEditors())}});s(class extends c{constructor(){super({id:$e,title:n(12560,"Search Again"),category:a,keybinding:{primary:3120,when:o.$3ic,weight:100},icon:G,menu:[...[S.EditorTitle,S.CompactWindowEditorTitle].map(t=>({id:t,group:"navigation",when:R.isEqualTo(o.$7ic)})),{id:S.CommandPalette,when:R.isEqualTo(o.$7ic)}]})}async run(t){const e=t.get(h);e.activeEditor instanceof p&&e.activeEditorPane.triggerSearch({resetCursor:!1})}});s(class extends c{constructor(){super({id:me,title:n(12561,"Focus Search Editor Input"),category:a,f1:!0,precondition:o.$3ic,keybinding:{primary:9,weight:100}})}async run(t){const e=t.get(h);e.activeEditor instanceof p&&e.activeEditorPane.focusSearchInput()}});s(class extends c{constructor(){super({id:pe,title:n(12562,"Focus Search Editor Files to Include"),category:a,f1:!0,precondition:o.$3ic})}async run(t){const e=t.get(h);e.activeEditor instanceof p&&e.activeEditorPane.focusFilesToIncludeInput()}});s(class extends c{constructor(){super({id:ge,title:n(12563,"Focus Search Editor Files to Exclude"),category:a,f1:!0,precondition:o.$3ic})}async run(t){const e=t.get(h);e.activeEditor instanceof p&&e.activeEditorPane.focusFilesToExcludeInput()}});s(class extends c{constructor(){super({id:he,title:n(12564,"Toggle Match Case"),category:a,f1:!0,precondition:o.$3ic,keybinding:Object.assign({weight:200,when:E.$H7b.SearchInputBoxFocusedKey},M)})}run(t){ee(t)}});s(class extends c{constructor(){super({id:fe,title:n(12565,"Toggle Match Whole Word"),category:a,f1:!0,precondition:o.$3ic,keybinding:Object.assign({weight:200,when:E.$H7b.SearchInputBoxFocusedKey},z)})}run(t){ie(t)}});s(class extends c{constructor(){super({id:Ee,title:n(12566,"Toggle Use Regular Expression"),category:a,f1:!0,precondition:o.$3ic,keybinding:Object.assign({weight:200,when:E.$H7b.SearchInputBoxFocusedKey},H)})}run(t){re(t)}});s(class extends c{constructor(){super({id:o.$0ic,title:n(12567,"Toggle Context Lines"),category:a,f1:!0,precondition:o.$3ic,keybinding:{weight:200,primary:554,mac:{primary:2602}}})}run(t){te(t)}});s(class extends c{constructor(){super({id:Se,title:n(12568,"Increase Context Lines"),category:a,f1:!0,precondition:o.$3ic,keybinding:{weight:200,primary:598}})}run(t){L(t,!0)}});s(class extends c{constructor(){super({id:ye,title:n(12569,"Decrease Context Lines"),category:a,f1:!0,precondition:o.$3ic,keybinding:{weight:200,primary:600}})}run(t){L(t,!1)}});s(class extends c{constructor(){super({id:xe,title:n(12570,"Select All Matches"),category:a,f1:!0,precondition:o.$3ic,keybinding:{weight:200,primary:3114}})}run(t){Z(t)}});s(class extends c{constructor(){super({id:"search.action.openNewEditorFromView",title:w(12553,null),category:a,icon:J,menu:[{id:S.ViewTitle,group:"navigation",order:2,when:D.equals("view",oe)}]})}run(e,...r){return Y(e)}});let b=class extends ae{static{this.ID="workbench.contrib.searchEditorWorkingCopyEditorHandler"}constructor(e,r){super(),this.a=e,this.D(r.registerHandler(this))}handles(e){return e.resource.scheme===o.$4ic}isOpen(e,r){return this.handles(e)?r instanceof p&&j(e.resource,r.modelUri):!1}createEditor(e){const r=this.a.invokeFunction(f,{from:"model",modelUri:e.resource});return r.setDirty(!0),r}};b=T([y(0,g),y(1,se)],b);W(b.ID,b,2);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { extname, isEqual } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ToggleCaseSensitiveKeybinding, ToggleRegexKeybinding, ToggleWholeWordKeybinding } from "../../../../editor/contrib/find/browser/findModel.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions, DEFAULT_EDITOR_ASSOCIATION } from "../../../common/editor.js";
+import { ActiveEditorContext } from "../../../common/contextkeys.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { getSearchView } from "../../search/browser/searchActionsBase.js";
+import { searchNewEditorIcon, searchRefreshIcon } from "../../search/browser/searchIcons.js";
+import * as SearchConstants from "../../search/common/constants.js";
+import * as SearchEditorConstants from "./constants.js";
+import { SearchEditor } from "./searchEditor.js";
+import { createEditorFromSearchResult, modifySearchEditorContextLinesCommand, openNewSearchEditor, openSearchEditor, selectAllSearchEditorMatchesCommand, toggleSearchEditorCaseSensitiveCommand, toggleSearchEditorContextLinesCommand, toggleSearchEditorRegexCommand, toggleSearchEditorWholeWordCommand } from "./searchEditorActions.js";
+import { getOrMakeSearchEditorInput, SearchEditorInput, SEARCH_EDITOR_EXT } from "./searchEditorInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { VIEW_ID } from "../../../services/search/common/search.js";
+import { RegisteredEditorPriority, IEditorResolverService } from "../../../services/editor/common/editorResolverService.js";
+import { IWorkingCopyEditorService } from "../../../services/workingCopy/common/workingCopyEditorService.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { getActiveElement } from "../../../../base/browser/dom.js";
+const OpenInEditorCommandId = "search.action.openInEditor";
+const OpenNewEditorToSideCommandId = "search.action.openNewEditorToSide";
+const FocusQueryEditorWidgetCommandId = "search.action.focusQueryEditorWidget";
+const FocusQueryEditorFilesToIncludeCommandId = "search.action.focusFilesToInclude";
+const FocusQueryEditorFilesToExcludeCommandId = "search.action.focusFilesToExclude";
+const ToggleSearchEditorCaseSensitiveCommandId = "toggleSearchEditorCaseSensitive";
+const ToggleSearchEditorWholeWordCommandId = "toggleSearchEditorWholeWord";
+const ToggleSearchEditorRegexCommandId = "toggleSearchEditorRegex";
+const IncreaseSearchEditorContextLinesCommandId = "increaseSearchEditorContextLines";
+const DecreaseSearchEditorContextLinesCommandId = "decreaseSearchEditorContextLines";
+const RerunSearchEditorSearchCommandId = "rerunSearchEditorSearch";
+const CleanSearchEditorStateCommandId = "cleanSearchEditorState";
+const SelectAllSearchEditorMatchesCommandId = "selectAllSearchEditorMatches";
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(SearchEditor, SearchEditor.ID, localize("searchEditor", "Search Editor")), [
+  new SyncDescriptor(SearchEditorInput)
+]);
+let SearchEditorContribution = class SearchEditorContribution2 {
+  static {
+    __name(this, "SearchEditorContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.searchEditor";
+  }
+  constructor(editorResolverService, instantiationService) {
+    editorResolverService.registerEditor("*" + SEARCH_EDITOR_EXT, {
+      id: SearchEditorInput.ID,
+      label: localize("promptOpenWith.searchEditor.displayName", "Search Editor"),
+      detail: DEFAULT_EDITOR_ASSOCIATION.providerDisplayName,
+      priority: RegisteredEditorPriority.default
+    }, {
+      singlePerResource: true,
+      canSupportResource: /* @__PURE__ */ __name((resource) => extname(resource) === SEARCH_EDITOR_EXT, "canSupportResource")
+    }, {
+      createEditorInput: /* @__PURE__ */ __name(({ resource }) => {
+        return { editor: instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "existingFile", fileUri: resource }) };
+      }, "createEditorInput")
+    });
+  }
+};
+SearchEditorContribution = __decorate([
+  __param(0, IEditorResolverService),
+  __param(1, IInstantiationService)
+], SearchEditorContribution);
+registerWorkbenchContribution2(
+  SearchEditorContribution.ID,
+  SearchEditorContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+class SearchEditorInputSerializer {
+  static {
+    __name(this, "SearchEditorInputSerializer");
+  }
+  canSerialize(input) {
+    return !!input.tryReadConfigSync();
+  }
+  serialize(input) {
+    if (!this.canSerialize(input)) {
+      return void 0;
+    }
+    if (input.isDisposed()) {
+      return JSON.stringify({ modelUri: void 0, dirty: false, config: input.tryReadConfigSync(), name: input.getName(), matchRanges: [], backingUri: input.backingUri?.toString() });
+    }
+    let modelUri = void 0;
+    if (input.modelUri.path || input.modelUri.fragment && input.isDirty()) {
+      modelUri = input.modelUri.toString();
+    }
+    const config = input.tryReadConfigSync();
+    const dirty = input.isDirty();
+    const matchRanges = dirty ? input.getMatchRanges() : [];
+    const backingUri = input.backingUri;
+    return JSON.stringify({ modelUri, dirty, config, name: input.getName(), matchRanges, backingUri: backingUri?.toString() });
+  }
+  deserialize(instantiationService, serializedEditorInput) {
+    const { modelUri, dirty, config, matchRanges, backingUri } = JSON.parse(serializedEditorInput);
+    if (config && config.query !== void 0) {
+      if (modelUri) {
+        const input = instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "model", modelUri: URI.parse(modelUri), config, backupOf: backingUri ? URI.parse(backingUri) : void 0 });
+        input.setDirty(dirty);
+        input.setMatchRanges(matchRanges);
+        return input;
+      } else {
+        if (backingUri) {
+          return instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "existingFile", fileUri: URI.parse(backingUri) });
+        } else {
+          return instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "rawData", resultsContents: "", config });
+        }
+      }
+    }
+    return void 0;
+  }
+}
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(SearchEditorInput.ID, SearchEditorInputSerializer);
+CommandsRegistry.registerCommand(CleanSearchEditorStateCommandId, (accessor) => {
+  const activeEditorPane = accessor.get(IEditorService).activeEditorPane;
+  if (activeEditorPane instanceof SearchEditor) {
+    activeEditorPane.cleanState();
+  }
+});
+const category = localize2("search", "Search Editor");
+const translateLegacyConfig = /* @__PURE__ */ __name((legacyConfig = {}) => {
+  const config = {};
+  const overrides = {
+    includes: "filesToInclude",
+    excludes: "filesToExclude",
+    wholeWord: "matchWholeWord",
+    caseSensitive: "isCaseSensitive",
+    regexp: "isRegexp",
+    useIgnores: "useExcludeSettingsAndIgnoreFiles"
+  };
+  Object.entries(legacyConfig).forEach(([key, value]) => {
+    config[overrides[key] ?? key] = value;
+  });
+  return config;
+}, "translateLegacyConfig");
+const openArgMetadata = {
+  description: "Open a new search editor. Arguments passed can include variables like ${relativeFileDirname}.",
+  args: [{
+    name: "Open new Search Editor args",
+    schema: {
+      properties: {
+        query: { type: "string" },
+        filesToInclude: { type: "string" },
+        filesToExclude: { type: "string" },
+        contextLines: { type: "number" },
+        matchWholeWord: { type: "boolean" },
+        isCaseSensitive: { type: "boolean" },
+        isRegexp: { type: "boolean" },
+        useExcludeSettingsAndIgnoreFiles: { type: "boolean" },
+        showIncludesExcludes: { type: "boolean" },
+        triggerSearch: { type: "boolean" },
+        focusResults: { type: "boolean" },
+        onlyOpenEditors: { type: "boolean" }
+      }
+    }
+  }]
+};
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "search.searchEditor.action.deleteFileResults",
+      title: localize2("searchEditor.deleteResultBlock", "Delete File Results"),
+      keybinding: {
+        weight: 100,
+        primary: 2048 | 1024 | 1
+      },
+      precondition: SearchEditorConstants.InSearchEditor,
+      category,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const contextService = accessor.get(IContextKeyService).getContext(getActiveElement());
+    if (contextService.getValue(SearchEditorConstants.InSearchEditor.serialize())) {
+      accessor.get(IEditorService).activeEditorPane.deleteResultBlock();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: SearchEditorConstants.OpenNewEditorCommandId,
+      title: localize2("search.openNewSearchEditor", "New Search Editor"),
+      category,
+      f1: true,
+      metadata: openArgMetadata
+    });
+  }
+  async run(accessor, args) {
+    await accessor.get(IInstantiationService).invokeFunction(openNewSearchEditor, translateLegacyConfig({ location: "new", ...args }));
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: SearchEditorConstants.OpenEditorCommandId,
+      title: localize2("search.openSearchEditor", "Open Search Editor"),
+      category,
+      f1: true,
+      metadata: openArgMetadata
+    });
+  }
+  async run(accessor, args) {
+    await accessor.get(IInstantiationService).invokeFunction(openNewSearchEditor, translateLegacyConfig({ location: "reuse", ...args }));
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: OpenNewEditorToSideCommandId,
+      title: localize2("search.openNewEditorToSide", "Open New Search Editor to the Side"),
+      category,
+      f1: true,
+      metadata: openArgMetadata
+    });
+  }
+  async run(accessor, args) {
+    await accessor.get(IInstantiationService).invokeFunction(openNewSearchEditor, translateLegacyConfig(args), true);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: OpenInEditorCommandId,
+      title: localize2("search.openResultsInEditor", "Open Results in Editor"),
+      category,
+      f1: true,
+      keybinding: {
+        primary: 512 | 3,
+        when: ContextKeyExpr.and(SearchConstants.SearchContext.HasSearchResults, SearchConstants.SearchContext.SearchViewFocusedKey),
+        weight: 200,
+        mac: {
+          primary: 2048 | 3
+          /* KeyCode.Enter */
+        }
+      }
+    });
+  }
+  async run(accessor) {
+    const viewsService = accessor.get(IViewsService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const searchView = getSearchView(viewsService);
+    if (searchView) {
+      await instantiationService.invokeFunction(createEditorFromSearchResult, searchView.searchResult, searchView.searchIncludePattern.getValue(), searchView.searchExcludePattern.getValue(), searchView.searchIncludePattern.onlySearchInOpenEditors());
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: RerunSearchEditorSearchCommandId,
+      title: localize2("search.rerunSearchInEditor", "Search Again"),
+      category,
+      keybinding: {
+        primary: 2048 | 1024 | 48,
+        when: SearchEditorConstants.InSearchEditor,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      icon: searchRefreshIcon,
+      menu: [
+        ...[MenuId.EditorTitle, MenuId.CompactWindowEditorTitle].map((id) => ({
+          id,
+          group: "navigation",
+          when: ActiveEditorContext.isEqualTo(SearchEditorConstants.SearchEditorID)
+        })),
+        {
+          id: MenuId.CommandPalette,
+          when: ActiveEditorContext.isEqualTo(SearchEditorConstants.SearchEditorID)
+        }
+      ]
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const input = editorService.activeEditor;
+    if (input instanceof SearchEditorInput) {
+      editorService.activeEditorPane.triggerSearch({ resetCursor: false });
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: FocusQueryEditorWidgetCommandId,
+      title: localize2("search.action.focusQueryEditorWidget", "Focus Search Editor Input"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: {
+        primary: 9,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const input = editorService.activeEditor;
+    if (input instanceof SearchEditorInput) {
+      editorService.activeEditorPane.focusSearchInput();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: FocusQueryEditorFilesToIncludeCommandId,
+      title: localize2("search.action.focusFilesToInclude", "Focus Search Editor Files to Include"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const input = editorService.activeEditor;
+    if (input instanceof SearchEditorInput) {
+      editorService.activeEditorPane.focusFilesToIncludeInput();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: FocusQueryEditorFilesToExcludeCommandId,
+      title: localize2("search.action.focusFilesToExclude", "Focus Search Editor Files to Exclude"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const input = editorService.activeEditor;
+    if (input instanceof SearchEditorInput) {
+      editorService.activeEditorPane.focusFilesToExcludeInput();
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: ToggleSearchEditorCaseSensitiveCommandId,
+      title: localize2("searchEditor.action.toggleSearchEditorCaseSensitive", "Toggle Match Case"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: Object.assign({
+        weight: 200,
+        when: SearchConstants.SearchContext.SearchInputBoxFocusedKey
+      }, ToggleCaseSensitiveKeybinding)
+    });
+  }
+  run(accessor) {
+    toggleSearchEditorCaseSensitiveCommand(accessor);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: ToggleSearchEditorWholeWordCommandId,
+      title: localize2("searchEditor.action.toggleSearchEditorWholeWord", "Toggle Match Whole Word"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: Object.assign({
+        weight: 200,
+        when: SearchConstants.SearchContext.SearchInputBoxFocusedKey
+      }, ToggleWholeWordKeybinding)
+    });
+  }
+  run(accessor) {
+    toggleSearchEditorWholeWordCommand(accessor);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: ToggleSearchEditorRegexCommandId,
+      title: localize2("searchEditor.action.toggleSearchEditorRegex", "Toggle Use Regular Expression"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: Object.assign({
+        weight: 200,
+        when: SearchConstants.SearchContext.SearchInputBoxFocusedKey
+      }, ToggleRegexKeybinding)
+    });
+  }
+  run(accessor) {
+    toggleSearchEditorRegexCommand(accessor);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: SearchEditorConstants.ToggleSearchEditorContextLinesCommandId,
+      title: localize2("searchEditor.action.toggleSearchEditorContextLines", "Toggle Context Lines"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: {
+        weight: 200,
+        primary: 512 | 42,
+        mac: {
+          primary: 2048 | 512 | 42
+          /* KeyCode.KeyL */
+        }
+      }
+    });
+  }
+  run(accessor) {
+    toggleSearchEditorContextLinesCommand(accessor);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: IncreaseSearchEditorContextLinesCommandId,
+      title: localize2("searchEditor.action.increaseSearchEditorContextLines", "Increase Context Lines"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: {
+        weight: 200,
+        primary: 512 | 86
+        /* KeyCode.Equal */
+      }
+    });
+  }
+  run(accessor) {
+    modifySearchEditorContextLinesCommand(accessor, true);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: DecreaseSearchEditorContextLinesCommandId,
+      title: localize2("searchEditor.action.decreaseSearchEditorContextLines", "Decrease Context Lines"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: {
+        weight: 200,
+        primary: 512 | 88
+        /* KeyCode.Minus */
+      }
+    });
+  }
+  run(accessor) {
+    modifySearchEditorContextLinesCommand(accessor, false);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: SelectAllSearchEditorMatchesCommandId,
+      title: localize2("searchEditor.action.selectAllSearchEditorMatches", "Select All Matches"),
+      category,
+      f1: true,
+      precondition: SearchEditorConstants.InSearchEditor,
+      keybinding: {
+        weight: 200,
+        primary: 2048 | 1024 | 42
+      }
+    });
+  }
+  run(accessor) {
+    selectAllSearchEditorMatchesCommand(accessor);
+  }
+});
+registerAction2(class OpenSearchEditorAction extends Action2 {
+  static {
+    __name(this, "OpenSearchEditorAction");
+  }
+  constructor() {
+    super({
+      id: "search.action.openNewEditorFromView",
+      title: localize("search.openNewEditor", "Open New Search Editor"),
+      category,
+      icon: searchNewEditorIcon,
+      menu: [{
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        order: 2,
+        when: ContextKeyExpr.equals("view", VIEW_ID)
+      }]
+    });
+  }
+  run(accessor, ...args) {
+    return openSearchEditor(accessor);
+  }
+});
+let SearchEditorWorkingCopyEditorHandler = class SearchEditorWorkingCopyEditorHandler2 extends Disposable {
+  static {
+    __name(this, "SearchEditorWorkingCopyEditorHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.searchEditorWorkingCopyEditorHandler";
+  }
+  constructor(instantiationService, workingCopyEditorService) {
+    super();
+    this.instantiationService = instantiationService;
+    this._register(workingCopyEditorService.registerHandler(this));
+  }
+  handles(workingCopy) {
+    return workingCopy.resource.scheme === SearchEditorConstants.SearchEditorScheme;
+  }
+  isOpen(workingCopy, editor) {
+    if (!this.handles(workingCopy)) {
+      return false;
+    }
+    return editor instanceof SearchEditorInput && isEqual(workingCopy.resource, editor.modelUri);
+  }
+  createEditor(workingCopy) {
+    const input = this.instantiationService.invokeFunction(getOrMakeSearchEditorInput, { from: "model", modelUri: workingCopy.resource });
+    input.setDirty(true);
+    return input;
+  }
+};
+SearchEditorWorkingCopyEditorHandler = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IWorkingCopyEditorService)
+], SearchEditorWorkingCopyEditorHandler);
+registerWorkbenchContribution2(
+  SearchEditorWorkingCopyEditorHandler.ID,
+  SearchEditorWorkingCopyEditorHandler,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+//# sourceMappingURL=searchEditor.contribution.js.map

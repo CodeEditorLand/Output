@@ -1,1 +1,302 @@
-import{$bk as u}from"../../../../base/common/codicons.js";import{localize as e,localize2 as t}from"../../../../nls.js";import{$vL as d,$qL as r,$sL as k,$wL as n}from"../../../../platform/actions/common/actions.js";import{$0n as i}from"../../../../platform/contextkey/common/contextkey.js";import{$gu as s}from"../../../../platform/theme/common/iconRegistry.js";import{$to as l}from"../../../../platform/action/common/actionCommonCategories.js";import{$50 as L}from"../../../../base/browser/ui/aria/aria.js";import{$nP as p,$mP as m,$CO as S}from"../../../common/contextkeys.js";import{$EN as v}from"../../../common/views.js";import{$Eyb as y}from"../../../services/layout/browser/layoutService.js";import{$_Bb as V}from"../../../services/panecomposite/browser/panecomposite.js";import{$nCb as I}from"../compositeBarActions.js";const $=s("auxiliarybar-maximize",u.screenFull,e(3380,null)),C=s("auxiliarybar-restore",u.screenNormal,e(3381,null)),f=s("auxiliarybar-close",u.close,e(3382,null)),D=s("auxiliarybar-right-layout-icon",u.layoutSidebarRight,e(3383,null)),M=s("auxiliarybar-right-off-layout-icon",u.layoutSidebarRightOff,e(3384,null)),z=s("auxiliarybar-left-layout-icon",u.layoutSidebarLeft,e(3385,null)),q=s("auxiliarybar-left-off-layout-icon",u.layoutSidebarLeftOff,e(3386,null));class a extends d{static{this.ID="workbench.action.toggleAuxiliaryBar"}static{this.LABEL=t(3397,"Toggle Secondary Side Bar Visibility")}constructor(){super({id:a.ID,title:a.LABEL,toggled:{condition:m,title:e(3387,null),icon:f,mnemonicTitle:e(3388,null)},icon:f,category:l.View,metadata:{description:e(3389,null)},f1:!0,keybinding:{weight:200,primary:2592},menu:[{id:r.LayoutControlMenuSubmenu,group:"0_workbench_layout",order:1},{id:r.MenubarAppearanceMenu,group:"2_workbench_layout",order:2}]})}async run(o){const c=o.get(y),g=c.isVisible("workbench.parts.auxiliarybar");c.setPartHidden(g,"workbench.parts.auxiliarybar");const B=g?e(3390,null):e(3391,null);L(B)}}n(a);k.appendMenuItem(r.AuxiliaryBarTitle,{command:{id:a.ID,title:e(3392,null),icon:f},group:"navigation",order:2,when:i.equals("config.workbench.activityBar.location","default")});n(class extends d{constructor(){super({id:"workbench.action.closeAuxiliaryBar",title:t(3398,"Hide Secondary Side Bar"),category:l.View,precondition:m,f1:!0})}run(A){A.get(y).setPartHidden(!0,"workbench.parts.auxiliarybar")}});n(class x extends d{static{this.ID="workbench.action.focusAuxiliaryBar"}static{this.LABEL=t(3399,"Focus into Secondary Side Bar")}constructor(){super({id:x.ID,title:x.LABEL,category:l.View,f1:!0})}async run(o){const c=o.get(V),g=o.get(y);g.isVisible("workbench.parts.auxiliarybar")||g.setPartHidden(!1,"workbench.parts.auxiliarybar"),c.getActivePaneComposite(2)?.focus()}});k.appendMenuItems([{id:r.LayoutControlMenu,item:{group:"2_pane_toggles",command:{id:a.ID,title:e(3393,null),toggled:{condition:m,icon:z},icon:q},when:i.and(S.negate(),i.or(i.equals("config.workbench.layoutControl.type","toggles"),i.equals("config.workbench.layoutControl.type","both")),i.equals("config.workbench.sideBar.location","right")),order:0}},{id:r.LayoutControlMenu,item:{group:"2_pane_toggles",command:{id:a.ID,title:e(3394,null),toggled:{condition:m,icon:D},icon:M},when:i.and(S.negate(),i.or(i.equals("config.workbench.layoutControl.type","toggles"),i.equals("config.workbench.layoutControl.type","both")),i.equals("config.workbench.sideBar.location","left")),order:2}},{id:r.ViewContainerTitleContext,item:{group:"3_workbench_layout_move",command:{id:a.ID,title:t(3400,"Hide Secondary Side Bar")},when:i.and(m,i.equals("viewContainerLocation",v(2))),order:2}}]);n(class extends I{constructor(){super({id:"workbench.action.previousAuxiliaryBarView",title:t(3401,"Previous Secondary Side Bar View"),category:l.View,f1:!0},2,-1)}});n(class extends I{constructor(){super({id:"workbench.action.nextAuxiliaryBarView",title:t(3402,"Next Secondary Side Bar View"),category:l.View,f1:!0},2,1)}});class b extends d{static{this.ID="workbench.action.maximizeAuxiliaryBar"}constructor(){super({id:b.ID,title:t(3403,"Maximize Secondary Side Bar"),tooltip:e(3395,null),category:l.View,f1:!0,precondition:p.negate(),icon:$,menu:{id:r.AuxiliaryBarTitle,group:"navigation",order:1,when:p.negate()}})}run(o){o.get(y).setAuxiliaryBarMaximized(!0)}}n(b);class h extends d{static{this.ID="workbench.action.restoreAuxiliaryBar"}constructor(){super({id:h.ID,title:t(3404,"Restore Secondary Side Bar"),tooltip:e(3396,null),category:l.View,f1:!0,precondition:p,icon:C,menu:{id:r.AuxiliaryBarTitle,group:"navigation",order:1,when:p}})}run(o){o.get(y).setAuxiliaryBarMaximized(!1)}}n(h);class w extends d{static{this.ID="workbench.action.toggleMaximizedAuxiliaryBar"}constructor(){super({id:w.ID,title:t(3405,"Toggle Maximized Secondary Side Bar"),f1:!0,category:l.View})}run(o){o.get(y).toggleMaximizedAuxiliaryBar()}}n(w);export{a as $oCb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { AuxiliaryBarMaximizedContext, AuxiliaryBarVisibleContext, IsAuxiliaryWindowContext } from "../../../common/contextkeys.js";
+import { ViewContainerLocationToString } from "../../../common/views.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { SwitchCompositeViewAction } from "../compositeBarActions.js";
+const maximizeIcon = registerIcon("auxiliarybar-maximize", Codicon.screenFull, localize("maximizeIcon", "Icon to maximize the secondary side bar."));
+const restoreIcon = registerIcon("auxiliarybar-restore", Codicon.screenNormal, localize("restoreIcon", "Icon to restore the secondary side bar."));
+const closeIcon = registerIcon("auxiliarybar-close", Codicon.close, localize("closeIcon", "Icon to close the secondary side bar."));
+const auxiliaryBarRightIcon = registerIcon("auxiliarybar-right-layout-icon", Codicon.layoutSidebarRight, localize("toggleAuxiliaryIconRight", "Icon to toggle the secondary side bar off in its right position."));
+const auxiliaryBarRightOffIcon = registerIcon("auxiliarybar-right-off-layout-icon", Codicon.layoutSidebarRightOff, localize("toggleAuxiliaryIconRightOn", "Icon to toggle the secondary side bar on in its right position."));
+const auxiliaryBarLeftIcon = registerIcon("auxiliarybar-left-layout-icon", Codicon.layoutSidebarLeft, localize("toggleAuxiliaryIconLeft", "Icon to toggle the secondary side bar in its left position."));
+const auxiliaryBarLeftOffIcon = registerIcon("auxiliarybar-left-off-layout-icon", Codicon.layoutSidebarLeftOff, localize("toggleAuxiliaryIconLeftOn", "Icon to toggle the secondary side bar on in its left position."));
+class ToggleAuxiliaryBarAction extends Action2 {
+  static {
+    __name(this, "ToggleAuxiliaryBarAction");
+  }
+  static {
+    this.ID = "workbench.action.toggleAuxiliaryBar";
+  }
+  static {
+    this.LABEL = localize2("toggleAuxiliaryBar", "Toggle Secondary Side Bar Visibility");
+  }
+  constructor() {
+    super({
+      id: ToggleAuxiliaryBarAction.ID,
+      title: ToggleAuxiliaryBarAction.LABEL,
+      toggled: {
+        condition: AuxiliaryBarVisibleContext,
+        title: localize("closeSecondarySideBar", "Hide Secondary Side Bar"),
+        icon: closeIcon,
+        mnemonicTitle: localize({ key: "miCloseSecondarySideBar", comment: ["&& denotes a mnemonic"] }, "&&Secondary Side Bar")
+      },
+      icon: closeIcon,
+      category: Categories.View,
+      metadata: {
+        description: localize("openAndCloseAuxiliaryBar", "Open/Show and Close/Hide Secondary Side Bar")
+      },
+      f1: true,
+      keybinding: {
+        weight: 200,
+        primary: 2048 | 512 | 32
+        /* KeyCode.KeyB */
+      },
+      menu: [
+        {
+          id: MenuId.LayoutControlMenuSubmenu,
+          group: "0_workbench_layout",
+          order: 1
+        },
+        {
+          id: MenuId.MenubarAppearanceMenu,
+          group: "2_workbench_layout",
+          order: 2
+        }
+      ]
+    });
+  }
+  async run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    const isCurrentlyVisible = layoutService.isVisible(
+      "workbench.parts.auxiliarybar"
+      /* Parts.AUXILIARYBAR_PART */
+    );
+    layoutService.setPartHidden(
+      isCurrentlyVisible,
+      "workbench.parts.auxiliarybar"
+      /* Parts.AUXILIARYBAR_PART */
+    );
+    const alertMessage = isCurrentlyVisible ? localize("auxiliaryBarHidden", "Secondary Side Bar hidden") : localize("auxiliaryBarVisible", "Secondary Side Bar shown");
+    alert(alertMessage);
+  }
+}
+registerAction2(ToggleAuxiliaryBarAction);
+MenuRegistry.appendMenuItem(MenuId.AuxiliaryBarTitle, {
+  command: {
+    id: ToggleAuxiliaryBarAction.ID,
+    title: localize("closeSecondarySideBar", "Hide Secondary Side Bar"),
+    icon: closeIcon
+  },
+  group: "navigation",
+  order: 2,
+  when: ContextKeyExpr.equals(
+    `config.${"workbench.activityBar.location"}`,
+    "default"
+    /* ActivityBarPosition.DEFAULT */
+  )
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.action.closeAuxiliaryBar",
+      title: localize2("closeSecondarySideBar", "Hide Secondary Side Bar"),
+      category: Categories.View,
+      precondition: AuxiliaryBarVisibleContext,
+      f1: true
+    });
+  }
+  run(accessor) {
+    accessor.get(IWorkbenchLayoutService).setPartHidden(
+      true,
+      "workbench.parts.auxiliarybar"
+      /* Parts.AUXILIARYBAR_PART */
+    );
+  }
+});
+registerAction2(class FocusAuxiliaryBarAction extends Action2 {
+  static {
+    __name(this, "FocusAuxiliaryBarAction");
+  }
+  static {
+    this.ID = "workbench.action.focusAuxiliaryBar";
+  }
+  static {
+    this.LABEL = localize2("focusAuxiliaryBar", "Focus into Secondary Side Bar");
+  }
+  constructor() {
+    super({
+      id: FocusAuxiliaryBarAction.ID,
+      title: FocusAuxiliaryBarAction.LABEL,
+      category: Categories.View,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    if (!layoutService.isVisible(
+      "workbench.parts.auxiliarybar"
+      /* Parts.AUXILIARYBAR_PART */
+    )) {
+      layoutService.setPartHidden(
+        false,
+        "workbench.parts.auxiliarybar"
+        /* Parts.AUXILIARYBAR_PART */
+      );
+    }
+    const composite = paneCompositeService.getActivePaneComposite(
+      2
+      /* ViewContainerLocation.AuxiliaryBar */
+    );
+    composite?.focus();
+  }
+});
+MenuRegistry.appendMenuItems([
+  {
+    id: MenuId.LayoutControlMenu,
+    item: {
+      group: "2_pane_toggles",
+      command: {
+        id: ToggleAuxiliaryBarAction.ID,
+        title: localize("toggleSecondarySideBar", "Toggle Secondary Side Bar"),
+        toggled: { condition: AuxiliaryBarVisibleContext, icon: auxiliaryBarLeftIcon },
+        icon: auxiliaryBarLeftOffIcon
+      },
+      when: ContextKeyExpr.and(IsAuxiliaryWindowContext.negate(), ContextKeyExpr.or(ContextKeyExpr.equals("config.workbench.layoutControl.type", "toggles"), ContextKeyExpr.equals("config.workbench.layoutControl.type", "both")), ContextKeyExpr.equals("config.workbench.sideBar.location", "right")),
+      order: 0
+    }
+  },
+  {
+    id: MenuId.LayoutControlMenu,
+    item: {
+      group: "2_pane_toggles",
+      command: {
+        id: ToggleAuxiliaryBarAction.ID,
+        title: localize("toggleSecondarySideBar", "Toggle Secondary Side Bar"),
+        toggled: { condition: AuxiliaryBarVisibleContext, icon: auxiliaryBarRightIcon },
+        icon: auxiliaryBarRightOffIcon
+      },
+      when: ContextKeyExpr.and(IsAuxiliaryWindowContext.negate(), ContextKeyExpr.or(ContextKeyExpr.equals("config.workbench.layoutControl.type", "toggles"), ContextKeyExpr.equals("config.workbench.layoutControl.type", "both")), ContextKeyExpr.equals("config.workbench.sideBar.location", "left")),
+      order: 2
+    }
+  },
+  {
+    id: MenuId.ViewContainerTitleContext,
+    item: {
+      group: "3_workbench_layout_move",
+      command: {
+        id: ToggleAuxiliaryBarAction.ID,
+        title: localize2("hideAuxiliaryBar", "Hide Secondary Side Bar")
+      },
+      when: ContextKeyExpr.and(AuxiliaryBarVisibleContext, ContextKeyExpr.equals("viewContainerLocation", ViewContainerLocationToString(
+        2
+        /* ViewContainerLocation.AuxiliaryBar */
+      ))),
+      order: 2
+    }
+  }
+]);
+registerAction2(class extends SwitchCompositeViewAction {
+  constructor() {
+    super({
+      id: "workbench.action.previousAuxiliaryBarView",
+      title: localize2("previousAuxiliaryBarView", "Previous Secondary Side Bar View"),
+      category: Categories.View,
+      f1: true
+    }, 2, -1);
+  }
+});
+registerAction2(class extends SwitchCompositeViewAction {
+  constructor() {
+    super({
+      id: "workbench.action.nextAuxiliaryBarView",
+      title: localize2("nextAuxiliaryBarView", "Next Secondary Side Bar View"),
+      category: Categories.View,
+      f1: true
+    }, 2, 1);
+  }
+});
+class MaximizeAuxiliaryBar extends Action2 {
+  static {
+    __name(this, "MaximizeAuxiliaryBar");
+  }
+  static {
+    this.ID = "workbench.action.maximizeAuxiliaryBar";
+  }
+  constructor() {
+    super({
+      id: MaximizeAuxiliaryBar.ID,
+      title: localize2("maximizeAuxiliaryBar", "Maximize Secondary Side Bar"),
+      tooltip: localize("maximizeAuxiliaryBarTooltip", "Maximize Secondary Side Bar Size"),
+      category: Categories.View,
+      f1: true,
+      precondition: AuxiliaryBarMaximizedContext.negate(),
+      icon: maximizeIcon,
+      menu: {
+        id: MenuId.AuxiliaryBarTitle,
+        group: "navigation",
+        order: 1,
+        when: AuxiliaryBarMaximizedContext.negate()
+      }
+    });
+  }
+  run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    layoutService.setAuxiliaryBarMaximized(true);
+  }
+}
+registerAction2(MaximizeAuxiliaryBar);
+class RestoreAuxiliaryBar extends Action2 {
+  static {
+    __name(this, "RestoreAuxiliaryBar");
+  }
+  static {
+    this.ID = "workbench.action.restoreAuxiliaryBar";
+  }
+  constructor() {
+    super({
+      id: RestoreAuxiliaryBar.ID,
+      title: localize2("restoreAuxiliaryBar", "Restore Secondary Side Bar"),
+      tooltip: localize("restoreAuxiliaryBarTooltip", "Restore Secondary Side Bar Size"),
+      category: Categories.View,
+      f1: true,
+      precondition: AuxiliaryBarMaximizedContext,
+      icon: restoreIcon,
+      menu: {
+        id: MenuId.AuxiliaryBarTitle,
+        group: "navigation",
+        order: 1,
+        when: AuxiliaryBarMaximizedContext
+      }
+    });
+  }
+  run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    layoutService.setAuxiliaryBarMaximized(false);
+  }
+}
+registerAction2(RestoreAuxiliaryBar);
+class ToggleMaximizedAuxiliaryBar extends Action2 {
+  static {
+    __name(this, "ToggleMaximizedAuxiliaryBar");
+  }
+  static {
+    this.ID = "workbench.action.toggleMaximizedAuxiliaryBar";
+  }
+  constructor() {
+    super({
+      id: ToggleMaximizedAuxiliaryBar.ID,
+      title: localize2("toggleMaximizedAuxiliaryBar", "Toggle Maximized Secondary Side Bar"),
+      f1: true,
+      category: Categories.View
+    });
+  }
+  run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    layoutService.toggleMaximizedAuxiliaryBar();
+  }
+}
+registerAction2(ToggleMaximizedAuxiliaryBar);
+export {
+  ToggleAuxiliaryBarAction
+};
+//# sourceMappingURL=auxiliaryBarActions.js.map

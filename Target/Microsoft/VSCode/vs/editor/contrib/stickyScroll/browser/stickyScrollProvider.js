@@ -1,1 +1,212 @@
-import{$Ed as D,$Dd as C,$Cd as N}from"../../../../base/common/lifecycle.js";import{$uW as j}from"../../../common/services/languageFeatures.js";import{$Jf as _}from"../../../../base/common/cancellation.js";import{$ji as y}from"../../../../base/common/async.js";import{$Yb as g}from"../../../../base/common/arrays.js";import{$xf as v}from"../../../../base/common/event.js";import{$MG as M}from"../../../common/languages/languageConfigurationRegistry.js";import{$zrb as S}from"./stickyScrollModelProvider.js";import{$$D as z}from"../../../common/core/position.js";import{$_D as R}from"../../../common/core/range.js";var $=function(u,t,i,e){var s=arguments.length,n=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(u,t,i,e);else for(var l=u.length-1;l>=0;l--)(d=u[l])&&(n=(s<3?d(n):s>3?d(t,i,n):d(t,i))||n);return s>3&&n&&Object.defineProperty(t,i,n),n},p=function(u,t){return function(i,e){t(i,e,u)}};class q{constructor(t,i,e,s){this.startLineNumber=t,this.endLineNumber=i,this.top=e,this.height=s}}let b=class extends D{static{this.ID="store.contrib.stickyScrollController"}constructor(t,i,e){super(),this.q=i,this.r=e,this.c=this.D(new v),this.onDidChangeStickyScroll=this.c.event,this.j=null,this.m=null,this.n=null,this.f=t,this.h=this.D(new C),this.g=this.D(new y(()=>this.update(),50)),this.D(this.f.onDidChangeConfiguration(s=>{s.hasChanged(131)&&this.s()})),this.s()}s(){this.h.clear(),this.f.getOption(131).enabled&&(this.h.add(this.f.onDidChangeModel(()=>{this.j=null,this.t(),this.c.fire(),this.update()})),this.h.add(this.f.onDidChangeHiddenAreas(()=>this.update())),this.h.add(this.f.onDidChangeModelContent(()=>this.g.schedule())),this.h.add(this.q.documentSymbolProvider.onDidChange(()=>this.update())),this.h.add(N(()=>{this.n?.dispose(),this.n=null})),this.t(),this.update())}getVersionId(){return this.j?.version}t(){this.n?.dispose(),this.n=null,this.f.hasModel()&&(this.n=new S(this.f,()=>this.g.schedule(),this.r,this.q))}async update(){this.m?.dispose(!0),this.m=new _,await this.u(this.m.token),this.c.fire()}async u(t){if(!this.f.hasModel()||!this.n||this.f.getModel().isTooLargeForTokenization()){this.j=null;return}const i=await this.n.update(t);t.isCancellationRequested||(this.j=i)}getCandidateStickyLinesIntersecting(t){if(!this.j?.element)return[];const i=[];return this.w(t,this.j.element,i,0,0,-1),this.y(i)}w(t,i,e,s,n,d){const l=this.f.getModel();if(!l||i.children.length===0)return;let c=d;const a=[];for(let r=0;r<i.children.length;r++){const h=i.children[r];h.range&&a.push(h.range.startLineNumber)}const L=this.z(g(a,t.startLineNumber,(r,h)=>r-h)),w=this.z(g(a,t.endLineNumber,(r,h)=>r-h));for(let r=L;r<=w;r++){const h=i.children[r];if(!h||!h.range)continue;const{startLineNumber:o,endLineNumber:f}=h.range;if(f>o+1&&t.startLineNumber<=f+1&&o-1<=t.endLineNumber&&o!==c&&l.isValidRange(new R(o,1,f,1))){c=o;const m=this.f.getLineHeightForPosition(new z(o,1));e.push(new q(o,f-1,n,m)),this.w(t,h,e,s+1,n+m,o)}}}y(t){const i=this.f._getViewModel()?.getHiddenAreas();return i?t.filter(e=>!i.some(s=>e.startLineNumber>=s.startLineNumber&&e.endLineNumber<=s.endLineNumber+1)):t}z(t){return t===-1?0:t<0?-t-2:t}};b=$([p(1,j),p(2,M)],b);export{q as $Arb,b as $Brb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { binarySearch } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { StickyModelProvider } from "./stickyScrollModelProvider.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+class StickyLineCandidate {
+  static {
+    __name(this, "StickyLineCandidate");
+  }
+  constructor(startLineNumber, endLineNumber, top, height) {
+    this.startLineNumber = startLineNumber;
+    this.endLineNumber = endLineNumber;
+    this.top = top;
+    this.height = height;
+  }
+}
+let StickyLineCandidateProvider = class StickyLineCandidateProvider2 extends Disposable {
+  static {
+    __name(this, "StickyLineCandidateProvider");
+  }
+  static {
+    this.ID = "store.contrib.stickyScrollController";
+  }
+  constructor(editor, _languageFeaturesService, _languageConfigurationService) {
+    super();
+    this._languageFeaturesService = _languageFeaturesService;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._onDidChangeStickyScroll = this._register(new Emitter());
+    this.onDidChangeStickyScroll = this._onDidChangeStickyScroll.event;
+    this._model = null;
+    this._cts = null;
+    this._stickyModelProvider = null;
+    this._editor = editor;
+    this._sessionStore = this._register(new DisposableStore());
+    this._updateSoon = this._register(new RunOnceScheduler(() => this.update(), 50));
+    this._register(this._editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        131
+        /* EditorOption.stickyScroll */
+      )) {
+        this.readConfiguration();
+      }
+    }));
+    this.readConfiguration();
+  }
+  /**
+   * Read and apply the sticky scroll configuration.
+   */
+  readConfiguration() {
+    this._sessionStore.clear();
+    const options = this._editor.getOption(
+      131
+      /* EditorOption.stickyScroll */
+    );
+    if (!options.enabled) {
+      return;
+    }
+    this._sessionStore.add(this._editor.onDidChangeModel(() => {
+      this._model = null;
+      this.updateStickyModelProvider();
+      this._onDidChangeStickyScroll.fire();
+      this.update();
+    }));
+    this._sessionStore.add(this._editor.onDidChangeHiddenAreas(() => this.update()));
+    this._sessionStore.add(this._editor.onDidChangeModelContent(() => this._updateSoon.schedule()));
+    this._sessionStore.add(this._languageFeaturesService.documentSymbolProvider.onDidChange(() => this.update()));
+    this._sessionStore.add(toDisposable(() => {
+      this._stickyModelProvider?.dispose();
+      this._stickyModelProvider = null;
+    }));
+    this.updateStickyModelProvider();
+    this.update();
+  }
+  /**
+   * Get the version ID of the sticky model.
+   */
+  getVersionId() {
+    return this._model?.version;
+  }
+  /**
+   * Update the sticky model provider.
+   */
+  updateStickyModelProvider() {
+    this._stickyModelProvider?.dispose();
+    this._stickyModelProvider = null;
+    if (this._editor.hasModel()) {
+      this._stickyModelProvider = new StickyModelProvider(this._editor, () => this._updateSoon.schedule(), this._languageConfigurationService, this._languageFeaturesService);
+    }
+  }
+  /**
+   * Update the sticky line candidates.
+   */
+  async update() {
+    this._cts?.dispose(true);
+    this._cts = new CancellationTokenSource();
+    await this.updateStickyModel(this._cts.token);
+    this._onDidChangeStickyScroll.fire();
+  }
+  /**
+   * Update the sticky model based on the current editor state.
+   */
+  async updateStickyModel(token) {
+    if (!this._editor.hasModel() || !this._stickyModelProvider || this._editor.getModel().isTooLargeForTokenization()) {
+      this._model = null;
+      return;
+    }
+    const model = await this._stickyModelProvider.update(token);
+    if (!token.isCancellationRequested) {
+      this._model = model;
+    }
+  }
+  /**
+   * Get sticky line candidates intersecting a given range.
+   */
+  getCandidateStickyLinesIntersecting(range) {
+    if (!this._model?.element) {
+      return [];
+    }
+    const stickyLineCandidates = [];
+    this.getCandidateStickyLinesIntersectingFromStickyModel(range, this._model.element, stickyLineCandidates, 0, 0, -1);
+    return this.filterHiddenRanges(stickyLineCandidates);
+  }
+  /**
+   * Get sticky line candidates intersecting a given range from the sticky model.
+   */
+  getCandidateStickyLinesIntersectingFromStickyModel(range, outlineModel, result, depth, top, lastStartLineNumber) {
+    const textModel = this._editor.getModel();
+    if (!textModel) {
+      return;
+    }
+    if (outlineModel.children.length === 0) {
+      return;
+    }
+    let lastLine = lastStartLineNumber;
+    const childrenStartLines = [];
+    for (let i = 0; i < outlineModel.children.length; i++) {
+      const child = outlineModel.children[i];
+      if (child.range) {
+        childrenStartLines.push(child.range.startLineNumber);
+      }
+    }
+    const lowerBound = this.updateIndex(binarySearch(childrenStartLines, range.startLineNumber, (a, b) => {
+      return a - b;
+    }));
+    const upperBound = this.updateIndex(binarySearch(childrenStartLines, range.endLineNumber, (a, b) => {
+      return a - b;
+    }));
+    for (let i = lowerBound; i <= upperBound; i++) {
+      const child = outlineModel.children[i];
+      if (!child || !child.range) {
+        continue;
+      }
+      const { startLineNumber, endLineNumber } = child.range;
+      if (endLineNumber > startLineNumber + 1 && range.startLineNumber <= endLineNumber + 1 && startLineNumber - 1 <= range.endLineNumber && startLineNumber !== lastLine && textModel.isValidRange(new Range(startLineNumber, 1, endLineNumber, 1))) {
+        lastLine = startLineNumber;
+        const lineHeight = this._editor.getLineHeightForPosition(new Position(startLineNumber, 1));
+        result.push(new StickyLineCandidate(startLineNumber, endLineNumber - 1, top, lineHeight));
+        this.getCandidateStickyLinesIntersectingFromStickyModel(range, child, result, depth + 1, top + lineHeight, startLineNumber);
+      }
+    }
+  }
+  /**
+   * Filter out sticky line candidates that are within hidden ranges.
+   */
+  filterHiddenRanges(stickyLineCandidates) {
+    const hiddenRanges = this._editor._getViewModel()?.getHiddenAreas();
+    if (!hiddenRanges) {
+      return stickyLineCandidates;
+    }
+    return stickyLineCandidates.filter((candidate) => {
+      return !hiddenRanges.some((hiddenRange) => candidate.startLineNumber >= hiddenRange.startLineNumber && candidate.endLineNumber <= hiddenRange.endLineNumber + 1);
+    });
+  }
+  /**
+   * Update the binary search index.
+   */
+  updateIndex(index) {
+    if (index === -1) {
+      return 0;
+    } else if (index < 0) {
+      return -index - 2;
+    }
+    return index;
+  }
+};
+StickyLineCandidateProvider = __decorate([
+  __param(1, ILanguageFeaturesService),
+  __param(2, ILanguageConfigurationService)
+], StickyLineCandidateProvider);
+export {
+  StickyLineCandidate,
+  StickyLineCandidateProvider
+};
+//# sourceMappingURL=stickyScrollProvider.js.map

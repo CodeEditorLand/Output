@@ -1,1 +1,29 @@
-import{$WC as r}from"../../../../platform/instantiation/common/extensions.js";import{$WPc as m}from"../../../../platform/ipc/electron-browser/services.js";import{$jm as t}from"../../../../platform/registry/common/platform.js";import{$xx as i,TerminalIpcChannels as n}from"../../../../platform/terminal/common/terminal.js";import{Extensions as c,$2N as e}from"../../../common/contributions.js";import{$X6 as p}from"../common/terminal.js";import{$2Wc as s}from"./terminalNativeContribution.js";import{$3Wc as f}from"./terminalProfileResolverService.js";import{$5Wc as o}from"./localTerminalBackend.js";m(i,n.LocalPty);r(p,f,1);const $=t.as(c.Workbench);e(o.ID,o,1);$.registerWorkbenchContribution(s,3);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { registerMainProcessRemoteService } from "../../../../platform/ipc/electron-browser/services.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ILocalPtyService, TerminalIpcChannels } from "../../../../platform/terminal/common/terminal.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { ITerminalProfileResolverService } from "../common/terminal.js";
+import { TerminalNativeContribution } from "./terminalNativeContribution.js";
+import { ElectronTerminalProfileResolverService } from "./terminalProfileResolverService.js";
+import { LocalTerminalBackendContribution } from "./localTerminalBackend.js";
+registerMainProcessRemoteService(ILocalPtyService, TerminalIpcChannels.LocalPty);
+registerSingleton(
+  ITerminalProfileResolverService,
+  ElectronTerminalProfileResolverService,
+  1
+  /* InstantiationType.Delayed */
+);
+const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+registerWorkbenchContribution2(
+  LocalTerminalBackendContribution.ID,
+  LocalTerminalBackendContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  TerminalNativeContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+//# sourceMappingURL=terminal.contribution.js.map

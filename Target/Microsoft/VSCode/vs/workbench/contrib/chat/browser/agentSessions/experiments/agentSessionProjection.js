@@ -1,1 +1,7 @@
-import{localize as o}from"../../../../../../nls.js";import{$qo as e}from"../../../../../../platform/contextkey/common/contextkey.js";const i=new e("chatInAgentSessionProjection",!1,{type:"boolean",description:o(5533,null)});export{i as $8oc};
+import { localize } from "../../../../../../nls.js";
+import { RawContextKey } from "../../../../../../platform/contextkey/common/contextkey.js";
+const inAgentSessionProjection = new RawContextKey("chatInAgentSessionProjection", false, { type: "boolean", description: localize("chatInAgentSessionProjection", "True when the workbench is in agent session projection mode for reviewing an agent session.") });
+export {
+  inAgentSessionProjection
+};
+//# sourceMappingURL=agentSessionProjection.js.map

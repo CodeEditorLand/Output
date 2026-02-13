@@ -1,2 +1,498 @@
-import{$0h as H}from"../../../../base/common/async.js";import{$rj as k,$0i as z}from"../../../../base/common/buffer.js";import{$sb as M}from"../../../../base/common/errors.js";import{$xf as D,Event as p}from"../../../../base/common/event.js";import{$Ed as O,$Cd as _}from"../../../../base/common/lifecycle.js";import*as P from"../../../../base/common/objects.js";import*as S from"../../../../base/common/platform.js";import{$Iw as A}from"../../../../base/common/processes.js";import{$rf as C}from"../../../../base/common/stopwatch.js";import{URI as N}from"../../../../base/common/uri.js";import{$ln as U}from"../../../../base/common/uuid.js";import{$in as W}from"../../../../base/parts/ipc/common/ipc.net.js";import{$Abb as F}from"../../../../base/parts/ipc/electron-browser/ipc.mp.js";import*as E from"../../../../nls.js";import{$Dw as j}from"../../../../platform/debug/common/extensionHostDebug.js";import{$ox as q}from"../../../../platform/extensions/common/extensionHostStarter.js";import{$oH as G}from"../../../../platform/label/common/label.js";import{$yo as B,$zo as V}from"../../../../platform/log/common/log.js";import{$Xu as J}from"../../../../platform/native/common/native.js";import{$pH as Y,NotificationPriority as X,Severity as K}from"../../../../platform/notification/common/notification.js";import{$Vn as Q}from"../../../../platform/product/common/productService.js";import{$pp as Z}from"../../../../platform/telemetry/common/telemetry.js";import{$mv as tt}from"../../../../platform/telemetry/common/telemetryUtils.js";import{$ap as et}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$Ml as st,$4l as it}from"../../../../platform/workspace/common/workspace.js";import{$SPc as ot}from"../../environment/electron-browser/environmentService.js";import{$YVc as nt}from"../../environment/electron-browser/shellEnvironmentService.js";import{$w5 as rt,$x5 as ht}from"../common/extensionHostEnv.js";import{UIKind as at,$BR as y}from"../common/extensionHostProtocol.js";import{$gcb as lt}from"../../host/browser/host.js";import{$WN as ct}from"../../lifecycle/common/lifecycle.js";import{$h5b as ut}from"../common/extensionDevOptions.js";import{$Ccc as dt}from"../../log/common/defaultLogLevels.js";var R=function(m,e,t,o){var i=arguments.length,s=i<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(m,e,t,o);else for(var h=m.length-1;h>=0;h--)(n=m[h])&&(s=(i<3?n(s):i>3?n(e,t,s):n(e,t))||s);return i>3&&s&&Object.defineProperty(e,t,s),s},l=function(m,e){return function(t,o){e(t,o,m)}};class mt{get onStdout(){return this.b.onDynamicStdout(this.a)}get onStderr(){return this.b.onDynamicStderr(this.a)}get onMessage(){return this.b.onDynamicMessage(this.a)}get onExit(){return this.b.onDynamicExit(this.a)}constructor(e,t){this.b=t,this.a=e}start(e){return this.b.start(this.a,e)}enableInspectPort(){return this.b.enableInspectPort(this.a)}kill(){return this.b.kill(this.a)}}let T=class extends O{constructor(e,t,o,i,s,n,h,r,u,d,g,b,a,c,x,v,w,I,L){super(),this.runningLocation=e,this.startup=t,this.s=o,this.t=i,this.u=s,this.w=n,this.y=h,this.z=r,this.C=u,this.F=d,this.G=g,this.H=b,this.I=a,this.J=c,this.L=x,this.M=v,this.N=w,this.O=I,this.P=L,this.pid=null,this.remoteAuthority=null,this.extensions=null,this.a=this.D(new D),this.onExit=this.a.event,this.b=this.D(new D);const $=ut(this.z);this.c=$.isExtensionDevHost,this.f=$.isExtensionDevDebug,this.g=$.isExtensionDevDebugBrk,this.h=$.isExtensionDevTestFromCli,this.j=!1,this.m=null,this.n=null,this.q=null,this.D(this.y.onWillShutdown(f=>this.Z(f))),this.D(this.J.onClose(f=>{this.c&&this.z.debugExtensionHost.debugId===f.sessionId&&this.w.closeWindow()})),this.D(this.J.onReload(f=>{this.c&&this.z.debugExtensionHost.debugId===f.sessionId&&this.L.reload()}))}dispose(){this.j||(this.j=!0,super.dispose(),this.q=null)}start(){if(this.j)throw new M;return this.q||(this.q=this.Q()),this.q}async Q(){const[e,t,o]=await Promise.all([this.O.createExtensionHost(),this.R(),this.N.getShellEnv()]);this.n=new mt(e.id,this.O);const i=P.$Fp(o,{VSCODE_ESM_ENTRYPOINT:"vs/workbench/api/node/extensionHostProcess",VSCODE_HANDLES_UNCAUGHT_ERRORS:!0});this.z.debugExtensionHost.env&&P.$Fp(i,this.z.debugExtensionHost.env),A(i),this.c&&delete i.VSCODE_CODE_CACHE_PATH;const s={responseWindowId:this.w.windowId,responseChannel:"vscode:startExtensionHostMessagePortResult",responseNonce:U(),env:i,detached:!!S.$m,execArgv:void 0,silent:!0},n="127.0.0.1";t!==0?s.execArgv=["--nolazy",(this.g?"--inspect-brk=":"--inspect=")+`${n}:${t}`]:s.execArgv=["--inspect-port=0"],this.z.extensionTestsLocationURI&&s.execArgv.unshift("--expose-gc"),this.z.args["prof-v8-extensions"]&&s.execArgv.unshift("--prof"),s.execArgv.unshift("--dns-result-order=ipv4first","--experimental-network-inspection");const h=this.Y(this.n.onStdout),r=this.Y(this.n.onStderr),u=p.any(p.map(h.event,a=>({data:`%c${a}`,format:[""]})),p.map(r.event,a=>({data:`%c${a}`,format:["color: red"]}))),d=p.debounce(u,(a,c)=>a?{data:a.data+c.data,format:[...a.format,...c.format]}:{data:c.data,format:c.format},100);this.D(d(a=>{const c=a.data&&a.data.match(/ws:\/\/([^\s]+):(\d+)\/([^\s]+)/);if(c){const[,x,v,w]=c,I=`devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=${x}:${v}/${w}`;!this.z.isBuilt&&this.h,(!this.m||!this.m.devtoolsUrl)&&(this.m={host:x,port:Number(v),devtoolsUrl:I},this.b.fire())}else this.h})),this.D(this.n.onExit(({code:a,signal:c})=>this.X(a,c))),t&&(this.c&&this.f&&this.z.debugExtensionHost.debugId&&this.J.attachSession(this.z.debugExtensionHost.debugId,t),this.m={port:t,host:n},this.b.fire());let g;(!this.z.isBuilt&&!this.z.remoteAuthority||this.c)&&(g=setTimeout(()=>{this.G.error(`[LocalProcessExtensionHost]: Extension host did not start in 10 seconds (debugBrk: ${this.g})`);const a=this.g?E.localize(16241,null):E.localize(16242,null);this.u.prompt(K.Warning,a,[{label:E.localize(16243,null),run:()=>this.L.reload()}],{sticky:!0,priority:X.URGENT})},1e4));const b=await this.S(this.n,s);return await this.U(b),clearTimeout(g),b}async R(){if(typeof this.z.debugExtensionHost.port!="number")return 0;const e=this.z.debugExtensionHost.port,t=await this.w.findFreePort(e,10,5e3,2048);return this.h||t&&this.g,t||0}S(e,t){ht(new rt,t.env);const o=F(void 0,t.responseChannel,t.responseNonce);return new Promise((i,s)=>{const n=setTimeout(()=>{s("The local extension host took longer than 60s to connect.")},6e4);o.then(r=>{this.D(_(()=>{r.close(),r.onmessage=null})),clearTimeout(n);const u=new W;r.onmessage=(d=>{d.data&&u.fire(z.wrap(d.data))}),r.start(),i({onMessage:u.event,send:d=>r.postMessage(d.buffer)})});const h=C.create(!1);e.start(t).then(({pid:r})=>{r&&(this.pid=r),this.G.info(`Started local extension host with pid ${r}.`);const u=h.elapsed();S.$x&&this.G.info(`IExtensionHostStarter.start() took ${u} ms.`)},r=>{s(r)})})}U(e){return new Promise((t,o)=>{let i;const s=()=>{i=setTimeout(()=>{o("The local extension host took longer than 60s to send its ready message.")},6e4)},n=()=>{clearTimeout(i)};s();const h=e.onMessage(r=>{if(y(r,1)){n(),this.W().then(u=>{s(),e.send(z.fromString(JSON.stringify(u)))});return}if(y(r,0)){n(),h.dispose(),t();return}})})}async W(){const e=await this.s.getInitData();this.extensions=e.extensions;const t=this.t.getWorkspace();return{commit:this.M.commit,version:this.M.version,quality:this.M.quality,date:this.M.date,parentPid:0,environment:{isExtensionDevelopmentDebug:this.f,appRoot:this.z.appRoot?N.file(this.z.appRoot):void 0,appName:this.M.nameLong,appHost:this.M.embedderIdentifier||"desktop",appUriScheme:this.M.urlProtocol,isExtensionTelemetryLoggingOnly:tt(this.M,this.z),isPortable:this.z.isPortable,appLanguage:S.$A,extensionDevelopmentLocationURI:this.z.extensionDevelopmentLocationURI,extensionTestsLocationURI:this.z.extensionTestsLocationURI,globalStorageHome:this.C.defaultProfile.globalStorageHome,workspaceStorageHome:this.z.workspaceStorageHome,extensionLogLevel:this.P.defaultLogLevels.extensions},workspace:this.t.getWorkbenchState()===1?void 0:{configuration:t.configuration??void 0,id:t.id,name:this.I.getWorkspaceLabel(t),isUntitled:t.configuration?it(t.configuration,this.z):!1,transient:t.transient,isAgentSessionsWorkspace:t.isAgentSessionsWorkspace},remote:{authority:this.z.remoteAuthority,connectionData:null,isRemote:!1},consoleForward:{includeStack:!this.h&&(this.c||!this.z.isBuilt||this.M.quality!=="stable"||this.z.verbose),logNative:!this.h&&this.c},extensions:this.extensions.toSnapshot(),telemetryInfo:{sessionId:this.F.sessionId,machineId:this.F.machineId,sqmId:this.F.sqmId,devDeviceId:this.F.devDeviceId??this.F.machineId,firstSessionDate:this.F.firstSessionDate,msftInternal:this.F.msftInternal},remoteExtensionTips:this.M.remoteExtensionTips,virtualWorkspaceExtensionTips:this.M.virtualWorkspaceExtensionTips,logLevel:this.G.getLevel(),loggers:[...this.H.getRegisteredLoggers()],logsLocation:this.z.extHostLogsPath,autoStart:this.startup===1,uiKind:at.Desktop,handle:this.z.window.handle?k(this.z.window.handle):void 0}}X(e,t){this.j||this.a.fire([e,t])}Y(e){let t="",o=!1;const i=new D;return e(s=>{t+=s;const n=t.split(/\r?\n/g);t=n.pop(),t.length>1e4&&(n.push(t),t="");for(const h of n)o?h==="END_NATIVE_LOG"&&(o=!1):h==="START_NATIVE_LOG"?o=!0:h.length&&i.fire(h+`
-`)},void 0,this.B),i}async enableInspectPort(){return this.m?!0:!this.n||!await this.n.enableInspectPort()?!1:(await Promise.race([p.toPromise(this.b.event),H(1e3)]),!!this.m)}getInspectPort(){return this.m??void 0}Z(e){this.c&&!this.h&&!this.f&&this.z.debugExtensionHost.debugId&&(this.J.terminateSession(this.z.debugExtensionHost.debugId),e.join(H(100),{id:"join.extensionDevelopment",label:E.localize(16244,null)}))}};T=R([l(3,st),l(4,Y),l(5,J),l(6,ct),l(7,ot),l(8,et),l(9,Z),l(10,B),l(11,V),l(12,G),l(13,j),l(14,lt),l(15,Q),l(16,nt),l(17,q),l(18,dt)],T);export{mt as $mWc,T as $nWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../base/common/async.js";
+import { encodeBase64, VSBuffer } from "../../../../base/common/buffer.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import * as objects from "../../../../base/common/objects.js";
+import * as platform from "../../../../base/common/platform.js";
+import { removeDangerousEnvVariables } from "../../../../base/common/processes.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { BufferedEmitter } from "../../../../base/parts/ipc/common/ipc.net.js";
+import { acquirePort } from "../../../../base/parts/ipc/electron-browser/ipc.mp.js";
+import * as nls from "../../../../nls.js";
+import { IExtensionHostDebugService } from "../../../../platform/debug/common/extensionHostDebug.js";
+import { IExtensionHostStarter } from "../../../../platform/extensions/common/extensionHostStarter.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService, ILoggerService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INotificationService, NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { isLoggingOnly } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService, isUntitledWorkspace } from "../../../../platform/workspace/common/workspace.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { IShellEnvironmentService } from "../../environment/electron-browser/shellEnvironmentService.js";
+import { MessagePortExtHostConnection, writeExtHostConnection } from "../common/extensionHostEnv.js";
+import { UIKind, isMessageOfType } from "../common/extensionHostProtocol.js";
+import { IHostService } from "../../host/browser/host.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { parseExtensionDevOptions } from "../common/extensionDevOptions.js";
+import { IDefaultLogLevelsService } from "../../log/common/defaultLogLevels.js";
+class ExtensionHostProcess {
+  static {
+    __name(this, "ExtensionHostProcess");
+  }
+  get onStdout() {
+    return this._extensionHostStarter.onDynamicStdout(this._id);
+  }
+  get onStderr() {
+    return this._extensionHostStarter.onDynamicStderr(this._id);
+  }
+  get onMessage() {
+    return this._extensionHostStarter.onDynamicMessage(this._id);
+  }
+  get onExit() {
+    return this._extensionHostStarter.onDynamicExit(this._id);
+  }
+  constructor(id, _extensionHostStarter) {
+    this._extensionHostStarter = _extensionHostStarter;
+    this._id = id;
+  }
+  start(opts) {
+    return this._extensionHostStarter.start(this._id, opts);
+  }
+  enableInspectPort() {
+    return this._extensionHostStarter.enableInspectPort(this._id);
+  }
+  kill() {
+    return this._extensionHostStarter.kill(this._id);
+  }
+}
+let NativeLocalProcessExtensionHost = class NativeLocalProcessExtensionHost2 extends Disposable {
+  static {
+    __name(this, "NativeLocalProcessExtensionHost");
+  }
+  constructor(runningLocation, startup, _initDataProvider, _contextService, _notificationService, _nativeHostService, _lifecycleService, _environmentService, _userDataProfilesService, _telemetryService, _logService, _loggerService, _labelService, _extensionHostDebugService, _hostService, _productService, _shellEnvironmentService, _extensionHostStarter, _defaultLogLevelsService) {
+    super();
+    this.runningLocation = runningLocation;
+    this.startup = startup;
+    this._initDataProvider = _initDataProvider;
+    this._contextService = _contextService;
+    this._notificationService = _notificationService;
+    this._nativeHostService = _nativeHostService;
+    this._lifecycleService = _lifecycleService;
+    this._environmentService = _environmentService;
+    this._userDataProfilesService = _userDataProfilesService;
+    this._telemetryService = _telemetryService;
+    this._logService = _logService;
+    this._loggerService = _loggerService;
+    this._labelService = _labelService;
+    this._extensionHostDebugService = _extensionHostDebugService;
+    this._hostService = _hostService;
+    this._productService = _productService;
+    this._shellEnvironmentService = _shellEnvironmentService;
+    this._extensionHostStarter = _extensionHostStarter;
+    this._defaultLogLevelsService = _defaultLogLevelsService;
+    this.pid = null;
+    this.remoteAuthority = null;
+    this.extensions = null;
+    this._onExit = this._register(new Emitter());
+    this.onExit = this._onExit.event;
+    this._onDidSetInspectPort = this._register(new Emitter());
+    const devOpts = parseExtensionDevOptions(this._environmentService);
+    this._isExtensionDevHost = devOpts.isExtensionDevHost;
+    this._isExtensionDevDebug = devOpts.isExtensionDevDebug;
+    this._isExtensionDevDebugBrk = devOpts.isExtensionDevDebugBrk;
+    this._isExtensionDevTestFromCli = devOpts.isExtensionDevTestFromCli;
+    this._terminating = false;
+    this._inspectListener = null;
+    this._extensionHostProcess = null;
+    this._messageProtocol = null;
+    this._register(this._lifecycleService.onWillShutdown((e) => this._onWillShutdown(e)));
+    this._register(this._extensionHostDebugService.onClose((event) => {
+      if (this._isExtensionDevHost && this._environmentService.debugExtensionHost.debugId === event.sessionId) {
+        this._nativeHostService.closeWindow();
+      }
+    }));
+    this._register(this._extensionHostDebugService.onReload((event) => {
+      if (this._isExtensionDevHost && this._environmentService.debugExtensionHost.debugId === event.sessionId) {
+        this._hostService.reload();
+      }
+    }));
+  }
+  dispose() {
+    if (this._terminating) {
+      return;
+    }
+    this._terminating = true;
+    super.dispose();
+    this._messageProtocol = null;
+  }
+  start() {
+    if (this._terminating) {
+      throw new CancellationError();
+    }
+    if (!this._messageProtocol) {
+      this._messageProtocol = this._start();
+    }
+    return this._messageProtocol;
+  }
+  async _start() {
+    const [extensionHostCreationResult, portNumber, processEnv] = await Promise.all([
+      this._extensionHostStarter.createExtensionHost(),
+      this._tryFindDebugPort(),
+      this._shellEnvironmentService.getShellEnv()
+    ]);
+    this._extensionHostProcess = new ExtensionHostProcess(extensionHostCreationResult.id, this._extensionHostStarter);
+    const env = objects.mixin(processEnv, {
+      VSCODE_ESM_ENTRYPOINT: "vs/workbench/api/node/extensionHostProcess",
+      VSCODE_HANDLES_UNCAUGHT_ERRORS: true
+    });
+    if (this._environmentService.debugExtensionHost.env) {
+      objects.mixin(env, this._environmentService.debugExtensionHost.env);
+    }
+    removeDangerousEnvVariables(env);
+    if (this._isExtensionDevHost) {
+      delete env["VSCODE_CODE_CACHE_PATH"];
+    }
+    const opts = {
+      responseWindowId: this._nativeHostService.windowId,
+      responseChannel: "vscode:startExtensionHostMessagePortResult",
+      responseNonce: generateUuid(),
+      env,
+      // We only detach the extension host on windows. Linux and Mac orphan by default
+      // and detach under Linux and Mac create another process group.
+      // We detach because we have noticed that when the renderer exits, its child processes
+      // (i.e. extension host) are taken down in a brutal fashion by the OS
+      detached: !!platform.isWindows,
+      execArgv: void 0,
+      silent: true
+    };
+    const inspectHost = "127.0.0.1";
+    if (portNumber !== 0) {
+      opts.execArgv = [
+        "--nolazy",
+        (this._isExtensionDevDebugBrk ? "--inspect-brk=" : "--inspect=") + `${inspectHost}:${portNumber}`
+      ];
+    } else {
+      opts.execArgv = ["--inspect-port=0"];
+    }
+    if (this._environmentService.extensionTestsLocationURI) {
+      opts.execArgv.unshift("--expose-gc");
+    }
+    if (this._environmentService.args["prof-v8-extensions"]) {
+      opts.execArgv.unshift("--prof");
+    }
+    opts.execArgv.unshift("--dns-result-order=ipv4first", "--experimental-network-inspection");
+    const onStdout = this._handleProcessOutputStream(this._extensionHostProcess.onStdout);
+    const onStderr = this._handleProcessOutputStream(this._extensionHostProcess.onStderr);
+    const onOutput = Event.any(Event.map(onStdout.event, (o) => ({ data: `%c${o}`, format: [""] })), Event.map(onStderr.event, (o) => ({ data: `%c${o}`, format: ["color: red"] })));
+    const onDebouncedOutput = Event.debounce(onOutput, (r, o) => {
+      return r ? { data: r.data + o.data, format: [...r.format, ...o.format] } : { data: o.data, format: o.format };
+    }, 100);
+    this._register(onDebouncedOutput((output) => {
+      const inspectorUrlMatch = output.data && output.data.match(/ws:\/\/([^\s]+):(\d+)\/([^\s]+)/);
+      if (inspectorUrlMatch) {
+        const [, host, port, auth] = inspectorUrlMatch;
+        const devtoolsUrl = `devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=${host}:${port}/${auth}`;
+        if (!this._environmentService.isBuilt && !this._isExtensionDevTestFromCli) {
+          console.debug(`%c[Extension Host] %cdebugger inspector at ${devtoolsUrl}`, "color: blue", "color:");
+        }
+        if (!this._inspectListener || !this._inspectListener.devtoolsUrl) {
+          this._inspectListener = { host, port: Number(port), devtoolsUrl };
+          this._onDidSetInspectPort.fire();
+        }
+      } else {
+        if (!this._isExtensionDevTestFromCli) {
+          console.group("Extension Host");
+          console.log(output.data, ...output.format);
+          console.groupEnd();
+        }
+      }
+    }));
+    this._register(this._extensionHostProcess.onExit(({ code, signal }) => this._onExtHostProcessExit(code, signal)));
+    if (portNumber) {
+      if (this._isExtensionDevHost && this._isExtensionDevDebug && this._environmentService.debugExtensionHost.debugId) {
+        this._extensionHostDebugService.attachSession(this._environmentService.debugExtensionHost.debugId, portNumber);
+      }
+      this._inspectListener = { port: portNumber, host: inspectHost };
+      this._onDidSetInspectPort.fire();
+    }
+    let startupTimeoutHandle;
+    if (!this._environmentService.isBuilt && !this._environmentService.remoteAuthority || this._isExtensionDevHost) {
+      startupTimeoutHandle = setTimeout(() => {
+        this._logService.error(`[LocalProcessExtensionHost]: Extension host did not start in 10 seconds (debugBrk: ${this._isExtensionDevDebugBrk})`);
+        const msg = this._isExtensionDevDebugBrk ? nls.localize("extensionHost.startupFailDebug", "Extension host did not start in 10 seconds, it might be stopped on the first line and needs a debugger to continue.") : nls.localize("extensionHost.startupFail", "Extension host did not start in 10 seconds, that might be a problem.");
+        this._notificationService.prompt(Severity.Warning, msg, [{
+          label: nls.localize("reloadWindow", "Reload Window"),
+          run: /* @__PURE__ */ __name(() => this._hostService.reload(), "run")
+        }], {
+          sticky: true,
+          priority: NotificationPriority.URGENT
+        });
+      }, 1e4);
+    }
+    const protocol = await this._establishProtocol(this._extensionHostProcess, opts);
+    await this._performHandshake(protocol);
+    clearTimeout(startupTimeoutHandle);
+    return protocol;
+  }
+  /**
+   * Find a free port if extension host debugging is enabled.
+   */
+  async _tryFindDebugPort() {
+    if (typeof this._environmentService.debugExtensionHost.port !== "number") {
+      return 0;
+    }
+    const expected = this._environmentService.debugExtensionHost.port;
+    const port = await this._nativeHostService.findFreePort(
+      expected,
+      10,
+      5e3,
+      2048
+      /* skip 2048 ports between attempts */
+    );
+    if (!this._isExtensionDevTestFromCli) {
+      if (!port) {
+        console.warn("%c[Extension Host] %cCould not find a free port for debugging", "color: blue", "color:");
+      } else {
+        if (port !== expected) {
+          console.warn(`%c[Extension Host] %cProvided debugging port ${expected} is not free, using ${port} instead.`, "color: blue", "color:");
+        }
+        if (this._isExtensionDevDebugBrk) {
+          console.warn(`%c[Extension Host] %cSTOPPED on first line for debugging on port ${port}`, "color: blue", "color:");
+        } else {
+          console.debug(`%c[Extension Host] %cdebugger listening on port ${port}`, "color: blue", "color:");
+        }
+      }
+    }
+    return port || 0;
+  }
+  _establishProtocol(extensionHostProcess, opts) {
+    writeExtHostConnection(new MessagePortExtHostConnection(), opts.env);
+    const portPromise = acquirePort(void 0, opts.responseChannel, opts.responseNonce);
+    return new Promise((resolve, reject) => {
+      const handle = setTimeout(() => {
+        reject("The local extension host took longer than 60s to connect.");
+      }, 60 * 1e3);
+      portPromise.then((port) => {
+        this._register(toDisposable(() => {
+          port.close();
+          port.onmessage = null;
+        }));
+        clearTimeout(handle);
+        const onMessage = new BufferedEmitter();
+        port.onmessage = ((e) => {
+          if (e.data) {
+            onMessage.fire(VSBuffer.wrap(e.data));
+          }
+        });
+        port.start();
+        resolve({
+          onMessage: onMessage.event,
+          send: /* @__PURE__ */ __name((message) => port.postMessage(message.buffer), "send")
+        });
+      });
+      const sw = StopWatch.create(false);
+      extensionHostProcess.start(opts).then(({ pid }) => {
+        if (pid) {
+          this.pid = pid;
+        }
+        this._logService.info(`Started local extension host with pid ${pid}.`);
+        const duration = sw.elapsed();
+        if (platform.isCI) {
+          this._logService.info(`IExtensionHostStarter.start() took ${duration} ms.`);
+        }
+      }, (err) => {
+        reject(err);
+      });
+    });
+  }
+  _performHandshake(protocol) {
+    return new Promise((resolve, reject) => {
+      let timeoutHandle;
+      const installTimeoutCheck = /* @__PURE__ */ __name(() => {
+        timeoutHandle = setTimeout(() => {
+          reject("The local extension host took longer than 60s to send its ready message.");
+        }, 60 * 1e3);
+      }, "installTimeoutCheck");
+      const uninstallTimeoutCheck = /* @__PURE__ */ __name(() => {
+        clearTimeout(timeoutHandle);
+      }, "uninstallTimeoutCheck");
+      installTimeoutCheck();
+      const disposable = protocol.onMessage((msg) => {
+        if (isMessageOfType(
+          msg,
+          1
+          /* MessageType.Ready */
+        )) {
+          uninstallTimeoutCheck();
+          this._createExtHostInitData().then((data) => {
+            installTimeoutCheck();
+            protocol.send(VSBuffer.fromString(JSON.stringify(data)));
+          });
+          return;
+        }
+        if (isMessageOfType(
+          msg,
+          0
+          /* MessageType.Initialized */
+        )) {
+          uninstallTimeoutCheck();
+          disposable.dispose();
+          resolve();
+          return;
+        }
+        console.error(`received unexpected message during handshake phase from the extension host: `, msg);
+      });
+    });
+  }
+  async _createExtHostInitData() {
+    const initData = await this._initDataProvider.getInitData();
+    this.extensions = initData.extensions;
+    const workspace = this._contextService.getWorkspace();
+    return {
+      commit: this._productService.commit,
+      version: this._productService.version,
+      quality: this._productService.quality,
+      date: this._productService.date,
+      parentPid: 0,
+      environment: {
+        isExtensionDevelopmentDebug: this._isExtensionDevDebug,
+        appRoot: this._environmentService.appRoot ? URI.file(this._environmentService.appRoot) : void 0,
+        appName: this._productService.nameLong,
+        appHost: this._productService.embedderIdentifier || "desktop",
+        appUriScheme: this._productService.urlProtocol,
+        isExtensionTelemetryLoggingOnly: isLoggingOnly(this._productService, this._environmentService),
+        isPortable: this._environmentService.isPortable,
+        appLanguage: platform.language,
+        extensionDevelopmentLocationURI: this._environmentService.extensionDevelopmentLocationURI,
+        extensionTestsLocationURI: this._environmentService.extensionTestsLocationURI,
+        globalStorageHome: this._userDataProfilesService.defaultProfile.globalStorageHome,
+        workspaceStorageHome: this._environmentService.workspaceStorageHome,
+        extensionLogLevel: this._defaultLogLevelsService.defaultLogLevels.extensions
+      },
+      workspace: this._contextService.getWorkbenchState() === 1 ? void 0 : {
+        configuration: workspace.configuration ?? void 0,
+        id: workspace.id,
+        name: this._labelService.getWorkspaceLabel(workspace),
+        isUntitled: workspace.configuration ? isUntitledWorkspace(workspace.configuration, this._environmentService) : false,
+        transient: workspace.transient,
+        isAgentSessionsWorkspace: workspace.isAgentSessionsWorkspace
+      },
+      remote: {
+        authority: this._environmentService.remoteAuthority,
+        connectionData: null,
+        isRemote: false
+      },
+      consoleForward: {
+        includeStack: !this._isExtensionDevTestFromCli && (this._isExtensionDevHost || !this._environmentService.isBuilt || this._productService.quality !== "stable" || this._environmentService.verbose),
+        logNative: !this._isExtensionDevTestFromCli && this._isExtensionDevHost
+      },
+      extensions: this.extensions.toSnapshot(),
+      telemetryInfo: {
+        sessionId: this._telemetryService.sessionId,
+        machineId: this._telemetryService.machineId,
+        sqmId: this._telemetryService.sqmId,
+        devDeviceId: this._telemetryService.devDeviceId ?? this._telemetryService.machineId,
+        firstSessionDate: this._telemetryService.firstSessionDate,
+        msftInternal: this._telemetryService.msftInternal
+      },
+      remoteExtensionTips: this._productService.remoteExtensionTips,
+      virtualWorkspaceExtensionTips: this._productService.virtualWorkspaceExtensionTips,
+      logLevel: this._logService.getLevel(),
+      loggers: [...this._loggerService.getRegisteredLoggers()],
+      logsLocation: this._environmentService.extHostLogsPath,
+      autoStart: this.startup === 1,
+      uiKind: UIKind.Desktop,
+      handle: this._environmentService.window.handle ? encodeBase64(this._environmentService.window.handle) : void 0
+    };
+  }
+  _onExtHostProcessExit(code, signal) {
+    if (this._terminating) {
+      return;
+    }
+    this._onExit.fire([code, signal]);
+  }
+  _handleProcessOutputStream(stream) {
+    let last = "";
+    let isOmitting = false;
+    const event = new Emitter();
+    stream((chunk) => {
+      last += chunk;
+      const lines = last.split(/\r?\n/g);
+      last = lines.pop();
+      if (last.length > 1e4) {
+        lines.push(last);
+        last = "";
+      }
+      for (const line of lines) {
+        if (isOmitting) {
+          if (line === "END_NATIVE_LOG") {
+            isOmitting = false;
+          }
+        } else if (line === "START_NATIVE_LOG") {
+          isOmitting = true;
+        } else if (line.length) {
+          event.fire(line + "\n");
+        }
+      }
+    }, void 0, this._store);
+    return event;
+  }
+  async enableInspectPort() {
+    if (!!this._inspectListener) {
+      return true;
+    }
+    if (!this._extensionHostProcess) {
+      return false;
+    }
+    const result = await this._extensionHostProcess.enableInspectPort();
+    if (!result) {
+      return false;
+    }
+    await Promise.race([Event.toPromise(this._onDidSetInspectPort.event), timeout(1e3)]);
+    return !!this._inspectListener;
+  }
+  getInspectPort() {
+    return this._inspectListener ?? void 0;
+  }
+  _onWillShutdown(event) {
+    if (this._isExtensionDevHost && !this._isExtensionDevTestFromCli && !this._isExtensionDevDebug && this._environmentService.debugExtensionHost.debugId) {
+      this._extensionHostDebugService.terminateSession(this._environmentService.debugExtensionHost.debugId);
+      event.join(timeout(
+        100
+        /* wait a bit for IPC to get delivered */
+      ), { id: "join.extensionDevelopment", label: nls.localize("join.extensionDevelopment", "Terminating extension debug session") });
+    }
+  }
+};
+NativeLocalProcessExtensionHost = __decorate([
+  __param(3, IWorkspaceContextService),
+  __param(4, INotificationService),
+  __param(5, INativeHostService),
+  __param(6, ILifecycleService),
+  __param(7, INativeWorkbenchEnvironmentService),
+  __param(8, IUserDataProfilesService),
+  __param(9, ITelemetryService),
+  __param(10, ILogService),
+  __param(11, ILoggerService),
+  __param(12, ILabelService),
+  __param(13, IExtensionHostDebugService),
+  __param(14, IHostService),
+  __param(15, IProductService),
+  __param(16, IShellEnvironmentService),
+  __param(17, IExtensionHostStarter),
+  __param(18, IDefaultLogLevelsService)
+], NativeLocalProcessExtensionHost);
+export {
+  ExtensionHostProcess,
+  NativeLocalProcessExtensionHost
+};
+//# sourceMappingURL=localProcessExtensionHost.js.map

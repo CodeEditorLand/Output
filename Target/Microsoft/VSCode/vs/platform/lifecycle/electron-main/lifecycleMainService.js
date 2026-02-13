@@ -1,1 +1,440 @@
-import h from"electron";import{$wn as u}from"../../../base/parts/ipc/electron-main/ipcMain.js";import{$8h as q,Promises as S,$0h as $}from"../../../base/common/async.js";import{$xf as l,Event as a}from"../../../base/common/event.js";import{$Ed as b,$Dd as w}from"../../../base/common/lifecycle.js";import{$n as p,$m as D}from"../../../base/common/platform.js";import{$1 as W}from"../../../base/common/process.js";import{$gd as m}from"../../../base/common/types.js";import{$Nj as I}from"../../instantiation/common/instantiation.js";import{$yo as E}from"../../log/common/log.js";import{$op as j}from"../../state/node/state.js";import{$5n as C}from"../../environment/electron-main/environmentMainService.js";import{$yv as x}from"../../windows/electron-main/windows.js";var g=function(r,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,i);else for(var f=r.length-1;f>=0;f--)(o=r[f])&&(n=(s<3?o(n):s>3?o(e,t,n):o(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},d=function(r,e){return function(t,i){e(t,i,r)}},c;const Q=I("lifecycleMainService");var y;(function(r){r[r.QUIT=1]="QUIT",r[r.KILL=2]="KILL"})(y||(y={}));var v;(function(r){r[r.Starting=1]="Starting",r[r.Ready=2]="Ready",r[r.AfterWindowOpen=3]="AfterWindowOpen",r[r.Eventually=4]="Eventually"})(v||(v={}));let L=class extends b{static{c=this}static{this.b="lifecycle.quitAndRestart"}get quitRequested(){return this.j}get wasRestarted(){return this.m}get phase(){return this.n}constructor(e,t,i){super(),this.F=e,this.G=t,this.H=i,this.c=this.D(new l),this.onBeforeShutdown=this.c.event,this.f=this.D(new l),this.onWillShutdown=this.f.event,this.g=this.D(new l),this.onWillLoadWindow=this.g.event,this.h=this.D(new l),this.onBeforeCloseWindow=this.h.event,this.j=!1,this.m=!1,this.n=1,this.q=new Set,this.r=0,this.s=0,this.t=void 0,this.u=void 0,this.w=void 0,this.y=new Map,this.z=new Map,this.C=void 0,this.I(),this.when(2).then(()=>this.J())}I(){this.m=!!this.G.getItem(c.b),this.m&&this.G.removeItem(c.b)}J(){const e=()=>{this.j||(this.S("Lifecycle#app.on(before-quit)"),this.j=!0,this.S("Lifecycle#onBeforeShutdown.fire()"),this.c.fire(),p&&this.s===0&&this.L(1))};h.app.addListener("before-quit",e);const t=()=>{this.S("Lifecycle#app.on(window-all-closed)"),(this.j||!p)&&h.app.quit()};h.app.addListener("window-all-closed",t),h.app.once("will-quit",i=>{this.S("Lifecycle#app.on(will-quit) - begin"),i.preventDefault(),this.L(1).finally(()=>{this.S("Lifecycle#app.on(will-quit) - after fireOnWillShutdown"),this.O(!1),h.app.removeListener("before-quit",e),h.app.removeListener("window-all-closed",t),this.S("Lifecycle#app.on(will-quit) - calling app.quit()"),h.app.quit()})})}L(e){if(this.w)return this.w;const t=this.F;this.S("Lifecycle#onWillShutdown.fire()");const i=[];return this.f.fire({reason:e,join(s,n){t.trace(`Lifecycle#onWillShutdown - begin '${s}'`),i.push(n.finally(()=>{t.trace(`Lifecycle#onWillShutdown - end '${s}'`)}))}}),this.w=(async()=>{try{await S.settled(i)}catch(s){this.F.error(s)}try{await this.G.close()}catch(s){this.F.error(s)}})(),this.w}set phase(e){if(e<this.phase)throw new Error("Lifecycle cannot go backwards");if(this.n===e)return;this.S(`lifecycle (main): phase changed (value: ${e})`),this.n=e;const t=this.z.get(this.n);t&&(t.open(),this.z.delete(this.n))}async when(e){if(e<=this.n)return;let t=this.z.get(e);t||(t=new q,this.z.set(e,t)),await t.wait()}registerWindow(e){const t=new w;this.s++,t.add(e.onWillLoad(s=>this.g.fire({window:e,workspace:s.workspace,reason:s.reason})));const i=m(e.win);t.add(a.fromNodeEventEmitter(i,"close")(s=>{const n=e.id;this.q.delete(n)||(this.S(`Lifecycle#window.on('close') - window ID ${e.id}`),s.preventDefault(),this.unload(e,1).then(o=>{if(o){this.q.delete(n);return}this.q.add(n),this.S(`Lifecycle#onBeforeCloseWindow.fire() - window ID ${n}`),this.h.fire(e),e.close()}))})),t.add(a.fromNodeEventEmitter(i,"closed")(()=>{this.S(`Lifecycle#window.on('closed') - window ID ${e.id}`),this.s--,t.dispose(),this.s===0&&(!p||this.j)&&this.L(1)}))}registerAuxWindow(e){const t=m(e.win),i=new w;i.add(a.fromNodeEventEmitter(t,"close")(s=>{this.S(`Lifecycle#auxWindow.on('close') - window ID ${e.id}`),this.j&&(this.S("Lifecycle#auxWindow.on('close') - preventDefault() because quit requested"),s.preventDefault())})),i.add(a.fromNodeEventEmitter(t,"closed")(()=>{this.S(`Lifecycle#auxWindow.on('closed') - window ID ${e.id}`),i.dispose()}))}async reload(e,t){await this.unload(e,3)||e.reload(t)}unload(e,t){const i=this.y.get(e.id);if(i)return i;const s=this.M(e,t).finally(()=>{this.y.delete(e.id)});return this.y.set(e.id,s),s}async M(e,t){if(!e.isReady)return!1;this.S(`Lifecycle#unload() - window ID ${e.id}`);const i=this.j?2:t,s=await this.P(e,i);return s?(this.S(`Lifecycle#unload() - veto in renderer (window ID ${e.id})`),this.N(s)):(await this.Q(e,i),!1)}N(e){return e?(this.O(!0),this.j=!1,!0):!1}O(e){this.u&&(this.u(e),this.u=void 0,this.t=void 0)}P(e,t){return new Promise(i=>{const s=this.r++,n=`vscode:ok${s}`,o=`vscode:cancel${s}`;u.once(n,()=>{i(!1)}),u.once(o,()=>{i(!0)}),e.send("vscode:onBeforeUnload",{okChannel:n,cancelChannel:o,reason:t})})}Q(e,t){return new Promise(i=>{const n=`vscode:reply${this.r++}`;u.once(n,()=>i()),e.send("vscode:onWillUnload",{replyChannel:n,reason:t})})}quit(e){return this.R(e).then(t=>{if(!t&&e)try{if(D){const i=W();i!==process.cwd()&&process.chdir(i)}}catch(i){this.F.error(i)}return t})}R(e){return this.S(`Lifecycle#quit() - begin (willRestart: ${e})`),this.t?(this.S("Lifecycle#quit() - returning pending quit promise"),this.t):(e&&this.G.setItem(c.b,!0),this.t=new Promise(t=>{this.u=t,this.S("Lifecycle#quit() - calling app.quit()"),h.app.quit()}),this.t)}S(e){this.H.args["enable-smoke-test-driver"]?this.F.info(e):this.F.trace(e)}setRelaunchHandler(e){this.C=e}async relaunch(e){this.S("Lifecycle#relaunch()");const t=process.argv.slice(1);if(e?.addArgs&&t.push(...e.addArgs),e?.removeArgs)for(const n of e.removeArgs){const o=t.indexOf(n);o>=0&&t.splice(o,1)}const i=()=>{this.C?.handleRelaunch(e)||(this.S("Lifecycle#relaunch() - calling app.relaunch()"),h.app.relaunch({args:t}))};h.app.once("quit",i),await this.quit(!0)&&h.app.removeListener("quit",i)}async kill(e){this.S("Lifecycle#kill()"),await this.L(2),await Promise.race([$(1e3),(async()=>{for(const t of x())if(t&&!t.isDestroyed()){let i;t.webContents&&!t.webContents.isDestroyed()?i=new Promise(s=>t.once("closed",s)):i=Promise.resolve(),t.destroy(),await i}})()]),h.app.exit(e)}};L=c=g([d(0,E),d(1,j),d(2,C)],L);export{Q as $pw,L as $qw,v as LifecycleMainPhase,y as ShutdownReason};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var LifecycleMainService_1;
+import electron from "electron";
+import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
+import { Barrier, Promises, timeout } from "../../../base/common/async.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { cwd } from "../../../base/common/process.js";
+import { assertReturnsDefined } from "../../../base/common/types.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStateService } from "../../state/node/state.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { getAllWindowsExcludingOffscreen } from "../../windows/electron-main/windows.js";
+const ILifecycleMainService = createDecorator("lifecycleMainService");
+var ShutdownReason;
+(function(ShutdownReason2) {
+  ShutdownReason2[ShutdownReason2["QUIT"] = 1] = "QUIT";
+  ShutdownReason2[ShutdownReason2["KILL"] = 2] = "KILL";
+})(ShutdownReason || (ShutdownReason = {}));
+var LifecycleMainPhase;
+(function(LifecycleMainPhase2) {
+  LifecycleMainPhase2[LifecycleMainPhase2["Starting"] = 1] = "Starting";
+  LifecycleMainPhase2[LifecycleMainPhase2["Ready"] = 2] = "Ready";
+  LifecycleMainPhase2[LifecycleMainPhase2["AfterWindowOpen"] = 3] = "AfterWindowOpen";
+  LifecycleMainPhase2[LifecycleMainPhase2["Eventually"] = 4] = "Eventually";
+})(LifecycleMainPhase || (LifecycleMainPhase = {}));
+let LifecycleMainService = class LifecycleMainService2 extends Disposable {
+  static {
+    __name(this, "LifecycleMainService");
+  }
+  static {
+    LifecycleMainService_1 = this;
+  }
+  static {
+    this.QUIT_AND_RESTART_KEY = "lifecycle.quitAndRestart";
+  }
+  get quitRequested() {
+    return this._quitRequested;
+  }
+  get wasRestarted() {
+    return this._wasRestarted;
+  }
+  get phase() {
+    return this._phase;
+  }
+  constructor(logService, stateService, environmentMainService) {
+    super();
+    this.logService = logService;
+    this.stateService = stateService;
+    this.environmentMainService = environmentMainService;
+    this._onBeforeShutdown = this._register(new Emitter());
+    this.onBeforeShutdown = this._onBeforeShutdown.event;
+    this._onWillShutdown = this._register(new Emitter());
+    this.onWillShutdown = this._onWillShutdown.event;
+    this._onWillLoadWindow = this._register(new Emitter());
+    this.onWillLoadWindow = this._onWillLoadWindow.event;
+    this._onBeforeCloseWindow = this._register(new Emitter());
+    this.onBeforeCloseWindow = this._onBeforeCloseWindow.event;
+    this._quitRequested = false;
+    this._wasRestarted = false;
+    this._phase = 1;
+    this.windowToCloseRequest = /* @__PURE__ */ new Set();
+    this.oneTimeListenerTokenGenerator = 0;
+    this.windowCounter = 0;
+    this.pendingQuitPromise = void 0;
+    this.pendingQuitPromiseResolve = void 0;
+    this.pendingWillShutdownPromise = void 0;
+    this.mapWindowIdToPendingUnload = /* @__PURE__ */ new Map();
+    this.phaseWhen = /* @__PURE__ */ new Map();
+    this.relaunchHandler = void 0;
+    this.resolveRestarted();
+    this.when(
+      2
+      /* LifecycleMainPhase.Ready */
+    ).then(() => this.registerListeners());
+  }
+  resolveRestarted() {
+    this._wasRestarted = !!this.stateService.getItem(LifecycleMainService_1.QUIT_AND_RESTART_KEY);
+    if (this._wasRestarted) {
+      this.stateService.removeItem(LifecycleMainService_1.QUIT_AND_RESTART_KEY);
+    }
+  }
+  registerListeners() {
+    const beforeQuitListener = /* @__PURE__ */ __name(() => {
+      if (this._quitRequested) {
+        return;
+      }
+      this.trace("Lifecycle#app.on(before-quit)");
+      this._quitRequested = true;
+      this.trace("Lifecycle#onBeforeShutdown.fire()");
+      this._onBeforeShutdown.fire();
+      if (isMacintosh && this.windowCounter === 0) {
+        this.fireOnWillShutdown(
+          1
+          /* ShutdownReason.QUIT */
+        );
+      }
+    }, "beforeQuitListener");
+    electron.app.addListener("before-quit", beforeQuitListener);
+    const windowAllClosedListener = /* @__PURE__ */ __name(() => {
+      this.trace("Lifecycle#app.on(window-all-closed)");
+      if (this._quitRequested || !isMacintosh) {
+        electron.app.quit();
+      }
+    }, "windowAllClosedListener");
+    electron.app.addListener("window-all-closed", windowAllClosedListener);
+    electron.app.once("will-quit", (e) => {
+      this.trace("Lifecycle#app.on(will-quit) - begin");
+      e.preventDefault();
+      const shutdownPromise = this.fireOnWillShutdown(
+        1
+        /* ShutdownReason.QUIT */
+      );
+      shutdownPromise.finally(() => {
+        this.trace("Lifecycle#app.on(will-quit) - after fireOnWillShutdown");
+        this.resolvePendingQuitPromise(
+          false
+          /* no veto */
+        );
+        electron.app.removeListener("before-quit", beforeQuitListener);
+        electron.app.removeListener("window-all-closed", windowAllClosedListener);
+        this.trace("Lifecycle#app.on(will-quit) - calling app.quit()");
+        electron.app.quit();
+      });
+    });
+  }
+  fireOnWillShutdown(reason) {
+    if (this.pendingWillShutdownPromise) {
+      return this.pendingWillShutdownPromise;
+    }
+    const logService = this.logService;
+    this.trace("Lifecycle#onWillShutdown.fire()");
+    const joiners = [];
+    this._onWillShutdown.fire({
+      reason,
+      join(id, promise) {
+        logService.trace(`Lifecycle#onWillShutdown - begin '${id}'`);
+        joiners.push(promise.finally(() => {
+          logService.trace(`Lifecycle#onWillShutdown - end '${id}'`);
+        }));
+      }
+    });
+    this.pendingWillShutdownPromise = (async () => {
+      try {
+        await Promises.settled(joiners);
+      } catch (error) {
+        this.logService.error(error);
+      }
+      try {
+        await this.stateService.close();
+      } catch (error) {
+        this.logService.error(error);
+      }
+    })();
+    return this.pendingWillShutdownPromise;
+  }
+  set phase(value) {
+    if (value < this.phase) {
+      throw new Error("Lifecycle cannot go backwards");
+    }
+    if (this._phase === value) {
+      return;
+    }
+    this.trace(`lifecycle (main): phase changed (value: ${value})`);
+    this._phase = value;
+    const barrier = this.phaseWhen.get(this._phase);
+    if (barrier) {
+      barrier.open();
+      this.phaseWhen.delete(this._phase);
+    }
+  }
+  async when(phase) {
+    if (phase <= this._phase) {
+      return;
+    }
+    let barrier = this.phaseWhen.get(phase);
+    if (!barrier) {
+      barrier = new Barrier();
+      this.phaseWhen.set(phase, barrier);
+    }
+    await barrier.wait();
+  }
+  registerWindow(window) {
+    const windowListeners = new DisposableStore();
+    this.windowCounter++;
+    windowListeners.add(window.onWillLoad((e) => this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason })));
+    const win = assertReturnsDefined(window.win);
+    windowListeners.add(Event.fromNodeEventEmitter(win, "close")((e) => {
+      const windowId = window.id;
+      if (this.windowToCloseRequest.delete(windowId)) {
+        return;
+      }
+      this.trace(`Lifecycle#window.on('close') - window ID ${window.id}`);
+      e.preventDefault();
+      this.unload(
+        window,
+        1
+        /* UnloadReason.CLOSE */
+      ).then((veto) => {
+        if (veto) {
+          this.windowToCloseRequest.delete(windowId);
+          return;
+        }
+        this.windowToCloseRequest.add(windowId);
+        this.trace(`Lifecycle#onBeforeCloseWindow.fire() - window ID ${windowId}`);
+        this._onBeforeCloseWindow.fire(window);
+        window.close();
+      });
+    }));
+    windowListeners.add(Event.fromNodeEventEmitter(win, "closed")(() => {
+      this.trace(`Lifecycle#window.on('closed') - window ID ${window.id}`);
+      this.windowCounter--;
+      windowListeners.dispose();
+      if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) {
+        this.fireOnWillShutdown(
+          1
+          /* ShutdownReason.QUIT */
+        );
+      }
+    }));
+  }
+  registerAuxWindow(auxWindow) {
+    const win = assertReturnsDefined(auxWindow.win);
+    const windowListeners = new DisposableStore();
+    windowListeners.add(Event.fromNodeEventEmitter(win, "close")((e) => {
+      this.trace(`Lifecycle#auxWindow.on('close') - window ID ${auxWindow.id}`);
+      if (this._quitRequested) {
+        this.trace(`Lifecycle#auxWindow.on('close') - preventDefault() because quit requested`);
+        e.preventDefault();
+      }
+    }));
+    windowListeners.add(Event.fromNodeEventEmitter(win, "closed")(() => {
+      this.trace(`Lifecycle#auxWindow.on('closed') - window ID ${auxWindow.id}`);
+      windowListeners.dispose();
+    }));
+  }
+  async reload(window, cli) {
+    const veto = await this.unload(
+      window,
+      3
+      /* UnloadReason.RELOAD */
+    );
+    if (!veto) {
+      window.reload(cli);
+    }
+  }
+  unload(window, reason) {
+    const pendingUnloadPromise = this.mapWindowIdToPendingUnload.get(window.id);
+    if (pendingUnloadPromise) {
+      return pendingUnloadPromise;
+    }
+    const unloadPromise = this.doUnload(window, reason).finally(() => {
+      this.mapWindowIdToPendingUnload.delete(window.id);
+    });
+    this.mapWindowIdToPendingUnload.set(window.id, unloadPromise);
+    return unloadPromise;
+  }
+  async doUnload(window, reason) {
+    if (!window.isReady) {
+      return false;
+    }
+    this.trace(`Lifecycle#unload() - window ID ${window.id}`);
+    const windowUnloadReason = this._quitRequested ? 2 : reason;
+    const veto = await this.onBeforeUnloadWindowInRenderer(window, windowUnloadReason);
+    if (veto) {
+      this.trace(`Lifecycle#unload() - veto in renderer (window ID ${window.id})`);
+      return this.handleWindowUnloadVeto(veto);
+    }
+    await this.onWillUnloadWindowInRenderer(window, windowUnloadReason);
+    return false;
+  }
+  handleWindowUnloadVeto(veto) {
+    if (!veto) {
+      return false;
+    }
+    this.resolvePendingQuitPromise(
+      true
+      /* veto */
+    );
+    this._quitRequested = false;
+    return true;
+  }
+  resolvePendingQuitPromise(veto) {
+    if (this.pendingQuitPromiseResolve) {
+      this.pendingQuitPromiseResolve(veto);
+      this.pendingQuitPromiseResolve = void 0;
+      this.pendingQuitPromise = void 0;
+    }
+  }
+  onBeforeUnloadWindowInRenderer(window, reason) {
+    return new Promise((resolve) => {
+      const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
+      const okChannel = `vscode:ok${oneTimeEventToken}`;
+      const cancelChannel = `vscode:cancel${oneTimeEventToken}`;
+      validatedIpcMain.once(okChannel, () => {
+        resolve(false);
+      });
+      validatedIpcMain.once(cancelChannel, () => {
+        resolve(true);
+      });
+      window.send("vscode:onBeforeUnload", { okChannel, cancelChannel, reason });
+    });
+  }
+  onWillUnloadWindowInRenderer(window, reason) {
+    return new Promise((resolve) => {
+      const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
+      const replyChannel = `vscode:reply${oneTimeEventToken}`;
+      validatedIpcMain.once(replyChannel, () => resolve());
+      window.send("vscode:onWillUnload", { replyChannel, reason });
+    });
+  }
+  quit(willRestart) {
+    return this.doQuit(willRestart).then((veto) => {
+      if (!veto && willRestart) {
+        try {
+          if (isWindows) {
+            const currentWorkingDir = cwd();
+            if (currentWorkingDir !== process.cwd()) {
+              process.chdir(currentWorkingDir);
+            }
+          }
+        } catch (err) {
+          this.logService.error(err);
+        }
+      }
+      return veto;
+    });
+  }
+  doQuit(willRestart) {
+    this.trace(`Lifecycle#quit() - begin (willRestart: ${willRestart})`);
+    if (this.pendingQuitPromise) {
+      this.trace("Lifecycle#quit() - returning pending quit promise");
+      return this.pendingQuitPromise;
+    }
+    if (willRestart) {
+      this.stateService.setItem(LifecycleMainService_1.QUIT_AND_RESTART_KEY, true);
+    }
+    this.pendingQuitPromise = new Promise((resolve) => {
+      this.pendingQuitPromiseResolve = resolve;
+      this.trace("Lifecycle#quit() - calling app.quit()");
+      electron.app.quit();
+    });
+    return this.pendingQuitPromise;
+  }
+  trace(msg) {
+    if (this.environmentMainService.args["enable-smoke-test-driver"]) {
+      this.logService.info(msg);
+    } else {
+      this.logService.trace(msg);
+    }
+  }
+  setRelaunchHandler(handler) {
+    this.relaunchHandler = handler;
+  }
+  async relaunch(options) {
+    this.trace("Lifecycle#relaunch()");
+    const args = process.argv.slice(1);
+    if (options?.addArgs) {
+      args.push(...options.addArgs);
+    }
+    if (options?.removeArgs) {
+      for (const a of options.removeArgs) {
+        const idx = args.indexOf(a);
+        if (idx >= 0) {
+          args.splice(idx, 1);
+        }
+      }
+    }
+    const quitListener = /* @__PURE__ */ __name(() => {
+      if (!this.relaunchHandler?.handleRelaunch(options)) {
+        this.trace("Lifecycle#relaunch() - calling app.relaunch()");
+        electron.app.relaunch({ args });
+      }
+    }, "quitListener");
+    electron.app.once("quit", quitListener);
+    const veto = await this.quit(
+      true
+      /* will restart */
+    );
+    if (veto) {
+      electron.app.removeListener("quit", quitListener);
+    }
+  }
+  async kill(code) {
+    this.trace("Lifecycle#kill()");
+    await this.fireOnWillShutdown(
+      2
+      /* ShutdownReason.KILL */
+    );
+    await Promise.race([
+      // Still do not block more than 1s
+      timeout(1e3),
+      // Destroy any opened window: we do not unload windows here because
+      // there is a chance that the unload is veto'd or long running due
+      // to a participant within the window. this is not wanted when we
+      // are asked to kill the application.
+      (async () => {
+        for (const window of getAllWindowsExcludingOffscreen()) {
+          if (window && !window.isDestroyed()) {
+            let whenWindowClosed;
+            if (window.webContents && !window.webContents.isDestroyed()) {
+              whenWindowClosed = new Promise((resolve) => window.once("closed", resolve));
+            } else {
+              whenWindowClosed = Promise.resolve();
+            }
+            window.destroy();
+            await whenWindowClosed;
+          }
+        }
+      })()
+    ]);
+    electron.app.exit(code);
+  }
+};
+LifecycleMainService = LifecycleMainService_1 = __decorate([
+  __param(0, ILogService),
+  __param(1, IStateService),
+  __param(2, IEnvironmentMainService)
+], LifecycleMainService);
+export {
+  ILifecycleMainService,
+  LifecycleMainPhase,
+  LifecycleMainService,
+  ShutdownReason
+};
+//# sourceMappingURL=lifecycleMainService.js.map

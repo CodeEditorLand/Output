@@ -1,1 +1,282 @@
-import*as t from"assert";import{$GDc as a,$DDc as e,$EDc as i,$FDc as u,$CDc as E}from"../../browser/tools/monitoring/outputMonitor.js";import{$Jf as C}from"../../../../../../base/common/cancellation.js";import{$Ibb as v}from"../../../../../../base/test/common/utils.js";import{OutputMonitorState as d}from"../../browser/tools/monitoring/types.js";import{$oTc as N}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$ZR as w}from"../../../../chat/common/languageModels.js";import{$NV as k}from"../../../../chat/common/chatService/chatService.js";import{$xf as R,Event as m}from"../../../../../../base/common/event.js";import{$CS as D}from"../../../../chat/common/model/chatModel.js";import{$Mo as I}from"../../../../../../platform/log/common/log.js";import{$yx as Y}from"../../../../../../platform/terminal/common/terminal.js";import{$Sbb as y}from"../../../../../../base/test/common/timeTravelScheduler.js";import{LocalChatSessionUri as b}from"../../../../chat/common/model/chatUri.js";import{$$c as O}from"../../../../../../base/common/types.js";suite("OutputMonitor",()=>{const l=v();let s,o,c,n,h,f;setup(()=>{h=!1,f=new R,o={getOutput:()=>"test output",isActive:async()=>!1,instance:{instanceId:1,sendText:async()=>{h=!0},onDidInputData:f.event,onDisposed:m.None,onData:f.event,focus:()=>{},registerMarker:()=>({id:1})},sessionId:"1"},n=new N,n.stub(w,{selectLanguageModels:async()=>[]}),n.stub(k,{getSession:()=>({sessionId:"1",onDidDispose:{event:()=>{},dispose:()=>{}},onDidChange:{event:()=>{},dispose:()=>{}},initialLocation:void 0,requests:[],responses:[],addRequest:()=>{},addResponse:()=>{},dispose:()=>{}})}),n.stub(Y,new I),c=new C}),teardown(()=>{c.dispose()}),test("startMonitoring returns immediately when polling succeeds",async()=>y({},async()=>{let r=0;o.getOutput=()=>(r++,r>1?"changed output":"test output"),s=l.add(n.createInstance(E,o,void 0,q("1"),c.token,"test command")),await m.toPromise(s.onDidFinishCommand);const p=s.pollingResult;t.strictEqual(p?.state,d.Idle),t.strictEqual(p.output,"changed output"),t.strictEqual(h,!1,"sendText should not be called")})),test("startMonitoring returns cancelled when token is cancelled",async()=>y({},async()=>{s=l.add(n.createInstance(E,o,void 0,q("1"),c.token,"test command")),c.cancel(),await m.toPromise(s.onDidFinishCommand);const r=s.pollingResult;t.strictEqual(r?.state,d.Cancelled)})),test("startMonitoring returns idle when isActive is false",async()=>y({},async()=>{o.isActive=async()=>!1,s=l.add(n.createInstance(E,o,void 0,q("1"),c.token,"test command")),await m.toPromise(s.onDidFinishCommand);const r=s.pollingResult;t.strictEqual(r?.state,d.Idle)})),test("startMonitoring works when isActive is undefined",async()=>y({},async()=>{let r=0;o.getOutput=()=>(r++,r>1?"changed output":"test output"),delete o.isActive,s=l.add(n.createInstance(E,o,void 0,q("1"),c.token,"test command")),await m.toPromise(s.onDidFinishCommand);const p=s.pollingResult;t.strictEqual(p?.state,d.Idle)})),test("non-interactive help completes without prompting",async()=>y({},async()=>{o.getOutput=()=>"press h + enter to show help",n.stub(w,{selectLanguageModels:async()=>{throw new Error("language model should not be consulted")}}),s=l.add(n.createInstance(E,o,void 0,q("1"),c.token,"test command")),await m.toPromise(s.onDidFinishCommand);const r=s.pollingResult;t.strictEqual(r?.state,d.Idle),t.strictEqual(r?.output,"press h + enter to show help")})),test("monitor can be disposed twice without error",async()=>y({},async()=>{let r=0;o.getOutput=()=>(r++,r>1?"changed output":"test output"),s=l.add(n.createInstance(E,o,void 0,q("1"),c.token,"test command")),await m.toPromise(s.onDidFinishCommand);const p=s.pollingResult;t.strictEqual(p?.state,d.Idle),s.dispose(),s.dispose()})),test("timeout prompt unanswered \u2192 continues polling and completes when idle",async()=>y({},async()=>{const r={getRequests:()=>[{}],acceptResponseProgress:()=>{}};Object.setPrototypeOf(r,D.prototype),n.stub(k,{getSession:()=>r});let p=0;const P=async()=>(p++,p===1?{state:d.Timeout,output:o.getOutput(),modelOutputEvalResponse:"Timed out"}:{state:d.Idle,output:o.getOutput(),modelOutputEvalResponse:"Done"});s=l.add(n.createInstance(E,o,P,q("1"),c.token,"test command")),await m.toPromise(s.onDidFinishCommand);const g=s.pollingResult;t.strictEqual(g.state,d.Idle),t.strictEqual(g.output,"test output"),t.ok(O(g.pollDurationMs))})),suite("detectsInputRequiredPattern",()=>{test("detects yes/no confirmation prompts (pairs and variants)",()=>{t.strictEqual(e("Continue? (y/N) "),!0),t.strictEqual(e("Continue? (y/n) "),!0),t.strictEqual(e("Overwrite file? [Y/n] "),!0),t.strictEqual(e("Are you sure? (Y/N) "),!0),t.strictEqual(e("Delete files? [y/N] "),!0),t.strictEqual(e("Proceed? (yes/no) "),!0),t.strictEqual(e("Proceed? [no/yes] "),!0),t.strictEqual(e("Continue? y/n "),!0),t.strictEqual(e("Overwrite: yes/no "),!0),t.strictEqual(e("Continue? (y/N) y"),!1),t.strictEqual(e("Continue? (y/n) n"),!1),t.strictEqual(e("Overwrite file? [Y/n] N"),!1),t.strictEqual(e("Are you sure? (Y/N) Y"),!1),t.strictEqual(e("Delete files? [y/N] y"),!1),t.strictEqual(e("Continue? y/n y/n"),!1),t.strictEqual(e("Overwrite: yes/no yes/n"),!1)}),test("detects PowerShell multi-option confirmation line",()=>{t.strictEqual(e('[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): '),!0),t.strictEqual(e("[Y] Yes  [N] No "),!0),t.strictEqual(e('[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): Y'),!1),t.strictEqual(e("[Y] Yes  [N] No N"),!1)}),test("Line ends with colon",()=>{t.strictEqual(e("Enter your name: "),!0),t.strictEqual(e("Password: "),!0),t.strictEqual(e("File to overwrite: "),!0)}),test("detects trailing questions",()=>{t.strictEqual(e("Continue?"),!0),t.strictEqual(e("Proceed?   "),!0),t.strictEqual(e("Are you sure?"),!0)}),test("detects press any key prompts",()=>{t.strictEqual(e("Press any key to continue..."),!0),t.strictEqual(e("Press a key"),!0)}),test("detects non-interactive help prompts without treating them as input",()=>{t.strictEqual(e("press h + enter to show help"),!1),t.strictEqual(e("press h to show help"),!1),t.strictEqual(i("press h + enter to show help"),!0),t.strictEqual(i("press h to show help"),!0),t.strictEqual(i("press h to show commands"),!0),t.strictEqual(i("press ? to see commands"),!0),t.strictEqual(i("press ? + enter for options"),!0),t.strictEqual(i("type h + enter to show help"),!0),t.strictEqual(i("hit ? for help"),!0),t.strictEqual(i("type h to see options"),!0),t.strictEqual(e("press o to open the app"),!1),t.strictEqual(i("press o to open the app"),!0),t.strictEqual(e("press r to restart the server"),!1),t.strictEqual(i("press r to restart the server"),!0),t.strictEqual(e("press q to quit"),!1),t.strictEqual(i("press q to quit"),!0),t.strictEqual(e("press u to show server url"),!1),t.strictEqual(i("press u to show server url"),!0)})}),suite("detectsVSCodeTaskFinishMessage",()=>{test("detects VS Code task completion messages",()=>{t.strictEqual(u("Press any key to close the terminal."),!0),t.strictEqual(u("Terminal will be reused by tasks, press any key to close it."),!0),t.strictEqual(u("press any key to close the terminal."),!0),t.strictEqual(u("PRESS ANY KEY TO CLOSE THE TERMINAL."),!0),t.strictEqual(u(" *  Terminal will be reused by tasks, press any key to close it."),!0),t.strictEqual(u(" *  Press any key to close the terminal."),!0)}),test("does not match generic press any key messages",()=>{t.strictEqual(u("Press any key to continue..."),!1),t.strictEqual(u("Press any key to exit"),!1),t.strictEqual(u("Press any key"),!1)}),test("does not match other prompts",()=>{t.strictEqual(u("Continue? (y/n)"),!1),t.strictEqual(u("Password:"),!1),t.strictEqual(u("press h to show help"),!1)})}),suite("detectsGenericPressAnyKeyPattern",()=>{test("detects generic press any key prompts from scripts",()=>{t.strictEqual(a("Press any key to continue..."),!0),t.strictEqual(a("Press any key to exit"),!0),t.strictEqual(a("Press any key"),!0),t.strictEqual(a("press a key to continue"),!0),t.strictEqual(a("PRESS ANY KEY TO CONTINUE"),!0)}),test("does not match VS Code task finish messages",()=>{t.strictEqual(a("Press any key to close the terminal."),!1),t.strictEqual(a("Terminal will be reused by tasks, press any key to close it."),!1),t.strictEqual(a(" *  Terminal will be reused by tasks, press any key to close it."),!1),t.strictEqual(a(" *  Press any key to close the terminal."),!1)}),test("does not match other prompts",()=>{t.strictEqual(a("Continue? (y/n)"),!1),t.strictEqual(a("Password:"),!1),t.strictEqual(a("press h to show help"),!1)})})});function q(l){return{sessionId:l,sessionResource:b.forSession(l)}}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as assert from "assert";
+import { detectsGenericPressAnyKeyPattern, detectsInputRequiredPattern, detectsNonInteractiveHelpPattern, detectsVSCodeTaskFinishMessage, OutputMonitor } from "../../browser/tools/monitoring/outputMonitor.js";
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { OutputMonitorState } from "../../browser/tools/monitoring/types.js";
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { ILanguageModelsService } from "../../../../chat/common/languageModels.js";
+import { IChatService } from "../../../../chat/common/chatService/chatService.js";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
+import { ChatModel } from "../../../../chat/common/model/chatModel.js";
+import { NullLogService } from "../../../../../../platform/log/common/log.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { runWithFakedTimers } from "../../../../../../base/test/common/timeTravelScheduler.js";
+import { LocalChatSessionUri } from "../../../../chat/common/model/chatUri.js";
+import { isNumber } from "../../../../../../base/common/types.js";
+suite("OutputMonitor", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let monitor;
+  let execution;
+  let cts;
+  let instantiationService;
+  let sendTextCalled;
+  let dataEmitter;
+  setup(() => {
+    sendTextCalled = false;
+    dataEmitter = new Emitter();
+    execution = {
+      getOutput: /* @__PURE__ */ __name(() => "test output", "getOutput"),
+      isActive: /* @__PURE__ */ __name(async () => false, "isActive"),
+      instance: {
+        instanceId: 1,
+        sendText: /* @__PURE__ */ __name(async () => {
+          sendTextCalled = true;
+        }, "sendText"),
+        onDidInputData: dataEmitter.event,
+        onDisposed: Event.None,
+        onData: dataEmitter.event,
+        focus: /* @__PURE__ */ __name(() => {
+        }, "focus"),
+        // eslint-disable-next-line local/code-no-any-casts
+        registerMarker: /* @__PURE__ */ __name(() => ({ id: 1 }), "registerMarker")
+      },
+      sessionId: "1"
+    };
+    instantiationService = new TestInstantiationService();
+    instantiationService.stub(ILanguageModelsService, {
+      selectLanguageModels: /* @__PURE__ */ __name(async () => [], "selectLanguageModels")
+    });
+    instantiationService.stub(IChatService, {
+      // eslint-disable-next-line local/code-no-any-casts
+      getSession: /* @__PURE__ */ __name(() => ({
+        sessionId: "1",
+        onDidDispose: { event: /* @__PURE__ */ __name(() => {
+        }, "event"), dispose: /* @__PURE__ */ __name(() => {
+        }, "dispose") },
+        onDidChange: { event: /* @__PURE__ */ __name(() => {
+        }, "event"), dispose: /* @__PURE__ */ __name(() => {
+        }, "dispose") },
+        initialLocation: void 0,
+        requests: [],
+        responses: [],
+        addRequest: /* @__PURE__ */ __name(() => {
+        }, "addRequest"),
+        addResponse: /* @__PURE__ */ __name(() => {
+        }, "addResponse"),
+        dispose: /* @__PURE__ */ __name(() => {
+        }, "dispose")
+      }), "getSession")
+    });
+    instantiationService.stub(ITerminalLogService, new NullLogService());
+    cts = new CancellationTokenSource();
+  });
+  teardown(() => {
+    cts.dispose();
+  });
+  test("startMonitoring returns immediately when polling succeeds", async () => {
+    return runWithFakedTimers({}, async () => {
+      let callCount = 0;
+      execution.getOutput = () => {
+        callCount++;
+        return callCount > 1 ? "changed output" : "test output";
+      };
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), cts.token, "test command"));
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const pollingResult = monitor.pollingResult;
+      assert.strictEqual(pollingResult?.state, OutputMonitorState.Idle);
+      assert.strictEqual(pollingResult.output, "changed output");
+      assert.strictEqual(sendTextCalled, false, "sendText should not be called");
+    });
+  });
+  test("startMonitoring returns cancelled when token is cancelled", async () => {
+    return runWithFakedTimers({}, async () => {
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), cts.token, "test command"));
+      cts.cancel();
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const pollingResult = monitor.pollingResult;
+      assert.strictEqual(pollingResult?.state, OutputMonitorState.Cancelled);
+    });
+  });
+  test("startMonitoring returns idle when isActive is false", async () => {
+    return runWithFakedTimers({}, async () => {
+      execution.isActive = async () => false;
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), cts.token, "test command"));
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const pollingResult = monitor.pollingResult;
+      assert.strictEqual(pollingResult?.state, OutputMonitorState.Idle);
+    });
+  });
+  test("startMonitoring works when isActive is undefined", async () => {
+    return runWithFakedTimers({}, async () => {
+      let callCount = 0;
+      execution.getOutput = () => {
+        callCount++;
+        return callCount > 1 ? "changed output" : "test output";
+      };
+      delete execution.isActive;
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), cts.token, "test command"));
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const pollingResult = monitor.pollingResult;
+      assert.strictEqual(pollingResult?.state, OutputMonitorState.Idle);
+    });
+  });
+  test("non-interactive help completes without prompting", async () => {
+    return runWithFakedTimers({}, async () => {
+      execution.getOutput = () => "press h + enter to show help";
+      instantiationService.stub(ILanguageModelsService, {
+        selectLanguageModels: /* @__PURE__ */ __name(async () => {
+          throw new Error("language model should not be consulted");
+        }, "selectLanguageModels")
+      });
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), cts.token, "test command"));
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const pollingResult = monitor.pollingResult;
+      assert.strictEqual(pollingResult?.state, OutputMonitorState.Idle);
+      assert.strictEqual(pollingResult?.output, "press h + enter to show help");
+    });
+  });
+  test("monitor can be disposed twice without error", async () => {
+    return runWithFakedTimers({}, async () => {
+      let callCount = 0;
+      execution.getOutput = () => {
+        callCount++;
+        return callCount > 1 ? "changed output" : "test output";
+      };
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, void 0, createTestContext("1"), cts.token, "test command"));
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const pollingResult = monitor.pollingResult;
+      assert.strictEqual(pollingResult?.state, OutputMonitorState.Idle);
+      monitor.dispose();
+      monitor.dispose();
+    });
+  });
+  test("timeout prompt unanswered \u2192 continues polling and completes when idle", async () => {
+    return runWithFakedTimers({}, async () => {
+      const fakeChatModel = {
+        getRequests: /* @__PURE__ */ __name(() => [{}], "getRequests"),
+        acceptResponseProgress: /* @__PURE__ */ __name(() => {
+        }, "acceptResponseProgress")
+      };
+      Object.setPrototypeOf(fakeChatModel, ChatModel.prototype);
+      instantiationService.stub(IChatService, { getSession: /* @__PURE__ */ __name(() => fakeChatModel, "getSession") });
+      let pass = 0;
+      const timeoutThenIdle = /* @__PURE__ */ __name(async () => {
+        pass++;
+        return pass === 1 ? { state: OutputMonitorState.Timeout, output: execution.getOutput(), modelOutputEvalResponse: "Timed out" } : { state: OutputMonitorState.Idle, output: execution.getOutput(), modelOutputEvalResponse: "Done" };
+      }, "timeoutThenIdle");
+      monitor = store.add(instantiationService.createInstance(OutputMonitor, execution, timeoutThenIdle, createTestContext("1"), cts.token, "test command"));
+      await Event.toPromise(monitor.onDidFinishCommand);
+      const res = monitor.pollingResult;
+      assert.strictEqual(res.state, OutputMonitorState.Idle);
+      assert.strictEqual(res.output, "test output");
+      assert.ok(isNumber(res.pollDurationMs));
+    });
+  });
+  suite("detectsInputRequiredPattern", () => {
+    test("detects yes/no confirmation prompts (pairs and variants)", () => {
+      assert.strictEqual(detectsInputRequiredPattern("Continue? (y/N) "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Continue? (y/n) "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Overwrite file? [Y/n] "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Are you sure? (Y/N) "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Delete files? [y/N] "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Proceed? (yes/no) "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Proceed? [no/yes] "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Continue? y/n "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Overwrite: yes/no "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Continue? (y/N) y"), false);
+      assert.strictEqual(detectsInputRequiredPattern("Continue? (y/n) n"), false);
+      assert.strictEqual(detectsInputRequiredPattern("Overwrite file? [Y/n] N"), false);
+      assert.strictEqual(detectsInputRequiredPattern("Are you sure? (Y/N) Y"), false);
+      assert.strictEqual(detectsInputRequiredPattern("Delete files? [y/N] y"), false);
+      assert.strictEqual(detectsInputRequiredPattern("Continue? y/n y/n"), false);
+      assert.strictEqual(detectsInputRequiredPattern("Overwrite: yes/no yes/n"), false);
+    });
+    test("detects PowerShell multi-option confirmation line", () => {
+      assert.strictEqual(detectsInputRequiredPattern('[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): '), true);
+      assert.strictEqual(detectsInputRequiredPattern("[Y] Yes  [N] No "), true);
+      assert.strictEqual(detectsInputRequiredPattern('[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): Y'), false);
+      assert.strictEqual(detectsInputRequiredPattern("[Y] Yes  [N] No N"), false);
+    });
+    test("Line ends with colon", () => {
+      assert.strictEqual(detectsInputRequiredPattern("Enter your name: "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Password: "), true);
+      assert.strictEqual(detectsInputRequiredPattern("File to overwrite: "), true);
+    });
+    test("detects trailing questions", () => {
+      assert.strictEqual(detectsInputRequiredPattern("Continue?"), true);
+      assert.strictEqual(detectsInputRequiredPattern("Proceed?   "), true);
+      assert.strictEqual(detectsInputRequiredPattern("Are you sure?"), true);
+    });
+    test("detects press any key prompts", () => {
+      assert.strictEqual(detectsInputRequiredPattern("Press any key to continue..."), true);
+      assert.strictEqual(detectsInputRequiredPattern("Press a key"), true);
+    });
+    test("detects non-interactive help prompts without treating them as input", () => {
+      assert.strictEqual(detectsInputRequiredPattern("press h + enter to show help"), false);
+      assert.strictEqual(detectsInputRequiredPattern("press h to show help"), false);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press h + enter to show help"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press h to show help"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press h to show commands"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press ? to see commands"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press ? + enter for options"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("type h + enter to show help"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("hit ? for help"), true);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("type h to see options"), true);
+      assert.strictEqual(detectsInputRequiredPattern("press o to open the app"), false);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press o to open the app"), true);
+      assert.strictEqual(detectsInputRequiredPattern("press r to restart the server"), false);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press r to restart the server"), true);
+      assert.strictEqual(detectsInputRequiredPattern("press q to quit"), false);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press q to quit"), true);
+      assert.strictEqual(detectsInputRequiredPattern("press u to show server url"), false);
+      assert.strictEqual(detectsNonInteractiveHelpPattern("press u to show server url"), true);
+    });
+  });
+  suite("detectsVSCodeTaskFinishMessage", () => {
+    test("detects VS Code task completion messages", () => {
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Press any key to close the terminal."), true);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Terminal will be reused by tasks, press any key to close it."), true);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("press any key to close the terminal."), true);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("PRESS ANY KEY TO CLOSE THE TERMINAL."), true);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage(" *  Terminal will be reused by tasks, press any key to close it."), true);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage(" *  Press any key to close the terminal."), true);
+    });
+    test("does not match generic press any key messages", () => {
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Press any key to continue..."), false);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Press any key to exit"), false);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Press any key"), false);
+    });
+    test("does not match other prompts", () => {
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Continue? (y/n)"), false);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("Password:"), false);
+      assert.strictEqual(detectsVSCodeTaskFinishMessage("press h to show help"), false);
+    });
+  });
+  suite("detectsGenericPressAnyKeyPattern", () => {
+    test("detects generic press any key prompts from scripts", () => {
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Press any key to continue..."), true);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Press any key to exit"), true);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Press any key"), true);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("press a key to continue"), true);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("PRESS ANY KEY TO CONTINUE"), true);
+    });
+    test("does not match VS Code task finish messages", () => {
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Press any key to close the terminal."), false);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Terminal will be reused by tasks, press any key to close it."), false);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern(" *  Terminal will be reused by tasks, press any key to close it."), false);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern(" *  Press any key to close the terminal."), false);
+    });
+    test("does not match other prompts", () => {
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Continue? (y/n)"), false);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("Password:"), false);
+      assert.strictEqual(detectsGenericPressAnyKeyPattern("press h to show help"), false);
+    });
+  });
+});
+function createTestContext(id) {
+  return { sessionId: id, sessionResource: LocalChatSessionUri.forSession(id) };
+}
+__name(createTestContext, "createTestContext");
+//# sourceMappingURL=outputMonitor.test.js.map

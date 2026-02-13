@@ -1,1 +1,119 @@
-import{derived as b}from"../../../../../../../../base/common/observable.js";import{$Qqb as S}from"../../../../../../../common/core/2d/size.js";import{$jE as g}from"../../../../../../../common/core/ranges/lineRange.js";import{$hE as p}from"../../../../../../../common/core/ranges/offsetRange.js";import{$Btb as v}from"../../utils/towersLayout.js";class E{constructor(i,r,n){this.a=i,this.availableSpaceSizes=i.sizes.map((e,s)=>{const t=i.lineRange.startLineNumber+s,o=n(t);return new S(Math.max(0,r-e.width-o),e.height)}),this.availableSpaceHeightPrefixSums=N(this.availableSpaceSizes,e=>e.height),this.availableSpaceSizesTransposed=this.availableSpaceSizes.map(e=>e.transpose())}getWidgetVerticalOutline(i,r,n){const e=i-this.a.lineRange.startLineNumber,s=this.a.top+this.availableSpaceHeightPrefixSums[e],t=p.ofStartAndLength(s,r),{previewEditorMargin:o,widgetPadding:d,widgetBorder:u,lowerBarHeight:l}=n;return t.withMargin(o+d+u).withMargin(0,l)}tryFindWidgetOutline(i,r,n,e){if(!(this.a.lineRange.length<3))return L(this.a.lineRange.addMargin(-1,-1),i,s=>{const t=this.getWidgetVerticalOutline(s,r,e),o=v(t.delta(-this.a.top),this.availableSpaceSizesTransposed);return o<e.minWidgetWidth?void 0:{horizontalWidgetRange:p.ofStartAndLength(n-o,o),verticalWidgetRange:t}})}}function T(a,i,r,n,e){const s=[];let t=a.startLineNumber,o=r,d=[];for(let u=0;u<i.length;u++){const l=a.startLineNumber+u,c=o+d.reduce((f,m)=>f+m.height,0),h=n.editor.getTopForLineNumber(l);u>0&&h!==c&&(s.push({lineRange:g.ofLength(t,l-t),top:o,sizes:d}),t=l,o=h,d=[]),d.push(i[u])}return s.push({lineRange:g.ofLength(t,a.endLineNumberExclusive-t),top:o,sizes:d}),b({owner:"splitIntoContinuousLineRanges"},u=>n.observeTopForLineNumber(a.endLineNumberExclusive-1).read(u)).read(e),s}function L(a,i,r){for(let n=0;;n++){const e=i+n;if(e<=a.endLineNumberExclusive){const t=r(e);if(t!==void 0)return t}const s=i-n;if(s>=a.startLineNumber){const t=r(s);if(t!==void 0)return t}if(s<a.startLineNumber&&e>a.endLineNumberExclusive)return}}function N(a,i){const r=[0];let n=0;for(const e of a)n+=i(e),r.push(n);return r}export{E as $Ctb,T as $Dtb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { derived } from "../../../../../../../../base/common/observable.js";
+import { Size2D } from "../../../../../../../common/core/2d/size.js";
+import { LineRange } from "../../../../../../../common/core/ranges/lineRange.js";
+import { OffsetRange } from "../../../../../../../common/core/ranges/offsetRange.js";
+import { getMaxTowerHeightInAvailableArea } from "../../utils/towersLayout.js";
+class WidgetPlacementContext {
+  static {
+    __name(this, "WidgetPlacementContext");
+  }
+  constructor(_lineRangeInfo, editorTrueContentWidth, endOfLinePadding) {
+    this._lineRangeInfo = _lineRangeInfo;
+    this.availableSpaceSizes = _lineRangeInfo.sizes.map((s, idx) => {
+      const lineNumber = _lineRangeInfo.lineRange.startLineNumber + idx;
+      const linePaddingLeft = endOfLinePadding(lineNumber);
+      return new Size2D(Math.max(0, editorTrueContentWidth - s.width - linePaddingLeft), s.height);
+    });
+    this.availableSpaceHeightPrefixSums = getSums(this.availableSpaceSizes, (s) => s.height);
+    this.availableSpaceSizesTransposed = this.availableSpaceSizes.map((s) => s.transpose());
+  }
+  /**
+   * Computes the vertical outline for a widget placed at the given line number.
+   */
+  getWidgetVerticalOutline(lineNumber, previewEditorHeight, layoutConstants) {
+    const sizeIdx = lineNumber - this._lineRangeInfo.lineRange.startLineNumber;
+    const top = this._lineRangeInfo.top + this.availableSpaceHeightPrefixSums[sizeIdx];
+    const editorRange = OffsetRange.ofStartAndLength(top, previewEditorHeight);
+    const { previewEditorMargin, widgetPadding, widgetBorder, lowerBarHeight } = layoutConstants;
+    const verticalWidgetRange = editorRange.withMargin(previewEditorMargin + widgetPadding + widgetBorder).withMargin(0, lowerBarHeight);
+    return verticalWidgetRange;
+  }
+  /**
+   * Tries to find a valid widget outline within this line range context.
+   */
+  tryFindWidgetOutline(targetLineNumber, previewEditorHeight, editorTrueContentRight, layoutConstants) {
+    if (this._lineRangeInfo.lineRange.length < 3) {
+      return void 0;
+    }
+    return findFirstMinimzeDistance(this._lineRangeInfo.lineRange.addMargin(-1, -1), targetLineNumber, (lineNumber) => {
+      const verticalWidgetRange = this.getWidgetVerticalOutline(lineNumber, previewEditorHeight, layoutConstants);
+      const maxWidth = getMaxTowerHeightInAvailableArea(verticalWidgetRange.delta(-this._lineRangeInfo.top), this.availableSpaceSizesTransposed);
+      if (maxWidth < layoutConstants.minWidgetWidth) {
+        return void 0;
+      }
+      const horizontalWidgetRange = OffsetRange.ofStartAndLength(editorTrueContentRight - maxWidth, maxWidth);
+      return { horizontalWidgetRange, verticalWidgetRange };
+    });
+  }
+}
+function splitIntoContinuousLineRanges(lineRange, sizes, top, editorObs, reader) {
+  const result = [];
+  let currentRangeStart = lineRange.startLineNumber;
+  let currentRangeTop = top;
+  let currentSizes = [];
+  for (let i = 0; i < sizes.length; i++) {
+    const lineNumber = lineRange.startLineNumber + i;
+    const expectedTop = currentRangeTop + currentSizes.reduce((p, c) => p + c.height, 0);
+    const actualTop = editorObs.editor.getTopForLineNumber(lineNumber);
+    if (i > 0 && actualTop !== expectedTop) {
+      result.push({
+        lineRange: LineRange.ofLength(currentRangeStart, lineNumber - currentRangeStart),
+        top: currentRangeTop,
+        sizes: currentSizes
+      });
+      currentRangeStart = lineNumber;
+      currentRangeTop = actualTop;
+      currentSizes = [];
+    }
+    currentSizes.push(sizes[i]);
+  }
+  result.push({
+    lineRange: LineRange.ofLength(currentRangeStart, lineRange.endLineNumberExclusive - currentRangeStart),
+    top: currentRangeTop,
+    sizes: currentSizes
+  });
+  derived({ owner: "splitIntoContinuousLineRanges" }, (r) => {
+    return editorObs.observeTopForLineNumber(lineRange.endLineNumberExclusive - 1).read(r);
+  }).read(reader);
+  return result;
+}
+__name(splitIntoContinuousLineRanges, "splitIntoContinuousLineRanges");
+function findFirstMinimzeDistance(range, targetLine, predicate) {
+  for (let offset = 0; ; offset++) {
+    const down = targetLine + offset;
+    if (down <= range.endLineNumberExclusive) {
+      const result = predicate(down);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    const up = targetLine - offset;
+    if (up >= range.startLineNumber) {
+      const result = predicate(up);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    if (up < range.startLineNumber && down > range.endLineNumberExclusive) {
+      return void 0;
+    }
+  }
+}
+__name(findFirstMinimzeDistance, "findFirstMinimzeDistance");
+function getSums(array, fn) {
+  const result = [0];
+  let sum = 0;
+  for (const item of array) {
+    sum += fn(item);
+    result.push(sum);
+  }
+  return result;
+}
+__name(getSums, "getSums");
+export {
+  WidgetPlacementContext,
+  splitIntoContinuousLineRanges
+};
+//# sourceMappingURL=longDistnaceWidgetPlacement.js.map

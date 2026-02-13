@@ -1,1 +1,610 @@
-import"./hover.css";import{$Ed as R,$Dd as N,$Fd as O,$Cd as k}from"../../../base/common/lifecycle.js";import{$xf as v}from"../../../base/common/event.js";import*as c from"../../../base/browser/dom.js";import{$fy as W}from"../../keybinding/common/keybinding.js";import{$0l as M}from"../../configuration/common/configuration.js";import{$n0 as C,$m0 as P,$o0 as I}from"../../../base/browser/ui/hover/hoverWidget.js";import{$_9 as w}from"../../../base/browser/ui/widget.js";import{$Ukb as J}from"../../markdown/browser/markdownRenderer.js";import{$lk as S}from"../../../base/common/htmlContent.js";import{localize as T}from"../../../nls.js";import{$n as _}from"../../../base/common/platform.js";import{$MD as B}from"../../accessibility/common/accessibility.js";import{$60 as F}from"../../../base/browser/ui/aria/aria.js";import{$hi as z}from"../../../base/common/async.js";import{$$c as Q}from"../../../base/common/types.js";var E=function(r,t,e,i){var h=arguments.length,n=h<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,i);else for(var l=r.length-1;l>=0;l--)(a=r[l])&&(n=(h<3?a(n):h>3?a(t,e,n):a(t,e))||n);return h>3&&n&&Object.defineProperty(t,e,n),n},b=function(r,t){return function(e,i){t(e,i,r)}};const f=c.$;var H;(function(r){r[r.PointerSize=3]="PointerSize",r[r.HoverBorderWidth=2]="HoverBorderWidth",r[r.HoverWindowEdgeMargin=2]="HoverWindowEdgeMargin"})(H||(H={}));let $=class extends w{get Q(){return c.getWindow(this.r.targetElements[0])}get R(){return c.getWindow(this.r.targetElements[0]).document.documentElement}get isDisposed(){return this.w}get isMouseIn(){return this.c.isMouseIn}get domNode(){return this.g.containerDomNode}get onDispose(){return this.S.event}get onRequestLayout(){return this.U.event}get anchor(){return this.H===2?0:1}get x(){return this.J}get y(){return this.L}get isLocked(){return this.M}set isLocked(t){this.M!==t&&(this.M=t,this.n.classList.toggle("locked",this.M))}addMouseTrackingElement(t){return this.c.addElement(t)}constructor(t,e,i,h,n){if(super(),this.W=e,this.X=i,this.Y=h,this.Z=n,this.a=new N,this.w=!1,this.I=!1,this.J=0,this.L=0,this.M=!1,this.N=!1,this.O=!1,this.P=.5,this.S=this.D(new v),this.U=this.D(new v),this.t=t.linkHandler,this.r="targetElements"in t.target?t.target:new U(t.target),t.style)switch(t.style){case 1:{t.appearance??={},t.appearance.compact??=!0,t.appearance.showPointer??=!0;break}case 2:{t.appearance??={},t.appearance.compact??=!0;break}}this.h=t.appearance?.showPointer?f("div.workbench-hover-pointer"):void 0,this.g=this.D(new P(!t.appearance?.skipFadeInAnimation)),this.g.containerDomNode.classList.add("workbench-hover"),t.appearance?.compact&&this.g.containerDomNode.classList.add("workbench-hover","compact"),t.additionalClasses&&this.g.containerDomNode.classList.add(...t.additionalClasses),t.position?.forcePosition&&(this.I=!0),t.trapFocus&&(this.N=!0);const a=t.appearance?.maxHeightRatio;a!==void 0&&a>0&&a<=1&&(this.P=a),this.H=t.position?.hoverPosition===void 0?3:Q(t.position.hoverPosition)?t.position.hoverPosition:2,this.f(this.g.containerDomNode,o=>o.stopPropagation()),this.q(this.g.containerDomNode,o=>{o.equals(9)&&this.dispose()}),this.D(c.$u8(this.Q,"blur",()=>this.dispose()));const l=f("div.hover-row.markdown-hover"),d=f("div.hover-contents");if(typeof t.content=="string")d.textContent=t.content,d.style.whiteSpace="pre-wrap";else if(c.$f9(t.content))d.appendChild(t.content),d.classList.add("html-hover-contents");else{const o=t.content,{element:u}=this.D(this.Y.render(o,{actionHandler:this.t,asyncRenderCallback:()=>{d.classList.add("code-hover-contents"),this.layout(),this.U.fire()}}));d.appendChild(u)}if(l.appendChild(d),this.g.contentsDomNode.appendChild(l),t.actions&&t.actions.length>0){const o=f("div.hover-row.status-bar"),u=f("div.actions");t.actions.forEach(p=>{const D=this.W.lookupKeybinding(p.commandId),x=D?D.getLabel():null;this.D(C.render(u,{label:p.label,commandId:p.commandId,run:L=>{p.run(L),this.dispose()},iconClass:p.iconClass},x))}),o.appendChild(u),this.g.containerDomNode.appendChild(o)}this.n=f("div.workbench-hover-container"),this.h&&this.n.appendChild(this.h),this.n.appendChild(this.g.containerDomNode);let s;if(t.actions&&t.actions.length>0?s=!1:t.persistence?.hideOnHover===void 0?s=typeof t.content=="string"||S(t.content)&&!t.content.value.includes("](")&&!t.content.value.includes("</a>"):s=t.persistence.hideOnHover,t.appearance?.showHoverHint){const o=f("div.hover-row.status-bar"),u=f("div.info");u.textContent=T(2136,null,_?"Option":"Alt"),o.appendChild(u),this.g.containerDomNode.appendChild(o)}const m=[...this.r.targetElements];s||m.push(this.n);const g=this.D(new y(m));if(this.D(g.onMouseOut(()=>{this.M||this.dispose()})),s){const o=[...this.r.targetElements,this.n];this.c=this.D(new y(o)),this.D(this.c.onMouseOut(()=>{this.M||this.dispose()}))}else this.c=g}ab(){if(!this.N||this.O)return;this.O=!0;const t=this.g.containerDomNode,e=this.bb(this.g.containerDomNode);if(e){const i=c.$z9(this.n,f("div")),h=c.$y9(this.n,f("div"));i.tabIndex=0,h.tabIndex=0,this.D(c.$u8(h,"focus",n=>{t.focus(),n.preventDefault()})),this.D(c.$u8(i,"focus",n=>{e.focus(),n.preventDefault()}))}}bb(t){if(t.hasChildNodes())for(let e=0;e<t.childNodes.length;e++){const i=t.childNodes.item(t.childNodes.length-e-1);if(i.nodeType===i.ELEMENT_NODE){const n=i;if(typeof n.tabIndex=="number"&&n.tabIndex>=0)return n}const h=this.bb(i);if(h)return h}}render(t){t.appendChild(this.n);const i=this.n.contains(this.n.ownerDocument.activeElement)&&I(this.X.getValue("accessibility.verbosity.hover")===!0&&this.Z.isScreenReaderOptimized(),this.W.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel());i&&F(i),this.layout(),this.ab()}layout(){this.g.containerDomNode.classList.remove("right-aligned"),this.g.contentsDomNode.style.maxHeight="";const t=m=>{const g=c.$T8(m),o=m.getBoundingClientRect();return{top:o.top*g,bottom:o.bottom*g,right:o.right*g,left:o.left*g}},e=this.r.targetElements.map(m=>t(m)),{top:i,right:h,bottom:n,left:a}=e[0],l=h-a,d=n-i,s={top:i,right:h,bottom:n,left:a,width:l,height:d,center:{x:a+l/2,y:i+d/2}};if(this.eb(s),this.fb(s),this.gb(s),this.n.style.padding="",this.n.style.margin="",this.h){switch(this.H){case 1:s.left+=3,s.right+=3,this.n.style.paddingLeft="3px",this.n.style.marginLeft="-3px";break;case 0:s.left-=3,s.right-=3,this.n.style.paddingRight="3px",this.n.style.marginRight="-3px";break;case 2:s.top+=3,s.bottom+=3,this.n.style.paddingTop="3px",this.n.style.marginTop="-3px";break;case 3:s.top-=3,s.bottom-=3,this.n.style.paddingBottom="3px",this.n.style.marginBottom="-3px";break}s.center.x=s.left+l/2,s.center.y=s.top+d/2}this.cb(s),this.db(s),this.h&&(this.h.classList.remove("top"),this.h.classList.remove("left"),this.h.classList.remove("right"),this.h.classList.remove("bottom"),this.hb(s)),this.g.onContentsChanged()}cb(t){const e=this.g.containerDomNode.clientWidth+2;this.r.x!==void 0?this.J=this.r.x:this.H===1?this.J=t.right:this.H===0?this.J=t.left-e:(this.h?this.J=t.center.x-this.g.containerDomNode.clientWidth/2:this.J=t.left,this.J+e>=this.R.clientWidth&&(this.g.containerDomNode.classList.add("right-aligned"),this.J=Math.max(this.R.clientWidth-e-2,this.R.clientLeft))),this.J<this.R.clientLeft&&(this.J=t.left+2)}db(t){this.r.y!==void 0?this.L=this.r.y:this.H===3?this.L=t.top:this.H===2?this.L=t.bottom-2:this.h?this.L=t.center.y+this.g.containerDomNode.clientHeight/2:this.L=t.bottom,this.L>this.Q.innerHeight&&(this.L=t.bottom)}eb(t){if(this.r.x!==void 0)return;const e=this.h?3:0;if(this.I){const i=e+2;this.H===1?this.g.containerDomNode.style.maxWidth=`${this.R.clientWidth-t.right-i}px`:this.H===0&&(this.g.containerDomNode.style.maxWidth=`${t.left-i}px`);return}this.H===1?this.R.clientWidth-t.right<this.g.containerDomNode.clientWidth+e&&(t.left>=this.g.containerDomNode.clientWidth+e?this.H=0:this.H=2):this.H===0&&(t.left<this.g.containerDomNode.clientWidth+e&&(this.R.clientWidth-t.right>=this.g.containerDomNode.clientWidth+e?this.H=1:this.H=2),t.left-this.g.containerDomNode.clientWidth-e<=this.R.clientLeft&&(this.H=1))}fb(t){if(this.r.y!==void 0||this.I)return;const e=this.h?3:0;this.H===3?t.top-this.g.containerDomNode.clientHeight-e<0&&(this.H=2):this.H===2&&t.bottom+this.g.containerDomNode.offsetHeight+e>this.Q.innerHeight&&(this.H=3)}gb(t){let e=this.Q.innerHeight*this.P;if(this.I){const i=(this.h?3:0)+2;this.H===3?e=Math.min(e,t.top-i):this.H===2&&(e=Math.min(e,this.Q.innerHeight-t.bottom-i))}if(this.g.containerDomNode.style.maxHeight=`${e}px`,this.g.contentsDomNode.clientHeight<this.g.contentsDomNode.scrollHeight){const i=`${this.g.scrollbar.options.verticalScrollbarSize}px`;this.g.contentsDomNode.style.paddingRight!==i&&(this.g.contentsDomNode.style.paddingRight=i)}}hb(t){if(this.h)switch(this.H){case 0:case 1:{this.h.classList.add(this.H===0?"right":"left");const e=this.g.containerDomNode.clientHeight;e>t.height?this.h.style.top=`${t.center.y-(this.L-e)-3}px`:this.h.style.top=`${Math.round(e/2)-3}px`;break}case 3:case 2:{this.h.classList.add(this.H===3?"bottom":"top");const e=this.g.containerDomNode.clientWidth;let i=Math.round(e/2)-3;const h=this.J+i;(h<t.left||h>t.right)&&(i=t.center.x-this.J-3),this.h.style.left=`${i}px`;break}}}focus(){this.g.containerDomNode.focus()}hide(){this.dispose()}dispose(){this.w||(this.S.fire(),this.r.dispose?.(),this.n.remove(),this.a.dispose(),super.dispose()),this.w=!0}};$=E([b(1,W),b(2,M),b(3,J),b(4,B)],$);class y extends w{get onMouseOut(){return this.g.event}get isMouseIn(){return this.a}constructor(t,e=200){super(),this.h=t,this.n=e,this.a=!0,this.c=this.D(new O),this.g=this.D(new v);for(const i of this.h)this.j(i,()=>this.r()),this.m(i,()=>this.t())}r(){this.a=!0,this.c.clear()}t(){this.a=!1,this.c.value=new z(()=>this.w(),this.n)}w(){this.a||this.g.fire()}addElement(t){if(this.h.includes(t))return R.None;this.h.push(t);const e=new N;return e.add(c.$u8(t,c.$r9.MOUSE_OVER,()=>this.r())),e.add(c.$u8(t,c.$r9.MOUSE_LEAVE,()=>this.t())),e.add(k(()=>{const i=this.h.indexOf(t);i>=0&&this.h.splice(i,1)})),e}}class U{constructor(t){this.a=t,this.targetElements=[this.a]}dispose(){}}export{$ as $Sqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./hover.css";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import * as dom from "../../../base/browser/dom.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { HoverAction, HoverWidget as BaseHoverWidget, getHoverAccessibleViewHint } from "../../../base/browser/ui/hover/hoverWidget.js";
+import { Widget } from "../../../base/browser/ui/widget.js";
+import { IMarkdownRendererService } from "../../markdown/browser/markdownRenderer.js";
+import { isMarkdownString } from "../../../base/common/htmlContent.js";
+import { localize } from "../../../nls.js";
+import { isMacintosh } from "../../../base/common/platform.js";
+import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
+import { status } from "../../../base/browser/ui/aria/aria.js";
+import { TimeoutTimer } from "../../../base/common/async.js";
+import { isNumber } from "../../../base/common/types.js";
+const $ = dom.$;
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["PointerSize"] = 3] = "PointerSize";
+  Constants2[Constants2["HoverBorderWidth"] = 2] = "HoverBorderWidth";
+  Constants2[Constants2["HoverWindowEdgeMargin"] = 2] = "HoverWindowEdgeMargin";
+})(Constants || (Constants = {}));
+let HoverWidget = class HoverWidget2 extends Widget {
+  static {
+    __name(this, "HoverWidget");
+  }
+  get _targetWindow() {
+    return dom.getWindow(this._target.targetElements[0]);
+  }
+  get _targetDocumentElement() {
+    return dom.getWindow(this._target.targetElements[0]).document.documentElement;
+  }
+  get isDisposed() {
+    return this._isDisposed;
+  }
+  get isMouseIn() {
+    return this._lockMouseTracker.isMouseIn;
+  }
+  get domNode() {
+    return this._hover.containerDomNode;
+  }
+  get onDispose() {
+    return this._onDispose.event;
+  }
+  get onRequestLayout() {
+    return this._onRequestLayout.event;
+  }
+  get anchor() {
+    return this._hoverPosition === 2 ? 0 : 1;
+  }
+  get x() {
+    return this._x;
+  }
+  get y() {
+    return this._y;
+  }
+  /**
+   * Whether the hover is "locked" by holding the alt/option key. When locked, the hover will not
+   * hide and can be hovered regardless of whether the `hideOnHover` hover option is set.
+   */
+  get isLocked() {
+    return this._isLocked;
+  }
+  set isLocked(value) {
+    if (this._isLocked === value) {
+      return;
+    }
+    this._isLocked = value;
+    this._hoverContainer.classList.toggle("locked", this._isLocked);
+  }
+  /**
+   * Adds an element to be tracked by this hover's mouse tracker. Mouse events on
+   * this element will be considered as being "inside" the hover, preventing it
+   * from closing. This is used for nested hovers where the child hover's container
+   * should be treated as part of the parent hover.
+   */
+  addMouseTrackingElement(element) {
+    return this._lockMouseTracker.addElement(element);
+  }
+  constructor(options, _keybindingService, _configurationService, _markdownRenderer, _accessibilityService) {
+    super();
+    this._keybindingService = _keybindingService;
+    this._configurationService = _configurationService;
+    this._markdownRenderer = _markdownRenderer;
+    this._accessibilityService = _accessibilityService;
+    this._messageListeners = new DisposableStore();
+    this._isDisposed = false;
+    this._forcePosition = false;
+    this._x = 0;
+    this._y = 0;
+    this._isLocked = false;
+    this._enableFocusTraps = false;
+    this._addedFocusTrap = false;
+    this._maxHeightRatioRelativeToWindow = 0.5;
+    this._onDispose = this._register(new Emitter());
+    this._onRequestLayout = this._register(new Emitter());
+    this._linkHandler = options.linkHandler;
+    this._target = "targetElements" in options.target ? options.target : new ElementHoverTarget(options.target);
+    if (options.style) {
+      switch (options.style) {
+        case 1: {
+          options.appearance ??= {};
+          options.appearance.compact ??= true;
+          options.appearance.showPointer ??= true;
+          break;
+        }
+        case 2: {
+          options.appearance ??= {};
+          options.appearance.compact ??= true;
+          break;
+        }
+      }
+    }
+    this._hoverPointer = options.appearance?.showPointer ? $("div.workbench-hover-pointer") : void 0;
+    this._hover = this._register(new BaseHoverWidget(!options.appearance?.skipFadeInAnimation));
+    this._hover.containerDomNode.classList.add("workbench-hover");
+    if (options.appearance?.compact) {
+      this._hover.containerDomNode.classList.add("workbench-hover", "compact");
+    }
+    if (options.additionalClasses) {
+      this._hover.containerDomNode.classList.add(...options.additionalClasses);
+    }
+    if (options.position?.forcePosition) {
+      this._forcePosition = true;
+    }
+    if (options.trapFocus) {
+      this._enableFocusTraps = true;
+    }
+    const maxHeightRatio = options.appearance?.maxHeightRatio;
+    if (maxHeightRatio !== void 0 && maxHeightRatio > 0 && maxHeightRatio <= 1) {
+      this._maxHeightRatioRelativeToWindow = maxHeightRatio;
+    }
+    this._hoverPosition = options.position?.hoverPosition === void 0 ? 3 : isNumber(options.position.hoverPosition) ? options.position.hoverPosition : 2;
+    this.onmousedown(this._hover.containerDomNode, (e) => e.stopPropagation());
+    this.onkeydown(this._hover.containerDomNode, (e) => {
+      if (e.equals(
+        9
+        /* KeyCode.Escape */
+      )) {
+        this.dispose();
+      }
+    });
+    this._register(dom.addDisposableListener(this._targetWindow, "blur", () => this.dispose()));
+    const rowElement = $("div.hover-row.markdown-hover");
+    const contentsElement = $("div.hover-contents");
+    if (typeof options.content === "string") {
+      contentsElement.textContent = options.content;
+      contentsElement.style.whiteSpace = "pre-wrap";
+    } else if (dom.isHTMLElement(options.content)) {
+      contentsElement.appendChild(options.content);
+      contentsElement.classList.add("html-hover-contents");
+    } else {
+      const markdown = options.content;
+      const { element } = this._register(this._markdownRenderer.render(markdown, {
+        actionHandler: this._linkHandler,
+        asyncRenderCallback: /* @__PURE__ */ __name(() => {
+          contentsElement.classList.add("code-hover-contents");
+          this.layout();
+          this._onRequestLayout.fire();
+        }, "asyncRenderCallback")
+      }));
+      contentsElement.appendChild(element);
+    }
+    rowElement.appendChild(contentsElement);
+    this._hover.contentsDomNode.appendChild(rowElement);
+    if (options.actions && options.actions.length > 0) {
+      const statusBarElement = $("div.hover-row.status-bar");
+      const actionsElement = $("div.actions");
+      options.actions.forEach((action) => {
+        const keybinding = this._keybindingService.lookupKeybinding(action.commandId);
+        const keybindingLabel = keybinding ? keybinding.getLabel() : null;
+        this._register(HoverAction.render(actionsElement, {
+          label: action.label,
+          commandId: action.commandId,
+          run: /* @__PURE__ */ __name((e) => {
+            action.run(e);
+            this.dispose();
+          }, "run"),
+          iconClass: action.iconClass
+        }, keybindingLabel));
+      });
+      statusBarElement.appendChild(actionsElement);
+      this._hover.containerDomNode.appendChild(statusBarElement);
+    }
+    this._hoverContainer = $("div.workbench-hover-container");
+    if (this._hoverPointer) {
+      this._hoverContainer.appendChild(this._hoverPointer);
+    }
+    this._hoverContainer.appendChild(this._hover.containerDomNode);
+    let hideOnHover;
+    if (options.actions && options.actions.length > 0) {
+      hideOnHover = false;
+    } else {
+      if (options.persistence?.hideOnHover === void 0) {
+        hideOnHover = typeof options.content === "string" || isMarkdownString(options.content) && !options.content.value.includes("](") && !options.content.value.includes("</a>");
+      } else {
+        hideOnHover = options.persistence.hideOnHover;
+      }
+    }
+    if (options.appearance?.showHoverHint) {
+      const statusBarElement = $("div.hover-row.status-bar");
+      const infoElement = $("div.info");
+      infoElement.textContent = localize("hoverhint", "Hold {0} key to mouse over", isMacintosh ? "Option" : "Alt");
+      statusBarElement.appendChild(infoElement);
+      this._hover.containerDomNode.appendChild(statusBarElement);
+    }
+    const mouseTrackerTargets = [...this._target.targetElements];
+    if (!hideOnHover) {
+      mouseTrackerTargets.push(this._hoverContainer);
+    }
+    const mouseTracker = this._register(new CompositeMouseTracker(mouseTrackerTargets));
+    this._register(mouseTracker.onMouseOut(() => {
+      if (!this._isLocked) {
+        this.dispose();
+      }
+    }));
+    if (hideOnHover) {
+      const mouseTracker2Targets = [...this._target.targetElements, this._hoverContainer];
+      this._lockMouseTracker = this._register(new CompositeMouseTracker(mouseTracker2Targets));
+      this._register(this._lockMouseTracker.onMouseOut(() => {
+        if (!this._isLocked) {
+          this.dispose();
+        }
+      }));
+    } else {
+      this._lockMouseTracker = mouseTracker;
+    }
+  }
+  addFocusTrap() {
+    if (!this._enableFocusTraps || this._addedFocusTrap) {
+      return;
+    }
+    this._addedFocusTrap = true;
+    const firstContainerFocusElement = this._hover.containerDomNode;
+    const lastContainerFocusElement = this.findLastFocusableChild(this._hover.containerDomNode);
+    if (lastContainerFocusElement) {
+      const beforeContainerFocusElement = dom.prepend(this._hoverContainer, $("div"));
+      const afterContainerFocusElement = dom.append(this._hoverContainer, $("div"));
+      beforeContainerFocusElement.tabIndex = 0;
+      afterContainerFocusElement.tabIndex = 0;
+      this._register(dom.addDisposableListener(afterContainerFocusElement, "focus", (e) => {
+        firstContainerFocusElement.focus();
+        e.preventDefault();
+      }));
+      this._register(dom.addDisposableListener(beforeContainerFocusElement, "focus", (e) => {
+        lastContainerFocusElement.focus();
+        e.preventDefault();
+      }));
+    }
+  }
+  findLastFocusableChild(root) {
+    if (root.hasChildNodes()) {
+      for (let i = 0; i < root.childNodes.length; i++) {
+        const node = root.childNodes.item(root.childNodes.length - i - 1);
+        if (node.nodeType === node.ELEMENT_NODE) {
+          const parsedNode = node;
+          if (typeof parsedNode.tabIndex === "number" && parsedNode.tabIndex >= 0) {
+            return parsedNode;
+          }
+        }
+        const recursivelyFoundElement = this.findLastFocusableChild(node);
+        if (recursivelyFoundElement) {
+          return recursivelyFoundElement;
+        }
+      }
+    }
+    return void 0;
+  }
+  render(container) {
+    container.appendChild(this._hoverContainer);
+    const hoverFocused = this._hoverContainer.contains(this._hoverContainer.ownerDocument.activeElement);
+    const accessibleViewHint = hoverFocused && getHoverAccessibleViewHint(this._configurationService.getValue("accessibility.verbosity.hover") === true && this._accessibilityService.isScreenReaderOptimized(), this._keybindingService.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel());
+    if (accessibleViewHint) {
+      status(accessibleViewHint);
+    }
+    this.layout();
+    this.addFocusTrap();
+  }
+  layout() {
+    this._hover.containerDomNode.classList.remove("right-aligned");
+    this._hover.contentsDomNode.style.maxHeight = "";
+    const getZoomAccountedBoundingClientRect = /* @__PURE__ */ __name((e) => {
+      const zoom = dom.getDomNodeZoomLevel(e);
+      const boundingRect = e.getBoundingClientRect();
+      return {
+        top: boundingRect.top * zoom,
+        bottom: boundingRect.bottom * zoom,
+        right: boundingRect.right * zoom,
+        left: boundingRect.left * zoom
+      };
+    }, "getZoomAccountedBoundingClientRect");
+    const targetBounds = this._target.targetElements.map((e) => getZoomAccountedBoundingClientRect(e));
+    const { top, right, bottom, left } = targetBounds[0];
+    const width = right - left;
+    const height = bottom - top;
+    const targetRect = {
+      top,
+      right,
+      bottom,
+      left,
+      width,
+      height,
+      center: {
+        x: left + width / 2,
+        y: top + height / 2
+      }
+    };
+    this.adjustHorizontalHoverPosition(targetRect);
+    this.adjustVerticalHoverPosition(targetRect);
+    this.adjustHoverMaxHeight(targetRect);
+    this._hoverContainer.style.padding = "";
+    this._hoverContainer.style.margin = "";
+    if (this._hoverPointer) {
+      switch (this._hoverPosition) {
+        case 1:
+          targetRect.left += 3;
+          targetRect.right += 3;
+          this._hoverContainer.style.paddingLeft = `${3}px`;
+          this._hoverContainer.style.marginLeft = `${-3}px`;
+          break;
+        case 0:
+          targetRect.left -= 3;
+          targetRect.right -= 3;
+          this._hoverContainer.style.paddingRight = `${3}px`;
+          this._hoverContainer.style.marginRight = `${-3}px`;
+          break;
+        case 2:
+          targetRect.top += 3;
+          targetRect.bottom += 3;
+          this._hoverContainer.style.paddingTop = `${3}px`;
+          this._hoverContainer.style.marginTop = `${-3}px`;
+          break;
+        case 3:
+          targetRect.top -= 3;
+          targetRect.bottom -= 3;
+          this._hoverContainer.style.paddingBottom = `${3}px`;
+          this._hoverContainer.style.marginBottom = `${-3}px`;
+          break;
+      }
+      targetRect.center.x = targetRect.left + width / 2;
+      targetRect.center.y = targetRect.top + height / 2;
+    }
+    this.computeXCordinate(targetRect);
+    this.computeYCordinate(targetRect);
+    if (this._hoverPointer) {
+      this._hoverPointer.classList.remove("top");
+      this._hoverPointer.classList.remove("left");
+      this._hoverPointer.classList.remove("right");
+      this._hoverPointer.classList.remove("bottom");
+      this.setHoverPointerPosition(targetRect);
+    }
+    this._hover.onContentsChanged();
+  }
+  computeXCordinate(target) {
+    const hoverWidth = this._hover.containerDomNode.clientWidth + 2;
+    if (this._target.x !== void 0) {
+      this._x = this._target.x;
+    } else if (this._hoverPosition === 1) {
+      this._x = target.right;
+    } else if (this._hoverPosition === 0) {
+      this._x = target.left - hoverWidth;
+    } else {
+      if (this._hoverPointer) {
+        this._x = target.center.x - this._hover.containerDomNode.clientWidth / 2;
+      } else {
+        this._x = target.left;
+      }
+      if (this._x + hoverWidth >= this._targetDocumentElement.clientWidth) {
+        this._hover.containerDomNode.classList.add("right-aligned");
+        this._x = Math.max(this._targetDocumentElement.clientWidth - hoverWidth - 2, this._targetDocumentElement.clientLeft);
+      }
+    }
+    if (this._x < this._targetDocumentElement.clientLeft) {
+      this._x = target.left + 2;
+    }
+  }
+  computeYCordinate(target) {
+    if (this._target.y !== void 0) {
+      this._y = this._target.y;
+    } else if (this._hoverPosition === 3) {
+      this._y = target.top;
+    } else if (this._hoverPosition === 2) {
+      this._y = target.bottom - 2;
+    } else {
+      if (this._hoverPointer) {
+        this._y = target.center.y + this._hover.containerDomNode.clientHeight / 2;
+      } else {
+        this._y = target.bottom;
+      }
+    }
+    if (this._y > this._targetWindow.innerHeight) {
+      this._y = target.bottom;
+    }
+  }
+  adjustHorizontalHoverPosition(target) {
+    if (this._target.x !== void 0) {
+      return;
+    }
+    const hoverPointerOffset = this._hoverPointer ? 3 : 0;
+    if (this._forcePosition) {
+      const padding = hoverPointerOffset + 2;
+      if (this._hoverPosition === 1) {
+        this._hover.containerDomNode.style.maxWidth = `${this._targetDocumentElement.clientWidth - target.right - padding}px`;
+      } else if (this._hoverPosition === 0) {
+        this._hover.containerDomNode.style.maxWidth = `${target.left - padding}px`;
+      }
+      return;
+    }
+    if (this._hoverPosition === 1) {
+      const roomOnRight = this._targetDocumentElement.clientWidth - target.right;
+      if (roomOnRight < this._hover.containerDomNode.clientWidth + hoverPointerOffset) {
+        const roomOnLeft = target.left;
+        if (roomOnLeft >= this._hover.containerDomNode.clientWidth + hoverPointerOffset) {
+          this._hoverPosition = 0;
+        } else {
+          this._hoverPosition = 2;
+        }
+      }
+    } else if (this._hoverPosition === 0) {
+      const roomOnLeft = target.left;
+      if (roomOnLeft < this._hover.containerDomNode.clientWidth + hoverPointerOffset) {
+        const roomOnRight = this._targetDocumentElement.clientWidth - target.right;
+        if (roomOnRight >= this._hover.containerDomNode.clientWidth + hoverPointerOffset) {
+          this._hoverPosition = 1;
+        } else {
+          this._hoverPosition = 2;
+        }
+      }
+      if (target.left - this._hover.containerDomNode.clientWidth - hoverPointerOffset <= this._targetDocumentElement.clientLeft) {
+        this._hoverPosition = 1;
+      }
+    }
+  }
+  adjustVerticalHoverPosition(target) {
+    if (this._target.y !== void 0 || this._forcePosition) {
+      return;
+    }
+    const hoverPointerOffset = this._hoverPointer ? 3 : 0;
+    if (this._hoverPosition === 3) {
+      if (target.top - this._hover.containerDomNode.clientHeight - hoverPointerOffset < 0) {
+        this._hoverPosition = 2;
+      }
+    } else if (this._hoverPosition === 2) {
+      if (target.bottom + this._hover.containerDomNode.offsetHeight + hoverPointerOffset > this._targetWindow.innerHeight) {
+        this._hoverPosition = 3;
+      }
+    }
+  }
+  adjustHoverMaxHeight(target) {
+    let maxHeight = this._targetWindow.innerHeight * this._maxHeightRatioRelativeToWindow;
+    if (this._forcePosition) {
+      const padding = (this._hoverPointer ? 3 : 0) + 2;
+      if (this._hoverPosition === 3) {
+        maxHeight = Math.min(maxHeight, target.top - padding);
+      } else if (this._hoverPosition === 2) {
+        maxHeight = Math.min(maxHeight, this._targetWindow.innerHeight - target.bottom - padding);
+      }
+    }
+    this._hover.containerDomNode.style.maxHeight = `${maxHeight}px`;
+    if (this._hover.contentsDomNode.clientHeight < this._hover.contentsDomNode.scrollHeight) {
+      const extraRightPadding = `${this._hover.scrollbar.options.verticalScrollbarSize}px`;
+      if (this._hover.contentsDomNode.style.paddingRight !== extraRightPadding) {
+        this._hover.contentsDomNode.style.paddingRight = extraRightPadding;
+      }
+    }
+  }
+  setHoverPointerPosition(target) {
+    if (!this._hoverPointer) {
+      return;
+    }
+    switch (this._hoverPosition) {
+      case 0:
+      case 1: {
+        this._hoverPointer.classList.add(this._hoverPosition === 0 ? "right" : "left");
+        const hoverHeight = this._hover.containerDomNode.clientHeight;
+        if (hoverHeight > target.height) {
+          this._hoverPointer.style.top = `${target.center.y - (this._y - hoverHeight) - 3}px`;
+        } else {
+          this._hoverPointer.style.top = `${Math.round(hoverHeight / 2) - 3}px`;
+        }
+        break;
+      }
+      case 3:
+      case 2: {
+        this._hoverPointer.classList.add(this._hoverPosition === 3 ? "bottom" : "top");
+        const hoverWidth = this._hover.containerDomNode.clientWidth;
+        let pointerLeftPosition = Math.round(hoverWidth / 2) - 3;
+        const pointerX = this._x + pointerLeftPosition;
+        if (pointerX < target.left || pointerX > target.right) {
+          pointerLeftPosition = target.center.x - this._x - 3;
+        }
+        this._hoverPointer.style.left = `${pointerLeftPosition}px`;
+        break;
+      }
+    }
+  }
+  focus() {
+    this._hover.containerDomNode.focus();
+  }
+  hide() {
+    this.dispose();
+  }
+  dispose() {
+    if (!this._isDisposed) {
+      this._onDispose.fire();
+      this._target.dispose?.();
+      this._hoverContainer.remove();
+      this._messageListeners.dispose();
+      super.dispose();
+    }
+    this._isDisposed = true;
+  }
+};
+HoverWidget = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IConfigurationService),
+  __param(3, IMarkdownRendererService),
+  __param(4, IAccessibilityService)
+], HoverWidget);
+class CompositeMouseTracker extends Widget {
+  static {
+    __name(this, "CompositeMouseTracker");
+  }
+  get onMouseOut() {
+    return this._onMouseOut.event;
+  }
+  get isMouseIn() {
+    return this._isMouseIn;
+  }
+  /**
+   * @param _elements The target elements to track mouse in/out events on.
+   * @param _eventDebounceDelay The delay in ms to debounce the event firing. This is used to
+   * allow a short period for the mouse to move into the hover or a nearby target element. For
+   * example hovering a scroll bar will not hide the hover immediately.
+   */
+  constructor(_elements, _eventDebounceDelay = 200) {
+    super();
+    this._elements = _elements;
+    this._eventDebounceDelay = _eventDebounceDelay;
+    this._isMouseIn = true;
+    this._mouseTimer = this._register(new MutableDisposable());
+    this._onMouseOut = this._register(new Emitter());
+    for (const element of this._elements) {
+      this.onmouseover(element, () => this._onTargetMouseOver());
+      this.onmouseleave(element, () => this._onTargetMouseLeave());
+    }
+  }
+  _onTargetMouseOver() {
+    this._isMouseIn = true;
+    this._mouseTimer.clear();
+  }
+  _onTargetMouseLeave() {
+    this._isMouseIn = false;
+    this._mouseTimer.value = new TimeoutTimer(() => this._fireIfMouseOutside(), this._eventDebounceDelay);
+  }
+  _fireIfMouseOutside() {
+    if (!this._isMouseIn) {
+      this._onMouseOut.fire();
+    }
+  }
+  /**
+   * Adds an element to be tracked by this mouse tracker. Mouse events on this
+   * element will be considered as being "inside" the tracked area.
+   */
+  addElement(element) {
+    if (this._elements.includes(element)) {
+      return Disposable.None;
+    }
+    this._elements.push(element);
+    const store = new DisposableStore();
+    store.add(dom.addDisposableListener(element, dom.EventType.MOUSE_OVER, () => this._onTargetMouseOver()));
+    store.add(dom.addDisposableListener(element, dom.EventType.MOUSE_LEAVE, () => this._onTargetMouseLeave()));
+    store.add(toDisposable(() => {
+      const index = this._elements.indexOf(element);
+      if (index >= 0) {
+        this._elements.splice(index, 1);
+      }
+    }));
+    return store;
+  }
+}
+class ElementHoverTarget {
+  static {
+    __name(this, "ElementHoverTarget");
+  }
+  constructor(_element) {
+    this._element = _element;
+    this.targetElements = [this._element];
+  }
+  dispose() {
+  }
+}
+export {
+  HoverWidget
+};
+//# sourceMappingURL=hoverWidget.js.map

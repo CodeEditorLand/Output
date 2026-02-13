@@ -1,1 +1,47 @@
-import{$8h as n}from"../../../base/common/async.js";import{$xf as s,Event as r}from"../../../base/common/event.js";import{$Ed as l}from"../../../base/common/lifecycle.js";class u extends l{get mcpGalleryManifestStatus(){return this.c?"available":"unavailable"}constructor(t){super(),this.a=this.D(new s),this.onDidChangeMcpGalleryManifest=this.a.event,this.b=this.D(new s),this.onDidChangeMcpGalleryManifestStatus=this.b.event,this.f=new n,t.registerChannel("mcpGalleryManifest",{listen:()=>r.None,call:async(c,i,e)=>{if(i==="setMcpGalleryManifest"){const a=Array.isArray(e)?e[0]:null;return Promise.resolve(this.g(a))}throw new Error("Invalid call")}})}async getMcpGalleryManifest(){return await this.f.wait(),this.c??null}g(t){this.c=t,this.a.fire(t),this.b.fire(this.mcpGalleryManifestStatus),this.f.open()}}export{u as $H7};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Barrier } from "../../../base/common/async.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+class McpGalleryManifestIPCService extends Disposable {
+  static {
+    __name(this, "McpGalleryManifestIPCService");
+  }
+  get mcpGalleryManifestStatus() {
+    return this._mcpGalleryManifest ? "available" : "unavailable";
+  }
+  constructor(server) {
+    super();
+    this._onDidChangeMcpGalleryManifest = this._register(new Emitter());
+    this.onDidChangeMcpGalleryManifest = this._onDidChangeMcpGalleryManifest.event;
+    this._onDidChangeMcpGalleryManifestStatus = this._register(new Emitter());
+    this.onDidChangeMcpGalleryManifestStatus = this._onDidChangeMcpGalleryManifestStatus.event;
+    this.barrier = new Barrier();
+    server.registerChannel("mcpGalleryManifest", {
+      listen: /* @__PURE__ */ __name(() => Event.None, "listen"),
+      call: /* @__PURE__ */ __name(async (context, command, args) => {
+        switch (command) {
+          case "setMcpGalleryManifest": {
+            const manifest = Array.isArray(args) ? args[0] : null;
+            return Promise.resolve(this.setMcpGalleryManifest(manifest));
+          }
+        }
+        throw new Error("Invalid call");
+      }, "call")
+    });
+  }
+  async getMcpGalleryManifest() {
+    await this.barrier.wait();
+    return this._mcpGalleryManifest ?? null;
+  }
+  setMcpGalleryManifest(manifest) {
+    this._mcpGalleryManifest = manifest;
+    this._onDidChangeMcpGalleryManifest.fire(manifest);
+    this._onDidChangeMcpGalleryManifestStatus.fire(this.mcpGalleryManifestStatus);
+    this.barrier.open();
+  }
+}
+export {
+  McpGalleryManifestIPCService
+};
+//# sourceMappingURL=mcpGalleryManifestServiceIpc.js.map

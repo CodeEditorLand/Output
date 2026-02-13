@@ -1,1 +1,214 @@
-import{$_8 as D,$A9 as O}from"../../../../base/browser/dom.js";import{$L$ as w}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$u0 as T}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$H0 as B}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Im as E}from"../../../../base/common/actions.js";import{$bk as I}from"../../../../base/common/codicons.js";import{$xf as M,Event as q}from"../../../../base/common/event.js";import{$Dd as P}from"../../../../base/common/lifecycle.js";import{localize as d}from"../../../../nls.js";import{$ckb as k}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$ikb as V,$hkb as j}from"../../../../platform/actions/browser/toolbar.js";import{$qL as f,$sL as N,$tL as A}from"../../../../platform/actions/common/actions.js";import{$Mj as x}from"../../../../platform/instantiation/common/instantiation.js";import{$fy as R}from"../../../../platform/keybinding/common/keybinding.js";import{$YH as S}from"../../../../platform/quickinput/common/quickInput.js";import{$xL as W}from"../../../services/editor/common/editorGroupsService.js";import{$jkb as F}from"../../../../platform/hover/browser/hover.js";var v=function(l,t,n,e){var i=arguments.length,o=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,n):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,t,n,e);else for(var s=l.length-1;s>=0;s--)(a=l[s])&&(o=(i<3?a(o):i>3?a(t,n,o):a(t,n))||o);return i>3&&o&&Object.defineProperty(t,n,o),o},u=function(l,t){return function(n,e){t(n,e,l)}},g;let H=class{constructor(t,n,e,i){this.a=new P,this.b=this.a.add(new M),this.onDidChangeVisibility=this.b.event,this.element=document.createElement("div"),this.element.classList.add("command-center");const o=e.createInstance(V,this.element,f.CommandCenter,{contextMenu:f.TitleBarContext,hiddenItemStrategy:-1,toolbarOptions:{primaryGroup:()=>!0},telemetrySource:"commandCenter",actionViewItemProvider:(a,s)=>a instanceof A&&a.item.submenu===f.CommandCenterCenter?e.createInstance(C,a,t,{...s,hoverDelegate:n}):k(e,a,{...s,hoverDelegate:n})});this.a.add(q.filter(i.onShow,()=>D(this.element),this.a)(this.c.bind(this,!1))),this.a.add(i.onHide(this.c.bind(this,!0))),this.a.add(o)}c(t){this.element.classList.toggle("hide",!t),this.b.fire()}dispose(){this.a.dispose()}};H=v([u(2,x),u(3,S)],H);let C=class extends w{static{g=this}static{this.a="workbench.action.quickOpenWithModes"}constructor(t,n,e,i,o,a,s){super(void 0,t.actions.find(c=>c.id==="workbench.action.quickOpenWithModes")??t.actions[0],e),this.c=t,this.g=n,this.h=i,this.m=o,this.n=a,this.q=s,this.b=e.hoverDelegate??T("mouse")}render(t){super.render(t),t.classList.add("command-center-center"),t.classList.toggle("multiple",this.c.actions.length>1);const n=this.B.add(this.h.setupManagedHover(this.b,t,this.H()));this.B.add(this.g.onDidChange(()=>{n.update(this.H())}));const e=[];for(const i of this.c.actions)i instanceof E?e.push(i.actions):e.push([i]);for(let i=0;i<e.length;i++){const o=e[i],a=this.n.createInstance(j,t,{hiddenItemStrategy:-1,telemetrySource:"commandCenterCenter",actionViewItemProvider:(s,c)=>{if(c={...c,hoverDelegate:this.b},s.id!==g.a)return k(this.n,s,c);const m=this;return this.n.createInstance(class extends w{constructor(){super(void 0,s,c)}render(h){super.render(h),h.classList.toggle("command-center-quick-pick"),h.role="button",h.setAttribute("aria-description",this.H());const b=this.action,r=document.createElement("span");r.ariaHidden="true",r.className=b.class??"",r.classList.add("search-icon");const L=this.b(),p=document.createElement("span");p.classList.add("search-label"),p.textContent=L,O(h,r,p);const $=this.B.add(m.h.setupManagedHover(m.b,h,this.H()));this.B.add(m.g.onDidChange(()=>{$.update(this.H()),p.textContent=this.b()})),this.B.add(m.q.onDidChangeEditorPartOptions(({newPartOptions:y,oldPartOptions:_})=>{y.showTabs!==_.showTabs&&($.update(this.H()),p.textContent=this.b())}))}H(){return m.H()}b(){const{prefix:h,suffix:b}=m.g.getTitleDecorations();let r=m.g.workspaceName;return m.g.isCustomTitleFormat()?r=m.g.getWindowTitle():m.q.partOptions.showTabs==="none"&&(r=m.g.fileName??r),r||(r=d(4088,null)),h&&(r=d(4089,null,h,r)),b&&(r=d(4090,null,r,b)),r.replaceAll(/\r\n|\r|\n/g,"\u23CE")}})}});if(a.setActions(o),this.B.add(a),i<e.length-1){const s=B(I.circleSmallFilled);s.style.padding="0 8px",s.style.height="100%",s.style.opacity="0.5",t.appendChild(s)}}}H(){const t=this.m.lookupKeybinding(this.action.id)?.getLabel();return t?d(4091,null,this.g.workspaceName,t,this.g.value):d(4092,null,this.g.workspaceName,this.g.value)}};C=g=v([u(3,F),u(4,R),u(5,x),u(6,W)],C);N.appendMenuItem(f.CommandCenter,{submenu:f.CommandCenterCenter,title:d(4093,null),icon:I.shield,order:101});export{H as $Z0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CommandCenterCenterViewItem_1;
+import { isActiveDocument, reset } from "../../../../base/browser/dom.js";
+import { BaseActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { SubmenuAction } from "../../../../base/common/actions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuWorkbenchToolBar, WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { MenuId, MenuRegistry, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+let CommandCenterControl = class CommandCenterControl2 {
+  static {
+    __name(this, "CommandCenterControl");
+  }
+  constructor(windowTitle, hoverDelegate, instantiationService, quickInputService) {
+    this._disposables = new DisposableStore();
+    this._onDidChangeVisibility = this._disposables.add(new Emitter());
+    this.onDidChangeVisibility = this._onDidChangeVisibility.event;
+    this.element = document.createElement("div");
+    this.element.classList.add("command-center");
+    const titleToolbar = instantiationService.createInstance(MenuWorkbenchToolBar, this.element, MenuId.CommandCenter, {
+      contextMenu: MenuId.TitleBarContext,
+      hiddenItemStrategy: -1,
+      toolbarOptions: {
+        primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup")
+      },
+      telemetrySource: "commandCenter",
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof SubmenuItemAction && action.item.submenu === MenuId.CommandCenterCenter) {
+          return instantiationService.createInstance(CommandCenterCenterViewItem, action, windowTitle, { ...options, hoverDelegate });
+        } else {
+          return createActionViewItem(instantiationService, action, { ...options, hoverDelegate });
+        }
+      }, "actionViewItemProvider")
+    });
+    this._disposables.add(Event.filter(quickInputService.onShow, () => isActiveDocument(this.element), this._disposables)(this._setVisibility.bind(this, false)));
+    this._disposables.add(quickInputService.onHide(this._setVisibility.bind(this, true)));
+    this._disposables.add(titleToolbar);
+  }
+  _setVisibility(show) {
+    this.element.classList.toggle("hide", !show);
+    this._onDidChangeVisibility.fire();
+  }
+  dispose() {
+    this._disposables.dispose();
+  }
+};
+CommandCenterControl = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IQuickInputService)
+], CommandCenterControl);
+let CommandCenterCenterViewItem = class CommandCenterCenterViewItem2 extends BaseActionViewItem {
+  static {
+    __name(this, "CommandCenterCenterViewItem");
+  }
+  static {
+    CommandCenterCenterViewItem_1 = this;
+  }
+  static {
+    this._quickOpenCommandId = "workbench.action.quickOpenWithModes";
+  }
+  constructor(_submenu, _windowTitle, options, _hoverService, _keybindingService, _instaService, _editorGroupService) {
+    super(void 0, _submenu.actions.find((action) => action.id === "workbench.action.quickOpenWithModes") ?? _submenu.actions[0], options);
+    this._submenu = _submenu;
+    this._windowTitle = _windowTitle;
+    this._hoverService = _hoverService;
+    this._keybindingService = _keybindingService;
+    this._instaService = _instaService;
+    this._editorGroupService = _editorGroupService;
+    this._hoverDelegate = options.hoverDelegate ?? getDefaultHoverDelegate("mouse");
+  }
+  render(container) {
+    super.render(container);
+    container.classList.add("command-center-center");
+    container.classList.toggle("multiple", this._submenu.actions.length > 1);
+    const hover = this._store.add(this._hoverService.setupManagedHover(this._hoverDelegate, container, this.getTooltip()));
+    this._store.add(this._windowTitle.onDidChange(() => {
+      hover.update(this.getTooltip());
+    }));
+    const groups = [];
+    for (const action of this._submenu.actions) {
+      if (action instanceof SubmenuAction) {
+        groups.push(action.actions);
+      } else {
+        groups.push([action]);
+      }
+    }
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      const toolbar = this._instaService.createInstance(WorkbenchToolBar, container, {
+        hiddenItemStrategy: -1,
+        telemetrySource: "commandCenterCenter",
+        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+          options = {
+            ...options,
+            hoverDelegate: this._hoverDelegate
+          };
+          if (action.id !== CommandCenterCenterViewItem_1._quickOpenCommandId) {
+            return createActionViewItem(this._instaService, action, options);
+          }
+          const that = this;
+          return this._instaService.createInstance(class CommandCenterQuickPickItem extends BaseActionViewItem {
+            static {
+              __name(this, "CommandCenterQuickPickItem");
+            }
+            constructor() {
+              super(void 0, action, options);
+            }
+            render(container2) {
+              super.render(container2);
+              container2.classList.toggle("command-center-quick-pick");
+              container2.role = "button";
+              container2.setAttribute("aria-description", this.getTooltip());
+              const action2 = this.action;
+              const searchIcon = document.createElement("span");
+              searchIcon.ariaHidden = "true";
+              searchIcon.className = action2.class ?? "";
+              searchIcon.classList.add("search-icon");
+              const label = this._getLabel();
+              const labelElement = document.createElement("span");
+              labelElement.classList.add("search-label");
+              labelElement.textContent = label;
+              reset(container2, searchIcon, labelElement);
+              const hover2 = this._store.add(that._hoverService.setupManagedHover(that._hoverDelegate, container2, this.getTooltip()));
+              this._store.add(that._windowTitle.onDidChange(() => {
+                hover2.update(this.getTooltip());
+                labelElement.textContent = this._getLabel();
+              }));
+              this._store.add(that._editorGroupService.onDidChangeEditorPartOptions(({ newPartOptions, oldPartOptions }) => {
+                if (newPartOptions.showTabs !== oldPartOptions.showTabs) {
+                  hover2.update(this.getTooltip());
+                  labelElement.textContent = this._getLabel();
+                }
+              }));
+            }
+            getTooltip() {
+              return that.getTooltip();
+            }
+            _getLabel() {
+              const { prefix, suffix } = that._windowTitle.getTitleDecorations();
+              let label = that._windowTitle.workspaceName;
+              if (that._windowTitle.isCustomTitleFormat()) {
+                label = that._windowTitle.getWindowTitle();
+              } else if (that._editorGroupService.partOptions.showTabs === "none") {
+                label = that._windowTitle.fileName ?? label;
+              }
+              if (!label) {
+                label = localize("label.dfl", "Search");
+              }
+              if (prefix) {
+                label = localize("label1", "{0} {1}", prefix, label);
+              }
+              if (suffix) {
+                label = localize("label2", "{0} {1}", label, suffix);
+              }
+              return label.replaceAll(/\r\n|\r|\n/g, "\u23CE");
+            }
+          });
+        }, "actionViewItemProvider")
+      });
+      toolbar.setActions(group);
+      this._store.add(toolbar);
+      if (i < groups.length - 1) {
+        const icon = renderIcon(Codicon.circleSmallFilled);
+        icon.style.padding = "0 8px";
+        icon.style.height = "100%";
+        icon.style.opacity = "0.5";
+        container.appendChild(icon);
+      }
+    }
+  }
+  getTooltip() {
+    const kb = this._keybindingService.lookupKeybinding(this.action.id)?.getLabel();
+    const title = kb ? localize("title", "Search {0} ({1}) \u2014 {2}", this._windowTitle.workspaceName, kb, this._windowTitle.value) : localize("title2", "Search {0} \u2014 {1}", this._windowTitle.workspaceName, this._windowTitle.value);
+    return title;
+  }
+};
+CommandCenterCenterViewItem = CommandCenterCenterViewItem_1 = __decorate([
+  __param(3, IHoverService),
+  __param(4, IKeybindingService),
+  __param(5, IInstantiationService),
+  __param(6, IEditorGroupsService)
+], CommandCenterCenterViewItem);
+MenuRegistry.appendMenuItem(MenuId.CommandCenter, {
+  submenu: MenuId.CommandCenterCenter,
+  title: localize("title3", "Command Center"),
+  icon: Codicon.shield,
+  order: 101
+});
+export {
+  CommandCenterControl
+};
+//# sourceMappingURL=commandCenterControl.js.map

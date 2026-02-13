@@ -1,1 +1,78 @@
-import{$WBc as r}from"../common/basePty.js";class n extends r{constructor(t,s,i){super(t,s),this.q=i}start(){return this.q.start(this.id)}detach(t){return this.q.detachFromProcess(this.id,t)}shutdown(t){this.q.shutdown(this.id,t)}async processBinary(t){if(!this.c)return this.q.processBinary(this.id,t)}input(t){this.c||this.q.input(this.id,t)}sendSignal(t){this.c||this.q.sendSignal(this.id,t)}resize(t,s){this.c||this.b.cols===t&&this.b.rows===s||(this.b.cols=t,this.b.rows=s,this.q.resize(this.id,t,s))}async clearBuffer(){this.q.clearBuffer?.(this.id)}freePortKillProcess(t){if(!this.q.freePortKillProcess)throw new Error("freePortKillProcess does not exist on the local pty service");return this.q.freePortKillProcess(t)}async refreshProperty(t){return this.q.refreshProperty(this.id,t)}async updateProperty(t,s){return this.q.updateProperty(this.id,t,s)}acknowledgeDataEvent(t){this.c||this.q.acknowledgeDataEvent(this.id,t)}setUnicodeVersion(t){return this.q.setUnicodeVersion(this.id,t)}handleOrphanQuestion(){this.q.orphanQuestionReply(this.id)}}export{n as $4Wc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BasePty } from "../common/basePty.js";
+class LocalPty extends BasePty {
+  static {
+    __name(this, "LocalPty");
+  }
+  constructor(id, shouldPersist, _proxy) {
+    super(id, shouldPersist);
+    this._proxy = _proxy;
+  }
+  start() {
+    return this._proxy.start(this.id);
+  }
+  detach(forcePersist) {
+    return this._proxy.detachFromProcess(this.id, forcePersist);
+  }
+  shutdown(immediate) {
+    this._proxy.shutdown(this.id, immediate);
+  }
+  async processBinary(data) {
+    if (this._inReplay) {
+      return;
+    }
+    return this._proxy.processBinary(this.id, data);
+  }
+  input(data) {
+    if (this._inReplay) {
+      return;
+    }
+    this._proxy.input(this.id, data);
+  }
+  sendSignal(signal) {
+    if (this._inReplay) {
+      return;
+    }
+    this._proxy.sendSignal(this.id, signal);
+  }
+  resize(cols, rows) {
+    if (this._inReplay || this._lastDimensions.cols === cols && this._lastDimensions.rows === rows) {
+      return;
+    }
+    this._lastDimensions.cols = cols;
+    this._lastDimensions.rows = rows;
+    this._proxy.resize(this.id, cols, rows);
+  }
+  async clearBuffer() {
+    this._proxy.clearBuffer?.(this.id);
+  }
+  freePortKillProcess(port) {
+    if (!this._proxy.freePortKillProcess) {
+      throw new Error("freePortKillProcess does not exist on the local pty service");
+    }
+    return this._proxy.freePortKillProcess(port);
+  }
+  async refreshProperty(type) {
+    return this._proxy.refreshProperty(this.id, type);
+  }
+  async updateProperty(type, value) {
+    return this._proxy.updateProperty(this.id, type, value);
+  }
+  acknowledgeDataEvent(charCount) {
+    if (this._inReplay) {
+      return;
+    }
+    this._proxy.acknowledgeDataEvent(this.id, charCount);
+  }
+  setUnicodeVersion(version) {
+    return this._proxy.setUnicodeVersion(this.id, version);
+  }
+  handleOrphanQuestion() {
+    this._proxy.orphanQuestionReply(this.id);
+  }
+}
+export {
+  LocalPty
+};
+//# sourceMappingURL=localPty.js.map

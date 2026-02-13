@@ -1,1 +1,210 @@
-import"./media/notificationsList.css";import{localize as a}from"../../../../nls.js";import{$ as x,getWindow as D,$$8 as g,$w9 as w}from"../../../../base/browser/dom.js";import{$9rb as v}from"../../../../platform/list/browser/listService.js";import{$Mj as F}from"../../../../platform/instantiation/common/instantiation.js";import{$9Ab as A}from"../../../common/theme.js";import{$5Lc as H,$6Lc as T}from"./notificationsViewer.js";import{$4Lc as p}from"./notificationsActions.js";import{$ijb as I}from"../../../../platform/contextview/browser/contextView.js";import{$id as b}from"../../../../base/common/types.js";import{$hP as R}from"../../../common/contextkeys.js";import{$Ed as _}from"../../../../base/common/lifecycle.js";import{$TLc as j}from"./notificationsCommands.js";import{$fy as C}from"../../../../platform/keybinding/common/keybinding.js";import{$0l as M}from"../../../../platform/configuration/common/configuration.js";import{$tH as $}from"../../../../platform/notification/common/notification.js";var L=function(h,t,i,e){var s=arguments.length,o=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(h,t,i,e);else for(var n=h.length-1;n>=0;n--)(c=h[n])&&(o=(s<3?c(o):s>3?c(t,i,o):c(t,i))||o);return s>3&&o&&Object.defineProperty(t,i,o),o},f=function(h,t){return function(i,e){t(i,e,h)}};let y=class extends _{constructor(t,i,e,s){super(),this.h=t,this.j=i,this.m=e,this.n=s,this.f=[]}show(){this.g||(this.b||this.q(),this.g=!0)}q(){this.a=x(".notifications-list-container");const t=this.D(this.m.createInstance(j)),i=this.m.createInstance(T,t),e=this.c=new H(this.a),s=this.j,o=this.b=this.D(this.m.createInstance(v,"NotificationsList",this.a,e,[i],{...s,setRowLineHeight:!1,horizontalScrolling:!1,overrideStyles:{listBackground:A},accessibilityProvider:this.m.createInstance(d,s)})),c=this.D(this.m.createInstance(p,p.ID,p.LABEL));this.D(o.onContextMenu(r=>{r.element&&this.n.showContextMenu({getAnchor:()=>r.anchor,getActions:()=>[c],getActionsContext:()=>r.element,actionRunner:t})})),this.D(o.onMouseDblClick(r=>r.element.toggle()));const n=this.D(w(o.getHTMLElement()));this.D(n.onDidBlur(()=>{D(this.a).document.hasFocus()&&o.setFocus([])})),R.bindTo(o.contextKeyService),this.D(o.onDidChangeSelection(r=>{r.indexes.length>0&&o.setSelection([])})),this.h.appendChild(this.a)}updateNotificationsList(t,i,e=[]){const[s,o]=b(this.b,this.a),c=g(o),n=s.getFocus()[0],r=this.f[n];let u=null;if(typeof n=="number"&&(u=s.getRelativeTop(n)),this.f.splice(t,i,...e),s.splice(t,i,e),s.layout(),this.f.length===0)this.hide();else if(typeof n=="number"){let m=0;if(r){let l=this.f.indexOf(r);l===-1&&(l=n-1),l<this.f.length&&l>=0&&(m=l)}typeof u=="number"&&s.reveal(m,u),s.setFocus([m])}this.g&&c&&s.domFocus()}updateNotificationHeight(t){const i=this.f.indexOf(t);if(i===-1)return;const[e,s]=b(this.b,this.c);e.updateElementHeight(i,s.getHeight(t)),e.layout()}hide(){!this.g||!this.b||(this.g=!1,this.b.splice(0,this.f.length),this.f=[])}focusFirst(){this.b&&(this.b.focusFirst(),this.b.domFocus())}hasFocus(){return this.a?g(this.a):!1}layout(t,i){this.a&&this.b&&(this.a.style.width=`${t}px`,typeof i=="number"&&(this.b.getHTMLElement().style.maxHeight=`${i}px`),this.b.layout())}dispose(){this.hide(),super.dispose()}};y=L([f(2,F),f(3,I)],y);let d=class{constructor(t,i,e){this.a=t,this.b=i,this.c=e}getAriaLabel(t){let i;const e=this.b.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel();return this.c.getValue("accessibility.verbosity.notification")&&(i=e?a(3997,null,e):a(3998,null)),t.source?$(i?a(4001,null,t.message.raw,t.source,i):a(4002,null,t.message.raw,t.source),t.severity):$(i?a(3999,null,t.message.raw,i):a(4e3,null,t.message.raw),t.severity)}getWidgetAriaLabel(){return this.a.widgetAriaLabel??a(4003,null)}getRole(){return"dialog"}};d=L([f(1,C),f(2,M)],d);export{y as $8Lc,d as $9Lc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/notificationsList.css";
+import { localize } from "../../../../nls.js";
+import { $, getWindow, isAncestorOfActiveElement, trackFocus } from "../../../../base/browser/dom.js";
+import { WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { NOTIFICATIONS_BACKGROUND } from "../../../common/theme.js";
+import { NotificationsListDelegate, NotificationRenderer } from "./notificationsViewer.js";
+import { CopyNotificationMessageAction } from "./notificationsActions.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { assertReturnsAllDefined } from "../../../../base/common/types.js";
+import { NotificationFocusedContext } from "../../../common/contextkeys.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { NotificationActionRunner } from "./notificationsCommands.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { withSeverityPrefix } from "../../../../platform/notification/common/notification.js";
+let NotificationsList = class NotificationsList2 extends Disposable {
+  static {
+    __name(this, "NotificationsList");
+  }
+  constructor(container, options, instantiationService, contextMenuService) {
+    super();
+    this.container = container;
+    this.options = options;
+    this.instantiationService = instantiationService;
+    this.contextMenuService = contextMenuService;
+    this.viewModel = [];
+  }
+  show() {
+    if (this.isVisible) {
+      return;
+    }
+    if (!this.list) {
+      this.createNotificationsList();
+    }
+    this.isVisible = true;
+  }
+  createNotificationsList() {
+    this.listContainer = $(".notifications-list-container");
+    const actionRunner = this._register(this.instantiationService.createInstance(NotificationActionRunner));
+    const renderer = this.instantiationService.createInstance(NotificationRenderer, actionRunner);
+    const listDelegate = this.listDelegate = new NotificationsListDelegate(this.listContainer);
+    const options = this.options;
+    const list = this.list = this._register(this.instantiationService.createInstance(WorkbenchList, "NotificationsList", this.listContainer, listDelegate, [renderer], {
+      ...options,
+      setRowLineHeight: false,
+      horizontalScrolling: false,
+      overrideStyles: {
+        listBackground: NOTIFICATIONS_BACKGROUND
+      },
+      accessibilityProvider: this.instantiationService.createInstance(NotificationAccessibilityProvider, options)
+    }));
+    const copyAction = this._register(this.instantiationService.createInstance(CopyNotificationMessageAction, CopyNotificationMessageAction.ID, CopyNotificationMessageAction.LABEL));
+    this._register(list.onContextMenu((e) => {
+      if (!e.element) {
+        return;
+      }
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => [copyAction], "getActions"),
+        getActionsContext: /* @__PURE__ */ __name(() => e.element, "getActionsContext"),
+        actionRunner
+      });
+    }));
+    this._register(list.onMouseDblClick((event) => event.element.toggle()));
+    const listFocusTracker = this._register(trackFocus(list.getHTMLElement()));
+    this._register(listFocusTracker.onDidBlur(() => {
+      if (getWindow(this.listContainer).document.hasFocus()) {
+        list.setFocus([]);
+      }
+    }));
+    NotificationFocusedContext.bindTo(list.contextKeyService);
+    this._register(list.onDidChangeSelection((e) => {
+      if (e.indexes.length > 0) {
+        list.setSelection([]);
+      }
+    }));
+    this.container.appendChild(this.listContainer);
+  }
+  updateNotificationsList(start, deleteCount, items = []) {
+    const [list, listContainer] = assertReturnsAllDefined(this.list, this.listContainer);
+    const listHasDOMFocus = isAncestorOfActiveElement(listContainer);
+    const focusedIndex = list.getFocus()[0];
+    const focusedItem = this.viewModel[focusedIndex];
+    let focusRelativeTop = null;
+    if (typeof focusedIndex === "number") {
+      focusRelativeTop = list.getRelativeTop(focusedIndex);
+    }
+    this.viewModel.splice(start, deleteCount, ...items);
+    list.splice(start, deleteCount, items);
+    list.layout();
+    if (this.viewModel.length === 0) {
+      this.hide();
+    } else if (typeof focusedIndex === "number") {
+      let indexToFocus = 0;
+      if (focusedItem) {
+        let indexToFocusCandidate = this.viewModel.indexOf(focusedItem);
+        if (indexToFocusCandidate === -1) {
+          indexToFocusCandidate = focusedIndex - 1;
+        }
+        if (indexToFocusCandidate < this.viewModel.length && indexToFocusCandidate >= 0) {
+          indexToFocus = indexToFocusCandidate;
+        }
+      }
+      if (typeof focusRelativeTop === "number") {
+        list.reveal(indexToFocus, focusRelativeTop);
+      }
+      list.setFocus([indexToFocus]);
+    }
+    if (this.isVisible && listHasDOMFocus) {
+      list.domFocus();
+    }
+  }
+  updateNotificationHeight(item) {
+    const index = this.viewModel.indexOf(item);
+    if (index === -1) {
+      return;
+    }
+    const [list, listDelegate] = assertReturnsAllDefined(this.list, this.listDelegate);
+    list.updateElementHeight(index, listDelegate.getHeight(item));
+    list.layout();
+  }
+  hide() {
+    if (!this.isVisible || !this.list) {
+      return;
+    }
+    this.isVisible = false;
+    this.list.splice(0, this.viewModel.length);
+    this.viewModel = [];
+  }
+  focusFirst() {
+    if (!this.list) {
+      return;
+    }
+    this.list.focusFirst();
+    this.list.domFocus();
+  }
+  hasFocus() {
+    if (!this.listContainer) {
+      return false;
+    }
+    return isAncestorOfActiveElement(this.listContainer);
+  }
+  layout(width, maxHeight) {
+    if (this.listContainer && this.list) {
+      this.listContainer.style.width = `${width}px`;
+      if (typeof maxHeight === "number") {
+        this.list.getHTMLElement().style.maxHeight = `${maxHeight}px`;
+      }
+      this.list.layout();
+    }
+  }
+  dispose() {
+    this.hide();
+    super.dispose();
+  }
+};
+NotificationsList = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IContextMenuService)
+], NotificationsList);
+let NotificationAccessibilityProvider = class NotificationAccessibilityProvider2 {
+  static {
+    __name(this, "NotificationAccessibilityProvider");
+  }
+  constructor(_options, _keybindingService, _configurationService) {
+    this._options = _options;
+    this._keybindingService = _keybindingService;
+    this._configurationService = _configurationService;
+  }
+  getAriaLabel(element) {
+    let accessibleViewHint;
+    const keybinding = this._keybindingService.lookupKeybinding("editor.action.accessibleView")?.getAriaLabel();
+    if (this._configurationService.getValue("accessibility.verbosity.notification")) {
+      accessibleViewHint = keybinding ? localize("notificationAccessibleViewHint", "Inspect the response in the accessible view with {0}", keybinding) : localize("notificationAccessibleViewHintNoKb", "Inspect the response in the accessible view via the command Open Accessible View which is currently not triggerable via keybinding");
+    }
+    if (!element.source) {
+      return withSeverityPrefix(accessibleViewHint ? localize("notificationAriaLabelHint", "{0}, notification, {1}", element.message.raw, accessibleViewHint) : localize("notificationAriaLabel", "{0}, notification", element.message.raw), element.severity);
+    }
+    return withSeverityPrefix(accessibleViewHint ? localize("notificationWithSourceAriaLabelHint", "{0}, source: {1}, notification, {2}", element.message.raw, element.source, accessibleViewHint) : localize("notificationWithSourceAriaLabel", "{0}, source: {1}, notification", element.message.raw, element.source), element.severity);
+  }
+  getWidgetAriaLabel() {
+    return this._options.widgetAriaLabel ?? localize("notificationsList", "Notifications List");
+  }
+  getRole() {
+    return "dialog";
+  }
+};
+NotificationAccessibilityProvider = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IConfigurationService)
+], NotificationAccessibilityProvider);
+export {
+  NotificationAccessibilityProvider,
+  NotificationsList
+};
+//# sourceMappingURL=notificationsList.js.map

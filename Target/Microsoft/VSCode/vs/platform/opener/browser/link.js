@@ -1,1 +1,112 @@
-import{$ as v,$y9 as $,$t9 as x,$t8 as D}from"../../../base/browser/dom.js";import{$30 as l}from"../../../base/browser/event.js";import{$n8 as w}from"../../../base/browser/keyboardEvent.js";import{EventType as E,$89 as _}from"../../../base/browser/touch.js";import{Event as c}from"../../../base/common/event.js";import{$Ed as j}from"../../../base/common/lifecycle.js";import{$EP as I}from"../common/opener.js";import"./link.css";import{$u0 as C}from"../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$jkb as T}from"../../hover/browser/hover.js";var y=function(r,t,e,i){var a=arguments.length,s=a<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,i);else for(var o=r.length-1;o>=0;o--)(n=r[o])&&(s=(a<3?n(s):a>3?n(t,e,s):n(t,e))||s);return a>3&&s&&Object.defineProperty(t,e,s),s},p=function(r,t){return function(e,i){t(e,i,r)}};let u=class extends j{get enabled(){return this.f}set enabled(t){t?(this.a.setAttribute("aria-disabled","false"),this.a.tabIndex=0,this.a.style.pointerEvents="auto",this.a.style.opacity="1",this.a.style.cursor="pointer",this.f=!1):(this.a.setAttribute("aria-disabled","true"),this.a.tabIndex=-1,this.a.style.pointerEvents="none",this.a.style.opacity="0.4",this.a.style.cursor="default",this.f=!0),this.f=t}set link(t){typeof t.label=="string"?this.a.textContent=t.label:(D(this.a),this.a.appendChild(t.label)),this.a.href=t.href,typeof t.tabIndex<"u"&&(this.a.tabIndex=t.tabIndex),this.j(t.title),this.g=t}constructor(t,e,i={},a,s){super(),this.g=e,this.h=a,this.f=!0,this.a=$(t,v("a.monaco-link",{tabIndex:e.tabIndex??0,href:e.href},e.label)),this.c=i.hoverDelegate??C("mouse"),this.j(e.title),this.a.setAttribute("role","button");const n=this.D(new l(this.a,"click")),o=this.D(new l(this.a,"keydown")),d=c.chain(o.event,f=>f.map(h=>new w(h)).filter(h=>h.keyCode===3||h.keyCode===10)),b=this.D(new l(this.a,E.Tap)).event;this.D(_.addTarget(this.a));const m=c.any(n.event,d,b);this.D(m(f=>{this.enabled&&(x.stop(f,!0),i?.opener?i.opener(this.g.href):s.open(this.g.href,{allowCommands:!0}))})),this.enabled=!0}j(t){!this.b&&t?this.b=this.D(this.h.setupManagedHover(this.c,this.a,t)):this.b&&this.b.update(t)}};u=y([p(3,T),p(4,I)],u);export{u as Link};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, append, EventHelper, clearNode } from "../../../base/browser/dom.js";
+import { DomEmitter } from "../../../base/browser/event.js";
+import { StandardKeyboardEvent } from "../../../base/browser/keyboardEvent.js";
+import { EventType as TouchEventType, Gesture } from "../../../base/browser/touch.js";
+import { Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IOpenerService } from "../common/opener.js";
+import "./link.css";
+import { getDefaultHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IHoverService } from "../../hover/browser/hover.js";
+let Link = class Link2 extends Disposable {
+  static {
+    __name(this, "Link");
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(enabled) {
+    if (enabled) {
+      this.el.setAttribute("aria-disabled", "false");
+      this.el.tabIndex = 0;
+      this.el.style.pointerEvents = "auto";
+      this.el.style.opacity = "1";
+      this.el.style.cursor = "pointer";
+      this._enabled = false;
+    } else {
+      this.el.setAttribute("aria-disabled", "true");
+      this.el.tabIndex = -1;
+      this.el.style.pointerEvents = "none";
+      this.el.style.opacity = "0.4";
+      this.el.style.cursor = "default";
+      this._enabled = true;
+    }
+    this._enabled = enabled;
+  }
+  set link(link) {
+    if (typeof link.label === "string") {
+      this.el.textContent = link.label;
+    } else {
+      clearNode(this.el);
+      this.el.appendChild(link.label);
+    }
+    this.el.href = link.href;
+    if (typeof link.tabIndex !== "undefined") {
+      this.el.tabIndex = link.tabIndex;
+    }
+    this.setTooltip(link.title);
+    this._link = link;
+  }
+  constructor(container, _link, options = {}, _hoverService, openerService) {
+    super();
+    this._link = _link;
+    this._hoverService = _hoverService;
+    this._enabled = true;
+    this.el = append(container, $("a.monaco-link", {
+      tabIndex: _link.tabIndex ?? 0,
+      href: _link.href
+    }, _link.label));
+    this.hoverDelegate = options.hoverDelegate ?? getDefaultHoverDelegate("mouse");
+    this.setTooltip(_link.title);
+    this.el.setAttribute("role", "button");
+    const onClickEmitter = this._register(new DomEmitter(this.el, "click"));
+    const onKeyDown = this._register(new DomEmitter(this.el, "keydown"));
+    const onKeyActivate = Event.chain(onKeyDown.event, ($2) => $2.map((e) => new StandardKeyboardEvent(e)).filter(
+      (e) => e.keyCode === 3 || e.keyCode === 10
+      /* KeyCode.Space */
+    ));
+    const onTap = this._register(new DomEmitter(this.el, TouchEventType.Tap)).event;
+    this._register(Gesture.addTarget(this.el));
+    const onOpen = Event.any(onClickEmitter.event, onKeyActivate, onTap);
+    this._register(onOpen((e) => {
+      if (!this.enabled) {
+        return;
+      }
+      EventHelper.stop(e, true);
+      if (options?.opener) {
+        options.opener(this._link.href);
+      } else {
+        openerService.open(this._link.href, { allowCommands: true });
+      }
+    }));
+    this.enabled = true;
+  }
+  setTooltip(title) {
+    if (!this.hover && title) {
+      this.hover = this._register(this._hoverService.setupManagedHover(this.hoverDelegate, this.el, title));
+    } else if (this.hover) {
+      this.hover.update(title);
+    }
+  }
+};
+Link = __decorate([
+  __param(3, IHoverService),
+  __param(4, IOpenerService)
+], Link);
+export {
+  Link
+};
+//# sourceMappingURL=link.js.map

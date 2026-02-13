@@ -1,1 +1,38 @@
-import{$Ed as l}from"../../../base/common/lifecycle.js";import{$hob as p}from"../../../platform/dataChannel/common/dataChannel.js";import{$vDb as m}from"../../services/extensions/common/extHostCustomers.js";import{$Y1 as u,$X1 as b}from"../common/extHost.protocol.js";var h=function(o,t,e,n){var a=arguments.length,r=a<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,t,e,n);else for(var f=o.length-1;f>=0;f--)(i=o[f])&&(r=(a<3?i(r):a>3?i(t,e,r):i(t,e))||r);return a>3&&r&&Object.defineProperty(t,e,r),r},s=function(o,t){return function(e,n){t(e,n,o)}};let c=class extends l{constructor(t,e){super(),this.b=e,this.a=t.getProxy(u.ExtHostDataChannels),this.D(this.b.onDidSendData(n=>{this.a.$onDidReceiveData(n.channelId,n.data)}))}};c=h([m(b.MainThreadDataChannels),s(1,p)],c);export{c as $T0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IDataChannelService } from "../../../platform/dataChannel/common/dataChannel.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+let MainThreadDataChannels = class MainThreadDataChannels2 extends Disposable {
+  static {
+    __name(this, "MainThreadDataChannels");
+  }
+  constructor(extHostContext, _dataChannelService) {
+    super();
+    this._dataChannelService = _dataChannelService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDataChannels);
+    this._register(this._dataChannelService.onDidSendData((e) => {
+      this._proxy.$onDidReceiveData(e.channelId, e.data);
+    }));
+  }
+};
+MainThreadDataChannels = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadDataChannels),
+  __param(1, IDataChannelService)
+], MainThreadDataChannels);
+export {
+  MainThreadDataChannels
+};
+//# sourceMappingURL=mainThreadDataChannels.js.map

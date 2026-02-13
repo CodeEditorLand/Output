@@ -1,1 +1,43 @@
-import{$XA as u,$ZA as a}from"../common/userDataProfileStorageService.js";import{$WC as $}from"../../instantiation/common/extensions.js";import{$hp as s}from"../../storage/common/storage.js";import{$yo as _}from"../../log/common/log.js";import{$ap as h}from"../common/userDataProfile.js";import{$UPc as v}from"../../ipc/common/mainProcessService.js";var l=function(f,r,t,o){var n=arguments.length,e=n<3?r:o===null?o=Object.getOwnPropertyDescriptor(r,t):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,r,t,o);else for(var i=f.length-1;i>=0;i--)(c=f[i])&&(e=(n<3?c(e):n>3?c(r,t,e):c(r,t))||e);return n>3&&e&&Object.defineProperty(r,t,e),e},p=function(f,r){return function(t,o){r(t,o,f)}};let m=class extends a{constructor(r,t,o,n){super(!1,r,t,o,n)}};m=l([p(0,v),p(1,h),p(2,s),p(3,_)],m);$(u,m,1);export{m as $eVc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IUserDataProfileStorageService, RemoteUserDataProfileStorageService } from "../common/userDataProfileStorageService.js";
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+let NativeUserDataProfileStorageService = class NativeUserDataProfileStorageService2 extends RemoteUserDataProfileStorageService {
+  static {
+    __name(this, "NativeUserDataProfileStorageService");
+  }
+  constructor(mainProcessService, userDataProfilesService, storageService, logService) {
+    super(false, mainProcessService, userDataProfilesService, storageService, logService);
+  }
+};
+NativeUserDataProfileStorageService = __decorate([
+  __param(0, IMainProcessService),
+  __param(1, IUserDataProfilesService),
+  __param(2, IStorageService),
+  __param(3, ILogService)
+], NativeUserDataProfileStorageService);
+registerSingleton(
+  IUserDataProfileStorageService,
+  NativeUserDataProfileStorageService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  NativeUserDataProfileStorageService
+};
+//# sourceMappingURL=userDataProfileStorageService.js.map

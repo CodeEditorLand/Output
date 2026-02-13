@@ -1,1 +1,40 @@
-import{$hd as f}from"../types.js";import{$Md as h}from"../lifecycle.js";import{$Jf as r,CancellationToken as d}from"../cancellation.js";function m(p,o,i){const c=i.value;f(c,`Method '${o}' is not defined.`);const n=new WeakMap;return i.value=function(...e){let t=n.get(this);t||(t=new h,n.set(this,t),this.D({dispose:()=>{n.get(this)?.dispose(),n.delete(this)}})),t.get(o)?.dispose(!0);const l=e.length>0?e[e.length-1]:void 0,u=d.isCancellationToken(l)?l:void 0,s=new r(u);return t.set(o,s),d.isCancellationToken(l)?e[e.length-1]=s.token:e.push(s.token),c.call(this,...e)},i}export{m as $Ym};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertDefined } from "../types.js";
+import { DisposableMap } from "../lifecycle.js";
+import { CancellationTokenSource, CancellationToken } from "../cancellation.js";
+function cancelPreviousCalls(_proto, methodName, descriptor) {
+  const originalMethod = descriptor.value;
+  assertDefined(originalMethod, `Method '${methodName}' is not defined.`);
+  const objectRecords = /* @__PURE__ */ new WeakMap();
+  descriptor.value = function(...args) {
+    let record = objectRecords.get(this);
+    if (!record) {
+      record = new DisposableMap();
+      objectRecords.set(this, record);
+      this._register({
+        dispose: /* @__PURE__ */ __name(() => {
+          objectRecords.get(this)?.dispose();
+          objectRecords.delete(this);
+        }, "dispose")
+      });
+    }
+    record.get(methodName)?.dispose(true);
+    const lastArgument = args.length > 0 ? args[args.length - 1] : void 0;
+    const token = CancellationToken.isCancellationToken(lastArgument) ? lastArgument : void 0;
+    const cancellationSource = new CancellationTokenSource(token);
+    record.set(methodName, cancellationSource);
+    if (CancellationToken.isCancellationToken(lastArgument)) {
+      args[args.length - 1] = cancellationSource.token;
+    } else {
+      args.push(cancellationSource.token);
+    }
+    return originalMethod.call(this, ...args);
+  };
+  return descriptor;
+}
+__name(cancelPreviousCalls, "cancelPreviousCalls");
+export {
+  cancelPreviousCalls
+};
+//# sourceMappingURL=cancelPreviousCalls.js.map

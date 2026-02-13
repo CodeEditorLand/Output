@@ -1,1 +1,40 @@
-import{$bk as a}from"../../../../../../../base/common/codicons.js";import{$Mj as b}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$g4b as h}from"../chatReferencesContentPart.js";import{$o3b as u}from"./chatToolInvocationSubPart.js";import{$T2b as d}from"./chatToolPartUtilities.js";var s=function(c,e,t,o){var n=arguments.length,r=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,e,t,o);else for(var f=c.length-1;f>=0;f--)(i=c[f])&&(r=(n<3?i(r):n>3?i(e,t,r):i(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},l=function(c,e){return function(t,o){e(t,o,c)}};let m=class extends u{constructor(e,t,o,n,r,i){super(e),this.codeblocks=[];const f=this.D(i.createInstance(h,n.map(p=>({kind:"reference",reference:p})),o,t,r,d(e)));f.icon=a.check,this.domNode=f.domNode}};m=s([l(5,b)],m);export{m as $E3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../../../base/common/codicons.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { ChatCollapsibleListContentPart } from "../chatReferencesContentPart.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+import { getToolApprovalMessage } from "./chatToolPartUtilities.js";
+let ChatResultListSubPart = class ChatResultListSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatResultListSubPart");
+  }
+  constructor(toolInvocation, context, message, toolDetails, listPool, instantiationService) {
+    super(toolInvocation);
+    this.codeblocks = [];
+    const collapsibleListPart = this._register(instantiationService.createInstance(ChatCollapsibleListContentPart, toolDetails.map((detail) => ({
+      kind: "reference",
+      reference: detail
+    })), message, context, listPool, getToolApprovalMessage(toolInvocation)));
+    collapsibleListPart.icon = Codicon.check;
+    this.domNode = collapsibleListPart.domNode;
+  }
+};
+ChatResultListSubPart = __decorate([
+  __param(5, IInstantiationService)
+], ChatResultListSubPart);
+export {
+  ChatResultListSubPart
+};
+//# sourceMappingURL=chatResultListSubPart.js.map

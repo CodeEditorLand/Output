@@ -1,1 +1,252 @@
-import{$Nj as g}from"../../../../platform/instantiation/common/instantiation.js";import{$xf as l}from"../../../../base/common/event.js";import{$Ed as D}from"../../../../base/common/lifecycle.js";import{BrowserViewStorageScope as d}from"../../../../platform/browserView/common/browserView.js";import{$Ml as f}from"../../../../platform/workspace/common/workspace.js";import{$pp as p}from"../../../../platform/telemetry/common/telemetry.js";import{$NB as m}from"../../../../platform/url/common/trustedDomains.js";import{$0l as y}from"../../../../platform/configuration/common/configuration.js";import{$2H as w}from"../../../../platform/workspace/common/workspaceTrust.js";var u=function(h,t,s,n){var r=arguments.length,e=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,s):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(h,t,s,n);else for(var a=h.length-1;a>=0;a--)(i=h[a])&&(e=(r<3?i(e):r>3?i(t,s,e):i(t,s))||e);return r>3&&e&&Object.defineProperty(t,s,e),e},o=function(h,t){return function(s,n){t(s,n,h)}};const L=g("browserViewWorkbenchService");let c=class extends D{constructor(t,s,n,r,e,i){super(),this.id=t,this.u=s,this.w=n,this.y=r,this.z=e,this.C=i,this.a="",this.b="",this.c=void 0,this.f=void 0,this.g=!1,this.h=!1,this.j=!1,this.m=!1,this.n=!1,this.q=!1,this.r=void 0,this.s=d.Ephemeral,this.t=this.D(new l),this.onWillDispose=this.t.event}get url(){return this.a}get title(){return this.b}get favicon(){return this.c}get loading(){return this.g}get focused(){return this.h}get visible(){return this.j}get isDevToolsOpen(){return this.m}get canGoBack(){return this.n}get canGoForward(){return this.q}get screenshot(){return this.f}get error(){return this.r}get storageScope(){return this.s}get onDidNavigate(){return this.u.onDynamicDidNavigate(this.id)}get onDidChangeLoadingState(){return this.u.onDynamicDidChangeLoadingState(this.id)}get onDidChangeFocus(){return this.u.onDynamicDidChangeFocus(this.id)}get onDidChangeDevToolsState(){return this.u.onDynamicDidChangeDevToolsState(this.id)}get onDidKeyCommand(){return this.u.onDynamicDidKeyCommand(this.id)}get onDidChangeTitle(){return this.u.onDynamicDidChangeTitle(this.id)}get onDidChangeFavicon(){return this.u.onDynamicDidChangeFavicon(this.id)}get onDidRequestNewPage(){return this.u.onDynamicDidRequestNewPage(this.id)}get onDidFindInPage(){return this.u.onDynamicDidFindInPage(this.id)}get onDidChangeVisibility(){return this.u.onDynamicDidChangeVisibility(this.id)}get onDidClose(){return this.u.onDynamicDidClose(this.id)}async initialize(){const t=this.C.getValue("workbench.browser.dataStorage")??d.Global;await this.y.workspaceTrustInitialized;const n=this.w.getWorkbenchState()!==1&&!this.y.isWorkspaceTrusted()?d.Ephemeral:t,r=this.w.getWorkspace().id,e=await this.u.getOrCreateBrowserView(this.id,n,r);this.a=e.url,this.b=e.title,this.g=e.loading,this.h=e.focused,this.j=e.visible,this.m=e.isDevToolsOpen,this.n=e.canGoBack,this.q=e.canGoForward,this.f=e.lastScreenshot,this.c=e.lastFavicon,this.r=e.lastError,this.s=e.storageScope,this.D(this.onDidNavigate(i=>{URL.parse(i.url)?.host!==URL.parse(this.a)?.host&&(this.c=void 0),this.a=i.url,this.n=i.canGoBack,this.q=i.canGoForward})),this.D(this.onDidChangeLoadingState(i=>{this.g=i.loading,this.r=i.error})),this.D(this.onDidChangeDevToolsState(i=>{this.m=i.isDevToolsOpen})),this.D(this.onDidChangeTitle(i=>{this.b=i.title})),this.D(this.onDidChangeFavicon(i=>{this.c=i.favicon})),this.D(this.onDidChangeFocus(({focused:i})=>{this.h=i})),this.D(this.onDidChangeVisibility(({visible:i})=>{this.j=i}))}async layout(t){return this.u.layout(this.id,t)}async setVisible(t){return this.j=t,this.u.setVisible(this.id,t)}async loadURL(t){return this.F("urlInput",t),this.u.loadURL(this.id,t)}async goBack(){return this.F("goBack",this.a),this.u.goBack(this.id)}async goForward(){return this.F("goForward",this.a),this.u.goForward(this.id)}async reload(){return this.F("reload",this.a),this.u.reload(this.id)}async toggleDevTools(){return this.u.toggleDevTools(this.id)}async captureScreenshot(t){const s=await this.u.captureScreenshot(this.id,t);return t?.rect||(this.f=s),s}async dispatchKeyEvent(t){return this.u.dispatchKeyEvent(this.id,t)}async focus(){return this.u.focus(this.id)}async findInPage(t,s){return this.u.findInPage(this.id,t,s)}async stopFindInPage(t){return this.u.stopFindInPage(this.id,t)}async getSelectedText(){return this.u.getSelectedText(this.id)}async clearStorage(){return this.u.clearStorage(this.id)}F(t,s){let n;try{n=m(new URL(s).host)}catch{n=!1}this.z.publicLog2("integratedBrowser.navigation",{navigationType:t,isLocalhost:n})}dispose(){this.t.fire(),this.u.destroyBrowserView(this.id),super.dispose()}};c=u([o(2,f),o(3,w),o(4,p),o(5,y)],c);export{L as $mXc,c as $nXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { BrowserViewStorageScope } from "../../../../platform/browserView/common/browserView.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { isLocalhostAuthority } from "../../../../platform/url/common/trustedDomains.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+const IBrowserViewWorkbenchService = createDecorator("browserViewWorkbenchService");
+let BrowserViewModel = class BrowserViewModel2 extends Disposable {
+  static {
+    __name(this, "BrowserViewModel");
+  }
+  constructor(id, browserViewService, workspaceContextService, workspaceTrustManagementService, telemetryService, configurationService) {
+    super();
+    this.id = id;
+    this.browserViewService = browserViewService;
+    this.workspaceContextService = workspaceContextService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.telemetryService = telemetryService;
+    this.configurationService = configurationService;
+    this._url = "";
+    this._title = "";
+    this._favicon = void 0;
+    this._screenshot = void 0;
+    this._loading = false;
+    this._focused = false;
+    this._visible = false;
+    this._isDevToolsOpen = false;
+    this._canGoBack = false;
+    this._canGoForward = false;
+    this._error = void 0;
+    this._storageScope = BrowserViewStorageScope.Ephemeral;
+    this._onWillDispose = this._register(new Emitter());
+    this.onWillDispose = this._onWillDispose.event;
+  }
+  get url() {
+    return this._url;
+  }
+  get title() {
+    return this._title;
+  }
+  get favicon() {
+    return this._favicon;
+  }
+  get loading() {
+    return this._loading;
+  }
+  get focused() {
+    return this._focused;
+  }
+  get visible() {
+    return this._visible;
+  }
+  get isDevToolsOpen() {
+    return this._isDevToolsOpen;
+  }
+  get canGoBack() {
+    return this._canGoBack;
+  }
+  get canGoForward() {
+    return this._canGoForward;
+  }
+  get screenshot() {
+    return this._screenshot;
+  }
+  get error() {
+    return this._error;
+  }
+  get storageScope() {
+    return this._storageScope;
+  }
+  get onDidNavigate() {
+    return this.browserViewService.onDynamicDidNavigate(this.id);
+  }
+  get onDidChangeLoadingState() {
+    return this.browserViewService.onDynamicDidChangeLoadingState(this.id);
+  }
+  get onDidChangeFocus() {
+    return this.browserViewService.onDynamicDidChangeFocus(this.id);
+  }
+  get onDidChangeDevToolsState() {
+    return this.browserViewService.onDynamicDidChangeDevToolsState(this.id);
+  }
+  get onDidKeyCommand() {
+    return this.browserViewService.onDynamicDidKeyCommand(this.id);
+  }
+  get onDidChangeTitle() {
+    return this.browserViewService.onDynamicDidChangeTitle(this.id);
+  }
+  get onDidChangeFavicon() {
+    return this.browserViewService.onDynamicDidChangeFavicon(this.id);
+  }
+  get onDidRequestNewPage() {
+    return this.browserViewService.onDynamicDidRequestNewPage(this.id);
+  }
+  get onDidFindInPage() {
+    return this.browserViewService.onDynamicDidFindInPage(this.id);
+  }
+  get onDidChangeVisibility() {
+    return this.browserViewService.onDynamicDidChangeVisibility(this.id);
+  }
+  get onDidClose() {
+    return this.browserViewService.onDynamicDidClose(this.id);
+  }
+  /**
+   * Initialize the model with the current state from the main process
+   */
+  async initialize() {
+    const dataStorageSetting = this.configurationService.getValue("workbench.browser.dataStorage") ?? BrowserViewStorageScope.Global;
+    await this.workspaceTrustManagementService.workspaceTrustInitialized;
+    const isWorkspaceUntrusted = this.workspaceContextService.getWorkbenchState() !== 1 && !this.workspaceTrustManagementService.isWorkspaceTrusted();
+    const dataStorage = isWorkspaceUntrusted ? BrowserViewStorageScope.Ephemeral : dataStorageSetting;
+    const workspaceId = this.workspaceContextService.getWorkspace().id;
+    const state = await this.browserViewService.getOrCreateBrowserView(this.id, dataStorage, workspaceId);
+    this._url = state.url;
+    this._title = state.title;
+    this._loading = state.loading;
+    this._focused = state.focused;
+    this._visible = state.visible;
+    this._isDevToolsOpen = state.isDevToolsOpen;
+    this._canGoBack = state.canGoBack;
+    this._canGoForward = state.canGoForward;
+    this._screenshot = state.lastScreenshot;
+    this._favicon = state.lastFavicon;
+    this._error = state.lastError;
+    this._storageScope = state.storageScope;
+    this._register(this.onDidNavigate((e) => {
+      if (URL.parse(e.url)?.host !== URL.parse(this._url)?.host) {
+        this._favicon = void 0;
+      }
+      this._url = e.url;
+      this._canGoBack = e.canGoBack;
+      this._canGoForward = e.canGoForward;
+    }));
+    this._register(this.onDidChangeLoadingState((e) => {
+      this._loading = e.loading;
+      this._error = e.error;
+    }));
+    this._register(this.onDidChangeDevToolsState((e) => {
+      this._isDevToolsOpen = e.isDevToolsOpen;
+    }));
+    this._register(this.onDidChangeTitle((e) => {
+      this._title = e.title;
+    }));
+    this._register(this.onDidChangeFavicon((e) => {
+      this._favicon = e.favicon;
+    }));
+    this._register(this.onDidChangeFocus(({ focused }) => {
+      this._focused = focused;
+    }));
+    this._register(this.onDidChangeVisibility(({ visible }) => {
+      this._visible = visible;
+    }));
+  }
+  async layout(bounds) {
+    return this.browserViewService.layout(this.id, bounds);
+  }
+  async setVisible(visible) {
+    this._visible = visible;
+    return this.browserViewService.setVisible(this.id, visible);
+  }
+  async loadURL(url) {
+    this.logNavigationTelemetry("urlInput", url);
+    return this.browserViewService.loadURL(this.id, url);
+  }
+  async goBack() {
+    this.logNavigationTelemetry("goBack", this._url);
+    return this.browserViewService.goBack(this.id);
+  }
+  async goForward() {
+    this.logNavigationTelemetry("goForward", this._url);
+    return this.browserViewService.goForward(this.id);
+  }
+  async reload() {
+    this.logNavigationTelemetry("reload", this._url);
+    return this.browserViewService.reload(this.id);
+  }
+  async toggleDevTools() {
+    return this.browserViewService.toggleDevTools(this.id);
+  }
+  async captureScreenshot(options) {
+    const result = await this.browserViewService.captureScreenshot(this.id, options);
+    if (!options?.rect) {
+      this._screenshot = result;
+    }
+    return result;
+  }
+  async dispatchKeyEvent(keyEvent) {
+    return this.browserViewService.dispatchKeyEvent(this.id, keyEvent);
+  }
+  async focus() {
+    return this.browserViewService.focus(this.id);
+  }
+  async findInPage(text, options) {
+    return this.browserViewService.findInPage(this.id, text, options);
+  }
+  async stopFindInPage(keepSelection) {
+    return this.browserViewService.stopFindInPage(this.id, keepSelection);
+  }
+  async getSelectedText() {
+    return this.browserViewService.getSelectedText(this.id);
+  }
+  async clearStorage() {
+    return this.browserViewService.clearStorage(this.id);
+  }
+  /**
+   * Log navigation telemetry event
+   */
+  logNavigationTelemetry(navigationType, url) {
+    let localhost;
+    try {
+      localhost = isLocalhostAuthority(new URL(url).host);
+    } catch {
+      localhost = false;
+    }
+    this.telemetryService.publicLog2("integratedBrowser.navigation", {
+      navigationType,
+      isLocalhost: localhost
+    });
+  }
+  dispose() {
+    this._onWillDispose.fire();
+    void this.browserViewService.destroyBrowserView(this.id);
+    super.dispose();
+  }
+};
+BrowserViewModel = __decorate([
+  __param(2, IWorkspaceContextService),
+  __param(3, IWorkspaceTrustManagementService),
+  __param(4, ITelemetryService),
+  __param(5, IConfigurationService)
+], BrowserViewModel);
+export {
+  BrowserViewModel,
+  IBrowserViewWorkbenchService
+};
+//# sourceMappingURL=browserView.js.map

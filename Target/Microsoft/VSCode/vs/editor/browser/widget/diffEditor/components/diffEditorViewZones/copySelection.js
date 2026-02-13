@@ -1,1 +1,41 @@
-import{$u8 as D}from"../../../../../../base/browser/dom.js";import{$Dd as N}from"../../../../../../base/common/lifecycle.js";import{$_D as m}from"../../../../../common/core/range.js";function y(u){const{domNode:r,renderLinesResult:i,diffEntry:s,originalModel:g,clipboardService:p}=u,a=new N;return a.add(D(r,"copy",E=>{E.preventDefault();const t=r.ownerDocument.getSelection();if(!t||t.rangeCount===0)return;const e=t.getRangeAt(0);if(!e||e.collapsed)return;const d=e.startContainer.nodeType===Node.TEXT_NODE?e.startContainer.parentElement:e.startContainer,l=e.endContainer.nodeType===Node.TEXT_NODE?e.endContainer.parentElement:e.endContainer;if(!d||!l)return;const c=i.getModelPositionAt(d,e.startOffset),f=i.getModelPositionAt(l,e.endOffset);if(!c||!f)return;const n=c.delta(s.original.startLineNumber-1),o=f.delta(s.original.startLineNumber-1),T=o.isBefore(n)?m.fromPositions(o,n):m.fromPositions(n,o),C=g.getValueInRange(T);p.writeText(C)})),a}export{y as $njb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addDisposableListener } from "../../../../../../base/browser/dom.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { Range } from "../../../../../common/core/range.js";
+function enableCopySelection(options) {
+  const { domNode, renderLinesResult, diffEntry, originalModel, clipboardService } = options;
+  const viewZoneDisposable = new DisposableStore();
+  viewZoneDisposable.add(addDisposableListener(domNode, "copy", (e) => {
+    e.preventDefault();
+    const selection = domNode.ownerDocument.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      return;
+    }
+    const domRange = selection.getRangeAt(0);
+    if (!domRange || domRange.collapsed) {
+      return;
+    }
+    const startElement = domRange.startContainer.nodeType === Node.TEXT_NODE ? domRange.startContainer.parentElement : domRange.startContainer;
+    const endElement = domRange.endContainer.nodeType === Node.TEXT_NODE ? domRange.endContainer.parentElement : domRange.endContainer;
+    if (!startElement || !endElement) {
+      return;
+    }
+    const startPosition = renderLinesResult.getModelPositionAt(startElement, domRange.startOffset);
+    const endPosition = renderLinesResult.getModelPositionAt(endElement, domRange.endOffset);
+    if (!startPosition || !endPosition) {
+      return;
+    }
+    const adjustedStart = startPosition.delta(diffEntry.original.startLineNumber - 1);
+    const adjustedEnd = endPosition.delta(diffEntry.original.startLineNumber - 1);
+    const range = adjustedEnd.isBefore(adjustedStart) ? Range.fromPositions(adjustedEnd, adjustedStart) : Range.fromPositions(adjustedStart, adjustedEnd);
+    const selectedText = originalModel.getValueInRange(range);
+    clipboardService.writeText(selectedText);
+  }));
+  return viewZoneDisposable;
+}
+__name(enableCopySelection, "enableCopySelection");
+export {
+  enableCopySelection
+};
+//# sourceMappingURL=copySelection.js.map

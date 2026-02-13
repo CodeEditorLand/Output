@@ -1,1 +1,235 @@
-import{$Zh as b}from"../../../../base/common/async.js";import{CancellationToken as f}from"../../../../base/common/cancellation.js";import{localize as p}from"../../../../nls.js";import{$qo as t}from"../../../../platform/contextkey/common/contextkey.js";import{$Nj as u}from"../../../../platform/instantiation/common/instantiation.js";const R=u("preferencesSearchService"),K="workbench.preferences.action.openPreferencesEditor",A=new t("inPreferencesSearch",!1),T="settings.action.clearSearchResults",C="settings.action.showAIResults",N="settings.action.toggleAiSearch",j="settings.action.showContextMenu",F="settings.action.suggestFilters",I=new t("inSettingsEditor",!1),M=new t("inSettingsJSONEditor",!1),P=new t("inSettingsSearch",!1),z=new t("settingsTocRowFocus",!1),O=new t("settingRowFocus",!1),_=new t("inKeybindings",!1),J=new t("inKeybindingsSearch",!1),L=new t("keybindingsSearchHasValue",!1),U=new t("keybindingFocus",!1),W=new t("whenFocus",!1),Z=new t("aiSettingResultsAvailable",!1),q="keybindings.editor.searchKeybindings",v="keybindings.editor.clearSearchResults",B="keybindings.editor.clearSearchHistory",G="keybindings.editor.recordSearchKeys",H="keybindings.editor.toggleSortByPrecedence",D="keybindings.editor.defineKeybinding",X="keybindings.editor.addKeybinding",V="keybindings.editor.defineWhenExpression",Q="keybindings.editor.acceptWhenExpression",Y="keybindings.editor.rejectWhenExpression",ee="keybindings.editor.removeKeybinding",ne="keybindings.editor.resetKeybinding",te="keybindings.editor.copyKeybindingEntry",oe="keybindings.editor.copyCommandKeybindingEntry",se="keybindings.editor.copyCommandTitle",ce="keybindings.editor.showConflicts",re="keybindings.editor.focusKeybindings",ie="keybindings.editor.showDefaultKeybindings",de="keybindings.editor.showUserKeybindings",ae="keybindings.editor.showExtensionKeybindings",pe="modified",xe="ext:",le="feature:",ge="id:",$e="lang:",be="tag:",fe="hasPolicy",ue="workspaceTrust",ye="requireTrustedWorkspace",he="advanced",we="workbench.action.openKeyboardLayoutPicker",me=!0,y=!0,h=1e3,ke="local",Se="tfIdf",Ee="filterModel",Re="embeddingsFull",Ke="llmRanked";var l;(function(e){e.ShowAISearchToggle="workbench.settings.showAISearchToggle",e.EnableNaturalLanguageSearch="workbench.settings.enableNaturalLanguageSearch"})(l||(l={}));let d;async function Ae(e,n,o){if(y&&n.isEnabled()&&!(e.sentiment.hidden||e.sentiment.disabled)){if(d)return d;if(o.extensionRecommendations){const c={};Object.keys(o.extensionRecommendations).forEach(r=>{const i=o.extensionRecommendations[r];i.onSettingsEditorOpen&&(c[r]=i)});const x={};for(const r in c){const i=r,$=o.quality==="stable";try{const a=await b(n.getExtensions([{id:i,preRelease:!$}],f.None),h);if(a?.length===1)x[r]=a[0];else return}catch{return}}return d={settingsEditorRecommendedExtensions:c,recommendedExtensionsGalleryInfo:x},d}}}function Te(e,n){const o=e??Number.MAX_SAFE_INTEGER,c=n??Number.MAX_SAFE_INTEGER;return o<c?-1:o>c?1:0}const Ce=p(11702,null),Ne=p(11703,null),je=p(11704,null),g=new Set;["css","html","scss","less","json","js","ts","ie","id","php","scm"].forEach(e=>g.add(e));const s=new Map;s.set("power shell","PowerShell");s.set("powershell","PowerShell");s.set("javascript","JavaScript");s.set("typescript","TypeScript");s.set("github","GitHub");s.set("jet brains","JetBrains");s.set("jetbrains","JetBrains");s.set("re sharper","ReSharper");s.set("resharper","ReSharper");function Fe(e){e=e.replace(/\.([a-z0-9])/g,(n,o)=>` \u203A ${o.toUpperCase()}`).replace(/([a-z0-9])([A-Z])/g,"$1 $2").replace(/([A-Z]{1,})([A-Z][a-z])/g,"$1 $2").replace(/^[a-z]/g,n=>n.toUpperCase()).replace(/\b\w+\b/g,n=>g.has(n.toLowerCase())?n.toUpperCase():n);for(const[n,o]of s)e=e.replace(new RegExp(`\\b${n}\\b`,"gi"),o);return e}export{q as $$cc,Z as $0cc,M as $1cc,P as $2cc,z as $3cc,O as $4cc,_ as $5cc,J as $6cc,L as $7cc,U as $8cc,W as $9cc,ye as $Adc,he as $Bdc,we as $Cdc,me as $Ddc,y as $Edc,h as $Fdc,ke as $Gdc,Se as $Hdc,Ee as $Idc,Re as $Jdc,Ke as $Kdc,Ae as $Ldc,Te as $Mdc,Ce as $Ndc,Ne as $Odc,je as $Pdc,g as $Qdc,R as $Rcc,s as $Rdc,K as $Scc,Fe as $Sdc,A as $Tcc,T as $Ucc,C as $Vcc,N as $Wcc,j as $Xcc,F as $Ycc,I as $Zcc,v as $_cc,B as $adc,G as $bdc,H as $cdc,D as $ddc,X as $edc,V as $fdc,Q as $gdc,Y as $hdc,ee as $idc,ne as $jdc,te as $kdc,oe as $ldc,se as $mdc,ce as $ndc,re as $odc,ie as $pdc,de as $qdc,ae as $rdc,pe as $sdc,xe as $tdc,le as $udc,ge as $vdc,$e as $wdc,be as $xdc,fe as $ydc,ue as $zdc,l as WorkbenchSettingsEditorSettings};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { raceTimeout } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { localize } from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IPreferencesSearchService = createDecorator("preferencesSearchService");
+const PREFERENCES_EDITOR_COMMAND_OPEN = "workbench.preferences.action.openPreferencesEditor";
+const CONTEXT_PREFERENCES_SEARCH_FOCUS = new RawContextKey("inPreferencesSearch", false);
+const SETTINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = "settings.action.clearSearchResults";
+const SETTINGS_EDITOR_COMMAND_SHOW_AI_RESULTS = "settings.action.showAIResults";
+const SETTINGS_EDITOR_COMMAND_TOGGLE_AI_SEARCH = "settings.action.toggleAiSearch";
+const SETTINGS_EDITOR_COMMAND_SHOW_CONTEXT_MENU = "settings.action.showContextMenu";
+const SETTINGS_EDITOR_COMMAND_SUGGEST_FILTERS = "settings.action.suggestFilters";
+const CONTEXT_SETTINGS_EDITOR = new RawContextKey("inSettingsEditor", false);
+const CONTEXT_SETTINGS_JSON_EDITOR = new RawContextKey("inSettingsJSONEditor", false);
+const CONTEXT_SETTINGS_SEARCH_FOCUS = new RawContextKey("inSettingsSearch", false);
+const CONTEXT_TOC_ROW_FOCUS = new RawContextKey("settingsTocRowFocus", false);
+const CONTEXT_SETTINGS_ROW_FOCUS = new RawContextKey("settingRowFocus", false);
+const CONTEXT_KEYBINDINGS_EDITOR = new RawContextKey("inKeybindings", false);
+const CONTEXT_KEYBINDINGS_SEARCH_FOCUS = new RawContextKey("inKeybindingsSearch", false);
+const CONTEXT_KEYBINDINGS_SEARCH_HAS_VALUE = new RawContextKey("keybindingsSearchHasValue", false);
+const CONTEXT_KEYBINDING_FOCUS = new RawContextKey("keybindingFocus", false);
+const CONTEXT_WHEN_FOCUS = new RawContextKey("whenFocus", false);
+const CONTEXT_AI_SETTING_RESULTS_AVAILABLE = new RawContextKey("aiSettingResultsAvailable", false);
+const KEYBINDINGS_EDITOR_COMMAND_SEARCH = "keybindings.editor.searchKeybindings";
+const KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = "keybindings.editor.clearSearchResults";
+const KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_HISTORY = "keybindings.editor.clearSearchHistory";
+const KEYBINDINGS_EDITOR_COMMAND_RECORD_SEARCH_KEYS = "keybindings.editor.recordSearchKeys";
+const KEYBINDINGS_EDITOR_COMMAND_SORTBY_PRECEDENCE = "keybindings.editor.toggleSortByPrecedence";
+const KEYBINDINGS_EDITOR_COMMAND_DEFINE = "keybindings.editor.defineKeybinding";
+const KEYBINDINGS_EDITOR_COMMAND_ADD = "keybindings.editor.addKeybinding";
+const KEYBINDINGS_EDITOR_COMMAND_DEFINE_WHEN = "keybindings.editor.defineWhenExpression";
+const KEYBINDINGS_EDITOR_COMMAND_ACCEPT_WHEN = "keybindings.editor.acceptWhenExpression";
+const KEYBINDINGS_EDITOR_COMMAND_REJECT_WHEN = "keybindings.editor.rejectWhenExpression";
+const KEYBINDINGS_EDITOR_COMMAND_REMOVE = "keybindings.editor.removeKeybinding";
+const KEYBINDINGS_EDITOR_COMMAND_RESET = "keybindings.editor.resetKeybinding";
+const KEYBINDINGS_EDITOR_COMMAND_COPY = "keybindings.editor.copyKeybindingEntry";
+const KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND = "keybindings.editor.copyCommandKeybindingEntry";
+const KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND_TITLE = "keybindings.editor.copyCommandTitle";
+const KEYBINDINGS_EDITOR_COMMAND_SHOW_SIMILAR = "keybindings.editor.showConflicts";
+const KEYBINDINGS_EDITOR_COMMAND_FOCUS_KEYBINDINGS = "keybindings.editor.focusKeybindings";
+const KEYBINDINGS_EDITOR_SHOW_DEFAULT_KEYBINDINGS = "keybindings.editor.showDefaultKeybindings";
+const KEYBINDINGS_EDITOR_SHOW_USER_KEYBINDINGS = "keybindings.editor.showUserKeybindings";
+const KEYBINDINGS_EDITOR_SHOW_EXTENSION_KEYBINDINGS = "keybindings.editor.showExtensionKeybindings";
+const MODIFIED_SETTING_TAG = "modified";
+const EXTENSION_SETTING_TAG = "ext:";
+const FEATURE_SETTING_TAG = "feature:";
+const ID_SETTING_TAG = "id:";
+const LANGUAGE_SETTING_TAG = "lang:";
+const GENERAL_TAG_SETTING_TAG = "tag:";
+const POLICY_SETTING_TAG = "hasPolicy";
+const WORKSPACE_TRUST_SETTING_TAG = "workspaceTrust";
+const REQUIRE_TRUSTED_WORKSPACE_SETTING_TAG = "requireTrustedWorkspace";
+const ADVANCED_SETTING_TAG = "advanced";
+const KEYBOARD_LAYOUT_OPEN_PICKER = "workbench.action.openKeyboardLayoutPicker";
+const ENABLE_LANGUAGE_FILTER = true;
+const ENABLE_EXTENSION_TOGGLE_SETTINGS = true;
+const EXTENSION_FETCH_TIMEOUT_MS = 1e3;
+const STRING_MATCH_SEARCH_PROVIDER_NAME = "local";
+const TF_IDF_SEARCH_PROVIDER_NAME = "tfIdf";
+const FILTER_MODEL_SEARCH_PROVIDER_NAME = "filterModel";
+const EMBEDDINGS_SEARCH_PROVIDER_NAME = "embeddingsFull";
+const LLM_RANKED_SEARCH_PROVIDER_NAME = "llmRanked";
+var WorkbenchSettingsEditorSettings;
+(function(WorkbenchSettingsEditorSettings2) {
+  WorkbenchSettingsEditorSettings2["ShowAISearchToggle"] = "workbench.settings.showAISearchToggle";
+  WorkbenchSettingsEditorSettings2["EnableNaturalLanguageSearch"] = "workbench.settings.enableNaturalLanguageSearch";
+})(WorkbenchSettingsEditorSettings || (WorkbenchSettingsEditorSettings = {}));
+let cachedExtensionToggleData;
+async function getExperimentalExtensionToggleData(chatEntitlementService, extensionGalleryService, productService) {
+  if (!ENABLE_EXTENSION_TOGGLE_SETTINGS) {
+    return void 0;
+  }
+  if (!extensionGalleryService.isEnabled()) {
+    return void 0;
+  }
+  if (chatEntitlementService.sentiment.hidden || chatEntitlementService.sentiment.disabled) {
+    return void 0;
+  }
+  if (cachedExtensionToggleData) {
+    return cachedExtensionToggleData;
+  }
+  if (productService.extensionRecommendations) {
+    const settingsEditorRecommendedExtensions = {};
+    Object.keys(productService.extensionRecommendations).forEach((extensionId) => {
+      const extensionInfo = productService.extensionRecommendations[extensionId];
+      if (extensionInfo.onSettingsEditorOpen) {
+        settingsEditorRecommendedExtensions[extensionId] = extensionInfo;
+      }
+    });
+    const recommendedExtensionsGalleryInfo = {};
+    for (const key in settingsEditorRecommendedExtensions) {
+      const extensionId = key;
+      const isStable = productService.quality === "stable";
+      try {
+        const extensions = await raceTimeout(extensionGalleryService.getExtensions([{ id: extensionId, preRelease: !isStable }], CancellationToken.None), EXTENSION_FETCH_TIMEOUT_MS);
+        if (extensions?.length === 1) {
+          recommendedExtensionsGalleryInfo[key] = extensions[0];
+        } else {
+          return void 0;
+        }
+      } catch (e) {
+        return void 0;
+      }
+    }
+    cachedExtensionToggleData = {
+      settingsEditorRecommendedExtensions,
+      recommendedExtensionsGalleryInfo
+    };
+    return cachedExtensionToggleData;
+  }
+  return void 0;
+}
+__name(getExperimentalExtensionToggleData, "getExperimentalExtensionToggleData");
+function compareTwoNullableNumbers(a, b) {
+  const aOrMax = a ?? Number.MAX_SAFE_INTEGER;
+  const bOrMax = b ?? Number.MAX_SAFE_INTEGER;
+  if (aOrMax < bOrMax) {
+    return -1;
+  } else if (aOrMax > bOrMax) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+__name(compareTwoNullableNumbers, "compareTwoNullableNumbers");
+const PREVIEW_INDICATOR_DESCRIPTION = localize("previewIndicatorDescription", "Preview setting: this setting controls a new feature that is still under refinement yet ready to use. Feedback is welcome.");
+const EXPERIMENTAL_INDICATOR_DESCRIPTION = localize("experimentalIndicatorDescription", "Experimental setting: this setting controls a new feature that is actively being developed and may be unstable. It is subject to change or removal.");
+const ADVANCED_INDICATOR_DESCRIPTION = localize("advancedIndicatorDescription", "Advanced setting: this setting is intended for advanced scenarios and configurations. Only modify this if you know what it does.");
+const knownAcronyms = /* @__PURE__ */ new Set();
+[
+  "css",
+  "html",
+  "scss",
+  "less",
+  "json",
+  "js",
+  "ts",
+  "ie",
+  "id",
+  "php",
+  "scm"
+].forEach((str) => knownAcronyms.add(str));
+const knownTermMappings = /* @__PURE__ */ new Map();
+knownTermMappings.set("power shell", "PowerShell");
+knownTermMappings.set("powershell", "PowerShell");
+knownTermMappings.set("javascript", "JavaScript");
+knownTermMappings.set("typescript", "TypeScript");
+knownTermMappings.set("github", "GitHub");
+knownTermMappings.set("jet brains", "JetBrains");
+knownTermMappings.set("jetbrains", "JetBrains");
+knownTermMappings.set("re sharper", "ReSharper");
+knownTermMappings.set("resharper", "ReSharper");
+function wordifyKey(key) {
+  key = key.replace(/\.([a-z0-9])/g, (_, p1) => ` \u203A ${p1.toUpperCase()}`).replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z]{1,})([A-Z][a-z])/g, "$1 $2").replace(/^[a-z]/g, (match) => match.toUpperCase()).replace(/\b\w+\b/g, (match) => {
+    return knownAcronyms.has(match.toLowerCase()) ? match.toUpperCase() : match;
+  });
+  for (const [k, v] of knownTermMappings) {
+    key = key.replace(new RegExp(`\\b${k}\\b`, "gi"), v);
+  }
+  return key;
+}
+__name(wordifyKey, "wordifyKey");
+export {
+  ADVANCED_INDICATOR_DESCRIPTION,
+  ADVANCED_SETTING_TAG,
+  CONTEXT_AI_SETTING_RESULTS_AVAILABLE,
+  CONTEXT_KEYBINDINGS_EDITOR,
+  CONTEXT_KEYBINDINGS_SEARCH_FOCUS,
+  CONTEXT_KEYBINDINGS_SEARCH_HAS_VALUE,
+  CONTEXT_KEYBINDING_FOCUS,
+  CONTEXT_PREFERENCES_SEARCH_FOCUS,
+  CONTEXT_SETTINGS_EDITOR,
+  CONTEXT_SETTINGS_JSON_EDITOR,
+  CONTEXT_SETTINGS_ROW_FOCUS,
+  CONTEXT_SETTINGS_SEARCH_FOCUS,
+  CONTEXT_TOC_ROW_FOCUS,
+  CONTEXT_WHEN_FOCUS,
+  EMBEDDINGS_SEARCH_PROVIDER_NAME,
+  ENABLE_EXTENSION_TOGGLE_SETTINGS,
+  ENABLE_LANGUAGE_FILTER,
+  EXPERIMENTAL_INDICATOR_DESCRIPTION,
+  EXTENSION_FETCH_TIMEOUT_MS,
+  EXTENSION_SETTING_TAG,
+  FEATURE_SETTING_TAG,
+  FILTER_MODEL_SEARCH_PROVIDER_NAME,
+  GENERAL_TAG_SETTING_TAG,
+  ID_SETTING_TAG,
+  IPreferencesSearchService,
+  KEYBINDINGS_EDITOR_COMMAND_ACCEPT_WHEN,
+  KEYBINDINGS_EDITOR_COMMAND_ADD,
+  KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_HISTORY,
+  KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS,
+  KEYBINDINGS_EDITOR_COMMAND_COPY,
+  KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND,
+  KEYBINDINGS_EDITOR_COMMAND_COPY_COMMAND_TITLE,
+  KEYBINDINGS_EDITOR_COMMAND_DEFINE,
+  KEYBINDINGS_EDITOR_COMMAND_DEFINE_WHEN,
+  KEYBINDINGS_EDITOR_COMMAND_FOCUS_KEYBINDINGS,
+  KEYBINDINGS_EDITOR_COMMAND_RECORD_SEARCH_KEYS,
+  KEYBINDINGS_EDITOR_COMMAND_REJECT_WHEN,
+  KEYBINDINGS_EDITOR_COMMAND_REMOVE,
+  KEYBINDINGS_EDITOR_COMMAND_RESET,
+  KEYBINDINGS_EDITOR_COMMAND_SEARCH,
+  KEYBINDINGS_EDITOR_COMMAND_SHOW_SIMILAR,
+  KEYBINDINGS_EDITOR_COMMAND_SORTBY_PRECEDENCE,
+  KEYBINDINGS_EDITOR_SHOW_DEFAULT_KEYBINDINGS,
+  KEYBINDINGS_EDITOR_SHOW_EXTENSION_KEYBINDINGS,
+  KEYBINDINGS_EDITOR_SHOW_USER_KEYBINDINGS,
+  KEYBOARD_LAYOUT_OPEN_PICKER,
+  LANGUAGE_SETTING_TAG,
+  LLM_RANKED_SEARCH_PROVIDER_NAME,
+  MODIFIED_SETTING_TAG,
+  POLICY_SETTING_TAG,
+  PREFERENCES_EDITOR_COMMAND_OPEN,
+  PREVIEW_INDICATOR_DESCRIPTION,
+  REQUIRE_TRUSTED_WORKSPACE_SETTING_TAG,
+  SETTINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS,
+  SETTINGS_EDITOR_COMMAND_SHOW_AI_RESULTS,
+  SETTINGS_EDITOR_COMMAND_SHOW_CONTEXT_MENU,
+  SETTINGS_EDITOR_COMMAND_SUGGEST_FILTERS,
+  SETTINGS_EDITOR_COMMAND_TOGGLE_AI_SEARCH,
+  STRING_MATCH_SEARCH_PROVIDER_NAME,
+  TF_IDF_SEARCH_PROVIDER_NAME,
+  WORKSPACE_TRUST_SETTING_TAG,
+  WorkbenchSettingsEditorSettings,
+  compareTwoNullableNumbers,
+  getExperimentalExtensionToggleData,
+  knownAcronyms,
+  knownTermMappings,
+  wordifyKey
+};
+//# sourceMappingURL=preferences.js.map

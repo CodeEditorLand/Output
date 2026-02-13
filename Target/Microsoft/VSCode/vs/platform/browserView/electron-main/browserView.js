@@ -1,1 +1,539 @@
-import{WebContentsView as b,webContents as p}from"electron";import{$th as D}from"../../../base/common/network.js";import{$Ed as F}from"../../../base/common/lifecycle.js";import{$xf as r}from"../../../base/common/event.js";import{$0i as B}from"../../../base/common/buffer.js";import{BrowserNewPageLocation as w,$Xw as G}from"../common/browserView.js";import{$Yw as V,$1w as k}from"../../../base/common/keyCodes.js";import{$vv as I}from"../../windows/electron-main/windows.js";import{$Vw as H}from"../../auxiliaryWindow/electron-main/auxiliaryWindows.js";import{$n as m}from"../../../base/common/platform.js";import{BrowserViewUri as P}from"../common/browserViewUri.js";var v=function(f,e,n,i){var o=arguments.length,t=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,e,n,i);else for(var s=f.length-1;s>=0;s--)(a=f[s])&&(t=(o<3?a(t):o>3?a(e,n,t):a(e,n))||t);return o>3&&t&&Object.defineProperty(e,n,t),t},g=function(f,e){return function(n,i){e(n,i,f)}};const S=new Set([2079,2081,2100,3124,2102,...m?[]:[2103],2104,3128]);let y=class extends F{constructor(e,n,i,o,t,a,s){super(),this.id=e,this.I=n,this.J=i,this.L=a,this.M=s,this.b=new Map,this.c=void 0,this.g=void 0,this.h=void 0,this.j=-1/0,this.n=!1,this.q=this.D(new r),this.onDidNavigate=this.q.event,this.r=this.D(new r),this.onDidChangeLoadingState=this.r.event,this.s=this.D(new r),this.onDidChangeFocus=this.s.event,this.t=this.D(new r),this.onDidChangeVisibility=this.t.event,this.u=this.D(new r),this.onDidChangeDevToolsState=this.u.event,this.w=this.D(new r),this.onDidKeyCommand=this.w.event,this.z=this.D(new r),this.onDidChangeTitle=this.z.event,this.C=this.D(new r),this.onDidChangeFavicon=this.C.event,this.F=this.D(new r),this.onDidRequestNewPage=this.F.event,this.G=this.D(new r),this.onDidFindInPage=this.G.event,this.H=this.D(new r),this.onDidClose=this.H.event;const h={...t?.webPreferences,nodeIntegration:!1,contextIsolation:!0,sandbox:!0,webviewTag:!1,session:n,preload:D.asFileUri("vs/platform/browserView/electron-browser/preload-browserView.js").fsPath,type:"browserView"};this.a=new b({webPreferences:h,...t?.webContents?{webContents:t.webContents}:{}}),this.a.setBackgroundColor("#FFFFFF"),this.a.webContents.setWindowOpenHandler(c=>{const l=(()=>{switch(c.disposition){case"background-tab":return w.Background;case"foreground-tab":return w.Foreground;case"new-window":return w.NewWindow;default:return}})();return!l||!this.O(l)?{action:"deny"}:{action:"allow",createWindow:d=>{const u=o(d),C=P.forUrl(c.url,u.id);return this.F.fire({resource:C,location:l,position:{x:d.x,y:d.y,width:d.width,height:d.height}}),u.webContents}}}),this.a.webContents.on("destroyed",()=>{this.H.fire()}),this.N()}N(){const e=this.a.webContents;e.on("devtools-opened",()=>{this.u.fire({isDevToolsOpen:!0})}),e.on("devtools-closed",()=>{this.u.fire({isDevToolsOpen:!1})}),e.on("page-favicon-updated",async(o,t)=>{if(!t||t.length===0)return;const a=t.find(s=>this.b.get(s));if(a){this.g=await this.b.get(a),this.C.fire({favicon:this.g});return}for(const s of t){const h=(async()=>{const c=await e.session.fetch(s,{cache:"force-cache"}),l=await c.headers.get("content-type"),d=await c.arrayBuffer();return`data:${l};base64,${Buffer.from(d).toString("base64")}`})();this.b.set(s,h);try{this.g=await h,this.C.fire({favicon:this.g});return}catch{this.b.delete(s)}}}),e.on("page-title-updated",(o,t)=>{this.z.fire({title:t})});const n=()=>{this.q.fire({url:e.getURL(),canGoBack:e.navigationHistory.canGoBack(),canGoForward:e.navigationHistory.canGoForward()})},i=o=>{this.r.fire({loading:o,error:this.h})};e.on("did-start-loading",()=>{this.h=void 0,i(!0)}),e.on("did-stop-loading",()=>i(!1)),e.on("did-fail-load",(o,t,a,s,h)=>{if(h){if(t===-3){i(!1);return}this.h={url:s,errorCode:t,errorDescription:a},i(!1),this.q.fire({url:s,canGoBack:e.navigationHistory.canGoBack(),canGoForward:e.navigationHistory.canGoForward()})}}),e.on("did-finish-load",()=>i(!1)),e.on("render-process-gone",(o,t)=>{this.h={url:e.getURL(),errorCode:t.exitCode,errorDescription:`Render process gone: ${t.reason}`},i(!1)}),e.on("did-navigate",n),e.on("did-navigate-in-page",n),e.on("focus",()=>{this.s.fire({focused:!0})}),e.on("blur",()=>{this.s.fire({focused:!1})}),e.on("before-input-event",async(o,t)=>{t.type==="keyDown"&&!this.n&&this.P(t)&&o.preventDefault()}),e.on("input-event",(o,t)=>{switch(t.type){case"rawKeyDown":case"keyDown":case"mouseDown":case"pointerDown":case"pointerUp":case"touchEnd":this.j=Date.now()}}),e.on("will-prevent-unload",o=>{o.preventDefault()}),e.on("found-in-page",(o,t)=>{this.G.fire({activeMatchOrdinal:t.activeMatchOrdinal,matches:t.matches,selectionArea:t.selectionArea,finalUpdate:t.finalUpdate})})}O(e){switch(e){case w.Foreground:case w.Background:return!0;case w.NewWindow:return this.j>Date.now()-1e3?(this.j=-1/0,!0):!1}}get webContents(){return this.a.webContents}getState(){const e=this.a.webContents;return{url:e.getURL(),title:e.getTitle(),canGoBack:e.navigationHistory.canGoBack(),canGoForward:e.navigationHistory.canGoForward(),loading:e.isLoading(),focused:e.isFocused(),visible:this.a.getVisible(),isDevToolsOpen:e.isDevToolsOpened(),lastScreenshot:this.c,lastFavicon:this.g,lastError:this.h,storageScope:this.J}}toggleDevTools(){this.a.webContents.toggleDevTools()}layout(e){if(this.m?.win?.id!==e.windowId){const n=this.Q(e.windowId);n&&(this.m?.win?.contentView.removeChildView(this.a),this.m=n,n.win?.contentView.addChildView(this.a))}this.a.webContents.setZoomFactor(e.zoomFactor),this.a.setBounds({x:Math.round(e.x*e.zoomFactor),y:Math.round(e.y*e.zoomFactor),width:Math.round(e.width*e.zoomFactor),height:Math.round(e.height*e.zoomFactor)})}setVisible(e){this.a.getVisible()!==e&&(!e&&this.a.webContents.isFocused()&&this.m?.win?.webContents.focus(),this.a.setVisible(e),this.t.fire({visible:e}))}async loadURL(e){await this.a.webContents.loadURL(e)}getURL(){return this.a.webContents.getURL()}goBack(){this.a.webContents.navigationHistory.canGoBack()&&this.a.webContents.navigationHistory.goBack()}goForward(){this.a.webContents.navigationHistory.canGoForward()&&this.a.webContents.navigationHistory.goForward()}reload(){this.a.webContents.reload()}canGoBack(){return this.a.webContents.navigationHistory.canGoBack()}canGoForward(){return this.a.webContents.navigationHistory.canGoForward()}async captureScreenshot(e){const n=e?.quality??80,o=(await this.a.webContents.capturePage(e?.rect,{stayHidden:!0,stayAwake:!0})).toJPEG(n),t=B.wrap(o);return e?.rect||(this.c=t),t}async dispatchKeyEvent(e){const n={type:"keyDown",keyCode:e.key,modifiers:[]};e.ctrlKey&&n.modifiers.push("control"),e.shiftKey&&n.modifiers.push("shift"),e.altKey&&n.modifiers.push("alt"),e.metaKey&&n.modifiers.push("meta"),this.n=!0;try{await this.a.webContents.sendInputEvent(n)}finally{this.n=!1}}async setZoomFactor(e){await this.a.webContents.setZoomFactor(e)}async focus(){this.a.webContents.focus()}async findInPage(e,n){this.a.webContents.findInPage(e,{matchCase:n?.matchCase??!1,forward:n?.forward??!0,findNext:n?.recompute??!1})}async stopFindInPage(e){this.a.webContents.stopFindInPage(e?"keepSelection":"clearSelection")}async getSelectedText(){if(this.a.webContents.isLoading())return"";try{return await this.a.webContents.executeJavaScriptInIsolatedWorld(G,[{code:'window.browserViewAPI?.getSelectedText?.() ?? ""'}])}catch{return""}}async clearStorage(){await this.I.clearData()}getWebContentsView(){return this.a}dispose(){this.m?.win?.contentView.removeChildView(this.a),this.a.webContents.close({waitForBeforeUnload:!1}),super.dispose()}P(e){const n=k[e.code]||0,i=V[n]||0,o=i>=15&&i<=18,t=i===9||i>=59&&i<=82||i>=117;if(e.alt&&!e.control&&!e.meta&&!t&&!o||!(e.control||e.alt||e.meta)&&!t)return!1;const h=m?e.meta:e.control,c=i|(h?2048:0)|(e.shift?1024:0)|(e.alt?512:0);return S.has(c)?!1:(this.w.fire({key:e.key,keyCode:n,code:e.code,ctrlKey:e.control||!1,shiftKey:e.shift||!1,altKey:e.alt||!1,metaKey:e.meta||!1,repeat:e.isAutoRepeat||!1}),!0)}Q(e){return this.R(e)??this.S(e)}R(e){if(typeof e=="number")return this.L.getWindowById(e)}S(e){if(typeof e!="number")return;const n=p.fromId(e);if(n)return this.M.getWindowByWebContents(n)}};y=v([g(5,I),g(6,H)],y);export{y as $7w};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { WebContentsView, webContents } from "electron";
+import { FileAccess } from "../../../base/common/network.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { BrowserNewPageLocation, browserViewIsolatedWorldId } from "../common/browserView.js";
+import { EVENT_KEY_CODE_MAP, SCAN_CODE_STR_TO_EVENT_KEY_CODE } from "../../../base/common/keyCodes.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IAuxiliaryWindowsMainService } from "../../auxiliaryWindow/electron-main/auxiliaryWindows.js";
+import { isMacintosh } from "../../../base/common/platform.js";
+import { BrowserViewUri } from "../common/browserViewUri.js";
+const nativeShortcuts = /* @__PURE__ */ new Set([
+  2048 | 31,
+  2048 | 33,
+  2048 | 52,
+  2048 | 1024 | 52,
+  2048 | 54,
+  ...isMacintosh ? [] : [
+    2048 | 55
+    /* KeyCode.KeyY */
+  ],
+  2048 | 56,
+  2048 | 1024 | 56
+  /* KeyCode.KeyZ */
+]);
+let BrowserView = class BrowserView2 extends Disposable {
+  static {
+    __name(this, "BrowserView");
+  }
+  constructor(id, viewSession, storageScope, createChildView, options, windowsMainService, auxiliaryWindowsMainService) {
+    super();
+    this.id = id;
+    this.viewSession = viewSession;
+    this.storageScope = storageScope;
+    this.windowsMainService = windowsMainService;
+    this.auxiliaryWindowsMainService = auxiliaryWindowsMainService;
+    this._faviconRequestCache = /* @__PURE__ */ new Map();
+    this._lastScreenshot = void 0;
+    this._lastFavicon = void 0;
+    this._lastError = void 0;
+    this._lastUserGestureTimestamp = -Infinity;
+    this._isSendingKeyEvent = false;
+    this._onDidNavigate = this._register(new Emitter());
+    this.onDidNavigate = this._onDidNavigate.event;
+    this._onDidChangeLoadingState = this._register(new Emitter());
+    this.onDidChangeLoadingState = this._onDidChangeLoadingState.event;
+    this._onDidChangeFocus = this._register(new Emitter());
+    this.onDidChangeFocus = this._onDidChangeFocus.event;
+    this._onDidChangeVisibility = this._register(new Emitter());
+    this.onDidChangeVisibility = this._onDidChangeVisibility.event;
+    this._onDidChangeDevToolsState = this._register(new Emitter());
+    this.onDidChangeDevToolsState = this._onDidChangeDevToolsState.event;
+    this._onDidKeyCommand = this._register(new Emitter());
+    this.onDidKeyCommand = this._onDidKeyCommand.event;
+    this._onDidChangeTitle = this._register(new Emitter());
+    this.onDidChangeTitle = this._onDidChangeTitle.event;
+    this._onDidChangeFavicon = this._register(new Emitter());
+    this.onDidChangeFavicon = this._onDidChangeFavicon.event;
+    this._onDidRequestNewPage = this._register(new Emitter());
+    this.onDidRequestNewPage = this._onDidRequestNewPage.event;
+    this._onDidFindInPage = this._register(new Emitter());
+    this.onDidFindInPage = this._onDidFindInPage.event;
+    this._onDidClose = this._register(new Emitter());
+    this.onDidClose = this._onDidClose.event;
+    const webPreferences = {
+      ...options?.webPreferences,
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+      webviewTag: false,
+      session: viewSession,
+      preload: FileAccess.asFileUri("vs/platform/browserView/electron-browser/preload-browserView.js").fsPath,
+      // TODO@kycutler: Remove this once https://github.com/electron/electron/issues/42578 is fixed
+      type: "browserView"
+    };
+    this._view = new WebContentsView({
+      webPreferences,
+      // Passing an `undefined` webContents triggers an error in Electron.
+      ...options?.webContents ? { webContents: options.webContents } : {}
+    });
+    this._view.setBackgroundColor("#FFFFFF");
+    this._view.webContents.setWindowOpenHandler((details) => {
+      const location = (() => {
+        switch (details.disposition) {
+          case "background-tab":
+            return BrowserNewPageLocation.Background;
+          case "foreground-tab":
+            return BrowserNewPageLocation.Foreground;
+          case "new-window":
+            return BrowserNewPageLocation.NewWindow;
+          default:
+            return void 0;
+        }
+      })();
+      if (!location || !this.consumePopupPermission(location)) {
+        return { action: "deny" };
+      }
+      return {
+        action: "allow",
+        createWindow: /* @__PURE__ */ __name((options2) => {
+          const childView = createChildView(options2);
+          const resource = BrowserViewUri.forUrl(details.url, childView.id);
+          this._onDidRequestNewPage.fire({
+            resource,
+            location,
+            position: { x: options2.x, y: options2.y, width: options2.width, height: options2.height }
+          });
+          return childView.webContents;
+        }, "createWindow")
+      };
+    });
+    this._view.webContents.on("destroyed", () => {
+      this._onDidClose.fire();
+    });
+    this.setupEventListeners();
+  }
+  setupEventListeners() {
+    const webContents2 = this._view.webContents;
+    webContents2.on("devtools-opened", () => {
+      this._onDidChangeDevToolsState.fire({ isDevToolsOpen: true });
+    });
+    webContents2.on("devtools-closed", () => {
+      this._onDidChangeDevToolsState.fire({ isDevToolsOpen: false });
+    });
+    webContents2.on("page-favicon-updated", async (_event, favicons) => {
+      if (!favicons || favicons.length === 0) {
+        return;
+      }
+      const found = favicons.find((f) => this._faviconRequestCache.get(f));
+      if (found) {
+        this._lastFavicon = await this._faviconRequestCache.get(found);
+        this._onDidChangeFavicon.fire({ favicon: this._lastFavicon });
+        return;
+      }
+      for (const url of favicons) {
+        const request = (async () => {
+          const response = await webContents2.session.fetch(url, {
+            cache: "force-cache"
+          });
+          const type = await response.headers.get("content-type");
+          const buffer = await response.arrayBuffer();
+          return `data:${type};base64,${Buffer.from(buffer).toString("base64")}`;
+        })();
+        this._faviconRequestCache.set(url, request);
+        try {
+          this._lastFavicon = await request;
+          this._onDidChangeFavicon.fire({ favicon: this._lastFavicon });
+          return;
+        } catch (e) {
+          this._faviconRequestCache.delete(url);
+        }
+      }
+    });
+    webContents2.on("page-title-updated", (_event, title) => {
+      this._onDidChangeTitle.fire({ title });
+    });
+    const fireNavigationEvent = /* @__PURE__ */ __name(() => {
+      this._onDidNavigate.fire({
+        url: webContents2.getURL(),
+        canGoBack: webContents2.navigationHistory.canGoBack(),
+        canGoForward: webContents2.navigationHistory.canGoForward()
+      });
+    }, "fireNavigationEvent");
+    const fireLoadingEvent = /* @__PURE__ */ __name((loading) => {
+      this._onDidChangeLoadingState.fire({ loading, error: this._lastError });
+    }, "fireLoadingEvent");
+    webContents2.on("did-start-loading", () => {
+      this._lastError = void 0;
+      fireLoadingEvent(true);
+    });
+    webContents2.on("did-stop-loading", () => fireLoadingEvent(false));
+    webContents2.on("did-fail-load", (e, errorCode, errorDescription, validatedURL, isMainFrame) => {
+      if (isMainFrame) {
+        if (errorCode === -3) {
+          fireLoadingEvent(false);
+          return;
+        }
+        this._lastError = {
+          url: validatedURL,
+          errorCode,
+          errorDescription
+        };
+        fireLoadingEvent(false);
+        this._onDidNavigate.fire({
+          url: validatedURL,
+          canGoBack: webContents2.navigationHistory.canGoBack(),
+          canGoForward: webContents2.navigationHistory.canGoForward()
+        });
+      }
+    });
+    webContents2.on("did-finish-load", () => fireLoadingEvent(false));
+    webContents2.on("render-process-gone", (_event, details) => {
+      this._lastError = {
+        url: webContents2.getURL(),
+        errorCode: details.exitCode,
+        errorDescription: `Render process gone: ${details.reason}`
+      };
+      fireLoadingEvent(false);
+    });
+    webContents2.on("did-navigate", fireNavigationEvent);
+    webContents2.on("did-navigate-in-page", fireNavigationEvent);
+    webContents2.on("focus", () => {
+      this._onDidChangeFocus.fire({ focused: true });
+    });
+    webContents2.on("blur", () => {
+      this._onDidChangeFocus.fire({ focused: false });
+    });
+    webContents2.on("before-input-event", async (event, input) => {
+      if (input.type === "keyDown" && !this._isSendingKeyEvent) {
+        if (this.tryHandleCommand(input)) {
+          event.preventDefault();
+        }
+      }
+    });
+    webContents2.on("input-event", (_event, input) => {
+      switch (input.type) {
+        case "rawKeyDown":
+        case "keyDown":
+        case "mouseDown":
+        case "pointerDown":
+        case "pointerUp":
+        case "touchEnd":
+          this._lastUserGestureTimestamp = Date.now();
+      }
+    });
+    webContents2.on("will-prevent-unload", (e) => {
+      e.preventDefault();
+    });
+    webContents2.on("found-in-page", (_event, result) => {
+      this._onDidFindInPage.fire({
+        activeMatchOrdinal: result.activeMatchOrdinal,
+        matches: result.matches,
+        selectionArea: result.selectionArea,
+        finalUpdate: result.finalUpdate
+      });
+    });
+  }
+  consumePopupPermission(location) {
+    switch (location) {
+      case BrowserNewPageLocation.Foreground:
+      case BrowserNewPageLocation.Background:
+        return true;
+      case BrowserNewPageLocation.NewWindow:
+        if (this._lastUserGestureTimestamp > Date.now() - 1e3) {
+          this._lastUserGestureTimestamp = -Infinity;
+          return true;
+        }
+        return false;
+    }
+  }
+  get webContents() {
+    return this._view.webContents;
+  }
+  /**
+   * Get the current state of this browser view
+   */
+  getState() {
+    const webContents2 = this._view.webContents;
+    return {
+      url: webContents2.getURL(),
+      title: webContents2.getTitle(),
+      canGoBack: webContents2.navigationHistory.canGoBack(),
+      canGoForward: webContents2.navigationHistory.canGoForward(),
+      loading: webContents2.isLoading(),
+      focused: webContents2.isFocused(),
+      visible: this._view.getVisible(),
+      isDevToolsOpen: webContents2.isDevToolsOpened(),
+      lastScreenshot: this._lastScreenshot,
+      lastFavicon: this._lastFavicon,
+      lastError: this._lastError,
+      storageScope: this.storageScope
+    };
+  }
+  /**
+   * Toggle developer tools for this browser view.
+   */
+  toggleDevTools() {
+    this._view.webContents.toggleDevTools();
+  }
+  /**
+   * Update the layout bounds of this view
+   */
+  layout(bounds) {
+    if (this._window?.win?.id !== bounds.windowId) {
+      const newWindow = this.windowById(bounds.windowId);
+      if (newWindow) {
+        this._window?.win?.contentView.removeChildView(this._view);
+        this._window = newWindow;
+        newWindow.win?.contentView.addChildView(this._view);
+      }
+    }
+    this._view.webContents.setZoomFactor(bounds.zoomFactor);
+    this._view.setBounds({
+      x: Math.round(bounds.x * bounds.zoomFactor),
+      y: Math.round(bounds.y * bounds.zoomFactor),
+      width: Math.round(bounds.width * bounds.zoomFactor),
+      height: Math.round(bounds.height * bounds.zoomFactor)
+    });
+  }
+  /**
+   * Set the visibility of this view
+   */
+  setVisible(visible) {
+    if (this._view.getVisible() === visible) {
+      return;
+    }
+    if (!visible && this._view.webContents.isFocused()) {
+      this._window?.win?.webContents.focus();
+    }
+    this._view.setVisible(visible);
+    this._onDidChangeVisibility.fire({ visible });
+  }
+  /**
+   * Load a URL in this view
+   */
+  async loadURL(url) {
+    await this._view.webContents.loadURL(url);
+  }
+  /**
+   * Get the current URL
+   */
+  getURL() {
+    return this._view.webContents.getURL();
+  }
+  /**
+   * Navigate back in history
+   */
+  goBack() {
+    if (this._view.webContents.navigationHistory.canGoBack()) {
+      this._view.webContents.navigationHistory.goBack();
+    }
+  }
+  /**
+   * Navigate forward in history
+   */
+  goForward() {
+    if (this._view.webContents.navigationHistory.canGoForward()) {
+      this._view.webContents.navigationHistory.goForward();
+    }
+  }
+  /**
+   * Reload the current page
+   */
+  reload() {
+    this._view.webContents.reload();
+  }
+  /**
+   * Check if the view can navigate back
+   */
+  canGoBack() {
+    return this._view.webContents.navigationHistory.canGoBack();
+  }
+  /**
+   * Check if the view can navigate forward
+   */
+  canGoForward() {
+    return this._view.webContents.navigationHistory.canGoForward();
+  }
+  /**
+   * Capture a screenshot of this view
+   */
+  async captureScreenshot(options) {
+    const quality = options?.quality ?? 80;
+    const image = await this._view.webContents.capturePage(options?.rect, {
+      stayHidden: true,
+      stayAwake: true
+    });
+    const buffer = image.toJPEG(quality);
+    const screenshot = VSBuffer.wrap(buffer);
+    if (!options?.rect) {
+      this._lastScreenshot = screenshot;
+    }
+    return screenshot;
+  }
+  /**
+   * Dispatch a keyboard event to this view
+   */
+  async dispatchKeyEvent(keyEvent) {
+    const event = {
+      type: "keyDown",
+      keyCode: keyEvent.key,
+      modifiers: []
+    };
+    if (keyEvent.ctrlKey) {
+      event.modifiers.push("control");
+    }
+    if (keyEvent.shiftKey) {
+      event.modifiers.push("shift");
+    }
+    if (keyEvent.altKey) {
+      event.modifiers.push("alt");
+    }
+    if (keyEvent.metaKey) {
+      event.modifiers.push("meta");
+    }
+    this._isSendingKeyEvent = true;
+    try {
+      await this._view.webContents.sendInputEvent(event);
+    } finally {
+      this._isSendingKeyEvent = false;
+    }
+  }
+  /**
+   * Set the zoom factor of this view
+   */
+  async setZoomFactor(zoomFactor) {
+    await this._view.webContents.setZoomFactor(zoomFactor);
+  }
+  /**
+   * Focus this view
+   */
+  async focus() {
+    this._view.webContents.focus();
+  }
+  /**
+   * Find text in the page
+   */
+  async findInPage(text, options) {
+    this._view.webContents.findInPage(text, {
+      matchCase: options?.matchCase ?? false,
+      forward: options?.forward ?? true,
+      // `findNext` is not very clearly named. From Electron docs: `Whether to begin a new text finding session with this request`.
+      // It needs to be set to `true` if we want a new search to be performed, such as when the text changes.
+      // We name it `recompute` in our internal options to better reflect its purpose / behavior.
+      findNext: options?.recompute ?? false
+    });
+  }
+  /**
+   * Stop finding in page
+   */
+  async stopFindInPage(keepSelection) {
+    this._view.webContents.stopFindInPage(keepSelection ? "keepSelection" : "clearSelection");
+  }
+  /**
+   * Get the currently selected text in the browser view.
+   * Returns immediately with empty string if the page is still loading.
+   */
+  async getSelectedText() {
+    if (this._view.webContents.isLoading()) {
+      return "";
+    }
+    try {
+      return await this._view.webContents.executeJavaScriptInIsolatedWorld(browserViewIsolatedWorldId, [{ code: 'window.browserViewAPI?.getSelectedText?.() ?? ""' }]);
+    } catch {
+      return "";
+    }
+  }
+  /**
+   * Clear all storage data for this browser view's session
+   */
+  async clearStorage() {
+    await this.viewSession.clearData();
+  }
+  /**
+   * Get the underlying WebContentsView
+   */
+  getWebContentsView() {
+    return this._view;
+  }
+  dispose() {
+    this._window?.win?.contentView.removeChildView(this._view);
+    this._view.webContents.close({ waitForBeforeUnload: false });
+    super.dispose();
+  }
+  /**
+   * Potentially handle an input event as a VS Code command.
+   * Returns `true` if the event was forwarded to VS Code and should not be handled natively.
+   */
+  tryHandleCommand(input) {
+    const eventKeyCode = SCAN_CODE_STR_TO_EVENT_KEY_CODE[input.code] || 0;
+    const keyCode = EVENT_KEY_CODE_MAP[eventKeyCode] || 0;
+    const isArrowKey = keyCode >= 15 && keyCode <= 18;
+    const isNonEditingKey = keyCode === 9 || keyCode >= 59 && keyCode <= 82 || keyCode >= 117;
+    const isAltOnlyInput = input.alt && !input.control && !input.meta;
+    if (isAltOnlyInput && !isNonEditingKey && !isArrowKey) {
+      return false;
+    }
+    const hasCommandModifier = input.control || input.alt || input.meta;
+    if (!hasCommandModifier && !isNonEditingKey) {
+      return false;
+    }
+    const isControlInput = isMacintosh ? input.meta : input.control;
+    const modifiedKeyCode = keyCode | (isControlInput ? 2048 : 0) | (input.shift ? 1024 : 0) | (input.alt ? 512 : 0);
+    if (nativeShortcuts.has(modifiedKeyCode)) {
+      return false;
+    }
+    this._onDidKeyCommand.fire({
+      key: input.key,
+      keyCode: eventKeyCode,
+      code: input.code,
+      ctrlKey: input.control || false,
+      shiftKey: input.shift || false,
+      altKey: input.alt || false,
+      metaKey: input.meta || false,
+      repeat: input.isAutoRepeat || false
+    });
+    return true;
+  }
+  windowById(windowId) {
+    return this.codeWindowById(windowId) ?? this.auxiliaryWindowById(windowId);
+  }
+  codeWindowById(windowId) {
+    if (typeof windowId !== "number") {
+      return void 0;
+    }
+    return this.windowsMainService.getWindowById(windowId);
+  }
+  auxiliaryWindowById(windowId) {
+    if (typeof windowId !== "number") {
+      return void 0;
+    }
+    const contents = webContents.fromId(windowId);
+    if (!contents) {
+      return void 0;
+    }
+    return this.auxiliaryWindowsMainService.getWindowByWebContents(contents);
+  }
+};
+BrowserView = __decorate([
+  __param(5, IWindowsMainService),
+  __param(6, IAuxiliaryWindowsMainService)
+], BrowserView);
+export {
+  BrowserView
+};
+//# sourceMappingURL=browserView.js.map

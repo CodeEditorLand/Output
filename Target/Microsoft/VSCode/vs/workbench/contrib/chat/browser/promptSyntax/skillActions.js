@@ -1,1 +1,54 @@
-import{$24b as s}from"../chat.js";import{$HPb as m,$OPb as p}from"../actions/chatActions.js";import{localize as a,localize2 as t}from"../../../../../nls.js";import{ChatContextKeys as r}from"../../common/actions/chatContextKeys.js";import{$$Yb as f}from"./pickers/promptFilePickers.js";import{$vL as u,$wL as d}from"../../../../../platform/actions/common/actions.js";import{$Mj as $}from"../../../../../platform/instantiation/common/instantiation.js";import{$bk as b}from"../../../../../base/common/codicons.js";import{$0n as i}from"../../../../../platform/contextkey/common/contextkey.js";import{PromptsType as g}from"../../common/promptSyntax/promptTypes.js";import{$EP as k}from"../../../../../platform/opener/common/opener.js";const S="workbench.action.chat.configure.skills";class h extends u{constructor(){super({id:S,title:t(6374,"Configure Skills..."),shortTitle:t(6375,"Skills"),icon:b.lightbulb,f1:!0,precondition:r.enabled,category:m,menu:{id:p,when:i.and(r.enabled,i.equals("view",s)),order:9,group:"1_level"}})}async run(o){const n=o.get(k),l=o.get($).createInstance(f),c=a(6373,null),e=await l.selectPromptFile({placeholder:c,type:g.skill,optionEdit:!1});e!==void 0&&await n.open(e.promptFile)}}function T(){d(h)}export{T as $Aoc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ChatViewId } from "../chat.js";
+import { CHAT_CATEGORY, CHAT_CONFIG_MENU_ID } from "../actions/chatActions.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { PromptFilePickers } from "./pickers/promptFilePickers.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+const CONFIGURE_SKILLS_ACTION_ID = "workbench.action.chat.configure.skills";
+class ManageSkillsAction extends Action2 {
+  static {
+    __name(this, "ManageSkillsAction");
+  }
+  constructor() {
+    super({
+      id: CONFIGURE_SKILLS_ACTION_ID,
+      title: localize2("configure-skills", "Configure Skills..."),
+      shortTitle: localize2("configure-skills.short", "Skills"),
+      icon: Codicon.lightbulb,
+      f1: true,
+      precondition: ChatContextKeys.enabled,
+      category: CHAT_CATEGORY,
+      menu: {
+        id: CHAT_CONFIG_MENU_ID,
+        when: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.equals("view", ChatViewId)),
+        order: 9,
+        group: "1_level"
+      }
+    });
+  }
+  async run(accessor) {
+    const openerService = accessor.get(IOpenerService);
+    const instaService = accessor.get(IInstantiationService);
+    const pickers = instaService.createInstance(PromptFilePickers);
+    const placeholder = localize("commands.prompt.manage-skills-dialog.placeholder", "Select the skill to open");
+    const result = await pickers.selectPromptFile({ placeholder, type: PromptsType.skill, optionEdit: false });
+    if (result !== void 0) {
+      await openerService.open(result.promptFile);
+    }
+  }
+}
+function registerSkillActions() {
+  registerAction2(ManageSkillsAction);
+}
+__name(registerSkillActions, "registerSkillActions");
+export {
+  registerSkillActions
+};
+//# sourceMappingURL=skillActions.js.map

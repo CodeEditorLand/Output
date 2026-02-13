@@ -1,1 +1,199 @@
-import*as g from"../../../../../../../base/browser/dom.js";import{$Hm as b}from"../../../../../../../base/common/actions.js";import{$6C as m}from"../../../../../../../base/common/mime.js";import{localize as u}from"../../../../../../../nls.js";import{$ro as I}from"../../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as w}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$fy as k}from"../../../../../../../platform/keybinding/common/keybinding.js";import{ChatResponseResource as v}from"../../../../common/model/chatModel.js";import{$xPb as x}from"../../../../common/tools/languageModelToolsConfirmationService.js";import{$bU as y,$0T as P}from"../../../../common/tools/languageModelToolsService.js";import{$l3b as $,$m3b as T}from"../../../actions/chatToolActions.js";import{$U4b as O}from"../../../chat.js";import{$q3b as C}from"../chatToolOutputContentSubPart.js";import{$U3b as W}from"./abstractToolConfirmationSubPart.js";var f=function(d,t,r,n){var o=arguments.length,e=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,r):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(d,t,r,n);else for(var a=d.length-1;a>=0;a--)(i=d[a])&&(e=(o<3?i(e):o>3?i(t,r,e):i(t,r))||e);return o>3&&e&&Object.defineProperty(t,r,e),e},l=function(d,t){return function(r,n){t(r,n,d)}};let h=class extends W{get codeblocks(){return this.h}constructor(t,r,n,o,e,i,a,c){super(t,r,n,o,e,i,a),this.F=c,this.h=[];const s=t.pastTenseMessage||t.invocationMessage;this.u({allowActionId:$,skipActionId:T,allowLabel:u(6651,null),skipLabel:u(6652,null),partType:"chatToolPostConfirmation",subtitle:typeof s=="string"?s:s?.value})}z(){if(this.g.kind!=="toolInvocation")throw new Error("post-approval not supported for serialized data");const t=this.g.state.get();if(t.type!==3)throw new Error("Tool invocation is not waiting for post-approval");return this.J(this.g,t.contentForModel)}C(){return u(6653,null)}y(){const t=super.y(),r=this.g.state.get();if(r.type!==3)return t;const n=this.F.getPostConfirmActions({toolId:this.g.toolId,source:this.g.source,parameters:r.parameters});for(const o of n)o.divider&&t.push(new b),t.push({label:o.label,tooltip:o.detail,data:async()=>{await o.select()&&this.w(this.g,{type:4})}});return t}J(t,r){const n=g.$(".tool-postconfirm-display");if(!r||r.length===0)return n.textContent=u(6654,null),n;const o=[];for(const[e,i]of r.entries())if(i.kind==="text")o.push({kind:"code",title:i.title,data:i.value,languageId:"plaintext",codeBlockIndex:e,ownerMarkdownPartId:this.codeblocksPartId,options:{hideToolbar:!0,reserveWidth:19,maxHeightInLines:13,verticalPadding:5,editorOptions:{wordWrap:"on",readOnly:!0}}});else if(i.kind==="promptTsx"){const a=P(i);o.push({kind:"code",data:a,languageId:"json",codeBlockIndex:e,ownerMarkdownPartId:this.codeblocksPartId,options:{hideToolbar:!0,reserveWidth:19,maxHeightInLines:13,verticalPadding:5,editorOptions:{wordWrap:"on",readOnly:!0}}})}else if(i.kind==="data"){const a=i.value.mimeType,c=i.value.data;if(a?.startsWith("image/")){const s=m(a)?`image${m(a)}`:"image.bin",p=v.createUri(this.m.element.sessionResource,t.toolCallId,e,s);o.push({kind:"data",value:c.buffer,mimeType:a,uri:p,audience:i.audience})}else{const s=new TextDecoder("utf-8",{fatal:!0});try{const p=s.decode(c.buffer);o.push({kind:"code",data:p,languageId:"plaintext",codeBlockIndex:e,ownerMarkdownPartId:this.codeblocksPartId,options:{hideToolbar:!0,reserveWidth:19,maxHeightInLines:13,verticalPadding:5,editorOptions:{wordWrap:"on",readOnly:!0}}})}catch{const p=c.toString();o.push({kind:"code",data:p,languageId:"plaintext",codeBlockIndex:e,ownerMarkdownPartId:this.codeblocksPartId,options:{hideToolbar:!0,reserveWidth:19,maxHeightInLines:13,verticalPadding:5,editorOptions:{wordWrap:"on",readOnly:!0}}})}}}if(o.length>0){const e=this.D(this.n.createInstance(C,this.m,o));return this.h.push(...e.codeblocks),e.domNode.classList.add("tool-postconfirm-display"),e.domNode}return n.textContent=u(6655,null),n}};h=f([l(2,w),l(3,k),l(4,I),l(5,O),l(6,y),l(7,x)],h);export{h as $23b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { Separator } from "../../../../../../../base/common/actions.js";
+import { getExtensionForMimeType } from "../../../../../../../base/common/mime.js";
+import { localize } from "../../../../../../../nls.js";
+import { IContextKeyService } from "../../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../../platform/keybinding/common/keybinding.js";
+import { ChatResponseResource } from "../../../../common/model/chatModel.js";
+import { ILanguageModelToolsConfirmationService } from "../../../../common/tools/languageModelToolsConfirmationService.js";
+import { ILanguageModelToolsService, stringifyPromptTsxPart } from "../../../../common/tools/languageModelToolsService.js";
+import { AcceptToolPostConfirmationActionId, SkipToolPostConfirmationActionId } from "../../../actions/chatToolActions.js";
+import { IChatWidgetService } from "../../../chat.js";
+import { ChatToolOutputContentSubPart } from "../chatToolOutputContentSubPart.js";
+import { AbstractToolConfirmationSubPart } from "./abstractToolConfirmationSubPart.js";
+let ChatToolPostExecuteConfirmationPart = class ChatToolPostExecuteConfirmationPart2 extends AbstractToolConfirmationSubPart {
+  static {
+    __name(this, "ChatToolPostExecuteConfirmationPart");
+  }
+  get codeblocks() {
+    return this._codeblocks;
+  }
+  constructor(toolInvocation, context, instantiationService, keybindingService, contextKeyService, chatWidgetService, languageModelToolsService, confirmationService) {
+    super(toolInvocation, context, instantiationService, keybindingService, contextKeyService, chatWidgetService, languageModelToolsService);
+    this.confirmationService = confirmationService;
+    this._codeblocks = [];
+    const subtitle = toolInvocation.pastTenseMessage || toolInvocation.invocationMessage;
+    this.render({
+      allowActionId: AcceptToolPostConfirmationActionId,
+      skipActionId: SkipToolPostConfirmationActionId,
+      allowLabel: localize("allow", "Allow"),
+      skipLabel: localize("skip.post", "Skip Results"),
+      partType: "chatToolPostConfirmation",
+      subtitle: typeof subtitle === "string" ? subtitle : subtitle?.value
+    });
+  }
+  createContentElement() {
+    if (this.toolInvocation.kind !== "toolInvocation") {
+      throw new Error("post-approval not supported for serialized data");
+    }
+    const state = this.toolInvocation.state.get();
+    if (state.type !== 3) {
+      throw new Error("Tool invocation is not waiting for post-approval");
+    }
+    return this.createResultsDisplay(this.toolInvocation, state.contentForModel);
+  }
+  getTitle() {
+    return localize("approveToolResult", "Approve Tool Result");
+  }
+  additionalPrimaryActions() {
+    const actions = super.additionalPrimaryActions();
+    const state = this.toolInvocation.state.get();
+    if (state.type !== 3) {
+      return actions;
+    }
+    const confirmActions = this.confirmationService.getPostConfirmActions({
+      toolId: this.toolInvocation.toolId,
+      source: this.toolInvocation.source,
+      parameters: state.parameters
+    });
+    for (const action of confirmActions) {
+      if (action.divider) {
+        actions.push(new Separator());
+      }
+      actions.push({
+        label: action.label,
+        tooltip: action.detail,
+        data: /* @__PURE__ */ __name(async () => {
+          const shouldConfirm = await action.select();
+          if (shouldConfirm) {
+            this.confirmWith(this.toolInvocation, {
+              type: 4
+              /* ToolConfirmKind.UserAction */
+            });
+          }
+        }, "data")
+      });
+    }
+    return actions;
+  }
+  createResultsDisplay(toolInvocation, contentForModel) {
+    const container = dom.$(".tool-postconfirm-display");
+    if (!contentForModel || contentForModel.length === 0) {
+      container.textContent = localize("noResults", "No results to display");
+      return container;
+    }
+    const parts = [];
+    for (const [i, part] of contentForModel.entries()) {
+      if (part.kind === "text") {
+        parts.push({
+          kind: "code",
+          title: part.title,
+          data: part.value,
+          languageId: "plaintext",
+          codeBlockIndex: i,
+          ownerMarkdownPartId: this.codeblocksPartId,
+          options: {
+            hideToolbar: true,
+            reserveWidth: 19,
+            maxHeightInLines: 13,
+            verticalPadding: 5,
+            editorOptions: { wordWrap: "on", readOnly: true }
+          }
+        });
+      } else if (part.kind === "promptTsx") {
+        const stringified = stringifyPromptTsxPart(part);
+        parts.push({
+          kind: "code",
+          data: stringified,
+          languageId: "json",
+          codeBlockIndex: i,
+          ownerMarkdownPartId: this.codeblocksPartId,
+          options: {
+            hideToolbar: true,
+            reserveWidth: 19,
+            maxHeightInLines: 13,
+            verticalPadding: 5,
+            editorOptions: { wordWrap: "on", readOnly: true }
+          }
+        });
+      } else if (part.kind === "data") {
+        const mimeType = part.value.mimeType;
+        const data = part.value.data;
+        if (mimeType?.startsWith("image/")) {
+          const permalinkBasename = getExtensionForMimeType(mimeType) ? `image${getExtensionForMimeType(mimeType)}` : "image.bin";
+          const permalinkUri = ChatResponseResource.createUri(this.context.element.sessionResource, toolInvocation.toolCallId, i, permalinkBasename);
+          parts.push({ kind: "data", value: data.buffer, mimeType, uri: permalinkUri, audience: part.audience });
+        } else {
+          const decoder = new TextDecoder("utf-8", { fatal: true });
+          try {
+            const text = decoder.decode(data.buffer);
+            parts.push({
+              kind: "code",
+              data: text,
+              languageId: "plaintext",
+              codeBlockIndex: i,
+              ownerMarkdownPartId: this.codeblocksPartId,
+              options: {
+                hideToolbar: true,
+                reserveWidth: 19,
+                maxHeightInLines: 13,
+                verticalPadding: 5,
+                editorOptions: { wordWrap: "on", readOnly: true }
+              }
+            });
+          } catch {
+            const base64 = data.toString();
+            parts.push({
+              kind: "code",
+              data: base64,
+              languageId: "plaintext",
+              codeBlockIndex: i,
+              ownerMarkdownPartId: this.codeblocksPartId,
+              options: {
+                hideToolbar: true,
+                reserveWidth: 19,
+                maxHeightInLines: 13,
+                verticalPadding: 5,
+                editorOptions: { wordWrap: "on", readOnly: true }
+              }
+            });
+          }
+        }
+      }
+    }
+    if (parts.length > 0) {
+      const outputSubPart = this._register(this.instantiationService.createInstance(ChatToolOutputContentSubPart, this.context, parts));
+      this._codeblocks.push(...outputSubPart.codeblocks);
+      outputSubPart.domNode.classList.add("tool-postconfirm-display");
+      return outputSubPart.domNode;
+    }
+    container.textContent = localize("noDisplayableResults", "No displayable results");
+    return container;
+  }
+};
+ChatToolPostExecuteConfirmationPart = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IKeybindingService),
+  __param(4, IContextKeyService),
+  __param(5, IChatWidgetService),
+  __param(6, ILanguageModelToolsService),
+  __param(7, ILanguageModelToolsConfirmationService)
+], ChatToolPostExecuteConfirmationPart);
+export {
+  ChatToolPostExecuteConfirmationPart
+};
+//# sourceMappingURL=chatToolPostExecuteConfirmationPart.js.map

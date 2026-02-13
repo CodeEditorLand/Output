@@ -1,1 +1,70 @@
-import{protocol as l}from"electron";import{COI as f,$th as v,Schemas as h}from"../../../base/common/network.js";import{URI as b}from"../../../base/common/uri.js";import{$vk as w}from"../../files/common/files.js";var u=function(o,e,t,n){var i=arguments.length,r=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,n);else for(var c=o.length-1;c>=0;c--)(s=o[c])&&(r=(i<3?s(r):i>3?s(e,t,r):s(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},m=function(o,e){return function(t,n){e(t,n,o)}},a;let p=class{static{a=this}static{this.a=new Map([["/index.html",{mime:"text/html"}],["/fake.html",{mime:"text/html"}],["/service-worker.js",{mime:"application/javascript"}]])}constructor(e){this.b=e;const t=this.c.bind(this);l.handle(h.vscodeWebview,t)}dispose(){l.unhandle(h.vscodeWebview)}async c(e){try{const t=b.parse(e.url),n=a.a.get(t.path);if(n){const i=`vs/workbench/contrib/webview/browser/pre${t.path}`,r=v.asFileUri(i),s=await this.b.readFile(r);return new Response(s.value.buffer.buffer,{headers:{"Content-Type":n.mime,...f.getHeadersFromQuery(e.url),"Cross-Origin-Resource-Policy":"cross-origin"}})}else return new Response(null,{status:403})}catch{}return new Response(null,{status:500})}};p=a=u([m(0,w)],p);export{p as $kz};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var WebviewProtocolProvider_1;
+import { protocol } from "electron";
+import { COI, FileAccess, Schemas } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
+import { IFileService } from "../../files/common/files.js";
+let WebviewProtocolProvider = class WebviewProtocolProvider2 {
+  static {
+    __name(this, "WebviewProtocolProvider");
+  }
+  static {
+    WebviewProtocolProvider_1 = this;
+  }
+  static {
+    this.validWebviewFilePaths = /* @__PURE__ */ new Map([
+      ["/index.html", { mime: "text/html" }],
+      ["/fake.html", { mime: "text/html" }],
+      ["/service-worker.js", { mime: "application/javascript" }]
+    ]);
+  }
+  constructor(_fileService) {
+    this._fileService = _fileService;
+    const webviewHandler = this.handleWebviewRequest.bind(this);
+    protocol.handle(Schemas.vscodeWebview, webviewHandler);
+  }
+  dispose() {
+    protocol.unhandle(Schemas.vscodeWebview);
+  }
+  async handleWebviewRequest(request) {
+    try {
+      const uri = URI.parse(request.url);
+      const entry = WebviewProtocolProvider_1.validWebviewFilePaths.get(uri.path);
+      if (entry) {
+        const relativeResourcePath = `vs/workbench/contrib/webview/browser/pre${uri.path}`;
+        const url = FileAccess.asFileUri(relativeResourcePath);
+        const content = await this._fileService.readFile(url);
+        return new Response(content.value.buffer.buffer, {
+          headers: {
+            "Content-Type": entry.mime,
+            ...COI.getHeadersFromQuery(request.url),
+            "Cross-Origin-Resource-Policy": "cross-origin"
+          }
+        });
+      } else {
+        return new Response(null, { status: 403 });
+      }
+    } catch {
+    }
+    return new Response(null, { status: 500 });
+  }
+};
+WebviewProtocolProvider = WebviewProtocolProvider_1 = __decorate([
+  __param(0, IFileService)
+], WebviewProtocolProvider);
+export {
+  WebviewProtocolProvider
+};
+//# sourceMappingURL=webviewProtocolProvider.js.map

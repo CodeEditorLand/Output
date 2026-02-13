@@ -1,1 +1,79 @@
-import{EditSuggestionId as p}from"../../../../../../editor/common/textModelEditSource.js";import{$Mj as m}from"../../../../../../platform/instantiation/common/instantiation.js";import{$ev as l}from"../../../../../../platform/telemetry/common/telemetryUtils.js";import{$kob as h,$lob as u,$mob as I}from"../../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";import{$iLc as v}from"../../randomService.js";var f=function(i,e,o,n){var r=arguments.length,t=r<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,o):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,o,n);else for(var d=i.length-1;d>=0;d--)(s=i[d])&&(t=(r<3?s(t):r>3?s(e,o,t):s(e,o))||t);return r>3&&t&&Object.defineProperty(e,o,t),t},c=function(i,e){return function(o,n){e(o,n,i)}};let g=class{constructor(e,o){this.b=e,this.c=o,this.a=this.b.createInstance(h)}createSuggestionId(e){const o=p.newId(n=>this.c.generatePrefixedUuid(n));return this.a.publicLog2("editTelemetry.codeSuggested",{eventId:this.c.generatePrefixedUuid("evt"),suggestionId:o,presentation:e.presentation,feature:e.feature,sourceExtensionId:e.source?.extensionId,sourceExtensionVersion:e.source?.extensionVersion,sourceProviderId:e.source?.providerId,languageId:e.languageId,editCharsInserted:e.editDeltaInfo?.charsAdded,editCharsDeleted:e.editDeltaInfo?.charsRemoved,editLinesInserted:e.editDeltaInfo?.linesAdded,editLinesDeleted:e.editDeltaInfo?.linesRemoved,modeId:e.modeId,modelId:new l(e.modelId),applyCodeBlockSuggestionId:e.applyCodeBlockSuggestionId,...u(I(e.source?.extensionId))}),o}handleCodeAccepted(e){this.a.publicLog2("editTelemetry.codeAccepted",{eventId:this.c.generatePrefixedUuid("evt"),suggestionId:e.suggestionId,presentation:e.presentation,feature:e.feature,sourceExtensionId:e.source?.extensionId,sourceExtensionVersion:e.source?.extensionVersion,sourceProviderId:e.source?.providerId,languageId:e.languageId,editCharsInserted:e.editDeltaInfo?.charsAdded,editCharsDeleted:e.editDeltaInfo?.charsRemoved,editLinesInserted:e.editDeltaInfo?.linesAdded,editLinesDeleted:e.editDeltaInfo?.linesRemoved,modeId:e.modeId,modelId:new l(e.modelId),applyCodeBlockSuggestionId:e.applyCodeBlockSuggestionId,acceptanceMethod:e.acceptanceMethod,...u(I(e.source?.extensionId))})}};g=f([c(0,m),c(1,v)],g);export{g as $ELc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { EditSuggestionId } from "../../../../../../editor/common/textModelEditSource.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { TelemetryTrustedValue } from "../../../../../../platform/telemetry/common/telemetryUtils.js";
+import { DataChannelForwardingTelemetryService, forwardToChannelIf, isCopilotLikeExtension } from "../../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";
+import { IRandomService } from "../../randomService.js";
+let AiEditTelemetryServiceImpl = class AiEditTelemetryServiceImpl2 {
+  static {
+    __name(this, "AiEditTelemetryServiceImpl");
+  }
+  constructor(instantiationService, _randomService) {
+    this.instantiationService = instantiationService;
+    this._randomService = _randomService;
+    this._telemetryService = this.instantiationService.createInstance(DataChannelForwardingTelemetryService);
+  }
+  createSuggestionId(data) {
+    const suggestionId = EditSuggestionId.newId((ns) => this._randomService.generatePrefixedUuid(ns));
+    this._telemetryService.publicLog2("editTelemetry.codeSuggested", {
+      eventId: this._randomService.generatePrefixedUuid("evt"),
+      suggestionId,
+      presentation: data.presentation,
+      feature: data.feature,
+      sourceExtensionId: data.source?.extensionId,
+      sourceExtensionVersion: data.source?.extensionVersion,
+      sourceProviderId: data.source?.providerId,
+      languageId: data.languageId,
+      editCharsInserted: data.editDeltaInfo?.charsAdded,
+      editCharsDeleted: data.editDeltaInfo?.charsRemoved,
+      editLinesInserted: data.editDeltaInfo?.linesAdded,
+      editLinesDeleted: data.editDeltaInfo?.linesRemoved,
+      modeId: data.modeId,
+      modelId: new TelemetryTrustedValue(data.modelId),
+      applyCodeBlockSuggestionId: data.applyCodeBlockSuggestionId,
+      ...forwardToChannelIf(isCopilotLikeExtension(data.source?.extensionId))
+    });
+    return suggestionId;
+  }
+  handleCodeAccepted(data) {
+    this._telemetryService.publicLog2("editTelemetry.codeAccepted", {
+      eventId: this._randomService.generatePrefixedUuid("evt"),
+      suggestionId: data.suggestionId,
+      presentation: data.presentation,
+      feature: data.feature,
+      sourceExtensionId: data.source?.extensionId,
+      sourceExtensionVersion: data.source?.extensionVersion,
+      sourceProviderId: data.source?.providerId,
+      languageId: data.languageId,
+      editCharsInserted: data.editDeltaInfo?.charsAdded,
+      editCharsDeleted: data.editDeltaInfo?.charsRemoved,
+      editLinesInserted: data.editDeltaInfo?.linesAdded,
+      editLinesDeleted: data.editDeltaInfo?.linesRemoved,
+      modeId: data.modeId,
+      modelId: new TelemetryTrustedValue(data.modelId),
+      applyCodeBlockSuggestionId: data.applyCodeBlockSuggestionId,
+      acceptanceMethod: data.acceptanceMethod,
+      ...forwardToChannelIf(isCopilotLikeExtension(data.source?.extensionId))
+    });
+  }
+};
+AiEditTelemetryServiceImpl = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IRandomService)
+], AiEditTelemetryServiceImpl);
+export {
+  AiEditTelemetryServiceImpl
+};
+//# sourceMappingURL=aiEditTelemetryServiceImpl.js.map

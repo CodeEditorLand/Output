@@ -1,1 +1,4 @@
-import{$Kw as o}from"../common/diagnostics.js";import{$YPc as i}from"../../ipc/electron-browser/services.js";i(o,"diagnostics");
+import { IDiagnosticsService } from "../common/diagnostics.js";
+import { registerSharedProcessRemoteService } from "../../ipc/electron-browser/services.js";
+registerSharedProcessRemoteService(IDiagnosticsService, "diagnostics");
+//# sourceMappingURL=diagnosticsService.js.map

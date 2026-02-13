@@ -1,1 +1,383 @@
-import{$n as H}from"../../../../../base/common/platform.js";import{$9H as W}from"../../../../../editor/common/services/model.js";import{$5H as X}from"../../../../../editor/common/services/resolverService.js";import{localize as v}from"../../../../../nls.js";import{$Mj as Z}from"../../../../../platform/instantiation/common/instantiation.js";import{$YH as tt,QuickInputButtonLocation as et}from"../../../../../platform/quickinput/common/quickInput.js";import{$76 as ot}from"../../../../../platform/terminal/common/terminalEnvironment.js";import{ThemeIcon as L}from"../../../../../base/common/themables.js";import{$EYb as rt,$FYb as it,$DYb as nt,$CYb as at}from"../../../terminal/browser/terminalIcons.js";import{$tBc as F}from"../../../terminal/common/terminalStrings.js";import{URI as O}from"../../../../../base/common/uri.js";import{$Qn as st}from"../../../../../base/common/date.js";import{$BL as lt}from"../../../../services/editor/common/editorService.js";import{$zEc as ct}from"../../../../../platform/quickinput/browser/quickPickPin.js";import{$hp as mt}from"../../../../../platform/storage/common/storage.js";import{$zvb as ut}from"../../../../../platform/accessibility/browser/accessibleView.js";import{$Ed as dt,$Dd as ft}from"../../../../../base/common/lifecycle.js";import{$pEc as M,$oEc as N,$rEc as pt}from"../common/history.js";import{$Pc as ht}from"../../../../../base/common/map.js";import{$yh as bt,$Ah as gt}from"../../../../../base/common/resources.js";import{$D1 as vt}from"../../../../services/path/common/pathService.js";import{$9c as yt}from"../../../../../base/common/types.js";var J=function(m,t,i,u){var b=arguments.length,d=b<3?t:u===null?u=Object.getOwnPropertyDescriptor(t,i):u,w;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")d=Reflect.decorate(m,t,i,u);else for(var $=m.length-1;$>=0;$--)(w=m[$])&&(d=(b<3?w(d):b>3?w(t,i,d):w(t,i))||d);return b>3&&d&&Object.defineProperty(t,i,d),d},A=function(m,t){return function(i,u){t(i,u,m)}},R;async function P(m,t,i,u,b,d){if(!t.xterm)return;const w=m.get(ut),$=m.get(lt),g=m.get(Z),Y=m.get(tt),q=m.get(mt),V=m.get(vt),j=`terminal.pinnedRecentCommands.${t.shellType}`;let I,s=[];const C=new Set,B={iconClass:L.asClassName(at),tooltip:v(13920,null)},_={iconClass:L.asClassName(nt),tooltip:v(13921,null),alwaysVisible:!1},z=[];if(u==="command"){let c=function(n){return n.replace(/\r?\n/g,"\u23CE").replace(/\s\s\s+/g,"\u22EF")};var wt=c;I=H?v(13922,null):v(13923,null);const o=t.capabilities.get(2),e=o?.commands,l=o?.executingCommand;if(l&&C.add(l),e&&e.length>0)for(let n=e.length-1;n>=0;n--){const a=e[n],S=a.command.trim();if(S.length===0||C.has(S))continue;let T=ot(a.cwd,t.userHome,t.os===1?"\\":"/");a.exitCode&&(a.exitCode===-1?T+=" failed":T+=` exitCode: ${a.exitCode}`),T=T.trim();const G=[_],x=s.length>0?s[s.length-1]:void 0;if(x?.type!=="separator"&&x?.label===S){x.id=a.timestamp.toString(),x.description=T;continue}s.push({label:c(S),rawLabel:S,description:T,id:a.timestamp.toString(),command:a,buttons:a.hasOutput()?G:void 0}),C.add(S)}l&&s.unshift({label:c(l),rawLabel:l,description:o.cwd}),s.length>0&&s.unshift({type:"separator",buttons:[],label:F.currentSessionCategory});const y=g.invokeFunction(M),p=[];for(const[n,a]of y.entries)!C.has(n)&&a.shellType===t.shellType&&(p.unshift({label:c(n),rawLabel:n,buttons:[B]}),C.add(n));p.length>0&&s.push({type:"separator",buttons:[],label:F.previousSessionCategory},...p);const h=await g.invokeFunction(pt,t.shellType);if(h!==void 0){const n=[];for(const a of h.commands)C.has(a)||n.unshift({label:c(a),rawLabel:a});if(n.length>0){const a={iconClass:L.asClassName(it),tooltip:v(13924,null),alwaysVisible:!1,resource:h.sourceResource};z.push(a),s.push({type:"separator",buttons:[a],label:v(13925,null,t.shellType),description:h.sourceLabel},...n)}}}else{I=H?v(13926,null):v(13927,null);const o=t.os===1?gt:bt,e=new ht(p=>o.getComparisonKey(p)),l=t.capabilities.get(0)?.cwds||[];if(l&&l.length>0){for(const p of l){const h=O.file(p);e.has(h)||(e.add(h),s.push({label:await t.getUriLabelForShell(h),rawLabel:p}))}s=s.reverse(),s.unshift({type:"separator",label:F.currentSessionCategory})}const c=g.invokeFunction(N),y=[];for(const[p,h]of c.entries)if(h===null||h.remoteAuthority===t.remoteAuthority){const n=h?.remoteAuthority?await V.fileURI(p):O.file(p);e.has(n)||(e.add(n),y.unshift({label:await t.getUriLabelForShell(n),rawLabel:p,buttons:[B]}))}y.length>0&&s.push({type:"separator",label:F.previousSessionCategory},...y)}if(s.length===0)return;const f=new ft,E={iconClass:L.asClassName(rt),tooltip:v(13928,null),toggle:{checked:b==="fuzzy"},location:et.Input},Q=f.add(g.createInstance(D)),r=f.add(Y.createQuickPick({useSeparators:!0})),K=s;r.items=[...K],r.sortByLabel=!1,r.placeholder=I,r.matchOnLabelMode=b||"contiguous",r.buttons=[E],f.add(r.onDidTriggerButton(o=>{o===E&&g.invokeFunction(P,t,i,u,E.toggle.checked?"fuzzy":"contiguous",r.value)})),f.add(r.onDidTriggerItemButton(async o=>{if(o.button===B)u==="command"?g.invokeFunction(M)?.remove(o.item.label):g.invokeFunction(N)?.remove(o.item.rawLabel);else if(o.button===_){const e=o.item.command,l=e?.getOutput();if(l&&e?.command){const c=await Q.provideTextContent(O.from({scheme:D.scheme,path:`${e.command}... ${st(e.timestamp,!0)}`,fragment:l,query:`terminal-output-${e.timestamp}-${t.instanceId}`}));c&&await $.openEditor({resource:c.uri})}}await g.invokeFunction(P,t,i,u,b,d)})),f.add(r.onDidTriggerSeparatorButton(async o=>{const e=z.find(l=>o.button===l)?.resource;e&&await $.openEditor({resource:e})})),f.add(r.onDidChangeValue(async o=>{o||await g.invokeFunction(P,t,i,u,b,o)}));let k=!1;function U(){k=!1,t.xterm?.markTracker.restoreScrollState(),t.xterm?.markTracker.clear()}return f.add(r.onDidChangeActive(async()=>{const o=t.xterm;if(!o)return;const[e]=r.activeItems;if(!e)return;function l(c){return yt(c)&&"rawLabel"in c}if(l(e)&&e.command&&e.command.marker){k||(o.markTracker.saveScrollState(),k=!0);const c=e.command.getPromptRowCount(),y=e.command.getCommandRowCount();o.markTracker.revealRange({start:{x:1,y:e.command.marker.line-(c-1)+1},end:{x:t.cols,y:e.command.marker.line+(y-1)+1}})}else U()})),f.add(r.onDidAccept(async()=>{const o=r.activeItems[0];let e;u==="cwd"?e=`cd ${await t.preparePathForShell(o.rawLabel)}`:e=o.rawLabel,r.hide(),k=!1,t.xterm?.markTracker.clear(),t.scrollToBottom(),t.runCommand(e,!r.keyMods.alt),r.keyMods.alt&&t.focus()})),f.add(r.onDidHide(()=>U())),d&&(r.value=d),new Promise(o=>{i.set(!0),f.add(ct(q,j,r,!0)),f.add(r.onDidHide(()=>{i.set(!1),w.showLastProvider("terminal"),o(),f.dispose()}))})}let D=class extends dt{static{R=this}static{this.scheme="TERMINAL_OUTPUT"}constructor(t,i){super(),this.a=i,this.D(t.registerTextModelContentProvider(R.scheme,this))}async provideTextContent(t){const i=this.a.getModel(t);return i&&!i.isDisposed()?i:this.a.createModel(t.fragment,null,t,!1)}};D=R=J([A(0,X),A(1,W)],D);export{P as $AEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalOutputProvider_1;
+import { isMacintosh } from "../../../../../base/common/platform.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../../nls.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService, QuickInputButtonLocation } from "../../../../../platform/quickinput/common/quickInput.js";
+import { collapseTildePath } from "../../../../../platform/terminal/common/terminalEnvironment.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { commandHistoryFuzzySearchIcon, commandHistoryOpenFileIcon, commandHistoryOutputIcon, commandHistoryRemoveIcon } from "../../../terminal/browser/terminalIcons.js";
+import { terminalStrings } from "../../../terminal/common/terminalStrings.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { fromNow } from "../../../../../base/common/date.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { showWithPinnedItems } from "../../../../../platform/quickinput/browser/quickPickPin.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IAccessibleViewService } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { getCommandHistory, getDirectoryHistory, getShellFileHistory } from "../common/history.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { extUri, extUriIgnorePathCase } from "../../../../../base/common/resources.js";
+import { IPathService } from "../../../../services/path/common/pathService.js";
+import { isObject } from "../../../../../base/common/types.js";
+async function showRunRecentQuickPick(accessor, instance, terminalInRunCommandPicker, type, filterMode, value) {
+  if (!instance.xterm) {
+    return;
+  }
+  const accessibleViewService = accessor.get(IAccessibleViewService);
+  const editorService = accessor.get(IEditorService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const quickInputService = accessor.get(IQuickInputService);
+  const storageService = accessor.get(IStorageService);
+  const pathService = accessor.get(IPathService);
+  const runRecentStorageKey = `${"terminal.pinnedRecentCommands"}.${instance.shellType}`;
+  let placeholder;
+  let items = [];
+  const commandMap = /* @__PURE__ */ new Set();
+  const removeFromCommandHistoryButton = {
+    iconClass: ThemeIcon.asClassName(commandHistoryRemoveIcon),
+    tooltip: localize("removeCommand", "Remove from Command History")
+  };
+  const commandOutputButton = {
+    iconClass: ThemeIcon.asClassName(commandHistoryOutputIcon),
+    tooltip: localize("viewCommandOutput", "View Command Output"),
+    alwaysVisible: false
+  };
+  const openResourceButtons = [];
+  if (type === "command") {
+    let formatLabel2 = function(label) {
+      return label.replace(/\r?\n/g, "\u23CE").replace(/\s\s\s+/g, "\u22EF");
+    };
+    var formatLabel = formatLabel2;
+    __name(formatLabel2, "formatLabel");
+    placeholder = isMacintosh ? localize("selectRecentCommandMac", "Select a command to run (hold Option-key to edit the command)") : localize("selectRecentCommand", "Select a command to run (hold Alt-key to edit the command)");
+    const cmdDetection = instance.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    );
+    const commands = cmdDetection?.commands;
+    const executingCommand = cmdDetection?.executingCommand;
+    if (executingCommand) {
+      commandMap.add(executingCommand);
+    }
+    if (commands && commands.length > 0) {
+      for (let i = commands.length - 1; i >= 0; i--) {
+        const entry = commands[i];
+        const label = entry.command.trim();
+        if (label.length === 0 || commandMap.has(label)) {
+          continue;
+        }
+        let description = collapseTildePath(entry.cwd, instance.userHome, instance.os === 1 ? "\\" : "/");
+        if (entry.exitCode) {
+          if (entry.exitCode === -1) {
+            description += " failed";
+          } else {
+            description += ` exitCode: ${entry.exitCode}`;
+          }
+        }
+        description = description.trim();
+        const buttons = [commandOutputButton];
+        const lastItem = items.length > 0 ? items[items.length - 1] : void 0;
+        if (lastItem?.type !== "separator" && lastItem?.label === label) {
+          lastItem.id = entry.timestamp.toString();
+          lastItem.description = description;
+          continue;
+        }
+        items.push({
+          label: formatLabel2(label),
+          rawLabel: label,
+          description,
+          id: entry.timestamp.toString(),
+          command: entry,
+          buttons: entry.hasOutput() ? buttons : void 0
+        });
+        commandMap.add(label);
+      }
+    }
+    if (executingCommand) {
+      items.unshift({
+        label: formatLabel2(executingCommand),
+        rawLabel: executingCommand,
+        description: cmdDetection.cwd
+      });
+    }
+    if (items.length > 0) {
+      items.unshift({
+        type: "separator",
+        buttons: [],
+        // HACK: Force full sized separators as there's no flag currently
+        label: terminalStrings.currentSessionCategory
+      });
+    }
+    const history = instantiationService.invokeFunction(getCommandHistory);
+    const previousSessionItems = [];
+    for (const [label, info] of history.entries) {
+      if (!commandMap.has(label) && info.shellType === instance.shellType) {
+        previousSessionItems.unshift({
+          label: formatLabel2(label),
+          rawLabel: label,
+          buttons: [removeFromCommandHistoryButton]
+        });
+        commandMap.add(label);
+      }
+    }
+    if (previousSessionItems.length > 0) {
+      items.push({
+        type: "separator",
+        buttons: [],
+        // HACK: Force full sized separators as there's no flag currently
+        label: terminalStrings.previousSessionCategory
+      }, ...previousSessionItems);
+    }
+    const shellFileHistory = await instantiationService.invokeFunction(getShellFileHistory, instance.shellType);
+    if (shellFileHistory !== void 0) {
+      const dedupedShellFileItems = [];
+      for (const label of shellFileHistory.commands) {
+        if (!commandMap.has(label)) {
+          dedupedShellFileItems.unshift({
+            label: formatLabel2(label),
+            rawLabel: label
+          });
+        }
+      }
+      if (dedupedShellFileItems.length > 0) {
+        const button = {
+          iconClass: ThemeIcon.asClassName(commandHistoryOpenFileIcon),
+          tooltip: localize("openShellHistoryFile", "Open File"),
+          alwaysVisible: false,
+          resource: shellFileHistory.sourceResource
+        };
+        openResourceButtons.push(button);
+        items.push({
+          type: "separator",
+          buttons: [button],
+          label: localize("shellFileHistoryCategory", "{0} history", instance.shellType),
+          description: shellFileHistory.sourceLabel
+        }, ...dedupedShellFileItems);
+      }
+    }
+  } else {
+    placeholder = isMacintosh ? localize("selectRecentDirectoryMac", "Select a directory to go to (hold Option-key to edit the command)") : localize("selectRecentDirectory", "Select a directory to go to (hold Alt-key to edit the command)");
+    const uriComparer = instance.os === 1 ? extUriIgnorePathCase : extUri;
+    const uniqueUris = new ResourceSet((o) => uriComparer.getComparisonKey(o));
+    const cwds = instance.capabilities.get(
+      0
+      /* TerminalCapability.CwdDetection */
+    )?.cwds || [];
+    if (cwds && cwds.length > 0) {
+      for (const label of cwds) {
+        const itemUri = URI.file(label);
+        if (!uniqueUris.has(itemUri)) {
+          uniqueUris.add(itemUri);
+          items.push({
+            label: await instance.getUriLabelForShell(itemUri),
+            rawLabel: label
+          });
+        }
+      }
+      items = items.reverse();
+      items.unshift({ type: "separator", label: terminalStrings.currentSessionCategory });
+    }
+    const history = instantiationService.invokeFunction(getDirectoryHistory);
+    const previousSessionItems = [];
+    for (const [label, info] of history.entries) {
+      if (info === null || info.remoteAuthority === instance.remoteAuthority) {
+        const itemUri = info?.remoteAuthority ? await pathService.fileURI(label) : URI.file(label);
+        if (!uniqueUris.has(itemUri)) {
+          uniqueUris.add(itemUri);
+          previousSessionItems.unshift({
+            label: await instance.getUriLabelForShell(itemUri),
+            rawLabel: label,
+            buttons: [removeFromCommandHistoryButton]
+          });
+        }
+      }
+    }
+    if (previousSessionItems.length > 0) {
+      items.push({ type: "separator", label: terminalStrings.previousSessionCategory }, ...previousSessionItems);
+    }
+  }
+  if (items.length === 0) {
+    return;
+  }
+  const disposables = new DisposableStore();
+  const fuzzySearchButton = {
+    iconClass: ThemeIcon.asClassName(commandHistoryFuzzySearchIcon),
+    tooltip: localize("fuzzySearch", "Fuzzy search"),
+    toggle: { checked: filterMode === "fuzzy" },
+    location: QuickInputButtonLocation.Input
+  };
+  const outputProvider = disposables.add(instantiationService.createInstance(TerminalOutputProvider));
+  const quickPick = disposables.add(quickInputService.createQuickPick({ useSeparators: true }));
+  const originalItems = items;
+  quickPick.items = [...originalItems];
+  quickPick.sortByLabel = false;
+  quickPick.placeholder = placeholder;
+  quickPick.matchOnLabelMode = filterMode || "contiguous";
+  quickPick.buttons = [fuzzySearchButton];
+  disposables.add(quickPick.onDidTriggerButton((button) => {
+    if (button === fuzzySearchButton) {
+      instantiationService.invokeFunction(showRunRecentQuickPick, instance, terminalInRunCommandPicker, type, fuzzySearchButton.toggle.checked ? "fuzzy" : "contiguous", quickPick.value);
+    }
+  }));
+  disposables.add(quickPick.onDidTriggerItemButton(async (e) => {
+    if (e.button === removeFromCommandHistoryButton) {
+      if (type === "command") {
+        instantiationService.invokeFunction(getCommandHistory)?.remove(e.item.label);
+      } else {
+        instantiationService.invokeFunction(getDirectoryHistory)?.remove(e.item.rawLabel);
+      }
+    } else if (e.button === commandOutputButton) {
+      const selectedCommand = e.item.command;
+      const output = selectedCommand?.getOutput();
+      if (output && selectedCommand?.command) {
+        const textContent = await outputProvider.provideTextContent(URI.from({
+          scheme: TerminalOutputProvider.scheme,
+          path: `${selectedCommand.command}... ${fromNow(selectedCommand.timestamp, true)}`,
+          fragment: output,
+          query: `terminal-output-${selectedCommand.timestamp}-${instance.instanceId}`
+        }));
+        if (textContent) {
+          await editorService.openEditor({
+            resource: textContent.uri
+          });
+        }
+      }
+    }
+    await instantiationService.invokeFunction(showRunRecentQuickPick, instance, terminalInRunCommandPicker, type, filterMode, value);
+  }));
+  disposables.add(quickPick.onDidTriggerSeparatorButton(async (e) => {
+    const resource = openResourceButtons.find((openResourceButton) => e.button === openResourceButton)?.resource;
+    if (resource) {
+      await editorService.openEditor({
+        resource
+      });
+    }
+  }));
+  disposables.add(quickPick.onDidChangeValue(async (value2) => {
+    if (!value2) {
+      await instantiationService.invokeFunction(showRunRecentQuickPick, instance, terminalInRunCommandPicker, type, filterMode, value2);
+    }
+  }));
+  let terminalScrollStateSaved = false;
+  function restoreScrollState() {
+    terminalScrollStateSaved = false;
+    instance.xterm?.markTracker.restoreScrollState();
+    instance.xterm?.markTracker.clear();
+  }
+  __name(restoreScrollState, "restoreScrollState");
+  disposables.add(quickPick.onDidChangeActive(async () => {
+    const xterm = instance.xterm;
+    if (!xterm) {
+      return;
+    }
+    const [item] = quickPick.activeItems;
+    if (!item) {
+      return;
+    }
+    function isItem(obj) {
+      return isObject(obj) && "rawLabel" in obj;
+    }
+    __name(isItem, "isItem");
+    if (isItem(item) && item.command && item.command.marker) {
+      if (!terminalScrollStateSaved) {
+        xterm.markTracker.saveScrollState();
+        terminalScrollStateSaved = true;
+      }
+      const promptRowCount = item.command.getPromptRowCount();
+      const commandRowCount = item.command.getCommandRowCount();
+      xterm.markTracker.revealRange({
+        start: {
+          x: 1,
+          y: item.command.marker.line - (promptRowCount - 1) + 1
+        },
+        end: {
+          x: instance.cols,
+          y: item.command.marker.line + (commandRowCount - 1) + 1
+        }
+      });
+    } else {
+      restoreScrollState();
+    }
+  }));
+  disposables.add(quickPick.onDidAccept(async () => {
+    const result = quickPick.activeItems[0];
+    let text;
+    if (type === "cwd") {
+      text = `cd ${await instance.preparePathForShell(result.rawLabel)}`;
+    } else {
+      text = result.rawLabel;
+    }
+    quickPick.hide();
+    terminalScrollStateSaved = false;
+    instance.xterm?.markTracker.clear();
+    instance.scrollToBottom();
+    instance.runCommand(text, !quickPick.keyMods.alt);
+    if (quickPick.keyMods.alt) {
+      instance.focus();
+    }
+  }));
+  disposables.add(quickPick.onDidHide(() => restoreScrollState()));
+  if (value) {
+    quickPick.value = value;
+  }
+  return new Promise((r) => {
+    terminalInRunCommandPicker.set(true);
+    disposables.add(showWithPinnedItems(storageService, runRecentStorageKey, quickPick, true));
+    disposables.add(quickPick.onDidHide(() => {
+      terminalInRunCommandPicker.set(false);
+      accessibleViewService.showLastProvider(
+        "terminal"
+        /* AccessibleViewProviderId.Terminal */
+      );
+      r();
+      disposables.dispose();
+    }));
+  });
+}
+__name(showRunRecentQuickPick, "showRunRecentQuickPick");
+let TerminalOutputProvider = class TerminalOutputProvider2 extends Disposable {
+  static {
+    __name(this, "TerminalOutputProvider");
+  }
+  static {
+    TerminalOutputProvider_1 = this;
+  }
+  static {
+    this.scheme = "TERMINAL_OUTPUT";
+  }
+  constructor(textModelResolverService, _modelService) {
+    super();
+    this._modelService = _modelService;
+    this._register(textModelResolverService.registerTextModelContentProvider(TerminalOutputProvider_1.scheme, this));
+  }
+  async provideTextContent(resource) {
+    const existing = this._modelService.getModel(resource);
+    if (existing && !existing.isDisposed()) {
+      return existing;
+    }
+    return this._modelService.createModel(resource.fragment, null, resource, false);
+  }
+};
+TerminalOutputProvider = TerminalOutputProvider_1 = __decorate([
+  __param(0, ITextModelService),
+  __param(1, IModelService)
+], TerminalOutputProvider);
+export {
+  showRunRecentQuickPick
+};
+//# sourceMappingURL=terminalRunRecentQuickPick.js.map

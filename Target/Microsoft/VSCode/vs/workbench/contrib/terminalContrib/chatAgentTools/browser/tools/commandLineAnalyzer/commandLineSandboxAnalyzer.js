@@ -1,1 +1,42 @@
-import{$Ed as a}from"../../../../../../../base/common/lifecycle.js";import{$0Cc as s}from"../../../common/terminalSandboxService.js";var f=function(o,e,r,n){var i=arguments.length,t=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(o,e,r,n);else for(var p=o.length-1;p>=0;p--)(c=o[p])&&(t=(i<3?c(t):i>3?c(e,r,t):c(e,r))||t);return i>3&&t&&Object.defineProperty(e,r,t),t},l=function(o,e){return function(r,n){e(r,n,o)}};let u=class extends a{constructor(e){super(),this.a=e}async analyze(e){return await this.a.isEnabled()?{isAutoApproveAllowed:!0,forceAutoApproval:!0}:{isAutoApproveAllowed:!0}}};u=f([l(0,s)],u);export{u as $eDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { ITerminalSandboxService } from "../../../common/terminalSandboxService.js";
+let CommandLineSandboxAnalyzer = class CommandLineSandboxAnalyzer2 extends Disposable {
+  static {
+    __name(this, "CommandLineSandboxAnalyzer");
+  }
+  constructor(_sandboxService) {
+    super();
+    this._sandboxService = _sandboxService;
+  }
+  async analyze(_options) {
+    if (!await this._sandboxService.isEnabled()) {
+      return {
+        isAutoApproveAllowed: true
+      };
+    }
+    return {
+      isAutoApproveAllowed: true,
+      forceAutoApproval: true
+    };
+  }
+};
+CommandLineSandboxAnalyzer = __decorate([
+  __param(0, ITerminalSandboxService)
+], CommandLineSandboxAnalyzer);
+export {
+  CommandLineSandboxAnalyzer
+};
+//# sourceMappingURL=commandLineSandboxAnalyzer.js.map

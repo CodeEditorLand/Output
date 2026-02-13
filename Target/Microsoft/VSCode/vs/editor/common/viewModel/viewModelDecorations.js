@@ -1,1 +1,161 @@
-import{$$D as p}from"../core/position.js";import{$_D as b}from"../core/range.js";import{filterFontDecorations as M,filterValidationDecorations as V}from"../config/editorOptions.js";import{$Lfb as j,$Kfb as O}from"./viewModelDecoration.js";import{$Ucb as N}from"./inlineDecorations.js";class R{constructor(e,i,o,s,n){this.a=e,this.b=i,this.c=o,this.d=s,this.e=n,this.f=Object.create(null),this.g=null,this.h=null}k(){this.g=null,this.h=null}dispose(){this.f=Object.create(null),this.k()}reset(){this.f=Object.create(null),this.k()}onModelDecorationsChanged(){this.f=Object.create(null),this.k()}onLineMappingChanged(){this.f=Object.create(null),this.k()}l(e){const i=e.id;let o=this.f[i];if(!o){const s=e.range,n=e.options;let a;if(n.isWholeLine){const c=this.e.convertModelPositionToViewPosition(new p(s.startLineNumber,1),0,!1,!0),f=this.e.convertModelPositionToViewPosition(new p(s.endLineNumber,this.b.getLineMaxColumn(s.endLineNumber)),1);a=new b(c.lineNumber,c.column,f.lineNumber,f.column)}else a=this.e.convertModelRangeToViewRange(s,1);o=new O(a,n),this.f[i]=o}return o}getMinimapDecorationsInRange(e){return this.m(e,!0,!1).decorations}getDecorationsViewportData(e){let i=this.g!==null;return i=i&&e.equalsRange(this.h),i||(this.g=this.m(e,!1,!1),this.h=e),this.g}getDecorationsOnLine(e,i=!1,o=!1){const s=new b(e,this.d.getViewLineMinColumn(e),e,this.d.getViewLineMaxColumn(e));return this.m(s,i,o)}m(e,i,o){const s=this.d.getDecorationsInRange(e,this.a,V(this.c.options),M(this.c.options),i,o),n=e.startLineNumber,a=e.endLineNumber,c=[];let f=0;const u=[],m=[];for(let l=n;l<=a;l++)u[l-n]=[],m[l-n]=!1;for(let l=0,C=s.length;l<C;l++){const L=s[l],r=L.options;if(!j(this.b,L))continue;const g=this.l(L),t=g.range;if(c[f++]=g,r.inlineClassName){const h=new N(t,r.inlineClassName,r.inlineClassNameAffectsLetterSpacing?3:0),w=Math.max(n,t.startLineNumber),D=Math.min(a,t.endLineNumber);for(let d=w;d<=D;d++)u[d-n].push(h),r.affectsFont&&(m[d-n]=!0)}if(r.beforeContentClassName&&n<=t.startLineNumber&&t.startLineNumber<=a){const h=new N(new b(t.startLineNumber,t.startColumn,t.startLineNumber,t.startColumn),r.beforeContentClassName,1);u[t.startLineNumber-n].push(h),r.affectsFont&&(m[t.startLineNumber-n]=!0)}if(r.afterContentClassName&&n<=t.endLineNumber&&t.endLineNumber<=a){const h=new N(new b(t.endLineNumber,t.endColumn,t.endLineNumber,t.endColumn),r.afterContentClassName,2);u[t.endLineNumber-n].push(h),r.affectsFont&&(m[t.endLineNumber-n]=!0)}}return{decorations:c,inlineDecorations:u,hasVariableFonts:m}}}export{R as $pib};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Position } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { filterFontDecorations, filterValidationDecorations } from "../config/editorOptions.js";
+import { isModelDecorationVisible, ViewModelDecoration } from "./viewModelDecoration.js";
+import { InlineDecoration } from "./inlineDecorations.js";
+class ViewModelDecorations {
+  static {
+    __name(this, "ViewModelDecorations");
+  }
+  constructor(editorId, model, configuration, linesCollection, coordinatesConverter) {
+    this.editorId = editorId;
+    this.model = model;
+    this.configuration = configuration;
+    this._linesCollection = linesCollection;
+    this._coordinatesConverter = coordinatesConverter;
+    this._decorationsCache = /* @__PURE__ */ Object.create(null);
+    this._cachedModelDecorationsResolver = null;
+    this._cachedModelDecorationsResolverViewRange = null;
+  }
+  _clearCachedModelDecorationsResolver() {
+    this._cachedModelDecorationsResolver = null;
+    this._cachedModelDecorationsResolverViewRange = null;
+  }
+  dispose() {
+    this._decorationsCache = /* @__PURE__ */ Object.create(null);
+    this._clearCachedModelDecorationsResolver();
+  }
+  reset() {
+    this._decorationsCache = /* @__PURE__ */ Object.create(null);
+    this._clearCachedModelDecorationsResolver();
+  }
+  onModelDecorationsChanged() {
+    this._decorationsCache = /* @__PURE__ */ Object.create(null);
+    this._clearCachedModelDecorationsResolver();
+  }
+  onLineMappingChanged() {
+    this._decorationsCache = /* @__PURE__ */ Object.create(null);
+    this._clearCachedModelDecorationsResolver();
+  }
+  _getOrCreateViewModelDecoration(modelDecoration) {
+    const id = modelDecoration.id;
+    let r = this._decorationsCache[id];
+    if (!r) {
+      const modelRange = modelDecoration.range;
+      const options = modelDecoration.options;
+      let viewRange;
+      if (options.isWholeLine) {
+        const start = this._coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.startLineNumber, 1), 0, false, true);
+        const end = this._coordinatesConverter.convertModelPositionToViewPosition(
+          new Position(modelRange.endLineNumber, this.model.getLineMaxColumn(modelRange.endLineNumber)),
+          1
+          /* PositionAffinity.Right */
+        );
+        viewRange = new Range(start.lineNumber, start.column, end.lineNumber, end.column);
+      } else {
+        viewRange = this._coordinatesConverter.convertModelRangeToViewRange(
+          modelRange,
+          1
+          /* PositionAffinity.Right */
+        );
+      }
+      r = new ViewModelDecoration(viewRange, options);
+      this._decorationsCache[id] = r;
+    }
+    return r;
+  }
+  getMinimapDecorationsInRange(range) {
+    return this._getDecorationsInRange(range, true, false).decorations;
+  }
+  getDecorationsViewportData(viewRange) {
+    let cacheIsValid = this._cachedModelDecorationsResolver !== null;
+    cacheIsValid = cacheIsValid && viewRange.equalsRange(this._cachedModelDecorationsResolverViewRange);
+    if (!cacheIsValid) {
+      this._cachedModelDecorationsResolver = this._getDecorationsInRange(viewRange, false, false);
+      this._cachedModelDecorationsResolverViewRange = viewRange;
+    }
+    return this._cachedModelDecorationsResolver;
+  }
+  getDecorationsOnLine(lineNumber, onlyMinimapDecorations = false, onlyMarginDecorations = false) {
+    const range = new Range(lineNumber, this._linesCollection.getViewLineMinColumn(lineNumber), lineNumber, this._linesCollection.getViewLineMaxColumn(lineNumber));
+    return this._getDecorationsInRange(range, onlyMinimapDecorations, onlyMarginDecorations);
+  }
+  _getDecorationsInRange(viewRange, onlyMinimapDecorations, onlyMarginDecorations) {
+    const modelDecorations = this._linesCollection.getDecorationsInRange(viewRange, this.editorId, filterValidationDecorations(this.configuration.options), filterFontDecorations(this.configuration.options), onlyMinimapDecorations, onlyMarginDecorations);
+    const startLineNumber = viewRange.startLineNumber;
+    const endLineNumber = viewRange.endLineNumber;
+    const decorationsInViewport = [];
+    let decorationsInViewportLen = 0;
+    const inlineDecorations = [];
+    const hasVariableFonts = [];
+    for (let j = startLineNumber; j <= endLineNumber; j++) {
+      inlineDecorations[j - startLineNumber] = [];
+      hasVariableFonts[j - startLineNumber] = false;
+    }
+    for (let i = 0, len = modelDecorations.length; i < len; i++) {
+      const modelDecoration = modelDecorations[i];
+      const decorationOptions = modelDecoration.options;
+      if (!isModelDecorationVisible(this.model, modelDecoration)) {
+        continue;
+      }
+      const viewModelDecoration = this._getOrCreateViewModelDecoration(modelDecoration);
+      const viewRange2 = viewModelDecoration.range;
+      decorationsInViewport[decorationsInViewportLen++] = viewModelDecoration;
+      if (decorationOptions.inlineClassName) {
+        const inlineDecoration = new InlineDecoration(
+          viewRange2,
+          decorationOptions.inlineClassName,
+          decorationOptions.inlineClassNameAffectsLetterSpacing ? 3 : 0
+          /* InlineDecorationType.Regular */
+        );
+        const intersectedStartLineNumber = Math.max(startLineNumber, viewRange2.startLineNumber);
+        const intersectedEndLineNumber = Math.min(endLineNumber, viewRange2.endLineNumber);
+        for (let j = intersectedStartLineNumber; j <= intersectedEndLineNumber; j++) {
+          inlineDecorations[j - startLineNumber].push(inlineDecoration);
+          if (decorationOptions.affectsFont) {
+            hasVariableFonts[j - startLineNumber] = true;
+          }
+        }
+      }
+      if (decorationOptions.beforeContentClassName) {
+        if (startLineNumber <= viewRange2.startLineNumber && viewRange2.startLineNumber <= endLineNumber) {
+          const inlineDecoration = new InlineDecoration(
+            new Range(viewRange2.startLineNumber, viewRange2.startColumn, viewRange2.startLineNumber, viewRange2.startColumn),
+            decorationOptions.beforeContentClassName,
+            1
+            /* InlineDecorationType.Before */
+          );
+          inlineDecorations[viewRange2.startLineNumber - startLineNumber].push(inlineDecoration);
+          if (decorationOptions.affectsFont) {
+            hasVariableFonts[viewRange2.startLineNumber - startLineNumber] = true;
+          }
+        }
+      }
+      if (decorationOptions.afterContentClassName) {
+        if (startLineNumber <= viewRange2.endLineNumber && viewRange2.endLineNumber <= endLineNumber) {
+          const inlineDecoration = new InlineDecoration(
+            new Range(viewRange2.endLineNumber, viewRange2.endColumn, viewRange2.endLineNumber, viewRange2.endColumn),
+            decorationOptions.afterContentClassName,
+            2
+            /* InlineDecorationType.After */
+          );
+          inlineDecorations[viewRange2.endLineNumber - startLineNumber].push(inlineDecoration);
+          if (decorationOptions.affectsFont) {
+            hasVariableFonts[viewRange2.endLineNumber - startLineNumber] = true;
+          }
+        }
+      }
+    }
+    return {
+      decorations: decorationsInViewport,
+      inlineDecorations,
+      hasVariableFonts
+    };
+  }
+}
+export {
+  ViewModelDecorations
+};
+//# sourceMappingURL=viewModelDecorations.js.map

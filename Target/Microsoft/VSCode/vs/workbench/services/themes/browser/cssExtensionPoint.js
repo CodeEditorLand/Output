@@ -1,1 +1,289 @@
-import*as f from"../../../../nls.js";import{$KR as I}from"../../extensions/common/extensionsRegistry.js";import{$QR as $}from"../../extensions/common/extensions.js";import*as b from"../../../../base/common/resources.js";import{$vk as S}from"../../../../platform/files/common/files.js";import{$dcb as C}from"../../environment/browser/environmentService.js";import{$Dd as u,$Cd as g}from"../../../../base/common/lifecycle.js";import{URI as T}from"../../../../base/common/uri.js";import{$th as x}from"../../../../base/common/network.js";import{$e9 as _}from"../../../../base/browser/dom.js";import{$nDb as j}from"../common/workbenchThemeService.js";import{$hp as q}from"../../../../platform/storage/common/storage.js";import{$Iz as p}from"../../../../platform/extensions/common/extensions.js";var D=function(a,t,e,s){var o=arguments.length,i=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(a,t,e,s);else for(var n=a.length-1;n>=0;n--)(r=a[n])&&(i=(o<3?r(i):o>3?r(t,e,i):r(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},d=function(a,t){return function(e,s){t(e,s,a)}};const m="workbench.contrib.css.cache",y=I.registerExtensionPoint({extensionPoint:"css",jsonSchema:{description:f.localize(16517,null),type:"array",items:{type:"object",properties:{path:{description:f.localize(16518,null),type:"string"}},required:["path"]},defaultSnippets:[{body:[{path:"${1:styles.css}"}]}]}});class P{constructor(t,e,s){this.b=t,this.c=e,this.d=s,this.a=new Map}watch(t){const e=t.toString();if(this.a.has(e)||!this.c.isExtensionDevelopment)return;const s=new u;s.add(this.b.watch(t)),s.add(this.b.onDidFilesChange(o=>{o.contains(t,0)&&this.d(t)})),this.a.set(e,{uri:t,disposables:s})}unwatch(t){const e=t.toString(),s=this.a.get(e);s&&(s.disposables.dispose(),this.a.delete(e))}dispose(){for(const t of this.a.values())t.disposables.dispose();this.a.clear()}}let w=class{constructor(t,e,s,o){this.f=s,this.g=o,this.a=new u,this.b=new Map,this.c=new Map,this.d=this.a.add(new P(t,e,i=>this.q(i))),this.a.add(g(()=>{for(const i of this.b.values())for(const r of i)r.disposables.dispose();this.b.clear()})),this.l(),this.a.add(this.f.onDidColorThemeChange(()=>this.i())),this.a.add(this.f.onDidFileIconThemeChange(()=>this.i())),this.a.add(this.f.onDidProductIconThemeChange(()=>this.i())),y.setHandler((i,r)=>{for(const n of r.removed){const c=n.description.identifier.value;this.c.delete(c),this.k(c),this.o(c)}for(const n of r.added){if(!$(n.description,"css")){n.collector.error(`The '${y.name}' contribution point is proposed API.`);continue}const c=n.value,h=n.collector;if(!c||!Array.isArray(c)){h.error(f.localize(16519,null));continue}const l=n.description.identifier.value;this.c.set(l,n),this.h(l)&&this.j(n)}})}h(t){const e=this.f.getColorTheme(),s=this.f.getFileIconTheme(),o=this.f.getProductIconTheme();return!!(e.extensionData&&p.equals(e.extensionData.extensionId,t))||!!(s.extensionData&&p.equals(s.extensionData.extensionId,t))||!!(o.extensionData&&p.equals(o.extensionData.extensionId,t))}i(){for(const[t,e]of this.c){const s=this.b.has(t),o=this.h(t);o&&!s?this.j(e):!o&&s&&(this.k(t),this.o(t))}}j(t){const e=t.description.identifier.value;if(this.b.has(e))return;const s=t.description.extensionLocation,o=t.value,i=t.collector,r=[],n=[];for(const c of o){if(!c.path||typeof c.path!="string"){i.error(f.localize(16520,null));continue}const h=b.$Ih(s,c.path);if(!b.$Ch(h,s)){i.warn(f.localize(16521,null,h.path,s.path));continue}const l=new u,v=this.p(h,e,l);r.push({uri:h,element:v,disposables:l}),n.push(h.toString()),this.d.watch(h)}r.length>0&&(this.b.set(e,r),this.n(e,n))}k(t){const e=this.b.get(t);if(e){for(const s of e)this.d.unwatch(s.uri),s.disposables.dispose();this.b.delete(t)}}l(){const t=this.m();if(!t)return;if(!this.h(t.extensionId)){this.o(t.extensionId);return}const e=[];for(const s of t.cssLocations){const o=T.parse(s),i=new u,r=this.p(o,t.extensionId,i);e.push({uri:o,element:r,disposables:i}),this.d.watch(o)}e.length>0&&this.b.set(t.extensionId,e)}m(){const t=this.g.get(m,0);if(t)try{return JSON.parse(t)}catch{return}}n(t,e){const s={extensionId:t,cssLocations:e};this.g.store(m,JSON.stringify(s),0,1)}o(t){const e=this.m();e&&p.equals(e.extensionId,t)&&this.g.remove(m,0)}p(t,e,s){const o=_();return o.rel="stylesheet",o.type="text/css",o.className=`extension-contributed-css ${e}`,o.href=x.uriToBrowserUri(t).toString(!0),s.add(g(()=>o.remove())),o}q(t){const e=t.toString();for(const s of this.b.values())for(const o of s)if(o.uri.toString()===e){const i=x.uriToBrowserUri(t);o.element.href=i.with({query:`v=${Date.now()}`}).toString(!0)}}dispose(){this.a.dispose()}};w=D([d(0,S),d(1,C),d(2,j),d(3,q)],w);export{w as $uDb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { ExtensionsRegistry } from "../../extensions/common/extensionsRegistry.js";
+import { isProposedApiEnabled } from "../../extensions/common/extensions.js";
+import * as resources from "../../../../base/common/resources.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileAccess } from "../../../../base/common/network.js";
+import { createLinkElement } from "../../../../base/browser/dom.js";
+import { IWorkbenchThemeService } from "../common/workbenchThemeService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+const CSS_CACHE_STORAGE_KEY = "workbench.contrib.css.cache";
+const cssExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "css",
+  jsonSchema: {
+    description: nls.localize("contributes.css", "Contributes CSS files to be loaded in the workbench."),
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        path: {
+          description: nls.localize("contributes.css.path", "Path to the CSS file. The path is relative to the extension folder."),
+          type: "string"
+        }
+      },
+      required: ["path"]
+    },
+    defaultSnippets: [{ body: [{ path: "${1:styles.css}" }] }]
+  }
+});
+class CSSFileWatcher {
+  static {
+    __name(this, "CSSFileWatcher");
+  }
+  constructor(fileService, environmentService, onUpdate) {
+    this.fileService = fileService;
+    this.environmentService = environmentService;
+    this.onUpdate = onUpdate;
+    this.watchedLocations = /* @__PURE__ */ new Map();
+  }
+  watch(uri) {
+    const key = uri.toString();
+    if (this.watchedLocations.has(key)) {
+      return;
+    }
+    if (!this.environmentService.isExtensionDevelopment) {
+      return;
+    }
+    const disposables = new DisposableStore();
+    disposables.add(this.fileService.watch(uri));
+    disposables.add(this.fileService.onDidFilesChange((e) => {
+      if (e.contains(
+        uri,
+        0
+        /* FileChangeType.UPDATED */
+      )) {
+        this.onUpdate(uri);
+      }
+    }));
+    this.watchedLocations.set(key, { uri, disposables });
+  }
+  unwatch(uri) {
+    const key = uri.toString();
+    const entry = this.watchedLocations.get(key);
+    if (entry) {
+      entry.disposables.dispose();
+      this.watchedLocations.delete(key);
+    }
+  }
+  dispose() {
+    for (const entry of this.watchedLocations.values()) {
+      entry.disposables.dispose();
+    }
+    this.watchedLocations.clear();
+  }
+}
+let CSSExtensionPoint = class CSSExtensionPoint2 {
+  static {
+    __name(this, "CSSExtensionPoint");
+  }
+  constructor(fileService, environmentService, themeService, storageService) {
+    this.themeService = themeService;
+    this.storageService = storageService;
+    this.disposables = new DisposableStore();
+    this.stylesheetsByExtension = /* @__PURE__ */ new Map();
+    this.pendingExtensions = /* @__PURE__ */ new Map();
+    this.watcher = this.disposables.add(new CSSFileWatcher(fileService, environmentService, (uri) => this.reloadStylesheet(uri)));
+    this.disposables.add(toDisposable(() => {
+      for (const entries of this.stylesheetsByExtension.values()) {
+        for (const entry of entries) {
+          entry.disposables.dispose();
+        }
+      }
+      this.stylesheetsByExtension.clear();
+    }));
+    this.applyCachedCSS();
+    this.disposables.add(this.themeService.onDidColorThemeChange(() => this.onThemeChange()));
+    this.disposables.add(this.themeService.onDidFileIconThemeChange(() => this.onThemeChange()));
+    this.disposables.add(this.themeService.onDidProductIconThemeChange(() => this.onThemeChange()));
+    cssExtensionPoint.setHandler((extensions, delta) => {
+      for (const extension of delta.removed) {
+        const extensionId = extension.description.identifier.value;
+        this.pendingExtensions.delete(extensionId);
+        this.removeStylesheets(extensionId);
+        this.clearCacheForExtension(extensionId);
+      }
+      for (const extension of delta.added) {
+        if (!isProposedApiEnabled(extension.description, "css")) {
+          extension.collector.error(`The '${cssExtensionPoint.name}' contribution point is proposed API.`);
+          continue;
+        }
+        const extensionValue = extension.value;
+        const collector = extension.collector;
+        if (!extensionValue || !Array.isArray(extensionValue)) {
+          collector.error(nls.localize("invalid.css.configuration", "'contributes.css' must be an array."));
+          continue;
+        }
+        const extensionId = extension.description.identifier.value;
+        this.pendingExtensions.set(extensionId, extension);
+        if (this.isExtensionThemeActive(extensionId)) {
+          this.activateExtensionCSS(extension);
+        }
+      }
+    });
+  }
+  isExtensionThemeActive(extensionId) {
+    const colorTheme = this.themeService.getColorTheme();
+    const fileIconTheme = this.themeService.getFileIconTheme();
+    const productIconTheme = this.themeService.getProductIconTheme();
+    return !!(colorTheme.extensionData && ExtensionIdentifier.equals(colorTheme.extensionData.extensionId, extensionId)) || !!(fileIconTheme.extensionData && ExtensionIdentifier.equals(fileIconTheme.extensionData.extensionId, extensionId)) || !!(productIconTheme.extensionData && ExtensionIdentifier.equals(productIconTheme.extensionData.extensionId, extensionId));
+  }
+  onThemeChange() {
+    for (const [extensionId, extension] of this.pendingExtensions) {
+      const isActive = this.stylesheetsByExtension.has(extensionId);
+      const shouldBeActive = this.isExtensionThemeActive(extensionId);
+      if (shouldBeActive && !isActive) {
+        this.activateExtensionCSS(extension);
+      } else if (!shouldBeActive && isActive) {
+        this.removeStylesheets(extensionId);
+        this.clearCacheForExtension(extensionId);
+      }
+    }
+  }
+  activateExtensionCSS(extension) {
+    const extensionId = extension.description.identifier.value;
+    if (this.stylesheetsByExtension.has(extensionId)) {
+      return;
+    }
+    const extensionLocation = extension.description.extensionLocation;
+    const extensionValue = extension.value;
+    const collector = extension.collector;
+    const entries = [];
+    const cssLocations = [];
+    for (const cssContribution of extensionValue) {
+      if (!cssContribution.path || typeof cssContribution.path !== "string") {
+        collector.error(nls.localize("invalid.css.path", "'contributes.css.path' must be a string."));
+        continue;
+      }
+      const cssLocation = resources.joinPath(extensionLocation, cssContribution.path);
+      if (!resources.isEqualOrParent(cssLocation, extensionLocation)) {
+        collector.warn(nls.localize("invalid.css.path.location", "Expected 'contributes.css.path' ({0}) to be included inside extension's folder ({1}).", cssLocation.path, extensionLocation.path));
+        continue;
+      }
+      const entryDisposables = new DisposableStore();
+      const element = this.createCSSLinkElement(cssLocation, extensionId, entryDisposables);
+      entries.push({ uri: cssLocation, element, disposables: entryDisposables });
+      cssLocations.push(cssLocation.toString());
+      this.watcher.watch(cssLocation);
+    }
+    if (entries.length > 0) {
+      this.stylesheetsByExtension.set(extensionId, entries);
+      this.cacheExtensionCSS(extensionId, cssLocations);
+    }
+  }
+  removeStylesheets(extensionId) {
+    const entries = this.stylesheetsByExtension.get(extensionId);
+    if (entries) {
+      for (const entry of entries) {
+        this.watcher.unwatch(entry.uri);
+        entry.disposables.dispose();
+      }
+      this.stylesheetsByExtension.delete(extensionId);
+    }
+  }
+  applyCachedCSS() {
+    const cached = this.getCachedCSS();
+    if (!cached) {
+      return;
+    }
+    if (!this.isExtensionThemeActive(cached.extensionId)) {
+      this.clearCacheForExtension(cached.extensionId);
+      return;
+    }
+    const entries = [];
+    for (const cssLocationString of cached.cssLocations) {
+      const cssLocation = URI.parse(cssLocationString);
+      const entryDisposables = new DisposableStore();
+      const element = this.createCSSLinkElement(cssLocation, cached.extensionId, entryDisposables);
+      entries.push({ uri: cssLocation, element, disposables: entryDisposables });
+      this.watcher.watch(cssLocation);
+    }
+    if (entries.length > 0) {
+      this.stylesheetsByExtension.set(cached.extensionId, entries);
+    }
+  }
+  getCachedCSS() {
+    const raw = this.storageService.get(
+      CSS_CACHE_STORAGE_KEY,
+      0
+      /* StorageScope.PROFILE */
+    );
+    if (!raw) {
+      return void 0;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return void 0;
+    }
+  }
+  cacheExtensionCSS(extensionId, cssLocations) {
+    const entry = { extensionId, cssLocations };
+    this.storageService.store(
+      CSS_CACHE_STORAGE_KEY,
+      JSON.stringify(entry),
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  clearCacheForExtension(extensionId) {
+    const cached = this.getCachedCSS();
+    if (cached && ExtensionIdentifier.equals(cached.extensionId, extensionId)) {
+      this.storageService.remove(
+        CSS_CACHE_STORAGE_KEY,
+        0
+        /* StorageScope.PROFILE */
+      );
+    }
+  }
+  createCSSLinkElement(uri, extensionId, disposables) {
+    const element = createLinkElement();
+    element.rel = "stylesheet";
+    element.type = "text/css";
+    element.className = `extension-contributed-css ${extensionId}`;
+    element.href = FileAccess.uriToBrowserUri(uri).toString(true);
+    disposables.add(toDisposable(() => element.remove()));
+    return element;
+  }
+  reloadStylesheet(uri) {
+    const uriString = uri.toString();
+    for (const entries of this.stylesheetsByExtension.values()) {
+      for (const entry of entries) {
+        if (entry.uri.toString() === uriString) {
+          const browserUri = FileAccess.uriToBrowserUri(uri);
+          entry.element.href = browserUri.with({ query: `v=${Date.now()}` }).toString(true);
+        }
+      }
+    }
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+};
+CSSExtensionPoint = __decorate([
+  __param(0, IFileService),
+  __param(1, IBrowserWorkbenchEnvironmentService),
+  __param(2, IWorkbenchThemeService),
+  __param(3, IStorageService)
+], CSSExtensionPoint);
+export {
+  CSSExtensionPoint
+};
+//# sourceMappingURL=cssExtensionPoint.js.map

@@ -1,15 +1,436 @@
-import{webContents as b}from"electron";import{$Vw as D}from"../../auxiliaryWindow/electron-main/auxiliaryWindows.js";import{$vv as B}from"../../windows/electron-main/windows.js";import{$Nj as E}from"../../instantiation/common/instantiation.js";import{$Ed as O}from"../../../base/common/lifecycle.js";import{$8w as L}from"../../browserView/electron-main/browserViewMainService.js";var T=function(p,t,e,n){var r=arguments.length,a=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(p,t,e,n);else for(var s=p.length-1;s>=0;s--)(o=p[s])&&(a=(r<3?o(a):r>3?o(t,e,a):o(t,e))||a);return r>3&&a&&Object.defineProperty(t,e,a),a},y=function(p,t){return function(e,n){t(e,n,p)}};const F=E("browserElementsMainService");let x=class extends O{constructor(t,e,n){super(),this.c=t,this.f=e,this.h=n}get windowId(){throw new Error("Not implemented in electron-main")}async findWebviewTarget(t,e){const{targetInfos:n}=await t.sendCommand("Target.getTargets");if(e.webviewId){let r="";for(const o of n)try{const s=new URL(o.url);if(s.searchParams.get("id")===e.webviewId){r=s.searchParams.get("extensionId")||"";break}}catch{}return r?n.find(o=>{try{const s=new URL(o.url),l=r==="ms-vscode.live-server"&&s.searchParams.get("serverWindowId")===e.webviewId,i=r==="vscode.simple-browser"&&s.searchParams.get("id")===e.webviewId&&s.searchParams.has("vscodeBrowserReqId");return!!(l||i)}catch{return!1}})?.targetId:void 0}if(e.browserViewId){const r=this.h.tryGetBrowserView(e.browserViewId)?.webContents;return n.find(o=>o.type!=="page"?!1:b.fromDevToolsTargetId(o.targetId)===r)?.targetId}}async waitForWebviewTargets(t,e){const n=Date.now(),r=1e4;for(;Date.now()-n<r;){const a=await this.findWebviewTarget(t,e);if(a)return a;await new Promise(o=>setTimeout(o,500))}t.detach()}async startDebugSession(t,e,n,r){const a=this.j(t);if(!a?.win)return;const s=b.getAllWebContents().find(i=>i.id===a.id);if(!s)return;const l=s.debugger;l.isAttached()||l.attach();try{if(!await this.waitForWebviewTargets(l,n))throw l.isAttached()&&l.detach(),new Error("No target found")}catch{throw l.isAttached()&&l.detach(),new Error("No target found")}a.win.webContents.on("ipc-message",async(i,d,m)=>{if(d===`vscode:cancelCurrentSession${r}`){if(r!==m)return;l.isAttached()&&l.detach(),a.win&&a.win.webContents.removeAllListeners("ipc-message")}})}async finishOverlay(t,e){t.isAttached()&&e&&(await t.sendCommand("Overlay.setInspectMode",{mode:"none",highlightConfig:{showInfo:!1,showStyles:!1}},e),await t.sendCommand("Overlay.hideHighlight",{},e),await t.sendCommand("Overlay.disable",{},e),t.detach())}async getElementData(t,e,n,r,a){const o=this.j(t);if(!o?.win)return;const l=b.getAllWebContents().find(h=>h.id===o.id);if(!l)return;const i=l.debugger;i.isAttached()||i.attach();let d;try{const h=await this.findWebviewTarget(i,r),{sessionId:u}=await i.sendCommand("Target.attachToTarget",{targetId:h,flatten:!0});d=u,await i.sendCommand("DOM.enable",{},u),await i.sendCommand("CSS.enable",{},u),await i.sendCommand("Overlay.enable",{},u),await i.sendCommand("Debugger.enable",{},u),await i.sendCommand("Runtime.enable",{},u),await i.sendCommand("Runtime.evaluate",{expression:`(function() {
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { webContents } from "electron";
+import { IAuxiliaryWindowsMainService } from "../../auxiliaryWindow/electron-main/auxiliaryWindows.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IBrowserViewMainService } from "../../browserView/electron-main/browserViewMainService.js";
+const INativeBrowserElementsMainService = createDecorator("browserElementsMainService");
+let NativeBrowserElementsMainService = class NativeBrowserElementsMainService2 extends Disposable {
+  static {
+    __name(this, "NativeBrowserElementsMainService");
+  }
+  constructor(windowsMainService, auxiliaryWindowsMainService, browserViewMainService) {
+    super();
+    this.windowsMainService = windowsMainService;
+    this.auxiliaryWindowsMainService = auxiliaryWindowsMainService;
+    this.browserViewMainService = browserViewMainService;
+  }
+  get windowId() {
+    throw new Error("Not implemented in electron-main");
+  }
+  /**
+   * Find the webview target that matches the given locator.
+   * Checks either webviewId or browserViewId depending on what's provided.
+   */
+  async findWebviewTarget(debuggers, locator) {
+    const { targetInfos } = await debuggers.sendCommand("Target.getTargets");
+    if (locator.webviewId) {
+      let extensionId = "";
+      for (const targetInfo of targetInfos) {
+        try {
+          const url = new URL(targetInfo.url);
+          if (url.searchParams.get("id") === locator.webviewId) {
+            extensionId = url.searchParams.get("extensionId") || "";
+            break;
+          }
+        } catch (err) {
+        }
+      }
+      if (!extensionId) {
+        return void 0;
+      }
+      const target = targetInfos.find((targetInfo) => {
+        try {
+          const url = new URL(targetInfo.url);
+          const isLiveServer = extensionId === "ms-vscode.live-server" && url.searchParams.get("serverWindowId") === locator.webviewId;
+          const isSimpleBrowser = extensionId === "vscode.simple-browser" && url.searchParams.get("id") === locator.webviewId && url.searchParams.has("vscodeBrowserReqId");
+          if (isLiveServer || isSimpleBrowser) {
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return false;
+        }
+      });
+      return target?.targetId;
+    }
+    if (locator.browserViewId) {
+      const webContentsInstance = this.browserViewMainService.tryGetBrowserView(locator.browserViewId)?.webContents;
+      const target = targetInfos.find((targetInfo) => {
+        if (targetInfo.type !== "page") {
+          return false;
+        }
+        return webContents.fromDevToolsTargetId(targetInfo.targetId) === webContentsInstance;
+      });
+      return target?.targetId;
+    }
+    return void 0;
+  }
+  async waitForWebviewTargets(debuggers, locator) {
+    const start = Date.now();
+    const timeout = 1e4;
+    while (Date.now() - start < timeout) {
+      const targetId = await this.findWebviewTarget(debuggers, locator);
+      if (targetId) {
+        return targetId;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    debuggers.detach();
+    return void 0;
+  }
+  async startDebugSession(windowId, token, locator, cancelAndDetachId) {
+    const window = this.windowById(windowId);
+    if (!window?.win) {
+      return void 0;
+    }
+    const allWebContents = webContents.getAllWebContents();
+    const simpleBrowserWebview = allWebContents.find((webContent) => webContent.id === window.id);
+    if (!simpleBrowserWebview) {
+      return void 0;
+    }
+    const debuggers = simpleBrowserWebview.debugger;
+    if (!debuggers.isAttached()) {
+      debuggers.attach();
+    }
+    try {
+      const matchingTargetId = await this.waitForWebviewTargets(debuggers, locator);
+      if (!matchingTargetId) {
+        if (debuggers.isAttached()) {
+          debuggers.detach();
+        }
+        throw new Error("No target found");
+      }
+    } catch (e) {
+      if (debuggers.isAttached()) {
+        debuggers.detach();
+      }
+      throw new Error("No target found");
+    }
+    window.win.webContents.on("ipc-message", async (event, channel, closedCancelAndDetachId) => {
+      if (channel === `vscode:cancelCurrentSession${cancelAndDetachId}`) {
+        if (cancelAndDetachId !== closedCancelAndDetachId) {
+          return;
+        }
+        if (debuggers.isAttached()) {
+          debuggers.detach();
+        }
+        if (window.win) {
+          window.win.webContents.removeAllListeners("ipc-message");
+        }
+      }
+    });
+  }
+  async finishOverlay(debuggers, sessionId) {
+    if (debuggers.isAttached() && sessionId) {
+      await debuggers.sendCommand("Overlay.setInspectMode", {
+        mode: "none",
+        highlightConfig: {
+          showInfo: false,
+          showStyles: false
+        }
+      }, sessionId);
+      await debuggers.sendCommand("Overlay.hideHighlight", {}, sessionId);
+      await debuggers.sendCommand("Overlay.disable", {}, sessionId);
+      debuggers.detach();
+    }
+  }
+  async getElementData(windowId, rect, token, locator, cancellationId) {
+    const window = this.windowById(windowId);
+    if (!window?.win) {
+      return void 0;
+    }
+    const allWebContents = webContents.getAllWebContents();
+    const simpleBrowserWebview = allWebContents.find((webContent) => webContent.id === window.id);
+    if (!simpleBrowserWebview) {
+      return void 0;
+    }
+    const debuggers = simpleBrowserWebview.debugger;
+    if (!debuggers.isAttached()) {
+      debuggers.attach();
+    }
+    let targetSessionId = void 0;
+    try {
+      const targetId = await this.findWebviewTarget(debuggers, locator);
+      const { sessionId } = await debuggers.sendCommand("Target.attachToTarget", {
+        targetId,
+        flatten: true
+      });
+      targetSessionId = sessionId;
+      await debuggers.sendCommand("DOM.enable", {}, sessionId);
+      await debuggers.sendCommand("CSS.enable", {}, sessionId);
+      await debuggers.sendCommand("Overlay.enable", {}, sessionId);
+      await debuggers.sendCommand("Debugger.enable", {}, sessionId);
+      await debuggers.sendCommand("Runtime.enable", {}, sessionId);
+      await debuggers.sendCommand("Runtime.evaluate", {
+        expression: `(function() {
 							const style = document.createElement('style');
 							style.id = '__pseudoBlocker__';
 							style.textContent = '*::before, *::after { pointer-events: none !important; }';
 							document.head.appendChild(style);
-						})();`},u),await i.sendCommand("Overlay.setInspectMode",{mode:"searchForNode",highlightConfig:{showInfo:!0,showRulers:!1,showStyles:!0,showAccessibilityInfo:!0,showExtensionLines:!1,contrastAlgorithm:"aa",contentColor:{r:173,g:216,b:255,a:.8},paddingColor:{r:150,g:200,b:255,a:.5},borderColor:{r:120,g:180,b:255,a:.7},marginColor:{r:200,g:220,b:255,a:.4},eventTargetColor:{r:130,g:160,b:255,a:.8},shapeColor:{r:130,g:160,b:255,a:.8},shapeMarginColor:{r:130,g:160,b:255,a:.5},gridHighlightConfig:{rowGapColor:{r:140,g:190,b:255,a:.3},rowHatchColor:{r:140,g:190,b:255,a:.7},columnGapColor:{r:140,g:190,b:255,a:.3},columnHatchColor:{r:140,g:190,b:255,a:.7},rowLineColor:{r:120,g:180,b:255},columnLineColor:{r:120,g:180,b:255},rowLineDash:!0,columnLineDash:!0},flexContainerHighlightConfig:{containerBorder:{color:{r:120,g:180,b:255},pattern:"solid"},itemSeparator:{color:{r:140,g:190,b:255},pattern:"solid"},lineSeparator:{color:{r:140,g:190,b:255},pattern:"solid"},mainDistributedSpace:{hatchColor:{r:140,g:190,b:255,a:.7},fillColor:{r:140,g:190,b:255,a:.4}},crossDistributedSpace:{hatchColor:{r:140,g:190,b:255,a:.7},fillColor:{r:140,g:190,b:255,a:.4}},rowGapSpace:{hatchColor:{r:140,g:190,b:255,a:.7},fillColor:{r:140,g:190,b:255,a:.4}},columnGapSpace:{hatchColor:{r:140,g:190,b:255,a:.7},fillColor:{r:140,g:190,b:255,a:.4}}},flexItemHighlightConfig:{baseSizeBox:{hatchColor:{r:130,g:170,b:255,a:.6}},baseSizeBorder:{color:{r:120,g:180,b:255},pattern:"solid"},flexibilityArrow:{color:{r:130,g:190,b:255}}}}},u)}catch(h){throw i.detach(),new Error("No target found",h)}if(!d)throw i.detach(),new Error("No target session id found");const m=await this.getNodeData(d,i,o.win,a);await this.finishOverlay(i,d);const f=l.getZoomFactor(),c={x:e.x+m.bounds.x,y:e.y+m.bounds.y,width:m.bounds.width,height:m.bounds.height},w={x:Math.max(c.x,e.x),y:Math.max(c.y,e.y),width:Math.max(0,Math.min(c.x+c.width,e.x+e.width)-Math.max(c.x,e.x)),height:Math.max(0,Math.min(c.y+c.height,e.y+e.height)-Math.max(c.y,e.y))},g={x:w.x*f,y:w.y*f,width:w.width*f,height:w.height*f};return{outerHTML:m.outerHTML,computedStyle:m.computedStyle,bounds:g}}async getNodeData(t,e,n,r){return new Promise((a,o)=>{const s=async(l,i,d)=>{if(i==="Overlay.inspectNodeRequested"){e.off("message",s),await e.sendCommand("Runtime.evaluate",{expression:`(() => {
+						})();`
+      }, sessionId);
+      await debuggers.sendCommand("Overlay.setInspectMode", {
+        mode: "searchForNode",
+        highlightConfig: {
+          showInfo: true,
+          showRulers: false,
+          showStyles: true,
+          showAccessibilityInfo: true,
+          showExtensionLines: false,
+          contrastAlgorithm: "aa",
+          contentColor: { r: 173, g: 216, b: 255, a: 0.8 },
+          paddingColor: { r: 150, g: 200, b: 255, a: 0.5 },
+          borderColor: { r: 120, g: 180, b: 255, a: 0.7 },
+          marginColor: { r: 200, g: 220, b: 255, a: 0.4 },
+          eventTargetColor: { r: 130, g: 160, b: 255, a: 0.8 },
+          shapeColor: { r: 130, g: 160, b: 255, a: 0.8 },
+          shapeMarginColor: { r: 130, g: 160, b: 255, a: 0.5 },
+          gridHighlightConfig: {
+            rowGapColor: { r: 140, g: 190, b: 255, a: 0.3 },
+            rowHatchColor: { r: 140, g: 190, b: 255, a: 0.7 },
+            columnGapColor: { r: 140, g: 190, b: 255, a: 0.3 },
+            columnHatchColor: { r: 140, g: 190, b: 255, a: 0.7 },
+            rowLineColor: { r: 120, g: 180, b: 255 },
+            columnLineColor: { r: 120, g: 180, b: 255 },
+            rowLineDash: true,
+            columnLineDash: true
+          },
+          flexContainerHighlightConfig: {
+            containerBorder: {
+              color: { r: 120, g: 180, b: 255 },
+              pattern: "solid"
+            },
+            itemSeparator: {
+              color: { r: 140, g: 190, b: 255 },
+              pattern: "solid"
+            },
+            lineSeparator: {
+              color: { r: 140, g: 190, b: 255 },
+              pattern: "solid"
+            },
+            mainDistributedSpace: {
+              hatchColor: { r: 140, g: 190, b: 255, a: 0.7 },
+              fillColor: { r: 140, g: 190, b: 255, a: 0.4 }
+            },
+            crossDistributedSpace: {
+              hatchColor: { r: 140, g: 190, b: 255, a: 0.7 },
+              fillColor: { r: 140, g: 190, b: 255, a: 0.4 }
+            },
+            rowGapSpace: {
+              hatchColor: { r: 140, g: 190, b: 255, a: 0.7 },
+              fillColor: { r: 140, g: 190, b: 255, a: 0.4 }
+            },
+            columnGapSpace: {
+              hatchColor: { r: 140, g: 190, b: 255, a: 0.7 },
+              fillColor: { r: 140, g: 190, b: 255, a: 0.4 }
+            }
+          },
+          flexItemHighlightConfig: {
+            baseSizeBox: {
+              hatchColor: { r: 130, g: 170, b: 255, a: 0.6 }
+            },
+            baseSizeBorder: {
+              color: { r: 120, g: 180, b: 255 },
+              pattern: "solid"
+            },
+            flexibilityArrow: {
+              color: { r: 130, g: 190, b: 255 }
+            }
+          }
+        }
+      }, sessionId);
+    } catch (e) {
+      debuggers.detach();
+      throw new Error("No target found", e);
+    }
+    if (!targetSessionId) {
+      debuggers.detach();
+      throw new Error("No target session id found");
+    }
+    const nodeData = await this.getNodeData(targetSessionId, debuggers, window.win, cancellationId);
+    await this.finishOverlay(debuggers, targetSessionId);
+    const zoomFactor = simpleBrowserWebview.getZoomFactor();
+    const absoluteBounds = {
+      x: rect.x + nodeData.bounds.x,
+      y: rect.y + nodeData.bounds.y,
+      width: nodeData.bounds.width,
+      height: nodeData.bounds.height
+    };
+    const clippedBounds = {
+      x: Math.max(absoluteBounds.x, rect.x),
+      y: Math.max(absoluteBounds.y, rect.y),
+      width: Math.max(0, Math.min(absoluteBounds.x + absoluteBounds.width, rect.x + rect.width) - Math.max(absoluteBounds.x, rect.x)),
+      height: Math.max(0, Math.min(absoluteBounds.y + absoluteBounds.height, rect.y + rect.height) - Math.max(absoluteBounds.y, rect.y))
+    };
+    const scaledBounds = {
+      x: clippedBounds.x * zoomFactor,
+      y: clippedBounds.y * zoomFactor,
+      width: clippedBounds.width * zoomFactor,
+      height: clippedBounds.height * zoomFactor
+    };
+    return { outerHTML: nodeData.outerHTML, computedStyle: nodeData.computedStyle, bounds: scaledBounds };
+  }
+  async getNodeData(sessionId, debuggers, window, cancellationId) {
+    return new Promise((resolve, reject) => {
+      const onMessage = /* @__PURE__ */ __name(async (event, method, params) => {
+        if (method === "Overlay.inspectNodeRequested") {
+          debuggers.off("message", onMessage);
+          await debuggers.sendCommand("Runtime.evaluate", {
+            expression: `(() => {
 										const style = document.getElementById('__pseudoBlocker__');
 										if (style) style.remove();
-									})();`},t);const m=d?.backendNodeId;if(!m)throw new Error("Missing backendNodeId in inspectNodeRequested event");try{await e.sendCommand("DOM.getDocument",{},t);const{nodeIds:f}=await e.sendCommand("DOM.pushNodesByBackendIdsToFrontend",{backendNodeIds:[m]},t);if(!f||f.length===0)throw new Error("Failed to get node IDs.");const c=f[0],{model:w}=await e.sendCommand("DOM.getBoxModel",{nodeId:c},t);if(!w)throw new Error("Failed to get box model.");const g=w.content,h=w.margin,u=Math.min(h[0],g[0]),S=Math.min(h[1],g[1]),M=Math.max(h[2]-h[0],g[2]-g[0]),I=Math.max(h[5]-h[1],g[5]-g[1]),C=await e.sendCommand("CSS.getMatchedStylesForNode",{nodeId:c},t);if(!C)throw new Error("Failed to get matched css.");const $=this.formatMatchedStyles(C),{outerHTML:v}=await e.sendCommand("DOM.getOuterHTML",{nodeId:c},t);if(!v)throw new Error("Failed to get outerHTML.");a({outerHTML:v,computedStyle:$,bounds:{x:u,y:S,width:M,height:I}})}catch(f){e.off("message",s),e.detach(),o(f)}}};n.webContents.on("ipc-message",async(l,i,d)=>{if(i===`vscode:cancelElementSelection${r}`){if(r!==d)return;e.off("message",s),await this.finishOverlay(e,t),n.webContents.removeAllListeners("ipc-message")}}),e.on("message",s)})}formatMatchedStyles(t){const e=[];if(t.inlineStyle?.cssProperties?.length){e.push("/* Inline style */"),e.push("element {");for(const n of t.inlineStyle.cssProperties)n.name&&n.value&&e.push(`  ${n.name}: ${n.value};`);e.push(`}
-`)}if(t.matchedCSSRules?.length)for(const n of t.matchedCSSRules){const r=n.rule,a=r.selectorList.selectors.map(o=>o.text).join(", ");e.push(`/* Matched Rule from ${r.origin} */`),e.push(`${a} {`);for(const o of r.style.cssProperties)o.name&&o.value&&e.push(`  ${o.name}: ${o.value};`);e.push(`}
-`)}if(t.inherited?.length){let n=1;for(const r of t.inherited){const a=r.inlineStyle;a&&(e.push(`/* Inherited from ancestor level ${n} (inline) */`),e.push("element {"),e.push(a.cssText),e.push(`}
-`));const o=r.matchedCSSRules||[];for(const s of o){const l=s.rule,i=l.selectorList.selectors.map(d=>d.text).join(", ");e.push(`/* Inherited from ancestor level ${n} (${l.origin}) */`),e.push(`${i} {`);for(const d of l.style.cssProperties)d.name&&d.value&&e.push(`  ${d.name}: ${d.value};`);e.push(`}
-`)}n++}}return`
-`+e.join(`
-`)}j(t,e){return this.m(t)??this.n(t)??this.m(e)}m(t){if(typeof t=="number")return this.c.getWindowById(t)}n(t){if(typeof t!="number")return;const e=b.fromId(t);if(e)return this.f.getWindowByWebContents(e)}};x=T([y(0,B),y(1,D),y(2,L)],x);export{x as $$w,F as $0w};
+									})();`
+          }, sessionId);
+          const backendNodeId = params?.backendNodeId;
+          if (!backendNodeId) {
+            throw new Error("Missing backendNodeId in inspectNodeRequested event");
+          }
+          try {
+            await debuggers.sendCommand("DOM.getDocument", {}, sessionId);
+            const { nodeIds } = await debuggers.sendCommand("DOM.pushNodesByBackendIdsToFrontend", { backendNodeIds: [backendNodeId] }, sessionId);
+            if (!nodeIds || nodeIds.length === 0) {
+              throw new Error("Failed to get node IDs.");
+            }
+            const nodeId = nodeIds[0];
+            const { model } = await debuggers.sendCommand("DOM.getBoxModel", { nodeId }, sessionId);
+            if (!model) {
+              throw new Error("Failed to get box model.");
+            }
+            const content = model.content;
+            const margin = model.margin;
+            const x = Math.min(margin[0], content[0]);
+            const y = Math.min(margin[1], content[1]);
+            const width = Math.max(margin[2] - margin[0], content[2] - content[0]);
+            const height = Math.max(margin[5] - margin[1], content[5] - content[1]);
+            const matched = await debuggers.sendCommand("CSS.getMatchedStylesForNode", { nodeId }, sessionId);
+            if (!matched) {
+              throw new Error("Failed to get matched css.");
+            }
+            const formatted = this.formatMatchedStyles(matched);
+            const { outerHTML } = await debuggers.sendCommand("DOM.getOuterHTML", { nodeId }, sessionId);
+            if (!outerHTML) {
+              throw new Error("Failed to get outerHTML.");
+            }
+            resolve({
+              outerHTML,
+              computedStyle: formatted,
+              bounds: { x, y, width, height }
+            });
+          } catch (err) {
+            debuggers.off("message", onMessage);
+            debuggers.detach();
+            reject(err);
+          }
+        }
+      }, "onMessage");
+      window.webContents.on("ipc-message", async (event, channel, closedCancellationId) => {
+        if (channel === `vscode:cancelElementSelection${cancellationId}`) {
+          if (cancellationId !== closedCancellationId) {
+            return;
+          }
+          debuggers.off("message", onMessage);
+          await this.finishOverlay(debuggers, sessionId);
+          window.webContents.removeAllListeners("ipc-message");
+        }
+      });
+      debuggers.on("message", onMessage);
+    });
+  }
+  formatMatchedStyles(matched) {
+    const lines = [];
+    if (matched.inlineStyle?.cssProperties?.length) {
+      lines.push("/* Inline style */");
+      lines.push("element {");
+      for (const prop of matched.inlineStyle.cssProperties) {
+        if (prop.name && prop.value) {
+          lines.push(`  ${prop.name}: ${prop.value};`);
+        }
+      }
+      lines.push("}\n");
+    }
+    if (matched.matchedCSSRules?.length) {
+      for (const ruleEntry of matched.matchedCSSRules) {
+        const rule = ruleEntry.rule;
+        const selectors = rule.selectorList.selectors.map((s) => s.text).join(", ");
+        lines.push(`/* Matched Rule from ${rule.origin} */`);
+        lines.push(`${selectors} {`);
+        for (const prop of rule.style.cssProperties) {
+          if (prop.name && prop.value) {
+            lines.push(`  ${prop.name}: ${prop.value};`);
+          }
+        }
+        lines.push("}\n");
+      }
+    }
+    if (matched.inherited?.length) {
+      let level = 1;
+      for (const inherited of matched.inherited) {
+        const inline = inherited.inlineStyle;
+        if (inline) {
+          lines.push(`/* Inherited from ancestor level ${level} (inline) */`);
+          lines.push("element {");
+          lines.push(inline.cssText);
+          lines.push("}\n");
+        }
+        const rules = inherited.matchedCSSRules || [];
+        for (const ruleEntry of rules) {
+          const rule = ruleEntry.rule;
+          const selectors = rule.selectorList.selectors.map((s) => s.text).join(", ");
+          lines.push(`/* Inherited from ancestor level ${level} (${rule.origin}) */`);
+          lines.push(`${selectors} {`);
+          for (const prop of rule.style.cssProperties) {
+            if (prop.name && prop.value) {
+              lines.push(`  ${prop.name}: ${prop.value};`);
+            }
+          }
+          lines.push("}\n");
+        }
+        level++;
+      }
+    }
+    return "\n" + lines.join("\n");
+  }
+  windowById(windowId, fallbackCodeWindowId) {
+    return this.codeWindowById(windowId) ?? this.auxiliaryWindowById(windowId) ?? this.codeWindowById(fallbackCodeWindowId);
+  }
+  codeWindowById(windowId) {
+    if (typeof windowId !== "number") {
+      return void 0;
+    }
+    return this.windowsMainService.getWindowById(windowId);
+  }
+  auxiliaryWindowById(windowId) {
+    if (typeof windowId !== "number") {
+      return void 0;
+    }
+    const contents = webContents.fromId(windowId);
+    if (!contents) {
+      return void 0;
+    }
+    return this.auxiliaryWindowsMainService.getWindowByWebContents(contents);
+  }
+};
+NativeBrowserElementsMainService = __decorate([
+  __param(0, IWindowsMainService),
+  __param(1, IAuxiliaryWindowsMainService),
+  __param(2, IBrowserViewMainService)
+], NativeBrowserElementsMainService);
+export {
+  INativeBrowserElementsMainService,
+  NativeBrowserElementsMainService
+};
+//# sourceMappingURL=nativeBrowserElementsMainService.js.map

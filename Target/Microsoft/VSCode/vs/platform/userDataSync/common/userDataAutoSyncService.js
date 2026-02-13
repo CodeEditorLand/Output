@@ -1,1 +1,570 @@
-import{$Uh as U,$$h as q,$7h as R,$0h as T}from"../../../base/common/async.js";import{$Tn as O}from"../../../base/common/date.js";import{$Lm as E}from"../../../base/common/errorMessage.js";import{$rb as M}from"../../../base/common/errors.js";import{$xf as b,Event as I}from"../../../base/common/event.js";import{$Ed as C,$Fd as $,$Cd as j}from"../../../base/common/lifecycle.js";import{$s as H}from"../../../base/common/platform.js";import{$Bh as f}from"../../../base/common/resources.js";import{URI as F}from"../../../base/common/uri.js";import{localize as c}from"../../../nls.js";import{$Vn as L}from"../../product/common/productService.js";import{$hp as _}from"../../storage/common/storage.js";import{$pp as K}from"../../telemetry/common/telemetry.js";import{$eLb as P,$_Kb as G,$aLb as x,$1Kb as k,$2Kb as N,$9Kb as o,$7Kb as v}from"./userDataSync.js";import{$Sac as Q}from"./userDataSyncAccount.js";import{$LKb as B}from"./userDataSyncMachines.js";var z=function(u,e,t,i){var n=arguments.length,s=n<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,e,t,i);else for(var r=u.length-1;r>=0;r--)(h=u[r])&&(s=(n<3?h(s):n>3?h(e,t,s):h(e,t))||s);return n>3&&s&&Object.defineProperty(e,t,s),s},a=function(u,e){return function(t,i){e(t,i,u)}};const S="sync.disableMachineEventually",p="sync.sessionId",w="sync.storeUrl",m="sync.productQuality";let D=class extends C{get n(){const e=this.H.get(w,-1);return e?F.parse(e):void 0}set n(e){e?this.H.store(w,e.toString(),-1,1):this.H.remove(w,-1)}get r(){return this.H.get(m,-1)}set r(e){e?this.H.store(m,e,-1,1):this.H.remove(m,-1)}constructor(e,t,i,n,s,h,r,d,y,A){super(),this.s=t,this.u=i,this.w=n,this.y=s,this.z=h,this.C=r,this.F=d,this.G=y,this.H=A,this.a=this.D(new $),this.b=0,this.c=void 0,this.g=!1,this.h=this.D(new b),this.onError=this.h.event,this.S=[],this.f=this.D(new R(this.U())),this.j=this.n,this.n=t.userDataSyncStore?.url,this.q=this.r,this.r=e.quality,this.n&&(this.z.info("[AutoSync] Using settings sync service",this.n.toString()),this.D(t.onDidChangeUserDataSyncStore(()=>{f(this.n,t.userDataSyncStore?.url)||(this.j=this.n,this.n=t.userDataSyncStore?.url,this.n&&this.z.info("[AutoSync] Using settings sync service",this.n.toString()))})),this.w.isEnabled()?this.z.info("[AutoSync] Enabled."):this.z.info("[AutoSync] Disabled."),this.I(),this.Q()&&this.P(),this.D(r.onDidChangeAccount(()=>this.I())),this.D(i.onDidChangeDonotMakeRequestsUntil(()=>this.I())),this.D(s.onDidChangeLocal(g=>this.triggerSync([g]))),this.D(I.filter(this.w.onDidChangeResourceEnablement,([,g])=>g)(()=>this.triggerSync(["resourceEnablement"]))),this.D(this.s.onDidChangeUserDataSyncStore(()=>this.triggerSync(["userDataSyncStoreChanged"]))))}I(){const{enabled:e,message:t}=this.L();e?this.a.value===void 0&&(this.a.value=new l(this.j,1e3*60*5,this.s,this.u,this.y,this.G,this.z,this.F,this.H),this.a.value.register(this.a.value.onDidStartSync(()=>this.c=new Date().getTime())),this.a.value.register(this.a.value.onDidFinishSync(i=>this.O(i))),this.J()&&this.a.value.start()):(this.f.cancel(),this.a.value!==void 0?(t&&this.z.info(t),this.a.clear()):t&&this.w.isEnabled()&&this.z.info(t))}J(){return!0}L(){return this.w.isEnabled()?this.C.account?this.u.donotMakeRequestsUntil?{enabled:!1,message:`[AutoSync] Suspended until ${O(this.u.donotMakeRequestsUntil)} because server is not accepting requests until then.`}:this.g?{enabled:!1,message:"[AutoSync] Suspended until restart."}:{enabled:!0}:{enabled:!1,message:"[AutoSync] Suspended until auth token is available."}:{enabled:!1,message:"[AutoSync] Disabled."}}async turnOn(){this.R(),this.j=this.n,this.M(!0)}async turnOff(e,t,i){try{this.C.account&&!i&&await this.G.removeCurrentMachine(),this.M(!1),this.H.remove(p,-1),e?await this.y.reset():await this.y.resetLocal()}catch(n){if(this.z.error(n),t)this.M(!1);else throw n}}M(e){this.w.isEnabled()!==e&&(this.w.setEnablement(e),this.I())}N(){return!!this.q&&!!this.r&&this.q!==this.r}async O(e){if(this.z.debug("[AutoSync] Sync Finished"),!e){this.b=0;return}const t=v.toUserDataSyncError(e);t.code==="SessionExpired"?(await this.turnOff(!1,!0),this.z.info("[AutoSync] Turned off sync because current session is expired")):t.code==="TurnedOff"?(await this.turnOff(!1,!0),this.z.info("[AutoSync] Turned off sync because sync is turned off in the cloud")):t.code==="LocalTooManyRequests"?(this.g=!0,this.z.info("[AutoSync] Suspended sync because of making too many requests to server"),this.I()):t.code==="RemoteTooManyRequests"?(await this.turnOff(!1,!0,!0),this.P(),this.z.info("[AutoSync] Turned off sync because of making too many requests to server")):t.code==="MethodNotFound"?(await this.turnOff(!1,!0),this.z.info("[AutoSync] Turned off sync because current client is making requests to server that are not supported")):t.code==="UpgradeRequired"||t.code==="Gone"?(await this.turnOff(!1,!0,!0),this.P(),this.z.info("[AutoSync] Turned off sync because current client is not compatible with server. Requires client upgrade.")):t.code==="IncompatibleLocalContent"?(await this.turnOff(!1,!0),this.z.info(`[AutoSync] Turned off sync because server has ${t.resource} content with newer version than of client. Requires client upgrade.`)):t.code==="IncompatibleRemoteContent"?(await this.turnOff(!1,!0),this.z.info(`[AutoSync] Turned off sync because server has ${t.resource} content with older version than of client. Requires server reset.`)):t.code==="ServiceChanged"||t.code==="DefaultServiceChanged"?H&&t.code==="DefaultServiceChanged"&&!this.N()?(await this.turnOff(!1,!0),this.z.info("[AutoSync] Turned off sync because default sync service is changed.")):(await this.turnOff(!1,!0,!0),await this.turnOn(),this.z.info("[AutoSync] Sync Service changed. Turned off auto sync, reset local state and turned on auto sync.")):(this.z.error(t),this.b++),this.h.fire(t)}async P(){this.H.store(S,!0,-1,1),await T(1e3*60*10),this.Q()&&(this.R(),!this.w.isEnabled()&&this.C.account&&await this.G.removeCurrentMachine())}Q(){return this.H.getBoolean(S,-1,!1)}R(){this.H.remove(S,-1)}async triggerSync(e,t){if(this.a.value===void 0)return this.f.cancel();if(t?.skipIfSyncedRecently&&this.c&&new Date().getTime()-this.c<1e4){this.z.debug("[AutoSync] Skipping because sync was triggered recently.",e);return}return this.S.push(...e),this.f.trigger(async()=>{this.z.trace("[AutoSync] Activity sources",...this.S),this.S=[],this.a.value&&await this.a.value.sync("Activity",!!t?.disableCache)},this.b?Math.min(this.U()*this.b,6e4):t?.immediately?0:this.U())}U(){return this.c&&new Date().getTime()-this.c>1e4?(this.z.debug("[AutoSync] Sync immediately because last sync was triggered more than 10 seconds ago."),0):3e3}};D=z([a(0,L),a(1,k),a(2,N),a(3,G),a(4,x),a(5,P),a(6,Q),a(7,K),a(8,B),a(9,_)],D);class l extends C{static{this.a="Interval"}constructor(e,t,i,n,s,h,r,d,y){super(),this.m=e,this.n=t,this.q=i,this.r=n,this.s=s,this.u=h,this.w=r,this.y=d,this.z=y,this.b=this.D(new $),this.c=this.D(new b),this.onDidStartSync=this.c.event,this.f=this.D(new b),this.onDidFinishSync=this.f.event,this.g=null}start(){this.D(this.onDidFinishSync(()=>this.C())),this.D(j(()=>{this.j&&(this.j.cancel(),this.w.info("[AutoSync] Cancelled sync that is in progress"),this.j=void 0),this.h?.stop(),this.w.info("[AutoSync] Stopped")})),this.sync(l.a,!1)}C(){this.b.value=q(()=>{this.sync(l.a,!1),this.b.value=void 0},this.n)}sync(e,t){const i=U(async n=>{if(this.j)try{this.w.debug("[AutoSync] Waiting until sync is finished."),await this.j}catch(s){if(M(s))return}return this.H(e,t,n)});return this.j=i,this.j.finally(()=>this.j=void 0),this.j}F(){return this.m!==void 0&&!f(this.m,this.q.userDataSyncStore?.url)}async G(){const e=await this.q.getPreviousUserDataSyncStore(),t=this.q.userDataSyncStore;return!!t&&!!e&&(!f(t.defaultUrl,e.defaultUrl)||!f(t.insidersUrl,e.insidersUrl)||!f(t.stableUrl,e.stableUrl))}async H(e,t,i){this.w.info(`[AutoSync] Triggered by ${e}`),this.c.fire();let n;try{await this.I(t,i)}catch(s){if(this.w.error(s),n=s,v.toUserDataSyncError(s).code==="MethodNotFound")try{this.w.info("[AutoSync] Client is making invalid requests. Cleaning up data..."),await this.s.cleanUpRemoteData(),this.w.info("[AutoSync] Retrying sync..."),await this.I(t,i),n=void 0}catch(h){this.w.error(h),n=h}}this.f.fire(n)}async I(e,t){if(this.h=await this.s.createSyncTask(this.g,e),t.isCancellationRequested)return;if(this.g=this.h.manifest,this.g===null&&await this.s.hasPreviouslySynced())throw this.F()?await this.G()?new o(c(2744,null),"DefaultServiceChanged"):new o(c(2745,null),"ServiceChanged"):new o(c(2746,null),"TurnedOff");const i=this.z.get(p,-1);if(i&&this.g&&i!==this.g.session)throw this.F()?await this.G()?new o(c(2747,null),"DefaultServiceChanged"):new o(c(2748,null),"ServiceChanged"):new o(c(2749,null),"SessionExpired");const n=await this.u.getMachines(this.g||void 0);if(t.isCancellationRequested)return;const s=n.find(r=>r.isCurrent);if(s?.disabled)throw new o(c(2750,null),"TurnedOff");const h=new Date().getTime();if(await this.h.run(),this.y.publicLog2("settingsSync:sync",{duration:new Date().getTime()-h}),this.g===null)try{this.g=await this.r.manifest(null)}catch(r){throw new o(E(r),r instanceof v?r.code:"Unknown")}this.g&&this.g.session!==i&&this.z.store(p,this.g.session,-1,1),!t.isCancellationRequested&&(s||await this.u.addCurrentMachine(this.g||void 0))}register(e){return super.D(e)}}export{D as $4Oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createCancelablePromise, disposableTimeout, ThrottledDelayer, timeout } from "../../../base/common/async.js";
+import { toLocalISOString } from "../../../base/common/date.js";
+import { toErrorMessage } from "../../../base/common/errorMessage.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, MutableDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { isWeb } from "../../../base/common/platform.js";
+import { isEqual } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService, UserDataAutoSyncError, UserDataSyncError } from "./userDataSync.js";
+import { IUserDataSyncAccountService } from "./userDataSyncAccount.js";
+import { IUserDataSyncMachinesService } from "./userDataSyncMachines.js";
+const disableMachineEventuallyKey = "sync.disableMachineEventually";
+const sessionIdKey = "sync.sessionId";
+const storeUrlKey = "sync.storeUrl";
+const productQualityKey = "sync.productQuality";
+let UserDataAutoSyncService = class UserDataAutoSyncService2 extends Disposable {
+  static {
+    __name(this, "UserDataAutoSyncService");
+  }
+  get syncUrl() {
+    const value = this.storageService.get(
+      storeUrlKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    return value ? URI.parse(value) : void 0;
+  }
+  set syncUrl(syncUrl) {
+    if (syncUrl) {
+      this.storageService.store(
+        storeUrlKey,
+        syncUrl.toString(),
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.storageService.remove(
+        storeUrlKey,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+  }
+  get productQuality() {
+    return this.storageService.get(
+      productQualityKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+  }
+  set productQuality(productQuality) {
+    if (productQuality) {
+      this.storageService.store(
+        productQualityKey,
+        productQuality,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.storageService.remove(
+        productQualityKey,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+  }
+  constructor(productService, userDataSyncStoreManagementService, userDataSyncStoreService, userDataSyncEnablementService, userDataSyncService, logService, userDataSyncAccountService, telemetryService, userDataSyncMachinesService, storageService) {
+    super();
+    this.userDataSyncStoreManagementService = userDataSyncStoreManagementService;
+    this.userDataSyncStoreService = userDataSyncStoreService;
+    this.userDataSyncEnablementService = userDataSyncEnablementService;
+    this.userDataSyncService = userDataSyncService;
+    this.logService = logService;
+    this.userDataSyncAccountService = userDataSyncAccountService;
+    this.telemetryService = telemetryService;
+    this.userDataSyncMachinesService = userDataSyncMachinesService;
+    this.storageService = storageService;
+    this.autoSync = this._register(new MutableDisposable());
+    this.successiveFailures = 0;
+    this.lastSyncTriggerTime = void 0;
+    this.suspendUntilRestart = false;
+    this._onError = this._register(new Emitter());
+    this.onError = this._onError.event;
+    this.sources = [];
+    this.syncTriggerDelayer = this._register(new ThrottledDelayer(this.getSyncTriggerDelayTime()));
+    this.lastSyncUrl = this.syncUrl;
+    this.syncUrl = userDataSyncStoreManagementService.userDataSyncStore?.url;
+    this.previousProductQuality = this.productQuality;
+    this.productQuality = productService.quality;
+    if (this.syncUrl) {
+      this.logService.info("[AutoSync] Using settings sync service", this.syncUrl.toString());
+      this._register(userDataSyncStoreManagementService.onDidChangeUserDataSyncStore(() => {
+        if (!isEqual(this.syncUrl, userDataSyncStoreManagementService.userDataSyncStore?.url)) {
+          this.lastSyncUrl = this.syncUrl;
+          this.syncUrl = userDataSyncStoreManagementService.userDataSyncStore?.url;
+          if (this.syncUrl) {
+            this.logService.info("[AutoSync] Using settings sync service", this.syncUrl.toString());
+          }
+        }
+      }));
+      if (this.userDataSyncEnablementService.isEnabled()) {
+        this.logService.info("[AutoSync] Enabled.");
+      } else {
+        this.logService.info("[AutoSync] Disabled.");
+      }
+      this.updateAutoSync();
+      if (this.hasToDisableMachineEventually()) {
+        this.disableMachineEventually();
+      }
+      this._register(userDataSyncAccountService.onDidChangeAccount(() => this.updateAutoSync()));
+      this._register(userDataSyncStoreService.onDidChangeDonotMakeRequestsUntil(() => this.updateAutoSync()));
+      this._register(userDataSyncService.onDidChangeLocal((source) => this.triggerSync([source])));
+      this._register(Event.filter(this.userDataSyncEnablementService.onDidChangeResourceEnablement, ([, enabled]) => enabled)(() => this.triggerSync(["resourceEnablement"])));
+      this._register(this.userDataSyncStoreManagementService.onDidChangeUserDataSyncStore(() => this.triggerSync(["userDataSyncStoreChanged"])));
+    }
+  }
+  updateAutoSync() {
+    const { enabled, message } = this.isAutoSyncEnabled();
+    if (enabled) {
+      if (this.autoSync.value === void 0) {
+        this.autoSync.value = new AutoSync(this.lastSyncUrl, 1e3 * 60 * 5, this.userDataSyncStoreManagementService, this.userDataSyncStoreService, this.userDataSyncService, this.userDataSyncMachinesService, this.logService, this.telemetryService, this.storageService);
+        this.autoSync.value.register(this.autoSync.value.onDidStartSync(() => this.lastSyncTriggerTime = (/* @__PURE__ */ new Date()).getTime()));
+        this.autoSync.value.register(this.autoSync.value.onDidFinishSync((e) => this.onDidFinishSync(e)));
+        if (this.startAutoSync()) {
+          this.autoSync.value.start();
+        }
+      }
+    } else {
+      this.syncTriggerDelayer.cancel();
+      if (this.autoSync.value !== void 0) {
+        if (message) {
+          this.logService.info(message);
+        }
+        this.autoSync.clear();
+      } else if (message && this.userDataSyncEnablementService.isEnabled()) {
+        this.logService.info(message);
+      }
+    }
+  }
+  // For tests purpose only
+  startAutoSync() {
+    return true;
+  }
+  isAutoSyncEnabled() {
+    if (!this.userDataSyncEnablementService.isEnabled()) {
+      return { enabled: false, message: "[AutoSync] Disabled." };
+    }
+    if (!this.userDataSyncAccountService.account) {
+      return { enabled: false, message: "[AutoSync] Suspended until auth token is available." };
+    }
+    if (this.userDataSyncStoreService.donotMakeRequestsUntil) {
+      return { enabled: false, message: `[AutoSync] Suspended until ${toLocalISOString(this.userDataSyncStoreService.donotMakeRequestsUntil)} because server is not accepting requests until then.` };
+    }
+    if (this.suspendUntilRestart) {
+      return { enabled: false, message: "[AutoSync] Suspended until restart." };
+    }
+    return { enabled: true };
+  }
+  async turnOn() {
+    this.stopDisableMachineEventually();
+    this.lastSyncUrl = this.syncUrl;
+    this.updateEnablement(true);
+  }
+  async turnOff(everywhere, softTurnOffOnError, donotRemoveMachine) {
+    try {
+      if (this.userDataSyncAccountService.account && !donotRemoveMachine) {
+        await this.userDataSyncMachinesService.removeCurrentMachine();
+      }
+      this.updateEnablement(false);
+      this.storageService.remove(
+        sessionIdKey,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+      if (everywhere) {
+        await this.userDataSyncService.reset();
+      } else {
+        await this.userDataSyncService.resetLocal();
+      }
+    } catch (error) {
+      this.logService.error(error);
+      if (softTurnOffOnError) {
+        this.updateEnablement(false);
+      } else {
+        throw error;
+      }
+    }
+  }
+  updateEnablement(enabled) {
+    if (this.userDataSyncEnablementService.isEnabled() !== enabled) {
+      this.userDataSyncEnablementService.setEnablement(enabled);
+      this.updateAutoSync();
+    }
+  }
+  hasProductQualityChanged() {
+    return !!this.previousProductQuality && !!this.productQuality && this.previousProductQuality !== this.productQuality;
+  }
+  async onDidFinishSync(error) {
+    this.logService.debug("[AutoSync] Sync Finished");
+    if (!error) {
+      this.successiveFailures = 0;
+      return;
+    }
+    const userDataSyncError = UserDataSyncError.toUserDataSyncError(error);
+    if (userDataSyncError.code === "SessionExpired") {
+      await this.turnOff(
+        false,
+        true
+        /* force soft turnoff on error */
+      );
+      this.logService.info("[AutoSync] Turned off sync because current session is expired");
+    } else if (userDataSyncError.code === "TurnedOff") {
+      await this.turnOff(
+        false,
+        true
+        /* force soft turnoff on error */
+      );
+      this.logService.info("[AutoSync] Turned off sync because sync is turned off in the cloud");
+    } else if (userDataSyncError.code === "LocalTooManyRequests") {
+      this.suspendUntilRestart = true;
+      this.logService.info("[AutoSync] Suspended sync because of making too many requests to server");
+      this.updateAutoSync();
+    } else if (userDataSyncError.code === "RemoteTooManyRequests") {
+      await this.turnOff(
+        false,
+        true,
+        true
+        /* do not disable machine because disabling a machine makes request to server and can fail with TooManyRequests */
+      );
+      this.disableMachineEventually();
+      this.logService.info("[AutoSync] Turned off sync because of making too many requests to server");
+    } else if (userDataSyncError.code === "MethodNotFound") {
+      await this.turnOff(
+        false,
+        true
+        /* force soft turnoff on error */
+      );
+      this.logService.info("[AutoSync] Turned off sync because current client is making requests to server that are not supported");
+    } else if (userDataSyncError.code === "UpgradeRequired" || userDataSyncError.code === "Gone") {
+      await this.turnOff(
+        false,
+        true,
+        true
+        /* do not disable machine because disabling a machine makes request to server and can fail with upgrade required or gone */
+      );
+      this.disableMachineEventually();
+      this.logService.info("[AutoSync] Turned off sync because current client is not compatible with server. Requires client upgrade.");
+    } else if (userDataSyncError.code === "IncompatibleLocalContent") {
+      await this.turnOff(
+        false,
+        true
+        /* force soft turnoff on error */
+      );
+      this.logService.info(`[AutoSync] Turned off sync because server has ${userDataSyncError.resource} content with newer version than of client. Requires client upgrade.`);
+    } else if (userDataSyncError.code === "IncompatibleRemoteContent") {
+      await this.turnOff(
+        false,
+        true
+        /* force soft turnoff on error */
+      );
+      this.logService.info(`[AutoSync] Turned off sync because server has ${userDataSyncError.resource} content with older version than of client. Requires server reset.`);
+    } else if (userDataSyncError.code === "ServiceChanged" || userDataSyncError.code === "DefaultServiceChanged") {
+      if (isWeb && userDataSyncError.code === "DefaultServiceChanged" && !this.hasProductQualityChanged()) {
+        await this.turnOff(
+          false,
+          true
+          /* force soft turnoff on error */
+        );
+        this.logService.info("[AutoSync] Turned off sync because default sync service is changed.");
+      } else {
+        await this.turnOff(
+          false,
+          true,
+          true
+          /* do not disable machine */
+        );
+        await this.turnOn();
+        this.logService.info("[AutoSync] Sync Service changed. Turned off auto sync, reset local state and turned on auto sync.");
+      }
+    } else {
+      this.logService.error(userDataSyncError);
+      this.successiveFailures++;
+    }
+    this._onError.fire(userDataSyncError);
+  }
+  async disableMachineEventually() {
+    this.storageService.store(
+      disableMachineEventuallyKey,
+      true,
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    await timeout(1e3 * 60 * 10);
+    if (!this.hasToDisableMachineEventually()) {
+      return;
+    }
+    this.stopDisableMachineEventually();
+    if (!this.userDataSyncEnablementService.isEnabled() && this.userDataSyncAccountService.account) {
+      await this.userDataSyncMachinesService.removeCurrentMachine();
+    }
+  }
+  hasToDisableMachineEventually() {
+    return this.storageService.getBoolean(disableMachineEventuallyKey, -1, false);
+  }
+  stopDisableMachineEventually() {
+    this.storageService.remove(
+      disableMachineEventuallyKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+  }
+  async triggerSync(sources, options) {
+    if (this.autoSync.value === void 0) {
+      return this.syncTriggerDelayer.cancel();
+    }
+    if (options?.skipIfSyncedRecently && this.lastSyncTriggerTime && (/* @__PURE__ */ new Date()).getTime() - this.lastSyncTriggerTime < 1e4) {
+      this.logService.debug("[AutoSync] Skipping because sync was triggered recently.", sources);
+      return;
+    }
+    this.sources.push(...sources);
+    return this.syncTriggerDelayer.trigger(async () => {
+      this.logService.trace("[AutoSync] Activity sources", ...this.sources);
+      this.sources = [];
+      if (this.autoSync.value) {
+        await this.autoSync.value.sync("Activity", !!options?.disableCache);
+      }
+    }, this.successiveFailures ? Math.min(this.getSyncTriggerDelayTime() * this.successiveFailures, 6e4) : options?.immediately ? 0 : this.getSyncTriggerDelayTime());
+  }
+  getSyncTriggerDelayTime() {
+    if (this.lastSyncTriggerTime && (/* @__PURE__ */ new Date()).getTime() - this.lastSyncTriggerTime > 1e4) {
+      this.logService.debug("[AutoSync] Sync immediately because last sync was triggered more than 10 seconds ago.");
+      return 0;
+    }
+    return 3e3;
+  }
+};
+UserDataAutoSyncService = __decorate([
+  __param(0, IProductService),
+  __param(1, IUserDataSyncStoreManagementService),
+  __param(2, IUserDataSyncStoreService),
+  __param(3, IUserDataSyncEnablementService),
+  __param(4, IUserDataSyncService),
+  __param(5, IUserDataSyncLogService),
+  __param(6, IUserDataSyncAccountService),
+  __param(7, ITelemetryService),
+  __param(8, IUserDataSyncMachinesService),
+  __param(9, IStorageService)
+], UserDataAutoSyncService);
+class AutoSync extends Disposable {
+  static {
+    __name(this, "AutoSync");
+  }
+  static {
+    this.INTERVAL_SYNCING = "Interval";
+  }
+  constructor(lastSyncUrl, interval, userDataSyncStoreManagementService, userDataSyncStoreService, userDataSyncService, userDataSyncMachinesService, logService, telemetryService, storageService) {
+    super();
+    this.lastSyncUrl = lastSyncUrl;
+    this.interval = interval;
+    this.userDataSyncStoreManagementService = userDataSyncStoreManagementService;
+    this.userDataSyncStoreService = userDataSyncStoreService;
+    this.userDataSyncService = userDataSyncService;
+    this.userDataSyncMachinesService = userDataSyncMachinesService;
+    this.logService = logService;
+    this.telemetryService = telemetryService;
+    this.storageService = storageService;
+    this.intervalHandler = this._register(new MutableDisposable());
+    this._onDidStartSync = this._register(new Emitter());
+    this.onDidStartSync = this._onDidStartSync.event;
+    this._onDidFinishSync = this._register(new Emitter());
+    this.onDidFinishSync = this._onDidFinishSync.event;
+    this.manifest = null;
+  }
+  start() {
+    this._register(this.onDidFinishSync(() => this.waitUntilNextIntervalAndSync()));
+    this._register(toDisposable(() => {
+      if (this.syncPromise) {
+        this.syncPromise.cancel();
+        this.logService.info("[AutoSync] Cancelled sync that is in progress");
+        this.syncPromise = void 0;
+      }
+      this.syncTask?.stop();
+      this.logService.info("[AutoSync] Stopped");
+    }));
+    this.sync(AutoSync.INTERVAL_SYNCING, false);
+  }
+  waitUntilNextIntervalAndSync() {
+    this.intervalHandler.value = disposableTimeout(() => {
+      this.sync(AutoSync.INTERVAL_SYNCING, false);
+      this.intervalHandler.value = void 0;
+    }, this.interval);
+  }
+  sync(reason, disableCache) {
+    const syncPromise = createCancelablePromise(async (token) => {
+      if (this.syncPromise) {
+        try {
+          this.logService.debug("[AutoSync] Waiting until sync is finished.");
+          await this.syncPromise;
+        } catch (error) {
+          if (isCancellationError(error)) {
+            return;
+          }
+        }
+      }
+      return this.doSync(reason, disableCache, token);
+    });
+    this.syncPromise = syncPromise;
+    this.syncPromise.finally(() => this.syncPromise = void 0);
+    return this.syncPromise;
+  }
+  hasSyncServiceChanged() {
+    return this.lastSyncUrl !== void 0 && !isEqual(this.lastSyncUrl, this.userDataSyncStoreManagementService.userDataSyncStore?.url);
+  }
+  async hasDefaultServiceChanged() {
+    const previous = await this.userDataSyncStoreManagementService.getPreviousUserDataSyncStore();
+    const current = this.userDataSyncStoreManagementService.userDataSyncStore;
+    return !!current && !!previous && (!isEqual(current.defaultUrl, previous.defaultUrl) || !isEqual(current.insidersUrl, previous.insidersUrl) || !isEqual(current.stableUrl, previous.stableUrl));
+  }
+  async doSync(reason, disableCache, token) {
+    this.logService.info(`[AutoSync] Triggered by ${reason}`);
+    this._onDidStartSync.fire();
+    let error;
+    try {
+      await this.createAndRunSyncTask(disableCache, token);
+    } catch (e) {
+      this.logService.error(e);
+      error = e;
+      if (UserDataSyncError.toUserDataSyncError(e).code === "MethodNotFound") {
+        try {
+          this.logService.info("[AutoSync] Client is making invalid requests. Cleaning up data...");
+          await this.userDataSyncService.cleanUpRemoteData();
+          this.logService.info("[AutoSync] Retrying sync...");
+          await this.createAndRunSyncTask(disableCache, token);
+          error = void 0;
+        } catch (e1) {
+          this.logService.error(e1);
+          error = e1;
+        }
+      }
+    }
+    this._onDidFinishSync.fire(error);
+  }
+  async createAndRunSyncTask(disableCache, token) {
+    this.syncTask = await this.userDataSyncService.createSyncTask(this.manifest, disableCache);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    this.manifest = this.syncTask.manifest;
+    if (this.manifest === null && await this.userDataSyncService.hasPreviouslySynced()) {
+      if (this.hasSyncServiceChanged()) {
+        if (await this.hasDefaultServiceChanged()) {
+          throw new UserDataAutoSyncError(
+            localize("default service changed", "Cannot sync because default service has changed"),
+            "DefaultServiceChanged"
+            /* UserDataSyncErrorCode.DefaultServiceChanged */
+          );
+        } else {
+          throw new UserDataAutoSyncError(
+            localize("service changed", "Cannot sync because sync service has changed"),
+            "ServiceChanged"
+            /* UserDataSyncErrorCode.ServiceChanged */
+          );
+        }
+      } else {
+        throw new UserDataAutoSyncError(
+          localize("turned off", "Cannot sync because syncing is turned off in the cloud"),
+          "TurnedOff"
+          /* UserDataSyncErrorCode.TurnedOff */
+        );
+      }
+    }
+    const sessionId = this.storageService.get(
+      sessionIdKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (sessionId && this.manifest && sessionId !== this.manifest.session) {
+      if (this.hasSyncServiceChanged()) {
+        if (await this.hasDefaultServiceChanged()) {
+          throw new UserDataAutoSyncError(
+            localize("default service changed", "Cannot sync because default service has changed"),
+            "DefaultServiceChanged"
+            /* UserDataSyncErrorCode.DefaultServiceChanged */
+          );
+        } else {
+          throw new UserDataAutoSyncError(
+            localize("service changed", "Cannot sync because sync service has changed"),
+            "ServiceChanged"
+            /* UserDataSyncErrorCode.ServiceChanged */
+          );
+        }
+      } else {
+        throw new UserDataAutoSyncError(
+          localize("session expired", "Cannot sync because current session is expired"),
+          "SessionExpired"
+          /* UserDataSyncErrorCode.SessionExpired */
+        );
+      }
+    }
+    const machines = await this.userDataSyncMachinesService.getMachines(this.manifest || void 0);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const currentMachine = machines.find((machine) => machine.isCurrent);
+    if (currentMachine?.disabled) {
+      throw new UserDataAutoSyncError(
+        localize("turned off machine", "Cannot sync because syncing is turned off on this machine from another machine."),
+        "TurnedOff"
+        /* UserDataSyncErrorCode.TurnedOff */
+      );
+    }
+    const startTime = (/* @__PURE__ */ new Date()).getTime();
+    await this.syncTask.run();
+    this.telemetryService.publicLog2("settingsSync:sync", { duration: (/* @__PURE__ */ new Date()).getTime() - startTime });
+    if (this.manifest === null) {
+      try {
+        this.manifest = await this.userDataSyncStoreService.manifest(null);
+      } catch (error) {
+        throw new UserDataAutoSyncError(
+          toErrorMessage(error),
+          error instanceof UserDataSyncError ? error.code : "Unknown"
+          /* UserDataSyncErrorCode.Unknown */
+        );
+      }
+    }
+    if (this.manifest && this.manifest.session !== sessionId) {
+      this.storageService.store(
+        sessionIdKey,
+        this.manifest.session,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+    if (token.isCancellationRequested) {
+      return;
+    }
+    if (!currentMachine) {
+      await this.userDataSyncMachinesService.addCurrentMachine(this.manifest || void 0);
+    }
+  }
+  register(t) {
+    return super._register(t);
+  }
+}
+export {
+  UserDataAutoSyncService
+};
+//# sourceMappingURL=userDataAutoSyncService.js.map

@@ -1,1 +1,132 @@
-import{$Ed as w}from"../../../base/common/lifecycle.js";import{$Nj as u}from"../../instantiation/common/instantiation.js";import{$yo as a}from"../../log/common/log.js";import{$vv as m}from"../../windows/electron-main/windows.js";import{$Ow as $}from"./utilityProcess.js";import{$pp as f}from"../../telemetry/common/telemetry.js";import{$Gn as I}from"../../../base/common/hash.js";import{Event as k,$xf as b}from"../../../base/common/event.js";import{$ui as W}from"../../../base/common/async.js";import{$pw as y}from"../../lifecycle/electron-main/lifecycleMainService.js";var p=function(d,e,t,r){var s=arguments.length,i=s<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(d,e,t,r);else for(var c=d.length-1;c>=0;c--)(o=d[c])&&(i=(s<3?o(i):s>3?o(e,t,i):o(e,t))||i);return s>3&&i&&Object.defineProperty(e,t,i),i},n=function(d,e){return function(t,r){e(t,r,d)}};const j=u("utilityProcessWorker");let l=class extends w{constructor(e,t,r,s){super(),this.b=e,this.c=t,this.f=r,this.g=s,this.a=new Map}async createWorker(e){const t=`window: ${e.reply.windowId}, moduleId: ${e.process.moduleId}`;this.b.trace(`[UtilityProcessWorker]: createWorker(${t})`);const r=this.h(e);this.a.has(r)&&(this.b.warn(`[UtilityProcessWorker]: createWorker() found an existing worker that will be terminated (${t})`),this.disposeWorker(e));const s=new h(this.b,this.c,this.f,this.g,e);if(!s.spawn())return{reason:{code:1,signal:"EINVALID"}};this.a.set(r,s);const i=new W;return k.once(s.onDidTerminate)(o=>{o.code===0?this.b.trace(`[UtilityProcessWorker]: terminated normally with code ${o.code}, signal: ${o.signal}`):this.b.error(`[UtilityProcessWorker]: terminated unexpectedly with code ${o.code}, signal: ${o.signal}`),this.a.delete(r),i.complete({reason:o})}),i.p}h(e){return I({moduleId:e.process.moduleId,windowId:e.reply.windowId})}async disposeWorker(e){const t=this.h(e),r=this.a.get(t);r&&(this.b.trace(`[UtilityProcessWorker]: disposeWorker(window: ${e.reply.windowId}, moduleId: ${e.process.moduleId})`),r.kill(),r.dispose(),this.a.delete(t))}};l=p([n(0,a),n(1,m),n(2,f),n(3,y)],l);let h=class extends w{constructor(e,t,r,s,i){super(),this.c=t,this.f=i,this.a=this.D(new b),this.onDidTerminate=this.a.event,this.b=this.D(new $(e,t,r,s)),this.g()}g(){this.D(this.b.onExit(e=>this.a.fire({code:e.code,signal:e.signal}))),this.D(this.b.onCrash(e=>this.a.fire({code:e.code,signal:"ECRASH"})))}spawn(){const t=this.c.getWindowById(this.f.reply.windowId)?.win?.webContents.getOSProcessId();return this.b.start({type:this.f.process.type,name:this.f.process.name,entryPoint:this.f.process.moduleId,parentLifecycleBound:t,windowLifecycleBound:!0,correlationId:`${this.f.reply.windowId}`,responseWindowId:this.f.reply.windowId,responseChannel:this.f.reply.channel,responseNonce:this.f.reply.nonce})}kill(){this.b.kill()}};h=p([n(0,a),n(1,m),n(2,f),n(3,y)],h);export{j as $_A,l as $aB};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { WindowUtilityProcess } from "./utilityProcess.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { hash } from "../../../base/common/hash.js";
+import { Event, Emitter } from "../../../base/common/event.js";
+import { DeferredPromise } from "../../../base/common/async.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+const IUtilityProcessWorkerMainService = createDecorator("utilityProcessWorker");
+let UtilityProcessWorkerMainService = class UtilityProcessWorkerMainService2 extends Disposable {
+  static {
+    __name(this, "UtilityProcessWorkerMainService");
+  }
+  constructor(logService, windowsMainService, telemetryService, lifecycleMainService) {
+    super();
+    this.logService = logService;
+    this.windowsMainService = windowsMainService;
+    this.telemetryService = telemetryService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.workers = /* @__PURE__ */ new Map();
+  }
+  async createWorker(configuration) {
+    const workerLogId = `window: ${configuration.reply.windowId}, moduleId: ${configuration.process.moduleId}`;
+    this.logService.trace(`[UtilityProcessWorker]: createWorker(${workerLogId})`);
+    const workerId = this.hash(configuration);
+    if (this.workers.has(workerId)) {
+      this.logService.warn(`[UtilityProcessWorker]: createWorker() found an existing worker that will be terminated (${workerLogId})`);
+      this.disposeWorker(configuration);
+    }
+    const worker = new UtilityProcessWorker(this.logService, this.windowsMainService, this.telemetryService, this.lifecycleMainService, configuration);
+    if (!worker.spawn()) {
+      return { reason: { code: 1, signal: "EINVALID" } };
+    }
+    this.workers.set(workerId, worker);
+    const onDidTerminate = new DeferredPromise();
+    Event.once(worker.onDidTerminate)((reason) => {
+      if (reason.code === 0) {
+        this.logService.trace(`[UtilityProcessWorker]: terminated normally with code ${reason.code}, signal: ${reason.signal}`);
+      } else {
+        this.logService.error(`[UtilityProcessWorker]: terminated unexpectedly with code ${reason.code}, signal: ${reason.signal}`);
+      }
+      this.workers.delete(workerId);
+      onDidTerminate.complete({ reason });
+    });
+    return onDidTerminate.p;
+  }
+  hash(configuration) {
+    return hash({
+      moduleId: configuration.process.moduleId,
+      windowId: configuration.reply.windowId
+    });
+  }
+  async disposeWorker(configuration) {
+    const workerId = this.hash(configuration);
+    const worker = this.workers.get(workerId);
+    if (!worker) {
+      return;
+    }
+    this.logService.trace(`[UtilityProcessWorker]: disposeWorker(window: ${configuration.reply.windowId}, moduleId: ${configuration.process.moduleId})`);
+    worker.kill();
+    worker.dispose();
+    this.workers.delete(workerId);
+  }
+};
+UtilityProcessWorkerMainService = __decorate([
+  __param(0, ILogService),
+  __param(1, IWindowsMainService),
+  __param(2, ITelemetryService),
+  __param(3, ILifecycleMainService)
+], UtilityProcessWorkerMainService);
+let UtilityProcessWorker = class UtilityProcessWorker2 extends Disposable {
+  static {
+    __name(this, "UtilityProcessWorker");
+  }
+  constructor(logService, windowsMainService, telemetryService, lifecycleMainService, configuration) {
+    super();
+    this.windowsMainService = windowsMainService;
+    this.configuration = configuration;
+    this._onDidTerminate = this._register(new Emitter());
+    this.onDidTerminate = this._onDidTerminate.event;
+    this.utilityProcess = this._register(new WindowUtilityProcess(logService, windowsMainService, telemetryService, lifecycleMainService));
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.utilityProcess.onExit((e) => this._onDidTerminate.fire({ code: e.code, signal: e.signal })));
+    this._register(this.utilityProcess.onCrash((e) => this._onDidTerminate.fire({ code: e.code, signal: "ECRASH" })));
+  }
+  spawn() {
+    const window = this.windowsMainService.getWindowById(this.configuration.reply.windowId);
+    const windowPid = window?.win?.webContents.getOSProcessId();
+    return this.utilityProcess.start({
+      type: this.configuration.process.type,
+      name: this.configuration.process.name,
+      entryPoint: this.configuration.process.moduleId,
+      parentLifecycleBound: windowPid,
+      windowLifecycleBound: true,
+      correlationId: `${this.configuration.reply.windowId}`,
+      responseWindowId: this.configuration.reply.windowId,
+      responseChannel: this.configuration.reply.channel,
+      responseNonce: this.configuration.reply.nonce
+    });
+  }
+  kill() {
+    this.utilityProcess.kill();
+  }
+};
+UtilityProcessWorker = __decorate([
+  __param(0, ILogService),
+  __param(1, IWindowsMainService),
+  __param(2, ITelemetryService),
+  __param(3, ILifecycleMainService)
+], UtilityProcessWorker);
+export {
+  IUtilityProcessWorkerMainService,
+  UtilityProcessWorkerMainService
+};
+//# sourceMappingURL=utilityProcessWorkerMainService.js.map

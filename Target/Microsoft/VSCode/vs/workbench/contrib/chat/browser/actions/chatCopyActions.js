@@ -1,3 +1,137 @@
-import*as s from"../../../../../base/browser/dom.js";import{localize2 as d}from"../../../../../nls.js";import{$vL as g,$qL as p,$wL as u}from"../../../../../platform/actions/common/actions.js";import{$gjb as m}from"../../../../../platform/clipboard/common/clipboardService.js";import{$4Eb as b,$5Eb as E}from"../../../markdown/common/markedKatexExtension.js";import{ChatContextKeys as f}from"../../common/actions/chatContextKeys.js";import{$$Eb as C,$8Eb as $,$9Eb as h}from"../../common/model/chatViewModel.js";import{$U4b as y}from"../chat.js";import{$HPb as w,$SPb as v}from"./chatActions.js";function D(){u(class extends g{constructor(){super({id:"workbench.action.chat.copyAll",title:d(5249,"Copy All"),f1:!1,category:w,menu:{id:p.ChatContext,when:f.responseIsFiltered.negate(),group:"copy"}})}run(i,r){const a=i.get(m),c=i.get(y),n=($(r)||h(r))&&c.getWidgetBySessionResource(r.sessionResource)||c.lastFocusedWidget;if(n){const e=n.viewModel?.getItems().filter(t=>$(t)||h(t)&&!t.errorDetails?.responseIsFiltered).map(t=>v(t)).join(`
-
-`);e&&a.writeText(e)}}}),u(class extends g{constructor(){super({id:"workbench.action.chat.copyItem",title:d(5250,"Copy"),f1:!1,category:w,menu:{id:p.ChatContext,when:f.responseIsFiltered.negate(),group:"copy"}})}async run(i,...r){const a=i.get(y),c=i.get(m),n=a.lastFocusedWidget;let o=r[0];if(!C(o)&&(o=n?.getFocus(),!o))return;const t=s.$b9().getSelection()?.toString();if(n&&t&&t.length>0&&s.$18(s.$98(),n.domNode)){await c.writeText(t);return}if(!$(o)&&!h(o))return;const l=v(o,!1);await c.writeText(l)}}),u(class extends g{constructor(){super({id:"workbench.action.chat.copyKatexMathSource",title:d(5251,"Copy Math Source"),f1:!1,category:w,menu:{id:p.ChatContext,group:"copy",when:f.isKatexMathElement}})}async run(i,...r){const a=i.get(y),c=i.get(m),n=a.lastFocusedWidget;let o=r[0];if(!C(o)&&(o=n?.getFocus(),!o))return;let e=null;const t=s.$98(),l=s.$b9().getSelection();n&&l&&l.rangeCount>0&&s.$18(t,n.domNode)&&(e=l.getRangeAt(0).commonAncestorContainer,e.nodeType===Node.TEXT_NODE&&(e=e.parentElement)),e||(e=t?.querySelector(`.${b}`)??null);const S=(s.$f9(e)?e.closest(`.${b}`):null)?.getAttribute(E)||"";S&&await c.writeText(S)}})}export{D as $Moc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../../base/browser/dom.js";
+import { localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { katexContainerClassName, katexContainerLatexAttributeName } from "../../../markdown/common/markedKatexExtension.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { isChatTreeItem, isRequestVM, isResponseVM } from "../../common/model/chatViewModel.js";
+import { IChatWidgetService } from "../chat.js";
+import { CHAT_CATEGORY, stringifyItem } from "./chatActions.js";
+function registerChatCopyActions() {
+  registerAction2(class CopyAllAction extends Action2 {
+    static {
+      __name(this, "CopyAllAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.copyAll",
+        title: localize2("interactive.copyAll.label", "Copy All"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        menu: {
+          id: MenuId.ChatContext,
+          when: ChatContextKeys.responseIsFiltered.negate(),
+          group: "copy"
+        }
+      });
+    }
+    run(accessor, context) {
+      const clipboardService = accessor.get(IClipboardService);
+      const chatWidgetService = accessor.get(IChatWidgetService);
+      const widget = (isRequestVM(context) || isResponseVM(context)) && chatWidgetService.getWidgetBySessionResource(context.sessionResource) || chatWidgetService.lastFocusedWidget;
+      if (widget) {
+        const viewModel = widget.viewModel;
+        const sessionAsText = viewModel?.getItems().filter((item) => isRequestVM(item) || isResponseVM(item) && !item.errorDetails?.responseIsFiltered).map((item) => stringifyItem(item)).join("\n\n");
+        if (sessionAsText) {
+          clipboardService.writeText(sessionAsText);
+        }
+      }
+    }
+  });
+  registerAction2(class CopyItemAction extends Action2 {
+    static {
+      __name(this, "CopyItemAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.copyItem",
+        title: localize2("interactive.copyItem.label", "Copy"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        menu: {
+          id: MenuId.ChatContext,
+          when: ChatContextKeys.responseIsFiltered.negate(),
+          group: "copy"
+        }
+      });
+    }
+    async run(accessor, ...args) {
+      const chatWidgetService = accessor.get(IChatWidgetService);
+      const clipboardService = accessor.get(IClipboardService);
+      const widget = chatWidgetService.lastFocusedWidget;
+      let item = args[0];
+      if (!isChatTreeItem(item)) {
+        item = widget?.getFocus();
+        if (!item) {
+          return;
+        }
+      }
+      const nativeSelection = dom.getActiveWindow().getSelection();
+      const selectedText = nativeSelection?.toString();
+      if (widget && selectedText && selectedText.length > 0 && dom.isAncestor(dom.getActiveElement(), widget.domNode)) {
+        await clipboardService.writeText(selectedText);
+        return;
+      }
+      if (!isRequestVM(item) && !isResponseVM(item)) {
+        return;
+      }
+      const text = stringifyItem(item, false);
+      await clipboardService.writeText(text);
+    }
+  });
+  registerAction2(class CopyKatexMathSourceAction extends Action2 {
+    static {
+      __name(this, "CopyKatexMathSourceAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.copyKatexMathSource",
+        title: localize2("chat.copyKatexMathSource.label", "Copy Math Source"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        menu: {
+          id: MenuId.ChatContext,
+          group: "copy",
+          when: ChatContextKeys.isKatexMathElement
+        }
+      });
+    }
+    async run(accessor, ...args) {
+      const chatWidgetService = accessor.get(IChatWidgetService);
+      const clipboardService = accessor.get(IClipboardService);
+      const widget = chatWidgetService.lastFocusedWidget;
+      let item = args[0];
+      if (!isChatTreeItem(item)) {
+        item = widget?.getFocus();
+        if (!item) {
+          return;
+        }
+      }
+      let selectedElement = null;
+      const activeElement = dom.getActiveElement();
+      const nativeSelection = dom.getActiveWindow().getSelection();
+      if (widget && nativeSelection && nativeSelection.rangeCount > 0 && dom.isAncestor(activeElement, widget.domNode)) {
+        const range = nativeSelection.getRangeAt(0);
+        selectedElement = range.commonAncestorContainer;
+        if (selectedElement.nodeType === Node.TEXT_NODE) {
+          selectedElement = selectedElement.parentElement;
+        }
+      }
+      if (!selectedElement) {
+        selectedElement = activeElement?.querySelector(`.${katexContainerClassName}`) ?? null;
+      }
+      const katexElement = dom.isHTMLElement(selectedElement) ? selectedElement.closest(`.${katexContainerClassName}`) : null;
+      const latexSource = katexElement?.getAttribute(katexContainerLatexAttributeName) || "";
+      if (latexSource) {
+        await clipboardService.writeText(latexSource);
+      }
+    }
+  });
+}
+__name(registerChatCopyActions, "registerChatCopyActions");
+export {
+  registerChatCopyActions
+};
+//# sourceMappingURL=chatCopyActions.js.map

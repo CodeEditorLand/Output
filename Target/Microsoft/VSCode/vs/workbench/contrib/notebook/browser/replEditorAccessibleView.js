@@ -1,1 +1,61 @@
-import{$Avb as s}from"../../../../platform/accessibility/browser/accessibleView.js";import{$0n as l}from"../../../../platform/contextkey/common/contextkey.js";import{$BL as d}from"../../../services/editor/common/editorService.js";import{$iuc as p}from"../../replNotebook/browser/replEditor.js";import{$rFb as m,$tFb as u}from"../common/notebookContextKeys.js";import{$AHb as f}from"./viewModel/cellOutputTextHelper.js";class h{constructor(){this.priority=100,this.name="replEditorInput",this.type="view",this.when=l.and(m,u.negate())}getProvider(t){const o=t.get(d);return b(o)}}function b(r){const t=r.activeEditorPane?.getControl();if(t&&p(t)&&t.notebookEditor){const o=t.notebookEditor,e=o?.getViewModel();if(o&&e){const i=e.length-1;if(i>=0){const c=e.viewCells[i],n=f(e.notebookDocument,c);if(n)return new s("notebook",{type:"view"},()=>n,()=>{t.activeCodeEditor?.focus()},"accessibility.verbosity.replEditor")}}}}export{h as $Auc,b as $Buc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AccessibleContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { isReplEditorControl } from "../../replNotebook/browser/replEditor.js";
+import { IS_COMPOSITE_NOTEBOOK, NOTEBOOK_CELL_LIST_FOCUSED } from "../common/notebookContextKeys.js";
+import { getAllOutputsText } from "./viewModel/cellOutputTextHelper.js";
+class ReplEditorAccessibleView {
+  static {
+    __name(this, "ReplEditorAccessibleView");
+  }
+  constructor() {
+    this.priority = 100;
+    this.name = "replEditorInput";
+    this.type = "view";
+    this.when = ContextKeyExpr.and(IS_COMPOSITE_NOTEBOOK, NOTEBOOK_CELL_LIST_FOCUSED.negate());
+  }
+  getProvider(accessor) {
+    const editorService = accessor.get(IEditorService);
+    return getAccessibleOutputProvider(editorService);
+  }
+}
+function getAccessibleOutputProvider(editorService) {
+  const editorControl = editorService.activeEditorPane?.getControl();
+  if (editorControl && isReplEditorControl(editorControl) && editorControl.notebookEditor) {
+    const notebookEditor = editorControl.notebookEditor;
+    const viewModel = notebookEditor?.getViewModel();
+    if (notebookEditor && viewModel) {
+      const lastCellIndex = viewModel.length - 1;
+      if (lastCellIndex >= 0) {
+        const cell = viewModel.viewCells[lastCellIndex];
+        const outputContent = getAllOutputsText(viewModel.notebookDocument, cell);
+        if (outputContent) {
+          return new AccessibleContentProvider(
+            "notebook",
+            {
+              type: "view"
+              /* AccessibleViewType.View */
+            },
+            () => {
+              return outputContent;
+            },
+            () => {
+              editorControl.activeCodeEditor?.focus();
+            },
+            "accessibility.verbosity.replEditor"
+            /* AccessibilityVerbositySettingId.ReplEditor */
+          );
+        }
+      }
+    }
+  }
+  return;
+}
+__name(getAccessibleOutputProvider, "getAccessibleOutputProvider");
+export {
+  ReplEditorAccessibleView,
+  getAccessibleOutputProvider
+};
+//# sourceMappingURL=replEditorAccessibleView.js.map

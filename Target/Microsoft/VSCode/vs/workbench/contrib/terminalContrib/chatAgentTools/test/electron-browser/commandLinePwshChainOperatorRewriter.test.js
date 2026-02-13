@@ -1,1 +1,64 @@
-import{strictEqual as l}from"assert";import{Schemas as d}from"../../../../../../base/common/network.js";import{$Ibb as a}from"../../../../../../base/test/common/utils.js";import{$DK as p}from"../../../../../../editor/common/services/treeSitter/treeSitterLibraryService.js";import{$0B as w}from"../../../../../../platform/files/common/fileService.js";import{$Mo as f}from"../../../../../../platform/log/common/log.js";import{$ucc as u}from"../../../../../services/treeSitter/browser/treeSitterLibraryService.js";import{$b3c as S}from"../../../../../test/browser/workbenchTestServices.js";import{$V4c as P}from"../../../../../test/electron-browser/workbenchTestServices.js";import{$JDc as $}from"../../browser/tools/commandLineRewriter/commandLinePwshChainOperatorRewriter.js";import{$NCc as b}from"../../browser/treeSitterCommandParser.js";suite("CommandLinePwshChainOperatorRewriter",()=>{const t=a();let r,s,c;function h(e,i,o){return{commandLine:e,cwd:void 0,shell:i,os:o}}setup(()=>{const e=t.add(new w(new f)),i=new P;t.add(e.registerProvider(d.file,i)),r=S({fileService:()=>e},t);const o=t.add(r.createInstance(u));o.isTest=!0,r.stub(p,o),s=t.add(r.createInstance(b)),c=t.add(r.createInstance($,s))}),suite("PowerShell: && -> ;",()=>{async function e(i,o){const m=h(i,"pwsh",1),n=await c.rewrite(m);l(n?.rewritten,o),o!==void 0&&l(n?.reasoning,"&& re-written to ;")}test("should rewrite && to ; in PowerShell commands",()=>e("echo hello && echo world","echo hello ; echo world")),test("should rewrite multiple && to ; in PowerShell commands",()=>e("echo first && echo second && echo third","echo first ; echo second ; echo third")),test("should handle complex commands with && operators",()=>e('npm install && npm test && echo "build complete"','npm install ; npm test ; echo "build complete"')),test("should work with Windows PowerShell shell identifier",()=>e("Get-Process && Stop-Process","Get-Process ; Stop-Process")),test("should preserve existing semicolons",()=>e("echo hello; echo world && echo final","echo hello; echo world ; echo final")),test("should not rewrite strings",()=>e('echo "&&" && Write-Host "&& &&" && "&&"','echo "&&" ; Write-Host "&& &&" ; "&&"'))})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { strictEqual } from "assert";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { ITreeSitterLibraryService } from "../../../../../../editor/common/services/treeSitter/treeSitterLibraryService.js";
+import { FileService } from "../../../../../../platform/files/common/fileService.js";
+import { NullLogService } from "../../../../../../platform/log/common/log.js";
+import { TreeSitterLibraryService } from "../../../../../services/treeSitter/browser/treeSitterLibraryService.js";
+import { workbenchInstantiationService } from "../../../../../test/browser/workbenchTestServices.js";
+import { TestIPCFileSystemProvider } from "../../../../../test/electron-browser/workbenchTestServices.js";
+import { CommandLinePwshChainOperatorRewriter } from "../../browser/tools/commandLineRewriter/commandLinePwshChainOperatorRewriter.js";
+import { TreeSitterCommandParser } from "../../browser/treeSitterCommandParser.js";
+suite("CommandLinePwshChainOperatorRewriter", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let parser;
+  let rewriter;
+  function createRewriteOptions(command, shell, os) {
+    return {
+      commandLine: command,
+      cwd: void 0,
+      shell,
+      os
+    };
+  }
+  __name(createRewriteOptions, "createRewriteOptions");
+  setup(() => {
+    const fileService = store.add(new FileService(new NullLogService()));
+    const fileSystemProvider = new TestIPCFileSystemProvider();
+    store.add(fileService.registerProvider(Schemas.file, fileSystemProvider));
+    instantiationService = workbenchInstantiationService({
+      fileService: /* @__PURE__ */ __name(() => fileService, "fileService")
+    }, store);
+    const treeSitterLibraryService = store.add(instantiationService.createInstance(TreeSitterLibraryService));
+    treeSitterLibraryService.isTest = true;
+    instantiationService.stub(ITreeSitterLibraryService, treeSitterLibraryService);
+    parser = store.add(instantiationService.createInstance(TreeSitterCommandParser));
+    rewriter = store.add(instantiationService.createInstance(CommandLinePwshChainOperatorRewriter, parser));
+  });
+  suite("PowerShell: && -> ;", () => {
+    async function t(originalCommandLine, expectedResult) {
+      const options = createRewriteOptions(
+        originalCommandLine,
+        "pwsh",
+        1
+        /* OperatingSystem.Windows */
+      );
+      const result = await rewriter.rewrite(options);
+      strictEqual(result?.rewritten, expectedResult);
+      if (expectedResult !== void 0) {
+        strictEqual(result?.reasoning, "&& re-written to ;");
+      }
+    }
+    __name(t, "t");
+    test("should rewrite && to ; in PowerShell commands", () => t("echo hello && echo world", "echo hello ; echo world"));
+    test("should rewrite multiple && to ; in PowerShell commands", () => t("echo first && echo second && echo third", "echo first ; echo second ; echo third"));
+    test("should handle complex commands with && operators", () => t('npm install && npm test && echo "build complete"', 'npm install ; npm test ; echo "build complete"'));
+    test("should work with Windows PowerShell shell identifier", () => t("Get-Process && Stop-Process", "Get-Process ; Stop-Process"));
+    test("should preserve existing semicolons", () => t("echo hello; echo world && echo final", "echo hello; echo world ; echo final"));
+    test("should not rewrite strings", () => t('echo "&&" && Write-Host "&& &&" && "&&"', 'echo "&&" ; Write-Host "&& &&" ; "&&"'));
+  });
+});
+//# sourceMappingURL=commandLinePwshChainOperatorRewriter.test.js.map

@@ -1,1 +1,86 @@
-import{$u8 as n,$98 as l,$88 as p}from"../../../../../base/browser/dom.js";import{$Ed as b}from"../../../../../base/common/lifecycle.js";import{$yo as m}from"../../../../../platform/log/common/log.js";var u=function(i,t,e,s){var o=arguments.length,r=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,t,e,s);else for(var c=i.length-1;c>=0;c--)(h=i[c])&&(r=(o<3?h(r):o>3?h(t,e,r):h(t,e))||r);return o>3&&r&&Object.defineProperty(t,e,r),r},a=function(i,t){return function(e,s){t(e,s,i)}};let f=class extends b{constructor(t,e,s){super(),this.c=e,this.f=s,this.a=!1,this.b=!1,this.D(n(this.c,"focus",()=>{t.trace("NativeEditContext.focus"),!this.b&&this.refreshFocusState()})),this.D(n(this.c,"blur",()=>{t.trace("NativeEditContext.blur"),!this.b&&this.g(!1)}))}pause(){this.b=!0}resume(){this.b=!1,this.refreshFocusState()}g(t){this.a!==t&&(this.a=t,this.f(this.a))}focus(){this.c.focus(),this.refreshFocusState()}refreshFocusState(){const t=p(this.c),e=t?t.activeElement:l(),s=this.c===e;this.g(s)}get isFocused(){return this.a}};f=u([a(0,m)],f);function _(i,t,e,s){return i.addEventListener(t,e,s),{dispose(){i.removeEventListener(t,e)}}}export{f as $Ehb,_ as $Fhb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { addDisposableListener, getActiveElement, getShadowRoot } from "../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+let FocusTracker = class FocusTracker2 extends Disposable {
+  static {
+    __name(this, "FocusTracker");
+  }
+  constructor(_logService, _domNode, _onFocusChange) {
+    super();
+    this._domNode = _domNode;
+    this._onFocusChange = _onFocusChange;
+    this._isFocused = false;
+    this._isPaused = false;
+    this._register(addDisposableListener(this._domNode, "focus", () => {
+      _logService.trace("NativeEditContext.focus");
+      if (this._isPaused) {
+        return;
+      }
+      this.refreshFocusState();
+    }));
+    this._register(addDisposableListener(this._domNode, "blur", () => {
+      _logService.trace("NativeEditContext.blur");
+      if (this._isPaused) {
+        return;
+      }
+      this._handleFocusedChanged(false);
+    }));
+  }
+  pause() {
+    this._isPaused = true;
+  }
+  resume() {
+    this._isPaused = false;
+    this.refreshFocusState();
+  }
+  _handleFocusedChanged(focused) {
+    if (this._isFocused === focused) {
+      return;
+    }
+    this._isFocused = focused;
+    this._onFocusChange(this._isFocused);
+  }
+  focus() {
+    this._domNode.focus();
+    this.refreshFocusState();
+  }
+  refreshFocusState() {
+    const shadowRoot = getShadowRoot(this._domNode);
+    const activeElement = shadowRoot ? shadowRoot.activeElement : getActiveElement();
+    const focused = this._domNode === activeElement;
+    this._handleFocusedChanged(focused);
+  }
+  get isFocused() {
+    return this._isFocused;
+  }
+};
+FocusTracker = __decorate([
+  __param(0, ILogService)
+], FocusTracker);
+function editContextAddDisposableListener(target, type, listener, options) {
+  target.addEventListener(type, listener, options);
+  return {
+    dispose() {
+      target.removeEventListener(type, listener);
+    }
+  };
+}
+__name(editContextAddDisposableListener, "editContextAddDisposableListener");
+export {
+  FocusTracker,
+  editContextAddDisposableListener
+};
+//# sourceMappingURL=nativeEditContextUtils.js.map

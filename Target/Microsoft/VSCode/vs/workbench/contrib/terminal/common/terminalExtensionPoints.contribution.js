@@ -1,1 +1,9 @@
-import{$WC as o}from"../../../../platform/instantiation/common/extensions.js";import{$nCc as m,$oCc as r}from"./terminalExtensionPoints.js";o(m,r,1);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ITerminalContributionService, TerminalContributionService } from "./terminalExtensionPoints.js";
+registerSingleton(
+  ITerminalContributionService,
+  TerminalContributionService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=terminalExtensionPoints.contribution.js.map

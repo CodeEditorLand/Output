@@ -1,1 +1,149 @@
-import{$$b as c}from"../../../../../../base/common/arrays.js";import{$Md as u,$Dd as l}from"../../../../../../base/common/lifecycle.js";import{$ro as m}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as p}from"../../../../../../platform/instantiation/common/instantiation.js";import{$qu as g}from"../../../../../../platform/theme/common/themeService.js";import{$NHb as w}from"../../../../comments/browser/commentService.js";import{$LIb as y}from"../../../../comments/browser/commentThreadWidget.js";import{$UGb as I}from"../cellPart.js";var d=function(h,t,e,o){var i=arguments.length,s=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,e,o);else for(var r=h.length-1;r>=0;r--)(n=h[r])&&(s=(i<3?n(s):i>3?n(t,e,s):n(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},a=function(h,t){return function(e,o){t(e,o,h)}};let f=class extends I{constructor(t,e,o,i,s,n){super(),this.g=t,this.h=e,this.j=o,this.m=i,this.n=s,this.q=n,this.h.classList.add("review-widget"),this.D(this.a=new u),this.D(this.m.onDidColorThemeChange(this.C,this)),this.C()}async r(t){this.b!==t&&(this.b=t,await this.u())}async s(t,e){const o=new l,i=this.q.createInstance(y,this.h,this.g,t,this.g.textModel.uri,this.j,this.q,e,void 0,void 0,{},void 0,{actionRunner:()=>{},collapse:async()=>!0});o.add(i),this.a.set(e.threadId,{widget:i,dispose:()=>o.dispose()});const s=this.g.getLayoutInfo();await i.display(s.fontInfo.lineHeight,!0),this.C(),o.add(i.onDidResize(()=>{this.b&&(this.b.commentHeight=this.w(i.getDimensions().height))}))}t(){this.f.add(this.n.onDidUpdateCommentThreads(async()=>this.u()))}async u(){if(!this.b)return;const t=await this.z(this.b),e=new Set(this.a.keys()),o=this.b.layoutInfo;this.h.style.top=`${o.commentOffset}px`;for(const i of t)if(i)for(const s of i.threads){e.delete(s.threadId);const n=this.a.get(s.threadId)?.widget;n?await n.updateCommentThread(s):await this.s(i.uniqueOwner,s)}for(const i of e)this.a.deleteAndDispose(i);this.y()}w(t){const e=this.g.getLayoutInfo(),o=Math.ceil(e.fontInfo.lineHeight*1.2),i=e.fontInfo.lineHeight,s=Math.round(i/3),n=Math.round(i/9)*2;return o+t+s+n+8}y(){if(!this.b)return;let t=0;for(const{widget:e}of this.a.values())t+=this.w(e.getDimensions().height);this.b.commentHeight=t}async z(t){return this.g.hasModel()?c(await this.n.getNotebookComments(t.uri)):[]}C(){const t=this.g.getLayoutInfo().fontInfo;for(const{widget:e}of this.a.values())e.applyTheme(t)}didRenderCell(t){this.r(t),this.t()}prepareLayout(){this.y()}updateInternalLayoutNow(t){this.b&&(this.h.style.top=`${t.layoutInfo.commentOffset}px`)}};f=d([a(2,m),a(3,g),a(4,w),a(5,p)],f);export{f as $MIb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { coalesce } from "../../../../../../base/common/arrays.js";
+import { DisposableMap, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { ICommentService } from "../../../../comments/browser/commentService.js";
+import { CommentThreadWidget } from "../../../../comments/browser/commentThreadWidget.js";
+import { CellContentPart } from "../cellPart.js";
+let CellComments = class CellComments2 extends CellContentPart {
+  static {
+    __name(this, "CellComments");
+  }
+  constructor(notebookEditor, container, contextKeyService, themeService, commentService, instantiationService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.container = container;
+    this.contextKeyService = contextKeyService;
+    this.themeService = themeService;
+    this.commentService = commentService;
+    this.instantiationService = instantiationService;
+    this.container.classList.add("review-widget");
+    this._register(this._commentThreadWidgets = new DisposableMap());
+    this._register(this.themeService.onDidColorThemeChange(this._applyTheme, this));
+    this._applyTheme();
+  }
+  async initialize(element) {
+    if (this.currentElement === element) {
+      return;
+    }
+    this.currentElement = element;
+    await this._updateThread();
+  }
+  async _createCommentTheadWidget(owner, commentThread) {
+    const widgetDisposables = new DisposableStore();
+    const widget = this.instantiationService.createInstance(CommentThreadWidget, this.container, this.notebookEditor, owner, this.notebookEditor.textModel.uri, this.contextKeyService, this.instantiationService, commentThread, void 0, void 0, {}, void 0, {
+      actionRunner: /* @__PURE__ */ __name(() => {
+      }, "actionRunner"),
+      collapse: /* @__PURE__ */ __name(async () => {
+        return true;
+      }, "collapse")
+    });
+    widgetDisposables.add(widget);
+    this._commentThreadWidgets.set(commentThread.threadId, { widget, dispose: /* @__PURE__ */ __name(() => widgetDisposables.dispose(), "dispose") });
+    const layoutInfo = this.notebookEditor.getLayoutInfo();
+    await widget.display(layoutInfo.fontInfo.lineHeight, true);
+    this._applyTheme();
+    widgetDisposables.add(widget.onDidResize(() => {
+      if (this.currentElement) {
+        this.currentElement.commentHeight = this._calculateCommentThreadHeight(widget.getDimensions().height);
+      }
+    }));
+  }
+  _bindListeners() {
+    this.cellDisposables.add(this.commentService.onDidUpdateCommentThreads(async () => this._updateThread()));
+  }
+  async _updateThread() {
+    if (!this.currentElement) {
+      return;
+    }
+    const infos = await this._getCommentThreadsForCell(this.currentElement);
+    const widgetsToDelete = new Set(this._commentThreadWidgets.keys());
+    const layoutInfo = this.currentElement.layoutInfo;
+    this.container.style.top = `${layoutInfo.commentOffset}px`;
+    for (const info of infos) {
+      if (!info) {
+        continue;
+      }
+      for (const thread of info.threads) {
+        widgetsToDelete.delete(thread.threadId);
+        const widget = this._commentThreadWidgets.get(thread.threadId)?.widget;
+        if (widget) {
+          await widget.updateCommentThread(thread);
+        } else {
+          await this._createCommentTheadWidget(info.uniqueOwner, thread);
+        }
+      }
+    }
+    for (const threadId of widgetsToDelete) {
+      this._commentThreadWidgets.deleteAndDispose(threadId);
+    }
+    this._updateHeight();
+  }
+  _calculateCommentThreadHeight(bodyHeight) {
+    const layoutInfo = this.notebookEditor.getLayoutInfo();
+    const headHeight = Math.ceil(layoutInfo.fontInfo.lineHeight * 1.2);
+    const lineHeight = layoutInfo.fontInfo.lineHeight;
+    const arrowHeight = Math.round(lineHeight / 3);
+    const frameThickness = Math.round(lineHeight / 9) * 2;
+    const computedHeight = headHeight + bodyHeight + arrowHeight + frameThickness + 8;
+    return computedHeight;
+  }
+  _updateHeight() {
+    if (!this.currentElement) {
+      return;
+    }
+    let height = 0;
+    for (const { widget } of this._commentThreadWidgets.values()) {
+      height += this._calculateCommentThreadHeight(widget.getDimensions().height);
+    }
+    this.currentElement.commentHeight = height;
+  }
+  async _getCommentThreadsForCell(element) {
+    if (this.notebookEditor.hasModel()) {
+      return coalesce(await this.commentService.getNotebookComments(element.uri));
+    }
+    return [];
+  }
+  _applyTheme() {
+    const fontInfo = this.notebookEditor.getLayoutInfo().fontInfo;
+    for (const { widget } of this._commentThreadWidgets.values()) {
+      widget.applyTheme(fontInfo);
+    }
+  }
+  didRenderCell(element) {
+    this.initialize(element);
+    this._bindListeners();
+  }
+  prepareLayout() {
+    this._updateHeight();
+  }
+  updateInternalLayoutNow(element) {
+    if (this.currentElement) {
+      this.container.style.top = `${element.layoutInfo.commentOffset}px`;
+    }
+  }
+};
+CellComments = __decorate([
+  __param(2, IContextKeyService),
+  __param(3, IThemeService),
+  __param(4, ICommentService),
+  __param(5, IInstantiationService)
+], CellComments);
+export {
+  CellComments
+};
+//# sourceMappingURL=cellComments.js.map

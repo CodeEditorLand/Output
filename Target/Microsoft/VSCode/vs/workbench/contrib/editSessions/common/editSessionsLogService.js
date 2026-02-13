@@ -1,1 +1,54 @@
-import{$Ih as p}from"../../../../base/common/resources.js";import{localize as u}from"../../../../nls.js";import{$Kl as a}from"../../../../platform/environment/common/environment.js";import{$Eo as $,$zo as _}from"../../../../platform/log/common/log.js";import{$WLb as b}from"../../../services/log/common/logConstants.js";import{$UJc as l}from"./editSessions.js";var m=function(e,r,t,i){var h=arguments.length,o=h<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(e,r,t,i);else for(var f=e.length-1;f>=0;f--)(n=e[f])&&(o=(h<3?n(o):h>3?n(r,t,o):n(r,t))||o);return h>3&&o&&Object.defineProperty(r,t,o),o},c=function(e,r){return function(t,i){r(t,i,e)}};let s=class extends ${constructor(r,t){super(),this.h=this.D(r.createLogger(p(t.logsHome,`${l}.log`),{id:l,name:u(8449,null),group:b}))}trace(r,...t){this.h.trace(r,...t)}debug(r,...t){this.h.debug(r,...t)}info(r,...t){this.h.info(r,...t)}warn(r,...t){this.h.warn(r,...t)}error(r,...t){this.h.error(r,...t)}flush(){this.h.flush()}};s=m([c(0,_),c(1,a)],s);export{s as $WJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { joinPath } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { AbstractLogger, ILoggerService } from "../../../../platform/log/common/log.js";
+import { windowLogGroup } from "../../../services/log/common/logConstants.js";
+import { editSessionsLogId } from "./editSessions.js";
+let EditSessionsLogService = class EditSessionsLogService2 extends AbstractLogger {
+  static {
+    __name(this, "EditSessionsLogService");
+  }
+  constructor(loggerService, environmentService) {
+    super();
+    this.logger = this._register(loggerService.createLogger(joinPath(environmentService.logsHome, `${editSessionsLogId}.log`), { id: editSessionsLogId, name: localize("cloudChangesLog", "Cloud Changes"), group: windowLogGroup }));
+  }
+  trace(message, ...args) {
+    this.logger.trace(message, ...args);
+  }
+  debug(message, ...args) {
+    this.logger.debug(message, ...args);
+  }
+  info(message, ...args) {
+    this.logger.info(message, ...args);
+  }
+  warn(message, ...args) {
+    this.logger.warn(message, ...args);
+  }
+  error(message, ...args) {
+    this.logger.error(message, ...args);
+  }
+  flush() {
+    this.logger.flush();
+  }
+};
+EditSessionsLogService = __decorate([
+  __param(0, ILoggerService),
+  __param(1, IEnvironmentService)
+], EditSessionsLogService);
+export {
+  EditSessionsLogService
+};
+//# sourceMappingURL=editSessionsLogService.js.map

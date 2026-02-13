@@ -1,1 +1,174 @@
-import*as m from"../../../../../../base/browser/dom.js";import{$H0 as C,$G0 as _}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{autorun as k}from"../../../../../../base/common/observable.js";import{localize as i}from"../../../../../../nls.js";import{$jlb as I}from"../../../../../../platform/actionWidget/browser/actionWidget.js";import{$uo as O}from"../../../../../../platform/commands/common/commands.js";import{$ro as y}from"../../../../../../platform/contextkey/common/contextkey.js";import{$fy as j}from"../../../../../../platform/keybinding/common/keybinding.js";import{$Vn as x}from"../../../../../../platform/product/common/productService.js";import{$pp as W}from"../../../../../../platform/telemetry/common/telemetry.js";import{$ev as p}from"../../../../../../platform/telemetry/common/telemetryUtils.js";import{ChatEntitlement as u,$JP as B}from"../../../../../services/chat/common/chatEntitlementService.js";import{$eW as D}from"../../../common/constants.js";import{$r4b as f}from"../../../common/widget/input/modelPickerWidget.js";import{$o4b as L}from"./chatInputPickerActionItem.js";var v=function(a,t,r,o){var n=arguments.length,e=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,t,r,o);else for(var d=a.length-1;d>=0;d--)(l=a[d])&&(e=(n<3?l(e):n>3?l(t,r,e):l(t,r))||e);return n>3&&e&&Object.defineProperty(t,r,e),e},s=function(a,t){return function(r,o){t(r,o,a)}};function R(a,t,r){return{getActions:()=>{const o=a.getModels();return o.length===0?[{id:"auto",enabled:!0,checked:!0,category:f,class:void 0,description:i(6751,null),tooltip:i(6752,null),label:i(6753,null),hover:{content:i(6754,null),position:r.hoverPosition},run:()=>{}}]:o.map(n=>{const e=n.metadata.tooltip;return{id:n.metadata.id,enabled:!0,icon:n.metadata.statusIcon,checked:n.identifier===a.currentModel.get()?.identifier,category:n.metadata.modelPickerCategory||f,class:void 0,description:n.metadata.multiplier??n.metadata.detail,tooltip:e?"":n.metadata.name,hover:e?{content:e,position:r.hoverPosition}:void 0,label:n.metadata.name,run:()=>{const l=a.currentModel.get();t.publicLog2("chat.modelChange",{fromModel:l?.metadata.vendor==="copilot"?new p(l.identifier):"unknown",toModel:n.metadata.vendor==="copilot"?new p(n.identifier):"unknown"}),a.setModel(n)}}})}}}function F(a,t,r){return{getActions:()=>{const n=[];(t.entitlement===u.Free||t.entitlement===u.Pro||t.entitlement===u.ProPlus||t.entitlement===u.Business||t.entitlement===u.Enterprise||t.isInternal)&&n.push({id:"manageModels",label:i(6755,null),enabled:!0,tooltip:i(6756,null),class:void 0,run:()=>{a.executeCommand(D)}});const e=!t.sentiment.installed||t.entitlement===u.Available||t.anonymous||t.entitlement===u.Unknown;return(e||t.entitlement===u.Free)&&n.push({id:"moreModels",label:e?i(6757,null):i(6758,null),enabled:!0,tooltip:e?i(6759,null):i(6760,null),class:void 0,run:()=>{const l=e?"workbench.action.chat.triggerSetup":"workbench.action.chat.upgradePlan";a.executeCommand(l)}}),n}}}let h=class extends L{constructor(t,r,o,n,e,l,d,b,$,c,P){const M={...t,label:o.currentModel.get()?.metadata.name??i(6761,null),run:()=>{}},g={actionProvider:R(o,c,n),actionBarActionProvider:F(d,b,P),reporter:{id:"ChatModelPicker",name:"ChatModelPicker",includeOptions:!0}};super(M,r??g,n,e,$,l,c),this.a=o.currentModel.get(),this.D(k(w=>{const A=o.currentModel.read(w);this.a=A,this.J(),this.element&&this.w(this.element)}))}I(){const t=`${i(6762,null)}${super.I()}`,{statusIcon:r,tooltip:o}=this.a?.metadata||{};return r&&o?`${t} \u2022 ${o}`:t}O(t){super.O(t);const r=this.a?.metadata.name??i(6763,null);t.ariaLabel=i(6764,null,r)}w(t){const{name:r,statusIcon:o}=this.a?.metadata||{},n=[];if(o){const e=C(o);n.push(e)}return n.push(m.$("span.chat-input-picker-label",void 0,r??i(6765,null))),n.push(..._("$(chevron-down)")),m.$A9(t,...n),this.O(t),null}};h=v([s(4,I),s(5,y),s(6,O),s(7,B),s(8,j),s(9,W),s(10,x)],h);export{h as $s4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { renderIcon, renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { localize } from "../../../../../../nls.js";
+import { IActionWidgetService } from "../../../../../../platform/actionWidget/browser/actionWidget.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { IProductService } from "../../../../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { TelemetryTrustedValue } from "../../../../../../platform/telemetry/common/telemetryUtils.js";
+import { ChatEntitlement, IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
+import { MANAGE_CHAT_COMMAND_ID } from "../../../common/constants.js";
+import { DEFAULT_MODEL_PICKER_CATEGORY } from "../../../common/widget/input/modelPickerWidget.js";
+import { ChatInputPickerActionViewItem } from "./chatInputPickerActionItem.js";
+function modelDelegateToWidgetActionsProvider(delegate, telemetryService, pickerOptions) {
+  return {
+    getActions: /* @__PURE__ */ __name(() => {
+      const models = delegate.getModels();
+      if (models.length === 0) {
+        return [{
+          id: "auto",
+          enabled: true,
+          checked: true,
+          category: DEFAULT_MODEL_PICKER_CATEGORY,
+          class: void 0,
+          description: localize("chat.modelPicker.auto.detail", "Best for your request based on capacity and performance."),
+          tooltip: localize("chat.modelPicker.auto", "Auto"),
+          label: localize("chat.modelPicker.auto", "Auto"),
+          hover: { content: localize("chat.modelPicker.auto.description", "Automatically selects the best model for your task based on context and complexity."), position: pickerOptions.hoverPosition },
+          run: /* @__PURE__ */ __name(() => {
+          }, "run")
+        }];
+      }
+      return models.map((model) => {
+        const hoverContent = model.metadata.tooltip;
+        return {
+          id: model.metadata.id,
+          enabled: true,
+          icon: model.metadata.statusIcon,
+          checked: model.identifier === delegate.currentModel.get()?.identifier,
+          category: model.metadata.modelPickerCategory || DEFAULT_MODEL_PICKER_CATEGORY,
+          class: void 0,
+          description: model.metadata.multiplier ?? model.metadata.detail,
+          tooltip: hoverContent ? "" : model.metadata.name,
+          hover: hoverContent ? { content: hoverContent, position: pickerOptions.hoverPosition } : void 0,
+          label: model.metadata.name,
+          run: /* @__PURE__ */ __name(() => {
+            const previousModel = delegate.currentModel.get();
+            telemetryService.publicLog2("chat.modelChange", {
+              fromModel: previousModel?.metadata.vendor === "copilot" ? new TelemetryTrustedValue(previousModel.identifier) : "unknown",
+              toModel: model.metadata.vendor === "copilot" ? new TelemetryTrustedValue(model.identifier) : "unknown"
+            });
+            delegate.setModel(model);
+          }, "run")
+        };
+      });
+    }, "getActions")
+  };
+}
+__name(modelDelegateToWidgetActionsProvider, "modelDelegateToWidgetActionsProvider");
+function getModelPickerActionBarActionProvider(commandService, chatEntitlementService, productService) {
+  const actionProvider = {
+    getActions: /* @__PURE__ */ __name(() => {
+      const additionalActions = [];
+      if (chatEntitlementService.entitlement === ChatEntitlement.Free || chatEntitlementService.entitlement === ChatEntitlement.Pro || chatEntitlementService.entitlement === ChatEntitlement.ProPlus || chatEntitlementService.entitlement === ChatEntitlement.Business || chatEntitlementService.entitlement === ChatEntitlement.Enterprise || chatEntitlementService.isInternal) {
+        additionalActions.push({
+          id: "manageModels",
+          label: localize("chat.manageModels", "Manage Models..."),
+          enabled: true,
+          tooltip: localize("chat.manageModels.tooltip", "Manage Language Models"),
+          class: void 0,
+          run: /* @__PURE__ */ __name(() => {
+            commandService.executeCommand(MANAGE_CHAT_COMMAND_ID);
+          }, "run")
+        });
+      }
+      const isNewOrAnonymousUser = !chatEntitlementService.sentiment.installed || chatEntitlementService.entitlement === ChatEntitlement.Available || chatEntitlementService.anonymous || chatEntitlementService.entitlement === ChatEntitlement.Unknown;
+      if (isNewOrAnonymousUser || chatEntitlementService.entitlement === ChatEntitlement.Free) {
+        additionalActions.push({
+          id: "moreModels",
+          label: isNewOrAnonymousUser ? localize("chat.moreModels", "Add Language Models") : localize("chat.morePremiumModels", "Add Premium Models"),
+          enabled: true,
+          tooltip: isNewOrAnonymousUser ? localize("chat.moreModels.tooltip", "Add Language Models") : localize("chat.morePremiumModels.tooltip", "Add Premium Models"),
+          class: void 0,
+          run: /* @__PURE__ */ __name(() => {
+            const commandId = isNewOrAnonymousUser ? "workbench.action.chat.triggerSetup" : "workbench.action.chat.upgradePlan";
+            commandService.executeCommand(commandId);
+          }, "run")
+        });
+      }
+      return additionalActions;
+    }, "getActions")
+  };
+  return actionProvider;
+}
+__name(getModelPickerActionBarActionProvider, "getModelPickerActionBarActionProvider");
+let ModelPickerActionItem = class ModelPickerActionItem2 extends ChatInputPickerActionViewItem {
+  static {
+    __name(this, "ModelPickerActionItem");
+  }
+  constructor(action, widgetOptions, delegate, pickerOptions, actionWidgetService, contextKeyService, commandService, chatEntitlementService, keybindingService, telemetryService, productService) {
+    const actionWithLabel = {
+      ...action,
+      label: delegate.currentModel.get()?.metadata.name ?? localize("chat.modelPicker.auto", "Auto"),
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    };
+    const modelPickerActionWidgetOptions = {
+      actionProvider: modelDelegateToWidgetActionsProvider(delegate, telemetryService, pickerOptions),
+      actionBarActionProvider: getModelPickerActionBarActionProvider(commandService, chatEntitlementService, productService),
+      reporter: { id: "ChatModelPicker", name: "ChatModelPicker", includeOptions: true }
+    };
+    super(actionWithLabel, widgetOptions ?? modelPickerActionWidgetOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
+    this.currentModel = delegate.currentModel.get();
+    this._register(autorun((t) => {
+      const model = delegate.currentModel.read(t);
+      this.currentModel = model;
+      this.updateTooltip();
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+    }));
+  }
+  getHoverContents() {
+    const label = `${localize("chat.modelPicker.label", "Pick Model")}${super.getHoverContents()}`;
+    const { statusIcon, tooltip } = this.currentModel?.metadata || {};
+    return statusIcon && tooltip ? `${label} \u2022 ${tooltip}` : label;
+  }
+  setAriaLabelAttributes(element) {
+    super.setAriaLabelAttributes(element);
+    const modelName = this.currentModel?.metadata.name ?? localize("chat.modelPicker.auto", "Auto");
+    element.ariaLabel = localize("chat.modelPicker.ariaLabel", "Pick Model, {0}", modelName);
+  }
+  renderLabel(element) {
+    const { name, statusIcon } = this.currentModel?.metadata || {};
+    const domChildren = [];
+    if (statusIcon) {
+      const iconElement = renderIcon(statusIcon);
+      domChildren.push(iconElement);
+    }
+    domChildren.push(dom.$("span.chat-input-picker-label", void 0, name ?? localize("chat.modelPicker.auto", "Auto")));
+    domChildren.push(...renderLabelWithIcons(`$(chevron-down)`));
+    dom.reset(element, ...domChildren);
+    this.setAriaLabelAttributes(element);
+    return null;
+  }
+};
+ModelPickerActionItem = __decorate([
+  __param(4, IActionWidgetService),
+  __param(5, IContextKeyService),
+  __param(6, ICommandService),
+  __param(7, IChatEntitlementService),
+  __param(8, IKeybindingService),
+  __param(9, ITelemetryService),
+  __param(10, IProductService)
+], ModelPickerActionItem);
+export {
+  ModelPickerActionItem
+};
+//# sourceMappingURL=modelPickerActionItem.js.map

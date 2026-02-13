@@ -1,1 +1,121 @@
-import{$xf as a}from"../../../../../base/common/event.js";import{$Dd as f,$Id as u}from"../../../../../base/common/lifecycle.js";import{ObservableMap as p}from"../../../../../base/common/observable.js";import{$yo as m}from"../../../../../platform/log/common/log.js";var l=function(h,t,s,e){var i=arguments.length,r=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,s):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(h,t,s,e);else for(var n=h.length-1;n>=0;n--)(o=h[n])&&(r=(i<3?o(r):i>3?o(t,s,r):o(t,s))||r);return i>3&&r&&Object.defineProperty(t,s,r),r},d=function(h,t){return function(s,e){t(s,e,h)}};let c=class extends u{constructor(t,s){super(),this.q=t,this.r=s,this.a=new f,this.b=new p,this.h=new Set,this.j=new Set,this.m=this.a.add(new a),this.onDidDisposeModel=this.m.event,this.n=this.a.add(new a),this.onDidCreateModel=this.n.event}get observable(){return this.b.observable}values(){return this.b.values()}get(t){return this.b.get(this.w(t))}has(t){return this.b.has(this.w(t))}acquireExisting(t){const s=this.w(t);if(this.b.has(s))return this.acquire(s)}acquireOrCreate(t){return this.acquire(this.w(t.sessionResource),t)}f(t,s){this.h.delete(t);const e=this.b.get(t);if(e)return e;if(!s)throw new Error(`No start session props provided for chat session ${t}`);this.r.trace(`Creating chat session ${t}`);const i=this.q.createModel(s);if(i.sessionResource.toString()!==t)throw new Error(`Chat session key mismatch for ${t}`);return this.b.set(t,i),this.n.fire(i),i}g(t,s){this.h.add(t);const e=this.u(t,s);this.j.add(e),e.finally(()=>{this.j.delete(e)})}async u(t,s){try{await this.q.willDisposeModel(s)}catch(e){this.r.error(e)}finally{this.h.has(t)&&(this.r.trace(`Disposing chat session ${t}`),this.b.delete(t),this.m.fire(s),s.dispose()),this.h.delete(t)}}async waitForModelDisposals(){await Promise.all(this.j)}w(t){return t.toString()}dispose(){this.a.dispose(),this.b.forEach(t=>t.dispose())}};c=l([d(1,m)],c);export{c as $tmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import { DisposableStore, ReferenceCollection } from "../../../../../base/common/lifecycle.js";
+import { ObservableMap } from "../../../../../base/common/observable.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+let ChatModelStore = class ChatModelStore2 extends ReferenceCollection {
+  static {
+    __name(this, "ChatModelStore");
+  }
+  constructor(delegate, logService) {
+    super();
+    this.delegate = delegate;
+    this.logService = logService;
+    this._store = new DisposableStore();
+    this._models = new ObservableMap();
+    this._modelsToDispose = /* @__PURE__ */ new Set();
+    this._pendingDisposals = /* @__PURE__ */ new Set();
+    this._onDidDisposeModel = this._store.add(new Emitter());
+    this.onDidDisposeModel = this._onDidDisposeModel.event;
+    this._onDidCreateModel = this._store.add(new Emitter());
+    this.onDidCreateModel = this._onDidCreateModel.event;
+  }
+  get observable() {
+    return this._models.observable;
+  }
+  values() {
+    return this._models.values();
+  }
+  /**
+   * Get a ChatModel directly without acquiring a reference.
+   */
+  get(uri) {
+    return this._models.get(this.toKey(uri));
+  }
+  has(uri) {
+    return this._models.has(this.toKey(uri));
+  }
+  acquireExisting(uri) {
+    const key = this.toKey(uri);
+    if (!this._models.has(key)) {
+      return void 0;
+    }
+    return this.acquire(key);
+  }
+  acquireOrCreate(props) {
+    return this.acquire(this.toKey(props.sessionResource), props);
+  }
+  createReferencedObject(key, props) {
+    this._modelsToDispose.delete(key);
+    const existingModel = this._models.get(key);
+    if (existingModel) {
+      return existingModel;
+    }
+    if (!props) {
+      throw new Error(`No start session props provided for chat session ${key}`);
+    }
+    this.logService.trace(`Creating chat session ${key}`);
+    const model = this.delegate.createModel(props);
+    if (model.sessionResource.toString() !== key) {
+      throw new Error(`Chat session key mismatch for ${key}`);
+    }
+    this._models.set(key, model);
+    this._onDidCreateModel.fire(model);
+    return model;
+  }
+  destroyReferencedObject(key, object) {
+    this._modelsToDispose.add(key);
+    const promise = this.doDestroyReferencedObject(key, object);
+    this._pendingDisposals.add(promise);
+    promise.finally(() => {
+      this._pendingDisposals.delete(promise);
+    });
+  }
+  async doDestroyReferencedObject(key, object) {
+    try {
+      await this.delegate.willDisposeModel(object);
+    } catch (error) {
+      this.logService.error(error);
+    } finally {
+      if (this._modelsToDispose.has(key)) {
+        this.logService.trace(`Disposing chat session ${key}`);
+        this._models.delete(key);
+        this._onDidDisposeModel.fire(object);
+        object.dispose();
+      }
+      this._modelsToDispose.delete(key);
+    }
+  }
+  /**
+   * For test use only
+   */
+  async waitForModelDisposals() {
+    await Promise.all(this._pendingDisposals);
+  }
+  toKey(uri) {
+    return uri.toString();
+  }
+  dispose() {
+    this._store.dispose();
+    this._models.forEach((model) => model.dispose());
+  }
+};
+ChatModelStore = __decorate([
+  __param(1, ILogService)
+], ChatModelStore);
+export {
+  ChatModelStore
+};
+//# sourceMappingURL=chatModelStore.js.map

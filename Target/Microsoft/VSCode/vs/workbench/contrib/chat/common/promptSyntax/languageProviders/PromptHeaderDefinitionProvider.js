@@ -1,1 +1,58 @@
-import{$_D as d}from"../../../../../../editor/common/core/range.js";import{$XT as l}from"../../chatModes.js";import{$mT as g}from"../promptTypes.js";import{PromptHeaderAttributes as m}from"../promptFileParser.js";import{$VT as h}from"../service/promptsService.js";var s=function(a,t,e,o){var p=arguments.length,r=p<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,t,e,o);else for(var i=a.length-1;i>=0;i--)(n=a[i])&&(r=(p<3?n(r):p>3?n(t,e,r):n(t,e))||r);return p>3&&r&&Object.defineProperty(t,e,r),r},u=function(a,t){return function(e,o){t(e,o,a)}};let c=class{constructor(t,e){this.a=t,this.b=e,this._debugDisplayName="PromptHeaderDefinitionProvider"}async provideDefinition(t,e,o){if(!g(t.getLanguageId()))return;const n=this.a.getParsedPromptFile(t).header;if(!n)return;const i=n.getAttribute(m.agent)??n.getAttribute(m.mode);if(i&&i.value.type==="string"&&i.range.containsPosition(e)){const f=this.b.findModeByName(i.value.value);if(f&&f.uri)return{uri:f.uri.get(),range:new d(1,1,1,1)}}}};c=s([u(0,h),u(1,l)],c);export{c as $Qmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { IChatModeService } from "../../chatModes.js";
+import { getPromptsTypeForLanguageId } from "../promptTypes.js";
+import { PromptHeaderAttributes } from "../promptFileParser.js";
+import { IPromptsService } from "../service/promptsService.js";
+let PromptHeaderDefinitionProvider = class PromptHeaderDefinitionProvider2 {
+  static {
+    __name(this, "PromptHeaderDefinitionProvider");
+  }
+  constructor(promptsService, chatModeService) {
+    this.promptsService = promptsService;
+    this.chatModeService = chatModeService;
+    this._debugDisplayName = "PromptHeaderDefinitionProvider";
+  }
+  async provideDefinition(model, position, token) {
+    const promptType = getPromptsTypeForLanguageId(model.getLanguageId());
+    if (!promptType) {
+      return void 0;
+    }
+    const promptAST = this.promptsService.getParsedPromptFile(model);
+    const header = promptAST.header;
+    if (!header) {
+      return void 0;
+    }
+    const agentAttr = header.getAttribute(PromptHeaderAttributes.agent) ?? header.getAttribute(PromptHeaderAttributes.mode);
+    if (agentAttr && agentAttr.value.type === "string" && agentAttr.range.containsPosition(position)) {
+      const agent = this.chatModeService.findModeByName(agentAttr.value.value);
+      if (agent && agent.uri) {
+        return {
+          uri: agent.uri.get(),
+          range: new Range(1, 1, 1, 1)
+        };
+      }
+    }
+    return void 0;
+  }
+};
+PromptHeaderDefinitionProvider = __decorate([
+  __param(0, IPromptsService),
+  __param(1, IChatModeService)
+], PromptHeaderDefinitionProvider);
+export {
+  PromptHeaderDefinitionProvider
+};
+//# sourceMappingURL=PromptHeaderDefinitionProvider.js.map

@@ -1,1 +1,286 @@
-import{localize as C}from"../../../../nls.js";import{$Ip as D,$Cp as v}from"../../../../base/common/objects.js";import{$xf as f,Event as $}from"../../../../base/common/event.js";import{$9c as L,$gd as S}from"../../../../base/common/types.js";import{$Fd as w}from"../../../../base/common/lifecycle.js";import{$dSb as y}from"../../editor.js";import{$eSb as N}from"./editorWithViewState.js";import{$hp as M}from"../../../../platform/storage/common/storage.js";import{$Mj as x}from"../../../../platform/instantiation/common/instantiation.js";import{$pp as R}from"../../../../platform/telemetry/common/telemetry.js";import{$qu as O}from"../../../../platform/theme/common/themeService.js";import{$dI as j}from"../../../../editor/common/services/textResourceConfiguration.js";import{$xL as E}from"../../../services/editor/common/editorGroupsService.js";import{$BL as F}from"../../../services/editor/common/editorService.js";import{$vk as T}from"../../../../platform/files/common/files.js";var g=function(h,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,b;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,i,e);else for(var a=h.length-1;a>=0;a--)(b=h[a])&&(s=(r<3?b(s):r>3?b(t,i,s):b(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},o=function(h,t){return function(i,e){t(i,e,h)}},u;let c=class extends N{static{u=this}static{this.qb="textEditorViewState"}constructor(t,i,e,r,s,b,a,d,p,m){super(t,i,u.qb,e,r,s,b,a,d,p),this.xb=m,this.rb=this.D(new f),this.onDidChangeSelection=this.rb.event,this.sb=this.D(new f),this.onDidChangeScroll=this.sb.event,this.wb=this.D(new w),this.D(this.s.onDidChangeConfiguration(n=>this.yb(n))),this.D($.any(this.w.onDidAddGroup,this.w.onDidRemoveGroup)(()=>{const n=this.Cb();this.tb?.setAttribute("aria-label",n),this.Mb({ariaLabel:n})})),this.D(this.xb.onDidChangeFileSystemProviderCapabilities(n=>this.Db(n.scheme))),this.D(this.xb.onDidChangeFileSystemProviderRegistrations(n=>this.Db(n.scheme)))}yb(t){const i=this.Rb();this.zb(t,i)&&(this.isVisible()?this.Qb(i):this.ub=!0)}zb(t,i){return t.affectsConfiguration(i,"editor")||t.affectsConfiguration(i,"problems.visibility")}Ab(){this.ub&&(this.Qb(),this.ub=!1)}Bb(t){const i=L(t.editor)?v(t.editor):Object.create(null);return Object.assign(i,this.Hb(t)),i.ariaLabel=this.Cb(),i}Cb(){return this.input?y(this.input,void 0,this.group,this.w.count):C(3938,null)}Db(t){this.input&&this.Rb()?.scheme===t&&this.Fb(this.input)}Eb(t){this.input===t&&this.Fb(t)}Fb(t){this.Mb({...this.Gb(t.isReadonly())})}Gb(t){return{readOnly:!!t,readOnlyMessage:typeof t!="boolean"?t:void 0}}Hb(t){return{overviewRulerLanes:3,lineNumbersMinChars:3,fixedOverflowWidgets:!0,...this.Gb(this.input?.isReadonly()),renderValidationDecorations:t.problems?.visibility!==!1?"on":"off"}}ab(t){this.tb=t,this.Lb(t,this.Bb(this.s.getValue(this.Rb()))),this.Jb()}Jb(){const t=this.Nb();t&&(this.D(t.onDidChangeModelLanguage(()=>this.Qb())),this.D(t.onDidChangeModel(()=>this.Qb())),this.D(t.onDidChangeCursorPosition(i=>this.rb.fire({reason:this.Kb(i)}))),this.D(t.onDidChangeModelContent(()=>this.rb.fire({reason:3}))),this.D(t.onDidScrollChange(()=>this.sb.fire())))}Kb(t){switch(t.source){case"api":return 1;case"code.navigation":return 4;case"code.jump":return 5;default:return 2}}getSelection(){const t=this.Nb();if(t){const i=t.getSelection();if(i)return new l(i)}}async setInput(t,i,e,r){await super.setInput(t,i,e,r),this.wb.value=t.onDidChangeCapabilities(()=>this.Eb(t)),this.Qb(),S(this.tb).setAttribute("aria-label",this.Cb())}clearInput(){this.wb.clear(),super.clearInput()}getScrollPosition(){const t=this.Nb();if(!t)throw new Error("Control has not yet been initialized");return{scrollTop:t.getScrollTop()-t.getTopForLineNumber(1),scrollLeft:t.getScrollLeft()}}setScrollPosition(t){const i=this.Nb();if(!i)throw new Error("Control has not yet been initialized");i.setScrollTop(t.scrollTop),t.scrollLeft&&i.setScrollLeft(t.scrollLeft)}bb(t){t&&this.Ab(),super.bb(t)}pb(t){return t.resource}Qb(t=this.Rb()){let i;if(t&&(i=this.s.getValue(t)),!i)return;const e=this.Bb(i);let r=e;this.vb&&(r=D(this.vb,r)),Object.keys(r).length>0&&(this.vb=e,this.Mb(r))}Rb(){const t=this.Nb();if(t){const i=t.getModel();if(i)return i.uri}if(this.input)return this.input.resource}dispose(){this.vb=void 0,super.dispose()}};c=u=g([o(2,R),o(3,x),o(4,M),o(5,j),o(6,O),o(7,F),o(8,E),o(9,T)],c);class l{static{this.a=10}constructor(t){this.b=t}compare(t){if(!(t instanceof l))return 3;const i=Math.min(this.b.selectionStartLineNumber,this.b.positionLineNumber),e=Math.min(t.b.selectionStartLineNumber,t.b.positionLineNumber);return i===e?1:Math.abs(i-e)<l.a?2:3}restore(t){return{...t,selection:this.b,selectionRevealType:1}}log(){return`line: ${this.b.startLineNumber}-${this.b.endLineNumber}, col:  ${this.b.startColumn}-${this.b.endColumn}`}}export{c as $gSb,l as $hSb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var AbstractTextEditor_1;
+import { localize } from "../../../../nls.js";
+import { distinct, deepClone } from "../../../../base/common/objects.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { isObject, assertReturnsDefined } from "../../../../base/common/types.js";
+import { MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { computeEditorAriaLabel } from "../../editor.js";
+import { AbstractEditorWithViewState } from "./editorWithViewState.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+let AbstractTextEditor = class AbstractTextEditor2 extends AbstractEditorWithViewState {
+  static {
+    __name(this, "AbstractTextEditor");
+  }
+  static {
+    AbstractTextEditor_1 = this;
+  }
+  static {
+    this.VIEW_STATE_PREFERENCE_KEY = "textEditorViewState";
+  }
+  constructor(id, group, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService, fileService) {
+    super(id, group, AbstractTextEditor_1.VIEW_STATE_PREFERENCE_KEY, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService);
+    this.fileService = fileService;
+    this._onDidChangeSelection = this._register(new Emitter());
+    this.onDidChangeSelection = this._onDidChangeSelection.event;
+    this._onDidChangeScroll = this._register(new Emitter());
+    this.onDidChangeScroll = this._onDidChangeScroll.event;
+    this.inputListener = this._register(new MutableDisposable());
+    this._register(this.textResourceConfigurationService.onDidChangeConfiguration((e) => this.handleConfigurationChangeEvent(e)));
+    this._register(Event.any(this.editorGroupService.onDidAddGroup, this.editorGroupService.onDidRemoveGroup)(() => {
+      const ariaLabel = this.computeAriaLabel();
+      this.editorContainer?.setAttribute("aria-label", ariaLabel);
+      this.updateEditorControlOptions({ ariaLabel });
+    }));
+    this._register(this.fileService.onDidChangeFileSystemProviderCapabilities((e) => this.onDidChangeFileSystemProvider(e.scheme)));
+    this._register(this.fileService.onDidChangeFileSystemProviderRegistrations((e) => this.onDidChangeFileSystemProvider(e.scheme)));
+  }
+  handleConfigurationChangeEvent(e) {
+    const resource = this.getActiveResource();
+    if (!this.shouldHandleConfigurationChangeEvent(e, resource)) {
+      return;
+    }
+    if (this.isVisible()) {
+      this.updateEditorConfiguration(resource);
+    } else {
+      this.hasPendingConfigurationChange = true;
+    }
+  }
+  shouldHandleConfigurationChangeEvent(e, resource) {
+    return e.affectsConfiguration(resource, "editor") || e.affectsConfiguration(resource, "problems.visibility");
+  }
+  consumePendingConfigurationChangeEvent() {
+    if (this.hasPendingConfigurationChange) {
+      this.updateEditorConfiguration();
+      this.hasPendingConfigurationChange = false;
+    }
+  }
+  computeConfiguration(configuration) {
+    const editorConfiguration = isObject(configuration.editor) ? deepClone(configuration.editor) : /* @__PURE__ */ Object.create(null);
+    Object.assign(editorConfiguration, this.getConfigurationOverrides(configuration));
+    editorConfiguration.ariaLabel = this.computeAriaLabel();
+    return editorConfiguration;
+  }
+  computeAriaLabel() {
+    return this.input ? computeEditorAriaLabel(this.input, void 0, this.group, this.editorGroupService.count) : localize("editor", "Editor");
+  }
+  onDidChangeFileSystemProvider(scheme) {
+    if (!this.input) {
+      return;
+    }
+    if (this.getActiveResource()?.scheme === scheme) {
+      this.updateReadonly(this.input);
+    }
+  }
+  onDidChangeInputCapabilities(input) {
+    if (this.input === input) {
+      this.updateReadonly(input);
+    }
+  }
+  updateReadonly(input) {
+    this.updateEditorControlOptions({ ...this.getReadonlyConfiguration(input.isReadonly()) });
+  }
+  getReadonlyConfiguration(isReadonly) {
+    return {
+      readOnly: !!isReadonly,
+      readOnlyMessage: typeof isReadonly !== "boolean" ? isReadonly : void 0
+    };
+  }
+  getConfigurationOverrides(configuration) {
+    return {
+      overviewRulerLanes: 3,
+      lineNumbersMinChars: 3,
+      fixedOverflowWidgets: true,
+      ...this.getReadonlyConfiguration(this.input?.isReadonly()),
+      renderValidationDecorations: configuration.problems?.visibility !== false ? "on" : "off"
+    };
+  }
+  createEditor(parent) {
+    this.editorContainer = parent;
+    this.createEditorControl(parent, this.computeConfiguration(this.textResourceConfigurationService.getValue(this.getActiveResource())));
+    this.registerCodeEditorListeners();
+  }
+  registerCodeEditorListeners() {
+    const mainControl = this.getMainControl();
+    if (mainControl) {
+      this._register(mainControl.onDidChangeModelLanguage(() => this.updateEditorConfiguration()));
+      this._register(mainControl.onDidChangeModel(() => this.updateEditorConfiguration()));
+      this._register(mainControl.onDidChangeCursorPosition((e) => this._onDidChangeSelection.fire({ reason: this.toEditorPaneSelectionChangeReason(e) })));
+      this._register(mainControl.onDidChangeModelContent(() => this._onDidChangeSelection.fire({
+        reason: 3
+        /* EditorPaneSelectionChangeReason.EDIT */
+      })));
+      this._register(mainControl.onDidScrollChange(() => this._onDidChangeScroll.fire()));
+    }
+  }
+  toEditorPaneSelectionChangeReason(e) {
+    switch (e.source) {
+      case "api":
+        return 1;
+      case "code.navigation":
+        return 4;
+      case "code.jump":
+        return 5;
+      default:
+        return 2;
+    }
+  }
+  getSelection() {
+    const mainControl = this.getMainControl();
+    if (mainControl) {
+      const selection = mainControl.getSelection();
+      if (selection) {
+        return new TextEditorPaneSelection(selection);
+      }
+    }
+    return void 0;
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    this.inputListener.value = input.onDidChangeCapabilities(() => this.onDidChangeInputCapabilities(input));
+    this.updateEditorConfiguration();
+    const editorContainer = assertReturnsDefined(this.editorContainer);
+    editorContainer.setAttribute("aria-label", this.computeAriaLabel());
+  }
+  clearInput() {
+    this.inputListener.clear();
+    super.clearInput();
+  }
+  getScrollPosition() {
+    const editor = this.getMainControl();
+    if (!editor) {
+      throw new Error("Control has not yet been initialized");
+    }
+    return {
+      // The top position can vary depending on the view zones (find widget for example)
+      scrollTop: editor.getScrollTop() - editor.getTopForLineNumber(1),
+      scrollLeft: editor.getScrollLeft()
+    };
+  }
+  setScrollPosition(scrollPosition) {
+    const editor = this.getMainControl();
+    if (!editor) {
+      throw new Error("Control has not yet been initialized");
+    }
+    editor.setScrollTop(scrollPosition.scrollTop);
+    if (scrollPosition.scrollLeft) {
+      editor.setScrollLeft(scrollPosition.scrollLeft);
+    }
+  }
+  setEditorVisible(visible) {
+    if (visible) {
+      this.consumePendingConfigurationChangeEvent();
+    }
+    super.setEditorVisible(visible);
+  }
+  toEditorViewStateResource(input) {
+    return input.resource;
+  }
+  updateEditorConfiguration(resource = this.getActiveResource()) {
+    let configuration = void 0;
+    if (resource) {
+      configuration = this.textResourceConfigurationService.getValue(resource);
+    }
+    if (!configuration) {
+      return;
+    }
+    const editorConfiguration = this.computeConfiguration(configuration);
+    let editorSettingsToApply = editorConfiguration;
+    if (this.lastAppliedEditorOptions) {
+      editorSettingsToApply = distinct(this.lastAppliedEditorOptions, editorSettingsToApply);
+    }
+    if (Object.keys(editorSettingsToApply).length > 0) {
+      this.lastAppliedEditorOptions = editorConfiguration;
+      this.updateEditorControlOptions(editorSettingsToApply);
+    }
+  }
+  getActiveResource() {
+    const mainControl = this.getMainControl();
+    if (mainControl) {
+      const model = mainControl.getModel();
+      if (model) {
+        return model.uri;
+      }
+    }
+    if (this.input) {
+      return this.input.resource;
+    }
+    return void 0;
+  }
+  dispose() {
+    this.lastAppliedEditorOptions = void 0;
+    super.dispose();
+  }
+};
+AbstractTextEditor = AbstractTextEditor_1 = __decorate([
+  __param(2, ITelemetryService),
+  __param(3, IInstantiationService),
+  __param(4, IStorageService),
+  __param(5, ITextResourceConfigurationService),
+  __param(6, IThemeService),
+  __param(7, IEditorService),
+  __param(8, IEditorGroupsService),
+  __param(9, IFileService)
+], AbstractTextEditor);
+class TextEditorPaneSelection {
+  static {
+    __name(this, "TextEditorPaneSelection");
+  }
+  static {
+    this.TEXT_EDITOR_SELECTION_THRESHOLD = 10;
+  }
+  // number of lines to move in editor to justify for significant change
+  constructor(textSelection) {
+    this.textSelection = textSelection;
+  }
+  compare(other) {
+    if (!(other instanceof TextEditorPaneSelection)) {
+      return 3;
+    }
+    const thisLineNumber = Math.min(this.textSelection.selectionStartLineNumber, this.textSelection.positionLineNumber);
+    const otherLineNumber = Math.min(other.textSelection.selectionStartLineNumber, other.textSelection.positionLineNumber);
+    if (thisLineNumber === otherLineNumber) {
+      return 1;
+    }
+    if (Math.abs(thisLineNumber - otherLineNumber) < TextEditorPaneSelection.TEXT_EDITOR_SELECTION_THRESHOLD) {
+      return 2;
+    }
+    return 3;
+  }
+  restore(options) {
+    const textEditorOptions = {
+      ...options,
+      selection: this.textSelection,
+      selectionRevealType: 1
+      /* TextEditorSelectionRevealType.CenterIfOutsideViewport */
+    };
+    return textEditorOptions;
+  }
+  log() {
+    return `line: ${this.textSelection.startLineNumber}-${this.textSelection.endLineNumber}, col:  ${this.textSelection.startColumn}-${this.textSelection.endColumn}`;
+  }
+}
+export {
+  AbstractTextEditor,
+  TextEditorPaneSelection
+};
+//# sourceMappingURL=textEditor.js.map

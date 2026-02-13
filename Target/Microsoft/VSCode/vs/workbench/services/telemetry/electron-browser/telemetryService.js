@@ -1,1 +1,103 @@
-import{$pp as f}from"../../../../platform/telemetry/common/telemetry.js";import{$lv as u,$gv as $,$rv as c,$qv as d}from"../../../../platform/telemetry/common/telemetryUtils.js";import{$0l as g}from"../../../../platform/configuration/common/configuration.js";import{$Ed as I}from"../../../../base/common/lifecycle.js";import{$SPc as b}from"../../environment/electron-browser/environmentService.js";import{$Vn as y}from"../../../../platform/product/common/productService.js";import{$XPc as E}from"../../../../platform/ipc/electron-browser/services.js";import{$5y as L}from"../../../../platform/telemetry/common/telemetryIpc.js";import{$hp as P}from"../../../../platform/storage/common/storage.js";import{$0Vc as _}from"../common/workbenchCommonProperties.js";import{$6y as D}from"../../../../platform/telemetry/common/telemetryService.js";import{$WC as x}from"../../../../platform/instantiation/common/extensions.js";import{$ubb as q}from"../../../../base/parts/sandbox/electron-browser/globals.js";import{$OZ as w}from"../common/workbenchTelemetryUtils.js";var n=function(s,t,r,o){var i=arguments.length,e=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,r,o);else for(var p=s.length-1;p>=0;p--)(m=s[p])&&(e=(i<3?m(e):i>3?m(t,r,e):m(t,r))||e);return i>3&&e&&Object.defineProperty(t,r,e),e},l=function(s,t){return function(r,o){t(r,o,s)}};let a=class extends I{get sessionId(){return this.a.sessionId}get machineId(){return this.a.machineId}get sqmId(){return this.a.sqmId}get devDeviceId(){return this.a.devDeviceId}get firstSessionDate(){return this.a.firstSessionDate}get msftInternal(){return this.a.msftInternal}constructor(t,r,o,i,e){if(super(),u(r,t)){const m=d(r,e),p=o.getChannel("telemetryAppender"),h={appenders:[new L(p)],commonProperties:_(i,r,t.os.release,t.os.hostname,t.machineId,t.sqmId,t.devDeviceId,m,q,t.remoteAuthority),piiPaths:c(t),sendErrorTelemetry:!0,waitForExperimentProperties:w(e,r,t)};this.a=this.D(new D(h,e,r))}else this.a=$;this.sendErrorTelemetry=this.a.sendErrorTelemetry}setExperimentProperty(t,r){return this.a.setExperimentProperty(t,r)}get telemetryLevel(){return this.a.telemetryLevel}publicLog(t,r){this.a.publicLog(t,r)}publicLog2(t,r){this.publicLog(t,r)}publicLogError(t,r){this.a.publicLogError(t,r)}publicLogError2(t,r){this.publicLogError(t,r)}};a=n([l(0,b),l(1,y),l(2,E),l(3,P),l(4,g)],a);x(f,a,1);export{a as $$Vc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { supportsTelemetry, NullTelemetryService, getPiiPathsFromEnvironment, isInternalTelemetry } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-browser/services.js";
+import { TelemetryAppenderClient } from "../../../../platform/telemetry/common/telemetryIpc.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { resolveWorkbenchCommonProperties } from "../common/workbenchCommonProperties.js";
+import { TelemetryService as BaseTelemetryService } from "../../../../platform/telemetry/common/telemetryService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { process } from "../../../../base/parts/sandbox/electron-browser/globals.js";
+import { experimentsEnabled } from "../common/workbenchTelemetryUtils.js";
+let TelemetryService = class TelemetryService2 extends Disposable {
+  static {
+    __name(this, "TelemetryService");
+  }
+  get sessionId() {
+    return this.impl.sessionId;
+  }
+  get machineId() {
+    return this.impl.machineId;
+  }
+  get sqmId() {
+    return this.impl.sqmId;
+  }
+  get devDeviceId() {
+    return this.impl.devDeviceId;
+  }
+  get firstSessionDate() {
+    return this.impl.firstSessionDate;
+  }
+  get msftInternal() {
+    return this.impl.msftInternal;
+  }
+  constructor(environmentService, productService, sharedProcessService, storageService, configurationService) {
+    super();
+    if (supportsTelemetry(productService, environmentService)) {
+      const isInternal = isInternalTelemetry(productService, configurationService);
+      const channel = sharedProcessService.getChannel("telemetryAppender");
+      const config = {
+        appenders: [new TelemetryAppenderClient(channel)],
+        commonProperties: resolveWorkbenchCommonProperties(storageService, productService, environmentService.os.release, environmentService.os.hostname, environmentService.machineId, environmentService.sqmId, environmentService.devDeviceId, isInternal, process, environmentService.remoteAuthority),
+        piiPaths: getPiiPathsFromEnvironment(environmentService),
+        sendErrorTelemetry: true,
+        waitForExperimentProperties: experimentsEnabled(configurationService, productService, environmentService)
+      };
+      this.impl = this._register(new BaseTelemetryService(config, configurationService, productService));
+    } else {
+      this.impl = NullTelemetryService;
+    }
+    this.sendErrorTelemetry = this.impl.sendErrorTelemetry;
+  }
+  setExperimentProperty(name, value) {
+    return this.impl.setExperimentProperty(name, value);
+  }
+  get telemetryLevel() {
+    return this.impl.telemetryLevel;
+  }
+  publicLog(eventName, data) {
+    this.impl.publicLog(eventName, data);
+  }
+  publicLog2(eventName, data) {
+    this.publicLog(eventName, data);
+  }
+  publicLogError(errorEventName, data) {
+    this.impl.publicLogError(errorEventName, data);
+  }
+  publicLogError2(eventName, data) {
+    this.publicLogError(eventName, data);
+  }
+};
+TelemetryService = __decorate([
+  __param(0, INativeWorkbenchEnvironmentService),
+  __param(1, IProductService),
+  __param(2, ISharedProcessService),
+  __param(3, IStorageService),
+  __param(4, IConfigurationService)
+], TelemetryService);
+registerSingleton(
+  ITelemetryService,
+  TelemetryService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  TelemetryService
+};
+//# sourceMappingURL=telemetryService.js.map

@@ -1,1 +1,47 @@
-import{$1db as $}from"../../../../editor/browser/editorExtensions.js";import{$Mdb as s}from"../../../../editor/browser/services/codeEditorService.js";import{$psb as l}from"../../../../editor/contrib/gotoSymbol/browser/peek/referencesController.js";import{$0l as a}from"../../../../platform/configuration/common/configuration.js";import{$ro as _}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as h}from"../../../../platform/instantiation/common/instantiation.js";import{$pH as b}from"../../../../platform/notification/common/notification.js";import{$hp as d}from"../../../../platform/storage/common/storage.js";var u=function(f,r,t,e){var p=arguments.length,o=p<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,t):e,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,r,t,e);else for(var n=f.length-1;n>=0;n--)(m=f[n])&&(o=(p<3?m(o):p>3?m(r,t,o):m(r,t))||o);return p>3&&o&&Object.defineProperty(r,t,o),o},i=function(f,r){return function(t,e){r(t,e,f)}};let c=class extends l{constructor(r,t,e,p,o,m,n){super(!1,r,t,e,p,o,m,n)}};c=u([i(1,_),i(2,s),i(3,b),i(4,h),i(5,d),i(6,a)],c);$(l.ID,c,4);export{c as $qHc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { ReferencesController } from "../../../../editor/contrib/gotoSymbol/browser/peek/referencesController.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+let WorkbenchReferencesController = class WorkbenchReferencesController2 extends ReferencesController {
+  static {
+    __name(this, "WorkbenchReferencesController");
+  }
+  constructor(editor, contextKeyService, editorService, notificationService, instantiationService, storageService, configurationService) {
+    super(false, editor, contextKeyService, editorService, notificationService, instantiationService, storageService, configurationService);
+  }
+};
+WorkbenchReferencesController = __decorate([
+  __param(1, IContextKeyService),
+  __param(2, ICodeEditorService),
+  __param(3, INotificationService),
+  __param(4, IInstantiationService),
+  __param(5, IStorageService),
+  __param(6, IConfigurationService)
+], WorkbenchReferencesController);
+registerEditorContribution(
+  ReferencesController.ID,
+  WorkbenchReferencesController,
+  4
+  /* EditorContributionInstantiation.Lazy */
+);
+export {
+  WorkbenchReferencesController
+};
+//# sourceMappingURL=workbenchReferenceSearch.js.map

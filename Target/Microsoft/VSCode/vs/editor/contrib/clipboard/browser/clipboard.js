@@ -1,1 +1,341 @@
-import*as z from"../../../../base/browser/browser.js";import{$a9 as q,$b9 as P}from"../../../../base/browser/dom.js";import*as p from"../../../../base/common/platform.js";import*as n from"../../../../nls.js";import{$qL as o,$sL as y}from"../../../../platform/actions/common/actions.js";import{$gjb as C}from"../../../../platform/clipboard/common/clipboardService.js";import{$0n as M}from"../../../../platform/contextkey/common/contextkey.js";import{$yo as s}from"../../../../platform/log/common/log.js";import{$Bdb as x,$zdb as _,$Adb as H}from"../../../browser/controller/editContext/clipboardUtils.js";import{$Jhb as O}from"../../../browser/controller/editContext/native/nativeEditContextRegistry.js";import{$Sdb as k,$Pdb as b,$Xdb as F}from"../../../browser/editorExtensions.js";import{$Mdb as W}from"../../../browser/services/codeEditorService.js";import{EditorContextKeys as g}from"../../../common/editorContextKeys.js";import{$olb as N}from"../../dropOrPasteInto/browser/copyPasteController.js";const m="9_cutcopypaste",D=p.$q||document.queryCommandSupported("cut"),T=p.$q||document.queryCommandSupported("copy"),B=typeof navigator.clipboard>"u"||z.$67?document.queryCommandSupported("paste"):!0;function I(t){return t.register(),t}const L=D?I(new b({id:"editor.action.clipboardCutAction",precondition:void 0,kbOpts:p.$q?{primary:2102,win:{primary:2102,secondary:[1044]},weight:100}:void 0,menuOpts:[{menuId:o.MenubarEditMenu,group:"2_ccp",title:n.localize(977,null),order:1},{menuId:o.EditorContext,group:m,title:n.localize(978,null),when:g.writable,order:1},{menuId:o.CommandPalette,group:"",title:n.localize(979,null),order:1},{menuId:o.SimpleEditorContext,group:m,title:n.localize(980,null),when:g.writable,order:1}]})):void 0,R=T?I(new b({id:"editor.action.clipboardCopyAction",precondition:void 0,kbOpts:p.$q?{primary:2081,win:{primary:2081,secondary:[2067]},weight:100}:void 0,menuOpts:[{menuId:o.MenubarEditMenu,group:"2_ccp",title:n.localize(981,null),order:2},{menuId:o.EditorContext,group:m,title:n.localize(982,null),order:2},{menuId:o.CommandPalette,group:"",title:n.localize(983,null),order:1},{menuId:o.SimpleEditorContext,group:m,title:n.localize(984,null),order:2}]})):void 0;y.appendMenuItem(o.MenubarEditMenu,{submenu:o.MenubarCopy,title:n.localize2(989,"Copy As"),group:"2_ccp",order:3});y.appendMenuItem(o.EditorContext,{submenu:o.EditorContextCopy,title:n.localize2(990,"Copy As"),group:m,order:3});y.appendMenuItem(o.EditorContext,{submenu:o.EditorContextShare,title:n.localize2(991,"Share"),group:"11_share",order:-1,when:M.and(M.notEquals("resourceScheme","output"),g.editorTextFocus)});y.appendMenuItem(o.ExplorerContext,{submenu:o.ExplorerContextShare,title:n.localize2(992,"Share"),group:"11_share",order:-1});const E=B?I(new b({id:"editor.action.clipboardPasteAction",precondition:void 0,kbOpts:p.$q?{primary:2100,win:{primary:2100,secondary:[1043]},linux:{primary:2100,secondary:[1043]},weight:100}:void 0,menuOpts:[{menuId:o.MenubarEditMenu,group:"2_ccp",title:n.localize(985,null),order:4},{menuId:o.EditorContext,group:m,title:n.localize(986,null),when:g.writable,order:4},{menuId:o.CommandPalette,group:"",title:n.localize(987,null),order:1},{menuId:o.SimpleEditorContext,group:m,title:n.localize(988,null),when:g.writable,order:4}]})):void 0;class U extends k{constructor(){super({id:"editor.action.clipboardCopyWithSyntaxHighlightingAction",label:n.localize2(993,"Copy with Syntax Highlighting"),precondition:void 0,kbOpts:{kbExpr:g.textInputFocus,primary:0,weight:100}})}run(r,e){const c=r.get(s),i=r.get(C);c.trace("ExecCommandCopyWithSyntaxHighlightingAction#run"),!(!e.hasModel()||!e.getOption(45)&&e.getSelection().isEmpty())&&(x.forceCopyWithSyntaxHighlighting=!0,e.focus(),c.trace("ExecCommandCopyWithSyntaxHighlightingAction (before execCommand copy)"),h(e,i),c.trace("ExecCommandCopyWithSyntaxHighlightingAction (after execCommand copy)"),x.forceCopyWithSyntaxHighlighting=!1)}}function h(t,r){if(x.electronBugWorkaroundCopyEventHasFired=!1,t.getContainerDomNode().ownerDocument.execCommand("copy"),p.$q&&x.electronBugWorkaroundCopyEventHasFired===!1){const{dataToCopy:e}=_(t._getViewModel(),void 0,z.$67);r.writeText(e.text)}}function A(t,r){t&&(t.addImplementation(1e4,"code-editor",(e,c)=>{const i=e.get(s),a=e.get(C);i.trace("registerExecCommandImpl (addImplementation code-editor for : ",r,")");const d=e.get(W).getFocusedCodeEditor();if(d&&d.hasTextFocus()&&d.hasModel()){const f=d.getOption(45),l=d.getSelection();return l&&l.isEmpty()&&!f||(d.getOption(170)&&r==="cut"?(v(d),i.trace("registerExecCommandImpl (before execCommand copy)"),h(d,a),d.trigger(void 0,"cut",void 0),i.trace("registerExecCommandImpl (after execCommand copy)")):(v(d),i.trace("registerExecCommandImpl (before execCommand "+r+")"),r==="copy"?h(d,a):d.getContainerDomNode().ownerDocument.execCommand(r),i.trace("registerExecCommandImpl (after execCommand "+r+")"))),!0}return!1}),t.addImplementation(0,"generic-dom",(e,c)=>{const i=e.get(s);return i.trace("registerExecCommandImpl (addImplementation generic-dom for : ",r,")"),i.trace("registerExecCommandImpl (before execCommand "+r+")"),q().execCommand(r),i.trace("registerExecCommandImpl (after execCommand "+r+")"),!0}))}function v(t){if(t.getOption(170)){const e=O.get(t.getId());e&&e.handleWillCopy()}}A(L,"cut");A(R,"copy");E&&(E.addImplementation(1e4,"code-editor",(t,r)=>{const e=t.get(s);e.trace("registerExecCommandImpl (addImplementation code-editor for : paste)");const c=t.get(W),i=t.get(C),a=c.getFocusedCodeEditor();if(a&&a.hasModel()&&a.hasTextFocus()){if(a.getOption(170)){const l=O.get(a.getId());l&&l.handleWillPaste()}e.trace("registerExecCommandImpl (before triggerPaste)");const f=i.triggerPaste(P().vscodeWindowId);return f?(e.trace("registerExecCommandImpl (triggerPaste defined)"),f.then(async()=>(e.trace("registerExecCommandImpl (after triggerPaste)"),N.get(a)?.finishedPaste()??Promise.resolve()))):(e.trace("registerExecCommandImpl (triggerPaste undefined)"),p.$s?(e.trace("registerExecCommandImpl (Paste handling on web)"),(async()=>{const l=await i.readText();if(l!==""){const u=H.INSTANCE.get(l);let S=!1,$=null,w=null;u&&(S=a.getOption(45)&&!!u.isFromEmptySelection,$=typeof u.multicursorText<"u"?u.multicursorText:null,w=u.mode),e.trace("registerExecCommandImpl (clipboardText.length : ",l.length," id : ",u?.id,")"),a.trigger("keyboard","paste",{text:l,pasteOnNewLine:S,multicursorText:$,mode:w})}})()):!0)}return!1}),E.addImplementation(0,"generic-dom",(t,r)=>(t.get(s).trace("registerExecCommandImpl (addImplementation generic-dom for : paste)"),t.get(C).triggerPaste(P().vscodeWindowId)??!1)));T&&F(U);export{L as $plb,R as $qlb,E as $rlb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as browser from "../../../../base/browser/browser.js";
+import { getActiveDocument, getActiveWindow } from "../../../../base/browser/dom.js";
+import * as platform from "../../../../base/common/platform.js";
+import * as nls from "../../../../nls.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { CopyOptions, generateDataToCopyAndStoreInMemory, InMemoryClipboardMetadataManager } from "../../../browser/controller/editContext/clipboardUtils.js";
+import { NativeEditContextRegistry } from "../../../browser/controller/editContext/native/nativeEditContextRegistry.js";
+import { EditorAction, MultiCommand, registerEditorAction } from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { CopyPasteController } from "../../dropOrPasteInto/browser/copyPasteController.js";
+const CLIPBOARD_CONTEXT_MENU_GROUP = "9_cutcopypaste";
+const supportsCut = platform.isNative || document.queryCommandSupported("cut");
+const supportsCopy = platform.isNative || document.queryCommandSupported("copy");
+const supportsPaste = typeof navigator.clipboard === "undefined" || browser.isFirefox ? document.queryCommandSupported("paste") : true;
+function registerCommand(command) {
+  command.register();
+  return command;
+}
+__name(registerCommand, "registerCommand");
+const CutAction = supportsCut ? registerCommand(new MultiCommand({
+  id: "editor.action.clipboardCutAction",
+  precondition: void 0,
+  kbOpts: (
+    // Do not bind cut keybindings in the browser,
+    // since browsers do that for us and it avoids security prompts
+    platform.isNative ? {
+      primary: 2048 | 54,
+      win: { primary: 2048 | 54, secondary: [
+        1024 | 20
+        /* KeyCode.Delete */
+      ] },
+      weight: 100
+      /* KeybindingWeight.EditorContrib */
+    } : void 0
+  ),
+  menuOpts: [{
+    menuId: MenuId.MenubarEditMenu,
+    group: "2_ccp",
+    title: nls.localize({ key: "miCut", comment: ["&& denotes a mnemonic"] }, "Cu&&t"),
+    order: 1
+  }, {
+    menuId: MenuId.EditorContext,
+    group: CLIPBOARD_CONTEXT_MENU_GROUP,
+    title: nls.localize("actions.clipboard.cutLabel", "Cut"),
+    when: EditorContextKeys.writable,
+    order: 1
+  }, {
+    menuId: MenuId.CommandPalette,
+    group: "",
+    title: nls.localize("actions.clipboard.cutLabel", "Cut"),
+    order: 1
+  }, {
+    menuId: MenuId.SimpleEditorContext,
+    group: CLIPBOARD_CONTEXT_MENU_GROUP,
+    title: nls.localize("actions.clipboard.cutLabel", "Cut"),
+    when: EditorContextKeys.writable,
+    order: 1
+  }]
+})) : void 0;
+const CopyAction = supportsCopy ? registerCommand(new MultiCommand({
+  id: "editor.action.clipboardCopyAction",
+  precondition: void 0,
+  kbOpts: (
+    // Do not bind copy keybindings in the browser,
+    // since browsers do that for us and it avoids security prompts
+    platform.isNative ? {
+      primary: 2048 | 33,
+      win: { primary: 2048 | 33, secondary: [
+        2048 | 19
+        /* KeyCode.Insert */
+      ] },
+      weight: 100
+      /* KeybindingWeight.EditorContrib */
+    } : void 0
+  ),
+  menuOpts: [{
+    menuId: MenuId.MenubarEditMenu,
+    group: "2_ccp",
+    title: nls.localize({ key: "miCopy", comment: ["&& denotes a mnemonic"] }, "&&Copy"),
+    order: 2
+  }, {
+    menuId: MenuId.EditorContext,
+    group: CLIPBOARD_CONTEXT_MENU_GROUP,
+    title: nls.localize("actions.clipboard.copyLabel", "Copy"),
+    order: 2
+  }, {
+    menuId: MenuId.CommandPalette,
+    group: "",
+    title: nls.localize("actions.clipboard.copyLabel", "Copy"),
+    order: 1
+  }, {
+    menuId: MenuId.SimpleEditorContext,
+    group: CLIPBOARD_CONTEXT_MENU_GROUP,
+    title: nls.localize("actions.clipboard.copyLabel", "Copy"),
+    order: 2
+  }]
+})) : void 0;
+MenuRegistry.appendMenuItem(MenuId.MenubarEditMenu, { submenu: MenuId.MenubarCopy, title: nls.localize2("copy as", "Copy As"), group: "2_ccp", order: 3 });
+MenuRegistry.appendMenuItem(MenuId.EditorContext, { submenu: MenuId.EditorContextCopy, title: nls.localize2("copy as", "Copy As"), group: CLIPBOARD_CONTEXT_MENU_GROUP, order: 3 });
+MenuRegistry.appendMenuItem(MenuId.EditorContext, { submenu: MenuId.EditorContextShare, title: nls.localize2("share", "Share"), group: "11_share", order: -1, when: ContextKeyExpr.and(ContextKeyExpr.notEquals("resourceScheme", "output"), EditorContextKeys.editorTextFocus) });
+MenuRegistry.appendMenuItem(MenuId.ExplorerContext, { submenu: MenuId.ExplorerContextShare, title: nls.localize2("share", "Share"), group: "11_share", order: -1 });
+const PasteAction = supportsPaste ? registerCommand(new MultiCommand({
+  id: "editor.action.clipboardPasteAction",
+  precondition: void 0,
+  kbOpts: (
+    // Do not bind paste keybindings in the browser,
+    // since browsers do that for us and it avoids security prompts
+    platform.isNative ? {
+      primary: 2048 | 52,
+      win: { primary: 2048 | 52, secondary: [
+        1024 | 19
+        /* KeyCode.Insert */
+      ] },
+      linux: { primary: 2048 | 52, secondary: [
+        1024 | 19
+        /* KeyCode.Insert */
+      ] },
+      weight: 100
+      /* KeybindingWeight.EditorContrib */
+    } : void 0
+  ),
+  menuOpts: [{
+    menuId: MenuId.MenubarEditMenu,
+    group: "2_ccp",
+    title: nls.localize({ key: "miPaste", comment: ["&& denotes a mnemonic"] }, "&&Paste"),
+    order: 4
+  }, {
+    menuId: MenuId.EditorContext,
+    group: CLIPBOARD_CONTEXT_MENU_GROUP,
+    title: nls.localize("actions.clipboard.pasteLabel", "Paste"),
+    when: EditorContextKeys.writable,
+    order: 4
+  }, {
+    menuId: MenuId.CommandPalette,
+    group: "",
+    title: nls.localize("actions.clipboard.pasteLabel", "Paste"),
+    order: 1
+  }, {
+    menuId: MenuId.SimpleEditorContext,
+    group: CLIPBOARD_CONTEXT_MENU_GROUP,
+    title: nls.localize("actions.clipboard.pasteLabel", "Paste"),
+    when: EditorContextKeys.writable,
+    order: 4
+  }]
+})) : void 0;
+class ExecCommandCopyWithSyntaxHighlightingAction extends EditorAction {
+  static {
+    __name(this, "ExecCommandCopyWithSyntaxHighlightingAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.clipboardCopyWithSyntaxHighlightingAction",
+      label: nls.localize2("actions.clipboard.copyWithSyntaxHighlightingLabel", "Copy with Syntax Highlighting"),
+      precondition: void 0,
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 0,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor, editor) {
+    const logService = accessor.get(ILogService);
+    const clipboardService = accessor.get(IClipboardService);
+    logService.trace("ExecCommandCopyWithSyntaxHighlightingAction#run");
+    if (!editor.hasModel()) {
+      return;
+    }
+    const emptySelectionClipboard = editor.getOption(
+      45
+      /* EditorOption.emptySelectionClipboard */
+    );
+    if (!emptySelectionClipboard && editor.getSelection().isEmpty()) {
+      return;
+    }
+    CopyOptions.forceCopyWithSyntaxHighlighting = true;
+    editor.focus();
+    logService.trace("ExecCommandCopyWithSyntaxHighlightingAction (before execCommand copy)");
+    executeClipboardCopyWithWorkaround(editor, clipboardService);
+    logService.trace("ExecCommandCopyWithSyntaxHighlightingAction (after execCommand copy)");
+    CopyOptions.forceCopyWithSyntaxHighlighting = false;
+  }
+}
+function executeClipboardCopyWithWorkaround(editor, clipboardService) {
+  CopyOptions.electronBugWorkaroundCopyEventHasFired = false;
+  editor.getContainerDomNode().ownerDocument.execCommand("copy");
+  if (platform.isNative && CopyOptions.electronBugWorkaroundCopyEventHasFired === false) {
+    const { dataToCopy } = generateDataToCopyAndStoreInMemory(editor._getViewModel(), void 0, browser.isFirefox);
+    clipboardService.writeText(dataToCopy.text);
+  }
+}
+__name(executeClipboardCopyWithWorkaround, "executeClipboardCopyWithWorkaround");
+function registerExecCommandImpl(target, browserCommand) {
+  if (!target) {
+    return;
+  }
+  target.addImplementation(1e4, "code-editor", (accessor, args) => {
+    const logService = accessor.get(ILogService);
+    const clipboardService = accessor.get(IClipboardService);
+    logService.trace("registerExecCommandImpl (addImplementation code-editor for : ", browserCommand, ")");
+    const focusedEditor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
+    if (focusedEditor && focusedEditor.hasTextFocus() && focusedEditor.hasModel()) {
+      const emptySelectionClipboard = focusedEditor.getOption(
+        45
+        /* EditorOption.emptySelectionClipboard */
+      );
+      const selection = focusedEditor.getSelection();
+      if (selection && selection.isEmpty() && !emptySelectionClipboard) {
+        return true;
+      }
+      if (focusedEditor.getOption(
+        170
+        /* EditorOption.effectiveEditContext */
+      ) && browserCommand === "cut") {
+        logCopyCommand(focusedEditor);
+        logService.trace("registerExecCommandImpl (before execCommand copy)");
+        executeClipboardCopyWithWorkaround(focusedEditor, clipboardService);
+        focusedEditor.trigger(void 0, "cut", void 0);
+        logService.trace("registerExecCommandImpl (after execCommand copy)");
+      } else {
+        logCopyCommand(focusedEditor);
+        logService.trace("registerExecCommandImpl (before execCommand " + browserCommand + ")");
+        if (browserCommand === "copy") {
+          executeClipboardCopyWithWorkaround(focusedEditor, clipboardService);
+        } else {
+          focusedEditor.getContainerDomNode().ownerDocument.execCommand(browserCommand);
+        }
+        logService.trace("registerExecCommandImpl (after execCommand " + browserCommand + ")");
+      }
+      return true;
+    }
+    return false;
+  });
+  target.addImplementation(0, "generic-dom", (accessor, args) => {
+    const logService = accessor.get(ILogService);
+    logService.trace("registerExecCommandImpl (addImplementation generic-dom for : ", browserCommand, ")");
+    logService.trace("registerExecCommandImpl (before execCommand " + browserCommand + ")");
+    getActiveDocument().execCommand(browserCommand);
+    logService.trace("registerExecCommandImpl (after execCommand " + browserCommand + ")");
+    return true;
+  });
+}
+__name(registerExecCommandImpl, "registerExecCommandImpl");
+function logCopyCommand(editor) {
+  const editContextEnabled = editor.getOption(
+    170
+    /* EditorOption.effectiveEditContext */
+  );
+  if (editContextEnabled) {
+    const nativeEditContext = NativeEditContextRegistry.get(editor.getId());
+    if (nativeEditContext) {
+      nativeEditContext.handleWillCopy();
+    }
+  }
+}
+__name(logCopyCommand, "logCopyCommand");
+registerExecCommandImpl(CutAction, "cut");
+registerExecCommandImpl(CopyAction, "copy");
+if (PasteAction) {
+  PasteAction.addImplementation(1e4, "code-editor", (accessor, args) => {
+    const logService = accessor.get(ILogService);
+    logService.trace("registerExecCommandImpl (addImplementation code-editor for : paste)");
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const clipboardService = accessor.get(IClipboardService);
+    const focusedEditor = codeEditorService.getFocusedCodeEditor();
+    if (focusedEditor && focusedEditor.hasModel() && focusedEditor.hasTextFocus()) {
+      const editContextEnabled = focusedEditor.getOption(
+        170
+        /* EditorOption.effectiveEditContext */
+      );
+      if (editContextEnabled) {
+        const nativeEditContext = NativeEditContextRegistry.get(focusedEditor.getId());
+        if (nativeEditContext) {
+          nativeEditContext.handleWillPaste();
+        }
+      }
+      logService.trace("registerExecCommandImpl (before triggerPaste)");
+      const triggerPaste = clipboardService.triggerPaste(getActiveWindow().vscodeWindowId);
+      if (triggerPaste) {
+        logService.trace("registerExecCommandImpl (triggerPaste defined)");
+        return triggerPaste.then(async () => {
+          logService.trace("registerExecCommandImpl (after triggerPaste)");
+          return CopyPasteController.get(focusedEditor)?.finishedPaste() ?? Promise.resolve();
+        });
+      } else {
+        logService.trace("registerExecCommandImpl (triggerPaste undefined)");
+      }
+      if (platform.isWeb) {
+        logService.trace("registerExecCommandImpl (Paste handling on web)");
+        return (async () => {
+          const clipboardText = await clipboardService.readText();
+          if (clipboardText !== "") {
+            const metadata = InMemoryClipboardMetadataManager.INSTANCE.get(clipboardText);
+            let pasteOnNewLine = false;
+            let multicursorText = null;
+            let mode = null;
+            if (metadata) {
+              pasteOnNewLine = focusedEditor.getOption(
+                45
+                /* EditorOption.emptySelectionClipboard */
+              ) && !!metadata.isFromEmptySelection;
+              multicursorText = typeof metadata.multicursorText !== "undefined" ? metadata.multicursorText : null;
+              mode = metadata.mode;
+            }
+            logService.trace("registerExecCommandImpl (clipboardText.length : ", clipboardText.length, " id : ", metadata?.id, ")");
+            focusedEditor.trigger("keyboard", "paste", {
+              text: clipboardText,
+              pasteOnNewLine,
+              multicursorText,
+              mode
+            });
+          }
+        })();
+      }
+      return true;
+    }
+    return false;
+  });
+  PasteAction.addImplementation(0, "generic-dom", (accessor, args) => {
+    const logService = accessor.get(ILogService);
+    logService.trace("registerExecCommandImpl (addImplementation generic-dom for : paste)");
+    const triggerPaste = accessor.get(IClipboardService).triggerPaste(getActiveWindow().vscodeWindowId);
+    return triggerPaste ?? false;
+  });
+}
+if (supportsCopy) {
+  registerEditorAction(ExecCommandCopyWithSyntaxHighlightingAction);
+}
+export {
+  CopyAction,
+  CutAction,
+  PasteAction
+};
+//# sourceMappingURL=clipboard.js.map

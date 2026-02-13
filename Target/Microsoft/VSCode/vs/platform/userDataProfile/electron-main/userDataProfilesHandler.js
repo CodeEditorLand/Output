@@ -1,1 +1,75 @@
-import{$Ed as h}from"../../../base/common/lifecycle.js";import{$pw as m}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$Qv as l}from"./userDataProfile.js";import{$Rl as d}from"../../workspace/common/workspace.js";import{$ji as u}from"../../../base/common/async.js";import{$vv as W}from"../../windows/electron-main/windows.js";var p=function(n,t,s,o){var e=arguments.length,i=e<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,s):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,t,s,o);else for(var a=n.length-1;a>=0;a--)(r=n[a])&&(i=(e<3?r(i):e>3?r(t,s,i):r(t,s))||i);return e>3&&i&&Object.defineProperty(t,s,i),i},c=function(n,t){return function(s,o){t(s,o,n)}};let f=class extends h{constructor(t,s,o){super(),this.a=s,this.b=o,this.D(t.onWillLoadWindow(e=>{e.reason===2&&this.c(e.window)})),this.D(t.onBeforeCloseWindow(e=>this.c(e))),this.D(new u(()=>this.g(),30*1e3)).schedule()}async c(t){const s=this.f(t),o=this.a.getProfileForWorkspace(s);o?.isTransient&&(this.a.unsetWorkspace(s,o.isTransient),o.isTransient&&await this.a.cleanUpTransientProfiles())}f(t){return t.openedWorkspace??d(t.backupPath,t.isExtensionDevelopmentHost)}g(){const t=this.a.getAssociatedEmptyWindows();if(t.length===0)return;const s=this.b.getWindows().map(o=>this.f(o));for(const o of t)s.some(e=>e.id===o.id)||this.a.unsetWorkspace(o,!1)}};f=p([c(0,m),c(1,l),c(2,W)],f);export{f as $WA};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { IUserDataProfilesMainService } from "./userDataProfile.js";
+import { toWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { RunOnceScheduler } from "../../../base/common/async.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+let UserDataProfilesHandler = class UserDataProfilesHandler2 extends Disposable {
+  static {
+    __name(this, "UserDataProfilesHandler");
+  }
+  constructor(lifecycleMainService, userDataProfilesService, windowsMainService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.windowsMainService = windowsMainService;
+    this._register(lifecycleMainService.onWillLoadWindow((e) => {
+      if (e.reason === 2) {
+        this.unsetProfileForWorkspace(e.window);
+      }
+    }));
+    this._register(lifecycleMainService.onBeforeCloseWindow((window) => this.unsetProfileForWorkspace(window)));
+    this._register(new RunOnceScheduler(
+      () => this.cleanUpEmptyWindowAssociations(),
+      30 * 1e3
+      /* after 30s */
+    )).schedule();
+  }
+  async unsetProfileForWorkspace(window) {
+    const workspace = this.getWorkspace(window);
+    const profile = this.userDataProfilesService.getProfileForWorkspace(workspace);
+    if (profile?.isTransient) {
+      this.userDataProfilesService.unsetWorkspace(workspace, profile.isTransient);
+      if (profile.isTransient) {
+        await this.userDataProfilesService.cleanUpTransientProfiles();
+      }
+    }
+  }
+  getWorkspace(window) {
+    return window.openedWorkspace ?? toWorkspaceIdentifier(window.backupPath, window.isExtensionDevelopmentHost);
+  }
+  cleanUpEmptyWindowAssociations() {
+    const associatedEmptyWindows = this.userDataProfilesService.getAssociatedEmptyWindows();
+    if (associatedEmptyWindows.length === 0) {
+      return;
+    }
+    const openedWorkspaces = this.windowsMainService.getWindows().map((window) => this.getWorkspace(window));
+    for (const associatedEmptyWindow of associatedEmptyWindows) {
+      if (openedWorkspaces.some((openedWorkspace) => openedWorkspace.id === associatedEmptyWindow.id)) {
+        continue;
+      }
+      this.userDataProfilesService.unsetWorkspace(associatedEmptyWindow, false);
+    }
+  }
+};
+UserDataProfilesHandler = __decorate([
+  __param(0, ILifecycleMainService),
+  __param(1, IUserDataProfilesMainService),
+  __param(2, IWindowsMainService)
+], UserDataProfilesHandler);
+export {
+  UserDataProfilesHandler
+};
+//# sourceMappingURL=userDataProfilesHandler.js.map

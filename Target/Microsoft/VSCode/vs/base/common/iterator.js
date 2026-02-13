@@ -1,1 +1,198 @@
-import{$_c as M}from"./types.js";var l;(function(o){function c(n){return!!n&&typeof n=="object"&&typeof n[Symbol.iterator]=="function"}o.is=c;const u=Object.freeze([]);function y(){return u}o.empty=y;function*r(n){yield n}o.single=r;function m(n){return c(n)?n:r(n)}o.wrap=m;function d(n){return n??u}o.from=d;function*p(n){for(let t=n.length-1;t>=0;t--)yield n[t]}o.reverse=p;function g(n){return!n||n[Symbol.iterator]().next().done===!0}o.isEmpty=g;function h(n){return n[Symbol.iterator]().next().value}o.first=h;function v(n,t){let e=0;for(const f of n)if(t(f,e++))return!0;return!1}o.some=v;function x(n,t){let e=0;for(const f of n)if(!t(f,e++))return!1;return!0}o.every=x;function a(n,t){for(const e of n)if(t(e))return e}o.find=a;function*S(n,t){for(const e of n)t(e)&&(yield e)}o.filter=S;function*T(n,t){let e=0;for(const f of n)yield t(f,e++)}o.map=T;function*w(n,t){let e=0;for(const f of n)yield*t(f,e++)}o.flatMap=w;function*A(...n){for(const t of n)M(t)?yield*t:yield t}o.concat=A;function _(n,t,e){let f=e;for(const i of n)f=t(f,i);return f}o.reduce=_;function F(n){let t=0;for(const e of n)t++;return t}o.length=F;function*N(n,t,e=n.length){for(t<-n.length&&(t=0),t<0&&(t+=n.length),e<0?e+=n.length:e>n.length&&(e=n.length);t<e;t++)yield n[t]}o.slice=N;function j(n,t=Number.POSITIVE_INFINITY){const e=[];if(t===0)return[e,n];const f=n[Symbol.iterator]();for(let i=0;i<t;i++){const s=f.next();if(s.done)return[e,o.empty()];e.push(s.value)}return[e,{[Symbol.iterator](){return f}}]}o.consume=j;async function z(n){const t=[];for await(const e of n)t.push(e);return t}o.asyncToArray=z;async function E(n){let t=[];for await(const e of n)t=t.concat(e);return t}o.asyncToArrayFlat=E})(l||(l={}));export{l as Iterable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isIterable } from "./types.js";
+var Iterable;
+(function(Iterable2) {
+  function is(thing) {
+    return !!thing && typeof thing === "object" && typeof thing[Symbol.iterator] === "function";
+  }
+  __name(is, "is");
+  Iterable2.is = is;
+  const _empty = Object.freeze([]);
+  function empty() {
+    return _empty;
+  }
+  __name(empty, "empty");
+  Iterable2.empty = empty;
+  function* single(element) {
+    yield element;
+  }
+  __name(single, "single");
+  Iterable2.single = single;
+  function wrap(iterableOrElement) {
+    if (is(iterableOrElement)) {
+      return iterableOrElement;
+    } else {
+      return single(iterableOrElement);
+    }
+  }
+  __name(wrap, "wrap");
+  Iterable2.wrap = wrap;
+  function from(iterable) {
+    return iterable ?? _empty;
+  }
+  __name(from, "from");
+  Iterable2.from = from;
+  function* reverse(array) {
+    for (let i = array.length - 1; i >= 0; i--) {
+      yield array[i];
+    }
+  }
+  __name(reverse, "reverse");
+  Iterable2.reverse = reverse;
+  function isEmpty(iterable) {
+    return !iterable || iterable[Symbol.iterator]().next().done === true;
+  }
+  __name(isEmpty, "isEmpty");
+  Iterable2.isEmpty = isEmpty;
+  function first(iterable) {
+    return iterable[Symbol.iterator]().next().value;
+  }
+  __name(first, "first");
+  Iterable2.first = first;
+  function some(iterable, predicate) {
+    let i = 0;
+    for (const element of iterable) {
+      if (predicate(element, i++)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  __name(some, "some");
+  Iterable2.some = some;
+  function every(iterable, predicate) {
+    let i = 0;
+    for (const element of iterable) {
+      if (!predicate(element, i++)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  __name(every, "every");
+  Iterable2.every = every;
+  function find(iterable, predicate) {
+    for (const element of iterable) {
+      if (predicate(element)) {
+        return element;
+      }
+    }
+    return void 0;
+  }
+  __name(find, "find");
+  Iterable2.find = find;
+  function* filter(iterable, predicate) {
+    for (const element of iterable) {
+      if (predicate(element)) {
+        yield element;
+      }
+    }
+  }
+  __name(filter, "filter");
+  Iterable2.filter = filter;
+  function* map(iterable, fn) {
+    let index = 0;
+    for (const element of iterable) {
+      yield fn(element, index++);
+    }
+  }
+  __name(map, "map");
+  Iterable2.map = map;
+  function* flatMap(iterable, fn) {
+    let index = 0;
+    for (const element of iterable) {
+      yield* fn(element, index++);
+    }
+  }
+  __name(flatMap, "flatMap");
+  Iterable2.flatMap = flatMap;
+  function* concat(...iterables) {
+    for (const item of iterables) {
+      if (isIterable(item)) {
+        yield* item;
+      } else {
+        yield item;
+      }
+    }
+  }
+  __name(concat, "concat");
+  Iterable2.concat = concat;
+  function reduce(iterable, reducer, initialValue) {
+    let value = initialValue;
+    for (const element of iterable) {
+      value = reducer(value, element);
+    }
+    return value;
+  }
+  __name(reduce, "reduce");
+  Iterable2.reduce = reduce;
+  function length(iterable) {
+    let count = 0;
+    for (const _ of iterable) {
+      count++;
+    }
+    return count;
+  }
+  __name(length, "length");
+  Iterable2.length = length;
+  function* slice(arr, from2, to = arr.length) {
+    if (from2 < -arr.length) {
+      from2 = 0;
+    }
+    if (from2 < 0) {
+      from2 += arr.length;
+    }
+    if (to < 0) {
+      to += arr.length;
+    } else if (to > arr.length) {
+      to = arr.length;
+    }
+    for (; from2 < to; from2++) {
+      yield arr[from2];
+    }
+  }
+  __name(slice, "slice");
+  Iterable2.slice = slice;
+  function consume(iterable, atMost = Number.POSITIVE_INFINITY) {
+    const consumed = [];
+    if (atMost === 0) {
+      return [consumed, iterable];
+    }
+    const iterator = iterable[Symbol.iterator]();
+    for (let i = 0; i < atMost; i++) {
+      const next = iterator.next();
+      if (next.done) {
+        return [consumed, Iterable2.empty()];
+      }
+      consumed.push(next.value);
+    }
+    return [consumed, { [Symbol.iterator]() {
+      return iterator;
+    } }];
+  }
+  __name(consume, "consume");
+  Iterable2.consume = consume;
+  async function asyncToArray(iterable) {
+    const result = [];
+    for await (const item of iterable) {
+      result.push(item);
+    }
+    return result;
+  }
+  __name(asyncToArray, "asyncToArray");
+  Iterable2.asyncToArray = asyncToArray;
+  async function asyncToArrayFlat(iterable) {
+    let result = [];
+    for await (const item of iterable) {
+      result = result.concat(item);
+    }
+    return result;
+  }
+  __name(asyncToArrayFlat, "asyncToArrayFlat");
+  Iterable2.asyncToArrayFlat = asyncToArrayFlat;
+})(Iterable || (Iterable = {}));
+export {
+  Iterable
+};
+//# sourceMappingURL=iterator.js.map

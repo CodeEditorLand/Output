@@ -1,3 +1,588 @@
-import{$Ed as M,$Dd as O,$Cd as F}from"../../../../base/common/lifecycle.js";import{$sb as f}from"../../../../base/common/errors.js";import{$xf as w,Event as A}from"../../../../base/common/event.js";import{$sZb as y}from"./terminal.js";import{$K3b as B}from"./detachedTerminal.js";import{$QXb as W}from"../common/terminalColorRegistry.js";import{$0zb as z}from"../../../common/theme.js";import{$ro as j}from"../../../../platform/contextkey/common/contextkey.js";import{ChatContextKeys as E}from"../../chat/common/actions/chatContextKeys.js";import{$Jq as q}from"../../../../platform/theme/common/colorRegistry.js";import{$Up as Y}from"../../../../base/common/color.js";var k=function(n,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,i);else for(var h=n.length-1;h>=0;h--)(o=n[h])&&(r=(s<3?o(r):s>3?o(t,e,r):o(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},m=function(n,t){return function(e,i){t(e,i,n)}};function L(n,t,e){if(e){const r=Y.fromHex(e);if(r)return r}const i=n.getColor(W);if(i)return i;const s=E.inChatEditor.getValue(t);return n.getColor(s?q:z)}function v(n,t){let e=0;for(let i=0;i<n.length;i++){const s=n.getLine(i);if(!s)continue;const r=Math.min(s.length,t);for(let o=r-1;o>=0;o--)if(s.getCell(o)?.getChars()){e=Math.max(e,o+1);break}}return e}function _(n,t,e,i=50){const s=Math.max(0,e-i),r=e;for(let o=s;o<r;o++)if(n.charCodeAt(o)!==t.charCodeAt(o))return!1;return!0}var g;(function(n){n[n.MirrorRowCount=10]="MirrorRowCount",n[n.MirrorColCountFallback=80]="MirrorColCountFallback",n[n.MaxLinesForColumnWidthComputation=100]="MaxLinesForColumnWidthComputation"})(g||(g={}));function p(n,t){return Math.max(t-n,0)}async function X(n,t,e){const i=t.executedMarker,s=t.endMarker;if(!s||s.isDisposed)return;if(!i||i.isDisposed){const c=n.raw,l=c.buffer.active,d=[-(l.baseY+l.cursorY),-l.baseY,0];let u;for(const x of d)if(u=c.registerMarker(x),u)break;if(!u||u.isDisposed)return{text:"",lineCount:0};const $=u.line;let C;try{C=await n.getRangeAsVT(u,s,!0)}catch(x){e?.("fallback",x);return}finally{u.dispose()}if(!C)return{text:"",lineCount:0};const R=s.line,P=p($,R);return{text:C,lineCount:P}}const r=i.line,o=s.line,h=p(r,o);let a;try{a=await n.getRangeAsVT(i,s,!0)}catch(c){e?.("primary",c);return}return a?{text:a,lineCount:h}:{text:"",lineCount:0}}let D=class extends M{constructor(t,e,i,s){super(),this.z=t,this.C=e,this.F=i,this.G=s,this.f=this.D(new O),this.g=this.D(new w),this.onDidUpdate=this.g.event,this.h=this.D(new w),this.onDidInput=this.h.event,this.j="",this.m=0,this.n=0,this.t=!1,this.u=!1,this.D(F(()=>{this.N()}))}async attach(t){if(this.B.isDisposed)return;let e;try{e=await this.L()}catch(i){if(i instanceof f)return;throw i}this.B.isDisposed||this.c!==t&&(t.classList.add("chat-terminal-output-terminal"),e.attachToElement(t,{enableGpu:!1}),this.c=t)}async renderCommand(){if(this.B.isDisposed)return;let t;try{t=await this.L()}catch(r){if(r instanceof f)return;throw r}if(this.B.isDisposed)return;let e;try{e=await this.H(this.z)}catch{}if(!e||this.B.isDisposed)return;await new Promise(r=>{if(!(!!this.j&&e.text.length>=this.j.length&&this.U(e.text,this.j.length)))this.j&&t.xterm.reset(),e.text?t.xterm.write(e.text,r):r();else{const h=e.text.slice(this.j.length);h?t.xterm.write(h,r):r()}}),this.j=e.text;const i=this.z.raw;return i&&(this.w=i,this.q=this.S(i),!this.u&&(!this.C.endMarker||this.C.endMarker.isDisposed)&&this.M(i)),this.m=this.I(),this.C.endMarker&&!this.C.endMarker.isDisposed&&this.m<=100&&(this.n=this.J()),{lineCount:this.m,maxColumnWidth:this.n}}async H(t){if(this.B.isDisposed)return;const e=this.C.executedMarker??this.C.commandExecutedMarker;if(!e)return;const i=this.C.endMarker,s=await t.getRangeAsVT(e,i,i?.line!==e.line);if(!this.B.isDisposed)return s?{text:s}:{text:""}}I(){const t=this.C.endMarker;if(this.C.executedMarker&&t&&!t.isDisposed){const i=this.C.executedMarker.line,s=t.line;return p(i,s)}const e=this.C.executedMarker??this.C.commandExecutedMarker;if(e&&this.w){const i=this.w.buffer.active,s=i.baseY+i.cursorY;return p(e.line,s)}return this.m}J(){const t=this.a;return t?v(t.xterm.buffer.active,t.xterm.cols):0}async L(){if(this.a)return this.a;if(this.b)return this.b;if(this.B.isDisposed)throw new f;const t=(async()=>{const e={getBackgroundColor:r=>L(r,this.G)},i=new B({initialCwd:""}),s=await this.F.createDetachedTerminal({cols:this.z.raw.cols??80,rows:10,readonly:!1,processInfo:i,disableOverviewRuler:!0,colorProvider:e});if(this.B.isDisposed)throw i.dispose(),s.dispose(),new f;return this.a=s,this.D(i),this.D(s),this.D(s.onData(r=>this.h.fire(r))),s})();return this.b=t,t}M(t){this.B.isDisposed||this.u||(this.u=!0,this.f.add(A.any(t.onCursorMove,t.onLineFeed,t.onWriteParsed)(()=>this.O())),this.f.add(t.onData(()=>this.O())))}N(){this.u&&(this.f.clear(),this.u=!1,this.r=void 0,this.w=void 0)}O(){if(this.B.isDisposed||!this.w)return;const t=this.S(this.w);this.r=this.r===void 0?t:Math.min(this.r,t),this.P()}P(){this.t||this.B.isDisposed||(this.t=!0,queueMicrotask(()=>{this.t=!1,!this.B.isDisposed&&this.Q()}))}Q(){this.B.isDisposed||this.s||(this.s=this.R().finally(()=>{this.s=void 0}))}async R(){if(this.B.isDisposed)return;const t=this.z.raw;let e=this.a;if(!e)try{e=await this.L()}catch(d){if(d instanceof f)return;throw d}if(this.B.isDisposed)return;const i=e?.xterm;if(!t||!i)return;this.w=t;const s=this.S(t),r=this.q??s,o=this.r??s;this.r=void 0;const h=Math.min(r,o),a=await this.H(this.z);if(!a||this.B.isDisposed)return;if(a.text===this.j){this.q=s,this.C.endMarker&&!this.C.endMarker.isDisposed&&this.N();return}const c=!!this.j&&h>=r&&a.text.length>=this.j.length&&this.U(a.text,this.j.length);await new Promise(d=>{if(!c)this.j&&i.reset(),a.text?i.write(a.text,d):d();else{const u=a.text.slice(this.j.length);u?i.write(u,d):d()}}),this.j=a.text,this.m=this.I(),this.q=s,this.C.endMarker&&!this.C.endMarker.isDisposed&&(this.m<=100&&(this.n=this.J()),this.N()),this.g.fire({lineCount:this.m,maxColumnWidth:this.n})}S(t){return t.buffer.active.baseY+t.buffer.active.cursorY}U(t,e){return _(t,this.j,e)}};D=k([m(2,y),m(3,j)],D);let b=class extends M{constructor(t,e,i,s){super(),this.m=e,this.n=i,this.q=s,this.g=!0,this.c=t;const r=this.D(new B({initialCwd:""}));this.a=this.n.createDetachedTerminal({cols:80,rows:10,readonly:!0,processInfo:r,disableOverviewRuler:!0,colorProvider:{getBackgroundColor:o=>{const h=this.m()?.background;return L(o,this.q,h)}}}).then(o=>this.B.isDisposed?(o.dispose(),o):this.D(o))}async r(){if(!this.a)throw new Error("Detached terminal not initialized");return this.a}setOutput(t){this.c=t,this.g=!0}async attach(t){const e=await this.r();if(this.B.isDisposed)return;t.classList.add("chat-terminal-output-terminal"),(this.b!==t||t.firstChild===null)&&(e.attachToElement(t,{enableGpu:!1}),this.b=t),this.f=t,this.w(t)}async render(){const t=this.c;if(!t)return;if(!this.g)return{lineCount:this.h??t.lineCount,maxColumnWidth:this.j};const e=await this.r();if(this.B.isDisposed)return;this.f&&this.w(this.f);const i=t.text??"",s=t.lineCount??this.t(i);if(!i)return this.g=!1,this.h=s,this.j=0,{lineCount:0,maxColumnWidth:0};if(await new Promise(r=>e.xterm.write(i,r)),!this.B.isDisposed)return this.g=!1,this.h=s,this.u(s)&&(this.j=this.s(e)),{lineCount:s,maxColumnWidth:this.j}}s(t){return v(t.xterm.buffer.active,t.xterm.cols)}t(t){if(!t)return 0;const e=t.replace(/\r/g,""),i=e.split(`
-`),s=e.endsWith(`
-`)?i.length-1:i.length;return Math.max(s,1)}u(t){return t<=100}w(t){const e=this.m();if(!e){t.style.removeProperty("background-color"),t.style.removeProperty("color");return}e.background&&(t.style.backgroundColor=e.background),e.foreground&&(t.style.color=e.foreground)}};b=k([m(2,y),m(3,j)],b);export{v as $L3b,_ as $M3b,X as $N3b,D as $O3b,b as $P3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { ITerminalService } from "./terminal.js";
+import { DetachedProcessInfo } from "./detachedTerminal.js";
+import { TERMINAL_BACKGROUND_COLOR } from "../common/terminalColorRegistry.js";
+import { PANEL_BACKGROUND } from "../../../common/theme.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { Color } from "../../../../base/common/color.js";
+function getChatTerminalBackgroundColor(theme, contextKeyService, storedBackground) {
+  if (storedBackground) {
+    const color = Color.fromHex(storedBackground);
+    if (color) {
+      return color;
+    }
+  }
+  const terminalBackground = theme.getColor(TERMINAL_BACKGROUND_COLOR);
+  if (terminalBackground) {
+    return terminalBackground;
+  }
+  const isInEditor = ChatContextKeys.inChatEditor.getValue(contextKeyService);
+  return theme.getColor(isInEditor ? editorBackground : PANEL_BACKGROUND);
+}
+__name(getChatTerminalBackgroundColor, "getChatTerminalBackgroundColor");
+function computeMaxBufferColumnWidth(buffer, cols) {
+  let maxWidth = 0;
+  for (let y = 0; y < buffer.length; y++) {
+    const line = buffer.getLine(y);
+    if (!line) {
+      continue;
+    }
+    const lineLength = Math.min(line.length, cols);
+    for (let x = lineLength - 1; x >= 0; x--) {
+      if (line.getCell(x)?.getChars()) {
+        maxWidth = Math.max(maxWidth, x + 1);
+        break;
+      }
+    }
+  }
+  return maxWidth;
+}
+__name(computeMaxBufferColumnWidth, "computeMaxBufferColumnWidth");
+function vtBoundaryMatches(newVT, oldVT, slicePoint, windowSize = 50) {
+  const start = Math.max(0, slicePoint - windowSize);
+  const end = slicePoint;
+  for (let i = start; i < end; i++) {
+    if (newVT.charCodeAt(i) !== oldVT.charCodeAt(i)) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(vtBoundaryMatches, "vtBoundaryMatches");
+var ChatTerminalMirrorMetrics;
+(function(ChatTerminalMirrorMetrics2) {
+  ChatTerminalMirrorMetrics2[ChatTerminalMirrorMetrics2["MirrorRowCount"] = 10] = "MirrorRowCount";
+  ChatTerminalMirrorMetrics2[ChatTerminalMirrorMetrics2["MirrorColCountFallback"] = 80] = "MirrorColCountFallback";
+  ChatTerminalMirrorMetrics2[ChatTerminalMirrorMetrics2["MaxLinesForColumnWidthComputation"] = 100] = "MaxLinesForColumnWidthComputation";
+})(ChatTerminalMirrorMetrics || (ChatTerminalMirrorMetrics = {}));
+function computeOutputLineCount(startLine, endLine) {
+  return Math.max(endLine - startLine, 0);
+}
+__name(computeOutputLineCount, "computeOutputLineCount");
+async function getCommandOutputSnapshot(xtermTerminal, command, log) {
+  const executedMarker = command.executedMarker;
+  const endMarker = command.endMarker;
+  if (!endMarker || endMarker.isDisposed) {
+    return void 0;
+  }
+  if (!executedMarker || executedMarker.isDisposed) {
+    const raw = xtermTerminal.raw;
+    const buffer = raw.buffer.active;
+    const offsets = [
+      -(buffer.baseY + buffer.cursorY),
+      -buffer.baseY,
+      0
+    ];
+    let startMarker;
+    for (const offset of offsets) {
+      startMarker = raw.registerMarker(offset);
+      if (startMarker) {
+        break;
+      }
+    }
+    if (!startMarker || startMarker.isDisposed) {
+      return { text: "", lineCount: 0 };
+    }
+    const startLine2 = startMarker.line;
+    let text2;
+    try {
+      text2 = await xtermTerminal.getRangeAsVT(startMarker, endMarker, true);
+    } catch (error) {
+      log?.("fallback", error);
+      return void 0;
+    } finally {
+      startMarker.dispose();
+    }
+    if (!text2) {
+      return { text: "", lineCount: 0 };
+    }
+    const endLine2 = endMarker.line;
+    const lineCount2 = computeOutputLineCount(startLine2, endLine2);
+    return { text: text2, lineCount: lineCount2 };
+  }
+  const startLine = executedMarker.line;
+  const endLine = endMarker.line;
+  const lineCount = computeOutputLineCount(startLine, endLine);
+  let text;
+  try {
+    text = await xtermTerminal.getRangeAsVT(executedMarker, endMarker, true);
+  } catch (error) {
+    log?.("primary", error);
+    return void 0;
+  }
+  if (!text) {
+    return { text: "", lineCount: 0 };
+  }
+  return { text, lineCount };
+}
+__name(getCommandOutputSnapshot, "getCommandOutputSnapshot");
+let DetachedTerminalCommandMirror = class DetachedTerminalCommandMirror2 extends Disposable {
+  static {
+    __name(this, "DetachedTerminalCommandMirror");
+  }
+  constructor(_xtermTerminal, _command, _terminalService, _contextKeyService) {
+    super();
+    this._xtermTerminal = _xtermTerminal;
+    this._command = _command;
+    this._terminalService = _terminalService;
+    this._contextKeyService = _contextKeyService;
+    this._streamingDisposables = this._register(new DisposableStore());
+    this._onDidUpdateEmitter = this._register(new Emitter());
+    this.onDidUpdate = this._onDidUpdateEmitter.event;
+    this._onDidInputEmitter = this._register(new Emitter());
+    this.onDidInput = this._onDidInputEmitter.event;
+    this._lastVT = "";
+    this._lineCount = 0;
+    this._maxColumnWidth = 0;
+    this._dirtyScheduled = false;
+    this._isStreaming = false;
+    this._register(toDisposable(() => {
+      this._stopStreaming();
+    }));
+  }
+  async attach(container) {
+    if (this._store.isDisposed) {
+      return;
+    }
+    let terminal;
+    try {
+      terminal = await this._getOrCreateTerminal();
+    } catch (error) {
+      if (error instanceof CancellationError) {
+        return;
+      }
+      throw error;
+    }
+    if (this._store.isDisposed) {
+      return;
+    }
+    if (this._attachedContainer !== container) {
+      container.classList.add("chat-terminal-output-terminal");
+      terminal.attachToElement(container, { enableGpu: false });
+      this._attachedContainer = container;
+    }
+  }
+  async renderCommand() {
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    let detached;
+    try {
+      detached = await this._getOrCreateTerminal();
+    } catch (error) {
+      if (error instanceof CancellationError) {
+        return void 0;
+      }
+      throw error;
+    }
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    let vt;
+    try {
+      vt = await this._getCommandOutputAsVT(this._xtermTerminal);
+    } catch {
+    }
+    if (!vt) {
+      return void 0;
+    }
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    await new Promise((resolve) => {
+      const canAppend = !!this._lastVT && vt.text.length >= this._lastVT.length && this._vtBoundaryMatches(vt.text, this._lastVT.length);
+      if (!canAppend) {
+        if (this._lastVT) {
+          detached.xterm.reset();
+        }
+        if (vt.text) {
+          detached.xterm.write(vt.text, resolve);
+        } else {
+          resolve();
+        }
+      } else {
+        const appended = vt.text.slice(this._lastVT.length);
+        if (appended) {
+          detached.xterm.write(appended, resolve);
+        } else {
+          resolve();
+        }
+      }
+    });
+    this._lastVT = vt.text;
+    const sourceRaw = this._xtermTerminal.raw;
+    if (sourceRaw) {
+      this._sourceRaw = sourceRaw;
+      this._lastUpToDateCursorY = this._getAbsoluteCursorY(sourceRaw);
+      if (!this._isStreaming && (!this._command.endMarker || this._command.endMarker.isDisposed)) {
+        this._startStreaming(sourceRaw);
+      }
+    }
+    this._lineCount = this._getRenderedLineCount();
+    const commandFinished = this._command.endMarker && !this._command.endMarker.isDisposed;
+    if (commandFinished && this._lineCount <= 100) {
+      this._maxColumnWidth = this._computeMaxColumnWidth();
+    }
+    return { lineCount: this._lineCount, maxColumnWidth: this._maxColumnWidth };
+  }
+  async _getCommandOutputAsVT(source) {
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    const executedMarker = this._command.executedMarker ?? this._command.commandExecutedMarker;
+    if (!executedMarker) {
+      return void 0;
+    }
+    const endMarker = this._command.endMarker;
+    const text = await source.getRangeAsVT(executedMarker, endMarker, endMarker?.line !== executedMarker.line);
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    if (!text) {
+      return { text: "" };
+    }
+    return { text };
+  }
+  _getRenderedLineCount() {
+    const endMarker = this._command.endMarker;
+    if (this._command.executedMarker && endMarker && !endMarker.isDisposed) {
+      const startLine = this._command.executedMarker.line;
+      const endLine = endMarker.line;
+      return computeOutputLineCount(startLine, endLine);
+    }
+    const executedMarker = this._command.executedMarker ?? this._command.commandExecutedMarker;
+    if (executedMarker && this._sourceRaw) {
+      const buffer = this._sourceRaw.buffer.active;
+      const currentLine = buffer.baseY + buffer.cursorY;
+      return computeOutputLineCount(executedMarker.line, currentLine);
+    }
+    return this._lineCount;
+  }
+  _computeMaxColumnWidth() {
+    const detached = this._detachedTerminal;
+    if (!detached) {
+      return 0;
+    }
+    return computeMaxBufferColumnWidth(detached.xterm.buffer.active, detached.xterm.cols);
+  }
+  async _getOrCreateTerminal() {
+    if (this._detachedTerminal) {
+      return this._detachedTerminal;
+    }
+    if (this._detachedTerminalPromise) {
+      return this._detachedTerminalPromise;
+    }
+    if (this._store.isDisposed) {
+      throw new CancellationError();
+    }
+    const createPromise = (async () => {
+      const colorProvider = {
+        getBackgroundColor: /* @__PURE__ */ __name((theme) => getChatTerminalBackgroundColor(theme, this._contextKeyService), "getBackgroundColor")
+      };
+      const processInfo = new DetachedProcessInfo({ initialCwd: "" });
+      const detached = await this._terminalService.createDetachedTerminal({
+        cols: this._xtermTerminal.raw.cols ?? 80,
+        rows: 10,
+        readonly: false,
+        processInfo,
+        disableOverviewRuler: true,
+        colorProvider
+      });
+      if (this._store.isDisposed) {
+        processInfo.dispose();
+        detached.dispose();
+        throw new CancellationError();
+      }
+      this._detachedTerminal = detached;
+      this._register(processInfo);
+      this._register(detached);
+      this._register(detached.onData((data) => this._onDidInputEmitter.fire(data)));
+      return detached;
+    })();
+    this._detachedTerminalPromise = createPromise;
+    return createPromise;
+  }
+  _startStreaming(raw) {
+    if (this._store.isDisposed || this._isStreaming) {
+      return;
+    }
+    this._isStreaming = true;
+    this._streamingDisposables.add(Event.any(raw.onCursorMove, raw.onLineFeed, raw.onWriteParsed)(() => this._handleCursorEvent()));
+    this._streamingDisposables.add(raw.onData(() => this._handleCursorEvent()));
+  }
+  _stopStreaming() {
+    if (!this._isStreaming) {
+      return;
+    }
+    this._streamingDisposables.clear();
+    this._isStreaming = false;
+    this._lowestDirtyCursorY = void 0;
+    this._sourceRaw = void 0;
+  }
+  _handleCursorEvent() {
+    if (this._store.isDisposed || !this._sourceRaw) {
+      return;
+    }
+    const cursorY = this._getAbsoluteCursorY(this._sourceRaw);
+    this._lowestDirtyCursorY = this._lowestDirtyCursorY === void 0 ? cursorY : Math.min(this._lowestDirtyCursorY, cursorY);
+    this._scheduleFlush();
+  }
+  _scheduleFlush() {
+    if (this._dirtyScheduled || this._store.isDisposed) {
+      return;
+    }
+    this._dirtyScheduled = true;
+    queueMicrotask(() => {
+      this._dirtyScheduled = false;
+      if (this._store.isDisposed) {
+        return;
+      }
+      this._flushDirtyRange();
+    });
+  }
+  _flushDirtyRange() {
+    if (this._store.isDisposed || this._flushPromise) {
+      return;
+    }
+    this._flushPromise = this._doFlushDirtyRange().finally(() => {
+      this._flushPromise = void 0;
+    });
+  }
+  async _doFlushDirtyRange() {
+    if (this._store.isDisposed) {
+      return;
+    }
+    const sourceRaw = this._xtermTerminal.raw;
+    let detached = this._detachedTerminal;
+    if (!detached) {
+      try {
+        detached = await this._getOrCreateTerminal();
+      } catch (error) {
+        if (error instanceof CancellationError) {
+          return;
+        }
+        throw error;
+      }
+    }
+    if (this._store.isDisposed) {
+      return;
+    }
+    const detachedRaw = detached?.xterm;
+    if (!sourceRaw || !detachedRaw) {
+      return;
+    }
+    this._sourceRaw = sourceRaw;
+    const currentCursor = this._getAbsoluteCursorY(sourceRaw);
+    const previousCursor = this._lastUpToDateCursorY ?? currentCursor;
+    const startCandidate = this._lowestDirtyCursorY ?? currentCursor;
+    this._lowestDirtyCursorY = void 0;
+    const startLine = Math.min(previousCursor, startCandidate);
+    const vt = await this._getCommandOutputAsVT(this._xtermTerminal);
+    if (!vt) {
+      return;
+    }
+    if (this._store.isDisposed) {
+      return;
+    }
+    if (vt.text === this._lastVT) {
+      this._lastUpToDateCursorY = currentCursor;
+      if (this._command.endMarker && !this._command.endMarker.isDisposed) {
+        this._stopStreaming();
+      }
+      return;
+    }
+    const canAppend = !!this._lastVT && startLine >= previousCursor && vt.text.length >= this._lastVT.length && this._vtBoundaryMatches(vt.text, this._lastVT.length);
+    await new Promise((resolve) => {
+      if (!canAppend) {
+        if (this._lastVT) {
+          detachedRaw.reset();
+        }
+        if (vt.text) {
+          detachedRaw.write(vt.text, resolve);
+        } else {
+          resolve();
+        }
+      } else {
+        const appended = vt.text.slice(this._lastVT.length);
+        if (appended) {
+          detachedRaw.write(appended, resolve);
+        } else {
+          resolve();
+        }
+      }
+    });
+    this._lastVT = vt.text;
+    this._lineCount = this._getRenderedLineCount();
+    this._lastUpToDateCursorY = currentCursor;
+    const commandFinished = this._command.endMarker && !this._command.endMarker.isDisposed;
+    if (commandFinished) {
+      if (this._lineCount <= 100) {
+        this._maxColumnWidth = this._computeMaxColumnWidth();
+      }
+      this._stopStreaming();
+    }
+    this._onDidUpdateEmitter.fire({ lineCount: this._lineCount, maxColumnWidth: this._maxColumnWidth });
+  }
+  _getAbsoluteCursorY(raw) {
+    return raw.buffer.active.baseY + raw.buffer.active.cursorY;
+  }
+  /**
+   * Checks if the new VT text matches the old VT around the boundary where we would slice.
+   */
+  _vtBoundaryMatches(newVT, slicePoint) {
+    return vtBoundaryMatches(newVT, this._lastVT, slicePoint);
+  }
+};
+DetachedTerminalCommandMirror = __decorate([
+  __param(2, ITerminalService),
+  __param(3, IContextKeyService)
+], DetachedTerminalCommandMirror);
+let DetachedTerminalSnapshotMirror = class DetachedTerminalSnapshotMirror2 extends Disposable {
+  static {
+    __name(this, "DetachedTerminalSnapshotMirror");
+  }
+  constructor(output, _getTheme, _terminalService, _contextKeyService) {
+    super();
+    this._getTheme = _getTheme;
+    this._terminalService = _terminalService;
+    this._contextKeyService = _contextKeyService;
+    this._dirty = true;
+    this._output = output;
+    const processInfo = this._register(new DetachedProcessInfo({ initialCwd: "" }));
+    this._detachedTerminal = this._terminalService.createDetachedTerminal({
+      cols: 80,
+      rows: 10,
+      readonly: true,
+      processInfo,
+      disableOverviewRuler: true,
+      colorProvider: {
+        getBackgroundColor: /* @__PURE__ */ __name((theme) => {
+          const storedBackground = this._getTheme()?.background;
+          return getChatTerminalBackgroundColor(theme, this._contextKeyService, storedBackground);
+        }, "getBackgroundColor")
+      }
+    }).then((terminal) => {
+      if (this._store.isDisposed) {
+        terminal.dispose();
+        return terminal;
+      }
+      return this._register(terminal);
+    });
+  }
+  async _getTerminal() {
+    if (!this._detachedTerminal) {
+      throw new Error("Detached terminal not initialized");
+    }
+    return this._detachedTerminal;
+  }
+  setOutput(output) {
+    this._output = output;
+    this._dirty = true;
+  }
+  async attach(container) {
+    const terminal = await this._getTerminal();
+    if (this._store.isDisposed) {
+      return;
+    }
+    container.classList.add("chat-terminal-output-terminal");
+    const needsAttach = this._attachedContainer !== container || container.firstChild === null;
+    if (needsAttach) {
+      terminal.attachToElement(container, { enableGpu: false });
+      this._attachedContainer = container;
+    }
+    this._container = container;
+    this._applyTheme(container);
+  }
+  async render() {
+    const output = this._output;
+    if (!output) {
+      return void 0;
+    }
+    if (!this._dirty) {
+      return { lineCount: this._lastRenderedLineCount ?? output.lineCount, maxColumnWidth: this._lastRenderedMaxColumnWidth };
+    }
+    const terminal = await this._getTerminal();
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    if (this._container) {
+      this._applyTheme(this._container);
+    }
+    const text = output.text ?? "";
+    const lineCount = output.lineCount ?? this._estimateLineCount(text);
+    if (!text) {
+      this._dirty = false;
+      this._lastRenderedLineCount = lineCount;
+      this._lastRenderedMaxColumnWidth = 0;
+      return { lineCount: 0, maxColumnWidth: 0 };
+    }
+    await new Promise((resolve) => terminal.xterm.write(text, resolve));
+    if (this._store.isDisposed) {
+      return void 0;
+    }
+    this._dirty = false;
+    this._lastRenderedLineCount = lineCount;
+    if (this._shouldComputeMaxColumnWidth(lineCount)) {
+      this._lastRenderedMaxColumnWidth = this._computeMaxColumnWidth(terminal);
+    }
+    return { lineCount, maxColumnWidth: this._lastRenderedMaxColumnWidth };
+  }
+  _computeMaxColumnWidth(terminal) {
+    return computeMaxBufferColumnWidth(terminal.xterm.buffer.active, terminal.xterm.cols);
+  }
+  _estimateLineCount(text) {
+    if (!text) {
+      return 0;
+    }
+    const sanitized = text.replace(/\r/g, "");
+    const segments = sanitized.split("\n");
+    const count = sanitized.endsWith("\n") ? segments.length - 1 : segments.length;
+    return Math.max(count, 1);
+  }
+  _shouldComputeMaxColumnWidth(lineCount) {
+    return lineCount <= 100;
+  }
+  _applyTheme(container) {
+    const theme = this._getTheme();
+    if (!theme) {
+      container.style.removeProperty("background-color");
+      container.style.removeProperty("color");
+      return;
+    }
+    if (theme.background) {
+      container.style.backgroundColor = theme.background;
+    }
+    if (theme.foreground) {
+      container.style.color = theme.foreground;
+    }
+  }
+};
+DetachedTerminalSnapshotMirror = __decorate([
+  __param(2, ITerminalService),
+  __param(3, IContextKeyService)
+], DetachedTerminalSnapshotMirror);
+export {
+  DetachedTerminalCommandMirror,
+  DetachedTerminalSnapshotMirror,
+  computeMaxBufferColumnWidth,
+  getCommandOutputSnapshot,
+  vtBoundaryMatches
+};
+//# sourceMappingURL=chatTerminalCommandMirror.js.map

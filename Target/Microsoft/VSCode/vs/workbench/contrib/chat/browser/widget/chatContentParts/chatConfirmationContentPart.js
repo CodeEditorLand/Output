@@ -1,1 +1,76 @@
-import{$Ed as S}from"../../../../../../base/common/lifecycle.js";import{localize as p}from"../../../../../../nls.js";import{$Mj as $}from"../../../../../../platform/instantiation/common/instantiation.js";import{ChatSendResult as R,$NV as D}from"../../../common/chatService/chatService.js";import{$9Eb as _}from"../../../common/model/chatViewModel.js";import{$U4b as C}from"../../chat.js";import{$I2b as j}from"./chatConfirmationWidget.js";var g=function(r,t,e,a){var l=arguments.length,s=l<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,e):a,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,a);else for(var d=r.length-1;d>=0;d--)(o=r[d])&&(s=(l<3?o(s):l>3?o(t,e,s):o(t,e))||s);return l>3&&s&&Object.defineProperty(t,e,s),s},m=function(r,t){return function(e,a){t(e,a,r)}};let b=class extends S{constructor(t,e,a,l,s){super(),this.a=a,this.b=l;const o=e.element,d=t.buttons?t.buttons.map(n=>({label:n,data:t.data,isSecondary:n!==t.buttons?.[0]})):[{label:p(6451,null),data:t.data},{label:p(6452,null),data:t.data,isSecondary:!0}],c=this.D(this.a.createInstance(j,e,{title:t.title,buttons:d,message:t.message}));c.setShowButtons(!t.isUsed),this.D(c.onDidClick(async n=>{if(_(o)){const f=`${n.label}: "${t.title}"`,i=n.isSecondary?{rejectedConfirmationData:[n.data]}:{acceptedConfirmationData:[n.data]};i.agentId=o.agent?.id,i.slashCommand=o.slashCommand?.name,i.confirmation=n.label;const u=s.getWidgetBySessionResource(o.sessionResource);i.userSelectedModelId=u?.input.currentLanguageModel,i.modeInfo=u?.input.currentModeInfo,i.location=u?.location,Object.assign(i,u?.getModeRequestOptions());const h=await this.b.sendRequest(o.sessionResource,f,i);R.isSent(h)&&(t.isUsed=!0,c.setShowButtons(!1))}})),this.domNode=c.domNode}hasSameContent(t){return t.kind==="confirmation"}addDisposable(t){this.D(t)}};b=g([m(2,$),m(3,D),m(4,C)],b);export{b as $L2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ChatSendResult, IChatService } from "../../../common/chatService/chatService.js";
+import { isResponseVM } from "../../../common/model/chatViewModel.js";
+import { IChatWidgetService } from "../../chat.js";
+import { SimpleChatConfirmationWidget } from "./chatConfirmationWidget.js";
+let ChatConfirmationContentPart = class ChatConfirmationContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatConfirmationContentPart");
+  }
+  constructor(confirmation, context, instantiationService, chatService, chatWidgetService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.chatService = chatService;
+    const element = context.element;
+    const buttons = confirmation.buttons ? confirmation.buttons.map((button) => ({
+      label: button,
+      data: confirmation.data,
+      isSecondary: button !== confirmation.buttons?.[0]
+    })) : [
+      { label: localize("accept", "Accept"), data: confirmation.data },
+      { label: localize("dismiss", "Dismiss"), data: confirmation.data, isSecondary: true }
+    ];
+    const confirmationWidget = this._register(this.instantiationService.createInstance(SimpleChatConfirmationWidget, context, { title: confirmation.title, buttons, message: confirmation.message }));
+    confirmationWidget.setShowButtons(!confirmation.isUsed);
+    this._register(confirmationWidget.onDidClick(async (e) => {
+      if (isResponseVM(element)) {
+        const prompt = `${e.label}: "${confirmation.title}"`;
+        const options = e.isSecondary ? { rejectedConfirmationData: [e.data] } : { acceptedConfirmationData: [e.data] };
+        options.agentId = element.agent?.id;
+        options.slashCommand = element.slashCommand?.name;
+        options.confirmation = e.label;
+        const widget = chatWidgetService.getWidgetBySessionResource(element.sessionResource);
+        options.userSelectedModelId = widget?.input.currentLanguageModel;
+        options.modeInfo = widget?.input.currentModeInfo;
+        options.location = widget?.location;
+        Object.assign(options, widget?.getModeRequestOptions());
+        const result = await this.chatService.sendRequest(element.sessionResource, prompt, options);
+        if (ChatSendResult.isSent(result)) {
+          confirmation.isUsed = true;
+          confirmationWidget.setShowButtons(false);
+        }
+      }
+    }));
+    this.domNode = confirmationWidget.domNode;
+  }
+  hasSameContent(other) {
+    return other.kind === "confirmation";
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatConfirmationContentPart = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IChatService),
+  __param(4, IChatWidgetService)
+], ChatConfirmationContentPart);
+export {
+  ChatConfirmationContentPart
+};
+//# sourceMappingURL=chatConfirmationContentPart.js.map

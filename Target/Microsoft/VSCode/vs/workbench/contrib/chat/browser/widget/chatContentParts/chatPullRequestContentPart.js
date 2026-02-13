@@ -1,1 +1,57 @@
-import"./media/chatPullRequestContent.css";import*as e from"../../../../../../base/browser/dom.js";import{$Ed as f}from"../../../../../../base/common/lifecycle.js";import{$bk as h}from"../../../../../../base/common/codicons.js";import{ThemeIcon as $}from"../../../../../../base/common/themables.js";import{$u8 as d}from"../../../../../../base/browser/dom.js";import{$EP as b}from"../../../../../../platform/opener/common/opener.js";var p=function(a,t,n,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,n):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,t,n,i);else for(var r=a.length-1;r>=0;r--)(c=a[r])&&(o=(s<3?c(o):s>3?c(t,n,o):c(t,n))||o);return s>3&&o&&Object.defineProperty(t,n,o),o},u=function(a,t){return function(n,i){t(n,i,a)}};let m=class extends f{constructor(t,n){super(),this.a=t,this.b=n,this.domNode=e.$(".chat-pull-request-content-part");const i=e.$y9(this.domNode,e.$(".container")),s=e.$y9(i,e.$(".content-container")),o=e.$y9(s,e.$(".title-container"));e.$y9(o,e.$(".icon")).classList.add(...$.asClassNameArray(h.gitPullRequest));const r=e.$y9(o,e.$("a.title"));r.textContent=`${this.a.title} - ${this.a.author}`,r.href=this.a.uri.toString(),this.D(d(r,"click",l=>{l.preventDefault(),l.stopPropagation(),this.b.open(this.a.uri,{allowCommands:!0})}))}hasSameContent(t,n,i){return t.kind==="pullRequest"}addDisposable(t){this.D(t)}};m=p([u(1,b)],m);export{m as $12b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/chatPullRequestContent.css";
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { addDisposableListener } from "../../../../../../base/browser/dom.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+let ChatPullRequestContentPart = class ChatPullRequestContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatPullRequestContentPart");
+  }
+  constructor(pullRequestContent, openerService) {
+    super();
+    this.pullRequestContent = pullRequestContent;
+    this.openerService = openerService;
+    this.domNode = dom.$(".chat-pull-request-content-part");
+    const container = dom.append(this.domNode, dom.$(".container"));
+    const contentContainer = dom.append(container, dom.$(".content-container"));
+    const titleContainer = dom.append(contentContainer, dom.$(".title-container"));
+    const icon = dom.append(titleContainer, dom.$(".icon"));
+    icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.gitPullRequest));
+    const titleLink = dom.append(titleContainer, dom.$("a.title"));
+    titleLink.textContent = `${this.pullRequestContent.title} - ${this.pullRequestContent.author}`;
+    titleLink.href = this.pullRequestContent.uri.toString();
+    this._register(addDisposableListener(titleLink, "click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.openerService.open(this.pullRequestContent.uri, { allowCommands: true });
+    }));
+  }
+  hasSameContent(other, followingContent, element) {
+    return other.kind === "pullRequest";
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatPullRequestContentPart = __decorate([
+  __param(1, IOpenerService)
+], ChatPullRequestContentPart);
+export {
+  ChatPullRequestContentPart
+};
+//# sourceMappingURL=chatPullRequestContentPart.js.map

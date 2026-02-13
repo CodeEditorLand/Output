@@ -1,1 +1,252 @@
-import{$bk as g}from"../../../../../base/common/codicons.js";import{URI as Q}from"../../../../../base/common/uri.js";import{localize as k,localize2 as p}from"../../../../../nls.js";import{$vL as h,$qL as d,$sL as E,$wL as f}from"../../../../../platform/actions/common/actions.js";import{$0n as o}from"../../../../../platform/contextkey/common/contextkey.js";import{ChatContextKeys as t}from"../../common/actions/chatContextKeys.js";import{$NV as I}from"../../common/chatService/chatService.js";import{ChatConfiguration as W}from"../../common/constants.js";import{$8Eb as v}from"../../common/model/chatViewModel.js";import{$U4b as R}from"../chat.js";import{$HPb as q}from"./chatActions.js";const r=o.equals(`config.${W.RequestQueueingEnabled}`,!0);function A(c){return!!c&&typeof c=="object"&&"sessionResource"in c&&"pendingRequestId"in c&&Q.isUri(c.sessionResource)&&typeof c.pendingRequestId=="string"}class x extends h{static{this.ID="workbench.action.chat.queueMessage"}constructor(){super({id:x.ID,title:p(5351,"Add to Queue"),tooltip:k(5349,null),icon:g.add,f1:!1,category:q,precondition:o.and(r,t.requestInProgress,t.inputHasText),keybinding:{when:o.and(t.inChatInput,t.requestInProgress,r),primary:3,weight:101},menu:[{id:d.ChatExecuteQueue,group:"navigation",order:1}]})}run(i,...u){const e=i.get(R).lastFocusedWidget;!e?.viewModel||!e.getInput().trim()||e.acceptInput(void 0,{queue:"queued"})}}class P extends h{static{this.ID="workbench.action.chat.steerWithMessage"}constructor(){super({id:P.ID,title:p(5352,"Steer with Message"),tooltip:k(5350,null),icon:g.arrowRight,f1:!1,category:q,precondition:o.and(r,t.requestInProgress,t.inputHasText),keybinding:{when:o.and(t.inChatInput,t.requestInProgress,r),primary:515,weight:101},menu:[{id:d.ChatExecuteQueue,group:"navigation",order:2}]})}run(i,...u){const e=i.get(R).lastFocusedWidget;!e?.viewModel||!e.getInput().trim()||e.acceptInput(void 0,{queue:"steering"})}}class y extends h{static{this.ID="workbench.action.chat.removePendingRequest"}constructor(){super({id:y.ID,title:p(5353,"Remove from Queue"),icon:g.close,f1:!1,category:q,menu:[{id:d.ChatMessageTitle,group:"navigation",order:4,when:o.and(r,t.isRequest,t.isPendingRequest)}]})}run(i,...u){const s=i.get(I),[e]=u;if(v(e)&&e.pendingKind){s.removePendingRequest(e.sessionResource,e.id);return}if(A(e)){s.removePendingRequest(e.sessionResource,e.pendingRequestId);return}}}class C extends h{static{this.ID="workbench.action.chat.sendPendingImmediately"}constructor(){super({id:C.ID,title:p(5354,"Send Immediately"),icon:g.arrowUp,f1:!1,category:q,menu:[{id:d.ChatMessageTitle,group:"navigation",order:3,when:o.and(r,t.isRequest,t.isPendingRequest)}]})}run(i,...u){const s=i.get(I),e=i.get(R),[n]=u;if(!v(n)||!n.pendingKind)return;const a=e.getWidgetBySessionResource(n.sessionResource)?.viewModel?.model;if(!a)return;const l=a.getPendingRequests(),w=l.findIndex(m=>m.request.id===n.id);if(w===-1)return;const S=l[w],D=[{requestId:S.request.id,kind:S.kind},...l.filter((m,M)=>M!==w).map(m=>({requestId:m.request.id,kind:m.kind}))];s.setPendingRequests(n.sessionResource,D),s.cancelCurrentRequestForSession(n.sessionResource),s.processPendingRequests(n.sessionResource)}}class b extends h{static{this.ID="workbench.action.chat.removeAllPendingRequests"}constructor(){super({id:b.ID,title:p(5355,"Remove All Queued"),icon:g.clearAll,f1:!1,category:q,menu:[{id:d.ChatContext,group:"navigation",order:3,when:o.and(r,t.hasPendingRequests)}]})}run(i,...u){const s=i.get(I),e=i.get(R),[n]=u,a=(v(n)&&e.getWidgetBySessionResource(n.sessionResource)||e.lastFocusedWidget)?.viewModel?.model;if(a)for(const l of[...a.getPendingRequests()])s.removePendingRequest(a.sessionResource,l.request.id)}}function O(){f(x),f(P),f(y),f(C),f(b),E.appendMenuItem(d.ChatExecute,{submenu:d.ChatExecuteQueue,title:p(5356,"Queue"),icon:g.listOrdered,when:o.and(r,t.requestInProgress,t.inputHasText),group:"navigation",order:4,isSplitButton:{togglePrimaryAction:!0}})}export{O as $1oc,x as $Voc,P as $Woc,y as $Xoc,C as $Yoc,b as $Zoc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatConfiguration } from "../../common/constants.js";
+import { isRequestVM } from "../../common/model/chatViewModel.js";
+import { IChatWidgetService } from "../chat.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+const queueingEnabledCondition = ContextKeyExpr.equals(`config.${ChatConfiguration.RequestQueueingEnabled}`, true);
+function isRemovePendingRequestContext(context) {
+  return !!context && typeof context === "object" && "sessionResource" in context && "pendingRequestId" in context && URI.isUri(context.sessionResource) && typeof context.pendingRequestId === "string";
+}
+__name(isRemovePendingRequestContext, "isRemovePendingRequestContext");
+class ChatQueueMessageAction extends Action2 {
+  static {
+    __name(this, "ChatQueueMessageAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.queueMessage";
+  }
+  constructor() {
+    super({
+      id: ChatQueueMessageAction.ID,
+      title: localize2("chat.queueMessage", "Add to Queue"),
+      tooltip: localize("chat.queueMessage.tooltip", "Queue this message to send after the current request completes"),
+      icon: Codicon.add,
+      f1: false,
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.requestInProgress, ChatContextKeys.inputHasText),
+      keybinding: {
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.requestInProgress, queueingEnabledCondition),
+        primary: 3,
+        weight: 100 + 1
+      },
+      menu: [{
+        id: MenuId.ChatExecuteQueue,
+        group: "navigation",
+        order: 1
+      }]
+    });
+  }
+  run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (!widget?.viewModel) {
+      return;
+    }
+    const inputValue = widget.getInput();
+    if (!inputValue.trim()) {
+      return;
+    }
+    widget.acceptInput(void 0, {
+      queue: "queued"
+      /* ChatRequestQueueKind.Queued */
+    });
+  }
+}
+class ChatSteerWithMessageAction extends Action2 {
+  static {
+    __name(this, "ChatSteerWithMessageAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.steerWithMessage";
+  }
+  constructor() {
+    super({
+      id: ChatSteerWithMessageAction.ID,
+      title: localize2("chat.steerWithMessage", "Steer with Message"),
+      tooltip: localize("chat.steerWithMessage.tooltip", "Send this message at the next opportunity, signaling the current request to yield"),
+      icon: Codicon.arrowRight,
+      f1: false,
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.requestInProgress, ChatContextKeys.inputHasText),
+      keybinding: {
+        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.requestInProgress, queueingEnabledCondition),
+        primary: 512 | 3,
+        weight: 100 + 1
+      },
+      menu: [{
+        id: MenuId.ChatExecuteQueue,
+        group: "navigation",
+        order: 2
+      }]
+    });
+  }
+  run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = widgetService.lastFocusedWidget;
+    if (!widget?.viewModel) {
+      return;
+    }
+    const inputValue = widget.getInput();
+    if (!inputValue.trim()) {
+      return;
+    }
+    widget.acceptInput(void 0, {
+      queue: "steering"
+      /* ChatRequestQueueKind.Steering */
+    });
+  }
+}
+class ChatRemovePendingRequestAction extends Action2 {
+  static {
+    __name(this, "ChatRemovePendingRequestAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.removePendingRequest";
+  }
+  constructor() {
+    super({
+      id: ChatRemovePendingRequestAction.ID,
+      title: localize2("chat.removePendingRequest", "Remove from Queue"),
+      icon: Codicon.close,
+      f1: false,
+      category: CHAT_CATEGORY,
+      menu: [{
+        id: MenuId.ChatMessageTitle,
+        group: "navigation",
+        order: 4,
+        when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.isRequest, ChatContextKeys.isPendingRequest)
+      }]
+    });
+  }
+  run(accessor, ...args) {
+    const chatService = accessor.get(IChatService);
+    const [context] = args;
+    if (isRequestVM(context) && context.pendingKind) {
+      chatService.removePendingRequest(context.sessionResource, context.id);
+      return;
+    }
+    if (isRemovePendingRequestContext(context)) {
+      chatService.removePendingRequest(context.sessionResource, context.pendingRequestId);
+      return;
+    }
+  }
+}
+class ChatSendPendingImmediatelyAction extends Action2 {
+  static {
+    __name(this, "ChatSendPendingImmediatelyAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.sendPendingImmediately";
+  }
+  constructor() {
+    super({
+      id: ChatSendPendingImmediatelyAction.ID,
+      title: localize2("chat.sendPendingImmediately", "Send Immediately"),
+      icon: Codicon.arrowUp,
+      f1: false,
+      category: CHAT_CATEGORY,
+      menu: [{
+        id: MenuId.ChatMessageTitle,
+        group: "navigation",
+        order: 3,
+        when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.isRequest, ChatContextKeys.isPendingRequest)
+      }]
+    });
+  }
+  run(accessor, ...args) {
+    const chatService = accessor.get(IChatService);
+    const widgetService = accessor.get(IChatWidgetService);
+    const [context] = args;
+    if (!isRequestVM(context) || !context.pendingKind) {
+      return;
+    }
+    const widget = widgetService.getWidgetBySessionResource(context.sessionResource);
+    const model = widget?.viewModel?.model;
+    if (!model) {
+      return;
+    }
+    const pendingRequests = model.getPendingRequests();
+    const targetIndex = pendingRequests.findIndex((r) => r.request.id === context.id);
+    if (targetIndex === -1) {
+      return;
+    }
+    const targetRequest = pendingRequests[targetIndex];
+    const reordered = [
+      { requestId: targetRequest.request.id, kind: targetRequest.kind },
+      ...pendingRequests.filter((_, i) => i !== targetIndex).map((r) => ({ requestId: r.request.id, kind: r.kind }))
+    ];
+    chatService.setPendingRequests(context.sessionResource, reordered);
+    chatService.cancelCurrentRequestForSession(context.sessionResource);
+    chatService.processPendingRequests(context.sessionResource);
+  }
+}
+class ChatRemoveAllPendingRequestsAction extends Action2 {
+  static {
+    __name(this, "ChatRemoveAllPendingRequestsAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.removeAllPendingRequests";
+  }
+  constructor() {
+    super({
+      id: ChatRemoveAllPendingRequestsAction.ID,
+      title: localize2("chat.removeAllPendingRequests", "Remove All Queued"),
+      icon: Codicon.clearAll,
+      f1: false,
+      category: CHAT_CATEGORY,
+      menu: [{
+        id: MenuId.ChatContext,
+        group: "navigation",
+        order: 3,
+        when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.hasPendingRequests)
+      }]
+    });
+  }
+  run(accessor, ...args) {
+    const chatService = accessor.get(IChatService);
+    const widgetService = accessor.get(IChatWidgetService);
+    const [context] = args;
+    const widget = isRequestVM(context) && widgetService.getWidgetBySessionResource(context.sessionResource) || widgetService.lastFocusedWidget;
+    const model = widget?.viewModel?.model;
+    if (!model) {
+      return;
+    }
+    for (const pendingRequest of [...model.getPendingRequests()]) {
+      chatService.removePendingRequest(model.sessionResource, pendingRequest.request.id);
+    }
+  }
+}
+function registerChatQueueActions() {
+  registerAction2(ChatQueueMessageAction);
+  registerAction2(ChatSteerWithMessageAction);
+  registerAction2(ChatRemovePendingRequestAction);
+  registerAction2(ChatSendPendingImmediatelyAction);
+  registerAction2(ChatRemoveAllPendingRequestsAction);
+  MenuRegistry.appendMenuItem(MenuId.ChatExecute, {
+    submenu: MenuId.ChatExecuteQueue,
+    title: localize2("chat.queueSubmenu", "Queue"),
+    icon: Codicon.listOrdered,
+    when: ContextKeyExpr.and(queueingEnabledCondition, ChatContextKeys.requestInProgress, ChatContextKeys.inputHasText),
+    group: "navigation",
+    order: 4,
+    isSplitButton: { togglePrimaryAction: true }
+  });
+}
+__name(registerChatQueueActions, "registerChatQueueActions");
+export {
+  ChatQueueMessageAction,
+  ChatRemoveAllPendingRequestsAction,
+  ChatRemovePendingRequestAction,
+  ChatSendPendingImmediatelyAction,
+  ChatSteerWithMessageAction,
+  registerChatQueueActions
+};
+//# sourceMappingURL=chatQueueActions.js.map

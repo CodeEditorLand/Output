@@ -1,1 +1,165 @@
-import*as s from"./browser.js";import{$Yw as n,$6w as o,KeyCodeUtils as h}from"../common/keyCodes.js";import{$9x as a}from"../common/keybindings.js";import*as i from"../common/platform.js";function y(e){if(e.charCode){const r=String.fromCharCode(e.charCode).toUpperCase();return h.fromString(r)}const t=e.keyCode;if(t===3)return 7;if(s.$67)switch(t){case 59:return 85;case 60:if(i.$o)return 97;break;case 61:return 86;case 107:return 109;case 109:return 111;case 173:return 88;case 224:if(i.$n)return 57;break}else if(s.$77){if(i.$n&&t===93)return 57;if(!i.$n&&t===92)return 57}return n[t]||0}const f=i.$n?256:2048,c=512,K=1024,d=i.$n?2048:256;function p(e){const t=[];return e.ctrlKey&&t.push("ctrl"),e.shiftKey&&t.push("shift"),e.altKey&&t.push("alt"),e.metaKey&&t.push("meta"),`modifiers: [${t.join(",")}], code: ${e.code}, keyCode: ${e.keyCode}, key: ${e.key}`}function m(e){const t=[];return e.ctrlKey&&t.push("ctrl"),e.shiftKey&&t.push("shift"),e.altKey&&t.push("alt"),e.metaKey&&t.push("meta"),`modifiers: [${t.join(",")}], code: ${e.code}, keyCode: ${e.keyCode} ('${h.toString(e.keyCode)}')`}function C(e){return e.ctrlKey||e.shiftKey||e.altKey||e.metaKey}class ${constructor(t){this._standardKeyboardEventBrand=!0;const r=t;this.browserEvent=r,this.target=r.target,this.ctrlKey=r.ctrlKey,this.shiftKey=r.shiftKey,this.altKey=r.altKey,this.metaKey=r.metaKey,this.altGraphKey=r.getModifierState?.("AltGraph"),this.keyCode=y(r),this.code=r.code,this.ctrlKey=this.ctrlKey||this.keyCode===5,this.altKey=this.altKey||this.keyCode===6,this.shiftKey=this.shiftKey||this.keyCode===4,this.metaKey=this.metaKey||this.keyCode===57,this.a=this.c(),this.b=this.d()}preventDefault(){this.browserEvent&&this.browserEvent.preventDefault&&this.browserEvent.preventDefault()}stopPropagation(){this.browserEvent&&this.browserEvent.stopPropagation&&this.browserEvent.stopPropagation()}toKeyCodeChord(){return this.b}equals(t){return this.a===t}c(){let t=0;o(this.keyCode)||(t=this.keyCode);let r=0;return this.ctrlKey&&(r|=f),this.altKey&&(r|=c),this.shiftKey&&(r|=K),this.metaKey&&(r|=d),r|=t,r}d(){let t=0;return o(this.keyCode)||(t=this.keyCode),new a(this.ctrlKey,this.shiftKey,this.altKey,this.metaKey,t)}}export{p as $k8,m as $l8,C as $m8,$ as $n8};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as browser from "./browser.js";
+import { EVENT_KEY_CODE_MAP, isModifierKey, KeyCodeUtils } from "../common/keyCodes.js";
+import { KeyCodeChord } from "../common/keybindings.js";
+import * as platform from "../common/platform.js";
+function extractKeyCode(e) {
+  if (e.charCode) {
+    const char = String.fromCharCode(e.charCode).toUpperCase();
+    return KeyCodeUtils.fromString(char);
+  }
+  const keyCode = e.keyCode;
+  if (keyCode === 3) {
+    return 7;
+  } else if (browser.isFirefox) {
+    switch (keyCode) {
+      case 59:
+        return 85;
+      case 60:
+        if (platform.isLinux) {
+          return 97;
+        }
+        break;
+      case 61:
+        return 86;
+      // based on: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode#numpad_keys
+      case 107:
+        return 109;
+      case 109:
+        return 111;
+      case 173:
+        return 88;
+      case 224:
+        if (platform.isMacintosh) {
+          return 57;
+        }
+        break;
+    }
+  } else if (browser.isWebKit) {
+    if (platform.isMacintosh && keyCode === 93) {
+      return 57;
+    } else if (!platform.isMacintosh && keyCode === 92) {
+      return 57;
+    }
+  }
+  return EVENT_KEY_CODE_MAP[keyCode] || 0;
+}
+__name(extractKeyCode, "extractKeyCode");
+const ctrlKeyMod = platform.isMacintosh ? 256 : 2048;
+const altKeyMod = 512;
+const shiftKeyMod = 1024;
+const metaKeyMod = platform.isMacintosh ? 2048 : 256;
+function printKeyboardEvent(e) {
+  const modifiers = [];
+  if (e.ctrlKey) {
+    modifiers.push(`ctrl`);
+  }
+  if (e.shiftKey) {
+    modifiers.push(`shift`);
+  }
+  if (e.altKey) {
+    modifiers.push(`alt`);
+  }
+  if (e.metaKey) {
+    modifiers.push(`meta`);
+  }
+  return `modifiers: [${modifiers.join(",")}], code: ${e.code}, keyCode: ${e.keyCode}, key: ${e.key}`;
+}
+__name(printKeyboardEvent, "printKeyboardEvent");
+function printStandardKeyboardEvent(e) {
+  const modifiers = [];
+  if (e.ctrlKey) {
+    modifiers.push(`ctrl`);
+  }
+  if (e.shiftKey) {
+    modifiers.push(`shift`);
+  }
+  if (e.altKey) {
+    modifiers.push(`alt`);
+  }
+  if (e.metaKey) {
+    modifiers.push(`meta`);
+  }
+  return `modifiers: [${modifiers.join(",")}], code: ${e.code}, keyCode: ${e.keyCode} ('${KeyCodeUtils.toString(e.keyCode)}')`;
+}
+__name(printStandardKeyboardEvent, "printStandardKeyboardEvent");
+function hasModifierKeys(keyStatus) {
+  return keyStatus.ctrlKey || keyStatus.shiftKey || keyStatus.altKey || keyStatus.metaKey;
+}
+__name(hasModifierKeys, "hasModifierKeys");
+class StandardKeyboardEvent {
+  static {
+    __name(this, "StandardKeyboardEvent");
+  }
+  constructor(source) {
+    this._standardKeyboardEventBrand = true;
+    const e = source;
+    this.browserEvent = e;
+    this.target = e.target;
+    this.ctrlKey = e.ctrlKey;
+    this.shiftKey = e.shiftKey;
+    this.altKey = e.altKey;
+    this.metaKey = e.metaKey;
+    this.altGraphKey = e.getModifierState?.("AltGraph");
+    this.keyCode = extractKeyCode(e);
+    this.code = e.code;
+    this.ctrlKey = this.ctrlKey || this.keyCode === 5;
+    this.altKey = this.altKey || this.keyCode === 6;
+    this.shiftKey = this.shiftKey || this.keyCode === 4;
+    this.metaKey = this.metaKey || this.keyCode === 57;
+    this._asKeybinding = this._computeKeybinding();
+    this._asKeyCodeChord = this._computeKeyCodeChord();
+  }
+  preventDefault() {
+    if (this.browserEvent && this.browserEvent.preventDefault) {
+      this.browserEvent.preventDefault();
+    }
+  }
+  stopPropagation() {
+    if (this.browserEvent && this.browserEvent.stopPropagation) {
+      this.browserEvent.stopPropagation();
+    }
+  }
+  toKeyCodeChord() {
+    return this._asKeyCodeChord;
+  }
+  equals(other) {
+    return this._asKeybinding === other;
+  }
+  _computeKeybinding() {
+    let key = 0;
+    if (!isModifierKey(this.keyCode)) {
+      key = this.keyCode;
+    }
+    let result = 0;
+    if (this.ctrlKey) {
+      result |= ctrlKeyMod;
+    }
+    if (this.altKey) {
+      result |= altKeyMod;
+    }
+    if (this.shiftKey) {
+      result |= shiftKeyMod;
+    }
+    if (this.metaKey) {
+      result |= metaKeyMod;
+    }
+    result |= key;
+    return result;
+  }
+  _computeKeyCodeChord() {
+    let key = 0;
+    if (!isModifierKey(this.keyCode)) {
+      key = this.keyCode;
+    }
+    return new KeyCodeChord(this.ctrlKey, this.shiftKey, this.altKey, this.metaKey, key);
+  }
+}
+export {
+  StandardKeyboardEvent,
+  hasModifierKeys,
+  printKeyboardEvent,
+  printStandardKeyboardEvent
+};
+//# sourceMappingURL=keyboardEvent.js.map

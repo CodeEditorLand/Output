@@ -1,1 +1,125 @@
-import*as e from"../../../../nls.js";import{$wL as i}from"../../../../platform/actions/common/actions.js";import{$vo as p}from"../../../../platform/commands/common/commands.js";import{$WC as l}from"../../../../platform/instantiation/common/extensions.js";import*as a from"../../../../platform/jsonschemas/common/jsonContributionRegistry.js";import{$jm as o}from"../../../../platform/registry/common/platform.js";import{Extensions as c}from"../../../common/contributions.js";import{$yHc as m}from"./commands/configureSnippets.js";import{$zHc as d}from"./commands/fileTemplateSnippets.js";import{$BHc as u}from"./commands/insertSnippet.js";import{$DHc as b}from"./commands/surroundWithSnippet.js";import{$EHc as y}from"./snippetCodeActionProvider.js";import{$XHb as f}from"./snippets.js";import{$_Hb as g}from"./snippetsService.js";import{$lm as $}from"../../../../platform/configuration/common/configurationRegistry.js";import"./tabCompletion.js";import{$slb as S}from"../../../../editor/common/config/editorConfigurationSchema.js";l(f,g,1);i(u);p.registerCommandAlias("editor.action.showSnippets","editor.action.insertSnippet");i(b);i(d);i(m);const h=o.as(c.Workbench);h.registerWorkbenchContribution(y,3);o.as($.Configuration).registerConfiguration({...S,properties:{"editor.snippets.codeActions.enabled":{description:e.localize(12639,null),type:"boolean",default:!0}}});const t="vscode://schemas/snippets",r={prefix:{description:e.localize(12640,null),type:["string","array"]},isFileTemplate:{description:e.localize(12641,null),type:"boolean"},body:{markdownDescription:e.localize(12642,null),type:["string","array"],items:{type:"string"}},description:{description:e.localize(12643,null),type:["string","array"]},include:{markdownDescription:e.localize(12644,null),type:["string","array"],items:{type:"string"}},exclude:{markdownDescription:e.localize(12645,null),type:["string","array"],items:{type:"string"}}},z={id:t,allowComments:!0,allowTrailingCommas:!0,defaultSnippets:[{label:e.localize(12646,null),body:{"${1:snippetName}":{prefix:"${2:prefix}",body:"${3:snippet}",description:"${4:description}"}}}],type:"object",description:e.localize(12647,null),additionalProperties:{type:"object",required:["body"],properties:r,additionalProperties:!1}},n="vscode://schemas/global-snippets",C={id:n,allowComments:!0,allowTrailingCommas:!0,defaultSnippets:[{label:e.localize(12648,null),body:{"${1:snippetName}":{scope:"${2:scope}",prefix:"${3:prefix}",body:"${4:snippet}",description:"${5:description}"}}}],type:"object",description:e.localize(12649,null),additionalProperties:{type:"object",required:["body"],properties:{...r,scope:{description:e.localize(12650,null),type:"string"}},additionalProperties:!1}},s=o.as(a.$km.JSONContribution);s.registerSchema(t,z);s.registerSchema(n,C);
+import * as nls from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import * as JSONContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { ConfigureSnippetsAction } from "./commands/configureSnippets.js";
+import { ApplyFileSnippetAction } from "./commands/fileTemplateSnippets.js";
+import { InsertSnippetAction } from "./commands/insertSnippet.js";
+import { SurroundWithSnippetEditorAction } from "./commands/surroundWithSnippet.js";
+import { SnippetCodeActions } from "./snippetCodeActionProvider.js";
+import { ISnippetsService } from "./snippets.js";
+import { SnippetsService } from "./snippetsService.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import "./tabCompletion.js";
+import { editorConfigurationBaseNode } from "../../../../editor/common/config/editorConfigurationSchema.js";
+registerSingleton(
+  ISnippetsService,
+  SnippetsService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerAction2(InsertSnippetAction);
+CommandsRegistry.registerCommandAlias("editor.action.showSnippets", "editor.action.insertSnippet");
+registerAction2(SurroundWithSnippetEditorAction);
+registerAction2(ApplyFileSnippetAction);
+registerAction2(ConfigureSnippetsAction);
+const workbenchContribRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchContribRegistry.registerWorkbenchContribution(
+  SnippetCodeActions,
+  3
+  /* LifecyclePhase.Restored */
+);
+Registry.as(Extensions.Configuration).registerConfiguration({
+  ...editorConfigurationBaseNode,
+  "properties": {
+    "editor.snippets.codeActions.enabled": {
+      "description": nls.localize("editor.snippets.codeActions.enabled", "Controls if surround-with-snippets or file template snippets show as Code Actions."),
+      "type": "boolean",
+      "default": true
+    }
+  }
+});
+const languageScopeSchemaId = "vscode://schemas/snippets";
+const snippetSchemaProperties = {
+  prefix: {
+    description: nls.localize("snippetSchema.json.prefix", "The prefix to use when selecting the snippet in intellisense"),
+    type: ["string", "array"]
+  },
+  isFileTemplate: {
+    description: nls.localize("snippetSchema.json.isFileTemplate", "The snippet is meant to populate or replace a whole file"),
+    type: "boolean"
+  },
+  body: {
+    markdownDescription: nls.localize("snippetSchema.json.body", "The snippet content. Use `$1`, `${1:defaultText}` to define cursor positions, use `$0` for the final cursor position. Insert variable values with `${varName}` and `${varName:defaultText}`, e.g. `This is file: $TM_FILENAME`."),
+    type: ["string", "array"],
+    items: {
+      type: "string"
+    }
+  },
+  description: {
+    description: nls.localize("snippetSchema.json.description", "The snippet description."),
+    type: ["string", "array"]
+  },
+  include: {
+    markdownDescription: nls.localize("snippetSchema.json.include", 'A list of [glob patterns](https://aka.ms/vscode-glob-patterns) to include the snippet for specific files, e.g. `["**/*.test.ts", "*.spec.ts"]` or `"**/*.spec.ts"`. Patterns will match on the absolute path of a file if they contain a path separator and will match on the name of the file otherwise. You can exclude matching files via the `exclude` property.'),
+    type: ["string", "array"],
+    items: {
+      type: "string"
+    }
+  },
+  exclude: {
+    markdownDescription: nls.localize("snippetSchema.json.exclude", 'A list of [glob patterns](https://aka.ms/vscode-glob-patterns) to exclude the snippet from specific files, e.g. `["**/*.min.js"]` or `"*.min.js"`. Patterns will match on the absolute path of a file if they contain a path separator and will match on the name of the file otherwise. Exclude patterns take precedence over `include` patterns.'),
+    type: ["string", "array"],
+    items: {
+      type: "string"
+    }
+  }
+};
+const languageScopeSchema = {
+  id: languageScopeSchemaId,
+  allowComments: true,
+  allowTrailingCommas: true,
+  defaultSnippets: [{
+    label: nls.localize("snippetSchema.json.default", "Empty snippet"),
+    body: { "${1:snippetName}": { "prefix": "${2:prefix}", "body": "${3:snippet}", "description": "${4:description}" } }
+  }],
+  type: "object",
+  description: nls.localize("snippetSchema.json", "User snippet configuration"),
+  additionalProperties: {
+    type: "object",
+    required: ["body"],
+    properties: snippetSchemaProperties,
+    additionalProperties: false
+  }
+};
+const globalSchemaId = "vscode://schemas/global-snippets";
+const globalSchema = {
+  id: globalSchemaId,
+  allowComments: true,
+  allowTrailingCommas: true,
+  defaultSnippets: [{
+    label: nls.localize("snippetSchema.json.default", "Empty snippet"),
+    body: { "${1:snippetName}": { "scope": "${2:scope}", "prefix": "${3:prefix}", "body": "${4:snippet}", "description": "${5:description}" } }
+  }],
+  type: "object",
+  description: nls.localize("snippetSchema.json", "User snippet configuration"),
+  additionalProperties: {
+    type: "object",
+    required: ["body"],
+    properties: {
+      ...snippetSchemaProperties,
+      scope: {
+        description: nls.localize("snippetSchema.json.scope", "A list of language names to which this snippet applies, e.g. 'typescript,javascript'."),
+        type: "string"
+      }
+    },
+    additionalProperties: false
+  }
+};
+const reg = Registry.as(JSONContributionRegistry.Extensions.JSONContribution);
+reg.registerSchema(languageScopeSchemaId, languageScopeSchema);
+reg.registerSchema(globalSchemaId, globalSchema);
+//# sourceMappingURL=snippets.contribution.js.map

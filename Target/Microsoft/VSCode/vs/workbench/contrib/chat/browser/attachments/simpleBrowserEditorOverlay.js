@@ -1,5 +1,420 @@
-import"./media/simpleBrowserOverlay.css";import{$Bd as J,$Md as Q,$Dd as A,$Cd as X}from"../../../../../base/common/lifecycle.js";import{autorun as F,derivedOpts as Y,observableFromEvent as Z,observableSignalFromEvent as ee}from"../../../../../base/common/observable.js";import{$Mj as K}from"../../../../../platform/instantiation/common/instantiation.js";import{ThemeIcon as te}from"../../../../../base/common/themables.js";import{$bk as T}from"../../../../../base/common/codicons.js";import{localize as i}from"../../../../../nls.js";import{$xL as ne}from"../../../../services/editor/common/editorGroupsService.js";import{$LWb as se}from"../../../../browser/parts/editor/editorGroupView.js";import{Event as V}from"../../../../../base/common/event.js";import{$Lj as ie}from"../../../../../platform/instantiation/common/serviceCollection.js";import{$ro as z}from"../../../../../platform/contextkey/common/contextkey.js";import{$Ih as oe}from"../../../../../base/common/resources.js";import{$Jf as k}from"../../../../../base/common/cancellation.js";import{$gcb as ae}from"../../../../services/host/browser/host.js";import{$U4b as le}from"../chat.js";import{$b_ as x,$c_ as re}from"../../../../../base/browser/ui/button/button.js";import{$Ijb as W}from"../../../../../platform/theme/browser/defaultStyles.js";import{$u8 as g}from"../../../../../base/browser/dom.js";import{$0l as U}from"../../../../../platform/configuration/common/configuration.js";import{$QEb as ce,$PEb as de}from"../chatImageUtils.js";import{$vk as he}from"../../../../../platform/files/common/files.js";import{$Kl as me}from"../../../../../platform/environment/common/environment.js";import{$yo as ue}from"../../../../../platform/log/common/log.js";import{$2M as pe}from"../../../../services/preferences/common/preferences.js";import{$$pc as G}from"../../../../services/browserElements/browser/browserElementsService.js";import{$ijb as fe}from"../../../../../platform/contextview/browser/contextView.js";import{$Km as q}from"../../../../../base/common/actions.js";import{$Uw as we}from"../../../../../platform/browserElements/common/browserElements.js";import{$pp as be}from"../../../../../platform/telemetry/common/telemetry.js";import{ChatContextKeys as ve}from"../../common/actions/chatContextKeys.js";import{$vib as Ee,$xib as Ce}from"../../../../../platform/observable/common/platformObservableUtils.js";var j=function(v,e,n,o){var s=arguments.length,a=s<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(v,e,n,o);else for(var d=v.length-1;d>=0;d--)(c=v[d])&&(a=(s<3?c(a):s>3?c(e,n,a):c(e,n))||a);return s>3&&a&&Object.defineProperty(e,n,a),a},r=function(v,e){return function(n,o){e(n,o,v)}};let _=class{constructor(e,n,o,s,a,c,d,t,m,E,b,C){this.h=e,this.i=n,this.j=o,this.k=s,this.l=a,this.m=c,this.n=d,this.o=t,this.p=m,this.q=E,this.s=b,this.t=C,this.c=new A,this.d=void 0,this.f=void 0,this.g=void 0,this.c.add(this.o.onDidChangeConfiguration(O=>{O.affectsConfiguration("chat.sendElementsToChat.enabled")&&(this.o.getValue("chat.sendElementsToChat.enabled")?this.showElement(this.a):this.hideElement(this.a))})),this.b=oe(this.m.workspaceStorageHome,"vscode-chat-images"),ce(this.l,this.n,this.b),this.a=document.createElement("div"),this.a.className="element-selection-message";const h=document.createElement("div");h.className="element-selection-main-content";const w=document.createElement("span"),y=i(5650,null);w.textContent=y,h.appendChild(w);let l;const u=[];u.push(q({id:"singleSelection",label:i(5651,null),enabled:!0,run:async()=>{await R()}}),q({id:"continuousSelection",label:i(5652,null),enabled:!0,run:async()=>{for(this.h.focus(),l=new k,w.textContent=i(5653,null),this.hideElement(p.element),this.showElement(f.element),f.label=i(5654,null);!l.token.isCancellationRequested;)try{await this.addElementToChat(l)}catch(O){this.n.error("Failed to select this element.",O),l.cancel();break}w.textContent=i(5655,null),D()}}));const p=this.c.add(new re(h,{actions:u,addPrimaryActionToDropdown:!1,contextMenuProvider:this.s,supportShortLabel:!0,title:i(5656,null),supportIcons:!0,...W}));p.primaryButton.label=i(5657,null),p.element.classList.add("element-selection-start");const f=this.c.add(new x(h,{...W,supportIcons:!0,title:i(5658,null)}));f.element.className="element-selection-cancel hidden";const I=i(5659,null);f.label=I;const L=this.c.add(new x(h,{supportIcons:!0,title:i(5660,null)}));L.icon=T.gear;const B=this.c.add(new x(h,{supportIcons:!0,title:i(5661,null)}));B.icon=T.chevronRight;const $=this.c.add(new x(h,{supportIcons:!0,title:i(5662,null)}));$.icon=T.close,$.element.classList.add("hidden");const S=document.createElement("div");S.className="element-expand-container hidden";const N=this.c.add(new x(S,{supportIcons:!0,title:i(5663,null)}));N.icon=T.layout,this.a.appendChild(h),this.a.appendChild(S);const P=()=>{this.hideElement($.element),this.showElement(p.element),this.showElement(B.element)},D=()=>{this.hideElement(f.element),f.label=I,this.hideElement(B.element),this.showElement($.element),this.d=setTimeout(()=>{w.textContent=y,P()},3e3)},R=async()=>{l=new k,this.h.focus(),w.textContent=i(5664,null),this.hideElement(p.element),this.showElement(f.element),await this.addElementToChat(l),w.textContent=i(5665,null),D()};this.c.add(g(p.primaryButton.element,"click",async()=>{await R()})),this.c.add(g(f.element,"click",()=>{l.cancel(),w.textContent=i(5666,null),D()})),this.c.add(g(B.element,"click",()=>{this.hideElement(h),this.showElement(S)})),this.c.add(g(N.element,"click",()=>{this.showElement(h),this.hideElement(S)})),this.c.add(g($.element,"click",()=>{clearTimeout(this.d),w.textContent=y,P()})),this.c.add(g(L.element,"click",()=>{this.p.openSettings({jsonEditor:!1,query:"@id:chat.sendElementsToChat.enabled,chat.sendElementsToChat.attachCSS,chat.sendElementsToChat.attachImages"})}))}setActiveLocator(e,n){this.f=e,this.g=n}hideElement(e){e.classList.contains("hidden")||e.classList.add("hidden")}showElement(e){e.classList.contains("hidden")&&e.classList.remove("hidden")}async addElementToChat(e){this.t.publicLog2("simpleBrowser.addElementToChat.start",{browserType:this.g});const n=this.i.querySelector(".editor-container"),o=n?n.getBoundingClientRect():this.i.getBoundingClientRect(),s=await this.q.getElementData({x:o.x,y:o.y+32.4,width:o.width,height:o.height-32.4},e.token,this.f);if(!s)throw new Error("Element data not found");const a=s.bounds,c=[],d=await this.k.revealWidget()??this.k.lastFocusedWidget,t=this.o.getValue("chat.sendElementsToChat.attachCSS");let m=(t?"Attached HTML and CSS Context":"Attached HTML Context")+`
-
-`+s.outerHTML;t&&(m+=`
-
-`+s.computedStyle);const E=we(s.outerHTML);if(c.push({id:"element-"+Date.now(),name:E,fullName:E,value:m,kind:"element",icon:te.fromId(T.layout.id)}),this.o.getValue("chat.sendElementsToChat.attachImages")){this.a.style.display="none",await new Promise(h=>setTimeout(h,100));const b=await this.j.getScreenshot(a);if(!b)throw new Error("Screenshot failed");const C=await de(this.l,this.b,b.buffer,"image/png");c.push({id:"element-screenshot-"+Date.now(),name:"Element Screenshot",fullName:"Element Screenshot",kind:"image",value:b.buffer,references:C?[{reference:C,kind:"reference"}]:[]}),this.a.style.display=""}d?.attachmentModel?.addContext(...c),this.t.publicLog2("simpleBrowser.addElementToChat.added",{browserType:this.g,attachCss:t,attachImages:this.o.getValue("chat.sendElementsToChat.attachImages")??!1})}dispose(){this.c.dispose()}getDomNode(){return this.a}};_=j([r(2,ae),r(3,le),r(4,he),r(5,me),r(6,ue),r(7,U),r(8,pe),r(9,G),r(10,fe),r(11,be)],_);let M=class{constructor(e,n,o,s,a,c){this.c=s,this.d=a,this.f=c,this.a=new A,this.b=document.createElement("div"),this.b.classList.add("chat-simple-browser-overlay"),this.b.style.position="absolute",this.b.style.bottom="5px",this.b.style.right="5px",this.b.style.zIndex="100";const d=o.createInstance(_,n,e);this.b.appendChild(d.getDomNode()),this.a.add(X(()=>this.b.remove())),this.a.add(d);const t=document.createElement("div");t.className="connecting-webview-element";let m=new k;const E=async(l,u)=>{d.setActiveLocator(l,u),t.textContent=i(5667,null),e.contains(t)||e.appendChild(t),m.cancel(),m=new k;try{await this.d.startDebugSession(m.token,l)}catch{t.textContent=i(5668,null);return}m.token.isCancellationRequested||(e.contains(this.b)||e.appendChild(this.b),t.remove())},b=()=>{d.setActiveLocator(void 0,void 0),m.cancel(),e.contains(this.b)&&this.b.remove(),t.remove()},C=ee(this,V.any(n.onDidActiveEditorChange,n.onDidModelChange)),h=Y({},l=>{C.read(l);const u=n.activeEditorPane,p=u?.input.editorId==="mainThreadWebview-simpleBrowser.view",f=u?.input.editorId==="mainThreadWebview-browserPreview";if(p||f){const I=u.input,L=p?"simpleBrowser":"livePreview";return{webviewId:I.webview.container.id,browserType:L}}}),w=Ce(ve.enabled.key,this.f),y=Ee("chat.sendElementsToChat.enabled",!0,this.c);this.a.add(F(l=>{const u=h.read(l),p=w.read(l),f=y.read(l);if(!p||!f||!u){b();return}E({webviewId:u.webviewId},u.browserType)}))}dispose(){this.a.dispose()}};M=j([r(2,K),r(3,U),r(4,G),r(5,z)],M);let H=class{static{this.ID="chat.simpleBrowser.overlay"}constructor(e,n){this.a=new A;const o=Z(this,V.any(e.onDidAddGroup,e.onDidRemoveGroup),()=>e.groups),s=this.a.add(new Q);this.a.add(F(a=>{const c=new Set(s.keys()),d=o.read(a);for(const t of d)if(t instanceof se&&(c.delete(t),!s.has(t))){const m=n.createChild(new ie([z,t.scopedContextKeyService])),E=t.element,b=m.createInstance(M,E,t);s.set(t,J(b,m))}for(const t of c)s.deleteAndDispose(t)}))}dispose(){this.a.dispose()}};H=j([r(0,ne),r(1,K)],H);export{H as $_pc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/simpleBrowserOverlay.css";
+import { combinedDisposable, DisposableMap, DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, derivedOpts, observableFromEvent, observableSignalFromEvent } from "../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { localize } from "../../../../../nls.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { EditorGroupView } from "../../../../browser/parts/editor/editorGroupView.js";
+import { Event } from "../../../../../base/common/event.js";
+import { ServiceCollection } from "../../../../../platform/instantiation/common/serviceCollection.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { joinPath } from "../../../../../base/common/resources.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+import { IChatWidgetService } from "../chat.js";
+import { Button, ButtonWithDropdown } from "../../../../../base/browser/ui/button/button.js";
+import { defaultButtonStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
+import { addDisposableListener } from "../../../../../base/browser/dom.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { cleanupOldImages, createFileForMedia } from "../chatImageUtils.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IEnvironmentService } from "../../../../../platform/environment/common/environment.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IPreferencesService } from "../../../../services/preferences/common/preferences.js";
+import { IBrowserElementsService } from "../../../../services/browserElements/browser/browserElementsService.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { toAction } from "../../../../../base/common/actions.js";
+import { getDisplayNameFromOuterHTML } from "../../../../../platform/browserElements/common/browserElements.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { observableConfigValue, observableContextKey } from "../../../../../platform/observable/common/platformObservableUtils.js";
+let SimpleBrowserOverlayWidget = class SimpleBrowserOverlayWidget2 {
+  static {
+    __name(this, "SimpleBrowserOverlayWidget");
+  }
+  constructor(_editor, _container, _hostService, _chatWidgetService, fileService, environmentService, logService, configurationService, _preferencesService, _browserElementsService, contextMenuService, telemetryService) {
+    this._editor = _editor;
+    this._container = _container;
+    this._hostService = _hostService;
+    this._chatWidgetService = _chatWidgetService;
+    this.fileService = fileService;
+    this.environmentService = environmentService;
+    this.logService = logService;
+    this.configurationService = configurationService;
+    this._preferencesService = _preferencesService;
+    this._browserElementsService = _browserElementsService;
+    this.contextMenuService = contextMenuService;
+    this.telemetryService = telemetryService;
+    this._showStore = new DisposableStore();
+    this._timeout = void 0;
+    this._activeLocator = void 0;
+    this._browserType = void 0;
+    this._showStore.add(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("chat.sendElementsToChat.enabled")) {
+        if (this.configurationService.getValue("chat.sendElementsToChat.enabled")) {
+          this.showElement(this._domNode);
+        } else {
+          this.hideElement(this._domNode);
+        }
+      }
+    }));
+    this.imagesFolder = joinPath(this.environmentService.workspaceStorageHome, "vscode-chat-images");
+    cleanupOldImages(this.fileService, this.logService, this.imagesFolder);
+    this._domNode = document.createElement("div");
+    this._domNode.className = "element-selection-message";
+    const mainContent = document.createElement("div");
+    mainContent.className = "element-selection-main-content";
+    const message = document.createElement("span");
+    const startSelectionMessage = localize("elementSelectionMessage", "Add element to chat");
+    message.textContent = startSelectionMessage;
+    mainContent.appendChild(message);
+    let cts;
+    const actions = [];
+    actions.push(toAction({
+      id: "singleSelection",
+      label: localize("selectElementDropdown", "Select an Element"),
+      enabled: true,
+      run: /* @__PURE__ */ __name(async () => {
+        await startElementSelection();
+      }, "run")
+    }), toAction({
+      id: "continuousSelection",
+      label: localize("continuousSelectionDropdown", "Continuous Selection"),
+      enabled: true,
+      run: /* @__PURE__ */ __name(async () => {
+        this._editor.focus();
+        cts = new CancellationTokenSource();
+        message.textContent = localize("elementSelectionInProgress", "Selecting element...");
+        this.hideElement(startButton.element);
+        this.showElement(cancelButton.element);
+        cancelButton.label = localize("finishSelectionLabel", "Done");
+        while (!cts.token.isCancellationRequested) {
+          try {
+            await this.addElementToChat(cts);
+          } catch (err) {
+            this.logService.error("Failed to select this element.", err);
+            cts.cancel();
+            break;
+          }
+        }
+        message.textContent = localize("elementSelectionComplete", "Element added to chat");
+        finishedSelecting();
+      }, "run")
+    }));
+    const startButton = this._showStore.add(new ButtonWithDropdown(mainContent, {
+      actions,
+      addPrimaryActionToDropdown: false,
+      contextMenuProvider: this.contextMenuService,
+      supportShortLabel: true,
+      title: localize("selectAnElement", "Click to select an element."),
+      supportIcons: true,
+      ...defaultButtonStyles
+    }));
+    startButton.primaryButton.label = localize("startSelection", "Start");
+    startButton.element.classList.add("element-selection-start");
+    const cancelButton = this._showStore.add(new Button(mainContent, { ...defaultButtonStyles, supportIcons: true, title: localize("cancelSelection", "Click to cancel selection.") }));
+    cancelButton.element.className = "element-selection-cancel hidden";
+    const cancelButtonLabel = localize("cancelSelectionLabel", "Cancel");
+    cancelButton.label = cancelButtonLabel;
+    const configure = this._showStore.add(new Button(mainContent, { supportIcons: true, title: localize("chat.configureElements", "Configure Attachments Sent") }));
+    configure.icon = Codicon.gear;
+    const collapseOverlay = this._showStore.add(new Button(mainContent, { supportIcons: true, title: localize("chat.hideOverlay", "Collapse Overlay") }));
+    collapseOverlay.icon = Codicon.chevronRight;
+    const nextSelection = this._showStore.add(new Button(mainContent, { supportIcons: true, title: localize("chat.nextSelection", "Select Again") }));
+    nextSelection.icon = Codicon.close;
+    nextSelection.element.classList.add("hidden");
+    const expandContainer = document.createElement("div");
+    expandContainer.className = "element-expand-container hidden";
+    const expandOverlay = this._showStore.add(new Button(expandContainer, { supportIcons: true, title: localize("chat.expandOverlay", "Expand Overlay") }));
+    expandOverlay.icon = Codicon.layout;
+    this._domNode.appendChild(mainContent);
+    this._domNode.appendChild(expandContainer);
+    const resetButtons = /* @__PURE__ */ __name(() => {
+      this.hideElement(nextSelection.element);
+      this.showElement(startButton.element);
+      this.showElement(collapseOverlay.element);
+    }, "resetButtons");
+    const finishedSelecting = /* @__PURE__ */ __name(() => {
+      this.hideElement(cancelButton.element);
+      cancelButton.label = cancelButtonLabel;
+      this.hideElement(collapseOverlay.element);
+      this.showElement(nextSelection.element);
+      this._timeout = setTimeout(() => {
+        message.textContent = startSelectionMessage;
+        resetButtons();
+      }, 3e3);
+    }, "finishedSelecting");
+    const startElementSelection = /* @__PURE__ */ __name(async () => {
+      cts = new CancellationTokenSource();
+      this._editor.focus();
+      message.textContent = localize("elementSelectionInProgress", "Selecting element...");
+      this.hideElement(startButton.element);
+      this.showElement(cancelButton.element);
+      await this.addElementToChat(cts);
+      message.textContent = localize("elementSelectionComplete", "Element added to chat");
+      finishedSelecting();
+    }, "startElementSelection");
+    this._showStore.add(addDisposableListener(startButton.primaryButton.element, "click", async () => {
+      await startElementSelection();
+    }));
+    this._showStore.add(addDisposableListener(cancelButton.element, "click", () => {
+      cts.cancel();
+      message.textContent = localize("elementCancelMessage", "Selection canceled");
+      finishedSelecting();
+    }));
+    this._showStore.add(addDisposableListener(collapseOverlay.element, "click", () => {
+      this.hideElement(mainContent);
+      this.showElement(expandContainer);
+    }));
+    this._showStore.add(addDisposableListener(expandOverlay.element, "click", () => {
+      this.showElement(mainContent);
+      this.hideElement(expandContainer);
+    }));
+    this._showStore.add(addDisposableListener(nextSelection.element, "click", () => {
+      clearTimeout(this._timeout);
+      message.textContent = startSelectionMessage;
+      resetButtons();
+    }));
+    this._showStore.add(addDisposableListener(configure.element, "click", () => {
+      this._preferencesService.openSettings({ jsonEditor: false, query: "@id:chat.sendElementsToChat.enabled,chat.sendElementsToChat.attachCSS,chat.sendElementsToChat.attachImages" });
+    }));
+  }
+  setActiveLocator(locator, browserType) {
+    this._activeLocator = locator;
+    this._browserType = browserType;
+  }
+  hideElement(element) {
+    if (element.classList.contains("hidden")) {
+      return;
+    }
+    element.classList.add("hidden");
+  }
+  showElement(element) {
+    if (!element.classList.contains("hidden")) {
+      return;
+    }
+    element.classList.remove("hidden");
+  }
+  async addElementToChat(cts) {
+    this.telemetryService.publicLog2("simpleBrowser.addElementToChat.start", {
+      browserType: this._browserType
+    });
+    const editorContainer = this._container.querySelector(".editor-container");
+    const editorContainerPosition = editorContainer ? editorContainer.getBoundingClientRect() : this._container.getBoundingClientRect();
+    const elementData = await this._browserElementsService.getElementData({
+      x: editorContainerPosition.x,
+      y: editorContainerPosition.y + 32.4,
+      // Height of the title bar
+      width: editorContainerPosition.width,
+      height: editorContainerPosition.height - 32.4
+    }, cts.token, this._activeLocator);
+    if (!elementData) {
+      throw new Error("Element data not found");
+    }
+    const bounds = elementData.bounds;
+    const toAttach = [];
+    const widget = await this._chatWidgetService.revealWidget() ?? this._chatWidgetService.lastFocusedWidget;
+    const attachCss = this.configurationService.getValue("chat.sendElementsToChat.attachCSS");
+    let value = (attachCss ? "Attached HTML and CSS Context" : "Attached HTML Context") + "\n\n" + elementData.outerHTML;
+    if (attachCss) {
+      value += "\n\n" + elementData.computedStyle;
+    }
+    const displayName = getDisplayNameFromOuterHTML(elementData.outerHTML);
+    toAttach.push({
+      id: "element-" + Date.now(),
+      name: displayName,
+      fullName: displayName,
+      value,
+      kind: "element",
+      icon: ThemeIcon.fromId(Codicon.layout.id)
+    });
+    if (this.configurationService.getValue("chat.sendElementsToChat.attachImages")) {
+      this._domNode.style.display = "none";
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const screenshot = await this._hostService.getScreenshot(bounds);
+      if (!screenshot) {
+        throw new Error("Screenshot failed");
+      }
+      const fileReference = await createFileForMedia(this.fileService, this.imagesFolder, screenshot.buffer, "image/png");
+      toAttach.push({
+        id: "element-screenshot-" + Date.now(),
+        name: "Element Screenshot",
+        fullName: "Element Screenshot",
+        kind: "image",
+        value: screenshot.buffer,
+        references: fileReference ? [{ reference: fileReference, kind: "reference" }] : []
+      });
+      this._domNode.style.display = "";
+    }
+    widget?.attachmentModel?.addContext(...toAttach);
+    this.telemetryService.publicLog2("simpleBrowser.addElementToChat.added", {
+      browserType: this._browserType,
+      attachCss,
+      attachImages: this.configurationService.getValue("chat.sendElementsToChat.attachImages") ?? false
+    });
+  }
+  dispose() {
+    this._showStore.dispose();
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+};
+SimpleBrowserOverlayWidget = __decorate([
+  __param(2, IHostService),
+  __param(3, IChatWidgetService),
+  __param(4, IFileService),
+  __param(5, IEnvironmentService),
+  __param(6, ILogService),
+  __param(7, IConfigurationService),
+  __param(8, IPreferencesService),
+  __param(9, IBrowserElementsService),
+  __param(10, IContextMenuService),
+  __param(11, ITelemetryService)
+], SimpleBrowserOverlayWidget);
+let SimpleBrowserOverlayController = class SimpleBrowserOverlayController2 {
+  static {
+    __name(this, "SimpleBrowserOverlayController");
+  }
+  constructor(container, group, instaService, configurationService, _browserElementsService, contextKeyService) {
+    this.configurationService = configurationService;
+    this._browserElementsService = _browserElementsService;
+    this.contextKeyService = contextKeyService;
+    this._store = new DisposableStore();
+    this._domNode = document.createElement("div");
+    this._domNode.classList.add("chat-simple-browser-overlay");
+    this._domNode.style.position = "absolute";
+    this._domNode.style.bottom = `5px`;
+    this._domNode.style.right = `5px`;
+    this._domNode.style.zIndex = `100`;
+    const widget = instaService.createInstance(SimpleBrowserOverlayWidget, group, container);
+    this._domNode.appendChild(widget.getDomNode());
+    this._store.add(toDisposable(() => this._domNode.remove()));
+    this._store.add(widget);
+    const connectingWebviewElement = document.createElement("div");
+    connectingWebviewElement.className = "connecting-webview-element";
+    let cts = new CancellationTokenSource();
+    const show = /* @__PURE__ */ __name(async (locator, browserType) => {
+      widget.setActiveLocator(locator, browserType);
+      connectingWebviewElement.textContent = localize("connectingWebviewElement", "Connecting to webview...");
+      if (!container.contains(connectingWebviewElement)) {
+        container.appendChild(connectingWebviewElement);
+      }
+      cts.cancel();
+      cts = new CancellationTokenSource();
+      try {
+        await this._browserElementsService.startDebugSession(cts.token, locator);
+      } catch (error) {
+        connectingWebviewElement.textContent = localize("reopenErrorWebviewElement", "Please reopen the preview.");
+        return;
+      }
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      if (!container.contains(this._domNode)) {
+        container.appendChild(this._domNode);
+      }
+      connectingWebviewElement.remove();
+    }, "show");
+    const hide = /* @__PURE__ */ __name(() => {
+      widget.setActiveLocator(void 0, void 0);
+      cts.cancel();
+      if (container.contains(this._domNode)) {
+        this._domNode.remove();
+      }
+      connectingWebviewElement.remove();
+    }, "hide");
+    const activeEditorSignal = observableSignalFromEvent(this, Event.any(group.onDidActiveEditorChange, group.onDidModelChange));
+    const activeIdObs = derivedOpts({}, (r) => {
+      activeEditorSignal.read(r);
+      const editor = group.activeEditorPane;
+      const isSimpleBrowser = editor?.input.editorId === "mainThreadWebview-simpleBrowser.view";
+      const isLiveServer = editor?.input.editorId === "mainThreadWebview-browserPreview";
+      if (isSimpleBrowser || isLiveServer) {
+        const webviewInput = editor.input;
+        const browserType = isSimpleBrowser ? "simpleBrowser" : "livePreview";
+        return { webviewId: webviewInput.webview.container.id, browserType };
+      }
+      return void 0;
+    });
+    const chatEnabledObs = observableContextKey(ChatContextKeys.enabled.key, this.contextKeyService);
+    const sendElementsEnabledObs = observableConfigValue("chat.sendElementsToChat.enabled", true, this.configurationService);
+    this._store.add(autorun((r) => {
+      const activeEditor = activeIdObs.read(r);
+      const isChatEnabled = chatEnabledObs.read(r);
+      const isSendElementsEnabled = sendElementsEnabledObs.read(r);
+      if (!isChatEnabled || !isSendElementsEnabled || !activeEditor) {
+        hide();
+        return;
+      }
+      show({ webviewId: activeEditor.webviewId }, activeEditor.browserType);
+    }));
+  }
+  dispose() {
+    this._store.dispose();
+  }
+};
+SimpleBrowserOverlayController = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IConfigurationService),
+  __param(4, IBrowserElementsService),
+  __param(5, IContextKeyService)
+], SimpleBrowserOverlayController);
+let SimpleBrowserOverlay = class SimpleBrowserOverlay2 {
+  static {
+    __name(this, "SimpleBrowserOverlay");
+  }
+  static {
+    this.ID = "chat.simpleBrowser.overlay";
+  }
+  constructor(editorGroupsService, instantiationService) {
+    this._store = new DisposableStore();
+    const editorGroups = observableFromEvent(this, Event.any(editorGroupsService.onDidAddGroup, editorGroupsService.onDidRemoveGroup), () => editorGroupsService.groups);
+    const overlayWidgets = this._store.add(new DisposableMap());
+    this._store.add(autorun((r) => {
+      const toDelete = new Set(overlayWidgets.keys());
+      const groups = editorGroups.read(r);
+      for (const group of groups) {
+        if (!(group instanceof EditorGroupView)) {
+          continue;
+        }
+        toDelete.delete(group);
+        if (!overlayWidgets.has(group)) {
+          const scopedInstaService = instantiationService.createChild(new ServiceCollection([IContextKeyService, group.scopedContextKeyService]));
+          const container = group.element;
+          const ctrl = scopedInstaService.createInstance(SimpleBrowserOverlayController, container, group);
+          overlayWidgets.set(group, combinedDisposable(ctrl, scopedInstaService));
+        }
+      }
+      for (const group of toDelete) {
+        overlayWidgets.deleteAndDispose(group);
+      }
+    }));
+  }
+  dispose() {
+    this._store.dispose();
+  }
+};
+SimpleBrowserOverlay = __decorate([
+  __param(0, IEditorGroupsService),
+  __param(1, IInstantiationService)
+], SimpleBrowserOverlay);
+export {
+  SimpleBrowserOverlay
+};
+//# sourceMappingURL=simpleBrowserEditorOverlay.js.map

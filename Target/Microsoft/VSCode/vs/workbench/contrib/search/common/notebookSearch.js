@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("notebookSearchService");export{r as $ekc};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const INotebookSearchService = createDecorator("notebookSearchService");
+export {
+  INotebookSearchService
+};
+//# sourceMappingURL=notebookSearch.js.map

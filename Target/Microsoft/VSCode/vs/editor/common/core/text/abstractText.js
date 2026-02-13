@@ -1,3 +1,117 @@
-import{$2c as g}from"../../../../base/common/assert.js";import{$$f as h}from"../../../../base/common/strings.js";import{$$D as o}from"../position.js";import{$_D as s}from"../range.js";import{$lE as a}from"../text/textLength.js";import{$oE as i}from"./positionToOffsetImpl.js";class u{constructor(){this.a=void 0}get endPositionExclusive(){return this.length.addToPosition(new o(1,1))}get lineRange(){return this.length.toLineRange()}getValue(){return this.getValueOfRange(this.length.toRange())}getValueOfOffsetRange(t){return this.getValueOfRange(this.getTransformer().getRange(t))}getLineLength(t){return this.getValueOfRange(new s(t,1,t,Number.MAX_SAFE_INTEGER)).length}getTransformer(){return this.a||(this.a=new i(this.getValue())),this.a}getLineAt(t){return this.getValueOfRange(new s(t,1,t,Number.MAX_SAFE_INTEGER))}getLines(){const t=this.getValue();return h(t)}getLinesOfRange(t){return t.mapToLineArray(e=>this.getLineAt(e))}equals(t){return this===t?!0:this.getValue()===t.getValue()}}class l extends u{constructor(t,e){g(e>=1),super(),this.b=t,this.c=e}getValueOfRange(t){if(t.startLineNumber===t.endLineNumber)return this.b(t.startLineNumber).substring(t.startColumn-1,t.endColumn-1);let e=this.b(t.startLineNumber).substring(t.startColumn-1);for(let r=t.startLineNumber+1;r<t.endLineNumber;r++)e+=`
-`+this.b(r);return e+=`
-`+this.b(t.endLineNumber).substring(0,t.endColumn-1),e}getLineLength(t){return this.b(t).length}get length(){const t=this.b(this.c);return new a(this.c-1,t.length)}}class R extends l{constructor(t){super(e=>t[e-1],t.length)}}class d extends u{constructor(t){super(),this.value=t,this.b=new i(this.value)}getValueOfRange(t){return this.b.getOffsetRange(t).substring(this.value)}get length(){return this.b.textLength}getTransformer(){return this.b}}export{u as $pE,l as $qE,R as $rE,d as $sE};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assert } from "../../../../base/common/assert.js";
+import { splitLines } from "../../../../base/common/strings.js";
+import { Position } from "../position.js";
+import { Range } from "../range.js";
+import { TextLength } from "../text/textLength.js";
+import { PositionOffsetTransformer } from "./positionToOffsetImpl.js";
+class AbstractText {
+  static {
+    __name(this, "AbstractText");
+  }
+  constructor() {
+    this._transformer = void 0;
+  }
+  get endPositionExclusive() {
+    return this.length.addToPosition(new Position(1, 1));
+  }
+  get lineRange() {
+    return this.length.toLineRange();
+  }
+  getValue() {
+    return this.getValueOfRange(this.length.toRange());
+  }
+  getValueOfOffsetRange(range) {
+    return this.getValueOfRange(this.getTransformer().getRange(range));
+  }
+  getLineLength(lineNumber) {
+    return this.getValueOfRange(new Range(lineNumber, 1, lineNumber, Number.MAX_SAFE_INTEGER)).length;
+  }
+  getTransformer() {
+    if (!this._transformer) {
+      this._transformer = new PositionOffsetTransformer(this.getValue());
+    }
+    return this._transformer;
+  }
+  getLineAt(lineNumber) {
+    return this.getValueOfRange(new Range(lineNumber, 1, lineNumber, Number.MAX_SAFE_INTEGER));
+  }
+  getLines() {
+    const value = this.getValue();
+    return splitLines(value);
+  }
+  getLinesOfRange(range) {
+    return range.mapToLineArray((lineNumber) => this.getLineAt(lineNumber));
+  }
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    return this.getValue() === other.getValue();
+  }
+}
+class LineBasedText extends AbstractText {
+  static {
+    __name(this, "LineBasedText");
+  }
+  constructor(_getLineContent, _lineCount) {
+    assert(_lineCount >= 1);
+    super();
+    this._getLineContent = _getLineContent;
+    this._lineCount = _lineCount;
+  }
+  getValueOfRange(range) {
+    if (range.startLineNumber === range.endLineNumber) {
+      return this._getLineContent(range.startLineNumber).substring(range.startColumn - 1, range.endColumn - 1);
+    }
+    let result = this._getLineContent(range.startLineNumber).substring(range.startColumn - 1);
+    for (let i = range.startLineNumber + 1; i < range.endLineNumber; i++) {
+      result += "\n" + this._getLineContent(i);
+    }
+    result += "\n" + this._getLineContent(range.endLineNumber).substring(0, range.endColumn - 1);
+    return result;
+  }
+  getLineLength(lineNumber) {
+    return this._getLineContent(lineNumber).length;
+  }
+  get length() {
+    const lastLine = this._getLineContent(this._lineCount);
+    return new TextLength(this._lineCount - 1, lastLine.length);
+  }
+}
+class ArrayText extends LineBasedText {
+  static {
+    __name(this, "ArrayText");
+  }
+  constructor(lines) {
+    super((lineNumber) => lines[lineNumber - 1], lines.length);
+  }
+}
+class StringText extends AbstractText {
+  static {
+    __name(this, "StringText");
+  }
+  constructor(value) {
+    super();
+    this.value = value;
+    this._t = new PositionOffsetTransformer(this.value);
+  }
+  getValueOfRange(range) {
+    return this._t.getOffsetRange(range).substring(this.value);
+  }
+  get length() {
+    return this._t.textLength;
+  }
+  // Override the getTransformer method to return the cached transformer
+  getTransformer() {
+    return this._t;
+  }
+}
+export {
+  AbstractText,
+  ArrayText,
+  LineBasedText,
+  StringText
+};
+//# sourceMappingURL=abstractText.js.map

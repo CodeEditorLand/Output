@@ -1,1 +1,16 @@
-import{localize as o}from"../../../../nls.js";import{$2p as r,$2q as n,$Yq as t,$Vq as e}from"../../../../platform/theme/common/colorRegistry.js";import{$vs as l,$ws as c}from"../../../../platform/theme/common/colors/chartsColors.js";const $=r("markdownAlert.note.foreground",n,o(9995,null)),d=r("markdownAlert.tip.foreground",l,o(9996,null)),a=r("markdownAlert.important.foreground",c,o(9997,null)),f=r("markdownAlert.warning.foreground",t,o(9998,null)),i=r("markdownAlert.caution.foreground",e,o(9999,null));export{$ as $rHc,d as $sHc,a as $tHc,f as $uHc,i as $vHc};
+import { localize } from "../../../../nls.js";
+import { registerColor, editorInfoForeground, editorWarningForeground, editorErrorForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import { chartsGreen, chartsPurple } from "../../../../platform/theme/common/colors/chartsColors.js";
+const markdownAlertNoteColor = registerColor("markdownAlert.note.foreground", editorInfoForeground, localize("markdownAlertNoteForeground", "Foreground color for note alerts in markdown."));
+const markdownAlertTipColor = registerColor("markdownAlert.tip.foreground", chartsGreen, localize("markdownAlertTipForeground", "Foreground color for tip alerts in markdown."));
+const markdownAlertImportantColor = registerColor("markdownAlert.important.foreground", chartsPurple, localize("markdownAlertImportantForeground", "Foreground color for important alerts in markdown."));
+const markdownAlertWarningColor = registerColor("markdownAlert.warning.foreground", editorWarningForeground, localize("markdownAlertWarningForeground", "Foreground color for warning alerts in markdown."));
+const markdownAlertCautionColor = registerColor("markdownAlert.caution.foreground", editorErrorForeground, localize("markdownAlertCautionForeground", "Foreground color for caution alerts in markdown."));
+export {
+  markdownAlertCautionColor,
+  markdownAlertImportantColor,
+  markdownAlertNoteColor,
+  markdownAlertTipColor,
+  markdownAlertWarningColor
+};
+//# sourceMappingURL=markdownColors.js.map

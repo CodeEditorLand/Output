@@ -1,1 +1,167 @@
-import{localize as h}from"../../../../nls.js";import{$Ed as $}from"../../../../base/common/lifecycle.js";import{$jm as b}from"../../../../platform/registry/common/platform.js";import{$Kj as y}from"../../../../platform/instantiation/common/descriptors.js";import{$2N as R}from"../../../common/contributions.js";import{$aSb as v}from"../../../browser/editor.js";import{$9M as S}from"../../../common/editor.js";import{$dO as C,RegisteredEditorPriority as W}from"../../../services/editor/common/editorResolverService.js";import{$0l as D}from"../../../../platform/configuration/common/configuration.js";import{$Mj as f}from"../../../../platform/instantiation/common/instantiation.js";import{$BL as w}from"../../../services/editor/common/editorService.js";import{$xL as P}from"../../../services/editor/common/editorGroupsService.js";import{$ro as O}from"../../../../platform/contextkey/common/contextkey.js";import{$nP as _}from"../../../common/contextkeys.js";import{$hp as j}from"../../../../platform/storage/common/storage.js";import{$mIc as c}from"./agentSessionsWelcomeInput.js";import{$nIc as p,$oIc as k}from"./agentSessionsWelcome.js";import{$vL as A,$wL as x}from"../../../../platform/actions/common/actions.js";import{ChatContextKeys as K}from"../../chat/common/actions/chatContextKeys.js";import{$Ml as d}from"../../../../platform/workspace/common/workspace.js";import{$JP as M}from"../../../services/chat/common/chatEntitlementService.js";var E=function(s,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,t,e,r);else for(var m=s.length-1;m>=0;m--)(a=s[m])&&(o=(i<3?a(o):i>3?a(t,e,o):a(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},n=function(s,t){return function(e,r){t(e,r,s)}};const L="workbench.editors.agentSessionsWelcomeInput";b.as(S.EditorFactory).registerEditorSerializer(L,k);b.as(S.EditorPane).registerEditorPane(v.create(p,p.ID,h(15029,null)),[new y(c)]);const g=s=>{switch(s.getWorkbenchState()){case 1:return"empty";case 2:return"folder";case 3:return"workspace";default:return"empty"}};let u=class extends ${static{this.ID="workbench.contrib.agentSessionsWelcomeEditorResolver"}constructor(t,e,r){super(),this.D(t.registerEditor(`${c.RESOURCE.scheme}:${c.RESOURCE.authority}/**`,{id:p.ID,label:h(15030,null),priority:W.builtin},{singlePerResource:!0,canSupportResource:i=>i.scheme===c.RESOURCE.scheme&&i.authority===c.RESOURCE.authority},{createEditorInput:()=>({editor:e.createInstance(c,{workspaceKind:g(r)})})}))}};u=E([n(0,C),n(1,f),n(2,d)],u);x(class extends A{constructor(){super({id:p.COMMAND_ID,title:h(15031,null),precondition:K.enabled})}async run(t){const e=t.get(w),r=t.get(f),i=t.get(d),o=r.createInstance(c,{initiator:"command",workspaceKind:g(i)});await e.openEditor(o,{pinned:!0})}});let l=class extends ${static{this.ID="workbench.contrib.agentSessionsWelcomeRunner"}constructor(t,e,r,i,o,a,m,I){super(),this.a=t,this.b=e,this.c=r,this.f=i,this.g=o,this.h=a,this.j=m,this.m=I,this.n()}async n(){if(this.m.sentiment.hidden||this.a.getValue("workbench.startupEditor")!=="agentSessionsWelcomePage"||(await this.c.whenReady,_.getValue(this.g)))return;const e=!!this.h.get("chat.welcomeViewPrefill",-1);if(this.b.activeEditor&&!e)return;const r=this.f.createInstance(c,{initiator:"startup",workspaceKind:g(this.j)});await this.b.openEditor(r,{pinned:!1})}};l=E([n(0,D),n(1,w),n(2,P),n(3,f),n(4,O),n(5,j),n(6,d),n(7,M)],l);R(u.ID,u,1);R(l.ID,l,3);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { AuxiliaryBarMaximizedContext } from "../../../common/contextkeys.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { AgentSessionsWelcomeInput } from "./agentSessionsWelcomeInput.js";
+import { AgentSessionsWelcomePage, AgentSessionsWelcomeInputSerializer } from "./agentSessionsWelcome.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
+const agentSessionsWelcomeInputTypeId = "workbench.editors.agentSessionsWelcomeInput";
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(agentSessionsWelcomeInputTypeId, AgentSessionsWelcomeInputSerializer);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(AgentSessionsWelcomePage, AgentSessionsWelcomePage.ID, localize("agentSessionsWelcome", "Agent Sessions Welcome")), [
+  new SyncDescriptor(AgentSessionsWelcomeInput)
+]);
+const getWorkspaceKind = /* @__PURE__ */ __name((workspaceContextService) => {
+  const state = workspaceContextService.getWorkbenchState();
+  switch (state) {
+    case 1:
+      return "empty";
+    case 2:
+      return "folder";
+    case 3:
+      return "workspace";
+    default:
+      return "empty";
+  }
+}, "getWorkspaceKind");
+let AgentSessionsWelcomeEditorResolverContribution = class AgentSessionsWelcomeEditorResolverContribution2 extends Disposable {
+  static {
+    __name(this, "AgentSessionsWelcomeEditorResolverContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.agentSessionsWelcomeEditorResolver";
+  }
+  constructor(editorResolverService, instantiationService, workspaceContextService) {
+    super();
+    this._register(editorResolverService.registerEditor(`${AgentSessionsWelcomeInput.RESOURCE.scheme}:${AgentSessionsWelcomeInput.RESOURCE.authority}/**`, {
+      id: AgentSessionsWelcomePage.ID,
+      label: localize("agentSessionsWelcome.displayName", "Agent Sessions Welcome"),
+      priority: RegisteredEditorPriority.builtin
+    }, {
+      singlePerResource: true,
+      canSupportResource: /* @__PURE__ */ __name((resource) => resource.scheme === AgentSessionsWelcomeInput.RESOURCE.scheme && resource.authority === AgentSessionsWelcomeInput.RESOURCE.authority, "canSupportResource")
+    }, {
+      createEditorInput: /* @__PURE__ */ __name(() => {
+        return {
+          editor: instantiationService.createInstance(AgentSessionsWelcomeInput, { workspaceKind: getWorkspaceKind(workspaceContextService) })
+        };
+      }, "createEditorInput")
+    }));
+  }
+};
+AgentSessionsWelcomeEditorResolverContribution = __decorate([
+  __param(0, IEditorResolverService),
+  __param(1, IInstantiationService),
+  __param(2, IWorkspaceContextService)
+], AgentSessionsWelcomeEditorResolverContribution);
+registerAction2(class OpenAgentSessionsWelcomeAction extends Action2 {
+  static {
+    __name(this, "OpenAgentSessionsWelcomeAction");
+  }
+  constructor() {
+    super({
+      id: AgentSessionsWelcomePage.COMMAND_ID,
+      title: localize("openAgentSessionsWelcome", "Open Agent Sessions Welcome"),
+      precondition: ChatContextKeys.enabled
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const workspaceContextService = accessor.get(IWorkspaceContextService);
+    const input = instantiationService.createInstance(AgentSessionsWelcomeInput, { initiator: "command", workspaceKind: getWorkspaceKind(workspaceContextService) });
+    await editorService.openEditor(input, { pinned: true });
+  }
+});
+let AgentSessionsWelcomeRunnerContribution = class AgentSessionsWelcomeRunnerContribution2 extends Disposable {
+  static {
+    __name(this, "AgentSessionsWelcomeRunnerContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.agentSessionsWelcomeRunner";
+  }
+  constructor(configurationService, editorService, editorGroupsService, instantiationService, contextKeyService, storageService, workspaceContextService, chatEntitlementService) {
+    super();
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.editorGroupsService = editorGroupsService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.storageService = storageService;
+    this.workspaceContextService = workspaceContextService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.run();
+  }
+  async run() {
+    if (this.chatEntitlementService.sentiment.hidden) {
+      return;
+    }
+    const startupEditor = this.configurationService.getValue("workbench.startupEditor");
+    if (startupEditor !== "agentSessionsWelcomePage") {
+      return;
+    }
+    await this.editorGroupsService.whenReady;
+    if (AuxiliaryBarMaximizedContext.getValue(this.contextKeyService)) {
+      return;
+    }
+    const hasPrefillData = !!this.storageService.get(
+      "chat.welcomeViewPrefill",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (this.editorService.activeEditor && !hasPrefillData) {
+      return;
+    }
+    const input = this.instantiationService.createInstance(AgentSessionsWelcomeInput, { initiator: "startup", workspaceKind: getWorkspaceKind(this.workspaceContextService) });
+    await this.editorService.openEditor(input, { pinned: false });
+  }
+};
+AgentSessionsWelcomeRunnerContribution = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IEditorService),
+  __param(2, IEditorGroupsService),
+  __param(3, IInstantiationService),
+  __param(4, IContextKeyService),
+  __param(5, IStorageService),
+  __param(6, IWorkspaceContextService),
+  __param(7, IChatEntitlementService)
+], AgentSessionsWelcomeRunnerContribution);
+registerWorkbenchContribution2(
+  AgentSessionsWelcomeEditorResolverContribution.ID,
+  AgentSessionsWelcomeEditorResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerWorkbenchContribution2(
+  AgentSessionsWelcomeRunnerContribution.ID,
+  AgentSessionsWelcomeRunnerContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+//# sourceMappingURL=agentSessionsWelcome.contribution.js.map

@@ -1,1 +1,87 @@
-import{localize as n}from"../../../nls.js";import{Event as t}from"../../../base/common/event.js";import E from"../../../base/common/severity.js";import{$Nj as O}from"../../instantiation/common/instantiation.js";var s=E;const L=O("notificationService");var u;(function(e){e[e.DEFAULT=0]="DEFAULT",e[e.OPTIONAL=1]="OPTIONAL",e[e.SILENT=2]="SILENT",e[e.URGENT=3]="URGENT"})(u||(u={}));var p;(function(e){e[e.WORKSPACE=0]="WORKSPACE",e[e.PROFILE=1]="PROFILE",e[e.APPLICATION=2]="APPLICATION"})(p||(p={}));function T(e){if(e){const r=e;return typeof r.id=="string"&&typeof r.label=="string"}return!1}var o;(function(e){e[e.OFF=0]="OFF",e[e.ERROR=1]="ERROR"})(o||(o={}));class f{constructor(){this.progress=new l,this.onDidClose=t.None,this.onDidChangeVisibility=t.None}updateSeverity(r){}updateMessage(r){}updateActions(r){}close(){}}class l{infinite(){}done(){}total(r){}worked(r){}}function m(e,r){return r===s.Error?n(2250,null,e):r===s.Warning?n(2251,null,e):n(2252,null,e)}export{L as $pH,T as $qH,f as $rH,l as $sH,m as $tH,p as NeverShowAgainScope,u as NotificationPriority,o as NotificationsFilter,s as Severity};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../nls.js";
+import { Event } from "../../../base/common/event.js";
+import BaseSeverity from "../../../base/common/severity.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+var Severity = BaseSeverity;
+const INotificationService = createDecorator("notificationService");
+var NotificationPriority;
+(function(NotificationPriority2) {
+  NotificationPriority2[NotificationPriority2["DEFAULT"] = 0] = "DEFAULT";
+  NotificationPriority2[NotificationPriority2["OPTIONAL"] = 1] = "OPTIONAL";
+  NotificationPriority2[NotificationPriority2["SILENT"] = 2] = "SILENT";
+  NotificationPriority2[NotificationPriority2["URGENT"] = 3] = "URGENT";
+})(NotificationPriority || (NotificationPriority = {}));
+var NeverShowAgainScope;
+(function(NeverShowAgainScope2) {
+  NeverShowAgainScope2[NeverShowAgainScope2["WORKSPACE"] = 0] = "WORKSPACE";
+  NeverShowAgainScope2[NeverShowAgainScope2["PROFILE"] = 1] = "PROFILE";
+  NeverShowAgainScope2[NeverShowAgainScope2["APPLICATION"] = 2] = "APPLICATION";
+})(NeverShowAgainScope || (NeverShowAgainScope = {}));
+function isNotificationSource(thing) {
+  if (thing) {
+    const candidate = thing;
+    return typeof candidate.id === "string" && typeof candidate.label === "string";
+  }
+  return false;
+}
+__name(isNotificationSource, "isNotificationSource");
+var NotificationsFilter;
+(function(NotificationsFilter2) {
+  NotificationsFilter2[NotificationsFilter2["OFF"] = 0] = "OFF";
+  NotificationsFilter2[NotificationsFilter2["ERROR"] = 1] = "ERROR";
+})(NotificationsFilter || (NotificationsFilter = {}));
+class NoOpNotification {
+  static {
+    __name(this, "NoOpNotification");
+  }
+  constructor() {
+    this.progress = new NoOpProgress();
+    this.onDidClose = Event.None;
+    this.onDidChangeVisibility = Event.None;
+  }
+  updateSeverity(severity) {
+  }
+  updateMessage(message) {
+  }
+  updateActions(actions) {
+  }
+  close() {
+  }
+}
+class NoOpProgress {
+  static {
+    __name(this, "NoOpProgress");
+  }
+  infinite() {
+  }
+  done() {
+  }
+  total(value) {
+  }
+  worked(value) {
+  }
+}
+function withSeverityPrefix(label, severity) {
+  if (severity === Severity.Error) {
+    return localize("severityPrefix.error", "Error: {0}", label);
+  }
+  if (severity === Severity.Warning) {
+    return localize("severityPrefix.warning", "Warning: {0}", label);
+  }
+  return localize("severityPrefix.info", "Info: {0}", label);
+}
+__name(withSeverityPrefix, "withSeverityPrefix");
+export {
+  INotificationService,
+  NeverShowAgainScope,
+  NoOpNotification,
+  NoOpProgress,
+  NotificationPriority,
+  NotificationsFilter,
+  Severity,
+  isNotificationSource,
+  withSeverityPrefix
+};
+//# sourceMappingURL=notification.js.map

@@ -1,1 +1,170 @@
-import{$vb as l}from"../../../../base/common/errors.js";import{$K1 as h}from"./es5ClassCompat.js";var o=function(s,t,e,r){var i=arguments.length,n=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(s,t,e,r);else for(var c=s.length-1;c>=0;c--)(u=s[c])&&(n=(i<3?u(n):i>3?u(t,e,n):u(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},f;let a=f=class{static Min(...t){if(t.length===0)throw new TypeError;let e=t[0];for(let r=1;r<t.length;r++){const i=t[r];i.isBefore(e)&&(e=i)}return e}static Max(...t){if(t.length===0)throw new TypeError;let e=t[0];for(let r=1;r<t.length;r++){const i=t[r];i.isAfter(e)&&(e=i)}return e}static isPosition(t){if(!t)return!1;if(t instanceof f)return!0;const{line:e,character:r}=t;return typeof e=="number"&&typeof r=="number"}static of(t){if(t instanceof f)return t;if(this.isPosition(t))return new f(t.line,t.character);throw new Error("Invalid argument, is NOT a position-like object")}get line(){return this.a}get character(){return this.b}constructor(t,e){if(t<0)throw l("line must be non-negative");if(e<0)throw l("character must be non-negative");this.a=t,this.b=e}isBefore(t){return this.a<t.a?!0:t.a<this.a?!1:this.b<t.b}isBeforeOrEqual(t){return this.a<t.a?!0:t.a<this.a?!1:this.b<=t.b}isAfter(t){return!this.isBeforeOrEqual(t)}isAfterOrEqual(t){return!this.isBefore(t)}isEqual(t){return this.a===t.a&&this.b===t.b}compareTo(t){return this.a<t.a?-1:this.a>t.line?1:this.b<t.b?-1:this.b>t.b?1:0}translate(t,e=0){if(t===null||e===null)throw l();let r;return typeof t>"u"?r=0:typeof t=="number"?r=t:(r=typeof t.lineDelta=="number"?t.lineDelta:0,e=typeof t.characterDelta=="number"?t.characterDelta:0),r===0&&e===0?this:new f(this.line+r,this.character+e)}with(t,e=this.character){if(t===null||e===null)throw l();let r;return typeof t>"u"?r=this.line:typeof t=="number"?r=t:(r=typeof t.line=="number"?t.line:this.line,e=typeof t.character=="number"?t.character:this.character),r===this.line&&e===this.character?this:new f(r,e)}toJSON(){return{line:this.line,character:this.character}}[Symbol.for("debug.description")](){return`(${this.line}:${this.character})`}};a=f=o([h],a);export{a as $L1};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Position_1;
+import { illegalArgument } from "../../../../base/common/errors.js";
+import { es5ClassCompat } from "./es5ClassCompat.js";
+let Position = Position_1 = class Position2 {
+  static {
+    __name(this, "Position");
+  }
+  static Min(...positions) {
+    if (positions.length === 0) {
+      throw new TypeError();
+    }
+    let result = positions[0];
+    for (let i = 1; i < positions.length; i++) {
+      const p = positions[i];
+      if (p.isBefore(result)) {
+        result = p;
+      }
+    }
+    return result;
+  }
+  static Max(...positions) {
+    if (positions.length === 0) {
+      throw new TypeError();
+    }
+    let result = positions[0];
+    for (let i = 1; i < positions.length; i++) {
+      const p = positions[i];
+      if (p.isAfter(result)) {
+        result = p;
+      }
+    }
+    return result;
+  }
+  static isPosition(other) {
+    if (!other) {
+      return false;
+    }
+    if (other instanceof Position_1) {
+      return true;
+    }
+    const { line, character } = other;
+    if (typeof line === "number" && typeof character === "number") {
+      return true;
+    }
+    return false;
+  }
+  static of(obj) {
+    if (obj instanceof Position_1) {
+      return obj;
+    } else if (this.isPosition(obj)) {
+      return new Position_1(obj.line, obj.character);
+    }
+    throw new Error("Invalid argument, is NOT a position-like object");
+  }
+  get line() {
+    return this._line;
+  }
+  get character() {
+    return this._character;
+  }
+  constructor(line, character) {
+    if (line < 0) {
+      throw illegalArgument("line must be non-negative");
+    }
+    if (character < 0) {
+      throw illegalArgument("character must be non-negative");
+    }
+    this._line = line;
+    this._character = character;
+  }
+  isBefore(other) {
+    if (this._line < other._line) {
+      return true;
+    }
+    if (other._line < this._line) {
+      return false;
+    }
+    return this._character < other._character;
+  }
+  isBeforeOrEqual(other) {
+    if (this._line < other._line) {
+      return true;
+    }
+    if (other._line < this._line) {
+      return false;
+    }
+    return this._character <= other._character;
+  }
+  isAfter(other) {
+    return !this.isBeforeOrEqual(other);
+  }
+  isAfterOrEqual(other) {
+    return !this.isBefore(other);
+  }
+  isEqual(other) {
+    return this._line === other._line && this._character === other._character;
+  }
+  compareTo(other) {
+    if (this._line < other._line) {
+      return -1;
+    } else if (this._line > other.line) {
+      return 1;
+    } else {
+      if (this._character < other._character) {
+        return -1;
+      } else if (this._character > other._character) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  }
+  translate(lineDeltaOrChange, characterDelta = 0) {
+    if (lineDeltaOrChange === null || characterDelta === null) {
+      throw illegalArgument();
+    }
+    let lineDelta;
+    if (typeof lineDeltaOrChange === "undefined") {
+      lineDelta = 0;
+    } else if (typeof lineDeltaOrChange === "number") {
+      lineDelta = lineDeltaOrChange;
+    } else {
+      lineDelta = typeof lineDeltaOrChange.lineDelta === "number" ? lineDeltaOrChange.lineDelta : 0;
+      characterDelta = typeof lineDeltaOrChange.characterDelta === "number" ? lineDeltaOrChange.characterDelta : 0;
+    }
+    if (lineDelta === 0 && characterDelta === 0) {
+      return this;
+    }
+    return new Position_1(this.line + lineDelta, this.character + characterDelta);
+  }
+  with(lineOrChange, character = this.character) {
+    if (lineOrChange === null || character === null) {
+      throw illegalArgument();
+    }
+    let line;
+    if (typeof lineOrChange === "undefined") {
+      line = this.line;
+    } else if (typeof lineOrChange === "number") {
+      line = lineOrChange;
+    } else {
+      line = typeof lineOrChange.line === "number" ? lineOrChange.line : this.line;
+      character = typeof lineOrChange.character === "number" ? lineOrChange.character : this.character;
+    }
+    if (line === this.line && character === this.character) {
+      return this;
+    }
+    return new Position_1(line, character);
+  }
+  toJSON() {
+    return { line: this.line, character: this.character };
+  }
+  [/* @__PURE__ */ Symbol.for("debug.description")]() {
+    return `(${this.line}:${this.character})`;
+  }
+};
+Position = Position_1 = __decorate([
+  es5ClassCompat
+], Position);
+export {
+  Position
+};
+//# sourceMappingURL=position.js.map

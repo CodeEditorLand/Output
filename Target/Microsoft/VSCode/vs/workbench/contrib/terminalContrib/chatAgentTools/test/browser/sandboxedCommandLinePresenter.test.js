@@ -1,1 +1,63 @@
-import{ok as r,strictEqual as t}from"assert";import{$_Cc as d}from"../../browser/tools/commandLinePresenter/sandboxedCommandLinePresenter.js";import{$Ibb as c}from"../../../../../../base/test/common/utils.js";import{$b3c as m}from"../../../../../test/browser/workbenchTestServices.js";import{$0Cc as l}from"../../common/terminalSandboxService.js";suite("SandboxedCommandLinePresenter",()=>{const i=c();let o;const a=(s=!0)=>(o=m({},i),o.stub(l,{_serviceBrand:void 0,isEnabled:async()=>s,wrapCommand:e=>e,getSandboxConfigPath:async()=>"/tmp/sandbox.json",getTempDir:()=>{},setNeedsForceUpdateConfigFile:()=>{}}),o.createInstance(d));test("should return command line when sandboxing is enabled",async()=>{const s=a(),e='ELECTRON_RUN_AS_NODE=1 "/path/to/electron" "/path/to/srt/cli.js" TMPDIR=/tmp --settings "/tmp/sandbox.json" -c "echo hello"',n=await s.present({commandLine:{forDisplay:e},shell:"bash",os:3});r(n),t(n.commandLine,e),t(n.language,void 0),t(n.languageDisplayName,void 0)}),test("should return command line for non-sandboxed command when enabled",async()=>{const s=a(),e="echo hello",n=await s.present({commandLine:{forDisplay:e},shell:"bash",os:3});r(n),t(n.commandLine,e),t(n.language,void 0),t(n.languageDisplayName,void 0)}),test("should return undefined when sandboxing is disabled",async()=>{const e=await a(!1).present({commandLine:{forDisplay:'ELECTRON_RUN_AS_NODE=1 "/path/to/electron" "/path/to/srt/cli.js" TMPDIR=/tmp --settings "/tmp/sandbox.json" -c "echo hello"'},shell:"bash",os:3});t(e,void 0)})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ok, strictEqual } from "assert";
+import { SandboxedCommandLinePresenter } from "../../browser/tools/commandLinePresenter/sandboxedCommandLinePresenter.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { workbenchInstantiationService } from "../../../../../test/browser/workbenchTestServices.js";
+import { ITerminalSandboxService } from "../../common/terminalSandboxService.js";
+suite("SandboxedCommandLinePresenter", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  const createPresenter = /* @__PURE__ */ __name((enabled = true) => {
+    instantiationService = workbenchInstantiationService({}, store);
+    instantiationService.stub(ITerminalSandboxService, {
+      _serviceBrand: void 0,
+      isEnabled: /* @__PURE__ */ __name(async () => enabled, "isEnabled"),
+      wrapCommand: /* @__PURE__ */ __name((command) => command, "wrapCommand"),
+      getSandboxConfigPath: /* @__PURE__ */ __name(async () => "/tmp/sandbox.json", "getSandboxConfigPath"),
+      getTempDir: /* @__PURE__ */ __name(() => void 0, "getTempDir"),
+      setNeedsForceUpdateConfigFile: /* @__PURE__ */ __name(() => {
+      }, "setNeedsForceUpdateConfigFile")
+    });
+    return instantiationService.createInstance(SandboxedCommandLinePresenter);
+  }, "createPresenter");
+  test("should return command line when sandboxing is enabled", async () => {
+    const presenter = createPresenter();
+    const commandLine = 'ELECTRON_RUN_AS_NODE=1 "/path/to/electron" "/path/to/srt/cli.js" TMPDIR=/tmp --settings "/tmp/sandbox.json" -c "echo hello"';
+    const result = await presenter.present({
+      commandLine: { forDisplay: commandLine },
+      shell: "bash",
+      os: 3
+      /* OperatingSystem.Linux */
+    });
+    ok(result);
+    strictEqual(result.commandLine, commandLine);
+    strictEqual(result.language, void 0);
+    strictEqual(result.languageDisplayName, void 0);
+  });
+  test("should return command line for non-sandboxed command when enabled", async () => {
+    const presenter = createPresenter();
+    const commandLine = "echo hello";
+    const result = await presenter.present({
+      commandLine: { forDisplay: commandLine },
+      shell: "bash",
+      os: 3
+      /* OperatingSystem.Linux */
+    });
+    ok(result);
+    strictEqual(result.commandLine, commandLine);
+    strictEqual(result.language, void 0);
+    strictEqual(result.languageDisplayName, void 0);
+  });
+  test("should return undefined when sandboxing is disabled", async () => {
+    const presenter = createPresenter(false);
+    const result = await presenter.present({
+      commandLine: { forDisplay: 'ELECTRON_RUN_AS_NODE=1 "/path/to/electron" "/path/to/srt/cli.js" TMPDIR=/tmp --settings "/tmp/sandbox.json" -c "echo hello"' },
+      shell: "bash",
+      os: 3
+      /* OperatingSystem.Linux */
+    });
+    strictEqual(result, void 0);
+  });
+});
+//# sourceMappingURL=sandboxedCommandLinePresenter.test.js.map

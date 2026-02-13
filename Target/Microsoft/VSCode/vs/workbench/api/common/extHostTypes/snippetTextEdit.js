@@ -1,1 +1,32 @@
-import{$51 as n}from"./snippetString.js";import{$M1 as i}from"./range.js";class t{static isSnippetTextEdit(e){return e instanceof t?!0:e?i.isRange(e.range)&&n.isSnippetString(e.snippet):!1}static replace(e,r){return new t(e,r)}static insert(e,r){return t.replace(new i(e,e),r)}constructor(e,r){this.range=e,this.snippet=r}}export{t as $a2};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { SnippetString } from "./snippetString.js";
+import { Range } from "./range.js";
+class SnippetTextEdit {
+  static {
+    __name(this, "SnippetTextEdit");
+  }
+  static isSnippetTextEdit(thing) {
+    if (thing instanceof SnippetTextEdit) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Range.isRange(thing.range) && SnippetString.isSnippetString(thing.snippet);
+  }
+  static replace(range, snippet) {
+    return new SnippetTextEdit(range, snippet);
+  }
+  static insert(position, snippet) {
+    return SnippetTextEdit.replace(new Range(position, position), snippet);
+  }
+  constructor(range, snippet) {
+    this.range = range;
+    this.snippet = snippet;
+  }
+}
+export {
+  SnippetTextEdit
+};
+//# sourceMappingURL=snippetTextEdit.js.map

@@ -1,1 +1,120 @@
-import{$Ih as S}from"../../../../../base/common/resources.js";import{localize as s,localize2 as y}from"../../../../../nls.js";import{$vL as $,$wL as w}from"../../../../../platform/actions/common/actions.js";import{$0l as x}from"../../../../../platform/configuration/common/configuration.js";import{$0n as E}from"../../../../../platform/contextkey/common/contextkey.js";import{$Op as b}from"../../../../../platform/dialogs/common/dialogs.js";import{$vk as C}from"../../../../../platform/files/common/files.js";import{$Xu as D}from"../../../../../platform/native/common/native.js";import{$pH as R,Severity as a}from"../../../../../platform/notification/common/notification.js";import{ChatEntitlementContextKeys as N}from"../../../../services/chat/common/chatEntitlementService.js";import{$HPb as O}from"../../browser/actions/chatActions.js";import{$U4b as Z}from"../../browser/chat.js";import{$_qc as g}from"../../browser/chatRepoInfo.js";import{ChatContextKeys as j}from"../../common/actions/chatContextKeys.js";import{$NV as z}from"../../common/chatService/chatService.js";import{ChatConfiguration as A}from"../../common/constants.js";import{$mR as J}from"../../../scm/common/scm.js";function it(){w(class extends ${constructor(){super({id:"workbench.action.chat.exportAsZip",category:O,title:y(7159,"Export Chat as Zip..."),precondition:E.and(j.enabled,N.Entitlement.internal),f1:!0})}async run(e){const u=e.get(Z),f=e.get(b),h=e.get(z),d=e.get(D),n=e.get(R),c=e.get(J),p=e.get(C),m=e.get(x).getValue(A.RepoInfoEnabled)??!0,r=u.lastFocusedWidget;if(!r||!r.viewModel)return;const v=S(await f.defaultFilePath(),"chat.zip"),l=await f.showSaveDialog({defaultUri:v,filters:[{name:"Zip Archive",extensions:["zip"]}]});if(!l)return;const i=h.getSession(r.viewModel.sessionResource);if(!i)return;const o=[{path:"chat.json",contents:JSON.stringify(i.toExport(),void 0,2)}];if(i.getRequests().length>0){if(i.repoData&&o.push({path:"chat.repo.begin.json",contents:JSON.stringify(i.repoData,void 0,2)}),m){const t=await g(c,p);t&&o.push({path:"chat.repo.end.json",contents:JSON.stringify(t,void 0,2)}),!i.repoData&&!t&&n.notify({severity:a.Warning,message:s(7156,null)})}}else if(m){const t=await g(c,p);t?o.push({path:"chat.repo.begin.json",contents:JSON.stringify(t,void 0,2)}):n.notify({severity:a.Warning,message:s(7157,null)})}try{await d.createZipFile(l,o)}catch(t){n.notify({severity:a.Error,message:s(7158,null,t instanceof Error?t.message:String(t))})}}})}export{it as $LXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { joinPath } from "../../../../../base/common/resources.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IFileDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../../platform/native/common/native.js";
+import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
+import { ChatEntitlementContextKeys } from "../../../../services/chat/common/chatEntitlementService.js";
+import { CHAT_CATEGORY } from "../../browser/actions/chatActions.js";
+import { IChatWidgetService } from "../../browser/chat.js";
+import { captureRepoInfo } from "../../browser/chatRepoInfo.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatConfiguration } from "../../common/constants.js";
+import { ISCMService } from "../../../scm/common/scm.js";
+function registerChatExportZipAction() {
+  registerAction2(class ExportChatAsZipAction extends Action2 {
+    static {
+      __name(this, "ExportChatAsZipAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.exportAsZip",
+        category: CHAT_CATEGORY,
+        title: localize2("chat.exportAsZip.label", "Export Chat as Zip..."),
+        precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ChatEntitlementContextKeys.Entitlement.internal),
+        f1: true
+      });
+    }
+    async run(accessor) {
+      const widgetService = accessor.get(IChatWidgetService);
+      const fileDialogService = accessor.get(IFileDialogService);
+      const chatService = accessor.get(IChatService);
+      const nativeHostService = accessor.get(INativeHostService);
+      const notificationService = accessor.get(INotificationService);
+      const scmService = accessor.get(ISCMService);
+      const fileService = accessor.get(IFileService);
+      const configurationService = accessor.get(IConfigurationService);
+      const repoInfoEnabled = configurationService.getValue(ChatConfiguration.RepoInfoEnabled) ?? true;
+      const widget = widgetService.lastFocusedWidget;
+      if (!widget || !widget.viewModel) {
+        return;
+      }
+      const defaultUri = joinPath(await fileDialogService.defaultFilePath(), "chat.zip");
+      const result = await fileDialogService.showSaveDialog({
+        defaultUri,
+        filters: [{ name: "Zip Archive", extensions: ["zip"] }]
+      });
+      if (!result) {
+        return;
+      }
+      const model = chatService.getSession(widget.viewModel.sessionResource);
+      if (!model) {
+        return;
+      }
+      const files = [
+        {
+          path: "chat.json",
+          contents: JSON.stringify(model.toExport(), void 0, 2)
+        }
+      ];
+      const hasMessages = model.getRequests().length > 0;
+      if (hasMessages) {
+        if (model.repoData) {
+          files.push({
+            path: "chat.repo.begin.json",
+            contents: JSON.stringify(model.repoData, void 0, 2)
+          });
+        }
+        if (repoInfoEnabled) {
+          const currentRepoData = await captureRepoInfo(scmService, fileService);
+          if (currentRepoData) {
+            files.push({
+              path: "chat.repo.end.json",
+              contents: JSON.stringify(currentRepoData, void 0, 2)
+            });
+          }
+          if (!model.repoData && !currentRepoData) {
+            notificationService.notify({
+              severity: Severity.Warning,
+              message: localize("chatExportZip.noRepoData", "Exported chat without repository context. No Git repository was detected.")
+            });
+          }
+        }
+      } else {
+        if (repoInfoEnabled) {
+          const currentRepoData = await captureRepoInfo(scmService, fileService);
+          if (currentRepoData) {
+            files.push({
+              path: "chat.repo.begin.json",
+              contents: JSON.stringify(currentRepoData, void 0, 2)
+            });
+          } else {
+            notificationService.notify({
+              severity: Severity.Warning,
+              message: localize("chatExportZip.noRepoData", "Exported chat without repository context. No Git repository was detected.")
+            });
+          }
+        }
+      }
+      try {
+        await nativeHostService.createZipFile(result, files);
+      } catch (error) {
+        notificationService.notify({
+          severity: Severity.Error,
+          message: localize("chatExportZip.error", "Failed to export chat as zip: {0}", error instanceof Error ? error.message : String(error))
+        });
+      }
+    }
+  });
+}
+__name(registerChatExportZipAction, "registerChatExportZipAction");
+export {
+  registerChatExportZipAction
+};
+//# sourceMappingURL=chatExportZip.js.map

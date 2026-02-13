@@ -1,1 +1,54 @@
-import{$6c as u}from"../../../base/common/types.js";class c{constructor(t){this.b=t,this.a=new Map}dispose(){for(const t of this.a.values())t.dispose()}startBuffering(t,s,i=5){const o=s(f=>{const a=u(f)?f:f.data;let e=this.a.get(t);if(e){e.data.push(a);return}const r=setTimeout(()=>this.flushBuffer(t),i);e={data:[a],timeoutId:r,dispose:()=>{clearTimeout(r),this.flushBuffer(t),o.dispose()}},this.a.set(t,e)});return o}stopBuffering(t){this.a.get(t)?.dispose()}flushBuffer(t){const s=this.a.get(t);s&&(this.a.delete(t),this.b(t,s.data.join("")))}}export{c as $N7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isString } from "../../../base/common/types.js";
+class TerminalDataBufferer {
+  static {
+    __name(this, "TerminalDataBufferer");
+  }
+  constructor(_callback) {
+    this._callback = _callback;
+    this._terminalBufferMap = /* @__PURE__ */ new Map();
+  }
+  dispose() {
+    for (const buffer of this._terminalBufferMap.values()) {
+      buffer.dispose();
+    }
+  }
+  startBuffering(id, event, throttleBy = 5) {
+    const disposable = event((e) => {
+      const data = isString(e) ? e : e.data;
+      let buffer = this._terminalBufferMap.get(id);
+      if (buffer) {
+        buffer.data.push(data);
+        return;
+      }
+      const timeoutId = setTimeout(() => this.flushBuffer(id), throttleBy);
+      buffer = {
+        data: [data],
+        timeoutId,
+        dispose: /* @__PURE__ */ __name(() => {
+          clearTimeout(timeoutId);
+          this.flushBuffer(id);
+          disposable.dispose();
+        }, "dispose")
+      };
+      this._terminalBufferMap.set(id, buffer);
+    });
+    return disposable;
+  }
+  stopBuffering(id) {
+    const buffer = this._terminalBufferMap.get(id);
+    buffer?.dispose();
+  }
+  flushBuffer(id) {
+    const buffer = this._terminalBufferMap.get(id);
+    if (buffer) {
+      this._terminalBufferMap.delete(id);
+      this._callback(id, buffer.data.join(""));
+    }
+  }
+}
+export {
+  TerminalDataBufferer
+};
+//# sourceMappingURL=terminalDataBuffering.js.map

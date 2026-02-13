@@ -1,1 +1,1295 @@
-import{$R8 as mt}from"../../../../base/browser/dom.js";import{$M$ as dt}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$50 as z}from"../../../../base/browser/ui/aria/aria.js";import{$Fm as At,$Hm as ht}from"../../../../base/common/actions.js";import{$xf as lt,Event as Lt}from"../../../../base/common/event.js";import{$Ad as Ct}from"../../../../base/common/lifecycle.js";import{ThemeIcon as T}from"../../../../base/common/themables.js";import{URI as rt}from"../../../../base/common/uri.js";import{localize as n}from"../../../../nls.js";import{$uo as tt}from"../../../../platform/commands/common/commands.js";import{$ijb as vt}from"../../../../platform/contextview/browser/contextView.js";import{$Mj as ot}from"../../../../platform/instantiation/common/instantiation.js";import{$pp as et}from"../../../../platform/telemetry/common/telemetry.js";import{$BP as $t}from"../../../services/authentication/common/authentication.js";import{$8bc as gt}from"../../../services/authentication/common/authenticationQuery.js";import{$BL as ut}from"../../../services/editor/common/editorService.js";import{$BLb as v,$DLb as $,$jLb as Nt,$ELb as g,$CLb as A}from"../../extensions/browser/extensionsIcons.js";import{$wU as bt}from"../common/mcpRegistryTypes.js";import{$XU as xt,$JU as u,$SU as C,McpConnectionState as st}from"../common/mcpTypes.js";import{$xU as it}from"../common/mcpTypesUtils.js";import{$Ml as pt}from"../../../../platform/workspace/common/workspace.js";import{$YH as _t}from"../../../../platform/quickinput/common/quickInput.js";import{$HP as ft}from"../../../services/environment/common/environmentService.js";import{Schemas as Ot}from"../../../../base/common/network.js";import{$oH as It}from"../../../../platform/label/common/label.js";import{$E_ as Mt}from"../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import nt from"../../../../base/common/severity.js";var o=function(c,t,e,s){var i=arguments.length,l=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(c,t,e,s);else for(var f=c.length-1;f>=0;f--)(h=c[f])&&(l=(i<3?h(l):i>3?h(t,e,l):h(t,e))||l);return i>3&&l&&Object.defineProperty(t,e,l),l},r=function(c,t){return function(e,s){t(e,s,c)}},N,Q,j,b,m,x,_,O,d,I,M,P,y,w,E,S;class a extends At{constructor(){super(...arguments),this.j=this.D(new lt),this.g=!1,this.q=!0,this.r=null}get onDidChange(){return this.j.event}static{this.EXTENSION_ACTION_CLASS="extension-action"}static{this.TEXT_ACTION_CLASS=`${a.EXTENSION_ACTION_CLASS} text`}static{this.LABEL_ACTION_CLASS=`${a.EXTENSION_ACTION_CLASS} label`}static{this.PROMINENT_LABEL_ACTION_CLASS=`${a.LABEL_ACTION_CLASS} prominent`}static{this.ICON_ACTION_CLASS=`${a.EXTENSION_ACTION_CLASS} icon`}get hidden(){return this.g}set hidden(t){this.g!==t&&(this.g=t,this.j.fire({hidden:t}))}J(t){super.J(t),this.q&&(this.hidden=!t)}get mcpServer(){return this.r}set mcpServer(t){this.r=t,this.update()}}class re extends a{get menuActions(){return[...this.M]}get mcpServer(){return super.mcpServer}set mcpServer(t){this.N.forEach(e=>e.mcpServer=t),super.mcpServer=t}constructor(t,e,s){e=`${e} action-dropdown`,super(t,void 0,e),this.O=s,this.menuActionClassNames=[],this.M=[],this.menuActionClassNames=e.split(" "),this.q=!1,this.N=s.flat(),this.update(),this.D(Lt.any(...this.N.map(i=>i.onDidChange))(()=>this.update(!0))),this.N.forEach(i=>this.D(i))}update(t){t||this.N.forEach(i=>i.update());const e=this.O.map(i=>i.filter(l=>!l.hidden));let s=[];for(const i of e)i.length&&(s=[...s,...i,new ht]);s=s.length?s.slice(0,s.length-1):s,this.t=s[0],this.M=s.length>1?s:[],this.j.fire({menuActions:this.M}),this.t?(this.enabled=this.t.enabled,this.label=this.P(this.t),this.tooltip=this.t.tooltip):this.enabled=!1}async run(){this.enabled&&await this.t?.run()}P(t){return t.label}}class ne extends Mt{constructor(t,e,s){super(null,t,e,s),this.D(t.onDidChange(i=>{(i.hidden!==void 0||i.menuActions!==void 0)&&this.M()}))}render(t){super.render(t),this.M()}M(){if(super.M(),this.element&&this.g?.element){this.element.classList.toggle("hide",this._action.hidden);const t=this._action.menuActions.length===0;this.element.classList.toggle("empty",t),this.g.element.classList.toggle("hide",t)}}}let H=class extends a{constructor(t,e,s,i,l){super(t,e,s,i),this.t=l,this.M=null}createActionViewItem(t){return this.M=this.t.createInstance(W,this,t),this.M}run(t){return this.M?.showMenu(t),Promise.resolve()}};H=o([r(4,ot)],H);let W=class extends dt{constructor(t,e,s){super(null,t,{...e,icon:!0,label:!0}),this.g=s}showMenu(t){if(this.element){const e=this.h(t),s=mt(this.element),i={x:s.left,y:s.top+s.height+10};this.g.showContextMenu({getAnchor:()=>i,getActions:()=>e,actionRunner:this.actionRunner,onHide:()=>Ct(e)})}}h(t){let e=[];for(const s of t)e=[...e,...s,new ht];return e.length?e.slice(0,e.length-1):e}};W=o([r(2,vt)],W);let L=class extends a{static{N=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent install`}static{this.t=`${this.CLASS} hide`}constructor(t,e,s,i){super("extensions.install",n(10317,null),N.CLASS,!1),this.M=t,this.N=e,this.O=s,this.P=i,this.update()}update(){this.enabled=!1,this.class=N.t,!(!this.mcpServer?.gallery&&!this.mcpServer?.installable)&&this.mcpServer.installState===3&&(this.class=N.CLASS,this.enabled=this.N.canInstall(this.mcpServer)===!0)}async run(){if(!this.mcpServer)return;this.M&&(this.N.open(this.mcpServer),z(n(10318,null,this.mcpServer.label))),this.O.publicLog2("mcp:action:install",{name:this.mcpServer.gallery?.name});const t=await this.N.install(this.mcpServer);await it(this.P,e=>e.definition.label===t.name)}};L=N=o([r(1,C),r(2,et),r(3,u)],L);let B=class extends a{static{Q=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent install`}static{this.t=`${this.CLASS} hide`}constructor(t,e,s,i,l,h){super("extensions.installWorkspace",n(10319,null),L.CLASS,!1),this.M=t,this.N=e,this.O=s,this.P=i,this.Q=l,this.R=h,this.update()}update(){this.enabled=!1,this.class=Q.t,this.O.getWorkbenchState()!==1&&(!this.mcpServer?.gallery&&!this.mcpServer?.installable||this.mcpServer.installState!==3&&this.mcpServer.local?.scope==="workspace"||(this.class=L.CLASS,this.enabled=this.N.canInstall(this.mcpServer)===!0))}async run(){if(!this.mcpServer)return;this.M&&(this.N.open(this.mcpServer,{preserveFocus:!0}),z(n(10320,null,this.mcpServer.label)));const t=await this.S();if(!t)return;this.Q.publicLog2("mcp:action:install:workspace",{name:this.mcpServer.gallery?.name});const e=await this.N.install(this.mcpServer,{target:t});await it(this.R,s=>s.definition.label===e.name)}async S(){const t=[];for(const s of this.O.getWorkspace().folders)t.push({target:s,label:s.name,description:n(10321,null)});return this.O.getWorkbenchState()===3&&(t.length>0&&t.push({type:"separator"}),t.push({target:5,label:n(10322,null)})),t.length===1?t[0].target:(await this.P.pick(t,{title:n(10323,null)}))?.target}};B=Q=o([r(1,C),r(2,pt),r(3,_t),r(4,et),r(5,u)],B);let D=class extends a{static{j=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent install`}static{this.t=`${this.CLASS} hide`}constructor(t,e,s,i,l,h){super("extensions.installRemote",n(10324,null),L.CLASS,!1),this.M=t,this.N=e,this.O=s,this.P=i,this.Q=l,this.R=h;const f=this.Q.getHostLabel(Ot.vscodeRemote,this.O.remoteAuthority);this.label=n(10325,null,f),this.update()}update(){this.enabled=!1,this.class=j.t,this.O.remoteAuthority&&(!this.mcpServer?.gallery&&!this.mcpServer?.installable||this.mcpServer.installState!==3&&(this.mcpServer.local?.scope==="remoteUser"||this.N.local.find(t=>t.name===this.mcpServer?.name&&t.local?.scope==="remoteUser"))||(this.class=L.CLASS,this.enabled=this.N.canInstall(this.mcpServer)===!0))}async run(){if(!this.mcpServer)return;this.M&&(this.N.open(this.mcpServer),z(n(10326,null,this.mcpServer.label))),this.P.publicLog2("mcp:action:install:remote",{name:this.mcpServer.gallery?.name});const t=await this.N.install(this.mcpServer,{target:4});await it(this.R,e=>e.definition.label===t.name)}};D=j=o([r(1,C),r(2,ft),r(3,et),r(4,It),r(5,u)],D);class R extends a{static{this.t=n(10327,null)}static{this.M=`${a.LABEL_ACTION_CLASS} install installing`}constructor(){super("extension.installing",R.t,R.M,!1)}update(){this.class=`${R.M}${this.mcpServer&&this.mcpServer.installState===0?"":" hide"}`}}let F=class extends a{static{b=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent uninstall`}static{this.t=`${this.CLASS} hide`}constructor(t){super("extensions.uninstall",n(10328,null),b.CLASS,!1),this.M=t,this.update()}update(){if(this.enabled=!1,this.class=b.t,!!this.mcpServer&&this.mcpServer.local){if(this.mcpServer.installState!==1){this.enabled=!1;return}this.class=b.CLASS,this.enabled=!0,this.label=n(10329,null)}}async run(){this.mcpServer&&await this.M.uninstall(this.mcpServer)}};F=b=o([r(0,C)],F);function yt(c,t,e){return e.invokeFunction(s=>{const i=s.get(pt),l=s.get(ft),h=[];if(c.installState===1){if(h.push([e.createInstance(G)]),h.push([e.createInstance(J),e.createInstance(U)]),h.push([e.createInstance(X)]),h.push([e.createInstance(q),e.createInstance(k),e.createInstance(K)]),h.push([e.createInstance(V),e.createInstance(Y)]),h.push([e.createInstance(Z)]),!t){const p=[e.createInstance(F)];i.getWorkbenchState()!==1&&p.push(e.createInstance(B,!1)),l.remoteAuthority&&c.local?.scope!=="remoteUser"&&p.push(e.createInstance(D,!1)),h.push(p)}}else{const p=[];i.getWorkbenchState()!==1&&p.push(e.createInstance(B,!t)),l.remoteAuthority&&p.push(e.createInstance(D,!t)),h.push(p)}return h.forEach(p=>p.forEach(St=>St.mcpServer=c)),h})}let ct=class extends H{static{m=this}static{this.ID="mcpServer.manage"}static{this.N=`${a.ICON_ACTION_CLASS} manage `+T.asClassName(Nt)}static{this.O=`${this.N} hide`}constructor(t,e){super(m.ID,"","",!0,e),this.P=t,this.tooltip=n(10330,null),this.update()}async run(){return super.run(this.mcpServer?yt(this.mcpServer,this.P,this.t):[])}update(){this.class=m.O,this.enabled=!1,this.mcpServer&&(this.P?(this.enabled=!0,this.class=m.N):(this.enabled=!!this.mcpServer.local,this.class=this.enabled?m.N:m.O))}};ct=m=o([r(1,ot)],ct);let G=class extends a{static{x=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent start`}static{this.t=`${this.CLASS} hide`}constructor(t){super("extensions.start",n(10331,null),x.CLASS,!1),this.M=t,this.update()}update(){this.enabled=!1,this.class=x.t;const t=this.N();if(!t)return;const e=t.connectionState.get();st.canBeStarted(e.state)&&(this.class=x.CLASS,this.enabled=!0,this.label=n(10332,null))}async run(){const t=this.N();t&&(await t.start({promptType:"all-untrusted"}),t.showOutput())}N(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};G=x=o([r(0,u)],G);let J=class extends a{static{_=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent stop`}static{this.t=`${this.CLASS} hide`}constructor(t){super("extensions.stop",n(10333,null),_.CLASS,!1),this.M=t,this.update()}update(){this.enabled=!1,this.class=_.t;const t=this.N();if(!t)return;const e=t.connectionState.get();st.canBeStarted(e.state)||(this.class=_.CLASS,this.enabled=!0,this.label=n(10334,null))}async run(){const t=this.N();t&&await t.stop()}N(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};J=_=o([r(0,u)],J);let U=class extends a{static{O=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent restart`}static{this.t=`${this.CLASS} hide`}constructor(t){super("extensions.restart",n(10335,null),O.CLASS,!1),this.M=t,this.update()}update(){this.enabled=!1,this.class=O.t;const t=this.N();if(!t)return;const e=t.connectionState.get();st.canBeStarted(e.state)||(this.class=O.CLASS,this.enabled=!0,this.label=n(10336,null))}async run(){const t=this.N();t&&(await t.stop(),await t.start({promptType:"all-untrusted"}),t.showOutput())}N(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};U=O=o([r(0,u)],U);let X=class extends a{static{d=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent account`}static{this.t=`${this.CLASS} hide`}static{this.M=n(10337,null)}static{this.N=n(10338,null)}constructor(t,e,s){super("extensions.restart",n(10339,null),U.CLASS,!1),this.P=t,this.Q=e,this.R=s,this.update()}update(){if(this.enabled=!1,this.class=d.t,!this.S())return;const e=this.U();if(!e)return;this.O=e,this.class=d.CLASS,this.enabled=!0;let s=e.entities().getEntityCount().total>1?d.N:d.M;s+=` (${e.accountName})`,this.label=s}async run(){const t=this.S();if(!t)return;const e=this.U();if(!e)return;await t.stop();const{providerId:s,accountName:i}=e;if(e.mcpServer(t.definition.id).setAccessAllowed(!1,t.definition.label),this.label===d.M){const h=(await this.R.getAccounts(s)).find(f=>f.label===i);if(h){const f=await this.R.getSessions(s,void 0,{account:h});for(const p of f)await this.R.removeSession(s,p.id)}}}S(){if(this.mcpServer&&this.mcpServer.local)return this.P.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}U(){const t=this.S();if(!t)return;if(this.O)return this.O;const e=t.definition.id,s=this.Q.mcpServer(e).getAllAccountPreferences();if(s.size)for(const[i,l]of s){const h=this.Q.provider(i).account(l);if(h.mcpServer(e).isAccessAllowed())return h}}};X=d=o([r(0,u),r(1,gt),r(2,$t)],X);let q=class extends a{static{I=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent output`}static{this.t=`${this.CLASS} hide`}constructor(t){super("extensions.output",n(10340,null),I.CLASS,!1),this.M=t,this.update()}update(){this.enabled=!1,this.class=I.t,this.N()&&(this.class=I.CLASS,this.enabled=!0,this.label=n(10341,null))}async run(){const t=this.N();t&&t.showOutput()}N(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};q=I=o([r(0,u)],q);let k=class extends a{static{M=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent config`}static{this.t=`${this.CLASS} hide`}constructor(t){super("extensions.config",n(10342,null),M.CLASS,!1),this.M=t,this.update()}update(){this.enabled=!1,this.class=M.t,this.mcpServer?.local&&(this.class=M.CLASS,this.enabled=!0)}async run(){this.mcpServer?.local&&this.M.open(this.mcpServer,{tab:"configuration"})}};k=M=o([r(0,C)],k);let K=class extends a{static{P=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent config`}static{this.t=`${this.CLASS} hide`}constructor(t,e,s){super("extensions.jsonConfig",n(10343,null),P.CLASS,!1),this.M=t,this.N=e,this.O=s,this.update()}update(){this.enabled=!1,this.class=P.t,this.P()&&(this.class=k.CLASS,this.enabled=!0)}async run(){const t=this.P();t&&this.O.openEditor({resource:rt.isUri(t)?t:t.uri,options:{selection:rt.isUri(t)?void 0:t.range}})}P(){if(!this.mcpServer||!this.mcpServer.local)return;const t=this.M.servers.get().find(i=>i.definition.label===this.mcpServer?.name);if(!t)return;const e=this.N.collections.get().find(i=>i.id===t.collection.id);return e?.serverDefinitions.get().find(i=>i.id===t.definition.id)?.presentation?.origin||e?.presentation?.origin}};K=P=o([r(0,u),r(1,bt),r(2,ut)],K);let V=class extends a{static{y=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent config`}static{this.t=`${this.CLASS} hide`}constructor(t,e){super("extensions.config",n(10344,null),y.CLASS,!1),this.M=t,this.N=e,this.update()}update(){this.enabled=!1,this.class=y.t,this.O()&&(this.class=y.CLASS,this.enabled=!0,this.label=n(10345,null))}async run(){const t=this.O();t&&this.N.executeCommand("workbench.mcp.configureSamplingModels",t)}O(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};V=y=o([r(0,u),r(1,tt)],V);let Y=class extends a{static{w=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent config`}static{this.t=`${this.CLASS} hide`}constructor(t,e,s){super("extensions.config",n(10346,null),w.CLASS,!1),this.M=t,this.N=e,this.O=s,this.update()}update(){this.enabled=!1,this.class=w.t;const t=this.P();t&&this.N.hasLogs(t)&&(this.class=w.CLASS,this.enabled=!0)}async run(){const t=this.P();t&&this.N.hasLogs(t)&&this.O.openEditor({resource:void 0,contents:this.N.getLogText(t),label:n(10347,null,t.definition.label)})}P(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};Y=w=o([r(0,u),r(1,xt),r(2,ut)],Y);let Z=class extends a{static{E=this}static{this.CLASS=`${this.LABEL_ACTION_CLASS} prominent config`}static{this.t=`${this.CLASS} hide`}constructor(t,e){super("extensions.config",n(10348,null),E.CLASS,!1),this.M=t,this.N=e,this.update()}update(){this.enabled=!1,this.class=E.t;const t=this.O();if(!t)return;const e=t.capabilities.get();e!==void 0&&!(e&16)||(this.class=E.CLASS,this.enabled=!0)}async run(){const t=this.O();if(!t)return;const e=t.capabilities.get();if(!(e!==void 0&&!(e&16)))return this.N.executeCommand("workbench.mcp.browseResources",t)}O(){if(this.mcpServer&&this.mcpServer.local)return this.M.servers.get().find(t=>t.definition.id===this.mcpServer?.id)}};Z=E=o([r(0,u),r(1,tt)],Z);let at=class extends a{static{S=this}static{this.t=`${a.ICON_ACTION_CLASS} extension-status`}get status(){return this.M}constructor(t,e){super("extensions.status","",`${S.t} hide`,!1),this.O=t,this.P=e,this.M=[],this.N=this.D(new lt),this.onDidChangeStatus=this.N.event,this.update()}update(){this.Q()}Q(){if(this.R(void 0,!0),this.enabled=!1,!this.mcpServer)return;if((this.mcpServer.gallery||this.mcpServer.installable)&&this.mcpServer.installState===3){const e=this.O.canInstall(this.mcpServer);if(e!==!0){this.R({icon:A,message:e},!0);return}}const t=this.mcpServer.runtimeStatus;t?.message&&this.R({icon:t.message.severity===nt.Warning?A:t.message.severity===nt.Error?v:$,message:t.message.text},!0)}R(t,e){if(t){if(this.M.some(s=>s.message.value===t.message.value&&s.icon?.id===t.icon?.id))return}else{if(this.M.length===0)return;this.M=[]}t&&(this.M.push(t),this.M.sort((s,i)=>i.icon===g?-1:s.icon===g?1:i.icon===v?-1:s.icon===v?1:i.icon===A?-1:s.icon===A?1:i.icon===$?-1:s.icon===$?1:0)),e&&(t?.icon===v?this.class=`${S.t} extension-status-error ${T.asClassName(v)}`:t?.icon===A?this.class=`${S.t} extension-status-warning ${T.asClassName(A)}`:t?.icon===$?this.class=`${S.t} extension-status-info ${T.asClassName($)}`:t?.icon===g?this.class=`${S.t} ${T.asClassName(g)}`:this.class=`${S.t} hide`),this.N.fire()}async run(){if(this.M[0]?.icon===g)return this.P.executeCommand("workbench.trust.manage")}};at=S=o([r(0,C),r(1,tt)],at);export{D as $Atc,R as $Btc,F as $Ctc,yt as $Dtc,ct as $Etc,G as $Ftc,J as $Gtc,U as $Htc,X as $Itc,q as $Jtc,k as $Ktc,K as $Ltc,V as $Mtc,Y as $Ntc,Z as $Otc,at as $Ptc,a as $ttc,re as $utc,ne as $vtc,H as $wtc,W as $xtc,L as $ytc,B as $ztc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InstallAction_1, InstallInWorkspaceAction_1, InstallInRemoteAction_1, UninstallAction_1, ManageMcpServerAction_1, StartServerAction_1, StopServerAction_1, RestartServerAction_1, AuthServerAction_1, ShowServerOutputAction_1, ShowServerConfigurationAction_1, ShowServerJsonConfigurationAction_1, ConfigureModelAccessAction_1, ShowSamplingRequestsAction_1, BrowseResourcesAction_1, McpServerStatusAction_1;
+import { getDomNodePagePosition } from "../../../../base/browser/dom.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { Action, Separator } from "../../../../base/common/actions.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { disposeIfDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { IAuthenticationQueryService } from "../../../services/authentication/common/authenticationQuery.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { errorIcon, infoIcon, manageExtensionIcon, trustIcon, warningIcon } from "../../extensions/browser/extensionsIcons.js";
+import { IMcpRegistry } from "../common/mcpRegistryTypes.js";
+import { IMcpSamplingService, IMcpService, IMcpWorkbenchService, McpConnectionState } from "../common/mcpTypes.js";
+import { startServerByFilter } from "../common/mcpTypesUtils.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ActionWithDropdownActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import Severity from "../../../../base/common/severity.js";
+class McpServerAction extends Action {
+  static {
+    __name(this, "McpServerAction");
+  }
+  constructor() {
+    super(...arguments);
+    this._onDidChange = this._register(new Emitter());
+    this._hidden = false;
+    this.hideOnDisabled = true;
+    this._mcpServer = null;
+  }
+  get onDidChange() {
+    return this._onDidChange.event;
+  }
+  static {
+    this.EXTENSION_ACTION_CLASS = "extension-action";
+  }
+  static {
+    this.TEXT_ACTION_CLASS = `${McpServerAction.EXTENSION_ACTION_CLASS} text`;
+  }
+  static {
+    this.LABEL_ACTION_CLASS = `${McpServerAction.EXTENSION_ACTION_CLASS} label`;
+  }
+  static {
+    this.PROMINENT_LABEL_ACTION_CLASS = `${McpServerAction.LABEL_ACTION_CLASS} prominent`;
+  }
+  static {
+    this.ICON_ACTION_CLASS = `${McpServerAction.EXTENSION_ACTION_CLASS} icon`;
+  }
+  get hidden() {
+    return this._hidden;
+  }
+  set hidden(hidden) {
+    if (this._hidden !== hidden) {
+      this._hidden = hidden;
+      this._onDidChange.fire({ hidden });
+    }
+  }
+  _setEnabled(value) {
+    super._setEnabled(value);
+    if (this.hideOnDisabled) {
+      this.hidden = !value;
+    }
+  }
+  get mcpServer() {
+    return this._mcpServer;
+  }
+  set mcpServer(mcpServer) {
+    this._mcpServer = mcpServer;
+    this.update();
+  }
+}
+class ButtonWithDropDownExtensionAction extends McpServerAction {
+  static {
+    __name(this, "ButtonWithDropDownExtensionAction");
+  }
+  get menuActions() {
+    return [...this._menuActions];
+  }
+  get mcpServer() {
+    return super.mcpServer;
+  }
+  set mcpServer(mcpServer) {
+    this.actions.forEach((a) => a.mcpServer = mcpServer);
+    super.mcpServer = mcpServer;
+  }
+  constructor(id, clazz, actionsGroups) {
+    clazz = `${clazz} action-dropdown`;
+    super(id, void 0, clazz);
+    this.actionsGroups = actionsGroups;
+    this.menuActionClassNames = [];
+    this._menuActions = [];
+    this.menuActionClassNames = clazz.split(" ");
+    this.hideOnDisabled = false;
+    this.actions = actionsGroups.flat();
+    this.update();
+    this._register(Event.any(...this.actions.map((a) => a.onDidChange))(() => this.update(true)));
+    this.actions.forEach((a) => this._register(a));
+  }
+  update(donotUpdateActions) {
+    if (!donotUpdateActions) {
+      this.actions.forEach((a) => a.update());
+    }
+    const actionsGroups = this.actionsGroups.map((actionsGroup) => actionsGroup.filter((a) => !a.hidden));
+    let actions = [];
+    for (const visibleActions of actionsGroups) {
+      if (visibleActions.length) {
+        actions = [...actions, ...visibleActions, new Separator()];
+      }
+    }
+    actions = actions.length ? actions.slice(0, actions.length - 1) : actions;
+    this.primaryAction = actions[0];
+    this._menuActions = actions.length > 1 ? actions : [];
+    this._onDidChange.fire({ menuActions: this._menuActions });
+    if (this.primaryAction) {
+      this.enabled = this.primaryAction.enabled;
+      this.label = this.getLabel(this.primaryAction);
+      this.tooltip = this.primaryAction.tooltip;
+    } else {
+      this.enabled = false;
+    }
+  }
+  async run() {
+    if (this.enabled) {
+      await this.primaryAction?.run();
+    }
+  }
+  getLabel(action) {
+    return action.label;
+  }
+}
+class ButtonWithDropdownExtensionActionViewItem extends ActionWithDropdownActionViewItem {
+  static {
+    __name(this, "ButtonWithDropdownExtensionActionViewItem");
+  }
+  constructor(action, options, contextMenuProvider) {
+    super(null, action, options, contextMenuProvider);
+    this._register(action.onDidChange((e) => {
+      if (e.hidden !== void 0 || e.menuActions !== void 0) {
+        this.updateClass();
+      }
+    }));
+  }
+  render(container) {
+    super.render(container);
+    this.updateClass();
+  }
+  updateClass() {
+    super.updateClass();
+    if (this.element && this.dropdownMenuActionViewItem?.element) {
+      this.element.classList.toggle("hide", this._action.hidden);
+      const isMenuEmpty = this._action.menuActions.length === 0;
+      this.element.classList.toggle("empty", isMenuEmpty);
+      this.dropdownMenuActionViewItem.element.classList.toggle("hide", isMenuEmpty);
+    }
+  }
+}
+let DropDownAction = class DropDownAction2 extends McpServerAction {
+  static {
+    __name(this, "DropDownAction");
+  }
+  constructor(id, label, cssClass, enabled, instantiationService) {
+    super(id, label, cssClass, enabled);
+    this.instantiationService = instantiationService;
+    this._actionViewItem = null;
+  }
+  createActionViewItem(options) {
+    this._actionViewItem = this.instantiationService.createInstance(DropDownExtensionActionViewItem, this, options);
+    return this._actionViewItem;
+  }
+  run(actionGroups) {
+    this._actionViewItem?.showMenu(actionGroups);
+    return Promise.resolve();
+  }
+};
+DropDownAction = __decorate([
+  __param(4, IInstantiationService)
+], DropDownAction);
+let DropDownExtensionActionViewItem = class DropDownExtensionActionViewItem2 extends ActionViewItem {
+  static {
+    __name(this, "DropDownExtensionActionViewItem");
+  }
+  constructor(action, options, contextMenuService) {
+    super(null, action, { ...options, icon: true, label: true });
+    this.contextMenuService = contextMenuService;
+  }
+  showMenu(menuActionGroups) {
+    if (this.element) {
+      const actions = this.getActions(menuActionGroups);
+      const elementPosition = getDomNodePagePosition(this.element);
+      const anchor = { x: elementPosition.left, y: elementPosition.top + elementPosition.height + 10 };
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+        actionRunner: this.actionRunner,
+        onHide: /* @__PURE__ */ __name(() => disposeIfDisposable(actions), "onHide")
+      });
+    }
+  }
+  getActions(menuActionGroups) {
+    let actions = [];
+    for (const menuActions of menuActionGroups) {
+      actions = [...actions, ...menuActions, new Separator()];
+    }
+    return actions.length ? actions.slice(0, actions.length - 1) : actions;
+  }
+};
+DropDownExtensionActionViewItem = __decorate([
+  __param(2, IContextMenuService)
+], DropDownExtensionActionViewItem);
+let InstallAction = class InstallAction2 extends McpServerAction {
+  static {
+    __name(this, "InstallAction");
+  }
+  static {
+    InstallAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent install`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(open, mcpWorkbenchService, telemetryService, mcpService) {
+    super("extensions.install", localize("install", "Install"), InstallAction_1.CLASS, false);
+    this.open = open;
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.telemetryService = telemetryService;
+    this.mcpService = mcpService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = InstallAction_1.HIDE;
+    if (!this.mcpServer?.gallery && !this.mcpServer?.installable) {
+      return;
+    }
+    if (this.mcpServer.installState !== 3) {
+      return;
+    }
+    this.class = InstallAction_1.CLASS;
+    this.enabled = this.mcpWorkbenchService.canInstall(this.mcpServer) === true;
+  }
+  async run() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (this.open) {
+      this.mcpWorkbenchService.open(this.mcpServer);
+      alert(localize("mcpServerInstallation", "Installing MCP Server {0} started. An editor is now open with more details on this MCP Server", this.mcpServer.label));
+    }
+    this.telemetryService.publicLog2("mcp:action:install", { name: this.mcpServer.gallery?.name });
+    const installed = await this.mcpWorkbenchService.install(this.mcpServer);
+    await startServerByFilter(this.mcpService, (s) => {
+      return s.definition.label === installed.name;
+    });
+  }
+};
+InstallAction = InstallAction_1 = __decorate([
+  __param(1, IMcpWorkbenchService),
+  __param(2, ITelemetryService),
+  __param(3, IMcpService)
+], InstallAction);
+let InstallInWorkspaceAction = class InstallInWorkspaceAction2 extends McpServerAction {
+  static {
+    __name(this, "InstallInWorkspaceAction");
+  }
+  static {
+    InstallInWorkspaceAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent install`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(open, mcpWorkbenchService, workspaceService, quickInputService, telemetryService, mcpService) {
+    super("extensions.installWorkspace", localize("installInWorkspace", "Install in Workspace"), InstallAction.CLASS, false);
+    this.open = open;
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.workspaceService = workspaceService;
+    this.quickInputService = quickInputService;
+    this.telemetryService = telemetryService;
+    this.mcpService = mcpService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = InstallInWorkspaceAction_1.HIDE;
+    if (this.workspaceService.getWorkbenchState() === 1) {
+      return;
+    }
+    if (!this.mcpServer?.gallery && !this.mcpServer?.installable) {
+      return;
+    }
+    if (this.mcpServer.installState !== 3 && this.mcpServer.local?.scope === "workspace") {
+      return;
+    }
+    this.class = InstallAction.CLASS;
+    this.enabled = this.mcpWorkbenchService.canInstall(this.mcpServer) === true;
+  }
+  async run() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (this.open) {
+      this.mcpWorkbenchService.open(this.mcpServer, { preserveFocus: true });
+      alert(localize("mcpServerInstallation", "Installing MCP Server {0} started. An editor is now open with more details on this MCP Server", this.mcpServer.label));
+    }
+    const target = await this.getConfigurationTarget();
+    if (!target) {
+      return;
+    }
+    this.telemetryService.publicLog2("mcp:action:install:workspace", { name: this.mcpServer.gallery?.name });
+    const installed = await this.mcpWorkbenchService.install(this.mcpServer, { target });
+    await startServerByFilter(this.mcpService, (s) => {
+      return s.definition.label === installed.name;
+    });
+  }
+  async getConfigurationTarget() {
+    const options = [];
+    for (const folder of this.workspaceService.getWorkspace().folders) {
+      options.push({ target: folder, label: folder.name, description: localize("install in workspace folder", "Workspace Folder") });
+    }
+    if (this.workspaceService.getWorkbenchState() === 3) {
+      if (options.length > 0) {
+        options.push({ type: "separator" });
+      }
+      options.push({ target: 5, label: localize("mcp.target.workspace", "Workspace") });
+    }
+    if (options.length === 1) {
+      return options[0].target;
+    }
+    const targetPick = await this.quickInputService.pick(options, {
+      title: localize("mcp.target.title", "Choose where to install the MCP server")
+    });
+    return targetPick?.target;
+  }
+};
+InstallInWorkspaceAction = InstallInWorkspaceAction_1 = __decorate([
+  __param(1, IMcpWorkbenchService),
+  __param(2, IWorkspaceContextService),
+  __param(3, IQuickInputService),
+  __param(4, ITelemetryService),
+  __param(5, IMcpService)
+], InstallInWorkspaceAction);
+let InstallInRemoteAction = class InstallInRemoteAction2 extends McpServerAction {
+  static {
+    __name(this, "InstallInRemoteAction");
+  }
+  static {
+    InstallInRemoteAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent install`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(open, mcpWorkbenchService, environmentService, telemetryService, labelService, mcpService) {
+    super("extensions.installRemote", localize("installInRemote", "Install (Remote)"), InstallAction.CLASS, false);
+    this.open = open;
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.environmentService = environmentService;
+    this.telemetryService = telemetryService;
+    this.labelService = labelService;
+    this.mcpService = mcpService;
+    const remoteLabel = this.labelService.getHostLabel(Schemas.vscodeRemote, this.environmentService.remoteAuthority);
+    this.label = localize("installInRemoteLabel", "Install in {0}", remoteLabel);
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = InstallInRemoteAction_1.HIDE;
+    if (!this.environmentService.remoteAuthority) {
+      return;
+    }
+    if (!this.mcpServer?.gallery && !this.mcpServer?.installable) {
+      return;
+    }
+    if (this.mcpServer.installState !== 3) {
+      if (this.mcpServer.local?.scope === "remoteUser") {
+        return;
+      }
+      if (this.mcpWorkbenchService.local.find(
+        (mcpServer) => mcpServer.name === this.mcpServer?.name && mcpServer.local?.scope === "remoteUser"
+        /* LocalMcpServerScope.RemoteUser */
+      )) {
+        return;
+      }
+    }
+    this.class = InstallAction.CLASS;
+    this.enabled = this.mcpWorkbenchService.canInstall(this.mcpServer) === true;
+  }
+  async run() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (this.open) {
+      this.mcpWorkbenchService.open(this.mcpServer);
+      alert(localize("mcpServerInstallation", "Installing MCP Server {0} started. An editor is now open with more details on this MCP Server", this.mcpServer.label));
+    }
+    this.telemetryService.publicLog2("mcp:action:install:remote", { name: this.mcpServer.gallery?.name });
+    const installed = await this.mcpWorkbenchService.install(this.mcpServer, {
+      target: 4
+      /* ConfigurationTarget.USER_REMOTE */
+    });
+    await startServerByFilter(this.mcpService, (s) => {
+      return s.definition.label === installed.name;
+    });
+  }
+};
+InstallInRemoteAction = InstallInRemoteAction_1 = __decorate([
+  __param(1, IMcpWorkbenchService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, ITelemetryService),
+  __param(4, ILabelService),
+  __param(5, IMcpService)
+], InstallInRemoteAction);
+class InstallingLabelAction extends McpServerAction {
+  static {
+    __name(this, "InstallingLabelAction");
+  }
+  static {
+    this.LABEL = localize("installing", "Installing");
+  }
+  static {
+    this.CLASS = `${McpServerAction.LABEL_ACTION_CLASS} install installing`;
+  }
+  constructor() {
+    super("extension.installing", InstallingLabelAction.LABEL, InstallingLabelAction.CLASS, false);
+  }
+  update() {
+    this.class = `${InstallingLabelAction.CLASS}${this.mcpServer && this.mcpServer.installState === 0 ? "" : " hide"}`;
+  }
+}
+let UninstallAction = class UninstallAction2 extends McpServerAction {
+  static {
+    __name(this, "UninstallAction");
+  }
+  static {
+    UninstallAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent uninstall`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpWorkbenchService) {
+    super("extensions.uninstall", localize("uninstall", "Uninstall"), UninstallAction_1.CLASS, false);
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = UninstallAction_1.HIDE;
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    if (this.mcpServer.installState !== 1) {
+      this.enabled = false;
+      return;
+    }
+    this.class = UninstallAction_1.CLASS;
+    this.enabled = true;
+    this.label = localize("uninstall", "Uninstall");
+  }
+  async run() {
+    if (!this.mcpServer) {
+      return;
+    }
+    await this.mcpWorkbenchService.uninstall(this.mcpServer);
+  }
+};
+UninstallAction = UninstallAction_1 = __decorate([
+  __param(0, IMcpWorkbenchService)
+], UninstallAction);
+function getContextMenuActions(mcpServer, isEditorAction, instantiationService) {
+  return instantiationService.invokeFunction((accessor) => {
+    const workspaceService = accessor.get(IWorkspaceContextService);
+    const environmentService = accessor.get(IWorkbenchEnvironmentService);
+    const groups = [];
+    const isInstalled = mcpServer.installState === 1;
+    if (isInstalled) {
+      groups.push([
+        instantiationService.createInstance(StartServerAction)
+      ]);
+      groups.push([
+        instantiationService.createInstance(StopServerAction),
+        instantiationService.createInstance(RestartServerAction)
+      ]);
+      groups.push([
+        instantiationService.createInstance(AuthServerAction)
+      ]);
+      groups.push([
+        instantiationService.createInstance(ShowServerOutputAction),
+        instantiationService.createInstance(ShowServerConfigurationAction),
+        instantiationService.createInstance(ShowServerJsonConfigurationAction)
+      ]);
+      groups.push([
+        instantiationService.createInstance(ConfigureModelAccessAction),
+        instantiationService.createInstance(ShowSamplingRequestsAction)
+      ]);
+      groups.push([
+        instantiationService.createInstance(BrowseResourcesAction)
+      ]);
+      if (!isEditorAction) {
+        const installGroup = [instantiationService.createInstance(UninstallAction)];
+        if (workspaceService.getWorkbenchState() !== 1) {
+          installGroup.push(instantiationService.createInstance(InstallInWorkspaceAction, false));
+        }
+        if (environmentService.remoteAuthority && mcpServer.local?.scope !== "remoteUser") {
+          installGroup.push(instantiationService.createInstance(InstallInRemoteAction, false));
+        }
+        groups.push(installGroup);
+      }
+    } else {
+      const installGroup = [];
+      if (workspaceService.getWorkbenchState() !== 1) {
+        installGroup.push(instantiationService.createInstance(InstallInWorkspaceAction, !isEditorAction));
+      }
+      if (environmentService.remoteAuthority) {
+        installGroup.push(instantiationService.createInstance(InstallInRemoteAction, !isEditorAction));
+      }
+      groups.push(installGroup);
+    }
+    groups.forEach((group) => group.forEach((extensionAction) => extensionAction.mcpServer = mcpServer));
+    return groups;
+  });
+}
+__name(getContextMenuActions, "getContextMenuActions");
+let ManageMcpServerAction = class ManageMcpServerAction2 extends DropDownAction {
+  static {
+    __name(this, "ManageMcpServerAction");
+  }
+  static {
+    ManageMcpServerAction_1 = this;
+  }
+  static {
+    this.ID = "mcpServer.manage";
+  }
+  static {
+    this.Class = `${McpServerAction.ICON_ACTION_CLASS} manage ` + ThemeIcon.asClassName(manageExtensionIcon);
+  }
+  static {
+    this.HideManageExtensionClass = `${this.Class} hide`;
+  }
+  constructor(isEditorAction, instantiationService) {
+    super(ManageMcpServerAction_1.ID, "", "", true, instantiationService);
+    this.isEditorAction = isEditorAction;
+    this.tooltip = localize("manage", "Manage");
+    this.update();
+  }
+  async run() {
+    return super.run(this.mcpServer ? getContextMenuActions(this.mcpServer, this.isEditorAction, this.instantiationService) : []);
+  }
+  update() {
+    this.class = ManageMcpServerAction_1.HideManageExtensionClass;
+    this.enabled = false;
+    if (!this.mcpServer) {
+      return;
+    }
+    if (this.isEditorAction) {
+      this.enabled = true;
+      this.class = ManageMcpServerAction_1.Class;
+    } else {
+      this.enabled = !!this.mcpServer.local;
+      this.class = this.enabled ? ManageMcpServerAction_1.Class : ManageMcpServerAction_1.HideManageExtensionClass;
+    }
+  }
+};
+ManageMcpServerAction = ManageMcpServerAction_1 = __decorate([
+  __param(1, IInstantiationService)
+], ManageMcpServerAction);
+let StartServerAction = class StartServerAction2 extends McpServerAction {
+  static {
+    __name(this, "StartServerAction");
+  }
+  static {
+    StartServerAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent start`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService) {
+    super("extensions.start", localize("start", "Start Server"), StartServerAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = StartServerAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const serverState = server.connectionState.get();
+    if (!McpConnectionState.canBeStarted(serverState.state)) {
+      return;
+    }
+    this.class = StartServerAction_1.CLASS;
+    this.enabled = true;
+    this.label = localize("start", "Start Server");
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    await server.start({ promptType: "all-untrusted" });
+    server.showOutput();
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+StartServerAction = StartServerAction_1 = __decorate([
+  __param(0, IMcpService)
+], StartServerAction);
+let StopServerAction = class StopServerAction2 extends McpServerAction {
+  static {
+    __name(this, "StopServerAction");
+  }
+  static {
+    StopServerAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent stop`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService) {
+    super("extensions.stop", localize("stop", "Stop Server"), StopServerAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = StopServerAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const serverState = server.connectionState.get();
+    if (McpConnectionState.canBeStarted(serverState.state)) {
+      return;
+    }
+    this.class = StopServerAction_1.CLASS;
+    this.enabled = true;
+    this.label = localize("stop", "Stop Server");
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    await server.stop();
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+StopServerAction = StopServerAction_1 = __decorate([
+  __param(0, IMcpService)
+], StopServerAction);
+let RestartServerAction = class RestartServerAction2 extends McpServerAction {
+  static {
+    __name(this, "RestartServerAction");
+  }
+  static {
+    RestartServerAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent restart`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService) {
+    super("extensions.restart", localize("restart", "Restart Server"), RestartServerAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = RestartServerAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const serverState = server.connectionState.get();
+    if (McpConnectionState.canBeStarted(serverState.state)) {
+      return;
+    }
+    this.class = RestartServerAction_1.CLASS;
+    this.enabled = true;
+    this.label = localize("restart", "Restart Server");
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    await server.stop();
+    await server.start({ promptType: "all-untrusted" });
+    server.showOutput();
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+RestartServerAction = RestartServerAction_1 = __decorate([
+  __param(0, IMcpService)
+], RestartServerAction);
+let AuthServerAction = class AuthServerAction2 extends McpServerAction {
+  static {
+    __name(this, "AuthServerAction");
+  }
+  static {
+    AuthServerAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent account`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  static {
+    this.SIGN_OUT = localize("mcp.signOut", "Sign Out");
+  }
+  static {
+    this.DISCONNECT = localize("mcp.disconnect", "Disconnect Account");
+  }
+  constructor(mcpService, _authenticationQueryService, _authenticationService) {
+    super("extensions.restart", localize("restart", "Restart Server"), RestartServerAction.CLASS, false);
+    this.mcpService = mcpService;
+    this._authenticationQueryService = _authenticationQueryService;
+    this._authenticationService = _authenticationService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = AuthServerAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const accountQuery = this.getAccountQuery();
+    if (!accountQuery) {
+      return;
+    }
+    this._accountQuery = accountQuery;
+    this.class = AuthServerAction_1.CLASS;
+    this.enabled = true;
+    let label = accountQuery.entities().getEntityCount().total > 1 ? AuthServerAction_1.DISCONNECT : AuthServerAction_1.SIGN_OUT;
+    label += ` (${accountQuery.accountName})`;
+    this.label = label;
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const accountQuery = this.getAccountQuery();
+    if (!accountQuery) {
+      return;
+    }
+    await server.stop();
+    const { providerId, accountName } = accountQuery;
+    accountQuery.mcpServer(server.definition.id).setAccessAllowed(false, server.definition.label);
+    if (this.label === AuthServerAction_1.SIGN_OUT) {
+      const accounts = await this._authenticationService.getAccounts(providerId);
+      const account = accounts.find((a) => a.label === accountName);
+      if (account) {
+        const sessions = await this._authenticationService.getSessions(providerId, void 0, { account });
+        for (const session of sessions) {
+          await this._authenticationService.removeSession(providerId, session.id);
+        }
+      }
+    }
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+  getAccountQuery() {
+    const server = this.getServer();
+    if (!server) {
+      return void 0;
+    }
+    if (this._accountQuery) {
+      return this._accountQuery;
+    }
+    const serverId = server.definition.id;
+    const preferences = this._authenticationQueryService.mcpServer(serverId).getAllAccountPreferences();
+    if (!preferences.size) {
+      return void 0;
+    }
+    for (const [providerId, accountName] of preferences) {
+      const accountQuery = this._authenticationQueryService.provider(providerId).account(accountName);
+      if (!accountQuery.mcpServer(serverId).isAccessAllowed()) {
+        continue;
+      }
+      return accountQuery;
+    }
+    return void 0;
+  }
+};
+AuthServerAction = AuthServerAction_1 = __decorate([
+  __param(0, IMcpService),
+  __param(1, IAuthenticationQueryService),
+  __param(2, IAuthenticationService)
+], AuthServerAction);
+let ShowServerOutputAction = class ShowServerOutputAction2 extends McpServerAction {
+  static {
+    __name(this, "ShowServerOutputAction");
+  }
+  static {
+    ShowServerOutputAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent output`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService) {
+    super("extensions.output", localize("output", "Show Output"), ShowServerOutputAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = ShowServerOutputAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    this.class = ShowServerOutputAction_1.CLASS;
+    this.enabled = true;
+    this.label = localize("output", "Show Output");
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    server.showOutput();
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+ShowServerOutputAction = ShowServerOutputAction_1 = __decorate([
+  __param(0, IMcpService)
+], ShowServerOutputAction);
+let ShowServerConfigurationAction = class ShowServerConfigurationAction2 extends McpServerAction {
+  static {
+    __name(this, "ShowServerConfigurationAction");
+  }
+  static {
+    ShowServerConfigurationAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent config`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpWorkbenchService) {
+    super("extensions.config", localize("config", "Show Configuration"), ShowServerConfigurationAction_1.CLASS, false);
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = ShowServerConfigurationAction_1.HIDE;
+    if (!this.mcpServer?.local) {
+      return;
+    }
+    this.class = ShowServerConfigurationAction_1.CLASS;
+    this.enabled = true;
+  }
+  async run() {
+    if (!this.mcpServer?.local) {
+      return;
+    }
+    this.mcpWorkbenchService.open(this.mcpServer, {
+      tab: "configuration"
+      /* McpServerEditorTab.Configuration */
+    });
+  }
+};
+ShowServerConfigurationAction = ShowServerConfigurationAction_1 = __decorate([
+  __param(0, IMcpWorkbenchService)
+], ShowServerConfigurationAction);
+let ShowServerJsonConfigurationAction = class ShowServerJsonConfigurationAction2 extends McpServerAction {
+  static {
+    __name(this, "ShowServerJsonConfigurationAction");
+  }
+  static {
+    ShowServerJsonConfigurationAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent config`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService, mcpRegistry, editorService) {
+    super("extensions.jsonConfig", localize("configJson", "Show Configuration (JSON)"), ShowServerJsonConfigurationAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.mcpRegistry = mcpRegistry;
+    this.editorService = editorService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = ShowServerJsonConfigurationAction_1.HIDE;
+    const configurationTarget = this.getConfigurationTarget();
+    if (!configurationTarget) {
+      return;
+    }
+    this.class = ShowServerConfigurationAction.CLASS;
+    this.enabled = true;
+  }
+  async run() {
+    const configurationTarget = this.getConfigurationTarget();
+    if (!configurationTarget) {
+      return;
+    }
+    this.editorService.openEditor({
+      resource: URI.isUri(configurationTarget) ? configurationTarget : configurationTarget.uri,
+      options: { selection: URI.isUri(configurationTarget) ? void 0 : configurationTarget.range }
+    });
+  }
+  getConfigurationTarget() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    const server = this.mcpService.servers.get().find((s) => s.definition.label === this.mcpServer?.name);
+    if (!server) {
+      return;
+    }
+    const collection = this.mcpRegistry.collections.get().find((c) => c.id === server.collection.id);
+    const serverDefinition = collection?.serverDefinitions.get().find((s) => s.id === server.definition.id);
+    return serverDefinition?.presentation?.origin || collection?.presentation?.origin;
+  }
+};
+ShowServerJsonConfigurationAction = ShowServerJsonConfigurationAction_1 = __decorate([
+  __param(0, IMcpService),
+  __param(1, IMcpRegistry),
+  __param(2, IEditorService)
+], ShowServerJsonConfigurationAction);
+let ConfigureModelAccessAction = class ConfigureModelAccessAction2 extends McpServerAction {
+  static {
+    __name(this, "ConfigureModelAccessAction");
+  }
+  static {
+    ConfigureModelAccessAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent config`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService, commandService) {
+    super("extensions.config", localize("mcp.configAccess", "Configure Model Access"), ConfigureModelAccessAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.commandService = commandService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = ConfigureModelAccessAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    this.class = ConfigureModelAccessAction_1.CLASS;
+    this.enabled = true;
+    this.label = localize("mcp.configAccess", "Configure Model Access");
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    this.commandService.executeCommand("workbench.mcp.configureSamplingModels", server);
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+ConfigureModelAccessAction = ConfigureModelAccessAction_1 = __decorate([
+  __param(0, IMcpService),
+  __param(1, ICommandService)
+], ConfigureModelAccessAction);
+let ShowSamplingRequestsAction = class ShowSamplingRequestsAction2 extends McpServerAction {
+  static {
+    __name(this, "ShowSamplingRequestsAction");
+  }
+  static {
+    ShowSamplingRequestsAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent config`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService, samplingService, editorService) {
+    super("extensions.config", localize("mcp.samplingLog", "Show Sampling Requests"), ShowSamplingRequestsAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.samplingService = samplingService;
+    this.editorService = editorService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = ShowSamplingRequestsAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    if (!this.samplingService.hasLogs(server)) {
+      return;
+    }
+    this.class = ShowSamplingRequestsAction_1.CLASS;
+    this.enabled = true;
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    if (!this.samplingService.hasLogs(server)) {
+      return;
+    }
+    this.editorService.openEditor({
+      resource: void 0,
+      contents: this.samplingService.getLogText(server),
+      label: localize("mcp.samplingLog.title", "MCP Sampling: {0}", server.definition.label)
+    });
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+ShowSamplingRequestsAction = ShowSamplingRequestsAction_1 = __decorate([
+  __param(0, IMcpService),
+  __param(1, IMcpSamplingService),
+  __param(2, IEditorService)
+], ShowSamplingRequestsAction);
+let BrowseResourcesAction = class BrowseResourcesAction2 extends McpServerAction {
+  static {
+    __name(this, "BrowseResourcesAction");
+  }
+  static {
+    BrowseResourcesAction_1 = this;
+  }
+  static {
+    this.CLASS = `${this.LABEL_ACTION_CLASS} prominent config`;
+  }
+  static {
+    this.HIDE = `${this.CLASS} hide`;
+  }
+  constructor(mcpService, commandService) {
+    super("extensions.config", localize("mcp.resources", "Browse Resources"), BrowseResourcesAction_1.CLASS, false);
+    this.mcpService = mcpService;
+    this.commandService = commandService;
+    this.update();
+  }
+  update() {
+    this.enabled = false;
+    this.class = BrowseResourcesAction_1.HIDE;
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const capabilities = server.capabilities.get();
+    if (capabilities !== void 0 && !(capabilities & 16)) {
+      return;
+    }
+    this.class = BrowseResourcesAction_1.CLASS;
+    this.enabled = true;
+  }
+  async run() {
+    const server = this.getServer();
+    if (!server) {
+      return;
+    }
+    const capabilities = server.capabilities.get();
+    if (capabilities !== void 0 && !(capabilities & 16)) {
+      return;
+    }
+    return this.commandService.executeCommand("workbench.mcp.browseResources", server);
+  }
+  getServer() {
+    if (!this.mcpServer) {
+      return;
+    }
+    if (!this.mcpServer.local) {
+      return;
+    }
+    return this.mcpService.servers.get().find((s) => s.definition.id === this.mcpServer?.id);
+  }
+};
+BrowseResourcesAction = BrowseResourcesAction_1 = __decorate([
+  __param(0, IMcpService),
+  __param(1, ICommandService)
+], BrowseResourcesAction);
+let McpServerStatusAction = class McpServerStatusAction2 extends McpServerAction {
+  static {
+    __name(this, "McpServerStatusAction");
+  }
+  static {
+    McpServerStatusAction_1 = this;
+  }
+  static {
+    this.CLASS = `${McpServerAction.ICON_ACTION_CLASS} extension-status`;
+  }
+  get status() {
+    return this._status;
+  }
+  constructor(mcpWorkbenchService, commandService) {
+    super("extensions.status", "", `${McpServerStatusAction_1.CLASS} hide`, false);
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.commandService = commandService;
+    this._status = [];
+    this._onDidChangeStatus = this._register(new Emitter());
+    this.onDidChangeStatus = this._onDidChangeStatus.event;
+    this.update();
+  }
+  update() {
+    this.computeAndUpdateStatus();
+  }
+  computeAndUpdateStatus() {
+    this.updateStatus(void 0, true);
+    this.enabled = false;
+    if (!this.mcpServer) {
+      return;
+    }
+    if ((this.mcpServer.gallery || this.mcpServer.installable) && this.mcpServer.installState === 3) {
+      const result = this.mcpWorkbenchService.canInstall(this.mcpServer);
+      if (result !== true) {
+        this.updateStatus({ icon: warningIcon, message: result }, true);
+        return;
+      }
+    }
+    const runtimeState = this.mcpServer.runtimeStatus;
+    if (runtimeState?.message) {
+      this.updateStatus({ icon: runtimeState.message.severity === Severity.Warning ? warningIcon : runtimeState.message.severity === Severity.Error ? errorIcon : infoIcon, message: runtimeState.message.text }, true);
+    }
+  }
+  updateStatus(status, updateClass) {
+    if (status) {
+      if (this._status.some((s) => s.message.value === status.message.value && s.icon?.id === status.icon?.id)) {
+        return;
+      }
+    } else {
+      if (this._status.length === 0) {
+        return;
+      }
+      this._status = [];
+    }
+    if (status) {
+      this._status.push(status);
+      this._status.sort((a, b) => b.icon === trustIcon ? -1 : a.icon === trustIcon ? 1 : b.icon === errorIcon ? -1 : a.icon === errorIcon ? 1 : b.icon === warningIcon ? -1 : a.icon === warningIcon ? 1 : b.icon === infoIcon ? -1 : a.icon === infoIcon ? 1 : 0);
+    }
+    if (updateClass) {
+      if (status?.icon === errorIcon) {
+        this.class = `${McpServerStatusAction_1.CLASS} extension-status-error ${ThemeIcon.asClassName(errorIcon)}`;
+      } else if (status?.icon === warningIcon) {
+        this.class = `${McpServerStatusAction_1.CLASS} extension-status-warning ${ThemeIcon.asClassName(warningIcon)}`;
+      } else if (status?.icon === infoIcon) {
+        this.class = `${McpServerStatusAction_1.CLASS} extension-status-info ${ThemeIcon.asClassName(infoIcon)}`;
+      } else if (status?.icon === trustIcon) {
+        this.class = `${McpServerStatusAction_1.CLASS} ${ThemeIcon.asClassName(trustIcon)}`;
+      } else {
+        this.class = `${McpServerStatusAction_1.CLASS} hide`;
+      }
+    }
+    this._onDidChangeStatus.fire();
+  }
+  async run() {
+    if (this._status[0]?.icon === trustIcon) {
+      return this.commandService.executeCommand("workbench.trust.manage");
+    }
+  }
+};
+McpServerStatusAction = McpServerStatusAction_1 = __decorate([
+  __param(0, IMcpWorkbenchService),
+  __param(1, ICommandService)
+], McpServerStatusAction);
+export {
+  AuthServerAction,
+  BrowseResourcesAction,
+  ButtonWithDropDownExtensionAction,
+  ButtonWithDropdownExtensionActionViewItem,
+  ConfigureModelAccessAction,
+  DropDownAction,
+  DropDownExtensionActionViewItem,
+  InstallAction,
+  InstallInRemoteAction,
+  InstallInWorkspaceAction,
+  InstallingLabelAction,
+  ManageMcpServerAction,
+  McpServerAction,
+  McpServerStatusAction,
+  RestartServerAction,
+  ShowSamplingRequestsAction,
+  ShowServerConfigurationAction,
+  ShowServerJsonConfigurationAction,
+  ShowServerOutputAction,
+  StartServerAction,
+  StopServerAction,
+  UninstallAction,
+  getContextMenuActions
+};
+//# sourceMappingURL=mcpServerActions.js.map

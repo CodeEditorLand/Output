@@ -1,1 +1,56 @@
-function l(n){return n.reduce((i,e)=>{const t=e.diff.get();if(t.identical)return i;switch(e.type){case"delete":return i+1;case"insert":return i+1;case"modified":return i+t.changes.length;default:return i}},0)}function f(n){const i=new Map;return n.forEach((e,t)=>i.set(e,t)),[...n].sort((e,t)=>{if((e.type==="unchanged"||e.type==="modified")&&(t.type==="unchanged"||t.type==="modified"))return e.modifiedCellIndex-t.modifiedCellIndex;if(e.type==="delete"&&t.type==="delete")return e.originalCellIndex-t.originalCellIndex;if(e.type==="insert"&&t.type==="insert")return e.modifiedCellIndex-t.modifiedCellIndex;if(e.type==="delete"&&t.type==="insert"||e.type==="insert"&&t.type==="delete")return i.get(e)-i.get(t);if(e.type==="delete"&&t.type!=="insert"||e.type!=="insert"&&t.type==="delete")return e.originalCellIndex-t.originalCellIndex;const d=e.type==="delete"?e.originalCellIndex:(e.type==="insert",e.modifiedCellIndex),r=t.type==="delete"?t.originalCellIndex:(t.type==="insert",t.modifiedCellIndex);return d-r})}export{l as $Ppc,f as $Qpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function countChanges(changes) {
+  return changes.reduce((count, change) => {
+    const diff = change.diff.get();
+    if (diff.identical) {
+      return count;
+    }
+    switch (change.type) {
+      case "delete":
+        return count + 1;
+      // We want to see 1 deleted entry in the pill for navigation
+      case "insert":
+        return count + 1;
+      // We want to see 1 new entry in the pill for navigation
+      case "modified":
+        return count + diff.changes.length;
+      default:
+        return count;
+    }
+  }, 0);
+}
+__name(countChanges, "countChanges");
+function sortCellChanges(changes) {
+  const indexes = /* @__PURE__ */ new Map();
+  changes.forEach((c, i) => indexes.set(c, i));
+  return [...changes].sort((a, b) => {
+    if ((a.type === "unchanged" || a.type === "modified") && (b.type === "unchanged" || b.type === "modified")) {
+      return a.modifiedCellIndex - b.modifiedCellIndex;
+    }
+    if (a.type === "delete" && b.type === "delete") {
+      return a.originalCellIndex - b.originalCellIndex;
+    }
+    if (a.type === "insert" && b.type === "insert") {
+      return a.modifiedCellIndex - b.modifiedCellIndex;
+    }
+    if (a.type === "delete" && b.type === "insert") {
+      return indexes.get(a) - indexes.get(b);
+    }
+    if (a.type === "insert" && b.type === "delete") {
+      return indexes.get(a) - indexes.get(b);
+    }
+    if (a.type === "delete" && b.type !== "insert" || a.type !== "insert" && b.type === "delete") {
+      return a.originalCellIndex - b.originalCellIndex;
+    }
+    const aIndex = a.type === "delete" ? a.originalCellIndex : a.type === "insert" ? a.modifiedCellIndex : a.modifiedCellIndex;
+    const bIndex = b.type === "delete" ? b.originalCellIndex : b.type === "insert" ? b.modifiedCellIndex : b.modifiedCellIndex;
+    return aIndex - bIndex;
+  });
+}
+__name(sortCellChanges, "sortCellChanges");
+export {
+  countChanges,
+  sortCellChanges
+};
+//# sourceMappingURL=notebookCellChanges.js.map

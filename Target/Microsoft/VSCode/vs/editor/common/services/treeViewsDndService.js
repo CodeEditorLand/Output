@@ -1,1 +1,14 @@
-import{$WC as r}from"../../../platform/instantiation/common/extensions.js";import{$Nj as o}from"../../../platform/instantiation/common/instantiation.js";import{$1ub as e}from"./treeViewsDnd.js";const m=o("treeViewsDndService");r(m,e,1);export{m as $3ub};
+import { registerSingleton } from "../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { TreeViewsDnDService } from "./treeViewsDnd.js";
+const ITreeViewsDnDService = createDecorator("treeViewsDndService");
+registerSingleton(
+  ITreeViewsDnDService,
+  TreeViewsDnDService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ITreeViewsDnDService
+};
+//# sourceMappingURL=treeViewsDndService.js.map

@@ -1,1 +1,72 @@
-import{localize as i}from"../../../../nls.js";const P=(c,l)=>{let e=0,n=0,o=0,u=0,t=0;for(const f of l){const r=f.counts;n+=r[6]+r[4],e+=r[3],o+=r[5],u+=r[2],t+=r[1]}return{isRunning:c,passed:e,failed:n,runSoFar:e+n,totalWillBeRun:e+n+t+u,skipped:o}},m=({isRunning:c,passed:l,runSoFar:e,totalWillBeRun:n,skipped:o,failed:u})=>{let t=l/e*100;return u>0?t=Math.min(t,99.9):e===0&&(t=0),c?e===0?i(14521,null):o===0?i(14522,null,l,n,t.toPrecision(3)):i(14523,null,l,n,t.toPrecision(3),o):o===0?i(14524,null,l,e,t.toPrecision(3)):i(14525,null,l,e,t.toPrecision(3),o)};export{P as $Ouc,m as $Puc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+const collectTestStateCounts = /* @__PURE__ */ __name((isRunning, results) => {
+  let passed = 0;
+  let failed = 0;
+  let skipped = 0;
+  let running = 0;
+  let queued = 0;
+  for (const result of results) {
+    const count = result.counts;
+    failed += count[
+      6
+      /* TestResultState.Errored */
+    ] + count[
+      4
+      /* TestResultState.Failed */
+    ];
+    passed += count[
+      3
+      /* TestResultState.Passed */
+    ];
+    skipped += count[
+      5
+      /* TestResultState.Skipped */
+    ];
+    running += count[
+      2
+      /* TestResultState.Running */
+    ];
+    queued += count[
+      1
+      /* TestResultState.Queued */
+    ];
+  }
+  return {
+    isRunning,
+    passed,
+    failed,
+    runSoFar: passed + failed,
+    totalWillBeRun: passed + failed + queued + running,
+    skipped
+  };
+}, "collectTestStateCounts");
+const getTestProgressText = /* @__PURE__ */ __name(({ isRunning, passed, runSoFar, totalWillBeRun, skipped, failed }) => {
+  let percent = passed / runSoFar * 100;
+  if (failed > 0) {
+    percent = Math.min(percent, 99.9);
+  } else if (runSoFar === 0) {
+    percent = 0;
+  }
+  if (isRunning) {
+    if (runSoFar === 0) {
+      return localize("testProgress.runningInitial", "Running tests...");
+    } else if (skipped === 0) {
+      return localize("testProgress.running", "Running tests, {0}/{1} passed ({2}%)", passed, totalWillBeRun, percent.toPrecision(3));
+    } else {
+      return localize("testProgressWithSkip.running", "Running tests, {0}/{1} tests passed ({2}%, {3} skipped)", passed, totalWillBeRun, percent.toPrecision(3), skipped);
+    }
+  } else {
+    if (skipped === 0) {
+      return localize("testProgress.completed", "{0}/{1} tests passed ({2}%)", passed, runSoFar, percent.toPrecision(3));
+    } else {
+      return localize("testProgressWithSkip.completed", "{0}/{1} tests passed ({2}%, {3} skipped)", passed, runSoFar, percent.toPrecision(3), skipped);
+    }
+  }
+}, "getTestProgressText");
+export {
+  collectTestStateCounts,
+  getTestProgressText
+};
+//# sourceMappingURL=testingProgressMessages.js.map

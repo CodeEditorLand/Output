@@ -1,1 +1,2627 @@
-import{$sc as Ee,$$b as Ce,$bc as Ie,$cc as te}from"../../../base/common/arrays.js";import{$Wh as Se}from"../../../base/common/async.js";import{CancellationToken as $e}from"../../../base/common/cancellation.js";import{$zb as Re,$rb as He}from"../../../base/common/errors.js";import{$14 as we}from"../../../base/common/idGenerator.js";import{$Dd as $,$Ed as Te}from"../../../base/common/lifecycle.js";import{$Gp as Ae,$Fp as be}from"../../../base/common/objects.js";import{$rf as Le}from"../../../base/common/stopwatch.js";import{$9f as ke}from"../../../base/common/strings.js";import{$fd as je,$9c as Ge}from"../../../base/common/types.js";import{URI as u}from"../../../base/common/uri.js";import{$ln as Fe}from"../../../base/common/uuid.js";import{$_D as ie}from"../../../editor/common/core/range.js";import{$bE as Ne}from"../../../editor/common/core/selection.js";import*as F from"../../../editor/common/languages.js";import{$_wb as ee}from"../../../editor/common/services/semanticTokensDto.js";import{localize as Pe}from"../../../nls.js";import{$Iz as K}from"../../../platform/extensions/common/extensions.js";import{$QR as T}from"../../services/extensions/common/extensions.js";import{$eYc as w}from"./cache.js";import*as qe from"./extHost.protocol.js";import*as a from"./extHostTypeConverters.js";import{$n2 as Me,CodeActionKind as ze,$z2 as Oe,$X2 as Ke,$e2 as I,$Z2 as We,$m2 as xe,InlineCompletionsDisposeReasonKind as A,InlineCompletionTriggerKind as ne,$U2 as Ve,Location as Ue,NewSymbolNameTriggerKind as se,Range as q,$n3 as Je,$o3 as Be,$p3 as Q,SnippetString as Qe,SyntaxTokenType as Xe}from"./extHostTypes.js";import{$xf as Ze}from"../../../base/common/event.js";class J{constructor(e,t){this.d=e,this.f=t}async provideDocumentSymbols(e,t){const i=this.d.getDocument(e),n=await this.f.provideDocumentSymbols(i,t);if(!Ie(n))return n[0]instanceof xe?n.map(a.DocumentSymbol.from):J.g(n)}static g(e){e=e.slice(0).sort((n,s)=>{let r=n.location.range.start.compareTo(s.location.range.start);return r===0&&(r=s.location.range.end.compareTo(n.location.range.end)),r});const t=[],i=[];for(const n of e){const s={name:n.name||"!!MISSING: name!!",kind:a.SymbolKind.from(n.kind),tags:n.tags?.map(a.SymbolTag.from)||[],detail:"",containerName:n.containerName,range:a.Range.from(n.location.range),selectionRange:a.Range.from(n.location.range),children:[]};for(;;){if(i.length===0){i.push(s),t.push(s);break}const r=i[i.length-1];if(ie.containsRange(r.range,s.range)&&!ie.equalsRange(r.range,s.range)){r.children?.push(s),i.push(s);break}i.pop()}}return t}}class W{constructor(e,t,i,n,s,r){this.g=e,this.h=t,this.j=i,this.k=n,this.l=s,this.m=r,this.d=new w("CodeLens"),this.f=new Map}async provideCodeLenses(e,t){const i=this.g.getDocument(e),n=await this.j.provideCodeLenses(i,t);if(!n||t.isCancellationRequested)return;const s=this.d.add(n),r=new $;this.f.set(s,r);const o={cacheId:s,lenses:[]};for(let d=0;d<n.length;d++)q.isRange(n[d].range)&&o.lenses.push({cacheId:[s,d],range:a.Range.from(n[d].range),command:this.h.toInternal(n[d].command,r)});return o}async resolveCodeLens(e,t){const i=e.cacheId&&this.d.get(...e.cacheId);if(!i)return;let n;if(typeof this.j.resolveCodeLens!="function"||i.isResolved?n=i:n=await this.j.resolveCodeLens(i,t),n||(n=i),t.isCancellationRequested)return;const s=e.cacheId&&this.f.get(e.cacheId[0]);if(s){if(!n.command){const r=new Error("INVALID code lens resolved, lacks command: "+this.k.identifier.value);this.l.onExtensionError(this.k.identifier,r),this.m.error(r);return}return e.command=this.h.toInternal(n.command,s),e}}releaseCodeLenses(e){this.f.get(e)?.dispose(),this.f.delete(e),this.d.delete(e)}}function B(m){return Array.isArray(m)?m.map(a.DefinitionLink.from):m?[a.DefinitionLink.from(m)]:[]}class re{constructor(e,t){this.d=e,this.f=t}async provideDefinition(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideDefinition(n,s,i);return B(r)}}class oe{constructor(e,t){this.d=e,this.f=t}async provideDeclaration(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideDeclaration(n,s,i);return B(r)}}class ae{constructor(e,t){this.d=e,this.f=t}async provideImplementation(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideImplementation(n,s,i);return B(r)}}class de{constructor(e,t){this.d=e,this.f=t}async provideTypeDefinition(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideTypeDefinition(n,s,i);return B(r)}}class N{static{this.g=10}constructor(e,t){this.h=e,this.j=t,this.d=0,this.f=new Map}async provideHover(e,t,i,n){const s=this.h.getDocument(e),r=a.Position.to(t);let o;if(i&&i.verbosityRequest){const h=i.verbosityRequest.previousHover.id,p=this.f.get(h);if(!p)throw new Error(`Hover with id ${h} not found`);const g={verbosityDelta:i.verbosityRequest.verbosityDelta,previousHover:p};o=await this.j.provideHover(s,r,n,g)}else o=await this.j.provideHover(s,r,n);if(!o||Ie(o.contents))return;o.range||(o.range=s.getWordRangeAtPosition(r)),o.range||(o.range=new q(r,r));const d=a.Hover.from(o),c=this.d;if(this.f.size===N.g){const h=Math.min(...this.f.keys());this.f.delete(h)}return this.f.set(c,o),this.d+=1,{...d,id:c}}releaseHover(e){this.f.delete(e)}}class ce{constructor(e,t){this.d=e,this.f=t}async provideEvaluatableExpression(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideEvaluatableExpression(n,s,i);if(r)return a.EvaluatableExpression.from(r)}}class le{constructor(e,t){this.d=e,this.f=t}async provideInlineValues(e,t,i,n){const s=this.d.getDocument(e),r=await this.f.provideInlineValues(s,a.Range.to(t),a.InlineValueContext.to(i),n);if(Array.isArray(r))return r.map(o=>a.InlineValue.from(o))}}class he{constructor(e,t){this.d=e,this.f=t}async provideDocumentHighlights(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideDocumentHighlights(n,s,i);if(Array.isArray(r))return r.map(a.DocumentHighlight.from)}}class ue{constructor(e,t,i){this.d=e,this.f=t,this.g=i}async provideMultiDocumentHighlights(e,t,i,n){const s=this.d.getDocument(e),r=i.map(c=>{try{return this.d.getDocument(c)}catch(f){this.g.error("Error: Unable to retrieve document from URI: "+c+". Error message: "+f);return}}).filter(c=>c!==void 0),o=a.Position.to(t),d=await this.f.provideMultiDocumentHighlights(s,o,r,n);if(Array.isArray(d))return d.map(a.MultiDocumentHighlight.from)}}class fe{constructor(e,t){this.d=e,this.f=t}async provideLinkedEditingRanges(e,t,i){const n=this.d.getDocument(e),s=a.Position.to(t),r=await this.f.provideLinkedEditingRanges(n,s,i);if(r&&Array.isArray(r.ranges))return{ranges:Ce(r.ranges.map(a.Range.from)),wordPattern:r.wordPattern}}}class pe{constructor(e,t){this.d=e,this.f=t}async provideReferences(e,t,i,n){const s=this.d.getDocument(e),r=a.Position.to(t),o=await this.f.provideReferences(s,r,i,n);if(Array.isArray(o))return o.map(a.location.from)}}class E{static{this.d=1e3}constructor(e,t,i,n,s,r,o){this.h=e,this.j=t,this.k=i,this.l=n,this.m=s,this.n=r,this.o=o,this.f=new w("CodeAction"),this.g=new Map}async provideCodeActions(e,t,i,n){const s=this.h.getDocument(e),r=Ne.isISelection(t)?a.Selection.to(t):a.Range.to(t),o=[];for(const g of this.k.getDiagnostics(e))if(r.intersection(g.range)&&o.push(g)>E.d)break;const d={diagnostics:o,only:i.only?new ze(i.only):void 0,triggerKind:a.CodeActionTriggerKind.to(i.trigger)},c=await this.l.provideCodeActions(s,r,d,n);if(!te(c)||n.isCancellationRequested)return;const f=this.f.add(c),h=new $;this.g.set(f,h);const p=[];for(let g=0;g<c.length;g++){const y=c[g];if(y)if(E.p(y)&&!(y instanceof Me))this.o.report("CodeActionProvider.provideCodeActions - return commands",this.n,"Return 'CodeAction' instances instead."),p.push({_isSynthetic:!0,title:y.title,command:this.j.toInternal(y,h)});else{const l=y;d.only&&(l.kind?d.only.contains(l.kind)||this.m.warn(`${this.n.identifier.value} - Code actions of kind '${d.only.value}' requested but returned code action is of kind '${l.kind.value}'. Code action will be dropped. Please check 'CodeActionContext.only' to only return requested code actions.`):this.m.warn(`${this.n.identifier.value} - Code actions of kind '${d.only.value}' requested but returned code action does not have a 'kind'. Code action will be dropped. Please set 'CodeAction.kind'.`));const C=l.ranges??[];p.push({cacheId:[f,g],title:l.title,command:l.command&&this.j.toInternal(l.command,h),diagnostics:l.diagnostics&&l.diagnostics.map(a.Diagnostic.from),edit:l.edit&&a.WorkspaceEdit.from(l.edit,void 0),kind:l.kind&&l.kind.value,isPreferred:l.isPreferred,isAI:T(this.n,"codeActionAI")?l.isAI:!1,ranges:T(this.n,"codeActionRanges")?Ce(C.map(a.Range.from)):void 0,disabled:l.disabled?.reason})}}return{cacheId:f,actions:p}}async resolveCodeAction(e,t){const[i,n]=e,s=this.f.get(i,n);if(!s||E.p(s))return{};if(!this.l.resolveCodeAction)return{};const r=await this.l.resolveCodeAction(s,t)??s;let o;r.edit&&(o=a.WorkspaceEdit.from(r.edit,void 0));let d;if(r.command){const c=this.g.get(i);c&&(d=this.j.toInternal(r.command,c))}return{edit:o,command:d}}releaseCodeActions(e){this.g.get(e)?.dispose(),this.g.delete(e),this.f.delete(e)}static p(e){return typeof e.command=="string"&&typeof e.title=="string"}}class L{constructor(e,t,i,n,s){this.g=e,this.h=t,this.j=i,this.k=n,this.l=s,this.f=new w("DocumentPasteEdit.edits")}async prepareDocumentPaste(e,t,i,n){if(!this.j.prepareDocumentPaste)return;this.d=void 0;const s=this.h.getDocument(e),r=t.map(h=>a.Range.to(h)),o=a.DataTransfer.toDataTransfer(i,()=>{throw new Re});if(await this.j.prepareDocumentPaste(s,r,o,n),n.isCancellationRequested)return;const d=Array.from(o).filter(([,h])=>!(h instanceof Ve)),c=new Map,f=await Promise.all(Array.from(d,async([h,p])=>{const g=Fe();return c.set(g,p),[h,await a.DataTransferItem.from(h,p,g)]}));return this.d=c,{items:f}}async providePasteEdits(e,t,i,n,s,r){if(!this.j.provideDocumentPasteEdits)return[];const o=this.h.getDocument(t),d=i.map(g=>a.Range.to(g)),c=n.items.map(([g,y])=>{const l=this.d?.get(y.id);return l?[g,l]:[g,a.DataTransferItem.to(g,y,async C=>(await this.g.$resolvePasteFileData(this.k,e,C)).buffer)]}),f=new Ke(c),h=await this.j.provideDocumentPasteEdits(o,d,f,{only:s.only?new We(s.only):void 0,triggerKind:s.triggerKind},r);if(!h||r.isCancellationRequested)return[];const p=this.f.add(h);return h.map((g,y)=>({_cacheId:[p,y],title:g.title??Pe(3048,null,this.l.displayName||this.l.name),kind:g.kind,yieldTo:g.yieldTo?.map(l=>l.value),insertText:typeof g.insertText=="string"?g.insertText:{snippet:g.insertText.value},additionalEdit:g.additionalEdit?a.WorkspaceEdit.from(g.additionalEdit,void 0):void 0}))}async resolvePasteEdit(e,t){const[i,n]=e,s=this.f.get(i,n);if(!s||!this.j.resolveDocumentPasteEdit)return{};const r=await this.j.resolveDocumentPasteEdit(s,t)??s;return{insertText:r.insertText,additionalEdit:r.additionalEdit?a.WorkspaceEdit.from(r.additionalEdit,void 0):void 0}}releasePasteEdits(e){this.f.delete(e)}}class me{constructor(e,t){this.d=e,this.f=t}async provideDocumentFormattingEdits(e,t,i){const n=this.d.getDocument(e),s=await this.f.provideDocumentFormattingEdits(n,t,i);if(Array.isArray(s))return s.map(a.TextEdit.from)}}class X{constructor(e,t){this.d=e,this.f=t}async provideDocumentRangeFormattingEdits(e,t,i,n){const s=this.d.getDocument(e),r=a.Range.to(t),o=await this.f.provideDocumentRangeFormattingEdits(s,r,i,n);if(Array.isArray(o))return o.map(a.TextEdit.from)}async provideDocumentRangesFormattingEdits(e,t,i,n){je(typeof this.f.provideDocumentRangesFormattingEdits=="function","INVALID invocation of `provideDocumentRangesFormattingEdits`");const s=this.d.getDocument(e),r=t.map(a.Range.to),o=await this.f.provideDocumentRangesFormattingEdits(s,r,i,n);if(Array.isArray(o))return o.map(a.TextEdit.from)}}class ge{constructor(e,t){this.d=e,this.f=t,this.autoFormatTriggerCharacters=[]}async provideOnTypeFormattingEdits(e,t,i,n,s){const r=this.d.getDocument(e),o=a.Position.to(t),d=await this.f.provideOnTypeFormattingEdits(r,o,i,n,s);if(Array.isArray(d))return d.map(a.TextEdit.from)}}class x{constructor(e,t){this.f=e,this.g=t,this.d=new w("WorkspaceSymbols")}async provideWorkspaceSymbols(e,t){const i=await this.f.provideWorkspaceSymbols(e,t);if(!te(i))return{symbols:[]};const n=this.d.add(i),s={cacheId:n,symbols:[]};for(let r=0;r<i.length;r++){const o=i[r];if(!o||!o.name){this.g.warn("INVALID SymbolInformation",o);continue}s.symbols.push({...a.WorkspaceSymbol.from(o),cacheId:[n,r]})}return s}async resolveWorkspaceSymbol(e,t){if(typeof this.f.resolveWorkspaceSymbol!="function"||!e.cacheId)return e;const i=this.d.get(...e.cacheId);if(i){const n=await this.f.resolveWorkspaceSymbol(i,t);return n&&be(e,a.WorkspaceSymbol.from(n),!0)}}releaseWorkspaceSymbols(e){this.d.delete(e)}}class H{static supportsResolving(e){return typeof e.prepareRename=="function"}constructor(e,t,i){this.d=e,this.f=t,this.g=i}async provideRenameEdits(e,t,i,n){const s=this.d.getDocument(e),r=a.Position.to(t);try{const o=await this.f.provideRenameEdits(s,r,i,n);return o?a.WorkspaceEdit.from(o):void 0}catch(o){const d=H.h(o);return d?{rejectReason:d,edits:void 0}:Promise.reject(o)}}async resolveRenameLocation(e,t,i){if(typeof this.f.prepareRename!="function")return Promise.resolve(void 0);const n=this.d.getDocument(e),s=a.Position.to(t);try{const r=await this.f.prepareRename(n,s,i);let o,d;if(q.isRange(r)?(o=r,d=n.getText(r)):Ge(r)&&(o=r.range,d=r.placeholder),!o||!d)return;if(o.start.line>s.line||o.end.line<s.line){this.g.warn("INVALID rename location: position line must be within range start/end lines");return}return{range:a.Range.from(o),text:d}}catch(r){const o=H.h(r);return o?{rejectReason:o,range:void 0,text:void 0}:Promise.reject(r)}}static h(e){return typeof e=="string"?e:e instanceof Error&&typeof e.message=="string"?e.message:void 0}}class b{static{this.d={[F.NewSymbolNameTriggerKind.Invoke]:se.Invoke,[F.NewSymbolNameTriggerKind.Automatic]:se.Automatic}}constructor(e,t,i){this.f=e,this.g=t,this.h=i}async supportsAutomaticNewSymbolNamesTriggerKind(){return this.g.supportsAutomaticTriggerKind}async provideNewSymbolNames(e,t,i,n){const s=this.f.getDocument(e),r=a.Range.to(t);try{const o=b.d[i],d=await this.g.provideNewSymbolNames(s,r,o,n);return d?d.map(c=>typeof c=="string"?{newSymbolName:c}:{newSymbolName:c.newSymbolName,tags:c.tags}):void 0}catch(o){this.h.error(b.j(o)??JSON.stringify(o,null,"	"));return}}static j(e){return typeof e=="string"?e:e instanceof Error&&typeof e.message=="string"?e.message:void 0}}class Z{constructor(e,t){this.resultId=e,this.tokens=t}}class D{constructor(e,t){this.g=e,this.h=t,this.f=1,this.d=new Map}async provideDocumentSemanticTokens(e,t,i){const n=this.g.getDocument(e),s=t!==0?this.d.get(t):null;let r=typeof s?.resultId=="string"&&typeof this.h.provideDocumentSemanticTokensEdits=="function"?await this.h.provideDocumentSemanticTokensEdits(n,s.resultId,i):await this.h.provideDocumentSemanticTokens(n,i);return s&&this.d.delete(t),r?(r=D.j(r),this.p(D.o(s,r),r)):null}async releaseDocumentSemanticColoring(e){this.d.delete(e)}static j(e){return D.k(e)?D.l(e)?e:new Je(new Uint32Array(e.data),e.resultId):D.m(e)?D.n(e)?e:new Q(e.edits.map(t=>new Be(t.start,t.deleteCount,t.data?new Uint32Array(t.data):t.data)),e.resultId):e}static k(e){return e&&!!e.data}static l(e){return e.data instanceof Uint32Array}static m(e){return e&&Array.isArray(e.edits)}static n(e){for(const t of e.edits)if(!(t.data instanceof Uint32Array))return!1;return!0}static o(e,t){if(!D.k(t)||!e||!e.tokens)return t;const i=e.tokens,n=i.length,s=t.data,r=s.length;let o=0;const d=Math.min(n,r);for(;o<d&&i[o]===s[o];)o++;if(o===n&&o===r)return new Q([],t.resultId);let c=0;const f=d-o;for(;c<f&&i[n-c-1]===s[r-c-1];)c++;return new Q([{start:o,deleteCount:n-o-c,data:s.subarray(o,r-c)}],t.resultId)}p(e,t){if(D.k(e)){const i=this.f++;return this.d.set(i,new Z(e.resultId,e.data)),ee({id:i,type:"full",data:e.data})}if(D.m(e)){const i=this.f++;return D.k(t)?this.d.set(i,new Z(t.resultId,t.data)):this.d.set(i,new Z(e.resultId)),ee({id:i,type:"delta",deltas:(e.edits||[]).map(n=>({start:n.start,deleteCount:n.deleteCount,data:n.data}))})}return null}}class ve{constructor(e,t){this.d=e,this.f=t}async provideDocumentRangeSemanticTokens(e,t,i){const n=this.d.getDocument(e),s=await this.f.provideDocumentRangeSemanticTokens(n,a.Range.to(t),i);return s?this.g(s):null}g(e){return ee({id:0,type:"full",data:e.data})}}class R{static supportsResolving(e){return typeof e.resolveCompletionItem=="function"}constructor(e,t,i,n,s){this.g=e,this.h=t,this.j=i,this.k=n,this.l=s,this.d=new w("CompletionItem"),this.f=new Map}async provideCompletionItems(e,t,i,n){const s=this.g.getDocument(e),r=a.Position.to(t),o=s.getWordRangeAtPosition(r)||new q(r,r),d=o.with({end:r}),c=new Le,f=await this.j.provideCompletionItems(s,r,n,a.CompletionContext.to(i));if(!f||n.isCancellationRequested)return;const h=Array.isArray(f)?new Oe(f):f,p=R.supportsResolving(this.j)?this.d.add(h.items):this.d.add([]),g=new $;this.f.set(p,g);const y=[],l={x:p,b:y,a:{replace:a.Range.from(o),insert:a.Range.from(d)},c:h.isIncomplete||void 0,d:c.elapsed()};for(let C=0;C<h.items.length;C++){const M=h.items[C],z=this.m(M,[p,C],d,o);y.push(z)}return l}async resolveCompletionItem(e,t){if(typeof this.j.resolveCompletionItem!="function")return;const i=this.d.get(...e);if(!i)return;const n=this.m(i,e),s=await this.j.resolveCompletionItem(i,t);if(!s)return;const r=this.m(s,e);return(n.h!==r.h||n.i!==r.i)&&this.k.report("CompletionItem.insertText",this.l,"extension MAY NOT change 'insertText' of a CompletionItem during resolve"),(n.n!==r.n||n.o!==r.o||!Ae(n.p,r.p))&&this.k.report("CompletionItem.command",this.l,"extension MAY NOT change 'command' of a CompletionItem during resolve"),{...n,d:r.d,c:r.c,l:r.l,h:r.h,i:r.i,n:r.n,o:r.o,p:r.p}}releaseCompletionItems(e){this.f.get(e)?.dispose(),this.f.delete(e),this.d.delete(e)}m(e,t,i,n){const s=this.f.get(t[0]);if(!s)throw Error("DisposableStore is missing...");const r=this.h.toInternal(e.command,s),o={x:t,a:e.label,b:e.kind!==void 0?a.CompletionItemKind.from(e.kind):void 0,m:e.tags&&e.tags.map(a.CompletionItemTag.from),c:e.detail,d:typeof e.documentation>"u"?void 0:a.MarkdownString.fromStrict(e.documentation),e:e.sortText!==e.label?e.sortText:void 0,f:e.filterText!==e.label?e.filterText:void 0,g:e.preselect||void 0,i:e.keepWhitespace?1:0,k:e.commitCharacters?.join(""),l:e.additionalTextEdits&&e.additionalTextEdits.map(a.TextEdit.from),n:r?.$ident,o:r?.id,p:r?.$ident?void 0:r?.arguments};e.textEdit?(this.k.report("CompletionItem.textEdit",this.l,"Use 'CompletionItem.insertText' and 'CompletionItem.range' instead."),o.h=e.textEdit.newText):typeof e.insertText=="string"?o.h=e.insertText:e.insertText instanceof Qe&&(o.h=e.insertText.value,o.i|=4);let d;return e.textEdit?d=e.textEdit.range:e.range&&(d=e.range),q.isRange(d)?o.j=a.Range.from(d):d&&(!i?.isEqual(d.inserting)||!n?.isEqual(d.replacing))&&(o.j={insert:a.Range.from(d.inserting),replace:a.Range.from(d.replacing)}),o}}class P{constructor(e,t,i,n){this.g=e,this.h=t,this.j=i,this.k=n,this.d=new _e,this.l={[F.InlineCompletionTriggerKind.Automatic]:ne.Automatic,[F.InlineCompletionTriggerKind.Explicit]:ne.Invoke},this.f=T(this.g,"inlineCompletionsAdditions")}get supportsHandleEvents(){return T(this.g,"inlineCompletionsAdditions")&&(typeof this.j.handleDidShowCompletionItem=="function"||typeof this.j.handleDidPartiallyAcceptCompletionItem=="function"||typeof this.j.handleDidRejectCompletionItem=="function"||typeof this.j.handleEndOfLifetime=="function")}get supportsSetModelId(){return T(this.g,"inlineCompletionsAdditions")&&typeof this.j.setCurrentModelId=="function"}get modelInfo(){if(this.f)return this.j.modelInfo?{models:this.j.modelInfo.models,currentModelId:this.j.modelInfo.currentModelId}:void 0}setCurrentModelId(e){this.f&&this.j.setCurrentModelId?.(e)}async provideInlineCompletions(e,t,i,n){const s=this.h.getDocument(e),r=a.Position.to(t),o=await this.j.provideInlineCompletionItems(s,r,{selectedCompletionInfo:i.selectedSuggestionInfo?{range:a.Range.to(i.selectedSuggestionInfo.range),text:i.selectedSuggestionInfo.text}:void 0,triggerKind:this.l[i.triggerKind],requestUuid:i.requestUuid,requestIssuedDateTime:i.requestIssuedDateTime,earliestShownDateTime:i.earliestShownDateTime,changeHint:i.changeHint},n);if(!o)return;const{resultItems:d,list:c}=Array.isArray(o)?{resultItems:o,list:void 0}:{resultItems:o.items,list:o},f=this.f?Array.isArray(o)?[]:o.commands||[]:[],h=this.f&&!Array.isArray(o)?o.enableForwardStability:void 0;let p;return{pid:this.d.createReferenceId({dispose(){p?.dispose()},items:d,list:c}),languageId:s.languageId,items:d.map((l,C)=>{let M;l.command&&(p||(p=new $),M=this.k.toInternal(l.command,p));let z;l.action&&(p||(p=new $),z=this.k.toInternal(l.action,p));const O=l.insertText;return{insertText:O===void 0?void 0:typeof O=="string"?O:{snippet:O.value},range:l.range?a.Range.from(l.range):void 0,showRange:this.f&&l.showRange?a.Range.from(l.showRange):void 0,command:M,gutterMenuLinkAction:z,idx:C,completeBracketPairs:this.f?l.completeBracketPairs:!1,isInlineEdit:this.f?l.isInlineEdit:!1,showInlineEditMenu:this.f?l.showInlineEditMenu:!1,hint:l.displayLocation&&this.f?{range:a.Range.from(l.displayLocation.range),content:l.displayLocation.label,style:l.displayLocation.kind?a.InlineCompletionHintStyle.from(l.displayLocation.kind):F.InlineCompletionHintStyle.Code}:void 0,warning:l.warning&&this.f?{message:a.MarkdownString.from(l.warning.message),icon:l.warning.icon?a.IconPath.fromThemeIcon(l.warning.icon):void 0}:void 0,correlationId:this.f?l.correlationId:void 0,suggestionId:void 0,uri:this.f&&l.uri?l.uri:void 0,supportsRename:this.f?l.supportsRename:!1,jumpToPosition:this.f&&l.jumpToPosition?a.Position.from(l.jumpToPosition):void 0}}),commands:f.map(l=>(p||(p=new $),a.CompletionCommand.from(l,this.k,p))),suppressSuggestions:!1,enableForwardStability:h}}disposeCompletions(e,t){const i=this.d.get(e);if(this.j.handleListEndOfLifetime&&this.f&&i?.list){let r=function(o){switch(o.kind){case"lostRace":return{kind:A.LostRace};case"tokenCancellation":return{kind:A.TokenCancellation};case"other":return{kind:A.Other};case"empty":return{kind:A.Empty};case"notTaken":return{kind:A.NotTaken};default:return{kind:A.Other}}};var s=r;this.j.handleListEndOfLifetime(i.list,r(t))}this.d.disposeReferenceId(e)?.dispose()}handleDidShowCompletionItem(e,t,i){const n=this.d.get(e)?.items[t];n&&this.j.handleDidShowCompletionItem&&this.f&&this.j.handleDidShowCompletionItem(n,i)}handlePartialAccept(e,t,i,n){const s=this.d.get(e)?.items[t];s&&this.j.handleDidPartiallyAcceptCompletionItem&&this.f&&(this.j.handleDidPartiallyAcceptCompletionItem(s,i),this.j.handleDidPartiallyAcceptCompletionItem(s,a.PartialAcceptInfo.to(n)))}handleEndOfLifetime(e,t,i){const n=this.d.get(e)?.items[t];if(n&&this.j.handleEndOfLifetime&&this.f){const s=a.InlineCompletionEndOfLifeReason.to(i,r=>this.d.get(r.pid)?.items[r.idx]);this.j.handleEndOfLifetime(n,s)}}handleRejection(e,t){const i=this.d.get(e)?.items[t];i&&this.j.handleDidRejectCompletionItem&&this.f&&this.j.handleDidRejectCompletionItem(i)}}class _e{constructor(){this.d=new Map,this.f=1}createReferenceId(e){const t=this.f++;return this.d.set(t,e),t}disposeReferenceId(e){const t=this.d.get(e);return this.d.delete(e),t}get(e){return this.d.get(e)}}class _{constructor(e,t){this.f=e,this.g=t,this.d=new w("SignatureHelp")}async provideSignatureHelp(e,t,i,n){const s=this.f.getDocument(e),r=a.Position.to(t),o=this.h(i),d=await this.g.provideSignatureHelp(s,r,n,o);if(d){const c=this.d.add([d]);return{...a.SignatureHelp.from(d),id:c}}}h(e){let t;if(e.activeSignatureHelp){const i=a.SignatureHelp.to(e.activeSignatureHelp),n=this.d.get(e.activeSignatureHelp.id,0);n?(t=n,t.activeSignature=i.activeSignature,t.activeParameter=i.activeParameter):t=i}return{...e,activeSignatureHelp:t}}releaseSignatureHelp(e){this.d.delete(e)}}class V{constructor(e,t,i,n,s){this.g=e,this.h=t,this.j=i,this.k=n,this.l=s,this.d=new w("InlayHints"),this.f=new Map}async provideInlayHints(e,t,i){const n=this.g.getDocument(e),s=a.Range.to(t),r=await this.j.provideInlayHints(n,s,i);if(!Array.isArray(r)||r.length===0){this.k.trace(`[InlayHints] NO inlay hints from '${this.l.identifier.value}' for range ${JSON.stringify(t)}`);return}if(i.isCancellationRequested)return;const o=this.d.add(r);this.f.set(o,new $);const d={hints:[],cacheId:o};for(let c=0;c<r.length;c++)this.m(r[c],s)&&d.hints.push(this.n(r[c],[o,c]));return this.k.trace(`[InlayHints] ${d.hints.length} inlay hints from '${this.l.identifier.value}' for range ${JSON.stringify(t)}`),d}async resolveInlayHint(e,t){if(typeof this.j.resolveInlayHint!="function")return;const i=this.d.get(...e);if(!i)return;const n=await this.j.resolveInlayHint(i,t);if(n&&this.m(n))return this.n(n,e)}releaseHints(e){this.f.get(e)?.dispose(),this.f.delete(e),this.d.delete(e)}m(e,t){return!(e.label.length===0||Array.isArray(e.label)&&e.label.every(i=>i.value.length===0)||t&&!t.contains(e.position))}n(e,t){const i=this.f.get(t[0]);if(!i)throw Error("DisposableStore is missing...");const n={label:"",cacheId:t,tooltip:a.MarkdownString.fromStrict(e.tooltip),position:a.Position.from(e.position),textEdits:e.textEdits&&e.textEdits.map(a.TextEdit.from),kind:e.kind&&a.InlayHintKind.from(e.kind),paddingLeft:e.paddingLeft,paddingRight:e.paddingRight};if(typeof e.label=="string")n.label=e.label;else{const s=[];n.label=s;for(const r of e.label){if(!r.value)continue;const o={label:r.value,tooltip:a.MarkdownString.fromStrict(r.tooltip)};Ue.isLocation(r.location)&&(o.location=a.location.from(r.location)),r.command&&(o.command=this.h.toInternal(r.command,i)),s.push(o)}}return n}}class S{constructor(e,t){this.f=e,this.g=t,this.d=new w("DocumentLink")}async provideLinks(e,t){const i=this.f.getDocument(e),n=await this.g.provideDocumentLinks(i,t);if(!(!Array.isArray(n)||n.length===0)&&!t.isCancellationRequested){if(typeof this.g.resolveDocumentLink!="function")return{links:n.filter(S.h).map(a.DocumentLink.from)};{const s=this.d.add(n),r={links:[],cacheId:s};for(let o=0;o<n.length;o++){if(!S.h(n[o]))continue;const d=a.DocumentLink.from(n[o]);d.cacheId=[s,o],r.links.push(d)}return r}}}static h(e){return!(e.target&&e.target.path.length>5e4)}async resolveLink(e,t){if(typeof this.g.resolveDocumentLink!="function")return;const i=this.d.get(...e);if(!i)return;const n=await this.g.resolveDocumentLink(i,t);if(!(!n||!S.h(n)))return a.DocumentLink.from(n)}releaseLinks(e){this.d.delete(e)}}class Y{constructor(e,t){this.d=e,this.f=t}async provideColors(e,t){const i=this.d.getDocument(e),n=await this.f.provideDocumentColors(i,t);return Array.isArray(n)?n.map(r=>({color:a.Color.from(r.color),range:a.Range.from(r.range)})):[]}async provideColorPresentations(e,t,i){const n=this.d.getDocument(e),s=a.Range.to(t.range),r=a.Color.to(t.color),o=await this.f.provideColorPresentations(r,{document:n,range:s},i);if(Array.isArray(o))return o.map(a.ColorPresentation.from)}}class ye{constructor(e,t){this.d=e,this.f=t}async provideFoldingRanges(e,t,i){const n=this.d.getDocument(e),s=await this.f.provideFoldingRanges(n,t,i);if(Array.isArray(s))return s.map(a.FoldingRange.from)}}class De{constructor(e,t,i){this.d=e,this.f=t,this.g=i}async provideSelectionRanges(e,t,i){const n=this.d.getDocument(e),s=t.map(a.Position.to),r=await this.f.provideSelectionRanges(n,s,i);if(!te(r))return[];if(r.length!==s.length)return this.g.warn("BAD selection ranges, provider must return ranges for each position"),[];const o=[];for(let d=0;d<s.length;d++){const c=[];o.push(c);let f=s[d],h=r[d];for(;;){if(!h.range.contains(f))throw new Error("INVALID selection range, must contain the previous range");if(c.push(a.SelectionRange.from(h)),!h.parent)break;f=h.range,h=h.parent}}return o}}class k{constructor(e,t){this.g=e,this.h=t,this.d=new we(""),this.f=new Map}async prepareSession(e,t,i){const n=this.g.getDocument(e),s=a.Position.to(t),r=await this.h.prepareCallHierarchy(n,s,i);if(!r)return;const o=this.d.nextId();return this.f.set(o,new Map),Array.isArray(r)?r.map(d=>this.j(o,d)):[this.j(o,r)]}async provideCallsTo(e,t,i){const n=this.k(e,t);if(!n)throw new Error("missing call hierarchy item");const s=await this.h.provideCallHierarchyIncomingCalls(n,i);if(s)return s.map(r=>({from:this.j(e,r.from),fromRanges:r.fromRanges.map(o=>a.Range.from(o))}))}async provideCallsFrom(e,t,i){const n=this.k(e,t);if(!n)throw new Error("missing call hierarchy item");const s=await this.h.provideCallHierarchyOutgoingCalls(n,i);if(s)return s.map(r=>({to:this.j(e,r.to),fromRanges:r.fromRanges.map(o=>a.Range.from(o))}))}releaseSession(e){this.f.delete(e)}j(e,t){const i=this.f.get(e),n=a.CallHierarchyItem.from(t,e,i.size.toString(36));return i.set(n._itemId,t),n}k(e,t){return this.f.get(e)?.get(t)}}class j{constructor(e,t){this.g=e,this.h=t,this.d=new we(""),this.f=new Map}async prepareSession(e,t,i){const n=this.g.getDocument(e),s=a.Position.to(t),r=await this.h.prepareTypeHierarchy(n,s,i);if(!r)return;const o=this.d.nextId();return this.f.set(o,new Map),Array.isArray(r)?r.map(d=>this.j(o,d)):[this.j(o,r)]}async provideSupertypes(e,t,i){const n=this.k(e,t);if(!n)throw new Error("missing type hierarchy item");const s=await this.h.provideTypeHierarchySupertypes(n,i);if(s)return s.map(r=>this.j(e,r))}async provideSubtypes(e,t,i){const n=this.k(e,t);if(!n)throw new Error("missing type hierarchy item");const s=await this.h.provideTypeHierarchySubtypes(n,i);if(s)return s.map(r=>this.j(e,r))}releaseSession(e){this.f.delete(e)}j(e,t){const i=this.f.get(e),n=a.TypeHierarchyItem.from(t,e,i.size.toString(36));return i.set(n._itemId,t),n}k(e,t){return this.f.get(e)?.get(t)}}class U{constructor(e,t,i,n,s){this.f=e,this.g=t,this.h=i,this.j=n,this.k=s,this.d=new w("DocumentDropEdit")}async provideDocumentOnDropEdits(e,t,i,n,s){const r=this.g.getDocument(t),o=a.Position.to(i),d=a.DataTransfer.toDataTransfer(n,async p=>(await this.f.$resolveDocumentOnDropFileData(this.j,e,p)).buffer),c=await this.h.provideDocumentDropEdits(r,o,d,s);if(!c)return;const f=Ee(c),h=this.d.add(f);return f.map((p,g)=>({_cacheId:[h,g],title:p.title??Pe(3049,null,this.k.displayName||this.k.name),kind:p.kind?.value,yieldTo:p.yieldTo?.map(y=>y.value),insertText:typeof p.insertText=="string"?p.insertText:{snippet:p.insertText.value},additionalEdit:p.additionalEdit?a.WorkspaceEdit.from(p.additionalEdit,void 0):void 0}))}async resolveDropEdit(e,t){const[i,n]=e,s=this.d.get(i,n);if(!s||!this.h.resolveDocumentDropEdit)return{};const r=await this.h.resolveDocumentDropEdit(s,t)??s;return{additionalEdit:r.additionalEdit?a.WorkspaceEdit.from(r.additionalEdit,void 0):void 0}}releaseDropEdits(e){this.d.delete(e)}}class G{constructor(e,t){this.adapter=e,this.extension=t}}class v extends Te{static{this.f=0}get inlineCompletionsUnificationState(){return this.j}constructor(e,t,i,n,s,r,o,d){super(),this.n=t,this.q=i,this.s=n,this.t=s,this.u=r,this.w=o,this.y=d,this.h=new Map,this.m=this.D(new Ze),this.onDidChangeInlineCompletionsUnificationState=this.m.event,this.g=e.getProxy(qe.$X1.MainThreadLanguageFeatures),this.j={codeUnification:!1,modelUnification:!1,extensionUnification:!1,expAssignments:[]}}z(e,t){return a.DocumentSelector.from(e,this.n,t)}C(e){return new I(()=>{this.h.delete(e),this.g.$unregister(e)})}F(){return v.f++}async G(e,t,i,n,s,r=!1){const o=this.h.get(e);if(!o||!(o.adapter instanceof t))return n;const d=Date.now();r||this.u.trace(`[${o.extension.identifier.value}] INVOKE provider '${i.toString().replace(/[\r\n]/g,"")}'`);const c=i(o.adapter,o.extension);return Promise.resolve(c).catch(f=>{He(f)||(this.u.error(`[${o.extension.identifier.value}] provider FAILED`),this.u.error(f),this.y.onExtensionError(o.extension.identifier,f))}).finally(()=>{r||this.u.trace(`[${o.extension.identifier.value}] provider DONE after ${Date.now()-d}ms`)}),$e.isCancellationToken(s)?Se(c,s):c}H(e,t){const i=this.F();return this.h.set(i,new G(e,t)),i}static I(e){return e.displayName||e.name}static J(e){return e.identifier.value}registerDocumentSymbolProvider(e,t,i,n){const s=this.H(new J(this.q,i),e),r=n&&n.label||v.I(e);return this.g.$registerDocumentSymbolProvider(s,this.z(t,e),r),this.C(s)}$provideDocumentSymbols(e,t,i){return this.G(e,J,n=>n.provideDocumentSymbols(u.revive(t),i),void 0,i)}registerCodeLensProvider(e,t,i){const n=this.F(),s=typeof i.onDidChangeCodeLenses=="function"?this.F():void 0;this.h.set(n,new G(new W(this.q,this.s.converter,i,e,this.y,this.u),e)),this.g.$registerCodeLensSupport(n,this.z(t,e),s);let r=this.C(n);if(s!==void 0){const o=i.onDidChangeCodeLenses(d=>this.g.$emitCodeLensEvent(s));r=I.from(r,o)}return r}$provideCodeLenses(e,t,i){return this.G(e,W,n=>n.provideCodeLenses(u.revive(t),i),void 0,i,t.scheme==="output")}$resolveCodeLens(e,t,i){return this.G(e,W,n=>n.resolveCodeLens(t,i),void 0,void 0,!0)}$releaseCodeLenses(e,t){this.G(e,W,i=>Promise.resolve(i.releaseCodeLenses(t)),void 0,void 0,!0)}registerDefinitionProvider(e,t,i){const n=this.H(new re(this.q,i),e);return this.g.$registerDefinitionSupport(n,this.z(t,e)),this.C(n)}$provideDefinition(e,t,i,n){return this.G(e,re,s=>s.provideDefinition(u.revive(t),i,n),[],n)}registerDeclarationProvider(e,t,i){const n=this.H(new oe(this.q,i),e);return this.g.$registerDeclarationSupport(n,this.z(t,e)),this.C(n)}$provideDeclaration(e,t,i,n){return this.G(e,oe,s=>s.provideDeclaration(u.revive(t),i,n),[],n)}registerImplementationProvider(e,t,i){const n=this.H(new ae(this.q,i),e);return this.g.$registerImplementationSupport(n,this.z(t,e)),this.C(n)}$provideImplementation(e,t,i,n){return this.G(e,ae,s=>s.provideImplementation(u.revive(t),i,n),[],n)}registerTypeDefinitionProvider(e,t,i){const n=this.H(new de(this.q,i),e);return this.g.$registerTypeDefinitionSupport(n,this.z(t,e)),this.C(n)}$provideTypeDefinition(e,t,i,n){return this.G(e,de,s=>s.provideTypeDefinition(u.revive(t),i,n),[],n)}registerHoverProvider(e,t,i,n){const s=this.H(new N(this.q,i),e);return this.g.$registerHoverProvider(s,this.z(t,e)),this.C(s)}$provideHover(e,t,i,n,s){return this.G(e,N,r=>r.provideHover(u.revive(t),i,n,s),void 0,s)}$releaseHover(e,t){this.G(e,N,i=>Promise.resolve(i.releaseHover(t)),void 0,void 0)}registerEvaluatableExpressionProvider(e,t,i,n){const s=this.H(new ce(this.q,i),e);return this.g.$registerEvaluatableExpressionProvider(s,this.z(t,e)),this.C(s)}$provideEvaluatableExpression(e,t,i,n){return this.G(e,ce,s=>s.provideEvaluatableExpression(u.revive(t),i,n),void 0,n)}registerInlineValuesProvider(e,t,i,n){const s=typeof i.onDidChangeInlineValues=="function"?this.F():void 0,r=this.H(new le(this.q,i),e);this.g.$registerInlineValuesProvider(r,this.z(t,e),s);let o=this.C(r);if(s!==void 0){const d=i.onDidChangeInlineValues(c=>this.g.$emitInlineValuesEvent(s));o=I.from(o,d)}return o}$provideInlineValues(e,t,i,n,s){return this.G(e,le,r=>r.provideInlineValues(u.revive(t),i,n,s),void 0,s)}registerDocumentHighlightProvider(e,t,i){const n=this.H(new he(this.q,i),e);return this.g.$registerDocumentHighlightProvider(n,this.z(t,e)),this.C(n)}registerMultiDocumentHighlightProvider(e,t,i){const n=this.H(new ue(this.q,i,this.u),e);return this.g.$registerMultiDocumentHighlightProvider(n,this.z(t,e)),this.C(n)}$provideDocumentHighlights(e,t,i,n){return this.G(e,he,s=>s.provideDocumentHighlights(u.revive(t),i,n),void 0,n)}$provideMultiDocumentHighlights(e,t,i,n,s){return this.G(e,ue,r=>r.provideMultiDocumentHighlights(u.revive(t),i,n.map(o=>u.revive(o)),s),void 0,s)}registerLinkedEditingRangeProvider(e,t,i){const n=this.H(new fe(this.q,i),e);return this.g.$registerLinkedEditingRangeProvider(n,this.z(t,e)),this.C(n)}$provideLinkedEditingRanges(e,t,i,n){return this.G(e,fe,async s=>{const r=await s.provideLinkedEditingRanges(u.revive(t),i,n);if(r)return{ranges:r.ranges,wordPattern:r.wordPattern?v.L(r.wordPattern):void 0}},void 0,n)}registerReferenceProvider(e,t,i){const n=this.H(new pe(this.q,i),e);return this.g.$registerReferenceSupport(n,this.z(t,e)),this.C(n)}$provideReferences(e,t,i,n,s){return this.G(e,pe,r=>r.provideReferences(u.revive(t),i,n,s),void 0,s)}registerCodeActionProvider(e,t,i,n){const s=new $,r=this.H(new E(this.q,this.s.converter,this.t,i,this.u,e,this.w),e);return this.g.$registerCodeActionSupport(r,this.z(t,e),{providedKinds:n?.providedCodeActionKinds?.map(o=>o.value),documentation:n?.documentation?.map(o=>({kind:o.kind.value,command:this.s.converter.toInternal(o.command,s)}))},v.I(e),v.J(e),!!i.resolveCodeAction),s.add(this.C(r)),s}$provideCodeActions(e,t,i,n,s){return this.G(e,E,r=>r.provideCodeActions(u.revive(t),i,n,s),void 0,s)}$resolveCodeAction(e,t,i){return this.G(e,E,n=>n.resolveCodeAction(t,i),{},void 0)}$releaseCodeActions(e,t){this.G(e,E,i=>Promise.resolve(i.releaseCodeActions(t)),void 0,void 0)}registerDocumentFormattingEditProvider(e,t,i){const n=this.H(new me(this.q,i),e);return this.g.$registerDocumentFormattingSupport(n,this.z(t,e),e.identifier,e.displayName||e.name),this.C(n)}$provideDocumentFormattingEdits(e,t,i,n){return this.G(e,me,s=>s.provideDocumentFormattingEdits(u.revive(t),i,n),void 0,n)}registerDocumentRangeFormattingEditProvider(e,t,i){const n=typeof i.provideDocumentRangesFormattingEdits=="function",s=this.H(new X(this.q,i),e);return this.g.$registerRangeFormattingSupport(s,this.z(t,e),e.identifier,e.displayName||e.name,n),this.C(s)}$provideDocumentRangeFormattingEdits(e,t,i,n,s){return this.G(e,X,r=>r.provideDocumentRangeFormattingEdits(u.revive(t),i,n,s),void 0,s)}$provideDocumentRangesFormattingEdits(e,t,i,n,s){return this.G(e,X,r=>r.provideDocumentRangesFormattingEdits(u.revive(t),i,n,s),void 0,s)}registerOnTypeFormattingEditProvider(e,t,i,n){const s=this.H(new ge(this.q,i),e);return this.g.$registerOnTypeFormattingSupport(s,this.z(t,e),n,e.identifier),this.C(s)}$provideOnTypeFormattingEdits(e,t,i,n,s,r){return this.G(e,ge,o=>o.provideOnTypeFormattingEdits(u.revive(t),i,n,s,r),void 0,r)}registerWorkspaceSymbolProvider(e,t){const i=this.H(new x(t,this.u),e);return this.g.$registerNavigateTypeSupport(i,typeof t.resolveWorkspaceSymbol=="function"),this.C(i)}$provideWorkspaceSymbols(e,t,i){return this.G(e,x,n=>n.provideWorkspaceSymbols(t,i),{symbols:[]},i)}$resolveWorkspaceSymbol(e,t,i){return this.G(e,x,n=>n.resolveWorkspaceSymbol(t,i),void 0,void 0)}$releaseWorkspaceSymbols(e,t){this.G(e,x,i=>i.releaseWorkspaceSymbols(t),void 0,void 0)}registerRenameProvider(e,t,i){const n=this.H(new H(this.q,i,this.u),e);return this.g.$registerRenameSupport(n,this.z(t,e),H.supportsResolving(i)),this.C(n)}$provideRenameEdits(e,t,i,n,s){return this.G(e,H,r=>r.provideRenameEdits(u.revive(t),i,n,s),void 0,s)}$resolveRenameLocation(e,t,i,n){return this.G(e,H,s=>s.resolveRenameLocation(u.revive(t),i,n),void 0,n)}registerNewSymbolNamesProvider(e,t,i){const n=this.H(new b(this.q,i,this.u),e);return this.g.$registerNewSymbolNamesProvider(n,this.z(t,e)),this.C(n)}$supportsAutomaticNewSymbolNamesTriggerKind(e){return this.G(e,b,t=>t.supportsAutomaticNewSymbolNamesTriggerKind(),!1,void 0)}$provideNewSymbolNames(e,t,i,n,s){return this.G(e,b,r=>r.provideNewSymbolNames(u.revive(t),i,n,s),void 0,s)}registerDocumentSemanticTokensProvider(e,t,i,n){const s=this.H(new D(this.q,i),e),r=typeof i.onDidChangeSemanticTokens=="function"?this.F():void 0;this.g.$registerDocumentSemanticTokensProvider(s,this.z(t,e),n,r);let o=this.C(s);if(r){const d=i.onDidChangeSemanticTokens(c=>this.g.$emitDocumentSemanticTokensEvent(r));o=I.from(o,d)}return o}$provideDocumentSemanticTokens(e,t,i,n){return this.G(e,D,s=>s.provideDocumentSemanticTokens(u.revive(t),i,n),null,n)}$releaseDocumentSemanticTokens(e,t){this.G(e,D,i=>i.releaseDocumentSemanticColoring(t),void 0,void 0)}registerDocumentRangeSemanticTokensProvider(e,t,i,n){const s=this.H(new ve(this.q,i),e),r=typeof i.onDidChangeSemanticTokens=="function"?this.F():void 0;this.g.$registerDocumentRangeSemanticTokensProvider(s,this.z(t,e),n,r);let o=this.C(s);if(r){const d=i.onDidChangeSemanticTokens(c=>this.g.$emitDocumentRangeSemanticTokensEvent(r));o=I.from(o,d)}return o}$provideDocumentRangeSemanticTokens(e,t,i,n){return this.G(e,ve,s=>s.provideDocumentRangeSemanticTokens(u.revive(t),i,n),null,n)}registerCompletionItemProvider(e,t,i,n){const s=this.H(new R(this.q,this.s.converter,i,this.w,e),e);return this.g.$registerCompletionsProvider(s,this.z(t,e),n,R.supportsResolving(i),e.identifier),this.C(s)}$provideCompletionItems(e,t,i,n,s){return this.G(e,R,r=>r.provideCompletionItems(u.revive(t),i,n,s),void 0,s)}$resolveCompletionItem(e,t,i){return this.G(e,R,n=>n.resolveCompletionItem(t,i),void 0,i)}$releaseCompletionItems(e,t){this.G(e,R,i=>i.releaseCompletionItems(t),void 0,void 0)}registerInlineCompletionsProvider(e,t,i,n){const s=new P(e,this.q,i,this.s.converter),r=this.H(s,e);let o=this.C(r);const d=T(e,"inlineCompletionsAdditions")&&typeof i.onDidChange=="function";if(d){const f=i.onDidChange(h=>this.g.$emitInlineCompletionsChange(r,h?{data:h.data}:void 0));o=I.from(o,f)}const c=T(e,"inlineCompletionsAdditions")&&typeof i.onDidChangeModelInfo=="function";if(c){const f=i.onDidChangeModelInfo(h=>this.g.$emitInlineCompletionModelInfoChange(r,s.modelInfo));o=I.from(o,f)}return this.g.$registerInlineCompletionsSupport(r,this.z(t,e),s.supportsHandleEvents,K.toKey(e.identifier.value),e.version,n?.groupId?K.toKey(n.groupId):void 0,n?.yieldTo?.map(f=>K.toKey(f))||[],n?.displayName,n?.debounceDelayMs,n?.excludes?.map(f=>K.toKey(f))||[],d,s.supportsSetModelId,s.modelInfo,c),o}$provideInlineCompletions(e,t,i,n,s){return this.G(e,P,r=>r.provideInlineCompletions(u.revive(t),i,n,s),void 0,void 0)}$handleInlineCompletionDidShow(e,t,i,n){this.G(e,P,async s=>{s.handleDidShowCompletionItem(t,i,n)},void 0,void 0)}$handleInlineCompletionPartialAccept(e,t,i,n,s){this.G(e,P,async r=>{r.handlePartialAccept(t,i,n,s)},void 0,void 0)}$handleInlineCompletionEndOfLifetime(e,t,i,n){this.G(e,P,async s=>{s.handleEndOfLifetime(t,i,n)},void 0,void 0)}$handleInlineCompletionRejection(e,t,i){this.G(e,P,async n=>{n.handleRejection(t,i)},void 0,void 0)}$freeInlineCompletionsList(e,t,i){this.G(e,P,async n=>{n.disposeCompletions(t,i)},void 0,void 0)}$acceptInlineCompletionsUnificationState(e){this.j=e,this.m.fire()}$handleInlineCompletionSetCurrentModelId(e,t){this.G(e,P,async i=>{i.setCurrentModelId(t)},void 0,void 0)}registerSignatureHelpProvider(e,t,i,n){const s=Array.isArray(n)?{triggerCharacters:n,retriggerCharacters:[]}:n,r=this.H(new _(this.q,i),e);return this.g.$registerSignatureHelpProvider(r,this.z(t,e),s),this.C(r)}$provideSignatureHelp(e,t,i,n,s){return this.G(e,_,r=>r.provideSignatureHelp(u.revive(t),i,n,s),void 0,s)}$releaseSignatureHelp(e,t){this.G(e,_,i=>i.releaseSignatureHelp(t),void 0,void 0)}registerInlayHintsProvider(e,t,i){const n=typeof i.onDidChangeInlayHints=="function"?this.F():void 0,s=this.H(new V(this.q,this.s.converter,i,this.u,e),e);this.g.$registerInlayHintsProvider(s,this.z(t,e),typeof i.resolveInlayHint=="function",n,v.I(e));let r=this.C(s);if(n!==void 0){const o=i.onDidChangeInlayHints(d=>this.g.$emitInlayHintsEvent(n));r=I.from(r,o)}return r}$provideInlayHints(e,t,i,n){return this.G(e,V,s=>s.provideInlayHints(u.revive(t),i,n),void 0,n)}$resolveInlayHint(e,t,i){return this.G(e,V,n=>n.resolveInlayHint(t,i),void 0,i)}$releaseInlayHints(e,t){this.G(e,V,i=>i.releaseHints(t),void 0,void 0)}registerDocumentLinkProvider(e,t,i){const n=this.H(new S(this.q,i),e);return this.g.$registerDocumentLinkProvider(n,this.z(t,e),typeof i.resolveDocumentLink=="function"),this.C(n)}$provideDocumentLinks(e,t,i){return this.G(e,S,n=>n.provideLinks(u.revive(t),i),void 0,i,t.scheme==="output")}$resolveDocumentLink(e,t,i){return this.G(e,S,n=>n.resolveLink(t,i),void 0,void 0,!0)}$releaseDocumentLinks(e,t){this.G(e,S,i=>i.releaseLinks(t),void 0,void 0,!0)}registerColorProvider(e,t,i){const n=this.H(new Y(this.q,i),e);return this.g.$registerDocumentColorProvider(n,this.z(t,e)),this.C(n)}$provideDocumentColors(e,t,i){return this.G(e,Y,n=>n.provideColors(u.revive(t),i),[],i)}$provideColorPresentations(e,t,i,n){return this.G(e,Y,s=>s.provideColorPresentations(u.revive(t),i,n),void 0,n)}registerFoldingRangeProvider(e,t,i){const n=this.F(),s=typeof i.onDidChangeFoldingRanges=="function"?this.F():void 0;this.h.set(n,new G(new ye(this.q,i),e)),this.g.$registerFoldingRangeProvider(n,this.z(t,e),e.identifier,s);let r=this.C(n);if(s!==void 0){const o=i.onDidChangeFoldingRanges(()=>this.g.$emitFoldingRangeEvent(s));r=I.from(r,o)}return r}$provideFoldingRanges(e,t,i,n){return this.G(e,ye,s=>s.provideFoldingRanges(u.revive(t),i,n),void 0,n)}registerSelectionRangeProvider(e,t,i){const n=this.H(new De(this.q,i,this.u),e);return this.g.$registerSelectionRangeProvider(n,this.z(t,e)),this.C(n)}$provideSelectionRanges(e,t,i,n){return this.G(e,De,s=>s.provideSelectionRanges(u.revive(t),i,n),[],n)}registerCallHierarchyProvider(e,t,i){const n=this.H(new k(this.q,i),e);return this.g.$registerCallHierarchyProvider(n,this.z(t,e)),this.C(n)}$prepareCallHierarchy(e,t,i,n){return this.G(e,k,s=>Promise.resolve(s.prepareSession(u.revive(t),i,n)),void 0,n)}$provideCallHierarchyIncomingCalls(e,t,i,n){return this.G(e,k,s=>s.provideCallsTo(t,i,n),void 0,n)}$provideCallHierarchyOutgoingCalls(e,t,i,n){return this.G(e,k,s=>s.provideCallsFrom(t,i,n),void 0,n)}$releaseCallHierarchy(e,t){this.G(e,k,i=>Promise.resolve(i.releaseSession(t)),void 0,void 0)}registerTypeHierarchyProvider(e,t,i){const n=this.H(new j(this.q,i),e);return this.g.$registerTypeHierarchyProvider(n,this.z(t,e)),this.C(n)}$prepareTypeHierarchy(e,t,i,n){return this.G(e,j,s=>Promise.resolve(s.prepareSession(u.revive(t),i,n)),void 0,n)}$provideTypeHierarchySupertypes(e,t,i,n){return this.G(e,j,s=>s.provideSupertypes(t,i,n),void 0,n)}$provideTypeHierarchySubtypes(e,t,i,n){return this.G(e,j,s=>s.provideSubtypes(t,i,n),void 0,n)}$releaseTypeHierarchy(e,t){this.G(e,j,i=>Promise.resolve(i.releaseSession(t)),void 0,void 0)}registerDocumentOnDropEditProvider(e,t,i,n){const s=this.F();return this.h.set(s,new G(new U(this.g,this.q,i,s,e),e)),this.g.$registerDocumentOnDropEditProvider(s,this.z(t,e),n?{supportsResolve:!!i.resolveDocumentDropEdit,dropMimeTypes:n.dropMimeTypes,providedDropKinds:n.providedDropEditKinds?.map(r=>r.value)}:void 0),this.C(s)}$provideDocumentOnDropEdits(e,t,i,n,s,r){return this.G(e,U,o=>Promise.resolve(o.provideDocumentOnDropEdits(t,u.revive(i),n,s,r)),void 0,void 0)}$resolveDropEdit(e,t,i){return this.G(e,U,n=>n.resolveDropEdit(t,i),{},void 0)}$releaseDocumentOnDropEdits(e,t){this.G(e,U,i=>Promise.resolve(i.releaseDropEdits(t)),void 0,void 0)}registerDocumentPasteEditProvider(e,t,i,n){const s=this.F();return this.h.set(s,new G(new L(this.g,this.q,i,s,e),e)),this.g.$registerPasteEditProvider(s,this.z(t,e),{supportsCopy:!!i.prepareDocumentPaste,supportsPaste:!!i.provideDocumentPasteEdits,supportsResolve:!!i.resolveDocumentPasteEdit,providedPasteEditKinds:n.providedPasteEditKinds?.map(r=>r.value),copyMimeTypes:n.copyMimeTypes,pasteMimeTypes:n.pasteMimeTypes}),this.C(s)}$prepareDocumentPaste(e,t,i,n,s){return this.G(e,L,r=>r.prepareDocumentPaste(u.revive(t),i,n,s),void 0,s)}$providePasteEdits(e,t,i,n,s,r,o){return this.G(e,L,d=>d.providePasteEdits(t,u.revive(i),n,s,r,o),void 0,o)}$resolvePasteEdit(e,t,i){return this.G(e,L,n=>n.resolvePasteEdit(t,i),{},void 0)}$releasePasteEdits(e,t){this.G(e,L,i=>Promise.resolve(i.releasePasteEdits(t)),void 0,void 0)}static L(e){return{pattern:e.source,flags:e.flags}}static M(e){return{decreaseIndentPattern:v.L(e.decreaseIndentPattern),increaseIndentPattern:v.L(e.increaseIndentPattern),indentNextLinePattern:e.indentNextLinePattern?v.L(e.indentNextLinePattern):void 0,unIndentedLinePattern:e.unIndentedLinePattern?v.L(e.unIndentedLinePattern):void 0}}static N(e){return{beforeText:v.L(e.beforeText),afterText:e.afterText?v.L(e.afterText):void 0,previousLineText:e.previousLineText?v.L(e.previousLineText):void 0,action:e.action}}static O(e){return e.map(v.N)}static P(e){return{open:e.open,close:e.close,notIn:e.notIn?e.notIn.map(t=>Xe.toString(t)):void 0}}static Q(e){return e.map(v.P)}setLanguageConfiguration(e,t,i){const{wordPattern:n}=i;if(n&&ke(n))throw new Error(`Invalid language configuration: wordPattern '${n}' is not allowed to match the empty string.`);n?this.q.setWordDefinitionFor(t,n):this.q.setWordDefinitionFor(t,void 0),i.__electricCharacterSupport&&this.w.report("LanguageConfiguration.__electricCharacterSupport",e,"Do not use."),i.__characterPairSupport&&this.w.report("LanguageConfiguration.__characterPairSupport",e,"Do not use.");const s=this.F(),r={comments:i.comments,brackets:i.brackets,wordPattern:i.wordPattern?v.L(i.wordPattern):void 0,indentationRules:i.indentationRules?v.M(i.indentationRules):void 0,onEnterRules:i.onEnterRules?v.O(i.onEnterRules):void 0,__electricCharacterSupport:i.__electricCharacterSupport,__characterPairSupport:i.__characterPairSupport,autoClosingPairs:i.autoClosingPairs?v.Q(i.autoClosingPairs):void 0};return this.g.$setLanguageConfiguration(s,t,r),this.C(s)}$setWordDefinitions(e){for(const t of e)this.q.setWordDefinitionFor(t.languageId,new RegExp(t.regexSource,t.regexFlags))}}export{v as $pYc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { asArray, coalesce, isFalsyOrEmpty, isNonEmptyArray } from "../../../base/common/arrays.js";
+import { raceCancellationError } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { NotImplementedError, isCancellationError } from "../../../base/common/errors.js";
+import { IdGenerator } from "../../../base/common/idGenerator.js";
+import { DisposableStore, Disposable as CoreDisposable } from "../../../base/common/lifecycle.js";
+import { equals, mixin } from "../../../base/common/objects.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
+import { regExpLeadsToEndlessLoop } from "../../../base/common/strings.js";
+import { assertType, isObject } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { Range as EditorRange } from "../../../editor/common/core/range.js";
+import { Selection } from "../../../editor/common/core/selection.js";
+import * as languages from "../../../editor/common/languages.js";
+import { encodeSemanticTokensDto } from "../../../editor/common/services/semanticTokensDto.js";
+import { localize } from "../../../nls.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { Cache } from "./cache.js";
+import * as extHostProtocol from "./extHost.protocol.js";
+import * as typeConvert from "./extHostTypeConverters.js";
+import { CodeAction, CodeActionKind, CompletionList, DataTransfer, Disposable, DocumentDropOrPasteEditKind, DocumentSymbol, InlineCompletionsDisposeReasonKind, InlineCompletionTriggerKind, InternalDataTransferItem, Location, NewSymbolNameTriggerKind, Range, SemanticTokens, SemanticTokensEdit, SemanticTokensEdits, SnippetString, SyntaxTokenType } from "./extHostTypes.js";
+import { Emitter } from "../../../base/common/event.js";
+class DocumentSymbolAdapter {
+  static {
+    __name(this, "DocumentSymbolAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDocumentSymbols(resource, token) {
+    const doc = this._documents.getDocument(resource);
+    const value = await this._provider.provideDocumentSymbols(doc, token);
+    if (isFalsyOrEmpty(value)) {
+      return void 0;
+    } else if (value[0] instanceof DocumentSymbol) {
+      return value.map(typeConvert.DocumentSymbol.from);
+    } else {
+      return DocumentSymbolAdapter._asDocumentSymbolTree(value);
+    }
+  }
+  static _asDocumentSymbolTree(infos) {
+    infos = infos.slice(0).sort((a, b) => {
+      let res2 = a.location.range.start.compareTo(b.location.range.start);
+      if (res2 === 0) {
+        res2 = b.location.range.end.compareTo(a.location.range.end);
+      }
+      return res2;
+    });
+    const res = [];
+    const parentStack = [];
+    for (const info of infos) {
+      const element = {
+        name: info.name || "!!MISSING: name!!",
+        kind: typeConvert.SymbolKind.from(info.kind),
+        tags: info.tags?.map(typeConvert.SymbolTag.from) || [],
+        detail: "",
+        containerName: info.containerName,
+        range: typeConvert.Range.from(info.location.range),
+        selectionRange: typeConvert.Range.from(info.location.range),
+        children: []
+      };
+      while (true) {
+        if (parentStack.length === 0) {
+          parentStack.push(element);
+          res.push(element);
+          break;
+        }
+        const parent = parentStack[parentStack.length - 1];
+        if (EditorRange.containsRange(parent.range, element.range) && !EditorRange.equalsRange(parent.range, element.range)) {
+          parent.children?.push(element);
+          parentStack.push(element);
+          break;
+        }
+        parentStack.pop();
+      }
+    }
+    return res;
+  }
+}
+class CodeLensAdapter {
+  static {
+    __name(this, "CodeLensAdapter");
+  }
+  constructor(_documents, _commands, _provider, _extension, _extTelemetry, _logService) {
+    this._documents = _documents;
+    this._commands = _commands;
+    this._provider = _provider;
+    this._extension = _extension;
+    this._extTelemetry = _extTelemetry;
+    this._logService = _logService;
+    this._cache = new Cache("CodeLens");
+    this._disposables = /* @__PURE__ */ new Map();
+  }
+  async provideCodeLenses(resource, token) {
+    const doc = this._documents.getDocument(resource);
+    const lenses = await this._provider.provideCodeLenses(doc, token);
+    if (!lenses || token.isCancellationRequested) {
+      return void 0;
+    }
+    const cacheId = this._cache.add(lenses);
+    const disposables = new DisposableStore();
+    this._disposables.set(cacheId, disposables);
+    const result = {
+      cacheId,
+      lenses: []
+    };
+    for (let i = 0; i < lenses.length; i++) {
+      if (!Range.isRange(lenses[i].range)) {
+        console.warn("INVALID code lens, range is not defined", this._extension.identifier.value);
+        continue;
+      }
+      result.lenses.push({
+        cacheId: [cacheId, i],
+        range: typeConvert.Range.from(lenses[i].range),
+        command: this._commands.toInternal(lenses[i].command, disposables)
+      });
+    }
+    return result;
+  }
+  async resolveCodeLens(symbol, token) {
+    const lens = symbol.cacheId && this._cache.get(...symbol.cacheId);
+    if (!lens) {
+      return void 0;
+    }
+    let resolvedLens;
+    if (typeof this._provider.resolveCodeLens !== "function" || lens.isResolved) {
+      resolvedLens = lens;
+    } else {
+      resolvedLens = await this._provider.resolveCodeLens(lens, token);
+    }
+    if (!resolvedLens) {
+      resolvedLens = lens;
+    }
+    if (token.isCancellationRequested) {
+      return void 0;
+    }
+    const disposables = symbol.cacheId && this._disposables.get(symbol.cacheId[0]);
+    if (!disposables) {
+      return void 0;
+    }
+    if (!resolvedLens.command) {
+      const error = new Error("INVALID code lens resolved, lacks command: " + this._extension.identifier.value);
+      this._extTelemetry.onExtensionError(this._extension.identifier, error);
+      this._logService.error(error);
+      return void 0;
+    }
+    symbol.command = this._commands.toInternal(resolvedLens.command, disposables);
+    return symbol;
+  }
+  releaseCodeLenses(cachedId) {
+    this._disposables.get(cachedId)?.dispose();
+    this._disposables.delete(cachedId);
+    this._cache.delete(cachedId);
+  }
+}
+function convertToLocationLinks(value) {
+  if (Array.isArray(value)) {
+    return value.map(typeConvert.DefinitionLink.from);
+  } else if (value) {
+    return [typeConvert.DefinitionLink.from(value)];
+  }
+  return [];
+}
+__name(convertToLocationLinks, "convertToLocationLinks");
+class DefinitionAdapter {
+  static {
+    __name(this, "DefinitionAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDefinition(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideDefinition(doc, pos, token);
+    return convertToLocationLinks(value);
+  }
+}
+class DeclarationAdapter {
+  static {
+    __name(this, "DeclarationAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDeclaration(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideDeclaration(doc, pos, token);
+    return convertToLocationLinks(value);
+  }
+}
+class ImplementationAdapter {
+  static {
+    __name(this, "ImplementationAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideImplementation(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideImplementation(doc, pos, token);
+    return convertToLocationLinks(value);
+  }
+}
+class TypeDefinitionAdapter {
+  static {
+    __name(this, "TypeDefinitionAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideTypeDefinition(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideTypeDefinition(doc, pos, token);
+    return convertToLocationLinks(value);
+  }
+}
+class HoverAdapter {
+  static {
+    __name(this, "HoverAdapter");
+  }
+  static {
+    this.HOVER_MAP_MAX_SIZE = 10;
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._hoverCounter = 0;
+    this._hoverMap = /* @__PURE__ */ new Map();
+  }
+  async provideHover(resource, position, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    let value;
+    if (context && context.verbosityRequest) {
+      const previousHoverId = context.verbosityRequest.previousHover.id;
+      const previousHover = this._hoverMap.get(previousHoverId);
+      if (!previousHover) {
+        throw new Error(`Hover with id ${previousHoverId} not found`);
+      }
+      const hoverContext = { verbosityDelta: context.verbosityRequest.verbosityDelta, previousHover };
+      value = await this._provider.provideHover(doc, pos, token, hoverContext);
+    } else {
+      value = await this._provider.provideHover(doc, pos, token);
+    }
+    if (!value || isFalsyOrEmpty(value.contents)) {
+      return void 0;
+    }
+    if (!value.range) {
+      value.range = doc.getWordRangeAtPosition(pos);
+    }
+    if (!value.range) {
+      value.range = new Range(pos, pos);
+    }
+    const convertedHover = typeConvert.Hover.from(value);
+    const id = this._hoverCounter;
+    if (this._hoverMap.size === HoverAdapter.HOVER_MAP_MAX_SIZE) {
+      const minimumId = Math.min(...this._hoverMap.keys());
+      this._hoverMap.delete(minimumId);
+    }
+    this._hoverMap.set(id, value);
+    this._hoverCounter += 1;
+    const hover = {
+      ...convertedHover,
+      id
+    };
+    return hover;
+  }
+  releaseHover(id) {
+    this._hoverMap.delete(id);
+  }
+}
+class EvaluatableExpressionAdapter {
+  static {
+    __name(this, "EvaluatableExpressionAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideEvaluatableExpression(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideEvaluatableExpression(doc, pos, token);
+    if (value) {
+      return typeConvert.EvaluatableExpression.from(value);
+    }
+    return void 0;
+  }
+}
+class InlineValuesAdapter {
+  static {
+    __name(this, "InlineValuesAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideInlineValues(resource, viewPort, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const value = await this._provider.provideInlineValues(doc, typeConvert.Range.to(viewPort), typeConvert.InlineValueContext.to(context), token);
+    if (Array.isArray(value)) {
+      return value.map((iv) => typeConvert.InlineValue.from(iv));
+    }
+    return void 0;
+  }
+}
+class DocumentHighlightAdapter {
+  static {
+    __name(this, "DocumentHighlightAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDocumentHighlights(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideDocumentHighlights(doc, pos, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.DocumentHighlight.from);
+    }
+    return void 0;
+  }
+}
+class MultiDocumentHighlightAdapter {
+  static {
+    __name(this, "MultiDocumentHighlightAdapter");
+  }
+  constructor(_documents, _provider, _logService) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._logService = _logService;
+  }
+  async provideMultiDocumentHighlights(resource, position, otherResources, token) {
+    const doc = this._documents.getDocument(resource);
+    const otherDocuments = otherResources.map((r) => {
+      try {
+        return this._documents.getDocument(r);
+      } catch (err) {
+        this._logService.error("Error: Unable to retrieve document from URI: " + r + ". Error message: " + err);
+        return void 0;
+      }
+    }).filter((doc2) => doc2 !== void 0);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideMultiDocumentHighlights(doc, pos, otherDocuments, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.MultiDocumentHighlight.from);
+    }
+    return void 0;
+  }
+}
+class LinkedEditingRangeAdapter {
+  static {
+    __name(this, "LinkedEditingRangeAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideLinkedEditingRanges(resource, position, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideLinkedEditingRanges(doc, pos, token);
+    if (value && Array.isArray(value.ranges)) {
+      return {
+        ranges: coalesce(value.ranges.map(typeConvert.Range.from)),
+        wordPattern: value.wordPattern
+      };
+    }
+    return void 0;
+  }
+}
+class ReferenceAdapter {
+  static {
+    __name(this, "ReferenceAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideReferences(resource, position, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideReferences(doc, pos, context, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.location.from);
+    }
+    return void 0;
+  }
+}
+class CodeActionAdapter {
+  static {
+    __name(this, "CodeActionAdapter");
+  }
+  static {
+    this._maxCodeActionsPerFile = 1e3;
+  }
+  constructor(_documents, _commands, _diagnostics, _provider, _logService, _extension, _apiDeprecation) {
+    this._documents = _documents;
+    this._commands = _commands;
+    this._diagnostics = _diagnostics;
+    this._provider = _provider;
+    this._logService = _logService;
+    this._extension = _extension;
+    this._apiDeprecation = _apiDeprecation;
+    this._cache = new Cache("CodeAction");
+    this._disposables = /* @__PURE__ */ new Map();
+  }
+  async provideCodeActions(resource, rangeOrSelection, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const ran = Selection.isISelection(rangeOrSelection) ? typeConvert.Selection.to(rangeOrSelection) : typeConvert.Range.to(rangeOrSelection);
+    const allDiagnostics = [];
+    for (const diagnostic of this._diagnostics.getDiagnostics(resource)) {
+      if (ran.intersection(diagnostic.range)) {
+        const newLen = allDiagnostics.push(diagnostic);
+        if (newLen > CodeActionAdapter._maxCodeActionsPerFile) {
+          break;
+        }
+      }
+    }
+    const codeActionContext = {
+      diagnostics: allDiagnostics,
+      only: context.only ? new CodeActionKind(context.only) : void 0,
+      triggerKind: typeConvert.CodeActionTriggerKind.to(context.trigger)
+    };
+    const commandsOrActions = await this._provider.provideCodeActions(doc, ran, codeActionContext, token);
+    if (!isNonEmptyArray(commandsOrActions) || token.isCancellationRequested) {
+      return void 0;
+    }
+    const cacheId = this._cache.add(commandsOrActions);
+    const disposables = new DisposableStore();
+    this._disposables.set(cacheId, disposables);
+    const actions = [];
+    for (let i = 0; i < commandsOrActions.length; i++) {
+      const candidate = commandsOrActions[i];
+      if (!candidate) {
+        continue;
+      }
+      if (CodeActionAdapter._isCommand(candidate) && !(candidate instanceof CodeAction)) {
+        this._apiDeprecation.report("CodeActionProvider.provideCodeActions - return commands", this._extension, `Return 'CodeAction' instances instead.`);
+        actions.push({
+          _isSynthetic: true,
+          title: candidate.title,
+          command: this._commands.toInternal(candidate, disposables)
+        });
+      } else {
+        const toConvert = candidate;
+        if (codeActionContext.only) {
+          if (!toConvert.kind) {
+            this._logService.warn(`${this._extension.identifier.value} - Code actions of kind '${codeActionContext.only.value}' requested but returned code action does not have a 'kind'. Code action will be dropped. Please set 'CodeAction.kind'.`);
+          } else if (!codeActionContext.only.contains(toConvert.kind)) {
+            this._logService.warn(`${this._extension.identifier.value} - Code actions of kind '${codeActionContext.only.value}' requested but returned code action is of kind '${toConvert.kind.value}'. Code action will be dropped. Please check 'CodeActionContext.only' to only return requested code actions.`);
+          }
+        }
+        const range = toConvert.ranges ?? [];
+        actions.push({
+          cacheId: [cacheId, i],
+          title: toConvert.title,
+          command: toConvert.command && this._commands.toInternal(toConvert.command, disposables),
+          diagnostics: toConvert.diagnostics && toConvert.diagnostics.map(typeConvert.Diagnostic.from),
+          edit: toConvert.edit && typeConvert.WorkspaceEdit.from(toConvert.edit, void 0),
+          kind: toConvert.kind && toConvert.kind.value,
+          isPreferred: toConvert.isPreferred,
+          isAI: isProposedApiEnabled(this._extension, "codeActionAI") ? toConvert.isAI : false,
+          ranges: isProposedApiEnabled(this._extension, "codeActionRanges") ? coalesce(range.map(typeConvert.Range.from)) : void 0,
+          disabled: toConvert.disabled?.reason
+        });
+      }
+    }
+    return { cacheId, actions };
+  }
+  async resolveCodeAction(id, token) {
+    const [sessionId, itemId] = id;
+    const item = this._cache.get(sessionId, itemId);
+    if (!item || CodeActionAdapter._isCommand(item)) {
+      return {};
+    }
+    if (!this._provider.resolveCodeAction) {
+      return {};
+    }
+    const resolvedItem = await this._provider.resolveCodeAction(item, token) ?? item;
+    let resolvedEdit;
+    if (resolvedItem.edit) {
+      resolvedEdit = typeConvert.WorkspaceEdit.from(resolvedItem.edit, void 0);
+    }
+    let resolvedCommand;
+    if (resolvedItem.command) {
+      const disposables = this._disposables.get(sessionId);
+      if (disposables) {
+        resolvedCommand = this._commands.toInternal(resolvedItem.command, disposables);
+      }
+    }
+    return { edit: resolvedEdit, command: resolvedCommand };
+  }
+  releaseCodeActions(cachedId) {
+    this._disposables.get(cachedId)?.dispose();
+    this._disposables.delete(cachedId);
+    this._cache.delete(cachedId);
+  }
+  static _isCommand(thing) {
+    return typeof thing.command === "string" && typeof thing.title === "string";
+  }
+}
+class DocumentPasteEditProvider {
+  static {
+    __name(this, "DocumentPasteEditProvider");
+  }
+  constructor(_proxy, _documents, _provider, _handle, _extension) {
+    this._proxy = _proxy;
+    this._documents = _documents;
+    this._provider = _provider;
+    this._handle = _handle;
+    this._extension = _extension;
+    this._editsCache = new Cache("DocumentPasteEdit.edits");
+  }
+  async prepareDocumentPaste(resource, ranges, dataTransferDto, token) {
+    if (!this._provider.prepareDocumentPaste) {
+      return;
+    }
+    this._cachedPrepare = void 0;
+    const doc = this._documents.getDocument(resource);
+    const vscodeRanges = ranges.map((range) => typeConvert.Range.to(range));
+    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(dataTransferDto, () => {
+      throw new NotImplementedError();
+    });
+    await this._provider.prepareDocumentPaste(doc, vscodeRanges, dataTransfer, token);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const newEntries = Array.from(dataTransfer).filter(([, value]) => !(value instanceof InternalDataTransferItem));
+    const newCache = /* @__PURE__ */ new Map();
+    const items = await Promise.all(Array.from(newEntries, async ([mime, value]) => {
+      const id = generateUuid();
+      newCache.set(id, value);
+      return [mime, await typeConvert.DataTransferItem.from(mime, value, id)];
+    }));
+    this._cachedPrepare = newCache;
+    return { items };
+  }
+  async providePasteEdits(requestId, resource, ranges, dataTransferDto, context, token) {
+    if (!this._provider.provideDocumentPasteEdits) {
+      return [];
+    }
+    const doc = this._documents.getDocument(resource);
+    const vscodeRanges = ranges.map((range) => typeConvert.Range.to(range));
+    const items = dataTransferDto.items.map(([mime, value]) => {
+      const cached = this._cachedPrepare?.get(value.id);
+      if (cached) {
+        return [mime, cached];
+      }
+      return [
+        mime,
+        typeConvert.DataTransferItem.to(mime, value, async (id) => {
+          return (await this._proxy.$resolvePasteFileData(this._handle, requestId, id)).buffer;
+        })
+      ];
+    });
+    const dataTransfer = new DataTransfer(items);
+    const edits = await this._provider.provideDocumentPasteEdits(doc, vscodeRanges, dataTransfer, {
+      only: context.only ? new DocumentDropOrPasteEditKind(context.only) : void 0,
+      triggerKind: context.triggerKind
+    }, token);
+    if (!edits || token.isCancellationRequested) {
+      return [];
+    }
+    const cacheId = this._editsCache.add(edits);
+    return edits.map((edit, i) => ({
+      _cacheId: [cacheId, i],
+      title: edit.title ?? localize("defaultPasteLabel", "Paste using '{0}' extension", this._extension.displayName || this._extension.name),
+      kind: edit.kind,
+      yieldTo: edit.yieldTo?.map((x) => x.value),
+      insertText: typeof edit.insertText === "string" ? edit.insertText : { snippet: edit.insertText.value },
+      additionalEdit: edit.additionalEdit ? typeConvert.WorkspaceEdit.from(edit.additionalEdit, void 0) : void 0
+    }));
+  }
+  async resolvePasteEdit(id, token) {
+    const [sessionId, itemId] = id;
+    const item = this._editsCache.get(sessionId, itemId);
+    if (!item || !this._provider.resolveDocumentPasteEdit) {
+      return {};
+    }
+    const resolvedItem = await this._provider.resolveDocumentPasteEdit(item, token) ?? item;
+    return {
+      insertText: resolvedItem.insertText,
+      additionalEdit: resolvedItem.additionalEdit ? typeConvert.WorkspaceEdit.from(resolvedItem.additionalEdit, void 0) : void 0
+    };
+  }
+  releasePasteEdits(id) {
+    this._editsCache.delete(id);
+  }
+}
+class DocumentFormattingAdapter {
+  static {
+    __name(this, "DocumentFormattingAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDocumentFormattingEdits(resource, options, token) {
+    const document = this._documents.getDocument(resource);
+    const value = await this._provider.provideDocumentFormattingEdits(document, options, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.TextEdit.from);
+    }
+    return void 0;
+  }
+}
+class RangeFormattingAdapter {
+  static {
+    __name(this, "RangeFormattingAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDocumentRangeFormattingEdits(resource, range, options, token) {
+    const document = this._documents.getDocument(resource);
+    const ran = typeConvert.Range.to(range);
+    const value = await this._provider.provideDocumentRangeFormattingEdits(document, ran, options, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.TextEdit.from);
+    }
+    return void 0;
+  }
+  async provideDocumentRangesFormattingEdits(resource, ranges, options, token) {
+    assertType(typeof this._provider.provideDocumentRangesFormattingEdits === "function", "INVALID invocation of `provideDocumentRangesFormattingEdits`");
+    const document = this._documents.getDocument(resource);
+    const _ranges = ranges.map(typeConvert.Range.to);
+    const value = await this._provider.provideDocumentRangesFormattingEdits(document, _ranges, options, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.TextEdit.from);
+    }
+    return void 0;
+  }
+}
+class OnTypeFormattingAdapter {
+  static {
+    __name(this, "OnTypeFormattingAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this.autoFormatTriggerCharacters = [];
+  }
+  async provideOnTypeFormattingEdits(resource, position, ch, options, token) {
+    const document = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const value = await this._provider.provideOnTypeFormattingEdits(document, pos, ch, options, token);
+    if (Array.isArray(value)) {
+      return value.map(typeConvert.TextEdit.from);
+    }
+    return void 0;
+  }
+}
+class NavigateTypeAdapter {
+  static {
+    __name(this, "NavigateTypeAdapter");
+  }
+  constructor(_provider, _logService) {
+    this._provider = _provider;
+    this._logService = _logService;
+    this._cache = new Cache("WorkspaceSymbols");
+  }
+  async provideWorkspaceSymbols(search, token) {
+    const value = await this._provider.provideWorkspaceSymbols(search, token);
+    if (!isNonEmptyArray(value)) {
+      return { symbols: [] };
+    }
+    const sid = this._cache.add(value);
+    const result = {
+      cacheId: sid,
+      symbols: []
+    };
+    for (let i = 0; i < value.length; i++) {
+      const item = value[i];
+      if (!item || !item.name) {
+        this._logService.warn("INVALID SymbolInformation", item);
+        continue;
+      }
+      result.symbols.push({
+        ...typeConvert.WorkspaceSymbol.from(item),
+        cacheId: [sid, i]
+      });
+    }
+    return result;
+  }
+  async resolveWorkspaceSymbol(symbol, token) {
+    if (typeof this._provider.resolveWorkspaceSymbol !== "function") {
+      return symbol;
+    }
+    if (!symbol.cacheId) {
+      return symbol;
+    }
+    const item = this._cache.get(...symbol.cacheId);
+    if (item) {
+      const value = await this._provider.resolveWorkspaceSymbol(item, token);
+      return value && mixin(symbol, typeConvert.WorkspaceSymbol.from(value), true);
+    }
+    return void 0;
+  }
+  releaseWorkspaceSymbols(id) {
+    this._cache.delete(id);
+  }
+}
+class RenameAdapter {
+  static {
+    __name(this, "RenameAdapter");
+  }
+  static supportsResolving(provider) {
+    return typeof provider.prepareRename === "function";
+  }
+  constructor(_documents, _provider, _logService) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._logService = _logService;
+  }
+  async provideRenameEdits(resource, position, newName, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    try {
+      const value = await this._provider.provideRenameEdits(doc, pos, newName, token);
+      if (!value) {
+        return void 0;
+      }
+      return typeConvert.WorkspaceEdit.from(value);
+    } catch (err) {
+      const rejectReason = RenameAdapter._asMessage(err);
+      if (rejectReason) {
+        return { rejectReason, edits: void 0 };
+      } else {
+        return Promise.reject(err);
+      }
+    }
+  }
+  async resolveRenameLocation(resource, position, token) {
+    if (typeof this._provider.prepareRename !== "function") {
+      return Promise.resolve(void 0);
+    }
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    try {
+      const rangeOrLocation = await this._provider.prepareRename(doc, pos, token);
+      let range;
+      let text;
+      if (Range.isRange(rangeOrLocation)) {
+        range = rangeOrLocation;
+        text = doc.getText(rangeOrLocation);
+      } else if (isObject(rangeOrLocation)) {
+        range = rangeOrLocation.range;
+        text = rangeOrLocation.placeholder;
+      }
+      if (!range || !text) {
+        return void 0;
+      }
+      if (range.start.line > pos.line || range.end.line < pos.line) {
+        this._logService.warn("INVALID rename location: position line must be within range start/end lines");
+        return void 0;
+      }
+      return { range: typeConvert.Range.from(range), text };
+    } catch (err) {
+      const rejectReason = RenameAdapter._asMessage(err);
+      if (rejectReason) {
+        return { rejectReason, range: void 0, text: void 0 };
+      } else {
+        return Promise.reject(err);
+      }
+    }
+  }
+  static _asMessage(err) {
+    if (typeof err === "string") {
+      return err;
+    } else if (err instanceof Error && typeof err.message === "string") {
+      return err.message;
+    } else {
+      return void 0;
+    }
+  }
+}
+class NewSymbolNamesAdapter {
+  static {
+    __name(this, "NewSymbolNamesAdapter");
+  }
+  static {
+    this.languageTriggerKindToVSCodeTriggerKind = {
+      [languages.NewSymbolNameTriggerKind.Invoke]: NewSymbolNameTriggerKind.Invoke,
+      [languages.NewSymbolNameTriggerKind.Automatic]: NewSymbolNameTriggerKind.Automatic
+    };
+  }
+  constructor(_documents, _provider, _logService) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._logService = _logService;
+  }
+  async supportsAutomaticNewSymbolNamesTriggerKind() {
+    return this._provider.supportsAutomaticTriggerKind;
+  }
+  async provideNewSymbolNames(resource, range, triggerKind, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Range.to(range);
+    try {
+      const kind = NewSymbolNamesAdapter.languageTriggerKindToVSCodeTriggerKind[triggerKind];
+      const value = await this._provider.provideNewSymbolNames(doc, pos, kind, token);
+      if (!value) {
+        return void 0;
+      }
+      return value.map((v) => typeof v === "string" ? { newSymbolName: v } : { newSymbolName: v.newSymbolName, tags: v.tags });
+    } catch (err) {
+      this._logService.error(
+        NewSymbolNamesAdapter._asMessage(err) ?? JSON.stringify(err, null, "	")
+        /* @ulugbekna: assuming `err` doesn't have circular references that could result in an exception when converting to JSON */
+      );
+      return void 0;
+    }
+  }
+  // @ulugbekna: this method is also defined in RenameAdapter but seems OK to be duplicated
+  static _asMessage(err) {
+    if (typeof err === "string") {
+      return err;
+    } else if (err instanceof Error && typeof err.message === "string") {
+      return err.message;
+    } else {
+      return void 0;
+    }
+  }
+}
+class SemanticTokensPreviousResult {
+  static {
+    __name(this, "SemanticTokensPreviousResult");
+  }
+  constructor(resultId, tokens) {
+    this.resultId = resultId;
+    this.tokens = tokens;
+  }
+}
+class DocumentSemanticTokensAdapter {
+  static {
+    __name(this, "DocumentSemanticTokensAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._nextResultId = 1;
+    this._previousResults = /* @__PURE__ */ new Map();
+  }
+  async provideDocumentSemanticTokens(resource, previousResultId, token) {
+    const doc = this._documents.getDocument(resource);
+    const previousResult = previousResultId !== 0 ? this._previousResults.get(previousResultId) : null;
+    let value = typeof previousResult?.resultId === "string" && typeof this._provider.provideDocumentSemanticTokensEdits === "function" ? await this._provider.provideDocumentSemanticTokensEdits(doc, previousResult.resultId, token) : await this._provider.provideDocumentSemanticTokens(doc, token);
+    if (previousResult) {
+      this._previousResults.delete(previousResultId);
+    }
+    if (!value) {
+      return null;
+    }
+    value = DocumentSemanticTokensAdapter._fixProvidedSemanticTokens(value);
+    return this._send(DocumentSemanticTokensAdapter._convertToEdits(previousResult, value), value);
+  }
+  async releaseDocumentSemanticColoring(semanticColoringResultId) {
+    this._previousResults.delete(semanticColoringResultId);
+  }
+  static _fixProvidedSemanticTokens(v) {
+    if (DocumentSemanticTokensAdapter._isSemanticTokens(v)) {
+      if (DocumentSemanticTokensAdapter._isCorrectSemanticTokens(v)) {
+        return v;
+      }
+      return new SemanticTokens(new Uint32Array(v.data), v.resultId);
+    } else if (DocumentSemanticTokensAdapter._isSemanticTokensEdits(v)) {
+      if (DocumentSemanticTokensAdapter._isCorrectSemanticTokensEdits(v)) {
+        return v;
+      }
+      return new SemanticTokensEdits(v.edits.map((edit) => new SemanticTokensEdit(edit.start, edit.deleteCount, edit.data ? new Uint32Array(edit.data) : edit.data)), v.resultId);
+    }
+    return v;
+  }
+  static _isSemanticTokens(v) {
+    return v && !!v.data;
+  }
+  static _isCorrectSemanticTokens(v) {
+    return v.data instanceof Uint32Array;
+  }
+  static _isSemanticTokensEdits(v) {
+    return v && Array.isArray(v.edits);
+  }
+  static _isCorrectSemanticTokensEdits(v) {
+    for (const edit of v.edits) {
+      if (!(edit.data instanceof Uint32Array)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  static _convertToEdits(previousResult, newResult) {
+    if (!DocumentSemanticTokensAdapter._isSemanticTokens(newResult)) {
+      return newResult;
+    }
+    if (!previousResult || !previousResult.tokens) {
+      return newResult;
+    }
+    const oldData = previousResult.tokens;
+    const oldLength = oldData.length;
+    const newData = newResult.data;
+    const newLength = newData.length;
+    let commonPrefixLength = 0;
+    const maxCommonPrefixLength = Math.min(oldLength, newLength);
+    while (commonPrefixLength < maxCommonPrefixLength && oldData[commonPrefixLength] === newData[commonPrefixLength]) {
+      commonPrefixLength++;
+    }
+    if (commonPrefixLength === oldLength && commonPrefixLength === newLength) {
+      return new SemanticTokensEdits([], newResult.resultId);
+    }
+    let commonSuffixLength = 0;
+    const maxCommonSuffixLength = maxCommonPrefixLength - commonPrefixLength;
+    while (commonSuffixLength < maxCommonSuffixLength && oldData[oldLength - commonSuffixLength - 1] === newData[newLength - commonSuffixLength - 1]) {
+      commonSuffixLength++;
+    }
+    return new SemanticTokensEdits([{
+      start: commonPrefixLength,
+      deleteCount: oldLength - commonPrefixLength - commonSuffixLength,
+      data: newData.subarray(commonPrefixLength, newLength - commonSuffixLength)
+    }], newResult.resultId);
+  }
+  _send(value, original) {
+    if (DocumentSemanticTokensAdapter._isSemanticTokens(value)) {
+      const myId = this._nextResultId++;
+      this._previousResults.set(myId, new SemanticTokensPreviousResult(value.resultId, value.data));
+      return encodeSemanticTokensDto({
+        id: myId,
+        type: "full",
+        data: value.data
+      });
+    }
+    if (DocumentSemanticTokensAdapter._isSemanticTokensEdits(value)) {
+      const myId = this._nextResultId++;
+      if (DocumentSemanticTokensAdapter._isSemanticTokens(original)) {
+        this._previousResults.set(myId, new SemanticTokensPreviousResult(original.resultId, original.data));
+      } else {
+        this._previousResults.set(myId, new SemanticTokensPreviousResult(value.resultId));
+      }
+      return encodeSemanticTokensDto({
+        id: myId,
+        type: "delta",
+        deltas: (value.edits || []).map((edit) => ({ start: edit.start, deleteCount: edit.deleteCount, data: edit.data }))
+      });
+    }
+    return null;
+  }
+}
+class DocumentRangeSemanticTokensAdapter {
+  static {
+    __name(this, "DocumentRangeSemanticTokensAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideDocumentRangeSemanticTokens(resource, range, token) {
+    const doc = this._documents.getDocument(resource);
+    const value = await this._provider.provideDocumentRangeSemanticTokens(doc, typeConvert.Range.to(range), token);
+    if (!value) {
+      return null;
+    }
+    return this._send(value);
+  }
+  _send(value) {
+    return encodeSemanticTokensDto({
+      id: 0,
+      type: "full",
+      data: value.data
+    });
+  }
+}
+class CompletionsAdapter {
+  static {
+    __name(this, "CompletionsAdapter");
+  }
+  static supportsResolving(provider) {
+    return typeof provider.resolveCompletionItem === "function";
+  }
+  constructor(_documents, _commands, _provider, _apiDeprecation, _extension) {
+    this._documents = _documents;
+    this._commands = _commands;
+    this._provider = _provider;
+    this._apiDeprecation = _apiDeprecation;
+    this._extension = _extension;
+    this._cache = new Cache("CompletionItem");
+    this._disposables = /* @__PURE__ */ new Map();
+  }
+  async provideCompletionItems(resource, position, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const replaceRange = doc.getWordRangeAtPosition(pos) || new Range(pos, pos);
+    const insertRange = replaceRange.with({ end: pos });
+    const sw = new StopWatch();
+    const itemsOrList = await this._provider.provideCompletionItems(doc, pos, token, typeConvert.CompletionContext.to(context));
+    if (!itemsOrList) {
+      return void 0;
+    }
+    if (token.isCancellationRequested) {
+      return void 0;
+    }
+    const list = Array.isArray(itemsOrList) ? new CompletionList(itemsOrList) : itemsOrList;
+    const pid = CompletionsAdapter.supportsResolving(this._provider) ? this._cache.add(list.items) : this._cache.add([]);
+    const disposables = new DisposableStore();
+    this._disposables.set(pid, disposables);
+    const completions = [];
+    const result = {
+      x: pid,
+      [
+        "b"
+        /* extHostProtocol.ISuggestResultDtoField.completions */
+      ]: completions,
+      [
+        "a"
+        /* extHostProtocol.ISuggestResultDtoField.defaultRanges */
+      ]: { replace: typeConvert.Range.from(replaceRange), insert: typeConvert.Range.from(insertRange) },
+      [
+        "c"
+        /* extHostProtocol.ISuggestResultDtoField.isIncomplete */
+      ]: list.isIncomplete || void 0,
+      [
+        "d"
+        /* extHostProtocol.ISuggestResultDtoField.duration */
+      ]: sw.elapsed()
+    };
+    for (let i = 0; i < list.items.length; i++) {
+      const item = list.items[i];
+      const dto = this._convertCompletionItem(item, [pid, i], insertRange, replaceRange);
+      completions.push(dto);
+    }
+    return result;
+  }
+  async resolveCompletionItem(id, token) {
+    if (typeof this._provider.resolveCompletionItem !== "function") {
+      return void 0;
+    }
+    const item = this._cache.get(...id);
+    if (!item) {
+      return void 0;
+    }
+    const dto1 = this._convertCompletionItem(item, id);
+    const resolvedItem = await this._provider.resolveCompletionItem(item, token);
+    if (!resolvedItem) {
+      return void 0;
+    }
+    const dto2 = this._convertCompletionItem(resolvedItem, id);
+    if (dto1[
+      "h"
+      /* extHostProtocol.ISuggestDataDtoField.insertText */
+    ] !== dto2[
+      "h"
+      /* extHostProtocol.ISuggestDataDtoField.insertText */
+    ] || dto1[
+      "i"
+      /* extHostProtocol.ISuggestDataDtoField.insertTextRules */
+    ] !== dto2[
+      "i"
+      /* extHostProtocol.ISuggestDataDtoField.insertTextRules */
+    ]) {
+      this._apiDeprecation.report("CompletionItem.insertText", this._extension, "extension MAY NOT change 'insertText' of a CompletionItem during resolve");
+    }
+    if (dto1[
+      "n"
+      /* extHostProtocol.ISuggestDataDtoField.commandIdent */
+    ] !== dto2[
+      "n"
+      /* extHostProtocol.ISuggestDataDtoField.commandIdent */
+    ] || dto1[
+      "o"
+      /* extHostProtocol.ISuggestDataDtoField.commandId */
+    ] !== dto2[
+      "o"
+      /* extHostProtocol.ISuggestDataDtoField.commandId */
+    ] || !equals(dto1[
+      "p"
+      /* extHostProtocol.ISuggestDataDtoField.commandArguments */
+    ], dto2[
+      "p"
+      /* extHostProtocol.ISuggestDataDtoField.commandArguments */
+    ])) {
+      this._apiDeprecation.report("CompletionItem.command", this._extension, "extension MAY NOT change 'command' of a CompletionItem during resolve");
+    }
+    return {
+      ...dto1,
+      [
+        "d"
+        /* extHostProtocol.ISuggestDataDtoField.documentation */
+      ]: dto2[
+        "d"
+        /* extHostProtocol.ISuggestDataDtoField.documentation */
+      ],
+      [
+        "c"
+        /* extHostProtocol.ISuggestDataDtoField.detail */
+      ]: dto2[
+        "c"
+        /* extHostProtocol.ISuggestDataDtoField.detail */
+      ],
+      [
+        "l"
+        /* extHostProtocol.ISuggestDataDtoField.additionalTextEdits */
+      ]: dto2[
+        "l"
+        /* extHostProtocol.ISuggestDataDtoField.additionalTextEdits */
+      ],
+      // (fishy) async insertText
+      [
+        "h"
+        /* extHostProtocol.ISuggestDataDtoField.insertText */
+      ]: dto2[
+        "h"
+        /* extHostProtocol.ISuggestDataDtoField.insertText */
+      ],
+      [
+        "i"
+        /* extHostProtocol.ISuggestDataDtoField.insertTextRules */
+      ]: dto2[
+        "i"
+        /* extHostProtocol.ISuggestDataDtoField.insertTextRules */
+      ],
+      // (fishy) async command
+      [
+        "n"
+        /* extHostProtocol.ISuggestDataDtoField.commandIdent */
+      ]: dto2[
+        "n"
+        /* extHostProtocol.ISuggestDataDtoField.commandIdent */
+      ],
+      [
+        "o"
+        /* extHostProtocol.ISuggestDataDtoField.commandId */
+      ]: dto2[
+        "o"
+        /* extHostProtocol.ISuggestDataDtoField.commandId */
+      ],
+      [
+        "p"
+        /* extHostProtocol.ISuggestDataDtoField.commandArguments */
+      ]: dto2[
+        "p"
+        /* extHostProtocol.ISuggestDataDtoField.commandArguments */
+      ]
+    };
+  }
+  releaseCompletionItems(id) {
+    this._disposables.get(id)?.dispose();
+    this._disposables.delete(id);
+    this._cache.delete(id);
+  }
+  _convertCompletionItem(item, id, defaultInsertRange, defaultReplaceRange) {
+    const disposables = this._disposables.get(id[0]);
+    if (!disposables) {
+      throw Error("DisposableStore is missing...");
+    }
+    const command = this._commands.toInternal(item.command, disposables);
+    const result = {
+      //
+      x: id,
+      //
+      [
+        "a"
+        /* extHostProtocol.ISuggestDataDtoField.label */
+      ]: item.label,
+      [
+        "b"
+        /* extHostProtocol.ISuggestDataDtoField.kind */
+      ]: item.kind !== void 0 ? typeConvert.CompletionItemKind.from(item.kind) : void 0,
+      [
+        "m"
+        /* extHostProtocol.ISuggestDataDtoField.kindModifier */
+      ]: item.tags && item.tags.map(typeConvert.CompletionItemTag.from),
+      [
+        "c"
+        /* extHostProtocol.ISuggestDataDtoField.detail */
+      ]: item.detail,
+      [
+        "d"
+        /* extHostProtocol.ISuggestDataDtoField.documentation */
+      ]: typeof item.documentation === "undefined" ? void 0 : typeConvert.MarkdownString.fromStrict(item.documentation),
+      [
+        "e"
+        /* extHostProtocol.ISuggestDataDtoField.sortText */
+      ]: item.sortText !== item.label ? item.sortText : void 0,
+      [
+        "f"
+        /* extHostProtocol.ISuggestDataDtoField.filterText */
+      ]: item.filterText !== item.label ? item.filterText : void 0,
+      [
+        "g"
+        /* extHostProtocol.ISuggestDataDtoField.preselect */
+      ]: item.preselect || void 0,
+      [
+        "i"
+        /* extHostProtocol.ISuggestDataDtoField.insertTextRules */
+      ]: item.keepWhitespace ? 1 : 0,
+      [
+        "k"
+        /* extHostProtocol.ISuggestDataDtoField.commitCharacters */
+      ]: item.commitCharacters?.join(""),
+      [
+        "l"
+        /* extHostProtocol.ISuggestDataDtoField.additionalTextEdits */
+      ]: item.additionalTextEdits && item.additionalTextEdits.map(typeConvert.TextEdit.from),
+      [
+        "n"
+        /* extHostProtocol.ISuggestDataDtoField.commandIdent */
+      ]: command?.$ident,
+      [
+        "o"
+        /* extHostProtocol.ISuggestDataDtoField.commandId */
+      ]: command?.id,
+      [
+        "p"
+        /* extHostProtocol.ISuggestDataDtoField.commandArguments */
+      ]: command?.$ident ? void 0 : command?.arguments
+      // filled in on main side from $ident
+    };
+    if (item.textEdit) {
+      this._apiDeprecation.report("CompletionItem.textEdit", this._extension, `Use 'CompletionItem.insertText' and 'CompletionItem.range' instead.`);
+      result[
+        "h"
+        /* extHostProtocol.ISuggestDataDtoField.insertText */
+      ] = item.textEdit.newText;
+    } else if (typeof item.insertText === "string") {
+      result[
+        "h"
+        /* extHostProtocol.ISuggestDataDtoField.insertText */
+      ] = item.insertText;
+    } else if (item.insertText instanceof SnippetString) {
+      result[
+        "h"
+        /* extHostProtocol.ISuggestDataDtoField.insertText */
+      ] = item.insertText.value;
+      result[
+        "i"
+        /* extHostProtocol.ISuggestDataDtoField.insertTextRules */
+      ] |= 4;
+    }
+    let range;
+    if (item.textEdit) {
+      range = item.textEdit.range;
+    } else if (item.range) {
+      range = item.range;
+    }
+    if (Range.isRange(range)) {
+      result[
+        "j"
+        /* extHostProtocol.ISuggestDataDtoField.range */
+      ] = typeConvert.Range.from(range);
+    } else if (range && (!defaultInsertRange?.isEqual(range.inserting) || !defaultReplaceRange?.isEqual(range.replacing))) {
+      result[
+        "j"
+        /* extHostProtocol.ISuggestDataDtoField.range */
+      ] = {
+        insert: typeConvert.Range.from(range.inserting),
+        replace: typeConvert.Range.from(range.replacing)
+      };
+    }
+    return result;
+  }
+}
+class InlineCompletionAdapter {
+  static {
+    __name(this, "InlineCompletionAdapter");
+  }
+  constructor(_extension, _documents, _provider, _commands) {
+    this._extension = _extension;
+    this._documents = _documents;
+    this._provider = _provider;
+    this._commands = _commands;
+    this._references = new ReferenceMap();
+    this.languageTriggerKindToVSCodeTriggerKind = {
+      [languages.InlineCompletionTriggerKind.Automatic]: InlineCompletionTriggerKind.Automatic,
+      [languages.InlineCompletionTriggerKind.Explicit]: InlineCompletionTriggerKind.Invoke
+    };
+    this._isAdditionsProposedApiEnabled = isProposedApiEnabled(this._extension, "inlineCompletionsAdditions");
+  }
+  get supportsHandleEvents() {
+    return isProposedApiEnabled(this._extension, "inlineCompletionsAdditions") && (typeof this._provider.handleDidShowCompletionItem === "function" || typeof this._provider.handleDidPartiallyAcceptCompletionItem === "function" || typeof this._provider.handleDidRejectCompletionItem === "function" || typeof this._provider.handleEndOfLifetime === "function");
+  }
+  get supportsSetModelId() {
+    return isProposedApiEnabled(this._extension, "inlineCompletionsAdditions") && typeof this._provider.setCurrentModelId === "function";
+  }
+  get modelInfo() {
+    if (!this._isAdditionsProposedApiEnabled) {
+      return void 0;
+    }
+    return this._provider.modelInfo ? {
+      models: this._provider.modelInfo.models,
+      currentModelId: this._provider.modelInfo.currentModelId
+    } : void 0;
+  }
+  setCurrentModelId(modelId) {
+    if (!this._isAdditionsProposedApiEnabled) {
+      return;
+    }
+    this._provider.setCurrentModelId?.(modelId);
+  }
+  async provideInlineCompletions(resource, position, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const result = await this._provider.provideInlineCompletionItems(doc, pos, {
+      selectedCompletionInfo: context.selectedSuggestionInfo ? {
+        range: typeConvert.Range.to(context.selectedSuggestionInfo.range),
+        text: context.selectedSuggestionInfo.text
+      } : void 0,
+      triggerKind: this.languageTriggerKindToVSCodeTriggerKind[context.triggerKind],
+      requestUuid: context.requestUuid,
+      requestIssuedDateTime: context.requestIssuedDateTime,
+      earliestShownDateTime: context.earliestShownDateTime,
+      changeHint: context.changeHint
+    }, token);
+    if (!result) {
+      return void 0;
+    }
+    const { resultItems, list } = Array.isArray(result) ? { resultItems: result, list: void 0 } : { resultItems: result.items, list: result };
+    const commands = this._isAdditionsProposedApiEnabled ? Array.isArray(result) ? [] : result.commands || [] : [];
+    const enableForwardStability = this._isAdditionsProposedApiEnabled && !Array.isArray(result) ? result.enableForwardStability : void 0;
+    let disposableStore = void 0;
+    const pid = this._references.createReferenceId({
+      dispose() {
+        disposableStore?.dispose();
+      },
+      items: resultItems,
+      list
+    });
+    const items = {
+      pid,
+      languageId: doc.languageId,
+      items: resultItems.map((item, idx) => {
+        let command = void 0;
+        if (item.command) {
+          if (!disposableStore) {
+            disposableStore = new DisposableStore();
+          }
+          command = this._commands.toInternal(item.command, disposableStore);
+        }
+        let action = void 0;
+        if (item.action) {
+          if (!disposableStore) {
+            disposableStore = new DisposableStore();
+          }
+          action = this._commands.toInternal(item.action, disposableStore);
+        }
+        const insertText = item.insertText;
+        return {
+          insertText: insertText === void 0 ? void 0 : typeof insertText === "string" ? insertText : { snippet: insertText.value },
+          range: item.range ? typeConvert.Range.from(item.range) : void 0,
+          showRange: this._isAdditionsProposedApiEnabled && item.showRange ? typeConvert.Range.from(item.showRange) : void 0,
+          command,
+          gutterMenuLinkAction: action,
+          idx,
+          completeBracketPairs: this._isAdditionsProposedApiEnabled ? item.completeBracketPairs : false,
+          isInlineEdit: this._isAdditionsProposedApiEnabled ? item.isInlineEdit : false,
+          showInlineEditMenu: this._isAdditionsProposedApiEnabled ? item.showInlineEditMenu : false,
+          hint: item.displayLocation && this._isAdditionsProposedApiEnabled ? {
+            range: typeConvert.Range.from(item.displayLocation.range),
+            content: item.displayLocation.label,
+            style: item.displayLocation.kind ? typeConvert.InlineCompletionHintStyle.from(item.displayLocation.kind) : languages.InlineCompletionHintStyle.Code
+          } : void 0,
+          warning: item.warning && this._isAdditionsProposedApiEnabled ? {
+            message: typeConvert.MarkdownString.from(item.warning.message),
+            icon: item.warning.icon ? typeConvert.IconPath.fromThemeIcon(item.warning.icon) : void 0
+          } : void 0,
+          correlationId: this._isAdditionsProposedApiEnabled ? item.correlationId : void 0,
+          suggestionId: void 0,
+          uri: this._isAdditionsProposedApiEnabled && item.uri ? item.uri : void 0,
+          supportsRename: this._isAdditionsProposedApiEnabled ? item.supportsRename : false,
+          jumpToPosition: this._isAdditionsProposedApiEnabled && item.jumpToPosition ? typeConvert.Position.from(item.jumpToPosition) : void 0
+        };
+      }),
+      commands: commands.map((c) => {
+        if (!disposableStore) {
+          disposableStore = new DisposableStore();
+        }
+        return typeConvert.CompletionCommand.from(c, this._commands, disposableStore);
+      }),
+      suppressSuggestions: false,
+      enableForwardStability
+    };
+    return items;
+  }
+  disposeCompletions(pid, reason) {
+    const completionList = this._references.get(pid);
+    if (this._provider.handleListEndOfLifetime && this._isAdditionsProposedApiEnabled && completionList?.list) {
+      let translateReason2 = function(reason2) {
+        switch (reason2.kind) {
+          case "lostRace":
+            return { kind: InlineCompletionsDisposeReasonKind.LostRace };
+          case "tokenCancellation":
+            return { kind: InlineCompletionsDisposeReasonKind.TokenCancellation };
+          case "other":
+            return { kind: InlineCompletionsDisposeReasonKind.Other };
+          case "empty":
+            return { kind: InlineCompletionsDisposeReasonKind.Empty };
+          case "notTaken":
+            return { kind: InlineCompletionsDisposeReasonKind.NotTaken };
+          default:
+            return { kind: InlineCompletionsDisposeReasonKind.Other };
+        }
+      };
+      var translateReason = translateReason2;
+      __name(translateReason2, "translateReason");
+      this._provider.handleListEndOfLifetime(completionList.list, translateReason2(reason));
+    }
+    const data = this._references.disposeReferenceId(pid);
+    data?.dispose();
+  }
+  handleDidShowCompletionItem(pid, idx, updatedInsertText) {
+    const completionItem = this._references.get(pid)?.items[idx];
+    if (completionItem) {
+      if (this._provider.handleDidShowCompletionItem && this._isAdditionsProposedApiEnabled) {
+        this._provider.handleDidShowCompletionItem(completionItem, updatedInsertText);
+      }
+    }
+  }
+  handlePartialAccept(pid, idx, acceptedCharacters, info) {
+    const completionItem = this._references.get(pid)?.items[idx];
+    if (completionItem) {
+      if (this._provider.handleDidPartiallyAcceptCompletionItem && this._isAdditionsProposedApiEnabled) {
+        this._provider.handleDidPartiallyAcceptCompletionItem(completionItem, acceptedCharacters);
+        this._provider.handleDidPartiallyAcceptCompletionItem(completionItem, typeConvert.PartialAcceptInfo.to(info));
+      }
+    }
+  }
+  handleEndOfLifetime(pid, idx, reason) {
+    const completionItem = this._references.get(pid)?.items[idx];
+    if (completionItem) {
+      if (this._provider.handleEndOfLifetime && this._isAdditionsProposedApiEnabled) {
+        const r = typeConvert.InlineCompletionEndOfLifeReason.to(reason, (ref) => this._references.get(ref.pid)?.items[ref.idx]);
+        this._provider.handleEndOfLifetime(completionItem, r);
+      }
+    }
+  }
+  handleRejection(pid, idx) {
+    const completionItem = this._references.get(pid)?.items[idx];
+    if (completionItem) {
+      if (this._provider.handleDidRejectCompletionItem && this._isAdditionsProposedApiEnabled) {
+        this._provider.handleDidRejectCompletionItem(completionItem);
+      }
+    }
+  }
+}
+class ReferenceMap {
+  static {
+    __name(this, "ReferenceMap");
+  }
+  constructor() {
+    this._references = /* @__PURE__ */ new Map();
+    this._idPool = 1;
+  }
+  createReferenceId(value) {
+    const id = this._idPool++;
+    this._references.set(id, value);
+    return id;
+  }
+  disposeReferenceId(referenceId) {
+    const value = this._references.get(referenceId);
+    this._references.delete(referenceId);
+    return value;
+  }
+  get(referenceId) {
+    return this._references.get(referenceId);
+  }
+}
+class SignatureHelpAdapter {
+  static {
+    __name(this, "SignatureHelpAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._cache = new Cache("SignatureHelp");
+  }
+  async provideSignatureHelp(resource, position, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const pos = typeConvert.Position.to(position);
+    const vscodeContext = this.reviveContext(context);
+    const value = await this._provider.provideSignatureHelp(doc, pos, token, vscodeContext);
+    if (value) {
+      const id = this._cache.add([value]);
+      return { ...typeConvert.SignatureHelp.from(value), id };
+    }
+    return void 0;
+  }
+  reviveContext(context) {
+    let activeSignatureHelp = void 0;
+    if (context.activeSignatureHelp) {
+      const revivedSignatureHelp = typeConvert.SignatureHelp.to(context.activeSignatureHelp);
+      const saved = this._cache.get(context.activeSignatureHelp.id, 0);
+      if (saved) {
+        activeSignatureHelp = saved;
+        activeSignatureHelp.activeSignature = revivedSignatureHelp.activeSignature;
+        activeSignatureHelp.activeParameter = revivedSignatureHelp.activeParameter;
+      } else {
+        activeSignatureHelp = revivedSignatureHelp;
+      }
+    }
+    return { ...context, activeSignatureHelp };
+  }
+  releaseSignatureHelp(id) {
+    this._cache.delete(id);
+  }
+}
+class InlayHintsAdapter {
+  static {
+    __name(this, "InlayHintsAdapter");
+  }
+  constructor(_documents, _commands, _provider, _logService, _extension) {
+    this._documents = _documents;
+    this._commands = _commands;
+    this._provider = _provider;
+    this._logService = _logService;
+    this._extension = _extension;
+    this._cache = new Cache("InlayHints");
+    this._disposables = /* @__PURE__ */ new Map();
+  }
+  async provideInlayHints(resource, ran, token) {
+    const doc = this._documents.getDocument(resource);
+    const range = typeConvert.Range.to(ran);
+    const hints = await this._provider.provideInlayHints(doc, range, token);
+    if (!Array.isArray(hints) || hints.length === 0) {
+      this._logService.trace(`[InlayHints] NO inlay hints from '${this._extension.identifier.value}' for range ${JSON.stringify(ran)}`);
+      return void 0;
+    }
+    if (token.isCancellationRequested) {
+      return void 0;
+    }
+    const pid = this._cache.add(hints);
+    this._disposables.set(pid, new DisposableStore());
+    const result = { hints: [], cacheId: pid };
+    for (let i = 0; i < hints.length; i++) {
+      if (this._isValidInlayHint(hints[i], range)) {
+        result.hints.push(this._convertInlayHint(hints[i], [pid, i]));
+      }
+    }
+    this._logService.trace(`[InlayHints] ${result.hints.length} inlay hints from '${this._extension.identifier.value}' for range ${JSON.stringify(ran)}`);
+    return result;
+  }
+  async resolveInlayHint(id, token) {
+    if (typeof this._provider.resolveInlayHint !== "function") {
+      return void 0;
+    }
+    const item = this._cache.get(...id);
+    if (!item) {
+      return void 0;
+    }
+    const hint = await this._provider.resolveInlayHint(item, token);
+    if (!hint) {
+      return void 0;
+    }
+    if (!this._isValidInlayHint(hint)) {
+      return void 0;
+    }
+    return this._convertInlayHint(hint, id);
+  }
+  releaseHints(id) {
+    this._disposables.get(id)?.dispose();
+    this._disposables.delete(id);
+    this._cache.delete(id);
+  }
+  _isValidInlayHint(hint, range) {
+    if (hint.label.length === 0 || Array.isArray(hint.label) && hint.label.every((part) => part.value.length === 0)) {
+      console.log("INVALID inlay hint, empty label", hint);
+      return false;
+    }
+    if (range && !range.contains(hint.position)) {
+      return false;
+    }
+    return true;
+  }
+  _convertInlayHint(hint, id) {
+    const disposables = this._disposables.get(id[0]);
+    if (!disposables) {
+      throw Error("DisposableStore is missing...");
+    }
+    const result = {
+      label: "",
+      // fill-in below
+      cacheId: id,
+      tooltip: typeConvert.MarkdownString.fromStrict(hint.tooltip),
+      position: typeConvert.Position.from(hint.position),
+      textEdits: hint.textEdits && hint.textEdits.map(typeConvert.TextEdit.from),
+      kind: hint.kind && typeConvert.InlayHintKind.from(hint.kind),
+      paddingLeft: hint.paddingLeft,
+      paddingRight: hint.paddingRight
+    };
+    if (typeof hint.label === "string") {
+      result.label = hint.label;
+    } else {
+      const parts = [];
+      result.label = parts;
+      for (const part of hint.label) {
+        if (!part.value) {
+          console.warn("INVALID inlay hint, empty label part", this._extension.identifier.value);
+          continue;
+        }
+        const part2 = {
+          label: part.value,
+          tooltip: typeConvert.MarkdownString.fromStrict(part.tooltip)
+        };
+        if (Location.isLocation(part.location)) {
+          part2.location = typeConvert.location.from(part.location);
+        }
+        if (part.command) {
+          part2.command = this._commands.toInternal(part.command, disposables);
+        }
+        parts.push(part2);
+      }
+    }
+    return result;
+  }
+}
+class LinkProviderAdapter {
+  static {
+    __name(this, "LinkProviderAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._cache = new Cache("DocumentLink");
+  }
+  async provideLinks(resource, token) {
+    const doc = this._documents.getDocument(resource);
+    const links = await this._provider.provideDocumentLinks(doc, token);
+    if (!Array.isArray(links) || links.length === 0) {
+      return void 0;
+    }
+    if (token.isCancellationRequested) {
+      return void 0;
+    }
+    if (typeof this._provider.resolveDocumentLink !== "function") {
+      return { links: links.filter(LinkProviderAdapter._validateLink).map(typeConvert.DocumentLink.from) };
+    } else {
+      const pid = this._cache.add(links);
+      const result = { links: [], cacheId: pid };
+      for (let i = 0; i < links.length; i++) {
+        if (!LinkProviderAdapter._validateLink(links[i])) {
+          continue;
+        }
+        const dto = typeConvert.DocumentLink.from(links[i]);
+        dto.cacheId = [pid, i];
+        result.links.push(dto);
+      }
+      return result;
+    }
+  }
+  static _validateLink(link) {
+    if (link.target && link.target.path.length > 5e4) {
+      console.warn("DROPPING link because it is too long");
+      return false;
+    }
+    return true;
+  }
+  async resolveLink(id, token) {
+    if (typeof this._provider.resolveDocumentLink !== "function") {
+      return void 0;
+    }
+    const item = this._cache.get(...id);
+    if (!item) {
+      return void 0;
+    }
+    const link = await this._provider.resolveDocumentLink(item, token);
+    if (!link || !LinkProviderAdapter._validateLink(link)) {
+      return void 0;
+    }
+    return typeConvert.DocumentLink.from(link);
+  }
+  releaseLinks(id) {
+    this._cache.delete(id);
+  }
+}
+class ColorProviderAdapter {
+  static {
+    __name(this, "ColorProviderAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideColors(resource, token) {
+    const doc = this._documents.getDocument(resource);
+    const colors = await this._provider.provideDocumentColors(doc, token);
+    if (!Array.isArray(colors)) {
+      return [];
+    }
+    const colorInfos = colors.map((ci) => {
+      return {
+        color: typeConvert.Color.from(ci.color),
+        range: typeConvert.Range.from(ci.range)
+      };
+    });
+    return colorInfos;
+  }
+  async provideColorPresentations(resource, raw, token) {
+    const document = this._documents.getDocument(resource);
+    const range = typeConvert.Range.to(raw.range);
+    const color = typeConvert.Color.to(raw.color);
+    const value = await this._provider.provideColorPresentations(color, { document, range }, token);
+    if (!Array.isArray(value)) {
+      return void 0;
+    }
+    return value.map(typeConvert.ColorPresentation.from);
+  }
+}
+class FoldingProviderAdapter {
+  static {
+    __name(this, "FoldingProviderAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+  }
+  async provideFoldingRanges(resource, context, token) {
+    const doc = this._documents.getDocument(resource);
+    const ranges = await this._provider.provideFoldingRanges(doc, context, token);
+    if (!Array.isArray(ranges)) {
+      return void 0;
+    }
+    return ranges.map(typeConvert.FoldingRange.from);
+  }
+}
+class SelectionRangeAdapter {
+  static {
+    __name(this, "SelectionRangeAdapter");
+  }
+  constructor(_documents, _provider, _logService) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._logService = _logService;
+  }
+  async provideSelectionRanges(resource, pos, token) {
+    const document = this._documents.getDocument(resource);
+    const positions = pos.map(typeConvert.Position.to);
+    const allProviderRanges = await this._provider.provideSelectionRanges(document, positions, token);
+    if (!isNonEmptyArray(allProviderRanges)) {
+      return [];
+    }
+    if (allProviderRanges.length !== positions.length) {
+      this._logService.warn("BAD selection ranges, provider must return ranges for each position");
+      return [];
+    }
+    const allResults = [];
+    for (let i = 0; i < positions.length; i++) {
+      const oneResult = [];
+      allResults.push(oneResult);
+      let last = positions[i];
+      let selectionRange = allProviderRanges[i];
+      while (true) {
+        if (!selectionRange.range.contains(last)) {
+          throw new Error("INVALID selection range, must contain the previous range");
+        }
+        oneResult.push(typeConvert.SelectionRange.from(selectionRange));
+        if (!selectionRange.parent) {
+          break;
+        }
+        last = selectionRange.range;
+        selectionRange = selectionRange.parent;
+      }
+    }
+    return allResults;
+  }
+}
+class CallHierarchyAdapter {
+  static {
+    __name(this, "CallHierarchyAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._idPool = new IdGenerator("");
+    this._cache = /* @__PURE__ */ new Map();
+  }
+  async prepareSession(uri, position, token) {
+    const doc = this._documents.getDocument(uri);
+    const pos = typeConvert.Position.to(position);
+    const items = await this._provider.prepareCallHierarchy(doc, pos, token);
+    if (!items) {
+      return void 0;
+    }
+    const sessionId = this._idPool.nextId();
+    this._cache.set(sessionId, /* @__PURE__ */ new Map());
+    if (Array.isArray(items)) {
+      return items.map((item) => this._cacheAndConvertItem(sessionId, item));
+    } else {
+      return [this._cacheAndConvertItem(sessionId, items)];
+    }
+  }
+  async provideCallsTo(sessionId, itemId, token) {
+    const item = this._itemFromCache(sessionId, itemId);
+    if (!item) {
+      throw new Error("missing call hierarchy item");
+    }
+    const calls = await this._provider.provideCallHierarchyIncomingCalls(item, token);
+    if (!calls) {
+      return void 0;
+    }
+    return calls.map((call) => {
+      return {
+        from: this._cacheAndConvertItem(sessionId, call.from),
+        fromRanges: call.fromRanges.map((r) => typeConvert.Range.from(r))
+      };
+    });
+  }
+  async provideCallsFrom(sessionId, itemId, token) {
+    const item = this._itemFromCache(sessionId, itemId);
+    if (!item) {
+      throw new Error("missing call hierarchy item");
+    }
+    const calls = await this._provider.provideCallHierarchyOutgoingCalls(item, token);
+    if (!calls) {
+      return void 0;
+    }
+    return calls.map((call) => {
+      return {
+        to: this._cacheAndConvertItem(sessionId, call.to),
+        fromRanges: call.fromRanges.map((r) => typeConvert.Range.from(r))
+      };
+    });
+  }
+  releaseSession(sessionId) {
+    this._cache.delete(sessionId);
+  }
+  _cacheAndConvertItem(sessionId, item) {
+    const map = this._cache.get(sessionId);
+    const dto = typeConvert.CallHierarchyItem.from(item, sessionId, map.size.toString(36));
+    map.set(dto._itemId, item);
+    return dto;
+  }
+  _itemFromCache(sessionId, itemId) {
+    const map = this._cache.get(sessionId);
+    return map?.get(itemId);
+  }
+}
+class TypeHierarchyAdapter {
+  static {
+    __name(this, "TypeHierarchyAdapter");
+  }
+  constructor(_documents, _provider) {
+    this._documents = _documents;
+    this._provider = _provider;
+    this._idPool = new IdGenerator("");
+    this._cache = /* @__PURE__ */ new Map();
+  }
+  async prepareSession(uri, position, token) {
+    const doc = this._documents.getDocument(uri);
+    const pos = typeConvert.Position.to(position);
+    const items = await this._provider.prepareTypeHierarchy(doc, pos, token);
+    if (!items) {
+      return void 0;
+    }
+    const sessionId = this._idPool.nextId();
+    this._cache.set(sessionId, /* @__PURE__ */ new Map());
+    if (Array.isArray(items)) {
+      return items.map((item) => this._cacheAndConvertItem(sessionId, item));
+    } else {
+      return [this._cacheAndConvertItem(sessionId, items)];
+    }
+  }
+  async provideSupertypes(sessionId, itemId, token) {
+    const item = this._itemFromCache(sessionId, itemId);
+    if (!item) {
+      throw new Error("missing type hierarchy item");
+    }
+    const supertypes = await this._provider.provideTypeHierarchySupertypes(item, token);
+    if (!supertypes) {
+      return void 0;
+    }
+    return supertypes.map((supertype) => {
+      return this._cacheAndConvertItem(sessionId, supertype);
+    });
+  }
+  async provideSubtypes(sessionId, itemId, token) {
+    const item = this._itemFromCache(sessionId, itemId);
+    if (!item) {
+      throw new Error("missing type hierarchy item");
+    }
+    const subtypes = await this._provider.provideTypeHierarchySubtypes(item, token);
+    if (!subtypes) {
+      return void 0;
+    }
+    return subtypes.map((subtype) => {
+      return this._cacheAndConvertItem(sessionId, subtype);
+    });
+  }
+  releaseSession(sessionId) {
+    this._cache.delete(sessionId);
+  }
+  _cacheAndConvertItem(sessionId, item) {
+    const map = this._cache.get(sessionId);
+    const dto = typeConvert.TypeHierarchyItem.from(item, sessionId, map.size.toString(36));
+    map.set(dto._itemId, item);
+    return dto;
+  }
+  _itemFromCache(sessionId, itemId) {
+    const map = this._cache.get(sessionId);
+    return map?.get(itemId);
+  }
+}
+class DocumentDropEditAdapter {
+  static {
+    __name(this, "DocumentDropEditAdapter");
+  }
+  constructor(_proxy, _documents, _provider, _handle, _extension) {
+    this._proxy = _proxy;
+    this._documents = _documents;
+    this._provider = _provider;
+    this._handle = _handle;
+    this._extension = _extension;
+    this._cache = new Cache("DocumentDropEdit");
+  }
+  async provideDocumentOnDropEdits(requestId, uri, position, dataTransferDto, token) {
+    const doc = this._documents.getDocument(uri);
+    const pos = typeConvert.Position.to(position);
+    const dataTransfer = typeConvert.DataTransfer.toDataTransfer(dataTransferDto, async (id) => {
+      return (await this._proxy.$resolveDocumentOnDropFileData(this._handle, requestId, id)).buffer;
+    });
+    const edits = await this._provider.provideDocumentDropEdits(doc, pos, dataTransfer, token);
+    if (!edits) {
+      return void 0;
+    }
+    const editsArray = asArray(edits);
+    const cacheId = this._cache.add(editsArray);
+    return editsArray.map((edit, i) => ({
+      _cacheId: [cacheId, i],
+      title: edit.title ?? localize("defaultDropLabel", "Drop using '{0}' extension", this._extension.displayName || this._extension.name),
+      kind: edit.kind?.value,
+      yieldTo: edit.yieldTo?.map((x) => x.value),
+      insertText: typeof edit.insertText === "string" ? edit.insertText : { snippet: edit.insertText.value },
+      additionalEdit: edit.additionalEdit ? typeConvert.WorkspaceEdit.from(edit.additionalEdit, void 0) : void 0
+    }));
+  }
+  async resolveDropEdit(id, token) {
+    const [sessionId, itemId] = id;
+    const item = this._cache.get(sessionId, itemId);
+    if (!item || !this._provider.resolveDocumentDropEdit) {
+      return {};
+    }
+    const resolvedItem = await this._provider.resolveDocumentDropEdit(item, token) ?? item;
+    const additionalEdit = resolvedItem.additionalEdit ? typeConvert.WorkspaceEdit.from(resolvedItem.additionalEdit, void 0) : void 0;
+    return { additionalEdit };
+  }
+  releaseDropEdits(id) {
+    this._cache.delete(id);
+  }
+}
+class AdapterData {
+  static {
+    __name(this, "AdapterData");
+  }
+  constructor(adapter, extension) {
+    this.adapter = adapter;
+    this.extension = extension;
+  }
+}
+class ExtHostLanguageFeatures extends CoreDisposable {
+  static {
+    __name(this, "ExtHostLanguageFeatures");
+  }
+  static {
+    this._handlePool = 0;
+  }
+  get inlineCompletionsUnificationState() {
+    return this._inlineCompletionsUnificationState;
+  }
+  constructor(mainContext, _uriTransformer, _documents, _commands, _diagnostics, _logService, _apiDeprecation, _extensionTelemetry) {
+    super();
+    this._uriTransformer = _uriTransformer;
+    this._documents = _documents;
+    this._commands = _commands;
+    this._diagnostics = _diagnostics;
+    this._logService = _logService;
+    this._apiDeprecation = _apiDeprecation;
+    this._extensionTelemetry = _extensionTelemetry;
+    this._adapter = /* @__PURE__ */ new Map();
+    this._onDidChangeInlineCompletionsUnificationState = this._register(new Emitter());
+    this.onDidChangeInlineCompletionsUnificationState = this._onDidChangeInlineCompletionsUnificationState.event;
+    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadLanguageFeatures);
+    this._inlineCompletionsUnificationState = {
+      codeUnification: false,
+      modelUnification: false,
+      extensionUnification: false,
+      expAssignments: []
+    };
+  }
+  _transformDocumentSelector(selector, extension) {
+    return typeConvert.DocumentSelector.from(selector, this._uriTransformer, extension);
+  }
+  _createDisposable(handle) {
+    return new Disposable(() => {
+      this._adapter.delete(handle);
+      this._proxy.$unregister(handle);
+    });
+  }
+  _nextHandle() {
+    return ExtHostLanguageFeatures._handlePool++;
+  }
+  async _withAdapter(handle, ctor, callback, fallbackValue, tokenToRaceAgainst, doNotLog = false) {
+    const data = this._adapter.get(handle);
+    if (!data || !(data.adapter instanceof ctor)) {
+      return fallbackValue;
+    }
+    const t1 = Date.now();
+    if (!doNotLog) {
+      this._logService.trace(`[${data.extension.identifier.value}] INVOKE provider '${callback.toString().replace(/[\r\n]/g, "")}'`);
+    }
+    const result = callback(data.adapter, data.extension);
+    Promise.resolve(result).catch((err) => {
+      if (!isCancellationError(err)) {
+        this._logService.error(`[${data.extension.identifier.value}] provider FAILED`);
+        this._logService.error(err);
+        this._extensionTelemetry.onExtensionError(data.extension.identifier, err);
+      }
+    }).finally(() => {
+      if (!doNotLog) {
+        this._logService.trace(`[${data.extension.identifier.value}] provider DONE after ${Date.now() - t1}ms`);
+      }
+    });
+    if (CancellationToken.isCancellationToken(tokenToRaceAgainst)) {
+      return raceCancellationError(result, tokenToRaceAgainst);
+    }
+    return result;
+  }
+  _addNewAdapter(adapter, extension) {
+    const handle = this._nextHandle();
+    this._adapter.set(handle, new AdapterData(adapter, extension));
+    return handle;
+  }
+  static _extLabel(ext) {
+    return ext.displayName || ext.name;
+  }
+  static _extId(ext) {
+    return ext.identifier.value;
+  }
+  // --- outline
+  registerDocumentSymbolProvider(extension, selector, provider, metadata) {
+    const handle = this._addNewAdapter(new DocumentSymbolAdapter(this._documents, provider), extension);
+    const displayName = metadata && metadata.label || ExtHostLanguageFeatures._extLabel(extension);
+    this._proxy.$registerDocumentSymbolProvider(handle, this._transformDocumentSelector(selector, extension), displayName);
+    return this._createDisposable(handle);
+  }
+  $provideDocumentSymbols(handle, resource, token) {
+    return this._withAdapter(handle, DocumentSymbolAdapter, (adapter) => adapter.provideDocumentSymbols(URI.revive(resource), token), void 0, token);
+  }
+  // --- code lens
+  registerCodeLensProvider(extension, selector, provider) {
+    const handle = this._nextHandle();
+    const eventHandle = typeof provider.onDidChangeCodeLenses === "function" ? this._nextHandle() : void 0;
+    this._adapter.set(handle, new AdapterData(new CodeLensAdapter(this._documents, this._commands.converter, provider, extension, this._extensionTelemetry, this._logService), extension));
+    this._proxy.$registerCodeLensSupport(handle, this._transformDocumentSelector(selector, extension), eventHandle);
+    let result = this._createDisposable(handle);
+    if (eventHandle !== void 0) {
+      const subscription = provider.onDidChangeCodeLenses((_) => this._proxy.$emitCodeLensEvent(eventHandle));
+      result = Disposable.from(result, subscription);
+    }
+    return result;
+  }
+  $provideCodeLenses(handle, resource, token) {
+    return this._withAdapter(handle, CodeLensAdapter, (adapter) => adapter.provideCodeLenses(URI.revive(resource), token), void 0, token, resource.scheme === "output");
+  }
+  $resolveCodeLens(handle, symbol, token) {
+    return this._withAdapter(handle, CodeLensAdapter, (adapter) => adapter.resolveCodeLens(symbol, token), void 0, void 0, true);
+  }
+  $releaseCodeLenses(handle, cacheId) {
+    this._withAdapter(handle, CodeLensAdapter, (adapter) => Promise.resolve(adapter.releaseCodeLenses(cacheId)), void 0, void 0, true);
+  }
+  // --- declaration
+  registerDefinitionProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new DefinitionAdapter(this._documents, provider), extension);
+    this._proxy.$registerDefinitionSupport(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideDefinition(handle, resource, position, token) {
+    return this._withAdapter(handle, DefinitionAdapter, (adapter) => adapter.provideDefinition(URI.revive(resource), position, token), [], token);
+  }
+  registerDeclarationProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new DeclarationAdapter(this._documents, provider), extension);
+    this._proxy.$registerDeclarationSupport(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideDeclaration(handle, resource, position, token) {
+    return this._withAdapter(handle, DeclarationAdapter, (adapter) => adapter.provideDeclaration(URI.revive(resource), position, token), [], token);
+  }
+  registerImplementationProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new ImplementationAdapter(this._documents, provider), extension);
+    this._proxy.$registerImplementationSupport(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideImplementation(handle, resource, position, token) {
+    return this._withAdapter(handle, ImplementationAdapter, (adapter) => adapter.provideImplementation(URI.revive(resource), position, token), [], token);
+  }
+  registerTypeDefinitionProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new TypeDefinitionAdapter(this._documents, provider), extension);
+    this._proxy.$registerTypeDefinitionSupport(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideTypeDefinition(handle, resource, position, token) {
+    return this._withAdapter(handle, TypeDefinitionAdapter, (adapter) => adapter.provideTypeDefinition(URI.revive(resource), position, token), [], token);
+  }
+  // --- extra info
+  registerHoverProvider(extension, selector, provider, extensionId) {
+    const handle = this._addNewAdapter(new HoverAdapter(this._documents, provider), extension);
+    this._proxy.$registerHoverProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideHover(handle, resource, position, context, token) {
+    return this._withAdapter(handle, HoverAdapter, (adapter) => adapter.provideHover(URI.revive(resource), position, context, token), void 0, token);
+  }
+  $releaseHover(handle, id) {
+    this._withAdapter(handle, HoverAdapter, (adapter) => Promise.resolve(adapter.releaseHover(id)), void 0, void 0);
+  }
+  // --- debug hover
+  registerEvaluatableExpressionProvider(extension, selector, provider, extensionId) {
+    const handle = this._addNewAdapter(new EvaluatableExpressionAdapter(this._documents, provider), extension);
+    this._proxy.$registerEvaluatableExpressionProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideEvaluatableExpression(handle, resource, position, token) {
+    return this._withAdapter(handle, EvaluatableExpressionAdapter, (adapter) => adapter.provideEvaluatableExpression(URI.revive(resource), position, token), void 0, token);
+  }
+  // --- debug inline values
+  registerInlineValuesProvider(extension, selector, provider, extensionId) {
+    const eventHandle = typeof provider.onDidChangeInlineValues === "function" ? this._nextHandle() : void 0;
+    const handle = this._addNewAdapter(new InlineValuesAdapter(this._documents, provider), extension);
+    this._proxy.$registerInlineValuesProvider(handle, this._transformDocumentSelector(selector, extension), eventHandle);
+    let result = this._createDisposable(handle);
+    if (eventHandle !== void 0) {
+      const subscription = provider.onDidChangeInlineValues((_) => this._proxy.$emitInlineValuesEvent(eventHandle));
+      result = Disposable.from(result, subscription);
+    }
+    return result;
+  }
+  $provideInlineValues(handle, resource, range, context, token) {
+    return this._withAdapter(handle, InlineValuesAdapter, (adapter) => adapter.provideInlineValues(URI.revive(resource), range, context, token), void 0, token);
+  }
+  // --- occurrences
+  registerDocumentHighlightProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new DocumentHighlightAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentHighlightProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  registerMultiDocumentHighlightProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new MultiDocumentHighlightAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerMultiDocumentHighlightProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideDocumentHighlights(handle, resource, position, token) {
+    return this._withAdapter(handle, DocumentHighlightAdapter, (adapter) => adapter.provideDocumentHighlights(URI.revive(resource), position, token), void 0, token);
+  }
+  $provideMultiDocumentHighlights(handle, resource, position, otherModels, token) {
+    return this._withAdapter(handle, MultiDocumentHighlightAdapter, (adapter) => adapter.provideMultiDocumentHighlights(URI.revive(resource), position, otherModels.map((model) => URI.revive(model)), token), void 0, token);
+  }
+  // --- linked editing
+  registerLinkedEditingRangeProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new LinkedEditingRangeAdapter(this._documents, provider), extension);
+    this._proxy.$registerLinkedEditingRangeProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideLinkedEditingRanges(handle, resource, position, token) {
+    return this._withAdapter(handle, LinkedEditingRangeAdapter, async (adapter) => {
+      const res = await adapter.provideLinkedEditingRanges(URI.revive(resource), position, token);
+      if (res) {
+        return {
+          ranges: res.ranges,
+          wordPattern: res.wordPattern ? ExtHostLanguageFeatures._serializeRegExp(res.wordPattern) : void 0
+        };
+      }
+      return void 0;
+    }, void 0, token);
+  }
+  // --- references
+  registerReferenceProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new ReferenceAdapter(this._documents, provider), extension);
+    this._proxy.$registerReferenceSupport(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideReferences(handle, resource, position, context, token) {
+    return this._withAdapter(handle, ReferenceAdapter, (adapter) => adapter.provideReferences(URI.revive(resource), position, context, token), void 0, token);
+  }
+  // --- code actions
+  registerCodeActionProvider(extension, selector, provider, metadata) {
+    const store = new DisposableStore();
+    const handle = this._addNewAdapter(new CodeActionAdapter(this._documents, this._commands.converter, this._diagnostics, provider, this._logService, extension, this._apiDeprecation), extension);
+    this._proxy.$registerCodeActionSupport(handle, this._transformDocumentSelector(selector, extension), {
+      providedKinds: metadata?.providedCodeActionKinds?.map((kind) => kind.value),
+      documentation: metadata?.documentation?.map((x) => ({
+        kind: x.kind.value,
+        command: this._commands.converter.toInternal(x.command, store)
+      }))
+    }, ExtHostLanguageFeatures._extLabel(extension), ExtHostLanguageFeatures._extId(extension), Boolean(provider.resolveCodeAction));
+    store.add(this._createDisposable(handle));
+    return store;
+  }
+  $provideCodeActions(handle, resource, rangeOrSelection, context, token) {
+    return this._withAdapter(handle, CodeActionAdapter, (adapter) => adapter.provideCodeActions(URI.revive(resource), rangeOrSelection, context, token), void 0, token);
+  }
+  $resolveCodeAction(handle, id, token) {
+    return this._withAdapter(handle, CodeActionAdapter, (adapter) => adapter.resolveCodeAction(id, token), {}, void 0);
+  }
+  $releaseCodeActions(handle, cacheId) {
+    this._withAdapter(handle, CodeActionAdapter, (adapter) => Promise.resolve(adapter.releaseCodeActions(cacheId)), void 0, void 0);
+  }
+  // --- formatting
+  registerDocumentFormattingEditProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new DocumentFormattingAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentFormattingSupport(handle, this._transformDocumentSelector(selector, extension), extension.identifier, extension.displayName || extension.name);
+    return this._createDisposable(handle);
+  }
+  $provideDocumentFormattingEdits(handle, resource, options, token) {
+    return this._withAdapter(handle, DocumentFormattingAdapter, (adapter) => adapter.provideDocumentFormattingEdits(URI.revive(resource), options, token), void 0, token);
+  }
+  registerDocumentRangeFormattingEditProvider(extension, selector, provider) {
+    const canFormatMultipleRanges = typeof provider.provideDocumentRangesFormattingEdits === "function";
+    const handle = this._addNewAdapter(new RangeFormattingAdapter(this._documents, provider), extension);
+    this._proxy.$registerRangeFormattingSupport(handle, this._transformDocumentSelector(selector, extension), extension.identifier, extension.displayName || extension.name, canFormatMultipleRanges);
+    return this._createDisposable(handle);
+  }
+  $provideDocumentRangeFormattingEdits(handle, resource, range, options, token) {
+    return this._withAdapter(handle, RangeFormattingAdapter, (adapter) => adapter.provideDocumentRangeFormattingEdits(URI.revive(resource), range, options, token), void 0, token);
+  }
+  $provideDocumentRangesFormattingEdits(handle, resource, ranges, options, token) {
+    return this._withAdapter(handle, RangeFormattingAdapter, (adapter) => adapter.provideDocumentRangesFormattingEdits(URI.revive(resource), ranges, options, token), void 0, token);
+  }
+  registerOnTypeFormattingEditProvider(extension, selector, provider, triggerCharacters) {
+    const handle = this._addNewAdapter(new OnTypeFormattingAdapter(this._documents, provider), extension);
+    this._proxy.$registerOnTypeFormattingSupport(handle, this._transformDocumentSelector(selector, extension), triggerCharacters, extension.identifier);
+    return this._createDisposable(handle);
+  }
+  $provideOnTypeFormattingEdits(handle, resource, position, ch, options, token) {
+    return this._withAdapter(handle, OnTypeFormattingAdapter, (adapter) => adapter.provideOnTypeFormattingEdits(URI.revive(resource), position, ch, options, token), void 0, token);
+  }
+  // --- navigate types
+  registerWorkspaceSymbolProvider(extension, provider) {
+    const handle = this._addNewAdapter(new NavigateTypeAdapter(provider, this._logService), extension);
+    this._proxy.$registerNavigateTypeSupport(handle, typeof provider.resolveWorkspaceSymbol === "function");
+    return this._createDisposable(handle);
+  }
+  $provideWorkspaceSymbols(handle, search, token) {
+    return this._withAdapter(handle, NavigateTypeAdapter, (adapter) => adapter.provideWorkspaceSymbols(search, token), { symbols: [] }, token);
+  }
+  $resolveWorkspaceSymbol(handle, symbol, token) {
+    return this._withAdapter(handle, NavigateTypeAdapter, (adapter) => adapter.resolveWorkspaceSymbol(symbol, token), void 0, void 0);
+  }
+  $releaseWorkspaceSymbols(handle, id) {
+    this._withAdapter(handle, NavigateTypeAdapter, (adapter) => adapter.releaseWorkspaceSymbols(id), void 0, void 0);
+  }
+  // --- rename
+  registerRenameProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new RenameAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerRenameSupport(handle, this._transformDocumentSelector(selector, extension), RenameAdapter.supportsResolving(provider));
+    return this._createDisposable(handle);
+  }
+  $provideRenameEdits(handle, resource, position, newName, token) {
+    return this._withAdapter(handle, RenameAdapter, (adapter) => adapter.provideRenameEdits(URI.revive(resource), position, newName, token), void 0, token);
+  }
+  $resolveRenameLocation(handle, resource, position, token) {
+    return this._withAdapter(handle, RenameAdapter, (adapter) => adapter.resolveRenameLocation(URI.revive(resource), position, token), void 0, token);
+  }
+  registerNewSymbolNamesProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new NewSymbolNamesAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerNewSymbolNamesProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $supportsAutomaticNewSymbolNamesTriggerKind(handle) {
+    return this._withAdapter(handle, NewSymbolNamesAdapter, (adapter) => adapter.supportsAutomaticNewSymbolNamesTriggerKind(), false, void 0);
+  }
+  $provideNewSymbolNames(handle, resource, range, triggerKind, token) {
+    return this._withAdapter(handle, NewSymbolNamesAdapter, (adapter) => adapter.provideNewSymbolNames(URI.revive(resource), range, triggerKind, token), void 0, token);
+  }
+  //#region semantic coloring
+  registerDocumentSemanticTokensProvider(extension, selector, provider, legend) {
+    const handle = this._addNewAdapter(new DocumentSemanticTokensAdapter(this._documents, provider), extension);
+    const eventHandle = typeof provider.onDidChangeSemanticTokens === "function" ? this._nextHandle() : void 0;
+    this._proxy.$registerDocumentSemanticTokensProvider(handle, this._transformDocumentSelector(selector, extension), legend, eventHandle);
+    let result = this._createDisposable(handle);
+    if (eventHandle) {
+      const subscription = provider.onDidChangeSemanticTokens((_) => this._proxy.$emitDocumentSemanticTokensEvent(eventHandle));
+      result = Disposable.from(result, subscription);
+    }
+    return result;
+  }
+  $provideDocumentSemanticTokens(handle, resource, previousResultId, token) {
+    return this._withAdapter(handle, DocumentSemanticTokensAdapter, (adapter) => adapter.provideDocumentSemanticTokens(URI.revive(resource), previousResultId, token), null, token);
+  }
+  $releaseDocumentSemanticTokens(handle, semanticColoringResultId) {
+    this._withAdapter(handle, DocumentSemanticTokensAdapter, (adapter) => adapter.releaseDocumentSemanticColoring(semanticColoringResultId), void 0, void 0);
+  }
+  registerDocumentRangeSemanticTokensProvider(extension, selector, provider, legend) {
+    const handle = this._addNewAdapter(new DocumentRangeSemanticTokensAdapter(this._documents, provider), extension);
+    const eventHandle = typeof provider.onDidChangeSemanticTokens === "function" ? this._nextHandle() : void 0;
+    this._proxy.$registerDocumentRangeSemanticTokensProvider(handle, this._transformDocumentSelector(selector, extension), legend, eventHandle);
+    let result = this._createDisposable(handle);
+    if (eventHandle) {
+      const subscription = provider.onDidChangeSemanticTokens((_) => this._proxy.$emitDocumentRangeSemanticTokensEvent(eventHandle));
+      result = Disposable.from(result, subscription);
+    }
+    return result;
+  }
+  $provideDocumentRangeSemanticTokens(handle, resource, range, token) {
+    return this._withAdapter(handle, DocumentRangeSemanticTokensAdapter, (adapter) => adapter.provideDocumentRangeSemanticTokens(URI.revive(resource), range, token), null, token);
+  }
+  //#endregion
+  // --- suggestion
+  registerCompletionItemProvider(extension, selector, provider, triggerCharacters) {
+    const handle = this._addNewAdapter(new CompletionsAdapter(this._documents, this._commands.converter, provider, this._apiDeprecation, extension), extension);
+    this._proxy.$registerCompletionsProvider(handle, this._transformDocumentSelector(selector, extension), triggerCharacters, CompletionsAdapter.supportsResolving(provider), extension.identifier);
+    return this._createDisposable(handle);
+  }
+  $provideCompletionItems(handle, resource, position, context, token) {
+    return this._withAdapter(handle, CompletionsAdapter, (adapter) => adapter.provideCompletionItems(URI.revive(resource), position, context, token), void 0, token);
+  }
+  $resolveCompletionItem(handle, id, token) {
+    return this._withAdapter(handle, CompletionsAdapter, (adapter) => adapter.resolveCompletionItem(id, token), void 0, token);
+  }
+  $releaseCompletionItems(handle, id) {
+    this._withAdapter(handle, CompletionsAdapter, (adapter) => adapter.releaseCompletionItems(id), void 0, void 0);
+  }
+  // --- ghost text
+  registerInlineCompletionsProvider(extension, selector, provider, metadata) {
+    const adapter = new InlineCompletionAdapter(extension, this._documents, provider, this._commands.converter);
+    const handle = this._addNewAdapter(adapter, extension);
+    let result = this._createDisposable(handle);
+    const supportsOnDidChange = isProposedApiEnabled(extension, "inlineCompletionsAdditions") && typeof provider.onDidChange === "function";
+    if (supportsOnDidChange) {
+      const subscription = provider.onDidChange((e) => this._proxy.$emitInlineCompletionsChange(handle, e ? { data: e.data } : void 0));
+      result = Disposable.from(result, subscription);
+    }
+    const supportsOnDidChangeModelInfo = isProposedApiEnabled(extension, "inlineCompletionsAdditions") && typeof provider.onDidChangeModelInfo === "function";
+    if (supportsOnDidChangeModelInfo) {
+      const subscription = provider.onDidChangeModelInfo((_) => this._proxy.$emitInlineCompletionModelInfoChange(handle, adapter.modelInfo));
+      result = Disposable.from(result, subscription);
+    }
+    this._proxy.$registerInlineCompletionsSupport(handle, this._transformDocumentSelector(selector, extension), adapter.supportsHandleEvents, ExtensionIdentifier.toKey(extension.identifier.value), extension.version, metadata?.groupId ? ExtensionIdentifier.toKey(metadata.groupId) : void 0, metadata?.yieldTo?.map((extId) => ExtensionIdentifier.toKey(extId)) || [], metadata?.displayName, metadata?.debounceDelayMs, metadata?.excludes?.map((extId) => ExtensionIdentifier.toKey(extId)) || [], supportsOnDidChange, adapter.supportsSetModelId, adapter.modelInfo, supportsOnDidChangeModelInfo);
+    return result;
+  }
+  $provideInlineCompletions(handle, resource, position, context, token) {
+    return this._withAdapter(handle, InlineCompletionAdapter, (adapter) => adapter.provideInlineCompletions(URI.revive(resource), position, context, token), void 0, void 0);
+  }
+  $handleInlineCompletionDidShow(handle, pid, idx, updatedInsertText) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.handleDidShowCompletionItem(pid, idx, updatedInsertText);
+    }, void 0, void 0);
+  }
+  $handleInlineCompletionPartialAccept(handle, pid, idx, acceptedCharacters, info) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.handlePartialAccept(pid, idx, acceptedCharacters, info);
+    }, void 0, void 0);
+  }
+  $handleInlineCompletionEndOfLifetime(handle, pid, idx, reason) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.handleEndOfLifetime(pid, idx, reason);
+    }, void 0, void 0);
+  }
+  $handleInlineCompletionRejection(handle, pid, idx) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.handleRejection(pid, idx);
+    }, void 0, void 0);
+  }
+  $freeInlineCompletionsList(handle, pid, reason) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.disposeCompletions(pid, reason);
+    }, void 0, void 0);
+  }
+  $acceptInlineCompletionsUnificationState(state) {
+    this._inlineCompletionsUnificationState = state;
+    this._onDidChangeInlineCompletionsUnificationState.fire();
+  }
+  $handleInlineCompletionSetCurrentModelId(handle, modelId) {
+    this._withAdapter(handle, InlineCompletionAdapter, async (adapter) => {
+      adapter.setCurrentModelId(modelId);
+    }, void 0, void 0);
+  }
+  // --- parameter hints
+  registerSignatureHelpProvider(extension, selector, provider, metadataOrTriggerChars) {
+    const metadata = Array.isArray(metadataOrTriggerChars) ? { triggerCharacters: metadataOrTriggerChars, retriggerCharacters: [] } : metadataOrTriggerChars;
+    const handle = this._addNewAdapter(new SignatureHelpAdapter(this._documents, provider), extension);
+    this._proxy.$registerSignatureHelpProvider(handle, this._transformDocumentSelector(selector, extension), metadata);
+    return this._createDisposable(handle);
+  }
+  $provideSignatureHelp(handle, resource, position, context, token) {
+    return this._withAdapter(handle, SignatureHelpAdapter, (adapter) => adapter.provideSignatureHelp(URI.revive(resource), position, context, token), void 0, token);
+  }
+  $releaseSignatureHelp(handle, id) {
+    this._withAdapter(handle, SignatureHelpAdapter, (adapter) => adapter.releaseSignatureHelp(id), void 0, void 0);
+  }
+  // --- inline hints
+  registerInlayHintsProvider(extension, selector, provider) {
+    const eventHandle = typeof provider.onDidChangeInlayHints === "function" ? this._nextHandle() : void 0;
+    const handle = this._addNewAdapter(new InlayHintsAdapter(this._documents, this._commands.converter, provider, this._logService, extension), extension);
+    this._proxy.$registerInlayHintsProvider(handle, this._transformDocumentSelector(selector, extension), typeof provider.resolveInlayHint === "function", eventHandle, ExtHostLanguageFeatures._extLabel(extension));
+    let result = this._createDisposable(handle);
+    if (eventHandle !== void 0) {
+      const subscription = provider.onDidChangeInlayHints((uri) => this._proxy.$emitInlayHintsEvent(eventHandle));
+      result = Disposable.from(result, subscription);
+    }
+    return result;
+  }
+  $provideInlayHints(handle, resource, range, token) {
+    return this._withAdapter(handle, InlayHintsAdapter, (adapter) => adapter.provideInlayHints(URI.revive(resource), range, token), void 0, token);
+  }
+  $resolveInlayHint(handle, id, token) {
+    return this._withAdapter(handle, InlayHintsAdapter, (adapter) => adapter.resolveInlayHint(id, token), void 0, token);
+  }
+  $releaseInlayHints(handle, id) {
+    this._withAdapter(handle, InlayHintsAdapter, (adapter) => adapter.releaseHints(id), void 0, void 0);
+  }
+  // --- links
+  registerDocumentLinkProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new LinkProviderAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentLinkProvider(handle, this._transformDocumentSelector(selector, extension), typeof provider.resolveDocumentLink === "function");
+    return this._createDisposable(handle);
+  }
+  $provideDocumentLinks(handle, resource, token) {
+    return this._withAdapter(handle, LinkProviderAdapter, (adapter) => adapter.provideLinks(URI.revive(resource), token), void 0, token, resource.scheme === "output");
+  }
+  $resolveDocumentLink(handle, id, token) {
+    return this._withAdapter(handle, LinkProviderAdapter, (adapter) => adapter.resolveLink(id, token), void 0, void 0, true);
+  }
+  $releaseDocumentLinks(handle, id) {
+    this._withAdapter(handle, LinkProviderAdapter, (adapter) => adapter.releaseLinks(id), void 0, void 0, true);
+  }
+  registerColorProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new ColorProviderAdapter(this._documents, provider), extension);
+    this._proxy.$registerDocumentColorProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideDocumentColors(handle, resource, token) {
+    return this._withAdapter(handle, ColorProviderAdapter, (adapter) => adapter.provideColors(URI.revive(resource), token), [], token);
+  }
+  $provideColorPresentations(handle, resource, colorInfo, token) {
+    return this._withAdapter(handle, ColorProviderAdapter, (adapter) => adapter.provideColorPresentations(URI.revive(resource), colorInfo, token), void 0, token);
+  }
+  registerFoldingRangeProvider(extension, selector, provider) {
+    const handle = this._nextHandle();
+    const eventHandle = typeof provider.onDidChangeFoldingRanges === "function" ? this._nextHandle() : void 0;
+    this._adapter.set(handle, new AdapterData(new FoldingProviderAdapter(this._documents, provider), extension));
+    this._proxy.$registerFoldingRangeProvider(handle, this._transformDocumentSelector(selector, extension), extension.identifier, eventHandle);
+    let result = this._createDisposable(handle);
+    if (eventHandle !== void 0) {
+      const subscription = provider.onDidChangeFoldingRanges(() => this._proxy.$emitFoldingRangeEvent(eventHandle));
+      result = Disposable.from(result, subscription);
+    }
+    return result;
+  }
+  $provideFoldingRanges(handle, resource, context, token) {
+    return this._withAdapter(handle, FoldingProviderAdapter, (adapter) => adapter.provideFoldingRanges(URI.revive(resource), context, token), void 0, token);
+  }
+  // --- smart select
+  registerSelectionRangeProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new SelectionRangeAdapter(this._documents, provider, this._logService), extension);
+    this._proxy.$registerSelectionRangeProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $provideSelectionRanges(handle, resource, positions, token) {
+    return this._withAdapter(handle, SelectionRangeAdapter, (adapter) => adapter.provideSelectionRanges(URI.revive(resource), positions, token), [], token);
+  }
+  // --- call hierarchy
+  registerCallHierarchyProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new CallHierarchyAdapter(this._documents, provider), extension);
+    this._proxy.$registerCallHierarchyProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $prepareCallHierarchy(handle, resource, position, token) {
+    return this._withAdapter(handle, CallHierarchyAdapter, (adapter) => Promise.resolve(adapter.prepareSession(URI.revive(resource), position, token)), void 0, token);
+  }
+  $provideCallHierarchyIncomingCalls(handle, sessionId, itemId, token) {
+    return this._withAdapter(handle, CallHierarchyAdapter, (adapter) => adapter.provideCallsTo(sessionId, itemId, token), void 0, token);
+  }
+  $provideCallHierarchyOutgoingCalls(handle, sessionId, itemId, token) {
+    return this._withAdapter(handle, CallHierarchyAdapter, (adapter) => adapter.provideCallsFrom(sessionId, itemId, token), void 0, token);
+  }
+  $releaseCallHierarchy(handle, sessionId) {
+    this._withAdapter(handle, CallHierarchyAdapter, (adapter) => Promise.resolve(adapter.releaseSession(sessionId)), void 0, void 0);
+  }
+  // --- type hierarchy
+  registerTypeHierarchyProvider(extension, selector, provider) {
+    const handle = this._addNewAdapter(new TypeHierarchyAdapter(this._documents, provider), extension);
+    this._proxy.$registerTypeHierarchyProvider(handle, this._transformDocumentSelector(selector, extension));
+    return this._createDisposable(handle);
+  }
+  $prepareTypeHierarchy(handle, resource, position, token) {
+    return this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => Promise.resolve(adapter.prepareSession(URI.revive(resource), position, token)), void 0, token);
+  }
+  $provideTypeHierarchySupertypes(handle, sessionId, itemId, token) {
+    return this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => adapter.provideSupertypes(sessionId, itemId, token), void 0, token);
+  }
+  $provideTypeHierarchySubtypes(handle, sessionId, itemId, token) {
+    return this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => adapter.provideSubtypes(sessionId, itemId, token), void 0, token);
+  }
+  $releaseTypeHierarchy(handle, sessionId) {
+    this._withAdapter(handle, TypeHierarchyAdapter, (adapter) => Promise.resolve(adapter.releaseSession(sessionId)), void 0, void 0);
+  }
+  // --- Document on drop
+  registerDocumentOnDropEditProvider(extension, selector, provider, metadata) {
+    const handle = this._nextHandle();
+    this._adapter.set(handle, new AdapterData(new DocumentDropEditAdapter(this._proxy, this._documents, provider, handle, extension), extension));
+    this._proxy.$registerDocumentOnDropEditProvider(handle, this._transformDocumentSelector(selector, extension), metadata ? {
+      supportsResolve: !!provider.resolveDocumentDropEdit,
+      dropMimeTypes: metadata.dropMimeTypes,
+      providedDropKinds: metadata.providedDropEditKinds?.map((x) => x.value)
+    } : void 0);
+    return this._createDisposable(handle);
+  }
+  $provideDocumentOnDropEdits(handle, requestId, resource, position, dataTransferDto, token) {
+    return this._withAdapter(handle, DocumentDropEditAdapter, (adapter) => Promise.resolve(adapter.provideDocumentOnDropEdits(requestId, URI.revive(resource), position, dataTransferDto, token)), void 0, void 0);
+  }
+  $resolveDropEdit(handle, id, token) {
+    return this._withAdapter(handle, DocumentDropEditAdapter, (adapter) => adapter.resolveDropEdit(id, token), {}, void 0);
+  }
+  $releaseDocumentOnDropEdits(handle, cacheId) {
+    this._withAdapter(handle, DocumentDropEditAdapter, (adapter) => Promise.resolve(adapter.releaseDropEdits(cacheId)), void 0, void 0);
+  }
+  // --- copy/paste actions
+  registerDocumentPasteEditProvider(extension, selector, provider, metadata) {
+    const handle = this._nextHandle();
+    this._adapter.set(handle, new AdapterData(new DocumentPasteEditProvider(this._proxy, this._documents, provider, handle, extension), extension));
+    this._proxy.$registerPasteEditProvider(handle, this._transformDocumentSelector(selector, extension), {
+      supportsCopy: !!provider.prepareDocumentPaste,
+      supportsPaste: !!provider.provideDocumentPasteEdits,
+      supportsResolve: !!provider.resolveDocumentPasteEdit,
+      providedPasteEditKinds: metadata.providedPasteEditKinds?.map((x) => x.value),
+      copyMimeTypes: metadata.copyMimeTypes,
+      pasteMimeTypes: metadata.pasteMimeTypes
+    });
+    return this._createDisposable(handle);
+  }
+  $prepareDocumentPaste(handle, resource, ranges, dataTransfer, token) {
+    return this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => adapter.prepareDocumentPaste(URI.revive(resource), ranges, dataTransfer, token), void 0, token);
+  }
+  $providePasteEdits(handle, requestId, resource, ranges, dataTransferDto, context, token) {
+    return this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => adapter.providePasteEdits(requestId, URI.revive(resource), ranges, dataTransferDto, context, token), void 0, token);
+  }
+  $resolvePasteEdit(handle, id, token) {
+    return this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => adapter.resolvePasteEdit(id, token), {}, void 0);
+  }
+  $releasePasteEdits(handle, cacheId) {
+    this._withAdapter(handle, DocumentPasteEditProvider, (adapter) => Promise.resolve(adapter.releasePasteEdits(cacheId)), void 0, void 0);
+  }
+  // --- configuration
+  static _serializeRegExp(regExp) {
+    return {
+      pattern: regExp.source,
+      flags: regExp.flags
+    };
+  }
+  static _serializeIndentationRule(indentationRule) {
+    return {
+      decreaseIndentPattern: ExtHostLanguageFeatures._serializeRegExp(indentationRule.decreaseIndentPattern),
+      increaseIndentPattern: ExtHostLanguageFeatures._serializeRegExp(indentationRule.increaseIndentPattern),
+      indentNextLinePattern: indentationRule.indentNextLinePattern ? ExtHostLanguageFeatures._serializeRegExp(indentationRule.indentNextLinePattern) : void 0,
+      unIndentedLinePattern: indentationRule.unIndentedLinePattern ? ExtHostLanguageFeatures._serializeRegExp(indentationRule.unIndentedLinePattern) : void 0
+    };
+  }
+  static _serializeOnEnterRule(onEnterRule) {
+    return {
+      beforeText: ExtHostLanguageFeatures._serializeRegExp(onEnterRule.beforeText),
+      afterText: onEnterRule.afterText ? ExtHostLanguageFeatures._serializeRegExp(onEnterRule.afterText) : void 0,
+      previousLineText: onEnterRule.previousLineText ? ExtHostLanguageFeatures._serializeRegExp(onEnterRule.previousLineText) : void 0,
+      action: onEnterRule.action
+    };
+  }
+  static _serializeOnEnterRules(onEnterRules) {
+    return onEnterRules.map(ExtHostLanguageFeatures._serializeOnEnterRule);
+  }
+  static _serializeAutoClosingPair(autoClosingPair) {
+    return {
+      open: autoClosingPair.open,
+      close: autoClosingPair.close,
+      notIn: autoClosingPair.notIn ? autoClosingPair.notIn.map((v) => SyntaxTokenType.toString(v)) : void 0
+    };
+  }
+  static _serializeAutoClosingPairs(autoClosingPairs) {
+    return autoClosingPairs.map(ExtHostLanguageFeatures._serializeAutoClosingPair);
+  }
+  setLanguageConfiguration(extension, languageId, configuration) {
+    const { wordPattern } = configuration;
+    if (wordPattern && regExpLeadsToEndlessLoop(wordPattern)) {
+      throw new Error(`Invalid language configuration: wordPattern '${wordPattern}' is not allowed to match the empty string.`);
+    }
+    if (wordPattern) {
+      this._documents.setWordDefinitionFor(languageId, wordPattern);
+    } else {
+      this._documents.setWordDefinitionFor(languageId, void 0);
+    }
+    if (configuration.__electricCharacterSupport) {
+      this._apiDeprecation.report("LanguageConfiguration.__electricCharacterSupport", extension, `Do not use.`);
+    }
+    if (configuration.__characterPairSupport) {
+      this._apiDeprecation.report("LanguageConfiguration.__characterPairSupport", extension, `Do not use.`);
+    }
+    const handle = this._nextHandle();
+    const serializedConfiguration = {
+      comments: configuration.comments,
+      brackets: configuration.brackets,
+      wordPattern: configuration.wordPattern ? ExtHostLanguageFeatures._serializeRegExp(configuration.wordPattern) : void 0,
+      indentationRules: configuration.indentationRules ? ExtHostLanguageFeatures._serializeIndentationRule(configuration.indentationRules) : void 0,
+      onEnterRules: configuration.onEnterRules ? ExtHostLanguageFeatures._serializeOnEnterRules(configuration.onEnterRules) : void 0,
+      __electricCharacterSupport: configuration.__electricCharacterSupport,
+      __characterPairSupport: configuration.__characterPairSupport,
+      autoClosingPairs: configuration.autoClosingPairs ? ExtHostLanguageFeatures._serializeAutoClosingPairs(configuration.autoClosingPairs) : void 0
+    };
+    this._proxy.$setLanguageConfiguration(handle, languageId, serializedConfiguration);
+    return this._createDisposable(handle);
+  }
+  $setWordDefinitions(wordDefinitions) {
+    for (const wordDefinition of wordDefinitions) {
+      this._documents.setWordDefinitionFor(wordDefinition.languageId, new RegExp(wordDefinition.regexSource, wordDefinition.regexFlags));
+    }
+  }
+}
+export {
+  ExtHostLanguageFeatures
+};
+//# sourceMappingURL=extHostLanguageFeatures.js.map

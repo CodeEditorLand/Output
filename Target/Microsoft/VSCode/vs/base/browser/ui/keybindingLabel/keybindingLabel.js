@@ -1,1 +1,127 @@
-import*as n from"../../dom.js";import{$y$ as l}from"../hover/hoverDelegate2.js";import{$u0 as a}from"../hover/hoverDelegateFactory.js";import{$P_ as f}from"../../../common/keybindingLabels.js";import{$Ed as y}from"../../../common/lifecycle.js";import{$Gp as d}from"../../../common/objects.js";import"./keybindingLabel.css";import{localize as b}from"../../../../nls.js";const o=n.$,B={keybindingLabelBackground:void 0,keybindingLabelForeground:void 0,keybindingLabelBorder:void 0,keybindingLabelBottomBorder:void 0,keybindingLabelShadow:void 0};class h extends y{constructor(e,i,t){super(),this.q=i,this.g=new Set,this.f=t||Object.create(null);const s=this.f.keybindingLabelForeground;this.c=n.$y9(e,o(".monaco-keybinding")),s&&(this.c.style.color=s),this.h=this.D(l().setupManagedHover(a("mouse"),this.c,"")),this.n=!1,e.appendChild(this.c)}get element(){return this.c}set(e,i){this.n&&this.j===e&&h.z(this.m,i)||(this.j=e,this.m=i,this.r())}r(){if(this.s(),this.j){const e=this.j.getChords();e[0]&&this.t(this.c,e[0],this.m?this.m.firstPart:null);for(let t=1;t<e.length;t++)n.$y9(this.c,o("span.monaco-keybinding-key-chord-separator",void 0," ")),this.t(this.c,e[t],this.m?this.m.chordPart:null);const i=this.f.disableTitle??!1?void 0:this.j.getAriaLabel()||void 0;this.h.update(i),this.c.setAttribute("aria-label",i||"")}else this.f&&this.f.renderUnboundKeybindings&&this.w(this.c);this.n=!0}s(){n.$t8(this.c),this.g.clear()}t(e,i,t){const s=f.modifierLabels[this.q];i.ctrlKey&&this.u(e,s.ctrlKey,!!t?.ctrlKey,s.separator),i.shiftKey&&this.u(e,s.shiftKey,!!t?.shiftKey,s.separator),i.altKey&&this.u(e,s.altKey,!!t?.altKey,s.separator),i.metaKey&&this.u(e,s.metaKey,!!t?.metaKey,s.separator);const r=i.keyLabel;r&&this.u(e,r,!!t?.keyCode,"")}u(e,i,t,s){n.$y9(e,this.y(i,t?".highlight":"")),s&&n.$y9(e,o("span.monaco-keybinding-key-separator",void 0,s))}w(e){n.$y9(e,this.y(b(25,null)))}y(e,i=""){const t=o("span.monaco-keybinding-key"+i,void 0,e);return this.g.add(t),this.f.keybindingLabelBackground&&(t.style.backgroundColor=this.f.keybindingLabelBackground),this.f.keybindingLabelBorder&&(t.style.borderColor=this.f.keybindingLabelBorder),this.f.keybindingLabelBottomBorder&&(t.style.borderBottomColor=this.f.keybindingLabelBottomBorder),this.f.keybindingLabelShadow&&(t.style.boxShadow=`inset 0 -1px 0 ${this.f.keybindingLabelShadow}`),t}static z(e,i){return e===i||!e&&!i?!0:!!e&&!!i&&d(e.firstPart,i.firstPart)&&d(e.chordPart,i.chordPart)}}export{B as $T_,h as $U_};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../dom.js";
+import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
+import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import { UILabelProvider } from "../../../common/keybindingLabels.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { equals } from "../../../common/objects.js";
+import "./keybindingLabel.css";
+import { localize } from "../../../../nls.js";
+const $ = dom.$;
+const unthemedKeybindingLabelOptions = {
+  keybindingLabelBackground: void 0,
+  keybindingLabelForeground: void 0,
+  keybindingLabelBorder: void 0,
+  keybindingLabelBottomBorder: void 0,
+  keybindingLabelShadow: void 0
+};
+class KeybindingLabel extends Disposable {
+  static {
+    __name(this, "KeybindingLabel");
+  }
+  constructor(container, os, options) {
+    super();
+    this.os = os;
+    this.keyElements = /* @__PURE__ */ new Set();
+    this.options = options || /* @__PURE__ */ Object.create(null);
+    const labelForeground = this.options.keybindingLabelForeground;
+    this.domNode = dom.append(container, $(".monaco-keybinding"));
+    if (labelForeground) {
+      this.domNode.style.color = labelForeground;
+    }
+    this.hover = this._register(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), this.domNode, ""));
+    this.didEverRender = false;
+    container.appendChild(this.domNode);
+  }
+  get element() {
+    return this.domNode;
+  }
+  set(keybinding, matches) {
+    if (this.didEverRender && this.keybinding === keybinding && KeybindingLabel.areSame(this.matches, matches)) {
+      return;
+    }
+    this.keybinding = keybinding;
+    this.matches = matches;
+    this.render();
+  }
+  render() {
+    this.clear();
+    if (this.keybinding) {
+      const chords = this.keybinding.getChords();
+      if (chords[0]) {
+        this.renderChord(this.domNode, chords[0], this.matches ? this.matches.firstPart : null);
+      }
+      for (let i = 1; i < chords.length; i++) {
+        dom.append(this.domNode, $("span.monaco-keybinding-key-chord-separator", void 0, " "));
+        this.renderChord(this.domNode, chords[i], this.matches ? this.matches.chordPart : null);
+      }
+      const title = this.options.disableTitle ?? false ? void 0 : this.keybinding.getAriaLabel() || void 0;
+      this.hover.update(title);
+      this.domNode.setAttribute("aria-label", title || "");
+    } else if (this.options && this.options.renderUnboundKeybindings) {
+      this.renderUnbound(this.domNode);
+    }
+    this.didEverRender = true;
+  }
+  clear() {
+    dom.clearNode(this.domNode);
+    this.keyElements.clear();
+  }
+  renderChord(parent, chord, match) {
+    const modifierLabels = UILabelProvider.modifierLabels[this.os];
+    if (chord.ctrlKey) {
+      this.renderKey(parent, modifierLabels.ctrlKey, Boolean(match?.ctrlKey), modifierLabels.separator);
+    }
+    if (chord.shiftKey) {
+      this.renderKey(parent, modifierLabels.shiftKey, Boolean(match?.shiftKey), modifierLabels.separator);
+    }
+    if (chord.altKey) {
+      this.renderKey(parent, modifierLabels.altKey, Boolean(match?.altKey), modifierLabels.separator);
+    }
+    if (chord.metaKey) {
+      this.renderKey(parent, modifierLabels.metaKey, Boolean(match?.metaKey), modifierLabels.separator);
+    }
+    const keyLabel = chord.keyLabel;
+    if (keyLabel) {
+      this.renderKey(parent, keyLabel, Boolean(match?.keyCode), "");
+    }
+  }
+  renderKey(parent, label, highlight, separator) {
+    dom.append(parent, this.createKeyElement(label, highlight ? ".highlight" : ""));
+    if (separator) {
+      dom.append(parent, $("span.monaco-keybinding-key-separator", void 0, separator));
+    }
+  }
+  renderUnbound(parent) {
+    dom.append(parent, this.createKeyElement(localize("unbound", "Unbound")));
+  }
+  createKeyElement(label, extraClass = "") {
+    const keyElement = $("span.monaco-keybinding-key" + extraClass, void 0, label);
+    this.keyElements.add(keyElement);
+    if (this.options.keybindingLabelBackground) {
+      keyElement.style.backgroundColor = this.options.keybindingLabelBackground;
+    }
+    if (this.options.keybindingLabelBorder) {
+      keyElement.style.borderColor = this.options.keybindingLabelBorder;
+    }
+    if (this.options.keybindingLabelBottomBorder) {
+      keyElement.style.borderBottomColor = this.options.keybindingLabelBottomBorder;
+    }
+    if (this.options.keybindingLabelShadow) {
+      keyElement.style.boxShadow = `inset 0 -1px 0 ${this.options.keybindingLabelShadow}`;
+    }
+    return keyElement;
+  }
+  static areSame(a, b) {
+    if (a === b || !a && !b) {
+      return true;
+    }
+    return !!a && !!b && equals(a.firstPart, b.firstPart) && equals(a.chordPart, b.chordPart);
+  }
+}
+export {
+  KeybindingLabel,
+  unthemedKeybindingLabelOptions
+};
+//# sourceMappingURL=keybindingLabel.js.map

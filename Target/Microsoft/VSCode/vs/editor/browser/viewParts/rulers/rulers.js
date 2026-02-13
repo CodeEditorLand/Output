@@ -1,1 +1,88 @@
-import"./rulers.css";import{$09 as n}from"../../../../base/browser/fastDomNode.js";import{$Wfb as r}from"../../view/viewPart.js";class l extends r{constructor(e){super(e),this.domNode=n(document.createElement("div")),this.domNode.setAttribute("role","presentation"),this.domNode.setAttribute("aria-hidden","true"),this.domNode.setClassName("view-rulers"),this.a=[];const t=this._context.configuration.options;this.b=t.get(116),this.c=t.get(59).typicalHalfwidthCharacterWidth}dispose(){super.dispose()}onConfigurationChanged(e){const t=this._context.configuration.options;return this.b=t.get(116),this.c=t.get(59).typicalHalfwidthCharacterWidth,!0}onScrollChanged(e){return e.scrollHeightChanged}prepareRender(e){}f(){const e=this.a.length,t=this.b.length;if(e===t)return;if(e<t){let o=t-e;for(;o>0;){const i=n(document.createElement("div"));i.setClassName("view-ruler"),i.setWidth("1ch"),this.domNode.appendChild(i),this.a.push(i),o--}return}let s=e-t;for(;s>0;){const o=this.a.pop();this.domNode.removeChild(o),s--}}render(e){this.f();for(let t=0,s=this.b.length;t<s;t++){const o=this.a[t],i=this.b[t];o.setBoxShadow(i.color?`1px 0 0 0 ${i.color} inset`:""),o.setHeight(Math.min(e.scrollHeight,1e6)),o.setLeft(i.column*this.c)}}}export{l as $vhb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./rulers.css";
+import { createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { ViewPart } from "../../view/viewPart.js";
+class Rulers extends ViewPart {
+  static {
+    __name(this, "Rulers");
+  }
+  constructor(context) {
+    super(context);
+    this.domNode = createFastDomNode(document.createElement("div"));
+    this.domNode.setAttribute("role", "presentation");
+    this.domNode.setAttribute("aria-hidden", "true");
+    this.domNode.setClassName("view-rulers");
+    this._renderedRulers = [];
+    const options = this._context.configuration.options;
+    this._rulers = options.get(
+      116
+      /* EditorOption.rulers */
+    );
+    this._typicalHalfwidthCharacterWidth = options.get(
+      59
+      /* EditorOption.fontInfo */
+    ).typicalHalfwidthCharacterWidth;
+  }
+  dispose() {
+    super.dispose();
+  }
+  // --- begin event handlers
+  onConfigurationChanged(e) {
+    const options = this._context.configuration.options;
+    this._rulers = options.get(
+      116
+      /* EditorOption.rulers */
+    );
+    this._typicalHalfwidthCharacterWidth = options.get(
+      59
+      /* EditorOption.fontInfo */
+    ).typicalHalfwidthCharacterWidth;
+    return true;
+  }
+  onScrollChanged(e) {
+    return e.scrollHeightChanged;
+  }
+  // --- end event handlers
+  prepareRender(ctx) {
+  }
+  _ensureRulersCount() {
+    const currentCount = this._renderedRulers.length;
+    const desiredCount = this._rulers.length;
+    if (currentCount === desiredCount) {
+      return;
+    }
+    if (currentCount < desiredCount) {
+      let addCount = desiredCount - currentCount;
+      while (addCount > 0) {
+        const node = createFastDomNode(document.createElement("div"));
+        node.setClassName("view-ruler");
+        node.setWidth("1ch");
+        this.domNode.appendChild(node);
+        this._renderedRulers.push(node);
+        addCount--;
+      }
+      return;
+    }
+    let removeCount = currentCount - desiredCount;
+    while (removeCount > 0) {
+      const node = this._renderedRulers.pop();
+      this.domNode.removeChild(node);
+      removeCount--;
+    }
+  }
+  render(ctx) {
+    this._ensureRulersCount();
+    for (let i = 0, len = this._rulers.length; i < len; i++) {
+      const node = this._renderedRulers[i];
+      const ruler = this._rulers[i];
+      node.setBoxShadow(ruler.color ? `1px 0 0 0 ${ruler.color} inset` : ``);
+      node.setHeight(Math.min(ctx.scrollHeight, 1e6));
+      node.setLeft(ruler.column * this._typicalHalfwidthCharacterWidth);
+    }
+  }
+}
+export {
+  Rulers
+};
+//# sourceMappingURL=rulers.js.map

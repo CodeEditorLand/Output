@@ -1,1 +1,122 @@
-import{$5C as f}from"../../../../base/common/mime.js";import{URI as m}from"../../../../base/common/uri.js";const a=["image/webp","image/png","image/jpeg","image/jpg","image/gif"];var d;(function(r){r[r.Light=0]="Light",r[r.Dark=1]="Dark",r[r.Any=2]="Any"})(d||(d={}));function g(r,s,e){const i=r.mimeType?.toLowerCase()||f(r.src);if(!i||!a.includes(i)){e.debug(`Ignoring icon with unsupported mime type: ${r.src} (${i}), allowed: ${a.join(", ")}`);return}const t=m.parse(r.src);if(t.scheme==="data")return t;if(t.scheme==="https"||t.scheme==="http"){if(s.type!==2){e.debug(`Ignoring icon with HTTP/HTTPS URL: ${r.src} as the MCP server is not launched with HTTP transport.`);return}const n=s.uri.authority.toLowerCase();if(t.authority.toLowerCase()!==n){e.debug(`Ignoring icon with untrusted authority: ${r.src}, expected authority: ${n}`);return}return t}if(t.scheme==="file"){if(s.type!==1){e.debug(`Ignoring icon with file URL: ${r.src} as the MCP server is not launched as a local process.`);return}return t}e.debug(`Ignoring icon with unsupported scheme: ${r.src}. Allowed: data:, http:, https:, file:`)}function y(r,s,e){const i=[];for(const t of r.icons||[]){const n=g(t,s,e);if(!n)continue;const o=typeof t.sizes=="string"?t.sizes.split(" "):Array.isArray(t.sizes)?t.sizes:[];i.push({src:n,theme:t.theme==="light"?0:t.theme==="dark"?1:2,sizes:o.map(h=>{const[u,p]=h.toLowerCase().split("x");return{width:Number(u)||0,height:Number(p)||0}}).sort((h,u)=>h.width-u.width)})}return i.sort((t,n)=>t.sizes[0]?.width-n.sizes[0]?.width),i}class c{static fromStored(s){return c.fromParsed(s?.map(e=>({src:m.revive(e.src),theme:e.theme,sizes:e.sizes})))}static fromParsed(s){return new c(s||[])}constructor(s){this.c=s}getUrl(s){const e=this.d(s,1);if(e?.theme===2)return{dark:e.src};const i=this.d(s,0);if(!(!i&&!e))return{dark:(e||i).src,light:i?.src}}d(s,e){let i;for(const t of this.c)if(t.theme===e||t.theme===2||t.theme===void 0){i=t;const n=t.sizes.find(o=>o.width>=s);if(n)return{...t,sizes:[n]}}return i}}export{y as $w3b,c as $x3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getMediaMime } from "../../../../base/common/mime.js";
+import { URI } from "../../../../base/common/uri.js";
+const mcpAllowableContentTypes = [
+  "image/webp",
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/gif"
+];
+var IconTheme;
+(function(IconTheme2) {
+  IconTheme2[IconTheme2["Light"] = 0] = "Light";
+  IconTheme2[IconTheme2["Dark"] = 1] = "Dark";
+  IconTheme2[IconTheme2["Any"] = 2] = "Any";
+})(IconTheme || (IconTheme = {}));
+function validateIcon(icon, launch, logger) {
+  const mimeType = icon.mimeType?.toLowerCase() || getMediaMime(icon.src);
+  if (!mimeType || !mcpAllowableContentTypes.includes(mimeType)) {
+    logger.debug(`Ignoring icon with unsupported mime type: ${icon.src} (${mimeType}), allowed: ${mcpAllowableContentTypes.join(", ")}`);
+    return;
+  }
+  const uri = URI.parse(icon.src);
+  if (uri.scheme === "data") {
+    return uri;
+  }
+  if (uri.scheme === "https" || uri.scheme === "http") {
+    if (launch.type !== 2) {
+      logger.debug(`Ignoring icon with HTTP/HTTPS URL: ${icon.src} as the MCP server is not launched with HTTP transport.`);
+      return;
+    }
+    const expectedAuthority = launch.uri.authority.toLowerCase();
+    if (uri.authority.toLowerCase() !== expectedAuthority) {
+      logger.debug(`Ignoring icon with untrusted authority: ${icon.src}, expected authority: ${expectedAuthority}`);
+      return;
+    }
+    return uri;
+  }
+  if (uri.scheme === "file") {
+    if (launch.type !== 1) {
+      logger.debug(`Ignoring icon with file URL: ${icon.src} as the MCP server is not launched as a local process.`);
+      return;
+    }
+    return uri;
+  }
+  logger.debug(`Ignoring icon with unsupported scheme: ${icon.src}. Allowed: data:, http:, https:, file:`);
+  return;
+}
+__name(validateIcon, "validateIcon");
+function parseAndValidateMcpIcon(icons, launch, logger) {
+  const result = [];
+  for (const icon of icons.icons || []) {
+    const uri = validateIcon(icon, launch, logger);
+    if (!uri) {
+      continue;
+    }
+    const sizesArr = typeof icon.sizes === "string" ? icon.sizes.split(" ") : Array.isArray(icon.sizes) ? icon.sizes : [];
+    result.push({
+      src: uri,
+      theme: icon.theme === "light" ? 0 : icon.theme === "dark" ? 1 : 2,
+      sizes: sizesArr.map((size) => {
+        const [widthStr, heightStr] = size.toLowerCase().split("x");
+        return { width: Number(widthStr) || 0, height: Number(heightStr) || 0 };
+      }).sort((a, b) => a.width - b.width)
+    });
+  }
+  result.sort((a, b) => a.sizes[0]?.width - b.sizes[0]?.width);
+  return result;
+}
+__name(parseAndValidateMcpIcon, "parseAndValidateMcpIcon");
+class McpIcons {
+  static {
+    __name(this, "McpIcons");
+  }
+  static fromStored(icons) {
+    return McpIcons.fromParsed(icons?.map((i) => ({ src: URI.revive(i.src), theme: i.theme, sizes: i.sizes })));
+  }
+  static fromParsed(icons) {
+    return new McpIcons(icons || []);
+  }
+  constructor(_icons) {
+    this._icons = _icons;
+  }
+  getUrl(size) {
+    const dark = this.getSizeWithTheme(
+      size,
+      1
+      /* IconTheme.Dark */
+    );
+    if (dark?.theme === 2) {
+      return { dark: dark.src };
+    }
+    const light = this.getSizeWithTheme(
+      size,
+      0
+      /* IconTheme.Light */
+    );
+    if (!light && !dark) {
+      return void 0;
+    }
+    return { dark: (dark || light).src, light: light?.src };
+  }
+  getSizeWithTheme(size, theme) {
+    let bestOfAnySize;
+    for (const icon of this._icons) {
+      if (icon.theme === theme || icon.theme === 2 || icon.theme === void 0) {
+        bestOfAnySize = icon;
+        const matchingSize = icon.sizes.find((s) => s.width >= size);
+        if (matchingSize) {
+          return { ...icon, sizes: [matchingSize] };
+        }
+      }
+    }
+    return bestOfAnySize;
+  }
+}
+export {
+  McpIcons,
+  parseAndValidateMcpIcon
+};
+//# sourceMappingURL=mcpIcons.js.map

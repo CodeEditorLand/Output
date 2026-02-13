@@ -1,1 +1,291 @@
-import{localize as p}from"../../../../../nls.js";import{$vL as f,$qL as w,$wL as a}from"../../../../../platform/actions/common/actions.js";import{$gjb as N}from"../../../../../platform/clipboard/common/clipboardService.js";import{$EP as x}from"../../../../../platform/opener/common/opener.js";import{$BOb as g}from"./coreActions.js";import{$PFb as A,$NFb as k,$QFb as P}from"../../common/notebookContextKeys.js";import*as y from"../notebookIcons.js";import{$yo as E}from"../../../../../platform/log/common/log.js";import{$DHb as U}from"../viewModel/cellOutputTextHelper.js";import{$BL as O}from"../../../../services/editor/common/editorService.js";import{$FEb as j}from"../notebookBrowser.js";import{CellKind as h,CellUri as T}from"../../common/notebookCommon.js";import{$0n as b}from"../../../../../platform/contextkey/common/contextkey.js";import{$EDb as D}from"../../common/notebookEditorModelResolverService.js";import{$Op as L}from"../../../../../platform/dialogs/common/dialogs.js";import{$vk as R}from"../../../../../platform/files/common/files.js";import{URI as S}from"../../../../../base/common/uri.js";const B="notebook.cellOutput.copy";a(class extends f{constructor(){super({id:"notebook.cellOuput.showEmptyOutputs",title:p(10816,null),menu:{id:w.NotebookOutputToolbar,when:b.and(k,A)},f1:!1,category:g})}run(e,t){const o=t.cell;if(o&&o.cellKind===h.Code)for(let n=1;n<o.outputsViewModels.length;n++)o.outputsViewModels[n].visible.get()||(o.outputsViewModels[n].setVisible(!0,!0),o.updateOutputHeight(n,1,"command"))}});a(class extends f{constructor(){super({id:B,title:p(10817,null),menu:{id:w.NotebookOutputToolbar,when:k},category:g,icon:y.$cJb})}async run(e,t){const o=e.get(O),n=e.get(N),l=e.get(E),i=v(o,t);if(!i)return;const r=M(t,i);if(!r)return;const d=r.pickedMimeType?.mimeType;if(d?.startsWith("image/")){const s={skipReveal:!0,outputId:r.model.outputId,altOutputId:r.model.alternativeOutputId};await i.focusNotebookCell(r.cellViewModel,"output",s),i.copyOutputImage(r)}else U(d,r,n,l)}});function H(u,e){const t=e.getViewModel();if(t){const o=t.viewCells.filter(n=>n.cellKind===h.Code);for(const n of o){const l=n.outputsViewModels.find(i=>i.model.outputId===u||i.model.alternativeOutputId===u);if(l)return l}}}function v(u,e){return e&&"notebookEditor"in e?e.notebookEditor:j(u.activeEditorPane)}function M(u,e){let t;if(u&&"outputId"in u&&typeof u.outputId=="string"?t=H(u.outputId,e):u&&"outputViewModel"in u&&(t=u.outputViewModel),!t){const o=e.getActiveCell();if(!o)return;o.focusedOutputId!==void 0?t=o.outputsViewModels.find(n=>n.model.outputId===o.focusedOutputId):t=o.outputsViewModels.find(n=>n.pickedMimeType?.isTrusted)}return t}const J="notebook.cellOutput.openInTextEditor";a(class extends f{constructor(){super({id:J,title:p(10818,null),f1:!1,category:g,icon:y.$cJb})}async run(e,t){const o=e.get(O),n=e.get(D),l=e.get(x),i=v(o,t);if(!i)return;const r=M(t,i);if(r?.model.outputId&&i.textModel?.uri){const d=await n.resolve(i.textModel.uri);await l.open(T.generateCellOutputUriWithId(i.textModel.uri,r.model.outputId)),d.dispose()}}});const K="notebook.cellOutput.saveImage";a(class extends f{constructor(){super({id:K,title:p(10819,null),menu:{id:w.NotebookOutputToolbar,when:b.regex(P.key,/^image\//)},f1:!1,category:g,icon:y.$dJb})}async run(e,t){const o=e.get(O),n=e.get(L),l=e.get(R),i=e.get(E),r=v(o,t);if(!r)return;const d=M(t,r);if(!d)return;const s=d.pickedMimeType?.mimeType;if(!s?.startsWith("image/"))return;const c=d.model.outputs.find(m=>m.mime===s);if(!c){i.error("Could not find output item with mime type",s);return}const V={"image/png":"png","image/jpeg":"jpg","image/jpg":"jpg","image/gif":"gif","image/svg+xml":"svg","image/webp":"webp","image/bmp":"bmp","image/tiff":"tiff"}[s]||"png",C=`image.${V}`,F=r.textModel?.uri?S.joinPath(S.file(r.textModel.uri.fsPath),"..",C):void 0,I=await n.showSaveDialog({defaultUri:F,filters:[{name:p(10820,null),extensions:[V]}]});if(I)try{const m=c.data;await l.writeFile(I,m),i.info("Saved image output to",I.toString())}catch(m){i.error("Failed to save image output",m)}}});const W="notebook.cellOutput.openInOutputPreview";a(class extends f{constructor(){super({id:W,title:p(10821,null),menu:{id:w.NotebookOutputToolbar,when:b.and(k,b.equals("config.notebook.output.openInPreviewEditor.enabled",!0))},f1:!1,category:g})}async run(e,t){const o=e.get(O),n=e.get(x),l=v(o,t);if(!l)return;const i=M(t,l);if(!i)return;const r=i.cellViewModel;if(!r)return;const d=l.getCellByHandle(r.handle);if(!d)return;const s=l.getCellIndex(d);if(s===void 0)return;const c=r.outputsViewModels.indexOf(i);if(c===-1||!l.textModel)return;const $=T.generateOutputEditorUri(l.textModel.uri,d.id,s,i.model.outputId,c);n.open($,{openToSide:!0})}});export{B as $QOb,H as $ROb,J as $SOb,K as $TOb,W as $UOb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { NOTEBOOK_ACTIONS_CATEGORY } from "./coreActions.js";
+import { NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS, NOTEBOOK_CELL_HAS_OUTPUTS, NOTEBOOK_CELL_OUTPUT_MIMETYPE } from "../../common/notebookContextKeys.js";
+import * as icons from "../notebookIcons.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { copyCellOutput } from "../viewModel/cellOutputTextHelper.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { getNotebookEditorFromEditorPane } from "../notebookBrowser.js";
+import { CellKind, CellUri } from "../../common/notebookCommon.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { INotebookEditorModelResolverService } from "../../common/notebookEditorModelResolverService.js";
+import { IFileDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { URI } from "../../../../../base/common/uri.js";
+const COPY_OUTPUT_COMMAND_ID = "notebook.cellOutput.copy";
+registerAction2(class ShowAllOutputsAction extends Action2 {
+  static {
+    __name(this, "ShowAllOutputsAction");
+  }
+  constructor() {
+    super({
+      id: "notebook.cellOuput.showEmptyOutputs",
+      title: localize("notebookActions.showAllOutput", "Show Empty Outputs"),
+      menu: {
+        id: MenuId.NotebookOutputToolbar,
+        when: ContextKeyExpr.and(NOTEBOOK_CELL_HAS_OUTPUTS, NOTEBOOK_CELL_HAS_HIDDEN_OUTPUTS)
+      },
+      f1: false,
+      category: NOTEBOOK_ACTIONS_CATEGORY
+    });
+  }
+  run(accessor, context) {
+    const cell = context.cell;
+    if (cell && cell.cellKind === CellKind.Code) {
+      for (let i = 1; i < cell.outputsViewModels.length; i++) {
+        if (!cell.outputsViewModels[i].visible.get()) {
+          cell.outputsViewModels[i].setVisible(true, true);
+          cell.updateOutputHeight(i, 1, "command");
+        }
+      }
+    }
+  }
+});
+registerAction2(class CopyCellOutputAction extends Action2 {
+  static {
+    __name(this, "CopyCellOutputAction");
+  }
+  constructor() {
+    super({
+      id: COPY_OUTPUT_COMMAND_ID,
+      title: localize("notebookActions.copyOutput", "Copy Cell Output"),
+      menu: {
+        id: MenuId.NotebookOutputToolbar,
+        when: NOTEBOOK_CELL_HAS_OUTPUTS
+      },
+      category: NOTEBOOK_ACTIONS_CATEGORY,
+      icon: icons.copyIcon
+    });
+  }
+  async run(accessor, outputContext) {
+    const editorService = accessor.get(IEditorService);
+    const clipboardService = accessor.get(IClipboardService);
+    const logService = accessor.get(ILogService);
+    const notebookEditor = getNotebookEditorFromContext(editorService, outputContext);
+    if (!notebookEditor) {
+      return;
+    }
+    const outputViewModel = getOutputViewModelFromContext(outputContext, notebookEditor);
+    if (!outputViewModel) {
+      return;
+    }
+    const mimeType = outputViewModel.pickedMimeType?.mimeType;
+    if (mimeType?.startsWith("image/")) {
+      const focusOptions = { skipReveal: true, outputId: outputViewModel.model.outputId, altOutputId: outputViewModel.model.alternativeOutputId };
+      await notebookEditor.focusNotebookCell(outputViewModel.cellViewModel, "output", focusOptions);
+      notebookEditor.copyOutputImage(outputViewModel);
+    } else {
+      copyCellOutput(mimeType, outputViewModel, clipboardService, logService);
+    }
+  }
+});
+function getOutputViewModelFromId(outputId, notebookEditor) {
+  const notebookViewModel = notebookEditor.getViewModel();
+  if (notebookViewModel) {
+    const codeCells = notebookViewModel.viewCells.filter((cell) => cell.cellKind === CellKind.Code);
+    for (const cell of codeCells) {
+      const output = cell.outputsViewModels.find((output2) => output2.model.outputId === outputId || output2.model.alternativeOutputId === outputId);
+      if (output) {
+        return output;
+      }
+    }
+  }
+  return void 0;
+}
+__name(getOutputViewModelFromId, "getOutputViewModelFromId");
+function getNotebookEditorFromContext(editorService, outputContext) {
+  if (outputContext && "notebookEditor" in outputContext) {
+    return outputContext.notebookEditor;
+  }
+  return getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+}
+__name(getNotebookEditorFromContext, "getNotebookEditorFromContext");
+function getOutputViewModelFromContext(outputContext, notebookEditor) {
+  let outputViewModel;
+  if (outputContext && "outputId" in outputContext && typeof outputContext.outputId === "string") {
+    outputViewModel = getOutputViewModelFromId(outputContext.outputId, notebookEditor);
+  } else if (outputContext && "outputViewModel" in outputContext) {
+    outputViewModel = outputContext.outputViewModel;
+  }
+  if (!outputViewModel) {
+    const activeCell = notebookEditor.getActiveCell();
+    if (!activeCell) {
+      return void 0;
+    }
+    if (activeCell.focusedOutputId !== void 0) {
+      outputViewModel = activeCell.outputsViewModels.find((output) => {
+        return output.model.outputId === activeCell.focusedOutputId;
+      });
+    } else {
+      outputViewModel = activeCell.outputsViewModels.find((output) => output.pickedMimeType?.isTrusted);
+    }
+  }
+  return outputViewModel;
+}
+__name(getOutputViewModelFromContext, "getOutputViewModelFromContext");
+const OPEN_OUTPUT_COMMAND_ID = "notebook.cellOutput.openInTextEditor";
+registerAction2(class OpenCellOutputInEditorAction extends Action2 {
+  static {
+    __name(this, "OpenCellOutputInEditorAction");
+  }
+  constructor() {
+    super({
+      id: OPEN_OUTPUT_COMMAND_ID,
+      title: localize("notebookActions.openOutputInEditor", "Open Cell Output in Text Editor"),
+      f1: false,
+      category: NOTEBOOK_ACTIONS_CATEGORY,
+      icon: icons.copyIcon
+    });
+  }
+  async run(accessor, outputContext) {
+    const editorService = accessor.get(IEditorService);
+    const notebookModelService = accessor.get(INotebookEditorModelResolverService);
+    const openerService = accessor.get(IOpenerService);
+    const notebookEditor = getNotebookEditorFromContext(editorService, outputContext);
+    if (!notebookEditor) {
+      return;
+    }
+    const outputViewModel = getOutputViewModelFromContext(outputContext, notebookEditor);
+    if (outputViewModel?.model.outputId && notebookEditor.textModel?.uri) {
+      const ref = await notebookModelService.resolve(notebookEditor.textModel.uri);
+      await openerService.open(CellUri.generateCellOutputUriWithId(notebookEditor.textModel.uri, outputViewModel.model.outputId));
+      ref.dispose();
+    }
+  }
+});
+const SAVE_OUTPUT_IMAGE_COMMAND_ID = "notebook.cellOutput.saveImage";
+registerAction2(class SaveCellOutputImageAction extends Action2 {
+  static {
+    __name(this, "SaveCellOutputImageAction");
+  }
+  constructor() {
+    super({
+      id: SAVE_OUTPUT_IMAGE_COMMAND_ID,
+      title: localize("notebookActions.saveOutputImage", "Save Image"),
+      menu: {
+        id: MenuId.NotebookOutputToolbar,
+        when: ContextKeyExpr.regex(NOTEBOOK_CELL_OUTPUT_MIMETYPE.key, /^image\//)
+      },
+      f1: false,
+      category: NOTEBOOK_ACTIONS_CATEGORY,
+      icon: icons.saveIcon
+    });
+  }
+  async run(accessor, outputContext) {
+    const editorService = accessor.get(IEditorService);
+    const fileDialogService = accessor.get(IFileDialogService);
+    const fileService = accessor.get(IFileService);
+    const logService = accessor.get(ILogService);
+    const notebookEditor = getNotebookEditorFromContext(editorService, outputContext);
+    if (!notebookEditor) {
+      return;
+    }
+    const outputViewModel = getOutputViewModelFromContext(outputContext, notebookEditor);
+    if (!outputViewModel) {
+      return;
+    }
+    const mimeType = outputViewModel.pickedMimeType?.mimeType;
+    if (!mimeType?.startsWith("image/")) {
+      return;
+    }
+    const outputItem = outputViewModel.model.outputs.find((output) => output.mime === mimeType);
+    if (!outputItem) {
+      logService.error("Could not find output item with mime type", mimeType);
+      return;
+    }
+    const mimeToExt = {
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/jpg": "jpg",
+      "image/gif": "gif",
+      "image/svg+xml": "svg",
+      "image/webp": "webp",
+      "image/bmp": "bmp",
+      "image/tiff": "tiff"
+    };
+    const extension = mimeToExt[mimeType] || "png";
+    const defaultFileName = `image.${extension}`;
+    const defaultUri = notebookEditor.textModel?.uri ? URI.joinPath(URI.file(notebookEditor.textModel.uri.fsPath), "..", defaultFileName) : void 0;
+    const uri = await fileDialogService.showSaveDialog({
+      defaultUri,
+      filters: [{
+        name: localize("imageFiles", "Image Files"),
+        extensions: [extension]
+      }]
+    });
+    if (!uri) {
+      return;
+    }
+    try {
+      const imageData = outputItem.data;
+      await fileService.writeFile(uri, imageData);
+      logService.info("Saved image output to", uri.toString());
+    } catch (error) {
+      logService.error("Failed to save image output", error);
+    }
+  }
+});
+const OPEN_OUTPUT_IN_OUTPUT_PREVIEW_COMMAND_ID = "notebook.cellOutput.openInOutputPreview";
+registerAction2(class OpenCellOutputInNotebookOutputEditorAction extends Action2 {
+  static {
+    __name(this, "OpenCellOutputInNotebookOutputEditorAction");
+  }
+  constructor() {
+    super({
+      id: OPEN_OUTPUT_IN_OUTPUT_PREVIEW_COMMAND_ID,
+      title: localize("notebookActions.openOutputInNotebookOutputEditor", "Open in Output Preview"),
+      menu: {
+        id: MenuId.NotebookOutputToolbar,
+        when: ContextKeyExpr.and(NOTEBOOK_CELL_HAS_OUTPUTS, ContextKeyExpr.equals("config.notebook.output.openInPreviewEditor.enabled", true))
+      },
+      f1: false,
+      category: NOTEBOOK_ACTIONS_CATEGORY
+    });
+  }
+  async run(accessor, outputContext) {
+    const editorService = accessor.get(IEditorService);
+    const openerService = accessor.get(IOpenerService);
+    const notebookEditor = getNotebookEditorFromContext(editorService, outputContext);
+    if (!notebookEditor) {
+      return;
+    }
+    const outputViewModel = getOutputViewModelFromContext(outputContext, notebookEditor);
+    if (!outputViewModel) {
+      return;
+    }
+    const genericCellViewModel = outputViewModel.cellViewModel;
+    if (!genericCellViewModel) {
+      return;
+    }
+    const cellViewModel = notebookEditor.getCellByHandle(genericCellViewModel.handle);
+    if (!cellViewModel) {
+      return;
+    }
+    const cellIndex = notebookEditor.getCellIndex(cellViewModel);
+    if (cellIndex === void 0) {
+      return;
+    }
+    const outputIndex = genericCellViewModel.outputsViewModels.indexOf(outputViewModel);
+    if (outputIndex === -1) {
+      return;
+    }
+    if (!notebookEditor.textModel) {
+      return;
+    }
+    const outputURI = CellUri.generateOutputEditorUri(notebookEditor.textModel.uri, cellViewModel.id, cellIndex, outputViewModel.model.outputId, outputIndex);
+    openerService.open(outputURI, { openToSide: true });
+  }
+});
+export {
+  COPY_OUTPUT_COMMAND_ID,
+  OPEN_OUTPUT_COMMAND_ID,
+  OPEN_OUTPUT_IN_OUTPUT_PREVIEW_COMMAND_ID,
+  SAVE_OUTPUT_IMAGE_COMMAND_ID,
+  getOutputViewModelFromId
+};
+//# sourceMappingURL=cellOutputActions.js.map

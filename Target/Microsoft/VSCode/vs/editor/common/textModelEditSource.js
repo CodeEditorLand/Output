@@ -1,1 +1,214 @@
-import{$Hc as l}from"../../base/common/arrays.js";import{$mn as I}from"../../base/common/uuid.js";import{$jF as g}from"./core/edits/lineEdit.js";import{$lE as f}from"./core/text/textLength.js";const h=Symbol("TextModelEditSource");class x{constructor(n,r){this.metadata=n}toString(){return`${this.metadata.source}`}getType(){const n=this.metadata;switch(n.source){case"cursor":return n.kind;case"inlineCompletionAccept":return n.source+(n.$nes?":nes":"");case"unknown":return n.name||"unknown";default:return n.source}}toKey(n,r={}){const o=this.metadata;return Object.entries(o).filter(([c,d])=>{const u=r[c];return u!==void 0?u:(c.match(/\$/g)||[]).length<=n&&d!==void 0&&d!==null&&d!==""}).map(([c,d])=>`${c}:${d}`).join("-")}get props(){return this.metadata}}function t(e){return new x(e,h)}function A(e){switch(e.metadata.source){case"inlineCompletionAccept":case"inlineCompletionPartialAccept":case"inlineChat.applyEdits":case"Chat.applyEdits":return!0}return!1}function k(e){return e.metadata.source==="cursor"?e.metadata.kind==="type":!1}const S={unknown(e){return t({source:"unknown",name:e.name})},rename:(e,n)=>t({source:"rename",$$$oldName:e,$$$newName:n}),chatApplyEdits(e){return t({source:"Chat.applyEdits",$modelId:$(e.modelId),$extensionId:e.extensionId?.extensionId,$extensionVersion:e.extensionId?.version,$$languageId:e.languageId,$$sessionId:e.sessionId,$$requestId:e.requestId,$$mode:e.mode,$$codeBlockSuggestionId:e.codeBlockSuggestionId})},chatUndoEdits:()=>t({source:"Chat.undoEdits"}),chatReset:()=>t({source:"Chat.reset"}),inlineCompletionAccept(e){return t({source:"inlineCompletionAccept",$nes:e.nes,...a(e.providerId),$$correlationId:e.correlationId,$$requestUuid:e.requestUuid,$$languageId:e.languageId})},inlineCompletionPartialAccept(e){return t({source:"inlineCompletionPartialAccept",type:e.type,$nes:e.nes,...a(e.providerId),$$correlationId:e.correlationId,$$requestUuid:e.requestUuid,$$languageId:e.languageId})},inlineChatApplyEdit(e){return t({source:"inlineChat.applyEdits",$modelId:$(e.modelId),$extensionId:e.extensionId?.extensionId,$extensionVersion:e.extensionId?.version,$$sessionId:e.sessionId,$$requestId:e.requestId,$$languageId:e.languageId})},reloadFromDisk:()=>t({source:"reloadFromDisk"}),cursor(e){return t({source:"cursor",kind:e.kind,detailedSource:e.detailedSource})},setValue:()=>t({source:"setValue"}),eolChange:()=>t({source:"eolChange"}),applyEdits:()=>t({source:"applyEdits"}),snippet:()=>t({source:"snippet"}),suggest:e=>t({source:"suggest",...a(e.providerId)}),codeAction:e=>t({source:"codeAction",$kind:e.kind,...a(e.providerId)})};function a(e){return e?{$extensionId:e.extensionId,$extensionVersion:e.extensionVersion,$providerId:e.providerId}:{}}function $(e){if(e!==void 0)return e.replaceAll("/","|")}class p{static fromText(n){const r=f.ofText(n).lineCount,o=n.length;return new p(r,0,o,0)}static fromEdit(n,r){const o=g.fromStringEdit(n,r),s=l(o.replacements,i=>i.newLines.length),c=l(o.replacements,i=>i.lineRange.length),d=l(n.replacements,i=>i.getNewLength()),u=l(n.replacements,i=>i.replaceRange.length);return new p(s,c,d,u)}static tryCreate(n,r,o,s){if(!(n===void 0||r===void 0||o===void 0||s===void 0))return new p(n,r,o,s)}constructor(n,r,o,s){this.linesAdded=n,this.linesRemoved=r,this.charsAdded=o,this.charsRemoved=s}}var m;(function(e){function n(r){const o=r?r("sgt"):I("sgt");return o}e.newId=n})(m||(m={}));export{x as $lF,A as $mF,k as $nF,S as $oF,p as $pF,m as EditSuggestionId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { sumBy } from "../../base/common/arrays.js";
+import { prefixedUuid } from "../../base/common/uuid.js";
+import { LineEdit } from "./core/edits/lineEdit.js";
+import { TextLength } from "./core/text/textLength.js";
+const privateSymbol = /* @__PURE__ */ Symbol("TextModelEditSource");
+class TextModelEditSource {
+  static {
+    __name(this, "TextModelEditSource");
+  }
+  constructor(metadata, _privateCtorGuard) {
+    this.metadata = metadata;
+  }
+  toString() {
+    return `${this.metadata.source}`;
+  }
+  getType() {
+    const metadata = this.metadata;
+    switch (metadata.source) {
+      case "cursor":
+        return metadata.kind;
+      case "inlineCompletionAccept":
+        return metadata.source + (metadata.$nes ? ":nes" : "");
+      case "unknown":
+        return metadata.name || "unknown";
+      default:
+        return metadata.source;
+    }
+  }
+  /**
+   * Converts the metadata to a key string.
+   * Only includes properties/values that have `level` many `$` prefixes or less.
+  */
+  toKey(level, filter = {}) {
+    const metadata = this.metadata;
+    const keys = Object.entries(metadata).filter(([key, value]) => {
+      const filterVal = filter[key];
+      if (filterVal !== void 0) {
+        return filterVal;
+      }
+      const prefixCount = (key.match(/\$/g) || []).length;
+      return prefixCount <= level && value !== void 0 && value !== null && value !== "";
+    }).map(([key, value]) => `${key}:${value}`);
+    return keys.join("-");
+  }
+  get props() {
+    return this.metadata;
+  }
+}
+function createEditSource(metadata) {
+  return new TextModelEditSource(metadata, privateSymbol);
+}
+__name(createEditSource, "createEditSource");
+function isAiEdit(source) {
+  switch (source.metadata.source) {
+    case "inlineCompletionAccept":
+    case "inlineCompletionPartialAccept":
+    case "inlineChat.applyEdits":
+    case "Chat.applyEdits":
+      return true;
+  }
+  return false;
+}
+__name(isAiEdit, "isAiEdit");
+function isUserEdit(source) {
+  switch (source.metadata.source) {
+    case "cursor":
+      return source.metadata.kind === "type";
+  }
+  return false;
+}
+__name(isUserEdit, "isUserEdit");
+const EditSources = {
+  unknown(data) {
+    return createEditSource({
+      source: "unknown",
+      name: data.name
+    });
+  },
+  rename: /* @__PURE__ */ __name((oldName, newName) => createEditSource({ source: "rename", $$$oldName: oldName, $$$newName: newName }), "rename"),
+  chatApplyEdits(data) {
+    return createEditSource({
+      source: "Chat.applyEdits",
+      $modelId: avoidPathRedaction(data.modelId),
+      $extensionId: data.extensionId?.extensionId,
+      $extensionVersion: data.extensionId?.version,
+      $$languageId: data.languageId,
+      $$sessionId: data.sessionId,
+      $$requestId: data.requestId,
+      $$mode: data.mode,
+      $$codeBlockSuggestionId: data.codeBlockSuggestionId
+    });
+  },
+  chatUndoEdits: /* @__PURE__ */ __name(() => createEditSource({ source: "Chat.undoEdits" }), "chatUndoEdits"),
+  chatReset: /* @__PURE__ */ __name(() => createEditSource({ source: "Chat.reset" }), "chatReset"),
+  inlineCompletionAccept(data) {
+    return createEditSource({
+      source: "inlineCompletionAccept",
+      $nes: data.nes,
+      ...toProperties(data.providerId),
+      $$correlationId: data.correlationId,
+      $$requestUuid: data.requestUuid,
+      $$languageId: data.languageId
+    });
+  },
+  inlineCompletionPartialAccept(data) {
+    return createEditSource({
+      source: "inlineCompletionPartialAccept",
+      type: data.type,
+      $nes: data.nes,
+      ...toProperties(data.providerId),
+      $$correlationId: data.correlationId,
+      $$requestUuid: data.requestUuid,
+      $$languageId: data.languageId
+    });
+  },
+  inlineChatApplyEdit(data) {
+    return createEditSource({
+      source: "inlineChat.applyEdits",
+      $modelId: avoidPathRedaction(data.modelId),
+      $extensionId: data.extensionId?.extensionId,
+      $extensionVersion: data.extensionId?.version,
+      $$sessionId: data.sessionId,
+      $$requestId: data.requestId,
+      $$languageId: data.languageId
+    });
+  },
+  reloadFromDisk: /* @__PURE__ */ __name(() => createEditSource({ source: "reloadFromDisk" }), "reloadFromDisk"),
+  cursor(data) {
+    return createEditSource({
+      source: "cursor",
+      kind: data.kind,
+      detailedSource: data.detailedSource
+    });
+  },
+  setValue: /* @__PURE__ */ __name(() => createEditSource({ source: "setValue" }), "setValue"),
+  eolChange: /* @__PURE__ */ __name(() => createEditSource({ source: "eolChange" }), "eolChange"),
+  applyEdits: /* @__PURE__ */ __name(() => createEditSource({ source: "applyEdits" }), "applyEdits"),
+  snippet: /* @__PURE__ */ __name(() => createEditSource({ source: "snippet" }), "snippet"),
+  suggest: /* @__PURE__ */ __name((data) => createEditSource({ source: "suggest", ...toProperties(data.providerId) }), "suggest"),
+  codeAction: /* @__PURE__ */ __name((data) => createEditSource({ source: "codeAction", $kind: data.kind, ...toProperties(data.providerId) }), "codeAction")
+};
+function toProperties(version) {
+  if (!version) {
+    return {};
+  }
+  return {
+    $extensionId: version.extensionId,
+    $extensionVersion: version.extensionVersion,
+    $providerId: version.providerId
+  };
+}
+__name(toProperties, "toProperties");
+function avoidPathRedaction(str) {
+  if (str === void 0) {
+    return void 0;
+  }
+  return str.replaceAll("/", "|");
+}
+__name(avoidPathRedaction, "avoidPathRedaction");
+class EditDeltaInfo {
+  static {
+    __name(this, "EditDeltaInfo");
+  }
+  static fromText(text) {
+    const linesAdded = TextLength.ofText(text).lineCount;
+    const charsAdded = text.length;
+    return new EditDeltaInfo(linesAdded, 0, charsAdded, 0);
+  }
+  /** @internal */
+  static fromEdit(edit, originalString) {
+    const lineEdit = LineEdit.fromStringEdit(edit, originalString);
+    const linesAdded = sumBy(lineEdit.replacements, (r) => r.newLines.length);
+    const linesRemoved = sumBy(lineEdit.replacements, (r) => r.lineRange.length);
+    const charsAdded = sumBy(edit.replacements, (r) => r.getNewLength());
+    const charsRemoved = sumBy(edit.replacements, (r) => r.replaceRange.length);
+    return new EditDeltaInfo(linesAdded, linesRemoved, charsAdded, charsRemoved);
+  }
+  static tryCreate(linesAdded, linesRemoved, charsAdded, charsRemoved) {
+    if (linesAdded === void 0 || linesRemoved === void 0 || charsAdded === void 0 || charsRemoved === void 0) {
+      return void 0;
+    }
+    return new EditDeltaInfo(linesAdded, linesRemoved, charsAdded, charsRemoved);
+  }
+  constructor(linesAdded, linesRemoved, charsAdded, charsRemoved) {
+    this.linesAdded = linesAdded;
+    this.linesRemoved = linesRemoved;
+    this.charsAdded = charsAdded;
+    this.charsRemoved = charsRemoved;
+  }
+}
+var EditSuggestionId;
+(function(EditSuggestionId2) {
+  function newId(genPrefixedUuid) {
+    const id = genPrefixedUuid ? genPrefixedUuid("sgt") : prefixedUuid("sgt");
+    return toEditIdentity(id);
+  }
+  __name(newId, "newId");
+  EditSuggestionId2.newId = newId;
+})(EditSuggestionId || (EditSuggestionId = {}));
+function toEditIdentity(id) {
+  return id;
+}
+__name(toEditIdentity, "toEditIdentity");
+export {
+  EditDeltaInfo,
+  EditSources,
+  EditSuggestionId,
+  TextModelEditSource,
+  isAiEdit,
+  isUserEdit
+};
+//# sourceMappingURL=textModelEditSource.js.map

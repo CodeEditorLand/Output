@@ -1,1 +1,273 @@
-import*as l from"./extpath.js";import{Schemas as p}from"./network.js";import*as o from"./path.js";import{$o as A,$m as P}from"./platform.js";import{$gg as y,$ng as w}from"./strings.js";import{URI as m,$Kc as E}from"./uri.js";function s(i){return E(i,!0)}class u{constructor(t){this.a=t}compare(t,e,n=!1){return t===e?0:y(this.getComparisonKey(t,n),this.getComparisonKey(e,n))}isEqual(t,e,n=!1){return t===e?!0:!t||!e?!1:this.getComparisonKey(t,n)===this.getComparisonKey(e,n)}getComparisonKey(t,e=!1){return t.with({path:this.a(t)?t.path.toLowerCase():void 0,fragment:e?null:void 0}).toString()}ignorePathCasing(t){return this.a(t)}isEqualOrParent(t,e,n=!1){if(t.scheme===e.scheme){if(t.scheme===p.file)return l.$$g(s(t),s(e),this.a(t))&&t.query===e.query&&(n||t.fragment===e.fragment);if(c(t.authority,e.authority))return l.$$g(t.path,e.path,this.a(t),"/")&&t.query===e.query&&(n||t.fragment===e.fragment)}return!1}joinPath(t,...e){return m.joinPath(t,...e)}basenameOrAuthority(t){return b(t)||t.authority}basename(t){return o.$6.basename(t.path)}extname(t){return o.$6.extname(t.path)}dirname(t){if(t.path.length===0)return t;let e;return t.scheme===p.file?e=m.file(o.$_(s(t))).path:(e=o.$6.dirname(t.path),t.authority&&e.length&&e.charCodeAt(0)!==47&&(e="/")),t.with({path:e})}normalizePath(t){if(!t.path.length)return t;let e;return t.scheme===p.file?e=m.file(o.$7(s(t))).path:e=o.$6.normalize(t.path),t.with({path:e})}relativePath(t,e){if(t.scheme!==e.scheme||!c(t.authority,e.authority))return;if(t.scheme===p.file){const r=o.$$(s(t),s(e));return P?l.$5g(r):r}let n=t.path||"/";const a=e.path||"/";if(this.a(t)){let r=0;for(const f=Math.min(n.length,a.length);r<f&&!(n.charCodeAt(r)!==a.charCodeAt(r)&&n.charAt(r).toLowerCase()!==a.charAt(r).toLowerCase());r++);n=a.substr(0,r)+n.substr(r)}return o.$6.relative(n,a)}resolvePath(t,e){if(t.scheme===p.file){const n=m.file(o.$0(s(t),e));return t.with({authority:n.authority,path:n.path})}return e=l.$6g(e),t.with({path:o.$6.resolve(t.path,e)})}isAbsolutePath(t){return!!t.path&&t.path[0]==="/"}isEqualAuthority(t,e){return t===e||t!==void 0&&e!==void 0&&w(t,e)}hasTrailingPathSeparator(t,e=o.sep){if(t.scheme===p.file){const n=s(t);return n.length>l.$7g(n).length&&n[n.length-1]===e}else{const n=t.path;return n.length>1&&n.charCodeAt(n.length-1)===47&&!/^[a-zA-Z]:(\/$|\\$)/.test(t.fsPath)}}removeTrailingPathSeparator(t,e=o.sep){return d(t,e)?t.with({path:t.path.substr(0,t.path.length-1)}):t}addTrailingPathSeparator(t,e=o.sep){let n=!1;if(t.scheme===p.file){const a=s(t);n=a!==void 0&&a.length===l.$7g(a).length&&a[a.length-1]===e}else{e="/";const a=t.path;n=a.length===1&&a.charCodeAt(a.length-1)===47}return!n&&!d(t,e)?t.with({path:t.path+"/"}):t}}const h=new u(()=>!1),C=new u(i=>i.scheme===p.file?!A:!0),q=new u(i=>!0),I=h.isEqual.bind(h),T=h.isEqualOrParent.bind(h),O=h.getComparisonKey.bind(h),K=h.basenameOrAuthority.bind(h),b=h.basename.bind(h),z=h.extname.bind(h),L=h.dirname.bind(h),R=h.joinPath.bind(h),D=h.normalizePath.bind(h),j=h.relativePath.bind(h),k=h.resolvePath.bind(h),B=h.isAbsolutePath.bind(h),c=h.isEqualAuthority.bind(h),d=h.hasTrailingPathSeparator.bind(h),N=h.removeTrailingPathSeparator.bind(h),Z=h.addTrailingPathSeparator.bind(h);function G(i,t){const e=[];for(let n=0;n<i.length;n++){const a=t(i[n]);i.some((r,f)=>f===n?!1:T(a,t(r)))||e.push(i[n])}return e}var x;(function(i){i.META_DATA_LABEL="label",i.META_DATA_DESCRIPTION="description",i.META_DATA_SIZE="size",i.META_DATA_MIME="mime";function t(e){const n=new Map;e.path.substring(e.path.indexOf(";")+1,e.path.lastIndexOf(";")).split(";").forEach(f=>{const[$,g]=f.split(":");$&&g&&n.set($,g)});const r=e.path.substring(0,e.path.indexOf(";"));return r&&n.set(i.META_DATA_MIME,r),n}i.parseMetaData=t})(x||(x={}));function H(i,t,e){if(t){let n=i.path;return n&&n[0]!==o.$6.sep&&(n=o.$6.sep+n),i.with({scheme:e,authority:t,path:n})}return i.with({scheme:e})}export{q as $Ah,I as $Bh,T as $Ch,O as $Dh,K as $Eh,b as $Fh,z as $Gh,L as $Hh,R as $Ih,D as $Jh,j as $Kh,k as $Lh,B as $Mh,c as $Nh,d as $Oh,N as $Ph,Z as $Qh,G as $Rh,H as $Sh,s as $wh,u as $xh,h as $yh,C as $zh,x as DataUri};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as extpath from "./extpath.js";
+import { Schemas } from "./network.js";
+import * as paths from "./path.js";
+import { isLinux, isWindows } from "./platform.js";
+import { compare as strCompare, equalsIgnoreCase } from "./strings.js";
+import { URI, uriToFsPath } from "./uri.js";
+function originalFSPath(uri) {
+  return uriToFsPath(uri, true);
+}
+__name(originalFSPath, "originalFSPath");
+class ExtUri {
+  static {
+    __name(this, "ExtUri");
+  }
+  constructor(_ignorePathCasing) {
+    this._ignorePathCasing = _ignorePathCasing;
+  }
+  compare(uri1, uri2, ignoreFragment = false) {
+    if (uri1 === uri2) {
+      return 0;
+    }
+    return strCompare(this.getComparisonKey(uri1, ignoreFragment), this.getComparisonKey(uri2, ignoreFragment));
+  }
+  isEqual(uri1, uri2, ignoreFragment = false) {
+    if (uri1 === uri2) {
+      return true;
+    }
+    if (!uri1 || !uri2) {
+      return false;
+    }
+    return this.getComparisonKey(uri1, ignoreFragment) === this.getComparisonKey(uri2, ignoreFragment);
+  }
+  getComparisonKey(uri, ignoreFragment = false) {
+    return uri.with({
+      path: this._ignorePathCasing(uri) ? uri.path.toLowerCase() : void 0,
+      fragment: ignoreFragment ? null : void 0
+    }).toString();
+  }
+  ignorePathCasing(uri) {
+    return this._ignorePathCasing(uri);
+  }
+  isEqualOrParent(base, parentCandidate, ignoreFragment = false) {
+    if (base.scheme === parentCandidate.scheme) {
+      if (base.scheme === Schemas.file) {
+        return extpath.isEqualOrParent(originalFSPath(base), originalFSPath(parentCandidate), this._ignorePathCasing(base)) && base.query === parentCandidate.query && (ignoreFragment || base.fragment === parentCandidate.fragment);
+      }
+      if (isEqualAuthority(base.authority, parentCandidate.authority)) {
+        return extpath.isEqualOrParent(base.path, parentCandidate.path, this._ignorePathCasing(base), "/") && base.query === parentCandidate.query && (ignoreFragment || base.fragment === parentCandidate.fragment);
+      }
+    }
+    return false;
+  }
+  // --- path math
+  joinPath(resource, ...pathFragment) {
+    return URI.joinPath(resource, ...pathFragment);
+  }
+  basenameOrAuthority(resource) {
+    return basename(resource) || resource.authority;
+  }
+  basename(resource) {
+    return paths.posix.basename(resource.path);
+  }
+  extname(resource) {
+    return paths.posix.extname(resource.path);
+  }
+  dirname(resource) {
+    if (resource.path.length === 0) {
+      return resource;
+    }
+    let dirname2;
+    if (resource.scheme === Schemas.file) {
+      dirname2 = URI.file(paths.dirname(originalFSPath(resource))).path;
+    } else {
+      dirname2 = paths.posix.dirname(resource.path);
+      if (resource.authority && dirname2.length && dirname2.charCodeAt(0) !== 47) {
+        console.error(`dirname("${resource.toString})) resulted in a relative path`);
+        dirname2 = "/";
+      }
+    }
+    return resource.with({
+      path: dirname2
+    });
+  }
+  normalizePath(resource) {
+    if (!resource.path.length) {
+      return resource;
+    }
+    let normalizedPath;
+    if (resource.scheme === Schemas.file) {
+      normalizedPath = URI.file(paths.normalize(originalFSPath(resource))).path;
+    } else {
+      normalizedPath = paths.posix.normalize(resource.path);
+    }
+    return resource.with({
+      path: normalizedPath
+    });
+  }
+  relativePath(from, to) {
+    if (from.scheme !== to.scheme || !isEqualAuthority(from.authority, to.authority)) {
+      return void 0;
+    }
+    if (from.scheme === Schemas.file) {
+      const relativePath2 = paths.relative(originalFSPath(from), originalFSPath(to));
+      return isWindows ? extpath.toSlashes(relativePath2) : relativePath2;
+    }
+    let fromPath = from.path || "/";
+    const toPath = to.path || "/";
+    if (this._ignorePathCasing(from)) {
+      let i = 0;
+      for (const len = Math.min(fromPath.length, toPath.length); i < len; i++) {
+        if (fromPath.charCodeAt(i) !== toPath.charCodeAt(i)) {
+          if (fromPath.charAt(i).toLowerCase() !== toPath.charAt(i).toLowerCase()) {
+            break;
+          }
+        }
+      }
+      fromPath = toPath.substr(0, i) + fromPath.substr(i);
+    }
+    return paths.posix.relative(fromPath, toPath);
+  }
+  resolvePath(base, path) {
+    if (base.scheme === Schemas.file) {
+      const newURI = URI.file(paths.resolve(originalFSPath(base), path));
+      return base.with({
+        authority: newURI.authority,
+        path: newURI.path
+      });
+    }
+    path = extpath.toPosixPath(path);
+    return base.with({
+      path: paths.posix.resolve(base.path, path)
+    });
+  }
+  // --- misc
+  isAbsolutePath(resource) {
+    return !!resource.path && resource.path[0] === "/";
+  }
+  isEqualAuthority(a1, a2) {
+    return a1 === a2 || a1 !== void 0 && a2 !== void 0 && equalsIgnoreCase(a1, a2);
+  }
+  hasTrailingPathSeparator(resource, sep = paths.sep) {
+    if (resource.scheme === Schemas.file) {
+      const fsp = originalFSPath(resource);
+      return fsp.length > extpath.getRoot(fsp).length && fsp[fsp.length - 1] === sep;
+    } else {
+      const p = resource.path;
+      return p.length > 1 && p.charCodeAt(p.length - 1) === 47 && !/^[a-zA-Z]:(\/$|\\$)/.test(resource.fsPath);
+    }
+  }
+  removeTrailingPathSeparator(resource, sep = paths.sep) {
+    if (hasTrailingPathSeparator(resource, sep)) {
+      return resource.with({ path: resource.path.substr(0, resource.path.length - 1) });
+    }
+    return resource;
+  }
+  addTrailingPathSeparator(resource, sep = paths.sep) {
+    let isRootSep = false;
+    if (resource.scheme === Schemas.file) {
+      const fsp = originalFSPath(resource);
+      isRootSep = fsp !== void 0 && fsp.length === extpath.getRoot(fsp).length && fsp[fsp.length - 1] === sep;
+    } else {
+      sep = "/";
+      const p = resource.path;
+      isRootSep = p.length === 1 && p.charCodeAt(p.length - 1) === 47;
+    }
+    if (!isRootSep && !hasTrailingPathSeparator(resource, sep)) {
+      return resource.with({ path: resource.path + "/" });
+    }
+    return resource;
+  }
+}
+const extUri = new ExtUri(() => false);
+const extUriBiasedIgnorePathCase = new ExtUri((uri) => {
+  return uri.scheme === Schemas.file ? !isLinux : true;
+});
+const extUriIgnorePathCase = new ExtUri((_) => true);
+const isEqual = extUri.isEqual.bind(extUri);
+const isEqualOrParent = extUri.isEqualOrParent.bind(extUri);
+const getComparisonKey = extUri.getComparisonKey.bind(extUri);
+const basenameOrAuthority = extUri.basenameOrAuthority.bind(extUri);
+const basename = extUri.basename.bind(extUri);
+const extname = extUri.extname.bind(extUri);
+const dirname = extUri.dirname.bind(extUri);
+const joinPath = extUri.joinPath.bind(extUri);
+const normalizePath = extUri.normalizePath.bind(extUri);
+const relativePath = extUri.relativePath.bind(extUri);
+const resolvePath = extUri.resolvePath.bind(extUri);
+const isAbsolutePath = extUri.isAbsolutePath.bind(extUri);
+const isEqualAuthority = extUri.isEqualAuthority.bind(extUri);
+const hasTrailingPathSeparator = extUri.hasTrailingPathSeparator.bind(extUri);
+const removeTrailingPathSeparator = extUri.removeTrailingPathSeparator.bind(extUri);
+const addTrailingPathSeparator = extUri.addTrailingPathSeparator.bind(extUri);
+function distinctParents(items, resourceAccessor) {
+  const distinctParents2 = [];
+  for (let i = 0; i < items.length; i++) {
+    const candidateResource = resourceAccessor(items[i]);
+    if (items.some((otherItem, index) => {
+      if (index === i) {
+        return false;
+      }
+      return isEqualOrParent(candidateResource, resourceAccessor(otherItem));
+    })) {
+      continue;
+    }
+    distinctParents2.push(items[i]);
+  }
+  return distinctParents2;
+}
+__name(distinctParents, "distinctParents");
+var DataUri;
+(function(DataUri2) {
+  DataUri2.META_DATA_LABEL = "label";
+  DataUri2.META_DATA_DESCRIPTION = "description";
+  DataUri2.META_DATA_SIZE = "size";
+  DataUri2.META_DATA_MIME = "mime";
+  function parseMetaData(dataUri) {
+    const metadata = /* @__PURE__ */ new Map();
+    const meta = dataUri.path.substring(dataUri.path.indexOf(";") + 1, dataUri.path.lastIndexOf(";"));
+    meta.split(";").forEach((property) => {
+      const [key, value] = property.split(":");
+      if (key && value) {
+        metadata.set(key, value);
+      }
+    });
+    const mime = dataUri.path.substring(0, dataUri.path.indexOf(";"));
+    if (mime) {
+      metadata.set(DataUri2.META_DATA_MIME, mime);
+    }
+    return metadata;
+  }
+  __name(parseMetaData, "parseMetaData");
+  DataUri2.parseMetaData = parseMetaData;
+})(DataUri || (DataUri = {}));
+function toLocalResource(resource, authority, localScheme) {
+  if (authority) {
+    let path = resource.path;
+    if (path && path[0] !== paths.posix.sep) {
+      path = paths.posix.sep + path;
+    }
+    return resource.with({ scheme: localScheme, authority, path });
+  }
+  return resource.with({ scheme: localScheme });
+}
+__name(toLocalResource, "toLocalResource");
+export {
+  DataUri,
+  ExtUri,
+  addTrailingPathSeparator,
+  basename,
+  basenameOrAuthority,
+  dirname,
+  distinctParents,
+  extUri,
+  extUriBiasedIgnorePathCase,
+  extUriIgnorePathCase,
+  extname,
+  getComparisonKey,
+  hasTrailingPathSeparator,
+  isAbsolutePath,
+  isEqual,
+  isEqualAuthority,
+  isEqualOrParent,
+  joinPath,
+  normalizePath,
+  originalFSPath,
+  relativePath,
+  removeTrailingPathSeparator,
+  resolvePath,
+  toLocalResource
+};
+//# sourceMappingURL=resources.js.map

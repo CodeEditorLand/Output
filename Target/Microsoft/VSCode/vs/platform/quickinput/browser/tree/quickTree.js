@@ -1,1 +1,241 @@
-import{$xf as r,Event as n}from"../../../../base/common/event.js";import{autorun as c,observableValue as i}from"../../../../base/common/observable.js";import{$F as l}from"../../../../base/common/platform.js";import{localize as u}from"../../../../nls.js";import{$NCb as d}from"../quickInput.js";import{$uCb as a}from"./quickInputTree.js";class o extends d{static{this.bb=u(2291,null)}constructor(e){super(e),this.type="quickTree",this.cb=i("value",""),this.db=i("ariaLabel",void 0),this.eb=i("placeholder",void 0),this.fb=i("matchOnDescription",!1),this.gb=i("matchOnLabel",!0),this.hb=i("sortByLabel",!0),this.ib=i("activeItems",[]),this.jb=i("itemTree",[]),this.onDidChangeValue=n.fromObservable(this.cb,this.B),this.onDidChangeActive=n.fromObservable(this.ib,this.B),this.kb=this.D(new r),this.onDidChangeCheckedLeafItems=this.kb.event,this.lb=this.D(new r),this.onDidChangeCheckboxState=this.lb.event,this.mb=this.D(new r),this.onDidAccept=n.any(e.onDidAccept,this.mb.event),this._registerAutoruns(),this.D(e.tree.onDidChangeCheckedLeafItems(t=>this.kb.fire(t))),this.D(e.tree.onDidChangeCheckboxState(t=>this.lb.fire(t.item))),this.D(e.tree.tree.onDidChangeFocus(t=>{this.ib.set(e.tree.getActiveItems(),void 0)}))}get value(){return this.cb.get()}set value(e){this.cb.set(e,void 0)}get ariaLabel(){return this.db.get()}set ariaLabel(e){this.db.set(e,void 0)}get placeholder(){return this.eb.get()}set placeholder(e){this.eb.set(e,void 0)}get matchOnDescription(){return this.fb.get()}set matchOnDescription(e){this.fb.set(e,void 0)}get matchOnLabel(){return this.gb.get()}set matchOnLabel(e){this.gb.set(e,void 0)}get sortByLabel(){return this.hb.get()}set sortByLabel(e){this.hb.set(e,void 0)}get activeItems(){return this.ib.get()}set activeItems(e){this.ib.set(e,void 0)}get itemTree(){return this.jb.get()}get onDidTriggerItemButton(){return this.S.tree.onDidTriggerButton}get checkedLeafItems(){return this.S.tree.getCheckedLeafItems()}setItemTree(e){this.jb.set(e,void 0)}getParent(e){return this.S.tree.tree.getParentElement(e)??void 0}expand(e){this.S.tree.tree.expand(e)}collapse(e){this.S.tree.tree.collapse(e)}isCollapsed(e){return this.S.tree.tree.isCollapsed(e)}focusOnInput(){this.S.inputBox.setFocus()}show(){if(!this.U){const t={title:!!this.title||!!this.step||!!this.W.length,description:!!this.description,checkAll:!0,checkBox:!0,inputBox:!0,progressBar:!0,visibleCount:!0,count:!0,ok:!0,list:!1,tree:!0,message:!!this.validationMessage,customButton:!1};this.S.setVisibilities(t),this.Q.add(this.S.inputBox.onDidChange(s=>{this.cb.set(s,void 0)})),this.Q.add(this.S.tree.onDidChangeCheckboxState(s=>{const h=a([...this.S.tree.tree.getNode().children]);this.S.checkAll.checked!==h&&(this.S.checkAll.checked=h)})),this.Q.add(this.S.checkAll.onChange(s=>{const h=this.S.checkAll.checked;this.S.tree.checkAll(h)})),this.Q.add(this.S.tree.onDidChangeCheckedLeafItems(s=>{this.S.count.setCount(s.length)}))}super.show(),l(()=>this.S.count.setCount(this.S.tree.getCheckedLeafItems().length));const e=a([...this.S.tree.tree.getNode().children]);this.S.checkAll.checked!==e&&(this.S.checkAll.checked=e)}X(){if(!this.U)return;const e={title:!!this.title||!!this.step||!!this.W.length,description:!!this.description,checkAll:!0,checkBox:!0,inputBox:!0,progressBar:!0,visibleCount:!0,count:!0,ok:!0,tree:!0,message:!!this.validationMessage};this.S.setVisibilities(e),super.X()}_registerListeners(){}_registerAutoruns(){this.registerVisibleAutorun(e=>{const t=this.cb.read(e);this.S.inputBox.value=t,this.S.tree.filter(t)}),this.registerVisibleAutorun(e=>{let t=this.db.read(e);t||(t=this.placeholder||o.bb,this.title&&(t+=` - ${this.title}`)),this.S.list.ariaLabel!==t&&(this.S.list.ariaLabel=t??null),this.S.inputBox.ariaLabel!==t&&(this.S.inputBox.ariaLabel=t??"input")}),this.registerVisibleAutorun(e=>{const t=this.eb.read(e);this.S.inputBox.placeholder!==t&&(this.S.inputBox.placeholder=t??"")}),this.registerVisibleAutorun(e=>{const t=this.gb.read(e),s=this.fb.read(e);this.S.tree.updateFilterOptions({matchOnLabel:t,matchOnDescription:s})}),this.registerVisibleAutorun(e=>{const t=this.hb.read(e);this.S.tree.sortByLabel=t}),this.registerVisibleAutorun(e=>{const t=this.jb.read(e);this.S.tree.setTreeData(t)})}registerVisibleAutorun(e){this.D(c(t=>{this.f.read(t)&&e(t)}))}focus(e){this.S.tree.focus(e),this.S.tree.tree.domFocus()}accept(e){this.mb.fire()}}export{o as $Gbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { autorun, observableValue } from "../../../../base/common/observable.js";
+import { setTimeout0 } from "../../../../base/common/platform.js";
+import { localize } from "../../../../nls.js";
+import { QuickInput } from "../quickInput.js";
+import { getParentNodeState } from "./quickInputTree.js";
+class QuickTree extends QuickInput {
+  static {
+    __name(this, "QuickTree");
+  }
+  static {
+    this.DEFAULT_ARIA_LABEL = localize("quickInputBox.ariaLabel", "Type to narrow down results.");
+  }
+  constructor(ui) {
+    super(ui);
+    this.type = "quickTree";
+    this._value = observableValue("value", "");
+    this._ariaLabel = observableValue("ariaLabel", void 0);
+    this._placeholder = observableValue("placeholder", void 0);
+    this._matchOnDescription = observableValue("matchOnDescription", false);
+    this._matchOnLabel = observableValue("matchOnLabel", true);
+    this._sortByLabel = observableValue("sortByLabel", true);
+    this._activeItems = observableValue("activeItems", []);
+    this._itemTree = observableValue("itemTree", []);
+    this.onDidChangeValue = Event.fromObservable(this._value, this._store);
+    this.onDidChangeActive = Event.fromObservable(this._activeItems, this._store);
+    this._onDidChangeCheckedLeafItems = this._register(new Emitter());
+    this.onDidChangeCheckedLeafItems = this._onDidChangeCheckedLeafItems.event;
+    this._onDidChangeCheckboxState = this._register(new Emitter());
+    this.onDidChangeCheckboxState = this._onDidChangeCheckboxState.event;
+    this._onDidAcceptEmitter = this._register(new Emitter());
+    this.onDidAccept = Event.any(ui.onDidAccept, this._onDidAcceptEmitter.event);
+    this._registerAutoruns();
+    this._register(ui.tree.onDidChangeCheckedLeafItems((e) => this._onDidChangeCheckedLeafItems.fire(e)));
+    this._register(ui.tree.onDidChangeCheckboxState((e) => this._onDidChangeCheckboxState.fire(e.item)));
+    this._register(ui.tree.tree.onDidChangeFocus((e) => {
+      this._activeItems.set(ui.tree.getActiveItems(), void 0);
+    }));
+  }
+  get value() {
+    return this._value.get();
+  }
+  set value(value) {
+    this._value.set(value, void 0);
+  }
+  get ariaLabel() {
+    return this._ariaLabel.get();
+  }
+  set ariaLabel(ariaLabel) {
+    this._ariaLabel.set(ariaLabel, void 0);
+  }
+  get placeholder() {
+    return this._placeholder.get();
+  }
+  set placeholder(placeholder) {
+    this._placeholder.set(placeholder, void 0);
+  }
+  get matchOnDescription() {
+    return this._matchOnDescription.get();
+  }
+  set matchOnDescription(matchOnDescription) {
+    this._matchOnDescription.set(matchOnDescription, void 0);
+  }
+  get matchOnLabel() {
+    return this._matchOnLabel.get();
+  }
+  set matchOnLabel(matchOnLabel) {
+    this._matchOnLabel.set(matchOnLabel, void 0);
+  }
+  get sortByLabel() {
+    return this._sortByLabel.get();
+  }
+  set sortByLabel(sortByLabel) {
+    this._sortByLabel.set(sortByLabel, void 0);
+  }
+  get activeItems() {
+    return this._activeItems.get();
+  }
+  set activeItems(activeItems) {
+    this._activeItems.set(activeItems, void 0);
+  }
+  get itemTree() {
+    return this._itemTree.get();
+  }
+  get onDidTriggerItemButton() {
+    return this.ui.tree.onDidTriggerButton;
+  }
+  // TODO: Fix the any casting
+  // eslint-disable-next-line local/code-no-any-casts, @typescript-eslint/no-explicit-any
+  get checkedLeafItems() {
+    return this.ui.tree.getCheckedLeafItems();
+  }
+  setItemTree(itemTree) {
+    this._itemTree.set(itemTree, void 0);
+  }
+  getParent(element) {
+    return this.ui.tree.tree.getParentElement(element) ?? void 0;
+  }
+  expand(element) {
+    this.ui.tree.tree.expand(element);
+  }
+  collapse(element) {
+    this.ui.tree.tree.collapse(element);
+  }
+  isCollapsed(element) {
+    return this.ui.tree.tree.isCollapsed(element);
+  }
+  focusOnInput() {
+    this.ui.inputBox.setFocus();
+  }
+  show() {
+    if (!this.visible) {
+      const visibilities = {
+        title: !!this.title || !!this.step || !!this.titleButtons.length,
+        description: !!this.description,
+        checkAll: true,
+        checkBox: true,
+        inputBox: true,
+        progressBar: true,
+        visibleCount: true,
+        count: true,
+        ok: true,
+        list: false,
+        tree: true,
+        message: !!this.validationMessage,
+        customButton: false
+      };
+      this.ui.setVisibilities(visibilities);
+      this.visibleDisposables.add(this.ui.inputBox.onDidChange((value) => {
+        this._value.set(value, void 0);
+      }));
+      this.visibleDisposables.add(this.ui.tree.onDidChangeCheckboxState((e) => {
+        const checkAllState2 = getParentNodeState([...this.ui.tree.tree.getNode().children]);
+        if (this.ui.checkAll.checked !== checkAllState2) {
+          this.ui.checkAll.checked = checkAllState2;
+        }
+      }));
+      this.visibleDisposables.add(this.ui.checkAll.onChange((_e) => {
+        const checked = this.ui.checkAll.checked;
+        this.ui.tree.checkAll(checked);
+      }));
+      this.visibleDisposables.add(this.ui.tree.onDidChangeCheckedLeafItems((e) => {
+        this.ui.count.setCount(e.length);
+      }));
+    }
+    super.show();
+    setTimeout0(() => this.ui.count.setCount(this.ui.tree.getCheckedLeafItems().length));
+    const checkAllState = getParentNodeState([...this.ui.tree.tree.getNode().children]);
+    if (this.ui.checkAll.checked !== checkAllState) {
+      this.ui.checkAll.checked = checkAllState;
+    }
+  }
+  update() {
+    if (!this.visible) {
+      return;
+    }
+    const visibilities = {
+      title: !!this.title || !!this.step || !!this.titleButtons.length,
+      description: !!this.description,
+      checkAll: true,
+      checkBox: true,
+      inputBox: true,
+      progressBar: true,
+      visibleCount: true,
+      count: true,
+      ok: true,
+      tree: true,
+      message: !!this.validationMessage
+    };
+    this.ui.setVisibilities(visibilities);
+    super.update();
+  }
+  _registerListeners() {
+  }
+  // TODO: Move to using autoruns instead of update function
+  _registerAutoruns() {
+    this.registerVisibleAutorun((reader) => {
+      const value = this._value.read(reader);
+      this.ui.inputBox.value = value;
+      this.ui.tree.filter(value);
+    });
+    this.registerVisibleAutorun((reader) => {
+      let ariaLabel = this._ariaLabel.read(reader);
+      if (!ariaLabel) {
+        ariaLabel = this.placeholder || QuickTree.DEFAULT_ARIA_LABEL;
+        if (this.title) {
+          ariaLabel += ` - ${this.title}`;
+        }
+      }
+      if (this.ui.list.ariaLabel !== ariaLabel) {
+        this.ui.list.ariaLabel = ariaLabel ?? null;
+      }
+      if (this.ui.inputBox.ariaLabel !== ariaLabel) {
+        this.ui.inputBox.ariaLabel = ariaLabel ?? "input";
+      }
+    });
+    this.registerVisibleAutorun((reader) => {
+      const placeholder = this._placeholder.read(reader);
+      if (this.ui.inputBox.placeholder !== placeholder) {
+        this.ui.inputBox.placeholder = placeholder ?? "";
+      }
+    });
+    this.registerVisibleAutorun((reader) => {
+      const matchOnLabel = this._matchOnLabel.read(reader);
+      const matchOnDescription = this._matchOnDescription.read(reader);
+      this.ui.tree.updateFilterOptions({ matchOnLabel, matchOnDescription });
+    });
+    this.registerVisibleAutorun((reader) => {
+      const sortByLabel = this._sortByLabel.read(reader);
+      this.ui.tree.sortByLabel = sortByLabel;
+    });
+    this.registerVisibleAutorun((reader) => {
+      const itemTree = this._itemTree.read(reader);
+      this.ui.tree.setTreeData(itemTree);
+    });
+  }
+  registerVisibleAutorun(fn) {
+    this._register(autorun((reader) => {
+      if (this._visible.read(reader)) {
+        fn(reader);
+      }
+    }));
+  }
+  focus(focus) {
+    this.ui.tree.focus(focus);
+    this.ui.tree.tree.domFocus();
+  }
+  /**
+   * Programmatically accepts an item. Used internally for keyboard navigation.
+   * @param inBackground Whether you are accepting an item in the background and keeping the picker open.
+   */
+  accept(_inBackground) {
+    this._onDidAcceptEmitter.fire();
+  }
+}
+export {
+  QuickTree
+};
+//# sourceMappingURL=quickTree.js.map

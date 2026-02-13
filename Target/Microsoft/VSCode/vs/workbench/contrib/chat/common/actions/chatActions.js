@@ -1,1 +1,11 @@
-import{URI as i}from"../../../../../base/common/uri.js";function s(r){return!!r&&i.isUri(r.sessionResource)&&r.$mid===19}export{s as $jQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../../base/common/uri.js";
+function isChatViewTitleActionContext(obj) {
+  return !!obj && URI.isUri(obj.sessionResource) && obj.$mid === 19;
+}
+__name(isChatViewTitleActionContext, "isChatViewTitleActionContext");
+export {
+  isChatViewTitleActionContext
+};
+//# sourceMappingURL=chatActions.js.map

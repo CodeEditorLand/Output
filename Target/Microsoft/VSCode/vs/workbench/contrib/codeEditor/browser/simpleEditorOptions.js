@@ -1,1 +1,90 @@
-import{$Uub as n}from"../../../../editor/contrib/contextmenu/browser/contextmenu.js";import{$Qnb as s}from"../../../../editor/contrib/snippet/browser/snippetController2.js";import{$fpb as a}from"../../../../editor/contrib/suggest/browser/suggestController.js";import{$QHb as d}from"./menuPreventer.js";import{$cIb as u}from"./selectionClipboard.js";import{$bIb as g}from"../../snippets/browser/tabCompletion.js";import{EditorExtensionsRegistry as f}from"../../../../editor/browser/editorExtensions.js";import{$xu as c}from"../../../../platform/theme/common/themeService.js";import{$jq as m,$8s as b,$9s as p,$7q as $}from"../../../../platform/theme/common/colorRegistry.js";function v(e){return{wordWrap:"on",overviewRulerLanes:0,glyphMargin:!1,lineNumbers:"off",folding:!1,selectOnLineNumbers:!1,hideCursorInOverviewRuler:!0,selectionHighlight:!1,scrollbar:{horizontal:"hidden",alwaysConsumeMouseWheel:!1},lineDecorationsWidth:0,overviewRulerBorder:!1,scrollBeyondLastLine:!1,renderLineHighlight:"none",fixedOverflowWidgets:!0,acceptSuggestionOnEnter:"smart",dragAndDrop:!1,revealHorizontalRightPadding:5,minimap:{enabled:!1},guides:{indentation:!1},wordSegmenterLocales:e.getValue("editor.wordSegmenterLocales"),accessibilitySupport:e.getValue("editor.accessibilitySupport"),cursorBlinking:e.getValue("editor.cursorBlinking"),editContext:e.getValue("editor.editContext"),defaultColorDecorators:"never",allowVariableLineHeights:!1,allowVariableFonts:!1,allowVariableFontsInAccessibilityMode:!1}}function y(){return{isSimpleWidget:!0,contributions:f.getSomeEditorContributions([d.ID,u,n.ID,a.ID,s.ID,g.ID])}}function V(e){return c((r,o)=>{const i=r.getColor(m);if(i){const t=r.getColor(b);t&&(o.addRule(`${e} .monaco-editor-background { background-color: ${t}; } `),o.addRule(`${e} .monaco-editor .selected-text { background-color: ${t.transparent(.4)}; }`));const l=r.getColor(p);l&&o.addRule(`${e} .monaco-editor .view-line span.inline-selected-text { color: ${l}; }`),o.addRule(`${e} .monaco-editor .focused .selected-text { background-color: ${i}; }`)}else o.addRule(`${e} .monaco-editor .focused .selected-text { background-color: ${r.getColor($)}; }`)})}export{v as $gQb,y as $hQb,V as $iQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ContextMenuController } from "../../../../editor/contrib/contextmenu/browser/contextmenu.js";
+import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
+import { MenuPreventer } from "./menuPreventer.js";
+import { SelectionClipboardContributionID } from "./selectionClipboard.js";
+import { TabCompletionController } from "../../snippets/browser/tabCompletion.js";
+import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { selectionBackground, inputBackground, inputForeground, editorSelectionBackground } from "../../../../platform/theme/common/colorRegistry.js";
+function getSimpleEditorOptions(configurationService) {
+  return {
+    wordWrap: "on",
+    overviewRulerLanes: 0,
+    glyphMargin: false,
+    lineNumbers: "off",
+    folding: false,
+    selectOnLineNumbers: false,
+    hideCursorInOverviewRuler: true,
+    selectionHighlight: false,
+    scrollbar: {
+      horizontal: "hidden",
+      alwaysConsumeMouseWheel: false
+    },
+    lineDecorationsWidth: 0,
+    overviewRulerBorder: false,
+    scrollBeyondLastLine: false,
+    renderLineHighlight: "none",
+    fixedOverflowWidgets: true,
+    acceptSuggestionOnEnter: "smart",
+    dragAndDrop: false,
+    revealHorizontalRightPadding: 5,
+    minimap: {
+      enabled: false
+    },
+    guides: {
+      indentation: false
+    },
+    wordSegmenterLocales: configurationService.getValue("editor.wordSegmenterLocales"),
+    accessibilitySupport: configurationService.getValue("editor.accessibilitySupport"),
+    cursorBlinking: configurationService.getValue("editor.cursorBlinking"),
+    editContext: configurationService.getValue("editor.editContext"),
+    defaultColorDecorators: "never",
+    allowVariableLineHeights: false,
+    allowVariableFonts: false,
+    allowVariableFontsInAccessibilityMode: false
+  };
+}
+__name(getSimpleEditorOptions, "getSimpleEditorOptions");
+function getSimpleCodeEditorWidgetOptions() {
+  return {
+    isSimpleWidget: true,
+    contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+      MenuPreventer.ID,
+      SelectionClipboardContributionID,
+      ContextMenuController.ID,
+      SuggestController.ID,
+      SnippetController2.ID,
+      TabCompletionController.ID
+    ])
+  };
+}
+__name(getSimpleCodeEditorWidgetOptions, "getSimpleCodeEditorWidgetOptions");
+function setupSimpleEditorSelectionStyling(editorContainerSelector) {
+  return registerThemingParticipant((theme, collector) => {
+    const selectionBackgroundColor = theme.getColor(selectionBackground);
+    if (selectionBackgroundColor) {
+      const inputBackgroundColor = theme.getColor(inputBackground);
+      if (inputBackgroundColor) {
+        collector.addRule(`${editorContainerSelector} .monaco-editor-background { background-color: ${inputBackgroundColor}; } `);
+        collector.addRule(`${editorContainerSelector} .monaco-editor .selected-text { background-color: ${inputBackgroundColor.transparent(0.4)}; }`);
+      }
+      const inputForegroundColor = theme.getColor(inputForeground);
+      if (inputForegroundColor) {
+        collector.addRule(`${editorContainerSelector} .monaco-editor .view-line span.inline-selected-text { color: ${inputForegroundColor}; }`);
+      }
+      collector.addRule(`${editorContainerSelector} .monaco-editor .focused .selected-text { background-color: ${selectionBackgroundColor}; }`);
+    } else {
+      collector.addRule(`${editorContainerSelector} .monaco-editor .focused .selected-text { background-color: ${theme.getColor(editorSelectionBackground)}; }`);
+    }
+  });
+}
+__name(setupSimpleEditorSelectionStyling, "setupSimpleEditorSelectionStyling");
+export {
+  getSimpleCodeEditorWidgetOptions,
+  getSimpleEditorOptions,
+  setupSimpleEditorSelectionStyling
+};
+//# sourceMappingURL=simpleEditorOptions.js.map

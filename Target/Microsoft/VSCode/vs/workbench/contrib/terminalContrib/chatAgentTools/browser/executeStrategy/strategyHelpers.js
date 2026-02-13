@@ -1,1 +1,56 @@
-import{$ui as o}from"../../../../../../base/common/async.js";import{$Fd as c,$Cd as u}from"../../../../../../base/common/lifecycle.js";function p(e,a,n,r,t){const i=new c,d=()=>{if(r.isDisposed)return;const f=e.raw.registerMarker();if(a.value=f??void 0,n(f),!f){i.clear();return}i.value=f.onDispose(()=>{t?.("Start marker was disposed, recreating"),d()})};d(),r.add(u(()=>{i.dispose(),a.clear(),n(void 0)})),r.add(a)}function w(e,a,n){const r=new o,t=()=>{r.isSettled||(n?.("Detected alternate buffer entry"),r.complete())};return e.raw.buffer.active===e.raw.buffer.alternate?t():a.add(e.raw.buffer.onBufferChange(()=>{e.raw.buffer.active===e.raw.buffer.alternate&&t()})),r.p}export{p as $GCc,w as $HCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DeferredPromise } from "../../../../../../base/common/async.js";
+import { MutableDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+function setupRecreatingStartMarker(xterm, startMarker, fire, store, log) {
+  const markerListener = new MutableDisposable();
+  const recreateStartMarker = /* @__PURE__ */ __name(() => {
+    if (store.isDisposed) {
+      return;
+    }
+    const marker = xterm.raw.registerMarker();
+    startMarker.value = marker ?? void 0;
+    fire(marker);
+    if (!marker) {
+      markerListener.clear();
+      return;
+    }
+    markerListener.value = marker.onDispose(() => {
+      log?.("Start marker was disposed, recreating");
+      recreateStartMarker();
+    });
+  }, "recreateStartMarker");
+  recreateStartMarker();
+  store.add(toDisposable(() => {
+    markerListener.dispose();
+    startMarker.clear();
+    fire(void 0);
+  }));
+  store.add(startMarker);
+}
+__name(setupRecreatingStartMarker, "setupRecreatingStartMarker");
+function createAltBufferPromise(xterm, store, log) {
+  const deferred = new DeferredPromise();
+  const complete = /* @__PURE__ */ __name(() => {
+    if (!deferred.isSettled) {
+      log?.("Detected alternate buffer entry");
+      deferred.complete();
+    }
+  }, "complete");
+  if (xterm.raw.buffer.active === xterm.raw.buffer.alternate) {
+    complete();
+  } else {
+    store.add(xterm.raw.buffer.onBufferChange(() => {
+      if (xterm.raw.buffer.active === xterm.raw.buffer.alternate) {
+        complete();
+      }
+    }));
+  }
+  return deferred.p;
+}
+__name(createAltBufferPromise, "createAltBufferPromise");
+export {
+  createAltBufferPromise,
+  setupRecreatingStartMarker
+};
+//# sourceMappingURL=strategyHelpers.js.map

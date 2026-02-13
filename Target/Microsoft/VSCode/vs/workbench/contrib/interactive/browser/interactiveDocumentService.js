@@ -1,1 +1,36 @@
-import{$xf as i}from"../../../../base/common/event.js";import{$Ed as r}from"../../../../base/common/lifecycle.js";import{$Nj as n}from"../../../../platform/instantiation/common/instantiation.js";const h=n("IInteractiveDocumentService");class v extends r{constructor(){super(),this.a=this.D(new i),this.onWillAddInteractiveDocument=this.a.event,this.b=this.D(new i),this.onWillRemoveInteractiveDocument=this.b.event}willCreateInteractiveDocument(t,e,o){this.a.fire({notebookUri:t,inputUri:e,languageId:o})}willRemoveInteractiveDocument(t,e){this.b.fire({notebookUri:t,inputUri:e})}}export{h as $W5b,v as $X5b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IInteractiveDocumentService = createDecorator("IInteractiveDocumentService");
+class InteractiveDocumentService extends Disposable {
+  static {
+    __name(this, "InteractiveDocumentService");
+  }
+  constructor() {
+    super();
+    this._onWillAddInteractiveDocument = this._register(new Emitter());
+    this.onWillAddInteractiveDocument = this._onWillAddInteractiveDocument.event;
+    this._onWillRemoveInteractiveDocument = this._register(new Emitter());
+    this.onWillRemoveInteractiveDocument = this._onWillRemoveInteractiveDocument.event;
+  }
+  willCreateInteractiveDocument(notebookUri, inputUri, languageId) {
+    this._onWillAddInteractiveDocument.fire({
+      notebookUri,
+      inputUri,
+      languageId
+    });
+  }
+  willRemoveInteractiveDocument(notebookUri, inputUri) {
+    this._onWillRemoveInteractiveDocument.fire({
+      notebookUri,
+      inputUri
+    });
+  }
+}
+export {
+  IInteractiveDocumentService,
+  InteractiveDocumentService
+};
+//# sourceMappingURL=interactiveDocumentService.js.map

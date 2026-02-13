@@ -1,1 +1,115 @@
-import{DisposableStore as b,toDisposable as p}from"../commonFacade/deps.js";import{$6d as c}from"../debugName.js";import{$_d as f}from"./autorunImpl.js";import{DebugLocation as l}from"../debugLocation.js";function w(e,n=l.ofCaller()){return new f(new c(void 0,void 0,e),e,void 0,n)}function i(e,n,r=l.ofCaller()){return new f(new c(e.owner,e.debugName,e.debugReferenceFn??n),n,void 0,r)}function m(e,n,r=l.ofCaller()){return new f(new c(e.owner,e.debugName,e.debugReferenceFn??n),n,e.changeTracker,r)}function F(e,n){const r=new b,o=m({owner:e.owner,debugName:e.debugName,debugReferenceFn:e.debugReferenceFn??n,changeTracker:e.changeTracker},(s,t)=>{r.clear(),n(s,t,r)});return p(()=>{o.dispose(),r.dispose()})}function R(e){const n=new b,r=i({owner:void 0,debugName:void 0,debugReferenceFn:e},o=>{n.clear(),e(o,n)});return p(()=>{r.dispose(),n.dispose()})}function V(e,n){let r;return i({debugReferenceFn:n},o=>{const s=e.read(o),t=r;r=s,n({lastValue:t,newValue:s})})}function k(e,n,r=o=>o){const o=new Map;return i({debugReferenceFn:e},s=>{const t=new Map,u=new Map(o);for(const d of e(s)){const a=r(d);o.has(a)?u.delete(a):(t.set(a,d),o.set(a,d))}for(const d of u.keys())o.delete(d);(t.size||u.size)&&n({addedValues:[...t.values()],removedValues:[...u.values()]})})}function N(e,n=l.ofCaller()){let r,o=!1;return r=w(s=>{e({delayedStore:s.delayedStore,store:s.store,readObservable:s.readObservable.bind(s),dispose:()=>{r?.dispose(),o=!0}})},n),o&&r.dispose(),r}export{w as $he,i as $ie,m as $je,F as $ke,R as $le,V as $me,k as $ne,N as $oe};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DisposableStore, toDisposable } from "../commonFacade/deps.js";
+import { DebugNameData } from "../debugName.js";
+import { AutorunObserver } from "./autorunImpl.js";
+import { DebugLocation } from "../debugLocation.js";
+function autorun(fn, debugLocation = DebugLocation.ofCaller()) {
+  return new AutorunObserver(new DebugNameData(void 0, void 0, fn), fn, void 0, debugLocation);
+}
+__name(autorun, "autorun");
+function autorunOpts(options, fn, debugLocation = DebugLocation.ofCaller()) {
+  return new AutorunObserver(new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? fn), fn, void 0, debugLocation);
+}
+__name(autorunOpts, "autorunOpts");
+function autorunHandleChanges(options, fn, debugLocation = DebugLocation.ofCaller()) {
+  return new AutorunObserver(new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? fn), fn, options.changeTracker, debugLocation);
+}
+__name(autorunHandleChanges, "autorunHandleChanges");
+function autorunWithStoreHandleChanges(options, fn) {
+  const store = new DisposableStore();
+  const disposable = autorunHandleChanges({
+    owner: options.owner,
+    debugName: options.debugName,
+    debugReferenceFn: options.debugReferenceFn ?? fn,
+    changeTracker: options.changeTracker
+  }, (reader, changeSummary) => {
+    store.clear();
+    fn(reader, changeSummary, store);
+  });
+  return toDisposable(() => {
+    disposable.dispose();
+    store.dispose();
+  });
+}
+__name(autorunWithStoreHandleChanges, "autorunWithStoreHandleChanges");
+function autorunWithStore(fn) {
+  const store = new DisposableStore();
+  const disposable = autorunOpts({
+    owner: void 0,
+    debugName: void 0,
+    debugReferenceFn: fn
+  }, (reader) => {
+    store.clear();
+    fn(reader, store);
+  });
+  return toDisposable(() => {
+    disposable.dispose();
+    store.dispose();
+  });
+}
+__name(autorunWithStore, "autorunWithStore");
+function autorunDelta(observable, handler) {
+  let _lastValue;
+  return autorunOpts({ debugReferenceFn: handler }, (reader) => {
+    const newValue = observable.read(reader);
+    const lastValue = _lastValue;
+    _lastValue = newValue;
+    handler({ lastValue, newValue });
+  });
+}
+__name(autorunDelta, "autorunDelta");
+function autorunIterableDelta(getValue, handler, getUniqueIdentifier = (v) => v) {
+  const lastValues = /* @__PURE__ */ new Map();
+  return autorunOpts({ debugReferenceFn: getValue }, (reader) => {
+    const newValues = /* @__PURE__ */ new Map();
+    const removedValues = new Map(lastValues);
+    for (const value of getValue(reader)) {
+      const id = getUniqueIdentifier(value);
+      if (lastValues.has(id)) {
+        removedValues.delete(id);
+      } else {
+        newValues.set(id, value);
+        lastValues.set(id, value);
+      }
+    }
+    for (const id of removedValues.keys()) {
+      lastValues.delete(id);
+    }
+    if (newValues.size || removedValues.size) {
+      handler({ addedValues: [...newValues.values()], removedValues: [...removedValues.values()] });
+    }
+  });
+}
+__name(autorunIterableDelta, "autorunIterableDelta");
+function autorunSelfDisposable(fn, debugLocation = DebugLocation.ofCaller()) {
+  let ar;
+  let disposed = false;
+  ar = autorun((reader) => {
+    fn({
+      delayedStore: reader.delayedStore,
+      store: reader.store,
+      readObservable: reader.readObservable.bind(reader),
+      dispose: /* @__PURE__ */ __name(() => {
+        ar?.dispose();
+        disposed = true;
+      }, "dispose")
+    });
+  }, debugLocation);
+  if (disposed) {
+    ar.dispose();
+  }
+  return ar;
+}
+__name(autorunSelfDisposable, "autorunSelfDisposable");
+export {
+  autorun,
+  autorunDelta,
+  autorunHandleChanges,
+  autorunIterableDelta,
+  autorunOpts,
+  autorunSelfDisposable,
+  autorunWithStore,
+  autorunWithStoreHandleChanges
+};
+//# sourceMappingURL=autorun.js.map

@@ -1,1 +1,73 @@
-import*as a from"../../../../../../../base/browser/dom.js";import{$jk as g}from"../../../../../../../base/common/htmlContent.js";import{autorun as l}from"../../../../../../../base/common/observable.js";import{$Mj as b}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$V2b as v}from"../chatProgressContentPart.js";import{$o3b as $}from"./chatToolInvocationSubPart.js";var u=function(i,t,e,r){var s=arguments.length,n=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,t,e,r);else for(var o=i.length-1;o>=0;o--)(c=i[o])&&(n=(s<3?c(n):s>3?c(t,e,n):c(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},d=function(i,t){return function(e,r){t(e,r,i)}};let m=class extends ${constructor(t,e,r,s){super(t),this.c=e,this.h=r,this.m=s,this.codeblocks=[],this.domNode=this.n()}n(){const t=document.createElement("div");if(this.g.kind!=="toolInvocation")return t;const e=this.g;return e.state.get().type!==0||this.D(l(s=>{const n=e.state.read(s);if(n.type!==0){a.$t8(t),this.b.fire();return}const o=n.streamingMessage.read(s)??e.invocationMessage,f=typeof o=="string"?o:o.value;if(!f||f.trim().length===0){a.$t8(t);return}const p={kind:"progressMessage",content:typeof o=="string"?new g().appendText(o):o},h=s.store.add(this.m.createInstance(v,p,this.h,this.c,void 0,!0,this.j(),e));a.$A9(t,h.domNode)})),t}};m=u([d(3,b)],m);export{m as $43b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { autorun } from "../../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { ChatProgressContentPart } from "../chatProgressContentPart.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+let ChatToolStreamingSubPart = class ChatToolStreamingSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatToolStreamingSubPart");
+  }
+  constructor(toolInvocation, context, renderer, instantiationService) {
+    super(toolInvocation);
+    this.context = context;
+    this.renderer = renderer;
+    this.instantiationService = instantiationService;
+    this.codeblocks = [];
+    this.domNode = this.createStreamingPart();
+  }
+  createStreamingPart() {
+    const container = document.createElement("div");
+    if (this.toolInvocation.kind !== "toolInvocation") {
+      return container;
+    }
+    const toolInvocation = this.toolInvocation;
+    const state = toolInvocation.state.get();
+    if (state.type !== 0) {
+      return container;
+    }
+    this._register(autorun((reader) => {
+      const currentState = toolInvocation.state.read(reader);
+      if (currentState.type !== 0) {
+        dom.clearNode(container);
+        this._onNeedsRerender.fire();
+        return;
+      }
+      const streamingMessage = currentState.streamingMessage.read(reader);
+      const displayMessage = streamingMessage ?? toolInvocation.invocationMessage;
+      const messageText = typeof displayMessage === "string" ? displayMessage : displayMessage.value;
+      if (!messageText || messageText.trim().length === 0) {
+        dom.clearNode(container);
+        return;
+      }
+      const content = typeof displayMessage === "string" ? new MarkdownString().appendText(displayMessage) : displayMessage;
+      const progressMessage = {
+        kind: "progressMessage",
+        content
+      };
+      const part = reader.store.add(this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), toolInvocation));
+      dom.reset(container, part.domNode);
+    }));
+    return container;
+  }
+};
+ChatToolStreamingSubPart = __decorate([
+  __param(3, IInstantiationService)
+], ChatToolStreamingSubPart);
+export {
+  ChatToolStreamingSubPart
+};
+//# sourceMappingURL=chatToolStreamingSubPart.js.map

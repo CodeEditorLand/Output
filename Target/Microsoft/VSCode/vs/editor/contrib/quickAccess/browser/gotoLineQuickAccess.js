@@ -1,1 +1,186 @@
-import{$bk as p}from"../../../../base/common/codicons.js";import{$Ed as N,$Dd as C,$Cd as O}from"../../../../base/common/lifecycle.js";import{ThemeIcon as L}from"../../../../base/common/themables.js";import{localize as r}from"../../../../nls.js";import{QuickInputButtonLocation as I}from"../../../../platform/quickinput/common/quickInput.js";import{$Jdb as M}from"../../../browser/editorBrowser.js";import{$bG as b}from"../../../common/core/cursorColumns.js";import{$roc as x}from"./editorNavigationQuickAccess.js";class d extends x{static{this.GO_TO_LINE_PREFIX=":"}static{this.GO_TO_OFFSET_PREFIX="::"}static{this.k="gotoLine.useZeroBasedOffset"}constructor(){super({canAcceptInBackground:!0})}get m(){return this.l.getBoolean(d.k,-1,!1)}set m(s){this.l.store(d.k,s,-1,0)}e(s){const t=r(1508,null);return s.items=[{label:t}],s.ariaLabel=t,N.None}d(s,t,u){const n=s.editor,i=new C;t.ariaLabel=r(1509,null),i.add(t.onDidAccept(l=>{const[o]=t.selectedItems;if(o){if(!o.lineNumber)return;this.f(s,{range:this.p(o.lineNumber,o.column),keyMods:t.keyMods,preserveFocus:l.inBackground}),l.inBackground||t.hide()}}));const e={iconClass:L.asClassName(p.indexZero),tooltip:r(1510,null),location:I.Input,toggle:{checked:this.m}},a=()=>{const l=t.value.trim().substring(d.GO_TO_LINE_PREFIX.length),{inOffsetMode:o,lineNumber:c,column:f,label:g}=this.q(n,l);if(t.buttons=o?[e]:[],t.items=[{lineNumber:c,column:f,label:g,ariaLabel:c?r(1511,null,c,f||1):g}],!c){this.clearDecorations(n);return}const h=this.p(c,f);n.revealRangeInCenter(h,0),this.addDecorations(n,h)};i.add(t.onDidTriggerButton(l=>{l===e&&(this.m=l.toggle?.checked??!this.m,a())})),a(),i.add(t.onDidChangeValue(()=>a()));const m=M(n);return m&&m.getOptions().get(76).renderType===2&&(m.updateOptions({lineNumbers:"on"}),i.add(O(()=>m.updateOptions({lineNumbers:"relative"})))),i}p(s=1,t=1){return{startLineNumber:s,startColumn:t,endLineNumber:s,endColumn:t}}q(s,t){const u=this.g(s);if(!u)return{label:r(1512,null)};if(t.startsWith(":")){let n=parseInt(t.substring(1),10);const i=u.getValueLength();if(isNaN(n))return{inOffsetMode:!0,label:this.m?r(1513,null,i-1):r(1514,null,i)};{const e=n<0;this.m||(n-=Math.sign(n)),e&&(n+=i);const a=u.getPositionAt(n),m=b.visibleColumnFromColumn(u.getLineContent(a.lineNumber),a.column,u.getOptions().tabSize)+1;return{...a,inOffsetMode:!0,label:r(1515,null,a.lineNumber,m)}}}else{const n=t.split(/,|:|#/),i=u.getLineCount();let e=parseInt(n[0]?.trim(),10);if(n.length<1||isNaN(e))return{label:r(1516,null,i)};e=e>=0?e:i+1+e,e=Math.min(Math.max(1,e),i);const a=u.getOptions().tabSize,m=u.getLineContent(e),l=b.visibleColumnFromColumn(m,u.getLineMaxColumn(e),a)+1;let o=parseInt(n[1]?.trim(),10);if(n.length<2||isNaN(o))return{lineNumber:e,column:1,label:n.length<2?r(1517,null,e):r(1518,null,e,l)};o=o>=0?o:l+o,o=Math.min(Math.max(1,o),l);const c=b.columnFromVisibleColumn(m,o-1,a);return{lineNumber:e,column:c,label:r(1519,null,e,o)}}}}export{d as $fyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { QuickInputButtonLocation } from "../../../../platform/quickinput/common/quickInput.js";
+import { getCodeEditor } from "../../../browser/editorBrowser.js";
+import { CursorColumns } from "../../../common/core/cursorColumns.js";
+import { AbstractEditorNavigationQuickAccessProvider } from "./editorNavigationQuickAccess.js";
+class AbstractGotoLineQuickAccessProvider extends AbstractEditorNavigationQuickAccessProvider {
+  static {
+    __name(this, "AbstractGotoLineQuickAccessProvider");
+  }
+  static {
+    this.GO_TO_LINE_PREFIX = ":";
+  }
+  static {
+    this.GO_TO_OFFSET_PREFIX = "::";
+  }
+  static {
+    this.ZERO_BASED_OFFSET_STORAGE_KEY = "gotoLine.useZeroBasedOffset";
+  }
+  constructor() {
+    super({ canAcceptInBackground: true });
+  }
+  get useZeroBasedOffset() {
+    return this.storageService.getBoolean(AbstractGotoLineQuickAccessProvider.ZERO_BASED_OFFSET_STORAGE_KEY, -1, false);
+  }
+  set useZeroBasedOffset(value) {
+    this.storageService.store(
+      AbstractGotoLineQuickAccessProvider.ZERO_BASED_OFFSET_STORAGE_KEY,
+      value,
+      -1,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  provideWithoutTextEditor(picker) {
+    const label = localize("gotoLine.noEditor", "Open a text editor first to go to a line or an offset.");
+    picker.items = [{ label }];
+    picker.ariaLabel = label;
+    return Disposable.None;
+  }
+  provideWithTextEditor(context, picker, token) {
+    const editor = context.editor;
+    const disposables = new DisposableStore();
+    picker.ariaLabel = localize("gotoLine.ariaLabel", "Go to line. Type a line number, optionally followed by colon and column number.");
+    disposables.add(picker.onDidAccept((event) => {
+      const [item] = picker.selectedItems;
+      if (item) {
+        if (!item.lineNumber) {
+          return;
+        }
+        this.gotoLocation(context, { range: this.toRange(item.lineNumber, item.column), keyMods: picker.keyMods, preserveFocus: event.inBackground });
+        if (!event.inBackground) {
+          picker.hide();
+        }
+      }
+    }));
+    const offsetButton = {
+      iconClass: ThemeIcon.asClassName(Codicon.indexZero),
+      tooltip: localize("gotoLineToggleButton", "Toggle Zero-Based Offset"),
+      location: QuickInputButtonLocation.Input,
+      toggle: { checked: this.useZeroBasedOffset }
+    };
+    const updatePickerAndEditor = /* @__PURE__ */ __name(() => {
+      const inputText = picker.value.trim().substring(AbstractGotoLineQuickAccessProvider.GO_TO_LINE_PREFIX.length);
+      const { inOffsetMode, lineNumber, column, label } = this.parsePosition(editor, inputText);
+      picker.buttons = inOffsetMode ? [offsetButton] : [];
+      picker.items = [{
+        lineNumber,
+        column,
+        label,
+        ariaLabel: lineNumber ? localize("gotoLine.itemAriaLabel", "Go to line {0}, column {1}. Press Enter to navigate.", lineNumber, column || 1) : label
+      }];
+      if (!lineNumber) {
+        this.clearDecorations(editor);
+        return;
+      }
+      const range = this.toRange(lineNumber, column);
+      editor.revealRangeInCenter(
+        range,
+        0
+        /* ScrollType.Smooth */
+      );
+      this.addDecorations(editor, range);
+    }, "updatePickerAndEditor");
+    disposables.add(picker.onDidTriggerButton((button) => {
+      if (button === offsetButton) {
+        this.useZeroBasedOffset = button.toggle?.checked ?? !this.useZeroBasedOffset;
+        updatePickerAndEditor();
+      }
+    }));
+    updatePickerAndEditor();
+    disposables.add(picker.onDidChangeValue(() => updatePickerAndEditor()));
+    const codeEditor = getCodeEditor(editor);
+    if (codeEditor) {
+      const options = codeEditor.getOptions();
+      const lineNumbers = options.get(
+        76
+        /* EditorOption.lineNumbers */
+      );
+      if (lineNumbers.renderType === 2) {
+        codeEditor.updateOptions({ lineNumbers: "on" });
+        disposables.add(toDisposable(() => codeEditor.updateOptions({ lineNumbers: "relative" })));
+      }
+    }
+    return disposables;
+  }
+  toRange(lineNumber = 1, column = 1) {
+    return {
+      startLineNumber: lineNumber,
+      startColumn: column,
+      endLineNumber: lineNumber,
+      endColumn: column
+    };
+  }
+  parsePosition(editor, value) {
+    const model = this.getModel(editor);
+    if (!model) {
+      return {
+        label: localize("gotoLine.noEditor", "Open a text editor first to go to a line or an offset.")
+      };
+    }
+    if (value.startsWith(":")) {
+      let offset = parseInt(value.substring(1), 10);
+      const maxOffset = model.getValueLength();
+      if (isNaN(offset)) {
+        return {
+          inOffsetMode: true,
+          label: this.useZeroBasedOffset ? localize("gotoLine.offsetPromptZero", "Type a character position to go to (from 0 to {0}).", maxOffset - 1) : localize("gotoLine.offsetPrompt", "Type a character position to go to (from 1 to {0}).", maxOffset)
+        };
+      } else {
+        const reverse = offset < 0;
+        if (!this.useZeroBasedOffset) {
+          offset -= Math.sign(offset);
+        }
+        if (reverse) {
+          offset += maxOffset;
+        }
+        const pos = model.getPositionAt(offset);
+        const visibleColumn = CursorColumns.visibleColumnFromColumn(model.getLineContent(pos.lineNumber), pos.column, model.getOptions().tabSize) + 1;
+        return {
+          ...pos,
+          inOffsetMode: true,
+          label: localize("gotoLine.goToPosition", "Press 'Enter' to go to line {0} at column {1}.", pos.lineNumber, visibleColumn)
+        };
+      }
+    } else {
+      const parts = value.split(/,|:|#/);
+      const maxLine = model.getLineCount();
+      let lineNumber = parseInt(parts[0]?.trim(), 10);
+      if (parts.length < 1 || isNaN(lineNumber)) {
+        return {
+          label: localize("gotoLine.linePrompt", "Type a line number to go to (from 1 to {0}).", maxLine)
+        };
+      }
+      lineNumber = lineNumber >= 0 ? lineNumber : maxLine + 1 + lineNumber;
+      lineNumber = Math.min(Math.max(1, lineNumber), maxLine);
+      const tabSize = model.getOptions().tabSize;
+      const lineContent = model.getLineContent(lineNumber);
+      const maxColumn = CursorColumns.visibleColumnFromColumn(lineContent, model.getLineMaxColumn(lineNumber), tabSize) + 1;
+      let column = parseInt(parts[1]?.trim(), 10);
+      if (parts.length < 2 || isNaN(column)) {
+        return {
+          lineNumber,
+          column: 1,
+          label: parts.length < 2 ? localize("gotoLine.lineColumnPrompt", "Press 'Enter' to go to line {0} or enter colon : to add a column number.", lineNumber) : localize("gotoLine.columnPrompt", "Press 'Enter' to go to line {0} or enter a column number (from 1 to {1}).", lineNumber, maxColumn)
+        };
+      }
+      column = column >= 0 ? column : maxColumn + column;
+      column = Math.min(Math.max(1, column), maxColumn);
+      const realColumn = CursorColumns.columnFromVisibleColumn(lineContent, column - 1, tabSize);
+      return {
+        lineNumber,
+        column: realColumn,
+        label: localize("gotoLine.goToPosition", "Press 'Enter' to go to line {0} at column {1}.", lineNumber, column)
+      };
+    }
+  }
+}
+export {
+  AbstractGotoLineQuickAccessProvider
+};
+//# sourceMappingURL=gotoLineQuickAccess.js.map

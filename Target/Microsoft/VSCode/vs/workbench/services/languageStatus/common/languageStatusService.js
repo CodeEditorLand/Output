@@ -1,1 +1,42 @@
-import{Event as s}from"../../../../base/common/event.js";import{$gg as o}from"../../../../base/common/strings.js";import{$IN as n}from"../../../../editor/common/languageFeatureRegistry.js";import{$WC as c}from"../../../../platform/instantiation/common/extensions.js";import{$Nj as u}from"../../../../platform/instantiation/common/instantiation.js";const a=u("ILanguageStatusService");class g{constructor(){this.c=new n,this.onDidChange=s.map(this.c.onDidChange,()=>{})}addStatus(r){return this.c.register(r.selector,r)}getLanguageStatus(r){return this.c.ordered(r).sort((t,i)=>{let e=i.severity-t.severity;return e===0&&(e=o(t.source,i.source)),e===0&&(e=o(t.id,i.id)),e})}}c(a,g,1);export{a as $ZZ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../../base/common/event.js";
+import { compare } from "../../../../base/common/strings.js";
+import { LanguageFeatureRegistry } from "../../../../editor/common/languageFeatureRegistry.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ILanguageStatusService = createDecorator("ILanguageStatusService");
+class LanguageStatusServiceImpl {
+  static {
+    __name(this, "LanguageStatusServiceImpl");
+  }
+  constructor() {
+    this._provider = new LanguageFeatureRegistry();
+    this.onDidChange = Event.map(this._provider.onDidChange, () => void 0);
+  }
+  addStatus(status) {
+    return this._provider.register(status.selector, status);
+  }
+  getLanguageStatus(model) {
+    return this._provider.ordered(model).sort((a, b) => {
+      let res = b.severity - a.severity;
+      if (res === 0) {
+        res = compare(a.source, b.source);
+      }
+      if (res === 0) {
+        res = compare(a.id, b.id);
+      }
+      return res;
+    });
+  }
+}
+registerSingleton(
+  ILanguageStatusService,
+  LanguageStatusServiceImpl,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ILanguageStatusService
+};
+//# sourceMappingURL=languageStatusService.js.map

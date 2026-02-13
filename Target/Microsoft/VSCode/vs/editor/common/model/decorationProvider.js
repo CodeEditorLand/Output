@@ -1,1 +1,34 @@
-class o{static toKey(t){return`${t.ownerId};${t.decorationId};${t.lineNumber}`}constructor(t,e,r,n){this.ownerId=t,this.decorationId=e,this.lineNumber=r,this.lineHeight=n}}class s{static toKey(t){return`${t.ownerId};${t.decorationId};${t.lineNumber}`}constructor(t,e,r){this.ownerId=t,this.decorationId=e,this.lineNumber=r}}export{o as $pI,s as $qI};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class LineHeightChangingDecoration {
+  static {
+    __name(this, "LineHeightChangingDecoration");
+  }
+  static toKey(obj) {
+    return `${obj.ownerId};${obj.decorationId};${obj.lineNumber}`;
+  }
+  constructor(ownerId, decorationId, lineNumber, lineHeight) {
+    this.ownerId = ownerId;
+    this.decorationId = decorationId;
+    this.lineNumber = lineNumber;
+    this.lineHeight = lineHeight;
+  }
+}
+class LineFontChangingDecoration {
+  static {
+    __name(this, "LineFontChangingDecoration");
+  }
+  static toKey(obj) {
+    return `${obj.ownerId};${obj.decorationId};${obj.lineNumber}`;
+  }
+  constructor(ownerId, decorationId, lineNumber) {
+    this.ownerId = ownerId;
+    this.decorationId = decorationId;
+    this.lineNumber = lineNumber;
+  }
+}
+export {
+  LineFontChangingDecoration,
+  LineHeightChangingDecoration
+};
+//# sourceMappingURL=decorationProvider.js.map

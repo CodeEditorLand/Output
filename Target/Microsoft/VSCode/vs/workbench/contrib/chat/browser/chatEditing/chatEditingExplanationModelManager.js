@@ -1,22 +1,251 @@
-import{$Jf as y}from"../../../../../base/common/cancellation.js";import{$Ed as E}from"../../../../../base/common/lifecycle.js";import{$Oc as g}from"../../../../../base/common/map.js";import{observableValue as j}from"../../../../../base/common/observable.js";import{$Fh as M}from"../../../../../base/common/resources.js";import{$Nj as R}from"../../../../../platform/instantiation/common/instantiation.js";import{$WC as C}from"../../../../../platform/instantiation/common/extensions.js";import{$ZR as T}from"../../common/languageModels.js";import{$Iz as O}from"../../../../../platform/extensions/common/extensions.js";import*as x from"../../../../../nls.js";var N=function(l,n,i,o){var e=arguments.length,r=e<3?n:o===null?o=Object.getOwnPropertyDescriptor(n,i):o,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,n,i,o);else for(var s=l.length-1;s>=0;s--)(t=l[s])&&(r=(e<3?t(r):e>3?t(n,i,r):t(n,i))||r);return e>3&&r&&Object.defineProperty(n,i,r),r},v=function(l,n){return function(i,o){n(i,o,l)}};const _=R("chatEditingExplanationModelManager");function A(l,n){const i=[],o=[];for(let e=l.original.startLineNumber;e<l.original.endLineNumberExclusive;e++){const r=n.originalModel.getLineContent(e);i.push(r)}for(let e=l.modified.startLineNumber;e<l.modified.endLineNumberExclusive;e++){const r=n.modifiedModel.getLineContent(e);o.push(r)}return{originalText:i.join(`
-`),modifiedText:o.join(`
-`)}}let b=class extends E{constructor(n){super(),this.b=n,this.a=j(this,new g),this.state=this.a}c(n,i){const o=this.a.get(),e=new g(o);e.set(n,i),this.a.set(e,void 0)}g(n,i){const o=this.a.get(),e=o.get(n);if(e){const r=new g(o);r.set(n,{...e,...i}),this.a.set(r,void 0)}}h(n){const i=this.a.get(),o=new g(i);for(const e of n)o.delete(e);this.a.set(o,void 0)}generateExplanations(n,i,o){const e=n.map(s=>s.modifiedModel.uri),r=new y(o);for(const s of n)this.c(s.modifiedModel.uri,{progress:"loading",explanations:[],diffInfo:s,chatSessionResource:i});const t=this.j(n,r.token);return{uris:e,completed:t,dispose:()=>{r.dispose(!0),this.h(e)}}}async j(n,i){const o=[];for(const t of n)t.changes.length===0||t.identical?this.g(t.modifiedModel.uri,{progress:"complete",explanations:[]}):o.push(t);if(o.length===0)return;const e=o.map(t=>{const s=t.modifiedModel.uri,f=M(s),m=t.changes.map(p=>{const{originalText:h,modifiedText:u}=A(p,t);return{startLineNumber:p.modified.startLineNumber,endLineNumber:p.modified.endLineNumberExclusive-1,originalText:h,modifiedText:u}});return{uri:s,fileName:f,changes:m}}),r=e.reduce((t,s)=>t+s.changes.length,0);try{let t=await this.b.selectLanguageModels({vendor:"copilot",family:"claude-3.5-sonnet"});if(t.length||(t=await this.b.selectLanguageModels({vendor:"copilot",family:"gpt-4o"})),t.length||(t=await this.b.selectLanguageModels({vendor:"copilot",family:"gpt-4"})),t.length||(t=await this.b.selectLanguageModels({vendor:"copilot"})),!t.length){for(const a of e)this.g(a.uri,{progress:"error",explanations:[],errorMessage:x.localize(5885,null)});return}if(i.isCancellationRequested)return;let s=0;const f=e.map(a=>a.changes.map(c=>{const d=`=== CHANGE ${s} (File: ${a.fileName}, Lines ${c.startLineNumber}-${c.endLineNumber}) ===
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { observableValue } from "../../../../../base/common/observable.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import { ILanguageModelsService } from "../../common/languageModels.js";
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
+import * as nls from "../../../../../nls.js";
+const IChatEditingExplanationModelManager = createDecorator("chatEditingExplanationModelManager");
+function getChangeTexts(change, diffInfo) {
+  const originalLines = [];
+  const modifiedLines = [];
+  for (let i = change.original.startLineNumber; i < change.original.endLineNumberExclusive; i++) {
+    const line = diffInfo.originalModel.getLineContent(i);
+    originalLines.push(line);
+  }
+  for (let i = change.modified.startLineNumber; i < change.modified.endLineNumberExclusive; i++) {
+    const line = diffInfo.modifiedModel.getLineContent(i);
+    modifiedLines.push(line);
+  }
+  return {
+    originalText: originalLines.join("\n"),
+    modifiedText: modifiedLines.join("\n")
+  };
+}
+__name(getChangeTexts, "getChangeTexts");
+let ChatEditingExplanationModelManager = class ChatEditingExplanationModelManager2 extends Disposable {
+  static {
+    __name(this, "ChatEditingExplanationModelManager");
+  }
+  constructor(_languageModelsService) {
+    super();
+    this._languageModelsService = _languageModelsService;
+    this._state = observableValue(this, new ResourceMap());
+    this.state = this._state;
+  }
+  _updateUriState(uri, uriState) {
+    const current = this._state.get();
+    const newState = new ResourceMap(current);
+    newState.set(uri, uriState);
+    this._state.set(newState, void 0);
+  }
+  _updateUriStatePartial(uri, partial) {
+    const current = this._state.get();
+    const existing = current.get(uri);
+    if (existing) {
+      const newState = new ResourceMap(current);
+      newState.set(uri, { ...existing, ...partial });
+      this._state.set(newState, void 0);
+    }
+  }
+  _removeUris(uris) {
+    const current = this._state.get();
+    const newState = new ResourceMap(current);
+    for (const uri of uris) {
+      newState.delete(uri);
+    }
+    this._state.set(newState, void 0);
+  }
+  generateExplanations(diffInfos, chatSessionResource, token) {
+    const uris = diffInfos.map((d) => d.modifiedModel.uri);
+    const cts = new CancellationTokenSource(token);
+    for (const diffInfo of diffInfos) {
+      this._updateUriState(diffInfo.modifiedModel.uri, {
+        progress: "loading",
+        explanations: [],
+        diffInfo,
+        chatSessionResource
+      });
+    }
+    const completed = this._doGenerateExplanations(diffInfos, cts.token);
+    return {
+      uris,
+      completed,
+      dispose: /* @__PURE__ */ __name(() => {
+        cts.dispose(true);
+        this._removeUris(uris);
+      }, "dispose")
+    };
+  }
+  async _doGenerateExplanations(diffInfos, cancellationToken) {
+    const nonEmptyDiffs = [];
+    for (const diffInfo of diffInfos) {
+      if (diffInfo.changes.length === 0 || diffInfo.identical) {
+        this._updateUriStatePartial(diffInfo.modifiedModel.uri, {
+          progress: "complete",
+          explanations: []
+        });
+      } else {
+        nonEmptyDiffs.push(diffInfo);
+      }
+    }
+    if (nonEmptyDiffs.length === 0) {
+      return;
+    }
+    const fileChanges = nonEmptyDiffs.map((diffInfo) => {
+      const uri = diffInfo.modifiedModel.uri;
+      const fileName = basename(uri);
+      const changes = diffInfo.changes.map((change) => {
+        const { originalText, modifiedText } = getChangeTexts(change, diffInfo);
+        return {
+          startLineNumber: change.modified.startLineNumber,
+          endLineNumber: change.modified.endLineNumberExclusive - 1,
+          originalText,
+          modifiedText
+        };
+      });
+      return { uri, fileName, changes };
+    });
+    const totalChanges = fileChanges.reduce((sum, f) => sum + f.changes.length, 0);
+    try {
+      let models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: "claude-3.5-sonnet" });
+      if (!models.length) {
+        models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: "gpt-4o" });
+      }
+      if (!models.length) {
+        models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot", family: "gpt-4" });
+      }
+      if (!models.length) {
+        models = await this._languageModelsService.selectLanguageModels({ vendor: "copilot" });
+      }
+      if (!models.length) {
+        for (const fileData of fileChanges) {
+          this._updateUriStatePartial(fileData.uri, {
+            progress: "error",
+            explanations: [],
+            errorMessage: nls.localize("noModelAvailable", "No language model available")
+          });
+        }
+        return;
+      }
+      if (cancellationToken.isCancellationRequested) {
+        return;
+      }
+      let changeIndex = 0;
+      const changesDescription = fileChanges.map((fileData) => {
+        return fileData.changes.map((data) => {
+          const desc = `=== CHANGE ${changeIndex} (File: ${fileData.fileName}, Lines ${data.startLineNumber}-${data.endLineNumber}) ===
 BEFORE:
-${c.originalText||"(empty)"}
+${data.originalText || "(empty)"}
 
 AFTER:
-${c.modifiedText||"(empty)"}`;return s++,d}).join(`
-
-`)).join(`
-
-`),m=e.length,p=`Analyze these ${r} code changes across ${m} file${m>1?"s":""} and provide a brief explanation for each one.
+${data.modifiedText || "(empty)"}`;
+          changeIndex++;
+          return desc;
+        }).join("\n\n");
+      }).join("\n\n");
+      const fileCount = fileChanges.length;
+      const prompt = `Analyze these ${totalChanges} code changes across ${fileCount} file${fileCount > 1 ? "s" : ""} and provide a brief explanation for each one.
 These changes are part of a single coherent modification, so consider how they relate to each other.
 
-${f}
+${changesDescription}
 
-Respond with a JSON array containing exactly ${r} objects, one for each change in order.
+Respond with a JSON array containing exactly ${totalChanges} objects, one for each change in order.
 Each object should have an "explanation" field with a brief sentence (max 15 words) explaining what changed and why.
 Be specific about the actual code changes. Return ONLY valid JSON, no markdown.
 
 Example response format:
-[{"explanation": "Added null check to prevent crash"}, {"explanation": "Renamed variable for clarity"}]`,h=await this.b.sendChatRequest(t[0],new O("core"),[{role:1,content:[{type:"text",value:p}]}],{},i);let u="";for await(const a of h.stream){if(i.isCancellationRequested)return;if(Array.isArray(a))for(const c of a)c.type==="text"&&(u+=c.value);else a.type==="text"&&(u+=a.value)}if(await h.result,i.isCancellationRequested)return;let w=[];try{let a=u.trim();a.startsWith("```")&&(a=a.replace(/^```(?:json)?\n?/,"").replace(/\n?```$/,"")),w=JSON.parse(a)}catch{}let L=0;for(const a of e){const c=[];for(const d of a.changes){const $=w[L]?.explanation?.trim()||x.localize(5886,null);c.push({uri:a.uri,startLineNumber:d.startLineNumber,endLineNumber:d.endLineNumber,originalText:d.originalText,modifiedText:d.modifiedText,explanation:$}),L++}this.g(a.uri,{progress:"complete",explanations:c})}}catch(t){if(!i.isCancellationRequested){const s=t instanceof Error?t.message:x.localize(5887,null);for(const f of e)this.g(f.uri,{progress:"error",explanations:[],errorMessage:s})}}}};b=N([v(0,T)],b);C(_,b,1);export{_ as $sgc,b as $tgc};
+[{"explanation": "Added null check to prevent crash"}, {"explanation": "Renamed variable for clarity"}]`;
+      const response = await this._languageModelsService.sendChatRequest(models[0], new ExtensionIdentifier("core"), [{ role: 1, content: [{ type: "text", value: prompt }] }], {}, cancellationToken);
+      let responseText = "";
+      for await (const part of response.stream) {
+        if (cancellationToken.isCancellationRequested) {
+          return;
+        }
+        if (Array.isArray(part)) {
+          for (const p of part) {
+            if (p.type === "text") {
+              responseText += p.value;
+            }
+          }
+        } else if (part.type === "text") {
+          responseText += part.value;
+        }
+      }
+      await response.result;
+      if (cancellationToken.isCancellationRequested) {
+        return;
+      }
+      let parsed = [];
+      try {
+        let jsonText = responseText.trim();
+        if (jsonText.startsWith("```")) {
+          jsonText = jsonText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+        }
+        parsed = JSON.parse(jsonText);
+      } catch {
+      }
+      let parsedIndex = 0;
+      for (const fileData of fileChanges) {
+        const explanations = [];
+        for (const data of fileData.changes) {
+          const parsedExplanation = parsed[parsedIndex]?.explanation?.trim() || nls.localize("codeWasModified", "Code was modified.");
+          explanations.push({
+            uri: fileData.uri,
+            startLineNumber: data.startLineNumber,
+            endLineNumber: data.endLineNumber,
+            originalText: data.originalText,
+            modifiedText: data.modifiedText,
+            explanation: parsedExplanation
+          });
+          parsedIndex++;
+        }
+        this._updateUriStatePartial(fileData.uri, {
+          progress: "complete",
+          explanations
+        });
+      }
+    } catch (e) {
+      if (!cancellationToken.isCancellationRequested) {
+        const errorMessage = e instanceof Error ? e.message : nls.localize("explanationFailed", "Failed to generate explanations");
+        for (const fileData of fileChanges) {
+          this._updateUriStatePartial(fileData.uri, {
+            progress: "error",
+            explanations: [],
+            errorMessage
+          });
+        }
+      }
+    }
+  }
+};
+ChatEditingExplanationModelManager = __decorate([
+  __param(0, ILanguageModelsService)
+], ChatEditingExplanationModelManager);
+registerSingleton(
+  IChatEditingExplanationModelManager,
+  ChatEditingExplanationModelManager,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ChatEditingExplanationModelManager,
+  IChatEditingExplanationModelManager
+};
+//# sourceMappingURL=chatEditingExplanationModelManager.js.map

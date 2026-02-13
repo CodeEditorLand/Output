@@ -1,1 +1,122 @@
-import*as h from"../../../../base/browser/dom.js";import{$T7 as $}from"../../../../base/browser/window.js";import{Event as A}from"../../../../base/common/event.js";import{$Ed as p}from"../../../../base/common/lifecycle.js";import{autorun as u,derived as U,observableFromEvent as l,observableValue as T}from"../../../../base/common/observable.js";import{$hbb as g,$ibb as _}from"../../../../base/common/observableInternal/experimental/time.js";import{$Mj as F}from"../../../../platform/instantiation/common/instantiation.js";import{$WC as y}from"../../../../platform/instantiation/common/extensions.js";import{$yo as b,LogLevel as C}from"../../../../platform/log/common/log.js";import{$gcb as D}from"../../host/browser/host.js";import{$xcc as S}from"../common/userAttentionService.js";var v=function(c,e,i,s){var o=arguments.length,t=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,i):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,e,i,s);else for(var n=c.length-1;n>=0;n--)(r=c[n])&&(t=(o<3?r(t):o>3?r(e,i,t):r(e,i))||t);return o>3&&t&&Object.defineProperty(e,i,t),t},d=function(c,e){return function(i,s){e(i,s,c)}};const E=6e4;let f=class extends p{constructor(e,i){super(),this.c=i;const s=this.D(e.createInstance(m));this.isVsCodeFocused=s.isVsCodeFocused,this.isUserActive=s.isUserActive,this.a=l(this,this.c.onDidChangeLogLevel,()=>this.c.getLevel()===C.Trace);const o=_(this.isUserActive,E,this.B);this.hasUserAttention=U(this,t=>o.read(t)),this.b=this.D(new g(this.hasUserAttention)),this.D(u(t=>{this.a.read(t)&&(t.store.add(u(r=>{const n=this.isVsCodeFocused.read(r);this.c.trace(`[UserAttentionService] VS Code focus changed: ${n}`)})),t.store.add(u(r=>{const n=this.hasUserAttention.read(r);this.c.trace(`[UserAttentionService] User attention changed: ${n}`)})))}))}fireAfterGivenFocusTimePassed(e,i){return this.b.fireWhenTimeIncreasedBy(e,i)}get totalFocusTimeMs(){return this.b.totalTimeMs()}};f=v([d(0,F),d(1,b)],f);let m=class extends p{constructor(e,i){super(),this.c=e,this.f=i,this.a=T(this,!1),this.isVsCodeFocused=l(this,this.c.onDidChangeFocus,()=>this.c.hasFocus),this.isUserActive=this.a;const s=()=>{this.g()};this.D(A.runAndSubscribe(h.onDidRegisterWindow,({window:o,disposables:t})=>{t.add(h.$u8(o.document,"keydown",s,a)),t.add(h.$u8(o.document,"mousemove",s,a)),t.add(h.$u8(o.document,"mousedown",s,a)),t.add(h.$u8(o.document,"touchstart",s,a))},{window:$,disposables:this.B})),this.c.hasFocus&&this.g()}g(){this.b!==void 0?clearTimeout(this.b):(this.f.trace("[UserAttentionService] User activity detected"),this.a.set(!0,void 0)),this.b=setTimeout(()=>{this.a.set(!1,void 0),this.b=void 0},500)}};m=v([d(0,D),d(1,b)],m);const a={passive:!0,capture:!0};y(S,f,1);export{f as $ycc,m as $zcc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { autorun, derived, observableFromEvent, observableValue } from "../../../../base/common/observable.js";
+import { TotalTrueTimeObservable, wasTrueRecently } from "../../../../base/common/observableInternal/experimental/time.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService, LogLevel } from "../../../../platform/log/common/log.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IUserAttentionService } from "../common/userAttentionService.js";
+const USER_ATTENTION_TIMEOUT_MS = 6e4;
+let UserAttentionService = class UserAttentionService2 extends Disposable {
+  static {
+    __name(this, "UserAttentionService");
+  }
+  constructor(instantiationService, _logService) {
+    super();
+    this._logService = _logService;
+    const hostAdapter = this._register(instantiationService.createInstance(UserAttentionServiceEnv));
+    this.isVsCodeFocused = hostAdapter.isVsCodeFocused;
+    this.isUserActive = hostAdapter.isUserActive;
+    this._isTracingEnabled = observableFromEvent(this, this._logService.onDidChangeLogLevel, () => this._logService.getLevel() === LogLevel.Trace);
+    const hadRecentActivity = wasTrueRecently(this.isUserActive, USER_ATTENTION_TIMEOUT_MS, this._store);
+    this.hasUserAttention = derived(this, (reader) => {
+      return hadRecentActivity.read(reader);
+    });
+    this._timeKeeper = this._register(new TotalTrueTimeObservable(this.hasUserAttention));
+    this._register(autorun((reader) => {
+      if (!this._isTracingEnabled.read(reader)) {
+        return;
+      }
+      reader.store.add(autorun((innerReader) => {
+        const focused = this.isVsCodeFocused.read(innerReader);
+        this._logService.trace(`[UserAttentionService] VS Code focus changed: ${focused}`);
+      }));
+      reader.store.add(autorun((innerReader) => {
+        const hasAttention = this.hasUserAttention.read(innerReader);
+        this._logService.trace(`[UserAttentionService] User attention changed: ${hasAttention}`);
+      }));
+    }));
+  }
+  fireAfterGivenFocusTimePassed(focusTimeMs, callback) {
+    return this._timeKeeper.fireWhenTimeIncreasedBy(focusTimeMs, callback);
+  }
+  get totalFocusTimeMs() {
+    return this._timeKeeper.totalTimeMs();
+  }
+};
+UserAttentionService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, ILogService)
+], UserAttentionService);
+let UserAttentionServiceEnv = class UserAttentionServiceEnv2 extends Disposable {
+  static {
+    __name(this, "UserAttentionServiceEnv");
+  }
+  constructor(_hostService, _logService) {
+    super();
+    this._hostService = _hostService;
+    this._logService = _logService;
+    this._isUserActive = observableValue(this, false);
+    this.isVsCodeFocused = observableFromEvent(this, this._hostService.onDidChangeFocus, () => this._hostService.hasFocus);
+    this.isUserActive = this._isUserActive;
+    const onActivity = /* @__PURE__ */ __name(() => {
+      this._markUserActivity();
+    }, "onActivity");
+    this._register(Event.runAndSubscribe(dom.onDidRegisterWindow, ({ window, disposables }) => {
+      disposables.add(dom.addDisposableListener(window.document, "keydown", onActivity, eventListenerOptions));
+      disposables.add(dom.addDisposableListener(window.document, "mousemove", onActivity, eventListenerOptions));
+      disposables.add(dom.addDisposableListener(window.document, "mousedown", onActivity, eventListenerOptions));
+      disposables.add(dom.addDisposableListener(window.document, "touchstart", onActivity, eventListenerOptions));
+    }, { window: mainWindow, disposables: this._store }));
+    if (this._hostService.hasFocus) {
+      this._markUserActivity();
+    }
+  }
+  _markUserActivity() {
+    if (this._activityDebounceTimeout !== void 0) {
+      clearTimeout(this._activityDebounceTimeout);
+    } else {
+      this._logService.trace("[UserAttentionService] User activity detected");
+      this._isUserActive.set(true, void 0);
+    }
+    this._activityDebounceTimeout = setTimeout(() => {
+      this._isUserActive.set(false, void 0);
+      this._activityDebounceTimeout = void 0;
+    }, 500);
+  }
+};
+UserAttentionServiceEnv = __decorate([
+  __param(0, IHostService),
+  __param(1, ILogService)
+], UserAttentionServiceEnv);
+const eventListenerOptions = {
+  passive: true,
+  capture: true
+};
+registerSingleton(
+  IUserAttentionService,
+  UserAttentionService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  UserAttentionService,
+  UserAttentionServiceEnv
+};
+//# sourceMappingURL=userAttentionBrowser.js.map

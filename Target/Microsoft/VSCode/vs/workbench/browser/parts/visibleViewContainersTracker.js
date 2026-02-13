@@ -1,1 +1,98 @@
-import{$Ed as l,$Md as g}from"../../../base/common/lifecycle.js";import{$xf as C}from"../../../base/common/event.js";import{$FN as d}from"../../common/views.js";var c=function(o,t,i,n){var e=arguments.length,s=e<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,i,n);else for(var r=o.length-1;r>=0;r--)(h=o[r])&&(s=(e<3?h(s):e>3?h(t,i,s):h(t,i))||s);return e>3&&s&&Object.defineProperty(t,i,s),s},a=function(o,t){return function(i,n){t(i,n,o)}};let f=class extends l{constructor(t,i){super(),this.f=t,this.g=i,this.a=this.D(new g),this.b=this.D(new C),this.onDidChange=this.b.event,this.c=0,this.h(),this.j(),this.n()}get visibleCount(){return this.c}h(){this.D(this.g.onDidChangeViewContainers(({added:t,removed:i})=>{for(const{container:e,location:s}of t)s===this.f&&this.m(e.id);for(const{container:e,location:s}of i)s===this.f&&this.a.deleteAndDispose(e.id);[...t,...i].some(({location:e})=>e===this.f)&&this.n()})),this.D(this.g.onDidChangeContainerLocation(({viewContainer:t,from:i,to:n})=>{i===this.f&&this.a.deleteAndDispose(t.id),n===this.f&&this.m(t.id),(i===this.f||n===this.f)&&this.n()}))}j(){for(const t of this.g.getViewContainersByLocation(this.f))this.m(t.id)}m(t){const i=this.g.getViewContainerById(t);if(i){const e=this.g.getViewContainerModel(i).onDidChangeActiveViewDescriptors(()=>this.n());this.a.set(t,e)}}n(){const n=this.g.getViewContainersByLocation(this.f).filter(e=>this.g.getViewContainerModel(e).activeViewDescriptors.length>0).length;if(this.c!==n){const e=this.c;this.c=n,this.b.fire({before:e,after:n})}}};f=c([a(1,d)],f);export{f as $m_b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import { IViewDescriptorService } from "../../common/views.js";
+let VisibleViewContainersTracker = class VisibleViewContainersTracker2 extends Disposable {
+  static {
+    __name(this, "VisibleViewContainersTracker");
+  }
+  constructor(location, viewDescriptorService) {
+    super();
+    this.location = location;
+    this.viewDescriptorService = viewDescriptorService;
+    this.viewContainerModelListeners = this._register(new DisposableMap());
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._visibleCount = 0;
+    this.registerListeners();
+    this.initializeViewContainerListeners();
+    this.updateVisibleCount();
+  }
+  /**
+   * Returns the current number of visible view containers at this location.
+   */
+  get visibleCount() {
+    return this._visibleCount;
+  }
+  registerListeners() {
+    this._register(this.viewDescriptorService.onDidChangeViewContainers(({ added, removed }) => {
+      for (const { container, location } of added) {
+        if (location === this.location) {
+          this.addViewContainerModelListener(container.id);
+        }
+      }
+      for (const { container, location } of removed) {
+        if (location === this.location) {
+          this.viewContainerModelListeners.deleteAndDispose(container.id);
+        }
+      }
+      const relevantChange = [...added, ...removed].some(({ location }) => location === this.location);
+      if (relevantChange) {
+        this.updateVisibleCount();
+      }
+    }));
+    this._register(this.viewDescriptorService.onDidChangeContainerLocation(({ viewContainer, from, to }) => {
+      if (from === this.location) {
+        this.viewContainerModelListeners.deleteAndDispose(viewContainer.id);
+      }
+      if (to === this.location) {
+        this.addViewContainerModelListener(viewContainer.id);
+      }
+      if (from === this.location || to === this.location) {
+        this.updateVisibleCount();
+      }
+    }));
+  }
+  initializeViewContainerListeners() {
+    for (const container of this.viewDescriptorService.getViewContainersByLocation(this.location)) {
+      this.addViewContainerModelListener(container.id);
+    }
+  }
+  addViewContainerModelListener(containerId) {
+    const container = this.viewDescriptorService.getViewContainerById(containerId);
+    if (container) {
+      const model = this.viewDescriptorService.getViewContainerModel(container);
+      const listener = model.onDidChangeActiveViewDescriptors(() => this.updateVisibleCount());
+      this.viewContainerModelListeners.set(containerId, listener);
+    }
+  }
+  updateVisibleCount() {
+    const viewContainers = this.viewDescriptorService.getViewContainersByLocation(this.location);
+    const visibleViewContainers = viewContainers.filter((container) => this.viewDescriptorService.getViewContainerModel(container).activeViewDescriptors.length > 0);
+    const newCount = visibleViewContainers.length;
+    if (this._visibleCount !== newCount) {
+      const before = this._visibleCount;
+      this._visibleCount = newCount;
+      this._onDidChange.fire({ before, after: newCount });
+    }
+  }
+};
+VisibleViewContainersTracker = __decorate([
+  __param(1, IViewDescriptorService)
+], VisibleViewContainersTracker);
+export {
+  VisibleViewContainersTracker
+};
+//# sourceMappingURL=visibleViewContainersTracker.js.map

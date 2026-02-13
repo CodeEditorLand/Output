@@ -1,2 +1,365 @@
-import{$u8 as V,$b9 as M,$f9 as O}from"../../../../../base/browser/dom.js";import{$Z$ as _}from"../../../../../base/browser/trustedTypes.js";import{$MD as P}from"../../../../../platform/accessibility/common/accessibility.js";import{EditorFontLigatures as y}from"../../../../common/config/editorOptions.js";import{$_D as I}from"../../../../common/core/range.js";import{$bE as w}from"../../../../common/core/selection.js";import{$TE as H}from"../../../../common/core/stringBuilder.js";import{$4fb as j}from"../../../../common/viewLayout/lineDecorations.js";import{$7fb as U,$$fb as q}from"../../../../common/viewLayout/viewLineRenderer.js";import{$Ed as B,$Fd as G}from"../../../../../base/common/lifecycle.js";import{IME as Z}from"../../../../../base/common/ime.js";import{$vgb as $}from"../../../viewParts/viewLines/viewLine.js";var A=function(c,t,n,e){var i=arguments.length,o=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,n):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,t,n,e);else for(var r=c.length-1;r>=0;r--)(s=c[r])&&(o=(i<3?s(o):i>3?s(t,n,o):s(t,n))||o);return i>3&&o&&Object.defineProperty(t,n,o),o},W=function(c,t){return function(n,e){t(n,e,c)}};const J=_("richScreenReaderContent",{createHTML:c=>c}),E="data-line-number";let F=class extends B{constructor(t,n,e,i){super(),this.m=t,this.n=n,this.q=e,this.r=i,this.a=this.D(new G),this.b=1,this.c=0,this.f=N.NULL,this.g=new X,this.h=new Map,this.j=new w(1,1,1,1),this.onConfigurationChanged(this.n.configuration.options)}updateScreenReaderContent(t){const n=M().document.activeElement;if(!n||n!==this.m.domNode)return;if(this.r.isScreenReaderOptimized()){const i=this.z(t);this.f.equals(i)||(this.f=i,this.h=this.u(i)),this.j.equalsSelection(t)||(this.j=t,this.y(this.n,this.h,t))}else this.f=N.NULL,this.s("setValue"),this.m.domNode.textContent=""}updateScrollTop(t){const n=this.f.intervals;if(!n.length)return;const e=this.n.viewModel.viewLayout,i=n[0].startLine,o=e.getVerticalOffsetForLineNumber(i),s=e.getVerticalOffsetForLineNumber(t.positionLineNumber);this.m.domNode.scrollTop=s-o}onFocusChange(t){t?this.a.value=this.t():this.a.value=void 0}onConfigurationChanged(t){this.b=t.get(3)}onWillCut(){this.s("onCut")}onWillPaste(){this.s("onWillPaste")}s(t){this.c=Date.now()}t(){let t=0;return V(this.m.domNode.ownerDocument,"selectionchange",()=>{if(!(M().document.activeElement===this.m.domNode)||!this.r.isScreenReaderOptimized()||!Z.enabled)return;const o=Date.now(),s=o-t;if(t=o,s<5)return;const r=o-this.c;if(this.c=0,r<100)return;const a=this.C();a&&this.q.setSelection(a)})}u(t){const n=[],e=new Map;for(const i of t.intervals)for(let o=i.startLine;o<=i.endLine;o++){const s=this.w(o);e.set(o,s),n.push(s.domNode)}return this.s("setValue"),this.m.domNode.replaceChildren(...n),e}w(t){const n=this.n.viewModel,e=n.getViewLineRenderingData(t),i=this.n.configuration.options,o=i.get(59),s=i.get(133),r=i.get(108),a=i.get(60),u=i.get(40),h=j.filter(e.inlineDecorations,t,e.minColumn,e.maxColumn),m=o.isMonospace&&!u,l=a!==y.OFF;let d;i.get(47)==="off"?d=i.get(113):d="none";const p=new U(m,o.canUseHalfwidthRightwardsArrow,e.content,e.continuesWithWrappedLine,e.isBasicASCII,e.containsRTL,e.minColumn-1,e.tokens,h,e.tabSize,e.startVisibleColumn,o.spaceWidth,o.middotWidth,o.wsmiddotWidth,s,d,r,l,null,null,0,!0),f=new H(1e4),L=q(p,f),R=f.build(),v=J?.createHTML(R)??R,b=n.viewLayout.getLineHeightForLineNumber(t)+"px",g=document.createElement("div");return g.innerHTML=v,g.style.lineHeight=b,g.style.height=b,g.setAttribute(E,t.toString()),new K(g,L.characterMapping)}y(t,n,e){const o=M().document.getSelection();if(!o)return;const s=e.startLineNumber,r=e.endLineNumber,a=n.get(s),u=n.get(r);if(!a||!u)return;const h=t.viewModel,m=h.model,l=h.coordinatesConverter,d=new I(s,1,s,e.selectionStartColumn),C=l.convertViewRangeToModelRange(d),p=m.getCharacterCountInRange(C),f=new I(r,1,r,e.positionColumn),L=l.convertViewRangeToModelRange(f),R=m.getCharacterCountInRange(L),v=a.characterMapping.getDomPosition(p),b=u.characterMapping.getDomPosition(R),g=a.domNode.firstChild,T=u.domNode.firstChild,x=g.childNodes,z=T.childNodes,S=x.item(v.partIndex),D=z.item(b.partIndex);!S.firstChild||!D.firstChild||(this.s("setRange"),o.setBaseAndExtent(S.firstChild,e.startColumn===1?0:v.charIndex+1,D.firstChild,e.endColumn===1?0:b.charIndex+1))}z(t){return this.g.fromEditorSelection(this.n.viewModel,t,this.b)}C(){if(!this.h)return;const t=M().document.getSelection();if(!t||t.rangeCount===0)return;const e=t.getRangeAt(0),i=e.startContainer,o=e.endContainer,s=i.parentElement,r=o.parentElement;if(!s||!O(s)||!r||!O(r))return;const a=s.parentElement?.parentElement,u=r.parentElement?.parentElement;if(!a||!u)return;const h=a.getAttribute(E),m=u.getAttribute(E);if(!h||!m)return;const l=parseInt(h),d=parseInt(m),C=this.h.get(l)?.characterMapping,p=this.h.get(d)?.characterMapping;if(!C||!p)return;const f=$(C,s,e.startOffset),L=$(p,r,e.endOffset);return t.direction==="forward"?new w(l,f,d,L):new w(d,L,l,f)}};F=A([W(3,P)],F);class K{constructor(t,n){this.domNode=t,this.characterMapping=n}}class Q{constructor(t,n){this.startLine=t,this.endLine=n}}class N{constructor(t,n){this.intervals=n;let e="";for(const i of n)for(let o=i.startLine;o<=i.endLine;o++)e+=t.getLineContent(o)+`
-`;this.value=e}equals(t){return this.value===t.value}static get NULL(){const t={getLineContent:()=>"",getLineCount:()=>1,getLineMaxColumn:()=>1,getValueInRange:()=>"",getValueLengthInRange:()=>0,modifyPosition:(n,e)=>n};return new N(t,[])}}class X{constructor(){}a(t,n){return Math.floor((t-1)/n)}b(t,n,e){const i=n*e,o=i+1,s=Math.min(i+e,t.getLineCount());return new Q(o,s)}fromEditorSelection(t,n,e){const i=this.a(n.startLineNumber,e),o=this.b(t,i,e),s=this.a(n.endLineNumber,e),r=this.b(t,s,e),a=[{startLine:o.startLine,endLine:o.endLine}];return i+1<s&&a.push({startLine:r.startLine,endLine:r.endLine}),new N(t,a)}}export{F as $Ghb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { addDisposableListener, getActiveWindow, isHTMLElement } from "../../../../../base/browser/dom.js";
+import { createTrustedTypesPolicy } from "../../../../../base/browser/trustedTypes.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { EditorFontLigatures } from "../../../../common/config/editorOptions.js";
+import { Range } from "../../../../common/core/range.js";
+import { Selection } from "../../../../common/core/selection.js";
+import { StringBuilder } from "../../../../common/core/stringBuilder.js";
+import { LineDecoration } from "../../../../common/viewLayout/lineDecorations.js";
+import { RenderLineInput, renderViewLine } from "../../../../common/viewLayout/viewLineRenderer.js";
+import { Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { IME } from "../../../../../base/common/ime.js";
+import { getColumnOfNodeOffset } from "../../../viewParts/viewLines/viewLine.js";
+const ttPolicy = createTrustedTypesPolicy("richScreenReaderContent", { createHTML: /* @__PURE__ */ __name((value) => value, "createHTML") });
+const LINE_NUMBER_ATTRIBUTE = "data-line-number";
+let RichScreenReaderContent = class RichScreenReaderContent2 extends Disposable {
+  static {
+    __name(this, "RichScreenReaderContent");
+  }
+  constructor(_domNode, _context, _viewController, _accessibilityService) {
+    super();
+    this._domNode = _domNode;
+    this._context = _context;
+    this._viewController = _viewController;
+    this._accessibilityService = _accessibilityService;
+    this._selectionChangeListener = this._register(new MutableDisposable());
+    this._accessibilityPageSize = 1;
+    this._ignoreSelectionChangeTime = 0;
+    this._state = RichScreenReaderState.NULL;
+    this._strategy = new RichPagedScreenReaderStrategy();
+    this._renderedLines = /* @__PURE__ */ new Map();
+    this._renderedSelection = new Selection(1, 1, 1, 1);
+    this.onConfigurationChanged(this._context.configuration.options);
+  }
+  updateScreenReaderContent(primarySelection) {
+    const focusedElement = getActiveWindow().document.activeElement;
+    if (!focusedElement || focusedElement !== this._domNode.domNode) {
+      return;
+    }
+    const isScreenReaderOptimized = this._accessibilityService.isScreenReaderOptimized();
+    if (isScreenReaderOptimized) {
+      const state = this._getScreenReaderContentLineIntervals(primarySelection);
+      if (!this._state.equals(state)) {
+        this._state = state;
+        this._renderedLines = this._renderScreenReaderContent(state);
+      }
+      if (!this._renderedSelection.equalsSelection(primarySelection)) {
+        this._renderedSelection = primarySelection;
+        this._setSelectionOnScreenReaderContent(this._context, this._renderedLines, primarySelection);
+      }
+    } else {
+      this._state = RichScreenReaderState.NULL;
+      this._setIgnoreSelectionChangeTime("setValue");
+      this._domNode.domNode.textContent = "";
+    }
+  }
+  updateScrollTop(primarySelection) {
+    const intervals = this._state.intervals;
+    if (!intervals.length) {
+      return;
+    }
+    const viewLayout = this._context.viewModel.viewLayout;
+    const stateStartLineNumber = intervals[0].startLine;
+    const verticalOffsetOfStateStartLineNumber = viewLayout.getVerticalOffsetForLineNumber(stateStartLineNumber);
+    const verticalOffsetOfPositionLineNumber = viewLayout.getVerticalOffsetForLineNumber(primarySelection.positionLineNumber);
+    this._domNode.domNode.scrollTop = verticalOffsetOfPositionLineNumber - verticalOffsetOfStateStartLineNumber;
+  }
+  onFocusChange(newFocusValue) {
+    if (newFocusValue) {
+      this._selectionChangeListener.value = this._setSelectionChangeListener();
+    } else {
+      this._selectionChangeListener.value = void 0;
+    }
+  }
+  onConfigurationChanged(options) {
+    this._accessibilityPageSize = options.get(
+      3
+      /* EditorOption.accessibilityPageSize */
+    );
+  }
+  onWillCut() {
+    this._setIgnoreSelectionChangeTime("onCut");
+  }
+  onWillPaste() {
+    this._setIgnoreSelectionChangeTime("onWillPaste");
+  }
+  // --- private methods
+  _setIgnoreSelectionChangeTime(reason) {
+    this._ignoreSelectionChangeTime = Date.now();
+  }
+  _setSelectionChangeListener() {
+    let previousSelectionChangeEventTime = 0;
+    return addDisposableListener(this._domNode.domNode.ownerDocument, "selectionchange", () => {
+      const activeElement = getActiveWindow().document.activeElement;
+      const isFocused = activeElement === this._domNode.domNode;
+      if (!isFocused) {
+        return;
+      }
+      const isScreenReaderOptimized = this._accessibilityService.isScreenReaderOptimized();
+      if (!isScreenReaderOptimized || !IME.enabled) {
+        return;
+      }
+      const now = Date.now();
+      const delta1 = now - previousSelectionChangeEventTime;
+      previousSelectionChangeEventTime = now;
+      if (delta1 < 5) {
+        return;
+      }
+      const delta2 = now - this._ignoreSelectionChangeTime;
+      this._ignoreSelectionChangeTime = 0;
+      if (delta2 < 100) {
+        return;
+      }
+      const selection = this._getEditorSelectionFromDomRange();
+      if (!selection) {
+        return;
+      }
+      this._viewController.setSelection(selection);
+    });
+  }
+  _renderScreenReaderContent(state) {
+    const nodes = [];
+    const renderedLines = /* @__PURE__ */ new Map();
+    for (const interval of state.intervals) {
+      for (let lineNumber = interval.startLine; lineNumber <= interval.endLine; lineNumber++) {
+        const renderedLine = this._renderLine(lineNumber);
+        renderedLines.set(lineNumber, renderedLine);
+        nodes.push(renderedLine.domNode);
+      }
+    }
+    this._setIgnoreSelectionChangeTime("setValue");
+    this._domNode.domNode.replaceChildren(...nodes);
+    return renderedLines;
+  }
+  _renderLine(viewLineNumber) {
+    const viewModel = this._context.viewModel;
+    const positionLineData = viewModel.getViewLineRenderingData(viewLineNumber);
+    const options = this._context.configuration.options;
+    const fontInfo = options.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    const stopRenderingLineAfter = options.get(
+      133
+      /* EditorOption.stopRenderingLineAfter */
+    );
+    const renderControlCharacters = options.get(
+      108
+      /* EditorOption.renderControlCharacters */
+    );
+    const fontLigatures = options.get(
+      60
+      /* EditorOption.fontLigatures */
+    );
+    const disableMonospaceOptimizations = options.get(
+      40
+      /* EditorOption.disableMonospaceOptimizations */
+    );
+    const lineDecorations = LineDecoration.filter(positionLineData.inlineDecorations, viewLineNumber, positionLineData.minColumn, positionLineData.maxColumn);
+    const useMonospaceOptimizations = fontInfo.isMonospace && !disableMonospaceOptimizations;
+    const useFontLigatures = fontLigatures !== EditorFontLigatures.OFF;
+    let renderWhitespace;
+    const experimentalWhitespaceRendering = options.get(
+      47
+      /* EditorOption.experimentalWhitespaceRendering */
+    );
+    if (experimentalWhitespaceRendering === "off") {
+      renderWhitespace = options.get(
+        113
+        /* EditorOption.renderWhitespace */
+      );
+    } else {
+      renderWhitespace = "none";
+    }
+    const renderLineInput = new RenderLineInput(useMonospaceOptimizations, fontInfo.canUseHalfwidthRightwardsArrow, positionLineData.content, positionLineData.continuesWithWrappedLine, positionLineData.isBasicASCII, positionLineData.containsRTL, positionLineData.minColumn - 1, positionLineData.tokens, lineDecorations, positionLineData.tabSize, positionLineData.startVisibleColumn, fontInfo.spaceWidth, fontInfo.middotWidth, fontInfo.wsmiddotWidth, stopRenderingLineAfter, renderWhitespace, renderControlCharacters, useFontLigatures, null, null, 0, true);
+    const htmlBuilder = new StringBuilder(1e4);
+    const renderOutput = renderViewLine(renderLineInput, htmlBuilder);
+    const html = htmlBuilder.build();
+    const trustedhtml = ttPolicy?.createHTML(html) ?? html;
+    const lineHeight = viewModel.viewLayout.getLineHeightForLineNumber(viewLineNumber) + "px";
+    const domNode = document.createElement("div");
+    domNode.innerHTML = trustedhtml;
+    domNode.style.lineHeight = lineHeight;
+    domNode.style.height = lineHeight;
+    domNode.setAttribute(LINE_NUMBER_ATTRIBUTE, viewLineNumber.toString());
+    return new RichRenderedScreenReaderLine(domNode, renderOutput.characterMapping);
+  }
+  _setSelectionOnScreenReaderContent(context, renderedLines, viewSelection) {
+    const activeDocument = getActiveWindow().document;
+    const activeDocumentSelection = activeDocument.getSelection();
+    if (!activeDocumentSelection) {
+      return;
+    }
+    const startLineNumber = viewSelection.startLineNumber;
+    const endLineNumber = viewSelection.endLineNumber;
+    const startRenderedLine = renderedLines.get(startLineNumber);
+    const endRenderedLine = renderedLines.get(endLineNumber);
+    if (!startRenderedLine || !endRenderedLine) {
+      return;
+    }
+    const viewModel = context.viewModel;
+    const model = viewModel.model;
+    const coordinatesConverter = viewModel.coordinatesConverter;
+    const startRange = new Range(startLineNumber, 1, startLineNumber, viewSelection.selectionStartColumn);
+    const modelStartRange = coordinatesConverter.convertViewRangeToModelRange(startRange);
+    const characterCountForStart = model.getCharacterCountInRange(modelStartRange);
+    const endRange = new Range(endLineNumber, 1, endLineNumber, viewSelection.positionColumn);
+    const modelEndRange = coordinatesConverter.convertViewRangeToModelRange(endRange);
+    const characterCountForEnd = model.getCharacterCountInRange(modelEndRange);
+    const startDomPosition = startRenderedLine.characterMapping.getDomPosition(characterCountForStart);
+    const endDomPosition = endRenderedLine.characterMapping.getDomPosition(characterCountForEnd);
+    const startDomNode = startRenderedLine.domNode.firstChild;
+    const endDomNode = endRenderedLine.domNode.firstChild;
+    const startChildren = startDomNode.childNodes;
+    const endChildren = endDomNode.childNodes;
+    const startNode = startChildren.item(startDomPosition.partIndex);
+    const endNode = endChildren.item(endDomPosition.partIndex);
+    if (!startNode.firstChild || !endNode.firstChild) {
+      return;
+    }
+    this._setIgnoreSelectionChangeTime("setRange");
+    activeDocumentSelection.setBaseAndExtent(startNode.firstChild, viewSelection.startColumn === 1 ? 0 : startDomPosition.charIndex + 1, endNode.firstChild, viewSelection.endColumn === 1 ? 0 : endDomPosition.charIndex + 1);
+  }
+  _getScreenReaderContentLineIntervals(primarySelection) {
+    return this._strategy.fromEditorSelection(this._context.viewModel, primarySelection, this._accessibilityPageSize);
+  }
+  _getEditorSelectionFromDomRange() {
+    if (!this._renderedLines) {
+      return;
+    }
+    const selection = getActiveWindow().document.getSelection();
+    if (!selection) {
+      return;
+    }
+    const rangeCount = selection.rangeCount;
+    if (rangeCount === 0) {
+      return;
+    }
+    const range = selection.getRangeAt(0);
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const startSpanElement = startContainer.parentElement;
+    const endSpanElement = endContainer.parentElement;
+    if (!startSpanElement || !isHTMLElement(startSpanElement) || !endSpanElement || !isHTMLElement(endSpanElement)) {
+      return;
+    }
+    const startLineDomNode = startSpanElement.parentElement?.parentElement;
+    const endLineDomNode = endSpanElement.parentElement?.parentElement;
+    if (!startLineDomNode || !endLineDomNode) {
+      return;
+    }
+    const startLineNumberAttribute = startLineDomNode.getAttribute(LINE_NUMBER_ATTRIBUTE);
+    const endLineNumberAttribute = endLineDomNode.getAttribute(LINE_NUMBER_ATTRIBUTE);
+    if (!startLineNumberAttribute || !endLineNumberAttribute) {
+      return;
+    }
+    const startLineNumber = parseInt(startLineNumberAttribute);
+    const endLineNumber = parseInt(endLineNumberAttribute);
+    const startMapping = this._renderedLines.get(startLineNumber)?.characterMapping;
+    const endMapping = this._renderedLines.get(endLineNumber)?.characterMapping;
+    if (!startMapping || !endMapping) {
+      return;
+    }
+    const startColumn = getColumnOfNodeOffset(startMapping, startSpanElement, range.startOffset);
+    const endColumn = getColumnOfNodeOffset(endMapping, endSpanElement, range.endOffset);
+    if (selection.direction === "forward") {
+      return new Selection(startLineNumber, startColumn, endLineNumber, endColumn);
+    } else {
+      return new Selection(endLineNumber, endColumn, startLineNumber, startColumn);
+    }
+  }
+};
+RichScreenReaderContent = __decorate([
+  __param(3, IAccessibilityService)
+], RichScreenReaderContent);
+class RichRenderedScreenReaderLine {
+  static {
+    __name(this, "RichRenderedScreenReaderLine");
+  }
+  constructor(domNode, characterMapping) {
+    this.domNode = domNode;
+    this.characterMapping = characterMapping;
+  }
+}
+class LineInterval {
+  static {
+    __name(this, "LineInterval");
+  }
+  constructor(startLine, endLine) {
+    this.startLine = startLine;
+    this.endLine = endLine;
+  }
+}
+class RichScreenReaderState {
+  static {
+    __name(this, "RichScreenReaderState");
+  }
+  constructor(model, intervals) {
+    this.intervals = intervals;
+    let value = "";
+    for (const interval of intervals) {
+      for (let lineNumber = interval.startLine; lineNumber <= interval.endLine; lineNumber++) {
+        value += model.getLineContent(lineNumber) + "\n";
+      }
+    }
+    this.value = value;
+  }
+  equals(other) {
+    return this.value === other.value;
+  }
+  static get NULL() {
+    const nullModel = {
+      getLineContent: /* @__PURE__ */ __name(() => "", "getLineContent"),
+      getLineCount: /* @__PURE__ */ __name(() => 1, "getLineCount"),
+      getLineMaxColumn: /* @__PURE__ */ __name(() => 1, "getLineMaxColumn"),
+      getValueInRange: /* @__PURE__ */ __name(() => "", "getValueInRange"),
+      getValueLengthInRange: /* @__PURE__ */ __name(() => 0, "getValueLengthInRange"),
+      modifyPosition: /* @__PURE__ */ __name((position, offset) => position, "modifyPosition")
+    };
+    return new RichScreenReaderState(nullModel, []);
+  }
+}
+class RichPagedScreenReaderStrategy {
+  static {
+    __name(this, "RichPagedScreenReaderStrategy");
+  }
+  constructor() {
+  }
+  _getPageOfLine(lineNumber, linesPerPage) {
+    return Math.floor((lineNumber - 1) / linesPerPage);
+  }
+  _getRangeForPage(context, page, linesPerPage) {
+    const offset = page * linesPerPage;
+    const startLineNumber = offset + 1;
+    const endLineNumber = Math.min(offset + linesPerPage, context.getLineCount());
+    return new LineInterval(startLineNumber, endLineNumber);
+  }
+  fromEditorSelection(context, viewSelection, linesPerPage) {
+    const selectionStartPage = this._getPageOfLine(viewSelection.startLineNumber, linesPerPage);
+    const selectionStartPageRange = this._getRangeForPage(context, selectionStartPage, linesPerPage);
+    const selectionEndPage = this._getPageOfLine(viewSelection.endLineNumber, linesPerPage);
+    const selectionEndPageRange = this._getRangeForPage(context, selectionEndPage, linesPerPage);
+    const lineIntervals = [{ startLine: selectionStartPageRange.startLine, endLine: selectionStartPageRange.endLine }];
+    if (selectionStartPage + 1 < selectionEndPage) {
+      lineIntervals.push({ startLine: selectionEndPageRange.startLine, endLine: selectionEndPageRange.endLine });
+    }
+    return new RichScreenReaderState(context, lineIntervals);
+  }
+}
+export {
+  RichScreenReaderContent
+};
+//# sourceMappingURL=screenReaderContentRich.js.map

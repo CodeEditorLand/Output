@@ -1,1 +1,179 @@
-import"./media/chatSessionPickerActionItem.css";import*as h from"../../../../../base/browser/dom.js";import{$jlb as $}from"../../../../../platform/actionWidget/browser/actionWidget.js";import{$ro as O}from"../../../../../platform/contextkey/common/contextkey.js";import{$fy as _}from"../../../../../platform/keybinding/common/keybinding.js";import{$NQb as k}from"../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";import{$uo as C}from"../../../../../platform/commands/common/commands.js";import{$pp as R}from"../../../../../platform/telemetry/common/telemetry.js";import{$G0 as v,$H0 as A}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{localize as P}from"../../../../../nls.js";var g=function(c,e,s,n){var i=arguments.length,t=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,s):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,e,s,n);else for(var r=c.length-1;r>=0;r--)(o=c[r])&&(t=(i<3?o(t):i>3?o(e,s,t):o(e,s))||t);return i>3&&t&&Object.defineProperty(e,s,t),t},d=function(c,e){return function(s,n){e(s,n,c)}};let u=class extends k{constructor(e,s,n,i,t,o,r,f){const{group:a,item:l}=s,p={...e,label:l?.name||a.name,tooltip:l?.description??a.description??a.name,run:()=>{}},m={actionProvider:{getActions:()=>this.R()},actionBarActionProvider:void 0,reporter:{id:a.id,name:`ChatSession:${a.name}`,includeOptions:!1}};super(p,m,i,o,t,f),this.h=n,this.t=r,this.a=l,this.D(this.h.onDidChangeOption(b=>{this.a=b,this.element&&this.w(this.element),this.C()}))}R(){const e=this.h.getCurrentOption();if(e?.locked)return[this.S(e)];const s=this.h.getOptionGroup();if(!s)return[];const n=s.items.map(i=>{const t=i.id===e?.id;return{id:i.id,enabled:!i.locked,icon:i.icon,checked:t,class:void 0,description:i.description,tooltip:i.description??i.name,label:i.name,run:()=>{this.h.setOption(i)}}});if(s.commands?.length){const i=n.length>0;for(const t of s.commands){const o=t.arguments?[...t.arguments]:[],r=this.h.getSessionResource();r&&o.unshift(r),n.push({id:t.command,enabled:!0,checked:!1,class:void 0,description:void 0,tooltip:t.tooltip??t.title,label:t.title,category:i?{label:"",order:Number.MAX_SAFE_INTEGER}:void 0,run:()=>{this.t.executeCommand(t.command,...o)}})}}return n}S(e){return{id:e.id,enabled:!1,icon:e.icon,checked:!0,class:void 0,description:e.description,tooltip:e.description??e.name,label:e.name,run:()=>{}}}w(e){const s=[];e.classList.add("chat-session-option-picker");const n=this.h.getOptionGroup(),i=this.a?.default&&this.a?.icon;return this.a?.icon&&s.push(A(this.a.icon)),i||s.push(h.$("span.chat-session-option-label",void 0,this.a?.name??n?.description??P(6051,null))),s.push(...v("$(chevron-down)")),h.$A9(e,...s),this.O(e),null}render(e){this.b=e,super.render(e),e.classList.add(this.W()),this.a?.locked&&e.classList.add("locked")}W(){return"chat-sessionPicker-item"}C(){const e=this.action.enabled;this.a?.locked&&(this.action.enabled=!1),super.C(),this.action.enabled=e,this.b&&this.b.classList.toggle("locked",!!this.a?.locked)}};u=g([d(3,$),d(4,O),d(5,_),d(6,C),d(7,R)],u);export{u as $1Zb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/chatSessionPickerActionItem.css";
+import * as dom from "../../../../../base/browser/dom.js";
+import { IActionWidgetService } from "../../../../../platform/actionWidget/browser/actionWidget.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ActionWidgetDropdownActionViewItem } from "../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { renderLabelWithIcons, renderIcon } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { localize } from "../../../../../nls.js";
+let ChatSessionPickerActionItem = class ChatSessionPickerActionItem2 extends ActionWidgetDropdownActionViewItem {
+  static {
+    __name(this, "ChatSessionPickerActionItem");
+  }
+  constructor(action, initialState, delegate, actionWidgetService, contextKeyService, keybindingService, commandService, telemetryService) {
+    const { group, item } = initialState;
+    const actionWithLabel = {
+      ...action,
+      label: item?.name || group.name,
+      tooltip: item?.description ?? group.description ?? group.name,
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    };
+    const sessionPickerActionWidgetOptions = {
+      actionProvider: {
+        getActions: /* @__PURE__ */ __name(() => this.getDropdownActions(), "getActions")
+      },
+      actionBarActionProvider: void 0,
+      reporter: { id: group.id, name: `ChatSession:${group.name}`, includeOptions: false }
+    };
+    super(actionWithLabel, sessionPickerActionWidgetOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
+    this.delegate = delegate;
+    this.commandService = commandService;
+    this.currentOption = item;
+    this._register(this.delegate.onDidChangeOption((newOption) => {
+      this.currentOption = newOption;
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+      this.updateEnabled();
+    }));
+  }
+  /**
+   * Returns the actions to show in the dropdown. Can be overridden by subclasses.
+   */
+  getDropdownActions() {
+    const currentOption = this.delegate.getCurrentOption();
+    if (currentOption?.locked) {
+      return [this.createLockedOptionAction(currentOption)];
+    }
+    const group = this.delegate.getOptionGroup();
+    if (!group) {
+      return [];
+    }
+    const actions = group.items.map((optionItem) => {
+      const isCurrent = optionItem.id === currentOption?.id;
+      return {
+        id: optionItem.id,
+        enabled: !optionItem.locked,
+        icon: optionItem.icon,
+        checked: isCurrent,
+        class: void 0,
+        description: optionItem.description,
+        tooltip: optionItem.description ?? optionItem.name,
+        label: optionItem.name,
+        run: /* @__PURE__ */ __name(() => {
+          this.delegate.setOption(optionItem);
+        }, "run")
+      };
+    });
+    if (group.commands?.length) {
+      const addSeparator = actions.length > 0;
+      for (const command of group.commands) {
+        const args = command.arguments ? [...command.arguments] : [];
+        const sessionResource = this.delegate.getSessionResource();
+        if (sessionResource) {
+          args.unshift(sessionResource);
+        }
+        actions.push({
+          id: command.command,
+          enabled: true,
+          checked: false,
+          class: void 0,
+          description: void 0,
+          tooltip: command.tooltip ?? command.title,
+          label: command.title,
+          // Use category to create a separator before commands (only if there are options)
+          category: addSeparator ? { label: "", order: Number.MAX_SAFE_INTEGER } : void 0,
+          run: /* @__PURE__ */ __name(() => {
+            this.commandService.executeCommand(command.command, ...args);
+          }, "run")
+        });
+      }
+    }
+    return actions;
+  }
+  /**
+   * Creates a disabled action for a locked option.
+   */
+  createLockedOptionAction(option) {
+    return {
+      id: option.id,
+      enabled: false,
+      icon: option.icon,
+      checked: true,
+      class: void 0,
+      description: option.description,
+      tooltip: option.description ?? option.name,
+      label: option.name,
+      run: /* @__PURE__ */ __name(() => {
+      }, "run")
+    };
+  }
+  renderLabel(element) {
+    const domChildren = [];
+    element.classList.add("chat-session-option-picker");
+    const group = this.delegate.getOptionGroup();
+    const isDefaultWithIcon = this.currentOption?.default && this.currentOption?.icon;
+    if (this.currentOption?.icon) {
+      domChildren.push(renderIcon(this.currentOption.icon));
+    }
+    if (!isDefaultWithIcon) {
+      domChildren.push(dom.$("span.chat-session-option-label", void 0, this.currentOption?.name ?? group?.description ?? localize("chat.sessionPicker.label", "Pick Option")));
+    }
+    domChildren.push(...renderLabelWithIcons(`$(chevron-down)`));
+    dom.reset(element, ...domChildren);
+    this.setAriaLabelAttributes(element);
+    return null;
+  }
+  render(container) {
+    this.container = container;
+    super.render(container);
+    container.classList.add(this.getContainerClass());
+    if (this.currentOption?.locked) {
+      container.classList.add("locked");
+    }
+  }
+  /**
+   * Returns the CSS class to add to the container. Can be overridden by subclasses.
+   */
+  getContainerClass() {
+    return "chat-sessionPicker-item";
+  }
+  updateEnabled() {
+    const originalEnabled = this.action.enabled;
+    if (this.currentOption?.locked) {
+      this.action.enabled = false;
+    }
+    super.updateEnabled();
+    this.action.enabled = originalEnabled;
+    if (this.container) {
+      this.container.classList.toggle("locked", !!this.currentOption?.locked);
+    }
+  }
+};
+ChatSessionPickerActionItem = __decorate([
+  __param(3, IActionWidgetService),
+  __param(4, IContextKeyService),
+  __param(5, IKeybindingService),
+  __param(6, ICommandService),
+  __param(7, ITelemetryService)
+], ChatSessionPickerActionItem);
+export {
+  ChatSessionPickerActionItem
+};
+//# sourceMappingURL=chatSessionPickerActionItem.js.map

@@ -1,1 +1,627 @@
-import{$ as h,$y9 as P,$r9 as G,$u8 as Y,$t9 as K,$F8 as Z,getWindow as X}from"../../../../../base/browser/dom.js";import{$89 as tt,EventType as et}from"../../../../../base/browser/touch.js";import{$w0 as F}from"../../../../../base/browser/ui/actionbar/actionbar.js";import{$b_ as N}from"../../../../../base/browser/ui/button/button.js";import{$G0 as R}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$H$ as nt}from"../../../../../base/browser/ui/toggle/toggle.js";import{$Km as D}from"../../../../../base/common/actions.js";import{$Kf as it}from"../../../../../base/common/cancellation.js";import{$bk as L}from"../../../../../base/common/codicons.js";import{$Un as M}from"../../../../../base/common/date.js";import{$jk as ot}from"../../../../../base/common/htmlContent.js";import{$Fd as st,$Dd as q}from"../../../../../base/common/lifecycle.js";import{$Oab as lt}from"../../../../../base/common/linkedText.js";import{$A as z}from"../../../../../base/common/platform.js";import{ThemeIcon as I}from"../../../../../base/common/themables.js";import{$9c as at}from"../../../../../base/common/types.js";import{URI as Q}from"../../../../../base/common/uri.js";import{$kpb as rt}from"../../../../../editor/browser/services/inlineCompletionsService.js";import{$ZF as dt}from"../../../../../editor/common/languages/language.js";import{$dI as ht}from"../../../../../editor/common/services/textResourceConfiguration.js";import{$uW as ut}from"../../../../../editor/common/services/languageFeatures.js";import{$YH as ct}from"../../../../../platform/quickinput/common/quickInput.js";import{localize as e}from"../../../../../nls.js";import{$uo as mt}from"../../../../../platform/commands/common/commands.js";import{$0l as ft}from"../../../../../platform/configuration/common/configuration.js";import{$jkb as gt,$lkb as w}from"../../../../../platform/hover/browser/hover.js";import{$Ukb as pt}from"../../../../../platform/markdown/browser/markdownRenderer.js";import{Link as bt}from"../../../../../platform/opener/browser/link.js";import{$EP as Ct}from"../../../../../platform/opener/common/opener.js";import{$pp as $t}from"../../../../../platform/telemetry/common/telemetry.js";import{$Ijb as T,$Pjb as vt}from"../../../../../platform/theme/browser/defaultStyles.js";import{$Qqc as wt}from"../../../../../platform/domWidget/browser/domWidget.js";import{$vN as kt,SideBySideEditor as St}from"../../../../common/editor.js";import{$JP as yt,ChatEntitlement as k,$LP as Dt}from"../../../../services/chat/common/chatEntitlementService.js";import{$BL as Lt}from"../../../../services/editor/common/editorService.js";import{$aW as It}from"../../common/chatSessionsService.js";import{$Rqc as Bt}from"./chatStatus.js";import{$P0b as Et}from"./chatStatusItemService.js";import xt from"../../../../../platform/product/common/product.js";import{$hq as $,$lt as j,$ft as H,$it as W,$2p as S,$7p as B}from"../../../../../platform/theme/common/colorRegistry.js";import{$Up as E}from"../../../../../base/common/color.js";import{$gBb as Pt}from"../../../../services/views/common/viewsService.js";import{$24b as Nt}from"../chat.js";import{$sfb as U}from"../../../../../editor/common/services/completionsEnablement.js";var V=function(y,t,s,o){var i=arguments.length,n=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,s):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(y,t,s,o);else for(var m=y.length-1;m>=0;m--)(l=y[m])&&(n=(i<3?l(n):i>3?l(t,s,n):l(t,s))||n);return i>3&&n&&Object.defineProperty(t,s,n),n},p=function(y,t){return function(s,o){t(s,o,y)}};const C=xt.defaultChatAgent,_=S("gauge.foreground",{dark:H,light:H,hcDark:$,hcLight:$},e(6163,null));S("gauge.background",{dark:B(_,.3),light:B(_,.3),hcDark:E.white,hcLight:E.white},e(6164,null));S("gauge.border",{dark:null,light:null,hcDark:$,hcLight:$},e(6165,null));const O=S("gauge.warningForeground",{dark:W,light:W,hcDark:$,hcLight:$},e(6166,null));S("gauge.warningBackground",{dark:B(O,.3),light:B(O,.3),hcDark:E.white,hcLight:E.white},e(6167,null));const A=S("gauge.errorForeground",{dark:j,light:j,hcDark:$,hcLight:$},e(6168,null));S("gauge.errorBackground",{dark:B(A,.3),light:B(A,.3),hcDark:E.white,hcLight:E.white},e(6169,null));let J=class extends wt{constructor(t,s,o,i,n,l,m,f,a,u,r,c,d,g,b,v){super(),this.g=t,this.h=s,this.j=o,this.n=i,this.q=n,this.r=l,this.s=m,this.t=f,this.u=a,this.w=u,this.y=r,this.z=c,this.C=d,this.F=g,this.G=b,this.H=v,this.element=h("div.chat-status-bar-entry-tooltip"),this.a=M.DateTimeFormat(z,{year:"numeric",month:"long",day:"numeric"}),this.b=M.DateTimeFormat(z,{year:"numeric",month:"long",day:"numeric",hour:"numeric",minute:"numeric"}),this.c=M.NumberFormat(void 0,{maximumFractionDigits:1,minimumFractionDigits:0}),this.f=M.NumberFormat(void 0,{maximumFractionDigits:2,minimumFractionDigits:0}),this.I()}I(){const t=it(this.B);let s=!1;const o=(a,u)=>{s&&this.element.appendChild(h("hr")),(a||u)&&this.M(this.element,this.B,a??"",u),s=!0},{chat:i,completions:n,premiumChat:l,resetDate:m,resetDateHasTime:f}=this.g.quotas;if(i||n||l){const a=this.L();o(a,D({id:"workbench.action.manageCopilot",label:e(6170,null),tooltip:e(6171,null),class:I.asClassName(L.settings),run:()=>this.P(()=>this.t.open(Q.parse(C.manageSettingsUrl)))}));const u=n&&(n.total>0||n.unlimited)?this.Q(this.element,this.B,n,e(6172,null),!1):void 0,r=i&&(i.total>0||i.unlimited)?this.Q(this.element,this.B,i,e(6173,null),!1):void 0,c=l&&(l.total>0||l.unlimited)?this.Q(this.element,this.B,l,e(6174,null),!0):void 0;if(m&&this.element.appendChild(h("div.description",void 0,e(6175,null,f?this.b.value.format(new Date(m)):this.a.value.format(new Date(m))))),this.g.entitlement===k.Free&&(Number(i?.percentRemaining)<=25||Number(n?.percentRemaining)<=25)){const d=this.B.add(new N(this.element,{...T,hoverDelegate:w,secondary:this.J()}));d.label=e(6176,null),this.B.add(d.onDidClick(()=>this.P("workbench.action.chat.upgradePlan")))}(async()=>{if(await this.g.update(t),t.isCancellationRequested)return;const{chat:d,completions:g,premiumChat:b}=this.g.quotas;g&&u?.(g),d&&r?.(d),b&&c?.(b)})()}else this.g.anonymous&&this.g.sentiment.installed&&(o(e(6177,null)),this.Q(this.element,this.B,e(6178,null),e(6179,null),!1),this.Q(this.element,this.B,e(6180,null),e(6181,null),!1));{const a=this.z.getInProgress();if(a.some(u=>u.count>0)){o(e(6182,null),D({id:"workbench.view.chat.status.sessions",label:e(6183,null),tooltip:e(6184,null),class:I.asClassName(L.eye),run:()=>{this.H.openView(Nt,!0),this.r.hideHover(!0)}}));for(const{displayName:u,count:r}of a)if(r>0){const c=e(6185,null,u),d=this.element.appendChild(h("div.description")),g=R(c);d.append(...g)}}}for(const a of this.h.getEntries()){o();const u=this.B.add(new st);let r=this.N(a);u.value=r.disposables,this.element.appendChild(r.element),this.B.add(this.h.onDidChange(c=>{if(c.entry.id===a.id){const d=r.element;r=this.N(c.entry),u.value=r.disposables,d.replaceWith(r.element)}}))}{const a=this.g.sentiment;o(e(6186,null),a.installed&&!a.disabled&&!a.untrusted?D({id:"workbench.action.openChatSettings",label:e(6187,null),tooltip:e(6188,null),class:I.asClassName(L.settingsGear),run:()=>this.P(()=>this.j.executeCommand("workbench.action.openSettings",{query:`@id:${C.completionsEnablementSetting} @id:${C.nextEditSuggestionsSetting}`}))}):void 0),this.R(this.element,this.B)}{const u=this.F.inlineCompletionsProvider.allNoModel().find(r=>r.modelInfo&&r.modelInfo.models.length>0);if(u){const r=u.modelInfo,c=r.models.find(d=>d.id===r.currentModelId);if(c){const d=this.element.appendChild(h("div.model-selection"));d.appendChild(h("span.model-text",void 0,e(6189,null,c.name)));const g=d.appendChild(h("div.model-action-bar"));this.B.add(new F(g,{hoverDelegate:w})).push([D({id:"workbench.action.selectInlineCompletionsModel",label:e(6190,null),tooltip:e(6191,null),class:I.asClassName(L.gear),run:async()=>{await this.Z(u)}})],{icon:!0,label:!1})}}}if(this.J()){const a=P(this.element,h("div.snooze-completions"));this.Y(a,e(6192,null),this.B)}{const a=Bt(this.g),u=this.g.anonymous,r=this.g.sentiment.disabled||this.g.sentiment.untrusted,c=this.g.entitlement===k.Unknown;if(a||c||r){o();let d,g=".description";a&&u?(d=new ot(e(6193,null,C.provider.default.name,C.provider.default.name,C.termsStatementUrl,C.privacyStatementUrl),{isTrusted:!0}),g=`${g}.terms`):a?d=e(6194,null):u?d=e(6195,null):r?d=e(6196,null):d=e(6197,null);let b;a?b=e(6198,null):u?b=e(6199,null):r?b=e(6200,null):b=e(6201,null);let v;a&&u?v="workbench.action.chat.triggerSetupAnonymousWithoutDialog":v="workbench.action.chat.triggerSetup",typeof d=="string"?this.element.appendChild(h(`div${g}`,void 0,d)):this.element.appendChild(h(`div${g}`,void 0,this.B.add(this.C.render(d)).element));const x=this.B.add(new N(this.element,{...T,hoverDelegate:w}));x.label=b,this.B.add(x.onDidClick(()=>this.P(v)))}}}J(){return!this.g.sentiment.installed||this.g.sentiment.disabled||this.g.sentiment.untrusted?!1:this.g.entitlement===k.Unknown||this.g.entitlement===k.Available?this.g.anonymous:!(this.g.entitlement===k.Free&&this.g.quotas.chat?.percentRemaining===0&&this.g.quotas.completions?.percentRemaining===0)}L(){const t=Dt(this.g.entitlement);return e(6202,null,t)}M(t,s,o,i){const n=t.appendChild(h("div.header",void 0,o??""));i&&s.add(new F(n,{hoverDelegate:w})).push([i],{icon:!0,label:!1})}N(t){const s=new q,o=h("div.contribution"),i=typeof t.label=="string"?t.label:t.label.label,n=typeof t.label=="string"?void 0:t.label.link;this.M(o,s,i,n?D({id:"workbench.action.openChatStatusItemLink",label:e(6203,null),tooltip:e(6204,null),class:I.asClassName(L.linkExternal),run:()=>this.P(()=>this.t.open(Q.parse(n)))}):void 0);const l=o.appendChild(h("div.body")),m=l.appendChild(h("span.description"));if(this.O(m,t.description,s),t.detail){const f=l.appendChild(h("div.detail-item"));this.O(f,t.detail,s)}return{element:o,disposables:s}}O(t,s,o){for(const i of lt(s).nodes)if(typeof i=="string"){const n=R(i);t.append(...n)}else o.add(new bt(t,i,void 0,this.r,this.t))}P(t,...s){typeof t=="function"?t(...s):(this.u.publicLog2("workbenchActionExecuted",{id:t,from:"chat-status"}),this.j.executeCommand(t,...s)),this.r.hideHover(!0)}Q(t,s,o,i,n){const l=h("span.quota-value"),m=h("div.quota-bit"),f=h("span.overage-label"),a=t.appendChild(h("div.quota-indicator",void 0,h("div.quota-label",void 0,h("span",void 0,i),l),h("div.quota-bar",void 0,m),h("div.description",void 0,f)));if(n&&(this.g.entitlement===k.Pro||this.g.entitlement===k.ProPlus)){const r=s.add(new N(a,{...T,secondary:!0,hoverDelegate:w}));r.label=e(6205,null),s.add(r.onDidClick(()=>this.P(()=>this.t.open(Q.parse(C.manageOverageUrl)))))}const u=r=>{a.classList.remove("error"),a.classList.remove("warning");let c;typeof r=="string"||r.unlimited?c=0:c=Math.max(0,100-r.percentRemaining),typeof r=="string"?l.textContent=r:r.unlimited?l.textContent=e(6206,null):r.overageCount?l.textContent=e(6207,null,this.f.value.format(r.overageCount)):l.textContent=e(6208,null,this.c.value.format(c)),m.style.width=`${c}%`,c>=90?a.classList.add("error"):c>=75&&a.classList.add("warning"),n?typeof r!="string"&&r?.overageEnabled?f.textContent=e(6209,null):f.textContent=e(6210,null):f.textContent=""};return u(o),u}R(t,s){const o=this.q.activeTextEditorLanguageId,i=t.appendChild(h("div.settings"));{const n=P(i,h("div.setting"));if(this.U(n,e(6211,null),"*",s),o){const l=P(i,h("div.setting"));this.U(l,e(6212,null,this.s.getLanguageName(o)??o),o,s)}}{const n=P(i,h("div.setting"));this.X(n,e(6213,null),this.W(o),s)}return i}S(t,s,o,i,n){const l=n.add(new nt(o,!!i.readSetting(),{...vt}));t.appendChild(l.domNode);const m=P(t,h("span.setting-label",void 0,o));return n.add(tt.addTarget(m)),[G.CLICK,et.Tap].forEach(f=>{n.add(Y(m,f,a=>{l?.enabled&&(K.stop(a,!0),l.checked=!l.checked,i.writeSetting(l.checked),l.focus())}))}),n.add(l.onChange(()=>{i.writeSetting(l.checked)})),n.add(this.n.onDidChangeConfiguration(f=>{s.some(a=>f.affectsConfiguration(a))&&(l.checked=!!i.readSetting())})),this.J()||(t.classList.add("disabled"),l.disable(),l.checked=!1),l}U(t,s,o,i){this.S(t,[C.completionsEnablementSetting],s,this.W(o),i)}W(t="*"){const s=C.completionsEnablementSetting;return{readSetting:()=>U(this.n,t),writeSetting:o=>{this.u.publicLog2("chatStatus.settingChanged",{settingIdentifier:s,settingMode:t,settingEnablement:o?"enabled":"disabled"});let i=this.n.getValue(s);return at(i)||(i=Object.create(null)),this.n.updateValue(s,{...i,[t]:o})}}}X(t,s,o,i){const n=C.nextEditSuggestionsSetting,l=C.completionsEnablementSetting,m=kt.getOriginalUri(this.q.activeEditor,{supportSideBySide:St.PRIMARY}),f=this.S(t,[n,l],s,{readSetting:()=>o.readSetting()&&this.w.getValue(m,n),writeSetting:a=>(this.u.publicLog2("chatStatus.settingChanged",{settingIdentifier:n,settingEnablement:a?"enabled":"disabled"}),this.w.updateValue(m,n,a))},i);o.readSetting()||(t.classList.add("disabled"),f.disable()),i.add(this.n.onDidChangeConfiguration(a=>{a.affectsConfiguration(l)&&(o.readSetting()&&this.J()?(f.enable(),t.classList.remove("disabled")):(f.disable(),t.classList.add("disabled")))}))}Y(t,s,o){const i=()=>{const d=U(this.n),g=U(this.n,this.q.activeTextEditorLanguageId);return d||g},n=o.add(new N(t,{disabled:!i(),...T,hoverDelegate:w,secondary:!0})),l=t.appendChild(h("span.snooze-label")),m=t.appendChild(h("div.snooze-action-bar")),f=o.add(new F(m,{hoverDelegate:w})),a=D({id:"workbench.action.cancelSnoozeStatusBarLink",label:e(6214,null),run:()=>this.y.cancelSnooze(),class:I.asClassName(L.stopCircle)}),u=d=>{t.classList.toggle("disabled",!d),f.clear();const g=this.y.snoozeTimeLeft;if(!d||g<=0)return l.textContent=e(6215,null),l.title="",n.label=s,n.setTitle(e(6216,null)),!0;const b=Math.ceil(g/1e3),v=Math.floor(b/60),x=b%60;return l.textContent=`${v}:${x<10?"0":""}${x} ${e(6217,null)}`,l.title=e(6218,null),n.label=e(6219,null),n.setTitle(e(6220,null)),f.push([a],{icon:!0,label:!1}),!1},r=o.add(new q);function c(){r.clear();const d=i();u(d)||r.add(Z(X(t),()=>u(d),1e3))}c(),o.add(n.onDidClick(()=>{this.y.snooze(),u(i())})),o.add(this.n.onDidChangeConfiguration(d=>{d.affectsConfiguration(C.completionsEnablementSetting)&&(n.enabled=i()),c()})),o.add(this.y.onDidChangeIsSnoozing(d=>{c()}))}async Z(t){if(!t.modelInfo||!t.setModelId)return;const s=t.modelInfo,o=s.models.map(n=>({id:n.id,label:n.name,description:n.id===s.currentModelId?e(6221,null):void 0,picked:n.id===s.currentModelId})),i=await this.G.pick(o,{placeHolder:e(6222,null,t.displayName||"inline completions"),canPickMany:!1});i&&i.id&&i.id!==s.currentModelId&&await t.setModelId(i.id),this.r.hideHover(!0)}};J=V([p(0,yt),p(1,Et),p(2,mt),p(3,ft),p(4,Lt),p(5,gt),p(6,dt),p(7,Ct),p(8,$t),p(9,ht),p(10,rt),p(11,It),p(12,pt),p(13,ut),p(14,ct),p(15,Pt)],J);export{J as $Sqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, append, EventType, addDisposableListener, EventHelper, disposableWindowInterval, getWindow } from "../../../../../base/browser/dom.js";
+import { Gesture, EventType as TouchEventType } from "../../../../../base/browser/touch.js";
+import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { renderLabelWithIcons } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Checkbox } from "../../../../../base/browser/ui/toggle/toggle.js";
+import { toAction } from "../../../../../base/common/actions.js";
+import { cancelOnDispose } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { safeIntl } from "../../../../../base/common/date.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { MutableDisposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { parseLinkedText } from "../../../../../base/common/linkedText.js";
+import { language } from "../../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { isObject } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IInlineCompletionsService } from "../../../../../editor/browser/services/inlineCompletionsService.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { localize } from "../../../../../nls.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IHoverService, nativeHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
+import { IMarkdownRendererService } from "../../../../../platform/markdown/browser/markdownRenderer.js";
+import { Link } from "../../../../../platform/opener/browser/link.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { defaultButtonStyles, defaultCheckboxStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
+import { DomWidget } from "../../../../../platform/domWidget/browser/domWidget.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../../common/editor.js";
+import { IChatEntitlementService, ChatEntitlement, getChatPlanName } from "../../../../services/chat/common/chatEntitlementService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IChatSessionsService } from "../../common/chatSessionsService.js";
+import { isNewUser } from "./chatStatus.js";
+import { IChatStatusItemService } from "./chatStatusItemService.js";
+import product from "../../../../../platform/product/common/product.js";
+import { contrastBorder, inputValidationErrorBorder, inputValidationInfoBorder, inputValidationWarningBorder, registerColor, transparent } from "../../../../../platform/theme/common/colorRegistry.js";
+import { Color } from "../../../../../base/common/color.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { ChatViewId } from "../chat.js";
+import { isCompletionsEnabled } from "../../../../../editor/common/services/completionsEnablement.js";
+const defaultChat = product.defaultChatAgent;
+const gaugeForeground = registerColor("gauge.foreground", {
+  dark: inputValidationInfoBorder,
+  light: inputValidationInfoBorder,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("gaugeForeground", "Gauge foreground color."));
+registerColor("gauge.background", {
+  dark: transparent(gaugeForeground, 0.3),
+  light: transparent(gaugeForeground, 0.3),
+  hcDark: Color.white,
+  hcLight: Color.white
+}, localize("gaugeBackground", "Gauge background color."));
+registerColor("gauge.border", {
+  dark: null,
+  light: null,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("gaugeBorder", "Gauge border color."));
+const gaugeWarningForeground = registerColor("gauge.warningForeground", {
+  dark: inputValidationWarningBorder,
+  light: inputValidationWarningBorder,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("gaugeWarningForeground", "Gauge warning foreground color."));
+registerColor("gauge.warningBackground", {
+  dark: transparent(gaugeWarningForeground, 0.3),
+  light: transparent(gaugeWarningForeground, 0.3),
+  hcDark: Color.white,
+  hcLight: Color.white
+}, localize("gaugeWarningBackground", "Gauge warning background color."));
+const gaugeErrorForeground = registerColor("gauge.errorForeground", {
+  dark: inputValidationErrorBorder,
+  light: inputValidationErrorBorder,
+  hcDark: contrastBorder,
+  hcLight: contrastBorder
+}, localize("gaugeErrorForeground", "Gauge error foreground color."));
+registerColor("gauge.errorBackground", {
+  dark: transparent(gaugeErrorForeground, 0.3),
+  light: transparent(gaugeErrorForeground, 0.3),
+  hcDark: Color.white,
+  hcLight: Color.white
+}, localize("gaugeErrorBackground", "Gauge error background color."));
+let ChatStatusDashboard = class ChatStatusDashboard2 extends DomWidget {
+  static {
+    __name(this, "ChatStatusDashboard");
+  }
+  constructor(chatEntitlementService, chatStatusItemService, commandService, configurationService, editorService, hoverService, languageService, openerService, telemetryService, textResourceConfigurationService, inlineCompletionsService, chatSessionsService, markdownRendererService, languageFeaturesService, quickInputService, viewService) {
+    super();
+    this.chatEntitlementService = chatEntitlementService;
+    this.chatStatusItemService = chatStatusItemService;
+    this.commandService = commandService;
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.hoverService = hoverService;
+    this.languageService = languageService;
+    this.openerService = openerService;
+    this.telemetryService = telemetryService;
+    this.textResourceConfigurationService = textResourceConfigurationService;
+    this.inlineCompletionsService = inlineCompletionsService;
+    this.chatSessionsService = chatSessionsService;
+    this.markdownRendererService = markdownRendererService;
+    this.languageFeaturesService = languageFeaturesService;
+    this.quickInputService = quickInputService;
+    this.viewService = viewService;
+    this.element = $("div.chat-status-bar-entry-tooltip");
+    this.dateFormatter = safeIntl.DateTimeFormat(language, { year: "numeric", month: "long", day: "numeric" });
+    this.dateTimeFormatter = safeIntl.DateTimeFormat(language, { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" });
+    this.quotaPercentageFormatter = safeIntl.NumberFormat(void 0, { maximumFractionDigits: 1, minimumFractionDigits: 0 });
+    this.quotaOverageFormatter = safeIntl.NumberFormat(void 0, { maximumFractionDigits: 2, minimumFractionDigits: 0 });
+    this.render();
+  }
+  render() {
+    const token = cancelOnDispose(this._store);
+    let needsSeparator = false;
+    const addSeparator = /* @__PURE__ */ __name((label, action) => {
+      if (needsSeparator) {
+        this.element.appendChild($("hr"));
+      }
+      if (label || action) {
+        this.renderHeader(this.element, this._store, label ?? "", action);
+      }
+      needsSeparator = true;
+    }, "addSeparator");
+    const { chat: chatQuota, completions: completionsQuota, premiumChat: premiumChatQuota, resetDate, resetDateHasTime } = this.chatEntitlementService.quotas;
+    if (chatQuota || completionsQuota || premiumChatQuota) {
+      const usageTitle = this.getUsageTitle();
+      addSeparator(usageTitle, toAction({
+        id: "workbench.action.manageCopilot",
+        label: localize("quotaLabel", "Manage Chat"),
+        tooltip: localize("quotaTooltip", "Manage Chat"),
+        class: ThemeIcon.asClassName(Codicon.settings),
+        run: /* @__PURE__ */ __name(() => this.runCommandAndClose(() => this.openerService.open(URI.parse(defaultChat.manageSettingsUrl))), "run")
+      }));
+      const completionsQuotaIndicator = completionsQuota && (completionsQuota.total > 0 || completionsQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, completionsQuota, localize("completionsLabel", "Inline Suggestions"), false) : void 0;
+      const chatQuotaIndicator = chatQuota && (chatQuota.total > 0 || chatQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, chatQuota, localize("chatsLabel", "Chat messages"), false) : void 0;
+      const premiumChatQuotaIndicator = premiumChatQuota && (premiumChatQuota.total > 0 || premiumChatQuota.unlimited) ? this.createQuotaIndicator(this.element, this._store, premiumChatQuota, localize("premiumChatsLabel", "Premium requests"), true) : void 0;
+      if (resetDate) {
+        this.element.appendChild($("div.description", void 0, localize("limitQuota", "Allowance resets {0}.", resetDateHasTime ? this.dateTimeFormatter.value.format(new Date(resetDate)) : this.dateFormatter.value.format(new Date(resetDate)))));
+      }
+      if (this.chatEntitlementService.entitlement === ChatEntitlement.Free && (Number(chatQuota?.percentRemaining) <= 25 || Number(completionsQuota?.percentRemaining) <= 25)) {
+        const upgradeProButton = this._store.add(new Button(this.element, {
+          ...defaultButtonStyles,
+          hoverDelegate: nativeHoverDelegate,
+          secondary: this.canUseChat()
+          /* use secondary color when chat can still be used */
+        }));
+        upgradeProButton.label = localize("upgradeToCopilotPro", "Upgrade to GitHub Copilot Pro");
+        this._store.add(upgradeProButton.onDidClick(() => this.runCommandAndClose("workbench.action.chat.upgradePlan")));
+      }
+      (async () => {
+        await this.chatEntitlementService.update(token);
+        if (token.isCancellationRequested) {
+          return;
+        }
+        const { chat: chatQuota2, completions: completionsQuota2, premiumChat: premiumChatQuota2 } = this.chatEntitlementService.quotas;
+        if (completionsQuota2) {
+          completionsQuotaIndicator?.(completionsQuota2);
+        }
+        if (chatQuota2) {
+          chatQuotaIndicator?.(chatQuota2);
+        }
+        if (premiumChatQuota2) {
+          premiumChatQuotaIndicator?.(premiumChatQuota2);
+        }
+      })();
+    } else if (this.chatEntitlementService.anonymous && this.chatEntitlementService.sentiment.installed) {
+      addSeparator(localize("anonymousTitle", "Copilot Usage"));
+      this.createQuotaIndicator(this.element, this._store, localize("quotaLimited", "Limited"), localize("completionsLabel", "Inline Suggestions"), false);
+      this.createQuotaIndicator(this.element, this._store, localize("quotaLimited", "Limited"), localize("chatsLabel", "Chat messages"), false);
+    }
+    {
+      const inProgress = this.chatSessionsService.getInProgress();
+      if (inProgress.some((item) => item.count > 0)) {
+        addSeparator(localize("chatAgentSessionsTitle", "Agent Sessions"), toAction({
+          id: "workbench.view.chat.status.sessions",
+          label: localize("viewChatSessionsLabel", "View Agent Sessions"),
+          tooltip: localize("viewChatSessionsTooltip", "View Agent Sessions"),
+          class: ThemeIcon.asClassName(Codicon.eye),
+          run: /* @__PURE__ */ __name(() => {
+            this.viewService.openView(ChatViewId, true);
+            this.hoverService.hideHover(true);
+          }, "run")
+        }));
+        for (const { displayName, count } of inProgress) {
+          if (count > 0) {
+            const text = localize("inProgressChatSession", "$(loading~spin) {0} in progress", displayName);
+            const chatSessionsElement = this.element.appendChild($("div.description"));
+            const parts = renderLabelWithIcons(text);
+            chatSessionsElement.append(...parts);
+          }
+        }
+      }
+    }
+    {
+      for (const item of this.chatStatusItemService.getEntries()) {
+        addSeparator();
+        const itemDisposables = this._store.add(new MutableDisposable());
+        let rendered = this.renderContributedChatStatusItem(item);
+        itemDisposables.value = rendered.disposables;
+        this.element.appendChild(rendered.element);
+        this._store.add(this.chatStatusItemService.onDidChange((e) => {
+          if (e.entry.id === item.id) {
+            const previousElement = rendered.element;
+            rendered = this.renderContributedChatStatusItem(e.entry);
+            itemDisposables.value = rendered.disposables;
+            previousElement.replaceWith(rendered.element);
+          }
+        }));
+      }
+    }
+    {
+      const chatSentiment = this.chatEntitlementService.sentiment;
+      addSeparator(localize("inlineSuggestions", "Inline Suggestions"), chatSentiment.installed && !chatSentiment.disabled && !chatSentiment.untrusted ? toAction({
+        id: "workbench.action.openChatSettings",
+        label: localize("settingsLabel", "Settings"),
+        tooltip: localize("settingsTooltip", "Open Settings"),
+        class: ThemeIcon.asClassName(Codicon.settingsGear),
+        run: /* @__PURE__ */ __name(() => this.runCommandAndClose(() => this.commandService.executeCommand("workbench.action.openSettings", { query: `@id:${defaultChat.completionsEnablementSetting} @id:${defaultChat.nextEditSuggestionsSetting}` })), "run")
+      }) : void 0);
+      this.createSettings(this.element, this._store);
+    }
+    {
+      const providers = this.languageFeaturesService.inlineCompletionsProvider.allNoModel();
+      const provider = providers.find((p) => p.modelInfo && p.modelInfo.models.length > 0);
+      if (provider) {
+        const modelInfo = provider.modelInfo;
+        const currentModel = modelInfo.models.find((m) => m.id === modelInfo.currentModelId);
+        if (currentModel) {
+          const modelContainer = this.element.appendChild($("div.model-selection"));
+          modelContainer.appendChild($("span.model-text", void 0, localize("modelLabel", "Model: {0}", currentModel.name)));
+          const actionBar = modelContainer.appendChild($("div.model-action-bar"));
+          const toolbar = this._store.add(new ActionBar(actionBar, { hoverDelegate: nativeHoverDelegate }));
+          toolbar.push([toAction({
+            id: "workbench.action.selectInlineCompletionsModel",
+            label: localize("selectModel", "Select Model"),
+            tooltip: localize("selectModel", "Select Model"),
+            class: ThemeIcon.asClassName(Codicon.gear),
+            run: /* @__PURE__ */ __name(async () => {
+              await this.showModelPicker(provider);
+            }, "run")
+          })], { icon: true, label: false });
+        }
+      }
+    }
+    if (this.canUseChat()) {
+      const snooze = append(this.element, $("div.snooze-completions"));
+      this.createCompletionsSnooze(snooze, localize("settings.snooze", "Snooze"), this._store);
+    }
+    {
+      const newUser = isNewUser(this.chatEntitlementService);
+      const anonymousUser = this.chatEntitlementService.anonymous;
+      const disabled = this.chatEntitlementService.sentiment.disabled || this.chatEntitlementService.sentiment.untrusted;
+      const signedOut = this.chatEntitlementService.entitlement === ChatEntitlement.Unknown;
+      if (newUser || signedOut || disabled) {
+        addSeparator();
+        let descriptionText;
+        let descriptionClass = ".description";
+        if (newUser && anonymousUser) {
+          descriptionText = new MarkdownString(localize({ key: "activeDescriptionAnonymous", comment: ['{Locked="]({2})"}', '{Locked="]({3})"}'] }, "By continuing with {0} Copilot, you agree to {1}'s [Terms]({2}) and [Privacy Statement]({3})", defaultChat.provider.default.name, defaultChat.provider.default.name, defaultChat.termsStatementUrl, defaultChat.privacyStatementUrl), { isTrusted: true });
+          descriptionClass = `${descriptionClass}.terms`;
+        } else if (newUser) {
+          descriptionText = localize("activateDescription", "Set up Copilot to use AI features.");
+        } else if (anonymousUser) {
+          descriptionText = localize("enableMoreDescription", "Sign in to enable more Copilot AI features.");
+        } else if (disabled) {
+          descriptionText = localize("enableDescription", "Enable Copilot to use AI features.");
+        } else {
+          descriptionText = localize("signInDescription", "Sign in to use Copilot AI features.");
+        }
+        let buttonLabel;
+        if (newUser) {
+          buttonLabel = localize("enableAIFeatures", "Use AI Features");
+        } else if (anonymousUser) {
+          buttonLabel = localize("enableMoreAIFeatures", "Enable more AI Features");
+        } else if (disabled) {
+          buttonLabel = localize("enableCopilotButton", "Enable AI Features");
+        } else {
+          buttonLabel = localize("signInToUseAIFeatures", "Sign in to use AI Features");
+        }
+        let commandId;
+        if (newUser && anonymousUser) {
+          commandId = "workbench.action.chat.triggerSetupAnonymousWithoutDialog";
+        } else {
+          commandId = "workbench.action.chat.triggerSetup";
+        }
+        if (typeof descriptionText === "string") {
+          this.element.appendChild($(`div${descriptionClass}`, void 0, descriptionText));
+        } else {
+          this.element.appendChild($(`div${descriptionClass}`, void 0, this._store.add(this.markdownRendererService.render(descriptionText)).element));
+        }
+        const button = this._store.add(new Button(this.element, { ...defaultButtonStyles, hoverDelegate: nativeHoverDelegate }));
+        button.label = buttonLabel;
+        this._store.add(button.onDidClick(() => this.runCommandAndClose(commandId)));
+      }
+    }
+  }
+  canUseChat() {
+    if (!this.chatEntitlementService.sentiment.installed || this.chatEntitlementService.sentiment.disabled || this.chatEntitlementService.sentiment.untrusted) {
+      return false;
+    }
+    if (this.chatEntitlementService.entitlement === ChatEntitlement.Unknown || this.chatEntitlementService.entitlement === ChatEntitlement.Available) {
+      return this.chatEntitlementService.anonymous;
+    }
+    if (this.chatEntitlementService.entitlement === ChatEntitlement.Free && this.chatEntitlementService.quotas.chat?.percentRemaining === 0 && this.chatEntitlementService.quotas.completions?.percentRemaining === 0) {
+      return false;
+    }
+    return true;
+  }
+  getUsageTitle() {
+    const planName = getChatPlanName(this.chatEntitlementService.entitlement);
+    return localize("usageTitleWithPlan", "{0} Usage", planName);
+  }
+  renderHeader(container, disposables, label, action) {
+    const header = container.appendChild($("div.header", void 0, label ?? ""));
+    if (action) {
+      const toolbar = disposables.add(new ActionBar(header, { hoverDelegate: nativeHoverDelegate }));
+      toolbar.push([action], { icon: true, label: false });
+    }
+  }
+  renderContributedChatStatusItem(item) {
+    const disposables = new DisposableStore();
+    const itemElement = $("div.contribution");
+    const headerLabel = typeof item.label === "string" ? item.label : item.label.label;
+    const headerLink = typeof item.label === "string" ? void 0 : item.label.link;
+    this.renderHeader(itemElement, disposables, headerLabel, headerLink ? toAction({
+      id: "workbench.action.openChatStatusItemLink",
+      label: localize("learnMore", "Learn More"),
+      tooltip: localize("learnMore", "Learn More"),
+      class: ThemeIcon.asClassName(Codicon.linkExternal),
+      run: /* @__PURE__ */ __name(() => this.runCommandAndClose(() => this.openerService.open(URI.parse(headerLink))), "run")
+    }) : void 0);
+    const itemBody = itemElement.appendChild($("div.body"));
+    const description = itemBody.appendChild($("span.description"));
+    this.renderTextPlus(description, item.description, disposables);
+    if (item.detail) {
+      const detail = itemBody.appendChild($("div.detail-item"));
+      this.renderTextPlus(detail, item.detail, disposables);
+    }
+    return { element: itemElement, disposables };
+  }
+  renderTextPlus(target, text, store) {
+    for (const node of parseLinkedText(text).nodes) {
+      if (typeof node === "string") {
+        const parts = renderLabelWithIcons(node);
+        target.append(...parts);
+      } else {
+        store.add(new Link(target, node, void 0, this.hoverService, this.openerService));
+      }
+    }
+  }
+  runCommandAndClose(commandOrFn, ...args) {
+    if (typeof commandOrFn === "function") {
+      commandOrFn(...args);
+    } else {
+      this.telemetryService.publicLog2("workbenchActionExecuted", { id: commandOrFn, from: "chat-status" });
+      this.commandService.executeCommand(commandOrFn, ...args);
+    }
+    this.hoverService.hideHover(true);
+  }
+  createQuotaIndicator(container, disposables, quota, label, supportsOverage) {
+    const quotaValue = $("span.quota-value");
+    const quotaBit = $("div.quota-bit");
+    const overageLabel = $("span.overage-label");
+    const quotaIndicator = container.appendChild($("div.quota-indicator", void 0, $("div.quota-label", void 0, $("span", void 0, label), quotaValue), $("div.quota-bar", void 0, quotaBit), $("div.description", void 0, overageLabel)));
+    if (supportsOverage && (this.chatEntitlementService.entitlement === ChatEntitlement.Pro || this.chatEntitlementService.entitlement === ChatEntitlement.ProPlus)) {
+      const manageOverageButton = disposables.add(new Button(quotaIndicator, { ...defaultButtonStyles, secondary: true, hoverDelegate: nativeHoverDelegate }));
+      manageOverageButton.label = localize("enableAdditionalUsage", "Manage paid premium requests");
+      disposables.add(manageOverageButton.onDidClick(() => this.runCommandAndClose(() => this.openerService.open(URI.parse(defaultChat.manageOverageUrl)))));
+    }
+    const update = /* @__PURE__ */ __name((quota2) => {
+      quotaIndicator.classList.remove("error");
+      quotaIndicator.classList.remove("warning");
+      let usedPercentage;
+      if (typeof quota2 === "string" || quota2.unlimited) {
+        usedPercentage = 0;
+      } else {
+        usedPercentage = Math.max(0, 100 - quota2.percentRemaining);
+      }
+      if (typeof quota2 === "string") {
+        quotaValue.textContent = quota2;
+      } else if (quota2.unlimited) {
+        quotaValue.textContent = localize("quotaUnlimited", "Included");
+      } else if (quota2.overageCount) {
+        quotaValue.textContent = localize("quotaDisplayWithOverage", "+{0} requests", this.quotaOverageFormatter.value.format(quota2.overageCount));
+      } else {
+        quotaValue.textContent = localize("quotaDisplay", "{0}%", this.quotaPercentageFormatter.value.format(usedPercentage));
+      }
+      quotaBit.style.width = `${usedPercentage}%`;
+      if (usedPercentage >= 90) {
+        quotaIndicator.classList.add("error");
+      } else if (usedPercentage >= 75) {
+        quotaIndicator.classList.add("warning");
+      }
+      if (supportsOverage) {
+        if (typeof quota2 !== "string" && quota2?.overageEnabled) {
+          overageLabel.textContent = localize("additionalUsageEnabled", "Additional paid premium requests enabled.");
+        } else {
+          overageLabel.textContent = localize("additionalUsageDisabled", "Additional paid premium requests disabled.");
+        }
+      } else {
+        overageLabel.textContent = "";
+      }
+    }, "update");
+    update(quota);
+    return update;
+  }
+  createSettings(container, disposables) {
+    const modeId = this.editorService.activeTextEditorLanguageId;
+    const settings = container.appendChild($("div.settings"));
+    {
+      const globalSetting = append(settings, $("div.setting"));
+      this.createInlineSuggestionsSetting(globalSetting, localize("settings.codeCompletions.allFiles", "All files"), "*", disposables);
+      if (modeId) {
+        const languageSetting = append(settings, $("div.setting"));
+        this.createInlineSuggestionsSetting(languageSetting, localize("settings.codeCompletions.language", "{0}", this.languageService.getLanguageName(modeId) ?? modeId), modeId, disposables);
+      }
+    }
+    {
+      const setting = append(settings, $("div.setting"));
+      this.createNextEditSuggestionsSetting(setting, localize("settings.nextEditSuggestions", "Next edit suggestions"), this.getCompletionsSettingAccessor(modeId), disposables);
+    }
+    return settings;
+  }
+  createSetting(container, settingIdsToReEvaluate, label, accessor, disposables) {
+    const checkbox = disposables.add(new Checkbox(label, Boolean(accessor.readSetting()), { ...defaultCheckboxStyles }));
+    container.appendChild(checkbox.domNode);
+    const settingLabel = append(container, $("span.setting-label", void 0, label));
+    disposables.add(Gesture.addTarget(settingLabel));
+    [EventType.CLICK, TouchEventType.Tap].forEach((eventType) => {
+      disposables.add(addDisposableListener(settingLabel, eventType, (e) => {
+        if (checkbox?.enabled) {
+          EventHelper.stop(e, true);
+          checkbox.checked = !checkbox.checked;
+          accessor.writeSetting(checkbox.checked);
+          checkbox.focus();
+        }
+      }));
+    });
+    disposables.add(checkbox.onChange(() => {
+      accessor.writeSetting(checkbox.checked);
+    }));
+    disposables.add(this.configurationService.onDidChangeConfiguration((e) => {
+      if (settingIdsToReEvaluate.some((id) => e.affectsConfiguration(id))) {
+        checkbox.checked = Boolean(accessor.readSetting());
+      }
+    }));
+    if (!this.canUseChat()) {
+      container.classList.add("disabled");
+      checkbox.disable();
+      checkbox.checked = false;
+    }
+    return checkbox;
+  }
+  createInlineSuggestionsSetting(container, label, modeId, disposables) {
+    this.createSetting(container, [defaultChat.completionsEnablementSetting], label, this.getCompletionsSettingAccessor(modeId), disposables);
+  }
+  getCompletionsSettingAccessor(modeId = "*") {
+    const settingId = defaultChat.completionsEnablementSetting;
+    return {
+      readSetting: /* @__PURE__ */ __name(() => isCompletionsEnabled(this.configurationService, modeId), "readSetting"),
+      writeSetting: /* @__PURE__ */ __name((value) => {
+        this.telemetryService.publicLog2("chatStatus.settingChanged", {
+          settingIdentifier: settingId,
+          settingMode: modeId,
+          settingEnablement: value ? "enabled" : "disabled"
+        });
+        let result = this.configurationService.getValue(settingId);
+        if (!isObject(result)) {
+          result = /* @__PURE__ */ Object.create(null);
+        }
+        return this.configurationService.updateValue(settingId, { ...result, [modeId]: value });
+      }, "writeSetting")
+    };
+  }
+  createNextEditSuggestionsSetting(container, label, completionsSettingAccessor, disposables) {
+    const nesSettingId = defaultChat.nextEditSuggestionsSetting;
+    const completionsSettingId = defaultChat.completionsEnablementSetting;
+    const resource = EditorResourceAccessor.getOriginalUri(this.editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    const checkbox = this.createSetting(container, [nesSettingId, completionsSettingId], label, {
+      readSetting: /* @__PURE__ */ __name(() => completionsSettingAccessor.readSetting() && this.textResourceConfigurationService.getValue(resource, nesSettingId), "readSetting"),
+      writeSetting: /* @__PURE__ */ __name((value) => {
+        this.telemetryService.publicLog2("chatStatus.settingChanged", {
+          settingIdentifier: nesSettingId,
+          settingEnablement: value ? "enabled" : "disabled"
+        });
+        return this.textResourceConfigurationService.updateValue(resource, nesSettingId, value);
+      }, "writeSetting")
+    }, disposables);
+    if (!completionsSettingAccessor.readSetting()) {
+      container.classList.add("disabled");
+      checkbox.disable();
+    }
+    disposables.add(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(completionsSettingId)) {
+        if (completionsSettingAccessor.readSetting() && this.canUseChat()) {
+          checkbox.enable();
+          container.classList.remove("disabled");
+        } else {
+          checkbox.disable();
+          container.classList.add("disabled");
+        }
+      }
+    }));
+  }
+  createCompletionsSnooze(container, label, disposables) {
+    const isEnabled = /* @__PURE__ */ __name(() => {
+      const completionsEnabled = isCompletionsEnabled(this.configurationService);
+      const completionsEnabledActiveLanguage = isCompletionsEnabled(this.configurationService, this.editorService.activeTextEditorLanguageId);
+      return completionsEnabled || completionsEnabledActiveLanguage;
+    }, "isEnabled");
+    const button = disposables.add(new Button(container, { disabled: !isEnabled(), ...defaultButtonStyles, hoverDelegate: nativeHoverDelegate, secondary: true }));
+    const timerDisplay = container.appendChild($("span.snooze-label"));
+    const actionBar = container.appendChild($("div.snooze-action-bar"));
+    const toolbar = disposables.add(new ActionBar(actionBar, { hoverDelegate: nativeHoverDelegate }));
+    const cancelAction = toAction({
+      id: "workbench.action.cancelSnoozeStatusBarLink",
+      label: localize("cancelSnooze", "Cancel Snooze"),
+      run: /* @__PURE__ */ __name(() => this.inlineCompletionsService.cancelSnooze(), "run"),
+      class: ThemeIcon.asClassName(Codicon.stopCircle)
+    });
+    const update = /* @__PURE__ */ __name((isEnabled2) => {
+      container.classList.toggle("disabled", !isEnabled2);
+      toolbar.clear();
+      const timeLeftMs = this.inlineCompletionsService.snoozeTimeLeft;
+      if (!isEnabled2 || timeLeftMs <= 0) {
+        timerDisplay.textContent = localize("completions.snooze5minutesTitle", "Hide suggestions for 5 min");
+        timerDisplay.title = "";
+        button.label = label;
+        button.setTitle(localize("completions.snooze5minutes", "Hide inline suggestions for 5 min"));
+        return true;
+      }
+      const timeLeftSeconds = Math.ceil(timeLeftMs / 1e3);
+      const minutes = Math.floor(timeLeftSeconds / 60);
+      const seconds = timeLeftSeconds % 60;
+      timerDisplay.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds} ${localize("completions.remainingTime", "remaining")}`;
+      timerDisplay.title = localize("completions.snoozeTimeDescription", "Inline suggestions are hidden for the remaining duration");
+      button.label = localize("completions.plus5min", "+5 min");
+      button.setTitle(localize("completions.snoozeAdditional5minutes", "Snooze additional 5 min"));
+      toolbar.push([cancelAction], { icon: true, label: false });
+      return false;
+    }, "update");
+    const timerDisposables = disposables.add(new DisposableStore());
+    function updateIntervalTimer() {
+      timerDisposables.clear();
+      const enabled = isEnabled();
+      if (update(enabled)) {
+        return;
+      }
+      timerDisposables.add(disposableWindowInterval(getWindow(container), () => update(enabled), 1e3));
+    }
+    __name(updateIntervalTimer, "updateIntervalTimer");
+    updateIntervalTimer();
+    disposables.add(button.onDidClick(() => {
+      this.inlineCompletionsService.snooze();
+      update(isEnabled());
+    }));
+    disposables.add(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(defaultChat.completionsEnablementSetting)) {
+        button.enabled = isEnabled();
+      }
+      updateIntervalTimer();
+    }));
+    disposables.add(this.inlineCompletionsService.onDidChangeIsSnoozing((e) => {
+      updateIntervalTimer();
+    }));
+  }
+  async showModelPicker(provider) {
+    if (!provider.modelInfo || !provider.setModelId) {
+      return;
+    }
+    const modelInfo = provider.modelInfo;
+    const items = modelInfo.models.map((model) => ({
+      id: model.id,
+      label: model.name,
+      description: model.id === modelInfo.currentModelId ? localize("currentModel.description", "Currently selected") : void 0,
+      picked: model.id === modelInfo.currentModelId
+    }));
+    const selected = await this.quickInputService.pick(items, {
+      placeHolder: localize("selectModelFor", "Select a model for {0}", provider.displayName || "inline completions"),
+      canPickMany: false
+    });
+    if (selected && selected.id && selected.id !== modelInfo.currentModelId) {
+      await provider.setModelId(selected.id);
+    }
+    this.hoverService.hideHover(true);
+  }
+};
+ChatStatusDashboard = __decorate([
+  __param(0, IChatEntitlementService),
+  __param(1, IChatStatusItemService),
+  __param(2, ICommandService),
+  __param(3, IConfigurationService),
+  __param(4, IEditorService),
+  __param(5, IHoverService),
+  __param(6, ILanguageService),
+  __param(7, IOpenerService),
+  __param(8, ITelemetryService),
+  __param(9, ITextResourceConfigurationService),
+  __param(10, IInlineCompletionsService),
+  __param(11, IChatSessionsService),
+  __param(12, IMarkdownRendererService),
+  __param(13, ILanguageFeaturesService),
+  __param(14, IQuickInputService),
+  __param(15, IViewsService)
+], ChatStatusDashboard);
+export {
+  ChatStatusDashboard
+};
+//# sourceMappingURL=chatStatusDashboard.js.map

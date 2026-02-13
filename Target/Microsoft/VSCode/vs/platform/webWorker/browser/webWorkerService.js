@@ -1,1 +1,6 @@
-import{$Nj as r}from"../../instantiation/common/instantiation.js";const o=r("IWebWorkerService");export{o as $qfb};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IWebWorkerService = createDecorator("IWebWorkerService");
+export {
+  IWebWorkerService
+};
+//# sourceMappingURL=webWorkerService.js.map

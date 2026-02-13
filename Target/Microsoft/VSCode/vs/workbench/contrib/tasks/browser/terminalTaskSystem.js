@@ -1,3 +1,1760 @@
-import{$sc as H}from"../../../../base/common/arrays.js";import*as oe from"../../../../base/common/async.js";import{$xf as fe}from"../../../../base/common/event.js";import{$8g as J}from"../../../../base/common/extpath.js";import{$Ed as de,$Dd as me}from"../../../../base/common/lifecycle.js";import{$Qc as pe}from"../../../../base/common/map.js";import*as Y from"../../../../base/common/objects.js";import*as K from"../../../../base/common/path.js";import*as ee from"../../../../base/common/platform.js";import*as be from"../../../../base/common/resources.js";import W from"../../../../base/common/severity.js";import*as S from"../../../../base/common/types.js";import*as E from"../../../../nls.js";import{MarkerSeverity as V}from"../../../../platform/markers/common/markers.js";import{Markers as te}from"../../markers/common/markers.js";import{$iX as F}from"../common/problemMatcher.js";import{$bk as ge}from"../../../../base/common/codicons.js";import{Schemas as ae}from"../../../../base/common/network.js";import{ThemeIcon as Z}from"../../../../base/common/themables.js";import{URI as we}from"../../../../base/common/uri.js";import{$owc as z}from"../../../../platform/terminal/common/terminalStrings.js";import{$lDc as ye}from"./taskTerminalStatus.js";import{$gDc as Pe,$hDc as Ie}from"../common/problemCollectors.js";import{GroupKind as Se}from"../common/taskConfiguration.js";import{$J9b as _,Triggers as ie,$I9b as xe}from"../common/taskSystem.js";import{CommandString as N,$sX as ne,$qX as k,$tX as Te,PanelKind as L,$wX as ve,RevealKind as R,RevealProblemKind as se,RuntimeType as D,ShellQuoting as B,$mX as Ee,TaskEvent as I,TaskEventKind as x,TaskSourceKind as ce,$vX as $e}from"../common/tasks.js";import{$pDc as O}from"../../terminal/browser/terminalEscapeSequences.js";import{$O7b as Me}from"../../terminal/browser/terminalProcessExtHostProxy.js";import{$M6 as re}from"../../terminal/common/terminal.js";import{$rDc as Ce}from"./taskProblemMonitor.js";import{$ln as Ae}from"../../../../base/common/uuid.js";import{$qYb as Ke}from"../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";const Q="Task";class q{static{this.b=/\$\{(.*?)\}/g}constructor(e,t,i,s){this.workspaceFolder=e,this.taskSystemInfo=t,this.values=i,this.c=s}async resolve(e){const t=[];e.replace(q.b,(s,...n)=>(t.push(this.d(s,n)),s));const i=await Promise.all(t);return e.replace(q.b,()=>i.shift())}async d(e,t){const i=this.values.get(e.substring(2,e.length-1));return i??(this.c?this.c.resolveAsync(this.workspaceFolder,e):e)}}class C extends de{static{this.TelemetryEventName="taskService"}static{this.b="__process__"}static{this.c={cmd:{strong:'"'},powershell:{escape:{escapeChar:"`",charsToEscape:` "'()`},strong:"'",weak:'"'},bash:{escape:{escapeChar:"\\",charsToEscape:` "'`},strong:"'",weak:'"'},zsh:{escape:{escapeChar:"\\",charsToEscape:` "'`},strong:"'",weak:'"'}}}static{this.f={Linux:C.c.bash,Mac:C.c.bash,Windows:C.c.powershell}}taskShellIntegrationStartSequence(e){return O("P","HasRichCommandDetection=True")+O("A")+O("P","Task=True")+(e?O("P",`Cwd=${typeof e=="string"?e:e.fsPath}`):"")+O("B")}getTaskShellIntegrationOutputSequence(e){return(e?O("E",`${Ke(e.commandLine)};${e.nonce}`):"")+O("C")}constructor(e,t,i,s,n,a,o,c,f,r,b,y,g,d,m,u,p,l,P,h,w){super(),this.Q=e,this.R=t,this.S=i,this.U=s,this.W=n,this.X=a,this.Y=o,this.Z=c,this.$=f,this.ab=r,this.bb=b,this.cb=y,this.db=g,this.eb=d,this.fb=m,this.gb=u,this.hb=p,this.ib=w,this.C=!1,this.J=Promise.resolve(),this.L=!1,this.N=[{id:ve,label:E.localize(12905,null),icon:$e}],this.P=new Map,this.g=Object.create(null),this.h=Object.create(null),this.j=Object.create(null),this.m=Object.create(null),this.n=Object.create(null),this.q=new pe,this.u=Object.create(null),this.M=new fe,this.w=h,this.D(this.H=P.createInstance(ye)),this.D(this.I=P.createInstance(Ce)),this.O=Ee.bindTo(l),this.D(this.Q.onDidChangeActiveInstance(T=>this.O.set(T?.shellLaunchConfig.type==="Task")))}get onDidStateChange(){return this.M.event}jb(e){this.ac(e+`
-`)}kb(){this.S.showChannel(this.bb,!0)}reconnect(e,t){return this.Mb(),this.run(e,t,ie.reconnect)}run(e,t,i=ie.command){e=e.clone();const s=Te.is(e)||this.Db(e)?[]:this.mb(e),n=s.length<((e.runOptions&&e.runOptions.instanceLimit)??1),a=s[0]?.count?.count??0;if(this.z=new xe(e,t,i),a>0&&(e.instance=a),!n){const o=s[s.length-1];return this.y=this.z,{kind:2,task:o.task,active:{same:!0,background:e.configurationProperties.isBackground},promise:o.promise}}try{const o={kind:1,task:e,started:{},promise:this.qb(e,t,i,new Set,new Map,void 0)};return o.promise.then(c=>{this.y=this.z}),o}catch(o){throw o instanceof _?o:o instanceof Error?(this.jb(o.message),new _(W.Error,o.message,7)):(this.jb(o.toString()),new _(W.Error,E.localize(12906,null),7))}}getTerminalsForTasks(e){const t=[];for(const i of H(e))for(const s in this.n){const n=this.n[s];n.lastTask===i.getMapKey()&&t.push(n.terminal.resource)}return t.length>0?t:void 0}getTaskProblems(e){return this.I.getTaskProblems(e)}rerun(){if(this.y&&this.y.verify()){this.y.task.runOptions.reevaluateOnRerun!==void 0&&!this.y.task.runOptions.reevaluateOnRerun&&(this.C=!0);const e=this.run(this.y.task,this.y.resolver);return e.promise.then(t=>{this.C=!1}),e}else return}get lastTask(){return this.y}set lastTask(e){this.y=e}lb(e){e.taskLoadMessages&&e.taskLoadMessages.length>0&&(e.taskLoadMessages.forEach(i=>{this.jb(i+`
-`)}),this.hb.prompt(W.Warning,E.localize(12907,null,e._label),[{label:"Show Output",run:()=>this.kb()}]))}isTaskVisible(e){const t=this.g[e.getMapKey()];if(!t?.terminal)return!1;const i=this.Q.activeInstance;return!!this.W.getActiveViewWithId(re)&&i?.instanceId===t.terminal.instanceId}revealTask(e){const t=this.g[e.getMapKey()];if(!t?.terminal)return!1;const i=this.fb.getViewLocationById(re)===1;return i&&this.isTaskVisible(e)?(this.F?(this.G&&this.Q.setActiveInstance(this.G),this.U.openPaneComposite(this.F,1)):this.U.hideActivePaneComposite(1),this.F=void 0,this.G=void 0):(i&&(this.F=this.U.getActivePaneComposite(1)?.getId(),this.F===re&&(this.G=this.Q.activeInstance??void 0)),this.Q.setActiveInstance(t.terminal),(k.is(e)||ne.is(e))&&this.R.showPanel(e.command.presentation.focus)),!0}isActive(){return Promise.resolve(this.isActiveSync())}isActiveSync(){return Object.values(this.g).some(e=>!!e.terminal)}canAutoTerminate(){return Object.values(this.g).every(e=>!e.task.configurationProperties.promptOnClose)}getActiveTasks(){return Object.values(this.g).flatMap(e=>e.terminal?e.task:[])}getLastInstance(e){const t=e.getKey();return Object.values(this.g).reverse().find(i=>t&&t===i.task.getKey())?.task}getFirstInstance(e){const t=e.getKey();for(const i of this.getActiveTasks())if(t&&t===i.getKey())return i}getBusyTasks(){return Object.keys(this.h).map(e=>this.h[e])}customExecutionComplete(e,t){return this.g[e.getMapKey()]?.terminal?new Promise(s=>{s()}):Promise.reject(new Error("Expected to have a terminal for a custom execution task"))}mb(e){const t=e.getKey();return Object.values(this.g).filter(i=>t&&t===i.task.getKey())}nb(e){const t=typeof e=="string"?e:e.getMapKey();this.g[t]&&delete this.g[t]}ob(e){if(e.kind!==x.Changed&&e.kind!==x.ProblemMatcherEnded&&e.kind!==x.ProblemMatcherStarted){const t=this.g[e.__task.getMapKey()];t&&(t.state=e.kind)}this.M.fire(e)}terminate(e){const t=this.g[e.getMapKey()];if(!t)return Promise.resolve({success:!1,task:void 0});const i=t.terminal;return i?new Promise((s,n)=>{this.D(i.onDisposed(o=>{this.ob(I.terminated(e,o.instanceId,o.exitReason))}));const a=i.onExit(()=>{const o=t.task;try{a.dispose(),this.ob(I.terminated(o,i.instanceId,i.exitReason))}catch{}s({success:!0,task:o})});i.dispose()}):Promise.resolve({success:!1,task:void 0})}terminateAll(){const e=[];for(const[t,i]of Object.entries(this.g)){const s=i?.terminal;s&&(e.push(new Promise((n,a)=>{const o=s.onExit(()=>{const c=i.task;try{o.dispose(),this.ob(I.terminated(c,s.instanceId,s.exitReason))}catch{}this.g[t]===i&&delete this.g[t],n({success:!0,task:i.task})})})),s.dispose())}return Promise.all(e)}pb(e){this.jb(E.localize(12908,null,e._label)),this.kb()}qb(e,t,i,s,n,a){this.lb(e);const o=e.getMapKey(),c=Promise.resolve().then(async()=>{a=a??new Map;const y=[];if(e.configurationProperties.dependsOn){const g=new Set(s).add(e.getCommonTaskId());for(const d of e.configurationProperties.dependsOn){const m=await t.resolve(d.uri,d.task);if(m){this.ub(m,e);const u=e.getMapKey(),p=m.getMapKey();this.m[u]||(this.m[u]=[]),this.m[u].includes(p)||this.m[u].push(p);let l;const P=m.getCommonTaskId();if(g.has(P))this.pb(m),l=Promise.resolve({});else if(l=n.get(P),!l){const h=this.g[m.getMapKey()]??this.mb(m).pop();l=h&&this.vb(h)}if(l||(this.ob(I.general(x.DependsOnStarted,e)),l=this.wb(m,t,i,g,n,a)),n.set(P,l),y.push(l),e.configurationProperties.dependsOrder==="sequence"&&(await l).exitCode!==0)break}else this.jb(E.localize(12909,null,S.$6c(d.task)?d.task:JSON.stringify(d.task,void 0,0),d.uri.toString())),this.kb()}}return Promise.all(y).then(g=>{for(const d of g)if(d.exitCode!==0)return{exitCode:d.exitCode};return(ne.is(e)||k.is(e))&&e.command?this.C?this.Eb(e,i,a):this.Cb(e,i,a):{exitCode:0}})}).finally(()=>{delete this.g[o]}),r=this.mb(e).pop()?.count??{count:0};r.count++;const b={task:e,promise:c,count:r};return this.g[o]=b,c}rb(e){return new Promise(t=>{const i=this.onDidStateChange(s=>{s.kind===x.Inactive&&s.__task===e&&(i.dispose(),t({exitCode:0}))})})}sb(e){const t=e.getMapKey();if(this.j[t])return!0;const i=this.m[t];if(i){for(const s of i)if(this.j[s])return!0}return!1}tb(e){const t=e.getMapKey();delete this.j[t],delete this.m[t]}ub(e,t){e.configurationProperties.icon?(e.configurationProperties.icon.id||=t.configurationProperties.icon?.id,e.configurationProperties.icon.color||=t.configurationProperties.icon?.color):e.configurationProperties.icon=t.configurationProperties.icon}async vb(e){return!e.task.configurationProperties.isBackground||!e.task.configurationProperties.problemMatchers||e.task.configurationProperties.problemMatchers.length===0?e.promise:e.state===x.Inactive?{exitCode:0}:this.rb(e.task)}async wb(e,t,i,s,n,a){if(!e.configurationProperties.isBackground)return this.qb(e,t,i,s,n,a);const o=this.rb(e);return Promise.race([o,this.qb(e,t,i,s,n,a)])}async xb(e,t,i,s,n){const a=await this.Z.resolveAsync(t,N.value(i.command.name));s=s?await this.Z.resolveAsync(t,s):void 0;const o=(await this.eb.path).delimiter,c=n?await Promise.all(n.split(o).map(r=>this.Z.resolveAsync(t,r))):void 0,f=await e?.findExecutable(a,s,c);return f||(K.$8(a)?a:K.$9(s??"",a))}yb(e,t){if(t.size===0)return e;const i=new Set;for(const s of e)t.has(s.substring(2,s.length-1))||i.add(s);return i}zb(e,t){for(const i of t)e.has(i[0])||e.set(i[0],i[1])}async Ab(e,t,i,s,n){const a=await this.Bb(e,t,i,s,n);return this.ob(I.general(x.AcquiredInput,i)),a}Bb(e,t,i,s,n){const a=i.command&&i.command.runtime===D.Process,o=i.command&&i.command.options?i.command.options:void 0,c=o?o.cwd:void 0;let f;if(o&&o.env){for(const y of Object.keys(o.env))if(y.toLowerCase()==="path"){S.$6c(o.env[y])&&(f=o.env[y]);break}}const r=this.yb(s,n);let b;if(e&&t){const y={variables:r};return e.platform===3&&a&&(y.process={name:N.value(i.command.name)},c&&(y.process.cwd=c),f&&(y.process.path=f)),b=e.resolveVariables(t,y,ce.toConfigurationTarget(i._source.kind)).then(async g=>{if(g){if(this.zb(n,g.variables),g.variables=new Map(n),a){let d=N.value(i.command.name);e.platform===3&&(d=await this.xb(e,t,i,c,f)),g.variables.set(C.b,d)}return g}}),b}else{const y=new Array;return r.forEach(g=>y.push(g)),new Promise((g,d)=>{this.Z.resolveWithInteraction(t,y,"tasks",void 0,ce.toConfigurationTarget(i._source.kind)).then(async m=>{if(m){if(this.zb(n,m),m=new Map(n),a){let p;ee.$m?p=await this.xb(e,t,i,c,f):p=await this.Z.resolveAsync(t,N.value(i.command.name)),m.set(C.b,p)}g({variables:m})}else g(void 0)},m=>{d(m)})})}}Cb(e,t,i){const s=e.getWorkspaceFolder();let n;if(s)n=this.z.workspaceFolder=s;else{const f=this.$.getWorkspace().folders;n=f.length>0?f[0]:void 0}const a=this.z.systemInfo=this.w(n),o=new Set;return this.Rb(o,e),this.Ab(a,n,e,o,i).then(f=>f&&!this.Db(e)?(this.z.resolvedVariables=f,this.Fb(e,t,new q(n,a,f.variables,this.Z),n)):(this.ob(I.general(x.End,e)),Promise.resolve({exitCode:0})),f=>Promise.reject(f))}Db(e){const t=e.command.runtime===D.CustomExecution;return!(e.command!==void 0&&e.command.runtime&&(t||e.command.name!==void 0))}Eb(e,t,i){const s=this.y;if(!s)return Promise.reject(new Error("No task previously run"));const n=this.z.workspaceFolder=s.workspaceFolder,a=new Set;this.Rb(a,e);let o=!0;return a.forEach(c=>{c.substring(2,c.length-1)in s.getVerifiedTask().resolvedVariables&&(o=!1)}),o?(this.z.resolvedVariables=s.getVerifiedTask().resolvedVariables,this.Fb(e,t,new q(s.getVerifiedTask().workspaceFolder,s.getVerifiedTask().systemInfo,s.getVerifiedTask().resolvedVariables.variables,this.Z),n)):this.Ab(s.getVerifiedTask().systemInfo,s.getVerifiedTask().workspaceFolder,e,a,i).then(c=>c?(this.z.resolvedVariables=c,this.Fb(e,t,new q(s.getVerifiedTask().workspaceFolder,s.getVerifiedTask().systemInfo,c.variables,this.Z),n)):(this.ob(I.general(x.End,e)),{exitCode:0}),c=>Promise.reject(c))}async Fb(e,t,i,s){let n,a,o;if(e.configurationProperties.isBackground){const f=await this.Yb(i,e.configurationProperties.problemMatchers),r=new Ie(f,this.X,this.Y,this.cb);f.length>0&&!r.isWatching()&&(this.ac(E.localize(12910,null,e._label)),this.kb());const b=new me;let y=0;const g=e.getMapKey();b.add(r.onDidStateChange(p=>{if(p.kind==="backgroundProcessingBegins")y++,this.h[g]=e,this.ob(I.general(x.Active,e,n?.instanceId));else if(p.kind==="backgroundProcessingEnds"&&(y--,this.h[g]&&delete this.h[g],this.ob(I.inactive(e,n?.instanceId,this.Gb(n?.instanceId))),y===0))if(r.numberOfMatches>0&&r.maxMarkerSeverity&&r.maxMarkerSeverity>=V.Error){this.j[e.getMapKey()]=!0,this.ob(I.general(x.ProblemMatcherFoundErrors,e,n?.instanceId));const l=e.command.presentation.reveal;e.command.presentation.revealProblems===se.OnProblem?this.W.openView(te.MARKERS_VIEW_ID,!0):l===R.Silent&&(this.Q.setActiveInstance(n),this.R.showPanel(!1))}else this.ob(I.problemMatcherEnded(e,this.sb(e),n?.instanceId))})),r.aboutToStart();let d;if([n,a]=await this.Ob(e,i,s),a)return Promise.reject(new Error(a.message));if(!n)return Promise.reject(new Error(`Failed to create terminal for task ${e._label}`));this.H.addTerminal(e,n,r),this.I.addTerminal(n,r);let m=!1;n.processReady.then(()=>{m||(this.ob(I.processStarted(e,n.instanceId,n.processId)),m=!0)},p=>{this.gb.error("Task terminal process never got ready")}),this.P.set(n.instanceId,Date.now()),this.ob(I.start(e,n.instanceId,i.values));let u;if(f.length&&(u=n.onLineData(p=>{r.processLine(p),d||(d=new oe.$6h(3e3)),d.trigger(()=>{r.forceDelivery(),d=void 0})})),o=new Promise((p,l)=>{const P=n.onExit(h=>{const w=typeof h=="number"?h:h?.code;u?.dispose(),P.dispose();const T=e.getMapKey();if(this.h[g]&&delete this.h[g],this.nb(e),this.ob(I.changed()),h!==void 0)switch(e.command.presentation.panel){case L.Dedicated:this.u[T]=n.instanceId.toString();break;case L.Shared:this.q.set(T,n.instanceId.toString(),1);break}if(e.command.presentation.reveal===R.Silent&&(w!==0||r.numberOfMatches>0&&r.maxMarkerSeverity&&r.maxMarkerSeverity>=V.Error))try{this.Q.setActiveInstance(n),this.R.showPanel(!1)}catch{}r.done(),r.dispose(),m||(this.ob(I.processStarted(e,n.instanceId,n.processId)),m=!0);const M=this.Gb(n.instanceId);this.ob(I.processEnded(e,n.instanceId,w,M));for(let A=0;A<y;A++)this.ob(I.inactive(e,n.instanceId));y=0,this.ob(I.general(x.End,e)),b.dispose(),p({exitCode:w??void 0})})}),t===ie.reconnect&&n.xterm){const p=[],l=n.xterm.getBufferReverseIterator(),P=new RegExp(r.beginPatterns.map(w=>w.source).join("|"));for(const w of l)if(p.push(w),P.test(w))break;let h;for(let w=p.length-1;w>=0;w--)r.processLine(p[w]),h||(h=new oe.$6h(3e3)),h.trigger(()=>{r.forceDelivery(),h=void 0})}}else{if([n,a]=await this.Ob(e,i,s),a)return Promise.reject(new Error(a.message));if(!n)return Promise.reject(new Error(`Failed to create terminal for task ${e._label}`));this.P.set(n.instanceId,Date.now()),this.ob(I.start(e,n.instanceId,i.values));const f=e.getMapKey();this.h[f]=e,this.ob(I.general(x.Active,e,n.instanceId));const r=await this.Yb(i,e.configurationProperties.problemMatchers),b=new Pe(r,this.X,this.Y,0,this.cb);this.H.addTerminal(e,n,b),this.I.addTerminal(n,b),this.D(b.onDidStateChange(d=>{d.kind==="backgroundProcessingBegins"?this.ob(I.general(x.ProblemMatcherStarted,e,n?.instanceId)):d.kind==="backgroundProcessingEnds"&&(b.numberOfMatches&&b.maxMarkerSeverity&&b.maxMarkerSeverity>=V.Error?(this.j[e.getMapKey()]=!0,this.ob(I.general(x.ProblemMatcherFoundErrors,e,n?.instanceId))):this.ob(I.problemMatcherEnded(e,this.sb(e),n?.instanceId)))}));let y=!1;n.processReady.then(()=>{y||(this.ob(I.processStarted(e,n.instanceId,n.processId)),y=!0)},d=>{});const g=n.onLineData(d=>{b.processLine(d)});o=new Promise((d,m)=>{const u=n.onExit(p=>{const l=typeof p=="number"?p:p?.code;u.dispose();const P=e.getMapKey();if(this.nb(e),this.ob(I.changed()),p!==void 0)switch(e.command.presentation.panel){case L.Dedicated:this.u[P]=n.instanceId.toString();break;case L.Shared:this.q.set(P,n.instanceId.toString(),1);break}const h=e.command.presentation.reveal,w=e.command.presentation.revealProblems;if(n&&w===se.OnProblem&&b.numberOfMatches>0)this.W.openView(te.MARKERS_VIEW_ID);else if(n&&h===R.Silent&&(l!==0||b.numberOfMatches>0&&b.maxMarkerSeverity&&b.maxMarkerSeverity>=V.Error))try{this.Q.setActiveInstance(n),this.R.showPanel(!1)}catch{}setTimeout(()=>{g.dispose(),b.done(),b.dispose()},100),!y&&n&&(this.ob(I.processStarted(e,n.instanceId,n.processId)),y=!0);const v=this.Gb(n?.instanceId);this.ob(I.processEnded(e,n?.instanceId,l??void 0,v)),this.h[f]&&delete this.h[f],this.ob(I.inactive(e,n?.instanceId,v)),b.numberOfMatches&&b.maxMarkerSeverity&&b.maxMarkerSeverity>=V.Error?(this.j[e.getMapKey()]=!0,this.ob(I.general(x.ProblemMatcherFoundErrors,e,n?.instanceId))):this.ob(I.problemMatcherEnded(e,this.sb(e),n?.instanceId)),this.ob(I.general(x.End,e,n?.instanceId)),this.tb(e),d({exitCode:l??void 0})})})}return e.command.presentation&&e.command.presentation.revealProblems===se.Always?this.W.openView(te.MARKERS_VIEW_ID):e.command.presentation&&(e.command.presentation.focus||e.command.presentation.reveal===R.Always)&&(this.Q.setActiveInstance(n),await this.Q.revealTerminal(n),e.command.presentation.focus&&n&&await this.Q.focusInstance(n)),this.g[e.getMapKey()]?this.g[e.getMapKey()].terminal=n:this.gb.warn("No active tasks found for the terminal."),this.ob(I.changed()),o}Gb(e){if(e===void 0)return;const t=this.P.get(e);if(t!==void 0)return this.P.delete(e),Date.now()-t}Hb(e){return this.$.getWorkbenchState()===3?e.getQualifiedLabel():e.configurationProperties.name||""}async Ib(e,t,i,s,n,a,o,c,f){let r;const b=e.command.runtime===D.Shell,y=this.$.getWorkbenchState()===3,g=this.Hb(e),d=Q,m=e.command.name;let u;if(n.cwd&&(u=n.cwd,K.$8(u)||t&&t.uri.scheme===ae.file&&(u=K.$9(t.uri.fsPath,u)),u=J(u)?u:be.$Sh(we.from({scheme:ae.file,path:u}),this.ab.remoteAuthority,this.eb.defaultUriScheme)),b){let p;switch(s){case 3:p=1;break;case 1:p=2;break;default:p=3;break}const l=await this.db.getDefaultProfile({allowAutomationShell:!0,os:p,remoteAuthority:this.ab.remoteAuthority});let P;if(e.configurationProperties.icon?.id)P=Z.fromId(e.configurationProperties.icon.id);else{const j=e.configurationProperties.group?Se.to(e.configurationProperties.group):void 0;P=(typeof j=="string"?j:j?.kind)==="test"?Z.fromId(ge.beaker.id):l.icon}r={name:g,type:d,executable:l.path,args:l.args,env:{...l.env},icon:P,color:e.configurationProperties.icon?.color||void 0,waitOnExit:c};let h=!1;const w=e.command.options&&e.command.options.shell;w&&(w.executable&&(w.executable!==r.executable&&(r.args=void 0),r.executable=await this.Zb(i,w.executable),h=!0),w.args&&(r.args=await this.Xb(i,w.args.slice()))),r.args===void 0&&(r.args=[]);const T=Array.isArray(r.args)?r.args.slice(0):[r.args],v=[],M=K.$6.basename((await this.eb.fileURI(r.executable)).path).toLowerCase(),A=this.Pb(s,M,w,a,m,o);let X=!1;if(s===3){X=!0;const j=await this.eb.userHome();if(M==="cmd.exe"&&(n.cwd&&J(n.cwd)||!n.cwd&&J(j.fsPath)))return;M==="powershell.exe"||M==="pwsh.exe"?h||v.push("-Command"):M==="bash.exe"||M==="zsh.exe"?(X=!1,h||v.push("-c")):M==="wsl.exe"?h||v.push("-e"):M==="nu.exe"?h||v.push("-c"):h||v.push("/d","/c")}else h||v.push("-c");const G=this.Jb(v,T);G.push(A),r.shellIntegrationNonce=Ae();const U={commandLine:A,nonce:r.shellIntegrationNonce};if(r.args=X?G.join(" "):G,e.command.presentation&&e.command.presentation.echo)if(y&&t){const j=u&&typeof u=="object"&&"path"in u?K.$ab(u.path):t.name;r.initialText=this.taskShellIntegrationStartSequence(u)+z(E.localize(12911,null,j,A),{excludeLeadingNewLine:!0})+this.getTaskShellIntegrationOutputSequence(U)}else r.initialText=this.taskShellIntegrationStartSequence(u)+z(E.localize(12912,null,A),{excludeLeadingNewLine:!0})+this.getTaskShellIntegrationOutputSequence(U);else r.initialText={text:this.taskShellIntegrationStartSequence(u)+this.getTaskShellIntegrationOutputSequence(U),trailingNewLine:!1}}else{const p=e.command.runtime!==D.CustomExecution?N.value(a):void 0,l=b?p:await this.Zb(i,await this.Zb(i,"${"+C.b+"}"));if(r={name:g,type:d,icon:e.configurationProperties.icon?.id?Z.fromId(e.configurationProperties.icon.id):void 0,color:e.configurationProperties.icon?.color||void 0,executable:l,args:o.map(P=>S.$6c(P)?P:P.value),waitOnExit:c},e.command.presentation&&e.command.presentation.echo){const P=h=>!h||h.length===0?"":S.$6c(h)?h:h.join(" ");y&&t?r.initialText=this.taskShellIntegrationStartSequence(u)+z(E.localize(12913,null,t.name,`${r.executable} ${P(r.args)}`),{excludeLeadingNewLine:!0})+this.getTaskShellIntegrationOutputSequence(void 0):r.initialText=this.taskShellIntegrationStartSequence(u)+z(E.localize(12914,null,`${r.executable} ${P(r.args)}`),{excludeLeadingNewLine:!0})+this.getTaskShellIntegrationOutputSequence(void 0)}else r.initialText={text:this.taskShellIntegrationStartSequence(u)+this.getTaskShellIntegrationOutputSequence(void 0),trailingNewLine:!1}}return u&&(r.cwd=u),n.env&&(r.env?r.env={...r.env,...n.env}:r.env=n.env),r.isFeatureTerminal=!0,r.useShellEnvironment=!0,r.tabActions=this.N,r}Jb(e,t){const i=Y.$Cp(t);return e.forEach(s=>{t.every((a,o)=>a.toLowerCase()===s&&t.length>o+1?!t.slice(o+1).every(c=>c.startsWith("-")):a.toLowerCase()!==s)&&i.push(s)}),i}async Kb(e){return this.Q.instances.filter(i=>i.reconnectionProperties?.ownerId===Q).find(i=>ue(i)?.lastTask===e.getCommonTaskId())}async Lb(e,t,i){const s=await this.Kb(e),n=o=>this.ob(I.terminated(e,o.instanceId,o.exitReason));if(s)return"command"in e&&e.command.presentation&&(s.waitOnExit=le(e.command.presentation,e.configurationProperties)),this.D(s.onDisposed(n)),this.gb.trace("reconnected to task and terminal",e._id),s;if(t){for(const o of Object.values(this.n))if(o.group===t){this.gb.trace(`Found terminal to split for group ${t}`);const c=o.terminal,f=await this.Q.createTerminal({location:{parentTerminal:c},config:i});if(this.D(f.onDisposed(n)),f)return f}this.gb.trace(`No terminal found to split for group ${t}`)}const a=await this.Q.createTerminal({config:i});return this.D(a.onDisposed(n)),a}Mb(){if(this.L){this.gb.trace("Already reconnected to terminals, so returning");return}const e=this.Q.instances.filter(t=>t.reconnectionProperties?.ownerId===Q);if(this.gb.trace(`Attempting reconnection of ${e.length} terminals`),!e.length)this.gb.trace("No terminals to reconnect to so returning");else for(const t of e){const i=ue(t);if(i){const s={lastTask:i.lastTask,group:i.group,terminal:t,shellIntegrationNonce:i.shellIntegrationNonce};this.n[t.instanceId]=s,this.gb.trace("Reconnecting to task terminal",s.lastTask,t.instanceId)}}this.L=!0}Nb(e,t){delete this.n[e.instanceId],delete this.u[t.lastTask],this.q.delete(t.lastTask);const i=t.lastTask;this.nb(i),this.h[i]&&delete this.h[i]}async Ob(e,t,i){const s=t.taskSystemInfo?t.taskSystemInfo.platform:ee.$y,n=await this.$b(t,e.command.options),a=e.command.presentation;if(!a)throw new Error("Task presentation options should not be undefined here.");const o=le(a,e.configurationProperties);let c,f,r;if(e.command.runtime===D.CustomExecution)this.z.shellLaunchConfig=r={customPtyImplementation:(h,w,T)=>new Me(h,w,T,this.Q),waitOnExit:o,name:this.Hb(e),initialText:e.command.presentation&&e.command.presentation.echo?z(E.localize(12915,null,e._label),{excludeLeadingNewLine:!0}):void 0,isFeatureTerminal:!0,icon:e.configurationProperties.icon?.id?Z.fromId(e.configurationProperties.icon.id):void 0,color:e.configurationProperties.icon?.color||void 0};else{const h=await this.Wb(t,e.command);if(c=h.command,f=h.args,this.z.shellLaunchConfig=r=await this.Ib(e,i,t,s,n,c,f,o,a),r===void 0)return[void 0,new _(W.Error,E.localize(12916,null),7)]}const b=a.panel===L.Dedicated,y=a.panel===L.Shared,g=a.group,d=e.getMapKey();let m;if(b){const h=this.u[d];h&&(m=this.n[h],delete this.u[d])}else if(y){let h=this.q.remove(d);if(!h)for(const w of this.q.keys()){const T=this.q.get(w);if(T&&this.n[T]&&this.n[T].group===g){h=this.q.remove(w);break}}h&&(m=this.n[h])}if(m){if(!r)throw new Error("Task shell launch configuration should not be undefined here.");return m.terminal.scrollToBottom(),e.configurationProperties.isBackground&&(r.reconnectionProperties={ownerId:Q,data:{lastTask:e.getCommonTaskId(),group:g,label:e._label,id:e._id}}),m.shellIntegrationNonce&&S.$6c(r.initialText)&&r.shellIntegrationNonce&&(r.initialText=r.initialText.replace(r.shellIntegrationNonce,m.shellIntegrationNonce)),await m.terminal.reuseTerminal(r),e.command.presentation&&e.command.presentation.clear&&m.terminal.clearBuffer(),this.n[m.terminal.instanceId.toString()].lastTask=d,[m.terminal,void 0]}this.J=this.J.then(()=>this.Lb(e,g,r));const u=await this.J;e.configurationProperties.isBackground&&(u.shellLaunchConfig.reconnectionProperties={ownerId:Q,data:{lastTask:e.getCommonTaskId(),group:g,label:e._label,id:e._id}});const p=u.instanceId.toString(),l={terminal:u,lastTask:d,group:g,shellIntegrationNonce:u.shellLaunchConfig.shellIntegrationNonce},P=this.D(u.onDisposed(()=>{this.Nb(u,l),P.dispose()}));return this.n[p]=l,u.shellLaunchConfig.tabActions=this.N,[u,void 0]}Pb(e,t,i,s,n,a){const o=K.$db(t).name.toLowerCase(),c=this.Qb(o,i,e);function f(l){if(l.length>=2&&(l[0]===c.strong?c.strong:l[0]===c.weak?c.weak:void 0)===l[l.length-1])return!1;let P;for(let h=0;h<l.length;h++){const w=l[h];if(w===P)P=void 0;else{if(P!==void 0)continue;if(w===c.escape)h++;else if(w===c.strong||w===c.weak)P=w;else if(w===" ")return!0}}return!1}function r(l,P){if(P===B.Strong&&c.strong)return[c.strong+l+c.strong,!0];if(P===B.Weak&&c.weak)return[c.weak+l+c.weak,!0];if(P===B.Escape&&c.escape){if(S.$6c(c.escape))return[l.replace(/ /g,c.escape+" "),!0];{const h=[];for(const v of c.escape.charsToEscape)h.push(`\\${v}`);const w=new RegExp("["+h.join(",")+"]","g"),T=c.escape.escapeChar;return[l.replace(w,v=>T+v),!0]}}return[l,!1]}function b(l){return S.$6c(l)?f(l)?r(l,B.Strong):[l,!1]:r(l.value,l.quoting)}if((!a||a.length===0)&&S.$6c(s)&&(s===n||f(n)))return s;const y=[];let g=!1,d=!1,m,u;[m,u]=b(s),y.push(m),g=u;for(const l of a)[m,u]=b(l),y.push(m),d=d||u;let p=y.join(" ");return e===3&&(o==="cmd"&&g&&d?p='"'+p+'"':(o==="powershell"||o==="pwsh")&&g&&(p="& "+p)),p}Qb(e,t,i){return t&&t.quoting?t.quoting:C.c[e]||C.f[ee.$l(i)]}Rb(e,t){if(t.command&&t.command.name&&this.Tb(e,t.command,t),this.Ub(e,t.configurationProperties.problemMatchers),t.command.runtime===D.CustomExecution&&(k.is(t)||ne.is(t))){let i;k.is(t)?i=t._source.config.element:(i=Y.$Cp(t.defines),delete i._key,delete i.type),this.Sb(e,i)}}Sb(e,t){if(S.$6c(t))this.Vb(e,t);else if(Array.isArray(t))t.forEach(i=>this.Sb(e,i));else if(S.$9c(t))for(const i in t)this.Sb(e,t[i])}Tb(e,t,i){if(t.runtime===D.CustomExecution)return;if(t.name===void 0)throw new Error("Command name should never be undefined here.");if(this.Vb(e,t.name),t.args?.forEach(n=>this.Vb(e,n)),i._source.scope!==1&&e.add("${workspaceFolder}"),t.options){const n=t.options;n.cwd&&this.Vb(e,n.cwd);const a=n.env;a&&Object.keys(a).forEach(o=>{const c=a[o];S.$6c(c)&&this.Vb(e,c)}),n.shell&&(n.shell.executable&&this.Vb(e,n.shell.executable),n.shell.args?.forEach(o=>this.Vb(e,o)))}}Ub(e,t){t==null||t.length===0||t.forEach(i=>{let s;if(S.$6c(i)?i[0]==="$"?s=F.get(i.substring(1)):s=F.get(i):s=i,s&&s.filePrefix)if(S.$6c(s.filePrefix))this.Vb(e,s.filePrefix);else for(const n of[...H(s.filePrefix.include||[]),...H(s.filePrefix.exclude||[])])this.Vb(e,n)})}Vb(e,t){const i=S.$6c(t)?t:t.value,s=/\$\{(.*?)\}/g;let n;do n=s.exec(i),n&&e.add(n[0]);while(n)}async Wb(e,t){let i=t.args?t.args.slice():[];return i=await this.Xb(e,i),{command:await this.Zb(e,t.name),args:i}}async Xb(e,t){return Promise.all(t.map(i=>this.Zb(e,i)))}async Yb(e,t){if(t==null||t.length===0)return[];const i=[];for(const s of t){let n;if(S.$6c(s)?s[0]==="$"?n=F.get(s.substring(1)):n=F.get(s):n=s,!n){this.ac(E.localize(12917,null));continue}const a=e.taskSystemInfo,o=n.filePrefix!==void 0,c=a!==void 0&&a.uriProvider!==void 0;if(!o&&!c)i.push(n);else{const f=Y.$Cp(n);if(c&&a!==void 0&&(f.uriProvider=a.uriProvider),o){const r=f.filePrefix;S.$6c(r)?f.filePrefix=await this.Zb(e,r):r!==void 0&&(r.include&&(r.include=Array.isArray(r.include)?await Promise.all(r.include.map(b=>this.Zb(e,b))):await this.Zb(e,r.include)),r.exclude&&(r.exclude=Array.isArray(r.exclude)?await Promise.all(r.exclude.map(b=>this.Zb(e,b))):await this.Zb(e,r.exclude)))}i.push(f)}}return i}async Zb(e,t){if(S.$6c(t))return e.resolve(t);if(t!==void 0)return{value:await e.resolve(t.value),quoting:t.quoting};throw new Error("Should never try to resolve undefined.")}async $b(e,t){if(t==null){let s;try{s=await this.Zb(e,"${workspaceFolder}")}catch{}return{cwd:s}}const i=S.$6c(t.cwd)?{cwd:await this.Zb(e,t.cwd)}:{cwd:await this.Zb(e,"${workspaceFolder}")};if(t.env){i.env=Object.create(null);for(const s of Object.keys(t.env)){const n=t.env[s];S.$6c(n)?i.env[s]=await this.Zb(e,n):i.env[s]=n.toString()}}return i}static{this.WellKnownCommands={ant:!0,cmake:!0,eslint:!0,gradle:!0,grunt:!0,gulp:!0,jake:!0,jenkins:!0,jshint:!0,make:!0,maven:!0,msbuild:!0,msc:!0,nmake:!0,npm:!0,rake:!0,tsc:!0,xbuild:!0}}getSanitizedCommand(e){let t=e.toLowerCase();const i=t.lastIndexOf(K.sep);return i!==-1&&(t=t.substring(i+1)),C.WellKnownCommands[t]?t:"other"}async getTaskForTerminal(e){for(const i in this.g){const s=this.g[i];if(s.terminal?.instanceId===e)return s.task}const t=this.n[e.toString()];if(t?.lastTask)return await this.ib(t.lastTask)}ac(e){this.S.getChannel(this.bb)?.append(e)}}function le($,e){return($.close===void 0||$.close===!1)&&($.reveal!==R.Never||!e.isBackground||$.close===!1)?$.panel===L.New?he(E.localize(12918,null)):$.showReuseMessage?he(E.localize(12919,null)):!0:!$.close}function he($){return e=>`${O("D",e.toString())}${$}`}function ue($){return $.shellLaunchConfig.attachPersistentProcess?.reconnectionProperties?.data}export{C as $sDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { asArray } from "../../../../base/common/arrays.js";
+import * as Async from "../../../../base/common/async.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { isUNC } from "../../../../base/common/extpath.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { LinkedMap } from "../../../../base/common/map.js";
+import * as Objects from "../../../../base/common/objects.js";
+import * as path from "../../../../base/common/path.js";
+import * as Platform from "../../../../base/common/platform.js";
+import * as resources from "../../../../base/common/resources.js";
+import Severity from "../../../../base/common/severity.js";
+import * as Types from "../../../../base/common/types.js";
+import * as nls from "../../../../nls.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { Markers } from "../../markers/common/markers.js";
+import { ProblemMatcherRegistry } from "../common/problemMatcher.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { formatMessageForTerminal } from "../../../../platform/terminal/common/terminalStrings.js";
+import { TaskTerminalStatus } from "./taskTerminalStatus.js";
+import { StartStopProblemCollector, WatchingProblemCollector } from "../common/problemCollectors.js";
+import { GroupKind } from "../common/taskConfiguration.js";
+import { TaskError, Triggers, VerifiedTask } from "../common/taskSystem.js";
+import { CommandString, ContributedTask, CustomTask, InMemoryTask, PanelKind, RerunForActiveTerminalCommandId, RevealKind, RevealProblemKind, RuntimeType, ShellQuoting, TASK_TERMINAL_ACTIVE, TaskEvent, TaskEventKind, TaskSourceKind, rerunTaskIcon } from "../common/tasks.js";
+import { VSCodeSequence } from "../../terminal/browser/terminalEscapeSequences.js";
+import { TerminalProcessExtHostProxy } from "../../terminal/browser/terminalProcessExtHostProxy.js";
+import { TERMINAL_VIEW_ID } from "../../terminal/common/terminal.js";
+import { TaskProblemMonitor } from "./taskProblemMonitor.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { serializeVSCodeOscMessage } from "../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";
+const TaskTerminalType = "Task";
+class VariableResolver {
+  static {
+    __name(this, "VariableResolver");
+  }
+  static {
+    this._regex = /\$\{(.*?)\}/g;
+  }
+  constructor(workspaceFolder, taskSystemInfo, values, _service) {
+    this.workspaceFolder = workspaceFolder;
+    this.taskSystemInfo = taskSystemInfo;
+    this.values = values;
+    this._service = _service;
+  }
+  async resolve(value) {
+    const replacers = [];
+    value.replace(VariableResolver._regex, (match, ...args) => {
+      replacers.push(this._replacer(match, args));
+      return match;
+    });
+    const resolvedReplacers = await Promise.all(replacers);
+    return value.replace(VariableResolver._regex, () => resolvedReplacers.shift());
+  }
+  async _replacer(match, args) {
+    const result = this.values.get(match.substring(2, match.length - 1));
+    if (result !== void 0 && result !== null) {
+      return result;
+    }
+    if (this._service) {
+      return this._service.resolveAsync(this.workspaceFolder, match);
+    }
+    return match;
+  }
+}
+class TerminalTaskSystem extends Disposable {
+  static {
+    __name(this, "TerminalTaskSystem");
+  }
+  static {
+    this.TelemetryEventName = "taskService";
+  }
+  static {
+    this.ProcessVarName = "__process__";
+  }
+  static {
+    this._shellQuotes = {
+      "cmd": {
+        strong: '"'
+      },
+      "powershell": {
+        escape: {
+          escapeChar: "`",
+          charsToEscape: ` "'()`
+        },
+        strong: "'",
+        weak: '"'
+      },
+      "bash": {
+        escape: {
+          escapeChar: "\\",
+          charsToEscape: ` "'`
+        },
+        strong: "'",
+        weak: '"'
+      },
+      "zsh": {
+        escape: {
+          escapeChar: "\\",
+          charsToEscape: ` "'`
+        },
+        strong: "'",
+        weak: '"'
+      }
+    };
+  }
+  static {
+    this._osShellQuotes = {
+      "Linux": TerminalTaskSystem._shellQuotes["bash"],
+      "Mac": TerminalTaskSystem._shellQuotes["bash"],
+      "Windows": TerminalTaskSystem._shellQuotes["powershell"]
+    };
+  }
+  taskShellIntegrationStartSequence(cwd) {
+    return VSCodeSequence("P", `${"HasRichCommandDetection"}=True`) + VSCodeSequence(
+      "A"
+      /* VSCodeOscPt.PromptStart */
+    ) + VSCodeSequence("P", `${"Task"}=True`) + (cwd ? VSCodeSequence("P", `${"Cwd"}=${typeof cwd === "string" ? cwd : cwd.fsPath}`) : "") + VSCodeSequence(
+      "B"
+      /* VSCodeOscPt.CommandStart */
+    );
+  }
+  getTaskShellIntegrationOutputSequence(commandLineInfo) {
+    return (commandLineInfo ? VSCodeSequence("E", `${serializeVSCodeOscMessage(commandLineInfo.commandLine)};${commandLineInfo.nonce}`) : "") + VSCodeSequence(
+      "C"
+      /* VSCodeOscPt.CommandExecuted */
+    );
+  }
+  constructor(_terminalService, _terminalGroupService, _outputService, _paneCompositeService, _viewsService, _markerService, _modelService, _configurationResolverService, _contextService, _environmentService, _outputChannelId, _fileService, _terminalProfileResolverService, _pathService, _viewDescriptorService, _logService, _notificationService, contextKeyService, instantiationService, taskSystemInfoResolver, _taskLookup) {
+    super();
+    this._terminalService = _terminalService;
+    this._terminalGroupService = _terminalGroupService;
+    this._outputService = _outputService;
+    this._paneCompositeService = _paneCompositeService;
+    this._viewsService = _viewsService;
+    this._markerService = _markerService;
+    this._modelService = _modelService;
+    this._configurationResolverService = _configurationResolverService;
+    this._contextService = _contextService;
+    this._environmentService = _environmentService;
+    this._outputChannelId = _outputChannelId;
+    this._fileService = _fileService;
+    this._terminalProfileResolverService = _terminalProfileResolverService;
+    this._pathService = _pathService;
+    this._viewDescriptorService = _viewDescriptorService;
+    this._logService = _logService;
+    this._notificationService = _notificationService;
+    this._taskLookup = _taskLookup;
+    this._isRerun = false;
+    this._terminalCreationQueue = Promise.resolve();
+    this._hasReconnected = false;
+    this._terminalTabActions = [{ id: RerunForActiveTerminalCommandId, label: nls.localize("rerunTask", "Rerun Task"), icon: rerunTaskIcon }];
+    this._taskStartTimes = /* @__PURE__ */ new Map();
+    this._activeTasks = /* @__PURE__ */ Object.create(null);
+    this._busyTasks = /* @__PURE__ */ Object.create(null);
+    this._taskErrors = /* @__PURE__ */ Object.create(null);
+    this._taskDependencies = /* @__PURE__ */ Object.create(null);
+    this._terminals = /* @__PURE__ */ Object.create(null);
+    this._idleTaskTerminals = new LinkedMap();
+    this._sameTaskTerminals = /* @__PURE__ */ Object.create(null);
+    this._onDidStateChange = new Emitter();
+    this._taskSystemInfoResolver = taskSystemInfoResolver;
+    this._register(this._terminalStatusManager = instantiationService.createInstance(TaskTerminalStatus));
+    this._register(this._taskProblemMonitor = instantiationService.createInstance(TaskProblemMonitor));
+    this._taskTerminalActive = TASK_TERMINAL_ACTIVE.bindTo(contextKeyService);
+    this._register(this._terminalService.onDidChangeActiveInstance((e) => this._taskTerminalActive.set(e?.shellLaunchConfig.type === "Task")));
+  }
+  get onDidStateChange() {
+    return this._onDidStateChange.event;
+  }
+  _log(value) {
+    this._appendOutput(value + "\n");
+  }
+  _showOutput() {
+    this._outputService.showChannel(this._outputChannelId, true);
+  }
+  reconnect(task, resolver) {
+    this._reconnectToTerminals();
+    return this.run(task, resolver, Triggers.reconnect);
+  }
+  run(task, resolver, trigger = Triggers.command) {
+    task = task.clone();
+    const instances = InMemoryTask.is(task) || this._isTaskEmpty(task) ? [] : this._getInstances(task);
+    const validInstance = instances.length < ((task.runOptions && task.runOptions.instanceLimit) ?? 1);
+    const instance = instances[0]?.count?.count ?? 0;
+    this._currentTask = new VerifiedTask(task, resolver, trigger);
+    if (instance > 0) {
+      task.instance = instance;
+    }
+    if (!validInstance) {
+      const terminalData = instances[instances.length - 1];
+      this._lastTask = this._currentTask;
+      return { kind: 2, task: terminalData.task, active: { same: true, background: task.configurationProperties.isBackground }, promise: terminalData.promise };
+    }
+    try {
+      const executeResult = { kind: 1, task, started: {}, promise: this._executeTask(task, resolver, trigger, /* @__PURE__ */ new Set(), /* @__PURE__ */ new Map(), void 0) };
+      executeResult.promise.then((summary) => {
+        this._lastTask = this._currentTask;
+      });
+      return executeResult;
+    } catch (error) {
+      if (error instanceof TaskError) {
+        throw error;
+      } else if (error instanceof Error) {
+        this._log(error.message);
+        throw new TaskError(
+          Severity.Error,
+          error.message,
+          7
+          /* TaskErrors.UnknownError */
+        );
+      } else {
+        this._log(error.toString());
+        throw new TaskError(
+          Severity.Error,
+          nls.localize("TerminalTaskSystem.unknownError", "A unknown error has occurred while executing a task. See task output log for details."),
+          7
+          /* TaskErrors.UnknownError */
+        );
+      }
+    }
+  }
+  getTerminalsForTasks(tasks) {
+    const results = [];
+    for (const t of asArray(tasks)) {
+      for (const key in this._terminals) {
+        const value = this._terminals[key];
+        if (value.lastTask === t.getMapKey()) {
+          results.push(value.terminal.resource);
+        }
+      }
+    }
+    return results.length > 0 ? results : void 0;
+  }
+  getTaskProblems(instanceId) {
+    return this._taskProblemMonitor.getTaskProblems(instanceId);
+  }
+  rerun() {
+    if (this._lastTask && this._lastTask.verify()) {
+      if (this._lastTask.task.runOptions.reevaluateOnRerun !== void 0 && !this._lastTask.task.runOptions.reevaluateOnRerun) {
+        this._isRerun = true;
+      }
+      const result = this.run(this._lastTask.task, this._lastTask.resolver);
+      result.promise.then((summary) => {
+        this._isRerun = false;
+      });
+      return result;
+    } else {
+      return void 0;
+    }
+  }
+  get lastTask() {
+    return this._lastTask;
+  }
+  set lastTask(task) {
+    this._lastTask = task;
+  }
+  _showTaskLoadErrors(task) {
+    if (task.taskLoadMessages && task.taskLoadMessages.length > 0) {
+      task.taskLoadMessages.forEach((loadMessage) => {
+        this._log(loadMessage + "\n");
+      });
+      const openOutput = "Show Output";
+      this._notificationService.prompt(Severity.Warning, nls.localize("TerminalTaskSystem.taskLoadReporting", 'There are issues with task "{0}". See the output for more details.', task._label), [{
+        label: openOutput,
+        run: /* @__PURE__ */ __name(() => this._showOutput(), "run")
+      }]);
+    }
+  }
+  isTaskVisible(task) {
+    const terminalData = this._activeTasks[task.getMapKey()];
+    if (!terminalData?.terminal) {
+      return false;
+    }
+    const activeTerminalInstance = this._terminalService.activeInstance;
+    const isPanelShowingTerminal = !!this._viewsService.getActiveViewWithId(TERMINAL_VIEW_ID);
+    return isPanelShowingTerminal && activeTerminalInstance?.instanceId === terminalData.terminal.instanceId;
+  }
+  revealTask(task) {
+    const terminalData = this._activeTasks[task.getMapKey()];
+    if (!terminalData?.terminal) {
+      return false;
+    }
+    const isTerminalInPanel = this._viewDescriptorService.getViewLocationById(TERMINAL_VIEW_ID) === 1;
+    if (isTerminalInPanel && this.isTaskVisible(task)) {
+      if (this._previousPanelId) {
+        if (this._previousTerminalInstance) {
+          this._terminalService.setActiveInstance(this._previousTerminalInstance);
+        }
+        this._paneCompositeService.openPaneComposite(
+          this._previousPanelId,
+          1
+          /* ViewContainerLocation.Panel */
+        );
+      } else {
+        this._paneCompositeService.hideActivePaneComposite(
+          1
+          /* ViewContainerLocation.Panel */
+        );
+      }
+      this._previousPanelId = void 0;
+      this._previousTerminalInstance = void 0;
+    } else {
+      if (isTerminalInPanel) {
+        this._previousPanelId = this._paneCompositeService.getActivePaneComposite(
+          1
+          /* ViewContainerLocation.Panel */
+        )?.getId();
+        if (this._previousPanelId === TERMINAL_VIEW_ID) {
+          this._previousTerminalInstance = this._terminalService.activeInstance ?? void 0;
+        }
+      }
+      this._terminalService.setActiveInstance(terminalData.terminal);
+      if (CustomTask.is(task) || ContributedTask.is(task)) {
+        this._terminalGroupService.showPanel(task.command.presentation.focus);
+      }
+    }
+    return true;
+  }
+  isActive() {
+    return Promise.resolve(this.isActiveSync());
+  }
+  isActiveSync() {
+    return Object.values(this._activeTasks).some((value) => !!value.terminal);
+  }
+  canAutoTerminate() {
+    return Object.values(this._activeTasks).every((value) => !value.task.configurationProperties.promptOnClose);
+  }
+  getActiveTasks() {
+    return Object.values(this._activeTasks).flatMap((value) => value.terminal ? value.task : []);
+  }
+  getLastInstance(task) {
+    const recentKey = task.getKey();
+    return Object.values(this._activeTasks).reverse().find((value) => recentKey && recentKey === value.task.getKey())?.task;
+  }
+  getFirstInstance(task) {
+    const recentKey = task.getKey();
+    for (const task2 of this.getActiveTasks()) {
+      if (recentKey && recentKey === task2.getKey()) {
+        return task2;
+      }
+    }
+    return void 0;
+  }
+  getBusyTasks() {
+    return Object.keys(this._busyTasks).map((key) => this._busyTasks[key]);
+  }
+  customExecutionComplete(task, result) {
+    const activeTerminal = this._activeTasks[task.getMapKey()];
+    if (!activeTerminal?.terminal) {
+      return Promise.reject(new Error("Expected to have a terminal for a custom execution task"));
+    }
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
+  _getInstances(task) {
+    const recentKey = task.getKey();
+    return Object.values(this._activeTasks).filter((value) => recentKey && recentKey === value.task.getKey());
+  }
+  _removeFromActiveTasks(task) {
+    const key = typeof task === "string" ? task : task.getMapKey();
+    const taskToRemove = this._activeTasks[key];
+    if (!taskToRemove) {
+      return;
+    }
+    delete this._activeTasks[key];
+  }
+  _fireTaskEvent(event) {
+    if (event.kind !== TaskEventKind.Changed && event.kind !== TaskEventKind.ProblemMatcherEnded && event.kind !== TaskEventKind.ProblemMatcherStarted) {
+      const activeTask = this._activeTasks[event.__task.getMapKey()];
+      if (activeTask) {
+        activeTask.state = event.kind;
+      }
+    }
+    this._onDidStateChange.fire(event);
+  }
+  terminate(task) {
+    const activeTerminal = this._activeTasks[task.getMapKey()];
+    if (!activeTerminal) {
+      return Promise.resolve({ success: false, task: void 0 });
+    }
+    const terminal = activeTerminal.terminal;
+    if (!terminal) {
+      return Promise.resolve({ success: false, task: void 0 });
+    }
+    return new Promise((resolve, reject) => {
+      this._register(terminal.onDisposed((terminal2) => {
+        this._fireTaskEvent(TaskEvent.terminated(task, terminal2.instanceId, terminal2.exitReason));
+      }));
+      const onExit = terminal.onExit(() => {
+        const task2 = activeTerminal.task;
+        try {
+          onExit.dispose();
+          this._fireTaskEvent(TaskEvent.terminated(task2, terminal.instanceId, terminal.exitReason));
+        } catch (error) {
+        }
+        resolve({ success: true, task: task2 });
+      });
+      terminal.dispose();
+    });
+  }
+  terminateAll() {
+    const promises = [];
+    for (const [key, terminalData] of Object.entries(this._activeTasks)) {
+      const terminal = terminalData?.terminal;
+      if (terminal) {
+        promises.push(new Promise((resolve, reject) => {
+          const onExit = terminal.onExit(() => {
+            const task = terminalData.task;
+            try {
+              onExit.dispose();
+              this._fireTaskEvent(TaskEvent.terminated(task, terminal.instanceId, terminal.exitReason));
+            } catch (error) {
+            }
+            if (this._activeTasks[key] === terminalData) {
+              delete this._activeTasks[key];
+            }
+            resolve({ success: true, task: terminalData.task });
+          });
+        }));
+        terminal.dispose();
+      }
+    }
+    return Promise.all(promises);
+  }
+  _showDependencyCycleMessage(task) {
+    this._log(nls.localize("dependencyCycle", 'There is a dependency cycle. See task "{0}".', task._label));
+    this._showOutput();
+  }
+  _executeTask(task, resolver, trigger, liveDependencies, encounteredTasks, alreadyResolved) {
+    this._showTaskLoadErrors(task);
+    const mapKey = task.getMapKey();
+    const promise = Promise.resolve().then(async () => {
+      alreadyResolved = alreadyResolved ?? /* @__PURE__ */ new Map();
+      const promises = [];
+      if (task.configurationProperties.dependsOn) {
+        const nextLiveDependencies = new Set(liveDependencies).add(task.getCommonTaskId());
+        for (const dependency of task.configurationProperties.dependsOn) {
+          const dependencyTask = await resolver.resolve(dependency.uri, dependency.task);
+          if (dependencyTask) {
+            this._adoptConfigurationForDependencyTask(dependencyTask, task);
+            const taskMapKey = task.getMapKey();
+            const dependencyMapKey = dependencyTask.getMapKey();
+            if (!this._taskDependencies[taskMapKey]) {
+              this._taskDependencies[taskMapKey] = [];
+            }
+            if (!this._taskDependencies[taskMapKey].includes(dependencyMapKey)) {
+              this._taskDependencies[taskMapKey].push(dependencyMapKey);
+            }
+            let taskResult;
+            const commonKey = dependencyTask.getCommonTaskId();
+            if (nextLiveDependencies.has(commonKey)) {
+              this._showDependencyCycleMessage(dependencyTask);
+              taskResult = Promise.resolve({});
+            } else {
+              taskResult = encounteredTasks.get(commonKey);
+              if (!taskResult) {
+                const activeTask2 = this._activeTasks[dependencyTask.getMapKey()] ?? this._getInstances(dependencyTask).pop();
+                taskResult = activeTask2 && this._getDependencyPromise(activeTask2);
+              }
+            }
+            if (!taskResult) {
+              this._fireTaskEvent(TaskEvent.general(TaskEventKind.DependsOnStarted, task));
+              taskResult = this._executeDependencyTask(dependencyTask, resolver, trigger, nextLiveDependencies, encounteredTasks, alreadyResolved);
+            }
+            encounteredTasks.set(commonKey, taskResult);
+            promises.push(taskResult);
+            if (task.configurationProperties.dependsOrder === "sequence") {
+              const promiseResult = await taskResult;
+              if (promiseResult.exitCode !== 0) {
+                break;
+              }
+            }
+          } else {
+            this._log(nls.localize("dependencyFailed", "Couldn't resolve dependent task '{0}' in workspace folder '{1}'", Types.isString(dependency.task) ? dependency.task : JSON.stringify(dependency.task, void 0, 0), dependency.uri.toString()));
+            this._showOutput();
+          }
+        }
+      }
+      return Promise.all(promises).then((summaries) => {
+        for (const summary of summaries) {
+          if (summary.exitCode !== 0) {
+            return { exitCode: summary.exitCode };
+          }
+        }
+        if ((ContributedTask.is(task) || CustomTask.is(task)) && task.command) {
+          if (this._isRerun) {
+            return this._reexecuteCommand(task, trigger, alreadyResolved);
+          } else {
+            return this._executeCommand(task, trigger, alreadyResolved);
+          }
+        }
+        return { exitCode: 0 };
+      });
+    }).finally(() => {
+      delete this._activeTasks[mapKey];
+    });
+    const lastInstance = this._getInstances(task).pop();
+    const count = lastInstance?.count ?? { count: 0 };
+    count.count++;
+    const activeTask = { task, promise, count };
+    this._activeTasks[mapKey] = activeTask;
+    return promise;
+  }
+  _createInactiveDependencyPromise(task) {
+    return new Promise((resolve) => {
+      const taskInactiveDisposable = this.onDidStateChange((taskEvent) => {
+        if (taskEvent.kind === TaskEventKind.Inactive && taskEvent.__task === task) {
+          taskInactiveDisposable.dispose();
+          resolve({ exitCode: 0 });
+        }
+      });
+    });
+  }
+  _taskHasErrors(task) {
+    const taskMapKey = task.getMapKey();
+    if (this._taskErrors[taskMapKey]) {
+      return true;
+    }
+    const dependencies = this._taskDependencies[taskMapKey];
+    if (dependencies) {
+      for (const dependencyMapKey of dependencies) {
+        if (this._taskErrors[dependencyMapKey]) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  _cleanupTaskTracking(task) {
+    const taskMapKey = task.getMapKey();
+    delete this._taskErrors[taskMapKey];
+    delete this._taskDependencies[taskMapKey];
+  }
+  _adoptConfigurationForDependencyTask(dependencyTask, task) {
+    if (dependencyTask.configurationProperties.icon) {
+      dependencyTask.configurationProperties.icon.id ||= task.configurationProperties.icon?.id;
+      dependencyTask.configurationProperties.icon.color ||= task.configurationProperties.icon?.color;
+    } else {
+      dependencyTask.configurationProperties.icon = task.configurationProperties.icon;
+    }
+  }
+  async _getDependencyPromise(task) {
+    if (!task.task.configurationProperties.isBackground) {
+      return task.promise;
+    }
+    if (!task.task.configurationProperties.problemMatchers || task.task.configurationProperties.problemMatchers.length === 0) {
+      return task.promise;
+    }
+    if (task.state === TaskEventKind.Inactive) {
+      return { exitCode: 0 };
+    }
+    return this._createInactiveDependencyPromise(task.task);
+  }
+  async _executeDependencyTask(task, resolver, trigger, liveDependencies, encounteredTasks, alreadyResolved) {
+    if (!task.configurationProperties.isBackground) {
+      return this._executeTask(task, resolver, trigger, liveDependencies, encounteredTasks, alreadyResolved);
+    }
+    const inactivePromise = this._createInactiveDependencyPromise(task);
+    return Promise.race([inactivePromise, this._executeTask(task, resolver, trigger, liveDependencies, encounteredTasks, alreadyResolved)]);
+  }
+  async _resolveAndFindExecutable(systemInfo, workspaceFolder, task, cwd, envPath) {
+    const command = await this._configurationResolverService.resolveAsync(workspaceFolder, CommandString.value(task.command.name));
+    cwd = cwd ? await this._configurationResolverService.resolveAsync(workspaceFolder, cwd) : void 0;
+    const delimiter = (await this._pathService.path).delimiter;
+    const paths = envPath ? await Promise.all(envPath.split(delimiter).map((p) => this._configurationResolverService.resolveAsync(workspaceFolder, p))) : void 0;
+    const foundExecutable = await systemInfo?.findExecutable(command, cwd, paths);
+    if (foundExecutable) {
+      return foundExecutable;
+    }
+    if (path.isAbsolute(command)) {
+      return command;
+    }
+    return path.join(cwd ?? "", command);
+  }
+  _findUnresolvedVariables(variables, alreadyResolved) {
+    if (alreadyResolved.size === 0) {
+      return variables;
+    }
+    const unresolved = /* @__PURE__ */ new Set();
+    for (const variable of variables) {
+      if (!alreadyResolved.has(variable.substring(2, variable.length - 1))) {
+        unresolved.add(variable);
+      }
+    }
+    return unresolved;
+  }
+  _mergeMaps(mergeInto, mergeFrom) {
+    for (const entry of mergeFrom) {
+      if (!mergeInto.has(entry[0])) {
+        mergeInto.set(entry[0], entry[1]);
+      }
+    }
+  }
+  async _acquireInput(taskSystemInfo, workspaceFolder, task, variables, alreadyResolved) {
+    const resolved = await this._resolveVariablesFromSet(taskSystemInfo, workspaceFolder, task, variables, alreadyResolved);
+    this._fireTaskEvent(TaskEvent.general(TaskEventKind.AcquiredInput, task));
+    return resolved;
+  }
+  _resolveVariablesFromSet(taskSystemInfo, workspaceFolder, task, variables, alreadyResolved) {
+    const isProcess = task.command && task.command.runtime === RuntimeType.Process;
+    const options = task.command && task.command.options ? task.command.options : void 0;
+    const cwd = options ? options.cwd : void 0;
+    let envPath = void 0;
+    if (options && options.env) {
+      for (const key of Object.keys(options.env)) {
+        if (key.toLowerCase() === "path") {
+          if (Types.isString(options.env[key])) {
+            envPath = options.env[key];
+          }
+          break;
+        }
+      }
+    }
+    const unresolved = this._findUnresolvedVariables(variables, alreadyResolved);
+    let resolvedVariables;
+    if (taskSystemInfo && workspaceFolder) {
+      const resolveSet = {
+        variables: unresolved
+      };
+      if (taskSystemInfo.platform === 3 && isProcess) {
+        resolveSet.process = { name: CommandString.value(task.command.name) };
+        if (cwd) {
+          resolveSet.process.cwd = cwd;
+        }
+        if (envPath) {
+          resolveSet.process.path = envPath;
+        }
+      }
+      resolvedVariables = taskSystemInfo.resolveVariables(workspaceFolder, resolveSet, TaskSourceKind.toConfigurationTarget(task._source.kind)).then(async (resolved) => {
+        if (!resolved) {
+          return void 0;
+        }
+        this._mergeMaps(alreadyResolved, resolved.variables);
+        resolved.variables = new Map(alreadyResolved);
+        if (isProcess) {
+          let process = CommandString.value(task.command.name);
+          if (taskSystemInfo.platform === 3) {
+            process = await this._resolveAndFindExecutable(taskSystemInfo, workspaceFolder, task, cwd, envPath);
+          }
+          resolved.variables.set(TerminalTaskSystem.ProcessVarName, process);
+        }
+        return resolved;
+      });
+      return resolvedVariables;
+    } else {
+      const variablesArray = new Array();
+      unresolved.forEach((variable) => variablesArray.push(variable));
+      return new Promise((resolve, reject) => {
+        this._configurationResolverService.resolveWithInteraction(workspaceFolder, variablesArray, "tasks", void 0, TaskSourceKind.toConfigurationTarget(task._source.kind)).then(async (resolvedVariablesMap) => {
+          if (resolvedVariablesMap) {
+            this._mergeMaps(alreadyResolved, resolvedVariablesMap);
+            resolvedVariablesMap = new Map(alreadyResolved);
+            if (isProcess) {
+              let processVarValue;
+              if (Platform.isWindows) {
+                processVarValue = await this._resolveAndFindExecutable(taskSystemInfo, workspaceFolder, task, cwd, envPath);
+              } else {
+                processVarValue = await this._configurationResolverService.resolveAsync(workspaceFolder, CommandString.value(task.command.name));
+              }
+              resolvedVariablesMap.set(TerminalTaskSystem.ProcessVarName, processVarValue);
+            }
+            const resolvedVariablesResult = {
+              variables: resolvedVariablesMap
+            };
+            resolve(resolvedVariablesResult);
+          } else {
+            resolve(void 0);
+          }
+        }, (reason) => {
+          reject(reason);
+        });
+      });
+    }
+  }
+  _executeCommand(task, trigger, alreadyResolved) {
+    const taskWorkspaceFolder = task.getWorkspaceFolder();
+    let workspaceFolder;
+    if (taskWorkspaceFolder) {
+      workspaceFolder = this._currentTask.workspaceFolder = taskWorkspaceFolder;
+    } else {
+      const folders = this._contextService.getWorkspace().folders;
+      workspaceFolder = folders.length > 0 ? folders[0] : void 0;
+    }
+    const systemInfo = this._currentTask.systemInfo = this._taskSystemInfoResolver(workspaceFolder);
+    const variables = /* @__PURE__ */ new Set();
+    this._collectTaskVariables(variables, task);
+    const resolvedVariables = this._acquireInput(systemInfo, workspaceFolder, task, variables, alreadyResolved);
+    return resolvedVariables.then((resolvedVariables2) => {
+      if (resolvedVariables2 && !this._isTaskEmpty(task)) {
+        this._currentTask.resolvedVariables = resolvedVariables2;
+        return this._executeInTerminal(task, trigger, new VariableResolver(workspaceFolder, systemInfo, resolvedVariables2.variables, this._configurationResolverService), workspaceFolder);
+      } else {
+        this._fireTaskEvent(TaskEvent.general(TaskEventKind.End, task));
+        return Promise.resolve({ exitCode: 0 });
+      }
+    }, (reason) => {
+      return Promise.reject(reason);
+    });
+  }
+  _isTaskEmpty(task) {
+    const isCustomExecution = task.command.runtime === RuntimeType.CustomExecution;
+    return !(task.command !== void 0 && task.command.runtime && (isCustomExecution || task.command.name !== void 0));
+  }
+  _reexecuteCommand(task, trigger, alreadyResolved) {
+    const lastTask = this._lastTask;
+    if (!lastTask) {
+      return Promise.reject(new Error("No task previously run"));
+    }
+    const workspaceFolder = this._currentTask.workspaceFolder = lastTask.workspaceFolder;
+    const variables = /* @__PURE__ */ new Set();
+    this._collectTaskVariables(variables, task);
+    let hasAllVariables = true;
+    variables.forEach((value) => {
+      if (value.substring(2, value.length - 1) in lastTask.getVerifiedTask().resolvedVariables) {
+        hasAllVariables = false;
+      }
+    });
+    if (!hasAllVariables) {
+      return this._acquireInput(lastTask.getVerifiedTask().systemInfo, lastTask.getVerifiedTask().workspaceFolder, task, variables, alreadyResolved).then((resolvedVariables) => {
+        if (!resolvedVariables) {
+          this._fireTaskEvent(TaskEvent.general(TaskEventKind.End, task));
+          return { exitCode: 0 };
+        }
+        this._currentTask.resolvedVariables = resolvedVariables;
+        return this._executeInTerminal(task, trigger, new VariableResolver(lastTask.getVerifiedTask().workspaceFolder, lastTask.getVerifiedTask().systemInfo, resolvedVariables.variables, this._configurationResolverService), workspaceFolder);
+      }, (reason) => {
+        return Promise.reject(reason);
+      });
+    } else {
+      this._currentTask.resolvedVariables = lastTask.getVerifiedTask().resolvedVariables;
+      return this._executeInTerminal(task, trigger, new VariableResolver(lastTask.getVerifiedTask().workspaceFolder, lastTask.getVerifiedTask().systemInfo, lastTask.getVerifiedTask().resolvedVariables.variables, this._configurationResolverService), workspaceFolder);
+    }
+  }
+  async _executeInTerminal(task, trigger, resolver, workspaceFolder) {
+    let terminal = void 0;
+    let error = void 0;
+    let promise = void 0;
+    if (task.configurationProperties.isBackground) {
+      const problemMatchers = await this._resolveMatchers(resolver, task.configurationProperties.problemMatchers);
+      const watchingProblemMatcher = new WatchingProblemCollector(problemMatchers, this._markerService, this._modelService, this._fileService);
+      if (problemMatchers.length > 0 && !watchingProblemMatcher.isWatching()) {
+        this._appendOutput(nls.localize("TerminalTaskSystem.nonWatchingMatcher", "Task {0} is a background task but uses a problem matcher without a background pattern", task._label));
+        this._showOutput();
+      }
+      const toDispose = new DisposableStore();
+      let eventCounter = 0;
+      const mapKey = task.getMapKey();
+      toDispose.add(watchingProblemMatcher.onDidStateChange((event) => {
+        if (event.kind === "backgroundProcessingBegins") {
+          eventCounter++;
+          this._busyTasks[mapKey] = task;
+          this._fireTaskEvent(TaskEvent.general(TaskEventKind.Active, task, terminal?.instanceId));
+        } else if (event.kind === "backgroundProcessingEnds") {
+          eventCounter--;
+          if (this._busyTasks[mapKey]) {
+            delete this._busyTasks[mapKey];
+          }
+          this._fireTaskEvent(TaskEvent.inactive(task, terminal?.instanceId, this._takeTaskDuration(terminal?.instanceId)));
+          if (eventCounter === 0) {
+            if (watchingProblemMatcher.numberOfMatches > 0 && watchingProblemMatcher.maxMarkerSeverity && watchingProblemMatcher.maxMarkerSeverity >= MarkerSeverity.Error) {
+              this._taskErrors[task.getMapKey()] = true;
+              this._fireTaskEvent(TaskEvent.general(TaskEventKind.ProblemMatcherFoundErrors, task, terminal?.instanceId));
+              const reveal = task.command.presentation.reveal;
+              const revealProblems = task.command.presentation.revealProblems;
+              if (revealProblems === RevealProblemKind.OnProblem) {
+                this._viewsService.openView(Markers.MARKERS_VIEW_ID, true);
+              } else if (reveal === RevealKind.Silent) {
+                this._terminalService.setActiveInstance(terminal);
+                this._terminalGroupService.showPanel(false);
+              }
+            } else {
+              this._fireTaskEvent(TaskEvent.problemMatcherEnded(task, this._taskHasErrors(task), terminal?.instanceId));
+            }
+          }
+        }
+      }));
+      watchingProblemMatcher.aboutToStart();
+      let delayer = void 0;
+      [terminal, error] = await this._createTerminal(task, resolver, workspaceFolder);
+      if (error) {
+        return Promise.reject(new Error(error.message));
+      }
+      if (!terminal) {
+        return Promise.reject(new Error(`Failed to create terminal for task ${task._label}`));
+      }
+      this._terminalStatusManager.addTerminal(task, terminal, watchingProblemMatcher);
+      this._taskProblemMonitor.addTerminal(terminal, watchingProblemMatcher);
+      let processStartedSignaled = false;
+      terminal.processReady.then(() => {
+        if (!processStartedSignaled) {
+          this._fireTaskEvent(TaskEvent.processStarted(task, terminal.instanceId, terminal.processId));
+          processStartedSignaled = true;
+        }
+      }, (_error) => {
+        this._logService.error("Task terminal process never got ready");
+      });
+      this._taskStartTimes.set(terminal.instanceId, Date.now());
+      this._fireTaskEvent(TaskEvent.start(task, terminal.instanceId, resolver.values));
+      let onData;
+      if (problemMatchers.length) {
+        onData = terminal.onLineData((line) => {
+          watchingProblemMatcher.processLine(line);
+          if (!delayer) {
+            delayer = new Async.Delayer(3e3);
+          }
+          delayer.trigger(() => {
+            watchingProblemMatcher.forceDelivery();
+            delayer = void 0;
+          });
+        });
+      }
+      promise = new Promise((resolve, reject) => {
+        const onExit = terminal.onExit((terminalLaunchResult) => {
+          const exitCode = typeof terminalLaunchResult === "number" ? terminalLaunchResult : terminalLaunchResult?.code;
+          onData?.dispose();
+          onExit.dispose();
+          const key = task.getMapKey();
+          if (this._busyTasks[mapKey]) {
+            delete this._busyTasks[mapKey];
+          }
+          this._removeFromActiveTasks(task);
+          this._fireTaskEvent(TaskEvent.changed());
+          if (terminalLaunchResult !== void 0) {
+            switch (task.command.presentation.panel) {
+              case PanelKind.Dedicated:
+                this._sameTaskTerminals[key] = terminal.instanceId.toString();
+                break;
+              case PanelKind.Shared:
+                this._idleTaskTerminals.set(
+                  key,
+                  terminal.instanceId.toString(),
+                  1
+                  /* Touch.AsOld */
+                );
+                break;
+            }
+          }
+          const reveal = task.command.presentation.reveal;
+          if (reveal === RevealKind.Silent && (exitCode !== 0 || watchingProblemMatcher.numberOfMatches > 0 && watchingProblemMatcher.maxMarkerSeverity && watchingProblemMatcher.maxMarkerSeverity >= MarkerSeverity.Error)) {
+            try {
+              this._terminalService.setActiveInstance(terminal);
+              this._terminalGroupService.showPanel(false);
+            } catch (e) {
+            }
+          }
+          watchingProblemMatcher.done();
+          watchingProblemMatcher.dispose();
+          if (!processStartedSignaled) {
+            this._fireTaskEvent(TaskEvent.processStarted(task, terminal.instanceId, terminal.processId));
+            processStartedSignaled = true;
+          }
+          const durationMs = this._takeTaskDuration(terminal.instanceId);
+          this._fireTaskEvent(TaskEvent.processEnded(task, terminal.instanceId, exitCode, durationMs));
+          for (let i = 0; i < eventCounter; i++) {
+            this._fireTaskEvent(TaskEvent.inactive(task, terminal.instanceId));
+          }
+          eventCounter = 0;
+          this._fireTaskEvent(TaskEvent.general(TaskEventKind.End, task));
+          toDispose.dispose();
+          resolve({ exitCode: exitCode ?? void 0 });
+        });
+      });
+      if (trigger === Triggers.reconnect && !!terminal.xterm) {
+        const bufferLines = [];
+        const bufferReverseIterator = terminal.xterm.getBufferReverseIterator();
+        const startRegex = new RegExp(watchingProblemMatcher.beginPatterns.map((pattern) => pattern.source).join("|"));
+        for (const nextLine of bufferReverseIterator) {
+          bufferLines.push(nextLine);
+          if (startRegex.test(nextLine)) {
+            break;
+          }
+        }
+        let delayer2 = void 0;
+        for (let i = bufferLines.length - 1; i >= 0; i--) {
+          watchingProblemMatcher.processLine(bufferLines[i]);
+          if (!delayer2) {
+            delayer2 = new Async.Delayer(3e3);
+          }
+          delayer2.trigger(() => {
+            watchingProblemMatcher.forceDelivery();
+            delayer2 = void 0;
+          });
+        }
+      }
+    } else {
+      [terminal, error] = await this._createTerminal(task, resolver, workspaceFolder);
+      if (error) {
+        return Promise.reject(new Error(error.message));
+      }
+      if (!terminal) {
+        return Promise.reject(new Error(`Failed to create terminal for task ${task._label}`));
+      }
+      this._taskStartTimes.set(terminal.instanceId, Date.now());
+      this._fireTaskEvent(TaskEvent.start(task, terminal.instanceId, resolver.values));
+      const mapKey = task.getMapKey();
+      this._busyTasks[mapKey] = task;
+      this._fireTaskEvent(TaskEvent.general(TaskEventKind.Active, task, terminal.instanceId));
+      const problemMatchers = await this._resolveMatchers(resolver, task.configurationProperties.problemMatchers);
+      const startStopProblemMatcher = new StartStopProblemCollector(problemMatchers, this._markerService, this._modelService, 0, this._fileService);
+      this._terminalStatusManager.addTerminal(task, terminal, startStopProblemMatcher);
+      this._taskProblemMonitor.addTerminal(terminal, startStopProblemMatcher);
+      this._register(startStopProblemMatcher.onDidStateChange((event) => {
+        if (event.kind === "backgroundProcessingBegins") {
+          this._fireTaskEvent(TaskEvent.general(TaskEventKind.ProblemMatcherStarted, task, terminal?.instanceId));
+        } else if (event.kind === "backgroundProcessingEnds") {
+          if (startStopProblemMatcher.numberOfMatches && startStopProblemMatcher.maxMarkerSeverity && startStopProblemMatcher.maxMarkerSeverity >= MarkerSeverity.Error) {
+            this._taskErrors[task.getMapKey()] = true;
+            this._fireTaskEvent(TaskEvent.general(TaskEventKind.ProblemMatcherFoundErrors, task, terminal?.instanceId));
+          } else {
+            this._fireTaskEvent(TaskEvent.problemMatcherEnded(task, this._taskHasErrors(task), terminal?.instanceId));
+          }
+        }
+      }));
+      let processStartedSignaled = false;
+      terminal.processReady.then(() => {
+        if (!processStartedSignaled) {
+          this._fireTaskEvent(TaskEvent.processStarted(task, terminal.instanceId, terminal.processId));
+          processStartedSignaled = true;
+        }
+      }, (_error) => {
+      });
+      const onData = terminal.onLineData((line) => {
+        startStopProblemMatcher.processLine(line);
+      });
+      promise = new Promise((resolve, reject) => {
+        const onExit = terminal.onExit((terminalLaunchResult) => {
+          const exitCode = typeof terminalLaunchResult === "number" ? terminalLaunchResult : terminalLaunchResult?.code;
+          onExit.dispose();
+          const key = task.getMapKey();
+          this._removeFromActiveTasks(task);
+          this._fireTaskEvent(TaskEvent.changed());
+          if (terminalLaunchResult !== void 0) {
+            switch (task.command.presentation.panel) {
+              case PanelKind.Dedicated:
+                this._sameTaskTerminals[key] = terminal.instanceId.toString();
+                break;
+              case PanelKind.Shared:
+                this._idleTaskTerminals.set(
+                  key,
+                  terminal.instanceId.toString(),
+                  1
+                  /* Touch.AsOld */
+                );
+                break;
+            }
+          }
+          const reveal = task.command.presentation.reveal;
+          const revealProblems = task.command.presentation.revealProblems;
+          const revealProblemPanel = terminal && revealProblems === RevealProblemKind.OnProblem && startStopProblemMatcher.numberOfMatches > 0;
+          if (revealProblemPanel) {
+            this._viewsService.openView(Markers.MARKERS_VIEW_ID);
+          } else if (terminal && reveal === RevealKind.Silent && (exitCode !== 0 || startStopProblemMatcher.numberOfMatches > 0 && startStopProblemMatcher.maxMarkerSeverity && startStopProblemMatcher.maxMarkerSeverity >= MarkerSeverity.Error)) {
+            try {
+              this._terminalService.setActiveInstance(terminal);
+              this._terminalGroupService.showPanel(false);
+            } catch (e) {
+            }
+          }
+          setTimeout(() => {
+            onData.dispose();
+            startStopProblemMatcher.done();
+            startStopProblemMatcher.dispose();
+          }, 100);
+          if (!processStartedSignaled && terminal) {
+            this._fireTaskEvent(TaskEvent.processStarted(task, terminal.instanceId, terminal.processId));
+            processStartedSignaled = true;
+          }
+          const durationMs = this._takeTaskDuration(terminal?.instanceId);
+          this._fireTaskEvent(TaskEvent.processEnded(task, terminal?.instanceId, exitCode ?? void 0, durationMs));
+          if (this._busyTasks[mapKey]) {
+            delete this._busyTasks[mapKey];
+          }
+          this._fireTaskEvent(TaskEvent.inactive(task, terminal?.instanceId, durationMs));
+          if (startStopProblemMatcher.numberOfMatches && startStopProblemMatcher.maxMarkerSeverity && startStopProblemMatcher.maxMarkerSeverity >= MarkerSeverity.Error) {
+            this._taskErrors[task.getMapKey()] = true;
+            this._fireTaskEvent(TaskEvent.general(TaskEventKind.ProblemMatcherFoundErrors, task, terminal?.instanceId));
+          } else {
+            this._fireTaskEvent(TaskEvent.problemMatcherEnded(task, this._taskHasErrors(task), terminal?.instanceId));
+          }
+          this._fireTaskEvent(TaskEvent.general(TaskEventKind.End, task, terminal?.instanceId));
+          this._cleanupTaskTracking(task);
+          resolve({ exitCode: exitCode ?? void 0 });
+        });
+      });
+    }
+    const showProblemPanel = task.command.presentation && task.command.presentation.revealProblems === RevealProblemKind.Always;
+    if (showProblemPanel) {
+      this._viewsService.openView(Markers.MARKERS_VIEW_ID);
+    } else if (task.command.presentation && (task.command.presentation.focus || task.command.presentation.reveal === RevealKind.Always)) {
+      this._terminalService.setActiveInstance(terminal);
+      await this._terminalService.revealTerminal(terminal);
+      if (task.command.presentation.focus && terminal) {
+        await this._terminalService.focusInstance(terminal);
+      }
+    }
+    if (this._activeTasks[task.getMapKey()]) {
+      this._activeTasks[task.getMapKey()].terminal = terminal;
+    } else {
+      this._logService.warn("No active tasks found for the terminal.");
+    }
+    this._fireTaskEvent(TaskEvent.changed());
+    return promise;
+  }
+  _takeTaskDuration(terminalId) {
+    if (terminalId === void 0) {
+      return void 0;
+    }
+    const startTime = this._taskStartTimes.get(terminalId);
+    if (startTime === void 0) {
+      return void 0;
+    }
+    this._taskStartTimes.delete(terminalId);
+    return Date.now() - startTime;
+  }
+  _createTerminalName(task) {
+    const needsFolderQualification = this._contextService.getWorkbenchState() === 3;
+    return needsFolderQualification ? task.getQualifiedLabel() : task.configurationProperties.name || "";
+  }
+  async _createShellLaunchConfig(task, workspaceFolder, variableResolver, platform, options, command, args, waitOnExit, presentationOptions) {
+    let shellLaunchConfig;
+    const isShellCommand = task.command.runtime === RuntimeType.Shell;
+    const needsFolderQualification = this._contextService.getWorkbenchState() === 3;
+    const terminalName = this._createTerminalName(task);
+    const type = TaskTerminalType;
+    const originalCommand = task.command.name;
+    let cwd;
+    if (options.cwd) {
+      cwd = options.cwd;
+      if (!path.isAbsolute(cwd)) {
+        if (workspaceFolder && workspaceFolder.uri.scheme === Schemas.file) {
+          cwd = path.join(workspaceFolder.uri.fsPath, cwd);
+        }
+      }
+      cwd = isUNC(cwd) ? cwd : resources.toLocalResource(URI.from({ scheme: Schemas.file, path: cwd }), this._environmentService.remoteAuthority, this._pathService.defaultUriScheme);
+    }
+    if (isShellCommand) {
+      let os;
+      switch (platform) {
+        case 3:
+          os = 1;
+          break;
+        case 1:
+          os = 2;
+          break;
+        case 2:
+        default:
+          os = 3;
+          break;
+      }
+      const defaultProfile = await this._terminalProfileResolverService.getDefaultProfile({
+        allowAutomationShell: true,
+        os,
+        remoteAuthority: this._environmentService.remoteAuthority
+      });
+      let icon;
+      if (task.configurationProperties.icon?.id) {
+        icon = ThemeIcon.fromId(task.configurationProperties.icon.id);
+      } else {
+        const taskGroupKind = task.configurationProperties.group ? GroupKind.to(task.configurationProperties.group) : void 0;
+        const kindId = typeof taskGroupKind === "string" ? taskGroupKind : taskGroupKind?.kind;
+        icon = kindId === "test" ? ThemeIcon.fromId(Codicon.beaker.id) : defaultProfile.icon;
+      }
+      shellLaunchConfig = {
+        name: terminalName,
+        type,
+        executable: defaultProfile.path,
+        args: defaultProfile.args,
+        env: { ...defaultProfile.env },
+        icon,
+        color: task.configurationProperties.icon?.color || void 0,
+        waitOnExit
+      };
+      let shellSpecified = false;
+      const shellOptions = task.command.options && task.command.options.shell;
+      if (shellOptions) {
+        if (shellOptions.executable) {
+          if (shellOptions.executable !== shellLaunchConfig.executable) {
+            shellLaunchConfig.args = void 0;
+          }
+          shellLaunchConfig.executable = await this._resolveVariable(variableResolver, shellOptions.executable);
+          shellSpecified = true;
+        }
+        if (shellOptions.args) {
+          shellLaunchConfig.args = await this._resolveVariables(variableResolver, shellOptions.args.slice());
+        }
+      }
+      if (shellLaunchConfig.args === void 0) {
+        shellLaunchConfig.args = [];
+      }
+      const shellArgs = Array.isArray(shellLaunchConfig.args) ? shellLaunchConfig.args.slice(0) : [shellLaunchConfig.args];
+      const toAdd = [];
+      const basename = path.posix.basename((await this._pathService.fileURI(shellLaunchConfig.executable)).path).toLowerCase();
+      const commandLine = this._buildShellCommandLine(platform, basename, shellOptions, command, originalCommand, args);
+      let windowsShellArgs = false;
+      if (platform === 3) {
+        windowsShellArgs = true;
+        const userHome = await this._pathService.userHome();
+        if (basename === "cmd.exe" && (options.cwd && isUNC(options.cwd) || !options.cwd && isUNC(userHome.fsPath))) {
+          return void 0;
+        }
+        if (basename === "powershell.exe" || basename === "pwsh.exe") {
+          if (!shellSpecified) {
+            toAdd.push("-Command");
+          }
+        } else if (basename === "bash.exe" || basename === "zsh.exe") {
+          windowsShellArgs = false;
+          if (!shellSpecified) {
+            toAdd.push("-c");
+          }
+        } else if (basename === "wsl.exe") {
+          if (!shellSpecified) {
+            toAdd.push("-e");
+          }
+        } else if (basename === "nu.exe") {
+          if (!shellSpecified) {
+            toAdd.push("-c");
+          }
+        } else {
+          if (!shellSpecified) {
+            toAdd.push("/d", "/c");
+          }
+        }
+      } else {
+        if (!shellSpecified) {
+          if (platform === 1) {
+          }
+          toAdd.push("-c");
+        }
+      }
+      const combinedShellArgs = this._addAllArgument(toAdd, shellArgs);
+      combinedShellArgs.push(commandLine);
+      shellLaunchConfig.shellIntegrationNonce = generateUuid();
+      const commandLineInfo = {
+        commandLine,
+        nonce: shellLaunchConfig.shellIntegrationNonce
+      };
+      shellLaunchConfig.args = windowsShellArgs ? combinedShellArgs.join(" ") : combinedShellArgs;
+      if (task.command.presentation && task.command.presentation.echo) {
+        if (needsFolderQualification && workspaceFolder) {
+          const folder = cwd && typeof cwd === "object" && "path" in cwd ? path.basename(cwd.path) : workspaceFolder.name;
+          shellLaunchConfig.initialText = this.taskShellIntegrationStartSequence(cwd) + formatMessageForTerminal(nls.localize({
+            key: "task.executingInFolder",
+            comment: ["The workspace folder the task is running in", "The task command line or label"]
+          }, "Executing task in folder {0}: {1}", folder, commandLine), { excludeLeadingNewLine: true }) + this.getTaskShellIntegrationOutputSequence(commandLineInfo);
+        } else {
+          shellLaunchConfig.initialText = this.taskShellIntegrationStartSequence(cwd) + formatMessageForTerminal(nls.localize({
+            key: "task.executing.shellIntegration",
+            comment: ["The task command line or label"]
+          }, "Executing task: {0}", commandLine), { excludeLeadingNewLine: true }) + this.getTaskShellIntegrationOutputSequence(commandLineInfo);
+        }
+      } else {
+        shellLaunchConfig.initialText = {
+          text: this.taskShellIntegrationStartSequence(cwd) + this.getTaskShellIntegrationOutputSequence(commandLineInfo),
+          trailingNewLine: false
+        };
+      }
+    } else {
+      const commandExecutable = task.command.runtime !== RuntimeType.CustomExecution ? CommandString.value(command) : void 0;
+      const executable = !isShellCommand ? await this._resolveVariable(variableResolver, await this._resolveVariable(variableResolver, "${" + TerminalTaskSystem.ProcessVarName + "}")) : commandExecutable;
+      shellLaunchConfig = {
+        name: terminalName,
+        type,
+        icon: task.configurationProperties.icon?.id ? ThemeIcon.fromId(task.configurationProperties.icon.id) : void 0,
+        color: task.configurationProperties.icon?.color || void 0,
+        executable,
+        args: args.map((a) => Types.isString(a) ? a : a.value),
+        waitOnExit
+      };
+      if (task.command.presentation && task.command.presentation.echo) {
+        const getArgsToEcho = /* @__PURE__ */ __name((args2) => {
+          if (!args2 || args2.length === 0) {
+            return "";
+          }
+          if (Types.isString(args2)) {
+            return args2;
+          }
+          return args2.join(" ");
+        }, "getArgsToEcho");
+        if (needsFolderQualification && workspaceFolder) {
+          shellLaunchConfig.initialText = this.taskShellIntegrationStartSequence(cwd) + formatMessageForTerminal(nls.localize({
+            key: "task.executingInFolder",
+            comment: ["The workspace folder the task is running in", "The task command line or label"]
+          }, "Executing task in folder {0}: {1}", workspaceFolder.name, `${shellLaunchConfig.executable} ${getArgsToEcho(shellLaunchConfig.args)}`), { excludeLeadingNewLine: true }) + this.getTaskShellIntegrationOutputSequence(void 0);
+        } else {
+          shellLaunchConfig.initialText = this.taskShellIntegrationStartSequence(cwd) + formatMessageForTerminal(nls.localize({
+            key: "task.executing.shell-integration",
+            comment: ["The task command line or label"]
+          }, "Executing task: {0}", `${shellLaunchConfig.executable} ${getArgsToEcho(shellLaunchConfig.args)}`), { excludeLeadingNewLine: true }) + this.getTaskShellIntegrationOutputSequence(void 0);
+        }
+      } else {
+        shellLaunchConfig.initialText = {
+          text: this.taskShellIntegrationStartSequence(cwd) + this.getTaskShellIntegrationOutputSequence(void 0),
+          trailingNewLine: false
+        };
+      }
+    }
+    if (cwd) {
+      shellLaunchConfig.cwd = cwd;
+    }
+    if (options.env) {
+      if (shellLaunchConfig.env) {
+        shellLaunchConfig.env = { ...shellLaunchConfig.env, ...options.env };
+      } else {
+        shellLaunchConfig.env = options.env;
+      }
+    }
+    shellLaunchConfig.isFeatureTerminal = true;
+    shellLaunchConfig.useShellEnvironment = true;
+    shellLaunchConfig.tabActions = this._terminalTabActions;
+    return shellLaunchConfig;
+  }
+  _addAllArgument(shellCommandArgs, configuredShellArgs) {
+    const combinedShellArgs = Objects.deepClone(configuredShellArgs);
+    shellCommandArgs.forEach((element) => {
+      const shouldAddShellCommandArg = configuredShellArgs.every((arg, index) => {
+        if (arg.toLowerCase() === element && configuredShellArgs.length > index + 1) {
+          return !configuredShellArgs.slice(index + 1).every((testArg) => testArg.startsWith("-"));
+        } else {
+          return arg.toLowerCase() !== element;
+        }
+      });
+      if (shouldAddShellCommandArg) {
+        combinedShellArgs.push(element);
+      }
+    });
+    return combinedShellArgs;
+  }
+  async _reconnectToTerminal(task) {
+    const reconnectedInstances = this._terminalService.instances.filter((e) => e.reconnectionProperties?.ownerId === TaskTerminalType);
+    return reconnectedInstances.find((e) => getReconnectionData(e)?.lastTask === task.getCommonTaskId());
+  }
+  async _doCreateTerminal(task, group, launchConfigs) {
+    const reconnectedTerminal = await this._reconnectToTerminal(task);
+    const onDisposed = /* @__PURE__ */ __name((terminal) => this._fireTaskEvent(TaskEvent.terminated(task, terminal.instanceId, terminal.exitReason)), "onDisposed");
+    if (reconnectedTerminal) {
+      if ("command" in task && task.command.presentation) {
+        reconnectedTerminal.waitOnExit = getWaitOnExitValue(task.command.presentation, task.configurationProperties);
+      }
+      this._register(reconnectedTerminal.onDisposed(onDisposed));
+      this._logService.trace("reconnected to task and terminal", task._id);
+      return reconnectedTerminal;
+    }
+    if (group) {
+      for (const terminal of Object.values(this._terminals)) {
+        if (terminal.group === group) {
+          this._logService.trace(`Found terminal to split for group ${group}`);
+          const originalInstance = terminal.terminal;
+          const result = await this._terminalService.createTerminal({ location: { parentTerminal: originalInstance }, config: launchConfigs });
+          this._register(result.onDisposed(onDisposed));
+          if (result) {
+            return result;
+          }
+        }
+      }
+      this._logService.trace(`No terminal found to split for group ${group}`);
+    }
+    const createdTerminal = await this._terminalService.createTerminal({ config: launchConfigs });
+    this._register(createdTerminal.onDisposed(onDisposed));
+    return createdTerminal;
+  }
+  _reconnectToTerminals() {
+    if (this._hasReconnected) {
+      this._logService.trace(`Already reconnected to terminals, so returning`);
+      return;
+    }
+    const reconnectedInstances = this._terminalService.instances.filter((e) => e.reconnectionProperties?.ownerId === TaskTerminalType);
+    this._logService.trace(`Attempting reconnection of ${reconnectedInstances.length} terminals`);
+    if (!reconnectedInstances.length) {
+      this._logService.trace(`No terminals to reconnect to so returning`);
+    } else {
+      for (const terminal of reconnectedInstances) {
+        const data = getReconnectionData(terminal);
+        if (data) {
+          const terminalData = { lastTask: data.lastTask, group: data.group, terminal, shellIntegrationNonce: data.shellIntegrationNonce };
+          this._terminals[terminal.instanceId] = terminalData;
+          this._logService.trace("Reconnecting to task terminal", terminalData.lastTask, terminal.instanceId);
+        }
+      }
+    }
+    this._hasReconnected = true;
+  }
+  _deleteTaskAndTerminal(terminal, terminalData) {
+    delete this._terminals[terminal.instanceId];
+    delete this._sameTaskTerminals[terminalData.lastTask];
+    this._idleTaskTerminals.delete(terminalData.lastTask);
+    const mapKey = terminalData.lastTask;
+    this._removeFromActiveTasks(mapKey);
+    if (this._busyTasks[mapKey]) {
+      delete this._busyTasks[mapKey];
+    }
+  }
+  async _createTerminal(task, resolver, workspaceFolder) {
+    const platform = resolver.taskSystemInfo ? resolver.taskSystemInfo.platform : Platform.platform;
+    const options = await this._resolveOptions(resolver, task.command.options);
+    const presentationOptions = task.command.presentation;
+    if (!presentationOptions) {
+      throw new Error("Task presentation options should not be undefined here.");
+    }
+    const waitOnExit = getWaitOnExitValue(presentationOptions, task.configurationProperties);
+    let command;
+    let args;
+    let launchConfigs;
+    if (task.command.runtime === RuntimeType.CustomExecution) {
+      this._currentTask.shellLaunchConfig = launchConfigs = {
+        customPtyImplementation: /* @__PURE__ */ __name((id, cols, rows) => new TerminalProcessExtHostProxy(id, cols, rows, this._terminalService), "customPtyImplementation"),
+        waitOnExit,
+        name: this._createTerminalName(task),
+        initialText: task.command.presentation && task.command.presentation.echo ? formatMessageForTerminal(nls.localize({
+          key: "task.executing",
+          comment: ["The task command line or label"]
+        }, "Executing task: {0}", task._label), { excludeLeadingNewLine: true }) : void 0,
+        isFeatureTerminal: true,
+        icon: task.configurationProperties.icon?.id ? ThemeIcon.fromId(task.configurationProperties.icon.id) : void 0,
+        color: task.configurationProperties.icon?.color || void 0
+      };
+    } else {
+      const resolvedResult = await this._resolveCommandAndArgs(resolver, task.command);
+      command = resolvedResult.command;
+      args = resolvedResult.args;
+      this._currentTask.shellLaunchConfig = launchConfigs = await this._createShellLaunchConfig(task, workspaceFolder, resolver, platform, options, command, args, waitOnExit, presentationOptions);
+      if (launchConfigs === void 0) {
+        return [void 0, new TaskError(
+          Severity.Error,
+          nls.localize("TerminalTaskSystem", "Can't execute a shell command on an UNC drive using cmd.exe."),
+          7
+          /* TaskErrors.UnknownError */
+        )];
+      }
+    }
+    const prefersSameTerminal = presentationOptions.panel === PanelKind.Dedicated;
+    const allowsSharedTerminal = presentationOptions.panel === PanelKind.Shared;
+    const group = presentationOptions.group;
+    const taskKey = task.getMapKey();
+    let terminalToReuse;
+    if (prefersSameTerminal) {
+      const terminalId = this._sameTaskTerminals[taskKey];
+      if (terminalId) {
+        terminalToReuse = this._terminals[terminalId];
+        delete this._sameTaskTerminals[taskKey];
+      }
+    } else if (allowsSharedTerminal) {
+      let terminalId = this._idleTaskTerminals.remove(taskKey);
+      if (!terminalId) {
+        for (const taskId of this._idleTaskTerminals.keys()) {
+          const idleTerminalId = this._idleTaskTerminals.get(taskId);
+          if (idleTerminalId && this._terminals[idleTerminalId] && this._terminals[idleTerminalId].group === group) {
+            terminalId = this._idleTaskTerminals.remove(taskId);
+            break;
+          }
+        }
+      }
+      if (terminalId) {
+        terminalToReuse = this._terminals[terminalId];
+      }
+    }
+    if (terminalToReuse) {
+      if (!launchConfigs) {
+        throw new Error("Task shell launch configuration should not be undefined here.");
+      }
+      terminalToReuse.terminal.scrollToBottom();
+      if (task.configurationProperties.isBackground) {
+        launchConfigs.reconnectionProperties = { ownerId: TaskTerminalType, data: { lastTask: task.getCommonTaskId(), group, label: task._label, id: task._id } };
+      }
+      if (terminalToReuse.shellIntegrationNonce) {
+        if (Types.isString(launchConfigs.initialText) && launchConfigs.shellIntegrationNonce) {
+          launchConfigs.initialText = launchConfigs.initialText.replace(launchConfigs.shellIntegrationNonce, terminalToReuse.shellIntegrationNonce);
+        }
+      }
+      await terminalToReuse.terminal.reuseTerminal(launchConfigs);
+      if (task.command.presentation && task.command.presentation.clear) {
+        terminalToReuse.terminal.clearBuffer();
+      }
+      this._terminals[terminalToReuse.terminal.instanceId.toString()].lastTask = taskKey;
+      return [terminalToReuse.terminal, void 0];
+    }
+    this._terminalCreationQueue = this._terminalCreationQueue.then(() => this._doCreateTerminal(task, group, launchConfigs));
+    const terminal = await this._terminalCreationQueue;
+    if (task.configurationProperties.isBackground) {
+      terminal.shellLaunchConfig.reconnectionProperties = { ownerId: TaskTerminalType, data: { lastTask: task.getCommonTaskId(), group, label: task._label, id: task._id } };
+    }
+    const terminalKey = terminal.instanceId.toString();
+    const terminalData = { terminal, lastTask: taskKey, group, shellIntegrationNonce: terminal.shellLaunchConfig.shellIntegrationNonce };
+    const onDisposedListener = this._register(terminal.onDisposed(() => {
+      this._deleteTaskAndTerminal(terminal, terminalData);
+      onDisposedListener.dispose();
+    }));
+    this._terminals[terminalKey] = terminalData;
+    terminal.shellLaunchConfig.tabActions = this._terminalTabActions;
+    return [terminal, void 0];
+  }
+  _buildShellCommandLine(platform, shellExecutable, shellOptions, command, originalCommand, args) {
+    const basename = path.parse(shellExecutable).name.toLowerCase();
+    const shellQuoteOptions = this._getQuotingOptions(basename, shellOptions, platform);
+    function needsQuotes(value2) {
+      if (value2.length >= 2) {
+        const first = value2[0] === shellQuoteOptions.strong ? shellQuoteOptions.strong : value2[0] === shellQuoteOptions.weak ? shellQuoteOptions.weak : void 0;
+        if (first === value2[value2.length - 1]) {
+          return false;
+        }
+      }
+      let quote2;
+      for (let i = 0; i < value2.length; i++) {
+        const ch = value2[i];
+        if (ch === quote2) {
+          quote2 = void 0;
+        } else if (quote2 !== void 0) {
+          continue;
+        } else if (ch === shellQuoteOptions.escape) {
+          i++;
+        } else if (ch === shellQuoteOptions.strong || ch === shellQuoteOptions.weak) {
+          quote2 = ch;
+        } else if (ch === " ") {
+          return true;
+        }
+      }
+      return false;
+    }
+    __name(needsQuotes, "needsQuotes");
+    function quote(value2, kind) {
+      if (kind === ShellQuoting.Strong && shellQuoteOptions.strong) {
+        return [shellQuoteOptions.strong + value2 + shellQuoteOptions.strong, true];
+      } else if (kind === ShellQuoting.Weak && shellQuoteOptions.weak) {
+        return [shellQuoteOptions.weak + value2 + shellQuoteOptions.weak, true];
+      } else if (kind === ShellQuoting.Escape && shellQuoteOptions.escape) {
+        if (Types.isString(shellQuoteOptions.escape)) {
+          return [value2.replace(/ /g, shellQuoteOptions.escape + " "), true];
+        } else {
+          const buffer = [];
+          for (const ch of shellQuoteOptions.escape.charsToEscape) {
+            buffer.push(`\\${ch}`);
+          }
+          const regexp = new RegExp("[" + buffer.join(",") + "]", "g");
+          const escapeChar = shellQuoteOptions.escape.escapeChar;
+          return [value2.replace(regexp, (match) => escapeChar + match), true];
+        }
+      }
+      return [value2, false];
+    }
+    __name(quote, "quote");
+    function quoteIfNecessary(value2) {
+      if (Types.isString(value2)) {
+        if (needsQuotes(value2)) {
+          return quote(value2, ShellQuoting.Strong);
+        } else {
+          return [value2, false];
+        }
+      } else {
+        return quote(value2.value, value2.quoting);
+      }
+    }
+    __name(quoteIfNecessary, "quoteIfNecessary");
+    if ((!args || args.length === 0) && Types.isString(command) && (command === originalCommand || needsQuotes(originalCommand))) {
+      return command;
+    }
+    const result = [];
+    let commandQuoted = false;
+    let argQuoted = false;
+    let value;
+    let quoted;
+    [value, quoted] = quoteIfNecessary(command);
+    result.push(value);
+    commandQuoted = quoted;
+    for (const arg of args) {
+      [value, quoted] = quoteIfNecessary(arg);
+      result.push(value);
+      argQuoted = argQuoted || quoted;
+    }
+    let commandLine = result.join(" ");
+    if (platform === 3) {
+      if (basename === "cmd" && commandQuoted && argQuoted) {
+        commandLine = '"' + commandLine + '"';
+      } else if ((basename === "powershell" || basename === "pwsh") && commandQuoted) {
+        commandLine = "& " + commandLine;
+      }
+    }
+    return commandLine;
+  }
+  _getQuotingOptions(shellBasename, shellOptions, platform) {
+    if (shellOptions && shellOptions.quoting) {
+      return shellOptions.quoting;
+    }
+    return TerminalTaskSystem._shellQuotes[shellBasename] || TerminalTaskSystem._osShellQuotes[Platform.PlatformToString(platform)];
+  }
+  _collectTaskVariables(variables, task) {
+    if (task.command && task.command.name) {
+      this._collectCommandVariables(variables, task.command, task);
+    }
+    this._collectMatcherVariables(variables, task.configurationProperties.problemMatchers);
+    if (task.command.runtime === RuntimeType.CustomExecution && (CustomTask.is(task) || ContributedTask.is(task))) {
+      let definition;
+      if (CustomTask.is(task)) {
+        definition = task._source.config.element;
+      } else {
+        definition = Objects.deepClone(task.defines);
+        delete definition._key;
+        delete definition.type;
+      }
+      this._collectDefinitionVariables(variables, definition);
+    }
+  }
+  _collectDefinitionVariables(variables, definition) {
+    if (Types.isString(definition)) {
+      this._collectVariables(variables, definition);
+    } else if (Array.isArray(definition)) {
+      definition.forEach((element) => this._collectDefinitionVariables(variables, element));
+    } else if (Types.isObject(definition)) {
+      for (const key in definition) {
+        this._collectDefinitionVariables(variables, definition[key]);
+      }
+    }
+  }
+  _collectCommandVariables(variables, command, task) {
+    if (command.runtime === RuntimeType.CustomExecution) {
+      return;
+    }
+    if (command.name === void 0) {
+      throw new Error("Command name should never be undefined here.");
+    }
+    this._collectVariables(variables, command.name);
+    command.args?.forEach((arg) => this._collectVariables(variables, arg));
+    const scope = task._source.scope;
+    if (scope !== 1) {
+      variables.add("${workspaceFolder}");
+    }
+    if (command.options) {
+      const options = command.options;
+      if (options.cwd) {
+        this._collectVariables(variables, options.cwd);
+      }
+      const optionsEnv = options.env;
+      if (optionsEnv) {
+        Object.keys(optionsEnv).forEach((key) => {
+          const value = optionsEnv[key];
+          if (Types.isString(value)) {
+            this._collectVariables(variables, value);
+          }
+        });
+      }
+      if (options.shell) {
+        if (options.shell.executable) {
+          this._collectVariables(variables, options.shell.executable);
+        }
+        options.shell.args?.forEach((arg) => this._collectVariables(variables, arg));
+      }
+    }
+  }
+  _collectMatcherVariables(variables, values) {
+    if (values === void 0 || values === null || values.length === 0) {
+      return;
+    }
+    values.forEach((value) => {
+      let matcher;
+      if (Types.isString(value)) {
+        if (value[0] === "$") {
+          matcher = ProblemMatcherRegistry.get(value.substring(1));
+        } else {
+          matcher = ProblemMatcherRegistry.get(value);
+        }
+      } else {
+        matcher = value;
+      }
+      if (matcher && matcher.filePrefix) {
+        if (Types.isString(matcher.filePrefix)) {
+          this._collectVariables(variables, matcher.filePrefix);
+        } else {
+          for (const fp of [...asArray(matcher.filePrefix.include || []), ...asArray(matcher.filePrefix.exclude || [])]) {
+            this._collectVariables(variables, fp);
+          }
+        }
+      }
+    });
+  }
+  _collectVariables(variables, value) {
+    const string = Types.isString(value) ? value : value.value;
+    const r = /\$\{(.*?)\}/g;
+    let matches;
+    do {
+      matches = r.exec(string);
+      if (matches) {
+        variables.add(matches[0]);
+      }
+    } while (matches);
+  }
+  async _resolveCommandAndArgs(resolver, commandConfig) {
+    let args = commandConfig.args ? commandConfig.args.slice() : [];
+    args = await this._resolveVariables(resolver, args);
+    const command = await this._resolveVariable(resolver, commandConfig.name);
+    return { command, args };
+  }
+  async _resolveVariables(resolver, value) {
+    return Promise.all(value.map((s) => this._resolveVariable(resolver, s)));
+  }
+  async _resolveMatchers(resolver, values) {
+    if (values === void 0 || values === null || values.length === 0) {
+      return [];
+    }
+    const result = [];
+    for (const value of values) {
+      let matcher;
+      if (Types.isString(value)) {
+        if (value[0] === "$") {
+          matcher = ProblemMatcherRegistry.get(value.substring(1));
+        } else {
+          matcher = ProblemMatcherRegistry.get(value);
+        }
+      } else {
+        matcher = value;
+      }
+      if (!matcher) {
+        this._appendOutput(nls.localize("unknownProblemMatcher", "Problem matcher {0} can't be resolved. The matcher will be ignored"));
+        continue;
+      }
+      const taskSystemInfo = resolver.taskSystemInfo;
+      const hasFilePrefix = matcher.filePrefix !== void 0;
+      const hasUriProvider = taskSystemInfo !== void 0 && taskSystemInfo.uriProvider !== void 0;
+      if (!hasFilePrefix && !hasUriProvider) {
+        result.push(matcher);
+      } else {
+        const copy = Objects.deepClone(matcher);
+        if (hasUriProvider && taskSystemInfo !== void 0) {
+          copy.uriProvider = taskSystemInfo.uriProvider;
+        }
+        if (hasFilePrefix) {
+          const filePrefix = copy.filePrefix;
+          if (Types.isString(filePrefix)) {
+            copy.filePrefix = await this._resolveVariable(resolver, filePrefix);
+          } else if (filePrefix !== void 0) {
+            if (filePrefix.include) {
+              filePrefix.include = Array.isArray(filePrefix.include) ? await Promise.all(filePrefix.include.map((x) => this._resolveVariable(resolver, x))) : await this._resolveVariable(resolver, filePrefix.include);
+            }
+            if (filePrefix.exclude) {
+              filePrefix.exclude = Array.isArray(filePrefix.exclude) ? await Promise.all(filePrefix.exclude.map((x) => this._resolveVariable(resolver, x))) : await this._resolveVariable(resolver, filePrefix.exclude);
+            }
+          }
+        }
+        result.push(copy);
+      }
+    }
+    return result;
+  }
+  async _resolveVariable(resolver, value) {
+    if (Types.isString(value)) {
+      return resolver.resolve(value);
+    } else if (value !== void 0) {
+      return {
+        value: await resolver.resolve(value.value),
+        quoting: value.quoting
+      };
+    } else {
+      throw new Error("Should never try to resolve undefined.");
+    }
+  }
+  async _resolveOptions(resolver, options) {
+    if (options === void 0 || options === null) {
+      let cwd;
+      try {
+        cwd = await this._resolveVariable(resolver, "${workspaceFolder}");
+      } catch (e) {
+      }
+      return { cwd };
+    }
+    const result = Types.isString(options.cwd) ? { cwd: await this._resolveVariable(resolver, options.cwd) } : { cwd: await this._resolveVariable(resolver, "${workspaceFolder}") };
+    if (options.env) {
+      result.env = /* @__PURE__ */ Object.create(null);
+      for (const key of Object.keys(options.env)) {
+        const value = options.env[key];
+        if (Types.isString(value)) {
+          result.env[key] = await this._resolveVariable(resolver, value);
+        } else {
+          result.env[key] = value.toString();
+        }
+      }
+    }
+    return result;
+  }
+  static {
+    this.WellKnownCommands = {
+      "ant": true,
+      "cmake": true,
+      "eslint": true,
+      "gradle": true,
+      "grunt": true,
+      "gulp": true,
+      "jake": true,
+      "jenkins": true,
+      "jshint": true,
+      "make": true,
+      "maven": true,
+      "msbuild": true,
+      "msc": true,
+      "nmake": true,
+      "npm": true,
+      "rake": true,
+      "tsc": true,
+      "xbuild": true
+    };
+  }
+  getSanitizedCommand(cmd) {
+    let result = cmd.toLowerCase();
+    const index = result.lastIndexOf(path.sep);
+    if (index !== -1) {
+      result = result.substring(index + 1);
+    }
+    if (TerminalTaskSystem.WellKnownCommands[result]) {
+      return result;
+    }
+    return "other";
+  }
+  async getTaskForTerminal(instanceId) {
+    for (const key in this._activeTasks) {
+      const activeTask = this._activeTasks[key];
+      if (activeTask.terminal?.instanceId === instanceId) {
+        return activeTask.task;
+      }
+    }
+    const terminalData = this._terminals[instanceId.toString()];
+    if (terminalData?.lastTask) {
+      return await this._taskLookup(terminalData.lastTask);
+    }
+    return void 0;
+  }
+  _appendOutput(output) {
+    const outputChannel = this._outputService.getChannel(this._outputChannelId);
+    outputChannel?.append(output);
+  }
+}
+function getWaitOnExitValue(presentationOptions, configurationProperties) {
+  if (presentationOptions.close === void 0 || presentationOptions.close === false) {
+    if (presentationOptions.reveal !== RevealKind.Never || !configurationProperties.isBackground || presentationOptions.close === false) {
+      if (presentationOptions.panel === PanelKind.New) {
+        return taskShellIntegrationWaitOnExitSequence(nls.localize("closeTerminal", "Press any key to close the terminal."));
+      } else if (presentationOptions.showReuseMessage) {
+        return taskShellIntegrationWaitOnExitSequence(nls.localize("reuseTerminal", "Terminal will be reused by tasks, press any key to close it."));
+      } else {
+        return true;
+      }
+    }
+  }
+  return !presentationOptions.close;
+}
+__name(getWaitOnExitValue, "getWaitOnExitValue");
+function taskShellIntegrationWaitOnExitSequence(message) {
+  return (exitCode) => {
+    return `${VSCodeSequence("D", exitCode.toString())}${message}`;
+  };
+}
+__name(taskShellIntegrationWaitOnExitSequence, "taskShellIntegrationWaitOnExitSequence");
+function getReconnectionData(terminal) {
+  return terminal.shellLaunchConfig.attachPersistentProcess?.reconnectionProperties?.data;
+}
+__name(getReconnectionData, "getReconnectionData");
+export {
+  TerminalTaskSystem
+};
+//# sourceMappingURL=terminalTaskSystem.js.map

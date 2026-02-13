@@ -1,1 +1,35 @@
-import*as e from"../../../../nls.js";import{$b9 as t}from"../../../../base/browser/dom.js";import{$to as l}from"../../../../platform/action/common/actionCommonCategories.js";import{$vL as i}from"../../../../platform/actions/common/actions.js";import{$Xu as n}from"../../../../platform/native/common/native.js";class f extends i{constructor(){super({id:"workbench.action.webview.openDeveloperTools",title:e.localize2(15021,"Open Webview Developer Tools"),category:l.Developer,metadata:{description:e.localize(15019,null)},f1:!0})}async run(o){const r=o.get(n);t().document.querySelectorAll("iframe.webview.ready").length&&r.openDevTools()}}export{f as $iXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2 } from "../../../../platform/actions/common/actions.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+class OpenWebviewDeveloperToolsAction extends Action2 {
+  static {
+    __name(this, "OpenWebviewDeveloperToolsAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.webview.openDeveloperTools",
+      title: nls.localize2("openToolsLabel", "Open Webview Developer Tools"),
+      category: Categories.Developer,
+      metadata: {
+        description: nls.localize("openToolsDescription", "Opens Developer Tools for active webviews")
+      },
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const nativeHostService = accessor.get(INativeHostService);
+    const iframeWebviewElements = getActiveWindow().document.querySelectorAll("iframe.webview.ready");
+    if (iframeWebviewElements.length) {
+      console.info(nls.localize("iframeWebviewAlert", "Using standard dev tools to debug iframe based webview"));
+      nativeHostService.openDevTools();
+    }
+  }
+}
+export {
+  OpenWebviewDeveloperToolsAction
+};
+//# sourceMappingURL=webviewCommands.js.map

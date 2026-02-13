@@ -1,1 +1,51 @@
-import{URI as m}from"../../../../base/common/uri.js";import{$K1 as p}from"./es5ClassCompat.js";import{$L1 as h}from"./position.js";import{$M1 as n}from"./range.js";var a=function(f,e,r,i){var o=arguments.length,t=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,r):i,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,e,r,i);else for(var u=f.length-1;u>=0;u--)(l=f[u])&&(t=(o<3?l(t):o>3?l(e,r,t):l(e,r))||t);return o>3&&t&&Object.defineProperty(e,r,t),t},c;let s=c=class{static isLocation(e){return e instanceof c?!0:e?n.isRange(e.range)&&m.isUri(e.uri):!1}constructor(e,r){if(this.uri=e,r)if(n.isRange(r))this.range=n.of(r);else if(h.isPosition(r))this.range=new n(r,r);else throw new Error("Illegal argument")}toJSON(){return{uri:this.uri,range:this.range}}};s=c=a([p],s);export{s as $11};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Location_1;
+import { URI } from "../../../../base/common/uri.js";
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { Position } from "./position.js";
+import { Range } from "./range.js";
+let Location = Location_1 = class Location2 {
+  static {
+    __name(this, "Location");
+  }
+  static isLocation(thing) {
+    if (thing instanceof Location_1) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Range.isRange(thing.range) && URI.isUri(thing.uri);
+  }
+  constructor(uri, rangeOrPosition) {
+    this.uri = uri;
+    if (!rangeOrPosition) {
+    } else if (Range.isRange(rangeOrPosition)) {
+      this.range = Range.of(rangeOrPosition);
+    } else if (Position.isPosition(rangeOrPosition)) {
+      this.range = new Range(rangeOrPosition, rangeOrPosition);
+    } else {
+      throw new Error("Illegal argument");
+    }
+  }
+  toJSON() {
+    return {
+      uri: this.uri,
+      range: this.range
+    };
+  }
+};
+Location = Location_1 = __decorate([
+  es5ClassCompat
+], Location);
+export {
+  Location
+};
+//# sourceMappingURL=location.js.map

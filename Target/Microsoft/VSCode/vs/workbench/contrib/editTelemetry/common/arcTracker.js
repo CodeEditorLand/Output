@@ -1,1 +1,73 @@
-import{$Hc as i}from"../../../../base/common/arrays.js";import{$jF as o}from"../../../../editor/common/core/edits/lineEdit.js";class h{constructor(t,e){this.c=t,this.b=e.removeCommonSuffixPrefix(t.getValue()),this.a=this.b.mapData(()=>new a(!0))}getOriginalCharacterCount(){return i(this.b.replacements,t=>t.getNewLength())}handleEdits(t){const e=t.mapData(r=>new a(!1)),s=this.a.compose(e);this.a=s}getAcceptedRestrainedCharactersCount(){return i(this.a.replacements,e=>e.data.isTrackedEdit?e.getNewLength():0)}getDebugState(){return{edits:this.a.replacements.map(t=>({range:t.replaceRange.toString(),newText:t.newText,isTrackedEdit:t.data.isTrackedEdit}))}}getLineCountInfo(){const t=this.a.toStringEdit(n=>n.data.isTrackedEdit),e=o.fromStringEdit(t,this.c),s=i(e.replacements,n=>n.lineRange.length),r=i(e.getNewLineRanges(),n=>n.length);return{deletedLineCounts:s,insertedLineCounts:r}}getValues(){return{arc:this.getAcceptedRestrainedCharactersCount(),...this.getLineCountInfo()}}}class a{constructor(t){this.isTrackedEdit=t}join(t){if(this.isTrackedEdit===t.isTrackedEdit)return this}}export{h as $fLc,a as $gLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { sumBy } from "../../../../base/common/arrays.js";
+import { LineEdit } from "../../../../editor/common/core/edits/lineEdit.js";
+class ArcTracker {
+  static {
+    __name(this, "ArcTracker");
+  }
+  constructor(_valueBeforeTrackedEdit, trackedEdit) {
+    this._valueBeforeTrackedEdit = _valueBeforeTrackedEdit;
+    this._trackedEdit = trackedEdit.removeCommonSuffixPrefix(_valueBeforeTrackedEdit.getValue());
+    this._updatedTrackedEdit = this._trackedEdit.mapData(() => new IsTrackedEditData(true));
+  }
+  getOriginalCharacterCount() {
+    return sumBy(this._trackedEdit.replacements, (e) => e.getNewLength());
+  }
+  /**
+   * edit must apply to _updatedTrackedEdit.apply(_valueBeforeTrackedEdit)
+  */
+  handleEdits(edit) {
+    const e = edit.mapData((_d) => new IsTrackedEditData(false));
+    const composedEdit = this._updatedTrackedEdit.compose(e);
+    this._updatedTrackedEdit = composedEdit;
+  }
+  getAcceptedRestrainedCharactersCount() {
+    const s = sumBy(this._updatedTrackedEdit.replacements, (e) => e.data.isTrackedEdit ? e.getNewLength() : 0);
+    return s;
+  }
+  getDebugState() {
+    return {
+      edits: this._updatedTrackedEdit.replacements.map((e) => ({
+        range: e.replaceRange.toString(),
+        newText: e.newText,
+        isTrackedEdit: e.data.isTrackedEdit
+      }))
+    };
+  }
+  getLineCountInfo() {
+    const e = this._updatedTrackedEdit.toStringEdit((r) => r.data.isTrackedEdit);
+    const le = LineEdit.fromStringEdit(e, this._valueBeforeTrackedEdit);
+    const deletedLineCount = sumBy(le.replacements, (r) => r.lineRange.length);
+    const insertedLineCount = sumBy(le.getNewLineRanges(), (r) => r.length);
+    return {
+      deletedLineCounts: deletedLineCount,
+      insertedLineCounts: insertedLineCount
+    };
+  }
+  getValues() {
+    return {
+      arc: this.getAcceptedRestrainedCharactersCount(),
+      ...this.getLineCountInfo()
+    };
+  }
+}
+class IsTrackedEditData {
+  static {
+    __name(this, "IsTrackedEditData");
+  }
+  constructor(isTrackedEdit) {
+    this.isTrackedEdit = isTrackedEdit;
+  }
+  join(data) {
+    if (this.isTrackedEdit !== data.isTrackedEdit) {
+      return void 0;
+    }
+    return this;
+  }
+}
+export {
+  ArcTracker,
+  IsTrackedEditData
+};
+//# sourceMappingURL=arcTracker.js.map

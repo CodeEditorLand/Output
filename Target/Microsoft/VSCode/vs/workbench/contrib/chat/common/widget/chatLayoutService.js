@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../../../platform/instantiation/common/instantiation.js";const r=o("chatLayoutService");export{r as $hPb};
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+const IChatLayoutService = createDecorator("chatLayoutService");
+export {
+  IChatLayoutService
+};
+//# sourceMappingURL=chatLayoutService.js.map

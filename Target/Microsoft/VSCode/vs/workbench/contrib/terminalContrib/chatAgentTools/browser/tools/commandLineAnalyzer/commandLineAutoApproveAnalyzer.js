@@ -1,1 +1,265 @@
-import{$sc as j}from"../../../../../../../base/common/arrays.js";import{$uk as w,$jk as f}from"../../../../../../../base/common/htmlContent.js";import{$Ed as O}from"../../../../../../../base/common/lifecycle.js";import{localize as m}from"../../../../../../../nls.js";import{$0l as y}from"../../../../../../../platform/configuration/common/configuration.js";import{$Mj as _}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$yZb as P}from"../../../../../terminal/browser/terminal.js";import{$hp as E}from"../../../../../../../platform/storage/common/storage.js";import{ChatConfiguration as k}from"../../../../../chat/common/constants.js";import{$1Cc as R,$ZCc as x,$RCc as G}from"../../runInTerminalHelpers.js";import{$OCc as v,$PCc as L}from"./commandLineAnalyzer.js";import{$QCc as N}from"./autoApprove/commandLineAutoApprover.js";var I=function(h,e,u,a){var r=arguments.length,i=r<3?e:a===null?a=Object.getOwnPropertyDescriptor(e,u):a,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(h,e,u,a);else for(var o=h.length-1;o>=0;o--)(l=h[o])&&(i=(r<3?l(i):r>3?l(e,u,i):l(e,u))||i);return r>3&&i&&Object.defineProperty(e,u,i),i},g=function(h,e){return function(u,a){e(u,a,h)}};const W=["curl","wget"],q=["invoke-restmethod","invoke-webrequest","irm","iwr"];let T=class extends O{constructor(e,u,a,r,i,l,o){super(),this.b=e,this.c=u,this.f=a,this.g=r,this.h=l,this.j=o,this.a=this.D(i.createInstance(N))}async analyze(e){if(e.chatSessionResource&&this.j.hasChatSessionAutoApproval(e.chatSessionResource)){this.f("Session has auto approval enabled, auto approving command");const t=w("workbench.action.terminal.chat.disableSessionAutoApproval",e.chatSessionResource),D={isTrusted:{enabledCommands:["workbench.action.terminal.chat.disableSessionAutoApproval"]}};return{isAutoApproved:!0,isAutoApproveAllowed:!0,disclaimers:[],autoApproveInfo:new f(`${m(13733,null)} ([${m(13734,null)}](${t.toString()}))`,D)}}const u=e.commandLine.trimStart();let a;try{a=await this.b.extractSubCommands(e.treeSitterLanguage,u),this.f(`Parsed sub-commands via ${e.treeSitterLanguage} grammar`,a)}catch{this.f(`Failed to parse sub-commands via ${e.treeSitterLanguage} grammar`)}let r=!1,i,l;if(!a)return{isAutoApproveAllowed:!1,disclaimers:[]};const o=await Promise.all(a.map(t=>this.a.isCommandAutoApproved(t,e.shell,e.os,e.cwd,e.chatSessionResource))),c=this.a.isCommandLineAutoApproved(u,e.chatSessionResource),S=[...o.map(t=>t.reason),c.reason];let s=!1,n,d;const b=o.find(t=>t.result==="denied");b?(this.f("Sub-command DENIED auto approval"),s=!0,d=v(b.rule)?b.rule.isDefaultRule:void 0,n="subCommand"):c.result==="denied"?(this.f("Command line DENIED auto approval"),s=!0,d=v(c.rule)?c.rule.isDefaultRule:void 0,n="commandLine"):o.every(t=>t.result==="approved")?(this.f("All sub-commands auto-approved"),r=!0,n="subCommand",d=o.every(t=>v(t.rule)&&t.rule.isDefaultRule)):(this.f("All sub-commands NOT auto-approved"),c.result==="approved"?(this.f("Command line auto-approved"),n="commandLine",r=!0,d=v(c.rule)?c.rule.isDefaultRule:void 0):this.f("Command line NOT auto-approved"));for(const t of S)this.f(`- ${t}`);const A=this.g.getValue("chat.tools.terminal.enableAutoApprove")===!0,p=this.h.getBoolean("chat.tools.terminal.autoApprove.warningAccepted",-1,!1);A&&r?i=this.m(r,s,n,o,c):r=!1,this.c.logPrepare({terminalToolSessionId:e.terminalToolSessionId,subCommands:a,autoApproveAllowed:A?p?"allowed":"needsOptIn":"off",autoApproveResult:r?"approved":s?"denied":"manual",autoApproveReason:n,autoApproveDefault:d});const $=[],C=a.map(t=>t.split(" ")[0].toLowerCase());if(!r&&(C.some(t=>W.includes(t))||G(e.shell,e.os)&&C.some(t=>q.includes(t)))&&$.push(m(13735,null)),A&&s){const t=this.m(r,s,n,o,c);t&&$.push(t)}return!r&&A&&(l=x(u,a,{subCommandResults:o,commandLineResult:c})),{isAutoApproved:r,isAutoApproveAllowed:!0,disclaimers:$,autoApproveInfo:i,customActions:l}}m(e,u,a,r,i){const l=s=>j(s).filter(n=>v(n.rule)).map(n=>{const d=n.rule.sourceText.replaceAll("$","\\$");if(n.rule.sourceTarget==="session")return m(13736,null,`\`${d}\``);const b=w("workbench.action.terminal.chat.openTerminalSettingsLink",n.rule.sourceTarget),A=m(13737,null);let p=d;switch(n.rule?.sourceTarget){case 7:p=`${p} (default)`;break;case 2:case 3:p=`${p} (user)`;break;case 4:p=`${p} (remote)`;break;case 5:case 6:p=`${p} (workspace)`;break}return`[\`${p}\`](${b.toString()} "${A}")`}).join(", "),o={isTrusted:{enabledCommands:["workbench.action.terminal.chat.openTerminalSettingsLink"]}},c=this.g.inspect(k.GlobalAutoApprove);if(c?.value??c.defaultValue){const s=w("workbench.action.terminal.chat.openTerminalSettingsLink","global");return new f(`${m(13738,null,`[\`${k.GlobalAutoApprove}\`](${s.toString()} "${m(13739,null)}")`)}`,o)}if(e)switch(a){case"commandLine":{if(v(i.rule))return new f(m(13740,null,l(i)),o);break}case"subCommand":{const s=r.find(d=>L(d.rule));if(s&&L(s.rule)&&s.rule.npmScriptResult.autoApproveInfo)return s.rule.npmScriptResult.autoApproveInfo;const n=R(r);if(n.length===1)return new f(m(13741,null,l(n)),o);if(n.length>1)return new f(m(13742,null,l(n)),o);break}}else if(u)switch(a){case"commandLine":{if(i.rule)return new f(m(13743,null,l(i)),o);break}case"subCommand":{const s=R(r.filter(n=>n.result==="denied"));if(s.length===1)return new f(m(13744,null,l(s)),o);if(s.length>1)return new f(m(13745,null,l(s)),o);break}}}};T=I([g(3,y),g(4,_),g(5,E),g(6,P)],T);export{T as $cDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { asArray } from "../../../../../../../base/common/arrays.js";
+import { createCommandUri, MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalChatService } from "../../../../../terminal/browser/terminal.js";
+import { IStorageService } from "../../../../../../../platform/storage/common/storage.js";
+import { ChatConfiguration } from "../../../../../chat/common/constants.js";
+import { dedupeRules, generateAutoApproveActions, isPowerShell } from "../../runInTerminalHelpers.js";
+import { isAutoApproveRule, isNpmScriptAutoApproveRule } from "./commandLineAnalyzer.js";
+import { CommandLineAutoApprover } from "./autoApprove/commandLineAutoApprover.js";
+const promptInjectionWarningCommandsLower = [
+  "curl",
+  "wget"
+];
+const promptInjectionWarningCommandsLowerPwshOnly = [
+  "invoke-restmethod",
+  "invoke-webrequest",
+  "irm",
+  "iwr"
+];
+let CommandLineAutoApproveAnalyzer = class CommandLineAutoApproveAnalyzer2 extends Disposable {
+  static {
+    __name(this, "CommandLineAutoApproveAnalyzer");
+  }
+  constructor(_treeSitterCommandParser, _telemetry, _log, _configurationService, instantiationService, _storageService, _terminalChatService) {
+    super();
+    this._treeSitterCommandParser = _treeSitterCommandParser;
+    this._telemetry = _telemetry;
+    this._log = _log;
+    this._configurationService = _configurationService;
+    this._storageService = _storageService;
+    this._terminalChatService = _terminalChatService;
+    this._commandLineAutoApprover = this._register(instantiationService.createInstance(CommandLineAutoApprover));
+  }
+  async analyze(options) {
+    if (options.chatSessionResource && this._terminalChatService.hasChatSessionAutoApproval(options.chatSessionResource)) {
+      this._log("Session has auto approval enabled, auto approving command");
+      const disableUri = createCommandUri("workbench.action.terminal.chat.disableSessionAutoApproval", options.chatSessionResource);
+      const mdTrustSettings = {
+        isTrusted: {
+          enabledCommands: [
+            "workbench.action.terminal.chat.disableSessionAutoApproval"
+            /* TerminalChatCommandId.DisableSessionAutoApproval */
+          ]
+        }
+      };
+      return {
+        isAutoApproved: true,
+        isAutoApproveAllowed: true,
+        disclaimers: [],
+        autoApproveInfo: new MarkdownString(`${localize("autoApprove.session", "Auto approved for this session")} ([${localize("autoApprove.session.disable", "Disable")}](${disableUri.toString()}))`, mdTrustSettings)
+      };
+    }
+    const trimmedCommandLine = options.commandLine.trimStart();
+    let subCommands;
+    try {
+      subCommands = await this._treeSitterCommandParser.extractSubCommands(options.treeSitterLanguage, trimmedCommandLine);
+      this._log(`Parsed sub-commands via ${options.treeSitterLanguage} grammar`, subCommands);
+    } catch (e) {
+      console.error(e);
+      this._log(`Failed to parse sub-commands via ${options.treeSitterLanguage} grammar`);
+    }
+    let isAutoApproved = false;
+    let autoApproveInfo;
+    let customActions;
+    if (!subCommands) {
+      return {
+        isAutoApproveAllowed: false,
+        disclaimers: []
+      };
+    }
+    const subCommandResults = await Promise.all(subCommands.map((e) => this._commandLineAutoApprover.isCommandAutoApproved(e, options.shell, options.os, options.cwd, options.chatSessionResource)));
+    const commandLineResult = this._commandLineAutoApprover.isCommandLineAutoApproved(trimmedCommandLine, options.chatSessionResource);
+    const autoApproveReasons = [
+      ...subCommandResults.map((e) => e.reason),
+      commandLineResult.reason
+    ];
+    let isDenied = false;
+    let autoApproveReason;
+    let autoApproveDefault;
+    const deniedSubCommandResult = subCommandResults.find((e) => e.result === "denied");
+    if (deniedSubCommandResult) {
+      this._log("Sub-command DENIED auto approval");
+      isDenied = true;
+      autoApproveDefault = isAutoApproveRule(deniedSubCommandResult.rule) ? deniedSubCommandResult.rule.isDefaultRule : void 0;
+      autoApproveReason = "subCommand";
+    } else if (commandLineResult.result === "denied") {
+      this._log("Command line DENIED auto approval");
+      isDenied = true;
+      autoApproveDefault = isAutoApproveRule(commandLineResult.rule) ? commandLineResult.rule.isDefaultRule : void 0;
+      autoApproveReason = "commandLine";
+    } else {
+      if (subCommandResults.every((e) => e.result === "approved")) {
+        this._log("All sub-commands auto-approved");
+        isAutoApproved = true;
+        autoApproveReason = "subCommand";
+        autoApproveDefault = subCommandResults.every((e) => isAutoApproveRule(e.rule) && e.rule.isDefaultRule);
+      } else {
+        this._log("All sub-commands NOT auto-approved");
+        if (commandLineResult.result === "approved") {
+          this._log("Command line auto-approved");
+          autoApproveReason = "commandLine";
+          isAutoApproved = true;
+          autoApproveDefault = isAutoApproveRule(commandLineResult.rule) ? commandLineResult.rule.isDefaultRule : void 0;
+        } else {
+          this._log("Command line NOT auto-approved");
+        }
+      }
+    }
+    for (const reason of autoApproveReasons) {
+      this._log(`- ${reason}`);
+    }
+    const isAutoApproveEnabled = this._configurationService.getValue(
+      "chat.tools.terminal.enableAutoApprove"
+      /* TerminalChatAgentToolsSettingId.EnableAutoApprove */
+    ) === true;
+    const isAutoApproveWarningAccepted = this._storageService.getBoolean("chat.tools.terminal.autoApprove.warningAccepted", -1, false);
+    if (isAutoApproveEnabled && isAutoApproved) {
+      autoApproveInfo = this._createAutoApproveInfo(isAutoApproved, isDenied, autoApproveReason, subCommandResults, commandLineResult);
+    } else {
+      isAutoApproved = false;
+    }
+    this._telemetry.logPrepare({
+      terminalToolSessionId: options.terminalToolSessionId,
+      subCommands,
+      autoApproveAllowed: !isAutoApproveEnabled ? "off" : isAutoApproveWarningAccepted ? "allowed" : "needsOptIn",
+      autoApproveResult: isAutoApproved ? "approved" : isDenied ? "denied" : "manual",
+      autoApproveReason,
+      autoApproveDefault
+    });
+    const disclaimers = [];
+    const subCommandsLowerFirstWordOnly = subCommands.map((command) => command.split(" ")[0].toLowerCase());
+    if (!isAutoApproved && (subCommandsLowerFirstWordOnly.some((command) => promptInjectionWarningCommandsLower.includes(command)) || isPowerShell(options.shell, options.os) && subCommandsLowerFirstWordOnly.some((command) => promptInjectionWarningCommandsLowerPwshOnly.includes(command)))) {
+      disclaimers.push(localize("runInTerminal.promptInjectionDisclaimer", "Web content may contain malicious code or attempt prompt injection attacks."));
+    }
+    if (isAutoApproveEnabled && isDenied) {
+      const denialInfo = this._createAutoApproveInfo(isAutoApproved, isDenied, autoApproveReason, subCommandResults, commandLineResult);
+      if (denialInfo) {
+        disclaimers.push(denialInfo);
+      }
+    }
+    if (!isAutoApproved && isAutoApproveEnabled) {
+      customActions = generateAutoApproveActions(trimmedCommandLine, subCommands, { subCommandResults, commandLineResult });
+    }
+    return {
+      isAutoApproved,
+      // This is not based on isDenied because we want the user to be able to configure it
+      isAutoApproveAllowed: true,
+      disclaimers,
+      autoApproveInfo,
+      customActions
+    };
+  }
+  _createAutoApproveInfo(isAutoApproved, isDenied, autoApproveReason, subCommandResults, commandLineResult) {
+    const formatRuleLinks = /* @__PURE__ */ __name((result) => {
+      return asArray(result).filter((e) => isAutoApproveRule(e.rule)).map((e) => {
+        const escapedSourceText = e.rule.sourceText.replaceAll("$", "\\$");
+        if (e.rule.sourceTarget === "session") {
+          return localize("autoApproveRule.sessionIndicator", "{0} (session)", `\`${escapedSourceText}\``);
+        }
+        const settingsUri = createCommandUri("workbench.action.terminal.chat.openTerminalSettingsLink", e.rule.sourceTarget);
+        const tooltip = localize("ruleTooltip", "View rule in settings");
+        let label = escapedSourceText;
+        switch (e.rule?.sourceTarget) {
+          case 7:
+            label = `${label} (default)`;
+            break;
+          case 2:
+          case 3:
+            label = `${label} (user)`;
+            break;
+          case 4:
+            label = `${label} (remote)`;
+            break;
+          case 5:
+          case 6:
+            label = `${label} (workspace)`;
+            break;
+        }
+        return `[\`${label}\`](${settingsUri.toString()} "${tooltip}")`;
+      }).join(", ");
+    }, "formatRuleLinks");
+    const mdTrustSettings = {
+      isTrusted: {
+        enabledCommands: [
+          "workbench.action.terminal.chat.openTerminalSettingsLink"
+          /* TerminalChatCommandId.OpenTerminalSettingsLink */
+        ]
+      }
+    };
+    const config = this._configurationService.inspect(ChatConfiguration.GlobalAutoApprove);
+    const isGlobalAutoApproved = config?.value ?? config.defaultValue;
+    if (isGlobalAutoApproved) {
+      const settingsUri = createCommandUri("workbench.action.terminal.chat.openTerminalSettingsLink", "global");
+      return new MarkdownString(`${localize("autoApprove.global", "Auto approved by setting {0}", `[\`${ChatConfiguration.GlobalAutoApprove}\`](${settingsUri.toString()} "${localize("ruleTooltip.global", "View settings")}")`)}`, mdTrustSettings);
+    }
+    if (isAutoApproved) {
+      switch (autoApproveReason) {
+        case "commandLine": {
+          if (isAutoApproveRule(commandLineResult.rule)) {
+            return new MarkdownString(localize("autoApprove.rule", "Auto approved by rule {0}", formatRuleLinks(commandLineResult)), mdTrustSettings);
+          }
+          break;
+        }
+        case "subCommand": {
+          const npmScriptApproval = subCommandResults.find((e) => isNpmScriptAutoApproveRule(e.rule));
+          if (npmScriptApproval && isNpmScriptAutoApproveRule(npmScriptApproval.rule) && npmScriptApproval.rule.npmScriptResult.autoApproveInfo) {
+            return npmScriptApproval.rule.npmScriptResult.autoApproveInfo;
+          }
+          const uniqueRules = dedupeRules(subCommandResults);
+          if (uniqueRules.length === 1) {
+            return new MarkdownString(localize("autoApprove.rule", "Auto approved by rule {0}", formatRuleLinks(uniqueRules)), mdTrustSettings);
+          } else if (uniqueRules.length > 1) {
+            return new MarkdownString(localize("autoApprove.rules", "Auto approved by rules {0}", formatRuleLinks(uniqueRules)), mdTrustSettings);
+          }
+          break;
+        }
+      }
+    } else if (isDenied) {
+      switch (autoApproveReason) {
+        case "commandLine": {
+          if (commandLineResult.rule) {
+            return new MarkdownString(localize("autoApproveDenied.rule", "Auto approval denied by rule {0}", formatRuleLinks(commandLineResult)), mdTrustSettings);
+          }
+          break;
+        }
+        case "subCommand": {
+          const uniqueRules = dedupeRules(subCommandResults.filter((e) => e.result === "denied"));
+          if (uniqueRules.length === 1) {
+            return new MarkdownString(localize("autoApproveDenied.rule", "Auto approval denied by rule {0}", formatRuleLinks(uniqueRules)), mdTrustSettings);
+          } else if (uniqueRules.length > 1) {
+            return new MarkdownString(localize("autoApproveDenied.rules", "Auto approval denied by rules {0}", formatRuleLinks(uniqueRules)), mdTrustSettings);
+          }
+          break;
+        }
+      }
+    }
+    return void 0;
+  }
+};
+CommandLineAutoApproveAnalyzer = __decorate([
+  __param(3, IConfigurationService),
+  __param(4, IInstantiationService),
+  __param(5, IStorageService),
+  __param(6, ITerminalChatService)
+], CommandLineAutoApproveAnalyzer);
+export {
+  CommandLineAutoApproveAnalyzer
+};
+//# sourceMappingURL=commandLineAutoApproveAnalyzer.js.map

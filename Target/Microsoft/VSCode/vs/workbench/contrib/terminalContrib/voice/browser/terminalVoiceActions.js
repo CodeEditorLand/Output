@@ -1,1 +1,81 @@
-import{localize as e,localize2 as m}from"../../../../../nls.js";import{$bk as S}from"../../../../../base/common/codicons.js";import{$uo as w}from"../../../../../platform/commands/common/commands.js";import{$0n as I,$ro as h}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mp as E}from"../../../../../platform/dialogs/common/dialogs.js";import{$bA as k}from"../../../../../platform/extensionManagement/common/extensionManagement.js";import{$Mj as l}from"../../../../../platform/instantiation/common/instantiation.js";import{$UZ as C}from"../../../../services/extensionManagement/common/extensionManagement.js";import{$qZ as V,$rZ as D}from"../../../speech/common/speechService.js";import{$HBc as f,$CBc as T}from"../../../terminal/browser/terminalActions.js";import{TerminalContextKeys as A}from"../../../terminal/common/terminalContextKey.js";import{$sGc as d}from"./terminalVoice.js";const p=m(14142,"Voice");function Y(){f({id:"workbench.action.terminal.startVoice",title:m(14143,"Start Dictation in Terminal"),category:p,precondition:I.and(D.toNegated(),T.terminalAvailable),f1:!0,icon:S.mic,run:async(g,u,t)=>{const n=t.get(h),v=t.get(w),$=t.get(E),s=t.get(C),b=t.get(k);if(V.getValue(n)){const a=t.get(l);d.getInstance(a).start();return}const i=(await b.getInstalled()).find(a=>a.identifier.id==="ms-vscode.vscode-speech"),x=i&&!s.isEnabled(i);let o,r,c;x?(r=e(14137,null),c=e(14138,null),o=()=>s.setEnablement([i],13)):(r=e(14139,null),o=()=>v.executeCommand("workbench.extensions.installExtension","ms-vscode.vscode-speech"),c=e(14140,null));const y=e(14141,null);(await $.confirm({message:r,primaryButton:c,type:"info",detail:y})).confirmed&&await o()}}),f({id:"workbench.action.terminal.stopVoice",title:m(14144,"Stop Dictation in Terminal"),category:p,precondition:A.terminalDictationInProgress,f1:!0,keybinding:{primary:9,weight:300},run:(g,u,t)=>{const n=t.get(l);d.getInstance(n).stop(!0)}})}export{Y as $tGc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../../nls.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IExtensionManagementService } from "../../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchExtensionEnablementService } from "../../../../services/extensionManagement/common/extensionManagement.js";
+import { HasSpeechProvider, SpeechToTextInProgress } from "../../../speech/common/speechService.js";
+import { registerActiveInstanceAction, sharedWhenClause } from "../../../terminal/browser/terminalActions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { TerminalVoiceSession } from "./terminalVoice.js";
+const VOICE_CATEGORY = localize2("voiceCategory", "Voice");
+function registerTerminalVoiceActions() {
+  registerActiveInstanceAction({
+    id: "workbench.action.terminal.startVoice",
+    title: localize2("workbench.action.terminal.startDictation", "Start Dictation in Terminal"),
+    category: VOICE_CATEGORY,
+    precondition: ContextKeyExpr.and(SpeechToTextInProgress.toNegated(), sharedWhenClause.terminalAvailable),
+    f1: true,
+    icon: Codicon.mic,
+    run: /* @__PURE__ */ __name(async (activeInstance, c, accessor) => {
+      const contextKeyService = accessor.get(IContextKeyService);
+      const commandService = accessor.get(ICommandService);
+      const dialogService = accessor.get(IDialogService);
+      const workbenchExtensionEnablementService = accessor.get(IWorkbenchExtensionEnablementService);
+      const extensionManagementService = accessor.get(IExtensionManagementService);
+      if (HasSpeechProvider.getValue(contextKeyService)) {
+        const instantiationService = accessor.get(IInstantiationService);
+        TerminalVoiceSession.getInstance(instantiationService).start();
+        return;
+      }
+      const extensions = await extensionManagementService.getInstalled();
+      const extension = extensions.find((extension2) => extension2.identifier.id === "ms-vscode.vscode-speech");
+      const extensionIsDisabled = extension && !workbenchExtensionEnablementService.isEnabled(extension);
+      let run;
+      let message;
+      let primaryButton;
+      if (extensionIsDisabled) {
+        message = localize("terminal.voice.enableSpeechExtension", "Would you like to enable the speech extension?");
+        primaryButton = localize("enableExtension", "Enable Extension");
+        run = /* @__PURE__ */ __name(() => workbenchExtensionEnablementService.setEnablement(
+          [extension],
+          13
+          /* EnablementState.EnabledWorkspace */
+        ), "run");
+      } else {
+        message = localize("terminal.voice.installSpeechExtension", "Would you like to install 'VS Code Speech' extension from '../../../../../../../../Microsoft'?");
+        run = /* @__PURE__ */ __name(() => commandService.executeCommand("workbench.extensions.installExtension", "ms-vscode.vscode-speech"), "run");
+        primaryButton = localize("installExtension", "Install Extension");
+      }
+      const detail = localize("terminal.voice.detail", "Microphone support requires this extension.");
+      const confirmed = await dialogService.confirm({ message, primaryButton, type: "info", detail });
+      if (confirmed.confirmed) {
+        await run();
+      }
+    }, "run")
+  });
+  registerActiveInstanceAction({
+    id: "workbench.action.terminal.stopVoice",
+    title: localize2("workbench.action.terminal.stopDictation", "Stop Dictation in Terminal"),
+    category: VOICE_CATEGORY,
+    precondition: TerminalContextKeys.terminalDictationInProgress,
+    f1: true,
+    keybinding: {
+      primary: 9,
+      weight: 200 + 100
+    },
+    run: /* @__PURE__ */ __name((activeInstance, c, accessor) => {
+      const instantiationService = accessor.get(IInstantiationService);
+      TerminalVoiceSession.getInstance(instantiationService).stop(true);
+    }, "run")
+  });
+}
+__name(registerTerminalVoiceActions, "registerTerminalVoiceActions");
+export {
+  registerTerminalVoiceActions
+};
+//# sourceMappingURL=terminalVoiceActions.js.map

@@ -1,1 +1,465 @@
-import*as n from"../../../../base/browser/dom.js";import{$w0 as H}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$b_ as L}from"../../../../base/browser/ui/button/button.js";import{$Km as k}from"../../../../base/common/actions.js";import{$bk as I}from"../../../../base/common/codicons.js";import{$Ed as _,$Dd as N,$Fd as R}from"../../../../base/common/lifecycle.js";import{$s as S}from"../../../../base/common/platform.js";import{ThemeIcon as V}from"../../../../base/common/themables.js";import*as l from"../../../../nls.js";import{$uo as G}from"../../../../platform/commands/common/commands.js";import{$0l as J}from"../../../../platform/configuration/common/configuration.js";import{$jkb as j,$lkb as C}from"../../../../platform/hover/browser/hover.js";import{$Vn as q}from"../../../../platform/product/common/productService.js";import{$Ijb as B}from"../../../../platform/theme/browser/defaultStyles.js";import{$My as F}from"../../../../platform/update/common/update.js";import{$fDb as T,$iDb as z}from"../../../services/statusbar/browser/statusbar.js";import"./media/updateStatusBarEntry.css";var M=function(a,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,t,e,i);else for(var c=a.length-1;c>=0;c--)(r=a[c])&&(s=(o<3?r(s):o>3?r(t,e,s):r(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},p=function(a,t){return function(e,i){t(e,i,a)}},d;let v=class extends _{static{d=this}static{this.a=l.localize(14688,null)}constructor(t,e,i,o,s,r){super(),this.f=t,this.g=e,this.h=i,this.j=o,this.m=s,this.n=r,this.b=this.D(new R),!S&&(this.D(this.f.onStateChange(c=>this.q(c))),this.D(this.n.onDidChangeConfiguration(c=>{c.affectsConfiguration("update.statusBar")&&this.q(this.f.state)})),this.q(this.f.state))}q(t){this.c!==t.type&&(this.b.clear(),this.c=t.type);const e=this.n.getValue("update.statusBar");if(e==="hidden"){this.b.clear();return}if(e==="actionable"&&!["available for download","downloaded","ready"].includes(t.type)){this.b.clear();return}switch(t.type){case"uninitialized":case"idle":case"disabled":this.b.clear();break;case"checking for updates":this.r({name:d.a,text:l.localize(14689,null),ariaLabel:l.localize(14690,null),tooltip:this.s(),command:z});break;case"available for download":this.r({name:d.a,text:l.localize(14691,null),ariaLabel:l.localize(14692,null),tooltip:this.t(t.update),command:"update.downloadNow"});break;case"downloading":this.r({name:d.a,text:this.u(t),ariaLabel:l.localize(14693,null),tooltip:this.w(t),command:z});break;case"downloaded":this.r({name:d.a,text:l.localize(14694,null),ariaLabel:l.localize(14695,null),tooltip:this.y(t.update),command:"update.install"});break;case"updating":this.r({name:d.a,text:l.localize(14696,null),ariaLabel:l.localize(14697,null),tooltip:this.C(t.update),command:z});break;case"ready":this.r({name:d.a,text:l.localize(14698,null),ariaLabel:l.localize(14699,null),tooltip:this.z(t.update),command:"update.restart"});break;case"overwriting":this.r({name:d.a,text:l.localize(14700,null),ariaLabel:l.localize(14701,null),tooltip:this.F(t),command:z});break}}r(t){this.b.value?this.b.value.update(t):this.b.value=this.g.addEntry(t,"status.update",0,-Number.MAX_VALUE)}s(){return{element:t=>{const e=this.G(t),i=n.$(".update-status-tooltip");this.I(i,l.localize(14702,null),e),this.J(i);const o=n.$y9(i,n.$(".progress-details"));return o.textContent=l.localize(14703,null),i}}}t(t){return{element:e=>{const i=this.G(e),o=n.$(".update-status-tooltip");return this.I(o,l.localize(14704,null),i),this.J(o,t),this.L(o),this.M(o,l.localize(14705,null),i,()=>{this.H("update.downloadNow")}),o}}}u({downloadedBytes:t,totalBytes:e}){return t!==void 0&&e!==void 0&&e>0?l.localize(14706,null,f(t),f(e),Math.round(t/e*100)):l.localize(14707,null)}w(t){return{element:e=>{const i=this.G(e),o=n.$(".update-status-tooltip");this.I(o,l.localize(14708,null),i),this.J(o,t.update);const{downloadedBytes:s,totalBytes:r}=t;if(s!==void 0&&r!==void 0&&r>0){const c=Math.round(s/r*100),h=n.$y9(o,n.$(".progress-container")),m=n.$y9(h,n.$(".progress-bar")),$=n.$y9(m,n.$(".progress-fill"));$.style.width=`${c}%`;const u=n.$y9(h,n.$(".progress-text")),g=n.$y9(u,n.$("span"));g.textContent=`${c}%`;const D=n.$y9(u,n.$("span"));D.textContent=`${f(s)} / ${f(r)}`;const y=P(t);if(y!==void 0&&y>0){const w=n.$y9(o,n.$(".speed-info"));w.textContent=l.localize(14709,null,f(y))}const x=U(t);if(x!==void 0&&x>0){const w=n.$y9(o,n.$(".time-remaining"));w.textContent=`~${O(x)} ${l.localize(14710,null)}`}}else{const c=n.$y9(o,n.$(".progress-details"));c.textContent=l.localize(14711,null)}return o}}}y(t){return{element:e=>{const i=this.G(e),o=n.$(".update-status-tooltip");return this.I(o,l.localize(14712,null),i),this.J(o,t),this.L(o),this.M(o,l.localize(14713,null),i,()=>{this.H("update.install")}),o}}}z(t){return{element:e=>{const i=this.G(e),o=n.$(".update-status-tooltip");return this.I(o,l.localize(14714,null),i),this.J(o,t),this.L(o),this.M(o,l.localize(14715,null),i,()=>{this.H("update.restart")}),o}}}C(t){return{element:e=>{const i=this.G(e),o=n.$(".update-status-tooltip");this.I(o,l.localize(14716,null),i),this.J(o,t);const s=n.$y9(o,n.$(".progress-details"));return s.textContent=l.localize(14717,null),o}}}F(t){return{element:e=>{const i=this.G(e),o=n.$(".update-status-tooltip");this.I(o,l.localize(14718,null),i),this.J(o,t.update);const s=n.$y9(o,n.$(".progress-details"));return s.textContent=l.localize(14719,null),o}}}G(t){const e=new N;return e.add(t.onCancellationRequested(()=>e.dispose())),e}H(t,...e){this.j.executeCommand(t,...e),this.m.hideHover(!0)}I(t,e,i){const o=n.$y9(t,n.$(".header")),s=n.$y9(o,n.$(".title"));s.textContent=e,i.add(new H(o,{hoverDelegate:C})).push([k({id:"update.openSettings",label:l.localize(14720,null),class:V.asClassName(I.gear),run:()=>this.H("workbench.action.openSettings","@id:update*")})],{icon:!0,label:!1})}J(t,e){const i=n.$y9(t,n.$(".product-info")),o=n.$y9(i,n.$(".product-logo"));o.setAttribute("role","img"),o.setAttribute("aria-label",this.h.nameLong);const s=n.$y9(i,n.$(".product-details")),r=n.$y9(s,n.$(".product-name"));r.textContent=this.h.nameLong;const c=this.h.version;if(c){const u=n.$y9(s,n.$(".product-version"));u.textContent=l.localize(14721,null,c)}const h=e?.productVersion;if(h){const u=n.$y9(s,n.$(".product-version"));u.textContent=l.localize(14722,null,h)}const m=e?.timestamp??A(this.h.date);if(m){const u=n.$y9(s,n.$(".product-release-date"));u.textContent=l.localize(14723,null,E(m))}const $=h??c;if($){const u=n.$y9(s,n.$("a.release-notes-link"));u.textContent=l.localize(14724,null),u.href="#",u.addEventListener("click",g=>{g.preventDefault(),this.H("update.showCurrentReleaseNotes",$)})}}L(t){const e=n.$y9(t,n.$(".whats-included")),i=n.$y9(e,n.$(".section-title"));i.textContent=l.localize(14725,null);const o=n.$y9(e,n.$("ul")),s=[l.localize(14726,null),l.localize(14727,null),l.localize(14728,null)];for(const r of s){const c=n.$y9(o,n.$("li"));c.textContent=r}}M(t,e,i,o){const s=n.$y9(t,n.$(".action-button-container")),r=i.add(new L(s,{...B,secondary:!0,hoverDelegate:C}));r.label=e,i.add(r.onDidClick(o))}};v=d=M([p(0,F),p(1,T),p(2,q),p(3,G),p(4,j),p(5,J)],v);function A(a){try{return a!==void 0?Date.parse(a):void 0}catch{return}}function E(a){return new Date(a).toLocaleDateString(void 0,{year:"numeric",month:"short",day:"numeric"})}function U(a){const{downloadedBytes:t,totalBytes:e,startTime:i}=a;if(t===void 0||e===void 0||i===void 0)return;const o=Date.now()-i;if(t<=0||e<=0||o<=0)return;const s=e-t;if(s<=0)return 0;const r=t/o;if(r<=0)return;const c=s/r;return Math.ceil(c/1e3)}function O(a){const t=a/3600;if(t>=1){const i=b(t);return i==="1"?l.localize(14729,null,i):l.localize(14730,null,i)}const e=Math.floor(a/60);return e>=1?l.localize(14731,null,e):l.localize(14732,null,a)}function f(a){if(a<1024)return l.localize(14733,null,a);const t=a/1024;if(t<1024)return l.localize(14734,null,b(t));const e=t/1024;if(e<1024)return l.localize(14735,null,b(e));const i=e/1024;return l.localize(14736,null,b(i))}function b(a){const t=Math.round(a*10)/10;return t%1===0?t.toString():t.toFixed(1)}function P(a){const{downloadedBytes:t,startTime:e}=a;if(t===void 0||e===void 0)return;const i=Date.now()-e;if(!(i<=0||t<=0))return t/i*1e3}export{P as $1Hc,v as $UHc,A as $VHc,E as $WHc,U as $XHc,O as $YHc,f as $ZHc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var UpdateStatusBarEntryContribution_1;
+import * as dom from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { toAction } from "../../../../base/common/actions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IHoverService, nativeHoverDelegate } from "../../../../platform/hover/browser/hover.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IStatusbarService, ShowTooltipCommand } from "../../../services/statusbar/browser/statusbar.js";
+import "./media/updateStatusBarEntry.css";
+let UpdateStatusBarEntryContribution = class UpdateStatusBarEntryContribution2 extends Disposable {
+  static {
+    __name(this, "UpdateStatusBarEntryContribution");
+  }
+  static {
+    UpdateStatusBarEntryContribution_1 = this;
+  }
+  static {
+    this.NAME = nls.localize("updateStatus", "Update Status");
+  }
+  constructor(updateService, statusbarService, productService, commandService, hoverService, configurationService) {
+    super();
+    this.updateService = updateService;
+    this.statusbarService = statusbarService;
+    this.productService = productService;
+    this.commandService = commandService;
+    this.hoverService = hoverService;
+    this.configurationService = configurationService;
+    this.statusBarEntryAccessor = this._register(new MutableDisposable());
+    if (isWeb) {
+      return;
+    }
+    this._register(this.updateService.onStateChange((state) => this.onUpdateStateChange(state)));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("update.statusBar")) {
+        this.onUpdateStateChange(this.updateService.state);
+      }
+    }));
+    this.onUpdateStateChange(this.updateService.state);
+  }
+  onUpdateStateChange(state) {
+    if (this.lastStateType !== state.type) {
+      this.statusBarEntryAccessor.clear();
+      this.lastStateType = state.type;
+    }
+    const statusBarMode = this.configurationService.getValue("update.statusBar");
+    if (statusBarMode === "hidden") {
+      this.statusBarEntryAccessor.clear();
+      return;
+    }
+    const actionRequiredStates = [
+      "available for download",
+      "downloaded",
+      "ready"
+      /* StateType.Ready */
+    ];
+    if (statusBarMode === "actionable" && !actionRequiredStates.includes(state.type)) {
+      this.statusBarEntryAccessor.clear();
+      return;
+    }
+    switch (state.type) {
+      case "uninitialized":
+      case "idle":
+      case "disabled":
+        this.statusBarEntryAccessor.clear();
+        break;
+      case "checking for updates":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: nls.localize("updateStatus.checkingForUpdates", "$(sync~spin) Checking for updates..."),
+          ariaLabel: nls.localize("updateStatus.checkingForUpdatesAria", "Checking for updates"),
+          tooltip: this.getCheckingTooltip(),
+          command: ShowTooltipCommand
+        });
+        break;
+      case "available for download":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: nls.localize("updateStatus.updateAvailableStatus", "$(cloud-download) Update is available. Click here to download."),
+          ariaLabel: nls.localize("updateStatus.updateAvailableAria", "Update available. Click here to download."),
+          tooltip: this.getAvailableTooltip(state.update),
+          command: "update.downloadNow"
+        });
+        break;
+      case "downloading":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: this.getDownloadingText(state),
+          ariaLabel: nls.localize("updateStatus.downloadingUpdateAria", "Downloading update"),
+          tooltip: this.getDownloadingTooltip(state),
+          command: ShowTooltipCommand
+        });
+        break;
+      case "downloaded":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: nls.localize("updateStatus.updateReadyStatus", "$(package) Downloaded update. Click here to install."),
+          ariaLabel: nls.localize("updateStatus.updateReadyAria", "Downloaded update. Click here to install."),
+          tooltip: this.getReadyToInstallTooltip(state.update),
+          command: "update.install"
+        });
+        break;
+      case "updating":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: nls.localize("updateStatus.installingUpdateStatus", "$(sync~spin) Installing update..."),
+          ariaLabel: nls.localize("updateStatus.installingUpdateAria", "Installing update"),
+          tooltip: this.getUpdatingTooltip(state.update),
+          command: ShowTooltipCommand
+        });
+        break;
+      case "ready":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: nls.localize("updateStatus.restartToUpdateStatus", "$(debug-restart) Update is ready. Click here to restart."),
+          ariaLabel: nls.localize("updateStatus.restartToUpdateAria", "Update is ready. Click here to restart."),
+          tooltip: this.getRestartToUpdateTooltip(state.update),
+          command: "update.restart"
+        });
+        break;
+      case "overwriting":
+        this.updateStatusBarEntry({
+          name: UpdateStatusBarEntryContribution_1.NAME,
+          text: nls.localize("updateStatus.downloadingNewerUpdateStatus", "$(sync~spin) Downloading update..."),
+          ariaLabel: nls.localize("updateStatus.downloadingNewerUpdateAria", "Downloading a newer update"),
+          tooltip: this.getOverwritingTooltip(state),
+          command: ShowTooltipCommand
+        });
+        break;
+    }
+  }
+  updateStatusBarEntry(entry) {
+    if (this.statusBarEntryAccessor.value) {
+      this.statusBarEntryAccessor.value.update(entry);
+    } else {
+      this.statusBarEntryAccessor.value = this.statusbarService.addEntry(entry, "status.update", 0, -Number.MAX_VALUE);
+    }
+  }
+  getCheckingTooltip() {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.checkingForUpdatesTitle", "Checking for Updates"), store);
+        this.appendProductInfo(container);
+        const waitMessage = dom.append(container, dom.$(".progress-details"));
+        waitMessage.textContent = nls.localize("updateStatus.checkingPleaseWait", "Checking for updates, please wait...");
+        return container;
+      }, "element")
+    };
+  }
+  getAvailableTooltip(update) {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.updateAvailableTitle", "Update Available"), store);
+        this.appendProductInfo(container, update);
+        this.appendWhatsIncluded(container);
+        this.appendActionButton(container, nls.localize("updateStatus.downloadButton", "Download"), store, () => {
+          this.runCommandAndClose("update.downloadNow");
+        });
+        return container;
+      }, "element")
+    };
+  }
+  getDownloadingText({ downloadedBytes, totalBytes }) {
+    if (downloadedBytes !== void 0 && totalBytes !== void 0 && totalBytes > 0) {
+      return nls.localize("updateStatus.downloadUpdateProgressStatus", "$(sync~spin) Downloading update: {0} / {1} \u2022 {2}%", formatBytes(downloadedBytes), formatBytes(totalBytes), Math.round(downloadedBytes / totalBytes * 100));
+    } else {
+      return nls.localize("updateStatus.downloadUpdateStatus", "$(sync~spin) Downloading update...");
+    }
+  }
+  getDownloadingTooltip(state) {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.downloadingUpdateTitle", "Downloading Update"), store);
+        this.appendProductInfo(container, state.update);
+        const { downloadedBytes, totalBytes } = state;
+        if (downloadedBytes !== void 0 && totalBytes !== void 0 && totalBytes > 0) {
+          const percentage = Math.round(downloadedBytes / totalBytes * 100);
+          const progressContainer = dom.append(container, dom.$(".progress-container"));
+          const progressBar = dom.append(progressContainer, dom.$(".progress-bar"));
+          const progressFill = dom.append(progressBar, dom.$(".progress-fill"));
+          progressFill.style.width = `${percentage}%`;
+          const progressText = dom.append(progressContainer, dom.$(".progress-text"));
+          const percentageSpan = dom.append(progressText, dom.$("span"));
+          percentageSpan.textContent = `${percentage}%`;
+          const sizeSpan = dom.append(progressText, dom.$("span"));
+          sizeSpan.textContent = `${formatBytes(downloadedBytes)} / ${formatBytes(totalBytes)}`;
+          const speed = computeDownloadSpeed(state);
+          if (speed !== void 0 && speed > 0) {
+            const speedInfo = dom.append(container, dom.$(".speed-info"));
+            speedInfo.textContent = nls.localize("updateStatus.downloadSpeed", "{0}/s", formatBytes(speed));
+          }
+          const timeRemaining = computeDownloadTimeRemaining(state);
+          if (timeRemaining !== void 0 && timeRemaining > 0) {
+            const timeRemainingNode = dom.append(container, dom.$(".time-remaining"));
+            timeRemainingNode.textContent = `~${formatTimeRemaining(timeRemaining)} ${nls.localize("updateStatus.timeRemaining", "remaining")}`;
+          }
+        } else {
+          const waitMessage = dom.append(container, dom.$(".progress-details"));
+          waitMessage.textContent = nls.localize("updateStatus.downloadingPleaseWait", "Downloading, please wait...");
+        }
+        return container;
+      }, "element")
+    };
+  }
+  getReadyToInstallTooltip(update) {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.updateReadyTitle", "Update is Ready to Install"), store);
+        this.appendProductInfo(container, update);
+        this.appendWhatsIncluded(container);
+        this.appendActionButton(container, nls.localize("updateStatus.installButton", "Install"), store, () => {
+          this.runCommandAndClose("update.install");
+        });
+        return container;
+      }, "element")
+    };
+  }
+  getRestartToUpdateTooltip(update) {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.updateInstalledTitle", "Update Installed"), store);
+        this.appendProductInfo(container, update);
+        this.appendWhatsIncluded(container);
+        this.appendActionButton(container, nls.localize("updateStatus.restartButton", "Restart"), store, () => {
+          this.runCommandAndClose("update.restart");
+        });
+        return container;
+      }, "element")
+    };
+  }
+  getUpdatingTooltip(update) {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.installingUpdateTitle", "Installing Update"), store);
+        this.appendProductInfo(container, update);
+        const message = dom.append(container, dom.$(".progress-details"));
+        message.textContent = nls.localize("updateStatus.installingPleaseWait", "Installing update, please wait...");
+        return container;
+      }, "element")
+    };
+  }
+  getOverwritingTooltip(state) {
+    return {
+      element: /* @__PURE__ */ __name((token) => {
+        const store = this.createTooltipDisposableStore(token);
+        const container = dom.$(".update-status-tooltip");
+        this.appendHeader(container, nls.localize("updateStatus.downloadingNewerUpdateTitle", "Downloading Newer Update"), store);
+        this.appendProductInfo(container, state.update);
+        const message = dom.append(container, dom.$(".progress-details"));
+        message.textContent = nls.localize("updateStatus.downloadingNewerPleaseWait", "A newer update was released. Downloading, please wait...");
+        return container;
+      }, "element")
+    };
+  }
+  createTooltipDisposableStore(token) {
+    const store = new DisposableStore();
+    store.add(token.onCancellationRequested(() => store.dispose()));
+    return store;
+  }
+  runCommandAndClose(command, ...args) {
+    this.commandService.executeCommand(command, ...args);
+    this.hoverService.hideHover(true);
+  }
+  appendHeader(container, title, store) {
+    const header = dom.append(container, dom.$(".header"));
+    const text = dom.append(header, dom.$(".title"));
+    text.textContent = title;
+    const actionBar = store.add(new ActionBar(header, { hoverDelegate: nativeHoverDelegate }));
+    actionBar.push([toAction({
+      id: "update.openSettings",
+      label: nls.localize("updateStatus.settingsTooltip", "Update Settings"),
+      class: ThemeIcon.asClassName(Codicon.gear),
+      run: /* @__PURE__ */ __name(() => this.runCommandAndClose("workbench.action.openSettings", "@id:update*"), "run")
+    })], { icon: true, label: false });
+  }
+  appendProductInfo(container, update) {
+    const productInfo = dom.append(container, dom.$(".product-info"));
+    const logoContainer = dom.append(productInfo, dom.$(".product-logo"));
+    logoContainer.setAttribute("role", "img");
+    logoContainer.setAttribute("aria-label", this.productService.nameLong);
+    const details = dom.append(productInfo, dom.$(".product-details"));
+    const productName = dom.append(details, dom.$(".product-name"));
+    productName.textContent = this.productService.nameLong;
+    const productVersion = this.productService.version;
+    if (productVersion) {
+      const currentVersion = dom.append(details, dom.$(".product-version"));
+      currentVersion.textContent = nls.localize("updateStatus.currentVersionLabel", "Current Version: {0}", productVersion);
+    }
+    const version = update?.productVersion;
+    if (version) {
+      const latestVersion = dom.append(details, dom.$(".product-version"));
+      latestVersion.textContent = nls.localize("updateStatus.latestVersionLabel", "Latest Version: {0}", version);
+    }
+    const releaseDate = update?.timestamp ?? tryParseDate(this.productService.date);
+    if (releaseDate) {
+      const releaseDateNode = dom.append(details, dom.$(".product-release-date"));
+      releaseDateNode.textContent = nls.localize("updateStatus.releasedLabel", "Released {0}", formatDate(releaseDate));
+    }
+    const releaseNotesVersion = version ?? productVersion;
+    if (releaseNotesVersion) {
+      const link = dom.append(details, dom.$("a.release-notes-link"));
+      link.textContent = nls.localize("updateStatus.releaseNotesLink", "Release Notes");
+      link.href = "#";
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.runCommandAndClose("update.showCurrentReleaseNotes", releaseNotesVersion);
+      });
+    }
+  }
+  appendWhatsIncluded(container) {
+    const whatsIncluded = dom.append(container, dom.$(".whats-included"));
+    const sectionTitle = dom.append(whatsIncluded, dom.$(".section-title"));
+    sectionTitle.textContent = nls.localize("updateStatus.whatsIncludedTitle", "What's Included");
+    const list = dom.append(whatsIncluded, dom.$("ul"));
+    const items = [
+      nls.localize("updateStatus.featureItem", "New features and functionality"),
+      nls.localize("updateStatus.bugFixesItem", "Bug fixes and improvements"),
+      nls.localize("updateStatus.securityItem", "Security fixes and enhancements")
+    ];
+    for (const item of items) {
+      const li = dom.append(list, dom.$("li"));
+      li.textContent = item;
+    }
+  }
+  appendActionButton(container, label, store, onClick) {
+    const buttonContainer = dom.append(container, dom.$(".action-button-container"));
+    const button = store.add(new Button(buttonContainer, { ...defaultButtonStyles, secondary: true, hoverDelegate: nativeHoverDelegate }));
+    button.label = label;
+    store.add(button.onDidClick(onClick));
+  }
+};
+UpdateStatusBarEntryContribution = UpdateStatusBarEntryContribution_1 = __decorate([
+  __param(0, IUpdateService),
+  __param(1, IStatusbarService),
+  __param(2, IProductService),
+  __param(3, ICommandService),
+  __param(4, IHoverService),
+  __param(5, IConfigurationService)
+], UpdateStatusBarEntryContribution);
+function tryParseDate(date) {
+  try {
+    return date !== void 0 ? Date.parse(date) : void 0;
+  } catch {
+    return void 0;
+  }
+}
+__name(tryParseDate, "tryParseDate");
+function formatDate(timestamp) {
+  return new Date(timestamp).toLocaleDateString(void 0, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+__name(formatDate, "formatDate");
+function computeDownloadTimeRemaining(state) {
+  const { downloadedBytes, totalBytes, startTime } = state;
+  if (downloadedBytes === void 0 || totalBytes === void 0 || startTime === void 0) {
+    return void 0;
+  }
+  const elapsedMs = Date.now() - startTime;
+  if (downloadedBytes <= 0 || totalBytes <= 0 || elapsedMs <= 0) {
+    return void 0;
+  }
+  const remainingBytes = totalBytes - downloadedBytes;
+  if (remainingBytes <= 0) {
+    return 0;
+  }
+  const bytesPerMs = downloadedBytes / elapsedMs;
+  if (bytesPerMs <= 0) {
+    return void 0;
+  }
+  const remainingMs = remainingBytes / bytesPerMs;
+  return Math.ceil(remainingMs / 1e3);
+}
+__name(computeDownloadTimeRemaining, "computeDownloadTimeRemaining");
+function formatTimeRemaining(seconds) {
+  const hours = seconds / 3600;
+  if (hours >= 1) {
+    const formattedHours = formatDecimal(hours);
+    return formattedHours === "1" ? nls.localize("timeRemainingHour", "{0} hour", formattedHours) : nls.localize("timeRemainingHours", "{0} hours", formattedHours);
+  }
+  const minutes = Math.floor(seconds / 60);
+  if (minutes >= 1) {
+    return nls.localize("timeRemainingMinutes", "{0} min", minutes);
+  }
+  return nls.localize("timeRemainingSeconds", "{0}s", seconds);
+}
+__name(formatTimeRemaining, "formatTimeRemaining");
+function formatBytes(bytes) {
+  if (bytes < 1024) {
+    return nls.localize("bytes", "{0} B", bytes);
+  }
+  const kb = bytes / 1024;
+  if (kb < 1024) {
+    return nls.localize("kilobytes", "{0} KB", formatDecimal(kb));
+  }
+  const mb = kb / 1024;
+  if (mb < 1024) {
+    return nls.localize("megabytes", "{0} MB", formatDecimal(mb));
+  }
+  const gb = mb / 1024;
+  return nls.localize("gigabytes", "{0} GB", formatDecimal(gb));
+}
+__name(formatBytes, "formatBytes");
+function formatDecimal(value) {
+  const rounded = Math.round(value * 10) / 10;
+  return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+}
+__name(formatDecimal, "formatDecimal");
+function computeDownloadSpeed(state) {
+  const { downloadedBytes, startTime } = state;
+  if (downloadedBytes === void 0 || startTime === void 0) {
+    return void 0;
+  }
+  const elapsedMs = Date.now() - startTime;
+  if (elapsedMs <= 0 || downloadedBytes <= 0) {
+    return void 0;
+  }
+  return downloadedBytes / elapsedMs * 1e3;
+}
+__name(computeDownloadSpeed, "computeDownloadSpeed");
+export {
+  UpdateStatusBarEntryContribution,
+  computeDownloadSpeed,
+  computeDownloadTimeRemaining,
+  formatBytes,
+  formatDate,
+  formatTimeRemaining,
+  tryParseDate
+};
+//# sourceMappingURL=updateStatusBarEntry.js.map

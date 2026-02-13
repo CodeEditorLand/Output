@@ -1,1 +1,442 @@
-import{$Jf as B}from"../../../../../base/common/cancellation.js";import{$xf as L,Event as g}from"../../../../../base/common/event.js";import{$Ed as M,$Md as F,$Dd as $,$Fd as k}from"../../../../../base/common/lifecycle.js";import{Schemas as y}from"../../../../../base/common/network.js";import{autorun as _}from"../../../../../base/common/observable.js";import{$Fh as x,$Bh as P}from"../../../../../base/common/resources.js";import{URI as b}from"../../../../../base/common/uri.js";import{$Jdb as W}from"../../../../../editor/browser/editorBrowser.js";import{$Mdb as j}from"../../../../../editor/browser/services/codeEditorService.js";import{$SF as S}from"../../../../../editor/common/languages.js";import{$0l as q}from"../../../../../platform/configuration/common/configuration.js";import{$BL as O}from"../../../../services/editor/common/editorService.js";import{$FEb as Z}from"../../../notebook/browser/notebookBrowser.js";import{$8Nb as T}from"../../../webviewPanel/browser/webviewEditorInput.js";import{$PV as J}from"../../common/editing/chatEditingService.js";import{$NV as H}from"../../common/chatService/chatService.js";import{$2S as f}from"../../common/attachments/chatVariableEntries.js";import{ChatAgentLocation as A}from"../../common/constants.js";import{$REb as X}from"../../common/ignoredFiles.js";import{$mT as Y}from"../../common/promptSyntax/promptTypes.js";import{$U4b as z}from"../chat.js";import{$CZb as G}from"../contextContrib/chatContextService.js";var N=function(u,e,t,s){var n=arguments.length,o=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(u,e,t,s);else for(var d=u.length-1;d>=0;d--)(i=u[d])&&(o=(n<3?i(o):n>3?i(e,t,o):i(e,t))||o);return n>3&&o&&Object.defineProperty(e,t,o),o},m=function(u,e){return function(t,s){e(t,s,u)}};let I=class extends M{static{this.ID="chat.implicitContext"}constructor(e,t,s,n,o,i,d,C){super(),this.c=e,this.f=t,this.g=s,this.h=n,this.j=o,this.m=i,this.n=d,this.q=C,this.a=this.D(new k),this.b=this.m.getValue("chat.implicitContext.enabled");const h=this.D(new $);this.D(g.runAndSubscribe(t.onDidActiveEditorChange,(()=>{h.clear();const a=this.s();a&&h.add(g.debounce(g.any(a.onDidChangeModel,a.onDidChangeModelLanguage,a.onDidChangeCursorSelection,a.onDidScrollChange),()=>{},500)(()=>this.w()));const l=this.u();if(l){const D=h.add(new $);h.add(l.onDidChangeActiveCell(()=>{D.clear();const v=this.c.getActiveCodeEditor();v&&v.getModel()?.uri.scheme===y.vscodeNotebookCell&&D.add(g.debounce(g.any(v.onDidChangeModel,v.onDidChangeCursorSelection,v.onDidScrollChange),()=>{},500)(()=>this.w()))})),h.add(g.debounce(g.any(l.onDidChangeModel,l.onDidChangeActiveCell),()=>{},500)(()=>this.w()))}const w=this.t();w&&h.add(g.debounce(w.input.webview.onMessage,()=>{},500)(()=>{this.w()})),this.w()}))),this.D(_(a=>{this.j.editingSessionsObs.read(a),this.w()})),this.D(this.m.onDidChangeConfiguration(a=>{a.affectsConfiguration("chat.implicitContext.enabled")&&(this.b=this.m.getValue("chat.implicitContext.enabled"),this.w())})),this.D(this.h.onDidSubmitRequest(({chatSessionResource:a})=>{const l=this.g.getWidgetBySessionResource(a);l?.input.implicitContext&&this.b[l.location]==="first"&&l.viewModel?.getItems().length!==0&&l.input.implicitContext.setValues([])})),this.D(this.g.onDidAddWidget(async a=>{await this.w(a)}))}s(){const e=this.c.getActiveCodeEditor();if(e){const t=e.getModel();if(t?.uri.scheme===y.vscodeNotebookCell)return;if(t)return e}for(const t of this.f.getVisibleTextEditorControls(0)){const s=W(t);if(!s)continue;if(s.getModel())return s}}t(){const e=this.f.activeEditorPane;if(e?.input instanceof T)return e}u(){return Z(this.f.activeEditorPane)}async w(e){const t=this.a.value=new B,s=this.s(),n=s?.getModel(),o=s?.getSelection();let i,d=!1,C,h;if(n){if(C=n.getLanguageId(),o&&!o.isEmpty())i={uri:n.uri,range:o},d=!0;else if(this.m.getValue("chat.implicitContext.suggestedContext"))i=n.uri;else{const r=s?.getVisibleRanges();if(r&&r.length>0){let c=r[0];r.slice(1).forEach(p=>{c=c.plusRange(p)}),i={uri:n.uri,range:c}}else i=n.uri}h=await this.q.contextForResource(n.uri,C)}const a=this.u();if(a?.isReplHistory)i=void 0;else if(a){const r=a.getActiveCell();if(r){const c=this.c.getActiveCodeEditor(),p=c?.getSelection(),E=c?.getVisibleRanges()||[];i=r.uri;const U=c?.getModel();if(U&&P(U.uri,r.uri)){if(p&&!p.isEmpty())i={uri:r.uri,range:p},d=!0;else if(E.length>0&&!K(U,E)){let V=E[0];E.slice(1).forEach(R=>{V=V.plusRange(R)}),i={uri:r.uri,range:V}}}}else i=a.textModel?.uri}const l=this.t();if(l?.input?.resource){const r=await this.q.contextForResource(l.input.resource);r&&(i=r)}const w=i instanceof b?i:f(i)?void 0:i?.uri;if(w&&(await this.n.fileIsIgnored(w,t.token)||w.path.endsWith(".copilotmd"))&&(i=void 0),t.token.isCancellationRequested)return;const D=C&&Y(C)!==void 0,v=e?[e]:[...this.g.getWidgetsByLocations(A.Chat),...this.g.getWidgetsByLocations(A.EditorInline)];for(const r of v){if(!r.input.implicitContext)continue;const c=this.b[r.location],p=r.viewModel?.getItems().length===0;(c==="always"||c==="first"&&p)&&!D?r.input.implicitContext.setValues([{value:i,isSelection:d},{value:h,isSelection:!1}]):r.input.implicitContext.setValues([])}}};I=N([m(0,j),m(1,O),m(2,z),m(3,H),m(4,J),m(5,q),m(6,X),m(7,G)],I);function K(u,e){return e.length===1&&e[0].startLineNumber===1&&e[0].startColumn===1&&e[0].endLineNumber===u.getLineCount()&&e[0].endColumn===u.getLineMaxColumn(e[0].endLineNumber)}class xe extends M{constructor(){super(...arguments),this.a=this.D(new L),this.onDidChangeValue=this.a.event,this.b=this.D(new F),this.c=this.D(new $)}setValues(e){if(this.c.clear(),this.b.clearAndDisposeAll(),!e||e.length===0){this.a.fire();return}const t=e.filter(s=>s.value!==void 0);for(const s of t){const n=new Q;n.setValue(s.value,s.isSelection);const o=new $;o.add(n.onDidChangeValue(()=>{this.a.fire()})),o.add(n),this.b.set(n,o)}this.a.fire()}get values(){return Array.from(this.b.keys())}get hasEnabled(){return Array.from(this.b.keys()).some(e=>e.enabled)}setEnabled(e){this.values.forEach(t=>t.enabled=e)}get hasValue(){return this.values.some(e=>e.value!==void 0)}get hasNonUri(){return this.values.some(e=>e.value!==void 0&&!b.isUri(e.value))}getLocations(){return this.values.filter(e=>S(e.value)).map(e=>e.value)}getUris(){return this.values.filter(e=>b.isUri(e.value)).map(e=>e.value)}get hasNonStringContext(){return this.values.some(e=>e.value!==void 0&&!f(e.value))}enabledBaseEntries(e){return this.values.flatMap(t=>t.enabled||e&&S(t.value)?t.toBaseEntries():[])}}class Q extends M{constructor(){super(...arguments),this.kind="implicit",this.isFile=!0,this.a=!1,this.b=this.D(new L),this.onDidChangeValue=this.b.event,this.f=!1}get id(){return b.isUri(this.value)?"vscode.implicit.file":f(this.value)?"vscode.implicit.string":this.value?this.a?"vscode.implicit.selection":"vscode.implicit.viewport":"vscode.implicit"}get name(){if(b.isUri(this.value))return`file:${x(this.value)}`;if(S(this.value))return`file:${x(this.value.uri)}`;if(f(this.value)){if(this.value.name===void 0&&this.value.resourceUri===void 0)throw new Error("ChatContextItem must have either a label or a resourceUri");return this.value.name??x(this.value.resourceUri)}return"implicit"}get modelDescription(){if(b.isUri(this.value))return"User's active file";if(f(this.value)){if(this.value.name===void 0&&this.value.resourceUri===void 0)throw new Error("ChatContextItem must have either a label or a resourceUri");const e=this.value.name??x(this.value.resourceUri);return this.value.modelDescription??`User's active context from ${e}`}else return this.a?"User's active selection":"User's current visible code"}get isSelection(){return this.a}get value(){return this.c}get enabled(){return this.f}set enabled(e){this.f=e,this.b.fire()}get uri(){return f(this.value)?this.value.uri:this.g}get icon(){if(f(this.value))return this.value.icon}setValue(e,t){f(e)?this.c=e:(this.c=e,this.g=b.isUri(e)?e:e?.uri),this.a=t,this.b.fire()}toBaseEntries(){return this.value?f(this.value)?[{kind:"string",id:this.id,name:this.name,value:this.value.value??this.name,modelDescription:this.modelDescription,icon:this.value.icon,uri:this.value.uri,resourceUri:this.value.resourceUri,handle:this.value.handle,commandId:this.value.commandId}]:[{kind:"file",id:this.id,name:this.name,value:this.value,modelDescription:this.modelDescription}]:[]}}export{I as $WZb,xe as $XZb,Q as $YZb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableMap, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { autorun } from "../../../../../base/common/observable.js";
+import { basename, isEqual } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { getCodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { isLocation } from "../../../../../editor/common/languages.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { getNotebookEditorFromEditorPane } from "../../../notebook/browser/notebookBrowser.js";
+import { WebviewInput } from "../../../webviewPanel/browser/webviewEditorInput.js";
+import { IChatEditingService } from "../../common/editing/chatEditingService.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { isStringImplicitContextValue } from "../../common/attachments/chatVariableEntries.js";
+import { ChatAgentLocation } from "../../common/constants.js";
+import { ILanguageModelIgnoredFilesService } from "../../common/ignoredFiles.js";
+import { getPromptsTypeForLanguageId } from "../../common/promptSyntax/promptTypes.js";
+import { IChatWidgetService } from "../chat.js";
+import { IChatContextService } from "../contextContrib/chatContextService.js";
+let ChatImplicitContextContribution = class ChatImplicitContextContribution2 extends Disposable {
+  static {
+    __name(this, "ChatImplicitContextContribution");
+  }
+  static {
+    this.ID = "chat.implicitContext";
+  }
+  constructor(codeEditorService, editorService, chatWidgetService, chatService, chatEditingService, configurationService, ignoredFilesService, chatContextService) {
+    super();
+    this.codeEditorService = codeEditorService;
+    this.editorService = editorService;
+    this.chatWidgetService = chatWidgetService;
+    this.chatService = chatService;
+    this.chatEditingService = chatEditingService;
+    this.configurationService = configurationService;
+    this.ignoredFilesService = ignoredFilesService;
+    this.chatContextService = chatContextService;
+    this._currentCancelTokenSource = this._register(new MutableDisposable());
+    this._implicitContextEnablement = this.configurationService.getValue("chat.implicitContext.enabled");
+    const activeEditorDisposables = this._register(new DisposableStore());
+    this._register(Event.runAndSubscribe(editorService.onDidActiveEditorChange, (() => {
+      activeEditorDisposables.clear();
+      const codeEditor = this.findActiveCodeEditor();
+      if (codeEditor) {
+        activeEditorDisposables.add(Event.debounce(Event.any(codeEditor.onDidChangeModel, codeEditor.onDidChangeModelLanguage, codeEditor.onDidChangeCursorSelection, codeEditor.onDidScrollChange), () => void 0, 500)(() => this.updateImplicitContext()));
+      }
+      const notebookEditor = this.findActiveNotebookEditor();
+      if (notebookEditor) {
+        const activeCellDisposables = activeEditorDisposables.add(new DisposableStore());
+        activeEditorDisposables.add(notebookEditor.onDidChangeActiveCell(() => {
+          activeCellDisposables.clear();
+          const codeEditor2 = this.codeEditorService.getActiveCodeEditor();
+          if (codeEditor2 && codeEditor2.getModel()?.uri.scheme === Schemas.vscodeNotebookCell) {
+            activeCellDisposables.add(Event.debounce(Event.any(codeEditor2.onDidChangeModel, codeEditor2.onDidChangeCursorSelection, codeEditor2.onDidScrollChange), () => void 0, 500)(() => this.updateImplicitContext()));
+          }
+        }));
+        activeEditorDisposables.add(Event.debounce(Event.any(notebookEditor.onDidChangeModel, notebookEditor.onDidChangeActiveCell), () => void 0, 500)(() => this.updateImplicitContext()));
+      }
+      const webviewEditor = this.findActiveWebviewEditor();
+      if (webviewEditor) {
+        activeEditorDisposables.add(Event.debounce(webviewEditor.input.webview.onMessage, () => void 0, 500)(() => {
+          this.updateImplicitContext();
+        }));
+      }
+      this.updateImplicitContext();
+    })));
+    this._register(autorun((reader) => {
+      this.chatEditingService.editingSessionsObs.read(reader);
+      this.updateImplicitContext();
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("chat.implicitContext.enabled")) {
+        this._implicitContextEnablement = this.configurationService.getValue("chat.implicitContext.enabled");
+        this.updateImplicitContext();
+      }
+    }));
+    this._register(this.chatService.onDidSubmitRequest(({ chatSessionResource }) => {
+      const widget = this.chatWidgetService.getWidgetBySessionResource(chatSessionResource);
+      if (!widget?.input.implicitContext) {
+        return;
+      }
+      if (this._implicitContextEnablement[widget.location] === "first" && widget.viewModel?.getItems().length !== 0) {
+        widget.input.implicitContext.setValues([]);
+      }
+    }));
+    this._register(this.chatWidgetService.onDidAddWidget(async (widget) => {
+      await this.updateImplicitContext(widget);
+    }));
+  }
+  findActiveCodeEditor() {
+    const codeEditor = this.codeEditorService.getActiveCodeEditor();
+    if (codeEditor) {
+      const model = codeEditor.getModel();
+      if (model?.uri.scheme === Schemas.vscodeNotebookCell) {
+        return void 0;
+      }
+      if (model) {
+        return codeEditor;
+      }
+    }
+    for (const codeOrDiffEditor of this.editorService.getVisibleTextEditorControls(
+      0
+      /* EditorsOrder.MOST_RECENTLY_ACTIVE */
+    )) {
+      const codeEditor2 = getCodeEditor(codeOrDiffEditor);
+      if (!codeEditor2) {
+        continue;
+      }
+      const model = codeEditor2.getModel();
+      if (model) {
+        return codeEditor2;
+      }
+    }
+    return void 0;
+  }
+  findActiveWebviewEditor() {
+    const activeEditorPane = this.editorService.activeEditorPane;
+    if (activeEditorPane?.input instanceof WebviewInput) {
+      return activeEditorPane;
+    }
+    return void 0;
+  }
+  findActiveNotebookEditor() {
+    return getNotebookEditorFromEditorPane(this.editorService.activeEditorPane);
+  }
+  async updateImplicitContext(updateWidget) {
+    const cancelTokenSource = this._currentCancelTokenSource.value = new CancellationTokenSource();
+    const codeEditor = this.findActiveCodeEditor();
+    const model = codeEditor?.getModel();
+    const selection = codeEditor?.getSelection();
+    let newValue;
+    let isSelection = false;
+    let languageId;
+    let providerContext;
+    if (model) {
+      languageId = model.getLanguageId();
+      if (selection && !selection.isEmpty()) {
+        newValue = { uri: model.uri, range: selection };
+        isSelection = true;
+      } else {
+        if (this.configurationService.getValue("chat.implicitContext.suggestedContext")) {
+          newValue = model.uri;
+        } else {
+          const visibleRanges = codeEditor?.getVisibleRanges();
+          if (visibleRanges && visibleRanges.length > 0) {
+            let range = visibleRanges[0];
+            visibleRanges.slice(1).forEach((r) => {
+              range = range.plusRange(r);
+            });
+            newValue = { uri: model.uri, range };
+          } else {
+            newValue = model.uri;
+          }
+        }
+      }
+      providerContext = await this.chatContextService.contextForResource(model.uri, languageId);
+    }
+    const notebookEditor = this.findActiveNotebookEditor();
+    if (notebookEditor?.isReplHistory) {
+      newValue = void 0;
+    } else if (notebookEditor) {
+      const activeCell = notebookEditor.getActiveCell();
+      if (activeCell) {
+        const codeEditor2 = this.codeEditorService.getActiveCodeEditor();
+        const selection2 = codeEditor2?.getSelection();
+        const visibleRanges = codeEditor2?.getVisibleRanges() || [];
+        newValue = activeCell.uri;
+        const cellModel = codeEditor2?.getModel();
+        if (cellModel && isEqual(cellModel.uri, activeCell.uri)) {
+          if (selection2 && !selection2.isEmpty()) {
+            newValue = { uri: activeCell.uri, range: selection2 };
+            isSelection = true;
+          } else if (visibleRanges.length > 0) {
+            if (!isEntireCellVisible(cellModel, visibleRanges)) {
+              let range = visibleRanges[0];
+              visibleRanges.slice(1).forEach((r) => {
+                range = range.plusRange(r);
+              });
+              newValue = { uri: activeCell.uri, range };
+            }
+          }
+        }
+      } else {
+        newValue = notebookEditor.textModel?.uri;
+      }
+    }
+    const webviewEditor = this.findActiveWebviewEditor();
+    if (webviewEditor?.input?.resource) {
+      const webviewContext = await this.chatContextService.contextForResource(webviewEditor.input.resource);
+      if (webviewContext) {
+        newValue = webviewContext;
+      }
+    }
+    const uri = newValue instanceof URI ? newValue : isStringImplicitContextValue(newValue) ? void 0 : newValue?.uri;
+    if (uri && (await this.ignoredFilesService.fileIsIgnored(uri, cancelTokenSource.token) || uri.path.endsWith(".copilotmd"))) {
+      newValue = void 0;
+    }
+    if (cancelTokenSource.token.isCancellationRequested) {
+      return;
+    }
+    const isPromptFile = languageId && getPromptsTypeForLanguageId(languageId) !== void 0;
+    const widgets = updateWidget ? [updateWidget] : [...this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.Chat), ...this.chatWidgetService.getWidgetsByLocations(ChatAgentLocation.EditorInline)];
+    for (const widget of widgets) {
+      if (!widget.input.implicitContext) {
+        continue;
+      }
+      const setting = this._implicitContextEnablement[widget.location];
+      const isFirstInteraction = widget.viewModel?.getItems().length === 0;
+      if ((setting === "always" || setting === "first" && isFirstInteraction) && !isPromptFile) {
+        widget.input.implicitContext.setValues([{ value: newValue, isSelection }, { value: providerContext, isSelection: false }]);
+      } else {
+        widget.input.implicitContext.setValues([]);
+      }
+    }
+  }
+};
+ChatImplicitContextContribution = __decorate([
+  __param(0, ICodeEditorService),
+  __param(1, IEditorService),
+  __param(2, IChatWidgetService),
+  __param(3, IChatService),
+  __param(4, IChatEditingService),
+  __param(5, IConfigurationService),
+  __param(6, ILanguageModelIgnoredFilesService),
+  __param(7, IChatContextService)
+], ChatImplicitContextContribution);
+function isEntireCellVisible(cellModel, visibleRanges) {
+  if (visibleRanges.length === 1 && visibleRanges[0].startLineNumber === 1 && visibleRanges[0].startColumn === 1 && visibleRanges[0].endLineNumber === cellModel.getLineCount() && visibleRanges[0].endColumn === cellModel.getLineMaxColumn(visibleRanges[0].endLineNumber)) {
+    return true;
+  }
+  return false;
+}
+__name(isEntireCellVisible, "isEntireCellVisible");
+class ChatImplicitContexts extends Disposable {
+  static {
+    __name(this, "ChatImplicitContexts");
+  }
+  constructor() {
+    super(...arguments);
+    this._onDidChangeValue = this._register(new Emitter());
+    this.onDidChangeValue = this._onDidChangeValue.event;
+    this._values = this._register(new DisposableMap());
+    this._valuesDisposables = this._register(new DisposableStore());
+  }
+  setValues(values) {
+    this._valuesDisposables.clear();
+    this._values.clearAndDisposeAll();
+    if (!values || values.length === 0) {
+      this._onDidChangeValue.fire();
+      return;
+    }
+    const definedValues = values.filter((value) => value.value !== void 0);
+    for (const value of definedValues) {
+      const implicitContext = new ChatImplicitContext();
+      implicitContext.setValue(value.value, value.isSelection);
+      const disposableStore = new DisposableStore();
+      disposableStore.add(implicitContext.onDidChangeValue(() => {
+        this._onDidChangeValue.fire();
+      }));
+      disposableStore.add(implicitContext);
+      this._values.set(implicitContext, disposableStore);
+    }
+    this._onDidChangeValue.fire();
+  }
+  get values() {
+    return Array.from(this._values.keys());
+  }
+  get hasEnabled() {
+    return Array.from(this._values.keys()).some((v) => v.enabled);
+  }
+  setEnabled(enabled) {
+    this.values.forEach((v) => v.enabled = enabled);
+  }
+  get hasValue() {
+    return this.values.some((v) => v.value !== void 0);
+  }
+  get hasNonUri() {
+    return this.values.some((v) => v.value !== void 0 && !URI.isUri(v.value));
+  }
+  getLocations() {
+    return this.values.filter((v) => isLocation(v.value)).map((v) => v.value);
+  }
+  getUris() {
+    return this.values.filter((v) => URI.isUri(v.value)).map((v) => v.value);
+  }
+  get hasNonStringContext() {
+    return this.values.some((v) => v.value !== void 0 && !isStringImplicitContextValue(v.value));
+  }
+  enabledBaseEntries(includeAllLocations) {
+    return this.values.flatMap((v) => {
+      if (v.enabled) {
+        return v.toBaseEntries();
+      } else if (includeAllLocations && isLocation(v.value)) {
+        return v.toBaseEntries();
+      }
+      return [];
+    });
+  }
+}
+class ChatImplicitContext extends Disposable {
+  static {
+    __name(this, "ChatImplicitContext");
+  }
+  constructor() {
+    super(...arguments);
+    this.kind = "implicit";
+    this.isFile = true;
+    this._isSelection = false;
+    this._onDidChangeValue = this._register(new Emitter());
+    this.onDidChangeValue = this._onDidChangeValue.event;
+    this._enabled = false;
+  }
+  get id() {
+    if (URI.isUri(this.value)) {
+      return "vscode.implicit.file";
+    } else if (isStringImplicitContextValue(this.value)) {
+      return "vscode.implicit.string";
+    } else if (this.value) {
+      if (this._isSelection) {
+        return "vscode.implicit.selection";
+      } else {
+        return "vscode.implicit.viewport";
+      }
+    } else {
+      return "vscode.implicit";
+    }
+  }
+  get name() {
+    if (URI.isUri(this.value)) {
+      return `file:${basename(this.value)}`;
+    }
+    if (isLocation(this.value)) {
+      return `file:${basename(this.value.uri)}`;
+    }
+    if (isStringImplicitContextValue(this.value)) {
+      if (this.value.name === void 0 && this.value.resourceUri === void 0) {
+        throw new Error("ChatContextItem must have either a label or a resourceUri");
+      }
+      return this.value.name ?? basename(this.value.resourceUri);
+    }
+    return "implicit";
+  }
+  get modelDescription() {
+    if (URI.isUri(this.value)) {
+      return `User's active file`;
+    } else if (isStringImplicitContextValue(this.value)) {
+      if (this.value.name === void 0 && this.value.resourceUri === void 0) {
+        throw new Error("ChatContextItem must have either a label or a resourceUri");
+      }
+      const contextName = this.value.name ?? basename(this.value.resourceUri);
+      return this.value.modelDescription ?? `User's active context from ${contextName}`;
+    } else if (this._isSelection) {
+      return `User's active selection`;
+    } else {
+      return `User's current visible code`;
+    }
+  }
+  get isSelection() {
+    return this._isSelection;
+  }
+  get value() {
+    return this._value;
+  }
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(value) {
+    this._enabled = value;
+    this._onDidChangeValue.fire();
+  }
+  get uri() {
+    if (isStringImplicitContextValue(this.value)) {
+      return this.value.uri;
+    }
+    return this._uri;
+  }
+  get icon() {
+    if (isStringImplicitContextValue(this.value)) {
+      return this.value.icon;
+    }
+    return void 0;
+  }
+  setValue(value, isSelection) {
+    if (isStringImplicitContextValue(value)) {
+      this._value = value;
+    } else {
+      this._value = value;
+      this._uri = URI.isUri(value) ? value : value?.uri;
+    }
+    this._isSelection = isSelection;
+    this._onDidChangeValue.fire();
+  }
+  toBaseEntries() {
+    if (!this.value) {
+      return [];
+    }
+    if (isStringImplicitContextValue(this.value)) {
+      return [
+        {
+          kind: "string",
+          id: this.id,
+          name: this.name,
+          value: this.value.value ?? this.name,
+          modelDescription: this.modelDescription,
+          icon: this.value.icon,
+          uri: this.value.uri,
+          resourceUri: this.value.resourceUri,
+          handle: this.value.handle,
+          commandId: this.value.commandId
+        }
+      ];
+    }
+    return [{
+      kind: "file",
+      id: this.id,
+      name: this.name,
+      value: this.value,
+      modelDescription: this.modelDescription
+    }];
+  }
+}
+export {
+  ChatImplicitContext,
+  ChatImplicitContextContribution,
+  ChatImplicitContexts
+};
+//# sourceMappingURL=chatImplicitContext.js.map

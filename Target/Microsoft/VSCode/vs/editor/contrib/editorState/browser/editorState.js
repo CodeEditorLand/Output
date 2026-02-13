@@ -1,1 +1,121 @@
-import*as r from"../../../../base/common/strings.js";import{$_D as o}from"../../../common/core/range.js";import{$Jf as f}from"../../../../base/common/cancellation.js";import{$Dd as a}from"../../../../base/common/lifecycle.js";import{$Pkb as u}from"./keybindingCancellation.js";var c;(function(t){t[t.Value=1]="Value",t[t.Selection=2]="Selection",t[t.Position=4]="Position",t[t.Scroll=8]="Scroll"})(c||(c={}));class h{constructor(i,s){if(this.a=s,(this.a&1)!==0){const n=i.getModel();this.d=n?r.$Vf("{0}#{1}",n.uri.toString(),n.getVersionId()):null}else this.d=null;(this.a&4)!==0?this.b=i.getPosition():this.b=null,(this.a&2)!==0?this.c=i.getSelection():this.c=null,(this.a&8)!==0?(this.f=i.getScrollLeft(),this.g=i.getScrollTop()):(this.f=-1,this.g=-1)}h(i){if(!(i instanceof h))return!1;const s=i;return!(this.d!==s.d||this.f!==s.f||this.g!==s.g||!this.b&&s.b||this.b&&!s.b||this.b&&s.b&&!this.b.equals(s.b)||!this.c&&s.c||this.c&&!s.c||this.c&&s.c&&!this.c.equalsRange(s.c))}validate(i){return this.h(new h(i,this.a))}}class g extends u{constructor(i,s,n,l){super(i,l),this.b=new a,s&4&&this.b.add(i.onDidChangeCursorPosition(e=>{(!n||!o.containsPosition(n,e.position))&&this.cancel()})),s&2&&this.b.add(i.onDidChangeCursorSelection(e=>{(!n||!o.containsRange(n,e.selection))&&this.cancel()})),s&8&&this.b.add(i.onDidScrollChange(e=>this.cancel())),s&1&&(this.b.add(i.onDidChangeModel(e=>this.cancel())),this.b.add(i.onDidChangeModelContent(e=>this.cancel())))}dispose(){this.b.dispose(),super.dispose()}}class D extends f{constructor(i,s){super(s),this.a=i.onDidChangeContent(()=>this.cancel())}dispose(){this.a.dispose(),super.dispose()}}export{h as $Qkb,g as $Rkb,D as $Skb,c as CodeEditorStateFlag};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../../base/common/strings.js";
+import { Range } from "../../../common/core/range.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { EditorKeybindingCancellationTokenSource } from "./keybindingCancellation.js";
+var CodeEditorStateFlag;
+(function(CodeEditorStateFlag2) {
+  CodeEditorStateFlag2[CodeEditorStateFlag2["Value"] = 1] = "Value";
+  CodeEditorStateFlag2[CodeEditorStateFlag2["Selection"] = 2] = "Selection";
+  CodeEditorStateFlag2[CodeEditorStateFlag2["Position"] = 4] = "Position";
+  CodeEditorStateFlag2[CodeEditorStateFlag2["Scroll"] = 8] = "Scroll";
+})(CodeEditorStateFlag || (CodeEditorStateFlag = {}));
+class EditorState {
+  static {
+    __name(this, "EditorState");
+  }
+  constructor(editor, flags) {
+    this.flags = flags;
+    if ((this.flags & 1) !== 0) {
+      const model = editor.getModel();
+      this.modelVersionId = model ? strings.format("{0}#{1}", model.uri.toString(), model.getVersionId()) : null;
+    } else {
+      this.modelVersionId = null;
+    }
+    if ((this.flags & 4) !== 0) {
+      this.position = editor.getPosition();
+    } else {
+      this.position = null;
+    }
+    if ((this.flags & 2) !== 0) {
+      this.selection = editor.getSelection();
+    } else {
+      this.selection = null;
+    }
+    if ((this.flags & 8) !== 0) {
+      this.scrollLeft = editor.getScrollLeft();
+      this.scrollTop = editor.getScrollTop();
+    } else {
+      this.scrollLeft = -1;
+      this.scrollTop = -1;
+    }
+  }
+  _equals(other) {
+    if (!(other instanceof EditorState)) {
+      return false;
+    }
+    const state = other;
+    if (this.modelVersionId !== state.modelVersionId) {
+      return false;
+    }
+    if (this.scrollLeft !== state.scrollLeft || this.scrollTop !== state.scrollTop) {
+      return false;
+    }
+    if (!this.position && state.position || this.position && !state.position || this.position && state.position && !this.position.equals(state.position)) {
+      return false;
+    }
+    if (!this.selection && state.selection || this.selection && !state.selection || this.selection && state.selection && !this.selection.equalsRange(state.selection)) {
+      return false;
+    }
+    return true;
+  }
+  validate(editor) {
+    return this._equals(new EditorState(editor, this.flags));
+  }
+}
+class EditorStateCancellationTokenSource extends EditorKeybindingCancellationTokenSource {
+  static {
+    __name(this, "EditorStateCancellationTokenSource");
+  }
+  constructor(editor, flags, range, parent) {
+    super(editor, parent);
+    this._listener = new DisposableStore();
+    if (flags & 4) {
+      this._listener.add(editor.onDidChangeCursorPosition((e) => {
+        if (!range || !Range.containsPosition(range, e.position)) {
+          this.cancel();
+        }
+      }));
+    }
+    if (flags & 2) {
+      this._listener.add(editor.onDidChangeCursorSelection((e) => {
+        if (!range || !Range.containsRange(range, e.selection)) {
+          this.cancel();
+        }
+      }));
+    }
+    if (flags & 8) {
+      this._listener.add(editor.onDidScrollChange((_) => this.cancel()));
+    }
+    if (flags & 1) {
+      this._listener.add(editor.onDidChangeModel((_) => this.cancel()));
+      this._listener.add(editor.onDidChangeModelContent((_) => this.cancel()));
+    }
+  }
+  dispose() {
+    this._listener.dispose();
+    super.dispose();
+  }
+}
+class TextModelCancellationTokenSource extends CancellationTokenSource {
+  static {
+    __name(this, "TextModelCancellationTokenSource");
+  }
+  constructor(model, parent) {
+    super(parent);
+    this._listener = model.onDidChangeContent(() => this.cancel());
+  }
+  dispose() {
+    this._listener.dispose();
+    super.dispose();
+  }
+}
+export {
+  CodeEditorStateFlag,
+  EditorState,
+  EditorStateCancellationTokenSource,
+  TextModelCancellationTokenSource
+};
+//# sourceMappingURL=editorState.js.map

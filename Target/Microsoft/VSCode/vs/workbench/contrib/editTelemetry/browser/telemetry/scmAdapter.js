@@ -1,1 +1,56 @@
-import{$Qf as m}from"../../../../../base/common/cache.js";import{Event as p}from"../../../../../base/common/event.js";import{observableSignalFromEvent as u,derived as a}from"../../../../../base/common/observable.js";import{$mR as l}from"../../../scm/common/scm.js";var f=function(o,t,e,r){var s=arguments.length,i=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,r);else for(var h=o.length-1;h>=0;h--)(n=o[h])&&(i=(s<3?n(i):s>3?n(t,e,i):n(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},d=function(o,t){return function(e,r){t(e,r,o)}};let c=class{constructor(t){this.c=t,this.a=new m(e=>new v(e)),this.b=u(this,p.any(this.c.onDidAddRepository,this.c.onDidRemoveRepository))}getRepo(t,e){this.b.read(e);const r=this.c.getRepository(t);if(r)return this.a.get(r)}};c=f([d(0,l)],c);class v{constructor(t){this.a=t,this.headBranchNameObs=a(e=>this.a.provider.historyProvider.read(e)?.historyItemRef.read(e)?.name),this.headCommitHashObs=a(e=>this.a.provider.historyProvider.read(e)?.historyItemRef.read(e)?.revision)}async isIgnored(t){return!1}}export{c as $dLc,v as $eLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { WeakCachedFunction } from "../../../../../base/common/cache.js";
+import { Event } from "../../../../../base/common/event.js";
+import { observableSignalFromEvent, derived } from "../../../../../base/common/observable.js";
+import { ISCMService } from "../../../scm/common/scm.js";
+let ScmAdapter = class ScmAdapter2 {
+  static {
+    __name(this, "ScmAdapter");
+  }
+  constructor(_scmService) {
+    this._scmService = _scmService;
+    this._repos = new WeakCachedFunction((repo) => new ScmRepoAdapter(repo));
+    this._reposChangedSignal = observableSignalFromEvent(this, Event.any(this._scmService.onDidAddRepository, this._scmService.onDidRemoveRepository));
+  }
+  getRepo(uri, reader) {
+    this._reposChangedSignal.read(reader);
+    const repo = this._scmService.getRepository(uri);
+    if (!repo) {
+      return void 0;
+    }
+    return this._repos.get(repo);
+  }
+};
+ScmAdapter = __decorate([
+  __param(0, ISCMService)
+], ScmAdapter);
+class ScmRepoAdapter {
+  static {
+    __name(this, "ScmRepoAdapter");
+  }
+  constructor(_repo) {
+    this._repo = _repo;
+    this.headBranchNameObs = derived((reader) => this._repo.provider.historyProvider.read(reader)?.historyItemRef.read(reader)?.name);
+    this.headCommitHashObs = derived((reader) => this._repo.provider.historyProvider.read(reader)?.historyItemRef.read(reader)?.revision);
+  }
+  async isIgnored(uri) {
+    return false;
+  }
+}
+export {
+  ScmAdapter,
+  ScmRepoAdapter
+};
+//# sourceMappingURL=scmAdapter.js.map

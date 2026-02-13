@@ -1,2 +1,134 @@
-import{$ui as l,$ji as f}from"../../../../../../base/common/async.js";import{$Dd as $}from"../../../../../../base/common/lifecycle.js";async function u(t,p){const o=new $,c=new l,a=o.add(new f(()=>c.complete(),p));return o.add(t(()=>a.schedule())),a.schedule(),c.p.finally(()=>o.dispose())}function h(t){return t.trim().length===0?{detected:!1,reason:"Content is empty or contains only whitespace"}:/PS\s+[A-Z]:\\.*>\s*$/.test(t)?{detected:!0,reason:`PowerShell prompt pattern detected: "${t}"`}:/^[A-Z]:\\.*>\s*$/.test(t)?{detected:!0,reason:`Command Prompt pattern detected: "${t}"`}:/\$\s*$/.test(t)?{detected:!0,reason:`Bash-style prompt pattern detected: "${t}"`}:/#\s*$/.test(t)?{detected:!0,reason:`Root prompt pattern detected: "${t}"`}:/^>>>\s*$/.test(t)?{detected:!0,reason:`Python REPL prompt pattern detected: "${t}"`}:/\u276f\s*$/.test(t)?{detected:!0,reason:`Starship prompt pattern detected: "${t}"`}:/[>%]\s*$/.test(t)?{detected:!0,reason:`Generic prompt pattern detected: "${t}"`}:{detected:!1,reason:`No common prompt pattern found in last line: "${t}"`}}async function g(t,p,o,c){await u(t,o);const a=await p.xtermReadyPromise;if(!a)return{detected:!1,reason:`Xterm not available, using ${o}ms timeout`};const s=Date.now();for(;Date.now()-s<c;){try{let e="";const r=a.raw.buffer.active,d=r.getLine(r.baseY+r.cursorY);d&&(e=d.translateToString(!0));const n=h(e);if(n.detected)return n}catch{}await u(t,Math.min(o,c-(Date.now()-s)))}try{let e="";const r=a.raw.buffer.active,d=r.getLine(r.baseY+r.cursorY);return d&&(e=d.translateToString(!0)+`
-`),{detected:!1,reason:`Extended timeout reached without prompt detection. Last line: "${e.trim()}"`}}catch(e){return{detected:!1,reason:`Extended timeout reached. Error reading terminal content: ${e}`}}}async function y(t,p,o){const c=new l,a=t.onData,s=o.add(new f(()=>{c.complete()},p));let e=0;const r=o.add(new f(()=>{if(e===2||e===3){r.cancel();return}e=3,s.schedule()},1e3));let d;return(function(n){n[n.Initial=0]="Initial",n[n.Prompt=1]="Prompt",n[n.Executing=2]="Executing",n[n.PromptAfterExecuting=3]="PromptAfterExecuting"})(d||(d={})),o.add(a(n=>{const m=n.matchAll(/(?:\x1b\]|\x9d)[16]33;(?<type>[ACD])(?:;.*)?(?:\x1b\\|\x07|\x9c)/g);for(const i of m)i.groups?.type==="A"?e===0?e=1:e===2&&(e=3):(i.groups?.type==="C"||i.groups?.type==="D")&&(e=2);e===3?(r.cancel(),s.schedule()):(s.cancel(),e===0||e===1?r.schedule():r.cancel())})),c.p}export{u as $CCc,h as $DCc,g as $ECc,y as $FCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DeferredPromise, RunOnceScheduler } from "../../../../../../base/common/async.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+async function waitForIdle(onData, idleDurationMs) {
+  const store = new DisposableStore();
+  const deferred = new DeferredPromise();
+  const scheduler = store.add(new RunOnceScheduler(() => deferred.complete(), idleDurationMs));
+  store.add(onData(() => scheduler.schedule()));
+  scheduler.schedule();
+  return deferred.p.finally(() => store.dispose());
+}
+__name(waitForIdle, "waitForIdle");
+function detectsCommonPromptPattern(cursorLine) {
+  if (cursorLine.trim().length === 0) {
+    return { detected: false, reason: "Content is empty or contains only whitespace" };
+  }
+  if (/PS\s+[A-Z]:\\.*>\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `PowerShell prompt pattern detected: "${cursorLine}"` };
+  }
+  if (/^[A-Z]:\\.*>\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `Command Prompt pattern detected: "${cursorLine}"` };
+  }
+  if (/\$\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `Bash-style prompt pattern detected: "${cursorLine}"` };
+  }
+  if (/#\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `Root prompt pattern detected: "${cursorLine}"` };
+  }
+  if (/^>>>\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `Python REPL prompt pattern detected: "${cursorLine}"` };
+  }
+  if (/\u276f\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `Starship prompt pattern detected: "${cursorLine}"` };
+  }
+  if (/[>%]\s*$/.test(cursorLine)) {
+    return { detected: true, reason: `Generic prompt pattern detected: "${cursorLine}"` };
+  }
+  return { detected: false, reason: `No common prompt pattern found in last line: "${cursorLine}"` };
+}
+__name(detectsCommonPromptPattern, "detectsCommonPromptPattern");
+async function waitForIdleWithPromptHeuristics(onData, instance, idlePollIntervalMs, extendedTimeoutMs) {
+  await waitForIdle(onData, idlePollIntervalMs);
+  const xterm = await instance.xtermReadyPromise;
+  if (!xterm) {
+    return { detected: false, reason: `Xterm not available, using ${idlePollIntervalMs}ms timeout` };
+  }
+  const startTime = Date.now();
+  while (Date.now() - startTime < extendedTimeoutMs) {
+    try {
+      let content = "";
+      const buffer = xterm.raw.buffer.active;
+      const line = buffer.getLine(buffer.baseY + buffer.cursorY);
+      if (line) {
+        content = line.translateToString(true);
+      }
+      const promptResult = detectsCommonPromptPattern(content);
+      if (promptResult.detected) {
+        return promptResult;
+      }
+    } catch (error) {
+    }
+    await waitForIdle(onData, Math.min(idlePollIntervalMs, extendedTimeoutMs - (Date.now() - startTime)));
+  }
+  try {
+    let content = "";
+    const buffer = xterm.raw.buffer.active;
+    const line = buffer.getLine(buffer.baseY + buffer.cursorY);
+    if (line) {
+      content = line.translateToString(true) + "\n";
+    }
+    return { detected: false, reason: `Extended timeout reached without prompt detection. Last line: "${content.trim()}"` };
+  } catch (error) {
+    return { detected: false, reason: `Extended timeout reached. Error reading terminal content: ${error}` };
+  }
+}
+__name(waitForIdleWithPromptHeuristics, "waitForIdleWithPromptHeuristics");
+async function trackIdleOnPrompt(instance, idleDurationMs, store) {
+  const idleOnPrompt = new DeferredPromise();
+  const onData = instance.onData;
+  const scheduler = store.add(new RunOnceScheduler(() => {
+    idleOnPrompt.complete();
+  }, idleDurationMs));
+  let state = 0;
+  const promptFallbackScheduler = store.add(new RunOnceScheduler(() => {
+    if (state === 2 || state === 3) {
+      promptFallbackScheduler.cancel();
+      return;
+    }
+    state = 3;
+    scheduler.schedule();
+  }, 1e3));
+  let TerminalState;
+  (function(TerminalState2) {
+    TerminalState2[TerminalState2["Initial"] = 0] = "Initial";
+    TerminalState2[TerminalState2["Prompt"] = 1] = "Prompt";
+    TerminalState2[TerminalState2["Executing"] = 2] = "Executing";
+    TerminalState2[TerminalState2["PromptAfterExecuting"] = 3] = "PromptAfterExecuting";
+  })(TerminalState || (TerminalState = {}));
+  store.add(onData((e) => {
+    const matches = e.matchAll(/(?:\x1b\]|\x9d)[16]33;(?<type>[ACD])(?:;.*)?(?:\x1b\\|\x07|\x9c)/g);
+    for (const match of matches) {
+      if (match.groups?.type === "A") {
+        if (state === 0) {
+          state = 1;
+        } else if (state === 2) {
+          state = 3;
+        }
+      } else if (match.groups?.type === "C" || match.groups?.type === "D") {
+        state = 2;
+      }
+    }
+    if (state === 3) {
+      promptFallbackScheduler.cancel();
+      scheduler.schedule();
+    } else {
+      scheduler.cancel();
+      if (state === 0 || state === 1) {
+        promptFallbackScheduler.schedule();
+      } else {
+        promptFallbackScheduler.cancel();
+      }
+    }
+  }));
+  return idleOnPrompt.p;
+}
+__name(trackIdleOnPrompt, "trackIdleOnPrompt");
+export {
+  detectsCommonPromptPattern,
+  trackIdleOnPrompt,
+  waitForIdle,
+  waitForIdleWithPromptHeuristics
+};
+//# sourceMappingURL=executeStrategy.js.map

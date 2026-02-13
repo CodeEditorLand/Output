@@ -1,1 +1,69 @@
-import{derivedHandleChanges as a,observableValue as d,runOnChange as i,autorun as u,derived as c}from"../../../../../base/common/observable.js";import{$zE as h,$AE as m}from"../../../../../editor/common/core/edits/stringEdit.js";import{$oF as g}from"../../../../../editor/common/textModelEditSource.js";class v{constructor(){this.a=0,this.onDidOpenDocumentChange=a({owner:this,changeTracker:{createChangeSummary:()=>({didChange:!1}),handleChange:(e,t)=>(e.didChange(this.documents)||(t.didChange=!0),!0)}},(e,t)=>{const n=this.documents.read(e);for(const r of n)r.value.read(e);return t.didChange&&this.a++,this.a}),this.lastActiveDocument=c(e=>{const t=d("lastActiveDocument",void 0);return e.store.add(u(n=>{const r=this.documents.read(n);for(const o of r)n.store.add(i(o.value,()=>{t.set(o,void 0)}))})),t}).flatten()}getFirstOpenDocument(){return this.documents.get()[0]}getDocument(e){return this.documents.get().find(t=>t.uri.toString()===e.toString())}}class s extends h{static replace(e,t,n=g.unknown({})){return new s([new m(e,t)],n)}constructor(e,t){super(e),this.reason=t}}export{v as $YKc,s as $ZKc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { derivedHandleChanges, observableValue, runOnChange, autorun, derived } from "../../../../../base/common/observable.js";
+import { StringEdit, StringReplacement } from "../../../../../editor/common/core/edits/stringEdit.js";
+import { EditSources } from "../../../../../editor/common/textModelEditSource.js";
+class ObservableWorkspace {
+  static {
+    __name(this, "ObservableWorkspace");
+  }
+  constructor() {
+    this._version = 0;
+    this.onDidOpenDocumentChange = derivedHandleChanges({
+      owner: this,
+      changeTracker: {
+        createChangeSummary: /* @__PURE__ */ __name(() => ({ didChange: false }), "createChangeSummary"),
+        handleChange: /* @__PURE__ */ __name((ctx, changeSummary) => {
+          if (!ctx.didChange(this.documents)) {
+            changeSummary.didChange = true;
+          }
+          return true;
+        }, "handleChange")
+      }
+    }, (reader, changeSummary) => {
+      const docs = this.documents.read(reader);
+      for (const d of docs) {
+        d.value.read(reader);
+      }
+      if (changeSummary.didChange) {
+        this._version++;
+      }
+      return this._version;
+    });
+    this.lastActiveDocument = derived((reader) => {
+      const obs = observableValue("lastActiveDocument", void 0);
+      reader.store.add(autorun((reader2) => {
+        const docs = this.documents.read(reader2);
+        for (const d of docs) {
+          reader2.store.add(runOnChange(d.value, () => {
+            obs.set(d, void 0);
+          }));
+        }
+      }));
+      return obs;
+    }).flatten();
+  }
+  getFirstOpenDocument() {
+    return this.documents.get()[0];
+  }
+  getDocument(documentId) {
+    return this.documents.get().find((d) => d.uri.toString() === documentId.toString());
+  }
+}
+class StringEditWithReason extends StringEdit {
+  static {
+    __name(this, "StringEditWithReason");
+  }
+  static replace(range, newText, source = EditSources.unknown({})) {
+    return new StringEditWithReason([new StringReplacement(range, newText)], source);
+  }
+  constructor(replacements, reason) {
+    super(replacements);
+    this.reason = reason;
+  }
+}
+export {
+  ObservableWorkspace,
+  StringEditWithReason
+};
+//# sourceMappingURL=observableWorkspace.js.map

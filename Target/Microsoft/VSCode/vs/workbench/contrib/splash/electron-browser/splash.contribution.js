@@ -1,1 +1,42 @@
-import{$2N as h}from"../../../common/contributions.js";import{$EPc as s}from"../browser/splash.js";import{$Xu as u}from"../../../../platform/native/common/native.js";import{$WC as _}from"../../../../platform/instantiation/common/extensions.js";import{$FPc as a}from"../browser/partsSplash.js";var l=function(e,r,t,i){var n=arguments.length,o=n<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,t):i,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(e,r,t,i);else for(var c=e.length-1;c>=0;c--)(f=e[c])&&(o=(n<3?f(o):n>3?f(r,t,o):f(r,t))||o);return n>3&&o&&Object.defineProperty(r,t,o),o},m=function(e,r){return function(t,i){r(t,i,e)}};let p=class{constructor(r){this.saveWindowSplash=r.saveWindowSplash.bind(r)}};p=l([m(0,u)],p);_(s,p,1);h(a.ID,a,1);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { ISplashStorageService } from "../browser/splash.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { PartsSplash } from "../browser/partsSplash.js";
+let SplashStorageService = class SplashStorageService2 {
+  static {
+    __name(this, "SplashStorageService");
+  }
+  constructor(nativeHostService) {
+    this.saveWindowSplash = nativeHostService.saveWindowSplash.bind(nativeHostService);
+  }
+};
+SplashStorageService = __decorate([
+  __param(0, INativeHostService)
+], SplashStorageService);
+registerSingleton(
+  ISplashStorageService,
+  SplashStorageService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerWorkbenchContribution2(
+  PartsSplash.ID,
+  PartsSplash,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+//# sourceMappingURL=splash.contribution.js.map

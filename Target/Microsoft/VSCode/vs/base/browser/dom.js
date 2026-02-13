@@ -1,1 +1,2097 @@
-import*as j from"./browser.js";import{$e8 as I}from"./canIUse.js";import{$m8 as gt,$n8 as tt}from"./keyboardEvent.js";import{$h8 as Et}from"./mouseEvent.js";import{$pi as wt,$ii as xt,$hi as yt,$oi as vt}from"../common/async.js";import{$Db as bt,$mb as $t}from"../common/errors.js";import*as x from"../common/event.js";import{$Ed as K,$Dd as T,$Fd as Dt,$Cd as $}from"../common/lifecycle.js";import{$mh as Tt}from"../common/network.js";import*as O from"../common/platform.js";import{URI as Ot}from"../common/uri.js";import{$Gn as Rt}from"../common/hash.js";import{$S7 as Mt,$T7 as g}from"./window.js";import{$lx as Lt}from"../common/numbers.js";import{derived as L,derivedOpts as F,observableValue as k,isObservable as b}from"../common/observable.js";const{registerWindow:we,getWindow:h,getDocument:xe,getWindows:et,getWindowsCount:At,getWindowId:G,getWindowById:ye,hasWindow:ve,onDidRegisterWindow:Nt,onWillUnregisterWindow:be,onDidUnregisterWindow:$e}=(function(){const t=new Map;Mt(g,1);const e={window:g,disposables:new T};t.set(g.vscodeWindowId,e);const n=new x.$xf,r=new x.$xf,s=new x.$xf;function u(i,f){return(typeof i=="number"?t.get(i):void 0)??(f?e:void 0)}return{onDidRegisterWindow:n.event,onWillUnregisterWindow:s.event,onDidUnregisterWindow:r.event,registerWindow(i){if(t.has(i.vscodeWindowId))return K.None;const f=new T,c={window:i,disposables:f.add(new T)};return t.set(i.vscodeWindowId,c),f.add($(()=>{t.delete(i.vscodeWindowId),r.fire(i)})),f.add(l(i,E.BEFORE_UNLOAD,()=>{s.fire(i)})),n.fire(c),f},getWindows(){return t.values()},getWindowsCount(){return t.size},getWindowId(i){return i.vscodeWindowId},hasWindow(i){return t.has(i)},getWindowById:u,getWindow(i){const f=i;if(f?.ownerDocument?.defaultView)return f.ownerDocument.defaultView.window;const c=i;return c?.view?c.view.window:g},getDocument(i){return h(i).document}}})(),P=new Set;function De(t){return P.add(t),$(()=>{P.delete(t)})}function Kt(){for(const t of P)if(t().hasFocus)return!0;return!1}function Pt(){for(const t of P){const e=t();if(e.hasFocus&&e.window)return e.window}}function Te(){for(const{window:t}of et())if(t.document.hasFocus())return!0;return!!Kt()}function Oe(t){for(;t.firstChild;)t.firstChild.remove()}class St{constructor(e,n,r,s){this.j=e,this.l=n,this.g=r,this.m=s||!1,this.j.addEventListener(this.l,this.g,this.m)}dispose(){this.g&&(this.j.removeEventListener(this.l,this.g,this.m),this.j=null,this.g=null)}}function l(t,e,n,r){return new St(t,e,n,r)}function H(t,e){return function(n){return e(new Et(t,n))}}function jt(t){return function(e){return t(new tt(e))}}const Re=function(e,n,r,s){let u=r;return n==="click"||n==="mousedown"||n==="contextmenu"?u=H(h(e),r):(n==="keydown"||n==="keypress"||n==="keyup")&&(u=jt(r)),l(e,n,u,s)},Me=function(e,n,r){const s=H(h(e),n);return Wt(e,s,r)},Le=function(e,n,r){const s=H(h(e),n);return Ct(e,s,r)};function Wt(t,e,n){return l(t,O.$v&&I.pointerEvents?E.POINTER_DOWN:E.MOUSE_DOWN,e,n)}function Ae(t,e,n){return l(t,O.$v&&I.pointerEvents?E.POINTER_MOVE:E.MOUSE_MOVE,e,n)}function Ct(t,e,n){return l(t,O.$v&&I.pointerEvents?E.POINTER_UP:E.MOUSE_UP,e,n)}function Ne(t,e,n){return vt(t,e,n)}class Ke extends wt{constructor(e,n){super(e,n)}}let nt,R;function Pe(t,e,n,r){let s=0;const u=t.setInterval(()=>{s++,(typeof r=="number"&&s>=r||e()===!0)&&i.dispose()},n),i=$(()=>{t.clearInterval(u)});return i}class Se extends xt{constructor(e){super(),this.l=e&&h(e)}cancelAndSet(e,n,r){return super.cancelAndSet(e,n,r??this.l)}}class W{constructor(e,n=0){this.g=e,this.priority=n,this.j=!1}dispose(){this.j=!0}execute(){if(!this.j)try{this.g()}catch(e){$t(e)}}static sort(e,n){return n.priority-e.priority}}(function(){const t=new Map,e=new Map,n=new Map,r=new Map,s=u=>{n.set(u,!1);const i=t.get(u)??[];for(e.set(u,i),t.set(u,[]),r.set(u,!0);i.length>0;)i.sort(W.sort),i.shift().execute();r.set(u,!1)};R=(u,i,f=0)=>{const c=G(u),o=new W(i,f);let a=t.get(c);return a||(a=[],t.set(c,a)),a.push(o),n.get(c)||(n.set(c,!0),u.requestAnimationFrame(()=>s(c))),o},nt=(u,i,f)=>{const c=G(u);if(r.get(c)){const o=new W(i,f);let a=e.get(c);return a||(a=[],e.set(c,a)),a.push(o),o}else return R(u,i,f)}})();function je(t,e){return R(t,e,1e4)}function We(t,e){return R(t,e,-1e4)}class Ce{constructor(e,n){this.l=new Dt,this.j=e,this.g=n}dispose(){this.l.dispose()}cancel(){this.l.clear()}schedule(){this.l.value||(this.l.value=nt(h(this.j),()=>{this.l.clear(),this.g()}))}isScheduled(){return this.l.value!==void 0}}const It=8;function Ht(t,e){return e}class Ut extends K{constructor(e,n,r,s=Ht,u=It){super();let i=null,f=0;const c=this.D(new yt),o=()=>{f=new Date().getTime(),r(i),i=null};this.D(l(e,n,a=>{i=s(i,a);const m=new Date().getTime()-f;m>=u?(c.cancel(),o()):c.setIfNotSet(o,u-m)}))}}function Ie(t,e,n,r,s){return new Ut(t,e,n,r,s)}function U(t){return h(t).getComputedStyle(t,null)}function rt(t,e,n){const r=h(t),s=r.document;if(t!==s.body)return new w(t.clientWidth,t.clientHeight);if(O.$v&&r?.visualViewport)return new w(r.visualViewport.width,r.visualViewport.height);if(r?.innerWidth&&r.innerHeight)return new w(r.innerWidth,r.innerHeight);if(s.body&&s.body.clientWidth&&s.body.clientHeight)return new w(s.body.clientWidth,s.body.clientHeight);if(s.documentElement&&s.documentElement.clientWidth&&s.documentElement.clientHeight)return new w(s.documentElement.clientWidth,s.documentElement.clientHeight);if(n)return rt(n,e);if(e)return e;throw new Error("Unable to figure out browser width and height")}class d{static g(e,n){return parseFloat(n)||0}static j(e,n){const r=U(e),s=r?r.getPropertyValue(n):"0";return d.g(e,s)}static getBorderLeftWidth(e){return d.j(e,"border-left-width")}static getBorderRightWidth(e){return d.j(e,"border-right-width")}static getBorderTopWidth(e){return d.j(e,"border-top-width")}static getBorderBottomWidth(e){return d.j(e,"border-bottom-width")}static getPaddingLeft(e){return d.j(e,"padding-left")}static getPaddingRight(e){return d.j(e,"padding-right")}static getPaddingTop(e){return d.j(e,"padding-top")}static getPaddingBottom(e){return d.j(e,"padding-bottom")}static getMarginLeft(e){return d.j(e,"margin-left")}static getMarginTop(e){return d.j(e,"margin-top")}static getMarginRight(e){return d.j(e,"margin-right")}static getMarginBottom(e){return d.j(e,"margin-bottom")}}class w{static{this.None=new w(0,0)}constructor(e,n){this.width=e,this.height=n}with(e=this.width,n=this.height){return e!==this.width||n!==this.height?new w(e,n):this}static is(e){return typeof e=="object"&&typeof e.height=="number"&&typeof e.width=="number"}static lift(e){return e instanceof w?e:new w(e.width,e.height)}static equals(e,n){return e===n?!0:!e||!n?!1:e.width===n.width&&e.height===n.height}}function V(t){let e=t.offsetParent,n=t.offsetTop,r=t.offsetLeft;for(;(t=t.parentNode)!==null&&t!==t.ownerDocument.body&&t!==t.ownerDocument.documentElement;){n-=t.scrollTop;const s=it(t)?null:U(t);s&&(r-=s.direction!=="rtl"?t.scrollLeft:-t.scrollLeft),t===e&&(r+=d.getBorderLeftWidth(t),n+=d.getBorderTopWidth(t),n+=t.offsetTop,r+=t.offsetLeft,e=t.offsetParent)}return{left:r,top:n}}function He(t,e,n){typeof e=="number"&&(t.style.width=`${e}px`),typeof n=="number"&&(t.style.height=`${n}px`)}function Ue(t,e,n,r,s,u="absolute"){typeof e=="number"&&(t.style.top=`${e}px`),typeof n=="number"&&(t.style.right=`${n}px`),typeof r=="number"&&(t.style.bottom=`${r}px`),typeof s=="number"&&(t.style.left=`${s}px`),t.style.position=u}function _t(t){const e=t.getBoundingClientRect(),n=h(t);return{left:e.left+n.scrollX,top:e.top+n.scrollY,width:e.width,height:e.height}}function _e(t,e){const n=_t(t),r=rt(e);return n.left>r.width/2&&n.top>r.height/2}function Be(t){let e=t,n=1;do{const r=U(e).zoom;r!=null&&r!=="1"&&(n*=r),e=e.parentElement}while(e!==null&&e!==e.ownerDocument.documentElement);return n}function Bt(t){const e=d.getMarginLeft(t)+d.getMarginRight(t);return t.offsetWidth+e}function Fe(t){const e=d.getBorderLeftWidth(t)+d.getBorderRightWidth(t),n=d.getPaddingLeft(t)+d.getPaddingRight(t);return t.offsetWidth-e-n}function Ft(t){const e=d.getMarginLeft(t)+d.getMarginRight(t);return t.scrollWidth+e}function ke(t){const e=d.getBorderTopWidth(t)+d.getBorderBottomWidth(t),n=d.getPaddingTop(t)+d.getPaddingBottom(t);return t.offsetHeight-e-n}function Ge(t){const e=d.getMarginTop(t)+d.getMarginBottom(t);return t.offsetHeight+e}function kt(t,e){if(t===null)return 0;const n=V(t),r=V(e);return n.left-r.left}function Ve(t,e){const n=e.map(s=>Math.max(Ft(s),Bt(s))+kt(s,t)||0);return Math.max(...n)}function C(t,e){return!!e?.contains(t)}const st="parentFlowToElementId";function qe(t,e){t.dataset[st]=e.id}function Gt(t){const e=t.dataset[st];return typeof e=="string"?t.ownerDocument.getElementById(e):null}function Xe(t,e){let n=t;for(;n;){if(n===e)return!0;if(v(n)){const r=Gt(n);if(r){n=r;continue}}n=n.parentNode}return!1}function Vt(t,e,n){for(;t&&t.nodeType===t.ELEMENT_NODE;){if(t.classList.contains(e))return t;if(n){if(typeof n=="string"){if(t.classList.contains(n))return null}else if(t===n)return null}t=t.parentNode}return null}function Qe(t,e,n){return!!Vt(t,e,n)}function it(t){return t&&!!t.host&&!!t.mode}function Ye(t){return!!ot(t)}function ot(t){for(;t.parentNode;){if(t===t.ownerDocument?.body)return null;t=t.parentNode}return it(t)?t:null}function ut(){let t=_().activeElement;for(;t?.shadowRoot;)t=t.shadowRoot.activeElement;return t}function Ze(t){return ut()===t}function Je(t){return C(ut(),t)}function ze(t){return t.ownerDocument===_()}function _(){if(At()<=1)return g.document;const e=Array.from(et()).map(({window:r})=>r.document).find(r=>r.hasFocus());if(e)return e;const n=Pt();return n?n.document:g.document}function ct(){return _().defaultView?.window??g}const qt=new class{constructor(){this.mutationObservers=new Map}observe(t,e,n){let r=this.mutationObservers.get(t);r||(r=new Map,this.mutationObservers.set(t,r));const s=Rt(n);let u=r.get(s);if(u)u.users+=1;else{const i=new x.$xf,f=new MutationObserver(o=>i.fire(o));f.observe(t,n);const c=u={users:1,observer:f,onDidMutate:i.event};e.add($(()=>{c.users-=1,c.users===0&&(i.dispose(),f.disconnect(),r?.delete(s),r?.size===0&&this.mutationObservers.delete(t))})),r.set(s,u)}return u.onDidMutate}};function tn(t=g.document.head){return ft("meta",t)}function en(t=g.document.head){return ft("link",t)}function ft(t,e=g.document.head){const n=document.createElement(t);return e.appendChild(n),n}function v(t){return t instanceof HTMLElement||t instanceof h(t).HTMLElement}function nn(t){return t instanceof HTMLAnchorElement||t instanceof h(t).HTMLAnchorElement}function rn(t){return t instanceof HTMLSpanElement||t instanceof h(t).HTMLSpanElement}function sn(t){return t instanceof HTMLTextAreaElement||t instanceof h(t).HTMLTextAreaElement}function on(t){return t instanceof HTMLInputElement||t instanceof h(t).HTMLInputElement}function un(t){return t instanceof HTMLButtonElement||t instanceof h(t).HTMLButtonElement}function cn(t){return t instanceof HTMLDivElement||t instanceof h(t).HTMLDivElement}function Xt(t){return t instanceof SVGElement||t instanceof h(t).SVGElement}function fn(t){return t instanceof MouseEvent||t instanceof h(t).MouseEvent}function an(t){return t instanceof KeyboardEvent||t instanceof h(t).KeyboardEvent}function dn(t){return t instanceof PointerEvent||t instanceof h(t).PointerEvent}function ln(t){return t instanceof DragEvent||t instanceof h(t).DragEvent}const E={CLICK:"click",AUXCLICK:"auxclick",DBLCLICK:"dblclick",MOUSE_UP:"mouseup",MOUSE_DOWN:"mousedown",MOUSE_OVER:"mouseover",MOUSE_MOVE:"mousemove",MOUSE_OUT:"mouseout",MOUSE_ENTER:"mouseenter",MOUSE_LEAVE:"mouseleave",MOUSE_WHEEL:"wheel",POINTER_UP:"pointerup",POINTER_DOWN:"pointerdown",POINTER_MOVE:"pointermove",POINTER_LEAVE:"pointerleave",CONTEXT_MENU:"contextmenu",WHEEL:"wheel",KEY_DOWN:"keydown",KEY_PRESS:"keypress",KEY_UP:"keyup",LOAD:"load",BEFORE_UNLOAD:"beforeunload",UNLOAD:"unload",PAGE_SHOW:"pageshow",PAGE_HIDE:"pagehide",PASTE:"paste",ABORT:"abort",ERROR:"error",RESIZE:"resize",SCROLL:"scroll",FULLSCREEN_CHANGE:"fullscreenchange",WK_FULLSCREEN_CHANGE:"webkitfullscreenchange",SELECT:"select",CHANGE:"change",SUBMIT:"submit",RESET:"reset",FOCUS:"focus",FOCUS_IN:"focusin",FOCUS_OUT:"focusout",BLUR:"blur",INPUT:"input",STORAGE:"storage",DRAG_START:"dragstart",DRAG:"drag",DRAG_ENTER:"dragenter",DRAG_LEAVE:"dragleave",DRAG_OVER:"dragover",DROP:"drop",DRAG_END:"dragend",ANIMATION_START:j.$77?"webkitAnimationStart":"animationstart",ANIMATION_END:j.$77?"webkitAnimationEnd":"animationend",ANIMATION_ITERATION:j.$77?"webkitAnimationIteration":"animationiteration"};function hn(t){const e=t;return!!(e&&typeof e.preventDefault=="function"&&typeof e.stopPropagation=="function")}const pn={stop:(t,e)=>(t.preventDefault(),e&&t.stopPropagation(),t)};function mn(t){const e=[];for(let n=0;t&&t.nodeType===t.ELEMENT_NODE;n++)e[n]=t.scrollTop,t=t.parentNode;return e}function gn(t,e){for(let n=0;t&&t.nodeType===t.ELEMENT_NODE;n++)t.scrollTop!==e[n]&&(t.scrollTop=e[n]),t=t.parentNode}class S extends K{get onDidFocus(){return this.g.event}get onDidBlur(){return this.j.event}static q(e){if(v(e)){const n=ot(e),r=n?n.activeElement:e.ownerDocument.activeElement;return C(r,e)}else{const n=e;return C(n.document.activeElement,n.document)}}constructor(e){super(),this.g=this.D(new x.$xf),this.j=this.D(new x.$xf);let n=S.q(e),r=!1;const s=()=>{r=!1,n||(n=!0,this.g.fire())},u=()=>{n&&(r=!0,(v(e)?h(e):e).setTimeout(()=>{r&&(r=!1,n=!1,this.j.fire())},0))};this.m=()=>{S.q(e)!==n&&(n?u():s())},this.D(l(e,E.FOCUS,s,!0)),this.D(l(e,E.BLUR,u,!0)),v(e)&&(this.D(l(e,E.FOCUS_IN,()=>this.m())),this.D(l(e,E.FOCUS_OUT,()=>this.m())))}refreshState(){this.m()}}function En(t){return new S(t)}function wn(t,e){return t.after(e),e}function Qt(t,...e){if(t.append(...e),e.length===1&&typeof e[0]!="string")return e[0]}function xn(t,e){return t.insertBefore(e,t.firstChild),e}function yn(t,...e){t.textContent="",Qt(t,...e)}const Yt=/([\w\-]+)?(#([\w\-]+))?((\.([\w\-]+))*)/;var N;(function(t){t.HTML="http://www.w3.org/1999/xhtml",t.SVG="http://www.w3.org/2000/svg"})(N||(N={}));function at(t,e,n,...r){const s=Yt.exec(e);if(!s)throw new Error("Bad use of emmet");const u=s[1]||"div";let i;return t!==N.HTML?i=document.createElementNS(t,u):i=document.createElement(u),s[3]&&(i.id=s[3]),s[4]&&(i.className=s[4].replace(/\./g," ").trim()),n&&Object.entries(n).forEach(([f,c])=>{typeof c>"u"||(/^on\w+$/.test(f)?i[f]=c:f==="selected"?c&&i.setAttribute(f,"true"):i.setAttribute(f,c))}),i.append(...r),i}function Zt(t,e,...n){return at(N.HTML,t,e,...n)}Zt.SVG=function(t,e,...n){return at(N.SVG,t,e,...n)};function vn(t,e){const n=[];return t.forEach((r,s)=>{s>0&&(e instanceof Node?n.push(e.cloneNode()):n.push(document.createTextNode(e))),n.push(r)}),n}function bn(t,...e){t?Jt(...e):zt(...e)}function Jt(...t){for(const e of t)e.style.display="",e.removeAttribute("aria-hidden")}function zt(...t){for(const e of t)e.style.display="none",e.setAttribute("aria-hidden","true")}function te(t,e){for(;t&&t.nodeType===t.ELEMENT_NODE;){if(v(t)&&t.hasAttribute(e))return t;t=t.parentNode}return null}function $n(t){!t||!t.hasAttribute("tabIndex")||(t.ownerDocument.activeElement===t&&te(t.parentElement,"tabIndex")?.focus(),t.removeAttribute("tabindex"))}function Dn(t){return e=>{e.preventDefault(),e.stopPropagation(),t(e)}}function Tn(t){return new Promise(e=>{if(t.document.readyState==="complete"||t.document&&t.document.body!==null)e(void 0);else{const r=()=>{t.window.removeEventListener("DOMContentLoaded",r,!1),e()};t.window.addEventListener("DOMContentLoaded",r,!1)}})}function On(t,e){const n=t.devicePixelRatio*e;return Math.max(1,Math.floor(n))/t.devicePixelRatio}function Rn(t){g.open(t,"_blank","noopener")}const q=780,X=640;function Mn(t){const e=Math.floor(g.screenLeft+g.innerWidth/2-q/2),n=Math.floor(g.screenTop+g.innerHeight/2-X/2);g.open(t,"_blank",`width=${q},height=${X},top=${n},left=${e}`)}function Ln(t,e=!0){const n=g.open();return n?(e&&(n.opener=null),n.location.href=t,!0):!1}function An(t,e){const n=()=>{e(),r=R(t,n)};let r=R(t,n);return $(()=>r.dispose())}Tt.setPreferredWebSchema(/^https:/.test(g.location.href)?"https":"http");function Nn(t,e){let n;if(Ot.isUri(t))n=t.toString(!0);else{const u=new Blob([t]);n=URL.createObjectURL(u),setTimeout(()=>URL.revokeObjectURL(n))}const r=ct(),s=document.createElement("a");r.document.body.appendChild(s),s.download=e,s.href=n,s.click(),setTimeout(()=>s.remove())}function Kn(){return new Promise(t=>{const e=ct(),n=document.createElement("input");e.document.body.appendChild(n),n.type="file",n.multiple=!0,x.Event.once(x.Event.fromDOMEventEmitter(n,"input"))(()=>{t(n.files??void 0)}),n.click(),setTimeout(()=>n.remove())})}var A;(function(t){t[t.DOCUMENT=1]="DOCUMENT",t[t.BROWSER=2]="BROWSER"})(A||(A={}));function Pn(t){return t.document.fullscreenElement||t.document.webkitFullscreenElement||t.document.webkitIsFullScreen?{mode:A.DOCUMENT,guess:!1}:t.innerHeight===t.screen.height?{mode:A.BROWSER,guess:!1}:(O.$n||O.$o)&&t.outerHeight===t.screen.height&&t.outerWidth===t.screen.width?{mode:A.BROWSER,guess:!0}:null}class y extends x.$xf{constructor(){super(),this.o=new T,this.s={altKey:!1,shiftKey:!1,ctrlKey:!1,metaKey:!1},this.o.add(x.Event.runAndSubscribe(Nt,({window:e,disposables:n})=>this.G(e,n),{window:g,disposables:this.o}))}G(e,n){n.add(l(e,"keydown",r=>{if(r.defaultPrevented)return;const s=new tt(r);if(!(s.keyCode===6&&r.repeat)){if(r.altKey&&!this.s.altKey)this.s.lastKeyPressed="alt";else if(r.ctrlKey&&!this.s.ctrlKey)this.s.lastKeyPressed="ctrl";else if(r.metaKey&&!this.s.metaKey)this.s.lastKeyPressed="meta";else if(r.shiftKey&&!this.s.shiftKey)this.s.lastKeyPressed="shift";else if(s.keyCode!==6)this.s.lastKeyPressed=void 0;else return;this.s.altKey=r.altKey,this.s.ctrlKey=r.ctrlKey,this.s.metaKey=r.metaKey,this.s.shiftKey=r.shiftKey,this.s.lastKeyPressed&&(this.s.event=r,this.fire(this.s))}},!0)),n.add(l(e,"keyup",r=>{r.defaultPrevented||(!r.altKey&&this.s.altKey?this.s.lastKeyReleased="alt":!r.ctrlKey&&this.s.ctrlKey?this.s.lastKeyReleased="ctrl":!r.metaKey&&this.s.metaKey?this.s.lastKeyReleased="meta":!r.shiftKey&&this.s.shiftKey?this.s.lastKeyReleased="shift":this.s.lastKeyReleased=void 0,this.s.lastKeyPressed!==this.s.lastKeyReleased&&(this.s.lastKeyPressed=void 0),this.s.altKey=r.altKey,this.s.ctrlKey=r.ctrlKey,this.s.metaKey=r.metaKey,this.s.shiftKey=r.shiftKey,this.s.lastKeyReleased&&(this.s.event=r,this.fire(this.s)))},!0)),n.add(l(e.document.body,"mousedown",()=>{this.s.lastKeyPressed=void 0},!0)),n.add(l(e.document.body,"mouseup",()=>{this.s.lastKeyPressed=void 0},!0)),n.add(l(e.document.body,"mousemove",r=>{r.buttons&&(this.s.lastKeyPressed=void 0)},!0)),n.add(l(e,"blur",()=>{this.resetKeyStatus()}))}get keyStatus(){return this.s}get isModifierPressed(){return gt(this.s)}resetKeyStatus(){this.H(),this.fire(this.s)}H(){this.s={altKey:!1,shiftKey:!1,ctrlKey:!1,metaKey:!1}}static getInstance(){return y.F||(y.F=new y),y.F}static disposeInstance(){y.F&&(y.F.dispose(),y.F=void 0)}dispose(){super.dispose(),this.o.dispose()}}function Sn(t){const e=document.cookie.match("(^|[^;]+)\\s*"+t+"\\s*=\\s*([^;]+)");return e?e.pop():void 0}class jn extends K{constructor(e,n){super(),this.m=e,this.q=n,this.g=0,this.j=0,this.s()}s(){this.q.onDragStart&&this.D(l(this.m,E.DRAG_START,e=>{this.q.onDragStart?.(e)})),this.q.onDrag&&this.D(l(this.m,E.DRAG,e=>{this.q.onDrag?.(e)})),this.D(l(this.m,E.DRAG_ENTER,e=>{this.g++,this.j=e.timeStamp,this.q.onDragEnter?.(e)})),this.D(l(this.m,E.DRAG_OVER,e=>{e.preventDefault(),this.q.onDragOver?.(e,e.timeStamp-this.j)})),this.D(l(this.m,E.DRAG_LEAVE,e=>{this.g--,this.g===0&&(this.j=0,this.q.onDragLeave?.(e))})),this.D(l(this.m,E.DRAG_END,e=>{this.g=0,this.j=0,this.q.onDragEnd?.(e)})),this.D(l(this.m,E.DROP,e=>{this.g=0,this.j=0,this.q.onDrop?.(e)}))}}class Wn extends K{constructor(e){super(),this.g=new ResizeObserver(e),this.D($(()=>this.g.disconnect()))}observe(e,n){return this.g.observe(e,n),$(()=>this.g.unobserve(e))}}const dt=/(?<tag>[\w\-]+)?(?:#(?<id>[\w\-]+))?(?<class>(?:\.(?:[\w\-]+))*)(?:@(?<name>(?:[\w\_])+))?/;function Cn(t,...e){let n,r;Array.isArray(e[0])?(n={},r=e[0]):(n=e[0]||{},r=e[1]);const s=dt.exec(t);if(!s||!s.groups)throw new Error("Bad use of h");const u=s.groups.tag||"div",i=document.createElement(u);s.groups.id&&(i.id=s.groups.id);const f=[];if(s.groups.class)for(const o of s.groups.class.split("."))o!==""&&f.push(o);if(n.className!==void 0)for(const o of n.className.split("."))o!==""&&f.push(o);f.length>0&&(i.className=f.join(" "));const c={};if(s.groups.name&&(c[s.groups.name]=i),r)for(const o of r)v(o)?i.appendChild(o):typeof o=="string"?i.append(o):"root"in o&&(Object.assign(c,o),i.appendChild(o.root));for(const[o,a]of Object.entries(n))if(o!=="className")if(o==="style")for(const[m,p]of Object.entries(a))i.style.setProperty(D(m),typeof p=="number"?p+"px":""+p);else o==="tabIndex"?i.tabIndex=a:i.setAttribute(D(o),a.toString());return c.root=i,c}function In(t,...e){let n,r;Array.isArray(e[0])?(n={},r=e[0]):(n=e[0]||{},r=e[1]);const s=dt.exec(t);if(!s||!s.groups)throw new Error("Bad use of h");const u=s.groups.tag||"div",i=document.createElementNS("http://www.w3.org/2000/svg",u);s.groups.id&&(i.id=s.groups.id);const f=[];if(s.groups.class)for(const o of s.groups.class.split("."))o!==""&&f.push(o);if(n.className!==void 0)for(const o of n.className.split("."))o!==""&&f.push(o);f.length>0&&(i.className=f.join(" "));const c={};if(s.groups.name&&(c[s.groups.name]=i),r)for(const o of r)v(o)?i.appendChild(o):typeof o=="string"?i.append(o):"root"in o&&(Object.assign(c,o),i.appendChild(o.root));for(const[o,a]of Object.entries(n))if(o!=="className")if(o==="style")for(const[m,p]of Object.entries(a))i.style.setProperty(D(m),typeof p=="number"?p+"px":""+p);else o==="tabIndex"?i.tabIndex=a:i.setAttribute(D(o),a.toString());return c.root=i,c}function D(t){return t.replace(/([a-z])([A-Z])/g,"$1-$2").toLowerCase()}function ee(t,e,n){for(const{name:r,value:s}of t.attributes)(!n||n.includes(r))&&e.setAttribute(r,s)}function ne(t,e,n){const r=t.getAttribute(n);r?e.setAttribute(n,r):e.removeAttribute(n)}function Hn(t,e,n){ee(t,e,n);const r=new T;return r.add(qt.observe(t,r,{attributes:!0,attributeFilter:n})(s=>{for(const u of s)u.type==="attributes"&&u.attributeName&&ne(t,e,u.attributeName)})),r}function Un(t){return t.tagName.toLowerCase()==="input"||t.tagName.toLowerCase()==="textarea"||v(t)&&!!t.editContext}class _n{constructor(e,n,r){this.j=e,this.l=n,this.g=new Int16Array(8);const{top:s,left:u,right:i,bottom:f}=r.getBoundingClientRect(),c=this.g;let o=0;c[o++]=u,c[o++]=s,c[o++]=i,c[o++]=s,c[o++]=u,c[o++]=f,c[o++]=i,c[o++]=f}contains(e,n){const{g:r,j:s,l:u}=this;for(let i=0;i<4;i++){const f=2*i,c=2*((i+1)%4);if(Lt(e,n,s,u,r[f],r[f+1],r[c],r[c+1]))return!0}return!1}}var Q;(function(t){function e(s=void 0){return(u,i,f)=>{const c=i.class;delete i.class;const o=i.ref;delete i.ref;const a=i.obsRef;return delete i.obsRef,new se(u,o,a,s,c,i,f)}}function n(s,u=void 0){const i=e(u);return(f,c)=>i(s,f,c)}t.div=n("div"),t.elem=e(void 0),t.svg=n("svg","http://www.w3.org/2000/svg"),t.svgElem=e("http://www.w3.org/2000/svg");function r(){let s;const u=function(i){s=i};return Object.defineProperty(u,"element",{get(){if(!s)throw new bt("Make sure the ref is set before accessing the element. Maybe wrong initialization order?");return s}}),u}t.ref=r})(Q||(Q={}));class B{constructor(e,n,r,s,u,i,f){this.g=[],this.l=void 0,this.m=void 0,this.j=s?document.createElementNS(s,e):document.createElement(e),n&&n(this.j),r&&this.g.push(L(o=>{r(this),o.store.add({dispose:()=>{r(null)}})})),u&&(ht(u)?this.g.push(L(this,o=>{Y(this.j,Z(u,o))})):Y(this.j,Z(u,void 0)));for(const[o,a]of Object.entries(i))if(o==="style")for(const[m,p]of Object.entries(a)){const M=D(m);b(p)?this.g.push(F({owner:this,debugName:()=>`set.style.${M}`},mt=>{this.j.style.setProperty(M,J(p.read(mt)))})):this.j.style.setProperty(M,J(p))}else o==="tabIndex"?b(a)?this.g.push(L(this,m=>{this.j.tabIndex=a.read(m)})):this.j.tabIndex=a:o.startsWith("on")?this.j[o]=a:b(a)?this.g.push(F({owner:this,debugName:()=>`set.${o}`},m=>{z(this.j,o,a.read(m))})):z(this.j,o,a);if(f){let o=function(m,p){return b(p)?o(m,p.read(m)):Array.isArray(p)?p.flatMap(M=>o(m,M)):p instanceof B?(m&&p.readEffect(m),[p.j]):p?[p]:[]};var c=o;const a=L(this,m=>{this.j.replaceChildren(...o(m,f))});this.g.push(a),pt(f)||a.get()}}readEffect(e){for(const n of this.g)n.read(e)}keepUpdated(e){return L(n=>{this.readEffect(n)}).recomputeInitiallyAndOnChange(e),this}toDisposableLiveElement(){const e=new T;return this.keepUpdated(e),new re(this.j,e)}get isHovered(){if(!this.l){const e=k("hovered",!1);this.j.addEventListener("mouseenter",n=>e.set(!0,void 0)),this.j.addEventListener("mouseleave",n=>e.set(!1,void 0)),this.l=e}return this.l}get didMouseMoveDuringHover(){if(!this.m){let e=!1;const n=k("didMouseMoveDuringHover",!1);this.j.addEventListener("mouseenter",r=>{e=!0}),this.j.addEventListener("mousemove",r=>{e&&n.set(!0,void 0)}),this.j.addEventListener("mouseleave",r=>{e=!1,n.set(!1,void 0)}),this.m=n}return this.m}}function Y(t,e){Xt(t)?t.setAttribute("class",e):t.className=e}function lt(t,e,n){if(b(t)){n(t.read(e));return}if(Array.isArray(t)){for(const r of t)lt(r,e,n);return}n(t)}function Z(t,e){let n="";return lt(t,e,r=>{r&&(n.length===0?n=r:n+=" "+r)}),n}function ht(t){return b(t)?!0:Array.isArray(t)?t.some(e=>ht(e)):!1}function J(t){return typeof t=="number"?t+"px":t}function pt(t){return b(t)?!0:Array.isArray(t)?t.some(e=>pt(e)):!1}class re{constructor(e,n){this.element=e,this.g=n}dispose(){this.g.dispose()}}class se extends B{get element(){return this.j}}function z(t,e,n){n==null?t.removeAttribute(D(e)):t.setAttribute(D(e),String(n))}class ie extends HTMLElement{disconnectedCallback(){this.onDidDisconnect?.()}connectedCallback(){this.onDidConnect?.()}}customElements.get("connection-observer")||customElements.define("connection-observer",ie);export{Zt as $,Je as $$8,Ze as $08,C as $18,_n as $19,qe as $28,B as $29,Xe as $38,re as $39,Vt as $48,se as $49,Qe as $58,ie as $59,it as $68,Ye as $78,ot as $88,ut as $98,Ct as $A8,yn as $A9,Ne as $B8,Ke as $C8,vn as $C9,nt as $D8,bn as $D9,R as $E8,Jt as $E9,Pe as $F8,zt as $F9,Se as $G8,$n as $G9,je as $H8,Dn as $H9,We as $I8,Tn as $I9,Ce as $J8,On as $J9,Ie as $K8,Rn as $K9,U as $L8,Mn as $L9,rt as $M8,Ln as $M9,w as $N8,An as $N9,V as $O8,Nn as $O9,He as $P8,Kn as $P9,Ue as $Q8,Pn as $Q9,_t as $R8,y as $R9,_e as $S8,Sn as $S9,Be as $T8,jn as $T9,Bt as $U8,Wn as $U9,Fe as $V8,Ft as $W8,In as $W9,ke as $X8,ee as $X9,Ge as $Y8,Hn as $Y9,Ve as $Z8,Un as $Z9,ze as $_8,_ as $a9,ct as $b9,qt as $c9,tn as $d9,en as $e9,v as $f9,nn as $g9,rn as $h9,sn as $i9,on as $j9,un as $k9,cn as $l9,Xt as $m9,fn as $n9,an as $o9,De as $p8,dn as $p9,Kt as $q8,ln as $q9,Pt as $r8,E as $r9,Te as $s8,hn as $s9,Oe as $t8,pn as $t9,l as $u8,mn as $u9,Re as $v8,gn as $v9,Me as $w8,En as $w9,Le as $x8,wn as $x9,Wt as $y8,Qt as $y9,Ae as $z8,xn as $z9,A as DetectedFullscreenMode,N as Namespace,xe as getDocument,h as getWindow,ye as getWindowById,G as getWindowId,et as getWindows,At as getWindowsCount,Cn as h,ve as hasWindow,Q as n,Nt as onDidRegisterWindow,$e as onDidUnregisterWindow,be as onWillUnregisterWindow,we as registerWindow};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as browser from "./browser.js";
+import { BrowserFeatures } from "./canIUse.js";
+import { hasModifierKeys, StandardKeyboardEvent } from "./keyboardEvent.js";
+import { StandardMouseEvent } from "./mouseEvent.js";
+import { AbstractIdleValue, IntervalTimer, TimeoutTimer, _runWhenIdle } from "../common/async.js";
+import { BugIndicatingError, onUnexpectedError } from "../common/errors.js";
+import * as event from "../common/event.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../common/lifecycle.js";
+import { RemoteAuthorities } from "../common/network.js";
+import * as platform from "../common/platform.js";
+import { URI } from "../common/uri.js";
+import { hash } from "../common/hash.js";
+import { ensureCodeWindow, mainWindow } from "./window.js";
+import { isPointWithinTriangle } from "../common/numbers.js";
+import { derived, derivedOpts, observableValue, isObservable } from "../common/observable.js";
+const { registerWindow, getWindow, getDocument, getWindows, getWindowsCount, getWindowId, getWindowById, hasWindow, onDidRegisterWindow, onWillUnregisterWindow, onDidUnregisterWindow } = (function() {
+  const windows = /* @__PURE__ */ new Map();
+  ensureCodeWindow(mainWindow, 1);
+  const mainWindowRegistration = { window: mainWindow, disposables: new DisposableStore() };
+  windows.set(mainWindow.vscodeWindowId, mainWindowRegistration);
+  const onDidRegisterWindow2 = new event.Emitter();
+  const onDidUnregisterWindow2 = new event.Emitter();
+  const onWillUnregisterWindow2 = new event.Emitter();
+  function getWindowById2(windowId, fallbackToMain) {
+    const window = typeof windowId === "number" ? windows.get(windowId) : void 0;
+    return window ?? (fallbackToMain ? mainWindowRegistration : void 0);
+  }
+  __name(getWindowById2, "getWindowById");
+  return {
+    onDidRegisterWindow: onDidRegisterWindow2.event,
+    onWillUnregisterWindow: onWillUnregisterWindow2.event,
+    onDidUnregisterWindow: onDidUnregisterWindow2.event,
+    registerWindow(window) {
+      if (windows.has(window.vscodeWindowId)) {
+        return Disposable.None;
+      }
+      const disposables = new DisposableStore();
+      const registeredWindow = {
+        window,
+        disposables: disposables.add(new DisposableStore())
+      };
+      windows.set(window.vscodeWindowId, registeredWindow);
+      disposables.add(toDisposable(() => {
+        windows.delete(window.vscodeWindowId);
+        onDidUnregisterWindow2.fire(window);
+      }));
+      disposables.add(addDisposableListener(window, EventType.BEFORE_UNLOAD, () => {
+        onWillUnregisterWindow2.fire(window);
+      }));
+      onDidRegisterWindow2.fire(registeredWindow);
+      return disposables;
+    },
+    getWindows() {
+      return windows.values();
+    },
+    getWindowsCount() {
+      return windows.size;
+    },
+    getWindowId(targetWindow) {
+      return targetWindow.vscodeWindowId;
+    },
+    hasWindow(windowId) {
+      return windows.has(windowId);
+    },
+    getWindowById: getWindowById2,
+    getWindow(e) {
+      const candidateNode = e;
+      if (candidateNode?.ownerDocument?.defaultView) {
+        return candidateNode.ownerDocument.defaultView.window;
+      }
+      const candidateEvent = e;
+      if (candidateEvent?.view) {
+        return candidateEvent.view.window;
+      }
+      return mainWindow;
+    },
+    getDocument(e) {
+      const candidateNode = e;
+      return getWindow(candidateNode).document;
+    }
+  };
+})();
+const externalFocusCheckers = /* @__PURE__ */ new Set();
+function registerExternalFocusChecker(checker) {
+  externalFocusCheckers.add(checker);
+  return toDisposable(() => {
+    externalFocusCheckers.delete(checker);
+  });
+}
+__name(registerExternalFocusChecker, "registerExternalFocusChecker");
+function hasExternalFocus() {
+  for (const checker of externalFocusCheckers) {
+    if (checker().hasFocus) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(hasExternalFocus, "hasExternalFocus");
+function getExternalFocusWindow() {
+  for (const checker of externalFocusCheckers) {
+    const info = checker();
+    if (info.hasFocus && info.window) {
+      return info.window;
+    }
+  }
+  return void 0;
+}
+__name(getExternalFocusWindow, "getExternalFocusWindow");
+function hasAppFocus() {
+  for (const { window } of getWindows()) {
+    if (window.document.hasFocus()) {
+      return true;
+    }
+  }
+  if (hasExternalFocus()) {
+    return true;
+  }
+  return false;
+}
+__name(hasAppFocus, "hasAppFocus");
+function clearNode(node) {
+  while (node.firstChild) {
+    node.firstChild.remove();
+  }
+}
+__name(clearNode, "clearNode");
+class DomListener {
+  static {
+    __name(this, "DomListener");
+  }
+  constructor(node, type, handler, options) {
+    this._node = node;
+    this._type = type;
+    this._handler = handler;
+    this._options = options || false;
+    this._node.addEventListener(this._type, this._handler, this._options);
+  }
+  dispose() {
+    if (!this._handler) {
+      return;
+    }
+    this._node.removeEventListener(this._type, this._handler, this._options);
+    this._node = null;
+    this._handler = null;
+  }
+}
+function addDisposableListener(node, type, handler, useCaptureOrOptions) {
+  return new DomListener(node, type, handler, useCaptureOrOptions);
+}
+__name(addDisposableListener, "addDisposableListener");
+function _wrapAsStandardMouseEvent(targetWindow, handler) {
+  return function(e) {
+    return handler(new StandardMouseEvent(targetWindow, e));
+  };
+}
+__name(_wrapAsStandardMouseEvent, "_wrapAsStandardMouseEvent");
+function _wrapAsStandardKeyboardEvent(handler) {
+  return function(e) {
+    return handler(new StandardKeyboardEvent(e));
+  };
+}
+__name(_wrapAsStandardKeyboardEvent, "_wrapAsStandardKeyboardEvent");
+const addStandardDisposableListener = /* @__PURE__ */ __name(function addStandardDisposableListener2(node, type, handler, useCapture) {
+  let wrapHandler = handler;
+  if (type === "click" || type === "mousedown" || type === "contextmenu") {
+    wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
+  } else if (type === "keydown" || type === "keypress" || type === "keyup") {
+    wrapHandler = _wrapAsStandardKeyboardEvent(handler);
+  }
+  return addDisposableListener(node, type, wrapHandler, useCapture);
+}, "addStandardDisposableListener");
+const addStandardDisposableGenericMouseDownListener = /* @__PURE__ */ __name(function addStandardDisposableListener3(node, handler, useCapture) {
+  const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
+  return addDisposableGenericMouseDownListener(node, wrapHandler, useCapture);
+}, "addStandardDisposableListener");
+const addStandardDisposableGenericMouseUpListener = /* @__PURE__ */ __name(function addStandardDisposableListener4(node, handler, useCapture) {
+  const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
+  return addDisposableGenericMouseUpListener(node, wrapHandler, useCapture);
+}, "addStandardDisposableListener");
+function addDisposableGenericMouseDownListener(node, handler, useCapture) {
+  return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_DOWN : EventType.MOUSE_DOWN, handler, useCapture);
+}
+__name(addDisposableGenericMouseDownListener, "addDisposableGenericMouseDownListener");
+function addDisposableGenericMouseMoveListener(node, handler, useCapture) {
+  return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_MOVE : EventType.MOUSE_MOVE, handler, useCapture);
+}
+__name(addDisposableGenericMouseMoveListener, "addDisposableGenericMouseMoveListener");
+function addDisposableGenericMouseUpListener(node, handler, useCapture) {
+  return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_UP : EventType.MOUSE_UP, handler, useCapture);
+}
+__name(addDisposableGenericMouseUpListener, "addDisposableGenericMouseUpListener");
+function runWhenWindowIdle(targetWindow, callback, timeout) {
+  return _runWhenIdle(targetWindow, callback, timeout);
+}
+__name(runWhenWindowIdle, "runWhenWindowIdle");
+class WindowIdleValue extends AbstractIdleValue {
+  static {
+    __name(this, "WindowIdleValue");
+  }
+  constructor(targetWindow, executor) {
+    super(targetWindow, executor);
+  }
+}
+let runAtThisOrScheduleAtNextAnimationFrame;
+let scheduleAtNextAnimationFrame;
+function disposableWindowInterval(targetWindow, handler, interval, iterations) {
+  let iteration = 0;
+  const timer = targetWindow.setInterval(() => {
+    iteration++;
+    if (typeof iterations === "number" && iteration >= iterations || handler() === true) {
+      disposable.dispose();
+    }
+  }, interval);
+  const disposable = toDisposable(() => {
+    targetWindow.clearInterval(timer);
+  });
+  return disposable;
+}
+__name(disposableWindowInterval, "disposableWindowInterval");
+class WindowIntervalTimer extends IntervalTimer {
+  static {
+    __name(this, "WindowIntervalTimer");
+  }
+  /**
+   *
+   * @param node The optional node from which the target window is determined
+   */
+  constructor(node) {
+    super();
+    this.defaultTarget = node && getWindow(node);
+  }
+  cancelAndSet(runner, interval, targetWindow) {
+    return super.cancelAndSet(runner, interval, targetWindow ?? this.defaultTarget);
+  }
+}
+class AnimationFrameQueueItem {
+  static {
+    __name(this, "AnimationFrameQueueItem");
+  }
+  constructor(runner, priority = 0) {
+    this._runner = runner;
+    this.priority = priority;
+    this._canceled = false;
+  }
+  dispose() {
+    this._canceled = true;
+  }
+  execute() {
+    if (this._canceled) {
+      return;
+    }
+    try {
+      this._runner();
+    } catch (e) {
+      onUnexpectedError(e);
+    }
+  }
+  // Sort by priority (largest to lowest)
+  static sort(a, b) {
+    return b.priority - a.priority;
+  }
+}
+(function() {
+  const NEXT_QUEUE = /* @__PURE__ */ new Map();
+  const CURRENT_QUEUE = /* @__PURE__ */ new Map();
+  const animFrameRequested = /* @__PURE__ */ new Map();
+  const inAnimationFrameRunner = /* @__PURE__ */ new Map();
+  const animationFrameRunner = /* @__PURE__ */ __name((targetWindowId) => {
+    animFrameRequested.set(targetWindowId, false);
+    const currentQueue = NEXT_QUEUE.get(targetWindowId) ?? [];
+    CURRENT_QUEUE.set(targetWindowId, currentQueue);
+    NEXT_QUEUE.set(targetWindowId, []);
+    inAnimationFrameRunner.set(targetWindowId, true);
+    while (currentQueue.length > 0) {
+      currentQueue.sort(AnimationFrameQueueItem.sort);
+      const top = currentQueue.shift();
+      top.execute();
+    }
+    inAnimationFrameRunner.set(targetWindowId, false);
+  }, "animationFrameRunner");
+  scheduleAtNextAnimationFrame = /* @__PURE__ */ __name((targetWindow, runner, priority = 0) => {
+    const targetWindowId = getWindowId(targetWindow);
+    const item = new AnimationFrameQueueItem(runner, priority);
+    let nextQueue = NEXT_QUEUE.get(targetWindowId);
+    if (!nextQueue) {
+      nextQueue = [];
+      NEXT_QUEUE.set(targetWindowId, nextQueue);
+    }
+    nextQueue.push(item);
+    if (!animFrameRequested.get(targetWindowId)) {
+      animFrameRequested.set(targetWindowId, true);
+      targetWindow.requestAnimationFrame(() => animationFrameRunner(targetWindowId));
+    }
+    return item;
+  }, "scheduleAtNextAnimationFrame");
+  runAtThisOrScheduleAtNextAnimationFrame = /* @__PURE__ */ __name((targetWindow, runner, priority) => {
+    const targetWindowId = getWindowId(targetWindow);
+    if (inAnimationFrameRunner.get(targetWindowId)) {
+      const item = new AnimationFrameQueueItem(runner, priority);
+      let currentQueue = CURRENT_QUEUE.get(targetWindowId);
+      if (!currentQueue) {
+        currentQueue = [];
+        CURRENT_QUEUE.set(targetWindowId, currentQueue);
+      }
+      currentQueue.push(item);
+      return item;
+    } else {
+      return scheduleAtNextAnimationFrame(targetWindow, runner, priority);
+    }
+  }, "runAtThisOrScheduleAtNextAnimationFrame");
+})();
+function measure(targetWindow, callback) {
+  return scheduleAtNextAnimationFrame(
+    targetWindow,
+    callback,
+    1e4
+    /* must be early */
+  );
+}
+__name(measure, "measure");
+function modify(targetWindow, callback) {
+  return scheduleAtNextAnimationFrame(
+    targetWindow,
+    callback,
+    -1e4
+    /* must be late */
+  );
+}
+__name(modify, "modify");
+class AnimationFrameScheduler {
+  static {
+    __name(this, "AnimationFrameScheduler");
+  }
+  constructor(node, runner) {
+    this.pendingRunner = new MutableDisposable();
+    this.node = node;
+    this.runner = runner;
+  }
+  dispose() {
+    this.pendingRunner.dispose();
+  }
+  /**
+   * Cancel the currently scheduled runner (if any).
+   */
+  cancel() {
+    this.pendingRunner.clear();
+  }
+  /**
+   * Schedule the runner to execute at the next animation frame.
+   * If already scheduled, this is a no-op (the existing schedule is kept).
+   * If currently in an animation frame, the runner will execute immediately.
+   */
+  schedule() {
+    if (this.pendingRunner.value) {
+      return;
+    }
+    this.pendingRunner.value = runAtThisOrScheduleAtNextAnimationFrame(getWindow(this.node), () => {
+      this.pendingRunner.clear();
+      this.runner();
+    });
+  }
+  /**
+   * Returns true if a runner is scheduled.
+   */
+  isScheduled() {
+    return this.pendingRunner.value !== void 0;
+  }
+}
+const MINIMUM_TIME_MS = 8;
+function DEFAULT_EVENT_MERGER(_lastEvent, currentEvent) {
+  return currentEvent;
+}
+__name(DEFAULT_EVENT_MERGER, "DEFAULT_EVENT_MERGER");
+class TimeoutThrottledDomListener extends Disposable {
+  static {
+    __name(this, "TimeoutThrottledDomListener");
+  }
+  constructor(node, type, handler, eventMerger = DEFAULT_EVENT_MERGER, minimumTimeMs = MINIMUM_TIME_MS) {
+    super();
+    let lastEvent = null;
+    let lastHandlerTime = 0;
+    const timeout = this._register(new TimeoutTimer());
+    const invokeHandler = /* @__PURE__ */ __name(() => {
+      lastHandlerTime = (/* @__PURE__ */ new Date()).getTime();
+      handler(lastEvent);
+      lastEvent = null;
+    }, "invokeHandler");
+    this._register(addDisposableListener(node, type, (e) => {
+      lastEvent = eventMerger(lastEvent, e);
+      const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - lastHandlerTime;
+      if (elapsedTime >= minimumTimeMs) {
+        timeout.cancel();
+        invokeHandler();
+      } else {
+        timeout.setIfNotSet(invokeHandler, minimumTimeMs - elapsedTime);
+      }
+    }));
+  }
+}
+function addDisposableThrottledListener(node, type, handler, eventMerger, minimumTimeMs) {
+  return new TimeoutThrottledDomListener(node, type, handler, eventMerger, minimumTimeMs);
+}
+__name(addDisposableThrottledListener, "addDisposableThrottledListener");
+function getComputedStyle(el) {
+  return getWindow(el).getComputedStyle(el, null);
+}
+__name(getComputedStyle, "getComputedStyle");
+function getClientArea(element, defaultValue, fallbackElement) {
+  const elWindow = getWindow(element);
+  const elDocument = elWindow.document;
+  if (element !== elDocument.body) {
+    return new Dimension(element.clientWidth, element.clientHeight);
+  }
+  if (platform.isIOS && elWindow?.visualViewport) {
+    return new Dimension(elWindow.visualViewport.width, elWindow.visualViewport.height);
+  }
+  if (elWindow?.innerWidth && elWindow.innerHeight) {
+    return new Dimension(elWindow.innerWidth, elWindow.innerHeight);
+  }
+  if (elDocument.body && elDocument.body.clientWidth && elDocument.body.clientHeight) {
+    return new Dimension(elDocument.body.clientWidth, elDocument.body.clientHeight);
+  }
+  if (elDocument.documentElement && elDocument.documentElement.clientWidth && elDocument.documentElement.clientHeight) {
+    return new Dimension(elDocument.documentElement.clientWidth, elDocument.documentElement.clientHeight);
+  }
+  if (fallbackElement) {
+    return getClientArea(fallbackElement, defaultValue);
+  }
+  if (defaultValue) {
+    return defaultValue;
+  }
+  throw new Error("Unable to figure out browser width and height");
+}
+__name(getClientArea, "getClientArea");
+class SizeUtils {
+  static {
+    __name(this, "SizeUtils");
+  }
+  // Adapted from WinJS
+  // Converts a CSS positioning string for the specified element to pixels.
+  static convertToPixels(element, value) {
+    return parseFloat(value) || 0;
+  }
+  static getDimension(element, cssPropertyName) {
+    const computedStyle = getComputedStyle(element);
+    const value = computedStyle ? computedStyle.getPropertyValue(cssPropertyName) : "0";
+    return SizeUtils.convertToPixels(element, value);
+  }
+  static getBorderLeftWidth(element) {
+    return SizeUtils.getDimension(element, "border-left-width");
+  }
+  static getBorderRightWidth(element) {
+    return SizeUtils.getDimension(element, "border-right-width");
+  }
+  static getBorderTopWidth(element) {
+    return SizeUtils.getDimension(element, "border-top-width");
+  }
+  static getBorderBottomWidth(element) {
+    return SizeUtils.getDimension(element, "border-bottom-width");
+  }
+  static getPaddingLeft(element) {
+    return SizeUtils.getDimension(element, "padding-left");
+  }
+  static getPaddingRight(element) {
+    return SizeUtils.getDimension(element, "padding-right");
+  }
+  static getPaddingTop(element) {
+    return SizeUtils.getDimension(element, "padding-top");
+  }
+  static getPaddingBottom(element) {
+    return SizeUtils.getDimension(element, "padding-bottom");
+  }
+  static getMarginLeft(element) {
+    return SizeUtils.getDimension(element, "margin-left");
+  }
+  static getMarginTop(element) {
+    return SizeUtils.getDimension(element, "margin-top");
+  }
+  static getMarginRight(element) {
+    return SizeUtils.getDimension(element, "margin-right");
+  }
+  static getMarginBottom(element) {
+    return SizeUtils.getDimension(element, "margin-bottom");
+  }
+}
+class Dimension {
+  static {
+    __name(this, "Dimension");
+  }
+  static {
+    this.None = new Dimension(0, 0);
+  }
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+  with(width = this.width, height = this.height) {
+    if (width !== this.width || height !== this.height) {
+      return new Dimension(width, height);
+    } else {
+      return this;
+    }
+  }
+  static is(obj) {
+    return typeof obj === "object" && typeof obj.height === "number" && typeof obj.width === "number";
+  }
+  static lift(obj) {
+    if (obj instanceof Dimension) {
+      return obj;
+    } else {
+      return new Dimension(obj.width, obj.height);
+    }
+  }
+  static equals(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.width === b.width && a.height === b.height;
+  }
+}
+function getTopLeftOffset(element) {
+  let offsetParent = element.offsetParent;
+  let top = element.offsetTop;
+  let left = element.offsetLeft;
+  while ((element = element.parentNode) !== null && element !== element.ownerDocument.body && element !== element.ownerDocument.documentElement) {
+    top -= element.scrollTop;
+    const c = isShadowRoot(element) ? null : getComputedStyle(element);
+    if (c) {
+      left -= c.direction !== "rtl" ? element.scrollLeft : -element.scrollLeft;
+    }
+    if (element === offsetParent) {
+      left += SizeUtils.getBorderLeftWidth(element);
+      top += SizeUtils.getBorderTopWidth(element);
+      top += element.offsetTop;
+      left += element.offsetLeft;
+      offsetParent = element.offsetParent;
+    }
+  }
+  return {
+    left,
+    top
+  };
+}
+__name(getTopLeftOffset, "getTopLeftOffset");
+function size(element, width, height) {
+  if (typeof width === "number") {
+    element.style.width = `${width}px`;
+  }
+  if (typeof height === "number") {
+    element.style.height = `${height}px`;
+  }
+}
+__name(size, "size");
+function position(element, top, right, bottom, left, position2 = "absolute") {
+  if (typeof top === "number") {
+    element.style.top = `${top}px`;
+  }
+  if (typeof right === "number") {
+    element.style.right = `${right}px`;
+  }
+  if (typeof bottom === "number") {
+    element.style.bottom = `${bottom}px`;
+  }
+  if (typeof left === "number") {
+    element.style.left = `${left}px`;
+  }
+  element.style.position = position2;
+}
+__name(position, "position");
+function getDomNodePagePosition(domNode) {
+  const bb = domNode.getBoundingClientRect();
+  const window = getWindow(domNode);
+  return {
+    left: bb.left + window.scrollX,
+    top: bb.top + window.scrollY,
+    width: bb.width,
+    height: bb.height
+  };
+}
+__name(getDomNodePagePosition, "getDomNodePagePosition");
+function isElementInBottomRightQuarter(element, container) {
+  const position2 = getDomNodePagePosition(element);
+  const clientArea = getClientArea(container);
+  return position2.left > clientArea.width / 2 && position2.top > clientArea.height / 2;
+}
+__name(isElementInBottomRightQuarter, "isElementInBottomRightQuarter");
+function getDomNodeZoomLevel(domNode) {
+  let testElement = domNode;
+  let zoom = 1;
+  do {
+    const elementZoomLevel = getComputedStyle(testElement).zoom;
+    if (elementZoomLevel !== null && elementZoomLevel !== void 0 && elementZoomLevel !== "1") {
+      zoom *= elementZoomLevel;
+    }
+    testElement = testElement.parentElement;
+  } while (testElement !== null && testElement !== testElement.ownerDocument.documentElement);
+  return zoom;
+}
+__name(getDomNodeZoomLevel, "getDomNodeZoomLevel");
+function getTotalWidth(element) {
+  const margin = SizeUtils.getMarginLeft(element) + SizeUtils.getMarginRight(element);
+  return element.offsetWidth + margin;
+}
+__name(getTotalWidth, "getTotalWidth");
+function getContentWidth(element) {
+  const border = SizeUtils.getBorderLeftWidth(element) + SizeUtils.getBorderRightWidth(element);
+  const padding = SizeUtils.getPaddingLeft(element) + SizeUtils.getPaddingRight(element);
+  return element.offsetWidth - border - padding;
+}
+__name(getContentWidth, "getContentWidth");
+function getTotalScrollWidth(element) {
+  const margin = SizeUtils.getMarginLeft(element) + SizeUtils.getMarginRight(element);
+  return element.scrollWidth + margin;
+}
+__name(getTotalScrollWidth, "getTotalScrollWidth");
+function getContentHeight(element) {
+  const border = SizeUtils.getBorderTopWidth(element) + SizeUtils.getBorderBottomWidth(element);
+  const padding = SizeUtils.getPaddingTop(element) + SizeUtils.getPaddingBottom(element);
+  return element.offsetHeight - border - padding;
+}
+__name(getContentHeight, "getContentHeight");
+function getTotalHeight(element) {
+  const margin = SizeUtils.getMarginTop(element) + SizeUtils.getMarginBottom(element);
+  return element.offsetHeight + margin;
+}
+__name(getTotalHeight, "getTotalHeight");
+function getRelativeLeft(element, parent) {
+  if (element === null) {
+    return 0;
+  }
+  const elementPosition = getTopLeftOffset(element);
+  const parentPosition = getTopLeftOffset(parent);
+  return elementPosition.left - parentPosition.left;
+}
+__name(getRelativeLeft, "getRelativeLeft");
+function getLargestChildWidth(parent, children) {
+  const childWidths = children.map((child) => {
+    return Math.max(getTotalScrollWidth(child), getTotalWidth(child)) + getRelativeLeft(child, parent) || 0;
+  });
+  const maxWidth = Math.max(...childWidths);
+  return maxWidth;
+}
+__name(getLargestChildWidth, "getLargestChildWidth");
+function isAncestor(testChild, testAncestor) {
+  return Boolean(testAncestor?.contains(testChild));
+}
+__name(isAncestor, "isAncestor");
+const parentFlowToDataKey = "parentFlowToElementId";
+function setParentFlowTo(fromChildElement, toParentElement) {
+  fromChildElement.dataset[parentFlowToDataKey] = toParentElement.id;
+}
+__name(setParentFlowTo, "setParentFlowTo");
+function getParentFlowToElement(node) {
+  const flowToParentId = node.dataset[parentFlowToDataKey];
+  if (typeof flowToParentId === "string") {
+    return node.ownerDocument.getElementById(flowToParentId);
+  }
+  return null;
+}
+__name(getParentFlowToElement, "getParentFlowToElement");
+function isAncestorUsingFlowTo(testChild, testAncestor) {
+  let node = testChild;
+  while (node) {
+    if (node === testAncestor) {
+      return true;
+    }
+    if (isHTMLElement(node)) {
+      const flowToParentElement = getParentFlowToElement(node);
+      if (flowToParentElement) {
+        node = flowToParentElement;
+        continue;
+      }
+    }
+    node = node.parentNode;
+  }
+  return false;
+}
+__name(isAncestorUsingFlowTo, "isAncestorUsingFlowTo");
+function findParentWithClass(node, clazz, stopAtClazzOrNode) {
+  while (node && node.nodeType === node.ELEMENT_NODE) {
+    if (node.classList.contains(clazz)) {
+      return node;
+    }
+    if (stopAtClazzOrNode) {
+      if (typeof stopAtClazzOrNode === "string") {
+        if (node.classList.contains(stopAtClazzOrNode)) {
+          return null;
+        }
+      } else {
+        if (node === stopAtClazzOrNode) {
+          return null;
+        }
+      }
+    }
+    node = node.parentNode;
+  }
+  return null;
+}
+__name(findParentWithClass, "findParentWithClass");
+function hasParentWithClass(node, clazz, stopAtClazzOrNode) {
+  return !!findParentWithClass(node, clazz, stopAtClazzOrNode);
+}
+__name(hasParentWithClass, "hasParentWithClass");
+function isShadowRoot(node) {
+  return node && !!node.host && !!node.mode;
+}
+__name(isShadowRoot, "isShadowRoot");
+function isInShadowDOM(domNode) {
+  return !!getShadowRoot(domNode);
+}
+__name(isInShadowDOM, "isInShadowDOM");
+function getShadowRoot(domNode) {
+  while (domNode.parentNode) {
+    if (domNode === domNode.ownerDocument?.body) {
+      return null;
+    }
+    domNode = domNode.parentNode;
+  }
+  return isShadowRoot(domNode) ? domNode : null;
+}
+__name(getShadowRoot, "getShadowRoot");
+function getActiveElement() {
+  let result = getActiveDocument().activeElement;
+  while (result?.shadowRoot) {
+    result = result.shadowRoot.activeElement;
+  }
+  return result;
+}
+__name(getActiveElement, "getActiveElement");
+function isActiveElement(element) {
+  return getActiveElement() === element;
+}
+__name(isActiveElement, "isActiveElement");
+function isAncestorOfActiveElement(ancestor) {
+  return isAncestor(getActiveElement(), ancestor);
+}
+__name(isAncestorOfActiveElement, "isAncestorOfActiveElement");
+function isActiveDocument(element) {
+  return element.ownerDocument === getActiveDocument();
+}
+__name(isActiveDocument, "isActiveDocument");
+function getActiveDocument() {
+  if (getWindowsCount() <= 1) {
+    return mainWindow.document;
+  }
+  const documents = Array.from(getWindows()).map(({ window }) => window.document);
+  const focusedDoc = documents.find((doc) => doc.hasFocus());
+  if (focusedDoc) {
+    return focusedDoc;
+  }
+  const externalWindow = getExternalFocusWindow();
+  if (externalWindow) {
+    return externalWindow.document;
+  }
+  return mainWindow.document;
+}
+__name(getActiveDocument, "getActiveDocument");
+function getActiveWindow() {
+  const document2 = getActiveDocument();
+  return document2.defaultView?.window ?? mainWindow;
+}
+__name(getActiveWindow, "getActiveWindow");
+const sharedMutationObserver = new class {
+  constructor() {
+    this.mutationObservers = /* @__PURE__ */ new Map();
+  }
+  observe(target, disposables, options) {
+    let mutationObserversPerTarget = this.mutationObservers.get(target);
+    if (!mutationObserversPerTarget) {
+      mutationObserversPerTarget = /* @__PURE__ */ new Map();
+      this.mutationObservers.set(target, mutationObserversPerTarget);
+    }
+    const optionsHash = hash(options);
+    let mutationObserverPerOptions = mutationObserversPerTarget.get(optionsHash);
+    if (!mutationObserverPerOptions) {
+      const onDidMutate = new event.Emitter();
+      const observer = new MutationObserver((mutations) => onDidMutate.fire(mutations));
+      observer.observe(target, options);
+      const resolvedMutationObserverPerOptions = mutationObserverPerOptions = {
+        users: 1,
+        observer,
+        onDidMutate: onDidMutate.event
+      };
+      disposables.add(toDisposable(() => {
+        resolvedMutationObserverPerOptions.users -= 1;
+        if (resolvedMutationObserverPerOptions.users === 0) {
+          onDidMutate.dispose();
+          observer.disconnect();
+          mutationObserversPerTarget?.delete(optionsHash);
+          if (mutationObserversPerTarget?.size === 0) {
+            this.mutationObservers.delete(target);
+          }
+        }
+      }));
+      mutationObserversPerTarget.set(optionsHash, mutationObserverPerOptions);
+    } else {
+      mutationObserverPerOptions.users += 1;
+    }
+    return mutationObserverPerOptions.onDidMutate;
+  }
+}();
+function createMetaElement(container = mainWindow.document.head) {
+  return createHeadElement("meta", container);
+}
+__name(createMetaElement, "createMetaElement");
+function createLinkElement(container = mainWindow.document.head) {
+  return createHeadElement("link", container);
+}
+__name(createLinkElement, "createLinkElement");
+function createHeadElement(tagName, container = mainWindow.document.head) {
+  const element = document.createElement(tagName);
+  container.appendChild(element);
+  return element;
+}
+__name(createHeadElement, "createHeadElement");
+function isHTMLElement(e) {
+  return e instanceof HTMLElement || e instanceof getWindow(e).HTMLElement;
+}
+__name(isHTMLElement, "isHTMLElement");
+function isHTMLAnchorElement(e) {
+  return e instanceof HTMLAnchorElement || e instanceof getWindow(e).HTMLAnchorElement;
+}
+__name(isHTMLAnchorElement, "isHTMLAnchorElement");
+function isHTMLSpanElement(e) {
+  return e instanceof HTMLSpanElement || e instanceof getWindow(e).HTMLSpanElement;
+}
+__name(isHTMLSpanElement, "isHTMLSpanElement");
+function isHTMLTextAreaElement(e) {
+  return e instanceof HTMLTextAreaElement || e instanceof getWindow(e).HTMLTextAreaElement;
+}
+__name(isHTMLTextAreaElement, "isHTMLTextAreaElement");
+function isHTMLInputElement(e) {
+  return e instanceof HTMLInputElement || e instanceof getWindow(e).HTMLInputElement;
+}
+__name(isHTMLInputElement, "isHTMLInputElement");
+function isHTMLButtonElement(e) {
+  return e instanceof HTMLButtonElement || e instanceof getWindow(e).HTMLButtonElement;
+}
+__name(isHTMLButtonElement, "isHTMLButtonElement");
+function isHTMLDivElement(e) {
+  return e instanceof HTMLDivElement || e instanceof getWindow(e).HTMLDivElement;
+}
+__name(isHTMLDivElement, "isHTMLDivElement");
+function isSVGElement(e) {
+  return e instanceof SVGElement || e instanceof getWindow(e).SVGElement;
+}
+__name(isSVGElement, "isSVGElement");
+function isMouseEvent(e) {
+  return e instanceof MouseEvent || e instanceof getWindow(e).MouseEvent;
+}
+__name(isMouseEvent, "isMouseEvent");
+function isKeyboardEvent(e) {
+  return e instanceof KeyboardEvent || e instanceof getWindow(e).KeyboardEvent;
+}
+__name(isKeyboardEvent, "isKeyboardEvent");
+function isPointerEvent(e) {
+  return e instanceof PointerEvent || e instanceof getWindow(e).PointerEvent;
+}
+__name(isPointerEvent, "isPointerEvent");
+function isDragEvent(e) {
+  return e instanceof DragEvent || e instanceof getWindow(e).DragEvent;
+}
+__name(isDragEvent, "isDragEvent");
+const EventType = {
+  // Mouse
+  CLICK: "click",
+  AUXCLICK: "auxclick",
+  DBLCLICK: "dblclick",
+  MOUSE_UP: "mouseup",
+  MOUSE_DOWN: "mousedown",
+  MOUSE_OVER: "mouseover",
+  MOUSE_MOVE: "mousemove",
+  MOUSE_OUT: "mouseout",
+  MOUSE_ENTER: "mouseenter",
+  MOUSE_LEAVE: "mouseleave",
+  MOUSE_WHEEL: "wheel",
+  POINTER_UP: "pointerup",
+  POINTER_DOWN: "pointerdown",
+  POINTER_MOVE: "pointermove",
+  POINTER_LEAVE: "pointerleave",
+  CONTEXT_MENU: "contextmenu",
+  WHEEL: "wheel",
+  // Keyboard
+  KEY_DOWN: "keydown",
+  KEY_PRESS: "keypress",
+  KEY_UP: "keyup",
+  // HTML Document
+  LOAD: "load",
+  BEFORE_UNLOAD: "beforeunload",
+  UNLOAD: "unload",
+  PAGE_SHOW: "pageshow",
+  PAGE_HIDE: "pagehide",
+  PASTE: "paste",
+  ABORT: "abort",
+  ERROR: "error",
+  RESIZE: "resize",
+  SCROLL: "scroll",
+  FULLSCREEN_CHANGE: "fullscreenchange",
+  WK_FULLSCREEN_CHANGE: "webkitfullscreenchange",
+  // Form
+  SELECT: "select",
+  CHANGE: "change",
+  SUBMIT: "submit",
+  RESET: "reset",
+  FOCUS: "focus",
+  FOCUS_IN: "focusin",
+  FOCUS_OUT: "focusout",
+  BLUR: "blur",
+  INPUT: "input",
+  // Local Storage
+  STORAGE: "storage",
+  // Drag
+  DRAG_START: "dragstart",
+  DRAG: "drag",
+  DRAG_ENTER: "dragenter",
+  DRAG_LEAVE: "dragleave",
+  DRAG_OVER: "dragover",
+  DROP: "drop",
+  DRAG_END: "dragend",
+  // Animation
+  ANIMATION_START: browser.isWebKit ? "webkitAnimationStart" : "animationstart",
+  ANIMATION_END: browser.isWebKit ? "webkitAnimationEnd" : "animationend",
+  ANIMATION_ITERATION: browser.isWebKit ? "webkitAnimationIteration" : "animationiteration"
+};
+function isEventLike(obj) {
+  const candidate = obj;
+  return !!(candidate && typeof candidate.preventDefault === "function" && typeof candidate.stopPropagation === "function");
+}
+__name(isEventLike, "isEventLike");
+const EventHelper = {
+  stop: /* @__PURE__ */ __name((e, cancelBubble) => {
+    e.preventDefault();
+    if (cancelBubble) {
+      e.stopPropagation();
+    }
+    return e;
+  }, "stop")
+};
+function saveParentsScrollTop(node) {
+  const r = [];
+  for (let i = 0; node && node.nodeType === node.ELEMENT_NODE; i++) {
+    r[i] = node.scrollTop;
+    node = node.parentNode;
+  }
+  return r;
+}
+__name(saveParentsScrollTop, "saveParentsScrollTop");
+function restoreParentsScrollTop(node, state) {
+  for (let i = 0; node && node.nodeType === node.ELEMENT_NODE; i++) {
+    if (node.scrollTop !== state[i]) {
+      node.scrollTop = state[i];
+    }
+    node = node.parentNode;
+  }
+}
+__name(restoreParentsScrollTop, "restoreParentsScrollTop");
+class FocusTracker extends Disposable {
+  static {
+    __name(this, "FocusTracker");
+  }
+  get onDidFocus() {
+    return this._onDidFocus.event;
+  }
+  get onDidBlur() {
+    return this._onDidBlur.event;
+  }
+  static hasFocusWithin(element) {
+    if (isHTMLElement(element)) {
+      const shadowRoot = getShadowRoot(element);
+      const activeElement = shadowRoot ? shadowRoot.activeElement : element.ownerDocument.activeElement;
+      return isAncestor(activeElement, element);
+    } else {
+      const window = element;
+      return isAncestor(window.document.activeElement, window.document);
+    }
+  }
+  constructor(element) {
+    super();
+    this._onDidFocus = this._register(new event.Emitter());
+    this._onDidBlur = this._register(new event.Emitter());
+    let hasFocus = FocusTracker.hasFocusWithin(element);
+    let loosingFocus = false;
+    const onFocus = /* @__PURE__ */ __name(() => {
+      loosingFocus = false;
+      if (!hasFocus) {
+        hasFocus = true;
+        this._onDidFocus.fire();
+      }
+    }, "onFocus");
+    const onBlur = /* @__PURE__ */ __name(() => {
+      if (hasFocus) {
+        loosingFocus = true;
+        (isHTMLElement(element) ? getWindow(element) : element).setTimeout(() => {
+          if (loosingFocus) {
+            loosingFocus = false;
+            hasFocus = false;
+            this._onDidBlur.fire();
+          }
+        }, 0);
+      }
+    }, "onBlur");
+    this._refreshStateHandler = () => {
+      const currentNodeHasFocus = FocusTracker.hasFocusWithin(element);
+      if (currentNodeHasFocus !== hasFocus) {
+        if (hasFocus) {
+          onBlur();
+        } else {
+          onFocus();
+        }
+      }
+    };
+    this._register(addDisposableListener(element, EventType.FOCUS, onFocus, true));
+    this._register(addDisposableListener(element, EventType.BLUR, onBlur, true));
+    if (isHTMLElement(element)) {
+      this._register(addDisposableListener(element, EventType.FOCUS_IN, () => this._refreshStateHandler()));
+      this._register(addDisposableListener(element, EventType.FOCUS_OUT, () => this._refreshStateHandler()));
+    }
+  }
+  refreshState() {
+    this._refreshStateHandler();
+  }
+}
+function trackFocus(element) {
+  return new FocusTracker(element);
+}
+__name(trackFocus, "trackFocus");
+function after(sibling, child) {
+  sibling.after(child);
+  return child;
+}
+__name(after, "after");
+function append(parent, ...children) {
+  parent.append(...children);
+  if (children.length === 1 && typeof children[0] !== "string") {
+    return children[0];
+  }
+}
+__name(append, "append");
+function prepend(parent, child) {
+  parent.insertBefore(child, parent.firstChild);
+  return child;
+}
+__name(prepend, "prepend");
+function reset(parent, ...children) {
+  parent.textContent = "";
+  append(parent, ...children);
+}
+__name(reset, "reset");
+const SELECTOR_REGEX = /([\w\-]+)?(#([\w\-]+))?((\.([\w\-]+))*)/;
+var Namespace;
+(function(Namespace2) {
+  Namespace2["HTML"] = "http://www.w3.org/1999/xhtml";
+  Namespace2["SVG"] = "http://www.w3.org/2000/svg";
+})(Namespace || (Namespace = {}));
+function _$(namespace, description, attrs, ...children) {
+  const match = SELECTOR_REGEX.exec(description);
+  if (!match) {
+    throw new Error("Bad use of emmet");
+  }
+  const tagName = match[1] || "div";
+  let result;
+  if (namespace !== Namespace.HTML) {
+    result = document.createElementNS(namespace, tagName);
+  } else {
+    result = document.createElement(tagName);
+  }
+  if (match[3]) {
+    result.id = match[3];
+  }
+  if (match[4]) {
+    result.className = match[4].replace(/\./g, " ").trim();
+  }
+  if (attrs) {
+    Object.entries(attrs).forEach(([name, value]) => {
+      if (typeof value === "undefined") {
+        return;
+      }
+      if (/^on\w+$/.test(name)) {
+        result[name] = value;
+      } else if (name === "selected") {
+        if (value) {
+          result.setAttribute(name, "true");
+        }
+      } else {
+        result.setAttribute(name, value);
+      }
+    });
+  }
+  result.append(...children);
+  return result;
+}
+__name(_$, "_$");
+function $(description, attrs, ...children) {
+  return _$(Namespace.HTML, description, attrs, ...children);
+}
+__name($, "$");
+$.SVG = function(description, attrs, ...children) {
+  return _$(Namespace.SVG, description, attrs, ...children);
+};
+function join(nodes, separator) {
+  const result = [];
+  nodes.forEach((node, index) => {
+    if (index > 0) {
+      if (separator instanceof Node) {
+        result.push(separator.cloneNode());
+      } else {
+        result.push(document.createTextNode(separator));
+      }
+    }
+    result.push(node);
+  });
+  return result;
+}
+__name(join, "join");
+function setVisibility(visible, ...elements) {
+  if (visible) {
+    show(...elements);
+  } else {
+    hide(...elements);
+  }
+}
+__name(setVisibility, "setVisibility");
+function show(...elements) {
+  for (const element of elements) {
+    element.style.display = "";
+    element.removeAttribute("aria-hidden");
+  }
+}
+__name(show, "show");
+function hide(...elements) {
+  for (const element of elements) {
+    element.style.display = "none";
+    element.setAttribute("aria-hidden", "true");
+  }
+}
+__name(hide, "hide");
+function findParentWithAttribute(node, attribute) {
+  while (node && node.nodeType === node.ELEMENT_NODE) {
+    if (isHTMLElement(node) && node.hasAttribute(attribute)) {
+      return node;
+    }
+    node = node.parentNode;
+  }
+  return null;
+}
+__name(findParentWithAttribute, "findParentWithAttribute");
+function removeTabIndexAndUpdateFocus(node) {
+  if (!node || !node.hasAttribute("tabIndex")) {
+    return;
+  }
+  if (node.ownerDocument.activeElement === node) {
+    const parentFocusable = findParentWithAttribute(node.parentElement, "tabIndex");
+    parentFocusable?.focus();
+  }
+  node.removeAttribute("tabindex");
+}
+__name(removeTabIndexAndUpdateFocus, "removeTabIndexAndUpdateFocus");
+function finalHandler(fn) {
+  return (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fn(e);
+  };
+}
+__name(finalHandler, "finalHandler");
+function domContentLoaded(targetWindow) {
+  return new Promise((resolve2) => {
+    const readyState = targetWindow.document.readyState;
+    if (readyState === "complete" || targetWindow.document && targetWindow.document.body !== null) {
+      resolve2(void 0);
+    } else {
+      const listener = /* @__PURE__ */ __name(() => {
+        targetWindow.window.removeEventListener("DOMContentLoaded", listener, false);
+        resolve2();
+      }, "listener");
+      targetWindow.window.addEventListener("DOMContentLoaded", listener, false);
+    }
+  });
+}
+__name(domContentLoaded, "domContentLoaded");
+function computeScreenAwareSize(window, cssPx) {
+  const screenPx = window.devicePixelRatio * cssPx;
+  return Math.max(1, Math.floor(screenPx)) / window.devicePixelRatio;
+}
+__name(computeScreenAwareSize, "computeScreenAwareSize");
+function windowOpenNoOpener(url) {
+  mainWindow.open(url, "_blank", "noopener");
+}
+__name(windowOpenNoOpener, "windowOpenNoOpener");
+const popupWidth = 780, popupHeight = 640;
+function windowOpenPopup(url) {
+  const left = Math.floor(mainWindow.screenLeft + mainWindow.innerWidth / 2 - popupWidth / 2);
+  const top = Math.floor(mainWindow.screenTop + mainWindow.innerHeight / 2 - popupHeight / 2);
+  mainWindow.open(url, "_blank", `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+}
+__name(windowOpenPopup, "windowOpenPopup");
+function windowOpenWithSuccess(url, noOpener = true) {
+  const newTab = mainWindow.open();
+  if (newTab) {
+    if (noOpener) {
+      newTab.opener = null;
+    }
+    newTab.location.href = url;
+    return true;
+  }
+  return false;
+}
+__name(windowOpenWithSuccess, "windowOpenWithSuccess");
+function animate(targetWindow, fn) {
+  const step = /* @__PURE__ */ __name(() => {
+    fn();
+    stepDisposable = scheduleAtNextAnimationFrame(targetWindow, step);
+  }, "step");
+  let stepDisposable = scheduleAtNextAnimationFrame(targetWindow, step);
+  return toDisposable(() => stepDisposable.dispose());
+}
+__name(animate, "animate");
+RemoteAuthorities.setPreferredWebSchema(/^https:/.test(mainWindow.location.href) ? "https" : "http");
+function triggerDownload(dataOrUri, name) {
+  let url;
+  if (URI.isUri(dataOrUri)) {
+    url = dataOrUri.toString(true);
+  } else {
+    const blob = new Blob([dataOrUri]);
+    url = URL.createObjectURL(blob);
+    setTimeout(() => URL.revokeObjectURL(url));
+  }
+  const activeWindow = getActiveWindow();
+  const anchor = document.createElement("a");
+  activeWindow.document.body.appendChild(anchor);
+  anchor.download = name;
+  anchor.href = url;
+  anchor.click();
+  setTimeout(() => anchor.remove());
+}
+__name(triggerDownload, "triggerDownload");
+function triggerUpload() {
+  return new Promise((resolve2) => {
+    const activeWindow = getActiveWindow();
+    const input = document.createElement("input");
+    activeWindow.document.body.appendChild(input);
+    input.type = "file";
+    input.multiple = true;
+    event.Event.once(event.Event.fromDOMEventEmitter(input, "input"))(() => {
+      resolve2(input.files ?? void 0);
+    });
+    input.click();
+    setTimeout(() => input.remove());
+  });
+}
+__name(triggerUpload, "triggerUpload");
+var DetectedFullscreenMode;
+(function(DetectedFullscreenMode2) {
+  DetectedFullscreenMode2[DetectedFullscreenMode2["DOCUMENT"] = 1] = "DOCUMENT";
+  DetectedFullscreenMode2[DetectedFullscreenMode2["BROWSER"] = 2] = "BROWSER";
+})(DetectedFullscreenMode || (DetectedFullscreenMode = {}));
+function detectFullscreen(targetWindow) {
+  if (targetWindow.document.fullscreenElement || targetWindow.document.webkitFullscreenElement || targetWindow.document.webkitIsFullScreen) {
+    return { mode: DetectedFullscreenMode.DOCUMENT, guess: false };
+  }
+  if (targetWindow.innerHeight === targetWindow.screen.height) {
+    return { mode: DetectedFullscreenMode.BROWSER, guess: false };
+  }
+  if (platform.isMacintosh || platform.isLinux) {
+    if (targetWindow.outerHeight === targetWindow.screen.height && targetWindow.outerWidth === targetWindow.screen.width) {
+      return { mode: DetectedFullscreenMode.BROWSER, guess: true };
+    }
+  }
+  return null;
+}
+__name(detectFullscreen, "detectFullscreen");
+class ModifierKeyEmitter extends event.Emitter {
+  static {
+    __name(this, "ModifierKeyEmitter");
+  }
+  constructor() {
+    super();
+    this._subscriptions = new DisposableStore();
+    this._keyStatus = {
+      altKey: false,
+      shiftKey: false,
+      ctrlKey: false,
+      metaKey: false
+    };
+    this._subscriptions.add(event.Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => this.registerListeners(window, disposables), { window: mainWindow, disposables: this._subscriptions }));
+  }
+  registerListeners(window, disposables) {
+    disposables.add(addDisposableListener(window, "keydown", (e) => {
+      if (e.defaultPrevented) {
+        return;
+      }
+      const event2 = new StandardKeyboardEvent(e);
+      if (event2.keyCode === 6 && e.repeat) {
+        return;
+      }
+      if (e.altKey && !this._keyStatus.altKey) {
+        this._keyStatus.lastKeyPressed = "alt";
+      } else if (e.ctrlKey && !this._keyStatus.ctrlKey) {
+        this._keyStatus.lastKeyPressed = "ctrl";
+      } else if (e.metaKey && !this._keyStatus.metaKey) {
+        this._keyStatus.lastKeyPressed = "meta";
+      } else if (e.shiftKey && !this._keyStatus.shiftKey) {
+        this._keyStatus.lastKeyPressed = "shift";
+      } else if (event2.keyCode !== 6) {
+        this._keyStatus.lastKeyPressed = void 0;
+      } else {
+        return;
+      }
+      this._keyStatus.altKey = e.altKey;
+      this._keyStatus.ctrlKey = e.ctrlKey;
+      this._keyStatus.metaKey = e.metaKey;
+      this._keyStatus.shiftKey = e.shiftKey;
+      if (this._keyStatus.lastKeyPressed) {
+        this._keyStatus.event = e;
+        this.fire(this._keyStatus);
+      }
+    }, true));
+    disposables.add(addDisposableListener(window, "keyup", (e) => {
+      if (e.defaultPrevented) {
+        return;
+      }
+      if (!e.altKey && this._keyStatus.altKey) {
+        this._keyStatus.lastKeyReleased = "alt";
+      } else if (!e.ctrlKey && this._keyStatus.ctrlKey) {
+        this._keyStatus.lastKeyReleased = "ctrl";
+      } else if (!e.metaKey && this._keyStatus.metaKey) {
+        this._keyStatus.lastKeyReleased = "meta";
+      } else if (!e.shiftKey && this._keyStatus.shiftKey) {
+        this._keyStatus.lastKeyReleased = "shift";
+      } else {
+        this._keyStatus.lastKeyReleased = void 0;
+      }
+      if (this._keyStatus.lastKeyPressed !== this._keyStatus.lastKeyReleased) {
+        this._keyStatus.lastKeyPressed = void 0;
+      }
+      this._keyStatus.altKey = e.altKey;
+      this._keyStatus.ctrlKey = e.ctrlKey;
+      this._keyStatus.metaKey = e.metaKey;
+      this._keyStatus.shiftKey = e.shiftKey;
+      if (this._keyStatus.lastKeyReleased) {
+        this._keyStatus.event = e;
+        this.fire(this._keyStatus);
+      }
+    }, true));
+    disposables.add(addDisposableListener(window.document.body, "mousedown", () => {
+      this._keyStatus.lastKeyPressed = void 0;
+    }, true));
+    disposables.add(addDisposableListener(window.document.body, "mouseup", () => {
+      this._keyStatus.lastKeyPressed = void 0;
+    }, true));
+    disposables.add(addDisposableListener(window.document.body, "mousemove", (e) => {
+      if (e.buttons) {
+        this._keyStatus.lastKeyPressed = void 0;
+      }
+    }, true));
+    disposables.add(addDisposableListener(window, "blur", () => {
+      this.resetKeyStatus();
+    }));
+  }
+  get keyStatus() {
+    return this._keyStatus;
+  }
+  get isModifierPressed() {
+    return hasModifierKeys(this._keyStatus);
+  }
+  /**
+   * Allows to explicitly reset the key status based on more knowledge (#109062)
+   */
+  resetKeyStatus() {
+    this.doResetKeyStatus();
+    this.fire(this._keyStatus);
+  }
+  doResetKeyStatus() {
+    this._keyStatus = {
+      altKey: false,
+      shiftKey: false,
+      ctrlKey: false,
+      metaKey: false
+    };
+  }
+  static getInstance() {
+    if (!ModifierKeyEmitter.instance) {
+      ModifierKeyEmitter.instance = new ModifierKeyEmitter();
+    }
+    return ModifierKeyEmitter.instance;
+  }
+  static disposeInstance() {
+    if (ModifierKeyEmitter.instance) {
+      ModifierKeyEmitter.instance.dispose();
+      ModifierKeyEmitter.instance = void 0;
+    }
+  }
+  dispose() {
+    super.dispose();
+    this._subscriptions.dispose();
+  }
+}
+function getCookieValue(name) {
+  const match = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)");
+  return match ? match.pop() : void 0;
+}
+__name(getCookieValue, "getCookieValue");
+class DragAndDropObserver extends Disposable {
+  static {
+    __name(this, "DragAndDropObserver");
+  }
+  constructor(element, callbacks) {
+    super();
+    this.element = element;
+    this.callbacks = callbacks;
+    this.counter = 0;
+    this.dragStartTime = 0;
+    this.registerListeners();
+  }
+  registerListeners() {
+    if (this.callbacks.onDragStart) {
+      this._register(addDisposableListener(this.element, EventType.DRAG_START, (e) => {
+        this.callbacks.onDragStart?.(e);
+      }));
+    }
+    if (this.callbacks.onDrag) {
+      this._register(addDisposableListener(this.element, EventType.DRAG, (e) => {
+        this.callbacks.onDrag?.(e);
+      }));
+    }
+    this._register(addDisposableListener(this.element, EventType.DRAG_ENTER, (e) => {
+      this.counter++;
+      this.dragStartTime = e.timeStamp;
+      this.callbacks.onDragEnter?.(e);
+    }));
+    this._register(addDisposableListener(this.element, EventType.DRAG_OVER, (e) => {
+      e.preventDefault();
+      this.callbacks.onDragOver?.(e, e.timeStamp - this.dragStartTime);
+    }));
+    this._register(addDisposableListener(this.element, EventType.DRAG_LEAVE, (e) => {
+      this.counter--;
+      if (this.counter === 0) {
+        this.dragStartTime = 0;
+        this.callbacks.onDragLeave?.(e);
+      }
+    }));
+    this._register(addDisposableListener(this.element, EventType.DRAG_END, (e) => {
+      this.counter = 0;
+      this.dragStartTime = 0;
+      this.callbacks.onDragEnd?.(e);
+    }));
+    this._register(addDisposableListener(this.element, EventType.DROP, (e) => {
+      this.counter = 0;
+      this.dragStartTime = 0;
+      this.callbacks.onDrop?.(e);
+    }));
+  }
+}
+class DisposableResizeObserver extends Disposable {
+  static {
+    __name(this, "DisposableResizeObserver");
+  }
+  constructor(callback) {
+    super();
+    this.observer = new ResizeObserver(callback);
+    this._register(toDisposable(() => this.observer.disconnect()));
+  }
+  observe(target, options) {
+    this.observer.observe(target, options);
+    return toDisposable(() => this.observer.unobserve(target));
+  }
+}
+const H_REGEX = /(?<tag>[\w\-]+)?(?:#(?<id>[\w\-]+))?(?<class>(?:\.(?:[\w\-]+))*)(?:@(?<name>(?:[\w\_])+))?/;
+function h(tag, ...args) {
+  let attributes;
+  let children;
+  if (Array.isArray(args[0])) {
+    attributes = {};
+    children = args[0];
+  } else {
+    attributes = args[0] || {};
+    children = args[1];
+  }
+  const match = H_REGEX.exec(tag);
+  if (!match || !match.groups) {
+    throw new Error("Bad use of h");
+  }
+  const tagName = match.groups["tag"] || "div";
+  const el = document.createElement(tagName);
+  if (match.groups["id"]) {
+    el.id = match.groups["id"];
+  }
+  const classNames = [];
+  if (match.groups["class"]) {
+    for (const className of match.groups["class"].split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (attributes.className !== void 0) {
+    for (const className of attributes.className.split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (classNames.length > 0) {
+    el.className = classNames.join(" ");
+  }
+  const result = {};
+  if (match.groups["name"]) {
+    result[match.groups["name"]] = el;
+  }
+  if (children) {
+    for (const c of children) {
+      if (isHTMLElement(c)) {
+        el.appendChild(c);
+      } else if (typeof c === "string") {
+        el.append(c);
+      } else if ("root" in c) {
+        Object.assign(result, c);
+        el.appendChild(c.root);
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(attributes)) {
+    if (key === "className") {
+      continue;
+    } else if (key === "style") {
+      for (const [cssKey, cssValue] of Object.entries(value)) {
+        el.style.setProperty(camelCaseToHyphenCase(cssKey), typeof cssValue === "number" ? cssValue + "px" : "" + cssValue);
+      }
+    } else if (key === "tabIndex") {
+      el.tabIndex = value;
+    } else {
+      el.setAttribute(camelCaseToHyphenCase(key), value.toString());
+    }
+  }
+  result["root"] = el;
+  return result;
+}
+__name(h, "h");
+function svgElem(tag, ...args) {
+  let attributes;
+  let children;
+  if (Array.isArray(args[0])) {
+    attributes = {};
+    children = args[0];
+  } else {
+    attributes = args[0] || {};
+    children = args[1];
+  }
+  const match = H_REGEX.exec(tag);
+  if (!match || !match.groups) {
+    throw new Error("Bad use of h");
+  }
+  const tagName = match.groups["tag"] || "div";
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tagName);
+  if (match.groups["id"]) {
+    el.id = match.groups["id"];
+  }
+  const classNames = [];
+  if (match.groups["class"]) {
+    for (const className of match.groups["class"].split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (attributes.className !== void 0) {
+    for (const className of attributes.className.split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (classNames.length > 0) {
+    el.className = classNames.join(" ");
+  }
+  const result = {};
+  if (match.groups["name"]) {
+    result[match.groups["name"]] = el;
+  }
+  if (children) {
+    for (const c of children) {
+      if (isHTMLElement(c)) {
+        el.appendChild(c);
+      } else if (typeof c === "string") {
+        el.append(c);
+      } else if ("root" in c) {
+        Object.assign(result, c);
+        el.appendChild(c.root);
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(attributes)) {
+    if (key === "className") {
+      continue;
+    } else if (key === "style") {
+      for (const [cssKey, cssValue] of Object.entries(value)) {
+        el.style.setProperty(camelCaseToHyphenCase(cssKey), typeof cssValue === "number" ? cssValue + "px" : "" + cssValue);
+      }
+    } else if (key === "tabIndex") {
+      el.tabIndex = value;
+    } else {
+      el.setAttribute(camelCaseToHyphenCase(key), value.toString());
+    }
+  }
+  result["root"] = el;
+  return result;
+}
+__name(svgElem, "svgElem");
+function camelCaseToHyphenCase(str) {
+  return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+}
+__name(camelCaseToHyphenCase, "camelCaseToHyphenCase");
+function copyAttributes(from, to, filter) {
+  for (const { name, value } of from.attributes) {
+    if (!filter || filter.includes(name)) {
+      to.setAttribute(name, value);
+    }
+  }
+}
+__name(copyAttributes, "copyAttributes");
+function copyAttribute(from, to, name) {
+  const value = from.getAttribute(name);
+  if (value) {
+    to.setAttribute(name, value);
+  } else {
+    to.removeAttribute(name);
+  }
+}
+__name(copyAttribute, "copyAttribute");
+function trackAttributes(from, to, filter) {
+  copyAttributes(from, to, filter);
+  const disposables = new DisposableStore();
+  disposables.add(sharedMutationObserver.observe(from, disposables, { attributes: true, attributeFilter: filter })((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === "attributes" && mutation.attributeName) {
+        copyAttribute(from, to, mutation.attributeName);
+      }
+    }
+  }));
+  return disposables;
+}
+__name(trackAttributes, "trackAttributes");
+function isEditableElement(element) {
+  return element.tagName.toLowerCase() === "input" || element.tagName.toLowerCase() === "textarea" || isHTMLElement(element) && !!element.editContext;
+}
+__name(isEditableElement, "isEditableElement");
+class SafeTriangle {
+  static {
+    __name(this, "SafeTriangle");
+  }
+  constructor(originX, originY, target) {
+    this.originX = originX;
+    this.originY = originY;
+    this.points = new Int16Array(8);
+    const { top, left, right, bottom } = target.getBoundingClientRect();
+    const t = this.points;
+    let i = 0;
+    t[i++] = left;
+    t[i++] = top;
+    t[i++] = right;
+    t[i++] = top;
+    t[i++] = left;
+    t[i++] = bottom;
+    t[i++] = right;
+    t[i++] = bottom;
+  }
+  contains(x, y) {
+    const { points, originX, originY } = this;
+    for (let i = 0; i < 4; i++) {
+      const p1 = 2 * i;
+      const p2 = 2 * ((i + 1) % 4);
+      if (isPointWithinTriangle(x, y, originX, originY, points[p1], points[p1 + 1], points[p2], points[p2 + 1])) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+var n;
+(function(n2) {
+  function nodeNs(elementNs = void 0) {
+    return (tag, attributes, children) => {
+      const className = attributes.class;
+      delete attributes.class;
+      const ref2 = attributes.ref;
+      delete attributes.ref;
+      const obsRef = attributes.obsRef;
+      delete attributes.obsRef;
+      return new ObserverNodeWithElement(tag, ref2, obsRef, elementNs, className, attributes, children);
+    };
+  }
+  __name(nodeNs, "nodeNs");
+  function node(tag, elementNs = void 0) {
+    const f = nodeNs(elementNs);
+    return (attributes, children) => {
+      return f(tag, attributes, children);
+    };
+  }
+  __name(node, "node");
+  n2.div = node("div");
+  n2.elem = nodeNs(void 0);
+  n2.svg = node("svg", "http://www.w3.org/2000/svg");
+  n2.svgElem = nodeNs("http://www.w3.org/2000/svg");
+  function ref() {
+    let value = void 0;
+    const result = /* @__PURE__ */ __name(function(val) {
+      value = val;
+    }, "result");
+    Object.defineProperty(result, "element", {
+      get() {
+        if (!value) {
+          throw new BugIndicatingError("Make sure the ref is set before accessing the element. Maybe wrong initialization order?");
+        }
+        return value;
+      }
+    });
+    return result;
+  }
+  __name(ref, "ref");
+  n2.ref = ref;
+})(n || (n = {}));
+class ObserverNode {
+  static {
+    __name(this, "ObserverNode");
+  }
+  constructor(tag, ref, obsRef, ns, className, attributes, children) {
+    this._deriveds = [];
+    this._isHovered = void 0;
+    this._didMouseMoveDuringHover = void 0;
+    this._element = ns ? document.createElementNS(ns, tag) : document.createElement(tag);
+    if (ref) {
+      ref(this._element);
+    }
+    if (obsRef) {
+      this._deriveds.push(derived((_reader) => {
+        obsRef(this);
+        _reader.store.add({
+          dispose: /* @__PURE__ */ __name(() => {
+            obsRef(null);
+          }, "dispose")
+        });
+      }));
+    }
+    if (className) {
+      if (hasObservable(className)) {
+        this._deriveds.push(derived(this, (reader) => {
+          setClassName(this._element, getClassName(className, reader));
+        }));
+      } else {
+        setClassName(this._element, getClassName(className, void 0));
+      }
+    }
+    for (const [key, value] of Object.entries(attributes)) {
+      if (key === "style") {
+        for (const [cssKey, cssValue] of Object.entries(value)) {
+          const key2 = camelCaseToHyphenCase(cssKey);
+          if (isObservable(cssValue)) {
+            this._deriveds.push(derivedOpts({ owner: this, debugName: /* @__PURE__ */ __name(() => `set.style.${key2}`, "debugName") }, (reader) => {
+              this._element.style.setProperty(key2, convertCssValue(cssValue.read(reader)));
+            }));
+          } else {
+            this._element.style.setProperty(key2, convertCssValue(cssValue));
+          }
+        }
+      } else if (key === "tabIndex") {
+        if (isObservable(value)) {
+          this._deriveds.push(derived(this, (reader) => {
+            this._element.tabIndex = value.read(reader);
+          }));
+        } else {
+          this._element.tabIndex = value;
+        }
+      } else if (key.startsWith("on")) {
+        this._element[key] = value;
+      } else {
+        if (isObservable(value)) {
+          this._deriveds.push(derivedOpts({ owner: this, debugName: /* @__PURE__ */ __name(() => `set.${key}`, "debugName") }, (reader) => {
+            setOrRemoveAttribute(this._element, key, value.read(reader));
+          }));
+        } else {
+          setOrRemoveAttribute(this._element, key, value);
+        }
+      }
+    }
+    if (children) {
+      let getChildren2 = function(reader, children2) {
+        if (isObservable(children2)) {
+          return getChildren2(reader, children2.read(reader));
+        }
+        if (Array.isArray(children2)) {
+          return children2.flatMap((c) => getChildren2(reader, c));
+        }
+        if (children2 instanceof ObserverNode) {
+          if (reader) {
+            children2.readEffect(reader);
+          }
+          return [children2._element];
+        }
+        if (children2) {
+          return [children2];
+        }
+        return [];
+      };
+      var getChildren = getChildren2;
+      __name(getChildren2, "getChildren");
+      const d = derived(this, (reader) => {
+        this._element.replaceChildren(...getChildren2(reader, children));
+      });
+      this._deriveds.push(d);
+      if (!childrenIsObservable(children)) {
+        d.get();
+      }
+    }
+  }
+  readEffect(reader) {
+    for (const d of this._deriveds) {
+      d.read(reader);
+    }
+  }
+  keepUpdated(store) {
+    derived((reader) => {
+      this.readEffect(reader);
+    }).recomputeInitiallyAndOnChange(store);
+    return this;
+  }
+  /**
+   * Creates a live element that will keep the element updated as long as the returned object is not disposed.
+  */
+  toDisposableLiveElement() {
+    const store = new DisposableStore();
+    this.keepUpdated(store);
+    return new LiveElement(this._element, store);
+  }
+  get isHovered() {
+    if (!this._isHovered) {
+      const hovered = observableValue("hovered", false);
+      this._element.addEventListener("mouseenter", (_e) => hovered.set(true, void 0));
+      this._element.addEventListener("mouseleave", (_e) => hovered.set(false, void 0));
+      this._isHovered = hovered;
+    }
+    return this._isHovered;
+  }
+  get didMouseMoveDuringHover() {
+    if (!this._didMouseMoveDuringHover) {
+      let _hovering = false;
+      const hovered = observableValue("didMouseMoveDuringHover", false);
+      this._element.addEventListener("mouseenter", (_e) => {
+        _hovering = true;
+      });
+      this._element.addEventListener("mousemove", (_e) => {
+        if (_hovering) {
+          hovered.set(true, void 0);
+        }
+      });
+      this._element.addEventListener("mouseleave", (_e) => {
+        _hovering = false;
+        hovered.set(false, void 0);
+      });
+      this._didMouseMoveDuringHover = hovered;
+    }
+    return this._didMouseMoveDuringHover;
+  }
+}
+function setClassName(domNode, className) {
+  if (isSVGElement(domNode)) {
+    domNode.setAttribute("class", className);
+  } else {
+    domNode.className = className;
+  }
+}
+__name(setClassName, "setClassName");
+function resolve(value, reader, cb) {
+  if (isObservable(value)) {
+    cb(value.read(reader));
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      resolve(v, reader, cb);
+    }
+    return;
+  }
+  cb(value);
+}
+__name(resolve, "resolve");
+function getClassName(className, reader) {
+  let result = "";
+  resolve(className, reader, (val) => {
+    if (val) {
+      if (result.length === 0) {
+        result = val;
+      } else {
+        result += " " + val;
+      }
+    }
+  });
+  return result;
+}
+__name(getClassName, "getClassName");
+function hasObservable(value) {
+  if (isObservable(value)) {
+    return true;
+  }
+  if (Array.isArray(value)) {
+    return value.some((v) => hasObservable(v));
+  }
+  return false;
+}
+__name(hasObservable, "hasObservable");
+function convertCssValue(value) {
+  if (typeof value === "number") {
+    return value + "px";
+  }
+  return value;
+}
+__name(convertCssValue, "convertCssValue");
+function childrenIsObservable(children) {
+  if (isObservable(children)) {
+    return true;
+  }
+  if (Array.isArray(children)) {
+    return children.some((c) => childrenIsObservable(c));
+  }
+  return false;
+}
+__name(childrenIsObservable, "childrenIsObservable");
+class LiveElement {
+  static {
+    __name(this, "LiveElement");
+  }
+  constructor(element, _disposable) {
+    this.element = element;
+    this._disposable = _disposable;
+  }
+  dispose() {
+    this._disposable.dispose();
+  }
+}
+class ObserverNodeWithElement extends ObserverNode {
+  static {
+    __name(this, "ObserverNodeWithElement");
+  }
+  get element() {
+    return this._element;
+  }
+}
+function setOrRemoveAttribute(element, key, value) {
+  if (value === null || value === void 0) {
+    element.removeAttribute(camelCaseToHyphenCase(key));
+  } else {
+    element.setAttribute(camelCaseToHyphenCase(key), String(value));
+  }
+}
+__name(setOrRemoveAttribute, "setOrRemoveAttribute");
+class ConnectionObserverElement extends HTMLElement {
+  static {
+    __name(this, "ConnectionObserverElement");
+  }
+  disconnectedCallback() {
+    this.onDidDisconnect?.();
+  }
+  connectedCallback() {
+    this.onDidConnect?.();
+  }
+}
+if (!customElements.get("connection-observer")) {
+  customElements.define("connection-observer", ConnectionObserverElement);
+}
+export {
+  $,
+  AnimationFrameScheduler,
+  ConnectionObserverElement,
+  DetectedFullscreenMode,
+  Dimension,
+  DisposableResizeObserver,
+  DragAndDropObserver,
+  EventHelper,
+  EventType,
+  LiveElement,
+  ModifierKeyEmitter,
+  Namespace,
+  ObserverNode,
+  ObserverNodeWithElement,
+  SafeTriangle,
+  WindowIdleValue,
+  WindowIntervalTimer,
+  addDisposableGenericMouseDownListener,
+  addDisposableGenericMouseMoveListener,
+  addDisposableGenericMouseUpListener,
+  addDisposableListener,
+  addDisposableThrottledListener,
+  addStandardDisposableGenericMouseDownListener,
+  addStandardDisposableGenericMouseUpListener,
+  addStandardDisposableListener,
+  after,
+  animate,
+  append,
+  clearNode,
+  computeScreenAwareSize,
+  copyAttributes,
+  createLinkElement,
+  createMetaElement,
+  detectFullscreen,
+  disposableWindowInterval,
+  domContentLoaded,
+  finalHandler,
+  findParentWithClass,
+  getActiveDocument,
+  getActiveElement,
+  getActiveWindow,
+  getClientArea,
+  getComputedStyle,
+  getContentHeight,
+  getContentWidth,
+  getCookieValue,
+  getDocument,
+  getDomNodePagePosition,
+  getDomNodeZoomLevel,
+  getExternalFocusWindow,
+  getLargestChildWidth,
+  getShadowRoot,
+  getTopLeftOffset,
+  getTotalHeight,
+  getTotalScrollWidth,
+  getTotalWidth,
+  getWindow,
+  getWindowById,
+  getWindowId,
+  getWindows,
+  getWindowsCount,
+  h,
+  hasAppFocus,
+  hasExternalFocus,
+  hasParentWithClass,
+  hasWindow,
+  hide,
+  isActiveDocument,
+  isActiveElement,
+  isAncestor,
+  isAncestorOfActiveElement,
+  isAncestorUsingFlowTo,
+  isDragEvent,
+  isEditableElement,
+  isElementInBottomRightQuarter,
+  isEventLike,
+  isHTMLAnchorElement,
+  isHTMLButtonElement,
+  isHTMLDivElement,
+  isHTMLElement,
+  isHTMLInputElement,
+  isHTMLSpanElement,
+  isHTMLTextAreaElement,
+  isInShadowDOM,
+  isKeyboardEvent,
+  isMouseEvent,
+  isPointerEvent,
+  isSVGElement,
+  isShadowRoot,
+  join,
+  measure,
+  modify,
+  n,
+  onDidRegisterWindow,
+  onDidUnregisterWindow,
+  onWillUnregisterWindow,
+  position,
+  prepend,
+  registerExternalFocusChecker,
+  registerWindow,
+  removeTabIndexAndUpdateFocus,
+  reset,
+  restoreParentsScrollTop,
+  runAtThisOrScheduleAtNextAnimationFrame,
+  runWhenWindowIdle,
+  saveParentsScrollTop,
+  scheduleAtNextAnimationFrame,
+  setParentFlowTo,
+  setVisibility,
+  sharedMutationObserver,
+  show,
+  size,
+  svgElem,
+  trackAttributes,
+  trackFocus,
+  triggerDownload,
+  triggerUpload,
+  windowOpenNoOpener,
+  windowOpenPopup,
+  windowOpenWithSuccess
+};
+//# sourceMappingURL=dom.js.map

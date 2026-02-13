@@ -1,3 +1,106 @@
-import{$Hp as h}from"../../../base/common/objects.js";import{$X1 as u}from"./extHost.protocol.js";import{$_4 as p}from"./extHostInitDataService.js";import{$Y4 as d}from"./extHostRpcService.js";var l=function(i,e,r,t){var o=arguments.length,n=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,e,r,t);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(n=(o<3?s(n):o>3?s(e,r,n):s(e,r))||n);return o>3&&n&&Object.defineProperty(e,r,n),n},f=function(i,e){return function(r,t){e(r,t,i)}};let a=class{constructor(e,r){this.a=e.getProxy(u.MainThreadConsole),this.b=r.consoleForward.includeStack,this.c=r.consoleForward.logNative,this.d("info","log"),this.d("log","log"),this.d("warn","warn"),this.d("debug","debug"),this.d("error","error")}d(e,r){const t=this,o=console[e];Object.defineProperty(console,e,{set:()=>{},get:()=>function(){t.e(e,r,o,arguments)}})}e(e,r,t,o){this.a.$logExtensionHostMessage({type:"__$console",severity:r,arguments:m(o,this.b)}),this.c&&this.f(e,t,o)}};a=l([f(0,d),f(1,p)],a);const g=1e5;function m(i,e){const r=[];if(i.length)for(let t=0;t<i.length;t++){let o=i[t];if(typeof o>"u")o="undefined";else if(o instanceof Error){const n=o;n.stack?o=n.stack:o=n.toString()}r.push(o)}if(e){const t=new Error().stack;t&&r.push({__$stack:t.split(`
-`).slice(3).join(`
-`)})}try{const t=h(r);return t.length>g?"Output omitted for a large object that exceeds the limits":t}catch(t){return`Output omitted for an object that cannot be inspected ('${t.toString()}')`}}export{a as $O1c};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { safeStringify } from "../../../base/common/objects.js";
+import { MainContext } from "./extHost.protocol.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+let AbstractExtHostConsoleForwarder = class AbstractExtHostConsoleForwarder2 {
+  static {
+    __name(this, "AbstractExtHostConsoleForwarder");
+  }
+  constructor(extHostRpc, initData) {
+    this._mainThreadConsole = extHostRpc.getProxy(MainContext.MainThreadConsole);
+    this._includeStack = initData.consoleForward.includeStack;
+    this._logNative = initData.consoleForward.logNative;
+    this._wrapConsoleMethod("info", "log");
+    this._wrapConsoleMethod("log", "log");
+    this._wrapConsoleMethod("warn", "warn");
+    this._wrapConsoleMethod("debug", "debug");
+    this._wrapConsoleMethod("error", "error");
+  }
+  /**
+   * Wraps a console message so that it is transmitted to the renderer. If
+   * native logging is turned on, the original console message will be written
+   * as well. This is needed since the console methods are "magic" in V8 and
+   * are the only methods that allow later introspection of logged variables.
+   *
+   * The wrapped property is not defined with `writable: false` to avoid
+   * throwing errors, but rather a no-op setting. See https://github.com/microsoft/vscode-extension-telemetry/issues/88
+   */
+  _wrapConsoleMethod(method, severity) {
+    const that = this;
+    const original = console[method];
+    Object.defineProperty(console, method, {
+      set: /* @__PURE__ */ __name(() => {
+      }, "set"),
+      get: /* @__PURE__ */ __name(() => function() {
+        that._handleConsoleCall(method, severity, original, arguments);
+      }, "get")
+    });
+  }
+  _handleConsoleCall(method, severity, original, args) {
+    this._mainThreadConsole.$logExtensionHostMessage({
+      type: "__$console",
+      severity,
+      arguments: safeStringifyArgumentsToArray(args, this._includeStack)
+    });
+    if (this._logNative) {
+      this._nativeConsoleLogMessage(method, original, args);
+    }
+  }
+};
+AbstractExtHostConsoleForwarder = __decorate([
+  __param(0, IExtHostRpcService),
+  __param(1, IExtHostInitDataService)
+], AbstractExtHostConsoleForwarder);
+const MAX_LENGTH = 1e5;
+function safeStringifyArgumentsToArray(args, includeStack) {
+  const argsArray = [];
+  if (args.length) {
+    for (let i = 0; i < args.length; i++) {
+      let arg = args[i];
+      if (typeof arg === "undefined") {
+        arg = "undefined";
+      } else if (arg instanceof Error) {
+        const errorObj = arg;
+        if (errorObj.stack) {
+          arg = errorObj.stack;
+        } else {
+          arg = errorObj.toString();
+        }
+      }
+      argsArray.push(arg);
+    }
+  }
+  if (includeStack) {
+    const stack = new Error().stack;
+    if (stack) {
+      argsArray.push({ __$stack: stack.split("\n").slice(3).join("\n") });
+    }
+  }
+  try {
+    const res = safeStringify(argsArray);
+    if (res.length > MAX_LENGTH) {
+      return "Output omitted for a large object that exceeds the limits";
+    }
+    return res;
+  } catch (error) {
+    return `Output omitted for an object that cannot be inspected ('${error.toString()}')`;
+  }
+}
+__name(safeStringifyArgumentsToArray, "safeStringifyArgumentsToArray");
+export {
+  AbstractExtHostConsoleForwarder
+};
+//# sourceMappingURL=extHostConsoleForwarder.js.map

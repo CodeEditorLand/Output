@@ -1,1 +1,53 @@
-import{$xf as s}from"../../../base/common/event.js";import{$Ed as n}from"../../../base/common/lifecycle.js";import{$RR as r}from"../../services/extensions/common/extensions.js";import{$Nj as o}from"../../../platform/instantiation/common/instantiation.js";const m=o("IExtHostDataChannels");class p{constructor(){this.a=new Map}createDataChannel(t,a){r(t,"dataChannels");let e=this.a.get(a);return e||(e=new h(a),this.a.set(a,e)),e}$onDidReceiveData(t,a){const e=this.a.get(t);e&&e._fireDidReceiveData(a)}}class h extends n{constructor(t){super(),this.b=t,this.a=new s,this.onDidReceiveData=this.a.event,this.D(this.a)}_fireDidReceiveData(t){this.a.fire({data:t})}toString(){return`DataChannel(${this.b})`}}export{m as $7Yc,p as $8Yc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IExtHostDataChannels = createDecorator("IExtHostDataChannels");
+class ExtHostDataChannels {
+  static {
+    __name(this, "ExtHostDataChannels");
+  }
+  constructor() {
+    this._channels = /* @__PURE__ */ new Map();
+  }
+  createDataChannel(extension, channelId) {
+    checkProposedApiEnabled(extension, "dataChannels");
+    let channel = this._channels.get(channelId);
+    if (!channel) {
+      channel = new DataChannelImpl(channelId);
+      this._channels.set(channelId, channel);
+    }
+    return channel;
+  }
+  $onDidReceiveData(channelId, data) {
+    const channel = this._channels.get(channelId);
+    if (channel) {
+      channel._fireDidReceiveData(data);
+    }
+  }
+}
+class DataChannelImpl extends Disposable {
+  static {
+    __name(this, "DataChannelImpl");
+  }
+  constructor(channelId) {
+    super();
+    this.channelId = channelId;
+    this._onDidReceiveData = new Emitter();
+    this.onDidReceiveData = this._onDidReceiveData.event;
+    this._register(this._onDidReceiveData);
+  }
+  _fireDidReceiveData(data) {
+    this._onDidReceiveData.fire({ data });
+  }
+  toString() {
+    return `DataChannel(${this.channelId})`;
+  }
+}
+export {
+  ExtHostDataChannels,
+  IExtHostDataChannels
+};
+//# sourceMappingURL=extHostDataChannels.js.map

@@ -1,1 +1,265 @@
-import{$Rf as g}from"../../../base/common/lazy.js";import{$Dd as k}from"../../../base/common/lifecycle.js";import{$Eh as v,$Hh as D,$Oh as I}from"../../../base/common/resources.js";import{ThemeIcon as u}from"../../../base/common/themables.js";import{$Jc as P,URI as p}from"../../../base/common/uri.js";import{$ZF as O}from"../../../editor/common/languages/language.js";import{$8ob as w}from"../../../editor/common/services/getIconClasses.js";import{$9H as B}from"../../../editor/common/services/model.js";import{FileKind as m}from"../../../platform/files/common/files.js";import{$oH as C}from"../../../platform/label/common/label.js";import{$YH as F}from"../../../platform/quickinput/common/quickInput.js";import{$GDb as T}from"../../services/editor/common/customEditorLabelService.js";import{$vDb as j}from"../../services/extensions/common/extHostCustomers.js";import{$Y1 as H,$X1 as _}from"../common/extHost.protocol.js";var $=function(h,e,t,i){var s=arguments.length,o=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(h,e,t,i);else for(var n=h.length-1;n>=0;n--)(c=h[n])&&(o=(s<3?c(o):s>3?c(e,t,o):c(e,t))||o);return s>3&&o&&Object.defineProperty(e,t,o),o},f=function(h,e){return function(t,i){e(t,i,h)}};let b=class{constructor(e,t,i,s,o,c){this.d=i,this.f=s,this.g=o,this.h=c,this.c={},this.i=new Map,this.a=e.getProxy(H.ExtHostQuickOpen),this.b=t}dispose(){for(const[e,t]of this.i)t.store.dispose()}$show(e,t,i){const s=new Promise((o,c)=>{this.c[e]={resolve:o,reject:c}});return t={...t,onDidFocus:o=>{o&&this.a.$onItemSelected(o.handle)}},t.canPickMany?this.b.pick(s,t,i).then(o=>{if(o)return o.map(c=>c.handle)}):this.b.pick(s,t,i).then(o=>{if(o)return o.handle})}$setItems(e,t){return this.c[e]&&(t.forEach(i=>this.j(i)),this.c[e].resolve(t),delete this.c[e]),Promise.resolve()}$setError(e,t){return this.c[e]&&(this.c[e].reject(t),delete this.c[e]),Promise.resolve()}$input(e,t,i){const s=Object.create(null);return e&&(s.title=e.title,s.password=e.password,s.placeHolder=e.placeHolder,s.valueSelection=e.valueSelection,s.prompt=e.prompt,s.value=e.value,s.ignoreFocusLost=e.ignoreFocusOut),t&&(s.validateInput=o=>this.a.$validateInput(o)),this.b.input(s,i)}$createOrUpdate(e){const t=e.id;let i=this.i.get(t);if(!i){const n=new k,r=e.type==="quickPick"?this.b.createQuickPick():this.b.createInputBox();if(n.add(r),n.add(r.onDidAccept(()=>{this.a.$onDidAccept(t)})),n.add(r.onDidTriggerButton(a=>{this.a.$onDidTriggerButton(t,a.handle,a.toggle?.checked)})),n.add(r.onDidChangeValue(a=>{this.a.$onDidChangeValue(t,a)})),n.add(r.onDidHide(()=>{this.a.$onDidHide(t)})),e.type==="quickPick"){const a=r;n.add(a.onDidChangeActive(l=>{this.a.$onDidChangeActive(t,l.map(d=>d.handle))})),n.add(a.onDidChangeSelection(l=>{this.a.$onDidChangeSelection(t,l.map(d=>d.handle))})),n.add(a.onDidTriggerItemButton(l=>{const d=l.button;this.a.$onDidTriggerItemButton(t,l.item.handle,d.handle,d.toggle?.checked)}))}i={input:r,handlesToItems:new Map,store:n},this.i.set(t,i)}const{input:s,handlesToItems:o}=i,c=s;for(const n in e)switch(n){case"id":case"type":continue;case"visible":e.visible?s.show():s.hide();break;case"items":{o.clear(),e.items?.forEach(r=>{this.j(r),r.type!=="separator"&&(r.buttons?.forEach(a=>this.k(a)),o.set(r.handle,r))}),c.items=e.items;break}case"activeItems":c.activeItems=e.activeItems?.map(r=>o.get(r)).filter(Boolean);break;case"selectedItems":c.selectedItems=e.selectedItems?.map(r=>o.get(r)).filter(Boolean);break;case"buttons":{const r=[];for(const a of e.buttons)a.handle===-1?r.push(this.b.backButton):(this.k(a),r.push(a));s.buttons=r;break}default:s[n]=e[n];break}return Promise.resolve(void 0)}$dispose(e){const t=this.i.get(e);return t&&(t.store.dispose(),this.i.delete(e)),Promise.resolve(void 0)}j(e){if(e.type==="separator")return;if(!e.resourceUri){this.k(e);return}const t=p.from(e.resourceUri);e.label??=this.f.getName(t)||"",e.label?e.description??=this.d.getUriLabel(t,{relative:!0}):(e.label=v(t),e.description??=this.d.getUriLabel(D(t),{relative:!0}));const i=e.iconPathDto;if(u.isThemeIcon(i)&&(u.isFile(i)||u.isFolder(i))){const s=u.isFolder(i)||I(t)?m.FOLDER:m.FILE,o=new g(()=>w(this.g,this.h,t,s));Object.defineProperty(e,"iconClasses",{get:()=>o.value})}else this.k(e)}k(e){const t=e.iconPathDto;if(t)if(u.isThemeIcon(t))e.iconClass=u.asClassName(t);else if(P(t)){const i=p.from(t);e.iconPath={dark:i,light:i}}else{const{dark:i,light:s}=t;e.iconPath={dark:p.from(i),light:p.from(s)}}else return}};b=$([j(_.MainThreadQuickOpen),f(1,F),f(2,C),f(3,T),f(4,B),f(5,O)],b);export{b as $B7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Lazy } from "../../../base/common/lazy.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { basenameOrAuthority, dirname, hasTrailingPathSeparator } from "../../../base/common/resources.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { isUriComponents, URI } from "../../../base/common/uri.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { FileKind } from "../../../platform/files/common/files.js";
+import { ILabelService } from "../../../platform/label/common/label.js";
+import { IQuickInputService } from "../../../platform/quickinput/common/quickInput.js";
+import { ICustomEditorLabelService } from "../../services/editor/common/customEditorLabelService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+let MainThreadQuickOpen = class MainThreadQuickOpen2 {
+  static {
+    __name(this, "MainThreadQuickOpen");
+  }
+  constructor(extHostContext, quickInputService, labelService, customEditorLabelService, modelService, languageService) {
+    this.labelService = labelService;
+    this.customEditorLabelService = customEditorLabelService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this._items = {};
+    this.sessions = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostQuickOpen);
+    this._quickInputService = quickInputService;
+  }
+  dispose() {
+    for (const [_id, session] of this.sessions) {
+      session.store.dispose();
+    }
+  }
+  $show(instance, options, token) {
+    const contents = new Promise((resolve, reject) => {
+      this._items[instance] = { resolve, reject };
+    });
+    options = {
+      ...options,
+      onDidFocus: /* @__PURE__ */ __name((el) => {
+        if (el) {
+          this._proxy.$onItemSelected(el.handle);
+        }
+      }, "onDidFocus")
+    };
+    if (options.canPickMany) {
+      return this._quickInputService.pick(contents, options, token).then((items) => {
+        if (items) {
+          return items.map((item) => item.handle);
+        }
+        return void 0;
+      });
+    } else {
+      return this._quickInputService.pick(contents, options, token).then((item) => {
+        if (item) {
+          return item.handle;
+        }
+        return void 0;
+      });
+    }
+  }
+  $setItems(instance, items) {
+    if (this._items[instance]) {
+      items.forEach((item) => this.expandItemProps(item));
+      this._items[instance].resolve(items);
+      delete this._items[instance];
+    }
+    return Promise.resolve();
+  }
+  $setError(instance, error) {
+    if (this._items[instance]) {
+      this._items[instance].reject(error);
+      delete this._items[instance];
+    }
+    return Promise.resolve();
+  }
+  // ---- input
+  $input(options, validateInput, token) {
+    const inputOptions = /* @__PURE__ */ Object.create(null);
+    if (options) {
+      inputOptions.title = options.title;
+      inputOptions.password = options.password;
+      inputOptions.placeHolder = options.placeHolder;
+      inputOptions.valueSelection = options.valueSelection;
+      inputOptions.prompt = options.prompt;
+      inputOptions.value = options.value;
+      inputOptions.ignoreFocusLost = options.ignoreFocusOut;
+    }
+    if (validateInput) {
+      inputOptions.validateInput = (value) => {
+        return this._proxy.$validateInput(value);
+      };
+    }
+    return this._quickInputService.input(inputOptions, token);
+  }
+  $createOrUpdate(params) {
+    const sessionId = params.id;
+    let session = this.sessions.get(sessionId);
+    if (!session) {
+      const store = new DisposableStore();
+      const input2 = params.type === "quickPick" ? this._quickInputService.createQuickPick() : this._quickInputService.createInputBox();
+      store.add(input2);
+      store.add(input2.onDidAccept(() => {
+        this._proxy.$onDidAccept(sessionId);
+      }));
+      store.add(input2.onDidTriggerButton((button) => {
+        this._proxy.$onDidTriggerButton(sessionId, button.handle, button.toggle?.checked);
+      }));
+      store.add(input2.onDidChangeValue((value) => {
+        this._proxy.$onDidChangeValue(sessionId, value);
+      }));
+      store.add(input2.onDidHide(() => {
+        this._proxy.$onDidHide(sessionId);
+      }));
+      if (params.type === "quickPick") {
+        const quickPick2 = input2;
+        store.add(quickPick2.onDidChangeActive((items) => {
+          this._proxy.$onDidChangeActive(sessionId, items.map((item) => item.handle));
+        }));
+        store.add(quickPick2.onDidChangeSelection((items) => {
+          this._proxy.$onDidChangeSelection(sessionId, items.map((item) => item.handle));
+        }));
+        store.add(quickPick2.onDidTriggerItemButton((e) => {
+          const transferButton = e.button;
+          this._proxy.$onDidTriggerItemButton(sessionId, e.item.handle, transferButton.handle, transferButton.toggle?.checked);
+        }));
+      }
+      session = {
+        input: input2,
+        handlesToItems: /* @__PURE__ */ new Map(),
+        store
+      };
+      this.sessions.set(sessionId, session);
+    }
+    const { input, handlesToItems } = session;
+    const quickPick = input;
+    for (const param in params) {
+      switch (param) {
+        case "id":
+        case "type":
+          continue;
+        case "visible":
+          if (params.visible) {
+            input.show();
+          } else {
+            input.hide();
+          }
+          break;
+        case "items": {
+          handlesToItems.clear();
+          params.items?.forEach((item) => {
+            this.expandItemProps(item);
+            if (item.type !== "separator") {
+              item.buttons?.forEach((button) => this.expandIconPath(button));
+              handlesToItems.set(item.handle, item);
+            }
+          });
+          quickPick.items = params.items;
+          break;
+        }
+        case "activeItems":
+          quickPick.activeItems = params.activeItems?.map((handle) => handlesToItems.get(handle)).filter(Boolean);
+          break;
+        case "selectedItems":
+          quickPick.selectedItems = params.selectedItems?.map((handle) => handlesToItems.get(handle)).filter(Boolean);
+          break;
+        case "buttons": {
+          const buttons = [];
+          for (const button of params.buttons) {
+            if (button.handle === -1) {
+              buttons.push(this._quickInputService.backButton);
+            } else {
+              this.expandIconPath(button);
+              buttons.push(button);
+            }
+          }
+          input.buttons = buttons;
+          break;
+        }
+        default:
+          input[param] = params[param];
+          break;
+      }
+    }
+    return Promise.resolve(void 0);
+  }
+  $dispose(sessionId) {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.store.dispose();
+      this.sessions.delete(sessionId);
+    }
+    return Promise.resolve(void 0);
+  }
+  /**
+  * Derives icon, label and description for Quick Pick items that represent a resource URI.
+  */
+  expandItemProps(item) {
+    if (item.type === "separator") {
+      return;
+    }
+    if (!item.resourceUri) {
+      this.expandIconPath(item);
+      return;
+    }
+    const resourceUri = URI.from(item.resourceUri);
+    item.label ??= this.customEditorLabelService.getName(resourceUri) || "";
+    if (item.label) {
+      item.description ??= this.labelService.getUriLabel(resourceUri, { relative: true });
+    } else {
+      item.label = basenameOrAuthority(resourceUri);
+      item.description ??= this.labelService.getUriLabel(dirname(resourceUri), { relative: true });
+    }
+    const icon = item.iconPathDto;
+    if (ThemeIcon.isThemeIcon(icon) && (ThemeIcon.isFile(icon) || ThemeIcon.isFolder(icon))) {
+      const fileKind = ThemeIcon.isFolder(icon) || hasTrailingPathSeparator(resourceUri) ? FileKind.FOLDER : FileKind.FILE;
+      const iconClasses = new Lazy(() => getIconClasses(this.modelService, this.languageService, resourceUri, fileKind));
+      Object.defineProperty(item, "iconClasses", { get: /* @__PURE__ */ __name(() => iconClasses.value, "get") });
+    } else {
+      this.expandIconPath(item);
+    }
+  }
+  /**
+  * Converts IconPath DTO into iconPath/iconClass properties.
+  */
+  expandIconPath(target) {
+    const icon = target.iconPathDto;
+    if (!icon) {
+      return;
+    } else if (ThemeIcon.isThemeIcon(icon)) {
+      target.iconClass = ThemeIcon.asClassName(icon);
+    } else if (isUriComponents(icon)) {
+      const uri = URI.from(icon);
+      target.iconPath = { dark: uri, light: uri };
+    } else {
+      const { dark, light } = icon;
+      target.iconPath = { dark: URI.from(dark), light: URI.from(light) };
+    }
+  }
+};
+MainThreadQuickOpen = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadQuickOpen),
+  __param(1, IQuickInputService),
+  __param(2, ILabelService),
+  __param(3, ICustomEditorLabelService),
+  __param(4, IModelService),
+  __param(5, ILanguageService)
+], MainThreadQuickOpen);
+export {
+  MainThreadQuickOpen
+};
+//# sourceMappingURL=mainThreadQuickOpen.js.map

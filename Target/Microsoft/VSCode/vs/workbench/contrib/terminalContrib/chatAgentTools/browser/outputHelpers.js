@@ -1,2 +1,27 @@
-import{$XCc as a}from"./runInTerminalHelpers.js";const l=16e3;function m(r,u){if(!r.xterm||!r.xterm.raw)return"";const o=r.xterm.raw.buffer.active,n=Math.max(u?.line??0,0),i=o.length,f=new Array(i-n);for(let e=n;e<i;e++){const c=o.getLine(e);f[e-n]=c?c.translateToString(!0):""}let t=f.join(`
-`);return t.length>l&&(t=a(t,l)),t}export{m as $3Cc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { truncateOutputKeepingTail } from "./runInTerminalHelpers.js";
+const MAX_OUTPUT_LENGTH = 16e3;
+function getOutput(instance, startMarker) {
+  if (!instance.xterm || !instance.xterm.raw) {
+    return "";
+  }
+  const buffer = instance.xterm.raw.buffer.active;
+  const startLine = Math.max(startMarker?.line ?? 0, 0);
+  const endLine = buffer.length;
+  const lines = new Array(endLine - startLine);
+  for (let y = startLine; y < endLine; y++) {
+    const line = buffer.getLine(y);
+    lines[y - startLine] = line ? line.translateToString(true) : "";
+  }
+  let output = lines.join("\n");
+  if (output.length > MAX_OUTPUT_LENGTH) {
+    output = truncateOutputKeepingTail(output, MAX_OUTPUT_LENGTH);
+  }
+  return output;
+}
+__name(getOutput, "getOutput");
+export {
+  getOutput
+};
+//# sourceMappingURL=outputHelpers.js.map

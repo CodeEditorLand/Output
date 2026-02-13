@@ -1,1 +1,32 @@
-import{$ik as e,$hk as n}from"../../../../base/common/iconLabels.js";class c{constructor(){this.filterValue="",this.matchOnLabel=!0,this.matchOnDescription=!1}filter(i,a){if(!this.filterValue||!(this.matchOnLabel||this.matchOnDescription))return i.children?{visibility:2,data:{}}:{visibility:1,data:{}};const t=this.matchOnLabel?e(this.filterValue,n(i.label))??void 0:void 0,s=this.matchOnDescription?e(this.filterValue,n(i.description||""))??void 0:void 0;return{visibility:a===1||t||s?1:i.children?2:0,data:{labelHighlights:t,descriptionHighlights:s}}}}export{c as $zCb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { matchesFuzzyIconAware, parseLabelWithIcons } from "../../../../base/common/iconLabels.js";
+class QuickInputTreeFilter {
+  static {
+    __name(this, "QuickInputTreeFilter");
+  }
+  constructor() {
+    this.filterValue = "";
+    this.matchOnLabel = true;
+    this.matchOnDescription = false;
+  }
+  filter(element, parentVisibility) {
+    if (!this.filterValue || !(this.matchOnLabel || this.matchOnDescription)) {
+      return element.children ? { visibility: 2, data: {} } : { visibility: 1, data: {} };
+    }
+    const labelHighlights = this.matchOnLabel ? matchesFuzzyIconAware(this.filterValue, parseLabelWithIcons(element.label)) ?? void 0 : void 0;
+    const descriptionHighlights = this.matchOnDescription ? matchesFuzzyIconAware(this.filterValue, parseLabelWithIcons(element.description || "")) ?? void 0 : void 0;
+    const visibility = parentVisibility === 1 ? 1 : labelHighlights || descriptionHighlights ? 1 : element.children ? 2 : 0;
+    return {
+      visibility,
+      data: {
+        labelHighlights,
+        descriptionHighlights
+      }
+    };
+  }
+}
+export {
+  QuickInputTreeFilter
+};
+//# sourceMappingURL=quickInputTreeFilter.js.map

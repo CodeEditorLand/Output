@@ -1,1 +1,6 @@
-import{$Nj as r}from"../../../../platform/instantiation/common/instantiation.js";const o=r("bannerService");export{o as $u_b};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IBannerService = createDecorator("bannerService");
+export {
+  IBannerService
+};
+//# sourceMappingURL=bannerService.js.map

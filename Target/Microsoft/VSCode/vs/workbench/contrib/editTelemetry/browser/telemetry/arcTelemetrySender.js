@@ -1,1 +1,185 @@
-import{$mb as f}from"../../../../../base/common/errors.js";import{$Ed as C}from"../../../../../base/common/lifecycle.js";import{runOnChange as I}from"../../../../../base/common/observable.js";import{$DE as g}from"../../../../../editor/common/core/edits/stringEdit.js";import{$pF as b}from"../../../../../editor/common/textModelEditSource.js";import{$Mj as x}from"../../../../../platform/instantiation/common/instantiation.js";import{$_Kc as D}from"../helpers/documentWithAnnotatedEdits.js";import{$o1b as w}from"./aiEditTelemetry/aiEditTelemetryService.js";import{$lob as v,$mob as E}from"../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";import{$PF as A}from"../../../../../editor/common/languages.js";import{$hLc as B}from"./arcTelemetryReporter.js";import{$iLc as q}from"../randomService.js";var h=function(u,o,s,l){var p=arguments.length,c=p<3?o:l===null?l=Object.getOwnPropertyDescriptor(o,s):l,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(u,o,s,l);else for(var i=u.length-1;i>=0;i--)(a=u[i])&&(c=(p<3?a(c):p>3?a(o,s,c):a(o,s))||c);return p>3&&c&&Object.defineProperty(o,s,c),c},$=function(u,o){return function(s,l){o(s,l,u)}};let L=class extends C{constructor(o,s,l){super(),this.a=l,this.D(I(o.value,(p,c,a)=>{const i=g.compose(a.map(e=>e.edit));if(!i.replacements.some(e=>e.data.editSource.metadata.source==="inlineCompletionAccept"))return;if(!i.replacements.every(e=>e.data.editSource.metadata.source==="inlineCompletionAccept")){f(new Error("ArcTelemetrySender: Not all edits are inline completion accept edits!"));return}if(i.replacements[0].data.editSource.metadata.source!=="inlineCompletionAccept")return;const n=i.replacements[0].data.editSource.metadata,d=D(o,this.B),r=this.B.add(this.a.createInstance(B,[0,30,120,300,600,900].map(e=>e*1e3),c,d,s,i,e=>{e.telemetryService.publicLog2("editTelemetry.reportInlineEditArc",{extensionId:n.$extensionId??"",extensionVersion:n.$extensionVersion??"",opportunityId:n.$$requestUuid??"unknown",languageId:n.$$languageId,correlationId:n.$$correlationId,didBranchChange:e.didBranchChange?1:0,timeDelayMs:e.timeDelayMs,originalCharCount:e.originalCharCount,originalLineCount:e.originalLineCount,originalDeletedLineCount:e.originalDeletedLineCount,arc:e.arc,currentLineCount:e.currentLineCount,currentDeletedLineCount:e.currentDeletedLineCount,...v(E(n.$extensionId))})},()=>{this.B.delete(r)}))}))}};L=h([$(2,x)],L);let S=class extends C{constructor(o,s){super(),this.a=s,this.D(I(o.value,(l,p,c)=>{const a=g.compose(c.map(m=>m.edit)),i=new Set(["Chat.applyEdits","inlineChat.applyEdits"]);if(!a.replacements.some(m=>i.has(m.data.editSource.metadata.source)))return;if(!a.replacements.every(m=>i.has(m.data.editSource.metadata.source))){f(new Error(`ArcTelemetrySender: Not all edits are ${a.replacements[0].data.editSource.metadata.source}!`));return}let n;const d=a.replacements[0].data.editSource;let r;d.metadata.source==="Chat.applyEdits"?(r="sideBarChat",d.metadata.$$mode==="applyCodeBlock"&&(n=d.metadata.$$codeBlockSuggestionId)):r="inlineChat";const e=new A(d.props.$extensionId,d.props.$extensionVersion,d.props.$providerId);this.a.createSuggestionId({applyCodeBlockSuggestionId:n,languageId:d.props.$$languageId,presentation:"highlightedEdit",feature:r,source:e,modelId:d.props.$modelId,modeId:d.props.$$mode,editDeltaInfo:b.fromEdit(a,p)})}))}};S=h([$(1,w)],S);let y=class extends C{constructor(o,s,l,p){super(),this.a=l,this.b=p,this.D(I(o.value,(c,a,i)=>{const n=g.compose(i.map(t=>t.edit)),d=new Set(["Chat.applyEdits","inlineChat.applyEdits"]);if(!n.replacements.some(t=>d.has(t.data.editSource.metadata.source)))return;if(!n.replacements.every(t=>d.has(t.data.editSource.metadata.source))){f(new Error(`ArcTelemetrySender: Not all edits are ${n.replacements[0].data.editSource.metadata.source}!`));return}const r=n.replacements[0].data.editSource,e=this.b.generateUuid(),m=D(o,this.B),_=this.B.add(this.a.createInstance(B,[0,60,300].map(t=>t*1e3),a,m,s,n,t=>{t.telemetryService.publicLog2("editTelemetry.reportEditArc",{sourceKeyCleaned:r.toKey(Number.MAX_SAFE_INTEGER,{$extensionId:!1,$extensionVersion:!1,$$requestUuid:!1,$$sessionId:!1,$$requestId:!1,$$languageId:!1,$modelId:!1}),extensionId:r.props.$extensionId,extensionVersion:r.props.$extensionVersion,opportunityId:r.props.$$requestUuid,editSessionId:r.props.$$sessionId,requestId:r.props.$$requestId,modelId:r.props.$modelId,languageId:r.props.$$languageId,mode:r.props.$$mode,uniqueEditId:e,didBranchChange:t.didBranchChange?1:0,timeDelayMs:t.timeDelayMs,originalCharCount:t.originalCharCount,originalLineCount:t.originalLineCount,originalDeletedLineCount:t.originalDeletedLineCount,arc:t.arc,currentLineCount:t.currentLineCount,currentDeletedLineCount:t.currentDeletedLineCount,...v(E(r.props.$extensionId))})},()=>{this.B.delete(_)}))}))}};y=h([$(2,x),$(3,q)],y);export{L as $kLc,S as $lLc,y as $mLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { onUnexpectedError } from "../../../../../base/common/errors.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { runOnChange } from "../../../../../base/common/observable.js";
+import { AnnotatedStringEdit } from "../../../../../editor/common/core/edits/stringEdit.js";
+import { EditDeltaInfo } from "../../../../../editor/common/textModelEditSource.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { createDocWithJustReason } from "../helpers/documentWithAnnotatedEdits.js";
+import { IAiEditTelemetryService } from "./aiEditTelemetry/aiEditTelemetryService.js";
+import { forwardToChannelIf, isCopilotLikeExtension } from "../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";
+import { ProviderId } from "../../../../../editor/common/languages.js";
+import { ArcTelemetryReporter } from "./arcTelemetryReporter.js";
+import { IRandomService } from "../randomService.js";
+let EditTelemetryReportInlineEditArcSender = class EditTelemetryReportInlineEditArcSender2 extends Disposable {
+  static {
+    __name(this, "EditTelemetryReportInlineEditArcSender");
+  }
+  constructor(docWithAnnotatedEdits, scmRepoBridge, _instantiationService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._register(runOnChange(docWithAnnotatedEdits.value, (_val, _prev, changes) => {
+      const edit = AnnotatedStringEdit.compose(changes.map((c) => c.edit));
+      if (!edit.replacements.some((r) => r.data.editSource.metadata.source === "inlineCompletionAccept")) {
+        return;
+      }
+      if (!edit.replacements.every((r) => r.data.editSource.metadata.source === "inlineCompletionAccept")) {
+        onUnexpectedError(new Error("ArcTelemetrySender: Not all edits are inline completion accept edits!"));
+        return;
+      }
+      if (edit.replacements[0].data.editSource.metadata.source !== "inlineCompletionAccept") {
+        return;
+      }
+      const data = edit.replacements[0].data.editSource.metadata;
+      const docWithJustReason = createDocWithJustReason(docWithAnnotatedEdits, this._store);
+      const reporter = this._store.add(this._instantiationService.createInstance(ArcTelemetryReporter, [0, 30, 120, 300, 600, 900].map((s) => s * 1e3), _prev, docWithJustReason, scmRepoBridge, edit, (res) => {
+        res.telemetryService.publicLog2("editTelemetry.reportInlineEditArc", {
+          extensionId: data.$extensionId ?? "",
+          extensionVersion: data.$extensionVersion ?? "",
+          opportunityId: data.$$requestUuid ?? "unknown",
+          languageId: data.$$languageId,
+          correlationId: data.$$correlationId,
+          didBranchChange: res.didBranchChange ? 1 : 0,
+          timeDelayMs: res.timeDelayMs,
+          originalCharCount: res.originalCharCount,
+          originalLineCount: res.originalLineCount,
+          originalDeletedLineCount: res.originalDeletedLineCount,
+          arc: res.arc,
+          currentLineCount: res.currentLineCount,
+          currentDeletedLineCount: res.currentDeletedLineCount,
+          ...forwardToChannelIf(isCopilotLikeExtension(data.$extensionId))
+        });
+      }, () => {
+        this._store.delete(reporter);
+      }));
+    }));
+  }
+};
+EditTelemetryReportInlineEditArcSender = __decorate([
+  __param(2, IInstantiationService)
+], EditTelemetryReportInlineEditArcSender);
+let CreateSuggestionIdForChatOrInlineChatCaller = class CreateSuggestionIdForChatOrInlineChatCaller2 extends Disposable {
+  static {
+    __name(this, "CreateSuggestionIdForChatOrInlineChatCaller");
+  }
+  constructor(docWithAnnotatedEdits, _aiEditTelemetryService) {
+    super();
+    this._aiEditTelemetryService = _aiEditTelemetryService;
+    this._register(runOnChange(docWithAnnotatedEdits.value, (_val, _prev, changes) => {
+      const edit = AnnotatedStringEdit.compose(changes.map((c) => c.edit));
+      const supportedSource = /* @__PURE__ */ new Set(["Chat.applyEdits", "inlineChat.applyEdits"]);
+      if (!edit.replacements.some((r) => supportedSource.has(r.data.editSource.metadata.source))) {
+        return;
+      }
+      if (!edit.replacements.every((r) => supportedSource.has(r.data.editSource.metadata.source))) {
+        onUnexpectedError(new Error(`ArcTelemetrySender: Not all edits are ${edit.replacements[0].data.editSource.metadata.source}!`));
+        return;
+      }
+      let applyCodeBlockSuggestionId = void 0;
+      const data = edit.replacements[0].data.editSource;
+      let feature;
+      if (data.metadata.source === "Chat.applyEdits") {
+        feature = "sideBarChat";
+        if (data.metadata.$$mode === "applyCodeBlock") {
+          applyCodeBlockSuggestionId = data.metadata.$$codeBlockSuggestionId;
+        }
+      } else {
+        feature = "inlineChat";
+      }
+      const providerId = new ProviderId(data.props.$extensionId, data.props.$extensionVersion, data.props.$providerId);
+      this._aiEditTelemetryService.createSuggestionId({
+        applyCodeBlockSuggestionId,
+        languageId: data.props.$$languageId,
+        presentation: "highlightedEdit",
+        feature,
+        source: providerId,
+        modelId: data.props.$modelId,
+        // eslint-disable-next-line local/code-no-any-casts
+        modeId: data.props.$$mode,
+        editDeltaInfo: EditDeltaInfo.fromEdit(edit, _prev)
+      });
+    }));
+  }
+};
+CreateSuggestionIdForChatOrInlineChatCaller = __decorate([
+  __param(1, IAiEditTelemetryService)
+], CreateSuggestionIdForChatOrInlineChatCaller);
+let EditTelemetryReportEditArcForChatOrInlineChatSender = class EditTelemetryReportEditArcForChatOrInlineChatSender2 extends Disposable {
+  static {
+    __name(this, "EditTelemetryReportEditArcForChatOrInlineChatSender");
+  }
+  constructor(docWithAnnotatedEdits, scmRepoBridge, _instantiationService, _randomService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._randomService = _randomService;
+    this._register(runOnChange(docWithAnnotatedEdits.value, (_val, _prev, changes) => {
+      const edit = AnnotatedStringEdit.compose(changes.map((c) => c.edit));
+      const supportedSource = /* @__PURE__ */ new Set(["Chat.applyEdits", "inlineChat.applyEdits"]);
+      if (!edit.replacements.some((r) => supportedSource.has(r.data.editSource.metadata.source))) {
+        return;
+      }
+      if (!edit.replacements.every((r) => supportedSource.has(r.data.editSource.metadata.source))) {
+        onUnexpectedError(new Error(`ArcTelemetrySender: Not all edits are ${edit.replacements[0].data.editSource.metadata.source}!`));
+        return;
+      }
+      const data = edit.replacements[0].data.editSource;
+      const uniqueEditId = this._randomService.generateUuid();
+      const docWithJustReason = createDocWithJustReason(docWithAnnotatedEdits, this._store);
+      const reporter = this._store.add(this._instantiationService.createInstance(ArcTelemetryReporter, [0, 60, 300].map((s) => s * 1e3), _prev, docWithJustReason, scmRepoBridge, edit, (res) => {
+        res.telemetryService.publicLog2("editTelemetry.reportEditArc", {
+          sourceKeyCleaned: data.toKey(Number.MAX_SAFE_INTEGER, {
+            $extensionId: false,
+            $extensionVersion: false,
+            $$requestUuid: false,
+            $$sessionId: false,
+            $$requestId: false,
+            $$languageId: false,
+            $modelId: false
+          }),
+          extensionId: data.props.$extensionId,
+          extensionVersion: data.props.$extensionVersion,
+          opportunityId: data.props.$$requestUuid,
+          editSessionId: data.props.$$sessionId,
+          requestId: data.props.$$requestId,
+          modelId: data.props.$modelId,
+          languageId: data.props.$$languageId,
+          mode: data.props.$$mode,
+          uniqueEditId,
+          didBranchChange: res.didBranchChange ? 1 : 0,
+          timeDelayMs: res.timeDelayMs,
+          originalCharCount: res.originalCharCount,
+          originalLineCount: res.originalLineCount,
+          originalDeletedLineCount: res.originalDeletedLineCount,
+          arc: res.arc,
+          currentLineCount: res.currentLineCount,
+          currentDeletedLineCount: res.currentDeletedLineCount,
+          ...forwardToChannelIf(isCopilotLikeExtension(data.props.$extensionId))
+        });
+      }, () => {
+        this._store.delete(reporter);
+      }));
+    }));
+  }
+};
+EditTelemetryReportEditArcForChatOrInlineChatSender = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IRandomService)
+], EditTelemetryReportEditArcForChatOrInlineChatSender);
+export {
+  CreateSuggestionIdForChatOrInlineChatCaller,
+  EditTelemetryReportEditArcForChatOrInlineChatSender,
+  EditTelemetryReportInlineEditArcSender
+};
+//# sourceMappingURL=arcTelemetrySender.js.map

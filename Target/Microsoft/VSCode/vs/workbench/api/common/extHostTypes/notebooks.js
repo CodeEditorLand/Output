@@ -1,1 +1,253 @@
-import{$K1 as y}from"./es5ClassCompat.js";import{$vb as m}from"../../../../base/common/errors.js";import{$3C as v,$7C as b,$8C as C}from"../../../../base/common/mime.js";import{$ln as k}from"../../../../base/common/uuid.js";var w=function(o,t,e,r){var i=arguments.length,s=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,e,r);else for(var a=o.length-1;a>=0;a--)(n=o[a])&&(s=(i<3?n(s):i>3?n(t,e,s):n(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},l,h;(function(o){o[o.Markup=1]="Markup",o[o.Code=2]="Code"})(h||(h={}));class c{static isNotebookRange(t){return t instanceof c?!0:t?typeof t.start=="number"&&typeof t.end=="number":!1}get start(){return this.a}get end(){return this.b}get isEmpty(){return this.a===this.b}constructor(t,e){if(t<0)throw m("start must be positive");if(e<0)throw m("end must be positive");t<=e?(this.a=t,this.b=e):(this.a=e,this.b=t)}with(t){let e=this.a,r=this.b;return t.start!==void 0&&(e=t.start),t.end!==void 0&&(r=t.end),e===this.a&&r===this.b?this:new c(e,r)}}class f{static validate(t){if(typeof t.kind!="number")throw new Error("NotebookCellData MUST have 'kind' property");if(typeof t.value!="string")throw new Error("NotebookCellData MUST have 'value' property");if(typeof t.languageId!="string")throw new Error("NotebookCellData MUST have 'languageId' property")}static isNotebookCellDataArray(t){return Array.isArray(t)&&t.every(e=>f.isNotebookCellData(e))}static isNotebookCellData(t){return!0}constructor(t,e,r,i,s,n,a){this.kind=t,this.value=e,this.languageId=r,this.mime=i,this.outputs=s??[],this.metadata=n,this.executionSummary=a,f.validate(this)}}class A{constructor(t){this.cells=t}}let d=l=class{static isNotebookCellEdit(t){return t instanceof l?!0:t?c.isNotebookRange(t)&&Array.isArray(t.newCells):!1}static replaceCells(t,e){return new l(t,e)}static insertCells(t,e){return new l(new c(t,t),e)}static deleteCells(t){return new l(t,[])}static updateCellMetadata(t,e){const r=new l(new c(t,t),[]);return r.newCellMetadata=e,r}static updateNotebookMetadata(t){const e=new l(new c(0,0),[]);return e.newNotebookMetadata=t,e}constructor(t,e){this.range=t,this.newCells=e}};d=l=w([y],d);class u{static isNotebookCellOutputItem(t){return t instanceof u?!0:t?typeof t.mime=="string"&&t.data instanceof Uint8Array:!1}static error(t){const e={name:t.name,message:t.message,stack:t.stack};return u.json(e,"application/vnd.code.notebook.error")}static stdout(t){return u.text(t,"application/vnd.code.notebook.stdout")}static stderr(t){return u.text(t,"application/vnd.code.notebook.stderr")}static bytes(t,e="application/octet-stream"){return new u(t,e)}static#t=new TextEncoder;static text(t,e=v.text){const r=u.#t.encode(String(t));return new u(r,e)}static json(t,e="text/x-json"){const r=JSON.stringify(t,void 0,"	");return u.text(r,e)}constructor(t,e){this.data=t,this.mime=e;const r=b(e,!0);if(!r)throw new Error(`INVALID mime type: ${e}. Must be in the format "type/subtype[;optionalparameter]"`);this.mime=r}}class p{static isNotebookCellOutput(t){return t instanceof p?!0:!t||typeof t!="object"?!1:typeof t.id=="string"&&Array.isArray(t.items)}static ensureUniqueMimeTypes(t,e=!1){const r=new Set,i=new Set;for(let s=0;s<t.length;s++){const n=t[s],a=b(n.mime);if(!r.has(a)||C(a)){r.add(a);continue}i.add(s)}return i.size===0?t:t.filter((s,n)=>!i.has(n))}constructor(t,e,r){this.items=p.ensureUniqueMimeTypes(t,!0),typeof e=="string"?(this.id=e,this.metadata=r):(this.id=k(),this.metadata=e??r)}}export{u as $$1,d as $01,c as $71,f as $81,A as $91,p as $_1,h as NotebookCellKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var NotebookEdit_1;
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { illegalArgument } from "../../../../base/common/errors.js";
+import { Mimes, normalizeMimeType, isTextStreamMime } from "../../../../base/common/mime.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+var NotebookCellKind;
+(function(NotebookCellKind2) {
+  NotebookCellKind2[NotebookCellKind2["Markup"] = 1] = "Markup";
+  NotebookCellKind2[NotebookCellKind2["Code"] = 2] = "Code";
+})(NotebookCellKind || (NotebookCellKind = {}));
+class NotebookRange {
+  static {
+    __name(this, "NotebookRange");
+  }
+  static isNotebookRange(thing) {
+    if (thing instanceof NotebookRange) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return typeof thing.start === "number" && typeof thing.end === "number";
+  }
+  get start() {
+    return this._start;
+  }
+  get end() {
+    return this._end;
+  }
+  get isEmpty() {
+    return this._start === this._end;
+  }
+  constructor(start, end) {
+    if (start < 0) {
+      throw illegalArgument("start must be positive");
+    }
+    if (end < 0) {
+      throw illegalArgument("end must be positive");
+    }
+    if (start <= end) {
+      this._start = start;
+      this._end = end;
+    } else {
+      this._start = end;
+      this._end = start;
+    }
+  }
+  with(change) {
+    let start = this._start;
+    let end = this._end;
+    if (change.start !== void 0) {
+      start = change.start;
+    }
+    if (change.end !== void 0) {
+      end = change.end;
+    }
+    if (start === this._start && end === this._end) {
+      return this;
+    }
+    return new NotebookRange(start, end);
+  }
+}
+class NotebookCellData {
+  static {
+    __name(this, "NotebookCellData");
+  }
+  static validate(data) {
+    if (typeof data.kind !== "number") {
+      throw new Error("NotebookCellData MUST have 'kind' property");
+    }
+    if (typeof data.value !== "string") {
+      throw new Error("NotebookCellData MUST have 'value' property");
+    }
+    if (typeof data.languageId !== "string") {
+      throw new Error("NotebookCellData MUST have 'languageId' property");
+    }
+  }
+  static isNotebookCellDataArray(value) {
+    return Array.isArray(value) && value.every((elem) => NotebookCellData.isNotebookCellData(elem));
+  }
+  static isNotebookCellData(value) {
+    return true;
+  }
+  constructor(kind, value, languageId, mime, outputs, metadata, executionSummary) {
+    this.kind = kind;
+    this.value = value;
+    this.languageId = languageId;
+    this.mime = mime;
+    this.outputs = outputs ?? [];
+    this.metadata = metadata;
+    this.executionSummary = executionSummary;
+    NotebookCellData.validate(this);
+  }
+}
+class NotebookData {
+  static {
+    __name(this, "NotebookData");
+  }
+  constructor(cells) {
+    this.cells = cells;
+  }
+}
+let NotebookEdit = NotebookEdit_1 = class NotebookEdit2 {
+  static {
+    __name(this, "NotebookEdit");
+  }
+  static isNotebookCellEdit(thing) {
+    if (thing instanceof NotebookEdit_1) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return NotebookRange.isNotebookRange(thing) && Array.isArray(thing.newCells);
+  }
+  static replaceCells(range, newCells) {
+    return new NotebookEdit_1(range, newCells);
+  }
+  static insertCells(index, newCells) {
+    return new NotebookEdit_1(new NotebookRange(index, index), newCells);
+  }
+  static deleteCells(range) {
+    return new NotebookEdit_1(range, []);
+  }
+  static updateCellMetadata(index, newMetadata) {
+    const edit = new NotebookEdit_1(new NotebookRange(index, index), []);
+    edit.newCellMetadata = newMetadata;
+    return edit;
+  }
+  static updateNotebookMetadata(newMetadata) {
+    const edit = new NotebookEdit_1(new NotebookRange(0, 0), []);
+    edit.newNotebookMetadata = newMetadata;
+    return edit;
+  }
+  constructor(range, newCells) {
+    this.range = range;
+    this.newCells = newCells;
+  }
+};
+NotebookEdit = NotebookEdit_1 = __decorate([
+  es5ClassCompat
+], NotebookEdit);
+class NotebookCellOutputItem {
+  static {
+    __name(this, "NotebookCellOutputItem");
+  }
+  static isNotebookCellOutputItem(obj) {
+    if (obj instanceof NotebookCellOutputItem) {
+      return true;
+    }
+    if (!obj) {
+      return false;
+    }
+    return typeof obj.mime === "string" && obj.data instanceof Uint8Array;
+  }
+  static error(err) {
+    const obj = {
+      name: err.name,
+      message: err.message,
+      stack: err.stack
+    };
+    return NotebookCellOutputItem.json(obj, "application/vnd.code.notebook.error");
+  }
+  static stdout(value) {
+    return NotebookCellOutputItem.text(value, "application/vnd.code.notebook.stdout");
+  }
+  static stderr(value) {
+    return NotebookCellOutputItem.text(value, "application/vnd.code.notebook.stderr");
+  }
+  static bytes(value, mime = "application/octet-stream") {
+    return new NotebookCellOutputItem(value, mime);
+  }
+  static #encoder = new TextEncoder();
+  static text(value, mime = Mimes.text) {
+    const bytes = NotebookCellOutputItem.#encoder.encode(String(value));
+    return new NotebookCellOutputItem(bytes, mime);
+  }
+  static json(value, mime = "text/x-json") {
+    const rawStr = JSON.stringify(value, void 0, "	");
+    return NotebookCellOutputItem.text(rawStr, mime);
+  }
+  constructor(data, mime) {
+    this.data = data;
+    this.mime = mime;
+    const mimeNormalized = normalizeMimeType(mime, true);
+    if (!mimeNormalized) {
+      throw new Error(`INVALID mime type: ${mime}. Must be in the format "type/subtype[;optionalparameter]"`);
+    }
+    this.mime = mimeNormalized;
+  }
+}
+class NotebookCellOutput {
+  static {
+    __name(this, "NotebookCellOutput");
+  }
+  static isNotebookCellOutput(candidate) {
+    if (candidate instanceof NotebookCellOutput) {
+      return true;
+    }
+    if (!candidate || typeof candidate !== "object") {
+      return false;
+    }
+    return typeof candidate.id === "string" && Array.isArray(candidate.items);
+  }
+  static ensureUniqueMimeTypes(items, warn = false) {
+    const seen = /* @__PURE__ */ new Set();
+    const removeIdx = /* @__PURE__ */ new Set();
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const normalMime = normalizeMimeType(item.mime);
+      if (!seen.has(normalMime) || isTextStreamMime(normalMime)) {
+        seen.add(normalMime);
+        continue;
+      }
+      removeIdx.add(i);
+      if (warn) {
+        console.warn(`DUPLICATED mime type '${item.mime}' will be dropped`);
+      }
+    }
+    if (removeIdx.size === 0) {
+      return items;
+    }
+    return items.filter((_item, index) => !removeIdx.has(index));
+  }
+  constructor(items, idOrMetadata, metadata) {
+    this.items = NotebookCellOutput.ensureUniqueMimeTypes(items, true);
+    if (typeof idOrMetadata === "string") {
+      this.id = idOrMetadata;
+      this.metadata = metadata;
+    } else {
+      this.id = generateUuid();
+      this.metadata = idOrMetadata ?? metadata;
+    }
+  }
+}
+export {
+  NotebookCellData,
+  NotebookCellKind,
+  NotebookCellOutput,
+  NotebookCellOutputItem,
+  NotebookData,
+  NotebookEdit,
+  NotebookRange
+};
+//# sourceMappingURL=notebooks.js.map

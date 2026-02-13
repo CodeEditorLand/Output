@@ -1,1 +1,92 @@
-import{$K1 as l}from"./es5ClassCompat.js";var c=function(h,t,e,i){var n=arguments.length,s=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,e,i);else for(var p=h.length-1;p>=0;p--)(o=h[p])&&(s=(n<3?o(s):n>3?o(t,e,s):o(t,e))||s);return n>3&&s&&Object.defineProperty(t,e,s),s},r;let a=r=class{static isSnippetString(t){return t instanceof r?!0:!t||typeof t!="object"?!1:typeof t.value=="string"}static a(t){return t.replace(/\$|}|\\/g,"\\$&")}constructor(t){this.b=1,this.value=t||""}appendText(t){return this.value+=r.a(t),this}appendTabstop(t=this.b++){return this.value+="$",this.value+=t,this}appendPlaceholder(t,e=this.b++){if(typeof t=="function"){const i=new r;i.b=this.b,t(i),this.b=i.b,t=i.value}else t=r.a(t);return this.value+="${",this.value+=e,this.value+=":",this.value+=t,this.value+="}",this}appendChoice(t,e=this.b++){const i=t.map(n=>n.replaceAll(/[|\\,]/g,"\\$&")).join(",");return this.value+="${",this.value+=e,this.value+="|",this.value+=i,this.value+="|}",this}appendVariable(t,e){if(typeof e=="function"){const i=new r;i.b=this.b,e(i),this.b=i.b,e=i.value}else typeof e=="string"&&(e=e.replace(/\$|}/g,"\\$&"));return this.value+="${",this.value+=t,e&&(this.value+=":",this.value+=e),this.value+="}",this}};a=r=c([l],a);export{a as $51};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var SnippetString_1;
+import { es5ClassCompat } from "./es5ClassCompat.js";
+let SnippetString = SnippetString_1 = class SnippetString2 {
+  static {
+    __name(this, "SnippetString");
+  }
+  static isSnippetString(thing) {
+    if (thing instanceof SnippetString_1) {
+      return true;
+    }
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    return typeof thing.value === "string";
+  }
+  static _escape(value) {
+    return value.replace(/\$|}|\\/g, "\\$&");
+  }
+  constructor(value) {
+    this._tabstop = 1;
+    this.value = value || "";
+  }
+  appendText(string) {
+    this.value += SnippetString_1._escape(string);
+    return this;
+  }
+  appendTabstop(number = this._tabstop++) {
+    this.value += "$";
+    this.value += number;
+    return this;
+  }
+  appendPlaceholder(value, number = this._tabstop++) {
+    if (typeof value === "function") {
+      const nested = new SnippetString_1();
+      nested._tabstop = this._tabstop;
+      value(nested);
+      this._tabstop = nested._tabstop;
+      value = nested.value;
+    } else {
+      value = SnippetString_1._escape(value);
+    }
+    this.value += "${";
+    this.value += number;
+    this.value += ":";
+    this.value += value;
+    this.value += "}";
+    return this;
+  }
+  appendChoice(values, number = this._tabstop++) {
+    const value = values.map((s) => s.replaceAll(/[|\\,]/g, "\\$&")).join(",");
+    this.value += "${";
+    this.value += number;
+    this.value += "|";
+    this.value += value;
+    this.value += "|}";
+    return this;
+  }
+  appendVariable(name, defaultValue) {
+    if (typeof defaultValue === "function") {
+      const nested = new SnippetString_1();
+      nested._tabstop = this._tabstop;
+      defaultValue(nested);
+      this._tabstop = nested._tabstop;
+      defaultValue = nested.value;
+    } else if (typeof defaultValue === "string") {
+      defaultValue = defaultValue.replace(/\$|}/g, "\\$&");
+    }
+    this.value += "${";
+    this.value += name;
+    if (defaultValue) {
+      this.value += ":";
+      this.value += defaultValue;
+    }
+    this.value += "}";
+    return this;
+  }
+};
+SnippetString = SnippetString_1 = __decorate([
+  es5ClassCompat
+], SnippetString);
+export {
+  SnippetString
+};
+//# sourceMappingURL=snippetString.js.map

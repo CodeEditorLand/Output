@@ -1,1 +1,58 @@
-import{$Mj as l}from"../../../../platform/instantiation/common/instantiation.js";import{$LQ as _}from"../../../services/userDataProfile/common/userDataProfile.js";import{$WC as R}from"../../../../platform/instantiation/common/extensions.js";import{$Ml as M}from"../../../../platform/workspace/common/workspace.js";import{$$o as b}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$4N as j}from"../../remote/common/remoteAgentService.js";import{$0Q as g}from"../../../../platform/mcp/common/mcpManagementIpc.js";import{$ap as v}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$aR as O}from"../../userDataProfile/common/remoteUserDataProfiles.js";import{$gR as P,$fR as Q}from"../common/mcpWorkbenchManagementService.js";import{$XPc as x}from"../../../../platform/ipc/electron-browser/services.js";import{$FQ as C}from"../../../../platform/mcp/common/mcpManagement.js";import{$yo as D}from"../../../../platform/log/common/log.js";var h=function(n,r,o,e){var f=arguments.length,t=f<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,o):e,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(n,r,o,e);else for(var i=n.length-1;i>=0;i--)(p=n[i])&&(t=(f<3?p(t):f>3?p(r,o,t):p(r,o))||t);return f>3&&t&&Object.defineProperty(r,o,t),t},m=function(n,r){return function(o,e){r(o,e,n)}};let c=class extends P{constructor(r,o,e,f,t,p,i,$,s,u){const a=new g(u.getChannel("mcpManagement"),r,o);super(a,r,o,e,f,t,p,i,$,s),this.D(a)}};c=h([m(0,C),m(1,D),m(2,_),m(3,b),m(4,M),m(5,j),m(6,v),m(7,O),m(8,l),m(9,x)],c);R(Q,c,1);export{c as $8Vc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { McpManagementChannelClient } from "../../../../platform/mcp/common/mcpManagementIpc.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IRemoteUserDataProfilesService } from "../../userDataProfile/common/remoteUserDataProfiles.js";
+import { WorkbenchMcpManagementService as BaseWorkbenchMcpManagementService, IWorkbenchMcpManagementService } from "../common/mcpWorkbenchManagementService.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-browser/services.js";
+import { IAllowedMcpServersService } from "../../../../platform/mcp/common/mcpManagement.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let WorkbenchMcpManagementService = class WorkbenchMcpManagementService2 extends BaseWorkbenchMcpManagementService {
+  static {
+    __name(this, "WorkbenchMcpManagementService");
+  }
+  constructor(allowedMcpServersService, logService, userDataProfileService, uriIdentityService, workspaceContextService, remoteAgentService, userDataProfilesService, remoteUserDataProfilesService, instantiationService, sharedProcessService) {
+    const mcpManagementService = new McpManagementChannelClient(sharedProcessService.getChannel("mcpManagement"), allowedMcpServersService, logService);
+    super(mcpManagementService, allowedMcpServersService, logService, userDataProfileService, uriIdentityService, workspaceContextService, remoteAgentService, userDataProfilesService, remoteUserDataProfilesService, instantiationService);
+    this._register(mcpManagementService);
+  }
+};
+WorkbenchMcpManagementService = __decorate([
+  __param(0, IAllowedMcpServersService),
+  __param(1, ILogService),
+  __param(2, IUserDataProfileService),
+  __param(3, IUriIdentityService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IRemoteAgentService),
+  __param(6, IUserDataProfilesService),
+  __param(7, IRemoteUserDataProfilesService),
+  __param(8, IInstantiationService),
+  __param(9, ISharedProcessService)
+], WorkbenchMcpManagementService);
+registerSingleton(
+  IWorkbenchMcpManagementService,
+  WorkbenchMcpManagementService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  WorkbenchMcpManagementService
+};
+//# sourceMappingURL=mcpWorkbenchManagementService.js.map

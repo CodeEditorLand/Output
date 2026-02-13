@@ -1,1 +1,32 @@
-import{$bk as e}from"../../../../base/common/codicons.js";import{localize as t}from"../../../../nls.js";import{$gu as n}from"../../../../platform/theme/common/iconRegistry.js";const c=n("settings-folder-dropdown",e.chevronDown,t(11453,null)),l=n("settings-more-action",e.gear,t(11454,null)),d=n("keybindings-record-keys",e.recordKeys,t(11455,null)),i=n("keybindings-sort",e.sortPrecedence,t(11456,null)),p=n("keybindings-edit",e.edit,t(11457,null)),u=n("keybindings-add",e.add,t(11458,null)),$=n("settings-edit",e.edit,t(11459,null)),g=n("settings-remove",e.close,t(11460,null)),x=n("settings-discard",e.discard,t(11461,null)),a=n("preferences-clear-input",e.clearAll,t(11462,null)),f=n("preferences-ai-results",e.sparkle,t(11463,null)),m=n("preferences-filter",e.filter,t(11464,null)),k=n("preferences-open-settings",e.goToFile,t(11465,null));export{u as $1dc,$ as $2dc,g as $3dc,x as $4dc,a as $5dc,f as $6dc,m as $7dc,k as $8dc,c as $Vdc,l as $Wdc,d as $Xdc,i as $Ydc,p as $Zdc};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const settingsScopeDropDownIcon = registerIcon("settings-folder-dropdown", Codicon.chevronDown, localize("settingsScopeDropDownIcon", "Icon for the folder dropdown button in the split JSON Settings editor."));
+const settingsMoreActionIcon = registerIcon("settings-more-action", Codicon.gear, localize("settingsMoreActionIcon", "Icon for the 'more actions' action in the Settings UI."));
+const keybindingsRecordKeysIcon = registerIcon("keybindings-record-keys", Codicon.recordKeys, localize("keybindingsRecordKeysIcon", "Icon for the 'record keys' action in the keybinding UI."));
+const keybindingsSortIcon = registerIcon("keybindings-sort", Codicon.sortPrecedence, localize("keybindingsSortIcon", "Icon for the 'sort by precedence' toggle in the keybinding UI."));
+const keybindingsEditIcon = registerIcon("keybindings-edit", Codicon.edit, localize("keybindingsEditIcon", "Icon for the edit action in the keybinding UI."));
+const keybindingsAddIcon = registerIcon("keybindings-add", Codicon.add, localize("keybindingsAddIcon", "Icon for the add action in the keybinding UI."));
+const settingsEditIcon = registerIcon("settings-edit", Codicon.edit, localize("settingsEditIcon", "Icon for the edit action in the Settings UI."));
+const settingsRemoveIcon = registerIcon("settings-remove", Codicon.close, localize("settingsRemoveIcon", "Icon for the remove action in the Settings UI."));
+const settingsDiscardIcon = registerIcon("settings-discard", Codicon.discard, localize("preferencesDiscardIcon", "Icon for the discard action in the Settings UI."));
+const preferencesClearInputIcon = registerIcon("preferences-clear-input", Codicon.clearAll, localize("preferencesClearInput", "Icon for clear input in the Settings and keybinding UI."));
+const preferencesAiResultsIcon = registerIcon("preferences-ai-results", Codicon.sparkle, localize("preferencesAiResults", "Icon for showing AI results in the Settings UI."));
+const preferencesFilterIcon = registerIcon("preferences-filter", Codicon.filter, localize("settingsFilter", "Icon for the button that suggests filters for the Settings UI."));
+const preferencesOpenSettingsIcon = registerIcon("preferences-open-settings", Codicon.goToFile, localize("preferencesOpenSettings", "Icon for open settings commands."));
+export {
+  keybindingsAddIcon,
+  keybindingsEditIcon,
+  keybindingsRecordKeysIcon,
+  keybindingsSortIcon,
+  preferencesAiResultsIcon,
+  preferencesClearInputIcon,
+  preferencesFilterIcon,
+  preferencesOpenSettingsIcon,
+  settingsDiscardIcon,
+  settingsEditIcon,
+  settingsMoreActionIcon,
+  settingsRemoveIcon,
+  settingsScopeDropDownIcon
+};
+//# sourceMappingURL=preferencesIcons.js.map

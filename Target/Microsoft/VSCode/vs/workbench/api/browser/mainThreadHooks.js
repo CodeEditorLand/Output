@@ -1,1 +1,50 @@
-import{URI as p}from"../../../base/common/uri.js";import{$Ed as l}from"../../../base/common/lifecycle.js";import{$vDb as h}from"../../services/extensions/common/extHostCustomers.js";import{$Y1 as x,$X1 as $}from"../common/extHost.protocol.js";import{$T1 as d}from"../../contrib/chat/common/hooksExecutionService.js";var f=function(i,o,r,e){var n=arguments.length,t=n<3?o:e===null?e=Object.getOwnPropertyDescriptor(o,r):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,o,r,e);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(t=(n<3?s(t):n>3?s(o,r,t):s(o,r))||t);return n>3&&t&&Object.defineProperty(o,r,t),t},m=function(i,o){return function(r,e){o(r,e,i)}};let a=class extends l{constructor(o,r){super(),this.a=r;const e=o.getProxy(x.ExtHostHooks),n={runHookCommand:async(t,s,c)=>{const u=await e.$runHookCommand(t,s,c);return{kind:u.kind,result:u.result}}};this.a.setProxy(n)}async $executeHook(o,r,e,n){const t=p.revive(r);return this.a.executeHook(o,t,{input:e,token:n})}};a=f([h($.MainThreadHooks),m(1,d)],a);export{a as $U0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { URI } from "../../../base/common/uri.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IHooksExecutionService } from "../../contrib/chat/common/hooksExecutionService.js";
+let MainThreadHooks = class MainThreadHooks2 extends Disposable {
+  static {
+    __name(this, "MainThreadHooks");
+  }
+  constructor(extHostContext, _hooksExecutionService) {
+    super();
+    this._hooksExecutionService = _hooksExecutionService;
+    const extHostProxy = extHostContext.getProxy(ExtHostContext.ExtHostHooks);
+    const proxy = {
+      runHookCommand: /* @__PURE__ */ __name(async (hookCommand, input, token) => {
+        const result = await extHostProxy.$runHookCommand(hookCommand, input, token);
+        return {
+          kind: result.kind,
+          result: result.result
+        };
+      }, "runHookCommand")
+    };
+    this._hooksExecutionService.setProxy(proxy);
+  }
+  async $executeHook(hookType, sessionResource, input, token) {
+    const uri = URI.revive(sessionResource);
+    return this._hooksExecutionService.executeHook(hookType, uri, { input, token });
+  }
+};
+MainThreadHooks = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadHooks),
+  __param(1, IHooksExecutionService)
+], MainThreadHooks);
+export {
+  MainThreadHooks
+};
+//# sourceMappingURL=mainThreadHooks.js.map

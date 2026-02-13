@@ -1,3 +1,178 @@
-import*as a from"../../../../nls.js";import{$fDb as C}from"../../../services/statusbar/browser/statusbar.js";import{$Ed as D,$Fd as K}from"../../../../base/common/lifecycle.js";import{$jy as m,$iy as k,$ky as _,$hy as z}from"../../../../platform/keyboardLayout/common/keyboardLayout.js";import{$2N as x}from"../../../common/contributions.js";import{$Cdc as p}from"../common/preferences.js";import{$n as S,$m as j}from"../../../../base/common/platform.js";import{$YH as E}from"../../../../platform/quickinput/common/quickInput.js";import{$vL as I,$wL as O}from"../../../../platform/actions/common/actions.js";import{$0l as P}from"../../../../platform/configuration/common/configuration.js";import{$Kl as R}from"../../../../platform/environment/common/environment.js";import{$vk as A}from"../../../../platform/files/common/files.js";import{$BL as F}from"../../../services/editor/common/editorService.js";import{$0i as N}from"../../../../base/common/buffer.js";var w=function(r,n,l,e){var c=arguments.length,o=c<3?n:e===null?e=Object.getOwnPropertyDescriptor(n,l):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,n,l,e);else for(var u=r.length-1;u>=0;u--)(i=r[u])&&(o=(c<3?i(o):c>3?i(n,l,o):i(n,l))||o);return c>3&&o&&Object.defineProperty(n,l,o),o},v=function(r,n){return function(l,e){n(l,e,r)}};let b=class extends D{static{this.ID="workbench.contrib.keyboardLayoutPicker"}constructor(n,l){super(),this.f=n,this.g=l,this.c=this.D(new K);const e=a.localize(11388,null),c=this.f.getCurrentKeyboardLayout();if(c){const o=m(c),i=a.localize(11389,null,o.label);this.c.value=this.g.addEntry({name:e,text:i,ariaLabel:i,command:p},"status.workbench.keyboardLayout",1)}this.D(this.f.onDidChangeKeyboardLayout(()=>{const o=this.f.getCurrentKeyboardLayout(),i=m(o);if(this.c.value){const u=a.localize(11390,null,i.label);this.c.value.update({name:e,text:u,ariaLabel:u,command:p})}else{const u=a.localize(11391,null,i.label);this.c.value=this.g.addEntry({name:e,text:u,ariaLabel:u,command:p},"status.workbench.keyboardLayout",1)}}))}};b=w([v(0,z),v(1,C)],b);x(b.ID,b,1);const T=[`// ${a.localize(11392,null)}`,`// ${a.localize(11393,null)}`,"","// Once you have the keyboard layout info, please paste it below.",`
-`].join(`
-`);O(class extends I{constructor(){super({id:p,title:a.localize2(11399,"Change Keyboard Layout"),f1:!0})}async run(r){const n=r.get(z),l=r.get(E),e=r.get(P),c=r.get(R),o=r.get(F),i=r.get(A),u=n.getAllKeyboardLayouts(),h=n.getCurrentKeyboardLayout(),d=e.getValue("keyboard.layout")==="autodetect",f=u.map(t=>{const s=!d&&k(h,t),L=m(t);return{layout:t,label:[L.label,t&&t.isUserKeyboardLayout?"(User configured layout)":""].join(" "),id:t.text||t.lang||t.layout,description:L.description+(s?" (Current layout)":""),picked:!d&&k(h,t)}}).sort((t,s)=>t.label<s.label?-1:t.label>s.label?1:0);if(f.length>0){const t=S?"Mac":j?"Win":"Linux";f.unshift({type:"separator",label:a.localize(11394,null,t)})}const g={label:a.localize(11395,null)};f.unshift(g);const $={label:a.localize(11396,null),description:d?`Current: ${m(h).label}`:void 0,picked:d?!0:void 0};f.unshift($);const y=await l.pick(f,{placeHolder:a.localize(11397,null),matchOnDescription:!0});if(y){if(y===$){e.updateValue("keyboard.layout","autodetect");return}if(y===g){const t=c.keyboardLayoutResource;return await i.stat(t).then(void 0,()=>i.createFile(t,N.fromString(T))).then(s=>{if(s)return o.openEditor({resource:s.resource,languageId:"jsonc",options:{pinned:!0}})},s=>{throw new Error(a.localize(11398,null,t.toString(),s))}),Promise.resolve()}e.updateValue("keyboard.layout",_(y.layout))}}});export{b as $fPc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { parseKeyboardLayoutDescription, areKeyboardLayoutsEqual, getKeyboardLayoutId, IKeyboardLayoutService } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { KEYBOARD_LAYOUT_OPEN_PICKER } from "../common/preferences.js";
+import { isMacintosh, isWindows } from "../../../../base/common/platform.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+let KeyboardLayoutPickerContribution = class KeyboardLayoutPickerContribution2 extends Disposable {
+  static {
+    __name(this, "KeyboardLayoutPickerContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.keyboardLayoutPicker";
+  }
+  constructor(keyboardLayoutService, statusbarService) {
+    super();
+    this.keyboardLayoutService = keyboardLayoutService;
+    this.statusbarService = statusbarService;
+    this.pickerElement = this._register(new MutableDisposable());
+    const name = nls.localize("status.workbench.keyboardLayout", "Keyboard Layout");
+    const layout = this.keyboardLayoutService.getCurrentKeyboardLayout();
+    if (layout) {
+      const layoutInfo = parseKeyboardLayoutDescription(layout);
+      const text = nls.localize("keyboardLayout", "Layout: {0}", layoutInfo.label);
+      this.pickerElement.value = this.statusbarService.addEntry(
+        {
+          name,
+          text,
+          ariaLabel: text,
+          command: KEYBOARD_LAYOUT_OPEN_PICKER
+        },
+        "status.workbench.keyboardLayout",
+        1
+        /* StatusbarAlignment.RIGHT */
+      );
+    }
+    this._register(this.keyboardLayoutService.onDidChangeKeyboardLayout(() => {
+      const layout2 = this.keyboardLayoutService.getCurrentKeyboardLayout();
+      const layoutInfo = parseKeyboardLayoutDescription(layout2);
+      if (this.pickerElement.value) {
+        const text = nls.localize("keyboardLayout", "Layout: {0}", layoutInfo.label);
+        this.pickerElement.value.update({
+          name,
+          text,
+          ariaLabel: text,
+          command: KEYBOARD_LAYOUT_OPEN_PICKER
+        });
+      } else {
+        const text = nls.localize("keyboardLayout", "Layout: {0}", layoutInfo.label);
+        this.pickerElement.value = this.statusbarService.addEntry(
+          {
+            name,
+            text,
+            ariaLabel: text,
+            command: KEYBOARD_LAYOUT_OPEN_PICKER
+          },
+          "status.workbench.keyboardLayout",
+          1
+          /* StatusbarAlignment.RIGHT */
+        );
+      }
+    }));
+  }
+};
+KeyboardLayoutPickerContribution = __decorate([
+  __param(0, IKeyboardLayoutService),
+  __param(1, IStatusbarService)
+], KeyboardLayoutPickerContribution);
+registerWorkbenchContribution2(
+  KeyboardLayoutPickerContribution.ID,
+  KeyboardLayoutPickerContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+const DEFAULT_CONTENT = [
+  `// ${nls.localize("displayLanguage", "Defines the keyboard layout used in VS Code in the browser environment.")}`,
+  `// ${nls.localize("doc", 'Open VS Code and run "Developer: Inspect Key Mappings (JSON)" from Command Palette.')}`,
+  ``,
+  `// Once you have the keyboard layout info, please paste it below.`,
+  "\n"
+].join("\n");
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: KEYBOARD_LAYOUT_OPEN_PICKER,
+      title: nls.localize2("keyboard.chooseLayout", "Change Keyboard Layout"),
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const keyboardLayoutService = accessor.get(IKeyboardLayoutService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const configurationService = accessor.get(IConfigurationService);
+    const environmentService = accessor.get(IEnvironmentService);
+    const editorService = accessor.get(IEditorService);
+    const fileService = accessor.get(IFileService);
+    const layouts = keyboardLayoutService.getAllKeyboardLayouts();
+    const currentLayout = keyboardLayoutService.getCurrentKeyboardLayout();
+    const layoutConfig = configurationService.getValue("keyboard.layout");
+    const isAutoDetect = layoutConfig === "autodetect";
+    const picks = layouts.map((layout) => {
+      const picked = !isAutoDetect && areKeyboardLayoutsEqual(currentLayout, layout);
+      const layoutInfo = parseKeyboardLayoutDescription(layout);
+      return {
+        layout,
+        label: [layoutInfo.label, layout && layout.isUserKeyboardLayout ? "(User configured layout)" : ""].join(" "),
+        id: layout.text || layout.lang || layout.layout,
+        description: layoutInfo.description + (picked ? " (Current layout)" : ""),
+        picked: !isAutoDetect && areKeyboardLayoutsEqual(currentLayout, layout)
+      };
+    }).sort((a, b) => {
+      return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+    });
+    if (picks.length > 0) {
+      const platform = isMacintosh ? "Mac" : isWindows ? "Win" : "Linux";
+      picks.unshift({ type: "separator", label: nls.localize("layoutPicks", "Keyboard Layouts ({0})", platform) });
+    }
+    const configureKeyboardLayout = { label: nls.localize("configureKeyboardLayout", "Configure Keyboard Layout") };
+    picks.unshift(configureKeyboardLayout);
+    const autoDetectMode = {
+      label: nls.localize("autoDetect", "Auto Detect"),
+      description: isAutoDetect ? `Current: ${parseKeyboardLayoutDescription(currentLayout).label}` : void 0,
+      picked: isAutoDetect ? true : void 0
+    };
+    picks.unshift(autoDetectMode);
+    const pick = await quickInputService.pick(picks, { placeHolder: nls.localize("pickKeyboardLayout", "Select Keyboard Layout"), matchOnDescription: true });
+    if (!pick) {
+      return;
+    }
+    if (pick === autoDetectMode) {
+      configurationService.updateValue("keyboard.layout", "autodetect");
+      return;
+    }
+    if (pick === configureKeyboardLayout) {
+      const file = environmentService.keyboardLayoutResource;
+      await fileService.stat(file).then(void 0, () => {
+        return fileService.createFile(file, VSBuffer.fromString(DEFAULT_CONTENT));
+      }).then((stat) => {
+        if (!stat) {
+          return void 0;
+        }
+        return editorService.openEditor({
+          resource: stat.resource,
+          languageId: "jsonc",
+          options: { pinned: true }
+        });
+      }, (error) => {
+        throw new Error(nls.localize("fail.createSettings", "Unable to create '{0}' ({1}).", file.toString(), error));
+      });
+      return Promise.resolve();
+    }
+    configurationService.updateValue("keyboard.layout", getKeyboardLayoutId(pick.layout));
+  }
+});
+export {
+  KeyboardLayoutPickerContribution
+};
+//# sourceMappingURL=keyboardLayoutPicker.js.map

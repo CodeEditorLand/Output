@@ -1,1 +1,56 @@
-import{$Ed as p}from"../../../base/common/lifecycle.js";import{localize as g}from"../../../nls.js";import{$Kl as h}from"../../environment/common/environment.js";import{$zo as a}from"../../log/common/log.js";import{$Vn as $}from"../../product/common/productService.js";import{$jv as d,$mv as v,$iv as _,$ov as j}from"./telemetryUtils.js";var u=function(i,t,e,r){var s=arguments.length,o=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,t,e,r);else for(var f=i.length-1;f>=0;f--)(n=i[f])&&(o=(s<3?n(o):s>3?n(t,e,o):n(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},l=function(i,t){return function(e,r){t(e,r,i)}};let m=class extends p{constructor(t,e,r,s,o){super(),this.b=t;const n=e?"remoteTelemetry":_,f=r.getLogger(n);if(f)this.a=this.D(f);else{const c=v(o,s)?" (Not Sent)":"";this.a=this.D(r.createLogger(n,{name:g(2321,null,c),group:d,hidden:!0}))}}flush(){return Promise.resolve()}log(t,e){this.a.trace(`${this.b}telemetry/${t}`,j(e))}};m=u([l(2,a),l(3,h),l(4,$)],m);export{m as $z7};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { localize } from "../../../nls.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ILoggerService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { TelemetryLogGroup, isLoggingOnly, telemetryLogId, validateTelemetryData } from "./telemetryUtils.js";
+let TelemetryLogAppender = class TelemetryLogAppender2 extends Disposable {
+  static {
+    __name(this, "TelemetryLogAppender");
+  }
+  constructor(prefix, remote, loggerService, environmentService, productService) {
+    super();
+    this.prefix = prefix;
+    const id = remote ? "remoteTelemetry" : telemetryLogId;
+    const logger = loggerService.getLogger(id);
+    if (logger) {
+      this.logger = this._register(logger);
+    } else {
+      const justLoggingAndNotSending = isLoggingOnly(productService, environmentService);
+      const logSuffix = justLoggingAndNotSending ? " (Not Sent)" : "";
+      this.logger = this._register(loggerService.createLogger(id, {
+        name: localize("telemetryLog", "Telemetry{0}", logSuffix),
+        group: TelemetryLogGroup,
+        hidden: true
+      }));
+    }
+  }
+  flush() {
+    return Promise.resolve();
+  }
+  log(eventName, data) {
+    this.logger.trace(`${this.prefix}telemetry/${eventName}`, validateTelemetryData(data));
+  }
+};
+TelemetryLogAppender = __decorate([
+  __param(2, ILoggerService),
+  __param(3, IEnvironmentService),
+  __param(4, IProductService)
+], TelemetryLogAppender);
+export {
+  TelemetryLogAppender
+};
+//# sourceMappingURL=telemetryLogAppender.js.map

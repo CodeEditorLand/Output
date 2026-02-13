@@ -1,1 +1,145 @@
-import{$Zc as B}from"../../../../../../base/common/assert.js";import{$Db as C}from"../../../../../../base/common/errors.js";import{observableFromEventOpts as D}from"../../../../../../base/common/observable.js";import{localize as t}from"../../../../../../nls.js";import{$st as E,$qt as f,$Cr as d,$Er as s,$Dr as c,$Jq as m,$jr as L,$lr as y,$kr as I}from"../../../../../../platform/theme/common/colorRegistry.js";import{$Wp as A,$5p as e,$2p as r,$7p as i}from"../../../../../../platform/theme/common/colorUtils.js";import{InlineCompletionEditorType as k}from"../../model/provideInlineCompletions.js";import{InlineEditTabAction as x}from"./inlineEditsViewInterface.js";const j=r("inlineEdit.originalBackground",i(c,.2),t(1392,null),!0),z=r("inlineEdit.modifiedBackground",i(d,.3),t(1393,null),!0),G=r("inlineEdit.originalChangedLineBackground",i(c,.8),t(1394,null),!0),H=r("inlineEdit.originalChangedTextBackground",i(c,.8),t(1395,null),!0),K=r("inlineEdit.modifiedChangedLineBackground",{light:i(s,.7),dark:i(s,.7),hcDark:s,hcLight:s},t(1396,null),!0),P=r("inlineEdit.modifiedChangedTextBackground",i(d,.7),t(1397,null),!0),Q=r("inlineEdit.gutterIndicator.primaryForeground",f,t(1398,null)),g=r("inlineEdit.gutterIndicator.primaryBorder",E,t(1399,null)),R=r("inlineEdit.gutterIndicator.primaryBackground",{light:i(g,.5),dark:i(g,.4),hcDark:i(g,.4),hcLight:i(g,.5)},t(1400,null)),U=r("inlineEdit.gutterIndicator.secondaryForeground",I,t(1401,null)),V=r("inlineEdit.gutterIndicator.secondaryBorder",y,t(1402,null)),X=r("inlineEdit.gutterIndicator.secondaryBackground",L,t(1403,null)),Y=r("inlineEdit.gutterIndicator.successfulForeground",f,t(1404,null)),T=r("inlineEdit.gutterIndicator.successfulBorder",E,t(1405,null)),_=r("inlineEdit.gutterIndicator.successfulBackground",T,t(1406,null)),S=r("inlineEdit.gutterIndicator.background",{hcDark:i("tab.inactiveBackground",.5),hcLight:i("tab.inactiveBackground",.5),dark:i("tab.inactiveBackground",.5),light:"#5f5f5f18"},t(1407,null)),a=r("inlineEdit.originalBorder",{light:c,dark:c,hcDark:c,hcLight:c},t(1408,null)),u=r("inlineEdit.modifiedBorder",{light:e(d,.6),dark:d,hcDark:d,hcLight:d},t(1409,null)),F=r("inlineEdit.tabWillAcceptModifiedBorder",{light:e(u,0),dark:e(u,0),hcDark:e(u,0),hcLight:e(u,0)},t(1410,null)),W=r("inlineEdit.tabWillAcceptOriginalBorder",{light:e(a,0),dark:e(a,0),hcDark:e(a,0),hcLight:e(a,0)},t(1411,null));function tt(o){return o.map(n=>n===x.Accept?F:u)}function rt(o){return o.map(n=>n===x.Accept?W:a)}function ot(o,n){let l;typeof o=="string"?l=h(o,n):l=o.map((b,$)=>h(b,n).read($));const p=h(m,n);return l.map((b,$)=>b.makeOpaque(p.read($)))}function nt(o){let n;switch(o){case k.TextEditor:n=m;break;case k.DiffEditor:n=m;break;case k.Notebook:n="notebook.cellEditorBackground";break;default:B(o,"Not supported editor type yet")}return A(n)}function h(o,n){return D({owner:{observeColor:o},equalsFn:(l,p)=>l.equals(p),debugName:()=>`observeColor(${o})`},n.onDidColorThemeChange,()=>{const l=n.getColorTheme().getColor(o);if(!l)throw new C(`Missing color: ${o}`);return l})}const it=3;export{j as $Esb,z as $Fsb,G as $Gsb,H as $Hsb,K as $Isb,P as $Jsb,Q as $Ksb,g as $Lsb,R as $Msb,U as $Nsb,V as $Osb,X as $Psb,Y as $Qsb,T as $Rsb,_ as $Ssb,S as $Tsb,tt as $Usb,rt as $Vsb,ot as $Wsb,nt as $Xsb,h as $Ysb,it as $Zsb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertNever } from "../../../../../../base/common/assert.js";
+import { BugIndicatingError } from "../../../../../../base/common/errors.js";
+import { observableFromEventOpts } from "../../../../../../base/common/observable.js";
+import { localize } from "../../../../../../nls.js";
+import { buttonBackground, buttonForeground, diffInserted, diffInsertedLine, diffRemoved, editorBackground, editorHoverBackground, editorHoverBorder, editorHoverForeground } from "../../../../../../platform/theme/common/colorRegistry.js";
+import { asCssVariable, darken, registerColor, transparent } from "../../../../../../platform/theme/common/colorUtils.js";
+import { InlineCompletionEditorType } from "../../model/provideInlineCompletions.js";
+import { InlineEditTabAction } from "./inlineEditsViewInterface.js";
+const originalBackgroundColor = registerColor("inlineEdit.originalBackground", transparent(diffRemoved, 0.2), localize("inlineEdit.originalBackground", "Background color for the original text in inline edits."), true);
+const modifiedBackgroundColor = registerColor("inlineEdit.modifiedBackground", transparent(diffInserted, 0.3), localize("inlineEdit.modifiedBackground", "Background color for the modified text in inline edits."), true);
+const originalChangedLineBackgroundColor = registerColor("inlineEdit.originalChangedLineBackground", transparent(diffRemoved, 0.8), localize("inlineEdit.originalChangedLineBackground", "Background color for the changed lines in the original text of inline edits."), true);
+const originalChangedTextOverlayColor = registerColor("inlineEdit.originalChangedTextBackground", transparent(diffRemoved, 0.8), localize("inlineEdit.originalChangedTextBackground", "Overlay color for the changed text in the original text of inline edits."), true);
+const modifiedChangedLineBackgroundColor = registerColor("inlineEdit.modifiedChangedLineBackground", {
+  light: transparent(diffInsertedLine, 0.7),
+  dark: transparent(diffInsertedLine, 0.7),
+  hcDark: diffInsertedLine,
+  hcLight: diffInsertedLine
+}, localize("inlineEdit.modifiedChangedLineBackground", "Background color for the changed lines in the modified text of inline edits."), true);
+const modifiedChangedTextOverlayColor = registerColor("inlineEdit.modifiedChangedTextBackground", transparent(diffInserted, 0.7), localize("inlineEdit.modifiedChangedTextBackground", "Overlay color for the changed text in the modified text of inline edits."), true);
+const inlineEditIndicatorPrimaryForeground = registerColor("inlineEdit.gutterIndicator.primaryForeground", buttonForeground, localize("inlineEdit.gutterIndicator.primaryForeground", "Foreground color for the primary inline edit gutter indicator."));
+const inlineEditIndicatorPrimaryBorder = registerColor("inlineEdit.gutterIndicator.primaryBorder", buttonBackground, localize("inlineEdit.gutterIndicator.primaryBorder", "Border color for the primary inline edit gutter indicator."));
+const inlineEditIndicatorPrimaryBackground = registerColor("inlineEdit.gutterIndicator.primaryBackground", {
+  light: transparent(inlineEditIndicatorPrimaryBorder, 0.5),
+  dark: transparent(inlineEditIndicatorPrimaryBorder, 0.4),
+  hcDark: transparent(inlineEditIndicatorPrimaryBorder, 0.4),
+  hcLight: transparent(inlineEditIndicatorPrimaryBorder, 0.5)
+}, localize("inlineEdit.gutterIndicator.primaryBackground", "Background color for the primary inline edit gutter indicator."));
+const inlineEditIndicatorSecondaryForeground = registerColor("inlineEdit.gutterIndicator.secondaryForeground", editorHoverForeground, localize("inlineEdit.gutterIndicator.secondaryForeground", "Foreground color for the secondary inline edit gutter indicator."));
+const inlineEditIndicatorSecondaryBorder = registerColor("inlineEdit.gutterIndicator.secondaryBorder", editorHoverBorder, localize("inlineEdit.gutterIndicator.secondaryBorder", "Border color for the secondary inline edit gutter indicator."));
+const inlineEditIndicatorSecondaryBackground = registerColor("inlineEdit.gutterIndicator.secondaryBackground", editorHoverBackground, localize("inlineEdit.gutterIndicator.secondaryBackground", "Background color for the secondary inline edit gutter indicator."));
+const inlineEditIndicatorSuccessfulForeground = registerColor("inlineEdit.gutterIndicator.successfulForeground", buttonForeground, localize("inlineEdit.gutterIndicator.successfulForeground", "Foreground color for the successful inline edit gutter indicator."));
+const inlineEditIndicatorSuccessfulBorder = registerColor("inlineEdit.gutterIndicator.successfulBorder", buttonBackground, localize("inlineEdit.gutterIndicator.successfulBorder", "Border color for the successful inline edit gutter indicator."));
+const inlineEditIndicatorSuccessfulBackground = registerColor("inlineEdit.gutterIndicator.successfulBackground", inlineEditIndicatorSuccessfulBorder, localize("inlineEdit.gutterIndicator.successfulBackground", "Background color for the successful inline edit gutter indicator."));
+const inlineEditIndicatorBackground = registerColor("inlineEdit.gutterIndicator.background", {
+  hcDark: transparent("tab.inactiveBackground", 0.5),
+  hcLight: transparent("tab.inactiveBackground", 0.5),
+  dark: transparent("tab.inactiveBackground", 0.5),
+  light: "#5f5f5f18"
+}, localize("inlineEdit.gutterIndicator.background", "Background color for the inline edit gutter indicator."));
+const originalBorder = registerColor("inlineEdit.originalBorder", {
+  light: diffRemoved,
+  dark: diffRemoved,
+  hcDark: diffRemoved,
+  hcLight: diffRemoved
+}, localize("inlineEdit.originalBorder", "Border color for the original text in inline edits."));
+const modifiedBorder = registerColor("inlineEdit.modifiedBorder", {
+  light: darken(diffInserted, 0.6),
+  dark: diffInserted,
+  hcDark: diffInserted,
+  hcLight: diffInserted
+}, localize("inlineEdit.modifiedBorder", "Border color for the modified text in inline edits."));
+const tabWillAcceptModifiedBorder = registerColor("inlineEdit.tabWillAcceptModifiedBorder", {
+  light: darken(modifiedBorder, 0),
+  dark: darken(modifiedBorder, 0),
+  hcDark: darken(modifiedBorder, 0),
+  hcLight: darken(modifiedBorder, 0)
+}, localize("inlineEdit.tabWillAcceptModifiedBorder", "Modified border color for the inline edits widget when tab will accept it."));
+const tabWillAcceptOriginalBorder = registerColor("inlineEdit.tabWillAcceptOriginalBorder", {
+  light: darken(originalBorder, 0),
+  dark: darken(originalBorder, 0),
+  hcDark: darken(originalBorder, 0),
+  hcLight: darken(originalBorder, 0)
+}, localize("inlineEdit.tabWillAcceptOriginalBorder", "Original border color for the inline edits widget over the original text when tab will accept it."));
+function getModifiedBorderColor(tabAction) {
+  return tabAction.map((a) => a === InlineEditTabAction.Accept ? tabWillAcceptModifiedBorder : modifiedBorder);
+}
+__name(getModifiedBorderColor, "getModifiedBorderColor");
+function getOriginalBorderColor(tabAction) {
+  return tabAction.map((a) => a === InlineEditTabAction.Accept ? tabWillAcceptOriginalBorder : originalBorder);
+}
+__name(getOriginalBorderColor, "getOriginalBorderColor");
+function getEditorBlendedColor(colorIdentifier, themeService) {
+  let color;
+  if (typeof colorIdentifier === "string") {
+    color = observeColor(colorIdentifier, themeService);
+  } else {
+    color = colorIdentifier.map((identifier, reader) => observeColor(identifier, themeService).read(reader));
+  }
+  const backgroundColor = observeColor(editorBackground, themeService);
+  return color.map((c, reader) => (
+    /** @description makeOpaque */
+    c.makeOpaque(backgroundColor.read(reader))
+  ));
+}
+__name(getEditorBlendedColor, "getEditorBlendedColor");
+function getEditorBackgroundColor(editorType) {
+  let color;
+  switch (editorType) {
+    case InlineCompletionEditorType.TextEditor:
+      color = editorBackground;
+      break;
+    case InlineCompletionEditorType.DiffEditor:
+      color = editorBackground;
+      break;
+    case InlineCompletionEditorType.Notebook:
+      color = "notebook.cellEditorBackground";
+      break;
+    default:
+      assertNever(editorType, "Not supported editor type yet");
+  }
+  return asCssVariable(color);
+}
+__name(getEditorBackgroundColor, "getEditorBackgroundColor");
+function observeColor(colorIdentifier, themeService) {
+  return observableFromEventOpts({
+    owner: { observeColor: colorIdentifier },
+    equalsFn: /* @__PURE__ */ __name((a, b) => a.equals(b), "equalsFn"),
+    debugName: /* @__PURE__ */ __name(() => `observeColor(${colorIdentifier})`, "debugName")
+  }, themeService.onDidColorThemeChange, () => {
+    const color = themeService.getColorTheme().getColor(colorIdentifier);
+    if (!color) {
+      throw new BugIndicatingError(`Missing color: ${colorIdentifier}`);
+    }
+    return color;
+  });
+}
+__name(observeColor, "observeColor");
+const INLINE_EDITS_BORDER_RADIUS = 3;
+export {
+  INLINE_EDITS_BORDER_RADIUS,
+  getEditorBackgroundColor,
+  getEditorBlendedColor,
+  getModifiedBorderColor,
+  getOriginalBorderColor,
+  inlineEditIndicatorBackground,
+  inlineEditIndicatorPrimaryBackground,
+  inlineEditIndicatorPrimaryBorder,
+  inlineEditIndicatorPrimaryForeground,
+  inlineEditIndicatorSecondaryBackground,
+  inlineEditIndicatorSecondaryBorder,
+  inlineEditIndicatorSecondaryForeground,
+  inlineEditIndicatorSuccessfulBackground,
+  inlineEditIndicatorSuccessfulBorder,
+  inlineEditIndicatorSuccessfulForeground,
+  modifiedBackgroundColor,
+  modifiedChangedLineBackgroundColor,
+  modifiedChangedTextOverlayColor,
+  observeColor,
+  originalBackgroundColor,
+  originalChangedLineBackgroundColor,
+  originalChangedTextOverlayColor
+};
+//# sourceMappingURL=theme.js.map

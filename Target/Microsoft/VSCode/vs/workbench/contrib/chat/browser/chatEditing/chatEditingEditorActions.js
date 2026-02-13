@@ -1,1 +1,571 @@
-import{$bk as C}from"../../../../../base/common/codicons.js";import{CancellationToken as ot}from"../../../../../base/common/cancellation.js";import{EditorContextKeys as $}from"../../../../../editor/common/editorContextKeys.js";import{localize as M,localize2 as s}from"../../../../../nls.js";import{$vL as R,$qL as p,$sL as nt,$wL as g}from"../../../../../platform/actions/common/actions.js";import{$0n as i}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as k}from"../../../../../platform/instantiation/common/instantiation.js";import{$Prb as rt}from"../../../../../platform/list/browser/listService.js";import{$uSb as st}from"../../../../browser/parts/editor/editorCommandsContext.js";import{$NO as ct}from"../../../../common/contextkeys.js";import{$vN as at,SideBySideEditor as dt,$_M as ft}from"../../../../common/editor.js";import{$xL as lt}from"../../../../services/editor/common/editorGroupsService.js";import{$CL as ut,$BL as A}from"../../../../services/editor/common/editorService.js";import{$oNb as gt}from"../../../inlineChat/common/inlineChat.js";import{$rgc as pt}from"../../../multiDiffEditor/browser/multiDiffEditor.js";import{$e1b as G}from"../../../multiDiffEditor/browser/multiDiffEditorInput.js";import{$tFb as q,$sFb as z}from"../../../notebook/common/notebookContextKeys.js";import{ChatContextKeys as ht}from"../../common/actions/chatContextKeys.js";import{$PV as N,$8V as W,$UV as P}from"../../common/editing/chatEditingService.js";import{$HPb as J}from"../actions/chatActions.js";import{$JQb as mt,$EQb as h,$HQb as Y,$FQb as S,$DQb as X,$GQb as y}from"./chatEditingEditorContextKeys.js";import{$vgc as Et}from"./chatEditingExplanationWidget.js";import{$sgc as Ct}from"./chatEditingExplanationModelManager.js";import{$U4b as vt}from"../chat.js";import{$gBb as wt}from"../../../../services/views/common/viewsService.js";import{$Dd as xt}from"../../../../../base/common/lifecycle.js";import{URI as $t}from"../../../../../base/common/uri.js";import{Event as bt}from"../../../../../base/common/event.js";import{ChatConfiguration as St}from"../../common/constants.js";class b extends R{constructor(t){super({category:J,...t})}async run(t,...e){const r=t.get(k),o=t.get(N),n=t.get(A),f=at.getOriginalUri(n.activeEditorPane?.input,{supportSideBySide:dt.PRIMARY});if(!f||!n.activeEditorPane)return;const l=o.editingSessionsObs.get().find(v=>v.getEntry(f));if(!l)return;const c=l.getEntry(f),a=c.getEditorIntegration(n.activeEditorPane);return r.invokeFunction(this.runChatEditingCommand.bind(this),l,c,a,...e)}}class Q extends b{constructor(t){super({id:t?"chatEditor.action.navigateNext":"chatEditor.action.navigatePrevious",title:t?s(5854,"Go to Next Chat Edit"):s(5855,"Go to Previous Chat Edit"),icon:t?C.arrowDown:C.arrowUp,precondition:i.and(ht.enabled,h),keybinding:{primary:t?575:1599,weight:200,when:i.and(h,i.or($.focus,q))},f1:!0,menu:{id:p.ChatEditingEditorContent,group:"navigate",order:t?3:2,when:i.and(y,h)}}),this.next=t}async runChatEditingCommand(t,e,r,o){const n=t.get(k);(this.next?o.next(!1):o.previous(!1))||await n.invokeFunction(K,e,r,this.next)||(this.next?o.next(!0):o.previous(!0))}}async function K(d,t,e,r){const o=d.get(A),n=t.entries.get();let f=n.indexOf(e),l;for(;f=(f+(r?1:-1)+n.length)%n.length,l=n[f],l.state.get()!==0;)if(l===e)return!1;const c=await o.openEditor({resource:l.modifiedURI,options:{revealIfOpened:!1,revealIfVisible:!1}},ut);return c?(t.entries.get().includes(l)&&l.getEditorIntegration(c).reveal(r),!0):!1}class Z extends b{constructor(t,e){super({id:t,title:e?s(5856,"Keep Chat Edits"):s(5857,"Undo Chat Edits"),shortTitle:e?s(5858,"Keep"):s(5859,"Undo"),tooltip:e?s(5860,"Keep Chat Edits in this File"):s(5861,"Undo Chat Edits in this File"),precondition:i.and(h,S.negate()),icon:e?C.check:C.discard,f1:!0,keybinding:{when:i.or($.focus,z),weight:210,primary:e?3127:3116},menu:{id:p.ChatEditingEditorContent,group:"a_resolve",order:e?0:1,when:i.and(e?void 0:y,i.or(X,Y.negate()))}}),this.a=e}async runChatEditingCommand(t,e,r,o){const n=t.get(k);this.a?e.accept(r.modifiedURI):e.reject(r.modifiedURI),await n.invokeFunction(K,e,r,!0)}}class T extends Z{static{this.ID="chatEditor.action.accept"}constructor(){super(T.ID,!0)}}class O extends Z{static{this.ID="chatEditor.action.reject"}constructor(){super(O.ID,!1)}}const tt="chatEditor.action.acceptHunk",et="chatEditor.action.undoHunk";class it extends b{constructor(t){super({id:t?tt:et,title:t?s(5862,"Keep this Change"):s(5863,"Undo this Change"),shortTitle:t?s(5864,"Keep"):s(5865,"Undo"),precondition:i.and(h,S.negate()),f1:!0,keybinding:{when:i.and(mt,i.or($.focus,q)),weight:201,primary:t?2103:2092},menu:{id:p.ChatEditingEditorHunk,order:1}}),this.a=t}async runChatEditingCommand(t,e,r,o,...n){const f=t.get(k);this.a?await o.acceptNearestChange(n[0]):await o.rejectNearestChange(n[0]),r.changesCount.get()===0&&await f.invokeFunction(K,e,r,!0)}}class yt extends it{static{this.ID=tt}constructor(){super(!0)}}class Dt extends it{static{this.ID=et}constructor(){super(!1)}}class It extends b{constructor(){super({id:"chatEditor.action.toggleDiff",title:s(5866,"Toggle Diff Editor for Chat Edits"),category:J,toggled:{condition:i.or($.inDiffEditor,ct.isEqualTo(ft)),icon:C.goToFile},precondition:i.and(h),icon:C.diffSingle,keybinding:{when:$.focus,weight:200,primary:1601},menu:[{id:p.ChatEditingEditorHunk,order:10},{id:p.ChatEditingEditorContent,group:"a_resolve",order:2,when:i.and(y)},{id:p.ChatEditorInlineExecute,group:"a_resolve",order:2,when:i.and(y,gt)}]})}runChatEditingCommand(t,e,r,o,...n){o.toggleDiff(n[0])}}class Mt extends b{constructor(){super({id:"chatEditor.action.showAccessibleDiffView",title:s(5867,"Show Accessible Diff View for Chat Edits"),f1:!0,precondition:i.and(h,S.negate()),keybinding:{when:$.focus,weight:200,primary:65}})}runChatEditingCommand(t,e,r,o){o.enableAccessibleDiffView()}}class kt extends b{constructor(){super({id:"chatEditor.action.reviewChanges",title:s(5868,"Review"),precondition:i.and(h,S.negate()),menu:[{id:p.ChatEditingEditorContent,group:"a_resolve",order:3,when:i.and(y.negate(),S.negate(),i.or(X,Y.negate()))}]})}runChatEditingCommand(t,e,r,o,...n){r.enableReviewModeUntilSettled()}}class V extends b{static{this.ID="chatEditor.action.acceptAllEdits"}constructor(){super({id:V.ID,title:s(5869,"Keep All Chat Edits"),tooltip:s(5870,"Keep All Chat Edits in this Session"),precondition:i.and(h,S.negate()),icon:C.checkAll,f1:!0,keybinding:{when:i.or($.focus,z),weight:210,primary:2615}})}async runChatEditingCommand(t,e,r,o,...n){await e.accept()}}class B extends R{constructor(t){super({id:t?"chatEditing.multidiff.acceptAllFiles":"chatEditing.multidiff.discardAllFiles",title:t?M(5850,null):M(5851,null),icon:t?C.check:C.discard,menu:{when:i.equals("resourceScheme",P),id:p.EditorTitle,order:t?0:1,group:"navigation"}}),this.accept=t}async run(t,...e){const r=t.get(N),o=t.get(A),n=t.get(lt),f=t.get(rt),c=st(e,o,n,f).groupedEditors[0];if(!c)return;const a=c.editors[0];if(!(a instanceof G)||!a.resource)return;const{chatSessionResource:v}=W(a.resource),D=r.getEditingSession(v);D&&(this.accept?await D.accept():await D.reject(),o.closeEditor({editor:a,groupId:c.group.id}))}}const At=[P,"copilotcli-worktree-changes","copilotcloud-pr-changes"];class Ut extends R{constructor(){super({id:"chatEditing.multidiff.explain",title:M(5852,null),menu:{when:i.and(i.or(...At.map(t=>i.equals("resourceScheme",t))),i.has(`config.${St.ExplainChangesEnabled}`)),id:p.MultiDiffEditorContent,order:10}}),this.a=new WeakMap}async run(t,...e){const r=t.get(A),o=t.get(Ct),n=t.get(vt),f=t.get(wt),l=t.get(N),c=r.activeEditorPane;if(!c||!(c instanceof pt)||!c.viewModel)return;const a=c.input;if(!a)return;this.a.get(a)?.dispose();const v=new xt;this.a.set(a,v),bt.once(a.onWillDispose)(()=>{v.dispose(),this.a.delete(a)});const H=c.viewModel.items.get();let I;if(a instanceof G&&a.resource?.scheme===P&&(I=W(a.resource).chatSessionResource),!I){const m=H.map(u=>{const E=u.documentDiffItem,w=E?.multiDiffEditorItem?.goToFileUri;if(w)return w;const x=E?.multiDiffEditorItem?.modifiedUri??u.modifiedUri;if(x?.path)return $t.file(x.path)}).filter(u=>!!u);for(const u of l.editingSessionsObs.get())if(m.some(E=>u.getEntry(E))){I=u.chatSessionResource;break}}const U=new Map;for(const m of H){const u=m.modifiedUri;if(!u)continue;const E=c.tryGetCodeEditor(u);if(!E)continue;const w=m.diffEditorViewModel;await w.waitForDiff();const x=w.diff.get();if(!x||x.identical)continue;const L=u.toString(),j=U.get(L);j?j.changes.push(...x.mappings.map(F=>F.lineRangeMapping)):U.set(L,{editor:E.editor,changes:x.mappings.map(F=>F.lineRangeMapping),originalModel:w.model.original,modifiedModel:w.model.modified})}const _=[];for(const m of U.values()){const u={changes:m.changes,identical:!1,originalModel:m.originalModel,modifiedModel:m.modifiedModel};_.push(u);const E=new Et(m.editor,n,f,o,u.modifiedModel.uri);v.add(E)}_.length>0&&v.add(o.generateExplanations(_,I,ot.None))}}function fe(){g(class extends Q{constructor(){super(!0)}}),g(class extends Q{constructor(){super(!1)}}),g(kt),g(T),g(O),g(V),g(yt),g(Dt),g(It),g(Mt),g(class extends B{constructor(){super(!0)}}),g(class extends B{constructor(){super(!1)}}),g(Ut),nt.appendMenuItem(p.ChatEditingEditorContent,{command:{id:_t,title:M(5853,null),precondition:i.false()},group:"navigate",order:-1,when:i.and(y,h)})}const _t="chatEditor.navigation.bearings";export{kt as $Agc,V as $Bgc,fe as $Cgc,_t as $Dgc,T as $wgc,O as $xgc,yt as $ygc,Dt as $zgc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { EditorContextKeys } from "../../../../../editor/common/editorContextKeys.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IListService } from "../../../../../platform/list/browser/listService.js";
+import { resolveCommandsContext } from "../../../../browser/parts/editor/editorCommandsContext.js";
+import { ActiveEditorContext } from "../../../../common/contextkeys.js";
+import { EditorResourceAccessor, SideBySideEditor, TEXT_DIFF_EDITOR_ID } from "../../../../common/editor.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP, IEditorService } from "../../../../services/editor/common/editorService.js";
+import { CTX_HOVER_MODE } from "../../../inlineChat/common/inlineChat.js";
+import { MultiDiffEditor } from "../../../multiDiffEditor/browser/multiDiffEditor.js";
+import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
+import { NOTEBOOK_CELL_LIST_FOCUSED, NOTEBOOK_EDITOR_FOCUSED } from "../../../notebook/common/notebookContextKeys.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { IChatEditingService, parseChatMultiDiffUri, CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME } from "../../common/editing/chatEditingService.js";
+import { CHAT_CATEGORY } from "../actions/chatActions.js";
+import { ctxCursorInChangeRange, ctxHasEditorModification, ctxHasRequestInProgress, ctxIsCurrentlyBeingModified, ctxIsGlobalEditingSession, ctxReviewModeEnabled } from "./chatEditingEditorContextKeys.js";
+import { ChatEditingExplanationWidgetManager } from "./chatEditingExplanationWidget.js";
+import { IChatEditingExplanationModelManager } from "./chatEditingExplanationModelManager.js";
+import { IChatWidgetService } from "../chat.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Event } from "../../../../../base/common/event.js";
+import { ChatConfiguration } from "../../common/constants.js";
+class ChatEditingEditorAction extends Action2 {
+  static {
+    __name(this, "ChatEditingEditorAction");
+  }
+  constructor(desc) {
+    super({
+      category: CHAT_CATEGORY,
+      ...desc
+    });
+  }
+  async run(accessor, ...args) {
+    const instaService = accessor.get(IInstantiationService);
+    const chatEditingService = accessor.get(IChatEditingService);
+    const editorService = accessor.get(IEditorService);
+    const uri = EditorResourceAccessor.getOriginalUri(editorService.activeEditorPane?.input, { supportSideBySide: SideBySideEditor.PRIMARY });
+    if (!uri || !editorService.activeEditorPane) {
+      return;
+    }
+    const session = chatEditingService.editingSessionsObs.get().find((candidate) => candidate.getEntry(uri));
+    if (!session) {
+      return;
+    }
+    const entry = session.getEntry(uri);
+    const ctrl = entry.getEditorIntegration(editorService.activeEditorPane);
+    return instaService.invokeFunction(this.runChatEditingCommand.bind(this), session, entry, ctrl, ...args);
+  }
+}
+class NavigateAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "NavigateAction");
+  }
+  constructor(next) {
+    super({
+      id: next ? "chatEditor.action.navigateNext" : "chatEditor.action.navigatePrevious",
+      title: next ? localize2("next", "Go to Next Chat Edit") : localize2("prev", "Go to Previous Chat Edit"),
+      icon: next ? Codicon.arrowDown : Codicon.arrowUp,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ctxHasEditorModification),
+      keybinding: {
+        primary: next ? 512 | 63 : 512 | 1024 | 63,
+        weight: 200,
+        when: ContextKeyExpr.and(ctxHasEditorModification, ContextKeyExpr.or(EditorContextKeys.focus, NOTEBOOK_CELL_LIST_FOCUSED))
+      },
+      f1: true,
+      menu: {
+        id: MenuId.ChatEditingEditorContent,
+        group: "navigate",
+        order: !next ? 2 : 3,
+        when: ContextKeyExpr.and(ctxReviewModeEnabled, ctxHasEditorModification)
+      }
+    });
+    this.next = next;
+  }
+  async runChatEditingCommand(accessor, session, entry, ctrl) {
+    const instaService = accessor.get(IInstantiationService);
+    const done = this.next ? ctrl.next(false) : ctrl.previous(false);
+    if (done) {
+      return;
+    }
+    const didOpenNext = await instaService.invokeFunction(openNextOrPreviousChange, session, entry, this.next);
+    if (didOpenNext) {
+      return;
+    }
+    this.next ? ctrl.next(true) : ctrl.previous(true);
+  }
+}
+async function openNextOrPreviousChange(accessor, session, entry, next) {
+  const editorService = accessor.get(IEditorService);
+  const entries = session.entries.get();
+  let idx = entries.indexOf(entry);
+  let newEntry;
+  while (true) {
+    idx = (idx + (next ? 1 : -1) + entries.length) % entries.length;
+    newEntry = entries[idx];
+    if (newEntry.state.get() === 0) {
+      break;
+    } else if (newEntry === entry) {
+      return false;
+    }
+  }
+  const pane = await editorService.openEditor({
+    resource: newEntry.modifiedURI,
+    options: {
+      revealIfOpened: false,
+      revealIfVisible: false
+    }
+  }, ACTIVE_GROUP);
+  if (!pane) {
+    return false;
+  }
+  if (session.entries.get().includes(newEntry)) {
+    newEntry.getEditorIntegration(pane).reveal(next);
+  }
+  return true;
+}
+__name(openNextOrPreviousChange, "openNextOrPreviousChange");
+class KeepOrUndoAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "KeepOrUndoAction");
+  }
+  constructor(id, _keep) {
+    super({
+      id,
+      title: _keep ? localize2("accept", "Keep Chat Edits") : localize2("discard", "Undo Chat Edits"),
+      shortTitle: _keep ? localize2("accept2", "Keep") : localize2("discard2", "Undo"),
+      tooltip: _keep ? localize2("accept3", "Keep Chat Edits in this File") : localize2("discard3", "Undo Chat Edits in this File"),
+      precondition: ContextKeyExpr.and(ctxHasEditorModification, ctxIsCurrentlyBeingModified.negate()),
+      icon: _keep ? Codicon.check : Codicon.discard,
+      f1: true,
+      keybinding: {
+        when: ContextKeyExpr.or(EditorContextKeys.focus, NOTEBOOK_EDITOR_FOCUSED),
+        weight: 200 + 10,
+        // win over new-window-action
+        primary: _keep ? 2048 | 1024 | 55 : 2048 | 1024 | 44
+      },
+      menu: {
+        id: MenuId.ChatEditingEditorContent,
+        group: "a_resolve",
+        order: _keep ? 0 : 1,
+        when: ContextKeyExpr.and(!_keep ? ctxReviewModeEnabled : void 0, ContextKeyExpr.or(ctxIsGlobalEditingSession, ctxHasRequestInProgress.negate()))
+      }
+    });
+    this._keep = _keep;
+  }
+  async runChatEditingCommand(accessor, session, entry, _integration) {
+    const instaService = accessor.get(IInstantiationService);
+    if (this._keep) {
+      session.accept(entry.modifiedURI);
+    } else {
+      session.reject(entry.modifiedURI);
+    }
+    await instaService.invokeFunction(openNextOrPreviousChange, session, entry, true);
+  }
+}
+class AcceptAction extends KeepOrUndoAction {
+  static {
+    __name(this, "AcceptAction");
+  }
+  static {
+    this.ID = "chatEditor.action.accept";
+  }
+  constructor() {
+    super(AcceptAction.ID, true);
+  }
+}
+class RejectAction extends KeepOrUndoAction {
+  static {
+    __name(this, "RejectAction");
+  }
+  static {
+    this.ID = "chatEditor.action.reject";
+  }
+  constructor() {
+    super(RejectAction.ID, false);
+  }
+}
+const acceptHunkId = "chatEditor.action.acceptHunk";
+const undoHunkId = "chatEditor.action.undoHunk";
+class AcceptRejectHunkAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "AcceptRejectHunkAction");
+  }
+  constructor(_accept) {
+    super({
+      id: _accept ? acceptHunkId : undoHunkId,
+      title: _accept ? localize2("acceptHunk", "Keep this Change") : localize2("undo", "Undo this Change"),
+      shortTitle: _accept ? localize2("acceptHunkShort", "Keep") : localize2("undoShort", "Undo"),
+      precondition: ContextKeyExpr.and(ctxHasEditorModification, ctxIsCurrentlyBeingModified.negate()),
+      f1: true,
+      keybinding: {
+        when: ContextKeyExpr.and(ctxCursorInChangeRange, ContextKeyExpr.or(EditorContextKeys.focus, NOTEBOOK_CELL_LIST_FOCUSED)),
+        weight: 200 + 1,
+        primary: _accept ? 2048 | 55 : 2048 | 44
+        /* KeyCode.KeyN */
+      },
+      menu: {
+        id: MenuId.ChatEditingEditorHunk,
+        order: 1
+      }
+    });
+    this._accept = _accept;
+  }
+  async runChatEditingCommand(accessor, session, entry, ctrl, ...args) {
+    const instaService = accessor.get(IInstantiationService);
+    if (this._accept) {
+      await ctrl.acceptNearestChange(args[0]);
+    } else {
+      await ctrl.rejectNearestChange(args[0]);
+    }
+    if (entry.changesCount.get() === 0) {
+      await instaService.invokeFunction(openNextOrPreviousChange, session, entry, true);
+    }
+  }
+}
+class AcceptHunkAction extends AcceptRejectHunkAction {
+  static {
+    __name(this, "AcceptHunkAction");
+  }
+  static {
+    this.ID = acceptHunkId;
+  }
+  constructor() {
+    super(true);
+  }
+}
+class RejectHunkAction extends AcceptRejectHunkAction {
+  static {
+    __name(this, "RejectHunkAction");
+  }
+  static {
+    this.ID = undoHunkId;
+  }
+  constructor() {
+    super(false);
+  }
+}
+class ToggleDiffAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "ToggleDiffAction");
+  }
+  constructor() {
+    super({
+      id: "chatEditor.action.toggleDiff",
+      title: localize2("diff", "Toggle Diff Editor for Chat Edits"),
+      category: CHAT_CATEGORY,
+      toggled: {
+        condition: ContextKeyExpr.or(EditorContextKeys.inDiffEditor, ActiveEditorContext.isEqualTo(TEXT_DIFF_EDITOR_ID)),
+        icon: Codicon.goToFile
+      },
+      precondition: ContextKeyExpr.and(ctxHasEditorModification),
+      icon: Codicon.diffSingle,
+      keybinding: {
+        when: EditorContextKeys.focus,
+        weight: 200,
+        primary: 512 | 1024 | 65
+      },
+      menu: [{
+        id: MenuId.ChatEditingEditorHunk,
+        order: 10
+      }, {
+        id: MenuId.ChatEditingEditorContent,
+        group: "a_resolve",
+        order: 2,
+        when: ContextKeyExpr.and(ctxReviewModeEnabled)
+      }, {
+        id: MenuId.ChatEditorInlineExecute,
+        group: "a_resolve",
+        order: 2,
+        when: ContextKeyExpr.and(ctxReviewModeEnabled, CTX_HOVER_MODE)
+      }]
+    });
+  }
+  runChatEditingCommand(_accessor, _session, _entry, integration, ...args) {
+    integration.toggleDiff(args[0]);
+  }
+}
+class ToggleAccessibleDiffViewAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "ToggleAccessibleDiffViewAction");
+  }
+  constructor() {
+    super({
+      id: "chatEditor.action.showAccessibleDiffView",
+      title: localize2("accessibleDiff", "Show Accessible Diff View for Chat Edits"),
+      f1: true,
+      precondition: ContextKeyExpr.and(ctxHasEditorModification, ctxIsCurrentlyBeingModified.negate()),
+      keybinding: {
+        when: EditorContextKeys.focus,
+        weight: 200,
+        primary: 65
+      }
+    });
+  }
+  runChatEditingCommand(_accessor, _session, _entry, integration) {
+    integration.enableAccessibleDiffView();
+  }
+}
+class ReviewChangesAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "ReviewChangesAction");
+  }
+  constructor() {
+    super({
+      id: "chatEditor.action.reviewChanges",
+      title: localize2("review", "Review"),
+      precondition: ContextKeyExpr.and(ctxHasEditorModification, ctxIsCurrentlyBeingModified.negate()),
+      menu: [{
+        id: MenuId.ChatEditingEditorContent,
+        group: "a_resolve",
+        order: 3,
+        when: ContextKeyExpr.and(ctxReviewModeEnabled.negate(), ctxIsCurrentlyBeingModified.negate(), ContextKeyExpr.or(ctxIsGlobalEditingSession, ctxHasRequestInProgress.negate()))
+      }]
+    });
+  }
+  runChatEditingCommand(_accessor, _session, entry, _integration, ..._args) {
+    entry.enableReviewModeUntilSettled();
+  }
+}
+class AcceptAllEditsAction extends ChatEditingEditorAction {
+  static {
+    __name(this, "AcceptAllEditsAction");
+  }
+  static {
+    this.ID = "chatEditor.action.acceptAllEdits";
+  }
+  constructor() {
+    super({
+      id: AcceptAllEditsAction.ID,
+      title: localize2("acceptAllEdits", "Keep All Chat Edits"),
+      tooltip: localize2("acceptAllEditsTooltip", "Keep All Chat Edits in this Session"),
+      precondition: ContextKeyExpr.and(ctxHasEditorModification, ctxIsCurrentlyBeingModified.negate()),
+      icon: Codicon.checkAll,
+      f1: true,
+      keybinding: {
+        when: ContextKeyExpr.or(EditorContextKeys.focus, NOTEBOOK_EDITOR_FOCUSED),
+        weight: 200 + 10,
+        primary: 2048 | 512 | 55
+      }
+    });
+  }
+  async runChatEditingCommand(_accessor, session, _entry, _integration, ..._args) {
+    await session.accept();
+  }
+}
+class MultiDiffAcceptDiscardAction extends Action2 {
+  static {
+    __name(this, "MultiDiffAcceptDiscardAction");
+  }
+  constructor(accept) {
+    super({
+      id: accept ? "chatEditing.multidiff.acceptAllFiles" : "chatEditing.multidiff.discardAllFiles",
+      title: accept ? localize("accept4", "Keep All Edits") : localize("discard4", "Undo All Edits"),
+      icon: accept ? Codicon.check : Codicon.discard,
+      menu: {
+        when: ContextKeyExpr.equals("resourceScheme", CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME),
+        id: MenuId.EditorTitle,
+        order: accept ? 0 : 1,
+        group: "navigation"
+      }
+    });
+    this.accept = accept;
+  }
+  async run(accessor, ...args) {
+    const chatEditingService = accessor.get(IChatEditingService);
+    const editorService = accessor.get(IEditorService);
+    const editorGroupsService = accessor.get(IEditorGroupsService);
+    const listService = accessor.get(IListService);
+    const resolvedContext = resolveCommandsContext(args, editorService, editorGroupsService, listService);
+    const groupContext = resolvedContext.groupedEditors[0];
+    if (!groupContext) {
+      return;
+    }
+    const editor = groupContext.editors[0];
+    if (!(editor instanceof MultiDiffEditorInput) || !editor.resource) {
+      return;
+    }
+    const { chatSessionResource } = parseChatMultiDiffUri(editor.resource);
+    const session = chatEditingService.getEditingSession(chatSessionResource);
+    if (session) {
+      if (this.accept) {
+        await session.accept();
+      } else {
+        await session.reject();
+      }
+      editorService.closeEditor({ editor, groupId: groupContext.group.id });
+    }
+  }
+}
+const explainMultiDiffSchemes = [CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME, "copilotcli-worktree-changes", "copilotcloud-pr-changes"];
+class ExplainMultiDiffAction extends Action2 {
+  static {
+    __name(this, "ExplainMultiDiffAction");
+  }
+  constructor() {
+    super({
+      id: "chatEditing.multidiff.explain",
+      title: localize("explain", "Explain"),
+      menu: {
+        when: ContextKeyExpr.and(ContextKeyExpr.or(...explainMultiDiffSchemes.map((scheme) => ContextKeyExpr.equals("resourceScheme", scheme))), ContextKeyExpr.has(`config.${ChatConfiguration.ExplainChangesEnabled}`)),
+        id: MenuId.MultiDiffEditorContent,
+        order: 10
+      }
+    });
+    this._widgetsByInput = /* @__PURE__ */ new WeakMap();
+  }
+  async run(accessor, ...args) {
+    const editorService = accessor.get(IEditorService);
+    const explanationModelManager = accessor.get(IChatEditingExplanationModelManager);
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const viewsService = accessor.get(IViewsService);
+    const chatEditingService = accessor.get(IChatEditingService);
+    const activePane = editorService.activeEditorPane;
+    if (!activePane) {
+      return;
+    }
+    if (!(activePane instanceof MultiDiffEditor) || !activePane.viewModel) {
+      return;
+    }
+    const input = activePane.input;
+    if (!input) {
+      return;
+    }
+    this._widgetsByInput.get(input)?.dispose();
+    const widgetsStore = new DisposableStore();
+    this._widgetsByInput.set(input, widgetsStore);
+    Event.once(input.onWillDispose)(() => {
+      widgetsStore.dispose();
+      this._widgetsByInput.delete(input);
+    });
+    const viewModel = activePane.viewModel;
+    const items = viewModel.items.get();
+    let chatSessionResource;
+    if (input instanceof MultiDiffEditorInput && input.resource?.scheme === CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME) {
+      chatSessionResource = parseChatMultiDiffUri(input.resource).chatSessionResource;
+    }
+    if (!chatSessionResource) {
+      const fileUris = items.map((item) => {
+        const docDiffItem = item.documentDiffItem;
+        const goToFileUri = docDiffItem?.multiDiffEditorItem?.goToFileUri;
+        if (goToFileUri) {
+          return goToFileUri;
+        }
+        const modifiedUri = docDiffItem?.multiDiffEditorItem?.modifiedUri ?? item.modifiedUri;
+        if (modifiedUri?.path) {
+          return URI.file(modifiedUri.path);
+        }
+        return void 0;
+      }).filter((uri) => !!uri);
+      for (const session of chatEditingService.editingSessionsObs.get()) {
+        if (fileUris.some((uri) => session.getEntry(uri))) {
+          chatSessionResource = session.chatSessionResource;
+          break;
+        }
+      }
+    }
+    const diffsByFile = /* @__PURE__ */ new Map();
+    for (const item of items) {
+      const modifiedUri = item.modifiedUri;
+      if (!modifiedUri) {
+        continue;
+      }
+      const editorInfo = activePane.tryGetCodeEditor(modifiedUri);
+      if (!editorInfo) {
+        continue;
+      }
+      const diffEditorVM = item.diffEditorViewModel;
+      await diffEditorVM.waitForDiff();
+      const diff = diffEditorVM.diff.get();
+      if (!diff || diff.identical) {
+        continue;
+      }
+      const fileKey = modifiedUri.toString();
+      const existing = diffsByFile.get(fileKey);
+      if (existing) {
+        existing.changes.push(...diff.mappings.map((m) => m.lineRangeMapping));
+      } else {
+        diffsByFile.set(fileKey, {
+          editor: editorInfo.editor,
+          changes: diff.mappings.map((m) => m.lineRangeMapping),
+          originalModel: diffEditorVM.model.original,
+          modifiedModel: diffEditorVM.model.modified
+        });
+      }
+    }
+    const allDiffInfos = [];
+    for (const fileData of diffsByFile.values()) {
+      const diffInfo = {
+        changes: fileData.changes,
+        identical: false,
+        originalModel: fileData.originalModel,
+        modifiedModel: fileData.modifiedModel
+      };
+      allDiffInfos.push(diffInfo);
+      const manager = new ChatEditingExplanationWidgetManager(fileData.editor, chatWidgetService, viewsService, explanationModelManager, diffInfo.modifiedModel.uri);
+      widgetsStore.add(manager);
+    }
+    if (allDiffInfos.length > 0) {
+      widgetsStore.add(explanationModelManager.generateExplanations(allDiffInfos, chatSessionResource, CancellationToken.None));
+    }
+  }
+}
+function registerChatEditorActions() {
+  registerAction2(class NextAction extends NavigateAction {
+    static {
+      __name(this, "NextAction");
+    }
+    constructor() {
+      super(true);
+    }
+  });
+  registerAction2(class PrevAction extends NavigateAction {
+    static {
+      __name(this, "PrevAction");
+    }
+    constructor() {
+      super(false);
+    }
+  });
+  registerAction2(ReviewChangesAction);
+  registerAction2(AcceptAction);
+  registerAction2(RejectAction);
+  registerAction2(AcceptAllEditsAction);
+  registerAction2(AcceptHunkAction);
+  registerAction2(RejectHunkAction);
+  registerAction2(ToggleDiffAction);
+  registerAction2(ToggleAccessibleDiffViewAction);
+  registerAction2(class extends MultiDiffAcceptDiscardAction {
+    constructor() {
+      super(true);
+    }
+  });
+  registerAction2(class extends MultiDiffAcceptDiscardAction {
+    constructor() {
+      super(false);
+    }
+  });
+  registerAction2(ExplainMultiDiffAction);
+  MenuRegistry.appendMenuItem(MenuId.ChatEditingEditorContent, {
+    command: {
+      id: navigationBearingFakeActionId,
+      title: localize("label", "Navigation Status"),
+      precondition: ContextKeyExpr.false()
+    },
+    group: "navigate",
+    order: -1,
+    when: ContextKeyExpr.and(ctxReviewModeEnabled, ctxHasEditorModification)
+  });
+}
+__name(registerChatEditorActions, "registerChatEditorActions");
+const navigationBearingFakeActionId = "chatEditor.navigation.bearings";
+export {
+  AcceptAction,
+  AcceptAllEditsAction,
+  AcceptHunkAction,
+  RejectAction,
+  RejectHunkAction,
+  ReviewChangesAction,
+  navigationBearingFakeActionId,
+  registerChatEditorActions
+};
+//# sourceMappingURL=chatEditingEditorActions.js.map

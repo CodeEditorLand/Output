@@ -1,1 +1,260 @@
-import{$WC as A}from"../../../../../../platform/instantiation/common/extensions.js";import{$qL as f,$sL as p,$wL as S}from"../../../../../../platform/actions/common/actions.js";import{$0oc as y,$$oc as x,$9oc as E}from"./agentSessionProjectionService.js";import{$_oc as _,$apc as B,$bpc as P,$cpc as T}from"./agentSessionProjectionActions.js";import{$2N as j}from"../../../../../common/contributions.js";import{$lpc as C}from"./agentTitleBarStatusWidget.js";import{$7oc as I,$6oc as v}from"./agentTitleBarStatusService.js";import{$bk as w}from"../../../../../../base/common/codicons.js";import{localize as $}from"../../../../../../nls.js";import{$0n as s}from"../../../../../../platform/contextkey/common/contextkey.js";import{$TN as W}from"../../../../../../platform/contextkey/common/contextkeys.js";import{ChatAgentLocation as m,ChatConfiguration as h}from"../../../common/constants.js";import{ChatContextKeys as c}from"../../../common/actions/chatContextKeys.js";import{$Ed as U,$Dd as q}from"../../../../../../base/common/lifecycle.js";import{$U4b as L}from"../../chat.js";import{$0l as O}from"../../../../../../platform/configuration/common/configuration.js";import{$tQb as V}from"../agentSessionsService.js";import{AgentSessionProviders as z}from"../agentSessions.js";import{$PV as H}from"../../../common/editing/chatEditingService.js";import{isSessionInProgressStatus as N}from"../agentSessionsModel.js";import{autorun as M}from"../../../../../../base/common/observable.js";import"./unifiedQuickAccessActions.js";var R=function(d,t,o,e){var r=arguments.length,n=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,o):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(d,t,o,e);else for(var i=d.length-1;i>=0;i--)(a=d[i])&&(n=(r<3?a(n):r>3?a(t,o,n):a(t,o))||n);return r>3&&n&&Object.defineProperty(t,o,n),n},l=function(d,t){return function(o,e){t(o,e,d)}};let u=class extends U{static{this.ID="chat.agentSessionReady"}constructor(t,o,e,r,n,a){super(),this.g=t,this.h=o,this.j=e,this.m=r,this.n=n,this.q=a,this.a=this.D(new q),this.f=!1;for(const i of this.g.getAllWidgets())i.location===m.Chat&&this.r(i);this.D(this.g.onDidAddWidget(i=>{i.location===m.Chat&&this.r(i)})),this.D(this.n.onDidChangeProjectionMode(i=>{i||(this.f=!0,this.t(),this.j.exitSessionReadyMode())})),this.D(M(i=>{this.q.editingSessionsObs.read(i);const g=this.g.getAllWidgets().find(b=>b.location===m.Chat);g&&this.s(g.viewModel?.sessionResource)})),this.D(this.m.model.onDidChangeSessions(()=>{const i=this.g.getAllWidgets().find(g=>g.location===m.Chat);i&&this.s(i.viewModel?.sessionResource)}))}r(t){this.a.clear(),this.s(t.viewModel?.sessionResource),this.a.add(t.onDidChangeViewModel(()=>{this.s(t.viewModel?.sessionResource)}))}s(t){if(t?.toString()!==this.c?.toString()&&(this.f=!1),this.n.isActive){const o=this.n.activeSession;if(t&&o&&t.toString()!==o.resource.toString()){const e=this.m.getSession(t);e&&this.n.enterProjection(e)}return}this.u(t)}t(){this.b?.dispose(),this.b=void 0,this.c=void 0}u(t){if(!this.h.getValue(h.AgentSessionProjectionEnabled)){this.t(),this.j.exitSessionReadyMode();return}if(this.n.isActive){this.t();return}if(!t){this.t(),this.j.exitSessionReadyMode();return}const e=this.m.getSession(t);if(!e){this.t(),this.j.exitSessionReadyMode();return}if(!E.has(e.providerType)){this.t(),this.j.exitSessionReadyMode();return}if(N(e.status)){this.t(),this.j.exitSessionReadyMode();return}let r=!1;if(e.providerType===z.Local){const n=this.q.getEditingSession(t);if(!n){this.t(),this.j.exitSessionReadyMode();return}r=n.entries.get().some(i=>i.state.get()===0),r&&!this.f?(this.j.enterSessionReadyMode(e.resource,e.label),(!this.c||this.c.toString()!==t.toString())&&(this.t(),this.c=t,this.b=M(i=>{n.entries.read(i).some(D=>D.state.read(i)===0)||this.j.exitSessionReadyMode()}))):(this.t(),this.j.exitSessionReadyMode())}else this.t(),r=(Array.isArray(e.changes)?e.changes.filter(a=>!!a.originalUri).length:0)>0,r&&!this.f?this.j.enterSessionReadyMode(e.resource,e.label):this.j.exitSessionReadyMode()}};u=R([l(0,L),l(1,O),l(2,v),l(3,V),l(4,y),l(5,H)],u);S(_);S(B);S(P);S(T);A(y,x,1);A(v,I,1);j(C.ID,C,3);j(u.ID,u,3);p.appendMenuItem(f.CommandCenter,{submenu:f.AgentsTitleBarControlMenu,title:$(5541,null),icon:w.chatSparkle,when:s.and(c.enabled,s.or(s.has(`config.${h.AgentStatusEnabled}`),s.has(`config.${h.UnifiedAgentsBar}`))),order:10002});p.appendMenuItem(f.TitleBar,{submenu:f.ChatTitleBarMenu,title:$(5542,null),group:"navigation",icon:w.chatSparkle,when:s.and(c.supported,s.and(c.Setup.hidden.negate(),c.Setup.disabled.negate()),s.has(`config.${h.AgentStatusEnabled}`),s.has("config.window.commandCenter").negate()),order:1});p.appendMenuItem(f.AgentsTitleBarControlMenu,{command:{id:"workbench.action.chat.toggle",title:$(5543,null)},when:s.and(c.enabled,s.or(s.has(`config.${h.AgentStatusEnabled}`),s.has(`config.${h.UnifiedAgentsBar}`))),group:"a_open",order:1});p.appendMenuItem(f.AgentsTitleBarControlMenu,{command:{id:`toggle.${h.UnifiedAgentsBar}`,title:$(5544,null),toggled:s.has(`config.${h.UnifiedAgentsBar}`)},when:s.and(c.enabled,W.notEqualsTo("stable")),group:"z_experimental",order:10});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { registerSingleton } from "../../../../../../platform/instantiation/common/extensions.js";
+import { MenuId, MenuRegistry, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IAgentSessionProjectionService, AgentSessionProjectionService, AGENT_SESSION_PROJECTION_ENABLED_PROVIDERS } from "./agentSessionProjectionService.js";
+import { EnterAgentSessionProjectionAction, ExitAgentSessionProjectionAction, ToggleAgentStatusAction, ToggleUnifiedAgentsBarAction } from "./agentSessionProjectionActions.js";
+import { registerWorkbenchContribution2 } from "../../../../../common/contributions.js";
+import { AgentTitleBarStatusRendering } from "./agentTitleBarStatusWidget.js";
+import { AgentTitleBarStatusService, IAgentTitleBarStatusService } from "./agentTitleBarStatusService.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { localize } from "../../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { ProductQualityContext } from "../../../../../../platform/contextkey/common/contextkeys.js";
+import { ChatAgentLocation, ChatConfiguration } from "../../../common/constants.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { IChatWidgetService } from "../../chat.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IAgentSessionsService } from "../agentSessionsService.js";
+import { AgentSessionProviders } from "../agentSessions.js";
+import { IChatEditingService } from "../../../common/editing/chatEditingService.js";
+import { isSessionInProgressStatus } from "../agentSessionsModel.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import "./unifiedQuickAccessActions.js";
+let AgentSessionReadyContribution = class AgentSessionReadyContribution2 extends Disposable {
+  static {
+    __name(this, "AgentSessionReadyContribution");
+  }
+  static {
+    this.ID = "chat.agentSessionReady";
+  }
+  constructor(chatWidgetService, configurationService, agentTitleBarStatusService, agentSessionsService, agentSessionProjectionService, chatEditingService) {
+    super();
+    this.chatWidgetService = chatWidgetService;
+    this.configurationService = configurationService;
+    this.agentTitleBarStatusService = agentTitleBarStatusService;
+    this.agentSessionsService = agentSessionsService;
+    this.agentSessionProjectionService = agentSessionProjectionService;
+    this.chatEditingService = chatEditingService;
+    this._widgetDisposables = this._register(new DisposableStore());
+    this._suppressSessionReady = false;
+    for (const widget of this.chatWidgetService.getAllWidgets()) {
+      if (widget.location === ChatAgentLocation.Chat) {
+        this._watchWidget(widget);
+      }
+    }
+    this._register(this.chatWidgetService.onDidAddWidget((widget) => {
+      if (widget.location === ChatAgentLocation.Chat) {
+        this._watchWidget(widget);
+      }
+    }));
+    this._register(this.agentSessionProjectionService.onDidChangeProjectionMode((isActive) => {
+      if (!isActive) {
+        this._suppressSessionReady = true;
+        this._clearEntriesWatcher();
+        this.agentTitleBarStatusService.exitSessionReadyMode();
+      }
+    }));
+    this._register(autorun((reader) => {
+      this.chatEditingService.editingSessionsObs.read(reader);
+      const currentWidget = this.chatWidgetService.getAllWidgets().find((w) => w.location === ChatAgentLocation.Chat);
+      if (currentWidget) {
+        this._checkSession(currentWidget.viewModel?.sessionResource);
+      }
+    }));
+    this._register(this.agentSessionsService.model.onDidChangeSessions(() => {
+      const currentWidget = this.chatWidgetService.getAllWidgets().find((w) => w.location === ChatAgentLocation.Chat);
+      if (currentWidget) {
+        this._checkSession(currentWidget.viewModel?.sessionResource);
+      }
+    }));
+  }
+  _watchWidget(widget) {
+    this._widgetDisposables.clear();
+    this._checkSession(widget.viewModel?.sessionResource);
+    this._widgetDisposables.add(widget.onDidChangeViewModel(() => {
+      this._checkSession(widget.viewModel?.sessionResource);
+    }));
+  }
+  _checkSession(sessionResource) {
+    if (sessionResource?.toString() !== this._watchedSessionResource?.toString()) {
+      this._suppressSessionReady = false;
+    }
+    if (this.agentSessionProjectionService.isActive) {
+      const activeSession = this.agentSessionProjectionService.activeSession;
+      if (sessionResource && activeSession && sessionResource.toString() !== activeSession.resource.toString()) {
+        const newSession = this.agentSessionsService.getSession(sessionResource);
+        if (newSession) {
+          this.agentSessionProjectionService.enterProjection(newSession);
+        }
+      }
+      return;
+    }
+    this._updateSessionReadyState(sessionResource);
+  }
+  _clearEntriesWatcher() {
+    this._entriesWatcher?.dispose();
+    this._entriesWatcher = void 0;
+    this._watchedSessionResource = void 0;
+  }
+  _updateSessionReadyState(sessionResource) {
+    const isEnabled = this.configurationService.getValue(ChatConfiguration.AgentSessionProjectionEnabled);
+    if (!isEnabled) {
+      this._clearEntriesWatcher();
+      this.agentTitleBarStatusService.exitSessionReadyMode();
+      return;
+    }
+    if (this.agentSessionProjectionService.isActive) {
+      this._clearEntriesWatcher();
+      return;
+    }
+    if (!sessionResource) {
+      this._clearEntriesWatcher();
+      this.agentTitleBarStatusService.exitSessionReadyMode();
+      return;
+    }
+    const session = this.agentSessionsService.getSession(sessionResource);
+    if (!session) {
+      this._clearEntriesWatcher();
+      this.agentTitleBarStatusService.exitSessionReadyMode();
+      return;
+    }
+    if (!AGENT_SESSION_PROJECTION_ENABLED_PROVIDERS.has(session.providerType)) {
+      this._clearEntriesWatcher();
+      this.agentTitleBarStatusService.exitSessionReadyMode();
+      return;
+    }
+    if (isSessionInProgressStatus(session.status)) {
+      this._clearEntriesWatcher();
+      this.agentTitleBarStatusService.exitSessionReadyMode();
+      return;
+    }
+    let hasPendingChanges = false;
+    if (session.providerType === AgentSessionProviders.Local) {
+      const editingSession = this.chatEditingService.getEditingSession(sessionResource);
+      if (!editingSession) {
+        this._clearEntriesWatcher();
+        this.agentTitleBarStatusService.exitSessionReadyMode();
+        return;
+      }
+      const entries = editingSession.entries.get();
+      hasPendingChanges = entries.some(
+        (entry) => entry.state.get() === 0
+        /* ModifiedFileEntryState.Modified */
+      );
+      if (hasPendingChanges && !this._suppressSessionReady) {
+        this.agentTitleBarStatusService.enterSessionReadyMode(session.resource, session.label);
+        if (!this._watchedSessionResource || this._watchedSessionResource.toString() !== sessionResource.toString()) {
+          this._clearEntriesWatcher();
+          this._watchedSessionResource = sessionResource;
+          this._entriesWatcher = autorun((reader) => {
+            const currentEntries = editingSession.entries.read(reader);
+            const stillHasChanges = currentEntries.some(
+              (entry) => entry.state.read(reader) === 0
+              /* ModifiedFileEntryState.Modified */
+            );
+            if (!stillHasChanges) {
+              this.agentTitleBarStatusService.exitSessionReadyMode();
+            }
+          });
+        }
+      } else {
+        this._clearEntriesWatcher();
+        this.agentTitleBarStatusService.exitSessionReadyMode();
+      }
+    } else {
+      this._clearEntriesWatcher();
+      const changeCount = Array.isArray(session.changes) ? session.changes.filter((change) => !!change.originalUri).length : 0;
+      hasPendingChanges = changeCount > 0;
+      if (hasPendingChanges && !this._suppressSessionReady) {
+        this.agentTitleBarStatusService.enterSessionReadyMode(session.resource, session.label);
+      } else {
+        this.agentTitleBarStatusService.exitSessionReadyMode();
+      }
+    }
+  }
+};
+AgentSessionReadyContribution = __decorate([
+  __param(0, IChatWidgetService),
+  __param(1, IConfigurationService),
+  __param(2, IAgentTitleBarStatusService),
+  __param(3, IAgentSessionsService),
+  __param(4, IAgentSessionProjectionService),
+  __param(5, IChatEditingService)
+], AgentSessionReadyContribution);
+registerAction2(EnterAgentSessionProjectionAction);
+registerAction2(ExitAgentSessionProjectionAction);
+registerAction2(ToggleAgentStatusAction);
+registerAction2(ToggleUnifiedAgentsBarAction);
+registerSingleton(
+  IAgentSessionProjectionService,
+  AgentSessionProjectionService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IAgentTitleBarStatusService,
+  AgentTitleBarStatusService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerWorkbenchContribution2(
+  AgentTitleBarStatusRendering.ID,
+  AgentTitleBarStatusRendering,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  AgentSessionReadyContribution.ID,
+  AgentSessionReadyContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+MenuRegistry.appendMenuItem(MenuId.CommandCenter, {
+  submenu: MenuId.AgentsTitleBarControlMenu,
+  title: localize("agentsControl", "Agents"),
+  icon: Codicon.chatSparkle,
+  when: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.or(ContextKeyExpr.has(`config.${ChatConfiguration.AgentStatusEnabled}`), ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`))),
+  order: 10002
+  // to the right of the chat button
+});
+MenuRegistry.appendMenuItem(MenuId.TitleBar, {
+  submenu: MenuId.ChatTitleBarMenu,
+  title: localize("title4", "Chat"),
+  group: "navigation",
+  icon: Codicon.chatSparkle,
+  when: ContextKeyExpr.and(ChatContextKeys.supported, ContextKeyExpr.and(ChatContextKeys.Setup.hidden.negate(), ChatContextKeys.Setup.disabled.negate()), ContextKeyExpr.has(`config.${ChatConfiguration.AgentStatusEnabled}`), ContextKeyExpr.has("config.window.commandCenter").negate()),
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.AgentsTitleBarControlMenu, {
+  command: {
+    id: "workbench.action.chat.toggle",
+    title: localize("openChat", "Open Chat")
+  },
+  when: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.or(ContextKeyExpr.has(`config.${ChatConfiguration.AgentStatusEnabled}`), ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`))),
+  group: "a_open",
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.AgentsTitleBarControlMenu, {
+  command: {
+    id: `toggle.${ChatConfiguration.UnifiedAgentsBar}`,
+    title: localize("toggleAgentQuickInput", "Agent Quick Input (Experimental)"),
+    toggled: ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`)
+  },
+  when: ContextKeyExpr.and(ChatContextKeys.enabled, ProductQualityContext.notEqualsTo("stable")),
+  group: "z_experimental",
+  order: 10
+});
+//# sourceMappingURL=agentSessionsExperiments.contribution.js.map

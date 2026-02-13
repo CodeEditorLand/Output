@@ -1,9 +1,93 @@
-import{$oTc as b}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$5H as v}from"../../../../../../editor/common/services/resolverService.js";import{$9H as S}from"../../../../../../editor/common/services/model.js";import{$oGc as x,$nGc as C}from"../../browser/lspTerminalModelContentProvider.js";import*as t from"sinon";import o from"assert";import{URI as g}from"../../../../../../base/common/uri.js";import{$fYb as y}from"../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";import{$iF as $}from"../../../../../../platform/markers/common/markers.js";import{$ZF as T}from"../../../../../../editor/common/languages/language.js";import{$Ibb as q}from"../../../../../../base/test/common/utils.js";import{Schemas as w}from"../../../../../../base/common/network.js";import{$kGc as a}from"../../browser/lspTerminalUtil.js";suite("LspTerminalModelContentProvider",()=>{const c=q();let s,p,u,m,h,i,d,e,l;setup(async()=>{s=c.add(new b),p=c.add(new y),d=g.from({scheme:"vscodeTerminal",path:"/terminal1.py"}),e=t.stub(),l=t.stub(),h={setValue:e,getValue:l,dispose:t.stub(),isDisposed:t.stub().returns(!1)},m={},m.getModel=t.stub().callsFake(f=>f.toString()===d.toString()?h:null),u={},u.registerTextModelContentProvider=t.stub().returns({dispose:t.stub()});const n={};n.installResourceFilter=t.stub().returns({dispose:t.stub()});const r={};s.stub(S,m),s.stub(v,u),s.stub($,n),s.stub(T,r),i=c.add(s.createInstance(C,p,1,d,"python"))}),teardown(()=>{t.restore(),i?.dispose()}),suite("setContent",()=>{test("should add delimiter when setting content on empty document",()=>{l.returns(""),i.setContent('print("hello")'),o.strictEqual(e.calledOnce,!0),o.strictEqual(e.args[0][0],a)}),test("should update content with delimiter when document already has content",()=>{const n=`previous content
-`+a;l.returns(n),i.setContent('print("hello")'),o.strictEqual(e.calledOnce,!0);const r=`previous content
-
-print("hello")
-`+a;o.strictEqual(e.args[0][0],r)}),test("should sanitize content when delimiter is in the middle of existing content",()=>{const n=`previous content
-`+a+"some extra text";l.returns(n),i.setContent('print("hello")'),o.strictEqual(e.calledOnce,!0);const r=`previous content
-
-print("hello")
-`+a;o.strictEqual(e.args[0][0],r)}),test("Mac, Linux - createTerminalLanguageVirtualUri should return the correct URI",()=>{const n=g.from({scheme:w.vscodeTerminal,path:"/terminal1.py"}),r=x(1,"py");o.strictEqual(r.toString(),n.toString())})})});
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { createTerminalLanguageVirtualUri, LspTerminalModelContentProvider } from "../../browser/lspTerminalModelContentProvider.js";
+import * as sinon from "sinon";
+import assert from "assert";
+import { URI } from "../../../../../../base/common/uri.js";
+import { TerminalCapabilityStore } from "../../../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { IMarkerService } from "../../../../../../platform/markers/common/markers.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { VSCODE_LSP_TERMINAL_PROMPT_TRACKER } from "../../browser/lspTerminalUtil.js";
+suite("LspTerminalModelContentProvider", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let capabilityStore;
+  let textModelService;
+  let modelService;
+  let mockTextModel;
+  let lspTerminalModelContentProvider;
+  let virtualTerminalDocumentUri;
+  let setValueSpy;
+  let getValueSpy;
+  setup(async () => {
+    instantiationService = store.add(new TestInstantiationService());
+    capabilityStore = store.add(new TerminalCapabilityStore());
+    virtualTerminalDocumentUri = URI.from({ scheme: "vscodeTerminal", path: "/terminal1.py" });
+    setValueSpy = sinon.stub();
+    getValueSpy = sinon.stub();
+    mockTextModel = {
+      setValue: setValueSpy,
+      getValue: getValueSpy,
+      dispose: sinon.stub(),
+      isDisposed: sinon.stub().returns(false)
+    };
+    modelService = {};
+    modelService.getModel = sinon.stub().callsFake((uri) => {
+      return uri.toString() === virtualTerminalDocumentUri.toString() ? mockTextModel : null;
+    });
+    textModelService = {};
+    textModelService.registerTextModelContentProvider = sinon.stub().returns({ dispose: sinon.stub() });
+    const markerService = {};
+    markerService.installResourceFilter = sinon.stub().returns({ dispose: sinon.stub() });
+    const languageService = {};
+    instantiationService.stub(IModelService, modelService);
+    instantiationService.stub(ITextModelService, textModelService);
+    instantiationService.stub(IMarkerService, markerService);
+    instantiationService.stub(ILanguageService, languageService);
+    lspTerminalModelContentProvider = store.add(instantiationService.createInstance(
+      LspTerminalModelContentProvider,
+      capabilityStore,
+      1,
+      virtualTerminalDocumentUri,
+      "python"
+      /* GeneralShellType.Python */
+    ));
+  });
+  teardown(() => {
+    sinon.restore();
+    lspTerminalModelContentProvider?.dispose();
+  });
+  suite("setContent", () => {
+    test("should add delimiter when setting content on empty document", () => {
+      getValueSpy.returns("");
+      lspTerminalModelContentProvider.setContent('print("hello")');
+      assert.strictEqual(setValueSpy.calledOnce, true);
+      assert.strictEqual(setValueSpy.args[0][0], VSCODE_LSP_TERMINAL_PROMPT_TRACKER);
+    });
+    test("should update content with delimiter when document already has content", () => {
+      const existingContent = "previous content\n" + VSCODE_LSP_TERMINAL_PROMPT_TRACKER;
+      getValueSpy.returns(existingContent);
+      lspTerminalModelContentProvider.setContent('print("hello")');
+      assert.strictEqual(setValueSpy.calledOnce, true);
+      const expectedContent = 'previous content\n\nprint("hello")\n' + VSCODE_LSP_TERMINAL_PROMPT_TRACKER;
+      assert.strictEqual(setValueSpy.args[0][0], expectedContent);
+    });
+    test("should sanitize content when delimiter is in the middle of existing content", () => {
+      const existingContent = "previous content\n" + VSCODE_LSP_TERMINAL_PROMPT_TRACKER + "some extra text";
+      getValueSpy.returns(existingContent);
+      lspTerminalModelContentProvider.setContent('print("hello")');
+      assert.strictEqual(setValueSpy.calledOnce, true);
+      const expectedContent = 'previous content\n\nprint("hello")\n' + VSCODE_LSP_TERMINAL_PROMPT_TRACKER;
+      assert.strictEqual(setValueSpy.args[0][0], expectedContent);
+    });
+    test("Mac, Linux - createTerminalLanguageVirtualUri should return the correct URI", () => {
+      const expectedUri = URI.from({ scheme: Schemas.vscodeTerminal, path: "/terminal1.py" });
+      const actualUri = createTerminalLanguageVirtualUri(1, "py");
+      assert.strictEqual(actualUri.toString(), expectedUri.toString());
+    });
+  });
+});
+//# sourceMappingURL=lspTerminalModelContentProvider.test.js.map

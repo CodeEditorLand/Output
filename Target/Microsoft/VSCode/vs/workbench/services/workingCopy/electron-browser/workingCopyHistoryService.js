@@ -1,1 +1,10 @@
-import{$EOc as m}from"../common/workingCopyHistoryService.js";import{$WC as o}from"../../../../platform/instantiation/common/extensions.js";import{$fKc as r}from"../common/workingCopyHistory.js";o(r,m,1);
+import { NativeWorkingCopyHistoryService } from "../common/workingCopyHistoryService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkingCopyHistoryService } from "../common/workingCopyHistory.js";
+registerSingleton(
+  IWorkingCopyHistoryService,
+  NativeWorkingCopyHistoryService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=workingCopyHistoryService.js.map

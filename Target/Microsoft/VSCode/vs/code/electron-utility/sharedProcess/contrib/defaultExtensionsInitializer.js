@@ -1,1 +1,107 @@
-import{$_ as f,$9 as u}from"../../../../base/common/path.js";import{$Ed as d}from"../../../../base/common/lifecycle.js";import{$m as g}from"../../../../base/common/platform.js";import{URI as c}from"../../../../base/common/uri.js";import{$Ll as x}from"../../../../platform/environment/common/environment.js";import{$75 as $}from"../../../../platform/extensionManagement/node/extensionManagementService.js";import{$yo as b}from"../../../../platform/log/common/log.js";import{$hp as _}from"../../../../platform/storage/common/storage.js";import{$vk as y,$Ok as z}from"../../../../platform/files/common/files.js";import{$yb as S}from"../../../../base/common/errors.js";import{$Vn as w}from"../../../../platform/product/common/productService.js";var m=function(o,t,i,n){var e=arguments.length,r=e<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,t,i,n);else for(var l=o.length-1;l>=0;l--)(s=o[l])&&(r=(e<3?s(r):e>3?s(t,i,r):s(t,i))||r);return e>3&&r&&Object.defineProperty(t,i,r),r},a=function(o,t){return function(i,n){t(i,n,o)}};const h="initializing-default-extensions";let p=class extends d{constructor(t,i,n,e,r,s){super(),this.a=t,this.b=i,this.c=e,this.f=r,this.g=s,g&&n.getBoolean(h,-1,!0)&&(n.store(h,!0,-1,1),this.h().then(()=>n.store(h,!1,-1,1)))}async h(){const t=this.j();let i;try{if(i=await this.c.resolve(t),!i.children){this.f.debug("There are no default extensions to initialize",t.toString());return}}catch(e){if(z(e)===1){this.f.debug("There are no default extensions to initialize",t.toString());return}this.f.error("Error initializing extensions",e);return}const n=i.children.filter(e=>e.name.toLowerCase().endsWith(".vsix"));if(n.length===0){this.f.debug("There are no default extensions to initialize",t.toString());return}this.f.info("Initializing default extensions",t.toString()),await Promise.all(n.map(async e=>{this.f.info("Installing default extension",e.resource.toString());try{await this.b.install(e.resource,{donotIncludePackAndDependencies:!0,keepExisting:!1}),this.f.info("Default extension installed",e.resource.toString())}catch(r){this.f.error("Error installing default extension",e.resource.toString(),S(r))}})),this.f.info("Default extensions initialized",t.toString())}j(){return this.g.win32VersionedUpdate?c.file(u(f(f(f(this.a.appRoot))),"bootstrap","extensions")):c.file(u(f(f(this.a.appRoot)),"bootstrap","extensions"))}};p=m([a(0,x),a(1,$),a(2,_),a(3,y),a(4,b),a(5,w)],p);export{p as $QQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { dirname, join } from "../../../../base/common/path.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { INativeServerExtensionManagementService } from "../../../../platform/extensionManagement/node/extensionManagementService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IFileService, toFileOperationResult } from "../../../../platform/files/common/files.js";
+import { getErrorMessage } from "../../../../base/common/errors.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+const defaultExtensionsInitStatusKey = "initializing-default-extensions";
+let DefaultExtensionsInitializer = class DefaultExtensionsInitializer2 extends Disposable {
+  static {
+    __name(this, "DefaultExtensionsInitializer");
+  }
+  constructor(environmentService, extensionManagementService, storageService, fileService, logService, productService) {
+    super();
+    this.environmentService = environmentService;
+    this.extensionManagementService = extensionManagementService;
+    this.fileService = fileService;
+    this.logService = logService;
+    this.productService = productService;
+    if (isWindows && storageService.getBoolean(defaultExtensionsInitStatusKey, -1, true)) {
+      storageService.store(
+        defaultExtensionsInitStatusKey,
+        true,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+      this.initializeDefaultExtensions().then(() => storageService.store(
+        defaultExtensionsInitStatusKey,
+        false,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      ));
+    }
+  }
+  async initializeDefaultExtensions() {
+    const extensionsLocation = this.getDefaultExtensionVSIXsLocation();
+    let stat;
+    try {
+      stat = await this.fileService.resolve(extensionsLocation);
+      if (!stat.children) {
+        this.logService.debug("There are no default extensions to initialize", extensionsLocation.toString());
+        return;
+      }
+    } catch (error) {
+      if (toFileOperationResult(error) === 1) {
+        this.logService.debug("There are no default extensions to initialize", extensionsLocation.toString());
+        return;
+      }
+      this.logService.error("Error initializing extensions", error);
+      return;
+    }
+    const vsixs = stat.children.filter((child) => child.name.toLowerCase().endsWith(".vsix"));
+    if (vsixs.length === 0) {
+      this.logService.debug("There are no default extensions to initialize", extensionsLocation.toString());
+      return;
+    }
+    this.logService.info("Initializing default extensions", extensionsLocation.toString());
+    await Promise.all(vsixs.map(async (vsix) => {
+      this.logService.info("Installing default extension", vsix.resource.toString());
+      try {
+        await this.extensionManagementService.install(vsix.resource, { donotIncludePackAndDependencies: true, keepExisting: false });
+        this.logService.info("Default extension installed", vsix.resource.toString());
+      } catch (error) {
+        this.logService.error("Error installing default extension", vsix.resource.toString(), getErrorMessage(error));
+      }
+    }));
+    this.logService.info("Default extensions initialized", extensionsLocation.toString());
+  }
+  getDefaultExtensionVSIXsLocation() {
+    if (this.productService.win32VersionedUpdate) {
+      return URI.file(join(dirname(dirname(dirname(this.environmentService.appRoot))), "bootstrap", "extensions"));
+    } else {
+      return URI.file(join(dirname(dirname(this.environmentService.appRoot)), "bootstrap", "extensions"));
+    }
+  }
+};
+DefaultExtensionsInitializer = __decorate([
+  __param(0, INativeEnvironmentService),
+  __param(1, INativeServerExtensionManagementService),
+  __param(2, IStorageService),
+  __param(3, IFileService),
+  __param(4, ILogService),
+  __param(5, IProductService)
+], DefaultExtensionsInitializer);
+export {
+  DefaultExtensionsInitializer
+};
+//# sourceMappingURL=defaultExtensionsInitializer.js.map

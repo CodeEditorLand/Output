@@ -1,1 +1,28 @@
-import{$1rc as e}from"./abstractRuntimeExtensionsEditor.js";import{$oPc as n}from"../common/reportExtensionIssueAction.js";class c extends e{nb(){return null}ob(r){}pb(r){return null}qb(r){return r.marketplaceInfo?this.y.createInstance(n,r.description):null}}export{c as $pPc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AbstractRuntimeExtensionsEditor } from "./abstractRuntimeExtensionsEditor.js";
+import { ReportExtensionIssueAction } from "../common/reportExtensionIssueAction.js";
+class RuntimeExtensionsEditor extends AbstractRuntimeExtensionsEditor {
+  static {
+    __name(this, "RuntimeExtensionsEditor");
+  }
+  _getProfileInfo() {
+    return null;
+  }
+  _getUnresponsiveProfile(extensionId) {
+    return void 0;
+  }
+  _createSlowExtensionAction(element) {
+    return null;
+  }
+  _createReportExtensionIssueAction(element) {
+    if (element.marketplaceInfo) {
+      return this._instantiationService.createInstance(ReportExtensionIssueAction, element.description);
+    }
+    return null;
+  }
+}
+export {
+  RuntimeExtensionsEditor
+};
+//# sourceMappingURL=browserRuntimeExtensionsEditor.js.map

@@ -1,1 +1,85 @@
-import{$f9 as d}from"../../../../../base/browser/dom.js";import{$Z$ as h}from"../../../../../base/browser/trustedTypes.js";import{$0l as $}from"../../../../../platform/configuration/common/configuration.js";import{$ddb as g}from"../../../../common/config/fontInfoFromSettings.js";import{$ZF as b}from"../../../../common/languages/language.js";import{$JG as _}from"../../../../common/languages/modesRegistry.js";import{$eib as M}from"../../../../common/languages/textToHtmlTokenizer.js";import{$7cb as L}from"../../../config/domFontInfo.js";import{$Gdb as v}from"../../../editorBrowser.js";import"./renderedMarkdown.css";var p=function(c,t,r,o){var n=arguments.length,e=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,t,r,o);else for(var a=c.length-1;a>=0;a--)(i=c[a])&&(e=(n<3?i(e):n>3?i(t,r,e):i(t,r))||e);return n>3&&e&&Object.defineProperty(t,r,e),e},l=function(c,t){return function(r,o){t(r,o,c)}},m;let u=class{static{m=this}static{this.a=h("tokenizeToString",{createHTML(t){return t}})}constructor(t,r){this.b=t,this.c=r}async renderCodeBlock(t,r,o){const n=v(o.context)?o.context:void 0;let e;t?e=this.c.getLanguageIdByLanguageName(t):n&&(e=n.getModel()?.getLanguageId()),e||(e=_);const i=await M(this.c,r,e),a=m.a?m.a.createHTML(i)??i:i,f=document.createElement("span");f.innerHTML=a;const s=f.querySelector(".monaco-tokenized-source");return d(s)?(L(s,this.d(n)),f):document.createElement("span")}d(t){return t?t.getOption(59):g({fontFamily:this.b.getValue("editor").fontFamily},1)}};u=m=p([l(0,$),l(1,b)],u);export{u as $hMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var EditorMarkdownCodeBlockRenderer_1;
+import { isHTMLElement } from "../../../../../base/browser/dom.js";
+import { createTrustedTypesPolicy } from "../../../../../base/browser/trustedTypes.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { createBareFontInfoFromRawSettings } from "../../../../common/config/fontInfoFromSettings.js";
+import { ILanguageService } from "../../../../common/languages/language.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../common/languages/modesRegistry.js";
+import { tokenizeToString } from "../../../../common/languages/textToHtmlTokenizer.js";
+import { applyFontInfo } from "../../../config/domFontInfo.js";
+import { isCodeEditor } from "../../../editorBrowser.js";
+import "./renderedMarkdown.css";
+let EditorMarkdownCodeBlockRenderer = class EditorMarkdownCodeBlockRenderer2 {
+  static {
+    __name(this, "EditorMarkdownCodeBlockRenderer");
+  }
+  static {
+    EditorMarkdownCodeBlockRenderer_1 = this;
+  }
+  static {
+    this._ttpTokenizer = createTrustedTypesPolicy("tokenizeToString", {
+      createHTML(html) {
+        return html;
+      }
+    });
+  }
+  constructor(_configurationService, _languageService) {
+    this._configurationService = _configurationService;
+    this._languageService = _languageService;
+  }
+  async renderCodeBlock(languageAlias, value, options) {
+    const editor = isCodeEditor(options.context) ? options.context : void 0;
+    let languageId;
+    if (languageAlias) {
+      languageId = this._languageService.getLanguageIdByLanguageName(languageAlias);
+    } else if (editor) {
+      languageId = editor.getModel()?.getLanguageId();
+    }
+    if (!languageId) {
+      languageId = PLAINTEXT_LANGUAGE_ID;
+    }
+    const html = await tokenizeToString(this._languageService, value, languageId);
+    const content = EditorMarkdownCodeBlockRenderer_1._ttpTokenizer ? EditorMarkdownCodeBlockRenderer_1._ttpTokenizer.createHTML(html) ?? html : html;
+    const root = document.createElement("span");
+    root.innerHTML = content;
+    const codeElement = root.querySelector(".monaco-tokenized-source");
+    if (!isHTMLElement(codeElement)) {
+      return document.createElement("span");
+    }
+    applyFontInfo(codeElement, this.getFontInfo(editor));
+    return root;
+  }
+  getFontInfo(editor) {
+    if (editor) {
+      return editor.getOption(
+        59
+        /* EditorOption.fontInfo */
+      );
+    } else {
+      return createBareFontInfoFromRawSettings({
+        fontFamily: this._configurationService.getValue("editor").fontFamily
+      }, 1);
+    }
+  }
+};
+EditorMarkdownCodeBlockRenderer = EditorMarkdownCodeBlockRenderer_1 = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ILanguageService)
+], EditorMarkdownCodeBlockRenderer);
+export {
+  EditorMarkdownCodeBlockRenderer
+};
+//# sourceMappingURL=editorMarkdownCodeBlockRenderer.js.map

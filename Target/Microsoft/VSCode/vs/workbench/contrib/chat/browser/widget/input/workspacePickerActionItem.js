@@ -1,1 +1,112 @@
-import*as p from"../../../../../../base/browser/dom.js";import{$G0 as h}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Fh as v}from"../../../../../../base/common/resources.js";import{localize as u}from"../../../../../../nls.js";import{$jlb as g}from"../../../../../../platform/actionWidget/browser/actionWidget.js";import{$uo as P}from"../../../../../../platform/commands/common/commands.js";import{$ro as W}from"../../../../../../platform/contextkey/common/contextkey.js";import{$fy as _}from"../../../../../../platform/keybinding/common/keybinding.js";import{$pp as w}from"../../../../../../platform/telemetry/common/telemetry.js";import{$o4b as S}from"./chatInputPickerActionItem.js";var k=function(n,e,o,t){var i=arguments.length,r=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,e,o,t);else for(var l=n.length-1;l>=0;l--)(s=n[l])&&(r=(i<3?s(r):i>3?s(e,o,r):s(e,o))||r);return i>3&&r&&Object.defineProperty(e,o,r),r},a=function(n,e){return function(o,t){e(o,t,n)}};let f=class extends S{constructor(e,o,t,i,r,s,l,m){const b={actionProvider:{getActions:()=>{const $=this.a.getSelectedWorkspace(),d=this.a.getWorkspaces().map(c=>({...e,id:`workspace.${c.uri.toString()}`,label:c.label,checked:$?.uri.toString()===c.uri.toString(),icon:c.isFolder?{id:"folder"}:{id:"file-symlink-directory"},enabled:!0,tooltip:c.uri.fsPath,run:async()=>{this.a.setSelectedWorkspace(c),this.element&&this.w(this.element)}}));return d.push({...e,id:"workspace.openFolder",label:u(6775,null),checked:!1,enabled:!0,tooltip:u(6776,null),run:async()=>{this.b.executeCommand(this.a.openFolderCommand)}}),d}},actionBarActionProvider:{getActions:()=>[]},showItemKeybindings:!1,reporter:{id:"ChatWorkspacePicker",name:"ChatWorkspacePicker",includeOptions:!1}};super(e,b,t,i,r,s,m),this.a=o,this.b=l,this.D(this.a.onDidChangeSelectedWorkspace(()=>{this.element&&this.w(this.element)})),this.D(this.a.onDidChangeWorkspaces(()=>{this.element&&this.w(this.element)}))}w(e){this.O(e);const o=this.a.getSelectedWorkspace(),t=[];if(o){const i=o.label||v(o.uri);t.push(...h("$(folder)")),t.push(p.$("span.chat-input-picker-label",void 0,i))}else t.push(...h("$(folder)")),t.push(p.$("span.chat-input-picker-label",void 0,u(6777,null)));return t.push(...h("$(chevron-down)")),p.$A9(e,...t),null}};f=k([a(3,g),a(4,_),a(5,W),a(6,P),a(7,w)],f);export{f as $v4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { basename } from "../../../../../../base/common/resources.js";
+import { localize } from "../../../../../../nls.js";
+import { IActionWidgetService } from "../../../../../../platform/actionWidget/browser/actionWidget.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { ChatInputPickerActionViewItem } from "./chatInputPickerActionItem.js";
+let WorkspacePickerActionItem = class WorkspacePickerActionItem2 extends ChatInputPickerActionViewItem {
+  static {
+    __name(this, "WorkspacePickerActionItem");
+  }
+  constructor(action, delegate, pickerOptions, actionWidgetService, keybindingService, contextKeyService, commandService, telemetryService) {
+    const actionProvider = {
+      getActions: /* @__PURE__ */ __name(() => {
+        const currentWorkspace = this.delegate.getSelectedWorkspace();
+        const workspaces = this.delegate.getWorkspaces();
+        const actions = workspaces.map((workspace) => ({
+          ...action,
+          id: `workspace.${workspace.uri.toString()}`,
+          label: workspace.label,
+          checked: currentWorkspace?.uri.toString() === workspace.uri.toString(),
+          icon: workspace.isFolder ? { id: "folder" } : { id: "file-symlink-directory" },
+          enabled: true,
+          tooltip: workspace.uri.fsPath,
+          run: /* @__PURE__ */ __name(async () => {
+            this.delegate.setSelectedWorkspace(workspace);
+            if (this.element) {
+              this.renderLabel(this.element);
+            }
+          }, "run")
+        }));
+        actions.push({
+          ...action,
+          id: "workspace.openFolder",
+          label: localize("openFolder", "Open Folder..."),
+          checked: false,
+          enabled: true,
+          tooltip: localize("openFolderTooltip", "Open Folder..."),
+          run: /* @__PURE__ */ __name(async () => {
+            this.commandService.executeCommand(this.delegate.openFolderCommand);
+          }, "run")
+        });
+        return actions;
+      }, "getActions")
+    };
+    const actionBarActionProvider = {
+      getActions: /* @__PURE__ */ __name(() => [], "getActions")
+    };
+    const workspacePickerOptions = {
+      actionProvider,
+      actionBarActionProvider,
+      showItemKeybindings: false,
+      reporter: { id: "ChatWorkspacePicker", name: "ChatWorkspacePicker", includeOptions: false }
+    };
+    super(action, workspacePickerOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
+    this.delegate = delegate;
+    this.commandService = commandService;
+    this._register(this.delegate.onDidChangeSelectedWorkspace(() => {
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+    }));
+    this._register(this.delegate.onDidChangeWorkspaces(() => {
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+    }));
+  }
+  renderLabel(element) {
+    this.setAriaLabelAttributes(element);
+    const currentWorkspace = this.delegate.getSelectedWorkspace();
+    const labelElements = [];
+    if (currentWorkspace) {
+      const label = currentWorkspace.label || basename(currentWorkspace.uri);
+      labelElements.push(...renderLabelWithIcons(`$(folder)`));
+      labelElements.push(dom.$("span.chat-input-picker-label", void 0, label));
+    } else {
+      labelElements.push(...renderLabelWithIcons(`$(folder)`));
+      labelElements.push(dom.$("span.chat-input-picker-label", void 0, localize("selectWorkspace", "Workspace")));
+    }
+    labelElements.push(...renderLabelWithIcons(`$(chevron-down)`));
+    dom.reset(element, ...labelElements);
+    return null;
+  }
+};
+WorkspacePickerActionItem = __decorate([
+  __param(3, IActionWidgetService),
+  __param(4, IKeybindingService),
+  __param(5, IContextKeyService),
+  __param(6, ICommandService),
+  __param(7, ITelemetryService)
+], WorkspacePickerActionItem);
+export {
+  WorkspacePickerActionItem
+};
+//# sourceMappingURL=workspacePickerActionItem.js.map

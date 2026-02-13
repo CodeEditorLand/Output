@@ -1,1 +1,160 @@
-import{$Wb as g}from"../../../../../base/common/arrays.js";import{$3h as v}from"../../../../../base/common/async.js";import{$Ed as w,$Md as D,$Dd as b}from"../../../../../base/common/lifecycle.js";import{$Oc as $}from"../../../../../base/common/map.js";import{observableValue as C}from"../../../../../base/common/observable.js";import{URI as M}from"../../../../../base/common/uri.js";import{$5H as y}from"../../../../../editor/common/services/resolverService.js";import{$yo as P}from"../../../../../platform/log/common/log.js";import{$trc as j}from"../mcpConfigFileUtils.js";import{$kU as R}from"../mcpConfiguration.js";import{$wU as _}from"../mcpRegistryTypes.js";import{$SU as F,McpCollectionDefinition as I,McpServerDefinition as O,McpServerLaunch as S}from"../mcpTypes.js";var u=function(f,i,r,e){var o=arguments.length,t=o<3?i:e===null?e=Object.getOwnPropertyDescriptor(i,r):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,i,r,e);else for(var s=f.length-1;s>=0;s--)(n=f[s])&&(t=(o<3?n(t):o>3?n(i,r,t):n(i,r))||t);return o>3&&t&&Object.defineProperty(i,r,t),t},l=function(f,i){return function(r,e){i(r,e,f)}};let d=class extends w{constructor(i,r,e,o){super(),this.b=i,this.c=r,this.f=e,this.g=o,this.fromGallery=!0,this.a=this.D(new D)}start(){const i=this.D(new v);this.D(this.b.onChange(()=>i.queue(()=>this.j()))),this.j()}async h(i,r){const e=new b;try{const o=await this.f.createModelReference(i);return e.add(o),j({model:o.object.textEditorModel,pathToServers:r})}catch{return new Map}finally{e.dispose()}}async j(){try{const i=new Map,r=new $;for(const e of this.b.getEnabledLocalMcpServers()){let o=r.get(e.mcpResource);o||(o=(async h=>{const a=this.b.getMcpConfigPath(h),m=a?.uri?await this.h(a?.uri,a.section?[...a.section,"servers"]:["servers"]):new Map;return a?{...a,locations:m}:void 0})(e),r.set(e.mcpResource,o));const t=e.config,n=await o,s=`mcp.config.${n?n.id:"unknown"}`;let c=i.get(s);c||(c=[n,[]],i.set(s,c));const p=t.type==="http"?{type:2,uri:M.parse(t.url),headers:Object.entries(t.headers||{})}:{type:1,command:t.command,args:t.args||[],env:t.env||{},envFile:t.envFile,cwd:t.cwd};c[1].push({id:`${s}.${e.name}`,label:e.name,launch:p,cacheNonce:await S.hash(p),roots:n?.workspaceFolder?[n.workspaceFolder.uri]:void 0,variableReplacement:{folder:n?.workspaceFolder,section:R,target:n?.target??2},devMode:t.dev,presentation:{order:n?.order,origin:n?.locations.get(e.name)}})}for(const[e]of this.a)i.has(e)||this.a.deleteAndDispose(e);for(const[e,[o,t]]of i){const n=C(this,t),s={id:e,label:o?.label??"",presentation:{order:t[0]?.presentation?.order,origin:o?.uri},remoteAuthority:o?.remoteAuthority??null,serverDefinitions:n,trustBehavior:0,configTarget:o?.target??2,scope:o?.scope??0},c=this.a.get(e);if(!(c?!I.equals(c.definition,s):!0)){(!c||!g(c.definition.serverDefinitions.get(),s.serverDefinitions.get(),O.equals))&&c?.serverDefinitions.set(t,void 0);continue}this.a.deleteAndDispose(e);const h=this.c.registerCollection(s);this.a.set(e,{definition:s,serverDefinitions:n,dispose:()=>h.dispose()})}}catch(i){this.g.error(i)}}};d=u([l(0,F),l(1,_),l(2,y),l(3,P)],d);export{d as $urc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { equals } from "../../../../../base/common/arrays.js";
+import { Throttler } from "../../../../../base/common/async.js";
+import { Disposable, DisposableMap, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { observableValue } from "../../../../../base/common/observable.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { getMcpServerMapping } from "../mcpConfigFileUtils.js";
+import { mcpConfigurationSection } from "../mcpConfiguration.js";
+import { IMcpRegistry } from "../mcpRegistryTypes.js";
+import { IMcpWorkbenchService, McpCollectionDefinition, McpServerDefinition, McpServerLaunch } from "../mcpTypes.js";
+let InstalledMcpServersDiscovery = class InstalledMcpServersDiscovery2 extends Disposable {
+  static {
+    __name(this, "InstalledMcpServersDiscovery");
+  }
+  constructor(mcpWorkbenchService, mcpRegistry, textModelService, logService) {
+    super();
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.mcpRegistry = mcpRegistry;
+    this.textModelService = textModelService;
+    this.logService = logService;
+    this.fromGallery = true;
+    this.collections = this._register(new DisposableMap());
+  }
+  start() {
+    const throttler = this._register(new Throttler());
+    this._register(this.mcpWorkbenchService.onChange(() => throttler.queue(() => this.sync())));
+    this.sync();
+  }
+  async getServerIdMapping(resource, pathToServers) {
+    const store = new DisposableStore();
+    try {
+      const ref = await this.textModelService.createModelReference(resource);
+      store.add(ref);
+      const serverIdMapping = getMcpServerMapping({ model: ref.object.textEditorModel, pathToServers });
+      return serverIdMapping;
+    } catch {
+      return /* @__PURE__ */ new Map();
+    } finally {
+      store.dispose();
+    }
+  }
+  async sync() {
+    try {
+      const collections = /* @__PURE__ */ new Map();
+      const mcpConfigPathInfos = new ResourceMap();
+      for (const server of this.mcpWorkbenchService.getEnabledLocalMcpServers()) {
+        let mcpConfigPathPromise = mcpConfigPathInfos.get(server.mcpResource);
+        if (!mcpConfigPathPromise) {
+          mcpConfigPathPromise = (async (local) => {
+            const mcpConfigPath2 = this.mcpWorkbenchService.getMcpConfigPath(local);
+            const locations = mcpConfigPath2?.uri ? await this.getServerIdMapping(mcpConfigPath2?.uri, mcpConfigPath2.section ? [...mcpConfigPath2.section, "servers"] : ["servers"]) : /* @__PURE__ */ new Map();
+            return mcpConfigPath2 ? { ...mcpConfigPath2, locations } : void 0;
+          })(server);
+          mcpConfigPathInfos.set(server.mcpResource, mcpConfigPathPromise);
+        }
+        const config = server.config;
+        const mcpConfigPath = await mcpConfigPathPromise;
+        const collectionId = `mcp.config.${mcpConfigPath ? mcpConfigPath.id : "unknown"}`;
+        let definitions = collections.get(collectionId);
+        if (!definitions) {
+          definitions = [mcpConfigPath, []];
+          collections.set(collectionId, definitions);
+        }
+        const launch = config.type === "http" ? {
+          type: 2,
+          uri: URI.parse(config.url),
+          headers: Object.entries(config.headers || {})
+        } : {
+          type: 1,
+          command: config.command,
+          args: config.args || [],
+          env: config.env || {},
+          envFile: config.envFile,
+          cwd: config.cwd
+        };
+        definitions[1].push({
+          id: `${collectionId}.${server.name}`,
+          label: server.name,
+          launch,
+          cacheNonce: await McpServerLaunch.hash(launch),
+          roots: mcpConfigPath?.workspaceFolder ? [mcpConfigPath.workspaceFolder.uri] : void 0,
+          variableReplacement: {
+            folder: mcpConfigPath?.workspaceFolder,
+            section: mcpConfigurationSection,
+            target: mcpConfigPath?.target ?? 2
+          },
+          devMode: config.dev,
+          presentation: {
+            order: mcpConfigPath?.order,
+            origin: mcpConfigPath?.locations.get(server.name)
+          }
+        });
+      }
+      for (const [id] of this.collections) {
+        if (!collections.has(id)) {
+          this.collections.deleteAndDispose(id);
+        }
+      }
+      for (const [id, [mcpConfigPath, serverDefinitions]] of collections) {
+        const newServerDefinitions = observableValue(this, serverDefinitions);
+        const newCollection = {
+          id,
+          label: mcpConfigPath?.label ?? "",
+          presentation: {
+            order: serverDefinitions[0]?.presentation?.order,
+            origin: mcpConfigPath?.uri
+          },
+          remoteAuthority: mcpConfigPath?.remoteAuthority ?? null,
+          serverDefinitions: newServerDefinitions,
+          trustBehavior: 0,
+          configTarget: mcpConfigPath?.target ?? 2,
+          scope: mcpConfigPath?.scope ?? 0
+        };
+        const existingCollection = this.collections.get(id);
+        const collectionDefinitionsChanged = existingCollection ? !McpCollectionDefinition.equals(existingCollection.definition, newCollection) : true;
+        if (!collectionDefinitionsChanged) {
+          const serverDefinitionsChanged = existingCollection ? !equals(existingCollection.definition.serverDefinitions.get(), newCollection.serverDefinitions.get(), McpServerDefinition.equals) : true;
+          if (serverDefinitionsChanged) {
+            existingCollection?.serverDefinitions.set(serverDefinitions, void 0);
+          }
+          continue;
+        }
+        this.collections.deleteAndDispose(id);
+        const disposable = this.mcpRegistry.registerCollection(newCollection);
+        this.collections.set(id, {
+          definition: newCollection,
+          serverDefinitions: newServerDefinitions,
+          dispose: /* @__PURE__ */ __name(() => disposable.dispose(), "dispose")
+        });
+      }
+    } catch (error) {
+      this.logService.error(error);
+    }
+  }
+};
+InstalledMcpServersDiscovery = __decorate([
+  __param(0, IMcpWorkbenchService),
+  __param(1, IMcpRegistry),
+  __param(2, ITextModelService),
+  __param(3, ILogService)
+], InstalledMcpServersDiscovery);
+export {
+  InstalledMcpServersDiscovery
+};
+//# sourceMappingURL=installedMcpServersDiscovery.js.map

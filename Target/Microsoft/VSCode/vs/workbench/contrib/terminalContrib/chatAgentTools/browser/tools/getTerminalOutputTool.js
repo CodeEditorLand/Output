@@ -1,2 +1,54 @@
-import{$bk as r}from"../../../../../../base/common/codicons.js";import{$Ed as i}from"../../../../../../base/common/lifecycle.js";import{localize as e}from"../../../../../../nls.js";import{ToolDataSource as a}from"../../../../chat/common/tools/languageModelToolsService.js";import{$NDc as l}from"./runInTerminalTool.js";const k={id:"get_terminal_output",toolReferenceName:"getTerminalOutput",legacyToolReferenceFullNames:["runCommands/getTerminalOutput"],displayName:e(13751,null),modelDescription:"Get the output of a terminal command previously started with run_in_terminal",icon:r.terminal,source:a.Internal,inputSchema:{type:"object",properties:{id:{type:"string",description:"The ID of the terminal to check."}},required:["id"]}};class T extends i{async prepareToolInvocation(t,n){return{invocationMessage:e(13752,null),pastTenseMessage:e(13753,null)}}async invoke(t,n,m,s){const o=t.parameters;return{content:[{kind:"text",value:`Output of terminal ${o.id}:
-${l.getBackgroundOutput(o.id)}`}]}}}export{k as $VDc,T as $WDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { ToolDataSource } from "../../../../chat/common/tools/languageModelToolsService.js";
+import { RunInTerminalTool } from "./runInTerminalTool.js";
+const GetTerminalOutputToolData = {
+  id: "get_terminal_output",
+  toolReferenceName: "getTerminalOutput",
+  legacyToolReferenceFullNames: ["runCommands/getTerminalOutput"],
+  displayName: localize("getTerminalOutputTool.displayName", "Get Terminal Output"),
+  modelDescription: `Get the output of a terminal command previously started with ${"run_in_terminal"}`,
+  icon: Codicon.terminal,
+  source: ToolDataSource.Internal,
+  inputSchema: {
+    type: "object",
+    properties: {
+      id: {
+        type: "string",
+        description: "The ID of the terminal to check."
+      }
+    },
+    required: [
+      "id"
+    ]
+  }
+};
+class GetTerminalOutputTool extends Disposable {
+  static {
+    __name(this, "GetTerminalOutputTool");
+  }
+  async prepareToolInvocation(context, token) {
+    return {
+      invocationMessage: localize("bg.progressive", "Checking background terminal output"),
+      pastTenseMessage: localize("bg.past", "Checked background terminal output")
+    };
+  }
+  async invoke(invocation, _countTokens, _progress, token) {
+    const args = invocation.parameters;
+    return {
+      content: [{
+        kind: "text",
+        value: `Output of terminal ${args.id}:
+${RunInTerminalTool.getBackgroundOutput(args.id)}`
+      }]
+    };
+  }
+}
+export {
+  GetTerminalOutputTool,
+  GetTerminalOutputToolData
+};
+//# sourceMappingURL=getTerminalOutputTool.js.map

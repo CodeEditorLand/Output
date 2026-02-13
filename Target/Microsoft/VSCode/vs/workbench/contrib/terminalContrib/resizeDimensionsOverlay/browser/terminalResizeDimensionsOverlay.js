@@ -1,1 +1,63 @@
-import"./media/terminalResizeDimensionsOverlay.css";import{$ as r}from"../../../../../base/browser/dom.js";import{$$h as h}from"../../../../../base/common/async.js";import{$Ed as l,$Fd as o,$Cd as n}from"../../../../../base/common/lifecycle.js";var a;(function(e){e[e.ResizeOverlayHideDelay=500]="ResizeOverlayHideDelay",e.VisibleClass="visible"})(a||(a={}));class f extends l{constructor(i,t){super(),this.c=i,this.b=this.D(new o),this.D(t.raw.onResize(s=>this.f(s))),this.D(n(()=>{this.a?.remove(),this.a=void 0}))}f(i){const t=this.c;if(!t||!t.isConnected)return;const s=this.g(t);s.textContent=`${i.cols} x ${i.rows}`,s.classList.add("visible"),this.b.value=h(()=>{this.a?.classList.remove("visible")},500)}g(i){return this.a?i.contains(this.a)||i.appendChild(this.a):(this.a=r(".terminal-resize-overlay"),this.a.setAttribute("role","status"),this.a.setAttribute("aria-live","polite"),i.appendChild(this.a)),this.a}}export{f as $pFc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/terminalResizeDimensionsOverlay.css";
+import { $ } from "../../../../../base/browser/dom.js";
+import { disposableTimeout } from "../../../../../base/common/async.js";
+import { Disposable, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["ResizeOverlayHideDelay"] = 500] = "ResizeOverlayHideDelay";
+  Constants2["VisibleClass"] = "visible";
+})(Constants || (Constants = {}));
+class TerminalResizeDimensionsOverlay extends Disposable {
+  static {
+    __name(this, "TerminalResizeDimensionsOverlay");
+  }
+  constructor(_container, xterm) {
+    super();
+    this._container = _container;
+    this._resizeOverlayHideTimeout = this._register(new MutableDisposable());
+    this._register(xterm.raw.onResize((dims) => this._handleDimensionsChanged(dims)));
+    this._register(toDisposable(() => {
+      this._resizeOverlay?.remove();
+      this._resizeOverlay = void 0;
+    }));
+  }
+  _handleDimensionsChanged(dims) {
+    const container = this._container;
+    if (!container || !container.isConnected) {
+      return;
+    }
+    const overlay = this._ensureResizeOverlay(container);
+    overlay.textContent = `${dims.cols} x ${dims.rows}`;
+    overlay.classList.add(
+      "visible"
+      /* Constants.VisibleClass */
+    );
+    this._resizeOverlayHideTimeout.value = disposableTimeout(
+      () => {
+        this._resizeOverlay?.classList.remove(
+          "visible"
+          /* Constants.VisibleClass */
+        );
+      },
+      500
+      /* Constants.ResizeOverlayHideDelay */
+    );
+  }
+  _ensureResizeOverlay(container) {
+    if (!this._resizeOverlay) {
+      this._resizeOverlay = $(".terminal-resize-overlay");
+      this._resizeOverlay.setAttribute("role", "status");
+      this._resizeOverlay.setAttribute("aria-live", "polite");
+      container.appendChild(this._resizeOverlay);
+    } else if (!container.contains(this._resizeOverlay)) {
+      container.appendChild(this._resizeOverlay);
+    }
+    return this._resizeOverlay;
+  }
+}
+export {
+  TerminalResizeDimensionsOverlay
+};
+//# sourceMappingURL=terminalResizeDimensionsOverlay.js.map

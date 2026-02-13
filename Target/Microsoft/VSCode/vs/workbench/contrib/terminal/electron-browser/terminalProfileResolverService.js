@@ -1,1 +1,60 @@
-import{$Cb as h}from"../../../../base/common/errors.js";import{$0l as b}from"../../../../platform/configuration/common/configuration.js";import{$yx as d}from"../../../../platform/terminal/common/terminal.js";import{$Ml as w}from"../../../../platform/workspace/common/workspace.js";import{$xZb as _}from"../browser/terminal.js";import{$qPc as g}from"../browser/terminalProfileResolverService.js";import{$Z6 as v}from"../common/terminal.js";import{$rU as y}from"../../../services/configurationResolver/common/configurationResolver.js";import{$06 as x}from"../../../services/history/common/history.js";import{$4N as j}from"../../../services/remote/common/remoteAgentService.js";var $=function(f,t,r,o){var m=arguments.length,e=m<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,t,r,o);else for(var c=f.length-1;c>=0;c--)(i=f[c])&&(e=(m<3?i(e):m>3?i(t,r,e):i(t,r))||e);return m>3&&e&&Object.defineProperty(t,r,e),e},n=function(f,t){return function(r,o){t(r,o,f)}};let u=class extends g{constructor(t,r,o,m,e,i,c,p){super({getDefaultSystemShell:async(a,l)=>{const s=await p.getBackend(a);if(!s)throw new h(`Cannot get default system shell when there is no backend for remote authority '${a}'`);return s.getDefaultSystemShell(l)},getEnvironment:async a=>{const l=await p.getBackend(a);if(!l)throw new h(`Cannot get environment when there is no backend for remote authority '${a}'`);return l.getEnvironment()}},r,t,o,m,i,e,c)}};u=$([n(0,y),n(1,b),n(2,x),n(3,d),n(4,w),n(5,v),n(6,j),n(7,_)],u);export{u as $3Wc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITerminalLogService } from "../../../../platform/terminal/common/terminal.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ITerminalInstanceService } from "../browser/terminal.js";
+import { BaseTerminalProfileResolverService } from "../browser/terminalProfileResolverService.js";
+import { ITerminalProfileService } from "../common/terminal.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+let ElectronTerminalProfileResolverService = class ElectronTerminalProfileResolverService2 extends BaseTerminalProfileResolverService {
+  static {
+    __name(this, "ElectronTerminalProfileResolverService");
+  }
+  constructor(configurationResolverService, configurationService, historyService, logService, workspaceContextService, terminalProfileService, remoteAgentService, terminalInstanceService) {
+    super({
+      getDefaultSystemShell: /* @__PURE__ */ __name(async (remoteAuthority, platform) => {
+        const backend = await terminalInstanceService.getBackend(remoteAuthority);
+        if (!backend) {
+          throw new ErrorNoTelemetry(`Cannot get default system shell when there is no backend for remote authority '${remoteAuthority}'`);
+        }
+        return backend.getDefaultSystemShell(platform);
+      }, "getDefaultSystemShell"),
+      getEnvironment: /* @__PURE__ */ __name(async (remoteAuthority) => {
+        const backend = await terminalInstanceService.getBackend(remoteAuthority);
+        if (!backend) {
+          throw new ErrorNoTelemetry(`Cannot get environment when there is no backend for remote authority '${remoteAuthority}'`);
+        }
+        return backend.getEnvironment();
+      }, "getEnvironment")
+    }, configurationService, configurationResolverService, historyService, logService, terminalProfileService, workspaceContextService, remoteAgentService);
+  }
+};
+ElectronTerminalProfileResolverService = __decorate([
+  __param(0, IConfigurationResolverService),
+  __param(1, IConfigurationService),
+  __param(2, IHistoryService),
+  __param(3, ITerminalLogService),
+  __param(4, IWorkspaceContextService),
+  __param(5, ITerminalProfileService),
+  __param(6, IRemoteAgentService),
+  __param(7, ITerminalInstanceService)
+], ElectronTerminalProfileResolverService);
+export {
+  ElectronTerminalProfileResolverService
+};
+//# sourceMappingURL=terminalProfileResolverService.js.map

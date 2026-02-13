@@ -1,1 +1,40 @@
-import{localize as p}from"../../../../nls.js";import{$wL as r}from"../../../../platform/actions/common/actions.js";import{$Kj as c}from"../../../../platform/instantiation/common/descriptors.js";import{$jm as t}from"../../../../platform/registry/common/platform.js";import{$aSb as a}from"../../../browser/editor.js";import{$2N as $}from"../../../common/contributions.js";import{$9M as f}from"../../../common/editor.js";import{$rgc as o}from"./multiDiffEditor.js";import{$e1b as e,$f1b as m,$g1b as b}from"./multiDiffEditorInput.js";import{$XAc as d,$YAc as l,$UAc as A,$VAc as g,$WAc as n}from"./actions.js";import{$0Ob as s,$_Ob as D}from"./multiDiffSourceResolverService.js";import{$WC as E}from"../../../../platform/instantiation/common/extensions.js";import{$dPb as I,$cPb as i}from"./scmMultiDiffSourceResolver.js";r(A);r(g);r(n);r(d);r(l);E(s,D,1);$(m.ID,m,1);t.as(f.EditorPane).registerEditorPane(a.create(o,o.ID,p(10675,null)),[new c(e)]);t.as(f.EditorFactory).registerEditorSerializer(e.ID,b);r(I);$(i.ID,i,1);
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { MultiDiffEditor } from "./multiDiffEditor.js";
+import { MultiDiffEditorInput, MultiDiffEditorResolverContribution, MultiDiffEditorSerializer } from "./multiDiffEditorInput.js";
+import { CollapseAllAction, ExpandAllAction, GoToFileAction, GoToNextChangeAction, GoToPreviousChangeAction } from "./actions.js";
+import { IMultiDiffSourceResolverService, MultiDiffSourceResolverService } from "./multiDiffSourceResolverService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { OpenScmGroupAction, ScmMultiDiffSourceResolverContribution } from "./scmMultiDiffSourceResolver.js";
+registerAction2(GoToFileAction);
+registerAction2(GoToNextChangeAction);
+registerAction2(GoToPreviousChangeAction);
+registerAction2(CollapseAllAction);
+registerAction2(ExpandAllAction);
+registerSingleton(
+  IMultiDiffSourceResolverService,
+  MultiDiffSourceResolverService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerWorkbenchContribution2(
+  MultiDiffEditorResolverContribution.ID,
+  MultiDiffEditorResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(MultiDiffEditor, MultiDiffEditor.ID, localize("name", "Multi Diff Editor")), [new SyncDescriptor(MultiDiffEditorInput)]);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(MultiDiffEditorInput.ID, MultiDiffEditorSerializer);
+registerAction2(OpenScmGroupAction);
+registerWorkbenchContribution2(
+  ScmMultiDiffSourceResolverContribution.ID,
+  ScmMultiDiffSourceResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+//# sourceMappingURL=multiDiffEditor.contribution.js.map

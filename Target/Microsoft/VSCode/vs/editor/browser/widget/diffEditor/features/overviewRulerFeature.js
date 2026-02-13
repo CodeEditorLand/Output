@@ -1,1 +1,157 @@
-import{$r9 as W,$u8 as z,$v8 as B,h as J}from"../../../../../base/browser/dom.js";import{$09 as U}from"../../../../../base/browser/fastDomNode.js";import{$c0 as G}from"../../../../../base/browser/ui/scrollbar/scrollbarState.js";import{$Ed as K}from"../../../../../base/common/lifecycle.js";import{autorun as H,autorunWithStore as Q,derived as X,observableFromEvent as Y,observableSignalFromEvent as _}from"../../../../../base/common/observable.js";import{$Iib as R}from"../utils.js";import{$$D as F}from"../../../../common/core/position.js";import{$4cb as k}from"../../../../common/viewModel/overviewZoneManager.js";import{$Ar as ee,$Br as te,$Cr as ie,$Ir as oe,$Jr as ne,$Dr as re}from"../../../../../platform/theme/common/colorRegistry.js";import{$qu as se}from"../../../../../platform/theme/common/themeService.js";var q=function(m,o,r,s){var f=arguments.length,n=f<3?o:s===null?s=Object.getOwnPropertyDescriptor(o,r):s,g;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(m,o,r,s);else for(var v=m.length-1;v>=0;v--)(g=m[v])&&(n=(f<3?g(n):f>3?g(o,r,n):g(o,r))||n);return f>3&&n&&Object.defineProperty(o,r,n),n},A=function(m,o){return function(r,s){o(r,s,m)}},i;let S=class extends K{static{i=this}static{this.a=15}static{this.ENTIRE_DIFF_OVERVIEW_WIDTH=this.a*2}constructor(o,r,s,f,n,g,v){super(),this.b=o,this.c=r,this.f=s,this.g=f,this.j=n,this.n=g,this.q=v,this.width=i.ENTIRE_DIFF_OVERVIEW_WIDTH;const Z=Y(this.q.onDidColorThemeChange,()=>this.q.getColorTheme()),x=X(h=>{const t=Z.read(h),I=t.getColor(oe)||(t.getColor(ie)||ee).transparent(2),l=t.getColor(ne)||(t.getColor(re)||te).transparent(2);return{insertColor:I,removeColor:l}}),d=U(document.createElement("div"));d.setClassName("diffViewport"),d.setPosition("absolute");const a=J("div.diffOverview",{style:{position:"absolute",top:"0px",width:i.ENTIRE_DIFF_OVERVIEW_WIDTH+"px"}}).root;this.D(R(a,d.domNode)),this.D(B(a,W.POINTER_DOWN,h=>{this.b.modified.delegateVerticalScrollbarPointerDown(h)})),this.D(z(a,W.MOUSE_WHEEL,h=>{this.b.modified.delegateScrollFromMouseWheelEvent(h)},{passive:!1})),this.D(R(this.c,a)),this.D(Q((h,t)=>{const I=this.f.read(h),l=this.b.original.createOverviewRuler("original diffOverviewRuler");l&&(t.add(l),t.add(R(a,l.getDomNode())));const p=this.b.modified.createOverviewRuler("modified diffOverviewRuler");if(p&&(t.add(p),t.add(R(a,p.getDomNode()))),!l||!p)return;const P=_("viewZoneChanged",this.b.original.onDidChangeViewZones),j=_("viewZoneChanged",this.b.modified.onDidChangeViewZones),M=_("hiddenRangesChanged",this.b.original.onDidChangeHiddenAreas),y=_("hiddenRangesChanged",this.b.modified.onDidChangeHiddenAreas);t.add(H(e=>{P.read(e),j.read(e),M.read(e),y.read(e);const u=x.read(e),w=I?.diff.read(e)?.mappings;function b(c,E,C){const V=C._getViewModel();return V?c.filter(D=>D.length>0).map(D=>{const $=V.coordinatesConverter.convertModelPositionToViewPosition(new F(D.startLineNumber,1)),N=V.coordinatesConverter.convertModelPositionToViewPosition(new F(D.endLineNumberExclusive,1)),L=N.lineNumber-$.lineNumber;return new k($.lineNumber,N.lineNumber,L,E.toString())}):[]}const O=b((w||[]).map(c=>c.lineRangeMapping.original),u.removeColor,this.b.original),T=b((w||[]).map(c=>c.lineRangeMapping.modified),u.insertColor,this.b.modified);l?.setZones(O),p?.setZones(T)})),t.add(H(e=>{const u=this.j.read(e),w=this.g.read(e),b=this.n.read(e);if(b){const O=i.ENTIRE_DIFF_OVERVIEW_WIDTH-2*i.a;l.setLayout({top:0,height:u,right:O+i.a,width:i.a}),p.setLayout({top:0,height:u,right:0,width:i.a});const T=this.b.modifiedScrollTop.read(e),c=this.b.modifiedScrollHeight.read(e),E=this.b.modified.getOption(117),C=new G(E.verticalHasArrows?E.arrowSize:0,E.verticalScrollbarSize,0,b.height,c,T);d.setTop(C.getSliderPosition()),d.setHeight(C.getSliderSize())}else d.setTop(0),d.setHeight(0);a.style.height=u+"px",a.style.left=w-i.ENTIRE_DIFF_OVERVIEW_WIDTH+"px",d.setWidth(i.ENTIRE_DIFF_OVERVIEW_WIDTH)}))}))}};S=i=q([A(6,se)],S);export{S as $xjb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var OverviewRulerFeature_1;
+import { EventType, addDisposableListener, addStandardDisposableListener, h } from "../../../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import { ScrollbarState } from "../../../../../base/browser/ui/scrollbar/scrollbarState.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, derived, observableFromEvent, observableSignalFromEvent } from "../../../../../base/common/observable.js";
+import { appendRemoveOnDispose } from "../utils.js";
+import { Position } from "../../../../common/core/position.js";
+import { OverviewRulerZone } from "../../../../common/viewModel/overviewZoneManager.js";
+import { defaultInsertColor, defaultRemoveColor, diffInserted, diffOverviewRulerInserted, diffOverviewRulerRemoved, diffRemoved } from "../../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+let OverviewRulerFeature = class OverviewRulerFeature2 extends Disposable {
+  static {
+    __name(this, "OverviewRulerFeature");
+  }
+  static {
+    OverviewRulerFeature_1 = this;
+  }
+  static {
+    this.ONE_OVERVIEW_WIDTH = 15;
+  }
+  static {
+    this.ENTIRE_DIFF_OVERVIEW_WIDTH = this.ONE_OVERVIEW_WIDTH * 2;
+  }
+  constructor(_editors, _rootElement, _diffModel, _rootWidth, _rootHeight, _modifiedEditorLayoutInfo, _themeService) {
+    super();
+    this._editors = _editors;
+    this._rootElement = _rootElement;
+    this._diffModel = _diffModel;
+    this._rootWidth = _rootWidth;
+    this._rootHeight = _rootHeight;
+    this._modifiedEditorLayoutInfo = _modifiedEditorLayoutInfo;
+    this._themeService = _themeService;
+    this.width = OverviewRulerFeature_1.ENTIRE_DIFF_OVERVIEW_WIDTH;
+    const currentColorTheme = observableFromEvent(this._themeService.onDidColorThemeChange, () => this._themeService.getColorTheme());
+    const currentColors = derived((reader) => {
+      const theme = currentColorTheme.read(reader);
+      const insertColor = theme.getColor(diffOverviewRulerInserted) || (theme.getColor(diffInserted) || defaultInsertColor).transparent(2);
+      const removeColor = theme.getColor(diffOverviewRulerRemoved) || (theme.getColor(diffRemoved) || defaultRemoveColor).transparent(2);
+      return { insertColor, removeColor };
+    });
+    const viewportDomElement = createFastDomNode(document.createElement("div"));
+    viewportDomElement.setClassName("diffViewport");
+    viewportDomElement.setPosition("absolute");
+    const diffOverviewRoot = h("div.diffOverview", {
+      style: { position: "absolute", top: "0px", width: OverviewRulerFeature_1.ENTIRE_DIFF_OVERVIEW_WIDTH + "px" }
+    }).root;
+    this._register(appendRemoveOnDispose(diffOverviewRoot, viewportDomElement.domNode));
+    this._register(addStandardDisposableListener(diffOverviewRoot, EventType.POINTER_DOWN, (e) => {
+      this._editors.modified.delegateVerticalScrollbarPointerDown(e);
+    }));
+    this._register(addDisposableListener(diffOverviewRoot, EventType.MOUSE_WHEEL, (e) => {
+      this._editors.modified.delegateScrollFromMouseWheelEvent(e);
+    }, { passive: false }));
+    this._register(appendRemoveOnDispose(this._rootElement, diffOverviewRoot));
+    this._register(autorunWithStore((reader, store) => {
+      const m = this._diffModel.read(reader);
+      const originalOverviewRuler = this._editors.original.createOverviewRuler("original diffOverviewRuler");
+      if (originalOverviewRuler) {
+        store.add(originalOverviewRuler);
+        store.add(appendRemoveOnDispose(diffOverviewRoot, originalOverviewRuler.getDomNode()));
+      }
+      const modifiedOverviewRuler = this._editors.modified.createOverviewRuler("modified diffOverviewRuler");
+      if (modifiedOverviewRuler) {
+        store.add(modifiedOverviewRuler);
+        store.add(appendRemoveOnDispose(diffOverviewRoot, modifiedOverviewRuler.getDomNode()));
+      }
+      if (!originalOverviewRuler || !modifiedOverviewRuler) {
+        return;
+      }
+      const origViewZonesChanged = observableSignalFromEvent("viewZoneChanged", this._editors.original.onDidChangeViewZones);
+      const modViewZonesChanged = observableSignalFromEvent("viewZoneChanged", this._editors.modified.onDidChangeViewZones);
+      const origHiddenRangesChanged = observableSignalFromEvent("hiddenRangesChanged", this._editors.original.onDidChangeHiddenAreas);
+      const modHiddenRangesChanged = observableSignalFromEvent("hiddenRangesChanged", this._editors.modified.onDidChangeHiddenAreas);
+      store.add(autorun((reader2) => {
+        origViewZonesChanged.read(reader2);
+        modViewZonesChanged.read(reader2);
+        origHiddenRangesChanged.read(reader2);
+        modHiddenRangesChanged.read(reader2);
+        const colors = currentColors.read(reader2);
+        const diff = m?.diff.read(reader2)?.mappings;
+        function createZones(ranges, color, editor) {
+          const vm = editor._getViewModel();
+          if (!vm) {
+            return [];
+          }
+          return ranges.filter((d) => d.length > 0).map((r) => {
+            const start = vm.coordinatesConverter.convertModelPositionToViewPosition(new Position(r.startLineNumber, 1));
+            const end = vm.coordinatesConverter.convertModelPositionToViewPosition(new Position(r.endLineNumberExclusive, 1));
+            const lineCount = end.lineNumber - start.lineNumber;
+            return new OverviewRulerZone(start.lineNumber, end.lineNumber, lineCount, color.toString());
+          });
+        }
+        __name(createZones, "createZones");
+        const originalZones = createZones((diff || []).map((d) => d.lineRangeMapping.original), colors.removeColor, this._editors.original);
+        const modifiedZones = createZones((diff || []).map((d) => d.lineRangeMapping.modified), colors.insertColor, this._editors.modified);
+        originalOverviewRuler?.setZones(originalZones);
+        modifiedOverviewRuler?.setZones(modifiedZones);
+      }));
+      store.add(autorun((reader2) => {
+        const height = this._rootHeight.read(reader2);
+        const width = this._rootWidth.read(reader2);
+        const layoutInfo = this._modifiedEditorLayoutInfo.read(reader2);
+        if (layoutInfo) {
+          const freeSpace = OverviewRulerFeature_1.ENTIRE_DIFF_OVERVIEW_WIDTH - 2 * OverviewRulerFeature_1.ONE_OVERVIEW_WIDTH;
+          originalOverviewRuler.setLayout({
+            top: 0,
+            height,
+            right: freeSpace + OverviewRulerFeature_1.ONE_OVERVIEW_WIDTH,
+            width: OverviewRulerFeature_1.ONE_OVERVIEW_WIDTH
+          });
+          modifiedOverviewRuler.setLayout({
+            top: 0,
+            height,
+            right: 0,
+            width: OverviewRulerFeature_1.ONE_OVERVIEW_WIDTH
+          });
+          const scrollTop = this._editors.modifiedScrollTop.read(reader2);
+          const scrollHeight = this._editors.modifiedScrollHeight.read(reader2);
+          const scrollBarOptions = this._editors.modified.getOption(
+            117
+            /* EditorOption.scrollbar */
+          );
+          const state = new ScrollbarState(scrollBarOptions.verticalHasArrows ? scrollBarOptions.arrowSize : 0, scrollBarOptions.verticalScrollbarSize, 0, layoutInfo.height, scrollHeight, scrollTop);
+          viewportDomElement.setTop(state.getSliderPosition());
+          viewportDomElement.setHeight(state.getSliderSize());
+        } else {
+          viewportDomElement.setTop(0);
+          viewportDomElement.setHeight(0);
+        }
+        diffOverviewRoot.style.height = height + "px";
+        diffOverviewRoot.style.left = width - OverviewRulerFeature_1.ENTIRE_DIFF_OVERVIEW_WIDTH + "px";
+        viewportDomElement.setWidth(OverviewRulerFeature_1.ENTIRE_DIFF_OVERVIEW_WIDTH);
+      }));
+    }));
+  }
+};
+OverviewRulerFeature = OverviewRulerFeature_1 = __decorate([
+  __param(6, IThemeService)
+], OverviewRulerFeature);
+export {
+  OverviewRulerFeature
+};
+//# sourceMappingURL=overviewRulerFeature.js.map

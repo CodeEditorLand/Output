@@ -1,1 +1,88 @@
-import{$yo as m}from"../../../../platform/log/common/log.js";import{$Ed as p,$Dd as w,$Cd as $}from"../../../../base/common/lifecycle.js";import{$UPc as u}from"../../../../platform/ipc/common/mainProcessService.js";import{$Dn as P}from"../../../../base/parts/ipc/common/ipc.mp.js";import{$Nj as y}from"../../../../platform/instantiation/common/instantiation.js";import{ProxyChannel as b}from"../../../../base/parts/ipc/common/ipc.js";import{$ln as W}from"../../../../base/common/uuid.js";import{$Abb as g}from"../../../../base/parts/ipc/electron-browser/ipc.mp.js";import{$$A as R}from"../../../../platform/utilityProcess/common/utilityProcessWorkerService.js";import{$8h as _,$0h as k}from"../../../../base/common/async.js";var f=function(n,e,t,r){var s=arguments.length,i=s<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,e,t,r);else for(var c=n.length-1;c>=0;c--)(o=n[c])&&(i=(s<3?o(i):s>3?o(e,t,i):o(e,t))||i);return s>3&&i&&Object.defineProperty(e,t,i),i},a=function(n,e){return function(t,r){e(t,r,n)}};const S=y("utilityProcessWorkerWorkbenchService");let h=class extends p{get b(){if(!this.a){const e=this.g.getChannel(R);this.a=b.toService(e)}return this.a}constructor(e,t,r){super(),this.windowId=e,this.f=t,this.g=r,this.a=void 0,this.c=new _}async createWorker(e){this.f.trace("Renderer->UtilityProcess#createWorker"),await Promise.race([this.c.wait(),k(2e3)]);const t=W(),r="vscode:createUtilityProcessWorkerMessageChannelResult",s=g(void 0,r,t),i=this.b.createWorker({process:e,reply:{windowId:this.windowId,channel:r,nonce:t}}),o=new w;o.add($(()=>{this.f.trace("Renderer->UtilityProcess#disposeWorker",e),this.b.disposeWorker({process:e,reply:{windowId:this.windowId}})}));const c=await s,l=o.add(new P(c,`window:${this.windowId},module:${e.moduleId}`));return this.f.trace("Renderer->UtilityProcess#createWorkerChannel: connection established"),i.then(({reason:d})=>{d?.code===0?this.f.trace(`[UtilityProcessWorker]: terminated normally with code ${d.code}, signal: ${d.signal}`):this.f.error(`[UtilityProcessWorker]: terminated unexpectedly with code ${d?.code}, signal: ${d?.signal}`)}),{client:l,onDidTerminate:i,dispose:()=>o.dispose()}}notifyRestored(){this.c.isOpen()||this.c.open()}};h=f([a(1,m),a(2,u)],h);export{h as $1Pc,S as $ZPc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { Client as MessagePortClient } from "../../../../base/parts/ipc/common/ipc.mp.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { acquirePort } from "../../../../base/parts/ipc/electron-browser/ipc.mp.js";
+import { ipcUtilityProcessWorkerChannelName } from "../../../../platform/utilityProcess/common/utilityProcessWorkerService.js";
+import { Barrier, timeout } from "../../../../base/common/async.js";
+const IUtilityProcessWorkerWorkbenchService = createDecorator("utilityProcessWorkerWorkbenchService");
+let UtilityProcessWorkerWorkbenchService = class UtilityProcessWorkerWorkbenchService2 extends Disposable {
+  static {
+    __name(this, "UtilityProcessWorkerWorkbenchService");
+  }
+  get utilityProcessWorkerService() {
+    if (!this._utilityProcessWorkerService) {
+      const channel = this.mainProcessService.getChannel(ipcUtilityProcessWorkerChannelName);
+      this._utilityProcessWorkerService = ProxyChannel.toService(channel);
+    }
+    return this._utilityProcessWorkerService;
+  }
+  constructor(windowId, logService, mainProcessService) {
+    super();
+    this.windowId = windowId;
+    this.logService = logService;
+    this.mainProcessService = mainProcessService;
+    this._utilityProcessWorkerService = void 0;
+    this.restoredBarrier = new Barrier();
+  }
+  async createWorker(process) {
+    this.logService.trace("Renderer->UtilityProcess#createWorker");
+    await Promise.race([this.restoredBarrier.wait(), timeout(2e3)]);
+    const nonce = generateUuid();
+    const responseChannel = "vscode:createUtilityProcessWorkerMessageChannelResult";
+    const portPromise = acquirePort(void 0, responseChannel, nonce);
+    const onDidTerminate = this.utilityProcessWorkerService.createWorker({
+      process,
+      reply: { windowId: this.windowId, channel: responseChannel, nonce }
+    });
+    const disposables = new DisposableStore();
+    disposables.add(toDisposable(() => {
+      this.logService.trace("Renderer->UtilityProcess#disposeWorker", process);
+      this.utilityProcessWorkerService.disposeWorker({
+        process,
+        reply: { windowId: this.windowId }
+      });
+    }));
+    const port = await portPromise;
+    const client = disposables.add(new MessagePortClient(port, `window:${this.windowId},module:${process.moduleId}`));
+    this.logService.trace("Renderer->UtilityProcess#createWorkerChannel: connection established");
+    onDidTerminate.then(({ reason }) => {
+      if (reason?.code === 0) {
+        this.logService.trace(`[UtilityProcessWorker]: terminated normally with code ${reason.code}, signal: ${reason.signal}`);
+      } else {
+        this.logService.error(`[UtilityProcessWorker]: terminated unexpectedly with code ${reason?.code}, signal: ${reason?.signal}`);
+      }
+    });
+    return { client, onDidTerminate, dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose") };
+  }
+  notifyRestored() {
+    if (!this.restoredBarrier.isOpen()) {
+      this.restoredBarrier.open();
+    }
+  }
+};
+UtilityProcessWorkerWorkbenchService = __decorate([
+  __param(1, ILogService),
+  __param(2, IMainProcessService)
+], UtilityProcessWorkerWorkbenchService);
+export {
+  IUtilityProcessWorkerWorkbenchService,
+  UtilityProcessWorkerWorkbenchService
+};
+//# sourceMappingURL=utilityProcessWorkerWorkbenchService.js.map

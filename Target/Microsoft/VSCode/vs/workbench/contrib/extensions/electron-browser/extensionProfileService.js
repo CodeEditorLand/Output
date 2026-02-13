@@ -1,1 +1,180 @@
-import{$F8 as d}from"../../../../base/browser/dom.js";import{$T7 as g}from"../../../../base/browser/window.js";import{$mb as m}from"../../../../base/common/errors.js";import{$xf as p}from"../../../../base/common/event.js";import{$Ed as $,$Fd as P}from"../../../../base/common/lifecycle.js";import{$Pi as w}from"../../../../base/common/ports.js";import*as r from"../../../../nls.js";import{$vo as b}from"../../../../platform/commands/common/commands.js";import{$Mp as v}from"../../../../platform/dialogs/common/dialogs.js";import{$Kz as y}from"../../../../platform/extensions/common/extensions.js";import{$Mj as z}from"../../../../platform/instantiation/common/instantiation.js";import{$Xu as j}from"../../../../platform/native/common/native.js";import{$Vn as x}from"../../../../platform/product/common/productService.js";import{$Zrc as D}from"../common/runtimeExtensionsInput.js";import{ProfileSessionState as e}from"./runtimeExtensionsEditor.js";import{$BL as N}from"../../../services/editor/common/editorService.js";import{$NR as S}from"../../../services/extensions/common/extensions.js";import{$MWc as _}from"../../../services/extensions/electron-browser/extensionHostProfiler.js";import{$fDb as R}from"../../../services/statusbar/browser/statusbar.js";var u=function(l,t,i,n){var o=arguments.length,s=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(l,t,i,n);else for(var a=l.length-1;a>=0;a--)(f=l[a])&&(s=(o<3?f(s):o>3?f(t,i,s):f(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},h=function(l,t){return function(i,n){t(i,n,l)}};let c=class extends ${get state(){return this.h}get lastProfile(){return this.f}constructor(t,i,n,o,s,f,a){super(),this.n=t,this.q=i,this.r=n,this.s=o,this.t=s,this.u=f,this.w=a,this.a=this.D(new p),this.onDidChangeState=this.a.event,this.b=this.D(new p),this.onDidChangeLastProfile=this.b.event,this.c=new y,this.h=e.None,this.m=this.D(new P),this.f=null,this.g=null,this.y(e.None),b.registerCommand("workbench.action.extensionHostProfiler.stop",()=>{this.stopProfiling(),this.q.openEditor(D.instance,{pinned:!0})})}y(t){this.h!==t&&(this.h=t,this.h===e.Running?this.z(!0):this.h===e.Stopping&&this.z(!1),this.a.fire(void 0))}z(t){if(this.m.clear(),t){const i={name:r.localize(9159,null),text:r.localize(9160,null),showProgress:!0,ariaLabel:r.localize(9161,null),tooltip:r.localize(9162,null),command:"workbench.action.extensionHostProfiler.stop"},n=Date.now(),o=d(g,()=>{this.j?.update({...i,text:r.localize(9163,null,Math.round((new Date().getTime()-n)/1e3))})},1e3);this.m.value=o,this.j?this.j.update(i):this.j=this.u.addEntry(i,"status.profiler",1)}else this.j&&(this.j.dispose(),this.j=void 0)}async startProfiling(){if(this.h!==e.None)return null;const t=await this.n.getInspectPorts(1,!0);return t.length===0?this.t.confirm({type:"info",message:r.localize(9164,null),detail:r.localize(9165,null,this.w.nameLong),primaryButton:r.localize(9166,null)}).then(i=>{i.confirmed&&this.s.relaunch({addArgs:[`--inspect-extensions=${w()}`]})}):(t.length>1,this.y(e.Starting),this.r.createInstance(_,t[0].host,t[0].port).start().then(i=>{this.g=i,this.y(e.Running)},i=>{m(i),this.y(e.None)}))}stopProfiling(){this.h!==e.Running||!this.g||(this.y(e.Stopping),this.g.stop().then(t=>{this.C(t),this.y(e.None)},t=>{m(t),this.y(e.None)}),this.g=null)}C(t){this.f=t,this.lastProfileSavedTo=void 0,this.b.fire(void 0)}getUnresponsiveProfile(t){return this.c.get(t)}setUnresponsiveProfile(t,i){this.c.set(t,i),this.C(i)}};c=u([h(0,S),h(1,N),h(2,z),h(3,j),h(4,v),h(5,R),h(6,x)],c);export{c as $NWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { disposableWindowInterval } from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { randomPort } from "../../../../base/common/ports.js";
+import * as nls from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifierMap } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { RuntimeExtensionsInput } from "../common/runtimeExtensionsInput.js";
+import { ProfileSessionState } from "./runtimeExtensionsEditor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ExtensionHostProfiler } from "../../../services/extensions/electron-browser/extensionHostProfiler.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
+let ExtensionHostProfileService = class ExtensionHostProfileService2 extends Disposable {
+  static {
+    __name(this, "ExtensionHostProfileService");
+  }
+  get state() {
+    return this._state;
+  }
+  get lastProfile() {
+    return this._profile;
+  }
+  constructor(_extensionService, _editorService, _instantiationService, _nativeHostService, _dialogService, _statusbarService, _productService) {
+    super();
+    this._extensionService = _extensionService;
+    this._editorService = _editorService;
+    this._instantiationService = _instantiationService;
+    this._nativeHostService = _nativeHostService;
+    this._dialogService = _dialogService;
+    this._statusbarService = _statusbarService;
+    this._productService = _productService;
+    this._onDidChangeState = this._register(new Emitter());
+    this.onDidChangeState = this._onDidChangeState.event;
+    this._onDidChangeLastProfile = this._register(new Emitter());
+    this.onDidChangeLastProfile = this._onDidChangeLastProfile.event;
+    this._unresponsiveProfiles = new ExtensionIdentifierMap();
+    this._state = ProfileSessionState.None;
+    this.profilingStatusBarIndicatorLabelUpdater = this._register(new MutableDisposable());
+    this._profile = null;
+    this._profileSession = null;
+    this._setState(ProfileSessionState.None);
+    CommandsRegistry.registerCommand("workbench.action.extensionHostProfiler.stop", () => {
+      this.stopProfiling();
+      this._editorService.openEditor(RuntimeExtensionsInput.instance, { pinned: true });
+    });
+  }
+  _setState(state) {
+    if (this._state === state) {
+      return;
+    }
+    this._state = state;
+    if (this._state === ProfileSessionState.Running) {
+      this.updateProfilingStatusBarIndicator(true);
+    } else if (this._state === ProfileSessionState.Stopping) {
+      this.updateProfilingStatusBarIndicator(false);
+    }
+    this._onDidChangeState.fire(void 0);
+  }
+  updateProfilingStatusBarIndicator(visible) {
+    this.profilingStatusBarIndicatorLabelUpdater.clear();
+    if (visible) {
+      const indicator = {
+        name: nls.localize("status.profiler", "Extension Profiler"),
+        text: nls.localize("profilingExtensionHost", "Profiling Extension Host"),
+        showProgress: true,
+        ariaLabel: nls.localize("profilingExtensionHost", "Profiling Extension Host"),
+        tooltip: nls.localize("selectAndStartDebug", "Click to stop profiling."),
+        command: "workbench.action.extensionHostProfiler.stop"
+      };
+      const timeStarted = Date.now();
+      const handle = disposableWindowInterval(mainWindow, () => {
+        this.profilingStatusBarIndicator?.update({ ...indicator, text: nls.localize("profilingExtensionHostTime", "Profiling Extension Host ({0} sec)", Math.round(((/* @__PURE__ */ new Date()).getTime() - timeStarted) / 1e3)) });
+      }, 1e3);
+      this.profilingStatusBarIndicatorLabelUpdater.value = handle;
+      if (!this.profilingStatusBarIndicator) {
+        this.profilingStatusBarIndicator = this._statusbarService.addEntry(
+          indicator,
+          "status.profiler",
+          1
+          /* StatusbarAlignment.RIGHT */
+        );
+      } else {
+        this.profilingStatusBarIndicator.update(indicator);
+      }
+    } else {
+      if (this.profilingStatusBarIndicator) {
+        this.profilingStatusBarIndicator.dispose();
+        this.profilingStatusBarIndicator = void 0;
+      }
+    }
+  }
+  async startProfiling() {
+    if (this._state !== ProfileSessionState.None) {
+      return null;
+    }
+    const inspectPorts = await this._extensionService.getInspectPorts(1, true);
+    if (inspectPorts.length === 0) {
+      return this._dialogService.confirm({
+        type: "info",
+        message: nls.localize("restart1", "Profile Extensions"),
+        detail: nls.localize("restart2", "In order to profile extensions a restart is required. Do you want to restart '{0}' now?", this._productService.nameLong),
+        primaryButton: nls.localize({ key: "restart3", comment: ["&& denotes a mnemonic"] }, "&&Restart")
+      }).then((res) => {
+        if (res.confirmed) {
+          this._nativeHostService.relaunch({ addArgs: [`--inspect-extensions=${randomPort()}`] });
+        }
+      });
+    }
+    if (inspectPorts.length > 1) {
+      console.warn(`There are multiple extension hosts available for profiling. Picking the first one...`);
+    }
+    this._setState(ProfileSessionState.Starting);
+    return this._instantiationService.createInstance(ExtensionHostProfiler, inspectPorts[0].host, inspectPorts[0].port).start().then((value) => {
+      this._profileSession = value;
+      this._setState(ProfileSessionState.Running);
+    }, (err) => {
+      onUnexpectedError(err);
+      this._setState(ProfileSessionState.None);
+    });
+  }
+  stopProfiling() {
+    if (this._state !== ProfileSessionState.Running || !this._profileSession) {
+      return;
+    }
+    this._setState(ProfileSessionState.Stopping);
+    this._profileSession.stop().then((result) => {
+      this._setLastProfile(result);
+      this._setState(ProfileSessionState.None);
+    }, (err) => {
+      onUnexpectedError(err);
+      this._setState(ProfileSessionState.None);
+    });
+    this._profileSession = null;
+  }
+  _setLastProfile(profile) {
+    this._profile = profile;
+    this.lastProfileSavedTo = void 0;
+    this._onDidChangeLastProfile.fire(void 0);
+  }
+  getUnresponsiveProfile(extensionId) {
+    return this._unresponsiveProfiles.get(extensionId);
+  }
+  setUnresponsiveProfile(extensionId, profile) {
+    this._unresponsiveProfiles.set(extensionId, profile);
+    this._setLastProfile(profile);
+  }
+};
+ExtensionHostProfileService = __decorate([
+  __param(0, IExtensionService),
+  __param(1, IEditorService),
+  __param(2, IInstantiationService),
+  __param(3, INativeHostService),
+  __param(4, IDialogService),
+  __param(5, IStatusbarService),
+  __param(6, IProductService)
+], ExtensionHostProfileService);
+export {
+  ExtensionHostProfileService
+};
+//# sourceMappingURL=extensionProfileService.js.map

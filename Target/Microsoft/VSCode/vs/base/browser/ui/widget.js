@@ -1,1 +1,49 @@
-import*as $ from"../dom.js";import{$n8 as n}from"../keyboardEvent.js";import{$h8 as s}from"../mouseEvent.js";import{$89 as e}from"../touch.js";import{$Ed as u}from"../../common/lifecycle.js";class m extends u{b(r,t){this.D($.$u8(r,$.$r9.CLICK,i=>t(new s($.getWindow(r),i))))}f(r,t){this.D($.$u8(r,$.$r9.MOUSE_DOWN,i=>t(new s($.getWindow(r),i))))}j(r,t){this.D($.$u8(r,$.$r9.MOUSE_OVER,i=>t(new s($.getWindow(r),i))))}m(r,t){this.D($.$u8(r,$.$r9.MOUSE_LEAVE,i=>t(new s($.getWindow(r),i))))}q(r,t){this.D($.$u8(r,$.$r9.KEY_DOWN,i=>t(new n(i))))}s(r,t){this.D($.$u8(r,$.$r9.KEY_UP,i=>t(new n(i))))}u(r,t){this.D($.$u8(r,$.$r9.INPUT,t))}z(r,t){this.D($.$u8(r,$.$r9.BLUR,t))}C(r,t){this.D($.$u8(r,$.$r9.FOCUS,t))}F(r,t){this.D($.$u8(r,$.$r9.CHANGE,t))}G(r){return e.ignoreTarget(r)}}export{m as $_9};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../dom.js";
+import { StandardKeyboardEvent } from "../keyboardEvent.js";
+import { StandardMouseEvent } from "../mouseEvent.js";
+import { Gesture } from "../touch.js";
+import { Disposable } from "../../common/lifecycle.js";
+class Widget extends Disposable {
+  static {
+    __name(this, "Widget");
+  }
+  onclick(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.CLICK, (e) => listener(new StandardMouseEvent(dom.getWindow(domNode), e))));
+  }
+  onmousedown(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.MOUSE_DOWN, (e) => listener(new StandardMouseEvent(dom.getWindow(domNode), e))));
+  }
+  onmouseover(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.MOUSE_OVER, (e) => listener(new StandardMouseEvent(dom.getWindow(domNode), e))));
+  }
+  onmouseleave(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.MOUSE_LEAVE, (e) => listener(new StandardMouseEvent(dom.getWindow(domNode), e))));
+  }
+  onkeydown(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.KEY_DOWN, (e) => listener(new StandardKeyboardEvent(e))));
+  }
+  onkeyup(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.KEY_UP, (e) => listener(new StandardKeyboardEvent(e))));
+  }
+  oninput(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.INPUT, listener));
+  }
+  onblur(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.BLUR, listener));
+  }
+  onfocus(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.FOCUS, listener));
+  }
+  onchange(domNode, listener) {
+    this._register(dom.addDisposableListener(domNode, dom.EventType.CHANGE, listener));
+  }
+  ignoreGesture(domNode) {
+    return Gesture.ignoreTarget(domNode);
+  }
+}
+export {
+  Widget
+};
+//# sourceMappingURL=widget.js.map

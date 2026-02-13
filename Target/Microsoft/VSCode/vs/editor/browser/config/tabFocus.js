@@ -1,1 +1,27 @@
-import{$xf as t}from"../../../base/common/event.js";import{$Ed as e}from"../../../base/common/lifecycle.js";class o extends e{constructor(){super(...arguments),this.a=!1,this.b=this.D(new t),this.onDidChangeTabFocus=this.b.event}getTabFocusMode(){return this.a}setTabFocusMode(s){this.a=s,this.b.fire(this.a)}}const h=new o;export{h as $bdb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+class TabFocusImpl extends Disposable {
+  static {
+    __name(this, "TabFocusImpl");
+  }
+  constructor() {
+    super(...arguments);
+    this._tabFocus = false;
+    this._onDidChangeTabFocus = this._register(new Emitter());
+    this.onDidChangeTabFocus = this._onDidChangeTabFocus.event;
+  }
+  getTabFocusMode() {
+    return this._tabFocus;
+  }
+  setTabFocusMode(tabFocusMode) {
+    this._tabFocus = tabFocusMode;
+    this._onDidChangeTabFocus.fire(this._tabFocus);
+  }
+}
+const TabFocus = new TabFocusImpl();
+export {
+  TabFocus
+};
+//# sourceMappingURL=tabFocus.js.map

@@ -1,1 +1,33 @@
-var r;(function(e){e.AddConfiguration="workbench.mcp.addConfiguration",e.Browse="workbench.mcp.browseServers",e.InstallFromManifest="workbench.mcp.installFromManifest",e.BrowsePage="workbench.mcp.browseServersPage",e.BrowseResources="workbench.mcp.browseResources",e.ConfigureSamplingModels="workbench.mcp.configureSamplingModels",e.EditStoredInput="workbench.mcp.editStoredInput",e.InstallFromActivation="workbench.mcp.installFromActivation",e.ListServer="workbench.mcp.listServer",e.OpenRemoteUserMcp="workbench.mcp.openRemoteUserMcpJson",e.OpenUserMcp="workbench.mcp.openUserMcpJson",e.OpenWorkspaceFolderMcp="workbench.mcp.openWorkspaceFolderMcpJson",e.OpenWorkspaceMcp="workbench.mcp.openWorkspaceMcpJson",e.RemoveStoredInput="workbench.mcp.removeStoredInput",e.ResetCachedTools="workbench.mcp.resetCachedTools",e.ResetTrust="workbench.mcp.resetTrust",e.RestartServer="workbench.mcp.restartServer",e.ServerOptions="workbench.mcp.serverOptions",e.ServerOptionsInConfirmation="workbench.mcp.serverOptionsInConfirmation",e.ShowConfiguration="workbench.mcp.showConfiguration",e.ShowInstalled="workbench.mcp.showInstalledServers",e.ShowOutput="workbench.mcp.showOutput",e.SkipCurrentAutostart="workbench.mcp.skipAutostart",e.StartPromptForServer="workbench.mcp.startPromptForServer",e.StartServer="workbench.mcp.startServer",e.StopServer="workbench.mcp.stopServer"})(r||(r={}));export{r as McpCommandIds};
+var McpCommandIds;
+(function(McpCommandIds2) {
+  McpCommandIds2["AddConfiguration"] = "workbench.mcp.addConfiguration";
+  McpCommandIds2["Browse"] = "workbench.mcp.browseServers";
+  McpCommandIds2["InstallFromManifest"] = "workbench.mcp.installFromManifest";
+  McpCommandIds2["BrowsePage"] = "workbench.mcp.browseServersPage";
+  McpCommandIds2["BrowseResources"] = "workbench.mcp.browseResources";
+  McpCommandIds2["ConfigureSamplingModels"] = "workbench.mcp.configureSamplingModels";
+  McpCommandIds2["EditStoredInput"] = "workbench.mcp.editStoredInput";
+  McpCommandIds2["InstallFromActivation"] = "workbench.mcp.installFromActivation";
+  McpCommandIds2["ListServer"] = "workbench.mcp.listServer";
+  McpCommandIds2["OpenRemoteUserMcp"] = "workbench.mcp.openRemoteUserMcpJson";
+  McpCommandIds2["OpenUserMcp"] = "workbench.mcp.openUserMcpJson";
+  McpCommandIds2["OpenWorkspaceFolderMcp"] = "workbench.mcp.openWorkspaceFolderMcpJson";
+  McpCommandIds2["OpenWorkspaceMcp"] = "workbench.mcp.openWorkspaceMcpJson";
+  McpCommandIds2["RemoveStoredInput"] = "workbench.mcp.removeStoredInput";
+  McpCommandIds2["ResetCachedTools"] = "workbench.mcp.resetCachedTools";
+  McpCommandIds2["ResetTrust"] = "workbench.mcp.resetTrust";
+  McpCommandIds2["RestartServer"] = "workbench.mcp.restartServer";
+  McpCommandIds2["ServerOptions"] = "workbench.mcp.serverOptions";
+  McpCommandIds2["ServerOptionsInConfirmation"] = "workbench.mcp.serverOptionsInConfirmation";
+  McpCommandIds2["ShowConfiguration"] = "workbench.mcp.showConfiguration";
+  McpCommandIds2["ShowInstalled"] = "workbench.mcp.showInstalledServers";
+  McpCommandIds2["ShowOutput"] = "workbench.mcp.showOutput";
+  McpCommandIds2["SkipCurrentAutostart"] = "workbench.mcp.skipAutostart";
+  McpCommandIds2["StartPromptForServer"] = "workbench.mcp.startPromptForServer";
+  McpCommandIds2["StartServer"] = "workbench.mcp.startServer";
+  McpCommandIds2["StopServer"] = "workbench.mcp.stopServer";
+})(McpCommandIds || (McpCommandIds = {}));
+export {
+  McpCommandIds
+};
+//# sourceMappingURL=mcpCommandIds.js.map

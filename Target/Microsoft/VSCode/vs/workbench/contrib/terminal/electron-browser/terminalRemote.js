@@ -1,1 +1,44 @@
-import{Schemas as c}from"../../../../base/common/network.js";import{localize2 as l}from"../../../../nls.js";import{$Ll as v}from"../../../../platform/environment/common/environment.js";import{$eC as f}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$FBc as p}from"../browser/terminalActions.js";import{$06 as u}from"../../../services/history/common/history.js";function $(){p({id:"workbench.action.terminal.newLocal",title:l(13644,"Create New Integrated Terminal (Local)"),run:async(t,r)=>{const a=r.get(u),m=r.get(f),s=r.get(v);let e;try{const i=a.getLastActiveWorkspaceRoot(c.vscodeRemote);if(i){const n=await m.getCanonicalURI(i);n.scheme===c.file&&(e=n)}}catch{}e||(e=s.userHome);const o=await t.service.createTerminal({cwd:e});return o?(t.service.setActiveInstance(o),t.groupService.showPanel(!0)):Promise.resolve(void 0)}})}export{$ as $1Wc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../../base/common/network.js";
+import { localize2 } from "../../../../nls.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { registerTerminalAction } from "../browser/terminalActions.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+function registerRemoteContributions() {
+  registerTerminalAction({
+    id: "workbench.action.terminal.newLocal",
+    title: localize2("workbench.action.terminal.newLocal", "Create New Integrated Terminal (Local)"),
+    run: /* @__PURE__ */ __name(async (c, accessor) => {
+      const historyService = accessor.get(IHistoryService);
+      const remoteAuthorityResolverService = accessor.get(IRemoteAuthorityResolverService);
+      const nativeEnvironmentService = accessor.get(INativeEnvironmentService);
+      let cwd;
+      try {
+        const activeWorkspaceRootUri = historyService.getLastActiveWorkspaceRoot(Schemas.vscodeRemote);
+        if (activeWorkspaceRootUri) {
+          const canonicalUri = await remoteAuthorityResolverService.getCanonicalURI(activeWorkspaceRootUri);
+          if (canonicalUri.scheme === Schemas.file) {
+            cwd = canonicalUri;
+          }
+        }
+      } catch {
+      }
+      if (!cwd) {
+        cwd = nativeEnvironmentService.userHome;
+      }
+      const instance = await c.service.createTerminal({ cwd });
+      if (!instance) {
+        return Promise.resolve(void 0);
+      }
+      c.service.setActiveInstance(instance);
+      return c.groupService.showPanel(true);
+    }, "run")
+  });
+}
+__name(registerRemoteContributions, "registerRemoteContributions");
+export {
+  registerRemoteContributions
+};
+//# sourceMappingURL=terminalRemote.js.map

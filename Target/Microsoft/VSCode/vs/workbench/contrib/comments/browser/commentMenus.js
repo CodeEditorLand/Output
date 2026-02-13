@@ -1,1 +1,58 @@
-import{$rL as l,$qL as o}from"../../../../platform/actions/common/actions.js";var a=function(i,t,e,n){var m=arguments.length,r=m<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,t,e,n);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(r=(m<3?s(r):m>3?s(t,e,r):s(t,e))||r);return m>3&&r&&Object.defineProperty(t,e,r),r},u=function(i,t){return function(e,n){t(e,n,i)}};let h=class{constructor(t){this.a=t}getCommentThreadTitleActions(t){return this.b(o.CommentThreadTitle,t)}getCommentThreadActions(t){return this.b(o.CommentThreadActions,t)}getCommentEditorActions(t){return this.b(o.CommentEditorActions,t)}getCommentThreadAdditionalActions(t){return this.b(o.CommentThreadAdditionalActions,t,{emitEventsForSubmenuChanges:!0})}getCommentTitleActions(t,e){return this.b(o.CommentTitle,e)}getCommentActions(t,e){return this.b(o.CommentActions,e)}getCommentThreadTitleContextActions(t){return this.c(o.CommentThreadTitleContext,t,{shouldForwardArgs:!0})}b(t,e,n){return this.a.createMenu(t,e,n)}c(t,e,n){return this.a.getMenuActions(t,e,n).map(m=>m[1]).flat()}dispose(){}};h=a([u(0,l)],h);export{h as $JHb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+let CommentMenus = class CommentMenus2 {
+  static {
+    __name(this, "CommentMenus");
+  }
+  constructor(menuService) {
+    this.menuService = menuService;
+  }
+  getCommentThreadTitleActions(contextKeyService) {
+    return this.getMenu(MenuId.CommentThreadTitle, contextKeyService);
+  }
+  getCommentThreadActions(contextKeyService) {
+    return this.getMenu(MenuId.CommentThreadActions, contextKeyService);
+  }
+  getCommentEditorActions(contextKeyService) {
+    return this.getMenu(MenuId.CommentEditorActions, contextKeyService);
+  }
+  getCommentThreadAdditionalActions(contextKeyService) {
+    return this.getMenu(MenuId.CommentThreadAdditionalActions, contextKeyService, { emitEventsForSubmenuChanges: true });
+  }
+  getCommentTitleActions(comment, contextKeyService) {
+    return this.getMenu(MenuId.CommentTitle, contextKeyService);
+  }
+  getCommentActions(comment, contextKeyService) {
+    return this.getMenu(MenuId.CommentActions, contextKeyService);
+  }
+  getCommentThreadTitleContextActions(contextKeyService) {
+    return this.getActions(MenuId.CommentThreadTitleContext, contextKeyService, { shouldForwardArgs: true });
+  }
+  getMenu(menuId, contextKeyService, options) {
+    return this.menuService.createMenu(menuId, contextKeyService, options);
+  }
+  getActions(menuId, contextKeyService, options) {
+    return this.menuService.getMenuActions(menuId, contextKeyService, options).map((value) => value[1]).flat();
+  }
+  dispose() {
+  }
+};
+CommentMenus = __decorate([
+  __param(0, IMenuService)
+], CommentMenus);
+export {
+  CommentMenus
+};
+//# sourceMappingURL=commentMenus.js.map

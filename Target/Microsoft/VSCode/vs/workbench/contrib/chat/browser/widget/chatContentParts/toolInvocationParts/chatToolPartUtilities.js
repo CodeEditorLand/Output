@@ -1,1 +1,41 @@
-import{$tk as o,$jk as r}from"../../../../../../../base/common/htmlContent.js";import{localize as n}from"../../../../../../../nls.js";import{IChatToolInvocation as i}from"../../../../common/chatService/chatService.js";function d(e){const t=i.executionConfirmedOrDenied(e);if(!(!t||typeof t=="boolean"))return u(t)}function u(e){let t;switch(e.type){case 2:t=n(6646,null,o({title:"`"+e.id+"`",id:"workbench.action.openSettings",arguments:[e.id]},!1));break;case 3:t=e.scope==="session"?n(6647,null):e.scope==="workspace"?n(6648,null):n(6649,null),t+=" ("+o({title:n(6650,null),id:"workbench.action.chat.editToolApproval",arguments:[e.scope]})+")";break;case 1:return e.reason?typeof e.reason=="string"?new r(e.reason,{isTrusted:!0}):e.reason:void 0;default:return}return new r(t,{isTrusted:!0})}export{d as $T2b,u as $U2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createMarkdownCommandLink, MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { localize } from "../../../../../../../nls.js";
+import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+function getToolApprovalMessage(toolInvocation) {
+  const reason = IChatToolInvocation.executionConfirmedOrDenied(toolInvocation);
+  if (!reason || typeof reason === "boolean") {
+    return void 0;
+  }
+  return getApprovalMessageFromReason(reason);
+}
+__name(getToolApprovalMessage, "getToolApprovalMessage");
+function getApprovalMessageFromReason(reason) {
+  let md;
+  switch (reason.type) {
+    case 2:
+      md = localize("chat.autoapprove.setting", "Auto approved by {0}", createMarkdownCommandLink({ title: "`" + reason.id + "`", id: "workbench.action.openSettings", arguments: [reason.id] }, false));
+      break;
+    case 3:
+      md = reason.scope === "session" ? localize("chat.autoapprove.lmServicePerTool.session", "Auto approved for this session") : reason.scope === "workspace" ? localize("chat.autoapprove.lmServicePerTool.workspace", "Auto approved for this workspace") : localize("chat.autoapprove.lmServicePerTool.profile", "Auto approved for this profile");
+      md += " (" + createMarkdownCommandLink({ title: localize("edit", "Edit"), id: "workbench.action.chat.editToolApproval", arguments: [reason.scope] }) + ")";
+      break;
+    case 1:
+      if (reason.reason) {
+        return typeof reason.reason === "string" ? new MarkdownString(reason.reason, { isTrusted: true }) : reason.reason;
+      }
+      return void 0;
+    case 4:
+    case 0:
+    default:
+      return void 0;
+  }
+  return new MarkdownString(md, { isTrusted: true });
+}
+__name(getApprovalMessageFromReason, "getApprovalMessageFromReason");
+export {
+  getApprovalMessageFromReason,
+  getToolApprovalMessage
+};
+//# sourceMappingURL=chatToolPartUtilities.js.map

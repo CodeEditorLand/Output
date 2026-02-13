@@ -1,1 +1,94 @@
-import{$gA as u}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$$o as p}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$LQ as b}from"../../userDataProfile/common/userDataProfile.js";import{$Ih as $}from"../../../../base/common/resources.js";import{Schemas as d}from"../../../../base/common/network.js";import{$yo as w}from"../../../../platform/log/common/log.js";import{$I5 as y}from"../../../../platform/download/common/download.js";import{$vk as _}from"../../../../platform/files/common/files.js";import{$ln as I}from"../../../../base/common/uuid.js";import{$9Nc as g}from"../common/extensionManagementChannelClient.js";import{$Iz as x,$Pz as D}from"../../../../platform/extensions/common/extensions.js";import{$SPc as P}from"../../environment/electron-browser/environmentService.js";import{$Vn as R}from"../../../../platform/product/common/productService.js";var h=function(s,t,o,r){var n=arguments.length,i=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,o):r,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,o,r);else for(var c=s.length-1;c>=0;c--)(e=s[c])&&(i=(n<3?e(i):n>3?e(t,o,i):e(t,o))||i);return n>3&&i&&Object.defineProperty(t,o,i),i},a=function(s,t){return function(o,r){t(o,r,s)}};let l=class extends g{constructor(t,o,r,n,i,e,c,f,m){super(t,o,r,n,i),this.$=e,this.ab=c,this.bb=f,this.cb=m}Z(t,o){return o||this.N.extUri.isEqual(this.M.currentProfile.extensionsResource,t)}async install(t,o){const{location:r,cleanup:n}=await this.eb(t);try{return await super.install(r,o)}finally{await n()}}async eb(t){if(t.scheme===d.file)return{location:t,async cleanup(){}};this.cb.trace("Downloading extension from",t.toString());const o=$(this.bb.extensionsDownloadLocation,I());return await this.ab.download(t,o),this.cb.info("Downloaded extension to",o.toString()),{location:o,cleanup:async()=>{try{await this.$.del(o)}catch(n){this.cb.error(n)}}}}async X(t,o,r){if(this.bb.remoteAuthority){const i=(await this.getInstalled(1,t)).find(e=>D(e.manifest,this.bb.remoteAuthority));i&&(r||(r=[]),r.push(new x(i.identifier.id)))}return super.X(t,o,r)}};l=h([a(1,R),a(2,u),a(3,b),a(4,p),a(5,_),a(6,y),a(7,P),a(8,w)],l);export{l as $bWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IAllowedExtensionsService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDownloadService } from "../../../../platform/download/common/download.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { ProfileAwareExtensionManagementChannelClient } from "../common/extensionManagementChannelClient.js";
+import { ExtensionIdentifier, isResolverExtension } from "../../../../platform/extensions/common/extensions.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+let NativeExtensionManagementService = class NativeExtensionManagementService2 extends ProfileAwareExtensionManagementChannelClient {
+  static {
+    __name(this, "NativeExtensionManagementService");
+  }
+  constructor(channel, productService, allowedExtensionsService, userDataProfileService, uriIdentityService, fileService, downloadService, nativeEnvironmentService, logService) {
+    super(channel, productService, allowedExtensionsService, userDataProfileService, uriIdentityService);
+    this.fileService = fileService;
+    this.downloadService = downloadService;
+    this.nativeEnvironmentService = nativeEnvironmentService;
+    this.logService = logService;
+  }
+  filterEvent(profileLocation, isApplicationScoped) {
+    return isApplicationScoped || this.uriIdentityService.extUri.isEqual(this.userDataProfileService.currentProfile.extensionsResource, profileLocation);
+  }
+  async install(vsix, options) {
+    const { location, cleanup } = await this.downloadVsix(vsix);
+    try {
+      return await super.install(location, options);
+    } finally {
+      await cleanup();
+    }
+  }
+  async downloadVsix(vsix) {
+    if (vsix.scheme === Schemas.file) {
+      return { location: vsix, async cleanup() {
+      } };
+    }
+    this.logService.trace("Downloading extension from", vsix.toString());
+    const location = joinPath(this.nativeEnvironmentService.extensionsDownloadLocation, generateUuid());
+    await this.downloadService.download(vsix, location);
+    this.logService.info("Downloaded extension to", location.toString());
+    const cleanup = /* @__PURE__ */ __name(async () => {
+      try {
+        await this.fileService.del(location);
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }, "cleanup");
+    return { location, cleanup };
+  }
+  async switchExtensionsProfile(previousProfileLocation, currentProfileLocation, preserveExtensions) {
+    if (this.nativeEnvironmentService.remoteAuthority) {
+      const previousInstalledExtensions = await this.getInstalled(1, previousProfileLocation);
+      const resolverExtension = previousInstalledExtensions.find((e) => isResolverExtension(e.manifest, this.nativeEnvironmentService.remoteAuthority));
+      if (resolverExtension) {
+        if (!preserveExtensions) {
+          preserveExtensions = [];
+        }
+        preserveExtensions.push(new ExtensionIdentifier(resolverExtension.identifier.id));
+      }
+    }
+    return super.switchExtensionsProfile(previousProfileLocation, currentProfileLocation, preserveExtensions);
+  }
+};
+NativeExtensionManagementService = __decorate([
+  __param(1, IProductService),
+  __param(2, IAllowedExtensionsService),
+  __param(3, IUserDataProfileService),
+  __param(4, IUriIdentityService),
+  __param(5, IFileService),
+  __param(6, IDownloadService),
+  __param(7, INativeWorkbenchEnvironmentService),
+  __param(8, ILogService)
+], NativeExtensionManagementService);
+export {
+  NativeExtensionManagementService
+};
+//# sourceMappingURL=nativeExtensionManagementService.js.map

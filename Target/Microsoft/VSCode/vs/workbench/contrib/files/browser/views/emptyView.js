@@ -1,1 +1,113 @@
-import*as $ from"../../../../../nls.js";import{$Mj as g}from"../../../../../platform/instantiation/common/instantiation.js";import{$qu as D}from"../../../../../platform/theme/common/themeService.js";import{$fy as y}from"../../../../../platform/keybinding/common/keybinding.js";import{$ijb as _}from"../../../../../platform/contextview/browser/contextView.js";import{$5l as v,$Ml as C}from"../../../../../platform/workspace/common/workspace.js";import{$0l as w}from"../../../../../platform/configuration/common/configuration.js";import{$ZBb as j}from"../../../../browser/parts/views/viewPane.js";import{$oBb as k}from"../../../../browser/dnd.js";import{$Ls as E}from"../../../../../platform/theme/common/colorRegistry.js";import{$oH as O}from"../../../../../platform/label/common/label.js";import{$ro as W}from"../../../../../platform/contextkey/common/contextkey.js";import{$FN as R}from"../../../../common/views.js";import{$EP as F}from"../../../../../platform/opener/common/opener.js";import{$s as H}from"../../../../../base/common/platform.js";import{$T9 as M,getWindow as N}from"../../../../../base/browser/dom.js";import{$jkb as S}from"../../../../../platform/hover/browser/hover.js";var u=function(s,o,r,i){var p=arguments.length,e=p<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,r):i,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,o,r,i);else for(var n=s.length-1;n>=0;n--)(m=s[n])&&(e=(p<3?m(e):p>3?m(o,r,e):m(o,r))||e);return p>3&&e&&Object.defineProperty(o,r,e),e},t=function(s,o){return function(r,i){o(r,i,s)}},a;let l=class extends j{static{a=this}static{this.ID="workbench.explorer.emptyView"}static{this.NAME=$.localize2(9542,"No Folder Opened")}constructor(o,r,i,p,e,m,n,f,h,c,b,d){super(o,e,m,f,c,i,p,b,r,d),this.b=n,this.c=h,this.a=!1,this.D(this.b.onDidChangeWorkbenchState(()=>this.g())),this.D(this.c.onDidChangeFormatters(()=>this.g()))}shouldShowWelcome(){return!0}X(o){super.X(o),this.D(new M(o,{onDrop:r=>{o.style.backgroundColor="",this.Fb.createInstance(k,{allowWorkspaceOpen:!H||v(this.b.getWorkspace())}).handleDrop(r,N(o))},onDragEnter:()=>{const r=this.Hb.getColorTheme().getColor(E);o.style.backgroundColor=r?r.toString():""},onDragEnd:()=>{o.style.backgroundColor=""},onDragLeave:()=>{o.style.backgroundColor=""},onDragOver:r=>{r.dataTransfer&&(r.dataTransfer.dropEffect="copy")}})),this.g()}g(){this.a||(this.b.getWorkbenchState()===3?this.Rb(a.NAME.value):this.Rb(this.title))}dispose(){this.a=!0,super.dispose()}};l=a=u([t(1,D),t(2,R),t(3,g),t(4,y),t(5,_),t(6,C),t(7,w),t(8,O),t(9,W),t(10,F),t(11,S)],l);export{l as $yUb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var EmptyView_1;
+import * as nls from "../../../../../nls.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { isTemporaryWorkspace, IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ViewPane } from "../../../../browser/parts/views/viewPane.js";
+import { ResourcesDropHandler } from "../../../../browser/dnd.js";
+import { listDropOverBackground } from "../../../../../platform/theme/common/colorRegistry.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IViewDescriptorService } from "../../../../common/views.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { isWeb } from "../../../../../base/common/platform.js";
+import { DragAndDropObserver, getWindow } from "../../../../../base/browser/dom.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+let EmptyView = class EmptyView2 extends ViewPane {
+  static {
+    __name(this, "EmptyView");
+  }
+  static {
+    EmptyView_1 = this;
+  }
+  static {
+    this.ID = "workbench.explorer.emptyView";
+  }
+  static {
+    this.NAME = nls.localize2("noWorkspace", "No Folder Opened");
+  }
+  constructor(options, themeService, viewDescriptorService, instantiationService, keybindingService, contextMenuService, contextService, configurationService, labelService, contextKeyService, openerService, hoverService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.contextService = contextService;
+    this.labelService = labelService;
+    this._disposed = false;
+    this._register(this.contextService.onDidChangeWorkbenchState(() => this.refreshTitle()));
+    this._register(this.labelService.onDidChangeFormatters(() => this.refreshTitle()));
+  }
+  shouldShowWelcome() {
+    return true;
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this._register(new DragAndDropObserver(container, {
+      onDrop: /* @__PURE__ */ __name((e) => {
+        container.style.backgroundColor = "";
+        const dropHandler = this.instantiationService.createInstance(ResourcesDropHandler, { allowWorkspaceOpen: !isWeb || isTemporaryWorkspace(this.contextService.getWorkspace()) });
+        dropHandler.handleDrop(e, getWindow(container));
+      }, "onDrop"),
+      onDragEnter: /* @__PURE__ */ __name(() => {
+        const color = this.themeService.getColorTheme().getColor(listDropOverBackground);
+        container.style.backgroundColor = color ? color.toString() : "";
+      }, "onDragEnter"),
+      onDragEnd: /* @__PURE__ */ __name(() => {
+        container.style.backgroundColor = "";
+      }, "onDragEnd"),
+      onDragLeave: /* @__PURE__ */ __name(() => {
+        container.style.backgroundColor = "";
+      }, "onDragLeave"),
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "copy";
+        }
+      }, "onDragOver")
+    }));
+    this.refreshTitle();
+  }
+  refreshTitle() {
+    if (this._disposed) {
+      return;
+    }
+    if (this.contextService.getWorkbenchState() === 3) {
+      this.updateTitle(EmptyView_1.NAME.value);
+    } else {
+      this.updateTitle(this.title);
+    }
+  }
+  dispose() {
+    this._disposed = true;
+    super.dispose();
+  }
+};
+EmptyView = EmptyView_1 = __decorate([
+  __param(1, IThemeService),
+  __param(2, IViewDescriptorService),
+  __param(3, IInstantiationService),
+  __param(4, IKeybindingService),
+  __param(5, IContextMenuService),
+  __param(6, IWorkspaceContextService),
+  __param(7, IConfigurationService),
+  __param(8, ILabelService),
+  __param(9, IContextKeyService),
+  __param(10, IOpenerService),
+  __param(11, IHoverService)
+], EmptyView);
+export {
+  EmptyView
+};
+//# sourceMappingURL=emptyView.js.map

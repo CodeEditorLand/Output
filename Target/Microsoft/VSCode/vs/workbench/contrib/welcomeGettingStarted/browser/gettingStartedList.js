@@ -1,1 +1,102 @@
-import{$Ed as d}from"../../../../base/common/lifecycle.js";import{$ as r}from"../../../../base/browser/dom.js";import{$l0 as f}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$xf as c}from"../../../../base/common/event.js";import{$Wb as a}from"../../../../base/common/arrays.js";class y extends d{constructor(t){super(),this.t=t,this.c=new c,this.f=this.c.event,this.q=!1,this.s=new Set,this.r=t.contextService,this.m=void 0,this.itemCount=0,this.h=r("ul"),this.j=this.D(new f(this.h,{})),this.D(this.f(()=>this.j.scanDomNode())),this.g=r(".index-list."+t.klass,{},r("h2",{},t.title),this.j.getDomNode()),this.D(this.r.onDidChangeContext(s=>{s.affectsSome(this.s)&&this.rerender()}))}getDomElement(){return this.g}layout(t){this.j.scanDomNode()}onDidChange(t){this.D(this.f(t))}register(t){this.q?t.dispose():this.D(t)}dispose(){this.q=!0,super.dispose()}setLimit(t){this.t.limit=t,this.setEntries(this.m)}rerender(){this.setEntries(this.m)}setEntries(t){let s=t??[];this.itemCount=0;const h=this.t.rankElement;h&&(s=s.filter(i=>h(i)!==null),s.sort((i,n)=>h(n)-h(i)));const o=s.filter(i=>!i.when||this.r.contextMatchesRules(i.when)),e=o.slice(0,this.t.limit),m=e.map(i=>i.id);if(!(this.m===t&&a(m,this.n))){for(this.m=t,this.s.clear(),s.forEach(i=>{i.when?.keys()?.forEach(l=>this.s.add(l))}),this.n=m,this.itemCount=e.length;this.h.firstChild;)this.h.firstChild.remove();this.itemCount=e.length;for(const i of e){const n=this.t.renderElement(i);this.h.appendChild(n)}o.length>e.length&&this.t.more?this.h.appendChild(this.t.more):t!==void 0&&this.itemCount===0&&this.t.empty?this.h.appendChild(this.t.empty):this.t.footer&&this.h.appendChild(this.t.footer),this.c.fire()}}}export{y as $fIc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { $ } from "../../../../base/browser/dom.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { equals } from "../../../../base/common/arrays.js";
+class GettingStartedIndexList extends Disposable {
+  static {
+    __name(this, "GettingStartedIndexList");
+  }
+  constructor(options) {
+    super();
+    this.options = options;
+    this._onDidChangeEntries = new Emitter();
+    this.onDidChangeEntries = this._onDidChangeEntries.event;
+    this.isDisposed = false;
+    this.contextKeysToWatch = /* @__PURE__ */ new Set();
+    this.contextService = options.contextService;
+    this.entries = void 0;
+    this.itemCount = 0;
+    this.list = $("ul");
+    this.scrollbar = this._register(new DomScrollableElement(this.list, {}));
+    this._register(this.onDidChangeEntries(() => this.scrollbar.scanDomNode()));
+    this.domElement = $(".index-list." + options.klass, {}, $("h2", {}, options.title), this.scrollbar.getDomNode());
+    this._register(this.contextService.onDidChangeContext((e) => {
+      if (e.affectsSome(this.contextKeysToWatch)) {
+        this.rerender();
+      }
+    }));
+  }
+  getDomElement() {
+    return this.domElement;
+  }
+  layout(size) {
+    this.scrollbar.scanDomNode();
+  }
+  onDidChange(listener) {
+    this._register(this.onDidChangeEntries(listener));
+  }
+  register(d) {
+    if (this.isDisposed) {
+      d.dispose();
+    } else {
+      this._register(d);
+    }
+  }
+  dispose() {
+    this.isDisposed = true;
+    super.dispose();
+  }
+  setLimit(limit) {
+    this.options.limit = limit;
+    this.setEntries(this.entries);
+  }
+  rerender() {
+    this.setEntries(this.entries);
+  }
+  setEntries(entries) {
+    let entryList = entries ?? [];
+    this.itemCount = 0;
+    const ranker = this.options.rankElement;
+    if (ranker) {
+      entryList = entryList.filter((e) => ranker(e) !== null);
+      entryList.sort((a, b) => ranker(b) - ranker(a));
+    }
+    const activeEntries = entryList.filter((e) => !e.when || this.contextService.contextMatchesRules(e.when));
+    const limitedEntries = activeEntries.slice(0, this.options.limit);
+    const toRender = limitedEntries.map((e) => e.id);
+    if (this.entries === entries && equals(toRender, this.lastRendered)) {
+      return;
+    }
+    this.entries = entries;
+    this.contextKeysToWatch.clear();
+    entryList.forEach((e) => {
+      const keys = e.when?.keys();
+      keys?.forEach((key) => this.contextKeysToWatch.add(key));
+    });
+    this.lastRendered = toRender;
+    this.itemCount = limitedEntries.length;
+    while (this.list.firstChild) {
+      this.list.firstChild.remove();
+    }
+    this.itemCount = limitedEntries.length;
+    for (const entry of limitedEntries) {
+      const rendered = this.options.renderElement(entry);
+      this.list.appendChild(rendered);
+    }
+    if (activeEntries.length > limitedEntries.length && this.options.more) {
+      this.list.appendChild(this.options.more);
+    } else if (entries !== void 0 && this.itemCount === 0 && this.options.empty) {
+      this.list.appendChild(this.options.empty);
+    } else if (this.options.footer) {
+      this.list.appendChild(this.options.footer);
+    }
+    this._onDidChangeEntries.fire();
+  }
+}
+export {
+  GettingStartedIndexList
+};
+//# sourceMappingURL=gettingStartedList.js.map

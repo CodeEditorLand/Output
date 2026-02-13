@@ -1,1 +1,95 @@
-import{URI as c}from"../../../../../../base/common/uri.js";import{$MB as h}from"../../../../../../platform/url/common/trustedDomains.js";import{$KB as d}from"../../../../../../platform/url/common/urlGlob.js";function y(o){const i=h(o),t=c.parse(i),n=new Set,s=t.toString(!0);n.add(s);const a=t.with({path:"",query:"",fragment:""}).toString(!0);n.add(a);const r=t.authority,p=r.split("."),m=p.length===4&&p.every(e=>Number.isInteger(+e)),g=r.includes(":")&&r.match(/^(\[)?[0-9a-fA-F:]+(\])?(?::\d+)?$/);if(!(m||g)&&p.length>2)for(let e=0;e<p.length-2;e++){const f="*."+p.slice(e+1).join("."),u=t.with({authority:f,path:"",query:"",fragment:""}).toString(!0);n.add(u)}const l=t.path.split("/").filter(e=>e.length>0);if(l.length>0)for(let e=l.length-1;e>=0;e--){const f=l.slice(0,e).join("/"),u=t.with({path:(e>0?"/":"")+f,query:"",fragment:""}).toString(!0);n.add(u)}return[...n].map(e=>e.replace(/\/+$/,""))}function b(o,i){let t=i;return t.startsWith("https://")?t=t.substring(8):t.startsWith("http://")&&(t=t.substring(7)),t.replace(/\/+$/,"")}function w(o,i,t){const n=h(o),s=c.parse(n);for(const[a,r]of Object.entries(i))if(d(s,a)){if(typeof r=="boolean")return r;if(t&&r.approveRequest!==void 0)return r.approveRequest;if(!t&&r.approveResponse!==void 0)return r.approveResponse}return!1}function z(o,i){const t=h(o),n=c.parse(t),s=y(o);for(const a of s)for(const r of Object.keys(i))if(d(n,r)&&d(c.parse(a),r))return r}export{y as $1Xc,b as $2Xc,w as $3Xc,z as $4Xc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../../../base/common/uri.js";
+import { normalizeURL } from "../../../../../../platform/url/common/trustedDomains.js";
+import { testUrlMatchesGlob } from "../../../../../../platform/url/common/urlGlob.js";
+function extractUrlPatterns(url) {
+  const normalizedStr = normalizeURL(url);
+  const normalized = URI.parse(normalizedStr);
+  const patterns = /* @__PURE__ */ new Set();
+  const fullUrl = normalized.toString(true);
+  patterns.add(fullUrl);
+  const domainOnly = normalized.with({ path: "", query: "", fragment: "" }).toString(true);
+  patterns.add(domainOnly);
+  const authority = normalized.authority;
+  const domainParts = authority.split(".");
+  const isIPv4 = domainParts.length === 4 && domainParts.every((segment) => Number.isInteger(+segment));
+  const isIPv6 = authority.includes(":") && authority.match(/^(\[)?[0-9a-fA-F:]+(\])?(?::\d+)?$/);
+  const isIP = isIPv4 || isIPv6;
+  if (!isIP && domainParts.length > 2) {
+    for (let i = 0; i < domainParts.length - 2; i++) {
+      const wildcardAuthority = "*." + domainParts.slice(i + 1).join(".");
+      const wildcardPattern = normalized.with({
+        authority: wildcardAuthority,
+        path: "",
+        query: "",
+        fragment: ""
+      }).toString(true);
+      patterns.add(wildcardPattern);
+    }
+  }
+  const pathSegments = normalized.path.split("/").filter((s) => s.length > 0);
+  if (pathSegments.length > 0) {
+    for (let i = pathSegments.length - 1; i >= 0; i--) {
+      const pathPattern = pathSegments.slice(0, i).join("/");
+      const urlWithPathPattern = normalized.with({
+        path: (i > 0 ? "/" : "") + pathPattern,
+        query: "",
+        fragment: ""
+      }).toString(true);
+      patterns.add(urlWithPathPattern);
+    }
+  }
+  return [...patterns].map((p) => p.replace(/\/+$/, ""));
+}
+__name(extractUrlPatterns, "extractUrlPatterns");
+function getPatternLabel(url, pattern) {
+  let displayPattern = pattern;
+  if (displayPattern.startsWith("https://")) {
+    displayPattern = displayPattern.substring(8);
+  } else if (displayPattern.startsWith("http://")) {
+    displayPattern = displayPattern.substring(7);
+  }
+  return displayPattern.replace(/\/+$/, "");
+}
+__name(getPatternLabel, "getPatternLabel");
+function isUrlApproved(url, approvedUrls, checkRequest) {
+  const normalizedUrlStr = normalizeURL(url);
+  const normalizedUrl = URI.parse(normalizedUrlStr);
+  for (const [pattern, settings] of Object.entries(approvedUrls)) {
+    if (testUrlMatchesGlob(normalizedUrl, pattern)) {
+      if (typeof settings === "boolean") {
+        return settings;
+      }
+      if (checkRequest && settings.approveRequest !== void 0) {
+        return settings.approveRequest;
+      }
+      if (!checkRequest && settings.approveResponse !== void 0) {
+        return settings.approveResponse;
+      }
+    }
+  }
+  return false;
+}
+__name(isUrlApproved, "isUrlApproved");
+function getMatchingPattern(url, approvedUrls) {
+  const normalizedUrlStr = normalizeURL(url);
+  const normalizedUrl = URI.parse(normalizedUrlStr);
+  const patterns = extractUrlPatterns(url);
+  for (const pattern of patterns) {
+    for (const approvedPattern of Object.keys(approvedUrls)) {
+      if (testUrlMatchesGlob(normalizedUrl, approvedPattern) && testUrlMatchesGlob(URI.parse(pattern), approvedPattern)) {
+        return approvedPattern;
+      }
+    }
+  }
+  return void 0;
+}
+__name(getMatchingPattern, "getMatchingPattern");
+export {
+  extractUrlPatterns,
+  getMatchingPattern,
+  getPatternLabel,
+  isUrlApproved
+};
+//# sourceMappingURL=chatUrlFetchingPatterns.js.map

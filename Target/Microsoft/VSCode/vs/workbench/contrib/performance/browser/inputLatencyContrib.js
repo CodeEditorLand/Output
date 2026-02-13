@@ -1,1 +1,65 @@
-import{inputLatency as f}from"../../../../base/browser/performance.js";import{$ji as u}from"../../../../base/common/async.js";import{Event as l}from"../../../../base/common/event.js";import{$Ed as m,$Fd as d}from"../../../../base/common/lifecycle.js";import{$0l as _}from"../../../../platform/configuration/common/configuration.js";import{$pp as $}from"../../../../platform/telemetry/common/telemetry.js";import{$BL as g}from"../../../services/editor/common/editorService.js";var h=function(n,t,e,r){var o=arguments.length,i=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,t,e,r);else for(var s=n.length-1;s>=0;s--)(c=n[s])&&(i=(o<3?c(i):o>3?c(t,e,i):c(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},p=function(n,t){return function(e,r){t(e,r,n)}};let a=class extends m{constructor(t,e,r){super(),this.c=t,this.f=e,this.g=r,this.a=this.D(new d),this.b=this.D(new u(()=>{this.j(),this.h()},6e4)),(Math.random()<=.01||this.c.getValue("editor.experimentalGpuAcceleration")==="on")&&this.h()}h(){this.a.value=l.once(this.f.onDidActiveEditorChange)(()=>this.b.schedule())}j(){const t=f.getAndClearMeasurements();t&&this.g.publicLog2("performance.inputLatency",{keydown:t.keydown,input:t.input,render:t.render,total:t.total,sampleCount:t.sampleCount,gpuAcceleration:this.c.getValue("editor.experimentalGpuAcceleration")==="on"})}};a=h([p(0,_),p(1,g),p(2,$)],a);export{a as $sfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { inputLatency } from "../../../../base/browser/performance.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+let InputLatencyContrib = class InputLatencyContrib2 extends Disposable {
+  static {
+    __name(this, "InputLatencyContrib");
+  }
+  constructor(_configurationService, _editorService, _telemetryService) {
+    super();
+    this._configurationService = _configurationService;
+    this._editorService = _editorService;
+    this._telemetryService = _telemetryService;
+    this._listener = this._register(new MutableDisposable());
+    this._scheduler = this._register(new RunOnceScheduler(() => {
+      this._logSamples();
+      this._setupListener();
+    }, 6e4));
+    if (Math.random() <= 0.01 || this._configurationService.getValue("editor.experimentalGpuAcceleration") === "on") {
+      this._setupListener();
+    }
+  }
+  _setupListener() {
+    this._listener.value = Event.once(this._editorService.onDidActiveEditorChange)(() => this._scheduler.schedule());
+  }
+  _logSamples() {
+    const measurements = inputLatency.getAndClearMeasurements();
+    if (!measurements) {
+      return;
+    }
+    this._telemetryService.publicLog2("performance.inputLatency", {
+      keydown: measurements.keydown,
+      input: measurements.input,
+      render: measurements.render,
+      total: measurements.total,
+      sampleCount: measurements.sampleCount,
+      gpuAcceleration: this._configurationService.getValue("editor.experimentalGpuAcceleration") === "on"
+    });
+  }
+};
+InputLatencyContrib = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IEditorService),
+  __param(2, ITelemetryService)
+], InputLatencyContrib);
+export {
+  InputLatencyContrib
+};
+//# sourceMappingURL=inputLatencyContrib.js.map

@@ -1,1 +1,51 @@
-import{$K1 as l}from"./es5ClassCompat.js";var u=function(o,t,a,c){var i=arguments.length,r=i<3?t:c===null?c=Object.getOwnPropertyDescriptor(t,a):c,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,t,a,c);else for(var f=o.length-1;f>=0;f--)(p=o[f])&&(r=(i<3?p(r):i>3?p(t,a,r):p(t,a))||r);return i>3&&r&&Object.defineProperty(t,a,r),r},n;let e=class{static{n=this}static{this.a="."}constructor(t){this.value=t}append(t){return new n(this.value?this.value+n.a+t:t)}intersects(t){return this.contains(t)||t.contains(this)}contains(t){return this.value===t.value||t.value.startsWith(this.value+n.a)}};e=n=u([l],e);e.Empty=new e("");e.QuickFix=e.Empty.append("quickfix");e.Refactor=e.Empty.append("refactor");e.RefactorExtract=e.Refactor.append("extract");e.RefactorInline=e.Refactor.append("inline");e.RefactorMove=e.Refactor.append("move");e.RefactorRewrite=e.Refactor.append("rewrite");e.Source=e.Empty.append("source");e.SourceOrganizeImports=e.Source.append("organizeImports");e.SourceFixAll=e.Source.append("fixAll");e.Notebook=e.Empty.append("notebook");export{e as $Z1};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var CodeActionKind_1;
+import { es5ClassCompat } from "./es5ClassCompat.js";
+let CodeActionKind = class CodeActionKind2 {
+  static {
+    __name(this, "CodeActionKind");
+  }
+  static {
+    CodeActionKind_1 = this;
+  }
+  static {
+    this.sep = ".";
+  }
+  constructor(value) {
+    this.value = value;
+  }
+  append(parts) {
+    return new CodeActionKind_1(this.value ? this.value + CodeActionKind_1.sep + parts : parts);
+  }
+  intersects(other) {
+    return this.contains(other) || other.contains(this);
+  }
+  contains(other) {
+    return this.value === other.value || other.value.startsWith(this.value + CodeActionKind_1.sep);
+  }
+};
+CodeActionKind = CodeActionKind_1 = __decorate([
+  es5ClassCompat
+], CodeActionKind);
+CodeActionKind.Empty = new CodeActionKind("");
+CodeActionKind.QuickFix = CodeActionKind.Empty.append("quickfix");
+CodeActionKind.Refactor = CodeActionKind.Empty.append("refactor");
+CodeActionKind.RefactorExtract = CodeActionKind.Refactor.append("extract");
+CodeActionKind.RefactorInline = CodeActionKind.Refactor.append("inline");
+CodeActionKind.RefactorMove = CodeActionKind.Refactor.append("move");
+CodeActionKind.RefactorRewrite = CodeActionKind.Refactor.append("rewrite");
+CodeActionKind.Source = CodeActionKind.Empty.append("source");
+CodeActionKind.SourceOrganizeImports = CodeActionKind.Source.append("organizeImports");
+CodeActionKind.SourceFixAll = CodeActionKind.Source.append("fixAll");
+CodeActionKind.Notebook = CodeActionKind.Empty.append("notebook");
+export {
+  CodeActionKind
+};
+//# sourceMappingURL=codeActionKind.js.map

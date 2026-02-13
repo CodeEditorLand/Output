@@ -1,1 +1,3812 @@
-import{$sc as Yr}from"../../../base/common/arrays.js";import{$0i as et}from"../../../base/common/buffer.js";import{$vb as f}from"../../../base/common/errors.js";import{$3C as Zr}from"../../../base/common/mime.js";import{$zg as it}from"../../../base/common/strings.js";import{$$c as F,$9c as ot,$6c as $,$7c as _r}from"../../../base/common/types.js";import{URI as d}from"../../../base/common/uri.js";import{$ln as tt}from"../../../base/common/uuid.js";import{$Iz as Vr}from"../../../platform/extensions/common/extensions.js";import{FileSystemProviderErrorCode as N,$Mk as Qr}from"../../../platform/files/common/files.js";import{RemoteAuthorityResolverErrorCode as L}from"../../../platform/remote/common/remoteAuthorityResolver.js";import{$K1 as n}from"./extHostTypes/es5ClassCompat.js";import{$41 as G}from"./extHostTypes/markdownString.js";import{$M1 as st}from"./extHostTypes/range.js";import{$Z1 as ic}from"./extHostTypes/codeActionKind.js";import{$31 as cc,$21 as nc,DiagnosticSeverity as hc,DiagnosticTag as uc}from"./extHostTypes/diagnostic.js";import{$11 as ac}from"./extHostTypes/location.js";import{$41 as lc}from"./extHostTypes/markdownString.js";import{$81 as xc,NotebookCellKind as $c,$_1 as gc,$$1 as wc,$91 as bc,$01 as vc,$71 as mc}from"./extHostTypes/notebooks.js";import{$L1 as Oc}from"./extHostTypes/position.js";import{$M1 as yc}from"./extHostTypes/range.js";import{$c2 as Ac}from"./extHostTypes/selection.js";import{$51 as Pc}from"./extHostTypes/snippetString.js";import{$a2 as Fc}from"./extHostTypes/snippetTextEdit.js";import{$61 as Wc,SymbolKind as Ec,SymbolTag as Bc}from"./extHostTypes/symbolInformation.js";import{EndOfLine as Ic,$O1 as zc}from"./extHostTypes/textEdit.js";import{FileEditType as Gc,$b2 as Lc}from"./extHostTypes/workspaceEdit.js";var c=function(t,s,r,e){var i=arguments.length,o=i<3?s:e===null?e=Object.getOwnPropertyDescriptor(s,r):e,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(t,s,r,e);else for(var h=t.length-1;h>=0;h--)(u=t[h])&&(o=(i<3?u(o):i>3?u(s,r,o):u(s,r))||o);return i>3&&o&&Object.defineProperty(s,r,o),o},H,j,w,b,Y,p,Z,ct;(function(t){t[t.Top=0]="Top",t[t.Bottom=1]="Bottom"})(ct||(ct={}));var nt;(function(t){t[t.TerminalCommand=0]="TerminalCommand",t[t.Opener=1]="Opener",t[t.Command=3]="Command"})(nt||(nt={}));let ht=H=class{static from(...s){let r=s;return new H(function(){if(r){for(const e of r)e&&typeof e.dispose=="function"&&e.dispose();r=void 0}})}#t;constructor(s){this.#t=s}dispose(){typeof this.#t=="function"&&(this.#t(),this.#t=void 0)}};ht=H=c([n],ht);const zr=t=>{if(typeof t!="string"||t.length===0||!/^[0-9A-Za-z_\-]+$/.test(t))throw f("connectionToken")};class xe{static isResolvedAuthority(s){return s&&typeof s=="object"&&typeof s.host=="string"&&typeof s.port=="number"&&(s.connectionToken===void 0||typeof s.connectionToken=="string")}constructor(s,r,e){if(typeof s!="string"||s.length===0)throw f("host");if(typeof r!="number"||r===0||Math.round(r)!==r)throw f("port");typeof e<"u"&&zr(e),this.host=s,this.port=Math.round(r),this.connectionToken=e}}class $e{static isManagedResolvedAuthority(s){return s&&typeof s=="object"&&typeof s.makeConnection=="function"&&(s.connectionToken===void 0||typeof s.connectionToken=="string")}constructor(s,r){this.makeConnection=s,this.connectionToken=r,typeof r<"u"&&zr(r)}}class M extends Error{static NotAvailable(s,r){return new M(s,L.NotAvailable,r)}static TemporarilyNotAvailable(s){return new M(s,L.TemporarilyNotAvailable)}constructor(s,r=L.Unknown,e){super(s),this._message=s,this._code=r,this._detail=e,Object.setPrototypeOf(this,M.prototype)}}var ut;(function(t){t[t.Replace=1]="Replace",t[t.Append=2]="Append",t[t.Prepend=3]="Prepend"})(ut||(ut={}));let _=class{constructor(s,r){if(!s)throw new Error("Illegal argument, contents must be defined");Array.isArray(s)?this.contents=s:this.contents=[s],this.range=r}};_=c([n],_);let ft=class extends _{constructor(s,r,e,i){super(s,r),this.canIncreaseVerbosity=e,this.canDecreaseVerbosity=i}};ft=c([n],ft);var at;(function(t){t[t.Increase=0]="Increase",t[t.Decrease=1]="Decrease"})(at||(at={}));var B;(function(t){t[t.Text=0]="Text",t[t.Read=1]="Read",t[t.Write=2]="Write"})(B||(B={}));let pt=class{constructor(s,r=B.Text){this.range=s,this.kind=r}toJSON(){return{range:this.range,kind:B[this.kind]}}};pt=c([n],pt);let lt=class{constructor(s,r){this.uri=s,this.highlights=r}toJSON(){return{uri:this.uri,highlights:this.highlights.map(s=>s.toJSON())}}};lt=c([n],lt);let dt=j=class{static validate(s){if(!s.name)throw new Error("name must not be falsy");if(!s.range.contains(s.selectionRange))throw new Error("selectionRange must be contained in fullRange");s.children?.forEach(j.validate)}constructor(s,r,e,i,o){this.name=s,this.detail=r,this.kind=e,this.range=i,this.selectionRange=o,this.children=[],j.validate(this)}};dt=j=c([n],dt);var xt;(function(t){t[t.Invoke=1]="Invoke",t[t.Automatic=2]="Automatic"})(xt||(xt={}));let $t=class{constructor(s,r){this.title=s,this.kind=r}};$t=c([n],$t);let gt=class{constructor(s,r){if(this.range=s,this.parent=r,r&&!r.range.contains(this.range))throw new Error("Invalid argument: parent must contain this range")}};gt=c([n],gt);class Ne{constructor(s,r,e,i,o,u){this.kind=s,this.name=r,this.detail=e,this.uri=i,this.range=o,this.selectionRange=u}}class ye{constructor(s,r){this.fromRanges=r,this.from=s}}class ke{constructor(s,r){this.fromRanges=r,this.to=s}}var wt;(function(t){t[t.Information=0]="Information",t[t.Warning=1]="Warning",t[t.Error=2]="Error"})(wt||(wt={}));let bt=class{constructor(s,r){this.range=s,this.command=r}get isResolved(){return!!this.command}};bt=c([n],bt);let vt=class{constructor(s,r){this.label=s,this.documentation=r}};vt=c([n],vt);let mt=class{constructor(s,r){this.label=s,this.documentation=r,this.parameters=[]}};mt=c([n],mt);let Ut=class{constructor(){this.activeSignature=0,this.activeParameter=0,this.signatures=[]}};Ut=c([n],Ut);var Ot;(function(t){t[t.Invoke=1]="Invoke",t[t.TriggerCharacter=2]="TriggerCharacter",t[t.ContentChange=3]="ContentChange"})(Ot||(Ot={}));var Nt;(function(t){t[t.Type=1]="Type",t[t.Parameter=2]="Parameter"})(Nt||(Nt={}));let yt=class{constructor(s){this.value=s}};yt=c([n],yt);let kt=class{constructor(s,r,e){this.position=s,this.label=r,this.kind=e}};kt=c([n],kt);var At;(function(t){t[t.Invoke=0]="Invoke",t[t.TriggerCharacter=1]="TriggerCharacter",t[t.TriggerForIncompleteCompletions=2]="TriggerForIncompleteCompletions"})(At||(At={}));var V;(function(t){t[t.Text=0]="Text",t[t.Method=1]="Method",t[t.Function=2]="Function",t[t.Constructor=3]="Constructor",t[t.Field=4]="Field",t[t.Variable=5]="Variable",t[t.Class=6]="Class",t[t.Interface=7]="Interface",t[t.Module=8]="Module",t[t.Property=9]="Property",t[t.Unit=10]="Unit",t[t.Value=11]="Value",t[t.Enum=12]="Enum",t[t.Keyword=13]="Keyword",t[t.Snippet=14]="Snippet",t[t.Color=15]="Color",t[t.File=16]="File",t[t.Reference=17]="Reference",t[t.Folder=18]="Folder",t[t.EnumMember=19]="EnumMember",t[t.Constant=20]="Constant",t[t.Struct=21]="Struct",t[t.Event=22]="Event",t[t.Operator=23]="Operator",t[t.TypeParameter=24]="TypeParameter",t[t.User=25]="User",t[t.Issue=26]="Issue"})(V||(V={}));var Dt;(function(t){t[t.Deprecated=1]="Deprecated"})(Dt||(Dt={}));let Pt=class{constructor(s,r){this.label=s,this.kind=r}toJSON(){return{label:this.label,kind:this.kind&&V[this.kind],detail:this.detail,documentation:this.documentation,sortText:this.sortText,filterText:this.filterText,preselect:this.preselect,insertText:this.insertText,textEdit:this.textEdit}}};Pt=c([n],Pt);let jt=class{constructor(s=[],r=!1){this.items=s,this.isIncomplete=r}};jt=c([n],jt);let Ft=class{constructor(s,r,e){this.insertText=s,this.range=r,this.command=e}};Ft=c([n],Ft);let Mt=class{constructor(s){this.commands=void 0,this.suppressSuggestions=void 0,this.items=s}};Mt=c([n],Mt);var Wt;(function(t){t[t.Unknown=0]="Unknown",t[t.Word=1]="Word",t[t.Line=2]="Line",t[t.Suggest=3]="Suggest"})(Wt||(Wt={}));var Et;(function(t){t[t.Accepted=0]="Accepted",t[t.Rejected=1]="Rejected",t[t.Ignored=2]="Ignored"})(Et||(Et={}));var Bt;(function(t){t[t.Code=1]="Code",t[t.Label=2]="Label"})(Bt||(Bt={}));var Jt;(function(t){t[t.Active=-1]="Active",t[t.Beside=-2]="Beside",t[t.One=1]="One",t[t.Two=2]="Two",t[t.Three=3]="Three",t[t.Four=4]="Four",t[t.Five=5]="Five",t[t.Six=6]="Six",t[t.Seven=7]="Seven",t[t.Eight=8]="Eight",t[t.Nine=9]="Nine"})(Jt||(Jt={}));var It;(function(t){t[t.Left=1]="Left",t[t.Right=2]="Right"})(It||(It={}));function Ie(t,s){return`${Vr.toKey(t)}.${s}`}var zt;(function(t){t[t.Off=0]="Off",t[t.On=1]="On",t[t.Relative=2]="Relative",t[t.Interval=3]="Interval"})(zt||(zt={}));var qt;(function(t){t[t.Manual=1]="Manual",t[t.AfterDelay=2]="AfterDelay",t[t.FocusOut=3]="FocusOut"})(qt||(qt={}));var Gt;(function(t){t[t.Default=0]="Default",t[t.InCenter=1]="InCenter",t[t.InCenterIfOutsideViewport=2]="InCenterIfOutsideViewport",t[t.AtTop=3]="AtTop"})(Gt||(Gt={}));var J;(function(t){t[t.Keyboard=1]="Keyboard",t[t.Mouse=2]="Mouse",t[t.Command=3]="Command"})(J||(J={}));var Lt;(function(t){t[t.Addition=1]="Addition",t[t.Deletion=2]="Deletion",t[t.Modification=3]="Modification"})(Lt||(Lt={}));var Xt;(function(t){t[t.Undo=1]="Undo",t[t.Redo=2]="Redo"})(Xt||(Xt={}));var Ht;(function(t){t[t.OpenOpen=0]="OpenOpen",t[t.ClosedClosed=1]="ClosedClosed",t[t.OpenClosed=2]="OpenClosed",t[t.ClosedOpen=3]="ClosedOpen"})(Ht||(Ht={}));(function(t){function s(r){switch(r){case"keyboard":return t.Keyboard;case"mouse":return t.Mouse;case"api":case"code.jump":case"code.navigation":return t.Command}}t.fromValue=s})(J||(J={}));var I;(function(t){t[t.Other=0]="Other",t[t.Comment=1]="Comment",t[t.String=2]="String",t[t.RegEx=3]="RegEx"})(I||(I={}));(function(t){function s(r){switch(r){case t.Other:return"other";case t.Comment:return"comment";case t.String:return"string";case t.RegEx:return"regex"}return"other"}t.toString=s})(I||(I={}));let Yt=class{constructor(s,r){if(r&&!d.isUri(r))throw f("target");if(!st.isRange(s)||s.isEmpty)throw f("range");this.range=s,this.target=r}};Yt=c([n],Yt);let Q=class{constructor(s,r,e,i){this.red=s,this.green=r,this.blue=e,this.alpha=i}};Q=c([n],Q);let Zt=class{constructor(s,r){if(r&&!(r instanceof Q))throw f("color");if(!st.isRange(s)||s.isEmpty)throw f("range");this.range=s,this.color=r}};Zt=c([n],Zt);let _t=class{constructor(s){if(!s||typeof s!="string")throw f("label");this.label=s}};_t=c([n],_t);var Vt;(function(t){t[t.RGB=0]="RGB",t[t.HEX=1]="HEX",t[t.HSL=2]="HSL"})(Vt||(Vt={}));var Qt;(function(t){t[t.Error=0]="Error",t[t.Warning=1]="Warning",t[t.Information=2]="Information"})(Qt||(Qt={}));var St;(function(t){t[t.Unknown=0]="Unknown",t[t.Shutdown=1]="Shutdown",t[t.Process=2]="Process",t[t.User=3]="User",t[t.Extension=4]="Extension"})(St||(St={}));var Rt;(function(t){t[t.Low=0]="Low",t[t.Medium=1]="Medium",t[t.High=2]="High"})(Rt||(Rt={}));var Ct;(function(t){t[t.Sh=1]="Sh",t[t.Bash=2]="Bash",t[t.Fish=3]="Fish",t[t.Csh=4]="Csh",t[t.Ksh=5]="Ksh",t[t.Zsh=6]="Zsh",t[t.CommandPrompt=7]="CommandPrompt",t[t.GitBash=8]="GitBash",t[t.PowerShell=9]="PowerShell",t[t.Python=10]="Python",t[t.Julia=11]="Julia",t[t.NuShell=12]="NuShell",t[t.Node=13]="Node",t[t.Xonsh=14]="Xonsh"})(Ct||(Ct={}));class Xe{constructor(s,r,e){if(this.startIndex=s,this.length=r,this.tooltip=e,typeof s!="number"||s<0)throw f("startIndex");if(typeof r!="number"||r<1)throw f("length");if(e!==void 0&&typeof e!="string")throw f("tooltip")}}class He{constructor(s){this.uri=s}}class Ye{constructor(s){this.terminalCommand=s}}var Kt;(function(t){t[t.Panel=1]="Panel",t[t.Editor=2]="Editor"})(Kt||(Kt={}));class Ze{constructor(s){if(this.options=s,typeof s!="object")throw f("options")}}var Tt;(function(t){t[t.File=0]="File",t[t.Folder=1]="Folder",t[t.Method=2]="Method",t[t.Alias=3]="Alias",t[t.Argument=4]="Argument",t[t.Option=5]="Option",t[t.OptionValue=6]="OptionValue",t[t.Flag=7]="Flag",t[t.SymbolicLinkFile=8]="SymbolicLinkFile",t[t.SymbolicLinkFolder=9]="SymbolicLinkFolder",t[t.ScmCommit=10]="ScmCommit",t[t.ScmBranch=11]="ScmBranch",t[t.ScmTag=12]="ScmTag",t[t.ScmStash=13]="ScmStash",t[t.ScmRemote=14]="ScmRemote",t[t.PullRequest=15]="PullRequest",t[t.PullRequestDone=16]="PullRequestDone"})(Tt||(Tt={}));class _e{constructor(s,r,e,i,o,u,h,a){this.label=s,this.replacementRange=r,this.kind=e,this.detail=i,this.documentation=o,this.isFile=u,this.isDirectory=h,this.isKeyword=a}}class Ve{constructor(s,r){this.items=s??[],this.resourceOptions=r}}var ts;(function(t){t[t.Always=1]="Always",t[t.Silent=2]="Silent",t[t.Never=3]="Never"})(ts||(ts={}));var ss;(function(t){t.Changed="changed",t.ProcessStarted="processStarted",t.ProcessEnded="processEnded",t.Terminated="terminated",t.Start="start",t.AcquiredInput="acquiredInput",t.DependsOnStarted="dependsOnStarted",t.Active="active",t.Inactive="inactive",t.End="end",t.ProblemMatcherStarted="problemMatcherStarted",t.ProblemMatcherEnded="problemMatcherEnded",t.ProblemMatcherFoundErrors="problemMatcherFoundErrors"})(ss||(ss={}));var rs;(function(t){t[t.Shared=1]="Shared",t[t.Dedicated=2]="Dedicated",t[t.New=3]="New"})(rs||(rs={}));let es=class{static{w=this}static{this.Clean=new w("clean","Clean")}static{this.Build=new w("build","Build")}static{this.Rebuild=new w("rebuild","Rebuild")}static{this.Test=new w("test","Test")}static from(s){switch(s){case"clean":return w.Clean;case"build":return w.Build;case"rebuild":return w.Rebuild;case"test":return w.Test;default:return}}constructor(s,r){if(this.label=r,typeof s!="string")throw f("name");if(typeof r!="string")throw f("name");this.c=s}get id(){return this.c}};es=w=c([n],es);function qr(t){let s="";for(let r=0;r<t.length;r++)s+=t[r].replace(/,/g,",,")+",";return s}let S=class{constructor(s,r,e){if(typeof s!="string")throw f("process");this.e=[],this.c=s,r!==void 0&&(Array.isArray(r)?(this.e=r,this.f=e):this.f=r)}get process(){return this.c}set process(s){if(typeof s!="string")throw f("process");this.c=s}get args(){return this.e}set args(s){Array.isArray(s)||(s=[]),this.e=s}get options(){return this.f}set options(s){this.f=s}computeId(){const s=[];if(s.push("process"),this.c!==void 0&&s.push(this.c),this.e&&this.e.length>0)for(const r of this.e)s.push(r);return qr(s)}};S=c([n],S);let R=class{constructor(s,r,e){if(this.f=[],Array.isArray(r)){if(!s)throw f("command can't be undefined or null");if(typeof s!="string"&&typeof s.value!="string")throw f("command");this.e=s,r&&(this.f=r),this.g=e}else{if(typeof s!="string")throw f("commandLine");this.c=s,this.g=r}}get commandLine(){return this.c}set commandLine(s){if(typeof s!="string")throw f("commandLine");this.c=s}get command(){return this.e?this.e:""}set command(s){if(typeof s!="string"&&typeof s.value!="string")throw f("command");this.e=s}get args(){return this.f}set args(s){this.f=s||[]}get options(){return this.g}set options(s){this.g=s}computeId(){const s=[];if(s.push("shell"),this.c!==void 0&&s.push(this.c),this.e!==void 0&&s.push(typeof this.e=="string"?this.e:this.e.value),this.f&&this.f.length>0)for(const r of this.f)s.push(typeof r=="string"?r:r.value);return qr(s)}};R=c([n],R);var is;(function(t){t[t.Escape=1]="Escape",t[t.Strong=2]="Strong",t[t.Weak=3]="Weak"})(is||(is={}));var z;(function(t){t[t.Global=1]="Global",t[t.Workspace=2]="Workspace"})(z||(z={}));class Sr{constructor(s){this.c=s}computeId(){return"customExecution"+tt()}set callback(s){this.c=s}get callback(){return this.c}}let os=class{static{b=this}static{this.c="customExecution"}static{this.e="process"}static{this.f="shell"}static{this.g="$empty"}constructor(s,r,e,i,o,u){this.k=!1,this.l=this.definition=s;let h;typeof r=="string"?(this.o=this.name=r,this.u=this.source=e,this.execution=i,h=o,this.k=!0):r===z.Global||r===z.Workspace?(this.target=r,this.o=this.name=e,this.u=this.source=i,this.execution=o,h=u):(this.target=r,this.o=this.name=e,this.u=this.source=i,this.execution=o,h=u),typeof h=="string"?(this.q=[h],this.r=!0):Array.isArray(h)?(this.q=h,this.r=!0):(this.q=[],this.r=!1),this.t=!1,this.x=Object.create(null),this.y=Object.create(null)}get _id(){return this.j}set _id(s){this.j=s}get _deprecated(){return this.k}A(){this.j!==void 0&&(this.j=void 0,this.m=void 0,this.B())}B(){this.p instanceof S?this.l={type:b.e,id:this.p.computeId()}:this.p instanceof R?this.l={type:b.f,id:this.p.computeId()}:this.p instanceof Sr?this.l={type:b.c,id:this.p.computeId()}:this.l={type:b.g,id:tt()}}get definition(){return this.l}set definition(s){if(s==null)throw f("Kind can't be undefined or null");this.A(),this.l=s}get scope(){return this.m}set target(s){this.A(),this.m=s}get name(){return this.o}set name(s){if(typeof s!="string")throw f("name");this.A(),this.o=s}get execution(){return this.p}set execution(s){s===null&&(s=void 0),this.A(),this.p=s;const r=this.l.type;(b.g===r||b.e===r||b.f===r||b.c===r)&&this.B()}get problemMatchers(){return this.q}set problemMatchers(s){if(Array.isArray(s))this.A(),this.q=s,this.r=!0;else{this.A(),this.q=[],this.r=!1;return}}get hasDefinedMatchers(){return this.r}get isBackground(){return this.t}set isBackground(s){s!==!0&&s!==!1&&(s=!1),this.A(),this.t=s}get source(){return this.u}set source(s){if(typeof s!="string"||s.length===0)throw f("source must be a string of length > 0");this.A(),this.u=s}get group(){return this.w}set group(s){s===null&&(s=void 0),this.A(),this.w=s}get detail(){return this.z}set detail(s){s===null&&(s=void 0),this.z=s}get presentationOptions(){return this.x}set presentationOptions(s){s==null&&(s=Object.create(null)),this.A(),this.x=s}get runOptions(){return this.y}set runOptions(s){s==null&&(s=Object.create(null)),this.A(),this.y=s}};os=b=c([n],os);var cs;(function(t){t[t.SourceControl=1]="SourceControl",t[t.Window=10]="Window",t[t.Notification=15]="Notification"})(cs||(cs={}));var ns;(function(t){function s(r){const e=r;return!(!F(e.value)||e.tooltip&&!$(e.tooltip))}t.isViewBadge=s})(ns||(ns={}));let hs=Y=class{static isTreeItem(s,r){const e=s;if(e.checkboxState!==void 0){const i=F(e.checkboxState)?e.checkboxState:ot(e.checkboxState)&&F(e.checkboxState.state)?e.checkboxState.state:void 0,o=!F(e.checkboxState)&&ot(e.checkboxState)?e.checkboxState.tooltip:void 0;if(i===void 0||i!==q.Checked&&i!==q.Unchecked||o!==void 0&&!$(o))return!1}if(s instanceof Y)return!0;if(e.label!==void 0&&!$(e.label)&&!e.label?.label||e.id!==void 0&&!$(e.id))return!1;if(e.iconPath!==void 0&&!$(e.iconPath)&&!d.isUri(e.iconPath)&&(!e.iconPath||!$(e.iconPath.id))){const i=e.iconPath;if(!i||!$(i.light)&&!d.isUri(i.light)&&!$(i.dark)&&!d.isUri(i.dark))return!1}return!(e.description!==void 0&&!$(e.description)&&typeof e.description!="boolean"||e.resourceUri!==void 0&&!d.isUri(e.resourceUri)||e.tooltip!==void 0&&!$(e.tooltip)&&!(e.tooltip instanceof G)||e.command!==void 0&&!e.command.command||e.collapsibleState!==void 0&&e.collapsibleState<D.None&&e.collapsibleState>D.Expanded||e.contextValue!==void 0&&!$(e.contextValue)||e.accessibilityInformation!==void 0&&!e.accessibilityInformation?.label)}constructor(s,r=D.None){this.collapsibleState=r,d.isUri(s)?this.resourceUri=s:this.label=s}};hs=Y=c([n],hs);var D;(function(t){t[t.None=0]="None",t[t.Collapsed=1]="Collapsed",t[t.Expanded=2]="Expanded"})(D||(D={}));var q;(function(t){t[t.Unchecked=0]="Unchecked",t[t.Checked=1]="Checked"})(q||(q={}));let C=class{async asString(){return typeof this.value=="string"?this.value:JSON.stringify(this.value)}asFile(){}constructor(s){this.value=s}};C=c([n],C);class Rr extends C{}class ti extends Rr{#t;constructor(s){super(""),this.#t=s}asFile(){return this.#t}}class si{constructor(s,r,e,i){this.name=s,this.uri=r,this._itemId=e,this.c=i}data(){return this.c()}}let us=class{#t=new Map;constructor(s){for(const[r,e]of s??[]){const i=this.#t.get(this.#s(r));i?i.push(e):this.#t.set(this.#s(r),[e])}}get(s){return this.#t.get(this.#s(s))?.[0]}set(s,r){this.#t.set(this.#s(s),[r])}forEach(s,r){for(const[e,i]of this.#t)for(const o of i)s.call(r,o,e,this)}*[Symbol.iterator](){for(const[s,r]of this.#t)for(const e of r)yield[s,e]}#s(s){return s.toLowerCase()}};us=c([n],us);let fs=class{constructor(s,r,e){this.insertText=s,this.title=r,this.kind=e}};fs=c([n],fs);var as;(function(t){t[t.Automatic=0]="Automatic",t[t.PasteAs=1]="PasteAs"})(as||(as={}));class m{static{this.c="."}constructor(s){this.value=s}append(...s){return new m((this.value?[this.value,...s]:s).join(m.c))}intersects(s){return this.contains(s)||s.contains(this)}contains(s){return this.value===s.value||s.value.startsWith(this.value+m.c)}}m.Empty=new m("");m.Text=new m("text");m.TextUpdateImports=m.Text.append("updateImports");class ii{constructor(s,r,e){this.title=r,this.insertText=s,this.kind=e}}let O=class{constructor(s,r){this.id=s,this.color=r}static isThemeIcon(s){return typeof s.id=="string"}};O=c([n],O);O.File=new O("file");O.Folder=new O("folder");let ps=class{constructor(s){this.id=s}};ps=c([n],ps);var ls;(function(t){t[t.Global=1]="Global",t[t.Workspace=2]="Workspace",t[t.WorkspaceFolder=3]="WorkspaceFolder"})(ls||(ls={}));let ds=class{get base(){return this.c}set base(s){this.c=s,this.e=d.file(s)}get baseUri(){return this.e}set baseUri(s){this.e=s,this.c=s.fsPath}constructor(s,r){if(typeof s!="string"&&(!s||!d.isUri(s)&&!d.isUri(s.uri)))throw f("base");if(typeof r!="string")throw f("pattern");typeof s=="string"?this.baseUri=d.file(s):d.isUri(s)?this.baseUri=s:this.baseUri=s.uri,this.pattern=r}toJSON(){return{pattern:this.pattern,base:this.base,baseUri:this.baseUri.toJSON()}}};ds=c([n],ds);const Gr=new WeakMap;function hi(t,s){Gr.set(t,s)}let P=class{constructor(s,r,e,i,o){this.enabled=typeof s=="boolean"?s:!0,typeof r=="string"&&(this.condition=r),typeof e=="string"&&(this.hitCondition=e),typeof i=="string"&&(this.logMessage=i),typeof o=="string"&&(this.mode=o)}get id(){return this.c||(this.c=Gr.get(this)??tt()),this.c}};P=c([n],P);let xs=class extends P{constructor(s,r,e,i,o,u){if(super(r,e,i,o,u),s===null)throw f("location");this.location=s}};xs=c([n],xs);let $s=class extends P{constructor(s,r,e,i,o,u){super(r,e,i,o,u),this.functionName=s}};$s=c([n],$s);let gs=class extends P{constructor(s,r,e,i,o,u,h,a){if(super(i,o,u,h,a),!r)throw f("dataId");this.label=s,this.dataId=r,this.canPersist=e}};gs=c([n],gs);let ws=class{constructor(s,r,e){this.command=s,this.args=r||[],this.options=e}};ws=c([n],ws);let bs=class{constructor(s,r){this.port=s,this.host=r}};bs=c([n],bs);let vs=class{constructor(s){this.path=s}};vs=c([n],vs);let ms=class{constructor(s){this.implementation=s}};ms=c([n],ms);class gi{constructor(s,r,e){this.session=s,this.threadId=r,this.frameId=e}}class wi{constructor(s,r){this.session=s,this.threadId=r}}let Us=class{constructor(s,r){this.range=s,this.expression=r}};Us=c([n],Us);var Os;(function(t){t[t.Invoke=0]="Invoke",t[t.Automatic=1]="Automatic"})(Os||(Os={}));var Ns;(function(t){t[t.Other=0]="Other",t[t.Empty=1]="Empty",t[t.TokenCancellation=2]="TokenCancellation",t[t.LostRace=3]="LostRace",t[t.NotTaken=4]="NotTaken"})(Ns||(Ns={}));let ys=class{constructor(s,r){this.range=s,this.text=r}};ys=c([n],ys);let ks=class{constructor(s,r,e=!0){this.range=s,this.variableName=r,this.caseSensitiveLookup=e}};ks=c([n],ks);let As=class{constructor(s,r){this.range=s,this.expression=r}};As=c([n],As);let Ds=class{constructor(s,r){this.frameId=s,this.stoppedLocation=r}};Ds=c([n],Ds);var Ps;(function(t){t[t.AIGenerated=1]="AIGenerated"})(Ps||(Ps={}));var js;(function(t){t[t.Invoke=0]="Invoke",t[t.Automatic=1]="Automatic"})(js||(js={}));class Ni{constructor(s,r){this.newSymbolName=s,this.tags=r}}var Fs;(function(t){t[t.Changed=1]="Changed",t[t.Created=2]="Created",t[t.Deleted=3]="Deleted"})(Fs||(Fs={}));let Ms=p=class extends Error{static FileExists(s){return new p(s,N.FileExists,p.FileExists)}static FileNotFound(s){return new p(s,N.FileNotFound,p.FileNotFound)}static FileNotADirectory(s){return new p(s,N.FileNotADirectory,p.FileNotADirectory)}static FileIsADirectory(s){return new p(s,N.FileIsADirectory,p.FileIsADirectory)}static NoPermissions(s){return new p(s,N.NoPermissions,p.NoPermissions)}static Unavailable(s){return new p(s,N.Unavailable,p.Unavailable)}constructor(s,r=N.Unknown,e){super(d.isUri(s)?s.toString(!0):s),this.code=e?.name??"Unknown",Qr(this,r),Object.setPrototypeOf(this,p.prototype),typeof Error.captureStackTrace=="function"&&typeof e=="function"&&Error.captureStackTrace(this,e)}};Ms=p=c([n],Ms);let Ws=class{constructor(s,r,e){this.start=s,this.end=r,this.kind=e}};Ws=c([n],Ws);var Es;(function(t){t[t.Comment=1]="Comment",t[t.Imports=2]="Imports",t[t.Region=3]="Region"})(Es||(Es={}));var Bs;(function(t){t[t.Collapsed=0]="Collapsed",t[t.Expanded=1]="Expanded"})(Bs||(Bs={}));var Js;(function(t){t[t.Editing=0]="Editing",t[t.Preview=1]="Preview"})(Js||(Js={}));var Is;(function(t){t[t.Published=0]="Published",t[t.Draft=1]="Draft"})(Is||(Is={}));var zs;(function(t){t[t.Unresolved=0]="Unresolved",t[t.Resolved=1]="Resolved"})(zs||(zs={}));var qs;(function(t){t[t.Current=0]="Current",t[t.Outdated=1]="Outdated"})(qs||(qs={}));var Gs;(function(t){t[t.Reply=1]="Reply",t[t.Comment=2]="Comment"})(Gs||(Gs={}));class Ai{constructor(s,r=[]){this.tokenTypes=s,this.tokenModifiers=r}}function Cr(t){return typeof t>"u"||_r(t)}class Lr{constructor(s){if(this.c=0,this.e=0,this.f=!0,this.g=[],this.j=0,this.k=new Map,this.l=new Map,this.m=!1,s){this.m=!0;for(let r=0,e=s.tokenTypes.length;r<e;r++)this.k.set(s.tokenTypes[r],r);for(let r=0,e=s.tokenModifiers.length;r<e;r++)this.l.set(s.tokenModifiers[r],r)}}push(s,r,e,i,o){if(typeof s=="number"&&typeof r=="number"&&typeof e=="number"&&typeof i=="number"&&(typeof o=="number"||typeof o>"u"))return typeof o>"u"&&(o=0),this.p(s,r,e,i,o);if(st.isRange(s)&&typeof r=="string"&&Cr(e))return this.o(s,r,e);throw f()}o(s,r,e){if(!this.m)throw new Error("Legend must be provided in constructor");if(s.start.line!==s.end.line)throw new Error("`range` cannot span multiple lines");if(!this.k.has(r))throw new Error("`tokenType` is not in the provided legend");const i=s.start.line,o=s.start.character,u=s.end.character-s.start.character,h=this.k.get(r);let a=0;if(e)for(const l of e){if(!this.l.has(l))throw new Error("`tokenModifier` is not in the provided legend");const x=this.l.get(l);a|=1<<x>>>0}this.p(i,o,u,h,a)}p(s,r,e,i,o){if(this.f&&(s<this.c||s===this.c&&r<this.e)){this.f=!1;const a=this.g.length/5|0;let l=0,x=0;for(let g=0;g<a;g++){let U=this.g[5*g],k=this.g[5*g+1];U===0?(U=l,k+=x):U+=l,this.g[5*g]=U,this.g[5*g+1]=k,l=U,x=k}}let u=s,h=r;this.f&&this.j>0&&(u-=this.c,u===0&&(h-=this.e)),this.g[this.j++]=u,this.g[this.j++]=h,this.g[this.j++]=e,this.g[this.j++]=i,this.g[this.j++]=o,this.c=s,this.e=r}static q(s){const r=[],e=s.length/5|0;for(let h=0;h<e;h++)r[h]=h;r.sort((h,a)=>{const l=s[5*h],x=s[5*a];if(l===x){const g=s[5*h+1],U=s[5*a+1];return g-U}return l-x});const i=new Uint32Array(s.length);let o=0,u=0;for(let h=0;h<e;h++){const a=5*r[h],l=s[a+0],x=s[a+1],g=s[a+2],U=s[a+3],k=s[a+4],rt=l-o,Hr=rt===0?x-u:x,A=5*h;i[A+0]=rt,i[A+1]=Hr,i[A+2]=g,i[A+3]=U,i[A+4]=k,o=l,u=x}return i}build(s){return this.f?new Ls(new Uint32Array(this.g),s):new Ls(Lr.q(this.g),s)}}class Ls{constructor(s,r){this.resultId=r,this.data=s}}class Di{constructor(s,r,e){this.start=s,this.deleteCount=r,this.data=e}}class Pi{constructor(s,r){this.resultId=r,this.edits=s}}var Xs;(function(t){t[t.Separate=0]="Separate",t[t.MergeWithParent=1]="MergeWithParent"})(Xs||(Xs={}));class ji{constructor(s){this.name=s}}var Hs;(function(t){t[t.Title=1]="Title",t[t.Inline=2]="Inline",t[t.Input=3]="Input"})(Hs||(Hs={}));let Ys=class{static{this.Back={iconPath:new O("arrow-left")}}constructor(){}};Ys=c([n],Ys);var Zs;(function(t){t[t.Separator=-1]="Separator",t[t.Default=0]="Default"})(Zs||(Zs={}));var _s;(function(t){t[t.Info=1]="Info",t[t.Warning=2]="Warning",t[t.Error=3]="Error"})(_s||(_s={}));var Vs;(function(t){t[t.UI=1]="UI",t[t.Workspace=2]="Workspace"})(Vs||(Vs={}));class Mi{static validate(s){if(typeof s.badge=="string"){let r=it(s.badge,0);if(r<s.badge.length&&(r+=it(s.badge,r)),s.badge.length>r)throw new Error("The 'badge'-property must be undefined or a short character")}else if(s.badge&&!O.isThemeIcon(s.badge))throw new Error("The 'badge'-property is not a valid ThemeIcon");if(!s.color&&!s.badge&&!s.tooltip)throw new Error("The decoration is empty");return!0}constructor(s,r,e){this.badge=s,this.tooltip=r,this.color=e}}let Qs=class{constructor(s){this.kind=s}};Qs=c([n],Qs);var Ss;(function(t){t[t.Light=1]="Light",t[t.Dark=2]="Dark",t[t.HighContrast=3]="HighContrast",t[t.HighContrastLight=4]="HighContrastLight"})(Ss||(Ss={}));class Ei{constructor(s,r,e){this.label=s,this.uri=r,this.position=e}}var Rs;(function(t){t[t.Idle=1]="Idle",t[t.Pending=2]="Pending",t[t.Executing=3]="Executing"})(Rs||(Rs={}));var Cs;(function(t){t[t.Left=1]="Left",t[t.Right=2]="Right"})(Cs||(Cs={}));var Ks;(function(t){t[t.Default=0]="Default",t[t.InCenter=1]="InCenter",t[t.InCenterIfOutsideViewport=2]="InCenterIfOutsideViewport",t[t.AtTop=3]="AtTop"})(Ks||(Ks={}));class Bi{constructor(s,r){this.text=s,this.alignment=r}}var Ts;(function(t){t[t.Default=1]="Default",t[t.Preferred=2]="Preferred"})(Ts||(Ts={}));var tr;(function(t){t[t.Default=1]="Default",t[t.Preferred=2]="Preferred",t[t.Hidden=-1]="Hidden"})(tr||(tr={}));class Ji{constructor(s,r=[]){this.uri=s,this.provides=Yr(r)}}class Ii{constructor(s){this.label=s}}var sr;(function(t){t[t.Named=1]="Named",t[t.Indexed=2]="Indexed"})(sr||(sr={}));let rr=class{constructor(s,r){this.label=s,this.timestamp=r}};rr=c([n],rr);var er;(function(t){t[t.Production=1]="Production",t[t.Development=2]="Development",t[t.Test=3]="Test"})(er||(er={}));var ir;(function(t){t[t.Node=1]="Node",t[t.Webworker=2]="Webworker"})(ir||(ir={}));var or;(function(t){t[t.Other=0]="Other",t[t.Comment=1]="Comment",t[t.String=2]="String",t[t.RegEx=3]="RegEx"})(or||(or={}));class qi{constructor(s,r){this.ranges=s,this.wordPattern=r}}class Gi{constructor(s){this.c=s}get autoForwardAction(){return this.c}}var cr;(function(t){t[t.Queued=1]="Queued",t[t.Running=2]="Running",t[t.Passed=3]="Passed",t[t.Failed=4]="Failed",t[t.Skipped=5]="Skipped",t[t.Errored=6]="Errored"})(cr||(cr={}));var nr;(function(t){t[t.Run=1]="Run",t[t.Debug=2]="Debug",t[t.Coverage=3]="Coverage"})(nr||(nr={}));class Li{constructor(s,r,e){this.controllerId=s,this.profileId=r,this.kind=e}}let hr=class{constructor(s=void 0,r=void 0,e=void 0,i=!1,o=!0){this.include=s,this.exclude=r,this.profile=e,this.continuous=i,this.preserveFocus=o}};hr=c([n],hr);let ur=Z=class{static diff(s,r,e){const i=new Z(s);return i.expectedOutput=r,i.actualOutput=e,i}constructor(s){this.message=s}};ur=Z=c([n],ur);let fr=class{constructor(s){this.id=s}};fr=c([n],fr);class Zi{constructor(s,r,e){this.label=s,this.uri=r,this.position=e}}class X{constructor(s,r){this.covered=s,this.total=r,Kr(this)}}function Kr(t){if(t){if(t.covered>t.total)throw new Error(`The total number of covered items (${t.covered}) cannot be greater than the total (${t.total})`);if(t.total<0)throw new Error(`The number of covered items (${t.total}) cannot be negative`)}}class Xr{static fromDetails(s,r){const e=new X(0,0),i=new X(0,0),o=new X(0,0);for(const h of r)if("branches"in h){e.total+=1,e.covered+=h.executed?1:0;for(const a of h.branches)i.total+=1,i.covered+=a.executed?1:0}else o.total+=1,o.covered+=h.executed?1:0;const u=new Xr(s,e,i.total>0?i:void 0,o.total>0?o:void 0);return u.detailedCoverage=r,u}constructor(s,r,e,i,o=[]){this.uri=s,this.statementCoverage=r,this.branchCoverage=e,this.declarationCoverage=i,this.includesTests=o}}class _i{get executionCount(){return+this.executed}set executionCount(s){this.executed=s}constructor(s,r,e=[]){this.executed=s,this.location=r,this.branches=e}}class Vi{get executionCount(){return+this.executed}set executionCount(s){this.executed=s}constructor(s,r,e){this.executed=s,this.location=r,this.label=e}}class Qi{get executionCount(){return+this.executed}set executionCount(s){this.executed=s}constructor(s,r,e){this.name=s,this.executed=r,this.location=e}}var ar;(function(t){t[t.None=0]="None",t[t.Option=1]="Option",t[t.Default=2]="Default",t[t.Preferred=3]="Preferred"})(ar||(ar={}));var pr;(function(t){t[t.Untrusted=0]="Untrusted",t[t.Trusted=1]="Trusted",t[t.Unspecified=2]="Unspecified"})(pr||(pr={}));var lr;(function(t){t[t.Notify=1]="Notify",t[t.OpenBrowser=2]="OpenBrowser",t[t.OpenPreview=3]="OpenPreview",t[t.Silent=4]="Silent",t[t.Ignore=5]="Ignore",t[t.OpenBrowserOnce=6]="OpenBrowserOnce"})(lr||(lr={}));class Si{constructor(s,r,e,i,o,u){this.kind=s,this.name=r,this.detail=e,this.uri=i,this.range=o,this.selectionRange=u}}class Ri{constructor(s){this.uri=s}}class Ci{constructor(s,r){this.original=s,this.modified=r}}class Ki{constructor(s,r,e,i){this.base=s,this.input1=r,this.input2=e,this.result=i}}class Ti{constructor(s,r){this.uri=s,this.viewType=r}}class to{constructor(s){this.viewType=s}}class so{constructor(s,r){this.uri=s,this.notebookType=r}}class ro{constructor(s,r,e){this.original=s,this.modified=r,this.notebookType=e}}class eo{constructor(){}}class io{constructor(s,r){this.uri=s,this.inputBoxUri=r}}class oo{constructor(){}}class co{constructor(s){this.textDiffs=s}}var dr;(function(t){t[t.Down=0]="Down",t[t.Up=1]="Up"})(dr||(dr={}));var xr;(function(t){t[t.Action=1]="Action",t[t.Toolbar=2]="Toolbar"})(xr||(xr={}));var $r;(function(t){t[t.Short=1]="Short",t[t.Medium=2]="Medium",t[t.Full=3]="Full"})($r||($r={}));class no{constructor(s,r,e){this.id=s,this.label=r,this.values=e}}var gr;(function(t){t[t.Accepted=1]="Accepted",t[t.Rejected=2]="Rejected",t[t.Saved=3]="Saved"})(gr||(gr={}));var wr;(function(t){t[t.Keep=1]="Keep",t[t.Undo=2]="Undo",t[t.UserModification=3]="UserModification"})(wr||(wr={}));var br;(function(t){t[t.Unhelpful=0]="Unhelpful",t[t.Helpful=1]="Helpful",t[t.Undone=2]="Undone",t[t.Accepted=3]="Accepted",t[t.Bug=4]="Bug"})(br||(br={}));var vr;(function(t){t[t.Unhelpful=0]="Unhelpful",t[t.Helpful=1]="Helpful"})(vr||(vr={}));class ho{constructor(s){if(typeof s!="string"&&s.isTrusted===!0)throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");this.value=typeof s=="string"?new G(s):s}}class uo{constructor(s,r){if(typeof s!="string"&&s.isTrusted===!0)throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");this.value=typeof s=="string"?new G(s):s,this.vulnerabilities=r}}class fo{constructor(s,r,e,i){this.title=s,this.message=r,this.data=e,this.buttons=i}}class ao{constructor(s,r){this.value=s,this.baseUri=r}}class po{constructor(s,r,e){this.value=s,this.title=r,this.readOnly=e}}class lo{constructor(s,r){this.data=s,this.mimeType=r}}class xo{constructor(s,r){this.uris=s,this.callback=r,this.applied=new Promise(e=>{this.didGetApplied=e})}}class $o{constructor(s,r){this.value=s,this.value2=s,this.title=r}}class go{constructor(s){this.value=s}}class wo{constructor(s,r){this.value=s,this.task=r}}class bo{constructor(s,r,e){this.value=s,this.id=r,this.metadata=e}}class vo{constructor(s){if(typeof s!="string"&&s.isTrusted===!0)throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");this.value=typeof s=="string"?new G(s):s}}class mo{constructor(s){this.value=s}}class Uo{constructor(s,r,e){this.value=s,this.iconPath=r,this.options=e}}class Oo{constructor(s,r,e){this.value=s,this.isEdit=r,this.undoStopId=e}}class No{constructor(s,r,e){this.value=s,this.license=r,this.snippet=e}}class yo{constructor(s,r){this.uri=s,this.range=r}}class ko{constructor(s){this.extensions=s}}class Ao{constructor(s,r,e,i,o){this.uri=s,this.title=r,this.description=e,this.author=i,this.linkTag=o}toJSON(){return{$mid:26,uri:this.uri,title:this.title,description:this.description,author:this.author}}}var mr;(function(t){t[t.Text=1]="Text",t[t.SingleSelect=2]="SingleSelect",t[t.MultiSelect=3]="MultiSelect"})(mr||(mr={}));class Do{constructor(s,r,e,i){this.id=s,this.type=r,this.title=e,this.message=i?.message,this.options=i?.options,this.defaultValue=i?.defaultValue,this.allowFreeformInput=i?.allowFreeformInput}}class Po{constructor(s,r=!0){this.questions=s,this.allowSkip=r}}class jo{constructor(s,r){this.uri=s,r===!0?(this.isDone=!0,this.edits=[]):this.edits=Array.isArray(r)?r:[r]}}class Fo{constructor(s,r){this.uri=s,r===!0?(this.isDone=!0,this.edits=[]):this.edits=Array.isArray(r)?r:[r]}}class Mo{constructor(s){this.edits=s}}var Ur;(function(t){t[t.NotStarted=1]="NotStarted",t[t.InProgress=2]="InProgress",t[t.Completed=3]="Completed"})(Ur||(Ur={}));class Wo{constructor(s,r,e){this.toolName=s,this.toolCallId=r,this.isError=e}}class Eo{constructor(s,r,e,i,o,u,h){this.prompt=s,this.command=r,this.references=e,this.participant=i,this.toolReferences=o,this.editedFileEvents=u,this.id=h}}class Bo{constructor(s,r,e,i){this.response=s,this.result=r,this.participant=e,this.command=i}}class Jo{constructor(s,r,e,i){this.response=s,this.result=r,this.participant=e,this.command=i}}var Or;(function(t){t[t.Panel=1]="Panel",t[t.Terminal=2]="Terminal",t[t.Notebook=3]="Notebook",t[t.Editor=4]="Editor"})(Or||(Or={}));var Nr;(function(t){t[t.Failed=0]="Failed",t[t.Completed=1]="Completed",t[t.InProgress=2]="InProgress"})(Nr||(Nr={}));class Io{constructor(s,r,e,i){this.modifiedUri=s,this.insertions=r,this.deletions=e,this.originalUri=i}}class zo{constructor(s,r,e,i,o){this.uri=s,this.originalUri=r,this.modifiedUri=e,this.insertions=i,this.deletions=o}}var yr;(function(t){t[t.Complete=1]="Complete",t[t.Partial=2]="Partial",t[t.Omitted=3]="Omitted"})(yr||(yr={}));var kr;(function(t){t[t.NoReason=0]="NoReason",t[t.FilteredContentRetry=1]="FilteredContentRetry",t[t.CopyrightContentRetry=2]="CopyrightContentRetry"})(kr||(kr={}));class qo{constructor(s,r,e,i){this.editor=s,this.document=r,this.selection=e,this.wholeRange=i}}class Go{constructor(s){this.cell=s}}class Lo{constructor(s,r,e){this.mimeType=s,this.data=r,this.reference=e}}class Xo{constructor(s){this.diagnostics=s}}var y;(function(t){t[t.User=1]="User",t[t.Assistant=2]="Assistant",t[t.System=3]="System"})(y||(y={}));class Ho{constructor(s,r,e){this.callId=s,this.content=r,this.isError=e??!1}}var Ar;(function(t){t[t.Info=0]="Info",t[t.Warning=1]="Warning",t[t.Error=2]="Error"})(Ar||(Ar={}));class K{static User(s,r){return new K(y.User,s,r)}static Assistant(s,r){return new K(y.Assistant,s,r)}set content(s){typeof s=="string"?this.c=[new W(s)]:this.c=s}get content(){return this.c}constructor(s,r,e){this.c=[],this.role=s,this.content=r,this.name=e}}class T{static User(s,r){return new T(y.User,s,r)}static Assistant(s,r){return new T(y.Assistant,s,r)}set content(s){typeof s=="string"?this.c=[new W(s)]:this.c=s}get content(){return this.c}set content2(s){s&&(this.content=s.map(r=>typeof r=="string"?new W(r):r))}get content2(){return this.content.map(s=>s instanceof W?s.value:s)}constructor(s,r,e){this.c=[],this.role=s,this.content=r,this.name=e}}class Yo{constructor(s,r,e){this.callId=s,this.name=r,this.input=e}}var Dr;(function(t){t[t.Assistant=0]="Assistant",t[t.User=1]="User",t[t.Extension=2]="Extension"})(Dr||(Dr={}));class W{constructor(s,r){this.value=s,r=r}toJSON(){return{$mid:21,value:this.value,audience:this.audience}}}class E{constructor(s,r,e){this.mimeType=r,this.data=s,this.audience=e}static image(s,r){return new E(s,r)}static json(s,r="text/x-json"){const e=JSON.stringify(s,void 0,"	");return new E(et.fromString(e).buffer,r)}static text(s,r=Zr.text){return new E(et.fromString(s).buffer,r)}toJSON(){return{$mid:24,mimeType:this.mimeType,data:this.data,audience:this.audience}}}var Pr;(function(t){t.PNG="image/png",t.JPEG="image/jpeg",t.GIF="image/gif",t.WEBP="image/webp",t.BMP="image/bmp"})(Pr||(Pr={}));class Zo{constructor(s,r,e){this.value=s,this.id=r,this.metadata=e}toJSON(){return{$mid:22,value:this.value,id:this.id,metadata:this.metadata}}}class _o{constructor(s){this.value=s}toJSON(){return{$mid:23,value:this.value}}}class Vo{constructor(s){this.content=s}}class Qo{constructor(s,r){this.content=s,this.name=r}}class So{constructor(s,r){this.content=s,this.name=r}}class v extends Error{static#t="LanguageModelError";static NotFound(s){return new v(s,v.NotFound.name)}static NoPermissions(s){return new v(s,v.NoPermissions.name)}static Blocked(s){return new v(s,v.Blocked.name)}static tryDeserialize(s){if(s.name===v.#t)return new v(s.message,s.code,s.cause)}constructor(s,r,e){super(s,{cause:e}),this.name=v.#t,this.code=r??""}}class Tr{constructor(s){this.content=s}toJSON(){return{$mid:20,content:this.content}}}class Ro{constructor(s){this.content=s}toJSON(){return{$mid:20,content:this.content}}}class Co extends Tr{}var jr;(function(t){t[t.Auto=1]="Auto",t[t.Required=2]="Required"})(jr||(jr={}));class Ko{constructor(s,r){this.id=s,this.label=r}}class To{constructor(s,r,e){this.label=s,this.name=r,this.instructions=e}}var Fr;(function(t){t[t.SymbolInformation=1]="SymbolInformation",t[t.CommandInformation=2]="CommandInformation",t[t.SearchInformation=3]="SearchInformation",t[t.SettingInformation=4]="SettingInformation"})(Fr||(Fr={}));var Mr;(function(t){t[t.EMBEDDED=1]="EMBEDDED",t[t.LLM_RANKED=2]="LLM_RANKED",t[t.CANCELED=3]="CANCELED"})(Mr||(Mr={}));var Wr;(function(t){t[t.Success=1]="Success",t[t.Error=2]="Error"})(Wr||(Wr={}));var Er;(function(t){t[t.Started=1]="Started",t[t.Recognizing=2]="Recognizing",t[t.Recognized=3]="Recognized",t[t.Stopped=4]="Stopped",t[t.Error=5]="Error"})(Er||(Er={}));var Br;(function(t){t[t.Started=1]="Started",t[t.Stopped=2]="Stopped",t[t.Error=3]="Error"})(Br||(Br={}));var Jr;(function(t){t[t.Recognized=1]="Recognized",t[t.Stopped=2]="Stopped"})(Jr||(Jr={}));var Ir;(function(t){t[t.Initial=0]="Initial",t[t.Dynamic=1]="Dynamic"})(Ir||(Ir={}));class tc{constructor(s,r,e,i={},o,u){this.label=s,this.command=r,this.args=e,this.env=i,this.version=o,this.metadata=u}}class sc{constructor(s,r,e={},i,o,u){this.label=s,this.uri=r,this.headers=e,this.version=i,this.metadata=o,this.authentication=u}}export{bs as $$2,vo as $$3,ws as $02,bo as $03,ii as $12,uo as $13,O as $22,fo as $23,ps as $32,ao as $33,ds as $42,po as $43,hi as $52,lo as $53,P as $62,xo as $63,xs as $72,$o as $73,$s as $82,go as $83,gs as $92,wo as $93,Ft as $A2,Gi as $A3,E as $A4,Mt as $B2,Li as $B3,Zo as $B4,Ie as $C2,hr as $C3,_o as $C4,Yt as $D2,ur as $D3,Vo as $D4,Q as $E2,fr as $E3,Qo as $E4,Zt as $F2,Zi as $F3,So as $F4,_t as $G2,X as $G3,v as $G4,Xe as $H2,Kr as $H3,Tr as $H4,He as $I2,Xr as $I3,Ro as $I4,Ye as $J2,_i as $J3,Co as $J4,Ze as $K2,Vi as $K3,Ko as $K4,_e as $L2,Qi as $L3,To as $L4,Ve as $M2,Si as $M3,tc as $M4,es as $N2,Ri as $N3,sc as $N4,S as $O2,Ci as $O3,R as $P2,Ki as $P3,Sr as $Q2,Ti as $Q3,os as $R2,to as $R3,hs as $S2,so as $S3,C as $T2,ro as $T3,Rr as $U2,eo as $U3,ti as $V2,io as $V3,si as $W2,oo as $W3,us as $X2,co as $X3,fs as $Y2,no as $Y3,m as $Z2,ho as $Z3,vs as $_2,mo as $_3,ms as $a3,Uo as $a4,gi as $b3,Oo as $b4,wi as $c3,No as $c4,Us as $d3,yo as $d4,ht as $e2,ys as $e3,ko as $e4,xe as $f2,ks as $f3,Ao as $f4,$e as $g2,As as $g3,Do as $g4,M as $h2,Ds as $h3,Po as $h4,_ as $i2,Ni as $i3,jo as $i4,ft as $j2,Ms as $j3,Fo as $j4,pt as $k2,Ws as $k3,Mo as $k4,lt as $l2,Ai as $l3,Wo as $l4,dt as $m2,Lr as $m3,Eo as $m4,$t as $n2,Ls as $n3,Bo as $n4,gt as $o2,Di as $o3,Jo as $o4,Ne as $p2,Pi as $p3,Io as $p4,ye as $q2,ji as $q3,zo as $q4,ke as $r2,Ys as $r3,qo as $r4,bt as $s2,Mi as $s3,Go as $s4,vt as $t2,Qs as $t3,Lo as $t4,mt as $u2,Ei as $u3,Xo as $u4,Ut as $v2,Bi as $v3,Ho as $v4,yt as $w2,Ji as $w3,K as $w4,kt as $x2,Ii as $x3,T as $x4,Pt as $y2,rr as $y3,Yo as $y4,jt as $z2,qi as $z3,W as $z4,xr as ChatCopyKind,gr as ChatEditingSessionActionOutcome,Ar as ChatErrorLevel,Wr as ChatHookResultKind,Pr as ChatImageMimeType,Or as ChatLocation,mr as ChatQuestionType,wr as ChatRequestEditedFileEventKind,kr as ChatResponseClearToPreviousToolInvocationReason,yr as ChatResponseReferencePartStatusKind,vr as ChatResultFeedbackKind,Nr as ChatSessionStatus,Ur as ChatTodoStatus,$r as ChatVariableLevel,ic as CodeActionKind,xt as CodeActionTriggerKind,Vt as ColorFormat,Ss as ColorThemeKind,Js as CommentMode,Is as CommentState,qs as CommentThreadApplicability,Bs as CommentThreadCollapsibleState,Gs as CommentThreadFocus,zs as CommentThreadState,V as CompletionItemKind,Dt as CompletionItemTag,At as CompletionTriggerKind,ls as ConfigurationTarget,Xs as DebugConsoleMode,Ht as DecorationRangeBehavior,cc as Diagnostic,nc as DiagnosticRelatedInformation,hc as DiagnosticSeverity,uc as DiagnosticTag,B as DocumentHighlightKind,as as DocumentPasteTriggerKind,Ic as EndOfLine,ut as EnvironmentVariableMutatorType,Vs as ExtensionKind,er as ExtensionMode,ir as ExtensionRuntime,ar as ExternalUriOpenerPriority,Fs as FileChangeType,Gc as FileEditType,Es as FoldingRangeKind,at as HoverVerbosityAction,Nt as InlayHintKind,Bt as InlineCompletionDisplayLocationKind,Et as InlineCompletionEndOfLifeReasonKind,Os as InlineCompletionTriggerKind,Ns as InlineCompletionsDisposeReasonKind,_s as InputBoxValidationSeverity,br as InteractiveEditorResponseFeedbackKind,dr as InteractiveSessionVoteDirection,Jr as KeywordRecognitionStatus,y as LanguageModelChatMessageRole,jr as LanguageModelChatToolMode,Dr as LanguageModelPartAudience,wt as LanguageStatusSeverity,ac as Location,lc as MarkdownString,Ir as McpToolAvailability,Ps as NewSymbolNameTag,js as NewSymbolNameTriggerKind,xc as NotebookCellData,Rs as NotebookCellExecutionState,$c as NotebookCellKind,gc as NotebookCellOutput,wc as NotebookCellOutputItem,Cs as NotebookCellStatusBarAlignment,Ts as NotebookControllerAffinity,tr as NotebookControllerAffinity2,bc as NotebookData,vc as NotebookEdit,Ks as NotebookEditorRevealType,mc as NotebookRange,sr as NotebookVariablesRequestKind,Wt as PartialAcceptTriggerKind,lr as PortAutoForwardAction,Oc as Position,cs as ProgressLocation,Hs as QuickInputButtonLocation,Zs as QuickPickItemKind,yc as Range,Fr as RelatedInformationType,Ac as Selection,Mr as SettingsSearchResultKind,is as ShellQuoting,Ot as SignatureHelpTriggerKind,Pc as SnippetString,Fc as SnippetTextEdit,Qt as SourceControlInputBoxValidationType,Er as SpeechToTextStatus,or as StandardTokenType,It as StatusBarAlignment,Wc as SymbolInformation,Ec as SymbolKind,Bc as SymbolTag,I as SyntaxTokenType,ss as TaskEventKind,rs as TaskPanelKind,ts as TaskRevealKind,z as TaskScope,Tt as TerminalCompletionItemKind,St as TerminalExitReason,Kt as TerminalLocation,ct as TerminalOutputAnchor,nt as TerminalQuickFixType,Rt as TerminalShellExecutionCommandLineConfidence,Ct as TerminalShellType,cr as TestResultState,nr as TestRunProfileKind,Xt as TextDocumentChangeReason,qt as TextDocumentSaveReason,zc as TextEdit,Lt as TextEditorChangeKind,zt as TextEditorLineNumbersStyle,Gt as TextEditorRevealType,J as TextEditorSelectionChangeKind,Br as TextToSpeechStatus,q as TreeItemCheckboxState,D as TreeItemCollapsibleState,ns as ViewBadge,Jt as ViewColumn,Lc as WorkspaceEdit,pr as WorkspaceTrustState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Disposable_1, DocumentSymbol_1, TaskGroup_1, Task_1, TreeItem_1, FileSystemError_1, TestMessage_1;
+import { asArray } from "../../../base/common/arrays.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { illegalArgument } from "../../../base/common/errors.js";
+import { Mimes } from "../../../base/common/mime.js";
+import { nextCharLength } from "../../../base/common/strings.js";
+import { isNumber, isObject, isString, isStringArray } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from "../../../platform/files/common/files.js";
+import { RemoteAuthorityResolverErrorCode } from "../../../platform/remote/common/remoteAuthorityResolver.js";
+import { es5ClassCompat } from "./extHostTypes/es5ClassCompat.js";
+import { MarkdownString } from "./extHostTypes/markdownString.js";
+import { Range } from "./extHostTypes/range.js";
+import { CodeActionKind } from "./extHostTypes/codeActionKind.js";
+import { Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, DiagnosticTag } from "./extHostTypes/diagnostic.js";
+import { Location } from "./extHostTypes/location.js";
+import { MarkdownString as MarkdownString2 } from "./extHostTypes/markdownString.js";
+import { NotebookCellData, NotebookCellKind, NotebookCellOutput, NotebookCellOutputItem, NotebookData, NotebookEdit, NotebookRange } from "./extHostTypes/notebooks.js";
+import { Position } from "./extHostTypes/position.js";
+import { Range as Range2 } from "./extHostTypes/range.js";
+import { Selection } from "./extHostTypes/selection.js";
+import { SnippetString } from "./extHostTypes/snippetString.js";
+import { SnippetTextEdit } from "./extHostTypes/snippetTextEdit.js";
+import { SymbolInformation, SymbolKind, SymbolTag } from "./extHostTypes/symbolInformation.js";
+import { EndOfLine, TextEdit } from "./extHostTypes/textEdit.js";
+import { FileEditType, WorkspaceEdit } from "./extHostTypes/workspaceEdit.js";
+var TerminalOutputAnchor;
+(function(TerminalOutputAnchor2) {
+  TerminalOutputAnchor2[TerminalOutputAnchor2["Top"] = 0] = "Top";
+  TerminalOutputAnchor2[TerminalOutputAnchor2["Bottom"] = 1] = "Bottom";
+})(TerminalOutputAnchor || (TerminalOutputAnchor = {}));
+var TerminalQuickFixType;
+(function(TerminalQuickFixType2) {
+  TerminalQuickFixType2[TerminalQuickFixType2["TerminalCommand"] = 0] = "TerminalCommand";
+  TerminalQuickFixType2[TerminalQuickFixType2["Opener"] = 1] = "Opener";
+  TerminalQuickFixType2[TerminalQuickFixType2["Command"] = 3] = "Command";
+})(TerminalQuickFixType || (TerminalQuickFixType = {}));
+let Disposable = Disposable_1 = class Disposable2 {
+  static {
+    __name(this, "Disposable");
+  }
+  static from(...inDisposables) {
+    let disposables = inDisposables;
+    return new Disposable_1(function() {
+      if (disposables) {
+        for (const disposable of disposables) {
+          if (disposable && typeof disposable.dispose === "function") {
+            disposable.dispose();
+          }
+        }
+        disposables = void 0;
+      }
+    });
+  }
+  #callOnDispose;
+  constructor(callOnDispose) {
+    this.#callOnDispose = callOnDispose;
+  }
+  dispose() {
+    if (typeof this.#callOnDispose === "function") {
+      this.#callOnDispose();
+      this.#callOnDispose = void 0;
+    }
+  }
+};
+Disposable = Disposable_1 = __decorate([
+  es5ClassCompat
+], Disposable);
+const validateConnectionToken = /* @__PURE__ */ __name((connectionToken) => {
+  if (typeof connectionToken !== "string" || connectionToken.length === 0 || !/^[0-9A-Za-z_\-]+$/.test(connectionToken)) {
+    throw illegalArgument("connectionToken");
+  }
+}, "validateConnectionToken");
+class ResolvedAuthority {
+  static {
+    __name(this, "ResolvedAuthority");
+  }
+  static isResolvedAuthority(resolvedAuthority) {
+    return resolvedAuthority && typeof resolvedAuthority === "object" && typeof resolvedAuthority.host === "string" && typeof resolvedAuthority.port === "number" && (resolvedAuthority.connectionToken === void 0 || typeof resolvedAuthority.connectionToken === "string");
+  }
+  constructor(host, port, connectionToken) {
+    if (typeof host !== "string" || host.length === 0) {
+      throw illegalArgument("host");
+    }
+    if (typeof port !== "number" || port === 0 || Math.round(port) !== port) {
+      throw illegalArgument("port");
+    }
+    if (typeof connectionToken !== "undefined") {
+      validateConnectionToken(connectionToken);
+    }
+    this.host = host;
+    this.port = Math.round(port);
+    this.connectionToken = connectionToken;
+  }
+}
+class ManagedResolvedAuthority {
+  static {
+    __name(this, "ManagedResolvedAuthority");
+  }
+  static isManagedResolvedAuthority(resolvedAuthority) {
+    return resolvedAuthority && typeof resolvedAuthority === "object" && typeof resolvedAuthority.makeConnection === "function" && (resolvedAuthority.connectionToken === void 0 || typeof resolvedAuthority.connectionToken === "string");
+  }
+  constructor(makeConnection, connectionToken) {
+    this.makeConnection = makeConnection;
+    this.connectionToken = connectionToken;
+    if (typeof connectionToken !== "undefined") {
+      validateConnectionToken(connectionToken);
+    }
+  }
+}
+class RemoteAuthorityResolverError extends Error {
+  static {
+    __name(this, "RemoteAuthorityResolverError");
+  }
+  static NotAvailable(message, handled) {
+    return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.NotAvailable, handled);
+  }
+  static TemporarilyNotAvailable(message) {
+    return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.TemporarilyNotAvailable);
+  }
+  constructor(message, code = RemoteAuthorityResolverErrorCode.Unknown, detail) {
+    super(message);
+    this._message = message;
+    this._code = code;
+    this._detail = detail;
+    Object.setPrototypeOf(this, RemoteAuthorityResolverError.prototype);
+  }
+}
+var EnvironmentVariableMutatorType;
+(function(EnvironmentVariableMutatorType2) {
+  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Replace"] = 1] = "Replace";
+  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Append"] = 2] = "Append";
+  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Prepend"] = 3] = "Prepend";
+})(EnvironmentVariableMutatorType || (EnvironmentVariableMutatorType = {}));
+let Hover = class Hover2 {
+  static {
+    __name(this, "Hover");
+  }
+  constructor(contents, range) {
+    if (!contents) {
+      throw new Error("Illegal argument, contents must be defined");
+    }
+    if (Array.isArray(contents)) {
+      this.contents = contents;
+    } else {
+      this.contents = [contents];
+    }
+    this.range = range;
+  }
+};
+Hover = __decorate([
+  es5ClassCompat
+], Hover);
+let VerboseHover = class VerboseHover2 extends Hover {
+  static {
+    __name(this, "VerboseHover");
+  }
+  constructor(contents, range, canIncreaseVerbosity, canDecreaseVerbosity) {
+    super(contents, range);
+    this.canIncreaseVerbosity = canIncreaseVerbosity;
+    this.canDecreaseVerbosity = canDecreaseVerbosity;
+  }
+};
+VerboseHover = __decorate([
+  es5ClassCompat
+], VerboseHover);
+var HoverVerbosityAction;
+(function(HoverVerbosityAction2) {
+  HoverVerbosityAction2[HoverVerbosityAction2["Increase"] = 0] = "Increase";
+  HoverVerbosityAction2[HoverVerbosityAction2["Decrease"] = 1] = "Decrease";
+})(HoverVerbosityAction || (HoverVerbosityAction = {}));
+var DocumentHighlightKind;
+(function(DocumentHighlightKind2) {
+  DocumentHighlightKind2[DocumentHighlightKind2["Text"] = 0] = "Text";
+  DocumentHighlightKind2[DocumentHighlightKind2["Read"] = 1] = "Read";
+  DocumentHighlightKind2[DocumentHighlightKind2["Write"] = 2] = "Write";
+})(DocumentHighlightKind || (DocumentHighlightKind = {}));
+let DocumentHighlight = class DocumentHighlight2 {
+  static {
+    __name(this, "DocumentHighlight");
+  }
+  constructor(range, kind = DocumentHighlightKind.Text) {
+    this.range = range;
+    this.kind = kind;
+  }
+  toJSON() {
+    return {
+      range: this.range,
+      kind: DocumentHighlightKind[this.kind]
+    };
+  }
+};
+DocumentHighlight = __decorate([
+  es5ClassCompat
+], DocumentHighlight);
+let MultiDocumentHighlight = class MultiDocumentHighlight2 {
+  static {
+    __name(this, "MultiDocumentHighlight");
+  }
+  constructor(uri, highlights) {
+    this.uri = uri;
+    this.highlights = highlights;
+  }
+  toJSON() {
+    return {
+      uri: this.uri,
+      highlights: this.highlights.map((h) => h.toJSON())
+    };
+  }
+};
+MultiDocumentHighlight = __decorate([
+  es5ClassCompat
+], MultiDocumentHighlight);
+let DocumentSymbol = DocumentSymbol_1 = class DocumentSymbol2 {
+  static {
+    __name(this, "DocumentSymbol");
+  }
+  static validate(candidate) {
+    if (!candidate.name) {
+      throw new Error("name must not be falsy");
+    }
+    if (!candidate.range.contains(candidate.selectionRange)) {
+      throw new Error("selectionRange must be contained in fullRange");
+    }
+    candidate.children?.forEach(DocumentSymbol_1.validate);
+  }
+  constructor(name, detail, kind, range, selectionRange) {
+    this.name = name;
+    this.detail = detail;
+    this.kind = kind;
+    this.range = range;
+    this.selectionRange = selectionRange;
+    this.children = [];
+    DocumentSymbol_1.validate(this);
+  }
+};
+DocumentSymbol = DocumentSymbol_1 = __decorate([
+  es5ClassCompat
+], DocumentSymbol);
+var CodeActionTriggerKind;
+(function(CodeActionTriggerKind2) {
+  CodeActionTriggerKind2[CodeActionTriggerKind2["Invoke"] = 1] = "Invoke";
+  CodeActionTriggerKind2[CodeActionTriggerKind2["Automatic"] = 2] = "Automatic";
+})(CodeActionTriggerKind || (CodeActionTriggerKind = {}));
+let CodeAction = class CodeAction2 {
+  static {
+    __name(this, "CodeAction");
+  }
+  constructor(title, kind) {
+    this.title = title;
+    this.kind = kind;
+  }
+};
+CodeAction = __decorate([
+  es5ClassCompat
+], CodeAction);
+let SelectionRange = class SelectionRange2 {
+  static {
+    __name(this, "SelectionRange");
+  }
+  constructor(range, parent) {
+    this.range = range;
+    this.parent = parent;
+    if (parent && !parent.range.contains(this.range)) {
+      throw new Error("Invalid argument: parent must contain this range");
+    }
+  }
+};
+SelectionRange = __decorate([
+  es5ClassCompat
+], SelectionRange);
+class CallHierarchyItem {
+  static {
+    __name(this, "CallHierarchyItem");
+  }
+  constructor(kind, name, detail, uri, range, selectionRange) {
+    this.kind = kind;
+    this.name = name;
+    this.detail = detail;
+    this.uri = uri;
+    this.range = range;
+    this.selectionRange = selectionRange;
+  }
+}
+class CallHierarchyIncomingCall {
+  static {
+    __name(this, "CallHierarchyIncomingCall");
+  }
+  constructor(item, fromRanges) {
+    this.fromRanges = fromRanges;
+    this.from = item;
+  }
+}
+class CallHierarchyOutgoingCall {
+  static {
+    __name(this, "CallHierarchyOutgoingCall");
+  }
+  constructor(item, fromRanges) {
+    this.fromRanges = fromRanges;
+    this.to = item;
+  }
+}
+var LanguageStatusSeverity;
+(function(LanguageStatusSeverity2) {
+  LanguageStatusSeverity2[LanguageStatusSeverity2["Information"] = 0] = "Information";
+  LanguageStatusSeverity2[LanguageStatusSeverity2["Warning"] = 1] = "Warning";
+  LanguageStatusSeverity2[LanguageStatusSeverity2["Error"] = 2] = "Error";
+})(LanguageStatusSeverity || (LanguageStatusSeverity = {}));
+let CodeLens = class CodeLens2 {
+  static {
+    __name(this, "CodeLens");
+  }
+  constructor(range, command) {
+    this.range = range;
+    this.command = command;
+  }
+  get isResolved() {
+    return !!this.command;
+  }
+};
+CodeLens = __decorate([
+  es5ClassCompat
+], CodeLens);
+let ParameterInformation = class ParameterInformation2 {
+  static {
+    __name(this, "ParameterInformation");
+  }
+  constructor(label, documentation) {
+    this.label = label;
+    this.documentation = documentation;
+  }
+};
+ParameterInformation = __decorate([
+  es5ClassCompat
+], ParameterInformation);
+let SignatureInformation = class SignatureInformation2 {
+  static {
+    __name(this, "SignatureInformation");
+  }
+  constructor(label, documentation) {
+    this.label = label;
+    this.documentation = documentation;
+    this.parameters = [];
+  }
+};
+SignatureInformation = __decorate([
+  es5ClassCompat
+], SignatureInformation);
+let SignatureHelp = class SignatureHelp2 {
+  static {
+    __name(this, "SignatureHelp");
+  }
+  constructor() {
+    this.activeSignature = 0;
+    this.activeParameter = 0;
+    this.signatures = [];
+  }
+};
+SignatureHelp = __decorate([
+  es5ClassCompat
+], SignatureHelp);
+var SignatureHelpTriggerKind;
+(function(SignatureHelpTriggerKind2) {
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["Invoke"] = 1] = "Invoke";
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["TriggerCharacter"] = 2] = "TriggerCharacter";
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["ContentChange"] = 3] = "ContentChange";
+})(SignatureHelpTriggerKind || (SignatureHelpTriggerKind = {}));
+var InlayHintKind;
+(function(InlayHintKind2) {
+  InlayHintKind2[InlayHintKind2["Type"] = 1] = "Type";
+  InlayHintKind2[InlayHintKind2["Parameter"] = 2] = "Parameter";
+})(InlayHintKind || (InlayHintKind = {}));
+let InlayHintLabelPart = class InlayHintLabelPart2 {
+  static {
+    __name(this, "InlayHintLabelPart");
+  }
+  constructor(value) {
+    this.value = value;
+  }
+};
+InlayHintLabelPart = __decorate([
+  es5ClassCompat
+], InlayHintLabelPart);
+let InlayHint = class InlayHint2 {
+  static {
+    __name(this, "InlayHint");
+  }
+  constructor(position, label, kind) {
+    this.position = position;
+    this.label = label;
+    this.kind = kind;
+  }
+};
+InlayHint = __decorate([
+  es5ClassCompat
+], InlayHint);
+var CompletionTriggerKind;
+(function(CompletionTriggerKind2) {
+  CompletionTriggerKind2[CompletionTriggerKind2["Invoke"] = 0] = "Invoke";
+  CompletionTriggerKind2[CompletionTriggerKind2["TriggerCharacter"] = 1] = "TriggerCharacter";
+  CompletionTriggerKind2[CompletionTriggerKind2["TriggerForIncompleteCompletions"] = 2] = "TriggerForIncompleteCompletions";
+})(CompletionTriggerKind || (CompletionTriggerKind = {}));
+var CompletionItemKind;
+(function(CompletionItemKind2) {
+  CompletionItemKind2[CompletionItemKind2["Text"] = 0] = "Text";
+  CompletionItemKind2[CompletionItemKind2["Method"] = 1] = "Method";
+  CompletionItemKind2[CompletionItemKind2["Function"] = 2] = "Function";
+  CompletionItemKind2[CompletionItemKind2["Constructor"] = 3] = "Constructor";
+  CompletionItemKind2[CompletionItemKind2["Field"] = 4] = "Field";
+  CompletionItemKind2[CompletionItemKind2["Variable"] = 5] = "Variable";
+  CompletionItemKind2[CompletionItemKind2["Class"] = 6] = "Class";
+  CompletionItemKind2[CompletionItemKind2["Interface"] = 7] = "Interface";
+  CompletionItemKind2[CompletionItemKind2["Module"] = 8] = "Module";
+  CompletionItemKind2[CompletionItemKind2["Property"] = 9] = "Property";
+  CompletionItemKind2[CompletionItemKind2["Unit"] = 10] = "Unit";
+  CompletionItemKind2[CompletionItemKind2["Value"] = 11] = "Value";
+  CompletionItemKind2[CompletionItemKind2["Enum"] = 12] = "Enum";
+  CompletionItemKind2[CompletionItemKind2["Keyword"] = 13] = "Keyword";
+  CompletionItemKind2[CompletionItemKind2["Snippet"] = 14] = "Snippet";
+  CompletionItemKind2[CompletionItemKind2["Color"] = 15] = "Color";
+  CompletionItemKind2[CompletionItemKind2["File"] = 16] = "File";
+  CompletionItemKind2[CompletionItemKind2["Reference"] = 17] = "Reference";
+  CompletionItemKind2[CompletionItemKind2["Folder"] = 18] = "Folder";
+  CompletionItemKind2[CompletionItemKind2["EnumMember"] = 19] = "EnumMember";
+  CompletionItemKind2[CompletionItemKind2["Constant"] = 20] = "Constant";
+  CompletionItemKind2[CompletionItemKind2["Struct"] = 21] = "Struct";
+  CompletionItemKind2[CompletionItemKind2["Event"] = 22] = "Event";
+  CompletionItemKind2[CompletionItemKind2["Operator"] = 23] = "Operator";
+  CompletionItemKind2[CompletionItemKind2["TypeParameter"] = 24] = "TypeParameter";
+  CompletionItemKind2[CompletionItemKind2["User"] = 25] = "User";
+  CompletionItemKind2[CompletionItemKind2["Issue"] = 26] = "Issue";
+})(CompletionItemKind || (CompletionItemKind = {}));
+var CompletionItemTag;
+(function(CompletionItemTag2) {
+  CompletionItemTag2[CompletionItemTag2["Deprecated"] = 1] = "Deprecated";
+})(CompletionItemTag || (CompletionItemTag = {}));
+let CompletionItem = class CompletionItem2 {
+  static {
+    __name(this, "CompletionItem");
+  }
+  constructor(label, kind) {
+    this.label = label;
+    this.kind = kind;
+  }
+  toJSON() {
+    return {
+      label: this.label,
+      kind: this.kind && CompletionItemKind[this.kind],
+      detail: this.detail,
+      documentation: this.documentation,
+      sortText: this.sortText,
+      filterText: this.filterText,
+      preselect: this.preselect,
+      insertText: this.insertText,
+      textEdit: this.textEdit
+    };
+  }
+};
+CompletionItem = __decorate([
+  es5ClassCompat
+], CompletionItem);
+let CompletionList = class CompletionList2 {
+  static {
+    __name(this, "CompletionList");
+  }
+  constructor(items = [], isIncomplete = false) {
+    this.items = items;
+    this.isIncomplete = isIncomplete;
+  }
+};
+CompletionList = __decorate([
+  es5ClassCompat
+], CompletionList);
+let InlineSuggestion = class InlineSuggestion2 {
+  static {
+    __name(this, "InlineSuggestion");
+  }
+  constructor(insertText, range, command) {
+    this.insertText = insertText;
+    this.range = range;
+    this.command = command;
+  }
+};
+InlineSuggestion = __decorate([
+  es5ClassCompat
+], InlineSuggestion);
+let InlineSuggestionList = class InlineSuggestionList2 {
+  static {
+    __name(this, "InlineSuggestionList");
+  }
+  constructor(items) {
+    this.commands = void 0;
+    this.suppressSuggestions = void 0;
+    this.items = items;
+  }
+};
+InlineSuggestionList = __decorate([
+  es5ClassCompat
+], InlineSuggestionList);
+var PartialAcceptTriggerKind;
+(function(PartialAcceptTriggerKind2) {
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Unknown"] = 0] = "Unknown";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Word"] = 1] = "Word";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Line"] = 2] = "Line";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Suggest"] = 3] = "Suggest";
+})(PartialAcceptTriggerKind || (PartialAcceptTriggerKind = {}));
+var InlineCompletionEndOfLifeReasonKind;
+(function(InlineCompletionEndOfLifeReasonKind2) {
+  InlineCompletionEndOfLifeReasonKind2[InlineCompletionEndOfLifeReasonKind2["Accepted"] = 0] = "Accepted";
+  InlineCompletionEndOfLifeReasonKind2[InlineCompletionEndOfLifeReasonKind2["Rejected"] = 1] = "Rejected";
+  InlineCompletionEndOfLifeReasonKind2[InlineCompletionEndOfLifeReasonKind2["Ignored"] = 2] = "Ignored";
+})(InlineCompletionEndOfLifeReasonKind || (InlineCompletionEndOfLifeReasonKind = {}));
+var InlineCompletionDisplayLocationKind;
+(function(InlineCompletionDisplayLocationKind2) {
+  InlineCompletionDisplayLocationKind2[InlineCompletionDisplayLocationKind2["Code"] = 1] = "Code";
+  InlineCompletionDisplayLocationKind2[InlineCompletionDisplayLocationKind2["Label"] = 2] = "Label";
+})(InlineCompletionDisplayLocationKind || (InlineCompletionDisplayLocationKind = {}));
+var ViewColumn;
+(function(ViewColumn2) {
+  ViewColumn2[ViewColumn2["Active"] = -1] = "Active";
+  ViewColumn2[ViewColumn2["Beside"] = -2] = "Beside";
+  ViewColumn2[ViewColumn2["One"] = 1] = "One";
+  ViewColumn2[ViewColumn2["Two"] = 2] = "Two";
+  ViewColumn2[ViewColumn2["Three"] = 3] = "Three";
+  ViewColumn2[ViewColumn2["Four"] = 4] = "Four";
+  ViewColumn2[ViewColumn2["Five"] = 5] = "Five";
+  ViewColumn2[ViewColumn2["Six"] = 6] = "Six";
+  ViewColumn2[ViewColumn2["Seven"] = 7] = "Seven";
+  ViewColumn2[ViewColumn2["Eight"] = 8] = "Eight";
+  ViewColumn2[ViewColumn2["Nine"] = 9] = "Nine";
+})(ViewColumn || (ViewColumn = {}));
+var StatusBarAlignment;
+(function(StatusBarAlignment2) {
+  StatusBarAlignment2[StatusBarAlignment2["Left"] = 1] = "Left";
+  StatusBarAlignment2[StatusBarAlignment2["Right"] = 2] = "Right";
+})(StatusBarAlignment || (StatusBarAlignment = {}));
+function asStatusBarItemIdentifier(extension, id) {
+  return `${ExtensionIdentifier.toKey(extension)}.${id}`;
+}
+__name(asStatusBarItemIdentifier, "asStatusBarItemIdentifier");
+var TextEditorLineNumbersStyle;
+(function(TextEditorLineNumbersStyle2) {
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Off"] = 0] = "Off";
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["On"] = 1] = "On";
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Relative"] = 2] = "Relative";
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Interval"] = 3] = "Interval";
+})(TextEditorLineNumbersStyle || (TextEditorLineNumbersStyle = {}));
+var TextDocumentSaveReason;
+(function(TextDocumentSaveReason2) {
+  TextDocumentSaveReason2[TextDocumentSaveReason2["Manual"] = 1] = "Manual";
+  TextDocumentSaveReason2[TextDocumentSaveReason2["AfterDelay"] = 2] = "AfterDelay";
+  TextDocumentSaveReason2[TextDocumentSaveReason2["FocusOut"] = 3] = "FocusOut";
+})(TextDocumentSaveReason || (TextDocumentSaveReason = {}));
+var TextEditorRevealType;
+(function(TextEditorRevealType2) {
+  TextEditorRevealType2[TextEditorRevealType2["Default"] = 0] = "Default";
+  TextEditorRevealType2[TextEditorRevealType2["InCenter"] = 1] = "InCenter";
+  TextEditorRevealType2[TextEditorRevealType2["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
+  TextEditorRevealType2[TextEditorRevealType2["AtTop"] = 3] = "AtTop";
+})(TextEditorRevealType || (TextEditorRevealType = {}));
+var TextEditorSelectionChangeKind;
+(function(TextEditorSelectionChangeKind2) {
+  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Keyboard"] = 1] = "Keyboard";
+  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Mouse"] = 2] = "Mouse";
+  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Command"] = 3] = "Command";
+})(TextEditorSelectionChangeKind || (TextEditorSelectionChangeKind = {}));
+var TextEditorChangeKind;
+(function(TextEditorChangeKind2) {
+  TextEditorChangeKind2[TextEditorChangeKind2["Addition"] = 1] = "Addition";
+  TextEditorChangeKind2[TextEditorChangeKind2["Deletion"] = 2] = "Deletion";
+  TextEditorChangeKind2[TextEditorChangeKind2["Modification"] = 3] = "Modification";
+})(TextEditorChangeKind || (TextEditorChangeKind = {}));
+var TextDocumentChangeReason;
+(function(TextDocumentChangeReason2) {
+  TextDocumentChangeReason2[TextDocumentChangeReason2["Undo"] = 1] = "Undo";
+  TextDocumentChangeReason2[TextDocumentChangeReason2["Redo"] = 2] = "Redo";
+})(TextDocumentChangeReason || (TextDocumentChangeReason = {}));
+var DecorationRangeBehavior;
+(function(DecorationRangeBehavior2) {
+  DecorationRangeBehavior2[DecorationRangeBehavior2["OpenOpen"] = 0] = "OpenOpen";
+  DecorationRangeBehavior2[DecorationRangeBehavior2["ClosedClosed"] = 1] = "ClosedClosed";
+  DecorationRangeBehavior2[DecorationRangeBehavior2["OpenClosed"] = 2] = "OpenClosed";
+  DecorationRangeBehavior2[DecorationRangeBehavior2["ClosedOpen"] = 3] = "ClosedOpen";
+})(DecorationRangeBehavior || (DecorationRangeBehavior = {}));
+(function(TextEditorSelectionChangeKind2) {
+  function fromValue(s) {
+    switch (s) {
+      case "keyboard":
+        return TextEditorSelectionChangeKind2.Keyboard;
+      case "mouse":
+        return TextEditorSelectionChangeKind2.Mouse;
+      case "api":
+      case "code.jump":
+      case "code.navigation":
+        return TextEditorSelectionChangeKind2.Command;
+    }
+    return void 0;
+  }
+  __name(fromValue, "fromValue");
+  TextEditorSelectionChangeKind2.fromValue = fromValue;
+})(TextEditorSelectionChangeKind || (TextEditorSelectionChangeKind = {}));
+var SyntaxTokenType;
+(function(SyntaxTokenType2) {
+  SyntaxTokenType2[SyntaxTokenType2["Other"] = 0] = "Other";
+  SyntaxTokenType2[SyntaxTokenType2["Comment"] = 1] = "Comment";
+  SyntaxTokenType2[SyntaxTokenType2["String"] = 2] = "String";
+  SyntaxTokenType2[SyntaxTokenType2["RegEx"] = 3] = "RegEx";
+})(SyntaxTokenType || (SyntaxTokenType = {}));
+(function(SyntaxTokenType2) {
+  function toString(v) {
+    switch (v) {
+      case SyntaxTokenType2.Other:
+        return "other";
+      case SyntaxTokenType2.Comment:
+        return "comment";
+      case SyntaxTokenType2.String:
+        return "string";
+      case SyntaxTokenType2.RegEx:
+        return "regex";
+    }
+    return "other";
+  }
+  __name(toString, "toString");
+  SyntaxTokenType2.toString = toString;
+})(SyntaxTokenType || (SyntaxTokenType = {}));
+let DocumentLink = class DocumentLink2 {
+  static {
+    __name(this, "DocumentLink");
+  }
+  constructor(range, target) {
+    if (target && !URI.isUri(target)) {
+      throw illegalArgument("target");
+    }
+    if (!Range.isRange(range) || range.isEmpty) {
+      throw illegalArgument("range");
+    }
+    this.range = range;
+    this.target = target;
+  }
+};
+DocumentLink = __decorate([
+  es5ClassCompat
+], DocumentLink);
+let Color = class Color2 {
+  static {
+    __name(this, "Color");
+  }
+  constructor(red, green, blue, alpha) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+    this.alpha = alpha;
+  }
+};
+Color = __decorate([
+  es5ClassCompat
+], Color);
+let ColorInformation = class ColorInformation2 {
+  static {
+    __name(this, "ColorInformation");
+  }
+  constructor(range, color) {
+    if (color && !(color instanceof Color)) {
+      throw illegalArgument("color");
+    }
+    if (!Range.isRange(range) || range.isEmpty) {
+      throw illegalArgument("range");
+    }
+    this.range = range;
+    this.color = color;
+  }
+};
+ColorInformation = __decorate([
+  es5ClassCompat
+], ColorInformation);
+let ColorPresentation = class ColorPresentation2 {
+  static {
+    __name(this, "ColorPresentation");
+  }
+  constructor(label) {
+    if (!label || typeof label !== "string") {
+      throw illegalArgument("label");
+    }
+    this.label = label;
+  }
+};
+ColorPresentation = __decorate([
+  es5ClassCompat
+], ColorPresentation);
+var ColorFormat;
+(function(ColorFormat2) {
+  ColorFormat2[ColorFormat2["RGB"] = 0] = "RGB";
+  ColorFormat2[ColorFormat2["HEX"] = 1] = "HEX";
+  ColorFormat2[ColorFormat2["HSL"] = 2] = "HSL";
+})(ColorFormat || (ColorFormat = {}));
+var SourceControlInputBoxValidationType;
+(function(SourceControlInputBoxValidationType2) {
+  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Error"] = 0] = "Error";
+  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Warning"] = 1] = "Warning";
+  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Information"] = 2] = "Information";
+})(SourceControlInputBoxValidationType || (SourceControlInputBoxValidationType = {}));
+var TerminalExitReason;
+(function(TerminalExitReason2) {
+  TerminalExitReason2[TerminalExitReason2["Unknown"] = 0] = "Unknown";
+  TerminalExitReason2[TerminalExitReason2["Shutdown"] = 1] = "Shutdown";
+  TerminalExitReason2[TerminalExitReason2["Process"] = 2] = "Process";
+  TerminalExitReason2[TerminalExitReason2["User"] = 3] = "User";
+  TerminalExitReason2[TerminalExitReason2["Extension"] = 4] = "Extension";
+})(TerminalExitReason || (TerminalExitReason = {}));
+var TerminalShellExecutionCommandLineConfidence;
+(function(TerminalShellExecutionCommandLineConfidence2) {
+  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["Low"] = 0] = "Low";
+  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["Medium"] = 1] = "Medium";
+  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["High"] = 2] = "High";
+})(TerminalShellExecutionCommandLineConfidence || (TerminalShellExecutionCommandLineConfidence = {}));
+var TerminalShellType;
+(function(TerminalShellType2) {
+  TerminalShellType2[TerminalShellType2["Sh"] = 1] = "Sh";
+  TerminalShellType2[TerminalShellType2["Bash"] = 2] = "Bash";
+  TerminalShellType2[TerminalShellType2["Fish"] = 3] = "Fish";
+  TerminalShellType2[TerminalShellType2["Csh"] = 4] = "Csh";
+  TerminalShellType2[TerminalShellType2["Ksh"] = 5] = "Ksh";
+  TerminalShellType2[TerminalShellType2["Zsh"] = 6] = "Zsh";
+  TerminalShellType2[TerminalShellType2["CommandPrompt"] = 7] = "CommandPrompt";
+  TerminalShellType2[TerminalShellType2["GitBash"] = 8] = "GitBash";
+  TerminalShellType2[TerminalShellType2["PowerShell"] = 9] = "PowerShell";
+  TerminalShellType2[TerminalShellType2["Python"] = 10] = "Python";
+  TerminalShellType2[TerminalShellType2["Julia"] = 11] = "Julia";
+  TerminalShellType2[TerminalShellType2["NuShell"] = 12] = "NuShell";
+  TerminalShellType2[TerminalShellType2["Node"] = 13] = "Node";
+  TerminalShellType2[TerminalShellType2["Xonsh"] = 14] = "Xonsh";
+})(TerminalShellType || (TerminalShellType = {}));
+class TerminalLink {
+  static {
+    __name(this, "TerminalLink");
+  }
+  constructor(startIndex, length, tooltip) {
+    this.startIndex = startIndex;
+    this.length = length;
+    this.tooltip = tooltip;
+    if (typeof startIndex !== "number" || startIndex < 0) {
+      throw illegalArgument("startIndex");
+    }
+    if (typeof length !== "number" || length < 1) {
+      throw illegalArgument("length");
+    }
+    if (tooltip !== void 0 && typeof tooltip !== "string") {
+      throw illegalArgument("tooltip");
+    }
+  }
+}
+class TerminalQuickFixOpener {
+  static {
+    __name(this, "TerminalQuickFixOpener");
+  }
+  constructor(uri) {
+    this.uri = uri;
+  }
+}
+class TerminalQuickFixCommand {
+  static {
+    __name(this, "TerminalQuickFixCommand");
+  }
+  constructor(terminalCommand) {
+    this.terminalCommand = terminalCommand;
+  }
+}
+var TerminalLocation;
+(function(TerminalLocation2) {
+  TerminalLocation2[TerminalLocation2["Panel"] = 1] = "Panel";
+  TerminalLocation2[TerminalLocation2["Editor"] = 2] = "Editor";
+})(TerminalLocation || (TerminalLocation = {}));
+class TerminalProfile {
+  static {
+    __name(this, "TerminalProfile");
+  }
+  constructor(options) {
+    this.options = options;
+    if (typeof options !== "object") {
+      throw illegalArgument("options");
+    }
+  }
+}
+var TerminalCompletionItemKind;
+(function(TerminalCompletionItemKind2) {
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["File"] = 0] = "File";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Folder"] = 1] = "Folder";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Method"] = 2] = "Method";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Alias"] = 3] = "Alias";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Argument"] = 4] = "Argument";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Option"] = 5] = "Option";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["OptionValue"] = 6] = "OptionValue";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Flag"] = 7] = "Flag";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["SymbolicLinkFile"] = 8] = "SymbolicLinkFile";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["SymbolicLinkFolder"] = 9] = "SymbolicLinkFolder";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["ScmCommit"] = 10] = "ScmCommit";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["ScmBranch"] = 11] = "ScmBranch";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["ScmTag"] = 12] = "ScmTag";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["ScmStash"] = 13] = "ScmStash";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["ScmRemote"] = 14] = "ScmRemote";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["PullRequest"] = 15] = "PullRequest";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["PullRequestDone"] = 16] = "PullRequestDone";
+})(TerminalCompletionItemKind || (TerminalCompletionItemKind = {}));
+class TerminalCompletionItem {
+  static {
+    __name(this, "TerminalCompletionItem");
+  }
+  constructor(label, replacementRange, kind, detail, documentation, isFile, isDirectory, isKeyword) {
+    this.label = label;
+    this.replacementRange = replacementRange;
+    this.kind = kind;
+    this.detail = detail;
+    this.documentation = documentation;
+    this.isFile = isFile;
+    this.isDirectory = isDirectory;
+    this.isKeyword = isKeyword;
+  }
+}
+class TerminalCompletionList {
+  static {
+    __name(this, "TerminalCompletionList");
+  }
+  /**
+   * Creates a new completion list.
+   *
+   * @param items The completion items.
+   * @param isIncomplete The list is not complete.
+   */
+  constructor(items, resourceOptions) {
+    this.items = items ?? [];
+    this.resourceOptions = resourceOptions;
+  }
+}
+var TaskRevealKind;
+(function(TaskRevealKind2) {
+  TaskRevealKind2[TaskRevealKind2["Always"] = 1] = "Always";
+  TaskRevealKind2[TaskRevealKind2["Silent"] = 2] = "Silent";
+  TaskRevealKind2[TaskRevealKind2["Never"] = 3] = "Never";
+})(TaskRevealKind || (TaskRevealKind = {}));
+var TaskEventKind;
+(function(TaskEventKind2) {
+  TaskEventKind2["Changed"] = "changed";
+  TaskEventKind2["ProcessStarted"] = "processStarted";
+  TaskEventKind2["ProcessEnded"] = "processEnded";
+  TaskEventKind2["Terminated"] = "terminated";
+  TaskEventKind2["Start"] = "start";
+  TaskEventKind2["AcquiredInput"] = "acquiredInput";
+  TaskEventKind2["DependsOnStarted"] = "dependsOnStarted";
+  TaskEventKind2["Active"] = "active";
+  TaskEventKind2["Inactive"] = "inactive";
+  TaskEventKind2["End"] = "end";
+  TaskEventKind2["ProblemMatcherStarted"] = "problemMatcherStarted";
+  TaskEventKind2["ProblemMatcherEnded"] = "problemMatcherEnded";
+  TaskEventKind2["ProblemMatcherFoundErrors"] = "problemMatcherFoundErrors";
+})(TaskEventKind || (TaskEventKind = {}));
+var TaskPanelKind;
+(function(TaskPanelKind2) {
+  TaskPanelKind2[TaskPanelKind2["Shared"] = 1] = "Shared";
+  TaskPanelKind2[TaskPanelKind2["Dedicated"] = 2] = "Dedicated";
+  TaskPanelKind2[TaskPanelKind2["New"] = 3] = "New";
+})(TaskPanelKind || (TaskPanelKind = {}));
+let TaskGroup = class TaskGroup2 {
+  static {
+    __name(this, "TaskGroup");
+  }
+  static {
+    TaskGroup_1 = this;
+  }
+  static {
+    this.Clean = new TaskGroup_1("clean", "Clean");
+  }
+  static {
+    this.Build = new TaskGroup_1("build", "Build");
+  }
+  static {
+    this.Rebuild = new TaskGroup_1("rebuild", "Rebuild");
+  }
+  static {
+    this.Test = new TaskGroup_1("test", "Test");
+  }
+  static from(value) {
+    switch (value) {
+      case "clean":
+        return TaskGroup_1.Clean;
+      case "build":
+        return TaskGroup_1.Build;
+      case "rebuild":
+        return TaskGroup_1.Rebuild;
+      case "test":
+        return TaskGroup_1.Test;
+      default:
+        return void 0;
+    }
+  }
+  constructor(id, label) {
+    this.label = label;
+    if (typeof id !== "string") {
+      throw illegalArgument("name");
+    }
+    if (typeof label !== "string") {
+      throw illegalArgument("name");
+    }
+    this._id = id;
+  }
+  get id() {
+    return this._id;
+  }
+};
+TaskGroup = TaskGroup_1 = __decorate([
+  es5ClassCompat
+], TaskGroup);
+function computeTaskExecutionId(values) {
+  let id = "";
+  for (let i = 0; i < values.length; i++) {
+    id += values[i].replace(/,/g, ",,") + ",";
+  }
+  return id;
+}
+__name(computeTaskExecutionId, "computeTaskExecutionId");
+let ProcessExecution = class ProcessExecution2 {
+  static {
+    __name(this, "ProcessExecution");
+  }
+  constructor(process, varg1, varg2) {
+    if (typeof process !== "string") {
+      throw illegalArgument("process");
+    }
+    this._args = [];
+    this._process = process;
+    if (varg1 !== void 0) {
+      if (Array.isArray(varg1)) {
+        this._args = varg1;
+        this._options = varg2;
+      } else {
+        this._options = varg1;
+      }
+    }
+  }
+  get process() {
+    return this._process;
+  }
+  set process(value) {
+    if (typeof value !== "string") {
+      throw illegalArgument("process");
+    }
+    this._process = value;
+  }
+  get args() {
+    return this._args;
+  }
+  set args(value) {
+    if (!Array.isArray(value)) {
+      value = [];
+    }
+    this._args = value;
+  }
+  get options() {
+    return this._options;
+  }
+  set options(value) {
+    this._options = value;
+  }
+  computeId() {
+    const props = [];
+    props.push("process");
+    if (this._process !== void 0) {
+      props.push(this._process);
+    }
+    if (this._args && this._args.length > 0) {
+      for (const arg of this._args) {
+        props.push(arg);
+      }
+    }
+    return computeTaskExecutionId(props);
+  }
+};
+ProcessExecution = __decorate([
+  es5ClassCompat
+], ProcessExecution);
+let ShellExecution = class ShellExecution2 {
+  static {
+    __name(this, "ShellExecution");
+  }
+  constructor(arg0, arg1, arg2) {
+    this._args = [];
+    if (Array.isArray(arg1)) {
+      if (!arg0) {
+        throw illegalArgument("command can't be undefined or null");
+      }
+      if (typeof arg0 !== "string" && typeof arg0.value !== "string") {
+        throw illegalArgument("command");
+      }
+      this._command = arg0;
+      if (arg1) {
+        this._args = arg1;
+      }
+      this._options = arg2;
+    } else {
+      if (typeof arg0 !== "string") {
+        throw illegalArgument("commandLine");
+      }
+      this._commandLine = arg0;
+      this._options = arg1;
+    }
+  }
+  get commandLine() {
+    return this._commandLine;
+  }
+  set commandLine(value) {
+    if (typeof value !== "string") {
+      throw illegalArgument("commandLine");
+    }
+    this._commandLine = value;
+  }
+  get command() {
+    return this._command ? this._command : "";
+  }
+  set command(value) {
+    if (typeof value !== "string" && typeof value.value !== "string") {
+      throw illegalArgument("command");
+    }
+    this._command = value;
+  }
+  get args() {
+    return this._args;
+  }
+  set args(value) {
+    this._args = value || [];
+  }
+  get options() {
+    return this._options;
+  }
+  set options(value) {
+    this._options = value;
+  }
+  computeId() {
+    const props = [];
+    props.push("shell");
+    if (this._commandLine !== void 0) {
+      props.push(this._commandLine);
+    }
+    if (this._command !== void 0) {
+      props.push(typeof this._command === "string" ? this._command : this._command.value);
+    }
+    if (this._args && this._args.length > 0) {
+      for (const arg of this._args) {
+        props.push(typeof arg === "string" ? arg : arg.value);
+      }
+    }
+    return computeTaskExecutionId(props);
+  }
+};
+ShellExecution = __decorate([
+  es5ClassCompat
+], ShellExecution);
+var ShellQuoting;
+(function(ShellQuoting2) {
+  ShellQuoting2[ShellQuoting2["Escape"] = 1] = "Escape";
+  ShellQuoting2[ShellQuoting2["Strong"] = 2] = "Strong";
+  ShellQuoting2[ShellQuoting2["Weak"] = 3] = "Weak";
+})(ShellQuoting || (ShellQuoting = {}));
+var TaskScope;
+(function(TaskScope2) {
+  TaskScope2[TaskScope2["Global"] = 1] = "Global";
+  TaskScope2[TaskScope2["Workspace"] = 2] = "Workspace";
+})(TaskScope || (TaskScope = {}));
+class CustomExecution {
+  static {
+    __name(this, "CustomExecution");
+  }
+  constructor(callback) {
+    this._callback = callback;
+  }
+  computeId() {
+    return "customExecution" + generateUuid();
+  }
+  set callback(value) {
+    this._callback = value;
+  }
+  get callback() {
+    return this._callback;
+  }
+}
+let Task = class Task2 {
+  static {
+    __name(this, "Task");
+  }
+  static {
+    Task_1 = this;
+  }
+  static {
+    this.ExtensionCallbackType = "customExecution";
+  }
+  static {
+    this.ProcessType = "process";
+  }
+  static {
+    this.ShellType = "shell";
+  }
+  static {
+    this.EmptyType = "$empty";
+  }
+  constructor(definition, arg2, arg3, arg4, arg5, arg6) {
+    this.__deprecated = false;
+    this._definition = this.definition = definition;
+    let problemMatchers;
+    if (typeof arg2 === "string") {
+      this._name = this.name = arg2;
+      this._source = this.source = arg3;
+      this.execution = arg4;
+      problemMatchers = arg5;
+      this.__deprecated = true;
+    } else if (arg2 === TaskScope.Global || arg2 === TaskScope.Workspace) {
+      this.target = arg2;
+      this._name = this.name = arg3;
+      this._source = this.source = arg4;
+      this.execution = arg5;
+      problemMatchers = arg6;
+    } else {
+      this.target = arg2;
+      this._name = this.name = arg3;
+      this._source = this.source = arg4;
+      this.execution = arg5;
+      problemMatchers = arg6;
+    }
+    if (typeof problemMatchers === "string") {
+      this._problemMatchers = [problemMatchers];
+      this._hasDefinedMatchers = true;
+    } else if (Array.isArray(problemMatchers)) {
+      this._problemMatchers = problemMatchers;
+      this._hasDefinedMatchers = true;
+    } else {
+      this._problemMatchers = [];
+      this._hasDefinedMatchers = false;
+    }
+    this._isBackground = false;
+    this._presentationOptions = /* @__PURE__ */ Object.create(null);
+    this._runOptions = /* @__PURE__ */ Object.create(null);
+  }
+  get _id() {
+    return this.__id;
+  }
+  set _id(value) {
+    this.__id = value;
+  }
+  get _deprecated() {
+    return this.__deprecated;
+  }
+  clear() {
+    if (this.__id === void 0) {
+      return;
+    }
+    this.__id = void 0;
+    this._scope = void 0;
+    this.computeDefinitionBasedOnExecution();
+  }
+  computeDefinitionBasedOnExecution() {
+    if (this._execution instanceof ProcessExecution) {
+      this._definition = {
+        type: Task_1.ProcessType,
+        id: this._execution.computeId()
+      };
+    } else if (this._execution instanceof ShellExecution) {
+      this._definition = {
+        type: Task_1.ShellType,
+        id: this._execution.computeId()
+      };
+    } else if (this._execution instanceof CustomExecution) {
+      this._definition = {
+        type: Task_1.ExtensionCallbackType,
+        id: this._execution.computeId()
+      };
+    } else {
+      this._definition = {
+        type: Task_1.EmptyType,
+        id: generateUuid()
+      };
+    }
+  }
+  get definition() {
+    return this._definition;
+  }
+  set definition(value) {
+    if (value === void 0 || value === null) {
+      throw illegalArgument("Kind can't be undefined or null");
+    }
+    this.clear();
+    this._definition = value;
+  }
+  get scope() {
+    return this._scope;
+  }
+  set target(value) {
+    this.clear();
+    this._scope = value;
+  }
+  get name() {
+    return this._name;
+  }
+  set name(value) {
+    if (typeof value !== "string") {
+      throw illegalArgument("name");
+    }
+    this.clear();
+    this._name = value;
+  }
+  get execution() {
+    return this._execution;
+  }
+  set execution(value) {
+    if (value === null) {
+      value = void 0;
+    }
+    this.clear();
+    this._execution = value;
+    const type = this._definition.type;
+    if (Task_1.EmptyType === type || Task_1.ProcessType === type || Task_1.ShellType === type || Task_1.ExtensionCallbackType === type) {
+      this.computeDefinitionBasedOnExecution();
+    }
+  }
+  get problemMatchers() {
+    return this._problemMatchers;
+  }
+  set problemMatchers(value) {
+    if (!Array.isArray(value)) {
+      this.clear();
+      this._problemMatchers = [];
+      this._hasDefinedMatchers = false;
+      return;
+    } else {
+      this.clear();
+      this._problemMatchers = value;
+      this._hasDefinedMatchers = true;
+    }
+  }
+  get hasDefinedMatchers() {
+    return this._hasDefinedMatchers;
+  }
+  get isBackground() {
+    return this._isBackground;
+  }
+  set isBackground(value) {
+    if (value !== true && value !== false) {
+      value = false;
+    }
+    this.clear();
+    this._isBackground = value;
+  }
+  get source() {
+    return this._source;
+  }
+  set source(value) {
+    if (typeof value !== "string" || value.length === 0) {
+      throw illegalArgument("source must be a string of length > 0");
+    }
+    this.clear();
+    this._source = value;
+  }
+  get group() {
+    return this._group;
+  }
+  set group(value) {
+    if (value === null) {
+      value = void 0;
+    }
+    this.clear();
+    this._group = value;
+  }
+  get detail() {
+    return this._detail;
+  }
+  set detail(value) {
+    if (value === null) {
+      value = void 0;
+    }
+    this._detail = value;
+  }
+  get presentationOptions() {
+    return this._presentationOptions;
+  }
+  set presentationOptions(value) {
+    if (value === null || value === void 0) {
+      value = /* @__PURE__ */ Object.create(null);
+    }
+    this.clear();
+    this._presentationOptions = value;
+  }
+  get runOptions() {
+    return this._runOptions;
+  }
+  set runOptions(value) {
+    if (value === null || value === void 0) {
+      value = /* @__PURE__ */ Object.create(null);
+    }
+    this.clear();
+    this._runOptions = value;
+  }
+};
+Task = Task_1 = __decorate([
+  es5ClassCompat
+], Task);
+var ProgressLocation;
+(function(ProgressLocation2) {
+  ProgressLocation2[ProgressLocation2["SourceControl"] = 1] = "SourceControl";
+  ProgressLocation2[ProgressLocation2["Window"] = 10] = "Window";
+  ProgressLocation2[ProgressLocation2["Notification"] = 15] = "Notification";
+})(ProgressLocation || (ProgressLocation = {}));
+var ViewBadge;
+(function(ViewBadge2) {
+  function isViewBadge(thing) {
+    const viewBadgeThing = thing;
+    if (!isNumber(viewBadgeThing.value)) {
+      console.log("INVALID view badge, invalid value", viewBadgeThing.value);
+      return false;
+    }
+    if (viewBadgeThing.tooltip && !isString(viewBadgeThing.tooltip)) {
+      console.log("INVALID view badge, invalid tooltip", viewBadgeThing.tooltip);
+      return false;
+    }
+    return true;
+  }
+  __name(isViewBadge, "isViewBadge");
+  ViewBadge2.isViewBadge = isViewBadge;
+})(ViewBadge || (ViewBadge = {}));
+let TreeItem = TreeItem_1 = class TreeItem2 {
+  static {
+    __name(this, "TreeItem");
+  }
+  static isTreeItem(thing, extension) {
+    const treeItemThing = thing;
+    if (treeItemThing.checkboxState !== void 0) {
+      const checkbox = isNumber(treeItemThing.checkboxState) ? treeItemThing.checkboxState : isObject(treeItemThing.checkboxState) && isNumber(treeItemThing.checkboxState.state) ? treeItemThing.checkboxState.state : void 0;
+      const tooltip = !isNumber(treeItemThing.checkboxState) && isObject(treeItemThing.checkboxState) ? treeItemThing.checkboxState.tooltip : void 0;
+      if (checkbox === void 0 || checkbox !== TreeItemCheckboxState.Checked && checkbox !== TreeItemCheckboxState.Unchecked || tooltip !== void 0 && !isString(tooltip)) {
+        console.log("INVALID tree item, invalid checkboxState", treeItemThing.checkboxState);
+        return false;
+      }
+    }
+    if (thing instanceof TreeItem_1) {
+      return true;
+    }
+    if (treeItemThing.label !== void 0 && !isString(treeItemThing.label) && !treeItemThing.label?.label) {
+      console.log("INVALID tree item, invalid label", treeItemThing.label);
+      return false;
+    }
+    if (treeItemThing.id !== void 0 && !isString(treeItemThing.id)) {
+      console.log("INVALID tree item, invalid id", treeItemThing.id);
+      return false;
+    }
+    if (treeItemThing.iconPath !== void 0 && !isString(treeItemThing.iconPath) && !URI.isUri(treeItemThing.iconPath) && (!treeItemThing.iconPath || !isString(treeItemThing.iconPath.id))) {
+      const asLightAndDarkThing = treeItemThing.iconPath;
+      if (!asLightAndDarkThing || !isString(asLightAndDarkThing.light) && !URI.isUri(asLightAndDarkThing.light) && !isString(asLightAndDarkThing.dark) && !URI.isUri(asLightAndDarkThing.dark)) {
+        console.log("INVALID tree item, invalid iconPath", treeItemThing.iconPath);
+        return false;
+      }
+    }
+    if (treeItemThing.description !== void 0 && !isString(treeItemThing.description) && typeof treeItemThing.description !== "boolean") {
+      console.log("INVALID tree item, invalid description", treeItemThing.description);
+      return false;
+    }
+    if (treeItemThing.resourceUri !== void 0 && !URI.isUri(treeItemThing.resourceUri)) {
+      console.log("INVALID tree item, invalid resourceUri", treeItemThing.resourceUri);
+      return false;
+    }
+    if (treeItemThing.tooltip !== void 0 && !isString(treeItemThing.tooltip) && !(treeItemThing.tooltip instanceof MarkdownString)) {
+      console.log("INVALID tree item, invalid tooltip", treeItemThing.tooltip);
+      return false;
+    }
+    if (treeItemThing.command !== void 0 && !treeItemThing.command.command) {
+      console.log("INVALID tree item, invalid command", treeItemThing.command);
+      return false;
+    }
+    if (treeItemThing.collapsibleState !== void 0 && treeItemThing.collapsibleState < TreeItemCollapsibleState.None && treeItemThing.collapsibleState > TreeItemCollapsibleState.Expanded) {
+      console.log("INVALID tree item, invalid collapsibleState", treeItemThing.collapsibleState);
+      return false;
+    }
+    if (treeItemThing.contextValue !== void 0 && !isString(treeItemThing.contextValue)) {
+      console.log("INVALID tree item, invalid contextValue", treeItemThing.contextValue);
+      return false;
+    }
+    if (treeItemThing.accessibilityInformation !== void 0 && !treeItemThing.accessibilityInformation?.label) {
+      console.log("INVALID tree item, invalid accessibilityInformation", treeItemThing.accessibilityInformation);
+      return false;
+    }
+    return true;
+  }
+  constructor(arg1, collapsibleState = TreeItemCollapsibleState.None) {
+    this.collapsibleState = collapsibleState;
+    if (URI.isUri(arg1)) {
+      this.resourceUri = arg1;
+    } else {
+      this.label = arg1;
+    }
+  }
+};
+TreeItem = TreeItem_1 = __decorate([
+  es5ClassCompat
+], TreeItem);
+var TreeItemCollapsibleState;
+(function(TreeItemCollapsibleState2) {
+  TreeItemCollapsibleState2[TreeItemCollapsibleState2["None"] = 0] = "None";
+  TreeItemCollapsibleState2[TreeItemCollapsibleState2["Collapsed"] = 1] = "Collapsed";
+  TreeItemCollapsibleState2[TreeItemCollapsibleState2["Expanded"] = 2] = "Expanded";
+})(TreeItemCollapsibleState || (TreeItemCollapsibleState = {}));
+var TreeItemCheckboxState;
+(function(TreeItemCheckboxState2) {
+  TreeItemCheckboxState2[TreeItemCheckboxState2["Unchecked"] = 0] = "Unchecked";
+  TreeItemCheckboxState2[TreeItemCheckboxState2["Checked"] = 1] = "Checked";
+})(TreeItemCheckboxState || (TreeItemCheckboxState = {}));
+let DataTransferItem = class DataTransferItem2 {
+  static {
+    __name(this, "DataTransferItem");
+  }
+  async asString() {
+    return typeof this.value === "string" ? this.value : JSON.stringify(this.value);
+  }
+  asFile() {
+    return void 0;
+  }
+  constructor(value) {
+    this.value = value;
+  }
+};
+DataTransferItem = __decorate([
+  es5ClassCompat
+], DataTransferItem);
+class InternalDataTransferItem extends DataTransferItem {
+  static {
+    __name(this, "InternalDataTransferItem");
+  }
+}
+class InternalFileDataTransferItem extends InternalDataTransferItem {
+  static {
+    __name(this, "InternalFileDataTransferItem");
+  }
+  #file;
+  constructor(file) {
+    super("");
+    this.#file = file;
+  }
+  asFile() {
+    return this.#file;
+  }
+}
+class DataTransferFile {
+  static {
+    __name(this, "DataTransferFile");
+  }
+  constructor(name, uri, itemId, getData) {
+    this.name = name;
+    this.uri = uri;
+    this._itemId = itemId;
+    this._getData = getData;
+  }
+  data() {
+    return this._getData();
+  }
+}
+let DataTransfer = class DataTransfer2 {
+  static {
+    __name(this, "DataTransfer");
+  }
+  #items = /* @__PURE__ */ new Map();
+  constructor(init) {
+    for (const [mime, item] of init ?? []) {
+      const existing = this.#items.get(this.#normalizeMime(mime));
+      if (existing) {
+        existing.push(item);
+      } else {
+        this.#items.set(this.#normalizeMime(mime), [item]);
+      }
+    }
+  }
+  get(mimeType) {
+    return this.#items.get(this.#normalizeMime(mimeType))?.[0];
+  }
+  set(mimeType, value) {
+    this.#items.set(this.#normalizeMime(mimeType), [value]);
+  }
+  forEach(callbackfn, thisArg) {
+    for (const [mime, items] of this.#items) {
+      for (const item of items) {
+        callbackfn.call(thisArg, item, mime, this);
+      }
+    }
+  }
+  *[Symbol.iterator]() {
+    for (const [mime, items] of this.#items) {
+      for (const item of items) {
+        yield [mime, item];
+      }
+    }
+  }
+  #normalizeMime(mimeType) {
+    return mimeType.toLowerCase();
+  }
+};
+DataTransfer = __decorate([
+  es5ClassCompat
+], DataTransfer);
+let DocumentDropEdit = class DocumentDropEdit2 {
+  static {
+    __name(this, "DocumentDropEdit");
+  }
+  constructor(insertText, title, kind) {
+    this.insertText = insertText;
+    this.title = title;
+    this.kind = kind;
+  }
+};
+DocumentDropEdit = __decorate([
+  es5ClassCompat
+], DocumentDropEdit);
+var DocumentPasteTriggerKind;
+(function(DocumentPasteTriggerKind2) {
+  DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["Automatic"] = 0] = "Automatic";
+  DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["PasteAs"] = 1] = "PasteAs";
+})(DocumentPasteTriggerKind || (DocumentPasteTriggerKind = {}));
+class DocumentDropOrPasteEditKind {
+  static {
+    __name(this, "DocumentDropOrPasteEditKind");
+  }
+  static {
+    this.sep = ".";
+  }
+  constructor(value) {
+    this.value = value;
+  }
+  append(...parts) {
+    return new DocumentDropOrPasteEditKind((this.value ? [this.value, ...parts] : parts).join(DocumentDropOrPasteEditKind.sep));
+  }
+  intersects(other) {
+    return this.contains(other) || other.contains(this);
+  }
+  contains(other) {
+    return this.value === other.value || other.value.startsWith(this.value + DocumentDropOrPasteEditKind.sep);
+  }
+}
+DocumentDropOrPasteEditKind.Empty = new DocumentDropOrPasteEditKind("");
+DocumentDropOrPasteEditKind.Text = new DocumentDropOrPasteEditKind("text");
+DocumentDropOrPasteEditKind.TextUpdateImports = DocumentDropOrPasteEditKind.Text.append("updateImports");
+class DocumentPasteEdit {
+  static {
+    __name(this, "DocumentPasteEdit");
+  }
+  constructor(insertText, title, kind) {
+    this.title = title;
+    this.insertText = insertText;
+    this.kind = kind;
+  }
+}
+let ThemeIcon = class ThemeIcon2 {
+  static {
+    __name(this, "ThemeIcon");
+  }
+  constructor(id, color) {
+    this.id = id;
+    this.color = color;
+  }
+  static isThemeIcon(thing) {
+    if (typeof thing.id !== "string") {
+      console.log("INVALID ThemeIcon, invalid id", thing.id);
+      return false;
+    }
+    return true;
+  }
+};
+ThemeIcon = __decorate([
+  es5ClassCompat
+], ThemeIcon);
+ThemeIcon.File = new ThemeIcon("file");
+ThemeIcon.Folder = new ThemeIcon("folder");
+let ThemeColor = class ThemeColor2 {
+  static {
+    __name(this, "ThemeColor");
+  }
+  constructor(id) {
+    this.id = id;
+  }
+};
+ThemeColor = __decorate([
+  es5ClassCompat
+], ThemeColor);
+var ConfigurationTarget;
+(function(ConfigurationTarget2) {
+  ConfigurationTarget2[ConfigurationTarget2["Global"] = 1] = "Global";
+  ConfigurationTarget2[ConfigurationTarget2["Workspace"] = 2] = "Workspace";
+  ConfigurationTarget2[ConfigurationTarget2["WorkspaceFolder"] = 3] = "WorkspaceFolder";
+})(ConfigurationTarget || (ConfigurationTarget = {}));
+let RelativePattern = class RelativePattern2 {
+  static {
+    __name(this, "RelativePattern");
+  }
+  get base() {
+    return this._base;
+  }
+  set base(base) {
+    this._base = base;
+    this._baseUri = URI.file(base);
+  }
+  get baseUri() {
+    return this._baseUri;
+  }
+  set baseUri(baseUri) {
+    this._baseUri = baseUri;
+    this._base = baseUri.fsPath;
+  }
+  constructor(base, pattern) {
+    if (typeof base !== "string") {
+      if (!base || !URI.isUri(base) && !URI.isUri(base.uri)) {
+        throw illegalArgument("base");
+      }
+    }
+    if (typeof pattern !== "string") {
+      throw illegalArgument("pattern");
+    }
+    if (typeof base === "string") {
+      this.baseUri = URI.file(base);
+    } else if (URI.isUri(base)) {
+      this.baseUri = base;
+    } else {
+      this.baseUri = base.uri;
+    }
+    this.pattern = pattern;
+  }
+  toJSON() {
+    return {
+      pattern: this.pattern,
+      base: this.base,
+      baseUri: this.baseUri.toJSON()
+    };
+  }
+};
+RelativePattern = __decorate([
+  es5ClassCompat
+], RelativePattern);
+const breakpointIds = /* @__PURE__ */ new WeakMap();
+function setBreakpointId(bp, id) {
+  breakpointIds.set(bp, id);
+}
+__name(setBreakpointId, "setBreakpointId");
+let Breakpoint = class Breakpoint2 {
+  static {
+    __name(this, "Breakpoint");
+  }
+  constructor(enabled, condition, hitCondition, logMessage, mode) {
+    this.enabled = typeof enabled === "boolean" ? enabled : true;
+    if (typeof condition === "string") {
+      this.condition = condition;
+    }
+    if (typeof hitCondition === "string") {
+      this.hitCondition = hitCondition;
+    }
+    if (typeof logMessage === "string") {
+      this.logMessage = logMessage;
+    }
+    if (typeof mode === "string") {
+      this.mode = mode;
+    }
+  }
+  get id() {
+    if (!this._id) {
+      this._id = breakpointIds.get(this) ?? generateUuid();
+    }
+    return this._id;
+  }
+};
+Breakpoint = __decorate([
+  es5ClassCompat
+], Breakpoint);
+let SourceBreakpoint = class SourceBreakpoint2 extends Breakpoint {
+  static {
+    __name(this, "SourceBreakpoint");
+  }
+  constructor(location, enabled, condition, hitCondition, logMessage, mode) {
+    super(enabled, condition, hitCondition, logMessage, mode);
+    if (location === null) {
+      throw illegalArgument("location");
+    }
+    this.location = location;
+  }
+};
+SourceBreakpoint = __decorate([
+  es5ClassCompat
+], SourceBreakpoint);
+let FunctionBreakpoint = class FunctionBreakpoint2 extends Breakpoint {
+  static {
+    __name(this, "FunctionBreakpoint");
+  }
+  constructor(functionName, enabled, condition, hitCondition, logMessage, mode) {
+    super(enabled, condition, hitCondition, logMessage, mode);
+    this.functionName = functionName;
+  }
+};
+FunctionBreakpoint = __decorate([
+  es5ClassCompat
+], FunctionBreakpoint);
+let DataBreakpoint = class DataBreakpoint2 extends Breakpoint {
+  static {
+    __name(this, "DataBreakpoint");
+  }
+  constructor(label, dataId, canPersist, enabled, condition, hitCondition, logMessage, mode) {
+    super(enabled, condition, hitCondition, logMessage, mode);
+    if (!dataId) {
+      throw illegalArgument("dataId");
+    }
+    this.label = label;
+    this.dataId = dataId;
+    this.canPersist = canPersist;
+  }
+};
+DataBreakpoint = __decorate([
+  es5ClassCompat
+], DataBreakpoint);
+let DebugAdapterExecutable = class DebugAdapterExecutable2 {
+  static {
+    __name(this, "DebugAdapterExecutable");
+  }
+  constructor(command, args, options) {
+    this.command = command;
+    this.args = args || [];
+    this.options = options;
+  }
+};
+DebugAdapterExecutable = __decorate([
+  es5ClassCompat
+], DebugAdapterExecutable);
+let DebugAdapterServer = class DebugAdapterServer2 {
+  static {
+    __name(this, "DebugAdapterServer");
+  }
+  constructor(port, host) {
+    this.port = port;
+    this.host = host;
+  }
+};
+DebugAdapterServer = __decorate([
+  es5ClassCompat
+], DebugAdapterServer);
+let DebugAdapterNamedPipeServer = class DebugAdapterNamedPipeServer2 {
+  static {
+    __name(this, "DebugAdapterNamedPipeServer");
+  }
+  constructor(path) {
+    this.path = path;
+  }
+};
+DebugAdapterNamedPipeServer = __decorate([
+  es5ClassCompat
+], DebugAdapterNamedPipeServer);
+let DebugAdapterInlineImplementation = class DebugAdapterInlineImplementation2 {
+  static {
+    __name(this, "DebugAdapterInlineImplementation");
+  }
+  constructor(impl) {
+    this.implementation = impl;
+  }
+};
+DebugAdapterInlineImplementation = __decorate([
+  es5ClassCompat
+], DebugAdapterInlineImplementation);
+class DebugStackFrame {
+  static {
+    __name(this, "DebugStackFrame");
+  }
+  constructor(session, threadId, frameId) {
+    this.session = session;
+    this.threadId = threadId;
+    this.frameId = frameId;
+  }
+}
+class DebugThread {
+  static {
+    __name(this, "DebugThread");
+  }
+  constructor(session, threadId) {
+    this.session = session;
+    this.threadId = threadId;
+  }
+}
+let EvaluatableExpression = class EvaluatableExpression2 {
+  static {
+    __name(this, "EvaluatableExpression");
+  }
+  constructor(range, expression) {
+    this.range = range;
+    this.expression = expression;
+  }
+};
+EvaluatableExpression = __decorate([
+  es5ClassCompat
+], EvaluatableExpression);
+var InlineCompletionTriggerKind;
+(function(InlineCompletionTriggerKind2) {
+  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Invoke"] = 0] = "Invoke";
+  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Automatic"] = 1] = "Automatic";
+})(InlineCompletionTriggerKind || (InlineCompletionTriggerKind = {}));
+var InlineCompletionsDisposeReasonKind;
+(function(InlineCompletionsDisposeReasonKind2) {
+  InlineCompletionsDisposeReasonKind2[InlineCompletionsDisposeReasonKind2["Other"] = 0] = "Other";
+  InlineCompletionsDisposeReasonKind2[InlineCompletionsDisposeReasonKind2["Empty"] = 1] = "Empty";
+  InlineCompletionsDisposeReasonKind2[InlineCompletionsDisposeReasonKind2["TokenCancellation"] = 2] = "TokenCancellation";
+  InlineCompletionsDisposeReasonKind2[InlineCompletionsDisposeReasonKind2["LostRace"] = 3] = "LostRace";
+  InlineCompletionsDisposeReasonKind2[InlineCompletionsDisposeReasonKind2["NotTaken"] = 4] = "NotTaken";
+})(InlineCompletionsDisposeReasonKind || (InlineCompletionsDisposeReasonKind = {}));
+let InlineValueText = class InlineValueText2 {
+  static {
+    __name(this, "InlineValueText");
+  }
+  constructor(range, text) {
+    this.range = range;
+    this.text = text;
+  }
+};
+InlineValueText = __decorate([
+  es5ClassCompat
+], InlineValueText);
+let InlineValueVariableLookup = class InlineValueVariableLookup2 {
+  static {
+    __name(this, "InlineValueVariableLookup");
+  }
+  constructor(range, variableName, caseSensitiveLookup = true) {
+    this.range = range;
+    this.variableName = variableName;
+    this.caseSensitiveLookup = caseSensitiveLookup;
+  }
+};
+InlineValueVariableLookup = __decorate([
+  es5ClassCompat
+], InlineValueVariableLookup);
+let InlineValueEvaluatableExpression = class InlineValueEvaluatableExpression2 {
+  static {
+    __name(this, "InlineValueEvaluatableExpression");
+  }
+  constructor(range, expression) {
+    this.range = range;
+    this.expression = expression;
+  }
+};
+InlineValueEvaluatableExpression = __decorate([
+  es5ClassCompat
+], InlineValueEvaluatableExpression);
+let InlineValueContext = class InlineValueContext2 {
+  static {
+    __name(this, "InlineValueContext");
+  }
+  constructor(frameId, range) {
+    this.frameId = frameId;
+    this.stoppedLocation = range;
+  }
+};
+InlineValueContext = __decorate([
+  es5ClassCompat
+], InlineValueContext);
+var NewSymbolNameTag;
+(function(NewSymbolNameTag2) {
+  NewSymbolNameTag2[NewSymbolNameTag2["AIGenerated"] = 1] = "AIGenerated";
+})(NewSymbolNameTag || (NewSymbolNameTag = {}));
+var NewSymbolNameTriggerKind;
+(function(NewSymbolNameTriggerKind2) {
+  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Invoke"] = 0] = "Invoke";
+  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Automatic"] = 1] = "Automatic";
+})(NewSymbolNameTriggerKind || (NewSymbolNameTriggerKind = {}));
+class NewSymbolName {
+  static {
+    __name(this, "NewSymbolName");
+  }
+  constructor(newSymbolName, tags) {
+    this.newSymbolName = newSymbolName;
+    this.tags = tags;
+  }
+}
+var FileChangeType;
+(function(FileChangeType2) {
+  FileChangeType2[FileChangeType2["Changed"] = 1] = "Changed";
+  FileChangeType2[FileChangeType2["Created"] = 2] = "Created";
+  FileChangeType2[FileChangeType2["Deleted"] = 3] = "Deleted";
+})(FileChangeType || (FileChangeType = {}));
+let FileSystemError = FileSystemError_1 = class FileSystemError2 extends Error {
+  static {
+    __name(this, "FileSystemError");
+  }
+  static FileExists(messageOrUri) {
+    return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileExists, FileSystemError_1.FileExists);
+  }
+  static FileNotFound(messageOrUri) {
+    return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileNotFound, FileSystemError_1.FileNotFound);
+  }
+  static FileNotADirectory(messageOrUri) {
+    return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileNotADirectory, FileSystemError_1.FileNotADirectory);
+  }
+  static FileIsADirectory(messageOrUri) {
+    return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileIsADirectory, FileSystemError_1.FileIsADirectory);
+  }
+  static NoPermissions(messageOrUri) {
+    return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.NoPermissions, FileSystemError_1.NoPermissions);
+  }
+  static Unavailable(messageOrUri) {
+    return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.Unavailable, FileSystemError_1.Unavailable);
+  }
+  constructor(uriOrMessage, code = FileSystemProviderErrorCode.Unknown, terminator) {
+    super(URI.isUri(uriOrMessage) ? uriOrMessage.toString(true) : uriOrMessage);
+    this.code = terminator?.name ?? "Unknown";
+    markAsFileSystemProviderError(this, code);
+    Object.setPrototypeOf(this, FileSystemError_1.prototype);
+    if (typeof Error.captureStackTrace === "function" && typeof terminator === "function") {
+      Error.captureStackTrace(this, terminator);
+    }
+  }
+};
+FileSystemError = FileSystemError_1 = __decorate([
+  es5ClassCompat
+], FileSystemError);
+let FoldingRange = class FoldingRange2 {
+  static {
+    __name(this, "FoldingRange");
+  }
+  constructor(start, end, kind) {
+    this.start = start;
+    this.end = end;
+    this.kind = kind;
+  }
+};
+FoldingRange = __decorate([
+  es5ClassCompat
+], FoldingRange);
+var FoldingRangeKind;
+(function(FoldingRangeKind2) {
+  FoldingRangeKind2[FoldingRangeKind2["Comment"] = 1] = "Comment";
+  FoldingRangeKind2[FoldingRangeKind2["Imports"] = 2] = "Imports";
+  FoldingRangeKind2[FoldingRangeKind2["Region"] = 3] = "Region";
+})(FoldingRangeKind || (FoldingRangeKind = {}));
+var CommentThreadCollapsibleState;
+(function(CommentThreadCollapsibleState2) {
+  CommentThreadCollapsibleState2[CommentThreadCollapsibleState2["Collapsed"] = 0] = "Collapsed";
+  CommentThreadCollapsibleState2[CommentThreadCollapsibleState2["Expanded"] = 1] = "Expanded";
+})(CommentThreadCollapsibleState || (CommentThreadCollapsibleState = {}));
+var CommentMode;
+(function(CommentMode2) {
+  CommentMode2[CommentMode2["Editing"] = 0] = "Editing";
+  CommentMode2[CommentMode2["Preview"] = 1] = "Preview";
+})(CommentMode || (CommentMode = {}));
+var CommentState;
+(function(CommentState2) {
+  CommentState2[CommentState2["Published"] = 0] = "Published";
+  CommentState2[CommentState2["Draft"] = 1] = "Draft";
+})(CommentState || (CommentState = {}));
+var CommentThreadState;
+(function(CommentThreadState2) {
+  CommentThreadState2[CommentThreadState2["Unresolved"] = 0] = "Unresolved";
+  CommentThreadState2[CommentThreadState2["Resolved"] = 1] = "Resolved";
+})(CommentThreadState || (CommentThreadState = {}));
+var CommentThreadApplicability;
+(function(CommentThreadApplicability2) {
+  CommentThreadApplicability2[CommentThreadApplicability2["Current"] = 0] = "Current";
+  CommentThreadApplicability2[CommentThreadApplicability2["Outdated"] = 1] = "Outdated";
+})(CommentThreadApplicability || (CommentThreadApplicability = {}));
+var CommentThreadFocus;
+(function(CommentThreadFocus2) {
+  CommentThreadFocus2[CommentThreadFocus2["Reply"] = 1] = "Reply";
+  CommentThreadFocus2[CommentThreadFocus2["Comment"] = 2] = "Comment";
+})(CommentThreadFocus || (CommentThreadFocus = {}));
+class SemanticTokensLegend {
+  static {
+    __name(this, "SemanticTokensLegend");
+  }
+  constructor(tokenTypes, tokenModifiers = []) {
+    this.tokenTypes = tokenTypes;
+    this.tokenModifiers = tokenModifiers;
+  }
+}
+function isStrArrayOrUndefined(arg) {
+  return typeof arg === "undefined" || isStringArray(arg);
+}
+__name(isStrArrayOrUndefined, "isStrArrayOrUndefined");
+class SemanticTokensBuilder {
+  static {
+    __name(this, "SemanticTokensBuilder");
+  }
+  constructor(legend) {
+    this._prevLine = 0;
+    this._prevChar = 0;
+    this._dataIsSortedAndDeltaEncoded = true;
+    this._data = [];
+    this._dataLen = 0;
+    this._tokenTypeStrToInt = /* @__PURE__ */ new Map();
+    this._tokenModifierStrToInt = /* @__PURE__ */ new Map();
+    this._hasLegend = false;
+    if (legend) {
+      this._hasLegend = true;
+      for (let i = 0, len = legend.tokenTypes.length; i < len; i++) {
+        this._tokenTypeStrToInt.set(legend.tokenTypes[i], i);
+      }
+      for (let i = 0, len = legend.tokenModifiers.length; i < len; i++) {
+        this._tokenModifierStrToInt.set(legend.tokenModifiers[i], i);
+      }
+    }
+  }
+  push(arg0, arg1, arg2, arg3, arg4) {
+    if (typeof arg0 === "number" && typeof arg1 === "number" && typeof arg2 === "number" && typeof arg3 === "number" && (typeof arg4 === "number" || typeof arg4 === "undefined")) {
+      if (typeof arg4 === "undefined") {
+        arg4 = 0;
+      }
+      return this._pushEncoded(arg0, arg1, arg2, arg3, arg4);
+    }
+    if (Range.isRange(arg0) && typeof arg1 === "string" && isStrArrayOrUndefined(arg2)) {
+      return this._push(arg0, arg1, arg2);
+    }
+    throw illegalArgument();
+  }
+  _push(range, tokenType, tokenModifiers) {
+    if (!this._hasLegend) {
+      throw new Error("Legend must be provided in constructor");
+    }
+    if (range.start.line !== range.end.line) {
+      throw new Error("`range` cannot span multiple lines");
+    }
+    if (!this._tokenTypeStrToInt.has(tokenType)) {
+      throw new Error("`tokenType` is not in the provided legend");
+    }
+    const line = range.start.line;
+    const char = range.start.character;
+    const length = range.end.character - range.start.character;
+    const nTokenType = this._tokenTypeStrToInt.get(tokenType);
+    let nTokenModifiers = 0;
+    if (tokenModifiers) {
+      for (const tokenModifier of tokenModifiers) {
+        if (!this._tokenModifierStrToInt.has(tokenModifier)) {
+          throw new Error("`tokenModifier` is not in the provided legend");
+        }
+        const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier);
+        nTokenModifiers |= 1 << nTokenModifier >>> 0;
+      }
+    }
+    this._pushEncoded(line, char, length, nTokenType, nTokenModifiers);
+  }
+  _pushEncoded(line, char, length, tokenType, tokenModifiers) {
+    if (this._dataIsSortedAndDeltaEncoded && (line < this._prevLine || line === this._prevLine && char < this._prevChar)) {
+      this._dataIsSortedAndDeltaEncoded = false;
+      const tokenCount = this._data.length / 5 | 0;
+      let prevLine = 0;
+      let prevChar = 0;
+      for (let i = 0; i < tokenCount; i++) {
+        let line2 = this._data[5 * i];
+        let char2 = this._data[5 * i + 1];
+        if (line2 === 0) {
+          line2 = prevLine;
+          char2 += prevChar;
+        } else {
+          line2 += prevLine;
+        }
+        this._data[5 * i] = line2;
+        this._data[5 * i + 1] = char2;
+        prevLine = line2;
+        prevChar = char2;
+      }
+    }
+    let pushLine = line;
+    let pushChar = char;
+    if (this._dataIsSortedAndDeltaEncoded && this._dataLen > 0) {
+      pushLine -= this._prevLine;
+      if (pushLine === 0) {
+        pushChar -= this._prevChar;
+      }
+    }
+    this._data[this._dataLen++] = pushLine;
+    this._data[this._dataLen++] = pushChar;
+    this._data[this._dataLen++] = length;
+    this._data[this._dataLen++] = tokenType;
+    this._data[this._dataLen++] = tokenModifiers;
+    this._prevLine = line;
+    this._prevChar = char;
+  }
+  static _sortAndDeltaEncode(data) {
+    const pos = [];
+    const tokenCount = data.length / 5 | 0;
+    for (let i = 0; i < tokenCount; i++) {
+      pos[i] = i;
+    }
+    pos.sort((a, b) => {
+      const aLine = data[5 * a];
+      const bLine = data[5 * b];
+      if (aLine === bLine) {
+        const aChar = data[5 * a + 1];
+        const bChar = data[5 * b + 1];
+        return aChar - bChar;
+      }
+      return aLine - bLine;
+    });
+    const result = new Uint32Array(data.length);
+    let prevLine = 0;
+    let prevChar = 0;
+    for (let i = 0; i < tokenCount; i++) {
+      const srcOffset = 5 * pos[i];
+      const line = data[srcOffset + 0];
+      const char = data[srcOffset + 1];
+      const length = data[srcOffset + 2];
+      const tokenType = data[srcOffset + 3];
+      const tokenModifiers = data[srcOffset + 4];
+      const pushLine = line - prevLine;
+      const pushChar = pushLine === 0 ? char - prevChar : char;
+      const dstOffset = 5 * i;
+      result[dstOffset + 0] = pushLine;
+      result[dstOffset + 1] = pushChar;
+      result[dstOffset + 2] = length;
+      result[dstOffset + 3] = tokenType;
+      result[dstOffset + 4] = tokenModifiers;
+      prevLine = line;
+      prevChar = char;
+    }
+    return result;
+  }
+  build(resultId) {
+    if (!this._dataIsSortedAndDeltaEncoded) {
+      return new SemanticTokens(SemanticTokensBuilder._sortAndDeltaEncode(this._data), resultId);
+    }
+    return new SemanticTokens(new Uint32Array(this._data), resultId);
+  }
+}
+class SemanticTokens {
+  static {
+    __name(this, "SemanticTokens");
+  }
+  constructor(data, resultId) {
+    this.resultId = resultId;
+    this.data = data;
+  }
+}
+class SemanticTokensEdit {
+  static {
+    __name(this, "SemanticTokensEdit");
+  }
+  constructor(start, deleteCount, data) {
+    this.start = start;
+    this.deleteCount = deleteCount;
+    this.data = data;
+  }
+}
+class SemanticTokensEdits {
+  static {
+    __name(this, "SemanticTokensEdits");
+  }
+  constructor(edits, resultId) {
+    this.resultId = resultId;
+    this.edits = edits;
+  }
+}
+var DebugConsoleMode;
+(function(DebugConsoleMode2) {
+  DebugConsoleMode2[DebugConsoleMode2["Separate"] = 0] = "Separate";
+  DebugConsoleMode2[DebugConsoleMode2["MergeWithParent"] = 1] = "MergeWithParent";
+})(DebugConsoleMode || (DebugConsoleMode = {}));
+class DebugVisualization {
+  static {
+    __name(this, "DebugVisualization");
+  }
+  constructor(name) {
+    this.name = name;
+  }
+}
+var QuickInputButtonLocation;
+(function(QuickInputButtonLocation2) {
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Title"] = 1] = "Title";
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Inline"] = 2] = "Inline";
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Input"] = 3] = "Input";
+})(QuickInputButtonLocation || (QuickInputButtonLocation = {}));
+let QuickInputButtons = class QuickInputButtons2 {
+  static {
+    __name(this, "QuickInputButtons");
+  }
+  static {
+    this.Back = { iconPath: new ThemeIcon("arrow-left") };
+  }
+  constructor() {
+  }
+};
+QuickInputButtons = __decorate([
+  es5ClassCompat
+], QuickInputButtons);
+var QuickPickItemKind;
+(function(QuickPickItemKind2) {
+  QuickPickItemKind2[QuickPickItemKind2["Separator"] = -1] = "Separator";
+  QuickPickItemKind2[QuickPickItemKind2["Default"] = 0] = "Default";
+})(QuickPickItemKind || (QuickPickItemKind = {}));
+var InputBoxValidationSeverity;
+(function(InputBoxValidationSeverity2) {
+  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Info"] = 1] = "Info";
+  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Warning"] = 2] = "Warning";
+  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Error"] = 3] = "Error";
+})(InputBoxValidationSeverity || (InputBoxValidationSeverity = {}));
+var ExtensionKind;
+(function(ExtensionKind2) {
+  ExtensionKind2[ExtensionKind2["UI"] = 1] = "UI";
+  ExtensionKind2[ExtensionKind2["Workspace"] = 2] = "Workspace";
+})(ExtensionKind || (ExtensionKind = {}));
+class FileDecoration {
+  static {
+    __name(this, "FileDecoration");
+  }
+  static validate(d) {
+    if (typeof d.badge === "string") {
+      let len = nextCharLength(d.badge, 0);
+      if (len < d.badge.length) {
+        len += nextCharLength(d.badge, len);
+      }
+      if (d.badge.length > len) {
+        throw new Error(`The 'badge'-property must be undefined or a short character`);
+      }
+    } else if (d.badge) {
+      if (!ThemeIcon.isThemeIcon(d.badge)) {
+        throw new Error(`The 'badge'-property is not a valid ThemeIcon`);
+      }
+    }
+    if (!d.color && !d.badge && !d.tooltip) {
+      throw new Error(`The decoration is empty`);
+    }
+    return true;
+  }
+  constructor(badge, tooltip, color) {
+    this.badge = badge;
+    this.tooltip = tooltip;
+    this.color = color;
+  }
+}
+let ColorTheme = class ColorTheme2 {
+  static {
+    __name(this, "ColorTheme");
+  }
+  constructor(kind) {
+    this.kind = kind;
+  }
+};
+ColorTheme = __decorate([
+  es5ClassCompat
+], ColorTheme);
+var ColorThemeKind;
+(function(ColorThemeKind2) {
+  ColorThemeKind2[ColorThemeKind2["Light"] = 1] = "Light";
+  ColorThemeKind2[ColorThemeKind2["Dark"] = 2] = "Dark";
+  ColorThemeKind2[ColorThemeKind2["HighContrast"] = 3] = "HighContrast";
+  ColorThemeKind2[ColorThemeKind2["HighContrastLight"] = 4] = "HighContrastLight";
+})(ColorThemeKind || (ColorThemeKind = {}));
+class CellErrorStackFrame {
+  static {
+    __name(this, "CellErrorStackFrame");
+  }
+  /**
+   * @param label The name of the stack frame
+   * @param file The file URI of the stack frame
+   * @param position The position of the stack frame within the file
+   */
+  constructor(label, uri, position) {
+    this.label = label;
+    this.uri = uri;
+    this.position = position;
+  }
+}
+var NotebookCellExecutionState;
+(function(NotebookCellExecutionState2) {
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Idle"] = 1] = "Idle";
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Pending"] = 2] = "Pending";
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Executing"] = 3] = "Executing";
+})(NotebookCellExecutionState || (NotebookCellExecutionState = {}));
+var NotebookCellStatusBarAlignment;
+(function(NotebookCellStatusBarAlignment2) {
+  NotebookCellStatusBarAlignment2[NotebookCellStatusBarAlignment2["Left"] = 1] = "Left";
+  NotebookCellStatusBarAlignment2[NotebookCellStatusBarAlignment2["Right"] = 2] = "Right";
+})(NotebookCellStatusBarAlignment || (NotebookCellStatusBarAlignment = {}));
+var NotebookEditorRevealType;
+(function(NotebookEditorRevealType2) {
+  NotebookEditorRevealType2[NotebookEditorRevealType2["Default"] = 0] = "Default";
+  NotebookEditorRevealType2[NotebookEditorRevealType2["InCenter"] = 1] = "InCenter";
+  NotebookEditorRevealType2[NotebookEditorRevealType2["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
+  NotebookEditorRevealType2[NotebookEditorRevealType2["AtTop"] = 3] = "AtTop";
+})(NotebookEditorRevealType || (NotebookEditorRevealType = {}));
+class NotebookCellStatusBarItem {
+  static {
+    __name(this, "NotebookCellStatusBarItem");
+  }
+  constructor(text, alignment) {
+    this.text = text;
+    this.alignment = alignment;
+  }
+}
+var NotebookControllerAffinity;
+(function(NotebookControllerAffinity3) {
+  NotebookControllerAffinity3[NotebookControllerAffinity3["Default"] = 1] = "Default";
+  NotebookControllerAffinity3[NotebookControllerAffinity3["Preferred"] = 2] = "Preferred";
+})(NotebookControllerAffinity || (NotebookControllerAffinity = {}));
+var NotebookControllerAffinity2;
+(function(NotebookControllerAffinity22) {
+  NotebookControllerAffinity22[NotebookControllerAffinity22["Default"] = 1] = "Default";
+  NotebookControllerAffinity22[NotebookControllerAffinity22["Preferred"] = 2] = "Preferred";
+  NotebookControllerAffinity22[NotebookControllerAffinity22["Hidden"] = -1] = "Hidden";
+})(NotebookControllerAffinity2 || (NotebookControllerAffinity2 = {}));
+class NotebookRendererScript {
+  static {
+    __name(this, "NotebookRendererScript");
+  }
+  constructor(uri, provides = []) {
+    this.uri = uri;
+    this.provides = asArray(provides);
+  }
+}
+class NotebookKernelSourceAction {
+  static {
+    __name(this, "NotebookKernelSourceAction");
+  }
+  constructor(label) {
+    this.label = label;
+  }
+}
+var NotebookVariablesRequestKind;
+(function(NotebookVariablesRequestKind2) {
+  NotebookVariablesRequestKind2[NotebookVariablesRequestKind2["Named"] = 1] = "Named";
+  NotebookVariablesRequestKind2[NotebookVariablesRequestKind2["Indexed"] = 2] = "Indexed";
+})(NotebookVariablesRequestKind || (NotebookVariablesRequestKind = {}));
+let TimelineItem = class TimelineItem2 {
+  static {
+    __name(this, "TimelineItem");
+  }
+  constructor(label, timestamp) {
+    this.label = label;
+    this.timestamp = timestamp;
+  }
+};
+TimelineItem = __decorate([
+  es5ClassCompat
+], TimelineItem);
+var ExtensionMode;
+(function(ExtensionMode2) {
+  ExtensionMode2[ExtensionMode2["Production"] = 1] = "Production";
+  ExtensionMode2[ExtensionMode2["Development"] = 2] = "Development";
+  ExtensionMode2[ExtensionMode2["Test"] = 3] = "Test";
+})(ExtensionMode || (ExtensionMode = {}));
+var ExtensionRuntime;
+(function(ExtensionRuntime2) {
+  ExtensionRuntime2[ExtensionRuntime2["Node"] = 1] = "Node";
+  ExtensionRuntime2[ExtensionRuntime2["Webworker"] = 2] = "Webworker";
+})(ExtensionRuntime || (ExtensionRuntime = {}));
+var StandardTokenType;
+(function(StandardTokenType2) {
+  StandardTokenType2[StandardTokenType2["Other"] = 0] = "Other";
+  StandardTokenType2[StandardTokenType2["Comment"] = 1] = "Comment";
+  StandardTokenType2[StandardTokenType2["String"] = 2] = "String";
+  StandardTokenType2[StandardTokenType2["RegEx"] = 3] = "RegEx";
+})(StandardTokenType || (StandardTokenType = {}));
+class LinkedEditingRanges {
+  static {
+    __name(this, "LinkedEditingRanges");
+  }
+  constructor(ranges, wordPattern) {
+    this.ranges = ranges;
+    this.wordPattern = wordPattern;
+  }
+}
+class PortAttributes {
+  static {
+    __name(this, "PortAttributes");
+  }
+  constructor(autoForwardAction) {
+    this._autoForwardAction = autoForwardAction;
+  }
+  get autoForwardAction() {
+    return this._autoForwardAction;
+  }
+}
+var TestResultState;
+(function(TestResultState2) {
+  TestResultState2[TestResultState2["Queued"] = 1] = "Queued";
+  TestResultState2[TestResultState2["Running"] = 2] = "Running";
+  TestResultState2[TestResultState2["Passed"] = 3] = "Passed";
+  TestResultState2[TestResultState2["Failed"] = 4] = "Failed";
+  TestResultState2[TestResultState2["Skipped"] = 5] = "Skipped";
+  TestResultState2[TestResultState2["Errored"] = 6] = "Errored";
+})(TestResultState || (TestResultState = {}));
+var TestRunProfileKind;
+(function(TestRunProfileKind2) {
+  TestRunProfileKind2[TestRunProfileKind2["Run"] = 1] = "Run";
+  TestRunProfileKind2[TestRunProfileKind2["Debug"] = 2] = "Debug";
+  TestRunProfileKind2[TestRunProfileKind2["Coverage"] = 3] = "Coverage";
+})(TestRunProfileKind || (TestRunProfileKind = {}));
+class TestRunProfileBase {
+  static {
+    __name(this, "TestRunProfileBase");
+  }
+  constructor(controllerId, profileId, kind) {
+    this.controllerId = controllerId;
+    this.profileId = profileId;
+    this.kind = kind;
+  }
+}
+let TestRunRequest = class TestRunRequest2 {
+  static {
+    __name(this, "TestRunRequest");
+  }
+  constructor(include = void 0, exclude = void 0, profile = void 0, continuous = false, preserveFocus = true) {
+    this.include = include;
+    this.exclude = exclude;
+    this.profile = profile;
+    this.continuous = continuous;
+    this.preserveFocus = preserveFocus;
+  }
+};
+TestRunRequest = __decorate([
+  es5ClassCompat
+], TestRunRequest);
+let TestMessage = TestMessage_1 = class TestMessage2 {
+  static {
+    __name(this, "TestMessage");
+  }
+  static diff(message, expected, actual) {
+    const msg = new TestMessage_1(message);
+    msg.expectedOutput = expected;
+    msg.actualOutput = actual;
+    return msg;
+  }
+  constructor(message) {
+    this.message = message;
+  }
+};
+TestMessage = TestMessage_1 = __decorate([
+  es5ClassCompat
+], TestMessage);
+let TestTag = class TestTag2 {
+  static {
+    __name(this, "TestTag");
+  }
+  constructor(id) {
+    this.id = id;
+  }
+};
+TestTag = __decorate([
+  es5ClassCompat
+], TestTag);
+class TestMessageStackFrame {
+  static {
+    __name(this, "TestMessageStackFrame");
+  }
+  /**
+   * @param label The name of the stack frame
+   * @param file The file URI of the stack frame
+   * @param position The position of the stack frame within the file
+   */
+  constructor(label, uri, position) {
+    this.label = label;
+    this.uri = uri;
+    this.position = position;
+  }
+}
+class TestCoverageCount {
+  static {
+    __name(this, "TestCoverageCount");
+  }
+  constructor(covered, total) {
+    this.covered = covered;
+    this.total = total;
+    validateTestCoverageCount(this);
+  }
+}
+function validateTestCoverageCount(cc) {
+  if (!cc) {
+    return;
+  }
+  if (cc.covered > cc.total) {
+    throw new Error(`The total number of covered items (${cc.covered}) cannot be greater than the total (${cc.total})`);
+  }
+  if (cc.total < 0) {
+    throw new Error(`The number of covered items (${cc.total}) cannot be negative`);
+  }
+}
+__name(validateTestCoverageCount, "validateTestCoverageCount");
+class FileCoverage {
+  static {
+    __name(this, "FileCoverage");
+  }
+  static fromDetails(uri, details) {
+    const statements = new TestCoverageCount(0, 0);
+    const branches = new TestCoverageCount(0, 0);
+    const decl = new TestCoverageCount(0, 0);
+    for (const detail of details) {
+      if ("branches" in detail) {
+        statements.total += 1;
+        statements.covered += detail.executed ? 1 : 0;
+        for (const branch of detail.branches) {
+          branches.total += 1;
+          branches.covered += branch.executed ? 1 : 0;
+        }
+      } else {
+        decl.total += 1;
+        decl.covered += detail.executed ? 1 : 0;
+      }
+    }
+    const coverage = new FileCoverage(uri, statements, branches.total > 0 ? branches : void 0, decl.total > 0 ? decl : void 0);
+    coverage.detailedCoverage = details;
+    return coverage;
+  }
+  constructor(uri, statementCoverage, branchCoverage, declarationCoverage, includesTests = []) {
+    this.uri = uri;
+    this.statementCoverage = statementCoverage;
+    this.branchCoverage = branchCoverage;
+    this.declarationCoverage = declarationCoverage;
+    this.includesTests = includesTests;
+  }
+}
+class StatementCoverage {
+  static {
+    __name(this, "StatementCoverage");
+  }
+  // back compat until finalization:
+  get executionCount() {
+    return +this.executed;
+  }
+  set executionCount(n) {
+    this.executed = n;
+  }
+  constructor(executed, location, branches = []) {
+    this.executed = executed;
+    this.location = location;
+    this.branches = branches;
+  }
+}
+class BranchCoverage {
+  static {
+    __name(this, "BranchCoverage");
+  }
+  // back compat until finalization:
+  get executionCount() {
+    return +this.executed;
+  }
+  set executionCount(n) {
+    this.executed = n;
+  }
+  constructor(executed, location, label) {
+    this.executed = executed;
+    this.location = location;
+    this.label = label;
+  }
+}
+class DeclarationCoverage {
+  static {
+    __name(this, "DeclarationCoverage");
+  }
+  // back compat until finalization:
+  get executionCount() {
+    return +this.executed;
+  }
+  set executionCount(n) {
+    this.executed = n;
+  }
+  constructor(name, executed, location) {
+    this.name = name;
+    this.executed = executed;
+    this.location = location;
+  }
+}
+var ExternalUriOpenerPriority;
+(function(ExternalUriOpenerPriority2) {
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["None"] = 0] = "None";
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Option"] = 1] = "Option";
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Default"] = 2] = "Default";
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Preferred"] = 3] = "Preferred";
+})(ExternalUriOpenerPriority || (ExternalUriOpenerPriority = {}));
+var WorkspaceTrustState;
+(function(WorkspaceTrustState2) {
+  WorkspaceTrustState2[WorkspaceTrustState2["Untrusted"] = 0] = "Untrusted";
+  WorkspaceTrustState2[WorkspaceTrustState2["Trusted"] = 1] = "Trusted";
+  WorkspaceTrustState2[WorkspaceTrustState2["Unspecified"] = 2] = "Unspecified";
+})(WorkspaceTrustState || (WorkspaceTrustState = {}));
+var PortAutoForwardAction;
+(function(PortAutoForwardAction2) {
+  PortAutoForwardAction2[PortAutoForwardAction2["Notify"] = 1] = "Notify";
+  PortAutoForwardAction2[PortAutoForwardAction2["OpenBrowser"] = 2] = "OpenBrowser";
+  PortAutoForwardAction2[PortAutoForwardAction2["OpenPreview"] = 3] = "OpenPreview";
+  PortAutoForwardAction2[PortAutoForwardAction2["Silent"] = 4] = "Silent";
+  PortAutoForwardAction2[PortAutoForwardAction2["Ignore"] = 5] = "Ignore";
+  PortAutoForwardAction2[PortAutoForwardAction2["OpenBrowserOnce"] = 6] = "OpenBrowserOnce";
+})(PortAutoForwardAction || (PortAutoForwardAction = {}));
+class TypeHierarchyItem {
+  static {
+    __name(this, "TypeHierarchyItem");
+  }
+  constructor(kind, name, detail, uri, range, selectionRange) {
+    this.kind = kind;
+    this.name = name;
+    this.detail = detail;
+    this.uri = uri;
+    this.range = range;
+    this.selectionRange = selectionRange;
+  }
+}
+class TextTabInput {
+  static {
+    __name(this, "TextTabInput");
+  }
+  constructor(uri) {
+    this.uri = uri;
+  }
+}
+class TextDiffTabInput {
+  static {
+    __name(this, "TextDiffTabInput");
+  }
+  constructor(original, modified) {
+    this.original = original;
+    this.modified = modified;
+  }
+}
+class TextMergeTabInput {
+  static {
+    __name(this, "TextMergeTabInput");
+  }
+  constructor(base, input1, input2, result) {
+    this.base = base;
+    this.input1 = input1;
+    this.input2 = input2;
+    this.result = result;
+  }
+}
+class CustomEditorTabInput {
+  static {
+    __name(this, "CustomEditorTabInput");
+  }
+  constructor(uri, viewType) {
+    this.uri = uri;
+    this.viewType = viewType;
+  }
+}
+class WebviewEditorTabInput {
+  static {
+    __name(this, "WebviewEditorTabInput");
+  }
+  constructor(viewType) {
+    this.viewType = viewType;
+  }
+}
+class NotebookEditorTabInput {
+  static {
+    __name(this, "NotebookEditorTabInput");
+  }
+  constructor(uri, notebookType) {
+    this.uri = uri;
+    this.notebookType = notebookType;
+  }
+}
+class NotebookDiffEditorTabInput {
+  static {
+    __name(this, "NotebookDiffEditorTabInput");
+  }
+  constructor(original, modified, notebookType) {
+    this.original = original;
+    this.modified = modified;
+    this.notebookType = notebookType;
+  }
+}
+class TerminalEditorTabInput {
+  static {
+    __name(this, "TerminalEditorTabInput");
+  }
+  constructor() {
+  }
+}
+class InteractiveWindowInput {
+  static {
+    __name(this, "InteractiveWindowInput");
+  }
+  constructor(uri, inputBoxUri) {
+    this.uri = uri;
+    this.inputBoxUri = inputBoxUri;
+  }
+}
+class ChatEditorTabInput {
+  static {
+    __name(this, "ChatEditorTabInput");
+  }
+  constructor() {
+  }
+}
+class TextMultiDiffTabInput {
+  static {
+    __name(this, "TextMultiDiffTabInput");
+  }
+  constructor(textDiffs) {
+    this.textDiffs = textDiffs;
+  }
+}
+var InteractiveSessionVoteDirection;
+(function(InteractiveSessionVoteDirection2) {
+  InteractiveSessionVoteDirection2[InteractiveSessionVoteDirection2["Down"] = 0] = "Down";
+  InteractiveSessionVoteDirection2[InteractiveSessionVoteDirection2["Up"] = 1] = "Up";
+})(InteractiveSessionVoteDirection || (InteractiveSessionVoteDirection = {}));
+var ChatCopyKind;
+(function(ChatCopyKind2) {
+  ChatCopyKind2[ChatCopyKind2["Action"] = 1] = "Action";
+  ChatCopyKind2[ChatCopyKind2["Toolbar"] = 2] = "Toolbar";
+})(ChatCopyKind || (ChatCopyKind = {}));
+var ChatVariableLevel;
+(function(ChatVariableLevel2) {
+  ChatVariableLevel2[ChatVariableLevel2["Short"] = 1] = "Short";
+  ChatVariableLevel2[ChatVariableLevel2["Medium"] = 2] = "Medium";
+  ChatVariableLevel2[ChatVariableLevel2["Full"] = 3] = "Full";
+})(ChatVariableLevel || (ChatVariableLevel = {}));
+class ChatCompletionItem {
+  static {
+    __name(this, "ChatCompletionItem");
+  }
+  constructor(id, label, values) {
+    this.id = id;
+    this.label = label;
+    this.values = values;
+  }
+}
+var ChatEditingSessionActionOutcome;
+(function(ChatEditingSessionActionOutcome2) {
+  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Accepted"] = 1] = "Accepted";
+  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Rejected"] = 2] = "Rejected";
+  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Saved"] = 3] = "Saved";
+})(ChatEditingSessionActionOutcome || (ChatEditingSessionActionOutcome = {}));
+var ChatRequestEditedFileEventKind;
+(function(ChatRequestEditedFileEventKind2) {
+  ChatRequestEditedFileEventKind2[ChatRequestEditedFileEventKind2["Keep"] = 1] = "Keep";
+  ChatRequestEditedFileEventKind2[ChatRequestEditedFileEventKind2["Undo"] = 2] = "Undo";
+  ChatRequestEditedFileEventKind2[ChatRequestEditedFileEventKind2["UserModification"] = 3] = "UserModification";
+})(ChatRequestEditedFileEventKind || (ChatRequestEditedFileEventKind = {}));
+var InteractiveEditorResponseFeedbackKind;
+(function(InteractiveEditorResponseFeedbackKind2) {
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Unhelpful"] = 0] = "Unhelpful";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Helpful"] = 1] = "Helpful";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Undone"] = 2] = "Undone";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Accepted"] = 3] = "Accepted";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Bug"] = 4] = "Bug";
+})(InteractiveEditorResponseFeedbackKind || (InteractiveEditorResponseFeedbackKind = {}));
+var ChatResultFeedbackKind;
+(function(ChatResultFeedbackKind2) {
+  ChatResultFeedbackKind2[ChatResultFeedbackKind2["Unhelpful"] = 0] = "Unhelpful";
+  ChatResultFeedbackKind2[ChatResultFeedbackKind2["Helpful"] = 1] = "Helpful";
+})(ChatResultFeedbackKind || (ChatResultFeedbackKind = {}));
+class ChatResponseMarkdownPart {
+  static {
+    __name(this, "ChatResponseMarkdownPart");
+  }
+  constructor(value) {
+    if (typeof value !== "string" && value.isTrusted === true) {
+      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
+    }
+    this.value = typeof value === "string" ? new MarkdownString(value) : value;
+  }
+}
+class ChatResponseMarkdownWithVulnerabilitiesPart {
+  static {
+    __name(this, "ChatResponseMarkdownWithVulnerabilitiesPart");
+  }
+  constructor(value, vulnerabilities) {
+    if (typeof value !== "string" && value.isTrusted === true) {
+      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
+    }
+    this.value = typeof value === "string" ? new MarkdownString(value) : value;
+    this.vulnerabilities = vulnerabilities;
+  }
+}
+class ChatResponseConfirmationPart {
+  static {
+    __name(this, "ChatResponseConfirmationPart");
+  }
+  constructor(title, message, data, buttons) {
+    this.title = title;
+    this.message = message;
+    this.data = data;
+    this.buttons = buttons;
+  }
+}
+class ChatResponseFileTreePart {
+  static {
+    __name(this, "ChatResponseFileTreePart");
+  }
+  constructor(value, baseUri) {
+    this.value = value;
+    this.baseUri = baseUri;
+  }
+}
+class ChatResponseMultiDiffPart {
+  static {
+    __name(this, "ChatResponseMultiDiffPart");
+  }
+  constructor(value, title, readOnly) {
+    this.value = value;
+    this.title = title;
+    this.readOnly = readOnly;
+  }
+}
+class McpToolInvocationContentData {
+  static {
+    __name(this, "McpToolInvocationContentData");
+  }
+  constructor(data, mimeType) {
+    this.data = data;
+    this.mimeType = mimeType;
+  }
+}
+class ChatResponseExternalEditPart {
+  static {
+    __name(this, "ChatResponseExternalEditPart");
+  }
+  constructor(uris, callback) {
+    this.uris = uris;
+    this.callback = callback;
+    this.applied = new Promise((resolve) => {
+      this.didGetApplied = resolve;
+    });
+  }
+}
+class ChatResponseAnchorPart {
+  static {
+    __name(this, "ChatResponseAnchorPart");
+  }
+  constructor(value, title) {
+    this.value = value;
+    this.value2 = value;
+    this.title = title;
+  }
+}
+class ChatResponseProgressPart {
+  static {
+    __name(this, "ChatResponseProgressPart");
+  }
+  constructor(value) {
+    this.value = value;
+  }
+}
+class ChatResponseProgressPart2 {
+  static {
+    __name(this, "ChatResponseProgressPart2");
+  }
+  constructor(value, task) {
+    this.value = value;
+    this.task = task;
+  }
+}
+class ChatResponseThinkingProgressPart {
+  static {
+    __name(this, "ChatResponseThinkingProgressPart");
+  }
+  constructor(value, id, metadata) {
+    this.value = value;
+    this.id = id;
+    this.metadata = metadata;
+  }
+}
+class ChatResponseWarningPart {
+  static {
+    __name(this, "ChatResponseWarningPart");
+  }
+  constructor(value) {
+    if (typeof value !== "string" && value.isTrusted === true) {
+      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
+    }
+    this.value = typeof value === "string" ? new MarkdownString(value) : value;
+  }
+}
+class ChatResponseCommandButtonPart {
+  static {
+    __name(this, "ChatResponseCommandButtonPart");
+  }
+  constructor(value) {
+    this.value = value;
+  }
+}
+class ChatResponseReferencePart {
+  static {
+    __name(this, "ChatResponseReferencePart");
+  }
+  constructor(value, iconPath, options) {
+    this.value = value;
+    this.iconPath = iconPath;
+    this.options = options;
+  }
+}
+class ChatResponseCodeblockUriPart {
+  static {
+    __name(this, "ChatResponseCodeblockUriPart");
+  }
+  constructor(value, isEdit, undoStopId) {
+    this.value = value;
+    this.isEdit = isEdit;
+    this.undoStopId = undoStopId;
+  }
+}
+class ChatResponseCodeCitationPart {
+  static {
+    __name(this, "ChatResponseCodeCitationPart");
+  }
+  constructor(value, license, snippet) {
+    this.value = value;
+    this.license = license;
+    this.snippet = snippet;
+  }
+}
+class ChatResponseMovePart {
+  static {
+    __name(this, "ChatResponseMovePart");
+  }
+  constructor(uri, range) {
+    this.uri = uri;
+    this.range = range;
+  }
+}
+class ChatResponseExtensionsPart {
+  static {
+    __name(this, "ChatResponseExtensionsPart");
+  }
+  constructor(extensions) {
+    this.extensions = extensions;
+  }
+}
+class ChatResponsePullRequestPart {
+  static {
+    __name(this, "ChatResponsePullRequestPart");
+  }
+  constructor(uri, title, description, author, linkTag) {
+    this.uri = uri;
+    this.title = title;
+    this.description = description;
+    this.author = author;
+    this.linkTag = linkTag;
+  }
+  toJSON() {
+    return {
+      $mid: 26,
+      uri: this.uri,
+      title: this.title,
+      description: this.description,
+      author: this.author
+    };
+  }
+}
+var ChatQuestionType;
+(function(ChatQuestionType2) {
+  ChatQuestionType2[ChatQuestionType2["Text"] = 1] = "Text";
+  ChatQuestionType2[ChatQuestionType2["SingleSelect"] = 2] = "SingleSelect";
+  ChatQuestionType2[ChatQuestionType2["MultiSelect"] = 3] = "MultiSelect";
+})(ChatQuestionType || (ChatQuestionType = {}));
+class ChatQuestion {
+  static {
+    __name(this, "ChatQuestion");
+  }
+  constructor(id, type, title, options) {
+    this.id = id;
+    this.type = type;
+    this.title = title;
+    this.message = options?.message;
+    this.options = options?.options;
+    this.defaultValue = options?.defaultValue;
+    this.allowFreeformInput = options?.allowFreeformInput;
+  }
+}
+class ChatResponseQuestionCarouselPart {
+  static {
+    __name(this, "ChatResponseQuestionCarouselPart");
+  }
+  constructor(questions, allowSkip = true) {
+    this.questions = questions;
+    this.allowSkip = allowSkip;
+  }
+}
+class ChatResponseTextEditPart {
+  static {
+    __name(this, "ChatResponseTextEditPart");
+  }
+  constructor(uri, editsOrDone) {
+    this.uri = uri;
+    if (editsOrDone === true) {
+      this.isDone = true;
+      this.edits = [];
+    } else {
+      this.edits = Array.isArray(editsOrDone) ? editsOrDone : [editsOrDone];
+    }
+  }
+}
+class ChatResponseNotebookEditPart {
+  static {
+    __name(this, "ChatResponseNotebookEditPart");
+  }
+  constructor(uri, editsOrDone) {
+    this.uri = uri;
+    if (editsOrDone === true) {
+      this.isDone = true;
+      this.edits = [];
+    } else {
+      this.edits = Array.isArray(editsOrDone) ? editsOrDone : [editsOrDone];
+    }
+  }
+}
+class ChatResponseWorkspaceEditPart {
+  static {
+    __name(this, "ChatResponseWorkspaceEditPart");
+  }
+  constructor(edits) {
+    this.edits = edits;
+  }
+}
+var ChatTodoStatus;
+(function(ChatTodoStatus2) {
+  ChatTodoStatus2[ChatTodoStatus2["NotStarted"] = 1] = "NotStarted";
+  ChatTodoStatus2[ChatTodoStatus2["InProgress"] = 2] = "InProgress";
+  ChatTodoStatus2[ChatTodoStatus2["Completed"] = 3] = "Completed";
+})(ChatTodoStatus || (ChatTodoStatus = {}));
+class ChatToolInvocationPart {
+  static {
+    __name(this, "ChatToolInvocationPart");
+  }
+  constructor(toolName, toolCallId, isError) {
+    this.toolName = toolName;
+    this.toolCallId = toolCallId;
+    this.isError = isError;
+  }
+}
+class ChatRequestTurn {
+  static {
+    __name(this, "ChatRequestTurn");
+  }
+  constructor(prompt, command, references, participant, toolReferences, editedFileEvents, id) {
+    this.prompt = prompt;
+    this.command = command;
+    this.references = references;
+    this.participant = participant;
+    this.toolReferences = toolReferences;
+    this.editedFileEvents = editedFileEvents;
+    this.id = id;
+  }
+}
+class ChatResponseTurn {
+  static {
+    __name(this, "ChatResponseTurn");
+  }
+  constructor(response, result, participant, command) {
+    this.response = response;
+    this.result = result;
+    this.participant = participant;
+    this.command = command;
+  }
+}
+class ChatResponseTurn2 {
+  static {
+    __name(this, "ChatResponseTurn2");
+  }
+  constructor(response, result, participant, command) {
+    this.response = response;
+    this.result = result;
+    this.participant = participant;
+    this.command = command;
+  }
+}
+var ChatLocation;
+(function(ChatLocation2) {
+  ChatLocation2[ChatLocation2["Panel"] = 1] = "Panel";
+  ChatLocation2[ChatLocation2["Terminal"] = 2] = "Terminal";
+  ChatLocation2[ChatLocation2["Notebook"] = 3] = "Notebook";
+  ChatLocation2[ChatLocation2["Editor"] = 4] = "Editor";
+})(ChatLocation || (ChatLocation = {}));
+var ChatSessionStatus;
+(function(ChatSessionStatus2) {
+  ChatSessionStatus2[ChatSessionStatus2["Failed"] = 0] = "Failed";
+  ChatSessionStatus2[ChatSessionStatus2["Completed"] = 1] = "Completed";
+  ChatSessionStatus2[ChatSessionStatus2["InProgress"] = 2] = "InProgress";
+})(ChatSessionStatus || (ChatSessionStatus = {}));
+class ChatSessionChangedFile {
+  static {
+    __name(this, "ChatSessionChangedFile");
+  }
+  constructor(modifiedUri, insertions, deletions, originalUri) {
+    this.modifiedUri = modifiedUri;
+    this.insertions = insertions;
+    this.deletions = deletions;
+    this.originalUri = originalUri;
+  }
+}
+class ChatSessionChangedFile2 {
+  static {
+    __name(this, "ChatSessionChangedFile2");
+  }
+  constructor(uri, originalUri, modifiedUri, insertions, deletions) {
+    this.uri = uri;
+    this.originalUri = originalUri;
+    this.modifiedUri = modifiedUri;
+    this.insertions = insertions;
+    this.deletions = deletions;
+  }
+}
+var ChatResponseReferencePartStatusKind;
+(function(ChatResponseReferencePartStatusKind2) {
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Complete"] = 1] = "Complete";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Partial"] = 2] = "Partial";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Omitted"] = 3] = "Omitted";
+})(ChatResponseReferencePartStatusKind || (ChatResponseReferencePartStatusKind = {}));
+var ChatResponseClearToPreviousToolInvocationReason;
+(function(ChatResponseClearToPreviousToolInvocationReason2) {
+  ChatResponseClearToPreviousToolInvocationReason2[ChatResponseClearToPreviousToolInvocationReason2["NoReason"] = 0] = "NoReason";
+  ChatResponseClearToPreviousToolInvocationReason2[ChatResponseClearToPreviousToolInvocationReason2["FilteredContentRetry"] = 1] = "FilteredContentRetry";
+  ChatResponseClearToPreviousToolInvocationReason2[ChatResponseClearToPreviousToolInvocationReason2["CopyrightContentRetry"] = 2] = "CopyrightContentRetry";
+})(ChatResponseClearToPreviousToolInvocationReason || (ChatResponseClearToPreviousToolInvocationReason = {}));
+class ChatRequestEditorData {
+  static {
+    __name(this, "ChatRequestEditorData");
+  }
+  constructor(editor, document, selection, wholeRange) {
+    this.editor = editor;
+    this.document = document;
+    this.selection = selection;
+    this.wholeRange = wholeRange;
+  }
+}
+class ChatRequestNotebookData {
+  static {
+    __name(this, "ChatRequestNotebookData");
+  }
+  constructor(cell) {
+    this.cell = cell;
+  }
+}
+class ChatReferenceBinaryData {
+  static {
+    __name(this, "ChatReferenceBinaryData");
+  }
+  constructor(mimeType, data, reference) {
+    this.mimeType = mimeType;
+    this.data = data;
+    this.reference = reference;
+  }
+}
+class ChatReferenceDiagnostic {
+  static {
+    __name(this, "ChatReferenceDiagnostic");
+  }
+  constructor(diagnostics) {
+    this.diagnostics = diagnostics;
+  }
+}
+var LanguageModelChatMessageRole;
+(function(LanguageModelChatMessageRole2) {
+  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["User"] = 1] = "User";
+  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["Assistant"] = 2] = "Assistant";
+  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["System"] = 3] = "System";
+})(LanguageModelChatMessageRole || (LanguageModelChatMessageRole = {}));
+class LanguageModelToolResultPart {
+  static {
+    __name(this, "LanguageModelToolResultPart");
+  }
+  constructor(callId, content, isError) {
+    this.callId = callId;
+    this.content = content;
+    this.isError = isError ?? false;
+  }
+}
+var ChatErrorLevel;
+(function(ChatErrorLevel2) {
+  ChatErrorLevel2[ChatErrorLevel2["Info"] = 0] = "Info";
+  ChatErrorLevel2[ChatErrorLevel2["Warning"] = 1] = "Warning";
+  ChatErrorLevel2[ChatErrorLevel2["Error"] = 2] = "Error";
+})(ChatErrorLevel || (ChatErrorLevel = {}));
+class LanguageModelChatMessage {
+  static {
+    __name(this, "LanguageModelChatMessage");
+  }
+  static User(content, name) {
+    return new LanguageModelChatMessage(LanguageModelChatMessageRole.User, content, name);
+  }
+  static Assistant(content, name) {
+    return new LanguageModelChatMessage(LanguageModelChatMessageRole.Assistant, content, name);
+  }
+  set content(value) {
+    if (typeof value === "string") {
+      this._content = [new LanguageModelTextPart(value)];
+    } else {
+      this._content = value;
+    }
+  }
+  get content() {
+    return this._content;
+  }
+  constructor(role, content, name) {
+    this._content = [];
+    this.role = role;
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelChatMessage2 {
+  static {
+    __name(this, "LanguageModelChatMessage2");
+  }
+  static User(content, name) {
+    return new LanguageModelChatMessage2(LanguageModelChatMessageRole.User, content, name);
+  }
+  static Assistant(content, name) {
+    return new LanguageModelChatMessage2(LanguageModelChatMessageRole.Assistant, content, name);
+  }
+  set content(value) {
+    if (typeof value === "string") {
+      this._content = [new LanguageModelTextPart(value)];
+    } else {
+      this._content = value;
+    }
+  }
+  get content() {
+    return this._content;
+  }
+  // Temp to avoid breaking changes
+  set content2(value) {
+    if (value) {
+      this.content = value.map((part) => {
+        if (typeof part === "string") {
+          return new LanguageModelTextPart(part);
+        }
+        return part;
+      });
+    }
+  }
+  get content2() {
+    return this.content.map((part) => {
+      if (part instanceof LanguageModelTextPart) {
+        return part.value;
+      }
+      return part;
+    });
+  }
+  constructor(role, content, name) {
+    this._content = [];
+    this.role = role;
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelToolCallPart {
+  static {
+    __name(this, "LanguageModelToolCallPart");
+  }
+  constructor(callId, name, input) {
+    this.callId = callId;
+    this.name = name;
+    this.input = input;
+  }
+}
+var LanguageModelPartAudience;
+(function(LanguageModelPartAudience2) {
+  LanguageModelPartAudience2[LanguageModelPartAudience2["Assistant"] = 0] = "Assistant";
+  LanguageModelPartAudience2[LanguageModelPartAudience2["User"] = 1] = "User";
+  LanguageModelPartAudience2[LanguageModelPartAudience2["Extension"] = 2] = "Extension";
+})(LanguageModelPartAudience || (LanguageModelPartAudience = {}));
+class LanguageModelTextPart {
+  static {
+    __name(this, "LanguageModelTextPart");
+  }
+  constructor(value, audience) {
+    this.value = value;
+    audience = audience;
+  }
+  toJSON() {
+    return {
+      $mid: 21,
+      value: this.value,
+      audience: this.audience
+    };
+  }
+}
+class LanguageModelDataPart {
+  static {
+    __name(this, "LanguageModelDataPart");
+  }
+  constructor(data, mimeType, audience) {
+    this.mimeType = mimeType;
+    this.data = data;
+    this.audience = audience;
+  }
+  static image(data, mimeType) {
+    return new LanguageModelDataPart(data, mimeType);
+  }
+  static json(value, mime = "text/x-json") {
+    const rawStr = JSON.stringify(value, void 0, "	");
+    return new LanguageModelDataPart(VSBuffer.fromString(rawStr).buffer, mime);
+  }
+  static text(value, mime = Mimes.text) {
+    return new LanguageModelDataPart(VSBuffer.fromString(value).buffer, mime);
+  }
+  toJSON() {
+    return {
+      $mid: 24,
+      mimeType: this.mimeType,
+      data: this.data,
+      audience: this.audience
+    };
+  }
+}
+var ChatImageMimeType;
+(function(ChatImageMimeType2) {
+  ChatImageMimeType2["PNG"] = "image/png";
+  ChatImageMimeType2["JPEG"] = "image/jpeg";
+  ChatImageMimeType2["GIF"] = "image/gif";
+  ChatImageMimeType2["WEBP"] = "image/webp";
+  ChatImageMimeType2["BMP"] = "image/bmp";
+})(ChatImageMimeType || (ChatImageMimeType = {}));
+class LanguageModelThinkingPart {
+  static {
+    __name(this, "LanguageModelThinkingPart");
+  }
+  constructor(value, id, metadata) {
+    this.value = value;
+    this.id = id;
+    this.metadata = metadata;
+  }
+  toJSON() {
+    return {
+      $mid: 22,
+      value: this.value,
+      id: this.id,
+      metadata: this.metadata
+    };
+  }
+}
+class LanguageModelPromptTsxPart {
+  static {
+    __name(this, "LanguageModelPromptTsxPart");
+  }
+  constructor(value) {
+    this.value = value;
+  }
+  toJSON() {
+    return {
+      $mid: 23,
+      value: this.value
+    };
+  }
+}
+class LanguageModelChatSystemMessage {
+  static {
+    __name(this, "LanguageModelChatSystemMessage");
+  }
+  constructor(content) {
+    this.content = content;
+  }
+}
+class LanguageModelChatUserMessage {
+  static {
+    __name(this, "LanguageModelChatUserMessage");
+  }
+  constructor(content, name) {
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelChatAssistantMessage {
+  static {
+    __name(this, "LanguageModelChatAssistantMessage");
+  }
+  constructor(content, name) {
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelError extends Error {
+  static {
+    __name(this, "LanguageModelError");
+  }
+  static #name = "LanguageModelError";
+  static NotFound(message) {
+    return new LanguageModelError(message, LanguageModelError.NotFound.name);
+  }
+  static NoPermissions(message) {
+    return new LanguageModelError(message, LanguageModelError.NoPermissions.name);
+  }
+  static Blocked(message) {
+    return new LanguageModelError(message, LanguageModelError.Blocked.name);
+  }
+  static tryDeserialize(data) {
+    if (data.name !== LanguageModelError.#name) {
+      return void 0;
+    }
+    return new LanguageModelError(data.message, data.code, data.cause);
+  }
+  constructor(message, code, cause) {
+    super(message, { cause });
+    this.name = LanguageModelError.#name;
+    this.code = code ?? "";
+  }
+}
+class LanguageModelToolResult {
+  static {
+    __name(this, "LanguageModelToolResult");
+  }
+  constructor(content) {
+    this.content = content;
+  }
+  toJSON() {
+    return {
+      $mid: 20,
+      content: this.content
+    };
+  }
+}
+class LanguageModelToolResult2 {
+  static {
+    __name(this, "LanguageModelToolResult2");
+  }
+  constructor(content) {
+    this.content = content;
+  }
+  toJSON() {
+    return {
+      $mid: 20,
+      content: this.content
+    };
+  }
+}
+class ExtendedLanguageModelToolResult extends LanguageModelToolResult {
+  static {
+    __name(this, "ExtendedLanguageModelToolResult");
+  }
+}
+var LanguageModelChatToolMode;
+(function(LanguageModelChatToolMode2) {
+  LanguageModelChatToolMode2[LanguageModelChatToolMode2["Auto"] = 1] = "Auto";
+  LanguageModelChatToolMode2[LanguageModelChatToolMode2["Required"] = 2] = "Required";
+})(LanguageModelChatToolMode || (LanguageModelChatToolMode = {}));
+class LanguageModelToolExtensionSource {
+  static {
+    __name(this, "LanguageModelToolExtensionSource");
+  }
+  constructor(id, label) {
+    this.id = id;
+    this.label = label;
+  }
+}
+class LanguageModelToolMCPSource {
+  static {
+    __name(this, "LanguageModelToolMCPSource");
+  }
+  constructor(label, name, instructions) {
+    this.label = label;
+    this.name = name;
+    this.instructions = instructions;
+  }
+}
+var RelatedInformationType;
+(function(RelatedInformationType2) {
+  RelatedInformationType2[RelatedInformationType2["SymbolInformation"] = 1] = "SymbolInformation";
+  RelatedInformationType2[RelatedInformationType2["CommandInformation"] = 2] = "CommandInformation";
+  RelatedInformationType2[RelatedInformationType2["SearchInformation"] = 3] = "SearchInformation";
+  RelatedInformationType2[RelatedInformationType2["SettingInformation"] = 4] = "SettingInformation";
+})(RelatedInformationType || (RelatedInformationType = {}));
+var SettingsSearchResultKind;
+(function(SettingsSearchResultKind2) {
+  SettingsSearchResultKind2[SettingsSearchResultKind2["EMBEDDED"] = 1] = "EMBEDDED";
+  SettingsSearchResultKind2[SettingsSearchResultKind2["LLM_RANKED"] = 2] = "LLM_RANKED";
+  SettingsSearchResultKind2[SettingsSearchResultKind2["CANCELED"] = 3] = "CANCELED";
+})(SettingsSearchResultKind || (SettingsSearchResultKind = {}));
+var ChatHookResultKind;
+(function(ChatHookResultKind2) {
+  ChatHookResultKind2[ChatHookResultKind2["Success"] = 1] = "Success";
+  ChatHookResultKind2[ChatHookResultKind2["Error"] = 2] = "Error";
+})(ChatHookResultKind || (ChatHookResultKind = {}));
+var SpeechToTextStatus;
+(function(SpeechToTextStatus2) {
+  SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
+  SpeechToTextStatus2[SpeechToTextStatus2["Recognizing"] = 2] = "Recognizing";
+  SpeechToTextStatus2[SpeechToTextStatus2["Recognized"] = 3] = "Recognized";
+  SpeechToTextStatus2[SpeechToTextStatus2["Stopped"] = 4] = "Stopped";
+  SpeechToTextStatus2[SpeechToTextStatus2["Error"] = 5] = "Error";
+})(SpeechToTextStatus || (SpeechToTextStatus = {}));
+var TextToSpeechStatus;
+(function(TextToSpeechStatus2) {
+  TextToSpeechStatus2[TextToSpeechStatus2["Started"] = 1] = "Started";
+  TextToSpeechStatus2[TextToSpeechStatus2["Stopped"] = 2] = "Stopped";
+  TextToSpeechStatus2[TextToSpeechStatus2["Error"] = 3] = "Error";
+})(TextToSpeechStatus || (TextToSpeechStatus = {}));
+var KeywordRecognitionStatus;
+(function(KeywordRecognitionStatus2) {
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Recognized"] = 1] = "Recognized";
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Stopped"] = 2] = "Stopped";
+})(KeywordRecognitionStatus || (KeywordRecognitionStatus = {}));
+var McpToolAvailability;
+(function(McpToolAvailability2) {
+  McpToolAvailability2[McpToolAvailability2["Initial"] = 0] = "Initial";
+  McpToolAvailability2[McpToolAvailability2["Dynamic"] = 1] = "Dynamic";
+})(McpToolAvailability || (McpToolAvailability = {}));
+class McpStdioServerDefinition {
+  static {
+    __name(this, "McpStdioServerDefinition");
+  }
+  constructor(label, command, args, env = {}, version, metadata) {
+    this.label = label;
+    this.command = command;
+    this.args = args;
+    this.env = env;
+    this.version = version;
+    this.metadata = metadata;
+  }
+}
+class McpHttpServerDefinition {
+  static {
+    __name(this, "McpHttpServerDefinition");
+  }
+  constructor(label, uri, headers = {}, version, metadata, authentication) {
+    this.label = label;
+    this.uri = uri;
+    this.headers = headers;
+    this.version = version;
+    this.metadata = metadata;
+    this.authentication = authentication;
+  }
+}
+export {
+  BranchCoverage,
+  Breakpoint,
+  CallHierarchyIncomingCall,
+  CallHierarchyItem,
+  CallHierarchyOutgoingCall,
+  CellErrorStackFrame,
+  ChatCompletionItem,
+  ChatCopyKind,
+  ChatEditingSessionActionOutcome,
+  ChatEditorTabInput,
+  ChatErrorLevel,
+  ChatHookResultKind,
+  ChatImageMimeType,
+  ChatLocation,
+  ChatQuestion,
+  ChatQuestionType,
+  ChatReferenceBinaryData,
+  ChatReferenceDiagnostic,
+  ChatRequestEditedFileEventKind,
+  ChatRequestEditorData,
+  ChatRequestNotebookData,
+  ChatRequestTurn,
+  ChatResponseAnchorPart,
+  ChatResponseClearToPreviousToolInvocationReason,
+  ChatResponseCodeCitationPart,
+  ChatResponseCodeblockUriPart,
+  ChatResponseCommandButtonPart,
+  ChatResponseConfirmationPart,
+  ChatResponseExtensionsPart,
+  ChatResponseExternalEditPart,
+  ChatResponseFileTreePart,
+  ChatResponseMarkdownPart,
+  ChatResponseMarkdownWithVulnerabilitiesPart,
+  ChatResponseMovePart,
+  ChatResponseMultiDiffPart,
+  ChatResponseNotebookEditPart,
+  ChatResponseProgressPart,
+  ChatResponseProgressPart2,
+  ChatResponsePullRequestPart,
+  ChatResponseQuestionCarouselPart,
+  ChatResponseReferencePart,
+  ChatResponseReferencePartStatusKind,
+  ChatResponseTextEditPart,
+  ChatResponseThinkingProgressPart,
+  ChatResponseTurn,
+  ChatResponseTurn2,
+  ChatResponseWarningPart,
+  ChatResponseWorkspaceEditPart,
+  ChatResultFeedbackKind,
+  ChatSessionChangedFile,
+  ChatSessionChangedFile2,
+  ChatSessionStatus,
+  ChatTodoStatus,
+  ChatToolInvocationPart,
+  ChatVariableLevel,
+  CodeAction,
+  CodeActionKind,
+  CodeActionTriggerKind,
+  CodeLens,
+  Color,
+  ColorFormat,
+  ColorInformation,
+  ColorPresentation,
+  ColorTheme,
+  ColorThemeKind,
+  CommentMode,
+  CommentState,
+  CommentThreadApplicability,
+  CommentThreadCollapsibleState,
+  CommentThreadFocus,
+  CommentThreadState,
+  CompletionItem,
+  CompletionItemKind,
+  CompletionItemTag,
+  CompletionList,
+  CompletionTriggerKind,
+  ConfigurationTarget,
+  CustomEditorTabInput,
+  CustomExecution,
+  DataBreakpoint,
+  DataTransfer,
+  DataTransferFile,
+  DataTransferItem,
+  DebugAdapterExecutable,
+  DebugAdapterInlineImplementation,
+  DebugAdapterNamedPipeServer,
+  DebugAdapterServer,
+  DebugConsoleMode,
+  DebugStackFrame,
+  DebugThread,
+  DebugVisualization,
+  DeclarationCoverage,
+  DecorationRangeBehavior,
+  Diagnostic,
+  DiagnosticRelatedInformation,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  Disposable,
+  DocumentDropEdit,
+  DocumentDropOrPasteEditKind,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentLink,
+  DocumentPasteEdit,
+  DocumentPasteTriggerKind,
+  DocumentSymbol,
+  EndOfLine,
+  EnvironmentVariableMutatorType,
+  EvaluatableExpression,
+  ExtendedLanguageModelToolResult,
+  ExtensionKind,
+  ExtensionMode,
+  ExtensionRuntime,
+  ExternalUriOpenerPriority,
+  FileChangeType,
+  FileCoverage,
+  FileDecoration,
+  FileEditType,
+  FileSystemError,
+  FoldingRange,
+  FoldingRangeKind,
+  FunctionBreakpoint,
+  Hover,
+  HoverVerbosityAction,
+  InlayHint,
+  InlayHintKind,
+  InlayHintLabelPart,
+  InlineCompletionDisplayLocationKind,
+  InlineCompletionEndOfLifeReasonKind,
+  InlineCompletionTriggerKind,
+  InlineCompletionsDisposeReasonKind,
+  InlineSuggestion,
+  InlineSuggestionList,
+  InlineValueContext,
+  InlineValueEvaluatableExpression,
+  InlineValueText,
+  InlineValueVariableLookup,
+  InputBoxValidationSeverity,
+  InteractiveEditorResponseFeedbackKind,
+  InteractiveSessionVoteDirection,
+  InteractiveWindowInput,
+  InternalDataTransferItem,
+  InternalFileDataTransferItem,
+  KeywordRecognitionStatus,
+  LanguageModelChatAssistantMessage,
+  LanguageModelChatMessage,
+  LanguageModelChatMessage2,
+  LanguageModelChatMessageRole,
+  LanguageModelChatSystemMessage,
+  LanguageModelChatToolMode,
+  LanguageModelChatUserMessage,
+  LanguageModelDataPart,
+  LanguageModelError,
+  LanguageModelPartAudience,
+  LanguageModelPromptTsxPart,
+  LanguageModelTextPart,
+  LanguageModelThinkingPart,
+  LanguageModelToolCallPart,
+  LanguageModelToolExtensionSource,
+  LanguageModelToolMCPSource,
+  LanguageModelToolResult,
+  LanguageModelToolResult2,
+  LanguageModelToolResultPart,
+  LanguageStatusSeverity,
+  LinkedEditingRanges,
+  Location,
+  ManagedResolvedAuthority,
+  MarkdownString2 as MarkdownString,
+  McpHttpServerDefinition,
+  McpStdioServerDefinition,
+  McpToolAvailability,
+  McpToolInvocationContentData,
+  MultiDocumentHighlight,
+  NewSymbolName,
+  NewSymbolNameTag,
+  NewSymbolNameTriggerKind,
+  NotebookCellData,
+  NotebookCellExecutionState,
+  NotebookCellKind,
+  NotebookCellOutput,
+  NotebookCellOutputItem,
+  NotebookCellStatusBarAlignment,
+  NotebookCellStatusBarItem,
+  NotebookControllerAffinity,
+  NotebookControllerAffinity2,
+  NotebookData,
+  NotebookDiffEditorTabInput,
+  NotebookEdit,
+  NotebookEditorRevealType,
+  NotebookEditorTabInput,
+  NotebookKernelSourceAction,
+  NotebookRange,
+  NotebookRendererScript,
+  NotebookVariablesRequestKind,
+  ParameterInformation,
+  PartialAcceptTriggerKind,
+  PortAttributes,
+  PortAutoForwardAction,
+  Position,
+  ProcessExecution,
+  ProgressLocation,
+  QuickInputButtonLocation,
+  QuickInputButtons,
+  QuickPickItemKind,
+  Range2 as Range,
+  RelatedInformationType,
+  RelativePattern,
+  RemoteAuthorityResolverError,
+  ResolvedAuthority,
+  Selection,
+  SelectionRange,
+  SemanticTokens,
+  SemanticTokensBuilder,
+  SemanticTokensEdit,
+  SemanticTokensEdits,
+  SemanticTokensLegend,
+  SettingsSearchResultKind,
+  ShellExecution,
+  ShellQuoting,
+  SignatureHelp,
+  SignatureHelpTriggerKind,
+  SignatureInformation,
+  SnippetString,
+  SnippetTextEdit,
+  SourceBreakpoint,
+  SourceControlInputBoxValidationType,
+  SpeechToTextStatus,
+  StandardTokenType,
+  StatementCoverage,
+  StatusBarAlignment,
+  SymbolInformation,
+  SymbolKind,
+  SymbolTag,
+  SyntaxTokenType,
+  Task,
+  TaskEventKind,
+  TaskGroup,
+  TaskPanelKind,
+  TaskRevealKind,
+  TaskScope,
+  TerminalCompletionItem,
+  TerminalCompletionItemKind,
+  TerminalCompletionList,
+  TerminalEditorTabInput,
+  TerminalExitReason,
+  TerminalLink,
+  TerminalLocation,
+  TerminalOutputAnchor,
+  TerminalProfile,
+  TerminalQuickFixCommand,
+  TerminalQuickFixOpener,
+  TerminalQuickFixType,
+  TerminalShellExecutionCommandLineConfidence,
+  TerminalShellType,
+  TestCoverageCount,
+  TestMessage,
+  TestMessageStackFrame,
+  TestResultState,
+  TestRunProfileBase,
+  TestRunProfileKind,
+  TestRunRequest,
+  TestTag,
+  TextDiffTabInput,
+  TextDocumentChangeReason,
+  TextDocumentSaveReason,
+  TextEdit,
+  TextEditorChangeKind,
+  TextEditorLineNumbersStyle,
+  TextEditorRevealType,
+  TextEditorSelectionChangeKind,
+  TextMergeTabInput,
+  TextMultiDiffTabInput,
+  TextTabInput,
+  TextToSpeechStatus,
+  ThemeColor,
+  ThemeIcon,
+  TimelineItem,
+  TreeItem,
+  TreeItemCheckboxState,
+  TreeItemCollapsibleState,
+  TypeHierarchyItem,
+  VerboseHover,
+  ViewBadge,
+  ViewColumn,
+  WebviewEditorTabInput,
+  WorkspaceEdit,
+  WorkspaceTrustState,
+  asStatusBarItemIdentifier,
+  setBreakpointId,
+  validateTestCoverageCount
+};
+//# sourceMappingURL=extHostTypes.js.map

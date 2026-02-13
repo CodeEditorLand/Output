@@ -1,1 +1,355 @@
-import{$Tn as H}from"../../../base/common/date.js";import{$Zm as r}from"../../../base/common/decorators.js";import{$th as x,Schemas as S}from"../../../base/common/network.js";import{$_ as P,$9 as p,$7 as d,$0 as y}from"../../../base/common/path.js";import{$2 as m}from"../../../base/common/process.js";import{$Ih as u}from"../../../base/common/resources.js";import{URI as i}from"../../../base/common/uri.js";var t=function(a,e,s,n){var c=arguments.length,l=c<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,s):n,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(a,e,s,n);else for(var g=a.length-1;g>=0;g--)(h=a[g])&&(l=(c<3?h(l):c>3?h(e,s,l):h(e,s))||l);return c>3&&l&&Object.defineProperty(e,s,l),l};const b=/^([^.]+\..+)[:=](.+)$/;class o{get appRoot(){return P(x.asFileUri("").fsPath)}get userHome(){return i.file(this.b.homeDir)}get userDataPath(){return this.b.userDataDir}get appSettingsHome(){return i.file(p(this.userDataPath,"User"))}get tmpDir(){return i.file(this.b.tmpDir)}get cacheHome(){return i.file(this.userDataPath)}get stateResource(){return u(this.appSettingsHome,"globalStorage","storage.json")}get userRoamingDataHome(){return this.appSettingsHome.with({scheme:S.vscodeUserData})}get userDataSyncHome(){return u(this.appSettingsHome,"sync")}get logsHome(){if(!this.args.logsPath){const e=H(new Date).replace(/-|:|\.\d+Z$/g,"");this.args.logsPath=p(this.userDataPath,"logs",e)}return i.file(this.args.logsPath)}get sync(){return this.args.sync}get workspaceStorageHome(){return u(this.appSettingsHome,"workspaceStorage")}get localHistoryHome(){return u(this.appSettingsHome,"History")}get keyboardLayoutResource(){return u(this.userRoamingDataHome,"keyboardLayout.json")}get argvResource(){const e=m.VSCODE_PORTABLE;return e?i.file(p(e,"argv.json")):u(this.userHome,this.c.dataFolderName,"argv.json")}get isExtensionDevelopment(){return!!this.args.extensionDevelopmentPath}get untitledWorkspacesHome(){return i.file(p(this.userDataPath,"Workspaces"))}get builtinWorkbenchModesHome(){return u(i.file(this.appRoot),"resources","workbenchModes")}get builtinExtensionsPath(){const e=this.args["builtin-extensions-dir"];return e?y(e):d(p(x.asFileUri("").fsPath,"..","extensions"))}get extensionsDownloadLocation(){const e=this.args["extensions-download-dir"];return e?i.file(y(e)):i.file(p(this.userDataPath,"CachedExtensionVSIXs"))}get extensionsPath(){const e=this.args["extensions-dir"];if(e)return y(e);const s=m.VSCODE_EXTENSIONS;if(s)return s;const n=m.VSCODE_PORTABLE;return n?p(n,"extensions"):u(this.userHome,this.c.dataFolderName,"extensions").fsPath}get extensionDevelopmentLocationURI(){const e=this.args.extensionDevelopmentPath;if(Array.isArray(e))return e.map(s=>/^[^:/?#]+?:\/\//.test(s)?i.parse(s):i.file(d(s)))}get extensionDevelopmentKind(){return this.args.extensionDevelopmentKind?.map(e=>e==="ui"||e==="workspace"||e==="web"?e:"workspace")}get extensionTestsLocationURI(){const e=this.args.extensionTestsPath;if(e)return/^[^:/?#]+?:\/\//.test(e)?i.parse(e):i.file(d(e))}get disableExtensions(){if(this.args["disable-extensions"])return!0;const e=this.args["disable-extension"];if(e){if(typeof e=="string")return[e];if(Array.isArray(e)&&e.length>0)return e}return!1}get debugExtensionHost(){return v(this.args,this.isBuilt)}get debugRenderer(){return!!this.args.debugRenderer}get isBuilt(){return!m.VSCODE_DEV}get verbose(){return!!this.args.verbose}get logLevel(){return this.args.log?.find(e=>!b.test(e))}get extensionLogLevel(){const e=[];for(const s of this.args.log||[]){const n=b.exec(s);n?.[1]&&n[2]&&e.push([n[1],n[2]])}return e.length?e:void 0}get serviceMachineIdResource(){return u(i.file(this.userDataPath),"machineid")}get crashReporterId(){return this.args["crash-reporter-id"]}get crashReporterDirectory(){return this.args["crash-reporter-directory"]}get disableTelemetry(){return!!this.args["disable-telemetry"]}get disableExperiments(){return!!this.args["disable-experiments"]}get disableWorkspaceTrust(){return!!this.args["disable-workspace-trust"]}get useInMemorySecretStorage(){return!!this.args["use-inmemory-secretstorage"]}get policyFile(){if(this.args["__enable-file-policy"]){const e=m.VSCODE_PORTABLE;return e?i.file(p(e,"policy.json")):u(this.userHome,this.c.dataFolderName,"policy.json")}}get agentSessionsWorkspace(){return u(this.appSettingsHome,"agent-sessions.code-workspace")}get editSessionId(){return this.args.editSessionId}get exportPolicyData(){return this.args["export-policy-data"]}get continueOn(){return this.args.continueOn}set continueOn(e){this.args.continueOn=e}get args(){return this.a}constructor(e,s,n){this.a=e,this.b=s,this.c=n}}t([r],o.prototype,"appRoot",null);t([r],o.prototype,"userHome",null);t([r],o.prototype,"userDataPath",null);t([r],o.prototype,"appSettingsHome",null);t([r],o.prototype,"tmpDir",null);t([r],o.prototype,"cacheHome",null);t([r],o.prototype,"stateResource",null);t([r],o.prototype,"userRoamingDataHome",null);t([r],o.prototype,"userDataSyncHome",null);t([r],o.prototype,"sync",null);t([r],o.prototype,"workspaceStorageHome",null);t([r],o.prototype,"localHistoryHome",null);t([r],o.prototype,"keyboardLayoutResource",null);t([r],o.prototype,"argvResource",null);t([r],o.prototype,"isExtensionDevelopment",null);t([r],o.prototype,"untitledWorkspacesHome",null);t([r],o.prototype,"builtinWorkbenchModesHome",null);t([r],o.prototype,"builtinExtensionsPath",null);t([r],o.prototype,"extensionsDownloadLocation",null);t([r],o.prototype,"extensionsPath",null);t([r],o.prototype,"extensionDevelopmentLocationURI",null);t([r],o.prototype,"extensionDevelopmentKind",null);t([r],o.prototype,"extensionTestsLocationURI",null);t([r],o.prototype,"debugExtensionHost",null);t([r],o.prototype,"logLevel",null);t([r],o.prototype,"extensionLogLevel",null);t([r],o.prototype,"serviceMachineIdResource",null);t([r],o.prototype,"disableTelemetry",null);t([r],o.prototype,"disableExperiments",null);t([r],o.prototype,"disableWorkspaceTrust",null);t([r],o.prototype,"useInMemorySecretStorage",null);t([r],o.prototype,"policyFile",null);t([r],o.prototype,"agentSessionsWorkspace",null);function v(a,e){return R(a["inspect-extensions"],a["inspect-brk-extensions"],5870,e,a.debugId,a.extensionEnvironment)}function R(a,e,s,n,c,l){const g=Number(e||a)||(n?null:s),D=g?!!e:!1;let f;if(l)try{f=JSON.parse(l)}catch{}return{port:g,break:D,debugId:c,env:f}}export{R as $1n,b as $Xn,o as $Yn,v as $Zn};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { toLocalISOString } from "../../../base/common/date.js";
+import { memoize } from "../../../base/common/decorators.js";
+import { FileAccess, Schemas } from "../../../base/common/network.js";
+import { dirname, join, normalize, resolve } from "../../../base/common/path.js";
+import { env } from "../../../base/common/process.js";
+import { joinPath } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+const EXTENSION_IDENTIFIER_WITH_LOG_REGEX = /^([^.]+\..+)[:=](.+)$/;
+class AbstractNativeEnvironmentService {
+  static {
+    __name(this, "AbstractNativeEnvironmentService");
+  }
+  get appRoot() {
+    return dirname(FileAccess.asFileUri("").fsPath);
+  }
+  get userHome() {
+    return URI.file(this.paths.homeDir);
+  }
+  get userDataPath() {
+    return this.paths.userDataDir;
+  }
+  get appSettingsHome() {
+    return URI.file(join(this.userDataPath, "User"));
+  }
+  get tmpDir() {
+    return URI.file(this.paths.tmpDir);
+  }
+  get cacheHome() {
+    return URI.file(this.userDataPath);
+  }
+  get stateResource() {
+    return joinPath(this.appSettingsHome, "globalStorage", "storage.json");
+  }
+  get userRoamingDataHome() {
+    return this.appSettingsHome.with({ scheme: Schemas.vscodeUserData });
+  }
+  get userDataSyncHome() {
+    return joinPath(this.appSettingsHome, "sync");
+  }
+  get logsHome() {
+    if (!this.args.logsPath) {
+      const key = toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "");
+      this.args.logsPath = join(this.userDataPath, "logs", key);
+    }
+    return URI.file(this.args.logsPath);
+  }
+  get sync() {
+    return this.args.sync;
+  }
+  get workspaceStorageHome() {
+    return joinPath(this.appSettingsHome, "workspaceStorage");
+  }
+  get localHistoryHome() {
+    return joinPath(this.appSettingsHome, "History");
+  }
+  get keyboardLayoutResource() {
+    return joinPath(this.userRoamingDataHome, "keyboardLayout.json");
+  }
+  get argvResource() {
+    const vscodePortable = env["VSCODE_PORTABLE"];
+    if (vscodePortable) {
+      return URI.file(join(vscodePortable, "argv.json"));
+    }
+    return joinPath(this.userHome, this.productService.dataFolderName, "argv.json");
+  }
+  get isExtensionDevelopment() {
+    return !!this.args.extensionDevelopmentPath;
+  }
+  get untitledWorkspacesHome() {
+    return URI.file(join(this.userDataPath, "Workspaces"));
+  }
+  get builtinWorkbenchModesHome() {
+    return joinPath(URI.file(this.appRoot), "resources", "workbenchModes");
+  }
+  get builtinExtensionsPath() {
+    const cliBuiltinExtensionsDir = this.args["builtin-extensions-dir"];
+    if (cliBuiltinExtensionsDir) {
+      return resolve(cliBuiltinExtensionsDir);
+    }
+    return normalize(join(FileAccess.asFileUri("").fsPath, "..", "extensions"));
+  }
+  get extensionsDownloadLocation() {
+    const cliExtensionsDownloadDir = this.args["extensions-download-dir"];
+    if (cliExtensionsDownloadDir) {
+      return URI.file(resolve(cliExtensionsDownloadDir));
+    }
+    return URI.file(join(this.userDataPath, "CachedExtensionVSIXs"));
+  }
+  get extensionsPath() {
+    const cliExtensionsDir = this.args["extensions-dir"];
+    if (cliExtensionsDir) {
+      return resolve(cliExtensionsDir);
+    }
+    const vscodeExtensions = env["VSCODE_EXTENSIONS"];
+    if (vscodeExtensions) {
+      return vscodeExtensions;
+    }
+    const vscodePortable = env["VSCODE_PORTABLE"];
+    if (vscodePortable) {
+      return join(vscodePortable, "extensions");
+    }
+    return joinPath(this.userHome, this.productService.dataFolderName, "extensions").fsPath;
+  }
+  get extensionDevelopmentLocationURI() {
+    const extensionDevelopmentPaths = this.args.extensionDevelopmentPath;
+    if (Array.isArray(extensionDevelopmentPaths)) {
+      return extensionDevelopmentPaths.map((extensionDevelopmentPath) => {
+        if (/^[^:/?#]+?:\/\//.test(extensionDevelopmentPath)) {
+          return URI.parse(extensionDevelopmentPath);
+        }
+        return URI.file(normalize(extensionDevelopmentPath));
+      });
+    }
+    return void 0;
+  }
+  get extensionDevelopmentKind() {
+    return this.args.extensionDevelopmentKind?.map((kind) => kind === "ui" || kind === "workspace" || kind === "web" ? kind : "workspace");
+  }
+  get extensionTestsLocationURI() {
+    const extensionTestsPath = this.args.extensionTestsPath;
+    if (extensionTestsPath) {
+      if (/^[^:/?#]+?:\/\//.test(extensionTestsPath)) {
+        return URI.parse(extensionTestsPath);
+      }
+      return URI.file(normalize(extensionTestsPath));
+    }
+    return void 0;
+  }
+  get disableExtensions() {
+    if (this.args["disable-extensions"]) {
+      return true;
+    }
+    const disableExtensions = this.args["disable-extension"];
+    if (disableExtensions) {
+      if (typeof disableExtensions === "string") {
+        return [disableExtensions];
+      }
+      if (Array.isArray(disableExtensions) && disableExtensions.length > 0) {
+        return disableExtensions;
+      }
+    }
+    return false;
+  }
+  get debugExtensionHost() {
+    return parseExtensionHostDebugPort(this.args, this.isBuilt);
+  }
+  get debugRenderer() {
+    return !!this.args.debugRenderer;
+  }
+  get isBuilt() {
+    return !env["VSCODE_DEV"];
+  }
+  get verbose() {
+    return !!this.args.verbose;
+  }
+  get logLevel() {
+    return this.args.log?.find((entry) => !EXTENSION_IDENTIFIER_WITH_LOG_REGEX.test(entry));
+  }
+  get extensionLogLevel() {
+    const result = [];
+    for (const entry of this.args.log || []) {
+      const matches = EXTENSION_IDENTIFIER_WITH_LOG_REGEX.exec(entry);
+      if (matches?.[1] && matches[2]) {
+        result.push([matches[1], matches[2]]);
+      }
+    }
+    return result.length ? result : void 0;
+  }
+  get serviceMachineIdResource() {
+    return joinPath(URI.file(this.userDataPath), "machineid");
+  }
+  get crashReporterId() {
+    return this.args["crash-reporter-id"];
+  }
+  get crashReporterDirectory() {
+    return this.args["crash-reporter-directory"];
+  }
+  get disableTelemetry() {
+    return !!this.args["disable-telemetry"];
+  }
+  get disableExperiments() {
+    return !!this.args["disable-experiments"];
+  }
+  get disableWorkspaceTrust() {
+    return !!this.args["disable-workspace-trust"];
+  }
+  get useInMemorySecretStorage() {
+    return !!this.args["use-inmemory-secretstorage"];
+  }
+  get policyFile() {
+    if (this.args["__enable-file-policy"]) {
+      const vscodePortable = env["VSCODE_PORTABLE"];
+      if (vscodePortable) {
+        return URI.file(join(vscodePortable, "policy.json"));
+      }
+      return joinPath(this.userHome, this.productService.dataFolderName, "policy.json");
+    }
+    return void 0;
+  }
+  get agentSessionsWorkspace() {
+    return joinPath(this.appSettingsHome, "agent-sessions.code-workspace");
+  }
+  get editSessionId() {
+    return this.args["editSessionId"];
+  }
+  get exportPolicyData() {
+    return this.args["export-policy-data"];
+  }
+  get continueOn() {
+    return this.args["continueOn"];
+  }
+  set continueOn(value) {
+    this.args["continueOn"] = value;
+  }
+  get args() {
+    return this._args;
+  }
+  constructor(_args, paths, productService) {
+    this._args = _args;
+    this.paths = paths;
+    this.productService = productService;
+  }
+}
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "appRoot", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "userHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "userDataPath", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "appSettingsHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "tmpDir", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "cacheHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "stateResource", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "userRoamingDataHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "userDataSyncHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "sync", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "workspaceStorageHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "localHistoryHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "keyboardLayoutResource", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "argvResource", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "isExtensionDevelopment", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "untitledWorkspacesHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "builtinWorkbenchModesHome", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "builtinExtensionsPath", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "extensionsDownloadLocation", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "extensionsPath", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "extensionDevelopmentLocationURI", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "extensionDevelopmentKind", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "extensionTestsLocationURI", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "debugExtensionHost", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "logLevel", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "extensionLogLevel", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "serviceMachineIdResource", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "disableTelemetry", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "disableExperiments", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "disableWorkspaceTrust", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "useInMemorySecretStorage", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "policyFile", null);
+__decorate([
+  memoize
+], AbstractNativeEnvironmentService.prototype, "agentSessionsWorkspace", null);
+function parseExtensionHostDebugPort(args, isBuilt) {
+  return parseDebugParams(args["inspect-extensions"], args["inspect-brk-extensions"], 5870, isBuilt, args.debugId, args.extensionEnvironment);
+}
+__name(parseExtensionHostDebugPort, "parseExtensionHostDebugPort");
+function parseDebugParams(debugArg, debugBrkArg, defaultBuildPort, isBuilt, debugId, environmentString) {
+  const portStr = debugBrkArg || debugArg;
+  const port = Number(portStr) || (!isBuilt ? defaultBuildPort : null);
+  const brk = port ? Boolean(!!debugBrkArg) : false;
+  let env2;
+  if (environmentString) {
+    try {
+      env2 = JSON.parse(environmentString);
+    } catch {
+    }
+  }
+  return { port, break: brk, debugId, env: env2 };
+}
+__name(parseDebugParams, "parseDebugParams");
+export {
+  AbstractNativeEnvironmentService,
+  EXTENSION_IDENTIFIER_WITH_LOG_REGEX,
+  parseDebugParams,
+  parseExtensionHostDebugPort
+};
+//# sourceMappingURL=environmentService.js.map

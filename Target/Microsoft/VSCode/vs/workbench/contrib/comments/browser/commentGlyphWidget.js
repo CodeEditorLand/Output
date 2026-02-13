@@ -1,1 +1,106 @@
-import*as t from"../../../../nls.js";import{$Up as i}from"../../../../base/common/color.js";import{OverviewRulerLane as f}from"../../../../editor/common/model.js";import{$aL as v}from"../../../../editor/common/model/textModel.js";import{$5p as b,$Jq as s,$Kq as l,$Es as m,$8p as h,$2p as r}from"../../../../platform/theme/common/colorRegistry.js";import{$ru as $}from"../../../../platform/theme/common/themeService.js";import{CommentThreadState as c}from"../../../../editor/common/languages.js";import{$Ed as C,$Cd as D}from"../../../../base/common/lifecycle.js";import{$xf as L}from"../../../../base/common/event.js";const w=r("editorGutter.commentRangeForeground",{dark:h(m,s),light:b(h(m,s),.05),hcDark:i.white,hcLight:i.black},t.localize(7390,null)),a=r("editorOverviewRuler.commentForeground",w,t.localize(7391,null)),u=r("editorOverviewRuler.commentUnresolvedForeground",a,t.localize(7392,null)),R=r("editorOverviewRuler.commentDraftForeground",u,t.localize(7393,null)),d=r("editorGutter.commentGlyphForeground",{dark:l,light:l,hcDark:i.black,hcLight:i.white},t.localize(7394,null));r("editorGutter.commentUnresolvedGlyphForeground",d,t.localize(7395,null));r("editorGutter.commentDraftGlyphForeground",d,t.localize(7396,null));class g extends C{static{this.description="comment-glyph-widget"}constructor(e,o){super(),this.f=!1,this.j=this.D(new L),this.onDidChangeLineNumber=this.j.event,this.h=this.m(),this.b=e,this.g=this.b.createDecorationsCollection(),this.D(this.g.onDidChange(p=>{const n=this.g.length>0?this.g.getRange(0):null;n&&n.endLineNumber!==this.a&&(this.a=n.endLineNumber,this.j.fire(this.a))})),this.D(D(()=>this.g.clear())),this.setLineNumber(o)}m(){let e;this.f?e="comment-range-glyph comment-thread-draft":e=`comment-range-glyph comment-thread${this.c===c.Unresolved?"-unresolved":""}`;const o={description:g.description,isWholeLine:!0,overviewRuler:{color:$(this.f?R:this.c===c.Unresolved?u:a),position:f.Center},collapseOnReplaceEdit:!0,linesDecorationsClassName:e};return v.createDynamic(o)}setThreadState(e,o=!1){(this.c!==e||this.f!==o)&&(this.c=e,this.f=o,this.h=this.m(),this.n())}n(){const e=[{range:{startLineNumber:this.a,startColumn:1,endLineNumber:this.a,endColumn:1},options:this.h}];this.g.set(e)}setLineNumber(e){this.a=e,this.n()}getPosition(){const e=this.g.length>0?this.g.getRange(0):null;return{position:{lineNumber:e?e.endLineNumber:this.a,column:1},preference:[0]}}}export{g as $$8b,w as $08b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { Color } from "../../../../base/common/color.js";
+import { OverviewRulerLane } from "../../../../editor/common/model.js";
+import { ModelDecorationOptions } from "../../../../editor/common/model/textModel.js";
+import { darken, editorBackground, editorForeground, listInactiveSelectionBackground, opaque, registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { CommentThreadState } from "../../../../editor/common/languages.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+const overviewRulerCommentingRangeForeground = registerColor("editorGutter.commentRangeForeground", { dark: opaque(listInactiveSelectionBackground, editorBackground), light: darken(opaque(listInactiveSelectionBackground, editorBackground), 0.05), hcDark: Color.white, hcLight: Color.black }, nls.localize("editorGutterCommentRangeForeground", "Editor gutter decoration color for commenting ranges. This color should be opaque."));
+const overviewRulerCommentForeground = registerColor("editorOverviewRuler.commentForeground", overviewRulerCommentingRangeForeground, nls.localize("editorOverviewRuler.commentForeground", "Editor overview ruler decoration color for resolved comments. This color should be opaque."));
+const overviewRulerCommentUnresolvedForeground = registerColor("editorOverviewRuler.commentUnresolvedForeground", overviewRulerCommentForeground, nls.localize("editorOverviewRuler.commentUnresolvedForeground", "Editor overview ruler decoration color for unresolved comments. This color should be opaque."));
+const overviewRulerCommentDraftForeground = registerColor("editorOverviewRuler.commentDraftForeground", overviewRulerCommentUnresolvedForeground, nls.localize("editorOverviewRuler.commentDraftForeground", "Editor overview ruler decoration color for comment threads with draft comments. This color should be opaque."));
+const editorGutterCommentGlyphForeground = registerColor("editorGutter.commentGlyphForeground", { dark: editorForeground, light: editorForeground, hcDark: Color.black, hcLight: Color.white }, nls.localize("editorGutterCommentGlyphForeground", "Editor gutter decoration color for commenting glyphs."));
+registerColor("editorGutter.commentUnresolvedGlyphForeground", editorGutterCommentGlyphForeground, nls.localize("editorGutterCommentUnresolvedGlyphForeground", "Editor gutter decoration color for commenting glyphs for unresolved comment threads."));
+registerColor("editorGutter.commentDraftGlyphForeground", editorGutterCommentGlyphForeground, nls.localize("editorGutterCommentDraftGlyphForeground", "Editor gutter decoration color for commenting glyphs for comment threads with draft comments."));
+class CommentGlyphWidget extends Disposable {
+  static {
+    __name(this, "CommentGlyphWidget");
+  }
+  static {
+    this.description = "comment-glyph-widget";
+  }
+  constructor(editor, lineNumber) {
+    super();
+    this._threadHasDraft = false;
+    this._onDidChangeLineNumber = this._register(new Emitter());
+    this.onDidChangeLineNumber = this._onDidChangeLineNumber.event;
+    this._commentsOptions = this.createDecorationOptions();
+    this._editor = editor;
+    this._commentsDecorations = this._editor.createDecorationsCollection();
+    this._register(this._commentsDecorations.onDidChange((e) => {
+      const range = this._commentsDecorations.length > 0 ? this._commentsDecorations.getRange(0) : null;
+      if (range && range.endLineNumber !== this._lineNumber) {
+        this._lineNumber = range.endLineNumber;
+        this._onDidChangeLineNumber.fire(this._lineNumber);
+      }
+    }));
+    this._register(toDisposable(() => this._commentsDecorations.clear()));
+    this.setLineNumber(lineNumber);
+  }
+  createDecorationOptions() {
+    let className;
+    if (this._threadHasDraft) {
+      className = "comment-range-glyph comment-thread-draft";
+    } else {
+      const unresolved = this._threadState === CommentThreadState.Unresolved;
+      className = `comment-range-glyph comment-thread${unresolved ? "-unresolved" : ""}`;
+    }
+    const decorationOptions = {
+      description: CommentGlyphWidget.description,
+      isWholeLine: true,
+      overviewRuler: {
+        color: themeColorFromId(this._threadHasDraft ? overviewRulerCommentDraftForeground : this._threadState === CommentThreadState.Unresolved ? overviewRulerCommentUnresolvedForeground : overviewRulerCommentForeground),
+        position: OverviewRulerLane.Center
+      },
+      collapseOnReplaceEdit: true,
+      linesDecorationsClassName: className
+    };
+    return ModelDecorationOptions.createDynamic(decorationOptions);
+  }
+  setThreadState(state, hasDraft = false) {
+    if (this._threadState !== state || this._threadHasDraft !== hasDraft) {
+      this._threadState = state;
+      this._threadHasDraft = hasDraft;
+      this._commentsOptions = this.createDecorationOptions();
+      this._updateDecorations();
+    }
+  }
+  _updateDecorations() {
+    const commentsDecorations = [{
+      range: {
+        startLineNumber: this._lineNumber,
+        startColumn: 1,
+        endLineNumber: this._lineNumber,
+        endColumn: 1
+      },
+      options: this._commentsOptions
+    }];
+    this._commentsDecorations.set(commentsDecorations);
+  }
+  setLineNumber(lineNumber) {
+    this._lineNumber = lineNumber;
+    this._updateDecorations();
+  }
+  getPosition() {
+    const range = this._commentsDecorations.length > 0 ? this._commentsDecorations.getRange(0) : null;
+    return {
+      position: {
+        lineNumber: range ? range.endLineNumber : this._lineNumber,
+        column: 1
+      },
+      preference: [
+        0
+        /* ContentWidgetPositionPreference.EXACT */
+      ]
+    };
+  }
+}
+export {
+  CommentGlyphWidget,
+  overviewRulerCommentingRangeForeground
+};
+//# sourceMappingURL=commentGlyphWidget.js.map

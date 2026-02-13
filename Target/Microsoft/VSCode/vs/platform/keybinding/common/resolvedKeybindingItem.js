@@ -1,1 +1,39 @@
-class u{constructor(t,s,e,h,r,o,c){this._resolvedKeybindingItemBrand=void 0,this.resolvedKeybinding=t,this.chords=t?n(t.getDispatchChords()):[],t&&this.chords.length===0&&(this.chords=n(t.getSingleModifierDispatchChords())),this.bubble=s?s.charCodeAt(0)===94:!1,this.command=this.bubble?s.substr(1):s,this.commandArgs=e,this.when=h,this.isDefault=r,this.extensionId=o,this.isBuiltinExtension=c}}function n(i){const t=[];for(let s=0,e=i.length;s<e;s++){const h=i[s];if(!h)return[];t.push(h)}return t}export{u as $by,n as $cy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class ResolvedKeybindingItem {
+  static {
+    __name(this, "ResolvedKeybindingItem");
+  }
+  constructor(resolvedKeybinding, command, commandArgs, when, isDefault, extensionId, isBuiltinExtension) {
+    this._resolvedKeybindingItemBrand = void 0;
+    this.resolvedKeybinding = resolvedKeybinding;
+    this.chords = resolvedKeybinding ? toEmptyArrayIfContainsNull(resolvedKeybinding.getDispatchChords()) : [];
+    if (resolvedKeybinding && this.chords.length === 0) {
+      this.chords = toEmptyArrayIfContainsNull(resolvedKeybinding.getSingleModifierDispatchChords());
+    }
+    this.bubble = command ? command.charCodeAt(0) === 94 : false;
+    this.command = this.bubble ? command.substr(1) : command;
+    this.commandArgs = commandArgs;
+    this.when = when;
+    this.isDefault = isDefault;
+    this.extensionId = extensionId;
+    this.isBuiltinExtension = isBuiltinExtension;
+  }
+}
+function toEmptyArrayIfContainsNull(arr) {
+  const result = [];
+  for (let i = 0, len = arr.length; i < len; i++) {
+    const element = arr[i];
+    if (!element) {
+      return [];
+    }
+    result.push(element);
+  }
+  return result;
+}
+__name(toEmptyArrayIfContainsNull, "toEmptyArrayIfContainsNull");
+export {
+  ResolvedKeybindingItem,
+  toEmptyArrayIfContainsNull
+};
+//# sourceMappingURL=resolvedKeybindingItem.js.map

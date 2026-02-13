@@ -1,1 +1,124 @@
-import*as f from"../../../../../../../base/browser/dom.js";import{$L0 as d}from"../../../../../../../base/browser/markdownRenderer.js";import{$60 as g}from"../../../../../../../base/browser/ui/aria/aria.js";import{$jk as v}from"../../../../../../../base/common/htmlContent.js";import{$fk as $}from"../../../../../../../base/common/iconLabels.js";import{autorun as b}from"../../../../../../../base/common/observable.js";import{$0l as C}from"../../../../../../../platform/configuration/common/configuration.js";import{$Mj as y}from"../../../../../../../platform/instantiation/common/instantiation.js";import{IChatToolInvocation as m}from"../../../../common/chatService/chatService.js";import{$V2b as _}from"../chatProgressContentPart.js";import{$o3b as I}from"./chatToolInvocationSubPart.js";var l=function(h,t,e,o){var i=arguments.length,s=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,e,o);else for(var n=h.length-1;n>=0;n--)(r=h[n])&&(s=(i<3?r(s):i>3?r(t,e,s):r(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},a=function(h,t){return function(e,o){t(e,o,h)}};let p=class extends I{constructor(t,e,o,i,s,r){super(t),this.h=e,this.m=o,this.n=i,this.q=s,this.t=r,this.codeblocks=[],this.domNode=this.u()}u(){if(m.isComplete(this.g)&&this.w&&this.g.pastTenseMessage){const e=this.z("complete"),o=this.g.pastTenseMessage??this.g.invocationMessage;if(!this.G(o))return document.createElement("div");const i=this.g.kind==="toolInvocation"&&this.G(o)?this.C(e):!1,s=this.y(o,i);return this.D(s),s.domNode}else{const e=document.createElement("div"),o=this.g.kind==="toolInvocation"?this.g.state.map((i,s)=>i.type===2?i.progress.read(s):void 0):void 0;return this.D(b(i=>{const s=o?.read(i),r=this.z("progress"),n=s?.message??this.g.invocationMessage;if(!this.G(n)){f.$t8(e);return}const c=this.g.kind==="toolInvocation"&&this.G(n)?this.C(r):!1,u=i.store.add(this.y(n,c));f.$A9(e,u.domNode)})),e}}get w(){const t=m.executionConfirmedOrDenied(this.g);return!!t&&t.type!==0}y(t,e){typeof t=="string"&&(t=new v().appendText(t));const o={kind:"progressMessage",content:t};return e&&this.F(t),this.q.createInstance(_,o,this.m,this.h,void 0,!0,this.j(),this.g)}z(t){return`${t}:${this.g.toolCallId}`}C(t){return!this.n||!this.t.getValue("accessibility.verboseChatProgressUpdates")||this.n.has(t)?!1:(this.n.add(t),!0)}F(t){const e=typeof t=="string"?t:$(d(t,{useLinkFormatter:!0}));g(e)}G(t){return t?(typeof t=="string"?t:t.value).trim().length>0:!1}};p=l([a(4,y),a(5,C)],p);export{p as $33b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { renderAsPlaintext } from "../../../../../../../base/browser/markdownRenderer.js";
+import { status } from "../../../../../../../base/browser/ui/aria/aria.js";
+import { MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { stripIcons } from "../../../../../../../base/common/iconLabels.js";
+import { autorun } from "../../../../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+import { ChatProgressContentPart } from "../chatProgressContentPart.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+let ChatToolProgressSubPart = class ChatToolProgressSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatToolProgressSubPart");
+  }
+  constructor(toolInvocation, context, renderer, announcedToolProgressKeys, instantiationService, configurationService) {
+    super(toolInvocation);
+    this.context = context;
+    this.renderer = renderer;
+    this.announcedToolProgressKeys = announcedToolProgressKeys;
+    this.instantiationService = instantiationService;
+    this.configurationService = configurationService;
+    this.codeblocks = [];
+    this.domNode = this.createProgressPart();
+  }
+  createProgressPart() {
+    const isComplete = IChatToolInvocation.isComplete(this.toolInvocation);
+    if (isComplete && this.toolIsConfirmed && this.toolInvocation.pastTenseMessage) {
+      const key = this.getAnnouncementKey("complete");
+      const completionContent = this.toolInvocation.pastTenseMessage ?? this.toolInvocation.invocationMessage;
+      if (!this.hasMeaningfulContent(completionContent)) {
+        return document.createElement("div");
+      }
+      const shouldAnnounce = this.toolInvocation.kind === "toolInvocation" && this.hasMeaningfulContent(completionContent) ? this.computeShouldAnnounce(key) : false;
+      const part = this.renderProgressContent(completionContent, shouldAnnounce);
+      this._register(part);
+      return part.domNode;
+    } else {
+      const container = document.createElement("div");
+      const progressObservable = this.toolInvocation.kind === "toolInvocation" ? this.toolInvocation.state.map((s, r) => s.type === 2 ? s.progress.read(r) : void 0) : void 0;
+      this._register(autorun((reader) => {
+        const progress = progressObservable?.read(reader);
+        const key = this.getAnnouncementKey("progress");
+        const progressContent = progress?.message ?? this.toolInvocation.invocationMessage;
+        if (!this.hasMeaningfulContent(progressContent)) {
+          dom.clearNode(container);
+          return;
+        }
+        const shouldAnnounce = this.toolInvocation.kind === "toolInvocation" && this.hasMeaningfulContent(progressContent) ? this.computeShouldAnnounce(key) : false;
+        const part = reader.store.add(this.renderProgressContent(progressContent, shouldAnnounce));
+        dom.reset(container, part.domNode);
+      }));
+      return container;
+    }
+  }
+  get toolIsConfirmed() {
+    const c = IChatToolInvocation.executionConfirmedOrDenied(this.toolInvocation);
+    return !!c && c.type !== 0;
+  }
+  renderProgressContent(content, shouldAnnounce) {
+    if (typeof content === "string") {
+      content = new MarkdownString().appendText(content);
+    }
+    const progressMessage = {
+      kind: "progressMessage",
+      content
+    };
+    if (shouldAnnounce) {
+      this.provideScreenReaderStatus(content);
+    }
+    return this.instantiationService.createInstance(ChatProgressContentPart, progressMessage, this.renderer, this.context, void 0, true, this.getIcon(), this.toolInvocation);
+  }
+  getAnnouncementKey(kind) {
+    return `${kind}:${this.toolInvocation.toolCallId}`;
+  }
+  computeShouldAnnounce(key) {
+    if (!this.announcedToolProgressKeys) {
+      return false;
+    }
+    if (!this.configurationService.getValue(
+      "accessibility.verboseChatProgressUpdates"
+      /* AccessibilityWorkbenchSettingId.VerboseChatProgressUpdates */
+    )) {
+      return false;
+    }
+    if (this.announcedToolProgressKeys.has(key)) {
+      return false;
+    }
+    this.announcedToolProgressKeys.add(key);
+    return true;
+  }
+  provideScreenReaderStatus(content) {
+    const message = typeof content === "string" ? content : stripIcons(renderAsPlaintext(content, { useLinkFormatter: true }));
+    status(message);
+  }
+  hasMeaningfulContent(content) {
+    if (!content) {
+      return false;
+    }
+    const text = typeof content === "string" ? content : content.value;
+    return text.trim().length > 0;
+  }
+};
+ChatToolProgressSubPart = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IConfigurationService)
+], ChatToolProgressSubPart);
+export {
+  ChatToolProgressSubPart
+};
+//# sourceMappingURL=chatToolProgressPart.js.map

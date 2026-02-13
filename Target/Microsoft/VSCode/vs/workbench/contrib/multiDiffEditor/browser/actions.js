@@ -1,1 +1,196 @@
-import{$bk as a}from"../../../../base/common/codicons.js";import{localize2 as s}from"../../../../nls.js";import{$vL as c,$qL as n}from"../../../../platform/actions/common/actions.js";import{$0n as t}from"../../../../platform/contextkey/common/contextkey.js";import{$Prb as D}from"../../../../platform/list/browser/listService.js";import{$uSb as w}from"../../../browser/parts/editor/editorCommandsContext.js";import{$rgc as o}from"./multiDiffEditor.js";import{$e1b as x}from"./multiDiffEditorInput.js";import{$xL as C}from"../../../services/editor/common/editorGroupsService.js";import{$BL as u}from"../../../services/editor/common/editorService.js";import{$NO as v}from"../../../common/contextkeys.js";class S extends c{constructor(){super({id:"multiDiffEditor.goToFile",title:s(10669,"Open File"),icon:a.goToFile,precondition:v.isEqualTo(o.ID),menu:{when:v.isEqualTo(o.ID),id:n.MultiDiffEditorFileToolbar,order:22,group:"navigation"}})}async run(e,...d){const i=d[0],l=e.get(u),r=l.activeEditorPane;let f;if(!(r instanceof o))return;const g=r.tryGetCodeEditor(i);g&&(f=g.editor.getSelections()??void 0);let E=i;const m=r.findDocumentDiffItem(i);m&&m.goToFileUri&&(E=m.goToFileUri),await l.openEditor({label:m?.goToFileEditorTitle,resource:E,options:{selection:f?.[0],selectionRevealType:1}})}}class U extends c{constructor(){super({id:"multiDiffEditor.goToNextChange",title:s(10670,"Go to Next Change"),icon:a.arrowDown,precondition:t.equals("activeEditor",o.ID),menu:[n.EditorTitle,n.CompactWindowEditorTitle].map(e=>({id:e,when:t.equals("activeEditor",o.ID),group:"navigation",order:2})),keybinding:{primary:575,weight:100,when:t.equals("activeEditor",o.ID)},f1:!0})}async run(e){const i=e.get(u).activeEditorPane;i instanceof o&&i.goToNextChange()}}class W extends c{constructor(){super({id:"multiDiffEditor.goToPreviousChange",title:s(10671,"Go to Previous Change"),icon:a.arrowUp,precondition:t.equals("activeEditor",o.ID),menu:[n.EditorTitle,n.CompactWindowEditorTitle].map(e=>({id:e,when:t.equals("activeEditor",o.ID),group:"navigation",order:1})),keybinding:{primary:1599,weight:100,when:t.equals("activeEditor",o.ID)},f1:!0})}async run(e){const i=e.get(u).activeEditorPane;i instanceof o&&i.goToPreviousChange()}}class L extends c{constructor(){super({id:"multiDiffEditor.collapseAll",title:s(10672,"Collapse All Diffs"),icon:a.collapseAll,precondition:t.and(t.equals("activeEditor",o.ID),t.not("multiDiffEditorAllCollapsed")),menu:[n.EditorTitle,n.CompactWindowEditorTitle].map(e=>({id:e,when:t.and(t.equals("activeEditor",o.ID),t.not("multiDiffEditorAllCollapsed")),group:"navigation",order:100})),f1:!0})}async run(e,...d){const l=w(d,e.get(u),e.get(C),e.get(D)).groupedEditors[0];if(!l)return;const r=l.editors[0];r instanceof x&&(await r.getViewModel()).collapseAll()}}class N extends c{constructor(){super({id:"multiDiffEditor.expandAll",title:s(10673,"Expand All Diffs"),icon:a.expandAll,precondition:t.and(t.equals("activeEditor",o.ID),t.has("multiDiffEditorAllCollapsed")),menu:[n.EditorTitle,n.CompactWindowEditorTitle].map(e=>({id:e,when:t.and(t.equals("activeEditor",o.ID),t.has("multiDiffEditorAllCollapsed")),group:"navigation",order:100})),f1:!0})}async run(e,...d){const l=w(d,e.get(u),e.get(C),e.get(D)).groupedEditors[0];if(!l)return;const r=l.editors[0];r instanceof x&&(await r.getViewModel()).expandAll()}}export{S as $UAc,U as $VAc,W as $WAc,L as $XAc,N as $YAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize2 } from "../../../../nls.js";
+import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IListService } from "../../../../platform/list/browser/listService.js";
+import { resolveCommandsContext } from "../../../browser/parts/editor/editorCommandsContext.js";
+import { MultiDiffEditor } from "./multiDiffEditor.js";
+import { MultiDiffEditorInput } from "./multiDiffEditorInput.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ActiveEditorContext } from "../../../common/contextkeys.js";
+class GoToFileAction extends Action2 {
+  static {
+    __name(this, "GoToFileAction");
+  }
+  constructor() {
+    super({
+      id: "multiDiffEditor.goToFile",
+      title: localize2("goToFile", "Open File"),
+      icon: Codicon.goToFile,
+      precondition: ActiveEditorContext.isEqualTo(MultiDiffEditor.ID),
+      menu: {
+        when: ActiveEditorContext.isEqualTo(MultiDiffEditor.ID),
+        id: MenuId.MultiDiffEditorFileToolbar,
+        order: 22,
+        group: "navigation"
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const uri = args[0];
+    const editorService = accessor.get(IEditorService);
+    const activeEditorPane = editorService.activeEditorPane;
+    let selections = void 0;
+    if (!(activeEditorPane instanceof MultiDiffEditor)) {
+      return;
+    }
+    const editor = activeEditorPane.tryGetCodeEditor(uri);
+    if (editor) {
+      selections = editor.editor.getSelections() ?? void 0;
+    }
+    let targetUri = uri;
+    const item = activeEditorPane.findDocumentDiffItem(uri);
+    if (item && item.goToFileUri) {
+      targetUri = item.goToFileUri;
+    }
+    await editorService.openEditor({
+      label: item?.goToFileEditorTitle,
+      resource: targetUri,
+      options: {
+        selection: selections?.[0],
+        selectionRevealType: 1
+      }
+    });
+  }
+}
+class GoToNextChangeAction extends Action2 {
+  static {
+    __name(this, "GoToNextChangeAction");
+  }
+  constructor() {
+    super({
+      id: "multiDiffEditor.goToNextChange",
+      title: localize2("goToNextChange", "Go to Next Change"),
+      icon: Codicon.arrowDown,
+      precondition: ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
+      menu: [MenuId.EditorTitle, MenuId.CompactWindowEditorTitle].map((id) => ({
+        id,
+        when: ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
+        group: "navigation",
+        order: 2
+      })),
+      keybinding: {
+        primary: 512 | 63,
+        weight: 100,
+        when: ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID)
+      },
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const activeEditorPane = editorService.activeEditorPane;
+    if (!(activeEditorPane instanceof MultiDiffEditor)) {
+      return;
+    }
+    activeEditorPane.goToNextChange();
+  }
+}
+class GoToPreviousChangeAction extends Action2 {
+  static {
+    __name(this, "GoToPreviousChangeAction");
+  }
+  constructor() {
+    super({
+      id: "multiDiffEditor.goToPreviousChange",
+      title: localize2("goToPreviousChange", "Go to Previous Change"),
+      icon: Codicon.arrowUp,
+      precondition: ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
+      menu: [MenuId.EditorTitle, MenuId.CompactWindowEditorTitle].map((id) => ({
+        id,
+        when: ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID),
+        group: "navigation",
+        order: 1
+      })),
+      keybinding: {
+        primary: 512 | 1024 | 63,
+        weight: 100,
+        when: ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID)
+      },
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const activeEditorPane = editorService.activeEditorPane;
+    if (!(activeEditorPane instanceof MultiDiffEditor)) {
+      return;
+    }
+    activeEditorPane.goToPreviousChange();
+  }
+}
+class CollapseAllAction extends Action2 {
+  static {
+    __name(this, "CollapseAllAction");
+  }
+  constructor() {
+    super({
+      id: "multiDiffEditor.collapseAll",
+      title: localize2("collapseAllDiffs", "Collapse All Diffs"),
+      icon: Codicon.collapseAll,
+      precondition: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.not("multiDiffEditorAllCollapsed")),
+      menu: [MenuId.EditorTitle, MenuId.CompactWindowEditorTitle].map((id) => ({
+        id,
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.not("multiDiffEditorAllCollapsed")),
+        group: "navigation",
+        order: 100
+      })),
+      f1: true
+    });
+  }
+  async run(accessor, ...args) {
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+    const groupContext = resolvedContext.groupedEditors[0];
+    if (!groupContext) {
+      return;
+    }
+    const editor = groupContext.editors[0];
+    if (editor instanceof MultiDiffEditorInput) {
+      const viewModel = await editor.getViewModel();
+      viewModel.collapseAll();
+    }
+  }
+}
+class ExpandAllAction extends Action2 {
+  static {
+    __name(this, "ExpandAllAction");
+  }
+  constructor() {
+    super({
+      id: "multiDiffEditor.expandAll",
+      title: localize2("ExpandAllDiffs", "Expand All Diffs"),
+      icon: Codicon.expandAll,
+      precondition: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.has("multiDiffEditorAllCollapsed")),
+      menu: [MenuId.EditorTitle, MenuId.CompactWindowEditorTitle].map((id) => ({
+        id,
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", MultiDiffEditor.ID), ContextKeyExpr.has("multiDiffEditorAllCollapsed")),
+        group: "navigation",
+        order: 100
+      })),
+      f1: true
+    });
+  }
+  async run(accessor, ...args) {
+    const resolvedContext = resolveCommandsContext(args, accessor.get(IEditorService), accessor.get(IEditorGroupsService), accessor.get(IListService));
+    const groupContext = resolvedContext.groupedEditors[0];
+    if (!groupContext) {
+      return;
+    }
+    const editor = groupContext.editors[0];
+    if (editor instanceof MultiDiffEditorInput) {
+      const viewModel = await editor.getViewModel();
+      viewModel.expandAll();
+    }
+  }
+}
+export {
+  CollapseAllAction,
+  ExpandAllAction,
+  GoToFileAction,
+  GoToNextChangeAction,
+  GoToPreviousChangeAction
+};
+//# sourceMappingURL=actions.js.map

@@ -1,1 +1,126 @@
-import{$xf as f,Event as p}from"../../../base/common/event.js";import{$Ed as d}from"../../../base/common/lifecycle.js";import{$5m as h}from"../../../base/common/marshalling.js";import{$Tl as g}from"../../workspace/common/workspace.js";class c extends d{static{this.a=100}constructor(r,t){super(),this.f=r,this.g=t,this.b=this.D(new f),this.c=new Map,this.h(t.applicationStorage,this.b)}h(r,t){this.D(p.debounce(r.onDidChangeStorage,(e,i)=>(e?e.push(i):e=[i],e),c.a)(e=>{e.length&&t.fire(this.j(e,r))}))}j(r,t){const e=new Map,i=new Set;return r.forEach(s=>{const o=t.get(s.key);typeof o=="string"?e.set(s.key,o):i.add(s.key)}),{changed:Array.from(e.entries()),deleted:Array.from(i.values())}}listen(r,t,e){switch(t){case"onDidChangeStorage":{const i=e.profile?h(e.profile):void 0;if(!i)return this.b.event;let s=this.c.get(i.id);return s||(s=this.D(new f),this.h(this.g.profileStorage(i),s),this.c.set(i.id,s)),s.event}}throw new Error(`Event not found: ${t}`)}async call(r,t,e){const i=e.profile?h(e.profile):void 0,s=g(e.workspace),o=await this.m(i,s);switch(t){case"getItems":return Array.from(o.items.entries());case"updateItems":{const n=e;if(n.insert)for(const[a,l]of n.insert)o.set(a,l);n.delete?.forEach(a=>o.delete(a));break}case"optimize":return o.optimize();case"isUsed":{const n=e.payload;return typeof n=="string"?this.g.isUsed(n):!1}default:throw new Error(`Call not found: ${t}`)}}async m(r,t){let e;t?e=this.g.workspaceStorage(t):r?e=this.g.profileStorage(r):e=this.g.applicationStorage;try{await e.init()}catch(i){this.f.error(`StorageIPC#init: Unable to init ${t?"workspace":r?"profile":"application"} storage due to ${i}`)}return e}}export{c as $3y};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { reviveIdentifier } from "../../workspace/common/workspace.js";
+class StorageDatabaseChannel extends Disposable {
+  static {
+    __name(this, "StorageDatabaseChannel");
+  }
+  static {
+    this.STORAGE_CHANGE_DEBOUNCE_TIME = 100;
+  }
+  constructor(logService, storageMainService) {
+    super();
+    this.logService = logService;
+    this.storageMainService = storageMainService;
+    this.onDidChangeApplicationStorageEmitter = this._register(new Emitter());
+    this.mapProfileToOnDidChangeProfileStorageEmitter = /* @__PURE__ */ new Map();
+    this.registerStorageChangeListeners(storageMainService.applicationStorage, this.onDidChangeApplicationStorageEmitter);
+  }
+  //#region Storage Change Events
+  registerStorageChangeListeners(storage, emitter) {
+    this._register(Event.debounce(storage.onDidChangeStorage, (prev, cur) => {
+      if (!prev) {
+        prev = [cur];
+      } else {
+        prev.push(cur);
+      }
+      return prev;
+    }, StorageDatabaseChannel.STORAGE_CHANGE_DEBOUNCE_TIME)((events) => {
+      if (events.length) {
+        emitter.fire(this.serializeStorageChangeEvents(events, storage));
+      }
+    }));
+  }
+  serializeStorageChangeEvents(events, storage) {
+    const changed = /* @__PURE__ */ new Map();
+    const deleted = /* @__PURE__ */ new Set();
+    events.forEach((event) => {
+      const existing = storage.get(event.key);
+      if (typeof existing === "string") {
+        changed.set(event.key, existing);
+      } else {
+        deleted.add(event.key);
+      }
+    });
+    return {
+      changed: Array.from(changed.entries()),
+      deleted: Array.from(deleted.values())
+    };
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  listen(_, event, arg) {
+    switch (event) {
+      case "onDidChangeStorage": {
+        const profile = arg.profile ? revive(arg.profile) : void 0;
+        if (!profile) {
+          return this.onDidChangeApplicationStorageEmitter.event;
+        }
+        let profileStorageChangeEmitter = this.mapProfileToOnDidChangeProfileStorageEmitter.get(profile.id);
+        if (!profileStorageChangeEmitter) {
+          profileStorageChangeEmitter = this._register(new Emitter());
+          this.registerStorageChangeListeners(this.storageMainService.profileStorage(profile), profileStorageChangeEmitter);
+          this.mapProfileToOnDidChangeProfileStorageEmitter.set(profile.id, profileStorageChangeEmitter);
+        }
+        return profileStorageChangeEmitter.event;
+      }
+    }
+    throw new Error(`Event not found: ${event}`);
+  }
+  //#endregion
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async call(_, command, arg) {
+    const profile = arg.profile ? revive(arg.profile) : void 0;
+    const workspace = reviveIdentifier(arg.workspace);
+    const storage = await this.withStorageInitialized(profile, workspace);
+    switch (command) {
+      case "getItems": {
+        return Array.from(storage.items.entries());
+      }
+      case "updateItems": {
+        const items = arg;
+        if (items.insert) {
+          for (const [key, value] of items.insert) {
+            storage.set(key, value);
+          }
+        }
+        items.delete?.forEach((key) => storage.delete(key));
+        break;
+      }
+      case "optimize": {
+        return storage.optimize();
+      }
+      case "isUsed": {
+        const path = arg.payload;
+        if (typeof path === "string") {
+          return this.storageMainService.isUsed(path);
+        }
+        return false;
+      }
+      default:
+        throw new Error(`Call not found: ${command}`);
+    }
+  }
+  async withStorageInitialized(profile, workspace) {
+    let storage;
+    if (workspace) {
+      storage = this.storageMainService.workspaceStorage(workspace);
+    } else if (profile) {
+      storage = this.storageMainService.profileStorage(profile);
+    } else {
+      storage = this.storageMainService.applicationStorage;
+    }
+    try {
+      await storage.init();
+    } catch (error) {
+      this.logService.error(`StorageIPC#init: Unable to init ${workspace ? "workspace" : profile ? "profile" : "application"} storage due to ${error}`);
+    }
+    return storage;
+  }
+}
+export {
+  StorageDatabaseChannel
+};
+//# sourceMappingURL=storageIpc.js.map

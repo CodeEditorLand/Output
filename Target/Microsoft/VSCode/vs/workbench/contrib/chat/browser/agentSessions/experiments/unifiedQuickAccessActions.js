@@ -1,1 +1,114 @@
-import{$vL as t,$wL as c}from"../../../../../../platform/actions/common/actions.js";import{$Mj as o}from"../../../../../../platform/instantiation/common/instantiation.js";import{localize2 as r}from"../../../../../../nls.js";import{ChatContextKeys as a}from"../../../common/actions/chatContextKeys.js";import{ChatConfiguration as u}from"../../../common/constants.js";import{$0n as i}from"../../../../../../platform/contextkey/common/contextkey.js";import{$epc as g,$dpc as l}from"./unifiedQuickAccess.js";let f;function d(k){return f||(f=k.createInstance(g,l)),f}const w="workbench.action.unifiedQuickAccess";class h extends t{static{this.ID=w}constructor(){super({id:h.ID,title:r(5597,"Show Agent Quick Access"),f1:!0,precondition:i.and(a.enabled,i.has(`config.${u.UnifiedAgentsBar}`))})}run(e,s){const n=e.get(o);d(n).show(s)}}class p extends t{static{this.ID="workbench.action.showAgentSessionsQuickAccess"}constructor(){super({id:p.ID,title:r(5598,"Show Agent Sessions"),f1:!0,precondition:i.and(a.enabled,i.has(`config.${u.UnifiedAgentsBar}`))})}run(e){const s=e.get(o);d(s).show("agentSessions")}}class A extends t{static{this.ID="workbench.action.showCommandsQuickAccess"}constructor(){super({id:A.ID,title:r(5599,"Show Commands (Unified)"),f1:!0,precondition:i.and(a.enabled,i.has(`config.${u.UnifiedAgentsBar}`))})}run(e){const s=e.get(o);d(s).show("commands")}}class m extends t{static{this.ID="workbench.action.showFilesQuickAccess"}constructor(){super({id:m.ID,title:r(5600,"Show Files (Unified)"),f1:!0,precondition:i.and(a.enabled,i.has(`config.${u.UnifiedAgentsBar}`))})}run(e){const s=e.get(o);d(s).show("files")}}c(h);c(p);c(A);c(m);export{w as $fpc,h as $gpc,p as $hpc,A as $ipc,m as $jpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { localize2 } from "../../../../../../nls.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { ChatConfiguration } from "../../../common/constants.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { UnifiedQuickAccess, DEFAULT_UNIFIED_QUICK_ACCESS_TABS } from "./unifiedQuickAccess.js";
+let unifiedQuickAccessInstance;
+function getUnifiedQuickAccess(instantiationService) {
+  if (!unifiedQuickAccessInstance) {
+    unifiedQuickAccessInstance = instantiationService.createInstance(UnifiedQuickAccess, DEFAULT_UNIFIED_QUICK_ACCESS_TABS);
+  }
+  return unifiedQuickAccessInstance;
+}
+__name(getUnifiedQuickAccess, "getUnifiedQuickAccess");
+const UNIFIED_QUICK_ACCESS_ACTION_ID = "workbench.action.unifiedQuickAccess";
+class ShowUnifiedQuickAccessAction extends Action2 {
+  static {
+    __name(this, "ShowUnifiedQuickAccessAction");
+  }
+  static {
+    this.ID = UNIFIED_QUICK_ACCESS_ACTION_ID;
+  }
+  constructor() {
+    super({
+      id: ShowUnifiedQuickAccessAction.ID,
+      title: localize2("showAgentQuickAccess", "Show Agent Quick Access"),
+      f1: true,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`))
+    });
+  }
+  run(accessor, initialTabId) {
+    const instantiationService = accessor.get(IInstantiationService);
+    const unifiedQuickAccess = getUnifiedQuickAccess(instantiationService);
+    unifiedQuickAccess.show(initialTabId);
+  }
+}
+class ShowAgentSessionsQuickAccessAction extends Action2 {
+  static {
+    __name(this, "ShowAgentSessionsQuickAccessAction");
+  }
+  static {
+    this.ID = "workbench.action.showAgentSessionsQuickAccess";
+  }
+  constructor() {
+    super({
+      id: ShowAgentSessionsQuickAccessAction.ID,
+      title: localize2("showAgentSessionsQuickAccess", "Show Agent Sessions"),
+      f1: true,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`))
+    });
+  }
+  run(accessor) {
+    const instantiationService = accessor.get(IInstantiationService);
+    const unifiedQuickAccess = getUnifiedQuickAccess(instantiationService);
+    unifiedQuickAccess.show("agentSessions");
+  }
+}
+class ShowCommandsQuickAccessAction extends Action2 {
+  static {
+    __name(this, "ShowCommandsQuickAccessAction");
+  }
+  static {
+    this.ID = "workbench.action.showCommandsQuickAccess";
+  }
+  constructor() {
+    super({
+      id: ShowCommandsQuickAccessAction.ID,
+      title: localize2("showCommandsQuickAccess", "Show Commands (Unified)"),
+      f1: true,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`))
+    });
+  }
+  run(accessor) {
+    const instantiationService = accessor.get(IInstantiationService);
+    const unifiedQuickAccess = getUnifiedQuickAccess(instantiationService);
+    unifiedQuickAccess.show("commands");
+  }
+}
+class ShowFilesQuickAccessAction extends Action2 {
+  static {
+    __name(this, "ShowFilesQuickAccessAction");
+  }
+  static {
+    this.ID = "workbench.action.showFilesQuickAccess";
+  }
+  constructor() {
+    super({
+      id: ShowFilesQuickAccessAction.ID,
+      title: localize2("showFilesQuickAccess", "Show Files (Unified)"),
+      f1: true,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.has(`config.${ChatConfiguration.UnifiedAgentsBar}`))
+    });
+  }
+  run(accessor) {
+    const instantiationService = accessor.get(IInstantiationService);
+    const unifiedQuickAccess = getUnifiedQuickAccess(instantiationService);
+    unifiedQuickAccess.show("files");
+  }
+}
+registerAction2(ShowUnifiedQuickAccessAction);
+registerAction2(ShowAgentSessionsQuickAccessAction);
+registerAction2(ShowCommandsQuickAccessAction);
+registerAction2(ShowFilesQuickAccessAction);
+export {
+  ShowAgentSessionsQuickAccessAction,
+  ShowCommandsQuickAccessAction,
+  ShowFilesQuickAccessAction,
+  ShowUnifiedQuickAccessAction,
+  UNIFIED_QUICK_ACCESS_ACTION_ID
+};
+//# sourceMappingURL=unifiedQuickAccessActions.js.map

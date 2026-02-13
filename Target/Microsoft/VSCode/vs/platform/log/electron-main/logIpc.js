@@ -1,1 +1,76 @@
-import{$Oc as g}from"../../../base/common/map.js";import{URI as r}from"../../../base/common/uri.js";import{$Ao as c,log as h,LogLevel as o}from"../common/log.js";class b{constructor(s){this.b=s,this.a=new g}listen(s,t,e){switch(t){case"onDidChangeLoggers":return e?this.b.getOnDidChangeLoggersEvent(e):this.b.onDidChangeLoggers;case"onDidChangeLogLevel":return e?this.b.getOnDidChangeLogLevelEvent(e):this.b.onDidChangeLogLevel;case"onDidChangeVisibility":return e?this.b.getOnDidChangeVisibilityEvent(e):this.b.onDidChangeVisibility}throw new Error(`Event not found: ${t}`)}async call(s,t,e){switch(t){case"createLogger":this.c(r.revive(e[0]),e[1],e[2]);return;case"log":return this.e(r.revive(e[0]),e[1]);case"consoleLog":return this.d(e[0],e[1]);case"setLogLevel":return c(e[0])?this.b.setLogLevel(e[0]):this.b.setLogLevel(r.revive(e[0]),e[1]);case"setVisibility":return this.b.setVisibility(r.revive(e[0]),e[1]);case"registerLogger":return this.b.registerLogger({...e[0],resource:r.revive(e[0].resource)},e[1]);case"deregisterLogger":return this.b.deregisterLogger(r.revive(e[0]))}throw new Error(`Call not found: ${t}`)}c(s,t,e){this.a.set(s,this.b.createLogger(s,t,e))}d(s,t){let e=console.log;switch(s){case o.Error:e=console.error;break;case o.Warning:e=console.warn;break;case o.Info:e=console.info;break}e.call(console,...t)}e(s,t){const e=this.a.get(s);if(!e)throw new Error("Create the logger before logging");for(const[i,n]of t)h(e,i,n)}}export{b as $0A};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ResourceMap } from "../../../base/common/map.js";
+import { URI } from "../../../base/common/uri.js";
+import { isLogLevel, log, LogLevel } from "../common/log.js";
+class LoggerChannel {
+  static {
+    __name(this, "LoggerChannel");
+  }
+  constructor(loggerService) {
+    this.loggerService = loggerService;
+    this.loggers = new ResourceMap();
+  }
+  listen(_, event, windowId) {
+    switch (event) {
+      case "onDidChangeLoggers":
+        return windowId ? this.loggerService.getOnDidChangeLoggersEvent(windowId) : this.loggerService.onDidChangeLoggers;
+      case "onDidChangeLogLevel":
+        return windowId ? this.loggerService.getOnDidChangeLogLevelEvent(windowId) : this.loggerService.onDidChangeLogLevel;
+      case "onDidChangeVisibility":
+        return windowId ? this.loggerService.getOnDidChangeVisibilityEvent(windowId) : this.loggerService.onDidChangeVisibility;
+    }
+    throw new Error(`Event not found: ${event}`);
+  }
+  async call(_, command, arg) {
+    switch (command) {
+      case "createLogger":
+        this.createLogger(URI.revive(arg[0]), arg[1], arg[2]);
+        return;
+      case "log":
+        return this.log(URI.revive(arg[0]), arg[1]);
+      case "consoleLog":
+        return this.consoleLog(arg[0], arg[1]);
+      case "setLogLevel":
+        return isLogLevel(arg[0]) ? this.loggerService.setLogLevel(arg[0]) : this.loggerService.setLogLevel(URI.revive(arg[0]), arg[1]);
+      case "setVisibility":
+        return this.loggerService.setVisibility(URI.revive(arg[0]), arg[1]);
+      case "registerLogger":
+        return this.loggerService.registerLogger({ ...arg[0], resource: URI.revive(arg[0].resource) }, arg[1]);
+      case "deregisterLogger":
+        return this.loggerService.deregisterLogger(URI.revive(arg[0]));
+    }
+    throw new Error(`Call not found: ${command}`);
+  }
+  createLogger(file, options, windowId) {
+    this.loggers.set(file, this.loggerService.createLogger(file, options, windowId));
+  }
+  consoleLog(level, args) {
+    let consoleFn = console.log;
+    switch (level) {
+      case LogLevel.Error:
+        consoleFn = console.error;
+        break;
+      case LogLevel.Warning:
+        consoleFn = console.warn;
+        break;
+      case LogLevel.Info:
+        consoleFn = console.info;
+        break;
+    }
+    consoleFn.call(console, ...args);
+  }
+  log(file, messages) {
+    const logger = this.loggers.get(file);
+    if (!logger) {
+      throw new Error("Create the logger before logging");
+    }
+    for (const [level, message] of messages) {
+      log(logger, level, message);
+    }
+  }
+}
+export {
+  LoggerChannel
+};
+//# sourceMappingURL=logIpc.js.map

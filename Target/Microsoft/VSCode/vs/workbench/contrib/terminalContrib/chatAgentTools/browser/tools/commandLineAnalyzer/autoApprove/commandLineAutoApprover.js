@@ -1,1 +1,323 @@
-import{$Wd as R}from"../../../../../../../../base/common/equals.js";import{$Ed as T}from"../../../../../../../../base/common/lifecycle.js";import{$Zf as y,$9f as w}from"../../../../../../../../base/common/strings.js";import{$9c as $}from"../../../../../../../../base/common/types.js";import{$0l as A}from"../../../../../../../../platform/configuration/common/configuration.js";import{$Mj as j}from"../../../../../../../../platform/instantiation/common/instantiation.js";import{$yZb as D}from"../../../../../../terminal/browser/terminal.js";import{$RCc as _}from"../../../runInTerminalHelpers.js";import{$LCc as P}from"./npmScriptAutoApprover.js";var L=function(g,e,t,s){var i=arguments.length,r=i<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(g,e,t,s);else for(var o=g.length-1;o>=0;o--)(a=g[o])&&(r=(i<3?a(r):i>3?a(e,t,r):a(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},x=function(g,e){return function(t,s){e(t,s,g)}};const v=/(?!.*)/,O=/^[A-Z_][A-Z0-9_]*=/i;let b=class extends T{constructor(e,t,s){super(),this.h=e,this.j=s,this.a=[],this.b=[],this.c=[],this.f=[],this.g=this.D(t.createInstance(P)),this.updateConfiguration(),this.D(this.h.onDidChangeConfiguration(i=>{(i.affectsConfiguration("chat.tools.terminal.autoApprove")||i.affectsConfiguration("chat.tools.terminal.ignoreDefaultAutoApproveRules")||i.affectsConfiguration("chat.agent.terminal.autoApprove"))&&this.updateConfiguration()}))}updateConfiguration(){let e=this.h.getValue("chat.tools.terminal.autoApprove");const t=this.h.inspect("chat.tools.terminal.autoApprove"),s=this.h.getValue("chat.agent.terminal.autoApprove");s&&typeof s=="object"&&e&&typeof e=="object"&&(e={...e,...s});const{denyListRules:i,allowListRules:r,allowListCommandLineRules:a,denyListCommandLineRules:o}=this.q(e,t);this.b=r,this.a=i,this.c=a,this.f=o}async isCommandAutoApproved(e,t,s,i,r){if(O.test(e))return{result:"denied",reason:`Command '${e}' is denied because it contains transient environment variables`};for(const o of this.a)if(this.n(o,e,t,s))return{result:"denied",rule:o,reason:`Command '${e}' is denied by deny list rule: ${o.sourceText}`};for(const o of this.m(r).allowListRules)if(this.n(o,e,t,s))return{result:"approved",rule:o,reason:`Command '${e}' is approved by session allow list rule: ${o.sourceText}`};for(const o of this.b)if(this.n(o,e,t,s))return{result:"approved",rule:o,reason:`Command '${e}' is approved by allow list rule: ${o.sourceText}`};const a=await this.g.isCommandAutoApproved(e,i);return a.isAutoApproved?{result:"approved",rule:{type:"npmScript",npmScriptResult:a},reason:`Command '${e}' is approved as npm script '${a.scriptName}' is defined in package.json`}:{result:"noMatch",reason:`Command '${e}' has no matching auto approve entries`}}isCommandLineAutoApproved(e,t){for(const s of this.f)if(s.regex.test(e))return{result:"denied",rule:s,reason:`Command line '${e}' is denied by deny list rule: ${s.sourceText}`};for(const s of this.m(t).allowListCommandLineRules)if(s.regex.test(e))return{result:"approved",rule:s,reason:`Command line '${e}' is approved by session allow list rule: ${s.sourceText}`};for(const s of this.c)if(s.regex.test(e))return{result:"approved",rule:s,reason:`Command line '${e}' is approved by allow list rule: ${s.sourceText}`};return{result:"noMatch",reason:`Command line '${e}' has no matching auto approve entries`}}m(e){const t=[],s=[],i=[],r=[];if(!e)return{denyListRules:t,allowListRules:s,allowListCommandLineRules:i,denyListCommandLineRules:r};const a=this.j.getSessionAutoApproveRules(e);for(const[o,p]of Object.entries(a))if(typeof p=="boolean"){const{regex:n,regexCaseInsensitive:u}=this.r(o);p===!0?s.push({regex:n,regexCaseInsensitive:u,sourceText:o,sourceTarget:"session",isDefaultRule:!1}):p===!1&&t.push({regex:n,regexCaseInsensitive:u,sourceText:o,sourceTarget:"session",isDefaultRule:!1})}else if(typeof p=="object"&&p!==null){const n=p;if(typeof n.approve=="boolean"){const{regex:u,regexCaseInsensitive:f}=this.r(o);n.approve===!0?n.matchCommandLine===!0?i.push({regex:u,regexCaseInsensitive:f,sourceText:o,sourceTarget:"session",isDefaultRule:!1}):s.push({regex:u,regexCaseInsensitive:f,sourceText:o,sourceTarget:"session",isDefaultRule:!1}):n.approve===!1&&(n.matchCommandLine===!0?r.push({regex:u,regexCaseInsensitive:f,sourceText:o,sourceTarget:"session",isDefaultRule:!1}):t.push({regex:u,regexCaseInsensitive:f,sourceText:o,sourceTarget:"session",isDefaultRule:!1}))}}return{denyListRules:t,allowListRules:s,allowListCommandLineRules:i,denyListCommandLineRules:r}}n(e,t,s,i){const r=_(s,i);return(r?e.regexCaseInsensitive:e.regex).test(t)?!0:!!(r&&t.startsWith("(")&&e.regexCaseInsensitive.test(t.slice(1)))}q(e,t){if(!e||typeof e!="object")return{denyListRules:[],allowListRules:[],allowListCommandLineRules:[],denyListCommandLineRules:[]};const s=[],i=[],r=[],a=[],o=this.h.getValue("chat.tools.terminal.ignoreDefaultAutoApproveRules")===!0;for(const[n,u]of Object.entries(e)){let h=function(l){return $(l)&&Object.prototype.hasOwnProperty.call(l,n)&&R(l[n],u)};var p=h;const f=t?.default?.value,c=!!($(f)&&Object.prototype.hasOwnProperty.call(f,n)&&R(f[n],u)),d=h(t.workspaceFolder)?6:h(t.workspaceValue)?5:h(t.userRemoteValue)?4:h(t.userLocalValue)?3:h(t.userValue)?2:h(t.applicationValue)?1:7;if(!(o&&c&&d===7)){if(typeof u=="boolean"){const{regex:l,regexCaseInsensitive:m}=this.r(n);u===!0?i.push({regex:l,regexCaseInsensitive:m,sourceText:n,sourceTarget:d,isDefaultRule:c}):u===!1&&s.push({regex:l,regexCaseInsensitive:m,sourceText:n,sourceTarget:d,isDefaultRule:c})}else if(typeof u=="object"&&u!==null){const l=u;if(typeof l.approve=="boolean"){const{regex:m,regexCaseInsensitive:C}=this.r(n);l.approve===!0?l.matchCommandLine===!0?r.push({regex:m,regexCaseInsensitive:C,sourceText:n,sourceTarget:d,isDefaultRule:c}):i.push({regex:m,regexCaseInsensitive:C,sourceText:n,sourceTarget:d,isDefaultRule:c}):l.approve===!1&&(l.matchCommandLine===!0?a.push({regex:m,regexCaseInsensitive:C,sourceText:n,sourceTarget:d,isDefaultRule:c}):s.push({regex:m,regexCaseInsensitive:C,sourceText:n,sourceTarget:d,isDefaultRule:c}))}}}}return{denyListRules:s,allowListRules:i,allowListCommandLineRules:r,denyListCommandLineRules:a}}r(e){const t=this.s(e);return t.flags.includes("i")?{regex:t,regexCaseInsensitive:t}:{regex:t,regexCaseInsensitive:new RegExp(t.source,t.flags+"i")}}s(e){const t=e.match(/^\/(?<pattern>.+)\/(?<flags>[dgimsuvy]*)$/),s=t?.groups?.pattern;if(s){let r=t.groups?.flags;if(r&&(r=r.replaceAll("g","")),s===".*")return new RegExp(s);try{const a=new RegExp(s,r||void 0);return w(a)?v:a}catch{return v}}if(e==="")return v;let i;if(e.includes("/")||e.includes("\\")){let r=e.replace(/[/\\]/g,"%%PATH_SEP%%");r=y(r),r=r.replace(/%%PATH_SEP%%*/g,"[/\\\\]"),i=`^(?:\\.[/\\\\])?${r}`}else i=y(e);return new RegExp(`^${i}\\b`)}};b=L([x(0,A),x(1,j),x(2,D)],b);export{b as $QCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { structuralEquals } from "../../../../../../../../base/common/equals.js";
+import { Disposable } from "../../../../../../../../base/common/lifecycle.js";
+import { escapeRegExpCharacters, regExpLeadsToEndlessLoop } from "../../../../../../../../base/common/strings.js";
+import { isObject } from "../../../../../../../../base/common/types.js";
+import { IConfigurationService } from "../../../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalChatService } from "../../../../../../terminal/browser/terminal.js";
+import { isPowerShell } from "../../../runInTerminalHelpers.js";
+import { NpmScriptAutoApprover } from "./npmScriptAutoApprover.js";
+const neverMatchRegex = /(?!.*)/;
+const transientEnvVarRegex = /^[A-Z_][A-Z0-9_]*=/i;
+let CommandLineAutoApprover = class CommandLineAutoApprover2 extends Disposable {
+  static {
+    __name(this, "CommandLineAutoApprover");
+  }
+  constructor(_configurationService, instantiationService, _terminalChatService) {
+    super();
+    this._configurationService = _configurationService;
+    this._terminalChatService = _terminalChatService;
+    this._denyListRules = [];
+    this._allowListRules = [];
+    this._allowListCommandLineRules = [];
+    this._denyListCommandLineRules = [];
+    this._npmScriptAutoApprover = this._register(instantiationService.createInstance(NpmScriptAutoApprover));
+    this.updateConfiguration();
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "chat.tools.terminal.autoApprove"
+        /* TerminalChatAgentToolsSettingId.AutoApprove */
+      ) || e.affectsConfiguration(
+        "chat.tools.terminal.ignoreDefaultAutoApproveRules"
+        /* TerminalChatAgentToolsSettingId.IgnoreDefaultAutoApproveRules */
+      ) || e.affectsConfiguration(
+        "chat.agent.terminal.autoApprove"
+        /* TerminalChatAgentToolsSettingId.DeprecatedAutoApproveCompatible */
+      )) {
+        this.updateConfiguration();
+      }
+    }));
+  }
+  updateConfiguration() {
+    let configValue = this._configurationService.getValue(
+      "chat.tools.terminal.autoApprove"
+      /* TerminalChatAgentToolsSettingId.AutoApprove */
+    );
+    const configInspectValue = this._configurationService.inspect(
+      "chat.tools.terminal.autoApprove"
+      /* TerminalChatAgentToolsSettingId.AutoApprove */
+    );
+    const deprecatedValue = this._configurationService.getValue(
+      "chat.agent.terminal.autoApprove"
+      /* TerminalChatAgentToolsSettingId.DeprecatedAutoApproveCompatible */
+    );
+    if (deprecatedValue && typeof deprecatedValue === "object" && configValue && typeof configValue === "object") {
+      configValue = {
+        ...configValue,
+        ...deprecatedValue
+      };
+    }
+    const { denyListRules, allowListRules, allowListCommandLineRules, denyListCommandLineRules } = this._mapAutoApproveConfigToRules(configValue, configInspectValue);
+    this._allowListRules = allowListRules;
+    this._denyListRules = denyListRules;
+    this._allowListCommandLineRules = allowListCommandLineRules;
+    this._denyListCommandLineRules = denyListCommandLineRules;
+  }
+  async isCommandAutoApproved(command, shell, os, cwd, chatSessionResource) {
+    if (transientEnvVarRegex.test(command)) {
+      return {
+        result: "denied",
+        reason: `Command '${command}' is denied because it contains transient environment variables`
+      };
+    }
+    for (const rule of this._denyListRules) {
+      if (this._commandMatchesRule(rule, command, shell, os)) {
+        return {
+          result: "denied",
+          rule,
+          reason: `Command '${command}' is denied by deny list rule: ${rule.sourceText}`
+        };
+      }
+    }
+    for (const rule of this._getSessionRules(chatSessionResource).allowListRules) {
+      if (this._commandMatchesRule(rule, command, shell, os)) {
+        return {
+          result: "approved",
+          rule,
+          reason: `Command '${command}' is approved by session allow list rule: ${rule.sourceText}`
+        };
+      }
+    }
+    for (const rule of this._allowListRules) {
+      if (this._commandMatchesRule(rule, command, shell, os)) {
+        return {
+          result: "approved",
+          rule,
+          reason: `Command '${command}' is approved by allow list rule: ${rule.sourceText}`
+        };
+      }
+    }
+    const npmScriptResult = await this._npmScriptAutoApprover.isCommandAutoApproved(command, cwd);
+    if (npmScriptResult.isAutoApproved) {
+      return {
+        result: "approved",
+        rule: { type: "npmScript", npmScriptResult },
+        reason: `Command '${command}' is approved as npm script '${npmScriptResult.scriptName}' is defined in package.json`
+      };
+    }
+    return {
+      result: "noMatch",
+      reason: `Command '${command}' has no matching auto approve entries`
+    };
+  }
+  isCommandLineAutoApproved(commandLine, chatSessionResource) {
+    for (const rule of this._denyListCommandLineRules) {
+      if (rule.regex.test(commandLine)) {
+        return {
+          result: "denied",
+          rule,
+          reason: `Command line '${commandLine}' is denied by deny list rule: ${rule.sourceText}`
+        };
+      }
+    }
+    for (const rule of this._getSessionRules(chatSessionResource).allowListCommandLineRules) {
+      if (rule.regex.test(commandLine)) {
+        return {
+          result: "approved",
+          rule,
+          reason: `Command line '${commandLine}' is approved by session allow list rule: ${rule.sourceText}`
+        };
+      }
+    }
+    for (const rule of this._allowListCommandLineRules) {
+      if (rule.regex.test(commandLine)) {
+        return {
+          result: "approved",
+          rule,
+          reason: `Command line '${commandLine}' is approved by allow list rule: ${rule.sourceText}`
+        };
+      }
+    }
+    return {
+      result: "noMatch",
+      reason: `Command line '${commandLine}' has no matching auto approve entries`
+    };
+  }
+  _getSessionRules(chatSessionResource) {
+    const denyListRules = [];
+    const allowListRules = [];
+    const allowListCommandLineRules = [];
+    const denyListCommandLineRules = [];
+    if (!chatSessionResource) {
+      return { denyListRules, allowListRules, allowListCommandLineRules, denyListCommandLineRules };
+    }
+    const sessionRulesConfig = this._terminalChatService.getSessionAutoApproveRules(chatSessionResource);
+    for (const [key, value] of Object.entries(sessionRulesConfig)) {
+      if (typeof value === "boolean") {
+        const { regex, regexCaseInsensitive } = this._convertAutoApproveEntryToRegex(key);
+        if (value === true) {
+          allowListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget: "session", isDefaultRule: false });
+        } else if (value === false) {
+          denyListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget: "session", isDefaultRule: false });
+        }
+      } else if (typeof value === "object" && value !== null) {
+        const objectValue = value;
+        if (typeof objectValue.approve === "boolean") {
+          const { regex, regexCaseInsensitive } = this._convertAutoApproveEntryToRegex(key);
+          if (objectValue.approve === true) {
+            if (objectValue.matchCommandLine === true) {
+              allowListCommandLineRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget: "session", isDefaultRule: false });
+            } else {
+              allowListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget: "session", isDefaultRule: false });
+            }
+          } else if (objectValue.approve === false) {
+            if (objectValue.matchCommandLine === true) {
+              denyListCommandLineRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget: "session", isDefaultRule: false });
+            } else {
+              denyListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget: "session", isDefaultRule: false });
+            }
+          }
+        }
+      }
+    }
+    return { denyListRules, allowListRules, allowListCommandLineRules, denyListCommandLineRules };
+  }
+  _commandMatchesRule(rule, command, shell, os) {
+    const isPwsh = isPowerShell(shell, os);
+    if ((isPwsh ? rule.regexCaseInsensitive : rule.regex).test(command)) {
+      return true;
+    } else if (isPwsh && command.startsWith("(")) {
+      if (rule.regexCaseInsensitive.test(command.slice(1))) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _mapAutoApproveConfigToRules(config, configInspectValue) {
+    if (!config || typeof config !== "object") {
+      return {
+        denyListRules: [],
+        allowListRules: [],
+        allowListCommandLineRules: [],
+        denyListCommandLineRules: []
+      };
+    }
+    const denyListRules = [];
+    const allowListRules = [];
+    const allowListCommandLineRules = [];
+    const denyListCommandLineRules = [];
+    const ignoreDefaults = this._configurationService.getValue(
+      "chat.tools.terminal.ignoreDefaultAutoApproveRules"
+      /* TerminalChatAgentToolsSettingId.IgnoreDefaultAutoApproveRules */
+    ) === true;
+    for (const [key, value] of Object.entries(config)) {
+      let checkTarget2 = function(inspectValue) {
+        return isObject(inspectValue) && Object.prototype.hasOwnProperty.call(inspectValue, key) && structuralEquals(inspectValue[key], value);
+      };
+      var checkTarget = checkTarget2;
+      __name(checkTarget2, "checkTarget");
+      const defaultValue = configInspectValue?.default?.value;
+      const isDefaultRule = !!(isObject(defaultValue) && Object.prototype.hasOwnProperty.call(defaultValue, key) && structuralEquals(defaultValue[key], value));
+      const sourceTarget = checkTarget2(configInspectValue.workspaceFolder) ? 6 : checkTarget2(configInspectValue.workspaceValue) ? 5 : checkTarget2(configInspectValue.userRemoteValue) ? 4 : checkTarget2(configInspectValue.userLocalValue) ? 3 : checkTarget2(configInspectValue.userValue) ? 2 : checkTarget2(configInspectValue.applicationValue) ? 1 : 7;
+      if (ignoreDefaults && isDefaultRule && sourceTarget === 7) {
+        continue;
+      }
+      if (typeof value === "boolean") {
+        const { regex, regexCaseInsensitive } = this._convertAutoApproveEntryToRegex(key);
+        if (value === true) {
+          allowListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget, isDefaultRule });
+        } else if (value === false) {
+          denyListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget, isDefaultRule });
+        }
+      } else if (typeof value === "object" && value !== null) {
+        const objectValue = value;
+        if (typeof objectValue.approve === "boolean") {
+          const { regex, regexCaseInsensitive } = this._convertAutoApproveEntryToRegex(key);
+          if (objectValue.approve === true) {
+            if (objectValue.matchCommandLine === true) {
+              allowListCommandLineRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget, isDefaultRule });
+            } else {
+              allowListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget, isDefaultRule });
+            }
+          } else if (objectValue.approve === false) {
+            if (objectValue.matchCommandLine === true) {
+              denyListCommandLineRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget, isDefaultRule });
+            } else {
+              denyListRules.push({ regex, regexCaseInsensitive, sourceText: key, sourceTarget, isDefaultRule });
+            }
+          }
+        }
+      }
+    }
+    return {
+      denyListRules,
+      allowListRules,
+      allowListCommandLineRules,
+      denyListCommandLineRules
+    };
+  }
+  _convertAutoApproveEntryToRegex(value) {
+    const regex = this._doConvertAutoApproveEntryToRegex(value);
+    if (regex.flags.includes("i")) {
+      return { regex, regexCaseInsensitive: regex };
+    }
+    return { regex, regexCaseInsensitive: new RegExp(regex.source, regex.flags + "i") };
+  }
+  _doConvertAutoApproveEntryToRegex(value) {
+    const regexMatch = value.match(/^\/(?<pattern>.+)\/(?<flags>[dgimsuvy]*)$/);
+    const regexPattern = regexMatch?.groups?.pattern;
+    if (regexPattern) {
+      let flags = regexMatch.groups?.flags;
+      if (flags) {
+        flags = flags.replaceAll("g", "");
+      }
+      if (regexPattern === ".*") {
+        return new RegExp(regexPattern);
+      }
+      try {
+        const regex = new RegExp(regexPattern, flags || void 0);
+        if (regExpLeadsToEndlessLoop(regex)) {
+          return neverMatchRegex;
+        }
+        return regex;
+      } catch (error) {
+        return neverMatchRegex;
+      }
+    }
+    if (value === "") {
+      return neverMatchRegex;
+    }
+    let sanitizedValue;
+    if (value.includes("/") || value.includes("\\")) {
+      let pattern = value.replace(/[/\\]/g, "%%PATH_SEP%%");
+      pattern = escapeRegExpCharacters(pattern);
+      pattern = pattern.replace(/%%PATH_SEP%%*/g, "[/\\\\]");
+      sanitizedValue = `^(?:\\.[/\\\\])?${pattern}`;
+    } else {
+      sanitizedValue = escapeRegExpCharacters(value);
+    }
+    return new RegExp(`^${sanitizedValue}\\b`);
+  }
+};
+CommandLineAutoApprover = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IInstantiationService),
+  __param(2, ITerminalChatService)
+], CommandLineAutoApprover);
+export {
+  CommandLineAutoApprover
+};
+//# sourceMappingURL=commandLineAutoApprover.js.map

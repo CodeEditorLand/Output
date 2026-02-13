@@ -1,1 +1,99 @@
-import{$Ed as p}from"../../../../../base/common/lifecycle.js";import{$Vn as d}from"../../../../../platform/product/common/productService.js";import{$NR as b}from"../../../../services/extensions/common/extensions.js";import{$Iz as f}from"../../../../../platform/extensions/common/extensions.js";import{$bA as $}from"../../../../../platform/extensionManagement/common/extensionManagement.js";import{$hp as g}from"../../../../../platform/storage/common/storage.js";import{$U4b as x}from"../chat.js";import{$0l as v}from"../../../../../platform/configuration/common/configuration.js";var m=function(n,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,i,e);else for(var a=n.length-1;a>=0;a--)(r=n[a])&&(s=(o<3?r(s):o>3?r(t,i,s):r(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},h=function(n,t){return function(i,e){t(i,e,n)}},c;let u=class extends p{static{c=this}static{this.ID="workbench.contrib.chatGettingStarted"}static{this.b="workbench.chat.hideWelcomeView"}constructor(t,i,e,o,s,r){super(),this.c=t,this.f=i,this.g=e,this.h=o,this.j=s,this.m=r,this.a=!1;const a=this.c.defaultChatAgent,l=this.h.getBoolean(c.b,-1,!1);!a||l||this.n(a)}n(t){this.D(this.g.onDidInstallExtensions(async i=>{for(const e of i)if(f.equals(t.extensionId,e.identifier.id)&&e.operation===2){this.a=!0;return}})),this.D(this.f.onDidChangeExtensionsStatus(async i=>{for(const e of i)if(f.equals(t.extensionId,e.value)&&this.f.getExtensionsStatus()[e.value].activationTimes&&this.a){this.q();return}}))}async q(){this.m.getValue("workbench.startupEditor")!=="agentSessionsWelcomePage"&&this.j.revealWidget(),this.h.store(c.b,!0,-1,1),this.a=!1}};u=c=m([h(0,d),h(1,b),h(2,$),h(3,g),h(4,x),h(5,v)],u);export{u as $Poc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatGettingStartedContribution_1;
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
+import { IExtensionManagementService } from "../../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IChatWidgetService } from "../chat.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+let ChatGettingStartedContribution = class ChatGettingStartedContribution2 extends Disposable {
+  static {
+    __name(this, "ChatGettingStartedContribution");
+  }
+  static {
+    ChatGettingStartedContribution_1 = this;
+  }
+  static {
+    this.ID = "workbench.contrib.chatGettingStarted";
+  }
+  static {
+    this.hideWelcomeView = "workbench.chat.hideWelcomeView";
+  }
+  constructor(productService, extensionService, extensionManagementService, storageService, chatWidgetService, configurationService) {
+    super();
+    this.productService = productService;
+    this.extensionService = extensionService;
+    this.extensionManagementService = extensionManagementService;
+    this.storageService = storageService;
+    this.chatWidgetService = chatWidgetService;
+    this.configurationService = configurationService;
+    this.recentlyInstalled = false;
+    const defaultChatAgent = this.productService.defaultChatAgent;
+    const hideWelcomeView = this.storageService.getBoolean(ChatGettingStartedContribution_1.hideWelcomeView, -1, false);
+    if (!defaultChatAgent || hideWelcomeView) {
+      return;
+    }
+    this.registerListeners(defaultChatAgent);
+  }
+  registerListeners(defaultChatAgent) {
+    this._register(this.extensionManagementService.onDidInstallExtensions(async (result) => {
+      for (const e of result) {
+        if (ExtensionIdentifier.equals(defaultChatAgent.extensionId, e.identifier.id) && e.operation === 2) {
+          this.recentlyInstalled = true;
+          return;
+        }
+      }
+    }));
+    this._register(this.extensionService.onDidChangeExtensionsStatus(async (event) => {
+      for (const ext of event) {
+        if (ExtensionIdentifier.equals(defaultChatAgent.extensionId, ext.value)) {
+          const extensionStatus = this.extensionService.getExtensionsStatus();
+          if (extensionStatus[ext.value].activationTimes && this.recentlyInstalled) {
+            this.onDidInstallChat();
+            return;
+          }
+        }
+      }
+    }));
+  }
+  async onDidInstallChat() {
+    const startupEditor = this.configurationService.getValue("workbench.startupEditor");
+    if (startupEditor !== "agentSessionsWelcomePage") {
+      this.chatWidgetService.revealWidget();
+    }
+    this.storageService.store(
+      ChatGettingStartedContribution_1.hideWelcomeView,
+      true,
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this.recentlyInstalled = false;
+  }
+};
+ChatGettingStartedContribution = ChatGettingStartedContribution_1 = __decorate([
+  __param(0, IProductService),
+  __param(1, IExtensionService),
+  __param(2, IExtensionManagementService),
+  __param(3, IStorageService),
+  __param(4, IChatWidgetService),
+  __param(5, IConfigurationService)
+], ChatGettingStartedContribution);
+export {
+  ChatGettingStartedContribution
+};
+//# sourceMappingURL=chatGettingStarted.js.map

@@ -1,1 +1,41 @@
-import{$WC as u}from"../../../../platform/instantiation/common/extensions.js";import{$4N as s}from"../../remote/common/remoteAgentService.js";import{$SPc as _}from"../../environment/electron-browser/environmentService.js";import{$D1 as $,$E1 as a}from"../common/pathService.js";import{$Ml as h}from"../../../../platform/workspace/common/workspace.js";var l=function(f,r,t,o){var c=arguments.length,e=c<3?r:o===null?o=Object.getOwnPropertyDescriptor(r,t):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,r,t,o);else for(var p=f.length-1;p>=0;p--)(n=f[p])&&(e=(c<3?n(e):c>3?n(r,t,e):n(r,t))||e);return c>3&&e&&Object.defineProperty(r,t,e),e},i=function(f,r){return function(t,o){r(t,o,f)}};let m=class extends a{constructor(r,t,o){super(t.userHome,r,t,o)}};m=l([i(0,s),i(1,_),i(2,h)],m);u($,m,1);export{m as $4Vc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { IPathService, AbstractPathService } from "../common/pathService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+let NativePathService = class NativePathService2 extends AbstractPathService {
+  static {
+    __name(this, "NativePathService");
+  }
+  constructor(remoteAgentService, environmentService, contextService) {
+    super(environmentService.userHome, remoteAgentService, environmentService, contextService);
+  }
+};
+NativePathService = __decorate([
+  __param(0, IRemoteAgentService),
+  __param(1, INativeWorkbenchEnvironmentService),
+  __param(2, IWorkspaceContextService)
+], NativePathService);
+registerSingleton(
+  IPathService,
+  NativePathService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  NativePathService
+};
+//# sourceMappingURL=pathService.js.map

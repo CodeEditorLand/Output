@@ -1,1 +1,651 @@
-import{$bk as L}from"../../../../../base/common/codicons.js";import{$Rf as z}from"../../../../../base/common/lazy.js";import{$Ed as E,$Dd as V}from"../../../../../base/common/lifecycle.js";import{$Rc as W}from"../../../../../base/common/map.js";import{ThemeIcon as B}from"../../../../../base/common/themables.js";import{localize as n}from"../../../../../nls.js";import{$Mj as Z}from"../../../../../platform/instantiation/common/instantiation.js";import{$YH as Y,QuickInputButtonLocation as J}from"../../../../../platform/quickinput/common/quickInput.js";import{$hp as K}from"../../../../../platform/storage/common/storage.js";var G=function(v,t,o,r){var i=arguments.length,a=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,o):r,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(v,t,o,r);else for(var l=v.length-1;l>=0;l--)(p=v[l])&&(a=(i<3?p(a):i>3?p(t,o,a):p(t,o))||a);return i>3&&a&&Object.defineProperty(t,o,a),a},H=function(v,t){return function(o,r){t(o,r,v)}};const j=n(6376,null),S=n(6377,null);class q extends E{constructor(t,o){super(),this.h=t,this.j=o,this.g=new Set,this.c=new z(()=>this.D(this.j.createInstance(_,1,this.h))),this.f=new z(()=>this.D(this.j.createInstance(_,0,this.h)))}setAutoConfirmation(t,o){this.c.value.setAutoConfirm(t,!1),this.f.value.setAutoConfirm(t,!1),this.g.delete(t),o==="workspace"?this.c.value.setAutoConfirm(t,!0):o==="profile"?this.f.value.setAutoConfirm(t,!0):o==="session"&&this.g.add(t)}getAutoConfirmation(t){return this.c.value.getAutoConfirm(t)?"workspace":this.f.value.getAutoConfirm(t)?"profile":this.g.has(t)?"session":"never"}getAutoConfirmationIn(t,o){return o==="workspace"?this.c.value.getAutoConfirm(t):o==="profile"?this.f.value.getAutoConfirm(t):this.g.has(t)}reset(){this.c.value.reset(),this.f.value.reset(),this.g.clear()}checkAutoConfirmation(t){if(this.c.value.getAutoConfirm(t))return{type:3,scope:"workspace"};if(this.f.value.getAutoConfirm(t))return{type:3,scope:"profile"};if(this.g.has(t))return{type:3,scope:"session"}}getAllConfirmed(){const t=new Set;for(const o of this.c.value.getAll())t.add(o);for(const o of this.f.value.getAll())t.add(o);for(const o of this.g)t.add(o);return t}}let _=class extends E{constructor(t,o,r){super(),this.g=t,this.h=o,this.j=r,this.c=new W(100),this.f=!1;const i=r.getObject(this.h,this.g);if(i)for(const a of i)this.c.set(a,!0);this.D(r.onWillSaveState(()=>{this.f&&(this.j.store(this.h,[...this.c.keys()],this.g,1),this.f=!1)}))}reset(){this.c.clear(),this.f=!0}getAutoConfirm(t){return this.c.get(t)?(this.f=!0,!0):!1}setAutoConfirm(t,o){o?this.c.set(t,!0):this.c.delete(t),this.f=!0}getAll(){return[...this.c.keys()]}};_=G([H(2,K)],_);let F=class extends E{constructor(t,o){super(),this.m=t,this.n=o,this.j=new Map,this.c=this.D(new q("chat/autoconfirm",this.m)),this.f=this.D(new q("chat/autoconfirm-post",this.m)),this.g=this.D(new q("chat/servers/autoconfirm",this.m)),this.h=this.D(new q("chat/servers/autoconfirm-post",this.m))}getPreConfirmAction(t){const o=this.j.get(t.toolId);if(o?.getPreConfirmAction){const i=o.getPreConfirmAction(t);if(i)return i}if(o&&o.canUseDefaultApprovals===!1)return;const r=this.c.checkAutoConfirmation(t.toolId);if(r)return r;if(t.source.type==="mcp"){const i=this.g.checkAutoConfirmation(t.source.definitionId);if(i)return i}}getPostConfirmAction(t){const o=this.j.get(t.toolId);if(o?.getPostConfirmAction){const i=o.getPostConfirmAction(t);if(i)return i}if(o&&o.canUseDefaultApprovals===!1)return;const r=this.f.checkAutoConfirmation(t.toolId);if(r)return r;if(t.source.type==="mcp"){const i=this.h.checkAutoConfirmation(t.source.definitionId);if(i)return i}}getPreConfirmActions(t){const o=[],r=this.j.get(t.toolId);if(r?.getPreConfirmActions&&o.push(...r.getPreConfirmActions(t)),r&&r.canUseDefaultApprovals===!1)return o;if(o.push({label:n(6378,null),detail:n(6379,null),divider:!!o.length,select:async()=>(this.c.setAutoConfirmation(t.toolId,"session"),!0)},{label:n(6380,null),detail:n(6381,null),select:async()=>(this.c.setAutoConfirmation(t.toolId,"workspace"),!0)},{label:n(6382,null),detail:n(6383,null),select:async()=>(this.c.setAutoConfirmation(t.toolId,"profile"),!0)}),t.source.type==="mcp"){const{serverLabel:i,definitionId:a}=t.source;o.push({label:n(6384,null,i),detail:n(6385,null),divider:!0,select:async()=>(this.g.setAutoConfirmation(a,"session"),!0)},{label:n(6386,null,i),detail:n(6387,null),select:async()=>(this.g.setAutoConfirmation(a,"workspace"),!0)},{label:n(6388,null,i),detail:n(6389,null),select:async()=>(this.g.setAutoConfirmation(a,"profile"),!0)})}return o}getPostConfirmActions(t){const o=[],r=this.j.get(t.toolId);if(r?.getPostConfirmActions&&o.push(...r.getPostConfirmActions(t)),r&&r.canUseDefaultApprovals===!1)return o;if(o.push({label:n(6390,null),detail:n(6391,null),divider:!!o.length,select:async()=>(this.f.setAutoConfirmation(t.toolId,"session"),!0)},{label:n(6392,null),detail:n(6393,null),select:async()=>(this.f.setAutoConfirmation(t.toolId,"workspace"),!0)},{label:n(6394,null),detail:n(6395,null),select:async()=>(this.f.setAutoConfirmation(t.toolId,"profile"),!0)}),t.source.type==="mcp"){const{serverLabel:i,definitionId:a}=t.source;o.push({label:n(6396,null,i),detail:n(6397,null),divider:!0,select:async()=>(this.h.setAutoConfirmation(a,"session"),!0)},{label:n(6398,null,i),detail:n(6399,null),select:async()=>(this.h.setAutoConfirmation(a,"workspace"),!0)},{label:n(6400,null,i),detail:n(6401,null),select:async()=>(this.h.setAutoConfirmation(a,"profile"),!0)})}return o}registerConfirmationContribution(t,o){return this.j.set(t,o),{dispose:()=>{this.j.delete(t)}}}manageConfirmationPreferences(t,o){const r=(e,c,s,h)=>{h.has(e)||h.set(e,{label:c,tools:new Set}),h.get(e).tools.add(s)},i=(e,c,s)=>{e.type==="mcp"?r(e.definitionId,e.serverLabel||e.label,c,s):e.type==="extension"&&r(e.extensionId.value,e.label,c,s)},a=new Set,p=new Map;for(const e of t)(e.canRequestPreApproval||e.canRequestPostApproval||this.j.has(e.id))&&(a.add(e.id),i(e.source,e.id,p));for(const e of this.c.getAllConfirmed())if(!a.has(e)){const c=t.find(s=>s.id===e);c&&(a.add(e),i(c.source,e,p))}for(const e of this.f.getAllConfirmed())if(!a.has(e)){const c=t.find(s=>s.id===e);c&&(a.add(e),i(c.source,e,p))}if(a.size===0)return;let l=o?.defaultScope??"workspace";const T=()=>{const e=[];for(const[s,h]of p){const d=[],k=Array.from(h.tools).some(g=>t.find(I=>I.id===g)?.canRequestPreApproval),m=Array.from(h.tools).some(g=>t.find(I=>I.id===g)?.canRequestPostApproval),P=this.g.getAutoConfirmationIn(s,l),R=this.h.getAutoConfirmationIn(s,l);for(const g of h.tools){const f=t.find(Q=>Q.id===g);if(!f)continue;const I=[],x=!P&&(f.canRequestPreApproval||this.c.getAutoConfirmationIn(f.id,l)),N=!R&&(f.canRequestPostApproval||this.f.getAutoConfirmationIn(f.id,l));x&&N&&(I.push({type:"tool-pre",toolId:f.id,label:j,checked:this.c.getAutoConfirmationIn(f.id,l)}),I.push({type:"tool-post",toolId:f.id,label:S,checked:this.f.getAutoConfirmationIn(f.id,l)}));const O=this.c.getAutoConfirmationIn(f.id,l),U=this.f.getAutoConfirmationIn(f.id,l);let D,$;if(x&&N)D=O&&U?!0:!O&&!U?!1:"mixed";else if(x)D=O,$=j;else if(N)D=U,$=S;else continue;d.push({type:"tool",toolId:f.id,label:f.displayName||f.id,description:$,checked:D,collapsed:!0,children:I.length>0?I:void 0})}d.sort((g,f)=>g.label.localeCompare(f.label)),m&&d.unshift({type:"server-post",serverId:s,iconClass:B.asClassName(L.play),label:n(6402,null),checked:R}),k&&d.unshift({type:"server-pre",serverId:s,iconClass:B.asClassName(L.play),label:n(6403,null),checked:P});const A=this.g.getAutoConfirmationIn(s,l),b=this.h.getAutoConfirmationIn(s,l);let C;k&&m?C=A&&b?!0:!A&&!b?!1:"mixed":k?C=A:m?C=b:C=!1;const w=u.itemTree.find(g=>g.serverId===s);e.push({type:"server",serverId:s,label:h.label,checked:C,children:d,collapsed:w?u.isCollapsed(w):!0,pickable:!1})}const c=t.slice().sort((s,h)=>s.displayName.localeCompare(h.displayName));for(const s of c){if(!a.has(s.id)||s.source.type==="mcp"||s.source.type==="extension")continue;const h=this.j.get(s.id),d=[],k=h?.getManageActions?.();k&&d.push(...k.map(A=>({type:"manage",...A})));let m=!1,P,R=!1;if(h?.canUseDefaultApprovals!==!1){R=!0;const A=s.canRequestPreApproval||this.c.getAutoConfirmationIn(s.id,l),b=s.canRequestPostApproval||this.f.getAutoConfirmationIn(s.id,l);A&&b&&(d.push({type:"tool-pre",toolId:s.id,label:j,checked:this.c.getAutoConfirmationIn(s.id,l)}),d.push({type:"tool-post",toolId:s.id,label:S,checked:this.f.getAutoConfirmationIn(s.id,l)}));const C=this.c.getAutoConfirmationIn(s.id,l),w=this.f.getAutoConfirmationIn(s.id,l);A&&b?m=C&&w?!0:!C&&!w?!1:"mixed":A?(m=C,P=j):b?(m=w,P=S):m=!1}e.push({type:"tool",toolId:s.id,label:s.displayName||s.id,description:P,checked:m,pickable:R,collapsed:!0,children:d.length>0?d:void 0})}return e},y=new V,u=y.add(this.n.createQuickTree());if(u.ignoreFocusOut=!0,u.sortByLabel=!1,l!=="session"){const e={iconClass:B.asClassName(L.folder),tooltip:n(6404,null),toggle:{checked:l==="workspace"},location:J.Input};u.buttons=[e],y.add(u.onDidTriggerButton(c=>{c===e&&(l=l==="workspace"?"profile":"workspace",M(),u.setItemTree(T()))}))}const M=()=>{l==="session"?u.placeholder=n(6405,null):u.placeholder=l==="workspace"?n(6406,null):n(6407,null)};M(),u.setItemTree(T()),y.add(u.onDidChangeCheckboxState(e=>{const c=e.checked?l:"never";if(e.type==="server"&&e.serverId)p.get(e.serverId)&&(this.g.setAutoConfirmation(e.serverId,c),this.h.setAutoConfirmation(e.serverId,c));else if(e.type==="tool"&&e.toolId){const s=t.find(h=>h.id===e.toolId);(s?.canRequestPostApproval||c==="never")&&this.f.setAutoConfirmation(e.toolId,c),(s?.canRequestPreApproval||c==="never")&&this.c.setAutoConfirmation(e.toolId,c)}else e.type==="tool-pre"&&e.toolId?this.c.setAutoConfirmation(e.toolId,c):e.type==="tool-post"&&e.toolId?this.f.setAutoConfirmation(e.toolId,c):e.type==="server-pre"&&e.serverId?(this.g.setAutoConfirmation(e.serverId,c),u.setItemTree(T())):e.type==="server-post"&&e.serverId?(this.h.setAutoConfirmation(e.serverId,c),u.setItemTree(T())):e.type==="manage"&&e.onDidChangeChecked?.(!!e.checked)})),y.add(u.onDidTriggerItemButton(e=>{e.item.type==="manage"&&e.item.onDidTriggerItemButton?.(e.button)})),y.add(u.onDidAccept(()=>{for(const e of u.activeItems)e.type==="manage"&&(e.onDidOpen?.(),u.hide())})),y.add(u.onDidHide(()=>{y.dispose()})),u.show()}resetToolAutoConfirmation(){this.c.reset(),this.f.reset(),this.g.reset(),this.h.reset();for(const t of this.j.values())t.reset?.()}};F=G([H(0,Z),H(1,Y)],F);export{F as $Zqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Lazy } from "../../../../../base/common/lazy.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { LRUCache } from "../../../../../base/common/map.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService, QuickInputButtonLocation } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+const RUN_WITHOUT_APPROVAL = localize("runWithoutApproval", "without approval");
+const CONTINUE_WITHOUT_REVIEWING_RESULTS = localize("continueWithoutReviewingResults", "without reviewing result");
+class GenericConfirmStore extends Disposable {
+  static {
+    __name(this, "GenericConfirmStore");
+  }
+  constructor(_storageKey, _instantiationService) {
+    super();
+    this._storageKey = _storageKey;
+    this._instantiationService = _instantiationService;
+    this._memoryStore = /* @__PURE__ */ new Set();
+    this._workspaceStore = new Lazy(() => this._register(this._instantiationService.createInstance(ToolConfirmStore, 1, this._storageKey)));
+    this._profileStore = new Lazy(() => this._register(this._instantiationService.createInstance(ToolConfirmStore, 0, this._storageKey)));
+  }
+  setAutoConfirmation(id, scope) {
+    this._workspaceStore.value.setAutoConfirm(id, false);
+    this._profileStore.value.setAutoConfirm(id, false);
+    this._memoryStore.delete(id);
+    if (scope === "workspace") {
+      this._workspaceStore.value.setAutoConfirm(id, true);
+    } else if (scope === "profile") {
+      this._profileStore.value.setAutoConfirm(id, true);
+    } else if (scope === "session") {
+      this._memoryStore.add(id);
+    }
+  }
+  getAutoConfirmation(id) {
+    if (this._workspaceStore.value.getAutoConfirm(id)) {
+      return "workspace";
+    }
+    if (this._profileStore.value.getAutoConfirm(id)) {
+      return "profile";
+    }
+    if (this._memoryStore.has(id)) {
+      return "session";
+    }
+    return "never";
+  }
+  getAutoConfirmationIn(id, scope) {
+    if (scope === "workspace") {
+      return this._workspaceStore.value.getAutoConfirm(id);
+    } else if (scope === "profile") {
+      return this._profileStore.value.getAutoConfirm(id);
+    } else {
+      return this._memoryStore.has(id);
+    }
+  }
+  reset() {
+    this._workspaceStore.value.reset();
+    this._profileStore.value.reset();
+    this._memoryStore.clear();
+  }
+  checkAutoConfirmation(id) {
+    if (this._workspaceStore.value.getAutoConfirm(id)) {
+      return { type: 3, scope: "workspace" };
+    }
+    if (this._profileStore.value.getAutoConfirm(id)) {
+      return { type: 3, scope: "profile" };
+    }
+    if (this._memoryStore.has(id)) {
+      return { type: 3, scope: "session" };
+    }
+    return void 0;
+  }
+  getAllConfirmed() {
+    const all = /* @__PURE__ */ new Set();
+    for (const key of this._workspaceStore.value.getAll()) {
+      all.add(key);
+    }
+    for (const key of this._profileStore.value.getAll()) {
+      all.add(key);
+    }
+    for (const key of this._memoryStore) {
+      all.add(key);
+    }
+    return all;
+  }
+}
+let ToolConfirmStore = class ToolConfirmStore2 extends Disposable {
+  static {
+    __name(this, "ToolConfirmStore");
+  }
+  constructor(_scope, _storageKey, storageService) {
+    super();
+    this._scope = _scope;
+    this._storageKey = _storageKey;
+    this.storageService = storageService;
+    this._autoConfirmTools = new LRUCache(100);
+    this._didChange = false;
+    const stored = storageService.getObject(this._storageKey, this._scope);
+    if (stored) {
+      for (const key of stored) {
+        this._autoConfirmTools.set(key, true);
+      }
+    }
+    this._register(storageService.onWillSaveState(() => {
+      if (this._didChange) {
+        this.storageService.store(
+          this._storageKey,
+          [...this._autoConfirmTools.keys()],
+          this._scope,
+          1
+          /* StorageTarget.MACHINE */
+        );
+        this._didChange = false;
+      }
+    }));
+  }
+  reset() {
+    this._autoConfirmTools.clear();
+    this._didChange = true;
+  }
+  getAutoConfirm(id) {
+    if (this._autoConfirmTools.get(id)) {
+      this._didChange = true;
+      return true;
+    }
+    return false;
+  }
+  setAutoConfirm(id, autoConfirm) {
+    if (autoConfirm) {
+      this._autoConfirmTools.set(id, true);
+    } else {
+      this._autoConfirmTools.delete(id);
+    }
+    this._didChange = true;
+  }
+  getAll() {
+    return [...this._autoConfirmTools.keys()];
+  }
+};
+ToolConfirmStore = __decorate([
+  __param(2, IStorageService)
+], ToolConfirmStore);
+let LanguageModelToolsConfirmationService = class LanguageModelToolsConfirmationService2 extends Disposable {
+  static {
+    __name(this, "LanguageModelToolsConfirmationService");
+  }
+  constructor(_instantiationService, _quickInputService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._quickInputService = _quickInputService;
+    this._contributions = /* @__PURE__ */ new Map();
+    this._preExecutionToolConfirmStore = this._register(new GenericConfirmStore("chat/autoconfirm", this._instantiationService));
+    this._postExecutionToolConfirmStore = this._register(new GenericConfirmStore("chat/autoconfirm-post", this._instantiationService));
+    this._preExecutionServerConfirmStore = this._register(new GenericConfirmStore("chat/servers/autoconfirm", this._instantiationService));
+    this._postExecutionServerConfirmStore = this._register(new GenericConfirmStore("chat/servers/autoconfirm-post", this._instantiationService));
+  }
+  getPreConfirmAction(ref) {
+    const contribution = this._contributions.get(ref.toolId);
+    if (contribution?.getPreConfirmAction) {
+      const result = contribution.getPreConfirmAction(ref);
+      if (result) {
+        return result;
+      }
+    }
+    if (contribution && contribution.canUseDefaultApprovals === false) {
+      return void 0;
+    }
+    const toolResult = this._preExecutionToolConfirmStore.checkAutoConfirmation(ref.toolId);
+    if (toolResult) {
+      return toolResult;
+    }
+    if (ref.source.type === "mcp") {
+      const serverResult = this._preExecutionServerConfirmStore.checkAutoConfirmation(ref.source.definitionId);
+      if (serverResult) {
+        return serverResult;
+      }
+    }
+    return void 0;
+  }
+  getPostConfirmAction(ref) {
+    const contribution = this._contributions.get(ref.toolId);
+    if (contribution?.getPostConfirmAction) {
+      const result = contribution.getPostConfirmAction(ref);
+      if (result) {
+        return result;
+      }
+    }
+    if (contribution && contribution.canUseDefaultApprovals === false) {
+      return void 0;
+    }
+    const toolResult = this._postExecutionToolConfirmStore.checkAutoConfirmation(ref.toolId);
+    if (toolResult) {
+      return toolResult;
+    }
+    if (ref.source.type === "mcp") {
+      const serverResult = this._postExecutionServerConfirmStore.checkAutoConfirmation(ref.source.definitionId);
+      if (serverResult) {
+        return serverResult;
+      }
+    }
+    return void 0;
+  }
+  getPreConfirmActions(ref) {
+    const actions = [];
+    const contribution = this._contributions.get(ref.toolId);
+    if (contribution?.getPreConfirmActions) {
+      actions.push(...contribution.getPreConfirmActions(ref));
+    }
+    if (contribution && contribution.canUseDefaultApprovals === false) {
+      return actions;
+    }
+    actions.push({
+      label: localize("allowSession", "Allow in this Session"),
+      detail: localize("allowSessionTooltip", "Allow this tool to run in this session without confirmation."),
+      divider: !!actions.length,
+      select: /* @__PURE__ */ __name(async () => {
+        this._preExecutionToolConfirmStore.setAutoConfirmation(ref.toolId, "session");
+        return true;
+      }, "select")
+    }, {
+      label: localize("allowWorkspace", "Allow in this Workspace"),
+      detail: localize("allowWorkspaceTooltip", "Allow this tool to run in this workspace without confirmation."),
+      select: /* @__PURE__ */ __name(async () => {
+        this._preExecutionToolConfirmStore.setAutoConfirmation(ref.toolId, "workspace");
+        return true;
+      }, "select")
+    }, {
+      label: localize("allowGlobally", "Always Allow"),
+      detail: localize("allowGloballyTooltip", "Always allow this tool to run without confirmation."),
+      select: /* @__PURE__ */ __name(async () => {
+        this._preExecutionToolConfirmStore.setAutoConfirmation(ref.toolId, "profile");
+        return true;
+      }, "select")
+    });
+    if (ref.source.type === "mcp") {
+      const { serverLabel, definitionId } = ref.source;
+      actions.push({
+        label: localize("allowServerSession", "Allow Tools from {0} in this Session", serverLabel),
+        detail: localize("allowServerSessionTooltip", "Allow all tools from this server to run in this session without confirmation."),
+        divider: true,
+        select: /* @__PURE__ */ __name(async () => {
+          this._preExecutionServerConfirmStore.setAutoConfirmation(definitionId, "session");
+          return true;
+        }, "select")
+      }, {
+        label: localize("allowServerWorkspace", "Allow Tools from {0} in this Workspace", serverLabel),
+        detail: localize("allowServerWorkspaceTooltip", "Allow all tools from this server to run in this workspace without confirmation."),
+        select: /* @__PURE__ */ __name(async () => {
+          this._preExecutionServerConfirmStore.setAutoConfirmation(definitionId, "workspace");
+          return true;
+        }, "select")
+      }, {
+        label: localize("allowServerGlobally", "Always Allow Tools from {0}", serverLabel),
+        detail: localize("allowServerGloballyTooltip", "Always allow all tools from this server to run without confirmation."),
+        select: /* @__PURE__ */ __name(async () => {
+          this._preExecutionServerConfirmStore.setAutoConfirmation(definitionId, "profile");
+          return true;
+        }, "select")
+      });
+    }
+    return actions;
+  }
+  getPostConfirmActions(ref) {
+    const actions = [];
+    const contribution = this._contributions.get(ref.toolId);
+    if (contribution?.getPostConfirmActions) {
+      actions.push(...contribution.getPostConfirmActions(ref));
+    }
+    if (contribution && contribution.canUseDefaultApprovals === false) {
+      return actions;
+    }
+    actions.push({
+      label: localize("allowSessionPost", "Allow Without Review in this Session"),
+      detail: localize("allowSessionPostTooltip", "Allow results from this tool to be sent without confirmation in this session."),
+      divider: !!actions.length,
+      select: /* @__PURE__ */ __name(async () => {
+        this._postExecutionToolConfirmStore.setAutoConfirmation(ref.toolId, "session");
+        return true;
+      }, "select")
+    }, {
+      label: localize("allowWorkspacePost", "Allow Without Review in this Workspace"),
+      detail: localize("allowWorkspacePostTooltip", "Allow results from this tool to be sent without confirmation in this workspace."),
+      select: /* @__PURE__ */ __name(async () => {
+        this._postExecutionToolConfirmStore.setAutoConfirmation(ref.toolId, "workspace");
+        return true;
+      }, "select")
+    }, {
+      label: localize("allowGloballyPost", "Always Allow Without Review"),
+      detail: localize("allowGloballyPostTooltip", "Always allow results from this tool to be sent without confirmation."),
+      select: /* @__PURE__ */ __name(async () => {
+        this._postExecutionToolConfirmStore.setAutoConfirmation(ref.toolId, "profile");
+        return true;
+      }, "select")
+    });
+    if (ref.source.type === "mcp") {
+      const { serverLabel, definitionId } = ref.source;
+      actions.push({
+        label: localize("allowServerSessionPost", "Allow Tools from {0} Without Review in this Session", serverLabel),
+        detail: localize("allowServerSessionPostTooltip", "Allow results from all tools from this server to be sent without confirmation in this session."),
+        divider: true,
+        select: /* @__PURE__ */ __name(async () => {
+          this._postExecutionServerConfirmStore.setAutoConfirmation(definitionId, "session");
+          return true;
+        }, "select")
+      }, {
+        label: localize("allowServerWorkspacePost", "Allow Tools from {0} Without Review in this Workspace", serverLabel),
+        detail: localize("allowServerWorkspacePostTooltip", "Allow results from all tools from this server to be sent without confirmation in this workspace."),
+        select: /* @__PURE__ */ __name(async () => {
+          this._postExecutionServerConfirmStore.setAutoConfirmation(definitionId, "workspace");
+          return true;
+        }, "select")
+      }, {
+        label: localize("allowServerGloballyPost", "Always Allow Tools from {0} Without Review", serverLabel),
+        detail: localize("allowServerGloballyPostTooltip", "Always allow results from all tools from this server to be sent without confirmation."),
+        select: /* @__PURE__ */ __name(async () => {
+          this._postExecutionServerConfirmStore.setAutoConfirmation(definitionId, "profile");
+          return true;
+        }, "select")
+      });
+    }
+    return actions;
+  }
+  registerConfirmationContribution(toolName, contribution) {
+    this._contributions.set(toolName, contribution);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._contributions.delete(toolName);
+      }, "dispose")
+    };
+  }
+  manageConfirmationPreferences(tools, options) {
+    const trackServerTool = /* @__PURE__ */ __name((serverId, label, toolId, serversWithTools2) => {
+      if (!serversWithTools2.has(serverId)) {
+        serversWithTools2.set(serverId, { label, tools: /* @__PURE__ */ new Set() });
+      }
+      serversWithTools2.get(serverId).tools.add(toolId);
+    }, "trackServerTool");
+    const addServerToolFromSource = /* @__PURE__ */ __name((source, toolId, serversWithTools2) => {
+      if (source.type === "mcp") {
+        trackServerTool(source.definitionId, source.serverLabel || source.label, toolId, serversWithTools2);
+      } else if (source.type === "extension") {
+        trackServerTool(source.extensionId.value, source.label, toolId, serversWithTools2);
+      }
+    }, "addServerToolFromSource");
+    const relevantTools = /* @__PURE__ */ new Set();
+    const serversWithTools = /* @__PURE__ */ new Map();
+    for (const tool of tools) {
+      if (tool.canRequestPreApproval || tool.canRequestPostApproval || this._contributions.has(tool.id)) {
+        relevantTools.add(tool.id);
+        addServerToolFromSource(tool.source, tool.id, serversWithTools);
+      }
+    }
+    for (const id of this._preExecutionToolConfirmStore.getAllConfirmed()) {
+      if (!relevantTools.has(id)) {
+        const tool = tools.find((t) => t.id === id);
+        if (tool) {
+          relevantTools.add(id);
+          addServerToolFromSource(tool.source, id, serversWithTools);
+        }
+      }
+    }
+    for (const id of this._postExecutionToolConfirmStore.getAllConfirmed()) {
+      if (!relevantTools.has(id)) {
+        const tool = tools.find((t) => t.id === id);
+        if (tool) {
+          relevantTools.add(id);
+          addServerToolFromSource(tool.source, id, serversWithTools);
+        }
+      }
+    }
+    if (relevantTools.size === 0) {
+      return;
+    }
+    let currentScope = options?.defaultScope ?? "workspace";
+    const buildTreeItems = /* @__PURE__ */ __name(() => {
+      const treeItems = [];
+      for (const [serverId, serverInfo] of serversWithTools) {
+        const serverChildren = [];
+        const hasAnyPre = Array.from(serverInfo.tools).some((toolId) => {
+          const tool = tools.find((t) => t.id === toolId);
+          return tool?.canRequestPreApproval;
+        });
+        const hasAnyPost = Array.from(serverInfo.tools).some((toolId) => {
+          const tool = tools.find((t) => t.id === toolId);
+          return tool?.canRequestPostApproval;
+        });
+        const serverPreConfirmed = this._preExecutionServerConfirmStore.getAutoConfirmationIn(serverId, currentScope);
+        const serverPostConfirmed = this._postExecutionServerConfirmStore.getAutoConfirmationIn(serverId, currentScope);
+        for (const toolId of serverInfo.tools) {
+          const tool = tools.find((t) => t.id === toolId);
+          if (!tool) {
+            continue;
+          }
+          const toolChildren = [];
+          const hasPre = !serverPreConfirmed && (tool.canRequestPreApproval || this._preExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope));
+          const hasPost = !serverPostConfirmed && (tool.canRequestPostApproval || this._postExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope));
+          if (hasPre && hasPost) {
+            toolChildren.push({
+              type: "tool-pre",
+              toolId: tool.id,
+              label: RUN_WITHOUT_APPROVAL,
+              checked: this._preExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope)
+            });
+            toolChildren.push({
+              type: "tool-post",
+              toolId: tool.id,
+              label: CONTINUE_WITHOUT_REVIEWING_RESULTS,
+              checked: this._postExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope)
+            });
+          }
+          const preApproval = this._preExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope);
+          const postApproval = this._postExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope);
+          let checked;
+          let description;
+          if (hasPre && hasPost) {
+            checked = preApproval && postApproval ? true : !preApproval && !postApproval ? false : "mixed";
+          } else if (hasPre) {
+            checked = preApproval;
+            description = RUN_WITHOUT_APPROVAL;
+          } else if (hasPost) {
+            checked = postApproval;
+            description = CONTINUE_WITHOUT_REVIEWING_RESULTS;
+          } else {
+            continue;
+          }
+          serverChildren.push({
+            type: "tool",
+            toolId: tool.id,
+            label: tool.displayName || tool.id,
+            description,
+            checked,
+            collapsed: true,
+            children: toolChildren.length > 0 ? toolChildren : void 0
+          });
+        }
+        serverChildren.sort((a, b) => a.label.localeCompare(b.label));
+        if (hasAnyPost) {
+          serverChildren.unshift({
+            type: "server-post",
+            serverId,
+            iconClass: ThemeIcon.asClassName(Codicon.play),
+            label: localize("continueWithoutReviewing", "Continue without reviewing any tool results"),
+            checked: serverPostConfirmed
+          });
+        }
+        if (hasAnyPre) {
+          serverChildren.unshift({
+            type: "server-pre",
+            serverId,
+            iconClass: ThemeIcon.asClassName(Codicon.play),
+            label: localize("runToolsWithoutApproval", "Run any tool without approval"),
+            checked: serverPreConfirmed
+          });
+        }
+        const serverHasPre = this._preExecutionServerConfirmStore.getAutoConfirmationIn(serverId, currentScope);
+        const serverHasPost = this._postExecutionServerConfirmStore.getAutoConfirmationIn(serverId, currentScope);
+        let serverChecked;
+        if (hasAnyPre && hasAnyPost) {
+          serverChecked = serverHasPre && serverHasPost ? true : !serverHasPre && !serverHasPost ? false : "mixed";
+        } else if (hasAnyPre) {
+          serverChecked = serverHasPre;
+        } else if (hasAnyPost) {
+          serverChecked = serverHasPost;
+        } else {
+          serverChecked = false;
+        }
+        const existingItem = quickTree.itemTree.find((i) => i.serverId === serverId);
+        treeItems.push({
+          type: "server",
+          serverId,
+          label: serverInfo.label,
+          checked: serverChecked,
+          children: serverChildren,
+          collapsed: existingItem ? quickTree.isCollapsed(existingItem) : true,
+          pickable: false
+        });
+      }
+      const sortedTools = tools.slice().sort((a, b) => a.displayName.localeCompare(b.displayName));
+      for (const tool of sortedTools) {
+        if (!relevantTools.has(tool.id)) {
+          continue;
+        }
+        if (tool.source.type === "mcp" || tool.source.type === "extension") {
+          continue;
+        }
+        const contributed = this._contributions.get(tool.id);
+        const toolChildren = [];
+        const manageActions = contributed?.getManageActions?.();
+        if (manageActions) {
+          toolChildren.push(...manageActions.map((action) => ({
+            type: "manage",
+            ...action
+          })));
+        }
+        let checked = false;
+        let description;
+        let pickable = false;
+        if (contributed?.canUseDefaultApprovals !== false) {
+          pickable = true;
+          const hasPre = tool.canRequestPreApproval || this._preExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope);
+          const hasPost = tool.canRequestPostApproval || this._postExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope);
+          if (hasPre && hasPost) {
+            toolChildren.push({
+              type: "tool-pre",
+              toolId: tool.id,
+              label: RUN_WITHOUT_APPROVAL,
+              checked: this._preExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope)
+            });
+            toolChildren.push({
+              type: "tool-post",
+              toolId: tool.id,
+              label: CONTINUE_WITHOUT_REVIEWING_RESULTS,
+              checked: this._postExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope)
+            });
+          }
+          const preApproval = this._preExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope);
+          const postApproval = this._postExecutionToolConfirmStore.getAutoConfirmationIn(tool.id, currentScope);
+          if (hasPre && hasPost) {
+            checked = preApproval && postApproval ? true : !preApproval && !postApproval ? false : "mixed";
+          } else if (hasPre) {
+            checked = preApproval;
+            description = RUN_WITHOUT_APPROVAL;
+          } else if (hasPost) {
+            checked = postApproval;
+            description = CONTINUE_WITHOUT_REVIEWING_RESULTS;
+          } else {
+            checked = false;
+          }
+        }
+        treeItems.push({
+          type: "tool",
+          toolId: tool.id,
+          label: tool.displayName || tool.id,
+          description,
+          checked,
+          pickable,
+          collapsed: true,
+          children: toolChildren.length > 0 ? toolChildren : void 0
+        });
+      }
+      return treeItems;
+    }, "buildTreeItems");
+    const disposables = new DisposableStore();
+    const quickTree = disposables.add(this._quickInputService.createQuickTree());
+    quickTree.ignoreFocusOut = true;
+    quickTree.sortByLabel = false;
+    if (currentScope !== "session") {
+      const scopeButton = {
+        iconClass: ThemeIcon.asClassName(Codicon.folder),
+        tooltip: localize("workspaceScope", "Configure for this workspace only"),
+        toggle: { checked: currentScope === "workspace" },
+        location: QuickInputButtonLocation.Input
+      };
+      quickTree.buttons = [scopeButton];
+      disposables.add(quickTree.onDidTriggerButton((button) => {
+        if (button === scopeButton) {
+          currentScope = currentScope === "workspace" ? "profile" : "workspace";
+          updatePlaceholder();
+          quickTree.setItemTree(buildTreeItems());
+        }
+      }));
+    }
+    const updatePlaceholder = /* @__PURE__ */ __name(() => {
+      if (currentScope === "session") {
+        quickTree.placeholder = localize("configureSessionToolApprovals", "Configure session tool approvals");
+      } else {
+        quickTree.placeholder = currentScope === "workspace" ? localize("configureWorkspaceToolApprovals", "Configure workspace tool approvals") : localize("configureGlobalToolApprovals", "Configure global tool approvals");
+      }
+    }, "updatePlaceholder");
+    updatePlaceholder();
+    quickTree.setItemTree(buildTreeItems());
+    disposables.add(quickTree.onDidChangeCheckboxState((item) => {
+      const newState = item.checked ? currentScope : "never";
+      if (item.type === "server" && item.serverId) {
+        const serverInfo = serversWithTools.get(item.serverId);
+        if (serverInfo) {
+          this._preExecutionServerConfirmStore.setAutoConfirmation(item.serverId, newState);
+          this._postExecutionServerConfirmStore.setAutoConfirmation(item.serverId, newState);
+        }
+      } else if (item.type === "tool" && item.toolId) {
+        const tool = tools.find((t) => t.id === item.toolId);
+        if (tool?.canRequestPostApproval || newState === "never") {
+          this._postExecutionToolConfirmStore.setAutoConfirmation(item.toolId, newState);
+        }
+        if (tool?.canRequestPreApproval || newState === "never") {
+          this._preExecutionToolConfirmStore.setAutoConfirmation(item.toolId, newState);
+        }
+      } else if (item.type === "tool-pre" && item.toolId) {
+        this._preExecutionToolConfirmStore.setAutoConfirmation(item.toolId, newState);
+      } else if (item.type === "tool-post" && item.toolId) {
+        this._postExecutionToolConfirmStore.setAutoConfirmation(item.toolId, newState);
+      } else if (item.type === "server-pre" && item.serverId) {
+        this._preExecutionServerConfirmStore.setAutoConfirmation(item.serverId, newState);
+        quickTree.setItemTree(buildTreeItems());
+      } else if (item.type === "server-post" && item.serverId) {
+        this._postExecutionServerConfirmStore.setAutoConfirmation(item.serverId, newState);
+        quickTree.setItemTree(buildTreeItems());
+      } else if (item.type === "manage") {
+        item.onDidChangeChecked?.(!!item.checked);
+      }
+    }));
+    disposables.add(quickTree.onDidTriggerItemButton((i) => {
+      if (i.item.type === "manage") {
+        i.item.onDidTriggerItemButton?.(i.button);
+      }
+    }));
+    disposables.add(quickTree.onDidAccept(() => {
+      for (const item of quickTree.activeItems) {
+        if (item.type === "manage") {
+          item.onDidOpen?.();
+          quickTree.hide();
+        }
+      }
+    }));
+    disposables.add(quickTree.onDidHide(() => {
+      disposables.dispose();
+    }));
+    quickTree.show();
+  }
+  resetToolAutoConfirmation() {
+    this._preExecutionToolConfirmStore.reset();
+    this._postExecutionToolConfirmStore.reset();
+    this._preExecutionServerConfirmStore.reset();
+    this._postExecutionServerConfirmStore.reset();
+    for (const contribution of this._contributions.values()) {
+      contribution.reset?.();
+    }
+  }
+};
+LanguageModelToolsConfirmationService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IQuickInputService)
+], LanguageModelToolsConfirmationService);
+export {
+  LanguageModelToolsConfirmationService
+};
+//# sourceMappingURL=languageModelToolsConfirmationService.js.map

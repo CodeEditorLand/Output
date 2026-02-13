@@ -1,4 +1,237 @@
-import{localize as c}from"../../../../nls.js";import b from"../../../../base/common/severity.js";import{$zd as u,$Cd as C}from"../../../../base/common/lifecycle.js";import{$qu as $}from"../../../../platform/theme/common/themeService.js";import{ThemeIcon as D}from"../../../../base/common/themables.js";import{$4H as w}from"../../../common/editor/editorInput.js";import{$xZb as x,$BZb as d}from"./terminal.js";import{$lZb as v,$pZb as I}from"./terminalIcon.js";import{$Mj as T}from"../../../../platform/instantiation/common/instantiation.js";import{TerminalExitReason as f,TerminalLocation as P}from"../../../../platform/terminal/common/terminal.js";import{$WN as S}from"../../../services/lifecycle/common/lifecycle.js";import{$ro as _}from"../../../../platform/contextkey/common/contextkey.js";import{$0l as O}from"../../../../platform/configuration/common/configuration.js";import{TerminalContextKeys as R}from"../common/terminalContextKey.js";import{$Mp as E}from"../../../../platform/dialogs/common/dialogs.js";import{$xf as K}from"../../../../base/common/event.js";var y=function(h,t,e,s){var r=arguments.length,i=r<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(h,t,e,s);else for(var a=h.length-1;a>=0;a--)(n=h[a])&&(i=(r<3?n(i):r>3?n(t,e,i):n(t,e))||i);return r>3&&i&&Object.defineProperty(t,e,i),i},o=function(h,t){return function(e,s){t(e,s,h)}},l;let p=class extends w{static{l=this}static{this.ID="workbench.editors.terminal"}setGroup(t){this.q=t,t?.scopedContextKeyService&&this.s?.setParentContextKeyService(t.scopedContextKeyService)}get group(){return this.q}get typeId(){return l.ID}get editorId(){return d}get capabilities(){return 202}setTerminalInstance(t){if(this.s)throw new Error("cannot set instance that has already been set");this.s=t,this.G()}copy(){const t=this.u.createInstance(this.h||{},P.Editor);return t.focusWhenReady(),this.h=void 0,this.w.createInstance(l,t.resource,t)}setCopyLaunchConfig(t){this.h=t}get terminalInstance(){return this.a?void 0:this.s}showConfirm(){if(this.c)return!1;const t=this.y.getValue("terminal.integrated.confirmOnKill");return(t==="editor"||t==="always")&&this.s?.hasChildProcesses||!1}async confirm(t){const{confirmed:e}=await this.F.confirm({type:b.Warning,message:c(13243,null),primaryButton:c(13244,null),detail:t.length>1?t.map(s=>s.editor.getName()).join(`
-`)+`
-
-`+c(13245,null):c(13246,null)});return e?1:2}async revert(){this.c=!0}constructor(t,e,s,r,i,n,a,m,g){super(),this.resource=t,this.s=e,this.t=s,this.u=r,this.w=i,this.y=n,this.z=a,this.C=m,this.F=g,this.closeHandler=this,this.a=!1,this.b=!1,this.c=!1,this.r=this.D(new K),this.onDidRequestAttach=this.r.event,this.m=R.editorFocus.bindTo(m),e&&this.G()}G(){const t=this.s;if(!t)return;const e=t.onDidFocus(()=>this.m.set(!0)),s=t.onDidBlur(()=>this.m.reset()),r=[t.onExit(i=>{t.waitOnExit||this.dispose()}),t.onDisposed(()=>this.dispose()),t.onTitleChanged(()=>this.g.fire()),t.onIconChanged(()=>this.g.fire()),e,s,t.statusList.onDidChangePrimaryStatus(()=>this.g.fire())];this.D(C(()=>{!this.a&&!this.b&&t.dispose(f.User),u(r),u([e,s])})),this.D(this.z.onWillShutdown(i=>{this.b=!0,u(r),this.y.getValue("terminal.integrated.enablePersistentSessions")&&i.reason===3?t.detachProcessAndDispose(f.Shutdown):t.dispose(f.Shutdown)}))}getName(){return this.s?.title||this.resource.fragment}getIcon(){if(!(!this.s||!D.isThemeIcon(this.s.icon)))return this.s.icon}getLabelExtraClasses(){if(!this.s)return[];const t=["terminal-tab","predefined-file-icon"],e=v(this.s);e&&t.push(e);const s=I(this.s,this.t.getColorTheme().type);return s&&t.push(...s),t}detachInstance(){this.b||(this.s?.detachFromElement(),this.s?.setParentContextKeyService(this.C),this.a=!0)}getDescription(){return this.s?.description}toUntyped(){return{resource:this.resource,options:{override:d,pinned:!0,forceReload:!0}}}canReopen(){return!1}};p=l=y([o(2,$),o(3,x),o(4,T),o(5,O),o(6,S),o(7,_),o(8,E)],p);export{p as $rZb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalEditorInput_1;
+import { localize } from "../../../../nls.js";
+import Severity from "../../../../base/common/severity.js";
+import { dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { ITerminalInstanceService, terminalEditorId } from "./terminal.js";
+import { getColorClass, getUriClasses } from "./terminalIcon.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { TerminalExitReason, TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { TerminalContextKeys } from "../common/terminalContextKey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { Emitter } from "../../../../base/common/event.js";
+let TerminalEditorInput = class TerminalEditorInput2 extends EditorInput {
+  static {
+    __name(this, "TerminalEditorInput");
+  }
+  static {
+    TerminalEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.editors.terminal";
+  }
+  setGroup(group) {
+    this._group = group;
+    if (group?.scopedContextKeyService) {
+      this._terminalInstance?.setParentContextKeyService(group.scopedContextKeyService);
+    }
+  }
+  get group() {
+    return this._group;
+  }
+  get typeId() {
+    return TerminalEditorInput_1.ID;
+  }
+  get editorId() {
+    return terminalEditorId;
+  }
+  get capabilities() {
+    return 2 | 8 | 128 | 64;
+  }
+  setTerminalInstance(instance) {
+    if (this._terminalInstance) {
+      throw new Error("cannot set instance that has already been set");
+    }
+    this._terminalInstance = instance;
+    this._setupInstanceListeners();
+  }
+  copy() {
+    const instance = this._terminalInstanceService.createInstance(this._copyLaunchConfig || {}, TerminalLocation.Editor);
+    instance.focusWhenReady();
+    this._copyLaunchConfig = void 0;
+    return this._instantiationService.createInstance(TerminalEditorInput_1, instance.resource, instance);
+  }
+  /**
+   * Sets the launch config to use for the next call to EditorInput.copy, which will be used when
+   * the editor's split command is run.
+   */
+  setCopyLaunchConfig(launchConfig) {
+    this._copyLaunchConfig = launchConfig;
+  }
+  /**
+   * Returns the terminal instance for this input if it has not yet been detached from the input.
+   */
+  get terminalInstance() {
+    return this._isDetached ? void 0 : this._terminalInstance;
+  }
+  showConfirm() {
+    if (this._isReverted) {
+      return false;
+    }
+    const confirmOnKill = this._configurationService.getValue(
+      "terminal.integrated.confirmOnKill"
+      /* TerminalSettingId.ConfirmOnKill */
+    );
+    if (confirmOnKill === "editor" || confirmOnKill === "always") {
+      return this._terminalInstance?.hasChildProcesses || false;
+    }
+    return false;
+  }
+  async confirm(terminals) {
+    const { confirmed } = await this._dialogService.confirm({
+      type: Severity.Warning,
+      message: localize("confirmDirtyTerminal.message", "Do you want to terminate running processes?"),
+      primaryButton: localize({ key: "confirmDirtyTerminal.button", comment: ["&& denotes a mnemonic"] }, "&&Terminate"),
+      detail: terminals.length > 1 ? terminals.map((terminal) => terminal.editor.getName()).join("\n") + "\n\n" + localize("confirmDirtyTerminals.detail", "Closing will terminate the running processes in the terminals.") : localize("confirmDirtyTerminal.detail", "Closing will terminate the running processes in this terminal.")
+    });
+    return confirmed ? 1 : 2;
+  }
+  async revert() {
+    this._isReverted = true;
+  }
+  constructor(resource, _terminalInstance, _themeService, _terminalInstanceService, _instantiationService, _configurationService, _lifecycleService, _contextKeyService, _dialogService) {
+    super();
+    this.resource = resource;
+    this._terminalInstance = _terminalInstance;
+    this._themeService = _themeService;
+    this._terminalInstanceService = _terminalInstanceService;
+    this._instantiationService = _instantiationService;
+    this._configurationService = _configurationService;
+    this._lifecycleService = _lifecycleService;
+    this._contextKeyService = _contextKeyService;
+    this._dialogService = _dialogService;
+    this.closeHandler = this;
+    this._isDetached = false;
+    this._isShuttingDown = false;
+    this._isReverted = false;
+    this._onDidRequestAttach = this._register(new Emitter());
+    this.onDidRequestAttach = this._onDidRequestAttach.event;
+    this._terminalEditorFocusContextKey = TerminalContextKeys.editorFocus.bindTo(_contextKeyService);
+    if (_terminalInstance) {
+      this._setupInstanceListeners();
+    }
+  }
+  _setupInstanceListeners() {
+    const instance = this._terminalInstance;
+    if (!instance) {
+      return;
+    }
+    const instanceOnDidFocusListener = instance.onDidFocus(() => this._terminalEditorFocusContextKey.set(true));
+    const instanceOnDidBlurListener = instance.onDidBlur(() => this._terminalEditorFocusContextKey.reset());
+    const disposeListeners = [
+      instance.onExit((e) => {
+        if (!instance.waitOnExit) {
+          this.dispose();
+        }
+      }),
+      instance.onDisposed(() => this.dispose()),
+      instance.onTitleChanged(() => this._onDidChangeLabel.fire()),
+      instance.onIconChanged(() => this._onDidChangeLabel.fire()),
+      instanceOnDidFocusListener,
+      instanceOnDidBlurListener,
+      instance.statusList.onDidChangePrimaryStatus(() => this._onDidChangeLabel.fire())
+    ];
+    this._register(toDisposable(() => {
+      if (!this._isDetached && !this._isShuttingDown) {
+        instance.dispose(TerminalExitReason.User);
+      }
+      dispose(disposeListeners);
+      dispose([instanceOnDidFocusListener, instanceOnDidBlurListener]);
+    }));
+    this._register(this._lifecycleService.onWillShutdown((e) => {
+      this._isShuttingDown = true;
+      dispose(disposeListeners);
+      const shouldPersistTerminals = this._configurationService.getValue(
+        "terminal.integrated.enablePersistentSessions"
+        /* TerminalSettingId.EnablePersistentSessions */
+      ) && e.reason === 3;
+      if (shouldPersistTerminals) {
+        instance.detachProcessAndDispose(TerminalExitReason.Shutdown);
+      } else {
+        instance.dispose(TerminalExitReason.Shutdown);
+      }
+    }));
+  }
+  getName() {
+    return this._terminalInstance?.title || this.resource.fragment;
+  }
+  getIcon() {
+    if (!this._terminalInstance || !ThemeIcon.isThemeIcon(this._terminalInstance.icon)) {
+      return void 0;
+    }
+    return this._terminalInstance.icon;
+  }
+  getLabelExtraClasses() {
+    if (!this._terminalInstance) {
+      return [];
+    }
+    const extraClasses = ["terminal-tab", "predefined-file-icon"];
+    const colorClass = getColorClass(this._terminalInstance);
+    if (colorClass) {
+      extraClasses.push(colorClass);
+    }
+    const uriClasses = getUriClasses(this._terminalInstance, this._themeService.getColorTheme().type);
+    if (uriClasses) {
+      extraClasses.push(...uriClasses);
+    }
+    return extraClasses;
+  }
+  /**
+   * Detach the instance from the input such that when the input is disposed it will not dispose
+   * of the terminal instance/process.
+   */
+  detachInstance() {
+    if (!this._isShuttingDown) {
+      this._terminalInstance?.detachFromElement();
+      this._terminalInstance?.setParentContextKeyService(this._contextKeyService);
+      this._isDetached = true;
+    }
+  }
+  getDescription() {
+    return this._terminalInstance?.description;
+  }
+  toUntyped() {
+    return {
+      resource: this.resource,
+      options: {
+        override: terminalEditorId,
+        pinned: true,
+        forceReload: true
+      }
+    };
+  }
+  canReopen() {
+    return false;
+  }
+};
+TerminalEditorInput = TerminalEditorInput_1 = __decorate([
+  __param(2, IThemeService),
+  __param(3, ITerminalInstanceService),
+  __param(4, IInstantiationService),
+  __param(5, IConfigurationService),
+  __param(6, ILifecycleService),
+  __param(7, IContextKeyService),
+  __param(8, IDialogService)
+], TerminalEditorInput);
+export {
+  TerminalEditorInput
+};
+//# sourceMappingURL=terminalEditorInput.js.map

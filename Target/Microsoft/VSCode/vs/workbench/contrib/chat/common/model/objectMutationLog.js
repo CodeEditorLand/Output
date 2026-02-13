@@ -1,5 +1,318 @@
-import{$Zc as b}from"../../../../../base/common/assert.js";import{$0i as k}from"../../../../../base/common/buffer.js";import{$ed as d}from"../../../../../base/common/types.js";var p;(function(r){r[r.Key=0]="Key",r[r.Primitive=1]="Primitive",r[r.Array=2]="Array",r[r.Object=3]="Object"})(p||(p={}));function w(r){return{kind:0,extract:t=>t,equals:r??((t,e)=>t===e)}}function m(r){return{kind:1,extract:t=>{let e=t;return e&&typeof e=="object"&&(e=JSON.parse(JSON.stringify(e))),e},equals:r??((t,e)=>t===e)}}function q(r){return{kind:2,itemSchema:r,extract:t=>t?.map(e=>r.extract(e))}}function I(r,t){const e=Object.entries(r).sort(([,s],[,i])=>s.kind-i.kind);return{kind:3,children:e,sealed:t?.sealed,extract:s=>{if(d(s))return s;const i=Object.create(null);for(const[n,l]of e)i[n]=l.extract(s);return i}}}function $(r,t){return{...t,extract:e=>t.extract(r(e))}}function J(r,t){const e=m(t);return{...e,extract:s=>e.extract(r(s))}}var x;(function(r){r[r.Initial=0]="Initial",r[r.Set=1]="Set",r[r.Push=2]="Push",r[r.Delete=3]="Delete"})(x||(x={}));const y=k.fromString(`
-`);class N{constructor(t,e=512){this.f=t,this.g=e,this.d=0}createInitial(t){return this.createInitialFromSerialized(this.f.extract(t))}createInitialFromSerialized(t){this.c=t,this.d=1;const e={kind:0,v:t};return k.fromString(JSON.stringify(e)+`
-`)}read(t){let e,s=0,i=0;const n=t.byteLength;for(;i<n;){let l=t.indexOf(y,i);if(l===-1&&(l=n),l>i){const c=t.slice(i,l);if(c.byteLength>0){s++;const o=JSON.parse(c.toString());switch(o.kind){case 0:e=o.v;break;case 1:this.h(e,o.k,o.v);break;case 2:this.j(e,o.k,o.v,o.i);break;case 3:this.h(e,o.k,void 0);break;default:b(o)}}}i=l+1}if(s===0)throw new Error("Empty log file");return this.c=e,this.d=s,e}write(t){const e=this.f.extract(t);if(!this.c||this.d>this.g){this.c=e,this.d=1;const l={kind:0,v:e};return{op:"replace",data:k.fromString(JSON.stringify(l)+`
-`)}}const s=[],i=[];if(this.l(this.f,i,this.c,e,s),s.length===0)return{op:"append",data:k.fromString("")};this.d+=s.length,this.c=e;let n="";for(const l of s)n+=JSON.stringify(l)+`
-`;return{op:"append",data:k.fromString(n)}}h(t,e,s){if(e.length===0)return;let i=t;for(let n=0;n<e.length-1;n++)i=i[e[n]];i[e[e.length-1]]=s}j(t,e,s,i){let n=t;for(let o=0;o<e.length-1;o++)n=n[e[o]];const l=e[e.length-1],c=n[l]||[];i!==void 0&&(c.length=i),s&&s.length>0&&c.push(...s),n[l]=c}l(t,e,s,i,n){if(t.kind===0||t.kind===1)t.equals(s,i)||n.push({kind:1,k:e.slice(),v:i});else if(d(s)||d(i))s!==i&&(i===void 0?n.push({kind:3,k:e.slice()}):i===null?n.push({kind:1,k:e.slice(),v:null}):n.push({kind:1,k:e.slice(),v:i}));else if(t.kind===2)this.q(t,e,s,i,n);else if(t.kind===3)this.n(t.children,e,s,i,n,t.sealed);else throw new Error(`Unknown transform kind ${JSON.stringify(t)}`)}n(t,e,s,i,n,l){const c=s,o=i;let u=0;for(;u<t.length;u++){const[h,f]=t[u];if(f.kind!==0)break;if(!f.equals(c?.[h],o[h])){n.push({kind:1,k:e.slice(),v:i});return}}if(!(l&&l(s,!0)&&l(i,!1)))for(;u<t.length;u++){const[h,f]=t[u];e.push(h),this.l(f,e,c?.[h],o[h],n),e.pop()}}q(t,e,s,i,n){const l=s||[],c=i||[],o=t.itemSchema,u=Math.min(l.length,c.length);if(o.kind===3){const h=o.children;for(let f=0;f<u;f++){const g=l[f],a=c[f];if(this.r(h,g,a)){const S=c.slice(f);n.push({kind:2,k:e.slice(),v:S.length>0?S:void 0,i:f});return}e.push(f),this.n(h,e,g,a,n,o.sealed),e.pop()}c.length>l.length?n.push({kind:2,k:e.slice(),v:c.slice(l.length)}):c.length<l.length&&n.push({kind:2,k:e.slice(),i:c.length})}else{let h=-1;for(let f=0;f<u;f++)if(!o.equals(l[f],c[f])){h=f;break}if(h===-1)c.length>l.length?n.push({kind:2,k:e.slice(),v:c.slice(l.length)}):c.length<l.length&&n.push({kind:2,k:e.slice(),i:c.length});else{const f=c.slice(h);n.push({kind:2,k:e.slice(),v:f.length>0?f:void 0,i:h})}}}r(t,e,s){const i=e,n=s;for(const[l,c]of t){if(c.kind!==0)break;if(!c.equals(i?.[l],n[l]))return!0}return!1}}export{m as $kS,q as $lS,I as $mS,N as $pS,w as key,$ as t,J as v};
+var __defProp = Object.defineProperty;
+var __name = (target, value2) => __defProp(target, "name", { value: value2, configurable: true });
+import { assertNever } from "../../../../../base/common/assert.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { isUndefinedOrNull } from "../../../../../base/common/types.js";
+var TransformKind;
+(function(TransformKind2) {
+  TransformKind2[TransformKind2["Key"] = 0] = "Key";
+  TransformKind2[TransformKind2["Primitive"] = 1] = "Primitive";
+  TransformKind2[TransformKind2["Array"] = 2] = "Array";
+  TransformKind2[TransformKind2["Object"] = 3] = "Object";
+})(TransformKind || (TransformKind = {}));
+function key(comparator) {
+  return {
+    kind: 0,
+    extract: /* @__PURE__ */ __name((from) => from, "extract"),
+    equals: comparator ?? ((a, b) => a === b)
+  };
+}
+__name(key, "key");
+function value(comparator) {
+  return {
+    kind: 1,
+    extract: /* @__PURE__ */ __name((from) => {
+      let value2 = from;
+      if (!!value2 && typeof value2 === "object") {
+        value2 = JSON.parse(JSON.stringify(value2));
+      }
+      return value2;
+    }, "extract"),
+    equals: comparator ?? ((a, b) => a === b)
+  };
+}
+__name(value, "value");
+function array(schema) {
+  return {
+    kind: 2,
+    itemSchema: schema,
+    extract: /* @__PURE__ */ __name((from) => from?.map((item) => schema.extract(item)), "extract")
+  };
+}
+__name(array, "array");
+function object(schema, options) {
+  const entries = Object.entries(schema).sort(([, a], [, b]) => a.kind - b.kind);
+  return {
+    kind: 3,
+    children: entries,
+    sealed: options?.sealed,
+    extract: /* @__PURE__ */ __name((from) => {
+      if (isUndefinedOrNull(from)) {
+        return from;
+      }
+      const result = /* @__PURE__ */ Object.create(null);
+      for (const [key2, transform] of entries) {
+        result[key2] = transform.extract(from);
+      }
+      return result;
+    }, "extract")
+  };
+}
+__name(object, "object");
+function t(getter, schema) {
+  return {
+    ...schema,
+    extract: /* @__PURE__ */ __name((from) => schema.extract(getter(from)), "extract")
+  };
+}
+__name(t, "t");
+function v(getter, comparator) {
+  const inner = value(comparator);
+  return {
+    ...inner,
+    extract: /* @__PURE__ */ __name((from) => inner.extract(getter(from)), "extract")
+  };
+}
+__name(v, "v");
+var EntryKind;
+(function(EntryKind2) {
+  EntryKind2[EntryKind2["Initial"] = 0] = "Initial";
+  EntryKind2[EntryKind2["Set"] = 1] = "Set";
+  EntryKind2[EntryKind2["Push"] = 2] = "Push";
+  EntryKind2[EntryKind2["Delete"] = 3] = "Delete";
+})(EntryKind || (EntryKind = {}));
+const LF = VSBuffer.fromString("\n");
+class ObjectMutationLog {
+  static {
+    __name(this, "ObjectMutationLog");
+  }
+  constructor(_transform, _compactAfterEntries = 512) {
+    this._transform = _transform;
+    this._compactAfterEntries = _compactAfterEntries;
+    this._entryCount = 0;
+  }
+  /**
+   * Creates an initial log file from the given object.
+   */
+  createInitial(current) {
+    return this.createInitialFromSerialized(this._transform.extract(current));
+  }
+  /**
+   * Creates an initial log file from the serialized object.
+   */
+  createInitialFromSerialized(value2) {
+    this._previous = value2;
+    this._entryCount = 1;
+    const entry = { kind: 0, v: value2 };
+    return VSBuffer.fromString(JSON.stringify(entry) + "\n");
+  }
+  /**
+   * Reads and reconstructs the state from a log file.
+   */
+  read(content) {
+    let state;
+    let lineCount = 0;
+    let start = 0;
+    const len = content.byteLength;
+    while (start < len) {
+      let end = content.indexOf(LF, start);
+      if (end === -1) {
+        end = len;
+      }
+      if (end > start) {
+        const line = content.slice(start, end);
+        if (line.byteLength > 0) {
+          lineCount++;
+          const entry = JSON.parse(line.toString());
+          switch (entry.kind) {
+            case 0:
+              state = entry.v;
+              break;
+            case 1:
+              this._applySet(state, entry.k, entry.v);
+              break;
+            case 2:
+              this._applyPush(state, entry.k, entry.v, entry.i);
+              break;
+            case 3:
+              this._applySet(state, entry.k, void 0);
+              break;
+            default:
+              assertNever(entry);
+          }
+        }
+      }
+      start = end + 1;
+    }
+    if (lineCount === 0) {
+      throw new Error("Empty log file");
+    }
+    this._previous = state;
+    this._entryCount = lineCount;
+    return state;
+  }
+  /**
+   * Writes updates to the log. Returns the operation type and data to write.
+   */
+  write(current) {
+    const currentValue = this._transform.extract(current);
+    if (!this._previous || this._entryCount > this._compactAfterEntries) {
+      this._previous = currentValue;
+      this._entryCount = 1;
+      const entry = { kind: 0, v: currentValue };
+      return { op: "replace", data: VSBuffer.fromString(JSON.stringify(entry) + "\n") };
+    }
+    const entries = [];
+    const path = [];
+    this._diff(this._transform, path, this._previous, currentValue, entries);
+    if (entries.length === 0) {
+      return { op: "append", data: VSBuffer.fromString("") };
+    }
+    this._entryCount += entries.length;
+    this._previous = currentValue;
+    let data = "";
+    for (const e of entries) {
+      data += JSON.stringify(e) + "\n";
+    }
+    return { op: "append", data: VSBuffer.fromString(data) };
+  }
+  _applySet(state, path, value2) {
+    if (path.length === 0) {
+      return;
+    }
+    let current = state;
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current[path[i]];
+    }
+    current[path[path.length - 1]] = value2;
+  }
+  _applyPush(state, path, values, startIndex) {
+    let current = state;
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current[path[i]];
+    }
+    const arrayKey = path[path.length - 1];
+    const arr = current[arrayKey] || [];
+    if (startIndex !== void 0) {
+      arr.length = startIndex;
+    }
+    if (values && values.length > 0) {
+      arr.push(...values);
+    }
+    current[arrayKey] = arr;
+  }
+  _diff(transform, path, prev, curr, entries) {
+    if (transform.kind === 0 || transform.kind === 1) {
+      if (!transform.equals(prev, curr)) {
+        entries.push({ kind: 1, k: path.slice(), v: curr });
+      }
+    } else if (isUndefinedOrNull(prev) || isUndefinedOrNull(curr)) {
+      if (prev !== curr) {
+        if (curr === void 0) {
+          entries.push({ kind: 3, k: path.slice() });
+        } else if (curr === null) {
+          entries.push({ kind: 1, k: path.slice(), v: null });
+        } else {
+          entries.push({ kind: 1, k: path.slice(), v: curr });
+        }
+      }
+    } else if (transform.kind === 2) {
+      this._diffArray(transform, path, prev, curr, entries);
+    } else if (transform.kind === 3) {
+      this._diffObject(transform.children, path, prev, curr, entries, transform.sealed);
+    } else {
+      throw new Error(`Unknown transform kind ${JSON.stringify(transform)}`);
+    }
+  }
+  _diffObject(children, path, prev, curr, entries, sealed) {
+    const prevObj = prev;
+    const currObj = curr;
+    let i = 0;
+    for (; i < children.length; i++) {
+      const [key2, transform] = children[i];
+      if (transform.kind !== 0) {
+        break;
+      }
+      if (!transform.equals(prevObj?.[key2], currObj[key2])) {
+        entries.push({ kind: 1, k: path.slice(), v: curr });
+        return;
+      }
+    }
+    if (sealed && sealed(prev, true) && sealed(curr, false)) {
+      return;
+    }
+    for (; i < children.length; i++) {
+      const [key2, transform] = children[i];
+      path.push(key2);
+      this._diff(transform, path, prevObj?.[key2], currObj[key2], entries);
+      path.pop();
+    }
+  }
+  _diffArray(transform, path, prev, curr, entries) {
+    const prevArr = prev || [];
+    const currArr = curr || [];
+    const itemSchema = transform.itemSchema;
+    const minLen = Math.min(prevArr.length, currArr.length);
+    if (itemSchema.kind === 3) {
+      const childEntries = itemSchema.children;
+      for (let i = 0; i < minLen; i++) {
+        const prevItem = prevArr[i];
+        const currItem = currArr[i];
+        if (this._hasKeyMismatch(childEntries, prevItem, currItem)) {
+          const newItems = currArr.slice(i);
+          entries.push({ kind: 2, k: path.slice(), v: newItems.length > 0 ? newItems : void 0, i });
+          return;
+        }
+        path.push(i);
+        this._diffObject(childEntries, path, prevItem, currItem, entries, itemSchema.sealed);
+        path.pop();
+      }
+      if (currArr.length > prevArr.length) {
+        entries.push({ kind: 2, k: path.slice(), v: currArr.slice(prevArr.length) });
+      } else if (currArr.length < prevArr.length) {
+        entries.push({ kind: 2, k: path.slice(), i: currArr.length });
+      }
+    } else {
+      let firstMismatch = -1;
+      for (let i = 0; i < minLen; i++) {
+        if (!itemSchema.equals(prevArr[i], currArr[i])) {
+          firstMismatch = i;
+          break;
+        }
+      }
+      if (firstMismatch === -1) {
+        if (currArr.length > prevArr.length) {
+          entries.push({ kind: 2, k: path.slice(), v: currArr.slice(prevArr.length) });
+        } else if (currArr.length < prevArr.length) {
+          entries.push({ kind: 2, k: path.slice(), i: currArr.length });
+        }
+      } else {
+        const newItems = currArr.slice(firstMismatch);
+        entries.push({ kind: 2, k: path.slice(), v: newItems.length > 0 ? newItems : void 0, i: firstMismatch });
+      }
+    }
+  }
+  _hasKeyMismatch(children, prev, curr) {
+    const prevObj = prev;
+    const currObj = curr;
+    for (const [key2, transform] of children) {
+      if (transform.kind !== 0) {
+        break;
+      }
+      if (!transform.equals(prevObj?.[key2], currObj[key2])) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+export {
+  ObjectMutationLog,
+  array,
+  key,
+  object,
+  t,
+  v,
+  value
+};
+//# sourceMappingURL=objectMutationLog.js.map

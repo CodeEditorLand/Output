@@ -1,1 +1,229 @@
-import*as o from"../../../../nls.js";import{$WC as D}from"../../../../platform/instantiation/common/extensions.js";import{$jm as w}from"../../../../platform/registry/common/platform.js";import"./commentsEditorContribution.js";import{$NHb as d,$OHb as A}from"./commentService.js";import{$lm as x}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Ed as S,$Fd as O}from"../../../../base/common/lifecycle.js";import{$0n as r}from"../../../../platform/contextkey/common/contextkey.js";import{Extensions as _}from"../../../common/contributions.js";import{$aCb as j,$bCb as T}from"../../../services/activity/common/activity.js";import{$Z8b as m}from"./commentsTreeViewer.js";import{CommentThreadState as v}from"../../../../editor/common/languages.js";import{$vL as V,$qL as a,$wL as f}from"../../../../platform/actions/common/actions.js";import{$k9b as g,$l9b as z}from"./commentsView.js";import{$3Bb as C}from"../../../browser/parts/views/viewPane.js";import{$bk as h}from"../../../../base/common/codicons.js";import{$BL as I}from"../../../services/editor/common/editorService.js";import{$$o as R}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$g9b as U}from"./commentsController.js";import{$zIb as q,$uIb as H}from"../../accessibility/browser/accessibilityConfiguration.js";import{$Dvb as b}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$2Ac as W,$3Ac as E}from"./commentsAccessibleView.js";import{$5Ac as F}from"./commentsAccessibility.js";var y=function(l,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(l,e,t,i);else for(var u=l.length-1;u>=0;u--)(c=l[u])&&(n=(s<3?c(n):s>3?c(e,t,n):c(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},$=function(l,e){return function(t,i){e(t,i,l)}};f(class extends C{constructor(){super({viewId:m,id:"comments.collapse",title:o.localize(7408,null),f1:!1,icon:h.collapseAll,menu:{id:a.ViewTitle,group:"navigation",when:r.and(r.and(r.equals("view",m),g),z),order:100}})}runInView(e,t){t.collapseAll()}});f(class extends C{constructor(){super({viewId:m,id:"comments.expand",title:o.localize(7409,null),f1:!1,icon:h.expandAll,menu:{id:a.ViewTitle,group:"navigation",when:r.and(r.and(r.equals("view",m),g),r.not(z.key)),order:100}})}runInView(e,t){t.expandAll()}});f(class extends V{constructor(){super({id:"comments.reply",title:o.localize(7410,null),icon:h.reply,precondition:r.equals("canReply",!0),menu:[{id:a.CommentsViewThreadActions,order:100},{id:a.AccessibleView,when:r.and(H,r.equals(q.key,"comments"))}]})}run(e,t){const i=e.get(d),s=e.get(I),n=e.get(R);U(i,s,n,t.thread,t.thread.comments[t.thread.comments.length-1],!0)}});w.as(x.Configuration).registerConfiguration({id:"comments",order:20,title:o.localize(7411,null),type:"object",properties:{"comments.openPanel":{enum:["neverOpen","openOnSessionStart","openOnSessionStartWithComments"],default:"openOnSessionStartWithComments",description:o.localize(7412,null),restricted:!1,markdownDeprecationMessage:o.localize(7413,null)},"comments.openView":{enum:["never","file","firstFile","firstFileUnresolved"],enumDescriptions:[o.localize(7414,null),o.localize(7415,null),o.localize(7416,null),o.localize(7417,null)],default:"firstFile",description:o.localize(7418,null),restricted:!1},"comments.useRelativeTime":{type:"boolean",default:!0,description:o.localize(7419,null)},"comments.visible":{type:"boolean",default:!0,description:o.localize(7420,null)},"comments.maxHeight":{type:"boolean",default:!0,description:o.localize(7421,null)},"comments.collapseOnResolve":{type:"boolean",default:!0,description:o.localize(7422,null)},"comments.thread.confirmOnCollapse":{type:"string",enum:["whenHasUnsubmittedComments","never"],enumDescriptions:[o.localize(7423,null),o.localize(7424,null)],default:"whenHasUnsubmittedComments",description:o.localize(7425,null)}}});D(d,A,1);let p=class extends S{constructor(e,t){super(),this.c=e,this.f=t,this.a=this.D(new O),this.b=0,this.D(this.c.onDidSetAllCommentThreads(this.g,this)),this.D(this.c.onDidUpdateCommentThreads(this.h,this)),this.D(this.c.onDidDeleteDataProvider(this.h,this))}g(e){let t=0;for(const i of e.commentThreads)i.state===v.Unresolved&&t++;this.j(t)}h(){let e=0;for(const t of this.c.commentsModel.resourceCommentThreads)for(const i of t.commentThreads)i.threadState===v.Unresolved&&e++;this.j(e)}j(e){if(e===this.b)return;this.b=e;const t=o.localize(7426,null,this.b);this.a.value=this.f.showViewActivity(m,{badge:new T(this.b,()=>t)})}};p=y([$(0,d),$(1,j)],p);w.as(_.Workbench).registerWorkbenchContribution(p,4);b.register(new W);b.register(new E);b.register(new F);export{p as $6Ac};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import "./commentsEditorContribution.js";
+import { ICommentService, CommentService } from "./commentService.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Extensions } from "../../../common/contributions.js";
+import { IActivityService, NumberBadge } from "../../../services/activity/common/activity.js";
+import { COMMENTS_VIEW_ID } from "./commentsTreeViewer.js";
+import { CommentThreadState } from "../../../../editor/common/languages.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CONTEXT_KEY_HAS_COMMENTS, CONTEXT_KEY_SOME_COMMENTS_EXPANDED } from "./commentsView.js";
+import { ViewAction } from "../../../browser/parts/views/viewPane.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { revealCommentThread } from "./commentsController.js";
+import { accessibleViewCurrentProviderId, accessibleViewIsShown } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { CommentsAccessibleView, CommentThreadAccessibleView } from "./commentsAccessibleView.js";
+import { CommentsAccessibilityHelp } from "./commentsAccessibility.js";
+registerAction2(class Collapse extends ViewAction {
+  static {
+    __name(this, "Collapse");
+  }
+  constructor() {
+    super({
+      viewId: COMMENTS_VIEW_ID,
+      id: "comments.collapse",
+      title: nls.localize("collapseAll", "Collapse All"),
+      f1: false,
+      icon: Codicon.collapseAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.and(ContextKeyExpr.and(ContextKeyExpr.equals("view", COMMENTS_VIEW_ID), CONTEXT_KEY_HAS_COMMENTS), CONTEXT_KEY_SOME_COMMENTS_EXPANDED),
+        order: 100
+      }
+    });
+  }
+  runInView(_accessor, view) {
+    view.collapseAll();
+  }
+});
+registerAction2(class Expand extends ViewAction {
+  static {
+    __name(this, "Expand");
+  }
+  constructor() {
+    super({
+      viewId: COMMENTS_VIEW_ID,
+      id: "comments.expand",
+      title: nls.localize("expandAll", "Expand All"),
+      f1: false,
+      icon: Codicon.expandAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.and(ContextKeyExpr.and(ContextKeyExpr.equals("view", COMMENTS_VIEW_ID), CONTEXT_KEY_HAS_COMMENTS), ContextKeyExpr.not(CONTEXT_KEY_SOME_COMMENTS_EXPANDED.key)),
+        order: 100
+      }
+    });
+  }
+  runInView(_accessor, view) {
+    view.expandAll();
+  }
+});
+registerAction2(class Reply extends Action2 {
+  static {
+    __name(this, "Reply");
+  }
+  constructor() {
+    super({
+      id: "comments.reply",
+      title: nls.localize("reply", "Reply"),
+      icon: Codicon.reply,
+      precondition: ContextKeyExpr.equals("canReply", true),
+      menu: [
+        {
+          id: MenuId.CommentsViewThreadActions,
+          order: 100
+        },
+        {
+          id: MenuId.AccessibleView,
+          when: ContextKeyExpr.and(accessibleViewIsShown, ContextKeyExpr.equals(
+            accessibleViewCurrentProviderId.key,
+            "comments"
+            /* AccessibleViewProviderId.Comments */
+          ))
+        }
+      ]
+    });
+  }
+  run(accessor, marshalledCommentThread) {
+    const commentService = accessor.get(ICommentService);
+    const editorService = accessor.get(IEditorService);
+    const uriIdentityService = accessor.get(IUriIdentityService);
+    revealCommentThread(commentService, editorService, uriIdentityService, marshalledCommentThread.thread, marshalledCommentThread.thread.comments[marshalledCommentThread.thread.comments.length - 1], true);
+  }
+});
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  id: "comments",
+  order: 20,
+  title: nls.localize("commentsConfigurationTitle", "Comments"),
+  type: "object",
+  properties: {
+    "comments.openPanel": {
+      enum: ["neverOpen", "openOnSessionStart", "openOnSessionStartWithComments"],
+      default: "openOnSessionStartWithComments",
+      description: nls.localize("openComments", "Controls when the comments panel should open."),
+      restricted: false,
+      markdownDeprecationMessage: nls.localize("comments.openPanel.deprecated", "This setting is deprecated in favor of `comments.openView`.")
+    },
+    "comments.openView": {
+      enum: ["never", "file", "firstFile", "firstFileUnresolved"],
+      enumDescriptions: [nls.localize("comments.openView.never", "The comments view will never be opened."), nls.localize("comments.openView.file", "The comments view will open when a file with comments is active."), nls.localize("comments.openView.firstFile", "If the comments view has not been opened yet during this session it will open the first time during a session that a file with comments is active."), nls.localize("comments.openView.firstFileUnresolved", "If the comments view has not been opened yet during this session and the comment is not resolved, it will open the first time during a session that a file with comments is active.")],
+      default: "firstFile",
+      description: nls.localize("comments.openView", "Controls when the comments view should open."),
+      restricted: false
+    },
+    "comments.useRelativeTime": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("useRelativeTime", "Determines if relative time will be used in comment timestamps (ex. '1 day ago').")
+    },
+    "comments.visible": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("comments.visible", 'Controls the visibility of the comments bar and comment threads in editors that have commenting ranges and comments. Comments are still accessible via the Comments view and will cause commenting to be toggled on in the same way running the command "Comments: Toggle Editor Commenting" toggles comments.')
+    },
+    "comments.maxHeight": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("comments.maxHeight", "Controls whether the comments widget scrolls or expands.")
+    },
+    "comments.collapseOnResolve": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("collapseOnResolve", "Controls whether the comment thread should collapse when the thread is resolved.")
+    },
+    "comments.thread.confirmOnCollapse": {
+      type: "string",
+      enum: ["whenHasUnsubmittedComments", "never"],
+      enumDescriptions: [nls.localize("confirmOnCollapse.whenHasUnsubmittedComments", "Show a confirmation dialog when collapsing a comment thread with unsubmitted comments."), nls.localize("confirmOnCollapse.never", "Never show a confirmation dialog when collapsing a comment thread.")],
+      default: "whenHasUnsubmittedComments",
+      description: nls.localize("confirmOnCollapse", "Controls whether a confirmation dialog is shown when collapsing a comment thread.")
+    }
+  }
+});
+registerSingleton(
+  ICommentService,
+  CommentService,
+  1
+  /* InstantiationType.Delayed */
+);
+let UnresolvedCommentsBadge = class UnresolvedCommentsBadge2 extends Disposable {
+  static {
+    __name(this, "UnresolvedCommentsBadge");
+  }
+  constructor(_commentService, activityService) {
+    super();
+    this._commentService = _commentService;
+    this.activityService = activityService;
+    this.activity = this._register(new MutableDisposable());
+    this.totalUnresolved = 0;
+    this._register(this._commentService.onDidSetAllCommentThreads(this.onAllCommentsChanged, this));
+    this._register(this._commentService.onDidUpdateCommentThreads(this.onCommentsUpdated, this));
+    this._register(this._commentService.onDidDeleteDataProvider(this.onCommentsUpdated, this));
+  }
+  onAllCommentsChanged(e) {
+    let unresolved = 0;
+    for (const thread of e.commentThreads) {
+      if (thread.state === CommentThreadState.Unresolved) {
+        unresolved++;
+      }
+    }
+    this.updateBadge(unresolved);
+  }
+  onCommentsUpdated() {
+    let unresolved = 0;
+    for (const resource of this._commentService.commentsModel.resourceCommentThreads) {
+      for (const thread of resource.commentThreads) {
+        if (thread.threadState === CommentThreadState.Unresolved) {
+          unresolved++;
+        }
+      }
+    }
+    this.updateBadge(unresolved);
+  }
+  updateBadge(unresolved) {
+    if (unresolved === this.totalUnresolved) {
+      return;
+    }
+    this.totalUnresolved = unresolved;
+    const message = nls.localize("totalUnresolvedComments", "{0} Unresolved Comments", this.totalUnresolved);
+    this.activity.value = this.activityService.showViewActivity(COMMENTS_VIEW_ID, { badge: new NumberBadge(this.totalUnresolved, () => message) });
+  }
+};
+UnresolvedCommentsBadge = __decorate([
+  __param(0, ICommentService),
+  __param(1, IActivityService)
+], UnresolvedCommentsBadge);
+Registry.as(Extensions.Workbench).registerWorkbenchContribution(
+  UnresolvedCommentsBadge,
+  4
+  /* LifecyclePhase.Eventually */
+);
+AccessibleViewRegistry.register(new CommentsAccessibleView());
+AccessibleViewRegistry.register(new CommentThreadAccessibleView());
+AccessibleViewRegistry.register(new CommentsAccessibilityHelp());
+export {
+  UnresolvedCommentsBadge
+};
+//# sourceMappingURL=comments.contribution.js.map

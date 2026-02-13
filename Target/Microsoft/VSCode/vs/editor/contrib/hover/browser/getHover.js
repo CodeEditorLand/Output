@@ -1,1 +1,59 @@
-import{$Bi as m}from"../../../../base/common/async.js";import{CancellationToken as c}from"../../../../base/common/cancellation.js";import{$nb as p}from"../../../../base/common/errors.js";import{$Vdb as u}from"../../../browser/editorExtensions.js";import{$uW as a}from"../../../common/services/languageFeatures.js";class h{constructor(r,o,t){this.provider=r,this.hover=o,this.ordinal=t}}async function l(e,r,o,t,i){const n=await Promise.resolve(e.provideHover(o,t,i)).catch(p);if(!(!n||!P(n)))return new h(e,n,r)}function g(e,r,o,t,i=!1){const s=e.ordered(r,i).map((v,d)=>l(v,d,r,o,t));return m.fromPromisesResolveOrder(s).coalesce()}async function f(e,r,o,t,i=!1){const n=[];for await(const s of g(e,r,o,t,i))n.push(s.hover);return n}u("_executeHoverProvider",(e,r,o)=>{const t=e.get(a);return f(t.hoverProvider,r,o,c.None)});u("_executeHoverProvider_recursive",(e,r,o)=>{const t=e.get(a);return f(t.hoverProvider,r,o,c.None,!0)});function P(e){const r=typeof e.range<"u",o=typeof e.contents<"u"&&e.contents&&e.contents.length>0;return r&&o}export{h as $fub,g as $gub,f as $hub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AsyncIterableProducer } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { registerModelAndPositionCommand } from "../../../browser/editorExtensions.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+class HoverProviderResult {
+  static {
+    __name(this, "HoverProviderResult");
+  }
+  constructor(provider, hover, ordinal) {
+    this.provider = provider;
+    this.hover = hover;
+    this.ordinal = ordinal;
+  }
+}
+async function executeProvider(provider, ordinal, model, position, token) {
+  const result = await Promise.resolve(provider.provideHover(model, position, token)).catch(onUnexpectedExternalError);
+  if (!result || !isValid(result)) {
+    return void 0;
+  }
+  return new HoverProviderResult(provider, result, ordinal);
+}
+__name(executeProvider, "executeProvider");
+function getHoverProviderResultsAsAsyncIterable(registry, model, position, token, recursive = false) {
+  const providers = registry.ordered(model, recursive);
+  const promises = providers.map((provider, index) => executeProvider(provider, index, model, position, token));
+  return AsyncIterableProducer.fromPromisesResolveOrder(promises).coalesce();
+}
+__name(getHoverProviderResultsAsAsyncIterable, "getHoverProviderResultsAsAsyncIterable");
+async function getHoversPromise(registry, model, position, token, recursive = false) {
+  const out = [];
+  for await (const item of getHoverProviderResultsAsAsyncIterable(registry, model, position, token, recursive)) {
+    out.push(item.hover);
+  }
+  return out;
+}
+__name(getHoversPromise, "getHoversPromise");
+registerModelAndPositionCommand("_executeHoverProvider", (accessor, model, position) => {
+  const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+  return getHoversPromise(languageFeaturesService.hoverProvider, model, position, CancellationToken.None);
+});
+registerModelAndPositionCommand("_executeHoverProvider_recursive", (accessor, model, position) => {
+  const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+  return getHoversPromise(languageFeaturesService.hoverProvider, model, position, CancellationToken.None, true);
+});
+function isValid(result) {
+  const hasRange = typeof result.range !== "undefined";
+  const hasHtmlContent = typeof result.contents !== "undefined" && result.contents && result.contents.length > 0;
+  return hasRange && hasHtmlContent;
+}
+__name(isValid, "isValid");
+export {
+  HoverProviderResult,
+  getHoverProviderResultsAsAsyncIterable,
+  getHoversPromise
+};
+//# sourceMappingURL=getHover.js.map

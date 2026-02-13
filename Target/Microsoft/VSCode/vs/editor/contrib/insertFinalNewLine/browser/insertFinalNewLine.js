@@ -1,1 +1,36 @@
-import{$Sdb as s,$Xdb as i}from"../../../browser/editorExtensions.js";import{$uwb as r}from"./insertFinalNewLineCommand.js";import{EditorContextKeys as c}from"../../../common/editorContextKeys.js";import*as a from"../../../../nls.js";class o extends s{static{this.ID="editor.action.insertFinalNewLine"}constructor(){super({id:o.ID,label:a.localize2(1414,"Insert Final New Line"),precondition:c.writable})}run(l,t,m){const e=t.getSelection();if(e===null)return;const n=new r(e);t.pushUndoStop(),t.executeCommands(this.id,[n]),t.pushUndoStop()}}i(o);export{o as $wwb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorAction, registerEditorAction } from "../../../browser/editorExtensions.js";
+import { InsertFinalNewLineCommand } from "./insertFinalNewLineCommand.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import * as nls from "../../../../nls.js";
+class InsertFinalNewLineAction extends EditorAction {
+  static {
+    __name(this, "InsertFinalNewLineAction");
+  }
+  static {
+    this.ID = "editor.action.insertFinalNewLine";
+  }
+  constructor() {
+    super({
+      id: InsertFinalNewLineAction.ID,
+      label: nls.localize2("insertFinalNewLine", "Insert Final New Line"),
+      precondition: EditorContextKeys.writable
+    });
+  }
+  run(_accessor, editor, args) {
+    const selection = editor.getSelection();
+    if (selection === null) {
+      return;
+    }
+    const command = new InsertFinalNewLineCommand(selection);
+    editor.pushUndoStop();
+    editor.executeCommands(this.id, [command]);
+    editor.pushUndoStop();
+  }
+}
+registerEditorAction(InsertFinalNewLineAction);
+export {
+  InsertFinalNewLineAction
+};
+//# sourceMappingURL=insertFinalNewLine.js.map

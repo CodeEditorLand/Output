@@ -1,1 +1,112 @@
-import{$bk as y}from"../../../../../../../base/common/codicons.js";import{$Cd as w}from"../../../../../../../base/common/lifecycle.js";import{localize as v}from"../../../../../../../nls.js";import{$ro as $}from"../../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as T}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$fy as C}from"../../../../../../../platform/keybinding/common/keybinding.js";import{ChatContextKeys as I}from"../../../../common/actions/chatContextKeys.js";import{IChatToolInvocation as _}from"../../../../common/chatService/chatService.js";import{$bU as g}from"../../../../common/tools/languageModelToolsService.js";import{$U4b as D}from"../../../chat.js";import{$K2b as R}from"../chatConfirmationWidget.js";import{$o3b as S}from"./chatToolInvocationSubPart.js";var b=function(l,t,o,n){var i=arguments.length,e=i<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,o):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(l,t,o,n);else for(var s=l.length-1;s>=0;s--)(r=l[s])&&(e=(i<3?r(e):i>3?r(t,o,e):r(t,o))||e);return i>3&&e&&Object.defineProperty(t,o,e),e},a=function(l,t){return function(o,n){t(o,n,l)}};let h=class extends S{constructor(t,o,n,i,e,r,s){if(super(t),this.g=t,this.m=o,this.n=n,this.q=i,this.r=e,this.s=r,this.t=s,t.kind!=="toolInvocation")throw new Error("Confirmation only works with live tool invocations")}u(t){const{q:o,t:n,g:i}=this,e=o.appendKeybinding(t.allowLabel,t.allowActionId),r=o.appendKeybinding(t.skipLabel,t.skipActionId),s=this.y(),d=[{label:t.allowLabel,tooltip:e,data:()=>{this.w(i,{type:4})},moreActions:s.length>0?s:void 0},{label:v(6590,null),tooltip:r,data:()=>{this.w(i,{type:5})},isSecondary:!0}],f=this.z(),c=n.getTool(i.toolId),m=this.D(this.n.createInstance(R,this.m,{title:this.C(),icon:c?.icon&&"id"in c.icon?c.icon:y.tools,subtitle:t.subtitle,buttons:d,message:f,toolbarData:{arg:i,partType:t.partType,partSource:i.source.type}})),p=I.Editing.hasToolConfirmation.bindTo(this.r);p.set(!0),this.D(m.onDidClick(u=>{u.data(),this.s.getWidgetBySessionResource(this.m.element.sessionResource)?.focusInput()})),this.D(w(()=>p.reset())),this.domNode=m.domNode}w(t,o){_.confirmWith(t,o)}y(){return[]}};h=b([a(2,T),a(3,C),a(4,$),a(5,D),a(6,g)],h);export{h as $U3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../../../base/common/codicons.js";
+import { toDisposable } from "../../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../../nls.js";
+import { IContextKeyService } from "../../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../../../platform/keybinding/common/keybinding.js";
+import { ChatContextKeys } from "../../../../common/actions/chatContextKeys.js";
+import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+import { ILanguageModelToolsService } from "../../../../common/tools/languageModelToolsService.js";
+import { IChatWidgetService } from "../../../chat.js";
+import { ChatCustomConfirmationWidget } from "../chatConfirmationWidget.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+let AbstractToolConfirmationSubPart = class AbstractToolConfirmationSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "AbstractToolConfirmationSubPart");
+  }
+  constructor(toolInvocation, context, instantiationService, keybindingService, contextKeyService, chatWidgetService, languageModelToolsService) {
+    super(toolInvocation);
+    this.toolInvocation = toolInvocation;
+    this.context = context;
+    this.instantiationService = instantiationService;
+    this.keybindingService = keybindingService;
+    this.contextKeyService = contextKeyService;
+    this.chatWidgetService = chatWidgetService;
+    this.languageModelToolsService = languageModelToolsService;
+    if (toolInvocation.kind !== "toolInvocation") {
+      throw new Error("Confirmation only works with live tool invocations");
+    }
+  }
+  render(config) {
+    const { keybindingService, languageModelToolsService, toolInvocation } = this;
+    const allowTooltip = keybindingService.appendKeybinding(config.allowLabel, config.allowActionId);
+    const skipTooltip = keybindingService.appendKeybinding(config.skipLabel, config.skipActionId);
+    const additionalActions = this.additionalPrimaryActions();
+    const buttons = [
+      {
+        label: config.allowLabel,
+        tooltip: allowTooltip,
+        data: /* @__PURE__ */ __name(() => {
+          this.confirmWith(toolInvocation, {
+            type: 4
+            /* ToolConfirmKind.UserAction */
+          });
+        }, "data"),
+        moreActions: additionalActions.length > 0 ? additionalActions : void 0
+      },
+      {
+        label: localize("skip", "Skip"),
+        tooltip: skipTooltip,
+        data: /* @__PURE__ */ __name(() => {
+          this.confirmWith(toolInvocation, {
+            type: 5
+            /* ToolConfirmKind.Skipped */
+          });
+        }, "data"),
+        isSecondary: true
+      }
+    ];
+    const contentElement = this.createContentElement();
+    const tool = languageModelToolsService.getTool(toolInvocation.toolId);
+    const confirmWidget = this._register(this.instantiationService.createInstance(ChatCustomConfirmationWidget, this.context, {
+      title: this.getTitle(),
+      icon: tool?.icon && "id" in tool.icon ? tool.icon : Codicon.tools,
+      subtitle: config.subtitle,
+      buttons,
+      message: contentElement,
+      toolbarData: {
+        arg: toolInvocation,
+        partType: config.partType,
+        partSource: toolInvocation.source.type
+      }
+    }));
+    const hasToolConfirmation = ChatContextKeys.Editing.hasToolConfirmation.bindTo(this.contextKeyService);
+    hasToolConfirmation.set(true);
+    this._register(confirmWidget.onDidClick((button) => {
+      button.data();
+      this.chatWidgetService.getWidgetBySessionResource(this.context.element.sessionResource)?.focusInput();
+    }));
+    this._register(toDisposable(() => hasToolConfirmation.reset()));
+    this.domNode = confirmWidget.domNode;
+  }
+  confirmWith(toolInvocation, reason) {
+    IChatToolInvocation.confirmWith(toolInvocation, reason);
+  }
+  additionalPrimaryActions() {
+    return [];
+  }
+};
+AbstractToolConfirmationSubPart = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IKeybindingService),
+  __param(4, IContextKeyService),
+  __param(5, IChatWidgetService),
+  __param(6, ILanguageModelToolsService)
+], AbstractToolConfirmationSubPart);
+export {
+  AbstractToolConfirmationSubPart
+};
+//# sourceMappingURL=abstractToolConfirmationSubPart.js.map

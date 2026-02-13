@@ -1,1 +1,69 @@
-import{$Eb as i}from"../../../../base/common/functional.js";class c{constructor(){this.a=new Map}async getAllModels(s){const t=`${s.toString()}@@@`,o=[];for(const[e,n]of this.a)e.startsWith(t)&&n.model&&o.push(await n.model);return o}async get(s,t){const o=this.b(s,t);return this.a.get(o)?.model}tryRetain(s,t){const o=this.b(s,t),e=this.a.get(o);if(e)return e.counter++,e.model.then(n=>({object:n,dispose:i(()=>{--e.counter<=0&&(e.model.then(r=>r.dispose()),this.a.delete(o))})}))}add(s,t,o){const e=this.b(s,t);if(this.a.get(e))throw new Error("Model already exists");return this.a.set(e,{viewType:t,model:o,counter:0}),this.tryRetain(s,t)}disposeAllModelsForView(s){for(const[t,o]of this.a)o.viewType===s&&(o.model.then(e=>e.dispose()),this.a.delete(t))}b(s,t){return`${s.toString()}@@@${t}`}}export{c as $cBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+class CustomEditorModelManager {
+  static {
+    __name(this, "CustomEditorModelManager");
+  }
+  constructor() {
+    this._references = /* @__PURE__ */ new Map();
+  }
+  async getAllModels(resource) {
+    const keyStart = `${resource.toString()}@@@`;
+    const models = [];
+    for (const [key, entry] of this._references) {
+      if (key.startsWith(keyStart) && entry.model) {
+        models.push(await entry.model);
+      }
+    }
+    return models;
+  }
+  async get(resource, viewType) {
+    const key = this.key(resource, viewType);
+    const entry = this._references.get(key);
+    return entry?.model;
+  }
+  tryRetain(resource, viewType) {
+    const key = this.key(resource, viewType);
+    const entry = this._references.get(key);
+    if (!entry) {
+      return void 0;
+    }
+    entry.counter++;
+    return entry.model.then((model) => {
+      return {
+        object: model,
+        dispose: createSingleCallFunction(() => {
+          if (--entry.counter <= 0) {
+            entry.model.then((x) => x.dispose());
+            this._references.delete(key);
+          }
+        })
+      };
+    });
+  }
+  add(resource, viewType, model) {
+    const key = this.key(resource, viewType);
+    const existing = this._references.get(key);
+    if (existing) {
+      throw new Error("Model already exists");
+    }
+    this._references.set(key, { viewType, model, counter: 0 });
+    return this.tryRetain(resource, viewType);
+  }
+  disposeAllModelsForView(viewType) {
+    for (const [key, value] of this._references) {
+      if (value.viewType === viewType) {
+        value.model.then((x) => x.dispose());
+        this._references.delete(key);
+      }
+    }
+  }
+  key(resource, viewType) {
+    return `${resource.toString()}@@@${viewType}`;
+  }
+}
+export {
+  CustomEditorModelManager
+};
+//# sourceMappingURL=customEditorModelManager.js.map

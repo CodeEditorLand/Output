@@ -1,1 +1,8 @@
-import{$Nj as e}from"../../instantiation/common/instantiation.js";const o=e("sharedProcessTunnelService"),s="sharedProcessTunnel";export{o as $uQc,s as $vQc};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const ISharedProcessTunnelService = createDecorator("sharedProcessTunnelService");
+const ipcSharedProcessTunnelChannelName = "sharedProcessTunnel";
+export {
+  ISharedProcessTunnelService,
+  ipcSharedProcessTunnelChannelName
+};
+//# sourceMappingURL=sharedProcessTunnelService.js.map

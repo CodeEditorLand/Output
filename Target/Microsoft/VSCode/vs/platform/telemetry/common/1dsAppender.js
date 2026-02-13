@@ -1,1 +1,123 @@
-import{$HL as c}from"../../../amdX.js";import{$mb as l}from"../../../base/common/errors.js";import{$Fp as u}from"../../../base/common/objects.js";import{$s as f}from"../../../base/common/platform.js";import{$ov as g}from"./telemetryUtils.js";const m="https://mobile.events.data.microsoft.com/OneCollector/1.0",p="https://mobile.events.data.microsoft.com/ping";async function d(a,i,t){const o=f?await c("@microsoft/1ds-core-js","bundle/ms.core.min.js"):await import("@microsoft/1ds-core-js"),e=f?await c("@microsoft/1ds-post-js","bundle/ms.post.min.js"):await import("@microsoft/1ds-post-js"),n=new o.AppInsightsCore,h=new e.PostChannel,r={instrumentationKey:a,endpointUrl:m,loggingLevelTelemetry:0,loggingLevelConsole:0,disableCookiesUsage:!0,disableDbgExt:!0,disableInstrumentationKeyValidation:!0,channels:[[h]]};if(t){r.extensionConfig={};const s={alwaysUseXhrOverride:!0,ignoreMc1Ms0CookieProcessing:!0,httpXHROverride:t};r.extensionConfig[h.identifier]=s}return n.initialize(r,[]),n.addTelemetryInitializer(s=>{s.ext=s.ext??{},s.ext.web=s.ext.web??{},s.ext.web.consentDetails='{"GPC_DataSharingOptIn":false}',i&&(s.ext.utc=s.ext.utc??{},s.ext.utc.flags=8462029)}),n}class P{constructor(i,t,o,e,n){this.e=i,this.f=t,this.g=o,this.h=n,this.c=m,this.d=p,this.g||(this.g={}),typeof e=="function"?this.a=e():this.a=e,this.b=null}i(i){if(this.a){if(typeof this.a!="string"){i(this.a);return}this.b||(this.b=d(this.a,this.e,this.h)),this.b.then(t=>{i(t)},t=>{l(t)})}}log(i,t){if(!this.a)return;t=u(t,this.g);const o=g(t),e=this.f+"/"+i;try{this.i(n=>{n.pluginVersionString=o?.properties.version??"Unknown",n.track({name:e,baseData:{name:e,properties:o?.properties,measurements:o?.measurements}})})}catch{}}flush(){return this.a?new Promise(i=>{this.i(t=>{t.unload(!0,()=>{this.a=void 0,i(void 0)})})}):Promise.resolve(void 0)}}export{P as $q7};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { importAMDNodeModule } from "../../../amdX.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { mixin } from "../../../base/common/objects.js";
+import { isWeb } from "../../../base/common/platform.js";
+import { validateTelemetryData } from "./telemetryUtils.js";
+const endpointUrl = "https://mobile.events.data.microsoft.com/OneCollector/1.0";
+const endpointHealthUrl = "https://mobile.events.data.microsoft.com/ping";
+async function getClient(instrumentationKey, addInternalFlag, xhrOverride) {
+  const oneDs = isWeb ? await importAMDNodeModule("@microsoft/1ds-core-js", "bundle/ms.core.min.js") : await import("@microsoft/1ds-core-js");
+  const postPlugin = isWeb ? await importAMDNodeModule("@microsoft/1ds-post-js", "bundle/ms.post.min.js") : await import("@microsoft/1ds-post-js");
+  const appInsightsCore = new oneDs.AppInsightsCore();
+  const collectorChannelPlugin = new postPlugin.PostChannel();
+  const coreConfig = {
+    instrumentationKey,
+    endpointUrl,
+    loggingLevelTelemetry: 0,
+    loggingLevelConsole: 0,
+    disableCookiesUsage: true,
+    disableDbgExt: true,
+    disableInstrumentationKeyValidation: true,
+    channels: [[
+      collectorChannelPlugin
+    ]]
+  };
+  if (xhrOverride) {
+    coreConfig.extensionConfig = {};
+    const channelConfig = {
+      alwaysUseXhrOverride: true,
+      ignoreMc1Ms0CookieProcessing: true,
+      httpXHROverride: xhrOverride
+    };
+    coreConfig.extensionConfig[collectorChannelPlugin.identifier] = channelConfig;
+  }
+  appInsightsCore.initialize(coreConfig, []);
+  appInsightsCore.addTelemetryInitializer((envelope) => {
+    envelope["ext"] = envelope["ext"] ?? {};
+    envelope["ext"]["web"] = envelope["ext"]["web"] ?? {};
+    envelope["ext"]["web"]["consentDetails"] = '{"GPC_DataSharingOptIn":false}';
+    if (addInternalFlag) {
+      envelope["ext"]["utc"] = envelope["ext"]["utc"] ?? {};
+      envelope["ext"]["utc"]["flags"] = 8462029;
+    }
+  });
+  return appInsightsCore;
+}
+__name(getClient, "getClient");
+class AbstractOneDataSystemAppender {
+  static {
+    __name(this, "AbstractOneDataSystemAppender");
+  }
+  constructor(_isInternalTelemetry, _eventPrefix, _defaultData, iKeyOrClientFactory, _xhrOverride) {
+    this._isInternalTelemetry = _isInternalTelemetry;
+    this._eventPrefix = _eventPrefix;
+    this._defaultData = _defaultData;
+    this._xhrOverride = _xhrOverride;
+    this.endPointUrl = endpointUrl;
+    this.endPointHealthUrl = endpointHealthUrl;
+    if (!this._defaultData) {
+      this._defaultData = {};
+    }
+    if (typeof iKeyOrClientFactory === "function") {
+      this._aiCoreOrKey = iKeyOrClientFactory();
+    } else {
+      this._aiCoreOrKey = iKeyOrClientFactory;
+    }
+    this._asyncAiCore = null;
+  }
+  _withAIClient(callback) {
+    if (!this._aiCoreOrKey) {
+      return;
+    }
+    if (typeof this._aiCoreOrKey !== "string") {
+      callback(this._aiCoreOrKey);
+      return;
+    }
+    if (!this._asyncAiCore) {
+      this._asyncAiCore = getClient(this._aiCoreOrKey, this._isInternalTelemetry, this._xhrOverride);
+    }
+    this._asyncAiCore.then((aiClient) => {
+      callback(aiClient);
+    }, (err) => {
+      onUnexpectedError(err);
+      console.error(err);
+    });
+  }
+  log(eventName, data) {
+    if (!this._aiCoreOrKey) {
+      return;
+    }
+    data = mixin(data, this._defaultData);
+    const validatedData = validateTelemetryData(data);
+    const name = this._eventPrefix + "/" + eventName;
+    try {
+      this._withAIClient((aiClient) => {
+        aiClient.pluginVersionString = validatedData?.properties.version ?? "Unknown";
+        aiClient.track({
+          name,
+          baseData: { name, properties: validatedData?.properties, measurements: validatedData?.measurements }
+        });
+      });
+    } catch {
+    }
+  }
+  flush() {
+    if (this._aiCoreOrKey) {
+      return new Promise((resolve) => {
+        this._withAIClient((aiClient) => {
+          aiClient.unload(true, () => {
+            this._aiCoreOrKey = void 0;
+            resolve(void 0);
+          });
+        });
+      });
+    }
+    return Promise.resolve(void 0);
+  }
+}
+export {
+  AbstractOneDataSystemAppender
+};
+//# sourceMappingURL=1dsAppender.js.map

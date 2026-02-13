@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("IFileDecorationsService");export{r as $cQb};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IDecorationsService = createDecorator("IFileDecorationsService");
+export {
+  IDecorationsService
+};
+//# sourceMappingURL=decorations.js.map

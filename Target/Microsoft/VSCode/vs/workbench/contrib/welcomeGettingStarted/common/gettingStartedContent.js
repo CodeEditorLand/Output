@@ -1,4 +1,613 @@
-import g from"./media/theme_picker.js";import w from"./media/theme_picker_small.js";import k from"./media/notebookProfile.js";import{localize as e}from"../../../../nls.js";import{$bk as o}from"../../../../base/common/codicons.js";import{$gu as p}from"../../../../platform/theme/common/iconRegistry.js";import{$xQ as b}from"../../notebook/common/notebookCommon.js";import{$ND as y}from"../../../../platform/accessibility/common/accessibility.js";import r from"../../../../platform/product/common/product.js";const i={documentationUrl:r.defaultChatAgent?.documentationUrl??"",manageSettingsUrl:r.defaultChatAgent?.manageSettingsUrl??"",provider:r.defaultChatAgent?.provider??{default:{name:""}},publicCodeMatchesUrl:r.defaultChatAgent?.publicCodeMatchesUrl??"",termsStatementUrl:r.defaultChatAgent?.termsStatementUrl??"",privacyStatementUrl:r.defaultChatAgent?.privacyStatementUrl??""},L=e(15167,null,i.provider.default.name,i.publicCodeMatchesUrl,i.manageSettingsUrl);class v{constructor(){this.a=new Map}registerProvider(n,a){this.a.set(n,a)}getProvider(n){return this.a.get(n)}}const c=new v;async function R(l){if(!l.query)throw new Error("Getting Started: invalid resource");const n=JSON.parse(l.query);if(!n.moduleId)throw new Error("Getting Started: invalid resource");const a=c.getProvider(n.moduleId);if(!a)throw new Error(`Getting Started: no provider registered for ${n.moduleId}`);return a()}c.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/theme_picker",g);c.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/theme_picker_small",w);c.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/notebookProfile",k);c.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/empty",()=>"");const s=p("getting-started-setup",o.zap,e(15168,null)),S=p("getting-started-beginner",o.lightbulb,e(15169,null)),V=[{id:"welcome.showNewFileEntries",title:e(15170,null),description:e(15171,null),icon:o.newFile,content:{type:"startEntry",command:"command:welcome.showNewFileEntries"}},{id:"topLevelOpenMac",title:e(15172,null),description:e(15173,null),icon:o.folderOpened,when:"!isWeb && isMac",content:{type:"startEntry",command:"command:workbench.action.files.openFileFolder"}},{id:"topLevelOpenFile",title:e(15174,null),description:e(15175,null),icon:o.goToFile,when:"isWeb || !isMac",content:{type:"startEntry",command:"command:workbench.action.files.openFile"}},{id:"topLevelOpenFolder",title:e(15176,null),description:e(15177,null),icon:o.folderOpened,when:"!isWeb && !isMac",content:{type:"startEntry",command:"command:workbench.action.files.openFolder"}},{id:"topLevelOpenFolderWeb",title:e(15178,null),description:e(15179,null),icon:o.folderOpened,when:"!openFolderWorkspaceSupport && workbenchState == 'workspace'",content:{type:"startEntry",command:"command:workbench.action.files.openFolderViaWorkspace"}},{id:"topLevelGitClone",title:e(15180,null),description:e(15181,null),when:"config.git.enabled && !git.missing",icon:o.sourceControl,content:{type:"startEntry",command:"command:git.clone"}},{id:"topLevelGitOpen",title:e(15182,null),description:e(15183,null),when:"workspacePlatform == 'webworker'",icon:o.sourceControl,content:{type:"startEntry",command:"command:remoteHub.openRepository"}},{id:"topLevelRemoteOpen",title:e(15184,null),description:e(15185,null),when:"!isWeb",icon:o.remote,content:{type:"startEntry",command:"command:workbench.action.remote.showMenu"}},{id:"topLevelOpenTunnel",title:e(15186,null),description:e(15187,null),when:"isWeb && showRemoteStartEntryInWeb",icon:o.remote,content:{type:"startEntry",command:"command:workbench.action.remote.showWebStartEntryActions"}},{id:"topLevelNewWorkspaceChat",title:e(15188,null),description:e(15189,null),icon:o.chatSparkle,when:"!isWeb && !chatSetupHidden",content:{type:"startEntry",command:"command:welcome.newWorkspaceChat"}}],t=(l,n)=>`[${l}](${n})`,f=e(15190,null),m=e(15191,null,i.documentationUrl??""),C=e(15192,null,i.provider.default.name,i.provider.default.name,i.termsStatementUrl,i.privacyStatementUrl),T=t(e(15193,null),"command:workbench.action.chat.triggerSetupAnonymousWithoutDialog"),x=t(e(15194,null),"command:workbench.action.chat.triggerSetup"),P=t(e(15195,null),"command:workbench.action.chat.triggerSetup"),E=t(e(15196,null),"command:workbench.action.chat.open");function d(l,n,a,u){const h=u?`${m}
-${C}
-${n}`:`${m}
-${n}`;return{id:l,title:f,description:h,when:`${a} && !chatSetupHidden`,media:{type:"svg",altText:"VS Code Copilot multi file edits",path:"multi-file-edits.svg"}}}const M=[{id:"Setup",title:e(15197,null),description:e(15198,null),isFeatured:!0,icon:s,when:"!isWeb",walkthroughPageTitle:e(15199,null),next:"Beginner",content:{type:"steps",steps:[d("CopilotSetupAnonymous",T,"chatAnonymous && !chatSetupInstalled",!0),d("CopilotSetupSignedOut",x,"chatEntitlementSignedOut && !chatAnonymous",!1),d("CopilotSetupComplete",E,"chatSetupInstalled && !chatSetupDisabled && (chatAnonymous || chatPlanPro || chatPlanProPlus || chatPlanBusiness || chatPlanEnterprise || chatPlanFree)",!1),d("CopilotSetupSignedIn",P,"!chatEntitlementSignedOut && (!chatSetupInstalled || chatSetupDisabled || chatPlanCanSignUp)",!1),{id:"pickColorTheme",title:e(15200,null),description:e(15201,null,t(e(15202,null),"command:workbench.action.selectTheme")),completionEvents:["onSettingChanged:workbench.colorTheme","onCommand:workbench.action.selectTheme"],media:{type:"markdown",path:"theme_picker"}},{id:"videoTutorial",title:e(15203,null),description:e(15204,null,t(e(15205,null),"https://aka.ms/vscode-getting-started-video")),media:{type:"svg",altText:"VS Code Settings",path:"learn.svg"}}]}},{id:"SetupWeb",title:e(15206,null),description:e(15207,null),isFeatured:!0,icon:s,when:"isWeb",next:"Beginner",walkthroughPageTitle:e(15208,null),content:{type:"steps",steps:[{id:"pickColorThemeWeb",title:e(15209,null),description:e(15210,null,t(e(15211,null),"command:workbench.action.selectTheme")),completionEvents:["onSettingChanged:workbench.colorTheme","onCommand:workbench.action.selectTheme"],media:{type:"markdown",path:"theme_picker"}},{id:"menuBarWeb",title:e(15212,null),description:e(15213,null,t(e(15214,null),"command:workbench.action.toggleMenuBar")),when:"isWeb",media:{type:"svg",altText:"Comparing menu dropdown with the visible menu bar.",path:"menuBar.svg"}},{id:"extensionsWebWeb",title:e(15215,null),description:e(15216,null,t(e(15217,null),"command:workbench.extensions.action.showPopularExtensions")),when:"workspacePlatform == 'webworker'",media:{type:"svg",altText:"VS Code extension marketplace with featured language extensions",path:"extensions-web.svg"}},{id:"findLanguageExtensionsWeb",title:e(15218,null),description:e(15219,null,t(e(15220,null),"command:workbench.extensions.action.showLanguageExtensions")),when:"workspacePlatform != 'webworker'",media:{type:"svg",altText:"Language extensions",path:"languages.svg"}},{id:"settingsSyncWeb",title:e(15221,null),description:e(15222,null,t(e(15223,null),"command:workbench.userDataSync.actions.turnOn")),when:"syncStatus != uninitialized",completionEvents:["onEvent:sync-enabled"],media:{type:"svg",altText:'The "Turn on Sync" entry in the settings gear menu.',path:"settingsSync.svg"}},{id:"commandPaletteTaskWeb",title:e(15224,null),description:e(15225,null,t(e(15226,null),"command:workbench.action.showCommands")),media:{type:"svg",altText:"Command Palette overlay for searching and executing commands.",path:"commandPalette.svg"}},{id:"pickAFolderTask-WebWeb",title:e(15227,null),description:e(15228,null,t(e(15229,null),"command:workbench.action.addRootFolder"),t(e(15230,null),"command:remoteHub.openRepository")),when:"workspaceFolderCount == 0",media:{type:"svg",altText:"Explorer view showing buttons for opening folder and cloning repository.",path:"openFolder.svg"}},{id:"quickOpenWeb",title:e(15231,null),description:e(15232,null,t(e(15233,null),"command:toSide:workbench.action.quickOpen")),when:"workspaceFolderCount != 0",media:{type:"svg",altText:"Go to file in quick search.",path:"search.svg"}}]}},{id:"SetupAccessibility",title:e(15234,null),description:e(15235,null),isFeatured:!0,icon:s,when:y.key,next:"Setup",walkthroughPageTitle:e(15236,null),content:{type:"steps",steps:[{id:"accessibilityHelp",title:e(15237,null),description:e(15238,null,t(e(15239,null),"command:editor.action.accessibilityHelp")),media:{type:"markdown",path:"empty"}},{id:"accessibleView",title:e(15240,null),description:e(15241,null,t(e(15242,null),"command:editor.action.accessibleView")),media:{type:"markdown",path:"empty"}},{id:"verbositySettings",title:e(15243,null),description:e(15244,null,t(e(15245,null),"command:workbench.action.openAccessibilitySettings")),media:{type:"markdown",path:"empty"}},{id:"commandPaletteTaskAccessibility",title:e(15246,null),description:e(15247,null,t(e(15248,null),"command:workbench.action.showCommands")),media:{type:"markdown",path:"empty"}},{id:"keybindingsAccessibility",title:e(15249,null),description:e(15250,null,t(e(15251,null),"command:toSide:workbench.action.openGlobalKeybindings")),media:{type:"markdown",path:"empty"}},{id:"accessibilitySignals",title:e(15252,null),description:e(15253,null,t(e(15254,null),"command:signals.sounds.help"),t(e(15255,null),"command:accessibility.announcement.help")),media:{type:"markdown",path:"empty"}},{id:"hover",title:e(15256,null),description:e(15257,null,t(e(15258,null),"command:editor.action.showHover")),media:{type:"markdown",path:"empty"}},{id:"goToSymbol",title:e(15259,null),description:e(15260,null,t(e(15261,null),"command:editor.action.goToSymbol")),media:{type:"markdown",path:"empty"}},{id:"codeFolding",title:e(15262,null),description:e(15263,null,t(e(15264,null),"command:editor.toggleFold"),t(e(15265,null),"command:editor.toggleFoldRecursively")),media:{type:"markdown",path:"empty"}},{id:"intellisense",title:e(15266,null),description:e(15267,null,t(e(15268,null),"command:editor.action.triggerSuggest"),t(e(15269,null),"command:editor.action.inlineSuggest.trigger")),media:{type:"markdown",path:"empty"}},{id:"accessibilitySettings",title:e(15270,null),description:e(15271,null,t(e(15272,null),"command:workbench.action.openAccessibilitySettings")),media:{type:"markdown",path:"empty"}},{id:"dictation",title:e(15273,null),description:e(15274,null,t(e(15275,null),"command:workbench.action.editorDictation.start"),t(e(15276,null),"command:workbench.action.terminal.startVoice"),t(e(15277,null),"command:workbench.action.terminal.stopVoice")),when:"hasSpeechProvider",media:{type:"markdown",path:"empty"}}]}},{id:"Beginner",isFeatured:!1,title:e(15278,null),icon:S,description:e(15279,null),walkthroughPageTitle:e(15280,null),content:{type:"steps",steps:[{id:"settingsAndSync",title:e(15281,null),description:e(15282,null,t(e(15283,null),"command:toSide:workbench.action.openSettings")),when:"workspacePlatform != 'webworker' && syncStatus != uninitialized",completionEvents:["onEvent:sync-enabled"],media:{type:"svg",altText:"VS Code Settings",path:"settings.svg"}},{id:"extensions",title:e(15284,null),description:e(15285,null,t(e(15286,null),"command:workbench.extensions.action.showPopularExtensions")),when:"workspacePlatform != 'webworker'",media:{type:"svg",altText:"VS Code extension marketplace with featured language extensions",path:"extensions.svg"}},{id:"terminal",title:e(15287,null),description:e(15288,null,t(e(15289,null),"command:workbench.action.terminal.toggleTerminal")),when:"workspacePlatform != 'webworker' && remoteName != codespaces && !terminalIsOpen",media:{type:"svg",altText:"Integrated terminal running a few npm commands",path:"terminal.svg"}},{id:"debugging",title:e(15290,null),description:e(15291,null,t(e(15292,null),"command:workbench.action.debug.selectandstart")),when:"workspacePlatform != 'webworker' && workspaceFolderCount != 0",media:{type:"svg",altText:"Run and debug view.",path:"debug.svg"}},{id:"scmClone",title:e(15293,null),description:e(15294,null,t(e(15295,null),"command:git.clone")),when:"config.git.enabled && !git.missing && workspaceFolderCount == 0",media:{type:"svg",altText:"Source Control view.",path:"git.svg"}},{id:"scmSetup",title:e(15296,null),description:e(15297,null,t(e(15298,null),"command:git.init")),when:"config.git.enabled && !git.missing && workspaceFolderCount != 0 && gitOpenRepositoryCount == 0",media:{type:"svg",altText:"Source Control view.",path:"git.svg"}},{id:"scm",title:e(15299,null),description:e(15300,null,t(e(15301,null),"command:workbench.view.scm")),when:"config.git.enabled && !git.missing && workspaceFolderCount != 0 && gitOpenRepositoryCount != 0 && activeViewlet != 'workbench.view.scm'",media:{type:"svg",altText:"Source Control view.",path:"git.svg"}},{id:"installGit",title:e(15302,null),description:e(15303,null,t(e(15304,null),"https://aka.ms/vscode-install-git"),"[","](command:workbench.action.reloadWindow)"),when:"git.missing",media:{type:"svg",altText:"Install Git.",path:"git.svg"},completionEvents:["onContext:git.state == initialized"]},{id:"tasks",title:e(15305,null),when:"workspaceFolderCount != 0 && workspacePlatform != 'webworker'",description:e(15306,null,t(e(15307,null),"command:workbench.action.tasks.runTask")),media:{type:"svg",altText:"Task runner.",path:"runTask.svg"}},{id:"shortcuts",title:e(15308,null),description:e(15309,null,t(e(15310,null),"command:toSide:workbench.action.openGlobalKeybindings")),media:{type:"svg",altText:"Interactive shortcuts.",path:"shortcuts.svg"}},{id:"workspaceTrust",title:e(15311,null),description:e(15312,null,t(e(15313,null),"https://code.visualstudio.com/docs/editor/workspace-trust"),t(e(15314,null),"command:toSide:workbench.trust.manage")),when:"workspacePlatform != 'webworker' && !isWorkspaceTrusted && workspaceFolderCount == 0",media:{type:"svg",altText:"Workspace Trust editor in Restricted mode and a primary button for switching to Trusted mode.",path:"workspaceTrust.svg"}}]}},{id:"notebooks",title:e(15315,null),description:"",icon:s,isFeatured:!1,when:`config.${b.openGettingStarted} && userHasOpenedNotebook`,walkthroughPageTitle:e(15316,null),content:{type:"steps",steps:[{completionEvents:["onCommand:notebook.setProfile"],id:"notebookProfile",title:e(15317,null),description:e(15318,null),when:"userHasOpenedNotebook",media:{type:"markdown",path:"notebookProfile"}}]}}];export{L as $RGc,c as $SGc,R as $TGc,V as $UGc,M as $VGc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import themePickerContent from "./media/theme_picker.js";
+import themePickerSmallContent from "./media/theme_picker_small.js";
+import notebookProfileContent from "./media/notebookProfile.js";
+import { localize } from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { NotebookSetting } from "../../notebook/common/notebookCommon.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../platform/accessibility/common/accessibility.js";
+import product from "../../../../platform/product/common/product.js";
+const defaultChat = {
+  documentationUrl: product.defaultChatAgent?.documentationUrl ?? "",
+  manageSettingsUrl: product.defaultChatAgent?.manageSettingsUrl ?? "",
+  provider: product.defaultChatAgent?.provider ?? { default: { name: "" } },
+  publicCodeMatchesUrl: product.defaultChatAgent?.publicCodeMatchesUrl ?? "",
+  termsStatementUrl: product.defaultChatAgent?.termsStatementUrl ?? "",
+  privacyStatementUrl: product.defaultChatAgent?.privacyStatementUrl ?? ""
+};
+const copilotSettingsMessage = localize({ key: "settings", comment: ['{Locked="["}', '{Locked="]({0})"}', '{Locked="]({1})"}'] }, "{0} Copilot may show [public code]({1}) suggestions and use your data to improve the product. You can change these [settings]({2}) anytime.", defaultChat.provider.default.name, defaultChat.publicCodeMatchesUrl, defaultChat.manageSettingsUrl);
+class GettingStartedContentProviderRegistry {
+  static {
+    __name(this, "GettingStartedContentProviderRegistry");
+  }
+  constructor() {
+    this.providers = /* @__PURE__ */ new Map();
+  }
+  registerProvider(moduleId, provider) {
+    this.providers.set(moduleId, provider);
+  }
+  getProvider(moduleId) {
+    return this.providers.get(moduleId);
+  }
+}
+const gettingStartedContentRegistry = new GettingStartedContentProviderRegistry();
+async function moduleToContent(resource) {
+  if (!resource.query) {
+    throw new Error("Getting Started: invalid resource");
+  }
+  const query = JSON.parse(resource.query);
+  if (!query.moduleId) {
+    throw new Error("Getting Started: invalid resource");
+  }
+  const provider = gettingStartedContentRegistry.getProvider(query.moduleId);
+  if (!provider) {
+    throw new Error(`Getting Started: no provider registered for ${query.moduleId}`);
+  }
+  return provider();
+}
+__name(moduleToContent, "moduleToContent");
+gettingStartedContentRegistry.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/theme_picker", themePickerContent);
+gettingStartedContentRegistry.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/theme_picker_small", themePickerSmallContent);
+gettingStartedContentRegistry.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/notebookProfile", notebookProfileContent);
+gettingStartedContentRegistry.registerProvider("vs/workbench/contrib/welcomeGettingStarted/common/media/empty", () => "");
+const setupIcon = registerIcon("getting-started-setup", Codicon.zap, localize("getting-started-setup-icon", "Icon used for the setup category of welcome page"));
+const beginnerIcon = registerIcon("getting-started-beginner", Codicon.lightbulb, localize("getting-started-beginner-icon", "Icon used for the beginner category of welcome page"));
+const startEntries = [
+  {
+    id: "welcome.showNewFileEntries",
+    title: localize("gettingStarted.newFile.title", "New File..."),
+    description: localize("gettingStarted.newFile.description", "Open a new untitled text file, notebook, or custom editor."),
+    icon: Codicon.newFile,
+    content: {
+      type: "startEntry",
+      command: "command:welcome.showNewFileEntries"
+    }
+  },
+  {
+    id: "topLevelOpenMac",
+    title: localize("gettingStarted.openMac.title", "Open..."),
+    description: localize("gettingStarted.openMac.description", "Open a file or folder to start working"),
+    icon: Codicon.folderOpened,
+    when: "!isWeb && isMac",
+    content: {
+      type: "startEntry",
+      command: "command:workbench.action.files.openFileFolder"
+    }
+  },
+  {
+    id: "topLevelOpenFile",
+    title: localize("gettingStarted.openFile.title", "Open File..."),
+    description: localize("gettingStarted.openFile.description", "Open a file to start working"),
+    icon: Codicon.goToFile,
+    when: "isWeb || !isMac",
+    content: {
+      type: "startEntry",
+      command: "command:workbench.action.files.openFile"
+    }
+  },
+  {
+    id: "topLevelOpenFolder",
+    title: localize("gettingStarted.openFolder.title", "Open Folder..."),
+    description: localize("gettingStarted.openFolder.description", "Open a folder to start working"),
+    icon: Codicon.folderOpened,
+    when: "!isWeb && !isMac",
+    content: {
+      type: "startEntry",
+      command: "command:workbench.action.files.openFolder"
+    }
+  },
+  {
+    id: "topLevelOpenFolderWeb",
+    title: localize("gettingStarted.openFolder.title", "Open Folder..."),
+    description: localize("gettingStarted.openFolder.description", "Open a folder to start working"),
+    icon: Codicon.folderOpened,
+    when: "!openFolderWorkspaceSupport && workbenchState == 'workspace'",
+    content: {
+      type: "startEntry",
+      command: "command:workbench.action.files.openFolderViaWorkspace"
+    }
+  },
+  {
+    id: "topLevelGitClone",
+    title: localize("gettingStarted.topLevelGitClone.title", "Clone Git Repository..."),
+    description: localize("gettingStarted.topLevelGitClone.description", "Clone a remote repository to a local folder"),
+    when: "config.git.enabled && !git.missing",
+    icon: Codicon.sourceControl,
+    content: {
+      type: "startEntry",
+      command: "command:git.clone"
+    }
+  },
+  {
+    id: "topLevelGitOpen",
+    title: localize("gettingStarted.topLevelGitOpen.title", "Open Repository..."),
+    description: localize("gettingStarted.topLevelGitOpen.description", "Connect to a remote repository or pull request to browse, search, edit, and commit"),
+    when: "workspacePlatform == 'webworker'",
+    icon: Codicon.sourceControl,
+    content: {
+      type: "startEntry",
+      command: "command:remoteHub.openRepository"
+    }
+  },
+  {
+    id: "topLevelRemoteOpen",
+    title: localize("gettingStarted.topLevelRemoteOpen.title", "Connect to..."),
+    description: localize("gettingStarted.topLevelRemoteOpen.description", "Connect to remote development workspaces."),
+    when: "!isWeb",
+    icon: Codicon.remote,
+    content: {
+      type: "startEntry",
+      command: "command:workbench.action.remote.showMenu"
+    }
+  },
+  {
+    id: "topLevelOpenTunnel",
+    title: localize("gettingStarted.topLevelOpenTunnel.title", "Open Tunnel..."),
+    description: localize("gettingStarted.topLevelOpenTunnel.description", "Connect to a remote machine through a Tunnel"),
+    when: "isWeb && showRemoteStartEntryInWeb",
+    icon: Codicon.remote,
+    content: {
+      type: "startEntry",
+      command: "command:workbench.action.remote.showWebStartEntryActions"
+    }
+  },
+  {
+    id: "topLevelNewWorkspaceChat",
+    title: localize("gettingStarted.newWorkspaceChat.title", "Generate New Workspace..."),
+    description: localize("gettingStarted.newWorkspaceChat.description", "Chat to create a new workspace"),
+    icon: Codicon.chatSparkle,
+    when: "!isWeb && !chatSetupHidden",
+    content: {
+      type: "startEntry",
+      command: "command:welcome.newWorkspaceChat"
+    }
+  }
+];
+const Button = /* @__PURE__ */ __name((title, href) => `[${title}](${href})`, "Button");
+const CopilotStepTitle = localize("gettingStarted.copilotSetup.title", "Use AI features with Copilot for free");
+const CopilotDescription = localize({ key: "gettingStarted.copilotSetup.description", comment: ['{Locked="["}', '{Locked="]({0})"}'] }, "You can use [Copilot]({0}) to generate code across multiple files, fix errors, ask questions about your code, and much more using natural language.", defaultChat.documentationUrl ?? "");
+const CopilotTermsString = localize({ key: "gettingStarted.copilotSetup.terms", comment: ['{Locked="]({2})"}', '{Locked="]({3})"}'] }, "By continuing with {0} Copilot, you agree to {1}'s [Terms]({2}) and [Privacy Statement]({3})", defaultChat.provider.default.name, defaultChat.provider.default.name, defaultChat.termsStatementUrl, defaultChat.privacyStatementUrl);
+const CopilotAnonymousButton = Button(localize("setupCopilotButton.setup", "Use AI Features"), `command:workbench.action.chat.triggerSetupAnonymousWithoutDialog`);
+const CopilotSignedOutButton = Button(localize("setupCopilotButton.setup", "Use AI Features"), `command:workbench.action.chat.triggerSetup`);
+const CopilotSignedInButton = Button(localize("setupCopilotButton.setup", "Use AI Features"), `command:workbench.action.chat.triggerSetup`);
+const CopilotCompleteButton = Button(localize("setupCopilotButton.chatWithCopilot", "Start to Chat"), "command:workbench.action.chat.open");
+function createCopilotSetupStep(id, button, when, includeTerms) {
+  const description = includeTerms ? `${CopilotDescription}
+${CopilotTermsString}
+${button}` : `${CopilotDescription}
+${button}`;
+  return {
+    id,
+    title: CopilotStepTitle,
+    description,
+    when: `${when} && !chatSetupHidden`,
+    media: {
+      type: "svg",
+      altText: "VS Code Copilot multi file edits",
+      path: "multi-file-edits.svg"
+    }
+  };
+}
+__name(createCopilotSetupStep, "createCopilotSetupStep");
+const walkthroughs = [
+  {
+    id: "Setup",
+    title: localize("gettingStarted.setup.title", "Get started with VS Code"),
+    description: localize("gettingStarted.setup.description", "Customize your editor, learn the basics, and start coding"),
+    isFeatured: true,
+    icon: setupIcon,
+    when: "!isWeb",
+    walkthroughPageTitle: localize("gettingStarted.setup.walkthroughPageTitle", "Setup VS Code"),
+    next: "Beginner",
+    content: {
+      type: "steps",
+      steps: [
+        createCopilotSetupStep("CopilotSetupAnonymous", CopilotAnonymousButton, "chatAnonymous && !chatSetupInstalled", true),
+        createCopilotSetupStep("CopilotSetupSignedOut", CopilotSignedOutButton, "chatEntitlementSignedOut && !chatAnonymous", false),
+        createCopilotSetupStep("CopilotSetupComplete", CopilotCompleteButton, "chatSetupInstalled && !chatSetupDisabled && (chatAnonymous || chatPlanPro || chatPlanProPlus || chatPlanBusiness || chatPlanEnterprise || chatPlanFree)", false),
+        createCopilotSetupStep("CopilotSetupSignedIn", CopilotSignedInButton, "!chatEntitlementSignedOut && (!chatSetupInstalled || chatSetupDisabled || chatPlanCanSignUp)", false),
+        {
+          id: "pickColorTheme",
+          title: localize("gettingStarted.pickColor.title", "Choose your theme"),
+          description: localize("gettingStarted.pickColor.description.interpolated", "The right theme helps you focus on your code, is easy on your eyes, and is simply more fun to use.\n{0}", Button(localize("titleID", "Browse Color Themes"), "command:workbench.action.selectTheme")),
+          completionEvents: [
+            "onSettingChanged:workbench.colorTheme",
+            "onCommand:workbench.action.selectTheme"
+          ],
+          media: { type: "markdown", path: "theme_picker" }
+        },
+        {
+          id: "videoTutorial",
+          title: localize("gettingStarted.videoTutorial.title", "Watch video tutorials"),
+          description: localize("gettingStarted.videoTutorial.description.interpolated", "Watch the first in a series of short & practical video tutorials for VS Code's key features.\n{0}", Button(localize("watch", "Watch Tutorial"), "https://aka.ms/vscode-getting-started-video")),
+          media: { type: "svg", altText: "VS Code Settings", path: "learn.svg" }
+        }
+      ]
+    }
+  },
+  {
+    id: "SetupWeb",
+    title: localize("gettingStarted.setupWeb.title", "Get Started with VS Code for the Web"),
+    description: localize("gettingStarted.setupWeb.description", "Customize your editor, learn the basics, and start coding"),
+    isFeatured: true,
+    icon: setupIcon,
+    when: "isWeb",
+    next: "Beginner",
+    walkthroughPageTitle: localize("gettingStarted.setupWeb.walkthroughPageTitle", "Setup VS Code Web"),
+    content: {
+      type: "steps",
+      steps: [
+        {
+          id: "pickColorThemeWeb",
+          title: localize("gettingStarted.pickColor.title", "Choose your theme"),
+          description: localize("gettingStarted.pickColor.description.interpolated", "The right theme helps you focus on your code, is easy on your eyes, and is simply more fun to use.\n{0}", Button(localize("titleID", "Browse Color Themes"), "command:workbench.action.selectTheme")),
+          completionEvents: [
+            "onSettingChanged:workbench.colorTheme",
+            "onCommand:workbench.action.selectTheme"
+          ],
+          media: { type: "markdown", path: "theme_picker" }
+        },
+        {
+          id: "menuBarWeb",
+          title: localize("gettingStarted.menuBar.title", "Just the right amount of UI"),
+          description: localize("gettingStarted.menuBar.description.interpolated", "The full menu bar is available in the dropdown menu to make room for your code. Toggle its appearance for faster access. \n{0}", Button(localize("toggleMenuBar", "Toggle Menu Bar"), "command:workbench.action.toggleMenuBar")),
+          when: "isWeb",
+          media: {
+            type: "svg",
+            altText: "Comparing menu dropdown with the visible menu bar.",
+            path: "menuBar.svg"
+          }
+        },
+        {
+          id: "extensionsWebWeb",
+          title: localize("gettingStarted.extensions.title", "Code with extensions"),
+          description: localize("gettingStarted.extensionsWeb.description.interpolated", "Extensions are VS Code's power-ups. A growing number are becoming available in the web.\n{0}", Button(localize("browsePopularWeb", "Browse Popular Web Extensions"), "command:workbench.extensions.action.showPopularExtensions")),
+          when: "workspacePlatform == 'webworker'",
+          media: {
+            type: "svg",
+            altText: "VS Code extension marketplace with featured language extensions",
+            path: "extensions-web.svg"
+          }
+        },
+        {
+          id: "findLanguageExtensionsWeb",
+          title: localize("gettingStarted.findLanguageExts.title", "Rich support for all your languages"),
+          description: localize("gettingStarted.findLanguageExts.description.interpolated", "Code smarter with syntax highlighting, inline suggestions, linting and debugging. While many languages are built-in, many more can be added as extensions.\n{0}", Button(localize("browseLangExts", "Browse Language Extensions"), "command:workbench.extensions.action.showLanguageExtensions")),
+          when: "workspacePlatform != 'webworker'",
+          media: {
+            type: "svg",
+            altText: "Language extensions",
+            path: "languages.svg"
+          }
+        },
+        {
+          id: "settingsSyncWeb",
+          title: localize("gettingStarted.settingsSync.title", "Sync settings across devices"),
+          description: localize("gettingStarted.settingsSync.description.interpolated", "Keep your essential customizations backed up and updated across all your devices.\n{0}", Button(localize("enableSync", "Backup and Sync Settings"), "command:workbench.userDataSync.actions.turnOn")),
+          when: "syncStatus != uninitialized",
+          completionEvents: ["onEvent:sync-enabled"],
+          media: {
+            type: "svg",
+            altText: 'The "Turn on Sync" entry in the settings gear menu.',
+            path: "settingsSync.svg"
+          }
+        },
+        {
+          id: "commandPaletteTaskWeb",
+          title: localize("gettingStarted.commandPalette.title", "Unlock productivity with the Command Palette "),
+          description: localize("gettingStarted.commandPalette.description.interpolated", "Run commands without reaching for your mouse to accomplish any task in VS Code.\n{0}", Button(localize("commandPalette", "Open Command Palette"), "command:workbench.action.showCommands")),
+          media: { type: "svg", altText: "Command Palette overlay for searching and executing commands.", path: "commandPalette.svg" }
+        },
+        {
+          id: "pickAFolderTask-WebWeb",
+          title: localize("gettingStarted.setup.OpenFolder.title", "Open up your code"),
+          description: localize("gettingStarted.setup.OpenFolderWeb.description.interpolated", "You're all set to start coding. You can open a local project or a remote repository to get your files into VS Code.\n{0}\n{1}", Button(localize("openFolder", "Open Folder"), "command:workbench.action.addRootFolder"), Button(localize("openRepository", "Open Repository"), "command:remoteHub.openRepository")),
+          when: "workspaceFolderCount == 0",
+          media: {
+            type: "svg",
+            altText: "Explorer view showing buttons for opening folder and cloning repository.",
+            path: "openFolder.svg"
+          }
+        },
+        {
+          id: "quickOpenWeb",
+          title: localize("gettingStarted.quickOpen.title", "Quickly navigate between your files"),
+          description: localize("gettingStarted.quickOpen.description.interpolated", "Navigate between files in an instant with one keystroke. Tip: Open multiple files by pressing the right arrow key.\n{0}", Button(localize("quickOpen", "Quick Open a File"), "command:toSide:workbench.action.quickOpen")),
+          when: "workspaceFolderCount != 0",
+          media: {
+            type: "svg",
+            altText: "Go to file in quick search.",
+            path: "search.svg"
+          }
+        }
+      ]
+    }
+  },
+  {
+    id: "SetupAccessibility",
+    title: localize("gettingStarted.setupAccessibility.title", "Get Started with Accessibility Features"),
+    description: localize("gettingStarted.setupAccessibility.description", "Learn the tools and shortcuts that make VS Code accessible. Note that some actions are not actionable from within the context of the walkthrough."),
+    isFeatured: true,
+    icon: setupIcon,
+    when: CONTEXT_ACCESSIBILITY_MODE_ENABLED.key,
+    next: "Setup",
+    walkthroughPageTitle: localize("gettingStarted.setupAccessibility.walkthroughPageTitle", "Setup VS Code Accessibility"),
+    content: {
+      type: "steps",
+      steps: [
+        {
+          id: "accessibilityHelp",
+          title: localize("gettingStarted.accessibilityHelp.title", "Use the accessibility help dialog to learn about features"),
+          description: localize("gettingStarted.accessibilityHelp.description.interpolated", "The accessibility help dialog provides information about what to expect from a feature and the commands/keybindings to operate them.\n With focus in an editor, terminal, notebook, chat response, comment, or debug console, the relevant dialog can be opened with the Open Accessibility Help command.\n{0}", Button(localize("openAccessibilityHelp", "Open Accessibility Help"), "command:editor.action.accessibilityHelp")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "accessibleView",
+          title: localize("gettingStarted.accessibleView.title", "Screen reader users can inspect content line by line, character by character in the accessible view."),
+          description: localize("gettingStarted.accessibleView.description.interpolated", "The accessible view is available for the terminal, hovers, notifications, comments, notebook output, chat responses, inline completions, and debug console output.\n With focus in any of those features, it can be opened with the Open Accessible View command.\n{0}", Button(localize("openAccessibleView", "Open Accessible View"), "command:editor.action.accessibleView")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "verbositySettings",
+          title: localize("gettingStarted.verbositySettings.title", "Control the verbosity of aria labels"),
+          description: localize("gettingStarted.verbositySettings.description.interpolated", "Screen reader verbosity settings exist for features around the workbench so that once a user is familiar with a feature, they can avoid hearing hints about how to operate it. For example, features for which an accessibility help dialog exists will indicate how to open the dialog until the verbosity setting for that feature has been disabled.\n These and other accessibility settings can be configured by running the Open Accessibility Settings command.\n{0}", Button(localize("openVerbositySettings", "Open Accessibility Settings"), "command:workbench.action.openAccessibilitySettings")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "commandPaletteTaskAccessibility",
+          title: localize("gettingStarted.commandPaletteAccessibility.title", "Unlock productivity with the Command Palette "),
+          description: localize("gettingStarted.commandPaletteAccessibility.description.interpolated", "Run commands without reaching for your mouse to accomplish any task in VS Code.\n{0}", Button(localize("commandPalette", "Open Command Palette"), "command:workbench.action.showCommands")),
+          media: { type: "markdown", path: "empty" }
+        },
+        {
+          id: "keybindingsAccessibility",
+          title: localize("gettingStarted.keyboardShortcuts.title", "Customize your keyboard shortcuts"),
+          description: localize("gettingStarted.keyboardShortcuts.description.interpolated", "Once you have discovered your favorite commands, create custom keyboard shortcuts for instant access.\n{0}", Button(localize("keyboardShortcuts", "Keyboard Shortcuts"), "command:toSide:workbench.action.openGlobalKeybindings")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "accessibilitySignals",
+          title: localize("gettingStarted.accessibilitySignals.title", "Fine tune which accessibility signals you want to receive via audio or a braille device"),
+          description: localize("gettingStarted.accessibilitySignals.description.interpolated", "Accessibility sounds and announcements are played around the workbench for different events.\n These can be discovered and configured using the List Signal Sounds and List Signal Announcements commands.\n{0}\n{1}", Button(localize("listSignalSounds", "List Signal Sounds"), "command:signals.sounds.help"), Button(localize("listSignalAnnouncements", "List Signal Announcements"), "command:accessibility.announcement.help")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "hover",
+          title: localize("gettingStarted.hover.title", "Access the hover in the editor to get more information on a variable or symbol"),
+          description: localize("gettingStarted.hover.description.interpolated", "While focus is in the editor on a variable or symbol, a hover can be focused with the Show or Open Hover command.\n{0}", Button(localize("showOrFocusHover", "Show or Focus Hover"), "command:editor.action.showHover")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "goToSymbol",
+          title: localize("gettingStarted.goToSymbol.title", "Navigate to symbols in a file"),
+          description: localize("gettingStarted.goToSymbol.description.interpolated", "The Go to Symbol command is useful for navigating between important landmarks in a document.\n{0}", Button(localize("openGoToSymbol", "Go to Symbol"), "command:editor.action.goToSymbol")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "codeFolding",
+          title: localize("gettingStarted.codeFolding.title", "Use code folding to collapse blocks of code and focus on the code you're interested in."),
+          description: localize("gettingStarted.codeFolding.description.interpolated", "Fold or unfold a code section with the Toggle Fold command.\n{0}\n Fold or unfold recursively with the Toggle Fold Recursively Command\n{1}\n", Button(localize("toggleFold", "Toggle Fold"), "command:editor.toggleFold"), Button(localize("toggleFoldRecursively", "Toggle Fold Recursively"), "command:editor.toggleFoldRecursively")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "intellisense",
+          title: localize("gettingStarted.intellisense.title", "Use Intellisense to improve coding efficiency"),
+          description: localize("gettingStarted.intellisense.description.interpolated", "Intellisense suggestions can be opened with the Trigger Intellisense command.\n{0}\n Inline intellisense suggestions can be triggered with Trigger Inline Suggestion\n{1}\n Useful settings include editor.inlineCompletionsAccessibilityVerbose and editor.screenReaderAnnounceInlineSuggestion.", Button(localize("triggerIntellisense", "Trigger Intellisense"), "command:editor.action.triggerSuggest"), Button(localize("triggerInlineSuggestion", "Trigger Inline Suggestion"), "command:editor.action.inlineSuggest.trigger")),
+          media: {
+            type: "markdown",
+            path: "empty"
+          }
+        },
+        {
+          id: "accessibilitySettings",
+          title: localize("gettingStarted.accessibilitySettings.title", "Configure accessibility settings"),
+          description: localize("gettingStarted.accessibilitySettings.description.interpolated", "Accessibility settings can be configured by running the Open Accessibility Settings command.\n{0}", Button(localize("openAccessibilitySettings", "Open Accessibility Settings"), "command:workbench.action.openAccessibilitySettings")),
+          media: { type: "markdown", path: "empty" }
+        },
+        {
+          id: "dictation",
+          title: localize("gettingStarted.dictation.title", "Use dictation to write code and text in the editor and terminal"),
+          description: localize("gettingStarted.dictation.description.interpolated", "Dictation allows you to write code and text using your voice. It can be activated with the Voice: Start Dictation in Editor command.\n{0}\n For dictation in the terminal, use the Voice: Start Dictation in Terminal and Voice: Stop Dictation in Terminal commands.\n{1}\n{2}", Button(localize("toggleDictation", "Voice: Start Dictation in Editor"), "command:workbench.action.editorDictation.start"), Button(localize("terminalStartDictation", "Terminal: Start Dictation in Terminal"), "command:workbench.action.terminal.startVoice"), Button(localize("terminalStopDictation", "Terminal: Stop Dictation in Terminal"), "command:workbench.action.terminal.stopVoice")),
+          when: "hasSpeechProvider",
+          media: { type: "markdown", path: "empty" }
+        }
+      ]
+    }
+  },
+  {
+    id: "Beginner",
+    isFeatured: false,
+    title: localize("gettingStarted.beginner.title", "Learn the Fundamentals"),
+    icon: beginnerIcon,
+    description: localize("gettingStarted.beginner.description", "Get an overview of the most essential features"),
+    walkthroughPageTitle: localize("gettingStarted.beginner.walkthroughPageTitle", "Essential Features"),
+    content: {
+      type: "steps",
+      steps: [
+        {
+          id: "settingsAndSync",
+          title: localize("gettingStarted.settings.title", "Tune your settings"),
+          description: localize("gettingStarted.settingsAndSync.description.interpolated", "Customize every aspect of VS Code and [sync](command:workbench.userDataSync.actions.turnOn) customizations across devices.\n{0}", Button(localize("tweakSettings", "Open Settings"), "command:toSide:workbench.action.openSettings")),
+          when: "workspacePlatform != 'webworker' && syncStatus != uninitialized",
+          completionEvents: ["onEvent:sync-enabled"],
+          media: {
+            type: "svg",
+            altText: "VS Code Settings",
+            path: "settings.svg"
+          }
+        },
+        {
+          id: "extensions",
+          title: localize("gettingStarted.extensions.title", "Code with extensions"),
+          description: localize("gettingStarted.extensions.description.interpolated", "Extensions are VS Code's power-ups. They range from handy productivity hacks, expanding out-of-the-box features, to adding completely new capabilities.\n{0}", Button(localize("browsePopular", "Browse Popular Extensions"), "command:workbench.extensions.action.showPopularExtensions")),
+          when: "workspacePlatform != 'webworker'",
+          media: {
+            type: "svg",
+            altText: "VS Code extension marketplace with featured language extensions",
+            path: "extensions.svg"
+          }
+        },
+        {
+          id: "terminal",
+          title: localize("gettingStarted.terminal.title", "Built-in terminal"),
+          description: localize("gettingStarted.terminal.description.interpolated", "Quickly run shell commands and monitor build output, right next to your code.\n{0}", Button(localize("showTerminal", "Open Terminal"), "command:workbench.action.terminal.toggleTerminal")),
+          when: "workspacePlatform != 'webworker' && remoteName != codespaces && !terminalIsOpen",
+          media: {
+            type: "svg",
+            altText: "Integrated terminal running a few npm commands",
+            path: "terminal.svg"
+          }
+        },
+        {
+          id: "debugging",
+          title: localize("gettingStarted.debug.title", "Watch your code in action"),
+          description: localize("gettingStarted.debug.description.interpolated", "Accelerate your edit, build, test, and debug loop by setting up a launch configuration.\n{0}", Button(localize("runProject", "Run your Project"), "command:workbench.action.debug.selectandstart")),
+          when: "workspacePlatform != 'webworker' && workspaceFolderCount != 0",
+          media: {
+            type: "svg",
+            altText: "Run and debug view.",
+            path: "debug.svg"
+          }
+        },
+        {
+          id: "scmClone",
+          title: localize("gettingStarted.scm.title", "Track your code with Git"),
+          description: localize("gettingStarted.scmClone.description.interpolated", "Set up the built-in version control for your project to track your changes and collaborate with others.\n{0}", Button(localize("cloneRepo", "Clone Repository"), "command:git.clone")),
+          when: "config.git.enabled && !git.missing && workspaceFolderCount == 0",
+          media: {
+            type: "svg",
+            altText: "Source Control view.",
+            path: "git.svg"
+          }
+        },
+        {
+          id: "scmSetup",
+          title: localize("gettingStarted.scm.title", "Track your code with Git"),
+          description: localize("gettingStarted.scmSetup.description.interpolated", "Set up the built-in version control for your project to track your changes and collaborate with others.\n{0}", Button(localize("initRepo", "Initialize Git Repository"), "command:git.init")),
+          when: "config.git.enabled && !git.missing && workspaceFolderCount != 0 && gitOpenRepositoryCount == 0",
+          media: {
+            type: "svg",
+            altText: "Source Control view.",
+            path: "git.svg"
+          }
+        },
+        {
+          id: "scm",
+          title: localize("gettingStarted.scm.title", "Track your code with Git"),
+          description: localize("gettingStarted.scm.description.interpolated", "No more looking up Git commands! Git and GitHub workflows are seamlessly integrated.\n{0}", Button(localize("openSCM", "Open Source Control"), "command:workbench.view.scm")),
+          when: "config.git.enabled && !git.missing && workspaceFolderCount != 0 && gitOpenRepositoryCount != 0 && activeViewlet != 'workbench.view.scm'",
+          media: {
+            type: "svg",
+            altText: "Source Control view.",
+            path: "git.svg"
+          }
+        },
+        {
+          id: "installGit",
+          title: localize("gettingStarted.installGit.title", "Install Git"),
+          description: localize({ key: "gettingStarted.installGit.description.interpolated", comment: ["The placeholders are command link items should not be translated"] }, "Install Git to track changes in your projects.\n{0}\n{1}Reload window{2} after installation to complete Git setup.", Button(localize("installGit", "Install Git"), "https://aka.ms/vscode-install-git"), "[", "](command:workbench.action.reloadWindow)"),
+          when: "git.missing",
+          media: {
+            type: "svg",
+            altText: "Install Git.",
+            path: "git.svg"
+          },
+          completionEvents: [
+            "onContext:git.state == initialized"
+          ]
+        },
+        {
+          id: "tasks",
+          title: localize("gettingStarted.tasks.title", "Automate your project tasks"),
+          when: "workspaceFolderCount != 0 && workspacePlatform != 'webworker'",
+          description: localize("gettingStarted.tasks.description.interpolated", "Create tasks for your common workflows and enjoy the integrated experience of running scripts and automatically checking results.\n{0}", Button(localize("runTasks", "Run Auto-detected Tasks"), "command:workbench.action.tasks.runTask")),
+          media: {
+            type: "svg",
+            altText: "Task runner.",
+            path: "runTask.svg"
+          }
+        },
+        {
+          id: "shortcuts",
+          title: localize("gettingStarted.shortcuts.title", "Customize your shortcuts"),
+          description: localize("gettingStarted.shortcuts.description.interpolated", "Once you have discovered your favorite commands, create custom keyboard shortcuts for instant access.\n{0}", Button(localize("keyboardShortcuts", "Keyboard Shortcuts"), "command:toSide:workbench.action.openGlobalKeybindings")),
+          media: {
+            type: "svg",
+            altText: "Interactive shortcuts.",
+            path: "shortcuts.svg"
+          }
+        },
+        {
+          id: "workspaceTrust",
+          title: localize("gettingStarted.workspaceTrust.title", "Safely browse and edit code"),
+          description: localize("gettingStarted.workspaceTrust.description.interpolated", "{0} lets you decide whether your project folders should **allow or restrict** automatic code execution __(required for extensions, debugging, etc)__.\nOpening a file/folder will prompt to grant trust. You can always {1} later.", Button(localize("workspaceTrust", "Workspace Trust"), "https://code.visualstudio.com/docs/editor/workspace-trust"), Button(localize("enableTrust", "enable trust"), "command:toSide:workbench.trust.manage")),
+          when: "workspacePlatform != 'webworker' && !isWorkspaceTrusted && workspaceFolderCount == 0",
+          media: {
+            type: "svg",
+            altText: "Workspace Trust editor in Restricted mode and a primary button for switching to Trusted mode.",
+            path: "workspaceTrust.svg"
+          }
+        }
+      ]
+    }
+  },
+  {
+    id: "notebooks",
+    title: localize("gettingStarted.notebook.title", "Customize Notebooks"),
+    description: "",
+    icon: setupIcon,
+    isFeatured: false,
+    when: `config.${NotebookSetting.openGettingStarted} && userHasOpenedNotebook`,
+    walkthroughPageTitle: localize("gettingStarted.notebook.walkthroughPageTitle", "Notebooks"),
+    content: {
+      type: "steps",
+      steps: [
+        {
+          completionEvents: ["onCommand:notebook.setProfile"],
+          id: "notebookProfile",
+          title: localize("gettingStarted.notebookProfile.title", "Select the layout for your notebooks"),
+          description: localize("gettingStarted.notebookProfile.description", "Get notebooks to feel just the way you prefer"),
+          when: "userHasOpenedNotebook",
+          media: {
+            type: "markdown",
+            path: "notebookProfile"
+          }
+        }
+      ]
+    }
+  }
+];
+export {
+  copilotSettingsMessage,
+  gettingStartedContentRegistry,
+  moduleToContent,
+  startEntries,
+  walkthroughs
+};
+//# sourceMappingURL=gettingStartedContent.js.map

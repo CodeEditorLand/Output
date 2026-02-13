@@ -1,3 +1,1044 @@
-import{$xf as l}from"../../../base/common/event.js";import{$X1 as R}from"./extHost.protocol.js";import{$Nj as j}from"../../../platform/instantiation/common/instantiation.js";import{URI as B}from"../../../base/common/uri.js";import{$Y4 as M}from"./extHostRpcService.js";import{$Dd as b,$Ed as P,$Fd as z}from"../../../base/common/lifecycle.js";import{$e2 as m,EnvironmentVariableMutatorType as w}from"./extHostTypes.js";import{localize as q}from"../../../nls.js";import{$Ab as E}from"../../../base/common/errors.js";import{$pB as V,$oB as L}from"../../../platform/terminal/common/environmentVariableShared.js";import{$Jf as g}from"../../../base/common/cancellation.js";import{$ln as N}from"../../../base/common/uuid.js";import{$N7b as W}from"../../../platform/terminal/common/terminalDataBuffering.js";import{ThemeColor as T}from"../../../base/common/themables.js";import{Promises as O}from"../../../base/common/async.js";import{TerminalCompletionList as U,TerminalQuickFix as x,ViewColumn as H}from"./extHostTypeConverters.js";import{$f5 as F}from"./extHostCommands.js";import{$m as Q}from"../../../base/common/platform.js";import{$rd as c}from"../../../base/common/types.js";var A=function(o,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,e,t,i);else for(var a=o.length-1;a>=0;a--)(r=o[a])&&(n=(s<3?r(n):s>3?r(e,t,n):r(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},v=function(o,e){return function(t,i){e(t,i,o)}};const ge=j("IExtHostTerminalService");class I extends P{constructor(e,t,i,s){super(),this.s=e,this._id=t,this.u=i,this.w=s,this.a=!1,this.m={isInteractedWith:!1,shell:void 0},this.isOpen=!1,this.q=this.D(new l),this.onWillDispose=this.q.event,this.u=Object.freeze(this.u),this.b=new Promise(r=>this.g=r);const n=this;this.value={get name(){return n.w||""},get processId(){return n.b},get creationOptions(){return n.u},get exitStatus(){return n.j},get state(){return n.m},get selection(){return n.n},get shellIntegration(){return n.shellIntegration},sendText(r,a=!0){n.z(),n.s.$sendText(n._id,r,a)},show(r){n.z(),n.s.$show(n._id,r)},hide(){n.z(),n.s.$hide(n._id)},dispose(){n.a||(n.a=!0,n.s.$dispose(n._id))},get dimensions(){if(!(n.f===void 0||n.h===void 0))return{columns:n.f,rows:n.h}}}}dispose(){this.q.fire(),super.dispose()}async create(e,t){if(typeof this._id!="string")throw new Error("Terminal has already been created");await this.s.$createTerminal(this._id,{name:e.name,shellPath:e.shellPath??void 0,shellArgs:e.shellArgs??void 0,cwd:e.cwd??t?.cwd??void 0,env:e.env??void 0,icon:_(e.iconPath)??void 0,color:T.isThemeColor(e.color)?e.color.id:void 0,initialText:e.message??void 0,strictEnv:e.strictEnv??void 0,hideFromUser:e.hideFromUser??void 0,forceShellIntegration:t?.forceShellIntegration??void 0,isFeatureTerminal:t?.isFeatureTerminal??void 0,isExtensionOwnedTerminal:!0,useShellEnvironment:t?.useShellEnvironment??void 0,location:t?.location||this.y(e.location,t?.resolvedExtHostIdentifier),isTransient:e.isTransient??void 0,shellIntegrationNonce:e.shellIntegrationNonce??void 0})}async createExtensionTerminal(e,t,i,s,n,r){if(typeof this._id!="string")throw new Error("Terminal has already been created");if(await this.s.$createTerminal(this._id,{name:this.w,isExtensionCustomPtyTerminal:!0,icon:s,color:T.isThemeColor(n)?n.id:void 0,location:t?.location||this.y(e,i),isTransient:!0,shellIntegrationNonce:r??void 0}),typeof this._id=="string")throw new Error("Terminal creation failed");return this._id}y(e,t){return typeof e=="object"?c(e,{parentTerminal:!0})&&e.parentTerminal&&t?{parentTerminal:t}:c(e,{viewColumn:!0})?{viewColumn:H.from(e.viewColumn),preserveFocus:e.preserveFocus}:void 0:e}z(){if(this.a)throw new Error("Terminal has already been disposed")}set name(e){this.w=e}setExitStatus(e,t){this.j=Object.freeze({code:e,reason:t})}setDimensions(e,t){return e===this.f&&t===this.h||e===0||t===0?!1:(this.f=e,this.h=t,!0)}setInteractedWith(){return this.m.isInteractedWith?!1:(this.m={...this.m,isInteractedWith:!0},!0)}setShellType(e){return this.m.shell!==e?(this.m={...this.m,shell:e},!0):!1}setSelection(e){this.n=e}_setProcessId(e){this.g?(this.g(e),this.g=void 0):this.b.then(t=>{t!==e&&(this.b=Promise.resolve(e))})}}class y{get onProcessReady(){return this.b.event}constructor(e){this.g=e,this.id=0,this.shouldPersist=!1,this.a=new l,this.onProcessData=this.a.event,this.b=new l,this.d=new l,this.onDidChangeProperty=this.d.event,this.f=new l,this.onProcessExit=this.f.event}refreshProperty(e){throw new Error(`refreshProperty is not suppported in extension owned terminals. property: ${e}`)}updateProperty(e,t){throw new Error(`updateProperty is not suppported in extension owned terminals. property: ${e}, value: ${t}`)}async start(){}shutdown(){this.g.close()}input(e){this.g.handleInput?.(e)}sendSignal(e){}resize(e,t){this.g.setDimensions?.({columns:e,rows:t})}clearBuffer(){}async processBinary(e){}acknowledgeDataEvent(e){}async setUnicodeVersion(e){}getInitialCwd(){return Promise.resolve("")}getCwd(){return Promise.resolve("")}startSendingEvents(e){this.g.onDidWrite(t=>this.a.fire(t)),this.g.onDidClose?.((t=void 0)=>{this.f.fire(t===void 0?void 0:t)}),this.g.onDidOverrideDimensions?.(t=>{t&&this.d.fire({type:"overrideDimensions",value:{cols:t.columns,rows:t.rows}})}),this.g.onDidChangeName?.(t=>{this.d.fire({type:"title",value:t})}),this.g.open(e||void 0),e&&this.g.setDimensions?.(e),this.b.fire({pid:-1,cwd:"",windowsPty:void 0})}}let Z=1,$=class extends P{get activeTerminal(){return this.b?.value}get terminals(){return this.f.map(e=>e.value)}constructor(e,t,i){super(),this.R=t,this.f=[],this.g=new Map,this.h={},this.j={},this.m={},this.n=new Map,this.u=this.D(new z),this.y=new Set,this.z=new Map,this.C=new Map,this.F=new Map,this.G=new Map,this.H=new Map,this.I=new l,this.onDidCloseTerminal=this.I.event,this.J=new l,this.onDidOpenTerminal=this.J.event,this.L=new l,this.onDidChangeActiveTerminal=this.L.event,this.M=new l,this.onDidChangeTerminalDimensions=this.M.event,this.N=new l,this.onDidChangeTerminalState=this.N.event,this.O=new l,this.onDidChangeShell=this.O.event,this.P=new l({onWillAddFirstListener:()=>this.a.$startSendingDataEvents(),onDidRemoveLastListener:()=>this.a.$stopSendingDataEvents()}),this.onDidWriteTerminalData=this.P.event,this.Q=new l({onWillAddFirstListener:()=>this.a.$startSendingCommandEvents(),onDidRemoveLastListener:()=>this.a.$stopSendingCommandEvents()}),this.onDidExecuteTerminalCommand=this.Q.event,this.a=i.getProxy(R.MainThreadTerminalService),this.w=new W(this.a.$sendProcessData),this.a.$registerProcessSupport(e),this.R.registerArgumentProcessor({processArgument:s=>{const n=r=>this.getTerminalById(r.instanceId)?.value;switch(s?.$mid){case 15:return n(s);default:{if(Array.isArray(s))for(let r=0;r<s.length&&s[r].$mid===15;r++)s[r]=n(s[r]);return s}}}}),this.D({dispose:()=>{for(const[s,n]of this.g)n.shutdown(!0)}})}getDefaultShell(e){return(e?this.s:this.q)?.path||""}getDefaultShellArgs(e){return(e?this.s:this.q)?.args||[]}createExtensionTerminal(e,t){const i=new I(this.a,N(),e,e.name),s=new y(e.pty);return i.createExtensionTerminal(e.location,t,this.S(e,t).resolvedExtHostIdentifier,_(e.iconPath),Y(e.color),e.shellIntegrationNonce).then(n=>{const r=this.U(n,s);this.h[n]=r}),this.f.push(i),i.value}S(e,t){if(t=t||{},e.location&&typeof e.location=="object"&&c(e.location,{parentTerminal:!0})){const i=e.location.parentTerminal;if(i){const s=this.f.find(n=>n.value===i);s&&(t.resolvedExtHostIdentifier=s._id)}}else e.location&&typeof e.location!="object"?t.location=e.location:t.location&&typeof t.location=="object"&&c(t.location,{splitActiveTerminal:!0})&&(t.location={splitActiveTerminal:!0});return t}attachPtyToTerminal(e,t){if(!this.getTerminalById(e))throw new Error(`Cannot resolve terminal with id ${e} for virtual process`);const s=new y(t),n=this.U(e,s);this.h[e]=n}async $acceptActiveTerminalChanged(e){const t=this.b;if(e===null){this.b=void 0,t!==this.b&&this.L.fire(this.b);return}const i=this.getTerminalById(e);i&&(this.b=i,t!==this.b&&this.L.fire(this.b.value))}async $acceptTerminalProcessData(e,t){const i=this.getTerminalById(e);i&&this.P.fire({terminal:i.value,data:t})}async $acceptTerminalDimensions(e,t,i){const s=this.getTerminalById(e);s&&s.setDimensions(t,i)&&this.M.fire({terminal:s.value,dimensions:s.value.dimensions})}async $acceptDidExecuteCommand(e,t){const i=this.getTerminalById(e);i&&this.Q.fire({terminal:i.value,...t})}async $acceptTerminalMaximumDimensions(e,t,i){this.g.get(e)?.resize(t,i)}async $acceptTerminalTitleChange(e,t){const i=this.getTerminalById(e);i&&(i.name=t)}async $acceptTerminalClosed(e,t,i){const s=this.Y(this.f,e);if(s!==null){const n=this.f.splice(s,1)[0];n.setExitStatus(t,i),this.I.fire(n.value)}}$acceptTerminalOpened(e,t,i,s){if(t){const a=this.Y(this.f,t);if(a!==null){this.f[a]._id=e,this.J.fire(this.terminals[a]),this.f[a].isOpen=!0;return}}const n={name:s.name,shellPath:s.executable,shellArgs:s.args,cwd:typeof s.cwd=="string"?s.cwd:B.revive(s.cwd),env:s.env,hideFromUser:s.hideFromUser},r=new I(this.a,e,n,i);this.f.push(r),this.J.fire(r.value),r.isOpen=!0}async $acceptTerminalProcessId(e,t){this.getTerminalById(e)?._setProcessId(t)}async $startExtensionTerminal(e,t){const i=this.getTerminalById(e);if(!i)return{message:q(3059,null,e)};i.isOpen||await new Promise(n=>{const r=this.onDidOpenTerminal(async a=>{a===i.value&&(r.dispose(),n())})});const s=this.g.get(e);s?s.startSendingEvents(t):this.j[e]={initialDimensions:t}}U(e,t){const i=new b;i.add(t.onProcessReady(n=>this.a.$sendProcessReady(e,n.pid,n.cwd,n.windowsPty))),i.add(t.onDidChangeProperty(n=>this.a.$sendProcessProperty(e,n))),this.w.startBuffering(e,t.onProcessData),i.add(t.onProcessExit(n=>this.W(e,n))),this.g.set(e,t);const s=this.j[e];return s&&t instanceof y&&(t.startSendingEvents(s.initialDimensions),delete this.j[e]),i}$acceptProcessAckDataEvent(e,t){this.g.get(e)?.acknowledgeDataEvent(t)}$acceptProcessInput(e,t){this.g.get(e)?.input(t)}$acceptTerminalInteraction(e){const t=this.getTerminalById(e);t?.setInteractedWith()&&this.N.fire(t.value)}$acceptTerminalSelection(e,t){this.getTerminalById(e)?.setSelection(t)}$acceptProcessResize(e,t,i){try{this.g.get(e)?.resize(t,i)}catch(s){if(s.code!=="EPIPE"&&s.code!=="ERR_IPC_CHANNEL_CLOSED")throw s}}$acceptProcessShutdown(e,t){this.g.get(e)?.shutdown(t)}$acceptProcessRequestInitialCwd(e){this.g.get(e)?.getInitialCwd().then(t=>this.a.$sendProcessProperty(e,{type:"initialCwd",value:t}))}$acceptProcessRequestCwd(e){this.g.get(e)?.getCwd().then(t=>this.a.$sendProcessProperty(e,{type:"cwd",value:t}))}$acceptProcessRequestLatency(e){return Promise.resolve(e)}registerProfileProvider(e,t,i){if(this.C.has(t))throw new Error(`Terminal profile provider "${t}" already registered`);return this.C.set(t,i),this.a.$registerProfileProvider(t,e.identifier.value),new m(()=>{this.C.delete(t),this.a.$unregisterProfileProvider(t)})}registerTerminalCompletionProvider(e,t,...i){if(this.z.has(e.identifier.value))throw new Error(`Terminal completion provider "${e.identifier.value}" already registered`);return this.z.set(e.identifier.value,t),this.a.$registerCompletionProvider(e.identifier.value,e.identifier.value,...i),new m(()=>{this.z.delete(e.identifier.value),this.a.$unregisterCompletionProvider(e.identifier.value)})}async $provideTerminalCompletions(e,t){const i=new g().token;if(i.isCancellationRequested||!this.activeTerminal)return;const s=this.z.get(e);if(!s)return;const n=await s.provideTerminalCompletions(this.activeTerminal,t,i);if(n==null)return;const r=!Q||this.activeTerminal.state?.shell==="gitbash"?"/":"\\";return U.from(n,r)}$acceptTerminalShellType(e,t){const i=this.getTerminalById(e);i?.setShellType(t)&&this.N.fire(i.value)}registerTerminalQuickFixProvider(e,t,i){if(this.F.has(e))throw new Error(`Terminal quick fix provider "${e}" is already registered`);return this.F.set(e,i),this.a.$registerQuickFixProvider(e,t),new m(()=>{this.F.delete(e),this.a.$unregisterQuickFixProvider(e)})}async $provideTerminalQuickFixes(e,t){const i=new g().token;if(i.isCancellationRequested)return;const s=this.F.get(e);if(!s)return;const n=await s.provideTerminalQuickFixes(t,i);if(n===null||Array.isArray(n)&&n.length===0)return;const r=new b;if(this.u.value=r,!Array.isArray(n))return n?x.from(n,this.R.converter,r):void 0;const a=[];for(const u of n){const p=x.from(u,this.R.converter,r);p&&a.push(p)}return a}async $createContributedProfileTerminal(e,t){const i=new g().token;let s=await this.C.get(e)?.provideTerminalProfile(i);if(!i.isCancellationRequested){if(s&&!c(s,{options:!0})&&(s={options:s}),!s||!c(s,{options:!0}))throw new Error(`No terminal profile options provided for id "${e}"`);if(c(s.options,{pty:!0})){this.createExtensionTerminal(s.options,t);return}this.createTerminalFromOptions(s.options,t)}}registerLinkProvider(e){return this.y.add(e),this.y.size===1&&this.a.$startLinkProvider(),new m(()=>{this.y.delete(e),this.y.size===0&&this.a.$stopLinkProvider()})}async $provideLinks(e,t){const i=this.getTerminalById(e);if(!i)return[];this.G.delete(e),this.H.get(e)?.dispose(!0);const n=new g;this.H.set(e,n);const r=[],a={terminal:i.value,line:t},u=[];for(const h of this.y)u.push(O.withAsyncBody(async d=>{n.token.onCancellationRequested(()=>d({provider:h,links:[]}));const f=await h.provideTerminalLinks(a,n.token)||[];n.token.isCancellationRequested||d({provider:h,links:f})}));const p=await Promise.all(u);if(n.token.isCancellationRequested)return[];const C=new Map;for(const h of p)h&&h.links.length>0&&r.push(...h.links.map(d=>{const f={id:Z++,startIndex:d.startIndex,length:d.length,label:d.tooltip};return C.set(f.id,{provider:h.provider,link:d}),f}));return this.G.set(e,C),r}$activateLink(e,t){const i=this.G.get(e)?.get(t);i&&i.provider.handleTerminalLink(i.link)}W(e,t){this.w.stopBuffering(e),this.g.delete(e),delete this.j[e];const i=this.h[e];i&&(i.dispose(),delete this.h[e]),this.a.$sendProcessExit(e,t)}getTerminalById(e){return this.X(this.f,e)}getTerminalIdByApiObject(e){const t=this.f.findIndex(i=>i.value===e);return t>=0?t:null}X(e,t){const i=this.Y(e,t);return i!==null?e[i]:null}Y(e,t){const i=e.findIndex(s=>s._id===t);return i>=0?i:null}getEnvironmentVariableCollection(e){let t=this.n.get(e.identifier.value);return t||(t=this.D(new D),this.$(e.identifier.value,t)),t.getScopedEnvironmentVariableCollection(void 0)}Z(e,t){const i=L(t.map),s=V(t.descriptionMap);this.a.$setEnvironmentVariableCollection(e,t.persistent,i.length===0?void 0:i,s)}$initEnvironmentVariableCollections(e){e.forEach(t=>{const i=t[0],s=this.D(new D(t[1]));this.$(i,s)})}$acceptDefaultProfile(e,t){const i=this.q;this.q=e,this.s=t,i?.path!==e.path&&this.O.fire(e.path)}$(e,t){this.n.set(e,t),this.D(t.onDidChangeCollection(()=>{this.Z(e,t)}))}};$=A([v(1,F),v(2,M)],$);class D extends P{get persistent(){return this.b}set persistent(e){this.b=e,this.f.fire()}get onDidChangeCollection(){return this.f&&this.f.event}constructor(e){super(),this.map=new Map,this.a=new Map,this.descriptionMap=new Map,this.b=!0,this.f=new l,this.map=new Map(e)}getScopedEnvironmentVariableCollection(e){const t=this.j(e);let i=this.a.get(t);return i||(i=new J(this,e),this.a.set(t,i),this.D(i.onDidChangeCollection(()=>this.f.fire()))),i}replace(e,t,i,s){this.g(e,{value:t,type:w.Replace,options:i??{applyAtProcessCreation:!0},scope:s})}append(e,t,i,s){this.g(e,{value:t,type:w.Append,options:i??{applyAtProcessCreation:!0},scope:s})}prepend(e,t,i,s){this.g(e,{value:t,type:w.Prepend,options:i??{applyAtProcessCreation:!0},scope:s})}g(e,t){if(t.options&&t.options.applyAtProcessCreation===!1&&!t.options.applyAtShellIntegration)throw new Error("EnvironmentVariableMutatorOptions must apply at either process creation or shell integration");const i=this.h(e,t.scope),s=this.map.get(i),n=t.options?{applyAtProcessCreation:t.options.applyAtProcessCreation??!1,applyAtShellIntegration:t.options.applyAtShellIntegration??!1}:{applyAtProcessCreation:!0};if(!s||s.value!==t.value||s.type!==t.type||s.options?.applyAtProcessCreation!==n.applyAtProcessCreation||s.options?.applyAtShellIntegration!==n.applyAtShellIntegration||s.scope?.workspaceFolder?.index!==t.scope?.workspaceFolder?.index){const r=this.h(e,t.scope),a={variable:e,...t,options:n};this.map.set(r,a),this.f.fire()}}get(e,t){const i=this.h(e,t),s=this.map.get(i);return s?k(s):void 0}h(e,t){const i=this.j(t);return i.length?`${e}:::${i}`:e}j(e){return this.m(e?.workspaceFolder)??""}m(e){return e?e.uri.toString():void 0}getVariableMap(e){const t=new Map;for(const[i,s]of this.map)this.j(s.scope)===this.j(e)&&t.set(s.variable,k(s));return t}delete(e,t){const i=this.h(e,t);this.map.delete(i),this.f.fire()}clear(e){if(e?.workspaceFolder){for(const[t,i]of this.map)i.scope?.workspaceFolder?.index===e.workspaceFolder.index&&this.map.delete(t);this.n(e)}else this.map.clear(),this.descriptionMap.clear();this.f.fire()}setDescription(e,t){const i=this.j(t),s=this.descriptionMap.get(i);if(!s||s.description!==e){let n;typeof e=="string"?n=e:n=e?.value.split(`
-
-`)[0];const r={description:n,scope:t};this.descriptionMap.set(i,r),this.f.fire()}}getDescription(e){const t=this.j(e);return this.descriptionMap.get(t)?.description}n(e){const t=this.j(e);this.descriptionMap.delete(t)}}class J{get persistent(){return this.b.persistent}set persistent(e){this.b.persistent=e}get onDidChangeCollection(){return this.a&&this.a.event}constructor(e,t){this.b=e,this.d=t,this.a=new l}getScoped(e){return this.b.getScopedEnvironmentVariableCollection(e)}replace(e,t,i){this.b.replace(e,t,i,this.d)}append(e,t,i){this.b.append(e,t,i,this.d)}prepend(e,t,i){this.b.prepend(e,t,i,this.d)}get(e){return this.b.get(e,this.d)}forEach(e,t){this.b.getVariableMap(this.d).forEach((i,s)=>e.call(t,s,i,this),this.d)}[Symbol.iterator](){return this.b.getVariableMap(this.d).entries()}delete(e){this.b.delete(e,this.d),this.a.fire(void 0)}clear(){this.b.clear(this.d)}set description(e){this.b.setDescription(e,this.d)}get description(){return this.b.getDescription(this.d)}}let S=class extends ${constructor(e,t){super(!1,e,t)}createTerminal(e,t,i){throw new E}createTerminalFromOptions(e,t){throw new E}};S=A([v(0,F),v(1,M)],S);function _(o){if(!(!o||typeof o=="string"))return c(o,{id:!0})?{id:o.id,color:o.color}:o}function Y(o){return T.isThemeColor(o)?o:void 0}function k(o){const e={...o};return delete e.scope,e.options=e.options??void 0,e}export{ge as $iZc,I as $jZc,$ as $kZc,S as $lZc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../base/common/event.js";
+import { MainContext } from "./extHost.protocol.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { DisposableStore, Disposable, MutableDisposable } from "../../../base/common/lifecycle.js";
+import { Disposable as VSCodeDisposable, EnvironmentVariableMutatorType } from "./extHostTypes.js";
+import { localize } from "../../../nls.js";
+import { NotSupportedError } from "../../../base/common/errors.js";
+import { serializeEnvironmentDescriptionMap, serializeEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariableShared.js";
+import { CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { TerminalDataBufferer } from "../../../platform/terminal/common/terminalDataBuffering.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { Promises } from "../../../base/common/async.js";
+import { TerminalCompletionList, TerminalQuickFix, ViewColumn } from "./extHostTypeConverters.js";
+import { IExtHostCommands } from "./extHostCommands.js";
+import { isWindows } from "../../../base/common/platform.js";
+import { hasKey } from "../../../base/common/types.js";
+const IExtHostTerminalService = createDecorator("IExtHostTerminalService");
+class ExtHostTerminal extends Disposable {
+  static {
+    __name(this, "ExtHostTerminal");
+  }
+  constructor(_proxy, _id, _creationOptions, _name) {
+    super();
+    this._proxy = _proxy;
+    this._id = _id;
+    this._creationOptions = _creationOptions;
+    this._name = _name;
+    this._disposed = false;
+    this._state = { isInteractedWith: false, shell: void 0 };
+    this.isOpen = false;
+    this._onWillDispose = this._register(new Emitter());
+    this.onWillDispose = this._onWillDispose.event;
+    this._creationOptions = Object.freeze(this._creationOptions);
+    this._pidPromise = new Promise((c) => this._pidPromiseComplete = c);
+    const that = this;
+    this.value = {
+      get name() {
+        return that._name || "";
+      },
+      get processId() {
+        return that._pidPromise;
+      },
+      get creationOptions() {
+        return that._creationOptions;
+      },
+      get exitStatus() {
+        return that._exitStatus;
+      },
+      get state() {
+        return that._state;
+      },
+      get selection() {
+        return that._selection;
+      },
+      get shellIntegration() {
+        return that.shellIntegration;
+      },
+      sendText(text, shouldExecute = true) {
+        that._checkDisposed();
+        that._proxy.$sendText(that._id, text, shouldExecute);
+      },
+      show(preserveFocus) {
+        that._checkDisposed();
+        that._proxy.$show(that._id, preserveFocus);
+      },
+      hide() {
+        that._checkDisposed();
+        that._proxy.$hide(that._id);
+      },
+      dispose() {
+        if (!that._disposed) {
+          that._disposed = true;
+          that._proxy.$dispose(that._id);
+        }
+      },
+      get dimensions() {
+        if (that._cols === void 0 || that._rows === void 0) {
+          return void 0;
+        }
+        return {
+          columns: that._cols,
+          rows: that._rows
+        };
+      }
+    };
+  }
+  dispose() {
+    this._onWillDispose.fire();
+    super.dispose();
+  }
+  async create(options, internalOptions) {
+    if (typeof this._id !== "string") {
+      throw new Error("Terminal has already been created");
+    }
+    await this._proxy.$createTerminal(this._id, {
+      name: options.name,
+      shellPath: options.shellPath ?? void 0,
+      shellArgs: options.shellArgs ?? void 0,
+      cwd: options.cwd ?? internalOptions?.cwd ?? void 0,
+      env: options.env ?? void 0,
+      icon: asTerminalIcon(options.iconPath) ?? void 0,
+      color: ThemeColor.isThemeColor(options.color) ? options.color.id : void 0,
+      initialText: options.message ?? void 0,
+      strictEnv: options.strictEnv ?? void 0,
+      hideFromUser: options.hideFromUser ?? void 0,
+      forceShellIntegration: internalOptions?.forceShellIntegration ?? void 0,
+      isFeatureTerminal: internalOptions?.isFeatureTerminal ?? void 0,
+      isExtensionOwnedTerminal: true,
+      useShellEnvironment: internalOptions?.useShellEnvironment ?? void 0,
+      location: internalOptions?.location || this._serializeParentTerminal(options.location, internalOptions?.resolvedExtHostIdentifier),
+      isTransient: options.isTransient ?? void 0,
+      shellIntegrationNonce: options.shellIntegrationNonce ?? void 0
+    });
+  }
+  async createExtensionTerminal(location, internalOptions, parentTerminal, iconPath, color, shellIntegrationNonce) {
+    if (typeof this._id !== "string") {
+      throw new Error("Terminal has already been created");
+    }
+    await this._proxy.$createTerminal(this._id, {
+      name: this._name,
+      isExtensionCustomPtyTerminal: true,
+      icon: iconPath,
+      color: ThemeColor.isThemeColor(color) ? color.id : void 0,
+      location: internalOptions?.location || this._serializeParentTerminal(location, parentTerminal),
+      isTransient: true,
+      shellIntegrationNonce: shellIntegrationNonce ?? void 0
+    });
+    if (typeof this._id === "string") {
+      throw new Error("Terminal creation failed");
+    }
+    return this._id;
+  }
+  _serializeParentTerminal(location, parentTerminal) {
+    if (typeof location === "object") {
+      if (hasKey(location, { parentTerminal: true }) && location.parentTerminal && parentTerminal) {
+        return { parentTerminal };
+      }
+      if (hasKey(location, { viewColumn: true })) {
+        return { viewColumn: ViewColumn.from(location.viewColumn), preserveFocus: location.preserveFocus };
+      }
+      return void 0;
+    }
+    return location;
+  }
+  _checkDisposed() {
+    if (this._disposed) {
+      throw new Error("Terminal has already been disposed");
+    }
+  }
+  set name(name) {
+    this._name = name;
+  }
+  setExitStatus(code, reason) {
+    this._exitStatus = Object.freeze({ code, reason });
+  }
+  setDimensions(cols, rows) {
+    if (cols === this._cols && rows === this._rows) {
+      return false;
+    }
+    if (cols === 0 || rows === 0) {
+      return false;
+    }
+    this._cols = cols;
+    this._rows = rows;
+    return true;
+  }
+  setInteractedWith() {
+    if (!this._state.isInteractedWith) {
+      this._state = {
+        ...this._state,
+        isInteractedWith: true
+      };
+      return true;
+    }
+    return false;
+  }
+  setShellType(shellType) {
+    if (this._state.shell !== shellType) {
+      this._state = {
+        ...this._state,
+        shell: shellType
+      };
+      return true;
+    }
+    return false;
+  }
+  setSelection(selection) {
+    this._selection = selection;
+  }
+  _setProcessId(processId) {
+    if (this._pidPromiseComplete) {
+      this._pidPromiseComplete(processId);
+      this._pidPromiseComplete = void 0;
+    } else {
+      this._pidPromise.then((pid) => {
+        if (pid !== processId) {
+          this._pidPromise = Promise.resolve(processId);
+        }
+      });
+    }
+  }
+}
+class ExtHostPseudoterminal {
+  static {
+    __name(this, "ExtHostPseudoterminal");
+  }
+  get onProcessReady() {
+    return this._onProcessReady.event;
+  }
+  constructor(_pty) {
+    this._pty = _pty;
+    this.id = 0;
+    this.shouldPersist = false;
+    this._onProcessData = new Emitter();
+    this.onProcessData = this._onProcessData.event;
+    this._onProcessReady = new Emitter();
+    this._onDidChangeProperty = new Emitter();
+    this.onDidChangeProperty = this._onDidChangeProperty.event;
+    this._onProcessExit = new Emitter();
+    this.onProcessExit = this._onProcessExit.event;
+  }
+  refreshProperty(property) {
+    throw new Error(`refreshProperty is not suppported in extension owned terminals. property: ${property}`);
+  }
+  updateProperty(property, value) {
+    throw new Error(`updateProperty is not suppported in extension owned terminals. property: ${property}, value: ${value}`);
+  }
+  async start() {
+    return void 0;
+  }
+  shutdown() {
+    this._pty.close();
+  }
+  input(data) {
+    this._pty.handleInput?.(data);
+  }
+  sendSignal(signal) {
+  }
+  resize(cols, rows) {
+    this._pty.setDimensions?.({ columns: cols, rows });
+  }
+  clearBuffer() {
+  }
+  async processBinary(data) {
+  }
+  acknowledgeDataEvent(charCount) {
+  }
+  async setUnicodeVersion(version) {
+  }
+  getInitialCwd() {
+    return Promise.resolve("");
+  }
+  getCwd() {
+    return Promise.resolve("");
+  }
+  startSendingEvents(initialDimensions) {
+    this._pty.onDidWrite((e) => this._onProcessData.fire(e));
+    this._pty.onDidClose?.((e = void 0) => {
+      this._onProcessExit.fire(e === void 0 ? void 0 : e);
+    });
+    this._pty.onDidOverrideDimensions?.((e) => {
+      if (e) {
+        this._onDidChangeProperty.fire({ type: "overrideDimensions", value: { cols: e.columns, rows: e.rows } });
+      }
+    });
+    this._pty.onDidChangeName?.((title) => {
+      this._onDidChangeProperty.fire({ type: "title", value: title });
+    });
+    this._pty.open(initialDimensions ? initialDimensions : void 0);
+    if (initialDimensions) {
+      this._pty.setDimensions?.(initialDimensions);
+    }
+    this._onProcessReady.fire({ pid: -1, cwd: "", windowsPty: void 0 });
+  }
+}
+let nextLinkId = 1;
+let BaseExtHostTerminalService = class BaseExtHostTerminalService2 extends Disposable {
+  static {
+    __name(this, "BaseExtHostTerminalService");
+  }
+  get activeTerminal() {
+    return this._activeTerminal?.value;
+  }
+  get terminals() {
+    return this._terminals.map((term) => term.value);
+  }
+  constructor(supportsProcesses, _extHostCommands, extHostRpc) {
+    super();
+    this._extHostCommands = _extHostCommands;
+    this._terminals = [];
+    this._terminalProcesses = /* @__PURE__ */ new Map();
+    this._terminalProcessDisposables = {};
+    this._extensionTerminalAwaitingStart = {};
+    this._getTerminalPromises = {};
+    this._environmentVariableCollections = /* @__PURE__ */ new Map();
+    this._lastQuickFixCommands = this._register(new MutableDisposable());
+    this._linkProviders = /* @__PURE__ */ new Set();
+    this._completionProviders = /* @__PURE__ */ new Map();
+    this._profileProviders = /* @__PURE__ */ new Map();
+    this._quickFixProviders = /* @__PURE__ */ new Map();
+    this._terminalLinkCache = /* @__PURE__ */ new Map();
+    this._terminalLinkCancellationSource = /* @__PURE__ */ new Map();
+    this._onDidCloseTerminal = new Emitter();
+    this.onDidCloseTerminal = this._onDidCloseTerminal.event;
+    this._onDidOpenTerminal = new Emitter();
+    this.onDidOpenTerminal = this._onDidOpenTerminal.event;
+    this._onDidChangeActiveTerminal = new Emitter();
+    this.onDidChangeActiveTerminal = this._onDidChangeActiveTerminal.event;
+    this._onDidChangeTerminalDimensions = new Emitter();
+    this.onDidChangeTerminalDimensions = this._onDidChangeTerminalDimensions.event;
+    this._onDidChangeTerminalState = new Emitter();
+    this.onDidChangeTerminalState = this._onDidChangeTerminalState.event;
+    this._onDidChangeShell = new Emitter();
+    this.onDidChangeShell = this._onDidChangeShell.event;
+    this._onDidWriteTerminalData = new Emitter({
+      onWillAddFirstListener: /* @__PURE__ */ __name(() => this._proxy.$startSendingDataEvents(), "onWillAddFirstListener"),
+      onDidRemoveLastListener: /* @__PURE__ */ __name(() => this._proxy.$stopSendingDataEvents(), "onDidRemoveLastListener")
+    });
+    this.onDidWriteTerminalData = this._onDidWriteTerminalData.event;
+    this._onDidExecuteCommand = new Emitter({
+      onWillAddFirstListener: /* @__PURE__ */ __name(() => this._proxy.$startSendingCommandEvents(), "onWillAddFirstListener"),
+      onDidRemoveLastListener: /* @__PURE__ */ __name(() => this._proxy.$stopSendingCommandEvents(), "onDidRemoveLastListener")
+    });
+    this.onDidExecuteTerminalCommand = this._onDidExecuteCommand.event;
+    this._proxy = extHostRpc.getProxy(MainContext.MainThreadTerminalService);
+    this._bufferer = new TerminalDataBufferer(this._proxy.$sendProcessData);
+    this._proxy.$registerProcessSupport(supportsProcesses);
+    this._extHostCommands.registerArgumentProcessor({
+      processArgument: /* @__PURE__ */ __name((arg) => {
+        const deserialize = /* @__PURE__ */ __name((arg2) => {
+          return this.getTerminalById(arg2.instanceId)?.value;
+        }, "deserialize");
+        switch (arg?.$mid) {
+          case 15:
+            return deserialize(arg);
+          default: {
+            if (Array.isArray(arg)) {
+              for (let i = 0; i < arg.length; i++) {
+                if (arg[i].$mid === 15) {
+                  arg[i] = deserialize(arg[i]);
+                } else {
+                  break;
+                }
+              }
+            }
+            return arg;
+          }
+        }
+      }, "processArgument")
+    });
+    this._register({
+      dispose: /* @__PURE__ */ __name(() => {
+        for (const [_, terminalProcess] of this._terminalProcesses) {
+          terminalProcess.shutdown(true);
+        }
+      }, "dispose")
+    });
+  }
+  getDefaultShell(useAutomationShell) {
+    const profile = useAutomationShell ? this._defaultAutomationProfile : this._defaultProfile;
+    return profile?.path || "";
+  }
+  getDefaultShellArgs(useAutomationShell) {
+    const profile = useAutomationShell ? this._defaultAutomationProfile : this._defaultProfile;
+    return profile?.args || [];
+  }
+  createExtensionTerminal(options, internalOptions) {
+    const terminal = new ExtHostTerminal(this._proxy, generateUuid(), options, options.name);
+    const p = new ExtHostPseudoterminal(options.pty);
+    terminal.createExtensionTerminal(options.location, internalOptions, this._serializeParentTerminal(options, internalOptions).resolvedExtHostIdentifier, asTerminalIcon(options.iconPath), asTerminalColor(options.color), options.shellIntegrationNonce).then((id) => {
+      const disposable = this._setupExtHostProcessListeners(id, p);
+      this._terminalProcessDisposables[id] = disposable;
+    });
+    this._terminals.push(terminal);
+    return terminal.value;
+  }
+  _serializeParentTerminal(options, internalOptions) {
+    internalOptions = internalOptions ? internalOptions : {};
+    if (options.location && typeof options.location === "object" && hasKey(options.location, { parentTerminal: true })) {
+      const parentTerminal = options.location.parentTerminal;
+      if (parentTerminal) {
+        const parentExtHostTerminal = this._terminals.find((t) => t.value === parentTerminal);
+        if (parentExtHostTerminal) {
+          internalOptions.resolvedExtHostIdentifier = parentExtHostTerminal._id;
+        }
+      }
+    } else if (options.location && typeof options.location !== "object") {
+      internalOptions.location = options.location;
+    } else if (internalOptions.location && typeof internalOptions.location === "object" && hasKey(internalOptions.location, { splitActiveTerminal: true })) {
+      internalOptions.location = { splitActiveTerminal: true };
+    }
+    return internalOptions;
+  }
+  attachPtyToTerminal(id, pty) {
+    const terminal = this.getTerminalById(id);
+    if (!terminal) {
+      throw new Error(`Cannot resolve terminal with id ${id} for virtual process`);
+    }
+    const p = new ExtHostPseudoterminal(pty);
+    const disposable = this._setupExtHostProcessListeners(id, p);
+    this._terminalProcessDisposables[id] = disposable;
+  }
+  async $acceptActiveTerminalChanged(id) {
+    const original = this._activeTerminal;
+    if (id === null) {
+      this._activeTerminal = void 0;
+      if (original !== this._activeTerminal) {
+        this._onDidChangeActiveTerminal.fire(this._activeTerminal);
+      }
+      return;
+    }
+    const terminal = this.getTerminalById(id);
+    if (terminal) {
+      this._activeTerminal = terminal;
+      if (original !== this._activeTerminal) {
+        this._onDidChangeActiveTerminal.fire(this._activeTerminal.value);
+      }
+    }
+  }
+  async $acceptTerminalProcessData(id, data) {
+    const terminal = this.getTerminalById(id);
+    if (terminal) {
+      this._onDidWriteTerminalData.fire({ terminal: terminal.value, data });
+    }
+  }
+  async $acceptTerminalDimensions(id, cols, rows) {
+    const terminal = this.getTerminalById(id);
+    if (terminal) {
+      if (terminal.setDimensions(cols, rows)) {
+        this._onDidChangeTerminalDimensions.fire({
+          terminal: terminal.value,
+          dimensions: terminal.value.dimensions
+        });
+      }
+    }
+  }
+  async $acceptDidExecuteCommand(id, command) {
+    const terminal = this.getTerminalById(id);
+    if (terminal) {
+      this._onDidExecuteCommand.fire({ terminal: terminal.value, ...command });
+    }
+  }
+  async $acceptTerminalMaximumDimensions(id, cols, rows) {
+    this._terminalProcesses.get(id)?.resize(cols, rows);
+  }
+  async $acceptTerminalTitleChange(id, name) {
+    const terminal = this.getTerminalById(id);
+    if (terminal) {
+      terminal.name = name;
+    }
+  }
+  async $acceptTerminalClosed(id, exitCode, exitReason) {
+    const index = this._getTerminalObjectIndexById(this._terminals, id);
+    if (index !== null) {
+      const terminal = this._terminals.splice(index, 1)[0];
+      terminal.setExitStatus(exitCode, exitReason);
+      this._onDidCloseTerminal.fire(terminal.value);
+    }
+  }
+  $acceptTerminalOpened(id, extHostTerminalId, name, shellLaunchConfigDto) {
+    if (extHostTerminalId) {
+      const index = this._getTerminalObjectIndexById(this._terminals, extHostTerminalId);
+      if (index !== null) {
+        this._terminals[index]._id = id;
+        this._onDidOpenTerminal.fire(this.terminals[index]);
+        this._terminals[index].isOpen = true;
+        return;
+      }
+    }
+    const creationOptions = {
+      name: shellLaunchConfigDto.name,
+      shellPath: shellLaunchConfigDto.executable,
+      shellArgs: shellLaunchConfigDto.args,
+      cwd: typeof shellLaunchConfigDto.cwd === "string" ? shellLaunchConfigDto.cwd : URI.revive(shellLaunchConfigDto.cwd),
+      env: shellLaunchConfigDto.env,
+      hideFromUser: shellLaunchConfigDto.hideFromUser
+    };
+    const terminal = new ExtHostTerminal(this._proxy, id, creationOptions, name);
+    this._terminals.push(terminal);
+    this._onDidOpenTerminal.fire(terminal.value);
+    terminal.isOpen = true;
+  }
+  async $acceptTerminalProcessId(id, processId) {
+    const terminal = this.getTerminalById(id);
+    terminal?._setProcessId(processId);
+  }
+  async $startExtensionTerminal(id, initialDimensions) {
+    const terminal = this.getTerminalById(id);
+    if (!terminal) {
+      return { message: localize("launchFail.idMissingOnExtHost", "Could not find the terminal with id {0} on the extension host", id) };
+    }
+    if (!terminal.isOpen) {
+      await new Promise((r) => {
+        const listener = this.onDidOpenTerminal(async (e) => {
+          if (e === terminal.value) {
+            listener.dispose();
+            r();
+          }
+        });
+      });
+    }
+    const terminalProcess = this._terminalProcesses.get(id);
+    if (terminalProcess) {
+      terminalProcess.startSendingEvents(initialDimensions);
+    } else {
+      this._extensionTerminalAwaitingStart[id] = { initialDimensions };
+    }
+    return void 0;
+  }
+  _setupExtHostProcessListeners(id, p) {
+    const disposables = new DisposableStore();
+    disposables.add(p.onProcessReady((e) => this._proxy.$sendProcessReady(id, e.pid, e.cwd, e.windowsPty)));
+    disposables.add(p.onDidChangeProperty((property) => this._proxy.$sendProcessProperty(id, property)));
+    this._bufferer.startBuffering(id, p.onProcessData);
+    disposables.add(p.onProcessExit((exitCode) => this._onProcessExit(id, exitCode)));
+    this._terminalProcesses.set(id, p);
+    const awaitingStart = this._extensionTerminalAwaitingStart[id];
+    if (awaitingStart && p instanceof ExtHostPseudoterminal) {
+      p.startSendingEvents(awaitingStart.initialDimensions);
+      delete this._extensionTerminalAwaitingStart[id];
+    }
+    return disposables;
+  }
+  $acceptProcessAckDataEvent(id, charCount) {
+    this._terminalProcesses.get(id)?.acknowledgeDataEvent(charCount);
+  }
+  $acceptProcessInput(id, data) {
+    this._terminalProcesses.get(id)?.input(data);
+  }
+  $acceptTerminalInteraction(id) {
+    const terminal = this.getTerminalById(id);
+    if (terminal?.setInteractedWith()) {
+      this._onDidChangeTerminalState.fire(terminal.value);
+    }
+  }
+  $acceptTerminalSelection(id, selection) {
+    this.getTerminalById(id)?.setSelection(selection);
+  }
+  $acceptProcessResize(id, cols, rows) {
+    try {
+      this._terminalProcesses.get(id)?.resize(cols, rows);
+    } catch (error) {
+      if (error.code !== "EPIPE" && error.code !== "ERR_IPC_CHANNEL_CLOSED") {
+        throw error;
+      }
+    }
+  }
+  $acceptProcessShutdown(id, immediate) {
+    this._terminalProcesses.get(id)?.shutdown(immediate);
+  }
+  $acceptProcessRequestInitialCwd(id) {
+    this._terminalProcesses.get(id)?.getInitialCwd().then((initialCwd) => this._proxy.$sendProcessProperty(id, { type: "initialCwd", value: initialCwd }));
+  }
+  $acceptProcessRequestCwd(id) {
+    this._terminalProcesses.get(id)?.getCwd().then((cwd) => this._proxy.$sendProcessProperty(id, { type: "cwd", value: cwd }));
+  }
+  $acceptProcessRequestLatency(id) {
+    return Promise.resolve(id);
+  }
+  registerProfileProvider(extension, id, provider) {
+    if (this._profileProviders.has(id)) {
+      throw new Error(`Terminal profile provider "${id}" already registered`);
+    }
+    this._profileProviders.set(id, provider);
+    this._proxy.$registerProfileProvider(id, extension.identifier.value);
+    return new VSCodeDisposable(() => {
+      this._profileProviders.delete(id);
+      this._proxy.$unregisterProfileProvider(id);
+    });
+  }
+  registerTerminalCompletionProvider(extension, provider, ...triggerCharacters) {
+    if (this._completionProviders.has(extension.identifier.value)) {
+      throw new Error(`Terminal completion provider "${extension.identifier.value}" already registered`);
+    }
+    this._completionProviders.set(extension.identifier.value, provider);
+    this._proxy.$registerCompletionProvider(extension.identifier.value, extension.identifier.value, ...triggerCharacters);
+    return new VSCodeDisposable(() => {
+      this._completionProviders.delete(extension.identifier.value);
+      this._proxy.$unregisterCompletionProvider(extension.identifier.value);
+    });
+  }
+  async $provideTerminalCompletions(id, options) {
+    const token = new CancellationTokenSource().token;
+    if (token.isCancellationRequested || !this.activeTerminal) {
+      return void 0;
+    }
+    const provider = this._completionProviders.get(id);
+    if (!provider) {
+      return;
+    }
+    const completions = await provider.provideTerminalCompletions(this.activeTerminal, options, token);
+    if (completions === null || completions === void 0) {
+      return void 0;
+    }
+    const pathSeparator = !isWindows || this.activeTerminal.state?.shell === "gitbash" ? "/" : "\\";
+    return TerminalCompletionList.from(completions, pathSeparator);
+  }
+  $acceptTerminalShellType(id, shellType) {
+    const terminal = this.getTerminalById(id);
+    if (terminal?.setShellType(shellType)) {
+      this._onDidChangeTerminalState.fire(terminal.value);
+    }
+  }
+  registerTerminalQuickFixProvider(id, extensionId, provider) {
+    if (this._quickFixProviders.has(id)) {
+      throw new Error(`Terminal quick fix provider "${id}" is already registered`);
+    }
+    this._quickFixProviders.set(id, provider);
+    this._proxy.$registerQuickFixProvider(id, extensionId);
+    return new VSCodeDisposable(() => {
+      this._quickFixProviders.delete(id);
+      this._proxy.$unregisterQuickFixProvider(id);
+    });
+  }
+  async $provideTerminalQuickFixes(id, matchResult) {
+    const token = new CancellationTokenSource().token;
+    if (token.isCancellationRequested) {
+      return;
+    }
+    const provider = this._quickFixProviders.get(id);
+    if (!provider) {
+      return;
+    }
+    const quickFixes = await provider.provideTerminalQuickFixes(matchResult, token);
+    if (quickFixes === null || Array.isArray(quickFixes) && quickFixes.length === 0) {
+      return void 0;
+    }
+    const store = new DisposableStore();
+    this._lastQuickFixCommands.value = store;
+    if (!Array.isArray(quickFixes)) {
+      return quickFixes ? TerminalQuickFix.from(quickFixes, this._extHostCommands.converter, store) : void 0;
+    }
+    const result = [];
+    for (const fix of quickFixes) {
+      const converted = TerminalQuickFix.from(fix, this._extHostCommands.converter, store);
+      if (converted) {
+        result.push(converted);
+      }
+    }
+    return result;
+  }
+  async $createContributedProfileTerminal(id, options) {
+    const token = new CancellationTokenSource().token;
+    let profile = await this._profileProviders.get(id)?.provideTerminalProfile(token);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    if (profile && !hasKey(profile, { options: true })) {
+      profile = { options: profile };
+    }
+    if (!profile || !hasKey(profile, { options: true })) {
+      throw new Error(`No terminal profile options provided for id "${id}"`);
+    }
+    if (hasKey(profile.options, { pty: true })) {
+      this.createExtensionTerminal(profile.options, options);
+      return;
+    }
+    this.createTerminalFromOptions(profile.options, options);
+  }
+  registerLinkProvider(provider) {
+    this._linkProviders.add(provider);
+    if (this._linkProviders.size === 1) {
+      this._proxy.$startLinkProvider();
+    }
+    return new VSCodeDisposable(() => {
+      this._linkProviders.delete(provider);
+      if (this._linkProviders.size === 0) {
+        this._proxy.$stopLinkProvider();
+      }
+    });
+  }
+  async $provideLinks(terminalId, line) {
+    const terminal = this.getTerminalById(terminalId);
+    if (!terminal) {
+      return [];
+    }
+    this._terminalLinkCache.delete(terminalId);
+    const oldToken = this._terminalLinkCancellationSource.get(terminalId);
+    oldToken?.dispose(true);
+    const cancellationSource = new CancellationTokenSource();
+    this._terminalLinkCancellationSource.set(terminalId, cancellationSource);
+    const result = [];
+    const context = { terminal: terminal.value, line };
+    const promises = [];
+    for (const provider of this._linkProviders) {
+      promises.push(Promises.withAsyncBody(async (r) => {
+        cancellationSource.token.onCancellationRequested(() => r({ provider, links: [] }));
+        const links = await provider.provideTerminalLinks(context, cancellationSource.token) || [];
+        if (!cancellationSource.token.isCancellationRequested) {
+          r({ provider, links });
+        }
+      }));
+    }
+    const provideResults = await Promise.all(promises);
+    if (cancellationSource.token.isCancellationRequested) {
+      return [];
+    }
+    const cacheLinkMap = /* @__PURE__ */ new Map();
+    for (const provideResult of provideResults) {
+      if (provideResult && provideResult.links.length > 0) {
+        result.push(...provideResult.links.map((providerLink) => {
+          const link = {
+            id: nextLinkId++,
+            startIndex: providerLink.startIndex,
+            length: providerLink.length,
+            label: providerLink.tooltip
+          };
+          cacheLinkMap.set(link.id, {
+            provider: provideResult.provider,
+            link: providerLink
+          });
+          return link;
+        }));
+      }
+    }
+    this._terminalLinkCache.set(terminalId, cacheLinkMap);
+    return result;
+  }
+  $activateLink(terminalId, linkId) {
+    const cachedLink = this._terminalLinkCache.get(terminalId)?.get(linkId);
+    if (!cachedLink) {
+      return;
+    }
+    cachedLink.provider.handleTerminalLink(cachedLink.link);
+  }
+  _onProcessExit(id, exitCode) {
+    this._bufferer.stopBuffering(id);
+    this._terminalProcesses.delete(id);
+    delete this._extensionTerminalAwaitingStart[id];
+    const processDiposable = this._terminalProcessDisposables[id];
+    if (processDiposable) {
+      processDiposable.dispose();
+      delete this._terminalProcessDisposables[id];
+    }
+    this._proxy.$sendProcessExit(id, exitCode);
+  }
+  getTerminalById(id) {
+    return this._getTerminalObjectById(this._terminals, id);
+  }
+  getTerminalIdByApiObject(terminal) {
+    const index = this._terminals.findIndex((item) => {
+      return item.value === terminal;
+    });
+    return index >= 0 ? index : null;
+  }
+  _getTerminalObjectById(array, id) {
+    const index = this._getTerminalObjectIndexById(array, id);
+    return index !== null ? array[index] : null;
+  }
+  _getTerminalObjectIndexById(array, id) {
+    const index = array.findIndex((item) => {
+      return item._id === id;
+    });
+    return index >= 0 ? index : null;
+  }
+  getEnvironmentVariableCollection(extension) {
+    let collection = this._environmentVariableCollections.get(extension.identifier.value);
+    if (!collection) {
+      collection = this._register(new UnifiedEnvironmentVariableCollection());
+      this._setEnvironmentVariableCollection(extension.identifier.value, collection);
+    }
+    return collection.getScopedEnvironmentVariableCollection(void 0);
+  }
+  _syncEnvironmentVariableCollection(extensionIdentifier, collection) {
+    const serialized = serializeEnvironmentVariableCollection(collection.map);
+    const serializedDescription = serializeEnvironmentDescriptionMap(collection.descriptionMap);
+    this._proxy.$setEnvironmentVariableCollection(extensionIdentifier, collection.persistent, serialized.length === 0 ? void 0 : serialized, serializedDescription);
+  }
+  $initEnvironmentVariableCollections(collections) {
+    collections.forEach((entry) => {
+      const extensionIdentifier = entry[0];
+      const collection = this._register(new UnifiedEnvironmentVariableCollection(entry[1]));
+      this._setEnvironmentVariableCollection(extensionIdentifier, collection);
+    });
+  }
+  $acceptDefaultProfile(profile, automationProfile) {
+    const oldProfile = this._defaultProfile;
+    this._defaultProfile = profile;
+    this._defaultAutomationProfile = automationProfile;
+    if (oldProfile?.path !== profile.path) {
+      this._onDidChangeShell.fire(profile.path);
+    }
+  }
+  _setEnvironmentVariableCollection(extensionIdentifier, collection) {
+    this._environmentVariableCollections.set(extensionIdentifier, collection);
+    this._register(collection.onDidChangeCollection(() => {
+      this._syncEnvironmentVariableCollection(extensionIdentifier, collection);
+    }));
+  }
+};
+BaseExtHostTerminalService = __decorate([
+  __param(1, IExtHostCommands),
+  __param(2, IExtHostRpcService)
+], BaseExtHostTerminalService);
+class UnifiedEnvironmentVariableCollection extends Disposable {
+  static {
+    __name(this, "UnifiedEnvironmentVariableCollection");
+  }
+  get persistent() {
+    return this._persistent;
+  }
+  set persistent(value) {
+    this._persistent = value;
+    this._onDidChangeCollection.fire();
+  }
+  get onDidChangeCollection() {
+    return this._onDidChangeCollection && this._onDidChangeCollection.event;
+  }
+  constructor(serialized) {
+    super();
+    this.map = /* @__PURE__ */ new Map();
+    this.scopedCollections = /* @__PURE__ */ new Map();
+    this.descriptionMap = /* @__PURE__ */ new Map();
+    this._persistent = true;
+    this._onDidChangeCollection = new Emitter();
+    this.map = new Map(serialized);
+  }
+  getScopedEnvironmentVariableCollection(scope) {
+    const scopedCollectionKey = this.getScopeKey(scope);
+    let scopedCollection = this.scopedCollections.get(scopedCollectionKey);
+    if (!scopedCollection) {
+      scopedCollection = new ScopedEnvironmentVariableCollection(this, scope);
+      this.scopedCollections.set(scopedCollectionKey, scopedCollection);
+      this._register(scopedCollection.onDidChangeCollection(() => this._onDidChangeCollection.fire()));
+    }
+    return scopedCollection;
+  }
+  replace(variable, value, options, scope) {
+    this._setIfDiffers(variable, { value, type: EnvironmentVariableMutatorType.Replace, options: options ?? { applyAtProcessCreation: true }, scope });
+  }
+  append(variable, value, options, scope) {
+    this._setIfDiffers(variable, { value, type: EnvironmentVariableMutatorType.Append, options: options ?? { applyAtProcessCreation: true }, scope });
+  }
+  prepend(variable, value, options, scope) {
+    this._setIfDiffers(variable, { value, type: EnvironmentVariableMutatorType.Prepend, options: options ?? { applyAtProcessCreation: true }, scope });
+  }
+  _setIfDiffers(variable, mutator) {
+    if (mutator.options && mutator.options.applyAtProcessCreation === false && !mutator.options.applyAtShellIntegration) {
+      throw new Error("EnvironmentVariableMutatorOptions must apply at either process creation or shell integration");
+    }
+    const key = this.getKey(variable, mutator.scope);
+    const current = this.map.get(key);
+    const newOptions = mutator.options ? {
+      applyAtProcessCreation: mutator.options.applyAtProcessCreation ?? false,
+      applyAtShellIntegration: mutator.options.applyAtShellIntegration ?? false
+    } : {
+      applyAtProcessCreation: true
+    };
+    if (!current || current.value !== mutator.value || current.type !== mutator.type || current.options?.applyAtProcessCreation !== newOptions.applyAtProcessCreation || current.options?.applyAtShellIntegration !== newOptions.applyAtShellIntegration || current.scope?.workspaceFolder?.index !== mutator.scope?.workspaceFolder?.index) {
+      const key2 = this.getKey(variable, mutator.scope);
+      const value = {
+        variable,
+        ...mutator,
+        options: newOptions
+      };
+      this.map.set(key2, value);
+      this._onDidChangeCollection.fire();
+    }
+  }
+  get(variable, scope) {
+    const key = this.getKey(variable, scope);
+    const value = this.map.get(key);
+    return value ? convertMutator(value) : void 0;
+  }
+  getKey(variable, scope) {
+    const scopeKey = this.getScopeKey(scope);
+    return scopeKey.length ? `${variable}:::${scopeKey}` : variable;
+  }
+  getScopeKey(scope) {
+    return this.getWorkspaceKey(scope?.workspaceFolder) ?? "";
+  }
+  getWorkspaceKey(workspaceFolder) {
+    return workspaceFolder ? workspaceFolder.uri.toString() : void 0;
+  }
+  getVariableMap(scope) {
+    const map = /* @__PURE__ */ new Map();
+    for (const [_, value] of this.map) {
+      if (this.getScopeKey(value.scope) === this.getScopeKey(scope)) {
+        map.set(value.variable, convertMutator(value));
+      }
+    }
+    return map;
+  }
+  delete(variable, scope) {
+    const key = this.getKey(variable, scope);
+    this.map.delete(key);
+    this._onDidChangeCollection.fire();
+  }
+  clear(scope) {
+    if (scope?.workspaceFolder) {
+      for (const [key, mutator] of this.map) {
+        if (mutator.scope?.workspaceFolder?.index === scope.workspaceFolder.index) {
+          this.map.delete(key);
+        }
+      }
+      this.clearDescription(scope);
+    } else {
+      this.map.clear();
+      this.descriptionMap.clear();
+    }
+    this._onDidChangeCollection.fire();
+  }
+  setDescription(description, scope) {
+    const key = this.getScopeKey(scope);
+    const current = this.descriptionMap.get(key);
+    if (!current || current.description !== description) {
+      let descriptionStr;
+      if (typeof description === "string") {
+        descriptionStr = description;
+      } else {
+        descriptionStr = description?.value.split("\n\n")[0];
+      }
+      const value = { description: descriptionStr, scope };
+      this.descriptionMap.set(key, value);
+      this._onDidChangeCollection.fire();
+    }
+  }
+  getDescription(scope) {
+    const key = this.getScopeKey(scope);
+    return this.descriptionMap.get(key)?.description;
+  }
+  clearDescription(scope) {
+    const key = this.getScopeKey(scope);
+    this.descriptionMap.delete(key);
+  }
+}
+class ScopedEnvironmentVariableCollection {
+  static {
+    __name(this, "ScopedEnvironmentVariableCollection");
+  }
+  get persistent() {
+    return this.collection.persistent;
+  }
+  set persistent(value) {
+    this.collection.persistent = value;
+  }
+  get onDidChangeCollection() {
+    return this._onDidChangeCollection && this._onDidChangeCollection.event;
+  }
+  constructor(collection, scope) {
+    this.collection = collection;
+    this.scope = scope;
+    this._onDidChangeCollection = new Emitter();
+  }
+  getScoped(scope) {
+    return this.collection.getScopedEnvironmentVariableCollection(scope);
+  }
+  replace(variable, value, options) {
+    this.collection.replace(variable, value, options, this.scope);
+  }
+  append(variable, value, options) {
+    this.collection.append(variable, value, options, this.scope);
+  }
+  prepend(variable, value, options) {
+    this.collection.prepend(variable, value, options, this.scope);
+  }
+  get(variable) {
+    return this.collection.get(variable, this.scope);
+  }
+  forEach(callback, thisArg) {
+    this.collection.getVariableMap(this.scope).forEach((value, variable) => callback.call(thisArg, variable, value, this), this.scope);
+  }
+  [Symbol.iterator]() {
+    return this.collection.getVariableMap(this.scope).entries();
+  }
+  delete(variable) {
+    this.collection.delete(variable, this.scope);
+    this._onDidChangeCollection.fire(void 0);
+  }
+  clear() {
+    this.collection.clear(this.scope);
+  }
+  set description(description) {
+    this.collection.setDescription(description, this.scope);
+  }
+  get description() {
+    return this.collection.getDescription(this.scope);
+  }
+}
+let WorkerExtHostTerminalService = class WorkerExtHostTerminalService2 extends BaseExtHostTerminalService {
+  static {
+    __name(this, "WorkerExtHostTerminalService");
+  }
+  constructor(extHostCommands, extHostRpc) {
+    super(false, extHostCommands, extHostRpc);
+  }
+  createTerminal(name, shellPath, shellArgs) {
+    throw new NotSupportedError();
+  }
+  createTerminalFromOptions(options, internalOptions) {
+    throw new NotSupportedError();
+  }
+};
+WorkerExtHostTerminalService = __decorate([
+  __param(0, IExtHostCommands),
+  __param(1, IExtHostRpcService)
+], WorkerExtHostTerminalService);
+function asTerminalIcon(iconPath) {
+  if (!iconPath || typeof iconPath === "string") {
+    return void 0;
+  }
+  if (!hasKey(iconPath, { id: true })) {
+    return iconPath;
+  }
+  return {
+    id: iconPath.id,
+    color: iconPath.color
+  };
+}
+__name(asTerminalIcon, "asTerminalIcon");
+function asTerminalColor(color) {
+  return ThemeColor.isThemeColor(color) ? color : void 0;
+}
+__name(asTerminalColor, "asTerminalColor");
+function convertMutator(mutator) {
+  const newMutator = { ...mutator };
+  delete newMutator.scope;
+  newMutator.options = newMutator.options ?? void 0;
+  return newMutator;
+}
+__name(convertMutator, "convertMutator");
+export {
+  BaseExtHostTerminalService,
+  ExtHostTerminal,
+  IExtHostTerminalService,
+  WorkerExtHostTerminalService
+};
+//# sourceMappingURL=extHostTerminalService.js.map

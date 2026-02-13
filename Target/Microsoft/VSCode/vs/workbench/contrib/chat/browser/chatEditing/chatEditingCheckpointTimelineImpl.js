@@ -1,1 +1,782 @@
-import{$Wb as z}from"../../../../../base/common/arrays.js";import{$Hb as S,$Fb as y,$Gb as N}from"../../../../../base/common/arraysFind.js";import{$Zc as j}from"../../../../../base/common/assert.js";import{$7h as Q}from"../../../../../base/common/async.js";import{Event as W}from"../../../../../base/common/event.js";import{$Ed as O,$Dd as M}from"../../../../../base/common/lifecycle.js";import{$Wc as T,$Oc as R,$Pc as J}from"../../../../../base/common/map.js";import{$Gp as X}from"../../../../../base/common/objects.js";import{constObservable as _,derived as q,derivedOpts as $,ObservablePromise as U,observableSignalFromEvent as Z,observableValue as A,observableValueOpts as Y,transaction as P}from"../../../../../base/common/observable.js";import{$Bh as F}from"../../../../../base/common/resources.js";import{$dd as ee}from"../../../../../base/common/types.js";import{URI as te}from"../../../../../base/common/uri.js";import{$ln as ne}from"../../../../../base/common/uuid.js";import{$7K as oe}from"../../../../../editor/common/model/textModel.js";import{$ofb as ie}from"../../../../../editor/common/services/editorWorker.js";import{$9H as se}from"../../../../../editor/common/services/model.js";import{$5H as re}from"../../../../../editor/common/services/resolverService.js";import{$0l as ce}from"../../../../../platform/configuration/common/configuration.js";import{$Mj as he}from"../../../../../platform/instantiation/common/instantiation.js";import{CellUri as L}from"../../../notebook/common/notebookCommon.js";import{$EDb as ae}from"../../../notebook/common/notebookEditorModelResolverService.js";import{$CDb as de}from"../../../notebook/common/notebookService.js";import{$TV as D}from"../../common/editing/chatEditingService.js";import{FileOperationType as g}from"./chatEditingOperations.js";import{$ypc as ue}from"./chatEditingTextModelContentProviders.js";import{$Cpc as fe,$Dpc as V}from"./notebook/chatEditingModifiedNotebookSnapshot.js";var K=function(C,e,t,o){var n=arguments.length,r=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(C,e,t,o);else for(var s=C.length-1;s>=0;s--)(i=C[s])&&(r=(n<3?i(r):n>3?i(e,t,r):i(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},w=function(C,e){return function(t,o){e(t,o,C)}};const B="$$start",v="__epoch_";let H=class{constructor(e,t,o,n,r,i,s,c,u){this.p=e,this.q=t,this.s=o,this.t=n,this.u=r,this.v=i,this.w=s,this.x=c,this.y=u,this.f=0,this.g=A(this,[]),this.h=A(this,0),this.j=Y({equalsFn:()=>!1},[]),this.k=new Map,this.l=new Map,this.n=q(h=>{const a=this.h.read(h),l=this.g.read(h);if(l.length<2||a<=l[1].epoch)return;const d=this.j.read(h),p=N(l,f=>f.epoch<a),m=p===-1?void 0:y(l,f=>f.undoStopId===void 0,p),E=y(d,f=>f.epoch<a),b=E&&y(l,f=>f.epoch<E.epoch);return m?!b||!d.some(f=>f.epoch>m.epoch&&f.epoch<b.epoch)?m:b.epoch>m.epoch?b:m:b}),this.canUndo=this.n.map(h=>!!h),this.o=q(h=>{const a=this.h.read(h),l=this.j.read(h),d=this.g.read(h),p=Math.max(l.at(-1)?.epoch||0,d.at(-1)?.epoch||0);if(a>p)return;const m=l.find(f=>f.epoch>=a),E=m&&d.find(f=>f.epoch>m.epoch),b=y(d,f=>f.epoch<a);if(b&&m&&b.requestId!==m.requestId){const f=N(d,(I,x)=>I.undoStopId===void 0&&d[x-1]?.requestId===b.requestId),k=f===-1?void 0:d[f];if(k&&m.requestId!==k.requestId){const I=S(d,x=>x.undoStopId===void 0,f+1);if(I)return I.epoch}}return Math.min(E?.epoch||1/0,p+1)}),this.canRedo=this.o.map(h=>!!h),this.requestDisablement=$({equalsFn:(h,a)=>z(h,a,X)},h=>{const a=this.h.read(h),l=this.j.read(h),d=this.g.read(h),p=Math.max(l.at(-1)?.epoch||0,d.at(-1)?.epoch||0);if(a>p)return[];const m=y(l,k=>k.epoch<a)?.epoch||0,E=y(d,k=>k.epoch<a&&k.undoStopId===void 0)?.epoch||0,b=Math.max(m,E),f=new Map;for(let k=d.length-1;k>=0;k--){const{undoStopId:I,requestId:x,epoch:G}=d[k];if(G<=b)break;x&&f.set(x,I)}return[...f].map(([k,I])=>({requestId:k,afterUndoStop:I}))}),this.createCheckpoint(void 0,void 0,"Initial State","Starting point before any edits")}createCheckpoint(e,t,o,n){const i=this.g.get().find(a=>a.undoStopId===t&&a.requestId===e);if(i)return i.checkpointId;const{checkpoints:s,operations:c}=this.B(),u=ne(),h=this.incrementEpoch();return s.push({checkpointId:u,requestId:e,undoStopId:t,epoch:h,label:o,description:n}),P(a=>{this.g.set(s,a),this.j.set(c,a),this.h.set(h+1,a)}),u}async undoToLastCheckpoint(){const e=this.n.get();e&&await this.navigateToCheckpoint(e.checkpointId)}async redoToNextCheckpoint(){const e=this.o.get();e&&await this.z(e)}navigateToCheckpoint(e){const t=this.A(e);if(!t)throw new Error(`Checkpoint ${e} not found`);return t.undoStopId===void 0?this.z(t.epoch+1,t.epoch):this.z(t.epoch+1)}getContentURIAtStop(e,t,o){return ue.getSnapshotFileURI(this.p,e,o,t.path)}async z(e,t=e){const o=this.h.get();if(o!==e){const n=await this.M(o,e);await this.G(e,n)}this.h.set(t,void 0)}A(e){return this.g.get().find(t=>t.checkpointId===e)}incrementEpoch(){return this.f++}recordFileOperation(e){const{currentEpoch:t,checkpoints:o,operations:n}=this.B();if(e.epoch<t)throw new Error(`Cannot record operation at epoch ${e.epoch} when current epoch is ${t}`);n.push(e),P(r=>{this.g.set(o,r),this.j.set(n,r),this.h.set(e.epoch+1,r)})}B(){const e=this.h.get(),t=this.g.get(),o=this.j.get();return{currentEpoch:e,checkpoints:t.filter(n=>n.epoch<e),operations:o.filter(n=>n.epoch<e)}}recordFileBaseline(e){const t=this.H(e.uri,e.requestId);this.k.set(t,e)}C(e,t){const o=this.H(e,t);return this.k.get(o)}hasFileBaseline(e,t){const o=this.H(e,t);return this.k.has(o)||this.j.get().some(n=>n.type===g.Create&&n.requestId===t&&F(e,n.uri))}async getContentAtStop(e,t,o){let n;o?.startsWith(v)?n=Number(o.slice(v.length)):n=this.g.get().find(u=>u.requestId===e&&u.undoStopId===o)?.epoch;const r=this.D(t);if(!n||!r)return"";const i=await this.I(r,n,e);if(!i)return"";const s=this.J(r,i.epoch,n),c=await this.K(i,s);return c.exists?c.content:void 0}D(e){for(const t of[this.k.values(),this.j.get()])for(const o of t)if(o.uri.path===e.path)return o.uri}onDidChangeContentsAtStop(e,t,o,n){if(!o||!o.startsWith(v))return O.None;const r=Number(o.slice(v.length));if(r<=this.f)return O.None;const i=new M,s=i.add(new Q(500));return i.add(W.fromObservableLight(this.j)(()=>{s.trigger(async()=>{this.j.get().at(-1)?.epoch>=r&&i.dispose();const c=await this.getContentAtStop(e,t,o);c!==void 0&&n(c)})})),i}E(e,t){return y(this.g.read(t),o=>o.epoch<=e)}async F(e,t){const o=this.E(t);if(!o)throw new Error(`Checkpoint for epoch ${t} not found`);const n=await this.I(e,t,o.requestId||"");if(!n)return{exists:!1,uri:e};const r=this.J(e,n.epoch,t);return this.K(n,r)}getStateForPersistence(){return{checkpoints:this.g.get(),currentEpoch:this.h.get(),fileBaselines:[...this.k],operations:this.j.get(),epochCounter:this.f}}restoreFromState(e,t){this.g.set(e.checkpoints,t),this.h.set(e.currentEpoch,t),this.j.set(e.operations.slice(),t),this.f=e.epochCounter,this.k.clear();for(const[o,n]of e.fileBaselines)this.k.set(o,n)}getCheckpointIdForRequest(e,t){return this.g.get().find(n=>n.requestId===e&&n.undoStopId===t)?.checkpointId}async G(e,t){await Promise.all(Array.from(t).map(async o=>{const n=await this.F(o,e);n.exists&&await this.q.setContents(n.uri,n.content,n.telemetryInfo)}))}H(e,t){return`${e.toString()}::${t}`}async I(e,t,o){let n=o;const r=this.j.get();for(let i=r.length-1;i>=0;i--){const s=r[i];if(!(s.epoch>t)){if(s.type===g.Create&&F(s.uri,e))return{uri:s.uri,requestId:s.requestId,content:s.initialContent,epoch:s.epoch,telemetryInfo:s.telemetryInfo};if(s.type===g.Rename&&F(s.newUri,e)){const c=await this.I(s.oldUri,s.epoch,s.requestId);if(!c)return;const u=this.J(s.oldUri,c.epoch,s.epoch),h=await this.K(c,u);return{uri:e,epoch:s.epoch,content:h.exists?h.content:"",requestId:s.requestId,telemetryInfo:c.telemetryInfo,notebookViewType:h.exists?h.notebookViewType:void 0}}if(n&&s.requestId!==n){const c=this.C(e,n);if(c)return c}n=s.requestId}}return this.C(e,n)}J(e,t,o){return this.j.get().filter(n=>{const r=L.parse(n.uri);return n.epoch>=t&&n.epoch<o&&(F(n.uri,e)||r&&F(r.notebook,e))}).sort((n,r)=>n.epoch-r.epoch)}async K(e,t){let o={exists:!0,content:e.content,uri:e.uri,telemetryInfo:e.telemetryInfo};e.notebookViewType&&(o.notebook=await this.s.createUntitledNotebookTextModel(e.notebookViewType),e.content&&V(o.notebook,e.content));for(const n of t)o=await this.L(o,n,e.telemetryInfo);if(o.exists&&o.notebook){const n=await this.t.withNotebookDataProvider(o.notebook.viewType);o.content=fe(o.notebook,n.serializer.options,this.y),o.notebook.dispose()}return o}async L(e,t,o){switch(t.type){case g.Create:{e.exists&&e.notebook&&e.notebook.dispose();let n;return t.notebookViewType&&(n=await this.s.createUntitledNotebookTextModel(t.notebookViewType),t.initialContent&&V(n,t.initialContent)),{exists:!0,content:t.initialContent,uri:t.uri,telemetryInfo:o,notebookViewType:t.notebookViewType,notebook:n}}case g.Delete:return e.exists&&e.notebook&&e.notebook.dispose(),{exists:!1,uri:t.uri};case g.Rename:return{...e,uri:t.newUri};case g.TextEdit:{if(!e.exists)throw new Error("Cannot apply text edits to non-existent file");const n=t.cellIndex!==void 0&&e.notebook?.cells.at(t.cellIndex);if(n){const r=this.O(n.getValue(),t.edits);return e.notebook.applyEdits([{editType:1,index:t.cellIndex,count:1,cells:[{cellKind:n.cellKind,language:n.language,mime:n.language,source:r,outputs:n.outputs}]}],!0,void 0,()=>{},void 0),e}return{...e,content:this.O(e.content,t.edits)}}case g.NotebookEdit:if(!e.exists)throw new Error("Cannot apply notebook edits to non-existent file");if(!e.notebook)throw new Error("Cannot apply notebook edits to non-notebook file");return e.notebook.applyEdits(t.cellEdits.slice(),!0,void 0,()=>{},void 0),e;default:j(t)}}async M(e,t){const o=t>e,n=this.j.get().filter(i=>o?i.epoch>=e&&i.epoch<t:i.epoch<e&&i.epoch>=t).sort((i,s)=>o?i.epoch-s.epoch:s.epoch-i.epoch),r=new J;for(const i of n)await this.N(i,o,r);return r}async N(e,t,o){switch(e.type){case g.Create:t?(await this.q.createFile(e.uri,e.initialContent),o.add(e.uri)):(await this.q.deleteFile(e.uri),o.delete(e.uri));break;case g.Delete:t?(await this.q.deleteFile(e.uri),o.delete(e.uri)):(await this.q.createFile(e.uri,e.finalContent),o.add(e.uri));break;case g.Rename:t?(await this.q.renameFile(e.oldUri,e.newUri),o.delete(e.oldUri),o.add(e.newUri)):(await this.q.renameFile(e.newUri,e.oldUri),o.delete(e.newUri),o.add(e.oldUri));break;case g.TextEdit:case g.NotebookEdit:o.add(L.parse(e.uri)?.notebook??e.uri);break;default:j(e)}}O(e,t){const o=(i,s)=>this.u.createInstance(oe,s,"",this.v.getCreationOptions("",i,!0),i),n=te.from({scheme:"temp",path:`/temp-${Date.now()}.txt`}),r=o(n,e);try{return r.applyEdits(t.map(i=>({range:{startLineNumber:i.range.startLineNumber,startColumn:i.range.startColumn,endLineNumber:i.range.endLineNumber,endColumn:i.range.endColumn},text:i.text}))),r.getValue()}finally{r.dispose()}}getEntryDiffBetweenStops(e,t,o){const n=$({equalsFn:(r,i)=>r.start===i.start&&r.end===i.end},r=>{const i=this.g.read(r),s=i.findIndex(c=>c.requestId===t&&c.undoStopId===o);return{start:i[s],end:i[s+1]}});return this.Q(e,`s\0${t}\0${o}`,n)}P(e,t){return $({equalsFn:(o,n)=>o.start===n.start&&o.end===n.end},o=>{const n=this.g.read(o),r=n.findIndex(c=>c.requestId===e),i=r===-1?n[0]:n[r];let s;return t===void 0?s=S(n,c=>c.requestId!==e,r+1):s=n.find(c=>c.requestId===t)||S(n,c=>c.requestId!==e,r+1)||n[n.length-1],{start:i,end:s}})}getEntryDiffBetweenRequests(e,t,o){return this.Q(e,`r\0${t}\0${o}`,this.P(t,o))}Q(e,t,o){const n=`${e.toString()}\0${t}`;let r=this.l.get(n);return r||(r=this.R(e,o,()=>this.l.delete(n)),this.l.set(n,r)),r}R(e,t,o){const n=q(this,i=>{const{start:s,end:c}=t.read(i);if(!s)return;const u=i.store.add(new M),h=this.getContentURIAtStop(s.requestId||B,e,v+s.epoch),a=this.getContentURIAtStop(c?.requestId||s.requestId||B,e,v+(c?.epoch||Number.MAX_SAFE_INTEGER)),l=Promise.all([this.w.createModelReference(h),this.w.createModelReference(a)]).then(d=>(u.isDisposed?d.forEach(p=>p.dispose()):d.forEach(p=>u.add(p)),{refs:d.map(p=>({model:p.object.textEditorModel,onChange:Z(this,p.object.textEditorModel.onDidChangeContent.bind(p.object.textEditorModel))})),isFinal:!!c})).catch(d=>({refs:[],isFinal:!0,error:d}));return{originalURI:h,modifiedURI:a,promise:new U(l)}}),r=q(i=>{const s=n.read(i);if(!s)return;const{originalURI:c,modifiedURI:u,promise:h}=s,a=h?.promiseResult.read(i);if(!a?.data)return{originalURI:c,modifiedURI:u,promise:void 0};const{refs:l,isFinal:d,error:p}=a.data;return p?{originalURI:c,modifiedURI:u,promise:new U(Promise.resolve(D(c,u)))}:(l.forEach(m=>m.onChange.read(i)),{originalURI:c,modifiedURI:u,promise:new U(this.S(c,u,!!d))})});return $({onLastObserverRemoved:o},i=>{const s=r.read(i);if(!s)return;const c=s.promise?.promiseResult.read(i);return c?.data?c.data:c?.error?D(s.originalURI,s.modifiedURI):{...D(s.originalURI,s.modifiedURI),isBusy:!0}})}S(e,t,o){return this.x.computeDiff(e,t,{ignoreTrimWhitespace:!1,computeMoves:!1,maxComputationTimeMs:3e3},"advanced").then(n=>{const r={originalURI:e,modifiedURI:t,identical:!!n?.identical,isFinal:o,quitEarly:!n||n.quitEarly,added:0,removed:0,isBusy:!1};if(n)for(const i of n.changes)r.removed+=i.original.endLineNumberExclusive-i.original.startLineNumber,r.added+=i.modified.endLineNumberExclusive-i.modified.startLineNumber;return r})}hasEditsInRequest(e,t){for(const o of this.k.values())if(o.requestId===e)return!0;for(const o of this.j.read(t))if(o.requestId===e)return!0;return!1}getDiffsForFilesInRequest(e){const t=this.P(e),o=$({equalsFn:T},n=>{const r=new R;for(const s of this.k.values())s.requestId===e&&r.set(s.uri,s.epoch);const i=t.read(n);for(const s of this.j.read(n))if(!(s.epoch<i.start.epoch)){if(i.end&&s.epoch>=i.end.epoch)break;s.type===g.Create&&r.set(s.uri,0)}return r});return this.T(o,t.map(n=>n.end))}T(e,t){const o=new R;let n;return q(this,i=>{const s=this.g.read(i),c=s[0];if(!c)return[];const u=t.read(i);u!==n&&(o.clear(),n=u);const h=e.read(i),a=[];for(const[l,d]of h){const p=o.get(l)??this.Q(l,`e\0${d}\0${u?.epoch}`,_({start:s.findLast(m=>m.epoch<=d)||c,end:u}));o.set(l,p),a.push(p)}return a}).map((i,s)=>i.flatMap(c=>c.read(s)).filter(ee))}getDiffsForFilesInSession(){const e=$({equalsFn:T},t=>{const o=new R;for(const n of this.k.values())o.set(n.uri,Math.min(n.epoch,o.get(n.uri)??Number.MAX_SAFE_INTEGER));for(const n of this.j.read(t))n.type===g.Create&&o.set(n.uri,0);return o});return this.T(e,_(void 0))}getDiffForSession(){const e=this.getDiffsForFilesInSession();return q(t=>{const o=e.read(t);let n=0,r=0;for(const i of o)n+=i.added,r+=i.removed;return{added:n,removed:r}})}};H=K([w(2,ae),w(3,de),w(4,he),w(5,se),w(6,re),w(7,ie),w(8,ce)],H);export{H as $Gpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { equals as arraysEqual } from "../../../../../base/common/arrays.js";
+import { findFirst, findLast, findLastIdx } from "../../../../../base/common/arraysFind.js";
+import { assertNever } from "../../../../../base/common/assert.js";
+import { ThrottledDelayer } from "../../../../../base/common/async.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { mapsStrictEqualIgnoreOrder, ResourceMap, ResourceSet } from "../../../../../base/common/map.js";
+import { equals as objectsEqual } from "../../../../../base/common/objects.js";
+import { constObservable, derived, derivedOpts, ObservablePromise, observableSignalFromEvent, observableValue, observableValueOpts, transaction } from "../../../../../base/common/observable.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import { TextModel } from "../../../../../editor/common/model/textModel.js";
+import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { CellUri } from "../../../notebook/common/notebookCommon.js";
+import { INotebookEditorModelResolverService } from "../../../notebook/common/notebookEditorModelResolverService.js";
+import { INotebookService } from "../../../notebook/common/notebookService.js";
+import { emptySessionEntryDiff } from "../../common/editing/chatEditingService.js";
+import { FileOperationType } from "./chatEditingOperations.js";
+import { ChatEditingSnapshotTextModelContentProvider } from "./chatEditingTextModelContentProviders.js";
+import { createSnapshot as createNotebookSnapshot, restoreSnapshot as restoreNotebookSnapshot } from "./notebook/chatEditingModifiedNotebookSnapshot.js";
+const START_REQUEST_EPOCH = "$$start";
+const STOP_ID_EPOCH_PREFIX = "__epoch_";
+let ChatEditingCheckpointTimelineImpl = class ChatEditingCheckpointTimelineImpl2 {
+  static {
+    __name(this, "ChatEditingCheckpointTimelineImpl");
+  }
+  constructor(chatSessionResource, _delegate, _notebookEditorModelResolverService, _notebookService, _instantiationService, _modelService, _textModelService, _editorWorkerService, _configurationService) {
+    this.chatSessionResource = chatSessionResource;
+    this._delegate = _delegate;
+    this._notebookEditorModelResolverService = _notebookEditorModelResolverService;
+    this._notebookService = _notebookService;
+    this._instantiationService = _instantiationService;
+    this._modelService = _modelService;
+    this._textModelService = _textModelService;
+    this._editorWorkerService = _editorWorkerService;
+    this._configurationService = _configurationService;
+    this._epochCounter = 0;
+    this._checkpoints = observableValue(this, []);
+    this._currentEpoch = observableValue(this, 0);
+    this._operations = observableValueOpts({ equalsFn: /* @__PURE__ */ __name(() => false, "equalsFn") }, []);
+    this._fileBaselines = /* @__PURE__ */ new Map();
+    this._refCountedDiffs = /* @__PURE__ */ new Map();
+    this._willUndoToCheckpoint = derived((reader) => {
+      const currentEpoch = this._currentEpoch.read(reader);
+      const checkpoints = this._checkpoints.read(reader);
+      if (checkpoints.length < 2 || currentEpoch <= checkpoints[1].epoch) {
+        return void 0;
+      }
+      const operations = this._operations.read(reader);
+      const currentCheckpointIdx = findLastIdx(checkpoints, (cp) => cp.epoch < currentEpoch);
+      const startOfRequest = currentCheckpointIdx === -1 ? void 0 : findLast(checkpoints, (cp) => cp.undoStopId === void 0, currentCheckpointIdx);
+      const previousOperation = findLast(operations, (op) => op.epoch < currentEpoch);
+      const previousCheckpoint = previousOperation && findLast(checkpoints, (cp) => cp.epoch < previousOperation.epoch);
+      if (!startOfRequest) {
+        return previousCheckpoint;
+      }
+      if (!previousCheckpoint) {
+        return startOfRequest;
+      }
+      if (!operations.some((op) => op.epoch > startOfRequest.epoch && op.epoch < previousCheckpoint.epoch)) {
+        return startOfRequest;
+      }
+      return previousCheckpoint.epoch > startOfRequest.epoch ? previousCheckpoint : startOfRequest;
+    });
+    this.canUndo = this._willUndoToCheckpoint.map((cp) => !!cp);
+    this._willRedoToEpoch = derived((reader) => {
+      const currentEpoch = this._currentEpoch.read(reader);
+      const operations = this._operations.read(reader);
+      const checkpoints = this._checkpoints.read(reader);
+      const maxEncounteredEpoch = Math.max(operations.at(-1)?.epoch || 0, checkpoints.at(-1)?.epoch || 0);
+      if (currentEpoch > maxEncounteredEpoch) {
+        return void 0;
+      }
+      const nextOperation = operations.find((op) => op.epoch >= currentEpoch);
+      const nextCheckpoint = nextOperation && checkpoints.find((op) => op.epoch > nextOperation.epoch);
+      const currentCheckpoint = findLast(checkpoints, (cp) => cp.epoch < currentEpoch);
+      if (currentCheckpoint && nextOperation && currentCheckpoint.requestId !== nextOperation.requestId) {
+        const startOfNextRequestIdx = findLastIdx(checkpoints, (cp, i) => cp.undoStopId === void 0 && checkpoints[i - 1]?.requestId === currentCheckpoint.requestId);
+        const startOfNextRequest = startOfNextRequestIdx === -1 ? void 0 : checkpoints[startOfNextRequestIdx];
+        if (startOfNextRequest && nextOperation.requestId !== startOfNextRequest.requestId) {
+          const requestAfterTheNext = findFirst(checkpoints, (op) => op.undoStopId === void 0, startOfNextRequestIdx + 1);
+          if (requestAfterTheNext) {
+            return requestAfterTheNext.epoch;
+          }
+        }
+      }
+      return Math.min(nextCheckpoint?.epoch || Infinity, maxEncounteredEpoch + 1);
+    });
+    this.canRedo = this._willRedoToEpoch.map((e) => !!e);
+    this.requestDisablement = derivedOpts({ equalsFn: /* @__PURE__ */ __name((a, b) => arraysEqual(a, b, objectsEqual), "equalsFn") }, (reader) => {
+      const currentEpoch = this._currentEpoch.read(reader);
+      const operations = this._operations.read(reader);
+      const checkpoints = this._checkpoints.read(reader);
+      const maxEncounteredEpoch = Math.max(operations.at(-1)?.epoch || 0, checkpoints.at(-1)?.epoch || 0);
+      if (currentEpoch > maxEncounteredEpoch) {
+        return [];
+      }
+      const lastAppliedOperation = findLast(operations, (op) => op.epoch < currentEpoch)?.epoch || 0;
+      const lastAppliedRequest = findLast(checkpoints, (cp) => cp.epoch < currentEpoch && cp.undoStopId === void 0)?.epoch || 0;
+      const stopDisablingAtEpoch = Math.max(lastAppliedOperation, lastAppliedRequest);
+      const disablement = /* @__PURE__ */ new Map();
+      for (let i = checkpoints.length - 1; i >= 0; i--) {
+        const { undoStopId, requestId, epoch } = checkpoints[i];
+        if (epoch <= stopDisablingAtEpoch) {
+          break;
+        }
+        if (requestId) {
+          disablement.set(requestId, undoStopId);
+        }
+      }
+      return [...disablement].map(([requestId, afterUndoStop]) => ({ requestId, afterUndoStop }));
+    });
+    this.createCheckpoint(void 0, void 0, "Initial State", "Starting point before any edits");
+  }
+  createCheckpoint(requestId, undoStopId, label, description) {
+    const existingCheckpoints = this._checkpoints.get();
+    const existing = existingCheckpoints.find((c) => c.undoStopId === undoStopId && c.requestId === requestId);
+    if (existing) {
+      return existing.checkpointId;
+    }
+    const { checkpoints, operations } = this._getVisibleOperationsAndCheckpoints();
+    const checkpointId = generateUuid();
+    const epoch = this.incrementEpoch();
+    checkpoints.push({
+      checkpointId,
+      requestId,
+      undoStopId,
+      epoch,
+      label,
+      description
+    });
+    transaction((tx) => {
+      this._checkpoints.set(checkpoints, tx);
+      this._operations.set(operations, tx);
+      this._currentEpoch.set(epoch + 1, tx);
+    });
+    return checkpointId;
+  }
+  async undoToLastCheckpoint() {
+    const checkpoint = this._willUndoToCheckpoint.get();
+    if (checkpoint) {
+      await this.navigateToCheckpoint(checkpoint.checkpointId);
+    }
+  }
+  async redoToNextCheckpoint() {
+    const targetEpoch = this._willRedoToEpoch.get();
+    if (targetEpoch) {
+      await this._navigateToEpoch(targetEpoch);
+    }
+  }
+  navigateToCheckpoint(checkpointId) {
+    const targetCheckpoint = this._getCheckpoint(checkpointId);
+    if (!targetCheckpoint) {
+      throw new Error(`Checkpoint ${checkpointId} not found`);
+    }
+    if (targetCheckpoint.undoStopId === void 0) {
+      return this._navigateToEpoch(targetCheckpoint.epoch + 1, targetCheckpoint.epoch);
+    } else {
+      return this._navigateToEpoch(targetCheckpoint.epoch + 1);
+    }
+  }
+  getContentURIAtStop(requestId, fileURI, stopId) {
+    return ChatEditingSnapshotTextModelContentProvider.getSnapshotFileURI(this.chatSessionResource, requestId, stopId, fileURI.path);
+  }
+  async _navigateToEpoch(restoreToEpoch, navigateToEpoch = restoreToEpoch) {
+    const currentEpoch = this._currentEpoch.get();
+    if (currentEpoch !== restoreToEpoch) {
+      const urisToRestore = await this._applyFileSystemOperations(currentEpoch, restoreToEpoch);
+      await this._reconstructAllFileContents(restoreToEpoch, urisToRestore);
+    }
+    this._currentEpoch.set(navigateToEpoch, void 0);
+  }
+  _getCheckpoint(checkpointId) {
+    return this._checkpoints.get().find((c) => c.checkpointId === checkpointId);
+  }
+  incrementEpoch() {
+    return this._epochCounter++;
+  }
+  recordFileOperation(operation) {
+    const { currentEpoch, checkpoints, operations } = this._getVisibleOperationsAndCheckpoints();
+    if (operation.epoch < currentEpoch) {
+      throw new Error(`Cannot record operation at epoch ${operation.epoch} when current epoch is ${currentEpoch}`);
+    }
+    operations.push(operation);
+    transaction((tx) => {
+      this._checkpoints.set(checkpoints, tx);
+      this._operations.set(operations, tx);
+      this._currentEpoch.set(operation.epoch + 1, tx);
+    });
+  }
+  _getVisibleOperationsAndCheckpoints() {
+    const currentEpoch = this._currentEpoch.get();
+    const checkpoints = this._checkpoints.get();
+    const operations = this._operations.get();
+    return {
+      currentEpoch,
+      checkpoints: checkpoints.filter((c) => c.epoch < currentEpoch),
+      operations: operations.filter((op) => op.epoch < currentEpoch)
+    };
+  }
+  recordFileBaseline(baseline) {
+    const key = this._getBaselineKey(baseline.uri, baseline.requestId);
+    this._fileBaselines.set(key, baseline);
+  }
+  _getFileBaseline(uri, requestId) {
+    const key = this._getBaselineKey(uri, requestId);
+    return this._fileBaselines.get(key);
+  }
+  hasFileBaseline(uri, requestId) {
+    const key = this._getBaselineKey(uri, requestId);
+    return this._fileBaselines.has(key) || this._operations.get().some((op) => op.type === FileOperationType.Create && op.requestId === requestId && isEqual(uri, op.uri));
+  }
+  async getContentAtStop(requestId, contentURI, stopId) {
+    let toEpoch;
+    if (stopId?.startsWith(STOP_ID_EPOCH_PREFIX)) {
+      toEpoch = Number(stopId.slice(STOP_ID_EPOCH_PREFIX.length));
+    } else {
+      toEpoch = this._checkpoints.get().find((c) => c.requestId === requestId && c.undoStopId === stopId)?.epoch;
+    }
+    const fileURI = this._getTimelineCanonicalUriForPath(contentURI);
+    if (!toEpoch || !fileURI) {
+      return "";
+    }
+    const baseline = await this._findBestBaselineForFile(fileURI, toEpoch, requestId);
+    if (!baseline) {
+      return "";
+    }
+    const operations = this._getFileOperationsInRange(fileURI, baseline.epoch, toEpoch);
+    const replayed = await this._replayOperations(baseline, operations);
+    return replayed.exists ? replayed.content : void 0;
+  }
+  _getTimelineCanonicalUriForPath(contentURI) {
+    for (const it of [this._fileBaselines.values(), this._operations.get()]) {
+      for (const thing of it) {
+        if (thing.uri.path === contentURI.path) {
+          return thing.uri;
+        }
+      }
+    }
+    return void 0;
+  }
+  /**
+   * Creates a callback that is invoked when data at the stop changes. This
+   * will not fire initially and may be debounced internally.
+   */
+  onDidChangeContentsAtStop(requestId, contentURI, stopId, callback) {
+    if (!stopId || !stopId.startsWith(STOP_ID_EPOCH_PREFIX)) {
+      return Disposable.None;
+    }
+    const target = Number(stopId.slice(STOP_ID_EPOCH_PREFIX.length));
+    if (target <= this._epochCounter) {
+      return Disposable.None;
+    }
+    const store = new DisposableStore();
+    const scheduler = store.add(new ThrottledDelayer(500));
+    store.add(Event.fromObservableLight(this._operations)(() => {
+      scheduler.trigger(async () => {
+        if (this._operations.get().at(-1)?.epoch >= target) {
+          store.dispose();
+        }
+        const content = await this.getContentAtStop(requestId, contentURI, stopId);
+        if (content !== void 0) {
+          callback(content);
+        }
+      });
+    }));
+    return store;
+  }
+  _getCheckpointBeforeEpoch(epoch, reader) {
+    return findLast(this._checkpoints.read(reader), (c) => c.epoch <= epoch);
+  }
+  async _reconstructFileState(uri, targetEpoch) {
+    const targetCheckpoint = this._getCheckpointBeforeEpoch(targetEpoch);
+    if (!targetCheckpoint) {
+      throw new Error(`Checkpoint for epoch ${targetEpoch} not found`);
+    }
+    const baseline = await this._findBestBaselineForFile(uri, targetEpoch, targetCheckpoint.requestId || "");
+    if (!baseline) {
+      return {
+        exists: false,
+        uri
+      };
+    }
+    const operations = this._getFileOperationsInRange(uri, baseline.epoch, targetEpoch);
+    return this._replayOperations(baseline, operations);
+  }
+  getStateForPersistence() {
+    return {
+      checkpoints: this._checkpoints.get(),
+      currentEpoch: this._currentEpoch.get(),
+      fileBaselines: [...this._fileBaselines],
+      operations: this._operations.get(),
+      epochCounter: this._epochCounter
+    };
+  }
+  restoreFromState(state, tx) {
+    this._checkpoints.set(state.checkpoints, tx);
+    this._currentEpoch.set(state.currentEpoch, tx);
+    this._operations.set(state.operations.slice(), tx);
+    this._epochCounter = state.epochCounter;
+    this._fileBaselines.clear();
+    for (const [key, baseline] of state.fileBaselines) {
+      this._fileBaselines.set(key, baseline);
+    }
+  }
+  getCheckpointIdForRequest(requestId, undoStopId) {
+    const checkpoints = this._checkpoints.get();
+    return checkpoints.find((c) => c.requestId === requestId && c.undoStopId === undoStopId)?.checkpointId;
+  }
+  async _reconstructAllFileContents(targetEpoch, filesToReconstruct) {
+    await Promise.all(Array.from(filesToReconstruct).map(async (uri) => {
+      const reconstructedState = await this._reconstructFileState(uri, targetEpoch);
+      if (reconstructedState.exists) {
+        await this._delegate.setContents(reconstructedState.uri, reconstructedState.content, reconstructedState.telemetryInfo);
+      }
+    }));
+  }
+  _getBaselineKey(uri, requestId) {
+    return `${uri.toString()}::${requestId}`;
+  }
+  async _findBestBaselineForFile(uri, epoch, requestId) {
+    let currentRequestId = requestId;
+    const operations = this._operations.get();
+    for (let i = operations.length - 1; i >= 0; i--) {
+      const operation = operations[i];
+      if (operation.epoch > epoch) {
+        continue;
+      }
+      if (operation.type === FileOperationType.Create && isEqual(operation.uri, uri)) {
+        return {
+          uri: operation.uri,
+          requestId: operation.requestId,
+          content: operation.initialContent,
+          epoch: operation.epoch,
+          telemetryInfo: operation.telemetryInfo
+        };
+      }
+      if (operation.type === FileOperationType.Rename && isEqual(operation.newUri, uri)) {
+        const prev = await this._findBestBaselineForFile(operation.oldUri, operation.epoch, operation.requestId);
+        if (!prev) {
+          return void 0;
+        }
+        const operations2 = this._getFileOperationsInRange(operation.oldUri, prev.epoch, operation.epoch);
+        const replayed = await this._replayOperations(prev, operations2);
+        return {
+          uri,
+          epoch: operation.epoch,
+          content: replayed.exists ? replayed.content : "",
+          requestId: operation.requestId,
+          telemetryInfo: prev.telemetryInfo,
+          notebookViewType: replayed.exists ? replayed.notebookViewType : void 0
+        };
+      }
+      if (currentRequestId && operation.requestId !== currentRequestId) {
+        const baseline = this._getFileBaseline(uri, currentRequestId);
+        if (baseline) {
+          return baseline;
+        }
+      }
+      currentRequestId = operation.requestId;
+    }
+    return this._getFileBaseline(uri, currentRequestId);
+  }
+  _getFileOperationsInRange(uri, fromEpoch, toEpoch) {
+    return this._operations.get().filter((op) => {
+      const cellUri = CellUri.parse(op.uri);
+      return op.epoch >= fromEpoch && op.epoch < toEpoch && (isEqual(op.uri, uri) || cellUri && isEqual(cellUri.notebook, uri));
+    }).sort((a, b) => a.epoch - b.epoch);
+  }
+  async _replayOperations(baseline, operations) {
+    let currentState = {
+      exists: true,
+      content: baseline.content,
+      uri: baseline.uri,
+      telemetryInfo: baseline.telemetryInfo
+    };
+    if (baseline.notebookViewType) {
+      currentState.notebook = await this._notebookEditorModelResolverService.createUntitledNotebookTextModel(baseline.notebookViewType);
+      if (baseline.content) {
+        restoreNotebookSnapshot(currentState.notebook, baseline.content);
+      }
+    }
+    for (const operation of operations) {
+      currentState = await this._applyOperationToState(currentState, operation, baseline.telemetryInfo);
+    }
+    if (currentState.exists && currentState.notebook) {
+      const info = await this._notebookService.withNotebookDataProvider(currentState.notebook.viewType);
+      currentState.content = createNotebookSnapshot(currentState.notebook, info.serializer.options, this._configurationService);
+      currentState.notebook.dispose();
+    }
+    return currentState;
+  }
+  async _applyOperationToState(state, operation, telemetryInfo) {
+    switch (operation.type) {
+      case FileOperationType.Create: {
+        if (state.exists && state.notebook) {
+          state.notebook.dispose();
+        }
+        let notebook;
+        if (operation.notebookViewType) {
+          notebook = await this._notebookEditorModelResolverService.createUntitledNotebookTextModel(operation.notebookViewType);
+          if (operation.initialContent) {
+            restoreNotebookSnapshot(notebook, operation.initialContent);
+          }
+        }
+        return {
+          exists: true,
+          content: operation.initialContent,
+          uri: operation.uri,
+          telemetryInfo,
+          notebookViewType: operation.notebookViewType,
+          notebook
+        };
+      }
+      case FileOperationType.Delete:
+        if (state.exists && state.notebook) {
+          state.notebook.dispose();
+        }
+        return {
+          exists: false,
+          uri: operation.uri
+        };
+      case FileOperationType.Rename:
+        return {
+          ...state,
+          uri: operation.newUri
+        };
+      case FileOperationType.TextEdit: {
+        if (!state.exists) {
+          throw new Error("Cannot apply text edits to non-existent file");
+        }
+        const nbCell = operation.cellIndex !== void 0 && state.notebook?.cells.at(operation.cellIndex);
+        if (nbCell) {
+          const newContent = this._applyTextEditsToContent(nbCell.getValue(), operation.edits);
+          state.notebook.applyEdits([{
+            editType: 1,
+            index: operation.cellIndex,
+            count: 1,
+            cells: [{ cellKind: nbCell.cellKind, language: nbCell.language, mime: nbCell.language, source: newContent, outputs: nbCell.outputs }]
+          }], true, void 0, () => void 0, void 0);
+          return state;
+        }
+        return {
+          ...state,
+          content: this._applyTextEditsToContent(state.content, operation.edits)
+        };
+      }
+      case FileOperationType.NotebookEdit:
+        if (!state.exists) {
+          throw new Error("Cannot apply notebook edits to non-existent file");
+        }
+        if (!state.notebook) {
+          throw new Error("Cannot apply notebook edits to non-notebook file");
+        }
+        state.notebook.applyEdits(operation.cellEdits.slice(), true, void 0, () => void 0, void 0);
+        return state;
+      default:
+        assertNever(operation);
+    }
+  }
+  async _applyFileSystemOperations(fromEpoch, toEpoch) {
+    const isMovingForward = toEpoch > fromEpoch;
+    const operations = this._operations.get().filter((op) => {
+      if (isMovingForward) {
+        return op.epoch >= fromEpoch && op.epoch < toEpoch;
+      } else {
+        return op.epoch < fromEpoch && op.epoch >= toEpoch;
+      }
+    }).sort((a, b) => isMovingForward ? a.epoch - b.epoch : b.epoch - a.epoch);
+    const urisToRestore = new ResourceSet();
+    for (const operation of operations) {
+      await this._applyFileSystemOperation(operation, isMovingForward, urisToRestore);
+    }
+    return urisToRestore;
+  }
+  async _applyFileSystemOperation(operation, isMovingForward, urisToRestore) {
+    switch (operation.type) {
+      case FileOperationType.Create:
+        if (isMovingForward) {
+          await this._delegate.createFile(operation.uri, operation.initialContent);
+          urisToRestore.add(operation.uri);
+        } else {
+          await this._delegate.deleteFile(operation.uri);
+          urisToRestore.delete(operation.uri);
+        }
+        break;
+      case FileOperationType.Delete:
+        if (isMovingForward) {
+          await this._delegate.deleteFile(operation.uri);
+          urisToRestore.delete(operation.uri);
+        } else {
+          await this._delegate.createFile(operation.uri, operation.finalContent);
+          urisToRestore.add(operation.uri);
+        }
+        break;
+      case FileOperationType.Rename:
+        if (isMovingForward) {
+          await this._delegate.renameFile(operation.oldUri, operation.newUri);
+          urisToRestore.delete(operation.oldUri);
+          urisToRestore.add(operation.newUri);
+        } else {
+          await this._delegate.renameFile(operation.newUri, operation.oldUri);
+          urisToRestore.delete(operation.newUri);
+          urisToRestore.add(operation.oldUri);
+        }
+        break;
+      // Text and notebook edits don't affect file system structure
+      case FileOperationType.TextEdit:
+      case FileOperationType.NotebookEdit:
+        urisToRestore.add(CellUri.parse(operation.uri)?.notebook ?? operation.uri);
+        break;
+      default:
+        assertNever(operation);
+    }
+  }
+  _applyTextEditsToContent(content, edits) {
+    const makeModel = /* @__PURE__ */ __name((uri, contents) => this._instantiationService.createInstance(TextModel, contents, "", this._modelService.getCreationOptions("", uri, true), uri), "makeModel");
+    const tempUri = URI.from({ scheme: "temp", path: `/temp-${Date.now()}.txt` });
+    const model = makeModel(tempUri, content);
+    try {
+      model.applyEdits(edits.map((edit) => ({
+        range: {
+          startLineNumber: edit.range.startLineNumber,
+          startColumn: edit.range.startColumn,
+          endLineNumber: edit.range.endLineNumber,
+          endColumn: edit.range.endColumn
+        },
+        text: edit.text
+      })));
+      return model.getValue();
+    } finally {
+      model.dispose();
+    }
+  }
+  getEntryDiffBetweenStops(uri, requestId, stopId) {
+    const epochs = derivedOpts({ equalsFn: /* @__PURE__ */ __name((a, b) => a.start === b.start && a.end === b.end, "equalsFn") }, (reader) => {
+      const checkpoints = this._checkpoints.read(reader);
+      const startIndex = checkpoints.findIndex((c) => c.requestId === requestId && c.undoStopId === stopId);
+      return { start: checkpoints[startIndex], end: checkpoints[startIndex + 1] };
+    });
+    return this._getEntryDiffBetweenEpochs(uri, `s\0${requestId}\0${stopId}`, epochs);
+  }
+  /** Gets the epoch bounds of the request. If stopRequestId is undefined, gets ONLY the single request's bounds */
+  _getRequestEpochBounds(startRequestId, stopRequestId) {
+    return derivedOpts({ equalsFn: /* @__PURE__ */ __name((a, b) => a.start === b.start && a.end === b.end, "equalsFn") }, (reader) => {
+      const checkpoints = this._checkpoints.read(reader);
+      const startIndex = checkpoints.findIndex((c) => c.requestId === startRequestId);
+      const start = startIndex === -1 ? checkpoints[0] : checkpoints[startIndex];
+      let end;
+      if (stopRequestId === void 0) {
+        end = findFirst(checkpoints, (c) => c.requestId !== startRequestId, startIndex + 1);
+      } else {
+        end = checkpoints.find((c) => c.requestId === stopRequestId) || findFirst(checkpoints, (c) => c.requestId !== startRequestId, startIndex + 1) || checkpoints[checkpoints.length - 1];
+      }
+      return { start, end };
+    });
+  }
+  getEntryDiffBetweenRequests(uri, startRequestId, stopRequestId) {
+    return this._getEntryDiffBetweenEpochs(uri, `r\0${startRequestId}\0${stopRequestId}`, this._getRequestEpochBounds(startRequestId, stopRequestId));
+  }
+  _getEntryDiffBetweenEpochs(uri, cacheKey, epochs) {
+    const key = `${uri.toString()}\0${cacheKey}`;
+    let obs = this._refCountedDiffs.get(key);
+    if (!obs) {
+      obs = this._getEntryDiffBetweenEpochsInner(uri, epochs, () => this._refCountedDiffs.delete(key));
+      this._refCountedDiffs.set(key, obs);
+    }
+    return obs;
+  }
+  _getEntryDiffBetweenEpochsInner(uri, epochs, onLastObserverRemoved) {
+    const modelRefsPromise = derived(this, (reader) => {
+      const { start, end } = epochs.read(reader);
+      if (!start) {
+        return void 0;
+      }
+      const store = reader.store.add(new DisposableStore());
+      const originalURI = this.getContentURIAtStop(start.requestId || START_REQUEST_EPOCH, uri, STOP_ID_EPOCH_PREFIX + start.epoch);
+      const modifiedURI = this.getContentURIAtStop(end?.requestId || start.requestId || START_REQUEST_EPOCH, uri, STOP_ID_EPOCH_PREFIX + (end?.epoch || Number.MAX_SAFE_INTEGER));
+      const promise = Promise.all([
+        this._textModelService.createModelReference(originalURI),
+        this._textModelService.createModelReference(modifiedURI)
+      ]).then((refs) => {
+        if (store.isDisposed) {
+          refs.forEach((r) => r.dispose());
+        } else {
+          refs.forEach((r) => store.add(r));
+        }
+        return {
+          refs: refs.map((r) => ({
+            model: r.object.textEditorModel,
+            onChange: observableSignalFromEvent(this, r.object.textEditorModel.onDidChangeContent.bind(r.object.textEditorModel))
+          })),
+          isFinal: !!end
+        };
+      }).catch((error) => {
+        return { refs: [], isFinal: true, error };
+      });
+      return {
+        originalURI,
+        modifiedURI,
+        promise: new ObservablePromise(promise)
+      };
+    });
+    const diff = derived((reader) => {
+      const modelsData = modelRefsPromise.read(reader);
+      if (!modelsData) {
+        return;
+      }
+      const { originalURI, modifiedURI, promise } = modelsData;
+      const promiseData = promise?.promiseResult.read(reader);
+      if (!promiseData?.data) {
+        return { originalURI, modifiedURI, promise: void 0 };
+      }
+      const { refs, isFinal, error } = promiseData.data;
+      if (error) {
+        return { originalURI, modifiedURI, promise: new ObservablePromise(Promise.resolve(emptySessionEntryDiff(originalURI, modifiedURI))) };
+      }
+      refs.forEach((m) => m.onChange.read(reader));
+      return { originalURI, modifiedURI, promise: new ObservablePromise(this._computeDiff(originalURI, modifiedURI, !!isFinal)) };
+    });
+    return derivedOpts({ onLastObserverRemoved }, (reader) => {
+      const result = diff.read(reader);
+      if (!result) {
+        return void 0;
+      }
+      const promised = result.promise?.promiseResult.read(reader);
+      if (promised?.data) {
+        return promised.data;
+      }
+      if (promised?.error) {
+        return emptySessionEntryDiff(result.originalURI, result.modifiedURI);
+      }
+      return { ...emptySessionEntryDiff(result.originalURI, result.modifiedURI), isBusy: true };
+    });
+  }
+  _computeDiff(originalUri, modifiedUri, isFinal) {
+    return this._editorWorkerService.computeDiff(originalUri, modifiedUri, { ignoreTrimWhitespace: false, computeMoves: false, maxComputationTimeMs: 3e3 }, "advanced").then((diff) => {
+      const entryDiff = {
+        originalURI: originalUri,
+        modifiedURI: modifiedUri,
+        identical: !!diff?.identical,
+        isFinal,
+        quitEarly: !diff || diff.quitEarly,
+        added: 0,
+        removed: 0,
+        isBusy: false
+      };
+      if (diff) {
+        for (const change of diff.changes) {
+          entryDiff.removed += change.original.endLineNumberExclusive - change.original.startLineNumber;
+          entryDiff.added += change.modified.endLineNumberExclusive - change.modified.startLineNumber;
+        }
+      }
+      return entryDiff;
+    });
+  }
+  hasEditsInRequest(requestId, reader) {
+    for (const value of this._fileBaselines.values()) {
+      if (value.requestId === requestId) {
+        return true;
+      }
+    }
+    for (const operation of this._operations.read(reader)) {
+      if (operation.requestId === requestId) {
+        return true;
+      }
+    }
+    return false;
+  }
+  getDiffsForFilesInRequest(requestId) {
+    const boundsObservable = this._getRequestEpochBounds(requestId);
+    const startEpochs = derivedOpts({ equalsFn: mapsStrictEqualIgnoreOrder }, (reader) => {
+      const uris = new ResourceMap();
+      for (const value of this._fileBaselines.values()) {
+        if (value.requestId === requestId) {
+          uris.set(value.uri, value.epoch);
+        }
+      }
+      const bounds = boundsObservable.read(reader);
+      for (const operation of this._operations.read(reader)) {
+        if (operation.epoch < bounds.start.epoch) {
+          continue;
+        }
+        if (bounds.end && operation.epoch >= bounds.end.epoch) {
+          break;
+        }
+        if (operation.type === FileOperationType.Create) {
+          uris.set(operation.uri, 0);
+        }
+      }
+      return uris;
+    });
+    return this._getDiffsForFilesAtEpochs(startEpochs, boundsObservable.map((b) => b.end));
+  }
+  _getDiffsForFilesAtEpochs(startEpochs, endCheckpointObs) {
+    const prevDiffs = new ResourceMap();
+    let prevEndCheckpoint = void 0;
+    const perFileDiffs = derived(this, (reader) => {
+      const checkpoints = this._checkpoints.read(reader);
+      const firstCheckpoint = checkpoints[0];
+      if (!firstCheckpoint) {
+        return [];
+      }
+      const endCheckpoint = endCheckpointObs.read(reader);
+      if (endCheckpoint !== prevEndCheckpoint) {
+        prevDiffs.clear();
+        prevEndCheckpoint = endCheckpoint;
+      }
+      const uris = startEpochs.read(reader);
+      const diffs = [];
+      for (const [uri, epoch] of uris) {
+        const obs = prevDiffs.get(uri) ?? this._getEntryDiffBetweenEpochs(uri, `e\0${epoch}\0${endCheckpoint?.epoch}`, constObservable({ start: checkpoints.findLast((cp) => cp.epoch <= epoch) || firstCheckpoint, end: endCheckpoint }));
+        prevDiffs.set(uri, obs);
+        diffs.push(obs);
+      }
+      return diffs;
+    });
+    return perFileDiffs.map((diffs, reader) => {
+      return diffs.flatMap((d) => d.read(reader)).filter(isDefined);
+    });
+  }
+  getDiffsForFilesInSession() {
+    const startEpochs = derivedOpts({ equalsFn: mapsStrictEqualIgnoreOrder }, (reader) => {
+      const uris = new ResourceMap();
+      for (const baseline of this._fileBaselines.values()) {
+        uris.set(baseline.uri, Math.min(baseline.epoch, uris.get(baseline.uri) ?? Number.MAX_SAFE_INTEGER));
+      }
+      for (const operation of this._operations.read(reader)) {
+        if (operation.type === FileOperationType.Create) {
+          uris.set(operation.uri, 0);
+        }
+      }
+      return uris;
+    });
+    return this._getDiffsForFilesAtEpochs(startEpochs, constObservable(void 0));
+  }
+  getDiffForSession() {
+    const fileDiffs = this.getDiffsForFilesInSession();
+    return derived((reader) => {
+      const diffs = fileDiffs.read(reader);
+      let added = 0;
+      let removed = 0;
+      for (const diff of diffs) {
+        added += diff.added;
+        removed += diff.removed;
+      }
+      return { added, removed };
+    });
+  }
+};
+ChatEditingCheckpointTimelineImpl = __decorate([
+  __param(2, INotebookEditorModelResolverService),
+  __param(3, INotebookService),
+  __param(4, IInstantiationService),
+  __param(5, IModelService),
+  __param(6, ITextModelService),
+  __param(7, IEditorWorkerService),
+  __param(8, IConfigurationService)
+], ChatEditingCheckpointTimelineImpl);
+export {
+  ChatEditingCheckpointTimelineImpl
+};
+//# sourceMappingURL=chatEditingCheckpointTimelineImpl.js.map

@@ -1,1 +1,67 @@
-import{CancellationToken as p}from"../../../../base/common/cancellation.js";import{$Up as x,$Rp as m}from"../../../../base/common/color.js";import{$Mmb as l}from"./color.js";import{$mub as h}from"./colorPickerModel.js";import{$_D as u}from"../../../common/core/range.js";var g;(function(e){e.Hover="hover",e.Standalone="standalone"})(g||(g={}));async function w(e,n,t){const a=e.getValueInRange(n.range),{red:r,green:o,blue:s,alpha:d}=n.color,b=new m(Math.round(r*255),Math.round(o*255),Math.round(s*255),d),c=new x(b),f=await l(e,n,t,p.None),i=new h(c,[],0);return i.colorPresentations=f||[],i.guessColorPresentation(c,a),{range:u.lift(n.range),model:i,provider:t}}function E(e,n,t){const a=[],r=t.presentation.textEdit??{range:n,text:t.presentation.label,forceMoveMarkers:!1};a.push(r),t.presentation.additionalTextEdits&&a.push(...t.presentation.additionalTextEdits);const o=u.lift(r.range),s=e.getModel()._setTrackedRange(null,o,3);return e.executeEdits("colorpicker",a),e.pushUndoStop(),e.getModel()._getTrackedRange(s)??o}async function P(e,n,t,a,r){const o=await l(e,{range:a,color:{red:t.rgba.r/255,green:t.rgba.g/255,blue:t.rgba.b/255,alpha:t.rgba.a}},r.provider,p.None);n.colorPresentations=o||[]}export{w as $pub,E as $qub,P as $rub,g as ColorPickerWidgetType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { getColorPresentations } from "./color.js";
+import { ColorPickerModel } from "./colorPickerModel.js";
+import { Range } from "../../../common/core/range.js";
+var ColorPickerWidgetType;
+(function(ColorPickerWidgetType2) {
+  ColorPickerWidgetType2["Hover"] = "hover";
+  ColorPickerWidgetType2["Standalone"] = "standalone";
+})(ColorPickerWidgetType || (ColorPickerWidgetType = {}));
+async function createColorHover(editorModel, colorInfo, provider) {
+  const originalText = editorModel.getValueInRange(colorInfo.range);
+  const { red, green, blue, alpha } = colorInfo.color;
+  const rgba = new RGBA(Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255), alpha);
+  const color = new Color(rgba);
+  const colorPresentations = await getColorPresentations(editorModel, colorInfo, provider, CancellationToken.None);
+  const model = new ColorPickerModel(color, [], 0);
+  model.colorPresentations = colorPresentations || [];
+  model.guessColorPresentation(color, originalText);
+  return {
+    range: Range.lift(colorInfo.range),
+    model,
+    provider
+  };
+}
+__name(createColorHover, "createColorHover");
+function updateEditorModel(editor, range, model) {
+  const textEdits = [];
+  const edit = model.presentation.textEdit ?? { range, text: model.presentation.label, forceMoveMarkers: false };
+  textEdits.push(edit);
+  if (model.presentation.additionalTextEdits) {
+    textEdits.push(...model.presentation.additionalTextEdits);
+  }
+  const replaceRange = Range.lift(edit.range);
+  const trackedRange = editor.getModel()._setTrackedRange(
+    null,
+    replaceRange,
+    3
+    /* TrackedRangeStickiness.GrowsOnlyWhenTypingAfter */
+  );
+  editor.executeEdits("colorpicker", textEdits);
+  editor.pushUndoStop();
+  return editor.getModel()._getTrackedRange(trackedRange) ?? replaceRange;
+}
+__name(updateEditorModel, "updateEditorModel");
+async function updateColorPresentations(editorModel, colorPickerModel, color, range, colorHover) {
+  const colorPresentations = await getColorPresentations(editorModel, {
+    range,
+    color: {
+      red: color.rgba.r / 255,
+      green: color.rgba.g / 255,
+      blue: color.rgba.b / 255,
+      alpha: color.rgba.a
+    }
+  }, colorHover.provider, CancellationToken.None);
+  colorPickerModel.colorPresentations = colorPresentations || [];
+}
+__name(updateColorPresentations, "updateColorPresentations");
+export {
+  ColorPickerWidgetType,
+  createColorHover,
+  updateColorPresentations,
+  updateEditorModel
+};
+//# sourceMappingURL=colorPickerParticipantUtils.js.map

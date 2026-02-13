@@ -1,1 +1,274 @@
-import"./media/singleeditortabscontrol.css";import{$vN as u,SideBySideEditor as p,$uN as m,EditorCloseMethod as f}from"../../../common/editor.js";import{$DWb as E}from"./editorTabsControl.js";import{$fQb as g}from"../../labels.js";import{$Syb as v,$Uyb as y}from"../../../common/theme.js";import{EventType as c,$89 as D}from"../../../../base/browser/touch.js";import{$u8 as o,$r9 as a,$t9 as n,$N8 as $,$18 as B,$T9 as N,$f9 as S,$ as w}from"../../../../base/browser/dom.js";import{$zSb as C,$KSb as L}from"./editorCommands.js";import{$Up as O}from"../../../../base/common/color.js";import{$gd as l,$id as Q}from"../../../../base/common/types.js";import{$Gp as I}from"../../../../base/common/objects.js";import{$Cd as T}from"../../../../base/common/lifecycle.js";import{$Xjb as z}from"../../../../platform/theme/browser/defaultStyles.js";import{$BWb as A}from"./breadcrumbsControl.js";class R extends E{constructor(){super(...arguments),this.zb=Object.create(null)}get Bb(){return this.Ab?.control}bb(t){super.bb(t);const i=this.kb=t;i.draggable=!0,this.Db(i),this.D(D.addTarget(i));const e=w(".label-container");return i.appendChild(e),this.yb=this.D(this.S.createInstance(g,e,{})).element,this.D(o(this.yb.element,a.CLICK,s=>this.Eb(s))),this.Ab=this.D(this.S.createInstance(A,e,this.P,{showFileIcons:!1,showSymbolIcons:!0,showDecorationColors:!1,widgetStyles:{...z,breadcrumbsBackground:O.transparent.toString()},showPlaceholder:!1,dragEditor:!0})),this.D(this.Ab.onDidEnablementChange(()=>this.Jb())),i.classList.toggle("breadcrumbs",!!this.Bb),this.D(T(()=>i.classList.remove("breadcrumbs"))),this.db(i,["title-actions"]),i}Db(t){let i,e=!1;this.D(new N(t,{onDragStart:s=>{e=this.mb(s,t)},onDrag:s=>{i=s},onDragEnd:s=>{this.nb(s,i,t,e)}})),this.D(o(t,a.DBLCLICK,s=>this.Fb(s))),this.D(o(t,a.AUXCLICK,s=>this.Gb(s))),this.D(o(t,c.Tap,s=>this.Hb(s)));for(const s of[a.CONTEXT_MENU,c.Contextmenu])this.D(o(t,s,r=>{this.Q.activeEditor&&this.sb(this.Q.activeEditor,r,t)}))}Eb(t){n.stop(t,!1),setTimeout(()=>this.Y.quickAccess.show())}Fb(t){n.stop(t),this.P.pinEditor()}Gb(t){t.button===1&&this.Q.activeEditor&&(n.stop(t,!0),m(this.Q,this.Q.activeEditor,f.MOUSE,this.O.partOptions)||this.P.closeEditor(this.Q.activeEditor))}Hb(t){const i=t.initialTarget;!S(i)||!this.yb||!B(i,this.yb.element)||setTimeout(()=>this.Y.quickAccess.show(),50)}openEditor(t){return this.Ib()}openEditors(t){return this.Ib()}Ib(){const t=this.Kb(()=>this.Nb());return t||this.Lb(()=>this.Nb()),t}beforeCloseEditor(t){}closeEditor(t){this.Kb(()=>this.Nb())}closeEditors(t){this.Kb(()=>this.Nb())}moveEditor(t,i,e){this.Kb(()=>this.Nb())}pinEditor(t){this.Mb(t,()=>this.Nb())}stickEditor(t){}unstickEditor(t){}setActive(t){this.Nb()}updateEditorSelections(){}updateEditorLabel(t){this.Mb(t,()=>this.Nb())}updateEditorDirty(t){this.Mb(t,()=>{const i=l(this.kb);t.isDirty()&&!t.isSaving()?i.classList.add("dirty"):i.classList.remove("dirty")})}updateOptions(t,i){super.updateOptions(t,i),(t.labelFormat!==i.labelFormat||!I(t.decorations,i.decorations))&&this.Nb()}updateStyles(){this.Nb()}Jb(){l(this.kb).classList.toggle("breadcrumbs",!!this.Bb),this.Nb()}Kb(t){return!this.zb.editor&&this.Q.activeEditor||this.zb.editor&&!this.Q.activeEditor||!this.zb.editor||!this.Q.isActive(this.zb.editor)?(t(),!0):!1}Lb(t){!this.zb.editor||!this.Q.activeEditor||this.zb.pinned!==this.Q.isPinned(this.Q.activeEditor)&&t()}Mb(t,i){this.Q.isActive(t)&&i()}Nb(){const t=this.Q.activeEditor??void 0,i=this.O.partOptions,e=t?this.Q.isPinned(t):!1,s=this.O.activeGroup===this.P;this.zb={editor:t,pinned:e},this.Bb&&(s?(this.Bb.update(),this.Bb.domNode.classList.toggle("preview",!e)):this.Bb.hide());const[r,b]=Q(this.kb,this.yb);if(!t)r.classList.remove("dirty"),b.clear(),this.lb();else{this.updateEditorDirty(t);const{labelFormat:d}=this.O.partOptions;let h;this.Bb&&!this.Bb.isHidden()||d==="default"&&!s?h="":h=t.getDescription(this.Ob(d))||"",b.setResource({resource:u.getOriginalUri(t,{supportSideBySide:p.BOTH}),name:t.getName(),description:h},{title:this.wb(t),italic:!e,extraClasses:["single-tab","title-label"].concat(t.getLabelExtraClasses()),fileDecorations:{colors:!!i.decorations?.colors,badges:!!i.decorations?.badges},icon:t.getIcon(),hideIcon:i.showIcons===!1}),s?r.style.color=this.z(v)||"":r.style.color=this.z(y)||"",this.hb()}}Ob(t){switch(t){case"short":return 0;case"long":return 2;default:return 1}}ib(t){return this.O.activeGroup===this.P?t:{primary:this.O.partOptions.alwaysShowEditorActions?t.primary:t.primary.filter(e=>e.id===C||e.id===L),secondary:t.secondary}}getHeight(){return this.vb}layout(t){return this.Bb?.layout(void 0),new $(t.container.width,this.getHeight())}}export{R as $HWb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/singleeditortabscontrol.css";
+import { EditorResourceAccessor, SideBySideEditor, preventEditorClose, EditorCloseMethod } from "../../../common/editor.js";
+import { EditorTabsControl } from "./editorTabsControl.js";
+import { ResourceLabel } from "../../labels.js";
+import { TAB_ACTIVE_FOREGROUND, TAB_UNFOCUSED_ACTIVE_FOREGROUND } from "../../../common/theme.js";
+import { EventType as TouchEventType, Gesture } from "../../../../base/browser/touch.js";
+import { addDisposableListener, EventType, EventHelper, Dimension, isAncestor, DragAndDropObserver, isHTMLElement, $ } from "../../../../base/browser/dom.js";
+import { CLOSE_EDITOR_COMMAND_ID, UNLOCK_GROUP_COMMAND_ID } from "./editorCommands.js";
+import { Color } from "../../../../base/common/color.js";
+import { assertReturnsDefined, assertReturnsAllDefined } from "../../../../base/common/types.js";
+import { equals } from "../../../../base/common/objects.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import { defaultBreadcrumbsWidgetStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { BreadcrumbsControlFactory } from "./breadcrumbsControl.js";
+class SingleEditorTabsControl extends EditorTabsControl {
+  static {
+    __name(this, "SingleEditorTabsControl");
+  }
+  constructor() {
+    super(...arguments);
+    this.activeLabel = /* @__PURE__ */ Object.create(null);
+  }
+  get breadcrumbsControl() {
+    return this.breadcrumbsControlFactory?.control;
+  }
+  create(parent) {
+    super.create(parent);
+    const titleContainer = this.titleContainer = parent;
+    titleContainer.draggable = true;
+    this.registerContainerListeners(titleContainer);
+    this._register(Gesture.addTarget(titleContainer));
+    const labelContainer = $(".label-container");
+    titleContainer.appendChild(labelContainer);
+    this.editorLabel = this._register(this.instantiationService.createInstance(ResourceLabel, labelContainer, {})).element;
+    this._register(addDisposableListener(this.editorLabel.element, EventType.CLICK, (e) => this.onTitleLabelClick(e)));
+    this.breadcrumbsControlFactory = this._register(this.instantiationService.createInstance(BreadcrumbsControlFactory, labelContainer, this.groupView, {
+      showFileIcons: false,
+      showSymbolIcons: true,
+      showDecorationColors: false,
+      widgetStyles: { ...defaultBreadcrumbsWidgetStyles, breadcrumbsBackground: Color.transparent.toString() },
+      showPlaceholder: false,
+      dragEditor: true
+    }));
+    this._register(this.breadcrumbsControlFactory.onDidEnablementChange(() => this.handleBreadcrumbsEnablementChange()));
+    titleContainer.classList.toggle("breadcrumbs", Boolean(this.breadcrumbsControl));
+    this._register(toDisposable(() => titleContainer.classList.remove("breadcrumbs")));
+    this.createEditorActionsToolBar(titleContainer, ["title-actions"]);
+    return titleContainer;
+  }
+  registerContainerListeners(titleContainer) {
+    let lastDragEvent = void 0;
+    let isNewWindowOperation = false;
+    this._register(new DragAndDropObserver(titleContainer, {
+      onDragStart: /* @__PURE__ */ __name((e) => {
+        isNewWindowOperation = this.onGroupDragStart(e, titleContainer);
+      }, "onDragStart"),
+      onDrag: /* @__PURE__ */ __name((e) => {
+        lastDragEvent = e;
+      }, "onDrag"),
+      onDragEnd: /* @__PURE__ */ __name((e) => {
+        this.onGroupDragEnd(e, lastDragEvent, titleContainer, isNewWindowOperation);
+      }, "onDragEnd")
+    }));
+    this._register(addDisposableListener(titleContainer, EventType.DBLCLICK, (e) => this.onTitleDoubleClick(e)));
+    this._register(addDisposableListener(titleContainer, EventType.AUXCLICK, (e) => this.onTitleAuxClick(e)));
+    this._register(addDisposableListener(titleContainer, TouchEventType.Tap, (e) => this.onTitleTap(e)));
+    for (const event of [EventType.CONTEXT_MENU, TouchEventType.Contextmenu]) {
+      this._register(addDisposableListener(titleContainer, event, (e) => {
+        if (this.tabsModel.activeEditor) {
+          this.onTabContextMenu(this.tabsModel.activeEditor, e, titleContainer);
+        }
+      }));
+    }
+  }
+  onTitleLabelClick(e) {
+    EventHelper.stop(e, false);
+    setTimeout(() => this.quickInputService.quickAccess.show());
+  }
+  onTitleDoubleClick(e) {
+    EventHelper.stop(e);
+    this.groupView.pinEditor();
+  }
+  onTitleAuxClick(e) {
+    if (e.button === 1 && this.tabsModel.activeEditor) {
+      EventHelper.stop(
+        e,
+        true
+        /* for https://github.com/microsoft/vscode/issues/56715 */
+      );
+      if (!preventEditorClose(this.tabsModel, this.tabsModel.activeEditor, EditorCloseMethod.MOUSE, this.groupsView.partOptions)) {
+        this.groupView.closeEditor(this.tabsModel.activeEditor);
+      }
+    }
+  }
+  onTitleTap(e) {
+    const target = e.initialTarget;
+    if (!isHTMLElement(target) || !this.editorLabel || !isAncestor(target, this.editorLabel.element)) {
+      return;
+    }
+    setTimeout(() => this.quickInputService.quickAccess.show(), 50);
+  }
+  openEditor(editor) {
+    return this.doHandleOpenEditor();
+  }
+  openEditors(editors) {
+    return this.doHandleOpenEditor();
+  }
+  doHandleOpenEditor() {
+    const activeEditorChanged = this.ifActiveEditorChanged(() => this.redraw());
+    if (!activeEditorChanged) {
+      this.ifActiveEditorPropertiesChanged(() => this.redraw());
+    }
+    return activeEditorChanged;
+  }
+  beforeCloseEditor(editor) {
+  }
+  closeEditor(editor) {
+    this.ifActiveEditorChanged(() => this.redraw());
+  }
+  closeEditors(editors) {
+    this.ifActiveEditorChanged(() => this.redraw());
+  }
+  moveEditor(editor, fromIndex, targetIndex) {
+    this.ifActiveEditorChanged(() => this.redraw());
+  }
+  pinEditor(editor) {
+    this.ifEditorIsActive(editor, () => this.redraw());
+  }
+  stickEditor(editor) {
+  }
+  unstickEditor(editor) {
+  }
+  setActive(isActive) {
+    this.redraw();
+  }
+  updateEditorSelections() {
+  }
+  updateEditorLabel(editor) {
+    this.ifEditorIsActive(editor, () => this.redraw());
+  }
+  updateEditorDirty(editor) {
+    this.ifEditorIsActive(editor, () => {
+      const titleContainer = assertReturnsDefined(this.titleContainer);
+      if (editor.isDirty() && !editor.isSaving()) {
+        titleContainer.classList.add("dirty");
+      } else {
+        titleContainer.classList.remove("dirty");
+      }
+    });
+  }
+  updateOptions(oldOptions, newOptions) {
+    super.updateOptions(oldOptions, newOptions);
+    if (oldOptions.labelFormat !== newOptions.labelFormat || !equals(oldOptions.decorations, newOptions.decorations)) {
+      this.redraw();
+    }
+  }
+  updateStyles() {
+    this.redraw();
+  }
+  handleBreadcrumbsEnablementChange() {
+    const titleContainer = assertReturnsDefined(this.titleContainer);
+    titleContainer.classList.toggle("breadcrumbs", Boolean(this.breadcrumbsControl));
+    this.redraw();
+  }
+  ifActiveEditorChanged(fn) {
+    if (!this.activeLabel.editor && this.tabsModel.activeEditor || // active editor changed from null => editor
+    this.activeLabel.editor && !this.tabsModel.activeEditor || // active editor changed from editor => null
+    (!this.activeLabel.editor || !this.tabsModel.isActive(this.activeLabel.editor))) {
+      fn();
+      return true;
+    }
+    return false;
+  }
+  ifActiveEditorPropertiesChanged(fn) {
+    if (!this.activeLabel.editor || !this.tabsModel.activeEditor) {
+      return;
+    }
+    if (this.activeLabel.pinned !== this.tabsModel.isPinned(this.tabsModel.activeEditor)) {
+      fn();
+    }
+  }
+  ifEditorIsActive(editor, fn) {
+    if (this.tabsModel.isActive(editor)) {
+      fn();
+    }
+  }
+  redraw() {
+    const editor = this.tabsModel.activeEditor ?? void 0;
+    const options = this.groupsView.partOptions;
+    const isEditorPinned = editor ? this.tabsModel.isPinned(editor) : false;
+    const isGroupActive = this.groupsView.activeGroup === this.groupView;
+    this.activeLabel = { editor, pinned: isEditorPinned };
+    if (this.breadcrumbsControl) {
+      if (isGroupActive) {
+        this.breadcrumbsControl.update();
+        this.breadcrumbsControl.domNode.classList.toggle("preview", !isEditorPinned);
+      } else {
+        this.breadcrumbsControl.hide();
+      }
+    }
+    const [titleContainer, editorLabel] = assertReturnsAllDefined(this.titleContainer, this.editorLabel);
+    if (!editor) {
+      titleContainer.classList.remove("dirty");
+      editorLabel.clear();
+      this.clearEditorActionsToolbar();
+    } else {
+      this.updateEditorDirty(editor);
+      const { labelFormat } = this.groupsView.partOptions;
+      let description;
+      if (this.breadcrumbsControl && !this.breadcrumbsControl.isHidden()) {
+        description = "";
+      } else if (labelFormat === "default" && !isGroupActive) {
+        description = "";
+      } else {
+        description = editor.getDescription(this.getVerbosity(labelFormat)) || "";
+      }
+      editorLabel.setResource({
+        resource: EditorResourceAccessor.getOriginalUri(editor, { supportSideBySide: SideBySideEditor.BOTH }),
+        name: editor.getName(),
+        description
+      }, {
+        title: this.getHoverTitle(editor),
+        italic: !isEditorPinned,
+        extraClasses: ["single-tab", "title-label"].concat(editor.getLabelExtraClasses()),
+        fileDecorations: {
+          colors: Boolean(options.decorations?.colors),
+          badges: Boolean(options.decorations?.badges)
+        },
+        icon: editor.getIcon(),
+        hideIcon: options.showIcons === false
+      });
+      if (isGroupActive) {
+        titleContainer.style.color = this.getColor(TAB_ACTIVE_FOREGROUND) || "";
+      } else {
+        titleContainer.style.color = this.getColor(TAB_UNFOCUSED_ACTIVE_FOREGROUND) || "";
+      }
+      this.updateEditorActionsToolbar();
+    }
+  }
+  getVerbosity(style) {
+    switch (style) {
+      case "short":
+        return 0;
+      case "long":
+        return 2;
+      default:
+        return 1;
+    }
+  }
+  prepareEditorActions(editorActions) {
+    const isGroupActive = this.groupsView.activeGroup === this.groupView;
+    if (isGroupActive) {
+      return editorActions;
+    } else {
+      return {
+        primary: this.groupsView.partOptions.alwaysShowEditorActions ? editorActions.primary : editorActions.primary.filter((action) => action.id === CLOSE_EDITOR_COMMAND_ID || action.id === UNLOCK_GROUP_COMMAND_ID),
+        secondary: editorActions.secondary
+      };
+    }
+  }
+  getHeight() {
+    return this.tabHeight;
+  }
+  layout(dimensions) {
+    this.breadcrumbsControl?.layout(void 0);
+    return new Dimension(dimensions.container.width, this.getHeight());
+  }
+}
+export {
+  SingleEditorTabsControl
+};
+//# sourceMappingURL=singleEditorTabsControl.js.map

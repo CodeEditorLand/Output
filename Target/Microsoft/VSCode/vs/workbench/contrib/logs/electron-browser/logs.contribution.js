@@ -1,1 +1,31 @@
-import{$to as o}from"../../../../platform/action/common/actionCommonCategories.js";import{$vL as c,$wL as n}from"../../../../platform/actions/common/actions.js";import{$sWc as e,$tWc as r}from"./logsActions.js";import{$Mj as u}from"../../../../platform/instantiation/common/instantiation.js";n(class extends c{constructor(){super({id:e.ID,title:e.TITLE,category:o.Developer,f1:!0})}run(t){return t.get(u).createInstance(e,e.ID,e.TITLE.value).run()}});n(class extends c{constructor(){super({id:r.ID,title:r.TITLE,category:o.Developer,f1:!0})}run(t){return t.get(u).createInstance(r,r.ID,r.TITLE.value).run()}});
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { OpenLogsFolderAction, OpenExtensionLogsFolderAction } from "./logsActions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: OpenLogsFolderAction.ID,
+      title: OpenLogsFolderAction.TITLE,
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(servicesAccessor) {
+    return servicesAccessor.get(IInstantiationService).createInstance(OpenLogsFolderAction, OpenLogsFolderAction.ID, OpenLogsFolderAction.TITLE.value).run();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: OpenExtensionLogsFolderAction.ID,
+      title: OpenExtensionLogsFolderAction.TITLE,
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  run(servicesAccessor) {
+    return servicesAccessor.get(IInstantiationService).createInstance(OpenExtensionLogsFolderAction, OpenExtensionLogsFolderAction.ID, OpenExtensionLogsFolderAction.TITLE.value).run();
+  }
+});
+//# sourceMappingURL=logs.contribution.js.map

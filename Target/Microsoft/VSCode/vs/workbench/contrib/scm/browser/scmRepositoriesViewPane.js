@@ -1,1 +1,726 @@
-import"./media/scm.css";import{localize as tt}from"../../../../nls.js";import{$ZBb as et}from"../../../browser/parts/views/viewPane.js";import{$y9 as f,$ as m}from"../../../../base/browser/dom.js";import{$esb as it}from"../../../../platform/list/browser/listService.js";import{$mR as st,$nR as x}from"../common/scm.js";import{$Mj as rt}from"../../../../platform/instantiation/common/instantiation.js";import{$ijb as P}from"../../../../platform/contextview/browser/contextView.js";import{$ro as F}from"../../../../platform/contextkey/common/contextkey.js";import{$fy as D}from"../../../../platform/keybinding/common/keybinding.js";import{$qu as ot}from"../../../../platform/theme/common/themeService.js";import{$Bd as H,$Ed as nt,$Md as at,$Dd as C}from"../../../../base/common/lifecycle.js";import{$0l as ct}from"../../../../platform/configuration/common/configuration.js";import{$FN as ht}from"../../../common/views.js";import{$EP as dt}from"../../../../platform/opener/common/opener.js";import{$xyc as pt,$yyc as Y}from"./scmRepositoryRenderer.js";import{$FXb as G,$EXb as k,$HXb as R,$BXb as u,$CXb as b,$DXb as d,$rXb as h}from"./util.js";import{Iterable as I}from"../../../../base/common/iterator.js";import{$rL as W,$qL as _}from"../../../../platform/actions/common/actions.js";import{$jkb as lt}from"../../../../platform/hover/browser/hover.js";import{$vib as V}from"../../../../platform/observable/common/platformObservableUtils.js";import{autorun as y,observableSignalFromEvent as ft,runOnChange as j}from"../../../../base/common/observable.js";import{$4h as mt,$3h as ut}from"../../../../base/common/async.js";import{$L_ as J}from"../../../../base/browser/ui/iconLabel/iconLabel.js";import{$Eyc as q}from"./scmViewService.js";import{ThemeIcon as g}from"../../../../base/common/themables.js";import{$hkb as U}from"../../../../platform/actions/browser/toolbar.js";import{$pp as Z}from"../../../../platform/telemetry/common/telemetry.js";import{$uo as E}from"../../../../platform/commands/common/commands.js";import{$hR as B}from"../../../../base/common/resourceTree.js";import{URI as gt}from"../../../../base/common/uri.js";import{$Fh as bt}from"../../../../base/common/resources.js";import{$bk as z}from"../../../../base/common/codicons.js";import{$hp as yt}from"../../../../platform/storage/common/storage.js";import{$Qn as v}from"../../../../base/common/date.js";var L=function(p,t,i,e){var s=arguments.length,o=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(p,t,i,e);else for(var n=p.length-1;n>=0;n--)(r=p[n])&&(o=(s<3?r(o):s>3?r(t,i,o):r(t,i))||o);return s>3&&o&&Object.defineProperty(t,i,o),o},c=function(p,t){return function(i,e){t(i,e,p)}},A,M;class vt{getHeight(){return 22}getTemplateId(t){if(h(t))return Y.TEMPLATE_ID;if(u(t))return w.TEMPLATE_ID;if(d(t)||b(t))return $.TEMPLATE_ID;throw new Error("Invalid tree element")}}let w=class{static{A=this}static{this.TEMPLATE_ID="artifactGroup"}get templateId(){return A.TEMPLATE_ID}constructor(t,i,e,s,o,r,n,a){this.a=t,this.b=i,this.c=e,this.d=s,this.f=o,this.g=r,this.h=n,this.i=a}renderTemplate(t){const i=f(t,m(".scm-artifact-group")),e=f(i,m(".icon")),s=new J(i,{supportIcons:!1}),o=f(i,m(".actions")),r=new U(o,{actionViewItemProvider:this.a},this.f,this.c,this.b,this.d,this.g,this.i);return{icon:e,label:s,actionBar:r,elementDisposables:new C,templateDisposable:H(s,r)}}renderElement(t,i,e){const s=t.element.repository.provider,o=t.element.artifactGroup;e.icon.className=g.isThemeIcon(o.icon)?`icon ${g.asClassName(o.icon)}`:"",e.label.setLabel(o.name);const r=this.h.menus.getRepositoryMenus(s);e.elementDisposables.add(k(r.getArtifactGroupMenu(o),n=>{e.actionBar.setActions(n)},"inline",s)),e.actionBar.context=o}renderCompressedElements(t,i,e,s){throw new Error("Should never happen since node is incompressible")}disposeElement(t,i,e,s){e.elementDisposables.clear()}disposeTemplate(t){t.elementDisposables.dispose(),t.templateDisposable.dispose()}};w=A=L([c(1,P),c(2,F),c(3,D),c(4,W),c(5,E),c(6,x),c(7,Z)],w);let $=class{static{M=this}static{this.TEMPLATE_ID="artifact"}get templateId(){return M.TEMPLATE_ID}constructor(t,i,e,s,o,r,n,a){this.a=t,this.b=i,this.c=e,this.d=s,this.f=o,this.g=r,this.h=n,this.i=a}renderTemplate(t){const i=f(t,m(".scm-artifact")),e=f(i,m(".icon")),s=new J(i,{supportIcons:!1}),o=f(i,m(".timestamp-container")),r=f(o,m(".timestamp")),n=f(i,m(".actions")),a=new U(n,{actionViewItemProvider:this.a},this.f,this.c,this.b,this.d,this.g,this.i);return{icon:e,label:s,timestampContainer:o,timestamp:r,actionBar:a,elementDisposables:new C,templateDisposable:H(s,a)}}renderElement(t,i,e){const s=t.element;if(d(s)){const o=s.group,r=s.artifact,n=r.icon??s.group.icon;e.icon.className=g.isThemeIcon(n)?`icon ${g.asClassName(n)}`:"";const a=o.supportsFolders?r.name.split("/").pop()??r.name:r.name;e.label.setLabel(a,r.description),e.timestamp.textContent=r.timestamp?v(r.timestamp):"",e.timestampContainer.classList.toggle("duplicate",s.hideTimestamp),e.timestampContainer.style.display=""}else b(s)&&(e.icon.className=`icon ${g.asClassName(z.folder)}`,e.label.setLabel(bt(s.uri)),e.timestamp.textContent="",e.timestampContainer.classList.remove("duplicate"),e.timestampContainer.style.display="none");this.j(s,e)}renderCompressedElements(t,i,e,s){const o=t.element,r=o.elements[o.elements.length-1];if(d(r)){const n=r.artifact,a=n.icon??r.group.icon;e.icon.className=g.isThemeIcon(a)?`icon ${g.asClassName(a)}`:"",e.label.setLabel(n.name,n.description),e.timestamp.textContent=n.timestamp?v(n.timestamp):"",e.timestampContainer.classList.toggle("duplicate",r.hideTimestamp),e.timestampContainer.style.display=""}else b(r)&&(e.icon.className=`icon ${g.asClassName(z.folder)}`,e.label.setLabel(r.uri.fsPath.substring(1)),e.timestamp.textContent="",e.timestampContainer.classList.remove("duplicate"),e.timestampContainer.style.display="none");this.j(r,e)}j(t,i){if(d(t)){const e=t.artifact,s=t.repository.provider,o=this.h.menus.getRepositoryMenus(s);i.elementDisposables.add(k(o.getArtifactMenu(t.group,e),r=>{i.actionBar.setActions(r)},"inline",s)),i.actionBar.context=e}else B.isResourceNode(t)&&(i.actionBar.setActions([]),i.actionBar.context=void 0)}disposeElement(t,i,e,s){e.elementDisposables.clear()}disposeTemplate(t){t.elementDisposables.dispose(),t.templateDisposable.dispose()}};$=M=L([c(1,P),c(2,F),c(3,D),c(4,W),c(5,E),c(6,x),c(7,Z)],$);let N=class extends nt{constructor(t){super(),this.a=t}async getChildren(t){if(this.a.explorerEnabledConfig.get()===!1){const i=h(t)?t.provider.id:void 0;return this.a.repositories.filter(s=>s.provider.parentId===i)}if(t instanceof q){const i=this.a.repositories.filter(e=>e.provider.parentId===void 0);if(i.length!==this.a.repositories.length)for(const e of i){const s=this.a.repositories.filter(r=>r.provider.parentId===e.provider.id);if(s.length===0)continue;const o=i.indexOf(e);i.splice(o+1,0,...s)}return i}else{if(h(t))return(await t.provider.artifactProvider.get()?.provideArtifactGroups()??[]).map(e=>({repository:t,artifactGroup:e,type:"artifactGroup"}));if(u(t)){const i=t.repository,e=await i.provider.artifactProvider.get()?.provideArtifacts(t.artifactGroup.id)??[];if(t.artifactGroup.supportsFolders){const s=new B(t);for(let o=0;o<e.length;o++){const r=e[o],n=gt.from({scheme:"scm-artifact",path:r.name}),a=r.id.lastIndexOf("/")>0?r.id.substring(0,r.id.lastIndexOf("/")):r.id,l=o>0?e[o-1]:void 0,S=l&&l.id.lastIndexOf("/")>0?l.id.substring(0,l.id.lastIndexOf("/")):l?.id,T=o>0&&r.timestamp!==void 0&&l?.timestamp!==void 0&&a===S&&v(l.timestamp)===v(r.timestamp);s.add(n,{repository:i,group:t.artifactGroup,artifact:r,hideTimestamp:T,type:"artifact"})}return I.map(s.root.children,o=>o.element??o)}return e.map((s,o,r)=>({repository:i,group:t.artifactGroup,artifact:s,hideTimestamp:o>0&&s.timestamp!==void 0&&r[o-1].timestamp!==void 0&&v(r[o-1].timestamp)===v(s.timestamp),type:"artifact"}))}else if(b(t))return I.map(t.children,i=>i.element&&i.childrenCount===0?i.element:i)}return[]}hasChildren(t){if(this.a.explorerEnabledConfig.get()===!1){const i=h(t)?t.provider.id:void 0;return this.a.repositories.filter(s=>s.provider.parentId===i).length>0}return t instanceof q?this.a.repositories.length>0:h(t)||u(t)?!0:d(t)?!1:b(t)?t.childrenCount>0:!1}};N=L([c(0,x)],N);class Ct{getId(t){if(h(t))return`repo:${t.provider.id}`;if(u(t))return`artifactGroup:${t.repository.provider.id}/${t.artifactGroup.id}`;if(d(t))return`artifact:${t.repository.provider.id}/${t.group.id}/${t.artifact.id}`;if(b(t))return`artifactFolder:${t.context.repository.provider.id}/${t.context.artifactGroup.id}/${t.uri.fsPath}`;throw new Error("Invalid tree element")}}class It{isIncompressible(t){return B.isResourceNode(t)?t.childrenCount>1:!0}}let X=class extends et{constructor(t,i,e,s,o,r,n,a,l,S,T,Q,K,O){super({...t,titleMenuId:_.SCMSourceControlTitle},s,o,S,l,a,n,T,Q,K),this.t=i,this.L=e,this.ab=r,this.sb=O,this.f=new mt,this.g=new ut,this.m=new C,this.n=new at,this.h=V("scm.repositories.visible",10,this.Cb),this.j=V("scm.providerCountBadge","hidden",this.Cb),this.sb.onWillSaveState(()=>{this.vc()},this,this.B),this.D(this.g)}X(t){super.X(t);const i=f(t,m(".scm-view.scm-repositories-view"));this.D(y(s=>{const o=this.j.read(s);i.classList.toggle("hide-provider-counts",o==="hidden"),i.classList.toggle("auto-provider-counts",o==="auto")}));const e=this.uc();this.ec(i,e),this.onDidChangeBodyVisibility(async s=>{if(!s){this.m.clear();return}this.f.queue(async()=>{await this.a.setInput(this.L,e),this.m.add(y(r=>{const n=this.h.read(r);this.rc(this.a.contentHeight,n)})),this.m.add(j(this.L.explorerEnabledConfig,async()=>{await this.nc(),this.rc(this.a.contentHeight),this.L.repositories.length===1&&await this.f.queue(()=>this.a.expand(this.L.repositories[0]))}));const o=ft(this,this.L.onDidChangeVisibleRepositories);this.m.add(y(async r=>{o.read(r),await this.f.queue(()=>this.sc())})),this.t.onDidAddRepository(this.fc,this,this.m),this.t.onDidRemoveRepository(this.gc,this,this.m);for(const r of this.t.repositories)this.fc(r);this.m.add(y(async r=>{const n=this.L.explorerEnabledConfig.read(r),a=this.L.didFinishLoadingRepositories.read(r);e===void 0&&n&&a&&this.L.repositories.length===1&&await this.f.queue(()=>this.a.expand(this.L.repositories[0]))}))})},this,this.B)}Y(t,i){super.Y(t,i),this.a.layout(t,i)}focus(){super.focus(),this.a.domFocus()}ec(t,i){this.c=new Ct,this.b=this.Fb.createInstance(N),this.D(this.b),this.a=this.Fb.createInstance(it,"SCM Repositories",t,new vt,new It,[this.Fb.createInstance(Y,_.SCMSourceControlInline,R(this.Fb)),this.Fb.createInstance(w,R(this.Fb)),this.Fb.createInstance($,R(this.Fb))],this.b,{identityProvider:this.c,horizontalScrolling:!1,collapseByDefault:e=>this.L.explorerEnabledConfig.get()===!1?!(h(e)&&e.provider.parentId===void 0):i?.expanded&&(h(e)||u(e)||d(e))?i.expanded.indexOf(this.c.getId(e))===-1:b(e)?!(e.childrenCount===1&&I.first(e.children)?.element===void 0):!0,compressionEnabled:!0,overrideStyles:this.Zb().listOverrideStyles,multipleSelectionSupport:this.L.selectionModeConfig.get()==="multiple",expandOnDoubleClick:!0,expandOnlyOnTwistieClick:!0,accessibilityProvider:{getAriaLabel(e){return h(e)?e.provider.label:u(e)?e.artifactGroup.name:d(e)?e.artifact.name:""},getWidgetAriaLabel(){return tt(12239,null)}}}),this.D(this.a),this.D(y(e=>{const s=this.L.selectionModeConfig.read(e);this.a.updateOptions({multipleSelectionSupport:s==="multiple"})})),this.D(this.a.onDidOpen(this.hc,this)),this.D(this.a.onDidChangeSelection(this.jc,this)),this.D(this.a.onDidChangeFocus(this.kc,this)),this.D(this.a.onDidFocus(this.lc,this)),this.D(this.a.onContextMenu(this.ic,this)),this.D(this.a.onDidChangeContentHeight(this.mc,this))}async fc(t){const i=new C;i.add(y(async e=>{const s=this.L.explorerEnabledConfig.read(e),o=t.provider.artifactProvider.read(e);!s||!o||e.store.add(o.onDidChangeArtifacts(async r=>{await this.pc(t)}))})),i.add(y(async e=>{const s=t.provider.historyProvider.read(e);s&&e.store.add(j(s.historyItemRef,async()=>{await this.pc(t)}))})),await this.pc(t),this.n.set(t,i)}async gc(t){await this.pc(t),this.n.deleteAndDispose(t)}hc(t){!t.element||!d(t.element)||!t.element.artifact.command||this.ab.executeCommand(t.element.artifact.command.id,t.element.repository.provider,t.element.artifact)}ic(t){if(t.element){if(h(t.element)){const i=t.element.provider,s=this.L.menus.getRepositoryMenus(i).getRepositoryContextMenu(t.element),o=G(s),r=new C,n=new pt(()=>this.tc());r.add(n),r.add(n.onWillRun(()=>this.a.domFocus())),this.Bb.showContextMenu({actionRunner:n,getAnchor:()=>t.anchor,getActions:()=>o,getActionsContext:()=>i,onHide:()=>r.dispose()})}else if(d(t.element)){const i=t.element.repository.provider,e=t.element.artifact,o=this.L.menus.getRepositoryMenus(i).getArtifactMenu(t.element.group,e),r=G(o,i);this.Bb.showContextMenu({getAnchor:()=>t.anchor,getActions:()=>r,getActionsContext:()=>e})}}}jc(t){if(t.browserEvent&&t.elements.length>0){const i=this.a.scrollTop;t.elements.every(e=>h(e))?this.L.visibleRepositories=t.elements:t.elements.every(e=>u(e)||d(e))&&(this.L.visibleRepositories=t.elements.map(e=>e.repository)),this.a.scrollTop=i}}kc(t){t.browserEvent&&t.elements.length>0&&h(t.elements[0])&&this.L.focus(t.elements[0])}lc(){const t=this.a.getFocus();t.length>0&&(h(t[0])?this.L.focus(t[0]):(u(t[0])||d(t[0]))&&this.L.focus(t[0].repository))}mc(t){this.rc(t),this.f.queue(()=>this.sc())}async nc(t){return this.g.queue(()=>this.f.queue(async()=>{t&&this.a.hasNode(t)?await this.a.updateChildren(t,!0):await this.a.updateChildren(void 0,!0)}))}async oc(t){await this.f.queue(()=>this.a.expand(t,!0))}async pc(t){if(this.L.explorerEnabledConfig.get()===!1){if(t.provider.parentId===void 0){await this.nc();return}await this.qc(t)}await this.nc()}async qc(t){const i=this.L.repositories.find(e=>e.provider.id===t.provider.parentId);i&&(await this.nc(i),await this.oc(i))}rc(t,i){if(this.orientation!==1)if(this.L.explorerEnabledConfig.get()===!1){i=i??this.h.get();const e=this.L.repositories.length===0,s=Math.min(t/22,i)*22;this.minimumBodySize=i===0?22:s,this.maximumBodySize=i===0||e?Number.POSITIVE_INFINITY:s}else this.minimumBodySize=120,this.maximumBodySize=Number.POSITIVE_INFINITY}async sc(){const t=this.tc(),i=new Set(t),e=new Set(this.L.visibleRepositories),s=new Set(I.filter(e,a=>!i.has(a))),o=new Set(I.filter(i,a=>!e.has(a)));if(s.size===0&&o.size===0)return;const r=t.filter(a=>!o.has(a));for(const a of this.L.repositories)s.has(a)&&r.push(a);const n=r.filter(a=>this.a.hasNode(a));this.a.setSelection(n),n.length>0&&!this.a.getFocus().includes(n[0])&&(this.a.setAnchor(n[0]),this.a.setFocus([n[0]]))}tc(){return this.a.getSelection().map(t=>{if(h(t))return t;if(u(t)||d(t))return t.repository;if(b(t))return t.context.repository;throw new Error("Invalid tree element")})}uc(){const t=this.sb.get("scm.repositoriesViewState",1);if(t)try{return JSON.parse(t)}catch{return}}vc(){this.a&&this.sb.store("scm.repositoriesViewState",JSON.stringify(this.a.getViewState()),1,1)}dispose(){this.m.dispose(),super.dispose()}};X=L([c(1,st),c(2,x),c(3,D),c(4,P),c(5,E),c(6,rt),c(7,ht),c(8,F),c(9,ct),c(10,dt),c(11,ot),c(12,lt),c(13,yt)],X);export{X as $Myc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ArtifactGroupRenderer_1, ArtifactRenderer_1;
+import "./media/scm.css";
+import { localize } from "../../../../nls.js";
+import { ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { append, $ } from "../../../../base/browser/dom.js";
+import { WorkbenchCompressibleAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { ISCMService, ISCMViewService } from "../common/scm.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { combinedDisposable, Disposable, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { RepositoryActionRunner, RepositoryRenderer } from "./scmRepositoryRenderer.js";
+import { collectContextMenuActions, connectPrimaryMenu, getActionViewItemProvider, isSCMArtifactGroupTreeElement, isSCMArtifactNode, isSCMArtifactTreeElement, isSCMRepository } from "./util.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { autorun, observableSignalFromEvent, runOnChange } from "../../../../base/common/observable.js";
+import { Sequencer, Throttler } from "../../../../base/common/async.js";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { SCMViewService } from "./scmViewService.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ResourceTree } from "../../../../base/common/resourceTree.js";
+import { URI } from "../../../../base/common/uri.js";
+import { basename } from "../../../../base/common/resources.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { fromNow } from "../../../../base/common/date.js";
+class ListDelegate {
+  static {
+    __name(this, "ListDelegate");
+  }
+  getHeight() {
+    return 22;
+  }
+  getTemplateId(element) {
+    if (isSCMRepository(element)) {
+      return RepositoryRenderer.TEMPLATE_ID;
+    } else if (isSCMArtifactGroupTreeElement(element)) {
+      return ArtifactGroupRenderer.TEMPLATE_ID;
+    } else if (isSCMArtifactTreeElement(element) || isSCMArtifactNode(element)) {
+      return ArtifactRenderer.TEMPLATE_ID;
+    } else {
+      throw new Error("Invalid tree element");
+    }
+  }
+}
+let ArtifactGroupRenderer = class ArtifactGroupRenderer2 {
+  static {
+    __name(this, "ArtifactGroupRenderer");
+  }
+  static {
+    ArtifactGroupRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "artifactGroup";
+  }
+  get templateId() {
+    return ArtifactGroupRenderer_1.TEMPLATE_ID;
+  }
+  constructor(actionViewItemProvider, _contextMenuService, _contextKeyService, _keybindingService, _menuService, _commandService, _scmViewService, _telemetryService) {
+    this.actionViewItemProvider = actionViewItemProvider;
+    this._contextMenuService = _contextMenuService;
+    this._contextKeyService = _contextKeyService;
+    this._keybindingService = _keybindingService;
+    this._menuService = _menuService;
+    this._commandService = _commandService;
+    this._scmViewService = _scmViewService;
+    this._telemetryService = _telemetryService;
+  }
+  renderTemplate(container) {
+    const element = append(container, $(".scm-artifact-group"));
+    const icon = append(element, $(".icon"));
+    const label = new IconLabel(element, { supportIcons: false });
+    const actionsContainer = append(element, $(".actions"));
+    const actionBar = new WorkbenchToolBar(actionsContainer, { actionViewItemProvider: this.actionViewItemProvider }, this._menuService, this._contextKeyService, this._contextMenuService, this._keybindingService, this._commandService, this._telemetryService);
+    return { icon, label, actionBar, elementDisposables: new DisposableStore(), templateDisposable: combinedDisposable(label, actionBar) };
+  }
+  renderElement(node, index, templateData) {
+    const provider = node.element.repository.provider;
+    const artifactGroup = node.element.artifactGroup;
+    templateData.icon.className = ThemeIcon.isThemeIcon(artifactGroup.icon) ? `icon ${ThemeIcon.asClassName(artifactGroup.icon)}` : "";
+    templateData.label.setLabel(artifactGroup.name);
+    const repositoryMenus = this._scmViewService.menus.getRepositoryMenus(provider);
+    templateData.elementDisposables.add(connectPrimaryMenu(repositoryMenus.getArtifactGroupMenu(artifactGroup), (primary) => {
+      templateData.actionBar.setActions(primary);
+    }, "inline", provider));
+    templateData.actionBar.context = artifactGroup;
+  }
+  renderCompressedElements(node, index, templateData, details) {
+    throw new Error("Should never happen since node is incompressible");
+  }
+  disposeElement(element, index, templateData, details) {
+    templateData.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+    templateData.templateDisposable.dispose();
+  }
+};
+ArtifactGroupRenderer = ArtifactGroupRenderer_1 = __decorate([
+  __param(1, IContextMenuService),
+  __param(2, IContextKeyService),
+  __param(3, IKeybindingService),
+  __param(4, IMenuService),
+  __param(5, ICommandService),
+  __param(6, ISCMViewService),
+  __param(7, ITelemetryService)
+], ArtifactGroupRenderer);
+let ArtifactRenderer = class ArtifactRenderer2 {
+  static {
+    __name(this, "ArtifactRenderer");
+  }
+  static {
+    ArtifactRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "artifact";
+  }
+  get templateId() {
+    return ArtifactRenderer_1.TEMPLATE_ID;
+  }
+  constructor(actionViewItemProvider, _contextMenuService, _contextKeyService, _keybindingService, _menuService, _commandService, _scmViewService, _telemetryService) {
+    this.actionViewItemProvider = actionViewItemProvider;
+    this._contextMenuService = _contextMenuService;
+    this._contextKeyService = _contextKeyService;
+    this._keybindingService = _keybindingService;
+    this._menuService = _menuService;
+    this._commandService = _commandService;
+    this._scmViewService = _scmViewService;
+    this._telemetryService = _telemetryService;
+  }
+  renderTemplate(container) {
+    const element = append(container, $(".scm-artifact"));
+    const icon = append(element, $(".icon"));
+    const label = new IconLabel(element, { supportIcons: false });
+    const timestampContainer = append(element, $(".timestamp-container"));
+    const timestamp = append(timestampContainer, $(".timestamp"));
+    const actionsContainer = append(element, $(".actions"));
+    const actionBar = new WorkbenchToolBar(actionsContainer, { actionViewItemProvider: this.actionViewItemProvider }, this._menuService, this._contextKeyService, this._contextMenuService, this._keybindingService, this._commandService, this._telemetryService);
+    return { icon, label, timestampContainer, timestamp, actionBar, elementDisposables: new DisposableStore(), templateDisposable: combinedDisposable(label, actionBar) };
+  }
+  renderElement(nodeOrElement, index, templateData) {
+    const artifactOrFolder = nodeOrElement.element;
+    if (isSCMArtifactTreeElement(artifactOrFolder)) {
+      const artifactGroup = artifactOrFolder.group;
+      const artifact = artifactOrFolder.artifact;
+      const artifactIcon = artifact.icon ?? artifactOrFolder.group.icon;
+      templateData.icon.className = ThemeIcon.isThemeIcon(artifactIcon) ? `icon ${ThemeIcon.asClassName(artifactIcon)}` : "";
+      const artifactLabel = artifactGroup.supportsFolders ? artifact.name.split("/").pop() ?? artifact.name : artifact.name;
+      templateData.label.setLabel(artifactLabel, artifact.description);
+      templateData.timestamp.textContent = artifact.timestamp ? fromNow(artifact.timestamp) : "";
+      templateData.timestampContainer.classList.toggle("duplicate", artifactOrFolder.hideTimestamp);
+      templateData.timestampContainer.style.display = "";
+    } else if (isSCMArtifactNode(artifactOrFolder)) {
+      templateData.icon.className = `icon ${ThemeIcon.asClassName(Codicon.folder)}`;
+      templateData.label.setLabel(basename(artifactOrFolder.uri));
+      templateData.timestamp.textContent = "";
+      templateData.timestampContainer.classList.remove("duplicate");
+      templateData.timestampContainer.style.display = "none";
+    }
+    this._renderActionBar(artifactOrFolder, templateData);
+  }
+  renderCompressedElements(node, index, templateData, details) {
+    const compressed = node.element;
+    const artifactOrFolder = compressed.elements[compressed.elements.length - 1];
+    if (isSCMArtifactTreeElement(artifactOrFolder)) {
+      const artifact = artifactOrFolder.artifact;
+      const artifactIcon = artifact.icon ?? artifactOrFolder.group.icon;
+      templateData.icon.className = ThemeIcon.isThemeIcon(artifactIcon) ? `icon ${ThemeIcon.asClassName(artifactIcon)}` : "";
+      templateData.label.setLabel(artifact.name, artifact.description);
+      templateData.timestamp.textContent = artifact.timestamp ? fromNow(artifact.timestamp) : "";
+      templateData.timestampContainer.classList.toggle("duplicate", artifactOrFolder.hideTimestamp);
+      templateData.timestampContainer.style.display = "";
+    } else if (isSCMArtifactNode(artifactOrFolder)) {
+      templateData.icon.className = `icon ${ThemeIcon.asClassName(Codicon.folder)}`;
+      templateData.label.setLabel(artifactOrFolder.uri.fsPath.substring(1));
+      templateData.timestamp.textContent = "";
+      templateData.timestampContainer.classList.remove("duplicate");
+      templateData.timestampContainer.style.display = "none";
+    }
+    this._renderActionBar(artifactOrFolder, templateData);
+  }
+  _renderActionBar(artifactOrFolder, templateData) {
+    if (isSCMArtifactTreeElement(artifactOrFolder)) {
+      const artifact = artifactOrFolder.artifact;
+      const provider = artifactOrFolder.repository.provider;
+      const repositoryMenus = this._scmViewService.menus.getRepositoryMenus(provider);
+      templateData.elementDisposables.add(connectPrimaryMenu(repositoryMenus.getArtifactMenu(artifactOrFolder.group, artifact), (primary) => {
+        templateData.actionBar.setActions(primary);
+      }, "inline", provider));
+      templateData.actionBar.context = artifact;
+    } else if (ResourceTree.isResourceNode(artifactOrFolder)) {
+      templateData.actionBar.setActions([]);
+      templateData.actionBar.context = void 0;
+    }
+  }
+  disposeElement(element, index, templateData, details) {
+    templateData.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+    templateData.templateDisposable.dispose();
+  }
+};
+ArtifactRenderer = ArtifactRenderer_1 = __decorate([
+  __param(1, IContextMenuService),
+  __param(2, IContextKeyService),
+  __param(3, IKeybindingService),
+  __param(4, IMenuService),
+  __param(5, ICommandService),
+  __param(6, ISCMViewService),
+  __param(7, ITelemetryService)
+], ArtifactRenderer);
+let RepositoryTreeDataSource = class RepositoryTreeDataSource2 extends Disposable {
+  static {
+    __name(this, "RepositoryTreeDataSource");
+  }
+  constructor(scmViewService) {
+    super();
+    this.scmViewService = scmViewService;
+  }
+  async getChildren(inputOrElement) {
+    if (this.scmViewService.explorerEnabledConfig.get() === false) {
+      const parentId = isSCMRepository(inputOrElement) ? inputOrElement.provider.id : void 0;
+      const repositories = this.scmViewService.repositories.filter((r) => r.provider.parentId === parentId);
+      return repositories;
+    }
+    if (inputOrElement instanceof SCMViewService) {
+      const repositories = this.scmViewService.repositories.filter((r) => r.provider.parentId === void 0);
+      if (repositories.length !== this.scmViewService.repositories.length) {
+        for (const repository of repositories) {
+          const childRepositories = this.scmViewService.repositories.filter((r) => r.provider.parentId === repository.provider.id);
+          if (childRepositories.length === 0) {
+            continue;
+          }
+          const repositoryIndex = repositories.indexOf(repository);
+          repositories.splice(repositoryIndex + 1, 0, ...childRepositories);
+        }
+      }
+      return repositories;
+    } else if (isSCMRepository(inputOrElement)) {
+      const artifactGroups = await inputOrElement.provider.artifactProvider.get()?.provideArtifactGroups() ?? [];
+      return artifactGroups.map((group) => ({
+        repository: inputOrElement,
+        artifactGroup: group,
+        type: "artifactGroup"
+      }));
+    } else if (isSCMArtifactGroupTreeElement(inputOrElement)) {
+      const repository = inputOrElement.repository;
+      const artifacts = await repository.provider.artifactProvider.get()?.provideArtifacts(inputOrElement.artifactGroup.id) ?? [];
+      if (inputOrElement.artifactGroup.supportsFolders) {
+        const artifactsTree = new ResourceTree(inputOrElement);
+        for (let index = 0; index < artifacts.length; index++) {
+          const artifact = artifacts[index];
+          const artifactUri = URI.from({ scheme: "scm-artifact", path: artifact.name });
+          const artifactDirectory = artifact.id.lastIndexOf("/") > 0 ? artifact.id.substring(0, artifact.id.lastIndexOf("/")) : artifact.id;
+          const prevArtifact = index > 0 ? artifacts[index - 1] : void 0;
+          const prevArtifactDirectory = prevArtifact && prevArtifact.id.lastIndexOf("/") > 0 ? prevArtifact.id.substring(0, prevArtifact.id.lastIndexOf("/")) : prevArtifact?.id;
+          const hideTimestamp = index > 0 && artifact.timestamp !== void 0 && prevArtifact?.timestamp !== void 0 && artifactDirectory === prevArtifactDirectory && fromNow(prevArtifact.timestamp) === fromNow(artifact.timestamp);
+          artifactsTree.add(artifactUri, {
+            repository,
+            group: inputOrElement.artifactGroup,
+            artifact,
+            hideTimestamp,
+            type: "artifact"
+          });
+        }
+        return Iterable.map(artifactsTree.root.children, (node) => node.element ?? node);
+      }
+      return artifacts.map((artifact, index, artifacts2) => ({
+        repository,
+        group: inputOrElement.artifactGroup,
+        artifact,
+        hideTimestamp: index > 0 && artifact.timestamp !== void 0 && artifacts2[index - 1].timestamp !== void 0 && fromNow(artifacts2[index - 1].timestamp) === fromNow(artifact.timestamp),
+        type: "artifact"
+      }));
+    } else if (isSCMArtifactNode(inputOrElement)) {
+      return Iterable.map(inputOrElement.children, (node) => node.element && node.childrenCount === 0 ? node.element : node);
+    }
+    return [];
+  }
+  hasChildren(inputOrElement) {
+    if (this.scmViewService.explorerEnabledConfig.get() === false) {
+      const parentId = isSCMRepository(inputOrElement) ? inputOrElement.provider.id : void 0;
+      const repositories = this.scmViewService.repositories.filter((r) => r.provider.parentId === parentId);
+      return repositories.length > 0;
+    }
+    if (inputOrElement instanceof SCMViewService) {
+      return this.scmViewService.repositories.length > 0;
+    } else if (isSCMRepository(inputOrElement)) {
+      return true;
+    } else if (isSCMArtifactGroupTreeElement(inputOrElement)) {
+      return true;
+    } else if (isSCMArtifactTreeElement(inputOrElement)) {
+      return false;
+    } else if (isSCMArtifactNode(inputOrElement)) {
+      return inputOrElement.childrenCount > 0;
+    } else {
+      return false;
+    }
+  }
+};
+RepositoryTreeDataSource = __decorate([
+  __param(0, ISCMViewService)
+], RepositoryTreeDataSource);
+class RepositoryTreeIdentityProvider {
+  static {
+    __name(this, "RepositoryTreeIdentityProvider");
+  }
+  getId(element) {
+    if (isSCMRepository(element)) {
+      return `repo:${element.provider.id}`;
+    } else if (isSCMArtifactGroupTreeElement(element)) {
+      return `artifactGroup:${element.repository.provider.id}/${element.artifactGroup.id}`;
+    } else if (isSCMArtifactTreeElement(element)) {
+      return `artifact:${element.repository.provider.id}/${element.group.id}/${element.artifact.id}`;
+    } else if (isSCMArtifactNode(element)) {
+      return `artifactFolder:${element.context.repository.provider.id}/${element.context.artifactGroup.id}/${element.uri.fsPath}`;
+    } else {
+      throw new Error("Invalid tree element");
+    }
+  }
+}
+class RepositoriesTreeCompressionDelegate {
+  static {
+    __name(this, "RepositoriesTreeCompressionDelegate");
+  }
+  isIncompressible(element) {
+    if (ResourceTree.isResourceNode(element)) {
+      return element.childrenCount > 1;
+    } else {
+      return true;
+    }
+  }
+}
+let SCMRepositoriesViewPane = class SCMRepositoriesViewPane2 extends ViewPane {
+  static {
+    __name(this, "SCMRepositoriesViewPane");
+  }
+  constructor(options, scmService, scmViewService, keybindingService, contextMenuService, commandService, instantiationService, viewDescriptorService, contextKeyService, configurationService, openerService, themeService, hoverService, storageService) {
+    super({ ...options, titleMenuId: MenuId.SCMSourceControlTitle }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.scmService = scmService;
+    this.scmViewService = scmViewService;
+    this.commandService = commandService;
+    this.storageService = storageService;
+    this.treeOperationSequencer = new Sequencer();
+    this.updateChildrenThrottler = new Throttler();
+    this.visibilityDisposables = new DisposableStore();
+    this.repositoryDisposables = new DisposableMap();
+    this.visibleCountObs = observableConfigValue("scm.repositories.visible", 10, this.configurationService);
+    this.providerCountBadgeObs = observableConfigValue("scm.providerCountBadge", "hidden", this.configurationService);
+    this.storageService.onWillSaveState(() => {
+      this.storeTreeViewState();
+    }, this, this._store);
+    this._register(this.updateChildrenThrottler);
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    const treeContainer = append(container, $(".scm-view.scm-repositories-view"));
+    this._register(autorun((reader) => {
+      const providerCountBadge = this.providerCountBadgeObs.read(reader);
+      treeContainer.classList.toggle("hide-provider-counts", providerCountBadge === "hidden");
+      treeContainer.classList.toggle("auto-provider-counts", providerCountBadge === "auto");
+    }));
+    const viewState = this.loadTreeViewState();
+    this.createTree(treeContainer, viewState);
+    this.onDidChangeBodyVisibility(async (visible) => {
+      if (!visible) {
+        this.visibilityDisposables.clear();
+        return;
+      }
+      this.treeOperationSequencer.queue(async () => {
+        await this.tree.setInput(this.scmViewService, viewState);
+        this.visibilityDisposables.add(autorun((reader) => {
+          const visibleCount = this.visibleCountObs.read(reader);
+          this.updateBodySize(this.tree.contentHeight, visibleCount);
+        }));
+        this.visibilityDisposables.add(runOnChange(this.scmViewService.explorerEnabledConfig, async () => {
+          await this.updateChildren();
+          this.updateBodySize(this.tree.contentHeight);
+          if (this.scmViewService.repositories.length === 1) {
+            await this.treeOperationSequencer.queue(() => this.tree.expand(this.scmViewService.repositories[0]));
+          }
+        }));
+        const onDidChangeVisibleRepositoriesSignal = observableSignalFromEvent(this, this.scmViewService.onDidChangeVisibleRepositories);
+        this.visibilityDisposables.add(autorun(async (reader) => {
+          onDidChangeVisibleRepositoriesSignal.read(reader);
+          await this.treeOperationSequencer.queue(() => this.updateTreeSelection());
+        }));
+        this.scmService.onDidAddRepository(this.onDidAddRepository, this, this.visibilityDisposables);
+        this.scmService.onDidRemoveRepository(this.onDidRemoveRepository, this, this.visibilityDisposables);
+        for (const repository of this.scmService.repositories) {
+          this.onDidAddRepository(repository);
+        }
+        this.visibilityDisposables.add(autorun(async (reader) => {
+          const explorerEnabledConfig = this.scmViewService.explorerEnabledConfig.read(reader);
+          const didFinishLoadingRepositories = this.scmViewService.didFinishLoadingRepositories.read(reader);
+          if (viewState === void 0 && explorerEnabledConfig && didFinishLoadingRepositories && this.scmViewService.repositories.length === 1) {
+            await this.treeOperationSequencer.queue(() => this.tree.expand(this.scmViewService.repositories[0]));
+          }
+        }));
+      });
+    }, this, this._store);
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.tree.layout(height, width);
+  }
+  focus() {
+    super.focus();
+    this.tree.domFocus();
+  }
+  createTree(container, viewState) {
+    this.treeIdentityProvider = new RepositoryTreeIdentityProvider();
+    this.treeDataSource = this.instantiationService.createInstance(RepositoryTreeDataSource);
+    this._register(this.treeDataSource);
+    this.tree = this.instantiationService.createInstance(WorkbenchCompressibleAsyncDataTree, "SCM Repositories", container, new ListDelegate(), new RepositoriesTreeCompressionDelegate(), [
+      this.instantiationService.createInstance(RepositoryRenderer, MenuId.SCMSourceControlInline, getActionViewItemProvider(this.instantiationService)),
+      this.instantiationService.createInstance(ArtifactGroupRenderer, getActionViewItemProvider(this.instantiationService)),
+      this.instantiationService.createInstance(ArtifactRenderer, getActionViewItemProvider(this.instantiationService))
+    ], this.treeDataSource, {
+      identityProvider: this.treeIdentityProvider,
+      horizontalScrolling: false,
+      collapseByDefault: /* @__PURE__ */ __name((e) => {
+        if (this.scmViewService.explorerEnabledConfig.get() === false) {
+          if (isSCMRepository(e) && e.provider.parentId === void 0) {
+            return false;
+          }
+          return true;
+        }
+        if (viewState?.expanded && (isSCMRepository(e) || isSCMArtifactGroupTreeElement(e) || isSCMArtifactTreeElement(e))) {
+          return viewState.expanded.indexOf(this.treeIdentityProvider.getId(e)) === -1;
+        } else if (isSCMArtifactNode(e)) {
+          return !(e.childrenCount === 1 && Iterable.first(e.children)?.element === void 0);
+        } else {
+          return true;
+        }
+      }, "collapseByDefault"),
+      compressionEnabled: true,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+      multipleSelectionSupport: this.scmViewService.selectionModeConfig.get() === "multiple",
+      expandOnDoubleClick: true,
+      expandOnlyOnTwistieClick: true,
+      accessibilityProvider: {
+        getAriaLabel(element) {
+          if (isSCMRepository(element)) {
+            return element.provider.label;
+          } else if (isSCMArtifactGroupTreeElement(element)) {
+            return element.artifactGroup.name;
+          } else if (isSCMArtifactTreeElement(element)) {
+            return element.artifact.name;
+          } else {
+            return "";
+          }
+        },
+        getWidgetAriaLabel() {
+          return localize("scm", "Source Control Repositories");
+        }
+      }
+    });
+    this._register(this.tree);
+    this._register(autorun((reader) => {
+      const selectionMode = this.scmViewService.selectionModeConfig.read(reader);
+      this.tree.updateOptions({ multipleSelectionSupport: selectionMode === "multiple" });
+    }));
+    this._register(this.tree.onDidOpen(this.onTreeDidOpen, this));
+    this._register(this.tree.onDidChangeSelection(this.onTreeSelectionChange, this));
+    this._register(this.tree.onDidChangeFocus(this.onTreeDidChangeFocus, this));
+    this._register(this.tree.onDidFocus(this.onDidTreeFocus, this));
+    this._register(this.tree.onContextMenu(this.onTreeContextMenu, this));
+    this._register(this.tree.onDidChangeContentHeight(this.onTreeContentHeightChange, this));
+  }
+  async onDidAddRepository(repository) {
+    const disposables = new DisposableStore();
+    disposables.add(autorun(async (reader) => {
+      const explorerEnabled = this.scmViewService.explorerEnabledConfig.read(reader);
+      const artifactsProvider = repository.provider.artifactProvider.read(reader);
+      if (!explorerEnabled || !artifactsProvider) {
+        return;
+      }
+      reader.store.add(artifactsProvider.onDidChangeArtifacts(async (groups) => {
+        await this.updateRepository(repository);
+      }));
+    }));
+    disposables.add(autorun(async (reader) => {
+      const historyProvider = repository.provider.historyProvider.read(reader);
+      if (!historyProvider) {
+        return;
+      }
+      reader.store.add(runOnChange(historyProvider.historyItemRef, async () => {
+        await this.updateRepository(repository);
+      }));
+    }));
+    await this.updateRepository(repository);
+    this.repositoryDisposables.set(repository, disposables);
+  }
+  async onDidRemoveRepository(repository) {
+    await this.updateRepository(repository);
+    this.repositoryDisposables.deleteAndDispose(repository);
+  }
+  onTreeDidOpen(e) {
+    if (!e.element || !isSCMArtifactTreeElement(e.element) || !e.element.artifact.command) {
+      return;
+    }
+    this.commandService.executeCommand(e.element.artifact.command.id, e.element.repository.provider, e.element.artifact);
+  }
+  onTreeContextMenu(e) {
+    if (!e.element) {
+      return;
+    }
+    if (isSCMRepository(e.element)) {
+      const provider = e.element.provider;
+      const menus = this.scmViewService.menus.getRepositoryMenus(provider);
+      const menu = menus.getRepositoryContextMenu(e.element);
+      const actions = collectContextMenuActions(menu);
+      const disposables = new DisposableStore();
+      const actionRunner = new RepositoryActionRunner(() => {
+        return this.getTreeSelection();
+      });
+      disposables.add(actionRunner);
+      disposables.add(actionRunner.onWillRun(() => this.tree.domFocus()));
+      this.contextMenuService.showContextMenu({
+        actionRunner,
+        getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+        getActionsContext: /* @__PURE__ */ __name(() => provider, "getActionsContext"),
+        onHide: /* @__PURE__ */ __name(() => disposables.dispose(), "onHide")
+      });
+    } else if (isSCMArtifactTreeElement(e.element)) {
+      const provider = e.element.repository.provider;
+      const artifact = e.element.artifact;
+      const menus = this.scmViewService.menus.getRepositoryMenus(provider);
+      const menu = menus.getArtifactMenu(e.element.group, artifact);
+      const actions = collectContextMenuActions(menu, provider);
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+        getActionsContext: /* @__PURE__ */ __name(() => artifact, "getActionsContext")
+      });
+    }
+  }
+  onTreeSelectionChange(e) {
+    if (e.browserEvent && e.elements.length > 0) {
+      const scrollTop = this.tree.scrollTop;
+      if (e.elements.every((e2) => isSCMRepository(e2))) {
+        this.scmViewService.visibleRepositories = e.elements;
+      } else if (e.elements.every((e2) => isSCMArtifactGroupTreeElement(e2) || isSCMArtifactTreeElement(e2))) {
+        this.scmViewService.visibleRepositories = e.elements.map((e2) => e2.repository);
+      }
+      this.tree.scrollTop = scrollTop;
+    }
+  }
+  onTreeDidChangeFocus(e) {
+    if (e.browserEvent && e.elements.length > 0) {
+      if (isSCMRepository(e.elements[0])) {
+        this.scmViewService.focus(e.elements[0]);
+      }
+    }
+  }
+  onDidTreeFocus() {
+    const focused = this.tree.getFocus();
+    if (focused.length > 0) {
+      if (isSCMRepository(focused[0])) {
+        this.scmViewService.focus(focused[0]);
+      } else if (isSCMArtifactGroupTreeElement(focused[0]) || isSCMArtifactTreeElement(focused[0])) {
+        this.scmViewService.focus(focused[0].repository);
+      }
+    }
+  }
+  onTreeContentHeightChange(height) {
+    this.updateBodySize(height);
+    this.treeOperationSequencer.queue(() => this.updateTreeSelection());
+  }
+  async updateChildren(element) {
+    return this.updateChildrenThrottler.queue(() => this.treeOperationSequencer.queue(async () => {
+      if (element && this.tree.hasNode(element)) {
+        await this.tree.updateChildren(element, true);
+      } else {
+        await this.tree.updateChildren(void 0, true);
+      }
+    }));
+  }
+  async expand(element) {
+    await this.treeOperationSequencer.queue(() => this.tree.expand(element, true));
+  }
+  async updateRepository(repository) {
+    if (this.scmViewService.explorerEnabledConfig.get() === false) {
+      if (repository.provider.parentId === void 0) {
+        await this.updateChildren();
+        return;
+      }
+      await this.updateParentRepository(repository);
+    }
+    await this.updateChildren();
+  }
+  async updateParentRepository(repository) {
+    const parentRepository = this.scmViewService.repositories.find((r) => r.provider.id === repository.provider.parentId);
+    if (!parentRepository) {
+      return;
+    }
+    await this.updateChildren(parentRepository);
+    await this.expand(parentRepository);
+  }
+  updateBodySize(contentHeight, visibleCount) {
+    if (this.orientation === 1) {
+      return;
+    }
+    if (this.scmViewService.explorerEnabledConfig.get() === false) {
+      visibleCount = visibleCount ?? this.visibleCountObs.get();
+      const empty = this.scmViewService.repositories.length === 0;
+      const size = Math.min(contentHeight / 22, visibleCount) * 22;
+      this.minimumBodySize = visibleCount === 0 ? 22 : size;
+      this.maximumBodySize = visibleCount === 0 ? Number.POSITIVE_INFINITY : empty ? Number.POSITIVE_INFINITY : size;
+    } else {
+      this.minimumBodySize = 120;
+      this.maximumBodySize = Number.POSITIVE_INFINITY;
+    }
+  }
+  async updateTreeSelection() {
+    const oldSelection = this.getTreeSelection();
+    const oldSet = new Set(oldSelection);
+    const set = new Set(this.scmViewService.visibleRepositories);
+    const added = new Set(Iterable.filter(set, (r) => !oldSet.has(r)));
+    const removed = new Set(Iterable.filter(oldSet, (r) => !set.has(r)));
+    if (added.size === 0 && removed.size === 0) {
+      return;
+    }
+    const selection = oldSelection.filter((repo) => !removed.has(repo));
+    for (const repo of this.scmViewService.repositories) {
+      if (added.has(repo)) {
+        selection.push(repo);
+      }
+    }
+    const visibleSelection = selection.filter((s) => this.tree.hasNode(s));
+    this.tree.setSelection(visibleSelection);
+    if (visibleSelection.length > 0 && !this.tree.getFocus().includes(visibleSelection[0])) {
+      this.tree.setAnchor(visibleSelection[0]);
+      this.tree.setFocus([visibleSelection[0]]);
+    }
+  }
+  getTreeSelection() {
+    return this.tree.getSelection().map((e) => {
+      if (isSCMRepository(e)) {
+        return e;
+      } else if (isSCMArtifactGroupTreeElement(e) || isSCMArtifactTreeElement(e)) {
+        return e.repository;
+      } else if (isSCMArtifactNode(e)) {
+        return e.context.repository;
+      } else {
+        throw new Error("Invalid tree element");
+      }
+    });
+  }
+  loadTreeViewState() {
+    const storageViewState = this.storageService.get(
+      "scm.repositoriesViewState",
+      1
+      /* StorageScope.WORKSPACE */
+    );
+    if (!storageViewState) {
+      return void 0;
+    }
+    try {
+      const treeViewState = JSON.parse(storageViewState);
+      return treeViewState;
+    } catch {
+      return void 0;
+    }
+  }
+  storeTreeViewState() {
+    if (this.tree) {
+      this.storageService.store(
+        "scm.repositoriesViewState",
+        JSON.stringify(this.tree.getViewState()),
+        1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+  }
+  dispose() {
+    this.visibilityDisposables.dispose();
+    super.dispose();
+  }
+};
+SCMRepositoriesViewPane = __decorate([
+  __param(1, ISCMService),
+  __param(2, ISCMViewService),
+  __param(3, IKeybindingService),
+  __param(4, IContextMenuService),
+  __param(5, ICommandService),
+  __param(6, IInstantiationService),
+  __param(7, IViewDescriptorService),
+  __param(8, IContextKeyService),
+  __param(9, IConfigurationService),
+  __param(10, IOpenerService),
+  __param(11, IThemeService),
+  __param(12, IHoverService),
+  __param(13, IStorageService)
+], SCMRepositoriesViewPane);
+export {
+  SCMRepositoriesViewPane
+};
+//# sourceMappingURL=scmRepositoriesViewPane.js.map

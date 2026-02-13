@@ -1,3 +1,1165 @@
-import{$mb as P}from"../../../base/common/errors.js";import{$Ed as p,$yd as V}from"../../../base/common/lifecycle.js";import{Schemas as $}from"../../../base/common/network.js";import z from"../../../base/common/severity.js";import*as c from"../../../nls.js";import{$Mp as K}from"../../dialogs/common/dialogs.js";import{$WC as F}from"../../instantiation/common/extensions.js";import{$pH as A}from"../../notification/common/notification.js";import{$$G as D,$_G as w,$aH as x,$bH as d}from"./undoRedo.js";var U=function(l,e,t,s){var r=arguments.length,i=r<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,e,t,s);else for(var n=l.length-1;n>=0;n--)(o=l[n])&&(i=(r<3?o(i):r>3?o(e,t,i):o(e,t))||i);return r>3&&i&&Object.defineProperty(e,t,i),i},v=function(l,e){return function(t,s){e(t,s,l)}};const f=!1;function g(l){return l.scheme===$.file?l.fsPath:l.path}let I=0;class m{constructor(e,t,s,r,i,o,n){this.id=++I,this.type=0,this.actual=e,this.label=e.label,this.confirmBeforeUndo=e.confirmBeforeUndo||!1,this.resourceLabel=t,this.strResource=s,this.resourceLabels=[this.resourceLabel],this.strResources=[this.strResource],this.groupId=r,this.groupOrder=i,this.sourceId=o,this.sourceOrder=n,this.isValid=!0}setValid(e){this.isValid=e}toString(){return`[id:${this.id}] [group:${this.groupId}] [${this.isValid?"  VALID":"INVALID"}] ${this.actual.constructor.name} - ${this.actual}`}}var k;(function(l){l[l.ExternalRemoval=0]="ExternalRemoval",l[l.NoParallelUniverses=1]="NoParallelUniverses"})(k||(k={}));class y{constructor(e,t){this.resourceLabel=e,this.reason=t}}class S{constructor(){this.a=new Map}createMessage(){const e=[],t=[];for(const[,r]of this.a)(r.reason===0?e:t).push(r.resourceLabel);const s=[];return e.length>0&&s.push(c.localize(2698,null,e.join(", "))),t.length>0&&s.push(c.localize(2699,null,t.join(", "))),s.join(`
-`)}get size(){return this.a.size}has(e){return this.a.has(e)}set(e,t){this.a.set(e,t)}delete(e){return this.a.delete(e)}}class B{constructor(e,t,s,r,i,o,n){this.id=++I,this.type=1,this.actual=e,this.label=e.label,this.confirmBeforeUndo=e.confirmBeforeUndo||!1,this.resourceLabels=t,this.strResources=s,this.groupId=r,this.groupOrder=i,this.sourceId=o,this.sourceOrder=n,this.removedResources=null,this.invalidatedResources=null}canSplit(){return typeof this.actual.split=="function"}removeResource(e,t,s){this.removedResources||(this.removedResources=new S),this.removedResources.has(t)||this.removedResources.set(t,new y(e,s))}setValid(e,t,s){s?this.invalidatedResources&&(this.invalidatedResources.delete(t),this.invalidatedResources.size===0&&(this.invalidatedResources=null)):(this.invalidatedResources||(this.invalidatedResources=new S),this.invalidatedResources.has(t)||this.invalidatedResources.set(t,new y(e,0)))}toString(){return`[id:${this.id}] [group:${this.groupId}] [${this.invalidatedResources?"INVALID":"  VALID"}] ${this.actual.constructor.name} - ${this.actual}`}}class C{constructor(e,t){this.resourceLabel=e,this.a=t,this.b=[],this.c=[],this.locked=!1,this.versionId=1}dispose(){for(const e of this.b)e.type===1&&e.removeResource(this.resourceLabel,this.a,0);for(const e of this.c)e.type===1&&e.removeResource(this.resourceLabel,this.a,0);this.versionId++}toString(){const e=[];e.push(`* ${this.a}:`);for(let t=0;t<this.b.length;t++)e.push(`   * [UNDO] ${this.b[t]}`);for(let t=this.c.length-1;t>=0;t--)e.push(`   * [REDO] ${this.c[t]}`);return e.join(`
-`)}flushAllElements(){this.b=[],this.c=[],this.versionId++}setElementsIsValid(e){for(const t of this.b)t.type===1?t.setValid(this.resourceLabel,this.a,e):t.setValid(e);for(const t of this.c)t.type===1?t.setValid(this.resourceLabel,this.a,e):t.setValid(e)}d(e,t){e.type===1?e.setValid(this.resourceLabel,this.a,t):e.setValid(t)}setElementsValidFlag(e,t){for(const s of this.b)t(s.actual)&&this.d(s,e);for(const s of this.c)t(s.actual)&&this.d(s,e)}pushElement(e){for(const t of this.c)t.type===1&&t.removeResource(this.resourceLabel,this.a,1);this.c=[],this.b.push(e),this.versionId++}createSnapshot(e){const t=[];for(let s=0,r=this.b.length;s<r;s++)t.push(this.b[s].id);for(let s=this.c.length-1;s>=0;s--)t.push(this.c[s].id);return new w(e,t)}restoreSnapshot(e){const t=e.elements.length;let s=!0,r=0,i=-1;for(let n=0,a=this.b.length;n<a;n++,r++){const u=this.b[n];s&&(r>=t||u.id!==e.elements[r])&&(s=!1,i=n),!s&&u.type===1&&u.removeResource(this.resourceLabel,this.a,0)}let o=-1;for(let n=this.c.length-1;n>=0;n--,r++){const a=this.c[n];s&&(r>=t||a.id!==e.elements[r])&&(s=!1,o=n),!s&&a.type===1&&a.removeResource(this.resourceLabel,this.a,0)}i!==-1&&(this.b=this.b.slice(0,i)),o!==-1&&(this.c=this.c.slice(o+1)),this.versionId++}getElements(){const e=[],t=[];for(const s of this.b)e.push(s.actual);for(const s of this.c)t.push(s.actual);return{past:e,future:t}}getClosestPastElement(){return this.b.length===0?null:this.b[this.b.length-1]}getSecondClosestPastElement(){return this.b.length<2?null:this.b[this.b.length-2]}getClosestFutureElement(){return this.c.length===0?null:this.c[this.c.length-1]}hasPastElements(){return this.b.length>0}hasFutureElements(){return this.c.length>0}splitPastWorkspaceElement(e,t){for(let s=this.b.length-1;s>=0;s--)if(this.b[s]===e){t.has(this.a)?this.b[s]=t.get(this.a):this.b.splice(s,1);break}this.versionId++}splitFutureWorkspaceElement(e,t){for(let s=this.c.length-1;s>=0;s--)if(this.c[s]===e){t.has(this.a)?this.c[s]=t.get(this.a):this.c.splice(s,1);break}this.versionId++}moveBackward(e){this.b.pop(),this.c.push(e),this.versionId++}moveForward(e){this.c.pop(),this.b.push(e),this.versionId++}}class E{constructor(e){this.editStacks=e,this.a=[];for(let t=0,s=this.editStacks.length;t<s;t++)this.a[t]=this.editStacks[t].versionId}isValid(){for(let e=0,t=this.editStacks.length;e<t;e++)if(this.a[e]!==this.editStacks[e].versionId)return!1;return!0}}const L=new C("","");L.locked=!0;let R=class{constructor(e,t){this.c=e,this.d=t,this.a=new Map,this.b=[]}registerUriComparisonKeyComputer(e,t){return this.b.push([e,t]),{dispose:()=>{for(let s=0,r=this.b.length;s<r;s++)if(this.b[s][1]===t){this.b.splice(s,1);return}}}}getUriComparisonKey(e){for(const t of this.b)if(t[0]===e.scheme)return t[1].getComparisonKey(e);return e.toString()}e(e){const t=[];for(const s of this.a)t.push(s[1].toString())}pushElement(e,t=x.None,s=d.None){if(e.type===0){const r=g(e.resource),i=this.getUriComparisonKey(e.resource);this.f(new m(e,r,i,t.id,t.nextOrder(),s.id,s.nextOrder()))}else{const r=new Set,i=[],o=[];for(const n of e.resources){const a=g(n),u=this.getUriComparisonKey(n);r.has(u)||(r.add(u),i.push(a),o.push(u))}i.length===1?this.f(new m(e,i[0],o[0],t.id,t.nextOrder(),s.id,s.nextOrder())):this.f(new B(e,i,o,t.id,t.nextOrder(),s.id,s.nextOrder()))}f&&this.e("pushElement")}f(e){for(let t=0,s=e.strResources.length;t<s;t++){const r=e.resourceLabels[t],i=e.strResources[t];let o;this.a.has(i)?o=this.a.get(i):(o=new C(r,i),this.a.set(i,o)),o.pushElement(e)}}getLastElement(e){const t=this.getUriComparisonKey(e);if(this.a.has(t)){const s=this.a.get(t);if(s.hasFutureElements())return null;const r=s.getClosestPastElement();return r?r.actual:null}return null}g(e,t){const s=e.actual.split(),r=new Map;for(const i of s){const o=g(i.resource),n=this.getUriComparisonKey(i.resource),a=new m(i,o,n,0,0,0,0);r.set(a.strResource,a)}for(const i of e.strResources){if(t&&t.has(i))continue;this.a.get(i).splitPastWorkspaceElement(e,r)}}h(e,t){const s=e.actual.split(),r=new Map;for(const i of s){const o=g(i.resource),n=this.getUriComparisonKey(i.resource),a=new m(i,o,n,0,0,0,0);r.set(a.strResource,a)}for(const i of e.strResources){if(t&&t.has(i))continue;this.a.get(i).splitFutureWorkspaceElement(e,r)}}removeElements(e){const t=typeof e=="string"?e:this.getUriComparisonKey(e);this.a.has(t)&&(this.a.get(t).dispose(),this.a.delete(t)),f&&this.e("removeElements")}setElementsValidFlag(e,t,s){const r=this.getUriComparisonKey(e);this.a.has(r)&&this.a.get(r).setElementsValidFlag(t,s),f&&this.e("setElementsValidFlag")}hasElements(e){const t=this.getUriComparisonKey(e);if(this.a.has(t)){const s=this.a.get(t);return s.hasPastElements()||s.hasFutureElements()}return!1}createSnapshot(e){const t=this.getUriComparisonKey(e);return this.a.has(t)?this.a.get(t).createSnapshot(e):new w(e,[])}restoreSnapshot(e){const t=this.getUriComparisonKey(e.resource);if(this.a.has(t)){const s=this.a.get(t);s.restoreSnapshot(e),!s.hasPastElements()&&!s.hasFutureElements()&&(s.dispose(),this.a.delete(t))}f&&this.e("restoreSnapshot")}getElements(e){const t=this.getUriComparisonKey(e);return this.a.has(t)?this.a.get(t).getElements():{past:[],future:[]}}k(e){if(!e)return[null,null];let t=null,s=null;for(const[r,i]of this.a){const o=i.getClosestPastElement();o&&o.sourceId===e&&(!t||o.sourceOrder>t.sourceOrder)&&(t=o,s=r)}return[t,s]}canUndo(e){if(e instanceof d){const[,s]=this.k(e.id);return!!s}const t=this.getUriComparisonKey(e);return this.a.has(t)?this.a.get(t).hasPastElements():!1}l(e,t){P(e);for(const s of t.strResources)this.removeElements(s);this.d.error(e)}m(e){for(const t of e.editStacks)if(t.locked)throw new Error("Cannot acquire edit stack lock");for(const t of e.editStacks)t.locked=!0;return()=>{for(const t of e.editStacks)t.locked=!1}}n(e,t,s,r,i){const o=this.m(s);let n;try{n=t()}catch(a){return o(),r.dispose(),this.l(a,e)}return n?n.then(()=>(o(),r.dispose(),i()),a=>(o(),r.dispose(),this.l(a,e))):(o(),r.dispose(),i())}async o(e){if(typeof e.actual.prepareUndoRedo>"u")return p.None;const t=e.actual.prepareUndoRedo();return typeof t>"u"?p.None:t}p(e,t){if(e.actual.type!==1||typeof e.actual.prepareUndoRedo>"u")return t(p.None);const s=e.actual.prepareUndoRedo();return s?V(s)?t(s):s.then(r=>t(r)):t(p.None)}q(e){const t=[];for(const s of e.strResources)t.push(this.a.get(s)||L);return new E(t)}s(e,t,s,r){if(t.canSplit())return this.g(t,s),this.d.warn(r),new b(this.A(e,0,!0));for(const i of t.strResources)this.removeElements(i);return this.d.warn(r),new b}t(e,t,s,r){if(t.removedResources)return this.s(e,t,t.removedResources,c.localize(2700,null,t.label,t.removedResources.createMessage()));if(r&&t.invalidatedResources)return this.s(e,t,t.invalidatedResources,c.localize(2701,null,t.label,t.invalidatedResources.createMessage()));const i=[];for(const n of s.editStacks)n.getClosestPastElement()!==t&&i.push(n.resourceLabel);if(i.length>0)return this.s(e,t,null,c.localize(2702,null,t.label,i.join(", ")));const o=[];for(const n of s.editStacks)n.locked&&o.push(n.resourceLabel);return o.length>0?this.s(e,t,null,c.localize(2703,null,t.label,o.join(", "))):s.isValid()?null:this.s(e,t,null,c.localize(2704,null,t.label))}u(e,t,s){const r=this.q(t),i=this.t(e,t,r,!1);return i?i.returnValue:this.w(e,t,r,s)}v(e){if(!e.groupId)return!1;for(const[,t]of this.a){const s=t.getClosestPastElement();if(s){if(s===e){const r=t.getSecondClosestPastElement();if(r&&r.groupId===e.groupId)return!0}if(s.groupId===e.groupId)return!0}}return!1}async w(e,t,s,r){if(t.canSplit()&&!this.v(t)){let n;(function(h){h[h.All=0]="All",h[h.This=1]="This",h[h.Cancel=2]="Cancel"})(n||(n={}));const{result:a}=await this.c.prompt({type:z.Info,message:c.localize(2705,null,t.label),buttons:[{label:c.localize(2706,null,s.editStacks.length),run:()=>n.All},{label:c.localize(2707,null),run:()=>n.This}],cancelButton:{run:()=>n.Cancel}});if(a===n.Cancel)return;if(a===n.This)return this.g(t,null),this.A(e,0,!0);const u=this.t(e,t,s,!1);if(u)return u.returnValue;r=!0}let i;try{i=await this.o(t)}catch(n){return this.l(n,t)}const o=this.t(e,t,s,!0);if(o)return i.dispose(),o.returnValue;for(const n of s.editStacks)n.moveBackward(t);return this.n(t,()=>t.actual.undo(),s,i,()=>this.z(t.groupId,r))}x(e,t,s){if(!t.isValid){e.flushAllElements();return}if(e.locked){const r=c.localize(2708,null,t.label);this.d.warn(r);return}return this.p(t,r=>(e.moveBackward(t),this.n(t,()=>t.actual.undo(),new E([e]),r,()=>this.z(t.groupId,s))))}y(e){if(!e)return[null,null];let t=null,s=null;for(const[r,i]of this.a){const o=i.getClosestPastElement();o&&o.groupId===e&&(!t||o.groupOrder>t.groupOrder)&&(t=o,s=r)}return[t,s]}z(e,t){if(!e)return;const[,s]=this.y(e);if(s)return this.A(s,0,t)}undo(e){if(e instanceof d){const[,t]=this.k(e.id);return t?this.A(t,e.id,!1):void 0}return typeof e=="string"?this.A(e,0,!1):this.A(this.getUriComparisonKey(e),0,!1)}A(e,t=0,s){if(!this.a.has(e))return;const r=this.a.get(e),i=r.getClosestPastElement();if(!i)return;if(i.groupId){const[n,a]=this.y(i.groupId);if(i!==n&&a)return this.A(a,t,s)}if((i.sourceId!==t||i.confirmBeforeUndo)&&!s)return this.B(e,t,i);try{return i.type===1?this.u(e,i,s):this.x(r,i,s)}finally{f&&this.e("undo")}}async B(e,t,s){if((await this.c.confirm({message:c.localize(2709,null,s.label),primaryButton:c.localize(2710,null),cancelButton:c.localize(2711,null)})).confirmed)return this.A(e,t,!0)}C(e){if(!e)return[null,null];let t=null,s=null;for(const[r,i]of this.a){const o=i.getClosestFutureElement();o&&o.sourceId===e&&(!t||o.sourceOrder<t.sourceOrder)&&(t=o,s=r)}return[t,s]}canRedo(e){if(e instanceof d){const[,s]=this.C(e.id);return!!s}const t=this.getUriComparisonKey(e);return this.a.has(t)?this.a.get(t).hasFutureElements():!1}D(e,t,s,r){if(t.canSplit())return this.h(t,s),this.d.warn(r),new b(this.K(e));for(const i of t.strResources)this.removeElements(i);return this.d.warn(r),new b}E(e,t,s,r){if(t.removedResources)return this.D(e,t,t.removedResources,c.localize(2712,null,t.label,t.removedResources.createMessage()));if(r&&t.invalidatedResources)return this.D(e,t,t.invalidatedResources,c.localize(2713,null,t.label,t.invalidatedResources.createMessage()));const i=[];for(const n of s.editStacks)n.getClosestFutureElement()!==t&&i.push(n.resourceLabel);if(i.length>0)return this.D(e,t,null,c.localize(2714,null,t.label,i.join(", ")));const o=[];for(const n of s.editStacks)n.locked&&o.push(n.resourceLabel);return o.length>0?this.D(e,t,null,c.localize(2715,null,t.label,o.join(", "))):s.isValid()?null:this.D(e,t,null,c.localize(2716,null,t.label))}F(e,t){const s=this.q(t),r=this.E(e,t,s,!1);return r?r.returnValue:this.G(e,t,s)}async G(e,t,s){let r;try{r=await this.o(t)}catch(o){return this.l(o,t)}const i=this.E(e,t,s,!0);if(i)return r.dispose(),i.returnValue;for(const o of s.editStacks)o.moveForward(t);return this.n(t,()=>t.actual.redo(),s,r,()=>this.J(t.groupId))}H(e,t){if(!t.isValid){e.flushAllElements();return}if(e.locked){const s=c.localize(2717,null,t.label);this.d.warn(s);return}return this.p(t,s=>(e.moveForward(t),this.n(t,()=>t.actual.redo(),new E([e]),s,()=>this.J(t.groupId))))}I(e){if(!e)return[null,null];let t=null,s=null;for(const[r,i]of this.a){const o=i.getClosestFutureElement();o&&o.groupId===e&&(!t||o.groupOrder<t.groupOrder)&&(t=o,s=r)}return[t,s]}J(e){if(!e)return;const[,t]=this.I(e);if(t)return this.K(t)}redo(e){if(e instanceof d){const[,t]=this.C(e.id);return t?this.K(t):void 0}return typeof e=="string"?this.K(e):this.K(this.getUriComparisonKey(e))}K(e){if(!this.a.has(e))return;const t=this.a.get(e),s=t.getClosestFutureElement();if(s){if(s.groupId){const[r,i]=this.I(s.groupId);if(s!==r&&i)return this.K(i)}try{return s.type===1?this.F(e,s):this.H(t,s)}finally{f&&this.e("redo")}}}};R=U([v(0,K),v(1,A)],R);class b{constructor(e){this.returnValue=e}}F(D,R,1);export{R as $x_b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { Disposable, isDisposable } from "../../../base/common/lifecycle.js";
+import { Schemas } from "../../../base/common/network.js";
+import Severity from "../../../base/common/severity.js";
+import * as nls from "../../../nls.js";
+import { IDialogService } from "../../dialogs/common/dialogs.js";
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { INotificationService } from "../../notification/common/notification.js";
+import { IUndoRedoService, ResourceEditStackSnapshot, UndoRedoGroup, UndoRedoSource } from "./undoRedo.js";
+const DEBUG = false;
+function getResourceLabel(resource) {
+  return resource.scheme === Schemas.file ? resource.fsPath : resource.path;
+}
+__name(getResourceLabel, "getResourceLabel");
+let stackElementCounter = 0;
+class ResourceStackElement {
+  static {
+    __name(this, "ResourceStackElement");
+  }
+  constructor(actual, resourceLabel, strResource, groupId, groupOrder, sourceId, sourceOrder) {
+    this.id = ++stackElementCounter;
+    this.type = 0;
+    this.actual = actual;
+    this.label = actual.label;
+    this.confirmBeforeUndo = actual.confirmBeforeUndo || false;
+    this.resourceLabel = resourceLabel;
+    this.strResource = strResource;
+    this.resourceLabels = [this.resourceLabel];
+    this.strResources = [this.strResource];
+    this.groupId = groupId;
+    this.groupOrder = groupOrder;
+    this.sourceId = sourceId;
+    this.sourceOrder = sourceOrder;
+    this.isValid = true;
+  }
+  setValid(isValid) {
+    this.isValid = isValid;
+  }
+  toString() {
+    return `[id:${this.id}] [group:${this.groupId}] [${this.isValid ? "  VALID" : "INVALID"}] ${this.actual.constructor.name} - ${this.actual}`;
+  }
+}
+var RemovedResourceReason;
+(function(RemovedResourceReason2) {
+  RemovedResourceReason2[RemovedResourceReason2["ExternalRemoval"] = 0] = "ExternalRemoval";
+  RemovedResourceReason2[RemovedResourceReason2["NoParallelUniverses"] = 1] = "NoParallelUniverses";
+})(RemovedResourceReason || (RemovedResourceReason = {}));
+class ResourceReasonPair {
+  static {
+    __name(this, "ResourceReasonPair");
+  }
+  constructor(resourceLabel, reason) {
+    this.resourceLabel = resourceLabel;
+    this.reason = reason;
+  }
+}
+class RemovedResources {
+  static {
+    __name(this, "RemovedResources");
+  }
+  constructor() {
+    this.elements = /* @__PURE__ */ new Map();
+  }
+  createMessage() {
+    const externalRemoval = [];
+    const noParallelUniverses = [];
+    for (const [, element] of this.elements) {
+      const dest = element.reason === 0 ? externalRemoval : noParallelUniverses;
+      dest.push(element.resourceLabel);
+    }
+    const messages = [];
+    if (externalRemoval.length > 0) {
+      messages.push(nls.localize({ key: "externalRemoval", comment: ["{0} is a list of filenames"] }, "The following files have been closed and modified on disk: {0}.", externalRemoval.join(", ")));
+    }
+    if (noParallelUniverses.length > 0) {
+      messages.push(nls.localize({ key: "noParallelUniverses", comment: ["{0} is a list of filenames"] }, "The following files have been modified in an incompatible way: {0}.", noParallelUniverses.join(", ")));
+    }
+    return messages.join("\n");
+  }
+  get size() {
+    return this.elements.size;
+  }
+  has(strResource) {
+    return this.elements.has(strResource);
+  }
+  set(strResource, value) {
+    this.elements.set(strResource, value);
+  }
+  delete(strResource) {
+    return this.elements.delete(strResource);
+  }
+}
+class WorkspaceStackElement {
+  static {
+    __name(this, "WorkspaceStackElement");
+  }
+  constructor(actual, resourceLabels, strResources, groupId, groupOrder, sourceId, sourceOrder) {
+    this.id = ++stackElementCounter;
+    this.type = 1;
+    this.actual = actual;
+    this.label = actual.label;
+    this.confirmBeforeUndo = actual.confirmBeforeUndo || false;
+    this.resourceLabels = resourceLabels;
+    this.strResources = strResources;
+    this.groupId = groupId;
+    this.groupOrder = groupOrder;
+    this.sourceId = sourceId;
+    this.sourceOrder = sourceOrder;
+    this.removedResources = null;
+    this.invalidatedResources = null;
+  }
+  canSplit() {
+    return typeof this.actual.split === "function";
+  }
+  removeResource(resourceLabel, strResource, reason) {
+    if (!this.removedResources) {
+      this.removedResources = new RemovedResources();
+    }
+    if (!this.removedResources.has(strResource)) {
+      this.removedResources.set(strResource, new ResourceReasonPair(resourceLabel, reason));
+    }
+  }
+  setValid(resourceLabel, strResource, isValid) {
+    if (isValid) {
+      if (this.invalidatedResources) {
+        this.invalidatedResources.delete(strResource);
+        if (this.invalidatedResources.size === 0) {
+          this.invalidatedResources = null;
+        }
+      }
+    } else {
+      if (!this.invalidatedResources) {
+        this.invalidatedResources = new RemovedResources();
+      }
+      if (!this.invalidatedResources.has(strResource)) {
+        this.invalidatedResources.set(strResource, new ResourceReasonPair(
+          resourceLabel,
+          0
+          /* RemovedResourceReason.ExternalRemoval */
+        ));
+      }
+    }
+  }
+  toString() {
+    return `[id:${this.id}] [group:${this.groupId}] [${this.invalidatedResources ? "INVALID" : "  VALID"}] ${this.actual.constructor.name} - ${this.actual}`;
+  }
+}
+class ResourceEditStack {
+  static {
+    __name(this, "ResourceEditStack");
+  }
+  constructor(resourceLabel, strResource) {
+    this.resourceLabel = resourceLabel;
+    this.strResource = strResource;
+    this._past = [];
+    this._future = [];
+    this.locked = false;
+    this.versionId = 1;
+  }
+  dispose() {
+    for (const element of this._past) {
+      if (element.type === 1) {
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0
+          /* RemovedResourceReason.ExternalRemoval */
+        );
+      }
+    }
+    for (const element of this._future) {
+      if (element.type === 1) {
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0
+          /* RemovedResourceReason.ExternalRemoval */
+        );
+      }
+    }
+    this.versionId++;
+  }
+  toString() {
+    const result = [];
+    result.push(`* ${this.strResource}:`);
+    for (let i = 0; i < this._past.length; i++) {
+      result.push(`   * [UNDO] ${this._past[i]}`);
+    }
+    for (let i = this._future.length - 1; i >= 0; i--) {
+      result.push(`   * [REDO] ${this._future[i]}`);
+    }
+    return result.join("\n");
+  }
+  flushAllElements() {
+    this._past = [];
+    this._future = [];
+    this.versionId++;
+  }
+  setElementsIsValid(isValid) {
+    for (const element of this._past) {
+      if (element.type === 1) {
+        element.setValid(this.resourceLabel, this.strResource, isValid);
+      } else {
+        element.setValid(isValid);
+      }
+    }
+    for (const element of this._future) {
+      if (element.type === 1) {
+        element.setValid(this.resourceLabel, this.strResource, isValid);
+      } else {
+        element.setValid(isValid);
+      }
+    }
+  }
+  _setElementValidFlag(element, isValid) {
+    if (element.type === 1) {
+      element.setValid(this.resourceLabel, this.strResource, isValid);
+    } else {
+      element.setValid(isValid);
+    }
+  }
+  setElementsValidFlag(isValid, filter) {
+    for (const element of this._past) {
+      if (filter(element.actual)) {
+        this._setElementValidFlag(element, isValid);
+      }
+    }
+    for (const element of this._future) {
+      if (filter(element.actual)) {
+        this._setElementValidFlag(element, isValid);
+      }
+    }
+  }
+  pushElement(element) {
+    for (const futureElement of this._future) {
+      if (futureElement.type === 1) {
+        futureElement.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          1
+          /* RemovedResourceReason.NoParallelUniverses */
+        );
+      }
+    }
+    this._future = [];
+    this._past.push(element);
+    this.versionId++;
+  }
+  createSnapshot(resource) {
+    const elements = [];
+    for (let i = 0, len = this._past.length; i < len; i++) {
+      elements.push(this._past[i].id);
+    }
+    for (let i = this._future.length - 1; i >= 0; i--) {
+      elements.push(this._future[i].id);
+    }
+    return new ResourceEditStackSnapshot(resource, elements);
+  }
+  restoreSnapshot(snapshot) {
+    const snapshotLength = snapshot.elements.length;
+    let isOK = true;
+    let snapshotIndex = 0;
+    let removePastAfter = -1;
+    for (let i = 0, len = this._past.length; i < len; i++, snapshotIndex++) {
+      const element = this._past[i];
+      if (isOK && (snapshotIndex >= snapshotLength || element.id !== snapshot.elements[snapshotIndex])) {
+        isOK = false;
+        removePastAfter = i;
+      }
+      if (!isOK && element.type === 1) {
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0
+          /* RemovedResourceReason.ExternalRemoval */
+        );
+      }
+    }
+    let removeFutureBefore = -1;
+    for (let i = this._future.length - 1; i >= 0; i--, snapshotIndex++) {
+      const element = this._future[i];
+      if (isOK && (snapshotIndex >= snapshotLength || element.id !== snapshot.elements[snapshotIndex])) {
+        isOK = false;
+        removeFutureBefore = i;
+      }
+      if (!isOK && element.type === 1) {
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0
+          /* RemovedResourceReason.ExternalRemoval */
+        );
+      }
+    }
+    if (removePastAfter !== -1) {
+      this._past = this._past.slice(0, removePastAfter);
+    }
+    if (removeFutureBefore !== -1) {
+      this._future = this._future.slice(removeFutureBefore + 1);
+    }
+    this.versionId++;
+  }
+  getElements() {
+    const past = [];
+    const future = [];
+    for (const element of this._past) {
+      past.push(element.actual);
+    }
+    for (const element of this._future) {
+      future.push(element.actual);
+    }
+    return { past, future };
+  }
+  getClosestPastElement() {
+    if (this._past.length === 0) {
+      return null;
+    }
+    return this._past[this._past.length - 1];
+  }
+  getSecondClosestPastElement() {
+    if (this._past.length < 2) {
+      return null;
+    }
+    return this._past[this._past.length - 2];
+  }
+  getClosestFutureElement() {
+    if (this._future.length === 0) {
+      return null;
+    }
+    return this._future[this._future.length - 1];
+  }
+  hasPastElements() {
+    return this._past.length > 0;
+  }
+  hasFutureElements() {
+    return this._future.length > 0;
+  }
+  splitPastWorkspaceElement(toRemove, individualMap) {
+    for (let j = this._past.length - 1; j >= 0; j--) {
+      if (this._past[j] === toRemove) {
+        if (individualMap.has(this.strResource)) {
+          this._past[j] = individualMap.get(this.strResource);
+        } else {
+          this._past.splice(j, 1);
+        }
+        break;
+      }
+    }
+    this.versionId++;
+  }
+  splitFutureWorkspaceElement(toRemove, individualMap) {
+    for (let j = this._future.length - 1; j >= 0; j--) {
+      if (this._future[j] === toRemove) {
+        if (individualMap.has(this.strResource)) {
+          this._future[j] = individualMap.get(this.strResource);
+        } else {
+          this._future.splice(j, 1);
+        }
+        break;
+      }
+    }
+    this.versionId++;
+  }
+  moveBackward(element) {
+    this._past.pop();
+    this._future.push(element);
+    this.versionId++;
+  }
+  moveForward(element) {
+    this._future.pop();
+    this._past.push(element);
+    this.versionId++;
+  }
+}
+class EditStackSnapshot {
+  static {
+    __name(this, "EditStackSnapshot");
+  }
+  constructor(editStacks) {
+    this.editStacks = editStacks;
+    this._versionIds = [];
+    for (let i = 0, len = this.editStacks.length; i < len; i++) {
+      this._versionIds[i] = this.editStacks[i].versionId;
+    }
+  }
+  isValid() {
+    for (let i = 0, len = this.editStacks.length; i < len; i++) {
+      if (this._versionIds[i] !== this.editStacks[i].versionId) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+const missingEditStack = new ResourceEditStack("", "");
+missingEditStack.locked = true;
+let UndoRedoService = class UndoRedoService2 {
+  static {
+    __name(this, "UndoRedoService");
+  }
+  constructor(_dialogService, _notificationService) {
+    this._dialogService = _dialogService;
+    this._notificationService = _notificationService;
+    this._editStacks = /* @__PURE__ */ new Map();
+    this._uriComparisonKeyComputers = [];
+  }
+  registerUriComparisonKeyComputer(scheme, uriComparisonKeyComputer) {
+    this._uriComparisonKeyComputers.push([scheme, uriComparisonKeyComputer]);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        for (let i = 0, len = this._uriComparisonKeyComputers.length; i < len; i++) {
+          if (this._uriComparisonKeyComputers[i][1] === uriComparisonKeyComputer) {
+            this._uriComparisonKeyComputers.splice(i, 1);
+            return;
+          }
+        }
+      }, "dispose")
+    };
+  }
+  getUriComparisonKey(resource) {
+    for (const uriComparisonKeyComputer of this._uriComparisonKeyComputers) {
+      if (uriComparisonKeyComputer[0] === resource.scheme) {
+        return uriComparisonKeyComputer[1].getComparisonKey(resource);
+      }
+    }
+    return resource.toString();
+  }
+  _print(label) {
+    console.log(`------------------------------------`);
+    console.log(`AFTER ${label}: `);
+    const str = [];
+    for (const element of this._editStacks) {
+      str.push(element[1].toString());
+    }
+    console.log(str.join("\n"));
+  }
+  pushElement(element, group = UndoRedoGroup.None, source = UndoRedoSource.None) {
+    if (element.type === 0) {
+      const resourceLabel = getResourceLabel(element.resource);
+      const strResource = this.getUriComparisonKey(element.resource);
+      this._pushElement(new ResourceStackElement(element, resourceLabel, strResource, group.id, group.nextOrder(), source.id, source.nextOrder()));
+    } else {
+      const seen = /* @__PURE__ */ new Set();
+      const resourceLabels = [];
+      const strResources = [];
+      for (const resource of element.resources) {
+        const resourceLabel = getResourceLabel(resource);
+        const strResource = this.getUriComparisonKey(resource);
+        if (seen.has(strResource)) {
+          continue;
+        }
+        seen.add(strResource);
+        resourceLabels.push(resourceLabel);
+        strResources.push(strResource);
+      }
+      if (resourceLabels.length === 1) {
+        this._pushElement(new ResourceStackElement(element, resourceLabels[0], strResources[0], group.id, group.nextOrder(), source.id, source.nextOrder()));
+      } else {
+        this._pushElement(new WorkspaceStackElement(element, resourceLabels, strResources, group.id, group.nextOrder(), source.id, source.nextOrder()));
+      }
+    }
+    if (DEBUG) {
+      this._print("pushElement");
+    }
+  }
+  _pushElement(element) {
+    for (let i = 0, len = element.strResources.length; i < len; i++) {
+      const resourceLabel = element.resourceLabels[i];
+      const strResource = element.strResources[i];
+      let editStack;
+      if (this._editStacks.has(strResource)) {
+        editStack = this._editStacks.get(strResource);
+      } else {
+        editStack = new ResourceEditStack(resourceLabel, strResource);
+        this._editStacks.set(strResource, editStack);
+      }
+      editStack.pushElement(element);
+    }
+  }
+  getLastElement(resource) {
+    const strResource = this.getUriComparisonKey(resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      if (editStack.hasFutureElements()) {
+        return null;
+      }
+      const closestPastElement = editStack.getClosestPastElement();
+      return closestPastElement ? closestPastElement.actual : null;
+    }
+    return null;
+  }
+  _splitPastWorkspaceElement(toRemove, ignoreResources) {
+    const individualArr = toRemove.actual.split();
+    const individualMap = /* @__PURE__ */ new Map();
+    for (const _element of individualArr) {
+      const resourceLabel = getResourceLabel(_element.resource);
+      const strResource = this.getUriComparisonKey(_element.resource);
+      const element = new ResourceStackElement(_element, resourceLabel, strResource, 0, 0, 0, 0);
+      individualMap.set(element.strResource, element);
+    }
+    for (const strResource of toRemove.strResources) {
+      if (ignoreResources && ignoreResources.has(strResource)) {
+        continue;
+      }
+      const editStack = this._editStacks.get(strResource);
+      editStack.splitPastWorkspaceElement(toRemove, individualMap);
+    }
+  }
+  _splitFutureWorkspaceElement(toRemove, ignoreResources) {
+    const individualArr = toRemove.actual.split();
+    const individualMap = /* @__PURE__ */ new Map();
+    for (const _element of individualArr) {
+      const resourceLabel = getResourceLabel(_element.resource);
+      const strResource = this.getUriComparisonKey(_element.resource);
+      const element = new ResourceStackElement(_element, resourceLabel, strResource, 0, 0, 0, 0);
+      individualMap.set(element.strResource, element);
+    }
+    for (const strResource of toRemove.strResources) {
+      if (ignoreResources && ignoreResources.has(strResource)) {
+        continue;
+      }
+      const editStack = this._editStacks.get(strResource);
+      editStack.splitFutureWorkspaceElement(toRemove, individualMap);
+    }
+  }
+  removeElements(resource) {
+    const strResource = typeof resource === "string" ? resource : this.getUriComparisonKey(resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      editStack.dispose();
+      this._editStacks.delete(strResource);
+    }
+    if (DEBUG) {
+      this._print("removeElements");
+    }
+  }
+  setElementsValidFlag(resource, isValid, filter) {
+    const strResource = this.getUriComparisonKey(resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      editStack.setElementsValidFlag(isValid, filter);
+    }
+    if (DEBUG) {
+      this._print("setElementsValidFlag");
+    }
+  }
+  hasElements(resource) {
+    const strResource = this.getUriComparisonKey(resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      return editStack.hasPastElements() || editStack.hasFutureElements();
+    }
+    return false;
+  }
+  createSnapshot(resource) {
+    const strResource = this.getUriComparisonKey(resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      return editStack.createSnapshot(resource);
+    }
+    return new ResourceEditStackSnapshot(resource, []);
+  }
+  restoreSnapshot(snapshot) {
+    const strResource = this.getUriComparisonKey(snapshot.resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      editStack.restoreSnapshot(snapshot);
+      if (!editStack.hasPastElements() && !editStack.hasFutureElements()) {
+        editStack.dispose();
+        this._editStacks.delete(strResource);
+      }
+    }
+    if (DEBUG) {
+      this._print("restoreSnapshot");
+    }
+  }
+  getElements(resource) {
+    const strResource = this.getUriComparisonKey(resource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      return editStack.getElements();
+    }
+    return { past: [], future: [] };
+  }
+  _findClosestUndoElementWithSource(sourceId) {
+    if (!sourceId) {
+      return [null, null];
+    }
+    let matchedElement = null;
+    let matchedStrResource = null;
+    for (const [strResource, editStack] of this._editStacks) {
+      const candidate = editStack.getClosestPastElement();
+      if (!candidate) {
+        continue;
+      }
+      if (candidate.sourceId === sourceId) {
+        if (!matchedElement || candidate.sourceOrder > matchedElement.sourceOrder) {
+          matchedElement = candidate;
+          matchedStrResource = strResource;
+        }
+      }
+    }
+    return [matchedElement, matchedStrResource];
+  }
+  canUndo(resourceOrSource) {
+    if (resourceOrSource instanceof UndoRedoSource) {
+      const [, matchedStrResource] = this._findClosestUndoElementWithSource(resourceOrSource.id);
+      return matchedStrResource ? true : false;
+    }
+    const strResource = this.getUriComparisonKey(resourceOrSource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      return editStack.hasPastElements();
+    }
+    return false;
+  }
+  _onError(err, element) {
+    onUnexpectedError(err);
+    for (const strResource of element.strResources) {
+      this.removeElements(strResource);
+    }
+    this._notificationService.error(err);
+  }
+  _acquireLocks(editStackSnapshot) {
+    for (const editStack of editStackSnapshot.editStacks) {
+      if (editStack.locked) {
+        throw new Error("Cannot acquire edit stack lock");
+      }
+    }
+    for (const editStack of editStackSnapshot.editStacks) {
+      editStack.locked = true;
+    }
+    return () => {
+      for (const editStack of editStackSnapshot.editStacks) {
+        editStack.locked = false;
+      }
+    };
+  }
+  _safeInvokeWithLocks(element, invoke, editStackSnapshot, cleanup, continuation) {
+    const releaseLocks = this._acquireLocks(editStackSnapshot);
+    let result;
+    try {
+      result = invoke();
+    } catch (err) {
+      releaseLocks();
+      cleanup.dispose();
+      return this._onError(err, element);
+    }
+    if (result) {
+      return result.then(() => {
+        releaseLocks();
+        cleanup.dispose();
+        return continuation();
+      }, (err) => {
+        releaseLocks();
+        cleanup.dispose();
+        return this._onError(err, element);
+      });
+    } else {
+      releaseLocks();
+      cleanup.dispose();
+      return continuation();
+    }
+  }
+  async _invokeWorkspacePrepare(element) {
+    if (typeof element.actual.prepareUndoRedo === "undefined") {
+      return Disposable.None;
+    }
+    const result = element.actual.prepareUndoRedo();
+    if (typeof result === "undefined") {
+      return Disposable.None;
+    }
+    return result;
+  }
+  _invokeResourcePrepare(element, callback) {
+    if (element.actual.type !== 1 || typeof element.actual.prepareUndoRedo === "undefined") {
+      return callback(Disposable.None);
+    }
+    const r = element.actual.prepareUndoRedo();
+    if (!r) {
+      return callback(Disposable.None);
+    }
+    if (isDisposable(r)) {
+      return callback(r);
+    }
+    return r.then((disposable) => {
+      return callback(disposable);
+    });
+  }
+  _getAffectedEditStacks(element) {
+    const affectedEditStacks = [];
+    for (const strResource of element.strResources) {
+      affectedEditStacks.push(this._editStacks.get(strResource) || missingEditStack);
+    }
+    return new EditStackSnapshot(affectedEditStacks);
+  }
+  _tryToSplitAndUndo(strResource, element, ignoreResources, message) {
+    if (element.canSplit()) {
+      this._splitPastWorkspaceElement(element, ignoreResources);
+      this._notificationService.warn(message);
+      return new WorkspaceVerificationError(this._undo(strResource, 0, true));
+    } else {
+      for (const strResource2 of element.strResources) {
+        this.removeElements(strResource2);
+      }
+      this._notificationService.warn(message);
+      return new WorkspaceVerificationError();
+    }
+  }
+  _checkWorkspaceUndo(strResource, element, editStackSnapshot, checkInvalidatedResources) {
+    if (element.removedResources) {
+      return this._tryToSplitAndUndo(strResource, element, element.removedResources, nls.localize({ key: "cannotWorkspaceUndo", comment: ["{0} is a label for an operation. {1} is another message."] }, "Could not undo '{0}' across all files. {1}", element.label, element.removedResources.createMessage()));
+    }
+    if (checkInvalidatedResources && element.invalidatedResources) {
+      return this._tryToSplitAndUndo(strResource, element, element.invalidatedResources, nls.localize({ key: "cannotWorkspaceUndo", comment: ["{0} is a label for an operation. {1} is another message."] }, "Could not undo '{0}' across all files. {1}", element.label, element.invalidatedResources.createMessage()));
+    }
+    const cannotUndoDueToResources = [];
+    for (const editStack of editStackSnapshot.editStacks) {
+      if (editStack.getClosestPastElement() !== element) {
+        cannotUndoDueToResources.push(editStack.resourceLabel);
+      }
+    }
+    if (cannotUndoDueToResources.length > 0) {
+      return this._tryToSplitAndUndo(strResource, element, null, nls.localize({ key: "cannotWorkspaceUndoDueToChanges", comment: ["{0} is a label for an operation. {1} is a list of filenames."] }, "Could not undo '{0}' across all files because changes were made to {1}", element.label, cannotUndoDueToResources.join(", ")));
+    }
+    const cannotLockDueToResources = [];
+    for (const editStack of editStackSnapshot.editStacks) {
+      if (editStack.locked) {
+        cannotLockDueToResources.push(editStack.resourceLabel);
+      }
+    }
+    if (cannotLockDueToResources.length > 0) {
+      return this._tryToSplitAndUndo(strResource, element, null, nls.localize({ key: "cannotWorkspaceUndoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] }, "Could not undo '{0}' across all files because there is already an undo or redo operation running on {1}", element.label, cannotLockDueToResources.join(", ")));
+    }
+    if (!editStackSnapshot.isValid()) {
+      return this._tryToSplitAndUndo(strResource, element, null, nls.localize({ key: "cannotWorkspaceUndoDueToInMeantimeUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] }, "Could not undo '{0}' across all files because an undo or redo operation occurred in the meantime", element.label));
+    }
+    return null;
+  }
+  _workspaceUndo(strResource, element, undoConfirmed) {
+    const affectedEditStacks = this._getAffectedEditStacks(element);
+    const verificationError = this._checkWorkspaceUndo(
+      strResource,
+      element,
+      affectedEditStacks,
+      /*invalidated resources will be checked after the prepare call*/
+      false
+    );
+    if (verificationError) {
+      return verificationError.returnValue;
+    }
+    return this._confirmAndExecuteWorkspaceUndo(strResource, element, affectedEditStacks, undoConfirmed);
+  }
+  _isPartOfUndoGroup(element) {
+    if (!element.groupId) {
+      return false;
+    }
+    for (const [, editStack] of this._editStacks) {
+      const pastElement = editStack.getClosestPastElement();
+      if (!pastElement) {
+        continue;
+      }
+      if (pastElement === element) {
+        const secondPastElement = editStack.getSecondClosestPastElement();
+        if (secondPastElement && secondPastElement.groupId === element.groupId) {
+          return true;
+        }
+      }
+      if (pastElement.groupId === element.groupId) {
+        return true;
+      }
+    }
+    return false;
+  }
+  async _confirmAndExecuteWorkspaceUndo(strResource, element, editStackSnapshot, undoConfirmed) {
+    if (element.canSplit() && !this._isPartOfUndoGroup(element)) {
+      let UndoChoice;
+      (function(UndoChoice2) {
+        UndoChoice2[UndoChoice2["All"] = 0] = "All";
+        UndoChoice2[UndoChoice2["This"] = 1] = "This";
+        UndoChoice2[UndoChoice2["Cancel"] = 2] = "Cancel";
+      })(UndoChoice || (UndoChoice = {}));
+      const { result } = await this._dialogService.prompt({
+        type: Severity.Info,
+        message: nls.localize("confirmWorkspace", "Would you like to undo '{0}' across all files?", element.label),
+        buttons: [
+          {
+            label: nls.localize({ key: "ok", comment: ["{0} denotes a number that is > 1, && denotes a mnemonic"] }, "&&Undo in {0} Files", editStackSnapshot.editStacks.length),
+            run: /* @__PURE__ */ __name(() => UndoChoice.All, "run")
+          },
+          {
+            label: nls.localize({ key: "nok", comment: ["&& denotes a mnemonic"] }, "Undo this &&File"),
+            run: /* @__PURE__ */ __name(() => UndoChoice.This, "run")
+          }
+        ],
+        cancelButton: {
+          run: /* @__PURE__ */ __name(() => UndoChoice.Cancel, "run")
+        }
+      });
+      if (result === UndoChoice.Cancel) {
+        return;
+      }
+      if (result === UndoChoice.This) {
+        this._splitPastWorkspaceElement(element, null);
+        return this._undo(strResource, 0, true);
+      }
+      const verificationError1 = this._checkWorkspaceUndo(
+        strResource,
+        element,
+        editStackSnapshot,
+        /*invalidated resources will be checked after the prepare call*/
+        false
+      );
+      if (verificationError1) {
+        return verificationError1.returnValue;
+      }
+      undoConfirmed = true;
+    }
+    let cleanup;
+    try {
+      cleanup = await this._invokeWorkspacePrepare(element);
+    } catch (err) {
+      return this._onError(err, element);
+    }
+    const verificationError2 = this._checkWorkspaceUndo(
+      strResource,
+      element,
+      editStackSnapshot,
+      /*now also check that there are no more invalidated resources*/
+      true
+    );
+    if (verificationError2) {
+      cleanup.dispose();
+      return verificationError2.returnValue;
+    }
+    for (const editStack of editStackSnapshot.editStacks) {
+      editStack.moveBackward(element);
+    }
+    return this._safeInvokeWithLocks(element, () => element.actual.undo(), editStackSnapshot, cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
+  }
+  _resourceUndo(editStack, element, undoConfirmed) {
+    if (!element.isValid) {
+      editStack.flushAllElements();
+      return;
+    }
+    if (editStack.locked) {
+      const message = nls.localize({ key: "cannotResourceUndoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation."] }, "Could not undo '{0}' because there is already an undo or redo operation running.", element.label);
+      this._notificationService.warn(message);
+      return;
+    }
+    return this._invokeResourcePrepare(element, (cleanup) => {
+      editStack.moveBackward(element);
+      return this._safeInvokeWithLocks(element, () => element.actual.undo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
+    });
+  }
+  _findClosestUndoElementInGroup(groupId) {
+    if (!groupId) {
+      return [null, null];
+    }
+    let matchedElement = null;
+    let matchedStrResource = null;
+    for (const [strResource, editStack] of this._editStacks) {
+      const candidate = editStack.getClosestPastElement();
+      if (!candidate) {
+        continue;
+      }
+      if (candidate.groupId === groupId) {
+        if (!matchedElement || candidate.groupOrder > matchedElement.groupOrder) {
+          matchedElement = candidate;
+          matchedStrResource = strResource;
+        }
+      }
+    }
+    return [matchedElement, matchedStrResource];
+  }
+  _continueUndoInGroup(groupId, undoConfirmed) {
+    if (!groupId) {
+      return;
+    }
+    const [, matchedStrResource] = this._findClosestUndoElementInGroup(groupId);
+    if (matchedStrResource) {
+      return this._undo(matchedStrResource, 0, undoConfirmed);
+    }
+  }
+  undo(resourceOrSource) {
+    if (resourceOrSource instanceof UndoRedoSource) {
+      const [, matchedStrResource] = this._findClosestUndoElementWithSource(resourceOrSource.id);
+      return matchedStrResource ? this._undo(matchedStrResource, resourceOrSource.id, false) : void 0;
+    }
+    if (typeof resourceOrSource === "string") {
+      return this._undo(resourceOrSource, 0, false);
+    }
+    return this._undo(this.getUriComparisonKey(resourceOrSource), 0, false);
+  }
+  _undo(strResource, sourceId = 0, undoConfirmed) {
+    if (!this._editStacks.has(strResource)) {
+      return;
+    }
+    const editStack = this._editStacks.get(strResource);
+    const element = editStack.getClosestPastElement();
+    if (!element) {
+      return;
+    }
+    if (element.groupId) {
+      const [matchedElement, matchedStrResource] = this._findClosestUndoElementInGroup(element.groupId);
+      if (element !== matchedElement && matchedStrResource) {
+        return this._undo(matchedStrResource, sourceId, undoConfirmed);
+      }
+    }
+    const shouldPromptForConfirmation = element.sourceId !== sourceId || element.confirmBeforeUndo;
+    if (shouldPromptForConfirmation && !undoConfirmed) {
+      return this._confirmAndContinueUndo(strResource, sourceId, element);
+    }
+    try {
+      if (element.type === 1) {
+        return this._workspaceUndo(strResource, element, undoConfirmed);
+      } else {
+        return this._resourceUndo(editStack, element, undoConfirmed);
+      }
+    } finally {
+      if (DEBUG) {
+        this._print("undo");
+      }
+    }
+  }
+  async _confirmAndContinueUndo(strResource, sourceId, element) {
+    const result = await this._dialogService.confirm({
+      message: nls.localize("confirmDifferentSource", "Would you like to undo '{0}'?", element.label),
+      primaryButton: nls.localize({ key: "confirmDifferentSource.yes", comment: ["&& denotes a mnemonic"] }, "&&Yes"),
+      cancelButton: nls.localize("confirmDifferentSource.no", "No")
+    });
+    if (!result.confirmed) {
+      return;
+    }
+    return this._undo(strResource, sourceId, true);
+  }
+  _findClosestRedoElementWithSource(sourceId) {
+    if (!sourceId) {
+      return [null, null];
+    }
+    let matchedElement = null;
+    let matchedStrResource = null;
+    for (const [strResource, editStack] of this._editStacks) {
+      const candidate = editStack.getClosestFutureElement();
+      if (!candidate) {
+        continue;
+      }
+      if (candidate.sourceId === sourceId) {
+        if (!matchedElement || candidate.sourceOrder < matchedElement.sourceOrder) {
+          matchedElement = candidate;
+          matchedStrResource = strResource;
+        }
+      }
+    }
+    return [matchedElement, matchedStrResource];
+  }
+  canRedo(resourceOrSource) {
+    if (resourceOrSource instanceof UndoRedoSource) {
+      const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
+      return matchedStrResource ? true : false;
+    }
+    const strResource = this.getUriComparisonKey(resourceOrSource);
+    if (this._editStacks.has(strResource)) {
+      const editStack = this._editStacks.get(strResource);
+      return editStack.hasFutureElements();
+    }
+    return false;
+  }
+  _tryToSplitAndRedo(strResource, element, ignoreResources, message) {
+    if (element.canSplit()) {
+      this._splitFutureWorkspaceElement(element, ignoreResources);
+      this._notificationService.warn(message);
+      return new WorkspaceVerificationError(this._redo(strResource));
+    } else {
+      for (const strResource2 of element.strResources) {
+        this.removeElements(strResource2);
+      }
+      this._notificationService.warn(message);
+      return new WorkspaceVerificationError();
+    }
+  }
+  _checkWorkspaceRedo(strResource, element, editStackSnapshot, checkInvalidatedResources) {
+    if (element.removedResources) {
+      return this._tryToSplitAndRedo(strResource, element, element.removedResources, nls.localize({ key: "cannotWorkspaceRedo", comment: ["{0} is a label for an operation. {1} is another message."] }, "Could not redo '{0}' across all files. {1}", element.label, element.removedResources.createMessage()));
+    }
+    if (checkInvalidatedResources && element.invalidatedResources) {
+      return this._tryToSplitAndRedo(strResource, element, element.invalidatedResources, nls.localize({ key: "cannotWorkspaceRedo", comment: ["{0} is a label for an operation. {1} is another message."] }, "Could not redo '{0}' across all files. {1}", element.label, element.invalidatedResources.createMessage()));
+    }
+    const cannotRedoDueToResources = [];
+    for (const editStack of editStackSnapshot.editStacks) {
+      if (editStack.getClosestFutureElement() !== element) {
+        cannotRedoDueToResources.push(editStack.resourceLabel);
+      }
+    }
+    if (cannotRedoDueToResources.length > 0) {
+      return this._tryToSplitAndRedo(strResource, element, null, nls.localize({ key: "cannotWorkspaceRedoDueToChanges", comment: ["{0} is a label for an operation. {1} is a list of filenames."] }, "Could not redo '{0}' across all files because changes were made to {1}", element.label, cannotRedoDueToResources.join(", ")));
+    }
+    const cannotLockDueToResources = [];
+    for (const editStack of editStackSnapshot.editStacks) {
+      if (editStack.locked) {
+        cannotLockDueToResources.push(editStack.resourceLabel);
+      }
+    }
+    if (cannotLockDueToResources.length > 0) {
+      return this._tryToSplitAndRedo(strResource, element, null, nls.localize({ key: "cannotWorkspaceRedoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] }, "Could not redo '{0}' across all files because there is already an undo or redo operation running on {1}", element.label, cannotLockDueToResources.join(", ")));
+    }
+    if (!editStackSnapshot.isValid()) {
+      return this._tryToSplitAndRedo(strResource, element, null, nls.localize({ key: "cannotWorkspaceRedoDueToInMeantimeUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] }, "Could not redo '{0}' across all files because an undo or redo operation occurred in the meantime", element.label));
+    }
+    return null;
+  }
+  _workspaceRedo(strResource, element) {
+    const affectedEditStacks = this._getAffectedEditStacks(element);
+    const verificationError = this._checkWorkspaceRedo(
+      strResource,
+      element,
+      affectedEditStacks,
+      /*invalidated resources will be checked after the prepare call*/
+      false
+    );
+    if (verificationError) {
+      return verificationError.returnValue;
+    }
+    return this._executeWorkspaceRedo(strResource, element, affectedEditStacks);
+  }
+  async _executeWorkspaceRedo(strResource, element, editStackSnapshot) {
+    let cleanup;
+    try {
+      cleanup = await this._invokeWorkspacePrepare(element);
+    } catch (err) {
+      return this._onError(err, element);
+    }
+    const verificationError = this._checkWorkspaceRedo(
+      strResource,
+      element,
+      editStackSnapshot,
+      /*now also check that there are no more invalidated resources*/
+      true
+    );
+    if (verificationError) {
+      cleanup.dispose();
+      return verificationError.returnValue;
+    }
+    for (const editStack of editStackSnapshot.editStacks) {
+      editStack.moveForward(element);
+    }
+    return this._safeInvokeWithLocks(element, () => element.actual.redo(), editStackSnapshot, cleanup, () => this._continueRedoInGroup(element.groupId));
+  }
+  _resourceRedo(editStack, element) {
+    if (!element.isValid) {
+      editStack.flushAllElements();
+      return;
+    }
+    if (editStack.locked) {
+      const message = nls.localize({ key: "cannotResourceRedoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation."] }, "Could not redo '{0}' because there is already an undo or redo operation running.", element.label);
+      this._notificationService.warn(message);
+      return;
+    }
+    return this._invokeResourcePrepare(element, (cleanup) => {
+      editStack.moveForward(element);
+      return this._safeInvokeWithLocks(element, () => element.actual.redo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueRedoInGroup(element.groupId));
+    });
+  }
+  _findClosestRedoElementInGroup(groupId) {
+    if (!groupId) {
+      return [null, null];
+    }
+    let matchedElement = null;
+    let matchedStrResource = null;
+    for (const [strResource, editStack] of this._editStacks) {
+      const candidate = editStack.getClosestFutureElement();
+      if (!candidate) {
+        continue;
+      }
+      if (candidate.groupId === groupId) {
+        if (!matchedElement || candidate.groupOrder < matchedElement.groupOrder) {
+          matchedElement = candidate;
+          matchedStrResource = strResource;
+        }
+      }
+    }
+    return [matchedElement, matchedStrResource];
+  }
+  _continueRedoInGroup(groupId) {
+    if (!groupId) {
+      return;
+    }
+    const [, matchedStrResource] = this._findClosestRedoElementInGroup(groupId);
+    if (matchedStrResource) {
+      return this._redo(matchedStrResource);
+    }
+  }
+  redo(resourceOrSource) {
+    if (resourceOrSource instanceof UndoRedoSource) {
+      const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
+      return matchedStrResource ? this._redo(matchedStrResource) : void 0;
+    }
+    if (typeof resourceOrSource === "string") {
+      return this._redo(resourceOrSource);
+    }
+    return this._redo(this.getUriComparisonKey(resourceOrSource));
+  }
+  _redo(strResource) {
+    if (!this._editStacks.has(strResource)) {
+      return;
+    }
+    const editStack = this._editStacks.get(strResource);
+    const element = editStack.getClosestFutureElement();
+    if (!element) {
+      return;
+    }
+    if (element.groupId) {
+      const [matchedElement, matchedStrResource] = this._findClosestRedoElementInGroup(element.groupId);
+      if (element !== matchedElement && matchedStrResource) {
+        return this._redo(matchedStrResource);
+      }
+    }
+    try {
+      if (element.type === 1) {
+        return this._workspaceRedo(strResource, element);
+      } else {
+        return this._resourceRedo(editStack, element);
+      }
+    } finally {
+      if (DEBUG) {
+        this._print("redo");
+      }
+    }
+  }
+};
+UndoRedoService = __decorate([
+  __param(0, IDialogService),
+  __param(1, INotificationService)
+], UndoRedoService);
+class WorkspaceVerificationError {
+  static {
+    __name(this, "WorkspaceVerificationError");
+  }
+  constructor(returnValue) {
+    this.returnValue = returnValue;
+  }
+}
+registerSingleton(
+  IUndoRedoService,
+  UndoRedoService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  UndoRedoService
+};
+//# sourceMappingURL=undoRedoService.js.map

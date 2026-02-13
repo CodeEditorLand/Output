@@ -1,1 +1,409 @@
-import{$xf as T}from"../../../../../base/common/event.js";import{$Ed as x,$Dd as M,$Cd as y}from"../../../../../base/common/lifecycle.js";import{$rKb as N}from"../../../../services/outline/browser/outline.js";import{Extensions as q}from"../../../../common/contributions.js";import{$jm as A}from"../../../../../platform/registry/common/platform.js";import{$6Ic as H,$YIc as K,$4Ic as G,$5Ic as w,$3Ic as J,$ZIc as Q,$XIc as X,$2Ic as Y,$1Ic as Z}from"./documentSymbolsTree.js";import{$Gdb as P,$Hdb as V}from"../../../../../editor/browser/editorBrowser.js";import{$srb as E,$rrb as f,$trb as L,$qrb as p,$urb as F}from"../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";import{$Jf as U}from"../../../../../base/common/cancellation.js";import{$Vh as tt,$hi as O,$0h as et,$8h as it}from"../../../../../base/common/async.js";import{$mb as ot}from"../../../../../base/common/errors.js";import{$dI as R}from"../../../../../editor/common/services/textResourceConfiguration.js";import{$Mj as j}from"../../../../../platform/instantiation/common/instantiation.js";import{$_D as st}from"../../../../../editor/common/core/range.js";import{$Mdb as nt}from"../../../../../editor/browser/services/codeEditorService.js";import{$0l as rt}from"../../../../../platform/configuration/common/configuration.js";import{localize as at}from"../../../../../nls.js";import{$xfb as ct}from"../../../../../editor/common/services/markerDecorations.js";import{MarkerSeverity as _}from"../../../../../platform/markers/common/markers.js";import{$Bh as lt}from"../../../../../base/common/resources.js";import{$uW as ht}from"../../../../../editor/common/services/languageFeatures.js";var k=function(l,t,e,o){var s=arguments.length,n=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(l,t,e,o);else for(var r=l.length-1;r>=0;r--)(i=l[r])&&(n=(s<3?i(n):s>3?i(t,e,n):i(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},c=function(l,t){return function(e,o){t(e,o,l)}};let C=class{constructor(t,e){this.b=t,this.c=e,this.a=[]}getBreadcrumbElements(){return this.a}clear(){this.a=[]}update(t,e){const o=this.d(t,e);this.a=o.map(s=>({element:s,label:s instanceof f?s.symbol.name:""}))}d(t,e){let o=t.getItemEnclosingPosition(e);if(!o)return[];const s=[];for(;o;){s.push(o);const i=o.parent;if(i instanceof L||i instanceof E&&i.parent&&i.parent.children.size===1)break;o=i}const n=[];for(let i=s.length-1;i>=0;i--){const r=s[i];if(this.f(r))break;n.push(r)}return n.length===0?[]:n}f(t){if(!(t instanceof f))return!1;const e=`breadcrumbs.${w.kindToConfigName[t.symbol.kind]}`;let o;return this.b&&this.b.getModel()&&(o=this.b.getModel().uri),!this.c.getValue(o,e)}};C=k([c(1,R)],C);let v=class{get activeElement(){const t=this.g.getPosition();if(!(!t||!this.c))return this.c.getItemEnclosingPosition(t)}constructor(t,e,o,s,n,i,r,h,u,d){this.g=t,this.h=s,this.j=n,this.k=i,this.l=r,this.m=h,this.a=new M,this.b=new T,this.onDidChange=this.b.event,this.d=new M,this.outlineKind="documentSymbols",this.f=new C(t,u);const b=new Y,m=[new J,d.createInstance(G,!0,e)],g={getChildren:a=>a instanceof f||a instanceof E?a.children.values():a===this&&this.c?this.c.children.values():[]},$=new H,W=u.getValue(t.getModel()?.uri,"outline.collapseItems"),z={collapseByDefault:e===2||e===1&&W==="alwaysCollapse",expandOnlyOnTwistieClick:!0,multipleSelectionSupport:!1,identityProvider:new Q,keyboardNavigationLabelProvider:new X,accessibilityProvider:new K(at(7270,null)),filter:e===1?d.createInstance(w,"outline"):e===2?d.createInstance(w,"breadcrumbs"):void 0,dnd:d.createInstance(Z)};this.config={breadcrumbsDataSource:this.f,delegate:b,renderers:m,treeDataSource:g,comparator:$,options:z,quickPickDataSource:{getQuickPickElements:()=>{throw new Error("not implemented")}}},this.a.add(s.documentSymbolProvider.onDidChange(a=>this.n())),this.a.add(this.g.onDidChangeModel(a=>this.n())),this.a.add(this.g.onDidChangeModelLanguage(a=>this.n()));const S=new O;this.a.add(S),this.a.add(this.g.onDidChangeModelContent(a=>{const I=this.g.getModel();if(I){const B=i.getDebounceValue(I);S.cancelAndSet(()=>this.n(a),B)}})),this.a.add(this.g.onDidDispose(()=>this.d.clear())),this.n().finally(()=>o.open())}dispose(){this.a.dispose(),this.d.dispose()}get isEmpty(){return!this.c||p.empty(this.c)}get uri(){return this.c?.uri}async reveal(t,e,o,s){const n=L.get(t);!n||!(t instanceof f)||await this.j.openCodeEditor({resource:n.uri,options:{...e,selection:s?t.symbol.range:st.collapseToStart(t.symbol.selectionRange),selectionRevealType:3}},this.g,o)}preview(t){if(!(t instanceof f))return x.None;const{symbol:e}=t;this.g.revealRangeInCenterIfOutsideViewport(e.range,0);const o=this.g.createDecorationsCollection([{range:e.range,options:{description:"document-symbols-outline-range-highlight",className:"rangeHighlight",isWholeLine:!0}}]);return y(()=>o.clear())}captureViewState(){const t=this.g.saveViewState();return y(()=>{t&&this.g.restoreViewState(t)})}async n(t){if(this.d.clear(),t||this.p(void 0),!this.g.hasModel())return;const e=this.g.getModel();if(!this.h.documentSymbolProvider.has(e))return;const o=new U,s=e.getVersionId(),n=new O;this.d.add(n),this.d.add(y(()=>o.dispose(!0)));try{const i=await this.k.getOrCreate(e,o.token);if(o.token.isCancellationRequested)return;if(p.empty(i)||!this.g.hasModel()){this.p(i);return}if(t&&this.c&&e.getLineCount()>=25){const r=p.size(i),h=e.getValueLength(),u=r/h,d=p.size(this.c),b=h-t.changes.reduce((g,$)=>g+$.rangeLength,0),m=d/b;if((u<=m*.5||u>=m*1.5)&&!await tt(et(2e3).then(()=>!0),o.token,!1))return}this.o(i),this.d.add(this.m.onDidChangeMarker(r=>{lt(i.uri,r.uri)&&(this.o(i),this.b.fire({}))})),this.d.add(this.l.onDidChangeConfiguration(r=>{if(r.affectsConfiguration("outline.problems.enabled")||r.affectsConfiguration("problems.visibility")){const h=this.l.getValue("problems.visibility"),u=this.l.getValue("outline.problems.enabled");!h||!u?i.updateMarker([]):this.o(i),this.b.fire({})}r.affectsConfiguration("outline")&&this.b.fire({}),r.affectsConfiguration("breadcrumbs")&&this.g.hasModel()&&(this.f.update(i,this.g.getPosition()),this.b.fire({}))})),this.d.add(this.l.onDidChangeConfiguration(r=>{r.affectsConfiguration("outline.icons")&&this.b.fire({}),r.affectsConfiguration("outline")&&this.b.fire({})})),this.d.add(this.g.onDidChangeCursorPosition(r=>{n.cancelAndSet(()=>{!e.isDisposed()&&s===e.getVersionId()&&this.g.hasModel()&&(this.f.update(i,this.g.getPosition()),this.b.fire({affectOnlyActiveElement:!0}))},150)})),this.p(i)}catch(i){this.p(void 0),ot(i)}}o(t){const e=this.l.getValue("problems.visibility"),o=this.l.getValue("outline.problems.enabled");if(!t||!e||!o)return;const s=[];for(const[n,i]of this.m.getLiveMarkers(t.uri))(i.severity===_.Error||i.severity===_.Warning)&&s.push({...n,severity:i.severity});t.updateMarker(s)}p(t){const e=this.g.getPosition();!e||!t?(this.c=void 0,this.f.clear()):(this.c?.merge(t)||(this.c=t),this.f.update(t,e)),this.b.fire({})}};v=k([c(3,ht),c(4,nt),c(5,F),c(6,rt),c(7,ct),c(8,R),c(9,j)],v);let D=class{constructor(t){const e=t.registerOutlineCreator(this);this.dispose=()=>e.dispose()}matches(t){const e=t.getControl();return P(e)||V(e)}async createOutline(t,e,o){const s=t.getControl();let n;if(P(s)?n=s:V(s)&&(n=s.getModifiedEditor()),!n)return;const i=new it,r=n.invokeWithinContext(h=>h.get(j).createInstance(v,n,e,i));return await i.wait(),r}};D=k([c(0,N)],D);A.as(q.Workbench).registerWorkbenchContribution(D,4);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { IOutlineService } from "../../../../services/outline/browser/outline.js";
+import { Extensions as WorkbenchExtensions } from "../../../../common/contributions.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { DocumentSymbolComparator, DocumentSymbolAccessibilityProvider, DocumentSymbolRenderer, DocumentSymbolFilter, DocumentSymbolGroupRenderer, DocumentSymbolIdentityProvider, DocumentSymbolNavigationLabelProvider, DocumentSymbolVirtualDelegate, DocumentSymbolDragAndDrop } from "./documentSymbolsTree.js";
+import { isCodeEditor, isDiffEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { OutlineGroup, OutlineElement, OutlineModel, TreeElement, IOutlineModelService } from "../../../../../editor/contrib/documentSymbols/browser/outlineModel.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { raceCancellation, TimeoutTimer, timeout, Barrier } from "../../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../../base/common/errors.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { localize } from "../../../../../nls.js";
+import { IMarkerDecorationsService } from "../../../../../editor/common/services/markerDecorations.js";
+import { MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+let DocumentSymbolBreadcrumbsSource = class DocumentSymbolBreadcrumbsSource2 {
+  static {
+    __name(this, "DocumentSymbolBreadcrumbsSource");
+  }
+  constructor(_editor, _textResourceConfigurationService) {
+    this._editor = _editor;
+    this._textResourceConfigurationService = _textResourceConfigurationService;
+    this._breadcrumbs = [];
+  }
+  getBreadcrumbElements() {
+    return this._breadcrumbs;
+  }
+  clear() {
+    this._breadcrumbs = [];
+  }
+  update(model, position) {
+    const newElements = this._computeBreadcrumbs(model, position);
+    this._breadcrumbs = newElements.map((element) => ({
+      element,
+      label: element instanceof OutlineElement ? element.symbol.name : ""
+    }));
+  }
+  _computeBreadcrumbs(model, position) {
+    let item = model.getItemEnclosingPosition(position);
+    if (!item) {
+      return [];
+    }
+    const chain = [];
+    while (item) {
+      chain.push(item);
+      const parent = item.parent;
+      if (parent instanceof OutlineModel) {
+        break;
+      }
+      if (parent instanceof OutlineGroup && parent.parent && parent.parent.children.size === 1) {
+        break;
+      }
+      item = parent;
+    }
+    const result = [];
+    for (let i = chain.length - 1; i >= 0; i--) {
+      const element = chain[i];
+      if (this._isFiltered(element)) {
+        break;
+      }
+      result.push(element);
+    }
+    if (result.length === 0) {
+      return [];
+    }
+    return result;
+  }
+  _isFiltered(element) {
+    if (!(element instanceof OutlineElement)) {
+      return false;
+    }
+    const key = `breadcrumbs.${DocumentSymbolFilter.kindToConfigName[element.symbol.kind]}`;
+    let uri;
+    if (this._editor && this._editor.getModel()) {
+      const model = this._editor.getModel();
+      uri = model.uri;
+    }
+    return !this._textResourceConfigurationService.getValue(uri, key);
+  }
+};
+DocumentSymbolBreadcrumbsSource = __decorate([
+  __param(1, ITextResourceConfigurationService)
+], DocumentSymbolBreadcrumbsSource);
+let DocumentSymbolsOutline = class DocumentSymbolsOutline2 {
+  static {
+    __name(this, "DocumentSymbolsOutline");
+  }
+  get activeElement() {
+    const posistion = this._editor.getPosition();
+    if (!posistion || !this._outlineModel) {
+      return void 0;
+    } else {
+      return this._outlineModel.getItemEnclosingPosition(posistion);
+    }
+  }
+  constructor(_editor, target, firstLoadBarrier, _languageFeaturesService, _codeEditorService, _outlineModelService, _configurationService, _markerDecorationsService, textResourceConfigurationService, instantiationService) {
+    this._editor = _editor;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._codeEditorService = _codeEditorService;
+    this._outlineModelService = _outlineModelService;
+    this._configurationService = _configurationService;
+    this._markerDecorationsService = _markerDecorationsService;
+    this._disposables = new DisposableStore();
+    this._onDidChange = new Emitter();
+    this.onDidChange = this._onDidChange.event;
+    this._outlineDisposables = new DisposableStore();
+    this.outlineKind = "documentSymbols";
+    this._breadcrumbsDataSource = new DocumentSymbolBreadcrumbsSource(_editor, textResourceConfigurationService);
+    const delegate = new DocumentSymbolVirtualDelegate();
+    const renderers = [new DocumentSymbolGroupRenderer(), instantiationService.createInstance(DocumentSymbolRenderer, true, target)];
+    const treeDataSource = {
+      getChildren: /* @__PURE__ */ __name((parent) => {
+        if (parent instanceof OutlineElement || parent instanceof OutlineGroup) {
+          return parent.children.values();
+        }
+        if (parent === this && this._outlineModel) {
+          return this._outlineModel.children.values();
+        }
+        return [];
+      }, "getChildren")
+    };
+    const comparator = new DocumentSymbolComparator();
+    const initialState = textResourceConfigurationService.getValue(
+      _editor.getModel()?.uri,
+      "outline.collapseItems"
+      /* OutlineConfigKeys.collapseItems */
+    );
+    const options = {
+      collapseByDefault: target === 2 || target === 1 && initialState === "alwaysCollapse",
+      expandOnlyOnTwistieClick: true,
+      multipleSelectionSupport: false,
+      identityProvider: new DocumentSymbolIdentityProvider(),
+      keyboardNavigationLabelProvider: new DocumentSymbolNavigationLabelProvider(),
+      accessibilityProvider: new DocumentSymbolAccessibilityProvider(localize("document", "Document Symbols")),
+      filter: target === 1 ? instantiationService.createInstance(DocumentSymbolFilter, "outline") : target === 2 ? instantiationService.createInstance(DocumentSymbolFilter, "breadcrumbs") : void 0,
+      dnd: instantiationService.createInstance(DocumentSymbolDragAndDrop)
+    };
+    this.config = {
+      breadcrumbsDataSource: this._breadcrumbsDataSource,
+      delegate,
+      renderers,
+      treeDataSource,
+      comparator,
+      options,
+      quickPickDataSource: { getQuickPickElements: /* @__PURE__ */ __name(() => {
+        throw new Error("not implemented");
+      }, "getQuickPickElements") }
+    };
+    this._disposables.add(_languageFeaturesService.documentSymbolProvider.onDidChange((_) => this._createOutline()));
+    this._disposables.add(this._editor.onDidChangeModel((_) => this._createOutline()));
+    this._disposables.add(this._editor.onDidChangeModelLanguage((_) => this._createOutline()));
+    const updateSoon = new TimeoutTimer();
+    this._disposables.add(updateSoon);
+    this._disposables.add(this._editor.onDidChangeModelContent((event) => {
+      const model = this._editor.getModel();
+      if (model) {
+        const timeout2 = _outlineModelService.getDebounceValue(model);
+        updateSoon.cancelAndSet(() => this._createOutline(event), timeout2);
+      }
+    }));
+    this._disposables.add(this._editor.onDidDispose(() => this._outlineDisposables.clear()));
+    this._createOutline().finally(() => firstLoadBarrier.open());
+  }
+  dispose() {
+    this._disposables.dispose();
+    this._outlineDisposables.dispose();
+  }
+  get isEmpty() {
+    return !this._outlineModel || TreeElement.empty(this._outlineModel);
+  }
+  get uri() {
+    return this._outlineModel?.uri;
+  }
+  async reveal(entry, options, sideBySide, select) {
+    const model = OutlineModel.get(entry);
+    if (!model || !(entry instanceof OutlineElement)) {
+      return;
+    }
+    await this._codeEditorService.openCodeEditor({
+      resource: model.uri,
+      options: {
+        ...options,
+        selection: select ? entry.symbol.range : Range.collapseToStart(entry.symbol.selectionRange),
+        selectionRevealType: 3
+      }
+    }, this._editor, sideBySide);
+  }
+  preview(entry) {
+    if (!(entry instanceof OutlineElement)) {
+      return Disposable.None;
+    }
+    const { symbol } = entry;
+    this._editor.revealRangeInCenterIfOutsideViewport(
+      symbol.range,
+      0
+      /* ScrollType.Smooth */
+    );
+    const decorationsCollection = this._editor.createDecorationsCollection([{
+      range: symbol.range,
+      options: {
+        description: "document-symbols-outline-range-highlight",
+        className: "rangeHighlight",
+        isWholeLine: true
+      }
+    }]);
+    return toDisposable(() => decorationsCollection.clear());
+  }
+  captureViewState() {
+    const viewState = this._editor.saveViewState();
+    return toDisposable(() => {
+      if (viewState) {
+        this._editor.restoreViewState(viewState);
+      }
+    });
+  }
+  async _createOutline(contentChangeEvent) {
+    this._outlineDisposables.clear();
+    if (!contentChangeEvent) {
+      this._setOutlineModel(void 0);
+    }
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    const buffer = this._editor.getModel();
+    if (!this._languageFeaturesService.documentSymbolProvider.has(buffer)) {
+      return;
+    }
+    const cts = new CancellationTokenSource();
+    const versionIdThen = buffer.getVersionId();
+    const timeoutTimer = new TimeoutTimer();
+    this._outlineDisposables.add(timeoutTimer);
+    this._outlineDisposables.add(toDisposable(() => cts.dispose(true)));
+    try {
+      const model = await this._outlineModelService.getOrCreate(buffer, cts.token);
+      if (cts.token.isCancellationRequested) {
+        return;
+      }
+      if (TreeElement.empty(model) || !this._editor.hasModel()) {
+        this._setOutlineModel(model);
+        return;
+      }
+      if (contentChangeEvent && this._outlineModel && buffer.getLineCount() >= 25) {
+        const newSize = TreeElement.size(model);
+        const newLength = buffer.getValueLength();
+        const newRatio = newSize / newLength;
+        const oldSize = TreeElement.size(this._outlineModel);
+        const oldLength = newLength - contentChangeEvent.changes.reduce((prev, value) => prev + value.rangeLength, 0);
+        const oldRatio = oldSize / oldLength;
+        if (newRatio <= oldRatio * 0.5 || newRatio >= oldRatio * 1.5) {
+          const value = await raceCancellation(timeout(2e3).then(() => true), cts.token, false);
+          if (!value) {
+            return;
+          }
+        }
+      }
+      this._applyMarkersToOutline(model);
+      this._outlineDisposables.add(this._markerDecorationsService.onDidChangeMarker((textModel) => {
+        if (isEqual(model.uri, textModel.uri)) {
+          this._applyMarkersToOutline(model);
+          this._onDidChange.fire({});
+        }
+      }));
+      this._outlineDisposables.add(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          "outline.problems.enabled"
+          /* OutlineConfigKeys.problemsEnabled */
+        ) || e.affectsConfiguration("problems.visibility")) {
+          const problem = this._configurationService.getValue("problems.visibility");
+          const config = this._configurationService.getValue(
+            "outline.problems.enabled"
+            /* OutlineConfigKeys.problemsEnabled */
+          );
+          if (!problem || !config) {
+            model.updateMarker([]);
+          } else {
+            this._applyMarkersToOutline(model);
+          }
+          this._onDidChange.fire({});
+        }
+        if (e.affectsConfiguration("outline")) {
+          this._onDidChange.fire({});
+        }
+        if (e.affectsConfiguration("breadcrumbs") && this._editor.hasModel()) {
+          this._breadcrumbsDataSource.update(model, this._editor.getPosition());
+          this._onDidChange.fire({});
+        }
+      }));
+      this._outlineDisposables.add(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          "outline.icons"
+          /* OutlineConfigKeys.icons */
+        )) {
+          this._onDidChange.fire({});
+        }
+        if (e.affectsConfiguration("outline")) {
+          this._onDidChange.fire({});
+        }
+      }));
+      this._outlineDisposables.add(this._editor.onDidChangeCursorPosition((_) => {
+        timeoutTimer.cancelAndSet(() => {
+          if (!buffer.isDisposed() && versionIdThen === buffer.getVersionId() && this._editor.hasModel()) {
+            this._breadcrumbsDataSource.update(model, this._editor.getPosition());
+            this._onDidChange.fire({ affectOnlyActiveElement: true });
+          }
+        }, 150);
+      }));
+      this._setOutlineModel(model);
+    } catch (err) {
+      this._setOutlineModel(void 0);
+      onUnexpectedError(err);
+    }
+  }
+  _applyMarkersToOutline(model) {
+    const problem = this._configurationService.getValue("problems.visibility");
+    const config = this._configurationService.getValue(
+      "outline.problems.enabled"
+      /* OutlineConfigKeys.problemsEnabled */
+    );
+    if (!model || !problem || !config) {
+      return;
+    }
+    const markers = [];
+    for (const [range, marker] of this._markerDecorationsService.getLiveMarkers(model.uri)) {
+      if (marker.severity === MarkerSeverity.Error || marker.severity === MarkerSeverity.Warning) {
+        markers.push({ ...range, severity: marker.severity });
+      }
+    }
+    model.updateMarker(markers);
+  }
+  _setOutlineModel(model) {
+    const position = this._editor.getPosition();
+    if (!position || !model) {
+      this._outlineModel = void 0;
+      this._breadcrumbsDataSource.clear();
+    } else {
+      if (!this._outlineModel?.merge(model)) {
+        this._outlineModel = model;
+      }
+      this._breadcrumbsDataSource.update(model, position);
+    }
+    this._onDidChange.fire({});
+  }
+};
+DocumentSymbolsOutline = __decorate([
+  __param(3, ILanguageFeaturesService),
+  __param(4, ICodeEditorService),
+  __param(5, IOutlineModelService),
+  __param(6, IConfigurationService),
+  __param(7, IMarkerDecorationsService),
+  __param(8, ITextResourceConfigurationService),
+  __param(9, IInstantiationService)
+], DocumentSymbolsOutline);
+let DocumentSymbolsOutlineCreator = class DocumentSymbolsOutlineCreator2 {
+  static {
+    __name(this, "DocumentSymbolsOutlineCreator");
+  }
+  constructor(outlineService) {
+    const reg = outlineService.registerOutlineCreator(this);
+    this.dispose = () => reg.dispose();
+  }
+  matches(candidate) {
+    const ctrl = candidate.getControl();
+    return isCodeEditor(ctrl) || isDiffEditor(ctrl);
+  }
+  async createOutline(pane, target, _token) {
+    const control = pane.getControl();
+    let editor;
+    if (isCodeEditor(control)) {
+      editor = control;
+    } else if (isDiffEditor(control)) {
+      editor = control.getModifiedEditor();
+    }
+    if (!editor) {
+      return void 0;
+    }
+    const firstLoadBarrier = new Barrier();
+    const result = editor.invokeWithinContext((accessor) => accessor.get(IInstantiationService).createInstance(DocumentSymbolsOutline, editor, target, firstLoadBarrier));
+    await firstLoadBarrier.wait();
+    return result;
+  }
+};
+DocumentSymbolsOutlineCreator = __decorate([
+  __param(0, IOutlineService)
+], DocumentSymbolsOutlineCreator);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DocumentSymbolsOutlineCreator,
+  4
+  /* LifecyclePhase.Eventually */
+);
+//# sourceMappingURL=documentSymbolsOutline.js.map

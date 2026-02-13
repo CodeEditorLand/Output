@@ -1,1 +1,37 @@
-import{$Ed as s}from"../../../../../../../base/common/lifecycle.js";import{$RCc as a}from"../../runInTerminalHelpers.js";class c extends s{constructor(e){super(),this.a=e}async rewrite(e){if(a(e.shell,e.os)){let r;try{r=await this.a.extractPwshDoubleAmpersandChainOperators(e.commandLine)}catch{}if(r&&r.length>0){let t=e.commandLine;for(const n of r.reverse())t=`${t.substring(0,n.node.startIndex)};${t.substring(n.node.endIndex)}`;return{rewritten:t,reasoning:"&& re-written to ;"}}}}}export{c as $JDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { isPowerShell } from "../../runInTerminalHelpers.js";
+class CommandLinePwshChainOperatorRewriter extends Disposable {
+  static {
+    __name(this, "CommandLinePwshChainOperatorRewriter");
+  }
+  constructor(_treeSitterCommandParser) {
+    super();
+    this._treeSitterCommandParser = _treeSitterCommandParser;
+  }
+  async rewrite(options) {
+    if (isPowerShell(options.shell, options.os)) {
+      let doubleAmpersandCaptures;
+      try {
+        doubleAmpersandCaptures = await this._treeSitterCommandParser.extractPwshDoubleAmpersandChainOperators(options.commandLine);
+      } catch {
+      }
+      if (doubleAmpersandCaptures && doubleAmpersandCaptures.length > 0) {
+        let rewritten = options.commandLine;
+        for (const capture of doubleAmpersandCaptures.reverse()) {
+          rewritten = `${rewritten.substring(0, capture.node.startIndex)};${rewritten.substring(capture.node.endIndex)}`;
+        }
+        return {
+          rewritten,
+          reasoning: "&& re-written to ;"
+        };
+      }
+    }
+    return void 0;
+  }
+}
+export {
+  CommandLinePwshChainOperatorRewriter
+};
+//# sourceMappingURL=commandLinePwshChainOperatorRewriter.js.map

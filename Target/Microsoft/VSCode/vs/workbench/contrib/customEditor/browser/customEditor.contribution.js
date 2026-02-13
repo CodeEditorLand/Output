@@ -1,1 +1,28 @@
-import{$Kj as e}from"../../../../platform/instantiation/common/descriptors.js";import{$WC as f}from"../../../../platform/instantiation/common/extensions.js";import{$jm as i}from"../../../../platform/registry/common/platform.js";import{$aSb as $}from"../../../browser/editor.js";import{$2N as p}from"../../../common/contributions.js";import{$9M as t}from"../../../common/editor.js";import{$F8b as r,$E8b as o}from"./customEditorInputFactory.js";import{$N5b as a}from"../common/customEditor.js";import{$VZb as m}from"../../webviewPanel/browser/webviewEditor.js";import{$V5b as b}from"./customEditorInput.js";import{$fBc as E}from"./customEditors.js";f(a,E,1);i.as(t.EditorPane).registerEditorPane($.create(m,m.ID,"Webview Editor"),[new e(b)]);i.as(t.EditorFactory).registerEditorSerializer(o.ID,o);p(r.ID,r,1);
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { ComplexCustomWorkingCopyEditorHandler, CustomEditorInputSerializer } from "./customEditorInputFactory.js";
+import { ICustomEditorService } from "../common/customEditor.js";
+import { WebviewEditor } from "../../webviewPanel/browser/webviewEditor.js";
+import { CustomEditorInput } from "./customEditorInput.js";
+import { CustomEditorService } from "./customEditors.js";
+registerSingleton(
+  ICustomEditorService,
+  CustomEditorService,
+  1
+  /* InstantiationType.Delayed */
+);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(WebviewEditor, WebviewEditor.ID, "Webview Editor"), [
+  new SyncDescriptor(CustomEditorInput)
+]);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(CustomEditorInputSerializer.ID, CustomEditorInputSerializer);
+registerWorkbenchContribution2(
+  ComplexCustomWorkingCopyEditorHandler.ID,
+  ComplexCustomWorkingCopyEditorHandler,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+//# sourceMappingURL=customEditor.contribution.js.map

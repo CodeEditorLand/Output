@@ -1,1 +1,287 @@
-import{CancellationToken as m}from"../../../base/common/cancellation.js";import{URI as x}from"../../../base/common/uri.js";import{$X1 as f}from"./extHost.protocol.js";import{DocumentSelector as v,MarkdownString as h}from"./extHostTypeConverters.js";import{$Y4 as w}from"./extHostRpcService.js";import{$Ed as g,$Dd as p}from"../../../base/common/lifecycle.js";import{$f5 as b}from"./extHostCommands.js";var u=function(a,r,e,t){var o=arguments.length,i=o<3?r:t===null?t=Object.getOwnPropertyDescriptor(r,e):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(a,r,e,t);else for(var s=a.length-1;s>=0;s--)(n=a[s])&&(i=(o<3?n(i):o>3?n(r,e,i):n(r,e))||i);return o>3&&i&&Object.defineProperty(r,e,i),i},l=function(a,r){return function(e,t){r(e,t,a)}};let C=class extends g{constructor(r,e){super(),this.j=e,this.b=0,this.c=new Map,this.f=0,this.g=new Map,this.h=new Map,this.a=r.getProxy(f.MainThreadChatContext)}async $provideWorkspaceChatContext(r,e){this.m(r);const t=this.c.get(r);if(!t||t.type!=="workspace")throw new Error("Workspace context provider not found");const i=await t.provider.provideChatContext(e)??[];return this.q(r,i)}async $provideExplicitChatContext(r,e){this.m(r);const t=this.c.get(r);if(!t||t.type!=="explicit")throw new Error("Explicit context provider not found");const i=await t.provider.provideChatContext(e)??[];return this.q(r,i)}async $resolveExplicitChatContext(r,e,t){const o=this.c.get(r);if(!o||o.type!=="explicit")throw new Error("Explicit context provider not found");const i=o.provider,n=this.g.get(e.handle);if(!n)throw new Error("Chat context item not found");return this.r(i.resolveChatContext.bind(i),e,n,t)}async $provideResourceChatContext(r,e,t){const o=this.c.get(r);if(!o||o.type!=="resource")throw new Error("Resource context provider not found");const i=o.provider,n=await i.provideChatContext({resource:x.revive(e.resource)},t);if(!n)return;if(n.label===void 0&&n.resourceUri===void 0)throw new Error("ChatContextItem must have either a label or a resourceUri");const c={handle:this.n(r,n),icon:n.icon,label:n.label,resourceUri:n.resourceUri,modelDescription:n.modelDescription,tooltip:n.tooltip?h.from(n.tooltip):void 0,value:e.withValue?n.value:void 0,command:n.command?{id:n.command.command}:void 0};if(e.withValue&&!c.value){const d=await i.resolveChatContext(n,t);c.value=d?.value,c.tooltip=d?.tooltip?h.from(d.tooltip):c.tooltip}return c}async $resolveResourceChatContext(r,e,t){const o=this.c.get(r);if(!o||o.type!=="resource")throw new Error("Resource context provider not found");const i=o.provider,n=this.g.get(e.handle);if(!n)throw new Error("Chat context item not found");return this.r(i.resolveChatContext.bind(i),e,n,t)}async $executeChatContextItemCommand(r){const e=this.g.get(r);if(!e)throw new Error("Chat context item not found");if(!e.command)throw new Error("Chat context item has no command");const t=e.command.arguments?[e,...e.command.arguments]:[e];await this.j.executeCommand(e.command.command,...t)}registerChatWorkspaceContextProvider(r,e){const t=this.b++,o=new p;return this.c.set(t,{type:"workspace",provider:e,disposables:o}),this.s(t,e,o),this.a.$registerChatWorkspaceContextProvider(t,r),{dispose:()=>{this.c.delete(t),this.m(t),this.h.delete(t),this.a.$unregisterChatContextProvider(t),o.dispose()}}}registerChatExplicitContextProvider(r,e){const t=this.b++,o=new p;return this.c.set(t,{type:"explicit",provider:e,disposables:o}),this.a.$registerChatExplicitContextProvider(t,r),{dispose:()=>{this.c.delete(t),this.m(t),this.h.delete(t),this.a.$unregisterChatContextProvider(t),o.dispose()}}}registerChatResourceContextProvider(r,e,t){const o=this.b++,i=new p;return this.c.set(o,{type:"resource",provider:t,disposables:i}),this.a.$registerChatResourceContextProvider(o,e,v.from(r)),{dispose:()=>{this.c.delete(o),this.m(o),this.h.delete(o),this.a.$unregisterChatContextProvider(o),i.dispose()}}}registerChatContextProvider(r,e,t){const o=[];if(t.provideWorkspaceChatContext){const i={onDidChangeWorkspaceChatContext:t.onDidChangeWorkspaceChatContext,provideChatContext:n=>t.provideWorkspaceChatContext(n)};o.push(this.registerChatWorkspaceContextProvider(e,i))}if(t.provideChatContextExplicit){const i={provideChatContext:n=>t.provideChatContextExplicit(n),resolveChatContext:t.resolveChatContext?(n,s)=>t.resolveChatContext(n,s):n=>n};o.push(this.registerChatExplicitContextProvider(e,i))}if(t.provideChatContextForResource&&r){const i={provideChatContext:(n,s)=>t.provideChatContextForResource(n,s),resolveChatContext:t.resolveChatContext?(n,s)=>t.resolveChatContext(n,s):n=>n};o.push(this.registerChatResourceContextProvider(r,e,i))}return{dispose:()=>{for(const i of o)i.dispose()}}}m(r){const e=this.h.get(r);if(e){for(const t of e)this.g.delete(t);e.clear()}}n(r,e){const t=this.f++;return this.g.set(t,e),this.h.has(r)||this.h.set(r,new Set),this.h.get(r).add(t),t}q(r,e){const t=[];for(const o of e){if(o.label===void 0&&o.resourceUri===void 0)throw new Error("ChatContextItem must have either a label or a resourceUri");const i=this.n(r,o);t.push({handle:i,icon:o.icon,label:o.label,resourceUri:o.resourceUri,modelDescription:o.modelDescription,tooltip:o.tooltip?h.from(o.tooltip):void 0,value:o.value,command:o.command?{id:o.command.command}:void 0})}return t}async r(r,e,t,o){const i=await r(t,o);return i?{handle:e.handle,icon:i.icon,label:i.label,resourceUri:i.resourceUri,modelDescription:i.modelDescription,tooltip:i.tooltip?h.from(i.tooltip):void 0,value:i.value,command:i.command?{id:i.command.command}:void 0}:e}s(r,e,t){if(!e.onDidChangeWorkspaceChatContext)return;const o=async()=>{const i=await e.provideChatContext(m.None),n=this.q(r,i??[]);return this.a.$updateWorkspaceContextItems(r,n)};t.add(e.onDidChangeWorkspaceChatContext(async()=>o())),o()}dispose(){super.dispose();for(const{disposables:r}of this.c.values())r.dispose()}};C=u([l(0,w),l(1,b)],C);export{C as $L1c};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { URI } from "../../../base/common/uri.js";
+import { MainContext } from "./extHost.protocol.js";
+import { DocumentSelector, MarkdownString } from "./extHostTypeConverters.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { IExtHostCommands } from "./extHostCommands.js";
+let ExtHostChatContext = class ExtHostChatContext2 extends Disposable {
+  static {
+    __name(this, "ExtHostChatContext");
+  }
+  constructor(extHostRpc, _commands) {
+    super();
+    this._commands = _commands;
+    this._handlePool = 0;
+    this._providers = /* @__PURE__ */ new Map();
+    this._itemPool = 0;
+    this._globalItems = /* @__PURE__ */ new Map();
+    this._providerItems = /* @__PURE__ */ new Map();
+    this._proxy = extHostRpc.getProxy(MainContext.MainThreadChatContext);
+  }
+  // Workspace context provider methods
+  async $provideWorkspaceChatContext(handle, token) {
+    this._clearProviderItems(handle);
+    const entry = this._providers.get(handle);
+    if (!entry || entry.type !== "workspace") {
+      throw new Error("Workspace context provider not found");
+    }
+    const provider = entry.provider;
+    const result = await provider.provideChatContext(token) ?? [];
+    return this._convertItems(handle, result);
+  }
+  // Explicit context provider methods
+  async $provideExplicitChatContext(handle, token) {
+    this._clearProviderItems(handle);
+    const entry = this._providers.get(handle);
+    if (!entry || entry.type !== "explicit") {
+      throw new Error("Explicit context provider not found");
+    }
+    const provider = entry.provider;
+    const result = await provider.provideChatContext(token) ?? [];
+    return this._convertItems(handle, result);
+  }
+  async $resolveExplicitChatContext(handle, context, token) {
+    const entry = this._providers.get(handle);
+    if (!entry || entry.type !== "explicit") {
+      throw new Error("Explicit context provider not found");
+    }
+    const provider = entry.provider;
+    const extItem = this._globalItems.get(context.handle);
+    if (!extItem) {
+      throw new Error("Chat context item not found");
+    }
+    return this._doResolve(provider.resolveChatContext.bind(provider), context, extItem, token);
+  }
+  // Resource context provider methods
+  async $provideResourceChatContext(handle, options, token) {
+    const entry = this._providers.get(handle);
+    if (!entry || entry.type !== "resource") {
+      throw new Error("Resource context provider not found");
+    }
+    const provider = entry.provider;
+    const result = await provider.provideChatContext({ resource: URI.revive(options.resource) }, token);
+    if (!result) {
+      return void 0;
+    }
+    if (result.label === void 0 && result.resourceUri === void 0) {
+      throw new Error("ChatContextItem must have either a label or a resourceUri");
+    }
+    const itemHandle = this._addTrackedItem(handle, result);
+    const item = {
+      handle: itemHandle,
+      icon: result.icon,
+      label: result.label,
+      resourceUri: result.resourceUri,
+      modelDescription: result.modelDescription,
+      tooltip: result.tooltip ? MarkdownString.from(result.tooltip) : void 0,
+      value: options.withValue ? result.value : void 0,
+      command: result.command ? { id: result.command.command } : void 0
+    };
+    if (options.withValue && !item.value) {
+      const resolved = await provider.resolveChatContext(result, token);
+      item.value = resolved?.value;
+      item.tooltip = resolved?.tooltip ? MarkdownString.from(resolved.tooltip) : item.tooltip;
+    }
+    return item;
+  }
+  async $resolveResourceChatContext(handle, context, token) {
+    const entry = this._providers.get(handle);
+    if (!entry || entry.type !== "resource") {
+      throw new Error("Resource context provider not found");
+    }
+    const provider = entry.provider;
+    const extItem = this._globalItems.get(context.handle);
+    if (!extItem) {
+      throw new Error("Chat context item not found");
+    }
+    return this._doResolve(provider.resolveChatContext.bind(provider), context, extItem, token);
+  }
+  // Command execution
+  async $executeChatContextItemCommand(itemHandle) {
+    const extItem = this._globalItems.get(itemHandle);
+    if (!extItem) {
+      throw new Error("Chat context item not found");
+    }
+    if (!extItem.command) {
+      throw new Error("Chat context item has no command");
+    }
+    const args = extItem.command.arguments ? [extItem, ...extItem.command.arguments] : [extItem];
+    await this._commands.executeCommand(extItem.command.command, ...args);
+  }
+  // Registration methods
+  registerChatWorkspaceContextProvider(id, provider) {
+    const handle = this._handlePool++;
+    const disposables = new DisposableStore();
+    this._providers.set(handle, { type: "workspace", provider, disposables });
+    this._listenForWorkspaceContextChanges(handle, provider, disposables);
+    this._proxy.$registerChatWorkspaceContextProvider(handle, id);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._providers.delete(handle);
+        this._clearProviderItems(handle);
+        this._providerItems.delete(handle);
+        this._proxy.$unregisterChatContextProvider(handle);
+        disposables.dispose();
+      }, "dispose")
+    };
+  }
+  registerChatExplicitContextProvider(id, provider) {
+    const handle = this._handlePool++;
+    const disposables = new DisposableStore();
+    this._providers.set(handle, { type: "explicit", provider, disposables });
+    this._proxy.$registerChatExplicitContextProvider(handle, id);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._providers.delete(handle);
+        this._clearProviderItems(handle);
+        this._providerItems.delete(handle);
+        this._proxy.$unregisterChatContextProvider(handle);
+        disposables.dispose();
+      }, "dispose")
+    };
+  }
+  registerChatResourceContextProvider(selector, id, provider) {
+    const handle = this._handlePool++;
+    const disposables = new DisposableStore();
+    this._providers.set(handle, { type: "resource", provider, disposables });
+    this._proxy.$registerChatResourceContextProvider(handle, id, DocumentSelector.from(selector));
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._providers.delete(handle);
+        this._clearProviderItems(handle);
+        this._providerItems.delete(handle);
+        this._proxy.$unregisterChatContextProvider(handle);
+        disposables.dispose();
+      }, "dispose")
+    };
+  }
+  /**
+   * @deprecated Use registerChatWorkspaceContextProvider, registerChatExplicitContextProvider, or registerChatResourceContextProvider instead.
+   */
+  registerChatContextProvider(selector, id, provider) {
+    const disposables = [];
+    if (provider.provideWorkspaceChatContext) {
+      const workspaceProvider = {
+        onDidChangeWorkspaceChatContext: provider.onDidChangeWorkspaceChatContext,
+        provideChatContext: /* @__PURE__ */ __name((token) => provider.provideWorkspaceChatContext(token), "provideChatContext")
+      };
+      disposables.push(this.registerChatWorkspaceContextProvider(id, workspaceProvider));
+    }
+    if (provider.provideChatContextExplicit) {
+      const explicitProvider = {
+        provideChatContext: /* @__PURE__ */ __name((token) => provider.provideChatContextExplicit(token), "provideChatContext"),
+        resolveChatContext: provider.resolveChatContext ? (context, token) => provider.resolveChatContext(context, token) : (context) => context
+      };
+      disposables.push(this.registerChatExplicitContextProvider(id, explicitProvider));
+    }
+    if (provider.provideChatContextForResource && selector) {
+      const resourceProvider = {
+        provideChatContext: /* @__PURE__ */ __name((options, token) => provider.provideChatContextForResource(options, token), "provideChatContext"),
+        resolveChatContext: provider.resolveChatContext ? (context, token) => provider.resolveChatContext(context, token) : (context) => context
+      };
+      disposables.push(this.registerChatResourceContextProvider(selector, id, resourceProvider));
+    }
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        for (const disposable of disposables) {
+          disposable.dispose();
+        }
+      }, "dispose")
+    };
+  }
+  // Helper methods
+  _clearProviderItems(handle) {
+    const itemHandles = this._providerItems.get(handle);
+    if (itemHandles) {
+      for (const itemHandle of itemHandles) {
+        this._globalItems.delete(itemHandle);
+      }
+      itemHandles.clear();
+    }
+  }
+  _addTrackedItem(providerHandle, item) {
+    const itemHandle = this._itemPool++;
+    this._globalItems.set(itemHandle, item);
+    if (!this._providerItems.has(providerHandle)) {
+      this._providerItems.set(providerHandle, /* @__PURE__ */ new Set());
+    }
+    this._providerItems.get(providerHandle).add(itemHandle);
+    return itemHandle;
+  }
+  _convertItems(handle, items) {
+    const result = [];
+    for (const item of items) {
+      if (item.label === void 0 && item.resourceUri === void 0) {
+        throw new Error("ChatContextItem must have either a label or a resourceUri");
+      }
+      const itemHandle = this._addTrackedItem(handle, item);
+      result.push({
+        handle: itemHandle,
+        icon: item.icon,
+        label: item.label,
+        resourceUri: item.resourceUri,
+        modelDescription: item.modelDescription,
+        tooltip: item.tooltip ? MarkdownString.from(item.tooltip) : void 0,
+        value: item.value,
+        command: item.command ? { id: item.command.command } : void 0
+      });
+    }
+    return result;
+  }
+  async _doResolve(resolveFn, context, extItem, token) {
+    const extResult = await resolveFn(extItem, token);
+    if (extResult) {
+      return {
+        handle: context.handle,
+        icon: extResult.icon,
+        label: extResult.label,
+        resourceUri: extResult.resourceUri,
+        modelDescription: extResult.modelDescription,
+        tooltip: extResult.tooltip ? MarkdownString.from(extResult.tooltip) : void 0,
+        value: extResult.value,
+        command: extResult.command ? { id: extResult.command.command } : void 0
+      };
+    }
+    return context;
+  }
+  _listenForWorkspaceContextChanges(handle, provider, disposables) {
+    if (!provider.onDidChangeWorkspaceChatContext) {
+      return;
+    }
+    const provideWorkspaceContext = /* @__PURE__ */ __name(async () => {
+      const workspaceContexts = await provider.provideChatContext(CancellationToken.None);
+      const resolvedContexts = this._convertItems(handle, workspaceContexts ?? []);
+      return this._proxy.$updateWorkspaceContextItems(handle, resolvedContexts);
+    }, "provideWorkspaceContext");
+    disposables.add(provider.onDidChangeWorkspaceChatContext(async () => provideWorkspaceContext()));
+    provideWorkspaceContext();
+  }
+  dispose() {
+    super.dispose();
+    for (const { disposables } of this._providers.values()) {
+      disposables.dispose();
+    }
+  }
+};
+ExtHostChatContext = __decorate([
+  __param(0, IExtHostRpcService),
+  __param(1, IExtHostCommands)
+], ExtHostChatContext);
+export {
+  ExtHostChatContext
+};
+//# sourceMappingURL=extHostChatContext.js.map

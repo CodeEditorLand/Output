@@ -1,1 +1,271 @@
-import*as D from"../../../nls.js";import{$u8 as $,$b9 as p}from"../../../base/browser/dom.js";import{$09 as y}from"../../../base/browser/fastDomNode.js";import{$Up as R}from"../../../base/common/color.js";import{$Db as S}from"../../../base/common/errors.js";import{$Ed as w}from"../../../base/common/lifecycle.js";import{observableValue as g,runOnChange as N}from"../../../base/common/observable.js";import{$Mj as P}from"../../../platform/instantiation/common/instantiation.js";import{$ngb as j}from"./atlas/textureAtlas.js";import{$0l as L}from"../../../platform/configuration/common/configuration.js";import{$pH as V,Severity as T}from"../../../platform/notification/common/notification.js";import{$qu as _}from"../../../platform/theme/common/themeService.js";import{GPULifecycle as G}from"./gpuDisposable.js";import{$egb as z,$fgb as E}from"./gpuUtils.js";import{$rgb as O}from"./rectangleRenderer.js";import{$sgb as A}from"./css/decorationCssRuleExtractor.js";import{Event as q}from"../../../base/common/event.js";import{$cgb as I}from"./css/decorationStyleCache.js";var C=function(c,o,t,l){var n=arguments.length,e=n<3?o:l===null?l=Object.getOwnPropertyDescriptor(o,t):l,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,o,t,l);else for(var u=c.length-1;u>=0;u--)(a=c[u])&&(e=(n<3?a(e):n>3?a(o,t,e):a(o,t))||e);return n>3&&e&&Object.defineProperty(o,t,e),e},f=function(c,o){return function(t,l){o(t,l,c)}},i;let v=class extends w{static{i=this}static{this.a=new A}static get decorationCssRuleExtractor(){return i.a}static{this.b=new I}static get decorationStyleCache(){return i.b}static get atlas(){if(!i.c)throw new S("Cannot call ViewGpuContext.textureAtlas before device is resolved");return i.c}get atlas(){return i.atlas}constructor(o,t,l,n,e){super(),this.f=t,this.g=l,this.h=n,this.j=e,this.maxGpuCols=2e3,this.canvas=y(document.createElement("canvas")),this.canvas.setClassName("editorCanvas"),this.D(q.runAndSubscribe(n.onDidChangeConfiguration,s=>{if(!s||s.affectsConfiguration("editor.scrollbar.verticalScrollbarSize")){const r=n.getValue("editor").scrollbar?.verticalScrollbarSize??14;this.canvas.domNode.style.boxSizing="border-box",this.canvas.domNode.style.paddingRight=`${r}px`}})),this.ctx=z(this.canvas.domNode.getContext("webgpu")),i.device||(i.device=G.requestDevice(s=>{const r=[{label:D.localize(195,null),run:()=>this.h.updateValue("editor.experimentalGpuAcceleration","off")}];this.g.prompt(T.Warning,s,r)}).then(s=>(i.deviceSync=s.object,i.c||(i.c=this.f.createInstance(j,s.object.limits.maxTextureDimension2D,void 0,i.decorationStyleCache)),s.object)));const a=g(this,p().devicePixelRatio);this.D($(p(),"resize",()=>{a.set(p().devicePixelRatio,void 0)})),this.devicePixelRatio=a,this.D(N(this.devicePixelRatio,()=>i.atlas?.clear())),this.D(this.j.onDidColorThemeChange(()=>{i.decorationCssRuleExtractor.clear(),i.atlas?.clear()}));const u=g(this,{width:this.canvas.domNode.width,height:this.canvas.domNode.height});this.D(E(this.canvas.domNode,p(),(s,r)=>{this.canvas.domNode.width=s,this.canvas.domNode.height=r,u.set({width:s,height:r},void 0)})),this.canvasDevicePixelDimensions=u;const d=g(this,0);this.D(this.h.onDidChangeConfiguration(s=>{d.set(o.configuration.options.get(165).contentLeft,void 0)})),this.contentLeft=d,this.rectangleRenderer=this.D(this.f.createInstance(O,o,this.contentLeft,this.devicePixelRatio,this.canvas.domNode,this.ctx,i.device))}canRender(o,t,l){const n=t.getViewLineRenderingData(l);if(n.containsRTL||n.maxColumn>this.maxGpuCols)return!1;if(n.inlineDecorations.length>0){let e=!0;for(const a of n.inlineDecorations){if(a.type!==0){e=!1;break}const u=i.a.getStyleRules(this.canvas.domNode,a.inlineClassName);if(e&&=u.every(d=>{if(d.selectorText.includes(":"))return!1;for(const s of d.style)if(!x(s,d.style))return!1;return!0}),!e)break}return e}return!0}canRenderDetailed(o,t,l){const n=t.getViewLineRenderingData(l),e=[];if(n.containsRTL&&e.push("containsRTL"),n.maxColumn>this.maxGpuCols&&e.push("maxColumn > maxGpuCols"),n.inlineDecorations.length>0){let a=!0;const u=[],d=[],s=[];for(const r of n.inlineDecorations){if(r.type!==0){u.push(r.type),a=!1;continue}const b=i.a.getStyleRules(this.canvas.domNode,r.inlineClassName);a&&=b.every(h=>{if(h.selectorText.includes(":"))return d.push(h.selectorText),!1;for(const m of h.style)if(!x(m,h.style))return s.push(`${m}: ${h.style[m]}`),!1;return!0})}u.length>0&&e.push(`inlineDecorations with unsupported types (${u.map(r=>`\`${r}\``).join(", ")})`),s.length>0&&e.push(`inlineDecorations with unsupported CSS rules (${s.map(r=>`\`${r}\``).join(", ")})`),d.length>0&&e.push(`inlineDecorations with unsupported CSS selectors (${d.map(r=>`\`${r}\``).join(", ")})`)}return e}};v=i=C([f(1,P),f(2,V),f(3,L),f(4,_)],v);const U=["color","font-weight","opacity","text-decoration","text-decoration-color","text-decoration-line","text-decoration-style","text-decoration-thickness"];function x(c,o){if(!U.includes(c))return!1;switch(c){case"text-decoration":case"text-decoration-line":return o.getPropertyValue(c)==="line-through";case"text-decoration-color":{const t=o.getPropertyValue(c);return/^var\(--[^,]+,\s*(?:initial|inherit)\)$/.test(t)?!0:R.Format.CSS.parse(t)!==null}case"text-decoration-style":return o.getPropertyValue(c)==="initial";case"text-decoration-thickness":{const t=o.getPropertyValue(c);return t==="initial"||/^\d+(\.\d+)?px$/.test(t)}default:return!0}}export{v as $tgb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ViewGpuContext_1;
+import * as nls from "../../../nls.js";
+import { addDisposableListener, getActiveWindow } from "../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../base/browser/fastDomNode.js";
+import { Color } from "../../../base/common/color.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { observableValue, runOnChange } from "../../../base/common/observable.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { TextureAtlas } from "./atlas/textureAtlas.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { INotificationService, Severity } from "../../../platform/notification/common/notification.js";
+import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import { GPULifecycle } from "./gpuDisposable.js";
+import { ensureNonNullable, observeDevicePixelDimensions } from "./gpuUtils.js";
+import { RectangleRenderer } from "./rectangleRenderer.js";
+import { DecorationCssRuleExtractor } from "./css/decorationCssRuleExtractor.js";
+import { Event } from "../../../base/common/event.js";
+import { DecorationStyleCache } from "./css/decorationStyleCache.js";
+let ViewGpuContext = class ViewGpuContext2 extends Disposable {
+  static {
+    __name(this, "ViewGpuContext");
+  }
+  static {
+    ViewGpuContext_1 = this;
+  }
+  static {
+    this._decorationCssRuleExtractor = new DecorationCssRuleExtractor();
+  }
+  static get decorationCssRuleExtractor() {
+    return ViewGpuContext_1._decorationCssRuleExtractor;
+  }
+  static {
+    this._decorationStyleCache = new DecorationStyleCache();
+  }
+  static get decorationStyleCache() {
+    return ViewGpuContext_1._decorationStyleCache;
+  }
+  /**
+   * The shared texture atlas to use across all views.
+   *
+   * @throws if called before the GPU device is resolved
+   */
+  static get atlas() {
+    if (!ViewGpuContext_1._atlas) {
+      throw new BugIndicatingError("Cannot call ViewGpuContext.textureAtlas before device is resolved");
+    }
+    return ViewGpuContext_1._atlas;
+  }
+  /**
+   * The shared texture atlas to use across all views. This is a convenience alias for
+   * {@link ViewGpuContext.atlas}.
+   *
+   * @throws if called before the GPU device is resolved
+   */
+  get atlas() {
+    return ViewGpuContext_1.atlas;
+  }
+  constructor(context, _instantiationService, _notificationService, configurationService, _themeService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._notificationService = _notificationService;
+    this.configurationService = configurationService;
+    this._themeService = _themeService;
+    this.maxGpuCols = 2e3;
+    this.canvas = createFastDomNode(document.createElement("canvas"));
+    this.canvas.setClassName("editorCanvas");
+    this._register(Event.runAndSubscribe(configurationService.onDidChangeConfiguration, (e) => {
+      if (!e || e.affectsConfiguration("editor.scrollbar.verticalScrollbarSize")) {
+        const verticalScrollbarSize = configurationService.getValue("editor").scrollbar?.verticalScrollbarSize ?? 14;
+        this.canvas.domNode.style.boxSizing = "border-box";
+        this.canvas.domNode.style.paddingRight = `${verticalScrollbarSize}px`;
+      }
+    }));
+    this.ctx = ensureNonNullable(this.canvas.domNode.getContext("webgpu"));
+    if (!ViewGpuContext_1.device) {
+      ViewGpuContext_1.device = GPULifecycle.requestDevice((message) => {
+        const choices = [{
+          label: nls.localize("editor.dom.render", "Use DOM-based rendering"),
+          run: /* @__PURE__ */ __name(() => this.configurationService.updateValue("editor.experimentalGpuAcceleration", "off"), "run")
+        }];
+        this._notificationService.prompt(Severity.Warning, message, choices);
+      }).then((ref) => {
+        ViewGpuContext_1.deviceSync = ref.object;
+        if (!ViewGpuContext_1._atlas) {
+          ViewGpuContext_1._atlas = this._instantiationService.createInstance(TextureAtlas, ref.object.limits.maxTextureDimension2D, void 0, ViewGpuContext_1.decorationStyleCache);
+        }
+        return ref.object;
+      });
+    }
+    const dprObs = observableValue(this, getActiveWindow().devicePixelRatio);
+    this._register(addDisposableListener(getActiveWindow(), "resize", () => {
+      dprObs.set(getActiveWindow().devicePixelRatio, void 0);
+    }));
+    this.devicePixelRatio = dprObs;
+    this._register(runOnChange(this.devicePixelRatio, () => ViewGpuContext_1.atlas?.clear()));
+    this._register(this._themeService.onDidColorThemeChange(() => {
+      ViewGpuContext_1.decorationCssRuleExtractor.clear();
+      ViewGpuContext_1.atlas?.clear();
+    }));
+    const canvasDevicePixelDimensions = observableValue(this, { width: this.canvas.domNode.width, height: this.canvas.domNode.height });
+    this._register(observeDevicePixelDimensions(this.canvas.domNode, getActiveWindow(), (width, height) => {
+      this.canvas.domNode.width = width;
+      this.canvas.domNode.height = height;
+      canvasDevicePixelDimensions.set({ width, height }, void 0);
+    }));
+    this.canvasDevicePixelDimensions = canvasDevicePixelDimensions;
+    const contentLeft = observableValue(this, 0);
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      contentLeft.set(context.configuration.options.get(
+        165
+        /* EditorOption.layoutInfo */
+      ).contentLeft, void 0);
+    }));
+    this.contentLeft = contentLeft;
+    this.rectangleRenderer = this._register(this._instantiationService.createInstance(RectangleRenderer, context, this.contentLeft, this.devicePixelRatio, this.canvas.domNode, this.ctx, ViewGpuContext_1.device));
+  }
+  /**
+   * This method determines which lines can be and are allowed to be rendered using the GPU
+   * renderer. Eventually this should trend all lines, except maybe exceptional cases like
+   * decorations that use class names.
+   */
+  canRender(options, viewportData, lineNumber) {
+    const data = viewportData.getViewLineRenderingData(lineNumber);
+    if (data.containsRTL || data.maxColumn > this.maxGpuCols) {
+      return false;
+    }
+    if (data.inlineDecorations.length > 0) {
+      let supported = true;
+      for (const decoration of data.inlineDecorations) {
+        if (decoration.type !== 0) {
+          supported = false;
+          break;
+        }
+        const styleRules = ViewGpuContext_1._decorationCssRuleExtractor.getStyleRules(this.canvas.domNode, decoration.inlineClassName);
+        supported &&= styleRules.every((rule) => {
+          if (rule.selectorText.includes(":")) {
+            return false;
+          }
+          for (const r of rule.style) {
+            if (!supportsCssRule(r, rule.style)) {
+              return false;
+            }
+          }
+          return true;
+        });
+        if (!supported) {
+          break;
+        }
+      }
+      return supported;
+    }
+    return true;
+  }
+  /**
+   * Like {@link canRender} but returns detailed information about why the line cannot be rendered.
+   */
+  canRenderDetailed(options, viewportData, lineNumber) {
+    const data = viewportData.getViewLineRenderingData(lineNumber);
+    const reasons = [];
+    if (data.containsRTL) {
+      reasons.push("containsRTL");
+    }
+    if (data.maxColumn > this.maxGpuCols) {
+      reasons.push("maxColumn > maxGpuCols");
+    }
+    if (data.inlineDecorations.length > 0) {
+      let supported = true;
+      const problemTypes = [];
+      const problemSelectors = [];
+      const problemRules = [];
+      for (const decoration of data.inlineDecorations) {
+        if (decoration.type !== 0) {
+          problemTypes.push(decoration.type);
+          supported = false;
+          continue;
+        }
+        const styleRules = ViewGpuContext_1._decorationCssRuleExtractor.getStyleRules(this.canvas.domNode, decoration.inlineClassName);
+        supported &&= styleRules.every((rule) => {
+          if (rule.selectorText.includes(":")) {
+            problemSelectors.push(rule.selectorText);
+            return false;
+          }
+          for (const r of rule.style) {
+            if (!supportsCssRule(r, rule.style)) {
+              problemRules.push(`${r}: ${rule.style[r]}`);
+              return false;
+            }
+          }
+          return true;
+        });
+        if (!supported) {
+          continue;
+        }
+      }
+      if (problemTypes.length > 0) {
+        reasons.push(`inlineDecorations with unsupported types (${problemTypes.map((e) => `\`${e}\``).join(", ")})`);
+      }
+      if (problemRules.length > 0) {
+        reasons.push(`inlineDecorations with unsupported CSS rules (${problemRules.map((e) => `\`${e}\``).join(", ")})`);
+      }
+      if (problemSelectors.length > 0) {
+        reasons.push(`inlineDecorations with unsupported CSS selectors (${problemSelectors.map((e) => `\`${e}\``).join(", ")})`);
+      }
+    }
+    return reasons;
+  }
+};
+ViewGpuContext = ViewGpuContext_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, INotificationService),
+  __param(3, IConfigurationService),
+  __param(4, IThemeService)
+], ViewGpuContext);
+const gpuSupportedDecorationCssRules = [
+  "color",
+  "font-weight",
+  "opacity",
+  "text-decoration",
+  "text-decoration-color",
+  "text-decoration-line",
+  "text-decoration-style",
+  "text-decoration-thickness"
+];
+function supportsCssRule(rule, style) {
+  if (!gpuSupportedDecorationCssRules.includes(rule)) {
+    return false;
+  }
+  switch (rule) {
+    case "text-decoration":
+    case "text-decoration-line": {
+      const value = style.getPropertyValue(rule);
+      return value === "line-through";
+    }
+    case "text-decoration-color": {
+      const value = style.getPropertyValue(rule);
+      if (/^var\(--[^,]+,\s*(?:initial|inherit)\)$/.test(value)) {
+        return true;
+      }
+      return Color.Format.CSS.parse(value) !== null;
+    }
+    case "text-decoration-style": {
+      const value = style.getPropertyValue(rule);
+      return value === "initial";
+    }
+    case "text-decoration-thickness": {
+      const value = style.getPropertyValue(rule);
+      return value === "initial" || /^\d+(\.\d+)?px$/.test(value);
+    }
+    default:
+      return true;
+  }
+}
+__name(supportsCssRule, "supportsCssRule");
+export {
+  ViewGpuContext
+};
+//# sourceMappingURL=viewGpuContext.js.map

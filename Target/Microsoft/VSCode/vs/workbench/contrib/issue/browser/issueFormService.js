@@ -1,1 +1,215 @@
-import{$F0 as p}from"../../../../base/browser/domSanitize.js";import{$O0 as f}from"../../../../base/browser/domStylesheets.js";import{$9$ as w,$6$ as b,$5$ as y}from"../../../../base/browser/ui/menu/menu.js";import{$Dd as $}from"../../../../base/common/lifecycle.js";import{$o as R,$m as g}from"../../../../base/common/platform.js";import u from"../../../../base/common/severity.js";import{localize as c}from"../../../../nls.js";import{$rL as x,$qL as v}from"../../../../platform/actions/common/actions.js";import{$ro as C}from"../../../../platform/contextkey/common/contextkey.js";import{$Mp as L}from"../../../../platform/dialogs/common/dialogs.js";import{$Iz as _,$Jz as A}from"../../../../platform/extensions/common/extensions.js";import{$Mj as S}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as j}from"../../../../platform/log/common/log.js";import M from"../../../../platform/product/common/product.js";import{AuxiliaryWindowMode as D,$FBb as I}from"../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";import{$gcb as P}from"../../../services/host/browser/host.js";import T from"./issueReporterPage.js";import{$zPc as W}from"./issueReporterService.js";import"./media/issueReporter.css";var d=function(l,e,r,o){var i=arguments.length,t=i<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(l,e,r,o);else for(var s=l.length-1;s>=0;s--)(n=l[s])&&(t=(i<3?n(t):i>3?n(e,r,t):n(e,r))||t);return i>3&&t&&Object.defineProperty(e,r,t),t},a=function(l,e){return function(r,o){e(r,o,l)}};let m=class{constructor(e,r,o,i,t,n,s){this.g=e,this.h=r,this.i=o,this.j=i,this.k=t,this.l=n,this.m=s,this.b=null,this.c=new A,this.d="",this.e="",this.f=""}async openReporter(e){this.hasToReload(e)||(await this.openAuxIssueReporter(e),this.b&&this.g.createInstance(W,!1,e,{type:this.f,arch:this.d,release:this.e},M,this.b).render())}async openAuxIssueReporter(e,r){let o={width:700,height:800};if(r&&r.x&&r.y){const s=r.x+r.width/2,h=r.y+r.height/2;o={...o,x:s-350,y:h-400}}const i=new $,t=i.add(await this.h.open({mode:D.Normal,bounds:o,nativeTitlebar:!0,disableFullscreen:!0})),n=g?"windows":R?"linux":"mac";if(t){if(await t.whenStylesHaveLoaded,t.window.document.title="Issue Reporter",t.window.document.body.classList.add("issue-reporter-body","monaco-workbench",n),t.container.remove(),!b.globalStyleSheet){const h=f(t.window.document.head);h.textContent=w(y,!1)}const s=document.createElement("div");s.classList.add("monaco-workbench"),t.window.document.body.appendChild(s),p(s,T(),{allowedTags:{augment:["input","select","checkbox","textarea"]},allowedAttributes:{augment:["id","class","style","textarea"]}}),this.b=t.window}else i.dispose();this.b?.addEventListener("beforeunload",()=>{t.window.close(),i.dispose(),this.b=null})}async sendReporterMenu(e){const r=this.i.createMenu(v.IssueReporter,this.j),o=r.getActions({renderShortTitle:!0}).flatMap(t=>t[1]);for(const t of o)try{t.item&&"source"in t.item&&t.item.source?.id.toLowerCase()===e.toLowerCase()&&(this.c.add(e.toLowerCase()),await t.run())}catch{}if(!this.c.has(e))return;this.c.delete(new _(e)),r.dispose();const i=this.a;return this.a=void 0,i??void 0}async closeReporter(){this.b?.close()}async reloadWithExtensionsDisabled(){if(this.b)try{await this.m.reload({disableExtensions:!0})}catch(e){this.k.error(e)}}async showConfirmCloseDialog(){await this.l.prompt({type:u.Warning,message:c(9794,null),buttons:[{label:c(9795,null),run:()=>{this.closeReporter(),this.b=null}},{label:c(9796,null),run:()=>{}}]})}async showClipboardDialog(){let e=!1;return await this.l.prompt({type:u.Warning,message:c(9797,null),buttons:[{label:c(9798,null),run:()=>{e=!0}},{label:c(9799,null),run:()=>{e=!1}}]}),e}hasToReload(e){return e.extensionId&&this.c.has(e.extensionId)?(this.a=e,this.b?.focus(),!0):this.b?(this.b.focus(),!0):!1}};m=d([a(0,S),a(1,I),a(2,x),a(3,C),a(4,j),a(5,L),a(6,P)],m);export{m as $APc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { safeSetInnerHtml } from "../../../../base/browser/domSanitize.js";
+import { createStyleSheet } from "../../../../base/browser/domStylesheets.js";
+import { getMenuWidgetCSS, Menu, unthemedMenuStyles } from "../../../../base/browser/ui/menu/menu.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isLinux, isWindows } from "../../../../base/common/platform.js";
+import Severity from "../../../../base/common/severity.js";
+import { localize } from "../../../../nls.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifier, ExtensionIdentifierSet } from "../../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import product from "../../../../platform/product/common/product.js";
+import { AuxiliaryWindowMode, IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import BaseHtml from "./issueReporterPage.js";
+import { IssueWebReporter } from "./issueReporterService.js";
+import "./media/issueReporter.css";
+let IssueFormService = class IssueFormService2 {
+  static {
+    __name(this, "IssueFormService");
+  }
+  constructor(instantiationService, auxiliaryWindowService, menuService, contextKeyService, logService, dialogService, hostService) {
+    this.instantiationService = instantiationService;
+    this.auxiliaryWindowService = auxiliaryWindowService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.logService = logService;
+    this.dialogService = dialogService;
+    this.hostService = hostService;
+    this.issueReporterWindow = null;
+    this.extensionIdentifierSet = new ExtensionIdentifierSet();
+    this.arch = "";
+    this.release = "";
+    this.type = "";
+  }
+  async openReporter(data) {
+    if (this.hasToReload(data)) {
+      return;
+    }
+    await this.openAuxIssueReporter(data);
+    if (this.issueReporterWindow) {
+      const issueReporter = this.instantiationService.createInstance(IssueWebReporter, false, data, { type: this.type, arch: this.arch, release: this.release }, product, this.issueReporterWindow);
+      issueReporter.render();
+    }
+  }
+  async openAuxIssueReporter(data, bounds) {
+    let issueReporterBounds = { width: 700, height: 800 };
+    if (bounds && bounds.x && bounds.y) {
+      const centerX = bounds.x + bounds.width / 2;
+      const centerY = bounds.y + bounds.height / 2;
+      issueReporterBounds = { ...issueReporterBounds, x: centerX - 350, y: centerY - 400 };
+    }
+    const disposables = new DisposableStore();
+    const auxiliaryWindow = disposables.add(await this.auxiliaryWindowService.open({ mode: AuxiliaryWindowMode.Normal, bounds: issueReporterBounds, nativeTitlebar: true, disableFullscreen: true }));
+    const platformClass = isWindows ? "windows" : isLinux ? "linux" : "mac";
+    if (auxiliaryWindow) {
+      await auxiliaryWindow.whenStylesHaveLoaded;
+      auxiliaryWindow.window.document.title = "Issue Reporter";
+      auxiliaryWindow.window.document.body.classList.add("issue-reporter-body", "monaco-workbench", platformClass);
+      auxiliaryWindow.container.remove();
+      if (!Menu.globalStyleSheet) {
+        const menuStyleSheet = createStyleSheet(auxiliaryWindow.window.document.head);
+        menuStyleSheet.textContent = getMenuWidgetCSS(unthemedMenuStyles, false);
+      }
+      const div = document.createElement("div");
+      div.classList.add("monaco-workbench");
+      auxiliaryWindow.window.document.body.appendChild(div);
+      safeSetInnerHtml(div, BaseHtml(), {
+        // Also allow input elements
+        allowedTags: {
+          augment: [
+            "input",
+            "select",
+            "checkbox",
+            "textarea"
+          ]
+        },
+        allowedAttributes: {
+          augment: [
+            "id",
+            "class",
+            "style",
+            "textarea"
+          ]
+        }
+      });
+      this.issueReporterWindow = auxiliaryWindow.window;
+    } else {
+      console.error("Failed to open auxiliary window");
+      disposables.dispose();
+    }
+    this.issueReporterWindow?.addEventListener("beforeunload", () => {
+      auxiliaryWindow.window.close();
+      disposables.dispose();
+      this.issueReporterWindow = null;
+    });
+  }
+  async sendReporterMenu(extensionId) {
+    const menu = this.menuService.createMenu(MenuId.IssueReporter, this.contextKeyService);
+    const actions = menu.getActions({ renderShortTitle: true }).flatMap((entry) => entry[1]);
+    for (const action of actions) {
+      try {
+        if (action.item && "source" in action.item && action.item.source?.id.toLowerCase() === extensionId.toLowerCase()) {
+          this.extensionIdentifierSet.add(extensionId.toLowerCase());
+          await action.run();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (!this.extensionIdentifierSet.has(extensionId)) {
+      return void 0;
+    }
+    this.extensionIdentifierSet.delete(new ExtensionIdentifier(extensionId));
+    menu.dispose();
+    const result = this.currentData;
+    this.currentData = void 0;
+    return result ?? void 0;
+  }
+  //#region used by issue reporter
+  async closeReporter() {
+    this.issueReporterWindow?.close();
+  }
+  async reloadWithExtensionsDisabled() {
+    if (this.issueReporterWindow) {
+      try {
+        await this.hostService.reload({ disableExtensions: true });
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+  }
+  async showConfirmCloseDialog() {
+    await this.dialogService.prompt({
+      type: Severity.Warning,
+      message: localize("confirmCloseIssueReporter", "Your input will not be saved. Are you sure you want to close this window?"),
+      buttons: [
+        {
+          label: localize({ key: "yes", comment: ["&& denotes a mnemonic"] }, "&&Yes"),
+          run: /* @__PURE__ */ __name(() => {
+            this.closeReporter();
+            this.issueReporterWindow = null;
+          }, "run")
+        },
+        {
+          label: localize("cancel", "Cancel"),
+          run: /* @__PURE__ */ __name(() => {
+          }, "run")
+        }
+      ]
+    });
+  }
+  async showClipboardDialog() {
+    let result = false;
+    await this.dialogService.prompt({
+      type: Severity.Warning,
+      message: localize("issueReporterWriteToClipboard", "There is too much data to send to GitHub directly. The data will be copied to the clipboard, please paste it into the GitHub issue page that is opened."),
+      buttons: [
+        {
+          label: localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
+          run: /* @__PURE__ */ __name(() => {
+            result = true;
+          }, "run")
+        },
+        {
+          label: localize("cancel", "Cancel"),
+          run: /* @__PURE__ */ __name(() => {
+            result = false;
+          }, "run")
+        }
+      ]
+    });
+    return result;
+  }
+  hasToReload(data) {
+    if (data.extensionId && this.extensionIdentifierSet.has(data.extensionId)) {
+      this.currentData = data;
+      this.issueReporterWindow?.focus();
+      return true;
+    }
+    if (this.issueReporterWindow) {
+      this.issueReporterWindow.focus();
+      return true;
+    }
+    return false;
+  }
+};
+IssueFormService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IAuxiliaryWindowService),
+  __param(2, IMenuService),
+  __param(3, IContextKeyService),
+  __param(4, ILogService),
+  __param(5, IDialogService),
+  __param(6, IHostService)
+], IssueFormService);
+export {
+  IssueFormService
+};
+//# sourceMappingURL=issueFormService.js.map

@@ -1,1 +1,272 @@
-import{$jk as l}from"../../../../../../../../base/common/htmlContent.js";import{$Iv as m}from"../../../../../../../../base/common/json.js";import{$Ed as d}from"../../../../../../../../base/common/lifecycle.js";import{URI as f}from"../../../../../../../../base/common/uri.js";import{$$o as h}from"../../../../../../../../platform/uriIdentity/common/uriIdentity.js";import{localize as v}from"../../../../../../../../nls.js";import{$0l as g}from"../../../../../../../../platform/configuration/common/configuration.js";import{$vk as b}from"../../../../../../../../platform/files/common/files.js";import{$Ml as w}from"../../../../../../../../platform/workspace/common/workspace.js";var u=function(s,t,e,r){var n=arguments.length,i=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,r);else for(var c=s.length-1;c>=0;c--)(o=s[c])&&(i=(n<3?o(i):n>3?o(t,e,i):o(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},a=function(s,t){return function(e,r){t(e,r,s)}};const A=[/^(?<command>npm)\s+(?:run(?:-script)?)\s+(?<scriptName>[^\s&|;]+)/i,/^(?<command>npm)\s+(?<scriptName>test|start|stop|restart)\b/i,/^(?<command>yarn)\s+(?:run\s+)?(?<scriptName>[^\s&|;]+)/i,/^(?<command>pnpm)\s+(?:run\s+)?(?<scriptName>[^\s&|;]+)/i],k=new Set(["add","audit","autoclean","bin","cache","check","config","create","dedupe","dlx","exec","explain","generate-lock-entry","global","help","import","info","init","install","licenses","link","list","login","logout","node","outdated","owner","pack","patch","patch-commit","plugin","policies","publish","rebuild","remove","run","search","set","stage","tag","team","unlink","unplug","up","upgrade","upgrade-interactive","version","versions","why","workspace","workspaces"]),x=new Set(["add","audit","bin","config","dedupe","deploy","dlx","doctor","env","exec","fetch","import","init","install","install-test","licenses","link","list","ln","ls","outdated","pack","patch","patch-commit","patch-remove","prune","publish","rb","rebuild","remove","rm","root","run","server","setup","store","un","uninstall","unlink","up","update","why"]);let p=class extends d{constructor(t,e,r,n){super(),this.a=t,this.b=e,this.c=r,this.f=n}async isCommandAutoApproved(t,e){if(!(this.a.getValue("chat.tools.terminal.autoApproveWorkspaceNpmScripts")===!0))return{isAutoApproved:!1};const n=this.g(t);if(!n)return{isAutoApproved:!1};const i=await this.j(e);return i?i.scripts.has(n)?{isAutoApproved:!0,scriptName:n,autoApproveInfo:new l(v(13732,null,`\`${n}\``))}:{isAutoApproved:!1}:{isAutoApproved:!1}}g(t){const e=t.trim();for(const r of A){const n=e.match(r);if(n?.groups?.scriptName){const{command:i,scriptName:o}=n.groups;if(i.toLowerCase()==="yarn"&&k.has(o.toLowerCase())||i.toLowerCase()==="pnpm"&&x.has(o.toLowerCase()))continue;return o}}}h(t){return this.f.getWorkspace().folders.some(r=>this.c.extUri.isEqualOrParent(t,r.uri))}async j(t){if(!t||!this.h(t))return;const e=f.joinPath(t,"package.json"),r=await this.m(e);if(r)return{uri:e,scripts:r}}async m(t){try{if(!await this.b.exists(t))return;const n=(await this.b.readFile(t)).value.toString();return this.n(n)}catch{return}}n(t){const e=new Set;let r=!1,n=0;return m(t,{onError(){},onObjectBegin(){n++},onObjectEnd(){r&&n===2&&(r=!1),n--},onObjectProperty(o){n===1&&o==="scripts"?r=!0:r&&n===2&&e.add(o)}}),e.size>0?e:void 0}};p=u([a(0,g),a(1,b),a(2,h),a(3,w)],p);export{p as $LCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { MarkdownString } from "../../../../../../../../base/common/htmlContent.js";
+import { visit } from "../../../../../../../../base/common/json.js";
+import { Disposable } from "../../../../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../../../../base/common/uri.js";
+import { IUriIdentityService } from "../../../../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { localize } from "../../../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../../../../../platform/workspace/common/workspace.js";
+const npmRunPatterns = [
+  // npm run <script>
+  // npm run-script <script>
+  /^(?<command>npm)\s+(?:run(?:-script)?)\s+(?<scriptName>[^\s&|;]+)/i,
+  // npm test, npm start, npm stop, npm restart (shorthand commands)
+  // See https://docs.npmjs.com/cli/v10/commands/npm-run-script
+  /^(?<command>npm)\s+(?<scriptName>test|start|stop|restart)\b/i,
+  // yarn <script>
+  // yarn run <script>
+  /^(?<command>yarn)\s+(?:run\s+)?(?<scriptName>[^\s&|;]+)/i,
+  // pnpm <script>
+  // pnpm run <script>
+  /^(?<command>pnpm)\s+(?:run\s+)?(?<scriptName>[^\s&|;]+)/i
+];
+const yarnBuiltinCommands = /* @__PURE__ */ new Set([
+  "add",
+  "audit",
+  "autoclean",
+  "bin",
+  "cache",
+  "check",
+  "config",
+  "create",
+  "dedupe",
+  "dlx",
+  "exec",
+  "explain",
+  "generate-lock-entry",
+  "global",
+  "help",
+  "import",
+  "info",
+  "init",
+  "install",
+  "licenses",
+  "link",
+  "list",
+  "login",
+  "logout",
+  "node",
+  "outdated",
+  "owner",
+  "pack",
+  "patch",
+  "patch-commit",
+  "plugin",
+  "policies",
+  "publish",
+  "rebuild",
+  "remove",
+  "run",
+  "search",
+  "set",
+  "stage",
+  "tag",
+  "team",
+  "unlink",
+  "unplug",
+  "up",
+  "upgrade",
+  "upgrade-interactive",
+  "version",
+  "versions",
+  "why",
+  "workspace",
+  "workspaces"
+]);
+const pnpmBuiltinCommands = /* @__PURE__ */ new Set([
+  "add",
+  "audit",
+  "bin",
+  "config",
+  "dedupe",
+  "deploy",
+  "dlx",
+  "doctor",
+  "env",
+  "exec",
+  "fetch",
+  "import",
+  "init",
+  "install",
+  "install-test",
+  "licenses",
+  "link",
+  "list",
+  "ln",
+  "ls",
+  "outdated",
+  "pack",
+  "patch",
+  "patch-commit",
+  "patch-remove",
+  "prune",
+  "publish",
+  "rb",
+  "rebuild",
+  "remove",
+  "rm",
+  "root",
+  "run",
+  "server",
+  "setup",
+  "store",
+  "un",
+  "uninstall",
+  "unlink",
+  "up",
+  "update",
+  "why"
+]);
+let NpmScriptAutoApprover = class NpmScriptAutoApprover2 extends Disposable {
+  static {
+    __name(this, "NpmScriptAutoApprover");
+  }
+  constructor(_configurationService, _fileService, _uriIdentityService, _workspaceContextService) {
+    super();
+    this._configurationService = _configurationService;
+    this._fileService = _fileService;
+    this._uriIdentityService = _uriIdentityService;
+    this._workspaceContextService = _workspaceContextService;
+  }
+  /**
+   * Checks if a single command is an npm/yarn/pnpm script that exists in package.json.
+   * Returns auto-approve result if the command is a valid script.
+   */
+  async isCommandAutoApproved(command, cwd) {
+    const isNpmScriptAutoApproveEnabled = this._configurationService.getValue(
+      "chat.tools.terminal.autoApproveWorkspaceNpmScripts"
+      /* TerminalChatAgentToolsSettingId.AutoApproveWorkspaceNpmScripts */
+    ) === true;
+    if (!isNpmScriptAutoApproveEnabled) {
+      return { isAutoApproved: false };
+    }
+    const scriptName = this._extractScriptName(command);
+    if (!scriptName) {
+      return { isAutoApproved: false };
+    }
+    const packageJsonScripts = await this._getPackageJsonScripts(cwd);
+    if (!packageJsonScripts) {
+      return { isAutoApproved: false };
+    }
+    if (!packageJsonScripts.scripts.has(scriptName)) {
+      return { isAutoApproved: false };
+    }
+    return {
+      isAutoApproved: true,
+      scriptName,
+      autoApproveInfo: new MarkdownString(localize("autoApprove.npmScript", "Auto approved as {0} is defined in package.json", `\`${scriptName}\``))
+    };
+  }
+  /**
+   * Extracts script name from an npm/yarn/pnpm run command.
+   */
+  _extractScriptName(command) {
+    const trimmedCommand = command.trim();
+    for (const pattern of npmRunPatterns) {
+      const match = trimmedCommand.match(pattern);
+      if (match?.groups?.scriptName) {
+        const { command: pkgManager, scriptName } = match.groups;
+        if (pkgManager.toLowerCase() === "yarn" && yarnBuiltinCommands.has(scriptName.toLowerCase())) {
+          continue;
+        }
+        if (pkgManager.toLowerCase() === "pnpm" && pnpmBuiltinCommands.has(scriptName.toLowerCase())) {
+          continue;
+        }
+        return scriptName;
+      }
+    }
+    return void 0;
+  }
+  /**
+   * Checks if a URI is within any workspace folder.
+   */
+  _isWithinWorkspace(uri) {
+    const workspaceFolders = this._workspaceContextService.getWorkspace().folders;
+    return workspaceFolders.some((folder) => this._uriIdentityService.extUri.isEqualOrParent(uri, folder.uri));
+  }
+  /**
+   * Finds and parses package.json to get the scripts section.
+   * Only looks within the workspace for security.
+   */
+  async _getPackageJsonScripts(cwd) {
+    if (!cwd || !this._isWithinWorkspace(cwd)) {
+      return void 0;
+    }
+    const packageJsonUri = URI.joinPath(cwd, "package.json");
+    const scripts = await this._readPackageJsonScripts(packageJsonUri);
+    if (scripts) {
+      return { uri: packageJsonUri, scripts };
+    }
+    return void 0;
+  }
+  /**
+   * Reads and parses the scripts section from a package.json file.
+   */
+  async _readPackageJsonScripts(packageJsonUri) {
+    try {
+      const exists = await this._fileService.exists(packageJsonUri);
+      if (!exists) {
+        return void 0;
+      }
+      const content = await this._fileService.readFile(packageJsonUri);
+      const text = content.value.toString();
+      return this._parsePackageJsonScripts(text);
+    } catch {
+      return void 0;
+    }
+  }
+  /**
+   * Parses the scripts section from package.json content using jsonc-parser.
+   */
+  _parsePackageJsonScripts(content) {
+    const scripts = /* @__PURE__ */ new Set();
+    let inScripts = false;
+    let level = 0;
+    const visitor = {
+      onError() {
+      },
+      onObjectBegin() {
+        level++;
+      },
+      onObjectEnd() {
+        if (inScripts && level === 2) {
+          inScripts = false;
+        }
+        level--;
+      },
+      onObjectProperty(property) {
+        if (level === 1 && property === "scripts") {
+          inScripts = true;
+        } else if (inScripts && level === 2) {
+          scripts.add(property);
+        }
+      }
+    };
+    visit(content, visitor);
+    return scripts.size > 0 ? scripts : void 0;
+  }
+};
+NpmScriptAutoApprover = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IFileService),
+  __param(2, IUriIdentityService),
+  __param(3, IWorkspaceContextService)
+], NpmScriptAutoApprover);
+export {
+  NpmScriptAutoApprover
+};
+//# sourceMappingURL=npmScriptAutoApprover.js.map

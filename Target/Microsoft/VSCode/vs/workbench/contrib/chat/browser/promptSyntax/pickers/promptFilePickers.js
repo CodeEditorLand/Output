@@ -1,1 +1,537 @@
-import{localize as l}from"../../../../../../nls.js";import{URI as N}from"../../../../../../base/common/uri.js";import{$bk as b}from"../../../../../../base/common/codicons.js";import{ThemeIcon as g}from"../../../../../../base/common/themables.js";import{$VT as M,PromptsStorage as I}from"../../../common/promptSyntax/service/promptsService.js";import{$Hh as C,$yh as A,$Ih as Y}from"../../../../../../base/common/resources.js";import{$Dd as S}from"../../../../../../base/common/lifecycle.js";import{$vk as V}from"../../../../../../platform/files/common/files.js";import{$EP as j}from"../../../../../../platform/opener/common/opener.js";import{$Mp as H}from"../../../../../../platform/dialogs/common/dialogs.js";import{$uo as q}from"../../../../../../platform/commands/common/commands.js";import{$QT as O}from"../../../common/promptSyntax/config/promptFileLocations.js";import{PromptsType as h,$cT as W,$dT as G,$bT as J,$eT as K,$fT as Q}from"../../../common/promptSyntax/promptTypes.js";import{$3Yb as z,$4Yb as Z,$5Yb as X,$6Yb as tt}from"../newPromptFileActions.js";import{$YH as et}from"../../../../../../platform/quickinput/common/quickInput.js";import{$ZYb as st}from"./askForPromptName.js";import{$Mj as it}from"../../../../../../platform/instantiation/common/instantiation.js";import{CancellationToken as _,$Jf as D}from"../../../../../../base/common/cancellation.js";import{$1Yb as ot}from"./askForPromptSourceFolder.js";import{$oH as rt}from"../../../../../../platform/label/common/label.js";import{$0l as at}from"../../../../../../platform/configuration/common/configuration.js";import{PromptsConfig as nt}from"../../../common/promptSyntax/config/config.js";import{$Vn as lt}from"../../../../../../platform/product/common/productService.js";import{$9Yb as ct}from"../promptFileRewriter.js";import{$0Yb as ut}from"../../../common/promptSyntax/utils/promptsServiceUtils.js";var L=function(m,t,a,e){var s=arguments.length,i=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,a):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(m,t,a,e);else for(var n=m.length-1;n>=0;n--)(o=m[n])&&(i=(s<3?o(i):s>3?o(t,a,i):o(t,a))||i);return s>3&&i&&Object.defineProperty(t,a,i),i},d=function(m,t){return function(a,e){t(a,e,m)}};function T(m){const t=g.asClassName(b.question);switch(m){case h.prompt:return{tooltip:l(6323,null),helpURI:N.parse(J),iconClass:t};case h.instructions:return{tooltip:l(6324,null),helpURI:N.parse(W),iconClass:t};case h.agent:return{tooltip:l(6325,null),helpURI:N.parse(G),iconClass:t};case h.skill:return{tooltip:l(6326,null),helpURI:N.parse(K),iconClass:t};case h.hook:return{tooltip:l(6327,null),helpURI:N.parse(Q),iconClass:t}}}function pt(m){return m.helpURI!==void 0}function k(m){return m.type==="item"&&!!m.promptFileUri}function mt(m){return m.storage===I.extension&&!!m.extension}const ft={type:"item",label:`$(plus) ${l(6328,null)}`,pickable:!1,alwaysShow:!0,buttons:[T(h.prompt)],commandId:z},ht={type:"item",label:`$(plus) ${l(6329,null)}`,pickable:!1,alwaysShow:!0,buttons:[T(h.instructions)],commandId:Z},dt={type:"item",label:`$(refresh) ${l(6330,null)}`,pickable:!1,alwaysShow:!0,buttons:[T(h.instructions)],commandId:"workbench.action.chat.generateInstructions"},wt={type:"item",label:`$(plus) ${l(6331,null)}`,pickable:!1,alwaysShow:!0,buttons:[T(h.agent)],commandId:X},yt={type:"item",label:`$(plus) ${l(6332,null)}`,pickable:!1,alwaysShow:!0,buttons:[T(h.skill)],commandId:tt},P={tooltip:l(6333,null),iconClass:g.asClassName(b.fileCode)},R={tooltip:l(6334,null),iconClass:g.asClassName(b.trash)},E={tooltip:l(6335,null),iconClass:g.asClassName(b.replace)},U={tooltip:l(6336,null),iconClass:g.asClassName(b.copy)},F={tooltip:l(6337,null),iconClass:g.asClassName(b.eyeClosed),alwaysVisible:!0},x={tooltip:l(6338,null),iconClass:g.asClassName(b.eyeClosed)};let B=class{constructor(t,a,e,s,i,o,n,c,u,f){this.c=t,this.d=a,this.g=e,this.h=s,this.i=i,this.j=o,this.k=n,this.m=c,this.n=u,this.o=f}async selectPromptFile(t){const a=new D,e=this.c.createQuickPick({useSeparators:!0});e.busy=!0,e.placeholder=l(6339,null);try{const s=await this.q(t,a.token),i=t.resource&&s.find(o=>o.type==="item"&&A.isEqual(o.promptFileUri,t.resource));i&&(e.activeItems=[i]),e.placeholder=t.placeholder,e.matchOnDescription=!0,e.items=s}finally{e.busy=!1}return new Promise(s=>{const i=new S;let o=!1,n=!1;i.add(e),i.add(a);const c=async()=>{const u=e.activeItems,f=await this.q(t,_.None);e.items=f,e.activeItems=u};i.add(e.onDidAccept(async()=>{const{selectedItems:u}=e,{keyMods:f}=e,r=u[0];if(k(r))s({promptFile:r.promptFileUri,keyMods:{...f}}),o=!0;else if(r.commandId){await this.i.executeCommand(r.commandId);return}e.hide()})),i.add(e.onDidTriggerItemButton(async u=>{const f=await this.w(e,u,t);!n&&f&&await c()})),i.add(e.onDidHide(()=>{e.ignoreFocusOut||(i.dispose(),n=!0,o||(s(void 0),o=!0))})),e.show()})}async q(t,a){const e=[];t.optionEdit!==!1&&e.push(P),t.optionCopy!==!1&&e.push(U),t.optionRename!==!1&&e.push(E),t.optionDelete!==!1&&e.push(R);const s=[];t.optionNew!==!1&&s.push(...this.s(t.type));let i=()=>{};if(t.optionVisibility){const r=this.k.getDisabledPromptFiles(t.type);i=p=>!r.has(p.uri)}const o=r=>r.sort((p,$)=>p.label.localeCompare($.label)),n=await this.k.listPromptFilesForStorage(t.type,I.local,a);n.length&&(s.push({type:"separator",label:l(6340,null)}),s.push(...o(await Promise.all(n.map(r=>this.t(r,e,i(r),a))))));let c=[];if(t.type===h.instructions){const r=this.n.getValue(nt.USE_NESTED_AGENT_MD);c=[...await this.k.listCopilotInstructionsMDs(a),...await this.k.listAgentMDs(a,!!r)].map($=>{const w=this.m.getUriLabel(C($),{relative:!0}),y=w?.toLowerCase()!==".github";return{uri:$,description:y?w:void 0,storage:I.local,type:t.type}})}if(c.length){const r=e.filter(p=>p!==E);s.push({type:"separator",label:l(6341,null)}),s.push(...o(await Promise.all(c.map(p=>this.t(p,r,i(p),a)))))}const u=(await this.k.listPromptFilesForStorage(t.type,I.extension,a)).filter(mt);if(u.length){const r=[];t.optionEdit!==!1&&r.push(P),t.optionCopy!==!1&&r.push(U);const p=new Map;for(const w of u){const y=this.r(w);p.has(y)||p.set(y,[]),p.get(y).push(w)}const $=Array.from(p.entries()).sort((w,y)=>w[0].localeCompare(y[0]));for(const[w,y]of $)s.push({type:"separator",label:w}),s.push(...o(await Promise.all(y.map(v=>this.t(v,r,i(v),a)))))}const f=await this.k.listPromptFilesForStorage(t.type,I.user,a);return f.length&&(s.push({type:"separator",label:l(6342,null)}),s.push(...o(await Promise.all(f.map(r=>this.t(r,e,i(r),a)))))),s}r(t){return ut(t.uri,t.extension.identifier,this.o)?l(6343,null):l(6344,null)}s(t){switch(t){case h.prompt:return[ft];case h.instructions:return[ht,dt];case h.agent:return[wt];case h.skill:return[yt];default:throw new Error(`Unknown prompt type '${t}'.`)}}async t(t,a,e,s){const i=await this.k.parseNew(t.uri,s).catch(()=>{});let o=i?.header?.name??t.name??O(t.uri);const n=i?.header?.description??t.description;let c;switch(t.storage){case I.extension:c=t.extension.displayName??t.extension.id;break;case I.local:c=this.m.getUriLabel(C(t.uri),{relative:!0});break;case I.user:c=void 0;break}let u;return e===!1?(a=(a??[]).concat(F),o=l(6345,null,o),c=l(6346,null)):e===!0&&(a=(a??[]).concat(x)),{id:t.uri.toString(),type:"item",label:o,description:n,iconClass:u,tooltip:c,promptFileUri:t.uri,buttons:a}}async v(t,a){const e=t.ignoreFocusOut;t.ignoreFocusOut=!0;try{return await a()}finally{t.ignoreFocusOut=e,t.show()}}async w(t,a,e){const{item:s,button:i}=a;if(!k(s)){if(pt(i))return await this.d.open(i.helpURI),!1;throw new Error(`Unknown button '${JSON.stringify(i)}'.`)}const o=s.promptFileUri;if(i===P)return await this.d.open(o),!1;if(i===E||i===U)return await this.v(t,async()=>{const n=C(o),c=i===E&&t.keyMods.ctrlCmd,u=await this.j.invokeFunction(ot,e.type,n,c);if(!u)return!1;const f=await this.j.invokeFunction(st,e.type,u.uri,s.label);if(!f)return!1;const r=Y(u.uri,f);return c?await this.g.move(o,r):await this.g.copy(o,r),await this.d.open(r),await this.j.createInstance(ct).openAndRewriteName(r,O(r),_.None),!0});if(i===R)return await this.v(t,async()=>{const n=O(o),c=l(6347,null,n),{confirmed:u}=await this.h.confirm({message:c});return u?(await this.g.del(o),!0):!1});if(i===F||i===x){const n=this.k.getDisabledPromptFiles(e.type);return i===F?n.delete(o):n.add(o),this.k.setDisabledPromptFiles(e.type,n),!0}throw new Error(`Unknown button '${JSON.stringify(i)}'.`)}async managePromptFiles(t,a){const e=new D,s=this.c.createQuickPick({useSeparators:!0});s.placeholder=a,s.canSelectMany=!0,s.matchOnDescription=!0,s.sortByLabel=!1,s.busy=!0;const i={placeholder:"",type:t,optionNew:!0,optionEdit:!0,optionDelete:!0,optionRename:!0,optionCopy:!0,optionVisibility:!1};try{const o=await this.q(i,e.token);s.items=o}finally{s.busy=!1}return new Promise(o=>{const n=new S;n.add(s),n.add(e);let c=!1,u=!1;const f=async()=>{const r=s.activeItems,p=await this.q(i,_.None);s.items=p,s.activeItems=r};n.add(s.onDidAccept(async()=>{const r=s.activeItems;if(r.length===1&&r[0].commandId){const p=r[0].commandId;await this.v(s,async()=>{await this.i.executeCommand(p)}),c||await f();return}u=!0,o(!0),s.hide()})),n.add(s.onDidTriggerItemButton(async r=>{const p=await this.w(s,r,i);!c&&p&&await f()})),n.add(s.onDidHide(()=>{s.ignoreFocusOut||(n.dispose(),c=!0,u||(o(!1),u=!0))})),s.show()})}};B=L([d(0,et),d(1,j),d(2,V),d(3,H),d(4,q),d(5,it),d(6,M),d(7,rt),d(8,at),d(9,lt)],B);export{B as $$Yb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../../../nls.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { IPromptsService, PromptsStorage } from "../../../common/promptSyntax/service/promptsService.js";
+import { dirname, extUri, joinPath } from "../../../../../../base/common/resources.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { IDialogService } from "../../../../../../platform/dialogs/common/dialogs.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { getCleanPromptName } from "../../../common/promptSyntax/config/promptFileLocations.js";
+import { PromptsType, INSTRUCTIONS_DOCUMENTATION_URL, AGENT_DOCUMENTATION_URL, PROMPT_DOCUMENTATION_URL, SKILL_DOCUMENTATION_URL, HOOK_DOCUMENTATION_URL } from "../../../common/promptSyntax/promptTypes.js";
+import { NEW_PROMPT_COMMAND_ID, NEW_INSTRUCTIONS_COMMAND_ID, NEW_AGENT_COMMAND_ID, NEW_SKILL_COMMAND_ID } from "../newPromptFileActions.js";
+import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { askForPromptFileName } from "./askForPromptName.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { askForPromptSourceFolder } from "./askForPromptSourceFolder.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { PromptsConfig } from "../../../common/promptSyntax/config/config.js";
+import { IProductService } from "../../../../../../platform/product/common/productService.js";
+import { PromptFileRewriter } from "../promptFileRewriter.js";
+import { isOrganizationPromptFile } from "../../../common/promptSyntax/utils/promptsServiceUtils.js";
+function newHelpButton(type) {
+  const iconClass = ThemeIcon.asClassName(Codicon.question);
+  switch (type) {
+    case PromptsType.prompt:
+      return {
+        tooltip: localize("help.prompt", "Show help on prompt files"),
+        helpURI: URI.parse(PROMPT_DOCUMENTATION_URL),
+        iconClass
+      };
+    case PromptsType.instructions:
+      return {
+        tooltip: localize("help.instructions", "Show help on instruction files"),
+        helpURI: URI.parse(INSTRUCTIONS_DOCUMENTATION_URL),
+        iconClass
+      };
+    case PromptsType.agent:
+      return {
+        tooltip: localize("help.agent", "Show help on custom agent files"),
+        helpURI: URI.parse(AGENT_DOCUMENTATION_URL),
+        iconClass
+      };
+    case PromptsType.skill:
+      return {
+        tooltip: localize("help.skill", "Show help on skill files"),
+        helpURI: URI.parse(SKILL_DOCUMENTATION_URL),
+        iconClass
+      };
+    case PromptsType.hook:
+      return {
+        tooltip: localize("help.hook", "Show help on hook files"),
+        helpURI: URI.parse(HOOK_DOCUMENTATION_URL),
+        iconClass
+      };
+  }
+}
+__name(newHelpButton, "newHelpButton");
+function isHelpButton(button) {
+  return button.helpURI !== void 0;
+}
+__name(isHelpButton, "isHelpButton");
+function isPromptFileItem(item) {
+  return item.type === "item" && !!item.promptFileUri;
+}
+__name(isPromptFileItem, "isPromptFileItem");
+function isExtensionPromptPath(prompt) {
+  return prompt.storage === PromptsStorage.extension && !!prompt.extension;
+}
+__name(isExtensionPromptPath, "isExtensionPromptPath");
+const NEW_PROMPT_FILE_OPTION = {
+  type: "item",
+  label: `$(plus) ${localize("commands.new-promptfile.select-dialog.label", "New prompt file...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.prompt)],
+  commandId: NEW_PROMPT_COMMAND_ID
+};
+const NEW_INSTRUCTIONS_FILE_OPTION = {
+  type: "item",
+  label: `$(plus) ${localize("commands.new-instructionsfile.select-dialog.label", "New instruction file...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.instructions)],
+  commandId: NEW_INSTRUCTIONS_COMMAND_ID
+};
+const UPDATE_INSTRUCTIONS_OPTION = {
+  type: "item",
+  label: `$(refresh) ${localize("commands.update-instructions.select-dialog.label", "Generate agent instructions...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.instructions)],
+  commandId: "workbench.action.chat.generateInstructions"
+};
+const NEW_AGENT_FILE_OPTION = {
+  type: "item",
+  label: `$(plus) ${localize("commands.new-agentfile.select-dialog.label", "Create new custom agent...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.agent)],
+  commandId: NEW_AGENT_COMMAND_ID
+};
+const NEW_SKILL_FILE_OPTION = {
+  type: "item",
+  label: `$(plus) ${localize("commands.new-skill.select-dialog.label", "New skill...")}`,
+  pickable: false,
+  alwaysShow: true,
+  buttons: [newHelpButton(PromptsType.skill)],
+  commandId: NEW_SKILL_COMMAND_ID
+};
+const EDIT_BUTTON = {
+  tooltip: localize("open", "Open in Editor"),
+  iconClass: ThemeIcon.asClassName(Codicon.fileCode)
+};
+const DELETE_BUTTON = {
+  tooltip: localize("delete", "Delete"),
+  iconClass: ThemeIcon.asClassName(Codicon.trash)
+};
+const RENAME_BUTTON = {
+  tooltip: localize("rename", "Move and/or Rename"),
+  iconClass: ThemeIcon.asClassName(Codicon.replace)
+};
+const COPY_BUTTON = {
+  tooltip: localize("makeACopy", "Make a Copy"),
+  iconClass: ThemeIcon.asClassName(Codicon.copy)
+};
+const MAKE_VISIBLE_BUTTON = {
+  tooltip: localize("makeVisible", "Hidden from chat view agent picker. Click to show."),
+  iconClass: ThemeIcon.asClassName(Codicon.eyeClosed),
+  alwaysVisible: true
+};
+const MAKE_INVISIBLE_BUTTON = {
+  tooltip: localize("makeInvisible", "Hide from agent picker"),
+  iconClass: ThemeIcon.asClassName(Codicon.eyeClosed)
+};
+let PromptFilePickers = class PromptFilePickers2 {
+  static {
+    __name(this, "PromptFilePickers");
+  }
+  constructor(_quickInputService, _openerService, _fileService, _dialogService, _commandService, _instaService, _promptsService, _labelService, _configurationService, _productService) {
+    this._quickInputService = _quickInputService;
+    this._openerService = _openerService;
+    this._fileService = _fileService;
+    this._dialogService = _dialogService;
+    this._commandService = _commandService;
+    this._instaService = _instaService;
+    this._promptsService = _promptsService;
+    this._labelService = _labelService;
+    this._configurationService = _configurationService;
+    this._productService = _productService;
+  }
+  /**
+   * Shows the prompt file selection dialog to the user that allows to run a prompt file(s).
+   *
+   * If {@link ISelectOptions.resource resource} is provided, the dialog will have
+   * the resource pre-selected in the prompts list.
+   */
+  async selectPromptFile(options) {
+    const cts = new CancellationTokenSource();
+    const quickPick = this._quickInputService.createQuickPick({ useSeparators: true });
+    quickPick.busy = true;
+    quickPick.placeholder = localize("searching", "Searching file system...");
+    try {
+      const fileOptions = await this._createPromptPickItems(options, cts.token);
+      const activeItem = options.resource && fileOptions.find((f) => f.type === "item" && extUri.isEqual(f.promptFileUri, options.resource));
+      if (activeItem) {
+        quickPick.activeItems = [activeItem];
+      }
+      quickPick.placeholder = options.placeholder;
+      quickPick.matchOnDescription = true;
+      quickPick.items = fileOptions;
+    } finally {
+      quickPick.busy = false;
+    }
+    return new Promise((resolve) => {
+      const disposables = new DisposableStore();
+      let isResolved = false;
+      let isClosed = false;
+      disposables.add(quickPick);
+      disposables.add(cts);
+      const refreshItems = /* @__PURE__ */ __name(async () => {
+        const active = quickPick.activeItems;
+        const newItems = await this._createPromptPickItems(options, CancellationToken.None);
+        quickPick.items = newItems;
+        quickPick.activeItems = active;
+      }, "refreshItems");
+      disposables.add(quickPick.onDidAccept(async () => {
+        const { selectedItems } = quickPick;
+        const { keyMods } = quickPick;
+        const selectedItem = selectedItems[0];
+        if (isPromptFileItem(selectedItem)) {
+          resolve({ promptFile: selectedItem.promptFileUri, keyMods: { ...keyMods } });
+          isResolved = true;
+        } else {
+          if (selectedItem.commandId) {
+            await this._commandService.executeCommand(selectedItem.commandId);
+            return;
+          }
+        }
+        quickPick.hide();
+      }));
+      disposables.add(quickPick.onDidTriggerItemButton(async (e) => {
+        const shouldRefresh = await this._handleButtonClick(quickPick, e, options);
+        if (!isClosed && shouldRefresh) {
+          await refreshItems();
+        }
+      }));
+      disposables.add(quickPick.onDidHide(() => {
+        if (!quickPick.ignoreFocusOut) {
+          disposables.dispose();
+          isClosed = true;
+          if (!isResolved) {
+            resolve(void 0);
+            isResolved = true;
+          }
+        }
+      }));
+      quickPick.show();
+    });
+  }
+  async _createPromptPickItems(options, token) {
+    const buttons = [];
+    if (options.optionEdit !== false) {
+      buttons.push(EDIT_BUTTON);
+    }
+    if (options.optionCopy !== false) {
+      buttons.push(COPY_BUTTON);
+    }
+    if (options.optionRename !== false) {
+      buttons.push(RENAME_BUTTON);
+    }
+    if (options.optionDelete !== false) {
+      buttons.push(DELETE_BUTTON);
+    }
+    const result = [];
+    if (options.optionNew !== false) {
+      result.push(...this._getNewItems(options.type));
+    }
+    let getVisibility = /* @__PURE__ */ __name(() => void 0, "getVisibility");
+    if (options.optionVisibility) {
+      const disabled = this._promptsService.getDisabledPromptFiles(options.type);
+      getVisibility = /* @__PURE__ */ __name((p) => !disabled.has(p.uri), "getVisibility");
+    }
+    const sortByLabel = /* @__PURE__ */ __name((items) => items.sort((a, b) => a.label.localeCompare(b.label)), "sortByLabel");
+    const locals = await this._promptsService.listPromptFilesForStorage(options.type, PromptsStorage.local, token);
+    if (locals.length) {
+      result.push({ type: "separator", label: localize("separator.workspace", "Workspace") });
+      result.push(...sortByLabel(await Promise.all(locals.map((l) => this._createPromptPickItem(l, buttons, getVisibility(l), token)))));
+    }
+    let agentInstructionFiles = [];
+    if (options.type === PromptsType.instructions) {
+      const useNestedAgentMD = this._configurationService.getValue(PromptsConfig.USE_NESTED_AGENT_MD);
+      const agentInstructionUris = [
+        ...await this._promptsService.listCopilotInstructionsMDs(token),
+        ...await this._promptsService.listAgentMDs(token, !!useNestedAgentMD)
+      ];
+      agentInstructionFiles = agentInstructionUris.map((uri) => {
+        const folderName = this._labelService.getUriLabel(dirname(uri), { relative: true });
+        const shouldShowFolderPath = folderName?.toLowerCase() !== ".github";
+        return {
+          uri,
+          description: shouldShowFolderPath ? folderName : void 0,
+          storage: PromptsStorage.local,
+          type: options.type
+        };
+      });
+    }
+    if (agentInstructionFiles.length) {
+      const agentButtons = buttons.filter((b) => b !== RENAME_BUTTON);
+      result.push({ type: "separator", label: localize("separator.workspace-agent-instructions", "Agent Instructions") });
+      result.push(...sortByLabel(await Promise.all(agentInstructionFiles.map((l) => this._createPromptPickItem(l, agentButtons, getVisibility(l), token)))));
+    }
+    const exts = (await this._promptsService.listPromptFilesForStorage(options.type, PromptsStorage.extension, token)).filter(isExtensionPromptPath);
+    if (exts.length) {
+      const extButtons = [];
+      if (options.optionEdit !== false) {
+        extButtons.push(EDIT_BUTTON);
+      }
+      if (options.optionCopy !== false) {
+        extButtons.push(COPY_BUTTON);
+      }
+      const groupedExts = /* @__PURE__ */ new Map();
+      for (const ext of exts) {
+        const groupLabel = this._getExtensionGroupLabel(ext);
+        if (!groupedExts.has(groupLabel)) {
+          groupedExts.set(groupLabel, []);
+        }
+        groupedExts.get(groupLabel).push(ext);
+      }
+      const sortedGroupedExts = Array.from(groupedExts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+      for (const [groupLabel, groupExts] of sortedGroupedExts) {
+        result.push({ type: "separator", label: groupLabel });
+        result.push(...sortByLabel(await Promise.all(groupExts.map((e) => this._createPromptPickItem(e, extButtons, getVisibility(e), token)))));
+      }
+    }
+    const users = await this._promptsService.listPromptFilesForStorage(options.type, PromptsStorage.user, token);
+    if (users.length) {
+      result.push({ type: "separator", label: localize("separator.user", "User Data") });
+      result.push(...sortByLabel(await Promise.all(users.map((u) => this._createPromptPickItem(u, buttons, getVisibility(u), token)))));
+    }
+    return result;
+  }
+  _getExtensionGroupLabel(extPath) {
+    if (isOrganizationPromptFile(extPath.uri, extPath.extension.identifier, this._productService)) {
+      return localize("separator.organization", "Organization");
+    }
+    return localize("separator.extensions", "Extensions");
+  }
+  _getNewItems(type) {
+    switch (type) {
+      case PromptsType.prompt:
+        return [NEW_PROMPT_FILE_OPTION];
+      case PromptsType.instructions:
+        return [NEW_INSTRUCTIONS_FILE_OPTION, UPDATE_INSTRUCTIONS_OPTION];
+      case PromptsType.agent:
+        return [NEW_AGENT_FILE_OPTION];
+      case PromptsType.skill:
+        return [NEW_SKILL_FILE_OPTION];
+      default:
+        throw new Error(`Unknown prompt type '${type}'.`);
+    }
+  }
+  async _createPromptPickItem(promptFile, buttons, visibility, token) {
+    const parsedPromptFile = await this._promptsService.parseNew(promptFile.uri, token).catch(() => void 0);
+    let promptName = parsedPromptFile?.header?.name ?? promptFile.name ?? getCleanPromptName(promptFile.uri);
+    const promptDescription = parsedPromptFile?.header?.description ?? promptFile.description;
+    let tooltip;
+    switch (promptFile.storage) {
+      case PromptsStorage.extension:
+        tooltip = promptFile.extension.displayName ?? promptFile.extension.id;
+        break;
+      case PromptsStorage.local:
+        tooltip = this._labelService.getUriLabel(dirname(promptFile.uri), { relative: true });
+        break;
+      case PromptsStorage.user:
+        tooltip = void 0;
+        break;
+    }
+    let iconClass;
+    if (visibility === false) {
+      buttons = (buttons ?? []).concat(MAKE_VISIBLE_BUTTON);
+      promptName = localize("hiddenLabelInfo", "{0} (hidden)", promptName);
+      tooltip = localize("hiddenInAgentPicker", "Hidden from chat view agent picker");
+    } else if (visibility === true) {
+      buttons = (buttons ?? []).concat(MAKE_INVISIBLE_BUTTON);
+    }
+    return {
+      id: promptFile.uri.toString(),
+      type: "item",
+      label: promptName,
+      description: promptDescription,
+      iconClass,
+      tooltip,
+      promptFileUri: promptFile.uri,
+      buttons
+    };
+  }
+  async keepQuickPickOpen(quickPick, work) {
+    const previousIgnoreFocusOut = quickPick.ignoreFocusOut;
+    quickPick.ignoreFocusOut = true;
+    try {
+      return await work();
+    } finally {
+      quickPick.ignoreFocusOut = previousIgnoreFocusOut;
+      quickPick.show();
+    }
+  }
+  async _handleButtonClick(quickPick, context, options) {
+    const { item, button } = context;
+    if (!isPromptFileItem(item)) {
+      if (isHelpButton(button)) {
+        await this._openerService.open(button.helpURI);
+        return false;
+      }
+      throw new Error(`Unknown button '${JSON.stringify(button)}'.`);
+    }
+    const value = item.promptFileUri;
+    if (button === EDIT_BUTTON) {
+      await this._openerService.open(value);
+      return false;
+    }
+    if (button === RENAME_BUTTON || button === COPY_BUTTON) {
+      return await this.keepQuickPickOpen(quickPick, async () => {
+        const currentFolder = dirname(value);
+        const isMove = button === RENAME_BUTTON && quickPick.keyMods.ctrlCmd;
+        const newFolder = await this._instaService.invokeFunction(askForPromptSourceFolder, options.type, currentFolder, isMove);
+        if (!newFolder) {
+          return false;
+        }
+        const newName = await this._instaService.invokeFunction(askForPromptFileName, options.type, newFolder.uri, item.label);
+        if (!newName) {
+          return false;
+        }
+        const newFile = joinPath(newFolder.uri, newName);
+        if (isMove) {
+          await this._fileService.move(value, newFile);
+        } else {
+          await this._fileService.copy(value, newFile);
+        }
+        await this._openerService.open(newFile);
+        await this._instaService.createInstance(PromptFileRewriter).openAndRewriteName(newFile, getCleanPromptName(newFile), CancellationToken.None);
+        return true;
+      });
+    }
+    if (button === DELETE_BUTTON) {
+      return await this.keepQuickPickOpen(quickPick, async () => {
+        const filename = getCleanPromptName(value);
+        const message = localize("commands.prompts.use.select-dialog.delete-prompt.confirm.message", "Are you sure you want to delete '{0}'?", filename);
+        const { confirmed } = await this._dialogService.confirm({ message });
+        if (!confirmed) {
+          return false;
+        }
+        await this._fileService.del(value);
+        return true;
+      });
+    }
+    if (button === MAKE_VISIBLE_BUTTON || button === MAKE_INVISIBLE_BUTTON) {
+      const disabled = this._promptsService.getDisabledPromptFiles(options.type);
+      if (button === MAKE_VISIBLE_BUTTON) {
+        disabled.delete(value);
+      } else {
+        disabled.add(value);
+      }
+      this._promptsService.setDisabledPromptFiles(options.type, disabled);
+      return true;
+    }
+    throw new Error(`Unknown button '${JSON.stringify(button)}'.`);
+  }
+  // --- Enablement Configuration -------------------------------------------------------
+  /**
+   * Shows a multi-select (checkbox) quick pick to configure which prompt files of the given
+   * type are enabled. Currently only used for agent prompt files.
+   */
+  async managePromptFiles(type, placeholder) {
+    const cts = new CancellationTokenSource();
+    const quickPick = this._quickInputService.createQuickPick({ useSeparators: true });
+    quickPick.placeholder = placeholder;
+    quickPick.canSelectMany = true;
+    quickPick.matchOnDescription = true;
+    quickPick.sortByLabel = false;
+    quickPick.busy = true;
+    const options = {
+      placeholder: "",
+      type,
+      optionNew: true,
+      optionEdit: true,
+      optionDelete: true,
+      optionRename: true,
+      optionCopy: true,
+      optionVisibility: false
+    };
+    try {
+      const items = await this._createPromptPickItems(options, cts.token);
+      quickPick.items = items;
+    } finally {
+      quickPick.busy = false;
+    }
+    return new Promise((resolve) => {
+      const disposables = new DisposableStore();
+      disposables.add(quickPick);
+      disposables.add(cts);
+      let isClosed = false;
+      let isResolved = false;
+      const refreshItems = /* @__PURE__ */ __name(async () => {
+        const active = quickPick.activeItems;
+        const newItems = await this._createPromptPickItems(options, CancellationToken.None);
+        quickPick.items = newItems;
+        quickPick.activeItems = active;
+      }, "refreshItems");
+      disposables.add(quickPick.onDidAccept(async () => {
+        const clickedItem = quickPick.activeItems;
+        if (clickedItem.length === 1 && clickedItem[0].commandId) {
+          const commandId = clickedItem[0].commandId;
+          await this.keepQuickPickOpen(quickPick, async () => {
+            await this._commandService.executeCommand(commandId);
+          });
+          if (!isClosed) {
+            await refreshItems();
+          }
+          return;
+        }
+        isResolved = true;
+        resolve(true);
+        quickPick.hide();
+      }));
+      disposables.add(quickPick.onDidTriggerItemButton(async (e) => {
+        const shouldRefresh = await this._handleButtonClick(quickPick, e, options);
+        if (!isClosed && shouldRefresh) {
+          await refreshItems();
+        }
+      }));
+      disposables.add(quickPick.onDidHide(() => {
+        if (!quickPick.ignoreFocusOut) {
+          disposables.dispose();
+          isClosed = true;
+          if (!isResolved) {
+            resolve(false);
+            isResolved = true;
+          }
+        }
+      }));
+      quickPick.show();
+    });
+  }
+};
+PromptFilePickers = __decorate([
+  __param(0, IQuickInputService),
+  __param(1, IOpenerService),
+  __param(2, IFileService),
+  __param(3, IDialogService),
+  __param(4, ICommandService),
+  __param(5, IInstantiationService),
+  __param(6, IPromptsService),
+  __param(7, ILabelService),
+  __param(8, IConfigurationService),
+  __param(9, IProductService)
+], PromptFilePickers);
+export {
+  PromptFilePickers
+};
+//# sourceMappingURL=promptFilePickers.js.map

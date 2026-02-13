@@ -1,1 +1,169 @@
-import"./media/inlineChatEditorAffordance.css";import*as u from"../../../../base/browser/dom.js";import{$Ed as g,$Dd as $,$Fd as b}from"../../../../base/common/lifecycle.js";import{autorun as l}from"../../../../base/common/observable.js";import{$qL as w,$uL as v}from"../../../../platform/actions/common/actions.js";import{$ikb as C}from"../../../../platform/actions/browser/toolbar.js";import{$Mj as I}from"../../../../platform/instantiation/common/instantiation.js";import{$Clb as P}from"../../../../editor/contrib/codeAction/browser/codeAction.js";import{$mmb as _}from"../../../../editor/contrib/codeAction/browser/codeActionController.js";import{$$jb as j}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{ThemeIcon as q}from"../../../../base/common/themables.js";import{$fy as y}from"../../../../platform/keybinding/common/keybinding.js";import{$pH as O}from"../../../../platform/notification/common/notification.js";import{$ro as x}from"../../../../platform/contextkey/common/contextkey.js";import{$qu as D}from"../../../../platform/theme/common/themeService.js";import{$ijb as A}from"../../../../platform/contextview/browser/contextView.js";import{$MD as B}from"../../../../platform/accessibility/common/accessibility.js";import{$bk as H}from"../../../../base/common/codicons.js";var d=function(n,t,e,o){var i=arguments.length,r=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,o);else for(var c=n.length-1;c>=0;c--)(s=n[c])&&(r=(i<3?s(r):i>3?s(t,e,r):s(t,e))||r);return i>3&&r&&Object.defineProperty(t,e,r),r},h=function(n,t){return function(e,o){t(e,o,n)}},f;let m=class extends j{constructor(t,e,o,i,r,s,c,p){super(t,{draggable:!1},o,i,r,s,c,p),this.g=e,this.b=this.B.add(new b)}render(t){super.render(t),this.m()}H(){return this.c??super.H()}m(){const t=_.get(this.g);if(!t)return;const e=new $;this.b.value=e,e.add(l(o=>{const i=t.lightBulbState.read(o);if(this.q){const r=i?.icon??H.lightBulb,s=q.asClassNameArray(r);this.q.className="",this.q.classList.add("codicon",...s)}this.c=i?.title,this.J()}))}};m=d([h(2,y),h(3,O),h(4,x),h(5,D),h(6,A),h(7,B)],m);let a=class extends g{static{f=this}static{this.a=0}constructor(t,e,o){super(),this.h=t,this.b=`inline-chat-content-widget-${f.a++}`,this.f=null,this.g=!1,this.allowEditorOverflow=!0,this.suppressMouseDown=!1,this.c=u.$(".inline-chat-content-widget"),this.B.add(o.createInstance(C,this.c,w.InlineChatEditorAffordance,{telemetrySource:"inlineChatEditorAffordance",hiddenItemStrategy:0,menuOptions:{renderShortTitle:!0},toolbarOptions:{primaryGroup:()=>!0},actionViewItemProvider:i=>{if(i instanceof v&&i.id===P)return o.createInstance(m,i,this.h)}})),this.B.add(l(i=>{const r=e.read(i);r?this.j(r):this.m()}))}j(t){const e=t.getPosition(),i=t.getDirection()===1?1:2;this.f={position:e,preference:[i]},this.g?this.h.layoutContentWidget(this):(this.h.addContentWidget(this),this.g=!0)}m(){this.g&&(this.g=!1,this.h.removeContentWidget(this))}getId(){return this.b}getDomNode(){return this.c}getPosition(){return this.f}beforeRender(){const t=this.h.getPosition(),e=t?this.h.getLineHeightForPosition(t):this.h.getOption(75);return this.c.style.setProperty("--vscode-inline-chat-affordance-height",`${e}px`),null}dispose(){this.g&&this.h.removeContentWidget(this),super.dispose()}};a=f=d([h(2,I)],a);export{a as $qgc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InlineChatEditorAffordance_1;
+import "./media/inlineChatEditorAffordance.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { quickFixCommandId } from "../../../../editor/contrib/codeAction/browser/codeAction.js";
+import { CodeActionController } from "../../../../editor/contrib/codeAction/browser/codeActionController.js";
+import { MenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+let QuickFixActionViewItem = class QuickFixActionViewItem2 extends MenuEntryActionViewItem {
+  static {
+    __name(this, "QuickFixActionViewItem");
+  }
+  constructor(action, _editor, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, accessibilityService) {
+    super(action, { draggable: false }, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, accessibilityService);
+    this._editor = _editor;
+    this._lightBulbStore = this._store.add(new MutableDisposable());
+  }
+  render(container) {
+    super.render(container);
+    this._updateFromLightBulb();
+  }
+  getTooltip() {
+    return this._currentTitle ?? super.getTooltip();
+  }
+  _updateFromLightBulb() {
+    const controller = CodeActionController.get(this._editor);
+    if (!controller) {
+      return;
+    }
+    const store = new DisposableStore();
+    this._lightBulbStore.value = store;
+    store.add(autorun((reader) => {
+      const info = controller.lightBulbState.read(reader);
+      if (this.label) {
+        const icon = info?.icon ?? Codicon.lightBulb;
+        const iconClasses = ThemeIcon.asClassNameArray(icon);
+        this.label.className = "";
+        this.label.classList.add("codicon", ...iconClasses);
+      }
+      this._currentTitle = info?.title;
+      this.updateTooltip();
+    }));
+  }
+};
+QuickFixActionViewItem = __decorate([
+  __param(2, IKeybindingService),
+  __param(3, INotificationService),
+  __param(4, IContextKeyService),
+  __param(5, IThemeService),
+  __param(6, IContextMenuService),
+  __param(7, IAccessibilityService)
+], QuickFixActionViewItem);
+let InlineChatEditorAffordance = class InlineChatEditorAffordance2 extends Disposable {
+  static {
+    __name(this, "InlineChatEditorAffordance");
+  }
+  static {
+    InlineChatEditorAffordance_1 = this;
+  }
+  static {
+    this._idPool = 0;
+  }
+  constructor(_editor, selection, instantiationService) {
+    super();
+    this._editor = _editor;
+    this._id = `inline-chat-content-widget-${InlineChatEditorAffordance_1._idPool++}`;
+    this._position = null;
+    this._isVisible = false;
+    this.allowEditorOverflow = true;
+    this.suppressMouseDown = false;
+    this._domNode = dom.$(".inline-chat-content-widget");
+    this._store.add(instantiationService.createInstance(MenuWorkbenchToolBar, this._domNode, MenuId.InlineChatEditorAffordance, {
+      telemetrySource: "inlineChatEditorAffordance",
+      hiddenItemStrategy: 0,
+      menuOptions: { renderShortTitle: true },
+      toolbarOptions: { primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup") },
+      actionViewItemProvider: /* @__PURE__ */ __name((action) => {
+        if (action instanceof MenuItemAction && action.id === quickFixCommandId) {
+          return instantiationService.createInstance(QuickFixActionViewItem, action, this._editor);
+        }
+        return void 0;
+      }, "actionViewItemProvider")
+    }));
+    this._store.add(autorun((r) => {
+      const sel = selection.read(r);
+      if (sel) {
+        this._show(sel);
+      } else {
+        this._hide();
+      }
+    }));
+  }
+  _show(selection) {
+    const cursorPosition = selection.getPosition();
+    const direction = selection.getDirection();
+    const preference = direction === 1 ? 1 : 2;
+    this._position = {
+      position: cursorPosition,
+      preference: [preference]
+    };
+    if (this._isVisible) {
+      this._editor.layoutContentWidget(this);
+    } else {
+      this._editor.addContentWidget(this);
+      this._isVisible = true;
+    }
+  }
+  _hide() {
+    if (this._isVisible) {
+      this._isVisible = false;
+      this._editor.removeContentWidget(this);
+    }
+  }
+  getId() {
+    return this._id;
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    return this._position;
+  }
+  beforeRender() {
+    const position = this._editor.getPosition();
+    const lineHeight = position ? this._editor.getLineHeightForPosition(position) : this._editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    this._domNode.style.setProperty("--vscode-inline-chat-affordance-height", `${lineHeight}px`);
+    return null;
+  }
+  dispose() {
+    if (this._isVisible) {
+      this._editor.removeContentWidget(this);
+    }
+    super.dispose();
+  }
+};
+InlineChatEditorAffordance = InlineChatEditorAffordance_1 = __decorate([
+  __param(2, IInstantiationService)
+], InlineChatEditorAffordance);
+export {
+  InlineChatEditorAffordance
+};
+//# sourceMappingURL=inlineChatEditorAffordance.js.map

@@ -1,1 +1,149 @@
-import{$Zc as m}from"../../../../../base/common/assert.js";import{$lk as o}from"../../../../../base/common/htmlContent.js";import{$Gp as n}from"../../../../../base/common/objects.js";import{$Bh as l}from"../../../../../base/common/resources.js";import{$rd as i}from"../../../../../base/common/types.js";import{URI as a}from"../../../../../base/common/uri.js";import{$HS as u}from"./chatModel.js";import*as t from"./objectMutationLog.js";const v=e=>{const s=e;return s&&typeof s.toJSON=="function"?s.toJSON():e},p=t.v(e=>e.kind==="markdownContent"?e.content:v(e),(e,s)=>{if(o(e)&&o(s))return e.value===s.value;if(i(e,{kind:!0})&&i(s,{kind:!0})){if(e.kind!==s.kind)return!1;switch(e.kind){case"markdownContent":return e.content===s.content;case"toolInvocationSerialized":case"elicitationSerialized":case"progressTaskSerialized":case"textEditGroup":case"multiDiffData":case"mcpServersStarting":return n(e,s);case"clearToPreviousToolInvocation":case"codeblockUri":case"command":case"confirmation":case"extensions":case"inlineReference":case"markdownVuln":case"notebookEditGroup":case"progressMessage":case"pullRequest":case"questionCarousel":case"thinking":case"undoStop":case"warning":case"treeData":case"workspaceEdit":return e.kind===s.kind;default:m(e)}}return!1}),S=(e,s)=>l(a.from(e),a.from(s)),f=t.$mS({text:t.v(e=>e.text),parts:t.v(e=>e.parts,(e,s)=>e.length===s.length&&e.every((d,c)=>d.text===s[c].text))}),g=t.$mS({uri:t.v(e=>e.uri,S),eventKind:t.v(e=>e.eventKind)}),k=t.$mS({variables:t.t(e=>e.variables,t.$lS(t.$kS((e,s)=>e.name===s.name)))}),r=t.$mS({requestId:t.t(e=>e.id,t.key()),timestamp:t.v(e=>e.timestamp),confirmation:t.v(e=>e.confirmation),message:t.t(e=>e.message,f),shouldBeRemovedOnSend:t.v(e=>e.shouldBeRemovedOnSend,n),agent:t.v(e=>e.response?.agent,(e,s)=>e?.id===s?.id),modelId:t.v(e=>e.modelId),editedFileEvents:t.t(e=>e.editedFileEvents,t.$lS(g)),variableData:t.t(e=>e.variableData,k),isHidden:t.v(()=>{}),isCanceled:t.v(()=>{}),response:t.t(e=>e.response?.entireResponse.value,t.$lS(p)),responseId:t.v(e=>e.response?.id),result:t.v(e=>e.response?.result,n),responseMarkdownInfo:t.v(e=>e.response?.codeBlockInfos?.map(s=>({suggestionId:s.suggestionId})),n),followups:t.v(e=>e.response?.followups,n),modelState:t.v(e=>e.response?.stateT,n),vote:t.v(e=>e.response?.vote),voteDownReason:t.v(e=>e.response?.voteDownReason),slashCommand:t.t(e=>e.response?.slashCommand,t.$kS((e,s)=>e?.name===s?.name)),usedContext:t.v(e=>e.response?.usedContext,n),contentReferences:t.v(e=>e.response?.contentReferences,n),codeCitations:t.v(e=>e.response?.codeCitations,n),timeSpentWaiting:t.v(e=>e.response?.timestamp)},{sealed:e=>e.modelState?.value===2||e.modelState?.value===3||e.modelState?.value===1}),$=t.$mS({attachments:t.v(e=>e.attachments,n),mode:t.v(e=>e.mode,(e,s)=>e.id===s.id),selectedModel:t.v(e=>e.selectedModel,(e,s)=>e?.identifier===s?.identifier),inputText:t.v(e=>e.inputText),selections:t.v(e=>e.selections,n),contrib:t.v(e=>e.contrib,n)}),h=t.$mS({id:t.t(e=>e.request.id,t.key()),request:t.t(e=>e.request,r),kind:t.v(e=>e.kind),sendOptions:t.v(e=>u(e.sendOptions),n)}),q=t.$mS({version:t.v(()=>3),creationDate:t.v(e=>e.timestamp),customTitle:t.v(e=>e.hasCustomTitle?e.title:void 0),initialLocation:t.v(e=>e.initialLocation),inputState:t.t(e=>e.inputModel.toJSON(),$),responderUsername:t.v(e=>e.responderUsername),sessionId:t.v(e=>e.sessionId),requests:t.t(e=>e.getRequests(),t.$lS(r)),hasPendingEdits:t.v(e=>e.editingSession?.entries.get().some(s=>s.state.get()===0)),repoData:t.v(e=>e.repoData,n),pendingRequests:t.t(e=>e.getPendingRequests(),t.$lS(h))});class T extends t.$pS{constructor(){super(q,1024)}}export{q as $wmc,T as $xmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertNever } from "../../../../../base/common/assert.js";
+import { isMarkdownString } from "../../../../../base/common/htmlContent.js";
+import { equals as objectsEqual } from "../../../../../base/common/objects.js";
+import { isEqual as _urisEqual } from "../../../../../base/common/resources.js";
+import { hasKey } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { serializeSendOptions } from "./chatModel.js";
+import * as Adapt from "./objectMutationLog.js";
+const toJson = /* @__PURE__ */ __name((obj) => {
+  const cast = obj;
+  return cast && typeof cast.toJSON === "function" ? cast.toJSON() : obj;
+}, "toJson");
+const responsePartSchema = Adapt.v((obj) => obj.kind === "markdownContent" ? obj.content : toJson(obj), (a, b) => {
+  if (isMarkdownString(a) && isMarkdownString(b)) {
+    return a.value === b.value;
+  }
+  if (hasKey(a, { kind: true }) && hasKey(b, { kind: true })) {
+    if (a.kind !== b.kind) {
+      return false;
+    }
+    switch (a.kind) {
+      case "markdownContent":
+        return a.content === b.content;
+      // Dynamic types that can change after initial push need deep equality
+      // Note: these are the *serialized* kind names (e.g. toolInvocationSerialized not toolInvocation)
+      case "toolInvocationSerialized":
+      case "elicitationSerialized":
+      case "progressTaskSerialized":
+      case "textEditGroup":
+      case "multiDiffData":
+      case "mcpServersStarting":
+        return objectsEqual(a, b);
+      // Static types that won't change after being pushed can use strict equality.
+      case "clearToPreviousToolInvocation":
+      case "codeblockUri":
+      case "command":
+      case "confirmation":
+      case "extensions":
+      case "inlineReference":
+      case "markdownVuln":
+      case "notebookEditGroup":
+      case "progressMessage":
+      case "pullRequest":
+      case "questionCarousel":
+      case "thinking":
+      case "undoStop":
+      case "warning":
+      case "treeData":
+      case "workspaceEdit":
+        return a.kind === b.kind;
+      default: {
+        assertNever(a);
+      }
+    }
+  }
+  return false;
+});
+const urisEqual = /* @__PURE__ */ __name((a, b) => {
+  return _urisEqual(URI.from(a), URI.from(b));
+}, "urisEqual");
+const messageSchema = Adapt.object({
+  text: Adapt.v((m) => m.text),
+  parts: Adapt.v((m) => m.parts, (a, b) => a.length === b.length && a.every((part, i) => part.text === b[i].text))
+});
+const agentEditedFileEventSchema = Adapt.object({
+  uri: Adapt.v((e) => e.uri, urisEqual),
+  eventKind: Adapt.v((e) => e.eventKind)
+});
+const chatVariableSchema = Adapt.object({
+  variables: Adapt.t((v) => v.variables, Adapt.array(Adapt.value((a, b) => a.name === b.name)))
+});
+const requestSchema = Adapt.object({
+  // request parts
+  requestId: Adapt.t((m) => m.id, Adapt.key()),
+  timestamp: Adapt.v((m) => m.timestamp),
+  confirmation: Adapt.v((m) => m.confirmation),
+  message: Adapt.t((m) => m.message, messageSchema),
+  shouldBeRemovedOnSend: Adapt.v((m) => m.shouldBeRemovedOnSend, objectsEqual),
+  agent: Adapt.v((m) => m.response?.agent, (a, b) => a?.id === b?.id),
+  modelId: Adapt.v((m) => m.modelId),
+  editedFileEvents: Adapt.t((m) => m.editedFileEvents, Adapt.array(agentEditedFileEventSchema)),
+  variableData: Adapt.t((m) => m.variableData, chatVariableSchema),
+  isHidden: Adapt.v(() => void 0),
+  // deprecated, always undefined for new data
+  isCanceled: Adapt.v(() => void 0),
+  // deprecated, modelState is used instead
+  // response parts (from ISerializableChatResponseData via response.toJSON())
+  response: Adapt.t((m) => m.response?.entireResponse.value, Adapt.array(responsePartSchema)),
+  responseId: Adapt.v((m) => m.response?.id),
+  result: Adapt.v((m) => m.response?.result, objectsEqual),
+  responseMarkdownInfo: Adapt.v((m) => m.response?.codeBlockInfos?.map((info) => ({ suggestionId: info.suggestionId })), objectsEqual),
+  followups: Adapt.v((m) => m.response?.followups, objectsEqual),
+  modelState: Adapt.v((m) => m.response?.stateT, objectsEqual),
+  vote: Adapt.v((m) => m.response?.vote),
+  voteDownReason: Adapt.v((m) => m.response?.voteDownReason),
+  slashCommand: Adapt.t((m) => m.response?.slashCommand, Adapt.value((a, b) => a?.name === b?.name)),
+  usedContext: Adapt.v((m) => m.response?.usedContext, objectsEqual),
+  contentReferences: Adapt.v((m) => m.response?.contentReferences, objectsEqual),
+  codeCitations: Adapt.v((m) => m.response?.codeCitations, objectsEqual),
+  timeSpentWaiting: Adapt.v((m) => m.response?.timestamp)
+  // based on response timestamp
+}, {
+  sealed: /* @__PURE__ */ __name((o) => o.modelState?.value === 2 || o.modelState?.value === 3 || o.modelState?.value === 1, "sealed")
+});
+const inputStateSchema = Adapt.object({
+  attachments: Adapt.v((i) => i.attachments, objectsEqual),
+  mode: Adapt.v((i) => i.mode, (a, b) => a.id === b.id),
+  selectedModel: Adapt.v((i) => i.selectedModel, (a, b) => a?.identifier === b?.identifier),
+  inputText: Adapt.v((i) => i.inputText),
+  selections: Adapt.v((i) => i.selections, objectsEqual),
+  contrib: Adapt.v((i) => i.contrib, objectsEqual)
+});
+const pendingRequestSchema = Adapt.object({
+  id: Adapt.t((p) => p.request.id, Adapt.key()),
+  request: Adapt.t((p) => p.request, requestSchema),
+  kind: Adapt.v((p) => p.kind),
+  sendOptions: Adapt.v((p) => serializeSendOptions(p.sendOptions), objectsEqual)
+});
+const storageSchema = Adapt.object({
+  version: Adapt.v(() => 3),
+  creationDate: Adapt.v((m) => m.timestamp),
+  customTitle: Adapt.v((m) => m.hasCustomTitle ? m.title : void 0),
+  initialLocation: Adapt.v((m) => m.initialLocation),
+  inputState: Adapt.t((m) => m.inputModel.toJSON(), inputStateSchema),
+  responderUsername: Adapt.v((m) => m.responderUsername),
+  sessionId: Adapt.v((m) => m.sessionId),
+  requests: Adapt.t((m) => m.getRequests(), Adapt.array(requestSchema)),
+  hasPendingEdits: Adapt.v((m) => m.editingSession?.entries.get().some(
+    (e) => e.state.get() === 0
+    /* ModifiedFileEntryState.Modified */
+  )),
+  repoData: Adapt.v((m) => m.repoData, objectsEqual),
+  pendingRequests: Adapt.t((m) => m.getPendingRequests(), Adapt.array(pendingRequestSchema))
+});
+class ChatSessionOperationLog extends Adapt.ObjectMutationLog {
+  static {
+    __name(this, "ChatSessionOperationLog");
+  }
+  constructor() {
+    super(storageSchema, 1024);
+  }
+}
+export {
+  ChatSessionOperationLog,
+  storageSchema
+};
+//# sourceMappingURL=chatSessionOperationLog.js.map

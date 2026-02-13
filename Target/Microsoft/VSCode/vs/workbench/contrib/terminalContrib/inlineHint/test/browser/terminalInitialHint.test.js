@@ -1,1 +1,97 @@
-import{$Ibb as w}from"../../../../../../base/test/common/utils.js";import{$oYb as g}from"../../../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";import{$b3c as x}from"../../../../../test/browser/workbenchTestServices.js";import{$Mo as b}from"../../../../../../platform/log/common/log.js";import{$a9 as A}from"../../../../../../base/browser/dom.js";import{$xf as C}from"../../../../../../base/common/event.js";import{strictEqual as i}from"assert";import{$Iz as c}from"../../../../../../platform/extensions/common/extensions.js";import{$HL as $}from"../../../../../../amdX.js";import{ChatAgentLocation as h,ChatModeKind as l}from"../../../../chat/common/constants.js";import{$BEc as I}from"../../browser/terminal.initialHint.contribution.js";import{$dVc as v}from"../../../../../../platform/terminal/test/common/terminalTestHelpers.js";suite("Terminal Initial Hint Addon",()=>{const o=w();let t=0,e,s;const n=new C,f=n.event,a={id:"termminal",name:"terminal",extensionId:new c("test"),extensionVersion:void 0,extensionPublisherId:"test",extensionDisplayName:"test",metadata:{},slashCommands:[{name:"test",description:"test"}],disambiguation:[],locations:[h.fromRaw("terminal")],modes:[l.Ask],invoke:async()=>({})},r={id:"editor",name:"editor",extensionId:new c("test-editor"),extensionVersion:void 0,extensionPublisherId:"test-editor",extensionDisplayName:"test-editor",metadata:{},slashCommands:[{name:"test",description:"test"}],locations:[h.fromRaw("editor")],modes:[l.Ask],disambiguation:[],invoke:async()=>({})};setup(async()=>{const p=x({},o),u=(await $("@xterm/xterm","lib/xterm.js")).Terminal;e=o.add(new u({logger:v}));const d=o.add(new g("",!0,void 0,void 0,new b));s=o.add(p.createInstance(I,d.capabilities,f)),o.add(s.onDidRequestCreateHint(()=>t++));const m=document.createElement("div");A().body.append(m),e.open(m),e.loadAddon(d),e.loadAddon(s)}),suite("Chat providers",()=>{test("hint is not shown when there are no chat providers",()=>{t=0,e.focus(),i(t,0)}),test("hint is not shown when there is just an editor agent",()=>{t=0,n.fire(r),e.focus(),i(t,0)}),test("hint is shown when there is a terminal chat agent",()=>{t=0,n.fire(r),e.focus(),i(t,0),n.fire(a),i(t,1)}),test("hint is not shown again when another terminal chat agent is added if it has already shown",()=>{t=0,n.fire(a),e.focus(),i(t,1),n.fire(a),i(t,1)})})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { ShellIntegrationAddon } from "../../../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";
+import { workbenchInstantiationService } from "../../../../../test/browser/workbenchTestServices.js";
+import { NullLogService } from "../../../../../../platform/log/common/log.js";
+import { getActiveDocument } from "../../../../../../base/browser/dom.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { strictEqual } from "assert";
+import { ExtensionIdentifier } from "../../../../../../platform/extensions/common/extensions.js";
+import { importAMDNodeModule } from "../../../../../../amdX.js";
+import { ChatAgentLocation, ChatModeKind } from "../../../../chat/common/constants.js";
+import { InitialHintAddon } from "../../browser/terminal.initialHint.contribution.js";
+import { TestXtermLogger } from "../../../../../../platform/terminal/test/common/terminalTestHelpers.js";
+suite("Terminal Initial Hint Addon", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let eventCount = 0;
+  let xterm;
+  let initialHintAddon;
+  const onDidChangeAgentsEmitter = new Emitter();
+  const onDidChangeAgents = onDidChangeAgentsEmitter.event;
+  const agent = {
+    id: "termminal",
+    name: "terminal",
+    extensionId: new ExtensionIdentifier("test"),
+    extensionVersion: void 0,
+    extensionPublisherId: "test",
+    extensionDisplayName: "test",
+    metadata: {},
+    slashCommands: [{ name: "test", description: "test" }],
+    disambiguation: [],
+    locations: [ChatAgentLocation.fromRaw("terminal")],
+    modes: [ChatModeKind.Ask],
+    invoke: /* @__PURE__ */ __name(async () => {
+      return {};
+    }, "invoke")
+  };
+  const editorAgent = {
+    id: "editor",
+    name: "editor",
+    extensionId: new ExtensionIdentifier("test-editor"),
+    extensionVersion: void 0,
+    extensionPublisherId: "test-editor",
+    extensionDisplayName: "test-editor",
+    metadata: {},
+    slashCommands: [{ name: "test", description: "test" }],
+    locations: [ChatAgentLocation.fromRaw("editor")],
+    modes: [ChatModeKind.Ask],
+    disambiguation: [],
+    invoke: /* @__PURE__ */ __name(async () => {
+      return {};
+    }, "invoke")
+  };
+  setup(async () => {
+    const instantiationService = workbenchInstantiationService({}, store);
+    const TerminalCtor = (await importAMDNodeModule("@xterm/xterm", "lib/xterm.js")).Terminal;
+    xterm = store.add(new TerminalCtor({ logger: TestXtermLogger }));
+    const shellIntegrationAddon = store.add(new ShellIntegrationAddon("", true, void 0, void 0, new NullLogService()));
+    initialHintAddon = store.add(instantiationService.createInstance(InitialHintAddon, shellIntegrationAddon.capabilities, onDidChangeAgents));
+    store.add(initialHintAddon.onDidRequestCreateHint(() => eventCount++));
+    const testContainer = document.createElement("div");
+    getActiveDocument().body.append(testContainer);
+    xterm.open(testContainer);
+    xterm.loadAddon(shellIntegrationAddon);
+    xterm.loadAddon(initialHintAddon);
+  });
+  suite("Chat providers", () => {
+    test("hint is not shown when there are no chat providers", () => {
+      eventCount = 0;
+      xterm.focus();
+      strictEqual(eventCount, 0);
+    });
+    test("hint is not shown when there is just an editor agent", () => {
+      eventCount = 0;
+      onDidChangeAgentsEmitter.fire(editorAgent);
+      xterm.focus();
+      strictEqual(eventCount, 0);
+    });
+    test("hint is shown when there is a terminal chat agent", () => {
+      eventCount = 0;
+      onDidChangeAgentsEmitter.fire(editorAgent);
+      xterm.focus();
+      strictEqual(eventCount, 0);
+      onDidChangeAgentsEmitter.fire(agent);
+      strictEqual(eventCount, 1);
+    });
+    test("hint is not shown again when another terminal chat agent is added if it has already shown", () => {
+      eventCount = 0;
+      onDidChangeAgentsEmitter.fire(agent);
+      xterm.focus();
+      strictEqual(eventCount, 1);
+      onDidChangeAgentsEmitter.fire(agent);
+      strictEqual(eventCount, 1);
+    });
+  });
+});
+//# sourceMappingURL=terminalInitialHint.test.js.map

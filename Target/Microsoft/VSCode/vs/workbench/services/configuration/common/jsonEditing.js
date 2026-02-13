@@ -1,1 +1,23 @@
-import{$Nj as s}from"../../../../platform/instantiation/common/instantiation.js";const n=s("jsonEditingService");var o;(function(r){r[r.ERROR_INVALID_FILE=0]="ERROR_INVALID_FILE"})(o||(o={}));class i extends Error{constructor(t,e){super(t),this.code=e}}export{n as $CKb,i as $DKb,o as JSONEditingErrorCode};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IJSONEditingService = createDecorator("jsonEditingService");
+var JSONEditingErrorCode;
+(function(JSONEditingErrorCode2) {
+  JSONEditingErrorCode2[JSONEditingErrorCode2["ERROR_INVALID_FILE"] = 0] = "ERROR_INVALID_FILE";
+})(JSONEditingErrorCode || (JSONEditingErrorCode = {}));
+class JSONEditingError extends Error {
+  static {
+    __name(this, "JSONEditingError");
+  }
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
+}
+export {
+  IJSONEditingService,
+  JSONEditingError,
+  JSONEditingErrorCode
+};
+//# sourceMappingURL=jsonEditing.js.map

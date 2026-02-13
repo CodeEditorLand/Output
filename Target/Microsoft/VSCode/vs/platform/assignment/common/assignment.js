@@ -1,1 +1,107 @@
-import*as a from"../../../base/common/platform.js";const d="VSCode.ABExp.FeatureData",p=3600*1e3;var i;(function(e){e.Insiders="insider",e.Public="public",e.Exploration="exploration"})(i||(i={}));var t;(function(e){e.Market="X-MSEdge-Market",e.CorpNet="X-FD-Corpnet",e.ApplicationVersion="X-VSCode-AppVersion",e.Build="X-VSCode-Build",e.ClientId="X-MSEdge-ClientId",e.DeveloperDeviceId="X-VSCode-DevDeviceId",e.ExtensionName="X-VSCode-ExtensionName",e.ExtensionVersion="X-VSCode-ExtensionVersion",e.Language="X-VSCode-Language",e.TargetPopulation="X-VSCode-TargetPopulation",e.Platform="X-VSCode-Platform",e.ReleaseDate="X-VSCode-ReleaseDate"})(t||(t={}));class s{constructor(r,n,o,c,u,l){this.a=r,this.b=n,this.c=o,this.d=c,this.e=u,this.f=l}static g(r){const n=/\-[a-zA-Z0-9]+$/;return r.split(n)[0]}getFilterValue(r){switch(r){case t.ApplicationVersion:return s.g(this.a);case t.Build:return this.b;case t.ClientId:return this.c;case t.DeveloperDeviceId:return this.d;case t.Language:return a.$A;case t.ExtensionName:return"vscode-core";case t.ExtensionVersion:return"999999.0";case t.TargetPopulation:return this.e;case t.Platform:return a.$l(a.$y);case t.ReleaseDate:return s.h(this.f);default:return""}}static h(r){if(!r)return"";const n=/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2})/.exec(r);return n?n.slice(1,5).join(""):""}getFilters(){const r=new Map,n=Object.values(t);for(const o of n)r.set(o,this.getFilterValue(o));return r}}export{d as $KZ,p as $LZ,s as $MZ,t as Filters,i as TargetPopulation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as platform from "../../../base/common/platform.js";
+const ASSIGNMENT_STORAGE_KEY = "VSCode.ABExp.FeatureData";
+const ASSIGNMENT_REFETCH_INTERVAL = 60 * 60 * 1e3;
+var TargetPopulation;
+(function(TargetPopulation2) {
+  TargetPopulation2["Insiders"] = "insider";
+  TargetPopulation2["Public"] = "public";
+  TargetPopulation2["Exploration"] = "exploration";
+})(TargetPopulation || (TargetPopulation = {}));
+var Filters;
+(function(Filters2) {
+  Filters2["Market"] = "X-MSEdge-Market";
+  Filters2["CorpNet"] = "X-FD-Corpnet";
+  Filters2["ApplicationVersion"] = "X-VSCode-AppVersion";
+  Filters2["Build"] = "X-VSCode-Build";
+  Filters2["ClientId"] = "X-MSEdge-ClientId";
+  Filters2["DeveloperDeviceId"] = "X-VSCode-DevDeviceId";
+  Filters2["ExtensionName"] = "X-VSCode-ExtensionName";
+  Filters2["ExtensionVersion"] = "X-VSCode-ExtensionVersion";
+  Filters2["Language"] = "X-VSCode-Language";
+  Filters2["TargetPopulation"] = "X-VSCode-TargetPopulation";
+  Filters2["Platform"] = "X-VSCode-Platform";
+  Filters2["ReleaseDate"] = "X-VSCode-ReleaseDate";
+})(Filters || (Filters = {}));
+class AssignmentFilterProvider {
+  static {
+    __name(this, "AssignmentFilterProvider");
+  }
+  constructor(version, appName, machineId, devDeviceId, targetPopulation, releaseDate) {
+    this.version = version;
+    this.appName = appName;
+    this.machineId = machineId;
+    this.devDeviceId = devDeviceId;
+    this.targetPopulation = targetPopulation;
+    this.releaseDate = releaseDate;
+  }
+  /**
+   * Returns a version string that can be parsed by the TAS client.
+   * The tas client cannot handle suffixes lke "-insider"
+   * Ref: https://github.com/microsoft/tas-client/blob/30340d5e1da37c2789049fcf45928b954680606f/vscode-tas-client/src/vscode-tas-client/VSCodeFilterProvider.ts#L35
+   *
+   * @param version Version string to be trimmed.
+  */
+  static trimVersionSuffix(version) {
+    const regex = /\-[a-zA-Z0-9]+$/;
+    const result = version.split(regex);
+    return result[0];
+  }
+  getFilterValue(filter) {
+    switch (filter) {
+      case Filters.ApplicationVersion:
+        return AssignmentFilterProvider.trimVersionSuffix(this.version);
+      // productService.version
+      case Filters.Build:
+        return this.appName;
+      // productService.nameLong
+      case Filters.ClientId:
+        return this.machineId;
+      case Filters.DeveloperDeviceId:
+        return this.devDeviceId;
+      case Filters.Language:
+        return platform.language;
+      case Filters.ExtensionName:
+        return "vscode-core";
+      // always return vscode-core for exp service
+      case Filters.ExtensionVersion:
+        return "999999.0";
+      // always return a very large number for cross-extension experimentation
+      case Filters.TargetPopulation:
+        return this.targetPopulation;
+      case Filters.Platform:
+        return platform.PlatformToString(platform.platform);
+      case Filters.ReleaseDate:
+        return AssignmentFilterProvider.formatReleaseDate(this.releaseDate);
+      default:
+        return "";
+    }
+  }
+  static formatReleaseDate(iso) {
+    if (!iso) {
+      return "";
+    }
+    const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2})/.exec(iso);
+    if (!match) {
+      return "";
+    }
+    return match.slice(1, 5).join("");
+  }
+  getFilters() {
+    const filters = /* @__PURE__ */ new Map();
+    const filterValues = Object.values(Filters);
+    for (const value of filterValues) {
+      filters.set(value, this.getFilterValue(value));
+    }
+    return filters;
+  }
+}
+export {
+  ASSIGNMENT_REFETCH_INTERVAL,
+  ASSIGNMENT_STORAGE_KEY,
+  AssignmentFilterProvider,
+  Filters,
+  TargetPopulation
+};
+//# sourceMappingURL=assignment.js.map

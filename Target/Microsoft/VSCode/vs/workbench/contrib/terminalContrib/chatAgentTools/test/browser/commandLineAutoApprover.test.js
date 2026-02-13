@@ -1,2 +1,1019 @@
-import{$Ibb as x}from"../../../../../../base/test/common/utils.js";import{$jTc as A}from"../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$b3c as S}from"../../../../../test/browser/workbenchTestServices.js";import{ok as e,strictEqual as i}from"assert";import{$QCc as D}from"../../browser/tools/commandLineAnalyzer/autoApprove/commandLineAutoApprover.js";import{$OCc as y}from"../../browser/tools/commandLineAnalyzer/commandLineAnalyzer.js";suite("CommandLineAutoApprover",()=>{const b=x();let L,n,f,w,h;setup(()=>{n=new A,L=S({configurationService:()=>n},b),w="bash",h=3,f=b.add(L.createInstance(D))});function a(s){v("chat.tools.terminal.autoApprove",s)}function c(s){v("chat.tools.terminal.autoApprove",s)}function v(s,l){n.setUserConfiguration(s,l),n.onDidChangeConfigurationEmitter.fire({affectsConfiguration:()=>!0,affectedKeys:new Set([s]),source:2,change:null})}async function t(s){return(await f.isCommandAutoApproved(s,w,h,void 0)).result==="approved"}function o(s){return f.isCommandLineAutoApproved(s).result==="approved"}suite("autoApprove with allow patterns only",()=>{test("should auto-approve exact command match",async()=>{a({echo:!0}),e(await t("echo"))}),test("should auto-approve command with arguments",async()=>{a({echo:!0}),e(await t("echo hello world"))}),test("should not auto-approve when there is no match",async()=>{a({echo:!0}),e(!await t("ls"))}),test("should not auto-approve partial command matches",async()=>{a({echo:!0}),e(!await t("echotest"))}),test("should handle multiple commands in autoApprove",async()=>{a({echo:!0,ls:!0,pwd:!0}),e(await t("echo")),e(await t("ls -la")),e(await t("pwd")),e(!await t("rm"))})}),suite("autoApprove with deny patterns only",()=>{test("should deny commands in autoApprove",async()=>{a({rm:!1,del:!1}),e(!await t("rm file.txt")),e(!await t("del file.txt"))}),test("should not auto-approve safe commands when no allow patterns are present",async()=>{a({rm:!1}),e(!await t("echo hello")),e(!await t("ls"))})}),suite("autoApprove with mixed allow and deny patterns",()=>{test("should deny commands set to false even if other commands are set to true",async()=>{a({echo:!0,rm:!1}),e(await t("echo hello")),e(!await t("rm file.txt"))}),test("should auto-approve allow patterns not set to false",async()=>{a({echo:!0,ls:!0,pwd:!0,rm:!1,del:!1}),e(await t("echo")),e(await t("ls")),e(await t("pwd")),e(!await t("rm")),e(!await t("del"))})}),suite("regex patterns",()=>{test("should handle /.*/",async()=>{a({"/.*/":!0}),e(await t("echo hello"))}),test("should handle regex patterns in autoApprove",async()=>{a({"/^echo/":!0,"/^ls/":!0,pwd:!0}),e(await t("echo hello")),e(await t("ls -la")),e(await t("pwd")),e(!await t("rm file"))}),test("should handle regex patterns for deny",async()=>{a({echo:!0,rm:!0,"/^rm\\s+/":!1,"/^del\\s+/":!1}),e(await t("echo hello")),e(await t("rm")),e(!await t("rm file.txt")),e(!await t("del file.txt"))}),test("should handle complex regex patterns",async()=>{a({"/^(echo|ls|pwd)\\b/":!0,"/^git (status|show\\b.*)$/":!0,"/rm|del|kill/":!1}),e(await t("echo test")),e(await t("ls -la")),e(await t("pwd")),e(await t("git status")),e(await t("git show")),e(await t("git show HEAD")),e(!await t("rm file")),e(!await t("del file")),e(!await t("kill process"))}),test("should handle git patterns with -C and --no-pager",async()=>{a({"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+status\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+log\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+show\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+diff\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+ls-files\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+grep\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+branch\\b/":!0,"/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+branch\\b.*-(d|D|m|M|-delete|-force)\\b/":!1}),e(await t("git status")),e(await t("git log")),e(await t("git show HEAD")),e(await t("git diff")),e(await t("git ls-files")),e(await t("git grep pattern")),e(await t("git branch")),e(await t("git ls-files --cached")),e(await t("git -C /path ls-files")),e(await t("git --no-pager ls-files")),e(await t("git -C /some/path status")),e(await t("git -C ../relative log")),e(await t("git -C . diff")),e(await t("git --no-pager status")),e(await t("git --no-pager log")),e(await t("git --no-pager diff HEAD~1")),e(await t("git -C /path --no-pager status")),e(await t("git --no-pager -C /path log")),e(await t("git -C /path1 -C /path2 status")),e(await t("git --no-pager --no-pager log")),e(!await t("git branch -d feature")),e(!await t("git branch -D feature")),e(!await t("git branch --delete feature")),e(!await t("git -C /path branch -d feature")),e(!await t("git --no-pager branch -D feature")),e(!await t("git -C /path --no-pager branch --force")),e(!await t("git branch -m old new")),e(!await t("git branch -M old new")),e(!await t("git -C /path branch -m old new"))}),suite("flags",()=>{test("should handle case-insensitive regex patterns with i flag",async()=>{a({"/^echo/i":!0,"/^ls/i":!0,"/rm|del/i":!1}),e(await t("echo hello")),e(await t("ECHO hello")),e(await t("Echo hello")),e(await t("ls -la")),e(await t("LS -la")),e(await t("Ls -la")),e(!await t("rm file")),e(!await t("RM file")),e(!await t("del file")),e(!await t("DEL file"))}),test("should handle multiple regex flags",async()=>{a({"/^git\\s+/gim":!0,"/dangerous/gim":!1}),e(await t("git status")),e(await t("GIT status")),e(await t("Git status")),e(!await t("dangerous command")),e(!await t("DANGEROUS command"))}),test("should handle various regex flags",async()=>{a({"/^echo.*/s":!0,"/^git\\s+/i":!0,"/rm|del/g":!1}),e(await t(`echo hello
-world`)),e(await t("git status")),e(await t("GIT status")),e(!await t("rm file")),e(!await t("del file"))}),test("should handle regex patterns without flags",async()=>{a({"/^echo/":!0,"/rm|del/":!1}),e(await t("echo hello")),e(!await t("ECHO hello"),"Should be case-sensitive without i flag"),e(!await t("rm file")),e(!await t("RM file"),"Should be case-sensitive without i flag")})})}),suite("edge cases",()=>{test("should handle empty autoApprove",async()=>{a({}),e(!await t("echo hello")),e(!await t("ls")),e(!await t("rm file"))}),test("should handle empty command strings",async()=>{a({echo:!0}),e(!await t("")),e(!await t("   "))}),test("should handle whitespace in commands",async()=>{a({echo:!0}),e(await t("echo   hello   world"))}),test("should be case-sensitive by default",async()=>{a({echo:!0}),e(await t("echo hello")),e(!await t("ECHO hello")),e(!await t("Echo hello"))}),test("should handle string-based values with special regex characters",async()=>{a({"pwsh.exe -File D:\\foo.bar\\a-script.ps1":!0}),e(await t("pwsh.exe -File D:\\foo.bar\\a-script.ps1")),e(await t("pwsh.exe -File D:\\foo.bar\\a-script.ps1 -AnotherArg"))}),test("should ignore the empty string key",async()=>{a({"":!0}),e(!await t("echo hello"))}),test("should handle empty regex patterns that could cause endless loops",async()=>{a({"//":!0,"/(?:)/":!0,"/*/":!0,"/.**/":!0}),e(!await t("echo hello")),e(!await t("ls")),e(!await t(""))}),test("should handle regex patterns that would cause endless loops",async()=>{a({"/a*/":!0,"/b?/":!0,"/(x|)*/":!0,"/(?:)*/":!0}),e(!await t("echo hello")),e(!await t("ls")),e(!await t("a")),e(!await t("b"))}),test("should handle mixed valid and problematic regex patterns",async()=>{a({"/^echo/":!0,"//":!0,"/^ls/":!0,"/a*/":!0,pwd:!0}),e(await t("echo hello")),e(await t("ls -la")),e(await t("pwd")),e(!await t("rm file"))}),test("should handle invalid regex patterns gracefully",async()=>{a({"/*/":!0,"/(?:+/":!0,"/[/":!0,"/^echo/":!0,ls:!0}),e(await t("echo hello")),e(await t("ls -la")),e(!await t("random command"))})}),suite("path-aware auto approval",()=>{test("should handle path variations with forward slashes",async()=>{a({"bin/foo":!0}),e(await t("bin/foo")),e(await t("bin/foo --arg")),e(await t("bin\\foo")),e(await t("bin\\foo --arg")),e(await t("./bin/foo")),e(await t(".\\bin/foo")),e(await t("./bin\\foo")),e(await t(".\\bin\\foo")),e(!await t("bin/foobar")),e(!await t("notbin/foo"))}),test("should handle path variations with backslashes",async()=>{a({"bin\\script.bat":!0}),e(await t("bin\\script.bat")),e(await t("bin\\script.bat --help")),e(await t("bin/script.bat")),e(await t("bin/script.bat --help")),e(await t("./bin\\script.bat")),e(await t(".\\bin\\script.bat")),e(await t("./bin/script.bat")),e(await t(".\\bin/script.bat"))}),test("should handle deep paths",async()=>{a({"src/utils/helper.js":!0}),e(await t("src/utils/helper.js")),e(await t("src\\utils\\helper.js")),e(await t("src/utils\\helper.js")),e(await t("src\\utils/helper.js")),e(await t("./src/utils/helper.js")),e(await t(".\\src\\utils\\helper.js"))}),test("should not treat non-paths as paths",async()=>{a({echo:!0,ls:!0,git:!0}),e(await t("echo")),e(await t("ls")),e(await t("git")),e(!await t("./echo")),e(!await t(".\\ls"))}),test("should handle paths with mixed separators in config",async()=>{a({"bin/foo\\bar":!0}),e(await t("bin/foo\\bar")),e(await t("bin\\foo/bar")),e(await t("bin/foo/bar")),e(await t("bin\\foo\\bar")),e(await t("./bin/foo\\bar")),e(await t(".\\bin\\foo\\bar"))}),test("should work with command line auto approval for paths",async()=>{c({"bin/deploy":{approve:!0,matchCommandLine:!0}}),e(o("bin/deploy --prod")),e(o("bin\\deploy --prod")),e(o("./bin/deploy --prod")),e(o(".\\bin\\deploy --prod"))}),test("should handle special characters in paths",async()=>{a({"bin/my-script.sh":!0,"scripts/build_all.py":!0,"tools/run (debug).exe":!0}),e(await t("bin/my-script.sh")),e(await t("bin\\my-script.sh")),e(await t("./bin/my-script.sh")),e(await t("scripts/build_all.py")),e(await t("scripts\\build_all.py")),e(await t("tools/run (debug).exe")),e(await t("tools\\run (debug).exe"))})}),suite("PowerShell-specific commands",()=>{setup(()=>{w="pwsh"}),test("should handle Windows PowerShell commands",async()=>{a({"Get-ChildItem":!0,"Get-Content":!0,"Get-Location":!0,"Remove-Item":!1,del:!1}),e(await t("Get-ChildItem")),e(await t("Get-Content file.txt")),e(await t("Get-Location")),e(!await t("Remove-Item file.txt"))}),test("should handle ( prefixes",async()=>{a({"Get-Content":!0}),e(await t("Get-Content file.txt")),e(await t("(Get-Content file.txt")),e(!await t("[Get-Content")),e(!await t("foo"))}),test("should be case-insensitive for PowerShell commands",async()=>{a({"Get-ChildItem":!0,"Get-Content":!0,"Remove-Item":!1}),e(await t("Get-ChildItem")),e(await t("get-childitem")),e(await t("GET-CHILDITEM")),e(await t("Get-childitem")),e(await t("get-ChildItem")),e(await t("Get-Content file.txt")),e(await t("get-content file.txt")),e(await t("GET-CONTENT file.txt")),e(await t("Get-content file.txt")),e(!await t("Remove-Item file.txt")),e(!await t("remove-item file.txt")),e(!await t("REMOVE-ITEM file.txt")),e(!await t("Remove-item file.txt"))}),test("should be case-insensitive for PowerShell aliases",async()=>{a({ls:!0,dir:!0,rm:!1,del:!1}),e(await t("ls")),e(await t("LS")),e(await t("Ls")),e(await t("dir")),e(await t("DIR")),e(await t("Dir")),e(!await t("rm file.txt")),e(!await t("RM file.txt")),e(!await t("Rm file.txt")),e(!await t("del file.txt")),e(!await t("DEL file.txt")),e(!await t("Del file.txt"))}),test("should be case-insensitive with regex patterns",async()=>{a({"/^Get-/":!0,"/Remove-Item|rm/":!1}),e(await t("Get-ChildItem")),e(await t("get-childitem")),e(await t("GET-PROCESS")),e(await t("Get-Location")),e(!await t("Remove-Item file.txt")),e(!await t("remove-item file.txt")),e(!await t("rm file.txt")),e(!await t("RM file.txt"))}),test("should handle case-insensitive PowerShell commands on different OS",async()=>{a({"Get-Process":!0,"Stop-Process":!1});for(const s of[1,3,2])h=s,e(await t("Get-Process"),`os=${h}`),e(await t("get-process"),`os=${h}`),e(await t("GET-PROCESS"),`os=${h}`),e(!await t("Stop-Process"),`os=${h}`),e(!await t("stop-process"),`os=${h}`)})}),suite("isCommandLineAutoApproved - matchCommandLine functionality",()=>{test("should auto-approve command line patterns with matchCommandLine: true",async()=>{c({echo:{approve:!0,matchCommandLine:!0}}),e(o("echo hello")),e(o("echo test && ls"))}),test("should not auto-approve regular patterns with isCommandLineAutoApproved",async()=>{a({echo:!0}),e(!o("echo hello"))}),test("should handle regex patterns with matchCommandLine: true",async()=>{c({"/echo.*world/":{approve:!0,matchCommandLine:!0}}),e(o("echo hello world")),e(!o("echo hello"))}),test("should handle case-insensitive regex with matchCommandLine: true",async()=>{c({"/echo/i":{approve:!0,matchCommandLine:!0}}),e(o("echo hello")),e(o("ECHO hello")),e(o("Echo hello"))}),test("should handle complex command line patterns",async()=>{c({"/^npm run build/":{approve:!0,matchCommandLine:!0},"/.ps1/i":{approve:!0,matchCommandLine:!0}}),e(o("npm run build --production")),e(o("powershell -File script.ps1")),e(o("pwsh -File SCRIPT.PS1")),e(!o("npm install"))}),test("should return false for empty command line",async()=>{c({echo:{approve:!0,matchCommandLine:!0}}),e(!o("")),e(!o("   "))}),test("should handle mixed configuration with matchCommandLine entries",async()=>{c({echo:!0,ls:{approve:!0,matchCommandLine:!0},rm:{approve:!0,matchCommandLine:!1}}),e(o("ls -la")),e(!o("echo hello")),e(!o("rm file.txt"))}),test("should handle deny patterns with matchCommandLine: true",async()=>{c({echo:{approve:!0,matchCommandLine:!0},"/dangerous/":{approve:!1,matchCommandLine:!0}}),e(o("echo hello")),e(!o("echo dangerous command")),e(!o("dangerous operation"))}),test("should prioritize deny list over allow list for command line patterns",async()=>{c({"/echo/":{approve:!0,matchCommandLine:!0},"/echo.*dangerous/":{approve:!1,matchCommandLine:!0}}),e(o("echo hello")),e(!o("echo dangerous command"))}),test("should handle complex deny patterns with matchCommandLine",async()=>{c({npm:{approve:!0,matchCommandLine:!0},"/npm.*--force/":{approve:!1,matchCommandLine:!0},"/.ps1.*-ExecutionPolicy/i":{approve:!1,matchCommandLine:!0}}),e(o("npm install")),e(o("npm run build")),e(!o("npm install --force")),e(!o("powershell -File script.ps1 -ExecutionPolicy Bypass"))}),test("should handle empty regex patterns with matchCommandLine that could cause endless loops",async()=>{c({"//":{approve:!0,matchCommandLine:!0},"/(?:)/":{approve:!0,matchCommandLine:!0},"/*/":{approve:!0,matchCommandLine:!0},"/.**/":{approve:!0,matchCommandLine:!0}}),e(!o("echo hello")),e(!o("ls")),e(!o(""))}),test("should handle regex patterns with matchCommandLine that would cause endless loops",async()=>{c({"/a*/":{approve:!0,matchCommandLine:!0},"/b?/":{approve:!0,matchCommandLine:!0},"/(x|)*/":{approve:!0,matchCommandLine:!0},"/(?:)*/":{approve:!0,matchCommandLine:!0}}),e(!o("echo hello")),e(!o("ls")),e(!o("a")),e(!o("b"))}),test("should handle mixed valid and problematic regex patterns with matchCommandLine",async()=>{c({"/^echo/":{approve:!0,matchCommandLine:!0},"//":{approve:!0,matchCommandLine:!0},"/^ls/":{approve:!0,matchCommandLine:!0},"/a*/":{approve:!0,matchCommandLine:!0},pwd:{approve:!0,matchCommandLine:!0}}),e(o("echo hello")),e(o("ls -la")),e(o("pwd")),e(!o("rm file"))}),test("should handle invalid regex patterns with matchCommandLine gracefully",async()=>{c({"/*/":{approve:!0,matchCommandLine:!0},"/(?:+/":{approve:!0,matchCommandLine:!0},"/[/":{approve:!0,matchCommandLine:!0},"/^echo/":{approve:!0,matchCommandLine:!0},ls:{approve:!0,matchCommandLine:!0}}),e(o("echo hello")),e(o("ls -la")),e(!o("random command"))})}),suite("reasons",()=>{async function s(u){return(await f.isCommandAutoApproved(u,w,h,void 0)).reason}function l(u){return f.isCommandLineAutoApproved(u).reason}suite("command",()=>{test("approved",async()=>{a({echo:!0}),i(await s("echo hello"),"Command 'echo hello' is approved by allow list rule: echo")}),test("not approved",async()=>{a({echo:!1}),i(await s("echo hello"),"Command 'echo hello' is denied by deny list rule: echo")}),test("no match",async()=>{a({}),i(await s("echo hello"),"Command 'echo hello' has no matching auto approve entries")})}),suite("command line",()=>{test("approved",async()=>{c({echo:{approve:!0,matchCommandLine:!0}}),i(l("echo hello"),"Command line 'echo hello' is approved by allow list rule: echo")}),test("not approved",async()=>{c({echo:{approve:!1,matchCommandLine:!0}}),i(l("echo hello"),"Command line 'echo hello' is denied by deny list rule: echo")}),test("no match",async()=>{c({}),i(l("echo hello"),"Command line 'echo hello' has no matching auto approve entries")})})}),suite("isDefaultRule logic",()=>{async function s(r){const d=(await f.isCommandAutoApproved(r,w,h,void 0)).rule;return y(d)?d.isDefaultRule:void 0}function l(r){const d=f.isCommandLineAutoApproved(r).rule;return y(d)?d.isDefaultRule:void 0}function u(r,d){n.setUserConfiguration("chat.tools.terminal.autoApprove",r);const g=n.inspect,C=n.getValue;n.inspect=p=>p==="chat.tools.terminal.autoApprove"?{default:{value:d},user:{value:r},workspace:void 0,workspaceFolder:void 0,application:void 0,policy:void 0,memory:void 0,value:{...d,...r}}:g.call(n,p),n.getValue=p=>p==="chat.tools.terminal.autoApprove"?{...d,...r}:C.call(n,p),n.onDidChangeConfigurationEmitter.fire({affectsConfiguration:()=>!0,affectedKeys:new Set(["chat.tools.terminal.autoApprove"]),source:2,change:null})}function m(r,d){n.setUserConfiguration("chat.tools.terminal.autoApprove",r);const g=n.inspect,C=n.getValue;n.inspect=p=>p==="chat.tools.terminal.autoApprove"?{default:{value:d},user:{value:r},workspace:void 0,workspaceFolder:void 0,application:void 0,policy:void 0,memory:void 0,value:{...d,...r}}:g.call(n,p),n.getValue=p=>p==="chat.tools.terminal.autoApprove"?{...d,...r}:C.call(n,p),n.onDidChangeConfigurationEmitter.fire({affectsConfiguration:()=>!0,affectedKeys:new Set(["chat.tools.terminal.autoApprove"]),source:2,change:null})}test("should correctly identify default rules vs user-defined rules",async()=>{u({echo:!0,ls:!0,pwd:!1},{echo:!0,cat:!0}),i(await s("echo hello"),!0,"echo is in both default and user config with same value - should be marked as default"),i(await s("ls -la"),!1,"ls is only in user config - should be marked as user-defined"),i(await s("pwd"),!1,"pwd is only in user config - should be marked as user-defined"),i(await s("cat file.txt"),!0,"cat is in both default and user config with same value - should be marked as default")}),test("should mark as default when command is only in default config but not in user config",async()=>{u({echo:!0,ls:!0},{echo:!0,cat:!0}),i((await f.isCommandAutoApproved("echo",w,h,void 0)).result,"approved","echo should be approved"),i((await f.isCommandAutoApproved("ls",w,h,void 0)).result,"approved","ls should be approved");const r=await f.isCommandAutoApproved("cat",w,h,void 0);i(r.result,"approved","cat should be approved from default config"),i(y(r.rule)?r.rule.isDefaultRule:void 0,!0,"cat is only in default config, not in user config - should be marked as default")}),test("should handle default rules with different values",async()=>{u({echo:!0,rm:!0},{echo:!1,rm:!0}),i(await s("echo hello"),!1,"echo has different values in default vs user - should be marked as user-defined"),i(await s("rm file.txt"),!0,"rm has same value in both - should be marked as default")}),test("should handle regex patterns as default rules",async()=>{u({"/^git/":!0,"/^npm/":!1},{"/^git/":!0,"/^docker/":!0}),i(await s("git status"),!0,"git pattern matches default - should be marked as default"),i(await s("npm install"),!1,"npm pattern is user-only - should be marked as user-defined")}),test("should handle mixed string and regex patterns",async()=>{u({echo:!0,"/^ls/":!1},{echo:!0,cat:!0}),i(await s("echo hello"),!0,"String pattern matching default"),i(await s("ls -la"),!1,"Regex pattern user-defined")}),test("should handle command line rules with isDefaultRule",async()=>{m({echo:{approve:!0,matchCommandLine:!0},ls:{approve:!1,matchCommandLine:!0}},{echo:{approve:!0,matchCommandLine:!0},cat:{approve:!0,matchCommandLine:!0}}),i(l("echo hello world"),!0,"echo matches default config exactly using structural equality - should be marked as default"),i(l("ls -la"),!1,"ls is user-defined only - should be marked as user-defined")}),test("should handle command line rules with different matchCommandLine values",async()=>{m({echo:{approve:!0,matchCommandLine:!0},ls:{approve:!0,matchCommandLine:!1}},{echo:{approve:!0,matchCommandLine:!1},ls:{approve:!0,matchCommandLine:!1}}),i(l("echo hello"),!1,"echo has different matchCommandLine value - should be user-defined"),i(l("ls -la"),void 0,"ls matches exactly - should be default (but won't match command line check since matchCommandLine is false)")}),test("should handle boolean vs object format consistency",async()=>{m({echo:!0,ls:{approve:!0,matchCommandLine:!0}},{echo:!0,ls:{approve:!0,matchCommandLine:!0}}),i(await s("echo hello"),!0,"Boolean format matching - should be default"),i(l("ls -la"),!0,"Object format matching using structural equality - should be default")}),test("should return undefined for noMatch cases",async()=>{u({echo:!0},{cat:!0}),i(await s("unknown-command"),void 0,"Command that matches neither user nor default config"),i(l("unknown-command"),void 0,"Command that matches neither user nor default config")}),test("should handle empty configurations",async()=>{u({},{}),i(await s("echo hello"),void 0),i(l("echo hello"),void 0)}),test("should handle only default config with no user overrides",async()=>{u({},{echo:!0,ls:!1}),i(await s("echo hello"),!0,"Commands in default config should be marked as default rules even with empty user config"),i(await s("ls -la"),!0,"Commands in default config should be marked as default rules even with empty user config")}),test("should handle complex nested object rules",async()=>{m({npm:{approve:!0,matchCommandLine:!0},git:{approve:!1,matchCommandLine:!1}},{npm:{approve:!0,matchCommandLine:!0},docker:{approve:!0,matchCommandLine:!0}}),i(l("npm install"),!0,"npm matches default exactly using structural equality - should be default"),i(l("git status"),void 0,"git is user-defined - should be user-defined (but won't match command line since matchCommandLine is false)")}),test("should handle PowerShell case-insensitive matching with defaults",async()=>{w="pwsh",h=1,u({"Get-Process":!0},{"Get-Process":!0}),i(await s("Get-Process"),!0,"Case-insensitive PowerShell command matching default"),i(await s("get-process"),!0,"Case-insensitive PowerShell command matching default"),i(await s("GET-PROCESS"),!0,"Case-insensitive PowerShell command matching default")}),test("should use structural equality for object comparison",async()=>{m({test:{approve:!0,matchCommandLine:!0}},{test:{approve:!0,matchCommandLine:!0}}),i(l("test command"),!0,"Even though userConfig and defaultConfig are different object instances, they have the same structure and values, so should be considered default")}),test("should detect structural differences in objects",async()=>{m({test:{approve:!0,matchCommandLine:!0}},{test:{approve:!0,matchCommandLine:!1}}),i(l("test command"),!1,"Objects have different matchCommandLine values, so should be user-defined")}),test("should handle mixed types correctly",async()=>{m({cmd1:!0,cmd2:{approve:!1,matchCommandLine:!0}},{cmd1:!0,cmd2:{approve:!1,matchCommandLine:!0}}),i(await s("cmd1 arg"),!0,"Boolean type should match default"),i(l("cmd2 arg"),!0,"Object type should match default using structural equality (even though it's a deny rule)")})}),suite("ignoreDefaultAutoApproveRules",()=>{function s(u,m){n.setUserConfiguration("chat.tools.terminal.autoApprove",u);const r=n.inspect,d=n.getValue;n.inspect=g=>g==="chat.tools.terminal.autoApprove"?{default:{value:m},user:{value:u},workspace:void 0,workspaceFolder:void 0,application:void 0,policy:void 0,memory:void 0,value:{...m,...u}}:r.call(n,g),n.getValue=g=>g==="chat.tools.terminal.autoApprove"?{...m,...u}:d.call(n,g),n.onDidChangeConfigurationEmitter.fire({affectsConfiguration:()=>!0,affectedKeys:new Set(["chat.tools.terminal.autoApprove"]),source:2,change:null})}function l(u){v("chat.tools.terminal.ignoreDefaultAutoApproveRules",u)}test("should include default rules when ignoreDefaultAutoApproveRules is false (default behavior)",async()=>{s({ls:!0},{echo:!0,cat:!0}),l(!1),e(await t("ls -la"),"User-defined rule should work"),e(await t("echo hello"),"Default rule should work when not ignored"),e(await t("cat file.txt"),"Default rule should work when not ignored")}),test("should exclude default rules when ignoreDefaultAutoApproveRules is true",async()=>{s({ls:!0},{echo:!0,cat:!0}),l(!0),e(await t("ls -la"),"User-defined rule should still work"),e(!await t("echo hello"),"Default rule should be ignored"),e(!await t("cat file.txt"),"Default rule should be ignored")})})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { workbenchInstantiationService } from "../../../../../test/browser/workbenchTestServices.js";
+import { ok, strictEqual } from "assert";
+import { CommandLineAutoApprover } from "../../browser/tools/commandLineAnalyzer/autoApprove/commandLineAutoApprover.js";
+import { isAutoApproveRule } from "../../browser/tools/commandLineAnalyzer/commandLineAnalyzer.js";
+suite("CommandLineAutoApprover", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let configurationService;
+  let commandLineAutoApprover;
+  let shell;
+  let os;
+  setup(() => {
+    configurationService = new TestConfigurationService();
+    instantiationService = workbenchInstantiationService({
+      configurationService: /* @__PURE__ */ __name(() => configurationService, "configurationService")
+    }, store);
+    shell = "bash";
+    os = 3;
+    commandLineAutoApprover = store.add(instantiationService.createInstance(CommandLineAutoApprover));
+  });
+  function setAutoApprove(value) {
+    setConfig("chat.tools.terminal.autoApprove", value);
+  }
+  __name(setAutoApprove, "setAutoApprove");
+  function setAutoApproveWithCommandLine(value) {
+    setConfig("chat.tools.terminal.autoApprove", value);
+  }
+  __name(setAutoApproveWithCommandLine, "setAutoApproveWithCommandLine");
+  function setConfig(key, value) {
+    configurationService.setUserConfiguration(key, value);
+    configurationService.onDidChangeConfigurationEmitter.fire({
+      affectsConfiguration: /* @__PURE__ */ __name(() => true, "affectsConfiguration"),
+      affectedKeys: /* @__PURE__ */ new Set([key]),
+      source: 2,
+      change: null
+    });
+  }
+  __name(setConfig, "setConfig");
+  async function isAutoApproved(commandLine) {
+    return (await commandLineAutoApprover.isCommandAutoApproved(commandLine, shell, os, void 0)).result === "approved";
+  }
+  __name(isAutoApproved, "isAutoApproved");
+  function isCommandLineAutoApproved(commandLine) {
+    return commandLineAutoApprover.isCommandLineAutoApproved(commandLine).result === "approved";
+  }
+  __name(isCommandLineAutoApproved, "isCommandLineAutoApproved");
+  suite("autoApprove with allow patterns only", () => {
+    test("should auto-approve exact command match", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(await isAutoApproved("echo"));
+    });
+    test("should auto-approve command with arguments", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(await isAutoApproved("echo hello world"));
+    });
+    test("should not auto-approve when there is no match", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(!await isAutoApproved("ls"));
+    });
+    test("should not auto-approve partial command matches", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(!await isAutoApproved("echotest"));
+    });
+    test("should handle multiple commands in autoApprove", async () => {
+      setAutoApprove({
+        "echo": true,
+        "ls": true,
+        "pwd": true
+      });
+      ok(await isAutoApproved("echo"));
+      ok(await isAutoApproved("ls -la"));
+      ok(await isAutoApproved("pwd"));
+      ok(!await isAutoApproved("rm"));
+    });
+  });
+  suite("autoApprove with deny patterns only", () => {
+    test("should deny commands in autoApprove", async () => {
+      setAutoApprove({
+        "rm": false,
+        "del": false
+      });
+      ok(!await isAutoApproved("rm file.txt"));
+      ok(!await isAutoApproved("del file.txt"));
+    });
+    test("should not auto-approve safe commands when no allow patterns are present", async () => {
+      setAutoApprove({
+        "rm": false
+      });
+      ok(!await isAutoApproved("echo hello"));
+      ok(!await isAutoApproved("ls"));
+    });
+  });
+  suite("autoApprove with mixed allow and deny patterns", () => {
+    test("should deny commands set to false even if other commands are set to true", async () => {
+      setAutoApprove({
+        "echo": true,
+        "rm": false
+      });
+      ok(await isAutoApproved("echo hello"));
+      ok(!await isAutoApproved("rm file.txt"));
+    });
+    test("should auto-approve allow patterns not set to false", async () => {
+      setAutoApprove({
+        "echo": true,
+        "ls": true,
+        "pwd": true,
+        "rm": false,
+        "del": false
+      });
+      ok(await isAutoApproved("echo"));
+      ok(await isAutoApproved("ls"));
+      ok(await isAutoApproved("pwd"));
+      ok(!await isAutoApproved("rm"));
+      ok(!await isAutoApproved("del"));
+    });
+  });
+  suite("regex patterns", () => {
+    test("should handle /.*/", async () => {
+      setAutoApprove({
+        "/.*/": true
+      });
+      ok(await isAutoApproved("echo hello"));
+    });
+    test("should handle regex patterns in autoApprove", async () => {
+      setAutoApprove({
+        "/^echo/": true,
+        "/^ls/": true,
+        "pwd": true
+      });
+      ok(await isAutoApproved("echo hello"));
+      ok(await isAutoApproved("ls -la"));
+      ok(await isAutoApproved("pwd"));
+      ok(!await isAutoApproved("rm file"));
+    });
+    test("should handle regex patterns for deny", async () => {
+      setAutoApprove({
+        "echo": true,
+        "rm": true,
+        "/^rm\\s+/": false,
+        "/^del\\s+/": false
+      });
+      ok(await isAutoApproved("echo hello"));
+      ok(await isAutoApproved("rm"));
+      ok(!await isAutoApproved("rm file.txt"));
+      ok(!await isAutoApproved("del file.txt"));
+    });
+    test("should handle complex regex patterns", async () => {
+      setAutoApprove({
+        "/^(echo|ls|pwd)\\b/": true,
+        "/^git (status|show\\b.*)$/": true,
+        "/rm|del|kill/": false
+      });
+      ok(await isAutoApproved("echo test"));
+      ok(await isAutoApproved("ls -la"));
+      ok(await isAutoApproved("pwd"));
+      ok(await isAutoApproved("git status"));
+      ok(await isAutoApproved("git show"));
+      ok(await isAutoApproved("git show HEAD"));
+      ok(!await isAutoApproved("rm file"));
+      ok(!await isAutoApproved("del file"));
+      ok(!await isAutoApproved("kill process"));
+    });
+    test("should handle git patterns with -C and --no-pager", async () => {
+      setAutoApprove({
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+status\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+log\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+show\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+diff\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+ls-files\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+grep\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+branch\\b/": true,
+        "/^git(\\s+(-C\\s+\\S+|--no-pager))*\\s+branch\\b.*-(d|D|m|M|-delete|-force)\\b/": false
+      });
+      ok(await isAutoApproved("git status"));
+      ok(await isAutoApproved("git log"));
+      ok(await isAutoApproved("git show HEAD"));
+      ok(await isAutoApproved("git diff"));
+      ok(await isAutoApproved("git ls-files"));
+      ok(await isAutoApproved("git grep pattern"));
+      ok(await isAutoApproved("git branch"));
+      ok(await isAutoApproved("git ls-files --cached"));
+      ok(await isAutoApproved("git -C /path ls-files"));
+      ok(await isAutoApproved("git --no-pager ls-files"));
+      ok(await isAutoApproved("git -C /some/path status"));
+      ok(await isAutoApproved("git -C ../relative log"));
+      ok(await isAutoApproved("git -C . diff"));
+      ok(await isAutoApproved("git --no-pager status"));
+      ok(await isAutoApproved("git --no-pager log"));
+      ok(await isAutoApproved("git --no-pager diff HEAD~1"));
+      ok(await isAutoApproved("git -C /path --no-pager status"));
+      ok(await isAutoApproved("git --no-pager -C /path log"));
+      ok(await isAutoApproved("git -C /path1 -C /path2 status"));
+      ok(await isAutoApproved("git --no-pager --no-pager log"));
+      ok(!await isAutoApproved("git branch -d feature"));
+      ok(!await isAutoApproved("git branch -D feature"));
+      ok(!await isAutoApproved("git branch --delete feature"));
+      ok(!await isAutoApproved("git -C /path branch -d feature"));
+      ok(!await isAutoApproved("git --no-pager branch -D feature"));
+      ok(!await isAutoApproved("git -C /path --no-pager branch --force"));
+      ok(!await isAutoApproved("git branch -m old new"));
+      ok(!await isAutoApproved("git branch -M old new"));
+      ok(!await isAutoApproved("git -C /path branch -m old new"));
+    });
+    suite("flags", () => {
+      test("should handle case-insensitive regex patterns with i flag", async () => {
+        setAutoApprove({
+          "/^echo/i": true,
+          "/^ls/i": true,
+          "/rm|del/i": false
+        });
+        ok(await isAutoApproved("echo hello"));
+        ok(await isAutoApproved("ECHO hello"));
+        ok(await isAutoApproved("Echo hello"));
+        ok(await isAutoApproved("ls -la"));
+        ok(await isAutoApproved("LS -la"));
+        ok(await isAutoApproved("Ls -la"));
+        ok(!await isAutoApproved("rm file"));
+        ok(!await isAutoApproved("RM file"));
+        ok(!await isAutoApproved("del file"));
+        ok(!await isAutoApproved("DEL file"));
+      });
+      test("should handle multiple regex flags", async () => {
+        setAutoApprove({
+          "/^git\\s+/gim": true,
+          "/dangerous/gim": false
+        });
+        ok(await isAutoApproved("git status"));
+        ok(await isAutoApproved("GIT status"));
+        ok(await isAutoApproved("Git status"));
+        ok(!await isAutoApproved("dangerous command"));
+        ok(!await isAutoApproved("DANGEROUS command"));
+      });
+      test("should handle various regex flags", async () => {
+        setAutoApprove({
+          "/^echo.*/s": true,
+          // dotall flag
+          "/^git\\s+/i": true,
+          // case-insensitive flag
+          "/rm|del/g": false
+          // global flag
+        });
+        ok(await isAutoApproved("echo hello\nworld"));
+        ok(await isAutoApproved("git status"));
+        ok(await isAutoApproved("GIT status"));
+        ok(!await isAutoApproved("rm file"));
+        ok(!await isAutoApproved("del file"));
+      });
+      test("should handle regex patterns without flags", async () => {
+        setAutoApprove({
+          "/^echo/": true,
+          "/rm|del/": false
+        });
+        ok(await isAutoApproved("echo hello"));
+        ok(!await isAutoApproved("ECHO hello"), "Should be case-sensitive without i flag");
+        ok(!await isAutoApproved("rm file"));
+        ok(!await isAutoApproved("RM file"), "Should be case-sensitive without i flag");
+      });
+    });
+  });
+  suite("edge cases", () => {
+    test("should handle empty autoApprove", async () => {
+      setAutoApprove({});
+      ok(!await isAutoApproved("echo hello"));
+      ok(!await isAutoApproved("ls"));
+      ok(!await isAutoApproved("rm file"));
+    });
+    test("should handle empty command strings", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(!await isAutoApproved(""));
+      ok(!await isAutoApproved("   "));
+    });
+    test("should handle whitespace in commands", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(await isAutoApproved("echo   hello   world"));
+    });
+    test("should be case-sensitive by default", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(await isAutoApproved("echo hello"));
+      ok(!await isAutoApproved("ECHO hello"));
+      ok(!await isAutoApproved("Echo hello"));
+    });
+    test("should handle string-based values with special regex characters", async () => {
+      setAutoApprove({
+        "pwsh.exe -File D:\\foo.bar\\a-script.ps1": true
+      });
+      ok(await isAutoApproved("pwsh.exe -File D:\\foo.bar\\a-script.ps1"));
+      ok(await isAutoApproved("pwsh.exe -File D:\\foo.bar\\a-script.ps1 -AnotherArg"));
+    });
+    test("should ignore the empty string key", async () => {
+      setAutoApprove({
+        "": true
+      });
+      ok(!await isAutoApproved("echo hello"));
+    });
+    test("should handle empty regex patterns that could cause endless loops", async () => {
+      setAutoApprove({
+        "//": true,
+        "/(?:)/": true,
+        "/*/": true,
+        // Invalid regex pattern
+        "/.**/": true
+        // Invalid regex pattern
+      });
+      ok(!await isAutoApproved("echo hello"));
+      ok(!await isAutoApproved("ls"));
+      ok(!await isAutoApproved(""));
+    });
+    test("should handle regex patterns that would cause endless loops", async () => {
+      setAutoApprove({
+        "/a*/": true,
+        "/b?/": true,
+        "/(x|)*/": true,
+        "/(?:)*/": true
+      });
+      ok(!await isAutoApproved("echo hello"));
+      ok(!await isAutoApproved("ls"));
+      ok(!await isAutoApproved("a"));
+      ok(!await isAutoApproved("b"));
+    });
+    test("should handle mixed valid and problematic regex patterns", async () => {
+      setAutoApprove({
+        "/^echo/": true,
+        // Valid pattern
+        "//": true,
+        // Empty pattern
+        "/^ls/": true,
+        // Valid pattern
+        "/a*/": true,
+        // Potential endless loop
+        "pwd": true
+        // Valid string pattern
+      });
+      ok(await isAutoApproved("echo hello"));
+      ok(await isAutoApproved("ls -la"));
+      ok(await isAutoApproved("pwd"));
+      ok(!await isAutoApproved("rm file"));
+    });
+    test("should handle invalid regex patterns gracefully", async () => {
+      setAutoApprove({
+        "/*/": true,
+        // Invalid regex - nothing to repeat
+        "/(?:+/": true,
+        // Invalid regex - incomplete quantifier
+        "/[/": true,
+        // Invalid regex - unclosed character class
+        "/^echo/": true,
+        // Valid pattern
+        "ls": true
+        // Valid string pattern
+      });
+      ok(await isAutoApproved("echo hello"));
+      ok(await isAutoApproved("ls -la"));
+      ok(!await isAutoApproved("random command"));
+    });
+  });
+  suite("path-aware auto approval", () => {
+    test("should handle path variations with forward slashes", async () => {
+      setAutoApprove({
+        "bin/foo": true
+      });
+      ok(await isAutoApproved("bin/foo"));
+      ok(await isAutoApproved("bin/foo --arg"));
+      ok(await isAutoApproved("bin\\foo"));
+      ok(await isAutoApproved("bin\\foo --arg"));
+      ok(await isAutoApproved("./bin/foo"));
+      ok(await isAutoApproved(".\\bin/foo"));
+      ok(await isAutoApproved("./bin\\foo"));
+      ok(await isAutoApproved(".\\bin\\foo"));
+      ok(!await isAutoApproved("bin/foobar"));
+      ok(!await isAutoApproved("notbin/foo"));
+    });
+    test("should handle path variations with backslashes", async () => {
+      setAutoApprove({
+        "bin\\script.bat": true
+      });
+      ok(await isAutoApproved("bin\\script.bat"));
+      ok(await isAutoApproved("bin\\script.bat --help"));
+      ok(await isAutoApproved("bin/script.bat"));
+      ok(await isAutoApproved("bin/script.bat --help"));
+      ok(await isAutoApproved("./bin\\script.bat"));
+      ok(await isAutoApproved(".\\bin\\script.bat"));
+      ok(await isAutoApproved("./bin/script.bat"));
+      ok(await isAutoApproved(".\\bin/script.bat"));
+    });
+    test("should handle deep paths", async () => {
+      setAutoApprove({
+        "src/utils/helper.js": true
+      });
+      ok(await isAutoApproved("src/utils/helper.js"));
+      ok(await isAutoApproved("src\\utils\\helper.js"));
+      ok(await isAutoApproved("src/utils\\helper.js"));
+      ok(await isAutoApproved("src\\utils/helper.js"));
+      ok(await isAutoApproved("./src/utils/helper.js"));
+      ok(await isAutoApproved(".\\src\\utils\\helper.js"));
+    });
+    test("should not treat non-paths as paths", async () => {
+      setAutoApprove({
+        "echo": true,
+        // Not a path
+        "ls": true,
+        // Not a path
+        "git": true
+        // Not a path
+      });
+      ok(await isAutoApproved("echo"));
+      ok(await isAutoApproved("ls"));
+      ok(await isAutoApproved("git"));
+      ok(!await isAutoApproved("./echo"));
+      ok(!await isAutoApproved(".\\ls"));
+    });
+    test("should handle paths with mixed separators in config", async () => {
+      setAutoApprove({
+        "bin/foo\\bar": true
+        // Mixed separators in config
+      });
+      ok(await isAutoApproved("bin/foo\\bar"));
+      ok(await isAutoApproved("bin\\foo/bar"));
+      ok(await isAutoApproved("bin/foo/bar"));
+      ok(await isAutoApproved("bin\\foo\\bar"));
+      ok(await isAutoApproved("./bin/foo\\bar"));
+      ok(await isAutoApproved(".\\bin\\foo\\bar"));
+    });
+    test("should work with command line auto approval for paths", async () => {
+      setAutoApproveWithCommandLine({
+        "bin/deploy": { approve: true, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("bin/deploy --prod"));
+      ok(isCommandLineAutoApproved("bin\\deploy --prod"));
+      ok(isCommandLineAutoApproved("./bin/deploy --prod"));
+      ok(isCommandLineAutoApproved(".\\bin\\deploy --prod"));
+    });
+    test("should handle special characters in paths", async () => {
+      setAutoApprove({
+        "bin/my-script.sh": true,
+        "scripts/build_all.py": true,
+        "tools/run (debug).exe": true
+      });
+      ok(await isAutoApproved("bin/my-script.sh"));
+      ok(await isAutoApproved("bin\\my-script.sh"));
+      ok(await isAutoApproved("./bin/my-script.sh"));
+      ok(await isAutoApproved("scripts/build_all.py"));
+      ok(await isAutoApproved("scripts\\build_all.py"));
+      ok(await isAutoApproved("tools/run (debug).exe"));
+      ok(await isAutoApproved("tools\\run (debug).exe"));
+    });
+  });
+  suite("PowerShell-specific commands", () => {
+    setup(() => {
+      shell = "pwsh";
+    });
+    test("should handle Windows PowerShell commands", async () => {
+      setAutoApprove({
+        "Get-ChildItem": true,
+        "Get-Content": true,
+        "Get-Location": true,
+        "Remove-Item": false,
+        "del": false
+      });
+      ok(await isAutoApproved("Get-ChildItem"));
+      ok(await isAutoApproved("Get-Content file.txt"));
+      ok(await isAutoApproved("Get-Location"));
+      ok(!await isAutoApproved("Remove-Item file.txt"));
+    });
+    test("should handle ( prefixes", async () => {
+      setAutoApprove({
+        "Get-Content": true
+      });
+      ok(await isAutoApproved("Get-Content file.txt"));
+      ok(await isAutoApproved("(Get-Content file.txt"));
+      ok(!await isAutoApproved("[Get-Content"));
+      ok(!await isAutoApproved("foo"));
+    });
+    test("should be case-insensitive for PowerShell commands", async () => {
+      setAutoApprove({
+        "Get-ChildItem": true,
+        "Get-Content": true,
+        "Remove-Item": false
+      });
+      ok(await isAutoApproved("Get-ChildItem"));
+      ok(await isAutoApproved("get-childitem"));
+      ok(await isAutoApproved("GET-CHILDITEM"));
+      ok(await isAutoApproved("Get-childitem"));
+      ok(await isAutoApproved("get-ChildItem"));
+      ok(await isAutoApproved("Get-Content file.txt"));
+      ok(await isAutoApproved("get-content file.txt"));
+      ok(await isAutoApproved("GET-CONTENT file.txt"));
+      ok(await isAutoApproved("Get-content file.txt"));
+      ok(!await isAutoApproved("Remove-Item file.txt"));
+      ok(!await isAutoApproved("remove-item file.txt"));
+      ok(!await isAutoApproved("REMOVE-ITEM file.txt"));
+      ok(!await isAutoApproved("Remove-item file.txt"));
+    });
+    test("should be case-insensitive for PowerShell aliases", async () => {
+      setAutoApprove({
+        "ls": true,
+        "dir": true,
+        "rm": false,
+        "del": false
+      });
+      ok(await isAutoApproved("ls"));
+      ok(await isAutoApproved("LS"));
+      ok(await isAutoApproved("Ls"));
+      ok(await isAutoApproved("dir"));
+      ok(await isAutoApproved("DIR"));
+      ok(await isAutoApproved("Dir"));
+      ok(!await isAutoApproved("rm file.txt"));
+      ok(!await isAutoApproved("RM file.txt"));
+      ok(!await isAutoApproved("Rm file.txt"));
+      ok(!await isAutoApproved("del file.txt"));
+      ok(!await isAutoApproved("DEL file.txt"));
+      ok(!await isAutoApproved("Del file.txt"));
+    });
+    test("should be case-insensitive with regex patterns", async () => {
+      setAutoApprove({
+        "/^Get-/": true,
+        "/Remove-Item|rm/": false
+      });
+      ok(await isAutoApproved("Get-ChildItem"));
+      ok(await isAutoApproved("get-childitem"));
+      ok(await isAutoApproved("GET-PROCESS"));
+      ok(await isAutoApproved("Get-Location"));
+      ok(!await isAutoApproved("Remove-Item file.txt"));
+      ok(!await isAutoApproved("remove-item file.txt"));
+      ok(!await isAutoApproved("rm file.txt"));
+      ok(!await isAutoApproved("RM file.txt"));
+    });
+    test("should handle case-insensitive PowerShell commands on different OS", async () => {
+      setAutoApprove({
+        "Get-Process": true,
+        "Stop-Process": false
+      });
+      for (const currnetOS of [
+        1,
+        3,
+        2
+        /* OperatingSystem.Macintosh */
+      ]) {
+        os = currnetOS;
+        ok(await isAutoApproved("Get-Process"), `os=${os}`);
+        ok(await isAutoApproved("get-process"), `os=${os}`);
+        ok(await isAutoApproved("GET-PROCESS"), `os=${os}`);
+        ok(!await isAutoApproved("Stop-Process"), `os=${os}`);
+        ok(!await isAutoApproved("stop-process"), `os=${os}`);
+      }
+    });
+  });
+  suite("isCommandLineAutoApproved - matchCommandLine functionality", () => {
+    test("should auto-approve command line patterns with matchCommandLine: true", async () => {
+      setAutoApproveWithCommandLine({
+        "echo": { approve: true, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("echo hello"));
+      ok(isCommandLineAutoApproved("echo test && ls"));
+    });
+    test("should not auto-approve regular patterns with isCommandLineAutoApproved", async () => {
+      setAutoApprove({
+        "echo": true
+      });
+      ok(!isCommandLineAutoApproved("echo hello"));
+    });
+    test("should handle regex patterns with matchCommandLine: true", async () => {
+      setAutoApproveWithCommandLine({
+        "/echo.*world/": { approve: true, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("echo hello world"));
+      ok(!isCommandLineAutoApproved("echo hello"));
+    });
+    test("should handle case-insensitive regex with matchCommandLine: true", async () => {
+      setAutoApproveWithCommandLine({
+        "/echo/i": { approve: true, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("echo hello"));
+      ok(isCommandLineAutoApproved("ECHO hello"));
+      ok(isCommandLineAutoApproved("Echo hello"));
+    });
+    test("should handle complex command line patterns", async () => {
+      setAutoApproveWithCommandLine({
+        "/^npm run build/": { approve: true, matchCommandLine: true },
+        "/.ps1/i": { approve: true, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("npm run build --production"));
+      ok(isCommandLineAutoApproved("powershell -File script.ps1"));
+      ok(isCommandLineAutoApproved("pwsh -File SCRIPT.PS1"));
+      ok(!isCommandLineAutoApproved("npm install"));
+    });
+    test("should return false for empty command line", async () => {
+      setAutoApproveWithCommandLine({
+        "echo": { approve: true, matchCommandLine: true }
+      });
+      ok(!isCommandLineAutoApproved(""));
+      ok(!isCommandLineAutoApproved("   "));
+    });
+    test("should handle mixed configuration with matchCommandLine entries", async () => {
+      setAutoApproveWithCommandLine({
+        "echo": true,
+        // Regular pattern
+        "ls": { approve: true, matchCommandLine: true },
+        // Command line pattern
+        "rm": { approve: true, matchCommandLine: false }
+        // Explicit regular pattern
+      });
+      ok(isCommandLineAutoApproved("ls -la"));
+      ok(!isCommandLineAutoApproved("echo hello"));
+      ok(!isCommandLineAutoApproved("rm file.txt"));
+    });
+    test("should handle deny patterns with matchCommandLine: true", async () => {
+      setAutoApproveWithCommandLine({
+        "echo": { approve: true, matchCommandLine: true },
+        "/dangerous/": { approve: false, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("echo hello"));
+      ok(!isCommandLineAutoApproved("echo dangerous command"));
+      ok(!isCommandLineAutoApproved("dangerous operation"));
+    });
+    test("should prioritize deny list over allow list for command line patterns", async () => {
+      setAutoApproveWithCommandLine({
+        "/echo/": { approve: true, matchCommandLine: true },
+        "/echo.*dangerous/": { approve: false, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("echo hello"));
+      ok(!isCommandLineAutoApproved("echo dangerous command"));
+    });
+    test("should handle complex deny patterns with matchCommandLine", async () => {
+      setAutoApproveWithCommandLine({
+        "npm": { approve: true, matchCommandLine: true },
+        "/npm.*--force/": { approve: false, matchCommandLine: true },
+        "/.ps1.*-ExecutionPolicy/i": { approve: false, matchCommandLine: true }
+      });
+      ok(isCommandLineAutoApproved("npm install"));
+      ok(isCommandLineAutoApproved("npm run build"));
+      ok(!isCommandLineAutoApproved("npm install --force"));
+      ok(!isCommandLineAutoApproved("powershell -File script.ps1 -ExecutionPolicy Bypass"));
+    });
+    test("should handle empty regex patterns with matchCommandLine that could cause endless loops", async () => {
+      setAutoApproveWithCommandLine({
+        "//": { approve: true, matchCommandLine: true },
+        "/(?:)/": { approve: true, matchCommandLine: true },
+        "/*/": { approve: true, matchCommandLine: true },
+        // Invalid regex pattern
+        "/.**/": { approve: true, matchCommandLine: true }
+        // Invalid regex pattern
+      });
+      ok(!isCommandLineAutoApproved("echo hello"));
+      ok(!isCommandLineAutoApproved("ls"));
+      ok(!isCommandLineAutoApproved(""));
+    });
+    test("should handle regex patterns with matchCommandLine that would cause endless loops", async () => {
+      setAutoApproveWithCommandLine({
+        "/a*/": { approve: true, matchCommandLine: true },
+        "/b?/": { approve: true, matchCommandLine: true },
+        "/(x|)*/": { approve: true, matchCommandLine: true },
+        "/(?:)*/": { approve: true, matchCommandLine: true }
+      });
+      ok(!isCommandLineAutoApproved("echo hello"));
+      ok(!isCommandLineAutoApproved("ls"));
+      ok(!isCommandLineAutoApproved("a"));
+      ok(!isCommandLineAutoApproved("b"));
+    });
+    test("should handle mixed valid and problematic regex patterns with matchCommandLine", async () => {
+      setAutoApproveWithCommandLine({
+        "/^echo/": { approve: true, matchCommandLine: true },
+        // Valid pattern
+        "//": { approve: true, matchCommandLine: true },
+        // Empty pattern
+        "/^ls/": { approve: true, matchCommandLine: true },
+        // Valid pattern
+        "/a*/": { approve: true, matchCommandLine: true },
+        // Potential endless loop
+        "pwd": { approve: true, matchCommandLine: true }
+        // Valid string pattern
+      });
+      ok(isCommandLineAutoApproved("echo hello"));
+      ok(isCommandLineAutoApproved("ls -la"));
+      ok(isCommandLineAutoApproved("pwd"));
+      ok(!isCommandLineAutoApproved("rm file"));
+    });
+    test("should handle invalid regex patterns with matchCommandLine gracefully", async () => {
+      setAutoApproveWithCommandLine({
+        "/*/": { approve: true, matchCommandLine: true },
+        // Invalid regex - nothing to repeat
+        "/(?:+/": { approve: true, matchCommandLine: true },
+        // Invalid regex - incomplete quantifier
+        "/[/": { approve: true, matchCommandLine: true },
+        // Invalid regex - unclosed character class
+        "/^echo/": { approve: true, matchCommandLine: true },
+        // Valid pattern
+        "ls": { approve: true, matchCommandLine: true }
+        // Valid string pattern
+      });
+      ok(isCommandLineAutoApproved("echo hello"));
+      ok(isCommandLineAutoApproved("ls -la"));
+      ok(!isCommandLineAutoApproved("random command"));
+    });
+  });
+  suite("reasons", () => {
+    async function getCommandReason(command) {
+      return (await commandLineAutoApprover.isCommandAutoApproved(command, shell, os, void 0)).reason;
+    }
+    __name(getCommandReason, "getCommandReason");
+    function getCommandLineReason(commandLine) {
+      return commandLineAutoApprover.isCommandLineAutoApproved(commandLine).reason;
+    }
+    __name(getCommandLineReason, "getCommandLineReason");
+    suite("command", () => {
+      test("approved", async () => {
+        setAutoApprove({ echo: true });
+        strictEqual(await getCommandReason("echo hello"), `Command 'echo hello' is approved by allow list rule: echo`);
+      });
+      test("not approved", async () => {
+        setAutoApprove({ echo: false });
+        strictEqual(await getCommandReason("echo hello"), `Command 'echo hello' is denied by deny list rule: echo`);
+      });
+      test("no match", async () => {
+        setAutoApprove({});
+        strictEqual(await getCommandReason("echo hello"), `Command 'echo hello' has no matching auto approve entries`);
+      });
+    });
+    suite("command line", () => {
+      test("approved", async () => {
+        setAutoApproveWithCommandLine({ echo: { approve: true, matchCommandLine: true } });
+        strictEqual(getCommandLineReason("echo hello"), `Command line 'echo hello' is approved by allow list rule: echo`);
+      });
+      test("not approved", async () => {
+        setAutoApproveWithCommandLine({ echo: { approve: false, matchCommandLine: true } });
+        strictEqual(getCommandLineReason("echo hello"), `Command line 'echo hello' is denied by deny list rule: echo`);
+      });
+      test("no match", async () => {
+        setAutoApproveWithCommandLine({});
+        strictEqual(getCommandLineReason("echo hello"), `Command line 'echo hello' has no matching auto approve entries`);
+      });
+    });
+  });
+  suite("isDefaultRule logic", () => {
+    async function getIsDefaultRule(command) {
+      const rule = (await commandLineAutoApprover.isCommandAutoApproved(command, shell, os, void 0)).rule;
+      return isAutoApproveRule(rule) ? rule.isDefaultRule : void 0;
+    }
+    __name(getIsDefaultRule, "getIsDefaultRule");
+    function getCommandLineIsDefaultRule(commandLine) {
+      const rule = commandLineAutoApprover.isCommandLineAutoApproved(commandLine).rule;
+      return isAutoApproveRule(rule) ? rule.isDefaultRule : void 0;
+    }
+    __name(getCommandLineIsDefaultRule, "getCommandLineIsDefaultRule");
+    function setAutoApproveWithDefaults(userConfig, defaultConfig) {
+      configurationService.setUserConfiguration("chat.tools.terminal.autoApprove", userConfig);
+      const originalInspect = configurationService.inspect;
+      const originalGetValue = configurationService.getValue;
+      configurationService.inspect = (key) => {
+        if (key === "chat.tools.terminal.autoApprove") {
+          return {
+            default: { value: defaultConfig },
+            user: { value: userConfig },
+            workspace: void 0,
+            workspaceFolder: void 0,
+            application: void 0,
+            policy: void 0,
+            memory: void 0,
+            value: { ...defaultConfig, ...userConfig }
+          };
+        }
+        return originalInspect.call(configurationService, key);
+      };
+      configurationService.getValue = (key) => {
+        if (key === "chat.tools.terminal.autoApprove") {
+          return { ...defaultConfig, ...userConfig };
+        }
+        return originalGetValue.call(configurationService, key);
+      };
+      configurationService.onDidChangeConfigurationEmitter.fire({
+        affectsConfiguration: /* @__PURE__ */ __name(() => true, "affectsConfiguration"),
+        affectedKeys: /* @__PURE__ */ new Set([
+          "chat.tools.terminal.autoApprove"
+          /* TerminalChatAgentToolsSettingId.AutoApprove */
+        ]),
+        source: 2,
+        change: null
+      });
+    }
+    __name(setAutoApproveWithDefaults, "setAutoApproveWithDefaults");
+    function setAutoApproveWithDefaultsCommandLine(userConfig, defaultConfig) {
+      configurationService.setUserConfiguration("chat.tools.terminal.autoApprove", userConfig);
+      const originalInspect = configurationService.inspect;
+      const originalGetValue = configurationService.getValue;
+      configurationService.inspect = (key) => {
+        if (key === "chat.tools.terminal.autoApprove") {
+          return {
+            default: { value: defaultConfig },
+            user: { value: userConfig },
+            workspace: void 0,
+            workspaceFolder: void 0,
+            application: void 0,
+            policy: void 0,
+            memory: void 0,
+            value: { ...defaultConfig, ...userConfig }
+          };
+        }
+        return originalInspect.call(configurationService, key);
+      };
+      configurationService.getValue = (key) => {
+        if (key === "chat.tools.terminal.autoApprove") {
+          return { ...defaultConfig, ...userConfig };
+        }
+        return originalGetValue.call(configurationService, key);
+      };
+      configurationService.onDidChangeConfigurationEmitter.fire({
+        affectsConfiguration: /* @__PURE__ */ __name(() => true, "affectsConfiguration"),
+        affectedKeys: /* @__PURE__ */ new Set([
+          "chat.tools.terminal.autoApprove"
+          /* TerminalChatAgentToolsSettingId.AutoApprove */
+        ]),
+        source: 2,
+        change: null
+      });
+    }
+    __name(setAutoApproveWithDefaultsCommandLine, "setAutoApproveWithDefaultsCommandLine");
+    test("should correctly identify default rules vs user-defined rules", async () => {
+      setAutoApproveWithDefaults({ "echo": true, "ls": true, "pwd": false }, { "echo": true, "cat": true });
+      strictEqual(await getIsDefaultRule("echo hello"), true, "echo is in both default and user config with same value - should be marked as default");
+      strictEqual(await getIsDefaultRule("ls -la"), false, "ls is only in user config - should be marked as user-defined");
+      strictEqual(await getIsDefaultRule("pwd"), false, "pwd is only in user config - should be marked as user-defined");
+      strictEqual(await getIsDefaultRule("cat file.txt"), true, "cat is in both default and user config with same value - should be marked as default");
+    });
+    test("should mark as default when command is only in default config but not in user config", async () => {
+      setAutoApproveWithDefaults(
+        { "echo": true, "ls": true },
+        // User config (cat is NOT here)
+        { "echo": true, "cat": true }
+        // Default config (cat IS here)
+      );
+      strictEqual((await commandLineAutoApprover.isCommandAutoApproved("echo", shell, os, void 0)).result, "approved", "echo should be approved");
+      strictEqual((await commandLineAutoApprover.isCommandAutoApproved("ls", shell, os, void 0)).result, "approved", "ls should be approved");
+      const catResult = await commandLineAutoApprover.isCommandAutoApproved("cat", shell, os, void 0);
+      strictEqual(catResult.result, "approved", "cat should be approved from default config");
+      strictEqual(isAutoApproveRule(catResult.rule) ? catResult.rule.isDefaultRule : void 0, true, "cat is only in default config, not in user config - should be marked as default");
+    });
+    test("should handle default rules with different values", async () => {
+      setAutoApproveWithDefaults({ "echo": true, "rm": true }, { "echo": false, "rm": true });
+      strictEqual(await getIsDefaultRule("echo hello"), false, "echo has different values in default vs user - should be marked as user-defined");
+      strictEqual(await getIsDefaultRule("rm file.txt"), true, "rm has same value in both - should be marked as default");
+    });
+    test("should handle regex patterns as default rules", async () => {
+      setAutoApproveWithDefaults({ "/^git/": true, "/^npm/": false }, { "/^git/": true, "/^docker/": true });
+      strictEqual(await getIsDefaultRule("git status"), true, "git pattern matches default - should be marked as default");
+      strictEqual(await getIsDefaultRule("npm install"), false, "npm pattern is user-only - should be marked as user-defined");
+    });
+    test("should handle mixed string and regex patterns", async () => {
+      setAutoApproveWithDefaults({ "echo": true, "/^ls/": false }, { "echo": true, "cat": true });
+      strictEqual(await getIsDefaultRule("echo hello"), true, "String pattern matching default");
+      strictEqual(await getIsDefaultRule("ls -la"), false, "Regex pattern user-defined");
+    });
+    test("should handle command line rules with isDefaultRule", async () => {
+      setAutoApproveWithDefaultsCommandLine({
+        "echo": { approve: true, matchCommandLine: true },
+        "ls": { approve: false, matchCommandLine: true }
+      }, {
+        "echo": { approve: true, matchCommandLine: true },
+        "cat": { approve: true, matchCommandLine: true }
+      });
+      strictEqual(getCommandLineIsDefaultRule("echo hello world"), true, "echo matches default config exactly using structural equality - should be marked as default");
+      strictEqual(getCommandLineIsDefaultRule("ls -la"), false, "ls is user-defined only - should be marked as user-defined");
+    });
+    test("should handle command line rules with different matchCommandLine values", async () => {
+      setAutoApproveWithDefaultsCommandLine({
+        "echo": { approve: true, matchCommandLine: true },
+        "ls": { approve: true, matchCommandLine: false }
+      }, {
+        "echo": { approve: true, matchCommandLine: false },
+        "ls": { approve: true, matchCommandLine: false }
+      });
+      strictEqual(getCommandLineIsDefaultRule("echo hello"), false, "echo has different matchCommandLine value - should be user-defined");
+      strictEqual(getCommandLineIsDefaultRule("ls -la"), void 0, "ls matches exactly - should be default (but won't match command line check since matchCommandLine is false)");
+    });
+    test("should handle boolean vs object format consistency", async () => {
+      setAutoApproveWithDefaultsCommandLine({
+        "echo": true,
+        "ls": { approve: true, matchCommandLine: true }
+      }, {
+        "echo": true,
+        "ls": { approve: true, matchCommandLine: true }
+      });
+      strictEqual(await getIsDefaultRule("echo hello"), true, "Boolean format matching - should be default");
+      strictEqual(getCommandLineIsDefaultRule("ls -la"), true, "Object format matching using structural equality - should be default");
+    });
+    test("should return undefined for noMatch cases", async () => {
+      setAutoApproveWithDefaults({ "echo": true }, { "cat": true });
+      strictEqual(await getIsDefaultRule("unknown-command"), void 0, "Command that matches neither user nor default config");
+      strictEqual(getCommandLineIsDefaultRule("unknown-command"), void 0, "Command that matches neither user nor default config");
+    });
+    test("should handle empty configurations", async () => {
+      setAutoApproveWithDefaults({}, {});
+      strictEqual(await getIsDefaultRule("echo hello"), void 0);
+      strictEqual(getCommandLineIsDefaultRule("echo hello"), void 0);
+    });
+    test("should handle only default config with no user overrides", async () => {
+      setAutoApproveWithDefaults({}, { "echo": true, "ls": false });
+      strictEqual(await getIsDefaultRule("echo hello"), true, "Commands in default config should be marked as default rules even with empty user config");
+      strictEqual(await getIsDefaultRule("ls -la"), true, "Commands in default config should be marked as default rules even with empty user config");
+    });
+    test("should handle complex nested object rules", async () => {
+      setAutoApproveWithDefaultsCommandLine({
+        "npm": { approve: true, matchCommandLine: true },
+        "git": { approve: false, matchCommandLine: false }
+      }, {
+        "npm": { approve: true, matchCommandLine: true },
+        "docker": { approve: true, matchCommandLine: true }
+      });
+      strictEqual(getCommandLineIsDefaultRule("npm install"), true, "npm matches default exactly using structural equality - should be default");
+      strictEqual(getCommandLineIsDefaultRule("git status"), void 0, "git is user-defined - should be user-defined (but won't match command line since matchCommandLine is false)");
+    });
+    test("should handle PowerShell case-insensitive matching with defaults", async () => {
+      shell = "pwsh";
+      os = 1;
+      setAutoApproveWithDefaults({ "Get-Process": true }, { "Get-Process": true });
+      strictEqual(await getIsDefaultRule("Get-Process"), true, "Case-insensitive PowerShell command matching default");
+      strictEqual(await getIsDefaultRule("get-process"), true, "Case-insensitive PowerShell command matching default");
+      strictEqual(await getIsDefaultRule("GET-PROCESS"), true, "Case-insensitive PowerShell command matching default");
+    });
+    test("should use structural equality for object comparison", async () => {
+      const userConfig = { "test": { approve: true, matchCommandLine: true } };
+      const defaultConfig = { "test": { approve: true, matchCommandLine: true } };
+      setAutoApproveWithDefaultsCommandLine(userConfig, defaultConfig);
+      strictEqual(getCommandLineIsDefaultRule("test command"), true, "Even though userConfig and defaultConfig are different object instances, they have the same structure and values, so should be considered default");
+    });
+    test("should detect structural differences in objects", async () => {
+      const userConfig = { "test": { approve: true, matchCommandLine: true } };
+      const defaultConfig = { "test": { approve: true, matchCommandLine: false } };
+      setAutoApproveWithDefaultsCommandLine(userConfig, defaultConfig);
+      strictEqual(getCommandLineIsDefaultRule("test command"), false, "Objects have different matchCommandLine values, so should be user-defined");
+    });
+    test("should handle mixed types correctly", async () => {
+      const userConfig = {
+        "cmd1": true,
+        "cmd2": { approve: false, matchCommandLine: true }
+      };
+      const defaultConfig = {
+        "cmd1": true,
+        "cmd2": { approve: false, matchCommandLine: true }
+      };
+      setAutoApproveWithDefaultsCommandLine(userConfig, defaultConfig);
+      strictEqual(await getIsDefaultRule("cmd1 arg"), true, "Boolean type should match default");
+      strictEqual(getCommandLineIsDefaultRule("cmd2 arg"), true, "Object type should match default using structural equality (even though it's a deny rule)");
+    });
+  });
+  suite("ignoreDefaultAutoApproveRules", () => {
+    function setAutoApproveWithDefaults(userConfig, defaultConfig) {
+      configurationService.setUserConfiguration("chat.tools.terminal.autoApprove", userConfig);
+      const originalInspect = configurationService.inspect;
+      const originalGetValue = configurationService.getValue;
+      configurationService.inspect = (key) => {
+        if (key === "chat.tools.terminal.autoApprove") {
+          return {
+            default: { value: defaultConfig },
+            user: { value: userConfig },
+            workspace: void 0,
+            workspaceFolder: void 0,
+            application: void 0,
+            policy: void 0,
+            memory: void 0,
+            value: { ...defaultConfig, ...userConfig }
+          };
+        }
+        return originalInspect.call(configurationService, key);
+      };
+      configurationService.getValue = (key) => {
+        if (key === "chat.tools.terminal.autoApprove") {
+          return { ...defaultConfig, ...userConfig };
+        }
+        return originalGetValue.call(configurationService, key);
+      };
+      configurationService.onDidChangeConfigurationEmitter.fire({
+        affectsConfiguration: /* @__PURE__ */ __name(() => true, "affectsConfiguration"),
+        affectedKeys: /* @__PURE__ */ new Set([
+          "chat.tools.terminal.autoApprove"
+          /* TerminalChatAgentToolsSettingId.AutoApprove */
+        ]),
+        source: 2,
+        change: null
+      });
+    }
+    __name(setAutoApproveWithDefaults, "setAutoApproveWithDefaults");
+    function setIgnoreDefaultAutoApproveRules(value) {
+      setConfig("chat.tools.terminal.ignoreDefaultAutoApproveRules", value);
+    }
+    __name(setIgnoreDefaultAutoApproveRules, "setIgnoreDefaultAutoApproveRules");
+    test("should include default rules when ignoreDefaultAutoApproveRules is false (default behavior)", async () => {
+      setAutoApproveWithDefaults({ "ls": true }, { "echo": true, "cat": true });
+      setIgnoreDefaultAutoApproveRules(false);
+      ok(await isAutoApproved("ls -la"), "User-defined rule should work");
+      ok(await isAutoApproved("echo hello"), "Default rule should work when not ignored");
+      ok(await isAutoApproved("cat file.txt"), "Default rule should work when not ignored");
+    });
+    test("should exclude default rules when ignoreDefaultAutoApproveRules is true", async () => {
+      setAutoApproveWithDefaults({ "ls": true }, { "echo": true, "cat": true });
+      setIgnoreDefaultAutoApproveRules(true);
+      ok(await isAutoApproved("ls -la"), "User-defined rule should still work");
+      ok(!await isAutoApproved("echo hello"), "Default rule should be ignored");
+      ok(!await isAutoApproved("cat file.txt"), "Default rule should be ignored");
+    });
+  });
+});
+//# sourceMappingURL=commandLineAutoApprover.test.js.map

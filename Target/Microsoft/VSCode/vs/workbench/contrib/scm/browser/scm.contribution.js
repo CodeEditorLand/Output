@@ -1,1 +1,692 @@
-import{localize as e,localize2 as v}from"../../../../nls.js";import{$jm as d}from"../../../../platform/registry/common/platform.js";import{$2N as W,Extensions as P}from"../../../common/contributions.js";import{$syc as U}from"./quickDiffDecorator.js";import{$iR as j,$mR as f,$jR as a,$nR as K,$kR as O,$lR as L}from"../common/scm.js";import{$sL as M,$qL as g,$wL as z,$vL as _}from"../../../../platform/actions/common/actions.js";import{$uyc as J,$tyc as Q}from"./activity.js";import{$lm as X}from"../../../../platform/configuration/common/configurationRegistry.js";import{$ro as b,$0n as t}from"../../../../platform/contextkey/common/contextkey.js";import{$vo as N,$uo as $}from"../../../../platform/commands/common/commands.js";import{$mL as c}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$WC as R}from"../../../../platform/instantiation/common/extensions.js";import{$vyc as Y}from"../common/scmService.js";import{Extensions as G}from"../../../common/views.js";import{$wyc as Z}from"./scmViewPaneContainer.js";import{$Kj as S}from"../../../../platform/instantiation/common/descriptors.js";import{$IG as ee}from"../../../../editor/common/languages/modesRegistry.js";import{$bk as H}from"../../../../base/common/codicons.js";import{$gu as te}from"../../../../platform/theme/common/iconRegistry.js";import{$Jyc as y,$Kyc as ne}from"./scmViewPane.js";import{$Dyc as ie,$Eyc as oe}from"./scmViewService.js";import{$Myc as re}from"./scmRepositoriesViewPane.js";import{$Mj as se}from"../../../../platform/instantiation/common/instantiation.js";import{$mnb as T}from"../../../../editor/contrib/suggest/browser/suggest.js";import{$Bnb as ce}from"../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionContextKeys.js";import{$Oyc as le,$Nyc as w}from"../../workspace/common/workspace.js";import{$t5b as me}from"../common/quickDiff.js";import{$Pyc as ae}from"../common/quickDiffService.js";import{$98 as I,$08 as ue}from"../../../../base/browser/dom.js";import{$Ryc as E}from"./workingSet.js";import{$gBb as V}from"../../../services/views/common/viewsService.js";import{$Prb as de,$9rb as pe}from"../../../../platform/list/browser/listService.js";import{$rXb as ge}from"./util.js";import{$Syc as fe}from"./scmHistoryViewPane.js";import{$J5b as ye,$I5b as we}from"./quickDiffModel.js";import{$Wyc as q}from"./quickDiffWidget.js";import{$1db as he}from"../../../../editor/browser/editorExtensions.js";import{$rO as Ce,$wP as ve}from"../../../common/contextkeys.js";import{$Dvb as be}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$2yc as $e}from"./scmAccessibilityHelp.js";import{EditorContextKeys as Re}from"../../../../editor/common/editorContextKeys.js";import{$fPb as A}from"./scmHistoryChatContext.js";import{ChatContextKeys as k}from"../../chat/common/actions/chatContextKeys.js";import{$NPb as Se}from"../../chat/browser/actions/chatActions.js";import Ie from"../../../../platform/product/common/product.js";ee.registerLanguage({id:"scminput",extensions:[],aliases:[],mimetypes:["text/x-scm-input"]});d.as(P.Workbench).registerWorkbenchContribution(U,3);he(q.ID,q,1);const x=te("source-control-view-icon",H.sourceControl,e(12079,null)),h=d.as(G.ViewContainersRegistry).registerViewContainer({id:j,title:v(12163,"Source Control"),ctorDescriptor:new S(Z),storageId:"workbench.scm.views.state",icon:x,alwaysUseContainerInfo:!0,order:2,hideIfEmpty:!0},0,{doNotRegisterOpenCommand:!0}),u=d.as(G.ViewsRegistry),C=e(12080,null);u.registerViewWelcomeContent(a,{content:e(12081,null),when:"default"});u.registerViewWelcomeContent(a,{content:e(12082,null),when:t.and(t.equals("scm.providerCount",0),w.IsEnabled,w.IsTrusted.toNegated())});u.registerViewWelcomeContent(a,{content:`[${e(12083,null)}](command:${le})`,when:t.and(t.equals("scm.providerCount",0),w.IsEnabled,w.IsTrusted.toNegated())});u.registerViewWelcomeContent(L,{content:e(12084,null),when:y.SCMHistoryItemCount.isEqualTo(0)});u.registerViews([{id:O,containerTitle:C,name:v(12164,"Repositories"),singleViewPaneContainerTitle:e(12085,null),ctorDescriptor:new S(re),canToggleVisibility:!0,hideByDefault:!0,canMoveView:!0,weight:20,order:0,when:t.and(t.has("scm.providerCount"),t.notEquals("scm.providerCount",0)),containerIcon:x}],h);u.registerViews([{id:a,containerTitle:C,name:v(12165,"Changes"),singleViewPaneContainerTitle:C,ctorDescriptor:new S(ne),canToggleVisibility:!0,canMoveView:!0,weight:40,order:1,containerIcon:x,openCommandActionDescriptor:{id:h.id,mnemonicTitle:e(12086,null),keybindings:{primary:0,win:{primary:3109},linux:{primary:3109},mac:{primary:1317}},order:2}}],h);u.registerViews([{id:L,containerTitle:C,name:v(12166,"Graph"),singleViewPaneContainerTitle:e(12087,null),ctorDescriptor:new S(fe),canToggleVisibility:!0,canMoveView:!0,weight:40,order:2,when:t.and(t.has("scm.historyProviderCount"),t.notEquals("scm.historyProviderCount",0)),containerIcon:x}],h);d.as(P.Workbench).registerWorkbenchContribution(Q,3);d.as(P.Workbench).registerWorkbenchContribution(J,3);W(E.ID,E,3);W(A.ID,A,3);d.as(X.Configuration).registerConfiguration({id:"scm",order:5,title:e(12088,null),type:"object",scope:5,properties:{"scm.diffDecorations":{type:"string",enum:["all","gutter","overview","minimap","none"],enumDescriptions:[e(12089,null),e(12090,null),e(12091,null),e(12092,null),e(12093,null)],default:"all",description:e(12094,null)},"scm.diffDecorationsGutterWidth":{type:"number",enum:[1,2,3,4,5],default:3,description:e(12095,null)},"scm.diffDecorationsGutterVisibility":{type:"string",enum:["always","hover"],enumDescriptions:[e(12096,null),e(12097,null)],description:e(12098,null),default:"always"},"scm.diffDecorationsGutterAction":{type:"string",enum:["diff","none"],enumDescriptions:[e(12099,null),e(12100,null)],description:e(12101,null),default:"diff"},"scm.diffDecorationsGutterPattern":{type:"object",description:e(12102,null),additionalProperties:!1,properties:{added:{type:"boolean",description:e(12103,null)},modified:{type:"boolean",description:e(12104,null)}},default:{added:!1,modified:!0}},"scm.diffDecorationsIgnoreTrimWhitespace":{type:"string",enum:["true","false","inherit"],enumDescriptions:[e(12105,null),e(12106,null),e(12107,null)],description:e(12108,null),default:"false"},"scm.alwaysShowActions":{type:"boolean",description:e(12109,null),default:!1},"scm.countBadge":{type:"string",enum:["all","focused","off"],enumDescriptions:[e(12110,null),e(12111,null),e(12112,null)],description:e(12113,null),default:"all"},"scm.providerCountBadge":{type:"string",enum:["hidden","auto","visible"],enumDescriptions:[e(12114,null),e(12115,null),e(12116,null)],markdownDescription:e(12117,null,"`#scm.alwaysShowRepositories#`"),default:"hidden"},"scm.defaultViewMode":{type:"string",enum:["tree","list"],enumDescriptions:[e(12118,null),e(12119,null)],description:e(12120,null),default:"list"},"scm.defaultViewSortKey":{type:"string",enum:["name","path","status"],enumDescriptions:[e(12121,null),e(12122,null),e(12123,null)],description:e(12124,null),default:"path"},"scm.autoReveal":{type:"boolean",description:e(12125,null),default:!0},"scm.inputFontFamily":{type:"string",markdownDescription:e(12126,null),default:"default"},"scm.inputFontSize":{type:"number",markdownDescription:e(12127,null),default:13},"scm.inputMaxLineCount":{type:"number",markdownDescription:e(12128,null),minimum:1,maximum:50,default:10},"scm.inputMinLineCount":{type:"number",markdownDescription:e(12129,null),minimum:1,maximum:50,default:1},"scm.alwaysShowRepositories":{type:"boolean",markdownDescription:e(12130,null),default:!1},"scm.repositories.sortOrder":{type:"string",enum:["discovery time","name","path"],enumDescriptions:[e(12131,null),e(12132,null),e(12133,null)],description:e(12134,null),default:"discovery time"},"scm.repositories.visible":{type:"number",description:e(12135,null),default:10},"scm.repositories.selectionMode":{type:"string",enum:["multiple","single"],enumDescriptions:[e(12136,null),e(12137,null)],description:e(12138,null),default:"multiple"},"scm.repositories.explorer":{type:"boolean",markdownDescription:e(12139,null,"`#scm.repositories.selectionMode#`","single"),default:!1,tags:["experimental"]},"scm.showActionButton":{type:"boolean",markdownDescription:e(12140,null),default:!0},"scm.showInputActionButton":{type:"boolean",markdownDescription:e(12141,null),default:!0},"scm.workingSets.enabled":{type:"boolean",description:e(12142,null),default:!1},"scm.workingSets.default":{type:"string",enum:["empty","current"],enumDescriptions:[e(12143,null),e(12144,null)],description:e(12145,null),default:"current"},"scm.compactFolders":{type:"boolean",description:e(12146,null),default:!0},"scm.graph.pageOnScroll":{type:"boolean",description:e(12147,null),default:!0},"scm.graph.pageSize":{type:"number",description:e(12148,null),minimum:1,maximum:1e3,default:50},"scm.graph.badges":{type:"string",enum:["all","filter"],enumDescriptions:[e(12149,null),e(12150,null)],description:e(12151,null),default:"filter"},"scm.graph.showIncomingChanges":{type:"boolean",description:e(12152,null),default:!0},"scm.graph.showOutgoingChanges":{type:"boolean",description:e(12153,null),default:!0}}});c.registerCommandAndKeybindingRule({id:"scm.acceptInput",metadata:{description:e(12154,null),args:[]},weight:200,when:t.has("scmRepository"),primary:2051,handler:n=>{const l=n.get(b).getContext(I()).getValue("scmRepository");if(!l)return Promise.resolve(null);const s=n.get(f).getRepository(l);if(!s?.provider.acceptInputCommand)return Promise.resolve(null);const m=s.provider.acceptInputCommand.id,p=s.provider.acceptInputCommand.arguments;return n.get($).executeCommand(m,...p||[])}});c.registerCommandAndKeybindingRule({id:"scm.clearValidation",weight:200,when:t.and(t.has("scmRepository"),y.SCMInputHasValidationMessage),primary:9,handler:async n=>{n.get(K).activeRepository.get()?.repository.input.clearValidation()}});c.registerCommandAndKeybindingRule({id:"scm.clearInput",weight:200,when:t.and(t.has("scmRepository"),T.Visible.toNegated(),ce.inlineSuggestionVisible.toNegated(),y.SCMInputHasValidationMessage.toNegated(),Re.hasNonEmptySelection.toNegated()),primary:9,handler:async n=>{const o=n.get(f),r=n.get(b).getContext(I()).getValue("scmRepository");(r?o.getRepository(r):void 0)?.input.setValue("",!0)}});const B={description:{description:e(12155,null),args:[]},weight:200,handler:n=>{const o=n.get(b),i=n.get(f),r=o.getContext(I()).getValue("scmRepository");(r?i.getRepository(r):void 0)?.input.showNextHistoryValue()}},F={description:{description:e(12156,null),args:[]},weight:200,handler:n=>{const o=n.get(b),i=n.get(f),r=o.getContext(I()).getValue("scmRepository");(r?i.getRepository(r):void 0)?.input.showPreviousHistoryValue()}};c.registerCommandAndKeybindingRule({...B,id:"scm.viewNextCommit",when:t.and(t.has("scmRepository"),t.has("scmInputIsInLastPosition"),T.Visible.toNegated()),primary:18});c.registerCommandAndKeybindingRule({...F,id:"scm.viewPreviousCommit",when:t.and(t.has("scmRepository"),t.has("scmInputIsInFirstPosition"),T.Visible.toNegated()),primary:16});c.registerCommandAndKeybindingRule({...B,id:"scm.forceViewNextCommit",when:t.has("scmRepository"),primary:530});c.registerCommandAndKeybindingRule({...F,id:"scm.forceViewPreviousCommit",when:t.has("scmRepository"),primary:528});N.registerCommand("scm.openInIntegratedTerminal",async(n,...o)=>{if(!o||o.length===0)return;const i=n.get($),l=n.get(de);let r=o.length===1?o[0]:void 0;if(!r){const s=l.lastFocusedList,m=s?.getHTMLElement();if(s instanceof pe&&m&&ue(m)){const[p]=s.getFocus(),D=s.element(p);ge(D)&&(r=D.provider)}}r?.rootUri&&await i.executeCommand("openInIntegratedTerminal",r.rootUri)});N.registerCommand("scm.openInTerminal",async(n,o)=>{if(!o||!o.rootUri)return;await n.get($).executeCommand("openInTerminal",o.rootUri)});N.registerCommand("scm.setActiveProvider",async n=>{const o=n.get(se),i=n.get(K),l=e(12157,null),r=e(12158,null),m=await o.createInstance(ie,l,r).pickRepository();if(m?.repository){const p=m.repository!=="auto"?m.repository:void 0;i.pinActiveRepository(p)}});M.appendMenuItem(g.SCMSourceControl,{group:"99_terminal",command:{id:"scm.openInTerminal",title:e(12159,null)},when:t.and(Ce.isEqualTo(""),t.equals("scmProviderHasRootUri",!0),t.or(t.equals("config.terminal.sourceControlRepositoriesKind","external"),t.equals("config.terminal.sourceControlRepositoriesKind","both")))});M.appendMenuItem(g.SCMSourceControl,{group:"99_terminal",command:{id:"scm.openInIntegratedTerminal",title:e(12160,null)},when:t.and(t.equals("scmProviderHasRootUri",!0),t.or(t.equals("config.terminal.sourceControlRepositoriesKind","integrated"),t.equals("config.terminal.sourceControlRepositoriesKind","both")))});c.registerCommandAndKeybindingRule({id:"workbench.scm.action.focusPreviousInput",weight:200,when:y.RepositoryVisibilityCount.notEqualsTo(0),handler:async n=>{const i=await n.get(V).openView(a);i&&i.focusPreviousInput()}});c.registerCommandAndKeybindingRule({id:"workbench.scm.action.focusNextInput",weight:200,when:y.RepositoryVisibilityCount.notEqualsTo(0),handler:async n=>{const i=await n.get(V).openView(a);i&&i.focusNextInput()}});c.registerCommandAndKeybindingRule({id:"workbench.scm.action.focusPreviousResourceGroup",weight:200,handler:async n=>{const i=await n.get(V).openView(a);i&&i.focusPreviousResourceGroup()}});c.registerCommandAndKeybindingRule({id:"workbench.scm.action.focusNextResourceGroup",weight:200,handler:async n=>{const i=await n.get(V).openView(a);i&&i.focusNextResourceGroup()}});M.appendMenuItem(g.EditorLineNumberContext,{title:e(12161,null),submenu:g.SCMQuickDiffDecorations,when:t.or(t.equals("config.scm.diffDecorations","all"),t.equals("config.scm.diffDecorations","gutter")),group:"9_quickDiffDecorations"});z(class extends _{constructor(){super({id:"scm.editor.triggerSetup",title:e(12162,null),icon:H.chatSparkle,f1:!1,menu:{id:g.EditorContent,when:t.and(k.Setup.hidden.negate(),k.Setup.disabled.negate(),k.Setup.installed.negate(),t.in(ve.Resource.key,"git.mergeChanges"),t.equals("git.activeResourceHasMergeConflicts",!0))}})}async run(n,...o){const i=n.get($);if(!await i.executeCommand(Se))return;const r=Ie.defaultChatAgent?.resolveMergeConflictsCommand;r&&await i.executeCommand(r,...o)}});R(f,Y,1);R(K,oe,1);R(me,ae,1);R(we,ye,1);be.register(new $e);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../nls.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { registerWorkbenchContribution2, Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { QuickDiffWorkbenchController } from "./quickDiffDecorator.js";
+import { VIEWLET_ID, ISCMService, VIEW_PANE_ID, ISCMViewService, REPOSITORIES_VIEW_PANE_ID, HISTORY_VIEW_PANE_ID } from "../common/scm.js";
+import { MenuRegistry, MenuId, registerAction2, Action2 } from "../../../../platform/actions/common/actions.js";
+import { SCMActiveResourceContextKeyController, SCMActiveRepositoryController } from "./activity.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IContextKeyService, ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { SCMService } from "../common/scmService.js";
+import { Extensions as ViewContainerExtensions } from "../../../common/views.js";
+import { SCMViewPaneContainer } from "./scmViewPaneContainer.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { ModesRegistry } from "../../../../editor/common/languages/modesRegistry.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { ContextKeys, SCMViewPane } from "./scmViewPane.js";
+import { RepositoryPicker, SCMViewService } from "./scmViewService.js";
+import { SCMRepositoriesViewPane } from "./scmRepositoriesViewPane.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Context as SuggestContext } from "../../../../editor/contrib/suggest/browser/suggest.js";
+import { InlineCompletionContextKeys } from "../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionContextKeys.js";
+import { MANAGE_TRUST_COMMAND_ID, WorkspaceTrustContext } from "../../workspace/common/workspace.js";
+import { IQuickDiffService } from "../common/quickDiff.js";
+import { QuickDiffService } from "../common/quickDiffService.js";
+import { getActiveElement, isActiveElement } from "../../../../base/browser/dom.js";
+import { SCMWorkingSetController } from "./workingSet.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IListService, WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { isSCMRepository } from "./util.js";
+import { SCMHistoryViewPane } from "./scmHistoryViewPane.js";
+import { QuickDiffModelService, IQuickDiffModelService } from "./quickDiffModel.js";
+import { QuickDiffEditorController } from "./quickDiffWidget.js";
+import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { RemoteNameContext, ResourceContextKey } from "../../../common/contextkeys.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { SCMAccessibilityHelp } from "./scmAccessibilityHelp.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { SCMHistoryItemContextContribution } from "./scmHistoryChatContext.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID } from "../../chat/browser/actions/chatActions.js";
+import product from "../../../../platform/product/common/product.js";
+ModesRegistry.registerLanguage({
+  id: "scminput",
+  extensions: [],
+  aliases: [],
+  // hide from language selector
+  mimetypes: ["text/x-scm-input"]
+});
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  QuickDiffWorkbenchController,
+  3
+  /* LifecyclePhase.Restored */
+);
+registerEditorContribution(
+  QuickDiffEditorController.ID,
+  QuickDiffEditorController,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+const sourceControlViewIcon = registerIcon("source-control-view-icon", Codicon.sourceControl, localize("sourceControlViewIcon", "View icon of the Source Control view."));
+const viewContainer = Registry.as(ViewContainerExtensions.ViewContainersRegistry).registerViewContainer({
+  id: VIEWLET_ID,
+  title: localize2("source control", "Source Control"),
+  ctorDescriptor: new SyncDescriptor(SCMViewPaneContainer),
+  storageId: "workbench.scm.views.state",
+  icon: sourceControlViewIcon,
+  alwaysUseContainerInfo: true,
+  order: 2,
+  hideIfEmpty: true
+}, 0, { doNotRegisterOpenCommand: true });
+const viewsRegistry = Registry.as(ViewContainerExtensions.ViewsRegistry);
+const containerTitle = localize("source control view", "Source Control");
+viewsRegistry.registerViewWelcomeContent(VIEW_PANE_ID, {
+  content: localize("no open repo", "No source control providers registered."),
+  when: "default"
+});
+viewsRegistry.registerViewWelcomeContent(VIEW_PANE_ID, {
+  content: localize("no open repo in an untrusted workspace", "None of the registered source control providers work in Restricted Mode."),
+  when: ContextKeyExpr.and(ContextKeyExpr.equals("scm.providerCount", 0), WorkspaceTrustContext.IsEnabled, WorkspaceTrustContext.IsTrusted.toNegated())
+});
+viewsRegistry.registerViewWelcomeContent(VIEW_PANE_ID, {
+  content: `[${localize("manageWorkspaceTrustAction", "Manage Workspace Trust")}](command:${MANAGE_TRUST_COMMAND_ID})`,
+  when: ContextKeyExpr.and(ContextKeyExpr.equals("scm.providerCount", 0), WorkspaceTrustContext.IsEnabled, WorkspaceTrustContext.IsTrusted.toNegated())
+});
+viewsRegistry.registerViewWelcomeContent(HISTORY_VIEW_PANE_ID, {
+  content: localize("no history items", "The selected source control provider does not have any source control history items."),
+  when: ContextKeys.SCMHistoryItemCount.isEqualTo(0)
+});
+viewsRegistry.registerViews([{
+  id: REPOSITORIES_VIEW_PANE_ID,
+  containerTitle,
+  name: localize2("scmRepositories", "Repositories"),
+  singleViewPaneContainerTitle: localize("source control repositories", "Source Control Repositories"),
+  ctorDescriptor: new SyncDescriptor(SCMRepositoriesViewPane),
+  canToggleVisibility: true,
+  hideByDefault: true,
+  canMoveView: true,
+  weight: 20,
+  order: 0,
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scm.providerCount"), ContextKeyExpr.notEquals("scm.providerCount", 0)),
+  // readonly when = ContextKeyExpr.or(ContextKeyExpr.equals('config.scm.alwaysShowProviders', true), ContextKeyExpr.and(ContextKeyExpr.notEquals('scm.providerCount', 0), ContextKeyExpr.notEquals('scm.providerCount', 1)));
+  containerIcon: sourceControlViewIcon
+}], viewContainer);
+viewsRegistry.registerViews([{
+  id: VIEW_PANE_ID,
+  containerTitle,
+  name: localize2("scmChanges", "Changes"),
+  singleViewPaneContainerTitle: containerTitle,
+  ctorDescriptor: new SyncDescriptor(SCMViewPane),
+  canToggleVisibility: true,
+  canMoveView: true,
+  weight: 40,
+  order: 1,
+  containerIcon: sourceControlViewIcon,
+  openCommandActionDescriptor: {
+    id: viewContainer.id,
+    mnemonicTitle: localize({ key: "miViewSCM", comment: ["&& denotes a mnemonic"] }, "Source &&Control"),
+    keybindings: {
+      primary: 0,
+      win: {
+        primary: 2048 | 1024 | 37
+        /* KeyCode.KeyG */
+      },
+      linux: {
+        primary: 2048 | 1024 | 37
+        /* KeyCode.KeyG */
+      },
+      mac: {
+        primary: 256 | 1024 | 37
+        /* KeyCode.KeyG */
+      }
+    },
+    order: 2
+  }
+}], viewContainer);
+viewsRegistry.registerViews([{
+  id: HISTORY_VIEW_PANE_ID,
+  containerTitle,
+  name: localize2("scmGraph", "Graph"),
+  singleViewPaneContainerTitle: localize("source control graph", "Source Control Graph"),
+  ctorDescriptor: new SyncDescriptor(SCMHistoryViewPane),
+  canToggleVisibility: true,
+  canMoveView: true,
+  weight: 40,
+  order: 2,
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scm.historyProviderCount"), ContextKeyExpr.notEquals("scm.historyProviderCount", 0)),
+  containerIcon: sourceControlViewIcon
+}], viewContainer);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  SCMActiveRepositoryController,
+  3
+  /* LifecyclePhase.Restored */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  SCMActiveResourceContextKeyController,
+  3
+  /* LifecyclePhase.Restored */
+);
+registerWorkbenchContribution2(
+  SCMWorkingSetController.ID,
+  SCMWorkingSetController,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  SCMHistoryItemContextContribution.ID,
+  SCMHistoryItemContextContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  id: "scm",
+  order: 5,
+  title: localize("scmConfigurationTitle", "Source Control"),
+  type: "object",
+  scope: 5,
+  properties: {
+    "scm.diffDecorations": {
+      type: "string",
+      enum: ["all", "gutter", "overview", "minimap", "none"],
+      enumDescriptions: [
+        localize("scm.diffDecorations.all", "Show the diff decorations in all available locations."),
+        localize("scm.diffDecorations.gutter", "Show the diff decorations only in the editor gutter."),
+        localize("scm.diffDecorations.overviewRuler", "Show the diff decorations only in the overview ruler."),
+        localize("scm.diffDecorations.minimap", "Show the diff decorations only in the minimap."),
+        localize("scm.diffDecorations.none", "Do not show the diff decorations.")
+      ],
+      default: "all",
+      description: localize("diffDecorations", "Controls diff decorations in the editor.")
+    },
+    "scm.diffDecorationsGutterWidth": {
+      type: "number",
+      enum: [1, 2, 3, 4, 5],
+      default: 3,
+      description: localize("diffGutterWidth", "Controls the width(px) of diff decorations in gutter (added & modified).")
+    },
+    "scm.diffDecorationsGutterVisibility": {
+      type: "string",
+      enum: ["always", "hover"],
+      enumDescriptions: [
+        localize("scm.diffDecorationsGutterVisibility.always", "Show the diff decorator in the gutter at all times."),
+        localize("scm.diffDecorationsGutterVisibility.hover", "Show the diff decorator in the gutter only on hover.")
+      ],
+      description: localize("scm.diffDecorationsGutterVisibility", "Controls the visibility of the Source Control diff decorator in the gutter."),
+      default: "always"
+    },
+    "scm.diffDecorationsGutterAction": {
+      type: "string",
+      enum: ["diff", "none"],
+      enumDescriptions: [
+        localize("scm.diffDecorationsGutterAction.diff", "Show the inline diff Peek view on click."),
+        localize("scm.diffDecorationsGutterAction.none", "Do nothing.")
+      ],
+      description: localize("scm.diffDecorationsGutterAction", "Controls the behavior of Source Control diff gutter decorations."),
+      default: "diff"
+    },
+    "scm.diffDecorationsGutterPattern": {
+      type: "object",
+      description: localize("diffGutterPattern", "Controls whether a pattern is used for the diff decorations in gutter."),
+      additionalProperties: false,
+      properties: {
+        "added": {
+          type: "boolean",
+          description: localize("diffGutterPatternAdded", "Use pattern for the diff decorations in gutter for added lines.")
+        },
+        "modified": {
+          type: "boolean",
+          description: localize("diffGutterPatternModifed", "Use pattern for the diff decorations in gutter for modified lines.")
+        }
+      },
+      default: {
+        "added": false,
+        "modified": true
+      }
+    },
+    "scm.diffDecorationsIgnoreTrimWhitespace": {
+      type: "string",
+      enum: ["true", "false", "inherit"],
+      enumDescriptions: [
+        localize("scm.diffDecorationsIgnoreTrimWhitespace.true", "Ignore leading and trailing whitespace."),
+        localize("scm.diffDecorationsIgnoreTrimWhitespace.false", "Do not ignore leading and trailing whitespace."),
+        localize("scm.diffDecorationsIgnoreTrimWhitespace.inherit", "Inherit from `diffEditor.ignoreTrimWhitespace`.")
+      ],
+      description: localize("diffDecorationsIgnoreTrimWhitespace", "Controls whether leading and trailing whitespace is ignored in Source Control diff gutter decorations."),
+      default: "false"
+    },
+    "scm.alwaysShowActions": {
+      type: "boolean",
+      description: localize("alwaysShowActions", "Controls whether inline actions are always visible in the Source Control view."),
+      default: false
+    },
+    "scm.countBadge": {
+      type: "string",
+      enum: ["all", "focused", "off"],
+      enumDescriptions: [
+        localize("scm.countBadge.all", "Show the sum of all Source Control Provider count badges."),
+        localize("scm.countBadge.focused", "Show the count badge of the focused Source Control Provider."),
+        localize("scm.countBadge.off", "Disable the Source Control count badge.")
+      ],
+      description: localize("scm.countBadge", "Controls the count badge on the Source Control icon on the Activity Bar."),
+      default: "all"
+    },
+    "scm.providerCountBadge": {
+      type: "string",
+      enum: ["hidden", "auto", "visible"],
+      enumDescriptions: [
+        localize("scm.providerCountBadge.hidden", "Hide Source Control Provider count badges."),
+        localize("scm.providerCountBadge.auto", "Only show count badge for Source Control Provider when non-zero."),
+        localize("scm.providerCountBadge.visible", "Show Source Control Provider count badges.")
+      ],
+      markdownDescription: localize("scm.providerCountBadge", "Controls the count badges on Source Control Provider headers. These headers appear in the Source Control view when there is more than one provider or when the {0} setting is enabled, and in the Source Control Repositories view.", "`#scm.alwaysShowRepositories#`"),
+      default: "hidden"
+    },
+    "scm.defaultViewMode": {
+      type: "string",
+      enum: ["tree", "list"],
+      enumDescriptions: [
+        localize("scm.defaultViewMode.tree", "Show the repository changes as a tree."),
+        localize("scm.defaultViewMode.list", "Show the repository changes as a list.")
+      ],
+      description: localize("scm.defaultViewMode", "Controls the default Source Control repository view mode."),
+      default: "list"
+    },
+    "scm.defaultViewSortKey": {
+      type: "string",
+      enum: ["name", "path", "status"],
+      enumDescriptions: [
+        localize("scm.defaultViewSortKey.name", "Sort the repository changes by file name."),
+        localize("scm.defaultViewSortKey.path", "Sort the repository changes by path."),
+        localize("scm.defaultViewSortKey.status", "Sort the repository changes by Source Control status.")
+      ],
+      description: localize("scm.defaultViewSortKey", "Controls the default Source Control repository changes sort order when viewed as a list."),
+      default: "path"
+    },
+    "scm.autoReveal": {
+      type: "boolean",
+      description: localize("autoReveal", "Controls whether the Source Control view should automatically reveal and select files when opening them."),
+      default: true
+    },
+    "scm.inputFontFamily": {
+      type: "string",
+      markdownDescription: localize("inputFontFamily", "Controls the font for the input message. Use `default` for the workbench user interface font family, `editor` for the `#editor.fontFamily#`'s value, or a custom font family."),
+      default: "default"
+    },
+    "scm.inputFontSize": {
+      type: "number",
+      markdownDescription: localize("inputFontSize", "Controls the font size for the input message in pixels."),
+      default: 13
+    },
+    "scm.inputMaxLineCount": {
+      type: "number",
+      markdownDescription: localize("inputMaxLines", "Controls the maximum number of lines that the input will auto-grow to."),
+      minimum: 1,
+      maximum: 50,
+      default: 10
+    },
+    "scm.inputMinLineCount": {
+      type: "number",
+      markdownDescription: localize("inputMinLines", "Controls the minimum number of lines that the input will auto-grow from."),
+      minimum: 1,
+      maximum: 50,
+      default: 1
+    },
+    "scm.alwaysShowRepositories": {
+      type: "boolean",
+      markdownDescription: localize("alwaysShowRepository", "Controls whether repositories should always be visible in the Source Control view."),
+      default: false
+    },
+    "scm.repositories.sortOrder": {
+      type: "string",
+      enum: ["discovery time", "name", "path"],
+      enumDescriptions: [
+        localize("scm.repositoriesSortOrder.discoveryTime", "Repositories in the Source Control Repositories view are sorted by discovery time. Repositories in the Source Control view are sorted in the order that they were selected."),
+        localize("scm.repositoriesSortOrder.name", "Repositories in the Source Control Repositories and Source Control views are sorted by repository name."),
+        localize("scm.repositoriesSortOrder.path", "Repositories in the Source Control Repositories and Source Control views are sorted by repository path.")
+      ],
+      description: localize("repositoriesSortOrder", "Controls the sort order of the repositories in the source control repositories view."),
+      default: "discovery time"
+    },
+    "scm.repositories.visible": {
+      type: "number",
+      description: localize("providersVisible", "Controls how many repositories are visible in the Source Control Repositories section. Set to 0, to be able to manually resize the view."),
+      default: 10
+    },
+    "scm.repositories.selectionMode": {
+      type: "string",
+      enum: ["multiple", "single"],
+      enumDescriptions: [
+        localize("scm.repositories.selectionMode.multiple", "Multiple repositories can be selected at the same time."),
+        localize("scm.repositories.selectionMode.single", "Only one repository can be selected at a time.")
+      ],
+      description: localize("scm.repositories.selectionMode", "Controls the selection mode of the repositories in the Source Control Repositories view."),
+      default: "multiple"
+    },
+    "scm.repositories.explorer": {
+      type: "boolean",
+      markdownDescription: localize("scm.repositories.explorer", "Controls whether to show repository artifacts in the Source Control Repositories view. This feature is experimental and only works when {0} is set to `{1}`.", "`#scm.repositories.selectionMode#`", "single"),
+      default: false,
+      tags: ["experimental"]
+    },
+    "scm.showActionButton": {
+      type: "boolean",
+      markdownDescription: localize("showActionButton", "Controls whether an action button can be shown in the Source Control view."),
+      default: true
+    },
+    "scm.showInputActionButton": {
+      type: "boolean",
+      markdownDescription: localize("showInputActionButton", "Controls whether an action button can be shown in the Source Control input."),
+      default: true
+    },
+    "scm.workingSets.enabled": {
+      type: "boolean",
+      description: localize("scm.workingSets.enabled", "Controls whether to store editor working sets when switching between source control history item groups."),
+      default: false
+    },
+    "scm.workingSets.default": {
+      type: "string",
+      enum: ["empty", "current"],
+      enumDescriptions: [
+        localize("scm.workingSets.default.empty", "Use an empty working set when switching to a source control history item group that does not have a working set."),
+        localize("scm.workingSets.default.current", "Use the current working set when switching to a source control history item group that does not have a working set.")
+      ],
+      description: localize("scm.workingSets.default", "Controls the default working set to use when switching to a source control history item group that does not have a working set."),
+      default: "current"
+    },
+    "scm.compactFolders": {
+      type: "boolean",
+      description: localize("scm.compactFolders", "Controls whether the Source Control view should render folders in a compact form. In such a form, single child folders will be compressed in a combined tree element."),
+      default: true
+    },
+    "scm.graph.pageOnScroll": {
+      type: "boolean",
+      description: localize("scm.graph.pageOnScroll", "Controls whether the Source Control Graph view will load the next page of items when you scroll to the end of the list."),
+      default: true
+    },
+    "scm.graph.pageSize": {
+      type: "number",
+      description: localize("scm.graph.pageSize", "The number of items to show in the Source Control Graph view by default and when loading more items."),
+      minimum: 1,
+      maximum: 1e3,
+      default: 50
+    },
+    "scm.graph.badges": {
+      type: "string",
+      enum: ["all", "filter"],
+      enumDescriptions: [
+        localize("scm.graph.badges.all", "Show badges of all history item groups in the Source Control Graph view."),
+        localize("scm.graph.badges.filter", "Show only the badges of history item groups used as a filter in the Source Control Graph view.")
+      ],
+      description: localize("scm.graph.badges", "Controls which badges are shown in the Source Control Graph view. The badges are shown on the right side of the graph indicating the names of history item groups."),
+      default: "filter"
+    },
+    "scm.graph.showIncomingChanges": {
+      type: "boolean",
+      description: localize("scm.graph.showIncomingChanges", "Controls whether to show incoming changes in the Source Control Graph view."),
+      default: true
+    },
+    "scm.graph.showOutgoingChanges": {
+      type: "boolean",
+      description: localize("scm.graph.showOutgoingChanges", "Controls whether to show outgoing changes in the Source Control Graph view."),
+      default: true
+    }
+  }
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "scm.acceptInput",
+  metadata: { description: localize("scm accept", "Source Control: Accept Input"), args: [] },
+  weight: 200,
+  when: ContextKeyExpr.has("scmRepository"),
+  primary: 2048 | 3,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const contextKeyService = accessor.get(IContextKeyService);
+    const context = contextKeyService.getContext(getActiveElement());
+    const repositoryId = context.getValue("scmRepository");
+    if (!repositoryId) {
+      return Promise.resolve(null);
+    }
+    const scmService = accessor.get(ISCMService);
+    const repository = scmService.getRepository(repositoryId);
+    if (!repository?.provider.acceptInputCommand) {
+      return Promise.resolve(null);
+    }
+    const id = repository.provider.acceptInputCommand.id;
+    const args = repository.provider.acceptInputCommand.arguments;
+    const commandService = accessor.get(ICommandService);
+    return commandService.executeCommand(id, ...args || []);
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "scm.clearValidation",
+  weight: 200,
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), ContextKeys.SCMInputHasValidationMessage),
+  primary: 9,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const scmViewService = accessor.get(ISCMViewService);
+    scmViewService.activeRepository.get()?.repository.input.clearValidation();
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "scm.clearInput",
+  weight: 200,
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), SuggestContext.Visible.toNegated(), InlineCompletionContextKeys.inlineSuggestionVisible.toNegated(), ContextKeys.SCMInputHasValidationMessage.toNegated(), EditorContextKeys.hasNonEmptySelection.toNegated()),
+  primary: 9,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const scmService = accessor.get(ISCMService);
+    const contextKeyService = accessor.get(IContextKeyService);
+    const context = contextKeyService.getContext(getActiveElement());
+    const repositoryId = context.getValue("scmRepository");
+    const repository = repositoryId ? scmService.getRepository(repositoryId) : void 0;
+    repository?.input.setValue("", true);
+  }, "handler")
+});
+const viewNextCommitCommand = {
+  description: { description: localize("scm view next commit", "Source Control: View Next Commit"), args: [] },
+  weight: 200,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const contextKeyService = accessor.get(IContextKeyService);
+    const scmService = accessor.get(ISCMService);
+    const context = contextKeyService.getContext(getActiveElement());
+    const repositoryId = context.getValue("scmRepository");
+    const repository = repositoryId ? scmService.getRepository(repositoryId) : void 0;
+    repository?.input.showNextHistoryValue();
+  }, "handler")
+};
+const viewPreviousCommitCommand = {
+  description: { description: localize("scm view previous commit", "Source Control: View Previous Commit"), args: [] },
+  weight: 200,
+  handler: /* @__PURE__ */ __name((accessor) => {
+    const contextKeyService = accessor.get(IContextKeyService);
+    const scmService = accessor.get(ISCMService);
+    const context = contextKeyService.getContext(getActiveElement());
+    const repositoryId = context.getValue("scmRepository");
+    const repository = repositoryId ? scmService.getRepository(repositoryId) : void 0;
+    repository?.input.showPreviousHistoryValue();
+  }, "handler")
+};
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  ...viewNextCommitCommand,
+  id: "scm.viewNextCommit",
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), ContextKeyExpr.has("scmInputIsInLastPosition"), SuggestContext.Visible.toNegated()),
+  primary: 18
+  /* KeyCode.DownArrow */
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  ...viewPreviousCommitCommand,
+  id: "scm.viewPreviousCommit",
+  when: ContextKeyExpr.and(ContextKeyExpr.has("scmRepository"), ContextKeyExpr.has("scmInputIsInFirstPosition"), SuggestContext.Visible.toNegated()),
+  primary: 16
+  /* KeyCode.UpArrow */
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  ...viewNextCommitCommand,
+  id: "scm.forceViewNextCommit",
+  when: ContextKeyExpr.has("scmRepository"),
+  primary: 512 | 18
+  /* KeyCode.DownArrow */
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  ...viewPreviousCommitCommand,
+  id: "scm.forceViewPreviousCommit",
+  when: ContextKeyExpr.has("scmRepository"),
+  primary: 512 | 16
+  /* KeyCode.UpArrow */
+});
+CommandsRegistry.registerCommand("scm.openInIntegratedTerminal", async (accessor, ...providers) => {
+  if (!providers || providers.length === 0) {
+    return;
+  }
+  const commandService = accessor.get(ICommandService);
+  const listService = accessor.get(IListService);
+  let provider = providers.length === 1 ? providers[0] : void 0;
+  if (!provider) {
+    const list = listService.lastFocusedList;
+    const element = list?.getHTMLElement();
+    if (list instanceof WorkbenchList && element && isActiveElement(element)) {
+      const [index] = list.getFocus();
+      const focusedElement = list.element(index);
+      if (isSCMRepository(focusedElement)) {
+        provider = focusedElement.provider;
+      }
+    }
+  }
+  if (!provider?.rootUri) {
+    return;
+  }
+  await commandService.executeCommand("openInIntegratedTerminal", provider.rootUri);
+});
+CommandsRegistry.registerCommand("scm.openInTerminal", async (accessor, provider) => {
+  if (!provider || !provider.rootUri) {
+    return;
+  }
+  const commandService = accessor.get(ICommandService);
+  await commandService.executeCommand("openInTerminal", provider.rootUri);
+});
+CommandsRegistry.registerCommand("scm.setActiveProvider", async (accessor) => {
+  const instantiationService = accessor.get(IInstantiationService);
+  const scmViewService = accessor.get(ISCMViewService);
+  const placeHolder = localize("scmActiveRepositoryPlaceHolder", "Select the active repository, type to filter all repositories");
+  const autoQuickItemDescription = localize("scmActiveRepositoryAutoDescription", "The active repository is updated based on active editor");
+  const repositoryPicker = instantiationService.createInstance(RepositoryPicker, placeHolder, autoQuickItemDescription);
+  const result = await repositoryPicker.pickRepository();
+  if (result?.repository) {
+    const repository = result.repository !== "auto" ? result.repository : void 0;
+    scmViewService.pinActiveRepository(repository);
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.SCMSourceControl, {
+  group: "99_terminal",
+  command: {
+    id: "scm.openInTerminal",
+    title: localize("open in external terminal", "Open in External Terminal")
+  },
+  when: ContextKeyExpr.and(RemoteNameContext.isEqualTo(""), ContextKeyExpr.equals("scmProviderHasRootUri", true), ContextKeyExpr.or(ContextKeyExpr.equals("config.terminal.sourceControlRepositoriesKind", "external"), ContextKeyExpr.equals("config.terminal.sourceControlRepositoriesKind", "both")))
+});
+MenuRegistry.appendMenuItem(MenuId.SCMSourceControl, {
+  group: "99_terminal",
+  command: {
+    id: "scm.openInIntegratedTerminal",
+    title: localize("open in integrated terminal", "Open in Integrated Terminal")
+  },
+  when: ContextKeyExpr.and(ContextKeyExpr.equals("scmProviderHasRootUri", true), ContextKeyExpr.or(ContextKeyExpr.equals("config.terminal.sourceControlRepositoriesKind", "integrated"), ContextKeyExpr.equals("config.terminal.sourceControlRepositoriesKind", "both")))
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.scm.action.focusPreviousInput",
+  weight: 200,
+  when: ContextKeys.RepositoryVisibilityCount.notEqualsTo(0),
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const viewsService = accessor.get(IViewsService);
+    const scmView = await viewsService.openView(VIEW_PANE_ID);
+    if (scmView) {
+      scmView.focusPreviousInput();
+    }
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.scm.action.focusNextInput",
+  weight: 200,
+  when: ContextKeys.RepositoryVisibilityCount.notEqualsTo(0),
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const viewsService = accessor.get(IViewsService);
+    const scmView = await viewsService.openView(VIEW_PANE_ID);
+    if (scmView) {
+      scmView.focusNextInput();
+    }
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.scm.action.focusPreviousResourceGroup",
+  weight: 200,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const viewsService = accessor.get(IViewsService);
+    const scmView = await viewsService.openView(VIEW_PANE_ID);
+    if (scmView) {
+      scmView.focusPreviousResourceGroup();
+    }
+  }, "handler")
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: "workbench.scm.action.focusNextResourceGroup",
+  weight: 200,
+  handler: /* @__PURE__ */ __name(async (accessor) => {
+    const viewsService = accessor.get(IViewsService);
+    const scmView = await viewsService.openView(VIEW_PANE_ID);
+    if (scmView) {
+      scmView.focusNextResourceGroup();
+    }
+  }, "handler")
+});
+MenuRegistry.appendMenuItem(MenuId.EditorLineNumberContext, {
+  title: localize("quickDiffDecoration", "Diff Decorations"),
+  submenu: MenuId.SCMQuickDiffDecorations,
+  when: ContextKeyExpr.or(ContextKeyExpr.equals("config.scm.diffDecorations", "all"), ContextKeyExpr.equals("config.scm.diffDecorations", "gutter")),
+  group: "9_quickDiffDecorations"
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "scm.editor.triggerSetup",
+      title: localize("scmEditorResolveMergeConflict", "Resolve Conflicts with AI"),
+      icon: Codicon.chatSparkle,
+      f1: false,
+      menu: {
+        id: MenuId.EditorContent,
+        when: ContextKeyExpr.and(ChatContextKeys.Setup.hidden.negate(), ChatContextKeys.Setup.disabled.negate(), ChatContextKeys.Setup.installed.negate(), ContextKeyExpr.in(ResourceContextKey.Resource.key, "git.mergeChanges"), ContextKeyExpr.equals("git.activeResourceHasMergeConflicts", true))
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const commandService = accessor.get(ICommandService);
+    const result = await commandService.executeCommand(CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID);
+    if (!result) {
+      return;
+    }
+    const command = product.defaultChatAgent?.resolveMergeConflictsCommand;
+    if (!command) {
+      return;
+    }
+    await commandService.executeCommand(command, ...args);
+  }
+});
+registerSingleton(
+  ISCMService,
+  SCMService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  ISCMViewService,
+  SCMViewService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IQuickDiffService,
+  QuickDiffService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IQuickDiffModelService,
+  QuickDiffModelService,
+  1
+  /* InstantiationType.Delayed */
+);
+AccessibleViewRegistry.register(new SCMAccessibilityHelp());
+//# sourceMappingURL=scm.contribution.js.map

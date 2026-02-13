@@ -1,1 +1,250 @@
-import{$r9 as T,$u8 as C,h as D}from"../../../../../base/browser/dom.js";import{$Ed as L}from"../../../../../base/common/lifecycle.js";import{autorun as _,autorunWithStore as A,derived as w,derivedDisposable as F,derivedWithSetter as U,observableFromEvent as W,observableValue as P}from"../../../../../base/common/observable.js";import{$ikb as V}from"../../../../../platform/actions/browser/toolbar.js";import{$rL as B,$qL as M}from"../../../../../platform/actions/common/actions.js";import{$ro as G}from"../../../../../platform/contextkey/common/contextkey.js";import{$kkb as z}from"../../../../../platform/hover/browser/hover.js";import{$Mj as H}from"../../../../../platform/instantiation/common/instantiation.js";import{$jE as N,$kE as J}from"../../../../common/core/ranges/lineRange.js";import{$hE as S}from"../../../../common/core/ranges/offsetRange.js";import{$_D as Q}from"../../../../common/core/range.js";import{$FE as K}from"../../../../common/core/edits/textEdit.js";import{$IE as X}from"../../../../common/diff/rangeMapping.js";import{$mkb as x}from"../../../../common/model/textModelText.js";import{$nkb as Y}from"../../multiDiffEditor/utils.js";import{$Ejb as Z}from"../components/diffEditorSash.js";import{$Iib as tt,$Qib as it,$Jib as et}from"../utils.js";import{$okb as st}from"../utils/editorGutter.js";var k=function(f,i,r,s){var h=arguments.length,n=h<3?i:s===null?s=Object.getOwnPropertyDescriptor(i,r):s,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(f,i,r,s);else for(var o=f.length-1;o>=0;o--)(e=f[o])&&(n=(h<3?e(n):h>3?e(i,r,n):e(i,r))||n);return h>3&&n&&Object.defineProperty(i,r,n),n},$=function(f,i){return function(r,s){i(r,s,f)}};const I=[],y=35;let q=class extends L{constructor(i,r,s,h,n,e,o,p,m){super(),this.t=r,this.u=s,this.w=h,this.y=n,this.z=e,this.C=o,this.F=p,this.G=m,this.b=this.D(this.G.createMenu(M.DiffEditorHunkToolbar,this.F)),this.f=W(this,this.b.onDidChange,()=>this.b.getActions()),this.j=this.f.map(t=>t.length>0),this.n=w(this,t=>this.w.renderSideBySide.read(t)&&this.j.read(t)),this.width=w(this,t=>this.j.read(t)?y:0),this.q=D("div.gutter@gutter",{style:{position:"absolute",height:"100%",width:y+"px"}},[]),this.H=w(this,t=>{const a=this.t.read(t);if(!a)return;const d=a.diff.read(t)?.mappings,l=this.u.modifiedCursor.read(t);if(l)return d?.find(c=>c.lineRangeMapping.modified.contains(l.lineNumber))}),this.I=w(this,t=>{const d=this.t.read(t)?.diff.read(t);if(!d)return I;const l=this.u.modifiedSelections.read(t);if(l.every(u=>u.isEmpty()))return I;const c=new J(l.map(u=>N.fromRangeInclusive(u))),b=d.mappings.filter(u=>u.lineRangeMapping.innerChanges&&c.intersects(u.lineRangeMapping.modified)).map(u=>({mapping:u,rangeMappings:u.lineRangeMapping.innerChanges.filter(O=>l.some(R=>Q.areIntersecting(O.modifiedRange,R)))}));return b.length===0||b.every(u=>u.rangeMappings.length===0)?I:b}),this.D(et(i,this.q.root)),this.D(C(this.q.root,"click",()=>{this.u.modified.focus()})),this.D(it(this.q.root,{display:this.j.map(t=>t?"block":"none")})),F(this,t=>this.n.read(t)?new Z(i,this.y.dimensions,this.w.enableSplitViewResizing,this.z,U(this,d=>this.y.sashLeft.read(d)-y,(d,l)=>this.y.sashLeft.set(d+y,l)),()=>this.y.resetSash()):void 0).recomputeInitiallyAndOnChange(this.B);const v=w(this,t=>{const a=this.t.read(t);if(!a)return[];const d=a.diff.read(t);if(!d)return[];const l=this.I.read(t);if(l.length>0){const g=X.fromRangeMappings(l.flatMap(b=>b.rangeMappings));return[new j(g,!0,M.DiffEditorSelectionToolbar,void 0,a.model.original.uri,a.model.modified.uri)]}const c=this.H.read(t);return d.mappings.map(g=>new j(g.lineRangeMapping.withInnerChangesFromLineRanges(),g.lineRangeMapping===c?.lineRangeMapping,M.DiffEditorHunkToolbar,void 0,a.model.original.uri,a.model.modified.uri))});this.D(new st(this.u.modified,this.q.root,{getIntersectingGutterItems:(t,a)=>v.read(a),createView:(t,a)=>this.C.createInstance(E,t,a,this)})),this.D(C(this.q.gutter,T.MOUSE_WHEEL,t=>{this.u.modified.getOption(117).handleMouseWheel&&this.u.modified.delegateScrollFromMouseWheelEvent(t)},{passive:!1}))}computeStagedValue(i){const r=i.innerChanges??[],s=new x(this.u.modifiedModel.get()),h=new x(this.u.original.getModel());return new K(r.map(o=>o.toTextEdit(s))).apply(h)}layout(i){this.q.gutter.style.left=i+"px"}};q=k([$(6,H),$(7,G),$(8,B)],q);class j{constructor(i,r,s,h,n,e){this.mapping=i,this.showAlways=r,this.menuId=s,this.rangeOverride=h,this.originalUri=n,this.modifiedUri=e}get id(){return this.mapping.modified.toString()}get range(){return this.rangeOverride??this.mapping.modified}}let E=class extends L{constructor(i,r,s,h){super(),this.q=i,this.b=D("div.gutterItem",{style:{height:"20px",width:"34px"}},[D("div.background@background",{},[]),D("div.buttons@buttons",{},[])]),this.f=this.q.map(this,e=>e.showAlways),this.j=this.q.map(this,e=>e.menuId),this.n=P(this,!1),this.t=void 0,this.u=void 0;const n=this.D(h.createInstance(z,"element",{instantHover:!0},{position:{hoverPosition:1}}));this.D(tt(r,this.b.root)),this.D(_(e=>{const o=this.f.read(e);this.b.root.classList.toggle("noTransition",!0),this.b.root.classList.toggle("showAlways",o),setTimeout(()=>{this.b.root.classList.toggle("noTransition",!1)},0)})),this.D(A((e,o)=>{this.b.buttons.replaceChildren();const p=o.add(h.createInstance(V,this.b.buttons,this.j.read(e),{orientation:1,hoverDelegate:n,toolbarOptions:{primaryGroup:m=>m.startsWith("primary")},overflowBehavior:{maxItems:this.n.read(e)?1:3},hiddenItemStrategy:0,actionRunner:o.add(new Y(()=>{const m=this.q.read(void 0),v=m.mapping;return{mapping:v,originalWithModifiedChanges:s.computeStagedValue(v),originalUri:m.originalUri,modifiedUri:m.modifiedUri}})),menuOptions:{shouldForwardArgs:!0}}));o.add(p.onDidChangeMenuItems(()=>{this.t&&this.layout(this.t,this.u)}))}))}layout(i,r){this.t=i,this.u=r;let s=this.b.buttons.clientHeight;this.n.set(this.q.get().mapping.original.startLineNumber===1&&i.length<30,void 0),s=this.b.buttons.clientHeight;const h=i.length/2-s/2,n=s;let e=i.start+h;const o=S.tryCreate(n,r.endExclusive-n-s),p=S.tryCreate(i.start+n,i.endExclusive-s-n);p&&o&&p.start<p.endExclusive&&(e=o.clip(e),e=p.clip(e)),this.b.buttons.style.top=`${e-i.start}px`}};E=k([$(3,H)],E);export{q as $pkb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { EventType, addDisposableListener, h } from "../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, derived, derivedDisposable, derivedWithSetter, observableFromEvent, observableValue } from "../../../../../base/common/observable.js";
+import { MenuWorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { WorkbenchHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { LineRange, LineRangeSet } from "../../../../common/core/ranges/lineRange.js";
+import { OffsetRange } from "../../../../common/core/ranges/offsetRange.js";
+import { Range } from "../../../../common/core/range.js";
+import { TextEdit } from "../../../../common/core/edits/textEdit.js";
+import { DetailedLineRangeMapping } from "../../../../common/diff/rangeMapping.js";
+import { TextModelText } from "../../../../common/model/textModelText.js";
+import { ActionRunnerWithContext } from "../../multiDiffEditor/utils.js";
+import { DiffEditorSash } from "../components/diffEditorSash.js";
+import { appendRemoveOnDispose, applyStyle, prependRemoveOnDispose } from "../utils.js";
+import { EditorGutter } from "../utils/editorGutter.js";
+const emptyArr = [];
+const width = 35;
+let DiffEditorGutter = class DiffEditorGutter2 extends Disposable {
+  static {
+    __name(this, "DiffEditorGutter");
+  }
+  constructor(diffEditorRoot, _diffModel, _editors, _options, _sashLayout, _boundarySashes, _instantiationService, _contextKeyService, _menuService) {
+    super();
+    this._diffModel = _diffModel;
+    this._editors = _editors;
+    this._options = _options;
+    this._sashLayout = _sashLayout;
+    this._boundarySashes = _boundarySashes;
+    this._instantiationService = _instantiationService;
+    this._contextKeyService = _contextKeyService;
+    this._menuService = _menuService;
+    this._menu = this._register(this._menuService.createMenu(MenuId.DiffEditorHunkToolbar, this._contextKeyService));
+    this._actions = observableFromEvent(this, this._menu.onDidChange, () => this._menu.getActions());
+    this._hasActions = this._actions.map((a) => a.length > 0);
+    this._showSash = derived(this, (reader) => this._options.renderSideBySide.read(reader) && this._hasActions.read(reader));
+    this.width = derived(this, (reader) => this._hasActions.read(reader) ? width : 0);
+    this.elements = h("div.gutter@gutter", { style: { position: "absolute", height: "100%", width: width + "px" } }, []);
+    this._currentDiff = derived(this, (reader) => {
+      const model = this._diffModel.read(reader);
+      if (!model) {
+        return void 0;
+      }
+      const mappings = model.diff.read(reader)?.mappings;
+      const cursorPosition = this._editors.modifiedCursor.read(reader);
+      if (!cursorPosition) {
+        return void 0;
+      }
+      return mappings?.find((m) => m.lineRangeMapping.modified.contains(cursorPosition.lineNumber));
+    });
+    this._selectedDiffs = derived(this, (reader) => {
+      const model = this._diffModel.read(reader);
+      const diff = model?.diff.read(reader);
+      if (!diff) {
+        return emptyArr;
+      }
+      const selections = this._editors.modifiedSelections.read(reader);
+      if (selections.every((s) => s.isEmpty())) {
+        return emptyArr;
+      }
+      const selectedLineNumbers = new LineRangeSet(selections.map((s) => LineRange.fromRangeInclusive(s)));
+      const selectedMappings = diff.mappings.filter((m) => m.lineRangeMapping.innerChanges && selectedLineNumbers.intersects(m.lineRangeMapping.modified));
+      const result = selectedMappings.map((mapping) => ({
+        mapping,
+        rangeMappings: mapping.lineRangeMapping.innerChanges.filter((c) => selections.some((s) => Range.areIntersecting(c.modifiedRange, s)))
+      }));
+      if (result.length === 0 || result.every((r) => r.rangeMappings.length === 0)) {
+        return emptyArr;
+      }
+      return result;
+    });
+    this._register(prependRemoveOnDispose(diffEditorRoot, this.elements.root));
+    this._register(addDisposableListener(this.elements.root, "click", () => {
+      this._editors.modified.focus();
+    }));
+    this._register(applyStyle(this.elements.root, { display: this._hasActions.map((a) => a ? "block" : "none") }));
+    derivedDisposable(this, (reader) => {
+      const showSash = this._showSash.read(reader);
+      return !showSash ? void 0 : new DiffEditorSash(diffEditorRoot, this._sashLayout.dimensions, this._options.enableSplitViewResizing, this._boundarySashes, derivedWithSetter(this, (reader2) => this._sashLayout.sashLeft.read(reader2) - width, (v, tx) => this._sashLayout.sashLeft.set(v + width, tx)), () => this._sashLayout.resetSash());
+    }).recomputeInitiallyAndOnChange(this._store);
+    const gutterItems = derived(this, (reader) => {
+      const model = this._diffModel.read(reader);
+      if (!model) {
+        return [];
+      }
+      const diffs = model.diff.read(reader);
+      if (!diffs) {
+        return [];
+      }
+      const selection = this._selectedDiffs.read(reader);
+      if (selection.length > 0) {
+        const m = DetailedLineRangeMapping.fromRangeMappings(selection.flatMap((s) => s.rangeMappings));
+        return [
+          new DiffGutterItem(m, true, MenuId.DiffEditorSelectionToolbar, void 0, model.model.original.uri, model.model.modified.uri)
+        ];
+      }
+      const currentDiff = this._currentDiff.read(reader);
+      return diffs.mappings.map((m) => new DiffGutterItem(m.lineRangeMapping.withInnerChangesFromLineRanges(), m.lineRangeMapping === currentDiff?.lineRangeMapping, MenuId.DiffEditorHunkToolbar, void 0, model.model.original.uri, model.model.modified.uri));
+    });
+    this._register(new EditorGutter(this._editors.modified, this.elements.root, {
+      getIntersectingGutterItems: /* @__PURE__ */ __name((range, reader) => gutterItems.read(reader), "getIntersectingGutterItems"),
+      createView: /* @__PURE__ */ __name((item, target) => {
+        return this._instantiationService.createInstance(DiffToolBar, item, target, this);
+      }, "createView")
+    }));
+    this._register(addDisposableListener(this.elements.gutter, EventType.MOUSE_WHEEL, (e) => {
+      if (this._editors.modified.getOption(
+        117
+        /* EditorOption.scrollbar */
+      ).handleMouseWheel) {
+        this._editors.modified.delegateScrollFromMouseWheelEvent(e);
+      }
+    }, { passive: false }));
+  }
+  computeStagedValue(mapping) {
+    const c = mapping.innerChanges ?? [];
+    const modified = new TextModelText(this._editors.modifiedModel.get());
+    const original = new TextModelText(this._editors.original.getModel());
+    const edit = new TextEdit(c.map((c2) => c2.toTextEdit(modified)));
+    const value = edit.apply(original);
+    return value;
+  }
+  layout(left) {
+    this.elements.gutter.style.left = left + "px";
+  }
+};
+DiffEditorGutter = __decorate([
+  __param(6, IInstantiationService),
+  __param(7, IContextKeyService),
+  __param(8, IMenuService)
+], DiffEditorGutter);
+class DiffGutterItem {
+  static {
+    __name(this, "DiffGutterItem");
+  }
+  constructor(mapping, showAlways, menuId, rangeOverride, originalUri, modifiedUri) {
+    this.mapping = mapping;
+    this.showAlways = showAlways;
+    this.menuId = menuId;
+    this.rangeOverride = rangeOverride;
+    this.originalUri = originalUri;
+    this.modifiedUri = modifiedUri;
+  }
+  get id() {
+    return this.mapping.modified.toString();
+  }
+  get range() {
+    return this.rangeOverride ?? this.mapping.modified;
+  }
+}
+let DiffToolBar = class DiffToolBar2 extends Disposable {
+  static {
+    __name(this, "DiffToolBar");
+  }
+  constructor(_item, target, gutter, instantiationService) {
+    super();
+    this._item = _item;
+    this._elements = h("div.gutterItem", { style: { height: "20px", width: "34px" } }, [
+      h("div.background@background", {}, []),
+      h("div.buttons@buttons", {}, [])
+    ]);
+    this._showAlways = this._item.map(this, (item) => item.showAlways);
+    this._menuId = this._item.map(this, (item) => item.menuId);
+    this._isSmall = observableValue(this, false);
+    this._lastItemRange = void 0;
+    this._lastViewRange = void 0;
+    const hoverDelegate = this._register(instantiationService.createInstance(WorkbenchHoverDelegate, "element", { instantHover: true }, { position: {
+      hoverPosition: 1
+      /* HoverPosition.RIGHT */
+    } }));
+    this._register(appendRemoveOnDispose(target, this._elements.root));
+    this._register(autorun((reader) => {
+      const showAlways = this._showAlways.read(reader);
+      this._elements.root.classList.toggle("noTransition", true);
+      this._elements.root.classList.toggle("showAlways", showAlways);
+      setTimeout(() => {
+        this._elements.root.classList.toggle("noTransition", false);
+      }, 0);
+    }));
+    this._register(autorunWithStore((reader, store) => {
+      this._elements.buttons.replaceChildren();
+      const i = store.add(instantiationService.createInstance(MenuWorkbenchToolBar, this._elements.buttons, this._menuId.read(reader), {
+        orientation: 1,
+        hoverDelegate,
+        toolbarOptions: {
+          primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup")
+        },
+        overflowBehavior: { maxItems: this._isSmall.read(reader) ? 1 : 3 },
+        hiddenItemStrategy: 0,
+        actionRunner: store.add(new ActionRunnerWithContext(() => {
+          const item = this._item.read(void 0);
+          const mapping = item.mapping;
+          return {
+            mapping,
+            originalWithModifiedChanges: gutter.computeStagedValue(mapping),
+            originalUri: item.originalUri,
+            modifiedUri: item.modifiedUri
+          };
+        })),
+        menuOptions: {
+          shouldForwardArgs: true
+        }
+      }));
+      store.add(i.onDidChangeMenuItems(() => {
+        if (this._lastItemRange) {
+          this.layout(this._lastItemRange, this._lastViewRange);
+        }
+      }));
+    }));
+  }
+  layout(itemRange, viewRange) {
+    this._lastItemRange = itemRange;
+    this._lastViewRange = viewRange;
+    let itemHeight = this._elements.buttons.clientHeight;
+    this._isSmall.set(this._item.get().mapping.original.startLineNumber === 1 && itemRange.length < 30, void 0);
+    itemHeight = this._elements.buttons.clientHeight;
+    const middleHeight = itemRange.length / 2 - itemHeight / 2;
+    const margin = itemHeight;
+    let effectiveCheckboxTop = itemRange.start + middleHeight;
+    const preferredViewPortRange = OffsetRange.tryCreate(margin, viewRange.endExclusive - margin - itemHeight);
+    const preferredParentRange = OffsetRange.tryCreate(itemRange.start + margin, itemRange.endExclusive - itemHeight - margin);
+    if (preferredParentRange && preferredViewPortRange && preferredParentRange.start < preferredParentRange.endExclusive) {
+      effectiveCheckboxTop = preferredViewPortRange.clip(effectiveCheckboxTop);
+      effectiveCheckboxTop = preferredParentRange.clip(effectiveCheckboxTop);
+    }
+    this._elements.buttons.style.top = `${effectiveCheckboxTop - itemRange.start}px`;
+  }
+};
+DiffToolBar = __decorate([
+  __param(3, IInstantiationService)
+], DiffToolBar);
+export {
+  DiffEditorGutter
+};
+//# sourceMappingURL=gutterFeature.js.map

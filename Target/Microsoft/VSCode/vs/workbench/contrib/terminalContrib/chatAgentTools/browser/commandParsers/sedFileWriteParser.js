@@ -1,1 +1,154 @@
-class W{constructor(){this.commandName="sed"}canHandle(n){return n.match(/^sed\s+/)?/(?:^|\s)(-[a-zA-Z]*[iI][a-zA-Z]*\S*|--in-place(?:=\S*)?|(-i|-I)\s*'[^']*'|(-i|-I)\s*"[^"]*")(?:\s|$)/.test(n):!1}extractFileWrites(n){const o=this.a(n);return this.b(o)}a(n){const o=[];let t="",s=!1,e=!1,l=!1;for(let i=0;i<n.length;i++){const c=n[i];if(l){t+=c,l=!1;continue}if(c==="\\"&&!s){l=!0,t+=c;continue}if(c==="'"&&!e){s=!s,t+=c;continue}if(c==='"'&&!s){e=!e,t+=c;continue}if(/\s/.test(c)&&!s&&!e){t&&(o.push(t),t="");continue}t+=c}return t&&o.push(t),o}b(n){if(n.length===0||n[0]!=="sed")return[];const o=[];let t=1,s=!1;for(;t<n.length;){const e=n[t];if(e.startsWith("--")){if(e==="--in-place"||e.startsWith("--in-place=")){t++;continue}if(e==="--expression"||e==="--file"){t+=2,s=!0;continue}if(e.startsWith("--expression=")||e.startsWith("--file=")){t++,s=!0;continue}t++;continue}if(e.startsWith("-")&&e.length>1&&e[1]!=="-"){const i=e.slice(1),c=i.indexOf("i"),a=i.indexOf("I"),r=c>=0?c:a;if(r>=0&&r<i.length-1){t++;continue}if((i.endsWith("i")||i.endsWith("I"))&&t+1<n.length){const f=n[t+1];if(f==="''"||f==='""'){t+=2;continue}if(f.startsWith("'")&&f.endsWith("'")||f.startsWith('"')&&f.endsWith('"')){const u=f.slice(1,-1);if(u.startsWith(".")&&u.length<=10&&!u.includes("/")){t+=2;continue}}}if(i.includes("e")||i.includes("f")){const f=i.indexOf("e"),u=i.indexOf("f");if((f>=0?f:u)<i.length-1){s=!0,t++;continue}s=!0,t+=2;continue}t++;continue}if(!s){s=!0,t++;continue}let l=e;(l.startsWith("'")&&l.endsWith("'")||l.startsWith('"')&&l.endsWith('"'))&&(l=l.slice(1,-1)),o.push(l),t++}return o}}export{W as $MCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class SedFileWriteParser {
+  static {
+    __name(this, "SedFileWriteParser");
+  }
+  constructor() {
+    this.commandName = "sed";
+  }
+  canHandle(commandText) {
+    if (!commandText.match(/^sed\s+/)) {
+      return false;
+    }
+    const inPlaceRegex = /(?:^|\s)(-[a-zA-Z]*[iI][a-zA-Z]*\S*|--in-place(?:=\S*)?|(-i|-I)\s*'[^']*'|(-i|-I)\s*"[^"]*")(?:\s|$)/;
+    return inPlaceRegex.test(commandText);
+  }
+  extractFileWrites(commandText) {
+    const tokens = this._tokenizeCommand(commandText);
+    return this._extractFileTargets(tokens);
+  }
+  /**
+   * Tokenizes a command into individual arguments, handling quotes and escapes.
+   */
+  _tokenizeCommand(commandText) {
+    const tokens = [];
+    let current = "";
+    let inSingleQuote = false;
+    let inDoubleQuote = false;
+    let escaped = false;
+    for (let i = 0; i < commandText.length; i++) {
+      const char = commandText[i];
+      if (escaped) {
+        current += char;
+        escaped = false;
+        continue;
+      }
+      if (char === "\\" && !inSingleQuote) {
+        escaped = true;
+        current += char;
+        continue;
+      }
+      if (char === "'" && !inDoubleQuote) {
+        inSingleQuote = !inSingleQuote;
+        current += char;
+        continue;
+      }
+      if (char === '"' && !inSingleQuote) {
+        inDoubleQuote = !inDoubleQuote;
+        current += char;
+        continue;
+      }
+      if (/\s/.test(char) && !inSingleQuote && !inDoubleQuote) {
+        if (current) {
+          tokens.push(current);
+          current = "";
+        }
+        continue;
+      }
+      current += char;
+    }
+    if (current) {
+      tokens.push(current);
+    }
+    return tokens;
+  }
+  /**
+   * Extracts file targets from tokenized sed command arguments.
+   * Files are generally the last non-option, non-script arguments.
+   */
+  _extractFileTargets(tokens) {
+    if (tokens.length === 0 || tokens[0] !== "sed") {
+      return [];
+    }
+    const files = [];
+    let i = 1;
+    let foundScript = false;
+    while (i < tokens.length) {
+      const token = tokens[i];
+      if (token.startsWith("--")) {
+        if (token === "--in-place" || token.startsWith("--in-place=")) {
+          i++;
+          continue;
+        }
+        if (token === "--expression" || token === "--file") {
+          i += 2;
+          foundScript = true;
+          continue;
+        }
+        if (token.startsWith("--expression=") || token.startsWith("--file=")) {
+          i++;
+          foundScript = true;
+          continue;
+        }
+        i++;
+        continue;
+      }
+      if (token.startsWith("-") && token.length > 1 && token[1] !== "-") {
+        const flags = token.slice(1);
+        const iIndex = flags.indexOf("i");
+        const IIndex = flags.indexOf("I");
+        const inPlaceIndex = iIndex >= 0 ? iIndex : IIndex;
+        if (inPlaceIndex >= 0 && inPlaceIndex < flags.length - 1) {
+          i++;
+          continue;
+        }
+        if ((flags.endsWith("i") || flags.endsWith("I")) && i + 1 < tokens.length) {
+          const nextToken = tokens[i + 1];
+          if (nextToken === "''" || nextToken === '""') {
+            i += 2;
+            continue;
+          }
+          if (nextToken.startsWith("'") && nextToken.endsWith("'") || nextToken.startsWith('"') && nextToken.endsWith('"')) {
+            const unquoted = nextToken.slice(1, -1);
+            if (unquoted.startsWith(".") && unquoted.length <= 10 && !unquoted.includes("/")) {
+              i += 2;
+              continue;
+            }
+          }
+        }
+        if (flags.includes("e") || flags.includes("f")) {
+          const eIndex = flags.indexOf("e");
+          const fIndex = flags.indexOf("f");
+          const optIndex = eIndex >= 0 ? eIndex : fIndex;
+          if (optIndex < flags.length - 1) {
+            foundScript = true;
+            i++;
+            continue;
+          }
+          foundScript = true;
+          i += 2;
+          continue;
+        }
+        i++;
+        continue;
+      }
+      if (!foundScript) {
+        foundScript = true;
+        i++;
+        continue;
+      }
+      let file = token;
+      if (file.startsWith("'") && file.endsWith("'") || file.startsWith('"') && file.endsWith('"')) {
+        file = file.slice(1, -1);
+      }
+      files.push(file);
+      i++;
+    }
+    return files;
+  }
+}
+export {
+  SedFileWriteParser
+};
+//# sourceMappingURL=sedFileWriteParser.js.map

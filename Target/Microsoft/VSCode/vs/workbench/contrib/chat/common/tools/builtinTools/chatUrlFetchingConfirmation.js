@@ -1,1 +1,271 @@
-import{$bk as C}from"../../../../../../base/common/codicons.js";import{$Dd as P}from"../../../../../../base/common/lifecycle.js";import{$Oc as k}from"../../../../../../base/common/map.js";import{ThemeIcon as $}from"../../../../../../base/common/themables.js";import{URI as y}from"../../../../../../base/common/uri.js";import{localize as i}from"../../../../../../nls.js";import{$0l as q}from"../../../../../../platform/configuration/common/configuration.js";import{$YH as T}from"../../../../../../platform/quickinput/common/quickInput.js";import{$2M as j}from"../../../../../services/preferences/common/preferences.js";import{ChatConfiguration as v}from"../../constants.js";import{$1Xc as _,$2Xc as w,$3Xc as D}from"./chatUrlFetchingPatterns.js";var R=function(g,e,r,o){var l=arguments.length,t=l<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(g,e,r,o);else for(var a=g.length-1;a>=0;a--)(s=g[a])&&(t=(l<3?s(t):l>3?s(e,r,t):s(e,r))||t);return l>3&&t&&Object.defineProperty(e,r,t),t},b=function(g,e){return function(r,o){e(r,o,g)}};const O={iconClass:$.asClassName(C.trash),tooltip:i(7080,null)};let U=class{constructor(e,r,o,l){this.d=e,this.e=r,this.f=o,this.g=l,this.canUseDefaultApprovals=!1}getPreConfirmAction(e){return this.h(e,!0)}getPostConfirmAction(e){return this.h(e,!1)}h(e,r){const o=this.d(e.parameters);if(!o||o.length===0)return;const l=this.l();if(o.every(s=>{try{const a=y.parse(s);return D(a,l,r)}catch{return!1}}))return{type:2,id:v.AutoApprovedUrls}}getPreConfirmActions(e){return this.i(e,!0)}getPostConfirmActions(e){return this.i(e,!1)}i(e,r){const o=this.d(e.parameters);if(!o||o.length===0)return[];const l=o.map(n=>n.split("?")[0]),t=[],s=Array.from(new Set(l)).map(n=>y.parse(n)),a=new k(s.map(n=>[n,_(n)]));if(a.size===1){const n=s[0],u=a.get(n),m=u.slice(0,2);for(const f of m){const d=w(n,f);t.push({label:r?i(7081,null,d):i(7082,null,d),select:async()=>(await this.k(f,r,!r),!0)})}t.push({label:i(7083,null),select:async()=>await this.j(e,[{uri:n,patterns:u}],r)})}else t.push({label:i(7084,null),select:async()=>(await this.j(e,[...a].map(([n,u])=>({uri:n,patterns:u})),r),!0)});return t}async j(e,r,o){return new Promise(l=>{const t=new P,s=t.add(this.f.createQuickTree());s.ignoreFocusOut=!0,s.sortByLabel=!1,s.placeholder=i(7085,null);const a=[],n=this.l(),u=new Set;for(const{uri:f,patterns:d}of r)for(const c of d.slice().sort((p,h)=>h.length-p.length)){if(u.has(c))continue;u.add(c);const p=n[c],h=typeof p=="boolean"?p:p?.approveRequest??!1,A=typeof p=="boolean"?p:p?.approveResponse??!1;a.push({label:w(f,c),pattern:c,checked:h&&A?!0:!h&&!A?!1:"mixed",collapsed:!0,children:[{label:i(7086,null),pattern:c,approvalType:"request",checked:h},{label:i(7087,null),pattern:c,approvalType:"response",checked:A}]})}s.setItemTree(a);const m=()=>{const f={...this.l()};for(const d of s.itemTree){const c=d.children?.find(h=>h.approvalType==="request")?.checked,p=d.children?.find(h=>h.approvalType==="response")?.checked;p&&c?f[d.pattern]=!0:!p&&!c?delete f[d.pattern]:f[d.pattern]={approveRequest:!!c||void 0,approveResponse:!!p||void 0}}return this.e.updateValue(v.AutoApprovedUrls,f)};t.add(s.onDidAccept(async()=>{s.busy=!0,await m(),l(!!this.h(e,o)),s.hide()})),t.add(s.onDidHide(()=>{m(),t.dispose(),l(!1)})),s.show()})}async k(e,r,o){const l={...this.l()},t=l[e];let s=!1,a=!1;typeof t=="boolean"?(s=t,a=t):t&&(s=t.approveRequest??!1,a=t.approveResponse??!1);const n=r||s,u=o||a;let m;n===u?m=n:m={approveRequest:n,approveResponse:u},l[e]=m,await this.e.updateValue(v.AutoApprovedUrls,l)}getManageActions(){const e={...this.l()},r=[];for(const[o,l]of Object.entries(e)){const t=o;let s;if(typeof l=="boolean")s=l?i(7088,null):i(7089,null);else{const n=[];l.approveRequest&&n.push(i(7090,null)),l.approveResponse&&n.push(i(7091,null)),s=n.length>0?i(7092,null,n.join(", ")):i(7093,null)}const a={label:t,description:s,buttons:[O],checked:!0,onDidChangeChecked:n=>{n?e[o]=l:delete e[o],this.e.updateValue(v.AutoApprovedUrls,e)}};r.push(a)}return r.push({pickable:!1,label:i(7094,null),description:i(7095,null),onDidOpen:()=>{this.g.openUserSettings({query:v.AutoApprovedUrls})}}),r}async reset(){await this.e.updateValue(v.AutoApprovedUrls,{})}l(){return this.e.getValue(v.AutoApprovedUrls)||{}}};U=R([b(1,q),b(2,T),b(3,j)],U);export{U as $5Xc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../../base/common/map.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { localize } from "../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { IPreferencesService } from "../../../../../services/preferences/common/preferences.js";
+import { ChatConfiguration } from "../../constants.js";
+import { extractUrlPatterns, getPatternLabel, isUrlApproved } from "./chatUrlFetchingPatterns.js";
+const trashButton = {
+  iconClass: ThemeIcon.asClassName(Codicon.trash),
+  tooltip: localize("delete", "Delete")
+};
+let ChatUrlFetchingConfirmationContribution = class ChatUrlFetchingConfirmationContribution2 {
+  static {
+    __name(this, "ChatUrlFetchingConfirmationContribution");
+  }
+  constructor(_getURLS, _configurationService, _quickInputService, _preferencesService) {
+    this._getURLS = _getURLS;
+    this._configurationService = _configurationService;
+    this._quickInputService = _quickInputService;
+    this._preferencesService = _preferencesService;
+    this.canUseDefaultApprovals = false;
+  }
+  getPreConfirmAction(ref) {
+    return this._checkApproval(ref, true);
+  }
+  getPostConfirmAction(ref) {
+    return this._checkApproval(ref, false);
+  }
+  _checkApproval(ref, checkRequest) {
+    const urls = this._getURLS(ref.parameters);
+    if (!urls || urls.length === 0) {
+      return void 0;
+    }
+    const approvedUrls = this._getApprovedUrls();
+    const allApproved = urls.every((url) => {
+      try {
+        const uri = URI.parse(url);
+        return isUrlApproved(uri, approvedUrls, checkRequest);
+      } catch {
+        return false;
+      }
+    });
+    if (allApproved) {
+      return {
+        type: 2,
+        id: ChatConfiguration.AutoApprovedUrls
+      };
+    }
+    return void 0;
+  }
+  getPreConfirmActions(ref) {
+    return this._getConfirmActions(ref, true);
+  }
+  getPostConfirmActions(ref) {
+    return this._getConfirmActions(ref, false);
+  }
+  _getConfirmActions(ref, forRequest) {
+    const urls = this._getURLS(ref.parameters);
+    if (!urls || urls.length === 0) {
+      return [];
+    }
+    const urlsWithoutQuery = urls.map((u) => u.split("?")[0]);
+    const actions = [];
+    const uniqueUrls = Array.from(new Set(urlsWithoutQuery)).map((u) => URI.parse(u));
+    const urlPatterns = new ResourceMap(uniqueUrls.map((u) => [u, extractUrlPatterns(u)]));
+    if (urlPatterns.size === 1) {
+      const uri = uniqueUrls[0];
+      const patterns = urlPatterns.get(uri);
+      const topPatterns = patterns.slice(0, 2);
+      for (const pattern of topPatterns) {
+        const patternLabel = getPatternLabel(uri, pattern);
+        actions.push({
+          label: forRequest ? localize("approveRequestTo", "Allow requests to {0}", patternLabel) : localize("approveResponseFrom", "Allow responses from {0}", patternLabel),
+          select: /* @__PURE__ */ __name(async () => {
+            await this._approvePattern(pattern, forRequest, !forRequest);
+            return true;
+          }, "select")
+        });
+      }
+      actions.push({
+        label: localize("moreOptions", "Allow requests to..."),
+        select: /* @__PURE__ */ __name(async () => {
+          const result = await this._showMoreOptions(ref, [{ uri, patterns }], forRequest);
+          return result;
+        }, "select")
+      });
+    } else {
+      actions.push({
+        label: localize("moreOptionsMultiple", "Configure URL Approvals..."),
+        select: /* @__PURE__ */ __name(async () => {
+          await this._showMoreOptions(ref, [...urlPatterns].map(([uri, patterns]) => ({ uri, patterns })), forRequest);
+          return true;
+        }, "select")
+      });
+    }
+    return actions;
+  }
+  async _showMoreOptions(ref, urls, forRequest) {
+    return new Promise((resolve) => {
+      const disposables = new DisposableStore();
+      const quickTree = disposables.add(this._quickInputService.createQuickTree());
+      quickTree.ignoreFocusOut = true;
+      quickTree.sortByLabel = false;
+      quickTree.placeholder = localize("selectApproval", "Select URL pattern to approve");
+      const treeItems = [];
+      const approvedUrls = this._getApprovedUrls();
+      const dedupedPatterns = /* @__PURE__ */ new Set();
+      for (const { uri, patterns } of urls) {
+        for (const pattern of patterns.slice().sort((a, b) => b.length - a.length)) {
+          if (dedupedPatterns.has(pattern)) {
+            continue;
+          }
+          dedupedPatterns.add(pattern);
+          const settings = approvedUrls[pattern];
+          const requestChecked = typeof settings === "boolean" ? settings : settings?.approveRequest ?? false;
+          const responseChecked = typeof settings === "boolean" ? settings : settings?.approveResponse ?? false;
+          treeItems.push({
+            label: getPatternLabel(uri, pattern),
+            pattern,
+            checked: requestChecked && responseChecked ? true : !requestChecked && !responseChecked ? false : "mixed",
+            collapsed: true,
+            children: [
+              {
+                label: localize("allowRequestsCheckbox", "Make requests without confirmation"),
+                pattern,
+                approvalType: "request",
+                checked: requestChecked
+              },
+              {
+                label: localize("allowResponsesCheckbox", "Allow responses without confirmation"),
+                pattern,
+                approvalType: "response",
+                checked: responseChecked
+              }
+            ]
+          });
+        }
+      }
+      quickTree.setItemTree(treeItems);
+      const updateApprovals = /* @__PURE__ */ __name(() => {
+        const current = { ...this._getApprovedUrls() };
+        for (const item of quickTree.itemTree) {
+          const allowPre = item.children?.find((c) => c.approvalType === "request")?.checked;
+          const allowPost = item.children?.find((c) => c.approvalType === "response")?.checked;
+          if (allowPost && allowPre) {
+            current[item.pattern] = true;
+          } else if (!allowPost && !allowPre) {
+            delete current[item.pattern];
+          } else {
+            current[item.pattern] = {
+              approveRequest: !!allowPre || void 0,
+              approveResponse: !!allowPost || void 0
+            };
+          }
+        }
+        return this._configurationService.updateValue(ChatConfiguration.AutoApprovedUrls, current);
+      }, "updateApprovals");
+      disposables.add(quickTree.onDidAccept(async () => {
+        quickTree.busy = true;
+        await updateApprovals();
+        resolve(!!this._checkApproval(ref, forRequest));
+        quickTree.hide();
+      }));
+      disposables.add(quickTree.onDidHide(() => {
+        updateApprovals();
+        disposables.dispose();
+        resolve(false);
+      }));
+      quickTree.show();
+    });
+  }
+  async _approvePattern(pattern, approveRequest, approveResponse) {
+    const approvedUrls = { ...this._getApprovedUrls() };
+    const existingSettings = approvedUrls[pattern];
+    let existingRequest = false;
+    let existingResponse = false;
+    if (typeof existingSettings === "boolean") {
+      existingRequest = existingSettings;
+      existingResponse = existingSettings;
+    } else if (existingSettings) {
+      existingRequest = existingSettings.approveRequest ?? false;
+      existingResponse = existingSettings.approveResponse ?? false;
+    }
+    const mergedRequest = approveRequest || existingRequest;
+    const mergedResponse = approveResponse || existingResponse;
+    let value;
+    if (mergedRequest === mergedResponse) {
+      value = mergedRequest;
+    } else {
+      value = { approveRequest: mergedRequest, approveResponse: mergedResponse };
+    }
+    approvedUrls[pattern] = value;
+    await this._configurationService.updateValue(ChatConfiguration.AutoApprovedUrls, approvedUrls);
+  }
+  getManageActions() {
+    const approvedUrls = { ...this._getApprovedUrls() };
+    const items = [];
+    for (const [pattern, settings] of Object.entries(approvedUrls)) {
+      const label = pattern;
+      let description;
+      if (typeof settings === "boolean") {
+        description = settings ? localize("approveAll", "Approve all") : localize("denyAll", "Deny all");
+      } else {
+        const parts = [];
+        if (settings.approveRequest) {
+          parts.push(localize("requests", "requests"));
+        }
+        if (settings.approveResponse) {
+          parts.push(localize("responses", "responses"));
+        }
+        description = parts.length > 0 ? localize("approves", "Approves {0}", parts.join(", ")) : localize("noApprovals", "No approvals");
+      }
+      const item = {
+        label,
+        description,
+        buttons: [trashButton],
+        checked: true,
+        onDidChangeChecked: /* @__PURE__ */ __name((checked) => {
+          if (checked) {
+            approvedUrls[pattern] = settings;
+          } else {
+            delete approvedUrls[pattern];
+          }
+          this._configurationService.updateValue(ChatConfiguration.AutoApprovedUrls, approvedUrls);
+        }, "onDidChangeChecked")
+      };
+      items.push(item);
+    }
+    items.push({
+      pickable: false,
+      label: localize("moreOptionsManage", "More Options..."),
+      description: localize("openSettings", "Open settings"),
+      onDidOpen: /* @__PURE__ */ __name(() => {
+        this._preferencesService.openUserSettings({ query: ChatConfiguration.AutoApprovedUrls });
+      }, "onDidOpen")
+    });
+    return items;
+  }
+  async reset() {
+    await this._configurationService.updateValue(ChatConfiguration.AutoApprovedUrls, {});
+  }
+  _getApprovedUrls() {
+    return this._configurationService.getValue(ChatConfiguration.AutoApprovedUrls) || {};
+  }
+};
+ChatUrlFetchingConfirmationContribution = __decorate([
+  __param(1, IConfigurationService),
+  __param(2, IQuickInputService),
+  __param(3, IPreferencesService)
+], ChatUrlFetchingConfirmationContribution);
+export {
+  ChatUrlFetchingConfirmationContribution
+};
+//# sourceMappingURL=chatUrlFetchingConfirmation.js.map

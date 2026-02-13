@@ -1,1 +1,43 @@
-import{$RCc as n}from"../../runInTerminalHelpers.js";class u{present(e){const c=e.commandLine.forDisplay,o=a(c,e.shell,e.os);if(o)return{commandLine:o,language:"javascript",languageDisplayName:"Node.js"}}}function a(s,e,c){const o=s.match(/^node(?:js)?\s+(?:-e|--eval)\s+"(?<code>.+)"$/s);if(o?.groups?.code){let r=o.groups.code.trim();return n(e,c)?r=r.replace(/`"/g,'"'):r=r.replace(/\\"/g,'"'),r}const t=s.match(/^node(?:js)?\s+(?:-e|--eval)\s+'(?<code>.+)'$/s);if(t?.groups?.code)return t.groups.code.trim()}export{u as $4Cc,a as $5Cc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isPowerShell } from "../../runInTerminalHelpers.js";
+class NodeCommandLinePresenter {
+  static {
+    __name(this, "NodeCommandLinePresenter");
+  }
+  present(options) {
+    const commandLine = options.commandLine.forDisplay;
+    const extractedNode = extractNodeCommand(commandLine, options.shell, options.os);
+    if (extractedNode) {
+      return {
+        commandLine: extractedNode,
+        language: "javascript",
+        languageDisplayName: "Node.js"
+      };
+    }
+    return void 0;
+  }
+}
+function extractNodeCommand(commandLine, shell, os) {
+  const doubleQuoteMatch = commandLine.match(/^node(?:js)?\s+(?:-e|--eval)\s+"(?<code>.+)"$/s);
+  if (doubleQuoteMatch?.groups?.code) {
+    let jsCode = doubleQuoteMatch.groups.code.trim();
+    if (isPowerShell(shell, os)) {
+      jsCode = jsCode.replace(/`"/g, '"');
+    } else {
+      jsCode = jsCode.replace(/\\"/g, '"');
+    }
+    return jsCode;
+  }
+  const singleQuoteMatch = commandLine.match(/^node(?:js)?\s+(?:-e|--eval)\s+'(?<code>.+)'$/s);
+  if (singleQuoteMatch?.groups?.code) {
+    return singleQuoteMatch.groups.code.trim();
+  }
+  return void 0;
+}
+__name(extractNodeCommand, "extractNodeCommand");
+export {
+  NodeCommandLinePresenter,
+  extractNodeCommand
+};
+//# sourceMappingURL=nodeCommandLinePresenter.js.map

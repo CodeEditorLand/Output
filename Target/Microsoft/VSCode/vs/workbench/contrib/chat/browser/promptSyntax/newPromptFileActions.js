@@ -1,5 +1,443 @@
-import{$Bh as x}from"../../../../../base/common/resources.js";import{URI as S}from"../../../../../base/common/uri.js";import{$0i as z}from"../../../../../base/common/buffer.js";import{$Jdb as F}from"../../../../../editor/browser/editorBrowser.js";import{$Qnb as M}from"../../../../../editor/contrib/snippet/browser/snippetController2.js";import{localize as n,localize2 as J}from"../../../../../nls.js";import{$vL as E,$qL as A,$wL as y}from"../../../../../platform/actions/common/actions.js";import{$uo as _}from"../../../../../platform/commands/common/commands.js";import{$vk as P}from"../../../../../platform/files/common/files.js";import{$Mj as L}from"../../../../../platform/instantiation/common/instantiation.js";import{$yo as B}from"../../../../../platform/log/common/log.js";import{$pH as U,NeverShowAgainScope as K,Severity as Q}from"../../../../../platform/notification/common/notification.js";import{$EP as q}from"../../../../../platform/opener/common/opener.js";import{$lT as W,PromptsType as c}from"../../common/promptSyntax/promptTypes.js";import{$_Kb as G}from"../../../../../platform/userDataSync/common/userDataSync.js";import{$BL as N}from"../../../../services/editor/common/editorService.js";import{$UYb as H}from"../../../../services/userDataSync/common/userDataSync.js";import{ChatContextKeys as k}from"../../common/actions/chatContextKeys.js";import{$HPb as C}from"../actions/chatActions.js";import{$ZYb as X}from"./pickers/askForPromptName.js";import{$1Yb as T}from"./pickers/askForPromptSourceFolder.js";import{$YH as O}from"../../../../../platform/quickinput/common/quickInput.js";import{$QT as Z,$zT as V,$AT as ee}from"../../common/promptSyntax/config/promptFileLocations.js";import{$oT as te}from"../../common/promptSyntax/hookSchema.js";import{$2Yb as R}from"./hookUtils.js";import{$Lkb as ne,$Nkb as oe}from"../../../../../editor/browser/services/bulkEditService.js";import{$_D as ie}from"../../../../../editor/common/core/range.js";class Y extends E{constructor(e,r,l){super({id:e,title:r,f1:!1,precondition:k.enabled,category:C,keybinding:{weight:200},menu:{id:A.CommandPalette,when:k.enabled}}),this.a=l}async run(e){const r=e.get(B),l=e.get(q),p=e.get(_),w=e.get(U),u=e.get(G),f=e.get(N),b=e.get(P),g=e.get(L),t=await g.invokeFunction(T,this.a);if(!t)return;const o=await g.invokeFunction(X,this.a,t.uri);if(!o)return;await b.createFolder(t.uri);const a=S.joinPath(t.uri,o);await b.createFile(a),await l.open(a);const d=Z(a),s=F(f.activeTextEditorControl);if(s&&s.hasModel()&&x(s.getModel().uri,a)&&M.get(s)?.apply([{range:s.getModel().getFullModelRange(),template:j(this.a,d)}]),t.storage!=="user")return;const v=u.isResourceEnablementConfigured("prompts"),$=u.isEnabled();v===!0||$===!1||w.prompt(Q.Info,n(6269,null),[{label:n(6270,null),run:()=>{p.executeCommand(H).catch(D=>{r.error(`Failed to run '${H}' command: ${D}.`)})}},{label:n(6271,null),run:()=>{l.open(S.parse("https://aka.ms/vscode-settings-sync-help"))}}],{neverShowAgain:{id:"workbench.command.prompts.create.user.enable-sync-notification",scope:K.PROFILE}})}}function j(m,e){switch(m){case c.prompt:return["---",`name: ${e??"${1:prompt-name}"}`,"description: ${2:Describe when to use this prompt}","---","${3:Define the prompt content here. You can include instructions, examples, and any other relevant information to guide the AI's responses.}"].join(`
-`);case c.instructions:return["---","description: ${1:Describe when these instructions should be loaded}","# applyTo: '${1|**,**/*.ts|}' # when provided, instructions will automatically be added to the request context when the pattern matches an attached file","---","${2:Provide project context and coding guidelines that AI should follow when generating code, answering questions, or reviewing changes.}"].join(`
-`);case c.agent:return["---",`name: ${e??"${1:agent-name}"}`,"description: ${2:Describe what this custom agent does and when to use it.}",'argument-hint: ${3:The inputs this agent expects, e.g., "a task to implement" or "a question to answer".}',"# tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'todo'] # specify the tools this agent can use. If not set, all enabled tools are allowed.","---","${4:Define what this custom agent does, including its behavior, capabilities, and any specific instructions for its operation.}"].join(`
-`);case c.skill:return["---",`name: ${e??"${1:skill-name}"}`,"description: ${2:Describe what this skill does and when to use it. Include keywords that help agents identify relevant tasks.}","---","${3:Define the functionality provided by this skill, including detailed instructions and examples}"].join(`
-`);case c.hook:return JSON.stringify({version:1,hooks:{}},null,4);default:throw new Error(`Unsupported prompt type: ${m}`)}}const re="workbench.command.new.prompt",se="workbench.command.new.instructions",le="workbench.command.new.agent",ae="workbench.command.new.skill",ce="workbench.command.new.hook";class de extends Y{constructor(){super(re,n(6272,null),c.prompt)}}class ue extends Y{constructor(){super(se,n(6273,null),c.instructions)}}class me extends Y{constructor(){super(le,n(6274,null),c.agent)}}class pe extends E{constructor(){super({id:ae,title:n(6275,null),f1:!1,precondition:k.enabled,category:C,keybinding:{weight:200},menu:{id:A.CommandPalette,when:k.enabled}})}async run(e){const r=e.get(q),l=e.get(N),p=e.get(P),w=e.get(L),u=e.get(O),f=await w.invokeFunction(T,c.skill);if(!f)return;const b=await u.input({prompt:n(6276,null),placeHolder:n(6277,null),validateInput:async d=>{if(!d||!d.trim())return n(6278,null);const s=d.trim();if(s.length>64)return n(6279,null);if(!/^[a-z0-9-]+$/.test(s))return n(6280,null);if(s.startsWith("-")||s.endsWith("-"))return n(6281,null);if(s.includes("--"))return n(6282,null)}});if(!b)return;const g=b.trim(),t=S.joinPath(f.uri,g);await p.createFolder(t);const o=S.joinPath(t,V);await p.createFile(o),await r.open(o);const a=F(l.activeTextEditorControl);a&&a.hasModel()&&x(a.getModel().uri,o)&&M.get(a)?.apply([{range:a.getModel().getFullModelRange(),template:j(c.skill,g)}])}}class fe extends E{constructor(){super({id:ce,title:n(6283,null),f1:!1,precondition:k.enabled,category:C,keybinding:{weight:200},menu:{id:A.CommandPalette,when:k.enabled}})}async run(e){const r=e.get(N),l=e.get(P),p=e.get(L),w=e.get(O),u=e.get(ne),f=await p.invokeFunction(T,c.hook);if(!f)return;const b=te.map(i=>({id:i.id,label:i.label,description:i.description})),g=await w.pick(b,{placeHolder:n(6284,null),title:n(6285,null)});if(!g)return;await l.createFolder(f.uri);const t=S.joinPath(f.uri,ee);let o;const a=await l.exists(t);if(a){const i=await l.readFile(t);try{o=JSON.parse(i.value.toString()),o.hooks||(o.hooks={})}catch{e.get(U).error(n(6286,null)),await r.openEditor({resource:t});return}}else o={version:1,hooks:{}};const d=g.id,s={type:"command",command:""};let v;o.hooks[d]?(o.hooks[d].push(s),v=o.hooks[d].length-1):(o.hooks[d]=[s],v=0);const $=JSON.stringify(o,null,"	");if(r.editors.find(i=>x(i.resource,t))){await r.openEditor({resource:t,options:{pinned:!1}});const i=F(r.activeTextEditorControl);if(i&&i.hasModel()&&x(i.getModel().uri,t)){const I=i.getModel();I.pushEditOperations([],[{range:I.getFullModelRange(),text:$}],()=>null);const h=R($,d,v,"command");h&&h.endLineNumber!==void 0&&h.endColumn!==void 0&&(i.setSelection({startLineNumber:h.startLineNumber,startColumn:h.startColumn,endLineNumber:h.endLineNumber,endColumn:h.endColumn}),i.revealLineInCenter(h.startLineNumber))}}else{a?(await r.openEditor({resource:t,options:{pinned:!1}}),await u.apply([new oe(t,{range:new ie(1,1,Number.MAX_SAFE_INTEGER,1),text:$})],{label:n(6287,null)})):await l.writeFile(t,z.fromString($));const i=R($,d,v,"command");await r.openEditor({resource:t,options:{selection:i,pinned:!1}})}}}class ge extends E{constructor(){super({id:"workbench.command.new.untitled.prompt",title:J(6288,"New Untitled Prompt File"),f1:!0,precondition:k.enabled,category:C,keybinding:{weight:200}})}async run(e){const r=e.get(N),l=W(c.prompt),p=await r.openEditor({resource:void 0,languageId:l,options:{pinned:!0}}),w=c.prompt,u=F(r.activeTextEditorControl);return u&&u.hasModel()&&M.get(u)?.apply([{range:u.getModel().getFullModelRange(),template:j(w,void 0)}]),p}}function ze(){y(de),y(ue),y(me),y(pe),y(fe),y(ge)}export{re as $3Yb,se as $4Yb,le as $5Yb,ae as $6Yb,ce as $7Yb,ze as $8Yb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isEqual } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { getCodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { INotificationService, NeverShowAgainScope, Severity } from "../../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { getLanguageIdForPromptsType, PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { IUserDataSyncEnablementService } from "../../../../../platform/userDataSync/common/userDataSync.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { CONFIGURE_SYNC_COMMAND_ID } from "../../../../services/userDataSync/common/userDataSync.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { CHAT_CATEGORY } from "../actions/chatActions.js";
+import { askForPromptFileName } from "./pickers/askForPromptName.js";
+import { askForPromptSourceFolder } from "./pickers/askForPromptSourceFolder.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { getCleanPromptName, SKILL_FILENAME, HOOKS_FILENAME } from "../../common/promptSyntax/config/promptFileLocations.js";
+import { HOOK_TYPES } from "../../common/promptSyntax/hookSchema.js";
+import { findHookCommandSelection } from "./hookUtils.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+class AbstractNewPromptFileAction extends Action2 {
+  static {
+    __name(this, "AbstractNewPromptFileAction");
+  }
+  constructor(id, title, type) {
+    super({
+      id,
+      title,
+      f1: false,
+      precondition: ChatContextKeys.enabled,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: {
+        id: MenuId.CommandPalette,
+        when: ChatContextKeys.enabled
+      }
+    });
+    this.type = type;
+  }
+  async run(accessor) {
+    const logService = accessor.get(ILogService);
+    const openerService = accessor.get(IOpenerService);
+    const commandService = accessor.get(ICommandService);
+    const notificationService = accessor.get(INotificationService);
+    const userDataSyncEnablementService = accessor.get(IUserDataSyncEnablementService);
+    const editorService = accessor.get(IEditorService);
+    const fileService = accessor.get(IFileService);
+    const instaService = accessor.get(IInstantiationService);
+    const selectedFolder = await instaService.invokeFunction(askForPromptSourceFolder, this.type);
+    if (!selectedFolder) {
+      return;
+    }
+    const fileName = await instaService.invokeFunction(askForPromptFileName, this.type, selectedFolder.uri);
+    if (!fileName) {
+      return;
+    }
+    await fileService.createFolder(selectedFolder.uri);
+    const promptUri = URI.joinPath(selectedFolder.uri, fileName);
+    await fileService.createFile(promptUri);
+    await openerService.open(promptUri);
+    const cleanName = getCleanPromptName(promptUri);
+    const editor = getCodeEditor(editorService.activeTextEditorControl);
+    if (editor && editor.hasModel() && isEqual(editor.getModel().uri, promptUri)) {
+      SnippetController2.get(editor)?.apply([{
+        range: editor.getModel().getFullModelRange(),
+        template: getDefaultContentSnippet(this.type, cleanName)
+      }]);
+    }
+    if (selectedFolder.storage !== "user") {
+      return;
+    }
+    const isConfigured = userDataSyncEnablementService.isResourceEnablementConfigured(
+      "prompts"
+      /* SyncResource.Prompts */
+    );
+    const isSettingsSyncEnabled = userDataSyncEnablementService.isEnabled();
+    if (isConfigured === true || isSettingsSyncEnabled === false) {
+      return;
+    }
+    notificationService.prompt(Severity.Info, localize("workbench.command.prompts.create.user.enable-sync-notification", "Do you want to backup and sync your user prompt, instruction and custom agent files with Setting Sync?'"), [
+      {
+        label: localize("enable.capitalized", "Enable"),
+        run: /* @__PURE__ */ __name(() => {
+          commandService.executeCommand(CONFIGURE_SYNC_COMMAND_ID).catch((error) => {
+            logService.error(`Failed to run '${CONFIGURE_SYNC_COMMAND_ID}' command: ${error}.`);
+          });
+        }, "run")
+      },
+      {
+        label: localize("learnMore.capitalized", "Learn More"),
+        run: /* @__PURE__ */ __name(() => {
+          openerService.open(URI.parse("https://aka.ms/vscode-settings-sync-help"));
+        }, "run")
+      }
+    ], {
+      neverShowAgain: {
+        id: "workbench.command.prompts.create.user.enable-sync-notification",
+        scope: NeverShowAgainScope.PROFILE
+      }
+    });
+  }
+}
+function getDefaultContentSnippet(promptType, name) {
+  switch (promptType) {
+    case PromptsType.prompt:
+      return [
+        `---`,
+        `name: ${name ?? "${1:prompt-name}"}`,
+        `description: \${2:Describe when to use this prompt}`,
+        `---`,
+        `\${3:Define the prompt content here. You can include instructions, examples, and any other relevant information to guide the AI's responses.}`
+      ].join("\n");
+    case PromptsType.instructions:
+      return [
+        `---`,
+        `description: \${1:Describe when these instructions should be loaded}`,
+        `# applyTo: '\${1|**,**/*.ts|}' # when provided, instructions will automatically be added to the request context when the pattern matches an attached file`,
+        `---`,
+        `\${2:Provide project context and coding guidelines that AI should follow when generating code, answering questions, or reviewing changes.}`
+      ].join("\n");
+    case PromptsType.agent:
+      return [
+        `---`,
+        `name: ${name ?? "${1:agent-name}"}`,
+        `description: \${2:Describe what this custom agent does and when to use it.}`,
+        `argument-hint: \${3:The inputs this agent expects, e.g., "a task to implement" or "a question to answer".}`,
+        `# tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'todo'] # specify the tools this agent can use. If not set, all enabled tools are allowed.`,
+        `---`,
+        `\${4:Define what this custom agent does, including its behavior, capabilities, and any specific instructions for its operation.}`
+      ].join("\n");
+    case PromptsType.skill:
+      return [
+        `---`,
+        `name: ${name ?? "${1:skill-name}"}`,
+        `description: \${2:Describe what this skill does and when to use it. Include keywords that help agents identify relevant tasks.}`,
+        `---`,
+        `\${3:Define the functionality provided by this skill, including detailed instructions and examples}`
+      ].join("\n");
+    case PromptsType.hook:
+      return JSON.stringify({
+        version: 1,
+        hooks: {}
+      }, null, 4);
+    default:
+      throw new Error(`Unsupported prompt type: ${promptType}`);
+  }
+}
+__name(getDefaultContentSnippet, "getDefaultContentSnippet");
+const NEW_PROMPT_COMMAND_ID = "workbench.command.new.prompt";
+const NEW_INSTRUCTIONS_COMMAND_ID = "workbench.command.new.instructions";
+const NEW_AGENT_COMMAND_ID = "workbench.command.new.agent";
+const NEW_SKILL_COMMAND_ID = "workbench.command.new.skill";
+const NEW_HOOK_COMMAND_ID = "workbench.command.new.hook";
+class NewPromptFileAction extends AbstractNewPromptFileAction {
+  static {
+    __name(this, "NewPromptFileAction");
+  }
+  constructor() {
+    super(NEW_PROMPT_COMMAND_ID, localize("commands.new.prompt.local.title", "New Prompt File..."), PromptsType.prompt);
+  }
+}
+class NewInstructionsFileAction extends AbstractNewPromptFileAction {
+  static {
+    __name(this, "NewInstructionsFileAction");
+  }
+  constructor() {
+    super(NEW_INSTRUCTIONS_COMMAND_ID, localize("commands.new.instructions.local.title", "New Instructions File..."), PromptsType.instructions);
+  }
+}
+class NewAgentFileAction extends AbstractNewPromptFileAction {
+  static {
+    __name(this, "NewAgentFileAction");
+  }
+  constructor() {
+    super(NEW_AGENT_COMMAND_ID, localize("commands.new.agent.local.title", "New Custom Agent..."), PromptsType.agent);
+  }
+}
+class NewSkillFileAction extends Action2 {
+  static {
+    __name(this, "NewSkillFileAction");
+  }
+  constructor() {
+    super({
+      id: NEW_SKILL_COMMAND_ID,
+      title: localize("commands.new.skill.local.title", "New Skill File..."),
+      f1: false,
+      precondition: ChatContextKeys.enabled,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: {
+        id: MenuId.CommandPalette,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor) {
+    const openerService = accessor.get(IOpenerService);
+    const editorService = accessor.get(IEditorService);
+    const fileService = accessor.get(IFileService);
+    const instaService = accessor.get(IInstantiationService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const selectedFolder = await instaService.invokeFunction(askForPromptSourceFolder, PromptsType.skill);
+    if (!selectedFolder) {
+      return;
+    }
+    const skillName = await quickInputService.input({
+      prompt: localize("commands.new.skill.name.prompt", "Enter a name for the skill (lowercase letters, numbers, and hyphens only)"),
+      placeHolder: localize("commands.new.skill.name.placeholder", "e.g., pdf-processing, data-analysis"),
+      validateInput: /* @__PURE__ */ __name(async (value) => {
+        if (!value || !value.trim()) {
+          return localize("commands.new.skill.name.required", "Skill name is required");
+        }
+        const name = value.trim();
+        if (name.length > 64) {
+          return localize("commands.new.skill.name.tooLong", "Skill name must be 64 characters or less");
+        }
+        if (!/^[a-z0-9-]+$/.test(name)) {
+          return localize("commands.new.skill.name.invalidChars", "Skill name may only contain lowercase letters, numbers, and hyphens");
+        }
+        if (name.startsWith("-") || name.endsWith("-")) {
+          return localize("commands.new.skill.name.hyphenEdge", "Skill name must not start or end with a hyphen");
+        }
+        if (name.includes("--")) {
+          return localize("commands.new.skill.name.consecutiveHyphens", "Skill name must not contain consecutive hyphens");
+        }
+        return void 0;
+      }, "validateInput")
+    });
+    if (!skillName) {
+      return;
+    }
+    const trimmedName = skillName.trim();
+    const skillFolder = URI.joinPath(selectedFolder.uri, trimmedName);
+    await fileService.createFolder(skillFolder);
+    const skillFileUri = URI.joinPath(skillFolder, SKILL_FILENAME);
+    await fileService.createFile(skillFileUri);
+    await openerService.open(skillFileUri);
+    const editor = getCodeEditor(editorService.activeTextEditorControl);
+    if (editor && editor.hasModel() && isEqual(editor.getModel().uri, skillFileUri)) {
+      SnippetController2.get(editor)?.apply([{
+        range: editor.getModel().getFullModelRange(),
+        template: getDefaultContentSnippet(PromptsType.skill, trimmedName)
+      }]);
+    }
+  }
+}
+class NewHookFileAction extends Action2 {
+  static {
+    __name(this, "NewHookFileAction");
+  }
+  constructor() {
+    super({
+      id: NEW_HOOK_COMMAND_ID,
+      title: localize("commands.new.hook.local.title", "New Hook..."),
+      f1: false,
+      precondition: ChatContextKeys.enabled,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      },
+      menu: {
+        id: MenuId.CommandPalette,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const fileService = accessor.get(IFileService);
+    const instaService = accessor.get(IInstantiationService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const bulkEditService = accessor.get(IBulkEditService);
+    const selectedFolder = await instaService.invokeFunction(askForPromptSourceFolder, PromptsType.hook);
+    if (!selectedFolder) {
+      return;
+    }
+    const hookTypeItems = HOOK_TYPES.map((hookType) => ({
+      id: hookType.id,
+      label: hookType.label,
+      description: hookType.description
+    }));
+    const selectedHookType = await quickInputService.pick(hookTypeItems, {
+      placeHolder: localize("commands.new.hook.type.placeholder", "Select a hook type to add"),
+      title: localize("commands.new.hook.type.title", "Add Hook")
+    });
+    if (!selectedHookType) {
+      return;
+    }
+    await fileService.createFolder(selectedFolder.uri);
+    const hookFileUri = URI.joinPath(selectedFolder.uri, HOOKS_FILENAME);
+    let hooksContent;
+    const fileExists = await fileService.exists(hookFileUri);
+    if (fileExists) {
+      const existingContent = await fileService.readFile(hookFileUri);
+      try {
+        hooksContent = JSON.parse(existingContent.value.toString());
+        if (!hooksContent.hooks) {
+          hooksContent.hooks = {};
+        }
+      } catch {
+        const notificationService = accessor.get(INotificationService);
+        notificationService.error(localize("commands.new.hook.parseError", "Failed to parse existing hooks.json. Please fix the JSON syntax errors and try again."));
+        await editorService.openEditor({ resource: hookFileUri });
+        return;
+      }
+    } else {
+      hooksContent = { version: 1, hooks: {} };
+    }
+    const hookTypeId = selectedHookType.id;
+    const newHookEntry = {
+      type: "command",
+      command: ""
+    };
+    let newHookIndex;
+    if (!hooksContent.hooks[hookTypeId]) {
+      hooksContent.hooks[hookTypeId] = [newHookEntry];
+      newHookIndex = 0;
+    } else {
+      hooksContent.hooks[hookTypeId].push(newHookEntry);
+      newHookIndex = hooksContent.hooks[hookTypeId].length - 1;
+    }
+    const jsonContent = JSON.stringify(hooksContent, null, "	");
+    const existingEditor = editorService.editors.find((e) => isEqual(e.resource, hookFileUri));
+    if (existingEditor) {
+      await editorService.openEditor({
+        resource: hookFileUri,
+        options: {
+          pinned: false
+        }
+      });
+      const editor = getCodeEditor(editorService.activeTextEditorControl);
+      if (editor && editor.hasModel() && isEqual(editor.getModel().uri, hookFileUri)) {
+        const model = editor.getModel();
+        model.pushEditOperations([], [{
+          range: model.getFullModelRange(),
+          text: jsonContent
+        }], () => null);
+        const selection = findHookCommandSelection(jsonContent, hookTypeId, newHookIndex, "command");
+        if (selection && selection.endLineNumber !== void 0 && selection.endColumn !== void 0) {
+          editor.setSelection({
+            startLineNumber: selection.startLineNumber,
+            startColumn: selection.startColumn,
+            endLineNumber: selection.endLineNumber,
+            endColumn: selection.endColumn
+          });
+          editor.revealLineInCenter(selection.startLineNumber);
+        }
+      }
+    } else {
+      if (!fileExists) {
+        await fileService.writeFile(hookFileUri, VSBuffer.fromString(jsonContent));
+      } else {
+        await editorService.openEditor({
+          resource: hookFileUri,
+          options: { pinned: false }
+        });
+        await bulkEditService.apply([
+          new ResourceTextEdit(hookFileUri, { range: new Range(1, 1, Number.MAX_SAFE_INTEGER, 1), text: jsonContent })
+        ], { label: localize("addHook", "Add Hook") });
+      }
+      const selection = findHookCommandSelection(jsonContent, hookTypeId, newHookIndex, "command");
+      await editorService.openEditor({
+        resource: hookFileUri,
+        options: {
+          selection,
+          pinned: false
+        }
+      });
+    }
+  }
+}
+class NewUntitledPromptFileAction extends Action2 {
+  static {
+    __name(this, "NewUntitledPromptFileAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.command.new.untitled.prompt",
+      title: localize2("commands.new.untitled.prompt.title", "New Untitled Prompt File"),
+      f1: true,
+      precondition: ChatContextKeys.enabled,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        weight: 200
+        /* KeybindingWeight.WorkbenchContrib */
+      }
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const languageId = getLanguageIdForPromptsType(PromptsType.prompt);
+    const input = await editorService.openEditor({
+      resource: void 0,
+      languageId,
+      options: {
+        pinned: true
+      }
+    });
+    const type = PromptsType.prompt;
+    const editor = getCodeEditor(editorService.activeTextEditorControl);
+    if (editor && editor.hasModel()) {
+      SnippetController2.get(editor)?.apply([{
+        range: editor.getModel().getFullModelRange(),
+        template: getDefaultContentSnippet(type, void 0)
+      }]);
+    }
+    return input;
+  }
+}
+function registerNewPromptFileActions() {
+  registerAction2(NewPromptFileAction);
+  registerAction2(NewInstructionsFileAction);
+  registerAction2(NewAgentFileAction);
+  registerAction2(NewSkillFileAction);
+  registerAction2(NewHookFileAction);
+  registerAction2(NewUntitledPromptFileAction);
+}
+__name(registerNewPromptFileActions, "registerNewPromptFileActions");
+export {
+  NEW_AGENT_COMMAND_ID,
+  NEW_HOOK_COMMAND_ID,
+  NEW_INSTRUCTIONS_COMMAND_ID,
+  NEW_PROMPT_COMMAND_ID,
+  NEW_SKILL_COMMAND_ID,
+  registerNewPromptFileActions
+};
+//# sourceMappingURL=newPromptFileActions.js.map

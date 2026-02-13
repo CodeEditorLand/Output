@@ -1,1 +1,131 @@
-import"./experiments/agentSessionsExperiments.contribution.js";import{$bk as s}from"../../../../../base/common/codicons.js";import{localize as d,localize2 as g}from"../../../../../nls.js";import{$0n as o}from"../../../../../platform/contextkey/common/contextkey.js";import{$WC as p}from"../../../../../platform/instantiation/common/extensions.js";import{$jm as S}from"../../../../../platform/registry/common/platform.js";import{$AH as u}from"../../../../../platform/quickinput/common/quickAccess.js";import{ChatContextKeys as i}from"../../common/actions/chatContextKeys.js";import{AgentSessionsViewerOrientation as r,AgentSessionsViewerPosition as c}from"./agentSessions.js";import{$tQb as $,$sQb as T}from"./agentSessionsService.js";import{$mpc as l}from"./localAgentSessionsProvider.js";import{$2N as f}from"../../../../common/contributions.js";import{$qL as t,$sL as a,$wL as e}from"../../../../../platform/actions/common/actions.js";import{$2nc as w,$Wnc as b,$3nc as V,$7nc as h,$8nc as I,$9nc as E,$_nc as n,$aoc as m,$boc as L,$0nc as q,$$nc as A,$Znc as y,$1nc as O,$coc as k,$Rnc as P,$Snc as v,$Tnc as M,$Unc as D,$Vnc as R,$4nc as Q,$5nc as C,$6nc as x,$Ync as z,$Qnc as B,$Xnc as F}from"./agentSessionsActions.js";import{$opc as K,$npc as W}from"./agentSessionsQuickAccess.js";e(k);e(M);e(D);e(R);e(b);e(F);e(z);e(w);e(V);e(Q);e(C);e(x);e(y);e(O);e(E);e(h);e(I);e(q);e(A);e(n);e(m);e(L);e(B);e(P);e(v);a.appendMenuItem(t.AgentSessionsToolbar,{submenu:t.AgentSessionsViewerFilterSubMenu,title:g(5428,"Filter Agent Sessions"),group:"navigation",order:3,icon:s.filter});a.appendMenuItem(t.AgentSessionsToolbar,{command:{id:n.ID,title:n.TITLE,icon:s.layoutSidebarRightOff},group:"navigation",order:5,when:o.and(i.agentSessionsViewerOrientation.isEqualTo(r.Stacked),i.agentSessionsViewerPosition.isEqualTo(c.Right))});a.appendMenuItem(t.AgentSessionsToolbar,{command:{id:n.ID,title:n.TITLE,icon:s.layoutSidebarLeftOff},group:"navigation",order:5,when:o.and(i.agentSessionsViewerOrientation.isEqualTo(r.Stacked),i.agentSessionsViewerPosition.isEqualTo(c.Left))});a.appendMenuItem(t.AgentSessionsToolbar,{command:{id:m.ID,title:m.TITLE,icon:s.layoutSidebarRight},group:"navigation",order:5,when:o.and(i.agentSessionsViewerOrientation.isEqualTo(r.SideBySide),i.agentSessionsViewerPosition.isEqualTo(c.Right))});a.appendMenuItem(t.AgentSessionsToolbar,{command:{id:m.ID,title:m.TITLE,icon:s.layoutSidebarLeft},group:"navigation",order:5,when:o.and(i.agentSessionsViewerOrientation.isEqualTo(r.SideBySide),i.agentSessionsViewerPosition.isEqualTo(c.Left))});a.appendMenuItem(t.ChatViewSessionTitleToolbar,{command:{id:n.ID,title:n.TITLE,icon:s.layoutSidebarLeftOff},group:"navigation",order:1,when:o.and(o.or(i.agentSessionsViewerVisible.negate(),i.agentSessionsViewerOrientation.isEqualTo(r.Stacked)),i.agentSessionsViewerPosition.isEqualTo(c.Left))});a.appendMenuItem(t.ChatViewSessionTitleToolbar,{command:{id:n.ID,title:n.TITLE,icon:s.layoutSidebarRightOff},group:"navigation",order:1,when:o.and(o.or(i.agentSessionsViewerVisible.negate(),i.agentSessionsViewerOrientation.isEqualTo(r.Stacked)),i.agentSessionsViewerPosition.isEqualTo(c.Right))});S.as(u.Quickaccess).registerQuickAccessProvider({ctor:K,prefix:W,contextKey:"inAgentSessionsPicker",when:i.enabled,placeholder:d(5426,null),helpEntries:[{description:d(5427,null),commandId:"workbench.action.chat.history"}]});f(l.ID,l,3);p($,T,1);
+import "./experiments/agentSessionsExperiments.contribution.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { Extensions as QuickAccessExtensions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { AgentSessionsViewerOrientation, AgentSessionsViewerPosition } from "./agentSessions.js";
+import { IAgentSessionsService, AgentSessionsService } from "./agentSessionsService.js";
+import { LocalAgentsSessionsProvider } from "./localAgentSessionsProvider.js";
+import { registerWorkbenchContribution2 } from "../../../../common/contributions.js";
+import { MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ArchiveAgentSessionAction, ArchiveAgentSessionSectionAction, UnarchiveAgentSessionAction, OpenAgentSessionInEditorGroupAction, OpenAgentSessionInNewEditorGroupAction, OpenAgentSessionInNewWindowAction, ShowAgentSessionsSidebar, HideAgentSessionsSidebar, ToggleAgentSessionsSidebar, RefreshAgentSessionsViewerAction, FindAgentSessionInViewerAction, MarkAgentSessionUnreadAction, MarkAgentSessionReadAction, FocusAgentSessionsAction, SetAgentSessionsOrientationStackedAction, SetAgentSessionsOrientationSideBySideAction, PickAgentSessionAction, ArchiveAllAgentSessionsAction, MarkAllAgentSessionsReadAction, RenameAgentSessionAction, DeleteAgentSessionAction, DeleteAllLocalSessionsAction, MarkAgentSessionSectionReadAction, ToggleShowAgentSessionsAction, UnarchiveAgentSessionSectionAction } from "./agentSessionsActions.js";
+import { AgentSessionsQuickAccessProvider, AGENT_SESSIONS_QUICK_ACCESS_PREFIX } from "./agentSessionsQuickAccess.js";
+registerAction2(FocusAgentSessionsAction);
+registerAction2(PickAgentSessionAction);
+registerAction2(ArchiveAllAgentSessionsAction);
+registerAction2(MarkAllAgentSessionsReadAction);
+registerAction2(ArchiveAgentSessionSectionAction);
+registerAction2(UnarchiveAgentSessionSectionAction);
+registerAction2(MarkAgentSessionSectionReadAction);
+registerAction2(ArchiveAgentSessionAction);
+registerAction2(UnarchiveAgentSessionAction);
+registerAction2(RenameAgentSessionAction);
+registerAction2(DeleteAgentSessionAction);
+registerAction2(DeleteAllLocalSessionsAction);
+registerAction2(MarkAgentSessionUnreadAction);
+registerAction2(MarkAgentSessionReadAction);
+registerAction2(OpenAgentSessionInNewWindowAction);
+registerAction2(OpenAgentSessionInEditorGroupAction);
+registerAction2(OpenAgentSessionInNewEditorGroupAction);
+registerAction2(RefreshAgentSessionsViewerAction);
+registerAction2(FindAgentSessionInViewerAction);
+registerAction2(ShowAgentSessionsSidebar);
+registerAction2(HideAgentSessionsSidebar);
+registerAction2(ToggleAgentSessionsSidebar);
+registerAction2(ToggleShowAgentSessionsAction);
+registerAction2(SetAgentSessionsOrientationStackedAction);
+registerAction2(SetAgentSessionsOrientationSideBySideAction);
+MenuRegistry.appendMenuItem(MenuId.AgentSessionsToolbar, {
+  submenu: MenuId.AgentSessionsViewerFilterSubMenu,
+  title: localize2("filterAgentSessions", "Filter Agent Sessions"),
+  group: "navigation",
+  order: 3,
+  icon: Codicon.filter
+});
+MenuRegistry.appendMenuItem(MenuId.AgentSessionsToolbar, {
+  command: {
+    id: ShowAgentSessionsSidebar.ID,
+    title: ShowAgentSessionsSidebar.TITLE,
+    icon: Codicon.layoutSidebarRightOff
+  },
+  group: "navigation",
+  order: 5,
+  when: ContextKeyExpr.and(ChatContextKeys.agentSessionsViewerOrientation.isEqualTo(AgentSessionsViewerOrientation.Stacked), ChatContextKeys.agentSessionsViewerPosition.isEqualTo(AgentSessionsViewerPosition.Right))
+});
+MenuRegistry.appendMenuItem(MenuId.AgentSessionsToolbar, {
+  command: {
+    id: ShowAgentSessionsSidebar.ID,
+    title: ShowAgentSessionsSidebar.TITLE,
+    icon: Codicon.layoutSidebarLeftOff
+  },
+  group: "navigation",
+  order: 5,
+  when: ContextKeyExpr.and(ChatContextKeys.agentSessionsViewerOrientation.isEqualTo(AgentSessionsViewerOrientation.Stacked), ChatContextKeys.agentSessionsViewerPosition.isEqualTo(AgentSessionsViewerPosition.Left))
+});
+MenuRegistry.appendMenuItem(MenuId.AgentSessionsToolbar, {
+  command: {
+    id: HideAgentSessionsSidebar.ID,
+    title: HideAgentSessionsSidebar.TITLE,
+    icon: Codicon.layoutSidebarRight
+  },
+  group: "navigation",
+  order: 5,
+  when: ContextKeyExpr.and(ChatContextKeys.agentSessionsViewerOrientation.isEqualTo(AgentSessionsViewerOrientation.SideBySide), ChatContextKeys.agentSessionsViewerPosition.isEqualTo(AgentSessionsViewerPosition.Right))
+});
+MenuRegistry.appendMenuItem(MenuId.AgentSessionsToolbar, {
+  command: {
+    id: HideAgentSessionsSidebar.ID,
+    title: HideAgentSessionsSidebar.TITLE,
+    icon: Codicon.layoutSidebarLeft
+  },
+  group: "navigation",
+  order: 5,
+  when: ContextKeyExpr.and(ChatContextKeys.agentSessionsViewerOrientation.isEqualTo(AgentSessionsViewerOrientation.SideBySide), ChatContextKeys.agentSessionsViewerPosition.isEqualTo(AgentSessionsViewerPosition.Left))
+});
+MenuRegistry.appendMenuItem(MenuId.ChatViewSessionTitleToolbar, {
+  command: {
+    id: ShowAgentSessionsSidebar.ID,
+    title: ShowAgentSessionsSidebar.TITLE,
+    icon: Codicon.layoutSidebarLeftOff
+  },
+  group: "navigation",
+  order: 1,
+  when: ContextKeyExpr.and(ContextKeyExpr.or(ChatContextKeys.agentSessionsViewerVisible.negate(), ChatContextKeys.agentSessionsViewerOrientation.isEqualTo(AgentSessionsViewerOrientation.Stacked)), ChatContextKeys.agentSessionsViewerPosition.isEqualTo(AgentSessionsViewerPosition.Left))
+});
+MenuRegistry.appendMenuItem(MenuId.ChatViewSessionTitleToolbar, {
+  command: {
+    id: ShowAgentSessionsSidebar.ID,
+    title: ShowAgentSessionsSidebar.TITLE,
+    icon: Codicon.layoutSidebarRightOff
+  },
+  group: "navigation",
+  order: 1,
+  when: ContextKeyExpr.and(ContextKeyExpr.or(ChatContextKeys.agentSessionsViewerVisible.negate(), ChatContextKeys.agentSessionsViewerOrientation.isEqualTo(AgentSessionsViewerOrientation.Stacked)), ChatContextKeys.agentSessionsViewerPosition.isEqualTo(AgentSessionsViewerPosition.Right))
+});
+Registry.as(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
+  ctor: AgentSessionsQuickAccessProvider,
+  prefix: AGENT_SESSIONS_QUICK_ACCESS_PREFIX,
+  contextKey: "inAgentSessionsPicker",
+  when: ChatContextKeys.enabled,
+  placeholder: localize("agentSessionsQuickAccessPlaceholder", "Search agent sessions by name"),
+  helpEntries: [{
+    description: localize("agentSessionsQuickAccessHelp", "Show All Agent Sessions"),
+    commandId: "workbench.action.chat.history"
+  }]
+});
+registerWorkbenchContribution2(
+  LocalAgentsSessionsProvider.ID,
+  LocalAgentsSessionsProvider,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerSingleton(
+  IAgentSessionsService,
+  AgentSessionsService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=agentSessions.contribution.js.map

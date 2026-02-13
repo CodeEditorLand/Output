@@ -1,1 +1,452 @@
-import{n as b}from"../../../../../../../../base/browser/dom.js";import{Event as dt}from"../../../../../../../../base/common/event.js";import{$Ed as ht}from"../../../../../../../../base/common/lifecycle.js";import{autorun as ft,constObservable as V,debouncedObservable2 as mt,derived as h,derivedDisposable as pt,observableFromEvent as ut}from"../../../../../../../../base/common/observable.js";import{$Mj as gt}from"../../../../../../../../platform/instantiation/common/instantiation.js";import{$Xib as bt}from"../../../../../../../browser/observableCodeEditor.js";import{Rect as R}from"../../../../../../../common/core/2d/rect.js";import{$$D as wt}from"../../../../../../../common/core/position.js";import{InlineEditTabAction as j}from"../../inlineEditsViewInterface.js";import{$2sb as vt,$dtb as St}from"../../utils/utils.js";import{$hE as w}from"../../../../../../../common/core/ranges/offsetRange.js";import{$jE as X}from"../../../../../../../common/core/ranges/lineRange.js";import{$qkb as Et}from"../../../../../../../browser/widget/diffEditor/features/hideUnchangedRegionsFeature.js";import{$bk as P}from"../../../../../../../../base/common/codicons.js";import{$H0 as G}from"../../../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{SymbolKinds as yt}from"../../../../../../../common/languages.js";import{$wtb as xt,$ttb as M,$xtb as W}from"../debugVisualization.js";import{$ytb as Lt}from"../../utils/flexBoxLayout.js";import{$Wib as $t}from"../../../../../../../common/core/2d/point.js";import{$qu as Rt}from"../../../../../../../../platform/theme/common/themeService.js";import{$fy as Ct}from"../../../../../../../../platform/keybinding/common/keybinding.js";import{$Xsb as It,$Wsb as Tt,$Msb as At,$Psb as Wt,$Ssb as Dt,$Ysb as Nt}from"../../theme.js";import{$Wp as K,$eq as Ot,$Qq as Pt}from"../../../../../../../../platform/theme/common/colorRegistry.js";import{$Sq as Mt}from"../../../../../../../../platform/theme/common/colors/editorColors.js";import{$Atb as _t}from"./longDistancePreviewEditor.js";import{$dnb as kt}from"../../../../controller/commandIds.js";import{$Dtb as Ht,$Ctb as Q}from"./longDistnaceWidgetPlacement.js";import{InlineCompletionEditorType as Bt}from"../../../../model/provideInlineCompletions.js";import{$Fh as zt}from"../../../../../../../../base/common/resources.js";import{$9H as Ft}from"../../../../../../../common/services/model.js";import{$ZF as jt}from"../../../../../../../common/languages/language.js";import{$8ob as Gt}from"../../../../../../../common/services/getIconClasses.js";import{FileKind as Jt}from"../../../../../../../../platform/files/common/files.js";var ct=function(s,r,i,n){var c=arguments.length,a=c<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,i):n,v;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(s,r,i,n);else for(var m=s.length-1;m>=0;m--)(v=s[m])&&(a=(c<3?v(a):c>3?v(r,i,a):v(r,i))||a);return c>3&&a&&Object.defineProperty(r,i,a),a},A=function(s,r){return function(i,n){r(i,n,s)}};const qt=6,J={EMPTY_SPACE:425,OVERLAY:375},Ut=250,Yt={previewEditorMargin:2,widgetPadding:2,widgetBorder:1,lowerBarHeight:20,minWidgetWidth:Ut};let Z=class extends ht{constructor(r,i,n,c,a,v,m,tt,et){super(),this.g=r,this.h=i,this.j=n,this.q=c,this.t=a,this.u=v,this.w=m,this.z=tt,this.C=et,this.onDidClick=dt.None,this.b=void 0,this.G=h(this,e=>{const t=this.h.read(e);return t?new wt(t.hint.lineNumber,Number.MAX_SAFE_INTEGER):null}),this.H=h(this,e=>{const t=this.h.read(e),l=this.G.read(e);if(!t||!l)return[];const f=this.a.model.read(e);if(!f)return[];const d=X.ofLength(l.lineNumber,1).addMargin(5,5).intersect(X.ofLength(1,f.getLineCount()));if(!d)return[];const o=vt(this.a,d,e),u=this.a.observeTopForLineNumber(d.startLineNumber).read(e);return Ht(d,o,u,this.a,e)}),this.I=mt(h(this,e=>this.h.read(e)?.hint.isVisible),(e,t)=>e===!0&&t===!1?200:0),this.J=h(this,e=>{const t=this.h.read(e);if(!t||!this.I.read(e))return;const l=this.H.read(e);if(l.length===0)return;const f=this.a.scrollTop.read(e),d=this.a.scrollLeft.read(e),o=this.a.layoutInfo.read(e),u=this.f.contentHeight.read(e),g=this.f.horizontalContentRangeInPreviewEditorToShow.read(e);if(!u||!g)return;const C=o.contentWidth-o.verticalScrollbarWidth,L=o.contentLeft+C;if(!this.a.cursorLineNumber.read(e))return;const S=Yt,E=u+2;let p,y;const I=x=>x===t.hint.lineNumber?40:20;for(const x of l){const T=new Q(x,C,I);if(y=T,!1){const lt=Xt(new $t(L,x.top-f),T.availableSpaceSizes,"right");W(M({...lt},this.g.getDomNode()),e)}if(p=T.tryFindWidgetOutline(t.hint.lineNumber,E,L,S),p)break}let N="empty-space";if(!p){N="overlay";const x=Math.min(o.width-o.contentLeft,J.OVERLAY),T=y??new Q(l[0],C,I);p={horizontalWidgetRange:w.ofStartAndLength(L-x,x),verticalWidgetRange:T.getWidgetVerticalOutline(t.hint.lineNumber+2,E,S).delta(10)}}if(!p)return;const $=R.fromRanges(p.horizontalWidgetRange,p.verticalWidgetRange).translateX(-d).translateY(-f);!1&&W(M({rectAvailableSpace:$},this.g.getDomNode()),e);const{previewEditorMargin:k,widgetPadding:H,widgetBorder:q,lowerBarHeight:U}=S,it=Math.min(N==="overlay"?J.OVERLAY:J.EMPTY_SPACE,g.maxEditorWidth+k+H),O=Lt($.width,{spaceBefore:{min:0,max:10,priority:1},content:{min:50,rules:[{max:150,priority:2},{max:it,priority:1}]},spaceAfter:{min:10}});if(!O)return null;const B=Vt([O.spaceBefore,O.content,O.spaceAfter],$.left),ot=$.withHorizontalRange(B[0]),z=$.withHorizontalRange(B[1]),nt=$.withHorizontalRange(B[2]);!1&&W(M({spaceBeforeRect:ot,widgetRect:z,spaceAfterRect:nt},this.g.getDomNode()),e);const F=z.withMargin(-H-q-k).withMargin(0,0,-U,0);!1&&W(M({previewEditorRect:F},this.g.getDomNode()),e);const Y=F.width-g.nonContentWidth,rt=Y*.8,st=g.preferredRangeToReveal.intersect(w.ofStartAndLength(g.preferredRangeToReveal.start,rt))??g.preferredRangeToReveal,at=Kt(g.indentationEnd,Y,st);return{codeEditorSize:F.getSize(),codeScrollLeft:d,contentLeft:o.contentLeft,widgetRect:z,previewEditorMargin:k,widgetPadding:H,widgetBorder:q,lowerBarHeight:U,desiredPreviewEditorScrollLeft:at.newScrollPosition}}),this.L=b.div({class:"inline-edits-view",style:{position:"absolute",overflow:"visible",top:"0px",left:"0px",display:h(this,e=>this.J.read(e)?"block":"none")}},[h(this,e=>[this.M])]),this.M=h(this,e=>b.div({class:["inline-edits-long-distance-hint-widget","show-file-icons"],style:{position:"absolute",overflow:"hidden",cursor:"pointer",background:K(Pt),padding:this.J.map(t=>t?.widgetPadding),boxSizing:"border-box",borderRadius:qt,border:h(t=>`${this.J.read(t)?.widgetBorder}px solid ${this.F.read(t).border}`),display:"flex",flexDirection:"column",opacity:h(t=>this.h.read(t)?.hint.isVisible?"1":"0"),transition:"opacity 200ms ease-in-out",...St(t=>this.J.read(t)?.widgetRect)},onmousedown:t=>{t.preventDefault()},onclick:()=>{this.h.read(void 0)?.model.jump()}},[b.div({class:["editorContainer"],style:{overflow:"hidden",padding:this.J.map(t=>t?.previewEditorMargin),background:this.F.map(t=>t.background),pointerEvents:"none"}},[h(this,t=>this.f.element)]),b.div({class:"bar",style:{color:K(Ot),pointerEvents:"none",margin:"0 4px",height:this.J.map(t=>t?.lowerBarHeight),display:"flex",justifyContent:"space-between",alignItems:"center"}},[h(this,t=>{const l=[],f=this.h.read(t);if(!f)return l;const d=this.a.model.read(t)?.uri,o=f.target.uri,u=o&&(!d||o.toString()!==d.toString());if(u){const S=zt(o),D=Gt(this.z,this.C,o,Jt.FILE);l.push(b.div({class:"target-file",style:{display:"flex",alignItems:"center",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},[b.elem("span",{class:D,style:{flexShrink:"0",marginRight:"4px"}}),S]))}else{const S=this.O.read(t),D=this.N.read(t),E=S?.getAt(D,t).slice(0,1)??[],p=[];if(E.length>0)for(let y=0;y<E.length;y++){const I=E[y],N=yt.toIcon(I.kind);p.push(b.div({class:"breadcrumb-item",style:{display:"flex",alignItems:"center",flex:"1 1 auto",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}},[G(N),"\xA0",I.name,...y===E.length-1?[]:[G(P.chevronRight)]]))}l.push(b.div({class:"outline-elements",style:{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},p))}const g=this.N.read(t),C=u?P.arrowRight:f.hint.lineNumber<g?P.arrowDown:P.arrowUp,L=this.w.lookupKeybinding(kt);let _=u?"Go to file":"Go to suggestion";return L&&L.getLabel()==="Tab"&&(_=u?"Tab to open":"Tab to jump"),l.push(b.div({class:"go-to-label",style:{position:"relative",display:"flex",alignItems:"center",flex:"0 0 auto",paddingLeft:"6px"}},[_,"\xA0",G(C)])),l})])])),this.N=h(this,e=>{const t=this.h.read(e);return t?t.edit.action?.kind==="jumpTo"?t.edit.action.position.lineNumber:t.diff[0]?.original.startLineNumber??-1:-1}),this.O=pt(this,e=>{const t=this.a.model.read(e),l=Et._breadcrumbsSourceFactory.read(e);return!t||!l?void 0:l(t,this.t)}),this.F=h(e=>{const t=this.q.read(e),l=Nt(Mt,this.u).read(e),f=ut(this.u.onDidColorThemeChange,()=>{const o=this.u.getColorTheme();return o.type==="hcDark"||o.type==="hcLight"}).read(e);let d;if(f)d=l;else{let o;switch(t){case j.Inactive:o=Wt;break;case j.Jump:o=At;break;case j.Accept:o=Dt;break}d=Tt(o,this.u).read(e)}return{border:d.toString(),background:It(this.h.map(o=>o?.editorType??Bt.TextEditor).read(e))}}),this.a=bt(this.g),this.f=this.D(this.t.createInstance(_t,this.j,h(e=>{const t=this.h.read(e);if(t)return{diff:t.diff,model:t.model,inlineSuggestInfo:t.inlineSuggestInfo,nextCursorPosition:t.nextCursorPosition,target:t.target}}),this.g,this.q)),this.b=this.L.keepUpdated(this.B),this.D(this.a.createOverlayWidget({domNode:this.b.element,position:V(null),allowEditorOverflow:!1,minContentWidthInPx:V(0)})),this.M.get().keepUpdated(this.B),this.D(ft(e=>{const t=this.J.read(e);t&&this.f.layout(t.codeEditorSize.toDimension(),t.desiredPreviewEditorScrollLeft)})),this.I.recomputeInitiallyAndOnChange(this.B)}get isHovered(){return this.M.get().didMouseMoveDuringHover}};Z=ct([A(4,gt),A(5,Rt),A(6,Ct),A(7,Ft),A(8,jt)],Z);function Vt(s,r=0){const i=[];let n=r;for(const c of s)i.push(new w(n,n+c)),n+=c;return i}function Xt(s,r,i="left"){const n=[];let c=0;for(const a of r)n.push(R.fromLeftTopWidthHeight(s.x+(i==="left"?0:-a.width),s.y+c,a.width,a.height)),c+=a.height;return n}function Me(s,r){const i=s.getLayoutInfo(),n=new w(0,i.contentLeft),c=w.ofStartAndLength(i.contentLeft,i.contentWidth-i.verticalScrollbarWidth),a=w.ofStartAndLength(c.endExclusive,i.minimap.minimapWidth),v=w.ofStartAndLength(a.endExclusive,i.verticalScrollbarWidth),m=new w(0,200);W(xt({contentLeft:R.fromRanges(n,m),trueContent:R.fromRanges(c,m),minimap:R.fromRanges(a,m),verticalScrollbar:R.fromRanges(v,m)},s.getDomNode()),r)}function Kt(s,r,i){const n=new w(s,s+r);return n.containsRange(i)?{newScrollPosition:s}:i.length>r?{newScrollPosition:i.start}:i.endExclusive>n.endExclusive?{newScrollPosition:i.endExclusive-r}:i.start<n.start?{newScrollPosition:i.start}:{newScrollPosition:s}}export{Z as $Etb,Me as $Ftb,Kt as $Gtb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { n } from "../../../../../../../../base/browser/dom.js";
+import { Event } from "../../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, debouncedObservable2, derived, derivedDisposable, observableFromEvent } from "../../../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../../../platform/instantiation/common/instantiation.js";
+import { observableCodeEditor } from "../../../../../../../browser/observableCodeEditor.js";
+import { Rect } from "../../../../../../../common/core/2d/rect.js";
+import { Position } from "../../../../../../../common/core/position.js";
+import { InlineEditTabAction } from "../../inlineEditsViewInterface.js";
+import { getContentSizeOfLines, rectToProps } from "../../utils/utils.js";
+import { OffsetRange } from "../../../../../../../common/core/ranges/offsetRange.js";
+import { LineRange } from "../../../../../../../common/core/ranges/lineRange.js";
+import { HideUnchangedRegionsFeature } from "../../../../../../../browser/widget/diffEditor/features/hideUnchangedRegionsFeature.js";
+import { Codicon } from "../../../../../../../../base/common/codicons.js";
+import { renderIcon } from "../../../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { SymbolKinds } from "../../../../../../../common/languages.js";
+import { debugLogHorizontalOffsetRanges, debugLogRects, debugView } from "../debugVisualization.js";
+import { distributeFlexBoxLayout } from "../../utils/flexBoxLayout.js";
+import { Point } from "../../../../../../../common/core/2d/point.js";
+import { IThemeService } from "../../../../../../../../platform/theme/common/themeService.js";
+import { IKeybindingService } from "../../../../../../../../platform/keybinding/common/keybinding.js";
+import { getEditorBackgroundColor, getEditorBlendedColor, inlineEditIndicatorPrimaryBackground, inlineEditIndicatorSecondaryBackground, inlineEditIndicatorSuccessfulBackground, observeColor } from "../../theme.js";
+import { asCssVariable, descriptionForeground, editorWidgetBackground } from "../../../../../../../../platform/theme/common/colorRegistry.js";
+import { editorWidgetBorder } from "../../../../../../../../platform/theme/common/colors/editorColors.js";
+import { LongDistancePreviewEditor } from "./longDistancePreviewEditor.js";
+import { jumpToNextInlineEditId } from "../../../../controller/commandIds.js";
+import { splitIntoContinuousLineRanges, WidgetPlacementContext } from "./longDistnaceWidgetPlacement.js";
+import { InlineCompletionEditorType } from "../../../../model/provideInlineCompletions.js";
+import { basename } from "../../../../../../../../base/common/resources.js";
+import { IModelService } from "../../../../../../../common/services/model.js";
+import { ILanguageService } from "../../../../../../../common/languages/language.js";
+import { getIconClasses } from "../../../../../../../common/services/getIconClasses.js";
+import { FileKind } from "../../../../../../../../platform/files/common/files.js";
+const BORDER_RADIUS = 6;
+const MAX_WIDGET_WIDTH = { EMPTY_SPACE: 425, OVERLAY: 375 };
+const MIN_WIDGET_WIDTH = 250;
+const DEFAULT_WIDGET_LAYOUT_CONSTANTS = {
+  previewEditorMargin: 2,
+  widgetPadding: 2,
+  widgetBorder: 1,
+  lowerBarHeight: 20,
+  minWidgetWidth: MIN_WIDGET_WIDTH
+};
+let InlineEditsLongDistanceHint = class InlineEditsLongDistanceHint2 extends Disposable {
+  static {
+    __name(this, "InlineEditsLongDistanceHint");
+  }
+  constructor(_editor, _viewState, _previewTextModel, _tabAction, _instantiationService, _themeService, _keybindingService, _modelService, _languageService) {
+    super();
+    this._editor = _editor;
+    this._viewState = _viewState;
+    this._previewTextModel = _previewTextModel;
+    this._tabAction = _tabAction;
+    this._instantiationService = _instantiationService;
+    this._themeService = _themeService;
+    this._keybindingService = _keybindingService;
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this.onDidClick = Event.None;
+    this._viewWithElement = void 0;
+    this._hintTextPosition = derived(this, (reader) => {
+      const viewState = this._viewState.read(reader);
+      return viewState ? new Position(viewState.hint.lineNumber, Number.MAX_SAFE_INTEGER) : null;
+    });
+    this._lineSizesAroundHintPosition = derived(this, (reader) => {
+      const viewState = this._viewState.read(reader);
+      const p = this._hintTextPosition.read(reader);
+      if (!viewState || !p) {
+        return [];
+      }
+      const model = this._editorObs.model.read(reader);
+      if (!model) {
+        return [];
+      }
+      const range = LineRange.ofLength(p.lineNumber, 1).addMargin(5, 5).intersect(LineRange.ofLength(1, model.getLineCount()));
+      if (!range) {
+        return [];
+      }
+      const sizes = getContentSizeOfLines(this._editorObs, range, reader);
+      const top = this._editorObs.observeTopForLineNumber(range.startLineNumber).read(reader);
+      return splitIntoContinuousLineRanges(range, sizes, top, this._editorObs, reader);
+    });
+    this._isVisibleDelayed = debouncedObservable2(derived(this, (reader) => this._viewState.read(reader)?.hint.isVisible), (lastValue, newValue) => lastValue === true && newValue === false ? 200 : 0);
+    this._previewEditorLayoutInfo = derived(this, (reader) => {
+      const viewState = this._viewState.read(reader);
+      if (!viewState || !this._isVisibleDelayed.read(reader)) {
+        return void 0;
+      }
+      const continousLineRanges = this._lineSizesAroundHintPosition.read(reader);
+      if (continousLineRanges.length === 0) {
+        return void 0;
+      }
+      const editorScrollTop = this._editorObs.scrollTop.read(reader);
+      const editorScrollLeft = this._editorObs.scrollLeft.read(reader);
+      const editorLayout = this._editorObs.layoutInfo.read(reader);
+      const previewContentHeight = this._previewEditor.contentHeight.read(reader);
+      const previewEditorContentLayout = this._previewEditor.horizontalContentRangeInPreviewEditorToShow.read(reader);
+      if (!previewContentHeight || !previewEditorContentLayout) {
+        return void 0;
+      }
+      const editorTrueContentWidth = editorLayout.contentWidth - editorLayout.verticalScrollbarWidth;
+      const editorTrueContentRight = editorLayout.contentLeft + editorTrueContentWidth;
+      const c = this._editorObs.cursorLineNumber.read(reader);
+      if (!c) {
+        return void 0;
+      }
+      const layoutConstants = DEFAULT_WIDGET_LAYOUT_CONSTANTS;
+      const extraGutterMarginToAvoidScrollBar = 2;
+      const previewEditorHeight = previewContentHeight + extraGutterMarginToAvoidScrollBar;
+      let possibleWidgetOutline;
+      let lastPlacementContext;
+      const endOfLinePadding = /* @__PURE__ */ __name((lineNumber) => lineNumber === viewState.hint.lineNumber ? 40 : 20, "endOfLinePadding");
+      for (const continousLineRange of continousLineRanges) {
+        const placementContext = new WidgetPlacementContext(continousLineRange, editorTrueContentWidth, endOfLinePadding);
+        lastPlacementContext = placementContext;
+        const showRects = false;
+        if (showRects) {
+          const rects2 = stackSizesDown(new Point(editorTrueContentRight, continousLineRange.top - editorScrollTop), placementContext.availableSpaceSizes, "right");
+          debugView(debugLogRects({ ...rects2 }, this._editor.getDomNode()), reader);
+        }
+        possibleWidgetOutline = placementContext.tryFindWidgetOutline(viewState.hint.lineNumber, previewEditorHeight, editorTrueContentRight, layoutConstants);
+        if (possibleWidgetOutline) {
+          break;
+        }
+      }
+      let position = "empty-space";
+      if (!possibleWidgetOutline) {
+        position = "overlay";
+        const maxAvailableWidth = Math.min(editorLayout.width - editorLayout.contentLeft, MAX_WIDGET_WIDTH.OVERLAY);
+        const fallbackPlacementContext = lastPlacementContext ?? new WidgetPlacementContext(continousLineRanges[0], editorTrueContentWidth, endOfLinePadding);
+        possibleWidgetOutline = {
+          horizontalWidgetRange: OffsetRange.ofStartAndLength(editorTrueContentRight - maxAvailableWidth, maxAvailableWidth),
+          verticalWidgetRange: fallbackPlacementContext.getWidgetVerticalOutline(viewState.hint.lineNumber + 2, previewEditorHeight, layoutConstants).delta(10)
+        };
+      }
+      if (!possibleWidgetOutline) {
+        return void 0;
+      }
+      const rectAvailableSpace = Rect.fromRanges(possibleWidgetOutline.horizontalWidgetRange, possibleWidgetOutline.verticalWidgetRange).translateX(-editorScrollLeft).translateY(-editorScrollTop);
+      const showAvailableSpace = false;
+      if (showAvailableSpace) {
+        debugView(debugLogRects({ rectAvailableSpace }, this._editor.getDomNode()), reader);
+      }
+      const { previewEditorMargin, widgetPadding, widgetBorder, lowerBarHeight } = layoutConstants;
+      const maxWidgetWidth = Math.min(position === "overlay" ? MAX_WIDGET_WIDTH.OVERLAY : MAX_WIDGET_WIDTH.EMPTY_SPACE, previewEditorContentLayout.maxEditorWidth + previewEditorMargin + widgetPadding);
+      const layout = distributeFlexBoxLayout(rectAvailableSpace.width, {
+        spaceBefore: { min: 0, max: 10, priority: 1 },
+        content: { min: 50, rules: [{ max: 150, priority: 2 }, { max: maxWidgetWidth, priority: 1 }] },
+        spaceAfter: { min: 10 }
+      });
+      if (!layout) {
+        return null;
+      }
+      const ranges = lengthsToOffsetRanges([layout.spaceBefore, layout.content, layout.spaceAfter], rectAvailableSpace.left);
+      const spaceBeforeRect = rectAvailableSpace.withHorizontalRange(ranges[0]);
+      const widgetRect = rectAvailableSpace.withHorizontalRange(ranges[1]);
+      const spaceAfterRect = rectAvailableSpace.withHorizontalRange(ranges[2]);
+      const showRects2 = false;
+      if (showRects2) {
+        debugView(debugLogRects({ spaceBeforeRect, widgetRect, spaceAfterRect }, this._editor.getDomNode()), reader);
+      }
+      const previewEditorRect = widgetRect.withMargin(-widgetPadding - widgetBorder - previewEditorMargin).withMargin(0, 0, -lowerBarHeight, 0);
+      const showEditorRect = false;
+      if (showEditorRect) {
+        debugView(debugLogRects({ previewEditorRect }, this._editor.getDomNode()), reader);
+      }
+      const previewEditorContentWidth = previewEditorRect.width - previewEditorContentLayout.nonContentWidth;
+      const maxPrefferedRangeLength = previewEditorContentWidth * 0.8;
+      const preferredRangeToReveal = previewEditorContentLayout.preferredRangeToReveal.intersect(OffsetRange.ofStartAndLength(previewEditorContentLayout.preferredRangeToReveal.start, maxPrefferedRangeLength)) ?? previewEditorContentLayout.preferredRangeToReveal;
+      const desiredPreviewEditorScrollLeft = scrollToReveal(previewEditorContentLayout.indentationEnd, previewEditorContentWidth, preferredRangeToReveal);
+      return {
+        codeEditorSize: previewEditorRect.getSize(),
+        codeScrollLeft: editorScrollLeft,
+        contentLeft: editorLayout.contentLeft,
+        widgetRect,
+        previewEditorMargin,
+        widgetPadding,
+        widgetBorder,
+        lowerBarHeight,
+        desiredPreviewEditorScrollLeft: desiredPreviewEditorScrollLeft.newScrollPosition
+      };
+    });
+    this._view = n.div({
+      class: "inline-edits-view",
+      style: {
+        position: "absolute",
+        overflow: "visible",
+        top: "0px",
+        left: "0px",
+        display: derived(this, (reader) => !!this._previewEditorLayoutInfo.read(reader) ? "block" : "none")
+      }
+    }, [
+      derived(this, (_reader) => [this._widgetContent])
+    ]);
+    this._widgetContent = derived(this, (reader) => (
+      // TODO@hediet: remove when n.div lazily creates previewEditor.element node
+      n.div({
+        class: ["inline-edits-long-distance-hint-widget", "show-file-icons"],
+        style: {
+          position: "absolute",
+          overflow: "hidden",
+          cursor: "pointer",
+          background: asCssVariable(editorWidgetBackground),
+          padding: this._previewEditorLayoutInfo.map((i) => i?.widgetPadding),
+          boxSizing: "border-box",
+          borderRadius: BORDER_RADIUS,
+          border: derived((reader2) => `${this._previewEditorLayoutInfo.read(reader2)?.widgetBorder}px solid ${this._styles.read(reader2).border}`),
+          display: "flex",
+          flexDirection: "column",
+          opacity: derived((reader2) => this._viewState.read(reader2)?.hint.isVisible ? "1" : "0"),
+          transition: "opacity 200ms ease-in-out",
+          ...rectToProps((reader2) => this._previewEditorLayoutInfo.read(reader2)?.widgetRect)
+        },
+        onmousedown: /* @__PURE__ */ __name((e) => {
+          e.preventDefault();
+        }, "onmousedown"),
+        onclick: /* @__PURE__ */ __name(() => {
+          this._viewState.read(void 0)?.model.jump();
+        }, "onclick")
+      }, [
+        n.div({
+          class: ["editorContainer"],
+          style: {
+            overflow: "hidden",
+            padding: this._previewEditorLayoutInfo.map((i) => i?.previewEditorMargin),
+            background: this._styles.map((s) => s.background),
+            pointerEvents: "none"
+          }
+        }, [
+          derived(this, (r) => this._previewEditor.element)
+          // --
+        ]),
+        n.div({ class: "bar", style: { color: asCssVariable(descriptionForeground), pointerEvents: "none", margin: "0 4px", height: this._previewEditorLayoutInfo.map((i) => i?.lowerBarHeight), display: "flex", justifyContent: "space-between", alignItems: "center" } }, [
+          derived(this, (reader2) => {
+            const children = [];
+            const viewState = this._viewState.read(reader2);
+            if (!viewState) {
+              return children;
+            }
+            const currentUri = this._editorObs.model.read(reader2)?.uri;
+            const targetUri = viewState.target.uri;
+            const isCrossFileEdit = targetUri && (!currentUri || targetUri.toString() !== currentUri.toString());
+            if (isCrossFileEdit) {
+              const fileName = basename(targetUri);
+              const iconClasses = getIconClasses(this._modelService, this._languageService, targetUri, FileKind.FILE);
+              children.push(n.div({
+                class: "target-file",
+                style: { display: "flex", alignItems: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }
+              }, [
+                n.elem("span", { class: iconClasses, style: { flexShrink: "0", marginRight: "4px" } }),
+                fileName
+              ]));
+            } else {
+              const source = this._originalOutlineSource.read(reader2);
+              const originalTargetLineNumber2 = this._originalTargetLineNumber.read(reader2);
+              const outlineItems = source?.getAt(originalTargetLineNumber2, reader2).slice(0, 1) ?? [];
+              const outlineElements = [];
+              if (outlineItems.length > 0) {
+                for (let i = 0; i < outlineItems.length; i++) {
+                  const item = outlineItems[i];
+                  const icon = SymbolKinds.toIcon(item.kind);
+                  outlineElements.push(n.div({
+                    class: "breadcrumb-item",
+                    style: { display: "flex", alignItems: "center", flex: "1 1 auto", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+                  }, [
+                    renderIcon(icon),
+                    "\xA0",
+                    item.name,
+                    ...i === outlineItems.length - 1 ? [] : [renderIcon(Codicon.chevronRight)]
+                  ]));
+                }
+              }
+              children.push(n.div({ class: "outline-elements", style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, outlineElements));
+            }
+            const originalTargetLineNumber = this._originalTargetLineNumber.read(reader2);
+            const arrowIcon = isCrossFileEdit ? Codicon.arrowRight : viewState.hint.lineNumber < originalTargetLineNumber ? Codicon.arrowDown : Codicon.arrowUp;
+            const keybinding = this._keybindingService.lookupKeybinding(jumpToNextInlineEditId);
+            let label = isCrossFileEdit ? "Go to file" : "Go to suggestion";
+            if (keybinding && keybinding.getLabel() === "Tab") {
+              label = isCrossFileEdit ? "Tab to open" : "Tab to jump";
+            }
+            children.push(n.div({
+              class: "go-to-label",
+              style: { position: "relative", display: "flex", alignItems: "center", flex: "0 0 auto", paddingLeft: "6px" }
+            }, [
+              label,
+              "\xA0",
+              renderIcon(arrowIcon)
+            ]));
+            return children;
+          })
+        ])
+      ])
+    ));
+    this._originalTargetLineNumber = derived(this, (reader) => {
+      const viewState = this._viewState.read(reader);
+      if (!viewState) {
+        return -1;
+      }
+      if (viewState.edit.action?.kind === "jumpTo") {
+        return viewState.edit.action.position.lineNumber;
+      }
+      return viewState.diff[0]?.original.startLineNumber ?? -1;
+    });
+    this._originalOutlineSource = derivedDisposable(this, (reader) => {
+      const m = this._editorObs.model.read(reader);
+      const factory = HideUnchangedRegionsFeature._breadcrumbsSourceFactory.read(reader);
+      return !m || !factory ? void 0 : factory(m, this._instantiationService);
+    });
+    this._styles = derived((reader) => {
+      const v = this._tabAction.read(reader);
+      const widgetBorderColor = observeColor(editorWidgetBorder, this._themeService).read(reader);
+      const isHighContrast = observableFromEvent(this._themeService.onDidColorThemeChange, () => {
+        const theme = this._themeService.getColorTheme();
+        return theme.type === "hcDark" || theme.type === "hcLight";
+      }).read(reader);
+      let borderColor;
+      if (isHighContrast) {
+        borderColor = widgetBorderColor;
+      } else {
+        let border;
+        switch (v) {
+          case InlineEditTabAction.Inactive:
+            border = inlineEditIndicatorSecondaryBackground;
+            break;
+          case InlineEditTabAction.Jump:
+            border = inlineEditIndicatorPrimaryBackground;
+            break;
+          case InlineEditTabAction.Accept:
+            border = inlineEditIndicatorSuccessfulBackground;
+            break;
+        }
+        borderColor = getEditorBlendedColor(border, this._themeService).read(reader);
+      }
+      return {
+        border: borderColor.toString(),
+        background: getEditorBackgroundColor(this._viewState.map((s) => s?.editorType ?? InlineCompletionEditorType.TextEditor).read(reader))
+      };
+    });
+    this._editorObs = observableCodeEditor(this._editor);
+    this._previewEditor = this._register(this._instantiationService.createInstance(LongDistancePreviewEditor, this._previewTextModel, derived((reader) => {
+      const viewState = this._viewState.read(reader);
+      if (!viewState) {
+        return void 0;
+      }
+      return {
+        diff: viewState.diff,
+        model: viewState.model,
+        inlineSuggestInfo: viewState.inlineSuggestInfo,
+        nextCursorPosition: viewState.nextCursorPosition,
+        target: viewState.target
+      };
+    }), this._editor, this._tabAction));
+    this._viewWithElement = this._view.keepUpdated(this._store);
+    this._register(this._editorObs.createOverlayWidget({
+      domNode: this._viewWithElement.element,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: constObservable(0)
+    }));
+    this._widgetContent.get().keepUpdated(this._store);
+    this._register(autorun((reader) => {
+      const layoutInfo = this._previewEditorLayoutInfo.read(reader);
+      if (!layoutInfo) {
+        return;
+      }
+      this._previewEditor.layout(layoutInfo.codeEditorSize.toDimension(), layoutInfo.desiredPreviewEditorScrollLeft);
+    }));
+    this._isVisibleDelayed.recomputeInitiallyAndOnChange(this._store);
+  }
+  get isHovered() {
+    return this._widgetContent.get().didMouseMoveDuringHover;
+  }
+};
+InlineEditsLongDistanceHint = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IThemeService),
+  __param(6, IKeybindingService),
+  __param(7, IModelService),
+  __param(8, ILanguageService)
+], InlineEditsLongDistanceHint);
+function lengthsToOffsetRanges(lengths, initialOffset = 0) {
+  const result = [];
+  let offset = initialOffset;
+  for (const length of lengths) {
+    result.push(new OffsetRange(offset, offset + length));
+    offset += length;
+  }
+  return result;
+}
+__name(lengthsToOffsetRanges, "lengthsToOffsetRanges");
+function stackSizesDown(at, sizes, alignment = "left") {
+  const rects = [];
+  let offset = 0;
+  for (const s of sizes) {
+    rects.push(Rect.fromLeftTopWidthHeight(at.x + (alignment === "left" ? 0 : -s.width), at.y + offset, s.width, s.height));
+    offset += s.height;
+  }
+  return rects;
+}
+__name(stackSizesDown, "stackSizesDown");
+function drawEditorWidths(e, reader) {
+  const layoutInfo = e.getLayoutInfo();
+  const contentLeft = new OffsetRange(0, layoutInfo.contentLeft);
+  const trueContent = OffsetRange.ofStartAndLength(layoutInfo.contentLeft, layoutInfo.contentWidth - layoutInfo.verticalScrollbarWidth);
+  const minimap = OffsetRange.ofStartAndLength(trueContent.endExclusive, layoutInfo.minimap.minimapWidth);
+  const verticalScrollbar = OffsetRange.ofStartAndLength(minimap.endExclusive, layoutInfo.verticalScrollbarWidth);
+  const r = new OffsetRange(0, 200);
+  debugView(debugLogHorizontalOffsetRanges({
+    contentLeft: Rect.fromRanges(contentLeft, r),
+    trueContent: Rect.fromRanges(trueContent, r),
+    minimap: Rect.fromRanges(minimap, r),
+    verticalScrollbar: Rect.fromRanges(verticalScrollbar, r)
+  }, e.getDomNode()), reader);
+}
+__name(drawEditorWidths, "drawEditorWidths");
+function scrollToReveal(currentScrollPosition, windowWidth, contentRangeToReveal) {
+  const visibleRange = new OffsetRange(currentScrollPosition, currentScrollPosition + windowWidth);
+  if (visibleRange.containsRange(contentRangeToReveal)) {
+    return { newScrollPosition: currentScrollPosition };
+  }
+  if (contentRangeToReveal.length > windowWidth) {
+    return { newScrollPosition: contentRangeToReveal.start };
+  }
+  if (contentRangeToReveal.endExclusive > visibleRange.endExclusive) {
+    return { newScrollPosition: contentRangeToReveal.endExclusive - windowWidth };
+  }
+  if (contentRangeToReveal.start < visibleRange.start) {
+    return { newScrollPosition: contentRangeToReveal.start };
+  }
+  return { newScrollPosition: currentScrollPosition };
+}
+__name(scrollToReveal, "scrollToReveal");
+export {
+  InlineEditsLongDistanceHint,
+  drawEditorWidths,
+  scrollToReveal
+};
+//# sourceMappingURL=inlineEditsLongDistanceHint.js.map

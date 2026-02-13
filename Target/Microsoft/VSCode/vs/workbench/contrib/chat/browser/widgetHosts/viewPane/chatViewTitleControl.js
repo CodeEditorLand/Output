@@ -1,1 +1,189 @@
-import"./media/chatViewTitleControl.css";import{$u8 as b,$r9 as w,h}from"../../../../../../base/browser/dom.js";import{$L0 as T}from"../../../../../../base/browser/markdownRenderer.js";import{$89 as $,EventType as C}from"../../../../../../base/browser/touch.js";import{$xf as D}from"../../../../../../base/common/event.js";import{$jk as S}from"../../../../../../base/common/htmlContent.js";import{$Ed as j,$Fd as u}from"../../../../../../base/common/lifecycle.js";import{localize as d}from"../../../../../../nls.js";import{$ikb as f}from"../../../../../../platform/actions/browser/toolbar.js";import{$vL as x,$qL as l,$wL as y}from"../../../../../../platform/actions/common/actions.js";import{$Mj as m}from"../../../../../../platform/instantiation/common/instantiation.js";import{$M$ as L}from"../../../../../../base/browser/ui/actionbar/actionViewItems.js";import{$Mnc as _}from"../../agentSessions/agentSessionsPicker.js";var g=function(n,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,i,e);else for(var c=n.length-1;c>=0;c--)(a=n[c])&&(s=(r<3?a(s):r>3?a(t,i,s):a(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},v=function(n,t){return function(i,e){t(i,e,n)}},o;let p=class extends j{static{o=this}static{this.a=d(6799,null)}static{this.b="workbench.action.chat.pickAgentSession"}constructor(t,i,e){super(),this.t=t,this.u=i,this.w=e,this.c=this.D(new D),this.onDidChangeHeight=this.c.event,this.f=void 0,this.j=this.D(new u),this.n=this.D(new u),this.s=0,this.z(this.t),this.y()}y(){this.D(y(class extends x{constructor(){super({id:o.b,title:d(6800,null),f1:!1,menu:[{id:l.ChatViewSessionTitleNavigationToolbar,group:"navigation",order:2}]})}async run(t){await t.get(m).createInstance(_).pickAgentSession()}}))}z(t){const i=h("div.chat-view-title-container",[h("div.chat-view-title-navigation-toolbar@navigationToolbar"),h("div.chat-view-title-actions-toolbar@actionsToolbar")]);this.q=this.D(this.w.createInstance(f,i.navigationToolbar,l.ChatViewSessionTitleNavigationToolbar,{actionViewItemProvider:e=>{if(e.id===o.b)return this.j.value=new F(e),this.j.value.updateTitle(this.f??o.a),this.j.value},hiddenItemStrategy:-1,menuOptions:{shouldForwardArgs:!0}})),this.r=this.D(this.w.createInstance(f,i.actionsToolbar,l.ChatViewSessionTitleToolbar,{menuOptions:{shouldForwardArgs:!0},hiddenItemStrategy:-1})),this.g=i.root,this.D($.addTarget(this.g));for(const e of[C.Tap,w.CLICK])this.D(b(this.g,e,()=>{this.u.focusChat()}));t.appendChild(this.g)}update(t){this.m=t,this.n.value=t?.onDidChange(i=>{(i.kind==="setCustomTitle"||i.kind==="addRequest")&&this.C()}),this.C()}C(){const t=new S(this.m?.title??"");this.f=T(t),this.F(this.f??o.a);const i=this.m&&{$mid:19,sessionResource:this.m.sessionResource};this.q&&(this.q.context=i),this.r&&(this.r.context=i)}F(t){if(!this.g)return;this.g.classList.toggle("visible",this.G()),this.j.value?.updateTitle(t);const i=this.getHeight();i!==this.s&&(this.s=i,this.c.fire())}G(){return!!this.m?.title}getHeight(){return!this.g||this.g.style.display==="none"?0:this.g.offsetHeight}};p=o=g([v(2,m)],p);class F extends L{constructor(t,i){super(null,t,{...i,icon:!1,label:!0}),this.b=void 0}render(t){super.render(t),t.classList.add("chat-view-title-action-item"),this.q?.classList.add("chat-view-title-label-container"),this.b=this.q?.appendChild(h("span.chat-view-title-label").root),this.F()}updateTitle(t){this.a=t,this.F()}F(){this.b&&(this.a?this.b.textContent=this.a:this.b.textContent="")}}export{p as $Nnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatViewTitleControl_1;
+import "./media/chatViewTitleControl.css";
+import { addDisposableListener, EventType, h } from "../../../../../../base/browser/dom.js";
+import { renderAsPlaintext } from "../../../../../../base/browser/markdownRenderer.js";
+import { Gesture, EventType as TouchEventType } from "../../../../../../base/browser/touch.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../../base/common/htmlContent.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ActionViewItem } from "../../../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { AgentSessionsPicker } from "../../agentSessions/agentSessionsPicker.js";
+let ChatViewTitleControl = class ChatViewTitleControl2 extends Disposable {
+  static {
+    __name(this, "ChatViewTitleControl");
+  }
+  static {
+    ChatViewTitleControl_1 = this;
+  }
+  static {
+    this.DEFAULT_TITLE = localize("chat", "Chat");
+  }
+  static {
+    this.PICK_AGENT_SESSION_ACTION_ID = "workbench.action.chat.pickAgentSession";
+  }
+  constructor(container, delegate, instantiationService) {
+    super();
+    this.container = container;
+    this.delegate = delegate;
+    this.instantiationService = instantiationService;
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
+    this.title = void 0;
+    this.titleLabel = this._register(new MutableDisposable());
+    this.modelDisposables = this._register(new MutableDisposable());
+    this.lastKnownHeight = 0;
+    this.render(this.container);
+    this.registerActions();
+  }
+  registerActions() {
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: ChatViewTitleControl_1.PICK_AGENT_SESSION_ACTION_ID,
+          title: localize("chat.pickAgentSession", "Pick Agent Session"),
+          f1: false,
+          menu: [{
+            id: MenuId.ChatViewSessionTitleNavigationToolbar,
+            group: "navigation",
+            order: 2
+          }]
+        });
+      }
+      async run(accessor) {
+        const instantiationService = accessor.get(IInstantiationService);
+        const agentSessionsPicker = instantiationService.createInstance(AgentSessionsPicker);
+        await agentSessionsPicker.pickAgentSession();
+      }
+    }));
+  }
+  render(parent) {
+    const elements = h("div.chat-view-title-container", [
+      h("div.chat-view-title-navigation-toolbar@navigationToolbar"),
+      h("div.chat-view-title-actions-toolbar@actionsToolbar")
+    ]);
+    this.navigationToolbar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, elements.navigationToolbar, MenuId.ChatViewSessionTitleNavigationToolbar, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action) => {
+        if (action.id === ChatViewTitleControl_1.PICK_AGENT_SESSION_ACTION_ID) {
+          this.titleLabel.value = new ChatViewTitleLabel(action);
+          this.titleLabel.value.updateTitle(this.title ?? ChatViewTitleControl_1.DEFAULT_TITLE);
+          return this.titleLabel.value;
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      hiddenItemStrategy: -1,
+      menuOptions: { shouldForwardArgs: true }
+    }));
+    this.actionsToolbar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, elements.actionsToolbar, MenuId.ChatViewSessionTitleToolbar, {
+      menuOptions: { shouldForwardArgs: true },
+      hiddenItemStrategy: -1
+      /* HiddenItemStrategy.NoHide */
+    }));
+    this.titleContainer = elements.root;
+    this._register(Gesture.addTarget(this.titleContainer));
+    for (const eventType of [TouchEventType.Tap, EventType.CLICK]) {
+      this._register(addDisposableListener(this.titleContainer, eventType, () => {
+        this.delegate.focusChat();
+      }));
+    }
+    parent.appendChild(this.titleContainer);
+  }
+  update(model) {
+    this.model = model;
+    this.modelDisposables.value = model?.onDidChange((e) => {
+      if (e.kind === "setCustomTitle" || e.kind === "addRequest") {
+        this.doUpdate();
+      }
+    });
+    this.doUpdate();
+  }
+  doUpdate() {
+    const markdownTitle = new MarkdownString(this.model?.title ?? "");
+    this.title = renderAsPlaintext(markdownTitle);
+    this.updateTitle(this.title ?? ChatViewTitleControl_1.DEFAULT_TITLE);
+    const context = this.model && {
+      $mid: 19,
+      sessionResource: this.model.sessionResource
+    };
+    if (this.navigationToolbar) {
+      this.navigationToolbar.context = context;
+    }
+    if (this.actionsToolbar) {
+      this.actionsToolbar.context = context;
+    }
+  }
+  updateTitle(title) {
+    if (!this.titleContainer) {
+      return;
+    }
+    this.titleContainer.classList.toggle("visible", this.shouldRender());
+    this.titleLabel.value?.updateTitle(title);
+    const currentHeight = this.getHeight();
+    if (currentHeight !== this.lastKnownHeight) {
+      this.lastKnownHeight = currentHeight;
+      this._onDidChangeHeight.fire();
+    }
+  }
+  shouldRender() {
+    return !!this.model?.title;
+  }
+  getHeight() {
+    if (!this.titleContainer || this.titleContainer.style.display === "none") {
+      return 0;
+    }
+    return this.titleContainer.offsetHeight;
+  }
+};
+ChatViewTitleControl = ChatViewTitleControl_1 = __decorate([
+  __param(2, IInstantiationService)
+], ChatViewTitleControl);
+class ChatViewTitleLabel extends ActionViewItem {
+  static {
+    __name(this, "ChatViewTitleLabel");
+  }
+  constructor(action, options) {
+    super(null, action, { ...options, icon: false, label: true });
+    this.titleLabel = void 0;
+  }
+  render(container) {
+    super.render(container);
+    container.classList.add("chat-view-title-action-item");
+    this.label?.classList.add("chat-view-title-label-container");
+    this.titleLabel = this.label?.appendChild(h("span.chat-view-title-label").root);
+    this.updateLabel();
+  }
+  updateTitle(title) {
+    this.title = title;
+    this.updateLabel();
+  }
+  updateLabel() {
+    if (!this.titleLabel) {
+      return;
+    }
+    if (this.title) {
+      this.titleLabel.textContent = this.title;
+    } else {
+      this.titleLabel.textContent = "";
+    }
+  }
+}
+export {
+  ChatViewTitleControl
+};
+//# sourceMappingURL=chatViewTitleControl.js.map

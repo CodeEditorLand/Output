@@ -1,1 +1,55 @@
-const p="notSelectable";var o;(function(t){t[t.Copy=0]="Copy",t[t.Move=1]="Move"})(o||(o={}));var c;(function(t){t.Over="drop-target",t.Before="drop-target-before",t.After="drop-target-after"})(c||(c={}));const s={reject(){return{accept:!1}},accept(){return{accept:!0}}};class a extends Error{constructor(r,e){super(`ListError [${r}] ${e}`)}}class n{constructor(){this.c=new WeakMap}getHeight(r){return this.c.get(r)??this.d(r)}setDynamicHeight(r,e){e>0&&this.c.set(r,e)}}export{p as $f$,s as $g$,a as $h$,n as $i$,c as ListDragOverEffectPosition,o as ListDragOverEffectType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const NotSelectableGroupId = "notSelectable";
+var ListDragOverEffectType;
+(function(ListDragOverEffectType2) {
+  ListDragOverEffectType2[ListDragOverEffectType2["Copy"] = 0] = "Copy";
+  ListDragOverEffectType2[ListDragOverEffectType2["Move"] = 1] = "Move";
+})(ListDragOverEffectType || (ListDragOverEffectType = {}));
+var ListDragOverEffectPosition;
+(function(ListDragOverEffectPosition2) {
+  ListDragOverEffectPosition2["Over"] = "drop-target";
+  ListDragOverEffectPosition2["Before"] = "drop-target-before";
+  ListDragOverEffectPosition2["After"] = "drop-target-after";
+})(ListDragOverEffectPosition || (ListDragOverEffectPosition = {}));
+const ListDragOverReactions = {
+  reject() {
+    return { accept: false };
+  },
+  accept() {
+    return { accept: true };
+  }
+};
+class ListError extends Error {
+  static {
+    __name(this, "ListError");
+  }
+  constructor(user, message) {
+    super(`ListError [${user}] ${message}`);
+  }
+}
+class CachedListVirtualDelegate {
+  static {
+    __name(this, "CachedListVirtualDelegate");
+  }
+  constructor() {
+    this.cache = /* @__PURE__ */ new WeakMap();
+  }
+  getHeight(element) {
+    return this.cache.get(element) ?? this.estimateHeight(element);
+  }
+  setDynamicHeight(element, height) {
+    if (height > 0) {
+      this.cache.set(element, height);
+    }
+  }
+}
+export {
+  CachedListVirtualDelegate,
+  ListDragOverEffectPosition,
+  ListDragOverEffectType,
+  ListDragOverReactions,
+  ListError,
+  NotSelectableGroupId
+};
+//# sourceMappingURL=list.js.map

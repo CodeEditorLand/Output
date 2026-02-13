@@ -1,1 +1,199 @@
-import{$Ed as d,$Fd as p}from"../../../../../base/common/lifecycle.js";import{localize as f}from"../../../../../nls.js";import{$MD as m}from"../../../../../platform/accessibility/common/accessibility.js";import{$fy as b}from"../../../../../platform/keybinding/common/keybinding.js";import{$bE as u}from"../../../../common/core/selection.js";import{$7cb as g}from"../../../config/domFontInfo.js";import{$Rgb as w}from"../screenReaderUtils.js";import{$Ghb as q}from"./screenReaderContentRich.js";import{$Hhb as C}from"./screenReaderContentSimple.js";var c=function(n,t,e,i){var r=arguments.length,s=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,e,i);else for(var h=n.length-1;h>=0;h--)(o=n[h])&&(s=(r<3?o(s):r>3?o(t,e,s):o(t,e))||s);return r>3&&s&&Object.defineProperty(t,e,s),s},a=function(n,t){return function(e,i){t(e,i,n)}};let l=class extends d{constructor(t,e,i,r,s){super(),this.q=t,this.r=e,this.s=i,this.t=r,this.u=s,this.a=1,this.b=1,this.c=1,this.f=1,this.j=new u(1,1,1,1),this.m=null,this.n=this.D(new p),this.w(),this.z(),this.C()}onWillPaste(){this.n.value?.onWillPaste()}onWillCut(){this.n.value?.onWillCut()}handleFocusChange(t){this.n.value?.onFocusChange(t),this.writeScreenReaderContent()}onConfigurationChanged(t){this.w(),this.z(),this.C(),t.hasChanged(2)&&this.writeScreenReaderContent()}w(){const t=this.r.configuration.options.get(107);this.h!==t&&(this.h=t,this.n.value=this.y(t))}y(t){return t?new q(this.q,this.r,this.s,this.u):new C(this.q,this.r,this.s,this.u)}z(){const t=this.r.configuration.options,e=t.get(165),i=e.wrappingColumn;this.a=e.contentLeft,this.b=e.contentWidth,this.c=e.height,this.g=t.get(59),this.f=Math.round(i*this.g.typicalHalfwidthCharacterWidth),this.n.value?.onConfigurationChanged(t)}C(){const t=this.r.configuration.options;this.q.domNode.setAttribute("role","textbox"),this.q.domNode.setAttribute("aria-required",t.get(9)?"true":"false"),this.q.domNode.setAttribute("aria-multiline","true"),this.q.domNode.setAttribute("aria-autocomplete",t.get(104)?"none":"both"),this.q.domNode.setAttribute("aria-roledescription",f(177,null)),this.q.domNode.setAttribute("aria-label",w(t,this.t));const e=this.r.viewModel.model.getOptions().tabSize,i=t.get(59).spaceWidth;this.q.domNode.style.tabSize=`${e*i}px`;const r=t.get(154),s=r==="inherit"?t.get(153):r,o=s==="inherit"?t.get(149):s;this.q.domNode.style.textWrap=o==="off"?"nowrap":"wrap"}onCursorStateChanged(t){this.j=t.selections[0]??new u(1,1,1,1)}prepareRender(t){this.writeScreenReaderContent(),this.m=t.visibleRangeForPosition(this.j.getPosition())}render(t){if(!this.m){this.F();return}const e=this.r.viewLayout.getCurrentScrollLeft(),i=this.a+this.m.left-e;if(i<this.a||i>this.a+this.b){this.F();return}const r=this.r.viewLayout.getCurrentScrollTop(),s=this.j.positionLineNumber,o=this.r.viewLayout.getVerticalOffsetForLineNumber(s)-r;if(o<0||o>this.c){this.F();return}const h=this.r.viewLayout.getLineHeightForLineNumber(s);this.G(o,this.a,this.f,h),this.n.value?.updateScrollTop(this.j)}F(){this.G(0,0,this.b,1)}G(t,e,i,r){g(this.q,this.g),this.q.setTop(t),this.q.setLeft(e),this.q.setWidth(i),this.q.setHeight(r),this.q.setLineHeight(r)}setAriaOptions(t){t.activeDescendant?(this.q.setAttribute("aria-haspopup","true"),this.q.setAttribute("aria-autocomplete","list"),this.q.setAttribute("aria-activedescendant",t.activeDescendant)):(this.q.setAttribute("aria-haspopup","false"),this.q.setAttribute("aria-autocomplete","both"),this.q.removeAttribute("aria-activedescendant")),t.role&&this.q.setAttribute("role",t.role)}writeScreenReaderContent(){this.n.value?.updateScreenReaderContent(this.j)}};l=c([a(3,b),a(4,m)],l);export{l as $Ihb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { Selection } from "../../../../common/core/selection.js";
+import { applyFontInfo } from "../../../config/domFontInfo.js";
+import { ariaLabelForScreenReaderContent } from "../screenReaderUtils.js";
+import { RichScreenReaderContent } from "./screenReaderContentRich.js";
+import { SimpleScreenReaderContent } from "./screenReaderContentSimple.js";
+let ScreenReaderSupport = class ScreenReaderSupport2 extends Disposable {
+  static {
+    __name(this, "ScreenReaderSupport");
+  }
+  constructor(_domNode, _context, _viewController, _keybindingService, _accessibilityService) {
+    super();
+    this._domNode = _domNode;
+    this._context = _context;
+    this._viewController = _viewController;
+    this._keybindingService = _keybindingService;
+    this._accessibilityService = _accessibilityService;
+    this._contentLeft = 1;
+    this._contentWidth = 1;
+    this._contentHeight = 1;
+    this._divWidth = 1;
+    this._primarySelection = new Selection(1, 1, 1, 1);
+    this._primaryCursorVisibleRange = null;
+    this._state = this._register(new MutableDisposable());
+    this._instantiateScreenReaderContent();
+    this._updateConfigurationSettings();
+    this._updateDomAttributes();
+  }
+  onWillPaste() {
+    this._state.value?.onWillPaste();
+  }
+  onWillCut() {
+    this._state.value?.onWillCut();
+  }
+  handleFocusChange(newFocusValue) {
+    this._state.value?.onFocusChange(newFocusValue);
+    this.writeScreenReaderContent();
+  }
+  onConfigurationChanged(e) {
+    this._instantiateScreenReaderContent();
+    this._updateConfigurationSettings();
+    this._updateDomAttributes();
+    if (e.hasChanged(
+      2
+      /* EditorOption.accessibilitySupport */
+    )) {
+      this.writeScreenReaderContent();
+    }
+  }
+  _instantiateScreenReaderContent() {
+    const renderRichContent = this._context.configuration.options.get(
+      107
+      /* EditorOption.renderRichScreenReaderContent */
+    );
+    if (this._renderRichContent !== renderRichContent) {
+      this._renderRichContent = renderRichContent;
+      this._state.value = this._createScreenReaderContent(renderRichContent);
+    }
+  }
+  _createScreenReaderContent(renderRichContent) {
+    if (renderRichContent) {
+      return new RichScreenReaderContent(this._domNode, this._context, this._viewController, this._accessibilityService);
+    } else {
+      return new SimpleScreenReaderContent(this._domNode, this._context, this._viewController, this._accessibilityService);
+    }
+  }
+  _updateConfigurationSettings() {
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    const wrappingColumn = layoutInfo.wrappingColumn;
+    this._contentLeft = layoutInfo.contentLeft;
+    this._contentWidth = layoutInfo.contentWidth;
+    this._contentHeight = layoutInfo.height;
+    this._fontInfo = options.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    this._divWidth = Math.round(wrappingColumn * this._fontInfo.typicalHalfwidthCharacterWidth);
+    this._state.value?.onConfigurationChanged(options);
+  }
+  _updateDomAttributes() {
+    const options = this._context.configuration.options;
+    this._domNode.domNode.setAttribute("role", "textbox");
+    this._domNode.domNode.setAttribute("aria-required", options.get(
+      9
+      /* EditorOption.ariaRequired */
+    ) ? "true" : "false");
+    this._domNode.domNode.setAttribute("aria-multiline", "true");
+    this._domNode.domNode.setAttribute("aria-autocomplete", options.get(
+      104
+      /* EditorOption.readOnly */
+    ) ? "none" : "both");
+    this._domNode.domNode.setAttribute("aria-roledescription", localize("editor", "editor"));
+    this._domNode.domNode.setAttribute("aria-label", ariaLabelForScreenReaderContent(options, this._keybindingService));
+    const tabSize = this._context.viewModel.model.getOptions().tabSize;
+    const spaceWidth = options.get(
+      59
+      /* EditorOption.fontInfo */
+    ).spaceWidth;
+    this._domNode.domNode.style.tabSize = `${tabSize * spaceWidth}px`;
+    const wordWrapOverride2 = options.get(
+      154
+      /* EditorOption.wordWrapOverride2 */
+    );
+    const wordWrapOverride1 = wordWrapOverride2 === "inherit" ? options.get(
+      153
+      /* EditorOption.wordWrapOverride1 */
+    ) : wordWrapOverride2;
+    const wordWrap = wordWrapOverride1 === "inherit" ? options.get(
+      149
+      /* EditorOption.wordWrap */
+    ) : wordWrapOverride1;
+    this._domNode.domNode.style.textWrap = wordWrap === "off" ? "nowrap" : "wrap";
+  }
+  onCursorStateChanged(e) {
+    this._primarySelection = e.selections[0] ?? new Selection(1, 1, 1, 1);
+  }
+  prepareRender(ctx) {
+    this.writeScreenReaderContent();
+    this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(this._primarySelection.getPosition());
+  }
+  render(ctx) {
+    if (!this._primaryCursorVisibleRange) {
+      this._renderAtTopLeft();
+      return;
+    }
+    const editorScrollLeft = this._context.viewLayout.getCurrentScrollLeft();
+    const left = this._contentLeft + this._primaryCursorVisibleRange.left - editorScrollLeft;
+    if (left < this._contentLeft || left > this._contentLeft + this._contentWidth) {
+      this._renderAtTopLeft();
+      return;
+    }
+    const editorScrollTop = this._context.viewLayout.getCurrentScrollTop();
+    const positionLineNumber = this._primarySelection.positionLineNumber;
+    const top = this._context.viewLayout.getVerticalOffsetForLineNumber(positionLineNumber) - editorScrollTop;
+    if (top < 0 || top > this._contentHeight) {
+      this._renderAtTopLeft();
+      return;
+    }
+    const lineHeight = this._context.viewLayout.getLineHeightForLineNumber(positionLineNumber);
+    this._doRender(top, this._contentLeft, this._divWidth, lineHeight);
+    this._state.value?.updateScrollTop(this._primarySelection);
+  }
+  _renderAtTopLeft() {
+    this._doRender(0, 0, this._contentWidth, 1);
+  }
+  _doRender(top, left, width, height) {
+    applyFontInfo(this._domNode, this._fontInfo);
+    this._domNode.setTop(top);
+    this._domNode.setLeft(left);
+    this._domNode.setWidth(width);
+    this._domNode.setHeight(height);
+    this._domNode.setLineHeight(height);
+  }
+  setAriaOptions(options) {
+    if (options.activeDescendant) {
+      this._domNode.setAttribute("aria-haspopup", "true");
+      this._domNode.setAttribute("aria-autocomplete", "list");
+      this._domNode.setAttribute("aria-activedescendant", options.activeDescendant);
+    } else {
+      this._domNode.setAttribute("aria-haspopup", "false");
+      this._domNode.setAttribute("aria-autocomplete", "both");
+      this._domNode.removeAttribute("aria-activedescendant");
+    }
+    if (options.role) {
+      this._domNode.setAttribute("role", options.role);
+    }
+  }
+  writeScreenReaderContent() {
+    this._state.value?.updateScreenReaderContent(this._primarySelection);
+  }
+};
+ScreenReaderSupport = __decorate([
+  __param(3, IKeybindingService),
+  __param(4, IAccessibilityService)
+], ScreenReaderSupport);
+export {
+  ScreenReaderSupport
+};
+//# sourceMappingURL=screenReaderSupport.js.map

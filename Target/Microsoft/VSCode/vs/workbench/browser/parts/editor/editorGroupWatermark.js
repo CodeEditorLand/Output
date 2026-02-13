@@ -1,1 +1,186 @@
-import{$ as f,$y9 as d,$t8 as b,h as p}from"../../../../base/browser/dom.js";import{$U_ as v}from"../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{$$b as O,$lc as W}from"../../../../base/common/arrays.js";import{$Ed as _,$Dd as w}from"../../../../base/common/lifecycle.js";import{$n as g,$s as m,OS as j}from"../../../../base/common/platform.js";import{localize as s}from"../../../../nls.js";import{$vo as q}from"../../../../platform/commands/common/commands.js";import{$0l as E}from"../../../../platform/configuration/common/configuration.js";import{$0n as u,$ro as R}from"../../../../platform/contextkey/common/contextkey.js";import{$fy as K}from"../../../../platform/keybinding/common/keybinding.js";import{$hp as U,WillSaveStateReason as z}from"../../../../platform/storage/common/storage.js";import{$Gjb as P}from"../../../../platform/theme/browser/defaultStyles.js";import{$Ml as M}from"../../../../platform/workspace/common/workspace.js";var F=function(h,t,i,e){var n=arguments.length,o=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(h,t,i,e);else for(var l=h.length-1;l>=0;l--)(r=h[l])&&(o=(n<3?r(o):n>3?r(t,i,o):r(t,i))||o);return n>3&&o&&Object.defineProperty(t,i,o),o},a=function(h,t){return function(i,e){t(i,e,h)}},c;const x=u.and(u.equals("chatSetupHidden",!1),u.equals("chatSetupDisabled",!1)),T={text:s(3833,null),id:"workbench.action.chat.open",when:{native:x,web:x}},G={text:s(3834,null),id:"workbench.action.showCommands"},H={text:s(3835,null),id:"workbench.action.quickOpen"},I={text:s(3836,null),id:"workbench.action.files.openFile"},N={text:s(3837,null),id:"workbench.action.files.openFolder"},V={text:s(3838,null),id:"workbench.action.files.openFileFolder"},J={text:s(3839,null),id:"workbench.action.openRecent"},A={text:s(3840,null),id:"workbench.action.files.newUntitledFile"},B={text:s(3841,null),id:"workbench.action.findInFiles"},L={text:s(3842,null),id:"workbench.action.terminal.toggleTerminal",when:{web:u.equals("terminalProcessSupported",!0)}},Q={text:s(3843,null),id:"workbench.action.debug.start",when:{web:u.equals("terminalProcessSupported",!0)}},X={text:s(3844,null),id:"workbench.action.openSettings"},y=[T,G],$=O([...y,...g&&!m?[V]:[I,N],J,g&&!m?A:void 0]),k=[...y],C=[H,B,Q,L,X];let S=class extends _{static{c=this}static{this.a="editorGroupWatermark.whenConditions"}static{this.b="workbench.tips.enabled"}static{this.c=3}constructor(t,i,e,n,o,r){super(),this.r=i,this.s=e,this.t=n,this.u=o,this.w=r,this.j=this.D(new w),this.m=this.D(new w),this.n=!1,this.f=this.w.getObject(c.a,0,Object.create(null)),this.q=this.s.getWorkbenchState();const l=p(".editor-group-watermark",[p(".watermark-container",[p(".letterpress"),p(".shortcuts@shortcuts")])]);d(t,l.root),this.g=l.shortcuts,this.y(),this.z()}y(){this.D(this.u.onDidChangeConfiguration(t=>{t.affectsConfiguration(c.b)&&this.n!==this.u.getValue(c.b)&&this.z()})),this.D(this.s.onDidChangeWorkbenchState(t=>{this.q!==t&&(this.q=t,this.z())})),this.D(this.w.onWillSaveState(t=>{if(t.reason===z.SHUTDOWN){const i=[...$,...k,...C];for(const e of i){const n=m?e.when?.web:e.when?.native;n&&(this.f[e.id]=this.t.contextMatchesRules(n))}this.w.store(c.a,JSON.stringify(this.f),0,1)}}))}z(){if(this.n=this.u.getValue(c.b),b(this.g),this.j.clear(),!this.n)return;const t=this.C(this.q!==1?k:$);if(t.length<c.c){const n=this.C(C);W(n),t.push(...n.slice(0,c.c-t.length))}const i=d(this.g,f(".watermark-box")),e=()=>{b(i),this.m.clear();for(const n of t){const o=this.r.lookupKeybinding(n.id);if(!o)continue;const r=d(i,f("dl")),l=d(r,f("dt"));l.textContent=n.text;const D=d(r,f("dd"));this.m.add(new v(D,j,{renderUnboundKeybindings:!0,...P})).set(o)}};e(),this.j.add(this.r.onDidUpdateKeybindings(e))}C(t){return t.filter(e=>{if(this.f[e.id])return!0;const n=m?e.when?.web:e.when?.native;return!n||this.t.contextMatchesRules(n)}).filter(e=>!!q.getCommand(e.id)).filter(e=>!!this.r.lookupKeybinding(e.id))}};S=c=F([a(1,K),a(2,M),a(3,R),a(4,E),a(5,U)],S);export{S as $pWb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var EditorGroupWatermark_1;
+import { $, append, clearNode, h } from "../../../../base/browser/dom.js";
+import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { coalesce, shuffle } from "../../../../base/common/arrays.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { isMacintosh, isWeb, OS } from "../../../../base/common/platform.js";
+import { localize } from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IStorageService, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
+import { defaultKeybindingLabelStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+const showChatContextKey = ContextKeyExpr.and(ContextKeyExpr.equals("chatSetupHidden", false), ContextKeyExpr.equals("chatSetupDisabled", false));
+const openChat = { text: localize("watermark.openChat", "Open Chat"), id: "workbench.action.chat.open", when: { native: showChatContextKey, web: showChatContextKey } };
+const showCommands = { text: localize("watermark.showCommands", "Show All Commands"), id: "workbench.action.showCommands" };
+const gotoFile = { text: localize("watermark.quickAccess", "Go to File"), id: "workbench.action.quickOpen" };
+const openFile = { text: localize("watermark.openFile", "Open File"), id: "workbench.action.files.openFile" };
+const openFolder = { text: localize("watermark.openFolder", "Open Folder"), id: "workbench.action.files.openFolder" };
+const openFileOrFolder = { text: localize("watermark.openFileFolder", "Open File or Folder"), id: "workbench.action.files.openFileFolder" };
+const openRecent = { text: localize("watermark.openRecent", "Open Recent"), id: "workbench.action.openRecent" };
+const newUntitledFile = { text: localize("watermark.newUntitledFile", "New Untitled Text File"), id: "workbench.action.files.newUntitledFile" };
+const findInFiles = { text: localize("watermark.findInFiles", "Find in Files"), id: "workbench.action.findInFiles" };
+const toggleTerminal = { text: localize({ key: "watermark.toggleTerminal", comment: ["toggle is a verb here"] }, "Toggle Terminal"), id: "workbench.action.terminal.toggleTerminal", when: { web: ContextKeyExpr.equals("terminalProcessSupported", true) } };
+const startDebugging = { text: localize("watermark.startDebugging", "Start Debugging"), id: "workbench.action.debug.start", when: { web: ContextKeyExpr.equals("terminalProcessSupported", true) } };
+const openSettings = { text: localize("watermark.openSettings", "Open Settings"), id: "workbench.action.openSettings" };
+const baseEntries = [
+  openChat,
+  showCommands
+];
+const emptyWindowEntries = coalesce([
+  ...baseEntries,
+  ...isMacintosh && !isWeb ? [openFileOrFolder] : [openFile, openFolder],
+  openRecent,
+  isMacintosh && !isWeb ? newUntitledFile : void 0
+  // fill in one more on macOS to get to 5 entries
+]);
+const workspaceEntries = [
+  ...baseEntries
+];
+const otherEntries = [
+  gotoFile,
+  findInFiles,
+  startDebugging,
+  toggleTerminal,
+  openSettings
+];
+let EditorGroupWatermark = class EditorGroupWatermark2 extends Disposable {
+  static {
+    __name(this, "EditorGroupWatermark");
+  }
+  static {
+    EditorGroupWatermark_1 = this;
+  }
+  static {
+    this.CACHED_WHEN = "editorGroupWatermark.whenConditions";
+  }
+  static {
+    this.SETTINGS_KEY = "workbench.tips.enabled";
+  }
+  static {
+    this.MINIMUM_ENTRIES = 3;
+  }
+  constructor(container, keybindingService, contextService, contextKeyService, configurationService, storageService) {
+    super();
+    this.keybindingService = keybindingService;
+    this.contextService = contextService;
+    this.contextKeyService = contextKeyService;
+    this.configurationService = configurationService;
+    this.storageService = storageService;
+    this.transientDisposables = this._register(new DisposableStore());
+    this.keybindingLabels = this._register(new DisposableStore());
+    this.enabled = false;
+    this.cachedWhen = this.storageService.getObject(EditorGroupWatermark_1.CACHED_WHEN, 0, /* @__PURE__ */ Object.create(null));
+    this.workbenchState = this.contextService.getWorkbenchState();
+    const elements = h(".editor-group-watermark", [
+      h(".watermark-container", [
+        h(".letterpress"),
+        h(".shortcuts@shortcuts")
+      ])
+    ]);
+    append(container, elements.root);
+    this.shortcuts = elements.shortcuts;
+    this.registerListeners();
+    this.render();
+  }
+  registerListeners() {
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(EditorGroupWatermark_1.SETTINGS_KEY) && this.enabled !== this.configurationService.getValue(EditorGroupWatermark_1.SETTINGS_KEY)) {
+        this.render();
+      }
+    }));
+    this._register(this.contextService.onDidChangeWorkbenchState((workbenchState) => {
+      if (this.workbenchState !== workbenchState) {
+        this.workbenchState = workbenchState;
+        this.render();
+      }
+    }));
+    this._register(this.storageService.onWillSaveState((e) => {
+      if (e.reason === WillSaveStateReason.SHUTDOWN) {
+        const entries = [...emptyWindowEntries, ...workspaceEntries, ...otherEntries];
+        for (const entry of entries) {
+          const when = isWeb ? entry.when?.web : entry.when?.native;
+          if (when) {
+            this.cachedWhen[entry.id] = this.contextKeyService.contextMatchesRules(when);
+          }
+        }
+        this.storageService.store(
+          EditorGroupWatermark_1.CACHED_WHEN,
+          JSON.stringify(this.cachedWhen),
+          0,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      }
+    }));
+  }
+  render() {
+    this.enabled = this.configurationService.getValue(EditorGroupWatermark_1.SETTINGS_KEY);
+    clearNode(this.shortcuts);
+    this.transientDisposables.clear();
+    if (!this.enabled) {
+      return;
+    }
+    const entries = this.filterEntries(this.workbenchState !== 1 ? workspaceEntries : emptyWindowEntries);
+    if (entries.length < EditorGroupWatermark_1.MINIMUM_ENTRIES) {
+      const additionalEntries = this.filterEntries(otherEntries);
+      shuffle(additionalEntries);
+      entries.push(...additionalEntries.slice(0, EditorGroupWatermark_1.MINIMUM_ENTRIES - entries.length));
+    }
+    const box = append(this.shortcuts, $(".watermark-box"));
+    const update = /* @__PURE__ */ __name(() => {
+      clearNode(box);
+      this.keybindingLabels.clear();
+      for (const entry of entries) {
+        const keys = this.keybindingService.lookupKeybinding(entry.id);
+        if (!keys) {
+          continue;
+        }
+        const dl = append(box, $("dl"));
+        const dt = append(dl, $("dt"));
+        dt.textContent = entry.text;
+        const dd = append(dl, $("dd"));
+        const label = this.keybindingLabels.add(new KeybindingLabel(dd, OS, { renderUnboundKeybindings: true, ...defaultKeybindingLabelStyles }));
+        label.set(keys);
+      }
+    }, "update");
+    update();
+    this.transientDisposables.add(this.keybindingService.onDidUpdateKeybindings(update));
+  }
+  filterEntries(entries) {
+    const filteredEntries = entries.filter((entry) => {
+      if (this.cachedWhen[entry.id]) {
+        return true;
+      }
+      const contextKey = isWeb ? entry.when?.web : entry.when?.native;
+      return !contextKey || this.contextKeyService.contextMatchesRules(contextKey);
+    }).filter((entry) => !!CommandsRegistry.getCommand(entry.id)).filter((entry) => !!this.keybindingService.lookupKeybinding(entry.id));
+    return filteredEntries;
+  }
+};
+EditorGroupWatermark = EditorGroupWatermark_1 = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IWorkspaceContextService),
+  __param(3, IContextKeyService),
+  __param(4, IConfigurationService),
+  __param(5, IStorageService)
+], EditorGroupWatermark);
+export {
+  EditorGroupWatermark
+};
+//# sourceMappingURL=editorGroupWatermark.js.map

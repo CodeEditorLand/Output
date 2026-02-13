@@ -1,1 +1,399 @@
-import{$bk as v}from"../../../../../base/common/codicons.js";import{$xf as g}from"../../../../../base/common/event.js";import{$Ed as b,$zd as D}from"../../../../../base/common/lifecycle.js";import{$Mj as C}from"../../../../../platform/instantiation/common/instantiation.js";import{$pW as q,$nW as I}from"../participants/chatAgents.js";import{$2Eb as x}from"./chatStreamStats.js";import{$7Eb as $}from"./chatWordCounter.js";var R=function(s,e,i,n){var r=arguments.length,t=r<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,i):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,e,i,n);else for(var d=s.length-1;d>=0;d--)(o=s[d])&&(t=(r<3?o(t):r>3?o(e,i,t):o(e,i))||t);return r>3&&t&&Object.defineProperty(e,i,t),t},c=function(s,e){return function(i,n){e(i,n,s)}};function j(s){return!!s&&typeof s=="object"&&"message"in s}function p(s){return!!s&&typeof s.setVote<"u"}function _(s){return!!s&&typeof s=="object"&&s.kind==="pendingDivider"}function M(s){return j(s)||p(s)}function A(s){if(!p(s))throw new Error("Expected item to be IChatResponseViewModel")}let m=class extends b{get inputPlaceholder(){return this.g}get model(){return this.h}setInputPlaceholder(e){this.g=e,this.b.fire({kind:"changePlaceholder"})}resetInputPlaceholder(){this.g=void 0,this.b.fire({kind:"changePlaceholder"})}get sessionResource(){return this.h.sessionResource}constructor(e,i,n,r){super(),this.h=e,this.codeBlockModelCollection=i,this.j=n,this.m=r,this.a=this.D(new g),this.onDidDisposeModel=this.a.event,this.b=this.D(new g),this.onDidChange=this.b.event,this.c=[],this.g=void 0,this.q=void 0,e.getRequests().forEach((t,o)=>{const d=this.m.createInstance(a,t);this.c.push(d),t.response&&this.n(t.response)}),this.D(e.onDidDispose(()=>this.a.fire())),this.D(e.onDidChangePendingRequests(()=>this.b.fire(null))),this.D(e.onDidChange(t=>{if(t.kind==="addRequest"){const d=this.m.createInstance(a,t.request);this.c.push(d),t.request.response&&this.n(t.request.response)}else if(t.kind==="addResponse")this.n(t.response);else if(t.kind==="removeRequest"){const d=this.c.findIndex(h=>j(h)&&h.id===t.requestId);d>=0&&this.c.splice(d,1);const l=t.responseId&&this.c.findIndex(h=>p(h)&&h.id===t.responseId);if(typeof l=="number"&&l>=0){const f=this.c.splice(l,1)[0];f instanceof u&&f.dispose()}}const o=t.kind==="addRequest"?{kind:"addRequest"}:t.kind==="initialize"?{kind:"initialize"}:t.kind==="setHidden"?{kind:"setHidden"}:null;this.b.fire(o)}))}n(e){const i=this.m.createInstance(u,e,this);this.D(i.onDidChange(()=>this.b.fire(null))),this.c.push(i)}getItems(){let e=this.c.filter(n=>!n.shouldBeRemovedOnSend||n.shouldBeRemovedOnSend.afterUndoStop);this.j?.maxVisibleItems!==void 0&&e.length>this.j.maxVisibleItems&&(e=e.slice(-this.j.maxVisibleItems));const i=this.h.getPendingRequests();if(i.length>0){const n=i.filter(t=>t.kind==="steering"),r=i.filter(t=>t.kind==="queued");if(n.length>0){e.push({kind:"pendingDivider",id:"pending-divider-steering",sessionResource:this.h.sessionResource,isComplete:!0,dividerKind:"steering",currentRenderedHeight:void 0});for(const t of n){const o=this.m.createInstance(a,t.request,t.kind);e.push(o)}}if(r.length>0){e.push({kind:"pendingDivider",id:"pending-divider-queued",sessionResource:this.h.sessionResource,isComplete:!0,dividerKind:"queued",currentRenderedHeight:void 0});for(const t of r){const o=this.m.createInstance(a,t.request,t.kind);e.push(o)}}}return e}get editing(){return this.q}setEditing(e){this.editing&&e&&this.editing.id===e.id||(this.q=e)}dispose(){super.dispose(),D(this.c.filter(e=>e instanceof u))}};m=R([c(3,C)],m);class a{get id(){return this.a.id}get dataId(){return`${this.id}_${this.a.version+(this.a.response?.isComplete?1:0)}`}get sessionResource(){return this.a.session.sessionResource}get username(){return"User"}get avatarIcon(){return v.account}get message(){return this.a.message}get messageText(){return this.message.text}get attempt(){return this.a.attempt}get variables(){return this.a.variableData.variables}get contentReferences(){return this.a.response?.contentReferences}get confirmation(){return this.a.confirmation}get isComplete(){return this.a.response?.isComplete??!1}get isCompleteAddedRequest(){return this.a.isCompleteAddedRequest}get shouldBeRemovedOnSend(){return this.a.shouldBeRemovedOnSend}get shouldBeBlocked(){return this.a.shouldBeBlocked}get slashCommand(){return this.a.response?.slashCommand}get agentOrSlashCommandDetected(){return this.a.response?.agentOrSlashCommandDetected??!1}get modelId(){return this.a.modelId}get timestamp(){return this.a.timestamp}get pendingKind(){return this.b}constructor(e,i){this.a=e,this.b=i}}let u=class extends b{get model(){return this.j}get id(){return this.j.id}get dataId(){return this.j.id+`_${this.a}`+(this.isLast?"_last":"")}get sessionResource(){return this.j.session.sessionResource}get username(){return this.agent?this.n.getAgentNameRestriction(this.agent)?this.agent.fullName||this.agent.name:q(this.agent):this.j.username}get agent(){return this.j.agent}get slashCommand(){return this.j.slashCommand}get agentOrSlashCommandDetected(){return this.j.agentOrSlashCommandDetected}get response(){return this.j.response}get usedContext(){return this.j.usedContext}get contentReferences(){return this.j.contentReferences}get codeCitations(){return this.j.codeCitations}get progressMessages(){return this.j.progressMessages}get isComplete(){return this.j.isComplete}get isCanceled(){return this.j.isCanceled}get shouldBeBlocked(){return this.j.shouldBeBlocked}get shouldBeRemovedOnSend(){return this.j.shouldBeRemovedOnSend}get isCompleteAddedRequest(){return this.j.isCompleteAddedRequest}get replyFollowups(){return this.j.followups?.filter(e=>e.kind==="reply")}get result(){return this.j.result}get errorDetails(){return this.result?.errorDetails}get vote(){return this.j.vote}get voteDownReason(){return this.j.voteDownReason}get requestId(){return this.j.requestId}get isStale(){return this.j.isStale}get isLast(){return this.session.getItems().at(-1)===this}get usedReferencesExpanded(){if(typeof this.c=="boolean")return this.c}set usedReferencesExpanded(e){this.c=e}get vulnerabilitiesListExpanded(){return this.g}set vulnerabilitiesListExpanded(e){this.g=e}get contentUpdateTimings(){return this.h?.data}constructor(e,i,n,r){super(),this.j=e,this.session=i,this.m=n,this.n=r,this.a=0,this.b=this.D(new g),this.onDidChange=this.b.event,this.renderData=void 0,this.g=!1,e.isComplete||(this.h=this.m.createInstance(x)),this.D(e.onDidChange(()=>{if(this.h){const t=$(e.entireResponse.getMarkdown());this.h.update({totalWordCount:t})}this.a++,this.b.fire()}))}setVote(e){this.a++,this.j.setVote(e)}setVoteDownReason(e){this.a++,this.j.setVoteDownReason(e)}setEditApplied(e,i){this.a++,this.j.setEditApplied(e,i)}};u=R([c(2,C),c(3,I)],u);export{M as $$Eb,_ as $0Eb,j as $8Eb,p as $9Eb,A as $_Eb,m as $aFb,a as $bFb,u as $cFb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, dispose } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { getFullyQualifiedId, IChatAgentNameService } from "../participants/chatAgents.js";
+import { ChatStreamStatsTracker } from "./chatStreamStats.js";
+import { countWords } from "./chatWordCounter.js";
+function isRequestVM(item) {
+  return !!item && typeof item === "object" && "message" in item;
+}
+__name(isRequestVM, "isRequestVM");
+function isResponseVM(item) {
+  return !!item && typeof item.setVote !== "undefined";
+}
+__name(isResponseVM, "isResponseVM");
+function isPendingDividerVM(item) {
+  return !!item && typeof item === "object" && item.kind === "pendingDivider";
+}
+__name(isPendingDividerVM, "isPendingDividerVM");
+function isChatTreeItem(item) {
+  return isRequestVM(item) || isResponseVM(item);
+}
+__name(isChatTreeItem, "isChatTreeItem");
+function assertIsResponseVM(item) {
+  if (!isResponseVM(item)) {
+    throw new Error("Expected item to be IChatResponseViewModel");
+  }
+}
+__name(assertIsResponseVM, "assertIsResponseVM");
+let ChatViewModel = class ChatViewModel2 extends Disposable {
+  static {
+    __name(this, "ChatViewModel");
+  }
+  get inputPlaceholder() {
+    return this._inputPlaceholder;
+  }
+  get model() {
+    return this._model;
+  }
+  setInputPlaceholder(text) {
+    this._inputPlaceholder = text;
+    this._onDidChange.fire({ kind: "changePlaceholder" });
+  }
+  resetInputPlaceholder() {
+    this._inputPlaceholder = void 0;
+    this._onDidChange.fire({ kind: "changePlaceholder" });
+  }
+  get sessionResource() {
+    return this._model.sessionResource;
+  }
+  constructor(_model, codeBlockModelCollection, _options, instantiationService) {
+    super();
+    this._model = _model;
+    this.codeBlockModelCollection = codeBlockModelCollection;
+    this._options = _options;
+    this.instantiationService = instantiationService;
+    this._onDidDisposeModel = this._register(new Emitter());
+    this.onDidDisposeModel = this._onDidDisposeModel.event;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._items = [];
+    this._inputPlaceholder = void 0;
+    this._editing = void 0;
+    _model.getRequests().forEach((request, i) => {
+      const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, request);
+      this._items.push(requestModel);
+      if (request.response) {
+        this.onAddResponse(request.response);
+      }
+    });
+    this._register(_model.onDidDispose(() => this._onDidDisposeModel.fire()));
+    this._register(_model.onDidChangePendingRequests(() => this._onDidChange.fire(null)));
+    this._register(_model.onDidChange((e) => {
+      if (e.kind === "addRequest") {
+        const requestModel = this.instantiationService.createInstance(ChatRequestViewModel, e.request);
+        this._items.push(requestModel);
+        if (e.request.response) {
+          this.onAddResponse(e.request.response);
+        }
+      } else if (e.kind === "addResponse") {
+        this.onAddResponse(e.response);
+      } else if (e.kind === "removeRequest") {
+        const requestIdx = this._items.findIndex((item) => isRequestVM(item) && item.id === e.requestId);
+        if (requestIdx >= 0) {
+          this._items.splice(requestIdx, 1);
+        }
+        const responseIdx = e.responseId && this._items.findIndex((item) => isResponseVM(item) && item.id === e.responseId);
+        if (typeof responseIdx === "number" && responseIdx >= 0) {
+          const items = this._items.splice(responseIdx, 1);
+          const item = items[0];
+          if (item instanceof ChatResponseViewModel) {
+            item.dispose();
+          }
+        }
+      }
+      const modelEventToVmEvent = e.kind === "addRequest" ? { kind: "addRequest" } : e.kind === "initialize" ? { kind: "initialize" } : e.kind === "setHidden" ? { kind: "setHidden" } : null;
+      this._onDidChange.fire(modelEventToVmEvent);
+    }));
+  }
+  onAddResponse(responseModel) {
+    const response = this.instantiationService.createInstance(ChatResponseViewModel, responseModel, this);
+    this._register(response.onDidChange(() => {
+      return this._onDidChange.fire(null);
+    }));
+    this._items.push(response);
+  }
+  getItems() {
+    let items = this._items.filter((item) => !item.shouldBeRemovedOnSend || item.shouldBeRemovedOnSend.afterUndoStop);
+    if (this._options?.maxVisibleItems !== void 0 && items.length > this._options.maxVisibleItems) {
+      items = items.slice(-this._options.maxVisibleItems);
+    }
+    const pendingRequests = this._model.getPendingRequests();
+    if (pendingRequests.length > 0) {
+      const steeringRequests = pendingRequests.filter(
+        (p) => p.kind === "steering"
+        /* ChatRequestQueueKind.Steering */
+      );
+      const queuedRequests = pendingRequests.filter(
+        (p) => p.kind === "queued"
+        /* ChatRequestQueueKind.Queued */
+      );
+      if (steeringRequests.length > 0) {
+        items.push({ kind: "pendingDivider", id: "pending-divider-steering", sessionResource: this._model.sessionResource, isComplete: true, dividerKind: "steering", currentRenderedHeight: void 0 });
+        for (const pending of steeringRequests) {
+          const requestVM = this.instantiationService.createInstance(ChatRequestViewModel, pending.request, pending.kind);
+          items.push(requestVM);
+        }
+      }
+      if (queuedRequests.length > 0) {
+        items.push({ kind: "pendingDivider", id: "pending-divider-queued", sessionResource: this._model.sessionResource, isComplete: true, dividerKind: "queued", currentRenderedHeight: void 0 });
+        for (const pending of queuedRequests) {
+          const requestVM = this.instantiationService.createInstance(ChatRequestViewModel, pending.request, pending.kind);
+          items.push(requestVM);
+        }
+      }
+    }
+    return items;
+  }
+  get editing() {
+    return this._editing;
+  }
+  setEditing(editing) {
+    if (this.editing && editing && this.editing.id === editing.id) {
+      return;
+    }
+    this._editing = editing;
+  }
+  dispose() {
+    super.dispose();
+    dispose(this._items.filter((item) => item instanceof ChatResponseViewModel));
+  }
+};
+ChatViewModel = __decorate([
+  __param(3, IInstantiationService)
+], ChatViewModel);
+class ChatRequestViewModel {
+  static {
+    __name(this, "ChatRequestViewModel");
+  }
+  get id() {
+    return this._model.id;
+  }
+  /**
+   * An ID that changes when the request should be re-rendered.
+   */
+  get dataId() {
+    return `${this.id}_${this._model.version + (this._model.response?.isComplete ? 1 : 0)}`;
+  }
+  get sessionResource() {
+    return this._model.session.sessionResource;
+  }
+  get username() {
+    return "User";
+  }
+  get avatarIcon() {
+    return Codicon.account;
+  }
+  get message() {
+    return this._model.message;
+  }
+  get messageText() {
+    return this.message.text;
+  }
+  get attempt() {
+    return this._model.attempt;
+  }
+  get variables() {
+    return this._model.variableData.variables;
+  }
+  get contentReferences() {
+    return this._model.response?.contentReferences;
+  }
+  get confirmation() {
+    return this._model.confirmation;
+  }
+  get isComplete() {
+    return this._model.response?.isComplete ?? false;
+  }
+  get isCompleteAddedRequest() {
+    return this._model.isCompleteAddedRequest;
+  }
+  get shouldBeRemovedOnSend() {
+    return this._model.shouldBeRemovedOnSend;
+  }
+  get shouldBeBlocked() {
+    return this._model.shouldBeBlocked;
+  }
+  get slashCommand() {
+    return this._model.response?.slashCommand;
+  }
+  get agentOrSlashCommandDetected() {
+    return this._model.response?.agentOrSlashCommandDetected ?? false;
+  }
+  get modelId() {
+    return this._model.modelId;
+  }
+  get timestamp() {
+    return this._model.timestamp;
+  }
+  get pendingKind() {
+    return this._pendingKind;
+  }
+  constructor(_model, _pendingKind) {
+    this._model = _model;
+    this._pendingKind = _pendingKind;
+  }
+}
+let ChatResponseViewModel = class ChatResponseViewModel2 extends Disposable {
+  static {
+    __name(this, "ChatResponseViewModel");
+  }
+  get model() {
+    return this._model;
+  }
+  get id() {
+    return this._model.id;
+  }
+  get dataId() {
+    return this._model.id + `_${this._modelChangeCount}` + (this.isLast ? "_last" : "");
+  }
+  get sessionResource() {
+    return this._model.session.sessionResource;
+  }
+  get username() {
+    if (this.agent) {
+      const isAllowed = this.chatAgentNameService.getAgentNameRestriction(this.agent);
+      if (isAllowed) {
+        return this.agent.fullName || this.agent.name;
+      } else {
+        return getFullyQualifiedId(this.agent);
+      }
+    }
+    return this._model.username;
+  }
+  get agent() {
+    return this._model.agent;
+  }
+  get slashCommand() {
+    return this._model.slashCommand;
+  }
+  get agentOrSlashCommandDetected() {
+    return this._model.agentOrSlashCommandDetected;
+  }
+  get response() {
+    return this._model.response;
+  }
+  get usedContext() {
+    return this._model.usedContext;
+  }
+  get contentReferences() {
+    return this._model.contentReferences;
+  }
+  get codeCitations() {
+    return this._model.codeCitations;
+  }
+  get progressMessages() {
+    return this._model.progressMessages;
+  }
+  get isComplete() {
+    return this._model.isComplete;
+  }
+  get isCanceled() {
+    return this._model.isCanceled;
+  }
+  get shouldBeBlocked() {
+    return this._model.shouldBeBlocked;
+  }
+  get shouldBeRemovedOnSend() {
+    return this._model.shouldBeRemovedOnSend;
+  }
+  get isCompleteAddedRequest() {
+    return this._model.isCompleteAddedRequest;
+  }
+  get replyFollowups() {
+    return this._model.followups?.filter((f) => f.kind === "reply");
+  }
+  get result() {
+    return this._model.result;
+  }
+  get errorDetails() {
+    return this.result?.errorDetails;
+  }
+  get vote() {
+    return this._model.vote;
+  }
+  get voteDownReason() {
+    return this._model.voteDownReason;
+  }
+  get requestId() {
+    return this._model.requestId;
+  }
+  get isStale() {
+    return this._model.isStale;
+  }
+  get isLast() {
+    return this.session.getItems().at(-1) === this;
+  }
+  get usedReferencesExpanded() {
+    if (typeof this._usedReferencesExpanded === "boolean") {
+      return this._usedReferencesExpanded;
+    }
+    return void 0;
+  }
+  set usedReferencesExpanded(v) {
+    this._usedReferencesExpanded = v;
+  }
+  get vulnerabilitiesListExpanded() {
+    return this._vulnerabilitiesListExpanded;
+  }
+  set vulnerabilitiesListExpanded(v) {
+    this._vulnerabilitiesListExpanded = v;
+  }
+  get contentUpdateTimings() {
+    return this.liveUpdateTracker?.data;
+  }
+  constructor(_model, session, instantiationService, chatAgentNameService) {
+    super();
+    this._model = _model;
+    this.session = session;
+    this.instantiationService = instantiationService;
+    this.chatAgentNameService = chatAgentNameService;
+    this._modelChangeCount = 0;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this.renderData = void 0;
+    this._vulnerabilitiesListExpanded = false;
+    if (!_model.isComplete) {
+      this.liveUpdateTracker = this.instantiationService.createInstance(ChatStreamStatsTracker);
+    }
+    this._register(_model.onDidChange(() => {
+      if (this.liveUpdateTracker) {
+        const wordCount = countWords(_model.entireResponse.getMarkdown());
+        this.liveUpdateTracker.update({ totalWordCount: wordCount });
+      }
+      this._modelChangeCount++;
+      this._onDidChange.fire();
+    }));
+  }
+  setVote(vote) {
+    this._modelChangeCount++;
+    this._model.setVote(vote);
+  }
+  setVoteDownReason(reason) {
+    this._modelChangeCount++;
+    this._model.setVoteDownReason(reason);
+  }
+  setEditApplied(edit, editCount) {
+    this._modelChangeCount++;
+    this._model.setEditApplied(edit, editCount);
+  }
+};
+ChatResponseViewModel = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IChatAgentNameService)
+], ChatResponseViewModel);
+export {
+  ChatRequestViewModel,
+  ChatResponseViewModel,
+  ChatViewModel,
+  assertIsResponseVM,
+  isChatTreeItem,
+  isPendingDividerVM,
+  isRequestVM,
+  isResponseVM
+};
+//# sourceMappingURL=chatViewModel.js.map

@@ -1,1 +1,158 @@
-import{$Rf as d}from"../../../../../base/common/lazy.js";import{$Ed as f}from"../../../../../base/common/lifecycle.js";import{$ro as m}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as g}from"../../../../../platform/instantiation/common/instantiation.js";import{$14b as v,$U4b as p}from"../../../chat/browser/chat.js";import{$NV as C}from"../../../chat/common/chatService/chatService.js";import{$zZb as w,$sZb as W}from"../../../terminal/browser/terminal.js";import{$gEc as $}from"./terminalChatWidget.js";import{$JP as b}from"../../../../services/chat/common/chatEntitlementService.js";var u=function(a,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(a,e,t,i);else for(var o=a.length-1;o>=0;o--)(r=a[o])&&(n=(s<3?r(n):s>3?r(e,t,n):r(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},c=function(a,e){return function(t,i){e(t,i,a)}},h;let l=class extends f{static{h=this}static{this.ID="terminal.chat"}static get(e){return e.getContribution(h.ID)}get terminalChatWidget(){return this.a?.value}get lastResponseContent(){return this.b}get scopedContextKeyService(){return this.a?.value.inlineChatWidget.scopedContextKeyService??this.f}constructor(e,t,i,s,n,r){super(),this.c=e,this.f=s,this.g=n,this.h=r,this.j=void 0,this.D(i.onDidChangeSentiment(()=>{i.sentiment.hidden&&this.a?.value.clear()})),this.D(t.registerProvider({getCodeBlockContext:o=>{if(!(!o||!this.a?.hasValue||!this.hasFocus()))return{element:o,code:o.getValue(),codeBlockIndex:0,languageId:o.getModel().getLanguageId(),chatSessionResource:this.a.value.inlineChatWidget.chatWidget.viewModel?.sessionResource}}},"terminal"))}xtermReady(e){this.a=new d(()=>{const t=this.D(this.g.createInstance($,this.c.instance.domElement,this.c.instance,e));if(this.D(t.focusTracker.onDidFocus(()=>{h.activeChatController=this,w(this.c.instance)||this.h.setActiveInstance(this.c.instance)})),this.D(t.focusTracker.onDidBlur(()=>{h.activeChatController=void 0,this.c.instance.resetScrollbarVisibility()})),!this.c.instance.domElement)throw new Error("FindWidget expected terminal DOM to be initialized");return t})}m(){const e=this.a?.value.inlineChatWidget;e&&(e.placeholder=this.n())}n(){return this.j??""}setPlaceholder(e){this.j=e,this.m()}resetPlaceholder(){this.j=void 0,this.m()}updateInput(e,t=!0){const i=this.a?.value.inlineChatWidget;i&&(i.value=e,t&&i.selectAll())}focus(){this.a?.value.focus()}hasFocus(){return this.a?.rawValue?.hasFocus()??!1}async viewInChat(){const e=this.terminalChatWidget?.inlineChatWidget.chatWidget.viewModel?.model;e&&await this.g.invokeFunction(D,e),this.a?.rawValue?.hide()}};l=h=u([c(1,v),c(2,b),c(3,m),c(4,g),c(5,W)],l);async function D(a,e){const t=a.get(C),s=await a.get(p).revealWidget();if(s&&s.viewModel&&e){for(const n of e.getRequests().slice())await t.adoptRequest(s.viewModel.model.sessionResource,n);s.focusResponseItem()}}export{l as $hEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalChatController_1;
+import { Lazy } from "../../../../../base/common/lazy.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatCodeBlockContextProviderService, IChatWidgetService } from "../../../chat/browser/chat.js";
+import { IChatService } from "../../../chat/common/chatService/chatService.js";
+import { isDetachedTerminalInstance, ITerminalService } from "../../../terminal/browser/terminal.js";
+import { TerminalChatWidget } from "./terminalChatWidget.js";
+import { IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
+let TerminalChatController = class TerminalChatController2 extends Disposable {
+  static {
+    __name(this, "TerminalChatController");
+  }
+  static {
+    TerminalChatController_1 = this;
+  }
+  static {
+    this.ID = "terminal.chat";
+  }
+  static get(instance) {
+    return instance.getContribution(TerminalChatController_1.ID);
+  }
+  /**
+   * The terminal chat widget for the controller, this will be undefined if xterm is not ready yet (ie. the
+   * terminal is still initializing). This wraps the inline chat widget.
+   */
+  get terminalChatWidget() {
+    return this._terminalChatWidget?.value;
+  }
+  get lastResponseContent() {
+    return this._lastResponseContent;
+  }
+  get scopedContextKeyService() {
+    return this._terminalChatWidget?.value.inlineChatWidget.scopedContextKeyService ?? this._contextKeyService;
+  }
+  constructor(_ctx, chatCodeBlockContextProviderService, chatEntitlementService, _contextKeyService, _instantiationService, _terminalService) {
+    super();
+    this._ctx = _ctx;
+    this._contextKeyService = _contextKeyService;
+    this._instantiationService = _instantiationService;
+    this._terminalService = _terminalService;
+    this._forcedPlaceholder = void 0;
+    this._register(chatEntitlementService.onDidChangeSentiment(() => {
+      if (chatEntitlementService.sentiment.hidden) {
+        this._terminalChatWidget?.value.clear();
+      }
+    }));
+    this._register(chatCodeBlockContextProviderService.registerProvider({
+      getCodeBlockContext: /* @__PURE__ */ __name((editor) => {
+        if (!editor || !this._terminalChatWidget?.hasValue || !this.hasFocus()) {
+          return;
+        }
+        return {
+          element: editor,
+          code: editor.getValue(),
+          codeBlockIndex: 0,
+          languageId: editor.getModel().getLanguageId(),
+          chatSessionResource: this._terminalChatWidget.value.inlineChatWidget.chatWidget.viewModel?.sessionResource
+        };
+      }, "getCodeBlockContext")
+    }, "terminal"));
+  }
+  xtermReady(xterm) {
+    this._terminalChatWidget = new Lazy(() => {
+      const chatWidget = this._register(this._instantiationService.createInstance(TerminalChatWidget, this._ctx.instance.domElement, this._ctx.instance, xterm));
+      this._register(chatWidget.focusTracker.onDidFocus(() => {
+        TerminalChatController_1.activeChatController = this;
+        if (!isDetachedTerminalInstance(this._ctx.instance)) {
+          this._terminalService.setActiveInstance(this._ctx.instance);
+        }
+      }));
+      this._register(chatWidget.focusTracker.onDidBlur(() => {
+        TerminalChatController_1.activeChatController = void 0;
+        this._ctx.instance.resetScrollbarVisibility();
+      }));
+      if (!this._ctx.instance.domElement) {
+        throw new Error("FindWidget expected terminal DOM to be initialized");
+      }
+      return chatWidget;
+    });
+  }
+  _updatePlaceholder() {
+    const inlineChatWidget = this._terminalChatWidget?.value.inlineChatWidget;
+    if (inlineChatWidget) {
+      inlineChatWidget.placeholder = this._getPlaceholderText();
+    }
+  }
+  _getPlaceholderText() {
+    return this._forcedPlaceholder ?? "";
+  }
+  setPlaceholder(text) {
+    this._forcedPlaceholder = text;
+    this._updatePlaceholder();
+  }
+  resetPlaceholder() {
+    this._forcedPlaceholder = void 0;
+    this._updatePlaceholder();
+  }
+  updateInput(text, selectAll = true) {
+    const widget = this._terminalChatWidget?.value.inlineChatWidget;
+    if (widget) {
+      widget.value = text;
+      if (selectAll) {
+        widget.selectAll();
+      }
+    }
+  }
+  focus() {
+    this._terminalChatWidget?.value.focus();
+  }
+  hasFocus() {
+    return this._terminalChatWidget?.rawValue?.hasFocus() ?? false;
+  }
+  async viewInChat() {
+    const chatModel = this.terminalChatWidget?.inlineChatWidget.chatWidget.viewModel?.model;
+    if (chatModel) {
+      await this._instantiationService.invokeFunction(moveToPanelChat, chatModel);
+    }
+    this._terminalChatWidget?.rawValue?.hide();
+  }
+};
+TerminalChatController = TerminalChatController_1 = __decorate([
+  __param(1, IChatCodeBlockContextProviderService),
+  __param(2, IChatEntitlementService),
+  __param(3, IContextKeyService),
+  __param(4, IInstantiationService),
+  __param(5, ITerminalService)
+], TerminalChatController);
+async function moveToPanelChat(accessor, model) {
+  const chatService = accessor.get(IChatService);
+  const chatWidgetService = accessor.get(IChatWidgetService);
+  const widget = await chatWidgetService.revealWidget();
+  if (widget && widget.viewModel && model) {
+    for (const request of model.getRequests().slice()) {
+      await chatService.adoptRequest(widget.viewModel.model.sessionResource, request);
+    }
+    widget.focusResponseItem();
+  }
+}
+__name(moveToPanelChat, "moveToPanelChat");
+export {
+  TerminalChatController
+};
+//# sourceMappingURL=terminalChatController.js.map

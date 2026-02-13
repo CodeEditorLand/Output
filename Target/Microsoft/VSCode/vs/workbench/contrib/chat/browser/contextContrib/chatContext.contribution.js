@@ -1,1 +1,96 @@
-import{$Ed as u}from"../../../../../base/common/lifecycle.js";import{ThemeIcon as d}from"../../../../../base/common/themables.js";import{localize as c}from"../../../../../nls.js";import{$2N as m}from"../../../../common/contributions.js";import{$CZb as h}from"./chatContextService.js";import{$QR as y}from"../../../../services/extensions/common/extensions.js";import{$KR as v}from"../../../../services/extensions/common/extensionsRegistry.js";var l=function(r,t,e,o){var n=arguments.length,i=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,o);else for(var f=r.length-1;f>=0;f--)(s=r[f])&&(i=(n<3?s(i):n>3?s(t,e,i):s(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},p=function(r,t){return function(e,o){t(e,o,r)}};const x=v.registerExtensionPoint({extensionPoint:"chatContext",jsonSchema:{description:c(6245,null),type:"array",items:{type:"object",properties:{id:{description:c(6246,null),type:"string"},icon:{description:c(6247,null),type:"string"},displayName:{description:c(6248,null),type:"string"}},required:["id","icon","displayName"]}},activationEventsGenerator:function*(r){for(const t of r)yield`onChatContextProvider:${t.id}`}});let a=class extends u{static{this.ID="workbench.contrib.chatContextContribution"}constructor(t){super(),this.a=t,x.setHandler(e=>{for(const o of e)if(y(o.description,"chatContextProvider")&&Array.isArray(o.value))for(const n of o.value){const i=n.icon?d.fromString(n.icon):void 0;if(!i&&n.icon){o.collector.error(c(6249,null,n.id));continue}i&&this.a.setChatContextProvider(`${o.description.id}-${n.id}`,{title:n.displayName,icon:i})}})}};a=l([p(0,h)],a);m(a.ID,a,3);export{a as $cuc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { registerWorkbenchContribution2 } from "../../../../common/contributions.js";
+import { IChatContextService } from "./chatContextService.js";
+import { isProposedApiEnabled } from "../../../../services/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../../../services/extensions/common/extensionsRegistry.js";
+const extensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "chatContext",
+  jsonSchema: {
+    description: localize("chatContextExtPoint", "Contributes chat context integrations to the chat widget."),
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        id: {
+          description: localize("chatContextExtPoint.id", "A unique identifier for this item."),
+          type: "string"
+        },
+        icon: {
+          description: localize("chatContextExtPoint.icon", "The icon associated with this chat context item."),
+          type: "string"
+        },
+        displayName: {
+          description: localize("chatContextExtPoint.title", "A user-friendly name for this item which is used for display in menus."),
+          type: "string"
+        }
+      },
+      required: ["id", "icon", "displayName"]
+    }
+  },
+  activationEventsGenerator: /* @__PURE__ */ __name(function* (contributions) {
+    for (const contrib of contributions) {
+      yield `onChatContextProvider:${contrib.id}`;
+    }
+  }, "activationEventsGenerator")
+});
+let ChatContextContribution = class ChatContextContribution2 extends Disposable {
+  static {
+    __name(this, "ChatContextContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatContextContribution";
+  }
+  constructor(_chatContextService) {
+    super();
+    this._chatContextService = _chatContextService;
+    extensionPoint.setHandler((extensions) => {
+      for (const ext of extensions) {
+        if (!isProposedApiEnabled(ext.description, "chatContextProvider")) {
+          continue;
+        }
+        if (!Array.isArray(ext.value)) {
+          continue;
+        }
+        for (const contribution of ext.value) {
+          const icon = contribution.icon ? ThemeIcon.fromString(contribution.icon) : void 0;
+          if (!icon && contribution.icon) {
+            ext.collector.error(localize("chatContextExtPoint.invalidIcon", "Invalid icon format for chat context contribution '{0}'. Icon must be in the format '$(iconId)' or '$(iconId~spin)', e.g. '$(copilot)'.", contribution.id));
+            continue;
+          }
+          if (!icon) {
+            continue;
+          }
+          this._chatContextService.setChatContextProvider(`${ext.description.id}-${contribution.id}`, { title: contribution.displayName, icon });
+        }
+      }
+    });
+  }
+};
+ChatContextContribution = __decorate([
+  __param(0, IChatContextService)
+], ChatContextContribution);
+registerWorkbenchContribution2(
+  ChatContextContribution.ID,
+  ChatContextContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+export {
+  ChatContextContribution
+};
+//# sourceMappingURL=chatContext.contribution.js.map

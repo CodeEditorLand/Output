@@ -1,1 +1,154 @@
-import{CancellationToken as y}from"../../../base/common/cancellation.js";import{$Ed as S,$Md as b,$Dd as I}from"../../../base/common/lifecycle.js";import{$5m as m}from"../../../base/common/marshalling.js";import{ThemeIcon as N}from"../../../base/common/themables.js";import{$Jc as R,URI as u}from"../../../base/common/uri.js";import{$yo as w}from"../../../platform/log/common/log.js";import{$e3b as k}from"../../contrib/chat/common/tools/languageModelToolsContribution.js";import{$bU as _,$9T as M,$_T as F}from"../../contrib/chat/common/tools/languageModelToolsService.js";import{$vDb as j}from"../../services/extensions/common/extHostCustomers.js";import{$IZ as T}from"../../services/extensions/common/proxyIdentifier.js";import{$Y1 as P,$X1 as x}from"../common/extHost.protocol.js";var D=function(i,o,e,r){var t=arguments.length,s=t<3?o:r===null?r=Object.getOwnPropertyDescriptor(o,e):r,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,o,e,r);else for(var c=i.length-1;c>=0;c--)(l=i[c])&&(s=(t<3?l(s):t>3?l(o,e,s):l(o,e))||s);return t>3&&s&&Object.defineProperty(o,e,s),s},f=function(i,o){return function(e,r){o(e,r,i)}};let $=class extends S{constructor(o,e,r){super(),this.f=e,this.g=r,this.b=this.D(new b),this.c=new Map,this.a=o.getProxy(P.ExtHostLanguageModelTools),this.D(this.f.onDidChangeTools(t=>this.a.$onDidChangeTools(this.h())))}h(){return Array.from(this.f.getAllToolsIncludingDisabled()).map(o=>({id:o.id,displayName:o.displayName,toolReferenceName:o.toolReferenceName,legacyToolReferenceFullNames:o.legacyToolReferenceFullNames,tags:o.tags,userDescription:o.userDescription,modelDescription:o.modelDescription,inputSchema:o.inputSchema,source:o.source}))}async $getTools(){return this.h()}async $invokeTool(o,e){const r=await this.f.invokeTool(m(o),(s,l)=>this.a.$countTokensForInvocation(o.callId,s,l),e??y.None),t={content:r.content,toolMetadata:r.toolMetadata};return M(r)?new T(t):t}$acceptToolProgress(o,e){this.c.get(o)?.progress.report(e)}$countTokensForInvocation(o,e,r){const t=this.c.get(o);if(!t)throw new Error(`Tool invocation call ${o} not found`);return t.countTokens(e,r)}$registerTool(o,e){const r=this.f.registerToolImplementation(o,{invoke:async(t,s,l,c)=>{try{this.c.set(t.callId,{countTokens:s,progress:l});const n=await this.a.$invokeTool(t,c),a=n instanceof T?n.value:n;return m(a)}finally{this.c.delete(t.callId)}},prepareToolInvocation:(t,s)=>this.a.$prepareToolInvocation(o,t,s),handleToolStream:e?(t,s)=>this.a.$handleToolStream(o,t,s):void 0});this.b.set(o,r)}$registerToolWithDefinition(o,e,r){let t;if(e.icon)if(N.isThemeIcon(e.icon))t=e.icon;else if(typeof e.icon=="object"&&e.icon!==null&&R(e.icon))t={dark:u.revive(e.icon)};else{const a=e.icon;t={dark:u.revive(a.dark),light:a.light?u.revive(a.light):void 0}}const s=m(e.source),l={id:e.id,displayName:e.displayName,toolReferenceName:e.toolReferenceName,legacyToolReferenceFullNames:e.legacyToolReferenceFullNames,tags:e.tags,userDescription:e.userDescription,modelDescription:e.modelDescription,inputSchema:e.inputSchema,source:s,icon:t,models:e.models,canBeReferencedInPrompt:!!e.userDescription&&!e.toolSet},c=e.id,n=new I;if(n.add(this.f.registerTool(l,{invoke:async(a,h,g,d)=>{try{this.c.set(a.callId,{countTokens:h,progress:g});const p=await this.a.$invokeTool(a,d),v=p instanceof T?p.value:p;return m(v)}finally{this.c.delete(a.callId)}},handleToolStream:r?(a,h)=>this.a.$handleToolStream(c,a,h):void 0,prepareToolInvocation:(a,h)=>this.a.$prepareToolInvocation(c,a,h)})),e.toolSet){const a=this.f.getToolSet(k(o,e.toolSet))||this.f.getToolSet(e.toolSet);!a||!(a instanceof F)?this.g.warn(`ToolSet ${e.toolSet} not found for tool ${e.id} from extension ${o.value}`):n.add(a.addTool(l))}this.b.set(c,n)}$unregisterTool(o){this.b.deleteAndDispose(o)}};$=D([j(x.MainThreadLanguageModelTools),f(1,_),f(2,w)],$);export{$ as $74b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableMap, DisposableStore } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { isUriComponents, URI } from "../../../base/common/uri.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { toToolSetKey } from "../../contrib/chat/common/tools/languageModelToolsContribution.js";
+import { ILanguageModelToolsService, toolResultHasBuffers, ToolSet } from "../../contrib/chat/common/tools/languageModelToolsService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+let MainThreadLanguageModelTools = class MainThreadLanguageModelTools2 extends Disposable {
+  static {
+    __name(this, "MainThreadLanguageModelTools");
+  }
+  constructor(extHostContext, _languageModelToolsService, _logService) {
+    super();
+    this._languageModelToolsService = _languageModelToolsService;
+    this._logService = _logService;
+    this._tools = this._register(new DisposableMap());
+    this._runningToolCalls = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageModelTools);
+    this._register(this._languageModelToolsService.onDidChangeTools((e) => this._proxy.$onDidChangeTools(this.getToolDtos())));
+  }
+  getToolDtos() {
+    return Array.from(this._languageModelToolsService.getAllToolsIncludingDisabled()).map((tool) => ({
+      id: tool.id,
+      displayName: tool.displayName,
+      toolReferenceName: tool.toolReferenceName,
+      legacyToolReferenceFullNames: tool.legacyToolReferenceFullNames,
+      tags: tool.tags,
+      userDescription: tool.userDescription,
+      modelDescription: tool.modelDescription,
+      inputSchema: tool.inputSchema,
+      source: tool.source
+    }));
+  }
+  async $getTools() {
+    return this.getToolDtos();
+  }
+  async $invokeTool(dto, token) {
+    const result = await this._languageModelToolsService.invokeTool(revive(dto), (input, token2) => this._proxy.$countTokensForInvocation(dto.callId, input, token2), token ?? CancellationToken.None);
+    const out = {
+      content: result.content,
+      toolMetadata: result.toolMetadata
+    };
+    return toolResultHasBuffers(result) ? new SerializableObjectWithBuffers(out) : out;
+  }
+  $acceptToolProgress(callId, progress) {
+    this._runningToolCalls.get(callId)?.progress.report(progress);
+  }
+  $countTokensForInvocation(callId, input, token) {
+    const fn = this._runningToolCalls.get(callId);
+    if (!fn) {
+      throw new Error(`Tool invocation call ${callId} not found`);
+    }
+    return fn.countTokens(input, token);
+  }
+  $registerTool(id, hasHandleToolStream) {
+    const disposable = this._languageModelToolsService.registerToolImplementation(id, {
+      invoke: /* @__PURE__ */ __name(async (dto, countTokens, progress, token) => {
+        try {
+          this._runningToolCalls.set(dto.callId, { countTokens, progress });
+          const resultSerialized = await this._proxy.$invokeTool(dto, token);
+          const resultDto = resultSerialized instanceof SerializableObjectWithBuffers ? resultSerialized.value : resultSerialized;
+          return revive(resultDto);
+        } finally {
+          this._runningToolCalls.delete(dto.callId);
+        }
+      }, "invoke"),
+      prepareToolInvocation: /* @__PURE__ */ __name((context, token) => this._proxy.$prepareToolInvocation(id, context, token), "prepareToolInvocation"),
+      handleToolStream: hasHandleToolStream ? (context, token) => this._proxy.$handleToolStream(id, context, token) : void 0
+    });
+    this._tools.set(id, disposable);
+  }
+  $registerToolWithDefinition(extensionId, definition, hasHandleToolStream) {
+    let icon;
+    if (definition.icon) {
+      if (ThemeIcon.isThemeIcon(definition.icon)) {
+        icon = definition.icon;
+      } else if (typeof definition.icon === "object" && definition.icon !== null && isUriComponents(definition.icon)) {
+        icon = { dark: URI.revive(definition.icon) };
+      } else {
+        const iconObj = definition.icon;
+        icon = { dark: URI.revive(iconObj.dark), light: iconObj.light ? URI.revive(iconObj.light) : void 0 };
+      }
+    }
+    const source = revive(definition.source);
+    const toolData = {
+      id: definition.id,
+      displayName: definition.displayName,
+      toolReferenceName: definition.toolReferenceName,
+      legacyToolReferenceFullNames: definition.legacyToolReferenceFullNames,
+      tags: definition.tags,
+      userDescription: definition.userDescription,
+      modelDescription: definition.modelDescription,
+      inputSchema: definition.inputSchema,
+      source,
+      icon,
+      models: definition.models,
+      canBeReferencedInPrompt: !!definition.userDescription && !definition.toolSet
+    };
+    const id = definition.id;
+    const store = new DisposableStore();
+    store.add(this._languageModelToolsService.registerTool(toolData, {
+      invoke: /* @__PURE__ */ __name(async (dto, countTokens, progress, token) => {
+        try {
+          this._runningToolCalls.set(dto.callId, { countTokens, progress });
+          const resultSerialized = await this._proxy.$invokeTool(dto, token);
+          const resultDto = resultSerialized instanceof SerializableObjectWithBuffers ? resultSerialized.value : resultSerialized;
+          return revive(resultDto);
+        } finally {
+          this._runningToolCalls.delete(dto.callId);
+        }
+      }, "invoke"),
+      handleToolStream: hasHandleToolStream ? (context, token) => this._proxy.$handleToolStream(id, context, token) : void 0,
+      prepareToolInvocation: /* @__PURE__ */ __name((context, token) => this._proxy.$prepareToolInvocation(id, context, token), "prepareToolInvocation")
+    }));
+    if (definition.toolSet) {
+      const ts = this._languageModelToolsService.getToolSet(toToolSetKey(extensionId, definition.toolSet)) || this._languageModelToolsService.getToolSet(definition.toolSet);
+      if (!ts || !(ts instanceof ToolSet)) {
+        this._logService.warn(`ToolSet ${definition.toolSet} not found for tool ${definition.id} from extension ${extensionId.value}`);
+      } else {
+        store.add(ts.addTool(toolData));
+      }
+    }
+    this._tools.set(id, store);
+  }
+  $unregisterTool(name) {
+    this._tools.deleteAndDispose(name);
+  }
+};
+MainThreadLanguageModelTools = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadLanguageModelTools),
+  __param(1, ILanguageModelToolsService),
+  __param(2, ILogService)
+], MainThreadLanguageModelTools);
+export {
+  MainThreadLanguageModelTools
+};
+//# sourceMappingURL=mainThreadLanguageModelTools.js.map

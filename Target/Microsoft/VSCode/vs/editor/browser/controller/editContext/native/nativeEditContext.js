@@ -1,2 +1,533 @@
-import"./nativeEditContext.css";import{$67 as P}from"../../../../../base/browser/browser.js";import{$u8 as m,$98 as B,getWindow as _,getWindowId as k}from"../../../../../base/browser/dom.js";import{$99 as $}from"../../../../../base/browser/fastDomNode.js";import{$n8 as F}from"../../../../../base/browser/keyboardEvent.js";import{$Mj as J}from"../../../../../platform/instantiation/common/instantiation.js";import{$Bdb as V,$Cdb as M,$Ddb as Y}from"../clipboardUtils.js";import{$Bhb as I}from"../editContext.js";import{$Fhb as N,$Ehb as G}from"./nativeEditContextUtils.js";import{$Ihb as K}from"./screenReaderSupport.js";import{$_D as E}from"../../../../common/core/range.js";import{$bE as w}from"../../../../common/core/selection.js";import{$$D as A}from"../../../../common/core/position.js";import{PositionOffsetTransformer as Q}from"../../../../common/core/text/positionToOffset.js";import{EditContext as U}from"./editContextFactory.js";import{$Jhb as z}from"./nativeEditContextRegistry.js";import{$tg as X,$ug as Z}from"../../../../../base/common/strings.js";import{IME as S}from"../../../../../base/common/ime.js";import{$hE as v}from"../../../../common/core/ranges/offsetRange.js";import{$yo as q}from"../../../../../platform/log/common/log.js";import{inputLatency as C}from"../../../../../base/browser/performance.js";var j=function(u,t,e,n){var r=arguments.length,s=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,t,e,n);else for(var h=u.length-1;h>=0;h--)(a=u[h])&&(s=(r<3?a(s):r>3?a(t,e,s):a(t,e))||s);return r>3&&s&&Object.defineProperty(t,e,s),s},O=function(u,t){return function(e,n){t(e,n,u)}},x;(function(u){u.NONE="edit-context-composition-none",u.SECONDARY="edit-context-composition-secondary",u.PRIMARY="edit-context-composition-primary"})(x||(x={}));let H=class extends I{constructor(t,e,n,r,s,a,h){super(e),this.H=r,this.I=s,this.J=h,this.n=new v(0,0),this.s=new w(1,1,1,1),this.u=null,this.w=[],this.y=new w(1,1,1,1),this.z=-1,this.C=0,this.F=0,this.Y=null,this.domNode=new $(document.createElement("div")),this.domNode.setClassName("native-edit-context"),this.g=new $(document.createElement("textarea")),this.g.setClassName("ime-text-area"),this.g.setAttribute("readonly","true"),this.g.setAttribute("tabindex","-1"),this.g.setAttribute("aria-hidden","true"),this.domNode.setAttribute("autocorrect","off"),this.domNode.setAttribute("autocapitalize","off"),this.domNode.setAttribute("autocomplete","off"),this.domNode.setAttribute("spellcheck","false"),this.P(),n.appendChild(this.domNode),n.appendChild(this.g),this.t=n.domNode,this.G=this.D(new G(h,this.domNode.domNode,i=>{h.trace("NativeEditContext#handleFocusChange : ",i),this.j.handleFocusChange(i),this._context.viewModel.setHasFocus(i)}));const c=_(this.domNode.domNode);this.h=U.create(c),this.setEditContextOnDomNode(),this.j=this.D(a.createInstance(K,this.domNode,e,this.H)),this.D(m(this.domNode.domNode,"copy",i=>{this.J.trace("NativeEditContext#copy"),V.electronBugWorkaroundCopyEventHasFired=!0;const o=M(i,!1,this._context,this.J,P);this.a.fire(o),!o.isHandled&&o.ensureClipboardGetsEditorData()})),this.D(m(this.domNode.domNode,"cut",i=>{this.J.trace("NativeEditContext#cut");const o=M(i,!0,this._context,this.J,P);this.b.fire(o),!o.isHandled&&(this.j.onWillCut(),o.ensureClipboardGetsEditorData(),this.J.trace("NativeEditContext#cut (before viewController.cut)"),this.H.cut())})),this.D(m(this.domNode.domNode,"selectionchange",()=>{C.onSelectionChange()})),this.D(m(this.domNode.domNode,"keyup",i=>this.N(i))),this.D(m(this.domNode.domNode,"keydown",async i=>this.O(i))),this.D(m(this.g.domNode,"keyup",i=>this.N(i))),this.D(m(this.g.domNode,"keydown",async i=>this.O(i))),this.D(m(this.domNode.domNode,"beforeinput",async i=>{C.onBeforeInput(),(i.inputType==="insertParagraph"||i.inputType==="insertLineBreak")&&this.S(this.H,{text:`
-`,replacePrevCharCnt:0,replaceNextCharCnt:0,positionDelta:0})})),this.D(m(this.domNode.domNode,"paste",i=>{this.J.trace("NativeEditContext#paste");const o=Y(i);if(this.c.fire(o),o.isHandled){i.preventDefault();return}if(i.preventDefault(),!i.clipboardData||(this.J.trace("NativeEditContext#paste with id : ",o.metadata?.id," with text.length: ",o.text.length),!o.text))return;let f=!1,p=null,g=null;o.metadata&&(f=this._context.configuration.options.get(45)&&!!o.metadata.isFromEmptySelection,p=typeof o.metadata.multicursorText<"u"?o.metadata.multicursorText:null,g=o.metadata.mode),this.J.trace("NativeEditContext#paste (before viewController.paste)"),this.H.paste(o.text,f,p,g)})),this.D(N(this.h,"textformatupdate",i=>this.X(i))),this.D(N(this.h,"characterboundsupdate",i=>this.ab(i)));let d;this.D(N(this.h,"textupdate",i=>{C.onInput();const o=i.text;if(o.length===1){const f=o.charCodeAt(0);if(X(f)){d=o;return}if(Z(f)&&d){const p={text:d+o,selectionEnd:i.selectionEnd,selectionStart:i.selectionStart,updateRangeStart:i.updateRangeStart-1,updateRangeEnd:i.updateRangeEnd-1};d=void 0,this.R(this.H,p);return}}this.R(this.H,i)})),this.D(N(this.h,"compositionstart",i=>{this.Q(),this.H.compositionStart(),this._context.viewModel.onCompositionStart()})),this.D(N(this.h,"compositionend",i=>{this.Q(),this.H.compositionEnd(),this._context.viewModel.onCompositionEnd()}));let l=!1;this.D(S.onDidChange(()=>{S.enabled&&l&&(this.G.resume(),this.domNode.focus(),l=!1),!S.enabled&&this.isFocused()&&(this.G.pause(),this.g.focus(),l=!0)})),this.D(z.register(t,this))}dispose(){this.domNode.domNode.editContext=void 0,this.domNode.domNode.blur(),this.domNode.domNode.remove(),this.g.domNode.remove(),super.dispose()}setAriaOptions(t){this.j.setAriaOptions(t)}getLastRenderData(){return this.y.getPosition()}onBeforeRender(t){this.u=this.t.getBoundingClientRect()}prepareRender(t){this.j.prepareRender(t),this.Z(t)}render(t){this.j.render(t),this.$()}onCursorStateChanged(t){return this.y=t.modelSelections[0]??new w(1,1,1,1),this.j.onCursorStateChanged(t),this.Q(),!0}onConfigurationChanged(t){return this.j.onConfigurationChanged(t),this.P(),!0}onDecorationsChanged(t){return!0}onFlushed(t){return!0}onLinesChanged(t){return this.L(t.fromLineNumber,t.fromLineNumber+t.count-1),!0}onLinesDeleted(t){return this.L(t.fromLineNumber,t.toLineNumber),!0}onLinesInserted(t){return this.L(t.fromLineNumber,t.toLineNumber),!0}L(t,e){this.s.endLineNumber<t||this.s.startLineNumber>e||this.Q()}onScrollChanged(t){return this.F=t.scrollLeft,this.C=t.scrollTop,!0}onZonesChanged(t){return!0}handleWillPaste(){this.J.trace("NativeEditContext#handleWillPaste"),this.M()}M(){this.j.onWillPaste()}handleWillCopy(){this.J.trace("NativeEditContext#handleWillCopy"),this.J.trace("NativeEditContext#isFocused : ",this.domNode.domNode===B())}writeScreenReaderContent(){this.j.writeScreenReaderContent()}isFocused(){return this.G.isFocused}focus(){this.G.focus(),this.refreshFocusState()}refreshFocusState(){this.G.refreshFocusState()}setEditContextOnDomNode(){const t=_(this.domNode.domNode),e=k(t);this.z!==e&&(this.domNode.domNode.editContext=this.h,this.z=e)}N(t){C.onKeyUp(),this.H.emitKeyUp(new F(t))}O(t){C.onKeyDown();const e=new F(t);e.keyCode===114&&e.stopPropagation(),this.H.emitKeyDown(e)}P(){const t=this._context.configuration.options;this.domNode.domNode.setAttribute("tabindex",String(t.get(140)))}Q(){const t=this.U();t&&(this.h.updateText(0,Number.MAX_SAFE_INTEGER,t.text??" "),this.h.updateSelection(t.selectionStartOffset,t.selectionEndOffset),this.s=t.editContextPrimarySelection,this.n=new v(t.selectionStartOffset,t.selectionEndOffset))}R(t,e){if(!this.h)return;const n=this.n.endExclusive,r=this.n.start;this.n=new v(e.selectionStart,e.selectionEnd);let s=0,a=0;e.updateRangeEnd>n&&(s=e.updateRangeEnd-n),e.updateRangeStart<r&&(a=r-e.updateRangeStart);let h="";r<e.updateRangeStart&&(h+=this.h.text.substring(r,e.updateRangeStart)),h+=e.text,n>e.updateRangeEnd&&(h+=this.h.text.substring(e.updateRangeEnd,n));let c=0;e.selectionStart===e.selectionEnd&&r===n&&(c=e.selectionStart-(e.updateRangeStart+e.text.length));const d={text:h,replacePrevCharCnt:a,replaceNextCharCnt:s,positionDelta:c};this.S(t,d)}S(t,e){e.replacePrevCharCnt||e.replaceNextCharCnt||e.positionDelta?t.compositionType(e.text,e.replacePrevCharCnt,e.replaceNextCharCnt,e.positionDelta):t.type(e.text)}U(){const t=this.y,e=this._context.viewModel.model;if(!e.isValidRange(t))return;const n=t.startLineNumber,r=t.endLineNumber,s=e.getLineMaxColumn(r),a=new E(n,1,r,s),h=e.getValueInRange(a,0),c=t.startColumn-1,d=h.length+t.endColumn-s;return{text:h,selectionStartOffset:c,selectionEndOffset:d,editContextPrimarySelection:t}}W(){return new A(this.s.startLineNumber,1)}X(t){if(!this.h)return;const e=t.getTextFormats(),n=this.W(),r=[];e.forEach(s=>{const a=this._context.viewModel.model,h=a.getOffsetAt(n),c=a.getPositionAt(h+s.rangeStart),d=a.getPositionAt(h+s.rangeEnd),l=E.fromPositions(c,d),i=s.underlineThickness.toLowerCase();let o=x.NONE;switch(i){case"thin":o=x.SECONDARY;break;case"thick":o=x.PRIMARY;break}r.push({range:l,options:{description:"textFormatDecoration",inlineClassName:o}})}),this.w=this._context.viewModel.model.deltaDecorations(this.w,r)}Z(t){const e=this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(this.y);if(this.y.isEmpty()){const n=t.visibleRangeForPosition(e.getStartPosition());this.Y=n}else this.Y=null}$(){const e=this._context.configuration.options.get(165).contentLeft,n=this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(this.y),r=this._context.viewLayout.getVerticalOffsetForLineNumber(n.startLineNumber),s=this._context.viewLayout.getVerticalOffsetAfterLineNumber(n.endLineNumber),a=this.u,h=a.top+r-this.C,c=s-r;let d=a.left+e-this.F,l;this.y.isEmpty()?(this.Y&&(d+=this.Y.left),l=0):l=a.width-e;const i=new DOMRect(d,h,l,c);this.h.updateSelectionBounds(i),this.h.updateControlBounds(i)}ab(t){const e=this._context.configuration.options,n=e.get(59).typicalHalfwidthCharacterWidth,r=e.get(165).contentLeft,s=this.u,a=[],h=new Q(this.h.text);for(let c=t.rangeStart;c<t.rangeEnd;c++){const d=h.getPosition(c),l=this.s.startLineNumber-1,i=new A(l+d.lineNumber,d.column),o=i.delta(0,1),f=E.fromPositions(i,o),p=this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(f),g=this.I.linesVisibleRangesForRange(p,!0)??[],b=p.startLineNumber,R=this._context.viewLayout.getVerticalOffsetForLineNumber(b),T=s.top+R-this.C;let D=0,L=n;if(g.length>0)for(const y of g[0].ranges){D=y.left,L=y.width;break}const W=this._context.viewLayout.getLineHeightForLineNumber(b);a.push(new DOMRect(s.left+r+D-this.F,T,L,W))}this.h.updateCharacterBounds(t.rangeStart,a)}};H=j([O(5,J),O(6,q)],H);export{H as $Khb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./nativeEditContext.css";
+import { isFirefox } from "../../../../../base/browser/browser.js";
+import { addDisposableListener, getActiveElement, getWindow, getWindowId } from "../../../../../base/browser/dom.js";
+import { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { CopyOptions, createClipboardCopyEvent, createClipboardPasteEvent } from "../clipboardUtils.js";
+import { AbstractEditContext } from "../editContext.js";
+import { editContextAddDisposableListener, FocusTracker } from "./nativeEditContextUtils.js";
+import { ScreenReaderSupport } from "./screenReaderSupport.js";
+import { Range } from "../../../../common/core/range.js";
+import { Selection } from "../../../../common/core/selection.js";
+import { Position } from "../../../../common/core/position.js";
+import { PositionOffsetTransformer } from "../../../../common/core/text/positionToOffset.js";
+import { EditContext } from "./editContextFactory.js";
+import { NativeEditContextRegistry } from "./nativeEditContextRegistry.js";
+import { isHighSurrogate, isLowSurrogate } from "../../../../../base/common/strings.js";
+import { IME } from "../../../../../base/common/ime.js";
+import { OffsetRange } from "../../../../common/core/ranges/offsetRange.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { inputLatency } from "../../../../../base/browser/performance.js";
+var CompositionClassName;
+(function(CompositionClassName2) {
+  CompositionClassName2["NONE"] = "edit-context-composition-none";
+  CompositionClassName2["SECONDARY"] = "edit-context-composition-secondary";
+  CompositionClassName2["PRIMARY"] = "edit-context-composition-primary";
+})(CompositionClassName || (CompositionClassName = {}));
+let NativeEditContext = class NativeEditContext2 extends AbstractEditContext {
+  static {
+    __name(this, "NativeEditContext");
+  }
+  constructor(ownerID, context, overflowGuardContainer, _viewController, _visibleRangeProvider, instantiationService, logService) {
+    super(context);
+    this._viewController = _viewController;
+    this._visibleRangeProvider = _visibleRangeProvider;
+    this.logService = logService;
+    this._previousEditContextSelection = new OffsetRange(0, 0);
+    this._editContextPrimarySelection = new Selection(1, 1, 1, 1);
+    this._parentBounds = null;
+    this._decorations = [];
+    this._primarySelection = new Selection(1, 1, 1, 1);
+    this._targetWindowId = -1;
+    this._scrollTop = 0;
+    this._scrollLeft = 0;
+    this._linesVisibleRanges = null;
+    this.domNode = new FastDomNode(document.createElement("div"));
+    this.domNode.setClassName(`native-edit-context`);
+    this._imeTextArea = new FastDomNode(document.createElement("textarea"));
+    this._imeTextArea.setClassName(`ime-text-area`);
+    this._imeTextArea.setAttribute("readonly", "true");
+    this._imeTextArea.setAttribute("tabindex", "-1");
+    this._imeTextArea.setAttribute("aria-hidden", "true");
+    this.domNode.setAttribute("autocorrect", "off");
+    this.domNode.setAttribute("autocapitalize", "off");
+    this.domNode.setAttribute("autocomplete", "off");
+    this.domNode.setAttribute("spellcheck", "false");
+    this._updateDomAttributes();
+    overflowGuardContainer.appendChild(this.domNode);
+    overflowGuardContainer.appendChild(this._imeTextArea);
+    this._parent = overflowGuardContainer.domNode;
+    this._focusTracker = this._register(new FocusTracker(logService, this.domNode.domNode, (newFocusValue) => {
+      logService.trace("NativeEditContext#handleFocusChange : ", newFocusValue);
+      this._screenReaderSupport.handleFocusChange(newFocusValue);
+      this._context.viewModel.setHasFocus(newFocusValue);
+    }));
+    const window = getWindow(this.domNode.domNode);
+    this._editContext = EditContext.create(window);
+    this.setEditContextOnDomNode();
+    this._screenReaderSupport = this._register(instantiationService.createInstance(ScreenReaderSupport, this.domNode, context, this._viewController));
+    this._register(addDisposableListener(this.domNode.domNode, "copy", (e) => {
+      this.logService.trace("NativeEditContext#copy");
+      CopyOptions.electronBugWorkaroundCopyEventHasFired = true;
+      const copyEvent = createClipboardCopyEvent(
+        e,
+        /* isCut */
+        false,
+        this._context,
+        this.logService,
+        isFirefox
+      );
+      this._onWillCopy.fire(copyEvent);
+      if (copyEvent.isHandled) {
+        return;
+      }
+      copyEvent.ensureClipboardGetsEditorData();
+    }));
+    this._register(addDisposableListener(this.domNode.domNode, "cut", (e) => {
+      this.logService.trace("NativeEditContext#cut");
+      const cutEvent = createClipboardCopyEvent(
+        e,
+        /* isCut */
+        true,
+        this._context,
+        this.logService,
+        isFirefox
+      );
+      this._onWillCut.fire(cutEvent);
+      if (cutEvent.isHandled) {
+        return;
+      }
+      this._screenReaderSupport.onWillCut();
+      cutEvent.ensureClipboardGetsEditorData();
+      this.logService.trace("NativeEditContext#cut (before viewController.cut)");
+      this._viewController.cut();
+    }));
+    this._register(addDisposableListener(this.domNode.domNode, "selectionchange", () => {
+      inputLatency.onSelectionChange();
+    }));
+    this._register(addDisposableListener(this.domNode.domNode, "keyup", (e) => this._onKeyUp(e)));
+    this._register(addDisposableListener(this.domNode.domNode, "keydown", async (e) => this._onKeyDown(e)));
+    this._register(addDisposableListener(this._imeTextArea.domNode, "keyup", (e) => this._onKeyUp(e)));
+    this._register(addDisposableListener(this._imeTextArea.domNode, "keydown", async (e) => this._onKeyDown(e)));
+    this._register(addDisposableListener(this.domNode.domNode, "beforeinput", async (e) => {
+      inputLatency.onBeforeInput();
+      if (e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") {
+        this._onType(this._viewController, { text: "\n", replacePrevCharCnt: 0, replaceNextCharCnt: 0, positionDelta: 0 });
+      }
+    }));
+    this._register(addDisposableListener(this.domNode.domNode, "paste", (e) => {
+      this.logService.trace("NativeEditContext#paste");
+      const pasteEvent = createClipboardPasteEvent(e);
+      this._onWillPaste.fire(pasteEvent);
+      if (pasteEvent.isHandled) {
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+      if (!e.clipboardData) {
+        return;
+      }
+      this.logService.trace("NativeEditContext#paste with id : ", pasteEvent.metadata?.id, " with text.length: ", pasteEvent.text.length);
+      if (!pasteEvent.text) {
+        return;
+      }
+      let pasteOnNewLine = false;
+      let multicursorText = null;
+      let mode = null;
+      if (pasteEvent.metadata) {
+        const options = this._context.configuration.options;
+        const emptySelectionClipboard = options.get(
+          45
+          /* EditorOption.emptySelectionClipboard */
+        );
+        pasteOnNewLine = emptySelectionClipboard && !!pasteEvent.metadata.isFromEmptySelection;
+        multicursorText = typeof pasteEvent.metadata.multicursorText !== "undefined" ? pasteEvent.metadata.multicursorText : null;
+        mode = pasteEvent.metadata.mode;
+      }
+      this.logService.trace("NativeEditContext#paste (before viewController.paste)");
+      this._viewController.paste(pasteEvent.text, pasteOnNewLine, multicursorText, mode);
+    }));
+    this._register(editContextAddDisposableListener(this._editContext, "textformatupdate", (e) => this._handleTextFormatUpdate(e)));
+    this._register(editContextAddDisposableListener(this._editContext, "characterboundsupdate", (e) => this._updateCharacterBounds(e)));
+    let highSurrogateCharacter;
+    this._register(editContextAddDisposableListener(this._editContext, "textupdate", (e) => {
+      inputLatency.onInput();
+      const text = e.text;
+      if (text.length === 1) {
+        const charCode = text.charCodeAt(0);
+        if (isHighSurrogate(charCode)) {
+          highSurrogateCharacter = text;
+          return;
+        }
+        if (isLowSurrogate(charCode) && highSurrogateCharacter) {
+          const textUpdateEvent = {
+            text: highSurrogateCharacter + text,
+            selectionEnd: e.selectionEnd,
+            selectionStart: e.selectionStart,
+            updateRangeStart: e.updateRangeStart - 1,
+            updateRangeEnd: e.updateRangeEnd - 1
+          };
+          highSurrogateCharacter = void 0;
+          this._emitTypeEvent(this._viewController, textUpdateEvent);
+          return;
+        }
+      }
+      this._emitTypeEvent(this._viewController, e);
+    }));
+    this._register(editContextAddDisposableListener(this._editContext, "compositionstart", (e) => {
+      this._updateEditContext();
+      this._viewController.compositionStart();
+      this._context.viewModel.onCompositionStart();
+    }));
+    this._register(editContextAddDisposableListener(this._editContext, "compositionend", (e) => {
+      this._updateEditContext();
+      this._viewController.compositionEnd();
+      this._context.viewModel.onCompositionEnd();
+    }));
+    let reenableTracking = false;
+    this._register(IME.onDidChange(() => {
+      if (IME.enabled && reenableTracking) {
+        this._focusTracker.resume();
+        this.domNode.focus();
+        reenableTracking = false;
+      }
+      if (!IME.enabled && this.isFocused()) {
+        this._focusTracker.pause();
+        this._imeTextArea.focus();
+        reenableTracking = true;
+      }
+    }));
+    this._register(NativeEditContextRegistry.register(ownerID, this));
+  }
+  // --- Public methods ---
+  dispose() {
+    this.domNode.domNode.editContext = void 0;
+    this.domNode.domNode.blur();
+    this.domNode.domNode.remove();
+    this._imeTextArea.domNode.remove();
+    super.dispose();
+  }
+  setAriaOptions(options) {
+    this._screenReaderSupport.setAriaOptions(options);
+  }
+  /* Last rendered data needed for correct hit-testing and determining the mouse position.
+   * Without this, the selection will blink as incorrect mouse position is calculated */
+  getLastRenderData() {
+    return this._primarySelection.getPosition();
+  }
+  onBeforeRender(viewportData) {
+    this._parentBounds = this._parent.getBoundingClientRect();
+  }
+  prepareRender(ctx) {
+    this._screenReaderSupport.prepareRender(ctx);
+    this._updateSelectionAndControlBoundsData(ctx);
+  }
+  render(ctx) {
+    this._screenReaderSupport.render(ctx);
+    this._updateSelectionAndControlBounds();
+  }
+  onCursorStateChanged(e) {
+    this._primarySelection = e.modelSelections[0] ?? new Selection(1, 1, 1, 1);
+    this._screenReaderSupport.onCursorStateChanged(e);
+    this._updateEditContext();
+    return true;
+  }
+  onConfigurationChanged(e) {
+    this._screenReaderSupport.onConfigurationChanged(e);
+    this._updateDomAttributes();
+    return true;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    return true;
+  }
+  onLinesChanged(e) {
+    this._updateEditContextOnLineChange(e.fromLineNumber, e.fromLineNumber + e.count - 1);
+    return true;
+  }
+  onLinesDeleted(e) {
+    this._updateEditContextOnLineChange(e.fromLineNumber, e.toLineNumber);
+    return true;
+  }
+  onLinesInserted(e) {
+    this._updateEditContextOnLineChange(e.fromLineNumber, e.toLineNumber);
+    return true;
+  }
+  _updateEditContextOnLineChange(fromLineNumber, toLineNumber) {
+    if (this._editContextPrimarySelection.endLineNumber < fromLineNumber || this._editContextPrimarySelection.startLineNumber > toLineNumber) {
+      return;
+    }
+    this._updateEditContext();
+  }
+  onScrollChanged(e) {
+    this._scrollLeft = e.scrollLeft;
+    this._scrollTop = e.scrollTop;
+    return true;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  handleWillPaste() {
+    this.logService.trace("NativeEditContext#handleWillPaste");
+    this._prepareScreenReaderForPaste();
+  }
+  _prepareScreenReaderForPaste() {
+    this._screenReaderSupport.onWillPaste();
+  }
+  handleWillCopy() {
+    this.logService.trace("NativeEditContext#handleWillCopy");
+    this.logService.trace("NativeEditContext#isFocused : ", this.domNode.domNode === getActiveElement());
+  }
+  writeScreenReaderContent() {
+    this._screenReaderSupport.writeScreenReaderContent();
+  }
+  isFocused() {
+    return this._focusTracker.isFocused;
+  }
+  focus() {
+    this._focusTracker.focus();
+    this.refreshFocusState();
+  }
+  refreshFocusState() {
+    this._focusTracker.refreshFocusState();
+  }
+  // TODO: added as a workaround fix for https://github.com/microsoft/vscode/issues/229825
+  // When this issue will be fixed the following should be removed.
+  setEditContextOnDomNode() {
+    const targetWindow = getWindow(this.domNode.domNode);
+    const targetWindowId = getWindowId(targetWindow);
+    if (this._targetWindowId !== targetWindowId) {
+      this.domNode.domNode.editContext = this._editContext;
+      this._targetWindowId = targetWindowId;
+    }
+  }
+  // --- Private methods ---
+  _onKeyUp(e) {
+    inputLatency.onKeyUp();
+    this._viewController.emitKeyUp(new StandardKeyboardEvent(e));
+  }
+  _onKeyDown(e) {
+    inputLatency.onKeyDown();
+    const standardKeyboardEvent = new StandardKeyboardEvent(e);
+    if (standardKeyboardEvent.keyCode === 114) {
+      standardKeyboardEvent.stopPropagation();
+    }
+    this._viewController.emitKeyDown(standardKeyboardEvent);
+  }
+  _updateDomAttributes() {
+    const options = this._context.configuration.options;
+    this.domNode.domNode.setAttribute("tabindex", String(options.get(
+      140
+      /* EditorOption.tabIndex */
+    )));
+  }
+  _updateEditContext() {
+    const editContextState = this._getNewEditContextState();
+    if (!editContextState) {
+      return;
+    }
+    this._editContext.updateText(0, Number.MAX_SAFE_INTEGER, editContextState.text ?? " ");
+    this._editContext.updateSelection(editContextState.selectionStartOffset, editContextState.selectionEndOffset);
+    this._editContextPrimarySelection = editContextState.editContextPrimarySelection;
+    this._previousEditContextSelection = new OffsetRange(editContextState.selectionStartOffset, editContextState.selectionEndOffset);
+  }
+  _emitTypeEvent(viewController, e) {
+    if (!this._editContext) {
+      return;
+    }
+    const selectionEndOffset = this._previousEditContextSelection.endExclusive;
+    const selectionStartOffset = this._previousEditContextSelection.start;
+    this._previousEditContextSelection = new OffsetRange(e.selectionStart, e.selectionEnd);
+    let replaceNextCharCnt = 0;
+    let replacePrevCharCnt = 0;
+    if (e.updateRangeEnd > selectionEndOffset) {
+      replaceNextCharCnt = e.updateRangeEnd - selectionEndOffset;
+    }
+    if (e.updateRangeStart < selectionStartOffset) {
+      replacePrevCharCnt = selectionStartOffset - e.updateRangeStart;
+    }
+    let text = "";
+    if (selectionStartOffset < e.updateRangeStart) {
+      text += this._editContext.text.substring(selectionStartOffset, e.updateRangeStart);
+    }
+    text += e.text;
+    if (selectionEndOffset > e.updateRangeEnd) {
+      text += this._editContext.text.substring(e.updateRangeEnd, selectionEndOffset);
+    }
+    let positionDelta = 0;
+    if (e.selectionStart === e.selectionEnd && selectionStartOffset === selectionEndOffset) {
+      positionDelta = e.selectionStart - (e.updateRangeStart + e.text.length);
+    }
+    const typeInput = {
+      text,
+      replacePrevCharCnt,
+      replaceNextCharCnt,
+      positionDelta
+    };
+    this._onType(viewController, typeInput);
+  }
+  _onType(viewController, typeInput) {
+    if (typeInput.replacePrevCharCnt || typeInput.replaceNextCharCnt || typeInput.positionDelta) {
+      viewController.compositionType(typeInput.text, typeInput.replacePrevCharCnt, typeInput.replaceNextCharCnt, typeInput.positionDelta);
+    } else {
+      viewController.type(typeInput.text);
+    }
+  }
+  _getNewEditContextState() {
+    const editContextPrimarySelection = this._primarySelection;
+    const model = this._context.viewModel.model;
+    if (!model.isValidRange(editContextPrimarySelection)) {
+      return;
+    }
+    const primarySelectionStartLine = editContextPrimarySelection.startLineNumber;
+    const primarySelectionEndLine = editContextPrimarySelection.endLineNumber;
+    const endColumnOfEndLineNumber = model.getLineMaxColumn(primarySelectionEndLine);
+    const rangeOfText = new Range(primarySelectionStartLine, 1, primarySelectionEndLine, endColumnOfEndLineNumber);
+    const text = model.getValueInRange(
+      rangeOfText,
+      0
+      /* EndOfLinePreference.TextDefined */
+    );
+    const selectionStartOffset = editContextPrimarySelection.startColumn - 1;
+    const selectionEndOffset = text.length + editContextPrimarySelection.endColumn - endColumnOfEndLineNumber;
+    return {
+      text,
+      selectionStartOffset,
+      selectionEndOffset,
+      editContextPrimarySelection
+    };
+  }
+  _editContextStartPosition() {
+    return new Position(this._editContextPrimarySelection.startLineNumber, 1);
+  }
+  _handleTextFormatUpdate(e) {
+    if (!this._editContext) {
+      return;
+    }
+    const formats = e.getTextFormats();
+    const editContextStartPosition = this._editContextStartPosition();
+    const decorations = [];
+    formats.forEach((f) => {
+      const textModel = this._context.viewModel.model;
+      const offsetOfEditContextText = textModel.getOffsetAt(editContextStartPosition);
+      const startPositionOfDecoration = textModel.getPositionAt(offsetOfEditContextText + f.rangeStart);
+      const endPositionOfDecoration = textModel.getPositionAt(offsetOfEditContextText + f.rangeEnd);
+      const decorationRange = Range.fromPositions(startPositionOfDecoration, endPositionOfDecoration);
+      const thickness = f.underlineThickness.toLowerCase();
+      let decorationClassName = CompositionClassName.NONE;
+      switch (thickness) {
+        case "thin":
+          decorationClassName = CompositionClassName.SECONDARY;
+          break;
+        case "thick":
+          decorationClassName = CompositionClassName.PRIMARY;
+          break;
+      }
+      decorations.push({
+        range: decorationRange,
+        options: {
+          description: "textFormatDecoration",
+          inlineClassName: decorationClassName
+        }
+      });
+    });
+    this._decorations = this._context.viewModel.model.deltaDecorations(this._decorations, decorations);
+  }
+  _updateSelectionAndControlBoundsData(ctx) {
+    const viewSelection = this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(this._primarySelection);
+    if (this._primarySelection.isEmpty()) {
+      const linesVisibleRanges = ctx.visibleRangeForPosition(viewSelection.getStartPosition());
+      this._linesVisibleRanges = linesVisibleRanges;
+    } else {
+      this._linesVisibleRanges = null;
+    }
+  }
+  _updateSelectionAndControlBounds() {
+    const options = this._context.configuration.options;
+    const contentLeft = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    ).contentLeft;
+    const viewSelection = this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(this._primarySelection);
+    const verticalOffsetStart = this._context.viewLayout.getVerticalOffsetForLineNumber(viewSelection.startLineNumber);
+    const verticalOffsetEnd = this._context.viewLayout.getVerticalOffsetAfterLineNumber(viewSelection.endLineNumber);
+    const parentBounds = this._parentBounds;
+    const top = parentBounds.top + verticalOffsetStart - this._scrollTop;
+    const height = verticalOffsetEnd - verticalOffsetStart;
+    let left = parentBounds.left + contentLeft - this._scrollLeft;
+    let width;
+    if (this._primarySelection.isEmpty()) {
+      if (this._linesVisibleRanges) {
+        left += this._linesVisibleRanges.left;
+      }
+      width = 0;
+    } else {
+      width = parentBounds.width - contentLeft;
+    }
+    const selectionBounds = new DOMRect(left, top, width, height);
+    this._editContext.updateSelectionBounds(selectionBounds);
+    this._editContext.updateControlBounds(selectionBounds);
+  }
+  _updateCharacterBounds(e) {
+    const options = this._context.configuration.options;
+    const typicalHalfWidthCharacterWidth = options.get(
+      59
+      /* EditorOption.fontInfo */
+    ).typicalHalfwidthCharacterWidth;
+    const contentLeft = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    ).contentLeft;
+    const parentBounds = this._parentBounds;
+    const characterBounds = [];
+    const offsetTransformer = new PositionOffsetTransformer(this._editContext.text);
+    for (let offset = e.rangeStart; offset < e.rangeEnd; offset++) {
+      const editContextStartPosition = offsetTransformer.getPosition(offset);
+      const textStartLineOffsetWithinEditor = this._editContextPrimarySelection.startLineNumber - 1;
+      const characterStartPosition = new Position(textStartLineOffsetWithinEditor + editContextStartPosition.lineNumber, editContextStartPosition.column);
+      const characterEndPosition = characterStartPosition.delta(0, 1);
+      const characterModelRange = Range.fromPositions(characterStartPosition, characterEndPosition);
+      const characterViewRange = this._context.viewModel.coordinatesConverter.convertModelRangeToViewRange(characterModelRange);
+      const characterLinesVisibleRanges = this._visibleRangeProvider.linesVisibleRangesForRange(characterViewRange, true) ?? [];
+      const lineNumber = characterViewRange.startLineNumber;
+      const characterVerticalOffset = this._context.viewLayout.getVerticalOffsetForLineNumber(lineNumber);
+      const top = parentBounds.top + characterVerticalOffset - this._scrollTop;
+      let left = 0;
+      let width = typicalHalfWidthCharacterWidth;
+      if (characterLinesVisibleRanges.length > 0) {
+        for (const visibleRange of characterLinesVisibleRanges[0].ranges) {
+          left = visibleRange.left;
+          width = visibleRange.width;
+          break;
+        }
+      }
+      const lineHeight = this._context.viewLayout.getLineHeightForLineNumber(lineNumber);
+      characterBounds.push(new DOMRect(parentBounds.left + contentLeft + left - this._scrollLeft, top, width, lineHeight));
+    }
+    this._editContext.updateCharacterBounds(e.rangeStart, characterBounds);
+  }
+};
+NativeEditContext = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, ILogService)
+], NativeEditContext);
+export {
+  NativeEditContext
+};
+//# sourceMappingURL=nativeEditContext.js.map

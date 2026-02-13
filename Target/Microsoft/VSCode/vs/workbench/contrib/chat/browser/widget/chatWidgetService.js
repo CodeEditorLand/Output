@@ -1,1 +1,213 @@
-import*as y from"../../../../../base/browser/dom.js";import{$0h as $}from"../../../../../base/common/async.js";import{$xf as w,Event as c}from"../../../../../base/common/event.js";import{$Bd as b,$Ed as x,$Cd as C}from"../../../../../base/common/lifecycle.js";import{$Bh as h}from"../../../../../base/common/resources.js";import{$flb as W}from"../../../../../platform/layout/browser/layoutService.js";import{$CL as B,$BL as E}from"../../../../services/editor/common/editorService.js";import{$xL as O,$zL as V}from"../../../../services/editor/common/editorGroupsService.js";import{$gBb as I}from"../../../../services/views/common/viewsService.js";import{$NV as D}from"../../common/chatService/chatService.js";import{$24b as a,$V4b as p,$W4b as _,$Y4b as u}from"../chat.js";import{$EPb as m}from"../widgetHosts/editor/chatEditor.js";import{$yPb as F}from"../widgetHosts/editor/chatEditorInput.js";var g=function(o,i,t,e){var r=arguments.length,n=r<3?i:e===null?e=Object.getOwnPropertyDescriptor(i,t):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,i,t,e);else for(var f=o.length-1;f>=0;f--)(s=o[f])&&(n=(r<3?s(n):r>3?s(i,t,n):s(i,t))||n);return r>3&&n&&Object.defineProperty(i,t,n),n},d=function(o,i){return function(t,e){i(t,e,o)}};let v=class extends x{constructor(i,t,e,r,n,s){super(),this.g=i,this.h=t,this.j=e,this.m=r,this.n=n,this.q=s,this.a=[],this.b=void 0,this.c=this.D(new w),this.onDidAddWidget=this.c.event,this.f=this.D(new w),this.onDidBackgroundSession=this.f.event}get lastFocusedWidget(){return this.b}getAllWidgets(){return this.a}getWidgetsByLocations(i){return this.a.filter(t=>t.location===i)}getWidgetByInputUri(i){return this.a.find(t=>h(t.input.inputUri,i))}getWidgetBySessionResource(i){return this.a.find(t=>h(t.viewModel?.sessionResource,i))}async revealWidget(i){const t=this.lastFocusedWidget;return t&&await this.reveal(t,i)?t:(await this.h.openView(a,!i))?.widget}async reveal(i,t){if(i.viewModel?.sessionResource&&await this.r(i.viewModel.sessionResource,{preserveFocus:t}))return!0;if(u(i.viewContext)){const e=await this.h.openView(i.viewContext.viewId,!t);return t||e?.focus(),!!e}return!1}async openSession(i,t,e){if(typeof t>"u"||e?.revealIfOpened){const n=await this.r(i,e);if(n)return n}else await this.s(i,t);if(t===p||typeof t>"u"){const n=await this.h.openView(a,!e?.preserveFocus);return n&&(await n.loadSession(i),e?.preserveFocus||n.focusInput()),n?.widget}const r=await this.n.openEditor({resource:i,options:{...e,revealIfOpened:e?.revealIfOpened??!0}},t);return r instanceof m?r.widget:void 0}async r(i,t){const e=this.h.getViewWithId(a);if(e?.widget.viewModel?.sessionResource&&h(e.widget.viewModel.sessionResource,i)){const n=await this.h.openView(a,!t?.preserveFocus);return t?.preserveFocus||n?.focus(),e.widget}const r=this.t(i);if(r){const n=r.group.windowId,s=()=>y.getWindow(this.m.activeContainer).vscodeWindowId===n;let f;!s()&&!t?.preserveFocus&&(f=c.toPromise(c.once(c.filter(this.m.onDidChangeActiveContainer,s))));const l=await r.group.openEditor(r.editor,t);return await f,l instanceof m?l.widget:void 0}if(h(i,this.j.sessionResource)){this.j.focus();return}}async s(i,t){const e=this.getWidgetBySessionResource(i);if(e){const r=u(e.viewContext)?void 0:this.t(i);if(u(e.viewContext)&&t===p||!u(e.viewContext)&&t!==p&&r&&this.u(r.group.id,t))return;r?await this.n.closeEditor({editor:r.editor,groupId:r.group.id},{preserveFocus:!0}):await e.clear()}}t(i){for(const t of this.g.groups)for(const e of t.editors)if(e instanceof F&&h(e.sessionResource,i))return{editor:e,group:t}}u(i,t){return typeof t=="number"&&t===i||t===B&&this.g.activeGroup?.id===i||V(t)&&t.id===i}y(i){i!==this.b&&(this.b=i)}register(i){if(this.a.some(t=>t===i))throw new Error("Cannot register the same widget multiple times");return this.a.push(i),this.c.fire(i),this.b||this.y(i),b(i.onDidFocus(()=>this.y(i)),i.onDidChangeViewModel(({previousSessionResource:t,currentSessionResource:e})=>{!t||e&&h(t,e)||$(200).then(()=>{!this.getWidgetBySessionResource(t)&&this.q.getSession(t)&&this.f.fire(t)})}),C(()=>{this.a.splice(this.a.indexOf(i),1),this.b===i&&this.y(void 0)}))}};v=g([d(0,O),d(1,I),d(2,_),d(3,W),d(4,E),d(5,D)],v);export{v as $0qc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../base/browser/dom.js";
+import { timeout } from "../../../../../base/common/async.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { combinedDisposable, Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../../base/common/resources.js";
+import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
+import { ACTIVE_GROUP, IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IEditorGroupsService, isEditorGroup } from "../../../../services/editor/common/editorGroupsService.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatViewId, ChatViewPaneTarget, IQuickChatService, isIChatViewViewContext } from "../chat.js";
+import { ChatEditor } from "../widgetHosts/editor/chatEditor.js";
+import { ChatEditorInput } from "../widgetHosts/editor/chatEditorInput.js";
+let ChatWidgetService = class ChatWidgetService2 extends Disposable {
+  static {
+    __name(this, "ChatWidgetService");
+  }
+  constructor(editorGroupsService, viewsService, quickChatService, layoutService, editorService, chatService) {
+    super();
+    this.editorGroupsService = editorGroupsService;
+    this.viewsService = viewsService;
+    this.quickChatService = quickChatService;
+    this.layoutService = layoutService;
+    this.editorService = editorService;
+    this.chatService = chatService;
+    this._widgets = [];
+    this._lastFocusedWidget = void 0;
+    this._onDidAddWidget = this._register(new Emitter());
+    this.onDidAddWidget = this._onDidAddWidget.event;
+    this._onDidBackgroundSession = this._register(new Emitter());
+    this.onDidBackgroundSession = this._onDidBackgroundSession.event;
+  }
+  get lastFocusedWidget() {
+    return this._lastFocusedWidget;
+  }
+  getAllWidgets() {
+    return this._widgets;
+  }
+  getWidgetsByLocations(location) {
+    return this._widgets.filter((w) => w.location === location);
+  }
+  getWidgetByInputUri(uri) {
+    return this._widgets.find((w) => isEqual(w.input.inputUri, uri));
+  }
+  getWidgetBySessionResource(sessionResource) {
+    return this._widgets.find((w) => isEqual(w.viewModel?.sessionResource, sessionResource));
+  }
+  async revealWidget(preserveFocus) {
+    const last = this.lastFocusedWidget;
+    if (last && await this.reveal(last, preserveFocus)) {
+      return last;
+    }
+    return (await this.viewsService.openView(ChatViewId, !preserveFocus))?.widget;
+  }
+  async reveal(widget, preserveFocus) {
+    if (widget.viewModel?.sessionResource) {
+      const alreadyOpenWidget = await this.revealSessionIfAlreadyOpen(widget.viewModel.sessionResource, { preserveFocus });
+      if (alreadyOpenWidget) {
+        return true;
+      }
+    }
+    if (isIChatViewViewContext(widget.viewContext)) {
+      const view = await this.viewsService.openView(widget.viewContext.viewId, !preserveFocus);
+      if (!preserveFocus) {
+        view?.focus();
+      }
+      return !!view;
+    }
+    return false;
+  }
+  async openSession(sessionResource, target, options) {
+    if (typeof target === "undefined" || options?.revealIfOpened) {
+      const alreadyOpenWidget = await this.revealSessionIfAlreadyOpen(sessionResource, options);
+      if (alreadyOpenWidget) {
+        return alreadyOpenWidget;
+      }
+    } else {
+      await this.prepareSessionForMove(sessionResource, target);
+    }
+    if (target === ChatViewPaneTarget || typeof target === "undefined") {
+      const chatView = await this.viewsService.openView(ChatViewId, !options?.preserveFocus);
+      if (chatView) {
+        await chatView.loadSession(sessionResource);
+        if (!options?.preserveFocus) {
+          chatView.focusInput();
+        }
+      }
+      return chatView?.widget;
+    }
+    const pane = await this.editorService.openEditor({
+      resource: sessionResource,
+      options: {
+        ...options,
+        revealIfOpened: options?.revealIfOpened ?? true
+        // always try to reveal if already opened unless explicitly told not to
+      }
+    }, target);
+    return pane instanceof ChatEditor ? pane.widget : void 0;
+  }
+  async revealSessionIfAlreadyOpen(sessionResource, options) {
+    const chatView = this.viewsService.getViewWithId(ChatViewId);
+    if (chatView?.widget.viewModel?.sessionResource && isEqual(chatView.widget.viewModel.sessionResource, sessionResource)) {
+      const view = await this.viewsService.openView(ChatViewId, !options?.preserveFocus);
+      if (!options?.preserveFocus) {
+        view?.focus();
+      }
+      return chatView.widget;
+    }
+    const existingEditor = this.findExistingChatEditorByUri(sessionResource);
+    if (existingEditor) {
+      const existingEditorWindowId = existingEditor.group.windowId;
+      const isGroupActive = /* @__PURE__ */ __name(() => dom.getWindow(this.layoutService.activeContainer).vscodeWindowId === existingEditorWindowId, "isGroupActive");
+      let ensureFocusTransfer;
+      if (!isGroupActive() && !options?.preserveFocus) {
+        ensureFocusTransfer = Event.toPromise(Event.once(Event.filter(this.layoutService.onDidChangeActiveContainer, isGroupActive)));
+      }
+      const pane = await existingEditor.group.openEditor(existingEditor.editor, options);
+      await ensureFocusTransfer;
+      return pane instanceof ChatEditor ? pane.widget : void 0;
+    }
+    if (isEqual(sessionResource, this.quickChatService.sessionResource)) {
+      this.quickChatService.focus();
+      return void 0;
+    }
+    return void 0;
+  }
+  async prepareSessionForMove(sessionResource, target) {
+    const existingWidget = this.getWidgetBySessionResource(sessionResource);
+    if (existingWidget) {
+      const existingEditor = isIChatViewViewContext(existingWidget.viewContext) ? void 0 : this.findExistingChatEditorByUri(sessionResource);
+      if (isIChatViewViewContext(existingWidget.viewContext) && target === ChatViewPaneTarget) {
+        return;
+      }
+      if (!isIChatViewViewContext(existingWidget.viewContext) && target !== ChatViewPaneTarget && existingEditor && this.isSameEditorTarget(existingEditor.group.id, target)) {
+        return;
+      }
+      if (existingEditor) {
+        await this.editorService.closeEditor({ editor: existingEditor.editor, groupId: existingEditor.group.id }, { preserveFocus: true });
+      } else {
+        await existingWidget.clear();
+      }
+    }
+  }
+  findExistingChatEditorByUri(sessionUri) {
+    for (const group of this.editorGroupsService.groups) {
+      for (const editor of group.editors) {
+        if (editor instanceof ChatEditorInput && isEqual(editor.sessionResource, sessionUri)) {
+          return { editor, group };
+        }
+      }
+    }
+    return void 0;
+  }
+  isSameEditorTarget(currentGroupId, target) {
+    return typeof target === "number" && target === currentGroupId || target === ACTIVE_GROUP && this.editorGroupsService.activeGroup?.id === currentGroupId || isEditorGroup(target) && target.id === currentGroupId;
+  }
+  setLastFocusedWidget(widget) {
+    if (widget === this._lastFocusedWidget) {
+      return;
+    }
+    this._lastFocusedWidget = widget;
+  }
+  register(newWidget) {
+    if (this._widgets.some((widget) => widget === newWidget)) {
+      throw new Error("Cannot register the same widget multiple times");
+    }
+    this._widgets.push(newWidget);
+    this._onDidAddWidget.fire(newWidget);
+    if (!this._lastFocusedWidget) {
+      this.setLastFocusedWidget(newWidget);
+    }
+    return combinedDisposable(newWidget.onDidFocus(() => this.setLastFocusedWidget(newWidget)), newWidget.onDidChangeViewModel(({ previousSessionResource, currentSessionResource }) => {
+      if (!previousSessionResource || currentSessionResource && isEqual(previousSessionResource, currentSessionResource)) {
+        return;
+      }
+      void timeout(200).then(() => {
+        if (!this.getWidgetBySessionResource(previousSessionResource) && this.chatService.getSession(previousSessionResource)) {
+          this._onDidBackgroundSession.fire(previousSessionResource);
+        }
+      });
+    }), toDisposable(() => {
+      this._widgets.splice(this._widgets.indexOf(newWidget), 1);
+      if (this._lastFocusedWidget === newWidget) {
+        this.setLastFocusedWidget(void 0);
+      }
+    }));
+  }
+};
+ChatWidgetService = __decorate([
+  __param(0, IEditorGroupsService),
+  __param(1, IViewsService),
+  __param(2, IQuickChatService),
+  __param(3, ILayoutService),
+  __param(4, IEditorService),
+  __param(5, IChatService)
+], ChatWidgetService);
+export {
+  ChatWidgetService
+};
+//# sourceMappingURL=chatWidgetService.js.map

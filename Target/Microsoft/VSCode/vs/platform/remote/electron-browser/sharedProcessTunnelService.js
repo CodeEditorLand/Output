@@ -1,1 +1,4 @@
-import{$YPc as m}from"../../ipc/electron-browser/services.js";import{$uQc as o,$vQc as r}from"../common/sharedProcessTunnelService.js";m(o,r);
+import { registerSharedProcessRemoteService } from "../../ipc/electron-browser/services.js";
+import { ISharedProcessTunnelService, ipcSharedProcessTunnelChannelName } from "../common/sharedProcessTunnelService.js";
+registerSharedProcessRemoteService(ISharedProcessTunnelService, ipcSharedProcessTunnelChannelName);
+//# sourceMappingURL=sharedProcessTunnelService.js.map

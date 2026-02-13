@@ -1,1 +1,359 @@
-import{localize as m}from"../../../../nls.js";import{$xf as d}from"../../../../base/common/event.js";import p from"../../../../base/common/severity.js";import{$Ed as S,$Dd as j}from"../../../../base/common/lifecycle.js";import{$9M as O,$yN as g}from"../../../common/editor.js";import{$N8 as b,$E9 as H,$F9 as w,$18 as I,$98 as y,getWindowById as M,$Z9 as _,$ as z}from"../../../../base/browser/dom.js";import{$jm as B}from"../../../../platform/registry/common/platform.js";import{$Eyb as F}from"../../../services/layout/browser/layoutService.js";import{$Mj as x}from"../../../../platform/instantiation/common/instantiation.js";import{$zH as N,$yH as T}from"../../../../platform/progress/common/progress.js";import{$IBb as $,$JBb as C}from"./editor.js";import{$gd as D}from"../../../../base/common/types.js";import{$2H as L}from"../../../../platform/workspace/common/workspaceTrust.js";import{$nWb as U,$mWb as V}from"./editorPlaceholder.js";import{EditorOpenSource as J}from"../../../../platform/editor/common/editor.js";import{$rb as P}from"../../../../base/common/errors.js";import{$Lm as E}from"../../../../base/common/errorMessage.js";import{$yo as q}from"../../../../platform/log/common/log.js";import{$Mp as G}from"../../../../platform/dialogs/common/dialogs.js";import{$gcb as Q}from"../../../services/host/browser/host.js";var R=function(u,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,t,i,e);else for(var h=u.length-1;h>=0;h--)(n=u[h])&&(s=(r<3?n(s):r>3?n(t,i,s):n(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},a=function(u,t){return function(i,e){t(i,e,u)}};let W=class extends S{get minimumWidth(){return this.c?.minimumWidth??$.width}get minimumHeight(){return this.c?.minimumHeight??$.height}get maximumWidth(){return this.c?.maximumWidth??C.width}get maximumHeight(){return this.c?.maximumHeight??C.height}get activeEditorPane(){return this.c}constructor(t,i,e,r,s,n,h,o,c,f){super(),this.r=t,this.s=i,this.t=e,this.u=r,this.w=s,this.y=h,this.z=o,this.C=c,this.F=f,this.a=this.D(new d),this.onDidFocus=this.a.event,this.b=this.D(new d),this.onDidChangeSizeConstraints=this.b.event,this.c=null,this.f=[],this.g=new Map,this.h=this.D(new j),this.q=B.as(O.EditorPane),this.n=this.D(new T(n)),this.G()}G(){this.D(this.y.onDidChangeTrust(()=>this.H()))}H(){const t=this.c?.input,i=this.c?.options;t?.hasCapability(16)&&this.t.openEditor(t,i)}async openEditor(t,i,e,r=Object.create(null)){try{return await this.L(this.N(t),t,i,e,r)}catch(s){return i?.ignoreError?{error:s}:this.I(s,t,i,e,r)}}async I(t,i,e,r,s){this.z.error(t);let n=!1;if(e?.source===J.USER&&(!g(t)||t.allowDialog)&&(n=await this.J(t,i)),n)return{error:t};const h={...e};return P(t)||(h.error=t),{...await this.L(U.DESCRIPTOR,i,h,r,s),error:t}}async J(t,i){let e=p.Error,r,s=E(t),n;g(t)&&(n=t.actions,e=t.forceSeverity??p.Error,t.forceMessage&&(r=t.message,s=void 0)),r||(r=m(3845,null,i.getName()));const h=[];if(n&&n.length>0)for(const l of n)h.push({label:l.label,run:()=>l});else h.push({label:m(3846,null),run:()=>{}});let o;h.length===1&&(o={run:()=>{c=!0}});let c=!1;const{result:f}=await this.C.prompt({type:e,message:r,detail:s,buttons:h,cancelButton:o});if(f){const l=f.run();l instanceof Promise&&l.catch(v=>this.C.error(E(v))),c=!0}return c}async L(t,i,e,r,s=Object.create(null)){const n=this.O(t),h=y(),{changed:o,cancelled:c}=await this.S(n,i,e,s);return c||(!e?.preserveFocus&&this.M(h)?n.focus():r?.preserveWindowOrder||this.F.moveTop(M(this.t.windowId,!0).window)),{pane:n,changed:o,cancelled:c}}M(t){if(!this.u.isRestored()||!t)return!0;const i=y();return!!(!i||i===t.ownerDocument.body||t===i||!_(i)||I(i,this.r))}N(t){return t.hasCapability(16)&&!this.y.isWorkspaceTrusted()?V.DESCRIPTOR:D(this.q.getEditorPane(t))}O(t){if(this.c&&t.describes(this.c))return this.c;this.U();const i=this.P(t);this.R(i);const e=D(i.getContainer());return this.s.appendChild(e),H(e),i.setVisible(!0),this.j&&i.layout(new b(this.j.width,this.j.height),{top:this.j.top,left:this.j.left}),this.m&&i.setBoundarySashes(this.m),i}P(t){const i=this.Q(t);if(!i.getContainer()){const e=z(".editor-instance");this.s.appendChild(e);try{i.create(e)}catch(r){throw e.remove(),w(e),r}}return i}Q(t){const i=this.f.find(r=>t.describes(r));if(i)return i;const e=this.D(t.instantiate(this.w,this.t));return this.f.push(e),e}R(t){this.c=t,this.h.clear(),t&&(this.h.add(t.onDidChangeSizeConstraints(i=>this.b.fire(i))),this.h.add(t.onDidFocus(()=>this.a.fire()))),this.b.fire(void 0)}async S(t,i,e,r){let s=t.input?.matches(i);if(s&&!e?.forceReload)return this.g.has(t)&&await this.g.get(t),s=t.input?.matches(i),s&&t.setOptions(e),{changed:!1,cancelled:!s};const n=this.n.start(this.u.isRestored()?800:3200);let h=!1;try{t.clearInput();const o=t.setInput(i,e,r,n.token);this.g.set(t,o),await o,n.isCurrent()||(h=!0)}catch(o){if(!n.isCurrent())h=!0;else throw o}finally{n.isCurrent()&&this.g.delete(t),n.stop()}return{changed:!s,cancelled:h}}U(){if(!this.c)return;this.n.stop(),this.W(()=>this.c?.clearInput()),this.W(()=>this.c?.setVisible(!1)),this.g.delete(this.c);const t=this.c.getContainer();t&&(t.remove(),w(t)),this.R(null)}closeEditor(t){this.c?.input&&t.matches(this.c.input)&&this.U()}setVisible(t){this.W(()=>this.c?.setVisible(t))}layout(t){this.j=t,this.W(()=>this.c?.layout(new b(t.width,t.height),t))}setBoundarySashes(t){this.m=t,this.W(()=>this.c?.setBoundarySashes(t))}W(t){try{t()}catch(i){this.z.error(i)}}};W=R([a(3,F),a(4,x),a(5,N),a(6,L),a(7,q),a(8,G),a(9,Q)],W);export{W as $oWb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { Emitter } from "../../../../base/common/event.js";
+import Severity from "../../../../base/common/severity.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { EditorExtensions, isEditorOpenError } from "../../../common/editor.js";
+import { Dimension, show, hide, isAncestor, getActiveElement, getWindowById, isEditableElement, $ } from "../../../../base/browser/dom.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorProgressService, LongRunningOperation } from "../../../../platform/progress/common/progress.js";
+import { DEFAULT_EDITOR_MIN_DIMENSIONS, DEFAULT_EDITOR_MAX_DIMENSIONS } from "./editor.js";
+import { assertReturnsDefined } from "../../../../base/common/types.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ErrorPlaceholderEditor, WorkspaceTrustRequiredPlaceholderEditor } from "./editorPlaceholder.js";
+import { EditorOpenSource } from "../../../../platform/editor/common/editor.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+let EditorPanes = class EditorPanes2 extends Disposable {
+  static {
+    __name(this, "EditorPanes");
+  }
+  //#endregion
+  get minimumWidth() {
+    return this._activeEditorPane?.minimumWidth ?? DEFAULT_EDITOR_MIN_DIMENSIONS.width;
+  }
+  get minimumHeight() {
+    return this._activeEditorPane?.minimumHeight ?? DEFAULT_EDITOR_MIN_DIMENSIONS.height;
+  }
+  get maximumWidth() {
+    return this._activeEditorPane?.maximumWidth ?? DEFAULT_EDITOR_MAX_DIMENSIONS.width;
+  }
+  get maximumHeight() {
+    return this._activeEditorPane?.maximumHeight ?? DEFAULT_EDITOR_MAX_DIMENSIONS.height;
+  }
+  get activeEditorPane() {
+    return this._activeEditorPane;
+  }
+  constructor(editorGroupParent, editorPanesParent, groupView, layoutService, instantiationService, editorProgressService, workspaceTrustService, logService, dialogService, hostService) {
+    super();
+    this.editorGroupParent = editorGroupParent;
+    this.editorPanesParent = editorPanesParent;
+    this.groupView = groupView;
+    this.layoutService = layoutService;
+    this.instantiationService = instantiationService;
+    this.workspaceTrustService = workspaceTrustService;
+    this.logService = logService;
+    this.dialogService = dialogService;
+    this.hostService = hostService;
+    this._onDidFocus = this._register(new Emitter());
+    this.onDidFocus = this._onDidFocus.event;
+    this._onDidChangeSizeConstraints = this._register(new Emitter());
+    this.onDidChangeSizeConstraints = this._onDidChangeSizeConstraints.event;
+    this._activeEditorPane = null;
+    this.editorPanes = [];
+    this.mapEditorPaneToPendingSetInput = /* @__PURE__ */ new Map();
+    this.activeEditorPaneDisposables = this._register(new DisposableStore());
+    this.editorPanesRegistry = Registry.as(EditorExtensions.EditorPane);
+    this.editorOperation = this._register(new LongRunningOperation(editorProgressService));
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.workspaceTrustService.onDidChangeTrust(() => this.onDidChangeWorkspaceTrust()));
+  }
+  onDidChangeWorkspaceTrust() {
+    const editor = this._activeEditorPane?.input;
+    const options = this._activeEditorPane?.options;
+    if (editor?.hasCapability(
+      16
+      /* EditorInputCapabilities.RequiresTrust */
+    )) {
+      this.groupView.openEditor(editor, options);
+    }
+  }
+  async openEditor(editor, options, internalOptions, context = /* @__PURE__ */ Object.create(null)) {
+    try {
+      return await this.doOpenEditor(this.getEditorPaneDescriptor(editor), editor, options, internalOptions, context);
+    } catch (error) {
+      if (options?.ignoreError) {
+        return { error };
+      }
+      return this.doShowError(error, editor, options, internalOptions, context);
+    }
+  }
+  async doShowError(error, editor, options, internalOptions, context) {
+    this.logService.error(error);
+    let errorHandled = false;
+    if (options?.source === EditorOpenSource.USER && (!isEditorOpenError(error) || error.allowDialog)) {
+      errorHandled = await this.doShowErrorDialog(error, editor);
+    }
+    if (errorHandled) {
+      return { error };
+    }
+    const editorPlaceholderOptions = { ...options };
+    if (!isCancellationError(error)) {
+      editorPlaceholderOptions.error = error;
+    }
+    return {
+      ...await this.doOpenEditor(ErrorPlaceholderEditor.DESCRIPTOR, editor, editorPlaceholderOptions, internalOptions, context),
+      error
+    };
+  }
+  async doShowErrorDialog(error, editor) {
+    let severity = Severity.Error;
+    let message = void 0;
+    let detail = toErrorMessage(error);
+    let errorActions = void 0;
+    if (isEditorOpenError(error)) {
+      errorActions = error.actions;
+      severity = error.forceSeverity ?? Severity.Error;
+      if (error.forceMessage) {
+        message = error.message;
+        detail = void 0;
+      }
+    }
+    if (!message) {
+      message = localize("editorOpenErrorDialog", "Unable to open '{0}'", editor.getName());
+    }
+    const buttons = [];
+    if (errorActions && errorActions.length > 0) {
+      for (const errorAction of errorActions) {
+        buttons.push({
+          label: errorAction.label,
+          run: /* @__PURE__ */ __name(() => errorAction, "run")
+        });
+      }
+    } else {
+      buttons.push({
+        label: localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
+        run: /* @__PURE__ */ __name(() => void 0, "run")
+      });
+    }
+    let cancelButton = void 0;
+    if (buttons.length === 1) {
+      cancelButton = {
+        run: /* @__PURE__ */ __name(() => {
+          errorHandled = true;
+          return void 0;
+        }, "run")
+      };
+    }
+    let errorHandled = false;
+    const { result } = await this.dialogService.prompt({
+      type: severity,
+      message,
+      detail,
+      buttons,
+      cancelButton
+    });
+    if (result) {
+      const errorActionResult = result.run();
+      if (errorActionResult instanceof Promise) {
+        errorActionResult.catch((error2) => this.dialogService.error(toErrorMessage(error2)));
+      }
+      errorHandled = true;
+    }
+    return errorHandled;
+  }
+  async doOpenEditor(descriptor, editor, options, internalOptions, context = /* @__PURE__ */ Object.create(null)) {
+    const pane = this.doShowEditorPane(descriptor);
+    const activeElement = getActiveElement();
+    const { changed, cancelled } = await this.doSetInput(pane, editor, options, context);
+    if (!cancelled) {
+      const focus = !options?.preserveFocus;
+      if (focus && this.shouldRestoreFocus(activeElement)) {
+        pane.focus();
+      } else if (!internalOptions?.preserveWindowOrder) {
+        this.hostService.moveTop(getWindowById(this.groupView.windowId, true).window);
+      }
+    }
+    return { pane, changed, cancelled };
+  }
+  shouldRestoreFocus(expectedActiveElement) {
+    if (!this.layoutService.isRestored()) {
+      return true;
+    }
+    if (!expectedActiveElement) {
+      return true;
+    }
+    const activeElement = getActiveElement();
+    if (!activeElement || activeElement === expectedActiveElement.ownerDocument.body) {
+      return true;
+    }
+    const same = expectedActiveElement === activeElement;
+    if (same) {
+      return true;
+    }
+    if (!isEditableElement(activeElement)) {
+      return true;
+    }
+    if (isAncestor(activeElement, this.editorGroupParent)) {
+      return true;
+    }
+    return false;
+  }
+  getEditorPaneDescriptor(editor) {
+    if (editor.hasCapability(
+      16
+      /* EditorInputCapabilities.RequiresTrust */
+    ) && !this.workspaceTrustService.isWorkspaceTrusted()) {
+      return WorkspaceTrustRequiredPlaceholderEditor.DESCRIPTOR;
+    }
+    return assertReturnsDefined(this.editorPanesRegistry.getEditorPane(editor));
+  }
+  doShowEditorPane(descriptor) {
+    if (this._activeEditorPane && descriptor.describes(this._activeEditorPane)) {
+      return this._activeEditorPane;
+    }
+    this.doHideActiveEditorPane();
+    const editorPane = this.doCreateEditorPane(descriptor);
+    this.doSetActiveEditorPane(editorPane);
+    const container = assertReturnsDefined(editorPane.getContainer());
+    this.editorPanesParent.appendChild(container);
+    show(container);
+    editorPane.setVisible(true);
+    if (this.pagePosition) {
+      editorPane.layout(new Dimension(this.pagePosition.width, this.pagePosition.height), { top: this.pagePosition.top, left: this.pagePosition.left });
+    }
+    if (this.boundarySashes) {
+      editorPane.setBoundarySashes(this.boundarySashes);
+    }
+    return editorPane;
+  }
+  doCreateEditorPane(descriptor) {
+    const editorPane = this.doInstantiateEditorPane(descriptor);
+    if (!editorPane.getContainer()) {
+      const editorPaneContainer = $(".editor-instance");
+      this.editorPanesParent.appendChild(editorPaneContainer);
+      try {
+        editorPane.create(editorPaneContainer);
+      } catch (error) {
+        editorPaneContainer.remove();
+        hide(editorPaneContainer);
+        throw error;
+      }
+    }
+    return editorPane;
+  }
+  doInstantiateEditorPane(descriptor) {
+    const existingEditorPane = this.editorPanes.find((editorPane2) => descriptor.describes(editorPane2));
+    if (existingEditorPane) {
+      return existingEditorPane;
+    }
+    const editorPane = this._register(descriptor.instantiate(this.instantiationService, this.groupView));
+    this.editorPanes.push(editorPane);
+    return editorPane;
+  }
+  doSetActiveEditorPane(editorPane) {
+    this._activeEditorPane = editorPane;
+    this.activeEditorPaneDisposables.clear();
+    if (editorPane) {
+      this.activeEditorPaneDisposables.add(editorPane.onDidChangeSizeConstraints((e) => this._onDidChangeSizeConstraints.fire(e)));
+      this.activeEditorPaneDisposables.add(editorPane.onDidFocus(() => this._onDidFocus.fire()));
+    }
+    this._onDidChangeSizeConstraints.fire(void 0);
+  }
+  async doSetInput(editorPane, editor, options, context) {
+    let inputMatches = editorPane.input?.matches(editor);
+    if (inputMatches && !options?.forceReload) {
+      if (this.mapEditorPaneToPendingSetInput.has(editorPane)) {
+        await this.mapEditorPaneToPendingSetInput.get(editorPane);
+      }
+      inputMatches = editorPane.input?.matches(editor);
+      if (inputMatches) {
+        editorPane.setOptions(options);
+      }
+      return { changed: false, cancelled: !inputMatches };
+    }
+    const operation = this.editorOperation.start(this.layoutService.isRestored() ? 800 : 3200);
+    let cancelled = false;
+    try {
+      editorPane.clearInput();
+      const pendingSetInput = editorPane.setInput(editor, options, context, operation.token);
+      this.mapEditorPaneToPendingSetInput.set(editorPane, pendingSetInput);
+      await pendingSetInput;
+      if (!operation.isCurrent()) {
+        cancelled = true;
+      }
+    } catch (error) {
+      if (!operation.isCurrent()) {
+        cancelled = true;
+      } else {
+        throw error;
+      }
+    } finally {
+      if (operation.isCurrent()) {
+        this.mapEditorPaneToPendingSetInput.delete(editorPane);
+      }
+      operation.stop();
+    }
+    return { changed: !inputMatches, cancelled };
+  }
+  doHideActiveEditorPane() {
+    if (!this._activeEditorPane) {
+      return;
+    }
+    this.editorOperation.stop();
+    this.safeRun(() => this._activeEditorPane?.clearInput());
+    this.safeRun(() => this._activeEditorPane?.setVisible(false));
+    this.mapEditorPaneToPendingSetInput.delete(this._activeEditorPane);
+    const editorPaneContainer = this._activeEditorPane.getContainer();
+    if (editorPaneContainer) {
+      editorPaneContainer.remove();
+      hide(editorPaneContainer);
+    }
+    this.doSetActiveEditorPane(null);
+  }
+  closeEditor(editor) {
+    if (this._activeEditorPane?.input && editor.matches(this._activeEditorPane.input)) {
+      this.doHideActiveEditorPane();
+    }
+  }
+  setVisible(visible) {
+    this.safeRun(() => this._activeEditorPane?.setVisible(visible));
+  }
+  layout(pagePosition) {
+    this.pagePosition = pagePosition;
+    this.safeRun(() => this._activeEditorPane?.layout(new Dimension(pagePosition.width, pagePosition.height), pagePosition));
+  }
+  setBoundarySashes(sashes) {
+    this.boundarySashes = sashes;
+    this.safeRun(() => this._activeEditorPane?.setBoundarySashes(sashes));
+  }
+  safeRun(fn) {
+    try {
+      fn();
+    } catch (error) {
+      this.logService.error(error);
+    }
+  }
+};
+EditorPanes = __decorate([
+  __param(3, IWorkbenchLayoutService),
+  __param(4, IInstantiationService),
+  __param(5, IEditorProgressService),
+  __param(6, IWorkspaceTrustManagementService),
+  __param(7, ILogService),
+  __param(8, IDialogService),
+  __param(9, IHostService)
+], EditorPanes);
+export {
+  EditorPanes
+};
+//# sourceMappingURL=editorPanes.js.map

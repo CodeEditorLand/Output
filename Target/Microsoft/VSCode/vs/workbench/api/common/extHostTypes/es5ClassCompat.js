@@ -1,1 +1,28 @@
-function r(n){return Object.assign(n,{apply:function(...t){if(t.length===0)return Reflect.construct(n,[]);{const c=t.length===1?[]:t[1];return Reflect.construct(n,c,t[0].constructor)}},call:function(...t){if(t.length===0)return Reflect.construct(n,[]);{const[c,...e]=t;return Reflect.construct(n,e,c.constructor)}}})}export{r as $K1};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function es5ClassCompat(target) {
+  const interceptFunctions = {
+    apply: /* @__PURE__ */ __name(function(...args) {
+      if (args.length === 0) {
+        return Reflect.construct(target, []);
+      } else {
+        const argsList = args.length === 1 ? [] : args[1];
+        return Reflect.construct(target, argsList, args[0].constructor);
+      }
+    }, "apply"),
+    call: /* @__PURE__ */ __name(function(...args) {
+      if (args.length === 0) {
+        return Reflect.construct(target, []);
+      } else {
+        const [thisArg, ...restArgs] = args;
+        return Reflect.construct(target, restArgs, thisArg.constructor);
+      }
+    }, "call")
+  };
+  return Object.assign(target, interceptFunctions);
+}
+__name(es5ClassCompat, "es5ClassCompat");
+export {
+  es5ClassCompat
+};
+//# sourceMappingURL=es5ClassCompat.js.map

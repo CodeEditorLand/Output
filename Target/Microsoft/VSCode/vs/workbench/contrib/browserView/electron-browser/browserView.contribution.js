@@ -1,1 +1,174 @@
-import{localize as p}from"../../../../nls.js";import{$Kj as v}from"../../../../platform/instantiation/common/descriptors.js";import{$jm as d}from"../../../../platform/registry/common/platform.js";import{$aSb as D}from"../../../browser/editor.js";import{$9M as $}from"../../../common/editor.js";import{$CXc as h}from"./browserEditor.js";import{$pXc as a,$qXc as L}from"./browserEditorInput.js";import{BrowserViewUri as E}from"../../../../platform/browserView/common/browserViewUri.js";import{$Mj as k}from"../../../../platform/instantiation/common/instantiation.js";import{$WC as I}from"../../../../platform/instantiation/common/extensions.js";import{$lm as R}from"../../../../platform/configuration/common/configurationRegistry.js";import{$7N as C}from"../../../common/configuration.js";import{$dO as O,RegisteredEditorPriority as S}from"../../../services/editor/common/editorResolverService.js";import{$2N as g}from"../../../common/contributions.js";import{Schemas as w}from"../../../../base/common/network.js";import{$mXc as _}from"../common/browserView.js";import{$DXc as y}from"./browserViewWorkbenchService.js";import{BrowserViewStorageScope as l}from"../../../../platform/browserView/common/browserView.js";import{$EP as B}from"../../../../platform/opener/common/opener.js";import{$NB as P}from"../../../../platform/url/common/trustedDomains.js";import{$0l as j}from"../../../../platform/configuration/common/configuration.js";import{$BL as X}from"../../../services/editor/common/editorService.js";import{$Ed as U}from"../../../../base/common/lifecycle.js";import{$pp as x}from"../../../../platform/telemetry/common/telemetry.js";import{$oXc as N}from"./browserViewTelemetry.js";import"./browserViewActions.js";var b=function(n,o,e,t){var i=arguments.length,r=i<3?o:t===null?t=Object.getOwnPropertyDescriptor(o,e):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,o,e,t);else for(var u=n.length-1;u>=0;u--)(s=n[u])&&(r=(i<3?s(r):i>3?s(o,e,r):s(o,e))||r);return i>3&&r&&Object.defineProperty(o,e,r),r},c=function(n,o){return function(e,t){o(e,t,n)}};d.as($.EditorPane).registerEditorPane(D.create(h,h.ID,p(4984,null)),[new v(a)]);d.as($.EditorFactory).registerEditorSerializer(a.ID,L);let m=class{static{this.ID="workbench.contrib.browserEditorResolver"}constructor(o,e){o.registerEditor(`${w.vscodeBrowser}:/**`,{id:a.ID,label:p(4985,null),priority:S.exclusive},{canSupportResource:t=>t.scheme===w.vscodeBrowser,singlePerResource:!0},{createEditorInput:({resource:t,options:i})=>{const r=E.parse(t);if(!r)throw new Error(`Invalid browser view resource: ${t.toString()}`);const s=e.createInstance(a,{id:r.id,url:r.url});return s.resolve(),{editor:s,options:{...i,pinned:!!r.url}}}})}};m=b([c(0,O),c(1,k)],m);g(m.ID,m,1);let f=class extends U{static{this.ID="workbench.contrib.localhostLinkOpener"}constructor(o,e,t,i){super(),this.a=e,this.b=t,this.c=i,this.D(o.registerOpener(this))}async open(o,e){if(!this.a.getValue("workbench.browser.openLocalhostLinks"))return!1;const t=typeof o=="string"?o:o.toString(!0);try{const r=new URL(t);if(r.protocol!=="http:"&&r.protocol!=="https:"||!P(r.host))return!1}catch{return!1}N(this.c,"localhostLinkOpener");const i=E.forUrl(t);return await this.b.openEditor({resource:i,options:{pinned:!0}}),!0}};f=b([c(0,B),c(1,j),c(2,X),c(3,x)],f);g(f.ID,f,1);I(_,y,1);d.as(R.Configuration).registerConfiguration({...C,properties:{"workbench.browser.openLocalhostLinks":{type:"boolean",default:!1,markdownDescription:p(4986,null)},"workbench.browser.dataStorage":{type:"string",enum:[l.Global,l.Workspace,l.Ephemeral],markdownEnumDescriptions:[p(4987,null),p(4988,null),p(4989,null)],restricted:!0,default:l.Global,markdownDescription:p(4990,null),scope:4,order:100}}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { BrowserEditor } from "./browserEditor.js";
+import { BrowserEditorInput, BrowserEditorSerializer } from "./browserEditorInput.js";
+import { BrowserViewUri } from "../../../../platform/browserView/common/browserViewUri.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IBrowserViewWorkbenchService } from "../common/browserView.js";
+import { BrowserViewWorkbenchService } from "./browserViewWorkbenchService.js";
+import { BrowserViewStorageScope } from "../../../../platform/browserView/common/browserView.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { isLocalhostAuthority } from "../../../../platform/url/common/trustedDomains.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { logBrowserOpen } from "./browserViewTelemetry.js";
+import "./browserViewActions.js";
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(BrowserEditor, BrowserEditor.ID, localize("browser.editorLabel", "Browser")), [
+  new SyncDescriptor(BrowserEditorInput)
+]);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(BrowserEditorInput.ID, BrowserEditorSerializer);
+let BrowserEditorResolverContribution = class BrowserEditorResolverContribution2 {
+  static {
+    __name(this, "BrowserEditorResolverContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.browserEditorResolver";
+  }
+  constructor(editorResolverService, instantiationService) {
+    editorResolverService.registerEditor(`${Schemas.vscodeBrowser}:/**`, {
+      id: BrowserEditorInput.ID,
+      label: localize("browser.editorLabel", "Browser"),
+      priority: RegisteredEditorPriority.exclusive
+    }, {
+      canSupportResource: /* @__PURE__ */ __name((resource) => resource.scheme === Schemas.vscodeBrowser, "canSupportResource"),
+      singlePerResource: true
+    }, {
+      createEditorInput: /* @__PURE__ */ __name(({ resource, options }) => {
+        const parsed = BrowserViewUri.parse(resource);
+        if (!parsed) {
+          throw new Error(`Invalid browser view resource: ${resource.toString()}`);
+        }
+        const browserInput = instantiationService.createInstance(BrowserEditorInput, {
+          id: parsed.id,
+          url: parsed.url
+        });
+        void browserInput.resolve();
+        return {
+          editor: browserInput,
+          options: {
+            ...options,
+            pinned: !!parsed.url
+            // pin if navigated
+          }
+        };
+      }, "createEditorInput")
+    });
+  }
+};
+BrowserEditorResolverContribution = __decorate([
+  __param(0, IEditorResolverService),
+  __param(1, IInstantiationService)
+], BrowserEditorResolverContribution);
+registerWorkbenchContribution2(
+  BrowserEditorResolverContribution.ID,
+  BrowserEditorResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+let LocalhostLinkOpenerContribution = class LocalhostLinkOpenerContribution2 extends Disposable {
+  static {
+    __name(this, "LocalhostLinkOpenerContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.localhostLinkOpener";
+  }
+  constructor(openerService, configurationService, editorService, telemetryService) {
+    super();
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.telemetryService = telemetryService;
+    this._register(openerService.registerOpener(this));
+  }
+  async open(resource, _options) {
+    if (!this.configurationService.getValue("workbench.browser.openLocalhostLinks")) {
+      return false;
+    }
+    const url = typeof resource === "string" ? resource : resource.toString(true);
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        return false;
+      }
+      if (!isLocalhostAuthority(parsed.host)) {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+    logBrowserOpen(this.telemetryService, "localhostLinkOpener");
+    const browserUri = BrowserViewUri.forUrl(url);
+    await this.editorService.openEditor({ resource: browserUri, options: { pinned: true } });
+    return true;
+  }
+};
+LocalhostLinkOpenerContribution = __decorate([
+  __param(0, IOpenerService),
+  __param(1, IConfigurationService),
+  __param(2, IEditorService),
+  __param(3, ITelemetryService)
+], LocalhostLinkOpenerContribution);
+registerWorkbenchContribution2(
+  LocalhostLinkOpenerContribution.ID,
+  LocalhostLinkOpenerContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+registerSingleton(
+  IBrowserViewWorkbenchService,
+  BrowserViewWorkbenchService,
+  1
+  /* InstantiationType.Delayed */
+);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.browser.openLocalhostLinks": {
+      type: "boolean",
+      default: false,
+      markdownDescription: localize({ comment: ["This is the description for a setting."], key: "browser.openLocalhostLinks" }, "When enabled, localhost links from the terminal, chat, and other sources will open in the Integrated Browser instead of the system browser.")
+    },
+    "workbench.browser.dataStorage": {
+      type: "string",
+      enum: [
+        BrowserViewStorageScope.Global,
+        BrowserViewStorageScope.Workspace,
+        BrowserViewStorageScope.Ephemeral
+      ],
+      markdownEnumDescriptions: [
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "browser.dataStorage.global" }, "All browser views share a single persistent session across all workspaces."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "browser.dataStorage.workspace" }, "Browser views within the same workspace share a persistent session. If no workspace is opened, `ephemeral` storage is used."),
+        localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "browser.dataStorage.ephemeral" }, "Each browser view has its own session that is cleaned up when closed.")
+      ],
+      restricted: true,
+      default: BrowserViewStorageScope.Global,
+      markdownDescription: localize({ comment: ["This is the description for a setting. Values surrounded by single quotes are not to be translated."], key: "browser.dataStorage" }, "Controls how browser data (cookies, cache, storage) is shared between browser views.\n\n**Note**: In untrusted workspaces, this setting is ignored and `ephemeral` storage is always used."),
+      scope: 4,
+      order: 100
+    }
+  }
+});
+//# sourceMappingURL=browserView.contribution.js.map

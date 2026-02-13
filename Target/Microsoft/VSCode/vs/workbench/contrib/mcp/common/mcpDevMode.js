@@ -1,1 +1,198 @@
-import{$Wb as A}from"../../../../base/common/arrays.js";import{$Zc as U}from"../../../../base/common/assert.js";import{$3h as W}from"../../../../base/common/async.js";import*as D from"../../../../base/common/glob.js";import{$Ed as F}from"../../../../base/common/lifecycle.js";import{$Gp as S}from"../../../../base/common/objects.js";import{autorun as v,autorunDelta as k,derivedOpts as R}from"../../../../base/common/observable.js";import{localize as P}from"../../../../nls.js";import{$uo as B}from"../../../../platform/commands/common/commands.js";import{$vk as G}from"../../../../platform/files/common/files.js";import{$Nj as N}from"../../../../platform/instantiation/common/instantiation.js";import{$Ml as Z}from"../../../../platform/workspace/common/workspace.js";import{$lZ as z}from"../../debug/common/debug.js";import{$wU as H}from"./mcpRegistryTypes.js";var _=function(p,t,e,o){var d=arguments.length,s=d<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(p,t,e,o);else for(var i=p.length-1;i>=0;i--)(u=p[i])&&(s=(d<3?u(s):d>3?u(t,e,s):u(t,e))||s);return d>3&&s&&Object.defineProperty(t,e,s),s},m=function(p,t){return function(e,o){t(e,o,p)}};let M=class extends F{constructor(t,e,o,d,s){super();const u=t.readDefinitions().map(({collection:r})=>r?.presentation?.origin&&s.getWorkspaceFolder(r.presentation?.origin)?.uri),i=async()=>{const r=e.lastModeDebugged;await t.stop(),await t.start({debug:r})};let f=!1;this.D(v(r=>{const a=t.readDefinitions().read(r);if(!a.collection||!a.server||!a.server.devMode){f=!1;return}f||!o.delegates.read(r).some(l=>l.canStart(a.collection,a.server))||(t.start(),f=!0)}));const g=t.readDefinitions().map(r=>!!r.server?.devMode?.debug);this.D(k(g,({lastValue:r,newValue:a})=>{a&&!S(r,a)&&i()}));const j=R({equalsFn:A},r=>{const c=t.readDefinitions().read(r).server?.devMode?.watch;return typeof c=="string"?[c]:c}),x=this.D(new W);this.D(v(r=>{const a=j.read(r),c=u.read(r);if(!a||!c)return;const l=a.filter(n=>!n.startsWith("!")),$=a.filter(n=>n.startsWith("!")).map(n=>n.slice(1));r.store.add(d.watch(c,{includes:l,excludes:$,recursive:!0}));const w=!d.hasCapability(c,1024),C=l.map(n=>D.$Aj({base:c.fsPath,pattern:n},{ignoreCase:w})),q=$.map(n=>D.$Aj({base:c.fsPath,pattern:n},{ignoreCase:w}));r.store.add(d.onDidFilesChange(n=>{for(const E of[n.rawAdded,n.rawDeleted,n.rawUpdated])for(const y of E)if(C.some(h=>h(y.fsPath))&&!q.some(h=>h(y.fsPath))){x.queue(i);break}}))}))}};M=_([m(2,H),m(3,G),m(4,Z)],M);const at=N("mcpDevModeDebugging"),b="127.0.0.1";let O=class{constructor(t,e){this.a=t,this.b=e}async transform(t,e){if(!t.devMode?.debug||e.type!==1)return e;const o=await this.f(),d=`MCP: ${t.label}`,s={startedByUser:!1,suppressDebugView:!0},u={internalConsoleOptions:"neverOpen",suppressMultipleSessionWarning:!0};switch(t.devMode.debug.type){case"node":{if(!/node[0-9]*$/.test(e.command))throw new Error(P(10466,null,e.command));return this.a.startDebugging(void 0,{type:"pwa-node",request:"attach",name:d,port:o,host:b,timeout:3e4,continueOnAttach:!0,...u},s),{...e,args:[`--inspect-brk=${b}:${o}`,...e.args]}}case"debugpy":{if(!/python[0-9.]*$/.test(e.command))throw new Error(P(10467,null,e.command));let i,f=["--wait-for-client","--connect",`${b}:${o}`,...e.args];if(t.devMode.debug.debugpyPath)i=t.devMode.debug.debugpyPath;else try{const g=await this.b.executeCommand("python.getDebugpyPackagePath");g&&(i=e.command,f=[g,...f])}catch{}return i||(i="debugpy"),await Promise.race([this.a.startDebugging(void 0,{type:"debugpy",name:d,request:"attach",listen:{host:b,port:o},...u},s),this.c(o)]),{...e,command:i,args:f}}default:U(t.devMode.debug,`Unknown debug type ${JSON.stringify(t.devMode.debug)}`)}}c(t){return Promise.resolve()}f(){return Promise.resolve(9230)}};O=_([m(0,z),m(1,B)],O);export{M as $t3b,at as $u3b,O as $v3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { equals as arraysEqual } from "../../../../base/common/arrays.js";
+import { assertNever } from "../../../../base/common/assert.js";
+import { Throttler } from "../../../../base/common/async.js";
+import * as glob from "../../../../base/common/glob.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { equals as objectsEqual } from "../../../../base/common/objects.js";
+import { autorun, autorunDelta, derivedOpts } from "../../../../base/common/observable.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IDebugService } from "../../debug/common/debug.js";
+import { IMcpRegistry } from "./mcpRegistryTypes.js";
+let McpDevModeServerAttache = class McpDevModeServerAttache2 extends Disposable {
+  static {
+    __name(this, "McpDevModeServerAttache");
+  }
+  constructor(server, fwdRef, registry, fileService, workspaceContextService) {
+    super();
+    const workspaceFolder = server.readDefinitions().map(({ collection }) => collection?.presentation?.origin && workspaceContextService.getWorkspaceFolder(collection.presentation?.origin)?.uri);
+    const restart = /* @__PURE__ */ __name(async () => {
+      const lastDebugged = fwdRef.lastModeDebugged;
+      await server.stop();
+      await server.start({ debug: lastDebugged });
+    }, "restart");
+    let didAutoStart = false;
+    this._register(autorun((reader) => {
+      const defs = server.readDefinitions().read(reader);
+      if (!defs.collection || !defs.server || !defs.server.devMode) {
+        didAutoStart = false;
+        return;
+      }
+      if (didAutoStart) {
+        return;
+      }
+      const delegates = registry.delegates.read(reader);
+      if (!delegates.some((d) => d.canStart(defs.collection, defs.server))) {
+        return;
+      }
+      server.start();
+      didAutoStart = true;
+    }));
+    const debugMode = server.readDefinitions().map((d) => !!d.server?.devMode?.debug);
+    this._register(autorunDelta(debugMode, ({ lastValue, newValue }) => {
+      if (!!newValue && !objectsEqual(lastValue, newValue)) {
+        restart();
+      }
+    }));
+    const watchObs = derivedOpts({ equalsFn: arraysEqual }, (reader) => {
+      const def = server.readDefinitions().read(reader);
+      const watch = def.server?.devMode?.watch;
+      return typeof watch === "string" ? [watch] : watch;
+    });
+    const restartScheduler = this._register(new Throttler());
+    this._register(autorun((reader) => {
+      const pattern = watchObs.read(reader);
+      const wf = workspaceFolder.read(reader);
+      if (!pattern || !wf) {
+        return;
+      }
+      const includes = pattern.filter((p) => !p.startsWith("!"));
+      const excludes = pattern.filter((p) => p.startsWith("!")).map((p) => p.slice(1));
+      reader.store.add(fileService.watch(wf, { includes, excludes, recursive: true }));
+      const ignoreCase = !fileService.hasCapability(
+        wf,
+        1024
+        /* FileSystemProviderCapabilities.PathCaseSensitive */
+      );
+      const includeParse = includes.map((p) => glob.parse({ base: wf.fsPath, pattern: p }, { ignoreCase }));
+      const excludeParse = excludes.map((p) => glob.parse({ base: wf.fsPath, pattern: p }, { ignoreCase }));
+      reader.store.add(fileService.onDidFilesChange((e) => {
+        for (const change of [e.rawAdded, e.rawDeleted, e.rawUpdated]) {
+          for (const uri of change) {
+            if (includeParse.some((i) => i(uri.fsPath)) && !excludeParse.some((e2) => e2(uri.fsPath))) {
+              restartScheduler.queue(restart);
+              break;
+            }
+          }
+        }
+      }));
+    }));
+  }
+};
+McpDevModeServerAttache = __decorate([
+  __param(2, IMcpRegistry),
+  __param(3, IFileService),
+  __param(4, IWorkspaceContextService)
+], McpDevModeServerAttache);
+const IMcpDevModeDebugging = createDecorator("mcpDevModeDebugging");
+const DEBUG_HOST = "127.0.0.1";
+let McpDevModeDebugging = class McpDevModeDebugging2 {
+  static {
+    __name(this, "McpDevModeDebugging");
+  }
+  constructor(_debugService, _commandService) {
+    this._debugService = _debugService;
+    this._commandService = _commandService;
+  }
+  async transform(definition, launch) {
+    if (!definition.devMode?.debug || launch.type !== 1) {
+      return launch;
+    }
+    const port = await this.getDebugPort();
+    const name = `MCP: ${definition.label}`;
+    const options = { startedByUser: false, suppressDebugView: true };
+    const commonConfig = {
+      internalConsoleOptions: "neverOpen",
+      suppressMultipleSessionWarning: true
+    };
+    switch (definition.devMode.debug.type) {
+      case "node": {
+        if (!/node[0-9]*$/.test(launch.command)) {
+          throw new Error(localize("mcp.debug.nodeBinReq", 'MCP server must be launched with the "node" executable to enable debugging, but was launched with "{0}"', launch.command));
+        }
+        this._debugService.startDebugging(void 0, {
+          type: "pwa-node",
+          request: "attach",
+          name,
+          port,
+          host: DEBUG_HOST,
+          timeout: 3e4,
+          continueOnAttach: true,
+          ...commonConfig
+        }, options);
+        return { ...launch, args: [`--inspect-brk=${DEBUG_HOST}:${port}`, ...launch.args] };
+      }
+      case "debugpy": {
+        if (!/python[0-9.]*$/.test(launch.command)) {
+          throw new Error(localize("mcp.debug.pythonBinReq", 'MCP server must be launched with the "python" executable to enable debugging, but was launched with "{0}"', launch.command));
+        }
+        let command;
+        let args = ["--wait-for-client", "--connect", `${DEBUG_HOST}:${port}`, ...launch.args];
+        if (definition.devMode.debug.debugpyPath) {
+          command = definition.devMode.debug.debugpyPath;
+        } else {
+          try {
+            const debugPyPath = await this._commandService.executeCommand("python.getDebugpyPackagePath");
+            if (debugPyPath) {
+              command = launch.command;
+              args = [debugPyPath, ...args];
+            }
+          } catch {
+          }
+        }
+        if (!command) {
+          command = "debugpy";
+        }
+        await Promise.race([
+          // eslint-disable-next-line local/code-no-dangerous-type-assertions
+          this._debugService.startDebugging(void 0, {
+            type: "debugpy",
+            name,
+            request: "attach",
+            listen: {
+              host: DEBUG_HOST,
+              port
+            },
+            ...commonConfig
+          }, options),
+          this.ensureListeningOnPort(port)
+        ]);
+        return { ...launch, command, args };
+      }
+      default:
+        assertNever(definition.devMode.debug, `Unknown debug type ${JSON.stringify(definition.devMode.debug)}`);
+    }
+  }
+  ensureListeningOnPort(port) {
+    return Promise.resolve();
+  }
+  getDebugPort() {
+    return Promise.resolve(9230);
+  }
+};
+McpDevModeDebugging = __decorate([
+  __param(0, IDebugService),
+  __param(1, ICommandService)
+], McpDevModeDebugging);
+export {
+  IMcpDevModeDebugging,
+  McpDevModeDebugging,
+  McpDevModeServerAttache
+};
+//# sourceMappingURL=mcpDevMode.js.map

@@ -1,1 +1,84 @@
-import{$kNc as N}from"./textFileService.js";import{$gM as O}from"../common/textfiles.js";import{$WC as S}from"../../../../platform/instantiation/common/extensions.js";import{$HP as x}from"../../environment/common/environmentService.js";import{$Mdb as y}from"../../../../editor/browser/services/codeEditorService.js";import{$9H as D}from"../../../../editor/common/services/model.js";import{$ZF as L}from"../../../../editor/common/languages/language.js";import{$dI as P}from"../../../../editor/common/services/textResourceConfiguration.js";import{$Mp as R,$Op as w}from"../../../../platform/dialogs/common/dialogs.js";import{$vk as F}from"../../../../platform/files/common/files.js";import{$Mj as H}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as W}from"../../../../platform/log/common/log.js";import{$_L as g}from"../../files/common/elevatedFileService.js";import{$8L as B}from"../../filesConfiguration/common/filesConfigurationService.js";import{$WN as C}from"../../lifecycle/common/lifecycle.js";import{$D1 as I}from"../../path/common/pathService.js";import{$3L as Q}from"../../untitled/common/untitledTextEditorService.js";import{$$o as Z}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$eM as q}from"../../workingCopy/common/workingCopyFileService.js";import{$cQb as z}from"../../decorations/common/decorations.js";var j=function(i,o,m,e){var f=arguments.length,t=f<3?o:e===null?e=Object.getOwnPropertyDescriptor(o,m):e,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,o,m,e);else for(var $=i.length-1;$>=0;$--)(p=i[$])&&(t=(f<3?p(t):f>3?p(o,m,t):p(o,m))||t);return f>3&&t&&Object.defineProperty(o,m,t),t},r=function(i,o){return function(m,e){o(m,e,i)}};let n=class extends N{constructor(o,m,e,f,t,p,$,c,s,l,u,h,a,_,v,d,b,M){super(o,m,e,f,t,p,$,c,s,l,u,h,a,_,v,b,d,M),this.y()}y(){this.D(this.g.onBeforeShutdown(o=>o.veto(this.S(),"veto.textFiles")))}S(){return!!this.files.models.some(o=>o.hasState(2))}};n=j([r(0,F),r(1,Q),r(2,C),r(3,H),r(4,D),r(5,x),r(6,R),r(7,w),r(8,P),r(9,B),r(10,y),r(11,I),r(12,q),r(13,Z),r(14,L),r(15,g),r(16,W),r(17,z)],n);S(O,n,0);export{n as $mNc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { AbstractTextFileService } from "./textFileService.js";
+import { ITextFileService } from "../common/textfiles.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IDialogService, IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IElevatedFileService } from "../../files/common/elevatedFileService.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IUntitledTextEditorService } from "../../untitled/common/untitledTextEditorService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkingCopyFileService } from "../../workingCopy/common/workingCopyFileService.js";
+import { IDecorationsService } from "../../decorations/common/decorations.js";
+let BrowserTextFileService = class BrowserTextFileService2 extends AbstractTextFileService {
+  static {
+    __name(this, "BrowserTextFileService");
+  }
+  constructor(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, elevatedFileService, logService, decorationsService) {
+    super(fileService, untitledTextEditorService, lifecycleService, instantiationService, modelService, environmentService, dialogService, fileDialogService, textResourceConfigurationService, filesConfigurationService, codeEditorService, pathService, workingCopyFileService, uriIdentityService, languageService, logService, elevatedFileService, decorationsService);
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.lifecycleService.onBeforeShutdown((event) => event.veto(this.onBeforeShutdown(), "veto.textFiles")));
+  }
+  onBeforeShutdown() {
+    if (this.files.models.some((model) => model.hasState(
+      2
+      /* TextFileEditorModelState.PENDING_SAVE */
+    ))) {
+      return true;
+    }
+    return false;
+  }
+};
+BrowserTextFileService = __decorate([
+  __param(0, IFileService),
+  __param(1, IUntitledTextEditorService),
+  __param(2, ILifecycleService),
+  __param(3, IInstantiationService),
+  __param(4, IModelService),
+  __param(5, IWorkbenchEnvironmentService),
+  __param(6, IDialogService),
+  __param(7, IFileDialogService),
+  __param(8, ITextResourceConfigurationService),
+  __param(9, IFilesConfigurationService),
+  __param(10, ICodeEditorService),
+  __param(11, IPathService),
+  __param(12, IWorkingCopyFileService),
+  __param(13, IUriIdentityService),
+  __param(14, ILanguageService),
+  __param(15, IElevatedFileService),
+  __param(16, ILogService),
+  __param(17, IDecorationsService)
+], BrowserTextFileService);
+registerSingleton(
+  ITextFileService,
+  BrowserTextFileService,
+  0
+  /* InstantiationType.Eager */
+);
+export {
+  BrowserTextFileService
+};
+//# sourceMappingURL=browserTextFileService.js.map

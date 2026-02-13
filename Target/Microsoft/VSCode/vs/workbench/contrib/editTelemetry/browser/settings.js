@@ -1,1 +1,9 @@
-const t="telemetry.editStats.details.enabled",e="telemetry.editStats.showDecorations",s="telemetry.editStats.showStatusBar";export{t as $qLc,e as $rLc,s as $sLc};
+const EDIT_TELEMETRY_DETAILS_SETTING_ID = "telemetry.editStats.details.enabled";
+const EDIT_TELEMETRY_SHOW_DECORATIONS = "telemetry.editStats.showDecorations";
+const EDIT_TELEMETRY_SHOW_STATUS_BAR = "telemetry.editStats.showStatusBar";
+export {
+  EDIT_TELEMETRY_DETAILS_SETTING_ID,
+  EDIT_TELEMETRY_SHOW_DECORATIONS,
+  EDIT_TELEMETRY_SHOW_STATUS_BAR
+};
+//# sourceMappingURL=settings.js.map

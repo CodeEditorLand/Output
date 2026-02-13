@@ -1,1 +1,413 @@
-import{$N8 as D,$b9 as x,$w9 as P}from"../../../../../base/browser/dom.js";import{$Uh as L,$ui as S}from"../../../../../base/common/async.js";import{$Jf as q}from"../../../../../base/common/cancellation.js";import{$xf as g,Event as u}from"../../../../../base/common/event.js";import{$Ed as V,$Dd as W,$Fd as w,$Cd as C}from"../../../../../base/common/lifecycle.js";import{autorun as T,observableValue as B}from"../../../../../base/common/observable.js";import{$sf as M}from"../../../../../base/common/symbols.js";import{localize as j}from"../../../../../nls.js";import{$qL as E}from"../../../../../platform/actions/common/actions.js";import{$ro as A}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as O}from"../../../../../platform/instantiation/common/instantiation.js";import{$hp as F}from"../../../../../platform/storage/common/storage.js";import{$U4b as N}from"../../../chat/browser/chat.js";import{$kW as z}from"../../../chat/common/participants/chatAgents.js";import{$tS as _}from"../../../chat/common/model/chatModel.js";import{ChatMode as Y}from"../../../chat/common/chatModes.js";import{$NV as J}from"../../../chat/common/chatService/chatService.js";import{ChatAgentLocation as f}from"../../../chat/common/constants.js";import{$Kgc as U}from"../../../inlineChat/browser/inlineChatWidget.js";import{$xNb as G}from"../../../inlineChat/common/inlineChat.js";import{$fEc as b}from"../../stickyScroll/browser/terminalStickyScrollContribution.js";import"./media/terminalChatWidget.css";import{$q6 as X,$r6 as Q,TerminalChatContextKeys as l}from"./terminalChat.js";var k=function(i,t,e,n){var s=arguments.length,o=s<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,t,e,n);else for(var r=i.length-1;r>=0;r--)(h=i[r])&&(o=(s<3?h(o):s>3?h(t,e,o):h(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},a=function(i,t){return function(e,n){t(e,n,i)}},v;(function(i){i[i.HorizontalMargin=10]="HorizontalMargin",i[i.VerticalMargin=30]="VerticalMargin",i[i.RightPadding=12]="RightPadding",i[i.MaxHeight=480]="MaxHeight",i[i.MaxHeightPercentageOfViewport=.75]="MaxHeightPercentageOfViewport"})(v||(v={}));var I;(function(i){i[i.None=0]="None",i[i.AcceptSession=1]="AcceptSession",i[i.CancelSession=2]="CancelSession",i[i.PauseSession=4]="PauseSession",i[i.CancelRequest=8]="CancelRequest",i[i.CancelInput=16]="CancelInput",i[i.AcceptInput=32]="AcceptInput",i[i.ReturnInput=64]="ReturnInput"})(I||(I={}));let $=class extends V{get inlineChatWidget(){return this.c}get lastResponseContent(){return this.t}constructor(t,e,n,s,o,h,r,d,H){super(),this.H=t,this.I=e,this.J=n,this.L=o,this.M=h,this.N=d,this.O=H,this.b=this.D(new g),this.onDidHide=this.b.event,this.q=this.B.add(new g),this.s="terminal-inline-chat-view-state",this.u="terminal",this.w=this.D(new w),this.y=this.D(new w),this.G=B(this,!1),this.requestInProgress=this.G,this.g=l.focused.bindTo(s),this.h=l.visible.bindTo(s),this.j=l.requestActive.bindTo(s),this.m=l.responseContainsCodeBlock.bindTo(s),this.n=l.responseContainsMultipleCodeBlocks.bindTo(s),this.a=document.createElement("div"),this.a.classList.add("terminal-inline-chat"),this.H.appendChild(this.a),this.c=r.createInstance(U,{location:f.Terminal,resolveData:()=>{}},{statusMenuId:{menu:Q,options:{buttonConfigProvider:c=>({showLabel:c.id!=="workbench.action.terminal.chat.rerunRequest",showIcon:c.id==="workbench.action.terminal.chat.rerunRequest",isSecondary:c.id!=="workbench.action.terminal.chat.runCommand"&&c.id!=="workbench.action.terminal.chat.runFirstCommand"})}},secondaryMenuId:G,chatWidgetViewOptions:{menus:{telemetrySource:"terminal-inline-chat",executeToolbar:E.ChatExecute,inputSideToolbar:X},defaultMode:Y.Ask}}),this.D(this.c.chatWidget.onDidChangeViewModel(()=>this.$())),this.D(u.any(this.c.onDidChangeHeight,this.I.onDimensionsChanged,this.c.chatWidget.onDidChangeContentHeight,u.fromObservableLight(this.c.chatWidget.input.selectedLanguageModel),u.debounce(this.J.raw.onCursorMove,()=>{},M))(()=>this.Q()));const m=new ResizeObserver(()=>this.Q());m.observe(this.H),this.D(C(()=>m.disconnect())),this.S(),this.a.appendChild(this.c.domNode),this.f=this.D(P(this.a)),this.D(this.f.onDidFocus(()=>this.g.set(!0))),this.D(this.f.onDidBlur(()=>this.g.set(!1))),this.D(T(c=>{const p=this.c.requestInProgress.read(c);this.a.classList.toggle("busy",p),this.c.toggleStatus(!!this.c.responseContent),p||!this.c.responseContent?(this.m.set(!1),this.n.set(!1)):Promise.all([this.c.getCodeBlockInfo(0),this.c.getCodeBlockInfo(1)]).then(([y,R])=>{this.m.set(!!y),this.n.set(!!R),this.c.updateToolbar(!0)})})),this.hide()}Q(){this.P&&this.R()}R(){const t=this.J.raw.element;if(!t)return;const e=x().getComputedStyle(t),n=parseInt(e.paddingLeft),s=t.clientWidth-n-12;if(s===0)return;const h=(this.X()??0)*.75,r=Math.max(Math.min(480,this.c.contentHeight,h),this.c.minHeight);r!==0&&(this.P=new D(s,r),this.c.layout(this.P),this.c.domNode.style.paddingLeft=`${n}px`,this.W())}S(){const t=this.N.getDefaultAgent(f.Terminal);this.inlineChatWidget.placeholder=t?.description??j(13719,null)}async reveal(){await this.Z(),this.R(),this.a.classList.remove("hide"),this.h.set(!0),this.S(),this.c.focus(),this.I.scrollToBottom()}U(){const t=this.I.xterm?.getFont();if(!t?.charHeight)return;const e=this.X()??0,n=t.charHeight*t.lineHeight,s=e-this.I.rows*n,o=(this.I.xterm?.raw.buffer.active.cursorY??0)+1;return s+o*n}W(){const t=this.U();if(!t)return;this.a.style.top=`${t}px`;const e=this.X();if(!e)return;const n=e*.75,s=Math.max(Math.min(480,this.c.contentHeight,n),this.c.minHeight);t>e-s&&e-s>0?this.Y(t-(e-s)):this.Y(void 0)}X(){return this.H.clientHeight}hide(){this.a.classList.add("hide"),this.c.reset(),this.S(),this.c.updateToolbar(!1),this.h.set(!1),this.c.value="",this.I.focus(),this.Y(void 0),this.b.fire()}Y(t){t===void 0||this.a.classList.contains("hide")?(this.H.style.position="",this.H.style.bottom="",b.get(this.I)?.hideUnlock()):(this.H.style.position="relative",this.H.style.bottom=`${t}px`,b.get(this.I)?.hideLock())}focus(){this.inlineChatWidget.focus()}hasFocus(){return this.c.hasFocus()}setValue(t){this.c.value=t??""}async acceptCommand(t){const e=await this.inlineChatWidget.getCodeBlockInfo(0);if(!e)return;const n=e.getValue();this.I.runCommand(n,t),this.clear()}get focusTracker(){return this.f}async Z(){this.z=L(async t=>{if(!this.w.value){const e=this.L.startSession(f.Terminal);this.w.value=e;const n=e.object;this.c.setChatModel(n),this.S()}}),this.y.value=C(()=>this.z?.cancel())}$(){const t=this.c.chatWidget.getViewState();t&&this.M.store(this.s,JSON.stringify(t),0,0)}clear(){this.cancel(),this.w.clear(),this.m.reset(),this.j.reset(),this.hide(),this.setValue(void 0)}async acceptInput(t,e){this.w.value||await this.reveal(),this.q.fire(32);const n=this.c.value;if(!n)return;this.F?.cancel(),this.F=new q;const s=new W;this.j.set(!0);const o=await this.c.chatWidget.acceptInput(n,{isVoiceInput:e?.isVoiceInput});this.C=o?.requestId;const h=new S;try{return this.j.set(!0),o&&s.add(o.onDidChange(async()=>{if(o.isCanceled){this.j.set(!1),h.complete(void 0);return}if(o.isComplete){this.j.set(!1),this.j.set(!1);const r=await this.c.getCodeBlockInfo(0),d=await this.c.getCodeBlockInfo(1);this.m.set(!!r),this.n.set(!!d),this.c.updateToolbar(!0),h.complete(o)}})),await h.p,this.t=o?.response.getMarkdown(),o}catch{this.t=void 0;return}finally{s.dispose()}}cancel(){this.z?.cancel(),this.z=void 0,this.F?.cancel(),this.j.set(!1);const t=this.c.getChatModel();t?.sessionResource&&this.L.cancelCurrentRequestForSession(t?.sessionResource)}async viewInChat(){const t=await this.O.revealWidget(),e=this.c.chatWidget.viewModel?.model.getRequests().find(s=>s.id===this.C);if(!t||!e?.response)return;const n=[];for(const s of e.response.response.value)if(s.kind==="textEditGroup")for(const o of s.edits)n.push({kind:"textEdit",edits:o,uri:s.uri});else if(s.kind==="notebookEditGroup")for(const o of s.edits)_(o)?n.push({kind:"textEdit",edits:o.map(h=>h.edit),uri:o[0].uri}):n.push({kind:"notebookEdit",edits:o,uri:s.uri});else n.push(s);this.L.addCompleteRequest(t.viewModel.sessionResource,`@${this.u} ${e.message.text}`,e.variableData,e.attempt,{message:n,result:e.response.result,followups:e.response.followups}),t.focusResponseItem(),this.hide()}};$=k([a(3,A),a(4,J),a(5,F),a(6,O),a(7,z),a(8,N)],$);export{$ as $gEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Dimension, getActiveWindow, trackFocus } from "../../../../../base/browser/dom.js";
+import { createCancelablePromise, DeferredPromise } from "../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, observableValue } from "../../../../../base/common/observable.js";
+import { MicrotaskDelay } from "../../../../../base/common/symbols.js";
+import { localize } from "../../../../../nls.js";
+import { MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IChatWidgetService } from "../../../chat/browser/chat.js";
+import { IChatAgentService } from "../../../chat/common/participants/chatAgents.js";
+import { isCellTextEditOperationArray } from "../../../chat/common/model/chatModel.js";
+import { ChatMode } from "../../../chat/common/chatModes.js";
+import { IChatService } from "../../../chat/common/chatService/chatService.js";
+import { ChatAgentLocation } from "../../../chat/common/constants.js";
+import { InlineChatWidget } from "../../../inlineChat/browser/inlineChatWidget.js";
+import { MENU_INLINE_CHAT_WIDGET_SECONDARY } from "../../../inlineChat/common/inlineChat.js";
+import { TerminalStickyScrollContribution } from "../../stickyScroll/browser/terminalStickyScrollContribution.js";
+import "./media/terminalChatWidget.css";
+import { MENU_TERMINAL_CHAT_WIDGET_INPUT_SIDE_TOOLBAR, MENU_TERMINAL_CHAT_WIDGET_STATUS, TerminalChatContextKeys } from "./terminalChat.js";
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["HorizontalMargin"] = 10] = "HorizontalMargin";
+  Constants2[Constants2["VerticalMargin"] = 30] = "VerticalMargin";
+  Constants2[Constants2["RightPadding"] = 12] = "RightPadding";
+  Constants2[Constants2["MaxHeight"] = 480] = "MaxHeight";
+  Constants2[Constants2["MaxHeightPercentageOfViewport"] = 0.75] = "MaxHeightPercentageOfViewport";
+})(Constants || (Constants = {}));
+var Message;
+(function(Message2) {
+  Message2[Message2["None"] = 0] = "None";
+  Message2[Message2["AcceptSession"] = 1] = "AcceptSession";
+  Message2[Message2["CancelSession"] = 2] = "CancelSession";
+  Message2[Message2["PauseSession"] = 4] = "PauseSession";
+  Message2[Message2["CancelRequest"] = 8] = "CancelRequest";
+  Message2[Message2["CancelInput"] = 16] = "CancelInput";
+  Message2[Message2["AcceptInput"] = 32] = "AcceptInput";
+  Message2[Message2["ReturnInput"] = 64] = "ReturnInput";
+})(Message || (Message = {}));
+let TerminalChatWidget = class TerminalChatWidget2 extends Disposable {
+  static {
+    __name(this, "TerminalChatWidget");
+  }
+  get inlineChatWidget() {
+    return this._inlineChatWidget;
+  }
+  get lastResponseContent() {
+    return this._lastResponseContent;
+  }
+  constructor(_terminalElement, _instance, _xterm, contextKeyService, _chatService, _storageService, instantiationService, _chatAgentService, _chatWidgetService) {
+    super();
+    this._terminalElement = _terminalElement;
+    this._instance = _instance;
+    this._xterm = _xterm;
+    this._chatService = _chatService;
+    this._storageService = _storageService;
+    this._chatAgentService = _chatAgentService;
+    this._chatWidgetService = _chatWidgetService;
+    this._onDidHide = this._register(new Emitter());
+    this.onDidHide = this._onDidHide.event;
+    this._messages = this._store.add(new Emitter());
+    this._viewStateStorageKey = "terminal-inline-chat-view-state";
+    this._terminalAgentName = "terminal";
+    this._model = this._register(new MutableDisposable());
+    this._sessionDisposables = this._register(new MutableDisposable());
+    this._requestInProgress = observableValue(this, false);
+    this.requestInProgress = this._requestInProgress;
+    this._focusedContextKey = TerminalChatContextKeys.focused.bindTo(contextKeyService);
+    this._visibleContextKey = TerminalChatContextKeys.visible.bindTo(contextKeyService);
+    this._requestActiveContextKey = TerminalChatContextKeys.requestActive.bindTo(contextKeyService);
+    this._responseContainsCodeBlockContextKey = TerminalChatContextKeys.responseContainsCodeBlock.bindTo(contextKeyService);
+    this._responseContainsMulitpleCodeBlocksContextKey = TerminalChatContextKeys.responseContainsMultipleCodeBlocks.bindTo(contextKeyService);
+    this._container = document.createElement("div");
+    this._container.classList.add("terminal-inline-chat");
+    this._terminalElement.appendChild(this._container);
+    this._inlineChatWidget = instantiationService.createInstance(InlineChatWidget, {
+      location: ChatAgentLocation.Terminal,
+      resolveData: /* @__PURE__ */ __name(() => {
+        return void 0;
+      }, "resolveData")
+    }, {
+      statusMenuId: {
+        menu: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+        options: {
+          buttonConfigProvider: /* @__PURE__ */ __name((action) => ({
+            showLabel: action.id !== "workbench.action.terminal.chat.rerunRequest",
+            showIcon: action.id === "workbench.action.terminal.chat.rerunRequest",
+            isSecondary: action.id !== "workbench.action.terminal.chat.runCommand" && action.id !== "workbench.action.terminal.chat.runFirstCommand"
+            /* TerminalChatCommandId.RunFirstCommand */
+          }), "buttonConfigProvider")
+        }
+      },
+      secondaryMenuId: MENU_INLINE_CHAT_WIDGET_SECONDARY,
+      chatWidgetViewOptions: {
+        menus: {
+          telemetrySource: "terminal-inline-chat",
+          executeToolbar: MenuId.ChatExecute,
+          inputSideToolbar: MENU_TERMINAL_CHAT_WIDGET_INPUT_SIDE_TOOLBAR
+        },
+        defaultMode: ChatMode.Ask
+      }
+    });
+    this._register(this._inlineChatWidget.chatWidget.onDidChangeViewModel(() => this._saveViewState()));
+    this._register(Event.any(this._inlineChatWidget.onDidChangeHeight, this._instance.onDimensionsChanged, this._inlineChatWidget.chatWidget.onDidChangeContentHeight, Event.fromObservableLight(this._inlineChatWidget.chatWidget.input.selectedLanguageModel), Event.debounce(this._xterm.raw.onCursorMove, () => void 0, MicrotaskDelay))(() => this._relayout()));
+    const observer = new ResizeObserver(() => this._relayout());
+    observer.observe(this._terminalElement);
+    this._register(toDisposable(() => observer.disconnect()));
+    this._resetPlaceholder();
+    this._container.appendChild(this._inlineChatWidget.domNode);
+    this._focusTracker = this._register(trackFocus(this._container));
+    this._register(this._focusTracker.onDidFocus(() => this._focusedContextKey.set(true)));
+    this._register(this._focusTracker.onDidBlur(() => this._focusedContextKey.set(false)));
+    this._register(autorun((r) => {
+      const isBusy = this._inlineChatWidget.requestInProgress.read(r);
+      this._container.classList.toggle("busy", isBusy);
+      this._inlineChatWidget.toggleStatus(!!this._inlineChatWidget.responseContent);
+      if (isBusy || !this._inlineChatWidget.responseContent) {
+        this._responseContainsCodeBlockContextKey.set(false);
+        this._responseContainsMulitpleCodeBlocksContextKey.set(false);
+      } else {
+        Promise.all([
+          this._inlineChatWidget.getCodeBlockInfo(0),
+          this._inlineChatWidget.getCodeBlockInfo(1)
+        ]).then(([firstCodeBlock, secondCodeBlock]) => {
+          this._responseContainsCodeBlockContextKey.set(!!firstCodeBlock);
+          this._responseContainsMulitpleCodeBlocksContextKey.set(!!secondCodeBlock);
+          this._inlineChatWidget.updateToolbar(true);
+        });
+      }
+    }));
+    this.hide();
+  }
+  _relayout() {
+    if (this._dimension) {
+      this._doLayout();
+    }
+  }
+  _doLayout() {
+    const xtermElement = this._xterm.raw.element;
+    if (!xtermElement) {
+      return;
+    }
+    const style = getActiveWindow().getComputedStyle(xtermElement);
+    const xtermLeftPadding = parseInt(style.paddingLeft);
+    const width = xtermElement.clientWidth - xtermLeftPadding - 12;
+    if (width === 0) {
+      return;
+    }
+    const terminalViewportHeight = this._getTerminalViewportHeight();
+    const widgetAllowedPercentBasedHeight = (terminalViewportHeight ?? 0) * 0.75;
+    const height = Math.max(Math.min(480, this._inlineChatWidget.contentHeight, widgetAllowedPercentBasedHeight), this._inlineChatWidget.minHeight);
+    if (height === 0) {
+      return;
+    }
+    this._dimension = new Dimension(width, height);
+    this._inlineChatWidget.layout(this._dimension);
+    this._inlineChatWidget.domNode.style.paddingLeft = `${xtermLeftPadding}px`;
+    this._updateXtermViewportPosition();
+  }
+  _resetPlaceholder() {
+    const defaultAgent = this._chatAgentService.getDefaultAgent(ChatAgentLocation.Terminal);
+    this.inlineChatWidget.placeholder = defaultAgent?.description ?? localize("askAboutCommands", "Ask about commands");
+  }
+  async reveal() {
+    await this._createSession();
+    this._doLayout();
+    this._container.classList.remove("hide");
+    this._visibleContextKey.set(true);
+    this._resetPlaceholder();
+    this._inlineChatWidget.focus();
+    this._instance.scrollToBottom();
+  }
+  _getTerminalCursorTop() {
+    const font = this._instance.xterm?.getFont();
+    if (!font?.charHeight) {
+      return;
+    }
+    const terminalWrapperHeight = this._getTerminalViewportHeight() ?? 0;
+    const cellHeight = font.charHeight * font.lineHeight;
+    const topPadding = terminalWrapperHeight - this._instance.rows * cellHeight;
+    const cursorY = (this._instance.xterm?.raw.buffer.active.cursorY ?? 0) + 1;
+    return topPadding + cursorY * cellHeight;
+  }
+  _updateXtermViewportPosition() {
+    const top = this._getTerminalCursorTop();
+    if (!top) {
+      return;
+    }
+    this._container.style.top = `${top}px`;
+    const terminalViewportHeight = this._getTerminalViewportHeight();
+    if (!terminalViewportHeight) {
+      return;
+    }
+    const widgetAllowedPercentBasedHeight = terminalViewportHeight * 0.75;
+    const height = Math.max(Math.min(480, this._inlineChatWidget.contentHeight, widgetAllowedPercentBasedHeight), this._inlineChatWidget.minHeight);
+    if (top > terminalViewportHeight - height && terminalViewportHeight - height > 0) {
+      this._setTerminalViewportOffset(top - (terminalViewportHeight - height));
+    } else {
+      this._setTerminalViewportOffset(void 0);
+    }
+  }
+  _getTerminalViewportHeight() {
+    return this._terminalElement.clientHeight;
+  }
+  hide() {
+    this._container.classList.add("hide");
+    this._inlineChatWidget.reset();
+    this._resetPlaceholder();
+    this._inlineChatWidget.updateToolbar(false);
+    this._visibleContextKey.set(false);
+    this._inlineChatWidget.value = "";
+    this._instance.focus();
+    this._setTerminalViewportOffset(void 0);
+    this._onDidHide.fire();
+  }
+  _setTerminalViewportOffset(offset) {
+    if (offset === void 0 || this._container.classList.contains("hide")) {
+      this._terminalElement.style.position = "";
+      this._terminalElement.style.bottom = "";
+      TerminalStickyScrollContribution.get(this._instance)?.hideUnlock();
+    } else {
+      this._terminalElement.style.position = "relative";
+      this._terminalElement.style.bottom = `${offset}px`;
+      TerminalStickyScrollContribution.get(this._instance)?.hideLock();
+    }
+  }
+  focus() {
+    this.inlineChatWidget.focus();
+  }
+  hasFocus() {
+    return this._inlineChatWidget.hasFocus();
+  }
+  setValue(value) {
+    this._inlineChatWidget.value = value ?? "";
+  }
+  async acceptCommand(shouldExecute) {
+    const code = await this.inlineChatWidget.getCodeBlockInfo(0);
+    if (!code) {
+      return;
+    }
+    const value = code.getValue();
+    this._instance.runCommand(value, shouldExecute);
+    this.clear();
+  }
+  get focusTracker() {
+    return this._focusTracker;
+  }
+  async _createSession() {
+    this._sessionCtor = createCancelablePromise(async (token) => {
+      if (!this._model.value) {
+        const modelRef = this._chatService.startSession(ChatAgentLocation.Terminal);
+        this._model.value = modelRef;
+        const model = modelRef.object;
+        this._inlineChatWidget.setChatModel(model);
+        this._resetPlaceholder();
+      }
+    });
+    this._sessionDisposables.value = toDisposable(() => this._sessionCtor?.cancel());
+  }
+  _saveViewState() {
+    const viewState = this._inlineChatWidget.chatWidget.getViewState();
+    if (viewState) {
+      this._storageService.store(
+        this._viewStateStorageKey,
+        JSON.stringify(viewState),
+        0,
+        0
+        /* StorageTarget.USER */
+      );
+    }
+  }
+  clear() {
+    this.cancel();
+    this._model.clear();
+    this._responseContainsCodeBlockContextKey.reset();
+    this._requestActiveContextKey.reset();
+    this.hide();
+    this.setValue(void 0);
+  }
+  async acceptInput(query, options) {
+    if (!this._model.value) {
+      await this.reveal();
+    }
+    this._messages.fire(
+      32
+      /* Message.AcceptInput */
+    );
+    const lastInput = this._inlineChatWidget.value;
+    if (!lastInput) {
+      return;
+    }
+    this._activeRequestCts?.cancel();
+    this._activeRequestCts = new CancellationTokenSource();
+    const store = new DisposableStore();
+    this._requestActiveContextKey.set(true);
+    const response = await this._inlineChatWidget.chatWidget.acceptInput(lastInput, { isVoiceInput: options?.isVoiceInput });
+    this._currentRequestId = response?.requestId;
+    const responsePromise = new DeferredPromise();
+    try {
+      this._requestActiveContextKey.set(true);
+      if (response) {
+        store.add(response.onDidChange(async () => {
+          if (response.isCanceled) {
+            this._requestActiveContextKey.set(false);
+            responsePromise.complete(void 0);
+            return;
+          }
+          if (response.isComplete) {
+            this._requestActiveContextKey.set(false);
+            this._requestActiveContextKey.set(false);
+            const firstCodeBlock = await this._inlineChatWidget.getCodeBlockInfo(0);
+            const secondCodeBlock = await this._inlineChatWidget.getCodeBlockInfo(1);
+            this._responseContainsCodeBlockContextKey.set(!!firstCodeBlock);
+            this._responseContainsMulitpleCodeBlocksContextKey.set(!!secondCodeBlock);
+            this._inlineChatWidget.updateToolbar(true);
+            responsePromise.complete(response);
+          }
+        }));
+      }
+      await responsePromise.p;
+      this._lastResponseContent = response?.response.getMarkdown();
+      return response;
+    } catch {
+      this._lastResponseContent = void 0;
+      return;
+    } finally {
+      store.dispose();
+    }
+  }
+  cancel() {
+    this._sessionCtor?.cancel();
+    this._sessionCtor = void 0;
+    this._activeRequestCts?.cancel();
+    this._requestActiveContextKey.set(false);
+    const model = this._inlineChatWidget.getChatModel();
+    if (!model?.sessionResource) {
+      return;
+    }
+    this._chatService.cancelCurrentRequestForSession(model?.sessionResource);
+  }
+  async viewInChat() {
+    const widget = await this._chatWidgetService.revealWidget();
+    const currentRequest = this._inlineChatWidget.chatWidget.viewModel?.model.getRequests().find((r) => r.id === this._currentRequestId);
+    if (!widget || !currentRequest?.response) {
+      return;
+    }
+    const message = [];
+    for (const item of currentRequest.response.response.value) {
+      if (item.kind === "textEditGroup") {
+        for (const group of item.edits) {
+          message.push({
+            kind: "textEdit",
+            edits: group,
+            uri: item.uri
+          });
+        }
+      } else if (item.kind === "notebookEditGroup") {
+        for (const group of item.edits) {
+          if (isCellTextEditOperationArray(group)) {
+            message.push({
+              kind: "textEdit",
+              edits: group.map((e) => e.edit),
+              uri: group[0].uri
+            });
+          } else {
+            message.push({
+              kind: "notebookEdit",
+              edits: group,
+              uri: item.uri
+            });
+          }
+        }
+      } else {
+        message.push(item);
+      }
+    }
+    this._chatService.addCompleteRequest(widget.viewModel.sessionResource, `@${this._terminalAgentName} ${currentRequest.message.text}`, currentRequest.variableData, currentRequest.attempt, {
+      message,
+      result: currentRequest.response.result,
+      followups: currentRequest.response.followups
+    });
+    widget.focusResponseItem();
+    this.hide();
+  }
+};
+TerminalChatWidget = __decorate([
+  __param(3, IContextKeyService),
+  __param(4, IChatService),
+  __param(5, IStorageService),
+  __param(6, IInstantiationService),
+  __param(7, IChatAgentService),
+  __param(8, IChatWidgetService)
+], TerminalChatWidget);
+export {
+  TerminalChatWidget
+};
+//# sourceMappingURL=terminalChatWidget.js.map

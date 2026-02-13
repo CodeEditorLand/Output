@@ -1,1 +1,81 @@
-import*as d from"../../../../base/browser/dom.js";import{$w0 as a}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$Dd as p}from"../../../../base/common/lifecycle.js";import{$$jb as b,$_jb as $}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$rL as _,$uL as m}from"../../../../platform/actions/common/actions.js";import{$ro as w}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as g}from"../../../../platform/instantiation/common/instantiation.js";var l=function(r,e,s,i){var o=arguments.length,t=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,s):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(r,e,s,i);else for(var h=r.length-1;h>=0;h--)(n=r[h])&&(t=(o<3?n(t):o>3?n(e,s,t):n(e,s))||t);return o>3&&t&&Object.defineProperty(e,s,t),t},f=function(r,e){return function(s,i){e(s,i,r)}};let u=class{constructor(e,s,i,o,t,n){this.d=s,this.e=t,this.f=n,this.c=new p,this.element=d.$y9(e,d.$(".suggest-status-bar"));const h=(c=>i?.showIconsNoKeybindings?c instanceof m?o.createInstance(b,c,void 0):void 0:c instanceof m?o.createInstance($,c,{useComma:!1}):void 0);this.a=new a(this.element,{actionViewItemProvider:h}),this.b=new a(this.element,{actionViewItemProvider:h}),this.a.domNode.classList.add("left"),this.b.domNode.classList.add("right")}dispose(){this.c.dispose(),this.a.dispose(),this.b.dispose(),this.element.remove()}show(){const e=this.e.createMenu(this.d,this.f),s=()=>{const i=[],o=[];for(const[t,n]of e.getActions())t==="left"?i.push(...n):o.push(...n);this.a.clear(),this.a.push(i),this.b.clear(),this.b.push(o)};this.c.add(e.onDidChange(()=>s())),this.c.add(e)}hide(){this.c.clear()}};u=l([f(3,g),f(4,_),f(5,w)],u);export{u as $4ob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { MenuEntryActionViewItem, TextOnlyMenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+let SuggestWidgetStatus = class SuggestWidgetStatus2 {
+  static {
+    __name(this, "SuggestWidgetStatus");
+  }
+  constructor(container, _menuId, options, instantiationService, _menuService, _contextKeyService) {
+    this._menuId = _menuId;
+    this._menuService = _menuService;
+    this._contextKeyService = _contextKeyService;
+    this._menuDisposables = new DisposableStore();
+    this.element = dom.append(container, dom.$(".suggest-status-bar"));
+    const actionViewItemProvider = /* @__PURE__ */ __name(((action) => {
+      if (options?.showIconsNoKeybindings) {
+        return action instanceof MenuItemAction ? instantiationService.createInstance(MenuEntryActionViewItem, action, void 0) : void 0;
+      } else {
+        return action instanceof MenuItemAction ? instantiationService.createInstance(TextOnlyMenuEntryActionViewItem, action, { useComma: false }) : void 0;
+      }
+    }), "actionViewItemProvider");
+    this._leftActions = new ActionBar(this.element, { actionViewItemProvider });
+    this._rightActions = new ActionBar(this.element, { actionViewItemProvider });
+    this._leftActions.domNode.classList.add("left");
+    this._rightActions.domNode.classList.add("right");
+  }
+  dispose() {
+    this._menuDisposables.dispose();
+    this._leftActions.dispose();
+    this._rightActions.dispose();
+    this.element.remove();
+  }
+  show() {
+    const menu = this._menuService.createMenu(this._menuId, this._contextKeyService);
+    const renderMenu = /* @__PURE__ */ __name(() => {
+      const left = [];
+      const right = [];
+      for (const [group, actions] of menu.getActions()) {
+        if (group === "left") {
+          left.push(...actions);
+        } else {
+          right.push(...actions);
+        }
+      }
+      this._leftActions.clear();
+      this._leftActions.push(left);
+      this._rightActions.clear();
+      this._rightActions.push(right);
+    }, "renderMenu");
+    this._menuDisposables.add(menu.onDidChange(() => renderMenu()));
+    this._menuDisposables.add(menu);
+  }
+  hide() {
+    this._menuDisposables.clear();
+  }
+};
+SuggestWidgetStatus = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, IMenuService),
+  __param(5, IContextKeyService)
+], SuggestWidgetStatus);
+export {
+  SuggestWidgetStatus
+};
+//# sourceMappingURL=suggestWidgetStatus.js.map

@@ -1,1 +1,204 @@
-import{$Wb as p}from"../../../../../base/common/arrays.js";import{$xf as m}from"../../../../../base/common/event.js";import{$Ed as u}from"../../../../../base/common/lifecycle.js";import{$Nj as g}from"../../../../../platform/instantiation/common/instantiation.js";import{$hp as y}from"../../../../../platform/storage/common/storage.js";import{$JZ as x}from"../../../../common/memento.js";import{$jW as M}from"../participants/chatParticipantContribTypes.js";import{ChatAgentLocation as j,ChatModeKind as o}from"../constants.js";var d=function(n,t,i,e){var h=arguments.length,s=h<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,i,e);else for(var c=n.length-1;c>=0;c--)(r=n[c])&&(s=(h<3?r(s):h>3?r(t,i,s):r(t,i))||s);return h>3&&s&&Object.defineProperty(t,i,s),s},l=function(n,t){return function(i,e){t(i,e,n)}};const v=g("IChatWidgetHistoryService"),$=40;let f=class extends u{constructor(t){super(),this.g=this.D(new m),this.h=!1,this.onDidChangeHistory=this.g.event,this.c=new x("interactive-session",t);const i=this.c.getMemento(1,1);this.f=i,this.D(t.onWillSaveState(()=>{this.h&&(this.c.saveMemento(),this.h=!1)}))}getHistory(t){const i=this.m(t);return(this.f.history?.[i]??[]).map(h=>this.j(h))}j(t){if(t.inputText!==void 0)return t;const i=t,e=i.state??{};let h,s;if(e.chatMode)if(typeof e.chatMode=="string")h=e.chatMode,s=Object.values(o).includes(e.chatMode)?e.chatMode:void 0;else if(typeof e.chatMode=="object"&&e.chatMode!==null){const r=e.chatMode;h=r.id??o.Ask,s=r.id&&Object.values(o).includes(r.id)?r.id:void 0}else h=o.Ask,s=o.Ask;else h=o.Ask,s=o.Ask;return{inputText:i.text??"",attachments:e.chatContextAttachments??[],mode:{id:h,kind:s},contrib:i.state||{},selectedModel:void 0,selections:[]}}m(t){return t===j.Chat?M:t}append(t,i){this.f.history??={};const e=this.m(t);this.f.history[e]=this.getHistory(t).concat(i).slice(-$),this.h=!0,this.g.fire({kind:"append",entry:i})}clearHistory(){this.f.history={},this.h=!0,this.g.fire({kind:"clear"})}};f=d([l(0,y)],f);let a=class extends u{get values(){return this.j.getHistory(this.h)}constructor(t,i){super(),this.h=t,this.j=i,this.g=[],this.f=this.j.getHistory(this.h),this.c=this.f.length,this.D(this.j.onDidChangeHistory(e=>{if(e.kind==="append"){const h=this.f.length;this.f=this.j.getHistory(this.h);const s=this.f.length;h===s?(this.g.shift(),this.c<this.f.length&&(this.c=Math.max(this.c-1,0))):this.c===h&&(this.c=s)}else e.kind==="clear"&&(this.f=[],this.c=0,this.g=[])}))}isAtEnd(){return this.c===Math.max(this.f.length,this.g.length)}isAtStart(){return this.c===0}overlay(t){this.g[this.c]=t}resetCursor(){this.c=this.f.length}previous(){return this.c=Math.max(this.c-1,0),this.current()}next(){return this.c=Math.min(this.c+1,this.f.length),this.current()}current(){return this.g[this.c]??this.f[this.c]}append(t){this.g=[],this.c=this.f.length,b(this.f.at(-1),t)||this.j.append(this.h,t)}};a=d([l(1,v)],a);function b(n,t){return!(!n||!t||n.inputText!==t.inputText||!p(n.attachments,t.attachments,(i,e)=>i.id===e.id))}export{v as $qPb,$ as $rPb,f as $sPb,a as $tPb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { equals as arraysEqual } from "../../../../../base/common/arrays.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { Memento } from "../../../../common/memento.js";
+import { CHAT_PROVIDER_ID } from "../participants/chatParticipantContribTypes.js";
+import { ChatAgentLocation, ChatModeKind } from "../constants.js";
+const IChatWidgetHistoryService = createDecorator("IChatWidgetHistoryService");
+const ChatInputHistoryMaxEntries = 40;
+let ChatWidgetHistoryService = class ChatWidgetHistoryService2 extends Disposable {
+  static {
+    __name(this, "ChatWidgetHistoryService");
+  }
+  constructor(storageService) {
+    super();
+    this._onDidChangeHistory = this._register(new Emitter());
+    this.changed = false;
+    this.onDidChangeHistory = this._onDidChangeHistory.event;
+    this.memento = new Memento("interactive-session", storageService);
+    const loadedState = this.memento.getMemento(
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this.viewState = loadedState;
+    this._register(storageService.onWillSaveState(() => {
+      if (this.changed) {
+        this.memento.saveMemento();
+        this.changed = false;
+      }
+    }));
+  }
+  getHistory(location) {
+    const key = this.getKey(location);
+    const history = this.viewState.history?.[key] ?? [];
+    return history.map((entry) => this.migrateHistoryEntry(entry));
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  migrateHistoryEntry(entry) {
+    if (entry.inputText !== void 0) {
+      return entry;
+    }
+    const oldEntry = entry;
+    const oldState = oldEntry.state ?? {};
+    let modeId;
+    let modeKind;
+    if (oldState.chatMode) {
+      if (typeof oldState.chatMode === "string") {
+        modeId = oldState.chatMode;
+        modeKind = Object.values(ChatModeKind).includes(oldState.chatMode) ? oldState.chatMode : void 0;
+      } else if (typeof oldState.chatMode === "object" && oldState.chatMode !== null) {
+        const oldMode = oldState.chatMode;
+        modeId = oldMode.id ?? ChatModeKind.Ask;
+        modeKind = oldMode.id && Object.values(ChatModeKind).includes(oldMode.id) ? oldMode.id : void 0;
+      } else {
+        modeId = ChatModeKind.Ask;
+        modeKind = ChatModeKind.Ask;
+      }
+    } else {
+      modeId = ChatModeKind.Ask;
+      modeKind = ChatModeKind.Ask;
+    }
+    return {
+      inputText: oldEntry.text ?? "",
+      attachments: oldState.chatContextAttachments ?? [],
+      mode: {
+        id: modeId,
+        kind: modeKind
+      },
+      contrib: oldEntry.state || {},
+      selectedModel: void 0,
+      selections: []
+    };
+  }
+  getKey(location) {
+    return location === ChatAgentLocation.Chat ? CHAT_PROVIDER_ID : location;
+  }
+  append(location, history) {
+    this.viewState.history ??= {};
+    const key = this.getKey(location);
+    this.viewState.history[key] = this.getHistory(location).concat(history).slice(-ChatInputHistoryMaxEntries);
+    this.changed = true;
+    this._onDidChangeHistory.fire({ kind: "append", entry: history });
+  }
+  clearHistory() {
+    this.viewState.history = {};
+    this.changed = true;
+    this._onDidChangeHistory.fire({ kind: "clear" });
+  }
+};
+ChatWidgetHistoryService = __decorate([
+  __param(0, IStorageService)
+], ChatWidgetHistoryService);
+let ChatHistoryNavigator = class ChatHistoryNavigator2 extends Disposable {
+  static {
+    __name(this, "ChatHistoryNavigator");
+  }
+  get values() {
+    return this.chatWidgetHistoryService.getHistory(this.location);
+  }
+  constructor(location, chatWidgetHistoryService) {
+    super();
+    this.location = location;
+    this.chatWidgetHistoryService = chatWidgetHistoryService;
+    this._overlay = [];
+    this._history = this.chatWidgetHistoryService.getHistory(this.location);
+    this._currentIndex = this._history.length;
+    this._register(this.chatWidgetHistoryService.onDidChangeHistory((e) => {
+      if (e.kind === "append") {
+        const prevLength = this._history.length;
+        this._history = this.chatWidgetHistoryService.getHistory(this.location);
+        const newLength = this._history.length;
+        if (prevLength === newLength) {
+          this._overlay.shift();
+          if (this._currentIndex < this._history.length) {
+            this._currentIndex = Math.max(this._currentIndex - 1, 0);
+          }
+        } else if (this._currentIndex === prevLength) {
+          this._currentIndex = newLength;
+        }
+      } else if (e.kind === "clear") {
+        this._history = [];
+        this._currentIndex = 0;
+        this._overlay = [];
+      }
+    }));
+  }
+  isAtEnd() {
+    return this._currentIndex === Math.max(this._history.length, this._overlay.length);
+  }
+  isAtStart() {
+    return this._currentIndex === 0;
+  }
+  /**
+   * Replaces a history entry at the current index in this view of the history.
+   * Allows editing of old history entries while preventing accidental navigation
+   * from losing the edits.
+   */
+  overlay(entry) {
+    this._overlay[this._currentIndex] = entry;
+  }
+  resetCursor() {
+    this._currentIndex = this._history.length;
+  }
+  previous() {
+    this._currentIndex = Math.max(this._currentIndex - 1, 0);
+    return this.current();
+  }
+  next() {
+    this._currentIndex = Math.min(this._currentIndex + 1, this._history.length);
+    return this.current();
+  }
+  current() {
+    return this._overlay[this._currentIndex] ?? this._history[this._currentIndex];
+  }
+  /**
+   * Appends a new entry to the navigator. Resets the state back to the end
+   * and clears any overlayed entries.
+   */
+  append(entry) {
+    this._overlay = [];
+    this._currentIndex = this._history.length;
+    if (!entriesEqual(this._history.at(-1), entry)) {
+      this.chatWidgetHistoryService.append(this.location, entry);
+    }
+  }
+};
+ChatHistoryNavigator = __decorate([
+  __param(1, IChatWidgetHistoryService)
+], ChatHistoryNavigator);
+function entriesEqual(a, b) {
+  if (!a || !b) {
+    return false;
+  }
+  if (a.inputText !== b.inputText) {
+    return false;
+  }
+  if (!arraysEqual(a.attachments, b.attachments, (x, y) => x.id === y.id)) {
+    return false;
+  }
+  return true;
+}
+__name(entriesEqual, "entriesEqual");
+export {
+  ChatHistoryNavigator,
+  ChatInputHistoryMaxEntries,
+  ChatWidgetHistoryService,
+  IChatWidgetHistoryService
+};
+//# sourceMappingURL=chatWidgetHistoryService.js.map

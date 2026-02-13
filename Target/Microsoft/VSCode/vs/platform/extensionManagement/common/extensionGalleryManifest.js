@@ -1,1 +1,64 @@
-import{$Nj as u}from"../../instantiation/common/instantiation.js";var t;(function(e){e.ExtensionQueryService="ExtensionQueryService",e.ExtensionLatestVersionUri="ExtensionLatestVersionUriTemplate",e.ExtensionStatisticsUri="ExtensionStatisticsUriTemplate",e.PublisherViewUri="PublisherViewUriTemplate",e.ExtensionDetailsViewUri="ExtensionDetailsViewUriTemplate",e.ExtensionRatingViewUri="ExtensionRatingViewUriTemplate",e.ExtensionResourceUri="ExtensionResourceUriTemplate",e.ContactSupportUri="ContactSupportUri"})(t||(t={}));var s;(function(e){e.None="None",e.IncludeVersions="IncludeVersions",e.IncludeFiles="IncludeFiles",e.IncludeCategoryAndTags="IncludeCategoryAndTags",e.IncludeSharedAccounts="IncludeSharedAccounts",e.IncludeVersionProperties="IncludeVersionProperties",e.ExcludeNonValidated="ExcludeNonValidated",e.IncludeInstallationTargets="IncludeInstallationTargets",e.IncludeAssetUri="IncludeAssetUri",e.IncludeStatistics="IncludeStatistics",e.IncludeLatestVersionOnly="IncludeLatestVersionOnly",e.Unpublished="Unpublished",e.IncludeNameConflictInfo="IncludeNameConflictInfo",e.IncludeLatestPrereleaseAndStableVersionOnly="IncludeLatestPrereleaseAndStableVersionOnly"})(s||(s={}));var r;(function(e){e.Available="available",e.RequiresSignIn="requiresSignIn",e.AccessDenied="accessDenied",e.Unavailable="unavailable"})(r||(r={}));const I=u("IExtensionGalleryManifestService");function U(e,o){const[c,n]=o.split("/");for(const i of e.resources){const[d,l]=i.type.split("/");if(d===c){if(!n||l===n)return i.id;break}}}const V="extensions.gallery.serviceUrl";export{I as $Tz,U as $Uz,V as $Vz,r as ExtensionGalleryManifestStatus,t as ExtensionGalleryResourceType,s as Flag};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+var ExtensionGalleryResourceType;
+(function(ExtensionGalleryResourceType2) {
+  ExtensionGalleryResourceType2["ExtensionQueryService"] = "ExtensionQueryService";
+  ExtensionGalleryResourceType2["ExtensionLatestVersionUri"] = "ExtensionLatestVersionUriTemplate";
+  ExtensionGalleryResourceType2["ExtensionStatisticsUri"] = "ExtensionStatisticsUriTemplate";
+  ExtensionGalleryResourceType2["PublisherViewUri"] = "PublisherViewUriTemplate";
+  ExtensionGalleryResourceType2["ExtensionDetailsViewUri"] = "ExtensionDetailsViewUriTemplate";
+  ExtensionGalleryResourceType2["ExtensionRatingViewUri"] = "ExtensionRatingViewUriTemplate";
+  ExtensionGalleryResourceType2["ExtensionResourceUri"] = "ExtensionResourceUriTemplate";
+  ExtensionGalleryResourceType2["ContactSupportUri"] = "ContactSupportUri";
+})(ExtensionGalleryResourceType || (ExtensionGalleryResourceType = {}));
+var Flag;
+(function(Flag2) {
+  Flag2["None"] = "None";
+  Flag2["IncludeVersions"] = "IncludeVersions";
+  Flag2["IncludeFiles"] = "IncludeFiles";
+  Flag2["IncludeCategoryAndTags"] = "IncludeCategoryAndTags";
+  Flag2["IncludeSharedAccounts"] = "IncludeSharedAccounts";
+  Flag2["IncludeVersionProperties"] = "IncludeVersionProperties";
+  Flag2["ExcludeNonValidated"] = "ExcludeNonValidated";
+  Flag2["IncludeInstallationTargets"] = "IncludeInstallationTargets";
+  Flag2["IncludeAssetUri"] = "IncludeAssetUri";
+  Flag2["IncludeStatistics"] = "IncludeStatistics";
+  Flag2["IncludeLatestVersionOnly"] = "IncludeLatestVersionOnly";
+  Flag2["Unpublished"] = "Unpublished";
+  Flag2["IncludeNameConflictInfo"] = "IncludeNameConflictInfo";
+  Flag2["IncludeLatestPrereleaseAndStableVersionOnly"] = "IncludeLatestPrereleaseAndStableVersionOnly";
+})(Flag || (Flag = {}));
+var ExtensionGalleryManifestStatus;
+(function(ExtensionGalleryManifestStatus2) {
+  ExtensionGalleryManifestStatus2["Available"] = "available";
+  ExtensionGalleryManifestStatus2["RequiresSignIn"] = "requiresSignIn";
+  ExtensionGalleryManifestStatus2["AccessDenied"] = "accessDenied";
+  ExtensionGalleryManifestStatus2["Unavailable"] = "unavailable";
+})(ExtensionGalleryManifestStatus || (ExtensionGalleryManifestStatus = {}));
+const IExtensionGalleryManifestService = createDecorator("IExtensionGalleryManifestService");
+function getExtensionGalleryManifestResourceUri(manifest, type) {
+  const [name, version] = type.split("/");
+  for (const resource of manifest.resources) {
+    const [r, v] = resource.type.split("/");
+    if (r !== name) {
+      continue;
+    }
+    if (!version || v === version) {
+      return resource.id;
+    }
+    break;
+  }
+  return void 0;
+}
+__name(getExtensionGalleryManifestResourceUri, "getExtensionGalleryManifestResourceUri");
+const ExtensionGalleryServiceUrlConfigKey = "extensions.gallery.serviceUrl";
+export {
+  ExtensionGalleryManifestStatus,
+  ExtensionGalleryResourceType,
+  ExtensionGalleryServiceUrlConfigKey,
+  Flag,
+  IExtensionGalleryManifestService,
+  getExtensionGalleryManifestResourceUri
+};
+//# sourceMappingURL=extensionGalleryManifest.js.map

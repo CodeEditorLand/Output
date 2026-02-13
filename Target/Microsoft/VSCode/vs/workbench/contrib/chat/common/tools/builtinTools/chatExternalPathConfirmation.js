@@ -1,1 +1,74 @@
-import{$Oc as a,$Pc as l}from"../../../../../../base/common/map.js";import{$Hh as u,$zh as f}from"../../../../../../base/common/resources.js";import{URI as n}from"../../../../../../base/common/uri.js";import{localize as c}from"../../../../../../nls.js";class U{constructor(e){this.b=e,this.canUseDefaultApprovals=!1,this.a=new a}getPreConfirmAction(e){const r=this.b(e);if(!r||!e.chatSessionResource)return;const t=this.a.get(e.chatSessionResource);if(!t||t.size===0)return;let s;try{s=n.file(r.path)}catch{return}for(const o of t)if(f.isEqualOrParent(s,o))return{type:4}}getPreConfirmActions(e){const r=this.b(e);if(!r||!e.chatSessionResource)return[];let t;try{t=n.file(r.path)}catch{return[]}const s=r.isDirectory?t:u(t),o=e.chatSessionResource;return[{label:c(7078,null),detail:c(7079,null),select:async()=>{let i=this.a.get(o);return i||(i=new l,this.a.set(o,i)),i.add(s),!0}}]}}export{U as $ZXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ResourceMap, ResourceSet } from "../../../../../../base/common/map.js";
+import { dirname, extUriBiasedIgnorePathCase } from "../../../../../../base/common/resources.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { localize } from "../../../../../../nls.js";
+class ChatExternalPathConfirmationContribution {
+  static {
+    __name(this, "ChatExternalPathConfirmationContribution");
+  }
+  constructor(_getPathInfo) {
+    this._getPathInfo = _getPathInfo;
+    this.canUseDefaultApprovals = false;
+    this._sessionFolderAllowlist = new ResourceMap();
+  }
+  getPreConfirmAction(ref) {
+    const pathInfo = this._getPathInfo(ref);
+    if (!pathInfo || !ref.chatSessionResource) {
+      return void 0;
+    }
+    const allowedFolders = this._sessionFolderAllowlist.get(ref.chatSessionResource);
+    if (!allowedFolders || allowedFolders.size === 0) {
+      return void 0;
+    }
+    let pathUri;
+    try {
+      pathUri = URI.file(pathInfo.path);
+    } catch {
+      return void 0;
+    }
+    for (const folderUri of allowedFolders) {
+      if (extUriBiasedIgnorePathCase.isEqualOrParent(pathUri, folderUri)) {
+        return {
+          type: 4
+          /* ToolConfirmKind.UserAction */
+        };
+      }
+    }
+    return void 0;
+  }
+  getPreConfirmActions(ref) {
+    const pathInfo = this._getPathInfo(ref);
+    if (!pathInfo || !ref.chatSessionResource) {
+      return [];
+    }
+    let pathUri;
+    try {
+      pathUri = URI.file(pathInfo.path);
+    } catch {
+      return [];
+    }
+    const folderUri = pathInfo.isDirectory ? pathUri : dirname(pathUri);
+    const sessionResource = ref.chatSessionResource;
+    return [
+      {
+        label: localize("allowFolderSession", "Allow this folder in this session"),
+        detail: localize("allowFolderSessionDetail", "Allow reading files from this folder without further confirmation in this chat session"),
+        select: /* @__PURE__ */ __name(async () => {
+          let folders = this._sessionFolderAllowlist.get(sessionResource);
+          if (!folders) {
+            folders = new ResourceSet();
+            this._sessionFolderAllowlist.set(sessionResource, folders);
+          }
+          folders.add(folderUri);
+          return true;
+        }, "select")
+      }
+    ];
+  }
+}
+export {
+  ChatExternalPathConfirmationContribution
+};
+//# sourceMappingURL=chatExternalPathConfirmation.js.map

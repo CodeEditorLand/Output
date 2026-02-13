@@ -1,1 +1,191 @@
-import*as s from"../../../../../../base/browser/dom.js";import{$Fm as j}from"../../../../../../base/common/actions.js";import{$xf as v}from"../../../../../../base/common/event.js";import{$Ed as N,$Dd as _}from"../../../../../../base/common/lifecycle.js";import{ThemeIcon as C}from"../../../../../../base/common/themables.js";import{localize as f}from"../../../../../../nls.js";import{$ijb as O}from"../../../../../../platform/contextview/browser/contextView.js";import{$aW as k}from"../../../common/chatSessionsService.js";import{$2Pb as E,$XPb as x,$ZPb as I,$YPb as M}from"../../agentSessions/agentSessions.js";var H=function(c,e,o,d){var i=arguments.length,t=i<3?e:d===null?d=Object.getOwnPropertyDescriptor(e,o):d,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,e,o,d);else for(var l=c.length-1;l>=0;l--)(r=c[l])&&(t=(i<3?r(t):i>3?r(e,o,t):r(e,o))||t);return i>3&&t&&Object.defineProperty(e,o,t),t},y=function(c,e){return function(o,d){e(o,d,c)}};let A=class extends N{constructor(e,o){super(),this.n=e,this.q=o,this.a=this.D(new v),this.onDidChangeHeight=this.a.event,this.b=this.D(new v),this.onDidSelectPrompt=this.b.event,this.m=new Map,this.domNode=this.r()}get height(){return this.domNode.style.display==="none"?0:this.domNode.offsetHeight}getCurrentMode(){return this.j}r(){const e=s.$(".chat-suggest-next-widget.chat-welcome-view-suggested-prompts");return e.style.display="none",this.g=s.$y9(e,s.$(".chat-welcome-view-suggested-prompts-title")),this.f=e,e}render(e){const o=e.handOffs?.get();if(!o||o.length===0){this.hide();return}this.j=e;const d=e.name.get()||e.label.get()||f(6519,null);this.g.textContent=f(6520,null,d);const i=[];for(let t=1;t<this.f.children.length;t++)i.push(this.f.children[t]);for(const t of i){const r=this.m.get(t);r&&(r.dispose(),this.m.delete(t)),this.f.removeChild(t)}for(const t of o){const r=this.s(t);this.f.appendChild(r)}this.domNode.style.display="flex",this.a.fire()}s(e){const o=new _,d=e.label,i=()=>this.j?.handOffs?.get()?.find(h=>h.label===d)??e,t=s.$(".chat-welcome-view-suggested-prompt");t.setAttribute("tabindex","0"),t.setAttribute("role","button"),t.setAttribute("aria-label",f(6521,null,e.label));const r=s.$y9(t,s.$(".chat-welcome-view-suggested-prompt-title"));r.textContent=e.label;const l=e.showContinueOn??!0,m=this.q.getAllChatSessionContributions().filter(n=>{if(!n.canDelegate)return!1;const h=x(n.type);return h!==void 0&&E(h)});if(l&&m.length>0){t.classList.add("chat-suggest-next-has-dropdown");const n=s.$y9(t,s.$(".chat-suggest-next-dropdown"));n.setAttribute("tabindex","0"),n.setAttribute("role","button"),n.setAttribute("aria-label",f(6522,null,e.label)),n.setAttribute("aria-haspopup","true"),s.$y9(n,s.$(".chat-suggest-next-separator")).setAttribute("aria-hidden","true"),s.$y9(n,s.$(".codicon.codicon-chevron-down.dropdown-chevron")).setAttribute("aria-hidden","true");const b=(a,u)=>{a.preventDefault(),a.stopPropagation();const P=m.map(p=>{const g=x(p.type),$=I(g),D=M(g);return new j(p.type,f(6523,null,D),C.isThemeIcon($)?C.asClassName($):void 0,!0,()=>{const w=i();w&&this.b.fire({handoff:w,agentId:p.name})})});this.n.showContextMenu({getAnchor:()=>u||n,getActions:()=>P,autoSelectFirstItem:!0})};o.add(s.$u8(n,"click",a=>{b(a,n)})),o.add(s.$u8(n,"keydown",a=>{(a.key==="Enter"||a.key===" ")&&b(a,n)})),o.add(s.$u8(t,"click",a=>{if(s.$f9(a.target)&&a.target.closest(".chat-suggest-next-dropdown"))return;const u=i();u&&this.b.fire({handoff:u})}))}else o.add(s.$u8(t,"click",()=>{const n=i();n&&this.b.fire({handoff:n})}));return o.add(s.$u8(t,"keydown",n=>{if(n.key==="Enter"||n.key===" "){n.preventDefault();const h=i();h&&this.b.fire({handoff:h})}})),this.m.set(t,o),t}hide(){this.domNode.style.display!=="none"&&(this.j=void 0,this.domNode.style.display="none",this.a.fire())}dispose(){for(const e of this.m.values())e.dispose();this.m.clear(),super.dispose()}};A=H([y(0,O),y(1,k)],A);export{A as $0Pb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Action } from "../../../../../../base/common/actions.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../nls.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IChatSessionsService } from "../../../common/chatSessionsService.js";
+import { getAgentCanContinueIn, getAgentSessionProvider, getAgentSessionProviderIcon, getAgentSessionProviderName } from "../../agentSessions/agentSessions.js";
+let ChatSuggestNextWidget = class ChatSuggestNextWidget2 extends Disposable {
+  static {
+    __name(this, "ChatSuggestNextWidget");
+  }
+  constructor(contextMenuService, chatSessionsService) {
+    super();
+    this.contextMenuService = contextMenuService;
+    this.chatSessionsService = chatSessionsService;
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
+    this._onDidSelectPrompt = this._register(new Emitter());
+    this.onDidSelectPrompt = this._onDidSelectPrompt.event;
+    this.buttonDisposables = /* @__PURE__ */ new Map();
+    this.domNode = this.createSuggestNextWidget();
+  }
+  get height() {
+    return this.domNode.style.display === "none" ? 0 : this.domNode.offsetHeight;
+  }
+  getCurrentMode() {
+    return this._currentMode;
+  }
+  createSuggestNextWidget() {
+    const container = dom.$(".chat-suggest-next-widget.chat-welcome-view-suggested-prompts");
+    container.style.display = "none";
+    this.titleElement = dom.append(container, dom.$(".chat-welcome-view-suggested-prompts-title"));
+    this.promptsContainer = container;
+    return container;
+  }
+  render(mode) {
+    const handoffs = mode.handOffs?.get();
+    if (!handoffs || handoffs.length === 0) {
+      this.hide();
+      return;
+    }
+    this._currentMode = mode;
+    const modeName = mode.name.get() || mode.label.get() || localize("chat.currentMode", "current mode");
+    this.titleElement.textContent = localize("chat.proceedFrom", "Proceed from {0}", modeName);
+    const childrenToRemove = [];
+    for (let i = 1; i < this.promptsContainer.children.length; i++) {
+      childrenToRemove.push(this.promptsContainer.children[i]);
+    }
+    for (const child of childrenToRemove) {
+      const disposables = this.buttonDisposables.get(child);
+      if (disposables) {
+        disposables.dispose();
+        this.buttonDisposables.delete(child);
+      }
+      this.promptsContainer.removeChild(child);
+    }
+    for (const handoff of handoffs) {
+      const promptButton = this.createPromptButton(handoff);
+      this.promptsContainer.appendChild(promptButton);
+    }
+    this.domNode.style.display = "flex";
+    this._onDidChangeHeight.fire();
+  }
+  createPromptButton(handoff) {
+    const disposables = new DisposableStore();
+    const handoffLabel = handoff.label;
+    const getCurrentHandoff = /* @__PURE__ */ __name(() => {
+      const currentHandoffs = this._currentMode?.handOffs?.get();
+      return currentHandoffs?.find((h) => h.label === handoffLabel) ?? handoff;
+    }, "getCurrentHandoff");
+    const button = dom.$(".chat-welcome-view-suggested-prompt");
+    button.setAttribute("tabindex", "0");
+    button.setAttribute("role", "button");
+    button.setAttribute("aria-label", localize("chat.suggestNext.item", "{0}", handoff.label));
+    const titleElement = dom.append(button, dom.$(".chat-welcome-view-suggested-prompt-title"));
+    titleElement.textContent = handoff.label;
+    const showContinueOn = handoff.showContinueOn ?? true;
+    const contributions = this.chatSessionsService.getAllChatSessionContributions();
+    const availableContributions = contributions.filter((c) => {
+      if (!c.canDelegate) {
+        return false;
+      }
+      const provider = getAgentSessionProvider(c.type);
+      return provider !== void 0 && getAgentCanContinueIn(provider);
+    });
+    if (showContinueOn && availableContributions.length > 0) {
+      button.classList.add("chat-suggest-next-has-dropdown");
+      const dropdownContainer = dom.append(button, dom.$(".chat-suggest-next-dropdown"));
+      dropdownContainer.setAttribute("tabindex", "0");
+      dropdownContainer.setAttribute("role", "button");
+      dropdownContainer.setAttribute("aria-label", localize("chat.suggestNext.moreOptions", "More options for {0}", handoff.label));
+      dropdownContainer.setAttribute("aria-haspopup", "true");
+      const separator = dom.append(dropdownContainer, dom.$(".chat-suggest-next-separator"));
+      separator.setAttribute("aria-hidden", "true");
+      const chevron = dom.append(dropdownContainer, dom.$(".codicon.codicon-chevron-down.dropdown-chevron"));
+      chevron.setAttribute("aria-hidden", "true");
+      const showContextMenu = /* @__PURE__ */ __name((e, anchor) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const actions = availableContributions.map((contrib) => {
+          const provider = getAgentSessionProvider(contrib.type);
+          const icon = getAgentSessionProviderIcon(provider);
+          const name = getAgentSessionProviderName(provider);
+          return new Action(contrib.type, localize("continueIn", "Continue in {0}", name), ThemeIcon.isThemeIcon(icon) ? ThemeIcon.asClassName(icon) : void 0, true, () => {
+            const currentHandoff = getCurrentHandoff();
+            if (currentHandoff) {
+              this._onDidSelectPrompt.fire({ handoff: currentHandoff, agentId: contrib.name });
+            }
+          });
+        });
+        this.contextMenuService.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => anchor || dropdownContainer, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
+          autoSelectFirstItem: true
+        });
+      }, "showContextMenu");
+      disposables.add(dom.addDisposableListener(dropdownContainer, "click", (e) => {
+        showContextMenu(e, dropdownContainer);
+      }));
+      disposables.add(dom.addDisposableListener(dropdownContainer, "keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          showContextMenu(e, dropdownContainer);
+        }
+      }));
+      disposables.add(dom.addDisposableListener(button, "click", (e) => {
+        if (dom.isHTMLElement(e.target) && e.target.closest(".chat-suggest-next-dropdown")) {
+          return;
+        }
+        const currentHandoff = getCurrentHandoff();
+        if (currentHandoff) {
+          this._onDidSelectPrompt.fire({ handoff: currentHandoff });
+        }
+      }));
+    } else {
+      disposables.add(dom.addDisposableListener(button, "click", () => {
+        const currentHandoff = getCurrentHandoff();
+        if (currentHandoff) {
+          this._onDidSelectPrompt.fire({ handoff: currentHandoff });
+        }
+      }));
+    }
+    disposables.add(dom.addDisposableListener(button, "keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const currentHandoff = getCurrentHandoff();
+        if (currentHandoff) {
+          this._onDidSelectPrompt.fire({ handoff: currentHandoff });
+        }
+      }
+    }));
+    this.buttonDisposables.set(button, disposables);
+    return button;
+  }
+  hide() {
+    if (this.domNode.style.display !== "none") {
+      this._currentMode = void 0;
+      this.domNode.style.display = "none";
+      this._onDidChangeHeight.fire();
+    }
+  }
+  dispose() {
+    for (const disposables of this.buttonDisposables.values()) {
+      disposables.dispose();
+    }
+    this.buttonDisposables.clear();
+    super.dispose();
+  }
+};
+ChatSuggestNextWidget = __decorate([
+  __param(0, IContextMenuService),
+  __param(1, IChatSessionsService)
+], ChatSuggestNextWidget);
+export {
+  ChatSuggestNextWidget
+};
+//# sourceMappingURL=chatSuggestNextWidget.js.map

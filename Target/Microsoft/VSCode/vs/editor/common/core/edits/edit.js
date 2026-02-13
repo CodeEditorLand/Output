@@ -1,1 +1,335 @@
-import{$Hc as x}from"../../../../base/common/arrays.js";import{$Db as w}from"../../../../base/common/errors.js";import{$hE as l}from"../ranges/offsetRange.js";class E{constructor(e){this.replacements=e;let t=-1;for(const n of e){if(!(n.replaceRange.start>=t))throw new w(`Edits must be disjoint and sorted. Found ${n} after ${t}`);t=n.replaceRange.endExclusive}}equals(e){if(this.replacements.length!==e.replacements.length)return!1;for(let t=0;t<this.replacements.length;t++)if(!this.replacements[t].equals(e.replacements[t]))return!1;return!0}toString(){return`[${this.replacements.map(t=>t.toString()).join(", ")}]`}normalize(){const e=[];let t;for(const n of this.replacements)if(!(n.getNewLength()===0&&n.replaceRange.length===0)){if(t&&t.replaceRange.endExclusive===n.replaceRange.start){const r=t.tryJoinTouching(n);if(r){t=r;continue}}t&&e.push(t),t=n}return t&&e.push(t),this.a(e)}compose(e){const t=this.normalize(),n=e.normalize();if(t.isEmpty())return n;if(n.isEmpty())return t;const r=[...t.replacements],s=[];let c=0;for(const i of n.replacements){for(;;){const a=r[0];if(!a||a.replaceRange.start+c+a.getNewLength()>=i.replaceRange.start)break;r.shift(),s.push(a),c+=a.getNewLength()-a.replaceRange.length}const f=c;let h,g;for(;;){const a=r[0];if(!a||a.replaceRange.start+c>i.replaceRange.endExclusive)break;h||(h=a),g=a,r.shift(),c+=a.getNewLength()-a.replaceRange.length}if(!h)s.push(i.delta(-c));else{const a=Math.min(h.replaceRange.start,i.replaceRange.start-f),d=i.replaceRange.start-(h.replaceRange.start+f);if(d>0){const p=h.slice(l.emptyAt(a),new l(0,d));s.push(p)}if(!g)throw new w("Invariant violation: lastIntersecting is undefined");const R=g.replaceRange.endExclusive+c-i.replaceRange.endExclusive;if(R>0){const p=g.slice(l.ofStartAndLength(g.replaceRange.endExclusive,0),new l(g.getNewLength()-R,g.getNewLength()));r.unshift(p),c-=p.getNewLength()-p.replaceRange.length}const L=new l(a,i.replaceRange.endExclusive-c),N=i.slice(L,new l(0,i.getNewLength()));s.push(N)}}for(;;){const i=r.shift();if(!i)break;s.push(i)}return this.a(s).normalize()}decomposeSplit(e){const t=[],n=[];let r=0;for(const s of this.replacements)e(s)?(t.push(s),r+=s.getNewLength()-s.replaceRange.length):n.push(s.slice(s.replaceRange.delta(r),new l(0,s.getNewLength())));return{e1:this.a(t),e2:this.a(n)}}getNewRanges(){const e=[];let t=0;for(const n of this.replacements)e.push(l.ofStartAndLength(n.replaceRange.start+t,n.getNewLength())),t+=n.getLengthDelta();return e}getJoinedReplaceRange(){if(this.replacements.length!==0)return this.replacements[0].replaceRange.join(this.replacements.at(-1).replaceRange)}isEmpty(){return this.replacements.length===0}getLengthDelta(){return x(this.replacements,e=>e.getLengthDelta())}getNewDataLength(e){return e+this.getLengthDelta()}applyToOffset(e){let t=0;for(const n of this.replacements)if(n.replaceRange.start<=e){if(e<n.replaceRange.endExclusive)return n.replaceRange.start+t;t+=n.getNewLength()-n.replaceRange.length}else break;return e+t}applyToOffsetRange(e){return new l(this.applyToOffset(e.start),this.applyToOffset(e.endExclusive))}applyInverseToOffset(e){let t=0;for(const n of this.replacements){const r=n.getNewLength();if(n.replaceRange.start<=e-t){if(e-t<n.replaceRange.start+r)return n.replaceRange.start;t+=r-n.replaceRange.length}else break}return e-t}applyToOffsetOrUndefined(e){let t=0;for(const n of this.replacements)if(n.replaceRange.start<=e){if(e<n.replaceRange.endExclusive)return;t+=n.getNewLength()-n.replaceRange.length}else break;return e+t}applyToOffsetRangeOrUndefined(e){const t=this.applyToOffsetOrUndefined(e.start);if(t===void 0)return;const n=this.applyToOffsetOrUndefined(e.endExclusive);if(n!==void 0)return new l(t,n)}}class y{constructor(e){this.replaceRange=e}delta(e){return this.slice(this.replaceRange.delta(e),new l(0,this.getNewLength()))}getLengthDelta(){return this.getNewLength()-this.replaceRange.length}toString(){return`{ ${this.replaceRange.toString()} -> ${this.getNewLength()} }`}get isEmpty(){return this.getNewLength()===0&&this.replaceRange.length===0}getRangeAfterReplace(){return new l(this.replaceRange.start,this.replaceRange.start+this.getNewLength())}}class o extends E{static{this.empty=new o([])}static create(e){return new o(e)}static single(e){return new o([e])}a(e){return new o(e)}}class u extends y{constructor(e,t,n){super(e),this.newLength=t,this.annotation=n}equals(e){return this.replaceRange.equals(e.replaceRange)&&this.newLength===e.newLength&&this.annotation===e.annotation}getNewLength(){return this.newLength}tryJoinTouching(e){if(this.annotation===e.annotation)return new u(this.replaceRange.joinRightTouching(e.replaceRange),this.newLength+e.newLength,this.annotation)}slice(e,t){return new u(e,t?t.length:this.newLength,this.annotation)}}export{E as $tE,y as $uE,o as $vE,u as $wE};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { sumBy } from "../../../../base/common/arrays.js";
+import { BugIndicatingError } from "../../../../base/common/errors.js";
+import { OffsetRange } from "../ranges/offsetRange.js";
+class BaseEdit {
+  static {
+    __name(this, "BaseEdit");
+  }
+  constructor(replacements) {
+    this.replacements = replacements;
+    let lastEndEx = -1;
+    for (const replacement of replacements) {
+      if (!(replacement.replaceRange.start >= lastEndEx)) {
+        throw new BugIndicatingError(`Edits must be disjoint and sorted. Found ${replacement} after ${lastEndEx}`);
+      }
+      lastEndEx = replacement.replaceRange.endExclusive;
+    }
+  }
+  /**
+   * Returns true if and only if this edit and the given edit are structurally equal.
+   * Note that this does not mean that the edits have the same effect on a given input!
+   * See `.normalize()` or `.normalizeOnBase(base)` for that.
+  */
+  equals(other) {
+    if (this.replacements.length !== other.replacements.length) {
+      return false;
+    }
+    for (let i = 0; i < this.replacements.length; i++) {
+      if (!this.replacements[i].equals(other.replacements[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  toString() {
+    const edits = this.replacements.map((e) => e.toString()).join(", ");
+    return `[${edits}]`;
+  }
+  /**
+   * Normalizes the edit by removing empty replacements and joining touching replacements (if the replacements allow joining).
+   * Two edits have an equal normalized edit if and only if they have the same effect on any input.
+   *
+   * ![](https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/src/vs/editor/common/core/edits/docs/BaseEdit_normalize.drawio.png)
+   *
+   * Invariant:
+   * ```
+   * (forall base: TEdit.apply(base).equals(other.apply(base))) <-> this.normalize().equals(other.normalize())
+   * ```
+   * and
+   * ```
+   * forall base: TEdit.apply(base).equals(this.normalize().apply(base))
+   * ```
+   *
+   */
+  normalize() {
+    const newReplacements = [];
+    let lastReplacement;
+    for (const r of this.replacements) {
+      if (r.getNewLength() === 0 && r.replaceRange.length === 0) {
+        continue;
+      }
+      if (lastReplacement && lastReplacement.replaceRange.endExclusive === r.replaceRange.start) {
+        const joined = lastReplacement.tryJoinTouching(r);
+        if (joined) {
+          lastReplacement = joined;
+          continue;
+        }
+      }
+      if (lastReplacement) {
+        newReplacements.push(lastReplacement);
+      }
+      lastReplacement = r;
+    }
+    if (lastReplacement) {
+      newReplacements.push(lastReplacement);
+    }
+    return this._createNew(newReplacements);
+  }
+  /**
+   * Combines two edits into one with the same effect.
+   *
+   * ![](https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/src/vs/editor/common/core/edits/docs/BaseEdit_compose.drawio.png)
+   *
+   * Invariant:
+   * ```
+   * other.apply(this.apply(s0)) = this.compose(other).apply(s0)
+   * ```
+   */
+  compose(other) {
+    const edits1 = this.normalize();
+    const edits2 = other.normalize();
+    if (edits1.isEmpty()) {
+      return edits2;
+    }
+    if (edits2.isEmpty()) {
+      return edits1;
+    }
+    const edit1Queue = [...edits1.replacements];
+    const result = [];
+    let edit1ToEdit2 = 0;
+    for (const r2 of edits2.replacements) {
+      while (true) {
+        const r1 = edit1Queue[0];
+        if (!r1 || r1.replaceRange.start + edit1ToEdit2 + r1.getNewLength() >= r2.replaceRange.start) {
+          break;
+        }
+        edit1Queue.shift();
+        result.push(r1);
+        edit1ToEdit2 += r1.getNewLength() - r1.replaceRange.length;
+      }
+      const firstEdit1ToEdit2 = edit1ToEdit2;
+      let firstIntersecting;
+      let lastIntersecting;
+      while (true) {
+        const r1 = edit1Queue[0];
+        if (!r1 || r1.replaceRange.start + edit1ToEdit2 > r2.replaceRange.endExclusive) {
+          break;
+        }
+        if (!firstIntersecting) {
+          firstIntersecting = r1;
+        }
+        lastIntersecting = r1;
+        edit1Queue.shift();
+        edit1ToEdit2 += r1.getNewLength() - r1.replaceRange.length;
+      }
+      if (!firstIntersecting) {
+        result.push(r2.delta(-edit1ToEdit2));
+      } else {
+        const newReplaceRangeStart = Math.min(firstIntersecting.replaceRange.start, r2.replaceRange.start - firstEdit1ToEdit2);
+        const prefixLength = r2.replaceRange.start - (firstIntersecting.replaceRange.start + firstEdit1ToEdit2);
+        if (prefixLength > 0) {
+          const prefix = firstIntersecting.slice(OffsetRange.emptyAt(newReplaceRangeStart), new OffsetRange(0, prefixLength));
+          result.push(prefix);
+        }
+        if (!lastIntersecting) {
+          throw new BugIndicatingError(`Invariant violation: lastIntersecting is undefined`);
+        }
+        const suffixLength = lastIntersecting.replaceRange.endExclusive + edit1ToEdit2 - r2.replaceRange.endExclusive;
+        if (suffixLength > 0) {
+          const e = lastIntersecting.slice(OffsetRange.ofStartAndLength(lastIntersecting.replaceRange.endExclusive, 0), new OffsetRange(lastIntersecting.getNewLength() - suffixLength, lastIntersecting.getNewLength()));
+          edit1Queue.unshift(e);
+          edit1ToEdit2 -= e.getNewLength() - e.replaceRange.length;
+        }
+        const newReplaceRange = new OffsetRange(newReplaceRangeStart, r2.replaceRange.endExclusive - edit1ToEdit2);
+        const middle = r2.slice(newReplaceRange, new OffsetRange(0, r2.getNewLength()));
+        result.push(middle);
+      }
+    }
+    while (true) {
+      const item = edit1Queue.shift();
+      if (!item) {
+        break;
+      }
+      result.push(item);
+    }
+    return this._createNew(result).normalize();
+  }
+  decomposeSplit(shouldBeInE1) {
+    const e1 = [];
+    const e2 = [];
+    let e2delta = 0;
+    for (const edit of this.replacements) {
+      if (shouldBeInE1(edit)) {
+        e1.push(edit);
+        e2delta += edit.getNewLength() - edit.replaceRange.length;
+      } else {
+        e2.push(edit.slice(edit.replaceRange.delta(e2delta), new OffsetRange(0, edit.getNewLength())));
+      }
+    }
+    return { e1: this._createNew(e1), e2: this._createNew(e2) };
+  }
+  /**
+   * Returns the range of each replacement in the applied value.
+  */
+  getNewRanges() {
+    const ranges = [];
+    let offset = 0;
+    for (const e of this.replacements) {
+      ranges.push(OffsetRange.ofStartAndLength(e.replaceRange.start + offset, e.getNewLength()));
+      offset += e.getLengthDelta();
+    }
+    return ranges;
+  }
+  getJoinedReplaceRange() {
+    if (this.replacements.length === 0) {
+      return void 0;
+    }
+    return this.replacements[0].replaceRange.join(this.replacements.at(-1).replaceRange);
+  }
+  isEmpty() {
+    return this.replacements.length === 0;
+  }
+  getLengthDelta() {
+    return sumBy(this.replacements, (replacement) => replacement.getLengthDelta());
+  }
+  getNewDataLength(dataLength) {
+    return dataLength + this.getLengthDelta();
+  }
+  applyToOffset(originalOffset) {
+    let accumulatedDelta = 0;
+    for (const r of this.replacements) {
+      if (r.replaceRange.start <= originalOffset) {
+        if (originalOffset < r.replaceRange.endExclusive) {
+          return r.replaceRange.start + accumulatedDelta;
+        }
+        accumulatedDelta += r.getNewLength() - r.replaceRange.length;
+      } else {
+        break;
+      }
+    }
+    return originalOffset + accumulatedDelta;
+  }
+  applyToOffsetRange(originalRange) {
+    return new OffsetRange(this.applyToOffset(originalRange.start), this.applyToOffset(originalRange.endExclusive));
+  }
+  applyInverseToOffset(postEditsOffset) {
+    let accumulatedDelta = 0;
+    for (const edit of this.replacements) {
+      const editLength = edit.getNewLength();
+      if (edit.replaceRange.start <= postEditsOffset - accumulatedDelta) {
+        if (postEditsOffset - accumulatedDelta < edit.replaceRange.start + editLength) {
+          return edit.replaceRange.start;
+        }
+        accumulatedDelta += editLength - edit.replaceRange.length;
+      } else {
+        break;
+      }
+    }
+    return postEditsOffset - accumulatedDelta;
+  }
+  /**
+   * Return undefined if the originalOffset is within an edit
+   */
+  applyToOffsetOrUndefined(originalOffset) {
+    let accumulatedDelta = 0;
+    for (const edit of this.replacements) {
+      if (edit.replaceRange.start <= originalOffset) {
+        if (originalOffset < edit.replaceRange.endExclusive) {
+          return void 0;
+        }
+        accumulatedDelta += edit.getNewLength() - edit.replaceRange.length;
+      } else {
+        break;
+      }
+    }
+    return originalOffset + accumulatedDelta;
+  }
+  /**
+   * Return undefined if the originalRange is within an edit
+   */
+  applyToOffsetRangeOrUndefined(originalRange) {
+    const start = this.applyToOffsetOrUndefined(originalRange.start);
+    if (start === void 0) {
+      return void 0;
+    }
+    const end = this.applyToOffsetOrUndefined(originalRange.endExclusive);
+    if (end === void 0) {
+      return void 0;
+    }
+    return new OffsetRange(start, end);
+  }
+}
+class BaseReplacement {
+  static {
+    __name(this, "BaseReplacement");
+  }
+  constructor(replaceRange) {
+    this.replaceRange = replaceRange;
+  }
+  delta(offset) {
+    return this.slice(this.replaceRange.delta(offset), new OffsetRange(0, this.getNewLength()));
+  }
+  getLengthDelta() {
+    return this.getNewLength() - this.replaceRange.length;
+  }
+  toString() {
+    return `{ ${this.replaceRange.toString()} -> ${this.getNewLength()} }`;
+  }
+  get isEmpty() {
+    return this.getNewLength() === 0 && this.replaceRange.length === 0;
+  }
+  getRangeAfterReplace() {
+    return new OffsetRange(this.replaceRange.start, this.replaceRange.start + this.getNewLength());
+  }
+}
+class Edit extends BaseEdit {
+  static {
+    __name(this, "Edit");
+  }
+  static {
+    this.empty = new Edit([]);
+  }
+  static create(replacements) {
+    return new Edit(replacements);
+  }
+  static single(replacement) {
+    return new Edit([replacement]);
+  }
+  _createNew(replacements) {
+    return new Edit(replacements);
+  }
+}
+class AnnotationReplacement extends BaseReplacement {
+  static {
+    __name(this, "AnnotationReplacement");
+  }
+  constructor(range, newLength, annotation) {
+    super(range);
+    this.newLength = newLength;
+    this.annotation = annotation;
+  }
+  equals(other) {
+    return this.replaceRange.equals(other.replaceRange) && this.newLength === other.newLength && this.annotation === other.annotation;
+  }
+  getNewLength() {
+    return this.newLength;
+  }
+  tryJoinTouching(other) {
+    if (this.annotation !== other.annotation) {
+      return void 0;
+    }
+    return new AnnotationReplacement(this.replaceRange.joinRightTouching(other.replaceRange), this.newLength + other.newLength, this.annotation);
+  }
+  slice(range, rangeInReplacement) {
+    return new AnnotationReplacement(range, rangeInReplacement ? rangeInReplacement.length : this.newLength, this.annotation);
+  }
+}
+export {
+  AnnotationReplacement,
+  BaseEdit,
+  BaseReplacement,
+  Edit
+};
+//# sourceMappingURL=edit.js.map

@@ -1,2 +1,174 @@
-import*as p from"./dom.js";function m(e,n,s){const c=s??document.createElement("div");return c.textContent=e,c}function C(e,n,s){const c=s??document.createElement("div");return c.textContent="",h(c,v(e,!!n?.renderCodeSegments),n?.actionHandler,n?.renderCodeSegments),c}class x{constructor(n){this.b=n,this.c=0}eos(){return this.c>=this.b.length}next(){const n=this.peek();return this.advance(),n}peek(){return this.b[this.c]}advance(){this.c++}}var a;(function(e){e[e.Invalid=0]="Invalid",e[e.Root=1]="Root",e[e.Text=2]="Text",e[e.Bold=3]="Bold",e[e.Italics=4]="Italics",e[e.Action=5]="Action",e[e.ActionClose=6]="ActionClose",e[e.Code=7]="Code",e[e.NewLine=8]="NewLine"})(a||(a={}));function h(e,n,s,c){let t;if(n.type===2)t=document.createTextNode(n.content||"");else if(n.type===3)t=document.createElement("b");else if(n.type===4)t=document.createElement("i");else if(n.type===7&&c)t=document.createElement("code");else if(n.type===5&&s){const i=document.createElement("a");s.disposables.add(p.$v8(i,"click",l=>{s.callback(String(n.index),l)})),t=i}else n.type===8?t=document.createElement("br"):n.type===1&&(t=e);t&&e!==t&&e.appendChild(t),t&&Array.isArray(n.children)&&n.children.forEach(i=>{h(t,i,s,c)})}function v(e,n){const s={type:1,children:[]};let c=0,t=s;const i=[],l=new x(e);for(;!l.eos();){let r=l.next();const f=r==="\\"&&d(l.peek(),n)!==0;if(f&&(r=l.next()),!f&&E(r,n)&&r===l.peek()){l.advance(),t.type===2&&(t=i.pop());const o=d(r,n);if(t.type===o||t.type===5&&o===6)t=i.pop();else{const u={type:o,children:[]};o===5&&(u.index=c,c++),t.children.push(u),i.push(t),t=u}}else if(r===`
-`)t.type===2&&(t=i.pop()),t.children.push({type:8});else if(t.type!==2){const o={type:2,content:r};t.children.push(o),i.push(t),t=o}else t.content+=r}return t.type===2&&(t=i.pop()),i.length,s}function E(e,n){return d(e,n)!==0}function d(e,n){switch(e){case"*":return 3;case"_":return 4;case"[":return 5;case"]":return 6;case"`":return n?7:0;default:return 0}}export{m as $U$,C as $V$};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "./dom.js";
+function renderText(text, _options, target) {
+  const element = target ?? document.createElement("div");
+  element.textContent = text;
+  return element;
+}
+__name(renderText, "renderText");
+function renderFormattedText(formattedText, options, target) {
+  const element = target ?? document.createElement("div");
+  element.textContent = "";
+  _renderFormattedText(element, parseFormattedText(formattedText, !!options?.renderCodeSegments), options?.actionHandler, options?.renderCodeSegments);
+  return element;
+}
+__name(renderFormattedText, "renderFormattedText");
+class StringStream {
+  static {
+    __name(this, "StringStream");
+  }
+  constructor(source) {
+    this.source = source;
+    this.index = 0;
+  }
+  eos() {
+    return this.index >= this.source.length;
+  }
+  next() {
+    const next = this.peek();
+    this.advance();
+    return next;
+  }
+  peek() {
+    return this.source[this.index];
+  }
+  advance() {
+    this.index++;
+  }
+}
+var FormatType;
+(function(FormatType2) {
+  FormatType2[FormatType2["Invalid"] = 0] = "Invalid";
+  FormatType2[FormatType2["Root"] = 1] = "Root";
+  FormatType2[FormatType2["Text"] = 2] = "Text";
+  FormatType2[FormatType2["Bold"] = 3] = "Bold";
+  FormatType2[FormatType2["Italics"] = 4] = "Italics";
+  FormatType2[FormatType2["Action"] = 5] = "Action";
+  FormatType2[FormatType2["ActionClose"] = 6] = "ActionClose";
+  FormatType2[FormatType2["Code"] = 7] = "Code";
+  FormatType2[FormatType2["NewLine"] = 8] = "NewLine";
+})(FormatType || (FormatType = {}));
+function _renderFormattedText(element, treeNode, actionHandler, renderCodeSegments) {
+  let child;
+  if (treeNode.type === 2) {
+    child = document.createTextNode(treeNode.content || "");
+  } else if (treeNode.type === 3) {
+    child = document.createElement("b");
+  } else if (treeNode.type === 4) {
+    child = document.createElement("i");
+  } else if (treeNode.type === 7 && renderCodeSegments) {
+    child = document.createElement("code");
+  } else if (treeNode.type === 5 && actionHandler) {
+    const a = document.createElement("a");
+    actionHandler.disposables.add(DOM.addStandardDisposableListener(a, "click", (event) => {
+      actionHandler.callback(String(treeNode.index), event);
+    }));
+    child = a;
+  } else if (treeNode.type === 8) {
+    child = document.createElement("br");
+  } else if (treeNode.type === 1) {
+    child = element;
+  }
+  if (child && element !== child) {
+    element.appendChild(child);
+  }
+  if (child && Array.isArray(treeNode.children)) {
+    treeNode.children.forEach((nodeChild) => {
+      _renderFormattedText(child, nodeChild, actionHandler, renderCodeSegments);
+    });
+  }
+}
+__name(_renderFormattedText, "_renderFormattedText");
+function parseFormattedText(content, parseCodeSegments) {
+  const root = {
+    type: 1,
+    children: []
+  };
+  let actionViewItemIndex = 0;
+  let current = root;
+  const stack = [];
+  const stream = new StringStream(content);
+  while (!stream.eos()) {
+    let next = stream.next();
+    const isEscapedFormatType = next === "\\" && formatTagType(stream.peek(), parseCodeSegments) !== 0;
+    if (isEscapedFormatType) {
+      next = stream.next();
+    }
+    if (!isEscapedFormatType && isFormatTag(next, parseCodeSegments) && next === stream.peek()) {
+      stream.advance();
+      if (current.type === 2) {
+        current = stack.pop();
+      }
+      const type = formatTagType(next, parseCodeSegments);
+      if (current.type === type || current.type === 5 && type === 6) {
+        current = stack.pop();
+      } else {
+        const newCurrent = {
+          type,
+          children: []
+        };
+        if (type === 5) {
+          newCurrent.index = actionViewItemIndex;
+          actionViewItemIndex++;
+        }
+        current.children.push(newCurrent);
+        stack.push(current);
+        current = newCurrent;
+      }
+    } else if (next === "\n") {
+      if (current.type === 2) {
+        current = stack.pop();
+      }
+      current.children.push({
+        type: 8
+        /* FormatType.NewLine */
+      });
+    } else {
+      if (current.type !== 2) {
+        const textCurrent = {
+          type: 2,
+          content: next
+        };
+        current.children.push(textCurrent);
+        stack.push(current);
+        current = textCurrent;
+      } else {
+        current.content += next;
+      }
+    }
+  }
+  if (current.type === 2) {
+    current = stack.pop();
+  }
+  if (stack.length) {
+  }
+  return root;
+}
+__name(parseFormattedText, "parseFormattedText");
+function isFormatTag(char, supportCodeSegments) {
+  return formatTagType(char, supportCodeSegments) !== 0;
+}
+__name(isFormatTag, "isFormatTag");
+function formatTagType(char, supportCodeSegments) {
+  switch (char) {
+    case "*":
+      return 3;
+    case "_":
+      return 4;
+    case "[":
+      return 5;
+    case "]":
+      return 6;
+    case "`":
+      return supportCodeSegments ? 7 : 0;
+    default:
+      return 0;
+  }
+}
+__name(formatTagType, "formatTagType");
+export {
+  renderFormattedText,
+  renderText
+};
+//# sourceMappingURL=formattedTextRenderer.js.map

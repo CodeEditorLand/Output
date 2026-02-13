@@ -1,2 +1,265 @@
-import{$ as e,$A9 as R}from"../../../../base/browser/dom.js";import{$0i as E}from"../../../../base/common/buffer.js";import{$sb as U}from"../../../../base/common/errors.js";import{Schemas as y}from"../../../../base/common/network.js";import{$Ih as x}from"../../../../base/common/resources.js";import{URI as P}from"../../../../base/common/uri.js";import{localize as p}from"../../../../nls.js";import{$ijb as _}from"../../../../platform/contextview/browser/contextView.js";import{$Lw as M}from"../../../../platform/diagnostics/common/diagnostics.js";import{$Op as D}from"../../../../platform/dialogs/common/dialogs.js";import{$vk as L}from"../../../../platform/files/common/files.js";import{$Xu as C}from"../../../../platform/native/common/native.js";import{$EP as H}from"../../../../platform/opener/common/opener.js";import{$5x as B}from"../../../../platform/process/common/process.js";import{$qu as N}from"../../../../platform/theme/common/themeService.js";import{$My as A}from"../../../../platform/update/common/update.js";import{$ro as O}from"../../../../platform/contextkey/common/contextkey.js";import{$PPc as W}from"../../../../platform/window/electron-browser/window.js";import{$BP as G}from"../../../services/authentication/common/authentication.js";import{$wPc as j}from"../browser/baseIssueReporterService.js";import{$1Lb as k}from"../common/issue.js";var T=function(h,s,t,n){var o=arguments.length,i=o<3?s:n===null?n=Object.getOwnPropertyDescriptor(s,t):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(h,s,t,n);else for(var d=h.length-1;d>=0;d--)(r=h[d])&&(i=(o<3?r(i):o>3?r(s,t,i):r(s,t))||i);return o>3&&i&&Object.defineProperty(s,t,i),i},l=function(h,s){return function(t,n){s(t,n,h)}};const F=7500,b=65500;let w=class extends j{constructor(s,t,n,o,i,r,d,f,a,u,c,g,m,I,S,$){super(s,t,n,o,i,!1,d,a,u,c,I,S,$),this.S=r,this.U=g,this.R=f,this.R.getSystemInfo().then(v=>{this.issueReporterModel.update({systemInfo:v}),this.receivedSystemInfo=!0,this.X(this.issueReporterModel.getData()),this.updateButtonStates()}),this.data.issueType===1&&this.R.getPerformanceInfo().then(v=>{this.updatePerformanceInfo(v)}),this.W(),this.setEventHandlers(),W(this.data.zoomLevel,this.window),this.ab(this.data.experiments),this.Y(this.data.restrictedMode),this.Z(this.data.isUnsupported)}async W(){const s=this.U.state;if(s.type==="ready"||s.type==="downloaded"){this.needsUpdate=!0;const t=this.getElementById("version-acknowledgements"),n=this.getElementById("update-banner");n&&t&&(t.classList.remove("hidden"),n.classList.remove("hidden"),n.textContent=p(9864,null,this.product.nameLong))}}setEventHandlers(){super.setEventHandlers(),this.addEventListener("issue-type","change",s=>{const t=parseInt(s.target.value);this.issueReporterModel.update({issueType:t}),t===1&&!this.receivedPerformanceInfo&&this.R.getPerformanceInfo().then(o=>{this.updatePerformanceInfo(o)});const n=this.getElementById("issue-title");n&&(n.placeholder=p(9865,null)),this.updateButtonStates(),this.setSourceOptions(),this.render()})}async submitToGitHub(s,t,n){if(t.length>b){const f=this.issueReporterModel.getData().extensionData;if(f){t=t.replace(f,"");const a=new Date,u=a.toISOString().split("T")[0],c=a.toTimeString().split(" ")[0].replace(/:/g,"-"),g=`extensionData_${u}_${c}.md`;try{const m=await this.fileDialogService.showSaveDialog({title:p(9866,null),availableFileSystems:[y.file],defaultUri:x(await this.fileDialogService.defaultFilePath(y.file),g)});m&&await this.fileService.writeFile(m,E.fromString(f))}catch{return!1}}else return!1}const o=`https://api.github.com/repos/${n.owner}/${n.repositoryName}/issues`,i={method:"POST",body:JSON.stringify({title:s,body:t}),headers:new Headers({"Content-Type":"application/json",Authorization:`Bearer ${this.data.githubAccessToken}`})},r=await fetch(o,i);if(!r.ok)return!1;const d=await r.json();return await this.openerService.open(d.html_url,{openExternal:!0}),this.close(),!0}async createIssue(s,t){const n=this.issueReporterModel.getData().selectedExtension;if(this.nonGitHubIssueUrl){const u=this.getExtensionBugsUrl();if(u)return this.hasBeenSubmitted=!0,await this.openerService.open(u,{openExternal:!0}),!0}if(!this.validateInputs()){const u=this.window.document.getElementsByClassName("invalid-input");return u.length&&u[0].focus(),this.addEventListener("issue-title","input",c=>{this.validateInput("issue-title")}),this.addEventListener("description","input",c=>{this.validateInput("description")}),this.addEventListener("issue-source","change",c=>{this.validateInput("issue-source")}),this.issueReporterModel.fileOnExtension()&&this.addEventListener("extension-selector","change",c=>{this.validateInput("extension-selector"),this.validateInput("description")}),!1}this.hasBeenSubmitted=!0;const o=this.getElementById("issue-title").value,i=this.issueReporterModel.serialize();let r=t?this.getPrivateIssueUrl():this.getIssueUrl();if(!r&&n?.uri)r=P.revive(n.uri).toString();else if(!r)return!1;const d=this.parseGitHubUrl(r),f=this.getIssueUrlWithTitle(this.getElementById("issue-title").value,r);let a=f+`&body=${encodeURIComponent(i)}`;if(a=this.addTemplateToUrl(a,d?.owner,d?.repositoryName),this.data.githubAccessToken&&d&&s&&await this.submitToGitHub(o,i,d))return!0;try{(a.length>F||i.length>b)&&(a=await this.writeToClipboard(f,i),a=this.addTemplateToUrl(a,d?.owner,d?.repositoryName))}catch{return!1}return await this.openerService.open(a,{openExternal:!0}),!0}async writeToClipboard(s,t){if(!await this.issueFormService.showClipboardDialog())throw new U;return await this.S.writeClipboardText(t),s+`&body=${encodeURIComponent(p(9867,null))}`}X(s){const t=this.window.document.querySelector(".block-system .block-info");if(t){const n=s.systemInfo,o=e("table",void 0,e("tr",void 0,e("td",void 0,"CPUs"),e("td",void 0,n.cpus||"")),e("tr",void 0,e("td",void 0,"GPU Status"),e("td",void 0,Object.keys(n.gpuStatus).map(i=>`${i}: ${n.gpuStatus[i]}`).join(`
-`))),e("tr",void 0,e("td",void 0,"Load (avg)"),e("td",void 0,n.load||"")),e("tr",void 0,e("td",void 0,"Memory (System)"),e("td",void 0,n.memory)),e("tr",void 0,e("td",void 0,"Process Argv"),e("td",void 0,n.processArgs)),e("tr",void 0,e("td",void 0,"Screen Reader"),e("td",void 0,n.screenReader)),e("tr",void 0,e("td",void 0,"VM"),e("td",void 0,n.vmHint)));R(t,o),n.remoteData.forEach(i=>{if(t.appendChild(e("hr")),M(i)){const r=e("table",void 0,e("tr",void 0,e("td",void 0,"Remote"),e("td",void 0,i.hostName)),e("tr",void 0,e("td",void 0,""),e("td",void 0,i.errorMessage)));t.appendChild(r)}else{const r=e("table",void 0,e("tr",void 0,e("td",void 0,"Remote"),e("td",void 0,i.latency?`${i.hostName} (latency: ${i.latency.current.toFixed(2)}ms last, ${i.latency.average.toFixed(2)}ms average)`:i.hostName)),e("tr",void 0,e("td",void 0,"OS"),e("td",void 0,i.machineInfo.os)),e("tr",void 0,e("td",void 0,"CPUs"),e("td",void 0,i.machineInfo.cpus||"")),e("tr",void 0,e("td",void 0,"Memory (System)"),e("td",void 0,i.machineInfo.memory)),e("tr",void 0,e("td",void 0,"VM"),e("td",void 0,i.machineInfo.vmHint)));t.appendChild(r)}})}}Y(s){this.issueReporterModel.update({restrictedMode:s})}Z(s){this.issueReporterModel.update({isUnsupported:s})}ab(s){this.issueReporterModel.update({experimentInfo:s});const t=this.window.document.querySelector(".block-experiments .block-info");t&&(t.textContent=s||p(9868,null))}};w=T([l(5,C),l(6,k),l(7,B),l(8,N),l(9,L),l(10,D),l(11,A),l(12,O),l(13,_),l(14,G),l(15,H)],w);export{w as $WWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, reset } from "../../../../base/browser/dom.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { isRemoteDiagnosticError } from "../../../../platform/diagnostics/common/diagnostics.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProcessService } from "../../../../platform/process/common/process.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { applyZoom } from "../../../../platform/window/electron-browser/window.js";
+import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
+import { BaseIssueReporterService } from "../browser/baseIssueReporterService.js";
+import { IIssueFormService } from "../common/issue.js";
+const MAX_URL_LENGTH = 7500;
+const MAX_GITHUB_API_LENGTH = 65500;
+let IssueReporter = class IssueReporter2 extends BaseIssueReporterService {
+  static {
+    __name(this, "IssueReporter");
+  }
+  constructor(disableExtensions, data, os, product, window, nativeHostService, issueFormService, processService, themeService, fileService, fileDialogService, updateService, contextKeyService, contextMenuService, authenticationService, openerService) {
+    super(disableExtensions, data, os, product, window, false, issueFormService, themeService, fileService, fileDialogService, contextMenuService, authenticationService, openerService);
+    this.nativeHostService = nativeHostService;
+    this.updateService = updateService;
+    this.processService = processService;
+    this.processService.getSystemInfo().then((info) => {
+      this.issueReporterModel.update({ systemInfo: info });
+      this.receivedSystemInfo = true;
+      this.updateSystemInfo(this.issueReporterModel.getData());
+      this.updateButtonStates();
+    });
+    if (this.data.issueType === 1) {
+      this.processService.getPerformanceInfo().then((info) => {
+        this.updatePerformanceInfo(info);
+      });
+    }
+    this.checkForUpdates();
+    this.setEventHandlers();
+    applyZoom(this.data.zoomLevel, this.window);
+    this.updateExperimentsInfo(this.data.experiments);
+    this.updateRestrictedMode(this.data.restrictedMode);
+    this.updateUnsupportedMode(this.data.isUnsupported);
+  }
+  async checkForUpdates() {
+    const updateState = this.updateService.state;
+    if (updateState.type === "ready" || updateState.type === "downloaded") {
+      this.needsUpdate = true;
+      const includeAcknowledgement = this.getElementById("version-acknowledgements");
+      const updateBanner = this.getElementById("update-banner");
+      if (updateBanner && includeAcknowledgement) {
+        includeAcknowledgement.classList.remove("hidden");
+        updateBanner.classList.remove("hidden");
+        updateBanner.textContent = localize("updateAvailable", "A new version of {0} is available.", this.product.nameLong);
+      }
+    }
+  }
+  setEventHandlers() {
+    super.setEventHandlers();
+    this.addEventListener("issue-type", "change", (event) => {
+      const issueType = parseInt(event.target.value);
+      this.issueReporterModel.update({ issueType });
+      if (issueType === 1 && !this.receivedPerformanceInfo) {
+        this.processService.getPerformanceInfo().then((info) => {
+          this.updatePerformanceInfo(info);
+        });
+      }
+      const descriptionTextArea = this.getElementById("issue-title");
+      if (descriptionTextArea) {
+        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
+      }
+      this.updateButtonStates();
+      this.setSourceOptions();
+      this.render();
+    });
+  }
+  async submitToGitHub(issueTitle, issueBody, gitHubDetails) {
+    if (issueBody.length > MAX_GITHUB_API_LENGTH) {
+      const extensionData = this.issueReporterModel.getData().extensionData;
+      if (extensionData) {
+        issueBody = issueBody.replace(extensionData, "");
+        const date = /* @__PURE__ */ new Date();
+        const formattedDate = date.toISOString().split("T")[0];
+        const formattedTime = date.toTimeString().split(" ")[0].replace(/:/g, "-");
+        const fileName = `extensionData_${formattedDate}_${formattedTime}.md`;
+        try {
+          const downloadPath = await this.fileDialogService.showSaveDialog({
+            title: localize("saveExtensionData", "Save Extension Data"),
+            availableFileSystems: [Schemas.file],
+            defaultUri: joinPath(await this.fileDialogService.defaultFilePath(Schemas.file), fileName)
+          });
+          if (downloadPath) {
+            await this.fileService.writeFile(downloadPath, VSBuffer.fromString(extensionData));
+          }
+        } catch (e) {
+          console.error("Writing extension data to file failed");
+          return false;
+        }
+      } else {
+        console.error("Issue body too large to submit to GitHub");
+        return false;
+      }
+    }
+    const url = `https://api.github.com/repos/${gitHubDetails.owner}/${gitHubDetails.repositoryName}/issues`;
+    const init = {
+      method: "POST",
+      body: JSON.stringify({
+        title: issueTitle,
+        body: issueBody
+      }),
+      headers: new Headers({
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.data.githubAccessToken}`
+      })
+    };
+    const response = await fetch(url, init);
+    if (!response.ok) {
+      console.error("Invalid GitHub URL provided.");
+      return false;
+    }
+    const result = await response.json();
+    await this.openerService.open(result.html_url, { openExternal: true });
+    this.close();
+    return true;
+  }
+  async createIssue(shouldCreate, privateUri) {
+    const selectedExtension = this.issueReporterModel.getData().selectedExtension;
+    if (this.nonGitHubIssueUrl) {
+      const url2 = this.getExtensionBugsUrl();
+      if (url2) {
+        this.hasBeenSubmitted = true;
+        await this.openerService.open(url2, { openExternal: true });
+        return true;
+      }
+    }
+    if (!this.validateInputs()) {
+      const invalidInput = this.window.document.getElementsByClassName("invalid-input");
+      if (invalidInput.length) {
+        invalidInput[0].focus();
+      }
+      this.addEventListener("issue-title", "input", (_) => {
+        this.validateInput("issue-title");
+      });
+      this.addEventListener("description", "input", (_) => {
+        this.validateInput("description");
+      });
+      this.addEventListener("issue-source", "change", (_) => {
+        this.validateInput("issue-source");
+      });
+      if (this.issueReporterModel.fileOnExtension()) {
+        this.addEventListener("extension-selector", "change", (_) => {
+          this.validateInput("extension-selector");
+          this.validateInput("description");
+        });
+      }
+      return false;
+    }
+    this.hasBeenSubmitted = true;
+    const issueTitle = this.getElementById("issue-title").value;
+    const issueBody = this.issueReporterModel.serialize();
+    let issueUrl = privateUri ? this.getPrivateIssueUrl() : this.getIssueUrl();
+    if (!issueUrl && selectedExtension?.uri) {
+      const uri = URI.revive(selectedExtension.uri);
+      issueUrl = uri.toString();
+    } else if (!issueUrl) {
+      console.error(`No ${privateUri ? "private " : ""}issue url found`);
+      return false;
+    }
+    const gitHubDetails = this.parseGitHubUrl(issueUrl);
+    const baseUrl = this.getIssueUrlWithTitle(this.getElementById("issue-title").value, issueUrl);
+    let url = baseUrl + `&body=${encodeURIComponent(issueBody)}`;
+    url = this.addTemplateToUrl(url, gitHubDetails?.owner, gitHubDetails?.repositoryName);
+    if (this.data.githubAccessToken && gitHubDetails && shouldCreate) {
+      if (await this.submitToGitHub(issueTitle, issueBody, gitHubDetails)) {
+        return true;
+      }
+    }
+    try {
+      if (url.length > MAX_URL_LENGTH || issueBody.length > MAX_GITHUB_API_LENGTH) {
+        url = await this.writeToClipboard(baseUrl, issueBody);
+        url = this.addTemplateToUrl(url, gitHubDetails?.owner, gitHubDetails?.repositoryName);
+      }
+    } catch (_) {
+      console.error("Writing to clipboard failed");
+      return false;
+    }
+    await this.openerService.open(url, { openExternal: true });
+    return true;
+  }
+  async writeToClipboard(baseUrl, issueBody) {
+    const shouldWrite = await this.issueFormService.showClipboardDialog();
+    if (!shouldWrite) {
+      throw new CancellationError();
+    }
+    await this.nativeHostService.writeClipboardText(issueBody);
+    return baseUrl + `&body=${encodeURIComponent(localize("pasteData", "We have written the needed data into your clipboard because it was too large to send. Please paste."))}`;
+  }
+  updateSystemInfo(state) {
+    const target = this.window.document.querySelector(".block-system .block-info");
+    if (target) {
+      const systemInfo = state.systemInfo;
+      const renderedDataTable = $("table", void 0, $("tr", void 0, $("td", void 0, "CPUs"), $("td", void 0, systemInfo.cpus || "")), $("tr", void 0, $("td", void 0, "GPU Status"), $("td", void 0, Object.keys(systemInfo.gpuStatus).map((key) => `${key}: ${systemInfo.gpuStatus[key]}`).join("\n"))), $("tr", void 0, $("td", void 0, "Load (avg)"), $("td", void 0, systemInfo.load || "")), $("tr", void 0, $("td", void 0, "Memory (System)"), $("td", void 0, systemInfo.memory)), $("tr", void 0, $("td", void 0, "Process Argv"), $("td", void 0, systemInfo.processArgs)), $("tr", void 0, $("td", void 0, "Screen Reader"), $("td", void 0, systemInfo.screenReader)), $("tr", void 0, $("td", void 0, "VM"), $("td", void 0, systemInfo.vmHint)));
+      reset(target, renderedDataTable);
+      systemInfo.remoteData.forEach((remote) => {
+        target.appendChild($("hr"));
+        if (isRemoteDiagnosticError(remote)) {
+          const remoteDataTable = $("table", void 0, $("tr", void 0, $("td", void 0, "Remote"), $("td", void 0, remote.hostName)), $("tr", void 0, $("td", void 0, ""), $("td", void 0, remote.errorMessage)));
+          target.appendChild(remoteDataTable);
+        } else {
+          const remoteDataTable = $("table", void 0, $("tr", void 0, $("td", void 0, "Remote"), $("td", void 0, remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName)), $("tr", void 0, $("td", void 0, "OS"), $("td", void 0, remote.machineInfo.os)), $("tr", void 0, $("td", void 0, "CPUs"), $("td", void 0, remote.machineInfo.cpus || "")), $("tr", void 0, $("td", void 0, "Memory (System)"), $("td", void 0, remote.machineInfo.memory)), $("tr", void 0, $("td", void 0, "VM"), $("td", void 0, remote.machineInfo.vmHint)));
+          target.appendChild(remoteDataTable);
+        }
+      });
+    }
+  }
+  updateRestrictedMode(restrictedMode) {
+    this.issueReporterModel.update({ restrictedMode });
+  }
+  updateUnsupportedMode(isUnsupported) {
+    this.issueReporterModel.update({ isUnsupported });
+  }
+  updateExperimentsInfo(experimentInfo) {
+    this.issueReporterModel.update({ experimentInfo });
+    const target = this.window.document.querySelector(".block-experiments .block-info");
+    if (target) {
+      target.textContent = experimentInfo ? experimentInfo : localize("noCurrentExperiments", "No current experiments.");
+    }
+  }
+};
+IssueReporter = __decorate([
+  __param(5, INativeHostService),
+  __param(6, IIssueFormService),
+  __param(7, IProcessService),
+  __param(8, IThemeService),
+  __param(9, IFileService),
+  __param(10, IFileDialogService),
+  __param(11, IUpdateService),
+  __param(12, IContextKeyService),
+  __param(13, IContextMenuService),
+  __param(14, IAuthenticationService),
+  __param(15, IOpenerService)
+], IssueReporter);
+export {
+  IssueReporter
+};
+//# sourceMappingURL=issueReporterService.js.map

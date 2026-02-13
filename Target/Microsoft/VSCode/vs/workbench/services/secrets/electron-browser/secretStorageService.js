@@ -1,1 +1,116 @@
-import{$Eb as h}from"../../../../base/common/functional.js";import{$o as $}from"../../../../base/common/platform.js";import c from"../../../../base/common/severity.js";import{localize as a}from"../../../../nls.js";import{$Mp as y}from"../../../../platform/dialogs/common/dialogs.js";import{$Mn as b,$Pn as g,$On as v}from"../../../../platform/encryption/common/encryptionService.js";import{$Ll as d}from"../../../../platform/environment/common/environment.js";import{$WC as w}from"../../../../platform/instantiation/common/extensions.js";import{$yo as S}from"../../../../platform/log/common/log.js";import{$pH as _}from"../../../../platform/notification/common/notification.js";import{$EP as P}from"../../../../platform/opener/common/opener.js";import{$uR as R,$tR as x}from"../../../../platform/secrets/common/secrets.js";import{$hp as E}from"../../../../platform/storage/common/storage.js";import{$CKb as M}from"../../configuration/common/jsonEditing.js";var f=function(p,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(p,t,e,r);else for(var m=p.length-1;m>=0;m--)(s=p[m])&&(o=(i<3?s(o):i>3?s(t,e,o):s(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},n=function(p,t){return function(e,r){t(e,r,p)}};let u=class extends R{constructor(t,e,r,i,o,s,m,l){super(!!o.useInMemorySecretStorage,s,m,l),this.y=t,this.z=e,this.C=r,this.F=i,this.G=o,this.H=h(()=>this.I())}set(t,e){return this.c.queue(t,async()=>{await this.r,this.type!=="persisted"&&!this.G.useInMemorySecretStorage&&(this.n.trace("[NativeSecretStorageService] Notifying user that secrets are not being stored on disk."),await this.H())}),super.set(t,e)}async I(){const t=[],e={label:a(16457,null),run:()=>this.C.open("https://go.microsoft.com/fwlink/?linkid=2239490"),keepOpen:!0};t.push(e);let r=a(16458,null);if(!$){this.y.prompt(c.Error,r,t);return}const i=await this.m.getKeyStorageProvider();if(i==="basic_text"){const o=a(16459,null),s={label:a(16460,null),run:async()=>{await this.m.setUsePlainTextEncryption(),await this.F.write(this.G.argvResource,[{path:["password-store"],value:"basic"}],!0),this.t()}};t.unshift(s),await this.z.prompt({type:"error",buttons:t,message:r,detail:o});return}g(i)?r=a(16461,null):v(i)&&(r=a(16462,null)),this.y.prompt(c.Error,r,t)}};u=f([n(0,_),n(1,y),n(2,P),n(3,M),n(4,d),n(5,E),n(6,b),n(7,S)],u);w(x,u,1);export{u as $9Vc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+import { isLinux } from "../../../../base/common/platform.js";
+import Severity from "../../../../base/common/severity.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IEncryptionService, isGnome, isKwallet } from "../../../../platform/encryption/common/encryptionService.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { BaseSecretStorageService, ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IJSONEditingService } from "../../configuration/common/jsonEditing.js";
+let NativeSecretStorageService = class NativeSecretStorageService2 extends BaseSecretStorageService {
+  static {
+    __name(this, "NativeSecretStorageService");
+  }
+  constructor(_notificationService, _dialogService, _openerService, _jsonEditingService, _environmentService, storageService, encryptionService, logService) {
+    super(!!_environmentService.useInMemorySecretStorage, storageService, encryptionService, logService);
+    this._notificationService = _notificationService;
+    this._dialogService = _dialogService;
+    this._openerService = _openerService;
+    this._jsonEditingService = _jsonEditingService;
+    this._environmentService = _environmentService;
+    this.notifyOfNoEncryptionOnce = createSingleCallFunction(() => this.notifyOfNoEncryption());
+  }
+  set(key, value) {
+    this._sequencer.queue(key, async () => {
+      await this.resolvedStorageService;
+      if (this.type !== "persisted" && !this._environmentService.useInMemorySecretStorage) {
+        this._logService.trace("[NativeSecretStorageService] Notifying user that secrets are not being stored on disk.");
+        await this.notifyOfNoEncryptionOnce();
+      }
+    });
+    return super.set(key, value);
+  }
+  async notifyOfNoEncryption() {
+    const buttons = [];
+    const troubleshootingButton = {
+      label: localize("troubleshootingButton", "Open troubleshooting guide"),
+      run: /* @__PURE__ */ __name(() => this._openerService.open("https://go.microsoft.com/fwlink/?linkid=2239490"), "run"),
+      // doesn't close dialogs
+      keepOpen: true
+    };
+    buttons.push(troubleshootingButton);
+    let errorMessage = localize("encryptionNotAvailableJustTroubleshootingGuide", "An OS keyring couldn't be identified for storing the encryption related data in your current desktop environment.");
+    if (!isLinux) {
+      this._notificationService.prompt(Severity.Error, errorMessage, buttons);
+      return;
+    }
+    const provider = await this._encryptionService.getKeyStorageProvider();
+    if (provider === "basic_text") {
+      const detail = localize("usePlainTextExtraSentence", "Open the troubleshooting guide to address this or you can use weaker encryption that doesn't use the OS keyring.");
+      const usePlainTextButton = {
+        label: localize("usePlainText", "Use weaker encryption"),
+        run: /* @__PURE__ */ __name(async () => {
+          await this._encryptionService.setUsePlainTextEncryption();
+          await this._jsonEditingService.write(this._environmentService.argvResource, [{
+            path: ["password-store"],
+            value: "basic"
+            /* PasswordStoreCLIOption.basic */
+          }], true);
+          this.reinitialize();
+        }, "run")
+      };
+      buttons.unshift(usePlainTextButton);
+      await this._dialogService.prompt({
+        type: "error",
+        buttons,
+        message: errorMessage,
+        detail
+      });
+      return;
+    }
+    if (isGnome(provider)) {
+      errorMessage = localize("isGnome", "You're running in a GNOME environment but the OS keyring is not available for encryption. Ensure you have gnome-keyring or another libsecret compatible implementation installed and running.");
+    } else if (isKwallet(provider)) {
+      errorMessage = localize("isKwallet", "You're running in a KDE environment but the OS keyring is not available for encryption. Ensure you have kwallet running.");
+    }
+    this._notificationService.prompt(Severity.Error, errorMessage, buttons);
+  }
+};
+NativeSecretStorageService = __decorate([
+  __param(0, INotificationService),
+  __param(1, IDialogService),
+  __param(2, IOpenerService),
+  __param(3, IJSONEditingService),
+  __param(4, INativeEnvironmentService),
+  __param(5, IStorageService),
+  __param(6, IEncryptionService),
+  __param(7, ILogService)
+], NativeSecretStorageService);
+registerSingleton(
+  ISecretStorageService,
+  NativeSecretStorageService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  NativeSecretStorageService
+};
+//# sourceMappingURL=secretStorageService.js.map

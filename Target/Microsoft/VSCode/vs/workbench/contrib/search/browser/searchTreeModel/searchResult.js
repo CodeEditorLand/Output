@@ -1,1 +1,262 @@
-import{$Af as b}from"../../../../../base/common/event.js";import{$Ed as $}from"../../../../../base/common/lifecycle.js";import{$9H as M}from"../../../../../editor/common/services/model.js";import{$Mj as j}from"../../../../../platform/instantiation/common/instantiation.js";import{$bOb as C}from"../../../notebook/browser/notebookEditorWidget.js";import{$zOb as D}from"../../../notebook/browser/services/notebookEditorService.js";import{$bjc as l,$ujc as n,$qjc as c,$tjc as d,$rjc as p,$vjc as u,$ojc as g,$ljc as v,$gjc as S}from"./searchTreeCommon.js";import{$vkc as x}from"./textSearchHeading.js";import{$wkc as R}from"../AISearch/aiSearchModel.js";var y=function(r,t,i,e){var h=arguments.length,s=h<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,i,e);else for(var a=r.length-1;a>=0;a--)(o=r[a])&&(s=(h<3?o(s):h>3?o(t,i,s):o(t,i))||s);return h>3&&s&&Object.defineProperty(t,i,s),s},f=function(r,t){return function(i,e){t(i,e,r)}};let m=class extends ${constructor(t,i,e,h){super(),this.searchModel=t,this.j=i,this.m=e,this.n=h,this.a=this.D(new b({merge:v})),this.onChange=this.a.event,this.f=this.D(this.j.createInstance(x,this)),this.g=this.D(this.j.createInstance(R,this)),this.D(this.f.onChange(s=>this.a.fire(s))),this.D(this.g.onChange(s=>this.a.fire(s))),this.m.getModels().forEach(s=>this.r(s)),this.D(this.m.onModelAdded(s=>this.r(s))),this.D(this.n.onDidAddNotebookEditor(s=>{s instanceof C&&this.q(s)})),this.h=S+Date.now().toString()}id(){return this.h}get plainTextSearchResult(){return this.f}get aiTextSearchResult(){return this.g}get children(){return this.textSearchResults}get hasChildren(){return!0}get textSearchResults(){return[this.f,this.g]}async batchReplace(t){try{this.a.pause(),await Promise.all(t.map(async i=>{const e=i.parent();(c(e)||n(e))&&l(e,t)||(n(i)?await i.parent().replace(i):u(i)?await i.parent().replace(i):c(i)&&await i.replaceAll())}))}finally{this.a.resume()}}batchRemove(t){const i=[];try{this.a.pause(),t.forEach(e=>{if(!l(e,i)){if(g(e))e.hide();else if(!c(e)||p(e)||d(e)){if(n(e))e.parent().remove(e);else if(u(e))e.parent().remove(e);else if(p(e))e.parent().remove(e);else if(d(e)){const h=e.parent();g(h)&&h.remove(e)}i.push(e)}}})}finally{this.a.resume()}}get isDirty(){return this.g.isDirty||this.f.isDirty}get query(){return this.f.query}set query(t){this.f.query=t}setAIQueryUsingTextQuery(t){t||(t=this.query),this.aiTextSearchResult.query=A(t)}q(t){this.b?.dispose(),this.b=t.onWillChangeModel(i=>{i&&this.t(t,i?.uri)}),this.c?.dispose(),this.c=t.onDidAttachViewModel(()=>{t.hasModel()&&this.s(t,t.textModel.uri)})}folderMatches(t=!1){return t?this.g.folderMatches():this.f.folderMatches()}r(t){this.f.findFolderSubstr(t.uri)?.bindModel(t)}async s(t,i){await this.f.findFolderSubstr(i)?.bindNotebookEditorWidget(t,i)}t(t,i){this.f.findFolderSubstr(i)?.unbindNotebookEditorWidget(t,i)}add(t,i,e,h=!1){this.f.hidden=!1,e?this.g.add(t,i,h):this.f.add(t,i,h)}clear(){this.f.clear(),this.g.clear()}remove(t,i=!1){i&&this.g.remove(t,i),this.f.remove(t,i)}replace(t){return this.f.replace(t)}matches(t){return t===void 0?this.f.matches().concat(this.g.matches()):t===!0?this.g.matches():this.f.matches()}isEmpty(){return this.f.isEmpty()&&this.g.isEmpty()}fileCount(t=!1){return t?this.f.fileCount():this.f.fileCount()+this.g.fileCount()}count(t=!1){return t?this.f.count():this.f.count()+this.g.count()}setCachedSearchComplete(t,i){i?this.g.cachedSearchComplete=t:this.f.cachedSearchComplete=t}getCachedSearchComplete(t){return t?this.g.cachedSearchComplete:this.f.cachedSearchComplete}toggleHighlights(t,i=!1){i?this.g.toggleHighlights(t):this.f.toggleHighlights(t)}getRangeHighlightDecorations(t=!1){return t?this.g.rangeHighlightDecorations:this.f.rangeHighlightDecorations}replaceAll(t){return this.f.replaceAll(t)}async dispose(){this.g?.dispose(),this.f?.dispose(),this.b?.dispose(),this.c?.dispose(),super.dispose()}};m=y([f(1,j),f(2,M),f(3,D)],m);function A(r){return r===null?null:{...r,contentPattern:r.contentPattern.pattern,type:3}}export{m as $ykc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { PauseableEmitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { NotebookEditorWidget } from "../../../notebook/browser/notebookEditorWidget.js";
+import { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
+import { arrayContainsElementOrParent, isSearchTreeFileMatch, isSearchTreeFolderMatch, isSearchTreeFolderMatchNoRoot, isSearchTreeFolderMatchWithResource, isSearchTreeMatch, isTextSearchHeading, mergeSearchResultEvents, SEARCH_RESULT_PREFIX } from "./searchTreeCommon.js";
+import { PlainTextSearchHeadingImpl } from "./textSearchHeading.js";
+import { AITextSearchHeadingImpl } from "../AISearch/aiSearchModel.js";
+let SearchResultImpl = class SearchResultImpl2 extends Disposable {
+  static {
+    __name(this, "SearchResultImpl");
+  }
+  constructor(searchModel, instantiationService, modelService, notebookEditorService) {
+    super();
+    this.searchModel = searchModel;
+    this.instantiationService = instantiationService;
+    this.modelService = modelService;
+    this.notebookEditorService = notebookEditorService;
+    this._onChange = this._register(new PauseableEmitter({
+      merge: mergeSearchResultEvents
+    }));
+    this.onChange = this._onChange.event;
+    this._plainTextSearchResult = this._register(this.instantiationService.createInstance(PlainTextSearchHeadingImpl, this));
+    this._aiTextSearchResult = this._register(this.instantiationService.createInstance(AITextSearchHeadingImpl, this));
+    this._register(this._plainTextSearchResult.onChange((e) => this._onChange.fire(e)));
+    this._register(this._aiTextSearchResult.onChange((e) => this._onChange.fire(e)));
+    this.modelService.getModels().forEach((model) => this.onModelAdded(model));
+    this._register(this.modelService.onModelAdded((model) => this.onModelAdded(model)));
+    this._register(this.notebookEditorService.onDidAddNotebookEditor((widget) => {
+      if (widget instanceof NotebookEditorWidget) {
+        this.onDidAddNotebookEditorWidget(widget);
+      }
+    }));
+    this._id = SEARCH_RESULT_PREFIX + Date.now().toString();
+  }
+  id() {
+    return this._id;
+  }
+  get plainTextSearchResult() {
+    return this._plainTextSearchResult;
+  }
+  get aiTextSearchResult() {
+    return this._aiTextSearchResult;
+  }
+  get children() {
+    return this.textSearchResults;
+  }
+  get hasChildren() {
+    return true;
+  }
+  get textSearchResults() {
+    return [this._plainTextSearchResult, this._aiTextSearchResult];
+  }
+  async batchReplace(elementsToReplace) {
+    try {
+      this._onChange.pause();
+      await Promise.all(elementsToReplace.map(async (elem) => {
+        const parent = elem.parent();
+        if ((isSearchTreeFolderMatch(parent) || isSearchTreeFileMatch(parent)) && arrayContainsElementOrParent(parent, elementsToReplace)) {
+          return;
+        }
+        if (isSearchTreeFileMatch(elem)) {
+          await elem.parent().replace(elem);
+        } else if (isSearchTreeMatch(elem)) {
+          await elem.parent().replace(elem);
+        } else if (isSearchTreeFolderMatch(elem)) {
+          await elem.replaceAll();
+        }
+      }));
+    } finally {
+      this._onChange.resume();
+    }
+  }
+  batchRemove(elementsToRemove) {
+    const removedElems = [];
+    try {
+      this._onChange.pause();
+      elementsToRemove.forEach((currentElement) => {
+        if (!arrayContainsElementOrParent(currentElement, removedElems)) {
+          if (isTextSearchHeading(currentElement)) {
+            currentElement.hide();
+          } else if (!isSearchTreeFolderMatch(currentElement) || isSearchTreeFolderMatchWithResource(currentElement) || isSearchTreeFolderMatchNoRoot(currentElement)) {
+            if (isSearchTreeFileMatch(currentElement)) {
+              currentElement.parent().remove(currentElement);
+            } else if (isSearchTreeMatch(currentElement)) {
+              currentElement.parent().remove(currentElement);
+            } else if (isSearchTreeFolderMatchWithResource(currentElement)) {
+              currentElement.parent().remove(currentElement);
+            } else if (isSearchTreeFolderMatchNoRoot(currentElement)) {
+              const parent = currentElement.parent();
+              if (isTextSearchHeading(parent)) {
+                parent.remove(currentElement);
+              }
+            }
+            removedElems.push(currentElement);
+          }
+        }
+      });
+    } finally {
+      this._onChange.resume();
+    }
+  }
+  get isDirty() {
+    return this._aiTextSearchResult.isDirty || this._plainTextSearchResult.isDirty;
+  }
+  get query() {
+    return this._plainTextSearchResult.query;
+  }
+  set query(query) {
+    this._plainTextSearchResult.query = query;
+  }
+  setAIQueryUsingTextQuery(query) {
+    if (!query) {
+      query = this.query;
+    }
+    this.aiTextSearchResult.query = aiTextQueryFromTextQuery(query);
+  }
+  onDidAddNotebookEditorWidget(widget) {
+    this._onWillChangeModelListener?.dispose();
+    this._onWillChangeModelListener = widget.onWillChangeModel((model) => {
+      if (model) {
+        this.onNotebookEditorWidgetRemoved(widget, model?.uri);
+      }
+    });
+    this._onDidChangeModelListener?.dispose();
+    this._onDidChangeModelListener = widget.onDidAttachViewModel(() => {
+      if (widget.hasModel()) {
+        this.onNotebookEditorWidgetAdded(widget, widget.textModel.uri);
+      }
+    });
+  }
+  folderMatches(ai = false) {
+    if (ai) {
+      return this._aiTextSearchResult.folderMatches();
+    }
+    return this._plainTextSearchResult.folderMatches();
+  }
+  onModelAdded(model) {
+    const folderMatch = this._plainTextSearchResult.findFolderSubstr(model.uri);
+    folderMatch?.bindModel(model);
+  }
+  async onNotebookEditorWidgetAdded(editor, resource) {
+    const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
+    await folderMatch?.bindNotebookEditorWidget(editor, resource);
+  }
+  onNotebookEditorWidgetRemoved(editor, resource) {
+    const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
+    folderMatch?.unbindNotebookEditorWidget(editor, resource);
+  }
+  add(allRaw, searchInstanceID, ai, silent = false) {
+    this._plainTextSearchResult.hidden = false;
+    if (ai) {
+      this._aiTextSearchResult.add(allRaw, searchInstanceID, silent);
+    } else {
+      this._plainTextSearchResult.add(allRaw, searchInstanceID, silent);
+    }
+  }
+  clear() {
+    this._plainTextSearchResult.clear();
+    this._aiTextSearchResult.clear();
+  }
+  remove(matches, ai = false) {
+    if (ai) {
+      this._aiTextSearchResult.remove(matches, ai);
+    }
+    this._plainTextSearchResult.remove(matches, ai);
+  }
+  replace(match) {
+    return this._plainTextSearchResult.replace(match);
+  }
+  matches(ai) {
+    if (ai === void 0) {
+      return this._plainTextSearchResult.matches().concat(this._aiTextSearchResult.matches());
+    } else if (ai === true) {
+      return this._aiTextSearchResult.matches();
+    }
+    return this._plainTextSearchResult.matches();
+  }
+  isEmpty() {
+    return this._plainTextSearchResult.isEmpty() && this._aiTextSearchResult.isEmpty();
+  }
+  fileCount(ignoreSemanticSearchResults = false) {
+    if (ignoreSemanticSearchResults) {
+      return this._plainTextSearchResult.fileCount();
+    }
+    return this._plainTextSearchResult.fileCount() + this._aiTextSearchResult.fileCount();
+  }
+  count(ignoreSemanticSearchResults = false) {
+    if (ignoreSemanticSearchResults) {
+      return this._plainTextSearchResult.count();
+    }
+    return this._plainTextSearchResult.count() + this._aiTextSearchResult.count();
+  }
+  setCachedSearchComplete(cachedSearchComplete, ai) {
+    if (ai) {
+      this._aiTextSearchResult.cachedSearchComplete = cachedSearchComplete;
+    } else {
+      this._plainTextSearchResult.cachedSearchComplete = cachedSearchComplete;
+    }
+  }
+  getCachedSearchComplete(ai) {
+    if (ai) {
+      return this._aiTextSearchResult.cachedSearchComplete;
+    }
+    return this._plainTextSearchResult.cachedSearchComplete;
+  }
+  toggleHighlights(value, ai = false) {
+    if (ai) {
+      this._aiTextSearchResult.toggleHighlights(value);
+    } else {
+      this._plainTextSearchResult.toggleHighlights(value);
+    }
+  }
+  getRangeHighlightDecorations(ai = false) {
+    if (ai) {
+      return this._aiTextSearchResult.rangeHighlightDecorations;
+    }
+    return this._plainTextSearchResult.rangeHighlightDecorations;
+  }
+  replaceAll(progress) {
+    return this._plainTextSearchResult.replaceAll(progress);
+  }
+  async dispose() {
+    this._aiTextSearchResult?.dispose();
+    this._plainTextSearchResult?.dispose();
+    this._onWillChangeModelListener?.dispose();
+    this._onDidChangeModelListener?.dispose();
+    super.dispose();
+  }
+};
+SearchResultImpl = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IModelService),
+  __param(3, INotebookEditorService)
+], SearchResultImpl);
+function aiTextQueryFromTextQuery(query) {
+  return query === null ? null : {
+    ...query,
+    contentPattern: query.contentPattern.pattern,
+    type: 3
+    /* QueryType.aiText */
+  };
+}
+__name(aiTextQueryFromTextQuery, "aiTextQueryFromTextQuery");
+export {
+  SearchResultImpl
+};
+//# sourceMappingURL=searchResult.js.map

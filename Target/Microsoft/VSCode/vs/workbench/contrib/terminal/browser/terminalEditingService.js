@@ -1,1 +1,52 @@
-import{$gBb as f}from"../../../services/views/common/viewsService.js";import{$M6 as d}from"../common/terminal.js";var h=function(r,t,e,i){var a=arguments.length,n=a<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,i);else for(var c=r.length-1;c>=0;c--)(s=r[c])&&(n=(a<3?s(n):a>3?s(t,e,n):s(t,e))||n);return a>3&&n&&Object.defineProperty(t,e,n),n},l=function(r,t){return function(e,i){t(e,i,r)}};let o=class{constructor(t){this.c=t}getEditableData(t){return this.a&&this.a.instance===t?this.a.data:void 0}setEditable(t,e){e?this.a={instance:t,data:e}:this.a=void 0;const i=this.c.getActiveViewWithId(d),a=this.isEditable(t);i?.terminalTabbedView?.setEditable(a)}isEditable(t){return!!this.a&&(this.a.instance===t||!t)}getEditingTerminal(){return this.b}setEditingTerminal(t){this.b=t}};o=h([l(0,f)],o);export{o as $SBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { TERMINAL_VIEW_ID } from "../common/terminal.js";
+let TerminalEditingService = class TerminalEditingService2 {
+  static {
+    __name(this, "TerminalEditingService");
+  }
+  constructor(_viewsService) {
+    this._viewsService = _viewsService;
+  }
+  getEditableData(instance) {
+    return this._editable && this._editable.instance === instance ? this._editable.data : void 0;
+  }
+  setEditable(instance, data) {
+    if (!data) {
+      this._editable = void 0;
+    } else {
+      this._editable = { instance, data };
+    }
+    const pane = this._viewsService.getActiveViewWithId(TERMINAL_VIEW_ID);
+    const isEditing = this.isEditable(instance);
+    pane?.terminalTabbedView?.setEditable(isEditing);
+  }
+  isEditable(instance) {
+    return !!this._editable && (this._editable.instance === instance || !instance);
+  }
+  getEditingTerminal() {
+    return this._editingTerminal;
+  }
+  setEditingTerminal(instance) {
+    this._editingTerminal = instance;
+  }
+};
+TerminalEditingService = __decorate([
+  __param(0, IViewsService)
+], TerminalEditingService);
+export {
+  TerminalEditingService
+};
+//# sourceMappingURL=terminalEditingService.js.map

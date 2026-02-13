@@ -1,1 +1,39 @@
-import{$Nj as n}from"../../../../platform/instantiation/common/instantiation.js";const a=n("statusbarService");var o;(function(r){r[r.LEFT=0]="LEFT",r[r.RIGHT=1]="RIGHT"})(o||(o={}));function e(r){const t=r;return typeof t?.location?.id=="string"&&typeof t.alignment=="number"}function c(r){const t=r;return(typeof t?.primary=="number"||e(t?.primary))&&typeof t?.secondary=="number"}const p={id:"statusBar.entry.showTooltip",title:""},s=["standard","warning","error","prominent","remote","offline"];function d(r){const t=r;return!!t?.content&&Array.isArray(t?.commands)}export{a as $fDb,e as $gDb,c as $hDb,p as $iDb,s as $jDb,d as $kDb,o as StatusbarAlignment};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IStatusbarService = createDecorator("statusbarService");
+var StatusbarAlignment;
+(function(StatusbarAlignment2) {
+  StatusbarAlignment2[StatusbarAlignment2["LEFT"] = 0] = "LEFT";
+  StatusbarAlignment2[StatusbarAlignment2["RIGHT"] = 1] = "RIGHT";
+})(StatusbarAlignment || (StatusbarAlignment = {}));
+function isStatusbarEntryLocation(thing) {
+  const candidate = thing;
+  return typeof candidate?.location?.id === "string" && typeof candidate.alignment === "number";
+}
+__name(isStatusbarEntryLocation, "isStatusbarEntryLocation");
+function isStatusbarEntryPriority(thing) {
+  const candidate = thing;
+  return (typeof candidate?.primary === "number" || isStatusbarEntryLocation(candidate?.primary)) && typeof candidate?.secondary === "number";
+}
+__name(isStatusbarEntryPriority, "isStatusbarEntryPriority");
+const ShowTooltipCommand = {
+  id: "statusBar.entry.showTooltip",
+  title: ""
+};
+const StatusbarEntryKinds = ["standard", "warning", "error", "prominent", "remote", "offline"];
+function isTooltipWithCommands(thing) {
+  const candidate = thing;
+  return !!candidate?.content && Array.isArray(candidate?.commands);
+}
+__name(isTooltipWithCommands, "isTooltipWithCommands");
+export {
+  IStatusbarService,
+  ShowTooltipCommand,
+  StatusbarAlignment,
+  StatusbarEntryKinds,
+  isStatusbarEntryLocation,
+  isStatusbarEntryPriority,
+  isTooltipWithCommands
+};
+//# sourceMappingURL=statusbar.js.map

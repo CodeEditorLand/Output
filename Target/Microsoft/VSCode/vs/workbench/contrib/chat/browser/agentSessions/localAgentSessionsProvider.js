@@ -1,1 +1,151 @@
-import{$$b as p}from"../../../../../base/common/arrays.js";import{$bk as l}from"../../../../../base/common/codicons.js";import{$xf as c}from"../../../../../base/common/event.js";import{$Ed as m}from"../../../../../base/common/lifecycle.js";import{$Pc as d}from"../../../../../base/common/map.js";import{Schemas as g}from"../../../../../base/common/network.js";import{$MV as S,$NV as C}from"../../common/chatService/chatService.js";import{$aW as D,$9V as $}from"../../common/chatSessionsService.js";import{$iS as R}from"../../common/model/chatUri.js";import{$yo as b}from"../../../../../platform/log/common/log.js";var f=function(n,s,e,t){var r=arguments.length,i=r<3?s:t===null?t=Object.getOwnPropertyDescriptor(s,e):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,s,e,t);else for(var a=n.length-1;a>=0;a--)(o=n[a])&&(i=(r<3?o(i):r>3?o(s,e,i):o(s,e))||i);return r>3&&i&&Object.defineProperty(s,e,i),i},h=function(n,s){return function(e,t){s(e,t,n)}};let u=class extends m{static{this.ID="workbench.contrib.localAgentsSessionsProvider"}constructor(s,e,t){super(),this.b=s,this.c=e,this.f=t,this.chatSessionType=$,this.a=this.D(new c),this.onDidChange=this.a.event,this._onDidChangeChatSessionItems=this.D(new c),this.onDidChangeChatSessionItems=this._onDidChangeChatSessionItems.event,this.D(this.c.registerChatSessionItemProvider(this)),this.g()}g(){this.D(this.c.registerChatModelChangeListeners(this.b,g.vscodeLocalChatSession,()=>this._onDidChangeChatSessionItems.fire())),this.D(this.c.onDidChangeSessionItems(({chatSessionType:s})=>{s===this.chatSessionType&&this.a.fire()})),this.D(this.b.onDidDisposeSession(s=>{s.sessionResource.filter(t=>R(t)===this.chatSessionType).length>0&&this._onDidChangeChatSessionItems.fire()}))}async provideChatSessionItems(s){const e=[],t=new d;for(const r of await this.b.getLiveSessionItems()){const i=this.j(r);i&&(t.add(r.sessionResource),e.push(i))}if(!s.isCancellationRequested){const r=await this.h();e.push(...r.filter(i=>!t.has(i.resource)))}return e}async h(){try{const s=await this.b.getHistorySessionItems();return p(s.map(e=>this.j(e)))}catch{return[]}}j(s){const e=this.b.getSession(s.sessionResource);let t;if(e){if(!e.hasRequests)return;t=this.c.getInProgressSessionDescription(e)}return{resource:s.sessionResource,provider:this,label:s.title,description:t,status:e?this.m(e):this.n(s.lastResponseState),iconPath:l.chatSparkle,timing:S(s.timing),changes:s.stats?{insertions:s.stats.added,deletions:s.stats.removed,files:s.stats.fileCount}:void 0}}m(s){if(s.requestInProgress.get())return this.f.trace(`[agent sessions] Session ${s.sessionResource.toString()} request is in progress.`),2;const e=s.getRequests().at(-1);if(this.f.trace(`[agent sessions] Session ${s.sessionResource.toString()} last request response: state ${e?.response?.state}, isComplete ${e?.response?.isComplete}, isCanceled ${e?.response?.isCanceled}, error: ${e?.response?.result?.errorDetails?.message}.`),e?.response)return e.response.state===4?3:e.response.isCanceled||e.response.result?.errorDetails?.code==="canceled"?1:e.response.result?.errorDetails?0:e.response.isComplete?1:2}n(s){switch(s){case 2:case 1:return 1;case 3:return 0;case 0:return 2;case 4:return 3}}};u=f([h(0,C),h(1,D),h(2,b)],u);export{u as $mpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { convertLegacyChatSessionTiming, IChatService } from "../../common/chatService/chatService.js";
+import { IChatSessionsService, localChatSessionType } from "../../common/chatSessionsService.js";
+import { getChatSessionType } from "../../common/model/chatUri.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+let LocalAgentsSessionsProvider = class LocalAgentsSessionsProvider2 extends Disposable {
+  static {
+    __name(this, "LocalAgentsSessionsProvider");
+  }
+  static {
+    this.ID = "workbench.contrib.localAgentsSessionsProvider";
+  }
+  constructor(chatService, chatSessionsService, logService) {
+    super();
+    this.chatService = chatService;
+    this.chatSessionsService = chatSessionsService;
+    this.logService = logService;
+    this.chatSessionType = localChatSessionType;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._onDidChangeChatSessionItems = this._register(new Emitter());
+    this.onDidChangeChatSessionItems = this._onDidChangeChatSessionItems.event;
+    this._register(this.chatSessionsService.registerChatSessionItemProvider(this));
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.chatSessionsService.registerChatModelChangeListeners(this.chatService, Schemas.vscodeLocalChatSession, () => this._onDidChangeChatSessionItems.fire()));
+    this._register(this.chatSessionsService.onDidChangeSessionItems(({ chatSessionType }) => {
+      if (chatSessionType === this.chatSessionType) {
+        this._onDidChange.fire();
+      }
+    }));
+    this._register(this.chatService.onDidDisposeSession((e) => {
+      const session = e.sessionResource.filter((resource) => getChatSessionType(resource) === this.chatSessionType);
+      if (session.length > 0) {
+        this._onDidChangeChatSessionItems.fire();
+      }
+    }));
+  }
+  async provideChatSessionItems(token) {
+    const sessions = [];
+    const sessionsByResource = new ResourceSet();
+    for (const sessionDetail of await this.chatService.getLiveSessionItems()) {
+      const editorSession = this.toChatSessionItem(sessionDetail);
+      if (!editorSession) {
+        continue;
+      }
+      sessionsByResource.add(sessionDetail.sessionResource);
+      sessions.push(editorSession);
+    }
+    if (!token.isCancellationRequested) {
+      const history = await this.getHistoryItems();
+      sessions.push(...history.filter((historyItem) => !sessionsByResource.has(historyItem.resource)));
+    }
+    return sessions;
+  }
+  async getHistoryItems() {
+    try {
+      const historyItems = await this.chatService.getHistorySessionItems();
+      return coalesce(historyItems.map((history) => this.toChatSessionItem(history)));
+    } catch (error) {
+      return [];
+    }
+  }
+  toChatSessionItem(chat) {
+    const model = this.chatService.getSession(chat.sessionResource);
+    let description;
+    if (model) {
+      if (!model.hasRequests) {
+        return void 0;
+      }
+      description = this.chatSessionsService.getInProgressSessionDescription(model);
+    }
+    return {
+      resource: chat.sessionResource,
+      provider: this,
+      label: chat.title,
+      description,
+      status: model ? this.modelToStatus(model) : this.chatResponseStateToStatus(chat.lastResponseState),
+      iconPath: Codicon.chatSparkle,
+      timing: convertLegacyChatSessionTiming(chat.timing),
+      changes: chat.stats ? {
+        insertions: chat.stats.added,
+        deletions: chat.stats.removed,
+        files: chat.stats.fileCount
+      } : void 0
+    };
+  }
+  modelToStatus(model) {
+    if (model.requestInProgress.get()) {
+      this.logService.trace(`[agent sessions] Session ${model.sessionResource.toString()} request is in progress.`);
+      return 2;
+    }
+    const lastRequest = model.getRequests().at(-1);
+    this.logService.trace(`[agent sessions] Session ${model.sessionResource.toString()} last request response: state ${lastRequest?.response?.state}, isComplete ${lastRequest?.response?.isComplete}, isCanceled ${lastRequest?.response?.isCanceled}, error: ${lastRequest?.response?.result?.errorDetails?.message}.`);
+    if (lastRequest?.response) {
+      if (lastRequest.response.state === 4) {
+        return 3;
+      } else if (lastRequest.response.isCanceled || lastRequest.response.result?.errorDetails?.code === "canceled") {
+        return 1;
+      } else if (lastRequest.response.result?.errorDetails) {
+        return 0;
+      } else if (lastRequest.response.isComplete) {
+        return 1;
+      } else {
+        return 2;
+      }
+    }
+    return void 0;
+  }
+  chatResponseStateToStatus(state) {
+    switch (state) {
+      case 2:
+      case 1:
+        return 1;
+      case 3:
+        return 0;
+      case 0:
+        return 2;
+      case 4:
+        return 3;
+    }
+  }
+};
+LocalAgentsSessionsProvider = __decorate([
+  __param(0, IChatService),
+  __param(1, IChatSessionsService),
+  __param(2, ILogService)
+], LocalAgentsSessionsProvider);
+export {
+  LocalAgentsSessionsProvider
+};
+//# sourceMappingURL=localAgentSessionsProvider.js.map

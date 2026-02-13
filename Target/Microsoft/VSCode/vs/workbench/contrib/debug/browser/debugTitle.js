@@ -1,1 +1,46 @@
-import{$lZ as u}from"../common/debug.js";import{$zd as h}from"../../../../base/common/lifecycle.js";import{$gcb as l}from"../../../services/host/browser/host.js";import{$W0b as m}from"../../../services/title/browser/titleService.js";var c=function(n,t,e,o){var i=arguments.length,r=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,o);else for(var f=n.length-1;f>=0;f--)(p=n[f])&&(r=(i<3?p(r):i>3?p(t,e,r):p(t,e))||r);return i>3&&r&&Object.defineProperty(t,e,r),r},s=function(n,t){return function(e,o){t(e,o,n)}};let a=class{constructor(t,e,o){this.a=[];const i=()=>{t.state===2&&!e.hasFocus?o.updateProperties({prefix:"\u{1F534}"}):o.updateProperties({prefix:""})};this.a.push(t.onDidChangeState(i)),this.a.push(e.onDidChangeFocus(i))}dispose(){h(this.a)}};a=c([s(0,u),s(1,l),s(2,m)],a);export{a as $Bzc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IDebugService } from "../common/debug.js";
+import { dispose } from "../../../../base/common/lifecycle.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { ITitleService } from "../../../services/title/browser/titleService.js";
+let DebugTitleContribution = class DebugTitleContribution2 {
+  static {
+    __name(this, "DebugTitleContribution");
+  }
+  constructor(debugService, hostService, titleService) {
+    this.toDispose = [];
+    const updateTitle = /* @__PURE__ */ __name(() => {
+      if (debugService.state === 2 && !hostService.hasFocus) {
+        titleService.updateProperties({ prefix: "\u{1F534}" });
+      } else {
+        titleService.updateProperties({ prefix: "" });
+      }
+    }, "updateTitle");
+    this.toDispose.push(debugService.onDidChangeState(updateTitle));
+    this.toDispose.push(hostService.onDidChangeFocus(updateTitle));
+  }
+  dispose() {
+    dispose(this.toDispose);
+  }
+};
+DebugTitleContribution = __decorate([
+  __param(0, IDebugService),
+  __param(1, IHostService),
+  __param(2, ITitleService)
+], DebugTitleContribution);
+export {
+  DebugTitleContribution
+};
+//# sourceMappingURL=debugTitle.js.map

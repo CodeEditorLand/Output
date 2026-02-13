@@ -1,1 +1,47 @@
-import{$Nj as r}from"../../../../platform/instantiation/common/instantiation.js";const o="__";function i(e){return typeof e=="object"&&e!==null&&"wwwAuthenticate"in e&&typeof e.wwwAuthenticate=="string"}const f=r("IAuthenticationService");function c(e){if(typeof e!="object"||!e)return!1;const t=e;return!(typeof t.id!="string"||typeof t.accessToken!="string"||typeof t.account!="object"||!t.account||typeof t.account.label!="string"||typeof t.account.id!="string"||!Array.isArray(t.scopes)||t.idToken&&typeof t.idToken!="string")}const s=r("IAuthenticationExtensionsService");export{i as $AP,f as $BP,c as $CP,s as $DP,o as $zP};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const INTERNAL_AUTH_PROVIDER_PREFIX = "__";
+function isAuthenticationWwwAuthenticateRequest(obj) {
+  return typeof obj === "object" && obj !== null && "wwwAuthenticate" in obj && typeof obj.wwwAuthenticate === "string";
+}
+__name(isAuthenticationWwwAuthenticateRequest, "isAuthenticationWwwAuthenticateRequest");
+const IAuthenticationService = createDecorator("IAuthenticationService");
+function isAuthenticationSession(thing) {
+  if (typeof thing !== "object" || !thing) {
+    return false;
+  }
+  const maybe = thing;
+  if (typeof maybe.id !== "string") {
+    return false;
+  }
+  if (typeof maybe.accessToken !== "string") {
+    return false;
+  }
+  if (typeof maybe.account !== "object" || !maybe.account) {
+    return false;
+  }
+  if (typeof maybe.account.label !== "string") {
+    return false;
+  }
+  if (typeof maybe.account.id !== "string") {
+    return false;
+  }
+  if (!Array.isArray(maybe.scopes)) {
+    return false;
+  }
+  if (maybe.idToken && typeof maybe.idToken !== "string") {
+    return false;
+  }
+  return true;
+}
+__name(isAuthenticationSession, "isAuthenticationSession");
+const IAuthenticationExtensionsService = createDecorator("IAuthenticationExtensionsService");
+export {
+  IAuthenticationExtensionsService,
+  IAuthenticationService,
+  INTERNAL_AUTH_PROVIDER_PREFIX,
+  isAuthenticationSession,
+  isAuthenticationWwwAuthenticateRequest
+};
+//# sourceMappingURL=authentication.js.map

@@ -1,1 +1,117 @@
-import{$dc as g}from"../../../../base/common/arrays.js";import{$xf as c}from"../../../../base/common/event.js";import{$Ed as p}from"../../../../base/common/lifecycle.js";import{$WC as b}from"../../../../platform/instantiation/common/extensions.js";import{$hp as l}from"../../../../platform/storage/common/storage.js";import{$BKb as u}from"./extensionRecommendations.js";import{$JKb as R}from"./workspaceExtensionsConfig.js";var d=function(n,t,i,s){var o=arguments.length,e=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,i,s);else for(var h=n.length-1;h>=0;h--)(r=n[h])&&(e=(o<3?r(e):o>3?r(t,i,e):r(t,i))||e);return o>3&&e&&Object.defineProperty(t,i,e),e},f=function(n,t){return function(i,s){t(i,s,n)}};const a="extensionsAssistant/ignored_recommendations";let m=class extends p{get globalIgnoredRecommendations(){return[...this.b]}get ignoredRecommendations(){return g([...this.globalIgnoredRecommendations,...this.f])}constructor(t,i){super(),this.g=t,this.h=i,this.a=this.D(new c),this.onDidChangeIgnoredRecommendations=this.a.event,this.b=[],this.c=this.D(new c),this.onDidChangeGlobalIgnoredRecommendation=this.c.event,this.f=[],this.b=this.m(),this.D(this.h.onDidChangeValue(0,a,this.B)(()=>this.n())),this.j()}async j(){this.f=await this.g.getUnwantedRecommendations(),this.a.fire(),this.D(this.g.onDidChangeExtensionsConfigs(async()=>{this.f=await this.g.getUnwantedRecommendations(),this.a.fire()}))}toggleGlobalIgnoredRecommendation(t,i){t=t.toLowerCase(),this.b.indexOf(t)!==-1!==i&&(this.b=i?[...this.b,t]:this.b.filter(o=>o!==t),this.q(this.b),this.c.fire({extensionId:t,isRecommended:!i}),this.a.fire())}m(){return JSON.parse(this.s).map(i=>i.toLowerCase())}n(){this.s!==this.t()&&(this.r=void 0,this.b=this.m(),this.a.fire())}q(t){this.s=JSON.stringify(t)}get s(){return this.r||(this.r=this.t()),this.r}set s(t){this.s!==t&&(this.r=t,this.u(t))}t(){return this.h.get(a,0,"[]")}u(t){this.h.store(a,t,0,0)}};m=d([f(0,R),f(1,l)],m);b(u,m,1);export{m as $Xac};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { distinct } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IExtensionIgnoredRecommendationsService } from "./extensionRecommendations.js";
+import { IWorkspaceExtensionsConfigService } from "./workspaceExtensionsConfig.js";
+const ignoredRecommendationsStorageKey = "extensionsAssistant/ignored_recommendations";
+let ExtensionIgnoredRecommendationsService = class ExtensionIgnoredRecommendationsService2 extends Disposable {
+  static {
+    __name(this, "ExtensionIgnoredRecommendationsService");
+  }
+  get globalIgnoredRecommendations() {
+    return [...this._globalIgnoredRecommendations];
+  }
+  get ignoredRecommendations() {
+    return distinct([...this.globalIgnoredRecommendations, ...this.ignoredWorkspaceRecommendations]);
+  }
+  constructor(workspaceExtensionsConfigService, storageService) {
+    super();
+    this.workspaceExtensionsConfigService = workspaceExtensionsConfigService;
+    this.storageService = storageService;
+    this._onDidChangeIgnoredRecommendations = this._register(new Emitter());
+    this.onDidChangeIgnoredRecommendations = this._onDidChangeIgnoredRecommendations.event;
+    this._globalIgnoredRecommendations = [];
+    this._onDidChangeGlobalIgnoredRecommendation = this._register(new Emitter());
+    this.onDidChangeGlobalIgnoredRecommendation = this._onDidChangeGlobalIgnoredRecommendation.event;
+    this.ignoredWorkspaceRecommendations = [];
+    this._globalIgnoredRecommendations = this.getCachedIgnoredRecommendations();
+    this._register(this.storageService.onDidChangeValue(0, ignoredRecommendationsStorageKey, this._store)(() => this.onDidStorageChange()));
+    this.initIgnoredWorkspaceRecommendations();
+  }
+  async initIgnoredWorkspaceRecommendations() {
+    this.ignoredWorkspaceRecommendations = await this.workspaceExtensionsConfigService.getUnwantedRecommendations();
+    this._onDidChangeIgnoredRecommendations.fire();
+    this._register(this.workspaceExtensionsConfigService.onDidChangeExtensionsConfigs(async () => {
+      this.ignoredWorkspaceRecommendations = await this.workspaceExtensionsConfigService.getUnwantedRecommendations();
+      this._onDidChangeIgnoredRecommendations.fire();
+    }));
+  }
+  toggleGlobalIgnoredRecommendation(extensionId, shouldIgnore) {
+    extensionId = extensionId.toLowerCase();
+    const ignored = this._globalIgnoredRecommendations.indexOf(extensionId) !== -1;
+    if (ignored === shouldIgnore) {
+      return;
+    }
+    this._globalIgnoredRecommendations = shouldIgnore ? [...this._globalIgnoredRecommendations, extensionId] : this._globalIgnoredRecommendations.filter((id) => id !== extensionId);
+    this.storeCachedIgnoredRecommendations(this._globalIgnoredRecommendations);
+    this._onDidChangeGlobalIgnoredRecommendation.fire({ extensionId, isRecommended: !shouldIgnore });
+    this._onDidChangeIgnoredRecommendations.fire();
+  }
+  getCachedIgnoredRecommendations() {
+    const ignoredRecommendations = JSON.parse(this.ignoredRecommendationsValue);
+    return ignoredRecommendations.map((e) => e.toLowerCase());
+  }
+  onDidStorageChange() {
+    if (this.ignoredRecommendationsValue !== this.getStoredIgnoredRecommendationsValue()) {
+      this._ignoredRecommendationsValue = void 0;
+      this._globalIgnoredRecommendations = this.getCachedIgnoredRecommendations();
+      this._onDidChangeIgnoredRecommendations.fire();
+    }
+  }
+  storeCachedIgnoredRecommendations(ignoredRecommendations) {
+    this.ignoredRecommendationsValue = JSON.stringify(ignoredRecommendations);
+  }
+  get ignoredRecommendationsValue() {
+    if (!this._ignoredRecommendationsValue) {
+      this._ignoredRecommendationsValue = this.getStoredIgnoredRecommendationsValue();
+    }
+    return this._ignoredRecommendationsValue;
+  }
+  set ignoredRecommendationsValue(ignoredRecommendationsValue) {
+    if (this.ignoredRecommendationsValue !== ignoredRecommendationsValue) {
+      this._ignoredRecommendationsValue = ignoredRecommendationsValue;
+      this.setStoredIgnoredRecommendationsValue(ignoredRecommendationsValue);
+    }
+  }
+  getStoredIgnoredRecommendationsValue() {
+    return this.storageService.get(ignoredRecommendationsStorageKey, 0, "[]");
+  }
+  setStoredIgnoredRecommendationsValue(value) {
+    this.storageService.store(
+      ignoredRecommendationsStorageKey,
+      value,
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+};
+ExtensionIgnoredRecommendationsService = __decorate([
+  __param(0, IWorkspaceExtensionsConfigService),
+  __param(1, IStorageService)
+], ExtensionIgnoredRecommendationsService);
+registerSingleton(
+  IExtensionIgnoredRecommendationsService,
+  ExtensionIgnoredRecommendationsService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ExtensionIgnoredRecommendationsService
+};
+//# sourceMappingURL=extensionIgnoredRecommendationsService.js.map

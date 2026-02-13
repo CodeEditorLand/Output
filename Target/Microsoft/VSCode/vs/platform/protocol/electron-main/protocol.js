@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../instantiation/common/instantiation.js";const t=o("protocolMainService");export{t as $9u};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IProtocolMainService = createDecorator("protocolMainService");
+export {
+  IProtocolMainService
+};
+//# sourceMappingURL=protocol.js.map

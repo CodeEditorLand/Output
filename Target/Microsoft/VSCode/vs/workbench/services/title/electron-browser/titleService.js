@@ -1,1 +1,10 @@
-import{$WC as m}from"../../../../platform/instantiation/common/extensions.js";import{$TVc as o}from"../../../electron-browser/parts/titlebar/titlebarPart.js";import{$W0b as r}from"../browser/titleService.js";m(r,o,0);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { NativeTitleService } from "../../../electron-browser/parts/titlebar/titlebarPart.js";
+import { ITitleService } from "../browser/titleService.js";
+registerSingleton(
+  ITitleService,
+  NativeTitleService,
+  0
+  /* InstantiationType.Eager */
+);
+//# sourceMappingURL=titleService.js.map

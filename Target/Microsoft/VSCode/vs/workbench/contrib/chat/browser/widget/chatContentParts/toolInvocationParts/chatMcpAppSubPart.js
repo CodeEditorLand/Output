@@ -1,1 +1,129 @@
-import*as n from"../../../../../../../base/browser/dom.js";import{$b_ as $}from"../../../../../../../base/browser/ui/button/button.js";import{$bk as v}from"../../../../../../../base/common/codicons.js";import{$jk as y}from"../../../../../../../base/common/htmlContent.js";import{$Fd as w}from"../../../../../../../base/common/lifecycle.js";import{autorun as D,observableValue as x}from"../../../../../../../base/common/observable.js";import{ThemeIcon as C}from"../../../../../../../base/common/themables.js";import{localize as p}from"../../../../../../../nls.js";import{$Mj as N}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$Ukb as _}from"../../../../../../../platform/markdown/browser/markdownRenderer.js";import{$Ijb as H}from"../../../../../../../platform/theme/browser/defaultStyles.js";import{ChatErrorLevel as j}from"../../../../common/chatService/chatService.js";import{$Q2b as W}from"../chatErrorContentPart.js";import{$W2b as M}from"../chatProgressContentPart.js";import{$C3b as k}from"./chatMcpAppModel.js";import{$o3b as P}from"./chatToolInvocationSubPart.js";var g=function(m,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(m,t,i,e);else for(var r=m.length-1;r>=0;r--)(h=m[r])&&(s=(o<3?h(s):o>3?h(t,i,s):h(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},l=function(m,t){return function(i,e){t(i,e,m)}};const f=.75;let u=class extends P{constructor(t,i,e,o,s,h){super(t),this.q=o,this.r=s,this.s=h,this.codeblocks=[],this.m=this.D(new w),this.domNode=n.$("div.mcp-app-part"),this.h=n.$("div.mcp-app-webview"),this.h.style.maxHeight=`${f*100}vh`,this.h.style.minHeight="100px",this.h.style.height="300px",this.domNode.appendChild(this.h);const r=n.getWindow(this.domNode),d=()=>f*r.innerHeight,c=x("mcpAppMaxHeight",d());n.$u8(r,"resize",()=>c.set(d(),void 0)),this.c=this.D(this.r.createInstance(k,t,this.q,this.h,c,e.currentWidth)),this.u(),this.D(D(a=>{const b=this.c.loadState.read(a);this.t(this.h,b)})),this.D(this.c.onDidChangeHeight(()=>{this.u()})),this.D(i(()=>{this.c.remount()})),this.D(e.onDidChangeVisibility(a=>{a&&this.c.remount()}))}t(t,i){switch(this.m.value&&this.m.value.domNode.remove(),this.m.clear(),this.n&&(this.n.remove(),this.n=void 0),i.status){case"loading":{t.style.display="none";const e=n.$("span");e.textContent=p(6596,null);const o=this.r.createInstance(M,e,C.modify(v.loading,"spin"),void 0);this.m.value=o,this.domNode.appendChild(o.domNode);break}case"loaded":{t.style.display="";break}case"error":{t.style.display="none",this.w(this.domNode,i.error);break}}}u(){this.h.style.height=`${this.c.height}px`}w(t,i){const e=n.$(".mcp-app-error"),o=new y;o.appendText(p(6597,null,i.message||String(i)));const s=new W(j.Error,o,this.s);e.appendChild(s.domNode);const h=n.$y9(e,n.$(".chat-buttons-container")),r=new $(h,H);r.label=p(6598,null),r.onDidClick(()=>{this.c.retry()}),t.appendChild(e),this.n=e}};u=g([l(4,N),l(5,_)],u);export{u as $D3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { Button } from "../../../../../../../base/browser/ui/button/button.js";
+import { Codicon } from "../../../../../../../base/common/codicons.js";
+import { MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { MutableDisposable } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, observableValue } from "../../../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IMarkdownRendererService } from "../../../../../../../platform/markdown/browser/markdownRenderer.js";
+import { defaultButtonStyles } from "../../../../../../../platform/theme/browser/defaultStyles.js";
+import { ChatErrorLevel } from "../../../../common/chatService/chatService.js";
+import { ChatErrorWidget } from "../chatErrorContentPart.js";
+import { ChatProgressSubPart } from "../chatProgressContentPart.js";
+import { ChatMcpAppModel } from "./chatMcpAppModel.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+const maxWebviewHeightPct = 0.75;
+let ChatMcpAppSubPart = class ChatMcpAppSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatMcpAppSubPart");
+  }
+  constructor(toolInvocation, onDidRemount, context, _renderData, _instantiationService, _markdownRendererService) {
+    super(toolInvocation);
+    this._renderData = _renderData;
+    this._instantiationService = _instantiationService;
+    this._markdownRendererService = _markdownRendererService;
+    this.codeblocks = [];
+    this._progressPart = this._register(new MutableDisposable());
+    this.domNode = dom.$("div.mcp-app-part");
+    this._webviewContainer = dom.$("div.mcp-app-webview");
+    this._webviewContainer.style.maxHeight = `${maxWebviewHeightPct * 100}vh`;
+    this._webviewContainer.style.minHeight = "100px";
+    this._webviewContainer.style.height = "300px";
+    this.domNode.appendChild(this._webviewContainer);
+    const targetWindow = dom.getWindow(this.domNode);
+    const getMaxHeight = /* @__PURE__ */ __name(() => maxWebviewHeightPct * targetWindow.innerHeight, "getMaxHeight");
+    const maxHeight = observableValue("mcpAppMaxHeight", getMaxHeight());
+    dom.addDisposableListener(targetWindow, "resize", () => maxHeight.set(getMaxHeight(), void 0));
+    this._model = this._register(this._instantiationService.createInstance(ChatMcpAppModel, toolInvocation, this._renderData, this._webviewContainer, maxHeight, context.currentWidth));
+    this._updateContainerHeight();
+    this._register(autorun((reader) => {
+      const loadState = this._model.loadState.read(reader);
+      this._handleLoadStateChange(this._webviewContainer, loadState);
+    }));
+    this._register(this._model.onDidChangeHeight(() => {
+      this._updateContainerHeight();
+    }));
+    this._register(onDidRemount(() => {
+      this._model.remount();
+    }));
+    this._register(context.onDidChangeVisibility((visible) => {
+      if (visible) {
+        this._model.remount();
+      }
+    }));
+  }
+  _handleLoadStateChange(container, loadState) {
+    if (this._progressPart.value) {
+      this._progressPart.value.domNode.remove();
+    }
+    this._progressPart.clear();
+    if (this._errorNode) {
+      this._errorNode.remove();
+      this._errorNode = void 0;
+    }
+    switch (loadState.status) {
+      case "loading": {
+        container.style.display = "none";
+        const progressMessage = dom.$("span");
+        progressMessage.textContent = localize("loadingMcpApp", "Loading MCP App...");
+        const progressPart = this._instantiationService.createInstance(ChatProgressSubPart, progressMessage, ThemeIcon.modify(Codicon.loading, "spin"), void 0);
+        this._progressPart.value = progressPart;
+        this.domNode.appendChild(progressPart.domNode);
+        break;
+      }
+      case "loaded": {
+        container.style.display = "";
+        break;
+      }
+      case "error": {
+        container.style.display = "none";
+        this._showError(this.domNode, loadState.error);
+        break;
+      }
+    }
+  }
+  _updateContainerHeight() {
+    this._webviewContainer.style.height = `${this._model.height}px`;
+  }
+  /**
+   * Shows an error message in the container.
+   */
+  _showError(container, error) {
+    const errorNode = dom.$(".mcp-app-error");
+    const errorMessage = new MarkdownString();
+    errorMessage.appendText(localize("mcpAppError", "Error loading MCP App: {0}", error.message || String(error)));
+    const errorWidget = new ChatErrorWidget(ChatErrorLevel.Error, errorMessage, this._markdownRendererService);
+    errorNode.appendChild(errorWidget.domNode);
+    const buttonContainer = dom.append(errorNode, dom.$(".chat-buttons-container"));
+    const retryButton = new Button(buttonContainer, defaultButtonStyles);
+    retryButton.label = localize("retry", "Retry");
+    retryButton.onDidClick(() => {
+      this._model.retry();
+    });
+    container.appendChild(errorNode);
+    this._errorNode = errorNode;
+  }
+};
+ChatMcpAppSubPart = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IMarkdownRendererService)
+], ChatMcpAppSubPart);
+export {
+  ChatMcpAppSubPart
+};
+//# sourceMappingURL=chatMcpAppSubPart.js.map

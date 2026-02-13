@@ -1,1 +1,92 @@
-import{$Vh as $}from"../../../../base/common/async.js";import{$Jf as y}from"../../../../base/common/cancellation.js";import{$yo as w}from"../../../../platform/log/common/log.js";import{$uH as _}from"../../../../platform/progress/common/progress.js";import{$Ed as v,$Cd as E}from"../../../../base/common/lifecycle.js";import{$Rd as R}from"../../../../base/common/linkedList.js";import{localize as f}from"../../../../nls.js";import{NotificationPriority as P}from"../../../../platform/notification/common/notification.js";import{$sb as x,$rb as C}from"../../../../base/common/errors.js";var b=function(n,t,r,i){var a=arguments.length,e=a<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,r):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,r,i);else for(var s=n.length-1;s>=0;s--)(o=n[s])&&(e=(a<3?o(e):a>3?o(t,r,e):o(t,r))||e);return a>3&&e&&Object.defineProperty(t,r,e),e},p=function(n,t){return function(r,i){t(r,i,n)}};let u=class extends v{constructor(t,r){super(),this.f=t,this.g=r,this.c=new R}addSaveParticipant(t){const r=this.c.push(t);return E(()=>r())}async participate(t,r,i,a){const e=new y(a);t.textEditorModel?.pushStackElement(),i.report({message:f(16494,null)});let o=!1;if(await this.g.withProgress({priority:P.URGENT,location:15,cancellable:f(16495,null),delay:t.isDirty()?5e3:3e3},async s=>{const m=Array.from(this.c).sort((l,c)=>{const h=l.ordinal??0,d=c.ordinal??0;return h-d});for(const l of m){if(e.token.isCancellationRequested||!t.textEditorModel)break;try{const c=l.participate(t,r,s,e.token);await $(c,e.token)}catch(c){C(c)?e.token.isCancellationRequested||(e.cancel(),o=!0):this.f.error(c)}}},()=>{e.cancel()}),t.textEditorModel?.pushStackElement(),e.dispose(),o)throw new x}dispose(){this.c.clear(),super.dispose()}};u=b([p(0,w),p(1,_)],u);export{u as $iNc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { raceCancellation } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
+import { localize } from "../../../../nls.js";
+import { NotificationPriority } from "../../../../platform/notification/common/notification.js";
+import { CancellationError, isCancellationError } from "../../../../base/common/errors.js";
+let TextFileSaveParticipant = class TextFileSaveParticipant2 extends Disposable {
+  static {
+    __name(this, "TextFileSaveParticipant");
+  }
+  constructor(logService, progressService) {
+    super();
+    this.logService = logService;
+    this.progressService = progressService;
+    this.saveParticipants = new LinkedList();
+  }
+  addSaveParticipant(participant) {
+    const remove = this.saveParticipants.push(participant);
+    return toDisposable(() => remove());
+  }
+  async participate(model, context, progress, token) {
+    const cts = new CancellationTokenSource(token);
+    model.textEditorModel?.pushStackElement();
+    progress.report({
+      message: localize("saveParticipants1", "Running Code Actions and Formatters...")
+    });
+    let bubbleCancel = false;
+    await this.progressService.withProgress({
+      priority: NotificationPriority.URGENT,
+      location: 15,
+      cancellable: localize("skip", "Skip"),
+      delay: model.isDirty() ? 5e3 : 3e3
+    }, async (progress2) => {
+      const participants = Array.from(this.saveParticipants).sort((a, b) => {
+        const aValue = a.ordinal ?? 0;
+        const bValue = b.ordinal ?? 0;
+        return aValue - bValue;
+      });
+      for (const saveParticipant of participants) {
+        if (cts.token.isCancellationRequested || !model.textEditorModel) {
+          break;
+        }
+        try {
+          const promise = saveParticipant.participate(model, context, progress2, cts.token);
+          await raceCancellation(promise, cts.token);
+        } catch (err) {
+          if (!isCancellationError(err)) {
+            this.logService.error(err);
+          } else if (!cts.token.isCancellationRequested) {
+            cts.cancel();
+            bubbleCancel = true;
+          }
+        }
+      }
+    }, () => {
+      cts.cancel();
+    });
+    model.textEditorModel?.pushStackElement();
+    cts.dispose();
+    if (bubbleCancel) {
+      throw new CancellationError();
+    }
+  }
+  dispose() {
+    this.saveParticipants.clear();
+    super.dispose();
+  }
+};
+TextFileSaveParticipant = __decorate([
+  __param(0, ILogService),
+  __param(1, IProgressService)
+], TextFileSaveParticipant);
+export {
+  TextFileSaveParticipant
+};
+//# sourceMappingURL=textFileSaveParticipant.js.map

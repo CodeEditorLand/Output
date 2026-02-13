@@ -1,1 +1,789 @@
-import*as s from"../../../../../../base/browser/dom.js";import{$n8 as D}from"../../../../../../base/browser/keyboardEvent.js";import{$y$ as z}from"../../../../../../base/browser/ui/hover/hoverDelegate2.js";import{$u0 as F}from"../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$xf as T}from"../../../../../../base/common/event.js";import{$Ed as O,$Dd as j,$Fd as P}from"../../../../../../base/common/lifecycle.js";import{$rd as w}from"../../../../../../base/common/types.js";import{localize as v}from"../../../../../../nls.js";import{$Ijb as N,$Pjb as E,$Sjb as R}from"../../../../../../platform/theme/browser/defaultStyles.js";import{$b_ as L}from"../../../../../../base/browser/ui/button/button.js";import{$A_ as W}from"../../../../../../base/browser/ui/inputbox/inputBox.js";import{$H$ as H}from"../../../../../../base/browser/ui/toggle/toggle.js";import{$9Eb as M}from"../../../common/model/chatViewModel.js";import{$bk as q}from"../../../../../../base/common/codicons.js";import"./media/chatQuestionCarousel.css";class ae extends O{constructor(t,e,n){if(super(),this.F=t,this.G=n,this.a=this.D(new T),this.onDidChangeHeight=this.a.event,this.b=0,this.c=new Map,this.s=!1,this.t=new Map,this.u=new Map,this.w=new Map,this.y=new Map,this.z=this.D(new j),this.C=this.D(new P),this.domNode=s.$(".chat-question-carousel-container"),t.data)for(const[u,h]of Object.entries(t.data))this.c.set(u,h);const i=M(e.element)&&e.element.isComplete;if(t.isUsed||i){this.s=!0,this.domNode.classList.add("chat-question-carousel-used"),this.Z();return}const a=new j;if(this.C.value=a,this.f=s.$(".chat-question-carousel-content"),this.domNode.append(this.f),t.allowSkip){this.g=s.$(".chat-question-close-container");const u=v(6490,null),h=a.add(new L(this.g,{...N,secondary:!0,supportIcons:!0,title:u}));h.label=`$(${q.close.id})`,h.element.classList.add("chat-question-nav-arrow","chat-question-close"),h.element.setAttribute("aria-label",u),this.r=h}this.h=s.$(".chat-question-footer-row"),this.j=s.$(".chat-question-step-indicator"),this.h.appendChild(this.j),this.m=s.$(".chat-question-carousel-nav"),this.m.setAttribute("role","navigation"),this.m.setAttribute("aria-label",v(6491,null));const f=s.$(".chat-question-nav-arrows"),p=v(6492,null),b=a.add(new L(f,{...N,secondary:!0,supportIcons:!0,title:p}));b.element.classList.add("chat-question-nav-arrow","chat-question-nav-prev"),b.label=`$(${q.chevronLeft.id})`,b.element.setAttribute("aria-label",p),this.n=b;const o=v(6493,null),r=a.add(new L(f,{...N,secondary:!0,supportIcons:!0,title:o}));r.element.classList.add("chat-question-nav-arrow","chat-question-nav-next"),r.label=`$(${q.chevronRight.id})`,this.q=r,this.m.appendChild(f),this.h.appendChild(this.m),this.domNode.append(this.h),a.add(b.onDidClick(()=>this.I(-1))),a.add(r.onDidClick(()=>this.J())),this.r&&a.add(this.r.onDidClick(()=>this.ignore())),a.add(s.$u8(this.domNode,s.$r9.KEY_DOWN,u=>{const h=new D(u);if(h.keyCode===9&&this.F.allowSkip)u.preventDefault(),u.stopPropagation(),this.ignore();else if(h.keyCode===3&&!h.shiftKey){const $=u.target,k=$.tagName==="INPUT"&&$.type==="text",g=$.tagName==="TEXTAREA"&&$.classList.contains("chat-question-freeform-textarea");(k||g)&&(u.preventDefault(),u.stopPropagation(),this.J())}else(h.ctrlKey||h.metaKey)&&(h.keyCode===1||h.keyCode===20)&&u.stopPropagation()})),this.P()}H(){const t=this.F.questions[this.b],e=this.X();e!==void 0&&this.c.set(t.id,e)}I(t){const e=this.b+t;e>=0&&e<this.F.questions.length&&(this.H(),this.b=e,this.P())}J(){this.H(),this.b<this.F.questions.length-1?(this.b++,this.P()):(this.G.onSubmit(this.c),this.L())}L(){this.s=!0,this.domNode.classList.add("chat-question-carousel-used"),this.M(),s.$t8(this.domNode),this.Z(),this.a.fire()}M(){this.C.clear(),this.z.clear(),this.t.clear(),this.u.clear(),this.w.clear(),this.y.clear(),this.n=void 0,this.q=void 0,this.r=void 0,this.f=void 0,this.m=void 0,this.g=void 0,this.h=void 0,this.j=void 0}skip(){if(this.s||!this.F.allowSkip)return!1;const t=this.N();this.G.onSubmit(t),this.c.clear();for(const[e,n]of t)this.c.set(e,n);return this.L(),!0}ignore(){return this.s||!this.F.allowSkip?!1:(this.s=!0,this.G.onSubmit(void 0),this.M(),this.domNode.classList.add("chat-question-carousel-used"),s.$t8(this.domNode),this.Y(),this.a.fire(),!0)}N(){const t=new Map;for(const e of this.F.questions){const n=this.O(e);n!==void 0&&t.set(e.id,n)}return t}O(t){switch(t.type){case"text":return t.defaultValue;case"singleSelect":{const e=typeof t.defaultValue=="string"?t.defaultValue:void 0,i=(e!==void 0?t.options?.find(a=>a.id===e):void 0)?.value;return i!==void 0?{selectedValue:i,freeformValue:void 0}:void 0}case"multiSelect":{const e=Array.isArray(t.defaultValue)?t.defaultValue:typeof t.defaultValue=="string"?[t.defaultValue]:[],n=t.options?.filter(i=>e.includes(i.id)).map(i=>i.value).filter(i=>i!==void 0)??[];return n.length>0?{selectedValues:n,freeformValue:void 0}:void 0}default:return t.defaultValue}}P(){if(!this.f||!this.n||!this.q)return;this.z.clear(),this.t.clear(),this.u.clear(),this.w.clear(),this.y.clear(),s.$t8(this.f);const t=this.F.questions[this.b];if(!t)return;const e=s.$(".chat-question-header-row"),n=t.message??t.title;if(n){const o=s.$(".chat-question-title"),r=typeof n=="string"?n:n.value;o.setAttribute("aria-label",r);const u=r.match(/^(.+?)\s*(\([^)]+\))\s*$/);if(u){const h=s.$("span.chat-question-title-main");h.textContent=u[1],o.appendChild(h);const $=s.$("span.chat-question-title-subtitle");$.textContent=" "+u[2],o.appendChild($)}else o.textContent=r;e.appendChild(o)}this.g&&e.appendChild(this.g),this.f.appendChild(e);const i=this.F.questions.length===1;this.j&&(this.j.textContent=`${this.b+1}/${this.F.questions.length}`,this.j.style.display=i?"none":"");const a=s.$(".chat-question-input-container");this.Q(a,t),this.f.appendChild(a),this.n.enabled=this.b>0,this.n.element.style.display=i?"none":"";const f=this.b===this.F.questions.length-1,p=v(6494,null),b=v(6495,null);f?(this.q.label=p,this.q.element.title=p,this.q.element.setAttribute("aria-label",p),this.q.element.classList.add("chat-question-nav-submit")):(this.q.label=`$(${q.chevronRight.id})`,this.q.element.title=b,this.q.element.setAttribute("aria-label",b),this.q.element.classList.remove("chat-question-nav-submit")),this.a.fire()}Q(t,e){switch(e.type){case"text":this.S(t,e);break;case"singleSelect":this.U(t,e);break;case"multiSelect":this.W(t,e);break}}R(t){const e=()=>{t.style.height="auto",t.style.height=`${Math.min(t.scrollHeight,200)}px`,this.a.fire()};return this.z.add(s.$u8(t,s.$r9.INPUT,e)),e}S(t,e){const n=this.z.add(new W(t,void 0,{placeholder:v(6496,null),inputBoxStyles:R})),i=this.c.get(e.id);i!==void 0?n.value=String(i):e.defaultValue!==void 0&&(n.value=String(e.defaultValue)),this.t.set(e.id,n),this.G.shouldAutoFocus!==!1&&this.z.add(s.$D8(s.getWindow(n.element),()=>n.focus()))}U(t,e){const n=e.options||[],i=s.$(".chat-question-list");i.setAttribute("role","listbox"),i.setAttribute("aria-label",e.title),i.tabIndex=0,t.appendChild(i);const a=this.c.get(e.id),f=typeof a=="object"&&a!==null&&w(a,{freeformValue:!0})?a.freeformValue:void 0,p=typeof a=="object"&&a!==null&&w(a,{selectedValue:!0})?a.selectedValue:a,b=typeof e.defaultValue=="string"?e.defaultValue:void 0;let o=-1;n.forEach((l,c)=>{(p!==void 0&&l.value===p||o===-1&&b!==void 0&&l.id===b)&&(o=c)});const r=[],u=[],h=l=>{r.forEach((m,d)=>{const y=d===l;m.classList.toggle("selected",y),m.setAttribute("aria-selected",String(y));const C=u[d];C.classList.toggle("codicon",y),C.classList.toggle("codicon-check",y)}),l>=0&&l<r.length&&i.setAttribute("aria-activedescendant",r[l].id);const c=this.u.get(e.id);c&&(c.selectedIndex=l)};n.forEach((l,c)=>{const m=c===o,d=s.$(".chat-question-list-item");d.setAttribute("role","option"),d.setAttribute("aria-selected",String(m)),d.setAttribute("aria-label",v(6497,null,c+1,l.label)),d.id=`option-${e.id}-${c}`,d.tabIndex=-1;const y=s.$(".chat-question-list-number");y.textContent=`${c+1}`,d.appendChild(y);const C=s.$(".chat-question-list-indicator");m&&C.classList.add("codicon","codicon-check"),u.push(C);const V=s.$(".chat-question-list-label"),S=l.label.indexOf(" - ");if(S!==-1){const x=s.$("span.chat-question-list-label-title");x.textContent=l.label.substring(0,S),V.appendChild(x);const A=s.$("span.chat-question-list-label-desc");A.textContent=": "+l.label.substring(S+3),V.appendChild(A)}else V.textContent=l.label;d.appendChild(V),d.appendChild(C),m&&d.classList.add("selected"),this.z.add(z().setupManagedHover(F("mouse"),d,l.label)),this.z.add(s.$u8(d,s.$r9.CLICK,x=>{x.preventDefault(),x.stopPropagation(),h(c)})),i.appendChild(d),r.push(d)}),this.u.set(e.id,{items:r,selectedIndex:o}),o>=0&&o<r.length&&i.setAttribute("aria-activedescendant",r[o].id);const $=s.$(".chat-question-freeform"),k=s.$(".chat-question-freeform-number");k.textContent=`${n.length+1}`,$.appendChild(k);const g=s.$("textarea.chat-question-freeform-textarea");g.placeholder=v(6498,null),g.rows=1,f!==void 0&&(g.value=f);const I=this.R(g);if(this.z.add(s.$u8(g,s.$r9.INPUT,()=>{g.value.length>0&&h(-1)})),$.appendChild(g),t.appendChild($),this.y.set(e.id,g),this.z.add(s.$u8(i,s.$r9.KEY_DOWN,l=>{const c=new D(l),m=this.u.get(e.id);if(!m||!r.length)return;let d=m.selectedIndex;if(c.keyCode===18)l.preventDefault(),d=Math.min(m.selectedIndex+1,r.length-1);else if(c.keyCode===16)l.preventDefault(),d=Math.max(m.selectedIndex-1,0);else if(c.keyCode===3||c.keyCode===10){l.preventDefault(),l.stopPropagation(),this.J();return}else if(c.keyCode>=22&&c.keyCode<=30){const y=c.keyCode-22;y<r.length?(l.preventDefault(),h(y)):y===r.length&&(l.preventDefault(),h(-1),g.focus());return}d!==m.selectedIndex&&d>=0&&h(d)})),f!==void 0&&this.z.add(s.$D8(s.getWindow(g),()=>I())),this.G.shouldAutoFocus!==!1&&r.length>0){const l=o>=0?o:0;o<0&&h(0),this.z.add(s.$D8(s.getWindow(i),()=>{r[l]?.focus()}))}}W(t,e){const n=e.options||[],i=s.$(".chat-question-list");i.setAttribute("role","listbox"),i.setAttribute("aria-multiselectable","true"),i.setAttribute("aria-label",e.title),i.tabIndex=0,t.appendChild(i);const a=this.c.get(e.id),f=typeof a=="object"&&a!==null&&w(a,{freeformValue:!0})?a.freeformValue:void 0,p=typeof a=="object"&&a!==null&&w(a,{selectedValues:!0})?a.selectedValues:Array.isArray(a)?a:[],b=Array.isArray(e.defaultValue)?e.defaultValue:typeof e.defaultValue=="string"?[e.defaultValue]:[],o=[],r=[];let u=0,h=-1;n.forEach((l,c)=>{let m=!1;p&&p.length>0?m=p.includes(l.value):b.includes(l.id)&&(m=!0);const d=s.$(".chat-question-list-item.multi-select");d.setAttribute("role","option"),d.setAttribute("aria-selected",String(m)),d.setAttribute("aria-label",v(6499,null,c+1,l.label)),d.id=`option-${e.id}-${c}`,d.tabIndex=-1;const y=s.$(".chat-question-list-number");y.textContent=`${c+1}`,d.appendChild(y);const C=this.z.add(new H(l.label,m,E));C.domNode.classList.add("chat-question-list-checkbox"),C.domNode.tabIndex=-1,d.appendChild(C.domNode);const V=s.$(".chat-question-list-label"),S=l.label.indexOf(" - ");if(S!==-1){const x=s.$("span.chat-question-list-label-title");x.textContent=l.label.substring(0,S),V.appendChild(x);const A=s.$("span.chat-question-list-label-desc");A.textContent=": "+l.label.substring(S+3),V.appendChild(A)}else V.textContent=l.label;d.appendChild(V),m&&(d.classList.add("checked"),h===-1&&(h=c)),this.z.add(C.onChange(()=>{d.classList.toggle("checked",C.checked),d.setAttribute("aria-selected",String(C.checked))})),this.z.add(s.$u8(d,s.$r9.CLICK,x=>{u=c,x.target!==C.domNode&&!C.domNode.contains(x.target)&&C.domNode.click()})),this.z.add(z().setupManagedHover(F("mouse"),d,l.label)),i.appendChild(d),o.push(C),r.push(d)}),this.w.set(e.id,o);const $=s.$(".chat-question-freeform"),k=s.$(".chat-question-freeform-number");k.textContent=`${n.length+1}`,$.appendChild(k);const g=s.$("textarea.chat-question-freeform-textarea");g.placeholder=v(6500,null),g.rows=1,f!==void 0&&(g.value=f);const I=this.R(g);if($.appendChild(g),t.appendChild($),this.y.set(e.id,g),this.z.add(s.$u8(i,s.$r9.KEY_DOWN,l=>{const c=new D(l);if(r.length){if(c.keyCode===18)l.preventDefault(),u=Math.min(u+1,r.length-1),r[u].focus();else if(c.keyCode===16)l.preventDefault(),u=Math.max(u-1,0),r[u].focus();else if(c.keyCode===3)l.preventDefault(),l.stopPropagation(),this.J();else if(c.keyCode===10)l.preventDefault(),u>=0&&u<o.length&&o[u].domNode.click();else if(c.keyCode>=22&&c.keyCode<=30){const m=c.keyCode-22;m<o.length?(l.preventDefault(),o[m].domNode.click()):m===o.length&&(l.preventDefault(),g.focus())}}})),f!==void 0&&this.z.add(s.$D8(s.getWindow(g),()=>I())),this.G.shouldAutoFocus!==!1&&r.length>0){const l=h>=0?h:0;u=l,this.z.add(s.$D8(s.getWindow(i),()=>{r[l]?.focus()}))}}X(){const t=this.F.questions[this.b];if(t)switch(t.type){case"text":return this.t.get(t.id)?.value??t.defaultValue;case"singleSelect":{const e=this.u.get(t.id);let n;e&&e.selectedIndex>=0&&(n=t.options?.[e.selectedIndex]?.value),n===void 0&&typeof t.defaultValue=="string"&&(n=t.options?.find(p=>p.id===t.defaultValue)?.value);const i=this.y.get(t.id),a=i?.value!==""?i?.value:void 0;return a?{selectedValue:void 0,freeformValue:a}:n!==void 0?{selectedValue:n,freeformValue:void 0}:void 0}case"multiSelect":{const e=this.w.get(t.id),n=[];e&&e.forEach((p,b)=>{if(p.checked){const o=t.options?.[b]?.value;o!==void 0&&n.push(o)}});const i=this.y.get(t.id),a=i?.value!==""?i?.value:void 0;let f=n;if(n.length===0&&!a&&t.defaultValue!==void 0){const p=Array.isArray(t.defaultValue)?t.defaultValue:[t.defaultValue];f=t.options?.filter(o=>p.includes(o.id)).map(o=>o.value)?.filter(o=>o!==void 0)||[]}return a||f.length>0?{selectedValues:f,freeformValue:a}:void 0}default:return t.defaultValue}}Y(){const t=s.$(".chat-question-carousel-summary"),e=s.$(".chat-question-summary-skipped");e.textContent=v(6501,null),t.appendChild(e),this.domNode.appendChild(t)}Z(){if(this.c.size===0){this.Y();return}const t=s.$(".chat-question-carousel-summary");for(const e of this.F.questions){const n=this.c.get(e.id);if(n===void 0)continue;const i=s.$(".chat-question-summary-item"),a=s.$("span.chat-question-summary-label"),f=e.message??e.title;let p=typeof f=="string"?f:f.value;p=p.replace(/[:\s]+$/,""),a.textContent=p,i.appendChild(a);const b=this.ab(e,n),o=b.indexOf(" - ");if(o!==-1){const r=s.$("span.chat-question-summary-answer-title");r.textContent=b.substring(0,o),i.appendChild(r);const u=s.$("span.chat-question-summary-answer-desc");u.textContent=" - "+b.substring(o+3),i.appendChild(u)}else{const r=s.$("span.chat-question-summary-answer-title");r.textContent=b,i.appendChild(r)}t.appendChild(i)}this.domNode.appendChild(t)}ab(t,e){switch(t.type){case"text":return String(e);case"singleSelect":{if(typeof e=="object"&&e!==null&&w(e,{selectedValue:!0})){const{selectedValue:i,freeformValue:a}=e,f=t.options?.find(p=>p.value===i)?.label;return a||(f??String(i??""))}return t.options?.find(i=>i.value===e)?.label??String(e)}case"multiSelect":{if(typeof e=="object"&&e!==null&&w(e,{selectedValues:!0})){const{selectedValues:n,freeformValue:i}=e,a=(n??[]).map(f=>t.options?.find(p=>p.value===f)?.label??String(f));return i&&a.push(i),a.join(v(6502,null))}return Array.isArray(e)?e.map(n=>t.options?.find(i=>i.value===n)?.label??String(n)).join(v(6503,null)):String(e)}default:return String(e)}}hasSameContent(t,e,n){return!this.s&&!this.F.isUsed&&M(n)&&n.isComplete?!1:t.kind==="questionCarousel"&&t===this.F}addDisposable(t){this.D(t)}}export{ae as $S2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../../../base/browser/keyboardEvent.js";
+import { getBaseLayerHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegate2.js";
+import { getDefaultHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { hasKey } from "../../../../../../base/common/types.js";
+import { localize } from "../../../../../../nls.js";
+import { defaultButtonStyles, defaultCheckboxStyles, defaultInputBoxStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
+import { Button } from "../../../../../../base/browser/ui/button/button.js";
+import { InputBox } from "../../../../../../base/browser/ui/inputbox/inputBox.js";
+import { Checkbox } from "../../../../../../base/browser/ui/toggle/toggle.js";
+import { isResponseVM } from "../../../common/model/chatViewModel.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import "./media/chatQuestionCarousel.css";
+class ChatQuestionCarouselPart extends Disposable {
+  static {
+    __name(this, "ChatQuestionCarouselPart");
+  }
+  constructor(carousel, context, _options) {
+    super();
+    this.carousel = carousel;
+    this._options = _options;
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
+    this._currentIndex = 0;
+    this._answers = /* @__PURE__ */ new Map();
+    this._isSkipped = false;
+    this._textInputBoxes = /* @__PURE__ */ new Map();
+    this._singleSelectItems = /* @__PURE__ */ new Map();
+    this._multiSelectCheckboxes = /* @__PURE__ */ new Map();
+    this._freeformTextareas = /* @__PURE__ */ new Map();
+    this._inputBoxes = this._register(new DisposableStore());
+    this._interactiveUIStore = this._register(new MutableDisposable());
+    this.domNode = dom.$(".chat-question-carousel-container");
+    if (carousel.data) {
+      for (const [key, value] of Object.entries(carousel.data)) {
+        this._answers.set(key, value);
+      }
+    }
+    const responseIsComplete = isResponseVM(context.element) && context.element.isComplete;
+    if (carousel.isUsed || responseIsComplete) {
+      this._isSkipped = true;
+      this.domNode.classList.add("chat-question-carousel-used");
+      this.renderSummary();
+      return;
+    }
+    const interactiveStore = new DisposableStore();
+    this._interactiveUIStore.value = interactiveStore;
+    this._questionContainer = dom.$(".chat-question-carousel-content");
+    this.domNode.append(this._questionContainer);
+    if (carousel.allowSkip) {
+      this._closeButtonContainer = dom.$(".chat-question-close-container");
+      const skipAllTitle = localize("chat.questionCarousel.skipAllTitle", "Skip all questions");
+      const skipAllButton = interactiveStore.add(new Button(this._closeButtonContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true, title: skipAllTitle }));
+      skipAllButton.label = `$(${Codicon.close.id})`;
+      skipAllButton.element.classList.add("chat-question-nav-arrow", "chat-question-close");
+      skipAllButton.element.setAttribute("aria-label", skipAllTitle);
+      this._skipAllButton = skipAllButton;
+    }
+    this._footerRow = dom.$(".chat-question-footer-row");
+    this._stepIndicator = dom.$(".chat-question-step-indicator");
+    this._footerRow.appendChild(this._stepIndicator);
+    this._navigationButtons = dom.$(".chat-question-carousel-nav");
+    this._navigationButtons.setAttribute("role", "navigation");
+    this._navigationButtons.setAttribute("aria-label", localize("chat.questionCarousel.navigation", "Question navigation"));
+    const arrowsContainer = dom.$(".chat-question-nav-arrows");
+    const previousLabel = localize("previous", "Previous");
+    const prevButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true, title: previousLabel }));
+    prevButton.element.classList.add("chat-question-nav-arrow", "chat-question-nav-prev");
+    prevButton.label = `$(${Codicon.chevronLeft.id})`;
+    prevButton.element.setAttribute("aria-label", previousLabel);
+    this._prevButton = prevButton;
+    const nextLabel = localize("next", "Next");
+    const nextButton = interactiveStore.add(new Button(arrowsContainer, { ...defaultButtonStyles, secondary: true, supportIcons: true, title: nextLabel }));
+    nextButton.element.classList.add("chat-question-nav-arrow", "chat-question-nav-next");
+    nextButton.label = `$(${Codicon.chevronRight.id})`;
+    this._nextButton = nextButton;
+    this._navigationButtons.appendChild(arrowsContainer);
+    this._footerRow.appendChild(this._navigationButtons);
+    this.domNode.append(this._footerRow);
+    interactiveStore.add(prevButton.onDidClick(() => this.navigate(-1)));
+    interactiveStore.add(nextButton.onDidClick(() => this.handleNext()));
+    if (this._skipAllButton) {
+      interactiveStore.add(this._skipAllButton.onDidClick(() => this.ignore()));
+    }
+    interactiveStore.add(dom.addDisposableListener(this.domNode, dom.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.keyCode === 9 && this.carousel.allowSkip) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.ignore();
+      } else if (event.keyCode === 3 && !event.shiftKey) {
+        const target = e.target;
+        const isTextInput = target.tagName === "INPUT" && target.type === "text";
+        const isFreeformTextarea = target.tagName === "TEXTAREA" && target.classList.contains("chat-question-freeform-textarea");
+        if (isTextInput || isFreeformTextarea) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.handleNext();
+        }
+      } else if ((event.ctrlKey || event.metaKey) && (event.keyCode === 1 || event.keyCode === 20)) {
+        e.stopPropagation();
+      }
+    }));
+    this.renderCurrentQuestion();
+  }
+  /**
+   * Saves the current question's answer to the answers map.
+   */
+  saveCurrentAnswer() {
+    const currentQuestion = this.carousel.questions[this._currentIndex];
+    const answer = this.getCurrentAnswer();
+    if (answer !== void 0) {
+      this._answers.set(currentQuestion.id, answer);
+    }
+  }
+  /**
+   * Navigates the carousel by the given delta.
+   * @param delta Negative for previous, positive for next
+   */
+  navigate(delta) {
+    const newIndex = this._currentIndex + delta;
+    if (newIndex >= 0 && newIndex < this.carousel.questions.length) {
+      this.saveCurrentAnswer();
+      this._currentIndex = newIndex;
+      this.renderCurrentQuestion();
+    }
+  }
+  /**
+   * Handles the next/submit button action.
+   * Either advances to the next question or submits.
+   */
+  handleNext() {
+    this.saveCurrentAnswer();
+    if (this._currentIndex < this.carousel.questions.length - 1) {
+      this._currentIndex++;
+      this.renderCurrentQuestion();
+    } else {
+      this._options.onSubmit(this._answers);
+      this.hideAndShowSummary();
+    }
+  }
+  /**
+   * Hides the carousel UI and shows a summary of answers.
+   */
+  hideAndShowSummary() {
+    this._isSkipped = true;
+    this.domNode.classList.add("chat-question-carousel-used");
+    this.clearInteractiveResources();
+    dom.clearNode(this.domNode);
+    this.renderSummary();
+    this._onDidChangeHeight.fire();
+  }
+  /**
+   * Clears and disposes all interactive UI resources (header, nav buttons, input boxes, etc.)
+   * and resets references to disposed elements.
+   */
+  clearInteractiveResources() {
+    this._interactiveUIStore.clear();
+    this._inputBoxes.clear();
+    this._textInputBoxes.clear();
+    this._singleSelectItems.clear();
+    this._multiSelectCheckboxes.clear();
+    this._freeformTextareas.clear();
+    this._prevButton = void 0;
+    this._nextButton = void 0;
+    this._skipAllButton = void 0;
+    this._questionContainer = void 0;
+    this._navigationButtons = void 0;
+    this._closeButtonContainer = void 0;
+    this._footerRow = void 0;
+    this._stepIndicator = void 0;
+  }
+  /**
+   * Skips the carousel with default values - called when user wants to proceed quickly.
+   * Returns defaults for all questions.
+   */
+  skip() {
+    if (this._isSkipped || !this.carousel.allowSkip) {
+      return false;
+    }
+    const defaults = this.getDefaultAnswers();
+    this._options.onSubmit(defaults);
+    this._answers.clear();
+    for (const [key, value] of defaults) {
+      this._answers.set(key, value);
+    }
+    this.hideAndShowSummary();
+    return true;
+  }
+  /**
+   * Ignores the carousel completely - called when user wants to dismiss without data.
+   * Returns undefined to signal the carousel was ignored.
+   */
+  ignore() {
+    if (this._isSkipped || !this.carousel.allowSkip) {
+      return false;
+    }
+    this._isSkipped = true;
+    this._options.onSubmit(void 0);
+    this.clearInteractiveResources();
+    this.domNode.classList.add("chat-question-carousel-used");
+    dom.clearNode(this.domNode);
+    this.renderSkippedMessage();
+    this._onDidChangeHeight.fire();
+    return true;
+  }
+  /**
+   * Collects default values for all questions in the carousel.
+   */
+  getDefaultAnswers() {
+    const answers = /* @__PURE__ */ new Map();
+    for (const question of this.carousel.questions) {
+      const defaultAnswer = this.getDefaultAnswerForQuestion(question);
+      if (defaultAnswer !== void 0) {
+        answers.set(question.id, defaultAnswer);
+      }
+    }
+    return answers;
+  }
+  /**
+   * Gets the default answer for a specific question.
+   */
+  getDefaultAnswerForQuestion(question) {
+    switch (question.type) {
+      case "text":
+        return question.defaultValue;
+      case "singleSelect": {
+        const defaultOptionId = typeof question.defaultValue === "string" ? question.defaultValue : void 0;
+        const defaultOption = defaultOptionId !== void 0 ? question.options?.find((opt) => opt.id === defaultOptionId) : void 0;
+        const selectedValue = defaultOption?.value;
+        return selectedValue !== void 0 ? { selectedValue, freeformValue: void 0 } : void 0;
+      }
+      case "multiSelect": {
+        const defaultIds = Array.isArray(question.defaultValue) ? question.defaultValue : typeof question.defaultValue === "string" ? [question.defaultValue] : [];
+        const selectedValues = question.options?.filter((opt) => defaultIds.includes(opt.id)).map((opt) => opt.value).filter((v) => v !== void 0) ?? [];
+        return selectedValues.length > 0 ? { selectedValues, freeformValue: void 0 } : void 0;
+      }
+      default:
+        return question.defaultValue;
+    }
+  }
+  renderCurrentQuestion() {
+    if (!this._questionContainer || !this._prevButton || !this._nextButton) {
+      return;
+    }
+    this._inputBoxes.clear();
+    this._textInputBoxes.clear();
+    this._singleSelectItems.clear();
+    this._multiSelectCheckboxes.clear();
+    this._freeformTextareas.clear();
+    dom.clearNode(this._questionContainer);
+    const question = this.carousel.questions[this._currentIndex];
+    if (!question) {
+      return;
+    }
+    const headerRow = dom.$(".chat-question-header-row");
+    const questionText = question.message ?? question.title;
+    if (questionText) {
+      const title = dom.$(".chat-question-title");
+      const messageContent = typeof questionText === "string" ? questionText : questionText.value;
+      title.setAttribute("aria-label", messageContent);
+      const parenMatch = messageContent.match(/^(.+?)\s*(\([^)]+\))\s*$/);
+      if (parenMatch) {
+        const mainTitle = dom.$("span.chat-question-title-main");
+        mainTitle.textContent = parenMatch[1];
+        title.appendChild(mainTitle);
+        const subtitle = dom.$("span.chat-question-title-subtitle");
+        subtitle.textContent = " " + parenMatch[2];
+        title.appendChild(subtitle);
+      } else {
+        title.textContent = messageContent;
+      }
+      headerRow.appendChild(title);
+    }
+    if (this._closeButtonContainer) {
+      headerRow.appendChild(this._closeButtonContainer);
+    }
+    this._questionContainer.appendChild(headerRow);
+    const isSingleQuestion = this.carousel.questions.length === 1;
+    if (this._stepIndicator) {
+      this._stepIndicator.textContent = `${this._currentIndex + 1}/${this.carousel.questions.length}`;
+      this._stepIndicator.style.display = isSingleQuestion ? "none" : "";
+    }
+    const inputContainer = dom.$(".chat-question-input-container");
+    this.renderInput(inputContainer, question);
+    this._questionContainer.appendChild(inputContainer);
+    this._prevButton.enabled = this._currentIndex > 0;
+    this._prevButton.element.style.display = isSingleQuestion ? "none" : "";
+    const isLastQuestion = this._currentIndex === this.carousel.questions.length - 1;
+    const submitLabel = localize("submit", "Submit");
+    const nextLabel = localize("next", "Next");
+    if (isLastQuestion) {
+      this._nextButton.label = submitLabel;
+      this._nextButton.element.title = submitLabel;
+      this._nextButton.element.setAttribute("aria-label", submitLabel);
+      this._nextButton.element.classList.add("chat-question-nav-submit");
+    } else {
+      this._nextButton.label = `$(${Codicon.chevronRight.id})`;
+      this._nextButton.element.title = nextLabel;
+      this._nextButton.element.setAttribute("aria-label", nextLabel);
+      this._nextButton.element.classList.remove("chat-question-nav-submit");
+    }
+    this._onDidChangeHeight.fire();
+  }
+  renderInput(container, question) {
+    switch (question.type) {
+      case "text":
+        this.renderTextInput(container, question);
+        break;
+      case "singleSelect":
+        this.renderSingleSelect(container, question);
+        break;
+      case "multiSelect":
+        this.renderMultiSelect(container, question);
+        break;
+    }
+  }
+  /**
+   * Sets up auto-resize behavior for a textarea element.
+   * @returns A function that triggers the resize manually (useful for initial sizing).
+   */
+  setupTextareaAutoResize(textarea) {
+    const autoResize = /* @__PURE__ */ __name(() => {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+      this._onDidChangeHeight.fire();
+    }, "autoResize");
+    this._inputBoxes.add(dom.addDisposableListener(textarea, dom.EventType.INPUT, autoResize));
+    return autoResize;
+  }
+  renderTextInput(container, question) {
+    const inputBox = this._inputBoxes.add(new InputBox(container, void 0, {
+      placeholder: localize("chat.questionCarousel.enterText", "Enter your answer"),
+      inputBoxStyles: defaultInputBoxStyles
+    }));
+    const previousAnswer = this._answers.get(question.id);
+    if (previousAnswer !== void 0) {
+      inputBox.value = String(previousAnswer);
+    } else if (question.defaultValue !== void 0) {
+      inputBox.value = String(question.defaultValue);
+    }
+    this._textInputBoxes.set(question.id, inputBox);
+    if (this._options.shouldAutoFocus !== false) {
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(inputBox.element), () => inputBox.focus()));
+    }
+  }
+  renderSingleSelect(container, question) {
+    const options = question.options || [];
+    const selectContainer = dom.$(".chat-question-list");
+    selectContainer.setAttribute("role", "listbox");
+    selectContainer.setAttribute("aria-label", question.title);
+    selectContainer.tabIndex = 0;
+    container.appendChild(selectContainer);
+    const previousAnswer = this._answers.get(question.id);
+    const previousFreeform = typeof previousAnswer === "object" && previousAnswer !== null && hasKey(previousAnswer, { freeformValue: true }) ? previousAnswer.freeformValue : void 0;
+    const previousSelectedValue = typeof previousAnswer === "object" && previousAnswer !== null && hasKey(previousAnswer, { selectedValue: true }) ? previousAnswer.selectedValue : previousAnswer;
+    const defaultOptionId = typeof question.defaultValue === "string" ? question.defaultValue : void 0;
+    let selectedIndex = -1;
+    options.forEach((option, index) => {
+      if (previousSelectedValue !== void 0 && option.value === previousSelectedValue) {
+        selectedIndex = index;
+      } else if (selectedIndex === -1 && defaultOptionId !== void 0 && option.id === defaultOptionId) {
+        selectedIndex = index;
+      }
+    });
+    const listItems = [];
+    const indicators = [];
+    const updateSelection = /* @__PURE__ */ __name((newIndex) => {
+      listItems.forEach((item, i) => {
+        const isSelected = i === newIndex;
+        item.classList.toggle("selected", isSelected);
+        item.setAttribute("aria-selected", String(isSelected));
+        const indicator = indicators[i];
+        indicator.classList.toggle("codicon", isSelected);
+        indicator.classList.toggle("codicon-check", isSelected);
+      });
+      if (newIndex >= 0 && newIndex < listItems.length) {
+        selectContainer.setAttribute("aria-activedescendant", listItems[newIndex].id);
+      }
+      const data = this._singleSelectItems.get(question.id);
+      if (data) {
+        data.selectedIndex = newIndex;
+      }
+    }, "updateSelection");
+    options.forEach((option, index) => {
+      const isSelected = index === selectedIndex;
+      const listItem = dom.$(".chat-question-list-item");
+      listItem.setAttribute("role", "option");
+      listItem.setAttribute("aria-selected", String(isSelected));
+      listItem.setAttribute("aria-label", localize("chat.questionCarousel.optionLabel", "Option {0}: {1}", index + 1, option.label));
+      listItem.id = `option-${question.id}-${index}`;
+      listItem.tabIndex = -1;
+      const number = dom.$(".chat-question-list-number");
+      number.textContent = `${index + 1}`;
+      listItem.appendChild(number);
+      const indicator = dom.$(".chat-question-list-indicator");
+      if (isSelected) {
+        indicator.classList.add("codicon", "codicon-check");
+      }
+      indicators.push(indicator);
+      const label = dom.$(".chat-question-list-label");
+      const separatorIndex = option.label.indexOf(" - ");
+      if (separatorIndex !== -1) {
+        const titleSpan = dom.$("span.chat-question-list-label-title");
+        titleSpan.textContent = option.label.substring(0, separatorIndex);
+        label.appendChild(titleSpan);
+        const descSpan = dom.$("span.chat-question-list-label-desc");
+        descSpan.textContent = ": " + option.label.substring(separatorIndex + 3);
+        label.appendChild(descSpan);
+      } else {
+        label.textContent = option.label;
+      }
+      listItem.appendChild(label);
+      listItem.appendChild(indicator);
+      if (isSelected) {
+        listItem.classList.add("selected");
+      }
+      this._inputBoxes.add(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), listItem, option.label));
+      this._inputBoxes.add(dom.addDisposableListener(listItem, dom.EventType.CLICK, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        updateSelection(index);
+      }));
+      selectContainer.appendChild(listItem);
+      listItems.push(listItem);
+    });
+    this._singleSelectItems.set(question.id, { items: listItems, selectedIndex });
+    if (selectedIndex >= 0 && selectedIndex < listItems.length) {
+      selectContainer.setAttribute("aria-activedescendant", listItems[selectedIndex].id);
+    }
+    const freeformContainer = dom.$(".chat-question-freeform");
+    const freeformNumber = dom.$(".chat-question-freeform-number");
+    freeformNumber.textContent = `${options.length + 1}`;
+    freeformContainer.appendChild(freeformNumber);
+    const freeformTextarea = dom.$("textarea.chat-question-freeform-textarea");
+    freeformTextarea.placeholder = localize("chat.questionCarousel.enterCustomAnswer", "Enter custom answer");
+    freeformTextarea.rows = 1;
+    if (previousFreeform !== void 0) {
+      freeformTextarea.value = previousFreeform;
+    }
+    const autoResize = this.setupTextareaAutoResize(freeformTextarea);
+    this._inputBoxes.add(dom.addDisposableListener(freeformTextarea, dom.EventType.INPUT, () => {
+      if (freeformTextarea.value.length > 0) {
+        updateSelection(-1);
+      }
+    }));
+    freeformContainer.appendChild(freeformTextarea);
+    container.appendChild(freeformContainer);
+    this._freeformTextareas.set(question.id, freeformTextarea);
+    this._inputBoxes.add(dom.addDisposableListener(selectContainer, dom.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      const data = this._singleSelectItems.get(question.id);
+      if (!data || !listItems.length) {
+        return;
+      }
+      let newIndex = data.selectedIndex;
+      if (event.keyCode === 18) {
+        e.preventDefault();
+        newIndex = Math.min(data.selectedIndex + 1, listItems.length - 1);
+      } else if (event.keyCode === 16) {
+        e.preventDefault();
+        newIndex = Math.max(data.selectedIndex - 1, 0);
+      } else if (event.keyCode === 3 || event.keyCode === 10) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleNext();
+        return;
+      } else if (event.keyCode >= 22 && event.keyCode <= 30) {
+        const numberIndex = event.keyCode - 22;
+        if (numberIndex < listItems.length) {
+          e.preventDefault();
+          updateSelection(numberIndex);
+        } else if (numberIndex === listItems.length) {
+          e.preventDefault();
+          updateSelection(-1);
+          freeformTextarea.focus();
+        }
+        return;
+      }
+      if (newIndex !== data.selectedIndex && newIndex >= 0) {
+        updateSelection(newIndex);
+      }
+    }));
+    if (previousFreeform !== void 0) {
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => autoResize()));
+    }
+    if (this._options.shouldAutoFocus !== false && listItems.length > 0) {
+      const focusIndex = selectedIndex >= 0 ? selectedIndex : 0;
+      if (selectedIndex < 0) {
+        updateSelection(0);
+      }
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
+        listItems[focusIndex]?.focus();
+      }));
+    }
+  }
+  renderMultiSelect(container, question) {
+    const options = question.options || [];
+    const selectContainer = dom.$(".chat-question-list");
+    selectContainer.setAttribute("role", "listbox");
+    selectContainer.setAttribute("aria-multiselectable", "true");
+    selectContainer.setAttribute("aria-label", question.title);
+    selectContainer.tabIndex = 0;
+    container.appendChild(selectContainer);
+    const previousAnswer = this._answers.get(question.id);
+    const previousFreeform = typeof previousAnswer === "object" && previousAnswer !== null && hasKey(previousAnswer, { freeformValue: true }) ? previousAnswer.freeformValue : void 0;
+    const previousSelectedValues = typeof previousAnswer === "object" && previousAnswer !== null && hasKey(previousAnswer, { selectedValues: true }) ? previousAnswer.selectedValues : Array.isArray(previousAnswer) ? previousAnswer : [];
+    const defaultOptionIds = Array.isArray(question.defaultValue) ? question.defaultValue : typeof question.defaultValue === "string" ? [question.defaultValue] : [];
+    const checkboxes = [];
+    const listItems = [];
+    let focusedIndex = 0;
+    let firstCheckedIndex = -1;
+    options.forEach((option, index) => {
+      let isChecked = false;
+      if (previousSelectedValues && previousSelectedValues.length > 0) {
+        isChecked = previousSelectedValues.includes(option.value);
+      } else if (defaultOptionIds.includes(option.id)) {
+        isChecked = true;
+      }
+      const listItem = dom.$(".chat-question-list-item.multi-select");
+      listItem.setAttribute("role", "option");
+      listItem.setAttribute("aria-selected", String(isChecked));
+      listItem.setAttribute("aria-label", localize("chat.questionCarousel.optionLabel", "Option {0}: {1}", index + 1, option.label));
+      listItem.id = `option-${question.id}-${index}`;
+      listItem.tabIndex = -1;
+      const number = dom.$(".chat-question-list-number");
+      number.textContent = `${index + 1}`;
+      listItem.appendChild(number);
+      const checkbox = this._inputBoxes.add(new Checkbox(option.label, isChecked, defaultCheckboxStyles));
+      checkbox.domNode.classList.add("chat-question-list-checkbox");
+      checkbox.domNode.tabIndex = -1;
+      listItem.appendChild(checkbox.domNode);
+      const label = dom.$(".chat-question-list-label");
+      const separatorIndex = option.label.indexOf(" - ");
+      if (separatorIndex !== -1) {
+        const titleSpan = dom.$("span.chat-question-list-label-title");
+        titleSpan.textContent = option.label.substring(0, separatorIndex);
+        label.appendChild(titleSpan);
+        const descSpan = dom.$("span.chat-question-list-label-desc");
+        descSpan.textContent = ": " + option.label.substring(separatorIndex + 3);
+        label.appendChild(descSpan);
+      } else {
+        label.textContent = option.label;
+      }
+      listItem.appendChild(label);
+      if (isChecked) {
+        listItem.classList.add("checked");
+        if (firstCheckedIndex === -1) {
+          firstCheckedIndex = index;
+        }
+      }
+      this._inputBoxes.add(checkbox.onChange(() => {
+        listItem.classList.toggle("checked", checkbox.checked);
+        listItem.setAttribute("aria-selected", String(checkbox.checked));
+      }));
+      this._inputBoxes.add(dom.addDisposableListener(listItem, dom.EventType.CLICK, (e) => {
+        focusedIndex = index;
+        if (e.target !== checkbox.domNode && !checkbox.domNode.contains(e.target)) {
+          checkbox.domNode.click();
+        }
+      }));
+      this._inputBoxes.add(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), listItem, option.label));
+      selectContainer.appendChild(listItem);
+      checkboxes.push(checkbox);
+      listItems.push(listItem);
+    });
+    this._multiSelectCheckboxes.set(question.id, checkboxes);
+    const freeformContainer = dom.$(".chat-question-freeform");
+    const freeformNumber = dom.$(".chat-question-freeform-number");
+    freeformNumber.textContent = `${options.length + 1}`;
+    freeformContainer.appendChild(freeformNumber);
+    const freeformTextarea = dom.$("textarea.chat-question-freeform-textarea");
+    freeformTextarea.placeholder = localize("chat.questionCarousel.enterCustomAnswer", "Enter custom answer");
+    freeformTextarea.rows = 1;
+    if (previousFreeform !== void 0) {
+      freeformTextarea.value = previousFreeform;
+    }
+    const autoResize = this.setupTextareaAutoResize(freeformTextarea);
+    freeformContainer.appendChild(freeformTextarea);
+    container.appendChild(freeformContainer);
+    this._freeformTextareas.set(question.id, freeformTextarea);
+    this._inputBoxes.add(dom.addDisposableListener(selectContainer, dom.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (!listItems.length) {
+        return;
+      }
+      if (event.keyCode === 18) {
+        e.preventDefault();
+        focusedIndex = Math.min(focusedIndex + 1, listItems.length - 1);
+        listItems[focusedIndex].focus();
+      } else if (event.keyCode === 16) {
+        e.preventDefault();
+        focusedIndex = Math.max(focusedIndex - 1, 0);
+        listItems[focusedIndex].focus();
+      } else if (event.keyCode === 3) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleNext();
+      } else if (event.keyCode === 10) {
+        e.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < checkboxes.length) {
+          checkboxes[focusedIndex].domNode.click();
+        }
+      } else if (event.keyCode >= 22 && event.keyCode <= 30) {
+        const numberIndex = event.keyCode - 22;
+        if (numberIndex < checkboxes.length) {
+          e.preventDefault();
+          checkboxes[numberIndex].domNode.click();
+        } else if (numberIndex === checkboxes.length) {
+          e.preventDefault();
+          freeformTextarea.focus();
+        }
+      }
+    }));
+    if (previousFreeform !== void 0) {
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(freeformTextarea), () => autoResize()));
+    }
+    if (this._options.shouldAutoFocus !== false && listItems.length > 0) {
+      const initialFocusIndex = firstCheckedIndex >= 0 ? firstCheckedIndex : 0;
+      focusedIndex = initialFocusIndex;
+      this._inputBoxes.add(dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(selectContainer), () => {
+        listItems[initialFocusIndex]?.focus();
+      }));
+    }
+  }
+  getCurrentAnswer() {
+    const question = this.carousel.questions[this._currentIndex];
+    if (!question) {
+      return void 0;
+    }
+    switch (question.type) {
+      case "text": {
+        const inputBox = this._textInputBoxes.get(question.id);
+        return inputBox?.value ?? question.defaultValue;
+      }
+      case "singleSelect": {
+        const data = this._singleSelectItems.get(question.id);
+        let selectedValue = void 0;
+        if (data && data.selectedIndex >= 0) {
+          selectedValue = question.options?.[data.selectedIndex]?.value;
+        }
+        if (selectedValue === void 0 && typeof question.defaultValue === "string") {
+          const defaultOption = question.options?.find((opt) => opt.id === question.defaultValue);
+          selectedValue = defaultOption?.value;
+        }
+        const freeformTextarea = this._freeformTextareas.get(question.id);
+        const freeformValue = freeformTextarea?.value !== "" ? freeformTextarea?.value : void 0;
+        if (freeformValue) {
+          return { selectedValue: void 0, freeformValue };
+        }
+        if (selectedValue !== void 0) {
+          return { selectedValue, freeformValue: void 0 };
+        }
+        return void 0;
+      }
+      case "multiSelect": {
+        const checkboxes = this._multiSelectCheckboxes.get(question.id);
+        const selectedValues = [];
+        if (checkboxes) {
+          checkboxes.forEach((checkbox, index) => {
+            if (checkbox.checked) {
+              const value = question.options?.[index]?.value;
+              if (value !== void 0) {
+                selectedValues.push(value);
+              }
+            }
+          });
+        }
+        const freeformTextarea = this._freeformTextareas.get(question.id);
+        const freeformValue = freeformTextarea?.value !== "" ? freeformTextarea?.value : void 0;
+        let finalSelectedValues = selectedValues;
+        if (selectedValues.length === 0 && !freeformValue && question.defaultValue !== void 0) {
+          const defaultIds = Array.isArray(question.defaultValue) ? question.defaultValue : [question.defaultValue];
+          const defaultValues = question.options?.filter((opt) => defaultIds.includes(opt.id)).map((opt) => opt.value);
+          finalSelectedValues = defaultValues?.filter((v) => v !== void 0) || [];
+        }
+        if (freeformValue || finalSelectedValues.length > 0) {
+          return { selectedValues: finalSelectedValues, freeformValue };
+        }
+        return void 0;
+      }
+      default:
+        return question.defaultValue;
+    }
+  }
+  /**
+   * Renders a "Skipped" message when the carousel is dismissed without answers.
+   */
+  renderSkippedMessage() {
+    const skippedContainer = dom.$(".chat-question-carousel-summary");
+    const skippedMessage = dom.$(".chat-question-summary-skipped");
+    skippedMessage.textContent = localize("chat.questionCarousel.skipped", "Skipped");
+    skippedContainer.appendChild(skippedMessage);
+    this.domNode.appendChild(skippedContainer);
+  }
+  /**
+   * Renders a summary of answers when the carousel is already used.
+   */
+  renderSummary() {
+    if (this._answers.size === 0) {
+      this.renderSkippedMessage();
+      return;
+    }
+    const summaryContainer = dom.$(".chat-question-carousel-summary");
+    for (const question of this.carousel.questions) {
+      const answer = this._answers.get(question.id);
+      if (answer === void 0) {
+        continue;
+      }
+      const summaryItem = dom.$(".chat-question-summary-item");
+      const questionLabel = dom.$("span.chat-question-summary-label");
+      const questionText = question.message ?? question.title;
+      let labelText = typeof questionText === "string" ? questionText : questionText.value;
+      labelText = labelText.replace(/[:\s]+$/, "");
+      questionLabel.textContent = labelText;
+      summaryItem.appendChild(questionLabel);
+      const formattedAnswer = this.formatAnswerForSummary(question, answer);
+      const separatorIndex = formattedAnswer.indexOf(" - ");
+      if (separatorIndex !== -1) {
+        const answerTitle = dom.$("span.chat-question-summary-answer-title");
+        answerTitle.textContent = formattedAnswer.substring(0, separatorIndex);
+        summaryItem.appendChild(answerTitle);
+        const answerDesc = dom.$("span.chat-question-summary-answer-desc");
+        answerDesc.textContent = " - " + formattedAnswer.substring(separatorIndex + 3);
+        summaryItem.appendChild(answerDesc);
+      } else {
+        const answerValue = dom.$("span.chat-question-summary-answer-title");
+        answerValue.textContent = formattedAnswer;
+        summaryItem.appendChild(answerValue);
+      }
+      summaryContainer.appendChild(summaryItem);
+    }
+    this.domNode.appendChild(summaryContainer);
+  }
+  /**
+   * Formats an answer for display in the summary.
+   */
+  formatAnswerForSummary(question, answer) {
+    switch (question.type) {
+      case "text":
+        return String(answer);
+      case "singleSelect": {
+        if (typeof answer === "object" && answer !== null && hasKey(answer, { selectedValue: true })) {
+          const { selectedValue, freeformValue } = answer;
+          const selectedLabel = question.options?.find((opt) => opt.value === selectedValue)?.label;
+          if (freeformValue) {
+            return freeformValue;
+          }
+          return selectedLabel ?? String(selectedValue ?? "");
+        }
+        const label = question.options?.find((opt) => opt.value === answer)?.label;
+        return label ?? String(answer);
+      }
+      case "multiSelect": {
+        if (typeof answer === "object" && answer !== null && hasKey(answer, { selectedValues: true })) {
+          const { selectedValues, freeformValue } = answer;
+          const labels = (selectedValues ?? []).map((v) => question.options?.find((opt) => opt.value === v)?.label ?? String(v));
+          if (freeformValue) {
+            labels.push(freeformValue);
+          }
+          return labels.join(localize("chat.questionCarousel.listSeparator", ", "));
+        }
+        if (Array.isArray(answer)) {
+          return answer.map((v) => question.options?.find((opt) => opt.value === v)?.label ?? String(v)).join(localize("chat.questionCarousel.listSeparator", ", "));
+        }
+        return String(answer);
+      }
+      default:
+        return String(answer);
+    }
+  }
+  hasSameContent(other, _followingContent, element) {
+    if (!this._isSkipped && !this.carousel.isUsed && isResponseVM(element) && element.isComplete) {
+      return false;
+    }
+    return other.kind === "questionCarousel" && other === this.carousel;
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+}
+export {
+  ChatQuestionCarouselPart
+};
+//# sourceMappingURL=chatQuestionCarouselPart.js.map

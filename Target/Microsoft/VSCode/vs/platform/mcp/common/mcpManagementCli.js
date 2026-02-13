@@ -1,1 +1,63 @@
-import{$EQ as h}from"./mcpManagement.js";var f=function(a,t,n,r){var i=arguments.length,e=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,n):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,t,n,r);else for(var s=a.length-1;s>=0;s--)(o=a[s])&&(e=(i<3?o(e):i>3?o(t,n,e):o(t,n))||e);return i>3&&e&&Object.defineProperty(t,n,e),e},l=function(a,t){return function(n,r){t(n,r,a)}};let p=class{constructor(t,n){this.a=t,this.b=n}async addMcpDefinitions(t){const n=t.map(r=>this.f(r));await this.d(n),this.a.info(`Added MCP servers: ${n.map(r=>r.name).join(", ")}`)}async d(t){await Promise.all(t.map(({name:n,config:r,inputs:i})=>this.b.install({name:n,config:r,inputs:i})))}f(t){let n;try{n=JSON.parse(t)}catch(o){throw new c(`Invalid JSON '${t}': ${o}`)}if(!n.name)throw new c(`Missing name property in ${t}`);if(!("command"in n)&&!("url"in n))throw new c(`Missing command or URL property in ${t}`);const{name:r,inputs:i,...e}=n;return{name:r,inputs:i,config:e}}};p=f([l(1,h)],p);class c extends Error{constructor(t){super(t),this.stack=t}}export{p as $UQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IMcpManagementService } from "./mcpManagement.js";
+let McpManagementCli = class McpManagementCli2 {
+  static {
+    __name(this, "McpManagementCli");
+  }
+  constructor(_logger, _mcpManagementService) {
+    this._logger = _logger;
+    this._mcpManagementService = _mcpManagementService;
+  }
+  async addMcpDefinitions(definitions) {
+    const configs = definitions.map((config) => this.validateConfiguration(config));
+    await this.updateMcpInResource(configs);
+    this._logger.info(`Added MCP servers: ${configs.map((c) => c.name).join(", ")}`);
+  }
+  async updateMcpInResource(configs) {
+    await Promise.all(configs.map(({ name, config, inputs }) => this._mcpManagementService.install({ name, config, inputs })));
+  }
+  validateConfiguration(config) {
+    let parsed;
+    try {
+      parsed = JSON.parse(config);
+    } catch (e) {
+      throw new InvalidMcpOperationError(`Invalid JSON '${config}': ${e}`);
+    }
+    if (!parsed.name) {
+      throw new InvalidMcpOperationError(`Missing name property in ${config}`);
+    }
+    if (!("command" in parsed) && !("url" in parsed)) {
+      throw new InvalidMcpOperationError(`Missing command or URL property in ${config}`);
+    }
+    const { name, inputs, ...rest } = parsed;
+    return { name, inputs, config: rest };
+  }
+};
+McpManagementCli = __decorate([
+  __param(1, IMcpManagementService)
+], McpManagementCli);
+class InvalidMcpOperationError extends Error {
+  static {
+    __name(this, "InvalidMcpOperationError");
+  }
+  constructor(message) {
+    super(message);
+    this.stack = message;
+  }
+}
+export {
+  McpManagementCli
+};
+//# sourceMappingURL=mcpManagementCli.js.map

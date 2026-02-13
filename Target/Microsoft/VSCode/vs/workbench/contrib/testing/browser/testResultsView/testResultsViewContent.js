@@ -1,1 +1,515 @@
-import*as a from"../../../../../base/browser/dom.js";import{$n8 as P}from"../../../../../base/browser/keyboardEvent.js";import{$G0 as W}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{Sizing as x,$j_ as U}from"../../../../../base/browser/ui/splitview/splitview.js";import{$Fc as G}from"../../../../../base/common/arrays.js";import{$ci as X}from"../../../../../base/common/async.js";import{$Jf as B}from"../../../../../base/common/cancellation.js";import{$xf as k,Event as y,$Gf as E}from"../../../../../base/common/event.js";import{$Ed as N,$Dd as S,$Cd as p}from"../../../../../base/common/lifecycle.js";import{observableValue as J}from"../../../../../base/common/observable.js";import{$5H as K}from"../../../../../editor/common/services/resolverService.js";import{localize as I}from"../../../../../nls.js";import{$mKb as Y}from"../../../../../platform/actions/browser/floatingMenu.js";import{$ckb as Q}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$ikb as Z}from"../../../../../platform/actions/browser/toolbar.js";import{$vL as F,$qL as w,$wL as T}from"../../../../../platform/actions/common/actions.js";import{$uo as j}from"../../../../../platform/commands/common/commands.js";import{$0l as tt}from"../../../../../platform/configuration/common/configuration.js";import{$ro as $}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as R}from"../../../../../platform/instantiation/common/instantiation.js";import{$Lj as q}from"../../../../../platform/instantiation/common/serviceCollection.js";import{$YH as et}from"../../../../../platform/quickinput/common/quickInput.js";import{$$o as it}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{$jwc as st,$mwc as nt,$lwc as ot}from"../../../debug/browser/callStackWidget.js";import{$Guc as V}from"../../common/configuration.js";import{$o0b as rt,$m0b as ht}from"../../common/testProfileService.js";import{$5X as M}from"../../common/testResult.js";import{$c0b as A}from"../../common/testService.js";import{TestingContextKeys as m}from"../../common/testingContextKeys.js";import*as D from"../icons.js";import{$pwc as at,$qwc as ct,$rwc as lt,$swc as ut}from"./testResultsOutput.js";import{$gwc as dt,$iwc as mt,$dwc as f,$ewc as ft,$fwc as gt}from"./testResultsSubject.js";import{$twc as pt}from"./testResultsTree.js";import"./testResultsViewContent.css";var v=function(h,t,e,i){var s=arguments.length,n=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,i);else for(var o=h.length-1;o>=0;o--)(r=h[o])&&(n=(s<3?r(n):s>3?r(t,e,n):r(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},c=function(h,t){return function(e,i){t(e,i,h)}},g;let C=class extends ot{constructor(t,e,i,s,n,r){super(),this.a=t,this.b=e,this.c=i,this.g=s,this.j=n,this.k=r,this.height=J("MessageStackFrame.height",100),this.icon=D.$xvc,this.label=i instanceof f?i.test.label:i instanceof gt?i.test.item.label:i.result.name}render(t){return this.a.style.visibility="visible",t.appendChild(this.a),p(()=>this.a.remove())}renderActions(t){const e=new S;t.appendChild(this.b.domNode),e.add(p(()=>this.b.domNode.remove()));const i=mt(this.c),s=i&&this.k.capabilitiesForTest(i);let n;if(s)n=this.j.createOverlay(rt(s));else{const d=this.k.getControllerProfiles(this.c.controllerId);n=this.j.createOverlay([[m.hasRunnableTests.key,d.some(u=>u.group&2)],[m.hasDebuggableTests.key,d.some(u=>u.group&4)]])}const r=e.add(this.g.createChild(new q([$,n]))),o=e.add(r.createInstance(Z,t,w.TestCallStack,{menuOptions:{shouldForwardArgs:!0},actionViewItemProvider:(d,u)=>Q(this.g,d,u)}));return o.context=this.c,e.add(o),e}};C=v([c(3,R),c(4,$),c(5,ht)],C);function H(h,t,e){if(e instanceof ft)return h.get(j).executeCommand(t===4?"testing.debugLastRun":"testing.reRunLastRun",e.result.id);const i=h.get(A),s=e instanceof f?e.test:e.test.item,n=i.collection.getNodeById(s.extId);if(n)return i.runTests({group:t,tests:[n]})}T(class extends F{constructor(){super({id:"testing.callStack.run",title:I(14395,null),icon:D.$zvc,menu:{id:w.TestCallStack,when:m.hasRunnableTests,group:"navigation"}})}run(h,t){H(h,2,t)}});T(class extends F{constructor(){super({id:"testing.callStack.debug",title:I(14396,null),icon:D.$Dvc,menu:{id:w.TestCallStack,when:m.hasDebuggableTests,group:"navigation"}})}run(h,t){H(h,4,t)}});let L=class extends N{static{g=this}get uiState(){return{splitViewWidths:Array.from({length:this.z.length},(t,e)=>this.z.getViewSize(e))}}get onDidChangeContentHeight(){return this.t.onDidChangeContentHeight}get contentHeight(){return this.t?.contentHeight||0}get I(){return this.H?1:0}get J(){return this.H?0:1}constructor(t,e,i,s,n,r,o){super(),this.L=t,this.M=e,this.N=i,this.O=s,this.P=n,this.Q=r,this.R=o,this.b=this.D(new k),this.c=this.D(new S),this.g=this.D(new E),this.G=this.D(new X(1)),this.H=!1,this.onClose=this.g.event}S(){const t=this.z.getViewSize(0),e=this.z.getViewSize(1),i=this.z.removeView(1),s=this.z.removeView(0);this.z.addView(i,e),this.z.addView(s,t)}fillBody(t){const e=g.a;this.z=new U(t,{orientation:1});const{historyVisible:i,showRevealLocationOnMessages:s}=this.M,n=this.L!==void 0,r=V(this.R,"testing.resultsView.layout");this.H=r==="treeLeft",this.D(this.R.onDidChangeConfiguration(l=>{if(l.affectsConfiguration("testing.resultsView.layout")){const z=V(this.R,"testing.resultsView.layout")==="treeLeft";z!==this.H&&(this.H=z,this.S())}}));const o=this.C=a.$(".test-output-peek-message-container");this.s=a.$y9(t,a.$(".test-output-call-stack-container")),this.t=this.D(this.N.createInstance(nt,this.s,this.L)),this.j=this.D(this.N.createInstance(b,this.L)),this.g.input=this.j.onClose,this.F=[this.D(this.N.createInstance(at,this.L,o)),this.D(this.N.createInstance(ct,o)),this.D(this.N.createInstance(ut,o,n)),this.D(this.N.createInstance(lt,this.L,o))],this.m=this.D(this.P.createScoped(t)),this.n=m.testMessageContext.bindTo(this.m),this.q=m.testResultOutdated.bindTo(this.m);const d=a.$y9(t,a.$(".test-output-peek-tree.testing-stdtree")),u=this.D(this.N.createInstance(pt,d,this.b.event,{showRevealLocationOnMessages:s,locationForProgress:this.M.locationForProgress}));this.onDidRequestReveal=u.onDidRequestReview;const _={onDidChange:y.None,element:this.s,minimumSize:200,maximumSize:Number.MAX_VALUE,layout:l=>{g.a=l,this.y&&(this.t?.layout(this.y.height,l),this.Y(this.y,l))}},O={onDidChange:y.None,element:d,minimumSize:100,maximumSize:Number.MAX_VALUE,layout:l=>{this.y&&u.layout(this.y.height,l)}};this.z.addView(_,x.Distribute),this.z.addView(O,x.Distribute),this.H&&this.S(),this.z.setViewVisible(this.J,i.value),this.D(i.onDidChange(l=>{this.z.setViewVisible(this.J,l)})),e&&queueMicrotask(()=>this.z.resizeView(this.I,e))}reveal(t){return this.b.fire(t),this.current&&dt(this.current,t.subject)?Promise.resolve():(this.current=t.subject,this.G.queue(async()=>{this.c.clear();const e=this.W(t.subject)||[],i=await this.X(t.subject,e);this.U(i,e),this.j.show(t.subject),this.Z(t.subject)}))}U(t,e){this.t.setFrames([t,...e.map(i=>new st(i.label,i.uri,i.position?.lineNumber,i.position?.column))])}collapseStack(){this.t.collapseAll()}W(t){if(!(t instanceof f))return;const e=t.stack;if(!e?.length||!this.L)return e;const i=e[0],s=t.revealLocation;return s&&i.position&&i.uri&&i.position.lineNumber===s.range.startLineNumber&&i.position.column===s.range.startColumn&&this.Q.extUri.isEqual(i.uri,s.uri)?e.slice(1):e}async X(t,e){this.C.style.visibility="hidden",this.s.appendChild(this.C);const i=this.u=this.N.createInstance(C,this.C,this.j,t),s=e.length>0;i.showHeader.set(s,void 0);const n=await G(this.F,r=>r.update(t));if(n){const r=this.z.getViewSize(this.I);r!==-1&&this.y&&i.height.set(n.layout({width:r,height:this.y?.height},s),void 0),n.onScrolled&&this.c.add(this.t.onDidScroll(o=>{n.onScrolled(o)})),n.onDidContentSizeChange&&this.c.add(n.onDidContentSizeChange(()=>{const o=this.z.getViewSize(this.I);this.y&&!this.w&&o!==-1&&(this.w=!0,i.height.set(n.layout({width:o,height:this.y.height},s),void 0),this.w=!1)}))}return i}Y(t,e=this.z.getViewSize(this.I)){this.w=!0;for(const i of this.F){const s=i.layout({height:t.height,width:e},!!this.u?.showHeader.get());s&&this.u?.height.set(s,void 0)}this.w=!1}Z(t){if(!(t instanceof f))return;this.c.add(p(()=>{this.q.reset(),this.n.reset()})),this.n.set(t.contextValue||""),t.result instanceof M?(this.q.set(t.result.getStateById(t.test.extId)?.retired??!1),this.c.add(t.result.onChange(i=>{i.item.item.extId===t.test.extId&&this.q.set(i.item.retired??!1)}))):this.q.set(!0);const e=this.c.add(this.N.createChild(new q([$,this.m])));this.c.add(e.createInstance(Y,{container:this.C,menuId:w.TestMessageContent,getActionArg:()=>t.context}))}onLayoutBody(t,e){this.y=new a.$N8(e,t),this.z.layout(e)}onWidth(t){this.z.layout(t)}};L=g=v([c(2,R),c(3,K),c(4,$),c(5,it),c(6,tt)],L);const wt=500;let b=class extends N{get domNode(){return this.a.root}constructor(t,e,i){super(),this.g=t,this.j=e,this.m=i,this.a=a.h("div.testing-followup-action",[]),this.b=this.D(new S),this.c=this.D(new k),this.onClose=this.c.event}show(t){this.b.clear(),t instanceof f&&this.n(t)}async n(t){const e=this.b.add(new B),i=Date.now();t.result instanceof M&&!t.result.completedAt&&await new Promise(n=>y.once(t.result.onComplete)(n));const s=await this.j.provideTestFollowups({extId:t.test.extId,messageIndex:t.messageIndex,resultId:t.result.id,taskIndex:t.taskIndex},e.token);if(!s.followups.length||e.token.isCancellationRequested){s.dispose();return}this.b.add(s),a.$t8(this.a.root),this.a.root.classList.toggle("animated",Date.now()-i>wt),this.a.root.appendChild(this.q(s.followups[0])),s.followups.length>1&&this.a.root.appendChild(this.s(s.followups)),this.b.add(p(()=>{this.a.root.remove()}))}q(t){const e=this.t(()=>this.u(e,t));return a.$A9(e,...W(t.message)),e}s(t){const e=this.t(()=>this.m.pick(t.map((i,s)=>({label:i.message,index:s}))).then(i=>{i?.length&&t[i[0].index].execute()}));return e.innerText=I(14397,null,t.length-1),e}t(t){const e=document.createElement("a");return e.tabIndex=0,this.b.add(a.$u8(e,"click",t)),this.b.add(a.$u8(e,"keydown",i=>{const s=new P(i);(s.equals(10)||s.equals(3))&&t()})),e}u(t,e){t.ariaDisabled!=="true"&&(t.ariaDisabled="true",e.execute(),this.g&&this.c.fire())}};b=v([c(1,A),c(2,et)],b);export{L as $uwc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TestResultsViewContent_1;
+import * as dom from "../../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
+import { renderLabelWithIcons } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Sizing, SplitView } from "../../../../../base/browser/ui/splitview/splitview.js";
+import { findAsync } from "../../../../../base/common/arrays.js";
+import { Limiter } from "../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Emitter, Event, Relay } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../../base/common/observable.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../../nls.js";
+import { FloatingClickMenu } from "../../../../../platform/actions/browser/floatingMenu.js";
+import { createActionViewItem } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuWorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../platform/instantiation/common/serviceCollection.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { CallStackFrame, CallStackWidget, CustomStackFrame } from "../../../debug/browser/callStackWidget.js";
+import { getTestingConfiguration } from "../../common/configuration.js";
+import { capabilityContextKeys, ITestProfileService } from "../../common/testProfileService.js";
+import { LiveTestResult } from "../../common/testResult.js";
+import { ITestService } from "../../common/testService.js";
+import { TestingContextKeys } from "../../common/testingContextKeys.js";
+import * as icons from "../icons.js";
+import { DiffContentProvider, MarkdownTestMessagePeek, PlainTextMessagePeek, TerminalMessagePeek } from "./testResultsOutput.js";
+import { equalsSubject, getSubjectTestItem, MessageSubject, TaskSubject, TestOutputSubject } from "./testResultsSubject.js";
+import { OutputPeekTree } from "./testResultsTree.js";
+import "./testResultsViewContent.css";
+let MessageStackFrame = class MessageStackFrame2 extends CustomStackFrame {
+  static {
+    __name(this, "MessageStackFrame");
+  }
+  constructor(message, followup, subject, instantiationService, contextKeyService, profileService) {
+    super();
+    this.message = message;
+    this.followup = followup;
+    this.subject = subject;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.profileService = profileService;
+    this.height = observableValue("MessageStackFrame.height", 100);
+    this.icon = icons.testingViewIcon;
+    this.label = subject instanceof MessageSubject ? subject.test.label : subject instanceof TestOutputSubject ? subject.test.item.label : subject.result.name;
+  }
+  render(container) {
+    this.message.style.visibility = "visible";
+    container.appendChild(this.message);
+    return toDisposable(() => this.message.remove());
+  }
+  renderActions(container) {
+    const store = new DisposableStore();
+    container.appendChild(this.followup.domNode);
+    store.add(toDisposable(() => this.followup.domNode.remove()));
+    const test = getSubjectTestItem(this.subject);
+    const capabilities = test && this.profileService.capabilitiesForTest(test);
+    let contextKeyService;
+    if (capabilities) {
+      contextKeyService = this.contextKeyService.createOverlay(capabilityContextKeys(capabilities));
+    } else {
+      const profiles = this.profileService.getControllerProfiles(this.subject.controllerId);
+      contextKeyService = this.contextKeyService.createOverlay([
+        [TestingContextKeys.hasRunnableTests.key, profiles.some(
+          (p) => p.group & 2
+          /* TestRunProfileBitset.Run */
+        )],
+        [TestingContextKeys.hasDebuggableTests.key, profiles.some(
+          (p) => p.group & 4
+          /* TestRunProfileBitset.Debug */
+        )]
+      ]);
+    }
+    const instaService = store.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, contextKeyService])));
+    const toolbar = store.add(instaService.createInstance(MenuWorkbenchToolBar, container, MenuId.TestCallStack, {
+      menuOptions: { shouldForwardArgs: true },
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => createActionViewItem(this.instantiationService, action, options), "actionViewItemProvider")
+    }));
+    toolbar.context = this.subject;
+    store.add(toolbar);
+    return store;
+  }
+};
+MessageStackFrame = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, IContextKeyService),
+  __param(5, ITestProfileService)
+], MessageStackFrame);
+function runInLast(accessor, bitset, subject) {
+  if (subject instanceof TaskSubject) {
+    return accessor.get(ICommandService).executeCommand(bitset === 4 ? "testing.debugLastRun" : "testing.reRunLastRun", subject.result.id);
+  }
+  const testService = accessor.get(ITestService);
+  const plainTest = subject instanceof MessageSubject ? subject.test : subject.test.item;
+  const currentTest = testService.collection.getNodeById(plainTest.extId);
+  if (!currentTest) {
+    return;
+  }
+  return testService.runTests({
+    group: bitset,
+    tests: [currentTest]
+  });
+}
+__name(runInLast, "runInLast");
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "testing.callStack.run",
+      title: localize("testing.callStack.run", "Rerun Test"),
+      icon: icons.testingRunIcon,
+      menu: {
+        id: MenuId.TestCallStack,
+        when: TestingContextKeys.hasRunnableTests,
+        group: "navigation"
+      }
+    });
+  }
+  run(accessor, subject) {
+    runInLast(accessor, 2, subject);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "testing.callStack.debug",
+      title: localize("testing.callStack.debug", "Debug Test"),
+      icon: icons.testingDebugIcon,
+      menu: {
+        id: MenuId.TestCallStack,
+        when: TestingContextKeys.hasDebuggableTests,
+        group: "navigation"
+      }
+    });
+  }
+  run(accessor, subject) {
+    runInLast(accessor, 4, subject);
+  }
+});
+let TestResultsViewContent = class TestResultsViewContent2 extends Disposable {
+  static {
+    __name(this, "TestResultsViewContent");
+  }
+  static {
+    TestResultsViewContent_1 = this;
+  }
+  get uiState() {
+    return {
+      splitViewWidths: Array.from({ length: this.splitView.length }, (_, i) => this.splitView.getViewSize(i))
+    };
+  }
+  get onDidChangeContentHeight() {
+    return this.callStackWidget.onDidChangeContentHeight;
+  }
+  get contentHeight() {
+    return this.callStackWidget?.contentHeight || 0;
+  }
+  get diffViewIndex() {
+    return this.isTreeLeft ? 1 : 0;
+  }
+  get historyViewIndex() {
+    return this.isTreeLeft ? 0 : 1;
+  }
+  constructor(editor, options, instantiationService, modelService, contextKeyService, uriIdentityService, configurationService) {
+    super();
+    this.editor = editor;
+    this.options = options;
+    this.instantiationService = instantiationService;
+    this.modelService = modelService;
+    this.contextKeyService = contextKeyService;
+    this.uriIdentityService = uriIdentityService;
+    this.configurationService = configurationService;
+    this.didReveal = this._register(new Emitter());
+    this.currentSubjectStore = this._register(new DisposableStore());
+    this.onCloseEmitter = this._register(new Relay());
+    this.contentProvidersUpdateLimiter = this._register(new Limiter(1));
+    this.isTreeLeft = false;
+    this.onClose = this.onCloseEmitter.event;
+  }
+  swapViews() {
+    const leftSize = this.splitView.getViewSize(0);
+    const rightSize = this.splitView.getViewSize(1);
+    const leftView = this.splitView.removeView(1);
+    const rightView = this.splitView.removeView(0);
+    this.splitView.addView(leftView, rightSize);
+    this.splitView.addView(rightView, leftSize);
+  }
+  fillBody(containerElement) {
+    const initialSpitWidth = TestResultsViewContent_1.lastSplitWidth;
+    this.splitView = new SplitView(containerElement, {
+      orientation: 1
+      /* Orientation.HORIZONTAL */
+    });
+    const { historyVisible, showRevealLocationOnMessages } = this.options;
+    const isInPeekView = this.editor !== void 0;
+    const layout = getTestingConfiguration(
+      this.configurationService,
+      "testing.resultsView.layout"
+      /* TestingConfigKeys.ResultsViewLayout */
+    );
+    this.isTreeLeft = layout === "treeLeft";
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "testing.resultsView.layout"
+        /* TestingConfigKeys.ResultsViewLayout */
+      )) {
+        const newLayout = getTestingConfiguration(
+          this.configurationService,
+          "testing.resultsView.layout"
+          /* TestingConfigKeys.ResultsViewLayout */
+        );
+        const newIsTreeLeft = newLayout === "treeLeft";
+        if (newIsTreeLeft !== this.isTreeLeft) {
+          this.isTreeLeft = newIsTreeLeft;
+          this.swapViews();
+        }
+      }
+    }));
+    const messageContainer = this.messageContainer = dom.$(".test-output-peek-message-container");
+    this.stackContainer = dom.append(containerElement, dom.$(".test-output-call-stack-container"));
+    this.callStackWidget = this._register(this.instantiationService.createInstance(CallStackWidget, this.stackContainer, this.editor));
+    this.followupWidget = this._register(this.instantiationService.createInstance(FollowupActionWidget, this.editor));
+    this.onCloseEmitter.input = this.followupWidget.onClose;
+    this.contentProviders = [
+      this._register(this.instantiationService.createInstance(DiffContentProvider, this.editor, messageContainer)),
+      this._register(this.instantiationService.createInstance(MarkdownTestMessagePeek, messageContainer)),
+      this._register(this.instantiationService.createInstance(TerminalMessagePeek, messageContainer, isInPeekView)),
+      this._register(this.instantiationService.createInstance(PlainTextMessagePeek, this.editor, messageContainer))
+    ];
+    this.messageContextKeyService = this._register(this.contextKeyService.createScoped(containerElement));
+    this.contextKeyTestMessage = TestingContextKeys.testMessageContext.bindTo(this.messageContextKeyService);
+    this.contextKeyResultOutdated = TestingContextKeys.testResultOutdated.bindTo(this.messageContextKeyService);
+    const treeContainer = dom.append(containerElement, dom.$(".test-output-peek-tree.testing-stdtree"));
+    const tree = this._register(this.instantiationService.createInstance(OutputPeekTree, treeContainer, this.didReveal.event, { showRevealLocationOnMessages, locationForProgress: this.options.locationForProgress }));
+    this.onDidRequestReveal = tree.onDidRequestReview;
+    const stackView = {
+      onDidChange: Event.None,
+      element: this.stackContainer,
+      minimumSize: 200,
+      maximumSize: Number.MAX_VALUE,
+      layout: /* @__PURE__ */ __name((width) => {
+        TestResultsViewContent_1.lastSplitWidth = width;
+        if (this.dimension) {
+          this.callStackWidget?.layout(this.dimension.height, width);
+          this.layoutContentWidgets(this.dimension, width);
+        }
+      }, "layout")
+    };
+    const treeView = {
+      onDidChange: Event.None,
+      element: treeContainer,
+      minimumSize: 100,
+      maximumSize: Number.MAX_VALUE,
+      layout: /* @__PURE__ */ __name((width) => {
+        if (this.dimension) {
+          tree.layout(this.dimension.height, width);
+        }
+      }, "layout")
+    };
+    this.splitView.addView(stackView, Sizing.Distribute);
+    this.splitView.addView(treeView, Sizing.Distribute);
+    if (this.isTreeLeft) {
+      this.swapViews();
+    }
+    this.splitView.setViewVisible(this.historyViewIndex, historyVisible.value);
+    this._register(historyVisible.onDidChange((visible) => {
+      this.splitView.setViewVisible(this.historyViewIndex, visible);
+    }));
+    if (initialSpitWidth) {
+      queueMicrotask(() => this.splitView.resizeView(this.diffViewIndex, initialSpitWidth));
+    }
+  }
+  /**
+   * Shows a message in-place without showing or changing the peek location.
+   * This is mostly used if peeking a message without a location.
+   */
+  reveal(opts) {
+    this.didReveal.fire(opts);
+    if (this.current && equalsSubject(this.current, opts.subject)) {
+      return Promise.resolve();
+    }
+    this.current = opts.subject;
+    return this.contentProvidersUpdateLimiter.queue(async () => {
+      this.currentSubjectStore.clear();
+      const callFrames = this.getCallFrames(opts.subject) || [];
+      const topFrame = await this.prepareTopFrame(opts.subject, callFrames);
+      this.setCallStackFrames(topFrame, callFrames);
+      this.followupWidget.show(opts.subject);
+      this.populateFloatingClick(opts.subject);
+    });
+  }
+  setCallStackFrames(messageFrame, stack) {
+    this.callStackWidget.setFrames([messageFrame, ...stack.map((frame) => new CallStackFrame(frame.label, frame.uri, frame.position?.lineNumber, frame.position?.column))]);
+  }
+  /**
+   * Collapses all displayed stack frames.
+   */
+  collapseStack() {
+    this.callStackWidget.collapseAll();
+  }
+  getCallFrames(subject) {
+    if (!(subject instanceof MessageSubject)) {
+      return void 0;
+    }
+    const frames = subject.stack;
+    if (!frames?.length || !this.editor) {
+      return frames;
+    }
+    const topFrame = frames[0];
+    const peekLocation = subject.revealLocation;
+    const isTopFrameSame = peekLocation && topFrame.position && topFrame.uri && topFrame.position.lineNumber === peekLocation.range.startLineNumber && topFrame.position.column === peekLocation.range.startColumn && this.uriIdentityService.extUri.isEqual(topFrame.uri, peekLocation.uri);
+    return isTopFrameSame ? frames.slice(1) : frames;
+  }
+  async prepareTopFrame(subject, callFrames) {
+    this.messageContainer.style.visibility = "hidden";
+    this.stackContainer.appendChild(this.messageContainer);
+    const topFrame = this.currentTopFrame = this.instantiationService.createInstance(MessageStackFrame, this.messageContainer, this.followupWidget, subject);
+    const hasMultipleFrames = callFrames.length > 0;
+    topFrame.showHeader.set(hasMultipleFrames, void 0);
+    const provider = await findAsync(this.contentProviders, (p) => p.update(subject));
+    if (provider) {
+      const width = this.splitView.getViewSize(this.diffViewIndex);
+      if (width !== -1 && this.dimension) {
+        topFrame.height.set(provider.layout({ width, height: this.dimension?.height }, hasMultipleFrames), void 0);
+      }
+      if (provider.onScrolled) {
+        this.currentSubjectStore.add(this.callStackWidget.onDidScroll((evt) => {
+          provider.onScrolled(evt);
+        }));
+      }
+      if (provider.onDidContentSizeChange) {
+        this.currentSubjectStore.add(provider.onDidContentSizeChange(() => {
+          const width2 = this.splitView.getViewSize(this.diffViewIndex);
+          if (this.dimension && !this.isDoingLayoutUpdate && width2 !== -1) {
+            this.isDoingLayoutUpdate = true;
+            topFrame.height.set(provider.layout({ width: width2, height: this.dimension.height }, hasMultipleFrames), void 0);
+            this.isDoingLayoutUpdate = false;
+          }
+        }));
+      }
+    }
+    return topFrame;
+  }
+  layoutContentWidgets(dimension, width = this.splitView.getViewSize(this.diffViewIndex)) {
+    this.isDoingLayoutUpdate = true;
+    for (const provider of this.contentProviders) {
+      const frameHeight = provider.layout({ height: dimension.height, width }, !!this.currentTopFrame?.showHeader.get());
+      if (frameHeight) {
+        this.currentTopFrame?.height.set(frameHeight, void 0);
+      }
+    }
+    this.isDoingLayoutUpdate = false;
+  }
+  populateFloatingClick(subject) {
+    if (!(subject instanceof MessageSubject)) {
+      return;
+    }
+    this.currentSubjectStore.add(toDisposable(() => {
+      this.contextKeyResultOutdated.reset();
+      this.contextKeyTestMessage.reset();
+    }));
+    this.contextKeyTestMessage.set(subject.contextValue || "");
+    if (subject.result instanceof LiveTestResult) {
+      this.contextKeyResultOutdated.set(subject.result.getStateById(subject.test.extId)?.retired ?? false);
+      this.currentSubjectStore.add(subject.result.onChange((ev) => {
+        if (ev.item.item.extId === subject.test.extId) {
+          this.contextKeyResultOutdated.set(ev.item.retired ?? false);
+        }
+      }));
+    } else {
+      this.contextKeyResultOutdated.set(true);
+    }
+    const instaService = this.currentSubjectStore.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.messageContextKeyService])));
+    this.currentSubjectStore.add(instaService.createInstance(FloatingClickMenu, {
+      container: this.messageContainer,
+      menuId: MenuId.TestMessageContent,
+      getActionArg: /* @__PURE__ */ __name(() => subject.context, "getActionArg")
+    }));
+  }
+  onLayoutBody(height, width) {
+    this.dimension = new dom.Dimension(width, height);
+    this.splitView.layout(width);
+  }
+  onWidth(width) {
+    this.splitView.layout(width);
+  }
+};
+TestResultsViewContent = TestResultsViewContent_1 = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, ITextModelService),
+  __param(4, IContextKeyService),
+  __param(5, IUriIdentityService),
+  __param(6, IConfigurationService)
+], TestResultsViewContent);
+const FOLLOWUP_ANIMATION_MIN_TIME = 500;
+let FollowupActionWidget = class FollowupActionWidget2 extends Disposable {
+  static {
+    __name(this, "FollowupActionWidget");
+  }
+  get domNode() {
+    return this.el.root;
+  }
+  constructor(editor, testService, quickInput) {
+    super();
+    this.editor = editor;
+    this.testService = testService;
+    this.quickInput = quickInput;
+    this.el = dom.h("div.testing-followup-action", []);
+    this.visibleStore = this._register(new DisposableStore());
+    this.onCloseEmitter = this._register(new Emitter());
+    this.onClose = this.onCloseEmitter.event;
+  }
+  show(subject) {
+    this.visibleStore.clear();
+    if (subject instanceof MessageSubject) {
+      this.showMessage(subject);
+    }
+  }
+  async showMessage(subject) {
+    const cts = this.visibleStore.add(new CancellationTokenSource());
+    const start = Date.now();
+    if (subject.result instanceof LiveTestResult && !subject.result.completedAt) {
+      await new Promise((r) => Event.once(subject.result.onComplete)(r));
+    }
+    const followups = await this.testService.provideTestFollowups({
+      extId: subject.test.extId,
+      messageIndex: subject.messageIndex,
+      resultId: subject.result.id,
+      taskIndex: subject.taskIndex
+    }, cts.token);
+    if (!followups.followups.length || cts.token.isCancellationRequested) {
+      followups.dispose();
+      return;
+    }
+    this.visibleStore.add(followups);
+    dom.clearNode(this.el.root);
+    this.el.root.classList.toggle("animated", Date.now() - start > FOLLOWUP_ANIMATION_MIN_TIME);
+    this.el.root.appendChild(this.makeFollowupLink(followups.followups[0]));
+    if (followups.followups.length > 1) {
+      this.el.root.appendChild(this.makeMoreLink(followups.followups));
+    }
+    this.visibleStore.add(toDisposable(() => {
+      this.el.root.remove();
+    }));
+  }
+  makeFollowupLink(first) {
+    const link = this.makeLink(() => this.actionFollowup(link, first));
+    dom.reset(link, ...renderLabelWithIcons(first.message));
+    return link;
+  }
+  makeMoreLink(followups) {
+    const link = this.makeLink(() => this.quickInput.pick(followups.map((f, i) => ({
+      label: f.message,
+      index: i
+    }))).then((picked) => {
+      if (picked?.length) {
+        followups[picked[0].index].execute();
+      }
+    }));
+    link.innerText = localize("testFollowup.more", "+{0} More...", followups.length - 1);
+    return link;
+  }
+  makeLink(onClick) {
+    const link = document.createElement("a");
+    link.tabIndex = 0;
+    this.visibleStore.add(dom.addDisposableListener(link, "click", onClick));
+    this.visibleStore.add(dom.addDisposableListener(link, "keydown", (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        10
+        /* KeyCode.Space */
+      ) || event.equals(
+        3
+        /* KeyCode.Enter */
+      )) {
+        onClick();
+      }
+    }));
+    return link;
+  }
+  actionFollowup(link, fu) {
+    if (link.ariaDisabled !== "true") {
+      link.ariaDisabled = "true";
+      fu.execute();
+      if (this.editor) {
+        this.onCloseEmitter.fire();
+      }
+    }
+  }
+};
+FollowupActionWidget = __decorate([
+  __param(1, ITestService),
+  __param(2, IQuickInputService)
+], FollowupActionWidget);
+export {
+  TestResultsViewContent
+};
+//# sourceMappingURL=testResultsViewContent.js.map

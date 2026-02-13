@@ -1,1 +1,79 @@
-import{Schemas as u}from"../../../../../../base/common/network.js";import{$1db as p}from"../../../../../../editor/browser/editorExtensions.js";import{$0l as d}from"../../../../../../platform/configuration/common/configuration.js";import{$kW as h}from"../../../../chat/common/participants/chatAgents.js";import{$nlc as v}from"../../../../codeEditor/browser/emptyTextEditorHint/emptyTextEditorHint.js";import{$2Gb as b}from"../../../../inlineChat/browser/inlineChatSessionService.js";import{$FEb as m}from"../../notebookBrowser.js";import{$BL as C}from"../../../../../services/editor/common/editorService.js";import{$Mj as _}from"../../../../../../platform/instantiation/common/instantiation.js";var a=function(n,t,r,e){var i=arguments.length,o=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,r,e);else for(var s=n.length-1;s>=0;s--)(l=n[s])&&(o=(i<3?l(o):i>3?l(t,r,o):l(t,r))||o);return i>3&&o&&Object.defineProperty(t,r,o),o},c=function(n,t){return function(r,e){t(r,e,n)}};let f=class extends v{static{this.CONTRIB_ID="notebook.editor.contrib.emptyCellEditorHint"}constructor(t,r,e,i,o,l){super(t,e,i,o,l),this.n=r;const s=m(this.n.activeEditorPane);s&&this.D(s.onDidChangeActiveCell(()=>this.m()))}j(){const t=this.b.getModel();if(!t||!(t?.uri.scheme===u.vscodeNotebookCell))return!1;const e=m(this.n.activeEditorPane);return!(!e||!e.isDisposed||!super.j()||e.getActiveCell()?.uri.fragment!==t.uri.fragment)}};f=a([c(1,C),c(2,d),c(3,b),c(4,h),c(5,_)],f);p(f.CONTRIB_ID,f,0);export{f as $olc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Schemas } from "../../../../../../base/common/network.js";
+import { registerEditorContribution } from "../../../../../../editor/browser/editorExtensions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IChatAgentService } from "../../../../chat/common/participants/chatAgents.js";
+import { EmptyTextEditorHintContribution } from "../../../../codeEditor/browser/emptyTextEditorHint/emptyTextEditorHint.js";
+import { IInlineChatSessionService } from "../../../../inlineChat/browser/inlineChatSessionService.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+let EmptyCellEditorHintContribution = class EmptyCellEditorHintContribution2 extends EmptyTextEditorHintContribution {
+  static {
+    __name(this, "EmptyCellEditorHintContribution");
+  }
+  static {
+    this.CONTRIB_ID = "notebook.editor.contrib.emptyCellEditorHint";
+  }
+  constructor(editor, _editorService, configurationService, inlineChatSessionService, chatAgentService, instantiationService) {
+    super(editor, configurationService, inlineChatSessionService, chatAgentService, instantiationService);
+    this._editorService = _editorService;
+    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+    if (!activeEditor) {
+      return;
+    }
+    this._register(activeEditor.onDidChangeActiveCell(() => this.update()));
+  }
+  shouldRenderHint() {
+    const model = this.editor.getModel();
+    if (!model) {
+      return false;
+    }
+    const isNotebookCell = model?.uri.scheme === Schemas.vscodeNotebookCell;
+    if (!isNotebookCell) {
+      return false;
+    }
+    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+    if (!activeEditor || !activeEditor.isDisposed) {
+      return false;
+    }
+    const shouldRenderHint = super.shouldRenderHint();
+    if (!shouldRenderHint) {
+      return false;
+    }
+    const activeCell = activeEditor.getActiveCell();
+    if (activeCell?.uri.fragment !== model.uri.fragment) {
+      return false;
+    }
+    return true;
+  }
+};
+EmptyCellEditorHintContribution = __decorate([
+  __param(1, IEditorService),
+  __param(2, IConfigurationService),
+  __param(3, IInlineChatSessionService),
+  __param(4, IChatAgentService),
+  __param(5, IInstantiationService)
+], EmptyCellEditorHintContribution);
+registerEditorContribution(
+  EmptyCellEditorHintContribution.CONTRIB_ID,
+  EmptyCellEditorHintContribution,
+  0
+  /* EditorContributionInstantiation.Eager */
+);
+export {
+  EmptyCellEditorHintContribution
+};
+//# sourceMappingURL=emptyCellEditorHint.js.map

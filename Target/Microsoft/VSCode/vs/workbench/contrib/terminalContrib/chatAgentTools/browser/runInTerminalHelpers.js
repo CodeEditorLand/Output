@@ -1,5 +1,292 @@
-import{$Hm as b}from"../../../../../base/common/actions.js";import{$$b as A}from"../../../../../base/common/arrays.js";import{$6 as h,$5 as $}from"../../../../../base/common/path.js";import{$Zf as w,$Mg as T}from"../../../../../base/common/strings.js";import{localize as p}from"../../../../../nls.js";import{$OCc as y}from"./tools/commandLineAnalyzer/commandLineAnalyzer.js";function W(e,t){return t===1?/^(?:powershell|pwsh)(?:-preview)?$/i.test($.basename(e).replace(/\.exe$/i,"")):/^(?:powershell|pwsh)(?:-preview)?$/.test(h.basename(e))}function N(e){return e.endsWith("System32\\WindowsPowerShell\\v1.0\\powershell.exe")}function O(e,t){return t===1?/^zsh(?:\.exe)?$/i.test($.basename(e)):/^zsh$/.test(h.basename(e))}function j(e,t){return t===1?/^bash(?:\.exe)?$/i.test($.basename(e)):/^bash$/.test(h.basename(e))}function D(e,t){return t===1?/^fish(?:\.exe)?$/i.test($.basename(e)):/^fish$/.test(h.basename(e))}const v=6e4,f=`
-
-[... PREVIOUS OUTPUT TRUNCATED ...]
-
-`;function k(e,t){if(e.length<=t)return e;const u=f.length;if(u>=t)return f.slice(f.length-t);const n=t-u,i=e.slice(-n);return f+i}function F(e){let t=T(e).trimEnd();return t.length>v&&(t=k(t,v)),t}function L(e,t,u){const n=[];if(u.subCommandResults.every(r=>r.result!=="denied")&&u.commandLineResult.result!=="denied"){const r=t.filter((o,s)=>u.subCommandResults[s].result!=="approved"),d=new Set(["bash","sh","zsh","fish","ksh","csh","tcsh","dash","pwsh","powershell","powershell.exe","cmd","cmd.exe","python","python3","node","ruby","perl","php","lua","eval","exec","source","sudo","su","doas","curl","wget","invoke-restmethod","invoke-webrequest","irm","iwr"]),a=new Set(["git","npm","npx","yarn","docker","kubectl","cargo","dotnet","mvn","gradle"]),C=new Set(["npm run","yarn run"]),x=(o,s)=>{for(let c=s;c<o.length;c++)if(!o[c].startsWith("-"))return c},l=Array.from(new Set(A(r.map(o=>{const s=o.trim().split(/\s+/),c=s[0].toLowerCase();if(!d.has(c))if(a.has(c)){const m=x(s,1);if(m!==void 0){const S=`${s[0]} ${s[m]}`.toLowerCase();if(C.has(S)){const g=x(s,m+1);return g!==void 0?s.slice(0,g+1).join(" "):void 0}else return s.slice(0,m+1).join(" ")}return}else return s[0]}))));if(l.length>0){let o;l.length===1?o=`\`${l[0]} \u2026\``:o=`Commands ${l.map(s=>`\`${s} \u2026\``).join(", ")}`,n.push({label:`Allow ${o} in this Session`,data:{type:"newRule",rule:l.map(s=>({key:s,value:!0,scope:"session"}))}}),n.push({label:`Allow ${o} in this Workspace`,data:{type:"newRule",rule:l.map(s=>({key:s,value:!0,scope:"workspace"}))}}),n.push({label:`Always Allow ${o}`,data:{type:"newRule",rule:l.map(s=>({key:s,value:!0,scope:"user"}))}})}n.length>0&&n.push(new b),(r.length>0?r[0].split(" ")[0]:"")!==e&&!a.has(e)&&!C.has(e)&&(n.push({label:p(13720,null),data:{type:"newRule",rule:{key:`/^${w(e)}$/`,value:{approve:!0,matchCommandLine:!0},scope:"session"}}}),n.push({label:p(13721,null),data:{type:"newRule",rule:{key:`/^${w(e)}$/`,value:{approve:!0,matchCommandLine:!0},scope:"workspace"}}}),n.push({label:p(13722,null),data:{type:"newRule",rule:{key:`/^${w(e)}$/`,value:{approve:!0,matchCommandLine:!0},scope:"user"}}}))}return n.length>0&&n.push(new b),n.push({label:p(13723,null),tooltip:p(13724,null),data:{type:"sessionApproval"}}),n.push(new b),n.push({label:p(13725,null),data:{type:"configure"}}),n}function _(e){return e.filter((t,u,n)=>{if(!y(t.rule))return!1;const i=t.rule.sourceText;return n.findIndex(r=>y(r.rule)&&r.rule.sourceText===i)===u})}function H(e,t,u){const n=W(t,u),i=e.match(n?/^(?:cd(?: \/d)?|Set-Location(?: -Path)?) (?<dir>[^\s]+) ?(?:&&|;)\s+(?<suffix>.+)$/i:/^cd (?<dir>[^\s]+) &&\s+(?<suffix>.+)$/),r=i?.groups?.dir,d=i?.groups?.suffix;if(r&&d){let a=r;return a.startsWith('"')&&a.endsWith('"')&&(a=a.slice(1,-1)),{directory:a,command:d}}}export{_ as $1Cc,H as $2Cc,W as $RCc,N as $SCc,O as $TCc,j as $UCc,D as $VCc,f as $WCc,k as $XCc,F as $YCc,L as $ZCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Separator } from "../../../../../base/common/actions.js";
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { posix as pathPosix, win32 as pathWin32 } from "../../../../../base/common/path.js";
+import { escapeRegExpCharacters, removeAnsiEscapeCodes } from "../../../../../base/common/strings.js";
+import { localize } from "../../../../../nls.js";
+import { isAutoApproveRule } from "./tools/commandLineAnalyzer/commandLineAnalyzer.js";
+function isPowerShell(envShell, os) {
+  if (os === 1) {
+    return /^(?:powershell|pwsh)(?:-preview)?$/i.test(pathWin32.basename(envShell).replace(/\.exe$/i, ""));
+  }
+  return /^(?:powershell|pwsh)(?:-preview)?$/.test(pathPosix.basename(envShell));
+}
+__name(isPowerShell, "isPowerShell");
+function isWindowsPowerShell(envShell) {
+  return envShell.endsWith("System32\\WindowsPowerShell\\v1.0\\powershell.exe");
+}
+__name(isWindowsPowerShell, "isWindowsPowerShell");
+function isZsh(envShell, os) {
+  if (os === 1) {
+    return /^zsh(?:\.exe)?$/i.test(pathWin32.basename(envShell));
+  }
+  return /^zsh$/.test(pathPosix.basename(envShell));
+}
+__name(isZsh, "isZsh");
+function isBash(envShell, os) {
+  if (os === 1) {
+    return /^bash(?:\.exe)?$/i.test(pathWin32.basename(envShell));
+  }
+  return /^bash$/.test(pathPosix.basename(envShell));
+}
+__name(isBash, "isBash");
+function isFish(envShell, os) {
+  if (os === 1) {
+    return /^fish(?:\.exe)?$/i.test(pathWin32.basename(envShell));
+  }
+  return /^fish$/.test(pathPosix.basename(envShell));
+}
+__name(isFish, "isFish");
+const MAX_OUTPUT_LENGTH = 6e4;
+const TRUNCATION_MESSAGE = "\n\n[... PREVIOUS OUTPUT TRUNCATED ...]\n\n";
+function truncateOutputKeepingTail(output, maxLength) {
+  if (output.length <= maxLength) {
+    return output;
+  }
+  const truncationMessageLength = TRUNCATION_MESSAGE.length;
+  if (truncationMessageLength >= maxLength) {
+    return TRUNCATION_MESSAGE.slice(TRUNCATION_MESSAGE.length - maxLength);
+  }
+  const availableLength = maxLength - truncationMessageLength;
+  const endPortion = output.slice(-availableLength);
+  return TRUNCATION_MESSAGE + endPortion;
+}
+__name(truncateOutputKeepingTail, "truncateOutputKeepingTail");
+function sanitizeTerminalOutput(output) {
+  let sanitized = removeAnsiEscapeCodes(output).trimEnd();
+  if (sanitized.length > MAX_OUTPUT_LENGTH) {
+    sanitized = truncateOutputKeepingTail(sanitized, MAX_OUTPUT_LENGTH);
+  }
+  return sanitized;
+}
+__name(sanitizeTerminalOutput, "sanitizeTerminalOutput");
+function generateAutoApproveActions(commandLine, subCommands, autoApproveResult) {
+  const actions = [];
+  const canCreateAutoApproval = autoApproveResult.subCommandResults.every((e) => e.result !== "denied") && autoApproveResult.commandLineResult.result !== "denied";
+  if (canCreateAutoApproval) {
+    const unapprovedSubCommands = subCommands.filter((_, index) => {
+      return autoApproveResult.subCommandResults[index].result !== "approved";
+    });
+    const neverAutoApproveCommands = /* @__PURE__ */ new Set([
+      // Shell interpreters
+      "bash",
+      "sh",
+      "zsh",
+      "fish",
+      "ksh",
+      "csh",
+      "tcsh",
+      "dash",
+      "pwsh",
+      "powershell",
+      "powershell.exe",
+      "cmd",
+      "cmd.exe",
+      // Script interpreters
+      "python",
+      "python3",
+      "node",
+      "ruby",
+      "perl",
+      "php",
+      "lua",
+      // Direct execution commands
+      "eval",
+      "exec",
+      "source",
+      "sudo",
+      "su",
+      "doas",
+      // Network tools that can download and execute code
+      "curl",
+      "wget",
+      "invoke-restmethod",
+      "invoke-webrequest",
+      "irm",
+      "iwr"
+    ]);
+    const commandsWithSubcommands = /* @__PURE__ */ new Set(["git", "npm", "npx", "yarn", "docker", "kubectl", "cargo", "dotnet", "mvn", "gradle"]);
+    const commandsWithSubSubCommands = /* @__PURE__ */ new Set(["npm run", "yarn run"]);
+    const findNextNonFlagArg = /* @__PURE__ */ __name((parts, startIndex) => {
+      for (let i = startIndex; i < parts.length; i++) {
+        if (!parts[i].startsWith("-")) {
+          return i;
+        }
+      }
+      return void 0;
+    }, "findNextNonFlagArg");
+    const subCommandsToSuggest = Array.from(new Set(coalesce(unapprovedSubCommands.map((command) => {
+      const parts = command.trim().split(/\s+/);
+      const baseCommand = parts[0].toLowerCase();
+      if (neverAutoApproveCommands.has(baseCommand)) {
+        return void 0;
+      }
+      if (commandsWithSubcommands.has(baseCommand)) {
+        const subCommandIndex = findNextNonFlagArg(parts, 1);
+        if (subCommandIndex !== void 0) {
+          const baseSubCommand = `${parts[0]} ${parts[subCommandIndex]}`.toLowerCase();
+          if (commandsWithSubSubCommands.has(baseSubCommand)) {
+            const subSubCommandIndex = findNextNonFlagArg(parts, subCommandIndex + 1);
+            if (subSubCommandIndex !== void 0) {
+              return parts.slice(0, subSubCommandIndex + 1).join(" ");
+            }
+            return void 0;
+          } else {
+            return parts.slice(0, subCommandIndex + 1).join(" ");
+          }
+        }
+        return void 0;
+      } else {
+        return parts[0];
+      }
+    }))));
+    if (subCommandsToSuggest.length > 0) {
+      let subCommandLabel;
+      if (subCommandsToSuggest.length === 1) {
+        subCommandLabel = `\`${subCommandsToSuggest[0]} \u2026\``;
+      } else {
+        subCommandLabel = `Commands ${subCommandsToSuggest.map((e) => `\`${e} \u2026\``).join(", ")}`;
+      }
+      actions.push({
+        label: `Allow ${subCommandLabel} in this Session`,
+        data: {
+          type: "newRule",
+          rule: subCommandsToSuggest.map((key) => ({
+            key,
+            value: true,
+            scope: "session"
+          }))
+        }
+      });
+      actions.push({
+        label: `Allow ${subCommandLabel} in this Workspace`,
+        data: {
+          type: "newRule",
+          rule: subCommandsToSuggest.map((key) => ({
+            key,
+            value: true,
+            scope: "workspace"
+          }))
+        }
+      });
+      actions.push({
+        label: `Always Allow ${subCommandLabel}`,
+        data: {
+          type: "newRule",
+          rule: subCommandsToSuggest.map((key) => ({
+            key,
+            value: true,
+            scope: "user"
+          }))
+        }
+      });
+    }
+    if (actions.length > 0) {
+      actions.push(new Separator());
+    }
+    const firstSubcommandFirstWord = unapprovedSubCommands.length > 0 ? unapprovedSubCommands[0].split(" ")[0] : "";
+    if (firstSubcommandFirstWord !== commandLine && !commandsWithSubcommands.has(commandLine) && !commandsWithSubSubCommands.has(commandLine)) {
+      actions.push({
+        label: localize("autoApprove.exactCommand1", "Allow Exact Command Line in this Session"),
+        data: {
+          type: "newRule",
+          rule: {
+            key: `/^${escapeRegExpCharacters(commandLine)}$/`,
+            value: {
+              approve: true,
+              matchCommandLine: true
+            },
+            scope: "session"
+          }
+        }
+      });
+      actions.push({
+        label: localize("autoApprove.exactCommand2", "Allow Exact Command Line in this Workspace"),
+        data: {
+          type: "newRule",
+          rule: {
+            key: `/^${escapeRegExpCharacters(commandLine)}$/`,
+            value: {
+              approve: true,
+              matchCommandLine: true
+            },
+            scope: "workspace"
+          }
+        }
+      });
+      actions.push({
+        label: localize("autoApprove.exactCommand", "Always Allow Exact Command Line"),
+        data: {
+          type: "newRule",
+          rule: {
+            key: `/^${escapeRegExpCharacters(commandLine)}$/`,
+            value: {
+              approve: true,
+              matchCommandLine: true
+            },
+            scope: "user"
+          }
+        }
+      });
+    }
+  }
+  if (actions.length > 0) {
+    actions.push(new Separator());
+  }
+  actions.push({
+    label: localize("allowSession", "Allow All Commands in this Session"),
+    tooltip: localize("allowSessionTooltip", "Allow this tool to run in this session without confirmation."),
+    data: {
+      type: "sessionApproval"
+    }
+  });
+  actions.push(new Separator());
+  actions.push({
+    label: localize("autoApprove.configure", "Configure Auto Approve..."),
+    data: {
+      type: "configure"
+    }
+  });
+  return actions;
+}
+__name(generateAutoApproveActions, "generateAutoApproveActions");
+function dedupeRules(rules) {
+  return rules.filter((result, index, array) => {
+    if (!isAutoApproveRule(result.rule)) {
+      return false;
+    }
+    const sourceText = result.rule.sourceText;
+    return array.findIndex((r) => isAutoApproveRule(r.rule) && r.rule.sourceText === sourceText) === index;
+  });
+}
+__name(dedupeRules, "dedupeRules");
+function extractCdPrefix(commandLine, shell, os) {
+  const isPwsh = isPowerShell(shell, os);
+  const cdPrefixMatch = commandLine.match(isPwsh ? /^(?:cd(?: \/d)?|Set-Location(?: -Path)?) (?<dir>[^\s]+) ?(?:&&|;)\s+(?<suffix>.+)$/i : /^cd (?<dir>[^\s]+) &&\s+(?<suffix>.+)$/);
+  const cdDir = cdPrefixMatch?.groups?.dir;
+  const cdSuffix = cdPrefixMatch?.groups?.suffix;
+  if (cdDir && cdSuffix) {
+    let cdDirPath = cdDir;
+    if (cdDirPath.startsWith('"') && cdDirPath.endsWith('"')) {
+      cdDirPath = cdDirPath.slice(1, -1);
+    }
+    return { directory: cdDirPath, command: cdSuffix };
+  }
+  return void 0;
+}
+__name(extractCdPrefix, "extractCdPrefix");
+export {
+  TRUNCATION_MESSAGE,
+  dedupeRules,
+  extractCdPrefix,
+  generateAutoApproveActions,
+  isBash,
+  isFish,
+  isPowerShell,
+  isWindowsPowerShell,
+  isZsh,
+  sanitizeTerminalOutput,
+  truncateOutputKeepingTail
+};
+//# sourceMappingURL=runInTerminalHelpers.js.map

@@ -1,1 +1,128 @@
-import*as t from"assert";import{$sb as p}from"../../../../../../base/common/errors.js";import{$Jf as w}from"../../../../../../base/common/cancellation.js";import{$Ibb as x}from"../../../../../../base/test/common/utils.js";import{$ui as u}from"../../../../../../base/common/async.js";import{$Sbb as k}from"../../../../../../base/test/common/timeTravelScheduler.js";import{$QDc as f}from"../../browser/tools/awaitTerminalTool.js";import{$NDc as r}from"../../browser/tools/runInTerminalTool.js";suite("AwaitTerminalTool",()=>{const d=x();let c,i,m;setup(()=>{c=d.add(new f),i=d.add(new w),m=r.getExecution}),teardown(()=>{r.getExecution=m});function a(e,o){return{parameters:{id:e,timeout:o},callId:"test-call",context:{sessionId:"test-session"},toolId:"await_terminal",tokenBudget:1e3,isComplete:()=>!1,isCancellationRequested:!1}}function l(e,o){return{completionPromise:e,instance:{},getOutput:()=>o}}test("returns error when terminal ID does not exist",async()=>{r.getExecution=()=>{};const e=await c.invoke(a("invalid-id",0),async()=>0,{report:()=>{}},i.token);t.strictEqual(e.content.length,1),t.strictEqual(e.content[0].kind,"text"),t.ok(e.content[0].value.includes("No active terminal execution found")),t.ok(e.content[0].value.includes("invalid-id"))}),test("returns output and exit code when terminal completes",async()=>{const e=new u;r.getExecution=()=>l(e.p,"hello world");const o=c.invoke(a("test-terminal",0),async()=>0,{report:()=>{}},i.token);e.complete({output:"hello world",exitCode:0});const n=await o;t.strictEqual(n.content.length,1),t.strictEqual(n.content[0].kind,"text");const s=n.content[0].value;t.ok(s.includes("completed")),t.ok(s.includes("exit code: 0")),t.ok(s.includes("hello world")),t.strictEqual(n.toolMetadata?.exitCode,0)}),test("returns timeout status when terminal times out",async()=>k({},async()=>{const e=new u;r.getExecution=()=>l(e.p,"partial output");const o=await c.invoke(a("test-terminal",100),async()=>0,{report:()=>{}},i.token);t.strictEqual(o.content.length,1),t.strictEqual(o.content[0].kind,"text");const n=o.content[0].value;t.ok(n.includes("timed out")),t.ok(n.includes("100ms")),t.ok(n.includes("partial output")),t.strictEqual(o.toolMetadata?.timedOut,!0),t.strictEqual(o.toolMetadata?.exitCode,void 0),e.complete({output:"partial output",exitCode:0})})),test("timeout=0 waits indefinitely for completion",async()=>{const e=new u;r.getExecution=()=>l(e.p,"final output");const o=c.invoke(a("test-terminal",0),async()=>0,{report:()=>{}},i.token);e.complete({output:"final output",exitCode:42});const n=await o;t.strictEqual(n.content.length,1);const s=n.content[0].value;t.ok(s.includes("completed")),t.ok(s.includes("exit code: 42")),t.strictEqual(n.toolMetadata?.exitCode,42)}),test("negative timeout is treated as no timeout",async()=>{const e=new u;r.getExecution=()=>l(e.p,"output");const o=c.invoke(a("test-terminal",-100),async()=>0,{report:()=>{}},i.token);e.complete({output:"output",exitCode:0});const s=(await o).content[0].value;t.ok(s.includes("completed")),t.ok(!s.includes("timed out"))}),test("throws CancellationError when token is cancelled",async()=>{const e=new u;r.getExecution=()=>l(e.p,"output");const o=c.invoke(a("test-terminal",0),async()=>0,{report:()=>{}},i.token);i.cancel(),await t.rejects(o,p)}),test("throws CancellationError when token is cancelled with timeout",async()=>k({},async()=>{const e=new u;r.getExecution=()=>l(e.p,"output");const o=c.invoke(a("test-terminal",5e3),async()=>0,{report:()=>{}},i.token);i.cancel(),await t.rejects(o,p)}))});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as assert from "assert";
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { DeferredPromise } from "../../../../../../base/common/async.js";
+import { runWithFakedTimers } from "../../../../../../base/test/common/timeTravelScheduler.js";
+import { AwaitTerminalTool } from "../../browser/tools/awaitTerminalTool.js";
+import { RunInTerminalTool } from "../../browser/tools/runInTerminalTool.js";
+suite("AwaitTerminalTool", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let tool;
+  let cts;
+  let originalGetExecution;
+  setup(() => {
+    tool = store.add(new AwaitTerminalTool());
+    cts = store.add(new CancellationTokenSource());
+    originalGetExecution = RunInTerminalTool.getExecution;
+  });
+  teardown(() => {
+    RunInTerminalTool.getExecution = originalGetExecution;
+  });
+  function createInvocation(id, timeout) {
+    return {
+      parameters: { id, timeout },
+      callId: "test-call",
+      context: { sessionId: "test-session" },
+      toolId: "await_terminal",
+      tokenBudget: 1e3,
+      isComplete: /* @__PURE__ */ __name(() => false, "isComplete"),
+      isCancellationRequested: false
+    };
+  }
+  __name(createInvocation, "createInvocation");
+  function createMockExecution(completionPromise, output) {
+    return {
+      completionPromise,
+      instance: {},
+      getOutput: /* @__PURE__ */ __name(() => output, "getOutput")
+    };
+  }
+  __name(createMockExecution, "createMockExecution");
+  test("returns error when terminal ID does not exist", async () => {
+    RunInTerminalTool.getExecution = () => void 0;
+    const result = await tool.invoke(createInvocation("invalid-id", 0), async () => 0, { report: /* @__PURE__ */ __name(() => {
+    }, "report") }, cts.token);
+    assert.strictEqual(result.content.length, 1);
+    assert.strictEqual(result.content[0].kind, "text");
+    assert.ok(result.content[0].value.includes("No active terminal execution found"));
+    assert.ok(result.content[0].value.includes("invalid-id"));
+  });
+  test("returns output and exit code when terminal completes", async () => {
+    const deferred = new DeferredPromise();
+    RunInTerminalTool.getExecution = () => createMockExecution(deferred.p, "hello world");
+    const resultPromise = tool.invoke(createInvocation("test-terminal", 0), async () => 0, { report: /* @__PURE__ */ __name(() => {
+    }, "report") }, cts.token);
+    deferred.complete({ output: "hello world", exitCode: 0 });
+    const result = await resultPromise;
+    assert.strictEqual(result.content.length, 1);
+    assert.strictEqual(result.content[0].kind, "text");
+    const value = result.content[0].value;
+    assert.ok(value.includes("completed"));
+    assert.ok(value.includes("exit code: 0"));
+    assert.ok(value.includes("hello world"));
+    assert.strictEqual(result.toolMetadata?.exitCode, 0);
+  });
+  test("returns timeout status when terminal times out", async () => {
+    return runWithFakedTimers({}, async () => {
+      const deferred = new DeferredPromise();
+      RunInTerminalTool.getExecution = () => createMockExecution(deferred.p, "partial output");
+      const result = await tool.invoke(createInvocation("test-terminal", 100), async () => 0, { report: /* @__PURE__ */ __name(() => {
+      }, "report") }, cts.token);
+      assert.strictEqual(result.content.length, 1);
+      assert.strictEqual(result.content[0].kind, "text");
+      const value = result.content[0].value;
+      assert.ok(value.includes("timed out"));
+      assert.ok(value.includes("100ms"));
+      assert.ok(value.includes("partial output"));
+      assert.strictEqual(result.toolMetadata?.timedOut, true);
+      assert.strictEqual(result.toolMetadata?.exitCode, void 0);
+      deferred.complete({ output: "partial output", exitCode: 0 });
+    });
+  });
+  test("timeout=0 waits indefinitely for completion", async () => {
+    const deferred = new DeferredPromise();
+    RunInTerminalTool.getExecution = () => createMockExecution(deferred.p, "final output");
+    const resultPromise = tool.invoke(createInvocation("test-terminal", 0), async () => 0, { report: /* @__PURE__ */ __name(() => {
+    }, "report") }, cts.token);
+    deferred.complete({ output: "final output", exitCode: 42 });
+    const result = await resultPromise;
+    assert.strictEqual(result.content.length, 1);
+    const value = result.content[0].value;
+    assert.ok(value.includes("completed"));
+    assert.ok(value.includes("exit code: 42"));
+    assert.strictEqual(result.toolMetadata?.exitCode, 42);
+  });
+  test("negative timeout is treated as no timeout", async () => {
+    const deferred = new DeferredPromise();
+    RunInTerminalTool.getExecution = () => createMockExecution(deferred.p, "output");
+    const resultPromise = tool.invoke(createInvocation("test-terminal", -100), async () => 0, { report: /* @__PURE__ */ __name(() => {
+    }, "report") }, cts.token);
+    deferred.complete({ output: "output", exitCode: 0 });
+    const result = await resultPromise;
+    const value = result.content[0].value;
+    assert.ok(value.includes("completed"));
+    assert.ok(!value.includes("timed out"));
+  });
+  test("throws CancellationError when token is cancelled", async () => {
+    const deferred = new DeferredPromise();
+    RunInTerminalTool.getExecution = () => createMockExecution(deferred.p, "output");
+    const resultPromise = tool.invoke(createInvocation("test-terminal", 0), async () => 0, { report: /* @__PURE__ */ __name(() => {
+    }, "report") }, cts.token);
+    cts.cancel();
+    await assert.rejects(resultPromise, CancellationError);
+  });
+  test("throws CancellationError when token is cancelled with timeout", async () => {
+    return runWithFakedTimers({}, async () => {
+      const deferred = new DeferredPromise();
+      RunInTerminalTool.getExecution = () => createMockExecution(deferred.p, "output");
+      const resultPromise = tool.invoke(createInvocation("test-terminal", 5e3), async () => 0, { report: /* @__PURE__ */ __name(() => {
+      }, "report") }, cts.token);
+      cts.cancel();
+      await assert.rejects(resultPromise, CancellationError);
+    });
+  });
+});
+//# sourceMappingURL=awaitTerminalTool.test.js.map

@@ -1,1 +1,65 @@
-import*as i from"./dom.js";import{$Dd as a,$Cd as u}from"../common/lifecycle.js";class d{constructor(){this.a=new a,this.b=null,this.c=null}dispose(){this.stopMonitoring(!1),this.a.dispose()}stopMonitoring(t,o){if(!this.isMonitoring())return;this.a.clear(),this.b=null;const r=this.c;this.c=null,t&&r&&r(o)}isMonitoring(){return!!this.b}startMonitoring(t,o,r,h,e){this.isMonitoring()&&this.stopMonitoring(!1),this.b=h,this.c=e;let n=t;try{t.setPointerCapture(o),this.a.add(u(()=>{try{t.releasePointerCapture(o)}catch{}}))}catch{n=i.getWindow(t)}this.a.add(i.$u8(n,i.$r9.POINTER_MOVE,s=>{if(s.buttons!==r){this.stopMonitoring(!0);return}s.preventDefault(),this.b(s)})),this.a.add(i.$u8(n,i.$r9.POINTER_UP,s=>this.stopMonitoring(!0)))}}export{d as $$9};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "./dom.js";
+import { DisposableStore, toDisposable } from "../common/lifecycle.js";
+class GlobalPointerMoveMonitor {
+  static {
+    __name(this, "GlobalPointerMoveMonitor");
+  }
+  constructor() {
+    this._hooks = new DisposableStore();
+    this._pointerMoveCallback = null;
+    this._onStopCallback = null;
+  }
+  dispose() {
+    this.stopMonitoring(false);
+    this._hooks.dispose();
+  }
+  stopMonitoring(invokeStopCallback, browserEvent) {
+    if (!this.isMonitoring()) {
+      return;
+    }
+    this._hooks.clear();
+    this._pointerMoveCallback = null;
+    const onStopCallback = this._onStopCallback;
+    this._onStopCallback = null;
+    if (invokeStopCallback && onStopCallback) {
+      onStopCallback(browserEvent);
+    }
+  }
+  isMonitoring() {
+    return !!this._pointerMoveCallback;
+  }
+  startMonitoring(initialElement, pointerId, initialButtons, pointerMoveCallback, onStopCallback) {
+    if (this.isMonitoring()) {
+      this.stopMonitoring(false);
+    }
+    this._pointerMoveCallback = pointerMoveCallback;
+    this._onStopCallback = onStopCallback;
+    let eventSource = initialElement;
+    try {
+      initialElement.setPointerCapture(pointerId);
+      this._hooks.add(toDisposable(() => {
+        try {
+          initialElement.releasePointerCapture(pointerId);
+        } catch (err) {
+        }
+      }));
+    } catch (err) {
+      eventSource = dom.getWindow(initialElement);
+    }
+    this._hooks.add(dom.addDisposableListener(eventSource, dom.EventType.POINTER_MOVE, (e) => {
+      if (e.buttons !== initialButtons) {
+        this.stopMonitoring(true);
+        return;
+      }
+      e.preventDefault();
+      this._pointerMoveCallback(e);
+    }));
+    this._hooks.add(dom.addDisposableListener(eventSource, dom.EventType.POINTER_UP, (e) => this.stopMonitoring(true)));
+  }
+}
+export {
+  GlobalPointerMoveMonitor
+};
+//# sourceMappingURL=globalPointerMoveMonitor.js.map

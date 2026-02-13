@@ -1,1 +1,32 @@
-import{localize as c}from"../../../../../nls.js";import{$2r as n,$4r as t,$2p as r,$7p as e}from"../../../../../platform/theme/common/colorRegistry.js";const a=r("mergeEditor.change.background","#9bb95533",c(10602,null)),i=r("mergeEditor.change.word.background",{dark:"#9ccc2c33",light:"#9ccc2c66",hcDark:"#9ccc2c33",hcLight:"#9ccc2c66"},c(10603,null)),g=r("mergeEditor.changeBase.background",{dark:"#4B1818FF",light:"#FFCCCCFF",hcDark:"#4B1818FF",hcLight:"#FFCCCCFF"},c(10604,null)),F=r("mergeEditor.changeBase.word.background",{dark:"#6F1313FF",light:"#FFA3A3FF",hcDark:"#6F1313FF",hcLight:"#FFA3A3FF"},c(10605,null)),u=r("mergeEditor.conflict.unhandledUnfocused.border",{dark:"#ffa6007a",light:"#ffa600FF",hcDark:"#ffa6007a",hcLight:"#ffa6007a"},c(10606,null)),f=r("mergeEditor.conflict.unhandledFocused.border","#ffa600",c(10607,null)),b=r("mergeEditor.conflict.handledUnfocused.border","#86868649",c(10608,null)),h=r("mergeEditor.conflict.handledFocused.border","#c1c1c1cc",c(10609,null)),p=r("mergeEditor.conflict.handled.minimapOverViewRuler","#adaca8ee",c(10610,null)),s=r("mergeEditor.conflict.unhandled.minimapOverViewRuler","#fcba03FF",c(10611,null)),m=r("mergeEditor.conflictingLines.background","#ffea0047",c(10612,null)),o=.4,$=r("mergeEditor.conflict.input1.background",e(n,o),c(10613,null)),k=r("mergeEditor.conflict.input2.background",e(t,o),c(10614,null));export{i as $B6b,g as $C6b,F as $D6b,u as $E6b,f as $F6b,b as $G6b,h as $H6b,p as $I6b,s as $J6b,m as $K6b,$ as $L6b,k as $M6b,a as diff};
+import { localize } from "../../../../../nls.js";
+import { mergeCurrentHeaderBackground, mergeIncomingHeaderBackground, registerColor, transparent } from "../../../../../platform/theme/common/colorRegistry.js";
+const diff = registerColor("mergeEditor.change.background", "#9bb95533", localize("mergeEditor.change.background", "The background color for changes."));
+const diffWord = registerColor("mergeEditor.change.word.background", { dark: "#9ccc2c33", light: "#9ccc2c66", hcDark: "#9ccc2c33", hcLight: "#9ccc2c66" }, localize("mergeEditor.change.word.background", "The background color for word changes."));
+const diffBase = registerColor("mergeEditor.changeBase.background", { dark: "#4B1818FF", light: "#FFCCCCFF", hcDark: "#4B1818FF", hcLight: "#FFCCCCFF" }, localize("mergeEditor.changeBase.background", "The background color for changes in base."));
+const diffWordBase = registerColor("mergeEditor.changeBase.word.background", { dark: "#6F1313FF", light: "#FFA3A3FF", hcDark: "#6F1313FF", hcLight: "#FFA3A3FF" }, localize("mergeEditor.changeBase.word.background", "The background color for word changes in base."));
+const conflictBorderUnhandledUnfocused = registerColor("mergeEditor.conflict.unhandledUnfocused.border", { dark: "#ffa6007a", light: "#ffa600FF", hcDark: "#ffa6007a", hcLight: "#ffa6007a" }, localize("mergeEditor.conflict.unhandledUnfocused.border", "The border color of unhandled unfocused conflicts."));
+const conflictBorderUnhandledFocused = registerColor("mergeEditor.conflict.unhandledFocused.border", "#ffa600", localize("mergeEditor.conflict.unhandledFocused.border", "The border color of unhandled focused conflicts."));
+const conflictBorderHandledUnfocused = registerColor("mergeEditor.conflict.handledUnfocused.border", "#86868649", localize("mergeEditor.conflict.handledUnfocused.border", "The border color of handled unfocused conflicts."));
+const conflictBorderHandledFocused = registerColor("mergeEditor.conflict.handledFocused.border", "#c1c1c1cc", localize("mergeEditor.conflict.handledFocused.border", "The border color of handled focused conflicts."));
+const handledConflictMinimapOverViewRulerColor = registerColor("mergeEditor.conflict.handled.minimapOverViewRuler", "#adaca8ee", localize("mergeEditor.conflict.handled.minimapOverViewRuler", "The foreground color for changes in input 1."));
+const unhandledConflictMinimapOverViewRulerColor = registerColor("mergeEditor.conflict.unhandled.minimapOverViewRuler", "#fcba03FF", localize("mergeEditor.conflict.unhandled.minimapOverViewRuler", "The foreground color for changes in input 1."));
+const conflictingLinesBackground = registerColor("mergeEditor.conflictingLines.background", "#ffea0047", localize("mergeEditor.conflictingLines.background", 'The background of the "Conflicting Lines" text.'));
+const contentTransparency = 0.4;
+const conflictInput1Background = registerColor("mergeEditor.conflict.input1.background", transparent(mergeCurrentHeaderBackground, contentTransparency), localize("mergeEditor.conflict.input1.background", "The background color of decorations in input 1."));
+const conflictInput2Background = registerColor("mergeEditor.conflict.input2.background", transparent(mergeIncomingHeaderBackground, contentTransparency), localize("mergeEditor.conflict.input2.background", "The background color of decorations in input 2."));
+export {
+  conflictBorderHandledFocused,
+  conflictBorderHandledUnfocused,
+  conflictBorderUnhandledFocused,
+  conflictBorderUnhandledUnfocused,
+  conflictInput1Background,
+  conflictInput2Background,
+  conflictingLinesBackground,
+  diff,
+  diffBase,
+  diffWord,
+  diffWordBase,
+  handledConflictMinimapOverViewRulerColor,
+  unhandledConflictMinimapOverViewRulerColor
+};
+//# sourceMappingURL=colors.js.map

@@ -1,1 +1,128 @@
-import{h as _}from"../../../../base/browser/dom.js";import{$Ed as I,$Cd as j}from"../../../../base/common/lifecycle.js";import{$8jb as C,$$jb as S}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{autorun as p,constObservable as x,derived as y,observableFromEvent as E}from"../../../../base/common/observable.js";import{$ikb as R}from"../../../../platform/actions/browser/toolbar.js";import{$rL as w,$qL as q,$uL as F}from"../../../../platform/actions/common/actions.js";import{$Mj as L}from"../../../../platform/instantiation/common/instantiation.js";import{$fy as P}from"../../../../platform/keybinding/common/keybinding.js";import{$Xib as G}from"../../../browser/observableCodeEditor.js";var D=function(a,e,r,o){var i=arguments.length,t=i<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(a,e,r,o);else for(var n=a.length-1;n>=0;n--)(s=a[n])&&(t=(i<3?s(t):i>3?s(e,r,t):s(e,r))||t);return i>3&&t&&Object.defineProperty(e,r,t),t},m=function(a,e){return function(r,o){e(r,o,a)}};let A=class extends I{static{this.ID="editor.contrib.floatingToolbar"}constructor(e,r,o,i){super();const t=this.D(G(e)),s=y(d=>t.model.read(d)?.uri),n=this.D(r.createInstance($,q.EditorContent,e.contextKeyService,s));this.D(p(d=>{n.hasActions.read(d)&&d.store.add(t.createOverlayWidget({allowEditorOverflow:!1,domNode:n.element,minContentWidthInPx:x(0),position:x({preference:1})}))}))}};A=D([m(1,L),m(2,P),m(3,w)],A);let $=class extends I{constructor(e,r,o,i,t,s){super();const n=this.D(s.createMenu(e,r)),d=E(this,n.onDidChange,()=>n.getActions()),g=y(c=>{const b=d.read(c),{primary:u}=C(b,()=>!0);return u.length>0?u[0].id:void 0});this.hasActions=y(c=>d.read(c).length>0),this.element=_("div.floating-menu-overlay-widget").root,this.D(j(()=>this.element.remove())),this.element.style.height="26px",this.D(p(c=>{const b=this.hasActions.read(c),u=g.read(c);if(!b)return;const v=i.createInstance(R,this.element,e,{actionViewItemProvider:(l,f)=>{if(l instanceof F)return i.createInstance(class extends S{render(h){super.render(h),l.id===u&&this.element?.classList.add("primary")}F(){const h=t.lookupKeybinding(l.id),O=h?h.getLabel():void 0;this.u.label&&this.q&&(this.q.textContent=O?`${this.lb.label} (${O})`:this.lb.label)}},l,{...f,keybindingNotRenderedWithLabel:!0})},hiddenItemStrategy:0,menuOptions:{shouldForwardArgs:!0},telemetrySource:"editor.overlayToolbar",toolbarOptions:{primaryGroup:()=>!0,useSeparatorsInPrimaryActions:!0}});c.store.add(v),c.store.add(p(l=>{const f=o.read(l);v.context=f}))}))}};$=D([m(3,L),m(4,P),m(5,w)],$);export{A as $oyb,$ as $pyb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { h } from "../../../../base/browser/dom.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { getActionBarActions, MenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { autorun, constObservable, derived, observableFromEvent } from "../../../../base/common/observable.js";
+import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { observableCodeEditor } from "../../../browser/observableCodeEditor.js";
+let FloatingEditorToolbar = class FloatingEditorToolbar2 extends Disposable {
+  static {
+    __name(this, "FloatingEditorToolbar");
+  }
+  static {
+    this.ID = "editor.contrib.floatingToolbar";
+  }
+  constructor(editor, instantiationService, keybindingService, menuService) {
+    super();
+    const editorObs = this._register(observableCodeEditor(editor));
+    const editorUriObs = derived((reader) => editorObs.model.read(reader)?.uri);
+    const widget = this._register(instantiationService.createInstance(FloatingEditorToolbarWidget, MenuId.EditorContent, editor.contextKeyService, editorUriObs));
+    this._register(autorun((reader) => {
+      const hasActions = widget.hasActions.read(reader);
+      if (!hasActions) {
+        return;
+      }
+      reader.store.add(editorObs.createOverlayWidget({
+        allowEditorOverflow: false,
+        domNode: widget.element,
+        minContentWidthInPx: constObservable(0),
+        position: constObservable({
+          preference: 1
+          /* OverlayWidgetPositionPreference.BOTTOM_RIGHT_CORNER */
+        })
+      }));
+    }));
+  }
+};
+FloatingEditorToolbar = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IKeybindingService),
+  __param(3, IMenuService)
+], FloatingEditorToolbar);
+let FloatingEditorToolbarWidget = class FloatingEditorToolbarWidget2 extends Disposable {
+  static {
+    __name(this, "FloatingEditorToolbarWidget");
+  }
+  constructor(_menuId, _scopedContextKeyService, _toolbarContext, instantiationService, keybindingService, menuService) {
+    super();
+    const menu = this._register(menuService.createMenu(_menuId, _scopedContextKeyService));
+    const menuGroupsObs = observableFromEvent(this, menu.onDidChange, () => menu.getActions());
+    const menuPrimaryActionIdObs = derived((reader) => {
+      const menuGroups = menuGroupsObs.read(reader);
+      const { primary } = getActionBarActions(menuGroups, () => true);
+      return primary.length > 0 ? primary[0].id : void 0;
+    });
+    this.hasActions = derived((reader) => menuGroupsObs.read(reader).length > 0);
+    this.element = h("div.floating-menu-overlay-widget").root;
+    this._register(toDisposable(() => this.element.remove()));
+    this.element.style.height = "26px";
+    this._register(autorun((reader) => {
+      const hasActions = this.hasActions.read(reader);
+      const menuPrimaryActionId = menuPrimaryActionIdObs.read(reader);
+      if (!hasActions) {
+        return;
+      }
+      const toolbar = instantiationService.createInstance(MenuWorkbenchToolBar, this.element, _menuId, {
+        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+          if (!(action instanceof MenuItemAction)) {
+            return void 0;
+          }
+          return instantiationService.createInstance(class extends MenuEntryActionViewItem {
+            render(container) {
+              super.render(container);
+              if (action.id === menuPrimaryActionId) {
+                this.element?.classList.add("primary");
+              }
+            }
+            updateLabel() {
+              const keybinding = keybindingService.lookupKeybinding(action.id);
+              const keybindingLabel = keybinding ? keybinding.getLabel() : void 0;
+              if (this.options.label && this.label) {
+                this.label.textContent = keybindingLabel ? `${this._commandAction.label} (${keybindingLabel})` : this._commandAction.label;
+              }
+            }
+          }, action, { ...options, keybindingNotRenderedWithLabel: true });
+        }, "actionViewItemProvider"),
+        hiddenItemStrategy: 0,
+        menuOptions: {
+          shouldForwardArgs: true
+        },
+        telemetrySource: "editor.overlayToolbar",
+        toolbarOptions: {
+          primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup"),
+          useSeparatorsInPrimaryActions: true
+        }
+      });
+      reader.store.add(toolbar);
+      reader.store.add(autorun((reader2) => {
+        const context = _toolbarContext.read(reader2);
+        toolbar.context = context;
+      }));
+    }));
+  }
+};
+FloatingEditorToolbarWidget = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, IKeybindingService),
+  __param(5, IMenuService)
+], FloatingEditorToolbarWidget);
+export {
+  FloatingEditorToolbar,
+  FloatingEditorToolbarWidget
+};
+//# sourceMappingURL=floatingMenu.js.map

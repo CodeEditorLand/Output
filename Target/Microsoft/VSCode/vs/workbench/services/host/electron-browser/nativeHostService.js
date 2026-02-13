@@ -1,1 +1,214 @@
-import{$xf as p,Event as n}from"../../../../base/common/event.js";import{$gcb as g}from"../browser/host.js";import{$Xu as w}from"../../../../platform/native/common/native.js";import{$WC as W}from"../../../../platform/instantiation/common/extensions.js";import{$oH as v}from"../../../../platform/label/common/label.js";import{$HP as y}from"../../environment/common/environmentService.js";import{$Hu as D,$Gu as A}from"../../../../platform/window/common/window.js";import{$Ed as $,$Nd as F}from"../../../../base/common/lifecycle.js";import{$MQc as S}from"../../../../platform/native/common/nativeHostService.js";import{$SPc as b}from"../../environment/electron-browser/environmentService.js";import{$UPc as C}from"../../../../platform/ipc/common/mainProcessService.js";import{$F8 as x,$a9 as B,getWindowId as H,getWindowsCount as T,hasWindow as d,onDidRegisterWindow as I}from"../../../../base/browser/dom.js";import{$Zm as P}from"../../../../base/common/decorators.js";import{$U7 as m}from"../../../../base/browser/window.js";import{$kOc as _}from"../browser/toasts.js";import{$ln as O}from"../../../../base/common/uuid.js";var l=function(s,t,e,r){var i=arguments.length,o=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,t,e,r);else for(var u=s.length-1;u>=0;u--)(h=s[u])&&(o=(i<3?h(o):i>3?h(t,e,o):h(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},a=function(s,t){return function(e,r){t(e,r,s)}};let f=class extends S{constructor(t,e){super(t.window.id,e)}};f=l([a(0,b),a(1,C)],f);let c=class extends ${constructor(t,e,r){super(),this.a=t,this.b=e,this.c=r,this.m=new Map,this.n=this.D(new F),this.onDidChangeFocus=n.latch(n.any(n.map(n.filter(this.a.onDidFocusMainOrAuxiliaryWindow,i=>d(i),this.B),()=>this.hasFocus,this.B),n.map(n.filter(this.a.onDidBlurMainOrAuxiliaryWindow,i=>d(i),this.B),()=>this.hasFocus,this.B),n.map(this.onDidChangeActiveWindow,()=>this.hasFocus,this.B)),void 0,this.B),this.onDidChangeFullScreen=n.filter(this.a.onDidChangeWindowFullScreen,i=>d(i.windowId),this.B),this.f()}f(){this.D(this.onDidChangeFocus(t=>{t&&this.q()}))}get hasFocus(){return B().hasFocus()}async hadLastFocus(){const t=await this.a.getActiveWindowId();return typeof t>"u"?!1:t===this.a.windowId}get onDidChangeActiveWindow(){const t=this.D(new p);return this.D(n.filter(this.a.onDidFocusMainOrAuxiliaryWindow,e=>d(e),this.B)(e=>t.fire(e))),this.D(I(({window:e,disposables:r})=>{r.add(x(e,()=>{const i=e.document.hasFocus();return i&&t.fire(e.vscodeWindowId),i},100,20))})),n.latch(t.event,void 0,this.B)}openWindow(t,e){return Array.isArray(t)?this.g(t,e):this.j(t)}g(t,e){const r=this.c.remoteAuthority;return r&&(t.forEach(i=>i.label=i.label||this.h(i)),e?.remoteAuthority===void 0&&(e=e?{...e,remoteAuthority:r}:{remoteAuthority:r})),this.a.openWindow(t,e)}h(t){return D(t)?this.b.getWorkspaceLabel(t.folderUri,{verbose:2}):A(t)?this.b.getWorkspaceLabel({id:"",configPath:t.workspaceUri},{verbose:2}):this.b.getUriLabel(t.fileUri,{appendWorkspaceSuffix:!0})}j(t){const e=this.c.remoteAuthority;return e&&t?.remoteAuthority===void 0&&(t=t?{...t,remoteAuthority:e}:{remoteAuthority:e}),this.a.openWindow(t)}toggleFullScreen(t){return this.a.toggleFullScreen({targetWindowId:m(t)?t.vscodeWindowId:void 0})}async moveTop(t){if(!(T()<=1))return this.a.moveWindowTop(m(t)?{targetWindowId:t.vscodeWindowId}:void 0)}getCursorScreenPoint(){return this.a.getCursorScreenPoint()}getWindows(t){return t.includeAuxiliaryWindows===!1?this.a.getWindows({includeAuxiliaryWindows:!1}):this.a.getWindows({includeAuxiliaryWindows:!0})}focus(t,e){return this.a.focusWindow({mode:e?.mode,targetWindowId:H(t)})}restart(){return this.a.relaunch()}reload(t){return this.a.reload(t)}close(){return this.a.closeWindow()}async withExpectedShutdown(t){return await t()}getScreenshot(t){return this.a.getScreenshot(t)}async getNativeWindowHandle(t){return this.m.has(t)||this.m.set(t,this.a.getNativeWindowHandle(t)),this.m.get(t)}async showToast(t,e){const r=O();e.onCancellationRequested(()=>this.a.clearToast(r));const i=await this.a.showToast({...t,id:r});return i.supported?i:_({onDidCreateToast:o=>this.n.add(o),onDidDisposeToast:o=>this.n.deleteAndDispose(o)},t,e)}async q(){await this.a.clearToasts(),this.n.clearAndDisposeAll()}};l([P],c.prototype,"onDidChangeActiveWindow",null);c=l([a(0,w),a(1,v),a(2,y)],c);W(g,c,1);W(w,f,1);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { IHostService } from "../browser/host.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { isFolderToOpen, isWorkspaceToOpen } from "../../../../platform/window/common/window.js";
+import { Disposable, DisposableSet } from "../../../../base/common/lifecycle.js";
+import { NativeHostService } from "../../../../platform/native/common/nativeHostService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { disposableWindowInterval, getActiveDocument, getWindowId, getWindowsCount, hasWindow, onDidRegisterWindow } from "../../../../base/browser/dom.js";
+import { memoize } from "../../../../base/common/decorators.js";
+import { isAuxiliaryWindow } from "../../../../base/browser/window.js";
+import { showBrowserToast } from "../browser/toasts.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+let WorkbenchNativeHostService = class WorkbenchNativeHostService2 extends NativeHostService {
+  static {
+    __name(this, "WorkbenchNativeHostService");
+  }
+  constructor(environmentService, mainProcessService) {
+    super(environmentService.window.id, mainProcessService);
+  }
+};
+WorkbenchNativeHostService = __decorate([
+  __param(0, INativeWorkbenchEnvironmentService),
+  __param(1, IMainProcessService)
+], WorkbenchNativeHostService);
+let WorkbenchHostService = class WorkbenchHostService2 extends Disposable {
+  static {
+    __name(this, "WorkbenchHostService");
+  }
+  constructor(nativeHostService, labelService, environmentService) {
+    super();
+    this.nativeHostService = nativeHostService;
+    this.labelService = labelService;
+    this.environmentService = environmentService;
+    this._nativeWindowHandleCache = /* @__PURE__ */ new Map();
+    this.activeBrowserToasts = this._register(new DisposableSet());
+    this.onDidChangeFocus = Event.latch(Event.any(Event.map(Event.filter(this.nativeHostService.onDidFocusMainOrAuxiliaryWindow, (id) => hasWindow(id), this._store), () => this.hasFocus, this._store), Event.map(Event.filter(this.nativeHostService.onDidBlurMainOrAuxiliaryWindow, (id) => hasWindow(id), this._store), () => this.hasFocus, this._store), Event.map(this.onDidChangeActiveWindow, () => this.hasFocus, this._store)), void 0, this._store);
+    this.onDidChangeFullScreen = Event.filter(this.nativeHostService.onDidChangeWindowFullScreen, (e) => hasWindow(e.windowId), this._store);
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.onDidChangeFocus((focus) => {
+      if (focus) {
+        this.clearToasts();
+      }
+    }));
+  }
+  get hasFocus() {
+    return getActiveDocument().hasFocus();
+  }
+  async hadLastFocus() {
+    const activeWindowId = await this.nativeHostService.getActiveWindowId();
+    if (typeof activeWindowId === "undefined") {
+      return false;
+    }
+    return activeWindowId === this.nativeHostService.windowId;
+  }
+  //#endregion
+  //#region Window
+  get onDidChangeActiveWindow() {
+    const emitter = this._register(new Emitter());
+    this._register(Event.filter(this.nativeHostService.onDidFocusMainOrAuxiliaryWindow, (id) => hasWindow(id), this._store)((id) => emitter.fire(id)));
+    this._register(onDidRegisterWindow(({ window, disposables }) => {
+      disposables.add(disposableWindowInterval(window, () => {
+        const hasFocus = window.document.hasFocus();
+        if (hasFocus) {
+          emitter.fire(window.vscodeWindowId);
+        }
+        return hasFocus;
+      }, 100, 20));
+    }));
+    return Event.latch(emitter.event, void 0, this._store);
+  }
+  openWindow(arg1, arg2) {
+    if (Array.isArray(arg1)) {
+      return this.doOpenWindow(arg1, arg2);
+    }
+    return this.doOpenEmptyWindow(arg1);
+  }
+  doOpenWindow(toOpen, options) {
+    const remoteAuthority = this.environmentService.remoteAuthority;
+    if (remoteAuthority) {
+      toOpen.forEach((openable) => openable.label = openable.label || this.getRecentLabel(openable));
+      if (options?.remoteAuthority === void 0) {
+        options = options ? { ...options, remoteAuthority } : { remoteAuthority };
+      }
+    }
+    return this.nativeHostService.openWindow(toOpen, options);
+  }
+  getRecentLabel(openable) {
+    if (isFolderToOpen(openable)) {
+      return this.labelService.getWorkspaceLabel(openable.folderUri, {
+        verbose: 2
+        /* Verbosity.LONG */
+      });
+    }
+    if (isWorkspaceToOpen(openable)) {
+      return this.labelService.getWorkspaceLabel({ id: "", configPath: openable.workspaceUri }, {
+        verbose: 2
+        /* Verbosity.LONG */
+      });
+    }
+    return this.labelService.getUriLabel(openable.fileUri, { appendWorkspaceSuffix: true });
+  }
+  doOpenEmptyWindow(options) {
+    const remoteAuthority = this.environmentService.remoteAuthority;
+    if (!!remoteAuthority && options?.remoteAuthority === void 0) {
+      options = options ? { ...options, remoteAuthority } : { remoteAuthority };
+    }
+    return this.nativeHostService.openWindow(options);
+  }
+  toggleFullScreen(targetWindow) {
+    return this.nativeHostService.toggleFullScreen({ targetWindowId: isAuxiliaryWindow(targetWindow) ? targetWindow.vscodeWindowId : void 0 });
+  }
+  async moveTop(targetWindow) {
+    if (getWindowsCount() <= 1) {
+      return;
+    }
+    return this.nativeHostService.moveWindowTop(isAuxiliaryWindow(targetWindow) ? { targetWindowId: targetWindow.vscodeWindowId } : void 0);
+  }
+  getCursorScreenPoint() {
+    return this.nativeHostService.getCursorScreenPoint();
+  }
+  getWindows(options) {
+    if (options.includeAuxiliaryWindows === false) {
+      return this.nativeHostService.getWindows({ includeAuxiliaryWindows: false });
+    }
+    return this.nativeHostService.getWindows({ includeAuxiliaryWindows: true });
+  }
+  //#endregion
+  //#region Lifecycle
+  focus(targetWindow, options) {
+    return this.nativeHostService.focusWindow({
+      mode: options?.mode,
+      targetWindowId: getWindowId(targetWindow)
+    });
+  }
+  restart() {
+    return this.nativeHostService.relaunch();
+  }
+  reload(options) {
+    return this.nativeHostService.reload(options);
+  }
+  close() {
+    return this.nativeHostService.closeWindow();
+  }
+  async withExpectedShutdown(expectedShutdownTask) {
+    return await expectedShutdownTask();
+  }
+  //#endregion
+  //#region Screenshots
+  getScreenshot(rect) {
+    return this.nativeHostService.getScreenshot(rect);
+  }
+  async getNativeWindowHandle(windowId) {
+    if (!this._nativeWindowHandleCache.has(windowId)) {
+      this._nativeWindowHandleCache.set(windowId, this.nativeHostService.getNativeWindowHandle(windowId));
+    }
+    return this._nativeWindowHandleCache.get(windowId);
+  }
+  async showToast(options, token) {
+    const id = generateUuid();
+    token.onCancellationRequested(() => this.nativeHostService.clearToast(id));
+    const nativeToast = await this.nativeHostService.showToast({ ...options, id });
+    if (nativeToast.supported) {
+      return nativeToast;
+    }
+    return showBrowserToast({
+      onDidCreateToast: /* @__PURE__ */ __name((toast) => this.activeBrowserToasts.add(toast), "onDidCreateToast"),
+      onDidDisposeToast: /* @__PURE__ */ __name((toast) => this.activeBrowserToasts.deleteAndDispose(toast), "onDidDisposeToast")
+    }, options, token);
+  }
+  async clearToasts() {
+    await this.nativeHostService.clearToasts();
+    this.activeBrowserToasts.clearAndDisposeAll();
+  }
+};
+__decorate([
+  memoize
+], WorkbenchHostService.prototype, "onDidChangeActiveWindow", null);
+WorkbenchHostService = __decorate([
+  __param(0, INativeHostService),
+  __param(1, ILabelService),
+  __param(2, IWorkbenchEnvironmentService)
+], WorkbenchHostService);
+registerSingleton(
+  IHostService,
+  WorkbenchHostService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  INativeHostService,
+  WorkbenchNativeHostService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=nativeHostService.js.map

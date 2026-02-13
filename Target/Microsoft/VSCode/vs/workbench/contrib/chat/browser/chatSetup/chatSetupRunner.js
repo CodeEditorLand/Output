@@ -1,1 +1,248 @@
-import"./media/chatSetup.css";import{$ as v}from"../../../../../base/browser/dom.js";import{$C_ as R,DialogContentsAlignment as _}from"../../../../../base/browser/ui/dialog/dialog.js";import{$$b as b}from"../../../../../base/common/arrays.js";import{$bk as L}from"../../../../../base/common/codicons.js";import{$Lm as T}from"../../../../../base/common/errorMessage.js";import{$jk as I}from"../../../../../base/common/htmlContent.js";import{$Dd as q}from"../../../../../base/common/lifecycle.js";import{$Ukb as C}from"../../../../../platform/markdown/browser/markdownRenderer.js";import{localize as s}from"../../../../../nls.js";import{$F_b as B}from"../../../../../platform/dialogs/browser/dialog.js";import{$fy as y}from"../../../../../platform/keybinding/common/keybinding.js";import{$flb as j}from"../../../../../platform/layout/browser/layoutService.js";import{$yo as P}from"../../../../../platform/log/common/log.js";import f from"../../../../../platform/product/common/product.js";import{$pp as A}from"../../../../../platform/telemetry/common/telemetry.js";import{$3H as k}from"../../../../../platform/workspace/common/workspaceTrust.js";import{$Eyb as x}from"../../../../services/layout/browser/layoutService.js";import{ChatEntitlement as g,$JP as $,$KP as G}from"../../../../services/chat/common/chatEntitlementService.js";import{$U4b as U}from"../chat.js";import{ChatSetupAnonymous as F,ChatSetupStrategy as a}from"./chatSetup.js";import{$IP as w}from"../../../../../platform/defaultAccount/common/defaultAccount.js";var E=function(u,e,n,i){var r=arguments.length,t=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(u,e,n,i);else for(var p=u.length-1;p>=0;p--)(o=u[p])&&(t=(r<3?o(t):r>3?o(e,n,t):o(e,n))||t);return r>3&&t&&Object.defineProperty(e,n,t),t},d=function(u,e){return function(n,i){e(n,i,u)}},m;const l={publicCodeMatchesUrl:f.defaultChatAgent?.publicCodeMatchesUrl??"",provider:f.defaultChatAgent?.provider??{default:{id:"",name:""},enterprise:{id:"",name:""},apple:{id:"",name:""},google:{id:"",name:""}},manageSettingsUrl:f.defaultChatAgent?.manageSettingsUrl??"",completionsRefreshTokenCommand:f.defaultChatAgent?.completionsRefreshTokenCommand??"",chatRefreshTokenCommand:f.defaultChatAgent?.chatRefreshTokenCommand??"",termsStatementUrl:f.defaultChatAgent?.termsStatementUrl??"",privacyStatementUrl:f.defaultChatAgent?.privacyStatementUrl??""};let S=class{static{m=this}static{this.a=void 0}static getInstance(e,n,i){let r=m.a;return r||(r=m.a=e.invokeFunction(t=>new m(n,i,t.get(A),t.get(x),t.get(y),t.get($),t.get(P),t.get(U),t.get(k),t.get(C),t.get(w)))),r}constructor(e,n,i,r,t,o,p,c,h,D,W){this.d=e,this.e=n,this.f=i,this.g=r,this.h=t,this.i=o,this.j=p,this.k=c,this.l=h,this.m=D,this.n=W,this.b=void 0,this.c=!1}skipDialog(){this.c=!0}async run(e){if(this.b)return this.b;this.b=this.o(e);try{return await this.b}finally{this.b=void 0}}async o(e){this.d.update({later:!1});const n=this.c;if(this.c=!1,!await this.l.requestWorkspaceTrust({message:s(6150,null)}))return this.d.update({later:!0}),this.f.publicLog2("commandCenter.chatInstall",{installResult:"failedNotTrusted",installDuration:0,signUpErrorCode:void 0,provider:void 0}),{dialogSkipped:n,success:void 0};let r;!e?.forceSignInDialog&&(n||G(this.i.entitlement)||this.i.entitlement===g.Free)?r=a.DefaultSetup:e?.forceAnonymous===F.EnabledWithoutDialog?r=a.DefaultSetup:r=await this.p(e),r===a.DefaultSetup&&this.n.getDefaultAccountAuthenticationProvider().enterprise&&(r=a.SetupWithEnterpriseProvider),r!==a.Canceled&&!e?.disableChatViewReveal&&this.k.revealWidget();let t;try{switch(r){case a.SetupWithEnterpriseProvider:t=await this.e.value.setupWithProvider({useEnterpriseProvider:!0,useSocialProvider:void 0,additionalScopes:e?.additionalScopes,forceAnonymous:e?.forceAnonymous});break;case a.SetupWithoutEnterpriseProvider:t=await this.e.value.setupWithProvider({useEnterpriseProvider:!1,useSocialProvider:void 0,additionalScopes:e?.additionalScopes,forceAnonymous:e?.forceAnonymous});break;case a.SetupWithAppleProvider:t=await this.e.value.setupWithProvider({useEnterpriseProvider:!1,useSocialProvider:"apple",additionalScopes:e?.additionalScopes,forceAnonymous:e?.forceAnonymous});break;case a.SetupWithGoogleProvider:t=await this.e.value.setupWithProvider({useEnterpriseProvider:!1,useSocialProvider:"google",additionalScopes:e?.additionalScopes,forceAnonymous:e?.forceAnonymous});break;case a.DefaultSetup:t=await this.e.value.setup({...e,forceAnonymous:e?.forceAnonymous});break;case a.Canceled:this.d.update({later:!0}),this.f.publicLog2("commandCenter.chatInstall",{installResult:"failedMaybeLater",installDuration:0,signUpErrorCode:void 0,provider:void 0});break}}catch(o){this.j.error(`[chat setup] Error during setup: ${T(o)}`),t=!1}return{success:t,dialogSkipped:n}}async p(e){const n=new q,i=this.q(e),r=n.add(new R(this.g.activeContainer,this.r(e),i.map(o=>o[0]),B({type:"none",extraClasses:["chat-setup-dialog"],detail:" ",icon:L.copilotLarge,alignment:_.Vertical,cancelId:i.length-1,disableCloseButton:!0,renderFooter:o=>o.appendChild(this.s(n,e)),buttonOptions:i.map(o=>o[2])},this.h,this.g))),{button:t}=await r.show();return n.dispose(),i[t]?.[1]??a.Canceled}q(e){const n=(...r)=>({styleButton:t=>t.element.classList.add(...r)});let i;if(!e?.forceAnonymous&&(this.d.state.entitlement===g.Unknown||e?.forceSignInDialog)){const r=[s(6151,null,l.provider.default.name),a.SetupWithoutEnterpriseProvider,n("continue-button","default")],t=[r[0],r[1],n("link-button")],o=[s(6152,null,l.provider.enterprise.name),a.SetupWithEnterpriseProvider,n("continue-button","default")],p=[o[0],o[1],n("link-button")],c=[s(6153,null,l.provider.google.name),a.SetupWithGoogleProvider,n("continue-button","google")],h=[s(6154,null,l.provider.apple.name),a.SetupWithAppleProvider,n("continue-button","apple")];this.n.getDefaultAccountAuthenticationProvider().enterprise?i=b([o,c,h,t]):i=b([r,c,h,p])}else i=[[s(6155,null),a.DefaultSetup,void 0]];return i.push([s(6156,null),a.Canceled,n("link-button","skip-button")]),i}r(e){return this.i.anonymous?e?.forceAnonymous?s(6157,null):s(6158,null):this.d.state.entitlement===g.Unknown||e?.forceSignInDialog?s(6159,null):s(6160,null)}s(e,n){const i=v(".chat-setup-dialog-footer");let r;return n?.forceAnonymous||this.f.telemetryLevel===0?r=s(6161,null,l.provider.default.name,l.termsStatementUrl,l.privacyStatementUrl):r=s(6162,null,l.provider.default.name,l.termsStatementUrl,l.privacyStatementUrl,l.provider.default.name,l.publicCodeMatchesUrl,l.manageSettingsUrl),i.appendChild(v("p",void 0,e.add(this.m.render(new I(r,{isTrusted:!0}))).element)),i}};S=m=E([d(2,A),d(3,j),d(4,y),d(5,$),d(6,P),d(7,U),d(8,k),d(9,C),d(10,w)],S);function pe(u){u.executeCommand(l.completionsRefreshTokenCommand),u.executeCommand(l.chatRefreshTokenCommand)}export{S as $Gqc,pe as $Hqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatSetup_1;
+import "./media/chatSetup.css";
+import { $ } from "../../../../../base/browser/dom.js";
+import { Dialog, DialogContentsAlignment } from "../../../../../base/browser/ui/dialog/dialog.js";
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IMarkdownRendererService } from "../../../../../platform/markdown/browser/markdownRenderer.js";
+import { localize } from "../../../../../nls.js";
+import { createWorkbenchDialogOptions } from "../../../../../platform/dialogs/browser/dialog.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import product from "../../../../../platform/product/common/product.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceTrustRequestService } from "../../../../../platform/workspace/common/workspaceTrust.js";
+import { IWorkbenchLayoutService } from "../../../../services/layout/browser/layoutService.js";
+import { ChatEntitlement, IChatEntitlementService, isProUser } from "../../../../services/chat/common/chatEntitlementService.js";
+import { IChatWidgetService } from "../chat.js";
+import { ChatSetupAnonymous, ChatSetupStrategy } from "./chatSetup.js";
+import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
+const defaultChat = {
+  publicCodeMatchesUrl: product.defaultChatAgent?.publicCodeMatchesUrl ?? "",
+  provider: product.defaultChatAgent?.provider ?? { default: { id: "", name: "" }, enterprise: { id: "", name: "" }, apple: { id: "", name: "" }, google: { id: "", name: "" } },
+  manageSettingsUrl: product.defaultChatAgent?.manageSettingsUrl ?? "",
+  completionsRefreshTokenCommand: product.defaultChatAgent?.completionsRefreshTokenCommand ?? "",
+  chatRefreshTokenCommand: product.defaultChatAgent?.chatRefreshTokenCommand ?? "",
+  termsStatementUrl: product.defaultChatAgent?.termsStatementUrl ?? "",
+  privacyStatementUrl: product.defaultChatAgent?.privacyStatementUrl ?? ""
+};
+let ChatSetup = class ChatSetup2 {
+  static {
+    __name(this, "ChatSetup");
+  }
+  static {
+    ChatSetup_1 = this;
+  }
+  static {
+    this.instance = void 0;
+  }
+  static getInstance(instantiationService, context, controller) {
+    let instance = ChatSetup_1.instance;
+    if (!instance) {
+      instance = ChatSetup_1.instance = instantiationService.invokeFunction((accessor) => {
+        return new ChatSetup_1(context, controller, accessor.get(ITelemetryService), accessor.get(IWorkbenchLayoutService), accessor.get(IKeybindingService), accessor.get(IChatEntitlementService), accessor.get(ILogService), accessor.get(IChatWidgetService), accessor.get(IWorkspaceTrustRequestService), accessor.get(IMarkdownRendererService), accessor.get(IDefaultAccountService));
+      });
+    }
+    return instance;
+  }
+  constructor(context, controller, telemetryService, layoutService, keybindingService, chatEntitlementService, logService, widgetService, workspaceTrustRequestService, markdownRendererService, defaultAccountService) {
+    this.context = context;
+    this.controller = controller;
+    this.telemetryService = telemetryService;
+    this.layoutService = layoutService;
+    this.keybindingService = keybindingService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.logService = logService;
+    this.widgetService = widgetService;
+    this.workspaceTrustRequestService = workspaceTrustRequestService;
+    this.markdownRendererService = markdownRendererService;
+    this.defaultAccountService = defaultAccountService;
+    this.pendingRun = void 0;
+    this.skipDialogOnce = false;
+  }
+  skipDialog() {
+    this.skipDialogOnce = true;
+  }
+  async run(options) {
+    if (this.pendingRun) {
+      return this.pendingRun;
+    }
+    this.pendingRun = this.doRun(options);
+    try {
+      return await this.pendingRun;
+    } finally {
+      this.pendingRun = void 0;
+    }
+  }
+  async doRun(options) {
+    this.context.update({ later: false });
+    const dialogSkipped = this.skipDialogOnce;
+    this.skipDialogOnce = false;
+    const trusted = await this.workspaceTrustRequestService.requestWorkspaceTrust({
+      message: localize("chatWorkspaceTrust", "AI features are currently only supported in trusted workspaces.")
+    });
+    if (!trusted) {
+      this.context.update({ later: true });
+      this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedNotTrusted", installDuration: 0, signUpErrorCode: void 0, provider: void 0 });
+      return {
+        dialogSkipped,
+        success: void 0
+        /* canceled */
+      };
+    }
+    let setupStrategy;
+    if (!options?.forceSignInDialog && (dialogSkipped || isProUser(this.chatEntitlementService.entitlement) || this.chatEntitlementService.entitlement === ChatEntitlement.Free)) {
+      setupStrategy = ChatSetupStrategy.DefaultSetup;
+    } else if (options?.forceAnonymous === ChatSetupAnonymous.EnabledWithoutDialog) {
+      setupStrategy = ChatSetupStrategy.DefaultSetup;
+    } else {
+      setupStrategy = await this.showDialog(options);
+    }
+    if (setupStrategy === ChatSetupStrategy.DefaultSetup && this.defaultAccountService.getDefaultAccountAuthenticationProvider().enterprise) {
+      setupStrategy = ChatSetupStrategy.SetupWithEnterpriseProvider;
+    }
+    if (setupStrategy !== ChatSetupStrategy.Canceled && !options?.disableChatViewReveal) {
+      this.widgetService.revealWidget();
+    }
+    let success = void 0;
+    try {
+      switch (setupStrategy) {
+        case ChatSetupStrategy.SetupWithEnterpriseProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: true, useSocialProvider: void 0, additionalScopes: options?.additionalScopes, forceAnonymous: options?.forceAnonymous });
+          break;
+        case ChatSetupStrategy.SetupWithoutEnterpriseProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: false, useSocialProvider: void 0, additionalScopes: options?.additionalScopes, forceAnonymous: options?.forceAnonymous });
+          break;
+        case ChatSetupStrategy.SetupWithAppleProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: false, useSocialProvider: "apple", additionalScopes: options?.additionalScopes, forceAnonymous: options?.forceAnonymous });
+          break;
+        case ChatSetupStrategy.SetupWithGoogleProvider:
+          success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: false, useSocialProvider: "google", additionalScopes: options?.additionalScopes, forceAnonymous: options?.forceAnonymous });
+          break;
+        case ChatSetupStrategy.DefaultSetup:
+          success = await this.controller.value.setup({ ...options, forceAnonymous: options?.forceAnonymous });
+          break;
+        case ChatSetupStrategy.Canceled:
+          this.context.update({ later: true });
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedMaybeLater", installDuration: 0, signUpErrorCode: void 0, provider: void 0 });
+          break;
+      }
+    } catch (error) {
+      this.logService.error(`[chat setup] Error during setup: ${toErrorMessage(error)}`);
+      success = false;
+    }
+    return { success, dialogSkipped };
+  }
+  async showDialog(options) {
+    const disposables = new DisposableStore();
+    const buttons = this.getButtons(options);
+    const dialog = disposables.add(new Dialog(this.layoutService.activeContainer, this.getDialogTitle(options), buttons.map((button2) => button2[0]), createWorkbenchDialogOptions({
+      type: "none",
+      extraClasses: ["chat-setup-dialog"],
+      detail: " ",
+      // workaround allowing us to render the message in large
+      icon: Codicon.copilotLarge,
+      alignment: DialogContentsAlignment.Vertical,
+      cancelId: buttons.length - 1,
+      disableCloseButton: true,
+      renderFooter: /* @__PURE__ */ __name((footer) => footer.appendChild(this.createDialogFooter(disposables, options)), "renderFooter"),
+      buttonOptions: buttons.map((button2) => button2[2])
+    }, this.keybindingService, this.layoutService)));
+    const { button } = await dialog.show();
+    disposables.dispose();
+    return buttons[button]?.[1] ?? ChatSetupStrategy.Canceled;
+  }
+  getButtons(options) {
+    const styleButton = /* @__PURE__ */ __name((...classes) => ({ styleButton: /* @__PURE__ */ __name((button) => button.element.classList.add(...classes), "styleButton") }), "styleButton");
+    let buttons;
+    if (!options?.forceAnonymous && (this.context.state.entitlement === ChatEntitlement.Unknown || options?.forceSignInDialog)) {
+      const defaultProviderButton = [localize("continueWith", "Continue with {0}", defaultChat.provider.default.name), ChatSetupStrategy.SetupWithoutEnterpriseProvider, styleButton("continue-button", "default")];
+      const defaultProviderLink = [defaultProviderButton[0], defaultProviderButton[1], styleButton("link-button")];
+      const enterpriseProviderButton = [localize("continueWith", "Continue with {0}", defaultChat.provider.enterprise.name), ChatSetupStrategy.SetupWithEnterpriseProvider, styleButton("continue-button", "default")];
+      const enterpriseProviderLink = [enterpriseProviderButton[0], enterpriseProviderButton[1], styleButton("link-button")];
+      const googleProviderButton = [localize("continueWith", "Continue with {0}", defaultChat.provider.google.name), ChatSetupStrategy.SetupWithGoogleProvider, styleButton("continue-button", "google")];
+      const appleProviderButton = [localize("continueWith", "Continue with {0}", defaultChat.provider.apple.name), ChatSetupStrategy.SetupWithAppleProvider, styleButton("continue-button", "apple")];
+      if (!this.defaultAccountService.getDefaultAccountAuthenticationProvider().enterprise) {
+        buttons = coalesce([
+          defaultProviderButton,
+          googleProviderButton,
+          appleProviderButton,
+          enterpriseProviderLink
+        ]);
+      } else {
+        buttons = coalesce([
+          enterpriseProviderButton,
+          googleProviderButton,
+          appleProviderButton,
+          defaultProviderLink
+        ]);
+      }
+    } else {
+      buttons = [[localize("setupAIButton", "Use AI Features"), ChatSetupStrategy.DefaultSetup, void 0]];
+    }
+    buttons.push([localize("skipForNow", "Skip for now"), ChatSetupStrategy.Canceled, styleButton("link-button", "skip-button")]);
+    return buttons;
+  }
+  getDialogTitle(options) {
+    if (this.chatEntitlementService.anonymous) {
+      if (options?.forceAnonymous) {
+        return localize("startUsing", "Start using AI Features");
+      } else {
+        return localize("enableMore", "Enable more AI features");
+      }
+    }
+    if (this.context.state.entitlement === ChatEntitlement.Unknown || options?.forceSignInDialog) {
+      return localize("signIn", "Sign in to use AI Features");
+    }
+    return localize("startUsing", "Start using AI Features");
+  }
+  createDialogFooter(disposables, options) {
+    const element = $(".chat-setup-dialog-footer");
+    let footer;
+    if (options?.forceAnonymous || this.telemetryService.telemetryLevel === 0) {
+      footer = localize({ key: "settingsAnonymous", comment: ['{Locked="["}', '{Locked="]({1})"}', '{Locked="]({2})"}'] }, "By continuing, you agree to {0}'s [Terms]({1}) and [Privacy Statement]({2}).", defaultChat.provider.default.name, defaultChat.termsStatementUrl, defaultChat.privacyStatementUrl);
+    } else {
+      footer = localize({ key: "settings", comment: ['{Locked="["}', '{Locked="]({1})"}', '{Locked="]({2})"}', '{Locked="]({4})"}', '{Locked="]({5})"}'] }, "By continuing, you agree to {0}'s [Terms]({1}) and [Privacy Statement]({2}). {3} Copilot may show [public code]({4}) suggestions and use your data to improve the product. You can change these [settings]({5}) anytime.", defaultChat.provider.default.name, defaultChat.termsStatementUrl, defaultChat.privacyStatementUrl, defaultChat.provider.default.name, defaultChat.publicCodeMatchesUrl, defaultChat.manageSettingsUrl);
+    }
+    element.appendChild($("p", void 0, disposables.add(this.markdownRendererService.render(new MarkdownString(footer, { isTrusted: true }))).element));
+    return element;
+  }
+};
+ChatSetup = ChatSetup_1 = __decorate([
+  __param(2, ITelemetryService),
+  __param(3, ILayoutService),
+  __param(4, IKeybindingService),
+  __param(5, IChatEntitlementService),
+  __param(6, ILogService),
+  __param(7, IChatWidgetService),
+  __param(8, IWorkspaceTrustRequestService),
+  __param(9, IMarkdownRendererService),
+  __param(10, IDefaultAccountService)
+], ChatSetup);
+function refreshTokens(commandService) {
+  commandService.executeCommand(defaultChat.completionsRefreshTokenCommand);
+  commandService.executeCommand(defaultChat.chatRefreshTokenCommand);
+}
+__name(refreshTokens, "refreshTokens");
+export {
+  ChatSetup,
+  refreshTokens
+};
+//# sourceMappingURL=chatSetupRunner.js.map

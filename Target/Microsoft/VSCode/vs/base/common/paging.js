@@ -1,1 +1,285 @@
-import{$gc as g}from"./arrays.js";import{$Jf as u}from"./cancellation.js";import{$sb as h}from"./errors.js";import{Event as f,$xf as c}from"./event.js";function l(r){return{isResolved:!!r,promise:null,cts:null,promiseIndexes:new Set,elements:r||[]}}function m(r){return{firstPage:r,total:r.length,pageSize:r.length,getPage:(t,e)=>Promise.resolve(r)}}class b{get length(){return this.a.total}constructor(t){this.b=[],this.onDidIncrementLength=f.None,this.a=Array.isArray(t)?m(t):t;const e=Math.ceil(this.a.total/this.a.pageSize);this.b=[l(this.a.firstPage.slice()),...g(e-1).map(()=>l())]}isResolved(t){const e=Math.floor(t/this.a.pageSize);return!!this.b[e].isResolved}get(t){const e=Math.floor(t/this.a.pageSize),i=t%this.a.pageSize;return this.b[e].elements[i]}resolve(t,e){if(e.isCancellationRequested)return Promise.reject(new h);const i=Math.floor(t/this.a.pageSize),n=t%this.a.pageSize,s=this.b[i];if(s.isResolved)return Promise.resolve(s.elements[n]);s.promise||(s.cts=new u,s.promise=this.a.getPage(i,s.cts.token).then(a=>{s.elements=a,s.isResolved=!0,s.promise=null,s.cts=null},a=>(s.isResolved=!1,s.promise=null,s.cts=null,Promise.reject(a))));const o=e.onCancellationRequested(()=>{s.cts&&(s.promiseIndexes.delete(t),s.promiseIndexes.size===0&&s.cts.cancel())});return s.promiseIndexes.add(t),s.promise.then(()=>s.elements[n]).finally(()=>o.dispose())}}class v{get length(){return this.a.length}get onDidIncrementLength(){return this.a.onDidIncrementLength}constructor(t,e=500){this.a=t,this.b=e}isResolved(t){return this.a.isResolved(t)}get(t){return this.a.get(t)}resolve(t,e){return new Promise((i,n)=>{if(e.isCancellationRequested)return n(new h);const s=setTimeout(()=>{if(e.isCancellationRequested)return n(new h);o.dispose(),this.a.resolve(t,e).then(i,n)},this.b),o=e.onCancellationRequested(()=>{clearTimeout(s),o.dispose(),n(new h)})})}}class z{constructor(t){this.a=[],this.d=!1,this.f=new Map,this.b=t,this.firstPage=[...t.elements],this.pageSize=t.elements.length||1,this.a[0]=this.firstPage,this.d=!t.hasNextPage,this.total=t.total}async getPage(t,e){if(e.isCancellationRequested)throw new h;if(t<this.a.length)return this.a[t];if(this.d)throw new Error(`Page ${t} is out of bounds. Total pages: ${this.a.length}`);let i;for(const[n,s]of this.f)if(n>=t){i=s;break}i||(i=this.g(t,e),this.f.set(t,i));try{if(await i,t>=this.a.length)throw new Error(`Page ${t} is out of bounds. Total pages: ${this.a.length}`);return this.a[t]}finally{this.f.delete(t)}}async g(t,e){for(;t>=this.a.length&&this.b.hasNextPage;){if(e.isCancellationRequested)throw new h;this.b=await this.b.getNextPage(e),this.a.push([...this.b.elements])}this.b.hasNextPage||(this.d=!0)}}class R{constructor(t){this.a=[],this.b=!0,this.d=new c,this.f=null,this.g=t,this.a=[...t.firstPage.items],this.b=t.firstPage.hasMore}get onDidIncrementLength(){return this.d.event}get length(){return this.a.length+(this.b?1:0)}isResolved(t){return t===this.a.length&&this.b?!1:t<this.a.length}get(t){if(t<this.a.length)return this.a[t];throw new Error("Item not resolved yet")}async resolve(t,e){if(e.isCancellationRequested)return Promise.reject(new h);if(t===this.a.length&&this.b&&await this.h(e),t<this.a.length)return this.a[t];throw new Error("Index out of bounds")}async h(t){if(!this.b)return;if(this.f){await this.f;return}const e=this.g.getNextPage(t);this.f=e.then(i=>{this.a.push(...i.items),this.b=i.hasMore,this.f=null,this.d.fire(this.length)},i=>{throw this.f=null,i}),await this.f}dispose(){this.d.dispose()}}function $(r,t){return{firstPage:r.firstPage.map(t),total:r.total,pageSize:r.pageSize,getPage:(e,i)=>r.getPage(e,i).then(n=>n.map(t))}}export{R as $Az,$ as $Bz,m as $wz,b as $xz,v as $yz,z as $zz};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { range } from "./arrays.js";
+import { CancellationTokenSource } from "./cancellation.js";
+import { CancellationError } from "./errors.js";
+import { Event, Emitter } from "./event.js";
+function createPage(elements) {
+  return {
+    isResolved: !!elements,
+    promise: null,
+    cts: null,
+    promiseIndexes: /* @__PURE__ */ new Set(),
+    elements: elements || []
+  };
+}
+__name(createPage, "createPage");
+function singlePagePager(elements) {
+  return {
+    firstPage: elements,
+    total: elements.length,
+    pageSize: elements.length,
+    getPage: /* @__PURE__ */ __name((pageIndex, cancellationToken) => {
+      return Promise.resolve(elements);
+    }, "getPage")
+  };
+}
+__name(singlePagePager, "singlePagePager");
+class PagedModel {
+  static {
+    __name(this, "PagedModel");
+  }
+  get length() {
+    return this.pager.total;
+  }
+  constructor(arg) {
+    this.pages = [];
+    this.onDidIncrementLength = Event.None;
+    this.pager = Array.isArray(arg) ? singlePagePager(arg) : arg;
+    const totalPages = Math.ceil(this.pager.total / this.pager.pageSize);
+    this.pages = [
+      createPage(this.pager.firstPage.slice()),
+      ...range(totalPages - 1).map(() => createPage())
+    ];
+  }
+  isResolved(index) {
+    const pageIndex = Math.floor(index / this.pager.pageSize);
+    const page = this.pages[pageIndex];
+    return !!page.isResolved;
+  }
+  get(index) {
+    const pageIndex = Math.floor(index / this.pager.pageSize);
+    const indexInPage = index % this.pager.pageSize;
+    const page = this.pages[pageIndex];
+    return page.elements[indexInPage];
+  }
+  resolve(index, cancellationToken) {
+    if (cancellationToken.isCancellationRequested) {
+      return Promise.reject(new CancellationError());
+    }
+    const pageIndex = Math.floor(index / this.pager.pageSize);
+    const indexInPage = index % this.pager.pageSize;
+    const page = this.pages[pageIndex];
+    if (page.isResolved) {
+      return Promise.resolve(page.elements[indexInPage]);
+    }
+    if (!page.promise) {
+      page.cts = new CancellationTokenSource();
+      page.promise = this.pager.getPage(pageIndex, page.cts.token).then((elements) => {
+        page.elements = elements;
+        page.isResolved = true;
+        page.promise = null;
+        page.cts = null;
+      }, (err) => {
+        page.isResolved = false;
+        page.promise = null;
+        page.cts = null;
+        return Promise.reject(err);
+      });
+    }
+    const listener = cancellationToken.onCancellationRequested(() => {
+      if (!page.cts) {
+        return;
+      }
+      page.promiseIndexes.delete(index);
+      if (page.promiseIndexes.size === 0) {
+        page.cts.cancel();
+      }
+    });
+    page.promiseIndexes.add(index);
+    return page.promise.then(() => page.elements[indexInPage]).finally(() => listener.dispose());
+  }
+}
+class DelayedPagedModel {
+  static {
+    __name(this, "DelayedPagedModel");
+  }
+  get length() {
+    return this.model.length;
+  }
+  get onDidIncrementLength() {
+    return this.model.onDidIncrementLength;
+  }
+  constructor(model, timeout = 500) {
+    this.model = model;
+    this.timeout = timeout;
+  }
+  isResolved(index) {
+    return this.model.isResolved(index);
+  }
+  get(index) {
+    return this.model.get(index);
+  }
+  resolve(index, cancellationToken) {
+    return new Promise((c, e) => {
+      if (cancellationToken.isCancellationRequested) {
+        return e(new CancellationError());
+      }
+      const timer = setTimeout(() => {
+        if (cancellationToken.isCancellationRequested) {
+          return e(new CancellationError());
+        }
+        timeoutCancellation.dispose();
+        this.model.resolve(index, cancellationToken).then(c, e);
+      }, this.timeout);
+      const timeoutCancellation = cancellationToken.onCancellationRequested(() => {
+        clearTimeout(timer);
+        timeoutCancellation.dispose();
+        e(new CancellationError());
+      });
+    });
+  }
+}
+class PageIteratorPager {
+  static {
+    __name(this, "PageIteratorPager");
+  }
+  constructor(initialIterator) {
+    this.cachedPages = [];
+    this.isComplete = false;
+    this.pendingRequests = /* @__PURE__ */ new Map();
+    this.currentIterator = initialIterator;
+    this.firstPage = [...initialIterator.elements];
+    this.pageSize = initialIterator.elements.length || 1;
+    this.cachedPages[0] = this.firstPage;
+    this.isComplete = !initialIterator.hasNextPage;
+    this.total = initialIterator.total;
+  }
+  async getPage(pageIndex, cancellationToken) {
+    if (cancellationToken.isCancellationRequested) {
+      throw new CancellationError();
+    }
+    if (pageIndex < this.cachedPages.length) {
+      return this.cachedPages[pageIndex];
+    }
+    if (this.isComplete) {
+      throw new Error(`Page ${pageIndex} is out of bounds. Total pages: ${this.cachedPages.length}`);
+    }
+    let promise;
+    for (const [pendingPageIndex, pendingPromise] of this.pendingRequests) {
+      if (pendingPageIndex >= pageIndex) {
+        promise = pendingPromise;
+        break;
+      }
+    }
+    if (!promise) {
+      promise = this.loadPagesUntil(pageIndex, cancellationToken);
+      this.pendingRequests.set(pageIndex, promise);
+    }
+    try {
+      await promise;
+      if (pageIndex >= this.cachedPages.length) {
+        throw new Error(`Page ${pageIndex} is out of bounds. Total pages: ${this.cachedPages.length}`);
+      }
+      return this.cachedPages[pageIndex];
+    } finally {
+      this.pendingRequests.delete(pageIndex);
+    }
+  }
+  async loadPagesUntil(targetPageIndex, cancellationToken) {
+    while (targetPageIndex >= this.cachedPages.length && this.currentIterator.hasNextPage) {
+      if (cancellationToken.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      this.currentIterator = await this.currentIterator.getNextPage(cancellationToken);
+      this.cachedPages.push([...this.currentIterator.elements]);
+    }
+    if (!this.currentIterator.hasNextPage) {
+      this.isComplete = true;
+    }
+  }
+}
+class IterativePagedModel {
+  static {
+    __name(this, "IterativePagedModel");
+  }
+  constructor(pager) {
+    this.items = [];
+    this._hasNextPage = true;
+    this._onDidIncrementLength = new Emitter();
+    this.loadingPromise = null;
+    this.pager = pager;
+    this.items = [...pager.firstPage.items];
+    this._hasNextPage = pager.firstPage.hasMore;
+  }
+  get onDidIncrementLength() {
+    return this._onDidIncrementLength.event;
+  }
+  /**
+   * Returns actual length + 1 if there are more pages (sentinel approach)
+   */
+  get length() {
+    return this.items.length + (this._hasNextPage ? 1 : 0);
+  }
+  /**
+   * Sentinel item is never resolved - it triggers loading
+   */
+  isResolved(index) {
+    if (index === this.items.length && this._hasNextPage) {
+      return false;
+    }
+    return index < this.items.length;
+  }
+  get(index) {
+    if (index < this.items.length) {
+      return this.items[index];
+    }
+    throw new Error("Item not resolved yet");
+  }
+  /**
+   * When sentinel item is accessed, load next page
+   */
+  async resolve(index, cancellationToken) {
+    if (cancellationToken.isCancellationRequested) {
+      return Promise.reject(new CancellationError());
+    }
+    if (index === this.items.length && this._hasNextPage) {
+      await this.loadNextPage(cancellationToken);
+    }
+    if (index < this.items.length) {
+      return this.items[index];
+    }
+    throw new Error("Index out of bounds");
+  }
+  async loadNextPage(cancellationToken) {
+    if (!this._hasNextPage) {
+      return;
+    }
+    if (this.loadingPromise) {
+      await this.loadingPromise;
+      return;
+    }
+    const pagePromise = this.pager.getNextPage(cancellationToken);
+    this.loadingPromise = pagePromise.then((page) => {
+      this.items.push(...page.items);
+      this._hasNextPage = page.hasMore;
+      this.loadingPromise = null;
+      this._onDidIncrementLength.fire(this.length);
+    }, (err) => {
+      this.loadingPromise = null;
+      throw err;
+    });
+    await this.loadingPromise;
+  }
+  dispose() {
+    this._onDidIncrementLength.dispose();
+  }
+}
+function mapPager(pager, fn) {
+  return {
+    firstPage: pager.firstPage.map(fn),
+    total: pager.total,
+    pageSize: pager.pageSize,
+    getPage: /* @__PURE__ */ __name((pageIndex, token) => pager.getPage(pageIndex, token).then((r) => r.map(fn)), "getPage")
+  };
+}
+__name(mapPager, "mapPager");
+export {
+  DelayedPagedModel,
+  IterativePagedModel,
+  PageIteratorPager,
+  PagedModel,
+  mapPager,
+  singlePagePager
+};
+//# sourceMappingURL=paging.js.map

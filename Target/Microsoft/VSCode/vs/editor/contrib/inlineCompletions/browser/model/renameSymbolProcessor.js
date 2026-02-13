@@ -1,1 +1,487 @@
-import{$Zh as Z}from"../../../../../base/common/async.js";import{$Jf as x}from"../../../../../base/common/cancellation.js";import{$fE as H,$dE as U}from"../../../../../base/common/diff/diff.js";import{$Ed as X}from"../../../../../base/common/lifecycle.js";import{localize as V}from"../../../../../nls.js";import{$vo as Y,$uo as K}from"../../../../../platform/commands/common/commands.js";import{$Lkb as M,$Nkb as ee}from"../../../../browser/services/bulkEditService.js";import{$GE as S}from"../../../../common/core/edits/textEdit.js";import{$$D as _}from"../../../../common/core/position.js";import{$_D as v}from"../../../../common/core/range.js";import{$MG as ne}from"../../../../common/languages/languageConfigurationRegistry.js";import{$uW as te}from"../../../../common/services/languageFeatures.js";import{$oF as ie}from"../../../../common/textModelEditSource.js";import{$Job as re,$Lob as oe}from"../../../rename/browser/rename.js";import{$gnb as z}from"../controller/commandIds.js";import{InlineSuggestionItem as se}from"./inlineSuggestionItem.js";import{$bk as ae}from"../../../../../base/common/codicons.js";import{$Oob as ue}from"../../../../browser/services/renameSymbolTrackerService.js";import{$Mdb as fe}from"../../../../browser/services/codeEditorService.js";import{$Bob as ce}from"./textModelValueReference.js";var Q=function(l,e,n,r){var t=arguments.length,i=t<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,n):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,e,n,r);else for(var h=l.length-1;h>=0;h--)(c=l[h])&&(i=(t<3?c(i):t>3?c(e,n,i):c(e,n))||i);return t>3&&i&&Object.defineProperty(e,n,i),i},q=function(l,e){return function(n,r){e(n,r,l)}},O;(function(l){l.no="no",l.yes="yes",l.maybe="maybe"})(O||(O={}));(function(l){function e(n){switch(n){case"no":return l.no;case"yes":return l.yes;case"maybe":return l.maybe;default:return l.no}}l.fromString=e})(O||(O={}));class de{constructor(){}inferRename(e,n,r,t){const i=new v(n.startLineNumber,1,n.endLineNumber,e.getLineMaxColumn(n.endLineNumber)),c=n.startColumn-i.startColumn,h=i.endColumn-n.endColumn,u=e.getValueInRange(i),o=e.getValueInRange(new v(i.startLineNumber,i.startColumn,i.startLineNumber,i.startColumn+c))+r+e.getValueInRange(new v(i.endLineNumber,i.endColumn-h,i.endLineNumber,i.endColumn)),f=[],k=[];let g,d,R;const E=e.getOffsetAt(i.getStartPosition()),{changes:T}=new H(new U(u),new U(o)).ComputeDiff(!0);if(T.length===0)return;const L=[];for(const s of T){if(L.length===0){L.push(s);continue}const b=L[L.length-1],a=s.originalStart-(b.originalStart+b.originalLength);if(a>0){const N=E+b.originalStart+b.originalLength,P=e.getPositionAt(N),j=e.getWordAtPosition(P);if(j){const W=e.getOffsetAt(new _(P.lineNumber,j.startColumn)),w=e.getOffsetAt(new _(P.lineNumber,j.endColumn)),p=N+a;if(W<=N&&p<=w&&W<=p&&p<=w){b.originalLength=s.originalStart+s.originalLength-b.originalStart,b.modifiedLength=s.modifiedStart+s.modifiedLength-b.modifiedStart;continue}}}L.push(s)}let m=0;for(const s of L){const b=u.substring(s.originalStart,s.originalStart+s.originalLength),a=o.substring(s.modifiedStart,s.modifiedStart+s.modifiedLength),N=E+s.originalStart,P=e.getPositionAt(N),j=N+s.originalLength,W=e.getPositionAt(j),w=v.fromPositions(P,W),p=a.length-s.originalLength;if(/\s/.test(b)){f.push(new S(w,a)),m+=p;continue}if(b.length>0){t.lastIndex=0;const C=t.exec(b);if(C===null||C.index!==0||C[0].length!==b.length){f.push(new S(w,a)),m+=p;continue}}if(/\s/.test(a)){f.push(new S(w,a)),m+=p;continue}if(a.length>0){t.lastIndex=0;const C=t.exec(a);if(C===null||C.index!==0||C[0].length!==a.length){f.push(new S(w,a)),m+=p;continue}}const A=e.getWordAtPosition(P);if(A===null){f.push(new S(w,a)),m+=p;continue}const F=s.originalStart+1,G=s.originalLength===0&&s.modifiedLength>0;let y;if(G&&F===A.endColumn&&A.endColumn>A.startColumn?y=this.a(e,new _(P.lineNumber,A.startColumn)):y=this.a(e,P),A.startColumn!==y.range.startColumn||A.endColumn!==y.range.endColumn){f.push(new S(w,a)),m+=p;continue}if(y.type===0){let C=e.getValueInRange(y.range);if(C.length===0){f.push(new S(w,a)),m+=p;continue}if(g===void 0)g=C;else if(g!==C){f.push(new S(w,a)),m+=p;continue}const J=e.getOffsetAt(y.range.getStartPosition())-E+m,B=e.getOffsetAt(y.range.getEndPosition())-E+m;if(C=o.substring(J,B+p),C.length===0){f.push(new S(w,a)),m+=p;continue}if(d===void 0)d=C;else if(d!==C){f.push(new S(w,a)),m+=p;continue}R===void 0&&(R=y.range.getStartPosition()),g!==void 0&&d!==void 0&&g.length>0&&d.length>0&&g!==d?k.push(new S(y.range,d)):k.push(new S(w,a)),m+=p}else f.push(new S(w,a)),m+=a.length-s.originalLength}if(g===void 0||d===void 0||R===void 0||g.length===0||d.length===0||g===d)return;t.lastIndex=0;let $=t.exec(g);if(!($===null||$.index!==0||$[0].length!==g.length)&&(t.lastIndex=0,$=t.exec(d),!($===null||$.index!==0||$[0].length!==d.length)))return{renames:{edits:k,position:R,oldName:g,newName:d},others:{edits:f}}}a(e,n){e.tokenization.tokenizeIfCheap(n.lineNumber);const r=e.tokenization.getLineTokens(n.lineNumber),t=r.findTokenIndexAtOffset(n.column-1);return{type:r.getStandardTokenType(t),range:new v(n.lineNumber,1+r.getStartOffset(t),n.lineNumber,1+r.getEndOffset(t))}}}class I{static create(e,n){const r=e.getFocusedCodeEditor();if(r!==null&&r.getModel()===n)return new I(r,n.getVersionId())}constructor(e,n){this.a=e,this.b=n}equals(e){return e===void 0?!1:this.a===e.a&&this.b===e.b}}class le{constructor(e,n,r,t,i,c,h,u,o){if(this.g=void 0,this.a=n,this.c=t,this.d=i,this.b=r,this.e=new x,u===void 0||o===void 0){this.f=oe(e.renameProvider,t,c,h,this.e.token);return}else this.f=this.i(t,c,o,h,u)}get requestUuid(){return this.b}isValid(e){return this.d.equals(I.create(e,this.c))}cancel(){this.e.cancel()}async getCount(){if(this.e.token.isCancellationRequested)return 0;const e=await this.h();return e===void 0||this.e.token.isCancellationRequested?0:e.edits.length}async getWorkspaceEdit(){return this.h()}async h(){if(!this.e.token.isCancellationRequested&&(this.g===void 0&&(this.g=await this.f),!(this.g.rejectReason||this.e.token.isCancellationRequested)))return this.g}async i(e,n,r,t,i){try{const c=await this.a.executeCommand("github.copilot.nes.postRename",e.uri,n,r,t,i);if(c===void 0)return{rejectReason:"Rename failed",edits:[]};const h=[];for(const u of c)for(const o of u.changes){const f=new v(o.range.start.line+1,o.range.start.character+1,o.range.end.line+1,o.range.end.character+1),k=new ee(u.file,new S(f,o.newText??t));h.push(k)}return{edits:h}}catch{return{rejectReason:"Rename failed",edits:[]}}}}let D=class extends X{constructor(e,n,r,t,i,c){super(),this.c=e,this.f=n,this.g=r,this.h=i,this.j=c,this.a=new de,this.b=void 0,this.D(Y.registerCommand(z,async(h,u,o)=>{if(!(o===void 0||!o.isValid(this.j)))try{const f=await o.getWorkspaceEdit();if(f===void 0)return;t.apply(f,{reason:u})}finally{this.b===o&&(this.b=void 0)}}))}async proposeRenameRefactoring(e,n,r){if(!n.supportsRename||n.action?.kind!=="edit"||r.selectedSuggestionInfo||!re(this.f.renameProvider,e))return n;const t=I.create(this.j,e);if(t===void 0)return n;const i=Date.now(),c=n.action.textReplacement,h=this.g.getLanguageConfiguration(e.getLanguageId()),u=this.a.inferRename(e,c.range,c.text,h.wordDefinition);if(u===void 0||u.renames.edits.length===0)return n;const{oldName:o,newName:f,position:k,edits:g}=u.renames,d=this.h.trackedWord.get();let R;d!==void 0&&d.model===e&&d.originalWord===o&&d.currentWord===f&&(R=d.currentRange);let E=!1;const T=await Z(this.m(n,e,k,o,f,R),100,()=>{E=!0}),L=this.n(n,T,t,e);if(n.setRenameProcessingInfo({createdRename:L,duration:Date.now()-i,timedOut:E,droppedOtherEdits:L?u.others.edits.length:void 0,droppedRenameEdits:L?g.length-1:void 0}),!L)return n;this.b===void 0&&(this.b=new le(this.f,this.c,n.requestUuid,e,t,k,f,R,R!==void 0?o:void 0));const m=ie.inlineCompletionAccept({nes:n.isInlineEdit,requestUuid:n.requestUuid,providerId:n.source.provider.providerId,languageId:e.getLanguageId(),correlationId:n.getSourceCompletion().correlationId}),$={id:z,title:V(1380,null),arguments:[m,this.b]},s={label:V(1381,null),icon:ae.replaceAll,command:$,count:this.b.getCount()},b={kind:"edit",range:g[0].range,insertText:g[0].text,snippetInfo:n.snippetInfo,alternativeAction:s,uri:e.uri},a=ce.snapshot(e);return se.create(n.withAction(b),a,!1)}async m(e,n,r,t,i,c){const h={canRename:O.no,timedOut:!1};try{const u=await this.c.executeCommand("github.copilot.nes.prepareRename",n.uri,r,t,i,e.requestUuid,c);if(u===void 0)return h;if(typeof u=="string"){const o=O.fromString(u);return o===O.yes||o===O.maybe?{canRename:o,oldName:t,onOldState:!1}:{canRename:o,timedOut:!1}}else return u}catch{return h}}n(e,n,r,t){return n===void 0||n.canRename===O.no||!r.equals(I.create(this.j,t))?!1:this.b===void 0?!0:this.b.requestUuid===e.requestUuid?!1:(this.b.cancel(),this.b=void 0,!0)}};D=Q([q(0,K),q(1,te),q(2,ne),q(3,M),q(4,ue),q(5,fe)],D);export{de as $Qob,D as $Rob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { raceTimeout } from "../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { LcsDiff, StringDiffSequence } from "../../../../../base/common/diff/diff.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { CommandsRegistry, ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IBulkEditService, ResourceTextEdit } from "../../../../browser/services/bulkEditService.js";
+import { TextReplacement } from "../../../../common/core/edits/textEdit.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
+import { EditSources } from "../../../../common/textModelEditSource.js";
+import { hasProvider, rawRename } from "../../../rename/browser/rename.js";
+import { renameSymbolCommandId } from "../controller/commandIds.js";
+import { InlineSuggestionItem } from "./inlineSuggestionItem.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { IRenameSymbolTrackerService } from "../../../../browser/services/renameSymbolTrackerService.js";
+import { ICodeEditorService } from "../../../../browser/services/codeEditorService.js";
+import { TextModelValueReference } from "./textModelValueReference.js";
+var RenameKind;
+(function(RenameKind2) {
+  RenameKind2["no"] = "no";
+  RenameKind2["yes"] = "yes";
+  RenameKind2["maybe"] = "maybe";
+})(RenameKind || (RenameKind = {}));
+(function(RenameKind2) {
+  function fromString(value) {
+    switch (value) {
+      case "no":
+        return RenameKind2.no;
+      case "yes":
+        return RenameKind2.yes;
+      case "maybe":
+        return RenameKind2.maybe;
+      default:
+        return RenameKind2.no;
+    }
+  }
+  __name(fromString, "fromString");
+  RenameKind2.fromString = fromString;
+})(RenameKind || (RenameKind = {}));
+class RenameInferenceEngine {
+  static {
+    __name(this, "RenameInferenceEngine");
+  }
+  constructor() {
+  }
+  inferRename(textModel, editRange, insertText, wordDefinition) {
+    const extendedRange = new Range(editRange.startLineNumber, 1, editRange.endLineNumber, textModel.getLineMaxColumn(editRange.endLineNumber));
+    const startDiff = editRange.startColumn - extendedRange.startColumn;
+    const endDiff = extendedRange.endColumn - editRange.endColumn;
+    const originalText = textModel.getValueInRange(extendedRange);
+    const modifiedText = textModel.getValueInRange(new Range(extendedRange.startLineNumber, extendedRange.startColumn, extendedRange.startLineNumber, extendedRange.startColumn + startDiff)) + insertText + textModel.getValueInRange(new Range(extendedRange.endLineNumber, extendedRange.endColumn - endDiff, extendedRange.endLineNumber, extendedRange.endColumn));
+    const others = [];
+    const renames = [];
+    let oldName = void 0;
+    let newName = void 0;
+    let position = void 0;
+    const nesOffset = textModel.getOffsetAt(extendedRange.getStartPosition());
+    const { changes: originalChanges } = new LcsDiff(new StringDiffSequence(originalText), new StringDiffSequence(modifiedText)).ComputeDiff(true);
+    if (originalChanges.length === 0) {
+      return void 0;
+    }
+    const changes = [];
+    for (const change of originalChanges) {
+      if (changes.length === 0) {
+        changes.push(change);
+        continue;
+      }
+      const lastChange = changes[changes.length - 1];
+      const gapOriginalLength = change.originalStart - (lastChange.originalStart + lastChange.originalLength);
+      if (gapOriginalLength > 0) {
+        const gapStartOffset = nesOffset + lastChange.originalStart + lastChange.originalLength;
+        const gapStartPos = textModel.getPositionAt(gapStartOffset);
+        const wordRange = textModel.getWordAtPosition(gapStartPos);
+        if (wordRange) {
+          const wordStartOffset = textModel.getOffsetAt(new Position(gapStartPos.lineNumber, wordRange.startColumn));
+          const wordEndOffset = textModel.getOffsetAt(new Position(gapStartPos.lineNumber, wordRange.endColumn));
+          const gapEndOffset = gapStartOffset + gapOriginalLength;
+          if (wordStartOffset <= gapStartOffset && gapEndOffset <= wordEndOffset && wordStartOffset <= gapEndOffset && gapEndOffset <= wordEndOffset) {
+            lastChange.originalLength = change.originalStart + change.originalLength - lastChange.originalStart;
+            lastChange.modifiedLength = change.modifiedStart + change.modifiedLength - lastChange.modifiedStart;
+            continue;
+          }
+        }
+      }
+      changes.push(change);
+    }
+    let tokenDiff = 0;
+    for (const change of changes) {
+      const originalTextSegment = originalText.substring(change.originalStart, change.originalStart + change.originalLength);
+      const insertedTextSegment = modifiedText.substring(change.modifiedStart, change.modifiedStart + change.modifiedLength);
+      const startOffset = nesOffset + change.originalStart;
+      const startPos = textModel.getPositionAt(startOffset);
+      const endOffset = startOffset + change.originalLength;
+      const endPos = textModel.getPositionAt(endOffset);
+      const range = Range.fromPositions(startPos, endPos);
+      const diff = insertedTextSegment.length - change.originalLength;
+      if (/\s/.test(originalTextSegment)) {
+        others.push(new TextReplacement(range, insertedTextSegment));
+        tokenDiff += diff;
+        continue;
+      }
+      if (originalTextSegment.length > 0) {
+        wordDefinition.lastIndex = 0;
+        const match2 = wordDefinition.exec(originalTextSegment);
+        if (match2 === null || match2.index !== 0 || match2[0].length !== originalTextSegment.length) {
+          others.push(new TextReplacement(range, insertedTextSegment));
+          tokenDiff += diff;
+          continue;
+        }
+      }
+      if (/\s/.test(insertedTextSegment)) {
+        others.push(new TextReplacement(range, insertedTextSegment));
+        tokenDiff += diff;
+        continue;
+      }
+      if (insertedTextSegment.length > 0) {
+        wordDefinition.lastIndex = 0;
+        const match2 = wordDefinition.exec(insertedTextSegment);
+        if (match2 === null || match2.index !== 0 || match2[0].length !== insertedTextSegment.length) {
+          others.push(new TextReplacement(range, insertedTextSegment));
+          tokenDiff += diff;
+          continue;
+        }
+      }
+      const wordRange = textModel.getWordAtPosition(startPos);
+      if (wordRange === null) {
+        others.push(new TextReplacement(range, insertedTextSegment));
+        tokenDiff += diff;
+        continue;
+      }
+      const originalStartColumn = change.originalStart + 1;
+      const isInsertion = change.originalLength === 0 && change.modifiedLength > 0;
+      let tokenInfo;
+      if (isInsertion && originalStartColumn === wordRange.endColumn && wordRange.endColumn > wordRange.startColumn) {
+        tokenInfo = this.getTokenAtPosition(textModel, new Position(startPos.lineNumber, wordRange.startColumn));
+      } else {
+        tokenInfo = this.getTokenAtPosition(textModel, startPos);
+      }
+      if (wordRange.startColumn !== tokenInfo.range.startColumn || wordRange.endColumn !== tokenInfo.range.endColumn) {
+        others.push(new TextReplacement(range, insertedTextSegment));
+        tokenDiff += diff;
+        continue;
+      }
+      if (tokenInfo.type === 0) {
+        let identifier = textModel.getValueInRange(tokenInfo.range);
+        if (identifier.length === 0) {
+          others.push(new TextReplacement(range, insertedTextSegment));
+          tokenDiff += diff;
+          continue;
+        }
+        if (oldName === void 0) {
+          oldName = identifier;
+        } else if (oldName !== identifier) {
+          others.push(new TextReplacement(range, insertedTextSegment));
+          tokenDiff += diff;
+          continue;
+        }
+        const tokenStartPos = textModel.getOffsetAt(tokenInfo.range.getStartPosition()) - nesOffset + tokenDiff;
+        const tokenEndPos = textModel.getOffsetAt(tokenInfo.range.getEndPosition()) - nesOffset + tokenDiff;
+        identifier = modifiedText.substring(tokenStartPos, tokenEndPos + diff);
+        if (identifier.length === 0) {
+          others.push(new TextReplacement(range, insertedTextSegment));
+          tokenDiff += diff;
+          continue;
+        }
+        if (newName === void 0) {
+          newName = identifier;
+        } else if (newName !== identifier) {
+          others.push(new TextReplacement(range, insertedTextSegment));
+          tokenDiff += diff;
+          continue;
+        }
+        if (position === void 0) {
+          position = tokenInfo.range.getStartPosition();
+        }
+        if (oldName !== void 0 && newName !== void 0 && oldName.length > 0 && newName.length > 0 && oldName !== newName) {
+          renames.push(new TextReplacement(tokenInfo.range, newName));
+        } else {
+          renames.push(new TextReplacement(range, insertedTextSegment));
+        }
+        tokenDiff += diff;
+      } else {
+        others.push(new TextReplacement(range, insertedTextSegment));
+        tokenDiff += insertedTextSegment.length - change.originalLength;
+      }
+    }
+    if (oldName === void 0 || newName === void 0 || position === void 0 || oldName.length === 0 || newName.length === 0 || oldName === newName) {
+      return void 0;
+    }
+    wordDefinition.lastIndex = 0;
+    let match = wordDefinition.exec(oldName);
+    if (match === null || match.index !== 0 || match[0].length !== oldName.length) {
+      return void 0;
+    }
+    wordDefinition.lastIndex = 0;
+    match = wordDefinition.exec(newName);
+    if (match === null || match.index !== 0 || match[0].length !== newName.length) {
+      return void 0;
+    }
+    return {
+      renames: { edits: renames, position, oldName, newName },
+      others: { edits: others }
+    };
+  }
+  getTokenAtPosition(textModel, position) {
+    textModel.tokenization.tokenizeIfCheap(position.lineNumber);
+    const tokens = textModel.tokenization.getLineTokens(position.lineNumber);
+    const idx = tokens.findTokenIndexAtOffset(position.column - 1);
+    return {
+      type: tokens.getStandardTokenType(idx),
+      range: new Range(position.lineNumber, 1 + tokens.getStartOffset(idx), position.lineNumber, 1 + tokens.getEndOffset(idx))
+    };
+  }
+}
+class EditorState {
+  static {
+    __name(this, "EditorState");
+  }
+  static create(codeEditorService, textModel) {
+    const editor = codeEditorService.getFocusedCodeEditor();
+    if (editor === null) {
+      return void 0;
+    }
+    if (editor.getModel() !== textModel) {
+      return void 0;
+    }
+    return new EditorState(editor, textModel.getVersionId());
+  }
+  constructor(editor, versionId) {
+    this.editor = editor;
+    this.versionId = versionId;
+  }
+  equals(other) {
+    if (other === void 0) {
+      return false;
+    }
+    return this.editor === other.editor && this.versionId === other.versionId;
+  }
+}
+class RenameSymbolRunnable {
+  static {
+    __name(this, "RenameSymbolRunnable");
+  }
+  constructor(languageFeaturesService, commandService, requestUuid, textModel, state, position, newName, lastSymbolRename, oldName) {
+    this._result = void 0;
+    this._commandService = commandService;
+    this._textModel = textModel;
+    this._state = state;
+    this._requestUuid = requestUuid;
+    this._cancellationTokenSource = new CancellationTokenSource();
+    if (lastSymbolRename === void 0 || oldName === void 0) {
+      this._promise = rawRename(languageFeaturesService.renameProvider, textModel, position, newName, this._cancellationTokenSource.token);
+      return;
+    } else {
+      this._promise = this.sendNesRenameRequest(textModel, position, oldName, newName, lastSymbolRename);
+    }
+  }
+  get requestUuid() {
+    return this._requestUuid;
+  }
+  isValid(codeEditorService) {
+    return this._state.equals(EditorState.create(codeEditorService, this._textModel));
+  }
+  cancel() {
+    this._cancellationTokenSource.cancel();
+  }
+  async getCount() {
+    if (this._cancellationTokenSource.token.isCancellationRequested) {
+      return 0;
+    }
+    const result = await this.getResult();
+    if (result === void 0 || this._cancellationTokenSource.token.isCancellationRequested) {
+      return 0;
+    }
+    return result.edits.length;
+  }
+  async getWorkspaceEdit() {
+    return this.getResult();
+  }
+  async getResult() {
+    if (this._cancellationTokenSource.token.isCancellationRequested) {
+      return void 0;
+    }
+    if (this._result === void 0) {
+      this._result = await this._promise;
+    }
+    if (this._result.rejectReason || this._cancellationTokenSource.token.isCancellationRequested) {
+      return void 0;
+    }
+    return this._result;
+  }
+  async sendNesRenameRequest(textModel, position, oldName, newName, lastSymbolRename) {
+    try {
+      const result = await this._commandService.executeCommand("github.copilot.nes.postRename", textModel.uri, position, oldName, newName, lastSymbolRename);
+      if (result === void 0) {
+        return { rejectReason: "Rename failed", edits: [] };
+      }
+      const edits = [];
+      for (const item of result) {
+        for (const change of item.changes) {
+          const range = new Range(change.range.start.line + 1, change.range.start.character + 1, change.range.end.line + 1, change.range.end.character + 1);
+          const edit = new ResourceTextEdit(item.file, new TextReplacement(range, change.newText ?? newName));
+          edits.push(edit);
+        }
+      }
+      return { edits };
+    } catch (error) {
+      return { rejectReason: "Rename failed", edits: [] };
+    }
+  }
+}
+let RenameSymbolProcessor = class RenameSymbolProcessor2 extends Disposable {
+  static {
+    __name(this, "RenameSymbolProcessor");
+  }
+  constructor(_commandService, _languageFeaturesService, _languageConfigurationService, bulkEditService, _renameSymbolTrackerService, _codeEditorService) {
+    super();
+    this._commandService = _commandService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._renameSymbolTrackerService = _renameSymbolTrackerService;
+    this._codeEditorService = _codeEditorService;
+    this._renameInferenceEngine = new RenameInferenceEngine();
+    this._renameRunnable = void 0;
+    this._register(CommandsRegistry.registerCommand(renameSymbolCommandId, async (_, source, renameRunnable) => {
+      if (renameRunnable === void 0 || !renameRunnable.isValid(this._codeEditorService)) {
+        return;
+      }
+      try {
+        const workspaceEdit = await renameRunnable.getWorkspaceEdit();
+        if (workspaceEdit === void 0) {
+          return;
+        }
+        bulkEditService.apply(workspaceEdit, { reason: source });
+      } finally {
+        if (this._renameRunnable === renameRunnable) {
+          this._renameRunnable = void 0;
+        }
+      }
+    }));
+  }
+  async proposeRenameRefactoring(textModel, suggestItem, context) {
+    if (!suggestItem.supportsRename || suggestItem.action?.kind !== "edit" || context.selectedSuggestionInfo) {
+      return suggestItem;
+    }
+    if (!hasProvider(this._languageFeaturesService.renameProvider, textModel)) {
+      return suggestItem;
+    }
+    const state = EditorState.create(this._codeEditorService, textModel);
+    if (state === void 0) {
+      return suggestItem;
+    }
+    const start = Date.now();
+    const edit = suggestItem.action.textReplacement;
+    const languageConfiguration = this._languageConfigurationService.getLanguageConfiguration(textModel.getLanguageId());
+    const edits = this._renameInferenceEngine.inferRename(textModel, edit.range, edit.text, languageConfiguration.wordDefinition);
+    if (edits === void 0 || edits.renames.edits.length === 0) {
+      return suggestItem;
+    }
+    const { oldName, newName, position, edits: renameEdits } = edits.renames;
+    const trackedWord = this._renameSymbolTrackerService.trackedWord.get();
+    let lastSymbolRename = void 0;
+    if (trackedWord !== void 0 && trackedWord.model === textModel && trackedWord.originalWord === oldName && trackedWord.currentWord === newName) {
+      lastSymbolRename = trackedWord.currentRange;
+    }
+    let timedOut = false;
+    const check = await raceTimeout(this.checkRenamePrecondition(suggestItem, textModel, position, oldName, newName, lastSymbolRename), 100, () => {
+      timedOut = true;
+    });
+    const renamePossible = this.isRenamePossible(suggestItem, check, state, textModel);
+    suggestItem.setRenameProcessingInfo({
+      createdRename: renamePossible,
+      duration: Date.now() - start,
+      timedOut,
+      droppedOtherEdits: renamePossible ? edits.others.edits.length : void 0,
+      droppedRenameEdits: renamePossible ? renameEdits.length - 1 : void 0
+    });
+    if (!renamePossible) {
+      return suggestItem;
+    }
+    if (this._renameRunnable === void 0) {
+      this._renameRunnable = new RenameSymbolRunnable(this._languageFeaturesService, this._commandService, suggestItem.requestUuid, textModel, state, position, newName, lastSymbolRename, lastSymbolRename !== void 0 ? oldName : void 0);
+    }
+    const source = EditSources.inlineCompletionAccept({
+      nes: suggestItem.isInlineEdit,
+      requestUuid: suggestItem.requestUuid,
+      providerId: suggestItem.source.provider.providerId,
+      languageId: textModel.getLanguageId(),
+      correlationId: suggestItem.getSourceCompletion().correlationId
+    });
+    const command = {
+      id: renameSymbolCommandId,
+      title: localize("rename", "Rename"),
+      arguments: [source, this._renameRunnable]
+    };
+    const alternativeAction = {
+      label: localize("rename", "Rename"),
+      icon: Codicon.replaceAll,
+      command,
+      count: this._renameRunnable.getCount()
+    };
+    const renameAction = {
+      kind: "edit",
+      range: renameEdits[0].range,
+      insertText: renameEdits[0].text,
+      snippetInfo: suggestItem.snippetInfo,
+      alternativeAction,
+      uri: textModel.uri
+    };
+    const ref = TextModelValueReference.snapshot(textModel);
+    return InlineSuggestionItem.create(suggestItem.withAction(renameAction), ref, false);
+  }
+  async checkRenamePrecondition(suggestItem, textModel, position, oldName, newName, lastSymbolRename) {
+    const no = { canRename: RenameKind.no, timedOut: false };
+    try {
+      const result = await this._commandService.executeCommand("github.copilot.nes.prepareRename", textModel.uri, position, oldName, newName, suggestItem.requestUuid, lastSymbolRename);
+      if (result === void 0) {
+        return no;
+      } else if (typeof result === "string") {
+        const canRename = RenameKind.fromString(result);
+        if (canRename === RenameKind.yes || canRename === RenameKind.maybe) {
+          return {
+            canRename,
+            oldName,
+            onOldState: false
+          };
+        } else {
+          return {
+            canRename,
+            timedOut: false
+          };
+        }
+      } else {
+        return result;
+      }
+    } catch (error) {
+      return no;
+    }
+  }
+  isRenamePossible(suggestItem, check, state, textModel) {
+    if (check === void 0 || check.canRename === RenameKind.no) {
+      return false;
+    }
+    if (!state.equals(EditorState.create(this._codeEditorService, textModel))) {
+      return false;
+    }
+    if (this._renameRunnable === void 0) {
+      return true;
+    }
+    if (this._renameRunnable.requestUuid === suggestItem.requestUuid) {
+      return false;
+    } else {
+      this._renameRunnable.cancel();
+      this._renameRunnable = void 0;
+      return true;
+    }
+  }
+};
+RenameSymbolProcessor = __decorate([
+  __param(0, ICommandService),
+  __param(1, ILanguageFeaturesService),
+  __param(2, ILanguageConfigurationService),
+  __param(3, IBulkEditService),
+  __param(4, IRenameSymbolTrackerService),
+  __param(5, ICodeEditorService)
+], RenameSymbolProcessor);
+export {
+  RenameInferenceEngine,
+  RenameSymbolProcessor
+};
+//# sourceMappingURL=renameSymbolProcessor.js.map

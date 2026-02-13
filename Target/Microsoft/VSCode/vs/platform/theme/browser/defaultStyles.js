@@ -1,1 +1,254 @@
-import{$Nt as S,$Pt as p,$Qt as f,$Ot as v,$Wp as o,$Rr as t,$qt as x,$rt as I,$st as j,$tt as y,$vt as O,$wt as A,$yt as h,$ut as c,$Fq as q,$$s as C,$bt as m,$at as w,$Qq as H,$Rq as V,$hq as L,$Jt as W,$Gt as D,$It as G,$bs as R,$cs as E,$ds as M,$8s as U,$9s as X,$0s as J,$kq as N,$ft as Q,$dt as T,$et as Z,$it as z,$gt as K,$ht as P,$lt as Y,$jt as _,$kt as oo,$Ss as eo,$Us as no,$Ts as ro,$Vs as to,$uq as io,$vq as uo,$Xr as co,$Wr as lo,$Yr as l,$Zr as so,$iq as r,$Bs as s,$Cs as a,$Ds as ao,$Ls as $o,$As as go,$xs as Bo,$ys as bo,$zs as ko,$Js as $,$Ks as g,$Hs as Fo,$Is as So,$Es as po,$Fs as fo,$Gs as vo,$2s as xo,$3s as Io,$Zs as jo,$Xp as yo,$Sq as Oo,$gq as Ao,$2t as ho,$7t as qo,$5t as Co,$6t as mo,$mt as wo,$pt as Ho,$ot as Vo,$nt as Lo,$1s as Wo,$Rt as Do,$St as Go,$Tt as Ro,$Ut as Eo,$Vt as Mo,$Wt as Uo,$Xt as Xo,$Aq as B,$Dq as Jo,$Bq as No,$Cq as Qo,$Ms as To,$At as Zo,$zt as zo,$Dt as Ko,$Ct as Po,$Et as Yo,$Ft as _o,$Bt as oe,$Lt as ee,$Mt as ne,$Sr as re}from"../common/colorRegistry.js";import{$Up as te}from"../../../base/common/color.js";function n(e,F){const i={...F};for(const d in e){const u=e[d];i[d]=u!==void 0?o(u):void 0}return i}const ie={keybindingLabelBackground:o(S),keybindingLabelForeground:o(v),keybindingLabelBorder:o(p),keybindingLabelBottomBorder:o(f),keybindingLabelShadow:o(t)};function ke(e){return n(e,ie)}const de={buttonForeground:o(x),buttonSeparator:o(I),buttonBackground:o(j),buttonHoverBackground:o(y),buttonSecondaryForeground:o(O),buttonSecondaryBackground:o(A),buttonSecondaryHoverBackground:o(h),buttonSecondaryBorder:o(c),buttonBorder:o(c)};function Fe(e){return n(e,de)}const ue={progressBarBackground:o(q)};function Se(e){return n(e,ue)}const b={inputActiveOptionBorder:o(C),inputActiveOptionForeground:o(m),inputActiveOptionBackground:o(w)},pe={activeForeground:o(zo),activeBackground:o(Zo),activeBorder:o(oe),inactiveForeground:o(Po),inactiveBackground:o(Ko),inactiveBorder:o(Yo),inactiveHoverBackground:o(_o)};function fe(e){return n(e,b)}const ve={checkboxBackground:o(D),checkboxBorder:o(W),checkboxForeground:o(G),checkboxDisabledBackground:o(ee),checkboxDisabledForeground:o(ne)},ce={dialogBackground:o(H),dialogForeground:o(V),dialogShadow:o(t),dialogBorder:o(re),errorIconForeground:o(R),warningIconForeground:o(E),infoIconForeground:o(M),textLinkForeground:o(N)};function xe(e){return n(e,ce)}const k={inputBackground:o(U),inputForeground:o(X),inputBorder:o(J),inputValidationInfoBorder:o(Q),inputValidationInfoBackground:o(T),inputValidationInfoForeground:o(Z),inputValidationWarningBorder:o(z),inputValidationWarningBackground:o(K),inputValidationWarningForeground:o(P),inputValidationErrorBorder:o(Y),inputValidationErrorBackground:o(_),inputValidationErrorForeground:o(oo)};function Ie(e){return n(e,k)}const je={listFilterWidgetBackground:o(eo),listFilterWidgetOutline:o(ro),listFilterWidgetNoMatchesOutline:o(no),listFilterWidgetShadow:o(to),inputBoxStyles:k,toggleStyles:b},le={badgeBackground:o(io),badgeForeground:o(uo),badgeBorder:o(L)};function ye(e){return n(e,le)}const se={breadcrumbsBackground:o(co),breadcrumbsForeground:o(lo),breadcrumbsHoverForeground:o(l),breadcrumbsFocusForeground:o(l),breadcrumbsFocusAndSelectionForeground:o(so)};function Oe(e){return n(e,se)}const ae={listBackground:void 0,listInactiveFocusForeground:void 0,listFocusBackground:o(Bo),listFocusForeground:o(bo),listFocusOutline:o(ko),listActiveSelectionBackground:o(s),listActiveSelectionForeground:o(a),listActiveSelectionIconForeground:o(ao),listFocusAndSelectionOutline:o(go),listFocusAndSelectionBackground:o(s),listFocusAndSelectionForeground:o(a),listInactiveSelectionBackground:o(po),listInactiveSelectionIconForeground:o(vo),listInactiveSelectionForeground:o(fo),listInactiveFocusBackground:o(Fo),listInactiveFocusOutline:o(So),listHoverBackground:o($),listHoverForeground:o(g),listDropOverBackground:o($o),listDropBetweenBackground:o(To),listSelectionOutline:o(r),listHoverOutline:o(r),treeIndentGuidesStroke:o(jo),treeInactiveIndentGuidesStroke:o(Wo),treeStickyScrollBackground:void 0,treeStickyScrollBorder:void 0,treeStickyScrollShadow:o(B),tableColumnsBorder:o(xo),tableOddRowsBackgroundColor:o(Io)};function Ae(e){return n(e,ae)}const $e={selectBackground:o(wo),selectListBackground:o(Lo),selectForeground:o(Vo),decoratorRightForeground:o(ho),selectBorder:o(Ho),focusBorder:o(Ao),listFocusBackground:o(qo),listInactiveSelectionIconForeground:o(mo),listFocusForeground:o(Co),listFocusOutline:yo(r,te.transparent.toString()),listHoverBackground:o($),listHoverForeground:o(g),listHoverOutline:o(r),selectListBorder:o(Oo),listBackground:void 0,listActiveSelectionBackground:void 0,listActiveSelectionForeground:void 0,listActiveSelectionIconForeground:void 0,listFocusAndSelectionBackground:void 0,listDropOverBackground:void 0,listDropBetweenBackground:void 0,listInactiveSelectionBackground:void 0,listInactiveSelectionForeground:void 0,listInactiveFocusBackground:void 0,listInactiveFocusOutline:void 0,listSelectionOutline:void 0,listFocusAndSelectionForeground:void 0,listFocusAndSelectionOutline:void 0,listInactiveFocusForeground:void 0,tableColumnsBorder:void 0,tableOddRowsBackgroundColor:void 0,treeIndentGuidesStroke:void 0,treeInactiveIndentGuidesStroke:void 0,treeStickyScrollBackground:void 0,treeStickyScrollBorder:void 0,treeStickyScrollShadow:void 0};function he(e){return n(e,$e)}const ge={shadowColor:o(t),borderColor:o(Do),foregroundColor:o(Go),backgroundColor:o(Ro),selectionForegroundColor:o(Eo),selectionBackgroundColor:o(Mo),selectionBorderColor:o(Uo),separatorColor:o(Xo),scrollbarShadow:o(B),scrollbarSliderBackground:o(No),scrollbarSliderHoverBackground:o(Qo),scrollbarSliderActiveBackground:o(Jo)};function qe(e){return n(e,ge)}export{Ae as $1jb,$e as $2jb,he as $3jb,ge as $4jb,qe as $5jb,ie as $Gjb,ke as $Hjb,de as $Ijb,Fe as $Jjb,ue as $Kjb,Se as $Ljb,b as $Mjb,pe as $Njb,fe as $Ojb,ve as $Pjb,ce as $Qjb,xe as $Rjb,k as $Sjb,Ie as $Tjb,je as $Ujb,le as $Vjb,ye as $Wjb,se as $Xjb,Oe as $Yjb,ae as $Zjb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { keybindingLabelBackground, keybindingLabelBorder, keybindingLabelBottomBorder, keybindingLabelForeground, asCssVariable, widgetShadow, buttonForeground, buttonSeparator, buttonBackground, buttonHoverBackground, buttonSecondaryForeground, buttonSecondaryBackground, buttonSecondaryHoverBackground, buttonBorder, progressBarBackground, inputActiveOptionBorder, inputActiveOptionForeground, inputActiveOptionBackground, editorWidgetBackground, editorWidgetForeground, contrastBorder, checkboxBorder, checkboxBackground, checkboxForeground, problemsErrorIconForeground, problemsWarningIconForeground, problemsInfoIconForeground, inputBackground, inputForeground, inputBorder, textLinkForeground, inputValidationInfoBorder, inputValidationInfoBackground, inputValidationInfoForeground, inputValidationWarningBorder, inputValidationWarningBackground, inputValidationWarningForeground, inputValidationErrorBorder, inputValidationErrorBackground, inputValidationErrorForeground, listFilterWidgetBackground, listFilterWidgetNoMatchesOutline, listFilterWidgetOutline, listFilterWidgetShadow, badgeBackground, badgeForeground, breadcrumbsBackground, breadcrumbsForeground, breadcrumbsFocusForeground, breadcrumbsActiveSelectionForeground, activeContrastBorder, listActiveSelectionBackground, listActiveSelectionForeground, listActiveSelectionIconForeground, listDropOverBackground, listFocusAndSelectionOutline, listFocusBackground, listFocusForeground, listFocusOutline, listHoverBackground, listHoverForeground, listInactiveFocusBackground, listInactiveFocusOutline, listInactiveSelectionBackground, listInactiveSelectionForeground, listInactiveSelectionIconForeground, tableColumnsBorder, tableOddRowsBackgroundColor, treeIndentGuidesStroke, asCssVariableWithDefault, editorWidgetBorder, focusBorder, pickerGroupForeground, quickInputListFocusBackground, quickInputListFocusForeground, quickInputListFocusIconForeground, selectBackground, selectBorder, selectForeground, selectListBackground, treeInactiveIndentGuidesStroke, menuBorder, menuForeground, menuBackground, menuSelectionForeground, menuSelectionBackground, menuSelectionBorder, menuSeparatorBackground, scrollbarShadow, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground, listDropBetweenBackground, radioActiveBackground, radioActiveForeground, radioInactiveBackground, radioInactiveForeground, radioInactiveBorder, radioInactiveHoverBackground, radioActiveBorder, checkboxDisabledBackground, checkboxDisabledForeground, widgetBorder } from "../common/colorRegistry.js";
+import { Color } from "../../../base/common/color.js";
+function overrideStyles(override, styles) {
+  const result = { ...styles };
+  for (const key in override) {
+    const val = override[key];
+    result[key] = val !== void 0 ? asCssVariable(val) : void 0;
+  }
+  return result;
+}
+__name(overrideStyles, "overrideStyles");
+const defaultKeybindingLabelStyles = {
+  keybindingLabelBackground: asCssVariable(keybindingLabelBackground),
+  keybindingLabelForeground: asCssVariable(keybindingLabelForeground),
+  keybindingLabelBorder: asCssVariable(keybindingLabelBorder),
+  keybindingLabelBottomBorder: asCssVariable(keybindingLabelBottomBorder),
+  keybindingLabelShadow: asCssVariable(widgetShadow)
+};
+function getKeybindingLabelStyles(override) {
+  return overrideStyles(override, defaultKeybindingLabelStyles);
+}
+__name(getKeybindingLabelStyles, "getKeybindingLabelStyles");
+const defaultButtonStyles = {
+  buttonForeground: asCssVariable(buttonForeground),
+  buttonSeparator: asCssVariable(buttonSeparator),
+  buttonBackground: asCssVariable(buttonBackground),
+  buttonHoverBackground: asCssVariable(buttonHoverBackground),
+  buttonSecondaryForeground: asCssVariable(buttonSecondaryForeground),
+  buttonSecondaryBackground: asCssVariable(buttonSecondaryBackground),
+  buttonSecondaryHoverBackground: asCssVariable(buttonSecondaryHoverBackground),
+  buttonSecondaryBorder: asCssVariable(buttonBorder),
+  buttonBorder: asCssVariable(buttonBorder)
+};
+function getButtonStyles(override) {
+  return overrideStyles(override, defaultButtonStyles);
+}
+__name(getButtonStyles, "getButtonStyles");
+const defaultProgressBarStyles = {
+  progressBarBackground: asCssVariable(progressBarBackground)
+};
+function getProgressBarStyles(override) {
+  return overrideStyles(override, defaultProgressBarStyles);
+}
+__name(getProgressBarStyles, "getProgressBarStyles");
+const defaultToggleStyles = {
+  inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
+  inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground),
+  inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground)
+};
+const defaultRadioStyles = {
+  activeForeground: asCssVariable(radioActiveForeground),
+  activeBackground: asCssVariable(radioActiveBackground),
+  activeBorder: asCssVariable(radioActiveBorder),
+  inactiveForeground: asCssVariable(radioInactiveForeground),
+  inactiveBackground: asCssVariable(radioInactiveBackground),
+  inactiveBorder: asCssVariable(radioInactiveBorder),
+  inactiveHoverBackground: asCssVariable(radioInactiveHoverBackground)
+};
+function getToggleStyles(override) {
+  return overrideStyles(override, defaultToggleStyles);
+}
+__name(getToggleStyles, "getToggleStyles");
+const defaultCheckboxStyles = {
+  checkboxBackground: asCssVariable(checkboxBackground),
+  checkboxBorder: asCssVariable(checkboxBorder),
+  checkboxForeground: asCssVariable(checkboxForeground),
+  checkboxDisabledBackground: asCssVariable(checkboxDisabledBackground),
+  checkboxDisabledForeground: asCssVariable(checkboxDisabledForeground)
+};
+const defaultDialogStyles = {
+  dialogBackground: asCssVariable(editorWidgetBackground),
+  dialogForeground: asCssVariable(editorWidgetForeground),
+  dialogShadow: asCssVariable(widgetShadow),
+  dialogBorder: asCssVariable(widgetBorder),
+  errorIconForeground: asCssVariable(problemsErrorIconForeground),
+  warningIconForeground: asCssVariable(problemsWarningIconForeground),
+  infoIconForeground: asCssVariable(problemsInfoIconForeground),
+  textLinkForeground: asCssVariable(textLinkForeground)
+};
+function getDialogStyle(override) {
+  return overrideStyles(override, defaultDialogStyles);
+}
+__name(getDialogStyle, "getDialogStyle");
+const defaultInputBoxStyles = {
+  inputBackground: asCssVariable(inputBackground),
+  inputForeground: asCssVariable(inputForeground),
+  inputBorder: asCssVariable(inputBorder),
+  inputValidationInfoBorder: asCssVariable(inputValidationInfoBorder),
+  inputValidationInfoBackground: asCssVariable(inputValidationInfoBackground),
+  inputValidationInfoForeground: asCssVariable(inputValidationInfoForeground),
+  inputValidationWarningBorder: asCssVariable(inputValidationWarningBorder),
+  inputValidationWarningBackground: asCssVariable(inputValidationWarningBackground),
+  inputValidationWarningForeground: asCssVariable(inputValidationWarningForeground),
+  inputValidationErrorBorder: asCssVariable(inputValidationErrorBorder),
+  inputValidationErrorBackground: asCssVariable(inputValidationErrorBackground),
+  inputValidationErrorForeground: asCssVariable(inputValidationErrorForeground)
+};
+function getInputBoxStyle(override) {
+  return overrideStyles(override, defaultInputBoxStyles);
+}
+__name(getInputBoxStyle, "getInputBoxStyle");
+const defaultFindWidgetStyles = {
+  listFilterWidgetBackground: asCssVariable(listFilterWidgetBackground),
+  listFilterWidgetOutline: asCssVariable(listFilterWidgetOutline),
+  listFilterWidgetNoMatchesOutline: asCssVariable(listFilterWidgetNoMatchesOutline),
+  listFilterWidgetShadow: asCssVariable(listFilterWidgetShadow),
+  inputBoxStyles: defaultInputBoxStyles,
+  toggleStyles: defaultToggleStyles
+};
+const defaultCountBadgeStyles = {
+  badgeBackground: asCssVariable(badgeBackground),
+  badgeForeground: asCssVariable(badgeForeground),
+  badgeBorder: asCssVariable(contrastBorder)
+};
+function getCountBadgeStyle(override) {
+  return overrideStyles(override, defaultCountBadgeStyles);
+}
+__name(getCountBadgeStyle, "getCountBadgeStyle");
+const defaultBreadcrumbsWidgetStyles = {
+  breadcrumbsBackground: asCssVariable(breadcrumbsBackground),
+  breadcrumbsForeground: asCssVariable(breadcrumbsForeground),
+  breadcrumbsHoverForeground: asCssVariable(breadcrumbsFocusForeground),
+  breadcrumbsFocusForeground: asCssVariable(breadcrumbsFocusForeground),
+  breadcrumbsFocusAndSelectionForeground: asCssVariable(breadcrumbsActiveSelectionForeground)
+};
+function getBreadcrumbsWidgetStyles(override) {
+  return overrideStyles(override, defaultBreadcrumbsWidgetStyles);
+}
+__name(getBreadcrumbsWidgetStyles, "getBreadcrumbsWidgetStyles");
+const defaultListStyles = {
+  listBackground: void 0,
+  listInactiveFocusForeground: void 0,
+  listFocusBackground: asCssVariable(listFocusBackground),
+  listFocusForeground: asCssVariable(listFocusForeground),
+  listFocusOutline: asCssVariable(listFocusOutline),
+  listActiveSelectionBackground: asCssVariable(listActiveSelectionBackground),
+  listActiveSelectionForeground: asCssVariable(listActiveSelectionForeground),
+  listActiveSelectionIconForeground: asCssVariable(listActiveSelectionIconForeground),
+  listFocusAndSelectionOutline: asCssVariable(listFocusAndSelectionOutline),
+  listFocusAndSelectionBackground: asCssVariable(listActiveSelectionBackground),
+  listFocusAndSelectionForeground: asCssVariable(listActiveSelectionForeground),
+  listInactiveSelectionBackground: asCssVariable(listInactiveSelectionBackground),
+  listInactiveSelectionIconForeground: asCssVariable(listInactiveSelectionIconForeground),
+  listInactiveSelectionForeground: asCssVariable(listInactiveSelectionForeground),
+  listInactiveFocusBackground: asCssVariable(listInactiveFocusBackground),
+  listInactiveFocusOutline: asCssVariable(listInactiveFocusOutline),
+  listHoverBackground: asCssVariable(listHoverBackground),
+  listHoverForeground: asCssVariable(listHoverForeground),
+  listDropOverBackground: asCssVariable(listDropOverBackground),
+  listDropBetweenBackground: asCssVariable(listDropBetweenBackground),
+  listSelectionOutline: asCssVariable(activeContrastBorder),
+  listHoverOutline: asCssVariable(activeContrastBorder),
+  treeIndentGuidesStroke: asCssVariable(treeIndentGuidesStroke),
+  treeInactiveIndentGuidesStroke: asCssVariable(treeInactiveIndentGuidesStroke),
+  treeStickyScrollBackground: void 0,
+  treeStickyScrollBorder: void 0,
+  treeStickyScrollShadow: asCssVariable(scrollbarShadow),
+  tableColumnsBorder: asCssVariable(tableColumnsBorder),
+  tableOddRowsBackgroundColor: asCssVariable(tableOddRowsBackgroundColor)
+};
+function getListStyles(override) {
+  return overrideStyles(override, defaultListStyles);
+}
+__name(getListStyles, "getListStyles");
+const defaultSelectBoxStyles = {
+  selectBackground: asCssVariable(selectBackground),
+  selectListBackground: asCssVariable(selectListBackground),
+  selectForeground: asCssVariable(selectForeground),
+  decoratorRightForeground: asCssVariable(pickerGroupForeground),
+  selectBorder: asCssVariable(selectBorder),
+  focusBorder: asCssVariable(focusBorder),
+  listFocusBackground: asCssVariable(quickInputListFocusBackground),
+  listInactiveSelectionIconForeground: asCssVariable(quickInputListFocusIconForeground),
+  listFocusForeground: asCssVariable(quickInputListFocusForeground),
+  listFocusOutline: asCssVariableWithDefault(activeContrastBorder, Color.transparent.toString()),
+  listHoverBackground: asCssVariable(listHoverBackground),
+  listHoverForeground: asCssVariable(listHoverForeground),
+  listHoverOutline: asCssVariable(activeContrastBorder),
+  selectListBorder: asCssVariable(editorWidgetBorder),
+  listBackground: void 0,
+  listActiveSelectionBackground: void 0,
+  listActiveSelectionForeground: void 0,
+  listActiveSelectionIconForeground: void 0,
+  listFocusAndSelectionBackground: void 0,
+  listDropOverBackground: void 0,
+  listDropBetweenBackground: void 0,
+  listInactiveSelectionBackground: void 0,
+  listInactiveSelectionForeground: void 0,
+  listInactiveFocusBackground: void 0,
+  listInactiveFocusOutline: void 0,
+  listSelectionOutline: void 0,
+  listFocusAndSelectionForeground: void 0,
+  listFocusAndSelectionOutline: void 0,
+  listInactiveFocusForeground: void 0,
+  tableColumnsBorder: void 0,
+  tableOddRowsBackgroundColor: void 0,
+  treeIndentGuidesStroke: void 0,
+  treeInactiveIndentGuidesStroke: void 0,
+  treeStickyScrollBackground: void 0,
+  treeStickyScrollBorder: void 0,
+  treeStickyScrollShadow: void 0
+};
+function getSelectBoxStyles(override) {
+  return overrideStyles(override, defaultSelectBoxStyles);
+}
+__name(getSelectBoxStyles, "getSelectBoxStyles");
+const defaultMenuStyles = {
+  shadowColor: asCssVariable(widgetShadow),
+  borderColor: asCssVariable(menuBorder),
+  foregroundColor: asCssVariable(menuForeground),
+  backgroundColor: asCssVariable(menuBackground),
+  selectionForegroundColor: asCssVariable(menuSelectionForeground),
+  selectionBackgroundColor: asCssVariable(menuSelectionBackground),
+  selectionBorderColor: asCssVariable(menuSelectionBorder),
+  separatorColor: asCssVariable(menuSeparatorBackground),
+  scrollbarShadow: asCssVariable(scrollbarShadow),
+  scrollbarSliderBackground: asCssVariable(scrollbarSliderBackground),
+  scrollbarSliderHoverBackground: asCssVariable(scrollbarSliderHoverBackground),
+  scrollbarSliderActiveBackground: asCssVariable(scrollbarSliderActiveBackground)
+};
+function getMenuStyles(override) {
+  return overrideStyles(override, defaultMenuStyles);
+}
+__name(getMenuStyles, "getMenuStyles");
+export {
+  defaultBreadcrumbsWidgetStyles,
+  defaultButtonStyles,
+  defaultCheckboxStyles,
+  defaultCountBadgeStyles,
+  defaultDialogStyles,
+  defaultFindWidgetStyles,
+  defaultInputBoxStyles,
+  defaultKeybindingLabelStyles,
+  defaultListStyles,
+  defaultMenuStyles,
+  defaultProgressBarStyles,
+  defaultRadioStyles,
+  defaultSelectBoxStyles,
+  defaultToggleStyles,
+  getBreadcrumbsWidgetStyles,
+  getButtonStyles,
+  getCountBadgeStyle,
+  getDialogStyle,
+  getInputBoxStyle,
+  getKeybindingLabelStyles,
+  getListStyles,
+  getMenuStyles,
+  getProgressBarStyles,
+  getSelectBoxStyles,
+  getToggleStyles
+};
+//# sourceMappingURL=defaultStyles.js.map

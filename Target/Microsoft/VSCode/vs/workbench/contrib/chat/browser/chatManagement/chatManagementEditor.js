@@ -1,1 +1,372 @@
-import"./media/chatManagementEditor.css";import*as a from"../../../../../base/browser/dom.js";import{$Mj as S}from"../../../../../platform/instantiation/common/instantiation.js";import{$hp as C}from"../../../../../platform/storage/common/storage.js";import{$pp as D}from"../../../../../platform/telemetry/common/telemetry.js";import{$qu as x}from"../../../../../platform/theme/common/themeService.js";import{$vKb as j}from"../../../../browser/parts/editor/editorPane.js";import{$eqc as p,$fqc as b}from"./chatManagementEditorInput.js";import{$rqc as v}from"./chatModelsWidget.js";import{$b_ as _}from"../../../../../base/browser/ui/button/button.js";import{$uo as q}from"../../../../../platform/commands/common/commands.js";import{localize as c}from"../../../../../nls.js";import{$Ijb as P}from"../../../../../platform/theme/browser/defaultStyles.js";import{$JP as k,ChatEntitlement as d,$LP as z}from"../../../../services/chat/common/chatEntitlementService.js";import{$sqc as L}from"./chatUsageWidget.js";import{Sizing as T,$j_ as N}from"../../../../../base/browser/ui/splitview/splitview.js";import{$9rb as O}from"../../../../../platform/list/browser/listService.js";import{Event as y}from"../../../../../base/common/event.js";import{$2p as V}from"../../../../../platform/theme/common/colorRegistry.js";import{$$zb as F}from"../../../../common/theme.js";import{$Dd as M}from"../../../../../base/common/lifecycle.js";import{$ro as R}from"../../../../../platform/contextkey/common/contextkey.js";import{$hW as W}from"../../common/constants.js";var I=function(m,t,e,i){var s=arguments.length,n=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(m,t,e,i);else for(var r=m.length-1;r>=0;r--)(o=m[r])&&(n=(s<3?o(n):s>3?o(t,e,n):o(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},u=function(m,t){return function(e,i){t(e,i,m)}},f,g;const l=a.$;let $=class extends j{static{f=this}static{this.ID="workbench.editor.modelsManagement"}constructor(t,e,i,s,n,o){super(f.ID,t,e,i,s),this.j=n,this.a=this.D(new M),this.g=W.bindTo(o)}ab(t){this.a.clear(),this.f=a.$y9(t,l(".ai-models-management-editor")),this.c=this.a.add(this.j.createInstance(v)),this.f.appendChild(this.c.element)}async setInput(t,e,i,s){this.g.set(!0),await super.setInput(t,e,i,s),this.b&&this.layout(this.b),this.c?.render()}layout(t){this.b=t,this.f&&this.c?.layout(t.height-15,this.f.clientWidth-24)}focus(){super.focus(),this.c?.focusSearch()}clearInput(){this.g.set(!1),super.clearInput()}clearSearch(){this.c?.clearSearch()}search(t){this.c?.search(t)}};$=f=I([u(1,D),u(2,x),u(3,C),u(4,S),u(5,R)],$);const A=V("chatManagement.sashBorder",F,c(5919,null));function H(m){return!m.sentiment.installed||m.entitlement===d.Available}let w=class extends j{static{g=this}static{this.ID="workbench.editor.chatManagement"}constructor(t,e,i,s,n,o,r){super(g.ID,t,e,i,s),this.hb=n,this.y=p,this.eb=[],this.fb=o,this.gb=r}ab(t){this.a=a.$y9(t,l(".ai-management-editor")),this.kb(this.a);const e=a.$y9(this.a,l(".split-view-container")),i=a.$y9(e,l(".sidebar-view")),s=a.$y9(i,l(".sidebar-container")),n=a.$y9(e,l(".contents-view"));this.g=a.$y9(n,l(".contents-container")),this.b=new N(e,{orientation:1,proportionalLayout:!0}),this.jb(s),this.lb(this.g),this.b.addView({onDidChange:y.None,element:i,minimumSize:150,maximumSize:350,layout:(o,r,h)=>{s.style.width=`${o}px`,this.c&&h!==void 0&&this.c.layout(h,o)}},200,void 0,!0),this.b.addView({onDidChange:y.None,element:n,minimumSize:550,maximumSize:Number.POSITIVE_INFINITY,layout:(o,r,h)=>{n.style.width=`${o}px`,h!==void 0&&this.nb(o,h)}},T.Distribute,void 0,!0),this.updateStyles(),this.ob(),this.D(this.gb.onDidChangeQuotaRemaining(()=>this.ob())),this.D(this.gb.onDidChangeEntitlement(()=>this.ob()))}updateStyles(){const t=this.h.getColor(A);this.b?.style({separatorBorder:t})}jb(t){this.eb=[{id:p,label:c(5920,null)},{id:b,label:c(5921,null)}];const e=new U,i=new E;this.c=this.D(this.hb.createInstance(O,"ChatManagementSections",t,e,[i],{multipleSelectionSupport:!1,setRowLineHeight:!1,horizontalScrolling:!1,accessibilityProvider:{getAriaLabel(s){return s.label},getWidgetAriaLabel(){return c(5922,null)}},openOnSingleClick:!0,identityProvider:{getId(s){return s.id}}})),this.c.splice(0,this.c.length,this.eb),this.c.setSelection([0]),this.D(this.c.onDidChangeSelection(s=>{s.elements.length>0&&(this.y=s.elements[0].id,this.mb())}))}kb(t){this.f=a.$y9(t,l(".ai-management-header"));const e=a.$y9(this.f,l(".header-title-container")),i=a.$y9(e,l(".header-title-wrapper")),s=a.$y9(i,l(".ai-management-editor-title"));s.textContent=c(5923,null),this.j=a.$y9(i,l(".plan-badge"));const n=a.$y9(e,l(".header-upgrade-button-container"));this.m=this.D(new _(n,{...P})),this.m.element.classList.add("header-upgrade-button"),this.m.element.style.display="none"}lb(t){const e=a.$y9(t,l(".ai-management-body"));this.r=this.D(this.hb.createInstance(L)),this.u=this.D(this.hb.createInstance(v)),e.appendChild(this.r.element),e.appendChild(this.u.element),this.mb()}mb(){this.r.element.style.display="none",this.u.element.style.display="none",this.y===p?this.r.element.style.display="":this.y===b&&(this.u.element.style.display=""),this.w&&this.layout(this.w)}nb(t,e){this.g&&this.y===b&&this.u.layout(e-30,t-30)}selectSection(t){const e=this.eb.findIndex(i=>i.id===t);e>=0&&(this.c?.setFocus([e]),this.c?.setSelection([e]))}ob(){const t=H(this.gb),e=this.gb.anonymous,i=this.gb.sentiment.disabled||this.gb.sentiment.untrusted,s=this.gb.entitlement===d.Unknown,n=this.gb.entitlement===d.Free;if(e||n)e?this.j.style.display="none":(this.j.style.display="",this.j.textContent=c(5924,null));else{this.j.style.display="";const r=this.pb();this.j.textContent=r.replace("Copilot ","")}const o=this.qb();if(t||s||i||o){this.m.element.style.display="";let r,h;o&&!n&&!e?(this.gb.entitlement===d.Pro?r=c(5925,null):r=c(5926,null),h="workbench.action.chat.upgradePlan"):o&&(n||e)?(r=c(5927,null),h="workbench.action.chat.upgradePlan"):t?(r=c(5928,null),h=t&&e?"workbench.action.chat.triggerSetupAnonymousWithoutDialog":"workbench.action.chat.triggerSetup"):e?(r=c(5929,null),h="workbench.action.chat.triggerSetup"):i?(r=c(5930,null),h="workbench.action.chat.triggerSetup"):(r=c(5931,null),h="workbench.action.chat.triggerSetup"),this.m.label=r,this.m.onDidClick(()=>{this.fb.executeCommand(h)})}else this.m.element.style.display="none"}pb(){return z(this.gb.entitlement)}qb(){const t=this.gb.entitlement;return t===d.Available||t===d.Free||t===d.Pro}async setInput(t,e,i,s){await super.setInput(t,e,i,s),this.w&&this.layout(this.w)}layout(t){if(this.w=t,this.a&&this.b){const e=this.f?.offsetHeight||0,i=t.height-e;this.b.layout(this.a.clientWidth,i),this.b.el.style.height=`${i}px`}}focus(){super.focus(),this.c?.domFocus()}};w=g=I([u(1,D),u(2,x),u(3,C),u(4,S),u(5,q),u(6,k)],w);class U{getHeight(t){return 22}getTemplateId(){return"sectionItem"}}class E{constructor(){this.templateId="sectionItem"}renderTemplate(t){return t.classList.add("section-list-item"),{label:a.$y9(t,l(".section-list-item-label"))}}renderElement(t,e,i){i.label.textContent=t.label}disposeTemplate(t){}}export{$ as $tqc,A as $uqc,w as $vqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ModelsManagementEditor_1, ChatManagementEditor_1;
+import "./media/chatManagementEditor.css";
+import * as DOM from "../../../../../base/browser/dom.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../../browser/parts/editor/editorPane.js";
+import { CHAT_MANAGEMENT_SECTION_USAGE, CHAT_MANAGEMENT_SECTION_MODELS } from "./chatManagementEditorInput.js";
+import { ChatModelsWidget } from "./chatModelsWidget.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { localize } from "../../../../../nls.js";
+import { defaultButtonStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
+import { IChatEntitlementService, ChatEntitlement, getChatPlanName } from "../../../../services/chat/common/chatEntitlementService.js";
+import { ChatUsageWidget } from "./chatUsageWidget.js";
+import { Sizing, SplitView } from "../../../../../base/browser/ui/splitview/splitview.js";
+import { WorkbenchList } from "../../../../../platform/list/browser/listService.js";
+import { Event } from "../../../../../base/common/event.js";
+import { registerColor } from "../../../../../platform/theme/common/colorRegistry.js";
+import { PANEL_BORDER } from "../../../../common/theme.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { CONTEXT_MODELS_EDITOR } from "../../common/constants.js";
+const $ = DOM.$;
+let ModelsManagementEditor = class ModelsManagementEditor2 extends EditorPane {
+  static {
+    __name(this, "ModelsManagementEditor");
+  }
+  static {
+    ModelsManagementEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editor.modelsManagement";
+  }
+  constructor(group, telemetryService, themeService, storageService, instantiationService, contextKeyService) {
+    super(ModelsManagementEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.editorDisposables = this._register(new DisposableStore());
+    this.inModelsEditorContextKey = CONTEXT_MODELS_EDITOR.bindTo(contextKeyService);
+  }
+  createEditor(parent) {
+    this.editorDisposables.clear();
+    this.bodyContainer = DOM.append(parent, $(".ai-models-management-editor"));
+    this.modelsWidget = this.editorDisposables.add(this.instantiationService.createInstance(ChatModelsWidget));
+    this.bodyContainer.appendChild(this.modelsWidget.element);
+  }
+  async setInput(input, options, context, token) {
+    this.inModelsEditorContextKey.set(true);
+    await super.setInput(input, options, context, token);
+    if (this.dimension) {
+      this.layout(this.dimension);
+    }
+    this.modelsWidget?.render();
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    if (this.bodyContainer) {
+      this.modelsWidget?.layout(dimension.height - 15, this.bodyContainer.clientWidth - 24);
+    }
+  }
+  focus() {
+    super.focus();
+    this.modelsWidget?.focusSearch();
+  }
+  clearInput() {
+    this.inModelsEditorContextKey.set(false);
+    super.clearInput();
+  }
+  clearSearch() {
+    this.modelsWidget?.clearSearch();
+  }
+  search(query) {
+    this.modelsWidget?.search(query);
+  }
+};
+ModelsManagementEditor = ModelsManagementEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IInstantiationService),
+  __param(5, IContextKeyService)
+], ModelsManagementEditor);
+const chatManagementSashBorder = registerColor("chatManagement.sashBorder", PANEL_BORDER, localize("chatManagementSashBorder", "The color of the Chat Management editor splitview sash border."));
+function isNewUser(chatEntitlementService) {
+  return !chatEntitlementService.sentiment.installed || chatEntitlementService.entitlement === ChatEntitlement.Available;
+}
+__name(isNewUser, "isNewUser");
+let ChatManagementEditor = class ChatManagementEditor2 extends EditorPane {
+  static {
+    __name(this, "ChatManagementEditor");
+  }
+  static {
+    ChatManagementEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editor.chatManagement";
+  }
+  constructor(group, telemetryService, themeService, storageService, instantiationService, commandService, chatEntitlementService) {
+    super(ChatManagementEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.selectedSection = CHAT_MANAGEMENT_SECTION_USAGE;
+    this.sections = [];
+    this.commandService = commandService;
+    this.chatEntitlementService = chatEntitlementService;
+  }
+  createEditor(parent) {
+    this.container = DOM.append(parent, $(".ai-management-editor"));
+    this.renderHeader(this.container);
+    const splitViewContainer = DOM.append(this.container, $(".split-view-container"));
+    const sidebarView = DOM.append(splitViewContainer, $(".sidebar-view"));
+    const sidebarContainer = DOM.append(sidebarView, $(".sidebar-container"));
+    const contentsView = DOM.append(splitViewContainer, $(".contents-view"));
+    this.contentsContainer = DOM.append(contentsView, $(".contents-container"));
+    this.splitView = new SplitView(splitViewContainer, {
+      orientation: 1,
+      proportionalLayout: true
+    });
+    this.renderSidebar(sidebarContainer);
+    this.renderContents(this.contentsContainer);
+    this.splitView.addView({
+      onDidChange: Event.None,
+      element: sidebarView,
+      minimumSize: 150,
+      maximumSize: 350,
+      layout: /* @__PURE__ */ __name((width, _, height) => {
+        sidebarContainer.style.width = `${width}px`;
+        if (this.sectionsList && height !== void 0) {
+          this.sectionsList.layout(height, width);
+        }
+      }, "layout")
+    }, 200, void 0, true);
+    this.splitView.addView({
+      onDidChange: Event.None,
+      element: contentsView,
+      minimumSize: 550,
+      maximumSize: Number.POSITIVE_INFINITY,
+      layout: /* @__PURE__ */ __name((width, _, height) => {
+        contentsView.style.width = `${width}px`;
+        if (height !== void 0) {
+          this.layoutContents(width, height);
+        }
+      }, "layout")
+    }, Sizing.Distribute, void 0, true);
+    this.updateStyles();
+    this.updateHeaderData();
+    this._register(this.chatEntitlementService.onDidChangeQuotaRemaining(() => this.updateHeaderData()));
+    this._register(this.chatEntitlementService.onDidChangeEntitlement(() => this.updateHeaderData()));
+  }
+  updateStyles() {
+    const borderColor = this.theme.getColor(chatManagementSashBorder);
+    this.splitView?.style({ separatorBorder: borderColor });
+  }
+  renderSidebar(parent) {
+    this.sections = [
+      { id: CHAT_MANAGEMENT_SECTION_USAGE, label: localize("plan.usage", "Usage") },
+      { id: CHAT_MANAGEMENT_SECTION_MODELS, label: localize("plan.models", "Models") }
+    ];
+    const delegate = new SectionItemDelegate();
+    const renderer = new SectionItemRenderer();
+    this.sectionsList = this._register(this.instantiationService.createInstance(WorkbenchList, "ChatManagementSections", parent, delegate, [renderer], {
+      multipleSelectionSupport: false,
+      setRowLineHeight: false,
+      horizontalScrolling: false,
+      accessibilityProvider: {
+        getAriaLabel(element) {
+          return element.label;
+        },
+        getWidgetAriaLabel() {
+          return localize("sectionsListAriaLabel", "Sections");
+        }
+      },
+      openOnSingleClick: true,
+      identityProvider: {
+        getId(element) {
+          return element.id;
+        }
+      }
+    }));
+    this.sectionsList.splice(0, this.sectionsList.length, this.sections);
+    this.sectionsList.setSelection([0]);
+    this._register(this.sectionsList.onDidChangeSelection((e) => {
+      if (e.elements.length > 0) {
+        this.selectedSection = e.elements[0].id;
+        this.renderSelectedSection();
+      }
+    }));
+  }
+  renderHeader(parent) {
+    this.headerContainer = DOM.append(parent, $(".ai-management-header"));
+    const headerTitleContainer = DOM.append(this.headerContainer, $(".header-title-container"));
+    const headerTitleWrapper = DOM.append(headerTitleContainer, $(".header-title-wrapper"));
+    const tile = DOM.append(headerTitleWrapper, $(".ai-management-editor-title"));
+    tile.textContent = localize("plan.copilot", "Copilot");
+    this.planBadge = DOM.append(headerTitleWrapper, $(".plan-badge"));
+    const titleButtonContainer = DOM.append(headerTitleContainer, $(".header-upgrade-button-container"));
+    this.actionButton = this._register(new Button(titleButtonContainer, { ...defaultButtonStyles }));
+    this.actionButton.element.classList.add("header-upgrade-button");
+    this.actionButton.element.style.display = "none";
+  }
+  renderContents(parent) {
+    const bodyContainer = DOM.append(parent, $(".ai-management-body"));
+    this.chatUsageWidget = this._register(this.instantiationService.createInstance(ChatUsageWidget));
+    this.modelsWidget = this._register(this.instantiationService.createInstance(ChatModelsWidget));
+    bodyContainer.appendChild(this.chatUsageWidget.element);
+    bodyContainer.appendChild(this.modelsWidget.element);
+    this.renderSelectedSection();
+  }
+  renderSelectedSection() {
+    this.chatUsageWidget.element.style.display = "none";
+    this.modelsWidget.element.style.display = "none";
+    if (this.selectedSection === CHAT_MANAGEMENT_SECTION_USAGE) {
+      this.chatUsageWidget.element.style.display = "";
+    } else if (this.selectedSection === CHAT_MANAGEMENT_SECTION_MODELS) {
+      this.modelsWidget.element.style.display = "";
+    }
+    if (this.dimension) {
+      this.layout(this.dimension);
+    }
+  }
+  layoutContents(width, height) {
+    if (!this.contentsContainer) {
+      return;
+    }
+    if (this.selectedSection === CHAT_MANAGEMENT_SECTION_MODELS) {
+      this.modelsWidget.layout(height - 30, width - 30);
+    }
+  }
+  selectSection(sectionId) {
+    const index = this.sections.findIndex((s) => s.id === sectionId);
+    if (index >= 0) {
+      this.sectionsList?.setFocus([index]);
+      this.sectionsList?.setSelection([index]);
+    }
+  }
+  updateHeaderData() {
+    const newUser = isNewUser(this.chatEntitlementService);
+    const anonymousUser = this.chatEntitlementService.anonymous;
+    const disabled = this.chatEntitlementService.sentiment.disabled || this.chatEntitlementService.sentiment.untrusted;
+    const signedOut = this.chatEntitlementService.entitlement === ChatEntitlement.Unknown;
+    const isFreePlan = this.chatEntitlementService.entitlement === ChatEntitlement.Free;
+    if (anonymousUser || isFreePlan) {
+      if (anonymousUser) {
+        this.planBadge.style.display = "none";
+      } else {
+        this.planBadge.style.display = "";
+        this.planBadge.textContent = localize("plan.free", "Free");
+      }
+    } else {
+      this.planBadge.style.display = "";
+      const planName = this.getCurrentPlanName();
+      this.planBadge.textContent = planName.replace("Copilot ", "");
+    }
+    const shouldUpgrade = this.shouldShowUpgradeButton();
+    if (newUser || signedOut || disabled || shouldUpgrade) {
+      this.actionButton.element.style.display = "";
+      let buttonLabel;
+      let commandId;
+      if (shouldUpgrade && !isFreePlan && !anonymousUser) {
+        if (this.chatEntitlementService.entitlement === ChatEntitlement.Pro) {
+          buttonLabel = localize("plan.upgradeToProPlus", "Upgrade to Copilot Pro+");
+        } else {
+          buttonLabel = localize("plan.upgradeToPro", "Upgrade to Copilot Pro");
+        }
+        commandId = "workbench.action.chat.upgradePlan";
+      } else if (shouldUpgrade && (isFreePlan || anonymousUser)) {
+        buttonLabel = localize("upgradeToCopilotPro", "Upgrade to Copilot Pro");
+        commandId = "workbench.action.chat.upgradePlan";
+      } else if (newUser) {
+        buttonLabel = localize("enableAIFeatures", "Use AI Features");
+        commandId = newUser && anonymousUser ? "workbench.action.chat.triggerSetupAnonymousWithoutDialog" : "workbench.action.chat.triggerSetup";
+      } else if (anonymousUser) {
+        buttonLabel = localize("enableMoreAIFeatures", "Enable more AI Features");
+        commandId = "workbench.action.chat.triggerSetup";
+      } else if (disabled) {
+        buttonLabel = localize("enableCopilotButton", "Enable AI Features");
+        commandId = "workbench.action.chat.triggerSetup";
+      } else {
+        buttonLabel = localize("signInToUseAIFeatures", "Sign in to use AI Features");
+        commandId = "workbench.action.chat.triggerSetup";
+      }
+      this.actionButton.label = buttonLabel;
+      this.actionButton.onDidClick(() => {
+        this.commandService.executeCommand(commandId);
+      });
+    } else {
+      this.actionButton.element.style.display = "none";
+    }
+  }
+  getCurrentPlanName() {
+    return getChatPlanName(this.chatEntitlementService.entitlement);
+  }
+  shouldShowUpgradeButton() {
+    const entitlement = this.chatEntitlementService.entitlement;
+    return entitlement === ChatEntitlement.Available || entitlement === ChatEntitlement.Free || entitlement === ChatEntitlement.Pro;
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    if (this.dimension) {
+      this.layout(this.dimension);
+    }
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    if (this.container && this.splitView) {
+      const headerHeight = this.headerContainer?.offsetHeight || 0;
+      const splitViewHeight = dimension.height - headerHeight;
+      this.splitView.layout(this.container.clientWidth, splitViewHeight);
+      this.splitView.el.style.height = `${splitViewHeight}px`;
+    }
+  }
+  focus() {
+    super.focus();
+    this.sectionsList?.domFocus();
+  }
+};
+ChatManagementEditor = ChatManagementEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IInstantiationService),
+  __param(5, ICommandService),
+  __param(6, IChatEntitlementService)
+], ChatManagementEditor);
+class SectionItemDelegate {
+  static {
+    __name(this, "SectionItemDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId() {
+    return "sectionItem";
+  }
+}
+class SectionItemRenderer {
+  static {
+    __name(this, "SectionItemRenderer");
+  }
+  constructor() {
+    this.templateId = "sectionItem";
+  }
+  renderTemplate(container) {
+    container.classList.add("section-list-item");
+    const label = DOM.append(container, $(".section-list-item-label"));
+    return { label };
+  }
+  renderElement(element, index, templateData) {
+    templateData.label.textContent = element.label;
+  }
+  disposeTemplate(templateData) {
+  }
+}
+export {
+  ChatManagementEditor,
+  ModelsManagementEditor,
+  chatManagementSashBorder
+};
+//# sourceMappingURL=chatManagementEditor.js.map

@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../platform/instantiation/common/instantiation.js";const r=o("IExtHostHooks");export{r as $TZc};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IExtHostHooks = createDecorator("IExtHostHooks");
+export {
+  IExtHostHooks
+};
+//# sourceMappingURL=extHostHooks.js.map

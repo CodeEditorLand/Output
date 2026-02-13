@@ -1,1 +1,80 @@
-import{$0i as f,$rj as h}from"../../../base/common/buffer.js";import{$Ed as l}from"../../../base/common/lifecycle.js";import{$4C as p}from"../../../base/common/mime.js";import{Schemas as d}from"../../../base/common/network.js";import{URI as y}from"../../../base/common/uri.js";import{$Sk as $,$vk as w}from"../../files/common/files.js";import{$UPc as v}from"../../ipc/common/mainProcessService.js";import{$AB as R,$zB as _}from"../common/electronRemoteResources.js";var u=function(a,t,o,n){var r=arguments.length,e=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,o):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,t,o,n);else for(var c=a.length-1;c>=0;c--)(s=a[c])&&(e=(r<3?s(e):r>3?s(t,o,e):s(t,o))||e);return r>3&&e&&Object.defineProperty(t,o,e),e},i=function(a,t){return function(o,n){t(o,n,a)}};let m=class extends l{constructor(t,o,n){super(),this.a=t,this.b=n;const r={listen(e,s){throw new Error(`Event not found: ${s}`)},call:(e,s,c)=>{if(s===_)return this.c(y.revive(c[0]));throw new Error(`Call not found: ${s}`)}};o.registerChannel(R,r)}async c(t){let o;try{const r=new URLSearchParams(t.query),e=t.with({scheme:r.get("scheme"),authority:r.get("authority"),query:""});o=await this.b.readFile(e)}catch(r){const e=h(f.fromString(r.message));return r instanceof $&&r.fileOperationResult===1?{statusCode:404,body:e}:{statusCode:500,body:e}}const n=t.path&&p(t.path);return{statusCode:200,body:h(o.value),mimeType:n}}getResourceUriProvider(){return t=>t.with({scheme:d.vscodeManagedRemoteResource,authority:`window:${this.a}`,query:new URLSearchParams({authority:t.authority,scheme:t.scheme}).toString()})}};m=u([i(1,v),i(2,w)],m);export{m as $6Pc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer, encodeBase64 } from "../../../base/common/buffer.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { getMediaOrTextMime } from "../../../base/common/mime.js";
+import { Schemas } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
+import { FileOperationError, IFileService } from "../../files/common/files.js";
+import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+import { NODE_REMOTE_RESOURCE_CHANNEL_NAME, NODE_REMOTE_RESOURCE_IPC_METHOD_NAME } from "../common/electronRemoteResources.js";
+let ElectronRemoteResourceLoader = class ElectronRemoteResourceLoader2 extends Disposable {
+  static {
+    __name(this, "ElectronRemoteResourceLoader");
+  }
+  constructor(windowId, mainProcessService, fileService) {
+    super();
+    this.windowId = windowId;
+    this.fileService = fileService;
+    const channel = {
+      listen(_, event) {
+        throw new Error(`Event not found: ${event}`);
+      },
+      call: /* @__PURE__ */ __name((_, command, arg) => {
+        switch (command) {
+          case NODE_REMOTE_RESOURCE_IPC_METHOD_NAME:
+            return this.doRequest(URI.revive(arg[0]));
+        }
+        throw new Error(`Call not found: ${command}`);
+      }, "call")
+    };
+    mainProcessService.registerChannel(NODE_REMOTE_RESOURCE_CHANNEL_NAME, channel);
+  }
+  async doRequest(uri) {
+    let content;
+    try {
+      const params = new URLSearchParams(uri.query);
+      const actual = uri.with({
+        scheme: params.get("scheme"),
+        authority: params.get("authority"),
+        query: ""
+      });
+      content = await this.fileService.readFile(actual);
+    } catch (e) {
+      const str = encodeBase64(VSBuffer.fromString(e.message));
+      if (e instanceof FileOperationError && e.fileOperationResult === 1) {
+        return { statusCode: 404, body: str };
+      } else {
+        return { statusCode: 500, body: str };
+      }
+    }
+    const mimeType = uri.path && getMediaOrTextMime(uri.path);
+    return { statusCode: 200, body: encodeBase64(content.value), mimeType };
+  }
+  getResourceUriProvider() {
+    return (uri) => uri.with({
+      scheme: Schemas.vscodeManagedRemoteResource,
+      authority: `window:${this.windowId}`,
+      query: new URLSearchParams({ authority: uri.authority, scheme: uri.scheme }).toString()
+    });
+  }
+};
+ElectronRemoteResourceLoader = __decorate([
+  __param(1, IMainProcessService),
+  __param(2, IFileService)
+], ElectronRemoteResourceLoader);
+export {
+  ElectronRemoteResourceLoader
+};
+//# sourceMappingURL=electronRemoteResourceLoader.js.map

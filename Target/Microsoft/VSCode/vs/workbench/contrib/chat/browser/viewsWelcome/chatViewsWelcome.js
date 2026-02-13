@@ -1,1 +1,34 @@
-import{$xf as i}from"../../../../../base/common/event.js";import{$Ed as r}from"../../../../../base/common/lifecycle.js";import{$jm as o}from"../../../../../platform/registry/common/platform.js";var t;(function(e){e.ChatViewsWelcomeRegistry="workbench.registry.chat.viewsWelcome"})(t||(t={}));class n extends r{constructor(){super(...arguments),this.a=[],this.b=this.D(new i),this.onDidChange=this.b.event}register(s){this.a.push(s),this.b.fire()}get(){return this.a}}const h=new n;o.add("workbench.registry.chat.viewsWelcome",h);export{h as $D4b,t as ChatViewsWelcomeExtensions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+var ChatViewsWelcomeExtensions;
+(function(ChatViewsWelcomeExtensions2) {
+  ChatViewsWelcomeExtensions2["ChatViewsWelcomeRegistry"] = "workbench.registry.chat.viewsWelcome";
+})(ChatViewsWelcomeExtensions || (ChatViewsWelcomeExtensions = {}));
+class ChatViewsWelcomeContributionRegistry extends Disposable {
+  static {
+    __name(this, "ChatViewsWelcomeContributionRegistry");
+  }
+  constructor() {
+    super(...arguments);
+    this.descriptors = [];
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+  }
+  register(descriptor) {
+    this.descriptors.push(descriptor);
+    this._onDidChange.fire();
+  }
+  get() {
+    return this.descriptors;
+  }
+}
+const chatViewsWelcomeRegistry = new ChatViewsWelcomeContributionRegistry();
+Registry.add("workbench.registry.chat.viewsWelcome", chatViewsWelcomeRegistry);
+export {
+  ChatViewsWelcomeExtensions,
+  chatViewsWelcomeRegistry
+};
+//# sourceMappingURL=chatViewsWelcome.js.map

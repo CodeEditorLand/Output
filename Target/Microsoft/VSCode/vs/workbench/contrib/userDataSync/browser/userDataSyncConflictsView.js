@@ -1,1 +1,213 @@
-import{TreeItemCollapsibleState as b,$FN as H}from"../../../common/views.js";import{localize as l}from"../../../../nls.js";import{$r$b as N}from"../../../browser/parts/views/treeView.js";import{$Mj as A}from"../../../../platform/instantiation/common/instantiation.js";import{$aLb as E,$_Kb as P}from"../../../../platform/userDataSync/common/userDataSync.js";import{$wL as h,$vL as d,$qL as $}from"../../../../platform/actions/common/actions.js";import{$0n as u,$ro as V}from"../../../../platform/contextkey/common/contextkey.js";import{URI as m}from"../../../../base/common/uri.js";import{$BL as B}from"../../../services/editor/common/editorService.js";import{$LYb as J,$KYb as U,$XYb as v}from"../../../services/userDataSync/common/userDataSync.js";import{$Fh as R,$Bh as k}from"../../../../base/common/resources.js";import*as y from"../../../../base/browser/dom.js";import{$fy as F}from"../../../../platform/keybinding/common/keybinding.js";import{$ijb as M}from"../../../../platform/contextview/browser/contextView.js";import{$0l as Y}from"../../../../platform/configuration/common/configuration.js";import{$EP as K}from"../../../../platform/opener/common/opener.js";import{$qu as z}from"../../../../platform/theme/common/themeService.js";import{$pH as O}from"../../../../platform/notification/common/notification.js";import{$bk as w}from"../../../../base/common/codicons.js";import{$ap as X,$bp as G}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$0M as Q}from"../../../common/editor.js";import{$jkb as W}from"../../../../platform/hover/browser/hover.js";import{$UBb as Z}from"../../../services/accessibility/common/accessibleViewInformationService.js";var q=function(a,e,o,c){var t=arguments.length,r=t<3?e:c===null?c=Object.getOwnPropertyDescriptor(e,o):c,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,o,c);else for(var i=a.length-1;i>=0;i--)(n=a[i])&&(r=(t<3?n(r):t>3?n(e,o,r):n(e,o))||r);return t>3&&r&&Object.defineProperty(e,o,r),r},s=function(a,e){return function(o,c){e(o,c,a)}};let g=class extends N{constructor(e,o,c,t,r,n,i,p,f,C,I,D,x,_,L,S,j){super(e,c,t,r,n,i,p,f,C,I,D,j),this.ab=o,this.sb=x,this.cc=_,this.dc=L,this.ec=S,this.D(this.sb.onDidChangeConflicts(()=>this.f.refresh())),this.ic()}n(e){super.n(y.$y9(e,y.$("")));const o=this;this.f.message=l(14970,null),this.f.dataProvider={getChildren(){return o.gc()}}}async gc(){const e=[],o=this.sb.conflicts.map(t=>t.conflicts.map(r=>({...r,syncResource:t.syncResource,profile:t.profile}))).flat().sort((t,r)=>t.profile.id===r.profile.id?0:t.profile.isDefault?-1:r.profile.isDefault?1:t.profile.name.localeCompare(r.profile.name)),c=[];for(const t of o){let r=c[c.length-1]?.[0].id===t.profile.id?c[c.length-1][1]:void 0;r||c.push([t.profile,r=[]]),r.push(t)}for(const[t,r]of c){const n=[];for(const i of r){const p=JSON.stringify(i),f={handle:p,resourceUri:i.remoteResource,label:{label:R(i.remoteResource),strikethrough:i.mergeState==="accepted"&&(i.localChange===3||i.remoteChange===3)},description:J(i.syncResource),collapsibleState:b.None,command:{id:"workbench.actions.sync.openConflicts",title:"",arguments:[{$treeViewId:"",$treeItemHandle:p}]},contextValue:"sync-conflict-resource"};n.push(f)}e.push({handle:t.id,label:{label:t.name},collapsibleState:b.Expanded,children:n})}return c.length===1&&c[0][0].isDefault?e[0].children??[]:e}hc(e){const o=JSON.parse(e);return{syncResource:o.syncResource,profile:G(o.profile,this.ec.profilesHome.scheme),localResource:m.revive(o.localResource),remoteResource:m.revive(o.remoteResource),baseResource:m.revive(o.baseResource),previewResource:m.revive(o.previewResource),acceptedResource:m.revive(o.acceptedResource),localChange:o.localChange,remoteChange:o.remoteChange,mergeState:o.mergeState}}ic(){const e=this;this.D(h(class extends d{constructor(){super({id:"workbench.actions.sync.openConflicts",title:l(14971,null)})}async run(c,t){const r=e.hc(t.$treeItemHandle);return e.open(r)}})),this.D(h(class extends d{constructor(){super({id:"workbench.actions.sync.acceptRemote",title:l(14972,null),icon:w.cloudDownload,menu:{id:$.ViewItemContext,when:u.and(u.equals("view",v),u.equals("viewItem","sync-conflict-resource")),group:"inline",order:1}})}async run(c,t){const r=e.hc(t.$treeItemHandle);await e.cc.accept({syncResource:r.syncResource,profile:r.profile},r.remoteResource,void 0,e.dc.isEnabled())}})),this.D(h(class extends d{constructor(){super({id:"workbench.actions.sync.acceptLocal",title:l(14973,null),icon:w.cloudUpload,menu:{id:$.ViewItemContext,when:u.and(u.equals("view",v),u.equals("viewItem","sync-conflict-resource")),group:"inline",order:2}})}async run(c,t){const r=e.hc(t.$treeItemHandle);await e.cc.accept({syncResource:r.syncResource,profile:r.profile},r.localResource,void 0,e.dc.isEnabled())}}))}async open(e){if(!this.sb.conflicts.some(({conflicts:t})=>t.some(({localResource:r})=>k(r,e.localResource))))return;const o=l(14974,null,R(e.remoteResource)),c=l(14975,null,R(e.remoteResource));await this.ab.openEditor({input1:{resource:e.remoteResource,label:l(14976,null),description:o},input2:{resource:e.localResource,label:l(14977,null),description:c},base:{resource:e.baseResource},result:{resource:e.previewResource},options:{preserveFocus:!0,revealIfVisible:!0,pinned:!0,override:Q.id}})}};g=q([s(1,B),s(2,F),s(3,M),s(4,Y),s(5,V),s(6,H),s(7,A),s(8,K),s(9,z),s(10,O),s(11,W),s(12,E),s(13,U),s(14,P),s(15,X),s(16,Z)],g);export{g as $fJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { TreeItemCollapsibleState, IViewDescriptorService } from "../../../common/views.js";
+import { localize } from "../../../../nls.js";
+import { TreeViewPane } from "../../../browser/parts/views/treeView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUserDataSyncService, IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { registerAction2, Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { getSyncAreaLabel, IUserDataSyncWorkbenchService, SYNC_CONFLICTS_VIEW_ID } from "../../../services/userDataSync/common/userDataSync.js";
+import { basename, isEqual } from "../../../../base/common/resources.js";
+import * as DOM from "../../../../base/browser/dom.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { IUserDataProfilesService, reviveProfile } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { DEFAULT_EDITOR_ASSOCIATION } from "../../../common/editor.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
+let UserDataSyncConflictsViewPane = class UserDataSyncConflictsViewPane2 extends TreeViewPane {
+  static {
+    __name(this, "UserDataSyncConflictsViewPane");
+  }
+  constructor(options, editorService, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, notificationService, hoverService, userDataSyncService, userDataSyncWorkbenchService, userDataSyncEnablementService, userDataProfilesService, accessibleViewVisibilityService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, notificationService, hoverService, accessibleViewVisibilityService);
+    this.editorService = editorService;
+    this.userDataSyncService = userDataSyncService;
+    this.userDataSyncWorkbenchService = userDataSyncWorkbenchService;
+    this.userDataSyncEnablementService = userDataSyncEnablementService;
+    this.userDataProfilesService = userDataProfilesService;
+    this._register(this.userDataSyncService.onDidChangeConflicts(() => this.treeView.refresh()));
+    this.registerActions();
+  }
+  renderTreeView(container) {
+    super.renderTreeView(DOM.append(container, DOM.$("")));
+    const that = this;
+    this.treeView.message = localize("explanation", "Please go through each entry and merge to resolve conflicts.");
+    this.treeView.dataProvider = { getChildren() {
+      return that.getTreeItems();
+    } };
+  }
+  async getTreeItems() {
+    const roots = [];
+    const conflictResources = this.userDataSyncService.conflicts.map((conflict) => conflict.conflicts.map((resourcePreview) => ({ ...resourcePreview, syncResource: conflict.syncResource, profile: conflict.profile }))).flat().sort((a, b) => a.profile.id === b.profile.id ? 0 : a.profile.isDefault ? -1 : b.profile.isDefault ? 1 : a.profile.name.localeCompare(b.profile.name));
+    const conflictResourcesByProfile = [];
+    for (const previewResource of conflictResources) {
+      let result = conflictResourcesByProfile[conflictResourcesByProfile.length - 1]?.[0].id === previewResource.profile.id ? conflictResourcesByProfile[conflictResourcesByProfile.length - 1][1] : void 0;
+      if (!result) {
+        conflictResourcesByProfile.push([previewResource.profile, result = []]);
+      }
+      result.push(previewResource);
+    }
+    for (const [profile, resources] of conflictResourcesByProfile) {
+      const children = [];
+      for (const resource of resources) {
+        const handle = JSON.stringify(resource);
+        const treeItem = {
+          handle,
+          resourceUri: resource.remoteResource,
+          label: { label: basename(resource.remoteResource), strikethrough: resource.mergeState === "accepted" && (resource.localChange === 3 || resource.remoteChange === 3) },
+          description: getSyncAreaLabel(resource.syncResource),
+          collapsibleState: TreeItemCollapsibleState.None,
+          command: { id: `workbench.actions.sync.openConflicts`, title: "", arguments: [{ $treeViewId: "", $treeItemHandle: handle }] },
+          contextValue: `sync-conflict-resource`
+        };
+        children.push(treeItem);
+      }
+      roots.push({
+        handle: profile.id,
+        label: { label: profile.name },
+        collapsibleState: TreeItemCollapsibleState.Expanded,
+        children
+      });
+    }
+    return conflictResourcesByProfile.length === 1 && conflictResourcesByProfile[0][0].isDefault ? roots[0].children ?? [] : roots;
+  }
+  parseHandle(handle) {
+    const parsed = JSON.parse(handle);
+    return {
+      syncResource: parsed.syncResource,
+      profile: reviveProfile(parsed.profile, this.userDataProfilesService.profilesHome.scheme),
+      localResource: URI.revive(parsed.localResource),
+      remoteResource: URI.revive(parsed.remoteResource),
+      baseResource: URI.revive(parsed.baseResource),
+      previewResource: URI.revive(parsed.previewResource),
+      acceptedResource: URI.revive(parsed.acceptedResource),
+      localChange: parsed.localChange,
+      remoteChange: parsed.remoteChange,
+      mergeState: parsed.mergeState
+    };
+  }
+  registerActions() {
+    const that = this;
+    this._register(registerAction2(class OpenConflictsAction extends Action2 {
+      static {
+        __name(this, "OpenConflictsAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.actions.sync.openConflicts`,
+          title: localize({ key: "workbench.actions.sync.openConflicts", comment: ["This is an action title to show the conflicts between local and remote version of resources"] }, "Show Conflicts")
+        });
+      }
+      async run(accessor, handle) {
+        const conflict = that.parseHandle(handle.$treeItemHandle);
+        return that.open(conflict);
+      }
+    }));
+    this._register(registerAction2(class AcceptRemoteAction extends Action2 {
+      static {
+        __name(this, "AcceptRemoteAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.actions.sync.acceptRemote`,
+          title: localize("workbench.actions.sync.acceptRemote", "Accept Remote"),
+          icon: Codicon.cloudDownload,
+          menu: {
+            id: MenuId.ViewItemContext,
+            when: ContextKeyExpr.and(ContextKeyExpr.equals("view", SYNC_CONFLICTS_VIEW_ID), ContextKeyExpr.equals("viewItem", "sync-conflict-resource")),
+            group: "inline",
+            order: 1
+          }
+        });
+      }
+      async run(accessor, handle) {
+        const conflict = that.parseHandle(handle.$treeItemHandle);
+        await that.userDataSyncWorkbenchService.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, conflict.remoteResource, void 0, that.userDataSyncEnablementService.isEnabled());
+      }
+    }));
+    this._register(registerAction2(class AcceptLocalAction extends Action2 {
+      static {
+        __name(this, "AcceptLocalAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.actions.sync.acceptLocal`,
+          title: localize("workbench.actions.sync.acceptLocal", "Accept Local"),
+          icon: Codicon.cloudUpload,
+          menu: {
+            id: MenuId.ViewItemContext,
+            when: ContextKeyExpr.and(ContextKeyExpr.equals("view", SYNC_CONFLICTS_VIEW_ID), ContextKeyExpr.equals("viewItem", "sync-conflict-resource")),
+            group: "inline",
+            order: 2
+          }
+        });
+      }
+      async run(accessor, handle) {
+        const conflict = that.parseHandle(handle.$treeItemHandle);
+        await that.userDataSyncWorkbenchService.accept({ syncResource: conflict.syncResource, profile: conflict.profile }, conflict.localResource, void 0, that.userDataSyncEnablementService.isEnabled());
+      }
+    }));
+  }
+  async open(conflictToOpen) {
+    if (!this.userDataSyncService.conflicts.some(({ conflicts }) => conflicts.some(({ localResource }) => isEqual(localResource, conflictToOpen.localResource)))) {
+      return;
+    }
+    const remoteResourceName = localize({ key: "remoteResourceName", comment: ["remote as in file in cloud"] }, "{0} (Remote)", basename(conflictToOpen.remoteResource));
+    const localResourceName = localize("localResourceName", "{0} (Local)", basename(conflictToOpen.remoteResource));
+    await this.editorService.openEditor({
+      input1: { resource: conflictToOpen.remoteResource, label: localize("Theirs", "Theirs"), description: remoteResourceName },
+      input2: { resource: conflictToOpen.localResource, label: localize("Yours", "Yours"), description: localResourceName },
+      base: { resource: conflictToOpen.baseResource },
+      result: { resource: conflictToOpen.previewResource },
+      options: {
+        preserveFocus: true,
+        revealIfVisible: true,
+        pinned: true,
+        override: DEFAULT_EDITOR_ASSOCIATION.id
+      }
+    });
+    return;
+  }
+};
+UserDataSyncConflictsViewPane = __decorate([
+  __param(1, IEditorService),
+  __param(2, IKeybindingService),
+  __param(3, IContextMenuService),
+  __param(4, IConfigurationService),
+  __param(5, IContextKeyService),
+  __param(6, IViewDescriptorService),
+  __param(7, IInstantiationService),
+  __param(8, IOpenerService),
+  __param(9, IThemeService),
+  __param(10, INotificationService),
+  __param(11, IHoverService),
+  __param(12, IUserDataSyncService),
+  __param(13, IUserDataSyncWorkbenchService),
+  __param(14, IUserDataSyncEnablementService),
+  __param(15, IUserDataProfilesService),
+  __param(16, IAccessibleViewInformationService)
+], UserDataSyncConflictsViewPane);
+export {
+  UserDataSyncConflictsViewPane
+};
+//# sourceMappingURL=userDataSyncConflictsView.js.map

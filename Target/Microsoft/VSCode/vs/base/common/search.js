@@ -1,1 +1,47 @@
-import*as S from"./strings.js";function C(e,i){if(e&&e[0]!==""){const o=l(e,i,"-"),r=l(e,i,"_");return o&&!r?s(e,i,"-"):!o&&r?s(e,i,"_"):e[0].toUpperCase()===e[0]?i.toUpperCase():e[0].toLowerCase()===e[0]?i.toLowerCase():S.$Sg(e[0][0])&&i.length>0?i[0].toUpperCase()+i.substr(1):e[0][0].toUpperCase()!==e[0][0]&&i.length>0?i[0].toLowerCase()+i.substr(1):i}else return i}function l(e,i,o){return e[0].indexOf(o)!==-1&&i.indexOf(o)!==-1&&e[0].split(o).length===i.split(o).length}function s(e,i,o){const r=i.split(o),f=e[0].split(o);let n="";return r.forEach((u,t)=>{n+=C([f[t]],u)+o}),n.slice(0,-1)}export{C as $Pab};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "./strings.js";
+function buildReplaceStringWithCasePreserved(matches, pattern) {
+  if (matches && matches[0] !== "") {
+    const containsHyphens = validateSpecificSpecialCharacter(matches, pattern, "-");
+    const containsUnderscores = validateSpecificSpecialCharacter(matches, pattern, "_");
+    if (containsHyphens && !containsUnderscores) {
+      return buildReplaceStringForSpecificSpecialCharacter(matches, pattern, "-");
+    } else if (!containsHyphens && containsUnderscores) {
+      return buildReplaceStringForSpecificSpecialCharacter(matches, pattern, "_");
+    }
+    if (matches[0].toUpperCase() === matches[0]) {
+      return pattern.toUpperCase();
+    } else if (matches[0].toLowerCase() === matches[0]) {
+      return pattern.toLowerCase();
+    } else if (strings.containsUppercaseCharacter(matches[0][0]) && pattern.length > 0) {
+      return pattern[0].toUpperCase() + pattern.substr(1);
+    } else if (matches[0][0].toUpperCase() !== matches[0][0] && pattern.length > 0) {
+      return pattern[0].toLowerCase() + pattern.substr(1);
+    } else {
+      return pattern;
+    }
+  } else {
+    return pattern;
+  }
+}
+__name(buildReplaceStringWithCasePreserved, "buildReplaceStringWithCasePreserved");
+function validateSpecificSpecialCharacter(matches, pattern, specialCharacter) {
+  const doesContainSpecialCharacter = matches[0].indexOf(specialCharacter) !== -1 && pattern.indexOf(specialCharacter) !== -1;
+  return doesContainSpecialCharacter && matches[0].split(specialCharacter).length === pattern.split(specialCharacter).length;
+}
+__name(validateSpecificSpecialCharacter, "validateSpecificSpecialCharacter");
+function buildReplaceStringForSpecificSpecialCharacter(matches, pattern, specialCharacter) {
+  const splitPatternAtSpecialCharacter = pattern.split(specialCharacter);
+  const splitMatchAtSpecialCharacter = matches[0].split(specialCharacter);
+  let replaceString = "";
+  splitPatternAtSpecialCharacter.forEach((splitValue, index) => {
+    replaceString += buildReplaceStringWithCasePreserved([splitMatchAtSpecialCharacter[index]], splitValue) + specialCharacter;
+  });
+  return replaceString.slice(0, -1);
+}
+__name(buildReplaceStringForSpecificSpecialCharacter, "buildReplaceStringForSpecificSpecialCharacter");
+export {
+  buildReplaceStringWithCasePreserved
+};
+//# sourceMappingURL=search.js.map

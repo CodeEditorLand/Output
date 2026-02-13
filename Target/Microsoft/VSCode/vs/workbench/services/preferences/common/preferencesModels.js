@@ -1,6 +1,1069 @@
-import{$$b as E}from"../../../../base/common/arrays.js";import{$xf as C}from"../../../../base/common/event.js";import{$Iv as O}from"../../../../base/common/json.js";import{$Ed as S}from"../../../../base/common/lifecycle.js";import{$_D as v}from"../../../../editor/common/core/range.js";import{$bE as A}from"../../../../editor/common/core/selection.js";import*as j from"../../../../nls.js";import{$0l as T}from"../../../../platform/configuration/common/configuration.js";import{$lm as P,$wm as L}from"../../../../platform/configuration/common/configurationRegistry.js";import{$fy as q}from"../../../../platform/keybinding/common/keybinding.js";import{$jm as I}from"../../../../platform/registry/common/platform.js";import{$8H as z}from"../../../common/editor/editorModel.js";import{SettingMatchType as V}from"./preferences.js";import{$EM as _,$DM as H}from"../../configuration/common/configuration.js";import{$NM as B}from"./preferencesValidation.js";var R=function(u,t,e,n){var i=arguments.length,r=i<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(u,t,e,n);else for(var o=u.length-1;o>=0;o--)(s=u[o])&&(r=(i<3?s(r):i>3?s(t,e,r):s(t,e))||r);return i>3&&r&&Object.defineProperty(t,e,r),r},x=function(u,t){return function(e,n){t(e,n,u)}};const m={startLineNumber:-1,startColumn:-1,endLineNumber:-1,endColumn:-1};function N(u){return u.startLineNumber===-1&&u.startColumn===-1&&u.endLineNumber===-1&&u.endColumn===-1}class D extends z{constructor(){super(...arguments),this.c=new Map}updateResultGroup(t,e){return e?this.c.set(t,e):this.c.delete(t),this.j(),this.r()}j(){const t=new Set;[...this.c.keys()].sort((e,n)=>this.c.get(e).order-this.c.get(n).order).forEach(e=>{const n=this.c.get(e);n.result.filterMatches=n.result.filterMatches.filter(i=>!t.has(i.setting.key)),n.result.filterMatches.forEach(i=>t.add(i.setting.key))})}filterSettings(t,e,n){const i=this.q,r=[];for(const s of i){const o=e(s);for(const a of s.sections)for(const d of a.settings){const f=n(d,s);(o||f)&&r.push({setting:d,matches:f&&f.matches,matchType:f?.matchType??V.None,keyMatchScore:f?.keyMatchScore??0,score:f?.score??0})}}return r}getPreference(t){for(const e of this.settingsGroups)for(const n of e.sections)for(const i of n.settings)if(t===i.key)return i}n(t){const e=Object.create(null);let n=!1;return t.forEach(i=>{i.result.metadata&&(e[i.id]=i.result.metadata,n=!0)}),n?e:null}get q(){return this.settingsGroups}}class U extends D{constructor(t,e){super(),this.y=e,this.w=this.D(new C),this.onDidChangeGroups=this.w.event,this.u=t.object.textEditorModel,this.D(this.onWillDispose(()=>t.dispose())),this.D(this.u.onDidChangeContent(()=>{this.t=void 0,this.w.fire()}))}get uri(){return this.u.uri}get configurationTarget(){return this.y}get settingsGroups(){return this.t||this.C(),this.t}get content(){return this.u.getValue()}z(t,e){return e.length===0}C(){this.t=$(this.u,(t,e)=>this.z(t,e))}r(){const t=[...this.c.values()];if(!t.length)return;const e=[],n=[];t.forEach(o=>{o.result.filterMatches.forEach(a=>{e.push(a.setting),a.matches&&n.push(...a.matches)})});let i;const r=this.settingsGroups[0];r&&(i={id:r.id,range:r.range,sections:[{settings:e}],title:r.title,titleRange:r.titleRange,order:r.order,extensionInfo:r.extensionInfo});const s=this.n(t);return{allGroups:this.settingsGroups,filteredGroups:i?[i]:[],matches:n,metadata:s??void 0}}}let M=class extends D{constructor(t,e){super(),this.y=t,this.t=this.D(new C),this.onDidChangeGroups=this.t.event,this.u=[],this.w=!1,this.D(e.onDidChangeConfiguration(n=>{n.source===7&&(this.w=!0,this.t.fire())})),this.D(I.as(P.Configuration).onDidSchemaChange(n=>{this.w=!0,this.t.fire()}))}get q(){return this.settingsGroups.slice(1)}get settingsGroups(){const t=this.y.getSettingsGroups(this.w);return this.w=!1,[...t,...this.u]}setAdditionalGroups(t){this.u=t}r(){throw new Error("Not supported")}};M=R([x(1,T)],M);function $(u,t){const e=[];let n=null,i=null,r=[];const s=[];let o=-1;const a={startLineNumber:0,startColumn:0,endLineNumber:0,endColumn:0};function d(l,g,c){if(Array.isArray(r)?r.push(l):i&&(r[i]=l),s.length===o+1||s.length===o+2&&n!==null){const h=s.length===o+1?e[e.length-1]:n.overrides[n.overrides.length-1];if(h){const p=u.getPositionAt(g),y=u.getPositionAt(g+c);h.value=l,h.valueRange={startLineNumber:p.lineNumber,startColumn:p.column,endLineNumber:y.lineNumber,endColumn:y.column},h.range=Object.assign(h.range,{endLineNumber:y.lineNumber,endColumn:y.column})}}}const f={onObjectBegin:(l,g)=>{if(t(i,s)){o=s.length;const h=u.getPositionAt(l);a.startLineNumber=h.lineNumber,a.startColumn=h.column}const c={};d(c,l,g),r=c,i=null,s.push(r)},onObjectProperty:(l,g,c)=>{if(i=l,s.length===o+1||s.length===o+2&&n!==null){const h=u.getPositionAt(g),p={description:[],descriptionIsMarkdown:!1,key:l,keyRange:{startLineNumber:h.lineNumber,startColumn:h.column+1,endLineNumber:h.lineNumber,endColumn:h.column+c},range:{startLineNumber:h.lineNumber,startColumn:h.column,endLineNumber:0,endColumn:0},value:null,valueRange:m,descriptionRanges:[],overrides:[],overrideOf:n??void 0};s.length===o+1?(e.push(p),L.test(l)&&(n=p)):n.overrides.push(p)}},onObjectEnd:(l,g)=>{if(r=s.pop(),o!==-1&&(s.length===o+1||s.length===o+2&&n!==null)){const c=s.length===o+1?e[e.length-1]:n.overrides[n.overrides.length-1];if(c){const h=u.getPositionAt(l+g);c.valueRange=Object.assign(c.valueRange,{endLineNumber:h.lineNumber,endColumn:h.column}),c.range=Object.assign(c.range,{endLineNumber:h.lineNumber,endColumn:h.column})}s.length===o+1&&(n=null)}if(s.length===o){const c=u.getPositionAt(l);a.endLineNumber=c.lineNumber,a.endColumn=c.column,o=-1}},onArrayBegin:(l,g)=>{const c=[];d(c,l,g),s.push(r),r=c,i=null},onArrayEnd:(l,g)=>{if(r=s.pop(),s.length===o+1||s.length===o+2&&n!==null){const c=s.length===o+1?e[e.length-1]:n.overrides[n.overrides.length-1];if(c){const h=u.getPositionAt(l+g);c.valueRange=Object.assign(c.valueRange,{endLineNumber:h.lineNumber,endColumn:h.column}),c.range=Object.assign(c.range,{endLineNumber:h.lineNumber,endColumn:h.column})}}},onLiteralValue:d,onError:l=>{const g=e[e.length-1];g&&(N(g.range)||N(g.keyRange)||N(g.valueRange))&&e.pop()}};return u.isDisposed()||O(u.getValue(),f),e.length>0?[{id:u.isDisposed()?"":u.id,sections:[{settings:e}],title:"",titleRange:m,range:a}]:[]}class le extends U{constructor(){super(...arguments),this.G=[]}get configurationGroups(){return this.G}C(){super.C(),this.G=$(this.u,(t,e)=>e.length===0)}z(t,e){return t==="settings"&&e.length===1}}class he extends S{constructor(t,e,n){super(),this.q=t,this.target=e,this.configurationService=n,this.j=new Map,this.n=this.D(new C),this.onDidChange=this.n.event,this.D(n.onDidChangeConfiguration(i=>{i.source===7&&(this.t(),this.n.fire())}))}getContent(t=!1){return(!this.f||t)&&this.r(),this.f}getContentWithoutMostCommonlyUsed(t=!1){return(!this.h||t)&&this.r(),this.h}getSettingsGroups(t=!1){return(!this.c||t)&&this.r(),this.c}r(){this.c=this.u(),this.f=this.L(this.c,0),this.h=this.L(this.c,1)}t(){this.f=void 0,this.h=void 0,this.c=void 0}u(){const t=this.getRegisteredGroups();return this.y(t),[this.z(),...t]}getRegisteredGroups(){const t=I.as(P.Configuration),e={...t.getConfigurationProperties()},n=t.getExcludedConfigurationProperties();for(const r of this.configurationService.keys().policy??[]){const s=n[r];s&&(e[r]=s)}const i=this.F(this.C(e).sort(this.J));return this.w(i)}w(t){return t.forEach(e=>{e.sections.forEach(n=>{n.settings.sort((i,r)=>i.key.localeCompare(r.key))})}),t}y(t){this.j=new Map;for(const e of t)for(const n of e.sections)for(const i of n.settings)this.j.set(i.key,i)}z(){const t=E(this.q.map(e=>{const n=this.j.get(e);return n?{description:n.description,key:n.key,value:n.value,keyRange:m,range:m,valueRange:m,overrides:[],scope:5,type:n.type,enum:n.enum,enumDescriptions:n.enumDescriptions,descriptionRanges:[]}:null}));return{id:"mostCommonlyUsed",range:m,title:j.localize(16392,null),titleRange:m,sections:[{settings:t}]}}C(t){const e=[],n=new Map,i=new Map;for(const[r,s]of Object.entries(t)){if(!s.section)continue;let o;if(s.section.title){const d=n.get(s.section.title);if(d){const f=s.section.extensionInfo?.id;o=d.find(l=>l.extensionInfo?.id===f)}}if(!o&&s.section.id){const d=i.get(s.section.id);if(d){const f=s.section.extensionInfo?.id;o=d.find(l=>l.extensionInfo?.id===f&&!l.title)}if(o&&!o?.title&&s.section.title){o.title=s.section.title;const f=n.get(s.section.title);f?f.push(o):n.set(s.section.title,[o])}}if(!o){if(o={sections:[{title:s.section.title,settings:[]}],id:s.section.id||"",title:s.section.title??"",titleRange:m,order:s.section.order,range:m,extensionInfo:s.source},e.push(o),s.section.title){const d=n.get(s.section.title);d?d.push(o):n.set(s.section.title,[o])}if(s.section.id){const d=i.get(s.section.id);d?d.push(o):i.set(s.section.id,[o])}}const a=this.G(r,s);a&&o.sections[0].settings.push(a)}return e}F(t){const e=[];for(const n of t)n.sections=n.sections.filter(i=>i.settings.length>0),n.sections.length&&e.push(n);return e}G(t,e){if(!this.I(e))return;const n=e.default;let i=e.markdownDescription||e.description||"";typeof i!="string"&&(i="");const r=i.split(`
-`),s=L.test(t)?this.H(e.default):[];let o;e.type==="array"&&e.items&&!Array.isArray(e.items)&&e.items.type&&(e.items.enum?o="enum":Array.isArray(e.items.type)||(o=e.items.type));const a=e.type==="object"?e.properties:void 0,d=e.type==="object"?e.patternProperties:void 0,f=e.type==="object"?e.additionalProperties:void 0,l=e.type==="object"?e.propertyNames:void 0;let g=e.enum,c=e.markdownEnumDescriptions??e.enumDescriptions,h=!!e.markdownEnumDescriptions;o==="enum"&&!Array.isArray(e.items)&&(g=e.items.enum,c=e.items.markdownEnumDescriptions??e.items.enumDescriptions,h=!!e.items.markdownEnumDescriptions);let p=!1;e.type==="object"&&!e.additionalProperties&&e.properties&&Object.keys(e.properties).length&&(p=Object.keys(e.properties).every(b=>e.properties[b].type==="boolean"));let y=!1;L.test(t)&&(y=!0);let k;if(!y){const b=e;b&&b.defaultValueSource&&(k=b.defaultValueSource)}return!g&&e.enumItemLabels,{key:t,value:n,description:r,descriptionIsMarkdown:!!e.markdownDescription,range:m,keyRange:m,valueRange:m,descriptionRanges:[],overrides:s,scope:e.scope,type:e.type,arrayItemType:o,objectProperties:a,objectPatternProperties:d,objectAdditionalProperties:f,propertyNames:l,enum:g,enumDescriptions:c,enumDescriptionsAreMarkdown:h,enumItemLabels:e.enumItemLabels,uniqueItems:e.uniqueItems,tags:e.tags,disallowSyncIgnore:e.disallowSyncIgnore,restricted:e.restricted,extensionInfo:e.source,deprecationMessage:e.markdownDeprecationMessage||e.deprecationMessage,deprecationMessageIsMarkdown:!!e.markdownDeprecationMessage,validator:B(e),allKeysAreBoolean:p,editPresentation:e.editPresentation,order:e.order,nonLanguageSpecificDefaultValueSource:k,isLanguageTagSetting:y,categoryLabel:e.source?.id===e.section?.id?e.title:e.section?.id}}H(t){return Object.keys(t).map(e=>({key:e,value:t[e],description:[],descriptionIsMarkdown:!1,range:m,keyRange:m,valueRange:m,descriptionRanges:[],overrides:[]}))}I(t){return t.scope?this.target===6?_.indexOf(t.scope)!==-1:this.target===5?H.indexOf(t.scope)!==-1:!0:!0}J(t,e){if(typeof t?.order!="number")return 1;if(typeof e?.order!="number")return-1;if(t.order===e.order){const n=t.title||"",i=e.title||"";return n.localeCompare(i)}return t.order-e.order}L(t,e){const n=new w;for(let i=e;i<t.length;i++)n.pushGroup(t[i],i===e,i===t.length-1);return n.getContent()}}class de extends D{constructor(t,e,n){super(),this.w=t,this.y=n,this.u=this.D(new C),this.onDidChangeGroups=this.u.event,this.D(n.onDidChange(()=>this.u.fire())),this.t=e.object.textEditorModel,this.D(this.onWillDispose(()=>e.dispose()))}get uri(){return this.w}get target(){return this.y.target}get settingsGroups(){return this.y.getSettingsGroups()}get q(){return this.settingsGroups.slice(1)}r(){if(this.t.isDisposed())return;const t=[...this.c.values()].sort((o,a)=>o.order-a.order),e=t.filter(o=>o.result.filterMatches.length),n=this.settingsGroups.at(-1).range.endLineNumber+2,{settingsGroups:i,matches:r}=this.F(e,n),s=this.n(t);return t.length?{allGroups:this.settingsGroups,filteredGroups:i,matches:r,metadata:s??void 0}:void 0}F(t,e){const n=e-1,i=new w(n),r=[],s=[];t.length&&(i.pushLine(","),t.forEach(g=>{const c=this.I(g);r.push(c),s.push(...this.G(i,c,g.result.filterMatches))}));const o=i.getContent()+`
-`,a=this.t.getLineCount(),d=new A(e,1,e,1),f={text:o,forceMoveMarkers:!0,range:new v(e,1,a,1)};this.t.pushEditOperations([d],[f],()=>[d]);const l=Math.min(e+60,this.t.getLineCount());return this.t.tokenization.forceTokenization(l),{matches:s,settingsGroups:r}}G(t,e,n){return n=n.map(r=>({setting:r.setting,score:r.score,matchType:r.matchType,keyMatchScore:r.keyMatchScore,matches:r.matches&&r.matches.map(s=>new v(s.startLineNumber-r.setting.range.startLineNumber,s.startColumn,s.endLineNumber-r.setting.range.startLineNumber,s.endColumn))})),t.pushGroup(e),n.map(r=>r.matches||[]).flatMap((r,s)=>{const o=e.sections[0].settings[s];return r.map(a=>new v(a.startLineNumber+o.range.startLineNumber,a.startColumn,a.endLineNumber+o.range.startLineNumber,a.endColumn))})}H(t){return{description:t.description,scope:t.scope,type:t.type,enum:t.enum,enumDescriptions:t.enumDescriptions,key:t.key,value:t.value,range:t.range,overrides:[],overrideOf:t.overrideOf,tags:t.tags,deprecationMessage:t.deprecationMessage,keyRange:m,valueRange:m,descriptionIsMarkdown:void 0,descriptionRanges:[]}}getPreference(t){for(const e of this.settingsGroups)for(const n of e.sections)for(const i of n.settings)if(i.key===t)return i}I(t){return{id:t.id,range:m,title:t.label,titleRange:m,sections:[{settings:t.result.filterMatches.map(e=>this.H(e.setting))}]}}}class w{get d(){return this.c.length+this.h}get f(){return this.c[this.c.length-1]||""}constructor(t=0){this.h=t,this.c=[]}pushLine(...t){this.c.push(...t)}pushGroup(t,e,n){this.c.push(e?"[{":"{");const i=this.j(t,"  ");if(i){const r=i.range.endLineNumber-this.h,s=this.c[r-2];this.c[r-2]=s.substring(0,s.length-1)}this.c.push(n?"}]":"},")}j(t,e){let n=null;const i=this.d+1;for(const r of t.sections)if(r.title&&this.p([r.title],e,this.c),r.settings.length)for(const s of r.settings)this.k(s,e),n=s;return t.range={startLineNumber:i,startColumn:1,endLineNumber:this.d,endColumn:this.f.length},n}getContent(){return this.c.join(`
-`)}k(t,e){const n=this.d+1;this.n(t,e);let i=e;const r=JSON.stringify(t.key);i+=r,t.keyRange={startLineNumber:this.d+1,startColumn:i.indexOf(t.key)+1,endLineNumber:this.d+1,endColumn:t.key.length},i+=": ";const s=this.d+1;this.o(t,i,e),t.valueRange={startLineNumber:s,startColumn:i.length+1,endLineNumber:this.d,endColumn:this.f.length+1},this.c[this.c.length-1]+=",",this.c.push(""),t.range={startLineNumber:n,startColumn:1,endLineNumber:this.d,endColumn:this.f.length}}n(t,e){const n=s=>s.replace(/`#(.*)#`/g,(o,a)=>`\`${a}\``);t.descriptionRanges=[];const i=e+"// ",r=t.deprecationMessage?.split(/\n/g)??[];for(let s of[...r,...t.description])s=n(s),this.c.push(i+s),t.descriptionRanges.push({startLineNumber:this.d,startColumn:this.f.indexOf(s)+1,endLineNumber:this.d,endColumn:this.f.length});t.enum&&t.enumDescriptions?.some(s=>!!s)&&t.enumDescriptions.forEach((s,o)=>{const a=J(String(t.enum[o])),d=s?`${a}: ${n(s)}`:a,f=d.split(/\n/g);f[0]=" - "+f[0],this.c.push(...f.map(l=>`${e}// ${l}`)),t.descriptionRanges.push({startLineNumber:this.d,startColumn:this.f.indexOf(d)+1,endLineNumber:this.d,endColumn:this.f.length})})}o(t,e,n){const i=JSON.stringify(t.value,null,n);if(i&&typeof t.value=="object")if(t.overrides&&t.overrides.length){this.c.push(e+" {");for(const o of t.overrides)this.k(o,n+n),this.c.pop();const r=t.overrides[t.overrides.length-1],s=this.c[r.range.endLineNumber-2];this.c[r.range.endLineNumber-2]=s.substring(0,s.length-1),this.c.push(n+"}")}else{const r=i.split(`
-`);this.c.push(e+r[0]);for(let s=1;s<r.length;s++)this.c.push(n+r[s])}else this.c.push(e+i)}p(t,e,n){for(const i of t)n.push(e+"// "+i)}}class F extends w{constructor(t="	"){super(0),this.q=t}pushGroup(t){this.j(t,this.q)}}class ge extends S{constructor(t){super(),this.h=t,this.c=null,this.f=this.D(new C),this.onDidContentChanged=this.f.event,this.D(t.onDidChange(()=>{this.c=null,this.f.fire()}))}get content(){if(this.c===null){const t=new F;t.pushLine("{");for(const e of this.h.getRegisteredGroups())t.pushGroup(e);t.pushLine("}"),this.c=t.getContent()}return this.c}}function J(u){return u&&u.replace(/\n/g,"\\n").replace(/\r/g,"\\r")}function K(u){return"// "+j.localize(16393,null)+`
-`+u.getDefaultKeybindingsContent()}let G=class{constructor(t,e){this.d=t,this.f=e}get uri(){return this.d}get content(){return this.c||(this.c=K(this.f)),this.c}getPreference(){return null}dispose(){}};G=R([x(1,q)],G);export{m as $QM,U as $RM,M as $SM,le as $TM,he as $UM,de as $VM,ge as $WM,K as $XM,G as $YM};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { coalesce } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { visit } from "../../../../base/common/json.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions, OVERRIDE_PROPERTY_REGEX } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorModel } from "../../../common/editor/editorModel.js";
+import { SettingMatchType } from "./preferences.js";
+import { FOLDER_SCOPES, WORKSPACE_SCOPES } from "../../configuration/common/configuration.js";
+import { createValidator } from "./preferencesValidation.js";
+const nullRange = { startLineNumber: -1, startColumn: -1, endLineNumber: -1, endColumn: -1 };
+function isNullRange(range) {
+  return range.startLineNumber === -1 && range.startColumn === -1 && range.endLineNumber === -1 && range.endColumn === -1;
+}
+__name(isNullRange, "isNullRange");
+class AbstractSettingsModel extends EditorModel {
+  static {
+    __name(this, "AbstractSettingsModel");
+  }
+  constructor() {
+    super(...arguments);
+    this._currentResultGroups = /* @__PURE__ */ new Map();
+  }
+  updateResultGroup(id, resultGroup) {
+    if (resultGroup) {
+      this._currentResultGroups.set(id, resultGroup);
+    } else {
+      this._currentResultGroups.delete(id);
+    }
+    this.removeDuplicateResults();
+    return this.update();
+  }
+  /**
+   * Remove duplicates between result groups, preferring results in earlier groups
+   */
+  removeDuplicateResults() {
+    const settingKeys = /* @__PURE__ */ new Set();
+    [...this._currentResultGroups.keys()].sort((a, b) => this._currentResultGroups.get(a).order - this._currentResultGroups.get(b).order).forEach((groupId) => {
+      const group = this._currentResultGroups.get(groupId);
+      group.result.filterMatches = group.result.filterMatches.filter((s) => !settingKeys.has(s.setting.key));
+      group.result.filterMatches.forEach((s) => settingKeys.add(s.setting.key));
+    });
+  }
+  filterSettings(filter, groupFilter, settingMatcher) {
+    const allGroups = this.filterGroups;
+    const filterMatches = [];
+    for (const group of allGroups) {
+      const groupMatched = groupFilter(group);
+      for (const section of group.sections) {
+        for (const setting of section.settings) {
+          const settingMatchResult = settingMatcher(setting, group);
+          if (groupMatched || settingMatchResult) {
+            filterMatches.push({
+              setting,
+              matches: settingMatchResult && settingMatchResult.matches,
+              matchType: settingMatchResult?.matchType ?? SettingMatchType.None,
+              keyMatchScore: settingMatchResult?.keyMatchScore ?? 0,
+              score: settingMatchResult?.score ?? 0
+            });
+          }
+        }
+      }
+    }
+    return filterMatches;
+  }
+  getPreference(key) {
+    for (const group of this.settingsGroups) {
+      for (const section of group.sections) {
+        for (const setting of section.settings) {
+          if (key === setting.key) {
+            return setting;
+          }
+        }
+      }
+    }
+    return void 0;
+  }
+  collectMetadata(groups) {
+    const metadata = /* @__PURE__ */ Object.create(null);
+    let hasMetadata = false;
+    groups.forEach((g) => {
+      if (g.result.metadata) {
+        metadata[g.id] = g.result.metadata;
+        hasMetadata = true;
+      }
+    });
+    return hasMetadata ? metadata : null;
+  }
+  get filterGroups() {
+    return this.settingsGroups;
+  }
+}
+class SettingsEditorModel extends AbstractSettingsModel {
+  static {
+    __name(this, "SettingsEditorModel");
+  }
+  constructor(reference, _configurationTarget) {
+    super();
+    this._configurationTarget = _configurationTarget;
+    this._onDidChangeGroups = this._register(new Emitter());
+    this.onDidChangeGroups = this._onDidChangeGroups.event;
+    this.settingsModel = reference.object.textEditorModel;
+    this._register(this.onWillDispose(() => reference.dispose()));
+    this._register(this.settingsModel.onDidChangeContent(() => {
+      this._settingsGroups = void 0;
+      this._onDidChangeGroups.fire();
+    }));
+  }
+  get uri() {
+    return this.settingsModel.uri;
+  }
+  get configurationTarget() {
+    return this._configurationTarget;
+  }
+  get settingsGroups() {
+    if (!this._settingsGroups) {
+      this.parse();
+    }
+    return this._settingsGroups;
+  }
+  get content() {
+    return this.settingsModel.getValue();
+  }
+  isSettingsProperty(property, previousParents) {
+    return previousParents.length === 0;
+  }
+  parse() {
+    this._settingsGroups = parse(this.settingsModel, (property, previousParents) => this.isSettingsProperty(property, previousParents));
+  }
+  update() {
+    const resultGroups = [...this._currentResultGroups.values()];
+    if (!resultGroups.length) {
+      return void 0;
+    }
+    const filteredSettings = [];
+    const matches = [];
+    resultGroups.forEach((group) => {
+      group.result.filterMatches.forEach((filterMatch) => {
+        filteredSettings.push(filterMatch.setting);
+        if (filterMatch.matches) {
+          matches.push(...filterMatch.matches);
+        }
+      });
+    });
+    let filteredGroup;
+    const modelGroup = this.settingsGroups[0];
+    if (modelGroup) {
+      filteredGroup = {
+        id: modelGroup.id,
+        range: modelGroup.range,
+        sections: [{
+          settings: filteredSettings
+        }],
+        title: modelGroup.title,
+        titleRange: modelGroup.titleRange,
+        order: modelGroup.order,
+        extensionInfo: modelGroup.extensionInfo
+      };
+    }
+    const metadata = this.collectMetadata(resultGroups);
+    return {
+      allGroups: this.settingsGroups,
+      filteredGroups: filteredGroup ? [filteredGroup] : [],
+      matches,
+      metadata: metadata ?? void 0
+    };
+  }
+}
+let Settings2EditorModel = class Settings2EditorModel2 extends AbstractSettingsModel {
+  static {
+    __name(this, "Settings2EditorModel");
+  }
+  constructor(_defaultSettings, configurationService) {
+    super();
+    this._defaultSettings = _defaultSettings;
+    this._onDidChangeGroups = this._register(new Emitter());
+    this.onDidChangeGroups = this._onDidChangeGroups.event;
+    this.additionalGroups = [];
+    this.dirty = false;
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.source === 7) {
+        this.dirty = true;
+        this._onDidChangeGroups.fire();
+      }
+    }));
+    this._register(Registry.as(Extensions.Configuration).onDidSchemaChange((e) => {
+      this.dirty = true;
+      this._onDidChangeGroups.fire();
+    }));
+  }
+  /** Doesn't include the "Commonly Used" group */
+  get filterGroups() {
+    return this.settingsGroups.slice(1);
+  }
+  get settingsGroups() {
+    const groups = this._defaultSettings.getSettingsGroups(this.dirty);
+    this.dirty = false;
+    return [...groups, ...this.additionalGroups];
+  }
+  /** For programmatically added groups outside of registered configurations */
+  setAdditionalGroups(groups) {
+    this.additionalGroups = groups;
+  }
+  update() {
+    throw new Error("Not supported");
+  }
+};
+Settings2EditorModel = __decorate([
+  __param(1, IConfigurationService)
+], Settings2EditorModel);
+function parse(model, isSettingsProperty) {
+  const settings = [];
+  let overrideSetting = null;
+  let currentProperty = null;
+  let currentParent = [];
+  const previousParents = [];
+  let settingsPropertyIndex = -1;
+  const range = {
+    startLineNumber: 0,
+    startColumn: 0,
+    endLineNumber: 0,
+    endColumn: 0
+  };
+  function onValue(value, offset, length) {
+    if (Array.isArray(currentParent)) {
+      currentParent.push(value);
+    } else if (currentProperty) {
+      currentParent[currentProperty] = value;
+    }
+    if (previousParents.length === settingsPropertyIndex + 1 || previousParents.length === settingsPropertyIndex + 2 && overrideSetting !== null) {
+      const setting = previousParents.length === settingsPropertyIndex + 1 ? settings[settings.length - 1] : overrideSetting.overrides[overrideSetting.overrides.length - 1];
+      if (setting) {
+        const valueStartPosition = model.getPositionAt(offset);
+        const valueEndPosition = model.getPositionAt(offset + length);
+        setting.value = value;
+        setting.valueRange = {
+          startLineNumber: valueStartPosition.lineNumber,
+          startColumn: valueStartPosition.column,
+          endLineNumber: valueEndPosition.lineNumber,
+          endColumn: valueEndPosition.column
+        };
+        setting.range = Object.assign(setting.range, {
+          endLineNumber: valueEndPosition.lineNumber,
+          endColumn: valueEndPosition.column
+        });
+      }
+    }
+  }
+  __name(onValue, "onValue");
+  const visitor = {
+    onObjectBegin: /* @__PURE__ */ __name((offset, length) => {
+      if (isSettingsProperty(currentProperty, previousParents)) {
+        settingsPropertyIndex = previousParents.length;
+        const position = model.getPositionAt(offset);
+        range.startLineNumber = position.lineNumber;
+        range.startColumn = position.column;
+      }
+      const object = {};
+      onValue(object, offset, length);
+      currentParent = object;
+      currentProperty = null;
+      previousParents.push(currentParent);
+    }, "onObjectBegin"),
+    onObjectProperty: /* @__PURE__ */ __name((name, offset, length) => {
+      currentProperty = name;
+      if (previousParents.length === settingsPropertyIndex + 1 || previousParents.length === settingsPropertyIndex + 2 && overrideSetting !== null) {
+        const settingStartPosition = model.getPositionAt(offset);
+        const setting = {
+          description: [],
+          descriptionIsMarkdown: false,
+          key: name,
+          keyRange: {
+            startLineNumber: settingStartPosition.lineNumber,
+            startColumn: settingStartPosition.column + 1,
+            endLineNumber: settingStartPosition.lineNumber,
+            endColumn: settingStartPosition.column + length
+          },
+          range: {
+            startLineNumber: settingStartPosition.lineNumber,
+            startColumn: settingStartPosition.column,
+            endLineNumber: 0,
+            endColumn: 0
+          },
+          value: null,
+          valueRange: nullRange,
+          descriptionRanges: [],
+          overrides: [],
+          overrideOf: overrideSetting ?? void 0
+        };
+        if (previousParents.length === settingsPropertyIndex + 1) {
+          settings.push(setting);
+          if (OVERRIDE_PROPERTY_REGEX.test(name)) {
+            overrideSetting = setting;
+          }
+        } else {
+          overrideSetting.overrides.push(setting);
+        }
+      }
+    }, "onObjectProperty"),
+    onObjectEnd: /* @__PURE__ */ __name((offset, length) => {
+      currentParent = previousParents.pop();
+      if (settingsPropertyIndex !== -1 && (previousParents.length === settingsPropertyIndex + 1 || previousParents.length === settingsPropertyIndex + 2 && overrideSetting !== null)) {
+        const setting = previousParents.length === settingsPropertyIndex + 1 ? settings[settings.length - 1] : overrideSetting.overrides[overrideSetting.overrides.length - 1];
+        if (setting) {
+          const valueEndPosition = model.getPositionAt(offset + length);
+          setting.valueRange = Object.assign(setting.valueRange, {
+            endLineNumber: valueEndPosition.lineNumber,
+            endColumn: valueEndPosition.column
+          });
+          setting.range = Object.assign(setting.range, {
+            endLineNumber: valueEndPosition.lineNumber,
+            endColumn: valueEndPosition.column
+          });
+        }
+        if (previousParents.length === settingsPropertyIndex + 1) {
+          overrideSetting = null;
+        }
+      }
+      if (previousParents.length === settingsPropertyIndex) {
+        const position = model.getPositionAt(offset);
+        range.endLineNumber = position.lineNumber;
+        range.endColumn = position.column;
+        settingsPropertyIndex = -1;
+      }
+    }, "onObjectEnd"),
+    onArrayBegin: /* @__PURE__ */ __name((offset, length) => {
+      const array = [];
+      onValue(array, offset, length);
+      previousParents.push(currentParent);
+      currentParent = array;
+      currentProperty = null;
+    }, "onArrayBegin"),
+    onArrayEnd: /* @__PURE__ */ __name((offset, length) => {
+      currentParent = previousParents.pop();
+      if (previousParents.length === settingsPropertyIndex + 1 || previousParents.length === settingsPropertyIndex + 2 && overrideSetting !== null) {
+        const setting = previousParents.length === settingsPropertyIndex + 1 ? settings[settings.length - 1] : overrideSetting.overrides[overrideSetting.overrides.length - 1];
+        if (setting) {
+          const valueEndPosition = model.getPositionAt(offset + length);
+          setting.valueRange = Object.assign(setting.valueRange, {
+            endLineNumber: valueEndPosition.lineNumber,
+            endColumn: valueEndPosition.column
+          });
+          setting.range = Object.assign(setting.range, {
+            endLineNumber: valueEndPosition.lineNumber,
+            endColumn: valueEndPosition.column
+          });
+        }
+      }
+    }, "onArrayEnd"),
+    onLiteralValue: onValue,
+    onError: /* @__PURE__ */ __name((error) => {
+      const setting = settings[settings.length - 1];
+      if (setting && (isNullRange(setting.range) || isNullRange(setting.keyRange) || isNullRange(setting.valueRange))) {
+        settings.pop();
+      }
+    }, "onError")
+  };
+  if (!model.isDisposed()) {
+    visit(model.getValue(), visitor);
+  }
+  return settings.length > 0 ? [{
+    id: model.isDisposed() ? "" : model.id,
+    sections: [
+      {
+        settings
+      }
+    ],
+    title: "",
+    titleRange: nullRange,
+    range
+  }] : [];
+}
+__name(parse, "parse");
+class WorkspaceConfigurationEditorModel extends SettingsEditorModel {
+  static {
+    __name(this, "WorkspaceConfigurationEditorModel");
+  }
+  constructor() {
+    super(...arguments);
+    this._configurationGroups = [];
+  }
+  get configurationGroups() {
+    return this._configurationGroups;
+  }
+  parse() {
+    super.parse();
+    this._configurationGroups = parse(this.settingsModel, (property, previousParents) => previousParents.length === 0);
+  }
+  isSettingsProperty(property, previousParents) {
+    return property === "settings" && previousParents.length === 1;
+  }
+}
+class DefaultSettings extends Disposable {
+  static {
+    __name(this, "DefaultSettings");
+  }
+  constructor(_mostCommonlyUsedSettingsKeys, target, configurationService) {
+    super();
+    this._mostCommonlyUsedSettingsKeys = _mostCommonlyUsedSettingsKeys;
+    this.target = target;
+    this.configurationService = configurationService;
+    this._settingsByName = /* @__PURE__ */ new Map();
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.source === 7) {
+        this.reset();
+        this._onDidChange.fire();
+      }
+    }));
+  }
+  getContent(forceUpdate = false) {
+    if (!this._content || forceUpdate) {
+      this.initialize();
+    }
+    return this._content;
+  }
+  getContentWithoutMostCommonlyUsed(forceUpdate = false) {
+    if (!this._contentWithoutMostCommonlyUsed || forceUpdate) {
+      this.initialize();
+    }
+    return this._contentWithoutMostCommonlyUsed;
+  }
+  getSettingsGroups(forceUpdate = false) {
+    if (!this._allSettingsGroups || forceUpdate) {
+      this.initialize();
+    }
+    return this._allSettingsGroups;
+  }
+  initialize() {
+    this._allSettingsGroups = this.parse();
+    this._content = this.toContent(this._allSettingsGroups, 0);
+    this._contentWithoutMostCommonlyUsed = this.toContent(this._allSettingsGroups, 1);
+  }
+  reset() {
+    this._content = void 0;
+    this._contentWithoutMostCommonlyUsed = void 0;
+    this._allSettingsGroups = void 0;
+  }
+  parse() {
+    const settingsGroups = this.getRegisteredGroups();
+    this.initAllSettingsMap(settingsGroups);
+    const mostCommonlyUsed = this.getMostCommonlyUsedSettings();
+    return [mostCommonlyUsed, ...settingsGroups];
+  }
+  getRegisteredGroups() {
+    const registry = Registry.as(Extensions.Configuration);
+    const allConfigurations = { ...registry.getConfigurationProperties() };
+    const excludedConfigurations = registry.getExcludedConfigurationProperties();
+    for (const policyKey of this.configurationService.keys().policy ?? []) {
+      const policyConfiguration = excludedConfigurations[policyKey];
+      if (policyConfiguration) {
+        allConfigurations[policyKey] = policyConfiguration;
+      }
+    }
+    const groups = this.removeEmptySettingsGroups(this.parseProperties(allConfigurations).sort(this.compareGroups));
+    return this.sortGroups(groups);
+  }
+  sortGroups(groups) {
+    groups.forEach((group) => {
+      group.sections.forEach((section) => {
+        section.settings.sort((a, b) => a.key.localeCompare(b.key));
+      });
+    });
+    return groups;
+  }
+  initAllSettingsMap(allSettingsGroups) {
+    this._settingsByName = /* @__PURE__ */ new Map();
+    for (const group of allSettingsGroups) {
+      for (const section of group.sections) {
+        for (const setting of section.settings) {
+          this._settingsByName.set(setting.key, setting);
+        }
+      }
+    }
+  }
+  getMostCommonlyUsedSettings() {
+    const settings = coalesce(this._mostCommonlyUsedSettingsKeys.map((key) => {
+      const setting = this._settingsByName.get(key);
+      if (setting) {
+        return {
+          description: setting.description,
+          key: setting.key,
+          value: setting.value,
+          keyRange: nullRange,
+          range: nullRange,
+          valueRange: nullRange,
+          overrides: [],
+          scope: 5,
+          type: setting.type,
+          enum: setting.enum,
+          enumDescriptions: setting.enumDescriptions,
+          descriptionRanges: []
+        };
+      }
+      return null;
+    }));
+    return {
+      id: "mostCommonlyUsed",
+      range: nullRange,
+      title: nls.localize("commonlyUsed", "Commonly Used"),
+      titleRange: nullRange,
+      sections: [
+        {
+          settings
+        }
+      ]
+    };
+  }
+  parseProperties(properties) {
+    const result = [];
+    const byTitle = /* @__PURE__ */ new Map();
+    const byId = /* @__PURE__ */ new Map();
+    for (const [key, property] of Object.entries(properties)) {
+      if (!property.section) {
+        continue;
+      }
+      let settingsGroup;
+      if (property.section.title) {
+        const groups = byTitle.get(property.section.title);
+        if (groups) {
+          const extensionId = property.section.extensionInfo?.id;
+          settingsGroup = groups.find((g) => g.extensionInfo?.id === extensionId);
+        }
+      }
+      if (!settingsGroup && property.section.id) {
+        const groups = byId.get(property.section.id);
+        if (groups) {
+          const extensionId = property.section.extensionInfo?.id;
+          settingsGroup = groups.find((g) => g.extensionInfo?.id === extensionId && !g.title);
+        }
+        if (settingsGroup && !settingsGroup?.title && property.section.title) {
+          settingsGroup.title = property.section.title;
+          const byTitleGroups = byTitle.get(property.section.title);
+          if (byTitleGroups) {
+            byTitleGroups.push(settingsGroup);
+          } else {
+            byTitle.set(property.section.title, [settingsGroup]);
+          }
+        }
+      }
+      if (!settingsGroup) {
+        settingsGroup = { sections: [{ title: property.section.title, settings: [] }], id: property.section.id || "", title: property.section.title ?? "", titleRange: nullRange, order: property.section.order, range: nullRange, extensionInfo: property.source };
+        result.push(settingsGroup);
+        if (property.section.title) {
+          const byTitleGroups = byTitle.get(property.section.title);
+          if (byTitleGroups) {
+            byTitleGroups.push(settingsGroup);
+          } else {
+            byTitle.set(property.section.title, [settingsGroup]);
+          }
+        }
+        if (property.section.id) {
+          const byIdGroups = byId.get(property.section.id);
+          if (byIdGroups) {
+            byIdGroups.push(settingsGroup);
+          } else {
+            byId.set(property.section.id, [settingsGroup]);
+          }
+        }
+      }
+      const setting = this.parseSetting(key, property);
+      if (setting) {
+        settingsGroup.sections[0].settings.push(setting);
+      }
+    }
+    return result;
+  }
+  removeEmptySettingsGroups(settingsGroups) {
+    const result = [];
+    for (const settingsGroup of settingsGroups) {
+      settingsGroup.sections = settingsGroup.sections.filter((section) => section.settings.length > 0);
+      if (settingsGroup.sections.length) {
+        result.push(settingsGroup);
+      }
+    }
+    return result;
+  }
+  parseSetting(key, prop) {
+    if (!this.matchesScope(prop)) {
+      return void 0;
+    }
+    const value = prop.default;
+    let description = prop.markdownDescription || prop.description || "";
+    if (typeof description !== "string") {
+      description = "";
+    }
+    const descriptionLines = description.split("\n");
+    const overrides = OVERRIDE_PROPERTY_REGEX.test(key) ? this.parseOverrideSettings(prop.default) : [];
+    let listItemType;
+    if (prop.type === "array" && prop.items && !Array.isArray(prop.items) && prop.items.type) {
+      if (prop.items.enum) {
+        listItemType = "enum";
+      } else if (!Array.isArray(prop.items.type)) {
+        listItemType = prop.items.type;
+      }
+    }
+    const objectProperties = prop.type === "object" ? prop.properties : void 0;
+    const objectPatternProperties = prop.type === "object" ? prop.patternProperties : void 0;
+    const objectAdditionalProperties = prop.type === "object" ? prop.additionalProperties : void 0;
+    const propertyNames = prop.type === "object" ? prop.propertyNames : void 0;
+    let enumToUse = prop.enum;
+    let enumDescriptions = prop.markdownEnumDescriptions ?? prop.enumDescriptions;
+    let enumDescriptionsAreMarkdown = !!prop.markdownEnumDescriptions;
+    if (listItemType === "enum" && !Array.isArray(prop.items)) {
+      enumToUse = prop.items.enum;
+      enumDescriptions = prop.items.markdownEnumDescriptions ?? prop.items.enumDescriptions;
+      enumDescriptionsAreMarkdown = !!prop.items.markdownEnumDescriptions;
+    }
+    let allKeysAreBoolean = false;
+    if (prop.type === "object" && !prop.additionalProperties && prop.properties && Object.keys(prop.properties).length) {
+      allKeysAreBoolean = Object.keys(prop.properties).every((key2) => {
+        return prop.properties[key2].type === "boolean";
+      });
+    }
+    let isLanguageTagSetting = false;
+    if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+      isLanguageTagSetting = true;
+    }
+    let defaultValueSource;
+    if (!isLanguageTagSetting) {
+      const registeredConfigurationProp = prop;
+      if (registeredConfigurationProp && registeredConfigurationProp.defaultValueSource) {
+        defaultValueSource = registeredConfigurationProp.defaultValueSource;
+      }
+    }
+    if (!enumToUse && (prop.enumItemLabels || enumDescriptions || enumDescriptionsAreMarkdown)) {
+      console.error(`The setting ${key} has enum-related fields, but doesn't have an enum field. This setting may render improperly in the Settings editor.`);
+    }
+    return {
+      key,
+      value,
+      description: descriptionLines,
+      descriptionIsMarkdown: !!prop.markdownDescription,
+      range: nullRange,
+      keyRange: nullRange,
+      valueRange: nullRange,
+      descriptionRanges: [],
+      overrides,
+      scope: prop.scope,
+      type: prop.type,
+      arrayItemType: listItemType,
+      objectProperties,
+      objectPatternProperties,
+      objectAdditionalProperties,
+      propertyNames,
+      enum: enumToUse,
+      enumDescriptions,
+      enumDescriptionsAreMarkdown,
+      enumItemLabels: prop.enumItemLabels,
+      uniqueItems: prop.uniqueItems,
+      tags: prop.tags,
+      disallowSyncIgnore: prop.disallowSyncIgnore,
+      restricted: prop.restricted,
+      extensionInfo: prop.source,
+      deprecationMessage: prop.markdownDeprecationMessage || prop.deprecationMessage,
+      deprecationMessageIsMarkdown: !!prop.markdownDeprecationMessage,
+      validator: createValidator(prop),
+      allKeysAreBoolean,
+      editPresentation: prop.editPresentation,
+      order: prop.order,
+      nonLanguageSpecificDefaultValueSource: defaultValueSource,
+      isLanguageTagSetting,
+      categoryLabel: prop.source?.id === prop.section?.id ? prop.title : prop.section?.id
+    };
+  }
+  parseOverrideSettings(overrideSettings) {
+    return Object.keys(overrideSettings).map((key) => ({
+      key,
+      value: overrideSettings[key],
+      description: [],
+      descriptionIsMarkdown: false,
+      range: nullRange,
+      keyRange: nullRange,
+      valueRange: nullRange,
+      descriptionRanges: [],
+      overrides: []
+    }));
+  }
+  matchesScope(property) {
+    if (!property.scope) {
+      return true;
+    }
+    if (this.target === 6) {
+      return FOLDER_SCOPES.indexOf(property.scope) !== -1;
+    }
+    if (this.target === 5) {
+      return WORKSPACE_SCOPES.indexOf(property.scope) !== -1;
+    }
+    return true;
+  }
+  compareGroups(c1, c2) {
+    if (typeof c1?.order !== "number") {
+      return 1;
+    }
+    if (typeof c2?.order !== "number") {
+      return -1;
+    }
+    if (c1.order === c2.order) {
+      const title1 = c1.title || "";
+      const title2 = c2.title || "";
+      return title1.localeCompare(title2);
+    }
+    return c1.order - c2.order;
+  }
+  toContent(settingsGroups, startIndex) {
+    const builder = new SettingsContentBuilder();
+    for (let i = startIndex; i < settingsGroups.length; i++) {
+      builder.pushGroup(settingsGroups[i], i === startIndex, i === settingsGroups.length - 1);
+    }
+    return builder.getContent();
+  }
+}
+class DefaultSettingsEditorModel extends AbstractSettingsModel {
+  static {
+    __name(this, "DefaultSettingsEditorModel");
+  }
+  constructor(_uri, reference, defaultSettings) {
+    super();
+    this._uri = _uri;
+    this.defaultSettings = defaultSettings;
+    this._onDidChangeGroups = this._register(new Emitter());
+    this.onDidChangeGroups = this._onDidChangeGroups.event;
+    this._register(defaultSettings.onDidChange(() => this._onDidChangeGroups.fire()));
+    this._model = reference.object.textEditorModel;
+    this._register(this.onWillDispose(() => reference.dispose()));
+  }
+  get uri() {
+    return this._uri;
+  }
+  get target() {
+    return this.defaultSettings.target;
+  }
+  get settingsGroups() {
+    return this.defaultSettings.getSettingsGroups();
+  }
+  get filterGroups() {
+    return this.settingsGroups.slice(1);
+  }
+  update() {
+    if (this._model.isDisposed()) {
+      return void 0;
+    }
+    const resultGroups = [...this._currentResultGroups.values()].sort((a, b) => a.order - b.order);
+    const nonEmptyResultGroups = resultGroups.filter((group) => group.result.filterMatches.length);
+    const startLine = this.settingsGroups.at(-1).range.endLineNumber + 2;
+    const { settingsGroups: filteredGroups, matches } = this.writeResultGroups(nonEmptyResultGroups, startLine);
+    const metadata = this.collectMetadata(resultGroups);
+    return resultGroups.length ? {
+      allGroups: this.settingsGroups,
+      filteredGroups,
+      matches,
+      metadata: metadata ?? void 0
+    } : void 0;
+  }
+  /**
+   * Translate the ISearchResultGroups to text, and write it to the editor model
+   */
+  writeResultGroups(groups, startLine) {
+    const contentBuilderOffset = startLine - 1;
+    const builder = new SettingsContentBuilder(contentBuilderOffset);
+    const settingsGroups = [];
+    const matches = [];
+    if (groups.length) {
+      builder.pushLine(",");
+      groups.forEach((resultGroup) => {
+        const settingsGroup = this.getGroup(resultGroup);
+        settingsGroups.push(settingsGroup);
+        matches.push(...this.writeSettingsGroupToBuilder(builder, settingsGroup, resultGroup.result.filterMatches));
+      });
+    }
+    const groupContent = builder.getContent() + "\n";
+    const groupEndLine = this._model.getLineCount();
+    const cursorPosition = new Selection(startLine, 1, startLine, 1);
+    const edit = {
+      text: groupContent,
+      forceMoveMarkers: true,
+      range: new Range(startLine, 1, groupEndLine, 1)
+    };
+    this._model.pushEditOperations([cursorPosition], [edit], () => [cursorPosition]);
+    const tokenizeTo = Math.min(startLine + 60, this._model.getLineCount());
+    this._model.tokenization.forceTokenization(tokenizeTo);
+    return { matches, settingsGroups };
+  }
+  writeSettingsGroupToBuilder(builder, settingsGroup, filterMatches) {
+    filterMatches = filterMatches.map((filteredMatch) => {
+      return {
+        setting: filteredMatch.setting,
+        score: filteredMatch.score,
+        matchType: filteredMatch.matchType,
+        keyMatchScore: filteredMatch.keyMatchScore,
+        matches: filteredMatch.matches && filteredMatch.matches.map((match) => {
+          return new Range(match.startLineNumber - filteredMatch.setting.range.startLineNumber, match.startColumn, match.endLineNumber - filteredMatch.setting.range.startLineNumber, match.endColumn);
+        })
+      };
+    });
+    builder.pushGroup(settingsGroup);
+    const fixedMatches = filterMatches.map((m) => m.matches || []).flatMap((settingMatches, i) => {
+      const setting = settingsGroup.sections[0].settings[i];
+      return settingMatches.map((range) => {
+        return new Range(range.startLineNumber + setting.range.startLineNumber, range.startColumn, range.endLineNumber + setting.range.startLineNumber, range.endColumn);
+      });
+    });
+    return fixedMatches;
+  }
+  copySetting(setting) {
+    return {
+      description: setting.description,
+      scope: setting.scope,
+      type: setting.type,
+      enum: setting.enum,
+      enumDescriptions: setting.enumDescriptions,
+      key: setting.key,
+      value: setting.value,
+      range: setting.range,
+      overrides: [],
+      overrideOf: setting.overrideOf,
+      tags: setting.tags,
+      deprecationMessage: setting.deprecationMessage,
+      keyRange: nullRange,
+      valueRange: nullRange,
+      descriptionIsMarkdown: void 0,
+      descriptionRanges: []
+    };
+  }
+  getPreference(key) {
+    for (const group of this.settingsGroups) {
+      for (const section of group.sections) {
+        for (const setting of section.settings) {
+          if (setting.key === key) {
+            return setting;
+          }
+        }
+      }
+    }
+    return void 0;
+  }
+  getGroup(resultGroup) {
+    return {
+      id: resultGroup.id,
+      range: nullRange,
+      title: resultGroup.label,
+      titleRange: nullRange,
+      sections: [
+        {
+          settings: resultGroup.result.filterMatches.map((m) => this.copySetting(m.setting))
+        }
+      ]
+    };
+  }
+}
+class SettingsContentBuilder {
+  static {
+    __name(this, "SettingsContentBuilder");
+  }
+  get lineCountWithOffset() {
+    return this._contentByLines.length + this._rangeOffset;
+  }
+  get lastLine() {
+    return this._contentByLines[this._contentByLines.length - 1] || "";
+  }
+  constructor(_rangeOffset = 0) {
+    this._rangeOffset = _rangeOffset;
+    this._contentByLines = [];
+  }
+  pushLine(...lineText) {
+    this._contentByLines.push(...lineText);
+  }
+  pushGroup(settingsGroups, isFirst, isLast) {
+    this._contentByLines.push(isFirst ? "[{" : "{");
+    const lastSetting = this._pushGroup(settingsGroups, "  ");
+    if (lastSetting) {
+      const lineIdx = lastSetting.range.endLineNumber - this._rangeOffset;
+      const content = this._contentByLines[lineIdx - 2];
+      this._contentByLines[lineIdx - 2] = content.substring(0, content.length - 1);
+    }
+    this._contentByLines.push(isLast ? "}]" : "},");
+  }
+  _pushGroup(group, indent) {
+    let lastSetting = null;
+    const groupStart = this.lineCountWithOffset + 1;
+    for (const section of group.sections) {
+      if (section.title) {
+        this.addDescription([section.title], indent, this._contentByLines);
+      }
+      if (section.settings.length) {
+        for (const setting of section.settings) {
+          this.pushSetting(setting, indent);
+          lastSetting = setting;
+        }
+      }
+    }
+    group.range = { startLineNumber: groupStart, startColumn: 1, endLineNumber: this.lineCountWithOffset, endColumn: this.lastLine.length };
+    return lastSetting;
+  }
+  getContent() {
+    return this._contentByLines.join("\n");
+  }
+  pushSetting(setting, indent) {
+    const settingStart = this.lineCountWithOffset + 1;
+    this.pushSettingDescription(setting, indent);
+    let preValueContent = indent;
+    const keyString = JSON.stringify(setting.key);
+    preValueContent += keyString;
+    setting.keyRange = { startLineNumber: this.lineCountWithOffset + 1, startColumn: preValueContent.indexOf(setting.key) + 1, endLineNumber: this.lineCountWithOffset + 1, endColumn: setting.key.length };
+    preValueContent += ": ";
+    const valueStart = this.lineCountWithOffset + 1;
+    this.pushValue(setting, preValueContent, indent);
+    setting.valueRange = { startLineNumber: valueStart, startColumn: preValueContent.length + 1, endLineNumber: this.lineCountWithOffset, endColumn: this.lastLine.length + 1 };
+    this._contentByLines[this._contentByLines.length - 1] += ",";
+    this._contentByLines.push("");
+    setting.range = { startLineNumber: settingStart, startColumn: 1, endLineNumber: this.lineCountWithOffset, endColumn: this.lastLine.length };
+  }
+  pushSettingDescription(setting, indent) {
+    const fixSettingLink = /* @__PURE__ */ __name((line) => line.replace(/`#(.*)#`/g, (match, settingName) => `\`${settingName}\``), "fixSettingLink");
+    setting.descriptionRanges = [];
+    const descriptionPreValue = indent + "// ";
+    const deprecationMessageLines = setting.deprecationMessage?.split(/\n/g) ?? [];
+    for (let line of [...deprecationMessageLines, ...setting.description]) {
+      line = fixSettingLink(line);
+      this._contentByLines.push(descriptionPreValue + line);
+      setting.descriptionRanges.push({ startLineNumber: this.lineCountWithOffset, startColumn: this.lastLine.indexOf(line) + 1, endLineNumber: this.lineCountWithOffset, endColumn: this.lastLine.length });
+    }
+    if (setting.enum && setting.enumDescriptions?.some((desc) => !!desc)) {
+      setting.enumDescriptions.forEach((desc, i) => {
+        const displayEnum = escapeInvisibleChars(String(setting.enum[i]));
+        const line = desc ? `${displayEnum}: ${fixSettingLink(desc)}` : displayEnum;
+        const lines = line.split(/\n/g);
+        lines[0] = " - " + lines[0];
+        this._contentByLines.push(...lines.map((l) => `${indent}// ${l}`));
+        setting.descriptionRanges.push({ startLineNumber: this.lineCountWithOffset, startColumn: this.lastLine.indexOf(line) + 1, endLineNumber: this.lineCountWithOffset, endColumn: this.lastLine.length });
+      });
+    }
+  }
+  pushValue(setting, preValueConent, indent) {
+    const valueString = JSON.stringify(setting.value, null, indent);
+    if (valueString && typeof setting.value === "object") {
+      if (setting.overrides && setting.overrides.length) {
+        this._contentByLines.push(preValueConent + " {");
+        for (const subSetting of setting.overrides) {
+          this.pushSetting(subSetting, indent + indent);
+          this._contentByLines.pop();
+        }
+        const lastSetting = setting.overrides[setting.overrides.length - 1];
+        const content = this._contentByLines[lastSetting.range.endLineNumber - 2];
+        this._contentByLines[lastSetting.range.endLineNumber - 2] = content.substring(0, content.length - 1);
+        this._contentByLines.push(indent + "}");
+      } else {
+        const mulitLineValue = valueString.split("\n");
+        this._contentByLines.push(preValueConent + mulitLineValue[0]);
+        for (let i = 1; i < mulitLineValue.length; i++) {
+          this._contentByLines.push(indent + mulitLineValue[i]);
+        }
+      }
+    } else {
+      this._contentByLines.push(preValueConent + valueString);
+    }
+  }
+  addDescription(description, indent, result) {
+    for (const line of description) {
+      result.push(indent + "// " + line);
+    }
+  }
+}
+class RawSettingsContentBuilder extends SettingsContentBuilder {
+  static {
+    __name(this, "RawSettingsContentBuilder");
+  }
+  constructor(indent = "	") {
+    super(0);
+    this.indent = indent;
+  }
+  pushGroup(settingsGroups) {
+    this._pushGroup(settingsGroups, this.indent);
+  }
+}
+class DefaultRawSettingsEditorModel extends Disposable {
+  static {
+    __name(this, "DefaultRawSettingsEditorModel");
+  }
+  constructor(defaultSettings) {
+    super();
+    this.defaultSettings = defaultSettings;
+    this._content = null;
+    this._onDidContentChanged = this._register(new Emitter());
+    this.onDidContentChanged = this._onDidContentChanged.event;
+    this._register(defaultSettings.onDidChange(() => {
+      this._content = null;
+      this._onDidContentChanged.fire();
+    }));
+  }
+  get content() {
+    if (this._content === null) {
+      const builder = new RawSettingsContentBuilder();
+      builder.pushLine("{");
+      for (const settingsGroup of this.defaultSettings.getRegisteredGroups()) {
+        builder.pushGroup(settingsGroup);
+      }
+      builder.pushLine("}");
+      this._content = builder.getContent();
+    }
+    return this._content;
+  }
+}
+function escapeInvisibleChars(enumValue) {
+  return enumValue && enumValue.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+}
+__name(escapeInvisibleChars, "escapeInvisibleChars");
+function defaultKeybindingsContents(keybindingService) {
+  const defaultsHeader = "// " + nls.localize("defaultKeybindingsHeader", "Override key bindings by placing them into your key bindings file.");
+  return defaultsHeader + "\n" + keybindingService.getDefaultKeybindingsContent();
+}
+__name(defaultKeybindingsContents, "defaultKeybindingsContents");
+let DefaultKeybindingsEditorModel = class DefaultKeybindingsEditorModel2 {
+  static {
+    __name(this, "DefaultKeybindingsEditorModel");
+  }
+  constructor(_uri, keybindingService) {
+    this._uri = _uri;
+    this.keybindingService = keybindingService;
+  }
+  get uri() {
+    return this._uri;
+  }
+  get content() {
+    if (!this._content) {
+      this._content = defaultKeybindingsContents(this.keybindingService);
+    }
+    return this._content;
+  }
+  getPreference() {
+    return null;
+  }
+  dispose() {
+  }
+};
+DefaultKeybindingsEditorModel = __decorate([
+  __param(1, IKeybindingService)
+], DefaultKeybindingsEditorModel);
+export {
+  DefaultKeybindingsEditorModel,
+  DefaultRawSettingsEditorModel,
+  DefaultSettings,
+  DefaultSettingsEditorModel,
+  Settings2EditorModel,
+  SettingsEditorModel,
+  WorkspaceConfigurationEditorModel,
+  defaultKeybindingsContents,
+  nullRange
+};
+//# sourceMappingURL=preferencesModels.js.map

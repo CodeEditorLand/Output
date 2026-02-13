@@ -1,5 +1,512 @@
-import"./media/panel.css";import*as h from"../../../../nls.js";import*as a from"../../../../base/browser/dom.js";import{$Fh as $}from"../../../../base/common/resources.js";import{$Mj as A}from"../../../../platform/instantiation/common/instantiation.js";import{$qu as R}from"../../../../platform/theme/common/themeService.js";import{$HHb as m,$IHb as d}from"../common/commentModel.js";import{$NHb as z}from"./commentService.js";import{$BL as B}from"../../../services/editor/common/editorService.js";import{$eQb as W}from"../../../browser/labels.js";import{$78b as k,$28b as U,$68b as V}from"./commentsTreeViewer.js";import{$1Bb as E}from"../../../browser/parts/views/viewPane.js";import{$FN as I}from"../../../common/views.js";import{$0l as H}from"../../../../platform/configuration/common/configuration.js";import{$ro as j,$qo as v}from"../../../../platform/contextkey/common/contextkey.js";import{$ijb as O}from"../../../../platform/contextview/browser/contextView.js";import{$fy as P}from"../../../../platform/keybinding/common/keybinding.js";import{$EP as _}from"../../../../platform/opener/common/opener.js";import{$$o as G}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$98b as q}from"./comments.js";import{$88b as X}from"./commentsViewActions.js";import{$JZ as Z}from"../../../common/memento.js";import{$hp as J}from"../../../../platform/storage/common/storage.js";import{$Y8b as y}from"./commentsFilterOptions.js";import{CommentThreadApplicability as Q,CommentThreadState as w}from"../../../../editor/common/languages.js";import{$g9b as Y}from"./commentsController.js";import{$sIb as K}from"../../../browser/actions/widgetNavigationCommands.js";import{$MHb as b,$LHb as tt}from"./commentsModel.js";import{$jkb as et}from"../../../../platform/hover/browser/hover.js";import{$j9b as st}from"../../accessibility/browser/accessibleViewActions.js";import{$D1 as it}from"../../../services/path/common/pathService.js";import{$Gdb as ot}from"../../../../editor/browser/editorBrowser.js";var M=function(f,t,e,s){var i=arguments.length,o=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,e,s);else for(var n=f.length-1;n>=0;n--)(r=f[n])&&(o=(i<3?r(o):i>3?r(t,e,o):r(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},c=function(f,t){return function(e,s){t(e,s,f)}};const rt=new v("commentsView.hasComments",!1),nt=new v("commentsView.someCommentsExpanded",!1),ct=new v("commentsView.commentFocused",!1),ht="commentsViewState";function lt(f){const t=[];for(const e of f.resourceCommentThreads){const s=[];for(const i of e.commentThreads)tt(i.thread)&&s.push({element:i});s.length>0&&t.push({element:e,children:s})}return t}let D=class extends E{get focusedCommentNode(){const t=this.f?.getFocus();if(t?.length===1&&t[0]instanceof m)return t[0]}get focusedCommentInfo(){if(this.focusedCommentNode)return this.xc(this.focusedCommentNode)}focusNextNode(){if(!this.f)return;const t=this.f.getFocus()?.[0];if(!t)return;let e=this.f.navigate(t).next();for(;e&&!(e instanceof m);)e=this.f.navigate(e).next();e&&this.f.setFocus([e])}focusPreviousNode(){if(!this.f)return;const t=this.f.getFocus()?.[0];if(!t)return;let e=this.f.navigate(t).previous();for(;e&&!(e instanceof m);)e=this.f.navigate(e).previous();e&&this.f.setFocus([e])}constructor(t,e,s,i,o,r,n,l,u,F,T,L,x,N,S){const C=new Z(ht,N),p=C.getMemento(1,1);super({...t,filterOptions:{placeholder:h.localize(7480,null),ariaLabel:h.localize(7481,null),history:p.filterHistory||[],text:p.filter||"",focusContextKey:q.key}},l,n,o,r,s,e,u,F,L),this.lc=i,this.mc=T,this.nc=x,this.oc=S,this.sb=0,this.gc=0,this.hc=0,this.kc=void 0,this.onDidChangeVisibility=this.onDidChangeBodyVisibility,this.cc=rt.bindTo(r),this.dc=nt.bindTo(r),this.ec=ct.bindTo(r),this.jc=C,this.ic=p,this.filters=this.D(new X({showResolved:this.ic.showResolved!==!1,showUnresolved:this.ic.showUnresolved!==!1,sortBy:this.ic.sortBy??"resourceAscending"},this.Db)),this.fc=new V(new y(this.filterWidget.getFilterText(),this.filters.showResolved,this.filters.showUnresolved)),this.D(this.filters.onDidChange(g=>{(g.showResolved||g.showUnresolved)&&this.pc(),g.sortBy&&this.Cc()})),this.D(this.filterWidget.onDidChangeFilterText(()=>this.pc()))}saveState(){this.ic.filter=this.filterWidget.getFilterText(),this.ic.filterHistory=this.filterWidget.getHistory(),this.ic.showResolved=this.filters.showResolved,this.ic.showUnresolved=this.filters.showUnresolved,this.ic.sortBy=this.filters.sortBy,this.jc.saveMemento(),super.saveState()}render(){super.render(),this.D(K({name:"commentsView",focusNotifiers:[this,this.filterWidget],focusNextWidget:()=>{this.filterWidget.hasFocus()&&this.focus()},focusPreviousWidget:()=>{this.filterWidget.hasFocus()||this.focusFilter()}}))}focusFilter(){this.filterWidget.focus()}clearFilterText(){this.filterWidget.setFilterText("")}getFilterStats(){return this.kc||(this.kc={total:this.sb,filtered:this.f?.getVisibleItemCount()??0}),this.kc}pc(){this.fc.options=new y(this.filterWidget.getFilterText(),this.filters.showResolved,this.filters.showUnresolved),this.f?.filterComments(),this.kc=void 0;const{total:t,filtered:e}=this.getFilterStats();this.filterWidget.updateBadge(t===e||t===0?void 0:h.localize(7482,null,e,t)),this.filterWidget.checkMoreFilters(!this.filters.showResolved||!this.filters.showUnresolved)}X(t){super.X(t),t.classList.add("comments-panel");const e=a.$y9(t,a.$(".comments-panel-container"));this.h=a.$y9(e,a.$(".tree-container")),this.h.classList.add("file-icon-themable-tree","show-file-icons"),this.kc=void 0,this.Ac(),this.tc(e),this.D(this.mc.onDidSetAllCommentThreads(this.Dc,this)),this.D(this.mc.onDidUpdateCommentThreads(this.Ec,this)),this.D(this.mc.onDidDeleteDataProvider(this.Fc,this)),this.D(this.onDidChangeBodyVisibility(s=>{s&&this.Cc()})),this.rc()}focus(){super.focus();const t=this.f?.getHTMLElement();t&&a.$08(t)||(!this.mc.commentsModel.hasCommentThreads()&&this.s?this.s.focus():this.f&&this.f.domFocus())}rc(){this.h.classList.toggle("hidden",!this.mc.commentsModel.hasCommentThreads()),this.uc(),this.f?.setChildren(null,lt(this.mc.commentsModel))}collapseAll(){this.f&&(this.f.collapseAll(),this.f.setSelection([]),this.f.setFocus([]),this.f.domFocus(),this.f.focusFirst())}expandAll(){this.f&&(this.f.expandAll(),this.f.setSelection([]),this.f.setFocus([]),this.f.domFocus(),this.f.focusFirst())}get hasRendered(){return!!this.f}L(t=this.gc,e=this.hc){this.s&&(this.s.style.height=`${t}px`),this.f?.layout(t,e),this.gc=t,this.hc=e}tc(t){this.s=a.$y9(t,a.$(".message-box-container")),this.s.setAttribute("tabIndex","0")}uc(){this.s.textContent=this.mc.commentsModel.getMessage(),this.s.classList.toggle("hidden",this.mc.commentsModel.hasCommentThreads())}vc(t,e){const s=$(t);return e?e.startLineNumber===e.endLineNumber?h.localize(7484,null,e.startLineNumber,e.startColumn,s):h.localize(7485,null,e.startLineNumber,e.endLineNumber,s):h.localize(7483,null,s)}wc(t,e){const s=t.comment.userName,i=this.vc(t.resource,t.range),o=this.zc(t,e),r=typeof t.comment.body=="string"?t.comment.body:t.comment.body.value;return{userName:s,locationLabel:i,replyCountLabel:o,bodyLabel:r}}xc(t,e){let s="";if(e&&this.Cb.getValue("accessibility.verbosity.comments")){const u=this.Ab.lookupKeybinding(st.id)?.getAriaLabel();s=u?h.localize(7486,null,u):h.localize(7487,null)}const i=this.yc(t,e),o=this.lc.findEditors(t.resource),r=this.lc.activeEditorPane?.getControl();let n;t.range&&o?.length&&ot(r)&&(n=r.getModel()?.getValueInRange(t.range),n&&(n=`
-Corresponding code: 
-`+n)),n||(n="");const l=this.wc(t,e);return t.threadRelevance===Q.Outdated?h.localize(7488,null,l.userName,l.bodyLabel,l.locationLabel,l.replyCountLabel,n)+i+s:h.localize(7489,null,l.userName,l.bodyLabel,l.locationLabel,l.replyCountLabel,n)+i+s}yc(t,e){return!t.replies.length||e?"":`
-`+t.replies.map(s=>h.localize(7490,null,s.comment.userName,typeof s.comment.body=="string"?s.comment.body:s.comment.body.value)).join(`
-`)}zc(t,e){return t.replies.length&&!e?h.localize(7491,null,t.replies.length):""}Ac(){this.c=this.D(this.Fb.createInstance(W,this)),this.f=this.D(this.Fb.createInstance(k,this.c,this.h,{overrideStyles:this.Zb().listOverrideStyles,selectionNavigation:!0,filter:this.fc,sorter:{compare:(t,e)=>{if(t instanceof b||e instanceof b)return 0;if(this.filters.sortBy==="updatedAtDescending")return t.lastUpdatedAt>e.lastUpdatedAt?-1:1;if(this.filters.sortBy==="resourceAscending"){if(t instanceof d&&e instanceof d){const s=this.oc.defaultUriScheme;return t.resource.scheme!==e.resource.scheme&&(t.resource.scheme===s||e.resource.scheme===s)?e.resource.scheme===s?1:-1:t.resource.toString()>e.resource.toString()?1:-1}else if(t instanceof m&&e instanceof m&&t.thread.range&&e.thread.range)return t.thread.range?.startLineNumber>e.thread.range?.startLineNumber?1:-1}return 0}},keyboardNavigationLabelProvider:{getKeyboardNavigationLabel:t=>{}},accessibilityProvider:{getAriaLabel:t=>t instanceof b?h.localize(7492,null):t instanceof d?h.localize(7493,null,$(t.resource),t.resource.fsPath):t instanceof m?this.xc(t,!0):"",getWidgetAriaLabel(){return U.value}}})),this.D(this.f.onDidOpen(t=>{this.Bc(t.element,t.editorOptions.pinned,t.editorOptions.preserveFocus,t.sideBySide)})),this.D(this.f.onDidChangeModel(()=>{this.Gc()})),this.D(this.f.onDidChangeCollapseState(()=>{this.Gc()})),this.D(this.f.onDidFocus(()=>this.ec.set(!0))),this.D(this.f.onDidBlur(()=>this.ec.set(!1)))}Bc(t,e,s,i){if(!t||!(t instanceof d||t instanceof m))return;const o=t instanceof d?t.commentThreads[0].thread:t.thread,r=t instanceof d?t.commentThreads[0].comment:void 0;return Y(this.mc,this.lc,this.nc,o,r,!1,e,s,i)}async Cc(){if(this.f&&this.isVisible()&&(this.cc.set(this.mc.commentsModel.hasCommentThreads()),this.kc=void 0,this.rc(),this.f.getSelection().length===0&&this.mc.commentsModel.hasCommentThreads())){const t=this.mc.commentsModel.resourceCommentThreads[0].commentThreads[0];t&&(this.f.setFocus([t]),this.f.setSelection([t]))}}Dc(t){this.kc=void 0,this.sb+=t.commentThreads.length;let e=0;for(const s of t.commentThreads)s.state===w.Unresolved&&e++;this.Cc()}Ec(t){this.kc=void 0,this.sb+=t.added.length,this.sb-=t.removed.length;let e=0;for(const s of this.mc.commentsModel.resourceCommentThreads)for(const i of s.commentThreads)i.threadState===w.Unresolved&&e++;this.Cc()}Fc(t){this.kc=void 0,this.sb=0,this.Cc()}Gc(){this.dc.set(this.isSomeCommentsExpanded())}areAllCommentsExpanded(){if(!this.f)return!1;const t=this.f.navigate();for(;t.next();)if(this.f.isCollapsed(t.current()))return!1;return!0}isSomeCommentsExpanded(){if(!this.f)return!1;const t=this.f.navigate();for(;t.next();)if(!this.f.isCollapsed(t.current()))return!0;return!1}};D=M([c(1,A),c(2,I),c(3,B),c(4,H),c(5,j),c(6,O),c(7,P),c(8,_),c(9,R),c(10,z),c(11,et),c(12,G),c(13,J),c(14,it)],D);export{rt as $k9b,nt as $l9b,ct as $m9b,D as $n9b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/panel.css";
+import * as nls from "../../../../nls.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { basename } from "../../../../base/common/resources.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { CommentNode, ResourceWithCommentThreads } from "../common/commentModel.js";
+import { ICommentService } from "./commentService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ResourceLabels } from "../../../browser/labels.js";
+import { CommentsList, COMMENTS_VIEW_TITLE, Filter } from "./commentsTreeViewer.js";
+import { FilterViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { CommentsViewFilterFocusContextKey } from "./comments.js";
+import { CommentsFilters } from "./commentsViewActions.js";
+import { Memento } from "../../../common/memento.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { FilterOptions } from "./commentsFilterOptions.js";
+import { CommentThreadApplicability, CommentThreadState } from "../../../../editor/common/languages.js";
+import { revealCommentThread } from "./commentsController.js";
+import { registerNavigableContainer } from "../../../browser/actions/widgetNavigationCommands.js";
+import { CommentsModel, threadHasMeaningfulComments } from "./commentsModel.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { AccessibleViewAction } from "../../accessibility/browser/accessibleViewActions.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+const CONTEXT_KEY_HAS_COMMENTS = new RawContextKey("commentsView.hasComments", false);
+const CONTEXT_KEY_SOME_COMMENTS_EXPANDED = new RawContextKey("commentsView.someCommentsExpanded", false);
+const CONTEXT_KEY_COMMENT_FOCUSED = new RawContextKey("commentsView.commentFocused", false);
+const VIEW_STORAGE_ID = "commentsViewState";
+function createResourceCommentsIterator(model) {
+  const result = [];
+  for (const m of model.resourceCommentThreads) {
+    const children = [];
+    for (const r of m.commentThreads) {
+      if (threadHasMeaningfulComments(r.thread)) {
+        children.push({ element: r });
+      }
+    }
+    if (children.length > 0) {
+      result.push({ element: m, children });
+    }
+  }
+  return result;
+}
+__name(createResourceCommentsIterator, "createResourceCommentsIterator");
+let CommentsPanel = class CommentsPanel2 extends FilterViewPane {
+  static {
+    __name(this, "CommentsPanel");
+  }
+  get focusedCommentNode() {
+    const focused = this.tree?.getFocus();
+    if (focused?.length === 1 && focused[0] instanceof CommentNode) {
+      return focused[0];
+    }
+    return void 0;
+  }
+  get focusedCommentInfo() {
+    if (!this.focusedCommentNode) {
+      return;
+    }
+    return this.getScreenReaderInfoForNode(this.focusedCommentNode);
+  }
+  focusNextNode() {
+    if (!this.tree) {
+      return;
+    }
+    const focused = this.tree.getFocus()?.[0];
+    if (!focused) {
+      return;
+    }
+    let next = this.tree.navigate(focused).next();
+    while (next && !(next instanceof CommentNode)) {
+      next = this.tree.navigate(next).next();
+    }
+    if (!next) {
+      return;
+    }
+    this.tree.setFocus([next]);
+  }
+  focusPreviousNode() {
+    if (!this.tree) {
+      return;
+    }
+    const focused = this.tree.getFocus()?.[0];
+    if (!focused) {
+      return;
+    }
+    let previous = this.tree.navigate(focused).previous();
+    while (previous && !(previous instanceof CommentNode)) {
+      previous = this.tree.navigate(previous).previous();
+    }
+    if (!previous) {
+      return;
+    }
+    this.tree.setFocus([previous]);
+  }
+  constructor(options, instantiationService, viewDescriptorService, editorService, configurationService, contextKeyService, contextMenuService, keybindingService, openerService, themeService, commentService, hoverService, uriIdentityService, storageService, pathService) {
+    const stateMemento = new Memento(VIEW_STORAGE_ID, storageService);
+    const viewState = stateMemento.getMemento(
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    super({
+      ...options,
+      filterOptions: {
+        placeholder: nls.localize("comments.filter.placeholder", "Filter (e.g. text, author)"),
+        ariaLabel: nls.localize("comments.filter.ariaLabel", "Filter comments"),
+        history: viewState.filterHistory || [],
+        text: viewState.filter || "",
+        focusContextKey: CommentsViewFilterFocusContextKey.key
+      }
+    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.editorService = editorService;
+    this.commentService = commentService;
+    this.uriIdentityService = uriIdentityService;
+    this.pathService = pathService;
+    this.totalComments = 0;
+    this.currentHeight = 0;
+    this.currentWidth = 0;
+    this.cachedFilterStats = void 0;
+    this.onDidChangeVisibility = this.onDidChangeBodyVisibility;
+    this.hasCommentsContextKey = CONTEXT_KEY_HAS_COMMENTS.bindTo(contextKeyService);
+    this.someCommentsExpandedContextKey = CONTEXT_KEY_SOME_COMMENTS_EXPANDED.bindTo(contextKeyService);
+    this.commentsFocusedContextKey = CONTEXT_KEY_COMMENT_FOCUSED.bindTo(contextKeyService);
+    this.stateMemento = stateMemento;
+    this.viewState = viewState;
+    this.filters = this._register(new CommentsFilters({
+      showResolved: this.viewState.showResolved !== false,
+      showUnresolved: this.viewState.showUnresolved !== false,
+      sortBy: this.viewState.sortBy ?? "resourceAscending"
+    }, this.contextKeyService));
+    this.filter = new Filter(new FilterOptions(this.filterWidget.getFilterText(), this.filters.showResolved, this.filters.showUnresolved));
+    this._register(this.filters.onDidChange((event) => {
+      if (event.showResolved || event.showUnresolved) {
+        this.updateFilter();
+      }
+      if (event.sortBy) {
+        this.refresh();
+      }
+    }));
+    this._register(this.filterWidget.onDidChangeFilterText(() => this.updateFilter()));
+  }
+  saveState() {
+    this.viewState.filter = this.filterWidget.getFilterText();
+    this.viewState.filterHistory = this.filterWidget.getHistory();
+    this.viewState.showResolved = this.filters.showResolved;
+    this.viewState.showUnresolved = this.filters.showUnresolved;
+    this.viewState.sortBy = this.filters.sortBy;
+    this.stateMemento.saveMemento();
+    super.saveState();
+  }
+  render() {
+    super.render();
+    this._register(registerNavigableContainer({
+      name: "commentsView",
+      focusNotifiers: [this, this.filterWidget],
+      focusNextWidget: /* @__PURE__ */ __name(() => {
+        if (this.filterWidget.hasFocus()) {
+          this.focus();
+        }
+      }, "focusNextWidget"),
+      focusPreviousWidget: /* @__PURE__ */ __name(() => {
+        if (!this.filterWidget.hasFocus()) {
+          this.focusFilter();
+        }
+      }, "focusPreviousWidget")
+    }));
+  }
+  focusFilter() {
+    this.filterWidget.focus();
+  }
+  clearFilterText() {
+    this.filterWidget.setFilterText("");
+  }
+  getFilterStats() {
+    if (!this.cachedFilterStats) {
+      this.cachedFilterStats = {
+        total: this.totalComments,
+        filtered: this.tree?.getVisibleItemCount() ?? 0
+      };
+    }
+    return this.cachedFilterStats;
+  }
+  updateFilter() {
+    this.filter.options = new FilterOptions(this.filterWidget.getFilterText(), this.filters.showResolved, this.filters.showUnresolved);
+    this.tree?.filterComments();
+    this.cachedFilterStats = void 0;
+    const { total, filtered } = this.getFilterStats();
+    this.filterWidget.updateBadge(total === filtered || total === 0 ? void 0 : nls.localize("showing filtered results", "Showing {0} of {1}", filtered, total));
+    this.filterWidget.checkMoreFilters(!this.filters.showResolved || !this.filters.showUnresolved);
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    container.classList.add("comments-panel");
+    const domContainer = dom.append(container, dom.$(".comments-panel-container"));
+    this.treeContainer = dom.append(domContainer, dom.$(".tree-container"));
+    this.treeContainer.classList.add("file-icon-themable-tree", "show-file-icons");
+    this.cachedFilterStats = void 0;
+    this.createTree();
+    this.createMessageBox(domContainer);
+    this._register(this.commentService.onDidSetAllCommentThreads(this.onAllCommentsChanged, this));
+    this._register(this.commentService.onDidUpdateCommentThreads(this.onCommentsUpdated, this));
+    this._register(this.commentService.onDidDeleteDataProvider(this.onDataProviderDeleted, this));
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (visible) {
+        this.refresh();
+      }
+    }));
+    this.renderComments();
+  }
+  focus() {
+    super.focus();
+    const element = this.tree?.getHTMLElement();
+    if (element && dom.isActiveElement(element)) {
+      return;
+    }
+    if (!this.commentService.commentsModel.hasCommentThreads() && this.messageBoxContainer) {
+      this.messageBoxContainer.focus();
+    } else if (this.tree) {
+      this.tree.domFocus();
+    }
+  }
+  renderComments() {
+    this.treeContainer.classList.toggle("hidden", !this.commentService.commentsModel.hasCommentThreads());
+    this.renderMessage();
+    this.tree?.setChildren(null, createResourceCommentsIterator(this.commentService.commentsModel));
+  }
+  collapseAll() {
+    if (this.tree) {
+      this.tree.collapseAll();
+      this.tree.setSelection([]);
+      this.tree.setFocus([]);
+      this.tree.domFocus();
+      this.tree.focusFirst();
+    }
+  }
+  expandAll() {
+    if (this.tree) {
+      this.tree.expandAll();
+      this.tree.setSelection([]);
+      this.tree.setFocus([]);
+      this.tree.domFocus();
+      this.tree.focusFirst();
+    }
+  }
+  get hasRendered() {
+    return !!this.tree;
+  }
+  layoutBodyContent(height = this.currentHeight, width = this.currentWidth) {
+    if (this.messageBoxContainer) {
+      this.messageBoxContainer.style.height = `${height}px`;
+    }
+    this.tree?.layout(height, width);
+    this.currentHeight = height;
+    this.currentWidth = width;
+  }
+  createMessageBox(parent) {
+    this.messageBoxContainer = dom.append(parent, dom.$(".message-box-container"));
+    this.messageBoxContainer.setAttribute("tabIndex", "0");
+  }
+  renderMessage() {
+    this.messageBoxContainer.textContent = this.commentService.commentsModel.getMessage();
+    this.messageBoxContainer.classList.toggle("hidden", this.commentService.commentsModel.hasCommentThreads());
+  }
+  makeCommentLocationLabel(file, range) {
+    const fileLabel = basename(file);
+    if (!range) {
+      return nls.localize("fileCommentLabel", "in {0}", fileLabel);
+    }
+    if (range.startLineNumber === range.endLineNumber) {
+      return nls.localize("oneLineCommentLabel", "at line {0} column {1} in {2}", range.startLineNumber, range.startColumn, fileLabel);
+    } else {
+      return nls.localize("multiLineCommentLabel", "from line {0} to line {1} in {2}", range.startLineNumber, range.endLineNumber, fileLabel);
+    }
+  }
+  makeScreenReaderLabelInfo(element, forAriaLabel) {
+    const userName = element.comment.userName;
+    const locationLabel = this.makeCommentLocationLabel(element.resource, element.range);
+    const replyCountLabel = this.getReplyCountAsString(element, forAriaLabel);
+    const bodyLabel = typeof element.comment.body === "string" ? element.comment.body : element.comment.body.value;
+    return { userName, locationLabel, replyCountLabel, bodyLabel };
+  }
+  getScreenReaderInfoForNode(element, forAriaLabel) {
+    let accessibleViewHint = "";
+    if (forAriaLabel && this.configurationService.getValue(
+      "accessibility.verbosity.comments"
+      /* AccessibilityVerbositySettingId.Comments */
+    )) {
+      const kbLabel = this.keybindingService.lookupKeybinding(AccessibleViewAction.id)?.getAriaLabel();
+      accessibleViewHint = kbLabel ? nls.localize("accessibleViewHint", "\nInspect this in the accessible view ({0}).", kbLabel) : nls.localize("acessibleViewHintNoKbOpen", "\nInspect this in the accessible view via the command Open Accessible View which is currently not triggerable via keybinding.");
+    }
+    const replies = this.getRepliesAsString(element, forAriaLabel);
+    const editor = this.editorService.findEditors(element.resource);
+    const codeEditor = this.editorService.activeEditorPane?.getControl();
+    let relevantLines;
+    if (element.range && editor?.length && isCodeEditor(codeEditor)) {
+      relevantLines = codeEditor.getModel()?.getValueInRange(element.range);
+      if (relevantLines) {
+        relevantLines = "\nCorresponding code: \n" + relevantLines;
+      }
+    }
+    if (!relevantLines) {
+      relevantLines = "";
+    }
+    const labelInfo = this.makeScreenReaderLabelInfo(element, forAriaLabel);
+    if (element.threadRelevance === CommentThreadApplicability.Outdated) {
+      return nls.localize("resourceWithCommentLabelOutdated", "Outdated from {0}: {1}\n{2}\n{3}\n{4}", labelInfo.userName, labelInfo.bodyLabel, labelInfo.locationLabel, labelInfo.replyCountLabel, relevantLines) + replies + accessibleViewHint;
+    } else {
+      return nls.localize("resourceWithCommentLabel", "{0}: {1}\n{2}\n{3}\n{4}", labelInfo.userName, labelInfo.bodyLabel, labelInfo.locationLabel, labelInfo.replyCountLabel, relevantLines) + replies + accessibleViewHint;
+    }
+  }
+  getRepliesAsString(node, forAriaLabel) {
+    if (!node.replies.length || forAriaLabel) {
+      return "";
+    }
+    return "\n" + node.replies.map((reply) => nls.localize("resourceWithRepliesLabel", "{0} {1}", reply.comment.userName, typeof reply.comment.body === "string" ? reply.comment.body : reply.comment.body.value)).join("\n");
+  }
+  getReplyCountAsString(node, forAriaLabel) {
+    return node.replies.length && !forAriaLabel ? nls.localize("replyCount", " {0} replies,", node.replies.length) : "";
+  }
+  createTree() {
+    this.treeLabels = this._register(this.instantiationService.createInstance(ResourceLabels, this));
+    this.tree = this._register(this.instantiationService.createInstance(CommentsList, this.treeLabels, this.treeContainer, {
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+      selectionNavigation: true,
+      filter: this.filter,
+      sorter: {
+        compare: /* @__PURE__ */ __name((a, b) => {
+          if (a instanceof CommentsModel || b instanceof CommentsModel) {
+            return 0;
+          }
+          if (this.filters.sortBy === "updatedAtDescending") {
+            return a.lastUpdatedAt > b.lastUpdatedAt ? -1 : 1;
+          } else if (this.filters.sortBy === "resourceAscending") {
+            if (a instanceof ResourceWithCommentThreads && b instanceof ResourceWithCommentThreads) {
+              const workspaceScheme = this.pathService.defaultUriScheme;
+              if (a.resource.scheme !== b.resource.scheme && (a.resource.scheme === workspaceScheme || b.resource.scheme === workspaceScheme)) {
+                return b.resource.scheme === workspaceScheme ? 1 : -1;
+              }
+              return a.resource.toString() > b.resource.toString() ? 1 : -1;
+            } else if (a instanceof CommentNode && b instanceof CommentNode && a.thread.range && b.thread.range) {
+              return a.thread.range?.startLineNumber > b.thread.range?.startLineNumber ? 1 : -1;
+            }
+          }
+          return 0;
+        }, "compare")
+      },
+      keyboardNavigationLabelProvider: {
+        getKeyboardNavigationLabel: /* @__PURE__ */ __name((item) => {
+          return void 0;
+        }, "getKeyboardNavigationLabel")
+      },
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((element) => {
+          if (element instanceof CommentsModel) {
+            return nls.localize("rootCommentsLabel", "Comments for current workspace");
+          }
+          if (element instanceof ResourceWithCommentThreads) {
+            return nls.localize("resourceWithCommentThreadsLabel", "Comments in {0}, full path {1}", basename(element.resource), element.resource.fsPath);
+          }
+          if (element instanceof CommentNode) {
+            return this.getScreenReaderInfoForNode(element, true);
+          }
+          return "";
+        }, "getAriaLabel"),
+        getWidgetAriaLabel() {
+          return COMMENTS_VIEW_TITLE.value;
+        }
+      }
+    }));
+    this._register(this.tree.onDidOpen((e) => {
+      this.openFile(e.element, e.editorOptions.pinned, e.editorOptions.preserveFocus, e.sideBySide);
+    }));
+    this._register(this.tree.onDidChangeModel(() => {
+      this.updateSomeCommentsExpanded();
+    }));
+    this._register(this.tree.onDidChangeCollapseState(() => {
+      this.updateSomeCommentsExpanded();
+    }));
+    this._register(this.tree.onDidFocus(() => this.commentsFocusedContextKey.set(true)));
+    this._register(this.tree.onDidBlur(() => this.commentsFocusedContextKey.set(false)));
+  }
+  openFile(element, pinned, preserveFocus, sideBySide) {
+    if (!element) {
+      return;
+    }
+    if (!(element instanceof ResourceWithCommentThreads || element instanceof CommentNode)) {
+      return;
+    }
+    const threadToReveal = element instanceof ResourceWithCommentThreads ? element.commentThreads[0].thread : element.thread;
+    const commentToReveal = element instanceof ResourceWithCommentThreads ? element.commentThreads[0].comment : void 0;
+    return revealCommentThread(this.commentService, this.editorService, this.uriIdentityService, threadToReveal, commentToReveal, false, pinned, preserveFocus, sideBySide);
+  }
+  async refresh() {
+    if (!this.tree) {
+      return;
+    }
+    if (this.isVisible()) {
+      this.hasCommentsContextKey.set(this.commentService.commentsModel.hasCommentThreads());
+      this.cachedFilterStats = void 0;
+      this.renderComments();
+      if (this.tree.getSelection().length === 0 && this.commentService.commentsModel.hasCommentThreads()) {
+        const firstComment = this.commentService.commentsModel.resourceCommentThreads[0].commentThreads[0];
+        if (firstComment) {
+          this.tree.setFocus([firstComment]);
+          this.tree.setSelection([firstComment]);
+        }
+      }
+    }
+  }
+  onAllCommentsChanged(e) {
+    this.cachedFilterStats = void 0;
+    this.totalComments += e.commentThreads.length;
+    let unresolved = 0;
+    for (const thread of e.commentThreads) {
+      if (thread.state === CommentThreadState.Unresolved) {
+        unresolved++;
+      }
+    }
+    this.refresh();
+  }
+  onCommentsUpdated(e) {
+    this.cachedFilterStats = void 0;
+    this.totalComments += e.added.length;
+    this.totalComments -= e.removed.length;
+    let unresolved = 0;
+    for (const resource of this.commentService.commentsModel.resourceCommentThreads) {
+      for (const thread of resource.commentThreads) {
+        if (thread.threadState === CommentThreadState.Unresolved) {
+          unresolved++;
+        }
+      }
+    }
+    this.refresh();
+  }
+  onDataProviderDeleted(owner) {
+    this.cachedFilterStats = void 0;
+    this.totalComments = 0;
+    this.refresh();
+  }
+  updateSomeCommentsExpanded() {
+    this.someCommentsExpandedContextKey.set(this.isSomeCommentsExpanded());
+  }
+  areAllCommentsExpanded() {
+    if (!this.tree) {
+      return false;
+    }
+    const navigator = this.tree.navigate();
+    while (navigator.next()) {
+      if (this.tree.isCollapsed(navigator.current())) {
+        return false;
+      }
+    }
+    return true;
+  }
+  isSomeCommentsExpanded() {
+    if (!this.tree) {
+      return false;
+    }
+    const navigator = this.tree.navigate();
+    while (navigator.next()) {
+      if (!this.tree.isCollapsed(navigator.current())) {
+        return true;
+      }
+    }
+    return false;
+  }
+};
+CommentsPanel = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IViewDescriptorService),
+  __param(3, IEditorService),
+  __param(4, IConfigurationService),
+  __param(5, IContextKeyService),
+  __param(6, IContextMenuService),
+  __param(7, IKeybindingService),
+  __param(8, IOpenerService),
+  __param(9, IThemeService),
+  __param(10, ICommentService),
+  __param(11, IHoverService),
+  __param(12, IUriIdentityService),
+  __param(13, IStorageService),
+  __param(14, IPathService)
+], CommentsPanel);
+export {
+  CONTEXT_KEY_COMMENT_FOCUSED,
+  CONTEXT_KEY_HAS_COMMENTS,
+  CONTEXT_KEY_SOME_COMMENTS_EXPANDED,
+  CommentsPanel
+};
+//# sourceMappingURL=commentsView.js.map

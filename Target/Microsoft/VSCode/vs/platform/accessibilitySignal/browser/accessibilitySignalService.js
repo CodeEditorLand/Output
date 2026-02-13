@@ -1,1 +1,693 @@
-import{$u8 as g}from"../../../base/browser/dom.js";import{$Pf as m}from"../../../base/common/cache.js";import{$Yd as p}from"../../../base/common/equals.js";import{$Ed as S,$Dd as K,$Cd as b}from"../../../base/common/lifecycle.js";import{$th as A}from"../../../base/common/network.js";import{derived as C,observableFromEvent as M,ValueWithChangeEventFromObservable as v}from"../../../base/common/observable.js";import{localize as t}from"../../../nls.js";import{$MD as R}from"../../accessibility/common/accessibility.js";import{$0l as k}from"../../configuration/common/configuration.js";import{$Nj as w}from"../../instantiation/common/instantiation.js";import{$vib as O}from"../../observable/common/platformObservableUtils.js";import{$pp as N}from"../../telemetry/common/telemetry.js";var h=function(c,n,s,o){var i=arguments.length,a=i<3?n:o===null?o=Object.getOwnPropertyDescriptor(n,s):o,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(c,n,s,o);else for(var u=c.length-1;u>=0;u--)(d=c[u])&&(a=(i<3?d(a):i>3?d(n,s,a):d(n,s))||a);return i>3&&a&&Object.defineProperty(n,s,a),a},r=function(c,n){return function(s,o){n(s,o,c)}};const W=w("accessibilitySignalService"),Y=Symbol("AcknowledgeDocCommentsToken");let y=class extends S{constructor(n,s,o){super(),this.f=n,this.g=s,this.h=o,this.a=new Map,this.b=M(this,this.g.onDidChangeScreenReaderOptimized,()=>this.g.isScreenReaderOptimized()),this.c=new Set,this.n=new Set,this.q=new m(i=>O(i.settingsKey,{sound:"off",announcement:"off"},this.f)),this.r=new m({getCacheKey:p},i=>C(a=>{const d=this.q.get(i.signal).read(a);return!!((i.modality==="sound"||i.modality===void 0)&&(i.signal.managesOwnEnablement||f(d.sound,()=>this.b.read(a),i.userGesture))||(i.modality==="announcement"||i.modality===void 0)&&f(d.announcement,()=>this.b.read(a),i.userGesture))}).recomputeInitiallyAndOnChange(this.B))}getEnabledState(n,s,o){return new v(this.r.get({signal:n,userGesture:s,modality:o}))}async playSignal(n,s={}){const o=s.modality==="announcement"||s.modality===void 0,i=s.customAlertMessage??n.announcementMessage;o&&this.isAnnouncementEnabled(n,s.userGesture)&&i&&this.g.status(i),(s.modality==="sound"||s.modality===void 0)&&this.isSoundEnabled(n,s.userGesture)&&(this.j(n,s.source),await this.playSound(n.sound.getSound(),s.allowManyInParallel))}async playSignals(n){for(const a of n)this.j("signal"in a?a.signal:a,"source"in a?a.source:void 0);const s=n.map(a=>"signal"in a?a.signal:a),o=s.filter(a=>this.isAnnouncementEnabled(a)).map(a=>a.announcementMessage);o.length&&this.g.status(o.join(", "));const i=new Set(s.filter(a=>this.isSoundEnabled(a)).map(a=>a.sound.getSound()));await Promise.all(Array.from(i).map(a=>this.playSound(a,!0)))}j(n,s){const o=this.g.isScreenReaderOptimized(),i=n.name+(s?`::${s}`:"")+(o?"{screenReaderOptimized}":"");this.c.has(i)||this.m()===0||(this.c.add(i),this.h.publicLog2("signal.played",{signal:n.name,source:s??"",isScreenReaderOptimized:o}))}m(){const n=this.f.getValue("accessibility.signalOptions.volume");return typeof n!="number"?50:Math.max(Math.min(n,100),0)}async playSound(n,s=!1){if(!s&&this.n.has(n))return;this.n.add(n);const o=A.asBrowserUri(`vs/platform/accessibilitySignal/browser/media/${n.fileName}`).toString(!0);try{const i=this.a.get(o);if(i)i.volume=this.m()/100,i.currentTime=0,await i.play();else{const a=await F(o,this.m()/100);this.a.set(o,a)}}catch(i){i.message.includes("play() can only be initiated by a user gesture")}finally{this.n.delete(n)}}playSignalLoop(n,s){let o=!0;const i=()=>{o&&this.playSignal(n,{allowManyInParallel:!0}).finally(()=>{setTimeout(()=>{o&&i()},s)})};return i(),b(()=>o=!1)}isAnnouncementEnabled(n,s){return n.announcementMessage?this.r.get({signal:n,userGesture:!!s,modality:"announcement"}).get():!1}isSoundEnabled(n,s){return this.r.get({signal:n,userGesture:!!s,modality:"sound"}).get()}onSoundEnabledChanged(n){return this.getEnabledState(n,!1).onDidChange}getDelayMs(n,s,o){if(!this.f.getValue("accessibility.signalOptions.debouncePositionChanges"))return 0;let i;return n.name===l.errorAtPosition.name&&o==="positional"?i=this.f.getValue("accessibility.signalOptions.experimental.delays.errorAtPosition"):n.name===l.warningAtPosition.name&&o==="positional"?i=this.f.getValue("accessibility.signalOptions.experimental.delays.warningAtPosition"):i=this.f.getValue("accessibility.signalOptions.experimental.delays.general"),s==="sound"?i.sound:i.announcement}};y=h([r(0,k),r(1,R),r(2,N)],y);function f(c,n,s){return c==="on"||c==="always"||c==="auto"&&n()||c==="userGesture"&&s}async function F(c,n){const s=new K;try{return await E(c,n,s)}finally{s.dispose()}}function E(c,n,s){return new Promise((o,i)=>{const a=new Audio(c);a.volume=n,s.add(g(a,"ended",()=>{o(a)})),s.add(g(a,"error",d=>{i(d.error)})),a.play().catch(d=>{i(d)})})}class e{static a(n){return new e(n.fileName)}static{this.error=e.a({fileName:"error.mp3"})}static{this.warning=e.a({fileName:"warning.mp3"})}static{this.success=e.a({fileName:"success.mp3"})}static{this.foldedArea=e.a({fileName:"foldedAreas.mp3"})}static{this.break=e.a({fileName:"break.mp3"})}static{this.quickFixes=e.a({fileName:"quickFixes.mp3"})}static{this.taskCompleted=e.a({fileName:"taskCompleted.mp3"})}static{this.taskFailed=e.a({fileName:"taskFailed.mp3"})}static{this.terminalBell=e.a({fileName:"terminalBell.mp3"})}static{this.diffLineInserted=e.a({fileName:"diffLineInserted.mp3"})}static{this.diffLineDeleted=e.a({fileName:"diffLineDeleted.mp3"})}static{this.diffLineModified=e.a({fileName:"diffLineModified.mp3"})}static{this.requestSent=e.a({fileName:"requestSent.mp3"})}static{this.responseReceived1=e.a({fileName:"responseReceived1.mp3"})}static{this.responseReceived2=e.a({fileName:"responseReceived2.mp3"})}static{this.responseReceived3=e.a({fileName:"responseReceived3.mp3"})}static{this.responseReceived4=e.a({fileName:"responseReceived4.mp3"})}static{this.clear=e.a({fileName:"clear.mp3"})}static{this.save=e.a({fileName:"save.mp3"})}static{this.format=e.a({fileName:"format.mp3"})}static{this.voiceRecordingStarted=e.a({fileName:"voiceRecordingStarted.mp3"})}static{this.voiceRecordingStopped=e.a({fileName:"voiceRecordingStopped.mp3"})}static{this.progress=e.a({fileName:"progress.mp3"})}static{this.chatEditModifiedFile=e.a({fileName:"chatEditModifiedFile.mp3"})}static{this.editsKept=e.a({fileName:"editsKept.mp3"})}static{this.editsUndone=e.a({fileName:"editsUndone.mp3"})}static{this.nextEditSuggestion=e.a({fileName:"nextEditSuggestion.mp3"})}static{this.terminalCommandSucceeded=e.a({fileName:"terminalCommandSucceeded.mp3"})}static{this.chatUserActionRequired=e.a({fileName:"chatUserActionRequired.mp3"})}static{this.codeActionTriggered=e.a({fileName:"codeActionTriggered.mp3"})}static{this.codeActionApplied=e.a({fileName:"codeActionApplied.mp3"})}constructor(n){this.fileName=n}}class x{constructor(n){this.randomOneOf=n}getSound(n=!1){if(n||this.randomOneOf.length===1)return this.randomOneOf[0];{const s=Math.floor(Math.random()*this.randomOneOf.length);return this.randomOneOf[s]}}}class l{constructor(n,s,o,i,a,d,u=!1){this.sound=n,this.name=s,this.legacySoundSettingsKey=o,this.settingsKey=i,this.legacyAnnouncementSettingsKey=a,this.announcementMessage=d,this.managesOwnEnablement=u}static{this.a=new Set}static b(n){const s=new x("randomOneOf"in n.sound?n.sound.randomOneOf:[n.sound]),o=new l(s,n.name,n.legacySoundSettingsKey,n.settingsKey,n.legacyAnnouncementSettingsKey,n.announcementMessage,n.managesOwnEnablement);return l.a.add(o),o}static get allAccessibilitySignals(){return[...this.a]}static{this.errorAtPosition=l.b({name:t(1755,null),sound:e.error,announcementMessage:t(1756,null),settingsKey:"accessibility.signals.positionHasError",delaySettingsKey:"accessibility.signalOptions.delays.errorAtPosition"})}static{this.warningAtPosition=l.b({name:t(1757,null),sound:e.warning,announcementMessage:t(1758,null),settingsKey:"accessibility.signals.positionHasWarning",delaySettingsKey:"accessibility.signalOptions.delays.warningAtPosition"})}static{this.errorOnLine=l.b({name:t(1759,null),sound:e.error,legacySoundSettingsKey:"audioCues.lineHasError",legacyAnnouncementSettingsKey:"accessibility.alert.error",announcementMessage:t(1760,null),settingsKey:"accessibility.signals.lineHasError"})}static{this.warningOnLine=l.b({name:t(1761,null),sound:e.warning,legacySoundSettingsKey:"audioCues.lineHasWarning",legacyAnnouncementSettingsKey:"accessibility.alert.warning",announcementMessage:t(1762,null),settingsKey:"accessibility.signals.lineHasWarning"})}static{this.foldedArea=l.b({name:t(1763,null),sound:e.foldedArea,legacySoundSettingsKey:"audioCues.lineHasFoldedArea",legacyAnnouncementSettingsKey:"accessibility.alert.foldedArea",announcementMessage:t(1764,null),settingsKey:"accessibility.signals.lineHasFoldedArea"})}static{this.break=l.b({name:t(1765,null),sound:e.break,legacySoundSettingsKey:"audioCues.lineHasBreakpoint",legacyAnnouncementSettingsKey:"accessibility.alert.breakpoint",announcementMessage:t(1766,null),settingsKey:"accessibility.signals.lineHasBreakpoint"})}static{this.inlineSuggestion=l.b({name:t(1767,null),sound:e.quickFixes,legacySoundSettingsKey:"audioCues.lineHasInlineSuggestion",settingsKey:"accessibility.signals.lineHasInlineSuggestion"})}static{this.nextEditSuggestion=l.b({name:t(1768,null),sound:e.nextEditSuggestion,legacySoundSettingsKey:"audioCues.nextEditSuggestion",settingsKey:"accessibility.signals.nextEditSuggestion",announcementMessage:t(1769,null)})}static{this.terminalQuickFix=l.b({name:t(1770,null),sound:e.quickFixes,legacySoundSettingsKey:"audioCues.terminalQuickFix",legacyAnnouncementSettingsKey:"accessibility.alert.terminalQuickFix",announcementMessage:t(1771,null),settingsKey:"accessibility.signals.terminalQuickFix"})}static{this.onDebugBreak=l.b({name:t(1772,null),sound:e.break,legacySoundSettingsKey:"audioCues.onDebugBreak",legacyAnnouncementSettingsKey:"accessibility.alert.onDebugBreak",announcementMessage:t(1773,null),settingsKey:"accessibility.signals.onDebugBreak"})}static{this.noInlayHints=l.b({name:t(1774,null),sound:e.error,legacySoundSettingsKey:"audioCues.noInlayHints",legacyAnnouncementSettingsKey:"accessibility.alert.noInlayHints",announcementMessage:t(1775,null),settingsKey:"accessibility.signals.noInlayHints"})}static{this.taskCompleted=l.b({name:t(1776,null),sound:e.taskCompleted,legacySoundSettingsKey:"audioCues.taskCompleted",legacyAnnouncementSettingsKey:"accessibility.alert.taskCompleted",announcementMessage:t(1777,null),settingsKey:"accessibility.signals.taskCompleted"})}static{this.taskFailed=l.b({name:t(1778,null),sound:e.taskFailed,legacySoundSettingsKey:"audioCues.taskFailed",legacyAnnouncementSettingsKey:"accessibility.alert.taskFailed",announcementMessage:t(1779,null),settingsKey:"accessibility.signals.taskFailed"})}static{this.terminalCommandFailed=l.b({name:t(1780,null),sound:e.error,legacySoundSettingsKey:"audioCues.terminalCommandFailed",legacyAnnouncementSettingsKey:"accessibility.alert.terminalCommandFailed",announcementMessage:t(1781,null),settingsKey:"accessibility.signals.terminalCommandFailed"})}static{this.terminalCommandSucceeded=l.b({name:t(1782,null),sound:e.terminalCommandSucceeded,announcementMessage:t(1783,null),settingsKey:"accessibility.signals.terminalCommandSucceeded"})}static{this.terminalBell=l.b({name:t(1784,null),sound:e.terminalBell,legacySoundSettingsKey:"audioCues.terminalBell",legacyAnnouncementSettingsKey:"accessibility.alert.terminalBell",announcementMessage:t(1785,null),settingsKey:"accessibility.signals.terminalBell"})}static{this.notebookCellCompleted=l.b({name:t(1786,null),sound:e.taskCompleted,legacySoundSettingsKey:"audioCues.notebookCellCompleted",legacyAnnouncementSettingsKey:"accessibility.alert.notebookCellCompleted",announcementMessage:t(1787,null),settingsKey:"accessibility.signals.notebookCellCompleted"})}static{this.notebookCellFailed=l.b({name:t(1788,null),sound:e.taskFailed,legacySoundSettingsKey:"audioCues.notebookCellFailed",legacyAnnouncementSettingsKey:"accessibility.alert.notebookCellFailed",announcementMessage:t(1789,null),settingsKey:"accessibility.signals.notebookCellFailed"})}static{this.diffLineInserted=l.b({name:t(1790,null),sound:e.diffLineInserted,legacySoundSettingsKey:"audioCues.diffLineInserted",settingsKey:"accessibility.signals.diffLineInserted"})}static{this.diffLineDeleted=l.b({name:t(1791,null),sound:e.diffLineDeleted,legacySoundSettingsKey:"audioCues.diffLineDeleted",settingsKey:"accessibility.signals.diffLineDeleted"})}static{this.diffLineModified=l.b({name:t(1792,null),sound:e.diffLineModified,legacySoundSettingsKey:"audioCues.diffLineModified",settingsKey:"accessibility.signals.diffLineModified"})}static{this.chatEditModifiedFile=l.b({name:t(1793,null),sound:e.chatEditModifiedFile,announcementMessage:t(1794,null),settingsKey:"accessibility.signals.chatEditModifiedFile"})}static{this.chatRequestSent=l.b({name:t(1795,null),sound:e.requestSent,legacySoundSettingsKey:"audioCues.chatRequestSent",legacyAnnouncementSettingsKey:"accessibility.alert.chatRequestSent",announcementMessage:t(1796,null),settingsKey:"accessibility.signals.chatRequestSent"})}static{this.chatResponseReceived=l.b({name:t(1797,null),legacySoundSettingsKey:"audioCues.chatResponseReceived",sound:{randomOneOf:[e.responseReceived1,e.responseReceived2,e.responseReceived3,e.responseReceived4]},settingsKey:"accessibility.signals.chatResponseReceived"})}static{this.codeActionTriggered=l.b({name:t(1798,null),sound:e.codeActionTriggered,legacySoundSettingsKey:"audioCues.codeActionRequestTriggered",legacyAnnouncementSettingsKey:"accessibility.alert.codeActionRequestTriggered",announcementMessage:t(1799,null),settingsKey:"accessibility.signals.codeActionTriggered"})}static{this.codeActionApplied=l.b({name:t(1800,null),legacySoundSettingsKey:"audioCues.codeActionApplied",sound:e.codeActionApplied,settingsKey:"accessibility.signals.codeActionApplied"})}static{this.progress=l.b({name:t(1801,null),sound:e.progress,legacySoundSettingsKey:"audioCues.chatResponsePending",legacyAnnouncementSettingsKey:"accessibility.alert.progress",announcementMessage:t(1802,null),settingsKey:"accessibility.signals.progress"})}static{this.clear=l.b({name:t(1803,null),sound:e.clear,legacySoundSettingsKey:"audioCues.clear",legacyAnnouncementSettingsKey:"accessibility.alert.clear",announcementMessage:t(1804,null),settingsKey:"accessibility.signals.clear"})}static{this.save=l.b({name:t(1805,null),sound:e.save,legacySoundSettingsKey:"audioCues.save",legacyAnnouncementSettingsKey:"accessibility.alert.save",announcementMessage:t(1806,null),settingsKey:"accessibility.signals.save"})}static{this.format=l.b({name:t(1807,null),sound:e.format,legacySoundSettingsKey:"audioCues.format",legacyAnnouncementSettingsKey:"accessibility.alert.format",announcementMessage:t(1808,null),settingsKey:"accessibility.signals.format"})}static{this.voiceRecordingStarted=l.b({name:t(1809,null),sound:e.voiceRecordingStarted,legacySoundSettingsKey:"audioCues.voiceRecordingStarted",settingsKey:"accessibility.signals.voiceRecordingStarted"})}static{this.voiceRecordingStopped=l.b({name:t(1810,null),sound:e.voiceRecordingStopped,legacySoundSettingsKey:"audioCues.voiceRecordingStopped",settingsKey:"accessibility.signals.voiceRecordingStopped"})}static{this.editsKept=l.b({name:t(1811,null),sound:e.editsKept,announcementMessage:t(1812,null),settingsKey:"accessibility.signals.editsKept"})}static{this.editsUndone=l.b({name:t(1813,null),sound:e.editsUndone,announcementMessage:t(1814,null),settingsKey:"accessibility.signals.editsUndone"})}static{this.chatUserActionRequired=l.b({name:t(1815,null),sound:e.chatUserActionRequired,announcementMessage:t(1816,null),settingsKey:"accessibility.signals.chatUserActionRequired"})}}export{y as $Aib,e as $Bib,x as $Cib,l as $Dib,W as $yib,Y as $zib};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { addDisposableListener } from "../../../base/browser/dom.js";
+import { CachedFunction } from "../../../base/common/cache.js";
+import { getStructuralKey } from "../../../base/common/equals.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { FileAccess } from "../../../base/common/network.js";
+import { derived, observableFromEvent, ValueWithChangeEventFromObservable } from "../../../base/common/observable.js";
+import { localize } from "../../../nls.js";
+import { IAccessibilityService } from "../../accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { observableConfigValue } from "../../observable/common/platformObservableUtils.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+const IAccessibilitySignalService = createDecorator("accessibilitySignalService");
+const AcknowledgeDocCommentsToken = /* @__PURE__ */ Symbol("AcknowledgeDocCommentsToken");
+let AccessibilitySignalService = class AccessibilitySignalService2 extends Disposable {
+  static {
+    __name(this, "AccessibilitySignalService");
+  }
+  constructor(configurationService, accessibilityService, telemetryService) {
+    super();
+    this.configurationService = configurationService;
+    this.accessibilityService = accessibilityService;
+    this.telemetryService = telemetryService;
+    this.sounds = /* @__PURE__ */ new Map();
+    this.screenReaderAttached = observableFromEvent(this, this.accessibilityService.onDidChangeScreenReaderOptimized, () => (
+      /** @description accessibilityService.onDidChangeScreenReaderOptimized */
+      this.accessibilityService.isScreenReaderOptimized()
+    ));
+    this.sentTelemetry = /* @__PURE__ */ new Set();
+    this.playingSounds = /* @__PURE__ */ new Set();
+    this._signalConfigValue = new CachedFunction((signal) => observableConfigValue(signal.settingsKey, { sound: "off", announcement: "off" }, this.configurationService));
+    this._signalEnabledState = new CachedFunction({ getCacheKey: getStructuralKey }, (arg) => {
+      return derived((reader) => {
+        const setting = this._signalConfigValue.get(arg.signal).read(reader);
+        if (arg.modality === "sound" || arg.modality === void 0) {
+          if (arg.signal.managesOwnEnablement || checkEnabledState(setting.sound, () => this.screenReaderAttached.read(reader), arg.userGesture)) {
+            return true;
+          }
+        }
+        if (arg.modality === "announcement" || arg.modality === void 0) {
+          if (checkEnabledState(setting.announcement, () => this.screenReaderAttached.read(reader), arg.userGesture)) {
+            return true;
+          }
+        }
+        return false;
+      }).recomputeInitiallyAndOnChange(this._store);
+    });
+  }
+  getEnabledState(signal, userGesture, modality) {
+    return new ValueWithChangeEventFromObservable(this._signalEnabledState.get({ signal, userGesture, modality }));
+  }
+  async playSignal(signal, options = {}) {
+    const shouldPlayAnnouncement = options.modality === "announcement" || options.modality === void 0;
+    const announcementMessage = options.customAlertMessage ?? signal.announcementMessage;
+    if (shouldPlayAnnouncement && this.isAnnouncementEnabled(signal, options.userGesture) && announcementMessage) {
+      this.accessibilityService.status(announcementMessage);
+    }
+    const shouldPlaySound = options.modality === "sound" || options.modality === void 0;
+    if (shouldPlaySound && this.isSoundEnabled(signal, options.userGesture)) {
+      this.sendSignalTelemetry(signal, options.source);
+      await this.playSound(signal.sound.getSound(), options.allowManyInParallel);
+    }
+  }
+  async playSignals(signals) {
+    for (const signal of signals) {
+      this.sendSignalTelemetry("signal" in signal ? signal.signal : signal, "source" in signal ? signal.source : void 0);
+    }
+    const signalArray = signals.map((s) => "signal" in s ? s.signal : s);
+    const announcements = signalArray.filter((signal) => this.isAnnouncementEnabled(signal)).map((s) => s.announcementMessage);
+    if (announcements.length) {
+      this.accessibilityService.status(announcements.join(", "));
+    }
+    const sounds = new Set(signalArray.filter((signal) => this.isSoundEnabled(signal)).map((signal) => signal.sound.getSound()));
+    await Promise.all(Array.from(sounds).map((sound) => this.playSound(sound, true)));
+  }
+  sendSignalTelemetry(signal, source) {
+    const isScreenReaderOptimized = this.accessibilityService.isScreenReaderOptimized();
+    const key = signal.name + (source ? `::${source}` : "") + (isScreenReaderOptimized ? "{screenReaderOptimized}" : "");
+    if (this.sentTelemetry.has(key) || this.getVolumeInPercent() === 0) {
+      return;
+    }
+    this.sentTelemetry.add(key);
+    this.telemetryService.publicLog2("signal.played", {
+      signal: signal.name,
+      source: source ?? "",
+      isScreenReaderOptimized
+    });
+  }
+  getVolumeInPercent() {
+    const volume = this.configurationService.getValue("accessibility.signalOptions.volume");
+    if (typeof volume !== "number") {
+      return 50;
+    }
+    return Math.max(Math.min(volume, 100), 0);
+  }
+  async playSound(sound, allowManyInParallel = false) {
+    if (!allowManyInParallel && this.playingSounds.has(sound)) {
+      return;
+    }
+    this.playingSounds.add(sound);
+    const url = FileAccess.asBrowserUri(`vs/platform/accessibilitySignal/browser/media/${sound.fileName}`).toString(true);
+    try {
+      const sound2 = this.sounds.get(url);
+      if (sound2) {
+        sound2.volume = this.getVolumeInPercent() / 100;
+        sound2.currentTime = 0;
+        await sound2.play();
+      } else {
+        const playedSound = await playAudio(url, this.getVolumeInPercent() / 100);
+        this.sounds.set(url, playedSound);
+      }
+    } catch (e) {
+      if (!e.message.includes("play() can only be initiated by a user gesture")) {
+        console.error("Error while playing sound", e);
+      }
+    } finally {
+      this.playingSounds.delete(sound);
+    }
+  }
+  playSignalLoop(signal, milliseconds) {
+    let playing = true;
+    const playSound = /* @__PURE__ */ __name(() => {
+      if (playing) {
+        this.playSignal(signal, { allowManyInParallel: true }).finally(() => {
+          setTimeout(() => {
+            if (playing) {
+              playSound();
+            }
+          }, milliseconds);
+        });
+      }
+    }, "playSound");
+    playSound();
+    return toDisposable(() => playing = false);
+  }
+  isAnnouncementEnabled(signal, userGesture) {
+    if (!signal.announcementMessage) {
+      return false;
+    }
+    return this._signalEnabledState.get({ signal, userGesture: !!userGesture, modality: "announcement" }).get();
+  }
+  isSoundEnabled(signal, userGesture) {
+    return this._signalEnabledState.get({ signal, userGesture: !!userGesture, modality: "sound" }).get();
+  }
+  onSoundEnabledChanged(signal) {
+    return this.getEnabledState(signal, false).onDidChange;
+  }
+  getDelayMs(signal, modality, mode) {
+    if (!this.configurationService.getValue("accessibility.signalOptions.debouncePositionChanges")) {
+      return 0;
+    }
+    let value;
+    if (signal.name === AccessibilitySignal.errorAtPosition.name && mode === "positional") {
+      value = this.configurationService.getValue("accessibility.signalOptions.experimental.delays.errorAtPosition");
+    } else if (signal.name === AccessibilitySignal.warningAtPosition.name && mode === "positional") {
+      value = this.configurationService.getValue("accessibility.signalOptions.experimental.delays.warningAtPosition");
+    } else {
+      value = this.configurationService.getValue("accessibility.signalOptions.experimental.delays.general");
+    }
+    return modality === "sound" ? value.sound : value.announcement;
+  }
+};
+AccessibilitySignalService = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IAccessibilityService),
+  __param(2, ITelemetryService)
+], AccessibilitySignalService);
+function checkEnabledState(state, getScreenReaderAttached, isTriggeredByUserGesture) {
+  return state === "on" || state === "always" || state === "auto" && getScreenReaderAttached() || state === "userGesture" && isTriggeredByUserGesture;
+}
+__name(checkEnabledState, "checkEnabledState");
+async function playAudio(url, volume) {
+  const disposables = new DisposableStore();
+  try {
+    return await doPlayAudio(url, volume, disposables);
+  } finally {
+    disposables.dispose();
+  }
+}
+__name(playAudio, "playAudio");
+function doPlayAudio(url, volume, disposables) {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio(url);
+    audio.volume = volume;
+    disposables.add(addDisposableListener(audio, "ended", () => {
+      resolve(audio);
+    }));
+    disposables.add(addDisposableListener(audio, "error", (e) => {
+      reject(e.error);
+    }));
+    audio.play().catch((e) => {
+      reject(e);
+    });
+  });
+}
+__name(doPlayAudio, "doPlayAudio");
+class Sound {
+  static {
+    __name(this, "Sound");
+  }
+  static register(options) {
+    const sound = new Sound(options.fileName);
+    return sound;
+  }
+  static {
+    this.error = Sound.register({ fileName: "error.mp3" });
+  }
+  static {
+    this.warning = Sound.register({ fileName: "warning.mp3" });
+  }
+  static {
+    this.success = Sound.register({ fileName: "success.mp3" });
+  }
+  static {
+    this.foldedArea = Sound.register({ fileName: "foldedAreas.mp3" });
+  }
+  static {
+    this.break = Sound.register({ fileName: "break.mp3" });
+  }
+  static {
+    this.quickFixes = Sound.register({ fileName: "quickFixes.mp3" });
+  }
+  static {
+    this.taskCompleted = Sound.register({ fileName: "taskCompleted.mp3" });
+  }
+  static {
+    this.taskFailed = Sound.register({ fileName: "taskFailed.mp3" });
+  }
+  static {
+    this.terminalBell = Sound.register({ fileName: "terminalBell.mp3" });
+  }
+  static {
+    this.diffLineInserted = Sound.register({ fileName: "diffLineInserted.mp3" });
+  }
+  static {
+    this.diffLineDeleted = Sound.register({ fileName: "diffLineDeleted.mp3" });
+  }
+  static {
+    this.diffLineModified = Sound.register({ fileName: "diffLineModified.mp3" });
+  }
+  static {
+    this.requestSent = Sound.register({ fileName: "requestSent.mp3" });
+  }
+  static {
+    this.responseReceived1 = Sound.register({ fileName: "responseReceived1.mp3" });
+  }
+  static {
+    this.responseReceived2 = Sound.register({ fileName: "responseReceived2.mp3" });
+  }
+  static {
+    this.responseReceived3 = Sound.register({ fileName: "responseReceived3.mp3" });
+  }
+  static {
+    this.responseReceived4 = Sound.register({ fileName: "responseReceived4.mp3" });
+  }
+  static {
+    this.clear = Sound.register({ fileName: "clear.mp3" });
+  }
+  static {
+    this.save = Sound.register({ fileName: "save.mp3" });
+  }
+  static {
+    this.format = Sound.register({ fileName: "format.mp3" });
+  }
+  static {
+    this.voiceRecordingStarted = Sound.register({ fileName: "voiceRecordingStarted.mp3" });
+  }
+  static {
+    this.voiceRecordingStopped = Sound.register({ fileName: "voiceRecordingStopped.mp3" });
+  }
+  static {
+    this.progress = Sound.register({ fileName: "progress.mp3" });
+  }
+  static {
+    this.chatEditModifiedFile = Sound.register({ fileName: "chatEditModifiedFile.mp3" });
+  }
+  static {
+    this.editsKept = Sound.register({ fileName: "editsKept.mp3" });
+  }
+  static {
+    this.editsUndone = Sound.register({ fileName: "editsUndone.mp3" });
+  }
+  static {
+    this.nextEditSuggestion = Sound.register({ fileName: "nextEditSuggestion.mp3" });
+  }
+  static {
+    this.terminalCommandSucceeded = Sound.register({ fileName: "terminalCommandSucceeded.mp3" });
+  }
+  static {
+    this.chatUserActionRequired = Sound.register({ fileName: "chatUserActionRequired.mp3" });
+  }
+  static {
+    this.codeActionTriggered = Sound.register({ fileName: "codeActionTriggered.mp3" });
+  }
+  static {
+    this.codeActionApplied = Sound.register({ fileName: "codeActionApplied.mp3" });
+  }
+  constructor(fileName) {
+    this.fileName = fileName;
+  }
+}
+class SoundSource {
+  static {
+    __name(this, "SoundSource");
+  }
+  constructor(randomOneOf) {
+    this.randomOneOf = randomOneOf;
+  }
+  getSound(deterministic = false) {
+    if (deterministic || this.randomOneOf.length === 1) {
+      return this.randomOneOf[0];
+    } else {
+      const index = Math.floor(Math.random() * this.randomOneOf.length);
+      return this.randomOneOf[index];
+    }
+  }
+}
+class AccessibilitySignal {
+  static {
+    __name(this, "AccessibilitySignal");
+  }
+  constructor(sound, name, legacySoundSettingsKey, settingsKey, legacyAnnouncementSettingsKey, announcementMessage, managesOwnEnablement = false) {
+    this.sound = sound;
+    this.name = name;
+    this.legacySoundSettingsKey = legacySoundSettingsKey;
+    this.settingsKey = settingsKey;
+    this.legacyAnnouncementSettingsKey = legacyAnnouncementSettingsKey;
+    this.announcementMessage = announcementMessage;
+    this.managesOwnEnablement = managesOwnEnablement;
+  }
+  static {
+    this._signals = /* @__PURE__ */ new Set();
+  }
+  static register(options) {
+    const soundSource = new SoundSource("randomOneOf" in options.sound ? options.sound.randomOneOf : [options.sound]);
+    const signal = new AccessibilitySignal(soundSource, options.name, options.legacySoundSettingsKey, options.settingsKey, options.legacyAnnouncementSettingsKey, options.announcementMessage, options.managesOwnEnablement);
+    AccessibilitySignal._signals.add(signal);
+    return signal;
+  }
+  static get allAccessibilitySignals() {
+    return [...this._signals];
+  }
+  static {
+    this.errorAtPosition = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.positionHasError.name", "Error at Position"),
+      sound: Sound.error,
+      announcementMessage: localize("accessibility.signals.positionHasError", "Error"),
+      settingsKey: "accessibility.signals.positionHasError",
+      delaySettingsKey: "accessibility.signalOptions.delays.errorAtPosition"
+    });
+  }
+  static {
+    this.warningAtPosition = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.positionHasWarning.name", "Warning at Position"),
+      sound: Sound.warning,
+      announcementMessage: localize("accessibility.signals.positionHasWarning", "Warning"),
+      settingsKey: "accessibility.signals.positionHasWarning",
+      delaySettingsKey: "accessibility.signalOptions.delays.warningAtPosition"
+    });
+  }
+  static {
+    this.errorOnLine = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.lineHasError.name", "Error on Line"),
+      sound: Sound.error,
+      legacySoundSettingsKey: "audioCues.lineHasError",
+      legacyAnnouncementSettingsKey: "accessibility.alert.error",
+      announcementMessage: localize("accessibility.signals.lineHasError", "Error on Line"),
+      settingsKey: "accessibility.signals.lineHasError"
+    });
+  }
+  static {
+    this.warningOnLine = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.lineHasWarning.name", "Warning on Line"),
+      sound: Sound.warning,
+      legacySoundSettingsKey: "audioCues.lineHasWarning",
+      legacyAnnouncementSettingsKey: "accessibility.alert.warning",
+      announcementMessage: localize("accessibility.signals.lineHasWarning", "Warning on Line"),
+      settingsKey: "accessibility.signals.lineHasWarning"
+    });
+  }
+  static {
+    this.foldedArea = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.lineHasFoldedArea.name", "Folded Area on Line"),
+      sound: Sound.foldedArea,
+      legacySoundSettingsKey: "audioCues.lineHasFoldedArea",
+      legacyAnnouncementSettingsKey: "accessibility.alert.foldedArea",
+      announcementMessage: localize("accessibility.signals.lineHasFoldedArea", "Folded"),
+      settingsKey: "accessibility.signals.lineHasFoldedArea"
+    });
+  }
+  static {
+    this.break = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.lineHasBreakpoint.name", "Breakpoint on Line"),
+      sound: Sound.break,
+      legacySoundSettingsKey: "audioCues.lineHasBreakpoint",
+      legacyAnnouncementSettingsKey: "accessibility.alert.breakpoint",
+      announcementMessage: localize("accessibility.signals.lineHasBreakpoint", "Breakpoint"),
+      settingsKey: "accessibility.signals.lineHasBreakpoint"
+    });
+  }
+  static {
+    this.inlineSuggestion = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.lineHasInlineSuggestion.name", "Inline Suggestion on Line"),
+      sound: Sound.quickFixes,
+      legacySoundSettingsKey: "audioCues.lineHasInlineSuggestion",
+      settingsKey: "accessibility.signals.lineHasInlineSuggestion"
+    });
+  }
+  static {
+    this.nextEditSuggestion = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.nextEditSuggestion.name", "Next Edit Suggestion on Line"),
+      sound: Sound.nextEditSuggestion,
+      legacySoundSettingsKey: "audioCues.nextEditSuggestion",
+      settingsKey: "accessibility.signals.nextEditSuggestion",
+      announcementMessage: localize("accessibility.signals.nextEditSuggestion", "Next Edit Suggestion")
+    });
+  }
+  static {
+    this.terminalQuickFix = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.terminalQuickFix.name", "Terminal Quick Fix"),
+      sound: Sound.quickFixes,
+      legacySoundSettingsKey: "audioCues.terminalQuickFix",
+      legacyAnnouncementSettingsKey: "accessibility.alert.terminalQuickFix",
+      announcementMessage: localize("accessibility.signals.terminalQuickFix", "Quick Fix"),
+      settingsKey: "accessibility.signals.terminalQuickFix"
+    });
+  }
+  static {
+    this.onDebugBreak = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.onDebugBreak.name", "Debugger Stopped on Breakpoint"),
+      sound: Sound.break,
+      legacySoundSettingsKey: "audioCues.onDebugBreak",
+      legacyAnnouncementSettingsKey: "accessibility.alert.onDebugBreak",
+      announcementMessage: localize("accessibility.signals.onDebugBreak", "Breakpoint"),
+      settingsKey: "accessibility.signals.onDebugBreak"
+    });
+  }
+  static {
+    this.noInlayHints = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.noInlayHints", "No Inlay Hints on Line"),
+      sound: Sound.error,
+      legacySoundSettingsKey: "audioCues.noInlayHints",
+      legacyAnnouncementSettingsKey: "accessibility.alert.noInlayHints",
+      announcementMessage: localize("accessibility.signals.noInlayHints", "No Inlay Hints"),
+      settingsKey: "accessibility.signals.noInlayHints"
+    });
+  }
+  static {
+    this.taskCompleted = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.taskCompleted", "Task Completed"),
+      sound: Sound.taskCompleted,
+      legacySoundSettingsKey: "audioCues.taskCompleted",
+      legacyAnnouncementSettingsKey: "accessibility.alert.taskCompleted",
+      announcementMessage: localize("accessibility.signals.taskCompleted", "Task Completed"),
+      settingsKey: "accessibility.signals.taskCompleted"
+    });
+  }
+  static {
+    this.taskFailed = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.taskFailed", "Task Failed"),
+      sound: Sound.taskFailed,
+      legacySoundSettingsKey: "audioCues.taskFailed",
+      legacyAnnouncementSettingsKey: "accessibility.alert.taskFailed",
+      announcementMessage: localize("accessibility.signals.taskFailed", "Task Failed"),
+      settingsKey: "accessibility.signals.taskFailed"
+    });
+  }
+  static {
+    this.terminalCommandFailed = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.terminalCommandFailed", "Terminal Command Failed"),
+      sound: Sound.error,
+      legacySoundSettingsKey: "audioCues.terminalCommandFailed",
+      legacyAnnouncementSettingsKey: "accessibility.alert.terminalCommandFailed",
+      announcementMessage: localize("accessibility.signals.terminalCommandFailed", "Command Failed"),
+      settingsKey: "accessibility.signals.terminalCommandFailed"
+    });
+  }
+  static {
+    this.terminalCommandSucceeded = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.terminalCommandSucceeded", "Terminal Command Succeeded"),
+      sound: Sound.terminalCommandSucceeded,
+      announcementMessage: localize("accessibility.signals.terminalCommandSucceeded", "Command Succeeded"),
+      settingsKey: "accessibility.signals.terminalCommandSucceeded"
+    });
+  }
+  static {
+    this.terminalBell = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.terminalBell", "Terminal Bell"),
+      sound: Sound.terminalBell,
+      legacySoundSettingsKey: "audioCues.terminalBell",
+      legacyAnnouncementSettingsKey: "accessibility.alert.terminalBell",
+      announcementMessage: localize("accessibility.signals.terminalBell", "Terminal Bell"),
+      settingsKey: "accessibility.signals.terminalBell"
+    });
+  }
+  static {
+    this.notebookCellCompleted = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.notebookCellCompleted", "Notebook Cell Completed"),
+      sound: Sound.taskCompleted,
+      legacySoundSettingsKey: "audioCues.notebookCellCompleted",
+      legacyAnnouncementSettingsKey: "accessibility.alert.notebookCellCompleted",
+      announcementMessage: localize("accessibility.signals.notebookCellCompleted", "Notebook Cell Completed"),
+      settingsKey: "accessibility.signals.notebookCellCompleted"
+    });
+  }
+  static {
+    this.notebookCellFailed = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.notebookCellFailed", "Notebook Cell Failed"),
+      sound: Sound.taskFailed,
+      legacySoundSettingsKey: "audioCues.notebookCellFailed",
+      legacyAnnouncementSettingsKey: "accessibility.alert.notebookCellFailed",
+      announcementMessage: localize("accessibility.signals.notebookCellFailed", "Notebook Cell Failed"),
+      settingsKey: "accessibility.signals.notebookCellFailed"
+    });
+  }
+  static {
+    this.diffLineInserted = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.diffLineInserted", "Diff Line Inserted"),
+      sound: Sound.diffLineInserted,
+      legacySoundSettingsKey: "audioCues.diffLineInserted",
+      settingsKey: "accessibility.signals.diffLineInserted"
+    });
+  }
+  static {
+    this.diffLineDeleted = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.diffLineDeleted", "Diff Line Deleted"),
+      sound: Sound.diffLineDeleted,
+      legacySoundSettingsKey: "audioCues.diffLineDeleted",
+      settingsKey: "accessibility.signals.diffLineDeleted"
+    });
+  }
+  static {
+    this.diffLineModified = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.diffLineModified", "Diff Line Modified"),
+      sound: Sound.diffLineModified,
+      legacySoundSettingsKey: "audioCues.diffLineModified",
+      settingsKey: "accessibility.signals.diffLineModified"
+    });
+  }
+  static {
+    this.chatEditModifiedFile = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.chatEditModifiedFile", "Chat Edit Modified File"),
+      sound: Sound.chatEditModifiedFile,
+      announcementMessage: localize("accessibility.signals.chatEditModifiedFile", "File Modified from Chat Edits"),
+      settingsKey: "accessibility.signals.chatEditModifiedFile"
+    });
+  }
+  static {
+    this.chatRequestSent = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.chatRequestSent", "Chat Request Sent"),
+      sound: Sound.requestSent,
+      legacySoundSettingsKey: "audioCues.chatRequestSent",
+      legacyAnnouncementSettingsKey: "accessibility.alert.chatRequestSent",
+      announcementMessage: localize("accessibility.signals.chatRequestSent", "Chat Request Sent"),
+      settingsKey: "accessibility.signals.chatRequestSent"
+    });
+  }
+  static {
+    this.chatResponseReceived = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.chatResponseReceived", "Chat Response Received"),
+      legacySoundSettingsKey: "audioCues.chatResponseReceived",
+      sound: {
+        randomOneOf: [
+          Sound.responseReceived1,
+          Sound.responseReceived2,
+          Sound.responseReceived3,
+          Sound.responseReceived4
+        ]
+      },
+      settingsKey: "accessibility.signals.chatResponseReceived"
+    });
+  }
+  static {
+    this.codeActionTriggered = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.codeActionRequestTriggered", "Code Action Request Triggered"),
+      sound: Sound.codeActionTriggered,
+      legacySoundSettingsKey: "audioCues.codeActionRequestTriggered",
+      legacyAnnouncementSettingsKey: "accessibility.alert.codeActionRequestTriggered",
+      announcementMessage: localize("accessibility.signals.codeActionRequestTriggered", "Code Action Request Triggered"),
+      settingsKey: "accessibility.signals.codeActionTriggered"
+    });
+  }
+  static {
+    this.codeActionApplied = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.codeActionApplied", "Code Action Applied"),
+      legacySoundSettingsKey: "audioCues.codeActionApplied",
+      sound: Sound.codeActionApplied,
+      settingsKey: "accessibility.signals.codeActionApplied"
+    });
+  }
+  static {
+    this.progress = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.progress", "Progress"),
+      sound: Sound.progress,
+      legacySoundSettingsKey: "audioCues.chatResponsePending",
+      legacyAnnouncementSettingsKey: "accessibility.alert.progress",
+      announcementMessage: localize("accessibility.signals.progress", "Progress"),
+      settingsKey: "accessibility.signals.progress"
+    });
+  }
+  static {
+    this.clear = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.clear", "Clear"),
+      sound: Sound.clear,
+      legacySoundSettingsKey: "audioCues.clear",
+      legacyAnnouncementSettingsKey: "accessibility.alert.clear",
+      announcementMessage: localize("accessibility.signals.clear", "Clear"),
+      settingsKey: "accessibility.signals.clear"
+    });
+  }
+  static {
+    this.save = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.save", "Save"),
+      sound: Sound.save,
+      legacySoundSettingsKey: "audioCues.save",
+      legacyAnnouncementSettingsKey: "accessibility.alert.save",
+      announcementMessage: localize("accessibility.signals.save", "Save"),
+      settingsKey: "accessibility.signals.save"
+    });
+  }
+  static {
+    this.format = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.format", "Format"),
+      sound: Sound.format,
+      legacySoundSettingsKey: "audioCues.format",
+      legacyAnnouncementSettingsKey: "accessibility.alert.format",
+      announcementMessage: localize("accessibility.signals.format", "Format"),
+      settingsKey: "accessibility.signals.format"
+    });
+  }
+  static {
+    this.voiceRecordingStarted = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.voiceRecordingStarted", "Voice Recording Started"),
+      sound: Sound.voiceRecordingStarted,
+      legacySoundSettingsKey: "audioCues.voiceRecordingStarted",
+      settingsKey: "accessibility.signals.voiceRecordingStarted"
+    });
+  }
+  static {
+    this.voiceRecordingStopped = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.voiceRecordingStopped", "Voice Recording Stopped"),
+      sound: Sound.voiceRecordingStopped,
+      legacySoundSettingsKey: "audioCues.voiceRecordingStopped",
+      settingsKey: "accessibility.signals.voiceRecordingStopped"
+    });
+  }
+  static {
+    this.editsKept = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.editsKept", "Edits Kept"),
+      sound: Sound.editsKept,
+      announcementMessage: localize("accessibility.signals.editsKept", "Edits Kept"),
+      settingsKey: "accessibility.signals.editsKept"
+    });
+  }
+  static {
+    this.editsUndone = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.editsUndone", "Undo Edits"),
+      sound: Sound.editsUndone,
+      announcementMessage: localize("accessibility.signals.editsUndone", "Edits Undone"),
+      settingsKey: "accessibility.signals.editsUndone"
+    });
+  }
+  static {
+    this.chatUserActionRequired = AccessibilitySignal.register({
+      name: localize("accessibilitySignals.chatUserActionRequired", "Chat User Action Required"),
+      sound: Sound.chatUserActionRequired,
+      announcementMessage: localize("accessibility.signals.chatUserActionRequired", "Chat User Action Required"),
+      settingsKey: "accessibility.signals.chatUserActionRequired"
+    });
+  }
+}
+export {
+  AccessibilitySignal,
+  AccessibilitySignalService,
+  AcknowledgeDocCommentsToken,
+  IAccessibilitySignalService,
+  Sound,
+  SoundSource
+};
+//# sourceMappingURL=accessibilitySignalService.js.map

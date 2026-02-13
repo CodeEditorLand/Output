@@ -1,15 +1,215 @@
-import{$Pf as A}from"../../../../../base/common/cache.js";import{$jk as B}from"../../../../../base/common/htmlContent.js";import{$Ed as G}from"../../../../../base/common/lifecycle.js";import{autorun as j,mapObservableArrayCached as J,derived as b,observableValue as X,derivedWithSetter as z,observableFromEvent as O}from"../../../../../base/common/observable.js";import{$Jfb as K}from"../../../../../editor/browser/editorDom.js";import{$Xib as Q}from"../../../../../editor/browser/observableCodeEditor.js";import{$sib as U}from"../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{$vo as Y}from"../../../../../platform/commands/common/commands.js";import{$0l as Z}from"../../../../../platform/configuration/common/configuration.js";import{$Mj as tt}from"../../../../../platform/instantiation/common/instantiation.js";import{$Lj as et}from"../../../../../platform/instantiation/common/serviceCollection.js";import{$vib as I}from"../../../../../platform/observable/common/platformObservableUtils.js";import{$pp as ot}from"../../../../../platform/telemetry/common/telemetry.js";import{$BL as nt}from"../../../../services/editor/common/editorService.js";import{$fDb as st}from"../../../../services/statusbar/browser/statusbar.js";import{$pLc as it}from"./editSourceTrackingImpl.js";import{$kob as rt}from"../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";import{$qLc as at,$rLc as ct,$sLc as dt}from"../settings.js";import{$NR as mt}from"../../../../services/extensions/common/extensions.js";var W=function(d,o,e,i){var l=arguments.length,t=l<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,e):i,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(d,o,e,i);else for(var S=d.length-1;S>=0;S--)(u=d[S])&&(t=(l<3?u(t):l>3?u(o,e,t):u(o,e))||t);return l>3&&t&&Object.defineProperty(o,e,t),t},T=function(d,o){return function(e,i){o(e,i,d)}};let R=class extends G{constructor(o,e,i,l,t,u,S){super(),this.g=o,this.h=e,this.j=i,this.m=l,this.n=t,this.q=u,this.s=S,this.c="editTelemetry.showDebugDetails",this.f="editTelemetry.toggleDebugDecorations",this.a=lt(I(ct,!1,this.j)),this.b=I(dt,!1,this.j);const _=I(at,!1,this.j),N=O(this.s.onDidChangeExtensions,()=>this.s.extensions),M=b(n=>new Set(N.read(n).map(p=>p.id?.toLowerCase())));function k(n,p){const m=n.toLowerCase();return b(g=>M.read(g).has(m))}const q=k("GitHub.copilot",this.s),P=k("GitHub.copilot-chat",this.s),F=b(n=>_.read(n)||!!q.read(n)||!!P.read(n)),H=this.m.createChild(new et([ot,this.m.createInstance(rt)])),v=this.D(H.createInstance(it,F,this.h));this.D(j(n=>{if(!this.a.read(n))return;const p=O(this,this.q.onDidVisibleEditorsChange,()=>this.q.visibleTextEditorControls);J(this,p,(m,g)=>{if(m instanceof U){const s=Q(m),$=new K(m),c=new A(r=>g.add($.createClassNameRef({backgroundColor:r.getColor()})).className);g.add(s.setDecorations(b(r=>{const a=s.model.read(r)?.uri;if(!a)return[];const f=this.g.getDocument(a);if(!f)return[];const h=v.docsState.read(r).get(f);return h?(h.longtermTracker.read(r)?.getTrackedRanges(r)??[]).map(C=>({range:f.value.read(void 0).getTransformer().getRange(C.range),options:{description:"editSourceTracking",inlineClassName:c.get(C.source)}})):[]})))}}).recomputeInitiallyAndOnChange(n.store)})),this.D(j(n=>{if(!this.b.read(n))return;const p=n.store.add(this.n.addEntry({name:"",text:"",command:this.c,tooltip:"Edit Source Tracking",ariaLabel:""},"editTelemetry",1,100)),m=b(s=>{const $=v.docsState.read(s);let c=0;for(const r of $.values()){const a=r.longtermTracker.read(s);if(!a)continue;const f=r.getTelemetryData(a.getTrackedRanges(s));c+=f.totalModifiedCharactersInFinalState}return c}),g=b(s=>{const $=v.docsState.read(s),c=[],r=[];for(const[D,C]of $){const w=C.longtermTracker.read(s);if(!w)continue;const y=w.getTrackedRanges(s),x=C.getTelemetryData(y);if(x.totalModifiedCharactersInFinalState===0)continue;r.push(...y.map(E=>E.source));const V=Object.fromEntries(Object.entries(x).filter(([E,L])=>typeof L!="number"||L!==0));c.push([`### ${D.uri.fsPath}`,"```json",JSON.stringify(V,void 0,"	"),"```",`
-`].join(`
-`))}let a;c.length===0?a="No modified documents":c.length<=3?a=c.join(`
-
-`):a=`...
-
-`+c.slice(-3).join(`
-
-`);const f=this.u(r),h=new B(a+`
-
-[View Details](command:`+this.c+")");return h.appendMarkdown(`
-
-`+f+`
-
-Toggle decorations: [Click here](command:`+this.f+")"),h.isTrusted={enabledCommands:[this.f]},h.supportHtml=!0,h});n.store.add(j(s=>{p.update({name:"editTelemetry",text:`$(edit) ${m.read(s)} chars inserted`,ariaLabel:`Edit Source Tracking: ${m.read(s)} modified characters`,tooltip:g.read(s),command:this.c})})),n.store.add(Y.registerCommand(this.f,()=>{this.a.set(!this.a.read(void 0),void 0)}))}))}u(o){const e=new Set,i=[];for(const t of o)e.has(t.toString())||(e.add(t.toString()),i.push({name:t.toString(),color:t.getColor()}));return i.map(t=>`<span style="background-color:${t.color};border-radius:3px;">${t.name}</span>`).join(" ")}};R=W([T(2,Z),T(3,tt),T(4,st),T(5,nt),T(6,mt)],R);function lt(d){const o=X("overrideObs",void 0);return z(o,e=>o.read(e)??d.read(e),(e,i)=>{o.set(e,i)})}export{R as $vLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CachedFunction } from "../../../../../base/common/cache.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, mapObservableArrayCached, derived, observableValue, derivedWithSetter, observableFromEvent } from "../../../../../base/common/observable.js";
+import { DynamicCssRules } from "../../../../../editor/browser/editorDom.js";
+import { observableCodeEditor } from "../../../../../editor/browser/observableCodeEditor.js";
+import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../platform/instantiation/common/serviceCollection.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IStatusbarService } from "../../../../services/statusbar/browser/statusbar.js";
+import { EditSourceTrackingImpl } from "./editSourceTrackingImpl.js";
+import { DataChannelForwardingTelemetryService } from "../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";
+import { EDIT_TELEMETRY_DETAILS_SETTING_ID, EDIT_TELEMETRY_SHOW_DECORATIONS, EDIT_TELEMETRY_SHOW_STATUS_BAR } from "../settings.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+let EditTrackingFeature = class EditTrackingFeature2 extends Disposable {
+  static {
+    __name(this, "EditTrackingFeature");
+  }
+  constructor(_workspace, _annotatedDocuments, _configurationService, _instantiationService, _statusbarService, _editorService, _extensionService) {
+    super();
+    this._workspace = _workspace;
+    this._annotatedDocuments = _annotatedDocuments;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._statusbarService = _statusbarService;
+    this._editorService = _editorService;
+    this._extensionService = _extensionService;
+    this._showStateInMarkdownDoc = "editTelemetry.showDebugDetails";
+    this._toggleDecorations = "editTelemetry.toggleDebugDecorations";
+    this._editSourceTrackingShowDecorations = makeSettable(observableConfigValue(EDIT_TELEMETRY_SHOW_DECORATIONS, false, this._configurationService));
+    this._editSourceTrackingShowStatusBar = observableConfigValue(EDIT_TELEMETRY_SHOW_STATUS_BAR, false, this._configurationService);
+    const editSourceDetailsEnabled = observableConfigValue(EDIT_TELEMETRY_DETAILS_SETTING_ID, false, this._configurationService);
+    const extensions = observableFromEvent(this._extensionService.onDidChangeExtensions, () => {
+      return this._extensionService.extensions;
+    });
+    const extensionIds = derived((reader) => new Set(extensions.read(reader).map((e) => e.id?.toLowerCase())));
+    function getExtensionInfoObs(extensionId, extensionService) {
+      const extIdLowerCase = extensionId.toLowerCase();
+      return derived((reader) => extensionIds.read(reader).has(extIdLowerCase));
+    }
+    __name(getExtensionInfoObs, "getExtensionInfoObs");
+    const copilotInstalled = getExtensionInfoObs("GitHub.copilot", this._extensionService);
+    const copilotChatInstalled = getExtensionInfoObs("GitHub.copilot-chat", this._extensionService);
+    const shouldSendDetails = derived((reader) => editSourceDetailsEnabled.read(reader) || !!copilotInstalled.read(reader) || !!copilotChatInstalled.read(reader));
+    const instantiationServiceWithInterceptedTelemetry = this._instantiationService.createChild(new ServiceCollection([ITelemetryService, this._instantiationService.createInstance(DataChannelForwardingTelemetryService)]));
+    const impl = this._register(instantiationServiceWithInterceptedTelemetry.createInstance(EditSourceTrackingImpl, shouldSendDetails, this._annotatedDocuments));
+    this._register(autorun((reader) => {
+      if (!this._editSourceTrackingShowDecorations.read(reader)) {
+        return;
+      }
+      const visibleEditors = observableFromEvent(this, this._editorService.onDidVisibleEditorsChange, () => this._editorService.visibleTextEditorControls);
+      mapObservableArrayCached(this, visibleEditors, (editor, store) => {
+        if (editor instanceof CodeEditorWidget) {
+          const obsEditor = observableCodeEditor(editor);
+          const cssStyles = new DynamicCssRules(editor);
+          const decorations = new CachedFunction((source) => {
+            const r = store.add(cssStyles.createClassNameRef({
+              backgroundColor: source.getColor()
+            }));
+            return r.className;
+          });
+          store.add(obsEditor.setDecorations(derived((reader2) => {
+            const uri = obsEditor.model.read(reader2)?.uri;
+            if (!uri) {
+              return [];
+            }
+            const doc = this._workspace.getDocument(uri);
+            if (!doc) {
+              return [];
+            }
+            const docsState = impl.docsState.read(reader2).get(doc);
+            if (!docsState) {
+              return [];
+            }
+            const ranges = docsState.longtermTracker.read(reader2)?.getTrackedRanges(reader2) ?? [];
+            return ranges.map((r) => ({
+              range: doc.value.read(void 0).getTransformer().getRange(r.range),
+              options: {
+                description: "editSourceTracking",
+                inlineClassName: decorations.get(r.source)
+              }
+            }));
+          })));
+        }
+      }).recomputeInitiallyAndOnChange(reader.store);
+    }));
+    this._register(autorun((reader) => {
+      if (!this._editSourceTrackingShowStatusBar.read(reader)) {
+        return;
+      }
+      const statusBarItem = reader.store.add(this._statusbarService.addEntry({
+        name: "",
+        text: "",
+        command: this._showStateInMarkdownDoc,
+        tooltip: "Edit Source Tracking",
+        ariaLabel: ""
+      }, "editTelemetry", 1, 100));
+      const sumChangedCharacters = derived((reader2) => {
+        const docs = impl.docsState.read(reader2);
+        let sum = 0;
+        for (const state of docs.values()) {
+          const t = state.longtermTracker.read(reader2);
+          if (!t) {
+            continue;
+          }
+          const d = state.getTelemetryData(t.getTrackedRanges(reader2));
+          sum += d.totalModifiedCharactersInFinalState;
+        }
+        return sum;
+      });
+      const tooltipMarkdownString = derived((reader2) => {
+        const docs = impl.docsState.read(reader2);
+        const docsDataInTooltip = [];
+        const editSources = [];
+        for (const [doc, state] of docs) {
+          const tracker = state.longtermTracker.read(reader2);
+          if (!tracker) {
+            continue;
+          }
+          const trackedRanges = tracker.getTrackedRanges(reader2);
+          const data = state.getTelemetryData(trackedRanges);
+          if (data.totalModifiedCharactersInFinalState === 0) {
+            continue;
+          }
+          editSources.push(...trackedRanges.map((r) => r.source));
+          const filteredData = Object.fromEntries(Object.entries(data).filter(([_, value]) => !(typeof value === "number") || value !== 0));
+          docsDataInTooltip.push([
+            `### ${doc.uri.fsPath}`,
+            "```json",
+            JSON.stringify(filteredData, void 0, "	"),
+            "```",
+            "\n"
+          ].join("\n"));
+        }
+        let tooltipContent;
+        if (docsDataInTooltip.length === 0) {
+          tooltipContent = "No modified documents";
+        } else if (docsDataInTooltip.length <= 3) {
+          tooltipContent = docsDataInTooltip.join("\n\n");
+        } else {
+          const lastThree = docsDataInTooltip.slice(-3);
+          tooltipContent = "...\n\n" + lastThree.join("\n\n");
+        }
+        const agenda = this._createEditSourceAgenda(editSources);
+        const tooltipWithCommand = new MarkdownString(tooltipContent + "\n\n[View Details](command:" + this._showStateInMarkdownDoc + ")");
+        tooltipWithCommand.appendMarkdown("\n\n" + agenda + "\n\nToggle decorations: [Click here](command:" + this._toggleDecorations + ")");
+        tooltipWithCommand.isTrusted = { enabledCommands: [this._toggleDecorations] };
+        tooltipWithCommand.supportHtml = true;
+        return tooltipWithCommand;
+      });
+      reader.store.add(autorun((reader2) => {
+        statusBarItem.update({
+          name: "editTelemetry",
+          text: `$(edit) ${sumChangedCharacters.read(reader2)} chars inserted`,
+          ariaLabel: `Edit Source Tracking: ${sumChangedCharacters.read(reader2)} modified characters`,
+          tooltip: tooltipMarkdownString.read(reader2),
+          command: this._showStateInMarkdownDoc
+        });
+      }));
+      reader.store.add(CommandsRegistry.registerCommand(this._toggleDecorations, () => {
+        this._editSourceTrackingShowDecorations.set(!this._editSourceTrackingShowDecorations.read(void 0), void 0);
+      }));
+    }));
+  }
+  _createEditSourceAgenda(editSources) {
+    const editSourcesSeen = /* @__PURE__ */ new Set();
+    const editSourceInfo = [];
+    for (const editSource of editSources) {
+      if (!editSourcesSeen.has(editSource.toString())) {
+        editSourcesSeen.add(editSource.toString());
+        editSourceInfo.push({ name: editSource.toString(), color: editSource.getColor() });
+      }
+    }
+    const agendaItems = editSourceInfo.map((info) => `<span style="background-color:${info.color};border-radius:3px;">${info.name}</span>`);
+    return agendaItems.join(" ");
+  }
+};
+EditTrackingFeature = __decorate([
+  __param(2, IConfigurationService),
+  __param(3, IInstantiationService),
+  __param(4, IStatusbarService),
+  __param(5, IEditorService),
+  __param(6, IExtensionService)
+], EditTrackingFeature);
+function makeSettable(obs) {
+  const overrideObs = observableValue("overrideObs", void 0);
+  return derivedWithSetter(overrideObs, (reader) => {
+    return overrideObs.read(reader) ?? obs.read(reader);
+  }, (value, tx) => {
+    overrideObs.set(value, tx);
+  });
+}
+__name(makeSettable, "makeSettable");
+export {
+  EditTrackingFeature
+};
+//# sourceMappingURL=editSourceTrackingFeature.js.map

@@ -1,1 +1,52 @@
-import{EditorOptions as e}from"./editorOptions.js";import{$xD as s}from"./fontInfo.js";function h(t,n,i){const a=t.get(58),o=t.get(62),f=t.get(61),g=t.get(60),r=t.get(63),c=t.get(75),l=t.get(72);return s._create(a,o,f,g,r,c,l,n,i)}function m(t,n,i=!1){const a=e.fontFamily.validate(t.fontFamily),o=e.fontWeight.validate(t.fontWeight),f=e.fontSize.validate(t.fontSize),g=e.fontLigatures2.validate(t.fontLigatures),r=e.fontVariations.validate(t.fontVariations),c=e.lineHeight.validate(t.lineHeight),l=e.letterSpacing.validate(t.letterSpacing);return s._create(a,o,f,g,r,c,l,n,i)}export{h as $cdb,m as $ddb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorOptions } from "./editorOptions.js";
+import { BareFontInfo } from "./fontInfo.js";
+function createBareFontInfoFromValidatedSettings(options, pixelRatio, ignoreEditorZoom) {
+  const fontFamily = options.get(
+    58
+    /* EditorOption.fontFamily */
+  );
+  const fontWeight = options.get(
+    62
+    /* EditorOption.fontWeight */
+  );
+  const fontSize = options.get(
+    61
+    /* EditorOption.fontSize */
+  );
+  const fontFeatureSettings = options.get(
+    60
+    /* EditorOption.fontLigatures */
+  );
+  const fontVariationSettings = options.get(
+    63
+    /* EditorOption.fontVariations */
+  );
+  const lineHeight = options.get(
+    75
+    /* EditorOption.lineHeight */
+  );
+  const letterSpacing = options.get(
+    72
+    /* EditorOption.letterSpacing */
+  );
+  return BareFontInfo._create(fontFamily, fontWeight, fontSize, fontFeatureSettings, fontVariationSettings, lineHeight, letterSpacing, pixelRatio, ignoreEditorZoom);
+}
+__name(createBareFontInfoFromValidatedSettings, "createBareFontInfoFromValidatedSettings");
+function createBareFontInfoFromRawSettings(opts, pixelRatio, ignoreEditorZoom = false) {
+  const fontFamily = EditorOptions.fontFamily.validate(opts.fontFamily);
+  const fontWeight = EditorOptions.fontWeight.validate(opts.fontWeight);
+  const fontSize = EditorOptions.fontSize.validate(opts.fontSize);
+  const fontFeatureSettings = EditorOptions.fontLigatures2.validate(opts.fontLigatures);
+  const fontVariationSettings = EditorOptions.fontVariations.validate(opts.fontVariations);
+  const lineHeight = EditorOptions.lineHeight.validate(opts.lineHeight);
+  const letterSpacing = EditorOptions.letterSpacing.validate(opts.letterSpacing);
+  return BareFontInfo._create(fontFamily, fontWeight, fontSize, fontFeatureSettings, fontVariationSettings, lineHeight, letterSpacing, pixelRatio, ignoreEditorZoom);
+}
+__name(createBareFontInfoFromRawSettings, "createBareFontInfoFromRawSettings");
+export {
+  createBareFontInfoFromRawSettings,
+  createBareFontInfoFromValidatedSettings
+};
+//# sourceMappingURL=fontInfoFromSettings.js.map

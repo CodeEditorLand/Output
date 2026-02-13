@@ -1,1 +1,89 @@
-import{$s as l,$m as t}from"../../../base/common/platform.js";import{PolicyCategory as n}from"../../../base/common/policy.js";import{localize as e}from"../../../nls.js";import{$lm as o}from"../../configuration/common/configurationRegistry.js";import{$jm as u}from"../../registry/common/platform.js";const i=u.as(o.Configuration);i.registerConfiguration({id:"update",order:15,title:e(2718,null),type:"object",properties:{"update.mode":{type:"string",enum:["none","manual","start","default"],default:"default",scope:1,description:e(2719,null),tags:["usesOnlineServices"],enumDescriptions:[e(2720,null),e(2721,null),e(2722,null),e(2723,null)],policy:{name:"UpdateMode",category:n.Update,minimumVersion:"1.67",localization:{description:{key:"updateMode",value:e(2724,null)},enumDescriptions:[{key:"none",value:e(2725,null)},{key:"manual",value:e(2726,null)},{key:"start",value:e(2727,null)},{key:"default",value:e(2728,null)}]}}},"update.channel":{type:"string",default:"default",scope:1,description:e(2729,null),deprecationMessage:e(2730,null,"update.mode")},"update.enableWindowsBackgroundUpdates":{type:"boolean",default:!0,scope:1,title:e(2731,null),description:e(2732,null),included:t&&!l},"update.showReleaseNotes":{type:"boolean",default:!0,scope:1,description:e(2733,null),tags:["usesOnlineServices"]},"update.statusBar":{type:"string",enum:["hidden","actionable","detailed"],default:"detailed",scope:1,description:e(2734,null),enumDescriptions:[e(2735,null),e(2736,null),e(2737,null)]}}});
+import { isWeb, isWindows } from "../../../base/common/platform.js";
+import { PolicyCategory } from "../../../base/common/policy.js";
+import { localize } from "../../../nls.js";
+import { Extensions as ConfigurationExtensions } from "../../configuration/common/configurationRegistry.js";
+import { Registry } from "../../registry/common/platform.js";
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "update",
+  order: 15,
+  title: localize("updateConfigurationTitle", "Update"),
+  type: "object",
+  properties: {
+    "update.mode": {
+      type: "string",
+      enum: ["none", "manual", "start", "default"],
+      default: "default",
+      scope: 1,
+      description: localize("updateMode", "Configure whether you receive automatic updates. Requires a restart after change. The updates are fetched from a Microsoft online service."),
+      tags: ["usesOnlineServices"],
+      enumDescriptions: [
+        localize("none", "Disable updates."),
+        localize("manual", "Disable automatic background update checks. Updates will be available if you manually check for updates."),
+        localize("start", "Check for updates only on startup. Disable automatic background update checks."),
+        localize("default", "Enable automatic update checks. Code will check for updates automatically and periodically.")
+      ],
+      policy: {
+        name: "UpdateMode",
+        category: PolicyCategory.Update,
+        minimumVersion: "1.67",
+        localization: {
+          description: { key: "updateMode", value: localize("updateMode", "Configure whether you receive automatic updates. Requires a restart after change. The updates are fetched from a Microsoft online service.") },
+          enumDescriptions: [
+            {
+              key: "none",
+              value: localize("none", "Disable updates.")
+            },
+            {
+              key: "manual",
+              value: localize("manual", "Disable automatic background update checks. Updates will be available if you manually check for updates.")
+            },
+            {
+              key: "start",
+              value: localize("start", "Check for updates only on startup. Disable automatic background update checks.")
+            },
+            {
+              key: "default",
+              value: localize("default", "Enable automatic update checks. Code will check for updates automatically and periodically.")
+            }
+          ]
+        }
+      }
+    },
+    "update.channel": {
+      type: "string",
+      default: "default",
+      scope: 1,
+      description: localize("updateMode", "Configure whether you receive automatic updates. Requires a restart after change. The updates are fetched from a Microsoft online service."),
+      deprecationMessage: localize("deprecated", "This setting is deprecated, please use '{0}' instead.", "update.mode")
+    },
+    "update.enableWindowsBackgroundUpdates": {
+      type: "boolean",
+      default: true,
+      scope: 1,
+      title: localize("enableWindowsBackgroundUpdatesTitle", "Enable Background Updates on Windows"),
+      description: localize("enableWindowsBackgroundUpdates", "Enable to download and install new VS Code versions in the background on Windows."),
+      included: isWindows && !isWeb
+    },
+    "update.showReleaseNotes": {
+      type: "boolean",
+      default: true,
+      scope: 1,
+      description: localize("showReleaseNotes", "Show Release Notes after an update. The Release Notes are fetched from a Microsoft online service."),
+      tags: ["usesOnlineServices"]
+    },
+    "update.statusBar": {
+      type: "string",
+      enum: ["hidden", "actionable", "detailed"],
+      default: "detailed",
+      scope: 1,
+      description: localize("statusBar", "Controls the visibility of the update status bar entry."),
+      enumDescriptions: [
+        localize("hidden", "The status bar entry is never shown."),
+        localize("actionable", "The status bar entry is shown when an action is required (e.g., download, install, or restart)."),
+        localize("detailed", "The status bar entry is shown for all update states including progress.")
+      ]
+    }
+  }
+});
+//# sourceMappingURL=update.config.contribution.js.map

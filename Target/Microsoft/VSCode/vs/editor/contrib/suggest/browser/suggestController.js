@@ -1,1 +1,1024 @@
-import{$50 as Z}from"../../../../base/browser/ui/aria/aria.js";import{$cc as Y}from"../../../../base/common/arrays.js";import{$Jf as ee}from"../../../../base/common/cancellation.js";import{$mb as te,$nb as ie}from"../../../../base/common/errors.js";import{$xf as oe,Event as B}from"../../../../base/common/event.js";import{$Dd as se,$zd as _,$Fd as ne,$Cd as re}from"../../../../base/common/lifecycle.js";import{$rf as q}from"../../../../base/common/stopwatch.js";import{$fd as de,$9c as le}from"../../../../base/common/types.js";import{$Eib as W}from"../../../browser/stableEditorScroll.js";import{$Sdb as K,$Rdb as G,$Xdb as Q,$Wdb as f,$1db as ae}from"../../../browser/editorExtensions.js";import{$aE as U}from"../../../common/core/editOperation.js";import{$$D as V}from"../../../common/core/position.js";import{$_D as k}from"../../../common/core/range.js";import{EditorContextKeys as u}from"../../../common/editorContextKeys.js";import{$PF as ce}from"../../../common/languages.js";import{$Qnb as A}from"../../snippet/browser/snippetController2.js";import{$clb as ge}from"../../snippet/browser/snippetParser.js";import{$Zob as ue}from"./suggestMemory.js";import{$1ob as J}from"./wordContextKey.js";import*as I from"../../../../nls.js";import{$vo as pe,$uo as he}from"../../../../platform/commands/common/commands.js";import{$0n as d,$ro as me}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as fe}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as be}from"../../../../platform/log/common/log.js";import{$mnb as t,$nnb as C}from"./suggest.js";import{$dpb as T}from"./suggestAlternatives.js";import{$epb as Se}from"./suggestCommitCharacters.js";import{$Dnb as xe}from"./suggestModel.js";import{$Enb as we}from"./suggestOvertypingCapturer.js";import{$bpb as ve}from"./suggestWidget.js";import{$pp as ye}from"../../../../platform/telemetry/common/telemetry.js";import{$Fh as Ie,$Gh as Ee}from"../../../../base/common/resources.js";import{$Gn as Oe}from"../../../../base/common/hash.js";import{$C8 as H,getWindow as P}from"../../../../base/browser/dom.js";import{$aL as Ce}from"../../../common/model/textModel.js";import{$oF as De}from"../../../common/textModelEditSource.js";var X=function(i,e,o,r){var l=arguments.length,a=l<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,o):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(i,e,o,r);else for(var g=i.length-1;g>=0;g--)(s=i[g])&&(a=(l<3?s(a):l>3?s(e,o,a):s(e,o))||a);return l>3&&a&&Object.defineProperty(e,o,a),a},M=function(i,e){return function(o,r){e(o,r,i)}},L;const Ne=!1;class ke{constructor(e,o){if(this.d=e,this.f=o,this.a=Ce.register({description:"suggest-line-suffix",stickiness:1}),e.getLineMaxColumn(o.lineNumber)!==o.column){const l=e.getOffsetAt(o),a=e.getPositionAt(l+1);e.changeDecorations(s=>{this.b&&s.removeDecoration(this.b),this.b=s.addDecoration(k.fromPositions(o,a),this.a)})}}dispose(){this.b&&!this.d.isDisposed()&&this.d.changeDecorations(e=>{e.removeDecoration(this.b),this.b=void 0})}delta(e){if(this.d.isDisposed()||this.f.lineNumber!==e.lineNumber)return 0;if(this.b){const o=this.d.getDecorationRange(this.b);return this.d.getOffsetAt(o.getStartPosition())-this.d.getOffsetAt(e)}else return this.d.getLineMaxColumn(e.lineNumber)-e.column}}var j;(function(i){i[i.None=0]="None",i[i.NoBeforeUndoStop=1]="NoBeforeUndoStop",i[i.NoAfterUndoStop=2]="NoAfterUndoStop",i[i.KeepAlternativeSuggestions=4]="KeepAlternativeSuggestions",i[i.AlternativeOverwriteConfig=8]="AlternativeOverwriteConfig"})(j||(j={}));let F=class{static{L=this}static{this.ID="editor.contrib.suggestController"}static get(e){return e.getContribution(L.ID)}get onWillInsertSuggestItem(){return this.h.event}constructor(e,o,r,l,a,s,g){this.k=o,this.l=r,this.m=l,this.n=a,this.o=s,this.p=g,this.b=new ne,this.d=new se,this.g=new Fe(n=>n.priority),this.h=new oe,this.j=!1,this.editor=e,this.model=a.createInstance(xe,this.editor),this.g.register({priority:0,select:(n,h,b)=>this.k.select(n,h,b)});const p=t.InsertMode.bindTo(l);p.set(e.getOption(134).insertMode),this.d.add(this.model.onDidTrigger(()=>p.set(e.getOption(134).insertMode))),this.widget=this.d.add(new H(P(e.getDomNode()),()=>{const n=this.n.createInstance(ve,this.editor);this.d.add(n),this.d.add(n.onDidSelect(c=>this.q(c,0),this));const h=new Se(this.editor,n,this.model,c=>this.q(c,2));this.d.add(h);const b=t.MakesTextEdit.bindTo(this.m),m=t.HasInsertAndReplaceRange.bindTo(this.m),w=t.CanResolve.bindTo(this.m);return this.d.add(re(()=>{b.reset(),m.reset(),w.reset()})),this.d.add(n.onDidFocus(({item:c})=>{const E=this.editor.getPosition(),O=c.editStart.column,D=E.column;let y=!0;this.editor.getOption(1)==="smart"&&this.model.state===2&&!c.completion.additionalTextEdits&&!(c.completion.insertTextRules&4)&&D-O===c.completion.insertText.length&&(y=this.editor.getModel().getValueInRange({startLineNumber:E.lineNumber,startColumn:O,endLineNumber:E.lineNumber,endColumn:D})!==c.completion.insertText),b.set(y),m.set(!V.equals(c.editInsertEnd,c.editReplaceEnd)),w.set(!!c.provider.resolveCompletionItem||!!c.completion.documentation||c.completion.detail!==c.completion.label)})),this.j&&n.forceRenderingAbove(),n})),this.f=this.d.add(new H(P(e.getDomNode()),()=>this.d.add(new we(this.editor,this.model)))),this.a=this.d.add(new H(P(e.getDomNode()),()=>this.d.add(new T(this.editor,this.m)))),this.d.add(a.createInstance(J,e)),this.d.add(this.model.onDidTrigger(n=>{this.widget.value.showTriggered(n.auto,n.shy?250:50),this.b.value=new ke(this.editor.getModel(),n.position)})),this.d.add(this.model.onDidSuggest(n=>{if(n.triggerOptions.shy)return;let h=-1;for(const m of this.g.itemsOrderedByPriorityDesc)if(h=m.select(this.editor.getModel(),this.editor.getPosition(),n.completionModel.items),h!==-1)break;if(h===-1&&(h=0),this.model.state===0)return;let b=!1;if(n.triggerOptions.auto){const m=this.editor.getOption(134);m.selectionMode==="never"||m.selectionMode==="always"?b=m.selectionMode==="never":m.selectionMode==="whenTriggerCharacter"?b=n.triggerOptions.triggerKind!==1:m.selectionMode==="whenQuickSuggestion"&&(b=n.triggerOptions.triggerKind===1&&!n.triggerOptions.refilter)}this.widget.value.showSuggestions(n.completionModel,h,n.isFrozen,n.triggerOptions.auto,b)})),this.d.add(this.model.onDidCancel(n=>{n.retrigger||this.widget.value.hideWidget()})),this.d.add(this.editor.onDidBlurEditorWidget(()=>{Ne||(this.model.cancel(),this.model.clear())}));const v=t.AcceptSuggestionsOnEnter.bindTo(l),$=()=>{const n=this.editor.getOption(1);v.set(n==="on"||n==="smart")};this.d.add(this.editor.onDidChangeConfiguration(()=>$())),$()}dispose(){this.a.dispose(),this.d.dispose(),this.widget.dispose(),this.model.dispose(),this.b.dispose(),this.h.dispose()}q(e,o){if(!e||!e.item){this.a.value.reset(),this.model.cancel(),this.model.clear();return}if(!this.editor.hasModel())return;const r=A.get(this.editor);if(!r)return;this.h.fire({item:e.item});const l=this.editor.getModel(),a=l.getAlternativeVersionId(),{item:s}=e,g=[],p=new ee;o&1||this.editor.pushUndoStop();const v=this.getOverwriteInfo(s,!!(o&8));this.k.memorize(l,this.editor.getPosition(),s);const $=s.isResolved;let n=-1,h=-1;if(Array.isArray(s.completion.additionalTextEdits)){this.model.cancel();const m=W.capture(this.editor);this.editor.executeEdits("suggestController.additionalTextEdits.sync",s.completion.additionalTextEdits.map(w=>{let c=k.lift(w.range);if(c.startLineNumber===s.position.lineNumber&&c.startColumn>s.position.column){const E=this.editor.getPosition().column-s.position.column,O=E,D=k.spansMultipleLines(c)?0:E;c=new k(c.startLineNumber,c.startColumn+O,c.endLineNumber,c.endColumn+D)}return U.replaceMove(c,w.text)})),m.restoreRelativeVerticalPositionOfCursor(this.editor)}else if(!$){const m=new q;let w;const c=l.onDidChangeContent(y=>{if(y.isFlush){p.cancel(),c.dispose();return}for(const N of y.changes){const z=k.getEndPosition(N.range);(!w||V.isBefore(z,w))&&(w=z)}}),E=o;o|=2;let O=!1;const D=this.editor.onWillType(()=>{D.dispose(),O=!0,E&2||this.editor.pushUndoStop()});g.push(s.resolve(p.token).then(()=>{if(!s.completion.additionalTextEdits||p.token.isCancellationRequested)return;if(w&&s.completion.additionalTextEdits.some(N=>V.isBefore(w,k.getStartPosition(N.range))))return!1;O&&this.editor.pushUndoStop();const y=W.capture(this.editor);return this.editor.executeEdits("suggestController.additionalTextEdits.async",s.completion.additionalTextEdits.map(N=>U.replaceMove(k.lift(N.range),N.text))),y.restoreRelativeVerticalPositionOfCursor(this.editor),(O||!(E&2))&&this.editor.pushUndoStop(),!0}).then(y=>{this.o.trace("[suggest] async resolving of edits DONE (ms, applied?)",m.elapsed(),y),h=y===!0?1:y===!1?0:-2}).finally(()=>{c.dispose(),D.dispose()}))}let{insertText:b}=s.completion;if(s.completion.insertTextRules&4||(b=ge.escape(b)),this.model.cancel(),r.insert(b,{overwriteBefore:v.overwriteBefore,overwriteAfter:v.overwriteAfter,undoStopBefore:!1,undoStopAfter:!1,adjustWhitespace:!(s.completion.insertTextRules&1),clipboardText:e.model.clipboardText,overtypingCapturer:this.f.value,reason:De.suggest({providerId:ce.fromExtensionId(s.extensionId?.value)})}),o&2||this.editor.pushUndoStop(),s.completion.command)if(s.completion.command.id===R.id)this.model.trigger({auto:!0,retrigger:!0});else{const m=new q;g.push(this.l.executeCommand(s.completion.command.id,...s.completion.command.arguments?[...s.completion.command.arguments]:[]).catch(w=>{s.completion.extensionId?ie(w):te(w)}).finally(()=>{n=m.elapsed()}))}o&4&&this.a.value.set(e,m=>{for(p.cancel();l.canUndo();){a!==l.getAlternativeVersionId()&&l.undo(),this.q(m,3|(o&8?8:0));break}}),this.t(s),Promise.all(g).finally(()=>{this.r(s,l,$,n,h,e.index,e.model.items),this.model.clear(),p.dispose()})}r(e,o,r,l,a,s,g){if(Math.random()>1e-4)return;const p=new Map;for(let h=0;h<Math.min(30,g.length);h++){const b=g[h].textLabel;p.has(b)?p.get(b).push(h):p.set(b,[h])}const v=p.get(e.textLabel),n=v&&v.length>1?v[0]:-1;this.p.publicLog2("suggest.acceptedSuggestion",{extensionId:e.extensionId?.value??"unknown",providerId:e.provider._debugDisplayName??"unknown",kind:e.completion.kind,basenameHash:Oe(Ie(o.uri)).toString(16),languageId:o.getLanguageId(),fileExtension:Ee(o.uri),resolveInfo:e.provider.resolveCompletionItem?r?1:0:-1,resolveDuration:e.resolveDuration,commandDuration:l,additionalEditsAsync:a,index:s,firstIndex:n})}getOverwriteInfo(e,o){de(this.editor.hasModel());let r=this.editor.getOption(134).insertMode==="replace";o&&(r=!r);const l=e.position.column-e.editStart.column,a=(r?e.editReplaceEnd.column:e.editInsertEnd.column)-e.position.column,s=this.editor.getPosition().column-e.position.column,g=this.b.value?this.b.value.delta(this.editor.getPosition()):0;return{overwriteBefore:l+s,overwriteAfter:a+g}}t(e){if(Y(e.completion.additionalTextEdits)){const o=I.localize(1639,null,e.textLabel,e.completion.additionalTextEdits.length);Z(o)}}triggerSuggest(e,o,r){this.editor.hasModel()&&(this.model.trigger({auto:o??!1,completionOptions:{providerFilter:e,kindFilter:r?new Set:void 0}}),this.editor.revealPosition(this.editor.getPosition(),0),this.editor.focus())}triggerSuggestAndAcceptBest(e){if(!this.editor.hasModel())return;const o=this.editor.getPosition(),r=()=>{o.equals(this.editor.getPosition())&&this.l.executeCommand(e.fallback)},l=a=>{if(a.completion.insertTextRules&4||a.completion.additionalTextEdits)return!0;const s=this.editor.getPosition(),g=a.editStart.column,p=s.column;return p-g!==a.completion.insertText.length?!0:this.editor.getModel().getValueInRange({startLineNumber:s.lineNumber,startColumn:g,endLineNumber:s.lineNumber,endColumn:p})!==a.completion.insertText};B.once(this.model.onDidTrigger)(a=>{const s=[];B.any(this.model.onDidTrigger,this.model.onDidCancel)(()=>{_(s),r()},void 0,s),this.model.onDidSuggest(({completionModel:g})=>{if(_(s),g.items.length===0){r();return}const p=this.k.select(this.editor.getModel(),this.editor.getPosition(),g.items),v=g.items[p];if(!l(v)){r();return}this.editor.pushUndoStop(),this.q({index:p,item:v,model:g},7)},void 0,s)}),this.model.trigger({auto:!1,shy:!0}),this.editor.revealPosition(o,0),this.editor.focus()}acceptSelectedSuggestion(e,o){const r=this.widget.value.getFocusedItem();let l=0;e&&(l|=4),o&&(l|=8),this.q(r,l)}acceptNextSuggestion(){this.a.value.next()}acceptPrevSuggestion(){this.a.value.prev()}cancelSuggestWidget(){this.model.cancel(),this.model.clear(),this.widget.value.hideWidget()}focusSuggestion(){this.widget.value.focusSelected()}selectNextSuggestion(){this.widget.value.selectNext()}selectNextPageSuggestion(){this.widget.value.selectNextPage()}selectLastSuggestion(){this.widget.value.selectLast()}selectPrevSuggestion(){this.widget.value.selectPrevious()}selectPrevPageSuggestion(){this.widget.value.selectPreviousPage()}selectFirstSuggestion(){this.widget.value.selectFirst()}toggleSuggestionDetails(){this.widget.value.toggleDetails()}toggleExplainMode(){this.widget.value.toggleExplainMode()}toggleSuggestionFocus(){this.widget.value.toggleDetailsFocus()}resetWidgetSize(){this.widget.value.resetPersistedSize()}forceRenderingAbove(){this.widget.isInitialized?this.widget.value.forceRenderingAbove():this.j=!0}stopForceRenderingAbove(){this.widget.isInitialized?this.widget.value.stopForceRenderingAbove():this.j=!1}registerSelector(e){return this.g.register(e)}};F=L=X([M(1,ue),M(2,he),M(3,me),M(4,fe),M(5,be),M(6,ye)],F);class Fe{constructor(e){this.b=e,this.a=new Array}register(e){if(this.a.indexOf(e)!==-1)throw new Error("Value is already registered");return this.a.push(e),this.a.sort((o,r)=>this.b(r)-this.b(o)),{dispose:()=>{const o=this.a.indexOf(e);o>=0&&this.a.splice(o,1)}}}get itemsOrderedByPriorityDesc(){return this.a}}class R extends K{static{this.id="editor.action.triggerSuggest"}constructor(){super({id:R.id,label:I.localize2(1648,"Trigger Suggest"),precondition:d.and(u.writable,u.hasCompletionItemProvider,t.Visible.toNegated()),kbOpts:{kbExpr:u.textInputFocus,primary:2058,secondary:[2087],mac:{primary:266,secondary:[521,2087]},weight:100}})}run(e,o,r){const l=F.get(o);if(!l)return;let a;r&&typeof r=="object"&&r.auto===!0&&(a=!0),l.triggerSuggest(void 0,a,void 0)}}ae(F.ID,F,2);Q(R);const x=190,S=G.bindToContribution(F.get);f(new S({id:"acceptSelectedSuggestion",precondition:d.and(t.Visible,t.HasFocusedSuggestion),handler(i){i.acceptSelectedSuggestion(!0,!1)},kbOpts:[{primary:2,kbExpr:d.and(t.Visible,u.textInputFocus),weight:x},{primary:3,kbExpr:d.and(t.Visible,u.textInputFocus,t.AcceptSuggestionsOnEnter,t.MakesTextEdit),weight:x}],menuOpts:[{menuId:C,title:I.localize(1640,null),group:"left",order:1,when:d.and(t.HasFocusedSuggestion,t.HasInsertAndReplaceRange.toNegated())},{menuId:C,title:I.localize(1641,null),group:"left",order:1,when:d.and(t.HasFocusedSuggestion,t.HasInsertAndReplaceRange,t.InsertMode.isEqualTo("insert"))},{menuId:C,title:I.localize(1642,null),group:"left",order:1,when:d.and(t.HasFocusedSuggestion,t.HasInsertAndReplaceRange,t.InsertMode.isEqualTo("replace"))}]}));f(new S({id:"acceptAlternativeSelectedSuggestion",precondition:d.and(t.Visible,u.textInputFocus,t.HasFocusedSuggestion),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:1027,secondary:[1026]},handler(i){i.acceptSelectedSuggestion(!1,!0)},menuOpts:[{menuId:C,group:"left",order:2,when:d.and(t.HasFocusedSuggestion,t.HasInsertAndReplaceRange,t.InsertMode.isEqualTo("insert")),title:I.localize(1643,null)},{menuId:C,group:"left",order:2,when:d.and(t.HasFocusedSuggestion,t.HasInsertAndReplaceRange,t.InsertMode.isEqualTo("replace")),title:I.localize(1644,null)}]}));pe.registerCommandAlias("acceptSelectedSuggestionOnEnter","acceptSelectedSuggestion");f(new S({id:"hideSuggestWidget",precondition:t.Visible,handler:i=>i.cancelSuggestWidget(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:9,secondary:[1033]}}));f(new S({id:"selectNextSuggestion",precondition:d.and(t.Visible,d.or(t.MultipleSuggestions,t.HasFocusedSuggestion.negate())),handler:i=>i.selectNextSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:18,secondary:[2066],mac:{primary:18,secondary:[2066,300]}},menuOpts:{menuId:C,group:"left",order:0,when:t.HasFocusedSuggestion.toNegated(),title:I.localize(1645,null)}}));f(new S({id:"selectNextPageSuggestion",precondition:d.and(t.Visible,d.or(t.MultipleSuggestions,t.HasFocusedSuggestion.negate())),handler:i=>i.selectNextPageSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:12,secondary:[2060]}}));f(new S({id:"selectLastSuggestion",precondition:d.and(t.Visible,d.or(t.MultipleSuggestions,t.HasFocusedSuggestion.negate())),handler:i=>i.selectLastSuggestion()}));f(new S({id:"selectPrevSuggestion",precondition:d.and(t.Visible,d.or(t.MultipleSuggestions,t.HasFocusedSuggestion.negate())),handler:i=>i.selectPrevSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:16,secondary:[2064],mac:{primary:16,secondary:[2064,302]}}}));f(new S({id:"selectPrevPageSuggestion",precondition:d.and(t.Visible,d.or(t.MultipleSuggestions,t.HasFocusedSuggestion.negate())),handler:i=>i.selectPrevPageSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:11,secondary:[2059]}}));f(new S({id:"selectFirstSuggestion",precondition:d.and(t.Visible,d.or(t.MultipleSuggestions,t.HasFocusedSuggestion.negate())),handler:i=>i.selectFirstSuggestion()}));f(new S({id:"focusSuggestion",precondition:d.and(t.Visible,t.HasFocusedSuggestion.negate()),handler:i=>i.focusSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:2058,secondary:[2087],mac:{primary:266,secondary:[2087]}}}));f(new S({id:"focusAndAcceptSuggestion",precondition:d.and(t.Visible,t.HasFocusedSuggestion.negate()),handler:i=>{i.focusSuggestion(),i.acceptSelectedSuggestion(!0,!1)}}));f(new S({id:"toggleSuggestionDetails",precondition:d.and(t.Visible,t.HasFocusedSuggestion),handler:i=>i.toggleSuggestionDetails(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:2058,secondary:[2087],mac:{primary:266,secondary:[2087]}},menuOpts:[{menuId:C,group:"right",order:1,when:d.and(t.DetailsVisible,t.CanResolve),title:I.localize(1646,null)},{menuId:C,group:"right",order:1,when:d.and(t.DetailsVisible.toNegated(),t.CanResolve),title:I.localize(1647,null)}]}));f(new S({id:"toggleExplainMode",precondition:t.Visible,handler:i=>i.toggleExplainMode(),kbOpts:{weight:100,primary:2138}}));f(new S({id:"toggleSuggestionFocus",precondition:t.Visible,handler:i=>i.toggleSuggestionFocus(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:2570,mac:{primary:778}}}));f(new S({id:"insertBestCompletion",precondition:d.and(u.textInputFocus,d.equals("config.editor.tabCompletion","on"),J.AtEnd,t.Visible.toNegated(),T.OtherSuggestions.toNegated(),A.InSnippetMode.toNegated()),handler:(i,e)=>{i.triggerSuggestAndAcceptBest(le(e)?{fallback:"tab",...e}:{fallback:"tab"})},kbOpts:{weight:x,primary:2}}));f(new S({id:"insertNextSuggestion",precondition:d.and(u.textInputFocus,d.equals("config.editor.tabCompletion","on"),T.OtherSuggestions,t.Visible.toNegated(),A.InSnippetMode.toNegated()),handler:i=>i.acceptNextSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:2}}));f(new S({id:"insertPrevSuggestion",precondition:d.and(u.textInputFocus,d.equals("config.editor.tabCompletion","on"),T.OtherSuggestions,t.Visible.toNegated(),A.InSnippetMode.toNegated()),handler:i=>i.acceptPrevSuggestion(),kbOpts:{weight:x,kbExpr:u.textInputFocus,primary:1026}}));f(new class extends G{constructor(){super({id:"suggestWidgetCopy",precondition:t.DetailsFocused,kbOpts:{weight:x+10,kbExpr:t.DetailsFocused,primary:2081,win:{primary:2081,secondary:[2067]}}})}runEditorCommand(i,e){P(e.getDomNode()).document.execCommand("copy")}});Q(class extends K{constructor(){super({id:"editor.action.resetSuggestSize",label:I.localize2(1649,"Reset Suggest Widget Size"),precondition:void 0})}run(i,e){F.get(e)?.resetWidgetSize()}});export{F as $fpb,R as $gpb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SuggestController_1;
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { onUnexpectedError, onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { DisposableStore, dispose, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { assertType, isObject } from "../../../../base/common/types.js";
+import { StableEditorScrollState } from "../../../browser/stableEditorScroll.js";
+import { EditorAction, EditorCommand, registerEditorAction, registerEditorCommand, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { EditOperation } from "../../../common/core/editOperation.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { ProviderId } from "../../../common/languages.js";
+import { SnippetController2 } from "../../snippet/browser/snippetController2.js";
+import { SnippetParser } from "../../snippet/browser/snippetParser.js";
+import { ISuggestMemoryService } from "./suggestMemory.js";
+import { WordContextKey } from "./wordContextKey.js";
+import * as nls from "../../../../nls.js";
+import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Context as SuggestContext, suggestWidgetStatusbarMenu } from "./suggest.js";
+import { SuggestAlternatives } from "./suggestAlternatives.js";
+import { CommitCharacterController } from "./suggestCommitCharacters.js";
+import { SuggestModel } from "./suggestModel.js";
+import { OvertypingCapturer } from "./suggestOvertypingCapturer.js";
+import { SuggestWidget } from "./suggestWidget.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { basename, extname } from "../../../../base/common/resources.js";
+import { hash } from "../../../../base/common/hash.js";
+import { WindowIdleValue, getWindow } from "../../../../base/browser/dom.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { EditSources } from "../../../common/textModelEditSource.js";
+const _sticky = false;
+class LineSuffix {
+  static {
+    __name(this, "LineSuffix");
+  }
+  constructor(_model, _position) {
+    this._model = _model;
+    this._position = _position;
+    this._decorationOptions = ModelDecorationOptions.register({
+      description: "suggest-line-suffix",
+      stickiness: 1
+      /* TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges */
+    });
+    const maxColumn = _model.getLineMaxColumn(_position.lineNumber);
+    if (maxColumn !== _position.column) {
+      const offset = _model.getOffsetAt(_position);
+      const end = _model.getPositionAt(offset + 1);
+      _model.changeDecorations((accessor) => {
+        if (this._marker) {
+          accessor.removeDecoration(this._marker);
+        }
+        this._marker = accessor.addDecoration(Range.fromPositions(_position, end), this._decorationOptions);
+      });
+    }
+  }
+  dispose() {
+    if (this._marker && !this._model.isDisposed()) {
+      this._model.changeDecorations((accessor) => {
+        accessor.removeDecoration(this._marker);
+        this._marker = void 0;
+      });
+    }
+  }
+  delta(position) {
+    if (this._model.isDisposed() || this._position.lineNumber !== position.lineNumber) {
+      return 0;
+    }
+    if (this._marker) {
+      const range = this._model.getDecorationRange(this._marker);
+      const end = this._model.getOffsetAt(range.getStartPosition());
+      return end - this._model.getOffsetAt(position);
+    } else {
+      return this._model.getLineMaxColumn(position.lineNumber) - position.column;
+    }
+  }
+}
+var InsertFlags;
+(function(InsertFlags2) {
+  InsertFlags2[InsertFlags2["None"] = 0] = "None";
+  InsertFlags2[InsertFlags2["NoBeforeUndoStop"] = 1] = "NoBeforeUndoStop";
+  InsertFlags2[InsertFlags2["NoAfterUndoStop"] = 2] = "NoAfterUndoStop";
+  InsertFlags2[InsertFlags2["KeepAlternativeSuggestions"] = 4] = "KeepAlternativeSuggestions";
+  InsertFlags2[InsertFlags2["AlternativeOverwriteConfig"] = 8] = "AlternativeOverwriteConfig";
+})(InsertFlags || (InsertFlags = {}));
+let SuggestController = class SuggestController2 {
+  static {
+    __name(this, "SuggestController");
+  }
+  static {
+    SuggestController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.suggestController";
+  }
+  static get(editor) {
+    return editor.getContribution(SuggestController_1.ID);
+  }
+  get onWillInsertSuggestItem() {
+    return this._onWillInsertSuggestItem.event;
+  }
+  constructor(editor, _memoryService, _commandService, _contextKeyService, _instantiationService, _logService, _telemetryService) {
+    this._memoryService = _memoryService;
+    this._commandService = _commandService;
+    this._contextKeyService = _contextKeyService;
+    this._instantiationService = _instantiationService;
+    this._logService = _logService;
+    this._telemetryService = _telemetryService;
+    this._lineSuffix = new MutableDisposable();
+    this._toDispose = new DisposableStore();
+    this._selectors = new PriorityRegistry((s) => s.priority);
+    this._onWillInsertSuggestItem = new Emitter();
+    this._wantsForceRenderingAbove = false;
+    this.editor = editor;
+    this.model = _instantiationService.createInstance(SuggestModel, this.editor);
+    this._selectors.register({
+      priority: 0,
+      select: /* @__PURE__ */ __name((model, pos, items) => this._memoryService.select(model, pos, items), "select")
+    });
+    const ctxInsertMode = SuggestContext.InsertMode.bindTo(_contextKeyService);
+    ctxInsertMode.set(editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).insertMode);
+    this._toDispose.add(this.model.onDidTrigger(() => ctxInsertMode.set(editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).insertMode)));
+    this.widget = this._toDispose.add(new WindowIdleValue(getWindow(editor.getDomNode()), () => {
+      const widget = this._instantiationService.createInstance(SuggestWidget, this.editor);
+      this._toDispose.add(widget);
+      this._toDispose.add(widget.onDidSelect((item) => this._insertSuggestion(
+        item,
+        0
+        /* InsertFlags.None */
+      ), this));
+      const commitCharacterController = new CommitCharacterController(this.editor, widget, this.model, (item) => this._insertSuggestion(
+        item,
+        2
+        /* InsertFlags.NoAfterUndoStop */
+      ));
+      this._toDispose.add(commitCharacterController);
+      const ctxMakesTextEdit = SuggestContext.MakesTextEdit.bindTo(this._contextKeyService);
+      const ctxHasInsertAndReplace = SuggestContext.HasInsertAndReplaceRange.bindTo(this._contextKeyService);
+      const ctxCanResolve = SuggestContext.CanResolve.bindTo(this._contextKeyService);
+      this._toDispose.add(toDisposable(() => {
+        ctxMakesTextEdit.reset();
+        ctxHasInsertAndReplace.reset();
+        ctxCanResolve.reset();
+      }));
+      this._toDispose.add(widget.onDidFocus(({ item }) => {
+        const position = this.editor.getPosition();
+        const startColumn = item.editStart.column;
+        const endColumn = position.column;
+        let value = true;
+        if (this.editor.getOption(
+          1
+          /* EditorOption.acceptSuggestionOnEnter */
+        ) === "smart" && this.model.state === 2 && !item.completion.additionalTextEdits && !(item.completion.insertTextRules & 4) && endColumn - startColumn === item.completion.insertText.length) {
+          const oldText = this.editor.getModel().getValueInRange({
+            startLineNumber: position.lineNumber,
+            startColumn,
+            endLineNumber: position.lineNumber,
+            endColumn
+          });
+          value = oldText !== item.completion.insertText;
+        }
+        ctxMakesTextEdit.set(value);
+        ctxHasInsertAndReplace.set(!Position.equals(item.editInsertEnd, item.editReplaceEnd));
+        ctxCanResolve.set(Boolean(item.provider.resolveCompletionItem) || Boolean(item.completion.documentation) || item.completion.detail !== item.completion.label);
+      }));
+      if (this._wantsForceRenderingAbove) {
+        widget.forceRenderingAbove();
+      }
+      return widget;
+    }));
+    this._overtypingCapturer = this._toDispose.add(new WindowIdleValue(getWindow(editor.getDomNode()), () => {
+      return this._toDispose.add(new OvertypingCapturer(this.editor, this.model));
+    }));
+    this._alternatives = this._toDispose.add(new WindowIdleValue(getWindow(editor.getDomNode()), () => {
+      return this._toDispose.add(new SuggestAlternatives(this.editor, this._contextKeyService));
+    }));
+    this._toDispose.add(_instantiationService.createInstance(WordContextKey, editor));
+    this._toDispose.add(this.model.onDidTrigger((e) => {
+      this.widget.value.showTriggered(e.auto, e.shy ? 250 : 50);
+      this._lineSuffix.value = new LineSuffix(this.editor.getModel(), e.position);
+    }));
+    this._toDispose.add(this.model.onDidSuggest((e) => {
+      if (e.triggerOptions.shy) {
+        return;
+      }
+      let index = -1;
+      for (const selector of this._selectors.itemsOrderedByPriorityDesc) {
+        index = selector.select(this.editor.getModel(), this.editor.getPosition(), e.completionModel.items);
+        if (index !== -1) {
+          break;
+        }
+      }
+      if (index === -1) {
+        index = 0;
+      }
+      if (this.model.state === 0) {
+        return;
+      }
+      let noFocus = false;
+      if (e.triggerOptions.auto) {
+        const options = this.editor.getOption(
+          134
+          /* EditorOption.suggest */
+        );
+        if (options.selectionMode === "never" || options.selectionMode === "always") {
+          noFocus = options.selectionMode === "never";
+        } else if (options.selectionMode === "whenTriggerCharacter") {
+          noFocus = e.triggerOptions.triggerKind !== 1;
+        } else if (options.selectionMode === "whenQuickSuggestion") {
+          noFocus = e.triggerOptions.triggerKind === 1 && !e.triggerOptions.refilter;
+        }
+      }
+      this.widget.value.showSuggestions(e.completionModel, index, e.isFrozen, e.triggerOptions.auto, noFocus);
+    }));
+    this._toDispose.add(this.model.onDidCancel((e) => {
+      if (!e.retrigger) {
+        this.widget.value.hideWidget();
+      }
+    }));
+    this._toDispose.add(this.editor.onDidBlurEditorWidget(() => {
+      if (!_sticky) {
+        this.model.cancel();
+        this.model.clear();
+      }
+    }));
+    const acceptSuggestionsOnEnter = SuggestContext.AcceptSuggestionsOnEnter.bindTo(_contextKeyService);
+    const updateFromConfig = /* @__PURE__ */ __name(() => {
+      const acceptSuggestionOnEnter = this.editor.getOption(
+        1
+        /* EditorOption.acceptSuggestionOnEnter */
+      );
+      acceptSuggestionsOnEnter.set(acceptSuggestionOnEnter === "on" || acceptSuggestionOnEnter === "smart");
+    }, "updateFromConfig");
+    this._toDispose.add(this.editor.onDidChangeConfiguration(() => updateFromConfig()));
+    updateFromConfig();
+  }
+  dispose() {
+    this._alternatives.dispose();
+    this._toDispose.dispose();
+    this.widget.dispose();
+    this.model.dispose();
+    this._lineSuffix.dispose();
+    this._onWillInsertSuggestItem.dispose();
+  }
+  _insertSuggestion(event, flags) {
+    if (!event || !event.item) {
+      this._alternatives.value.reset();
+      this.model.cancel();
+      this.model.clear();
+      return;
+    }
+    if (!this.editor.hasModel()) {
+      return;
+    }
+    const snippetController = SnippetController2.get(this.editor);
+    if (!snippetController) {
+      return;
+    }
+    this._onWillInsertSuggestItem.fire({ item: event.item });
+    const model = this.editor.getModel();
+    const modelVersionNow = model.getAlternativeVersionId();
+    const { item } = event;
+    const tasks = [];
+    const cts = new CancellationTokenSource();
+    if (!(flags & 1)) {
+      this.editor.pushUndoStop();
+    }
+    const info = this.getOverwriteInfo(item, Boolean(
+      flags & 8
+      /* InsertFlags.AlternativeOverwriteConfig */
+    ));
+    this._memoryService.memorize(model, this.editor.getPosition(), item);
+    const isResolved = item.isResolved;
+    let _commandExectionDuration = -1;
+    let _additionalEditsAppliedAsync = -1;
+    if (Array.isArray(item.completion.additionalTextEdits)) {
+      this.model.cancel();
+      const scrollState = StableEditorScrollState.capture(this.editor);
+      this.editor.executeEdits("suggestController.additionalTextEdits.sync", item.completion.additionalTextEdits.map((edit) => {
+        let range = Range.lift(edit.range);
+        if (range.startLineNumber === item.position.lineNumber && range.startColumn > item.position.column) {
+          const columnDelta = this.editor.getPosition().column - item.position.column;
+          const startColumnDelta = columnDelta;
+          const endColumnDelta = Range.spansMultipleLines(range) ? 0 : columnDelta;
+          range = new Range(range.startLineNumber, range.startColumn + startColumnDelta, range.endLineNumber, range.endColumn + endColumnDelta);
+        }
+        return EditOperation.replaceMove(range, edit.text);
+      }));
+      scrollState.restoreRelativeVerticalPositionOfCursor(this.editor);
+    } else if (!isResolved) {
+      const sw = new StopWatch();
+      let position;
+      const docListener = model.onDidChangeContent((e) => {
+        if (e.isFlush) {
+          cts.cancel();
+          docListener.dispose();
+          return;
+        }
+        for (const change of e.changes) {
+          const thisPosition = Range.getEndPosition(change.range);
+          if (!position || Position.isBefore(thisPosition, position)) {
+            position = thisPosition;
+          }
+        }
+      });
+      const oldFlags = flags;
+      flags |= 2;
+      let didType = false;
+      const typeListener = this.editor.onWillType(() => {
+        typeListener.dispose();
+        didType = true;
+        if (!(oldFlags & 2)) {
+          this.editor.pushUndoStop();
+        }
+      });
+      tasks.push(item.resolve(cts.token).then(() => {
+        if (!item.completion.additionalTextEdits || cts.token.isCancellationRequested) {
+          return void 0;
+        }
+        if (position && item.completion.additionalTextEdits.some((edit) => Position.isBefore(position, Range.getStartPosition(edit.range)))) {
+          return false;
+        }
+        if (didType) {
+          this.editor.pushUndoStop();
+        }
+        const scrollState = StableEditorScrollState.capture(this.editor);
+        this.editor.executeEdits("suggestController.additionalTextEdits.async", item.completion.additionalTextEdits.map((edit) => EditOperation.replaceMove(Range.lift(edit.range), edit.text)));
+        scrollState.restoreRelativeVerticalPositionOfCursor(this.editor);
+        if (didType || !(oldFlags & 2)) {
+          this.editor.pushUndoStop();
+        }
+        return true;
+      }).then((applied) => {
+        this._logService.trace("[suggest] async resolving of edits DONE (ms, applied?)", sw.elapsed(), applied);
+        _additionalEditsAppliedAsync = applied === true ? 1 : applied === false ? 0 : -2;
+      }).finally(() => {
+        docListener.dispose();
+        typeListener.dispose();
+      }));
+    }
+    let { insertText } = item.completion;
+    if (!(item.completion.insertTextRules & 4)) {
+      insertText = SnippetParser.escape(insertText);
+    }
+    this.model.cancel();
+    snippetController.insert(insertText, {
+      overwriteBefore: info.overwriteBefore,
+      overwriteAfter: info.overwriteAfter,
+      undoStopBefore: false,
+      undoStopAfter: false,
+      adjustWhitespace: !(item.completion.insertTextRules & 1),
+      clipboardText: event.model.clipboardText,
+      overtypingCapturer: this._overtypingCapturer.value,
+      reason: EditSources.suggest({ providerId: ProviderId.fromExtensionId(item.extensionId?.value) })
+    });
+    if (!(flags & 2)) {
+      this.editor.pushUndoStop();
+    }
+    if (item.completion.command) {
+      if (item.completion.command.id === TriggerSuggestAction.id) {
+        this.model.trigger({ auto: true, retrigger: true });
+      } else {
+        const sw = new StopWatch();
+        tasks.push(this._commandService.executeCommand(item.completion.command.id, ...item.completion.command.arguments ? [...item.completion.command.arguments] : []).catch((e) => {
+          if (item.completion.extensionId) {
+            onUnexpectedExternalError(e);
+          } else {
+            onUnexpectedError(e);
+          }
+        }).finally(() => {
+          _commandExectionDuration = sw.elapsed();
+        }));
+      }
+    }
+    if (flags & 4) {
+      this._alternatives.value.set(event, (next) => {
+        cts.cancel();
+        while (model.canUndo()) {
+          if (modelVersionNow !== model.getAlternativeVersionId()) {
+            model.undo();
+          }
+          this._insertSuggestion(next, 1 | 2 | (flags & 8 ? 8 : 0));
+          break;
+        }
+      });
+    }
+    this._alertCompletionItem(item);
+    Promise.all(tasks).finally(() => {
+      this._reportSuggestionAcceptedTelemetry(item, model, isResolved, _commandExectionDuration, _additionalEditsAppliedAsync, event.index, event.model.items);
+      this.model.clear();
+      cts.dispose();
+    });
+  }
+  _reportSuggestionAcceptedTelemetry(item, model, itemResolved, commandExectionDuration, additionalEditsAppliedAsync, index, completionItems) {
+    if (Math.random() > 1e-4) {
+      return;
+    }
+    const labelMap = /* @__PURE__ */ new Map();
+    for (let i = 0; i < Math.min(30, completionItems.length); i++) {
+      const label = completionItems[i].textLabel;
+      if (labelMap.has(label)) {
+        labelMap.get(label).push(i);
+      } else {
+        labelMap.set(label, [i]);
+      }
+    }
+    const firstIndexArray = labelMap.get(item.textLabel);
+    const hasDuplicates = firstIndexArray && firstIndexArray.length > 1;
+    const firstIndex = hasDuplicates ? firstIndexArray[0] : -1;
+    this._telemetryService.publicLog2("suggest.acceptedSuggestion", {
+      extensionId: item.extensionId?.value ?? "unknown",
+      providerId: item.provider._debugDisplayName ?? "unknown",
+      kind: item.completion.kind,
+      basenameHash: hash(basename(model.uri)).toString(16),
+      languageId: model.getLanguageId(),
+      fileExtension: extname(model.uri),
+      resolveInfo: !item.provider.resolveCompletionItem ? -1 : itemResolved ? 1 : 0,
+      resolveDuration: item.resolveDuration,
+      commandDuration: commandExectionDuration,
+      additionalEditsAsync: additionalEditsAppliedAsync,
+      index,
+      firstIndex
+    });
+  }
+  getOverwriteInfo(item, toggleMode) {
+    assertType(this.editor.hasModel());
+    let replace = this.editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).insertMode === "replace";
+    if (toggleMode) {
+      replace = !replace;
+    }
+    const overwriteBefore = item.position.column - item.editStart.column;
+    const overwriteAfter = (replace ? item.editReplaceEnd.column : item.editInsertEnd.column) - item.position.column;
+    const columnDelta = this.editor.getPosition().column - item.position.column;
+    const suffixDelta = this._lineSuffix.value ? this._lineSuffix.value.delta(this.editor.getPosition()) : 0;
+    return {
+      overwriteBefore: overwriteBefore + columnDelta,
+      overwriteAfter: overwriteAfter + suffixDelta
+    };
+  }
+  _alertCompletionItem(item) {
+    if (isNonEmptyArray(item.completion.additionalTextEdits)) {
+      const msg = nls.localize("aria.alert.snippet", "Accepting '{0}' made {1} additional edits", item.textLabel, item.completion.additionalTextEdits.length);
+      alert(msg);
+    }
+  }
+  triggerSuggest(onlyFrom, auto, noFilter) {
+    if (this.editor.hasModel()) {
+      this.model.trigger({
+        auto: auto ?? false,
+        completionOptions: { providerFilter: onlyFrom, kindFilter: noFilter ? /* @__PURE__ */ new Set() : void 0 }
+      });
+      this.editor.revealPosition(
+        this.editor.getPosition(),
+        0
+        /* ScrollType.Smooth */
+      );
+      this.editor.focus();
+    }
+  }
+  triggerSuggestAndAcceptBest(arg) {
+    if (!this.editor.hasModel()) {
+      return;
+    }
+    const positionNow = this.editor.getPosition();
+    const fallback = /* @__PURE__ */ __name(() => {
+      if (positionNow.equals(this.editor.getPosition())) {
+        this._commandService.executeCommand(arg.fallback);
+      }
+    }, "fallback");
+    const makesTextEdit = /* @__PURE__ */ __name((item) => {
+      if (item.completion.insertTextRules & 4 || item.completion.additionalTextEdits) {
+        return true;
+      }
+      const position = this.editor.getPosition();
+      const startColumn = item.editStart.column;
+      const endColumn = position.column;
+      if (endColumn - startColumn !== item.completion.insertText.length) {
+        return true;
+      }
+      const textNow = this.editor.getModel().getValueInRange({
+        startLineNumber: position.lineNumber,
+        startColumn,
+        endLineNumber: position.lineNumber,
+        endColumn
+      });
+      return textNow !== item.completion.insertText;
+    }, "makesTextEdit");
+    Event.once(this.model.onDidTrigger)((_) => {
+      const listener = [];
+      Event.any(this.model.onDidTrigger, this.model.onDidCancel)(() => {
+        dispose(listener);
+        fallback();
+      }, void 0, listener);
+      this.model.onDidSuggest(({ completionModel }) => {
+        dispose(listener);
+        if (completionModel.items.length === 0) {
+          fallback();
+          return;
+        }
+        const index = this._memoryService.select(this.editor.getModel(), this.editor.getPosition(), completionModel.items);
+        const item = completionModel.items[index];
+        if (!makesTextEdit(item)) {
+          fallback();
+          return;
+        }
+        this.editor.pushUndoStop();
+        this._insertSuggestion(
+          { index, item, model: completionModel },
+          4 | 1 | 2
+          /* InsertFlags.NoAfterUndoStop */
+        );
+      }, void 0, listener);
+    });
+    this.model.trigger({ auto: false, shy: true });
+    this.editor.revealPosition(
+      positionNow,
+      0
+      /* ScrollType.Smooth */
+    );
+    this.editor.focus();
+  }
+  acceptSelectedSuggestion(keepAlternativeSuggestions, alternativeOverwriteConfig) {
+    const item = this.widget.value.getFocusedItem();
+    let flags = 0;
+    if (keepAlternativeSuggestions) {
+      flags |= 4;
+    }
+    if (alternativeOverwriteConfig) {
+      flags |= 8;
+    }
+    this._insertSuggestion(item, flags);
+  }
+  acceptNextSuggestion() {
+    this._alternatives.value.next();
+  }
+  acceptPrevSuggestion() {
+    this._alternatives.value.prev();
+  }
+  cancelSuggestWidget() {
+    this.model.cancel();
+    this.model.clear();
+    this.widget.value.hideWidget();
+  }
+  focusSuggestion() {
+    this.widget.value.focusSelected();
+  }
+  selectNextSuggestion() {
+    this.widget.value.selectNext();
+  }
+  selectNextPageSuggestion() {
+    this.widget.value.selectNextPage();
+  }
+  selectLastSuggestion() {
+    this.widget.value.selectLast();
+  }
+  selectPrevSuggestion() {
+    this.widget.value.selectPrevious();
+  }
+  selectPrevPageSuggestion() {
+    this.widget.value.selectPreviousPage();
+  }
+  selectFirstSuggestion() {
+    this.widget.value.selectFirst();
+  }
+  toggleSuggestionDetails() {
+    this.widget.value.toggleDetails();
+  }
+  toggleExplainMode() {
+    this.widget.value.toggleExplainMode();
+  }
+  toggleSuggestionFocus() {
+    this.widget.value.toggleDetailsFocus();
+  }
+  resetWidgetSize() {
+    this.widget.value.resetPersistedSize();
+  }
+  forceRenderingAbove() {
+    if (this.widget.isInitialized) {
+      this.widget.value.forceRenderingAbove();
+    } else {
+      this._wantsForceRenderingAbove = true;
+    }
+  }
+  stopForceRenderingAbove() {
+    if (this.widget.isInitialized) {
+      this.widget.value.stopForceRenderingAbove();
+    } else {
+      this._wantsForceRenderingAbove = false;
+    }
+  }
+  registerSelector(selector) {
+    return this._selectors.register(selector);
+  }
+};
+SuggestController = SuggestController_1 = __decorate([
+  __param(1, ISuggestMemoryService),
+  __param(2, ICommandService),
+  __param(3, IContextKeyService),
+  __param(4, IInstantiationService),
+  __param(5, ILogService),
+  __param(6, ITelemetryService)
+], SuggestController);
+class PriorityRegistry {
+  static {
+    __name(this, "PriorityRegistry");
+  }
+  constructor(prioritySelector) {
+    this.prioritySelector = prioritySelector;
+    this._items = new Array();
+  }
+  register(value) {
+    if (this._items.indexOf(value) !== -1) {
+      throw new Error("Value is already registered");
+    }
+    this._items.push(value);
+    this._items.sort((s1, s2) => this.prioritySelector(s2) - this.prioritySelector(s1));
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        const idx = this._items.indexOf(value);
+        if (idx >= 0) {
+          this._items.splice(idx, 1);
+        }
+      }, "dispose")
+    };
+  }
+  get itemsOrderedByPriorityDesc() {
+    return this._items;
+  }
+}
+class TriggerSuggestAction extends EditorAction {
+  static {
+    __name(this, "TriggerSuggestAction");
+  }
+  static {
+    this.id = "editor.action.triggerSuggest";
+  }
+  constructor() {
+    super({
+      id: TriggerSuggestAction.id,
+      label: nls.localize2("suggest.trigger.label", "Trigger Suggest"),
+      precondition: ContextKeyExpr.and(EditorContextKeys.writable, EditorContextKeys.hasCompletionItemProvider, SuggestContext.Visible.toNegated()),
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 2048 | 10,
+        secondary: [
+          2048 | 39
+          /* KeyCode.KeyI */
+        ],
+        mac: { primary: 256 | 10, secondary: [
+          512 | 9,
+          2048 | 39
+          /* KeyCode.KeyI */
+        ] },
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(_accessor, editor, args) {
+    const controller = SuggestController.get(editor);
+    if (!controller) {
+      return;
+    }
+    let auto;
+    if (args && typeof args === "object") {
+      if (args.auto === true) {
+        auto = true;
+      }
+    }
+    controller.triggerSuggest(void 0, auto, void 0);
+  }
+}
+registerEditorContribution(
+  SuggestController.ID,
+  SuggestController,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+registerEditorAction(TriggerSuggestAction);
+const weight = 100 + 90;
+const SuggestCommand = EditorCommand.bindToContribution(SuggestController.get);
+registerEditorCommand(new SuggestCommand({
+  id: "acceptSelectedSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, SuggestContext.HasFocusedSuggestion),
+  handler(x) {
+    x.acceptSelectedSuggestion(true, false);
+  },
+  kbOpts: [{
+    // normal tab
+    primary: 2,
+    kbExpr: ContextKeyExpr.and(SuggestContext.Visible, EditorContextKeys.textInputFocus),
+    weight
+  }, {
+    // accept on enter has special rules
+    primary: 3,
+    kbExpr: ContextKeyExpr.and(SuggestContext.Visible, EditorContextKeys.textInputFocus, SuggestContext.AcceptSuggestionsOnEnter, SuggestContext.MakesTextEdit),
+    weight
+  }],
+  menuOpts: [{
+    menuId: suggestWidgetStatusbarMenu,
+    title: nls.localize("accept.insert", "Insert"),
+    group: "left",
+    order: 1,
+    when: ContextKeyExpr.and(SuggestContext.HasFocusedSuggestion, SuggestContext.HasInsertAndReplaceRange.toNegated())
+  }, {
+    menuId: suggestWidgetStatusbarMenu,
+    title: nls.localize("accept.insert", "Insert"),
+    group: "left",
+    order: 1,
+    when: ContextKeyExpr.and(SuggestContext.HasFocusedSuggestion, SuggestContext.HasInsertAndReplaceRange, SuggestContext.InsertMode.isEqualTo("insert"))
+  }, {
+    menuId: suggestWidgetStatusbarMenu,
+    title: nls.localize("accept.replace", "Replace"),
+    group: "left",
+    order: 1,
+    when: ContextKeyExpr.and(SuggestContext.HasFocusedSuggestion, SuggestContext.HasInsertAndReplaceRange, SuggestContext.InsertMode.isEqualTo("replace"))
+  }]
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "acceptAlternativeSelectedSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, EditorContextKeys.textInputFocus, SuggestContext.HasFocusedSuggestion),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 1024 | 3,
+    secondary: [
+      1024 | 2
+      /* KeyCode.Tab */
+    ]
+  },
+  handler(x) {
+    x.acceptSelectedSuggestion(false, true);
+  },
+  menuOpts: [{
+    menuId: suggestWidgetStatusbarMenu,
+    group: "left",
+    order: 2,
+    when: ContextKeyExpr.and(SuggestContext.HasFocusedSuggestion, SuggestContext.HasInsertAndReplaceRange, SuggestContext.InsertMode.isEqualTo("insert")),
+    title: nls.localize("accept.replace", "Replace")
+  }, {
+    menuId: suggestWidgetStatusbarMenu,
+    group: "left",
+    order: 2,
+    when: ContextKeyExpr.and(SuggestContext.HasFocusedSuggestion, SuggestContext.HasInsertAndReplaceRange, SuggestContext.InsertMode.isEqualTo("replace")),
+    title: nls.localize("accept.insert", "Insert")
+  }]
+}));
+CommandsRegistry.registerCommandAlias("acceptSelectedSuggestionOnEnter", "acceptSelectedSuggestion");
+registerEditorCommand(new SuggestCommand({
+  id: "hideSuggestWidget",
+  precondition: SuggestContext.Visible,
+  handler: /* @__PURE__ */ __name((x) => x.cancelSuggestWidget(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 9,
+    secondary: [
+      1024 | 9
+      /* KeyCode.Escape */
+    ]
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "selectNextSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, ContextKeyExpr.or(SuggestContext.MultipleSuggestions, SuggestContext.HasFocusedSuggestion.negate())),
+  handler: /* @__PURE__ */ __name((c) => c.selectNextSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 18,
+    secondary: [
+      2048 | 18
+      /* KeyCode.DownArrow */
+    ],
+    mac: { primary: 18, secondary: [
+      2048 | 18,
+      256 | 44
+      /* KeyCode.KeyN */
+    ] }
+  },
+  menuOpts: {
+    menuId: suggestWidgetStatusbarMenu,
+    group: "left",
+    order: 0,
+    when: SuggestContext.HasFocusedSuggestion.toNegated(),
+    title: nls.localize("focus.suggestion", "Select")
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "selectNextPageSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, ContextKeyExpr.or(SuggestContext.MultipleSuggestions, SuggestContext.HasFocusedSuggestion.negate())),
+  handler: /* @__PURE__ */ __name((c) => c.selectNextPageSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 12,
+    secondary: [
+      2048 | 12
+      /* KeyCode.PageDown */
+    ]
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "selectLastSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, ContextKeyExpr.or(SuggestContext.MultipleSuggestions, SuggestContext.HasFocusedSuggestion.negate())),
+  handler: /* @__PURE__ */ __name((c) => c.selectLastSuggestion(), "handler")
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "selectPrevSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, ContextKeyExpr.or(SuggestContext.MultipleSuggestions, SuggestContext.HasFocusedSuggestion.negate())),
+  handler: /* @__PURE__ */ __name((c) => c.selectPrevSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 16,
+    secondary: [
+      2048 | 16
+      /* KeyCode.UpArrow */
+    ],
+    mac: { primary: 16, secondary: [
+      2048 | 16,
+      256 | 46
+      /* KeyCode.KeyP */
+    ] }
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "selectPrevPageSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, ContextKeyExpr.or(SuggestContext.MultipleSuggestions, SuggestContext.HasFocusedSuggestion.negate())),
+  handler: /* @__PURE__ */ __name((c) => c.selectPrevPageSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 11,
+    secondary: [
+      2048 | 11
+      /* KeyCode.PageUp */
+    ]
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "selectFirstSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, ContextKeyExpr.or(SuggestContext.MultipleSuggestions, SuggestContext.HasFocusedSuggestion.negate())),
+  handler: /* @__PURE__ */ __name((c) => c.selectFirstSuggestion(), "handler")
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "focusSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, SuggestContext.HasFocusedSuggestion.negate()),
+  handler: /* @__PURE__ */ __name((x) => x.focusSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 2048 | 10,
+    secondary: [
+      2048 | 39
+      /* KeyCode.KeyI */
+    ],
+    mac: { primary: 256 | 10, secondary: [
+      2048 | 39
+      /* KeyCode.KeyI */
+    ] }
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "focusAndAcceptSuggestion",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, SuggestContext.HasFocusedSuggestion.negate()),
+  handler: /* @__PURE__ */ __name((c) => {
+    c.focusSuggestion();
+    c.acceptSelectedSuggestion(true, false);
+  }, "handler")
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "toggleSuggestionDetails",
+  precondition: ContextKeyExpr.and(SuggestContext.Visible, SuggestContext.HasFocusedSuggestion),
+  handler: /* @__PURE__ */ __name((x) => x.toggleSuggestionDetails(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 2048 | 10,
+    secondary: [
+      2048 | 39
+      /* KeyCode.KeyI */
+    ],
+    mac: { primary: 256 | 10, secondary: [
+      2048 | 39
+      /* KeyCode.KeyI */
+    ] }
+  },
+  menuOpts: [{
+    menuId: suggestWidgetStatusbarMenu,
+    group: "right",
+    order: 1,
+    when: ContextKeyExpr.and(SuggestContext.DetailsVisible, SuggestContext.CanResolve),
+    title: nls.localize("detail.more", "Show Less")
+  }, {
+    menuId: suggestWidgetStatusbarMenu,
+    group: "right",
+    order: 1,
+    when: ContextKeyExpr.and(SuggestContext.DetailsVisible.toNegated(), SuggestContext.CanResolve),
+    title: nls.localize("detail.less", "Show More")
+  }]
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "toggleExplainMode",
+  precondition: SuggestContext.Visible,
+  handler: /* @__PURE__ */ __name((x) => x.toggleExplainMode(), "handler"),
+  kbOpts: {
+    weight: 100,
+    primary: 2048 | 90
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "toggleSuggestionFocus",
+  precondition: SuggestContext.Visible,
+  handler: /* @__PURE__ */ __name((x) => x.toggleSuggestionFocus(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 2048 | 512 | 10,
+    mac: {
+      primary: 256 | 512 | 10
+      /* KeyCode.Space */
+    }
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "insertBestCompletion",
+  precondition: ContextKeyExpr.and(EditorContextKeys.textInputFocus, ContextKeyExpr.equals("config.editor.tabCompletion", "on"), WordContextKey.AtEnd, SuggestContext.Visible.toNegated(), SuggestAlternatives.OtherSuggestions.toNegated(), SnippetController2.InSnippetMode.toNegated()),
+  handler: /* @__PURE__ */ __name((x, arg) => {
+    x.triggerSuggestAndAcceptBest(isObject(arg) ? { fallback: "tab", ...arg } : { fallback: "tab" });
+  }, "handler"),
+  kbOpts: {
+    weight,
+    primary: 2
+    /* KeyCode.Tab */
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "insertNextSuggestion",
+  precondition: ContextKeyExpr.and(EditorContextKeys.textInputFocus, ContextKeyExpr.equals("config.editor.tabCompletion", "on"), SuggestAlternatives.OtherSuggestions, SuggestContext.Visible.toNegated(), SnippetController2.InSnippetMode.toNegated()),
+  handler: /* @__PURE__ */ __name((x) => x.acceptNextSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 2
+    /* KeyCode.Tab */
+  }
+}));
+registerEditorCommand(new SuggestCommand({
+  id: "insertPrevSuggestion",
+  precondition: ContextKeyExpr.and(EditorContextKeys.textInputFocus, ContextKeyExpr.equals("config.editor.tabCompletion", "on"), SuggestAlternatives.OtherSuggestions, SuggestContext.Visible.toNegated(), SnippetController2.InSnippetMode.toNegated()),
+  handler: /* @__PURE__ */ __name((x) => x.acceptPrevSuggestion(), "handler"),
+  kbOpts: {
+    weight,
+    kbExpr: EditorContextKeys.textInputFocus,
+    primary: 1024 | 2
+    /* KeyCode.Tab */
+  }
+}));
+registerEditorCommand(new class extends EditorCommand {
+  constructor() {
+    super({
+      id: "suggestWidgetCopy",
+      precondition: SuggestContext.DetailsFocused,
+      kbOpts: {
+        weight: weight + 10,
+        kbExpr: SuggestContext.DetailsFocused,
+        primary: 2048 | 33,
+        win: { primary: 2048 | 33, secondary: [
+          2048 | 19
+          /* KeyCode.Insert */
+        ] }
+      }
+    });
+  }
+  runEditorCommand(_accessor, editor) {
+    getWindow(editor.getDomNode()).document.execCommand("copy");
+  }
+}());
+registerEditorAction(class extends EditorAction {
+  constructor() {
+    super({
+      id: "editor.action.resetSuggestSize",
+      label: nls.localize2("suggest.reset.label", "Reset Suggest Widget Size"),
+      precondition: void 0
+    });
+  }
+  run(_accessor, editor) {
+    SuggestController.get(editor)?.resetWidgetSize();
+  }
+});
+export {
+  SuggestController,
+  TriggerSuggestAction
+};
+//# sourceMappingURL=suggestController.js.map

@@ -1,1 +1,516 @@
-import"./media/unifiedQuickAccess.css";import{$ as p,$u8 as w,$r9 as C}from"../../../../../../base/browser/dom.js";import{$Ed as S,$Dd as v,$yd as I}from"../../../../../../base/common/lifecycle.js";import{$YH as T}from"../../../../../../platform/quickinput/common/quickInput.js";import{$Mj as W}from"../../../../../../platform/instantiation/common/instantiation.js";import{localize as o}from"../../../../../../nls.js";import{$3_ as D}from"../../../../../../base/browser/ui/radio/radio.js";import{$Jf as q}from"../../../../../../base/common/cancellation.js";import{$AH as _}from"../../../../../../platform/quickinput/common/quickAccess.js";import{$jm as G}from"../../../../../../platform/registry/common/platform.js";import{$ro as P}from"../../../../../../platform/contextkey/common/contextkey.js";import{$v0 as j,$u0 as O}from"../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$jkb as A}from"../../../../../../platform/hover/browser/hover.js";import{$bk as L}from"../../../../../../base/common/codicons.js";import{$H0 as M}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{Event as R}from"../../../../../../base/common/event.js";import{$flb as H}from"../../../../../../platform/layout/browser/layoutService.js";import{$uo as Q}from"../../../../../../platform/commands/common/commands.js";import{$fy as z}from"../../../../../../platform/keybinding/common/keybinding.js";import{$IPb as x,$LPb as b}from"../../actions/chatActions.js";var $=function(f,i,s,t){var n=arguments.length,e=n<3?i:t===null?t=Object.getOwnPropertyDescriptor(i,s):t,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,i,s,t);else for(var r=f.length-1;r>=0;r--)(h=f[r])&&(e=(n<3?h(e):n>3?h(i,s,e):h(i,s))||e);return n>3&&e&&Object.defineProperty(i,s,e),e},d=function(f,i){return function(s,t){i(s,t,f)}};const m="unified-quick-access-send-to-agent",F=[{id:"agentSessions",label:o(5579,null),prefix:"agent ",placeholder:o(5580,null),tooltip:o(5581,null)},{id:"commands",label:o(5582,null),prefix:">",placeholder:o(5583,null),tooltip:o(5584,null)},{id:"files",label:o(5585,null),prefix:"",placeholder:o(5586,null),tooltip:o(5587,null)}];let y=class extends S{constructor(i,s,t,n,e,h,r,a){super(),this.H=s,this.I=t,this.J=n,this.L=e,this.M=h,this.N=r,this.O=a,this.c=G.as(_.Quickaccess),this.f=new Map,this.h=this.D(new v),this.j=this.D(new v),this.r=!1,this.s=!1,this.G=i??F}show(i,s){if(this.g)return;this.h.clear();const t=this.h.add(this.H.createQuickPick({useSeparators:!0}));this.g=t,t.ignoreFocusOut=!1,t.matchOnDescription=!0,t.matchOnDetail=!0,t.sortByLabel=!1;const n=i?this.G.find(e=>e.id===i)??this.G[0]:this.G[0];this.m=n,this.P(t),this.r=!0,t.value=s??"",t.placeholder=n.placeholder,this.r=!1,this.ab(n,t),this.h.add(t.onDidChangeValue(e=>{if(this.r)return;if(this.u){const r=this.u;if(!e.startsWith(r)){const a=this.G.find(l=>l.id==="files");if(a&&a!==this.m){this.u=void 0,this.Y(a,t,!1);return}}}const h=this.Z(e);h&&h!==this.m&&this.Y(h,t,!0),this.R(e),this.w&&clearTimeout(this.w),this.w=setTimeout(()=>this.X(t),150)})),this.h.add(t.onDidAccept(()=>{const e=t.selectedItems,h=t.activeItems,r=e.length>0&&e[0].id===m,a=h.some(c=>c.id!==m);let l;this.u&&t.value.startsWith(this.u)?l=t.value.substring(1).trim():this.m?l=t.value.substring(this.m.prefix.length).trim():l=t.value.trim(),(r||!a&&l)&&this.W(t.value)})),this.h.add(t.onDidHide(()=>{this.j.clear(),this.n?.cancel(),this.n=void 0,this.g=void 0,this.m=void 0,this.u=void 0,this.w&&(clearTimeout(this.w),this.w=void 0),this.q?.remove(),this.q=void 0,this.y=void 0,this.z=void 0,this.C=void 0,this.F=void 0,this.h.clear()})),t.show()}hide(){this.g?.hide()}get isVisible(){return!!this.g}P(i){const s=this.h.add(R.once(this.H.onShow)(()=>{this.h.delete(s);const t=this.L.activeContainer.querySelector(".quick-input-widget");if(!t)return;const n=t.querySelector(".quick-input-header"),e=t.querySelector(".quick-input-list");if(!n||!e)return;const h=p("div.unified-quick-access-tabs");this.q=h;const r=this.h.add(j()),a=this.G.map(u=>({text:u.label,tooltip:u.tooltip,isActive:u===this.m})),l=this.h.add(new D({items:a,hoverDelegate:r}));h.appendChild(l.domNode),this.h.add(l.onDidSelect(u=>{const g=this.G[u];g&&g!==this.m&&this.Y(g,i,!1)}));const c=this.Q(i);h.appendChild(c),e.parentElement?.insertBefore(h,e),i._unifiedRadio=l}))}Q(i){const s=p("div.unified-quick-access-send-container"),t=p("button.unified-send-button");t.setAttribute("type","button"),this.y=t;const n=M(L.send);n.classList.add("unified-send-icon"),this.C=n,t.appendChild(n);const e=p("span.unified-send-label");return this.z=e,t.appendChild(e),s.appendChild(t),this.F=this.h.add(this.O.setupManagedHover(O("mouse"),t,"")),this.R(i.value),this.h.add(w(t,C.CLICK,h=>{h.preventDefault(),h.stopPropagation(),i.value.trim().length>0?this.U(i.value):this.S()})),s}R(i){if(!this.y||!this.z||!this.C)return;if(i.trim().length>0)this.z.textContent=o(5588,null),this.F?.update(o(5589,null)),this.C.style.display="";else{const n=this.N.lookupKeybinding(b)?.getLabel()??"";this.z.textContent=o(5590,null);const e=n?o(5591,null,n):o(5592,null);this.F?.update(e),this.C.style.display="none"}}S(){this.hide(),this.M.executeCommand(b)}async U(i){const s=i.trim();if(!s)return;this.hide(),await this.M.executeCommand(x);const t={query:s,isPartialQuery:!1};this.M.executeCommand(b,t)}async W(i){let s=i;if(this.u&&s.startsWith(this.u)?s=s.substring(1).trim():this.m&&i.startsWith(this.m.prefix)&&(s=i.substring(this.m.prefix.length).trim()),!s)return;this.hide(),await this.M.executeCommand(x);const t={query:s,isPartialQuery:!1};this.M.executeCommand(b,t)}X(i){if(this.s)return;let s;this.u&&i.value.startsWith(this.u)?s=i.value.substring(1).trim():this.m?s=i.value.substring(this.m.prefix.length).trim():s=i.value.trim();const t=i.value.trim();if(!(s||t)||i.busy)return;const e=i.items[0];if(e?.id===m&&e.description===t)return;const h={id:m,label:`$(send) ${o(5593,null)}`,description:t,alwaysShow:!0,ariaLabel:o(5594,null,t)},r=i.items.filter(u=>u.id!==m),a=this.m?.id==="agentSessions",l=r.length>0,c=a||!l;this.s=!0;try{c?i.items=[h,...r]:i.items=r}finally{this.s=!1}}Y(i,s,t){if(i===this.m)return;const n=this.m;this.m=i;const e=s._unifiedRadio;if(e){const h=this.G.indexOf(i);h>=0&&e.setActiveItem(h)}if(this.r=!0,t&&n){const h=s.value;let r=h;h.startsWith(n.prefix)&&(r=h.substring(n.prefix.length)),this.u==="<"&&i.id==="agentSessions"?(r=r.replace(/^<+/,""),s.value="<"+r):this.u===">"&&i.id==="commands"?(r=r.replace(/^>+/,""),s.value=">"+r):s.value=i.prefix+r}else if(n){const h=s.value;h.startsWith(n.prefix)&&(s.value=h.substring(n.prefix.length)),(s.value.startsWith("<")||s.value.startsWith(">"))&&(s.value=s.value.substring(1)),this.u=void 0}this.r=!1,s.placeholder=i.placeholder,this.ab(i,s)}Z(i){if(i==="<"||i.startsWith("<")){const t=this.G.find(n=>n.id==="agentSessions");if(t&&this.m?.id!=="agentSessions")return this.u="<",t}if(i===">"||i.startsWith(">")){const t=this.G.find(n=>n.id==="commands");if(t&&this.m?.id!=="commands")return this.u=">",t}return this.m&&i.startsWith(this.m.prefix)?this.m:[...this.G].filter(t=>t.prefix.length>0).sort((t,n)=>n.prefix.length-t.prefix.length).find(t=>i.startsWith(t.prefix))}ab(i,s){if(this.j.clear(),this.n?.cancel(),this.n=new q,this.j.add(this.n),i.isSendTab){s.busy=!1,s.items=[{label:o(5595,null),alwaysShow:!0}];return}s.items=[],s.busy=!0;const[t]=this.bb(i.prefix);if(t){const n=i.prefix,e=this.u;s.filterValue=r=>e&&r.startsWith(e)?r.substring(1):r.startsWith(n)?r.substring(n.length):r;const h=t.provide(s,this.n.token);this.j.add(h)}else s.busy=!1,s.items=[{label:o(5596,null),alwaysShow:!0}]}bb(i){const s=this.c.getQuickAccessProvider(i,this.J);if(!s)return[void 0,void 0];let t=this.f.get(s);return t||(t=this.I.createInstance(s.ctor),this.f.set(s,t)),[t,s]}dispose(){this.n?.cancel();for(const i of this.f.values())I(i)&&i.dispose();super.dispose()}};y=$([d(1,T),d(2,W),d(3,P),d(4,H),d(5,Q),d(6,z),d(7,A)],y);export{F as $dpc,y as $epc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/unifiedQuickAccess.css";
+import { $, addDisposableListener, EventType } from "../../../../../../base/browser/dom.js";
+import { Disposable, DisposableStore, isDisposable } from "../../../../../../base/common/lifecycle.js";
+import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../../../nls.js";
+import { Radio } from "../../../../../../base/browser/ui/radio/radio.js";
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { Extensions } from "../../../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { createInstantHoverDelegate, getDefaultHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { ILayoutService } from "../../../../../../platform/layout/browser/layoutService.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { ACTION_ID_NEW_CHAT, CHAT_OPEN_ACTION_ID } from "../../actions/chatActions.js";
+const SEND_TO_AGENT_ID = "unified-quick-access-send-to-agent";
+const DEFAULT_UNIFIED_QUICK_ACCESS_TABS = [
+  {
+    id: "agentSessions",
+    label: localize("agentSessionsTab", "Sessions"),
+    prefix: "agent ",
+    placeholder: localize("agentSessionsPlaceholder", "Search sessions or type a message..."),
+    tooltip: localize("agentSessionsTooltip", "Search sessions or send a message to agent")
+  },
+  {
+    id: "commands",
+    label: localize("commandsTab", "Commands"),
+    prefix: ">",
+    placeholder: localize("commandsPlaceholder", "Search commands..."),
+    tooltip: localize("commandsTooltip", "Run commands")
+  },
+  {
+    id: "files",
+    label: localize("filesTab", "Files"),
+    prefix: "",
+    placeholder: localize("filesPlaceholder", "Search files..."),
+    tooltip: localize("filesTooltip", "Go to files")
+  }
+];
+let UnifiedQuickAccess = class UnifiedQuickAccess2 extends Disposable {
+  static {
+    __name(this, "UnifiedQuickAccess");
+  }
+  constructor(tabs, quickInputService, instantiationService, contextKeyService, layoutService, commandService, keybindingService, hoverService) {
+    super();
+    this.quickInputService = quickInputService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.layoutService = layoutService;
+    this.commandService = commandService;
+    this.keybindingService = keybindingService;
+    this.hoverService = hoverService;
+    this.registry = Registry.as(Extensions.Quickaccess);
+    this.mapProviderToDescriptor = /* @__PURE__ */ new Map();
+    this._currentDisposables = this._register(new DisposableStore());
+    this._providerDisposables = this._register(new DisposableStore());
+    this._isInternalValueChange = false;
+    this._isUpdatingSendToAgent = false;
+    this._tabs = tabs ?? DEFAULT_UNIFIED_QUICK_ACCESS_TABS;
+  }
+  /**
+   * Show the unified quick access widget.
+   * @param initialTabId Optional tab ID to start with. Defaults to first tab.
+   * @param initialValue Optional initial filter value.
+   */
+  show(initialTabId, initialValue) {
+    if (this._currentPicker) {
+      return;
+    }
+    this._currentDisposables.clear();
+    const picker = this._currentDisposables.add(this.quickInputService.createQuickPick({ useSeparators: true }));
+    this._currentPicker = picker;
+    picker.ignoreFocusOut = false;
+    picker.matchOnDescription = true;
+    picker.matchOnDetail = true;
+    picker.sortByLabel = false;
+    const initialTab = initialTabId ? this._tabs.find((t) => t.id === initialTabId) ?? this._tabs[0] : this._tabs[0];
+    this._currentTab = initialTab;
+    this._injectTabBar(picker);
+    this._isInternalValueChange = true;
+    picker.value = initialValue ?? "";
+    picker.placeholder = initialTab.placeholder;
+    this._isInternalValueChange = false;
+    this._activateProvider(initialTab, picker);
+    this._currentDisposables.add(picker.onDidChangeValue((value) => {
+      if (this._isInternalValueChange) {
+        return;
+      }
+      if (this._arrivedViaShortcut) {
+        const shortcut = this._arrivedViaShortcut;
+        if (!value.startsWith(shortcut)) {
+          const filesTab = this._tabs.find((t) => t.id === "files");
+          if (filesTab && filesTab !== this._currentTab) {
+            this._arrivedViaShortcut = void 0;
+            this._switchTab(filesTab, picker, false);
+            return;
+          }
+        }
+      }
+      const matchingTab = this._detectTabFromValue(value);
+      if (matchingTab && matchingTab !== this._currentTab) {
+        this._switchTab(matchingTab, picker, true);
+      }
+      this._updateSendButtonState(value);
+      if (this._sendToAgentTimeout) {
+        clearTimeout(this._sendToAgentTimeout);
+      }
+      this._sendToAgentTimeout = setTimeout(() => this._maybeShowSendToAgent(picker), 150);
+    }));
+    this._currentDisposables.add(picker.onDidAccept(() => {
+      const selectedItems = picker.selectedItems;
+      const activeItems = picker.activeItems;
+      const sendToAgentSelected = selectedItems.length > 0 && selectedItems[0].id === SEND_TO_AGENT_ID;
+      const hasRealActiveItem = activeItems.some((item) => item.id !== SEND_TO_AGENT_ID);
+      let filterText;
+      if (this._arrivedViaShortcut && picker.value.startsWith(this._arrivedViaShortcut)) {
+        filterText = picker.value.substring(1).trim();
+      } else if (this._currentTab) {
+        filterText = picker.value.substring(this._currentTab.prefix.length).trim();
+      } else {
+        filterText = picker.value.trim();
+      }
+      if (sendToAgentSelected || !hasRealActiveItem && filterText) {
+        this._sendMessage(picker.value);
+      }
+    }));
+    this._currentDisposables.add(picker.onDidHide(() => {
+      this._providerDisposables.clear();
+      this._providerCts?.cancel();
+      this._providerCts = void 0;
+      this._currentPicker = void 0;
+      this._currentTab = void 0;
+      this._arrivedViaShortcut = void 0;
+      if (this._sendToAgentTimeout) {
+        clearTimeout(this._sendToAgentTimeout);
+        this._sendToAgentTimeout = void 0;
+      }
+      this._tabBarContainer?.remove();
+      this._tabBarContainer = void 0;
+      this._sendButton = void 0;
+      this._sendButtonLabel = void 0;
+      this._sendButtonIcon = void 0;
+      this._sendButtonHover = void 0;
+      this._currentDisposables.clear();
+    }));
+    picker.show();
+  }
+  /**
+   * Hide the unified quick access widget if visible.
+   */
+  hide() {
+    this._currentPicker?.hide();
+  }
+  /**
+   * Check if the widget is currently visible.
+   */
+  get isVisible() {
+    return !!this._currentPicker;
+  }
+  /**
+   * Inject the custom tab bar into the picker's header area.
+   */
+  _injectTabBar(picker) {
+    const showDisposable = this._currentDisposables.add(Event.once(this.quickInputService.onShow)(() => {
+      this._currentDisposables.delete(showDisposable);
+      const quickInputWidget = this.layoutService.activeContainer.querySelector(".quick-input-widget");
+      if (!quickInputWidget) {
+        return;
+      }
+      const header = quickInputWidget.querySelector(".quick-input-header");
+      const list = quickInputWidget.querySelector(".quick-input-list");
+      if (!header || !list) {
+        return;
+      }
+      const tabBarContainer = $("div.unified-quick-access-tabs");
+      this._tabBarContainer = tabBarContainer;
+      const hoverDelegate = this._currentDisposables.add(createInstantHoverDelegate());
+      const radioItems = this._tabs.map((tab) => ({
+        text: tab.label,
+        tooltip: tab.tooltip,
+        isActive: tab === this._currentTab
+      }));
+      const radio = this._currentDisposables.add(new Radio({
+        items: radioItems,
+        hoverDelegate
+      }));
+      tabBarContainer.appendChild(radio.domNode);
+      this._currentDisposables.add(radio.onDidSelect((index) => {
+        const selectedTab = this._tabs[index];
+        if (selectedTab && selectedTab !== this._currentTab) {
+          this._switchTab(selectedTab, picker, false);
+        }
+      }));
+      const sendButton = this._createSendButton(picker);
+      tabBarContainer.appendChild(sendButton);
+      list.parentElement?.insertBefore(tabBarContainer, list);
+      picker._unifiedRadio = radio;
+    }));
+  }
+  /**
+   * Create the send button.
+   */
+  _createSendButton(picker) {
+    const container = $("div.unified-quick-access-send-container");
+    const button = $("button.unified-send-button");
+    button.setAttribute("type", "button");
+    this._sendButton = button;
+    const icon = renderIcon(Codicon.send);
+    icon.classList.add("unified-send-icon");
+    this._sendButtonIcon = icon;
+    button.appendChild(icon);
+    const labelSpan = $("span.unified-send-label");
+    this._sendButtonLabel = labelSpan;
+    button.appendChild(labelSpan);
+    container.appendChild(button);
+    this._sendButtonHover = this._currentDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), button, ""));
+    this._updateSendButtonState(picker.value);
+    this._currentDisposables.add(addDisposableListener(button, EventType.CLICK, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const hasInput = picker.value.trim().length > 0;
+      if (hasInput) {
+        this._sendMessageRaw(picker.value);
+      } else {
+        this._openChat();
+      }
+    }));
+    return container;
+  }
+  /**
+   * Update the send button label and tooltip based on input state.
+   */
+  _updateSendButtonState(value) {
+    if (!this._sendButton || !this._sendButtonLabel || !this._sendButtonIcon) {
+      return;
+    }
+    const hasInput = value.trim().length > 0;
+    if (hasInput) {
+      this._sendButtonLabel.textContent = localize("send", "Send");
+      this._sendButtonHover?.update(localize("sendTooltipNoKeybinding", "Send message to new agent session"));
+      this._sendButtonIcon.style.display = "";
+    } else {
+      const openChatKeybinding = this.keybindingService.lookupKeybinding(CHAT_OPEN_ACTION_ID);
+      const openChatLabel = openChatKeybinding?.getLabel() ?? "";
+      this._sendButtonLabel.textContent = localize("openChat", "Open Chat");
+      const tooltip = openChatLabel ? localize("openChatTooltipWithKeybinding", "Open chat ({0})", openChatLabel) : localize("openChatTooltipNoKeybinding", "Open chat");
+      this._sendButtonHover?.update(tooltip);
+      this._sendButtonIcon.style.display = "none";
+    }
+  }
+  /**
+   * Open chat without sending a message.
+   */
+  _openChat() {
+    this.hide();
+    this.commandService.executeCommand(CHAT_OPEN_ACTION_ID);
+  }
+  /**
+   * Send the exact message to a new agent session (no prefix stripping).
+   */
+  async _sendMessageRaw(value) {
+    const message = value.trim();
+    if (!message) {
+      return;
+    }
+    this.hide();
+    await this.commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    const options = {
+      query: message,
+      isPartialQuery: false
+    };
+    this.commandService.executeCommand(CHAT_OPEN_ACTION_ID, options);
+  }
+  /**
+   * Send the current message to a new agent session (strips prefix or shortcut character).
+   */
+  async _sendMessage(value) {
+    let message = value;
+    if (this._arrivedViaShortcut && message.startsWith(this._arrivedViaShortcut)) {
+      message = message.substring(1).trim();
+    } else if (this._currentTab) {
+      if (value.startsWith(this._currentTab.prefix)) {
+        message = value.substring(this._currentTab.prefix.length).trim();
+      }
+    }
+    if (!message) {
+      return;
+    }
+    this.hide();
+    await this.commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    const options = {
+      query: message,
+      isPartialQuery: false
+    };
+    this.commandService.executeCommand(CHAT_OPEN_ACTION_ID, options);
+  }
+  /**
+   * Check if we should show the "send to agent" item.
+   * Always shows it as the first item when user has typed something.
+   */
+  _maybeShowSendToAgent(picker) {
+    if (this._isUpdatingSendToAgent) {
+      return;
+    }
+    let filterText;
+    if (this._arrivedViaShortcut && picker.value.startsWith(this._arrivedViaShortcut)) {
+      filterText = picker.value.substring(1).trim();
+    } else if (this._currentTab) {
+      filterText = picker.value.substring(this._currentTab.prefix.length).trim();
+    } else {
+      filterText = picker.value.trim();
+    }
+    const fullInput = picker.value.trim();
+    const messageToSend = filterText || fullInput;
+    if (!messageToSend) {
+      return;
+    }
+    if (picker.busy) {
+      return;
+    }
+    const firstItem = picker.items[0];
+    if (firstItem?.id === SEND_TO_AGENT_ID && firstItem.description === fullInput) {
+      return;
+    }
+    const sendItem = {
+      id: SEND_TO_AGENT_ID,
+      label: `$(send) ${localize("sendToAgentLabel", "Send to agent")}`,
+      description: fullInput,
+      alwaysShow: true,
+      ariaLabel: localize("sendToAgentAria", "Send message to agent: {0}", fullInput)
+    };
+    const currentItems = picker.items.filter((item) => item.id !== SEND_TO_AGENT_ID);
+    const isSessionsTab = this._currentTab?.id === "agentSessions";
+    const hasOtherItems = currentItems.length > 0;
+    const showFirst = isSessionsTab || !hasOtherItems;
+    this._isUpdatingSendToAgent = true;
+    try {
+      if (showFirst) {
+        picker.items = [sendItem, ...currentItems];
+      } else {
+        picker.items = currentItems;
+      }
+    } finally {
+      this._isUpdatingSendToAgent = false;
+    }
+  }
+  /**
+   * Switch to a different tab.
+   */
+  _switchTab(tab, picker, preserveFilterText) {
+    if (tab === this._currentTab) {
+      return;
+    }
+    const previousTab = this._currentTab;
+    this._currentTab = tab;
+    const radio = picker._unifiedRadio;
+    if (radio) {
+      const index = this._tabs.indexOf(tab);
+      if (index >= 0) {
+        radio.setActiveItem(index);
+      }
+    }
+    this._isInternalValueChange = true;
+    if (preserveFilterText && previousTab) {
+      const currentValue = picker.value;
+      let filterText = currentValue;
+      if (currentValue.startsWith(previousTab.prefix)) {
+        filterText = currentValue.substring(previousTab.prefix.length);
+      }
+      if (this._arrivedViaShortcut === "<" && tab.id === "agentSessions") {
+        filterText = filterText.replace(/^<+/, "");
+        picker.value = "<" + filterText;
+      } else if (this._arrivedViaShortcut === ">" && tab.id === "commands") {
+        filterText = filterText.replace(/^>+/, "");
+        picker.value = ">" + filterText;
+      } else {
+        picker.value = tab.prefix + filterText;
+      }
+    } else if (previousTab) {
+      const currentValue = picker.value;
+      if (currentValue.startsWith(previousTab.prefix)) {
+        picker.value = currentValue.substring(previousTab.prefix.length);
+      }
+      if (picker.value.startsWith("<") || picker.value.startsWith(">")) {
+        picker.value = picker.value.substring(1);
+      }
+      this._arrivedViaShortcut = void 0;
+    }
+    this._isInternalValueChange = false;
+    picker.placeholder = tab.placeholder;
+    this._activateProvider(tab, picker);
+  }
+  /**
+   * Detect which tab matches the current value based on prefix.
+   * Only switches away from current tab if user explicitly typed a different prefix.
+   * Supports shortcut keys: ">" for Commands, "<" for Sessions.
+   */
+  _detectTabFromValue(value) {
+    if (value === "<" || value.startsWith("<")) {
+      const sessionsTab = this._tabs.find((t) => t.id === "agentSessions");
+      if (sessionsTab && this._currentTab?.id !== "agentSessions") {
+        this._arrivedViaShortcut = "<";
+        return sessionsTab;
+      }
+    }
+    if (value === ">" || value.startsWith(">")) {
+      const commandsTab = this._tabs.find((t) => t.id === "commands");
+      if (commandsTab && this._currentTab?.id !== "commands") {
+        this._arrivedViaShortcut = ">";
+        return commandsTab;
+      }
+    }
+    if (this._currentTab && value.startsWith(this._currentTab.prefix)) {
+      return this._currentTab;
+    }
+    const sortedTabs = [...this._tabs].filter((tab) => tab.prefix.length > 0).sort((a, b) => b.prefix.length - a.prefix.length);
+    return sortedTabs.find((tab) => value.startsWith(tab.prefix));
+  }
+  /**
+   * Activate the provider for a given tab.
+   */
+  _activateProvider(tab, picker) {
+    this._providerDisposables.clear();
+    this._providerCts?.cancel();
+    this._providerCts = new CancellationTokenSource();
+    this._providerDisposables.add(this._providerCts);
+    if (tab.isSendTab) {
+      picker.busy = false;
+      picker.items = [{
+        label: localize("pressSendOrEnter", "Press Enter or click Send to create a new agent session"),
+        alwaysShow: true
+      }];
+      return;
+    }
+    picker.items = [];
+    picker.busy = true;
+    const [provider] = this._getOrInstantiateProvider(tab.prefix);
+    if (provider) {
+      const tabPrefix = tab.prefix;
+      const arrivedViaShortcut = this._arrivedViaShortcut;
+      picker.filterValue = (value) => {
+        if (arrivedViaShortcut && value.startsWith(arrivedViaShortcut)) {
+          return value.substring(1);
+        }
+        if (value.startsWith(tabPrefix)) {
+          return value.substring(tabPrefix.length);
+        }
+        return value;
+      };
+      const providerDisposable = provider.provide(picker, this._providerCts.token);
+      this._providerDisposables.add(providerDisposable);
+    } else {
+      picker.busy = false;
+      picker.items = [{
+        label: localize("noProvider", "No provider available for this tab"),
+        alwaysShow: true
+      }];
+    }
+  }
+  /**
+   * Get or create a provider instance for the given prefix.
+   */
+  _getOrInstantiateProvider(prefix) {
+    const providerDescriptor = this.registry.getQuickAccessProvider(prefix, this.contextKeyService);
+    if (!providerDescriptor) {
+      return [void 0, void 0];
+    }
+    let provider = this.mapProviderToDescriptor.get(providerDescriptor);
+    if (!provider) {
+      provider = this.instantiationService.createInstance(providerDescriptor.ctor);
+      this.mapProviderToDescriptor.set(providerDescriptor, provider);
+    }
+    return [provider, providerDescriptor];
+  }
+  dispose() {
+    this._providerCts?.cancel();
+    for (const provider of this.mapProviderToDescriptor.values()) {
+      if (isDisposable(provider)) {
+        provider.dispose();
+      }
+    }
+    super.dispose();
+  }
+};
+UnifiedQuickAccess = __decorate([
+  __param(1, IQuickInputService),
+  __param(2, IInstantiationService),
+  __param(3, IContextKeyService),
+  __param(4, ILayoutService),
+  __param(5, ICommandService),
+  __param(6, IKeybindingService),
+  __param(7, IHoverService)
+], UnifiedQuickAccess);
+export {
+  DEFAULT_UNIFIED_QUICK_ACCESS_TABS,
+  UnifiedQuickAccess
+};
+//# sourceMappingURL=unifiedQuickAccess.js.map

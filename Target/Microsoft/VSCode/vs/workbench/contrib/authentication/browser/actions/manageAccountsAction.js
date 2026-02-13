@@ -1,1 +1,140 @@
-import{$Rf as p}from"../../../../../base/common/lazy.js";import{$Dd as b}from"../../../../../base/common/lifecycle.js";import{localize as s,localize2 as m}from"../../../../../nls.js";import{$vL as g}from"../../../../../platform/actions/common/actions.js";import{$uo as v}from"../../../../../platform/commands/common/commands.js";import{$Mj as w}from"../../../../../platform/instantiation/common/instantiation.js";import{$Vn as A}from"../../../../../platform/product/common/productService.js";import{$YH as _}from"../../../../../platform/quickinput/common/quickInput.js";import{$tR as $}from"../../../../../platform/secrets/common/secrets.js";import{$mcb as O}from"../../../../services/authentication/browser/authenticationService.js";import{$BP as S}from"../../../../services/authentication/common/authentication.js";var f=function(r,n,e,t){var o=arguments.length,i=o<3?n:t===null?t=Object.getOwnPropertyDescriptor(n,e):t,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,n,e,t);else for(var c=r.length-1;c>=0;c--)(a=r[c])&&(i=(o<3?a(i):o>3?a(n,e,i):a(n,e))||i);return o>3&&i&&Object.defineProperty(n,e,i),i},u=function(r,n){return function(e,t){n(e,t,r)}};class z extends g{constructor(){super({id:"workbench.action.manageAccounts",title:m(4922,"Manage Accounts"),category:m(4923,"Accounts"),f1:!0})}run(n){return n.get(w).createInstance(h).run()}}let h=class{constructor(n,e,t,o,i){this.a=n,this.b=e,this.c=t,this.d=o,this.e=i}async run(){const n=s(4915,null),e=await this.f();if(!e.length){await this.a.pick([{label:s(4916,null)}],{placeHolder:n});return}const t=await this.a.pick(e,{placeHolder:n,matchOnDescription:!0});t&&await this.h(t)}async f(){const n=new p(()=>O(this.d,this.e)),e=[];for(const t of this.b.getProviderIds()){const o=this.b.getProvider(t);for(const{label:i,id:a}of await this.b.getAccounts(t))e.push({label:i,description:o.label,providerId:t,canUseMcp:!!o.authorizationServers?.length,canSignOut:async()=>this.g(o,a,await n.value)})}return e}async g(n,e,t){return t&&!t.canSignOut&&t.providerId===n.id?!(await this.b.getSessions(n.id)).some(i=>i.id===t.id&&i.account.id===e):!0}async h(n){const{providerId:e,label:t,canUseMcp:o,canSignOut:i}=n,a=new b,c=a.add(this.a.createQuickPick());c.title=s(4917,null,t),c.placeholder=s(4918,null),c.buttons=[this.a.backButton];const d=[{label:s(4919,null),action:()=>this.c.executeCommand("_manageTrustedExtensionsForAccount",{providerId:e,accountLabel:t})}];o&&d.push({label:s(4920,null),action:()=>this.c.executeCommand("_manageTrustedMCPServersForAccount",{providerId:e,accountLabel:t})}),await i()&&d.push({label:s(4921,null),action:()=>this.c.executeCommand("_signOutOfAccount",{providerId:e,accountLabel:t})}),c.items=d,a.add(c.onDidAccept(()=>{const l=c.selectedItems[0];l&&(c.hide(),l.action())})),a.add(c.onDidTriggerButton(l=>{l===this.a.backButton&&this.run()})),a.add(c.onDidHide(()=>a.dispose())),c.show()}};h=f([u(0,_),u(1,S),u(2,v),u(3,$),u(4,A)],h);export{z as $eJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Lazy } from "../../../../../base/common/lazy.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { ISecretStorageService } from "../../../../../platform/secrets/common/secrets.js";
+import { getCurrentAuthenticationSessionInfo } from "../../../../services/authentication/browser/authenticationService.js";
+import { IAuthenticationService } from "../../../../services/authentication/common/authentication.js";
+class ManageAccountsAction extends Action2 {
+  static {
+    __name(this, "ManageAccountsAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.manageAccounts",
+      title: localize2("manageAccounts", "Manage Accounts"),
+      category: localize2("accounts", "Accounts"),
+      f1: true
+    });
+  }
+  run(accessor) {
+    const instantiationService = accessor.get(IInstantiationService);
+    return instantiationService.createInstance(ManageAccountsActionImpl).run();
+  }
+}
+let ManageAccountsActionImpl = class ManageAccountsActionImpl2 {
+  static {
+    __name(this, "ManageAccountsActionImpl");
+  }
+  constructor(quickInputService, authenticationService, commandService, secretStorageService, productService) {
+    this.quickInputService = quickInputService;
+    this.authenticationService = authenticationService;
+    this.commandService = commandService;
+    this.secretStorageService = secretStorageService;
+    this.productService = productService;
+  }
+  async run() {
+    const placeHolder = localize("pickAccount", "Select an account to manage");
+    const accounts = await this.listAccounts();
+    if (!accounts.length) {
+      await this.quickInputService.pick([{ label: localize("noActiveAccounts", "There are no active accounts.") }], { placeHolder });
+      return;
+    }
+    const account = await this.quickInputService.pick(accounts, { placeHolder, matchOnDescription: true });
+    if (!account) {
+      return;
+    }
+    await this.showAccountActions(account);
+  }
+  async listAccounts() {
+    const activeSession = new Lazy(() => getCurrentAuthenticationSessionInfo(this.secretStorageService, this.productService));
+    const accounts = [];
+    for (const providerId of this.authenticationService.getProviderIds()) {
+      const provider = this.authenticationService.getProvider(providerId);
+      for (const { label, id } of await this.authenticationService.getAccounts(providerId)) {
+        accounts.push({
+          label,
+          description: provider.label,
+          providerId,
+          canUseMcp: !!provider.authorizationServers?.length,
+          canSignOut: /* @__PURE__ */ __name(async () => this.canSignOut(provider, id, await activeSession.value), "canSignOut")
+        });
+      }
+    }
+    return accounts;
+  }
+  async canSignOut(provider, accountId, session) {
+    if (session && !session.canSignOut && session.providerId === provider.id) {
+      const sessions = await this.authenticationService.getSessions(provider.id);
+      return !sessions.some((o) => o.id === session.id && o.account.id === accountId);
+    }
+    return true;
+  }
+  async showAccountActions(account) {
+    const { providerId, label: accountLabel, canUseMcp, canSignOut } = account;
+    const store = new DisposableStore();
+    const quickPick = store.add(this.quickInputService.createQuickPick());
+    quickPick.title = localize("manageAccount", "Manage '{0}'", accountLabel);
+    quickPick.placeholder = localize("selectAction", "Select an action");
+    quickPick.buttons = [this.quickInputService.backButton];
+    const items = [{
+      label: localize("manageTrustedExtensions", "Manage Trusted Extensions"),
+      action: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_manageTrustedExtensionsForAccount", { providerId, accountLabel }), "action")
+    }];
+    if (canUseMcp) {
+      items.push({
+        label: localize("manageTrustedMCPServers", "Manage Trusted MCP Servers"),
+        action: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_manageTrustedMCPServersForAccount", { providerId, accountLabel }), "action")
+      });
+    }
+    if (await canSignOut()) {
+      items.push({
+        label: localize("signOut", "Sign Out"),
+        action: /* @__PURE__ */ __name(() => this.commandService.executeCommand("_signOutOfAccount", { providerId, accountLabel }), "action")
+      });
+    }
+    quickPick.items = items;
+    store.add(quickPick.onDidAccept(() => {
+      const selected = quickPick.selectedItems[0];
+      if (selected) {
+        quickPick.hide();
+        selected.action();
+      }
+    }));
+    store.add(quickPick.onDidTriggerButton((button) => {
+      if (button === this.quickInputService.backButton) {
+        void this.run();
+      }
+    }));
+    store.add(quickPick.onDidHide(() => store.dispose()));
+    quickPick.show();
+  }
+};
+ManageAccountsActionImpl = __decorate([
+  __param(0, IQuickInputService),
+  __param(1, IAuthenticationService),
+  __param(2, ICommandService),
+  __param(3, ISecretStorageService),
+  __param(4, IProductService)
+], ManageAccountsActionImpl);
+export {
+  ManageAccountsAction
+};
+//# sourceMappingURL=manageAccountsAction.js.map

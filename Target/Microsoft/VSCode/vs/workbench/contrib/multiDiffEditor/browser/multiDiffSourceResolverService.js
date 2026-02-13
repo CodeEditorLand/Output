@@ -1,1 +1,53 @@
-import{$Db as r}from"../../../../base/common/errors.js";import{$Cd as l}from"../../../../base/common/lifecycle.js";import{$Nj as a}from"../../../../platform/instantiation/common/instantiation.js";const d=a("multiDiffSourceResolverService");class u{constructor(t,e,o,s,n){if(this.originalUri=t,this.modifiedUri=e,this.goToFileUri=o,this.goToFileEditorTitle=s,this.contextKeys=n,!t&&!e)throw new r("Invalid arguments")}getKey(){return JSON.stringify([this.modifiedUri?.toString(),this.originalUri?.toString()])}}class m{constructor(){this.a=new Set}registerResolver(t){if(this.a.has(t))throw new r("Duplicate resolver");return this.a.add(t),l(()=>this.a.delete(t))}resolve(t){for(const e of this.a)if(e.canHandleUri(t))return e.resolveDiffSource(t);return Promise.resolve(void 0)}}export{u as $$Ob,d as $0Ob,m as $_Ob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BugIndicatingError } from "../../../../base/common/errors.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IMultiDiffSourceResolverService = createDecorator("multiDiffSourceResolverService");
+class MultiDiffEditorItem {
+  static {
+    __name(this, "MultiDiffEditorItem");
+  }
+  constructor(originalUri, modifiedUri, goToFileUri, goToFileEditorTitle, contextKeys) {
+    this.originalUri = originalUri;
+    this.modifiedUri = modifiedUri;
+    this.goToFileUri = goToFileUri;
+    this.goToFileEditorTitle = goToFileEditorTitle;
+    this.contextKeys = contextKeys;
+    if (!originalUri && !modifiedUri) {
+      throw new BugIndicatingError("Invalid arguments");
+    }
+  }
+  getKey() {
+    return JSON.stringify([this.modifiedUri?.toString(), this.originalUri?.toString()]);
+  }
+}
+class MultiDiffSourceResolverService {
+  static {
+    __name(this, "MultiDiffSourceResolverService");
+  }
+  constructor() {
+    this._resolvers = /* @__PURE__ */ new Set();
+  }
+  registerResolver(resolver) {
+    if (this._resolvers.has(resolver)) {
+      throw new BugIndicatingError("Duplicate resolver");
+    }
+    this._resolvers.add(resolver);
+    return toDisposable(() => this._resolvers.delete(resolver));
+  }
+  resolve(uri) {
+    for (const resolver of this._resolvers) {
+      if (resolver.canHandleUri(uri)) {
+        return resolver.resolveDiffSource(uri);
+      }
+    }
+    return Promise.resolve(void 0);
+  }
+}
+export {
+  IMultiDiffSourceResolverService,
+  MultiDiffEditorItem,
+  MultiDiffSourceResolverService
+};
+//# sourceMappingURL=multiDiffSourceResolverService.js.map

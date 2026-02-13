@@ -1,1 +1,129 @@
-import{Event as f}from"../../../base/common/event.js";import{$Ed as D,$Cd as y}from"../../../base/common/lifecycle.js";import{$Y1 as B,$X1 as T}from"../common/extHost.protocol.js";import{$sZb as w}from"../../contrib/terminal/browser/terminal.js";import{$HP as x}from"../../services/environment/common/environmentService.js";import{$vDb as O}from"../../services/extensions/common/extHostCustomers.js";import{TerminalShellExecutionCommandLineConfidence as u}from"../common/extHostTypes.js";import{$NR as S}from"../../services/extensions/common/extensions.js";var $=function(s,e,n,o){var c=arguments.length,a=c<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(s,e,n,o);else for(var r=s.length-1;r>=0;r--)(d=s[r])&&(a=(c<3?d(a):c>3?d(e,n,a):d(e,n))||a);return c>3&&a&&Object.defineProperty(e,n,a),a},l=function(s,e){return function(n,o){e(n,o,s)}};let p=class extends D{constructor(e,n,o,c){super(),this.b=n,this.c=c,this.a=e.getProxy(B.ExtHostTerminalShellIntegration);const a=new Map;this.D(y(()=>{for(const t of a.values())t.dispose()}));for(const t of this.b.instances)t.capabilities.get(2)&&this.f(t);const d=this.B.add(this.b.createOnInstanceEvent(t=>f.map(t.capabilities.onDidAddCommandDetectionCapability,()=>t))).event;this.B.add(d(t=>this.f(t)));const r=this.B.add(this.b.createOnInstanceCapabilityEvent(0,t=>t.onDidChangeCwd));this.B.add(r.event(t=>{this.a.$cwdChange(t.instance.instanceId,t.data)}));const b=this.B.add(this.b.createOnInstanceCapabilityEvent(5,t=>t.onDidChangeEnv));this.B.add(b.event(t=>{if(t.data.value&&typeof t.data.value=="object"){const i=t.data.value,m=Object.keys(i),I=Object.values(i);this.a.$shellEnvChange(t.instance.instanceId,m,I,t.data.isTrusted)}}));const E=this.B.add(this.b.createOnInstanceCapabilityEvent(2,t=>t.onCommandExecuted));let h;this.B.add(E.event(t=>{if(t.data===h)return;h=t.data;const i=t.instance.instanceId;this.a.$shellExecutionStart(i,C(t.instance),t.data.command,v(t.data),t.data.isTrusted,t.data.cwd),a.get(i)?.dispose(),a.set(i,f.accumulate(t.instance.onData,50,!0,this.B)(m=>{this.a.$shellExecutionData(i,m.join(""))}))}));const g=this.B.add(this.b.createOnInstanceCapabilityEvent(2,t=>t.onCommandFinished));this.B.add(g.event(t=>{h=void 0;const i=t.instance.instanceId;a.get(i)?.dispose(),this.a.$shellExecutionEnd(i,t.data.command,v(t.data),t.data.isTrusted,t.data.exitCode)})),this.B.add(this.b.onDidDisposeInstance(t=>this.a.$closeTerminal(t.instanceId)))}$executeCommand(e,n){this.b.getInstanceFromId(e)?.runCommand(n,!0)}f(e){this.c.activateByEvent("onTerminalShellIntegration:*"),e.shellType&&this.c.activateByEvent(`onTerminalShellIntegration:${e.shellType}`),this.a.$shellIntegrationChange(e.instanceId,C(e));const n=e.capabilities.get(0);n&&this.a.$cwdChange(e.instanceId,n.getCwd())}};p=$([O(T.MainThreadTerminalShellIntegration),l(1,w),l(2,x),l(3,S)],p);function v(s){switch(s.commandLineConfidence){case"high":return u.High;case"medium":return u.Medium;default:return u.Low}}function C(s){return s.shellLaunchConfig.type!=="Task"}export{p as $07b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Event } from "../../../base/common/event.js";
+import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { ITerminalService } from "../../contrib/terminal/browser/terminal.js";
+import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { TerminalShellExecutionCommandLineConfidence } from "../common/extHostTypes.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+let MainThreadTerminalShellIntegration = class MainThreadTerminalShellIntegration2 extends Disposable {
+  static {
+    __name(this, "MainThreadTerminalShellIntegration");
+  }
+  constructor(extHostContext, _terminalService, workbenchEnvironmentService, _extensionService) {
+    super();
+    this._terminalService = _terminalService;
+    this._extensionService = _extensionService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTerminalShellIntegration);
+    const instanceDataListeners = /* @__PURE__ */ new Map();
+    this._register(toDisposable(() => {
+      for (const listener of instanceDataListeners.values()) {
+        listener.dispose();
+      }
+    }));
+    for (const terminal of this._terminalService.instances) {
+      const cmdDetection = terminal.capabilities.get(
+        2
+        /* TerminalCapability.CommandDetection */
+      );
+      if (cmdDetection) {
+        this._enableShellIntegration(terminal);
+      }
+    }
+    const onDidAddCommandDetection = this._store.add(this._terminalService.createOnInstanceEvent((instance) => {
+      return Event.map(instance.capabilities.onDidAddCommandDetectionCapability, () => instance);
+    })).event;
+    this._store.add(onDidAddCommandDetection((e) => this._enableShellIntegration(e)));
+    const cwdChangeEvent = this._store.add(this._terminalService.createOnInstanceCapabilityEvent(0, (e) => e.onDidChangeCwd));
+    this._store.add(cwdChangeEvent.event((e) => {
+      this._proxy.$cwdChange(e.instance.instanceId, e.data);
+    }));
+    const envChangeEvent = this._store.add(this._terminalService.createOnInstanceCapabilityEvent(5, (e) => e.onDidChangeEnv));
+    this._store.add(envChangeEvent.event((e) => {
+      if (e.data.value && typeof e.data.value === "object") {
+        const envValue = e.data.value;
+        const keysArr = Object.keys(envValue);
+        const valuesArr = Object.values(envValue);
+        this._proxy.$shellEnvChange(e.instance.instanceId, keysArr, valuesArr, e.data.isTrusted);
+      }
+    }));
+    const commandDetectionStartEvent = this._store.add(this._terminalService.createOnInstanceCapabilityEvent(2, (e) => e.onCommandExecuted));
+    let currentCommand;
+    this._store.add(commandDetectionStartEvent.event((e) => {
+      if (e.data === currentCommand) {
+        return;
+      }
+      currentCommand = e.data;
+      const instanceId = e.instance.instanceId;
+      this._proxy.$shellExecutionStart(instanceId, instanceSupportsExecuteCommandApi(e.instance), e.data.command, convertToExtHostCommandLineConfidence(e.data), e.data.isTrusted, e.data.cwd);
+      instanceDataListeners.get(instanceId)?.dispose();
+      instanceDataListeners.set(instanceId, Event.accumulate(e.instance.onData, 50, true, this._store)((events) => {
+        this._proxy.$shellExecutionData(instanceId, events.join(""));
+      }));
+    }));
+    const commandDetectionEndEvent = this._store.add(this._terminalService.createOnInstanceCapabilityEvent(2, (e) => e.onCommandFinished));
+    this._store.add(commandDetectionEndEvent.event((e) => {
+      currentCommand = void 0;
+      const instanceId = e.instance.instanceId;
+      instanceDataListeners.get(instanceId)?.dispose();
+      this._proxy.$shellExecutionEnd(instanceId, e.data.command, convertToExtHostCommandLineConfidence(e.data), e.data.isTrusted, e.data.exitCode);
+    }));
+    this._store.add(this._terminalService.onDidDisposeInstance((e) => this._proxy.$closeTerminal(e.instanceId)));
+  }
+  $executeCommand(terminalId, commandLine) {
+    this._terminalService.getInstanceFromId(terminalId)?.runCommand(commandLine, true);
+  }
+  _enableShellIntegration(instance) {
+    this._extensionService.activateByEvent("onTerminalShellIntegration:*");
+    if (instance.shellType) {
+      this._extensionService.activateByEvent(`onTerminalShellIntegration:${instance.shellType}`);
+    }
+    this._proxy.$shellIntegrationChange(instance.instanceId, instanceSupportsExecuteCommandApi(instance));
+    const cwdDetection = instance.capabilities.get(
+      0
+      /* TerminalCapability.CwdDetection */
+    );
+    if (cwdDetection) {
+      this._proxy.$cwdChange(instance.instanceId, cwdDetection.getCwd());
+    }
+  }
+};
+MainThreadTerminalShellIntegration = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadTerminalShellIntegration),
+  __param(1, ITerminalService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IExtensionService)
+], MainThreadTerminalShellIntegration);
+function convertToExtHostCommandLineConfidence(command) {
+  switch (command.commandLineConfidence) {
+    case "high":
+      return TerminalShellExecutionCommandLineConfidence.High;
+    case "medium":
+      return TerminalShellExecutionCommandLineConfidence.Medium;
+    case "low":
+    default:
+      return TerminalShellExecutionCommandLineConfidence.Low;
+  }
+}
+__name(convertToExtHostCommandLineConfidence, "convertToExtHostCommandLineConfidence");
+function instanceSupportsExecuteCommandApi(instance) {
+  return instance.shellLaunchConfig.type !== "Task";
+}
+__name(instanceSupportsExecuteCommandApi, "instanceSupportsExecuteCommandApi");
+export {
+  MainThreadTerminalShellIntegration
+};
+//# sourceMappingURL=mainThreadTerminalShellIntegration.js.map

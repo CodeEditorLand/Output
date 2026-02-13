@@ -1,1 +1,42 @@
-import{localize as n,localize2 as a}from"../../../../nls.js";import{$vL as i,$qL as l,$wL as c}from"../../../../platform/actions/common/actions.js";import{$0l as d}from"../../../../platform/configuration/common/configuration.js";import{$0n as u}from"../../../../platform/contextkey/common/contextkey.js";import{$to as s}from"../../../../platform/action/common/actionCommonCategories.js";class r extends i{static{this.ID="editor.action.toggleRenderControlCharacter"}constructor(){super({id:r.ID,title:{...a(7303,"Toggle Control Characters"),mnemonicTitle:n(7302,null)},category:s.View,f1:!0,toggled:u.equals("config.editor.renderControlCharacters",!0),menu:{id:l.MenubarAppearanceMenu,group:"4_editor",order:5}})}run(o){const e=o.get(d),t=!e.getValue("editor.renderControlCharacters");return e.updateValue("editor.renderControlCharacters",t)}}c(r);export{r as $pHc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+class ToggleRenderControlCharacterAction extends Action2 {
+  static {
+    __name(this, "ToggleRenderControlCharacterAction");
+  }
+  static {
+    this.ID = "editor.action.toggleRenderControlCharacter";
+  }
+  constructor() {
+    super({
+      id: ToggleRenderControlCharacterAction.ID,
+      title: {
+        ...localize2("toggleRenderControlCharacters", "Toggle Control Characters"),
+        mnemonicTitle: localize({ key: "miToggleRenderControlCharacters", comment: ["&& denotes a mnemonic"] }, "Render &&Control Characters")
+      },
+      category: Categories.View,
+      f1: true,
+      toggled: ContextKeyExpr.equals("config.editor.renderControlCharacters", true),
+      menu: {
+        id: MenuId.MenubarAppearanceMenu,
+        group: "4_editor",
+        order: 5
+      }
+    });
+  }
+  run(accessor) {
+    const configurationService = accessor.get(IConfigurationService);
+    const newRenderControlCharacters = !configurationService.getValue("editor.renderControlCharacters");
+    return configurationService.updateValue("editor.renderControlCharacters", newRenderControlCharacters);
+  }
+}
+registerAction2(ToggleRenderControlCharacterAction);
+export {
+  ToggleRenderControlCharacterAction
+};
+//# sourceMappingURL=toggleRenderControlCharacter.js.map

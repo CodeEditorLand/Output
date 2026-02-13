@@ -1,1 +1,139 @@
-import{$vb as h}from"../../../../base/common/errors.js";import{$K1 as b}from"./es5ClassCompat.js";import{$L1 as n}from"./position.js";var c=function(r,t,i,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,i,e);else for(var l=r.length-1;l>=0;l--)(f=r[l])&&(s=(o<3?f(s):o>3?f(t,i,s):f(t,i))||s);return o>3&&s&&Object.defineProperty(t,i,s),s},u;let a=u=class{static isRange(t){return t instanceof u?!0:!t||typeof t!="object"?!1:n.isPosition(t.start)&&n.isPosition(t.end)}static of(t){if(t instanceof u)return t;if(this.isRange(t))return new u(t.start,t.end);throw new Error("Invalid argument, is NOT a range-like object")}get start(){return this.a}get end(){return this.b}constructor(t,i,e,o){let s,f;if(typeof t=="number"&&typeof i=="number"&&typeof e=="number"&&typeof o=="number"?(s=new n(t,i),f=new n(e,o)):n.isPosition(t)&&n.isPosition(i)&&(s=n.of(t),f=n.of(i)),!s||!f)throw new Error("Invalid arguments");s.isBefore(f)?(this.a=s,this.b=f):(this.a=f,this.b=s)}contains(t){return u.isRange(t)?this.contains(t.start)&&this.contains(t.end):n.isPosition(t)?!(n.of(t).isBefore(this.a)||this.b.isBefore(t)):!1}isEqual(t){return this.a.isEqual(t.a)&&this.b.isEqual(t.b)}intersection(t){const i=n.Max(t.start,this.a),e=n.Min(t.end,this.b);if(!i.isAfter(e))return new u(i,e)}union(t){if(this.contains(t))return this;if(t.contains(this))return t;const i=n.Min(t.start,this.a),e=n.Max(t.end,this.end);return new u(i,e)}get isEmpty(){return this.a.isEqual(this.b)}get isSingleLine(){return this.a.line===this.b.line}with(t,i=this.end){if(t===null||i===null)throw h();let e;return t?n.isPosition(t)?e=t:(e=t.start||this.start,i=t.end||this.end):e=this.start,e.isEqual(this.a)&&i.isEqual(this.end)?this:new u(e,i)}toJSON(){return[this.start,this.end]}[Symbol.for("debug.description")](){return d(this)}};a=u=c([b],a);function d(r){return r.isEmpty?`[${r.start.line}:${r.start.character})`:`[${r.start.line}:${r.start.character} -> ${r.end.line}:${r.end.character})`}export{a as $M1,d as $N1};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Range_1;
+import { illegalArgument } from "../../../../base/common/errors.js";
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { Position } from "./position.js";
+let Range = Range_1 = class Range2 {
+  static {
+    __name(this, "Range");
+  }
+  static isRange(thing) {
+    if (thing instanceof Range_1) {
+      return true;
+    }
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    return Position.isPosition(thing.start) && Position.isPosition(thing.end);
+  }
+  static of(obj) {
+    if (obj instanceof Range_1) {
+      return obj;
+    }
+    if (this.isRange(obj)) {
+      return new Range_1(obj.start, obj.end);
+    }
+    throw new Error("Invalid argument, is NOT a range-like object");
+  }
+  get start() {
+    return this._start;
+  }
+  get end() {
+    return this._end;
+  }
+  constructor(startLineOrStart, startColumnOrEnd, endLine, endColumn) {
+    let start;
+    let end;
+    if (typeof startLineOrStart === "number" && typeof startColumnOrEnd === "number" && typeof endLine === "number" && typeof endColumn === "number") {
+      start = new Position(startLineOrStart, startColumnOrEnd);
+      end = new Position(endLine, endColumn);
+    } else if (Position.isPosition(startLineOrStart) && Position.isPosition(startColumnOrEnd)) {
+      start = Position.of(startLineOrStart);
+      end = Position.of(startColumnOrEnd);
+    }
+    if (!start || !end) {
+      throw new Error("Invalid arguments");
+    }
+    if (start.isBefore(end)) {
+      this._start = start;
+      this._end = end;
+    } else {
+      this._start = end;
+      this._end = start;
+    }
+  }
+  contains(positionOrRange) {
+    if (Range_1.isRange(positionOrRange)) {
+      return this.contains(positionOrRange.start) && this.contains(positionOrRange.end);
+    } else if (Position.isPosition(positionOrRange)) {
+      if (Position.of(positionOrRange).isBefore(this._start)) {
+        return false;
+      }
+      if (this._end.isBefore(positionOrRange)) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  isEqual(other) {
+    return this._start.isEqual(other._start) && this._end.isEqual(other._end);
+  }
+  intersection(other) {
+    const start = Position.Max(other.start, this._start);
+    const end = Position.Min(other.end, this._end);
+    if (start.isAfter(end)) {
+      return void 0;
+    }
+    return new Range_1(start, end);
+  }
+  union(other) {
+    if (this.contains(other)) {
+      return this;
+    } else if (other.contains(this)) {
+      return other;
+    }
+    const start = Position.Min(other.start, this._start);
+    const end = Position.Max(other.end, this.end);
+    return new Range_1(start, end);
+  }
+  get isEmpty() {
+    return this._start.isEqual(this._end);
+  }
+  get isSingleLine() {
+    return this._start.line === this._end.line;
+  }
+  with(startOrChange, end = this.end) {
+    if (startOrChange === null || end === null) {
+      throw illegalArgument();
+    }
+    let start;
+    if (!startOrChange) {
+      start = this.start;
+    } else if (Position.isPosition(startOrChange)) {
+      start = startOrChange;
+    } else {
+      start = startOrChange.start || this.start;
+      end = startOrChange.end || this.end;
+    }
+    if (start.isEqual(this._start) && end.isEqual(this.end)) {
+      return this;
+    }
+    return new Range_1(start, end);
+  }
+  toJSON() {
+    return [this.start, this.end];
+  }
+  [/* @__PURE__ */ Symbol.for("debug.description")]() {
+    return getDebugDescriptionOfRange(this);
+  }
+};
+Range = Range_1 = __decorate([
+  es5ClassCompat
+], Range);
+function getDebugDescriptionOfRange(range) {
+  return range.isEmpty ? `[${range.start.line}:${range.start.character})` : `[${range.start.line}:${range.start.character} -> ${range.end.line}:${range.end.character})`;
+}
+__name(getDebugDescriptionOfRange, "getDebugDescriptionOfRange");
+export {
+  Range,
+  getDebugDescriptionOfRange
+};
+//# sourceMappingURL=range.js.map

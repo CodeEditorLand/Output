@@ -1,1 +1,96 @@
-import{$xf as g}from"../../../../base/common/event.js";import{$Ed as c}from"../../../../base/common/lifecycle.js";import{$_D as d}from"../../core/range.js";import{$bJ as u,$cJ as f,$dJ as h,$eJ as p,$fJ as C,$gJ as m,$hJ as $}from"../../core/editorColorRegistry.js";import{$xu as v}from"../../../../platform/theme/common/themeService.js";class P extends c{constructor(e){super(),this.g=e,this.b=new l,this.f=new g,this.onDidChange=this.f.event,this.a=e.getOptions().bracketPairColorizationOptions,this.D(e.bracketPairs.onDidChange(n=>{this.f.fire()}))}handleDidChangeOptions(e){this.a=this.g.getOptions().bracketPairColorizationOptions}getDecorationsInRange(e,n,i,s,t){return t?[]:n===void 0?[]:this.a.enabled?this.g.bracketPairs.getBracketsInRange(e,!0).map(o=>({id:`bracket${o.range.toString()}-${o.nestingLevel}`,options:{description:"BracketPairColorization",inlineClassName:this.b.getInlineClassName(o,this.a.independentColorPoolPerBracketType)},ownerId:0,range:o.range})).toArray():[]}getAllDecorations(e,n,i){return e===void 0?[]:this.a.enabled?this.getDecorationsInRange(new d(1,1,this.g.getLineCount(),1),e,n,i):[]}}class l{constructor(){this.unexpectedClosingBracketClassName="unexpected-closing-bracket"}getInlineClassName(e,n){return e.isInvalid?this.unexpectedClosingBracketClassName:this.getInlineClassNameOfLevel(n?e.nestingLevelOfEqualBracketType:e.nestingLevel)}getInlineClassNameOfLevel(e){return`bracket-highlighting-${e%30}`}}v((r,e)=>{const n=[u,f,h,p,C,m],i=new l;e.addRule(`.monaco-editor .${i.unexpectedClosingBracketClassName} { color: ${r.getColor($)}; }`);const s=n.map(t=>r.getColor(t)).filter(t=>!!t).filter(t=>!t.isTransparent());for(let t=0;t<30;t++){const a=s[t%s.length];e.addRule(`.monaco-editor .${i.getInlineClassNameOfLevel(t)} { color: ${a}; }`)}});export{P as $wJ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Range } from "../../core/range.js";
+import { editorBracketHighlightingForeground1, editorBracketHighlightingForeground2, editorBracketHighlightingForeground3, editorBracketHighlightingForeground4, editorBracketHighlightingForeground5, editorBracketHighlightingForeground6, editorBracketHighlightingUnexpectedBracketForeground } from "../../core/editorColorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+class ColorizedBracketPairsDecorationProvider extends Disposable {
+  static {
+    __name(this, "ColorizedBracketPairsDecorationProvider");
+  }
+  constructor(textModel) {
+    super();
+    this.textModel = textModel;
+    this.colorProvider = new ColorProvider();
+    this.onDidChangeEmitter = new Emitter();
+    this.onDidChange = this.onDidChangeEmitter.event;
+    this.colorizationOptions = textModel.getOptions().bracketPairColorizationOptions;
+    this._register(textModel.bracketPairs.onDidChange((e) => {
+      this.onDidChangeEmitter.fire();
+    }));
+  }
+  //#region TextModel events
+  handleDidChangeOptions(e) {
+    this.colorizationOptions = this.textModel.getOptions().bracketPairColorizationOptions;
+  }
+  //#endregion
+  getDecorationsInRange(range, ownerId, filterOutValidation, filterFontDecorations, onlyMinimapDecorations) {
+    if (onlyMinimapDecorations) {
+      return [];
+    }
+    if (ownerId === void 0) {
+      return [];
+    }
+    if (!this.colorizationOptions.enabled) {
+      return [];
+    }
+    const result = this.textModel.bracketPairs.getBracketsInRange(range, true).map((bracket) => ({
+      id: `bracket${bracket.range.toString()}-${bracket.nestingLevel}`,
+      options: {
+        description: "BracketPairColorization",
+        inlineClassName: this.colorProvider.getInlineClassName(bracket, this.colorizationOptions.independentColorPoolPerBracketType)
+      },
+      ownerId: 0,
+      range: bracket.range
+    })).toArray();
+    return result;
+  }
+  getAllDecorations(ownerId, filterOutValidation, filterFontDecorations) {
+    if (ownerId === void 0) {
+      return [];
+    }
+    if (!this.colorizationOptions.enabled) {
+      return [];
+    }
+    return this.getDecorationsInRange(new Range(1, 1, this.textModel.getLineCount(), 1), ownerId, filterOutValidation, filterFontDecorations);
+  }
+}
+class ColorProvider {
+  static {
+    __name(this, "ColorProvider");
+  }
+  constructor() {
+    this.unexpectedClosingBracketClassName = "unexpected-closing-bracket";
+  }
+  getInlineClassName(bracket, independentColorPoolPerBracketType) {
+    if (bracket.isInvalid) {
+      return this.unexpectedClosingBracketClassName;
+    }
+    return this.getInlineClassNameOfLevel(independentColorPoolPerBracketType ? bracket.nestingLevelOfEqualBracketType : bracket.nestingLevel);
+  }
+  getInlineClassNameOfLevel(level) {
+    return `bracket-highlighting-${level % 30}`;
+  }
+}
+registerThemingParticipant((theme, collector) => {
+  const colors = [
+    editorBracketHighlightingForeground1,
+    editorBracketHighlightingForeground2,
+    editorBracketHighlightingForeground3,
+    editorBracketHighlightingForeground4,
+    editorBracketHighlightingForeground5,
+    editorBracketHighlightingForeground6
+  ];
+  const colorProvider = new ColorProvider();
+  collector.addRule(`.monaco-editor .${colorProvider.unexpectedClosingBracketClassName} { color: ${theme.getColor(editorBracketHighlightingUnexpectedBracketForeground)}; }`);
+  const colorValues = colors.map((c) => theme.getColor(c)).filter((c) => !!c).filter((c) => !c.isTransparent());
+  for (let level = 0; level < 30; level++) {
+    const color = colorValues[level % colorValues.length];
+    collector.addRule(`.monaco-editor .${colorProvider.getInlineClassNameOfLevel(level)} { color: ${color}; }`);
+  }
+});
+export {
+  ColorizedBracketPairsDecorationProvider
+};
+//# sourceMappingURL=colorizedBracketPairsDecorationProvider.js.map

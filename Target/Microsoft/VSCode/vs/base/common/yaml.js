@@ -1,1 +1,590 @@
-function T(a,t=[],e={}){const i=a.length===0?[]:a.split(/\r\n|\n/);return new x(i,t,e).parse()}function p(a,t){return{line:a,character:t}}function l(a,t,e){return{type:"string",value:a,start:t,end:e}}function N(a,t,e){return{type:"number",value:a,start:t,end:e}}function v(a,t,e){return{type:"boolean",value:a,start:t,end:e}}function W(a,t){return{type:"null",value:null,start:a,end:t}}function E(a,t,e){return{type:"object",start:t,end:e,properties:a}}function A(a,t,e){return{type:"array",start:t,end:e,items:a}}function P(a){return a===" "||a==="	"}function w(a){return/^-?\d*\.?\d+$/.test(a)}class I{constructor(t){this.b=0,this.c=0,this.a=t}getCurrentPosition(){return p(this.b,this.c)}getCurrentLineNumber(){return this.b}getCurrentCharNumber(){return this.c}getCurrentLineText(){return this.b<this.a.length?this.a[this.b]:""}savePosition(){return{line:this.b,char:this.c}}restorePosition(t){this.b=t.line,this.c=t.char}isAtEnd(){return this.b>=this.a.length}getCurrentChar(){return this.isAtEnd()||this.c>=this.a[this.b].length?"":this.a[this.b][this.c]}peek(t=1){const e=this.c+t;return this.b>=this.a.length||e>=this.a[this.b].length?"":this.a[this.b][e]}advance(){const t=this.getCurrentChar();return this.c>=this.a[this.b].length&&this.b<this.a.length-1?(this.b++,this.c=0):this.c++,t}advanceLine(){this.b++,this.c=0}skipWhitespace(){for(;!this.isAtEnd()&&this.c<this.a[this.b].length&&P(this.getCurrentChar());)this.advance()}skipToEndOfLine(){this.c=this.a[this.b].length}getIndentation(){if(this.isAtEnd())return 0;let t=0;for(let e=0;e<this.a[this.b].length;e++)if(this.a[this.b][e]===" ")t++;else if(this.a[this.b][e]==="	")t+=4;else break;return t}moveToNextNonEmptyLine(){for(;this.b<this.a.length;){if(this.c<this.a[this.b].length){const t=this.a[this.b].substring(this.c).trim();if(t.length>0&&!t.startsWith("#")){this.skipWhitespace();return}}if(this.b++,this.c=0,this.b<this.a.length){const t=this.a[this.b].trim();if(t.length>0&&!t.startsWith("#")){this.skipWhitespace();return}}}}}class x{constructor(t,e,i){this.d=0,this.a=new I(t),this.b=e,this.c=i}addError(t,e,i,s){this.b.push({message:t,code:e,start:i,end:s})}parseValue(t){if(this.a.skipWhitespace(),this.a.isAtEnd()){const i=this.a.getCurrentPosition();return l("",i,i)}const e=this.a.getCurrentChar();return e==='"'||e==="'"?this.parseQuotedString(e):e==="["?this.parseInlineArray():e==="{"?this.parseInlineObject():this.parseUnquotedValue()}parseQuotedString(t){const e=this.a.getCurrentPosition();this.a.advance();let i="";for(;!this.a.isAtEnd()&&this.a.getCurrentChar()!==""&&this.a.getCurrentChar()!==t;)i+=this.a.advance();this.a.getCurrentChar()===t&&this.a.advance();const s=this.a.getCurrentPosition();return l(i,e,s)}parseUnquotedValue(){const t=this.a.getCurrentPosition();let e="",i=t;const s=h=>h==="#"||this.d>0&&(h===","||h==="]"||h==="}"),r=this.a.getCurrentChar();if(r==='"'||r==="'")for(e+=this.a.advance(),i=this.a.getCurrentPosition();!this.a.isAtEnd()&&this.a.getCurrentChar()!=="";){const h=this.a.getCurrentChar();if(h===r||s(h))break;e+=this.a.advance(),i=this.a.getCurrentPosition()}else for(;!this.a.isAtEnd()&&this.a.getCurrentChar()!=="";){const h=this.a.getCurrentChar();if(s(h))break;e+=this.a.advance(),i=this.a.getCurrentPosition()}const n=e.trimEnd(),o=e.length-n.length;o&&(i=p(t.line,i.character-o));const u=r==='"'||r==="'"?n.substring(1):n;return this.e(u,t,i)}e(t,e,i){if(t==="")return l("",e,e);if(t==="true")return v(!0,e,i);if(t==="false")return v(!1,e,i);if(t==="null"||t==="~")return W(e,i);const s=Number(t);return!isNaN(s)&&isFinite(s)&&w(t)?N(s,e,i):l(t,e,i)}parseInlineArray(){const t=this.a.getCurrentPosition();this.a.advance(),this.d++;const e=[];for(;!this.a.isAtEnd();){if(this.a.skipWhitespace(),this.a.getCurrentChar()==="]"){this.a.advance();break}if(this.a.getCurrentChar()===""){this.a.advanceLine();continue}if(this.a.getCurrentChar()==="#"){this.a.skipToEndOfLine(),this.a.advanceLine();continue}const s=this.a.savePosition(),r=this.parseValue();r.type==="string"&&r.value===""&&r.start.line===r.end.line&&r.start.character===r.end.character||e.push(r);const n=this.a.savePosition();if(s.line===n.line&&s.char===n.char)if(!this.a.isAtEnd()&&this.a.getCurrentChar()!=="")this.a.advance();else break;this.a.skipWhitespace(),this.a.getCurrentChar()===","&&this.a.advance()}const i=this.a.getCurrentPosition();return this.d--,A(e,t,i)}parseInlineObject(){const t=this.a.getCurrentPosition();this.a.advance(),this.d++;const e=[];for(;!this.a.isAtEnd();){if(this.a.skipWhitespace(),this.a.getCurrentChar()==="}"){this.a.advance();break}if(this.a.getCurrentChar()==="#"){this.a.skipToEndOfLine(),this.a.advanceLine();continue}const s=this.a.savePosition(),r=this.a.getCurrentPosition();let n="";if(this.a.getCurrentChar()==='"'||this.a.getCurrentChar()==="'"){const c=this.a.getCurrentChar();for(this.a.advance();!this.a.isAtEnd()&&this.a.getCurrentChar()!==""&&this.a.getCurrentChar()!==c;)n+=this.a.advance();this.a.getCurrentChar()===c&&this.a.advance()}else for(;!this.a.isAtEnd()&&this.a.getCurrentChar()!==""&&this.a.getCurrentChar()!==":";)n+=this.a.advance();n=n.trim();const o=this.a.getCurrentPosition(),u=l(n,r,o);this.a.skipWhitespace(),this.a.getCurrentChar()===":"&&this.a.advance(),this.a.skipWhitespace();const h=this.parseValue();e.push({key:u,value:h});const C=this.a.savePosition();if(s.line===C.line&&s.char===C.char)if(!this.a.isAtEnd()&&this.a.getCurrentChar()!=="")this.a.advance();else break;this.a.skipWhitespace(),this.a.getCurrentChar()===","&&this.a.advance()}const i=this.a.getCurrentPosition();return this.d--,E(e,t,i)}parseBlockArray(t){const e=this.a.getCurrentPosition(),i=[];for(;!this.a.isAtEnd()&&(this.a.moveToNextNonEmptyLine(),!this.a.isAtEnd());){const r=this.a.getIndentation();if(r<t)break;if(this.a.skipWhitespace(),this.a.getCurrentChar()==="-"){this.a.advance(),this.a.skipWhitespace();const n=this.a.getCurrentPosition();if(this.a.getCurrentChar()===""||this.a.getCurrentChar()==="#")if(this.a.advanceLine(),this.a.isAtEnd())i.push(l("",n,n));else{const o=this.a.getIndentation();if(o>r)if(this.a.skipWhitespace(),this.a.getCurrentChar()==="-"){const u=this.parseBlockArray(o);i.push(u)}else{const u=this.a.getCurrentLineText(),h=this.a.getCurrentCharNumber(),C=u.substring(h);if(C.includes(":")&&!C.trim().startsWith("#")){const c=this.parseBlockObject(o,this.a.getCurrentCharNumber());i.push(c)}else i.push(l("",n,n))}else i.push(l("",n,n))}else{const o=this.a.getCurrentLineText(),u=this.a.getCurrentCharNumber();if(o.substring(u).includes(":")){const c=this.parseBlockObject(n.character,n.character);i.push(c)}else{const c=this.parseValue();for(i.push(c);!this.a.isAtEnd()&&this.a.getCurrentChar()!==""&&this.a.getCurrentChar()!=="#";)this.a.advance();this.a.advanceLine()}}}else break}let s=e;return i.length>0?s=i[i.length-1].end:s=p(e.line,e.character+1),A(i,e,s)}parseBlockObject(t,e){const i=this.a.getCurrentPosition(),s=[],r=new Set,n=e!==void 0;let o=!0;for(;!this.a.isAtEnd()&&((!o||!n)&&this.a.moveToNextNonEmptyLine(),o=!1,!this.a.isAtEnd());){const h=this.a.getIndentation();if(n){if(this.a.skipWhitespace(),this.a.getCurrentCharNumber()<e)break}else{if(h<t)break;if(h>t){const d=p(this.a.getCurrentLineNumber(),0),b=p(this.a.getCurrentLineNumber(),this.a.getCurrentLineText().length);this.addError("Unexpected indentation","indentation",d,b),this.a.skipWhitespace()}else this.a.skipWhitespace()}const C=this.a.getCurrentPosition();let c="";for(;!this.a.isAtEnd()&&this.a.getCurrentChar()!==""&&this.a.getCurrentChar()!==":";)c+=this.a.advance();c=c.trim();const k=this.a.getCurrentPosition(),y=l(c,C,k);!this.c.allowDuplicateKeys&&r.has(c)&&this.addError(`Duplicate key '${c}'`,"duplicateKey",C,k),r.add(c),this.a.getCurrentChar()===":"&&this.a.advance(),this.a.skipWhitespace();let g;const f=this.a.getCurrentPosition();if(this.a.getCurrentChar()===""||this.a.getCurrentChar()==="#")if(this.a.advanceLine(),this.a.isAtEnd())g=l("",f,f);else{const d=this.a.getIndentation();if(d>h)if(this.a.skipWhitespace(),this.a.getCurrentChar()==="-")g=this.parseBlockArray(d);else{const b=this.a.getCurrentLineText(),L=this.a.getCurrentCharNumber(),m=b.substring(L);m.includes(":")&&!m.trim().startsWith("#")?g=this.parseBlockObject(d):g=this.parseValue()}else!n&&d===h?(this.a.skipWhitespace(),this.a.getCurrentChar()==="-"?g=this.parseBlockArray(h):g=l("",f,f)):g=l("",f,f)}else{for(g=this.parseValue();!this.a.isAtEnd()&&this.a.getCurrentChar()!==""&&this.a.getCurrentChar()!=="#"&&P(this.a.getCurrentChar());)this.a.advance();this.a.getCurrentChar()==="#"&&this.a.skipToEndOfLine(),!this.a.isAtEnd()&&this.a.getCurrentChar()===""&&this.a.advanceLine()}s.push({key:y,value:g})}let u=i;return s.length>0&&(u=s[s.length-1].value.end),E(s,i,u)}parse(){if(!this.a.isAtEnd()&&(this.a.moveToNextNonEmptyLine(),!this.a.isAtEnd()))if(this.a.skipWhitespace(),this.a.getCurrentChar()==="-"){const t=this.a.peek();return t===" "||t==="	"||t===""||t==="#"?this.parseBlockArray(0):this.parseValue()}else{if(this.a.getCurrentChar()==="[")return this.parseInlineArray();if(this.a.getCurrentChar()==="{")return this.parseInlineObject();{const t=this.a.getCurrentLineText(),e=this.a.getCurrentCharNumber(),i=t.substring(e);let s=!1,r=!1,n="";for(let o=0;o<i.length;o++){const u=i[o];if(!r&&(u==='"'||u==="'"))r=!0,n=u;else if(r&&u===n)r=!1,n="";else if(!r&&u===":"){s=!0;break}else if(!r&&u==="#")break}return s?this.parseBlockObject(0):this.parseValue()}}}}export{T as $9S};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function parse(input, errors = [], options = {}) {
+  const lines = input.length === 0 ? [] : input.split(/\r\n|\n/);
+  const parser = new YamlParser(lines, errors, options);
+  return parser.parse();
+}
+__name(parse, "parse");
+function createPosition(line, character) {
+  return { line, character };
+}
+__name(createPosition, "createPosition");
+function createStringNode(value, start, end) {
+  return { type: "string", value, start, end };
+}
+__name(createStringNode, "createStringNode");
+function createNumberNode(value, start, end) {
+  return { type: "number", value, start, end };
+}
+__name(createNumberNode, "createNumberNode");
+function createBooleanNode(value, start, end) {
+  return { type: "boolean", value, start, end };
+}
+__name(createBooleanNode, "createBooleanNode");
+function createNullNode(start, end) {
+  return { type: "null", value: null, start, end };
+}
+__name(createNullNode, "createNullNode");
+function createObjectNode(properties, start, end) {
+  return { type: "object", start, end, properties };
+}
+__name(createObjectNode, "createObjectNode");
+function createArrayNode(items, start, end) {
+  return { type: "array", start, end, items };
+}
+__name(createArrayNode, "createArrayNode");
+function isWhitespace(char) {
+  return char === " " || char === "	";
+}
+__name(isWhitespace, "isWhitespace");
+function isValidNumber(value) {
+  return /^-?\d*\.?\d+$/.test(value);
+}
+__name(isValidNumber, "isValidNumber");
+class YamlLexer {
+  static {
+    __name(this, "YamlLexer");
+  }
+  constructor(lines) {
+    this.currentLine = 0;
+    this.currentChar = 0;
+    this.lines = lines;
+  }
+  getCurrentPosition() {
+    return createPosition(this.currentLine, this.currentChar);
+  }
+  getCurrentLineNumber() {
+    return this.currentLine;
+  }
+  getCurrentCharNumber() {
+    return this.currentChar;
+  }
+  getCurrentLineText() {
+    return this.currentLine < this.lines.length ? this.lines[this.currentLine] : "";
+  }
+  savePosition() {
+    return { line: this.currentLine, char: this.currentChar };
+  }
+  restorePosition(pos) {
+    this.currentLine = pos.line;
+    this.currentChar = pos.char;
+  }
+  isAtEnd() {
+    return this.currentLine >= this.lines.length;
+  }
+  getCurrentChar() {
+    if (this.isAtEnd() || this.currentChar >= this.lines[this.currentLine].length) {
+      return "";
+    }
+    return this.lines[this.currentLine][this.currentChar];
+  }
+  peek(offset = 1) {
+    const newChar = this.currentChar + offset;
+    if (this.currentLine >= this.lines.length || newChar >= this.lines[this.currentLine].length) {
+      return "";
+    }
+    return this.lines[this.currentLine][newChar];
+  }
+  advance() {
+    const char = this.getCurrentChar();
+    if (this.currentChar >= this.lines[this.currentLine].length && this.currentLine < this.lines.length - 1) {
+      this.currentLine++;
+      this.currentChar = 0;
+    } else {
+      this.currentChar++;
+    }
+    return char;
+  }
+  advanceLine() {
+    this.currentLine++;
+    this.currentChar = 0;
+  }
+  skipWhitespace() {
+    while (!this.isAtEnd() && this.currentChar < this.lines[this.currentLine].length && isWhitespace(this.getCurrentChar())) {
+      this.advance();
+    }
+  }
+  skipToEndOfLine() {
+    this.currentChar = this.lines[this.currentLine].length;
+  }
+  getIndentation() {
+    if (this.isAtEnd()) {
+      return 0;
+    }
+    let indent = 0;
+    for (let i = 0; i < this.lines[this.currentLine].length; i++) {
+      if (this.lines[this.currentLine][i] === " ") {
+        indent++;
+      } else if (this.lines[this.currentLine][i] === "	") {
+        indent += 4;
+      } else {
+        break;
+      }
+    }
+    return indent;
+  }
+  moveToNextNonEmptyLine() {
+    while (this.currentLine < this.lines.length) {
+      if (this.currentChar < this.lines[this.currentLine].length) {
+        const remainingLine = this.lines[this.currentLine].substring(this.currentChar).trim();
+        if (remainingLine.length > 0 && !remainingLine.startsWith("#")) {
+          this.skipWhitespace();
+          return;
+        }
+      }
+      this.currentLine++;
+      this.currentChar = 0;
+      if (this.currentLine < this.lines.length) {
+        const line = this.lines[this.currentLine].trim();
+        if (line.length > 0 && !line.startsWith("#")) {
+          this.skipWhitespace();
+          return;
+        }
+      }
+    }
+  }
+}
+class YamlParser {
+  static {
+    __name(this, "YamlParser");
+  }
+  constructor(lines, errors, options) {
+    this.flowLevel = 0;
+    this.lexer = new YamlLexer(lines);
+    this.errors = errors;
+    this.options = options;
+  }
+  addError(message, code, start, end) {
+    this.errors.push({ message, code, start, end });
+  }
+  parseValue(expectedIndent) {
+    this.lexer.skipWhitespace();
+    if (this.lexer.isAtEnd()) {
+      const pos = this.lexer.getCurrentPosition();
+      return createStringNode("", pos, pos);
+    }
+    const char = this.lexer.getCurrentChar();
+    if (char === '"' || char === `'`) {
+      return this.parseQuotedString(char);
+    }
+    if (char === "[") {
+      return this.parseInlineArray();
+    }
+    if (char === "{") {
+      return this.parseInlineObject();
+    }
+    return this.parseUnquotedValue();
+  }
+  parseQuotedString(quote) {
+    const start = this.lexer.getCurrentPosition();
+    this.lexer.advance();
+    let value = "";
+    while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "" && this.lexer.getCurrentChar() !== quote) {
+      value += this.lexer.advance();
+    }
+    if (this.lexer.getCurrentChar() === quote) {
+      this.lexer.advance();
+    }
+    const end = this.lexer.getCurrentPosition();
+    return createStringNode(value, start, end);
+  }
+  parseUnquotedValue() {
+    const start = this.lexer.getCurrentPosition();
+    let value = "";
+    let endPos = start;
+    const isTerminator = /* @__PURE__ */ __name((char) => {
+      if (char === "#") {
+        return true;
+      }
+      if (this.flowLevel > 0 && (char === "," || char === "]" || char === "}")) {
+        return true;
+      }
+      return false;
+    }, "isTerminator");
+    const firstChar = this.lexer.getCurrentChar();
+    if (firstChar === '"' || firstChar === `'`) {
+      value += this.lexer.advance();
+      endPos = this.lexer.getCurrentPosition();
+      while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "") {
+        const char = this.lexer.getCurrentChar();
+        if (char === firstChar || isTerminator(char)) {
+          break;
+        }
+        value += this.lexer.advance();
+        endPos = this.lexer.getCurrentPosition();
+      }
+    } else {
+      while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "") {
+        const char = this.lexer.getCurrentChar();
+        if (isTerminator(char)) {
+          break;
+        }
+        value += this.lexer.advance();
+        endPos = this.lexer.getCurrentPosition();
+      }
+    }
+    const trimmed = value.trimEnd();
+    const diff = value.length - trimmed.length;
+    if (diff) {
+      endPos = createPosition(start.line, endPos.character - diff);
+    }
+    const finalValue = firstChar === '"' || firstChar === `'` ? trimmed.substring(1) : trimmed;
+    return this.createValueNode(finalValue, start, endPos);
+  }
+  createValueNode(value, start, end) {
+    if (value === "") {
+      return createStringNode("", start, start);
+    }
+    if (value === "true") {
+      return createBooleanNode(true, start, end);
+    }
+    if (value === "false") {
+      return createBooleanNode(false, start, end);
+    }
+    if (value === "null" || value === "~") {
+      return createNullNode(start, end);
+    }
+    const numberValue = Number(value);
+    if (!isNaN(numberValue) && isFinite(numberValue) && isValidNumber(value)) {
+      return createNumberNode(numberValue, start, end);
+    }
+    return createStringNode(value, start, end);
+  }
+  parseInlineArray() {
+    const start = this.lexer.getCurrentPosition();
+    this.lexer.advance();
+    this.flowLevel++;
+    const items = [];
+    while (!this.lexer.isAtEnd()) {
+      this.lexer.skipWhitespace();
+      if (this.lexer.getCurrentChar() === "]") {
+        this.lexer.advance();
+        break;
+      }
+      if (this.lexer.getCurrentChar() === "") {
+        this.lexer.advanceLine();
+        continue;
+      }
+      if (this.lexer.getCurrentChar() === "#") {
+        this.lexer.skipToEndOfLine();
+        this.lexer.advanceLine();
+        continue;
+      }
+      const positionBefore = this.lexer.savePosition();
+      const item = this.parseValue();
+      if (!(item.type === "string" && item.value === "" && item.start.line === item.end.line && item.start.character === item.end.character)) {
+        items.push(item);
+      }
+      const positionAfter = this.lexer.savePosition();
+      if (positionBefore.line === positionAfter.line && positionBefore.char === positionAfter.char) {
+        if (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "") {
+          this.lexer.advance();
+        } else {
+          break;
+        }
+      }
+      this.lexer.skipWhitespace();
+      if (this.lexer.getCurrentChar() === ",") {
+        this.lexer.advance();
+      }
+    }
+    const end = this.lexer.getCurrentPosition();
+    this.flowLevel--;
+    return createArrayNode(items, start, end);
+  }
+  parseInlineObject() {
+    const start = this.lexer.getCurrentPosition();
+    this.lexer.advance();
+    this.flowLevel++;
+    const properties = [];
+    while (!this.lexer.isAtEnd()) {
+      this.lexer.skipWhitespace();
+      if (this.lexer.getCurrentChar() === "}") {
+        this.lexer.advance();
+        break;
+      }
+      if (this.lexer.getCurrentChar() === "#") {
+        this.lexer.skipToEndOfLine();
+        this.lexer.advanceLine();
+        continue;
+      }
+      const positionBefore = this.lexer.savePosition();
+      const keyStart = this.lexer.getCurrentPosition();
+      let keyValue = "";
+      if (this.lexer.getCurrentChar() === '"' || this.lexer.getCurrentChar() === `'`) {
+        const quote = this.lexer.getCurrentChar();
+        this.lexer.advance();
+        while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "" && this.lexer.getCurrentChar() !== quote) {
+          keyValue += this.lexer.advance();
+        }
+        if (this.lexer.getCurrentChar() === quote) {
+          this.lexer.advance();
+        }
+      } else {
+        while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "" && this.lexer.getCurrentChar() !== ":") {
+          keyValue += this.lexer.advance();
+        }
+      }
+      keyValue = keyValue.trim();
+      const keyEnd = this.lexer.getCurrentPosition();
+      const key = createStringNode(keyValue, keyStart, keyEnd);
+      this.lexer.skipWhitespace();
+      if (this.lexer.getCurrentChar() === ":") {
+        this.lexer.advance();
+      }
+      this.lexer.skipWhitespace();
+      const value = this.parseValue();
+      properties.push({ key, value });
+      const positionAfter = this.lexer.savePosition();
+      if (positionBefore.line === positionAfter.line && positionBefore.char === positionAfter.char) {
+        if (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "") {
+          this.lexer.advance();
+        } else {
+          break;
+        }
+      }
+      this.lexer.skipWhitespace();
+      if (this.lexer.getCurrentChar() === ",") {
+        this.lexer.advance();
+      }
+    }
+    const end = this.lexer.getCurrentPosition();
+    this.flowLevel--;
+    return createObjectNode(properties, start, end);
+  }
+  parseBlockArray(baseIndent) {
+    const start = this.lexer.getCurrentPosition();
+    const items = [];
+    while (!this.lexer.isAtEnd()) {
+      this.lexer.moveToNextNonEmptyLine();
+      if (this.lexer.isAtEnd()) {
+        break;
+      }
+      const currentIndent = this.lexer.getIndentation();
+      if (currentIndent < baseIndent) {
+        break;
+      }
+      this.lexer.skipWhitespace();
+      if (this.lexer.getCurrentChar() === "-") {
+        this.lexer.advance();
+        this.lexer.skipWhitespace();
+        const itemStart = this.lexer.getCurrentPosition();
+        if (this.lexer.getCurrentChar() === "" || this.lexer.getCurrentChar() === "#") {
+          this.lexer.advanceLine();
+          if (!this.lexer.isAtEnd()) {
+            const nextIndent = this.lexer.getIndentation();
+            if (nextIndent > currentIndent) {
+              this.lexer.skipWhitespace();
+              if (this.lexer.getCurrentChar() === "-") {
+                const nestedArray = this.parseBlockArray(nextIndent);
+                items.push(nestedArray);
+              } else {
+                const currentLine = this.lexer.getCurrentLineText();
+                const currentPos = this.lexer.getCurrentCharNumber();
+                const remainingLine = currentLine.substring(currentPos);
+                if (remainingLine.includes(":") && !remainingLine.trim().startsWith("#")) {
+                  const nestedObject = this.parseBlockObject(nextIndent, this.lexer.getCurrentCharNumber());
+                  items.push(nestedObject);
+                } else {
+                  items.push(createStringNode("", itemStart, itemStart));
+                }
+              }
+            } else {
+              items.push(createStringNode("", itemStart, itemStart));
+            }
+          } else {
+            items.push(createStringNode("", itemStart, itemStart));
+          }
+        } else {
+          const currentLine = this.lexer.getCurrentLineText();
+          const currentPos = this.lexer.getCurrentCharNumber();
+          const remainingLine = currentLine.substring(currentPos);
+          const hasColon = remainingLine.includes(":");
+          if (hasColon) {
+            const item = this.parseBlockObject(itemStart.character, itemStart.character);
+            items.push(item);
+          } else {
+            const item = this.parseValue();
+            items.push(item);
+            while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "" && this.lexer.getCurrentChar() !== "#") {
+              this.lexer.advance();
+            }
+            this.lexer.advanceLine();
+          }
+        }
+      } else {
+        break;
+      }
+    }
+    let end = start;
+    if (items.length > 0) {
+      const lastItem = items[items.length - 1];
+      end = lastItem.end;
+    } else {
+      end = createPosition(start.line, start.character + 1);
+    }
+    return createArrayNode(items, start, end);
+  }
+  parseBlockObject(baseIndent, baseCharPosition) {
+    const start = this.lexer.getCurrentPosition();
+    const properties = [];
+    const localKeysSeen = /* @__PURE__ */ new Set();
+    const fromCurrentPosition = baseCharPosition !== void 0;
+    let firstIteration = true;
+    while (!this.lexer.isAtEnd()) {
+      if (!firstIteration || !fromCurrentPosition) {
+        this.lexer.moveToNextNonEmptyLine();
+      }
+      firstIteration = false;
+      if (this.lexer.isAtEnd()) {
+        break;
+      }
+      const currentIndent = this.lexer.getIndentation();
+      if (fromCurrentPosition) {
+        this.lexer.skipWhitespace();
+        const currentCharPosition = this.lexer.getCurrentCharNumber();
+        if (currentCharPosition < baseCharPosition) {
+          break;
+        }
+      } else {
+        if (currentIndent < baseIndent) {
+          break;
+        }
+        if (currentIndent > baseIndent) {
+          const lineStart = createPosition(this.lexer.getCurrentLineNumber(), 0);
+          const lineEnd = createPosition(this.lexer.getCurrentLineNumber(), this.lexer.getCurrentLineText().length);
+          this.addError("Unexpected indentation", "indentation", lineStart, lineEnd);
+          this.lexer.skipWhitespace();
+        } else {
+          this.lexer.skipWhitespace();
+        }
+      }
+      const keyStart = this.lexer.getCurrentPosition();
+      let keyValue = "";
+      while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "" && this.lexer.getCurrentChar() !== ":") {
+        keyValue += this.lexer.advance();
+      }
+      keyValue = keyValue.trim();
+      const keyEnd = this.lexer.getCurrentPosition();
+      const key = createStringNode(keyValue, keyStart, keyEnd);
+      if (!this.options.allowDuplicateKeys && localKeysSeen.has(keyValue)) {
+        this.addError(`Duplicate key '${keyValue}'`, "duplicateKey", keyStart, keyEnd);
+      }
+      localKeysSeen.add(keyValue);
+      if (this.lexer.getCurrentChar() === ":") {
+        this.lexer.advance();
+      }
+      this.lexer.skipWhitespace();
+      let value;
+      const valueStart = this.lexer.getCurrentPosition();
+      if (this.lexer.getCurrentChar() === "" || this.lexer.getCurrentChar() === "#") {
+        this.lexer.advanceLine();
+        if (!this.lexer.isAtEnd()) {
+          const nextIndent = this.lexer.getIndentation();
+          if (nextIndent > currentIndent) {
+            this.lexer.skipWhitespace();
+            if (this.lexer.getCurrentChar() === "-") {
+              value = this.parseBlockArray(nextIndent);
+            } else {
+              const currentLine = this.lexer.getCurrentLineText();
+              const currentPos = this.lexer.getCurrentCharNumber();
+              const remainingLine = currentLine.substring(currentPos);
+              if (remainingLine.includes(":") && !remainingLine.trim().startsWith("#")) {
+                value = this.parseBlockObject(nextIndent);
+              } else {
+                value = this.parseValue();
+              }
+            }
+          } else if (!fromCurrentPosition && nextIndent === currentIndent) {
+            this.lexer.skipWhitespace();
+            if (this.lexer.getCurrentChar() === "-") {
+              value = this.parseBlockArray(currentIndent);
+            } else {
+              value = createStringNode("", valueStart, valueStart);
+            }
+          } else {
+            value = createStringNode("", valueStart, valueStart);
+          }
+        } else {
+          value = createStringNode("", valueStart, valueStart);
+        }
+      } else {
+        value = this.parseValue();
+        while (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() !== "" && this.lexer.getCurrentChar() !== "#") {
+          if (isWhitespace(this.lexer.getCurrentChar())) {
+            this.lexer.advance();
+          } else {
+            break;
+          }
+        }
+        if (this.lexer.getCurrentChar() === "#") {
+          this.lexer.skipToEndOfLine();
+        }
+        if (!this.lexer.isAtEnd() && this.lexer.getCurrentChar() === "") {
+          this.lexer.advanceLine();
+        }
+      }
+      properties.push({ key, value });
+    }
+    let end = start;
+    if (properties.length > 0) {
+      const lastProperty = properties[properties.length - 1];
+      end = lastProperty.value.end;
+    }
+    return createObjectNode(properties, start, end);
+  }
+  parse() {
+    if (this.lexer.isAtEnd()) {
+      return void 0;
+    }
+    this.lexer.moveToNextNonEmptyLine();
+    if (this.lexer.isAtEnd()) {
+      return void 0;
+    }
+    this.lexer.skipWhitespace();
+    if (this.lexer.getCurrentChar() === "-") {
+      const nextChar = this.lexer.peek();
+      if (nextChar === " " || nextChar === "	" || nextChar === "" || nextChar === "#") {
+        return this.parseBlockArray(0);
+      } else {
+        return this.parseValue();
+      }
+    } else if (this.lexer.getCurrentChar() === "[") {
+      return this.parseInlineArray();
+    } else if (this.lexer.getCurrentChar() === "{") {
+      return this.parseInlineObject();
+    } else {
+      const currentLine = this.lexer.getCurrentLineText();
+      const currentPos = this.lexer.getCurrentCharNumber();
+      const remainingLine = currentLine.substring(currentPos);
+      let hasColon = false;
+      let inQuotes = false;
+      let quoteChar = "";
+      for (let i = 0; i < remainingLine.length; i++) {
+        const char = remainingLine[i];
+        if (!inQuotes && (char === '"' || char === `'`)) {
+          inQuotes = true;
+          quoteChar = char;
+        } else if (inQuotes && char === quoteChar) {
+          inQuotes = false;
+          quoteChar = "";
+        } else if (!inQuotes && char === ":") {
+          hasColon = true;
+          break;
+        } else if (!inQuotes && char === "#") {
+          break;
+        }
+      }
+      if (hasColon) {
+        return this.parseBlockObject(0);
+      } else {
+        return this.parseValue();
+      }
+    }
+  }
+}
+export {
+  parse
+};
+//# sourceMappingURL=yaml.js.map

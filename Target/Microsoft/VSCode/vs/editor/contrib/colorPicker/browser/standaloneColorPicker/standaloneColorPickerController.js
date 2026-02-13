@@ -1,1 +1,69 @@
-import{$ro as d}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as b}from"../../../../../platform/instantiation/common/instantiation.js";import{EditorContextKeys as a}from"../../../../common/editorContextKeys.js";import{$Nub as p}from"./standaloneColorPickerWidget.js";import{$Ed as m}from"../../../../../base/common/lifecycle.js";var u=function(r,t,i,e){var s=arguments.length,o=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,i,e);else for(var h=r.length-1;h>=0;h--)(n=r[h])&&(o=(s<3?n(o):s>3?n(t,i,o):n(t,i))||o);return s>3&&o&&Object.defineProperty(t,i,o),o},f=function(r,t){return function(i,e){t(i,e,r)}},c;let l=class extends m{static{c=this}static{this.ID="editor.contrib.standaloneColorPickerController"}constructor(t,i,e){super(),this.f=t,this.g=e,this.a=null,this.b=a.standaloneColorPickerVisible.bindTo(i),this.c=a.standaloneColorPickerFocused.bindTo(i)}showOrFocus(){this.f.hasModel()&&(this.b.get()?this.c.get()||this.a?.focus():this.a=this.g.createInstance(p,this.f,this.b,this.c))}hide(){this.c.set(!1),this.b.set(!1),this.a?.hide(),this.f.focus()}insertColor(){this.a?.updateEditor(),this.hide()}static get(t){return t.getContribution(c.ID)}};l=c=u([f(1,d),f(2,b)],l);export{l as $Oub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var StandaloneColorPickerController_1;
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { EditorContextKeys } from "../../../../common/editorContextKeys.js";
+import { StandaloneColorPickerWidget } from "./standaloneColorPickerWidget.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+let StandaloneColorPickerController = class StandaloneColorPickerController2 extends Disposable {
+  static {
+    __name(this, "StandaloneColorPickerController");
+  }
+  static {
+    StandaloneColorPickerController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.standaloneColorPickerController";
+  }
+  constructor(_editor, _contextKeyService, _instantiationService) {
+    super();
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._standaloneColorPickerWidget = null;
+    this._standaloneColorPickerVisible = EditorContextKeys.standaloneColorPickerVisible.bindTo(_contextKeyService);
+    this._standaloneColorPickerFocused = EditorContextKeys.standaloneColorPickerFocused.bindTo(_contextKeyService);
+  }
+  showOrFocus() {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    if (!this._standaloneColorPickerVisible.get()) {
+      this._standaloneColorPickerWidget = this._instantiationService.createInstance(StandaloneColorPickerWidget, this._editor, this._standaloneColorPickerVisible, this._standaloneColorPickerFocused);
+    } else if (!this._standaloneColorPickerFocused.get()) {
+      this._standaloneColorPickerWidget?.focus();
+    }
+  }
+  hide() {
+    this._standaloneColorPickerFocused.set(false);
+    this._standaloneColorPickerVisible.set(false);
+    this._standaloneColorPickerWidget?.hide();
+    this._editor.focus();
+  }
+  insertColor() {
+    this._standaloneColorPickerWidget?.updateEditor();
+    this.hide();
+  }
+  static get(editor) {
+    return editor.getContribution(StandaloneColorPickerController_1.ID);
+  }
+};
+StandaloneColorPickerController = StandaloneColorPickerController_1 = __decorate([
+  __param(1, IContextKeyService),
+  __param(2, IInstantiationService)
+], StandaloneColorPickerController);
+export {
+  StandaloneColorPickerController
+};
+//# sourceMappingURL=standaloneColorPickerController.js.map

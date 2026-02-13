@@ -1,1 +1,91 @@
-import{Schemas as l}from"../../../../../base/common/network.js";import{URI as c}from"../../../../../base/common/uri.js";import{$9H as m}from"../../../../../editor/common/services/model.js";var p=function(o,t,e,s){var n=arguments.length,i=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,s);else for(var a=o.length-1;a>=0;a--)(r=o[a])&&(i=(n<3?r(i):n>3?r(t,e,i):r(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},f=function(o,t){return function(e,s){t(e,s,o)}},d;let h=class{static{d=this}static{this.scheme=l.chatEditingModel}static getFileURI(t,e,s){return c.from({scheme:d.scheme,path:s,query:JSON.stringify({kind:"doc",documentId:e,chatSessionResource:t})})}constructor(t,e){this.a=t,this.b=e}async provideTextContent(t){const e=this.b.getModel(t);if(e&&!e.isDisposed())return e;const s=JSON.parse(t.query),i=this.a.getEditingSession(c.revive(s.chatSessionResource))?.entries.get().find(r=>r.entryId===s.documentId);return i?this.b.getModel(i.originalURI):null}};h=d=p([f(1,m)],h);let u=class{static getSnapshotFileURI(t,e,s,n,i){return c.from({scheme:l.chatEditingSnapshotScheme,path:n,query:JSON.stringify({session:t,requestId:e??"",undoStop:s??"",scheme:i})})}constructor(t,e){this.a=t,this.b=e}async provideTextContent(t){const e=this.b.getModel(t);if(e&&!e.isDisposed())return e;const s=JSON.parse(t.query),n=this.a.getEditingSession(c.revive(s.session));return!n||!s.requestId?null:n.getSnapshotModel(s.requestId,s.undoStop||void 0,t)}};u=p([f(1,m)],u);export{h as $xpc,u as $ypc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatEditingTextModelContentProvider_1;
+import { Schemas } from "../../../../../base/common/network.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+let ChatEditingTextModelContentProvider = class ChatEditingTextModelContentProvider2 {
+  static {
+    __name(this, "ChatEditingTextModelContentProvider");
+  }
+  static {
+    ChatEditingTextModelContentProvider_1 = this;
+  }
+  static {
+    this.scheme = Schemas.chatEditingModel;
+  }
+  static getFileURI(chatSessionResource, documentId, path) {
+    return URI.from({
+      scheme: ChatEditingTextModelContentProvider_1.scheme,
+      path,
+      query: JSON.stringify({ kind: "doc", documentId, chatSessionResource })
+    });
+  }
+  constructor(_chatEditingService, _modelService) {
+    this._chatEditingService = _chatEditingService;
+    this._modelService = _modelService;
+  }
+  async provideTextContent(resource) {
+    const existing = this._modelService.getModel(resource);
+    if (existing && !existing.isDisposed()) {
+      return existing;
+    }
+    const data = JSON.parse(resource.query);
+    const session = this._chatEditingService.getEditingSession(URI.revive(data.chatSessionResource));
+    const entry = session?.entries.get().find((candidate) => candidate.entryId === data.documentId);
+    if (!entry) {
+      return null;
+    }
+    return this._modelService.getModel(entry.originalURI);
+  }
+};
+ChatEditingTextModelContentProvider = ChatEditingTextModelContentProvider_1 = __decorate([
+  __param(1, IModelService)
+], ChatEditingTextModelContentProvider);
+let ChatEditingSnapshotTextModelContentProvider = class ChatEditingSnapshotTextModelContentProvider2 {
+  static {
+    __name(this, "ChatEditingSnapshotTextModelContentProvider");
+  }
+  static getSnapshotFileURI(chatSessionResource, requestId, undoStop, path, scheme) {
+    return URI.from({
+      scheme: Schemas.chatEditingSnapshotScheme,
+      path,
+      query: JSON.stringify({ session: chatSessionResource, requestId: requestId ?? "", undoStop: undoStop ?? "", scheme })
+    });
+  }
+  constructor(_chatEditingService, _modelService) {
+    this._chatEditingService = _chatEditingService;
+    this._modelService = _modelService;
+  }
+  async provideTextContent(resource) {
+    const existing = this._modelService.getModel(resource);
+    if (existing && !existing.isDisposed()) {
+      return existing;
+    }
+    const data = JSON.parse(resource.query);
+    const session = this._chatEditingService.getEditingSession(URI.revive(data.session));
+    if (!session || !data.requestId) {
+      return null;
+    }
+    return session.getSnapshotModel(data.requestId, data.undoStop || void 0, resource);
+  }
+};
+ChatEditingSnapshotTextModelContentProvider = __decorate([
+  __param(1, IModelService)
+], ChatEditingSnapshotTextModelContentProvider);
+export {
+  ChatEditingSnapshotTextModelContentProvider,
+  ChatEditingTextModelContentProvider
+};
+//# sourceMappingURL=chatEditingTextModelContentProviders.js.map

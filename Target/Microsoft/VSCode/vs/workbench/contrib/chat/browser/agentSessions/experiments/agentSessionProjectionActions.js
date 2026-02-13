@@ -1,1 +1,95 @@
-import{localize as i,localize2 as a}from"../../../../../../nls.js";import{$vL as p}from"../../../../../../platform/actions/common/actions.js";import{$0n as e}from"../../../../../../platform/contextkey/common/contextkey.js";import{ChatContextKeys as o}from"../../../common/actions/chatContextKeys.js";import{$0oc as m}from"./agentSessionProjectionService.js";import{$qQb as j}from"../agentSessionsModel.js";import{$tQb as h}from"../agentSessionsService.js";import{$HPb as l}from"../../actions/chatActions.js";import{$$0b as d}from"../../../../../browser/parts/titlebar/titlebarActions.js";import{$fP as g}from"../../../../../common/contextkeys.js";import{$8oc as s}from"./agentSessionProjection.js";import{ChatConfiguration as c}from"../../../common/constants.js";class f extends p{static{this.ID="agentSession.enterAgentSessionProjection"}constructor(){super({id:f.ID,title:a(5538,"Enter Agent Session Projection"),category:l,f1:!1,precondition:e.and(o.enabled,e.has(`config.${c.AgentSessionProjectionEnabled}`),s.negate())})}async run(n,t){const $=n.get(m),b=n.get(h);let r;t&&(j(t)?r=b.getSession(t.session.resource):r=t),r&&await $.enterProjection(r)}}class u extends p{static{this.ID="agentSession.exitAgentSessionProjection"}constructor(){super({id:u.ID,title:a(5539,"Exit Agent Session Projection"),category:l,f1:!0,precondition:e.and(o.enabled,s),keybinding:{weight:200,primary:9,when:s}})}async run(n){await n.get(m).exitProjection()}}class k extends d{constructor(){super(c.AgentStatusEnabled,i(5534,null),i(5535,null),6,e.and(o.enabled,g.negate(),o.supported,e.has("config.window.commandCenter")))}}class q extends d{constructor(){super(c.UnifiedAgentsBar,i(5536,null),i(5537,null),7,e.and(o.enabled,g.negate(),o.supported,e.has("config.window.commandCenter")))}}export{f as $_oc,u as $apc,k as $bpc,q as $cpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../../../nls.js";
+import { Action2 } from "../../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { IAgentSessionProjectionService } from "./agentSessionProjectionService.js";
+import { isMarshalledAgentSessionContext } from "../agentSessionsModel.js";
+import { IAgentSessionsService } from "../agentSessionsService.js";
+import { CHAT_CATEGORY } from "../../actions/chatActions.js";
+import { ToggleTitleBarConfigAction } from "../../../../../browser/parts/titlebar/titlebarActions.js";
+import { IsCompactTitleBarContext } from "../../../../../common/contextkeys.js";
+import { inAgentSessionProjection } from "./agentSessionProjection.js";
+import { ChatConfiguration } from "../../../common/constants.js";
+class EnterAgentSessionProjectionAction extends Action2 {
+  static {
+    __name(this, "EnterAgentSessionProjectionAction");
+  }
+  static {
+    this.ID = "agentSession.enterAgentSessionProjection";
+  }
+  constructor() {
+    super({
+      id: EnterAgentSessionProjectionAction.ID,
+      title: localize2("enterAgentSessionProjection", "Enter Agent Session Projection"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.has(`config.${ChatConfiguration.AgentSessionProjectionEnabled}`), inAgentSessionProjection.negate())
+    });
+  }
+  async run(accessor, context) {
+    const projectionService = accessor.get(IAgentSessionProjectionService);
+    const agentSessionsService = accessor.get(IAgentSessionsService);
+    let session;
+    if (context) {
+      if (isMarshalledAgentSessionContext(context)) {
+        session = agentSessionsService.getSession(context.session.resource);
+      } else {
+        session = context;
+      }
+    }
+    if (session) {
+      await projectionService.enterProjection(session);
+    }
+  }
+}
+class ExitAgentSessionProjectionAction extends Action2 {
+  static {
+    __name(this, "ExitAgentSessionProjectionAction");
+  }
+  static {
+    this.ID = "agentSession.exitAgentSessionProjection";
+  }
+  constructor() {
+    super({
+      id: ExitAgentSessionProjectionAction.ID,
+      title: localize2("exitAgentSessionProjection", "Exit Agent Session Projection"),
+      category: CHAT_CATEGORY,
+      f1: true,
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, inAgentSessionProjection),
+      keybinding: {
+        weight: 200,
+        primary: 9,
+        when: inAgentSessionProjection
+      }
+    });
+  }
+  async run(accessor) {
+    const projectionService = accessor.get(IAgentSessionProjectionService);
+    await projectionService.exitProjection();
+  }
+}
+class ToggleAgentStatusAction extends ToggleTitleBarConfigAction {
+  static {
+    __name(this, "ToggleAgentStatusAction");
+  }
+  constructor() {
+    super(ChatConfiguration.AgentStatusEnabled, localize("toggle.agentStatus", "Agent Status"), localize("toggle.agentStatusDescription", "Toggle visibility of the Agent Status in title bar"), 6, ContextKeyExpr.and(ChatContextKeys.enabled, IsCompactTitleBarContext.negate(), ChatContextKeys.supported, ContextKeyExpr.has("config.window.commandCenter")));
+  }
+}
+class ToggleUnifiedAgentsBarAction extends ToggleTitleBarConfigAction {
+  static {
+    __name(this, "ToggleUnifiedAgentsBarAction");
+  }
+  constructor() {
+    super(ChatConfiguration.UnifiedAgentsBar, localize("toggle.agentQuickInput", "Agent Quick Input"), localize("toggle.agentQuickInputDescription", "Toggle Agent Quick Input, replacing the classic command center search box."), 7, ContextKeyExpr.and(ChatContextKeys.enabled, IsCompactTitleBarContext.negate(), ChatContextKeys.supported, ContextKeyExpr.has("config.window.commandCenter")));
+  }
+}
+export {
+  EnterAgentSessionProjectionAction,
+  ExitAgentSessionProjectionAction,
+  ToggleAgentStatusAction,
+  ToggleUnifiedAgentsBarAction
+};
+//# sourceMappingURL=agentSessionProjectionActions.js.map

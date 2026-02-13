@@ -1,1 +1,188 @@
-import{CancellationToken as E}from"../../../../../../base/common/cancellation.js";import{$Ed as _}from"../../../../../../base/common/lifecycle.js";import{derived as M,ObservableMap as $}from"../../../../../../base/common/observable.js";import{$9c as A}from"../../../../../../base/common/types.js";import{$Mj as O}from"../../../../../../platform/instantiation/common/instantiation.js";import{$aQb as R}from"../../../../../../platform/observable/common/observableMemento.js";import{$hp as j}from"../../../../../../platform/storage/common/storage.js";import{ChatModeKind as S}from"../../../common/constants.js";import{PromptsStorage as y}from"../../../common/promptSyntax/service/promptsService.js";import{$bU as x,$$T as v}from"../../../common/tools/languageModelToolsService.js";import{$9Yb as D}from"../../promptSyntax/promptFileRewriter.js";var T=function(s,e,n,r){var m=arguments.length,l=m<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,n):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(s,e,n,r);else for(var t=s.length-1;t>=0;t--)(o=s[t])&&(l=(m<3?o(l):m>3?o(e,n,l):o(e,n))||l);return m>3&&l&&Object.defineProperty(e,n,l),l},g=function(s,e){return function(n,r){e(n,r,s)}},u;(function(s){function e(o){const t=new Map,i=new Map;for(const[f,a]of o.entries())v(f)?t.set(f.id,a):i.set(f.id,a);return{toolSets:t,tools:i}}s.fromMap=e;function n(o){return A(o)&&o.version===void 0&&(o.disabledTools===void 0||Array.isArray(o.disabledTools))&&(o.disabledToolSets===void 0||Array.isArray(o.disabledToolSets))}function r(o){return A(o)&&o.version===2&&Array.isArray(o.toolSetEntries)&&Array.isArray(o.toolEntries)}function m(o){try{const t=JSON.parse(o);if(r(t))return{toolSets:new Map(t.toolSetEntries),tools:new Map(t.toolEntries)};if(n(t)){const i=t.disabledToolSets?.map(a=>[a,!1]),f=t.disabledTools?.map(a=>[a,!1]);return{toolSets:new Map(i),tools:new Map(f)}}}catch{}return{toolSets:new Map,tools:new Map}}s.fromStorage=m;function l(o){const t={version:2,toolSetEntries:Array.from(o.toolSets.entries()),toolEntries:Array.from(o.tools.entries())};return JSON.stringify(t)}s.toStorage=l})(u||(u={}));var p;(function(s){s[s.Global=0]="Global",s[s.Session=1]="Session",s[s.Agent=2]="Agent",s[s.Agent_ReadOnly=3]="Agent_ReadOnly"})(p||(p={}));let w=class extends _{constructor(e,n,r,m,l){super(),this.f=e,this.g=n,this.h=r,this.j=l,this.b=new $,this.entriesMap=M(t=>{const i=new Map,f=this.g.read(t)?.metadata,a=this.f.read(t);let c=this.b.observable.read(t).get(a.id);if(!c&&a.kind===S.Agent){const d=a.customTools?.read(t);if(d){const h=a.target?.read(t);c=u.fromMap(this.h.toToolAndToolSetEnablementMap(d,h,f))}}c||(c=this.a.read(t));for(const d of this.c.read(t))d.canBeReferencedInPrompt&&i.set(d,c.tools.get(d.id)!==!1);for(const d of this.h.getToolSetsForModel(f,t)){const h=c.toolSets.get(d.id)!==!1;i.set(d,h);for(const b of d.getTools(t))i.set(b,h||c.tools.get(b.id)===!0)}return i}),this.userSelectedTools=M(t=>{const i={},f=this.entriesMap.read(t);for(const[a,c]of f)v(a)||(i[a.id]=c);return i});const o=R({key:"chat/selectedTools",defaultValue:{toolSets:new Map,tools:new Map},fromStorage:u.fromStorage,toStorage:u.toStorage});this.a=this.B.add(o(0,1,m)),this.c=n.map(t=>r.observeTools(t?.metadata)).map((t,i)=>t.read(i))}get entriesScope(){const e=this.f.get();return this.b.has(e.id)?p.Session:e.kind===S.Agent&&e.customTools?.get()&&e.uri?e.source?.storage!==y.extension?p.Agent:p.Agent_ReadOnly:p.Global}get currentMode(){return this.f.get()}resetSessionEnablementState(){const e=this.f.get();this.b.delete(e.id)}set(e,n){const r=this.f.get();if(n||this.b.has(r.id)){this.b.set(r.id,u.fromMap(e));return}if(r.kind===S.Agent&&r.customTools?.get()&&r.uri)if(r.source?.storage!==y.extension){this.m(r.uri.get(),e);return}else{this.b.set(r.id,u.fromMap(e));return}this.a.set(u.fromMap(e),void 0)}async m(e,n){await this.j.createInstance(D).openAndRewriteTools(e,n,E.None)}};w=T([g(2,x),g(3,j),g(4,O)],w);export{w as $c3b,p as ToolsScope};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { derived, ObservableMap } from "../../../../../../base/common/observable.js";
+import { isObject } from "../../../../../../base/common/types.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { observableMemento } from "../../../../../../platform/observable/common/observableMemento.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { ChatModeKind } from "../../../common/constants.js";
+import { PromptsStorage } from "../../../common/promptSyntax/service/promptsService.js";
+import { ILanguageModelToolsService, isToolSet } from "../../../common/tools/languageModelToolsService.js";
+import { PromptFileRewriter } from "../../promptSyntax/promptFileRewriter.js";
+var ToolEnablementStates;
+(function(ToolEnablementStates2) {
+  function fromMap(map) {
+    const toolSets = /* @__PURE__ */ new Map(), tools = /* @__PURE__ */ new Map();
+    for (const [entry, enabled] of map.entries()) {
+      if (isToolSet(entry)) {
+        toolSets.set(entry.id, enabled);
+      } else {
+        tools.set(entry.id, enabled);
+      }
+    }
+    return { toolSets, tools };
+  }
+  __name(fromMap, "fromMap");
+  ToolEnablementStates2.fromMap = fromMap;
+  function isStoredDataV1(data) {
+    return isObject(data) && data.version === void 0 && (data.disabledTools === void 0 || Array.isArray(data.disabledTools)) && (data.disabledToolSets === void 0 || Array.isArray(data.disabledToolSets));
+  }
+  __name(isStoredDataV1, "isStoredDataV1");
+  function isStoredDataV2(data) {
+    return isObject(data) && data.version === 2 && Array.isArray(data.toolSetEntries) && Array.isArray(data.toolEntries);
+  }
+  __name(isStoredDataV2, "isStoredDataV2");
+  function fromStorage(storage) {
+    try {
+      const parsed = JSON.parse(storage);
+      if (isStoredDataV2(parsed)) {
+        return { toolSets: new Map(parsed.toolSetEntries), tools: new Map(parsed.toolEntries) };
+      } else if (isStoredDataV1(parsed)) {
+        const toolSetEntries = parsed.disabledToolSets?.map((id) => [id, false]);
+        const toolEntries = parsed.disabledTools?.map((id) => [id, false]);
+        return { toolSets: new Map(toolSetEntries), tools: new Map(toolEntries) };
+      }
+    } catch {
+    }
+    return { toolSets: /* @__PURE__ */ new Map(), tools: /* @__PURE__ */ new Map() };
+  }
+  __name(fromStorage, "fromStorage");
+  ToolEnablementStates2.fromStorage = fromStorage;
+  function toStorage(state) {
+    const storageData = {
+      version: 2,
+      toolSetEntries: Array.from(state.toolSets.entries()),
+      toolEntries: Array.from(state.tools.entries())
+    };
+    return JSON.stringify(storageData);
+  }
+  __name(toStorage, "toStorage");
+  ToolEnablementStates2.toStorage = toStorage;
+})(ToolEnablementStates || (ToolEnablementStates = {}));
+var ToolsScope;
+(function(ToolsScope2) {
+  ToolsScope2[ToolsScope2["Global"] = 0] = "Global";
+  ToolsScope2[ToolsScope2["Session"] = 1] = "Session";
+  ToolsScope2[ToolsScope2["Agent"] = 2] = "Agent";
+  ToolsScope2[ToolsScope2["Agent_ReadOnly"] = 3] = "Agent_ReadOnly";
+})(ToolsScope || (ToolsScope = {}));
+let ChatSelectedTools = class ChatSelectedTools2 extends Disposable {
+  static {
+    __name(this, "ChatSelectedTools");
+  }
+  constructor(_mode, languageModel, _toolsService, _storageService, _instantiationService) {
+    super();
+    this._mode = _mode;
+    this.languageModel = languageModel;
+    this._toolsService = _toolsService;
+    this._instantiationService = _instantiationService;
+    this._sessionStates = new ObservableMap();
+    this.entriesMap = derived((r) => {
+      const map = /* @__PURE__ */ new Map();
+      const lm = this.languageModel.read(r)?.metadata;
+      const currentMode = this._mode.read(r);
+      let currentMap = this._sessionStates.observable.read(r).get(currentMode.id);
+      if (!currentMap && currentMode.kind === ChatModeKind.Agent) {
+        const modeTools = currentMode.customTools?.read(r);
+        if (modeTools) {
+          const target = currentMode.target?.read(r);
+          currentMap = ToolEnablementStates.fromMap(this._toolsService.toToolAndToolSetEnablementMap(modeTools, target, lm));
+        }
+      }
+      if (!currentMap) {
+        currentMap = this._globalState.read(r);
+      }
+      for (const tool of this._currentTools.read(r)) {
+        if (tool.canBeReferencedInPrompt) {
+          map.set(tool, currentMap.tools.get(tool.id) !== false);
+        }
+      }
+      for (const toolSet of this._toolsService.getToolSetsForModel(lm, r)) {
+        const toolSetEnabled = currentMap.toolSets.get(toolSet.id) !== false;
+        map.set(toolSet, toolSetEnabled);
+        for (const tool of toolSet.getTools(r)) {
+          map.set(tool, toolSetEnabled || currentMap.tools.get(tool.id) === true);
+        }
+      }
+      return map;
+    });
+    this.userSelectedTools = derived((r) => {
+      const result = {};
+      const map = this.entriesMap.read(r);
+      for (const [item, enabled] of map) {
+        if (!isToolSet(item)) {
+          result[item.id] = enabled;
+        }
+      }
+      return result;
+    });
+    const globalStateMemento = observableMemento({
+      key: "chat/selectedTools",
+      defaultValue: { toolSets: /* @__PURE__ */ new Map(), tools: /* @__PURE__ */ new Map() },
+      fromStorage: ToolEnablementStates.fromStorage,
+      toStorage: ToolEnablementStates.toStorage
+    });
+    this._globalState = this._store.add(globalStateMemento(0, 1, _storageService));
+    this._currentTools = languageModel.map((lm) => _toolsService.observeTools(lm?.metadata)).map((o, r) => o.read(r));
+  }
+  get entriesScope() {
+    const mode = this._mode.get();
+    if (this._sessionStates.has(mode.id)) {
+      return ToolsScope.Session;
+    }
+    if (mode.kind === ChatModeKind.Agent && mode.customTools?.get() && mode.uri) {
+      return mode.source?.storage !== PromptsStorage.extension ? ToolsScope.Agent : ToolsScope.Agent_ReadOnly;
+    }
+    return ToolsScope.Global;
+  }
+  get currentMode() {
+    return this._mode.get();
+  }
+  resetSessionEnablementState() {
+    const mode = this._mode.get();
+    this._sessionStates.delete(mode.id);
+  }
+  set(enablementMap, sessionOnly) {
+    const mode = this._mode.get();
+    if (sessionOnly || this._sessionStates.has(mode.id)) {
+      this._sessionStates.set(mode.id, ToolEnablementStates.fromMap(enablementMap));
+      return;
+    }
+    if (mode.kind === ChatModeKind.Agent && mode.customTools?.get() && mode.uri) {
+      if (mode.source?.storage !== PromptsStorage.extension) {
+        this.updateCustomModeTools(mode.uri.get(), enablementMap);
+        return;
+      } else {
+        this._sessionStates.set(mode.id, ToolEnablementStates.fromMap(enablementMap));
+        return;
+      }
+    }
+    this._globalState.set(ToolEnablementStates.fromMap(enablementMap), void 0);
+  }
+  async updateCustomModeTools(uri, enablementMap) {
+    await this._instantiationService.createInstance(PromptFileRewriter).openAndRewriteTools(uri, enablementMap, CancellationToken.None);
+  }
+};
+ChatSelectedTools = __decorate([
+  __param(2, ILanguageModelToolsService),
+  __param(3, IStorageService),
+  __param(4, IInstantiationService)
+], ChatSelectedTools);
+export {
+  ChatSelectedTools,
+  ToolsScope
+};
+//# sourceMappingURL=chatSelectedTools.js.map

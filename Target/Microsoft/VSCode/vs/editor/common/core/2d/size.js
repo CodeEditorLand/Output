@@ -1,1 +1,51 @@
-class h{static equals(t,i){return t.width===i.width&&t.height===i.height}constructor(t,i){this.width=t,this.height=i}add(t){return new h(this.width+t.width,this.height+t.height)}deltaX(t){return new h(this.width+t,this.height)}deltaY(t){return new h(this.width,this.height+t)}toString(){return`(${this.width},${this.height})`}subtract(t){return new h(this.width-t.width,this.height-t.height)}scale(t){return new h(this.width*t,this.height*t)}scaleWidth(t){return new h(this.width*t,this.height)}mapComponents(t){return new h(t(this.width),t(this.height))}isZero(){return this.width===0&&this.height===0}transpose(){return new h(this.height,this.width)}toDimension(){return{width:this.width,height:this.height}}}export{h as $Qqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class Size2D {
+  static {
+    __name(this, "Size2D");
+  }
+  static equals(a, b) {
+    return a.width === b.width && a.height === b.height;
+  }
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+  add(other) {
+    return new Size2D(this.width + other.width, this.height + other.height);
+  }
+  deltaX(delta) {
+    return new Size2D(this.width + delta, this.height);
+  }
+  deltaY(delta) {
+    return new Size2D(this.width, this.height + delta);
+  }
+  toString() {
+    return `(${this.width},${this.height})`;
+  }
+  subtract(other) {
+    return new Size2D(this.width - other.width, this.height - other.height);
+  }
+  scale(factor) {
+    return new Size2D(this.width * factor, this.height * factor);
+  }
+  scaleWidth(factor) {
+    return new Size2D(this.width * factor, this.height);
+  }
+  mapComponents(map) {
+    return new Size2D(map(this.width), map(this.height));
+  }
+  isZero() {
+    return this.width === 0 && this.height === 0;
+  }
+  transpose() {
+    return new Size2D(this.height, this.width);
+  }
+  toDimension() {
+    return { width: this.width, height: this.height };
+  }
+}
+export {
+  Size2D
+};
+//# sourceMappingURL=size.js.map

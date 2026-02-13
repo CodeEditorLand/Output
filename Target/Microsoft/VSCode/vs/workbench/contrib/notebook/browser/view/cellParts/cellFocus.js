@@ -1,1 +1,28 @@
-import*as t from"../../../../../../base/browser/dom.js";import{$UGb as r}from"../cellPart.js";class e extends r{constructor(o,s,i){super(),this.D(t.$u8(o,t.$r9.FOCUS,()=>{this.c&&i.focusElement(this.c)},!0)),s&&this.D(t.$u8(s,t.$r9.FOCUS,()=>{this.c&&this.c.outputsViewModels.length&&i.focusNotebookCell(this.c,"output")}))}}export{e as $iJb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../../../base/browser/dom.js";
+import { CellContentPart } from "../cellPart.js";
+class CellFocusPart extends CellContentPart {
+  static {
+    __name(this, "CellFocusPart");
+  }
+  constructor(containerElement, focusSinkElement, notebookEditor) {
+    super();
+    this._register(DOM.addDisposableListener(containerElement, DOM.EventType.FOCUS, () => {
+      if (this.currentCell) {
+        notebookEditor.focusElement(this.currentCell);
+      }
+    }, true));
+    if (focusSinkElement) {
+      this._register(DOM.addDisposableListener(focusSinkElement, DOM.EventType.FOCUS, () => {
+        if (this.currentCell && this.currentCell.outputsViewModels.length) {
+          notebookEditor.focusNotebookCell(this.currentCell, "output");
+        }
+      }));
+    }
+  }
+}
+export {
+  CellFocusPart
+};
+//# sourceMappingURL=cellFocus.js.map

@@ -1,1 +1,100 @@
-import{$Wb as c}from"../../../../base/common/arrays.js";import{$Bh as b}from"../../../../base/common/resources.js";import{$ln as h}from"../../../../base/common/uuid.js";import{$qo as m}from"../../../../platform/contextkey/common/contextkey.js";import{$Nj as $}from"../../../../platform/instantiation/common/instantiation.js";import{$hp as d}from"../../../../platform/storage/common/storage.js";import{$JZ as g}from"../../../common/memento.js";var f=function(t,e,r,o){var n=arguments.length,i=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(t,e,r,o);else for(var l=t.length-1;l>=0;l--)(s=t[l])&&(i=(n<3?s(i):n>3?s(e,r,i):s(e,r))||i);return n>3&&i&&Object.defineProperty(e,r,i),i},w=function(t,e){return function(r,o){e(r,o,t)}};const _=new m("webviewFindWidgetVisible",!1),C=new m("webviewFindWidgetFocused",!1),P=new m("webviewFindWidgetEnabled",!1),F=$("webviewService");var u;(function(t){t.NotebookRenderer="notebookRenderer",t.CustomEditor="customEditor",t.WebviewView="webviewView",t.ChatOutputItem="chatOutputItem"})(u||(u={}));function M(t,e){return t.allowMultipleAPIAcquire===e.allowMultipleAPIAcquire&&t.allowScripts===e.allowScripts&&t.allowForms===e.allowForms&&c(t.localResourceRoots,e.localResourceRoots,b)&&c(t.portMapping,e.portMapping,(r,o)=>r.extensionHostPort===o.extensionHostPort&&r.webviewPort===o.webviewPort)&&v(t,e)}function v(t,e){return t.enableCommandUris===e.enableCommandUris?!0:Array.isArray(t.enableCommandUris)&&Array.isArray(e.enableCommandUris)?c(t.enableCommandUris,e.enableCommandUris):!1}let a=class{constructor(e,r){this.c=new g(e,r),this.d=this.c.getMemento(-1,1)}getOrigin(e,r){const o=this.e(e,r),n=this.d[o];if(n&&typeof n=="string")return n;const i=h();return this.d[o]=i,this.c.saveMemento(),i}e(e,r){return JSON.stringify({viewType:e,key:r})}};a=f([w(1,d)],a);let p=class{constructor(e,r){this.c=new a(e,r)}getOrigin(e,r){return this.c.getOrigin(e,r.value)}};p=f([w(1,d)],p);export{_ as $PDb,C as $QDb,P as $RDb,F as $SDb,M as $TDb,a as $UDb,p as $VDb,u as WebviewContentPurpose};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { equals } from "../../../../base/common/arrays.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { Memento } from "../../../common/memento.js";
+const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE = new RawContextKey("webviewFindWidgetVisible", false);
+const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED = new RawContextKey("webviewFindWidgetFocused", false);
+const KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED = new RawContextKey("webviewFindWidgetEnabled", false);
+const IWebviewService = createDecorator("webviewService");
+var WebviewContentPurpose;
+(function(WebviewContentPurpose2) {
+  WebviewContentPurpose2["NotebookRenderer"] = "notebookRenderer";
+  WebviewContentPurpose2["CustomEditor"] = "customEditor";
+  WebviewContentPurpose2["WebviewView"] = "webviewView";
+  WebviewContentPurpose2["ChatOutputItem"] = "chatOutputItem";
+})(WebviewContentPurpose || (WebviewContentPurpose = {}));
+function areWebviewContentOptionsEqual(a, b) {
+  return a.allowMultipleAPIAcquire === b.allowMultipleAPIAcquire && a.allowScripts === b.allowScripts && a.allowForms === b.allowForms && equals(a.localResourceRoots, b.localResourceRoots, isEqual) && equals(a.portMapping, b.portMapping, (a2, b2) => a2.extensionHostPort === b2.extensionHostPort && a2.webviewPort === b2.webviewPort) && areEnableCommandUrisEqual(a, b);
+}
+__name(areWebviewContentOptionsEqual, "areWebviewContentOptionsEqual");
+function areEnableCommandUrisEqual(a, b) {
+  if (a.enableCommandUris === b.enableCommandUris) {
+    return true;
+  }
+  if (Array.isArray(a.enableCommandUris) && Array.isArray(b.enableCommandUris)) {
+    return equals(a.enableCommandUris, b.enableCommandUris);
+  }
+  return false;
+}
+__name(areEnableCommandUrisEqual, "areEnableCommandUrisEqual");
+let WebviewOriginStore = class WebviewOriginStore2 {
+  static {
+    __name(this, "WebviewOriginStore");
+  }
+  constructor(rootStorageKey, storageService) {
+    this._memento = new Memento(rootStorageKey, storageService);
+    this._state = this._memento.getMemento(
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  getOrigin(viewType, additionalKey) {
+    const key = this._getKey(viewType, additionalKey);
+    const existing = this._state[key];
+    if (existing && typeof existing === "string") {
+      return existing;
+    }
+    const newOrigin = generateUuid();
+    this._state[key] = newOrigin;
+    this._memento.saveMemento();
+    return newOrigin;
+  }
+  _getKey(viewType, additionalKey) {
+    return JSON.stringify({ viewType, key: additionalKey });
+  }
+};
+WebviewOriginStore = __decorate([
+  __param(1, IStorageService)
+], WebviewOriginStore);
+let ExtensionKeyedWebviewOriginStore = class ExtensionKeyedWebviewOriginStore2 {
+  static {
+    __name(this, "ExtensionKeyedWebviewOriginStore");
+  }
+  constructor(rootStorageKey, storageService) {
+    this._store = new WebviewOriginStore(rootStorageKey, storageService);
+  }
+  getOrigin(viewType, extId) {
+    return this._store.getOrigin(viewType, extId.value);
+  }
+};
+ExtensionKeyedWebviewOriginStore = __decorate([
+  __param(1, IStorageService)
+], ExtensionKeyedWebviewOriginStore);
+export {
+  ExtensionKeyedWebviewOriginStore,
+  IWebviewService,
+  KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_ENABLED,
+  KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED,
+  KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_VISIBLE,
+  WebviewContentPurpose,
+  WebviewOriginStore,
+  areWebviewContentOptionsEqual
+};
+//# sourceMappingURL=webview.js.map

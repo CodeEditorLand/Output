@@ -1,3 +1,292 @@
-import{$Zc as S}from"../../../../../base/common/assert.js";import{$jk as w}from"../../../../../base/common/htmlContent.js";import{Iterable as R}from"../../../../../base/common/iterator.js";import{$Pc as j}from"../../../../../base/common/map.js";import{$bb as C}from"../../../../../base/common/path.js";import{URI as _}from"../../../../../base/common/uri.js";import{localize as o}from"../../../../../nls.js";import{$vk as D}from"../../../../../platform/files/common/files.js";import{$GB as F}from"../../../../../platform/webContentExtractor/common/webContentExtractor.js";import{$YL as N}from"../../../../services/textfile/common/encoding.js";import{$j8b as A}from"../../../url/browser/trustedDomainService.js";import{$NV as B}from"../../common/chatService/chatService.js";import{ChatImageMimeType as U}from"../../common/languageModels.js";import{ToolDataSource as L}from"../../common/tools/languageModelToolsService.js";import{$inc as x}from"../../common/tools/builtinTools/tools.js";var P=function(v,r,n,e){var u=arguments.length,t=u<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,n):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(v,r,n,e);else for(var c=v.length-1;c>=0;c--)(s=v[c])&&(t=(u<3?s(t):u>3?s(r,n,t):s(r,n))||t);return u>3&&t&&Object.defineProperty(r,n,t),t},k=function(v,r){return function(n,e){r(n,e,v)}};const re={id:x,displayName:"Fetch Web Page",canBeReferencedInPrompt:!1,modelDescription:"Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage.",source:L.Internal,canRequestPostApproval:!0,canRequestPreApproval:!0,inputSchema:{type:"object",properties:{urls:{type:"array",items:{type:"string"},description:o(7186,null)}},required:["urls"]}};let T=class{constructor(r,n,e,u){this.a=r,this.b=n,this.c=e,this.d=u}async invoke(r,n,e,u){const t=r.parameters.urls||[],{webUris:s,fileUris:c,invalidUris:h}=this.f(t);if(![...s.values(),...c.values()].length&&h.size===0)return{content:[{kind:"text",value:o(7187,null)}]};let d=[];if(s.size>0){const i=this.c.trustedDomains;d=await this.a.extract([...s.values()],{trustedDomains:i})}const f=[],$=[];for(const i of c.values())try{const p=await this.b.readFile(i,void 0,u),g=this.h(i);g?f.push({type:"tooldata",value:{kind:"data",value:{mimeType:g,data:p.value}}}):N({buffer:p.value,bytesRead:p.value.byteLength}).seemsBinary?f.push(o(7188,null)):f.push(p.value.toString()),$.push(i)}catch{f.push(void 0)}const m=[];let M=0,b=0;for(const i of t)h.has(i)?m.push(void 0):s.has(i)?(m.push({type:"extracted",value:d[M]}),M++):c.has(i)?(m.push(f[b]),b++):m.push(void 0);let y;d.every(i=>i.status==="error"||i.status==="redirect")&&(y=!1);const l=[...s.values(),...$];return{content:this.g(t,m),toolResultDetails:l,confirmResults:y}}async prepareToolInvocation(r,n){const{webUris:e,fileUris:u,invalidUris:t}=this.f(r.parameters.urls),s=[],c=[];for(const[l,i]of u.entries())try{await this.b.stat(i),s.push(i)}catch{c.push(l)}const h=[...Array.from(t),...c],a=new j([...e.values(),...s]),d=h.length?h.length>1?new w(o(7189,null,a.size,h.map(l=>`- ${l}`).join(`
-`))):new w(o(7190,null,h[0])):new w,f=new w;if(a.size>1)d.appendMarkdown(o(7191,null,a.size)),f.appendMarkdown(o(7192,null,a.size));else if(a.size===1){const l=R.first(a).toString(!0);l.length>400||s.length===1?(d.appendMarkdown(o(7193,null,l)),f.appendMarkdown(o(7194,null,l))):(d.appendMarkdown(o(7195,null,l)),f.appendMarkdown(o(7196,null,l)))}let $;if(r.chatSessionResource){const i=this.d.getSession(r.chatSessionResource)?.getRequests().map(g=>g.message.text.toLowerCase());let p=!1;for(const g of a){const I=g.toString(!0).toLowerCase().replace(/\/$/,"");i?.some(z=>z.includes(I))&&(a.delete(g),p=!0)}p&&a.size===0&&($=o(7197,null))}const m={invocationMessage:f,pastTenseMessage:d},M=R.every(a,l=>this.c.isValid(l));let b,y;return a.size&&!M&&(a.size===1?(b=o(7198,null),y=new w(R.first(a).toString(!0),{supportThemeIcons:!0})):(b=o(7199,null),y=new w([...a].map(l=>`- ${l.toString(!0)}`).join(`
-`),{supportThemeIcons:!0}))),m.confirmationMessages={title:b,message:y,confirmResults:a.size>0,allowAutoConfirm:!0,disclaimer:new w("$(info) "+o(7200,null),{supportThemeIcons:!0}),confirmationNotNeededReason:$},m}f(r){const n=new Map,e=new Map,u=new Set;return r?.forEach(t=>{try{const s=_.parse(t);s.scheme==="http"||s.scheme==="https"?n.set(t,s):e.set(t,s)}catch{u.add(t)}}),{webUris:n,fileUris:e,invalidUris:u}}g(r,n){return n.map((e,u)=>{const t=n.length>1?o(7201,null,r[u]):void 0;if(e){if(typeof e=="string")return{kind:"text",title:t,value:e};if(e.type==="tooldata")return{...e.value,title:t};if(e.type==="extracted")switch(e.value.status){case"ok":return{kind:"text",title:t,value:e.value.result};case"redirect":return{kind:"text",title:t,value:`The webpage has redirected to "${e.value.toURI.toString(!0)}". Use the ${x} again to get its contents.`};case"error":return{kind:"text",title:t,value:`An error occurred retrieving the fetch result: ${e.value.error}`};default:S(e.value)}else throw new Error("unreachable")}else return{kind:"text",title:t,value:o(7202,null)}})}h(r){switch(C(r.path).toLowerCase()){case".png":return U.PNG;case".jpg":case".jpeg":return U.JPEG;case".gif":return U.GIF;case".webp":return U.WEBP;case".bmp":return U.BMP;default:return}}};T=P([k(0,F),k(1,D),k(2,A),k(3,B)],T);export{re as $6Xc,T as $7Xc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { assertNever } from "../../../../../base/common/assert.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../../base/common/iterator.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { extname } from "../../../../../base/common/path.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IWebContentExtractorService } from "../../../../../platform/webContentExtractor/common/webContentExtractor.js";
+import { detectEncodingFromBuffer } from "../../../../services/textfile/common/encoding.js";
+import { ITrustedDomainService } from "../../../url/browser/trustedDomainService.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatImageMimeType } from "../../common/languageModels.js";
+import { ToolDataSource } from "../../common/tools/languageModelToolsService.js";
+import { InternalFetchWebPageToolId } from "../../common/tools/builtinTools/tools.js";
+const FetchWebPageToolData = {
+  id: InternalFetchWebPageToolId,
+  displayName: "Fetch Web Page",
+  canBeReferencedInPrompt: false,
+  modelDescription: "Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage.",
+  source: ToolDataSource.Internal,
+  canRequestPostApproval: true,
+  canRequestPreApproval: true,
+  inputSchema: {
+    type: "object",
+    properties: {
+      urls: {
+        type: "array",
+        items: {
+          type: "string"
+        },
+        description: localize("fetchWebPage.urlsDescription", "An array of URLs to fetch content from.")
+      }
+    },
+    required: ["urls"]
+  }
+};
+let FetchWebPageTool = class FetchWebPageTool2 {
+  static {
+    __name(this, "FetchWebPageTool");
+  }
+  constructor(_readerModeService, _fileService, _trustedDomainService, _chatService) {
+    this._readerModeService = _readerModeService;
+    this._fileService = _fileService;
+    this._trustedDomainService = _trustedDomainService;
+    this._chatService = _chatService;
+  }
+  async invoke(invocation, _countTokens, _progress, token) {
+    const urls = invocation.parameters.urls || [];
+    const { webUris, fileUris, invalidUris } = this._parseUris(urls);
+    const allValidUris = [...webUris.values(), ...fileUris.values()];
+    if (!allValidUris.length && invalidUris.size === 0) {
+      return {
+        content: [{ kind: "text", value: localize("fetchWebPage.noValidUrls", "No valid URLs provided.") }]
+      };
+    }
+    let webContents = [];
+    if (webUris.size > 0) {
+      const trustedDomains = this._trustedDomainService.trustedDomains;
+      webContents = await this._readerModeService.extract([...webUris.values()], { trustedDomains });
+    }
+    const fileContents = [];
+    const successfulFileUris = [];
+    for (const uri of fileUris.values()) {
+      try {
+        const fileContent = await this._fileService.readFile(uri, void 0, token);
+        const imageMimeType = this._getSupportedImageMimeType(uri);
+        if (imageMimeType) {
+          fileContents.push({
+            type: "tooldata",
+            value: {
+              kind: "data",
+              value: {
+                mimeType: imageMimeType,
+                data: fileContent.value
+              }
+            }
+          });
+        } else {
+          const detected = detectEncodingFromBuffer({ buffer: fileContent.value, bytesRead: fileContent.value.byteLength });
+          if (detected.seemsBinary) {
+            fileContents.push(localize("fetchWebPage.binaryNotSupported", "Binary files are not supported at the moment."));
+          } else {
+            fileContents.push(fileContent.value.toString());
+          }
+        }
+        successfulFileUris.push(uri);
+      } catch (error) {
+        fileContents.push(void 0);
+      }
+    }
+    const results = [];
+    let webIndex = 0;
+    let fileIndex = 0;
+    for (const url of urls) {
+      if (invalidUris.has(url)) {
+        results.push(void 0);
+      } else if (webUris.has(url)) {
+        results.push({ type: "extracted", value: webContents[webIndex] });
+        webIndex++;
+      } else if (fileUris.has(url)) {
+        results.push(fileContents[fileIndex]);
+        fileIndex++;
+      } else {
+        results.push(void 0);
+      }
+    }
+    let confirmResults;
+    if (webContents.every((e) => e.status === "error" || e.status === "redirect")) {
+      confirmResults = false;
+    }
+    const actuallyValidUris = [...webUris.values(), ...successfulFileUris];
+    return {
+      content: this._getPromptPartsForResults(urls, results),
+      toolResultDetails: actuallyValidUris,
+      confirmResults
+    };
+  }
+  async prepareToolInvocation(context, token) {
+    const { webUris, fileUris, invalidUris } = this._parseUris(context.parameters.urls);
+    const validFileUris = [];
+    const additionalInvalidUrls = [];
+    for (const [originalUrl, uri] of fileUris.entries()) {
+      try {
+        await this._fileService.stat(uri);
+        validFileUris.push(uri);
+      } catch (error) {
+        additionalInvalidUrls.push(originalUrl);
+      }
+    }
+    const invalid = [...Array.from(invalidUris), ...additionalInvalidUrls];
+    const urlsNeedingConfirmation = new ResourceSet([...webUris.values(), ...validFileUris]);
+    const pastTenseMessage = invalid.length ? invalid.length > 1 ? new MarkdownString(localize("fetchWebPage.pastTenseMessage.plural", "Fetched {0} resources, but the following were invalid URLs:\n\n{1}\n\n", urlsNeedingConfirmation.size, invalid.map((url) => `- ${url}`).join("\n"))) : new MarkdownString(localize("fetchWebPage.pastTenseMessage.singular", "Fetched resource, but the following was an invalid URL:\n\n{0}\n\n", invalid[0])) : new MarkdownString();
+    const invocationMessage = new MarkdownString();
+    if (urlsNeedingConfirmation.size > 1) {
+      pastTenseMessage.appendMarkdown(localize("fetchWebPage.pastTenseMessageResult.plural", "Fetched {0} resources", urlsNeedingConfirmation.size));
+      invocationMessage.appendMarkdown(localize("fetchWebPage.invocationMessage.plural", "Fetching {0} resources", urlsNeedingConfirmation.size));
+    } else if (urlsNeedingConfirmation.size === 1) {
+      const url = Iterable.first(urlsNeedingConfirmation).toString(true);
+      if (url.length > 400 || validFileUris.length === 1) {
+        pastTenseMessage.appendMarkdown(localize({
+          key: "fetchWebPage.pastTenseMessageResult.singularAsLink",
+          comment: [
+            // Make sure the link syntax is correct
+            '{Locked="]({0})"}'
+          ]
+        }, "Fetched [resource]({0})", url));
+        invocationMessage.appendMarkdown(localize({
+          key: "fetchWebPage.invocationMessage.singularAsLink",
+          comment: [
+            // Make sure the link syntax is correct
+            '{Locked="]({0})"}'
+          ]
+        }, "Fetching [resource]({0})", url));
+      } else {
+        pastTenseMessage.appendMarkdown(localize("fetchWebPage.pastTenseMessageResult.singular", "Fetched {0}", url));
+        invocationMessage.appendMarkdown(localize("fetchWebPage.invocationMessage.singular", "Fetching {0}", url));
+      }
+    }
+    let confirmationNotNeededReason;
+    if (context.chatSessionResource) {
+      const model = this._chatService.getSession(context.chatSessionResource);
+      const userMessages = model?.getRequests().map((r) => r.message.text.toLowerCase());
+      let urlsMentionedInPrompt = false;
+      for (const uri of urlsNeedingConfirmation) {
+        const toToCheck = uri.toString(true).toLowerCase().replace(/\/$/, "");
+        if (userMessages?.some((m) => m.includes(toToCheck))) {
+          urlsNeedingConfirmation.delete(uri);
+          urlsMentionedInPrompt = true;
+        }
+      }
+      if (urlsMentionedInPrompt && urlsNeedingConfirmation.size === 0) {
+        confirmationNotNeededReason = localize("fetchWebPage.urlMentionedInPrompt", "Auto approved because URL was in prompt");
+      }
+    }
+    const result = { invocationMessage, pastTenseMessage };
+    const allDomainsTrusted = Iterable.every(urlsNeedingConfirmation, (u) => this._trustedDomainService.isValid(u));
+    let confirmationTitle;
+    let confirmationMessage;
+    if (urlsNeedingConfirmation.size && !allDomainsTrusted) {
+      if (urlsNeedingConfirmation.size === 1) {
+        confirmationTitle = localize("fetchWebPage.confirmationTitle.singular", "Fetch web page?");
+        confirmationMessage = new MarkdownString(Iterable.first(urlsNeedingConfirmation).toString(true), { supportThemeIcons: true });
+      } else {
+        confirmationTitle = localize("fetchWebPage.confirmationTitle.plural", "Fetch web pages?");
+        confirmationMessage = new MarkdownString([...urlsNeedingConfirmation].map((uri) => `- ${uri.toString(true)}`).join("\n"), { supportThemeIcons: true });
+      }
+    }
+    result.confirmationMessages = {
+      title: confirmationTitle,
+      message: confirmationMessage,
+      confirmResults: urlsNeedingConfirmation.size > 0,
+      allowAutoConfirm: true,
+      disclaimer: new MarkdownString("$(info) " + localize("fetchWebPage.confirmationMessage.plural", "Web content may contain malicious code or attempt prompt injection attacks."), { supportThemeIcons: true }),
+      confirmationNotNeededReason
+    };
+    return result;
+  }
+  _parseUris(urls) {
+    const webUris = /* @__PURE__ */ new Map();
+    const fileUris = /* @__PURE__ */ new Map();
+    const invalidUris = /* @__PURE__ */ new Set();
+    urls?.forEach((url) => {
+      try {
+        const uriObj = URI.parse(url);
+        if (uriObj.scheme === "http" || uriObj.scheme === "https") {
+          webUris.set(url, uriObj);
+        } else {
+          fileUris.set(url, uriObj);
+        }
+      } catch (e) {
+        invalidUris.add(url);
+      }
+    });
+    return { webUris, fileUris, invalidUris };
+  }
+  _getPromptPartsForResults(urls, results) {
+    return results.map((value, i) => {
+      const title = results.length > 1 ? localize("fetchWebPage.fetchedFrom", "Fetched from {0}", urls[i]) : void 0;
+      if (!value) {
+        return {
+          kind: "text",
+          title,
+          value: localize("fetchWebPage.invalidUrl", "Invalid URL")
+        };
+      } else if (typeof value === "string") {
+        return {
+          kind: "text",
+          title,
+          value
+        };
+      } else if (value.type === "tooldata") {
+        return { ...value.value, title };
+      } else if (value.type === "extracted") {
+        switch (value.value.status) {
+          case "ok":
+            return { kind: "text", title, value: value.value.result };
+          case "redirect":
+            return { kind: "text", title, value: `The webpage has redirected to "${value.value.toURI.toString(true)}". Use the ${InternalFetchWebPageToolId} again to get its contents.` };
+          case "error":
+            return { kind: "text", title, value: `An error occurred retrieving the fetch result: ${value.value.error}` };
+          default:
+            assertNever(value.value);
+        }
+      } else {
+        throw new Error("unreachable");
+      }
+    });
+  }
+  _getSupportedImageMimeType(uri) {
+    const ext = extname(uri.path).toLowerCase();
+    switch (ext) {
+      case ".png":
+        return ChatImageMimeType.PNG;
+      case ".jpg":
+      case ".jpeg":
+        return ChatImageMimeType.JPEG;
+      case ".gif":
+        return ChatImageMimeType.GIF;
+      case ".webp":
+        return ChatImageMimeType.WEBP;
+      case ".bmp":
+        return ChatImageMimeType.BMP;
+      default:
+        return void 0;
+    }
+  }
+};
+FetchWebPageTool = __decorate([
+  __param(0, IWebContentExtractorService),
+  __param(1, IFileService),
+  __param(2, ITrustedDomainService),
+  __param(3, IChatService)
+], FetchWebPageTool);
+export {
+  FetchWebPageTool,
+  FetchWebPageToolData
+};
+//# sourceMappingURL=fetchPageTool.js.map

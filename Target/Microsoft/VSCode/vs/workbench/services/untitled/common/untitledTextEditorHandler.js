@@ -1,1 +1,122 @@
-import{Schemas as $}from"../../../../base/common/network.js";import{$Ed as b}from"../../../../base/common/lifecycle.js";import{URI as g}from"../../../../base/common/uri.js";import{$9$b as f}from"../../textfile/common/textEditorService.js";import{$Bh as S,$Sh as h}from"../../../../base/common/resources.js";import{$JG as E}from"../../../../editor/common/languages/modesRegistry.js";import{$HP as m}from"../../environment/common/environmentService.js";import{$8L as I}from"../../filesConfiguration/common/filesConfigurationService.js";import{$D1 as p}from"../../path/common/pathService.js";import{$gFb as _}from"./untitledTextEditorInput.js";import{$7H as x}from"../../workingCopy/common/workingCopy.js";import{$0L as O}from"../../workingCopy/common/workingCopyEditorService.js";import{$3L as v}from"./untitledTextEditorService.js";var l=function(c,e,t,r){var o=arguments.length,i=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(c,e,t,r);else for(var a=c.length-1;a>=0;a--)(s=c[a])&&(i=(o<3?s(i):o>3?s(e,t,i):s(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},n=function(c,e){return function(t,r){e(t,r,c)}};let u=class{constructor(e,t,r){this.a=e,this.b=t,this.c=r}canSerialize(e){return this.a.isHotExitEnabled&&!e.isDisposed()}serialize(e){if(!this.canSerialize(e))return;const t=e;let r=t.resource;t.hasAssociatedFilePath&&(r=h(r,this.b.remoteAuthority,this.c.defaultUriScheme));let o;const i=t.getLanguageId();(i!==E||t.hasLanguageSetExplicitly)&&(o=i);const s={resourceJSON:r.toJSON(),modeId:o,encoding:t.getEncoding()};return JSON.stringify(s)}deserialize(e,t){return e.invokeFunction(r=>{const o=JSON.parse(t),i=g.revive(o.resourceJSON),s=o.modeId,a=o.encoding;return r.get(f).createTextEditor({resource:i,languageId:s,encoding:a,forceUntitled:!0})})}};u=l([n(0,I),n(1,m),n(2,p)],u);let d=class extends b{static{this.ID="workbench.contrib.untitledTextEditorWorkingCopyEditorHandler"}constructor(e,t,r,o,i){super(),this.a=t,this.b=r,this.c=o,this.f=i,this.D(e.registerHandler(this))}handles(e){return e.resource.scheme===$.untitled&&e.typeId===x}isOpen(e,t){return this.handles(e)?t instanceof _&&S(e.resource,t.resource):!1}createEditor(e){let t;return this.f.isUntitledWithAssociatedResource(e.resource)?t=h(e.resource,this.a.remoteAuthority,this.b.defaultUriScheme):t=e.resource,this.c.createTextEditor({resource:t,forceUntitled:!0})}};d=l([n(0,O),n(1,m),n(2,p),n(3,f),n(4,v)],d);export{u as $$$b,d as $_$b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Schemas } from "../../../../base/common/network.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextEditorService } from "../../textfile/common/textEditorService.js";
+import { isEqual, toLocalResource } from "../../../../base/common/resources.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IFilesConfigurationService } from "../../filesConfiguration/common/filesConfigurationService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { UntitledTextEditorInput } from "./untitledTextEditorInput.js";
+import { NO_TYPE_ID } from "../../workingCopy/common/workingCopy.js";
+import { IWorkingCopyEditorService } from "../../workingCopy/common/workingCopyEditorService.js";
+import { IUntitledTextEditorService } from "./untitledTextEditorService.js";
+let UntitledTextEditorInputSerializer = class UntitledTextEditorInputSerializer2 {
+  static {
+    __name(this, "UntitledTextEditorInputSerializer");
+  }
+  constructor(filesConfigurationService, environmentService, pathService) {
+    this.filesConfigurationService = filesConfigurationService;
+    this.environmentService = environmentService;
+    this.pathService = pathService;
+  }
+  canSerialize(editorInput) {
+    return this.filesConfigurationService.isHotExitEnabled && !editorInput.isDisposed();
+  }
+  serialize(editorInput) {
+    if (!this.canSerialize(editorInput)) {
+      return void 0;
+    }
+    const untitledTextEditorInput = editorInput;
+    let resource = untitledTextEditorInput.resource;
+    if (untitledTextEditorInput.hasAssociatedFilePath) {
+      resource = toLocalResource(resource, this.environmentService.remoteAuthority, this.pathService.defaultUriScheme);
+    }
+    let languageId;
+    const languageIdCandidate = untitledTextEditorInput.getLanguageId();
+    if (languageIdCandidate !== PLAINTEXT_LANGUAGE_ID) {
+      languageId = languageIdCandidate;
+    } else if (untitledTextEditorInput.hasLanguageSetExplicitly) {
+      languageId = languageIdCandidate;
+    }
+    const serialized = {
+      resourceJSON: resource.toJSON(),
+      modeId: languageId,
+      encoding: untitledTextEditorInput.getEncoding()
+    };
+    return JSON.stringify(serialized);
+  }
+  deserialize(instantiationService, serializedEditorInput) {
+    return instantiationService.invokeFunction((accessor) => {
+      const deserialized = JSON.parse(serializedEditorInput);
+      const resource = URI.revive(deserialized.resourceJSON);
+      const languageId = deserialized.modeId;
+      const encoding = deserialized.encoding;
+      return accessor.get(ITextEditorService).createTextEditor({ resource, languageId, encoding, forceUntitled: true });
+    });
+  }
+};
+UntitledTextEditorInputSerializer = __decorate([
+  __param(0, IFilesConfigurationService),
+  __param(1, IWorkbenchEnvironmentService),
+  __param(2, IPathService)
+], UntitledTextEditorInputSerializer);
+let UntitledTextEditorWorkingCopyEditorHandler = class UntitledTextEditorWorkingCopyEditorHandler2 extends Disposable {
+  static {
+    __name(this, "UntitledTextEditorWorkingCopyEditorHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.untitledTextEditorWorkingCopyEditorHandler";
+  }
+  constructor(workingCopyEditorService, environmentService, pathService, textEditorService, untitledTextEditorService) {
+    super();
+    this.environmentService = environmentService;
+    this.pathService = pathService;
+    this.textEditorService = textEditorService;
+    this.untitledTextEditorService = untitledTextEditorService;
+    this._register(workingCopyEditorService.registerHandler(this));
+  }
+  handles(workingCopy) {
+    return workingCopy.resource.scheme === Schemas.untitled && workingCopy.typeId === NO_TYPE_ID;
+  }
+  isOpen(workingCopy, editor) {
+    if (!this.handles(workingCopy)) {
+      return false;
+    }
+    return editor instanceof UntitledTextEditorInput && isEqual(workingCopy.resource, editor.resource);
+  }
+  createEditor(workingCopy) {
+    let editorInputResource;
+    if (this.untitledTextEditorService.isUntitledWithAssociatedResource(workingCopy.resource)) {
+      editorInputResource = toLocalResource(workingCopy.resource, this.environmentService.remoteAuthority, this.pathService.defaultUriScheme);
+    } else {
+      editorInputResource = workingCopy.resource;
+    }
+    return this.textEditorService.createTextEditor({ resource: editorInputResource, forceUntitled: true });
+  }
+};
+UntitledTextEditorWorkingCopyEditorHandler = __decorate([
+  __param(0, IWorkingCopyEditorService),
+  __param(1, IWorkbenchEnvironmentService),
+  __param(2, IPathService),
+  __param(3, ITextEditorService),
+  __param(4, IUntitledTextEditorService)
+], UntitledTextEditorWorkingCopyEditorHandler);
+export {
+  UntitledTextEditorInputSerializer,
+  UntitledTextEditorWorkingCopyEditorHandler
+};
+//# sourceMappingURL=untitledTextEditorHandler.js.map

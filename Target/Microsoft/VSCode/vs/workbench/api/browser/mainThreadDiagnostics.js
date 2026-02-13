@@ -1,1 +1,111 @@
-import{$iF as m}from"../../../platform/markers/common/markers.js";import{URI as f}from"../../../base/common/uri.js";import{$X1 as g,$Y1 as u}from"../common/extHost.protocol.js";import{$vDb as p}from"../../services/extensions/common/extHostCustomers.js";import{$$o as $}from"../../../platform/uriIdentity/common/uriIdentity.js";import{$Oc as v}from"../../../base/common/map.js";var d=function(n,e,r,t){var i=arguments.length,o=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,r,t);else for(var a=n.length-1;a>=0;a--)(s=n[a])&&(o=(i<3?s(o):i>3?s(e,r,o):s(e,r))||o);return i>3&&o&&Object.defineProperty(e,r,o),o},h=function(n,e){return function(r,t){e(r,t,n)}},c;let l=class{static{c=this}static{this.d=1}constructor(e,r,t){this.f=r,this.g=t,this.a=new Set,this.b=e.getProxy(u.ExtHostDiagnostics),this.c=this.f.onMarkerChanged(this.h,this),this.e=`extHost${c.d++}`}dispose(){this.c.dispose();for(const e of this.a){const r=new v;for(const t of this.f.read({owner:e})){let i=r.get(t.resource);i===void 0&&(i=[],r.set(t.resource,i)),t.origin!==this.e&&i.push(t)}for(const[t,i]of r.entries())this.f.changeOne(e,t,i)}this.a.clear()}h(e){const r=[];for(const t of e){const i=this.f.read({resource:t,ignoreResourceFilters:!0});if(i.length===0)r.push([t,[]]);else{const o=i.filter(s=>s?.origin!==this.e);o.length>0&&r.push([t,o])}}r.length>0&&this.b.$acceptMarkersChange(r)}$changeMany(e,r){for(const t of r){const[i,o]=t;if(o)for(const s of o){if(s.relatedInformation)for(const a of s.relatedInformation)a.resource=f.revive(a.resource);s.code&&typeof s.code!="string"&&(s.code.target=f.revive(s.code.target)),s.origin===void 0&&(s.origin=this.e)}this.f.changeOne(e,this.g.asCanonicalUri(f.revive(i)),o)}this.a.add(e)}$clear(e){this.f.changeAll(e,[]),this.a.delete(e)}};l=c=d([p(g.MainThreadDiagnostics),h(1,m),h(2,$)],l);export{l as $m5b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MainThreadDiagnostics_1;
+import { IMarkerService } from "../../../platform/markers/common/markers.js";
+import { URI } from "../../../base/common/uri.js";
+import { MainContext, ExtHostContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { ResourceMap } from "../../../base/common/map.js";
+let MainThreadDiagnostics = class MainThreadDiagnostics2 {
+  static {
+    __name(this, "MainThreadDiagnostics");
+  }
+  static {
+    MainThreadDiagnostics_1 = this;
+  }
+  static {
+    this.ExtHostCounter = 1;
+  }
+  constructor(extHostContext, _markerService, _uriIdentService) {
+    this._markerService = _markerService;
+    this._uriIdentService = _uriIdentService;
+    this._activeOwners = /* @__PURE__ */ new Set();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDiagnostics);
+    this._markerListener = this._markerService.onMarkerChanged(this._forwardMarkers, this);
+    this.extHostId = `extHost${MainThreadDiagnostics_1.ExtHostCounter++}`;
+  }
+  dispose() {
+    this._markerListener.dispose();
+    for (const owner of this._activeOwners) {
+      const markersData = new ResourceMap();
+      for (const marker of this._markerService.read({ owner })) {
+        let data = markersData.get(marker.resource);
+        if (data === void 0) {
+          data = [];
+          markersData.set(marker.resource, data);
+        }
+        if (marker.origin !== this.extHostId) {
+          data.push(marker);
+        }
+      }
+      for (const [resource, local] of markersData.entries()) {
+        this._markerService.changeOne(owner, resource, local);
+      }
+    }
+    this._activeOwners.clear();
+  }
+  _forwardMarkers(resources) {
+    const data = [];
+    for (const resource of resources) {
+      const allMarkerData = this._markerService.read({ resource, ignoreResourceFilters: true });
+      if (allMarkerData.length === 0) {
+        data.push([resource, []]);
+      } else {
+        const foreignMarkerData = allMarkerData.filter((marker) => marker?.origin !== this.extHostId);
+        if (foreignMarkerData.length > 0) {
+          data.push([resource, foreignMarkerData]);
+        }
+      }
+    }
+    if (data.length > 0) {
+      this._proxy.$acceptMarkersChange(data);
+    }
+  }
+  $changeMany(owner, entries) {
+    for (const entry of entries) {
+      const [uri, markers] = entry;
+      if (markers) {
+        for (const marker of markers) {
+          if (marker.relatedInformation) {
+            for (const relatedInformation of marker.relatedInformation) {
+              relatedInformation.resource = URI.revive(relatedInformation.resource);
+            }
+          }
+          if (marker.code && typeof marker.code !== "string") {
+            marker.code.target = URI.revive(marker.code.target);
+          }
+          if (marker.origin === void 0) {
+            marker.origin = this.extHostId;
+          }
+        }
+      }
+      this._markerService.changeOne(owner, this._uriIdentService.asCanonicalUri(URI.revive(uri)), markers);
+    }
+    this._activeOwners.add(owner);
+  }
+  $clear(owner) {
+    this._markerService.changeAll(owner, []);
+    this._activeOwners.delete(owner);
+  }
+};
+MainThreadDiagnostics = MainThreadDiagnostics_1 = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadDiagnostics),
+  __param(1, IMarkerService),
+  __param(2, IUriIdentityService)
+], MainThreadDiagnostics);
+export {
+  MainThreadDiagnostics
+};
+//# sourceMappingURL=mainThreadDiagnostics.js.map

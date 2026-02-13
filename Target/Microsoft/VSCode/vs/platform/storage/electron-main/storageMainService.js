@@ -1,1 +1,225 @@
-import{URI as p}from"../../../base/common/uri.js";import{$xf as S,Event as c}from"../../../base/common/event.js";import{$Ed as m}from"../../../base/common/lifecycle.js";import{$Kl as d}from"../../environment/common/environment.js";import{$vk as $}from"../../files/common/files.js";import{$Nj as u}from"../../instantiation/common/instantiation.js";import{$pw as v}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$yo as j}from"../../log/common/log.js";import{$jp as D,$kp as M}from"../common/storage.js";import{$tw as x,$sw as b,$vw as l,$uw as P}from"./storageMain.js";import{$ap as R}from"../../userDataProfile/common/userDataProfile.js";import{$Qv as _}from"../../userDataProfile/electron-main/userDataProfile.js";import{$$o as E}from"../../uriIdentity/common/uriIdentity.js";import{Schemas as y}from"../../../base/common/network.js";var w=function(a,t,i,e){var o=arguments.length,r=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,t,i,e);else for(var h=a.length-1;h>=0;h--)(n=a[h])&&(r=(o<3?n(r):o>3?n(t,i,r):n(t,i))||r);return o>3&&r&&Object.defineProperty(t,i,r),r},s=function(a,t){return function(i,e){t(i,e,a)}};const C=u("storageMainService");let f=class extends m{constructor(t,i,e,o,r,n){super(),this.c=t,this.f=i,this.g=e,this.h=o,this.j=r,this.m=n,this.a=void 0,this.b=this.D(new S),this.onDidChangeProfileStorage=this.b.event,this.s=new Map,this.u=new Map,this.applicationStorage=this.D(this.r()),this.q()}n(){return{useInMemoryStorage:!!this.f.extensionTestsLocationURI}}q(){(async()=>(await this.h.when(3),this.applicationStorage.init()))(),this.D(this.h.onWillLoadWindow(t=>{t.window.profile&&this.profileStorage(t.window.profile).init(),t.workspace&&this.workspaceStorage(t.workspace).init()})),this.D(this.h.onWillShutdown(t=>{this.c.trace("storageMainService#onWillShutdown()"),this.a=t.reason,t.join("applicationStorage",this.applicationStorage.close());for(const[,i]of this.s)t.join("profileStorage",i.close());for(const[,i]of this.u)t.join("workspaceStorage",i.close())})),this.D(this.g.onWillCreateProfile(t=>{t.join((async()=>{await this.j.exists(t.profile.globalStorageHome)||await this.j.createFolder(t.profile.globalStorageHome)})())})),this.D(this.g.onWillRemoveProfile(t=>{const i=this.s.get(t.profile.id);i&&t.join(i.close())}))}r(){this.c.trace("StorageMainService: creating application storage");const t=new x(this.n(),this.g,this.c,this.j);return this.D(c.once(t.onDidCloseStorage)(()=>{this.c.trace("StorageMainService: closed application storage")})),t}profileStorage(t){if(M(t))return this.applicationStorage;let i=this.s.get(t.id);if(!i){this.c.trace(`StorageMainService: creating profile storage (${t.name})`),i=this.D(this.t(t)),this.s.set(t.id,i);const e=this.D(i.onDidChangeStorage(o=>this.b.fire({...o,storage:i,profile:t})));this.D(c.once(i.onDidCloseStorage)(()=>{this.c.trace(`StorageMainService: closed profile storage (${t.name})`),this.s.delete(t.id),e.dispose()}))}return i}t(t){return this.a===2?new l(this.c,this.j):new b(t,this.n(),this.c,this.j)}workspaceStorage(t){let i=this.u.get(t.id);return i||(this.c.trace(`StorageMainService: creating workspace storage (${t.id})`),i=this.D(this.w(t)),this.u.set(t.id,i),this.D(c.once(i.onDidCloseStorage)(()=>{this.c.trace(`StorageMainService: closed workspace storage (${t.id})`),this.u.delete(t.id)}))),i}w(t){return this.a===2?new l(this.c,this.j):new P(t,this.n(),this.c,this.f,this.j)}isUsed(t){const i=p.file(t);for(const e of[this.applicationStorage,...this.s.values(),...this.u.values()])if(e.path&&this.m.extUri.isEqualOrParent(p.file(e.path),i))return!0;return!1}};f=w([s(0,j),s(1,d),s(2,_),s(3,v),s(4,$),s(5,E)],f);const B=u("applicationStorageMainService");let g=class extends D{constructor(t,i){super(),this.c=t,this.s=i,this.whenReady=this.s.applicationStorage.whenInit}O(){return this.s.applicationStorage.whenInit}P(t){if(t===-1)return this.s.applicationStorage.storage}Q(t){if(t===-1)return this.c.defaultProfile.globalStorageHome.with({scheme:y.file}).fsPath}q(){return!1}switch(){throw new Error("Migrating storage is unsupported from main process")}R(){throw new Error("Switching storage profile is unsupported from main process")}S(){throw new Error("Switching storage workspace is unsupported from main process")}hasScope(){throw new Error("Main process is never profile or workspace scoped")}};g=w([s(0,R),s(1,C)],g);export{C as $ww,f as $xw,B as $yw,g as $zw};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { URI } from "../../../base/common/uri.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { AbstractStorageService, isProfileUsingDefaultStorage } from "../common/storage.js";
+import { ApplicationStorageMain, ProfileStorageMain, InMemoryStorageMain, WorkspaceStorageMain } from "./storageMain.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { Schemas } from "../../../base/common/network.js";
+const IStorageMainService = createDecorator("storageMainService");
+let StorageMainService = class StorageMainService2 extends Disposable {
+  static {
+    __name(this, "StorageMainService");
+  }
+  constructor(logService, environmentService, userDataProfilesService, lifecycleMainService, fileService, uriIdentityService) {
+    super();
+    this.logService = logService;
+    this.environmentService = environmentService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.fileService = fileService;
+    this.uriIdentityService = uriIdentityService;
+    this.shutdownReason = void 0;
+    this._onDidChangeProfileStorage = this._register(new Emitter());
+    this.onDidChangeProfileStorage = this._onDidChangeProfileStorage.event;
+    this.mapProfileToStorage = /* @__PURE__ */ new Map();
+    this.mapWorkspaceToStorage = /* @__PURE__ */ new Map();
+    this.applicationStorage = this._register(this.createApplicationStorage());
+    this.registerListeners();
+  }
+  getStorageOptions() {
+    return {
+      useInMemoryStorage: !!this.environmentService.extensionTestsLocationURI
+      // no storage during extension tests!
+    };
+  }
+  registerListeners() {
+    (async () => {
+      await this.lifecycleMainService.when(
+        3
+        /* LifecycleMainPhase.AfterWindowOpen */
+      );
+      this.applicationStorage.init();
+    })();
+    this._register(this.lifecycleMainService.onWillLoadWindow((e) => {
+      if (e.window.profile) {
+        this.profileStorage(e.window.profile).init();
+      }
+      if (e.workspace) {
+        this.workspaceStorage(e.workspace).init();
+      }
+    }));
+    this._register(this.lifecycleMainService.onWillShutdown((e) => {
+      this.logService.trace("storageMainService#onWillShutdown()");
+      this.shutdownReason = e.reason;
+      e.join("applicationStorage", this.applicationStorage.close());
+      for (const [, profileStorage] of this.mapProfileToStorage) {
+        e.join("profileStorage", profileStorage.close());
+      }
+      for (const [, workspaceStorage] of this.mapWorkspaceToStorage) {
+        e.join("workspaceStorage", workspaceStorage.close());
+      }
+    }));
+    this._register(this.userDataProfilesService.onWillCreateProfile((e) => {
+      e.join((async () => {
+        if (!await this.fileService.exists(e.profile.globalStorageHome)) {
+          await this.fileService.createFolder(e.profile.globalStorageHome);
+        }
+      })());
+    }));
+    this._register(this.userDataProfilesService.onWillRemoveProfile((e) => {
+      const storage = this.mapProfileToStorage.get(e.profile.id);
+      if (storage) {
+        e.join(storage.close());
+      }
+    }));
+  }
+  createApplicationStorage() {
+    this.logService.trace(`StorageMainService: creating application storage`);
+    const applicationStorage = new ApplicationStorageMain(this.getStorageOptions(), this.userDataProfilesService, this.logService, this.fileService);
+    this._register(Event.once(applicationStorage.onDidCloseStorage)(() => {
+      this.logService.trace(`StorageMainService: closed application storage`);
+    }));
+    return applicationStorage;
+  }
+  profileStorage(profile) {
+    if (isProfileUsingDefaultStorage(profile)) {
+      return this.applicationStorage;
+    }
+    let profileStorage = this.mapProfileToStorage.get(profile.id);
+    if (!profileStorage) {
+      this.logService.trace(`StorageMainService: creating profile storage (${profile.name})`);
+      profileStorage = this._register(this.createProfileStorage(profile));
+      this.mapProfileToStorage.set(profile.id, profileStorage);
+      const listener = this._register(profileStorage.onDidChangeStorage((e) => this._onDidChangeProfileStorage.fire({
+        ...e,
+        storage: profileStorage,
+        profile
+      })));
+      this._register(Event.once(profileStorage.onDidCloseStorage)(() => {
+        this.logService.trace(`StorageMainService: closed profile storage (${profile.name})`);
+        this.mapProfileToStorage.delete(profile.id);
+        listener.dispose();
+      }));
+    }
+    return profileStorage;
+  }
+  createProfileStorage(profile) {
+    if (this.shutdownReason === 2) {
+      return new InMemoryStorageMain(this.logService, this.fileService);
+    }
+    return new ProfileStorageMain(profile, this.getStorageOptions(), this.logService, this.fileService);
+  }
+  workspaceStorage(workspace) {
+    let workspaceStorage = this.mapWorkspaceToStorage.get(workspace.id);
+    if (!workspaceStorage) {
+      this.logService.trace(`StorageMainService: creating workspace storage (${workspace.id})`);
+      workspaceStorage = this._register(this.createWorkspaceStorage(workspace));
+      this.mapWorkspaceToStorage.set(workspace.id, workspaceStorage);
+      this._register(Event.once(workspaceStorage.onDidCloseStorage)(() => {
+        this.logService.trace(`StorageMainService: closed workspace storage (${workspace.id})`);
+        this.mapWorkspaceToStorage.delete(workspace.id);
+      }));
+    }
+    return workspaceStorage;
+  }
+  createWorkspaceStorage(workspace) {
+    if (this.shutdownReason === 2) {
+      return new InMemoryStorageMain(this.logService, this.fileService);
+    }
+    return new WorkspaceStorageMain(workspace, this.getStorageOptions(), this.logService, this.environmentService, this.fileService);
+  }
+  //#endregion
+  isUsed(path) {
+    const pathUri = URI.file(path);
+    for (const storage of [this.applicationStorage, ...this.mapProfileToStorage.values(), ...this.mapWorkspaceToStorage.values()]) {
+      if (!storage.path) {
+        continue;
+      }
+      if (this.uriIdentityService.extUri.isEqualOrParent(URI.file(storage.path), pathUri)) {
+        return true;
+      }
+    }
+    return false;
+  }
+};
+StorageMainService = __decorate([
+  __param(0, ILogService),
+  __param(1, IEnvironmentService),
+  __param(2, IUserDataProfilesMainService),
+  __param(3, ILifecycleMainService),
+  __param(4, IFileService),
+  __param(5, IUriIdentityService)
+], StorageMainService);
+const IApplicationStorageMainService = createDecorator("applicationStorageMainService");
+let ApplicationStorageMainService = class ApplicationStorageMainService2 extends AbstractStorageService {
+  static {
+    __name(this, "ApplicationStorageMainService");
+  }
+  constructor(userDataProfilesService, storageMainService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.storageMainService = storageMainService;
+    this.whenReady = this.storageMainService.applicationStorage.whenInit;
+  }
+  doInitialize() {
+    return this.storageMainService.applicationStorage.whenInit;
+  }
+  getStorage(scope) {
+    if (scope === -1) {
+      return this.storageMainService.applicationStorage.storage;
+    }
+    return void 0;
+  }
+  getLogDetails(scope) {
+    if (scope === -1) {
+      return this.userDataProfilesService.defaultProfile.globalStorageHome.with({ scheme: Schemas.file }).fsPath;
+    }
+    return void 0;
+  }
+  shouldFlushWhenIdle() {
+    return false;
+  }
+  switch() {
+    throw new Error("Migrating storage is unsupported from main process");
+  }
+  switchToProfile() {
+    throw new Error("Switching storage profile is unsupported from main process");
+  }
+  switchToWorkspace() {
+    throw new Error("Switching storage workspace is unsupported from main process");
+  }
+  hasScope() {
+    throw new Error("Main process is never profile or workspace scoped");
+  }
+};
+ApplicationStorageMainService = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IStorageMainService)
+], ApplicationStorageMainService);
+export {
+  ApplicationStorageMainService,
+  IApplicationStorageMainService,
+  IStorageMainService,
+  StorageMainService
+};
+//# sourceMappingURL=storageMainService.js.map

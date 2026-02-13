@@ -1,10 +1,482 @@
-import"./media/mcpServerEditor.css";import{$ as n,$y9 as o,$t8 as O,$28 as ft}from"../../../../base/browser/dom.js";import{$w0 as nt}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$u0 as it}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$l0 as Z}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$Fm as bt}from"../../../../base/common/actions.js";import*as D from"../../../../base/common/arrays.js";import{$Mf as V}from"../../../../base/common/cache.js";import{$Jf as F}from"../../../../base/common/cancellation.js";import{$rb as mt}from"../../../../base/common/errors.js";import{$xf as gt,Event as S}from"../../../../base/common/event.js";import{$Ed as st,$Dd as G,$Fd as pt,$zd as yt,$Cd as v}from"../../../../base/common/lifecycle.js";import{Schemas as j,$ih as H}from"../../../../base/common/network.js";import{URI as N}from"../../../../base/common/uri.js";import{$ln as T}from"../../../../base/common/uuid.js";import{$YF as vt}from"../../../../editor/common/languages.js";import{$ZF as It}from"../../../../editor/common/languages/language.js";import{$SK as wt}from"../../../../editor/common/languages/supports/tokenization.js";import{localize as l}from"../../../../nls.js";import{$ro as Ct}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as Dt}from"../../../../platform/instantiation/common/instantiation.js";import{$pH as $t}from"../../../../platform/notification/common/notification.js";import{$EP as ot}from"../../../../platform/opener/common/opener.js";import{$hp as kt}from"../../../../platform/storage/common/storage.js";import{$pp as St}from"../../../../platform/telemetry/common/telemetry.js";import{$qu as Mt}from"../../../../platform/theme/common/themeService.js";import{$vKb as xt}from"../../../browser/parts/editor/editorPane.js";import{$5rc as Lt,$6rc as Zt}from"../../markdown/browser/markdownDocumentRenderer.js";import{$SDb as jt}from"../../webview/browser/webview.js";import{$NR as Ht}from"../../../services/extensions/common/extensions.js";import{$jkb as at}from"../../../../platform/hover/browser/hover.js";import{$SU as Et,$TU as At}from"../common/mcpTypes.js";import{$Ztc as Gt,$Xtc as Nt,$4tc as Pt,$Vtc as zt,$Wtc as rt,$Ytc as Wt,$3tc as Rt,$1tc as Ut}from"./mcpServerWidgets.js";import{$utc as J,$vtc as Bt,$wtc as Yt,$ytc as Ot,$Btc as Vt,$Atc as Ft,$ztc as Tt,$Etc as Jt,$Ptc as Kt,$Ctc as K}from"./mcpServerActions.js";import{ThemeIcon as E}from"../../../../base/common/themables.js";import{$bk as Q}from"../../../../base/common/codicons.js";import{$CQ as Qt,$BQ as Xt}from"../../../../platform/mcp/common/mcpGalleryManifest.js";import{$Qn as X}from"../../../../base/common/date.js";import{$ijb as qt}from"../../../../platform/contextview/browser/contextView.js";var et=function(m,t,e,i){var s=arguments.length,a=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(m,t,e,i);else for(var d=m.length-1;d>=0;d--)(r=m[d])&&(a=(s<3?r(a):s>3?r(t,e,a):r(t,e))||a);return s>3&&a&&Object.defineProperty(t,e,a),a},g=function(m,t){return function(e,i){t(e,i,m)}},A,q;(function(m){m.Readme="readme",m.Configuration="configuration",m.Manifest="manifest"})(q||(q={}));class _t extends st{get onChange(){return this.b.event}get currentId(){return this.c}constructor(t){super(),this.b=this.D(new gt),this.c=null;const e=o(t,n(".navbar"));this.f=[],this.g=this.D(new nt(e))}push(t,e,i,s){const a=new bt(t,e,void 0,!0,()=>this.h(t,!0));a.tooltip=i,typeof s=="number"?this.f.splice(s,0,a):this.f.push(a),this.g.push(a,{index:s}),this.f.length===1&&this.h(t)}remove(t){const e=this.f.findIndex(i=>i.id===t);e!==-1&&(this.f.splice(e,1),this.g.pull(e),this.c===t&&this.switch(this.f[0]?.id))}clear(){this.f=yt(this.f),this.g.clear()}switch(t){const e=this.f.find(i=>i.id===t);return e?(e.run(),!0):!1}has(t){return this.f.some(e=>e.id===t)}h(t,e){this.c=t,this.b.fire({id:t,focus:!!e}),this.f.forEach(i=>i.checked=i.id===t)}}var _;(function(m){m[m.Readme=0]="Readme",m[m.Changelog=1]="Changelog"})(_||(_={}));let tt=class extends xt{static{A=this}static{this.ID="workbench.editor.mcpServer"}constructor(t,e,i,s,a,r,d,f,c,u,h,b,I,w){super(A.ID,t,e,s,d),this.eb=i,this.fb=a,this.gb=r,this.hb=f,this.ib=c,this.jb=u,this.kb=h,this.lb=b,this.mb=I,this.nb=w,this.b=this.D(new pt),this.j=new Map,this.m="",this.r=[],this.s=this.D(new G),this.u=this.D(new G),this.w=null,this.f=null,this.g=null}get scopedContextKeyService(){return this.b.value}ab(t){const e=o(t,n(".extension-editor.mcp-server-editor"));this.b.value=this.kb.createScoped(e),this.b.value.createKey("inExtensionEditor",!0),e.tabIndex=0,e.style.outline="none",e.setAttribute("role","document");const i=o(e,n(".header")),s=o(i,n(".icon-container")),a=this.eb.createInstance(Nt,s),r=this.eb.createInstance(Rt,s),d=o(i,n(".details")),f=o(d,n(".title")),c=o(f,n("span.name.clickable",{role:"heading",tabIndex:0}));this.D(this.mb.setupManagedHover(it("mouse"),c,l(10349,null)));const u=o(d,n(".subtitle")),h=[],b=o(u,n(".subtitle-entry"));h.push(b);const I=this.eb.createInstance(Wt,b,!1),w=o(u,n(".subtitle-entry"));h.push(w);const M=this.eb.createInstance(Gt,w,!1),z=o(u,n(".subtitle-entry"));h.push(z);const ct=this.eb.createInstance(Ut,z),W=[a,I,M,r,ct],lt=o(d,n(".description")),$=[this.eb.createInstance(Ot,!1),this.eb.createInstance(Vt),this.eb.createInstance(J,"extensions.uninstall",K.CLASS,[[this.eb.createInstance(K),this.eb.createInstance(Tt,!1),this.eb.createInstance(Ft,!1)]]),this.eb.createInstance(Jt,!0)],k=o(d,n(".actions-status-container.mcp-server-actions")),C=this.D(new nt(k,{actionViewItemProvider:(p,y)=>{if(p instanceof Yt)return p.createActionViewItem(y);if(p instanceof J)return new Bt(p,{...y,icon:!0,label:!0,menuActionsOrProvider:{getActions:()=>p.menuActions},menuActionClassNames:p.menuActionClassNames},this.nb)},focusOnlyEnabledItems:!0}));C.push($,{icon:!0,label:!0}),C.setFocusable(!0),this.D(S.any(...$.map(p=>S.filter(p.onDidChange,y=>y.enabled!==void 0)))(()=>{C.setFocusable(!1),C.setFocusable(!0)}));const x=[],R=this.eb.createInstance(Kt),dt=this.D(this.eb.createInstance(Pt,o(k,n(".status")),R));this.D(S.any(dt.onDidRender)(()=>{this.y&&this.layout(this.y)})),x.push(R,new class extends zt{render(){k.classList.toggle("list-layout",this.mcpServer?.installState===1)}});const U=this.eb.createInstance(At,[...$,...W,...x]);for(const p of[...$,...W,...x,U])this.D(p);const ut=S.chain(C.onDidRun,p=>p.map(({error:y})=>y).filter(y=>!!y));this.D(ut(this.Eb,this));const B=o(e,n(".body")),ht=new _t(B),Y=o(B,n(".content"));Y.id=T(),this.c={content:Y,description:lt,header:i,name:c,navbar:ht,actionsAndStatusContainer:k,actionBar:C,set mcpServer(p){U.mcpServer=p;let y;for(const L of h)L.classList.remove("last-non-empty"),L.children.length>0&&(y=L);y&&y.classList.add("last-non-empty")}}}async setInput(t,e,i,s){await super.setInput(t,e,i,s),this.c&&await this.pb(t.mcpServer,this.c,!!e?.preserveFocus)}async pb(t,e,i){this.w=null,this.u.clear();const s=this.u.add(new F).token;this.f=new V(()=>t.getReadme(s)),this.g=new V(()=>t.getManifest(s)),e.mcpServer=t,e.name.textContent=t.label,e.name.classList.toggle("clickable",!!t.gallery?.webUrl),e.description.textContent=t.description,t.gallery?.webUrl&&this.u.add(rt(e.name,()=>this.gb.open(N.parse(t.gallery?.webUrl)))),this.qb(t,e,i)}setOptions(t){super.setOptions(t),t?.tab&&this.c?.navbar.switch(t.tab)}qb(t,e,i){e.content.innerText="",e.navbar.clear(),this.m!==t.id&&(this.j.clear(),this.m=t.id),(t.readmeUrl||t.gallery?.readme)&&e.navbar.push("readme",l(10350,null),l(10351,null)),(t.gallery||t.local?.manifest)&&e.navbar.push("manifest",l(10352,null),l(10353,null)),t.config&&e.navbar.push("configuration",l(10354,null),l(10355,null)),this.u.add(this.lb.onChange(s=>{s===t&&(s.config&&!e.navbar.has("configuration")&&e.navbar.push("configuration",l(10356,null),l(10357,null),t.readmeUrl?1:0),!s.config&&e.navbar.has("configuration")&&e.navbar.remove("configuration"))})),this.options?.tab&&e.navbar.switch(this.options.tab),e.navbar.currentId&&this.rb(t,{id:e.navbar.currentId,focus:!i},e),e.navbar.onChange(s=>this.rb(t,s,e),this,this.u)}clearInput(){this.s.clear(),this.u.clear(),super.clearInput()}focus(){super.focus(),this.w?.focus()}showFind(){this.activeWebview?.showFind()}runFindAction(t){this.activeWebview?.runFindAction(t)}get activeWebview(){if(!(!this.w||!this.w.runFindAction))return this.w}rb(t,{id:e,focus:i},s){if(this.s.clear(),s.content.innerText="",this.w=null,e){const a=new F;this.s.add(v(()=>a.dispose(!0))),this.sb(e,t,s,a.token).then(r=>{a.token.isCancellationRequested||(this.w=r,i&&this.focus())})}}sb(t,e,i,s){switch(t){case"configuration":return this.xb(e,i,s);case"readme":return this.wb(e,i,s);case"manifest":return e.readmeUrl?this.zb(e,i.content,s):this.yb(e,i,s)}return Promise.resolve(null)}async tb(t,e,i,s,a,r,d){try{const f=await this.ub(t,e,s,d);if(d.isCancellationRequested)return Promise.resolve(null);const c=this.s.add(this.ib.createWebviewOverlay({title:r,options:{enableFindWidget:!0,tryRestoreScrollPosition:!0,disableServiceWorker:!0},contentOptions:{},extension:void 0}));c.initialScrollProgress=this.j.get(a)||0,c.claim(this,this.window,this.scopedContextKeyService),ft(c.container,s),c.layoutWebviewOverElement(s),c.setHtml(f),c.claim(this,this.window,void 0),this.s.add(c.onDidFocus(()=>this.L?.fire())),this.s.add(c.onDidScroll(()=>this.j.set(a,c.initialScrollProgress)));const u=D.$ic(this.r,{layout:()=>{c.layoutWebviewOverElement(s)}});this.s.add(v(u));let h=!1;return this.s.add(v(()=>{h=!0})),this.s.add(this.n.onDidColorThemeChange(async()=>{const b=await this.ub(t,e,s);h||c.setHtml(b)})),this.s.add(c.onDidClickLink(b=>{b&&(H(b,j.http)||H(b,j.https)||H(b,j.mailto))&&this.gb.open(b)})),c}catch{const c=o(s,n("p.nocontent"));return c.textContent=i,c}}async ub(t,e,i,s){const a=await this.Db(()=>e,i);if(s?.isCancellationRequested)return"";const r=await Zt(a,this.hb,this.jb,{},s);return s?.isCancellationRequested?"":this.vb(r)}vb(t){const e=T(),i=vt.getColorMap(),s=i?wt(i):"";return`<!DOCTYPE html>
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var McpServerEditor_1;
+import "./media/mcpServerEditor.css";
+import { $, append, clearNode, setParentFlowTo } from "../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Action } from "../../../../base/common/actions.js";
+import * as arrays from "../../../../base/common/arrays.js";
+import { Cache } from "../../../../base/common/cache.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
+import { IWebviewService } from "../../webview/browser/webview.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IMcpWorkbenchService, McpServerContainers } from "../common/mcpTypes.js";
+import { StarredWidget, McpServerIconWidget, McpServerStatusWidget, McpServerWidget, onClick, PublisherWidget, McpServerScopeBadgeWidget, LicenseWidget } from "./mcpServerWidgets.js";
+import { ButtonWithDropDownExtensionAction, ButtonWithDropdownExtensionActionViewItem, DropDownAction, InstallAction, InstallingLabelAction, InstallInRemoteAction, InstallInWorkspaceAction, ManageMcpServerAction, McpServerStatusAction, UninstallAction } from "./mcpServerActions.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { getMcpGalleryManifestResourceUri, IMcpGalleryManifestService } from "../../../../platform/mcp/common/mcpGalleryManifest.js";
+import { fromNow } from "../../../../base/common/date.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+var McpServerEditorTab;
+(function(McpServerEditorTab2) {
+  McpServerEditorTab2["Readme"] = "readme";
+  McpServerEditorTab2["Configuration"] = "configuration";
+  McpServerEditorTab2["Manifest"] = "manifest";
+})(McpServerEditorTab || (McpServerEditorTab = {}));
+class NavBar extends Disposable {
+  static {
+    __name(this, "NavBar");
+  }
+  get onChange() {
+    return this._onChange.event;
+  }
+  get currentId() {
+    return this._currentId;
+  }
+  constructor(container) {
+    super();
+    this._onChange = this._register(new Emitter());
+    this._currentId = null;
+    const element = append(container, $(".navbar"));
+    this.actions = [];
+    this.actionbar = this._register(new ActionBar(element));
+  }
+  push(id, label, tooltip, index) {
+    const action = new Action(id, label, void 0, true, () => this.update(id, true));
+    action.tooltip = tooltip;
+    if (typeof index === "number") {
+      this.actions.splice(index, 0, action);
+    } else {
+      this.actions.push(action);
+    }
+    this.actionbar.push(action, { index });
+    if (this.actions.length === 1) {
+      this.update(id);
+    }
+  }
+  remove(id) {
+    const index = this.actions.findIndex((action) => action.id === id);
+    if (index !== -1) {
+      this.actions.splice(index, 1);
+      this.actionbar.pull(index);
+      if (this._currentId === id) {
+        this.switch(this.actions[0]?.id);
+      }
+    }
+  }
+  clear() {
+    this.actions = dispose(this.actions);
+    this.actionbar.clear();
+  }
+  switch(id) {
+    const action = this.actions.find((action2) => action2.id === id);
+    if (action) {
+      action.run();
+      return true;
+    }
+    return false;
+  }
+  has(id) {
+    return this.actions.some((action) => action.id === id);
+  }
+  update(id, focus) {
+    this._currentId = id;
+    this._onChange.fire({ id, focus: !!focus });
+    this.actions.forEach((a) => a.checked = a.id === id);
+  }
+}
+var WebviewIndex;
+(function(WebviewIndex2) {
+  WebviewIndex2[WebviewIndex2["Readme"] = 0] = "Readme";
+  WebviewIndex2[WebviewIndex2["Changelog"] = 1] = "Changelog";
+})(WebviewIndex || (WebviewIndex = {}));
+let McpServerEditor = class McpServerEditor2 extends EditorPane {
+  static {
+    __name(this, "McpServerEditor");
+  }
+  static {
+    McpServerEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editor.mcpServer";
+  }
+  constructor(group, telemetryService, instantiationService, themeService, notificationService, openerService, storageService, extensionService, webviewService, languageService, contextKeyService, mcpWorkbenchService, hoverService, contextMenuService) {
+    super(McpServerEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.notificationService = notificationService;
+    this.openerService = openerService;
+    this.extensionService = extensionService;
+    this.webviewService = webviewService;
+    this.languageService = languageService;
+    this.contextKeyService = contextKeyService;
+    this.mcpWorkbenchService = mcpWorkbenchService;
+    this.hoverService = hoverService;
+    this.contextMenuService = contextMenuService;
+    this._scopedContextKeyService = this._register(new MutableDisposable());
+    this.initialScrollProgress = /* @__PURE__ */ new Map();
+    this.currentIdentifier = "";
+    this.layoutParticipants = [];
+    this.contentDisposables = this._register(new DisposableStore());
+    this.transientDisposables = this._register(new DisposableStore());
+    this.activeElement = null;
+    this.mcpServerReadme = null;
+    this.mcpServerManifest = null;
+  }
+  get scopedContextKeyService() {
+    return this._scopedContextKeyService.value;
+  }
+  createEditor(parent) {
+    const root = append(parent, $(".extension-editor.mcp-server-editor"));
+    this._scopedContextKeyService.value = this.contextKeyService.createScoped(root);
+    this._scopedContextKeyService.value.createKey("inExtensionEditor", true);
+    root.tabIndex = 0;
+    root.style.outline = "none";
+    root.setAttribute("role", "document");
+    const header = append(root, $(".header"));
+    const iconContainer = append(header, $(".icon-container"));
+    const iconWidget = this.instantiationService.createInstance(McpServerIconWidget, iconContainer);
+    const scopeWidget = this.instantiationService.createInstance(McpServerScopeBadgeWidget, iconContainer);
+    const details = append(header, $(".details"));
+    const title = append(details, $(".title"));
+    const name = append(title, $("span.name.clickable", { role: "heading", tabIndex: 0 }));
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), name, localize("name", "Extension name")));
+    const subtitle = append(details, $(".subtitle"));
+    const subTitleEntryContainers = [];
+    const publisherContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(publisherContainer);
+    const publisherWidget = this.instantiationService.createInstance(PublisherWidget, publisherContainer, false);
+    const starredContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(starredContainer);
+    const installCountWidget = this.instantiationService.createInstance(StarredWidget, starredContainer, false);
+    const licenseContainer = append(subtitle, $(".subtitle-entry"));
+    subTitleEntryContainers.push(licenseContainer);
+    const licenseWidget = this.instantiationService.createInstance(LicenseWidget, licenseContainer);
+    const widgets = [
+      iconWidget,
+      publisherWidget,
+      installCountWidget,
+      scopeWidget,
+      licenseWidget
+    ];
+    const description = append(details, $(".description"));
+    const actions = [
+      this.instantiationService.createInstance(InstallAction, false),
+      this.instantiationService.createInstance(InstallingLabelAction),
+      this.instantiationService.createInstance(ButtonWithDropDownExtensionAction, "extensions.uninstall", UninstallAction.CLASS, [
+        [
+          this.instantiationService.createInstance(UninstallAction),
+          this.instantiationService.createInstance(InstallInWorkspaceAction, false),
+          this.instantiationService.createInstance(InstallInRemoteAction, false)
+        ]
+      ]),
+      this.instantiationService.createInstance(ManageMcpServerAction, true)
+    ];
+    const actionsAndStatusContainer = append(details, $(".actions-status-container.mcp-server-actions"));
+    const actionBar = this._register(new ActionBar(actionsAndStatusContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof DropDownAction) {
+          return action.createActionViewItem(options);
+        }
+        if (action instanceof ButtonWithDropDownExtensionAction) {
+          return new ButtonWithDropdownExtensionActionViewItem(action, {
+            ...options,
+            icon: true,
+            label: true,
+            menuActionsOrProvider: { getActions: /* @__PURE__ */ __name(() => action.menuActions, "getActions") },
+            menuActionClassNames: action.menuActionClassNames
+          }, this.contextMenuService);
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      focusOnlyEnabledItems: true
+    }));
+    actionBar.push(actions, { icon: true, label: true });
+    actionBar.setFocusable(true);
+    this._register(Event.any(...actions.map((a) => Event.filter(a.onDidChange, (e) => e.enabled !== void 0)))(() => {
+      actionBar.setFocusable(false);
+      actionBar.setFocusable(true);
+    }));
+    const otherContainers = [];
+    const mcpServerStatusAction = this.instantiationService.createInstance(McpServerStatusAction);
+    const mcpServerStatusWidget = this._register(this.instantiationService.createInstance(McpServerStatusWidget, append(actionsAndStatusContainer, $(".status")), mcpServerStatusAction));
+    this._register(Event.any(mcpServerStatusWidget.onDidRender)(() => {
+      if (this.dimension) {
+        this.layout(this.dimension);
+      }
+    }));
+    otherContainers.push(mcpServerStatusAction, new class extends McpServerWidget {
+      render() {
+        actionsAndStatusContainer.classList.toggle(
+          "list-layout",
+          this.mcpServer?.installState === 1
+          /* McpServerInstallState.Installed */
+        );
+      }
+    }());
+    const mcpServerContainers = this.instantiationService.createInstance(McpServerContainers, [...actions, ...widgets, ...otherContainers]);
+    for (const disposable of [...actions, ...widgets, ...otherContainers, mcpServerContainers]) {
+      this._register(disposable);
+    }
+    const onError = Event.chain(actionBar.onDidRun, ($2) => $2.map(({ error }) => error).filter((error) => !!error));
+    this._register(onError(this.onError, this));
+    const body = append(root, $(".body"));
+    const navbar = new NavBar(body);
+    const content = append(body, $(".content"));
+    content.id = generateUuid();
+    this.template = {
+      content,
+      description,
+      header,
+      name,
+      navbar,
+      actionsAndStatusContainer,
+      actionBar,
+      set mcpServer(mcpServer) {
+        mcpServerContainers.mcpServer = mcpServer;
+        let lastNonEmptySubtitleEntryContainer;
+        for (const subTitleEntryElement of subTitleEntryContainers) {
+          subTitleEntryElement.classList.remove("last-non-empty");
+          if (subTitleEntryElement.children.length > 0) {
+            lastNonEmptySubtitleEntryContainer = subTitleEntryElement;
+          }
+        }
+        if (lastNonEmptySubtitleEntryContainer) {
+          lastNonEmptySubtitleEntryContainer.classList.add("last-non-empty");
+        }
+      }
+    };
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    if (this.template) {
+      await this.render(input.mcpServer, this.template, !!options?.preserveFocus);
+    }
+  }
+  async render(mcpServer, template, preserveFocus) {
+    this.activeElement = null;
+    this.transientDisposables.clear();
+    const token = this.transientDisposables.add(new CancellationTokenSource()).token;
+    this.mcpServerReadme = new Cache(() => mcpServer.getReadme(token));
+    this.mcpServerManifest = new Cache(() => mcpServer.getManifest(token));
+    template.mcpServer = mcpServer;
+    template.name.textContent = mcpServer.label;
+    template.name.classList.toggle("clickable", !!mcpServer.gallery?.webUrl);
+    template.description.textContent = mcpServer.description;
+    if (mcpServer.gallery?.webUrl) {
+      this.transientDisposables.add(onClick(template.name, () => this.openerService.open(URI.parse(mcpServer.gallery?.webUrl))));
+    }
+    this.renderNavbar(mcpServer, template, preserveFocus);
+  }
+  setOptions(options) {
+    super.setOptions(options);
+    if (options?.tab) {
+      this.template?.navbar.switch(options.tab);
+    }
+  }
+  renderNavbar(extension, template, preserveFocus) {
+    template.content.innerText = "";
+    template.navbar.clear();
+    if (this.currentIdentifier !== extension.id) {
+      this.initialScrollProgress.clear();
+      this.currentIdentifier = extension.id;
+    }
+    if (extension.readmeUrl || extension.gallery?.readme) {
+      template.navbar.push("readme", localize("details", "Details"), localize("detailstooltip", "Extension details, rendered from the extension's 'README.md' file"));
+    }
+    if (extension.gallery || extension.local?.manifest) {
+      template.navbar.push("manifest", localize("manifest", "Manifest"), localize("manifesttooltip", "Server manifest details"));
+    }
+    if (extension.config) {
+      template.navbar.push("configuration", localize("configuration", "Configuration"), localize("configurationtooltip", "Server configuration details"));
+    }
+    this.transientDisposables.add(this.mcpWorkbenchService.onChange((e) => {
+      if (e === extension) {
+        if (e.config && !template.navbar.has(
+          "configuration"
+          /* McpServerEditorTab.Configuration */
+        )) {
+          template.navbar.push("configuration", localize("configuration", "Configuration"), localize("configurationtooltip", "Server configuration details"), extension.readmeUrl ? 1 : 0);
+        }
+        if (!e.config && template.navbar.has(
+          "configuration"
+          /* McpServerEditorTab.Configuration */
+        )) {
+          template.navbar.remove(
+            "configuration"
+            /* McpServerEditorTab.Configuration */
+          );
+        }
+      }
+    }));
+    if (this.options?.tab) {
+      template.navbar.switch(this.options.tab);
+    }
+    if (template.navbar.currentId) {
+      this.onNavbarChange(extension, { id: template.navbar.currentId, focus: !preserveFocus }, template);
+    }
+    template.navbar.onChange((e) => this.onNavbarChange(extension, e, template), this, this.transientDisposables);
+  }
+  clearInput() {
+    this.contentDisposables.clear();
+    this.transientDisposables.clear();
+    super.clearInput();
+  }
+  focus() {
+    super.focus();
+    this.activeElement?.focus();
+  }
+  showFind() {
+    this.activeWebview?.showFind();
+  }
+  runFindAction(previous) {
+    this.activeWebview?.runFindAction(previous);
+  }
+  get activeWebview() {
+    if (!this.activeElement || !this.activeElement.runFindAction) {
+      return void 0;
+    }
+    return this.activeElement;
+  }
+  onNavbarChange(extension, { id, focus }, template) {
+    this.contentDisposables.clear();
+    template.content.innerText = "";
+    this.activeElement = null;
+    if (id) {
+      const cts = new CancellationTokenSource();
+      this.contentDisposables.add(toDisposable(() => cts.dispose(true)));
+      this.open(id, extension, template, cts.token).then((activeElement) => {
+        if (cts.token.isCancellationRequested) {
+          return;
+        }
+        this.activeElement = activeElement;
+        if (focus) {
+          this.focus();
+        }
+      });
+    }
+  }
+  open(id, extension, template, token) {
+    switch (id) {
+      case "configuration":
+        return this.openConfiguration(extension, template, token);
+      case "readme":
+        return this.openDetails(extension, template, token);
+      case "manifest":
+        return extension.readmeUrl ? this.openManifest(extension, template.content, token) : this.openManifestWithAdditionalDetails(extension, template, token);
+    }
+    return Promise.resolve(null);
+  }
+  async openMarkdown(extension, cacheResult, noContentCopy, container, webviewIndex, title, token) {
+    try {
+      const body = await this.renderMarkdown(extension, cacheResult, container, token);
+      if (token.isCancellationRequested) {
+        return Promise.resolve(null);
+      }
+      const webview = this.contentDisposables.add(this.webviewService.createWebviewOverlay({
+        title,
+        options: {
+          enableFindWidget: true,
+          tryRestoreScrollPosition: true,
+          disableServiceWorker: true
+        },
+        contentOptions: {},
+        extension: void 0
+      }));
+      webview.initialScrollProgress = this.initialScrollProgress.get(webviewIndex) || 0;
+      webview.claim(this, this.window, this.scopedContextKeyService);
+      setParentFlowTo(webview.container, container);
+      webview.layoutWebviewOverElement(container);
+      webview.setHtml(body);
+      webview.claim(this, this.window, void 0);
+      this.contentDisposables.add(webview.onDidFocus(() => this._onDidFocus?.fire()));
+      this.contentDisposables.add(webview.onDidScroll(() => this.initialScrollProgress.set(webviewIndex, webview.initialScrollProgress)));
+      const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+        layout: /* @__PURE__ */ __name(() => {
+          webview.layoutWebviewOverElement(container);
+        }, "layout")
+      });
+      this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+      let isDisposed = false;
+      this.contentDisposables.add(toDisposable(() => {
+        isDisposed = true;
+      }));
+      this.contentDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+        const body2 = await this.renderMarkdown(extension, cacheResult, container);
+        if (!isDisposed) {
+          webview.setHtml(body2);
+        }
+      }));
+      this.contentDisposables.add(webview.onDidClickLink((link) => {
+        if (!link) {
+          return;
+        }
+        if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
+          this.openerService.open(link);
+        }
+      }));
+      return webview;
+    } catch (e) {
+      const p = append(container, $("p.nocontent"));
+      p.textContent = noContentCopy;
+      return p;
+    }
+  }
+  async renderMarkdown(extension, cacheResult, container, token) {
+    const contents = await this.loadContents(() => cacheResult, container);
+    if (token?.isCancellationRequested) {
+      return "";
+    }
+    const content = await renderMarkdownDocument(contents, this.extensionService, this.languageService, {}, token);
+    if (token?.isCancellationRequested) {
+      return "";
+    }
+    return this.renderBody(content);
+  }
+  renderBody(body) {
+    const nonce = generateUuid();
+    const colorMap = TokenizationRegistry.getColorMap();
+    const css = colorMap ? generateTokensCSSForColorMap(colorMap) : "";
+    return `<!DOCTYPE html>
 		<html>
 			<head>
 				<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; script-src 'none'; style-src 'nonce-${e}';">
-				<style nonce="${e}">
-					${Lt}
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https: data:; media-src https:; script-src 'none'; style-src 'nonce-${nonce}';">
+				<style nonce="${nonce}">
+					${DEFAULT_MARKDOWN_STYLES}
 
 					/* prevent scroll-to-top button from blocking the body text */
 					body {
@@ -49,11 +521,343 @@ import"./media/mcpServerEditor.css";import{$ as n,$y9 as o,$t8 as O,$28 as ft}fr
 						width: 16px;
 						height: 16px;
 					}
-					${s}
+					${css}
 				</style>
 			</head>
 			<body>
 				<a id="scroll-to-top" role="button" aria-label="scroll to top" href="#"><span class="icon"></span></a>
-				${t}
+				${body}
 			</body>
-		</html>`}async wb(t,e,i){const s=o(e.content,n(".details")),a=o(s,n(".content-container")),r=o(s,n(".additional-details-container")),d=()=>s.classList.toggle("narrow",this.y&&this.y.width<500);d(),this.s.add(v(D.$ic(this.r,{layout:d})));const f=await this.tb(t,this.f.get(),l(10358,null),a,0,l(10359,null),i);return this.Cb(r,t),f}async xb(t,e,i){const s=o(e.content,n(".configuration")),a=n("div",{class:"configuration-content"});this.Ab(a,t);const r=new Z(a,{}),d=()=>r.scanDomNode();return this.s.add(v(D.$ic(this.r,{layout:d}))),o(s,r.getDomNode()),{focus:()=>a.focus()}}async yb(t,e,i){const s=o(e.content,n(".details")),a=o(s,n(".content-container")),r=o(s,n(".additional-details-container")),d=()=>s.classList.toggle("narrow",this.y&&this.y.width<500);d(),this.s.add(v(D.$ic(this.r,{layout:d})));const f=await this.zb(t,a,i);return this.Cb(r,t),f}async zb(t,e,i){const s=o(e,n(".manifest")),a=n("div",{class:"manifest-content"});try{const f=await this.Db(()=>this.g.get(),a);if(i.isCancellationRequested)return null;this.Bb(a,f)}catch{for(;a.firstChild;)a.removeChild(a.firstChild);const c=o(a,n(".no-manifest"));c.textContent=l(10360,null)}const r=new Z(a,{}),d=()=>r.scanDomNode();return this.s.add(v(D.$ic(this.r,{layout:d}))),o(s,r.getDomNode()),{focus:()=>a.focus()}}Ab(t,e){O(t);const i=e.config;if(!i){const u=o(t,n(".no-config"));u.textContent=l(10361,null);return}const s=o(t,n(".config-section")),a=o(s,n(".config-label"));a.textContent=l(10362,null);const r=o(s,n(".config-value"));r.textContent=e.name;const d=o(t,n(".config-section")),f=o(d,n(".config-label"));f.textContent=l(10363,null);const c=o(d,n(".config-value"));if(c.textContent=i.type,i.type==="stdio"){const u=o(t,n(".config-section")),h=o(u,n(".config-label"));h.textContent=l(10364,null);const b=o(u,n("code.config-value"));if(b.textContent=i.command,i.args&&i.args.length>0){const I=o(t,n(".config-section")),w=o(I,n(".config-label"));w.textContent=l(10365,null);const M=o(I,n("code.config-value"));M.textContent=i.args.join(" ")}}else if(i.type==="http"){const u=o(t,n(".config-section")),h=o(u,n(".config-label"));h.textContent=l(10366,null);const b=o(u,n("code.config-value"));b.textContent=i.url}}Bb(t,e){if(O(t),e.packages&&e.packages.length>0){const i=new Map;for(const s of e.packages){const a=s.registryType;let r=i.get(a);r||i.set(a,r=[]),r.push(s)}o(t,n(".manifest-section",void 0,n(".manifest-section-title",void 0,l(10367,null))));for(const[s,a]of i){const r=o(t,n(".package-section",void 0,n(".package-section-title",void 0,s.toUpperCase()))),d=o(r,n(".package-details"));for(let f=0;f<a.length;f++){const c=a[f];if(o(d,n(".package-detail",void 0,n(".detail-label",void 0,l(10368,null)),n(".detail-value",void 0,c.identifier))),c.packageArguments&&c.packageArguments.length>0){const u=[];for(const h of c.packageArguments)if(h.type==="named"&&(u.push(h.name),h.value&&u.push(h.value)),h.type==="positional"){const b=h.value??h.valueHint;b&&u.push(b)}o(d,n(".package-detail",void 0,n(".detail-label",void 0,l(10369,null)),n("code.detail-value",void 0,u.join(" "))))}if(c.runtimeArguments&&c.runtimeArguments.length>0){const u=[];for(const h of c.runtimeArguments)if(h.type==="named"&&(u.push(h.name),h.value&&u.push(h.value)),h.type==="positional"){const b=h.value??h.valueHint;b&&u.push(b)}o(d,n(".package-detail",void 0,n(".detail-label",void 0,l(10370,null)),n("code.detail-value",void 0,u.join(" "))))}if(c.environmentVariables&&c.environmentVariables.length>0){const u=c.environmentVariables.map(h=>`${h.name}=${h.value??""}`);o(d,n(".package-detail",void 0,n(".detail-label",void 0,l(10371,null)),n("code.detail-value",void 0,u.join(" "))))}f<a.length-1&&o(d,n(".package-separator"))}}}if(e.remotes&&e.remotes.length>0){const i=o(t,n(".package-section",void 0,n(".package-section-title",void 0,l(10372,null).toLocaleUpperCase())));for(const s of e.remotes){const a=o(i,n(".package-details"));if(o(a,n(".package-detail",void 0,n(".detail-label",void 0,l(10373,null)),n(".detail-value",void 0,s.url))),s.type&&o(a,n(".package-detail",void 0,n(".detail-label",void 0,l(10374,null)),n(".detail-value",void 0,s.type))),s.headers&&s.headers.length>0){const r=s.headers.map(d=>`${d.name}: ${d.value??""}`);o(a,n(".package-detail",void 0,n(".detail-label",void 0,l(10375,null)),n(".detail-value",void 0,r.join(", "))))}}}}Cb(t,e){const i=n("div",{class:"additional-details-content",tabindex:"0"}),s=new Z(i,{}),a=()=>s.scanDomNode(),r=D.$ic(this.r,{layout:a});this.s.add(v(r)),this.s.add(s),this.s.add(this.eb.createInstance(P,i,e)),o(t,s.getDomNode()),s.scanDomNode()}Db(t,e){e.classList.add("loading");const i=this.s.add(t()),s=()=>e.classList.remove("loading");return i.promise.then(s,s),i.promise}layout(t){this.y=t,this.r.forEach(e=>e.layout())}Eb(t){mt(t)||this.fb.error(t)}};tt=A=et([g(1,St),g(2,Dt),g(3,Mt),g(4,$t),g(5,ot),g(6,kt),g(7,Ht),g(8,jt),g(9,It),g(10,Ct),g(11,Et),g(12,at),g(13,qt)],tt);let P=class extends st{constructor(t,e,i,s,a){super(),this.c=t,this.f=i,this.g=s,this.h=a,this.b=this.D(new G),this.j(e),this.D(this.f.onDidChangeMcpGalleryManifest(()=>this.j(e)))}j(t){this.c.innerText="",this.b.clear(),t.local&&this.q(this.c,t.local),t.gallery&&this.r(this.c,t),this.m(this.c,t),this.n(this.c,t)}m(t,e){if(e.gallery?.topics?.length){const i=o(t,n(".categories-container.additional-details-element"));o(i,n(".additional-details-title",void 0,l(10376,null)));const s=o(i,n(".categories"));for(const a of e.gallery.topics)o(s,n("span.category",{tabindex:"0"},a))}}async n(t,e){const i=[],s=await this.f.getMcpGalleryManifest();if(e.repository)try{i.push([l(10377,null),E.fromId(Q.repo.id),N.parse(e.repository)])}catch{}if(s){const a=Qt(s,"ContactSupportUri");if(a)try{i.push([l(10378,null),E.fromId(Q.commentDiscussion.id),N.parse(a)])}catch{}}if(i.length){const a=o(t,n(".resources-container.additional-details-element"));o(a,n(".additional-details-title",void 0,l(10379,null)));const r=o(a,n(".resources"));for(const[d,f,c]of i){const u=o(r,n(".resource"));o(u,n(E.asCSSSelector(f))),o(u,n("a",{tabindex:"0"},d)),this.b.add(rt(u,()=>this.h.open(c))),this.b.add(this.g.setupManagedHover(it("mouse"),u,c.toString()))}}}q(t,e){const i=o(t,n(".more-info-container.additional-details-element"));o(i,n(".additional-details-title",void 0,l(10380,null)));const s=o(i,n(".more-info"));o(s,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(10381,null)),n("code",void 0,e.name))),e.version&&o(s,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(10382,null)),n("code",void 0,e.version)))}r(t,e){const i=e.gallery,s=o(t,n(".more-info-container.additional-details-element"));o(s,n(".additional-details-title",void 0,l(10383,null)));const a=o(s,n(".more-info"));i&&(e.local||(o(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(10384,null)),n("code",void 0,e.name))),i.version&&o(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(10385,null)),n("code",void 0,i.version)))),i.lastUpdated&&o(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(10386,null)),n("div",{title:new Date(i.lastUpdated).toString()},X(i.lastUpdated,!0,!0,!0)))),i.publishDate&&o(a,n(".more-info-entry",void 0,n("div.more-info-entry-name",void 0,l(10387,null)),n("div",{title:new Date(i.publishDate).toString()},X(i.publishDate,!0,!0,!0)))))}};P=et([g(2,Xt),g(3,at),g(4,ot)],P);export{tt as $7tc};
+		</html>`;
+  }
+  async openDetails(extension, template, token) {
+    const details = append(template.content, $(".details"));
+    const readmeContainer = append(details, $(".content-container"));
+    const additionalDetailsContainer = append(details, $(".additional-details-container"));
+    const layout = /* @__PURE__ */ __name(() => details.classList.toggle("narrow", this.dimension && this.dimension.width < 500), "layout");
+    layout();
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    const activeElement = await this.openMarkdown(extension, this.mcpServerReadme.get(), localize("noReadme", "No README available."), readmeContainer, 0, localize("Readme title", "Readme"), token);
+    this.renderAdditionalDetails(additionalDetailsContainer, extension);
+    return activeElement;
+  }
+  async openConfiguration(mcpServer, template, token) {
+    const configContainer = append(template.content, $(".configuration"));
+    const content = $("div", { class: "configuration-content" });
+    this.renderConfigurationDetails(content, mcpServer);
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    append(configContainer, scrollableContent.getDomNode());
+    return { focus: /* @__PURE__ */ __name(() => content.focus(), "focus") };
+  }
+  async openManifestWithAdditionalDetails(mcpServer, template, token) {
+    const details = append(template.content, $(".details"));
+    const readmeContainer = append(details, $(".content-container"));
+    const additionalDetailsContainer = append(details, $(".additional-details-container"));
+    const layout = /* @__PURE__ */ __name(() => details.classList.toggle("narrow", this.dimension && this.dimension.width < 500), "layout");
+    layout();
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    const activeElement = await this.openManifest(mcpServer, readmeContainer, token);
+    this.renderAdditionalDetails(additionalDetailsContainer, mcpServer);
+    return activeElement;
+  }
+  async openManifest(mcpServer, parent, token) {
+    const manifestContainer = append(parent, $(".manifest"));
+    const content = $("div", { class: "manifest-content" });
+    try {
+      const manifest = await this.loadContents(() => this.mcpServerManifest.get(), content);
+      if (token.isCancellationRequested) {
+        return null;
+      }
+      this.renderManifestDetails(content, manifest);
+    } catch (error) {
+      while (content.firstChild) {
+        content.removeChild(content.firstChild);
+      }
+      const noManifestMessage = append(content, $(".no-manifest"));
+      noManifestMessage.textContent = localize("noManifest", "No manifest available for this MCP server.");
+    }
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    append(manifestContainer, scrollableContent.getDomNode());
+    return { focus: /* @__PURE__ */ __name(() => content.focus(), "focus") };
+  }
+  renderConfigurationDetails(container, mcpServer) {
+    clearNode(container);
+    const config = mcpServer.config;
+    if (!config) {
+      const noConfigMessage = append(container, $(".no-config"));
+      noConfigMessage.textContent = localize("noConfig", "No configuration available for this MCP server.");
+      return;
+    }
+    const nameSection = append(container, $(".config-section"));
+    const nameLabel = append(nameSection, $(".config-label"));
+    nameLabel.textContent = localize("serverName", "Name:");
+    const nameValue = append(nameSection, $(".config-value"));
+    nameValue.textContent = mcpServer.name;
+    const typeSection = append(container, $(".config-section"));
+    const typeLabel = append(typeSection, $(".config-label"));
+    typeLabel.textContent = localize("serverType", "Type:");
+    const typeValue = append(typeSection, $(".config-value"));
+    typeValue.textContent = config.type;
+    if (config.type === "stdio") {
+      const commandSection = append(container, $(".config-section"));
+      const commandLabel = append(commandSection, $(".config-label"));
+      commandLabel.textContent = localize("command", "Command:");
+      const commandValue = append(commandSection, $("code.config-value"));
+      commandValue.textContent = config.command;
+      if (config.args && config.args.length > 0) {
+        const argsSection = append(container, $(".config-section"));
+        const argsLabel = append(argsSection, $(".config-label"));
+        argsLabel.textContent = localize("arguments", "Arguments:");
+        const argsValue = append(argsSection, $("code.config-value"));
+        argsValue.textContent = config.args.join(" ");
+      }
+    } else if (config.type === "http") {
+      const urlSection = append(container, $(".config-section"));
+      const urlLabel = append(urlSection, $(".config-label"));
+      urlLabel.textContent = localize("url", "URL:");
+      const urlValue = append(urlSection, $("code.config-value"));
+      urlValue.textContent = config.url;
+    }
+  }
+  renderManifestDetails(container, manifest) {
+    clearNode(container);
+    if (manifest.packages && manifest.packages.length > 0) {
+      const packagesByType = /* @__PURE__ */ new Map();
+      for (const pkg of manifest.packages) {
+        const type = pkg.registryType;
+        let packages = packagesByType.get(type);
+        if (!packages) {
+          packagesByType.set(type, packages = []);
+        }
+        packages.push(pkg);
+      }
+      append(container, $(".manifest-section", void 0, $(".manifest-section-title", void 0, localize("packages", "Packages"))));
+      for (const [packageType, packages] of packagesByType) {
+        const packageSection = append(container, $(".package-section", void 0, $(".package-section-title", void 0, packageType.toUpperCase())));
+        const packagesGrid = append(packageSection, $(".package-details"));
+        for (let i = 0; i < packages.length; i++) {
+          const pkg = packages[i];
+          append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("packageName", "Package:")), $(".detail-value", void 0, pkg.identifier)));
+          if (pkg.packageArguments && pkg.packageArguments.length > 0) {
+            const argStrings = [];
+            for (const arg of pkg.packageArguments) {
+              if (arg.type === "named") {
+                argStrings.push(arg.name);
+                if (arg.value) {
+                  argStrings.push(arg.value);
+                }
+              }
+              if (arg.type === "positional") {
+                const val = arg.value ?? arg.valueHint;
+                if (val) {
+                  argStrings.push(val);
+                }
+              }
+            }
+            append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("packagearguments", "Package Arguments:")), $("code.detail-value", void 0, argStrings.join(" "))));
+          }
+          if (pkg.runtimeArguments && pkg.runtimeArguments.length > 0) {
+            const argStrings = [];
+            for (const arg of pkg.runtimeArguments) {
+              if (arg.type === "named") {
+                argStrings.push(arg.name);
+                if (arg.value) {
+                  argStrings.push(arg.value);
+                }
+              }
+              if (arg.type === "positional") {
+                const val = arg.value ?? arg.valueHint;
+                if (val) {
+                  argStrings.push(val);
+                }
+              }
+            }
+            append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("runtimeargs", "Runtime Arguments:")), $("code.detail-value", void 0, argStrings.join(" "))));
+          }
+          if (pkg.environmentVariables && pkg.environmentVariables.length > 0) {
+            const envStrings = pkg.environmentVariables.map((envVar) => `${envVar.name}=${envVar.value ?? ""}`);
+            append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("environmentVariables", "Environment Variables:")), $("code.detail-value", void 0, envStrings.join(" "))));
+          }
+          if (i < packages.length - 1) {
+            append(packagesGrid, $(".package-separator"));
+          }
+        }
+      }
+    }
+    if (manifest.remotes && manifest.remotes.length > 0) {
+      const packageSection = append(container, $(".package-section", void 0, $(".package-section-title", void 0, localize("remotes", "Remote").toLocaleUpperCase())));
+      for (const remote of manifest.remotes) {
+        const packagesGrid = append(packageSection, $(".package-details"));
+        append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("url", "URL:")), $(".detail-value", void 0, remote.url)));
+        if (remote.type) {
+          append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("transport", "Transport:")), $(".detail-value", void 0, remote.type)));
+        }
+        if (remote.headers && remote.headers.length > 0) {
+          const headerStrings = remote.headers.map((header) => `${header.name}: ${header.value ?? ""}`);
+          append(packagesGrid, $(".package-detail", void 0, $(".detail-label", void 0, localize("headers", "Headers:")), $(".detail-value", void 0, headerStrings.join(", "))));
+        }
+      }
+    }
+  }
+  renderAdditionalDetails(container, extension) {
+    const content = $("div", { class: "additional-details-content", tabindex: "0" });
+    const scrollableContent = new DomScrollableElement(content, {});
+    const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+    this.contentDisposables.add(toDisposable(removeLayoutParticipant));
+    this.contentDisposables.add(scrollableContent);
+    this.contentDisposables.add(this.instantiationService.createInstance(AdditionalDetailsWidget, content, extension));
+    append(container, scrollableContent.getDomNode());
+    scrollableContent.scanDomNode();
+  }
+  loadContents(loadingTask, container) {
+    container.classList.add("loading");
+    const result = this.contentDisposables.add(loadingTask());
+    const onDone = /* @__PURE__ */ __name(() => container.classList.remove("loading"), "onDone");
+    result.promise.then(onDone, onDone);
+    return result.promise;
+  }
+  layout(dimension) {
+    this.dimension = dimension;
+    this.layoutParticipants.forEach((p) => p.layout());
+  }
+  onError(err) {
+    if (isCancellationError(err)) {
+      return;
+    }
+    this.notificationService.error(err);
+  }
+};
+McpServerEditor = McpServerEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IInstantiationService),
+  __param(3, IThemeService),
+  __param(4, INotificationService),
+  __param(5, IOpenerService),
+  __param(6, IStorageService),
+  __param(7, IExtensionService),
+  __param(8, IWebviewService),
+  __param(9, ILanguageService),
+  __param(10, IContextKeyService),
+  __param(11, IMcpWorkbenchService),
+  __param(12, IHoverService),
+  __param(13, IContextMenuService)
+], McpServerEditor);
+let AdditionalDetailsWidget = class AdditionalDetailsWidget2 extends Disposable {
+  static {
+    __name(this, "AdditionalDetailsWidget");
+  }
+  constructor(container, extension, mcpGalleryManifestService, hoverService, openerService) {
+    super();
+    this.container = container;
+    this.mcpGalleryManifestService = mcpGalleryManifestService;
+    this.hoverService = hoverService;
+    this.openerService = openerService;
+    this.disposables = this._register(new DisposableStore());
+    this.render(extension);
+    this._register(this.mcpGalleryManifestService.onDidChangeMcpGalleryManifest(() => this.render(extension)));
+  }
+  render(extension) {
+    this.container.innerText = "";
+    this.disposables.clear();
+    if (extension.local) {
+      this.renderInstallInfo(this.container, extension.local);
+    }
+    if (extension.gallery) {
+      this.renderMarketplaceInfo(this.container, extension);
+    }
+    this.renderTags(this.container, extension);
+    this.renderExtensionResources(this.container, extension);
+  }
+  renderTags(container, extension) {
+    if (extension.gallery?.topics?.length) {
+      const categoriesContainer = append(container, $(".categories-container.additional-details-element"));
+      append(categoriesContainer, $(".additional-details-title", void 0, localize("tags", "Tags")));
+      const categoriesElement = append(categoriesContainer, $(".categories"));
+      for (const category of extension.gallery.topics) {
+        append(categoriesElement, $("span.category", { tabindex: "0" }, category));
+      }
+    }
+  }
+  async renderExtensionResources(container, extension) {
+    const resources = [];
+    const manifest = await this.mcpGalleryManifestService.getMcpGalleryManifest();
+    if (extension.repository) {
+      try {
+        resources.push([localize("repository", "Repository"), ThemeIcon.fromId(Codicon.repo.id), URI.parse(extension.repository)]);
+      } catch (error) {
+      }
+    }
+    if (manifest) {
+      const supportUri = getMcpGalleryManifestResourceUri(
+        manifest,
+        "ContactSupportUri"
+        /* McpGalleryResourceType.ContactSupportUri */
+      );
+      if (supportUri) {
+        try {
+          resources.push([localize("support", "Contact Support"), ThemeIcon.fromId(Codicon.commentDiscussion.id), URI.parse(supportUri)]);
+        } catch (error) {
+        }
+      }
+    }
+    if (resources.length) {
+      const extensionResourcesContainer = append(container, $(".resources-container.additional-details-element"));
+      append(extensionResourcesContainer, $(".additional-details-title", void 0, localize("resources", "Resources")));
+      const resourcesElement = append(extensionResourcesContainer, $(".resources"));
+      for (const [label, icon, uri] of resources) {
+        const resourceElement = append(resourcesElement, $(".resource"));
+        append(resourceElement, $(ThemeIcon.asCSSSelector(icon)));
+        append(resourceElement, $("a", { tabindex: "0" }, label));
+        this.disposables.add(onClick(resourceElement, () => this.openerService.open(uri)));
+        this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), resourceElement, uri.toString()));
+      }
+    }
+  }
+  renderInstallInfo(container, extension) {
+    const installInfoContainer = append(container, $(".more-info-container.additional-details-element"));
+    append(installInfoContainer, $(".additional-details-title", void 0, localize("Install Info", "Installation")));
+    const installInfo = append(installInfoContainer, $(".more-info"));
+    append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("id", "Identifier")), $("code", void 0, extension.name)));
+    if (extension.version) {
+      append(installInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("Version", "Version")), $("code", void 0, extension.version)));
+    }
+  }
+  renderMarketplaceInfo(container, extension) {
+    const gallery = extension.gallery;
+    const moreInfoContainer = append(container, $(".more-info-container.additional-details-element"));
+    append(moreInfoContainer, $(".additional-details-title", void 0, localize("Marketplace Info", "Marketplace")));
+    const moreInfo = append(moreInfoContainer, $(".more-info"));
+    if (gallery) {
+      if (!extension.local) {
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("id", "Identifier")), $("code", void 0, extension.name)));
+        if (gallery.version) {
+          append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("Version", "Version")), $("code", void 0, gallery.version)));
+        }
+      }
+      if (gallery.lastUpdated) {
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("last updated", "Last Released")), $("div", {
+          "title": new Date(gallery.lastUpdated).toString()
+        }, fromNow(gallery.lastUpdated, true, true, true))));
+      }
+      if (gallery.publishDate) {
+        append(moreInfo, $(".more-info-entry", void 0, $("div.more-info-entry-name", void 0, localize("published", "Published")), $("div", {
+          "title": new Date(gallery.publishDate).toString()
+        }, fromNow(gallery.publishDate, true, true, true))));
+      }
+    }
+  }
+};
+AdditionalDetailsWidget = __decorate([
+  __param(2, IMcpGalleryManifestService),
+  __param(3, IHoverService),
+  __param(4, IOpenerService)
+], AdditionalDetailsWidget);
+export {
+  McpServerEditor
+};
+//# sourceMappingURL=mcpServerEditor.js.map

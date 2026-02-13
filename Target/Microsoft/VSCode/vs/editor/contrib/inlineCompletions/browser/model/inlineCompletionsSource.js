@@ -1,1 +1,629 @@
-import{$zc as te,$wc as ie,$Bc as ne,$yc as se}from"../../../../../base/common/arrays.js";import{$Qb as oe}from"../../../../../base/common/arraysFind.js";import{$ji as re}from"../../../../../base/common/async.js";import{$Jf as de}from"../../../../../base/common/cancellation.js";import{$3d as ae,$2d as le}from"../../../../../base/common/equals.js";import{$Ed as G,$Dd as ce,$Fd as ue,$Cd as he}from"../../../../../base/common/lifecycle.js";import{$Ep as ge}from"../../../../../base/common/objects.js";import{derived as pe,observableValue as me,recordChangesLazy as fe,runOnChange as Ie,transaction as V}from"../../../../../base/common/observable.js";import{$gbb as Ce}from"../../../../../base/common/observableInternal/experimental/reducer.js";import{$dd as M,$9c as Se}from"../../../../../base/common/types.js";import{$0l as we}from"../../../../../platform/configuration/common/configuration.js";import{$ro as ye}from"../../../../../platform/contextkey/common/contextkey.js";import{$kob as Ee,$lob as Re,$mob as L}from"../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";import{$Mj as be}from"../../../../../platform/instantiation/common/instantiation.js";import{$yo as ve}from"../../../../../platform/log/common/log.js";import{$vib as F}from"../../../../../platform/observable/common/platformObservableUtils.js";import De from"../../../../../platform/product/common/product.js";import{$zE as z}from"../../../../common/core/edits/stringEdit.js";import{$$D as H}from"../../../../common/core/position.js";import{$_D as J}from"../../../../common/core/range.js";import{Command as qe,InlineCompletionEndOfLifeReasonKind as $e,InlineCompletionTriggerKind as q}from"../../../../common/languages.js";import{$MG as ke}from"../../../../common/languages/languageConfigurationRegistry.js";import{$YK as Pe}from"../../../../common/model/textModelStringEdit.js";import{$ufb as We}from"../../../../common/services/completionsEnablement.js";import{$5H as Oe}from"../../../../common/services/resolverService.js";import{$nob as Ae,$oob as Me}from"../structuredLogger.js";import{$pob as je}from"../telemetry.js";import{wait as _}from"../utils.js";import{InlineSuggestionItem as xe}from"./inlineSuggestionItem.js";import{$xob as Te,$yob as Be}from"./provideInlineCompletions.js";import{$Rob as Ue}from"./renameSymbolProcessor.js";import{$Bob as Ke}from"./textModelValueReference.js";var ee=function(l,e,t,i){var s=arguments.length,c=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")c=Reflect.decorate(l,e,t,i);else for(var f=l.length-1;f>=0;f--)(h=l[f])&&(c=(s<3?h(c):s>3?h(e,t,c):h(e,t))||c);return s>3&&c&&Object.defineProperty(e,t,c),c},R=function(l,e){return function(t,i){e(t,i,l)}},A;let Q=class extends G{static{A=this}static{this.a=0}constructor(e,t,i,s,c,h,f,I,n,m){super(),this.q=e,this.r=t,this.t=i,this.u=s,this.w=c,this.y=h,this.z=f,this.C=I,this.F=n,this.G=m,this.b=this.D(new ue),this.j=Ce(this,{initial:()=>({inlineCompletions:u.createEmpty(),suggestWidgetInlineCompletions:u.createEmpty()}),disposeFinal:r=>{r.inlineCompletions.dispose(),r.suggestWidgetInlineCompletions.dispose()},changeTracker:fe(()=>({versionId:this.r})),update:(r,C,k)=>{const y=z.compose(k.changes.map(b=>b.change?Pe(b.change.changes):z.empty).filter(M));if(y.isEmpty())return C;try{return{inlineCompletions:C.inlineCompletions.createStateWithAppliedEdit(y,this.q),suggestWidgetInlineCompletions:C.suggestWidgetInlineCompletions.createStateWithAppliedEdit(y,this.q)}}finally{C.inlineCompletions.dispose(),C.suggestWidgetInlineCompletions.dispose()}}}),this.inlineCompletions=this.j.map(this,r=>r.inlineCompletions),this.suggestWidgetInlineCompletions=this.j.map(this,r=>r.suggestWidgetInlineCompletions),this.n=void 0,this.clearOperationOnTextModelChange=pe(this,r=>{this.r.read(r),this.b.clear()}),this.J=me(this,0),this.loading=this.J.map(this,r=>r>0),this.f=F("editor.inlineSuggest.logFetch",!1,this.z).recomputeInitiallyAndOnChange(this.B),this.g=F("editor.inlineSuggest.emptyResponseInformation",!0,this.z).recomputeInitiallyAndOnChange(this.B),this.h=this.D(this.C.createInstance(Me.cast(),"editor.inlineSuggest.logFetch.commandId")),this.m=this.B.add(this.C.createInstance(Ue)),this.clearOperationOnTextModelChange.recomputeInitiallyAndOnChange(this.B);const g=De.defaultChatAgent?.completionsEnablementSetting??void 0;g&&(this.H(g),this.D(this.z.onDidChangeConfiguration(r=>{r.affectsConfiguration(g)&&this.H(g)}))),this.j.recomputeInitiallyAndOnChange(this.B)}H(e){const t=this.z.getValue(e);Se(t)?this.n=t:this.n=void 0}I(e){this.f.get()&&this.y.info(Ae(e)),this.h.log(e)}fetch(e,t,i,s,c,h,f){const I=this.u.get(),n=new Ne(I,i,this.q.getVersionId(),new Set(e)),m=i.selectedSuggestionInfo?this.suggestWidgetInlineCompletions.get():this.inlineCompletions.get();if(this.b.value?.request.satisfies(n))return this.b.value.promise;if(m?.request?.satisfies(n))return Promise.resolve(!0);const g=!!this.b.value;this.b.clear();const r=new de,C=(async()=>{const y=new ce;this.J.set(this.J.get()+1,void 0);let b=!1;const j=()=>{b||(b=!0,this.J.set(this.J.get()-1,void 0))};y.add(new re(()=>j(),10*1e3)).schedule();const Y=e.filter(P=>P.providerId),E=new Ve(i,f,Y);try{const P=this.t.get(this.q),X=oe(e.map(o=>o.debounceDelayMs),ne(se))??P;if((g||c&&i.triggerKind===q.Automatic)&&await _(X,r.token),r.token.isCancellationRequested||this.B.isDisposed||this.q.getVersionId()!==n.versionId)return E.setNoSuggestionReasonIfNotSet("canceled:beforeFetch"),!1;const x=A.a++;(this.f.get()||this.h.isEnabled.get())&&this.I({sourceId:"InlineCompletions.fetch",kind:"start",requestId:x,modelUri:this.q.uri,modelVersion:this.q.getVersionId(),context:{triggerKind:i.triggerKind,suggestInfo:i.selectedSuggestionInfo?!0:void 0},time:Date.now(),provider:t});const T=new Date,v=Te(e,this.u.get(),this.q,i,f,this.w);Be(r.token,()=>v.cancelAndDispose({kind:"tokenCancellation"}));let B=!1,U=!1;const W=[];for await(const o of v.lists)if(o){o.addRef(),y.add(he(()=>o.removeRef(o.inlineSuggestionsData.length===0?{kind:"empty"}:{kind:"notTaken"})));for(const a of o.inlineSuggestionsData){if(U=!0,!i.includeInlineEdits&&(a.isInlineEdit||a.showInlineEditMenu)){a.setNotShownReason("notInlineEditRequested");continue}if(!i.includeInlineCompletions&&!(a.isInlineEdit||a.showInlineEditMenu)){a.setNotShownReason("notInlineCompletionRequested");continue}a.addPerformanceMarker("providerReturned");const D=a.action?.uri;let w,d;if(D&&D.toString()!==this.q.uri.toString()){const $=await this.G.createModelReference(D);w=$.object.textEditorModel,d=$}else w=this.q,d=void 0;const O=Ke.snapshot(w),p=xe.create(a,O);if(d){const $=Ie(p.identity.onDispose,()=>{d?.dispose(),$.dispose()})}a.addPerformanceMarker("itemCreated"),W.push(p),!p.isInlineEdit&&!p.showInlineEditMenu&&i.triggerKind===q.Automatic&&p.isVisible(this.q,this.u.get())&&(B=!0)}if(B)break}W.forEach(o=>o.addPerformanceMarker("providersResolved"));const S=await Promise.all(W.map(async o=>this.m.proposeRenameRefactoring(this.q,o,i)));if(S.forEach(o=>o.addPerformanceMarker("renameProcessed")),v.cancelAndDispose({kind:"lostRace"}),this.f.get()||this.h.isEnabled.get()){const o=v.didAllProvidersReturn;let a;(r.token.isCancellationRequested||this.B.isDisposed||this.q.getVersionId()!==n.versionId)&&(a="canceled");const D=S.map(w=>{const d=w.getSourceCompletion();if(d.doNotLog)return;const O={insertText:d.insertText,range:d.range,additionalTextEdits:d.additionalTextEdits,uri:d.uri,command:d.command,gutterMenuLinkAction:d.gutterMenuLinkAction,shownCommand:d.shownCommand,completeBracketPairs:d.completeBracketPairs,isInlineEdit:d.isInlineEdit,showInlineEditMenu:d.showInlineEditMenu,showRange:d.showRange,warning:d.warning,hint:d.hint,supportsRename:d.supportsRename,correlationId:d.correlationId,jumpToPosition:d.jumpToPosition};return{...ge(O,p=>J.isIRange(p)?J.lift(p).toString():H.isIPosition(p)?H.lift(p).toString():qe.is(p)?{$commandId:p.id}:p),$providerId:w.source.provider.providerId?.toString()}}).filter(w=>w!==void 0);this.I({sourceId:"InlineCompletions.fetch",kind:"end",requestId:x,durationMs:Date.now()-T.getTime(),error:a,result:D,time:Date.now(),didAllProvidersReturn:o})}if(E.setRequestUuid(v.contextWithUuid.requestUuid),U)E.setHasProducedSuggestion(),S.length>0&&r.token.isCancellationRequested&&S.forEach(o=>o.setNotShownReasonIfNotSet("canceled:whileAwaitingOtherProviders"));else if(r.token.isCancellationRequested)E.setNoSuggestionReasonIfNotSet("canceled:whileFetching");else{const o=this.F.getContextKeyValue("completionsQuotaExceeded");E.setNoSuggestionReasonIfNotSet(o?"completionsQuotaExceeded":"noSuggestion")}const K=i.earliestShownDateTime-Date.now();if(K>0&&await _(K,r.token),S.forEach(o=>o.addPerformanceMarker("minShowDelayPassed")),r.token.isCancellationRequested||this.B.isDisposed||this.q.getVersionId()!==n.versionId||h.get()){const o=r.token.isCancellationRequested?"canceled:afterMinShowDelay":this.B.isDisposed?"canceled:disposed":this.q.getVersionId()!==n.versionId?"canceled:documentChanged":h.get()?"canceled:userJumped":"unknown";return S.forEach(a=>a.setNotShownReasonIfNotSet(o)),!1}const Z=new Date;this.t.update(this.q,Z.getTime()-T.getTime());const N=this.u.get();this.b.clear(),V(o=>{const a=this.j.get();i.selectedSuggestionInfo?this.j.set({inlineCompletions:u.createEmpty(),suggestWidgetInlineCompletions:a.suggestWidgetInlineCompletions.createStateWithAppliedResults(S,n,this.q,N,s)},o):this.j.set({inlineCompletions:a.inlineCompletions.createStateWithAppliedResults(S,n,this.q,N,s),suggestWidgetInlineCompletions:u.createEmpty()},o),a.inlineCompletions.dispose(),a.suggestWidgetInlineCompletions.dispose()})}finally{y.dispose(),j(),this.L(E)}return!0})(),k=new Fe(n,r,C);return this.b.value=k,C}clear(e){if(this.B.isDisposed)return;this.b.clear();const t=this.j.get();this.j.set({inlineCompletions:u.createEmpty(),suggestWidgetInlineCompletions:u.createEmpty()},e),t.inlineCompletions.dispose(),t.suggestWidgetInlineCompletions.dispose()}seedInlineCompletionsWithSuggestWidget(){const e=this.inlineCompletions.get(),t=this.suggestWidgetInlineCompletions.get();t&&V(i=>{if(!e||(t.request?.versionId??-1)>(e.request?.versionId??-1)){e?.dispose();const s=this.j.get();this.j.set({inlineCompletions:t.clone(),suggestWidgetInlineCompletions:u.createEmpty()},i),s.inlineCompletions.dispose(),s.suggestWidgetInlineCompletions.dispose()}this.clearSuggestWidgetInlineCompletions(i)})}seedWithCompletion(e,t){const i=this.j.get();this.j.set({inlineCompletions:new u([e],void 0),suggestWidgetInlineCompletions:u.createEmpty()},t),i.inlineCompletions.dispose(),i.suggestWidgetInlineCompletions.dispose()}L(e){if(!this.g.get()&&!this.F.getContextKeyValue("isRunningUnificationExperiment")||e.requestUuid===void 0||e.hasProducedSuggestion||!We(this.n,this.q.getLanguageId())||!e.providers.some(s=>L(s.providerId?.extensionId)))return;const t={opportunityId:e.requestUuid,noSuggestionReason:e.noSuggestionReason??"unknown",extensionId:"vscode-core",extensionVersion:"0.0.0",groupId:"empty",shown:!1,skuPlan:e.requestInfo.sku?.plan,skuType:e.requestInfo.sku?.type,editorType:e.requestInfo.editorType,requestReason:e.requestInfo.reason,typingInterval:e.requestInfo.typingInterval,typingIntervalCharacterCount:e.requestInfo.typingIntervalCharacterCount,languageId:e.requestInfo.languageId,selectedSuggestionInfo:!!e.context.selectedSuggestionInfo,availableProviders:e.providers.map(s=>s.providerId?.toString()).filter(M).join(","),...Re(e.providers.some(s=>L(s.providerId?.extensionId))),timeUntilProviderRequest:void 0,timeUntilProviderResponse:void 0,viewKind:void 0,preceeded:void 0,superseded:void 0,reason:void 0,acceptedAlternativeAction:void 0,correlationId:void 0,shownDuration:void 0,shownDurationUncollapsed:void 0,timeUntilShown:void 0,partiallyAccepted:void 0,partiallyAcceptedCountSinceOriginal:void 0,partiallyAcceptedRatioSinceOriginal:void 0,partiallyAcceptedCharactersSinceOriginal:void 0,cursorColumnDistance:void 0,cursorLineDistance:void 0,lineCountOriginal:void 0,lineCountModified:void 0,characterCountOriginal:void 0,characterCountModified:void 0,disjointReplacements:void 0,sameShapeReplacements:void 0,longDistanceHintVisible:void 0,longDistanceHintDistance:void 0,notShownReason:void 0,renameCreated:!1,renameDuration:void 0,renameTimedOut:!1,renameDroppedOtherEdits:void 0,renameDroppedRenameEdits:void 0,performanceMarkers:void 0,editKind:void 0},i=this.C.createInstance(Ee);je(i,t)}clearSuggestWidgetInlineCompletions(e){this.b.value?.request.context.selectedSuggestionInfo&&this.b.clear()}cancelUpdate(){this.b.clear()}};Q=A=ee([R(4,ke),R(5,ve),R(6,we),R(7,be),R(8,ye),R(9,Oe)],Q);class Ne{constructor(e,t,i,s){this.position=e,this.context=t,this.versionId=i,this.providers=s}satisfies(e){return this.position.equals(e.position)&&ae(this.context.selectedSuggestionInfo,e.context.selectedSuggestionInfo,le())&&(e.context.triggerKind===q.Automatic||this.context.triggerKind===q.Explicit)&&this.versionId===e.versionId&&Le(e.providers,this.providers)}get isExplicitRequest(){return this.context.triggerKind===q.Explicit}}class Ve{constructor(e,t,i){this.context=e,this.requestInfo=t,this.providers=i,this.hasProducedSuggestion=!1}setRequestUuid(e){this.requestUuid=e}setNoSuggestionReasonIfNotSet(e){this.noSuggestionReason??=e}setHasProducedSuggestion(){this.hasProducedSuggestion=!0}}function Le(l,e){return[...l].every(t=>e.has(t))}class Fe{constructor(e,t,i){this.request=e,this.cancellationTokenSource=t,this.promise=i}dispose(){this.cancellationTokenSource.cancel()}}class u extends G{static createEmpty(){return new u([],void 0)}constructor(e,t){super(),this.inlineCompletions=e,this.request=t;for(const i of this.inlineCompletions)i.addRef();this.D({dispose:()=>{for(const i of this.inlineCompletions)i.removeRef()}})}a(e){return this.inlineCompletions.find(t=>t.identity===e)}b(e){return this.inlineCompletions.find(t=>t.hash===e)}createStateWithAppliedEdit(e,t){const i=this.inlineCompletions.map(s=>s.withEdit(e,t)).filter(M);return new u(i,this.request)}createStateWithAppliedResults(e,t,i,s,c){let h;if(c){const n=this.a(c);if(n&&n.canBeReused(i,t.position)){h=n;const m=e.find(g=>g.hash===n.hash);m?e=He(m,e):e=[n,...e]}}const f=h?!h.isInlineEdit:e.some(n=>!n.isInlineEdit&&n.isVisible(i,s));let I=[];for(const n of e){const m=this.b(n.hash);let g;m&&m!==n?(g=n.withIdentity(m.identity),n.setIsPreceeded(m),m.setEndOfLifeReason({kind:$e.Ignored,userTypingDisagreed:!1,supersededBy:n.getSourceCompletion()})):g=n,f!==g.isInlineEdit&&I.push(g)}return I.sort(ie(n=>n.showInlineEditMenu,te)),I=ze(I,n=>n.semanticId),new u(I,t)}clone(){return new u(this.inlineCompletions,this.request)}}function ze(l,e){const t=new Set;return l.filter(i=>{const s=e(i);return t.has(s)?!1:(t.add(s),!0)})}function He(l,e){const t=e.indexOf(l);return t>-1?[l,...e.slice(0,t),...e.slice(t+1)]:e}export{Q as $Sob,u as $Tob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var InlineCompletionsSource_1;
+import { booleanComparator, compareBy, compareUndefinedSmallest, numberComparator } from "../../../../../base/common/arrays.js";
+import { findLastMax } from "../../../../../base/common/arraysFind.js";
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { equalsIfDefined, thisEqualsC } from "../../../../../base/common/equals.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { cloneAndChange } from "../../../../../base/common/objects.js";
+import { derived, observableValue, recordChangesLazy, runOnChange, transaction } from "../../../../../base/common/observable.js";
+import { observableReducerSettable } from "../../../../../base/common/observableInternal/experimental/reducer.js";
+import { isDefined, isObject } from "../../../../../base/common/types.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { DataChannelForwardingTelemetryService, forwardToChannelIf, isCopilotLikeExtension } from "../../../../../platform/dataChannel/browser/forwardingTelemetryService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import product from "../../../../../platform/product/common/product.js";
+import { StringEdit } from "../../../../common/core/edits/stringEdit.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { Command, InlineCompletionEndOfLifeReasonKind, InlineCompletionTriggerKind } from "../../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { offsetEditFromContentChanges } from "../../../../common/model/textModelStringEdit.js";
+import { isCompletionsEnabledFromObject } from "../../../../common/services/completionsEnablement.js";
+import { ITextModelService } from "../../../../common/services/resolverService.js";
+import { formatRecordableLogEntry, StructuredLogger } from "../structuredLogger.js";
+import { sendInlineCompletionsEndOfLifeTelemetry } from "../telemetry.js";
+import { wait } from "../utils.js";
+import { InlineSuggestionItem } from "./inlineSuggestionItem.js";
+import { provideInlineCompletions, runWhenCancelled } from "./provideInlineCompletions.js";
+import { RenameSymbolProcessor } from "./renameSymbolProcessor.js";
+import { TextModelValueReference } from "./textModelValueReference.js";
+let InlineCompletionsSource = class InlineCompletionsSource2 extends Disposable {
+  static {
+    __name(this, "InlineCompletionsSource");
+  }
+  static {
+    InlineCompletionsSource_1 = this;
+  }
+  static {
+    this._requestId = 0;
+  }
+  constructor(_textModel, _versionId, _debounceValue, _cursorPosition, _languageConfigurationService, _logService, _configurationService, _instantiationService, _contextKeyService, _textModelService) {
+    super();
+    this._textModel = _textModel;
+    this._versionId = _versionId;
+    this._debounceValue = _debounceValue;
+    this._cursorPosition = _cursorPosition;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._logService = _logService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._contextKeyService = _contextKeyService;
+    this._textModelService = _textModelService;
+    this._updateOperation = this._register(new MutableDisposable());
+    this._state = observableReducerSettable(this, {
+      initial: /* @__PURE__ */ __name(() => ({
+        inlineCompletions: InlineCompletionsState.createEmpty(),
+        suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+      }), "initial"),
+      disposeFinal: /* @__PURE__ */ __name((values) => {
+        values.inlineCompletions.dispose();
+        values.suggestWidgetInlineCompletions.dispose();
+      }, "disposeFinal"),
+      changeTracker: recordChangesLazy(() => ({ versionId: this._versionId })),
+      update: /* @__PURE__ */ __name((reader, previousValue, changes) => {
+        const edit = StringEdit.compose(changes.changes.map((c) => c.change ? offsetEditFromContentChanges(c.change.changes) : StringEdit.empty).filter(isDefined));
+        if (edit.isEmpty()) {
+          return previousValue;
+        }
+        try {
+          return {
+            inlineCompletions: previousValue.inlineCompletions.createStateWithAppliedEdit(edit, this._textModel),
+            suggestWidgetInlineCompletions: previousValue.suggestWidgetInlineCompletions.createStateWithAppliedEdit(edit, this._textModel)
+          };
+        } finally {
+          previousValue.inlineCompletions.dispose();
+          previousValue.suggestWidgetInlineCompletions.dispose();
+        }
+      }, "update")
+    });
+    this.inlineCompletions = this._state.map(this, (v) => v.inlineCompletions);
+    this.suggestWidgetInlineCompletions = this._state.map(this, (v) => v.suggestWidgetInlineCompletions);
+    this._completionsEnabled = void 0;
+    this.clearOperationOnTextModelChange = derived(this, (reader) => {
+      this._versionId.read(reader);
+      this._updateOperation.clear();
+      return void 0;
+    });
+    this._loadingCount = observableValue(this, 0);
+    this.loading = this._loadingCount.map(this, (v) => v > 0);
+    this._loggingEnabled = observableConfigValue("editor.inlineSuggest.logFetch", false, this._configurationService).recomputeInitiallyAndOnChange(this._store);
+    this._sendRequestData = observableConfigValue("editor.inlineSuggest.emptyResponseInformation", true, this._configurationService).recomputeInitiallyAndOnChange(this._store);
+    this._structuredFetchLogger = this._register(this._instantiationService.createInstance(StructuredLogger.cast(), "editor.inlineSuggest.logFetch.commandId"));
+    this._renameProcessor = this._store.add(this._instantiationService.createInstance(RenameSymbolProcessor));
+    this.clearOperationOnTextModelChange.recomputeInitiallyAndOnChange(this._store);
+    const enablementSetting = product.defaultChatAgent?.completionsEnablementSetting ?? void 0;
+    if (enablementSetting) {
+      this._updateCompletionsEnablement(enablementSetting);
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(enablementSetting)) {
+          this._updateCompletionsEnablement(enablementSetting);
+        }
+      }));
+    }
+    this._state.recomputeInitiallyAndOnChange(this._store);
+  }
+  _updateCompletionsEnablement(enalementSetting) {
+    const result = this._configurationService.getValue(enalementSetting);
+    if (!isObject(result)) {
+      this._completionsEnabled = void 0;
+    } else {
+      this._completionsEnabled = result;
+    }
+  }
+  _log(entry) {
+    if (this._loggingEnabled.get()) {
+      this._logService.info(formatRecordableLogEntry(entry));
+    }
+    this._structuredFetchLogger.log(entry);
+  }
+  fetch(providers, providersLabel, context, activeInlineCompletion, withDebounce, userJumpedToActiveCompletion, requestInfo) {
+    const position = this._cursorPosition.get();
+    const request = new UpdateRequest(position, context, this._textModel.getVersionId(), new Set(providers));
+    const target = context.selectedSuggestionInfo ? this.suggestWidgetInlineCompletions.get() : this.inlineCompletions.get();
+    if (this._updateOperation.value?.request.satisfies(request)) {
+      return this._updateOperation.value.promise;
+    } else if (target?.request?.satisfies(request)) {
+      return Promise.resolve(true);
+    }
+    const updateOngoing = !!this._updateOperation.value;
+    this._updateOperation.clear();
+    const source = new CancellationTokenSource();
+    const promise = (async () => {
+      const store = new DisposableStore();
+      this._loadingCount.set(this._loadingCount.get() + 1, void 0);
+      let didDecrease = false;
+      const decreaseLoadingCount = /* @__PURE__ */ __name(() => {
+        if (!didDecrease) {
+          didDecrease = true;
+          this._loadingCount.set(this._loadingCount.get() - 1, void 0);
+        }
+      }, "decreaseLoadingCount");
+      const loadingReset = store.add(new RunOnceScheduler(() => decreaseLoadingCount(), 10 * 1e3));
+      loadingReset.schedule();
+      const inlineSuggestionsProviders = providers.filter((p) => p.providerId);
+      const requestResponseInfo = new RequestResponseData(context, requestInfo, inlineSuggestionsProviders);
+      try {
+        const recommendedDebounceValue = this._debounceValue.get(this._textModel);
+        const debounceValue = findLastMax(providers.map((p) => p.debounceDelayMs), compareUndefinedSmallest(numberComparator)) ?? recommendedDebounceValue;
+        const shouldDebounce = updateOngoing || withDebounce && context.triggerKind === InlineCompletionTriggerKind.Automatic;
+        if (shouldDebounce) {
+          await wait(debounceValue, source.token);
+        }
+        if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
+          requestResponseInfo.setNoSuggestionReasonIfNotSet("canceled:beforeFetch");
+          return false;
+        }
+        const requestId = InlineCompletionsSource_1._requestId++;
+        if (this._loggingEnabled.get() || this._structuredFetchLogger.isEnabled.get()) {
+          this._log({
+            sourceId: "InlineCompletions.fetch",
+            kind: "start",
+            requestId,
+            modelUri: this._textModel.uri,
+            modelVersion: this._textModel.getVersionId(),
+            context: { triggerKind: context.triggerKind, suggestInfo: context.selectedSuggestionInfo ? true : void 0 },
+            time: Date.now(),
+            provider: providersLabel
+          });
+        }
+        const startTime = /* @__PURE__ */ new Date();
+        const providerResult = provideInlineCompletions(providers, this._cursorPosition.get(), this._textModel, context, requestInfo, this._languageConfigurationService);
+        runWhenCancelled(source.token, () => providerResult.cancelAndDispose({ kind: "tokenCancellation" }));
+        let shouldStopEarly = false;
+        let producedSuggestion = false;
+        const providerSuggestions = [];
+        for await (const list of providerResult.lists) {
+          if (!list) {
+            continue;
+          }
+          list.addRef();
+          store.add(toDisposable(() => list.removeRef(list.inlineSuggestionsData.length === 0 ? { kind: "empty" } : { kind: "notTaken" })));
+          for (const item of list.inlineSuggestionsData) {
+            producedSuggestion = true;
+            if (!context.includeInlineEdits && (item.isInlineEdit || item.showInlineEditMenu)) {
+              item.setNotShownReason("notInlineEditRequested");
+              continue;
+            }
+            if (!context.includeInlineCompletions && !(item.isInlineEdit || item.showInlineEditMenu)) {
+              item.setNotShownReason("notInlineCompletionRequested");
+              continue;
+            }
+            item.addPerformanceMarker("providerReturned");
+            const targetUri = item.action?.uri;
+            let targetModel;
+            let disposable;
+            if (targetUri && targetUri.toString() !== this._textModel.uri.toString()) {
+              const modelRef = await this._textModelService.createModelReference(targetUri);
+              targetModel = modelRef.object.textEditorModel;
+              disposable = modelRef;
+            } else {
+              targetModel = this._textModel;
+              disposable = void 0;
+            }
+            const ref = TextModelValueReference.snapshot(targetModel);
+            const i = InlineSuggestionItem.create(item, ref);
+            if (disposable) {
+              const s = runOnChange(i.identity.onDispose, () => {
+                disposable?.dispose();
+                s.dispose();
+              });
+            }
+            item.addPerformanceMarker("itemCreated");
+            providerSuggestions.push(i);
+            if (!i.isInlineEdit && !i.showInlineEditMenu && context.triggerKind === InlineCompletionTriggerKind.Automatic) {
+              if (i.isVisible(this._textModel, this._cursorPosition.get())) {
+                shouldStopEarly = true;
+              }
+            }
+          }
+          if (shouldStopEarly) {
+            break;
+          }
+        }
+        providerSuggestions.forEach((s) => s.addPerformanceMarker("providersResolved"));
+        const suggestions = await Promise.all(providerSuggestions.map(async (s) => {
+          return this._renameProcessor.proposeRenameRefactoring(this._textModel, s, context);
+        }));
+        suggestions.forEach((s) => s.addPerformanceMarker("renameProcessed"));
+        providerResult.cancelAndDispose({ kind: "lostRace" });
+        if (this._loggingEnabled.get() || this._structuredFetchLogger.isEnabled.get()) {
+          const didAllProvidersReturn = providerResult.didAllProvidersReturn;
+          let error = void 0;
+          if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
+            error = "canceled";
+          }
+          const result = suggestions.map((c) => {
+            const comp = c.getSourceCompletion();
+            if (comp.doNotLog) {
+              return void 0;
+            }
+            const obj = {
+              insertText: comp.insertText,
+              range: comp.range,
+              additionalTextEdits: comp.additionalTextEdits,
+              uri: comp.uri,
+              command: comp.command,
+              gutterMenuLinkAction: comp.gutterMenuLinkAction,
+              shownCommand: comp.shownCommand,
+              completeBracketPairs: comp.completeBracketPairs,
+              isInlineEdit: comp.isInlineEdit,
+              showInlineEditMenu: comp.showInlineEditMenu,
+              showRange: comp.showRange,
+              warning: comp.warning,
+              hint: comp.hint,
+              supportsRename: comp.supportsRename,
+              correlationId: comp.correlationId,
+              jumpToPosition: comp.jumpToPosition
+            };
+            return {
+              ...cloneAndChange(obj, (v) => {
+                if (Range.isIRange(v)) {
+                  return Range.lift(v).toString();
+                }
+                if (Position.isIPosition(v)) {
+                  return Position.lift(v).toString();
+                }
+                if (Command.is(v)) {
+                  return { $commandId: v.id };
+                }
+                return v;
+              }),
+              $providerId: c.source.provider.providerId?.toString()
+            };
+          }).filter((result2) => result2 !== void 0);
+          this._log({ sourceId: "InlineCompletions.fetch", kind: "end", requestId, durationMs: Date.now() - startTime.getTime(), error, result, time: Date.now(), didAllProvidersReturn });
+        }
+        requestResponseInfo.setRequestUuid(providerResult.contextWithUuid.requestUuid);
+        if (producedSuggestion) {
+          requestResponseInfo.setHasProducedSuggestion();
+          if (suggestions.length > 0 && source.token.isCancellationRequested) {
+            suggestions.forEach((s) => s.setNotShownReasonIfNotSet("canceled:whileAwaitingOtherProviders"));
+          }
+        } else {
+          if (source.token.isCancellationRequested) {
+            requestResponseInfo.setNoSuggestionReasonIfNotSet("canceled:whileFetching");
+          } else {
+            const completionsQuotaExceeded = this._contextKeyService.getContextKeyValue("completionsQuotaExceeded");
+            requestResponseInfo.setNoSuggestionReasonIfNotSet(completionsQuotaExceeded ? "completionsQuotaExceeded" : "noSuggestion");
+          }
+        }
+        const remainingTimeToWait = context.earliestShownDateTime - Date.now();
+        if (remainingTimeToWait > 0) {
+          await wait(remainingTimeToWait, source.token);
+        }
+        suggestions.forEach((s) => s.addPerformanceMarker("minShowDelayPassed"));
+        if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId || userJumpedToActiveCompletion.get()) {
+          const notShownReason = source.token.isCancellationRequested ? "canceled:afterMinShowDelay" : this._store.isDisposed ? "canceled:disposed" : this._textModel.getVersionId() !== request.versionId ? "canceled:documentChanged" : userJumpedToActiveCompletion.get() ? "canceled:userJumped" : "unknown";
+          suggestions.forEach((s) => s.setNotShownReasonIfNotSet(notShownReason));
+          return false;
+        }
+        const endTime = /* @__PURE__ */ new Date();
+        this._debounceValue.update(this._textModel, endTime.getTime() - startTime.getTime());
+        const cursorPosition = this._cursorPosition.get();
+        this._updateOperation.clear();
+        transaction((tx) => {
+          const v = this._state.get();
+          if (context.selectedSuggestionInfo) {
+            this._state.set({
+              inlineCompletions: InlineCompletionsState.createEmpty(),
+              suggestWidgetInlineCompletions: v.suggestWidgetInlineCompletions.createStateWithAppliedResults(suggestions, request, this._textModel, cursorPosition, activeInlineCompletion)
+            }, tx);
+          } else {
+            this._state.set({
+              inlineCompletions: v.inlineCompletions.createStateWithAppliedResults(suggestions, request, this._textModel, cursorPosition, activeInlineCompletion),
+              suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+            }, tx);
+          }
+          v.inlineCompletions.dispose();
+          v.suggestWidgetInlineCompletions.dispose();
+        });
+      } finally {
+        store.dispose();
+        decreaseLoadingCount();
+        this._sendInlineCompletionsRequestTelemetry(requestResponseInfo);
+      }
+      return true;
+    })();
+    const updateOperation = new UpdateOperation(request, source, promise);
+    this._updateOperation.value = updateOperation;
+    return promise;
+  }
+  clear(tx) {
+    if (this._store.isDisposed) {
+      return;
+    }
+    this._updateOperation.clear();
+    const v = this._state.get();
+    this._state.set({
+      inlineCompletions: InlineCompletionsState.createEmpty(),
+      suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+    }, tx);
+    v.inlineCompletions.dispose();
+    v.suggestWidgetInlineCompletions.dispose();
+  }
+  seedInlineCompletionsWithSuggestWidget() {
+    const inlineCompletions = this.inlineCompletions.get();
+    const suggestWidgetInlineCompletions = this.suggestWidgetInlineCompletions.get();
+    if (!suggestWidgetInlineCompletions) {
+      return;
+    }
+    transaction((tx) => {
+      if (!inlineCompletions || (suggestWidgetInlineCompletions.request?.versionId ?? -1) > (inlineCompletions.request?.versionId ?? -1)) {
+        inlineCompletions?.dispose();
+        const s = this._state.get();
+        this._state.set({
+          inlineCompletions: suggestWidgetInlineCompletions.clone(),
+          suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+        }, tx);
+        s.inlineCompletions.dispose();
+        s.suggestWidgetInlineCompletions.dispose();
+      }
+      this.clearSuggestWidgetInlineCompletions(tx);
+    });
+  }
+  /**
+   * Seeds the inline completions with an external inline completion item.
+   * Used when transplanting a completion from one model to another (cross-file edits).
+   */
+  seedWithCompletion(item, tx) {
+    const s = this._state.get();
+    this._state.set({
+      inlineCompletions: new InlineCompletionsState([item], void 0),
+      suggestWidgetInlineCompletions: InlineCompletionsState.createEmpty()
+    }, tx);
+    s.inlineCompletions.dispose();
+    s.suggestWidgetInlineCompletions.dispose();
+  }
+  _sendInlineCompletionsRequestTelemetry(requestResponseInfo) {
+    if (!this._sendRequestData.get() && !this._contextKeyService.getContextKeyValue("isRunningUnificationExperiment")) {
+      return;
+    }
+    if (requestResponseInfo.requestUuid === void 0 || requestResponseInfo.hasProducedSuggestion) {
+      return;
+    }
+    if (!isCompletionsEnabledFromObject(this._completionsEnabled, this._textModel.getLanguageId())) {
+      return;
+    }
+    if (!requestResponseInfo.providers.some((p) => isCopilotLikeExtension(p.providerId?.extensionId))) {
+      return;
+    }
+    const emptyEndOfLifeEvent = {
+      opportunityId: requestResponseInfo.requestUuid,
+      noSuggestionReason: requestResponseInfo.noSuggestionReason ?? "unknown",
+      extensionId: "vscode-core",
+      extensionVersion: "0.0.0",
+      groupId: "empty",
+      shown: false,
+      skuPlan: requestResponseInfo.requestInfo.sku?.plan,
+      skuType: requestResponseInfo.requestInfo.sku?.type,
+      editorType: requestResponseInfo.requestInfo.editorType,
+      requestReason: requestResponseInfo.requestInfo.reason,
+      typingInterval: requestResponseInfo.requestInfo.typingInterval,
+      typingIntervalCharacterCount: requestResponseInfo.requestInfo.typingIntervalCharacterCount,
+      languageId: requestResponseInfo.requestInfo.languageId,
+      selectedSuggestionInfo: !!requestResponseInfo.context.selectedSuggestionInfo,
+      availableProviders: requestResponseInfo.providers.map((p) => p.providerId?.toString()).filter(isDefined).join(","),
+      ...forwardToChannelIf(requestResponseInfo.providers.some((p) => isCopilotLikeExtension(p.providerId?.extensionId))),
+      timeUntilProviderRequest: void 0,
+      timeUntilProviderResponse: void 0,
+      viewKind: void 0,
+      preceeded: void 0,
+      superseded: void 0,
+      reason: void 0,
+      acceptedAlternativeAction: void 0,
+      correlationId: void 0,
+      shownDuration: void 0,
+      shownDurationUncollapsed: void 0,
+      timeUntilShown: void 0,
+      partiallyAccepted: void 0,
+      partiallyAcceptedCountSinceOriginal: void 0,
+      partiallyAcceptedRatioSinceOriginal: void 0,
+      partiallyAcceptedCharactersSinceOriginal: void 0,
+      cursorColumnDistance: void 0,
+      cursorLineDistance: void 0,
+      lineCountOriginal: void 0,
+      lineCountModified: void 0,
+      characterCountOriginal: void 0,
+      characterCountModified: void 0,
+      disjointReplacements: void 0,
+      sameShapeReplacements: void 0,
+      longDistanceHintVisible: void 0,
+      longDistanceHintDistance: void 0,
+      notShownReason: void 0,
+      renameCreated: false,
+      renameDuration: void 0,
+      renameTimedOut: false,
+      renameDroppedOtherEdits: void 0,
+      renameDroppedRenameEdits: void 0,
+      performanceMarkers: void 0,
+      editKind: void 0
+    };
+    const dataChannel = this._instantiationService.createInstance(DataChannelForwardingTelemetryService);
+    sendInlineCompletionsEndOfLifeTelemetry(dataChannel, emptyEndOfLifeEvent);
+  }
+  clearSuggestWidgetInlineCompletions(tx) {
+    if (this._updateOperation.value?.request.context.selectedSuggestionInfo) {
+      this._updateOperation.clear();
+    }
+  }
+  cancelUpdate() {
+    this._updateOperation.clear();
+  }
+};
+InlineCompletionsSource = InlineCompletionsSource_1 = __decorate([
+  __param(4, ILanguageConfigurationService),
+  __param(5, ILogService),
+  __param(6, IConfigurationService),
+  __param(7, IInstantiationService),
+  __param(8, IContextKeyService),
+  __param(9, ITextModelService)
+], InlineCompletionsSource);
+class UpdateRequest {
+  static {
+    __name(this, "UpdateRequest");
+  }
+  constructor(position, context, versionId, providers) {
+    this.position = position;
+    this.context = context;
+    this.versionId = versionId;
+    this.providers = providers;
+  }
+  satisfies(other) {
+    return this.position.equals(other.position) && equalsIfDefined(this.context.selectedSuggestionInfo, other.context.selectedSuggestionInfo, thisEqualsC()) && (other.context.triggerKind === InlineCompletionTriggerKind.Automatic || this.context.triggerKind === InlineCompletionTriggerKind.Explicit) && this.versionId === other.versionId && isSubset(other.providers, this.providers);
+  }
+  get isExplicitRequest() {
+    return this.context.triggerKind === InlineCompletionTriggerKind.Explicit;
+  }
+}
+class RequestResponseData {
+  static {
+    __name(this, "RequestResponseData");
+  }
+  constructor(context, requestInfo, providers) {
+    this.context = context;
+    this.requestInfo = requestInfo;
+    this.providers = providers;
+    this.hasProducedSuggestion = false;
+  }
+  setRequestUuid(uuid) {
+    this.requestUuid = uuid;
+  }
+  setNoSuggestionReasonIfNotSet(type) {
+    this.noSuggestionReason ??= type;
+  }
+  setHasProducedSuggestion() {
+    this.hasProducedSuggestion = true;
+  }
+}
+function isSubset(set1, set2) {
+  return [...set1].every((item) => set2.has(item));
+}
+__name(isSubset, "isSubset");
+class UpdateOperation {
+  static {
+    __name(this, "UpdateOperation");
+  }
+  constructor(request, cancellationTokenSource, promise) {
+    this.request = request;
+    this.cancellationTokenSource = cancellationTokenSource;
+    this.promise = promise;
+  }
+  dispose() {
+    this.cancellationTokenSource.cancel();
+  }
+}
+class InlineCompletionsState extends Disposable {
+  static {
+    __name(this, "InlineCompletionsState");
+  }
+  static createEmpty() {
+    return new InlineCompletionsState([], void 0);
+  }
+  constructor(inlineCompletions, request) {
+    super();
+    this.inlineCompletions = inlineCompletions;
+    this.request = request;
+    for (const inlineCompletion of this.inlineCompletions) {
+      inlineCompletion.addRef();
+    }
+    this._register({
+      dispose: /* @__PURE__ */ __name(() => {
+        for (const inlineCompletion of this.inlineCompletions) {
+          inlineCompletion.removeRef();
+        }
+      }, "dispose")
+    });
+  }
+  _findById(id) {
+    return this.inlineCompletions.find((i) => i.identity === id);
+  }
+  _findByHash(hash) {
+    return this.inlineCompletions.find((i) => i.hash === hash);
+  }
+  /**
+   * Applies the edit on the state.
+  */
+  createStateWithAppliedEdit(edit, textModel) {
+    const newInlineCompletions = this.inlineCompletions.map((i) => i.withEdit(edit, textModel)).filter(isDefined);
+    return new InlineCompletionsState(newInlineCompletions, this.request);
+  }
+  createStateWithAppliedResults(updatedSuggestions, request, textModel, cursorPosition, itemIdToPreserveAtTop) {
+    let itemToPreserve = void 0;
+    if (itemIdToPreserveAtTop) {
+      const itemToPreserveCandidate = this._findById(itemIdToPreserveAtTop);
+      if (itemToPreserveCandidate && itemToPreserveCandidate.canBeReused(textModel, request.position)) {
+        itemToPreserve = itemToPreserveCandidate;
+        const updatedItemToPreserve = updatedSuggestions.find((i) => i.hash === itemToPreserveCandidate.hash);
+        if (updatedItemToPreserve) {
+          updatedSuggestions = moveToFront(updatedItemToPreserve, updatedSuggestions);
+        } else {
+          updatedSuggestions = [itemToPreserveCandidate, ...updatedSuggestions];
+        }
+      }
+    }
+    const preferInlineCompletions = itemToPreserve ? !itemToPreserve.isInlineEdit : updatedSuggestions.some((i) => !i.isInlineEdit && i.isVisible(textModel, cursorPosition));
+    let updatedItems = [];
+    for (const i of updatedSuggestions) {
+      const oldItem = this._findByHash(i.hash);
+      let item;
+      if (oldItem && oldItem !== i) {
+        item = i.withIdentity(oldItem.identity);
+        i.setIsPreceeded(oldItem);
+        oldItem.setEndOfLifeReason({ kind: InlineCompletionEndOfLifeReasonKind.Ignored, userTypingDisagreed: false, supersededBy: i.getSourceCompletion() });
+      } else {
+        item = i;
+      }
+      if (preferInlineCompletions !== item.isInlineEdit) {
+        updatedItems.push(item);
+      }
+    }
+    updatedItems.sort(compareBy((i) => i.showInlineEditMenu, booleanComparator));
+    updatedItems = distinctByKey(updatedItems, (i) => i.semanticId);
+    return new InlineCompletionsState(updatedItems, request);
+  }
+  clone() {
+    return new InlineCompletionsState(this.inlineCompletions, this.request);
+  }
+}
+function distinctByKey(items, key) {
+  const seen = /* @__PURE__ */ new Set();
+  return items.filter((item) => {
+    const k = key(item);
+    if (seen.has(k)) {
+      return false;
+    }
+    seen.add(k);
+    return true;
+  });
+}
+__name(distinctByKey, "distinctByKey");
+function moveToFront(item, items) {
+  const index = items.indexOf(item);
+  if (index > -1) {
+    return [item, ...items.slice(0, index), ...items.slice(index + 1)];
+  }
+  return items;
+}
+__name(moveToFront, "moveToFront");
+export {
+  InlineCompletionsSource,
+  InlineCompletionsState
+};
+//# sourceMappingURL=inlineCompletionsSource.js.map

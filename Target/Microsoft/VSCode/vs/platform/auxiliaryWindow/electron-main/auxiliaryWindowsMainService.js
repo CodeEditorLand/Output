@@ -1,1 +1,156 @@
-import{BrowserWindow as m,app as p}from"electron";import{$xf as d,Event as c}from"../../../base/common/event.js";import{$Ed as b,$Dd as l,$Cd as y}from"../../../base/common/lifecycle.js";import{$th as g}from"../../../base/common/network.js";import{$wn as v}from"../../../base/parts/ipc/electron-main/ipcMain.js";import{$ow as x}from"./auxiliaryWindow.js";import{$Mj as W}from"../../instantiation/common/instantiation.js";import{$yo as C}from"../../log/common/log.js";import{$Zu as D}from"../../window/electron-main/window.js";import{WindowStateValidator as $,$wv as _,$xv as j}from"../../windows/electron-main/windows.js";var f=function(a,i,e,t){var o=arguments.length,n=o<3?i:t===null?t=Object.getOwnPropertyDescriptor(i,e):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(a,i,e,t);else for(var r=a.length-1;r>=0;r--)(s=a[r])&&(n=(o<3?s(n):o>3?s(i,e,n):s(i,e))||n);return o>3&&n&&Object.defineProperty(i,e,n),n},h=function(a,i){return function(e,t){i(e,t,a)}};let u=class extends b{constructor(i,e){super(),this.j=i,this.m=e,this.a=this.D(new d),this.onDidMaximizeWindow=this.a.event,this.b=this.D(new d),this.onDidUnmaximizeWindow=this.b.event,this.c=this.D(new d),this.onDidChangeFullScreen=this.c.event,this.f=this.D(new d),this.onDidChangeAlwaysOnTop=this.f.event,this.g=this.D(new d),this.onDidTriggerSystemContextMenu=this.g.event,this.h=new Map,this.n()}n(){p.on("browser-window-created",(i,e)=>{const t=this.getWindowByWebContents(e.webContents);if(t)this.m.trace('[aux window] app.on("browser-window-created"): Trying to claim auxiliary window'),t.tryClaimWindow();else{const o=new l;o.add(c.fromNodeEventEmitter(e.webContents,"did-create-window",(n,s)=>({browserWindow:n,details:s}))(({browserWindow:n,details:s})=>{const r=this.getWindowByWebContents(n.webContents);r&&(this.m.trace('[aux window] window.on("did-create-window"): Trying to claim auxiliary window'),r.tryClaimWindow(s.options))})),o.add(c.fromNodeEventEmitter(e,"closed")(()=>o.dispose()))}}),v.handle("vscode:registerAuxiliaryWindow",async(i,e)=>{const t=this.getWindowByWebContents(i.sender);return t&&(this.m.trace("[aux window] vscode:registerAuxiliaryWindow: Registering auxiliary window to main window"),t.parentId=e),i.sender.id})}createWindow(i){const{state:e,overrides:t}=this.q(i);return this.j.invokeFunction(_,e,t,{preload:g.asFileUri("vs/base/parts/sandbox/electron-browser/preload-aux.js").fsPath})}q(i){const e={},t={},o=i.features.split(",");for(const s of o){const[r,w]=s.split("=");switch(r){case"width":e.width=parseInt(w,10);break;case"height":e.height=parseInt(w,10);break;case"left":e.x=parseInt(w,10);break;case"top":e.y=parseInt(w,10);break;case"window-maximized":e.mode=0;break;case"window-fullscreen":e.mode=3;break;case"window-disable-fullscreen":t.disableFullscreen=!0;break;case"window-native-titlebar":t.forceNativeTitlebar=!0;break;case"window-always-on-top":t.alwaysOnTop=!0;break}}const n=$.validateWindowState(this.m,e)??D();return this.m.trace("[aux window] using window state",n),{state:n,overrides:t}}registerWindow(i){const e=new l,t=this.j.createInstance(x,i);this.h.set(t.id,t),e.add(y(()=>this.h.delete(t.id))),e.add(t.onDidMaximize(()=>this.a.fire(t))),e.add(t.onDidUnmaximize(()=>this.b.fire(t))),e.add(t.onDidEnterFullScreen(()=>this.c.fire({window:t,fullscreen:!0}))),e.add(t.onDidLeaveFullScreen(()=>this.c.fire({window:t,fullscreen:!1}))),e.add(t.onDidChangeAlwaysOnTop(o=>this.f.fire({window:t,alwaysOnTop:o}))),e.add(t.onDidTriggerSystemContextMenu(({x:o,y:n})=>this.g.fire({window:t,x:o,y:n}))),c.once(t.onDidClose)(()=>e.dispose())}getWindowByWebContents(i){const e=this.h.get(i.id);return e?.matches(i)?e:void 0}getFocusedWindow(){const i=m.getFocusedWindow();if(i)return this.getWindowByWebContents(i.webContents)}getLastActiveWindow(){return j(Array.from(this.h.values()))}getWindows(){return Array.from(this.h.values())}};u=f([h(0,W),h(1,C)],u);export{u as $CB};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { BrowserWindow, app } from "electron";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { FileAccess } from "../../../base/common/network.js";
+import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
+import { AuxiliaryWindow } from "./auxiliaryWindow.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { defaultAuxWindowState } from "../../window/electron-main/window.js";
+import { WindowStateValidator, defaultBrowserWindowOptions, getLastFocused } from "../../windows/electron-main/windows.js";
+let AuxiliaryWindowsMainService = class AuxiliaryWindowsMainService2 extends Disposable {
+  static {
+    __name(this, "AuxiliaryWindowsMainService");
+  }
+  constructor(instantiationService, logService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.logService = logService;
+    this._onDidMaximizeWindow = this._register(new Emitter());
+    this.onDidMaximizeWindow = this._onDidMaximizeWindow.event;
+    this._onDidUnmaximizeWindow = this._register(new Emitter());
+    this.onDidUnmaximizeWindow = this._onDidUnmaximizeWindow.event;
+    this._onDidChangeFullScreen = this._register(new Emitter());
+    this.onDidChangeFullScreen = this._onDidChangeFullScreen.event;
+    this._onDidChangeAlwaysOnTop = this._register(new Emitter());
+    this.onDidChangeAlwaysOnTop = this._onDidChangeAlwaysOnTop.event;
+    this._onDidTriggerSystemContextMenu = this._register(new Emitter());
+    this.onDidTriggerSystemContextMenu = this._onDidTriggerSystemContextMenu.event;
+    this.windows = /* @__PURE__ */ new Map();
+    this.registerListeners();
+  }
+  registerListeners() {
+    app.on("browser-window-created", (_event, browserWindow) => {
+      const auxiliaryWindow = this.getWindowByWebContents(browserWindow.webContents);
+      if (auxiliaryWindow) {
+        this.logService.trace('[aux window] app.on("browser-window-created"): Trying to claim auxiliary window');
+        auxiliaryWindow.tryClaimWindow();
+      } else {
+        const disposables = new DisposableStore();
+        disposables.add(Event.fromNodeEventEmitter(browserWindow.webContents, "did-create-window", (browserWindow2, details) => ({ browserWindow: browserWindow2, details }))(({ browserWindow: browserWindow2, details }) => {
+          const auxiliaryWindow2 = this.getWindowByWebContents(browserWindow2.webContents);
+          if (auxiliaryWindow2) {
+            this.logService.trace('[aux window] window.on("did-create-window"): Trying to claim auxiliary window');
+            auxiliaryWindow2.tryClaimWindow(details.options);
+          }
+        }));
+        disposables.add(Event.fromNodeEventEmitter(browserWindow, "closed")(() => disposables.dispose()));
+      }
+    });
+    validatedIpcMain.handle("vscode:registerAuxiliaryWindow", async (event, mainWindowId) => {
+      const auxiliaryWindow = this.getWindowByWebContents(event.sender);
+      if (auxiliaryWindow) {
+        this.logService.trace("[aux window] vscode:registerAuxiliaryWindow: Registering auxiliary window to main window");
+        auxiliaryWindow.parentId = mainWindowId;
+      }
+      return event.sender.id;
+    });
+  }
+  createWindow(details) {
+    const { state, overrides } = this.computeWindowStateAndOverrides(details);
+    return this.instantiationService.invokeFunction(defaultBrowserWindowOptions, state, overrides, {
+      preload: FileAccess.asFileUri("vs/base/parts/sandbox/electron-browser/preload-aux.js").fsPath
+    });
+  }
+  computeWindowStateAndOverrides(details) {
+    const windowState = {};
+    const overrides = {};
+    const features = details.features.split(",");
+    for (const feature of features) {
+      const [key, value] = feature.split("=");
+      switch (key) {
+        case "width":
+          windowState.width = parseInt(value, 10);
+          break;
+        case "height":
+          windowState.height = parseInt(value, 10);
+          break;
+        case "left":
+          windowState.x = parseInt(value, 10);
+          break;
+        case "top":
+          windowState.y = parseInt(value, 10);
+          break;
+        case "window-maximized":
+          windowState.mode = 0;
+          break;
+        case "window-fullscreen":
+          windowState.mode = 3;
+          break;
+        case "window-disable-fullscreen":
+          overrides.disableFullscreen = true;
+          break;
+        case "window-native-titlebar":
+          overrides.forceNativeTitlebar = true;
+          break;
+        case "window-always-on-top":
+          overrides.alwaysOnTop = true;
+          break;
+      }
+    }
+    const state = WindowStateValidator.validateWindowState(this.logService, windowState) ?? defaultAuxWindowState();
+    this.logService.trace("[aux window] using window state", state);
+    return { state, overrides };
+  }
+  registerWindow(webContents) {
+    const disposables = new DisposableStore();
+    const auxiliaryWindow = this.instantiationService.createInstance(AuxiliaryWindow, webContents);
+    this.windows.set(auxiliaryWindow.id, auxiliaryWindow);
+    disposables.add(toDisposable(() => this.windows.delete(auxiliaryWindow.id)));
+    disposables.add(auxiliaryWindow.onDidMaximize(() => this._onDidMaximizeWindow.fire(auxiliaryWindow)));
+    disposables.add(auxiliaryWindow.onDidUnmaximize(() => this._onDidUnmaximizeWindow.fire(auxiliaryWindow)));
+    disposables.add(auxiliaryWindow.onDidEnterFullScreen(() => this._onDidChangeFullScreen.fire({ window: auxiliaryWindow, fullscreen: true })));
+    disposables.add(auxiliaryWindow.onDidLeaveFullScreen(() => this._onDidChangeFullScreen.fire({ window: auxiliaryWindow, fullscreen: false })));
+    disposables.add(auxiliaryWindow.onDidChangeAlwaysOnTop((alwaysOnTop) => this._onDidChangeAlwaysOnTop.fire({ window: auxiliaryWindow, alwaysOnTop })));
+    disposables.add(auxiliaryWindow.onDidTriggerSystemContextMenu(({ x, y }) => this._onDidTriggerSystemContextMenu.fire({ window: auxiliaryWindow, x, y })));
+    Event.once(auxiliaryWindow.onDidClose)(() => disposables.dispose());
+  }
+  getWindowByWebContents(webContents) {
+    const window = this.windows.get(webContents.id);
+    return window?.matches(webContents) ? window : void 0;
+  }
+  getFocusedWindow() {
+    const window = BrowserWindow.getFocusedWindow();
+    if (window) {
+      return this.getWindowByWebContents(window.webContents);
+    }
+    return void 0;
+  }
+  getLastActiveWindow() {
+    return getLastFocused(Array.from(this.windows.values()));
+  }
+  getWindows() {
+    return Array.from(this.windows.values());
+  }
+};
+AuxiliaryWindowsMainService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, ILogService)
+], AuxiliaryWindowsMainService);
+export {
+  AuxiliaryWindowsMainService
+};
+//# sourceMappingURL=auxiliaryWindowsMainService.js.map

@@ -1,1 +1,44 @@
-import{strictEquals as o,BugIndicatingError as c}from"../commonFacade/deps.js";import{$Xe as m}from"../transaction.js";import{$6d as d}from"../debugName.js";import{$Pe as s}from"../observables/derivedImpl.js";import{DebugLocation as h}from"../debugLocation.js";function C(a,e){return p(a,e)}function p(a,e){let r,t=!1;const u=new s(new d(a,void 0,e.update),(i,l)=>{t||(r=e.initial instanceof Function?e.initial():e.initial,t=!0);const n=e.update(i,r,l);return r=n,n},e.changeTracker,()=>{t&&(e.disposeFinal?.(r),t=!1)},e.equalityComparer??o,(i,l,n)=>{if(!t)throw new c("Can only set when there is a listener! This is to prevent leaks.");m(l,f=>{r=i,u.setValue(i,f,n)})},h.ofCaller());return u}export{C as $fbb,p as $gbb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { strictEquals, BugIndicatingError } from "../commonFacade/deps.js";
+import { subtransaction } from "../transaction.js";
+import { DebugNameData } from "../debugName.js";
+import { DerivedWithSetter } from "../observables/derivedImpl.js";
+import { DebugLocation } from "../debugLocation.js";
+function observableReducer(owner, options) {
+  return observableReducerSettable(owner, options);
+}
+__name(observableReducer, "observableReducer");
+function observableReducerSettable(owner, options) {
+  let prevValue = void 0;
+  let hasValue = false;
+  const d = new DerivedWithSetter(new DebugNameData(owner, void 0, options.update), (reader, changeSummary) => {
+    if (!hasValue) {
+      prevValue = options.initial instanceof Function ? options.initial() : options.initial;
+      hasValue = true;
+    }
+    const newValue = options.update(reader, prevValue, changeSummary);
+    prevValue = newValue;
+    return newValue;
+  }, options.changeTracker, () => {
+    if (hasValue) {
+      options.disposeFinal?.(prevValue);
+      hasValue = false;
+    }
+  }, options.equalityComparer ?? strictEquals, (value, tx, change) => {
+    if (!hasValue) {
+      throw new BugIndicatingError("Can only set when there is a listener! This is to prevent leaks.");
+    }
+    subtransaction(tx, (tx2) => {
+      prevValue = value;
+      d.setValue(value, tx2, change);
+    });
+  }, DebugLocation.ofCaller());
+  return d;
+}
+__name(observableReducerSettable, "observableReducerSettable");
+export {
+  observableReducer,
+  observableReducerSettable
+};
+//# sourceMappingURL=reducer.js.map

@@ -1,1 +1,6 @@
-import{$Nj as e}from"../../instantiation/common/instantiation.js";const r=e("imageResizeMainService");export{r as $Erc};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IImageResizeService = createDecorator("imageResizeMainService");
+export {
+  IImageResizeService
+};
+//# sourceMappingURL=imageResizeService.js.map

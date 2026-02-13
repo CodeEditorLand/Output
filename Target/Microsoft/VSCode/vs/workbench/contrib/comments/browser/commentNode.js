@@ -1,1 +1,651 @@
-import*as a from"../../../../nls.js";import*as n from"../../../../base/browser/dom.js";import*as p from"../../../../editor/common/languages.js";import{$w0 as z}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$Fm as S,$Hm as q,$Gm as F}from"../../../../base/common/actions.js";import{$Ed as _,$Dd as $,$Fd as b}from"../../../../base/common/lifecycle.js";import{URI as u}from"../../../../base/common/uri.js";import{$Ukb as Y}from"../../../../platform/markdown/browser/markdownRenderer.js";import{$Mj as O}from"../../../../platform/instantiation/common/instantiation.js";import{$NHb as U}from"./commentService.js";import{$eIb as B,$gIb as y,$hIb as k}from"./simpleCommentEditor.js";import{$xf as X}from"../../../../base/common/event.js";import{$pH as Q}from"../../../../platform/notification/common/notification.js";import{$0_ as J}from"../../../../base/browser/ui/toolbar/toolbar.js";import{$ijb as K}from"../../../../platform/contextview/browser/contextView.js";import{$kIb as l,$mIb as v,$lIb as Z}from"./reactionsAction.js";import{$uL as T,$tL as G,$qL as tt}from"../../../../platform/actions/common/actions.js";import{$$jb as it,$akb as et}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$ro as st}from"../../../../platform/contextkey/common/contextkey.js";import{$PHb as I}from"./commentFormActions.js";import{$X_ as w}from"../../../../base/browser/ui/mouseCursor/mouseCursor.js";import{$M$ as ot}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$D_ as f}from"../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import{$bk as C}from"../../../../base/common/codicons.js";import{ThemeIcon as A}from"../../../../base/common/themables.js";import{$nIb as nt}from"./timestamp.js";import{$0l as ht}from"../../../../platform/configuration/common/configuration.js";import{$rD as rt}from"../../../../base/common/scrollable.js";import{$k0 as mt}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$30 as ct}from"../../../../base/browser/event.js";import{CommentContextKeys as at}from"../common/commentContextKeys.js";import{$th as lt,Schemas as dt}from"../../../../base/common/network.js";import{$KHb as ut}from"../common/commentsConfiguration.js";import{$h8 as bt}from"../../../../base/browser/mouseEvent.js";import{$fy as ft}from"../../../../platform/keybinding/common/keybinding.js";import{$jkb as gt}from"../../../../platform/hover/browser/hover.js";import{$5H as pt}from"../../../../editor/common/services/resolverService.js";import{$$D as $t}from"../../../../editor/common/core/position.js";var j=function(c,t,i,o){var e=arguments.length,s=e<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,i):o,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(c,t,i,o);else for(var r=c.length-1;r>=0;r--)(h=c[r])&&(s=(e<3?h(s):e>3?h(t,i,s):h(t,i))||s);return e>3&&s&&Object.defineProperty(t,i,s),s},m=function(c,t){return function(i,o){t(i,o,c)}};class yt extends F{async u(t,i){await t.run(...i)}}let D=class extends _{get domNode(){return this.b}constructor(t,i,o,e,s,h,r,d,x,P,E,V,L,g,M,R,N,H){super(),this.U=t,this.W=i,this.comment=o,this.X=e,this.Y=s,this.Z=h,this.ab=r,this.bb=d,this.db=x,this.eb=P,this.fb=E,this.gb=V,this.hb=g,this.ib=M,this.jb=R,this.kb=N,this.lb=H,this.h=this.D(new b),this.n=null,this.q=null,this.t=this.D(new b),this.u=this.D(new $),this.y=null,this.z=null,this.C=B,this.O=this.D(new yt),this.P=this.D(new b),this.Q=null,this.R=null,this.S=new X,this.isEditing=!1,this.Cb=this.D(new $),this.b=n.$("div.review-comment"),this.I=this.D(L.createScoped(this.b)),this.J=at.commentContext.bindTo(this.I),this.comment.contextValue&&this.J.set(this.comment.contextValue),this.L=this.eb.getCommentMenus(this.Y),this.b.tabIndex=-1,this.f=n.$y9(this.b,n.$("div.avatar-container")),this.pb(this.comment.userIconPath),this.r=n.$y9(this.b,n.$(".review-comment-contents")),this.sb(this.r),this.c=document.createElement("div"),this.c.classList.add("comment-body",w),g.getValue(ut)?.maxHeight!==!1&&this.c.classList.add("comment-body-max-height"),this.nb(this.r,this.c),this.ob(this.comment.body),this.yb(this.r),this.b.setAttribute("aria-label",`${o.userName}, ${this.commentBodyValue}`),this.b.setAttribute("role","treeitem"),this.m=null,this.D(n.$u8(this.b,n.$r9.CLICK,()=>this.isEditing||this.S.fire(this))),this.D(n.$u8(this.b,n.$r9.CONTEXT_MENU,W=>this.Fb(W))),e&&this.switchToEditMode(),this.mb()}mb(){this.D(n.$u8(this.b,n.$r9.FOCUS_IN,()=>{this.eb.setActiveCommentAndThread(this.Y,{thread:this.W,comment:this.comment})},!0))}nb(t,i){this.M=this.D(new rt({forceIntegerValues:!0,smoothScrollDuration:125,scheduleAtNextAnimationFrame:e=>n.$E8(n.getWindow(t),e)})),this.N=this.D(new mt(i,{horizontal:3,vertical:3},this.M)),this.D(this.N.onScroll(e=>{e.scrollLeftChanged&&(i.scrollLeft=e.scrollLeft),e.scrollTopChanged&&(i.scrollTop=e.scrollTop)}));const o=this.D(new ct(i,"scroll")).event;this.D(o(e=>{const s=this.N.getScrollPosition(),h=Math.abs(i.scrollLeft-s.scrollLeft)<=1?void 0:i.scrollLeft,r=Math.abs(i.scrollTop-s.scrollTop)<=1?void 0:i.scrollTop;(h!==void 0||r!==void 0)&&this.N.setScrollPosition({scrollLeft:h,scrollTop:r})})),t.appendChild(this.N.getDomNode())}ob(t){this.c.innerText="",this.h.clear(),this.j=void 0,typeof t=="string"?(this.j=n.$y9(this.c,n.$(".comment-body-plainstring")),this.j.innerText=t):(this.h.value=this.lb.render(t,this.bb),this.c.appendChild(this.h.value.element))}pb(t){if(this.f.textContent="",t){const i=n.$y9(this.f,n.$("img.avatar"));i.src=lt.uriToBrowserUri(u.revive(t)).toString(!0),i.onerror=o=>i.remove()}}get onDidClick(){return this.S.event}qb(t){this.G=n.$y9(t,n.$("span.timestamp-container")),this.rb(this.comment.timestamp)}rb(t){if(!this.G)return;const i=t!==void 0?new Date(t):void 0;i?this.H?this.H.setTimestamp(i):(this.H=new nt(this.hb,this.ib,this.G,i),this.D(this.H)):this.H?.dispose()}sb(t){const i=n.$y9(t,n.$(`div.comment-title.${w}`)),o=n.$y9(i,n.$("comment-header-info")),e=n.$y9(o,n.$("strong.author"));e.innerText=this.comment.userName,this.qb(o),this.F=n.$y9(o,n.$("span.isPending")),this.comment.label?this.F.innerText=this.comment.label:this.F.innerText="",this.s=n.$y9(i,n.$(".comment-actions")),this.wb()}tb(t){const i=t.getActions({shouldForwardArgs:!0}),s={primary:[],secondary:[]};return vt(i,s,!1,h=>/^inline/.test(h)),s}get ub(){return[{thread:this.W,commentUniqueId:this.comment.uniqueIdInThread,$mid:10},{commentControlHandle:this.W.controllerHandle,commentThreadHandle:this.W.commentThreadHandle,$mid:7}]}vb(){this.P.value=new J(this.s,this.gb,{actionViewItemProvider:(t,i)=>t.id===l.ID?new f(t,t.menuActions,this.gb,{...i,actionViewItemProvider:(o,e)=>this.actionViewItemProvider(o,e),classNames:["toolbar-toggle-pickReactions",...A.asClassNameArray(C.reactions)],anchorAlignmentProvider:()=>1}):this.actionViewItemProvider(t,i),orientation:0}),this.P.value.context=this.ub,this.P.value.actionRunner=this.O}wb(){const t=[],i=this.L.getCommentTitleActions(this.comment,this.I);this.D(i),this.D(i.onDidChange(s=>{const{primary:h,secondary:r}=this.tb(i);!this.P&&(h.length||r.length)&&this.vb(),this.P.value.setActions(h,r)}));const{primary:o,secondary:e}=this.tb(i);t.push(...o),(t.length||e.length)&&(this.vb(),this.P.value.setActions(t,e))}actionViewItemProvider(t,i){return t.id===l.ID?i={label:!1,icon:!0}:i={label:!1,icon:!0},t.id===v.ID?new Z(t):t instanceof T?this.db.createInstance(it,t,{hoverDelegate:i.hoverDelegate}):t instanceof G?this.db.createInstance(et,t,i):new ot({},t,i)}async submitComment(){this.y&&this.Q&&(await this.Q.triggerDefaultAction(),this.X=void 0)}xb(t){const i=this.u.add(new l(()=>{e?.show()},a.localize(7397,null)));let o=[];t&&t.length&&(o=t.map(s=>this.u.add(new S(`reaction.command.${s.label}`,`${s.label}`,"",!0,async()=>{try{await this.eb.toggleReaction(this.Y,this.Z,this.W,this.comment,s)}catch(h){const r=h.message?a.localize(7398,null,h.message):a.localize(7399,null);this.fb.error(r)}})))),i.menuActions=o;const e=this.u.add(new f(i,i.menuActions,this.gb,{actionViewItemProvider:(s,h)=>s.id===l.ID?e:this.actionViewItemProvider(s,h),classNames:"toolbar-toggle-pickReactions",anchorAlignmentProvider:()=>1}));return i}yb(t){this.w?.remove(),this.t.clear(),this.u.clear();const i=this.eb.hasReactionHandler(this.Y),o=this.comment.commentReactions?.filter(e=>!!e.count)||[];if(!(o.length===0&&!i)&&(this.w=n.$y9(t,n.$("div.comment-reactions")),this.t.value=new z(this.w,{actionViewItemProvider:(e,s)=>e.id===l.ID?new f(e,e.menuActions,this.gb,{actionViewItemProvider:(h,r)=>this.actionViewItemProvider(h,r),classNames:["toolbar-toggle-pickReactions",...A.asClassNameArray(C.reactions)],anchorAlignmentProvider:()=>1}):this.actionViewItemProvider(e,s)}),o.map(e=>{const s=this.u.add(new v(`reaction.${e.label}`,`${e.label}`,e.hasReacted&&(e.canEdit||i)?"active":"",e.canEdit||i,async()=>{try{await this.eb.toggleReaction(this.Y,this.Z,this.W,this.comment,e)}catch(h){let r;e.hasReacted?r=h.message?a.localize(7400,null,h.message):a.localize(7401,null):r=h.message?a.localize(7402,null,h.message):a.localize(7403,null),this.fb.error(r)}},e.reactors,e.iconPath,e.count));this.t.value?.push(s,{label:!0,icon:!0})}),i)){const e=this.xb(this.comment.commentReactions||[]);this.t.value?.push(e,{label:!1,icon:!0})}}get commentBodyValue(){return typeof this.comment.body=="string"?this.comment.body:this.comment.body.value}async zb(t){this.Cb.clear();const i=n.$y9(t,n.$(".edit-textarea"));this.y=this.db.createInstance(y,i,y.getEditorOptions(this.hb),this.I,this.ab),this.Cb.add(this.y);const o=u.from({scheme:dt.commentsInput,path:`/commentinput-${this.comment.uniqueIdInThread}-${Date.now()}.md`}),e=await this.kb.createModelReference(o);if(this.z=e,this.Cb.add(this.z),this.y.setModel(this.z.object.textEditorModel),this.y.setValue(this.X?.body??this.commentBodyValue),this.X)this.y.setPosition(this.X.cursor);else{const h=this.z.object.textEditorModel.getLineCount(),r=this.z.object.textEditorModel.getLineLength(h)+1;this.y.setPosition(new $t(h,r))}this.X=void 0,this.y.layout({width:i.clientWidth-14,height:this.C}),this.y.focus(),n.$E8(n.getWindow(t),()=>{this.y.layout({width:i.clientWidth-14,height:this.C}),this.y.focus()});const s=this.W;s.input={uri:this.y.getModel().uri,value:this.commentBodyValue},this.eb.setActiveEditingCommentThread(s),this.eb.setActiveCommentAndThread(this.Y,{thread:s,comment:this.comment}),this.Cb.add(this.y.onDidFocusEditorWidget(()=>{s.input={uri:this.y.getModel().uri,value:this.commentBodyValue},this.eb.setActiveEditingCommentThread(s),this.eb.setActiveCommentAndThread(this.Y,{thread:s,comment:this.comment})})),this.Cb.add(this.y.onDidChangeModelContent(h=>{if(s.input&&this.y&&this.y.getModel().uri===s.input.uri){const r=this.y.getValue();if(r!==s.input.value){const d=s.input;d.value=r,s.input=d,this.eb.setActiveEditingCommentThread(s),this.eb.setActiveCommentAndThread(this.Y,{thread:s,comment:this.comment})}}})),this.Ab(),this.Cb.add(this.z.object.textEditorModel.onDidChangeContent(()=>{this.y&&this.Ab()&&(this.y.layout({height:this.C,width:this.y.getLayoutInfo().width}),this.y.render(!0))}))}Ab(){if(this.y){const t=k(this.U,this.y,this.C);if(t!==this.C)return this.C=t,!0}return!1}getPendingEdit(){const t=this.y?.getModel();if(this.y&&t&&t.getValueLength()>0)return{body:t.getValue(),cursor:this.y.getPosition()}}Bb(){this.isEditing=!1,this.n&&(this.n.enabled=!0),this.c.classList.remove("hidden"),this.Cb.clear(),this.y=null,this.q.remove()}layout(t){const i=t!==void 0?t-72:this.y?.getLayoutInfo().width??0;this.y?.layout({width:i,height:this.C});const o=this.c.scrollWidth,e=n.$V8(this.c),s=this.c.scrollHeight,h=n.$X8(this.c)+4;this.N.setScrollDimensions({width:e,scrollWidth:o,height:h,scrollHeight:s})}async switchToEditMode(){if(this.isEditing)return;this.isEditing=!0,this.c.classList.add("hidden"),this.q=n.$y9(this.r,n.$(".edit-container")),await this.zb(this.q);const t=n.$y9(this.q,n.$(".form-actions")),i=n.$y9(t,n.$(".other-actions"));this.Db(i);const o=n.$y9(t,n.$(".editor-actions"));this.Eb(o)}Db(t){const o=this.eb.getCommentMenus(this.Y).getCommentActions(this.comment,this.I);this.Cb.add(o),this.Cb.add(o.onDidChange(()=>{this.Q?.setActions(o)})),this.Q=new I(this.jb,this.I,this.gb,t,e=>{const s=this.y.getValue();e.run({thread:this.W,commentUniqueId:this.comment.uniqueIdInThread,text:s,$mid:11}),this.Bb()}),this.Cb.add(this.Q),this.Q.setActions(o)}Eb(t){const o=this.eb.getCommentMenus(this.Y).getCommentEditorActions(this.I);this.Cb.add(o),this.Cb.add(o.onDidChange(()=>{this.R?.setActions(o,!0)})),this.R=new I(this.jb,this.I,this.gb,t,e=>{const s=this.y.getValue();e.run({thread:this.W,commentUniqueId:this.comment.uniqueIdInThread,text:s,$mid:11}),this.y?.focus()}),this.Cb.add(this.R),this.R.setActions(o,!0)}setFocus(t,i=!1){t?(this.b.focus(),this.s.classList.add("tabfocused"),this.b.tabIndex=0,this.comment.mode===p.CommentMode.Editing&&this.y?.focus()):(this.s.classList.contains("tabfocused")&&!this.s.classList.contains("mouseover")&&(this.b.tabIndex=-1),this.s.classList.remove("tabfocused"))}async update(t){t.body!==this.comment.body&&this.ob(t.body),this.comment.userIconPath&&t.userIconPath&&u.from(this.comment.userIconPath).toString()!==u.from(t.userIconPath).toString()&&this.pb(t.userIconPath);const i=t.mode!==void 0&&t.mode!==this.comment.mode;this.comment=t,i&&(t.mode===p.CommentMode.Editing?await this.switchToEditMode():this.Bb()),t.label?this.F.innerText=t.label:this.F.innerText="",this.yb(this.r),this.comment.contextValue?this.J.set(this.comment.contextValue):this.J.reset(),this.comment.timestamp&&this.rb(this.comment.timestamp)}Fb(t){const i=new bt(n.getWindow(this.b),t);this.gb.showContextMenu({getAnchor:()=>i,menuId:tt.CommentThreadCommentContext,menuActionOptions:{shouldForwardArgs:!0},contextKeyService:this.I,actionRunner:this.O,getActionsContext:()=>this.ub})}focus(){this.domNode.focus(),this.m||(this.domNode.classList.add("focus"),this.m=setTimeout(()=>{this.domNode.classList.remove("focus")},3e3))}dispose(){super.dispose()}};D=j([m(8,O),m(9,U),m(10,Q),m(11,K),m(12,st),m(13,ht),m(14,gt),m(15,ft),m(16,pt),m(17,Y)],D);function vt(c,t,i,o=e=>e==="navigation"){for(const e of c){let[s,h]=e;if(i&&(h=h.map(r=>r instanceof T&&r.alt?r.alt:r)),o(s))(Array.isArray(t)?t:t.primary).unshift(...h);else{const r=Array.isArray(t)?t:t.secondary;r.length>0&&r.push(new q),r.push(...h)}}}export{D as $oIb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as nls from "../../../../nls.js";
+import * as dom from "../../../../base/browser/dom.js";
+import * as languages from "../../../../editor/common/languages.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Action, Separator, ActionRunner } from "../../../../base/common/actions.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ICommentService } from "./commentService.js";
+import { MIN_EDITOR_HEIGHT, SimpleCommentEditor, calculateEditorHeight } from "./simpleCommentEditor.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ToolBar } from "../../../../base/browser/ui/toolbar/toolbar.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ToggleReactionsAction, ReactionAction, ReactionActionViewItem } from "./reactionsAction.js";
+import { MenuItemAction, SubmenuItemAction, MenuId } from "../../../../platform/actions/common/actions.js";
+import { MenuEntryActionViewItem, SubmenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { CommentFormActions } from "./commentFormActions.js";
+import { MOUSE_CURSOR_TEXT_CSS_CLASS_NAME } from "../../../../base/browser/ui/mouseCursor/mouseCursor.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { TimestampWidget } from "./timestamp.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Scrollable } from "../../../../base/common/scrollable.js";
+import { SmoothScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { DomEmitter } from "../../../../base/browser/event.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
+import { FileAccess, Schemas } from "../../../../base/common/network.js";
+import { COMMENTS_SECTION } from "../common/commentsConfiguration.js";
+import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { Position } from "../../../../editor/common/core/position.js";
+class CommentsActionRunner extends ActionRunner {
+  static {
+    __name(this, "CommentsActionRunner");
+  }
+  async runAction(action, context) {
+    await action.run(...context);
+  }
+}
+let CommentNode = class CommentNode2 extends Disposable {
+  static {
+    __name(this, "CommentNode");
+  }
+  get domNode() {
+    return this._domNode;
+  }
+  constructor(parentEditor, commentThread, comment, pendingEdit, owner, resource, parentThread, markdownRendererOptions, instantiationService, commentService, notificationService, contextMenuService, contextKeyService, configurationService, hoverService, keybindingService, textModelService, markdownRendererService) {
+    super();
+    this.parentEditor = parentEditor;
+    this.commentThread = commentThread;
+    this.comment = comment;
+    this.pendingEdit = pendingEdit;
+    this.owner = owner;
+    this.resource = resource;
+    this.parentThread = parentThread;
+    this.markdownRendererOptions = markdownRendererOptions;
+    this.instantiationService = instantiationService;
+    this.commentService = commentService;
+    this.notificationService = notificationService;
+    this.contextMenuService = contextMenuService;
+    this.configurationService = configurationService;
+    this.hoverService = hoverService;
+    this.keybindingService = keybindingService;
+    this.textModelService = textModelService;
+    this.markdownRendererService = markdownRendererService;
+    this._md = this._register(new MutableDisposable());
+    this._editAction = null;
+    this._commentEditContainer = null;
+    this._reactionsActionBar = this._register(new MutableDisposable());
+    this._reactionActions = this._register(new DisposableStore());
+    this._commentEditor = null;
+    this._commentEditorModel = null;
+    this._editorHeight = MIN_EDITOR_HEIGHT;
+    this._actionRunner = this._register(new CommentsActionRunner());
+    this.toolbar = this._register(new MutableDisposable());
+    this._commentFormActions = null;
+    this._commentEditorActions = null;
+    this._onDidClick = new Emitter();
+    this.isEditing = false;
+    this._editModeDisposables = this._register(new DisposableStore());
+    this._domNode = dom.$("div.review-comment");
+    this._contextKeyService = this._register(contextKeyService.createScoped(this._domNode));
+    this._commentContextValue = CommentContextKeys.commentContext.bindTo(this._contextKeyService);
+    if (this.comment.contextValue) {
+      this._commentContextValue.set(this.comment.contextValue);
+    }
+    this._commentMenus = this.commentService.getCommentMenus(this.owner);
+    this._domNode.tabIndex = -1;
+    this._avatar = dom.append(this._domNode, dom.$("div.avatar-container"));
+    this.updateCommentUserIcon(this.comment.userIconPath);
+    this._commentDetailsContainer = dom.append(this._domNode, dom.$(".review-comment-contents"));
+    this.createHeader(this._commentDetailsContainer);
+    this._body = document.createElement(`div`);
+    this._body.classList.add("comment-body", MOUSE_CURSOR_TEXT_CSS_CLASS_NAME);
+    if (configurationService.getValue(COMMENTS_SECTION)?.maxHeight !== false) {
+      this._body.classList.add("comment-body-max-height");
+    }
+    this.createScroll(this._commentDetailsContainer, this._body);
+    this.updateCommentBody(this.comment.body);
+    this.createReactionsContainer(this._commentDetailsContainer);
+    this._domNode.setAttribute("aria-label", `${comment.userName}, ${this.commentBodyValue}`);
+    this._domNode.setAttribute("role", "treeitem");
+    this._clearTimeout = null;
+    this._register(dom.addDisposableListener(this._domNode, dom.EventType.CLICK, () => this.isEditing || this._onDidClick.fire(this)));
+    this._register(dom.addDisposableListener(this._domNode, dom.EventType.CONTEXT_MENU, (e) => {
+      return this.onContextMenu(e);
+    }));
+    if (pendingEdit) {
+      this.switchToEditMode();
+    }
+    this.activeCommentListeners();
+  }
+  activeCommentListeners() {
+    this._register(dom.addDisposableListener(this._domNode, dom.EventType.FOCUS_IN, () => {
+      this.commentService.setActiveCommentAndThread(this.owner, { thread: this.commentThread, comment: this.comment });
+    }, true));
+  }
+  createScroll(container, body) {
+    this._scrollable = this._register(new Scrollable({
+      forceIntegerValues: true,
+      smoothScrollDuration: 125,
+      scheduleAtNextAnimationFrame: /* @__PURE__ */ __name((cb) => dom.scheduleAtNextAnimationFrame(dom.getWindow(container), cb), "scheduleAtNextAnimationFrame")
+    }));
+    this._scrollableElement = this._register(new SmoothScrollableElement(body, {
+      horizontal: 3,
+      vertical: 3
+      /* ScrollbarVisibility.Visible */
+    }, this._scrollable));
+    this._register(this._scrollableElement.onScroll((e) => {
+      if (e.scrollLeftChanged) {
+        body.scrollLeft = e.scrollLeft;
+      }
+      if (e.scrollTopChanged) {
+        body.scrollTop = e.scrollTop;
+      }
+    }));
+    const onDidScrollViewContainer = this._register(new DomEmitter(body, "scroll")).event;
+    this._register(onDidScrollViewContainer((_) => {
+      const position = this._scrollableElement.getScrollPosition();
+      const scrollLeft = Math.abs(body.scrollLeft - position.scrollLeft) <= 1 ? void 0 : body.scrollLeft;
+      const scrollTop = Math.abs(body.scrollTop - position.scrollTop) <= 1 ? void 0 : body.scrollTop;
+      if (scrollLeft !== void 0 || scrollTop !== void 0) {
+        this._scrollableElement.setScrollPosition({ scrollLeft, scrollTop });
+      }
+    }));
+    container.appendChild(this._scrollableElement.getDomNode());
+  }
+  updateCommentBody(body) {
+    this._body.innerText = "";
+    this._md.clear();
+    this._plainText = void 0;
+    if (typeof body === "string") {
+      this._plainText = dom.append(this._body, dom.$(".comment-body-plainstring"));
+      this._plainText.innerText = body;
+    } else {
+      this._md.value = this.markdownRendererService.render(body, this.markdownRendererOptions);
+      this._body.appendChild(this._md.value.element);
+    }
+  }
+  updateCommentUserIcon(userIconPath) {
+    this._avatar.textContent = "";
+    if (userIconPath) {
+      const img = dom.append(this._avatar, dom.$("img.avatar"));
+      img.src = FileAccess.uriToBrowserUri(URI.revive(userIconPath)).toString(true);
+      img.onerror = (_) => img.remove();
+    }
+  }
+  get onDidClick() {
+    return this._onDidClick.event;
+  }
+  createTimestamp(container) {
+    this._timestamp = dom.append(container, dom.$("span.timestamp-container"));
+    this.updateTimestamp(this.comment.timestamp);
+  }
+  updateTimestamp(raw) {
+    if (!this._timestamp) {
+      return;
+    }
+    const timestamp = raw !== void 0 ? new Date(raw) : void 0;
+    if (!timestamp) {
+      this._timestampWidget?.dispose();
+    } else {
+      if (!this._timestampWidget) {
+        this._timestampWidget = new TimestampWidget(this.configurationService, this.hoverService, this._timestamp, timestamp);
+        this._register(this._timestampWidget);
+      } else {
+        this._timestampWidget.setTimestamp(timestamp);
+      }
+    }
+  }
+  createHeader(commentDetailsContainer) {
+    const header = dom.append(commentDetailsContainer, dom.$(`div.comment-title.${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`));
+    const infoContainer = dom.append(header, dom.$("comment-header-info"));
+    const author = dom.append(infoContainer, dom.$("strong.author"));
+    author.innerText = this.comment.userName;
+    this.createTimestamp(infoContainer);
+    this._isPendingLabel = dom.append(infoContainer, dom.$("span.isPending"));
+    if (this.comment.label) {
+      this._isPendingLabel.innerText = this.comment.label;
+    } else {
+      this._isPendingLabel.innerText = "";
+    }
+    this._actionsToolbarContainer = dom.append(header, dom.$(".comment-actions"));
+    this.createActionsToolbar();
+  }
+  getToolbarActions(menu) {
+    const contributedActions = menu.getActions({ shouldForwardArgs: true });
+    const primary = [];
+    const secondary = [];
+    const result = { primary, secondary };
+    fillInActions(contributedActions, result, false, (g) => /^inline/.test(g));
+    return result;
+  }
+  get commentNodeContext() {
+    return [
+      {
+        thread: this.commentThread,
+        commentUniqueId: this.comment.uniqueIdInThread,
+        $mid: 10
+        /* MarshalledId.CommentNode */
+      },
+      {
+        commentControlHandle: this.commentThread.controllerHandle,
+        commentThreadHandle: this.commentThread.commentThreadHandle,
+        $mid: 7
+        /* MarshalledId.CommentThread */
+      }
+    ];
+  }
+  createToolbar() {
+    this.toolbar.value = new ToolBar(this._actionsToolbarContainer, this.contextMenuService, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action.id === ToggleReactionsAction.ID) {
+          return new DropdownMenuActionViewItem(action, action.menuActions, this.contextMenuService, {
+            ...options,
+            actionViewItemProvider: /* @__PURE__ */ __name((action2, options2) => this.actionViewItemProvider(action2, options2), "actionViewItemProvider"),
+            classNames: ["toolbar-toggle-pickReactions", ...ThemeIcon.asClassNameArray(Codicon.reactions)],
+            anchorAlignmentProvider: /* @__PURE__ */ __name(() => 1, "anchorAlignmentProvider")
+            /* AnchorAlignment.RIGHT */
+          });
+        }
+        return this.actionViewItemProvider(action, options);
+      }, "actionViewItemProvider"),
+      orientation: 0
+      /* ActionsOrientation.HORIZONTAL */
+    });
+    this.toolbar.value.context = this.commentNodeContext;
+    this.toolbar.value.actionRunner = this._actionRunner;
+  }
+  createActionsToolbar() {
+    const actions = [];
+    const menu = this._commentMenus.getCommentTitleActions(this.comment, this._contextKeyService);
+    this._register(menu);
+    this._register(menu.onDidChange((e) => {
+      const { primary: primary2, secondary: secondary2 } = this.getToolbarActions(menu);
+      if (!this.toolbar && (primary2.length || secondary2.length)) {
+        this.createToolbar();
+      }
+      this.toolbar.value.setActions(primary2, secondary2);
+    }));
+    const { primary, secondary } = this.getToolbarActions(menu);
+    actions.push(...primary);
+    if (actions.length || secondary.length) {
+      this.createToolbar();
+      this.toolbar.value.setActions(actions, secondary);
+    }
+  }
+  actionViewItemProvider(action, options) {
+    if (action.id === ToggleReactionsAction.ID) {
+      options = { label: false, icon: true };
+    } else {
+      options = { label: false, icon: true };
+    }
+    if (action.id === ReactionAction.ID) {
+      const item = new ReactionActionViewItem(action);
+      return item;
+    } else if (action instanceof MenuItemAction) {
+      return this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
+    } else if (action instanceof SubmenuItemAction) {
+      return this.instantiationService.createInstance(SubmenuEntryActionViewItem, action, options);
+    } else {
+      const item = new ActionViewItem({}, action, options);
+      return item;
+    }
+  }
+  async submitComment() {
+    if (this._commentEditor && this._commentFormActions) {
+      await this._commentFormActions.triggerDefaultAction();
+      this.pendingEdit = void 0;
+    }
+  }
+  createReactionPicker(reactionGroup) {
+    const toggleReactionAction = this._reactionActions.add(new ToggleReactionsAction(() => {
+      toggleReactionActionViewItem?.show();
+    }, nls.localize("commentToggleReaction", "Toggle Reaction")));
+    let reactionMenuActions = [];
+    if (reactionGroup && reactionGroup.length) {
+      reactionMenuActions = reactionGroup.map((reaction) => {
+        return this._reactionActions.add(new Action(`reaction.command.${reaction.label}`, `${reaction.label}`, "", true, async () => {
+          try {
+            await this.commentService.toggleReaction(this.owner, this.resource, this.commentThread, this.comment, reaction);
+          } catch (e) {
+            const error = e.message ? nls.localize("commentToggleReactionError", "Toggling the comment reaction failed: {0}.", e.message) : nls.localize("commentToggleReactionDefaultError", "Toggling the comment reaction failed");
+            this.notificationService.error(error);
+          }
+        }));
+      });
+    }
+    toggleReactionAction.menuActions = reactionMenuActions;
+    const toggleReactionActionViewItem = this._reactionActions.add(new DropdownMenuActionViewItem(toggleReactionAction, toggleReactionAction.menuActions, this.contextMenuService, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action.id === ToggleReactionsAction.ID) {
+          return toggleReactionActionViewItem;
+        }
+        return this.actionViewItemProvider(action, options);
+      }, "actionViewItemProvider"),
+      classNames: "toolbar-toggle-pickReactions",
+      anchorAlignmentProvider: /* @__PURE__ */ __name(() => 1, "anchorAlignmentProvider")
+      /* AnchorAlignment.RIGHT */
+    }));
+    return toggleReactionAction;
+  }
+  createReactionsContainer(commentDetailsContainer) {
+    this._reactionActionsContainer?.remove();
+    this._reactionsActionBar.clear();
+    this._reactionActions.clear();
+    const hasReactionHandler = this.commentService.hasReactionHandler(this.owner);
+    const reactions = this.comment.commentReactions?.filter((reaction) => !!reaction.count) || [];
+    if (reactions.length === 0 && !hasReactionHandler) {
+      return;
+    }
+    this._reactionActionsContainer = dom.append(commentDetailsContainer, dom.$("div.comment-reactions"));
+    this._reactionsActionBar.value = new ActionBar(this._reactionActionsContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action.id === ToggleReactionsAction.ID) {
+          return new DropdownMenuActionViewItem(action, action.menuActions, this.contextMenuService, {
+            actionViewItemProvider: /* @__PURE__ */ __name((action2, options2) => this.actionViewItemProvider(action2, options2), "actionViewItemProvider"),
+            classNames: ["toolbar-toggle-pickReactions", ...ThemeIcon.asClassNameArray(Codicon.reactions)],
+            anchorAlignmentProvider: /* @__PURE__ */ __name(() => 1, "anchorAlignmentProvider")
+            /* AnchorAlignment.RIGHT */
+          });
+        }
+        return this.actionViewItemProvider(action, options);
+      }, "actionViewItemProvider")
+    });
+    reactions.map((reaction) => {
+      const action = this._reactionActions.add(new ReactionAction(`reaction.${reaction.label}`, `${reaction.label}`, reaction.hasReacted && (reaction.canEdit || hasReactionHandler) ? "active" : "", reaction.canEdit || hasReactionHandler, async () => {
+        try {
+          await this.commentService.toggleReaction(this.owner, this.resource, this.commentThread, this.comment, reaction);
+        } catch (e) {
+          let error;
+          if (reaction.hasReacted) {
+            error = e.message ? nls.localize("commentDeleteReactionError", "Deleting the comment reaction failed: {0}.", e.message) : nls.localize("commentDeleteReactionDefaultError", "Deleting the comment reaction failed");
+          } else {
+            error = e.message ? nls.localize("commentAddReactionError", "Deleting the comment reaction failed: {0}.", e.message) : nls.localize("commentAddReactionDefaultError", "Deleting the comment reaction failed");
+          }
+          this.notificationService.error(error);
+        }
+      }, reaction.reactors, reaction.iconPath, reaction.count));
+      this._reactionsActionBar.value?.push(action, { label: true, icon: true });
+    });
+    if (hasReactionHandler) {
+      const toggleReactionAction = this.createReactionPicker(this.comment.commentReactions || []);
+      this._reactionsActionBar.value?.push(toggleReactionAction, { label: false, icon: true });
+    }
+  }
+  get commentBodyValue() {
+    return typeof this.comment.body === "string" ? this.comment.body : this.comment.body.value;
+  }
+  async createCommentEditor(editContainer) {
+    this._editModeDisposables.clear();
+    const container = dom.append(editContainer, dom.$(".edit-textarea"));
+    this._commentEditor = this.instantiationService.createInstance(SimpleCommentEditor, container, SimpleCommentEditor.getEditorOptions(this.configurationService), this._contextKeyService, this.parentThread);
+    this._editModeDisposables.add(this._commentEditor);
+    const resource = URI.from({
+      scheme: Schemas.commentsInput,
+      path: `/commentinput-${this.comment.uniqueIdInThread}-${Date.now()}.md`
+    });
+    const modelRef = await this.textModelService.createModelReference(resource);
+    this._commentEditorModel = modelRef;
+    this._editModeDisposables.add(this._commentEditorModel);
+    this._commentEditor.setModel(this._commentEditorModel.object.textEditorModel);
+    this._commentEditor.setValue(this.pendingEdit?.body ?? this.commentBodyValue);
+    if (this.pendingEdit) {
+      this._commentEditor.setPosition(this.pendingEdit.cursor);
+    } else {
+      const lastLine = this._commentEditorModel.object.textEditorModel.getLineCount();
+      const lastColumn = this._commentEditorModel.object.textEditorModel.getLineLength(lastLine) + 1;
+      this._commentEditor.setPosition(new Position(lastLine, lastColumn));
+    }
+    this.pendingEdit = void 0;
+    this._commentEditor.layout({ width: container.clientWidth - 14, height: this._editorHeight });
+    this._commentEditor.focus();
+    dom.scheduleAtNextAnimationFrame(dom.getWindow(editContainer), () => {
+      this._commentEditor.layout({ width: container.clientWidth - 14, height: this._editorHeight });
+      this._commentEditor.focus();
+    });
+    const commentThread = this.commentThread;
+    commentThread.input = {
+      uri: this._commentEditor.getModel().uri,
+      value: this.commentBodyValue
+    };
+    this.commentService.setActiveEditingCommentThread(commentThread);
+    this.commentService.setActiveCommentAndThread(this.owner, { thread: commentThread, comment: this.comment });
+    this._editModeDisposables.add(this._commentEditor.onDidFocusEditorWidget(() => {
+      commentThread.input = {
+        uri: this._commentEditor.getModel().uri,
+        value: this.commentBodyValue
+      };
+      this.commentService.setActiveEditingCommentThread(commentThread);
+      this.commentService.setActiveCommentAndThread(this.owner, { thread: commentThread, comment: this.comment });
+    }));
+    this._editModeDisposables.add(this._commentEditor.onDidChangeModelContent((e) => {
+      if (commentThread.input && this._commentEditor && this._commentEditor.getModel().uri === commentThread.input.uri) {
+        const newVal = this._commentEditor.getValue();
+        if (newVal !== commentThread.input.value) {
+          const input = commentThread.input;
+          input.value = newVal;
+          commentThread.input = input;
+          this.commentService.setActiveEditingCommentThread(commentThread);
+          this.commentService.setActiveCommentAndThread(this.owner, { thread: commentThread, comment: this.comment });
+        }
+      }
+    }));
+    this.calculateEditorHeight();
+    this._editModeDisposables.add(this._commentEditorModel.object.textEditorModel.onDidChangeContent(() => {
+      if (this._commentEditor && this.calculateEditorHeight()) {
+        this._commentEditor.layout({ height: this._editorHeight, width: this._commentEditor.getLayoutInfo().width });
+        this._commentEditor.render(true);
+      }
+    }));
+  }
+  calculateEditorHeight() {
+    if (this._commentEditor) {
+      const newEditorHeight = calculateEditorHeight(this.parentEditor, this._commentEditor, this._editorHeight);
+      if (newEditorHeight !== this._editorHeight) {
+        this._editorHeight = newEditorHeight;
+        return true;
+      }
+    }
+    return false;
+  }
+  getPendingEdit() {
+    const model = this._commentEditor?.getModel();
+    if (this._commentEditor && model && model.getValueLength() > 0) {
+      return { body: model.getValue(), cursor: this._commentEditor.getPosition() };
+    }
+    return void 0;
+  }
+  removeCommentEditor() {
+    this.isEditing = false;
+    if (this._editAction) {
+      this._editAction.enabled = true;
+    }
+    this._body.classList.remove("hidden");
+    this._editModeDisposables.clear();
+    this._commentEditor = null;
+    this._commentEditContainer.remove();
+  }
+  layout(widthInPixel) {
+    const editorWidth = widthInPixel !== void 0 ? widthInPixel - 72 : this._commentEditor?.getLayoutInfo().width ?? 0;
+    this._commentEditor?.layout({ width: editorWidth, height: this._editorHeight });
+    const scrollWidth = this._body.scrollWidth;
+    const width = dom.getContentWidth(this._body);
+    const scrollHeight = this._body.scrollHeight;
+    const height = dom.getContentHeight(this._body) + 4;
+    this._scrollableElement.setScrollDimensions({ width, scrollWidth, height, scrollHeight });
+  }
+  async switchToEditMode() {
+    if (this.isEditing) {
+      return;
+    }
+    this.isEditing = true;
+    this._body.classList.add("hidden");
+    this._commentEditContainer = dom.append(this._commentDetailsContainer, dom.$(".edit-container"));
+    await this.createCommentEditor(this._commentEditContainer);
+    const formActions = dom.append(this._commentEditContainer, dom.$(".form-actions"));
+    const otherActions = dom.append(formActions, dom.$(".other-actions"));
+    this.createCommentWidgetFormActions(otherActions);
+    const editorActions = dom.append(formActions, dom.$(".editor-actions"));
+    this.createCommentWidgetEditorActions(editorActions);
+  }
+  createCommentWidgetFormActions(container) {
+    const menus = this.commentService.getCommentMenus(this.owner);
+    const menu = menus.getCommentActions(this.comment, this._contextKeyService);
+    this._editModeDisposables.add(menu);
+    this._editModeDisposables.add(menu.onDidChange(() => {
+      this._commentFormActions?.setActions(menu);
+    }));
+    this._commentFormActions = new CommentFormActions(this.keybindingService, this._contextKeyService, this.contextMenuService, container, (action) => {
+      const text = this._commentEditor.getValue();
+      action.run({
+        thread: this.commentThread,
+        commentUniqueId: this.comment.uniqueIdInThread,
+        text,
+        $mid: 11
+        /* MarshalledId.CommentThreadNode */
+      });
+      this.removeCommentEditor();
+    });
+    this._editModeDisposables.add(this._commentFormActions);
+    this._commentFormActions.setActions(menu);
+  }
+  createCommentWidgetEditorActions(container) {
+    const menus = this.commentService.getCommentMenus(this.owner);
+    const menu = menus.getCommentEditorActions(this._contextKeyService);
+    this._editModeDisposables.add(menu);
+    this._editModeDisposables.add(menu.onDidChange(() => {
+      this._commentEditorActions?.setActions(menu, true);
+    }));
+    this._commentEditorActions = new CommentFormActions(this.keybindingService, this._contextKeyService, this.contextMenuService, container, (action) => {
+      const text = this._commentEditor.getValue();
+      action.run({
+        thread: this.commentThread,
+        commentUniqueId: this.comment.uniqueIdInThread,
+        text,
+        $mid: 11
+        /* MarshalledId.CommentThreadNode */
+      });
+      this._commentEditor?.focus();
+    });
+    this._editModeDisposables.add(this._commentEditorActions);
+    this._commentEditorActions.setActions(menu, true);
+  }
+  setFocus(focused, visible = false) {
+    if (focused) {
+      this._domNode.focus();
+      this._actionsToolbarContainer.classList.add("tabfocused");
+      this._domNode.tabIndex = 0;
+      if (this.comment.mode === languages.CommentMode.Editing) {
+        this._commentEditor?.focus();
+      }
+    } else {
+      if (this._actionsToolbarContainer.classList.contains("tabfocused") && !this._actionsToolbarContainer.classList.contains("mouseover")) {
+        this._domNode.tabIndex = -1;
+      }
+      this._actionsToolbarContainer.classList.remove("tabfocused");
+    }
+  }
+  async update(newComment) {
+    if (newComment.body !== this.comment.body) {
+      this.updateCommentBody(newComment.body);
+    }
+    if (this.comment.userIconPath && newComment.userIconPath && URI.from(this.comment.userIconPath).toString() !== URI.from(newComment.userIconPath).toString()) {
+      this.updateCommentUserIcon(newComment.userIconPath);
+    }
+    const isChangingMode = newComment.mode !== void 0 && newComment.mode !== this.comment.mode;
+    this.comment = newComment;
+    if (isChangingMode) {
+      if (newComment.mode === languages.CommentMode.Editing) {
+        await this.switchToEditMode();
+      } else {
+        this.removeCommentEditor();
+      }
+    }
+    if (newComment.label) {
+      this._isPendingLabel.innerText = newComment.label;
+    } else {
+      this._isPendingLabel.innerText = "";
+    }
+    this.createReactionsContainer(this._commentDetailsContainer);
+    if (this.comment.contextValue) {
+      this._commentContextValue.set(this.comment.contextValue);
+    } else {
+      this._commentContextValue.reset();
+    }
+    if (this.comment.timestamp) {
+      this.updateTimestamp(this.comment.timestamp);
+    }
+  }
+  onContextMenu(e) {
+    const event = new StandardMouseEvent(dom.getWindow(this._domNode), e);
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+      menuId: MenuId.CommentThreadCommentContext,
+      menuActionOptions: { shouldForwardArgs: true },
+      contextKeyService: this._contextKeyService,
+      actionRunner: this._actionRunner,
+      getActionsContext: /* @__PURE__ */ __name(() => {
+        return this.commentNodeContext;
+      }, "getActionsContext")
+    });
+  }
+  focus() {
+    this.domNode.focus();
+    if (!this._clearTimeout) {
+      this.domNode.classList.add("focus");
+      this._clearTimeout = setTimeout(() => {
+        this.domNode.classList.remove("focus");
+      }, 3e3);
+    }
+  }
+  dispose() {
+    super.dispose();
+  }
+};
+CommentNode = __decorate([
+  __param(8, IInstantiationService),
+  __param(9, ICommentService),
+  __param(10, INotificationService),
+  __param(11, IContextMenuService),
+  __param(12, IContextKeyService),
+  __param(13, IConfigurationService),
+  __param(14, IHoverService),
+  __param(15, IKeybindingService),
+  __param(16, ITextModelService),
+  __param(17, IMarkdownRendererService)
+], CommentNode);
+function fillInActions(groups, target, useAlternativeActions, isPrimaryGroup = (group) => group === "navigation") {
+  for (const tuple of groups) {
+    let [group, actions] = tuple;
+    if (useAlternativeActions) {
+      actions = actions.map((a) => a instanceof MenuItemAction && !!a.alt ? a.alt : a);
+    }
+    if (isPrimaryGroup(group)) {
+      const to = Array.isArray(target) ? target : target.primary;
+      to.unshift(...actions);
+    } else {
+      const to = Array.isArray(target) ? target : target.secondary;
+      if (to.length > 0) {
+        to.push(new Separator());
+      }
+      to.push(...actions);
+    }
+  }
+}
+__name(fillInActions, "fillInActions");
+export {
+  CommentNode
+};
+//# sourceMappingURL=commentNode.js.map

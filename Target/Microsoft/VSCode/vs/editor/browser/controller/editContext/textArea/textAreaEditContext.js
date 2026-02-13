@@ -1,3 +1,737 @@
-import"./textAreaEditContext.css";import*as Y from"../../../../../nls.js";import*as A from"../../../../../base/browser/browser.js";import{$09 as H}from"../../../../../base/browser/fastDomNode.js";import*as M from"../../../../../base/common/platform.js";import*as K from"../../../../../base/common/strings.js";import{$7cb as V}from"../../../config/domFontInfo.js";import{$Xfb as q}from"../../../view/viewPart.js";import{$fhb as J}from"../../../viewParts/lineNumbers/lineNumbers.js";import{$ihb as Q}from"../../../viewParts/margin/margin.js";import{EditorOptions as tt}from"../../../../common/config/editorOptions.js";import{$$D as P}from"../../../../common/core/position.js";import{$_D as _}from"../../../../common/core/range.js";import{$bE as I}from"../../../../common/core/selection.js";import{$X_ as R}from"../../../../../base/browser/ui/mouseCursor/mouseCursor.js";import{$YF as et}from"../../../../common/languages.js";import{$Up as it}from"../../../../../base/common/color.js";import{IME as D}from"../../../../../base/common/ime.js";import{$fy as st}from"../../../../../platform/keybinding/common/keybinding.js";import{$Mj as ot}from"../../../../../platform/instantiation/common/instantiation.js";import{$Bhb as nt}from"../editContext.js";import{$Vgb as rt,$Wgb as ht}from"./textAreaEditContextInput.js";import{$Rgb as W,$Sgb as z,$Qgb as at}from"../screenReaderUtils.js";import{$Tgb as G,$Ugb as C}from"./textAreaEditContextState.js";import{$ZE as B}from"../../../../common/core/wordCharacterClassifier.js";import{$Chb as lt}from"./textAreaEditContextRegistry.js";var X=function(f,t,e,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,e,i);else for(var d=f.length-1;d>=0;d--)(h=f[d])&&(o=(s<3?h(o):s>3?h(t,e,o):h(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},F=function(f,t){return function(e,i){t(e,i,f)}};class ct{constructor(t,e,i,s,o){this.b=t,this.modelLineNumber=e,this.distanceToModelLineStart=i,this.widthOfHiddenLineTextBefore=s,this.distanceToModelLineEnd=o,this._visibleTextAreaBrand=void 0,this.startPosition=null,this.endPosition=null,this.visibleTextareaStart=null,this.visibleTextareaEnd=null,this.a=null}prepareRender(t){const e=new P(this.modelLineNumber,this.distanceToModelLineStart+1),i=new P(this.modelLineNumber,this.b.viewModel.model.getLineMaxColumn(this.modelLineNumber)-this.distanceToModelLineEnd);this.startPosition=this.b.viewModel.coordinatesConverter.convertModelPositionToViewPosition(e),this.endPosition=this.b.viewModel.coordinatesConverter.convertModelPositionToViewPosition(i),this.startPosition.lineNumber===this.endPosition.lineNumber?(this.visibleTextareaStart=t.visibleRangeForPosition(this.startPosition),this.visibleTextareaEnd=t.visibleRangeForPosition(this.endPosition)):(this.visibleTextareaStart=null,this.visibleTextareaEnd=null)}definePresentation(t){return this.a||(t?this.a=t:this.a={foreground:1,italic:!1,bold:!1,underline:!1,strikethrough:!1}),this.a}}const E=A.$67;let U=class extends nt{constructor(t,e,i,s,o,h,d){super(e),this.M=h,this.N=d,this.U=new P(1,1),this.W=null,this.f=s,this.g=o,this.h=0,this.j=0;const c=this._context.configuration.options,p=c.get(165);this.R(c),this.w=p.contentLeft,this.y=p.contentWidth,this.z=p.height,this.C=c.get(59),this.F=c.get(45),this.G=null,this.H=[new I(1,1,1,1)],this.I=[new I(1,1,1,1)],this.J=null,this.textArea=H(document.createElement("textarea")),q.write(this.textArea,7),this.textArea.setClassName(`inputarea ${R}`),this.textArea.setAttribute("wrap",this.t&&!this.G?"on":"off");const{tabSize:m}=this._context.viewModel.model.getOptions();this.textArea.domNode.style.tabSize=`${m*this.C.spaceWidth}px`,this.textArea.setAttribute("autocorrect","off"),this.textArea.setAttribute("autocapitalize","off"),this.textArea.setAttribute("autocomplete","off"),this.textArea.setAttribute("spellcheck","false"),this.textArea.setAttribute("aria-label",W(c,this.M)),this.textArea.setAttribute("aria-required",c.get(9)?"true":"false"),this.textArea.setAttribute("tabindex",String(c.get(140))),this.textArea.setAttribute("role","textbox"),this.textArea.setAttribute("aria-roledescription",Y.localize(182,null)),this.textArea.setAttribute("aria-multiline","true"),this.textArea.setAttribute("aria-autocomplete",c.get(104)?"none":"both"),this.S(),this.textAreaCover=H(document.createElement("div")),this.textAreaCover.setPosition("absolute"),i.appendChild(this.textArea),i.appendChild(this.textAreaCover);const x=new at,S={context:this._context,getScreenReaderContent:()=>{if(this.n===1){const r=this.H[0];if(M.$n&&r.isEmpty()){const a=r.getStartPosition();let l=this.P(a);if(l.length===0&&(l=this.Q(a)),l.length>0)return new C(l,l.length,l.length,_.fromPositions(a),0)}if(M.$n&&!r.isEmpty()&&this._context.viewModel.getValueLengthInRange(r,0)<500){const a=this._context.viewModel.getValueInRange(r,0);return new C(a,0,a.length,r,0)}if(A.$97&&!r.isEmpty()){const a="vscode-placeholder";return new C(a,0,a.length,null,void 0)}return C.EMPTY}if(A.$_7){const r=this.H[0];if(r.isEmpty()){const u=r.getStartPosition(),[a,l]=this.O(u);if(a.length>0)return new C(a,l,l,_.fromPositions(u),0)}return C.EMPTY}const n=x.fromEditorSelection(this._context.viewModel,this.H[0],this.s,this.n===0);return C.fromScreenReaderContentState(n)},deduceModelPosition:(n,r,u)=>this._context.viewModel.deduceModelPositionRelativeToViewPosition(n,r,u)},y=this.D(new ht(this.textArea.domNode));this.L=this.D(this.N.createInstance(rt,S,y,M.OS,{isAndroid:A.$_7,isChrome:A.$87,isFirefox:A.$67,isSafari:A.$97})),this.D(this.L.onWillCopy(n=>this.a.fire(n))),this.D(this.L.onWillCut(n=>this.b.fire(n))),this.D(this.L.onWillPaste(n=>this.c.fire(n))),this.D(this.L.onKeyDown(n=>{this.f.emitKeyDown(n)})),this.D(this.L.onKeyUp(n=>{this.f.emitKeyUp(n)})),this.D(this.L.onPaste(n=>{let r=!1,u=null,a=null;n.metadata&&(r=this.F&&!!n.metadata.isFromEmptySelection,u=typeof n.metadata.multicursorText<"u"?n.metadata.multicursorText:null,a=n.metadata.mode),this.f.paste(n.text,r,u,a)})),this.D(this.L.onCut(()=>{this.f.cut()})),this.D(this.L.onType(n=>{n.replacePrevCharCnt||n.replaceNextCharCnt||n.positionDelta?this.f.compositionType(n.text,n.replacePrevCharCnt,n.replaceNextCharCnt,n.positionDelta):this.f.type(n.text)})),this.D(this.L.onSelectionChangeRequest(n=>{this.f.setSelection(n)})),this.D(this.L.onCompositionStart(n=>{const r=this.textArea.domNode,u=this.I[0],{distanceToModelLineStart:a,widthOfHiddenTextBefore:l}=(()=>{const w=r.value.substring(0,Math.min(r.selectionStart,r.selectionEnd)),L=w.lastIndexOf(`
-`),g=w.substring(L+1),T=g.lastIndexOf("	"),$=g.length-T-1,b=u.getStartPosition(),N=Math.min(b.column-1,$),O=b.column-1-N,k=g.substring(0,g.length-N),{tabSize:j}=this._context.viewModel.model.getOptions(),Z=dt(this.textArea.domNode.ownerDocument,k,this.C,j);return{distanceToModelLineStart:O,widthOfHiddenTextBefore:Z}})(),{distanceToModelLineEnd:v}=(()=>{const w=r.value.substring(Math.max(r.selectionStart,r.selectionEnd)),L=w.indexOf(`
-`),g=L===-1?w:w.substring(0,L),T=g.indexOf("	"),$=T===-1?g.length:g.length-T-1,b=u.getEndPosition(),N=Math.min(this._context.viewModel.model.getLineMaxColumn(b.lineNumber)-b.column,$);return{distanceToModelLineEnd:this._context.viewModel.model.getLineMaxColumn(b.lineNumber)-b.column-N}})();this._context.viewModel.revealRange("keyboard",!0,_.fromPositions(this.H[0].getStartPosition()),0,1),this.G=new ct(this._context,u.startLineNumber,a,l,v),this.textArea.setAttribute("wrap",this.t&&!this.G?"on":"off"),this.G.prepareRender(this.g),this.X(),this.textArea.setClassName(`inputarea ${R} ime-input`),this.f.compositionStart(),this._context.viewModel.onCompositionStart()})),this.D(this.L.onCompositionUpdate(n=>{this.G&&(this.G.prepareRender(this.g),this.X())})),this.D(this.L.onCompositionEnd(()=>{this.G=null,this.textArea.setAttribute("wrap",this.t&&!this.G?"on":"off"),this.X(),this.textArea.setClassName(`inputarea ${R}`),this.f.compositionEnd(),this._context.viewModel.onCompositionEnd()})),this.D(this.L.onFocus(()=>{this._context.viewModel.setHasFocus(!0)})),this.D(this.L.onBlur(()=>{this._context.viewModel.setHasFocus(!1)})),this.D(D.onDidChange(()=>{this.S()})),this.D(lt.register(t,this))}get domNode(){return this.textArea}writeScreenReaderContent(t){this.L.writeNativeTextAreaContent(t)}getTextAreaDomNode(){return this.textArea.domNode}dispose(){super.dispose(),this.textArea.domNode.remove(),this.textAreaCover.domNode.remove()}O(t){const e='`~!@#$%^&*()-=+[{]}\\|;:",.<>/?',i=this._context.viewModel.getLineContent(t.lineNumber),s=B(e,[]);let o=!0,h=t.column,d=!0,c=t.column,p=0;for(;p<50&&(o||d);){if(o&&h<=1&&(o=!1),o){const m=i.charCodeAt(h-2);s.get(m)!==0?o=!1:h--}if(d&&c>i.length&&(d=!1),d){const m=i.charCodeAt(c-1);s.get(m)!==0?d=!1:c++}p++}return[i.substring(h-1,c-1),t.column-h]}P(t){const e=this._context.viewModel.getLineContent(t.lineNumber),i=B(this._context.configuration.options.get(148),[]);let s=t.column,o=0;for(;s>1;){const h=e.charCodeAt(s-2);if(i.get(h)!==0||o>50)return e.substring(s-1,t.column-1);o++,s--}return e.substring(0,t.column-1)}Q(t){if(t.column>1){const i=this._context.viewModel.getLineContent(t.lineNumber).charAt(t.column-2);if(!K.$tg(i.charCodeAt(0)))return i}return""}R(t){this.n=t.get(2);const e=t.get(3);this.n===2&&e===tt.accessibilityPageSize.defaultValue?this.s=500:this.s=e;const s=t.get(165).wrappingColumn;if(s!==-1&&this.n!==1){const o=t.get(59);this.t=!0,this.u=Math.round(s*o.typicalHalfwidthCharacterWidth)}else this.t=!1,this.u=E?0:1}onConfigurationChanged(t){const e=this._context.configuration.options,i=e.get(165);this.R(e),this.w=i.contentLeft,this.y=i.contentWidth,this.z=i.height,this.C=e.get(59),this.F=e.get(45),this.textArea.setAttribute("wrap",this.t&&!this.G?"on":"off");const{tabSize:s}=this._context.viewModel.model.getOptions();return this.textArea.domNode.style.tabSize=`${s*this.C.spaceWidth}px`,this.textArea.setAttribute("aria-label",W(e,this.M)),this.textArea.setAttribute("aria-required",e.get(9)?"true":"false"),this.textArea.setAttribute("tabindex",String(e.get(140))),(t.hasChanged(41)||t.hasChanged(104))&&this.S(),t.hasChanged(2)&&this.L.writeNativeTextAreaContent("strategy changed"),!0}onCursorStateChanged(t){return this.H=t.selections.slice(0),this.I=t.modelSelections.slice(0),this.L.writeNativeTextAreaContent("selection changed"),!0}onDecorationsChanged(t){return!0}onFlushed(t){return!0}onLinesChanged(t){return!0}onLinesDeleted(t){return!0}onLinesInserted(t){return!0}onScrollChanged(t){return this.h=t.scrollLeft,this.j=t.scrollTop,!0}onZonesChanged(t){return!0}isFocused(){return this.L.isFocused()}focus(){this.L.focusTextArea()}refreshFocusState(){this.L.refreshFocusState()}getLastRenderData(){return this.J}setAriaOptions(t){t.activeDescendant?(this.textArea.setAttribute("aria-haspopup","true"),this.textArea.setAttribute("aria-autocomplete","list"),this.textArea.setAttribute("aria-activedescendant",t.activeDescendant)):(this.textArea.setAttribute("aria-haspopup","false"),this.textArea.setAttribute("aria-autocomplete","both"),this.textArea.removeAttribute("aria-activedescendant")),t.role&&this.textArea.setAttribute("role",t.role)}S(){const t=this._context.configuration.options;!D.enabled||t.get(41)&&t.get(104)?this.textArea.setAttribute("readonly","true"):this.textArea.removeAttribute("readonly")}prepareRender(t){this.U=new P(this.H[0].positionLineNumber,this.H[0].positionColumn),this.W=t.visibleRangeForPosition(this.U),this.G?.prepareRender(t)}render(t){this.L.writeNativeTextAreaContent("render"),this.X()}X(){if(this.G){const i=this.G.visibleTextareaStart,s=this.G.visibleTextareaEnd,o=this.G.startPosition,h=this.G.endPosition;if(o&&h&&i&&s&&s.left>=this.h&&i.left<=this.h+this.y){const d=this._context.viewLayout.getVerticalOffsetForLineNumber(this.U.lineNumber)-this.j,c=z(this.textArea.domNode.value.substr(0,this.textArea.domNode.selectionStart));let p=this.G.widthOfHiddenLineTextBefore,m=this.w+i.left-this.h,x=s.left-i.left+1;if(m<this.w){const v=this.w-m;m+=v,p+=v,x-=v}x>this.y&&(x=this.y);const S=this._context.viewLayout.getLineHeightForLineNumber(o.lineNumber),y=this._context.viewModel.getFontSizeAtPosition(this.U),n=this._context.viewModel.getViewLineData(o.lineNumber),r=n.tokens.findTokenIndexAtOffset(o.column-1),u=n.tokens.findTokenIndexAtOffset(h.column-1),a=r===u,l=this.G.definePresentation(a?n.tokens.getPresentation(r):null);this.textArea.domNode.scrollTop=c*S,this.textArea.domNode.scrollLeft=p,this.Z({lastRenderPosition:null,top:d,left:m,width:x,height:S,useCover:!1,color:(et.getColorMap()||[])[l.foreground],italic:l.italic,bold:l.bold,underline:l.underline,strikethrough:l.strikethrough,fontSize:y})}return}if(!this.W){this.Y();return}const t=this.w+this.W.left-this.h;if(t<this.w||t>this.w+this.y){this.Y();return}const e=this._context.viewLayout.getVerticalOffsetForLineNumber(this.H[0].positionLineNumber)-this.j;if(e<0||e>this.z){this.Y();return}if(M.$n||this.n===2){const i=this.U.lineNumber,s=this._context.viewLayout.getLineHeightForLineNumber(i);this.Z({lastRenderPosition:this.U,top:e,left:this.t?this.w:t,width:this.u,height:s,useCover:!1}),this.textArea.domNode.scrollLeft=this.W.left;const o=this.L.textAreaState.newlineCountBeforeSelection??z(this.textArea.domNode.value.substring(0,this.textArea.domNode.selectionStart));this.textArea.domNode.scrollTop=o*s;return}this.Z({lastRenderPosition:this.U,top:e,left:this.t?this.w:t,width:this.u,height:E?0:1,useCover:!1})}Y(){this.Z({lastRenderPosition:null,top:0,left:0,width:this.u,height:E?0:1,useCover:!0})}Z(t){this.J=t.lastRenderPosition;const e=this.textArea,i=this.textAreaCover;V(e,this.C),e.setTop(t.top),e.setLeft(t.left),e.setWidth(t.width),e.setHeight(t.height),e.setLineHeight(t.height),e.setFontSize(t.fontSize??this.C.fontSize),e.setColor(t.color?it.Format.CSS.formatHex(t.color):""),e.setFontStyle(t.italic?"italic":""),t.bold&&e.setFontWeight("bold"),e.setTextDecoration(`${t.underline?" underline":""}${t.strikethrough?" line-through":""}`),i.setTop(t.useCover?t.top:0),i.setLeft(t.useCover?t.left:0),i.setWidth(t.useCover?t.width:0),i.setHeight(t.useCover?t.height:0);const s=this._context.configuration.options;s.get(66)?i.setClassName("monaco-editor-background textAreaCover "+Q.OUTER_CLASS_NAME):s.get(76).renderType!==0?i.setClassName("monaco-editor-background textAreaCover "+J.CLASS_NAME):i.setClassName("monaco-editor-background textAreaCover")}};U=X([F(5,st),F(6,ot)],U);function dt(f,t,e,i){if(t.length===0)return 0;const s=f.createElement("div");s.style.position="absolute",s.style.top="-50000px",s.style.width="50000px";const o=f.createElement("span");V(o,e),o.style.whiteSpace="pre",o.style.tabSize=`${i*e.spaceWidth}px`,o.append(t),s.appendChild(o),f.body.appendChild(s);const h=o.offsetWidth;return s.remove(),h}export{U as $Dhb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./textAreaEditContext.css";
+import * as nls from "../../../../../nls.js";
+import * as browser from "../../../../../base/browser/browser.js";
+import { createFastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import * as platform from "../../../../../base/common/platform.js";
+import * as strings from "../../../../../base/common/strings.js";
+import { applyFontInfo } from "../../../config/domFontInfo.js";
+import { PartFingerprints } from "../../../view/viewPart.js";
+import { LineNumbersOverlay } from "../../../viewParts/lineNumbers/lineNumbers.js";
+import { Margin } from "../../../viewParts/margin/margin.js";
+import { EditorOptions } from "../../../../common/config/editorOptions.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { Selection } from "../../../../common/core/selection.js";
+import { MOUSE_CURSOR_TEXT_CSS_CLASS_NAME } from "../../../../../base/browser/ui/mouseCursor/mouseCursor.js";
+import { TokenizationRegistry } from "../../../../common/languages.js";
+import { Color } from "../../../../../base/common/color.js";
+import { IME } from "../../../../../base/common/ime.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { AbstractEditContext } from "../editContext.js";
+import { TextAreaInput, TextAreaWrapper } from "./textAreaEditContextInput.js";
+import { ariaLabelForScreenReaderContent, newlinecount, SimplePagedScreenReaderStrategy } from "../screenReaderUtils.js";
+import { _debugComposition, TextAreaState } from "./textAreaEditContextState.js";
+import { getMapForWordSeparators } from "../../../../common/core/wordCharacterClassifier.js";
+import { TextAreaEditContextRegistry } from "./textAreaEditContextRegistry.js";
+class VisibleTextAreaData {
+  static {
+    __name(this, "VisibleTextAreaData");
+  }
+  constructor(_context, modelLineNumber, distanceToModelLineStart, widthOfHiddenLineTextBefore, distanceToModelLineEnd) {
+    this._context = _context;
+    this.modelLineNumber = modelLineNumber;
+    this.distanceToModelLineStart = distanceToModelLineStart;
+    this.widthOfHiddenLineTextBefore = widthOfHiddenLineTextBefore;
+    this.distanceToModelLineEnd = distanceToModelLineEnd;
+    this._visibleTextAreaBrand = void 0;
+    this.startPosition = null;
+    this.endPosition = null;
+    this.visibleTextareaStart = null;
+    this.visibleTextareaEnd = null;
+    this._previousPresentation = null;
+  }
+  prepareRender(visibleRangeProvider) {
+    const startModelPosition = new Position(this.modelLineNumber, this.distanceToModelLineStart + 1);
+    const endModelPosition = new Position(this.modelLineNumber, this._context.viewModel.model.getLineMaxColumn(this.modelLineNumber) - this.distanceToModelLineEnd);
+    this.startPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(startModelPosition);
+    this.endPosition = this._context.viewModel.coordinatesConverter.convertModelPositionToViewPosition(endModelPosition);
+    if (this.startPosition.lineNumber === this.endPosition.lineNumber) {
+      this.visibleTextareaStart = visibleRangeProvider.visibleRangeForPosition(this.startPosition);
+      this.visibleTextareaEnd = visibleRangeProvider.visibleRangeForPosition(this.endPosition);
+    } else {
+      this.visibleTextareaStart = null;
+      this.visibleTextareaEnd = null;
+    }
+  }
+  definePresentation(tokenPresentation) {
+    if (!this._previousPresentation) {
+      if (tokenPresentation) {
+        this._previousPresentation = tokenPresentation;
+      } else {
+        this._previousPresentation = {
+          foreground: 1,
+          italic: false,
+          bold: false,
+          underline: false,
+          strikethrough: false
+        };
+      }
+    }
+    return this._previousPresentation;
+  }
+}
+const canUseZeroSizeTextarea = browser.isFirefox;
+let TextAreaEditContext = class TextAreaEditContext2 extends AbstractEditContext {
+  static {
+    __name(this, "TextAreaEditContext");
+  }
+  constructor(ownerID, context, overflowGuardContainer, viewController, visibleRangeProvider, _keybindingService, _instantiationService) {
+    super(context);
+    this._keybindingService = _keybindingService;
+    this._instantiationService = _instantiationService;
+    this._primaryCursorPosition = new Position(1, 1);
+    this._primaryCursorVisibleRange = null;
+    this._viewController = viewController;
+    this._visibleRangeProvider = visibleRangeProvider;
+    this._scrollLeft = 0;
+    this._scrollTop = 0;
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    this._setAccessibilityOptions(options);
+    this._contentLeft = layoutInfo.contentLeft;
+    this._contentWidth = layoutInfo.contentWidth;
+    this._contentHeight = layoutInfo.height;
+    this._fontInfo = options.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    this._emptySelectionClipboard = options.get(
+      45
+      /* EditorOption.emptySelectionClipboard */
+    );
+    this._visibleTextArea = null;
+    this._selections = [new Selection(1, 1, 1, 1)];
+    this._modelSelections = [new Selection(1, 1, 1, 1)];
+    this._lastRenderPosition = null;
+    this.textArea = createFastDomNode(document.createElement("textarea"));
+    PartFingerprints.write(
+      this.textArea,
+      7
+      /* PartFingerprint.TextArea */
+    );
+    this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`);
+    this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
+    const { tabSize } = this._context.viewModel.model.getOptions();
+    this.textArea.domNode.style.tabSize = `${tabSize * this._fontInfo.spaceWidth}px`;
+    this.textArea.setAttribute("autocorrect", "off");
+    this.textArea.setAttribute("autocapitalize", "off");
+    this.textArea.setAttribute("autocomplete", "off");
+    this.textArea.setAttribute("spellcheck", "false");
+    this.textArea.setAttribute("aria-label", ariaLabelForScreenReaderContent(options, this._keybindingService));
+    this.textArea.setAttribute("aria-required", options.get(
+      9
+      /* EditorOption.ariaRequired */
+    ) ? "true" : "false");
+    this.textArea.setAttribute("tabindex", String(options.get(
+      140
+      /* EditorOption.tabIndex */
+    )));
+    this.textArea.setAttribute("role", "textbox");
+    this.textArea.setAttribute("aria-roledescription", nls.localize("editor", "editor"));
+    this.textArea.setAttribute("aria-multiline", "true");
+    this.textArea.setAttribute("aria-autocomplete", options.get(
+      104
+      /* EditorOption.readOnly */
+    ) ? "none" : "both");
+    this._ensureReadOnlyAttribute();
+    this.textAreaCover = createFastDomNode(document.createElement("div"));
+    this.textAreaCover.setPosition("absolute");
+    overflowGuardContainer.appendChild(this.textArea);
+    overflowGuardContainer.appendChild(this.textAreaCover);
+    const simplePagedScreenReaderStrategy = new SimplePagedScreenReaderStrategy();
+    const textAreaInputHost = {
+      context: this._context,
+      getScreenReaderContent: /* @__PURE__ */ __name(() => {
+        if (this._accessibilitySupport === 1) {
+          const selection = this._selections[0];
+          if (platform.isMacintosh && selection.isEmpty()) {
+            const position = selection.getStartPosition();
+            let textBefore = this._getWordBeforePosition(position);
+            if (textBefore.length === 0) {
+              textBefore = this._getCharacterBeforePosition(position);
+            }
+            if (textBefore.length > 0) {
+              return new TextAreaState(textBefore, textBefore.length, textBefore.length, Range.fromPositions(position), 0);
+            }
+          }
+          const LIMIT_CHARS = 500;
+          if (platform.isMacintosh && !selection.isEmpty() && this._context.viewModel.getValueLengthInRange(
+            selection,
+            0
+            /* EndOfLinePreference.TextDefined */
+          ) < LIMIT_CHARS) {
+            const text = this._context.viewModel.getValueInRange(
+              selection,
+              0
+              /* EndOfLinePreference.TextDefined */
+            );
+            return new TextAreaState(text, 0, text.length, selection, 0);
+          }
+          if (browser.isSafari && !selection.isEmpty()) {
+            const placeholderText = "vscode-placeholder";
+            return new TextAreaState(placeholderText, 0, placeholderText.length, null, void 0);
+          }
+          return TextAreaState.EMPTY;
+        }
+        if (browser.isAndroid) {
+          const selection = this._selections[0];
+          if (selection.isEmpty()) {
+            const position = selection.getStartPosition();
+            const [wordAtPosition, positionOffsetInWord] = this._getAndroidWordAtPosition(position);
+            if (wordAtPosition.length > 0) {
+              return new TextAreaState(wordAtPosition, positionOffsetInWord, positionOffsetInWord, Range.fromPositions(position), 0);
+            }
+          }
+          return TextAreaState.EMPTY;
+        }
+        const screenReaderContentState = simplePagedScreenReaderStrategy.fromEditorSelection(
+          this._context.viewModel,
+          this._selections[0],
+          this._accessibilityPageSize,
+          this._accessibilitySupport === 0
+          /* AccessibilitySupport.Unknown */
+        );
+        return TextAreaState.fromScreenReaderContentState(screenReaderContentState);
+      }, "getScreenReaderContent"),
+      deduceModelPosition: /* @__PURE__ */ __name((viewAnchorPosition, deltaOffset, lineFeedCnt) => {
+        return this._context.viewModel.deduceModelPositionRelativeToViewPosition(viewAnchorPosition, deltaOffset, lineFeedCnt);
+      }, "deduceModelPosition")
+    };
+    const textAreaWrapper = this._register(new TextAreaWrapper(this.textArea.domNode));
+    this._textAreaInput = this._register(this._instantiationService.createInstance(TextAreaInput, textAreaInputHost, textAreaWrapper, platform.OS, {
+      isAndroid: browser.isAndroid,
+      isChrome: browser.isChrome,
+      isFirefox: browser.isFirefox,
+      isSafari: browser.isSafari
+    }));
+    this._register(this._textAreaInput.onWillCopy((e) => this._onWillCopy.fire(e)));
+    this._register(this._textAreaInput.onWillCut((e) => this._onWillCut.fire(e)));
+    this._register(this._textAreaInput.onWillPaste((e) => this._onWillPaste.fire(e)));
+    this._register(this._textAreaInput.onKeyDown((e) => {
+      this._viewController.emitKeyDown(e);
+    }));
+    this._register(this._textAreaInput.onKeyUp((e) => {
+      this._viewController.emitKeyUp(e);
+    }));
+    this._register(this._textAreaInput.onPaste((e) => {
+      let pasteOnNewLine = false;
+      let multicursorText = null;
+      let mode = null;
+      if (e.metadata) {
+        pasteOnNewLine = this._emptySelectionClipboard && !!e.metadata.isFromEmptySelection;
+        multicursorText = typeof e.metadata.multicursorText !== "undefined" ? e.metadata.multicursorText : null;
+        mode = e.metadata.mode;
+      }
+      this._viewController.paste(e.text, pasteOnNewLine, multicursorText, mode);
+    }));
+    this._register(this._textAreaInput.onCut(() => {
+      this._viewController.cut();
+    }));
+    this._register(this._textAreaInput.onType((e) => {
+      if (e.replacePrevCharCnt || e.replaceNextCharCnt || e.positionDelta) {
+        if (_debugComposition) {
+          console.log(` => compositionType: <<${e.text}>>, ${e.replacePrevCharCnt}, ${e.replaceNextCharCnt}, ${e.positionDelta}`);
+        }
+        this._viewController.compositionType(e.text, e.replacePrevCharCnt, e.replaceNextCharCnt, e.positionDelta);
+      } else {
+        if (_debugComposition) {
+          console.log(` => type: <<${e.text}>>`);
+        }
+        this._viewController.type(e.text);
+      }
+    }));
+    this._register(this._textAreaInput.onSelectionChangeRequest((modelSelection) => {
+      this._viewController.setSelection(modelSelection);
+    }));
+    this._register(this._textAreaInput.onCompositionStart((e) => {
+      const ta = this.textArea.domNode;
+      const modelSelection = this._modelSelections[0];
+      const { distanceToModelLineStart, widthOfHiddenTextBefore } = (() => {
+        const textBeforeSelection = ta.value.substring(0, Math.min(ta.selectionStart, ta.selectionEnd));
+        const lineFeedOffset1 = textBeforeSelection.lastIndexOf("\n");
+        const lineTextBeforeSelection = textBeforeSelection.substring(lineFeedOffset1 + 1);
+        const tabOffset1 = lineTextBeforeSelection.lastIndexOf("	");
+        const desiredVisibleBeforeCharCount = lineTextBeforeSelection.length - tabOffset1 - 1;
+        const startModelPosition = modelSelection.getStartPosition();
+        const visibleBeforeCharCount = Math.min(startModelPosition.column - 1, desiredVisibleBeforeCharCount);
+        const distanceToModelLineStart2 = startModelPosition.column - 1 - visibleBeforeCharCount;
+        const hiddenLineTextBefore = lineTextBeforeSelection.substring(0, lineTextBeforeSelection.length - visibleBeforeCharCount);
+        const { tabSize: tabSize2 } = this._context.viewModel.model.getOptions();
+        const widthOfHiddenTextBefore2 = measureText(this.textArea.domNode.ownerDocument, hiddenLineTextBefore, this._fontInfo, tabSize2);
+        return { distanceToModelLineStart: distanceToModelLineStart2, widthOfHiddenTextBefore: widthOfHiddenTextBefore2 };
+      })();
+      const { distanceToModelLineEnd } = (() => {
+        const textAfterSelection = ta.value.substring(Math.max(ta.selectionStart, ta.selectionEnd));
+        const lineFeedOffset2 = textAfterSelection.indexOf("\n");
+        const lineTextAfterSelection = lineFeedOffset2 === -1 ? textAfterSelection : textAfterSelection.substring(0, lineFeedOffset2);
+        const tabOffset2 = lineTextAfterSelection.indexOf("	");
+        const desiredVisibleAfterCharCount = tabOffset2 === -1 ? lineTextAfterSelection.length : lineTextAfterSelection.length - tabOffset2 - 1;
+        const endModelPosition = modelSelection.getEndPosition();
+        const visibleAfterCharCount = Math.min(this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column, desiredVisibleAfterCharCount);
+        const distanceToModelLineEnd2 = this._context.viewModel.model.getLineMaxColumn(endModelPosition.lineNumber) - endModelPosition.column - visibleAfterCharCount;
+        return { distanceToModelLineEnd: distanceToModelLineEnd2 };
+      })();
+      this._context.viewModel.revealRange(
+        "keyboard",
+        true,
+        Range.fromPositions(this._selections[0].getStartPosition()),
+        0,
+        1
+        /* ScrollType.Immediate */
+      );
+      this._visibleTextArea = new VisibleTextAreaData(this._context, modelSelection.startLineNumber, distanceToModelLineStart, widthOfHiddenTextBefore, distanceToModelLineEnd);
+      this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
+      this._visibleTextArea.prepareRender(this._visibleRangeProvider);
+      this._render();
+      this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME} ime-input`);
+      this._viewController.compositionStart();
+      this._context.viewModel.onCompositionStart();
+    }));
+    this._register(this._textAreaInput.onCompositionUpdate((e) => {
+      if (!this._visibleTextArea) {
+        return;
+      }
+      this._visibleTextArea.prepareRender(this._visibleRangeProvider);
+      this._render();
+    }));
+    this._register(this._textAreaInput.onCompositionEnd(() => {
+      this._visibleTextArea = null;
+      this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
+      this._render();
+      this.textArea.setClassName(`inputarea ${MOUSE_CURSOR_TEXT_CSS_CLASS_NAME}`);
+      this._viewController.compositionEnd();
+      this._context.viewModel.onCompositionEnd();
+    }));
+    this._register(this._textAreaInput.onFocus(() => {
+      this._context.viewModel.setHasFocus(true);
+    }));
+    this._register(this._textAreaInput.onBlur(() => {
+      this._context.viewModel.setHasFocus(false);
+    }));
+    this._register(IME.onDidChange(() => {
+      this._ensureReadOnlyAttribute();
+    }));
+    this._register(TextAreaEditContextRegistry.register(ownerID, this));
+  }
+  get domNode() {
+    return this.textArea;
+  }
+  writeScreenReaderContent(reason) {
+    this._textAreaInput.writeNativeTextAreaContent(reason);
+  }
+  getTextAreaDomNode() {
+    return this.textArea.domNode;
+  }
+  dispose() {
+    super.dispose();
+    this.textArea.domNode.remove();
+    this.textAreaCover.domNode.remove();
+  }
+  _getAndroidWordAtPosition(position) {
+    const ANDROID_WORD_SEPARATORS = '`~!@#$%^&*()-=+[{]}\\|;:",.<>/?';
+    const lineContent = this._context.viewModel.getLineContent(position.lineNumber);
+    const wordSeparators = getMapForWordSeparators(ANDROID_WORD_SEPARATORS, []);
+    let goingLeft = true;
+    let startColumn = position.column;
+    let goingRight = true;
+    let endColumn = position.column;
+    let distance = 0;
+    while (distance < 50 && (goingLeft || goingRight)) {
+      if (goingLeft && startColumn <= 1) {
+        goingLeft = false;
+      }
+      if (goingLeft) {
+        const charCode = lineContent.charCodeAt(startColumn - 2);
+        const charClass = wordSeparators.get(charCode);
+        if (charClass !== 0) {
+          goingLeft = false;
+        } else {
+          startColumn--;
+        }
+      }
+      if (goingRight && endColumn > lineContent.length) {
+        goingRight = false;
+      }
+      if (goingRight) {
+        const charCode = lineContent.charCodeAt(endColumn - 1);
+        const charClass = wordSeparators.get(charCode);
+        if (charClass !== 0) {
+          goingRight = false;
+        } else {
+          endColumn++;
+        }
+      }
+      distance++;
+    }
+    return [lineContent.substring(startColumn - 1, endColumn - 1), position.column - startColumn];
+  }
+  _getWordBeforePosition(position) {
+    const lineContent = this._context.viewModel.getLineContent(position.lineNumber);
+    const wordSeparators = getMapForWordSeparators(this._context.configuration.options.get(
+      148
+      /* EditorOption.wordSeparators */
+    ), []);
+    let column = position.column;
+    let distance = 0;
+    while (column > 1) {
+      const charCode = lineContent.charCodeAt(column - 2);
+      const charClass = wordSeparators.get(charCode);
+      if (charClass !== 0 || distance > 50) {
+        return lineContent.substring(column - 1, position.column - 1);
+      }
+      distance++;
+      column--;
+    }
+    return lineContent.substring(0, position.column - 1);
+  }
+  _getCharacterBeforePosition(position) {
+    if (position.column > 1) {
+      const lineContent = this._context.viewModel.getLineContent(position.lineNumber);
+      const charBefore = lineContent.charAt(position.column - 2);
+      if (!strings.isHighSurrogate(charBefore.charCodeAt(0))) {
+        return charBefore;
+      }
+    }
+    return "";
+  }
+  _setAccessibilityOptions(options) {
+    this._accessibilitySupport = options.get(
+      2
+      /* EditorOption.accessibilitySupport */
+    );
+    const accessibilityPageSize = options.get(
+      3
+      /* EditorOption.accessibilityPageSize */
+    );
+    if (this._accessibilitySupport === 2 && accessibilityPageSize === EditorOptions.accessibilityPageSize.defaultValue) {
+      this._accessibilityPageSize = 500;
+    } else {
+      this._accessibilityPageSize = accessibilityPageSize;
+    }
+    const layoutInfo = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    const wrappingColumn = layoutInfo.wrappingColumn;
+    if (wrappingColumn !== -1 && this._accessibilitySupport !== 1) {
+      const fontInfo = options.get(
+        59
+        /* EditorOption.fontInfo */
+      );
+      this._textAreaWrapping = true;
+      this._textAreaWidth = Math.round(wrappingColumn * fontInfo.typicalHalfwidthCharacterWidth);
+    } else {
+      this._textAreaWrapping = false;
+      this._textAreaWidth = canUseZeroSizeTextarea ? 0 : 1;
+    }
+  }
+  // --- begin event handlers
+  onConfigurationChanged(e) {
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    this._setAccessibilityOptions(options);
+    this._contentLeft = layoutInfo.contentLeft;
+    this._contentWidth = layoutInfo.contentWidth;
+    this._contentHeight = layoutInfo.height;
+    this._fontInfo = options.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    this._emptySelectionClipboard = options.get(
+      45
+      /* EditorOption.emptySelectionClipboard */
+    );
+    this.textArea.setAttribute("wrap", this._textAreaWrapping && !this._visibleTextArea ? "on" : "off");
+    const { tabSize } = this._context.viewModel.model.getOptions();
+    this.textArea.domNode.style.tabSize = `${tabSize * this._fontInfo.spaceWidth}px`;
+    this.textArea.setAttribute("aria-label", ariaLabelForScreenReaderContent(options, this._keybindingService));
+    this.textArea.setAttribute("aria-required", options.get(
+      9
+      /* EditorOption.ariaRequired */
+    ) ? "true" : "false");
+    this.textArea.setAttribute("tabindex", String(options.get(
+      140
+      /* EditorOption.tabIndex */
+    )));
+    if (e.hasChanged(
+      41
+      /* EditorOption.domReadOnly */
+    ) || e.hasChanged(
+      104
+      /* EditorOption.readOnly */
+    )) {
+      this._ensureReadOnlyAttribute();
+    }
+    if (e.hasChanged(
+      2
+      /* EditorOption.accessibilitySupport */
+    )) {
+      this._textAreaInput.writeNativeTextAreaContent("strategy changed");
+    }
+    return true;
+  }
+  onCursorStateChanged(e) {
+    this._selections = e.selections.slice(0);
+    this._modelSelections = e.modelSelections.slice(0);
+    this._textAreaInput.writeNativeTextAreaContent("selection changed");
+    return true;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    return true;
+  }
+  onLinesChanged(e) {
+    return true;
+  }
+  onLinesDeleted(e) {
+    return true;
+  }
+  onLinesInserted(e) {
+    return true;
+  }
+  onScrollChanged(e) {
+    this._scrollLeft = e.scrollLeft;
+    this._scrollTop = e.scrollTop;
+    return true;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  // --- end event handlers
+  // --- begin view API
+  isFocused() {
+    return this._textAreaInput.isFocused();
+  }
+  focus() {
+    this._textAreaInput.focusTextArea();
+  }
+  refreshFocusState() {
+    this._textAreaInput.refreshFocusState();
+  }
+  getLastRenderData() {
+    return this._lastRenderPosition;
+  }
+  setAriaOptions(options) {
+    if (options.activeDescendant) {
+      this.textArea.setAttribute("aria-haspopup", "true");
+      this.textArea.setAttribute("aria-autocomplete", "list");
+      this.textArea.setAttribute("aria-activedescendant", options.activeDescendant);
+    } else {
+      this.textArea.setAttribute("aria-haspopup", "false");
+      this.textArea.setAttribute("aria-autocomplete", "both");
+      this.textArea.removeAttribute("aria-activedescendant");
+    }
+    if (options.role) {
+      this.textArea.setAttribute("role", options.role);
+    }
+  }
+  // --- end view API
+  _ensureReadOnlyAttribute() {
+    const options = this._context.configuration.options;
+    const useReadOnly = !IME.enabled || options.get(
+      41
+      /* EditorOption.domReadOnly */
+    ) && options.get(
+      104
+      /* EditorOption.readOnly */
+    );
+    if (useReadOnly) {
+      this.textArea.setAttribute("readonly", "true");
+    } else {
+      this.textArea.removeAttribute("readonly");
+    }
+  }
+  prepareRender(ctx) {
+    this._primaryCursorPosition = new Position(this._selections[0].positionLineNumber, this._selections[0].positionColumn);
+    this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(this._primaryCursorPosition);
+    this._visibleTextArea?.prepareRender(ctx);
+  }
+  render(ctx) {
+    this._textAreaInput.writeNativeTextAreaContent("render");
+    this._render();
+  }
+  _render() {
+    if (this._visibleTextArea) {
+      const visibleStart = this._visibleTextArea.visibleTextareaStart;
+      const visibleEnd = this._visibleTextArea.visibleTextareaEnd;
+      const startPosition = this._visibleTextArea.startPosition;
+      const endPosition = this._visibleTextArea.endPosition;
+      if (startPosition && endPosition && visibleStart && visibleEnd && visibleEnd.left >= this._scrollLeft && visibleStart.left <= this._scrollLeft + this._contentWidth) {
+        const top2 = this._context.viewLayout.getVerticalOffsetForLineNumber(this._primaryCursorPosition.lineNumber) - this._scrollTop;
+        const lineCount = newlinecount(this.textArea.domNode.value.substr(0, this.textArea.domNode.selectionStart));
+        let scrollLeft = this._visibleTextArea.widthOfHiddenLineTextBefore;
+        let left2 = this._contentLeft + visibleStart.left - this._scrollLeft;
+        let width = visibleEnd.left - visibleStart.left + 1;
+        if (left2 < this._contentLeft) {
+          const delta = this._contentLeft - left2;
+          left2 += delta;
+          scrollLeft += delta;
+          width -= delta;
+        }
+        if (width > this._contentWidth) {
+          width = this._contentWidth;
+        }
+        const lineHeight = this._context.viewLayout.getLineHeightForLineNumber(startPosition.lineNumber);
+        const fontSize = this._context.viewModel.getFontSizeAtPosition(this._primaryCursorPosition);
+        const viewLineData = this._context.viewModel.getViewLineData(startPosition.lineNumber);
+        const startTokenIndex = viewLineData.tokens.findTokenIndexAtOffset(startPosition.column - 1);
+        const endTokenIndex = viewLineData.tokens.findTokenIndexAtOffset(endPosition.column - 1);
+        const textareaSpansSingleToken = startTokenIndex === endTokenIndex;
+        const presentation = this._visibleTextArea.definePresentation(textareaSpansSingleToken ? viewLineData.tokens.getPresentation(startTokenIndex) : null);
+        this.textArea.domNode.scrollTop = lineCount * lineHeight;
+        this.textArea.domNode.scrollLeft = scrollLeft;
+        this._doRender({
+          lastRenderPosition: null,
+          top: top2,
+          left: left2,
+          width,
+          height: lineHeight,
+          useCover: false,
+          color: (TokenizationRegistry.getColorMap() || [])[presentation.foreground],
+          italic: presentation.italic,
+          bold: presentation.bold,
+          underline: presentation.underline,
+          strikethrough: presentation.strikethrough,
+          fontSize
+        });
+      }
+      return;
+    }
+    if (!this._primaryCursorVisibleRange) {
+      this._renderAtTopLeft();
+      return;
+    }
+    const left = this._contentLeft + this._primaryCursorVisibleRange.left - this._scrollLeft;
+    if (left < this._contentLeft || left > this._contentLeft + this._contentWidth) {
+      this._renderAtTopLeft();
+      return;
+    }
+    const top = this._context.viewLayout.getVerticalOffsetForLineNumber(this._selections[0].positionLineNumber) - this._scrollTop;
+    if (top < 0 || top > this._contentHeight) {
+      this._renderAtTopLeft();
+      return;
+    }
+    if (platform.isMacintosh || this._accessibilitySupport === 2) {
+      const lineNumber = this._primaryCursorPosition.lineNumber;
+      const lineHeight = this._context.viewLayout.getLineHeightForLineNumber(lineNumber);
+      this._doRender({
+        lastRenderPosition: this._primaryCursorPosition,
+        top,
+        left: this._textAreaWrapping ? this._contentLeft : left,
+        width: this._textAreaWidth,
+        height: lineHeight,
+        useCover: false
+      });
+      this.textArea.domNode.scrollLeft = this._primaryCursorVisibleRange.left;
+      const lineCount = this._textAreaInput.textAreaState.newlineCountBeforeSelection ?? newlinecount(this.textArea.domNode.value.substring(0, this.textArea.domNode.selectionStart));
+      this.textArea.domNode.scrollTop = lineCount * lineHeight;
+      return;
+    }
+    this._doRender({
+      lastRenderPosition: this._primaryCursorPosition,
+      top,
+      left: this._textAreaWrapping ? this._contentLeft : left,
+      width: this._textAreaWidth,
+      height: canUseZeroSizeTextarea ? 0 : 1,
+      useCover: false
+    });
+  }
+  _renderAtTopLeft() {
+    this._doRender({
+      lastRenderPosition: null,
+      top: 0,
+      left: 0,
+      width: this._textAreaWidth,
+      height: canUseZeroSizeTextarea ? 0 : 1,
+      useCover: true
+    });
+  }
+  _doRender(renderData) {
+    this._lastRenderPosition = renderData.lastRenderPosition;
+    const ta = this.textArea;
+    const tac = this.textAreaCover;
+    applyFontInfo(ta, this._fontInfo);
+    ta.setTop(renderData.top);
+    ta.setLeft(renderData.left);
+    ta.setWidth(renderData.width);
+    ta.setHeight(renderData.height);
+    ta.setLineHeight(renderData.height);
+    ta.setFontSize(renderData.fontSize ?? this._fontInfo.fontSize);
+    ta.setColor(renderData.color ? Color.Format.CSS.formatHex(renderData.color) : "");
+    ta.setFontStyle(renderData.italic ? "italic" : "");
+    if (renderData.bold) {
+      ta.setFontWeight("bold");
+    }
+    ta.setTextDecoration(`${renderData.underline ? " underline" : ""}${renderData.strikethrough ? " line-through" : ""}`);
+    tac.setTop(renderData.useCover ? renderData.top : 0);
+    tac.setLeft(renderData.useCover ? renderData.left : 0);
+    tac.setWidth(renderData.useCover ? renderData.width : 0);
+    tac.setHeight(renderData.useCover ? renderData.height : 0);
+    const options = this._context.configuration.options;
+    if (options.get(
+      66
+      /* EditorOption.glyphMargin */
+    )) {
+      tac.setClassName("monaco-editor-background textAreaCover " + Margin.OUTER_CLASS_NAME);
+    } else {
+      if (options.get(
+        76
+        /* EditorOption.lineNumbers */
+      ).renderType !== 0) {
+        tac.setClassName("monaco-editor-background textAreaCover " + LineNumbersOverlay.CLASS_NAME);
+      } else {
+        tac.setClassName("monaco-editor-background textAreaCover");
+      }
+    }
+  }
+};
+TextAreaEditContext = __decorate([
+  __param(5, IKeybindingService),
+  __param(6, IInstantiationService)
+], TextAreaEditContext);
+function measureText(targetDocument, text, fontInfo, tabSize) {
+  if (text.length === 0) {
+    return 0;
+  }
+  const container = targetDocument.createElement("div");
+  container.style.position = "absolute";
+  container.style.top = "-50000px";
+  container.style.width = "50000px";
+  const regularDomNode = targetDocument.createElement("span");
+  applyFontInfo(regularDomNode, fontInfo);
+  regularDomNode.style.whiteSpace = "pre";
+  regularDomNode.style.tabSize = `${tabSize * fontInfo.spaceWidth}px`;
+  regularDomNode.append(text);
+  container.appendChild(regularDomNode);
+  targetDocument.body.appendChild(container);
+  const res = regularDomNode.offsetWidth;
+  container.remove();
+  return res;
+}
+__name(measureText, "measureText");
+export {
+  TextAreaEditContext
+};
+//# sourceMappingURL=textAreaEditContext.js.map

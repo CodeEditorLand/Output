@@ -1,1 +1,4 @@
-import{$jcc as m}from"./textMateTokenizationWorker.worker.js";import{$nbb as o}from"../../../../../../base/common/worker/webWorkerBootstrap.js";o(m);
+import { create } from "./textMateTokenizationWorker.worker.js";
+import { bootstrapWebWorker } from "../../../../../../base/common/worker/webWorkerBootstrap.js";
+bootstrapWebWorker(create);
+//# sourceMappingURL=textMateTokenizationWorker.workerMain.js.map

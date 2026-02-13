@@ -1,1 +1,825 @@
-import"./media/chatViewPane.css";import{$ as m,$u8 as k,$y9 as w,$t9 as q,$r9 as B,getWindow as R,$D9 as G}from"../../../../../../base/browser/dom.js";import{$h8 as z}from"../../../../../../base/browser/mouseEvent.js";import{$b_ as K}from"../../../../../../base/browser/ui/button/button.js";import{$i_ as U}from"../../../../../../base/browser/ui/sash/sash.js";import{CancellationToken as tt}from"../../../../../../base/common/cancellation.js";import{Event as f}from"../../../../../../base/common/event.js";import{$Fd as S,$Cd as it,$Dd as E}from"../../../../../../base/common/lifecycle.js";import{autorun as $}from"../../../../../../base/common/observable.js";import{localize as D}from"../../../../../../nls.js";import{$ikb as st}from"../../../../../../platform/actions/browser/toolbar.js";import{$qL as V}from"../../../../../../platform/actions/common/actions.js";import{$uo as et}from"../../../../../../platform/commands/common/commands.js";import{$0l as ot}from"../../../../../../platform/configuration/common/configuration.js";import{$ro as F}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ijb as nt}from"../../../../../../platform/contextview/browser/contextView.js";import{$jkb as ct}from"../../../../../../platform/hover/browser/hover.js";import{$Mj as rt}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as ht}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$fy as at}from"../../../../../../platform/keybinding/common/keybinding.js";import{$yo as dt}from"../../../../../../platform/log/common/log.js";import{$EP as lt}from"../../../../../../platform/opener/common/opener.js";import{$hp as ut}from"../../../../../../platform/storage/common/storage.js";import{$pp as ft}from"../../../../../../platform/telemetry/common/telemetry.js";import{$Ijb as gt}from"../../../../../../platform/theme/browser/defaultStyles.js";import{$Jq as mt}from"../../../../../../platform/theme/common/colorRegistry.js";import{$Nnc as pt}from"./chatViewTitleControl.js";import{$qu as bt}from"../../../../../../platform/theme/common/themeService.js";import{$ZBb as Ct}from"../../../../../browser/parts/views/viewPane.js";import{$JZ as wt}from"../../../../../common/memento.js";import{$CAb as St}from"../../../../../common/theme.js";import{$FN as yt}from"../../../../../common/views.js";import{$WN as vt}from"../../../../../services/lifecycle/common/lifecycle.js";import{$kW as $t}from"../../../common/participants/chatAgents.js";import{ChatContextKeys as y}from"../../../common/actions/chatContextKeys.js";import{$jW as Dt}from"../../../common/participants/chatParticipantContribTypes.js";import{$NV as Vt}from"../../../common/chatService/chatService.js";import{$aW as kt,$9V as L}from"../../../common/chatSessionsService.js";import{LocalChatSessionUri as Bt,$iS as P}from"../../../common/model/chatUri.js";import{ChatAgentLocation as b,ChatConfiguration as p,ChatModeKind as O}from"../../../common/constants.js";import{$Onc as Rt}from"../../agentSessions/agentSessionsControl.js";import{$IPb as Et}from"../../actions/chatActions.js";import{$H4b as Lt}from"../../widget/chatWidget.js";import{$E4b as Pt}from"../../viewsWelcome/chatViewWelcomeController.js";import{$Eyb as Ot}from"../../../../../services/layout/browser/layoutService.js";import{AgentSessionsViewerOrientation as h,AgentSessionsViewerPosition as M}from"../../agentSessions/agentSessions.js";import{$uH as Mt}from"../../../../../../platform/progress/common/progress.js";import{$24b as Qt}from"../../chat.js";import{$aCb as At,$dCb as Ft}from"../../../../../services/activity/common/activity.js";import{$$h as It}from"../../../../../../base/common/async.js";import{$rnc as xt,AgentSessionsGrouping as Q}from"../../agentSessions/agentSessionsFilter.js";import{$tQb as Wt}from"../../agentSessions/agentSessionsService.js";import{$JP as Tt}from"../../../../../services/chat/common/chatEntitlementService.js";var Z=function(C,t,i,e){var s=arguments.length,o=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(C,t,i,e);else for(var c=C.length-1;c>=0;c--)(n=C[c])&&(o=(s<3?n(o):s>3?n(t,i,o):n(t,i))||o);return s>3&&o&&Object.defineProperty(t,i,o),o},r=function(C,t){return function(i,e){t(i,e,C)}},g;let A=class extends Ct{static{g=this}constructor(t,i,e,s,o,n,c,d,a,u,l,v,I,x,W,T,j,H,N,_,X,J,Y){super(t,i,e,s,o,n,c,d,a,u),this.s=l,this.t=v,this.L=I,this.ab=x,this.sb=W,this.cc=T,this.dc=j,this.ec=N,this.fc=_,this.gc=X,this.hc=J,this.ic=Y,this.h=new Map,this.n=this.D(new S),this.r=this.D(new S),this.Ec=h.Stacked,this.Fc="sideBySide",this.Lc=this.D(new S),this.$c=!1,this.a=new wt(`interactive-session-view-${Dt}`,this.s),this.b=this.a.getMemento(1,1),H.startupKind!==3&&this.Cb.getValue(p.RestoreLastPanelSession)===!1&&(this.b.sessionId=void 0),this.Dc=!1,this.Jc=Math.max(g.sc,this.b.sessionsSidebarWidth??g.uc),this.f=y.panelLocation.bindTo(o),this.Gc=y.agentSessionsViewerOrientation.bindTo(o),this.Ic=y.agentSessionsViewerPosition.bindTo(o),this.Hc=y.agentSessionsViewerVisible.bindTo(o),this.jc(),this.nc()}jc(){const{position:t,location:i}=this.kc();this.f.set(i??2),this.Gc.set(this.Ec),this.Ic.set(t===1?M.Right:M.Left)}kc(){const t=this.Eb.getViewLocationById(this.id),i=this.sb.getSideBarPosition(),e=this.sb.getPanelPosition();let s;switch(t){case 0:s=i===1;break;case 1:s=e!==0;break;default:s=i===0;break}return{position:s?1:0,location:t??2}}lc(){const t=this.Eb.getViewLocationById(this.id),i=this.sb.getSideBarPosition();return this.Ec===h.SideBySide?t===0&&i===1?0:1:{0:1,1:0,3:2,2:3}[t===1?this.sb.getPanelPosition():i]}mc(t){const i=this.Cb.getValue("workbench.activityBar.location")==="default";this.c?.classList.toggle("activity-bar-location-default",i),this.c?.classList.toggle("activity-bar-location-other",!i);const{position:e,location:s}=this.kc();this.c?.classList.toggle("chat-view-location-auxiliarybar",s===2),this.c?.classList.toggle("chat-view-location-sidebar",s===0),this.c?.classList.toggle("chat-view-location-panel",s===1),this.c?.classList.toggle("chat-view-position-left",e===0),this.c?.classList.toggle("chat-view-position-right",e===1),t&&this.ad()}nc(){this.D(this.L.onDidChangeAgents(()=>this.oc())),this.D(f.any(f.filter(this.Cb.onDidChangeConfiguration,t=>t.affectsConfiguration("workbench.sideBar.location")),this.sb.onDidChangePanelPosition,f.filter(this.Eb.onDidChangeContainerLocation,t=>t.viewContainer===this.Eb.getViewContainerByViewId(this.id)))(()=>{this.jc(),this.mc(!0)})),this.D(f.filter(this.Cb.onDidChangeConfiguration,t=>t.affectsConfiguration("workbench.activityBar.location"))(()=>this.mc(!0)))}oc(){if(this.L.getDefaultAgent(b.Chat)&&!this.Qc?.viewModel&&!this.m){const t=this.pc();this.m=(t?this.t.getOrRestoreSession(t):Promise.resolve(void 0)).then(async i=>{if(!this.Qc)return;const e=this.Qc.visible;try{this.Qc.setVisible(!1),await this.Xc(i)}finally{this.Qc.setVisible(e)}}),this.m.finally(()=>this.m=void 0)}this.fb.fire()}pc(){return this.t.transferredSessionResource?this.t.transferredSessionResource:this.b.sessionId?Bt.forSession(this.b.sessionId):void 0}X(t){super.X(t),this.dc.publicLog2("chatViewPaneOpened"),this.c=t,this.c.classList.add("chat-viewpane"),this.mc(!1),this.rc(t),this.Vc(t),this.Wc()}rc(t){const i=this.Mc(t),e=this.j=this.D(this.Fb.createInstance(Pt,t,this,b.Chat)),s=this.Sc(t);this.Uc(i,s,e),this.Oc()}static{this.sc=200}static{this.tc=this.sc/2}static{this.uc=300}static{this.vc=300}static{this.wc=this.vc+this.uc}Mc(t){const i=this.xc=t.appendChild(m(".agent-sessions-container")),e=this.yc=w(i,m(".agent-sessions-title-container")),s=this.zc=w(e,m("span.agent-sessions-title"));s.textContent=D(6796,null),this.D(k(s,B.CLICK,()=>{this.Cc?.scrollToTop(),this.Cc?.focus()}));const o=w(e,m(".agent-sessions-toolbar")),n=this.D(this.Fb.createInstance(st,o,V.AgentSessionsToolbar,{menuOptions:{shouldForwardArgs:!0}})),c=this.D(this.Fb.createInstance(xt,{filterMenuId:V.AgentSessionsViewerFilterSubMenu,groupResults:()=>this.Ec===h.Stacked?Q.Capped:Q.Date}));this.D(f.runAndSubscribe(c.onDidChange,()=>{o.classList.toggle("filtered",!c.isDefault())}));const d=this.Ac=w(i,m(".agent-sessions-new-button-container")),a=this.D(new K(d,{...gt,secondary:!0}));a.label=D(6797,null),this.D(a.onDidClick(()=>this.hc.executeCommand(Et))),this.Bc=w(i,m(".agent-sessions-control-container"));const u=this.Cc=this.D(this.Fb.createInstance(Rt,this.Bc,{source:"chatViewPane",filter:c,overrideStyles:this.Zb().listOverrideStyles,getHoverPosition:()=>this.lc(),trackActiveEditorSession:()=>!this.Qc||this.Qc.isEmpty(),overrideSessionOpenOptions:l=>this.Ec===h.Stacked&&!l.sideBySide?{...l,editorOptions:{...l.editorOptions,preserveFocus:!1}}:l}));return this.D(this.onDidChangeBodyVisibility(l=>u.setVisible(l))),n.context=u,this.D(f.runAndSubscribe(f.filter(this.Cb.onDidChangeConfiguration,l=>l.affectsConfiguration(p.ChatViewSessionsOrientation)),l=>{const v=this.Cb.getValue(p.ChatViewSessionsOrientation);this.Nc(v,{updateConfiguration:!1,layout:!!l})})),u}getSessionsViewerOrientation(){return this.Ec}updateConfiguredSessionsViewerOrientation(t){return this.Nc(t,{updateConfiguration:!0,layout:!0})}Nc(t,i){const e=this.Fc;let s;t==="stacked"||t==="sideBySide"?s=t:s="sideBySide",this.Fc=s,e!==this.Fc&&(i.updateConfiguration&&this.Cb.updateValue(p.ChatViewSessionsOrientation,s),i.layout&&this.ad())}Oc(){if(!this.xc||!this.c)return{changed:!1,visible:!1};let t;this.Cb.getValue(p.ChatViewSessionsEnabled)?this.Ec===h.Stacked?t=!!this.gc.sentiment.installed&&(!this.Qc||this.Qc.isEmpty()&&!!this.Qc.viewModel)&&!this.j?.isShowingWelcome.get():t=!this.j?.isShowingWelcome.get()&&!!this.g&&this.g.width>=g.wc:t=!1,this.c.classList.toggle("has-sessions-control",t);const i=this.xc.style.display!=="none";return G(t,this.xc),this.Dc=t,this.Hc.set(t),{changed:i!==t,visible:t}}getFocusedSessions(){return this.Cc?.getFocus()??[]}static{this.Pc=116}get widget(){return this.Qc}Sc(t){const i=w(t,m(".chat-controls-container")),e=this.Zb(),s=this.sb.getContainer(R(i)).appendChild(m(".chat-editor-overflow.monaco-editor"));this.D(it(()=>s.remove())),this.Tc(i);const o=this.D(this.Fb.createChild(new ht([F,this.zb])));this.Qc=this.D(o.createInstance(Lt,b.Chat,{viewId:this.id},{autoScroll:c=>c!==O.Ask,renderFollowups:!0,supportsFileReferences:!0,clear:()=>this.Zc(),rendererOptions:{renderTextEditsAsSummary:c=>!0,referencesExpandedWhenEmptyResponse:!1,progressMessageAtBottomOfResponse:c=>c!==O.Ask},editorOverflowWidgetsDomNode:s,enableImplicitContext:!0,enableWorkingSet:"explicit",supportsChangingModes:!0,dndContainer:t},{listForeground:St,listBackground:e.background,overlayBackground:e.overlayBackground,inputEditorBackground:e.background,resultEditorBackground:mt})),this.Qc.render(i);const n=c=>this.Qc.setVisible(this.isBodyVisible()&&!this.j?.isShowingWelcome.read(c));return this.D(this.onDidChangeBodyVisibility(()=>n())),this.D($(c=>n(c))),this.Qc}Tc(t){this.Rc=this.D(this.Fb.createInstance(pt,t,{focusChat:()=>this.Qc.focusInput()})),this.D(this.Rc.onDidChangeHeight(()=>{this.ad()}))}Uc(t,i,e){this.D(f.any(i.onDidChangeEmptyState,f.fromObservable(e.isShowingWelcome),f.filter(this.Cb.onDidChangeConfiguration,n=>n.affectsConfiguration(p.ChatViewSessionsEnabled)))(()=>{this.Ec===h.Stacked&&t.clearFocus();const{changed:n}=this.Oc();n&&this.ad()})),this.D(i.onDidChangeViewModel(()=>{if(this.Ec===h.Stacked)return;const n=i.viewModel?.sessionResource;n&&(t.reveal(n)||t.clearFocus())})),this.D(this.fc.model.onDidChangeSessions(()=>{if(this.Ec===h.Stacked||t.hasFocusOrSelection())return;const n=i.viewModel?.sessionResource;n&&t.reveal(n)})),this.D($(n=>{i.inputPart.height.read(n),this.Dc&&this.Ec===h.Stacked&&this.ad()}));const s=this.D(new S),o=()=>{if(s.value=new E,!this.Cb.getValue(p.ChatViewProgressBadgeEnabled)){this.r.clear();return}const n=i.viewModel?.model;n?s.value.add($(c=>{n.requestInProgress.read(c)?this.r.value=this.ic.showViewActivity(this.id,{badge:new Ft(()=>D(6798,null))}):this.r.clear()})):this.r.clear()};this.D(i.onDidChangeViewModel(()=>o())),this.D(f.filter(this.Cb.onDidChangeConfiguration,n=>n.affectsConfiguration(p.ChatViewProgressBadgeEnabled))(()=>o())),o()}Vc(t){this.D(k(t,B.CONTEXT_MENU,i=>{q.stop(i,!0),this.Bb.showContextMenu({menuId:V.ChatWelcomeContext,contextKeyService:this.Db,getAnchor:()=>new z(R(t),i)})}))}async Wc(){const t=this.pc(),i=t?await this.t.getOrRestoreSession(t):void 0;await this.Xc(i)}async Xc(t,i=!0){const e=this.n.value?.object.sessionResource;this.n.value=void 0;let s;if(i&&(s=t??(this.t.transferredSessionResource?await this.t.getOrRestoreSession(this.t.transferredSessionResource):this.t.startSession(b.Chat)),!s))throw new Error("Could not start chat session");this.n.value=s;const o=s?.object;return o&&(await this.Yc(o.sessionResource),this.b.sessionId=o.sessionId),this.Qc.setModel(o),this.Rc?.update(o),this.bc(),e&&this.fc.model.getSession(e)?.setRead(!0),o}async Yc(t){const i=P(t);if(i===L){this.Qc.unlockFromCodingAgent();return}let e=!1;try{e=await this.cc.canResolveChatSession(t)}catch(o){this.ab.warn(`Failed to resolve chat session '${t.toString()}' for locking`,o)}if(!e){this.Qc.unlockFromCodingAgent();return}const s=this.cc.getChatSessionContribution(i);s?this.Qc.lockToCodingAgent(s.name,s.displayName,s.type):this.Qc.unlockFromCodingAgent()}async Zc(){this.gd(),await this.Xc(void 0),this.bc()}async loadSession(t){return this.ec.withProgress({location:Qt,delay:200},async()=>{let i=Promise.resolve();const e=It(()=>{i=this.Xc(void 0,!1).then(()=>{})},100);P(t)!==L&&await this.cc.canResolveChatSession(t);const o=await this.t.loadSessionForResource(t,b.Chat,tt.None);return e.dispose(),await i,this.Xc(o)})}focus(){super.focus(),this.focusInput()}focusInput(){this.Qc.focusInput()}focusSessions(){return this.xc?.style.display==="none"?!1:(this.Cc?.focus(),!0)}ad(){this.g&&this.Y(this.g.height,this.g.width)}Y(t,i){if(!this.$c){this.$c=!0;try{this.cd(t,i)}finally{this.$c=!1}}}cd(t,i){super.Y(t,i),this.g={height:t,width:i};let e=t,s=i;const{heightReduction:o,widthReduction:n}=this.dd(e,s);e-=o,s-=n,e-=this.Rc?.getHeight()??0,this.Qc.layout(e,s),this.h.set(this.Ec,{height:t,width:i})}dd(t,i){let e=0,s=0;if(!this.xc||!this.Bc||!this.Cc||!this.c||!this.yc||!this.zc)return{heightReduction:e,widthReduction:s};const o=this.Ec;let n;if(this.Fc==="stacked"?n=h.Stacked:n=i>=g.wc?h.SideBySide:h.Stacked,this.Ec=n,n===h.SideBySide?(this.c.classList.toggle("sessions-control-orientation-sidebyside",!0),this.c.classList.toggle("sessions-control-orientation-stacked",!1),this.Gc.set(h.SideBySide)):(this.c.classList.toggle("sessions-control-orientation-sidebyside",!1),this.c.classList.toggle("sessions-control-orientation-stacked",!0),this.Gc.set(h.Stacked)),o!==this.Ec){const a=this.Cc.update();this.Ec===h.SideBySide&&a.then(()=>{const u=this.Qc?.viewModel?.sessionResource;u&&this.Cc?.reveal(u)})}const{visible:c}=this.Oc();if(!c||this.Ec===h.Stacked?(this.Lc.clear(),this.Kc=void 0):this.Ec===h.SideBySide&&!this.Lc.value&&this.c&&this.fd(this.c,t,i),!c)return{heightReduction:0,widthReduction:0};let d=t-this.yc.offsetHeight;if(this.Ec===h.Stacked?d-=Math.max(g.Pc,this.Qc?.input?.height.get()??0):d-=this.Ac?.offsetHeight??0,this.Ec===h.SideBySide){const a=this.ed(i);this.Bc.style.height=`${d}px`,this.Bc.style.width=`${a}px`,this.Cc.layout(d,a),this.Kc?.layout(),e=0,s=this.xc.offsetWidth}else{const a=d-1;this.Bc.style.height=`${a}px`,this.Bc.style.width="",this.Cc.layout(a,i),e=this.xc.offsetHeight,s=0}return{heightReduction:e,widthReduction:s}}ed(t,i=this.Jc){return Math.max(g.sc,Math.min(i,t-g.vc))}getLastDimensions(t){return this.h.get(t)}fd(t,i,e){const s=this.Lc.value=new E,o=this.Kc=s.add(new U(t,{getVerticalSashLeft:()=>{const c=this.ed(this.g?.width??e),{position:d}=this.kc();return d===1?(this.g?.width??e)-c:c}},{orientation:0}));let n;s.add(o.onDidStart(()=>n=this.Jc)),s.add(o.onDidEnd(()=>n=void 0)),s.add(o.onDidChange(c=>{if(n===void 0||!this.g)return;const{position:d}=this.kc(),a=c.currentX-c.startX,u=d===1?n-a:n+a;if(u<g.tc){this.updateConfiguredSessionsViewerOrientation("stacked");return}this.Jc=this.ed(this.g.width,u),this.b.sessionsSidebarWidth=this.Jc,this.Y(this.g.height,this.g.width)})),s.add(o.onDidReset(()=>{this.Jc=g.uc,this.b.sessionsSidebarWidth=this.Jc,this.ad()}))}saveState(){this.Qc?.viewModel&&(this.Qc.saveState(),this.gd(),this.a.saveMemento()),super.saveState()}gd(t){const i=t??this.Qc.getViewState();if(i)for(const[e,s]of Object.entries(i))this.b[e]=s}shouldShowWelcome(){const t=!this.t.hasSessions(),i=this.L.getAgents().some(o=>o.isCore&&o.locations.includes(b.Chat)),e=this.L.getDefaultAgent(b.Chat)!==void 0,s=!i&&(!e||!this.Qc?.viewModel&&t);return this.ab.trace(`ChatViewPane#shouldShowWelcome() = ${s}: hasCoreAgent=${i} hasDefaultAgent=${e} || noViewModel=${!this.Qc?.viewModel} && noPersistedSessions=${t}`),!!s}getMatchingWelcomeView(){return this.j?.getMatchingWelcomeView()}getActionsContext(){return this.Qc?.viewModel?{sessionResource:this.Qc.viewModel.sessionResource,$mid:19}:void 0}};A=g=Z([r(1,at),r(2,nt),r(3,ot),r(4,F),r(5,yt),r(6,rt),r(7,lt),r(8,bt),r(9,ct),r(10,ut),r(11,Vt),r(12,$t),r(13,dt),r(14,Ot),r(15,kt),r(16,ft),r(17,vt),r(18,Mt),r(19,Wt),r(20,Tt),r(21,et),r(22,At)],A);export{A as $Pnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatViewPane_1;
+import "./media/chatViewPane.css";
+import { $, addDisposableListener, append, EventHelper, EventType, getWindow, setVisibility } from "../../../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../../../base/browser/mouseEvent.js";
+import { Button } from "../../../../../../base/browser/ui/button/button.js";
+import { Sash } from "../../../../../../base/browser/ui/sash/sash.js";
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { MutableDisposable, toDisposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { localize } from "../../../../../../nls.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { defaultButtonStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
+import { editorBackground } from "../../../../../../platform/theme/common/colorRegistry.js";
+import { ChatViewTitleControl } from "./chatViewTitleControl.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { ViewPane } from "../../../../../browser/parts/views/viewPane.js";
+import { Memento } from "../../../../../common/memento.js";
+import { SIDE_BAR_FOREGROUND } from "../../../../../common/theme.js";
+import { IViewDescriptorService } from "../../../../../common/views.js";
+import { ILifecycleService } from "../../../../../services/lifecycle/common/lifecycle.js";
+import { IChatAgentService } from "../../../common/participants/chatAgents.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { CHAT_PROVIDER_ID } from "../../../common/participants/chatParticipantContribTypes.js";
+import { IChatService } from "../../../common/chatService/chatService.js";
+import { IChatSessionsService, localChatSessionType } from "../../../common/chatSessionsService.js";
+import { LocalChatSessionUri, getChatSessionType } from "../../../common/model/chatUri.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../../common/constants.js";
+import { AgentSessionsControl } from "../../agentSessions/agentSessionsControl.js";
+import { ACTION_ID_NEW_CHAT } from "../../actions/chatActions.js";
+import { ChatWidget } from "../../widget/chatWidget.js";
+import { ChatViewWelcomeController } from "../../viewsWelcome/chatViewWelcomeController.js";
+import { IWorkbenchLayoutService } from "../../../../../services/layout/browser/layoutService.js";
+import { AgentSessionsViewerOrientation, AgentSessionsViewerPosition } from "../../agentSessions/agentSessions.js";
+import { IProgressService } from "../../../../../../platform/progress/common/progress.js";
+import { ChatViewId } from "../../chat.js";
+import { IActivityService, ProgressBadge } from "../../../../../services/activity/common/activity.js";
+import { disposableTimeout } from "../../../../../../base/common/async.js";
+import { AgentSessionsFilter, AgentSessionsGrouping } from "../../agentSessions/agentSessionsFilter.js";
+import { IAgentSessionsService } from "../../agentSessions/agentSessionsService.js";
+import { IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
+let ChatViewPane = class ChatViewPane2 extends ViewPane {
+  static {
+    __name(this, "ChatViewPane");
+  }
+  static {
+    ChatViewPane_1 = this;
+  }
+  constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, storageService, chatService, chatAgentService, logService, layoutService, chatSessionsService, telemetryService, lifecycleService, progressService, agentSessionsService, chatEntitlementService, commandService, activityService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.storageService = storageService;
+    this.chatService = chatService;
+    this.chatAgentService = chatAgentService;
+    this.logService = logService;
+    this.layoutService = layoutService;
+    this.chatSessionsService = chatSessionsService;
+    this.telemetryService = telemetryService;
+    this.progressService = progressService;
+    this.agentSessionsService = agentSessionsService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.commandService = commandService;
+    this.activityService = activityService;
+    this.lastDimensionsPerOrientation = /* @__PURE__ */ new Map();
+    this.modelRef = this._register(new MutableDisposable());
+    this.activityBadge = this._register(new MutableDisposable());
+    this.sessionsViewerOrientation = AgentSessionsViewerOrientation.Stacked;
+    this.sessionsViewerOrientationConfiguration = "sideBySide";
+    this.sessionsViewerSashDisposables = this._register(new MutableDisposable());
+    this.layoutingBody = false;
+    this.memento = new Memento(`interactive-session-view-${CHAT_PROVIDER_ID}`, this.storageService);
+    this.viewState = this.memento.getMemento(
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    if (lifecycleService.startupKind !== 3 && this.configurationService.getValue(ChatConfiguration.RestoreLastPanelSession) === false) {
+      this.viewState.sessionId = void 0;
+    }
+    this.sessionsViewerVisible = false;
+    this.sessionsViewerSidebarWidth = Math.max(ChatViewPane_1.SESSIONS_SIDEBAR_MIN_WIDTH, this.viewState.sessionsSidebarWidth ?? ChatViewPane_1.SESSIONS_SIDEBAR_DEFAULT_WIDTH);
+    this.chatViewLocationContext = ChatContextKeys.panelLocation.bindTo(contextKeyService);
+    this.sessionsViewerOrientationContext = ChatContextKeys.agentSessionsViewerOrientation.bindTo(contextKeyService);
+    this.sessionsViewerPositionContext = ChatContextKeys.agentSessionsViewerPosition.bindTo(contextKeyService);
+    this.sessionsViewerVisibilityContext = ChatContextKeys.agentSessionsViewerVisible.bindTo(contextKeyService);
+    this.updateContextKeys();
+    this.registerListeners();
+  }
+  updateContextKeys() {
+    const { position, location } = this.getViewPositionAndLocation();
+    this.chatViewLocationContext.set(
+      location ?? 2
+      /* ViewContainerLocation.AuxiliaryBar */
+    );
+    this.sessionsViewerOrientationContext.set(this.sessionsViewerOrientation);
+    this.sessionsViewerPositionContext.set(position === 1 ? AgentSessionsViewerPosition.Right : AgentSessionsViewerPosition.Left);
+  }
+  getViewPositionAndLocation() {
+    const viewLocation = this.viewDescriptorService.getViewLocationById(this.id);
+    const sideBarPosition = this.layoutService.getSideBarPosition();
+    const panelPosition = this.layoutService.getPanelPosition();
+    let sideSessionsOnRightPosition;
+    switch (viewLocation) {
+      case 0:
+        sideSessionsOnRightPosition = sideBarPosition === 1;
+        break;
+      case 1:
+        sideSessionsOnRightPosition = panelPosition !== 0;
+        break;
+      default:
+        sideSessionsOnRightPosition = sideBarPosition === 0;
+        break;
+    }
+    return {
+      position: sideSessionsOnRightPosition ? 1 : 0,
+      location: viewLocation ?? 2
+    };
+  }
+  getSessionHoverPosition() {
+    const viewLocation = this.viewDescriptorService.getViewLocationById(this.id);
+    const sideBarPosition = this.layoutService.getSideBarPosition();
+    if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.SideBySide) {
+      return viewLocation === 0 && sideBarPosition === 1 ? 0 : 1;
+    }
+    return {
+      [
+        0
+        /* Position.LEFT */
+      ]: 1,
+      [
+        1
+        /* Position.RIGHT */
+      ]: 0,
+      [
+        3
+        /* Position.TOP */
+      ]: 2,
+      [
+        2
+        /* Position.BOTTOM */
+      ]: 3
+      /* HoverPosition.ABOVE */
+    }[viewLocation === 1 ? this.layoutService.getPanelPosition() : sideBarPosition];
+  }
+  updateViewPaneClasses(fromEvent) {
+    const activityBarLocationDefault = this.configurationService.getValue(
+      "workbench.activityBar.location"
+      /* LayoutSettings.ACTIVITY_BAR_LOCATION */
+    ) === "default";
+    this.viewPaneContainer?.classList.toggle("activity-bar-location-default", activityBarLocationDefault);
+    this.viewPaneContainer?.classList.toggle("activity-bar-location-other", !activityBarLocationDefault);
+    const { position, location } = this.getViewPositionAndLocation();
+    this.viewPaneContainer?.classList.toggle(
+      "chat-view-location-auxiliarybar",
+      location === 2
+      /* ViewContainerLocation.AuxiliaryBar */
+    );
+    this.viewPaneContainer?.classList.toggle(
+      "chat-view-location-sidebar",
+      location === 0
+      /* ViewContainerLocation.Sidebar */
+    );
+    this.viewPaneContainer?.classList.toggle(
+      "chat-view-location-panel",
+      location === 1
+      /* ViewContainerLocation.Panel */
+    );
+    this.viewPaneContainer?.classList.toggle(
+      "chat-view-position-left",
+      position === 0
+      /* Position.LEFT */
+    );
+    this.viewPaneContainer?.classList.toggle(
+      "chat-view-position-right",
+      position === 1
+      /* Position.RIGHT */
+    );
+    if (fromEvent) {
+      this.relayout();
+    }
+  }
+  registerListeners() {
+    this._register(this.chatAgentService.onDidChangeAgents(() => this.onDidChangeAgents()));
+    this._register(Event.any(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sideBar.location")), this.layoutService.onDidChangePanelPosition, Event.filter(this.viewDescriptorService.onDidChangeContainerLocation, (e) => e.viewContainer === this.viewDescriptorService.getViewContainerByViewId(this.id)))(() => {
+      this.updateContextKeys();
+      this.updateViewPaneClasses(
+        true
+        /* layout here */
+      );
+    }));
+    this._register(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => {
+      return e.affectsConfiguration(
+        "workbench.activityBar.location"
+        /* LayoutSettings.ACTIVITY_BAR_LOCATION */
+      );
+    })(() => this.updateViewPaneClasses(true)));
+  }
+  onDidChangeAgents() {
+    if (this.chatAgentService.getDefaultAgent(ChatAgentLocation.Chat)) {
+      if (!this._widget?.viewModel && !this.restoringSession) {
+        const sessionResource = this.getTransferredOrPersistedSessionInfo();
+        this.restoringSession = (sessionResource ? this.chatService.getOrRestoreSession(sessionResource) : Promise.resolve(void 0)).then(async (modelRef) => {
+          if (!this._widget) {
+            return;
+          }
+          const wasVisible = this._widget.visible;
+          try {
+            this._widget.setVisible(false);
+            await this.showModel(modelRef);
+          } finally {
+            this._widget.setVisible(wasVisible);
+          }
+        });
+        this.restoringSession.finally(() => this.restoringSession = void 0);
+      }
+    }
+    this._onDidChangeViewWelcomeState.fire();
+  }
+  getTransferredOrPersistedSessionInfo() {
+    if (this.chatService.transferredSessionResource) {
+      return this.chatService.transferredSessionResource;
+    }
+    return this.viewState.sessionId ? LocalChatSessionUri.forSession(this.viewState.sessionId) : void 0;
+  }
+  renderBody(parent) {
+    super.renderBody(parent);
+    this.telemetryService.publicLog2("chatViewPaneOpened");
+    this.viewPaneContainer = parent;
+    this.viewPaneContainer.classList.add("chat-viewpane");
+    this.updateViewPaneClasses(false);
+    this.createControls(parent);
+    this.setupContextMenu(parent);
+    this.applyModel();
+  }
+  createControls(parent) {
+    const sessionsControl = this.createSessionsControl(parent);
+    const welcomeController = this.welcomeController = this._register(this.instantiationService.createInstance(ChatViewWelcomeController, parent, this, ChatAgentLocation.Chat));
+    const chatWidget = this.createChatControl(parent);
+    this.registerControlsListeners(sessionsControl, chatWidget, welcomeController);
+    this.updateSessionsControlVisibility();
+  }
+  static {
+    this.SESSIONS_SIDEBAR_MIN_WIDTH = 200;
+  }
+  static {
+    this.SESSIONS_SIDEBAR_SNAP_THRESHOLD = this.SESSIONS_SIDEBAR_MIN_WIDTH / 2;
+  }
+  static {
+    this.SESSIONS_SIDEBAR_DEFAULT_WIDTH = 300;
+  }
+  static {
+    this.CHAT_WIDGET_DEFAULT_WIDTH = 300;
+  }
+  static {
+    this.SESSIONS_SIDEBAR_VIEW_MIN_WIDTH = this.CHAT_WIDGET_DEFAULT_WIDTH + this.SESSIONS_SIDEBAR_DEFAULT_WIDTH;
+  }
+  createSessionsControl(parent) {
+    const sessionsContainer = this.sessionsContainer = parent.appendChild($(".agent-sessions-container"));
+    const sessionsTitleContainer = this.sessionsTitleContainer = append(sessionsContainer, $(".agent-sessions-title-container"));
+    const sessionsTitle = this.sessionsTitle = append(sessionsTitleContainer, $("span.agent-sessions-title"));
+    sessionsTitle.textContent = localize("sessions", "Sessions");
+    this._register(addDisposableListener(sessionsTitle, EventType.CLICK, () => {
+      this.sessionsControl?.scrollToTop();
+      this.sessionsControl?.focus();
+    }));
+    const sessionsToolbarContainer = append(sessionsTitleContainer, $(".agent-sessions-toolbar"));
+    const sessionsToolbar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, sessionsToolbarContainer, MenuId.AgentSessionsToolbar, {
+      menuOptions: { shouldForwardArgs: true }
+    }));
+    const sessionsFilter = this._register(this.instantiationService.createInstance(AgentSessionsFilter, {
+      filterMenuId: MenuId.AgentSessionsViewerFilterSubMenu,
+      groupResults: /* @__PURE__ */ __name(() => this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked ? AgentSessionsGrouping.Capped : AgentSessionsGrouping.Date, "groupResults")
+    }));
+    this._register(Event.runAndSubscribe(sessionsFilter.onDidChange, () => {
+      sessionsToolbarContainer.classList.toggle("filtered", !sessionsFilter.isDefault());
+    }));
+    const newSessionButtonContainer = this.sessionsNewButtonContainer = append(sessionsContainer, $(".agent-sessions-new-button-container"));
+    const newSessionButton = this._register(new Button(newSessionButtonContainer, { ...defaultButtonStyles, secondary: true }));
+    newSessionButton.label = localize("newSession", "New Session");
+    this._register(newSessionButton.onDidClick(() => this.commandService.executeCommand(ACTION_ID_NEW_CHAT)));
+    this.sessionsControlContainer = append(sessionsContainer, $(".agent-sessions-control-container"));
+    const sessionsControl = this.sessionsControl = this._register(this.instantiationService.createInstance(AgentSessionsControl, this.sessionsControlContainer, {
+      source: "chatViewPane",
+      filter: sessionsFilter,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+      getHoverPosition: /* @__PURE__ */ __name(() => this.getSessionHoverPosition(), "getHoverPosition"),
+      trackActiveEditorSession: /* @__PURE__ */ __name(() => {
+        return !this._widget || this._widget.isEmpty();
+      }, "trackActiveEditorSession"),
+      overrideSessionOpenOptions: /* @__PURE__ */ __name((openEvent) => {
+        if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked && !openEvent.sideBySide) {
+          return { ...openEvent, editorOptions: {
+            ...openEvent.editorOptions,
+            preserveFocus: false
+            /* focus the chat widget when opening from stacked sessions viewer since this closes the stacked viewer */
+          } };
+        }
+        return openEvent;
+      }, "overrideSessionOpenOptions")
+    }));
+    this._register(this.onDidChangeBodyVisibility((visible) => sessionsControl.setVisible(visible)));
+    sessionsToolbar.context = sessionsControl;
+    this._register(Event.runAndSubscribe(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ChatConfiguration.ChatViewSessionsOrientation)), (e) => {
+      const newSessionsViewerOrientationConfiguration = this.configurationService.getValue(ChatConfiguration.ChatViewSessionsOrientation);
+      this.doUpdateConfiguredSessionsViewerOrientation(newSessionsViewerOrientationConfiguration, { updateConfiguration: false, layout: !!e });
+    }));
+    return sessionsControl;
+  }
+  getSessionsViewerOrientation() {
+    return this.sessionsViewerOrientation;
+  }
+  updateConfiguredSessionsViewerOrientation(orientation) {
+    return this.doUpdateConfiguredSessionsViewerOrientation(orientation, { updateConfiguration: true, layout: true });
+  }
+  doUpdateConfiguredSessionsViewerOrientation(orientation, options) {
+    const oldSessionsViewerOrientationConfiguration = this.sessionsViewerOrientationConfiguration;
+    let validatedOrientation;
+    if (orientation === "stacked" || orientation === "sideBySide") {
+      validatedOrientation = orientation;
+    } else {
+      validatedOrientation = "sideBySide";
+    }
+    this.sessionsViewerOrientationConfiguration = validatedOrientation;
+    if (oldSessionsViewerOrientationConfiguration === this.sessionsViewerOrientationConfiguration) {
+      return;
+    }
+    if (options.updateConfiguration) {
+      this.configurationService.updateValue(ChatConfiguration.ChatViewSessionsOrientation, validatedOrientation);
+    }
+    if (options.layout) {
+      this.relayout();
+    }
+  }
+  updateSessionsControlVisibility() {
+    if (!this.sessionsContainer || !this.viewPaneContainer) {
+      return { changed: false, visible: false };
+    }
+    let newSessionsContainerVisible;
+    if (!this.configurationService.getValue(ChatConfiguration.ChatViewSessionsEnabled)) {
+      newSessionsContainerVisible = false;
+    } else {
+      if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+        newSessionsContainerVisible = !!this.chatEntitlementService.sentiment.installed && // chat is installed (otherwise make room for terms and welcome)
+        (!this._widget || this._widget.isEmpty() && !!this._widget.viewModel) && // chat widget empty (but not when model is loading)
+        !this.welcomeController?.isShowingWelcome.get();
+      } else {
+        newSessionsContainerVisible = !this.welcomeController?.isShowingWelcome.get() && // welcome not showing
+        !!this.lastDimensions && this.lastDimensions.width >= ChatViewPane_1.SESSIONS_SIDEBAR_VIEW_MIN_WIDTH;
+      }
+    }
+    this.viewPaneContainer.classList.toggle("has-sessions-control", newSessionsContainerVisible);
+    const sessionsContainerVisible = this.sessionsContainer.style.display !== "none";
+    setVisibility(newSessionsContainerVisible, this.sessionsContainer);
+    this.sessionsViewerVisible = newSessionsContainerVisible;
+    this.sessionsViewerVisibilityContext.set(newSessionsContainerVisible);
+    return {
+      changed: sessionsContainerVisible !== newSessionsContainerVisible,
+      visible: newSessionsContainerVisible
+    };
+  }
+  getFocusedSessions() {
+    return this.sessionsControl?.getFocus() ?? [];
+  }
+  static {
+    this.MIN_CHAT_WIDGET_HEIGHT = 116;
+  }
+  get widget() {
+    return this._widget;
+  }
+  createChatControl(parent) {
+    const chatControlsContainer = append(parent, $(".chat-controls-container"));
+    const locationBasedColors = this.getLocationBasedColors();
+    const editorOverflowWidgetsDomNode = this.layoutService.getContainer(getWindow(chatControlsContainer)).appendChild($(".chat-editor-overflow.monaco-editor"));
+    this._register(toDisposable(() => editorOverflowWidgetsDomNode.remove()));
+    this.createChatTitleControl(chatControlsContainer);
+    const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    this._widget = this._register(scopedInstantiationService.createInstance(ChatWidget, ChatAgentLocation.Chat, { viewId: this.id }, {
+      autoScroll: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "autoScroll"),
+      renderFollowups: true,
+      supportsFileReferences: true,
+      clear: /* @__PURE__ */ __name(() => this.clear(), "clear"),
+      rendererOptions: {
+        renderTextEditsAsSummary: /* @__PURE__ */ __name((uri) => {
+          return true;
+        }, "renderTextEditsAsSummary"),
+        referencesExpandedWhenEmptyResponse: false,
+        progressMessageAtBottomOfResponse: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "progressMessageAtBottomOfResponse")
+      },
+      editorOverflowWidgetsDomNode,
+      enableImplicitContext: true,
+      enableWorkingSet: "explicit",
+      supportsChangingModes: true,
+      dndContainer: parent
+    }, {
+      listForeground: SIDE_BAR_FOREGROUND,
+      listBackground: locationBasedColors.background,
+      overlayBackground: locationBasedColors.overlayBackground,
+      inputEditorBackground: locationBasedColors.background,
+      resultEditorBackground: editorBackground
+    }));
+    this._widget.render(chatControlsContainer);
+    const updateWidgetVisibility = /* @__PURE__ */ __name((reader) => this._widget.setVisible(this.isBodyVisible() && !this.welcomeController?.isShowingWelcome.read(reader)), "updateWidgetVisibility");
+    this._register(this.onDidChangeBodyVisibility(() => updateWidgetVisibility()));
+    this._register(autorun((reader) => updateWidgetVisibility(reader)));
+    return this._widget;
+  }
+  createChatTitleControl(parent) {
+    this.titleControl = this._register(this.instantiationService.createInstance(ChatViewTitleControl, parent, {
+      focusChat: /* @__PURE__ */ __name(() => this._widget.focusInput(), "focusChat")
+    }));
+    this._register(this.titleControl.onDidChangeHeight(() => {
+      this.relayout();
+    }));
+  }
+  //#endregion
+  registerControlsListeners(sessionsControl, chatWidget, welcomeController) {
+    this._register(Event.any(chatWidget.onDidChangeEmptyState, Event.fromObservable(welcomeController.isShowingWelcome), Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ChatConfiguration.ChatViewSessionsEnabled)))(() => {
+      if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+        sessionsControl.clearFocus();
+      }
+      const { changed: visibilityChanged } = this.updateSessionsControlVisibility();
+      if (visibilityChanged) {
+        this.relayout();
+      }
+    }));
+    this._register(chatWidget.onDidChangeViewModel(() => {
+      if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+        return;
+      }
+      const sessionResource = chatWidget.viewModel?.sessionResource;
+      if (sessionResource) {
+        const revealed = sessionsControl.reveal(sessionResource);
+        if (!revealed) {
+          sessionsControl.clearFocus();
+        }
+      }
+    }));
+    this._register(this.agentSessionsService.model.onDidChangeSessions(() => {
+      if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+        return;
+      }
+      if (sessionsControl.hasFocusOrSelection()) {
+        return;
+      }
+      const sessionResource = chatWidget.viewModel?.sessionResource;
+      if (sessionResource) {
+        sessionsControl.reveal(sessionResource);
+      }
+    }));
+    this._register(autorun((reader) => {
+      chatWidget.inputPart.height.read(reader);
+      if (this.sessionsViewerVisible && this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+        this.relayout();
+      }
+    }));
+    const progressBadgeDisposables = this._register(new MutableDisposable());
+    const updateProgressBadge = /* @__PURE__ */ __name(() => {
+      progressBadgeDisposables.value = new DisposableStore();
+      if (!this.configurationService.getValue(ChatConfiguration.ChatViewProgressBadgeEnabled)) {
+        this.activityBadge.clear();
+        return;
+      }
+      const model = chatWidget.viewModel?.model;
+      if (model) {
+        progressBadgeDisposables.value.add(autorun((reader) => {
+          if (model.requestInProgress.read(reader)) {
+            this.activityBadge.value = this.activityService.showViewActivity(this.id, {
+              badge: new ProgressBadge(() => localize("sessionInProgress", "Agent Session in Progress"))
+            });
+          } else {
+            this.activityBadge.clear();
+          }
+        }));
+      } else {
+        this.activityBadge.clear();
+      }
+    }, "updateProgressBadge");
+    this._register(chatWidget.onDidChangeViewModel(() => updateProgressBadge()));
+    this._register(Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration(ChatConfiguration.ChatViewProgressBadgeEnabled))(() => updateProgressBadge()));
+    updateProgressBadge();
+  }
+  setupContextMenu(parent) {
+    this._register(addDisposableListener(parent, EventType.CONTEXT_MENU, (e) => {
+      EventHelper.stop(e, true);
+      this.contextMenuService.showContextMenu({
+        menuId: MenuId.ChatWelcomeContext,
+        contextKeyService: this.contextKeyService,
+        getAnchor: /* @__PURE__ */ __name(() => new StandardMouseEvent(getWindow(parent), e), "getAnchor")
+      });
+    }));
+  }
+  //#region Model Management
+  async applyModel() {
+    const sessionResource = this.getTransferredOrPersistedSessionInfo();
+    const modelRef = sessionResource ? await this.chatService.getOrRestoreSession(sessionResource) : void 0;
+    await this.showModel(modelRef);
+  }
+  async showModel(modelRef, startNewSession = true) {
+    const oldModelResource = this.modelRef.value?.object.sessionResource;
+    this.modelRef.value = void 0;
+    let ref;
+    if (startNewSession) {
+      ref = modelRef ?? (this.chatService.transferredSessionResource ? await this.chatService.getOrRestoreSession(this.chatService.transferredSessionResource) : this.chatService.startSession(ChatAgentLocation.Chat));
+      if (!ref) {
+        throw new Error("Could not start chat session");
+      }
+    }
+    this.modelRef.value = ref;
+    const model = ref?.object;
+    if (model) {
+      await this.updateWidgetLockState(model.sessionResource);
+      this.viewState.sessionId = model.sessionId;
+    }
+    this._widget.setModel(model);
+    this.titleControl?.update(model);
+    this.updateActions();
+    if (oldModelResource) {
+      this.agentSessionsService.model.getSession(oldModelResource)?.setRead(true);
+    }
+    return model;
+  }
+  async updateWidgetLockState(sessionResource) {
+    const sessionType = getChatSessionType(sessionResource);
+    if (sessionType === localChatSessionType) {
+      this._widget.unlockFromCodingAgent();
+      return;
+    }
+    let canResolve = false;
+    try {
+      canResolve = await this.chatSessionsService.canResolveChatSession(sessionResource);
+    } catch (error) {
+      this.logService.warn(`Failed to resolve chat session '${sessionResource.toString()}' for locking`, error);
+    }
+    if (!canResolve) {
+      this._widget.unlockFromCodingAgent();
+      return;
+    }
+    const contribution = this.chatSessionsService.getChatSessionContribution(sessionType);
+    if (contribution) {
+      this._widget.lockToCodingAgent(contribution.name, contribution.displayName, contribution.type);
+    } else {
+      this._widget.unlockFromCodingAgent();
+    }
+  }
+  async clear() {
+    this.updateViewState();
+    await this.showModel(void 0);
+    this.updateActions();
+  }
+  async loadSession(sessionResource) {
+    return this.progressService.withProgress({ location: ChatViewId, delay: 200 }, async () => {
+      let queue = Promise.resolve();
+      const clearWidget = disposableTimeout(() => {
+        queue = this.showModel(void 0, false).then(() => {
+        });
+      }, 100);
+      const sessionType = getChatSessionType(sessionResource);
+      if (sessionType !== localChatSessionType) {
+        await this.chatSessionsService.canResolveChatSession(sessionResource);
+      }
+      const newModelRef = await this.chatService.loadSessionForResource(sessionResource, ChatAgentLocation.Chat, CancellationToken.None);
+      clearWidget.dispose();
+      await queue;
+      return this.showModel(newModelRef);
+    });
+  }
+  //#endregion
+  focus() {
+    super.focus();
+    this.focusInput();
+  }
+  focusInput() {
+    this._widget.focusInput();
+  }
+  focusSessions() {
+    if (this.sessionsContainer?.style.display === "none") {
+      return false;
+    }
+    this.sessionsControl?.focus();
+    return true;
+  }
+  relayout() {
+    if (this.lastDimensions) {
+      this.layoutBody(this.lastDimensions.height, this.lastDimensions.width);
+    }
+  }
+  layoutBody(height, width) {
+    if (this.layoutingBody) {
+      return;
+    }
+    this.layoutingBody = true;
+    try {
+      this.doLayoutBody(height, width);
+    } finally {
+      this.layoutingBody = false;
+    }
+  }
+  doLayoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.lastDimensions = { height, width };
+    let remainingHeight = height;
+    let remainingWidth = width;
+    const { heightReduction, widthReduction } = this.layoutSessionsControl(remainingHeight, remainingWidth);
+    remainingHeight -= heightReduction;
+    remainingWidth -= widthReduction;
+    remainingHeight -= this.titleControl?.getHeight() ?? 0;
+    this._widget.layout(remainingHeight, remainingWidth);
+    this.lastDimensionsPerOrientation.set(this.sessionsViewerOrientation, { height, width });
+  }
+  layoutSessionsControl(height, width) {
+    let heightReduction = 0;
+    let widthReduction = 0;
+    if (!this.sessionsContainer || !this.sessionsControlContainer || !this.sessionsControl || !this.viewPaneContainer || !this.sessionsTitleContainer || !this.sessionsTitle) {
+      return { heightReduction, widthReduction };
+    }
+    const oldSessionsViewerOrientation = this.sessionsViewerOrientation;
+    let newSessionsViewerOrientation;
+    switch (this.sessionsViewerOrientationConfiguration) {
+      // Stacked
+      case "stacked":
+        newSessionsViewerOrientation = AgentSessionsViewerOrientation.Stacked;
+        break;
+      // Update orientation based on available width
+      default:
+        newSessionsViewerOrientation = width >= ChatViewPane_1.SESSIONS_SIDEBAR_VIEW_MIN_WIDTH ? AgentSessionsViewerOrientation.SideBySide : AgentSessionsViewerOrientation.Stacked;
+    }
+    this.sessionsViewerOrientation = newSessionsViewerOrientation;
+    if (newSessionsViewerOrientation === AgentSessionsViewerOrientation.SideBySide) {
+      this.viewPaneContainer.classList.toggle("sessions-control-orientation-sidebyside", true);
+      this.viewPaneContainer.classList.toggle("sessions-control-orientation-stacked", false);
+      this.sessionsViewerOrientationContext.set(AgentSessionsViewerOrientation.SideBySide);
+    } else {
+      this.viewPaneContainer.classList.toggle("sessions-control-orientation-sidebyside", false);
+      this.viewPaneContainer.classList.toggle("sessions-control-orientation-stacked", true);
+      this.sessionsViewerOrientationContext.set(AgentSessionsViewerOrientation.Stacked);
+    }
+    if (oldSessionsViewerOrientation !== this.sessionsViewerOrientation) {
+      const updatePromise = this.sessionsControl.update();
+      if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.SideBySide) {
+        updatePromise.then(() => {
+          const sessionResource = this._widget?.viewModel?.sessionResource;
+          if (sessionResource) {
+            this.sessionsControl?.reveal(sessionResource);
+          }
+        });
+      }
+    }
+    const { visible: sessionsContainerVisible } = this.updateSessionsControlVisibility();
+    if (!sessionsContainerVisible || this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+      this.sessionsViewerSashDisposables.clear();
+      this.sessionsViewerSash = void 0;
+    } else if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.SideBySide) {
+      if (!this.sessionsViewerSashDisposables.value && this.viewPaneContainer) {
+        this.createSessionsViewerSash(this.viewPaneContainer, height, width);
+      }
+    }
+    if (!sessionsContainerVisible) {
+      return { heightReduction: 0, widthReduction: 0 };
+    }
+    let availableSessionsHeight = height - this.sessionsTitleContainer.offsetHeight;
+    if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.Stacked) {
+      availableSessionsHeight -= Math.max(ChatViewPane_1.MIN_CHAT_WIDGET_HEIGHT, this._widget?.input?.height.get() ?? 0);
+    } else {
+      availableSessionsHeight -= this.sessionsNewButtonContainer?.offsetHeight ?? 0;
+    }
+    if (this.sessionsViewerOrientation === AgentSessionsViewerOrientation.SideBySide) {
+      const sessionsViewerSidebarWidth = this.computeEffectiveSideBySideSessionsSidebarWidth(width);
+      this.sessionsControlContainer.style.height = `${availableSessionsHeight}px`;
+      this.sessionsControlContainer.style.width = `${sessionsViewerSidebarWidth}px`;
+      this.sessionsControl.layout(availableSessionsHeight, sessionsViewerSidebarWidth);
+      this.sessionsViewerSash?.layout();
+      heightReduction = 0;
+      widthReduction = this.sessionsContainer.offsetWidth;
+    } else {
+      const sessionsHeight = availableSessionsHeight - 1;
+      this.sessionsControlContainer.style.height = `${sessionsHeight}px`;
+      this.sessionsControlContainer.style.width = ``;
+      this.sessionsControl.layout(sessionsHeight, width);
+      heightReduction = this.sessionsContainer.offsetHeight;
+      widthReduction = 0;
+    }
+    return { heightReduction, widthReduction };
+  }
+  computeEffectiveSideBySideSessionsSidebarWidth(width, sessionsViewerSidebarWidth = this.sessionsViewerSidebarWidth) {
+    return Math.max(
+      ChatViewPane_1.SESSIONS_SIDEBAR_MIN_WIDTH,
+      // never smaller than min width for side by side sessions
+      Math.min(
+        sessionsViewerSidebarWidth,
+        width - ChatViewPane_1.CHAT_WIDGET_DEFAULT_WIDTH
+        // never so wide that chat widget is smaller than default width
+      )
+    );
+  }
+  getLastDimensions(orientation) {
+    return this.lastDimensionsPerOrientation.get(orientation);
+  }
+  createSessionsViewerSash(container, height, width) {
+    const disposables = this.sessionsViewerSashDisposables.value = new DisposableStore();
+    const sash = this.sessionsViewerSash = disposables.add(new Sash(container, {
+      getVerticalSashLeft: /* @__PURE__ */ __name(() => {
+        const sessionsViewerSidebarWidth = this.computeEffectiveSideBySideSessionsSidebarWidth(this.lastDimensions?.width ?? width);
+        const { position } = this.getViewPositionAndLocation();
+        if (position === 1) {
+          return (this.lastDimensions?.width ?? width) - sessionsViewerSidebarWidth;
+        }
+        return sessionsViewerSidebarWidth;
+      }, "getVerticalSashLeft")
+    }, {
+      orientation: 0
+      /* Orientation.VERTICAL */
+    }));
+    let sashStartWidth;
+    disposables.add(sash.onDidStart(() => sashStartWidth = this.sessionsViewerSidebarWidth));
+    disposables.add(sash.onDidEnd(() => sashStartWidth = void 0));
+    disposables.add(sash.onDidChange((e) => {
+      if (sashStartWidth === void 0 || !this.lastDimensions) {
+        return;
+      }
+      const { position } = this.getViewPositionAndLocation();
+      const delta = e.currentX - e.startX;
+      const newWidth = position === 1 ? sashStartWidth - delta : sashStartWidth + delta;
+      if (newWidth < ChatViewPane_1.SESSIONS_SIDEBAR_SNAP_THRESHOLD) {
+        this.updateConfiguredSessionsViewerOrientation("stacked");
+        return;
+      }
+      this.sessionsViewerSidebarWidth = this.computeEffectiveSideBySideSessionsSidebarWidth(this.lastDimensions.width, newWidth);
+      this.viewState.sessionsSidebarWidth = this.sessionsViewerSidebarWidth;
+      this.layoutBody(this.lastDimensions.height, this.lastDimensions.width);
+    }));
+    disposables.add(sash.onDidReset(() => {
+      this.sessionsViewerSidebarWidth = ChatViewPane_1.SESSIONS_SIDEBAR_DEFAULT_WIDTH;
+      this.viewState.sessionsSidebarWidth = this.sessionsViewerSidebarWidth;
+      this.relayout();
+    }));
+  }
+  //#endregion
+  saveState() {
+    if (this._widget?.viewModel) {
+      this._widget.saveState();
+      this.updateViewState();
+      this.memento.saveMemento();
+    }
+    super.saveState();
+  }
+  updateViewState(viewState) {
+    const newViewState = viewState ?? this._widget.getViewState();
+    if (newViewState) {
+      for (const [key, value] of Object.entries(newViewState)) {
+        this.viewState[key] = value;
+      }
+    }
+  }
+  shouldShowWelcome() {
+    const noPersistedSessions = !this.chatService.hasSessions();
+    const hasCoreAgent = this.chatAgentService.getAgents().some((agent) => agent.isCore && agent.locations.includes(ChatAgentLocation.Chat));
+    const hasDefaultAgent = this.chatAgentService.getDefaultAgent(ChatAgentLocation.Chat) !== void 0;
+    const shouldShow = !hasCoreAgent && (!hasDefaultAgent || !this._widget?.viewModel && noPersistedSessions);
+    this.logService.trace(`ChatViewPane#shouldShowWelcome() = ${shouldShow}: hasCoreAgent=${hasCoreAgent} hasDefaultAgent=${hasDefaultAgent} || noViewModel=${!this._widget?.viewModel} && noPersistedSessions=${noPersistedSessions}`);
+    return !!shouldShow;
+  }
+  getMatchingWelcomeView() {
+    return this.welcomeController?.getMatchingWelcomeView();
+  }
+  getActionsContext() {
+    return this._widget?.viewModel ? {
+      sessionResource: this._widget.viewModel.sessionResource,
+      $mid: 19
+      /* MarshalledId.ChatViewContext */
+    } : void 0;
+  }
+};
+ChatViewPane = ChatViewPane_1 = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IContextMenuService),
+  __param(3, IConfigurationService),
+  __param(4, IContextKeyService),
+  __param(5, IViewDescriptorService),
+  __param(6, IInstantiationService),
+  __param(7, IOpenerService),
+  __param(8, IThemeService),
+  __param(9, IHoverService),
+  __param(10, IStorageService),
+  __param(11, IChatService),
+  __param(12, IChatAgentService),
+  __param(13, ILogService),
+  __param(14, IWorkbenchLayoutService),
+  __param(15, IChatSessionsService),
+  __param(16, ITelemetryService),
+  __param(17, ILifecycleService),
+  __param(18, IProgressService),
+  __param(19, IAgentSessionsService),
+  __param(20, IChatEntitlementService),
+  __param(21, ICommandService),
+  __param(22, IActivityService)
+], ChatViewPane);
+export {
+  ChatViewPane
+};
+//# sourceMappingURL=chatViewPane.js.map

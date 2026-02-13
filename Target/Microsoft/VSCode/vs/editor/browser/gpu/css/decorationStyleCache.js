@@ -1,1 +1,45 @@
-import{$Xc as m}from"../../../../base/common/map.js";class ${constructor(){this.a=1,this.b=new Map,this.c=new m}getOrCreateEntry(e,f,n,t,d,i){if(e===void 0&&f===void 0&&n===void 0&&t===void 0&&d===void 0&&i===void 0)return 0;const x=this.c.get(e??0,f?1:0,n===void 0?"":n.toFixed(2),t?1:0,d===void 0?"":d.toFixed(2),i??0);if(x)return x.id;const u=this.a++,F={id:u,color:e,bold:f,opacity:n,strikethrough:t,strikethroughThickness:d,strikethroughColor:i};return this.b.set(u,F),this.c.set(F,e??0,f?1:0,n===void 0?"":n.toFixed(2),t?1:0,d===void 0?"":d.toFixed(2),i??0),u}getStyleSet(e){if(e!==0)return this.b.get(e)}}export{$ as $cgb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { NKeyMap } from "../../../../base/common/map.js";
+class DecorationStyleCache {
+  static {
+    __name(this, "DecorationStyleCache");
+  }
+  constructor() {
+    this._nextId = 1;
+    this._cacheById = /* @__PURE__ */ new Map();
+    this._cacheByStyle = new NKeyMap();
+  }
+  getOrCreateEntry(color, bold, opacity, strikethrough, strikethroughThickness, strikethroughColor) {
+    if (color === void 0 && bold === void 0 && opacity === void 0 && strikethrough === void 0 && strikethroughThickness === void 0 && strikethroughColor === void 0) {
+      return 0;
+    }
+    const result = this._cacheByStyle.get(color ?? 0, bold ? 1 : 0, opacity === void 0 ? "" : opacity.toFixed(2), strikethrough ? 1 : 0, strikethroughThickness === void 0 ? "" : strikethroughThickness.toFixed(2), strikethroughColor ?? 0);
+    if (result) {
+      return result.id;
+    }
+    const id = this._nextId++;
+    const entry = {
+      id,
+      color,
+      bold,
+      opacity,
+      strikethrough,
+      strikethroughThickness,
+      strikethroughColor
+    };
+    this._cacheById.set(id, entry);
+    this._cacheByStyle.set(entry, color ?? 0, bold ? 1 : 0, opacity === void 0 ? "" : opacity.toFixed(2), strikethrough ? 1 : 0, strikethroughThickness === void 0 ? "" : strikethroughThickness.toFixed(2), strikethroughColor ?? 0);
+    return id;
+  }
+  getStyleSet(id) {
+    if (id === 0) {
+      return void 0;
+    }
+    return this._cacheById.get(id);
+  }
+}
+export {
+  DecorationStyleCache
+};
+//# sourceMappingURL=decorationStyleCache.js.map

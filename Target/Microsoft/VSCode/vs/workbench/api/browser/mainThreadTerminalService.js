@@ -1,2 +1,494 @@
-import{$Dd as R,$Ed as E,$Fd as f,$Bd as O,$Cd as T}from"../../../base/common/lifecycle.js";import{$Y1 as k,$X1 as j}from"../common/extHost.protocol.js";import{$vDb as Q}from"../../services/extensions/common/extHostCustomers.js";import{URI as L}from"../../../base/common/uri.js";import{$Mj as N}from"../../../platform/instantiation/common/instantiation.js";import{$yo as B}from"../../../platform/log/common/log.js";import{TerminalExitReason as I,TerminalLocation as D}from"../../../platform/terminal/common/terminal.js";import{$N7b as U}from"../../../platform/terminal/common/terminalDataBuffering.js";import{$uZb as _,$wZb as z,$sZb as A}from"../../contrib/terminal/browser/terminal.js";import{$O7b as H}from"../../contrib/terminal/browser/terminalProcessExtHostProxy.js";import{$m6 as Z}from"../../contrib/terminal/common/environmentVariable.js";import{$rB as X,$qB as q,$oB as Y}from"../../../platform/terminal/common/environmentVariableShared.js";import{$X6 as G,$Z6 as V}from"../../contrib/terminal/common/terminal.js";import{$4N as W}from"../../services/remote/common/remoteAgentService.js";import{OS as x}from"../../../base/common/platform.js";import{Promises as J}from"../../../base/common/async.js";import{$W7b as K}from"../../contrib/terminalContrib/links/browser/links.js";import{$X7b as tt,TerminalQuickFixType as $}from"../../contrib/terminalContrib/quickFix/browser/quickFix.js";import{$47b as et}from"../../contrib/terminalContrib/suggest/browser/terminalCompletionService.js";import{$HP as it}from"../../services/environment/common/environmentService.js";import{$rd as v}from"../../../base/common/types.js";var C=function(h,t,e,i){var r=arguments.length,n=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,i);else for(var a=h.length-1;a>=0;a--)(o=h[a])&&(n=(r<3?o(n):r>3?o(t,e,n):o(t,e))||n);return r>3&&n&&Object.defineProperty(t,e,n),n},c=function(h,t){return function(e,i){t(e,i,h)}};let P=class extends E{constructor(t,e,i,r,n,o,a,l,m,p,d,u,S,M){super(),this.t=e,this.u=i,this.w=r,this.y=n,this.z=o,this.C=a,this.F=l,this.G=p,this.H=d,this.I=u,this.J=S,this.L=M,this.b=new Map,this.f=new Map,this.g=new Map,this.h=new Map,this.j=new Map,this.m=this.D(new f),this.n=this.D(new f),this.q=this.D(new f),this.s=x,this.a=t.getProxy(k.ExtHostTerminalService),this.D(e.onDidCreateInstance(s=>{this.X(s),this.Z(s)})),this.D(e.onDidDisposeInstance(s=>this.W(s))),this.D(e.onAnyInstanceProcessIdReady(s=>this.Y(s))),this.D(e.onDidChangeInstanceDimensions(s=>this.Z(s))),this.D(e.onAnyInstanceMaximumDimensionsChange(s=>this.$(s))),this.D(e.onDidRequestStartExtensionTerminal(s=>this.ab(s))),this.D(e.onDidChangeActiveInstance(s=>this.P(s?s.instanceId:null))),this.D(e.onAnyInstanceTitleChange(s=>s&&this.S(s.instanceId,s.title))),this.D(e.onAnyInstanceDataInput(s=>this.a.$acceptTerminalInteraction(s.instanceId))),this.D(e.onAnyInstanceSelectionChange(s=>this.a.$acceptTerminalSelection(s.instanceId,s.selection))),this.D(e.onAnyInstanceShellTypeChanged(s=>this.U(s.instanceId)));for(const s of this.t.instances)this.X(s),s.processReady.then(()=>this.Y(s)),s.shellType&&this.a.$acceptTerminalShellType(s.instanceId,s.shellType);const w=this.t.activeInstance;if(w&&this.a.$acceptActiveTerminalChanged(w.instanceId),this.z.collections.size>0){const F=[...this.z.collections.entries()].map(y=>[y[0],Y(y[1].map)]);this.a.$initEnvironmentVariableCollections(F)}this.B.add(T(()=>{for(const s of this.f.values())s.proxy.dispose(),s.store.dispose();this.f.clear()})),m.getEnvironment().then(async s=>{this.s=s?.os||x,this.M()}),this.D(this.I.onDidChangeAvailableProfiles(()=>this.M())),this.D(T(()=>{for(const s of this.g.values())s.dispose();for(const s of this.j.values())s.dispose()}))}async M(){const t=this.L.remoteAuthority,e=this.F.getDefaultProfile({remoteAuthority:t,os:this.s}),i=this.F.getDefaultProfile({remoteAuthority:t,os:this.s,allowAutomationShell:!0});this.a.$acceptDefaultProfile(...await Promise.all([e,i]))}async N(t){return typeof t=="string"?this.b.get(t):this.t.getInstanceFromId(t)}async $createTerminal(t,e){const i={name:e.name,executable:e.shellPath,args:e.shellArgs,cwd:typeof e.cwd=="string"?e.cwd:L.revive(e.cwd),icon:e.icon,color:e.color,initialText:e.initialText,waitOnExit:e.waitOnExit,ignoreConfigurationCwd:!0,env:e.env,strictEnv:e.strictEnv,hideFromUser:e.hideFromUser,customPtyImplementation:e.isExtensionCustomPtyTerminal?(o,a,l)=>new H(o,a,l,this.t):void 0,extHostTerminalId:t,forceShellIntegration:e.forceShellIntegration,isFeatureTerminal:e.isFeatureTerminal,isExtensionOwnedTerminal:e.isExtensionOwnedTerminal,useShellEnvironment:e.useShellEnvironment,isTransient:e.isTransient,shellIntegrationNonce:e.shellIntegrationNonce},r=J.withAsyncBody(async o=>{const a=await this.t.createTerminal({config:i,location:await this.O(e.location)});o(a)});this.b.set(t,r);const n=await r;this.D(n.onDisposed(()=>{this.b.delete(t)}))}async O(t){if(typeof t=="object"&&v(t,{parentTerminal:!0})){const e=await this.b.get(t.parentTerminal.toString());return e?{parentTerminal:e}:void 0}return t}async $show(t,e){const i=await this.N(t);i&&(this.t.setActiveInstance(i),i.target===D.Editor?await this.H.revealActiveEditor(e):await this.G.showPanel(!e))}async $hide(t){const e=await this.N(t),i=this.t.activeInstance;i&&i.instanceId===e?.instanceId&&i.target!==D.Editor&&this.G.hidePanel()}async $dispose(t){(await this.N(t))?.dispose(I.Extension)}async $sendText(t,e,i){await(await this.N(t))?.sendText(e,i)}$sendProcessExit(t,e){this.f.get(t)?.proxy.emitExit(e)}$startSendingDataEvents(){if(!this.m.value){this.m.value=this.y.createInstance(g,(t,e)=>{this.Q(t,e)});for(const t of this.t.instances)for(const e of t.initialDataEvents||[])this.Q(t.instanceId,e)}}$stopSendingDataEvents(){this.m.clear()}$startSendingCommandEvents(){if(this.n.value)return;const t=this.t.createOnInstanceCapabilityEvent(2,i=>i.onCommandFinished),e=t.event(i=>{this.R(i.instance.instanceId,{commandLine:i.data.command,cwd:i.data.cwd,exitCode:i.data.exitCode,output:i.data.getOutput()})});this.n.value=O(t,e)}$stopSendingCommandEvents(){this.n.clear()}$startLinkProvider(){this.q.value=this.u.registerLinkProvider(new st(this.a))}$stopLinkProvider(){this.q.clear()}$registerProcessSupport(t){this.t.registerProcessSupport(t)}$registerCompletionProvider(t,e,...i){this.h.set(t,this.J.registerTerminalCompletionProvider(e,t,{id:t,provideCompletions:async(r,n,o)=>{const a=await this.a.$provideTerminalCompletions(t,{commandLine:r,cursorIndex:n},o);if(a){if(a.resourceOptions){const{cwd:l,globPattern:m,...p}=a.resourceOptions;return{items:a.items?.map(d=>({provider:`ext:${t}`,...d})),resourceOptions:{...p,cwd:l,globPattern:m}}}return a.items?.map(l=>({provider:`ext:${t}`,...l}))}}},...i))}$unregisterCompletionProvider(t){this.h.get(t)?.dispose(),this.h.delete(t)}$registerProfileProvider(t,e){this.g.set(t,this.I.registerTerminalProfileProvider(e,t,{createContributedTerminalProfile:async i=>this.a.$createContributedProfileTerminal(t,i)}))}$unregisterProfileProvider(t){this.g.get(t)?.dispose(),this.g.delete(t)}async $registerQuickFixProvider(t,e){this.j.set(t,this.w.registerQuickFixProvider(t,{provideTerminalQuickFixes:async(i,r,n,o)=>{if(o.isCancellationRequested)return;n.outputMatcher?.length&&n.outputMatcher.length>40&&(n.outputMatcher.length=40,this.C.warn("Cannot exceed output matcher length of 40"));const a=i.command.match(n.commandLineMatcher);if(!a||!r)return;const l=n.outputMatcher;let m;if(l&&(m=nt(r,l)),!m)return;const p={commandLineMatch:a,outputMatch:m,commandLine:i.command};if(p){const d=await this.a.$provideTerminalQuickFixes(t,p,o);if(d&&Array.isArray(d))return d.map(u=>b(t,e,u));if(d)return b(t,e,d)}}}))}$unregisterQuickFixProvider(t){this.j.get(t)?.dispose(),this.j.delete(t)}P(t){this.a.$acceptActiveTerminalChanged(t)}Q(t,e){this.a.$acceptTerminalProcessData(t,e)}R(t,e){this.a.$acceptDidExecuteCommand(t,e)}S(t,e){this.a.$acceptTerminalTitleChange(t,e)}U(t){const e=this.t.getInstanceFromId(t);e&&this.a.$acceptTerminalShellType(t,e.shellType)}W(t){this.a.$acceptTerminalClosed(t.instanceId,t.exitCode,t.exitReason??I.Unknown);const e=this.f.get(t.instanceId);e&&(e.proxy.dispose(),e.store.dispose(),this.f.delete(t.instanceId))}X(t){const e=t.shellLaunchConfig.extHostTerminalId,i={name:t.shellLaunchConfig.name,executable:t.shellLaunchConfig.executable,args:t.shellLaunchConfig.args,cwd:t.shellLaunchConfig.cwd,env:t.shellLaunchConfig.env,hideFromUser:t.shellLaunchConfig.hideFromUser,tabActions:t.shellLaunchConfig.tabActions};this.a.$acceptTerminalOpened(t.instanceId,e,t.title,i)}Y(t){t.processId!==void 0&&this.a.$acceptTerminalProcessId(t.instanceId,t.processId)}Z(t){this.a.$acceptTerminalDimensions(t.instanceId,t.cols,t.rows)}$(t){this.a.$acceptTerminalMaximumDimensions(t.instanceId,t.maxCols,t.maxRows)}ab(t){const e=t.proxy,i=new R;this.f.set(e.instanceId,{proxy:e,store:i});const r=t.cols&&t.rows?{columns:t.cols,rows:t.rows}:void 0;this.a.$startExtensionTerminal(e.instanceId,r).then(t.callback),i.add(e.onInput(n=>this.a.$acceptProcessInput(e.instanceId,n))),i.add(e.onShutdown(n=>this.a.$acceptProcessShutdown(e.instanceId,n))),i.add(e.onRequestCwd(()=>this.a.$acceptProcessRequestCwd(e.instanceId))),i.add(e.onRequestInitialCwd(()=>this.a.$acceptProcessRequestInitialCwd(e.instanceId)))}$sendProcessData(t,e){this.f.get(t)?.proxy.emitData(e)}$sendProcessReady(t,e,i,r){this.f.get(t)?.proxy.emitReady(e,i,r)}$sendProcessProperty(t,e){e.type==="title"&&this.t.getInstanceFromId(t)?.rename(e.value),this.f.get(t)?.proxy.emitProcessProperty(e)}$setEnvironmentVariableCollection(t,e,i,r){if(i){const n={persistent:e,map:q(i),descriptionMap:X(r)};this.z.set(t,n)}else this.z.delete(t)}};P=C([Q(j.MainThreadTerminalService),c(1,A),c(2,K),c(3,tt),c(4,N),c(5,Z),c(6,B),c(7,G),c(8,W),c(9,z),c(10,_),c(11,V),c(12,et),c(13,it)],P);let g=class extends E{constructor(t,e){super(),this.b=t,this.f=e,this.D(this.a=new U(this.b));for(const i of this.f.instances)this.g(i);this.D(this.f.onDidCreateInstance(i=>this.g(i))),this.D(this.f.onDidDisposeInstance(i=>this.a.stopBuffering(i.instanceId)))}g(t){this.D(this.a.startBuffering(t.instanceId,t.onData))}};g=C([c(1,A)],g);class st{constructor(t){this.a=t}async provideLinks(t,e){const i=this.a;return(await i.$provideLinks(t.instanceId,e)).map(n=>({id:n.id,startIndex:n.startIndex,length:n.length,label:n.label,activate:()=>i.$activateLink(t.instanceId,n.id)}))}}function nt(h,t){const e=h.join(`
-`).match(t.lineMatcher);return e?{regexMatch:e,outputLines:h}:void 0}function b(h,t,e){let i=$.TerminalCommand;return v(e,{uri:!0})?(e.uri=L.revive(e.uri),i=$.Opener):v(e,{id:!0})&&(i=$.VscodeCommand),{id:h,type:i,source:t,...e}}export{P as $87b,nt as $97b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore, Disposable, MutableDisposable, combinedDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { URI } from "../../../base/common/uri.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { TerminalExitReason, TerminalLocation } from "../../../platform/terminal/common/terminal.js";
+import { TerminalDataBufferer } from "../../../platform/terminal/common/terminalDataBuffering.js";
+import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from "../../contrib/terminal/browser/terminal.js";
+import { TerminalProcessExtHostProxy } from "../../contrib/terminal/browser/terminalProcessExtHostProxy.js";
+import { IEnvironmentVariableService } from "../../contrib/terminal/common/environmentVariable.js";
+import { deserializeEnvironmentDescriptionMap, deserializeEnvironmentVariableCollection, serializeEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariableShared.js";
+import { ITerminalProfileResolverService, ITerminalProfileService } from "../../contrib/terminal/common/terminal.js";
+import { IRemoteAgentService } from "../../services/remote/common/remoteAgentService.js";
+import { OS } from "../../../base/common/platform.js";
+import { Promises } from "../../../base/common/async.js";
+import { ITerminalLinkProviderService } from "../../contrib/terminalContrib/links/browser/links.js";
+import { ITerminalQuickFixService, TerminalQuickFixType } from "../../contrib/terminalContrib/quickFix/browser/quickFix.js";
+import { ITerminalCompletionService } from "../../contrib/terminalContrib/suggest/browser/terminalCompletionService.js";
+import { IWorkbenchEnvironmentService } from "../../services/environment/common/environmentService.js";
+import { hasKey } from "../../../base/common/types.js";
+let MainThreadTerminalService = class MainThreadTerminalService2 extends Disposable {
+  static {
+    __name(this, "MainThreadTerminalService");
+  }
+  constructor(_extHostContext, _terminalService, _terminalLinkProviderService, _terminalQuickFixService, _instantiationService, _environmentVariableService, _logService, _terminalProfileResolverService, remoteAgentService, _terminalGroupService, _terminalEditorService, _terminalProfileService, _terminalCompletionService, _environmentService) {
+    super();
+    this._terminalService = _terminalService;
+    this._terminalLinkProviderService = _terminalLinkProviderService;
+    this._terminalQuickFixService = _terminalQuickFixService;
+    this._instantiationService = _instantiationService;
+    this._environmentVariableService = _environmentVariableService;
+    this._logService = _logService;
+    this._terminalProfileResolverService = _terminalProfileResolverService;
+    this._terminalGroupService = _terminalGroupService;
+    this._terminalEditorService = _terminalEditorService;
+    this._terminalProfileService = _terminalProfileService;
+    this._terminalCompletionService = _terminalCompletionService;
+    this._environmentService = _environmentService;
+    this._extHostTerminals = /* @__PURE__ */ new Map();
+    this._terminalProcessProxies = /* @__PURE__ */ new Map();
+    this._profileProviders = /* @__PURE__ */ new Map();
+    this._completionProviders = /* @__PURE__ */ new Map();
+    this._quickFixProviders = /* @__PURE__ */ new Map();
+    this._dataEventTracker = this._register(new MutableDisposable());
+    this._sendCommandEventListener = this._register(new MutableDisposable());
+    this._linkProvider = this._register(new MutableDisposable());
+    this._os = OS;
+    this._proxy = _extHostContext.getProxy(ExtHostContext.ExtHostTerminalService);
+    this._register(_terminalService.onDidCreateInstance((instance) => {
+      this._onTerminalOpened(instance);
+      this._onInstanceDimensionsChanged(instance);
+    }));
+    this._register(_terminalService.onDidDisposeInstance((instance) => this._onTerminalDisposed(instance)));
+    this._register(_terminalService.onAnyInstanceProcessIdReady((instance) => this._onTerminalProcessIdReady(instance)));
+    this._register(_terminalService.onDidChangeInstanceDimensions((instance) => this._onInstanceDimensionsChanged(instance)));
+    this._register(_terminalService.onAnyInstanceMaximumDimensionsChange((instance) => this._onInstanceMaximumDimensionsChanged(instance)));
+    this._register(_terminalService.onDidRequestStartExtensionTerminal((e) => this._onRequestStartExtensionTerminal(e)));
+    this._register(_terminalService.onDidChangeActiveInstance((instance) => this._onActiveTerminalChanged(instance ? instance.instanceId : null)));
+    this._register(_terminalService.onAnyInstanceTitleChange((instance) => instance && this._onTitleChanged(instance.instanceId, instance.title)));
+    this._register(_terminalService.onAnyInstanceDataInput((instance) => this._proxy.$acceptTerminalInteraction(instance.instanceId)));
+    this._register(_terminalService.onAnyInstanceSelectionChange((instance) => this._proxy.$acceptTerminalSelection(instance.instanceId, instance.selection)));
+    this._register(_terminalService.onAnyInstanceShellTypeChanged((instance) => this._onShellTypeChanged(instance.instanceId)));
+    for (const instance of this._terminalService.instances) {
+      this._onTerminalOpened(instance);
+      instance.processReady.then(() => this._onTerminalProcessIdReady(instance));
+      if (instance.shellType) {
+        this._proxy.$acceptTerminalShellType(instance.instanceId, instance.shellType);
+      }
+    }
+    const activeInstance = this._terminalService.activeInstance;
+    if (activeInstance) {
+      this._proxy.$acceptActiveTerminalChanged(activeInstance.instanceId);
+    }
+    if (this._environmentVariableService.collections.size > 0) {
+      const collectionAsArray = [...this._environmentVariableService.collections.entries()];
+      const serializedCollections = collectionAsArray.map((e) => {
+        return [e[0], serializeEnvironmentVariableCollection(e[1].map)];
+      });
+      this._proxy.$initEnvironmentVariableCollections(serializedCollections);
+    }
+    this._store.add(toDisposable(() => {
+      for (const e of this._terminalProcessProxies.values()) {
+        e.proxy.dispose();
+        e.store.dispose();
+      }
+      this._terminalProcessProxies.clear();
+    }));
+    remoteAgentService.getEnvironment().then(async (env) => {
+      this._os = env?.os || OS;
+      this._updateDefaultProfile();
+    });
+    this._register(this._terminalProfileService.onDidChangeAvailableProfiles(() => this._updateDefaultProfile()));
+    this._register(toDisposable(() => {
+      for (const provider of this._profileProviders.values()) {
+        provider.dispose();
+      }
+      for (const provider of this._quickFixProviders.values()) {
+        provider.dispose();
+      }
+    }));
+  }
+  async _updateDefaultProfile() {
+    const remoteAuthority = this._environmentService.remoteAuthority;
+    const defaultProfile = this._terminalProfileResolverService.getDefaultProfile({ remoteAuthority, os: this._os });
+    const defaultAutomationProfile = this._terminalProfileResolverService.getDefaultProfile({ remoteAuthority, os: this._os, allowAutomationShell: true });
+    this._proxy.$acceptDefaultProfile(...await Promise.all([defaultProfile, defaultAutomationProfile]));
+  }
+  async _getTerminalInstance(id) {
+    if (typeof id === "string") {
+      return this._extHostTerminals.get(id);
+    }
+    return this._terminalService.getInstanceFromId(id);
+  }
+  async $createTerminal(extHostTerminalId, launchConfig) {
+    const shellLaunchConfig = {
+      name: launchConfig.name,
+      executable: launchConfig.shellPath,
+      args: launchConfig.shellArgs,
+      cwd: typeof launchConfig.cwd === "string" ? launchConfig.cwd : URI.revive(launchConfig.cwd),
+      icon: launchConfig.icon,
+      color: launchConfig.color,
+      initialText: launchConfig.initialText,
+      waitOnExit: launchConfig.waitOnExit,
+      ignoreConfigurationCwd: true,
+      env: launchConfig.env,
+      strictEnv: launchConfig.strictEnv,
+      hideFromUser: launchConfig.hideFromUser,
+      customPtyImplementation: launchConfig.isExtensionCustomPtyTerminal ? (id, cols, rows) => new TerminalProcessExtHostProxy(id, cols, rows, this._terminalService) : void 0,
+      extHostTerminalId,
+      forceShellIntegration: launchConfig.forceShellIntegration,
+      isFeatureTerminal: launchConfig.isFeatureTerminal,
+      isExtensionOwnedTerminal: launchConfig.isExtensionOwnedTerminal,
+      useShellEnvironment: launchConfig.useShellEnvironment,
+      isTransient: launchConfig.isTransient,
+      shellIntegrationNonce: launchConfig.shellIntegrationNonce
+    };
+    const terminal = Promises.withAsyncBody(async (r) => {
+      const terminal2 = await this._terminalService.createTerminal({
+        config: shellLaunchConfig,
+        location: await this._deserializeParentTerminal(launchConfig.location)
+      });
+      r(terminal2);
+    });
+    this._extHostTerminals.set(extHostTerminalId, terminal);
+    const terminalInstance = await terminal;
+    this._register(terminalInstance.onDisposed(() => {
+      this._extHostTerminals.delete(extHostTerminalId);
+    }));
+  }
+  async _deserializeParentTerminal(location) {
+    if (typeof location === "object" && hasKey(location, { parentTerminal: true })) {
+      const parentTerminal = await this._extHostTerminals.get(location.parentTerminal.toString());
+      return parentTerminal ? { parentTerminal } : void 0;
+    }
+    return location;
+  }
+  async $show(id, preserveFocus) {
+    const terminalInstance = await this._getTerminalInstance(id);
+    if (terminalInstance) {
+      this._terminalService.setActiveInstance(terminalInstance);
+      if (terminalInstance.target === TerminalLocation.Editor) {
+        await this._terminalEditorService.revealActiveEditor(preserveFocus);
+      } else {
+        await this._terminalGroupService.showPanel(!preserveFocus);
+      }
+    }
+  }
+  async $hide(id) {
+    const instanceToHide = await this._getTerminalInstance(id);
+    const activeInstance = this._terminalService.activeInstance;
+    if (activeInstance && activeInstance.instanceId === instanceToHide?.instanceId && activeInstance.target !== TerminalLocation.Editor) {
+      this._terminalGroupService.hidePanel();
+    }
+  }
+  async $dispose(id) {
+    (await this._getTerminalInstance(id))?.dispose(TerminalExitReason.Extension);
+  }
+  async $sendText(id, text, shouldExecute) {
+    const instance = await this._getTerminalInstance(id);
+    await instance?.sendText(text, shouldExecute);
+  }
+  $sendProcessExit(terminalId, exitCode) {
+    this._terminalProcessProxies.get(terminalId)?.proxy.emitExit(exitCode);
+  }
+  $startSendingDataEvents() {
+    if (!this._dataEventTracker.value) {
+      this._dataEventTracker.value = this._instantiationService.createInstance(TerminalDataEventTracker, (id, data) => {
+        this._onTerminalData(id, data);
+      });
+      for (const instance of this._terminalService.instances) {
+        for (const data of instance.initialDataEvents || []) {
+          this._onTerminalData(instance.instanceId, data);
+        }
+      }
+    }
+  }
+  $stopSendingDataEvents() {
+    this._dataEventTracker.clear();
+  }
+  $startSendingCommandEvents() {
+    if (this._sendCommandEventListener.value) {
+      return;
+    }
+    const multiplexer = this._terminalService.createOnInstanceCapabilityEvent(2, (capability) => capability.onCommandFinished);
+    const sub = multiplexer.event((e) => {
+      this._onDidExecuteCommand(e.instance.instanceId, {
+        commandLine: e.data.command,
+        // TODO: Convert to URI if possible
+        cwd: e.data.cwd,
+        exitCode: e.data.exitCode,
+        output: e.data.getOutput()
+      });
+    });
+    this._sendCommandEventListener.value = combinedDisposable(multiplexer, sub);
+  }
+  $stopSendingCommandEvents() {
+    this._sendCommandEventListener.clear();
+  }
+  $startLinkProvider() {
+    this._linkProvider.value = this._terminalLinkProviderService.registerLinkProvider(new ExtensionTerminalLinkProvider(this._proxy));
+  }
+  $stopLinkProvider() {
+    this._linkProvider.clear();
+  }
+  $registerProcessSupport(isSupported) {
+    this._terminalService.registerProcessSupport(isSupported);
+  }
+  $registerCompletionProvider(id, extensionIdentifier, ...triggerCharacters) {
+    this._completionProviders.set(id, this._terminalCompletionService.registerTerminalCompletionProvider(extensionIdentifier, id, {
+      id,
+      provideCompletions: /* @__PURE__ */ __name(async (commandLine, cursorIndex, token) => {
+        const completions = await this._proxy.$provideTerminalCompletions(id, { commandLine, cursorIndex }, token);
+        if (!completions) {
+          return void 0;
+        }
+        if (completions.resourceOptions) {
+          const { cwd, globPattern, ...rest } = completions.resourceOptions;
+          return {
+            items: completions.items?.map((c) => ({
+              provider: `ext:${id}`,
+              ...c
+            })),
+            resourceOptions: {
+              ...rest,
+              cwd,
+              globPattern
+            }
+          };
+        }
+        return completions.items?.map((c) => ({
+          provider: `ext:${id}`,
+          ...c
+        }));
+      }, "provideCompletions")
+    }, ...triggerCharacters));
+  }
+  $unregisterCompletionProvider(id) {
+    this._completionProviders.get(id)?.dispose();
+    this._completionProviders.delete(id);
+  }
+  $registerProfileProvider(id, extensionIdentifier) {
+    this._profileProviders.set(id, this._terminalProfileService.registerTerminalProfileProvider(extensionIdentifier, id, {
+      createContributedTerminalProfile: /* @__PURE__ */ __name(async (options) => {
+        return this._proxy.$createContributedProfileTerminal(id, options);
+      }, "createContributedTerminalProfile")
+    }));
+  }
+  $unregisterProfileProvider(id) {
+    this._profileProviders.get(id)?.dispose();
+    this._profileProviders.delete(id);
+  }
+  async $registerQuickFixProvider(id, extensionId) {
+    this._quickFixProviders.set(id, this._terminalQuickFixService.registerQuickFixProvider(id, {
+      provideTerminalQuickFixes: /* @__PURE__ */ __name(async (terminalCommand, lines, options, token) => {
+        if (token.isCancellationRequested) {
+          return;
+        }
+        if (options.outputMatcher?.length && options.outputMatcher.length > 40) {
+          options.outputMatcher.length = 40;
+          this._logService.warn("Cannot exceed output matcher length of 40");
+        }
+        const commandLineMatch = terminalCommand.command.match(options.commandLineMatcher);
+        if (!commandLineMatch || !lines) {
+          return;
+        }
+        const outputMatcher = options.outputMatcher;
+        let outputMatch;
+        if (outputMatcher) {
+          outputMatch = getOutputMatchForLines(lines, outputMatcher);
+        }
+        if (!outputMatch) {
+          return;
+        }
+        const matchResult = { commandLineMatch, outputMatch, commandLine: terminalCommand.command };
+        if (matchResult) {
+          const result = await this._proxy.$provideTerminalQuickFixes(id, matchResult, token);
+          if (result && Array.isArray(result)) {
+            return result.map((r) => parseQuickFix(id, extensionId, r));
+          } else if (result) {
+            return parseQuickFix(id, extensionId, result);
+          }
+        }
+        return;
+      }, "provideTerminalQuickFixes")
+    }));
+  }
+  $unregisterQuickFixProvider(id) {
+    this._quickFixProviders.get(id)?.dispose();
+    this._quickFixProviders.delete(id);
+  }
+  _onActiveTerminalChanged(terminalId) {
+    this._proxy.$acceptActiveTerminalChanged(terminalId);
+  }
+  _onTerminalData(terminalId, data) {
+    this._proxy.$acceptTerminalProcessData(terminalId, data);
+  }
+  _onDidExecuteCommand(terminalId, command) {
+    this._proxy.$acceptDidExecuteCommand(terminalId, command);
+  }
+  _onTitleChanged(terminalId, name) {
+    this._proxy.$acceptTerminalTitleChange(terminalId, name);
+  }
+  _onShellTypeChanged(terminalId) {
+    const terminalInstance = this._terminalService.getInstanceFromId(terminalId);
+    if (terminalInstance) {
+      this._proxy.$acceptTerminalShellType(terminalId, terminalInstance.shellType);
+    }
+  }
+  _onTerminalDisposed(terminalInstance) {
+    this._proxy.$acceptTerminalClosed(terminalInstance.instanceId, terminalInstance.exitCode, terminalInstance.exitReason ?? TerminalExitReason.Unknown);
+    const proxy = this._terminalProcessProxies.get(terminalInstance.instanceId);
+    if (proxy) {
+      proxy.proxy.dispose();
+      proxy.store.dispose();
+      this._terminalProcessProxies.delete(terminalInstance.instanceId);
+    }
+  }
+  _onTerminalOpened(terminalInstance) {
+    const extHostTerminalId = terminalInstance.shellLaunchConfig.extHostTerminalId;
+    const shellLaunchConfigDto = {
+      name: terminalInstance.shellLaunchConfig.name,
+      executable: terminalInstance.shellLaunchConfig.executable,
+      args: terminalInstance.shellLaunchConfig.args,
+      cwd: terminalInstance.shellLaunchConfig.cwd,
+      env: terminalInstance.shellLaunchConfig.env,
+      hideFromUser: terminalInstance.shellLaunchConfig.hideFromUser,
+      tabActions: terminalInstance.shellLaunchConfig.tabActions
+    };
+    this._proxy.$acceptTerminalOpened(terminalInstance.instanceId, extHostTerminalId, terminalInstance.title, shellLaunchConfigDto);
+  }
+  _onTerminalProcessIdReady(terminalInstance) {
+    if (terminalInstance.processId === void 0) {
+      return;
+    }
+    this._proxy.$acceptTerminalProcessId(terminalInstance.instanceId, terminalInstance.processId);
+  }
+  _onInstanceDimensionsChanged(instance) {
+    this._proxy.$acceptTerminalDimensions(instance.instanceId, instance.cols, instance.rows);
+  }
+  _onInstanceMaximumDimensionsChanged(instance) {
+    this._proxy.$acceptTerminalMaximumDimensions(instance.instanceId, instance.maxCols, instance.maxRows);
+  }
+  _onRequestStartExtensionTerminal(request) {
+    const proxy = request.proxy;
+    const store = new DisposableStore();
+    this._terminalProcessProxies.set(proxy.instanceId, { proxy, store });
+    const initialDimensions = request.cols && request.rows ? {
+      columns: request.cols,
+      rows: request.rows
+    } : void 0;
+    this._proxy.$startExtensionTerminal(proxy.instanceId, initialDimensions).then(request.callback);
+    store.add(proxy.onInput((data) => this._proxy.$acceptProcessInput(proxy.instanceId, data)));
+    store.add(proxy.onShutdown((immediate) => this._proxy.$acceptProcessShutdown(proxy.instanceId, immediate)));
+    store.add(proxy.onRequestCwd(() => this._proxy.$acceptProcessRequestCwd(proxy.instanceId)));
+    store.add(proxy.onRequestInitialCwd(() => this._proxy.$acceptProcessRequestInitialCwd(proxy.instanceId)));
+  }
+  $sendProcessData(terminalId, data) {
+    this._terminalProcessProxies.get(terminalId)?.proxy.emitData(data);
+  }
+  $sendProcessReady(terminalId, pid, cwd, windowsPty) {
+    this._terminalProcessProxies.get(terminalId)?.proxy.emitReady(pid, cwd, windowsPty);
+  }
+  $sendProcessProperty(terminalId, property) {
+    if (property.type === "title") {
+      const instance = this._terminalService.getInstanceFromId(terminalId);
+      instance?.rename(property.value);
+    }
+    this._terminalProcessProxies.get(terminalId)?.proxy.emitProcessProperty(property);
+  }
+  $setEnvironmentVariableCollection(extensionIdentifier, persistent, collection, descriptionMap) {
+    if (collection) {
+      const translatedCollection = {
+        persistent,
+        map: deserializeEnvironmentVariableCollection(collection),
+        descriptionMap: deserializeEnvironmentDescriptionMap(descriptionMap)
+      };
+      this._environmentVariableService.set(extensionIdentifier, translatedCollection);
+    } else {
+      this._environmentVariableService.delete(extensionIdentifier);
+    }
+  }
+};
+MainThreadTerminalService = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadTerminalService),
+  __param(1, ITerminalService),
+  __param(2, ITerminalLinkProviderService),
+  __param(3, ITerminalQuickFixService),
+  __param(4, IInstantiationService),
+  __param(5, IEnvironmentVariableService),
+  __param(6, ILogService),
+  __param(7, ITerminalProfileResolverService),
+  __param(8, IRemoteAgentService),
+  __param(9, ITerminalGroupService),
+  __param(10, ITerminalEditorService),
+  __param(11, ITerminalProfileService),
+  __param(12, ITerminalCompletionService),
+  __param(13, IWorkbenchEnvironmentService)
+], MainThreadTerminalService);
+let TerminalDataEventTracker = class TerminalDataEventTracker2 extends Disposable {
+  static {
+    __name(this, "TerminalDataEventTracker");
+  }
+  constructor(_callback, _terminalService) {
+    super();
+    this._callback = _callback;
+    this._terminalService = _terminalService;
+    this._register(this._bufferer = new TerminalDataBufferer(this._callback));
+    for (const instance of this._terminalService.instances) {
+      this._registerInstance(instance);
+    }
+    this._register(this._terminalService.onDidCreateInstance((instance) => this._registerInstance(instance)));
+    this._register(this._terminalService.onDidDisposeInstance((instance) => this._bufferer.stopBuffering(instance.instanceId)));
+  }
+  _registerInstance(instance) {
+    this._register(this._bufferer.startBuffering(instance.instanceId, instance.onData));
+  }
+};
+TerminalDataEventTracker = __decorate([
+  __param(1, ITerminalService)
+], TerminalDataEventTracker);
+class ExtensionTerminalLinkProvider {
+  static {
+    __name(this, "ExtensionTerminalLinkProvider");
+  }
+  constructor(_proxy) {
+    this._proxy = _proxy;
+  }
+  async provideLinks(instance, line) {
+    const proxy = this._proxy;
+    const extHostLinks = await proxy.$provideLinks(instance.instanceId, line);
+    return extHostLinks.map((dto) => ({
+      id: dto.id,
+      startIndex: dto.startIndex,
+      length: dto.length,
+      label: dto.label,
+      activate: /* @__PURE__ */ __name(() => proxy.$activateLink(instance.instanceId, dto.id), "activate")
+    }));
+  }
+}
+function getOutputMatchForLines(lines, outputMatcher) {
+  const match = lines.join("\n").match(outputMatcher.lineMatcher);
+  return match ? { regexMatch: match, outputLines: lines } : void 0;
+}
+__name(getOutputMatchForLines, "getOutputMatchForLines");
+function parseQuickFix(id, source, fix) {
+  let type = TerminalQuickFixType.TerminalCommand;
+  if (hasKey(fix, { uri: true })) {
+    fix.uri = URI.revive(fix.uri);
+    type = TerminalQuickFixType.Opener;
+  } else if (hasKey(fix, { id: true })) {
+    type = TerminalQuickFixType.VscodeCommand;
+  }
+  return { id, type, source, ...fix };
+}
+__name(parseQuickFix, "parseQuickFix");
+export {
+  MainThreadTerminalService,
+  getOutputMatchForLines
+};
+//# sourceMappingURL=mainThreadTerminalService.js.map

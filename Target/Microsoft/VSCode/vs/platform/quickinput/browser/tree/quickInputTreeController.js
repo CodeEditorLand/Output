@@ -1,1 +1,342 @@
-import*as f from"../../../../base/browser/dom.js";import{RenderIndentGuides as p}from"../../../../base/browser/ui/tree/abstractTree.js";import{ObjectTreeElementCollapseState as a}from"../../../../base/browser/ui/tree/tree.js";import{$xf as l}from"../../../../base/common/event.js";import{$Ed as b}from"../../../../base/common/lifecycle.js";import{$Mj as k}from"../../../instantiation/common/instantiation.js";import{$asb as C}from"../../../list/browser/listService.js";import{QuickPickFocus as h}from"../../common/quickInput.js";import{$xCb as v}from"./quickInputDelegate.js";import{$uCb as d}from"./quickInputTree.js";import{$yCb as D}from"./quickInputTreeAccessibilityProvider.js";import{$zCb as w}from"./quickInputTreeFilter.js";import{$vCb as L,$wCb as y}from"./quickInputTreeRenderer.js";import{$ACb as S}from"./quickInputTreeSorter.js";import{$H$ as x}from"../../../../base/browser/ui/toggle/toggle.js";var g=function(o,e,t,i){var r=arguments.length,s=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,e,t,i);else for(var c=o.length-1;c>=0;c--)(n=o[c])&&(s=(r<3?n(s):r>3?n(e,t,s):n(e,t))||s);return r>3&&s&&Object.defineProperty(e,t,s),s},m=function(o,e){return function(t,i){e(t,i,o)}};const O=f.$,$="quick-input-tree-flat";class F{constructor(){this.a=new WeakMap,this.b=0}getId(e){let t=e.id;return t!==void 0||(t=this.a.get(e),t!==void 0)||(t=`__generated_${this.b++}`,this.a.set(e,t)),t}}let u=class extends b{constructor(e,t,i,r){super(),this.s=r,this.h=this.D(new l),this.onDidTriggerButton=this.h.event,this.j=this.D(new l),this.onDidChangeCheckboxState=this.j.event,this.m=this.D(new l),this.onDidChangeCheckedLeafItems=this.m.event,this.n=new l,this.onLeave=this.n.event,this.q=this.D(new l),this.onDidAccept=this.q.event,this.r=f.$y9(e,O(".quick-input-tree")),this.b=this.D(new L),this.a=this.D(this.s.createInstance(y,t,this.h,this.onDidChangeCheckboxState,this.b,i.toggle)),this.c=this.s.createInstance(w),this.f=this.D(new S),this.g=this.D(this.s.createInstance(C,"QuickInputTree",this.r,new v,[this.a],{accessibilityProvider:new D(this.onDidChangeCheckboxState),horizontalScrolling:!1,multipleSelectionSupport:!1,findWidgetEnabled:!1,alwaysConsumeMouseWheel:!0,hideTwistiesOfChildlessElements:!0,renderIndentGuides:p.None,expandOnDoubleClick:!0,expandOnlyOnTwistieClick:!0,disableExpandOnSpacebar:!0,sorter:this.f,filter:this.c,identityProvider:new F})),this.registerCheckboxStateListeners(),this.registerOnDidChangeFocus()}get tree(){return this.g}get renderer(){return this.a}get displayed(){return this.r.style.display!=="none"}set displayed(e){this.r.style.display=e?"":"none"}get sortByLabel(){return this.f.sortByLabel}set sortByLabel(e){this.f.sortByLabel=e,this.g.resort(null,!0)}getActiveDescendant(){return this.g.getHTMLElement().getAttribute("aria-activedescendant")}filter(e){this.c.filterValue=e,this.g.refilter()}updateFilterOptions(e){e.matchOnLabel!==void 0&&(this.c.matchOnLabel=e.matchOnLabel),e.matchOnDescription!==void 0&&(this.c.matchOnDescription=e.matchOnDescription),this.g.refilter()}setTreeData(e){let t=!1;const i=s=>{let n;return s.children&&s.children.length>0&&(t=!0,n=s.children.map(c=>i(c)),s.checked=d(n)),{element:s,children:n,collapsible:!!n,collapsed:s.collapsed?a.PreserveOrCollapsed:a.PreserveOrExpanded}},r=e.map(s=>i(s));this.g.setChildren(null,r),this.r.classList.toggle($,!t)}layout(e){this.g.getHTMLElement().style.maxHeight=e?`${Math.floor(e/44)*44+6}px`:"",this.g.layout()}focus(e){switch(e){case h.First:this.g.scrollTop=0,this.g.focusFirst();break;case h.Second:{this.g.scrollTop=0;let t=!1;this.g.focusFirst(void 0,i=>t?!0:(t=!t,!1));break}case h.Last:this.g.scrollTop=this.g.scrollHeight,this.g.focusLast();break;case h.Next:{const t=this.g.getFocus();this.g.focusNext(void 0,!1,void 0,r=>(this.g.reveal(r.element),!0));const i=this.g.getFocus();t.length&&t[0]===i[0]&&this.n.fire();break}case h.Previous:{const t=this.g.getFocus();this.g.focusPrevious(void 0,!1,void 0,r=>(this.g.reveal(r.element),!0));const i=this.g.getFocus();t.length&&t[0]===i[0]&&this.n.fire();break}case h.NextPage:this.g.focusNextPage(void 0,t=>(this.g.reveal(t.element),!0));break;case h.PreviousPage:this.g.focusPreviousPage(void 0,t=>(this.g.reveal(t.element),!0));break;case h.NextSeparator:case h.PreviousSeparator:return}}registerCheckboxStateListeners(){this.D(this.g.onDidOpen(e=>{const t=e.element;if(!t||t.disabled)return;if(t.pickable===!1){this.g.setFocus([t]),this.q.fire();return}const i=e.browserEvent?.target;i&&i.classList.contains(x.CLASS_NAME)||this.t(t,t.checked===!0)})),this.D(this.b.onDidChangeCheckboxState(e=>{this.t(e.item,e.checked===!0)}))}t(e,t){if((e.checked??!1)===t)return;e.checked=t,this.g.rerender(e);const i=new Set,r=[...this.g.getNode(e).children];for(;r.length;){const n=r.shift();n?.element&&!i.has(n.element)&&(i.add(n.element),(n.element.checked??!1)!==e.checked&&(n.element.checked=e.checked,this.g.rerender(n.element)),r.push(...n.children))}let s=this.g.getParentElement(e);for(;s;){const n=[...this.g.getNode(s).children],c=d(n);(s.checked??!1)!==c&&(s.checked=c,this.g.rerender(s)),s=this.g.getParentElement(s)}this.j.fire({item:e,checked:e.checked??!1}),this.m.fire(this.getCheckedLeafItems())}registerOnDidChangeFocus(){this.D(this.g.onDidChangeFocus(e=>{const t=this.g.getFocus().findLast(i=>i!==null);this.g.setSelection(t?[t]:[],e.browserEvent)}))}getCheckedLeafItems(){const e=new Set,t=[...this.g.getNode().children],i=new Array;for(;t.length;){const r=t.shift();!r?.element||e.has(r.element)||r.element.checked&&(e.add(r.element),t.push(...r.children),r.element.children||i.push(r.element))}return i}getActiveItems(){return this.g.getFocus().filter(e=>e!==null)}toggleCheckbox(){for(const e of this.getActiveItems())e.pickable!==!1&&!e.disabled&&this.t(e,e.checked!==!0)}checkAll(e){const t=new Set,i=[...this.g.getNode().children];let r=!1;for(;i.length;){const s=i.shift();!s?.element||t.has(s.element)||s.element.checked!==e&&(r=!0,s.element.checked=e,i.push(...s.children),t.add(s.element),this.g.rerender(s.element),this.j.fire({item:s.element,checked:s.element.checked}))}r&&this.m.fire(this.getCheckedLeafItems())}};u=g([m(3,k)],u);export{u as $BCb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { RenderIndentGuides } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { ObjectTreeElementCollapseState } from "../../../../base/browser/ui/tree/tree.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../instantiation/common/instantiation.js";
+import { WorkbenchObjectTree } from "../../../list/browser/listService.js";
+import { QuickPickFocus } from "../../common/quickInput.js";
+import { QuickInputTreeDelegate } from "./quickInputDelegate.js";
+import { getParentNodeState } from "./quickInputTree.js";
+import { QuickTreeAccessibilityProvider } from "./quickInputTreeAccessibilityProvider.js";
+import { QuickInputTreeFilter } from "./quickInputTreeFilter.js";
+import { QuickInputCheckboxStateHandler, QuickInputTreeRenderer } from "./quickInputTreeRenderer.js";
+import { QuickInputTreeSorter } from "./quickInputTreeSorter.js";
+import { Checkbox } from "../../../../base/browser/ui/toggle/toggle.js";
+const $ = dom.$;
+const flatHierarchyClass = "quick-input-tree-flat";
+class QuickInputTreeIdentityProvider {
+  static {
+    __name(this, "QuickInputTreeIdentityProvider");
+  }
+  constructor() {
+    this._elementIds = /* @__PURE__ */ new WeakMap();
+    this._counter = 0;
+  }
+  getId(element) {
+    let id = element.id;
+    if (id !== void 0) {
+      return id;
+    }
+    id = this._elementIds.get(element);
+    if (id !== void 0) {
+      return id;
+    }
+    id = `__generated_${this._counter++}`;
+    this._elementIds.set(element, id);
+    return id;
+  }
+}
+let QuickInputTreeController = class QuickInputTreeController2 extends Disposable {
+  static {
+    __name(this, "QuickInputTreeController");
+  }
+  constructor(container, hoverDelegate, styles, instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this._onDidTriggerButton = this._register(new Emitter());
+    this.onDidTriggerButton = this._onDidTriggerButton.event;
+    this._onDidChangeCheckboxState = this._register(new Emitter());
+    this.onDidChangeCheckboxState = this._onDidChangeCheckboxState.event;
+    this._onDidCheckedLeafItemsChange = this._register(new Emitter());
+    this.onDidChangeCheckedLeafItems = this._onDidCheckedLeafItemsChange.event;
+    this._onLeave = new Emitter();
+    this.onLeave = this._onLeave.event;
+    this._onDidAccept = this._register(new Emitter());
+    this.onDidAccept = this._onDidAccept.event;
+    this._container = dom.append(container, $(".quick-input-tree"));
+    this._checkboxStateHandler = this._register(new QuickInputCheckboxStateHandler());
+    this._renderer = this._register(this.instantiationService.createInstance(QuickInputTreeRenderer, hoverDelegate, this._onDidTriggerButton, this.onDidChangeCheckboxState, this._checkboxStateHandler, styles.toggle));
+    this._filter = this.instantiationService.createInstance(QuickInputTreeFilter);
+    this._sorter = this._register(new QuickInputTreeSorter());
+    this._tree = this._register(this.instantiationService.createInstance(WorkbenchObjectTree, "QuickInputTree", this._container, new QuickInputTreeDelegate(), [this._renderer], {
+      accessibilityProvider: new QuickTreeAccessibilityProvider(this.onDidChangeCheckboxState),
+      horizontalScrolling: false,
+      multipleSelectionSupport: false,
+      findWidgetEnabled: false,
+      alwaysConsumeMouseWheel: true,
+      hideTwistiesOfChildlessElements: true,
+      renderIndentGuides: RenderIndentGuides.None,
+      expandOnDoubleClick: true,
+      expandOnlyOnTwistieClick: true,
+      disableExpandOnSpacebar: true,
+      sorter: this._sorter,
+      filter: this._filter,
+      identityProvider: new QuickInputTreeIdentityProvider()
+    }));
+    this.registerCheckboxStateListeners();
+    this.registerOnDidChangeFocus();
+  }
+  get tree() {
+    return this._tree;
+  }
+  get renderer() {
+    return this._renderer;
+  }
+  get displayed() {
+    return this._container.style.display !== "none";
+  }
+  set displayed(value) {
+    this._container.style.display = value ? "" : "none";
+  }
+  get sortByLabel() {
+    return this._sorter.sortByLabel;
+  }
+  set sortByLabel(value) {
+    this._sorter.sortByLabel = value;
+    this._tree.resort(null, true);
+  }
+  getActiveDescendant() {
+    return this._tree.getHTMLElement().getAttribute("aria-activedescendant");
+  }
+  filter(input) {
+    this._filter.filterValue = input;
+    this._tree.refilter();
+  }
+  updateFilterOptions(options) {
+    if (options.matchOnLabel !== void 0) {
+      this._filter.matchOnLabel = options.matchOnLabel;
+    }
+    if (options.matchOnDescription !== void 0) {
+      this._filter.matchOnDescription = options.matchOnDescription;
+    }
+    this._tree.refilter();
+  }
+  setTreeData(treeData) {
+    let hasNestedItems = false;
+    const createTreeElement = /* @__PURE__ */ __name((item) => {
+      let children;
+      if (item.children && item.children.length > 0) {
+        hasNestedItems = true;
+        children = item.children.map((child) => createTreeElement(child));
+        item.checked = getParentNodeState(children);
+      }
+      return {
+        element: item,
+        children,
+        collapsible: !!children,
+        collapsed: item.collapsed ? ObjectTreeElementCollapseState.PreserveOrCollapsed : ObjectTreeElementCollapseState.PreserveOrExpanded
+      };
+    }, "createTreeElement");
+    const treeElements = treeData.map((item) => createTreeElement(item));
+    this._tree.setChildren(null, treeElements);
+    this._container.classList.toggle(flatHierarchyClass, !hasNestedItems);
+  }
+  layout(maxHeight) {
+    this._tree.getHTMLElement().style.maxHeight = maxHeight ? `${// Make sure height aligns with list item heights
+    Math.floor(maxHeight / 44) * 44 + 6}px` : "";
+    this._tree.layout();
+  }
+  focus(what) {
+    switch (what) {
+      case QuickPickFocus.First:
+        this._tree.scrollTop = 0;
+        this._tree.focusFirst();
+        break;
+      case QuickPickFocus.Second: {
+        this._tree.scrollTop = 0;
+        let isSecondItem = false;
+        this._tree.focusFirst(void 0, (e) => {
+          if (isSecondItem) {
+            return true;
+          }
+          isSecondItem = !isSecondItem;
+          return false;
+        });
+        break;
+      }
+      case QuickPickFocus.Last:
+        this._tree.scrollTop = this._tree.scrollHeight;
+        this._tree.focusLast();
+        break;
+      case QuickPickFocus.Next: {
+        const prevFocus = this._tree.getFocus();
+        this._tree.focusNext(void 0, false, void 0, (e) => {
+          this._tree.reveal(e.element);
+          return true;
+        });
+        const currentFocus = this._tree.getFocus();
+        if (prevFocus.length && prevFocus[0] === currentFocus[0]) {
+          this._onLeave.fire();
+        }
+        break;
+      }
+      case QuickPickFocus.Previous: {
+        const prevFocus = this._tree.getFocus();
+        this._tree.focusPrevious(void 0, false, void 0, (e) => {
+          this._tree.reveal(e.element);
+          return true;
+        });
+        const currentFocus = this._tree.getFocus();
+        if (prevFocus.length && prevFocus[0] === currentFocus[0]) {
+          this._onLeave.fire();
+        }
+        break;
+      }
+      case QuickPickFocus.NextPage:
+        this._tree.focusNextPage(void 0, (e) => {
+          this._tree.reveal(e.element);
+          return true;
+        });
+        break;
+      case QuickPickFocus.PreviousPage:
+        this._tree.focusPreviousPage(void 0, (e) => {
+          this._tree.reveal(e.element);
+          return true;
+        });
+        break;
+      case QuickPickFocus.NextSeparator:
+      case QuickPickFocus.PreviousSeparator:
+        return;
+    }
+  }
+  registerCheckboxStateListeners() {
+    this._register(this._tree.onDidOpen((e) => {
+      const item = e.element;
+      if (!item) {
+        return;
+      }
+      if (item.disabled) {
+        return;
+      }
+      if (item.pickable === false) {
+        this._tree.setFocus([item]);
+        this._onDidAccept.fire();
+        return;
+      }
+      const target = e.browserEvent?.target;
+      if (target && target.classList.contains(Checkbox.CLASS_NAME)) {
+        return;
+      }
+      this.updateCheckboxState(item, item.checked === true);
+    }));
+    this._register(this._checkboxStateHandler.onDidChangeCheckboxState((e) => {
+      this.updateCheckboxState(e.item, e.checked === true);
+    }));
+  }
+  updateCheckboxState(item, newState) {
+    if ((item.checked ?? false) === newState) {
+      return;
+    }
+    item.checked = newState;
+    this._tree.rerender(item);
+    const updateSet = /* @__PURE__ */ new Set();
+    const toUpdate = [...this._tree.getNode(item).children];
+    while (toUpdate.length) {
+      const pop = toUpdate.shift();
+      if (pop?.element && !updateSet.has(pop.element)) {
+        updateSet.add(pop.element);
+        if ((pop.element.checked ?? false) !== item.checked) {
+          pop.element.checked = item.checked;
+          this._tree.rerender(pop.element);
+        }
+        toUpdate.push(...pop.children);
+      }
+    }
+    let parent = this._tree.getParentElement(item);
+    while (parent) {
+      const parentChildren = [...this._tree.getNode(parent).children];
+      const newState2 = getParentNodeState(parentChildren);
+      if ((parent.checked ?? false) !== newState2) {
+        parent.checked = newState2;
+        this._tree.rerender(parent);
+      }
+      parent = this._tree.getParentElement(parent);
+    }
+    this._onDidChangeCheckboxState.fire({
+      item,
+      checked: item.checked ?? false
+    });
+    this._onDidCheckedLeafItemsChange.fire(this.getCheckedLeafItems());
+  }
+  registerOnDidChangeFocus() {
+    this._register(this._tree.onDidChangeFocus((e) => {
+      const item = this._tree.getFocus().findLast((item2) => item2 !== null);
+      this._tree.setSelection(item ? [item] : [], e.browserEvent);
+    }));
+  }
+  getCheckedLeafItems() {
+    const lookedAt = /* @__PURE__ */ new Set();
+    const toLookAt = [...this._tree.getNode().children];
+    const checkedItems = new Array();
+    while (toLookAt.length) {
+      const lookAt = toLookAt.shift();
+      if (!lookAt?.element || lookedAt.has(lookAt.element)) {
+        continue;
+      }
+      if (lookAt.element.checked) {
+        lookedAt.add(lookAt.element);
+        toLookAt.push(...lookAt.children);
+        if (!lookAt.element.children) {
+          checkedItems.push(lookAt.element);
+        }
+      }
+    }
+    return checkedItems;
+  }
+  getActiveItems() {
+    return this._tree.getFocus().filter((item) => item !== null);
+  }
+  toggleCheckbox() {
+    for (const element of this.getActiveItems()) {
+      if (element.pickable !== false && !element.disabled) {
+        this.updateCheckboxState(element, !(element.checked === true));
+      }
+    }
+  }
+  checkAll(checked) {
+    const updated = /* @__PURE__ */ new Set();
+    const toUpdate = [...this._tree.getNode().children];
+    let fireCheckedChangeEvent = false;
+    while (toUpdate.length) {
+      const update = toUpdate.shift();
+      if (!update?.element || updated.has(update.element)) {
+        continue;
+      }
+      if (update.element.checked !== checked) {
+        fireCheckedChangeEvent = true;
+        update.element.checked = checked;
+        toUpdate.push(...update.children);
+        updated.add(update.element);
+        this._tree.rerender(update.element);
+        this._onDidChangeCheckboxState.fire({
+          item: update.element,
+          checked: update.element.checked
+        });
+      }
+    }
+    if (fireCheckedChangeEvent) {
+      this._onDidCheckedLeafItemsChange.fire(this.getCheckedLeafItems());
+    }
+  }
+};
+QuickInputTreeController = __decorate([
+  __param(3, IInstantiationService)
+], QuickInputTreeController);
+export {
+  QuickInputTreeController
+};
+//# sourceMappingURL=quickInputTreeController.js.map

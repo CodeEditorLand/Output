@@ -1,1 +1,386 @@
-import{$ji as S}from"../../../../base/common/async.js";import{$Ed as w}from"../../../../base/common/lifecycle.js";import"./bracketMatching.css";import{$Sdb as b,$Xdb as B,$1db as x}from"../../../browser/editorExtensions.js";import{$$D as C}from"../../../common/core/position.js";import{$_D as E}from"../../../common/core/range.js";import{$bE as k}from"../../../common/core/selection.js";import{EditorContextKeys as v}from"../../../common/editorContextKeys.js";import{OverviewRulerLane as M}from"../../../common/model.js";import{$aL as D}from"../../../common/model/textModel.js";import*as m from"../../../../nls.js";import{$qL as $,$sL as T}from"../../../../platform/actions/common/actions.js";import{$2p as N}from"../../../../platform/theme/common/colorRegistry.js";import{$xu as R,$ru as I}from"../../../../platform/theme/common/themeService.js";import{$1I as L}from"../../../common/core/editorColorRegistry.js";const j=N("editorOverviewRuler.bracketMatchForeground","#A0A0A0",m.localize(968,null));class y extends b{constructor(){super({id:"editor.action.jumpToBracket",label:m.localize2(970,"Go to Bracket"),precondition:void 0,kbOpts:{kbExpr:v.editorTextFocus,primary:3165,weight:100}})}run(t,e){h.get(e)?.jumpToBracket()}}class F extends b{constructor(){super({id:"editor.action.selectToBracket",label:m.localize2(971,"Select to Bracket"),precondition:void 0,metadata:{description:m.localize2(972,"Select the text inside and including the brackets or curly braces"),args:[{name:"args",schema:{type:"object",properties:{selectBrackets:{type:"boolean",default:!0}}}}]}})}run(t,e,s){let i=!0;s&&s.selectBrackets===!1&&(i=!1),h.get(e)?.selectToBracket(i)}}class z extends b{constructor(){super({id:"editor.action.removeBrackets",label:m.localize2(973,"Remove Brackets"),precondition:void 0,kbOpts:{kbExpr:v.editorTextFocus,primary:2561,weight:100},canTriggerInlineEdits:!0})}run(t,e){h.get(e)?.removeBrackets(this.id)}}class A{constructor(t,e,s){this.position=t,this.brackets=e,this.options=s}}class h extends w{static{this.ID="editor.contrib.bracketMatchingController"}static get(t){return t.getContribution(h.ID)}constructor(t){super(),this.a=t,this.b=[],this.c=0,this.f=this.a.createDecorationsCollection(),this.g=this.D(new S(()=>this.n(),50)),this.h=this.a.getOption(80),this.g.schedule(),this.D(t.onDidChangeCursorPosition(e=>{this.h!=="never"&&this.g.schedule()})),this.D(t.onDidChangeModelContent(e=>{this.g.schedule()})),this.D(t.onDidChangeModel(e=>{this.b=[],this.g.schedule()})),this.D(t.onDidChangeModelLanguageConfiguration(e=>{this.b=[],this.g.schedule()})),this.D(t.onDidChangeConfiguration(e=>{e.hasChanged(80)&&(this.h=this.a.getOption(80),this.f.clear(),this.b=[],this.c=0,this.g.schedule())})),this.D(t.onDidBlurEditorWidget(()=>{this.g.schedule()})),this.D(t.onDidFocusEditorWidget(()=>{this.g.schedule()}))}jumpToBracket(){if(!this.a.hasModel())return;const t=this.a.getModel(),e=this.a.getSelections().map(s=>{const i=s.getStartPosition(),o=t.bracketPairs.matchBracket(i);let n=null;if(o)o[0].containsPosition(i)&&!o[1].containsPosition(i)?n=o[1].getStartPosition():o[1].containsPosition(i)&&(n=o[0].getStartPosition());else{const r=t.bracketPairs.findEnclosingBrackets(i);if(r)n=r[1].getStartPosition();else{const a=t.bracketPairs.findNextBracket(i);a&&a.range&&(n=a.range.getStartPosition())}}return n?new k(n.lineNumber,n.column,n.lineNumber,n.column):new k(i.lineNumber,i.column,i.lineNumber,i.column)});this.a.setSelections(e),this.a.revealRange(e[0])}selectToBracket(t){if(!this.a.hasModel())return;const e=this.a.getModel(),s=[];this.a.getSelections().forEach(i=>{const o=i.getStartPosition();let n=e.bracketPairs.matchBracket(o);if(!n&&(n=e.bracketPairs.findEnclosingBrackets(o),!n)){const c=e.bracketPairs.findNextBracket(o);c&&c.range&&(n=e.bracketPairs.matchBracket(c.range.getStartPosition()))}let r=null,a=null;if(n){n.sort(E.compareRangesUsingStarts);const[c,d]=n;if(r=t?c.getStartPosition():c.getEndPosition(),a=t?d.getEndPosition():d.getStartPosition(),d.containsPosition(o)){const l=r;r=a,a=l}}r&&a&&s.push(new k(r.lineNumber,r.column,a.lineNumber,a.column))}),s.length>0&&(this.a.setSelections(s),this.a.revealRange(s[0]))}removeBrackets(t){if(!this.a.hasModel())return;const e=this.a.getModel();this.a.getSelections().forEach(s=>{const i=s.getPosition();let o=e.bracketPairs.matchBracket(i);o||(o=e.bracketPairs.findEnclosingBrackets(i)),o&&(this.a.pushUndoStop(),this.a.executeEdits(t,[{range:o[0],text:""},{range:o[1],text:""}]),this.a.pushUndoStop())})}static{this.j=D.register({description:"bracket-match-overview",stickiness:1,className:"bracket-match",inlineClassName:"bracket-match-inline",overviewRuler:{color:I(j),position:M.Center}})}static{this.m=D.register({description:"bracket-match-no-overview",stickiness:1,className:"bracket-match",inlineClassName:"bracket-match-inline"})}n(){if(this.h==="never")return;this.q();const t=[];let e=0;for(const s of this.b){const i=s.brackets;i&&(t[e++]={range:i[0],options:s.options},t[e++]={range:i[1],options:s.options})}this.f.set(t)}q(){if(!this.a.hasModel()||!this.a.hasWidgetFocus()){this.b=[],this.c=0;return}const t=this.a.getSelections();if(t.length>100){this.b=[],this.c=0;return}const e=this.a.getModel(),s=e.getVersionId();let i=[];this.c===s&&(i=this.b);const o=[];let n=0;for(let l=0,p=t.length;l<p;l++){const u=t[l];u.isEmpty()&&(o[n++]=u.getStartPosition())}o.length>1&&o.sort(C.compare);const r=[];let a=0,c=0;const d=i.length;for(let l=0,p=o.length;l<p;l++){const u=o[l];for(;c<d&&i[c].position.isBefore(u);)c++;if(c<d&&i[c].position.equals(u))r[a++]=i[c];else{let f=e.bracketPairs.matchBracket(u,20),P=h.j;!f&&this.h==="always"&&(f=e.bracketPairs.findEnclosingBrackets(u,20),P=h.m),r[a++]=new A(u,f,P)}}this.b=r,this.c=s}}x(h.ID,h,1);B(F);B(y);B(z);T.appendMenuItem($.MenubarGoMenu,{group:"5_infile_nav",command:{id:"editor.action.jumpToBracket",title:m.localize(969,null)},order:2});R((g,t)=>{const e=g.getColor(L);e&&t.addRule(`.monaco-editor .bracket-match-inline { color: ${e} !important; }`)});export{h as $Jkb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import "./bracketMatching.css";
+import { EditorAction, registerEditorAction, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { OverviewRulerLane } from "../../../common/model.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import * as nls from "../../../../nls.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant, themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { editorBracketMatchForeground } from "../../../common/core/editorColorRegistry.js";
+const overviewRulerBracketMatchForeground = registerColor("editorOverviewRuler.bracketMatchForeground", "#A0A0A0", nls.localize("overviewRulerBracketMatchForeground", "Overview ruler marker color for matching brackets."));
+class JumpToBracketAction extends EditorAction {
+  static {
+    __name(this, "JumpToBracketAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.jumpToBracket",
+      label: nls.localize2("smartSelect.jumpBracket", "Go to Bracket"),
+      precondition: void 0,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: 2048 | 1024 | 93,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      }
+    });
+  }
+  run(accessor, editor) {
+    BracketMatchingController.get(editor)?.jumpToBracket();
+  }
+}
+class SelectToBracketAction extends EditorAction {
+  static {
+    __name(this, "SelectToBracketAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.selectToBracket",
+      label: nls.localize2("smartSelect.selectToBracket", "Select to Bracket"),
+      precondition: void 0,
+      metadata: {
+        description: nls.localize2("smartSelect.selectToBracketDescription", "Select the text inside and including the brackets or curly braces"),
+        args: [{
+          name: "args",
+          schema: {
+            type: "object",
+            properties: {
+              "selectBrackets": {
+                type: "boolean",
+                default: true
+              }
+            }
+          }
+        }]
+      }
+    });
+  }
+  run(accessor, editor, args) {
+    let selectBrackets = true;
+    if (args && args.selectBrackets === false) {
+      selectBrackets = false;
+    }
+    BracketMatchingController.get(editor)?.selectToBracket(selectBrackets);
+  }
+}
+class RemoveBracketsAction extends EditorAction {
+  static {
+    __name(this, "RemoveBracketsAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.removeBrackets",
+      label: nls.localize2("smartSelect.removeBrackets", "Remove Brackets"),
+      precondition: void 0,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: 2048 | 512 | 1,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      canTriggerInlineEdits: true
+    });
+  }
+  run(accessor, editor) {
+    BracketMatchingController.get(editor)?.removeBrackets(this.id);
+  }
+}
+class BracketsData {
+  static {
+    __name(this, "BracketsData");
+  }
+  constructor(position, brackets, options) {
+    this.position = position;
+    this.brackets = brackets;
+    this.options = options;
+  }
+}
+class BracketMatchingController extends Disposable {
+  static {
+    __name(this, "BracketMatchingController");
+  }
+  static {
+    this.ID = "editor.contrib.bracketMatchingController";
+  }
+  static get(editor) {
+    return editor.getContribution(BracketMatchingController.ID);
+  }
+  constructor(editor) {
+    super();
+    this._editor = editor;
+    this._lastBracketsData = [];
+    this._lastVersionId = 0;
+    this._decorations = this._editor.createDecorationsCollection();
+    this._updateBracketsSoon = this._register(new RunOnceScheduler(() => this._updateBrackets(), 50));
+    this._matchBrackets = this._editor.getOption(
+      80
+      /* EditorOption.matchBrackets */
+    );
+    this._updateBracketsSoon.schedule();
+    this._register(editor.onDidChangeCursorPosition((e) => {
+      if (this._matchBrackets === "never") {
+        return;
+      }
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeModelContent((e) => {
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeModel((e) => {
+      this._lastBracketsData = [];
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeModelLanguageConfiguration((e) => {
+      this._lastBracketsData = [];
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        80
+        /* EditorOption.matchBrackets */
+      )) {
+        this._matchBrackets = this._editor.getOption(
+          80
+          /* EditorOption.matchBrackets */
+        );
+        this._decorations.clear();
+        this._lastBracketsData = [];
+        this._lastVersionId = 0;
+        this._updateBracketsSoon.schedule();
+      }
+    }));
+    this._register(editor.onDidBlurEditorWidget(() => {
+      this._updateBracketsSoon.schedule();
+    }));
+    this._register(editor.onDidFocusEditorWidget(() => {
+      this._updateBracketsSoon.schedule();
+    }));
+  }
+  jumpToBracket() {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    const model = this._editor.getModel();
+    const newSelections = this._editor.getSelections().map((selection) => {
+      const position = selection.getStartPosition();
+      const brackets = model.bracketPairs.matchBracket(position);
+      let newCursorPosition = null;
+      if (brackets) {
+        if (brackets[0].containsPosition(position) && !brackets[1].containsPosition(position)) {
+          newCursorPosition = brackets[1].getStartPosition();
+        } else if (brackets[1].containsPosition(position)) {
+          newCursorPosition = brackets[0].getStartPosition();
+        }
+      } else {
+        const enclosingBrackets = model.bracketPairs.findEnclosingBrackets(position);
+        if (enclosingBrackets) {
+          newCursorPosition = enclosingBrackets[1].getStartPosition();
+        } else {
+          const nextBracket = model.bracketPairs.findNextBracket(position);
+          if (nextBracket && nextBracket.range) {
+            newCursorPosition = nextBracket.range.getStartPosition();
+          }
+        }
+      }
+      if (newCursorPosition) {
+        return new Selection(newCursorPosition.lineNumber, newCursorPosition.column, newCursorPosition.lineNumber, newCursorPosition.column);
+      }
+      return new Selection(position.lineNumber, position.column, position.lineNumber, position.column);
+    });
+    this._editor.setSelections(newSelections);
+    this._editor.revealRange(newSelections[0]);
+  }
+  selectToBracket(selectBrackets) {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    const model = this._editor.getModel();
+    const newSelections = [];
+    this._editor.getSelections().forEach((selection) => {
+      const position = selection.getStartPosition();
+      let brackets = model.bracketPairs.matchBracket(position);
+      if (!brackets) {
+        brackets = model.bracketPairs.findEnclosingBrackets(position);
+        if (!brackets) {
+          const nextBracket = model.bracketPairs.findNextBracket(position);
+          if (nextBracket && nextBracket.range) {
+            brackets = model.bracketPairs.matchBracket(nextBracket.range.getStartPosition());
+          }
+        }
+      }
+      let selectFrom = null;
+      let selectTo = null;
+      if (brackets) {
+        brackets.sort(Range.compareRangesUsingStarts);
+        const [open, close] = brackets;
+        selectFrom = selectBrackets ? open.getStartPosition() : open.getEndPosition();
+        selectTo = selectBrackets ? close.getEndPosition() : close.getStartPosition();
+        if (close.containsPosition(position)) {
+          const tmp = selectFrom;
+          selectFrom = selectTo;
+          selectTo = tmp;
+        }
+      }
+      if (selectFrom && selectTo) {
+        newSelections.push(new Selection(selectFrom.lineNumber, selectFrom.column, selectTo.lineNumber, selectTo.column));
+      }
+    });
+    if (newSelections.length > 0) {
+      this._editor.setSelections(newSelections);
+      this._editor.revealRange(newSelections[0]);
+    }
+  }
+  removeBrackets(editSource) {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    const model = this._editor.getModel();
+    this._editor.getSelections().forEach((selection) => {
+      const position = selection.getPosition();
+      let brackets = model.bracketPairs.matchBracket(position);
+      if (!brackets) {
+        brackets = model.bracketPairs.findEnclosingBrackets(position);
+      }
+      if (brackets) {
+        this._editor.pushUndoStop();
+        this._editor.executeEdits(editSource, [
+          { range: brackets[0], text: "" },
+          { range: brackets[1], text: "" }
+        ]);
+        this._editor.pushUndoStop();
+      }
+    });
+  }
+  static {
+    this._DECORATION_OPTIONS_WITH_OVERVIEW_RULER = ModelDecorationOptions.register({
+      description: "bracket-match-overview",
+      stickiness: 1,
+      className: "bracket-match",
+      inlineClassName: "bracket-match-inline",
+      overviewRuler: {
+        color: themeColorFromId(overviewRulerBracketMatchForeground),
+        position: OverviewRulerLane.Center
+      }
+    });
+  }
+  static {
+    this._DECORATION_OPTIONS_WITHOUT_OVERVIEW_RULER = ModelDecorationOptions.register({
+      description: "bracket-match-no-overview",
+      stickiness: 1,
+      className: "bracket-match",
+      inlineClassName: "bracket-match-inline"
+    });
+  }
+  _updateBrackets() {
+    if (this._matchBrackets === "never") {
+      return;
+    }
+    this._recomputeBrackets();
+    const newDecorations = [];
+    let newDecorationsLen = 0;
+    for (const bracketData of this._lastBracketsData) {
+      const brackets = bracketData.brackets;
+      if (brackets) {
+        newDecorations[newDecorationsLen++] = { range: brackets[0], options: bracketData.options };
+        newDecorations[newDecorationsLen++] = { range: brackets[1], options: bracketData.options };
+      }
+    }
+    this._decorations.set(newDecorations);
+  }
+  _recomputeBrackets() {
+    if (!this._editor.hasModel() || !this._editor.hasWidgetFocus()) {
+      this._lastBracketsData = [];
+      this._lastVersionId = 0;
+      return;
+    }
+    const selections = this._editor.getSelections();
+    if (selections.length > 100) {
+      this._lastBracketsData = [];
+      this._lastVersionId = 0;
+      return;
+    }
+    const model = this._editor.getModel();
+    const versionId = model.getVersionId();
+    let previousData = [];
+    if (this._lastVersionId === versionId) {
+      previousData = this._lastBracketsData;
+    }
+    const positions = [];
+    let positionsLen = 0;
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      if (selection.isEmpty()) {
+        positions[positionsLen++] = selection.getStartPosition();
+      }
+    }
+    if (positions.length > 1) {
+      positions.sort(Position.compare);
+    }
+    const newData = [];
+    let newDataLen = 0;
+    let previousIndex = 0;
+    const previousLen = previousData.length;
+    for (let i = 0, len = positions.length; i < len; i++) {
+      const position = positions[i];
+      while (previousIndex < previousLen && previousData[previousIndex].position.isBefore(position)) {
+        previousIndex++;
+      }
+      if (previousIndex < previousLen && previousData[previousIndex].position.equals(position)) {
+        newData[newDataLen++] = previousData[previousIndex];
+      } else {
+        let brackets = model.bracketPairs.matchBracket(
+          position,
+          20
+          /* give at most 20ms to compute */
+        );
+        let options = BracketMatchingController._DECORATION_OPTIONS_WITH_OVERVIEW_RULER;
+        if (!brackets && this._matchBrackets === "always") {
+          brackets = model.bracketPairs.findEnclosingBrackets(
+            position,
+            20
+            /* give at most 20ms to compute */
+          );
+          options = BracketMatchingController._DECORATION_OPTIONS_WITHOUT_OVERVIEW_RULER;
+        }
+        newData[newDataLen++] = new BracketsData(position, brackets, options);
+      }
+    }
+    this._lastBracketsData = newData;
+    this._lastVersionId = versionId;
+  }
+}
+registerEditorContribution(
+  BracketMatchingController.ID,
+  BracketMatchingController,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+registerEditorAction(SelectToBracketAction);
+registerEditorAction(JumpToBracketAction);
+registerEditorAction(RemoveBracketsAction);
+MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
+  group: "5_infile_nav",
+  command: {
+    id: "editor.action.jumpToBracket",
+    title: nls.localize({ key: "miGoToBracket", comment: ["&& denotes a mnemonic"] }, "Go to &&Bracket")
+  },
+  order: 2
+});
+registerThemingParticipant((theme, collector) => {
+  const bracketMatchForeground = theme.getColor(editorBracketMatchForeground);
+  if (bracketMatchForeground) {
+    collector.addRule(`.monaco-editor .bracket-match-inline { color: ${bracketMatchForeground} !important; }`);
+  }
+});
+export {
+  BracketMatchingController
+};
+//# sourceMappingURL=bracketMatching.js.map

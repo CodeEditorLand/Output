@@ -1,1 +1,85 @@
-import{$Fab as l}from"../../../base/common/hotReload.js";import{$Hab as b}from"../../../base/common/hotReloadHelpers.js";import{autorunWithStore as _}from"../../../base/common/observable.js";import{$Mj as h}from"../../instantiation/common/instantiation.js";var p=function(e,t,r,s){var i=arguments.length,n=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,r):s,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(e,t,r,s);else for(var o=e.length-1;o>=0;o--)(a=e[o])&&(n=(i<3?a(n):i>3?a(t,r,n):a(t,r))||n);return i>3&&n&&Object.defineProperty(t,r,n),n},f=function(e,t){return function(r,s){t(r,s,e)}};function j(e){return l()?d(e,c):e()}class m{constructor(t){this.instantiationService=t}init(...t){}}function d(e,t){return class extends t{constructor(){super(...arguments),this.a=void 0}init(...s){this.a=_((i,n)=>{const a=b(e(),i);n.add(this.instantiationService.createInstance(a,...s))})}dispose(){this.a?.dispose()}}}let c=class extends m{constructor(t){super(t),this.init()}};c=p([f(0,h)],c);function C(e){return l()?d(e,u):e()}let u=class extends m{constructor(t,r){super(r),this.init(t)}};u=p([f(1,h)],u);export{j as $6wb,C as $7wb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { isHotReloadEnabled } from "../../../base/common/hotReload.js";
+import { readHotReloadableExport } from "../../../base/common/hotReloadHelpers.js";
+import { autorunWithStore } from "../../../base/common/observable.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+function wrapInReloadableClass0(getClass) {
+  return !isHotReloadEnabled() ? getClass() : createWrapper(getClass, BaseClass0);
+}
+__name(wrapInReloadableClass0, "wrapInReloadableClass0");
+class BaseClass {
+  static {
+    __name(this, "BaseClass");
+  }
+  constructor(instantiationService) {
+    this.instantiationService = instantiationService;
+  }
+  init(...params) {
+  }
+}
+function createWrapper(getClass, B) {
+  return class ReloadableWrapper extends B {
+    static {
+      __name(this, "ReloadableWrapper");
+    }
+    constructor() {
+      super(...arguments);
+      this._autorun = void 0;
+    }
+    init(...params) {
+      this._autorun = autorunWithStore((reader, store) => {
+        const clazz = readHotReloadableExport(getClass(), reader);
+        store.add(this.instantiationService.createInstance(clazz, ...params));
+      });
+    }
+    dispose() {
+      this._autorun?.dispose();
+    }
+  };
+}
+__name(createWrapper, "createWrapper");
+let BaseClass0 = class BaseClass02 extends BaseClass {
+  static {
+    __name(this, "BaseClass0");
+  }
+  constructor(i) {
+    super(i);
+    this.init();
+  }
+};
+BaseClass0 = __decorate([
+  __param(0, IInstantiationService)
+], BaseClass0);
+function wrapInReloadableClass1(getClass) {
+  return !isHotReloadEnabled() ? getClass() : createWrapper(getClass, BaseClass1);
+}
+__name(wrapInReloadableClass1, "wrapInReloadableClass1");
+let BaseClass1 = class BaseClass12 extends BaseClass {
+  static {
+    __name(this, "BaseClass1");
+  }
+  constructor(param1, i) {
+    super(i);
+    this.init(param1);
+  }
+};
+BaseClass1 = __decorate([
+  __param(1, IInstantiationService)
+], BaseClass1);
+export {
+  wrapInReloadableClass0,
+  wrapInReloadableClass1
+};
+//# sourceMappingURL=wrapInReloadableClass.js.map

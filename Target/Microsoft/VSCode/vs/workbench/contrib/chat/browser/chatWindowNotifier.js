@@ -1,1 +1,117 @@
-import*as p from"../../../../base/browser/dom.js";import{$T7 as w}from"../../../../base/browser/window.js";import{$Jf as $}from"../../../../base/common/cancellation.js";import{$Ed as b,$Qd as m,$Cd as g}from"../../../../base/common/lifecycle.js";import{autorunDelta as D,autorunIterableDelta as I}from"../../../../base/common/observable.js";import{localize as h}from"../../../../nls.js";import{$0l as _}from"../../../../platform/configuration/common/configuration.js";import{$uo as q}from"../../../../platform/commands/common/commands.js";import{$gcb as y}from"../../../services/host/browser/host.js";import{$NV as j}from"../common/chatService/chatService.js";import{$U4b as N}from"./chat.js";import{$j3b as v}from"./actions/chatToolActions.js";var d=function(c,t,e,o){var s=arguments.length,i=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(c,t,e,o);else for(var n=c.length-1;n>=0;n--)(r=c[n])&&(i=(s<3?r(i):s>3?r(t,e,i):r(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},a=function(c,t){return function(e,o){t(e,o,c)}};let u=class extends b{static{this.ID="workbench.contrib.chatWindowNotifier"}constructor(t,e,o,s,i){super(),this.b=t,this.c=e,this.f=o,this.g=s,this.h=i,this.a=this.D(new m);const r=this.D(new m);this.D(I(n=>this.b.chatModels.read(n),({addedValues:n,removedValues:l})=>{for(const f of n)r.set(f.sessionResource,this.j(f));for(const f of l)r.deleteAndDispose(f.sessionResource)}))}j(t){return D(t.requestNeedsInput,({lastValue:e,newValue:o})=>{const s=!!o,i=!!e;!i&&s&&o?this.m(t.sessionResource,o):i&&!s&&this.q(t.sessionResource)})}async m(t,e){if(!this.g.getValue("chat.notifyWindowOnConfirmation"))return;const o=this.c.getWidgetBySessionResource(t),s=o?p.getWindow(o.domNode):w;if(s.document.hasFocus())return;this.q(t),await this.f.focus(s,{mode:1});const i=e.title?h(6241,null,e.title):h(6242,null),r=new $;this.a.set(t,g(()=>r.dispose(!0)));try{const n=await this.f.showToast({title:this.n(i),body:e.detail?this.n(e.detail):h(6243,null),actions:[h(6244,null)]},r.token);(n.clicked||typeof n.actionIndex=="number")&&(await this.f.focus(s,{mode:2}),(await this.c.openSession(t))?.focusInput(),n.actionIndex===0&&await this.h.executeCommand(v,{sessionResource:t}))}finally{this.q(t)}}n(t){return t.replace(/`/g,"'")}q(t){this.a.deleteAndDispose(t)}};u=d([a(0,j),a(1,N),a(2,y),a(3,_),a(4,q)],u);export{u as $$qc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Disposable, DisposableResourceMap, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorunDelta, autorunIterableDelta } from "../../../../base/common/observable.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IChatService } from "../common/chatService/chatService.js";
+import { IChatWidgetService } from "./chat.js";
+import { AcceptToolConfirmationActionId } from "./actions/chatToolActions.js";
+let ChatWindowNotifier = class ChatWindowNotifier2 extends Disposable {
+  static {
+    __name(this, "ChatWindowNotifier");
+  }
+  static {
+    this.ID = "workbench.contrib.chatWindowNotifier";
+  }
+  constructor(_chatService, _chatWidgetService, _hostService, _configurationService, _commandService) {
+    super();
+    this._chatService = _chatService;
+    this._chatWidgetService = _chatWidgetService;
+    this._hostService = _hostService;
+    this._configurationService = _configurationService;
+    this._commandService = _commandService;
+    this._activeNotifications = this._register(new DisposableResourceMap());
+    const modelTrackers = this._register(new DisposableResourceMap());
+    this._register(autorunIterableDelta((reader) => this._chatService.chatModels.read(reader), ({ addedValues, removedValues }) => {
+      for (const model of addedValues) {
+        modelTrackers.set(model.sessionResource, this._trackModel(model));
+      }
+      for (const model of removedValues) {
+        modelTrackers.deleteAndDispose(model.sessionResource);
+      }
+    }));
+  }
+  _trackModel(model) {
+    return autorunDelta(model.requestNeedsInput, ({ lastValue, newValue }) => {
+      const currentNeedsInput = !!newValue;
+      const previousNeedsInput = !!lastValue;
+      if (!previousNeedsInput && currentNeedsInput && newValue) {
+        this._notifyIfNeeded(model.sessionResource, newValue);
+      } else if (previousNeedsInput && !currentNeedsInput) {
+        this._clearNotification(model.sessionResource);
+      }
+    });
+  }
+  async _notifyIfNeeded(sessionResource, info) {
+    if (!this._configurationService.getValue("chat.notifyWindowOnConfirmation")) {
+      return;
+    }
+    const widget = this._chatWidgetService.getWidgetBySessionResource(sessionResource);
+    const targetWindow = widget ? dom.getWindow(widget.domNode) : mainWindow;
+    if (targetWindow.document.hasFocus()) {
+      return;
+    }
+    this._clearNotification(sessionResource);
+    await this._hostService.focus(targetWindow, {
+      mode: 1
+      /* FocusMode.Notify */
+    });
+    const notificationTitle = info.title ? localize("chatTitle", "Chat: {0}", info.title) : localize("chat.untitledChat", "Untitled Chat");
+    const cts = new CancellationTokenSource();
+    this._activeNotifications.set(sessionResource, toDisposable(() => cts.dispose(true)));
+    try {
+      const result = await this._hostService.showToast({
+        title: this._sanitizeOSToastText(notificationTitle),
+        body: info.detail ? this._sanitizeOSToastText(info.detail) : localize("notificationDetail", "Approval needed to continue."),
+        actions: [localize("allowAction", "Allow")]
+      }, cts.token);
+      if (result.clicked || typeof result.actionIndex === "number") {
+        await this._hostService.focus(targetWindow, {
+          mode: 2
+          /* FocusMode.Force */
+        });
+        const widget2 = await this._chatWidgetService.openSession(sessionResource);
+        widget2?.focusInput();
+        if (result.actionIndex === 0) {
+          await this._commandService.executeCommand(AcceptToolConfirmationActionId, { sessionResource });
+        }
+      }
+    } finally {
+      this._clearNotification(sessionResource);
+    }
+  }
+  _sanitizeOSToastText(text) {
+    return text.replace(/`/g, "'");
+  }
+  _clearNotification(sessionResource) {
+    this._activeNotifications.deleteAndDispose(sessionResource);
+  }
+};
+ChatWindowNotifier = __decorate([
+  __param(0, IChatService),
+  __param(1, IChatWidgetService),
+  __param(2, IHostService),
+  __param(3, IConfigurationService),
+  __param(4, ICommandService)
+], ChatWindowNotifier);
+export {
+  ChatWindowNotifier
+};
+//# sourceMappingURL=chatWindowNotifier.js.map

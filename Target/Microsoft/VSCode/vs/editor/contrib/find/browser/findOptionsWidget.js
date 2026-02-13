@@ -1,1 +1,146 @@
-import*as n from"../../../../base/browser/dom.js";import"./findOptionsWidget.css";import{$F_ as g,$H_ as p,$G_ as l}from"../../../../base/browser/ui/findinput/findInputToggles.js";import{$_9 as m}from"../../../../base/browser/ui/widget.js";import{$ji as u}from"../../../../base/common/async.js";import{$Hpb as o}from"./findModel.js";import{$Wp as d,$at as f,$$s as C,$bt as y}from"../../../../platform/theme/common/colorRegistry.js";class r extends m{static{this.a="editor.contrib.findOptionsWidget"}constructor(i,a,c){super(),this.H=this.D(new u(()=>this.O(),2e3)),this.M=!1,this.c=i,this.g=a,this.h=c,this.n=document.createElement("div"),this.n.className="findOptionsWidget",this.n.style.display="none",this.n.style.top="10px",this.n.style.zIndex="12",this.n.setAttribute("role","presentation"),this.n.setAttribute("aria-hidden","true");const s={inputActiveOptionBorder:d(C),inputActiveOptionForeground:d(y),inputActiveOptionBackground:d(f)},h={groupId:"find-options-widget"};this.w=this.D(new g({appendTitle:this.y(o.ToggleCaseSensitiveCommand),isChecked:this.g.matchCase,hoverLifecycleOptions:h,...s})),this.n.appendChild(this.w.domNode),this.D(this.w.onChange(()=>{this.g.change({matchCase:this.w.checked},!1)})),this.t=this.D(new l({appendTitle:this.y(o.ToggleWholeWordCommand),isChecked:this.g.wholeWord,hoverLifecycleOptions:h,...s})),this.n.appendChild(this.t.domNode),this.D(this.t.onChange(()=>{this.g.change({wholeWord:this.t.checked},!1)})),this.r=this.D(new p({appendTitle:this.y(o.ToggleRegexCommand),isChecked:this.g.isRegex,hoverLifecycleOptions:h,...s})),this.n.appendChild(this.r.domNode),this.D(this.r.onChange(()=>{this.g.change({isRegex:this.r.checked},!1)})),this.c.addOverlayWidget(this),this.D(this.g.onFindReplaceStateChange(t=>{let e=!1;t.isRegex&&(this.r.checked=this.g.isRegex,e=!0),t.wholeWord&&(this.t.checked=this.g.wholeWord,e=!0),t.matchCase&&(this.w.checked=this.g.matchCase,e=!0),!this.g.isRevealed&&e&&this.I()})),this.D(n.$u8(this.n,n.$r9.MOUSE_LEAVE,t=>this.J())),this.D(n.$u8(this.n,"mouseover",t=>this.L()))}y(i){return this.h.appendKeybinding("",i)}dispose(){this.c.removeOverlayWidget(this),super.dispose()}getId(){return r.a}getDomNode(){return this.n}getPosition(){return{preference:0}}highlightFindOptions(){this.I()}I(){this.N(),this.H.schedule()}J(){this.H.schedule()}L(){this.H.cancel()}N(){this.M||(this.M=!0,this.n.style.display="block")}O(){this.M&&(this.M=!1,this.n.style.display="none")}}export{r as $8ub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import "./findOptionsWidget.css";
+import { CaseSensitiveToggle, RegexToggle, WholeWordsToggle } from "../../../../base/browser/ui/findinput/findInputToggles.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { FIND_IDS } from "./findModel.js";
+import { asCssVariable, inputActiveOptionBackground, inputActiveOptionBorder, inputActiveOptionForeground } from "../../../../platform/theme/common/colorRegistry.js";
+class FindOptionsWidget extends Widget {
+  static {
+    __name(this, "FindOptionsWidget");
+  }
+  static {
+    this.ID = "editor.contrib.findOptionsWidget";
+  }
+  constructor(editor, state, keybindingService) {
+    super();
+    this._hideSoon = this._register(new RunOnceScheduler(() => this._hide(), 2e3));
+    this._isVisible = false;
+    this._editor = editor;
+    this._state = state;
+    this._keybindingService = keybindingService;
+    this._domNode = document.createElement("div");
+    this._domNode.className = "findOptionsWidget";
+    this._domNode.style.display = "none";
+    this._domNode.style.top = "10px";
+    this._domNode.style.zIndex = "12";
+    this._domNode.setAttribute("role", "presentation");
+    this._domNode.setAttribute("aria-hidden", "true");
+    const toggleStyles = {
+      inputActiveOptionBorder: asCssVariable(inputActiveOptionBorder),
+      inputActiveOptionForeground: asCssVariable(inputActiveOptionForeground),
+      inputActiveOptionBackground: asCssVariable(inputActiveOptionBackground)
+    };
+    const hoverLifecycleOptions = { groupId: "find-options-widget" };
+    this.caseSensitive = this._register(new CaseSensitiveToggle({
+      appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleCaseSensitiveCommand),
+      isChecked: this._state.matchCase,
+      hoverLifecycleOptions,
+      ...toggleStyles
+    }));
+    this._domNode.appendChild(this.caseSensitive.domNode);
+    this._register(this.caseSensitive.onChange(() => {
+      this._state.change({
+        matchCase: this.caseSensitive.checked
+      }, false);
+    }));
+    this.wholeWords = this._register(new WholeWordsToggle({
+      appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleWholeWordCommand),
+      isChecked: this._state.wholeWord,
+      hoverLifecycleOptions,
+      ...toggleStyles
+    }));
+    this._domNode.appendChild(this.wholeWords.domNode);
+    this._register(this.wholeWords.onChange(() => {
+      this._state.change({
+        wholeWord: this.wholeWords.checked
+      }, false);
+    }));
+    this.regex = this._register(new RegexToggle({
+      appendTitle: this._keybindingLabelFor(FIND_IDS.ToggleRegexCommand),
+      isChecked: this._state.isRegex,
+      hoverLifecycleOptions,
+      ...toggleStyles
+    }));
+    this._domNode.appendChild(this.regex.domNode);
+    this._register(this.regex.onChange(() => {
+      this._state.change({
+        isRegex: this.regex.checked
+      }, false);
+    }));
+    this._editor.addOverlayWidget(this);
+    this._register(this._state.onFindReplaceStateChange((e) => {
+      let somethingChanged = false;
+      if (e.isRegex) {
+        this.regex.checked = this._state.isRegex;
+        somethingChanged = true;
+      }
+      if (e.wholeWord) {
+        this.wholeWords.checked = this._state.wholeWord;
+        somethingChanged = true;
+      }
+      if (e.matchCase) {
+        this.caseSensitive.checked = this._state.matchCase;
+        somethingChanged = true;
+      }
+      if (!this._state.isRevealed && somethingChanged) {
+        this._revealTemporarily();
+      }
+    }));
+    this._register(dom.addDisposableListener(this._domNode, dom.EventType.MOUSE_LEAVE, (e) => this._onMouseLeave()));
+    this._register(dom.addDisposableListener(this._domNode, "mouseover", (e) => this._onMouseOver()));
+  }
+  _keybindingLabelFor(actionId) {
+    return this._keybindingService.appendKeybinding("", actionId);
+  }
+  dispose() {
+    this._editor.removeOverlayWidget(this);
+    super.dispose();
+  }
+  // ----- IOverlayWidget API
+  getId() {
+    return FindOptionsWidget.ID;
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    return {
+      preference: 0
+      /* OverlayWidgetPositionPreference.TOP_RIGHT_CORNER */
+    };
+  }
+  highlightFindOptions() {
+    this._revealTemporarily();
+  }
+  _revealTemporarily() {
+    this._show();
+    this._hideSoon.schedule();
+  }
+  _onMouseLeave() {
+    this._hideSoon.schedule();
+  }
+  _onMouseOver() {
+    this._hideSoon.cancel();
+  }
+  _show() {
+    if (this._isVisible) {
+      return;
+    }
+    this._isVisible = true;
+    this._domNode.style.display = "block";
+  }
+  _hide() {
+    if (!this._isVisible) {
+      return;
+    }
+    this._isVisible = false;
+    this._domNode.style.display = "none";
+  }
+}
+export {
+  FindOptionsWidget
+};
+//# sourceMappingURL=findOptionsWidget.js.map

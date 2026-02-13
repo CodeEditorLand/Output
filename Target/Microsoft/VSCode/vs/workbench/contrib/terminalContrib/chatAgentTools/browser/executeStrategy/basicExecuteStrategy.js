@@ -1,2 +1,153 @@
-import{$sb as C}from"../../../../../../base/common/errors.js";import{$xf as b,Event as l}from"../../../../../../base/common/event.js";import{$Ed as D,$Dd as y,$Fd as P}from"../../../../../../base/common/lifecycle.js";import{$$c as F}from"../../../../../../base/common/types.js";import{$yx as R}from"../../../../../../platform/terminal/common/terminal.js";import{$FCc as j,$CCc as p}from"./executeStrategy.js";import{$HCc as T,$GCc as _}from"./strategyHelpers.js";var x=function(a,e,n,i){var t=arguments.length,o=t<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,e,n,i);else for(var s=a.length-1;s>=0;s--)(d=a[s])&&(o=(t<3?d(o):t>3?d(e,n,o):d(e,n))||o);return t>3&&o&&Object.defineProperty(e,n,o),o},v=function(a,e){return function(n,i){e(n,i,a)}};let $=class extends D{constructor(e,n,i,t){super(),this.c=e,this.f=n,this.g=i,this.h=t,this.type="basic",this.a=this.D(new P),this.b=this.D(new b),this.onDidCreateStartMarker=this.b.event}async execute(e,n,i){const t=new y;try{const o=j(this.c,1e3,t),d=Promise.race([l.toPromise(this.g.onCommandFinished,t).then(c=>(this.j("onDone 1 of 2 via end event, waiting for short idle prompt"),o.then(()=>(this.j("onDone 2 of 2 via short idle prompt"),{type:"success",command:c})))),l.toPromise(n.onCancellationRequested,t).then(()=>{this.j("onDone via cancellation")}),l.toPromise(this.c.onDisposed,t).then(()=>(this.j("onDone via terminal disposal"),{type:"disposal"})),j(this.c,3e3,t).then(()=>{this.j("onDone long idle prompt")})]);this.j("Waiting for xterm");const s=await this.c.xtermReadyPromise;if(!s)throw new Error("Xterm is not available");const g=T(s,t,this.j.bind(this));this.j("Waiting for idle"),await p(this.c.onData,1e3),_(s,this.a,c=>this.b.fire(c),t,this.j.bind(this)),this.f()&&(this.j("Command timed out, sending SIGINT and retrying"),await this.c.sendText("",!1),await p(this.c.onData,100)),i&&this.j(`In basic execute strategy: skipping pre-bound command id ${i} because basic shell integration executes via sendText`),this.j(`Executing command line \`${e}\``),this.c.sendText(e,!0),this.j("Waiting for done event");const r=await Promise.race([d,g.then(()=>({type:"alternateBuffer"}))]);if(r&&r.type==="disposal")throw new Error("The terminal was closed");if(r&&r.type==="alternateBuffer")return this.j("Detected alternate buffer entry, skipping output capture"),{output:void 0,exitCode:void 0,error:"alternateBuffer",didEnterAltBuffer:!0};const f=r&&r.type==="success"?r.command:void 0;if(f?this.j(`Finished command id=${f.id??"none"} for requested=${i??"none"}`):i&&this.j(`No finished command surfaced for requested=${i}`),this.j("Waiting for idle"),await p(this.c.onData,1e3),n.isCancellationRequested)throw new C;const w=t.add(s.raw.registerMarker());let h;const u=[];if(f){const c=f?.getOutput();c!==void 0&&(this.j("Fetched output via finished command"),h=c)}if(h===void 0)try{h=s.getContentsAsText(this.a.value,w),this.j("Fetched output via markers")}catch{this.j("Failed to fetch output via markers"),u.push("Failed to retrieve command output")}h!==void 0&&h.trim().length===0&&u.push("Command produced no output");const m=f?.exitCode;return F(m)&&m>0&&u.push(`Command exited with code ${m}`),{output:h,additionalInformation:u.length>0?u.join(`
-`):void 0,exitCode:m}}finally{t.dispose()}}j(e){this.h.debug(`RunInTerminalTool#Basic: ${e}`)}};$=x([v(3,R)],$);export{$ as $ICc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { isNumber } from "../../../../../../base/common/types.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { trackIdleOnPrompt, waitForIdle } from "./executeStrategy.js";
+import { createAltBufferPromise, setupRecreatingStartMarker } from "./strategyHelpers.js";
+let BasicExecuteStrategy = class BasicExecuteStrategy2 extends Disposable {
+  static {
+    __name(this, "BasicExecuteStrategy");
+  }
+  constructor(_instance, _hasReceivedUserInput, _commandDetection, _logService) {
+    super();
+    this._instance = _instance;
+    this._hasReceivedUserInput = _hasReceivedUserInput;
+    this._commandDetection = _commandDetection;
+    this._logService = _logService;
+    this.type = "basic";
+    this._startMarker = this._register(new MutableDisposable());
+    this._onDidCreateStartMarker = this._register(new Emitter());
+    this.onDidCreateStartMarker = this._onDidCreateStartMarker.event;
+  }
+  async execute(commandLine, token, commandId) {
+    const store = new DisposableStore();
+    try {
+      const idlePromptPromise = trackIdleOnPrompt(this._instance, 1e3, store);
+      const onDone = Promise.race([
+        Event.toPromise(this._commandDetection.onCommandFinished, store).then((e) => {
+          this._log("onDone 1 of 2 via end event, waiting for short idle prompt");
+          return idlePromptPromise.then(() => {
+            this._log("onDone 2 of 2 via short idle prompt");
+            return {
+              "type": "success",
+              command: e
+            };
+          });
+        }),
+        Event.toPromise(token.onCancellationRequested, store).then(() => {
+          this._log("onDone via cancellation");
+        }),
+        Event.toPromise(this._instance.onDisposed, store).then(() => {
+          this._log("onDone via terminal disposal");
+          return { type: "disposal" };
+        }),
+        // A longer idle prompt event is used here as a catch all for unexpected cases where
+        // the end event doesn't fire for some reason.
+        trackIdleOnPrompt(this._instance, 3e3, store).then(() => {
+          this._log("onDone long idle prompt");
+        })
+      ]);
+      this._log("Waiting for xterm");
+      const xterm = await this._instance.xtermReadyPromise;
+      if (!xterm) {
+        throw new Error("Xterm is not available");
+      }
+      const alternateBufferPromise = createAltBufferPromise(xterm, store, this._log.bind(this));
+      this._log("Waiting for idle");
+      await waitForIdle(this._instance.onData, 1e3);
+      setupRecreatingStartMarker(xterm, this._startMarker, (m) => this._onDidCreateStartMarker.fire(m), store, this._log.bind(this));
+      if (this._hasReceivedUserInput()) {
+        this._log("Command timed out, sending SIGINT and retrying");
+        await this._instance.sendText("", false);
+        await waitForIdle(this._instance.onData, 100);
+      }
+      if (commandId) {
+        this._log(`In basic execute strategy: skipping pre-bound command id ${commandId} because basic shell integration executes via sendText`);
+      }
+      this._log(`Executing command line \`${commandLine}\``);
+      this._instance.sendText(commandLine, true);
+      this._log("Waiting for done event");
+      const onDoneResult = await Promise.race([onDone, alternateBufferPromise.then(() => ({ type: "alternateBuffer" }))]);
+      if (onDoneResult && onDoneResult.type === "disposal") {
+        throw new Error("The terminal was closed");
+      }
+      if (onDoneResult && onDoneResult.type === "alternateBuffer") {
+        this._log("Detected alternate buffer entry, skipping output capture");
+        return {
+          output: void 0,
+          exitCode: void 0,
+          error: "alternateBuffer",
+          didEnterAltBuffer: true
+        };
+      }
+      const finishedCommand = onDoneResult && onDoneResult.type === "success" ? onDoneResult.command : void 0;
+      if (finishedCommand) {
+        this._log(`Finished command id=${finishedCommand.id ?? "none"} for requested=${commandId ?? "none"}`);
+      } else if (commandId) {
+        this._log(`No finished command surfaced for requested=${commandId}`);
+      }
+      this._log("Waiting for idle");
+      await waitForIdle(this._instance.onData, 1e3);
+      if (token.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      const endMarker = store.add(xterm.raw.registerMarker());
+      let output;
+      const additionalInformationLines = [];
+      if (finishedCommand) {
+        const commandOutput = finishedCommand?.getOutput();
+        if (commandOutput !== void 0) {
+          this._log("Fetched output via finished command");
+          output = commandOutput;
+        }
+      }
+      if (output === void 0) {
+        try {
+          output = xterm.getContentsAsText(this._startMarker.value, endMarker);
+          this._log("Fetched output via markers");
+        } catch {
+          this._log("Failed to fetch output via markers");
+          additionalInformationLines.push("Failed to retrieve command output");
+        }
+      }
+      if (output !== void 0 && output.trim().length === 0) {
+        additionalInformationLines.push("Command produced no output");
+      }
+      const exitCode = finishedCommand?.exitCode;
+      if (isNumber(exitCode) && exitCode > 0) {
+        additionalInformationLines.push(`Command exited with code ${exitCode}`);
+      }
+      return {
+        output,
+        additionalInformation: additionalInformationLines.length > 0 ? additionalInformationLines.join("\n") : void 0,
+        exitCode
+      };
+    } finally {
+      store.dispose();
+    }
+  }
+  _log(message) {
+    this._logService.debug(`RunInTerminalTool#Basic: ${message}`);
+  }
+};
+BasicExecuteStrategy = __decorate([
+  __param(3, ITerminalLogService)
+], BasicExecuteStrategy);
+export {
+  BasicExecuteStrategy
+};
+//# sourceMappingURL=basicExecuteStrategy.js.map

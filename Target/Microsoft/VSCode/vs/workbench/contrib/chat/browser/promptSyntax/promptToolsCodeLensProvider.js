@@ -1,1 +1,95 @@
-import{$Ed as $}from"../../../../../base/common/lifecycle.js";import{$ln as T}from"../../../../../base/common/uuid.js";import{$fH as v}from"../../../../../editor/common/model.js";import{$uW as b}from"../../../../../editor/common/services/languageFeatures.js";import{localize as u}from"../../../../../nls.js";import{$vo as P}from"../../../../../platform/commands/common/commands.js";import{$Mj as _}from"../../../../../platform/instantiation/common/instantiation.js";import{$i3b as y}from"../actions/chatToolPicker.js";import{$bU as A}from"../../common/tools/languageModelToolsService.js";import{$kT as L,$mT as w,PromptsType as S}from"../../common/promptSyntax/promptTypes.js";import{$VT as j}from"../../common/promptSyntax/service/promptsService.js";import{$Ykb as C}from"../../../../../editor/common/editorFeatures.js";import{$9Yb as D}from"./promptFileRewriter.js";import{$_D as h}from"../../../../../editor/common/core/range.js";import{PromptHeaderAttributes as R}from"../../common/promptSyntax/promptFileParser.js";import{$Mmc as I}from"../../common/promptSyntax/languageProviders/promptValidator.js";var g=function(m,t,i,o){var n=arguments.length,e=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,i):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(m,t,i,o);else for(var f=m.length-1;f>=0;f--)(r=m[f])&&(e=(n<3?r(e):n>3?r(t,i,e):r(t,i))||e);return n>3&&e&&Object.defineProperty(t,i,e),e},a=function(m,t){return function(i,o){t(i,o,m)}};let d=class extends ${constructor(t,i,o,n){super(),this.b=t,this.c=i,this.f=o,this.g=n,this.a=`_configure/${T()}`,this.D(this.c.codeLensProvider.register(L,this)),this.D(P.registerCommand(this.a,(e,...r)=>{const[f,c,p,s]=r,l=f;v(l)&&h.isIRange(c)&&Array.isArray(p)&&(typeof s=="string"||s===void 0)&&this.h(l,h.lift(c),p,s)}))}async provideCodeLenses(t,i){const o=w(t.getLanguageId());if(!o||o===S.instructions)return;const e=this.b.getParsedPromptFile(t).header;if(!e||I(o,e.target))return;const r=e.getAttribute(R.tools);if(!r||r.value.type!=="array")return;const c=r.value.items.filter(s=>s.type==="string").map(s=>s.value);return{lenses:[{range:r.range.collapseToStart(),command:{title:u(6350,null),id:this.a,arguments:[t,r.value.range,c,e.target]}}]}}async h(t,i,o,n){const e=()=>this.f.toToolAndToolSetEnablementMap(o,n,void 0),r=await this.g.invokeFunction(y,u(6351,null),"codeLens",void 0,e);r&&this.g.createInstance(D).rewriteTools(t,r,i)}};d=g([a(0,j),a(1,b),a(2,A),a(3,_)],d);C(d);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import { isITextModel } from "../../../../../editor/common/model.js";
+import { ILanguageFeaturesService } from "../../../../../editor/common/services/languageFeatures.js";
+import { localize } from "../../../../../nls.js";
+import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { showToolsPicker } from "../actions/chatToolPicker.js";
+import { ILanguageModelToolsService } from "../../common/tools/languageModelToolsService.js";
+import { ALL_PROMPTS_LANGUAGE_SELECTOR, getPromptsTypeForLanguageId, PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+import { registerEditorFeature } from "../../../../../editor/common/editorFeatures.js";
+import { PromptFileRewriter } from "./promptFileRewriter.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { PromptHeaderAttributes } from "../../common/promptSyntax/promptFileParser.js";
+import { isGithubTarget } from "../../common/promptSyntax/languageProviders/promptValidator.js";
+let PromptToolsCodeLensProvider = class PromptToolsCodeLensProvider2 extends Disposable {
+  static {
+    __name(this, "PromptToolsCodeLensProvider");
+  }
+  constructor(promptsService, languageService, languageModelToolsService, instantiationService) {
+    super();
+    this.promptsService = promptsService;
+    this.languageService = languageService;
+    this.languageModelToolsService = languageModelToolsService;
+    this.instantiationService = instantiationService;
+    this.cmdId = `_configure/${generateUuid()}`;
+    this._register(this.languageService.codeLensProvider.register(ALL_PROMPTS_LANGUAGE_SELECTOR, this));
+    this._register(CommandsRegistry.registerCommand(this.cmdId, (_accessor, ...args) => {
+      const [first, second, third, forth] = args;
+      const model = first;
+      if (isITextModel(model) && Range.isIRange(second) && Array.isArray(third) && (typeof forth === "string" || forth === void 0)) {
+        this.updateTools(model, Range.lift(second), third, forth);
+      }
+    }));
+  }
+  async provideCodeLenses(model, token) {
+    const promptType = getPromptsTypeForLanguageId(model.getLanguageId());
+    if (!promptType || promptType === PromptsType.instructions) {
+      return void 0;
+    }
+    const promptAST = this.promptsService.getParsedPromptFile(model);
+    const header = promptAST.header;
+    if (!header) {
+      return void 0;
+    }
+    if (isGithubTarget(promptType, header.target)) {
+      return void 0;
+    }
+    const toolsAttr = header.getAttribute(PromptHeaderAttributes.tools);
+    if (!toolsAttr || toolsAttr.value.type !== "array") {
+      return void 0;
+    }
+    const items = toolsAttr.value.items;
+    const selectedTools = items.filter((item) => item.type === "string").map((item) => item.value);
+    const codeLens = {
+      range: toolsAttr.range.collapseToStart(),
+      command: {
+        title: localize("configure-tools.capitalized.ellipsis", "Configure Tools..."),
+        id: this.cmdId,
+        arguments: [model, toolsAttr.value.range, selectedTools, header.target]
+      }
+    };
+    return { lenses: [codeLens] };
+  }
+  async updateTools(model, range, selectedTools, target) {
+    const selectedToolsNow = /* @__PURE__ */ __name(() => this.languageModelToolsService.toToolAndToolSetEnablementMap(selectedTools, target, void 0), "selectedToolsNow");
+    const newSelectedAfter = await this.instantiationService.invokeFunction(showToolsPicker, localize("placeholder", "Select tools"), "codeLens", void 0, selectedToolsNow);
+    if (!newSelectedAfter) {
+      return;
+    }
+    this.instantiationService.createInstance(PromptFileRewriter).rewriteTools(model, newSelectedAfter, range);
+  }
+};
+PromptToolsCodeLensProvider = __decorate([
+  __param(0, IPromptsService),
+  __param(1, ILanguageFeaturesService),
+  __param(2, ILanguageModelToolsService),
+  __param(3, IInstantiationService)
+], PromptToolsCodeLensProvider);
+registerEditorFeature(PromptToolsCodeLensProvider);
+//# sourceMappingURL=promptToolsCodeLensProvider.js.map

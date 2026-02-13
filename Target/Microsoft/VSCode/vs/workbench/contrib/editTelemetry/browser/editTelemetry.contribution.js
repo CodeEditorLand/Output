@@ -1,1 +1,75 @@
-import{$jm as t}from"../../../../platform/registry/common/platform.js";import{$DLc as r}from"./editTelemetryContribution.js";import{$wLc as i,$xLc as n}from"./settingIds.js";import{$lm as a}from"../../../../platform/configuration/common/configurationRegistry.js";import{localize as o}from"../../../../nls.js";import{$qLc as m,$rLc as l,$sLc as p}from"./settings.js";import{$2N as f}from"../../../common/contributions.js";import{$WC as e}from"../../../../platform/instantiation/common/extensions.js";import{$o1b as s}from"./telemetry/aiEditTelemetry/aiEditTelemetryService.js";import{$ELc as u}from"./telemetry/aiEditTelemetry/aiEditTelemetryServiceImpl.js";import{$iLc as c,$jLc as d}from"./randomService.js";f("EditTelemetryContribution",r,3);const $=t.as(a.Configuration);$.registerConfiguration({id:"task",order:100,title:o(8461,null),type:"object",properties:{[i]:{markdownDescription:o(8462,null),type:"boolean",default:!0,tags:["experimental"]},[n]:{markdownDescription:o(8463,null),type:"boolean",default:!1,tags:["experimental"],experiment:{mode:"auto"}},[m]:{markdownDescription:o(8464,null),type:"boolean",default:!1,tags:["experimental"],experiment:{mode:"auto"}},[p]:{markdownDescription:o(8465,null),type:"boolean",default:!1,tags:["experimental"]},[l]:{markdownDescription:o(8466,null),type:"boolean",default:!1,tags:["experimental"]}}});e(s,u,1);e(c,d,1);
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditTelemetryContribution } from "./editTelemetryContribution.js";
+import { EDIT_TELEMETRY_SETTING_ID, AI_STATS_SETTING_ID } from "./settingIds.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { localize } from "../../../../nls.js";
+import { EDIT_TELEMETRY_DETAILS_SETTING_ID, EDIT_TELEMETRY_SHOW_DECORATIONS, EDIT_TELEMETRY_SHOW_STATUS_BAR } from "./settings.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IAiEditTelemetryService } from "./telemetry/aiEditTelemetry/aiEditTelemetryService.js";
+import { AiEditTelemetryServiceImpl } from "./telemetry/aiEditTelemetry/aiEditTelemetryServiceImpl.js";
+import { IRandomService, RandomService } from "./randomService.js";
+registerWorkbenchContribution2(
+  "EditTelemetryContribution",
+  EditTelemetryContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "task",
+  order: 100,
+  title: localize("editTelemetry", "Edit Telemetry"),
+  type: "object",
+  properties: {
+    [EDIT_TELEMETRY_SETTING_ID]: {
+      markdownDescription: localize("telemetry.editStats.enabled", "Controls whether to enable telemetry for edit statistics (only sends statistics if general telemetry is enabled)."),
+      type: "boolean",
+      default: true,
+      tags: ["experimental"]
+    },
+    [AI_STATS_SETTING_ID]: {
+      markdownDescription: localize("editor.aiStats.enabled", "Controls whether to enable AI statistics in the editor. The gauge shows the average AI rate across 5-minute sessions, where each session's rate is calculated as AI-inserted characters divided by total inserted characters."),
+      type: "boolean",
+      default: false,
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [EDIT_TELEMETRY_DETAILS_SETTING_ID]: {
+      markdownDescription: localize("telemetry.editStats.detailed.enabled", "Controls whether to enable telemetry for detailed edit statistics (only sends statistics if general telemetry is enabled)."),
+      type: "boolean",
+      default: false,
+      tags: ["experimental"],
+      experiment: {
+        mode: "auto"
+      }
+    },
+    [EDIT_TELEMETRY_SHOW_STATUS_BAR]: {
+      markdownDescription: localize("telemetry.editStats.showStatusBar", "Controls whether to show the status bar for edit telemetry."),
+      type: "boolean",
+      default: false,
+      tags: ["experimental"]
+    },
+    [EDIT_TELEMETRY_SHOW_DECORATIONS]: {
+      markdownDescription: localize("telemetry.editStats.showDecorations", "Controls whether to show decorations for edit telemetry."),
+      type: "boolean",
+      default: false,
+      tags: ["experimental"]
+    }
+  }
+});
+registerSingleton(
+  IAiEditTelemetryService,
+  AiEditTelemetryServiceImpl,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IRandomService,
+  RandomService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=editTelemetry.contribution.js.map

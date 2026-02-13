@@ -1,1 +1,66 @@
-import{$Ed as L}from"../../../../base/common/lifecycle.js";import{autorun as p,derived as i}from"../../../../base/common/observable.js";import{$0l as _}from"../../../../platform/configuration/common/configuration.js";import{$Mj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$vib as l}from"../../../../platform/observable/common/platformObservableUtils.js";import{$pp as j,$qp as I}from"../../../../platform/telemetry/common/telemetry.js";import{$aLc as O}from"./helpers/annotatedDocuments.js";import{$vLc as v}from"./telemetry/editSourceTrackingFeature.js";import{$tLc as w}from"./helpers/vscodeObservableWorkspace.js";import{$CLc as x}from"./editStats/aiStatsFeature.js";import{$xLc as E,$wLc as P}from"./settingIds.js";import{$JP as R}from"../../../services/chat/common/chatEntitlementService.js";var h=function(a,t,o,n){var d=arguments.length,r=d<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,o):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,t,o,n);else for(var m=a.length-1;m>=0;m--)(c=a[m])&&(r=(d<3?c(r):d>3?c(t,o,r):c(t,o))||r);return d>3&&r&&Object.defineProperty(t,o,r),r},s=function(a,t){return function(o,n){t(o,n,a)}};let u=class extends L{constructor(t,o,n,d){super();const r=i(e=>e.store.add(t.createInstance(w))),c=i(e=>e.store.add(t.createInstance(O,r.read(e)))),m=l(P,!0,o);this.D(p(e=>{!m.read(e)||!I(n,3)||e.store.add(t.createInstance(v,r.read(e),c.read(e)))}));const $=l(E,!0,o);this.D(p(e=>{const f=$.read(e),b=d.sentimentObs.read(e).hidden;!f||b||e.store.add(t.createInstance(x,c.read(e)))}))}};u=h([s(0,D),s(1,_),s(2,j),s(3,R)],u);export{u as $DLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { autorun, derived } from "../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { ITelemetryService, telemetryLevelEnabled } from "../../../../platform/telemetry/common/telemetry.js";
+import { AnnotatedDocuments } from "./helpers/annotatedDocuments.js";
+import { EditTrackingFeature } from "./telemetry/editSourceTrackingFeature.js";
+import { VSCodeWorkspace } from "./helpers/vscodeObservableWorkspace.js";
+import { AiStatsFeature } from "./editStats/aiStatsFeature.js";
+import { AI_STATS_SETTING_ID, EDIT_TELEMETRY_SETTING_ID } from "./settingIds.js";
+import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
+let EditTelemetryContribution = class EditTelemetryContribution2 extends Disposable {
+  static {
+    __name(this, "EditTelemetryContribution");
+  }
+  constructor(instantiationService, configurationService, telemetryService, chatEntitlementService) {
+    super();
+    const workspace = derived((reader) => reader.store.add(instantiationService.createInstance(VSCodeWorkspace)));
+    const annotatedDocuments = derived((reader) => reader.store.add(instantiationService.createInstance(AnnotatedDocuments, workspace.read(reader))));
+    const editSourceTrackingEnabled = observableConfigValue(EDIT_TELEMETRY_SETTING_ID, true, configurationService);
+    this._register(autorun((r) => {
+      const enabled = editSourceTrackingEnabled.read(r);
+      if (!enabled || !telemetryLevelEnabled(
+        telemetryService,
+        3
+        /* TelemetryLevel.USAGE */
+      )) {
+        return;
+      }
+      r.store.add(instantiationService.createInstance(EditTrackingFeature, workspace.read(r), annotatedDocuments.read(r)));
+    }));
+    const aiStatsEnabled = observableConfigValue(AI_STATS_SETTING_ID, true, configurationService);
+    this._register(autorun((r) => {
+      const enabled = aiStatsEnabled.read(r);
+      const aiDisabled = chatEntitlementService.sentimentObs.read(r).hidden;
+      if (!enabled || aiDisabled) {
+        return;
+      }
+      r.store.add(instantiationService.createInstance(AiStatsFeature, annotatedDocuments.read(r)));
+    }));
+  }
+};
+EditTelemetryContribution = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IConfigurationService),
+  __param(2, ITelemetryService),
+  __param(3, IChatEntitlementService)
+], EditTelemetryContribution);
+export {
+  EditTelemetryContribution
+};
+//# sourceMappingURL=editTelemetryContribution.js.map

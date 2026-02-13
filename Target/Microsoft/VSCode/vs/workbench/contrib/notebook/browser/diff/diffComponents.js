@@ -1,1 +1,1745 @@
-import*as h from"../../../../../base/browser/dom.js";import{$Ed as D,$Dd as I}from"../../../../../base/common/lifecycle.js";import{Schemas as _}from"../../../../../base/common/network.js";import{$Mj as $}from"../../../../../platform/instantiation/common/instantiation.js";import{$gEb as k,$eEb as nt,$0Db as j,PropertyFoldingState as g,$cEb as dt,$aEb as rt}from"./diffElementViewModel.js";import{DiffSide as m,$hEb as A,$iEb as ut,$mEb as ct,$nEb as ft,$lEb as pt,$jEb as gt}from"./notebookDiffEditorBrowser.js";import{$sib as X}from"../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{$9H as z}from"../../../../../editor/common/services/model.js";import{$ZF as q}from"../../../../../editor/common/languages/language.js";import{CellUri as N}from"../../common/notebookCommon.js";import{$ijb as v}from"../../../../../platform/contextview/browser/contextView.js";import{$rL as O,$qL as C,$uL as bt}from"../../../../../platform/actions/common/actions.js";import{$fy as L}from"../../../../../platform/keybinding/common/keybinding.js";import{$pH as F}from"../../../../../platform/notification/common/notification.js";import{$9jb as P}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$ro as E}from"../../../../../platform/contextkey/common/contextkey.js";import{$jJb as mt}from"../view/cellParts/cellActionView.js";import{$8Ib as yt,$9Ib as Ct}from"../notebookIcons.js";import{$Mfc as S}from"./diffElementOutputs.js";import{EditorExtensionsRegistry as Mt}from"../../../../../editor/browser/editorExtensions.js";import{$Uub as Ht}from"../../../../../editor/contrib/contextmenu/browser/contextmenu.js";import{$Qnb as Dt}from"../../../../../editor/contrib/snippet/browser/snippetController2.js";import{$fpb as wt}from"../../../../../editor/contrib/suggest/browser/suggestController.js";import{$QHb as Ot}from"../../../codeEditor/browser/menuPreventer.js";import{$cIb as Et}from"../../../codeEditor/browser/selectionClipboard.js";import{$bIb as It}from"../../../snippets/browser/tabCompletion.js";import{$H0 as Y,$G0 as ot}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$5H as R}from"../../../../../editor/common/services/resolverService.js";import{$0l as T}from"../../../../../platform/configuration/common/configuration.js";import{$qu as kt}from"../../../../../platform/theme/common/themeService.js";import{$hkb as St}from"../../../../../platform/actions/browser/toolbar.js";import{$pp as xt}from"../../../../../platform/telemetry/common/telemetry.js";import{$YDb as B,$XDb as K,$WDb as st}from"./diffCellEditorOptions.js";import{$MD as $t}from"../../../../../platform/accessibility/common/accessibility.js";import{$tkb as U}from"../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";import{$uo as vt}from"../../../../../platform/commands/common/commands.js";import{localize as x}from"../../../../../nls.js";import{$xf as at}from"../../../../../base/common/event.js";import{$dI as W}from"../../../../../editor/common/services/textResourceConfiguration.js";import{$UP as G}from"../../common/model/notebookCellTextModel.js";import{$Nfc as J}from"./unchangedEditorRegions.js";var w=function(b,t,e,i){var o=arguments.length,s=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(b,t,e,i);else for(var l=b.length-1;l>=0;l--)(a=b[l])&&(s=(o<3?a(s):o>3?a(t,e,s):a(t,e))||s);return o>3&&s&&Object.defineProperty(t,e,s),s},n=function(b,t){return function(e,i){t(e,i,b)}};function H(){return{isSimpleWidget:!1,contributions:Mt.getSomeEditorContributions([Ot.ID,Et,Ht.ID,wt.ID,Dt.ID,It.ID])}}class ye extends D{constructor(t,e){super(),e.body.classList.remove("left","right","full");const i=t.hiddenCells.length===1?x(10958,null,t.hiddenCells.length):x(10959,null,t.hiddenCells.length);e.placeholder.innerText=i,this.D(h.$u8(e.placeholder,"dblclick",o=>{o.button===0&&(o.preventDefault(),t.showHiddenCells())})),this.D(e.marginOverlay.onAction(()=>t.showHiddenCells())),e.marginOverlay.show()}}let M=class extends D{constructor(t,e,i,o,s,a,l,d,r,u,c,p,f){super(),this.cell=t,this.propertyHeaderContainer=e,this.notebookEditor=i,this.accessor=o,this.n=s,this.q=a,this.r=l,this.s=d,this.t=r,this.u=u,this.w=c,this.y=p,this.z=f}buildHeader(){this.a=h.$y9(this.propertyHeaderContainer,h.$(".property-folding-indicator")),this.a.classList.add(this.accessor.prefix);const t=h.$y9(this.propertyHeaderContainer,h.$("div.property-status"));this.b=h.$y9(t,h.$("span")),this.c=h.$y9(t,h.$("span.property-description"));const e=h.$y9(this.propertyHeaderContainer,h.$("div.property-toolbar"));this.f=this.D(new St(e,{actionViewItemProvider:(o,s)=>{if(o instanceof bt)return new mt(o,{hoverDelegate:s.hoverDelegate},this.q,this.s,this.u,this.w,this.n,this.z)}},this.t,this.u,this.n,this.q,this.r,this.y)),this.f.context=this.cell;const i=this.u.createScoped(e);this.D(i),this.m=ct.bindTo(i),this.j=ft.bindTo(i),this.g=this.D(this.t.createMenu(this.accessor.menuId,i)),this.D(this.g.onDidChange(()=>this.C())),this.D(this.notebookEditor.onMouseUp(o=>{if(!o.event.target||o.target!==this.cell)return;const s=o.event.target;if(s===this.propertyHeaderContainer||s===this.a||this.a.contains(s)||s===t||t.contains(s)){const a=this.accessor.getFoldingState();this.accessor.updateFoldingState(a===g.Expanded?g.Collapsed:g.Expanded),this.F(),this.accessor.updateInfoRendering(this.cell.renderOutput)}})),this.refresh(),this.accessor.updateInfoRendering(this.cell.renderOutput)}refresh(){this.C(),this.F();const t=this.accessor.checkIfModified();this.m&&this.m.set(!!t),t?(this.b.textContent=this.accessor.changedLabel,this.b.style.fontWeight="bold",t.reason&&(this.c.textContent=t.reason),this.propertyHeaderContainer.classList.add("modified")):(this.b.textContent=this.accessor.unChangedLabel,this.b.style.fontWeight="normal",this.c.textContent="",this.propertyHeaderContainer.classList.remove("modified"))}C(){if(this.accessor.checkIfModified()){const e=P(this.g.getActions({shouldForwardArgs:!0}));this.f.setActions(e)}else this.f.setActions([])}F(){this.accessor.getFoldingState()===g.Collapsed?(h.$A9(this.a,Y(yt)),this.j?.set(!1)):(h.$A9(this.a,Y(Ct)),this.j?.set(!0))}};M=w([n(4,v),n(5,L),n(6,vt),n(7,F),n(8,O),n(9,E),n(10,kt),n(11,xt),n(12,$t)],M);let Z=class extends D{constructor(t,e,i,o,s,a,l,d,r){super(),this.notebookEditor=t,this.viewModel=e,this.templateData=i,this.n=o,this.q=s,this.r=a,this.s=l,this.t=d,this.u=r,this.a=i.sourceEditor,this.f=this.templateData.cellHeaderContainer,this.g=this.templateData.editorContainer,this.m=this.templateData.diffEditorContainer,this.b=!1,this.D(e.onDidLayoutChange(u=>{this.layout(u),this.updateBorders()})),this.buildBody(),this.updateBorders()}buildBody(){const t=this.templateData.body;t.classList.remove("full"),t.classList.add("full"),this.updateSourceEditor(),this.viewModel instanceof rt&&this.D(this.viewModel.modifiedMetadata.onDidChange(e=>{this.j.refresh()}))}w(){this.notebookEditor.layoutNotebookCell(this.viewModel,this.viewModel.layoutInfo.totalHeight)}updateBorders(){this.templateData.leftBorder.style.height=`${this.viewModel.layoutInfo.totalHeight-32}px`,this.templateData.rightBorder.style.height=`${this.viewModel.layoutInfo.totalHeight-32}px`,this.templateData.bottomBorder.style.top=`${this.viewModel.layoutInfo.totalHeight-32}px`}updateSourceEditor(){this.f.style.display="flex",this.f.innerText="",this.g.classList.add("diff");const t=()=>{if(this.viewModel.cellFoldingState===g.Collapsed){this.g.style.display="none",this.viewModel.editorHeight=0;return}const a=this.notebookEditor.getLayoutInfo().fontInfo.lineHeight||17,l=this.viewModel.layoutInfo.editorHeight!==0?this.viewModel.layoutInfo.editorHeight:this.viewModel.computeInputEditorHeight(a);this.g.style.height=`${l}px`,this.g.style.display="block";const d=this.a.getContentHeight();return d>=0&&(this.viewModel.editorHeight=d),l},e=()=>{const a=t();if(!a)return;const l=this.viewModel.modifiedMetadata.textBuffer.getLineCount(),d={padding:st(l)},r=this.D(J(this.u));r.options.enabled&&(d.hideUnchangedRegions=r.options),this.a.updateOptions(d),this.D(r.onDidChangeEnablement(()=>{d.hideUnchangedRegions=r.options,this.a.updateOptions(d)})),this.a.layout({width:this.notebookEditor.getLayoutInfo().width-2*A,height:a}),this.D(this.a.onDidContentSizeChange(u=>{this.viewModel.cellFoldingState===g.Expanded&&u.contentHeightChanged&&this.viewModel.layoutInfo.editorHeight!==u.contentHeight&&(this.viewModel.editorHeight=u.contentHeight)})),this.y()};this.j=this.D(this.n.createInstance(M,this.viewModel,this.f,this.notebookEditor,{updateInfoRendering:()=>e(),checkIfModified:()=>this.viewModel.originalMetadata.getHash()!==this.viewModel.modifiedMetadata.getHash()?{reason:void 0}:!1,getFoldingState:()=>this.viewModel.cellFoldingState,updateFoldingState:a=>this.viewModel.cellFoldingState=a,unChangedLabel:"Notebook Metadata",changedLabel:"Notebook Metadata changed",prefix:"metadata",menuId:C.NotebookDiffDocumentMetadata})),this.j.buildHeader(),e();const i=this.s.createScoped(this.templateData.inputToolbarContainer);this.D(i);const o=gt.bindTo(i);o.set(this.viewModel.originalMetadata.getHash()!==this.viewModel.modifiedMetadata.getHash()),this.c=this.templateData.toolbar,this.c.context=this.viewModel;const s=()=>{const a=this.viewModel.originalMetadata.getHash()!==this.viewModel.modifiedMetadata.getHash();if(o.set(a),a){const l=this.r.getMenuActions(C.NotebookDiffDocumentMetadata,i,{shouldForwardArgs:!0}),d=P(l);this.c.setActions(d)}else this.c.setActions([])};this.D(this.viewModel.modifiedMetadata.onDidChange(()=>{s()})),s()}async y(){const[t,e]=await Promise.all([this.q.createModelReference(this.viewModel.originalMetadata.uri),this.q.createModelReference(this.viewModel.modifiedMetadata.uri)]);if(this.B.isDisposed){t.dispose(),e.dispose();return}this.D(t),this.D(e);const i=this.D(this.a.createViewModel({original:t.object.textEditorModel,modified:e.object.textEditorModel}));await i.waitForDiff(),this.a.setModel(i);const o=()=>{this.b=!0},s=d=>{(d.scrollTopChanged||d.scrollLeftChanged)&&(this.b=!0)};this.z(),this.D(this.a.getOriginalEditor().onDidChangeCursorSelection(o)),this.D(this.a.getOriginalEditor().onDidScrollChange(s)),this.D(this.a.getModifiedEditor().onDidChangeCursorSelection(o)),this.D(this.a.getModifiedEditor().onDidScrollChange(s));const a=this.viewModel.getSourceEditorViewState();a&&this.a.restoreViewState(a);const l=this.a.getContentHeight();this.viewModel.editorHeight=l}z(){const t=this.a,e=t.getModel()?.modified.uri||t.getModel()?.original.uri;if(!e)return;const i=this.t.getValue(e,"diffEditor.ignoreTrimWhitespace");t.updateOptions({ignoreTrimWhitespace:i}),this.D(this.t.onDidChangeConfiguration(o=>{if(o.affectsConfiguration(e,"diffEditor")&&o.affectedKeys.has("diffEditor.ignoreTrimWhitespace")){const s=this.t.getValue(e,"diffEditor.ignoreTrimWhitespace");t.updateOptions({ignoreTrimWhitespace:s})}}))}layout(t){h.$E8(h.getWindow(this.m),()=>{t.editorHeight&&(this.g.style.height=`${this.viewModel.layoutInfo.editorHeight}px`,this.a.layout({width:this.a.getViewWidth(),height:this.viewModel.layoutInfo.editorHeight})),t.outerWidth&&(this.g.style.height=`${this.viewModel.layoutInfo.editorHeight}px`,this.a.layout()),this.w()})}dispose(){this.a.setModel(null),this.b&&this.viewModel.saveSpirceEditorViewState(this.a.saveViewState()),super.dispose()}};Z=w([n(3,$),n(4,R),n(5,O),n(6,E),n(7,W),n(8,T)],Z);class ht extends D{constructor(t,e,i,o,s,a,l,d,r,u,c,p,f,y,V){super(),this.notebookEditor=t,this.cell=e,this.templateData=i,this.style=o,this.U=s,this.W=a,this.X=l,this.Y=d,this.Z=r,this.ab=u,this.bb=c,this.cb=p,this.db=f,this.eb=y,this.fb=V,this.a=this.D(new I),this.b=this.D(new I),this.c=!1,this.f=!1,this.S=!1,this.t=this.D(new I),this.N=this.D(new I),this.D(e.onDidLayoutChange(Q=>{this.layout(Q)})),this.D(e.onDidLayoutChange(Q=>this.updateBorders())),this.init(),this.buildBody(),this.D(e.onDidStateChange(()=>{this.updateOutputRendering(this.cell.renderOutput)}))}buildBody(){const t=this.templateData.body;switch(this.Q=this.templateData.diffEditorContainer,t.classList.remove("left","right","full"),this.style){case"left":t.classList.add("left");break;case"right":t.classList.add("right");break;default:t.classList.add("full");break}this.styleContainer(this.Q),this.updateSourceEditor(),this.cell.modified&&this.D(this.cell.modified.textModel.onDidChangeContent(()=>this.m.refresh())),this.c=this.eb.getValue("notebook.diff.ignoreMetadata"),this.c?this._disposeMetadata():this._buildMetadata(),this.f=this.eb.getValue("notebook.diff.ignoreOutputs")||!!this.notebookEditor.textModel?.transientOptions.transientOutputs,this.f?this._disposeOutput():this._buildOutput(),this.D(this.eb.onDidChangeConfiguration(e=>{let i=!1,o=!1;if(e.affectsConfiguration("notebook.diff.ignoreMetadata")){const s=this.eb.getValue("notebook.diff.ignoreMetadata");s!==void 0&&this.c!==s&&(this.c=s,this.a.clear(),this.eb.getValue("notebook.diff.ignoreMetadata")?this._disposeMetadata():(this.cell.metadataStatusHeight=25,this._buildMetadata(),this.updateMetadataRendering(),i=!0))}if(e.affectsConfiguration("notebook.diff.ignoreOutputs")){const s=this.eb.getValue("notebook.diff.ignoreOutputs");s!==void 0&&this.f!==(s||this.notebookEditor.textModel?.transientOptions.transientOutputs)&&(this.f=s||!!this.notebookEditor.textModel?.transientOptions.transientOutputs,this.b.clear(),this.f?(this._disposeOutput(),this.cell.layoutChange()):(this.cell.outputStatusHeight=25,this._buildOutput(),o=!0))}(i||o)&&this.layout({metadataHeight:i,outputTotalHeight:o})}))}updateMetadataRendering(){this.cell.metadataFoldingState===g.Expanded?(this.r.style.display="block",!this.s||!this.u?(this.s=h.$y9(this.r,h.$(".metadata-editor-container")),this.mb()):this.cell.metadataHeight=this.u.getContentHeight()):(this.r.style.display="none",this.cell.metadataHeight=0)}updateOutputRendering(t){this.cell.outputFoldingState===g.Expanded?(this.z.style.display="block",t?(this.jb(),this._buildOutputRendererContainer(),this._showOutputsRenderer(),this.ib()):(this._hideOutputsRenderer(),this.gb(),this.hb())):(this.z.style.display="none",this.jb(),this._hideOutputsRenderer(),this.kb())}gb(){this.C||(this.C=h.$y9(this.z,h.$(".output-editor-container")),this.nb())}hb(){this.C&&(this.C.style.display="block",this.cell.rawOutputHeight=this.O.getContentHeight())}ib(){this.cell.layoutChange()}jb(){this.C&&(this.C.style.display="none",this.cell.rawOutputHeight=0)}kb(){this.cell.layoutChange()}lb(t,e){const i={};try{const o=JSON.parse(e),s=new Set([...Object.keys(o)]);for(const l of s)switch(l){case"inputCollapsed":case"outputCollapsed":typeof o[l]=="boolean"?i[l]=o[l]:i[l]=t[l];break;default:i[l]=o[l];break}const a=this.notebookEditor.textModel.cells.indexOf(this.cell.modified.textModel);if(a<0)return;this.notebookEditor.textModel.applyEdits([{editType:3,index:a,metadata:i}],!0,void 0,()=>{},void 0,!0)}catch{}}async mb(){if(this.t.clear(),this.cell instanceof dt){this.u=this.U.createInstance(U,this.s,{...B,overflowWidgetsDomNode:this.notebookEditor.getOverflowContainerDomNode(),readOnly:!1,originalEditable:!1,ignoreTrimWhitespace:!1,automaticLayout:!1,dimension:{height:this.cell.layoutInfo.metadataHeight,width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!0,!0)}},{originalEditor:H(),modifiedEditor:H()});const t=this.D(J(this.eb));t.options.enabled&&this.u.updateOptions({hideUnchangedRegions:t.options}),this.t.add(t.onDidChangeEnablement(()=>{this.u&&this.u.updateOptions({hideUnchangedRegions:t.options})})),this.layout({metadataHeight:!0}),this.t.add(this.u),this.s?.classList.add("diff");const[e,i]=await Promise.all([this.Y.createModelReference(N.generateCellPropertyUri(this.cell.originalDocument.uri,this.cell.original.handle,_.vscodeNotebookCellMetadata)),this.Y.createModelReference(N.generateCellPropertyUri(this.cell.modifiedDocument.uri,this.cell.modified.handle,_.vscodeNotebookCellMetadata))]);if(this.S){e.dispose(),i.dispose();return}this.t.add(e),this.t.add(i);const o=this.u.createViewModel({original:e.object.textEditorModel,modified:i.object.textEditorModel});if(this.u.setModel(o),await o.waitForDiff(),this.S)return;this.cell.metadataHeight=this.u.getContentHeight(),this.t.add(this.u.onDidContentSizeChange(a=>{a.contentHeightChanged&&this.cell.metadataFoldingState===g.Expanded&&(this.cell.metadataHeight=a.contentHeight)}));let s=!1;this.t.add(i.object.textEditorModel.onDidChangeContent(()=>{s=!0;const a=i.object.textEditorModel.getValue();this.lb(this.cell.modified.metadata,a),this.q.refresh(),s=!1})),this.t.add(this.cell.modified.textModel.onDidChangeMetadata(()=>{if(s)return;const a=G(this.notebookEditor.textModel?.transientOptions.transientCellMetadata,this.cell.modified?.metadata||{},this.cell.modified?.language,!0);i.object.textEditorModel.setValue(a)}));return}else{this.u=this.U.createInstance(X,this.s,{...K,dimension:{width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0),height:this.cell.layoutInfo.metadataHeight},overflowWidgetsDomNode:this.notebookEditor.getOverflowContainerDomNode(),readOnly:!1,allowVariableLineHeights:!1},{}),this.layout({metadataHeight:!0}),this.t.add(this.u);const t=this.W.createById("jsonc"),e=G(this.notebookEditor.textModel?.transientOptions.transientCellMetadata,this.cell.type==="insert"?this.cell.modified.metadata||{}:this.cell.original.metadata||{},void 0,!0),i=this.cell.type==="insert"?this.cell.modified.uri:this.cell.original.uri,o=this.cell.type==="insert"?this.cell.modified.handle:this.cell.original.handle,s=N.generateCellPropertyUri(i,o,_.vscodeNotebookCellMetadata),a=this.X.createModel(e,t,s,!1);this.u.setModel(a),this.t.add(a),this.cell.metadataHeight=this.u.getContentHeight(),this.t.add(this.u.onDidContentSizeChange(l=>{l.contentHeightChanged&&this.cell.metadataFoldingState===g.Expanded&&(this.cell.metadataHeight=l.contentHeight)}))}}nb(){if(this.N.clear(),(this.cell.type==="modified"||this.cell.type==="unchanged")&&!this.notebookEditor.textModel.transientOptions.transientOutputs){const o=k(this.cell.original?.outputs||[]),s=k(this.cell.modified?.outputs||[]);if(o!==s){const a=this.W.createById("json"),l=this.X.createModel(o,a,void 0,!0),d=this.X.createModel(s,a,void 0,!0);this.N.add(l),this.N.add(d);const r=this.notebookEditor.getLayoutInfo().fontInfo.lineHeight||17,u=Math.max(l.getLineCount(),d.getLineCount());this.O=this.U.createInstance(U,this.C,{...B,overflowWidgetsDomNode:this.notebookEditor.getOverflowContainerDomNode(),readOnly:!0,ignoreTrimWhitespace:!1,automaticLayout:!1,dimension:{height:Math.min(j,this.cell.layoutInfo.rawOutputHeight||r*u),width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0)},accessibilityVerbose:this.eb.getValue("accessibility.verbosity.diffEditor")??!1},{originalEditor:H(),modifiedEditor:H()}),this.N.add(this.O),this.C?.classList.add("diff"),this.O.setModel({original:l,modified:d}),this.O.restoreViewState(this.cell.getOutputEditorViewState()),this.cell.rawOutputHeight=this.O.getContentHeight(),this.N.add(this.O.onDidContentSizeChange(c=>{c.contentHeightChanged&&this.cell.outputFoldingState===g.Expanded&&(this.cell.rawOutputHeight=c.contentHeight)})),this.N.add(this.cell.modified.textModel.onDidChangeOutputs(()=>{const c=k(this.cell.modified?.outputs||[]);d.setValue(c),this.y.refresh()}));return}}this.O=this.U.createInstance(X,this.C,{...K,dimension:{width:Math.min(j,this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,this.cell.type==="unchanged"||this.cell.type==="modified")-32),height:this.cell.layoutInfo.rawOutputHeight},overflowWidgetsDomNode:this.notebookEditor.getOverflowContainerDomNode(),allowVariableLineHeights:!1},{}),this.N.add(this.O);const t=this.W.createById("json"),e=k(this.notebookEditor.textModel.transientOptions.transientOutputs?[]:this.cell.type==="insert"?this.cell.modified?.outputs||[]:this.cell.original?.outputs||[]),i=this.X.createModel(e,t,void 0,!0);this.N.add(i),this.O.setModel(i),this.O.restoreViewState(this.cell.getOutputEditorViewState()),this.cell.rawOutputHeight=this.O.getContentHeight(),this.N.add(this.O.onDidContentSizeChange(o=>{o.contentHeightChanged&&this.cell.outputFoldingState===g.Expanded&&(this.cell.rawOutputHeight=o.contentHeight)}))}ob(){this.notebookEditor.layoutNotebookCell(this.cell,this.cell.layoutInfo.totalHeight)}updateBorders(){this.templateData.leftBorder.style.height=`${this.cell.layoutInfo.totalHeight-32}px`,this.templateData.rightBorder.style.height=`${this.cell.layoutInfo.totalHeight-32}px`,this.templateData.bottomBorder.style.top=`${this.cell.layoutInfo.totalHeight-32}px`}dispose(){this.O&&this.cell.saveOutputEditorViewState(this.O.saveViewState()),this.u&&this.cell.saveMetadataEditorViewState(this.u.saveViewState()),this.t.dispose(),this.N.dispose(),this.S=!0,super.dispose()}}class lt extends ht{constructor(t,e,i,o,s,a,l,d,r,u,c,p,f,y,V){super(t,e,i,o,s,a,l,d,r,u,c,p,f,y,V),this.cell=e,this.templateData=i,this.updateBorders()}init(){this.R=this.templateData.diagonalFill}buildBody(){const t=this.templateData.body;switch(this.Q=this.templateData.diffEditorContainer,t.classList.remove("left","right","full"),this.style){case"left":t.classList.add("left");break;case"right":t.classList.add("right");break;default:t.classList.add("full");break}this.styleContainer(this.Q),this.updateSourceEditor(),this.eb.getValue("notebook.diff.ignoreMetadata")?this._disposeMetadata():this._buildMetadata(),this.eb.getValue("notebook.diff.ignoreOutputs")||this.notebookEditor.textModel?.transientOptions.transientOutputs?this._disposeOutput():this._buildOutput(),this.D(this.eb.onDidChangeConfiguration(e=>{let i=!1,o=!1;e.affectsConfiguration("notebook.diff.ignoreMetadata")&&(this.a.clear(),this.eb.getValue("notebook.diff.ignoreMetadata")?this._disposeMetadata():(this.cell.metadataStatusHeight=25,this._buildMetadata(),this.updateMetadataRendering(),i=!0)),e.affectsConfiguration("notebook.diff.ignoreOutputs")&&(this.b.clear(),this.eb.getValue("notebook.diff.ignoreOutputs")||this.notebookEditor.textModel?.transientOptions.transientOutputs?this._disposeOutput():(this.cell.outputStatusHeight=25,this._buildOutput(),o=!0)),(i||o)&&this.layout({metadataHeight:i,outputTotalHeight:o})}))}updateSourceEditor(){this.g=this.templateData.cellHeaderContainer,this.g.style.display="flex",this.g.innerText="",this.j=this.templateData.editorContainer,this.j.classList.add("diff");const t=()=>{if(this.cell.cellFoldingState===g.Collapsed){this.j.style.display="none",this.cell.editorHeight=0;return}const e=this.notebookEditor.getLayoutInfo().fontInfo.lineHeight||17,i=this.cell.computeInputEditorHeight(e);if(this.j.style.height=`${i}px`,this.j.style.display="block",this.pb){const o=this.pb.getContentHeight();o>=0&&(this.cell.editorHeight=o);return}this.pb=this.templateData.sourceEditor,this.pb.layout({width:(this.notebookEditor.getLayoutInfo().width-2*A)/2-18,height:i}),this.pb.updateOptions({readOnly:this.readonly}),this.cell.editorHeight=i,this.D(this.pb.onDidContentSizeChange(o=>{this.cell.cellFoldingState===g.Expanded&&o.contentHeightChanged&&this.cell.layoutInfo.editorHeight!==o.contentHeight&&(this.cell.editorHeight=o.contentHeight)})),this.rb(this.nestedCellViewModel)};this.m=this.D(this.U.createInstance(M,this.cell,this.g,this.notebookEditor,{updateInfoRendering:()=>t(),checkIfModified:()=>({reason:void 0}),getFoldingState:()=>this.cell.cellFoldingState,updateFoldingState:e=>this.cell.cellFoldingState=e,unChangedLabel:"Input",changedLabel:"Input",prefix:"input",menuId:C.NotebookDiffCellInputTitle})),this.m.buildHeader(),t(),this.rb(this.nestedCellViewModel)}qb(){return this.cell.layoutInfo.cellStatusHeight+this.cell.layoutInfo.editorHeight+this.cell.layoutInfo.editorMargin+this.cell.layoutInfo.metadataStatusHeight+this.cell.layoutInfo.metadataHeight+this.cell.layoutInfo.outputTotalHeight+this.cell.layoutInfo.outputStatusHeight}async rb(t){const e=await this.Y.createModelReference(t.uri);if(this.S)return;const i=e.object.textEditorModel;this.D(e),this.pb.setModel(i);const o=this.cell.getSourceEditorViewState();o&&this.pb.restoreViewState(o);const s=this.pb.getContentHeight();this.cell.editorHeight=s;const a=`${this.qb()}px`;this.R.style.height!==a&&(this.R.style.height=a)}_disposeMetadata(){this.cell.metadataStatusHeight=0,this.cell.metadataHeight=0,this.templateData.cellHeaderContainer.style.display="none",this.templateData.metadataHeaderContainer.style.display="none",this.templateData.metadataInfoContainer.style.display="none",this.u=void 0}_buildMetadata(){this.n=this.templateData.metadataHeaderContainer,this.r=this.templateData.metadataInfoContainer,this.n.style.display="flex",this.r.style.display="block",this.n.innerText="",this.r.innerText="",this.q=this.U.createInstance(M,this.cell,this.n,this.notebookEditor,{updateInfoRendering:this.updateMetadataRendering.bind(this),checkIfModified:()=>this.cell.checkMetadataIfModified(),getFoldingState:()=>this.cell.metadataFoldingState,updateFoldingState:t=>{this.cell.metadataFoldingState=t},unChangedLabel:"Metadata",changedLabel:"Metadata changed",prefix:"metadata",menuId:C.NotebookDiffCellMetadataTitle}),this.a.add(this.q),this.q.buildHeader()}_buildOutput(){this.templateData.outputHeaderContainer.style.display="flex",this.templateData.outputInfoContainer.style.display="block",this.w=this.templateData.outputHeaderContainer,this.z=this.templateData.outputInfoContainer,this.w.innerText="",this.z.innerText="",this.y=this.U.createInstance(M,this.cell,this.w,this.notebookEditor,{updateInfoRendering:this.updateOutputRendering.bind(this),checkIfModified:()=>this.cell.checkIfOutputsModified(),getFoldingState:()=>this.cell.outputFoldingState,updateFoldingState:t=>{this.cell.outputFoldingState=t},unChangedLabel:"Outputs",changedLabel:"Outputs changed",prefix:"output",menuId:C.NotebookDiffCellOutputsTitle}),this.b.add(this.y),this.y.buildHeader()}_disposeOutput(){this.jb(),this._hideOutputsRenderer(),this.kb(),this.cell.rawOutputHeight=0,this.cell.outputMetadataHeight=0,this.cell.outputStatusHeight=0,this.templateData.outputHeaderContainer.style.display="none",this.templateData.outputInfoContainer.style.display="none",this.F=void 0}}let tt=class extends lt{constructor(t,e,i,o,s,a,l,d,r,u,c,p,f,y){super(t,e,i,"left",l,o,s,a,d,r,u,c,p,f,y)}get nestedCellViewModel(){return this.cell.original}get readonly(){return!0}styleContainer(t){t.classList.remove("inserted"),t.classList.add("removed")}layout(t){h.$E8(h.getWindow(this.Q),()=>{(t.editorHeight||t.outerWidth)&&this.pb&&(this.j.style.height=`${this.cell.layoutInfo.editorHeight}px`,this.pb.layout({width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!1),height:this.cell.layoutInfo.editorHeight})),t.outerWidth&&this.pb&&(this.j.style.height=`${this.cell.layoutInfo.editorHeight}px`,this.pb.layout()),(t.metadataHeight||t.outerWidth)&&this.u?.layout({width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!1),height:this.cell.layoutInfo.metadataHeight}),(t.outputTotalHeight||t.outerWidth)&&this.O?.layout({width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!1),height:this.cell.layoutInfo.outputTotalHeight}),this.R&&(this.R.style.height=`${this.qb()}px`),this.ob()})}_buildOutputRendererContainer(){if(!this.F){this.F=h.$y9(this.z,h.$(".output-view-container")),this.J=h.$y9(this.F,h.$(".output-empty-view"));const t=h.$y9(this.J,h.$("span"));t.innerText="No outputs to render",this.cell.original?.outputs.length?this.J.style.display="none":this.J.style.display="block",this.cell.layoutChange(),this.L=this.U.createInstance(S,this.notebookEditor,this.notebookEditor.textModel,this.cell,this.cell.original,m.Original,this.F),this.D(this.L),this.L.render();const e=this.notebookEditor.onDidDynamicOutputRendered(i=>{i.cell.uri.toString()===this.cell.original.uri.toString()&&(this.notebookEditor.deltaCellOutputContainerClassNames(m.Original,this.cell.original.id,["nb-cellDeleted"],[]),e.dispose())});this.D(e)}this.F.style.display="block"}_decorate(){this.notebookEditor.deltaCellOutputContainerClassNames(m.Original,this.cell.original.id,["nb-cellDeleted"],[])}_showOutputsRenderer(){this.F&&(this.F.style.display="block",this.L?.showOutputs(),this._decorate())}_hideOutputsRenderer(){this.F&&(this.F.style.display="none",this.L?.hideOutputs())}dispose(){this.pb&&this.cell.saveSpirceEditorViewState(this.pb.saveViewState()),super.dispose()}};tt=w([n(3,q),n(4,z),n(5,R),n(6,$),n(7,v),n(8,L),n(9,F),n(10,O),n(11,E),n(12,T),n(13,W)],tt);let et=class extends lt{constructor(t,e,i,o,s,a,l,d,r,u,c,p,f,y){super(t,e,i,"right",o,s,a,l,d,r,u,c,p,f,y)}get nestedCellViewModel(){return this.cell.modified}get readonly(){return!1}styleContainer(t){t.classList.remove("removed"),t.classList.add("inserted")}_buildOutputRendererContainer(){if(!this.F){this.F=h.$y9(this.z,h.$(".output-view-container")),this.J=h.$y9(this.F,h.$(".output-empty-view")),this.J.innerText="No outputs to render",this.cell.modified?.outputs.length?this.J.style.display="none":this.J.style.display="block",this.cell.layoutChange(),this.M=this.U.createInstance(S,this.notebookEditor,this.notebookEditor.textModel,this.cell,this.cell.modified,m.Modified,this.F),this.D(this.M),this.M.render();const t=this.notebookEditor.onDidDynamicOutputRendered(e=>{e.cell.uri.toString()===this.cell.modified.uri.toString()&&(this.notebookEditor.deltaCellOutputContainerClassNames(m.Modified,this.cell.modified.id,["nb-cellAdded"],[]),t.dispose())});this.D(t)}this.F.style.display="block"}_decorate(){this.notebookEditor.deltaCellOutputContainerClassNames(m.Modified,this.cell.modified.id,["nb-cellAdded"],[])}_showOutputsRenderer(){this.F&&(this.F.style.display="block",this.M?.showOutputs(),this._decorate())}_hideOutputsRenderer(){this.F&&(this.F.style.display="none",this.M?.hideOutputs())}layout(t){h.$E8(h.getWindow(this.Q),()=>{(t.editorHeight||t.outerWidth)&&this.pb&&(this.j.style.height=`${this.cell.layoutInfo.editorHeight}px`,this.pb.layout({width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!1),height:this.cell.layoutInfo.editorHeight})),t.outerWidth&&this.pb&&(this.j.style.height=`${this.cell.layoutInfo.editorHeight}px`,this.pb.layout()),(t.metadataHeight||t.outerWidth)&&this.u?.layout({width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0),height:this.cell.layoutInfo.metadataHeight}),(t.outputTotalHeight||t.outerWidth)&&this.O?.layout({width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!1),height:this.cell.layoutInfo.outputTotalHeight}),this.ob(),this.R&&(this.R.style.height=`${this.qb()}px`)})}dispose(){this.pb&&this.cell.saveSpirceEditorViewState(this.pb.saveViewState()),super.dispose()}};et=w([n(3,$),n(4,q),n(5,z),n(6,R),n(7,v),n(8,L),n(9,F),n(10,O),n(11,E),n(12,T),n(13,W)],et);let it=class extends ht{constructor(t,e,i,o,s,a,l,d,r,u,c,p,f,y){super(t,e,i,"full",o,s,a,l,d,r,u,c,p,f,y),this.cell=e,this.templateData=i,this.qb=!1,this.updateBorders()}init(){}styleContainer(t){t.classList.remove("inserted","removed")}buildBody(){super.buildBody(),this.cell.displayIconToHideUnmodifiedCells?(this.D(this.templateData.marginOverlay.onAction(()=>this.cell.hideUnchangedCells())),this.templateData.marginOverlay.show()):this.templateData.marginOverlay.hide()}_disposeMetadata(){this.cell.metadataStatusHeight=0,this.cell.metadataHeight=0,this.templateData.metadataHeaderContainer.style.display="none",this.templateData.metadataInfoContainer.style.display="none",this.u=void 0}_buildMetadata(){this.n=this.templateData.metadataHeaderContainer,this.r=this.templateData.metadataInfoContainer,this.n.style.display="flex",this.r.style.display="block",this.n.innerText="",this.r.innerText="",this.q=this.U.createInstance(M,this.cell,this.n,this.notebookEditor,{updateInfoRendering:this.updateMetadataRendering.bind(this),checkIfModified:()=>this.cell.checkMetadataIfModified(),getFoldingState:()=>this.cell.metadataFoldingState,updateFoldingState:t=>{this.cell.metadataFoldingState=t},unChangedLabel:"Metadata",changedLabel:"Metadata changed",prefix:"metadata",menuId:C.NotebookDiffCellMetadataTitle}),this.a.add(this.q),this.q.buildHeader()}_disposeOutput(){this.jb(),this._hideOutputsRenderer(),this.kb(),this.cell.rawOutputHeight=0,this.cell.outputMetadataHeight=0,this.cell.outputStatusHeight=0,this.templateData.outputHeaderContainer.style.display="none",this.templateData.outputInfoContainer.style.display="none",this.F=void 0}_buildOutput(){this.templateData.outputHeaderContainer.style.display="flex",this.templateData.outputInfoContainer.style.display="block",this.w=this.templateData.outputHeaderContainer,this.z=this.templateData.outputInfoContainer,this.w.innerText="",this.z.innerText="",this.cell.checkIfOutputsModified()?this.z.classList.add("modified"):this.z.classList.remove("modified"),this.y=this.U.createInstance(M,this.cell,this.w,this.notebookEditor,{updateInfoRendering:this.updateOutputRendering.bind(this),checkIfModified:()=>this.cell.checkIfOutputsModified(),getFoldingState:()=>this.cell.outputFoldingState,updateFoldingState:t=>{this.cell.outputFoldingState=t},unChangedLabel:"Outputs",changedLabel:"Outputs changed",prefix:"output",menuId:C.NotebookDiffCellOutputsTitle}),this.b.add(this.y),this.y.buildHeader()}_buildOutputRendererContainer(){if(!this.F){this.F=h.$y9(this.z,h.$(".output-view-container")),this.J=h.$y9(this.F,h.$(".output-empty-view")),this.J.innerText="No outputs to render",!this.cell.checkIfOutputsModified()&&this.cell.modified.outputs.length===0?this.J.style.display="block":this.J.style.display="none",this.cell.layoutChange(),this.D(this.cell.modified.textModel.onDidChangeOutputs(()=>{!this.cell.checkIfOutputsModified()&&this.cell.modified.outputs.length===0?this.J.style.display="block":this.J.style.display="none",this._decorate()})),this.G=h.$y9(this.F,h.$(".output-view-container-left")),this.H=h.$y9(this.F,h.$(".output-view-container-right")),this.I=h.$y9(this.F,h.$(".output-view-container-metadata"));const t=this.cell.checkIfOutputsModified(),e=t&&t.kind===1&&this.cell.original.outputs.length===1&&this.cell.modified.outputs.length===1&&nt(this.cell.original.outputs[0],this.cell.modified.outputs[0])===1;if(t&&!e){const i=this.notebookEditor.onDidDynamicOutputRendered(s=>{s.cell.uri.toString()===this.cell.original.uri.toString()&&this.cell.checkIfOutputsModified()&&(this.notebookEditor.deltaCellOutputContainerClassNames(m.Original,this.cell.original.id,["nb-cellDeleted"],[]),i.dispose())}),o=this.notebookEditor.onDidDynamicOutputRendered(s=>{s.cell.uri.toString()===this.cell.modified.uri.toString()&&this.cell.checkIfOutputsModified()&&(this.notebookEditor.deltaCellOutputContainerClassNames(m.Modified,this.cell.modified.id,["nb-cellAdded"],[]),o.dispose())});this.D(i),this.D(o)}if(this.L=this.U.createInstance(S,this.notebookEditor,this.notebookEditor.textModel,this.cell,this.cell.original,m.Original,this.G),this.L.render(),this.D(this.L),this.M=this.U.createInstance(S,this.notebookEditor,this.notebookEditor.textModel,this.cell,this.cell.modified,m.Modified,this.H),this.M.render(),this.D(this.M),t&&!e&&this._decorate(),e){this.I.style.top=`${this.cell.layoutInfo.rawOutputHeight}px`,this.P=this.U.createInstance(U,this.I,{...B,overflowWidgetsDomNode:this.notebookEditor.getOverflowContainerDomNode(),readOnly:!0,ignoreTrimWhitespace:!1,automaticLayout:!1,dimension:{height:j,width:this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0)}},{originalEditor:H(),modifiedEditor:H()}),this.D(this.P);const i=JSON.stringify(this.cell.original.outputs[0].metadata??{},void 0,"	"),o=JSON.stringify(this.cell.modified.outputs[0].metadata??{},void 0,"	"),s=this.W.createById("json"),a=this.X.createModel(i,s,void 0,!0),l=this.X.createModel(o,s,void 0,!0);this.P.setModel({original:a,modified:l}),this.cell.outputMetadataHeight=this.P.getContentHeight(),this.D(this.P.onDidContentSizeChange(d=>{this.cell.outputMetadataHeight=d.contentHeight}))}}this.F.style.display="block"}_decorate(){this.cell.checkIfOutputsModified()?(this.notebookEditor.deltaCellOutputContainerClassNames(m.Original,this.cell.original.id,["nb-cellDeleted"],[]),this.notebookEditor.deltaCellOutputContainerClassNames(m.Modified,this.cell.modified.id,["nb-cellAdded"],[])):(this.notebookEditor.deltaCellOutputContainerClassNames(m.Original,this.cell.original.id,[],["nb-cellDeleted"]),this.notebookEditor.deltaCellOutputContainerClassNames(m.Modified,this.cell.modified.id,[],["nb-cellAdded"]))}_showOutputsRenderer(){this.F&&(this.F.style.display="block",this.L?.showOutputs(),this.M?.showOutputs(),this.P?.layout({width:this.pb?.getViewWidth()||this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0),height:this.cell.layoutInfo.outputMetadataHeight}),this._decorate())}_hideOutputsRenderer(){this.F&&(this.F.style.display="none",this.L?.hideOutputs(),this.M?.hideOutputs())}updateSourceEditor(){this.g=this.templateData.cellHeaderContainer,this.g.style.display="flex",this.g.innerText="";const t=this.cell.modified;this.j=this.templateData.editorContainer,this.j.classList.add("diff");const e=()=>{if(this.cell.cellFoldingState===g.Collapsed){this.j.style.display="none",this.cell.editorHeight=0;return}const d=t.textModel.textBuffer.getLineCount(),r=this.notebookEditor.getLayoutInfo().fontInfo.lineHeight||17,u=this.cell.layoutInfo.editorHeight!==0?this.cell.layoutInfo.editorHeight:this.cell.computeInputEditorHeight(r);if(this.j.style.height=`${u}px`,this.j.style.display="block",this.pb){const f=this.pb.getContentHeight();f>=0&&(this.cell.editorHeight=f);return}this.pb=this.templateData.sourceEditor;const c={padding:st(d)},p=this.D(J(this.eb));p.options.enabled&&(c.hideUnchangedRegions=p.options),this.pb.updateOptions(c),this.D(p.onDidChangeEnablement(()=>{c.hideUnchangedRegions=p.options,this.pb?.updateOptions(c)})),this.pb.layout({width:this.notebookEditor.getLayoutInfo().width-2*A,height:u}),this.D(this.pb.onDidContentSizeChange(f=>{this.cell.cellFoldingState===g.Expanded&&f.contentHeightChanged&&this.cell.layoutInfo.editorHeight!==f.contentHeight&&(this.cell.editorHeight=f.contentHeight)})),this.tb()};this.m=this.D(this.U.createInstance(M,this.cell,this.g,this.notebookEditor,{updateInfoRendering:()=>e(),checkIfModified:()=>this.cell.modified?.textModel.getTextBufferHash()!==this.cell.original?.textModel.getTextBufferHash()?{reason:void 0}:!1,getFoldingState:()=>this.cell.cellFoldingState,updateFoldingState:d=>this.cell.cellFoldingState=d,unChangedLabel:"Input",changedLabel:"Input changed",prefix:"input",menuId:C.NotebookDiffCellInputTitle})),this.m.buildHeader(),e();const i=this.db.createScoped(this.templateData.inputToolbarContainer);this.D(i);const o=ut.bindTo(i);o.set(this.cell.modified.textModel.getTextBufferHash()!==this.cell.original.textModel.getTextBufferHash());const s=pt.bindTo(i),a=this.fb.getValue(this.cell.modified.uri,"diffEditor.ignoreTrimWhitespace");s.set(a),this.rb=this.templateData.toolbar,this.rb.context=this.cell;const l=()=>{const d=this.fb.getValue(this.cell.modified.uri,"diffEditor.ignoreTrimWhitespace");s.set(d);const r=this.cell.modified.textModel.getTextBufferHash()!==this.cell.original.textModel.getTextBufferHash();if(o.set(r),r){const u=this.cb.getMenuActions(C.NotebookDiffCellInputTitle,i,{shouldForwardArgs:!0}),c=P(u);this.rb.setActions(c)}else this.rb.setActions([])};this.D(this.cell.modified.textModel.onDidChangeContent(()=>l())),this.D(this.fb.onDidChangeConfiguration(d=>{d.affectsConfiguration(this.cell.modified.uri,"diffEditor")&&d.affectedKeys.has("diffEditor.ignoreTrimWhitespace")&&l()})),l()}async tb(){const[t,e]=await Promise.all([this.Y.createModelReference(this.cell.original.uri),this.Y.createModelReference(this.cell.modified.uri)]);if(this.D(t),this.D(e),this.S){t.dispose(),e.dispose();return}const i=this.D(this.pb.createViewModel({original:t.object.textEditorModel,modified:e.object.textEditorModel}));await i.waitForDiff(),this.pb.setModel(i);const o=()=>{this.qb=!0},s=d=>{(d.scrollTopChanged||d.scrollLeftChanged)&&(this.qb=!0)};this.ub(),this.D(this.pb.getOriginalEditor().onDidChangeCursorSelection(o)),this.D(this.pb.getOriginalEditor().onDidScrollChange(s)),this.D(this.pb.getModifiedEditor().onDidChangeCursorSelection(o)),this.D(this.pb.getModifiedEditor().onDidScrollChange(s));const a=this.cell.getSourceEditorViewState();a&&this.pb.restoreViewState(a);const l=this.pb.getContentHeight();this.cell.editorHeight=l}ub(){const t=this.pb;if(!t)return;const e=t.getModel()?.modified.uri||t.getModel()?.original.uri;if(!e)return;const i=this.fb.getValue(e,"diffEditor.ignoreTrimWhitespace");t.updateOptions({ignoreTrimWhitespace:i}),this.D(this.fb.onDidChangeConfiguration(o=>{if(o.affectsConfiguration(e,"diffEditor")&&o.affectedKeys.has("diffEditor.ignoreTrimWhitespace")){const s=this.fb.getValue(e,"diffEditor.ignoreTrimWhitespace");t.updateOptions({ignoreTrimWhitespace:s})}}))}layout(t){h.$E8(h.getWindow(this.Q),()=>{t.editorHeight&&this.pb&&(this.j.style.height=`${this.cell.layoutInfo.editorHeight}px`,this.pb.layout({width:this.pb.getViewWidth(),height:this.cell.layoutInfo.editorHeight})),t.outerWidth&&this.pb&&(this.j.style.height=`${this.cell.layoutInfo.editorHeight}px`,this.pb.layout()),(t.metadataHeight||t.outerWidth)&&this.s&&(this.s.style.height=`${this.cell.layoutInfo.metadataHeight}px`,this.u?.layout({width:this.pb?.getViewWidth()||this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0),height:this.cell.layoutInfo.metadataHeight})),(t.outputTotalHeight||t.outerWidth)&&(this.C&&(this.C.style.height=`${this.cell.layoutInfo.outputTotalHeight}px`,this.O?.layout({width:this.pb?.getViewWidth()||this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0),height:this.cell.layoutInfo.outputTotalHeight})),this.I&&(this.I.style.height=`${this.cell.layoutInfo.outputMetadataHeight}px`,this.I.style.top=`${this.cell.layoutInfo.outputTotalHeight-this.cell.layoutInfo.outputMetadataHeight}px`,this.P?.layout({width:this.pb?.getViewWidth()||this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(),!1,!0),height:this.cell.layoutInfo.outputMetadataHeight}))),this.ob()})}dispose(){this.pb&&this.pb.setModel(null),this.pb&&this.qb&&this.cell.saveSpirceEditorViewState(this.pb.saveViewState()),super.dispose()}};it=w([n(3,$),n(4,q),n(5,z),n(6,R),n(7,v),n(8,L),n(9,F),n(10,O),n(11,E),n(12,T),n(13,W)],it);class Oe extends D{constructor(t){super(),this.c=t,this.a=h.h("div.diff-hidden-cells",[h.h("div.center@content",{style:{display:"flex"}},[h.$("a",{title:x(10960,null),role:"button",onclick:()=>{this.b.fire()}},...ot("$(unfold)"))])]),this.b=this.D(new at),this.onAction=this.b.event,this.a.root.style.display="none",t.appendChild(this.a.root)}show(){this.a.root.style.display="block"}hide(){this.a.root.style.display="none"}dispose(){this.hide(),this.c.removeChild(this.a.root),h.$A9(this.a.root),super.dispose()}}class Ee extends D{constructor(t){super(),this.c=t,this.a=h.h("div.diff-hidden-cells",[h.h("div.center@content",{style:{display:"flex"}},[h.$("a",{title:x(10961,null),role:"button",onclick:()=>{this.b.fire()}},...ot("$(fold)"))])]),this.b=this.D(new at),this.onAction=this.b.event,this.a.root.style.display="none",t.appendChild(this.a.root)}show(){this.a.root.style.display="block"}hide(){this.a.root.style.display="none"}dispose(){this.hide(),this.c.removeChild(this.a.root),h.$A9(this.a.root),super.dispose()}}export{H as $Ofc,ye as $Pfc,Z as $Qfc,tt as $Rfc,et as $Sfc,it as $Tfc,Oe as $Ufc,Ee as $Vfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as DOM from "../../../../../base/browser/dom.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { getFormattedOutputJSON, outputEqual, OUTPUT_EDITOR_HEIGHT_MAGIC, PropertyFoldingState, SideBySideDiffElementViewModel, NotebookDocumentMetadataViewModel } from "./diffElementViewModel.js";
+import { DiffSide, DIFF_CELL_MARGIN, NOTEBOOK_DIFF_CELL_INPUT, NOTEBOOK_DIFF_CELL_PROPERTY, NOTEBOOK_DIFF_CELL_PROPERTY_EXPANDED, NOTEBOOK_DIFF_CELL_IGNORE_WHITESPACE, NOTEBOOK_DIFF_METADATA } from "./notebookDiffEditorBrowser.js";
+import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { CellUri } from "../../common/notebookCommon.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../../platform/actions/common/actions.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { getFlatActionBarActions } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { CodiconActionViewItem } from "../view/cellParts/cellActionView.js";
+import { collapsedIcon, expandedIcon } from "../notebookIcons.js";
+import { OutputContainer } from "./diffElementOutputs.js";
+import { EditorExtensionsRegistry } from "../../../../../editor/browser/editorExtensions.js";
+import { ContextMenuController } from "../../../../../editor/contrib/contextmenu/browser/contextmenu.js";
+import { SnippetController2 } from "../../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { SuggestController } from "../../../../../editor/contrib/suggest/browser/suggestController.js";
+import { MenuPreventer } from "../../../codeEditor/browser/menuPreventer.js";
+import { SelectionClipboardContributionID } from "../../../codeEditor/browser/selectionClipboard.js";
+import { TabCompletionController } from "../../../snippets/browser/tabCompletion.js";
+import { renderIcon, renderLabelWithIcons } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { fixedDiffEditorOptions, fixedEditorOptions, getEditorPadding } from "./diffCellEditorOptions.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { localize } from "../../../../../nls.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { getFormattedMetadataJSON } from "../../common/model/notebookCellTextModel.js";
+import { getUnchangedRegionSettings } from "./unchangedEditorRegions.js";
+function getOptimizedNestedCodeEditorWidgetOptions() {
+  return {
+    isSimpleWidget: false,
+    contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+      MenuPreventer.ID,
+      SelectionClipboardContributionID,
+      ContextMenuController.ID,
+      SuggestController.ID,
+      SnippetController2.ID,
+      TabCompletionController.ID
+    ])
+  };
+}
+__name(getOptimizedNestedCodeEditorWidgetOptions, "getOptimizedNestedCodeEditorWidgetOptions");
+class CellDiffPlaceholderElement extends Disposable {
+  static {
+    __name(this, "CellDiffPlaceholderElement");
+  }
+  constructor(placeholder, templateData) {
+    super();
+    templateData.body.classList.remove("left", "right", "full");
+    const text = placeholder.hiddenCells.length === 1 ? localize("hiddenCell", "{0} hidden cell", placeholder.hiddenCells.length) : localize("hiddenCells", "{0} hidden cells", placeholder.hiddenCells.length);
+    templateData.placeholder.innerText = text;
+    this._register(DOM.addDisposableListener(templateData.placeholder, "dblclick", (e) => {
+      if (e.button !== 0) {
+        return;
+      }
+      e.preventDefault();
+      placeholder.showHiddenCells();
+    }));
+    this._register(templateData.marginOverlay.onAction(() => placeholder.showHiddenCells()));
+    templateData.marginOverlay.show();
+  }
+}
+let PropertyHeader = class PropertyHeader2 extends Disposable {
+  static {
+    __name(this, "PropertyHeader");
+  }
+  constructor(cell, propertyHeaderContainer, notebookEditor, accessor, contextMenuService, keybindingService, commandService, notificationService, menuService, contextKeyService, themeService, telemetryService, accessibilityService) {
+    super();
+    this.cell = cell;
+    this.propertyHeaderContainer = propertyHeaderContainer;
+    this.notebookEditor = notebookEditor;
+    this.accessor = accessor;
+    this.contextMenuService = contextMenuService;
+    this.keybindingService = keybindingService;
+    this.commandService = commandService;
+    this.notificationService = notificationService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.themeService = themeService;
+    this.telemetryService = telemetryService;
+    this.accessibilityService = accessibilityService;
+  }
+  buildHeader() {
+    this._foldingIndicator = DOM.append(this.propertyHeaderContainer, DOM.$(".property-folding-indicator"));
+    this._foldingIndicator.classList.add(this.accessor.prefix);
+    const metadataStatus = DOM.append(this.propertyHeaderContainer, DOM.$("div.property-status"));
+    this._statusSpan = DOM.append(metadataStatus, DOM.$("span"));
+    this._description = DOM.append(metadataStatus, DOM.$("span.property-description"));
+    const cellToolbarContainer = DOM.append(this.propertyHeaderContainer, DOM.$("div.property-toolbar"));
+    this._toolbar = this._register(new WorkbenchToolBar(cellToolbarContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof MenuItemAction) {
+          const item = new CodiconActionViewItem(action, { hoverDelegate: options.hoverDelegate }, this.keybindingService, this.notificationService, this.contextKeyService, this.themeService, this.contextMenuService, this.accessibilityService);
+          return item;
+        }
+        return void 0;
+      }, "actionViewItemProvider")
+    }, this.menuService, this.contextKeyService, this.contextMenuService, this.keybindingService, this.commandService, this.telemetryService));
+    this._toolbar.context = this.cell;
+    const scopedContextKeyService = this.contextKeyService.createScoped(cellToolbarContainer);
+    this._register(scopedContextKeyService);
+    this._propertyChanged = NOTEBOOK_DIFF_CELL_PROPERTY.bindTo(scopedContextKeyService);
+    this._propertyExpanded = NOTEBOOK_DIFF_CELL_PROPERTY_EXPANDED.bindTo(scopedContextKeyService);
+    this._menu = this._register(this.menuService.createMenu(this.accessor.menuId, scopedContextKeyService));
+    this._register(this._menu.onDidChange(() => this.updateMenu()));
+    this._register(this.notebookEditor.onMouseUp((e) => {
+      if (!e.event.target || e.target !== this.cell) {
+        return;
+      }
+      const target = e.event.target;
+      if (target === this.propertyHeaderContainer || target === this._foldingIndicator || this._foldingIndicator.contains(target) || target === metadataStatus || metadataStatus.contains(target)) {
+        const oldFoldingState = this.accessor.getFoldingState();
+        this.accessor.updateFoldingState(oldFoldingState === PropertyFoldingState.Expanded ? PropertyFoldingState.Collapsed : PropertyFoldingState.Expanded);
+        this._updateFoldingIcon();
+        this.accessor.updateInfoRendering(this.cell.renderOutput);
+      }
+    }));
+    this.refresh();
+    this.accessor.updateInfoRendering(this.cell.renderOutput);
+  }
+  refresh() {
+    this.updateMenu();
+    this._updateFoldingIcon();
+    const metadataChanged = this.accessor.checkIfModified();
+    if (this._propertyChanged) {
+      this._propertyChanged.set(!!metadataChanged);
+    }
+    if (metadataChanged) {
+      this._statusSpan.textContent = this.accessor.changedLabel;
+      this._statusSpan.style.fontWeight = "bold";
+      if (metadataChanged.reason) {
+        this._description.textContent = metadataChanged.reason;
+      }
+      this.propertyHeaderContainer.classList.add("modified");
+    } else {
+      this._statusSpan.textContent = this.accessor.unChangedLabel;
+      this._statusSpan.style.fontWeight = "normal";
+      this._description.textContent = "";
+      this.propertyHeaderContainer.classList.remove("modified");
+    }
+  }
+  updateMenu() {
+    const metadataChanged = this.accessor.checkIfModified();
+    if (metadataChanged) {
+      const actions = getFlatActionBarActions(this._menu.getActions({ shouldForwardArgs: true }));
+      this._toolbar.setActions(actions);
+    } else {
+      this._toolbar.setActions([]);
+    }
+  }
+  _updateFoldingIcon() {
+    if (this.accessor.getFoldingState() === PropertyFoldingState.Collapsed) {
+      DOM.reset(this._foldingIndicator, renderIcon(collapsedIcon));
+      this._propertyExpanded?.set(false);
+    } else {
+      DOM.reset(this._foldingIndicator, renderIcon(expandedIcon));
+      this._propertyExpanded?.set(true);
+    }
+  }
+};
+PropertyHeader = __decorate([
+  __param(4, IContextMenuService),
+  __param(5, IKeybindingService),
+  __param(6, ICommandService),
+  __param(7, INotificationService),
+  __param(8, IMenuService),
+  __param(9, IContextKeyService),
+  __param(10, IThemeService),
+  __param(11, ITelemetryService),
+  __param(12, IAccessibilityService)
+], PropertyHeader);
+let NotebookDocumentMetadataElement = class NotebookDocumentMetadataElement2 extends Disposable {
+  static {
+    __name(this, "NotebookDocumentMetadataElement");
+  }
+  constructor(notebookEditor, viewModel, templateData, instantiationService, textModelService, menuService, contextKeyService, textConfigurationService, configurationService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.viewModel = viewModel;
+    this.templateData = templateData;
+    this.instantiationService = instantiationService;
+    this.textModelService = textModelService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.textConfigurationService = textConfigurationService;
+    this.configurationService = configurationService;
+    this._editor = templateData.sourceEditor;
+    this._cellHeaderContainer = this.templateData.cellHeaderContainer;
+    this._editorContainer = this.templateData.editorContainer;
+    this._diffEditorContainer = this.templateData.diffEditorContainer;
+    this._editorViewStateChanged = false;
+    this._register(viewModel.onDidLayoutChange((e) => {
+      this.layout(e);
+      this.updateBorders();
+    }));
+    this.buildBody();
+    this.updateBorders();
+  }
+  buildBody() {
+    const body = this.templateData.body;
+    body.classList.remove("full");
+    body.classList.add("full");
+    this.updateSourceEditor();
+    if (this.viewModel instanceof NotebookDocumentMetadataViewModel) {
+      this._register(this.viewModel.modifiedMetadata.onDidChange((e) => {
+        this._cellHeader.refresh();
+      }));
+    }
+  }
+  layoutNotebookCell() {
+    this.notebookEditor.layoutNotebookCell(this.viewModel, this.viewModel.layoutInfo.totalHeight);
+  }
+  updateBorders() {
+    this.templateData.leftBorder.style.height = `${this.viewModel.layoutInfo.totalHeight - 32}px`;
+    this.templateData.rightBorder.style.height = `${this.viewModel.layoutInfo.totalHeight - 32}px`;
+    this.templateData.bottomBorder.style.top = `${this.viewModel.layoutInfo.totalHeight - 32}px`;
+  }
+  updateSourceEditor() {
+    this._cellHeaderContainer.style.display = "flex";
+    this._cellHeaderContainer.innerText = "";
+    this._editorContainer.classList.add("diff");
+    const updateSourceEditor = /* @__PURE__ */ __name(() => {
+      if (this.viewModel.cellFoldingState === PropertyFoldingState.Collapsed) {
+        this._editorContainer.style.display = "none";
+        this.viewModel.editorHeight = 0;
+        return;
+      }
+      const lineHeight = this.notebookEditor.getLayoutInfo().fontInfo.lineHeight || 17;
+      const editorHeight = this.viewModel.layoutInfo.editorHeight !== 0 ? this.viewModel.layoutInfo.editorHeight : this.viewModel.computeInputEditorHeight(lineHeight);
+      this._editorContainer.style.height = `${editorHeight}px`;
+      this._editorContainer.style.display = "block";
+      const contentHeight = this._editor.getContentHeight();
+      if (contentHeight >= 0) {
+        this.viewModel.editorHeight = contentHeight;
+      }
+      return editorHeight;
+    }, "updateSourceEditor");
+    const renderSourceEditor = /* @__PURE__ */ __name(() => {
+      const editorHeight = updateSourceEditor();
+      if (!editorHeight) {
+        return;
+      }
+      const lineCount = this.viewModel.modifiedMetadata.textBuffer.getLineCount();
+      const options = {
+        padding: getEditorPadding(lineCount)
+      };
+      const unchangedRegions = this._register(getUnchangedRegionSettings(this.configurationService));
+      if (unchangedRegions.options.enabled) {
+        options.hideUnchangedRegions = unchangedRegions.options;
+      }
+      this._editor.updateOptions(options);
+      this._register(unchangedRegions.onDidChangeEnablement(() => {
+        options.hideUnchangedRegions = unchangedRegions.options;
+        this._editor.updateOptions(options);
+      }));
+      this._editor.layout({
+        width: this.notebookEditor.getLayoutInfo().width - 2 * DIFF_CELL_MARGIN,
+        height: editorHeight
+      });
+      this._register(this._editor.onDidContentSizeChange((e) => {
+        if (this.viewModel.cellFoldingState === PropertyFoldingState.Expanded && e.contentHeightChanged && this.viewModel.layoutInfo.editorHeight !== e.contentHeight) {
+          this.viewModel.editorHeight = e.contentHeight;
+        }
+      }));
+      this._initializeSourceDiffEditor();
+    }, "renderSourceEditor");
+    this._cellHeader = this._register(this.instantiationService.createInstance(PropertyHeader, this.viewModel, this._cellHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: /* @__PURE__ */ __name(() => renderSourceEditor(), "updateInfoRendering"),
+      checkIfModified: /* @__PURE__ */ __name(() => {
+        return this.viewModel.originalMetadata.getHash() !== this.viewModel.modifiedMetadata.getHash() ? { reason: void 0 } : false;
+      }, "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => this.viewModel.cellFoldingState, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => this.viewModel.cellFoldingState = state, "updateFoldingState"),
+      unChangedLabel: "Notebook Metadata",
+      changedLabel: "Notebook Metadata changed",
+      prefix: "metadata",
+      menuId: MenuId.NotebookDiffDocumentMetadata
+    }));
+    this._cellHeader.buildHeader();
+    renderSourceEditor();
+    const scopedContextKeyService = this.contextKeyService.createScoped(this.templateData.inputToolbarContainer);
+    this._register(scopedContextKeyService);
+    const inputChanged = NOTEBOOK_DIFF_METADATA.bindTo(scopedContextKeyService);
+    inputChanged.set(this.viewModel.originalMetadata.getHash() !== this.viewModel.modifiedMetadata.getHash());
+    this._toolbar = this.templateData.toolbar;
+    this._toolbar.context = this.viewModel;
+    const refreshToolbar = /* @__PURE__ */ __name(() => {
+      const hasChanges = this.viewModel.originalMetadata.getHash() !== this.viewModel.modifiedMetadata.getHash();
+      inputChanged.set(hasChanges);
+      if (hasChanges) {
+        const menu = this.menuService.getMenuActions(MenuId.NotebookDiffDocumentMetadata, scopedContextKeyService, { shouldForwardArgs: true });
+        const actions = getFlatActionBarActions(menu);
+        this._toolbar.setActions(actions);
+      } else {
+        this._toolbar.setActions([]);
+      }
+    }, "refreshToolbar");
+    this._register(this.viewModel.modifiedMetadata.onDidChange(() => {
+      refreshToolbar();
+    }));
+    refreshToolbar();
+  }
+  async _initializeSourceDiffEditor() {
+    const [originalRef, modifiedRef] = await Promise.all([
+      this.textModelService.createModelReference(this.viewModel.originalMetadata.uri),
+      this.textModelService.createModelReference(this.viewModel.modifiedMetadata.uri)
+    ]);
+    if (this._store.isDisposed) {
+      originalRef.dispose();
+      modifiedRef.dispose();
+      return;
+    }
+    this._register(originalRef);
+    this._register(modifiedRef);
+    const vm = this._register(this._editor.createViewModel({
+      original: originalRef.object.textEditorModel,
+      modified: modifiedRef.object.textEditorModel
+    }));
+    await vm.waitForDiff();
+    this._editor.setModel(vm);
+    const handleViewStateChange = /* @__PURE__ */ __name(() => {
+      this._editorViewStateChanged = true;
+    }, "handleViewStateChange");
+    const handleScrollChange = /* @__PURE__ */ __name((e) => {
+      if (e.scrollTopChanged || e.scrollLeftChanged) {
+        this._editorViewStateChanged = true;
+      }
+    }, "handleScrollChange");
+    this.updateEditorOptionsForWhitespace();
+    this._register(this._editor.getOriginalEditor().onDidChangeCursorSelection(handleViewStateChange));
+    this._register(this._editor.getOriginalEditor().onDidScrollChange(handleScrollChange));
+    this._register(this._editor.getModifiedEditor().onDidChangeCursorSelection(handleViewStateChange));
+    this._register(this._editor.getModifiedEditor().onDidScrollChange(handleScrollChange));
+    const editorViewState = this.viewModel.getSourceEditorViewState();
+    if (editorViewState) {
+      this._editor.restoreViewState(editorViewState);
+    }
+    const contentHeight = this._editor.getContentHeight();
+    this.viewModel.editorHeight = contentHeight;
+  }
+  updateEditorOptionsForWhitespace() {
+    const editor = this._editor;
+    const uri = editor.getModel()?.modified.uri || editor.getModel()?.original.uri;
+    if (!uri) {
+      return;
+    }
+    const ignoreTrimWhitespace = this.textConfigurationService.getValue(uri, "diffEditor.ignoreTrimWhitespace");
+    editor.updateOptions({ ignoreTrimWhitespace });
+    this._register(this.textConfigurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(uri, "diffEditor") && e.affectedKeys.has("diffEditor.ignoreTrimWhitespace")) {
+        const ignoreTrimWhitespace2 = this.textConfigurationService.getValue(uri, "diffEditor.ignoreTrimWhitespace");
+        editor.updateOptions({ ignoreTrimWhitespace: ignoreTrimWhitespace2 });
+      }
+    }));
+  }
+  layout(state) {
+    DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this._diffEditorContainer), () => {
+      if (state.editorHeight) {
+        this._editorContainer.style.height = `${this.viewModel.layoutInfo.editorHeight}px`;
+        this._editor.layout({
+          width: this._editor.getViewWidth(),
+          height: this.viewModel.layoutInfo.editorHeight
+        });
+      }
+      if (state.outerWidth) {
+        this._editorContainer.style.height = `${this.viewModel.layoutInfo.editorHeight}px`;
+        this._editor.layout();
+      }
+      this.layoutNotebookCell();
+    });
+  }
+  dispose() {
+    this._editor.setModel(null);
+    if (this._editorViewStateChanged) {
+      this.viewModel.saveSpirceEditorViewState(this._editor.saveViewState());
+    }
+    super.dispose();
+  }
+};
+NotebookDocumentMetadataElement = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, ITextModelService),
+  __param(5, IMenuService),
+  __param(6, IContextKeyService),
+  __param(7, ITextResourceConfigurationService),
+  __param(8, IConfigurationService)
+], NotebookDocumentMetadataElement);
+class AbstractElementRenderer extends Disposable {
+  static {
+    __name(this, "AbstractElementRenderer");
+  }
+  constructor(notebookEditor, cell, templateData, style, instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.cell = cell;
+    this.templateData = templateData;
+    this.style = style;
+    this.instantiationService = instantiationService;
+    this.languageService = languageService;
+    this.modelService = modelService;
+    this.textModelService = textModelService;
+    this.contextMenuService = contextMenuService;
+    this.keybindingService = keybindingService;
+    this.notificationService = notificationService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.configurationService = configurationService;
+    this.textConfigurationService = textConfigurationService;
+    this._metadataLocalDisposable = this._register(new DisposableStore());
+    this._outputLocalDisposable = this._register(new DisposableStore());
+    this._ignoreMetadata = false;
+    this._ignoreOutputs = false;
+    this._isDisposed = false;
+    this._metadataEditorDisposeStore = this._register(new DisposableStore());
+    this._outputEditorDisposeStore = this._register(new DisposableStore());
+    this._register(cell.onDidLayoutChange((e) => {
+      this.layout(e);
+    }));
+    this._register(cell.onDidLayoutChange((e) => this.updateBorders()));
+    this.init();
+    this.buildBody();
+    this._register(cell.onDidStateChange(() => {
+      this.updateOutputRendering(this.cell.renderOutput);
+    }));
+  }
+  buildBody() {
+    const body = this.templateData.body;
+    this._diffEditorContainer = this.templateData.diffEditorContainer;
+    body.classList.remove("left", "right", "full");
+    switch (this.style) {
+      case "left":
+        body.classList.add("left");
+        break;
+      case "right":
+        body.classList.add("right");
+        break;
+      default:
+        body.classList.add("full");
+        break;
+    }
+    this.styleContainer(this._diffEditorContainer);
+    this.updateSourceEditor();
+    if (this.cell.modified) {
+      this._register(this.cell.modified.textModel.onDidChangeContent(() => this._cellHeader.refresh()));
+    }
+    this._ignoreMetadata = this.configurationService.getValue("notebook.diff.ignoreMetadata");
+    if (this._ignoreMetadata) {
+      this._disposeMetadata();
+    } else {
+      this._buildMetadata();
+    }
+    this._ignoreOutputs = this.configurationService.getValue("notebook.diff.ignoreOutputs") || !!this.notebookEditor.textModel?.transientOptions.transientOutputs;
+    if (this._ignoreOutputs) {
+      this._disposeOutput();
+    } else {
+      this._buildOutput();
+    }
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      let metadataLayoutChange = false;
+      let outputLayoutChange = false;
+      if (e.affectsConfiguration("notebook.diff.ignoreMetadata")) {
+        const newValue = this.configurationService.getValue("notebook.diff.ignoreMetadata");
+        if (newValue !== void 0 && this._ignoreMetadata !== newValue) {
+          this._ignoreMetadata = newValue;
+          this._metadataLocalDisposable.clear();
+          if (this.configurationService.getValue("notebook.diff.ignoreMetadata")) {
+            this._disposeMetadata();
+          } else {
+            this.cell.metadataStatusHeight = 25;
+            this._buildMetadata();
+            this.updateMetadataRendering();
+            metadataLayoutChange = true;
+          }
+        }
+      }
+      if (e.affectsConfiguration("notebook.diff.ignoreOutputs")) {
+        const newValue = this.configurationService.getValue("notebook.diff.ignoreOutputs");
+        if (newValue !== void 0 && this._ignoreOutputs !== (newValue || this.notebookEditor.textModel?.transientOptions.transientOutputs)) {
+          this._ignoreOutputs = newValue || !!this.notebookEditor.textModel?.transientOptions.transientOutputs;
+          this._outputLocalDisposable.clear();
+          if (this._ignoreOutputs) {
+            this._disposeOutput();
+            this.cell.layoutChange();
+          } else {
+            this.cell.outputStatusHeight = 25;
+            this._buildOutput();
+            outputLayoutChange = true;
+          }
+        }
+      }
+      if (metadataLayoutChange || outputLayoutChange) {
+        this.layout({ metadataHeight: metadataLayoutChange, outputTotalHeight: outputLayoutChange });
+      }
+    }));
+  }
+  updateMetadataRendering() {
+    if (this.cell.metadataFoldingState === PropertyFoldingState.Expanded) {
+      this._metadataInfoContainer.style.display = "block";
+      if (!this._metadataEditorContainer || !this._metadataEditor) {
+        this._metadataEditorContainer = DOM.append(this._metadataInfoContainer, DOM.$(".metadata-editor-container"));
+        this._buildMetadataEditor();
+      } else {
+        this.cell.metadataHeight = this._metadataEditor.getContentHeight();
+      }
+    } else {
+      this._metadataInfoContainer.style.display = "none";
+      this.cell.metadataHeight = 0;
+    }
+  }
+  updateOutputRendering(renderRichOutput) {
+    if (this.cell.outputFoldingState === PropertyFoldingState.Expanded) {
+      this._outputInfoContainer.style.display = "block";
+      if (renderRichOutput) {
+        this._hideOutputsRaw();
+        this._buildOutputRendererContainer();
+        this._showOutputsRenderer();
+        this._showOutputsEmptyView();
+      } else {
+        this._hideOutputsRenderer();
+        this._buildOutputRawContainer();
+        this._showOutputsRaw();
+      }
+    } else {
+      this._outputInfoContainer.style.display = "none";
+      this._hideOutputsRaw();
+      this._hideOutputsRenderer();
+      this._hideOutputsEmptyView();
+    }
+  }
+  _buildOutputRawContainer() {
+    if (!this._outputEditorContainer) {
+      this._outputEditorContainer = DOM.append(this._outputInfoContainer, DOM.$(".output-editor-container"));
+      this._buildOutputEditor();
+    }
+  }
+  _showOutputsRaw() {
+    if (this._outputEditorContainer) {
+      this._outputEditorContainer.style.display = "block";
+      this.cell.rawOutputHeight = this._outputEditor.getContentHeight();
+    }
+  }
+  _showOutputsEmptyView() {
+    this.cell.layoutChange();
+  }
+  _hideOutputsRaw() {
+    if (this._outputEditorContainer) {
+      this._outputEditorContainer.style.display = "none";
+      this.cell.rawOutputHeight = 0;
+    }
+  }
+  _hideOutputsEmptyView() {
+    this.cell.layoutChange();
+  }
+  _applySanitizedMetadataChanges(currentMetadata, newMetadata) {
+    const result = {};
+    try {
+      const newMetadataObj = JSON.parse(newMetadata);
+      const keys = /* @__PURE__ */ new Set([...Object.keys(newMetadataObj)]);
+      for (const key of keys) {
+        switch (key) {
+          case "inputCollapsed":
+          case "outputCollapsed":
+            if (typeof newMetadataObj[key] === "boolean") {
+              result[key] = newMetadataObj[key];
+            } else {
+              result[key] = currentMetadata[key];
+            }
+            break;
+          default:
+            result[key] = newMetadataObj[key];
+            break;
+        }
+      }
+      const index = this.notebookEditor.textModel.cells.indexOf(this.cell.modified.textModel);
+      if (index < 0) {
+        return;
+      }
+      this.notebookEditor.textModel.applyEdits([
+        { editType: 3, index, metadata: result }
+      ], true, void 0, () => void 0, void 0, true);
+    } catch {
+    }
+  }
+  async _buildMetadataEditor() {
+    this._metadataEditorDisposeStore.clear();
+    if (this.cell instanceof SideBySideDiffElementViewModel) {
+      this._metadataEditor = this.instantiationService.createInstance(DiffEditorWidget, this._metadataEditorContainer, {
+        ...fixedDiffEditorOptions,
+        overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode(),
+        readOnly: false,
+        originalEditable: false,
+        ignoreTrimWhitespace: false,
+        automaticLayout: false,
+        dimension: {
+          height: this.cell.layoutInfo.metadataHeight,
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), true, true)
+        }
+      }, {
+        originalEditor: getOptimizedNestedCodeEditorWidgetOptions(),
+        modifiedEditor: getOptimizedNestedCodeEditorWidgetOptions()
+      });
+      const unchangedRegions = this._register(getUnchangedRegionSettings(this.configurationService));
+      if (unchangedRegions.options.enabled) {
+        this._metadataEditor.updateOptions({ hideUnchangedRegions: unchangedRegions.options });
+      }
+      this._metadataEditorDisposeStore.add(unchangedRegions.onDidChangeEnablement(() => {
+        if (this._metadataEditor) {
+          this._metadataEditor.updateOptions({ hideUnchangedRegions: unchangedRegions.options });
+        }
+      }));
+      this.layout({ metadataHeight: true });
+      this._metadataEditorDisposeStore.add(this._metadataEditor);
+      this._metadataEditorContainer?.classList.add("diff");
+      const [originalMetadataModel, modifiedMetadataModel] = await Promise.all([
+        this.textModelService.createModelReference(CellUri.generateCellPropertyUri(this.cell.originalDocument.uri, this.cell.original.handle, Schemas.vscodeNotebookCellMetadata)),
+        this.textModelService.createModelReference(CellUri.generateCellPropertyUri(this.cell.modifiedDocument.uri, this.cell.modified.handle, Schemas.vscodeNotebookCellMetadata))
+      ]);
+      if (this._isDisposed) {
+        originalMetadataModel.dispose();
+        modifiedMetadataModel.dispose();
+        return;
+      }
+      this._metadataEditorDisposeStore.add(originalMetadataModel);
+      this._metadataEditorDisposeStore.add(modifiedMetadataModel);
+      const vm = this._metadataEditor.createViewModel({
+        original: originalMetadataModel.object.textEditorModel,
+        modified: modifiedMetadataModel.object.textEditorModel
+      });
+      this._metadataEditor.setModel(vm);
+      await vm.waitForDiff();
+      if (this._isDisposed) {
+        return;
+      }
+      this.cell.metadataHeight = this._metadataEditor.getContentHeight();
+      this._metadataEditorDisposeStore.add(this._metadataEditor.onDidContentSizeChange((e) => {
+        if (e.contentHeightChanged && this.cell.metadataFoldingState === PropertyFoldingState.Expanded) {
+          this.cell.metadataHeight = e.contentHeight;
+        }
+      }));
+      let respondingToContentChange = false;
+      this._metadataEditorDisposeStore.add(modifiedMetadataModel.object.textEditorModel.onDidChangeContent(() => {
+        respondingToContentChange = true;
+        const value = modifiedMetadataModel.object.textEditorModel.getValue();
+        this._applySanitizedMetadataChanges(this.cell.modified.metadata, value);
+        this._metadataHeader.refresh();
+        respondingToContentChange = false;
+      }));
+      this._metadataEditorDisposeStore.add(this.cell.modified.textModel.onDidChangeMetadata(() => {
+        if (respondingToContentChange) {
+          return;
+        }
+        const modifiedMetadataSource = getFormattedMetadataJSON(this.notebookEditor.textModel?.transientOptions.transientCellMetadata, this.cell.modified?.metadata || {}, this.cell.modified?.language, true);
+        modifiedMetadataModel.object.textEditorModel.setValue(modifiedMetadataSource);
+      }));
+      return;
+    } else {
+      this._metadataEditor = this.instantiationService.createInstance(CodeEditorWidget, this._metadataEditorContainer, {
+        ...fixedEditorOptions,
+        dimension: {
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true),
+          height: this.cell.layoutInfo.metadataHeight
+        },
+        overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode(),
+        readOnly: false,
+        allowVariableLineHeights: false
+      }, {});
+      this.layout({ metadataHeight: true });
+      this._metadataEditorDisposeStore.add(this._metadataEditor);
+      const mode = this.languageService.createById("jsonc");
+      const originalMetadataSource = getFormattedMetadataJSON(this.notebookEditor.textModel?.transientOptions.transientCellMetadata, this.cell.type === "insert" ? this.cell.modified.metadata || {} : this.cell.original.metadata || {}, void 0, true);
+      const uri = this.cell.type === "insert" ? this.cell.modified.uri : this.cell.original.uri;
+      const handle = this.cell.type === "insert" ? this.cell.modified.handle : this.cell.original.handle;
+      const modelUri = CellUri.generateCellPropertyUri(uri, handle, Schemas.vscodeNotebookCellMetadata);
+      const metadataModel = this.modelService.createModel(originalMetadataSource, mode, modelUri, false);
+      this._metadataEditor.setModel(metadataModel);
+      this._metadataEditorDisposeStore.add(metadataModel);
+      this.cell.metadataHeight = this._metadataEditor.getContentHeight();
+      this._metadataEditorDisposeStore.add(this._metadataEditor.onDidContentSizeChange((e) => {
+        if (e.contentHeightChanged && this.cell.metadataFoldingState === PropertyFoldingState.Expanded) {
+          this.cell.metadataHeight = e.contentHeight;
+        }
+      }));
+    }
+  }
+  _buildOutputEditor() {
+    this._outputEditorDisposeStore.clear();
+    if ((this.cell.type === "modified" || this.cell.type === "unchanged") && !this.notebookEditor.textModel.transientOptions.transientOutputs) {
+      const originalOutputsSource = getFormattedOutputJSON(this.cell.original?.outputs || []);
+      const modifiedOutputsSource = getFormattedOutputJSON(this.cell.modified?.outputs || []);
+      if (originalOutputsSource !== modifiedOutputsSource) {
+        const mode2 = this.languageService.createById("json");
+        const originalModel = this.modelService.createModel(originalOutputsSource, mode2, void 0, true);
+        const modifiedModel = this.modelService.createModel(modifiedOutputsSource, mode2, void 0, true);
+        this._outputEditorDisposeStore.add(originalModel);
+        this._outputEditorDisposeStore.add(modifiedModel);
+        const lineHeight = this.notebookEditor.getLayoutInfo().fontInfo.lineHeight || 17;
+        const lineCount = Math.max(originalModel.getLineCount(), modifiedModel.getLineCount());
+        this._outputEditor = this.instantiationService.createInstance(DiffEditorWidget, this._outputEditorContainer, {
+          ...fixedDiffEditorOptions,
+          overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode(),
+          readOnly: true,
+          ignoreTrimWhitespace: false,
+          automaticLayout: false,
+          dimension: {
+            height: Math.min(OUTPUT_EDITOR_HEIGHT_MAGIC, this.cell.layoutInfo.rawOutputHeight || lineHeight * lineCount),
+            width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true)
+          },
+          accessibilityVerbose: this.configurationService.getValue(
+            "accessibility.verbosity.diffEditor"
+            /* AccessibilityVerbositySettingId.DiffEditor */
+          ) ?? false
+        }, {
+          originalEditor: getOptimizedNestedCodeEditorWidgetOptions(),
+          modifiedEditor: getOptimizedNestedCodeEditorWidgetOptions()
+        });
+        this._outputEditorDisposeStore.add(this._outputEditor);
+        this._outputEditorContainer?.classList.add("diff");
+        this._outputEditor.setModel({
+          original: originalModel,
+          modified: modifiedModel
+        });
+        this._outputEditor.restoreViewState(this.cell.getOutputEditorViewState());
+        this.cell.rawOutputHeight = this._outputEditor.getContentHeight();
+        this._outputEditorDisposeStore.add(this._outputEditor.onDidContentSizeChange((e) => {
+          if (e.contentHeightChanged && this.cell.outputFoldingState === PropertyFoldingState.Expanded) {
+            this.cell.rawOutputHeight = e.contentHeight;
+          }
+        }));
+        this._outputEditorDisposeStore.add(this.cell.modified.textModel.onDidChangeOutputs(() => {
+          const modifiedOutputsSource2 = getFormattedOutputJSON(this.cell.modified?.outputs || []);
+          modifiedModel.setValue(modifiedOutputsSource2);
+          this._outputHeader.refresh();
+        }));
+        return;
+      }
+    }
+    this._outputEditor = this.instantiationService.createInstance(CodeEditorWidget, this._outputEditorContainer, {
+      ...fixedEditorOptions,
+      dimension: {
+        width: Math.min(OUTPUT_EDITOR_HEIGHT_MAGIC, this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, this.cell.type === "unchanged" || this.cell.type === "modified") - 32),
+        height: this.cell.layoutInfo.rawOutputHeight
+      },
+      overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode(),
+      allowVariableLineHeights: false
+    }, {});
+    this._outputEditorDisposeStore.add(this._outputEditor);
+    const mode = this.languageService.createById("json");
+    const originaloutputSource = getFormattedOutputJSON(this.notebookEditor.textModel.transientOptions.transientOutputs ? [] : this.cell.type === "insert" ? this.cell.modified?.outputs || [] : this.cell.original?.outputs || []);
+    const outputModel = this.modelService.createModel(originaloutputSource, mode, void 0, true);
+    this._outputEditorDisposeStore.add(outputModel);
+    this._outputEditor.setModel(outputModel);
+    this._outputEditor.restoreViewState(this.cell.getOutputEditorViewState());
+    this.cell.rawOutputHeight = this._outputEditor.getContentHeight();
+    this._outputEditorDisposeStore.add(this._outputEditor.onDidContentSizeChange((e) => {
+      if (e.contentHeightChanged && this.cell.outputFoldingState === PropertyFoldingState.Expanded) {
+        this.cell.rawOutputHeight = e.contentHeight;
+      }
+    }));
+  }
+  layoutNotebookCell() {
+    this.notebookEditor.layoutNotebookCell(this.cell, this.cell.layoutInfo.totalHeight);
+  }
+  updateBorders() {
+    this.templateData.leftBorder.style.height = `${this.cell.layoutInfo.totalHeight - 32}px`;
+    this.templateData.rightBorder.style.height = `${this.cell.layoutInfo.totalHeight - 32}px`;
+    this.templateData.bottomBorder.style.top = `${this.cell.layoutInfo.totalHeight - 32}px`;
+  }
+  dispose() {
+    if (this._outputEditor) {
+      this.cell.saveOutputEditorViewState(this._outputEditor.saveViewState());
+    }
+    if (this._metadataEditor) {
+      this.cell.saveMetadataEditorViewState(this._metadataEditor.saveViewState());
+    }
+    this._metadataEditorDisposeStore.dispose();
+    this._outputEditorDisposeStore.dispose();
+    this._isDisposed = true;
+    super.dispose();
+  }
+}
+class SingleSideDiffElement extends AbstractElementRenderer {
+  static {
+    __name(this, "SingleSideDiffElement");
+  }
+  constructor(notebookEditor, cell, templateData, style, instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService) {
+    super(notebookEditor, cell, templateData, style, instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService);
+    this.cell = cell;
+    this.templateData = templateData;
+    this.updateBorders();
+  }
+  init() {
+    this._diagonalFill = this.templateData.diagonalFill;
+  }
+  buildBody() {
+    const body = this.templateData.body;
+    this._diffEditorContainer = this.templateData.diffEditorContainer;
+    body.classList.remove("left", "right", "full");
+    switch (this.style) {
+      case "left":
+        body.classList.add("left");
+        break;
+      case "right":
+        body.classList.add("right");
+        break;
+      default:
+        body.classList.add("full");
+        break;
+    }
+    this.styleContainer(this._diffEditorContainer);
+    this.updateSourceEditor();
+    if (this.configurationService.getValue("notebook.diff.ignoreMetadata")) {
+      this._disposeMetadata();
+    } else {
+      this._buildMetadata();
+    }
+    if (this.configurationService.getValue("notebook.diff.ignoreOutputs") || this.notebookEditor.textModel?.transientOptions.transientOutputs) {
+      this._disposeOutput();
+    } else {
+      this._buildOutput();
+    }
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      let metadataLayoutChange = false;
+      let outputLayoutChange = false;
+      if (e.affectsConfiguration("notebook.diff.ignoreMetadata")) {
+        this._metadataLocalDisposable.clear();
+        if (this.configurationService.getValue("notebook.diff.ignoreMetadata")) {
+          this._disposeMetadata();
+        } else {
+          this.cell.metadataStatusHeight = 25;
+          this._buildMetadata();
+          this.updateMetadataRendering();
+          metadataLayoutChange = true;
+        }
+      }
+      if (e.affectsConfiguration("notebook.diff.ignoreOutputs")) {
+        this._outputLocalDisposable.clear();
+        if (this.configurationService.getValue("notebook.diff.ignoreOutputs") || this.notebookEditor.textModel?.transientOptions.transientOutputs) {
+          this._disposeOutput();
+        } else {
+          this.cell.outputStatusHeight = 25;
+          this._buildOutput();
+          outputLayoutChange = true;
+        }
+      }
+      if (metadataLayoutChange || outputLayoutChange) {
+        this.layout({ metadataHeight: metadataLayoutChange, outputTotalHeight: outputLayoutChange });
+      }
+    }));
+  }
+  updateSourceEditor() {
+    this._cellHeaderContainer = this.templateData.cellHeaderContainer;
+    this._cellHeaderContainer.style.display = "flex";
+    this._cellHeaderContainer.innerText = "";
+    this._editorContainer = this.templateData.editorContainer;
+    this._editorContainer.classList.add("diff");
+    const renderSourceEditor = /* @__PURE__ */ __name(() => {
+      if (this.cell.cellFoldingState === PropertyFoldingState.Collapsed) {
+        this._editorContainer.style.display = "none";
+        this.cell.editorHeight = 0;
+        return;
+      }
+      const lineHeight = this.notebookEditor.getLayoutInfo().fontInfo.lineHeight || 17;
+      const editorHeight = this.cell.computeInputEditorHeight(lineHeight);
+      this._editorContainer.style.height = `${editorHeight}px`;
+      this._editorContainer.style.display = "block";
+      if (this._editor) {
+        const contentHeight = this._editor.getContentHeight();
+        if (contentHeight >= 0) {
+          this.cell.editorHeight = contentHeight;
+        }
+        return;
+      }
+      this._editor = this.templateData.sourceEditor;
+      this._editor.layout({
+        width: (this.notebookEditor.getLayoutInfo().width - 2 * DIFF_CELL_MARGIN) / 2 - 18,
+        height: editorHeight
+      });
+      this._editor.updateOptions({ readOnly: this.readonly });
+      this.cell.editorHeight = editorHeight;
+      this._register(this._editor.onDidContentSizeChange((e) => {
+        if (this.cell.cellFoldingState === PropertyFoldingState.Expanded && e.contentHeightChanged && this.cell.layoutInfo.editorHeight !== e.contentHeight) {
+          this.cell.editorHeight = e.contentHeight;
+        }
+      }));
+      this._initializeSourceDiffEditor(this.nestedCellViewModel);
+    }, "renderSourceEditor");
+    this._cellHeader = this._register(this.instantiationService.createInstance(PropertyHeader, this.cell, this._cellHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: /* @__PURE__ */ __name(() => renderSourceEditor(), "updateInfoRendering"),
+      checkIfModified: /* @__PURE__ */ __name(() => ({ reason: void 0 }), "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => this.cell.cellFoldingState, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => this.cell.cellFoldingState = state, "updateFoldingState"),
+      unChangedLabel: "Input",
+      changedLabel: "Input",
+      prefix: "input",
+      menuId: MenuId.NotebookDiffCellInputTitle
+    }));
+    this._cellHeader.buildHeader();
+    renderSourceEditor();
+    this._initializeSourceDiffEditor(this.nestedCellViewModel);
+  }
+  calculateDiagonalFillHeight() {
+    return this.cell.layoutInfo.cellStatusHeight + this.cell.layoutInfo.editorHeight + this.cell.layoutInfo.editorMargin + this.cell.layoutInfo.metadataStatusHeight + this.cell.layoutInfo.metadataHeight + this.cell.layoutInfo.outputTotalHeight + this.cell.layoutInfo.outputStatusHeight;
+  }
+  async _initializeSourceDiffEditor(modifiedCell) {
+    const modifiedRef = await this.textModelService.createModelReference(modifiedCell.uri);
+    if (this._isDisposed) {
+      return;
+    }
+    const modifiedTextModel = modifiedRef.object.textEditorModel;
+    this._register(modifiedRef);
+    this._editor.setModel(modifiedTextModel);
+    const editorViewState = this.cell.getSourceEditorViewState();
+    if (editorViewState) {
+      this._editor.restoreViewState(editorViewState);
+    }
+    const contentHeight = this._editor.getContentHeight();
+    this.cell.editorHeight = contentHeight;
+    const height = `${this.calculateDiagonalFillHeight()}px`;
+    if (this._diagonalFill.style.height !== height) {
+      this._diagonalFill.style.height = height;
+    }
+  }
+  _disposeMetadata() {
+    this.cell.metadataStatusHeight = 0;
+    this.cell.metadataHeight = 0;
+    this.templateData.cellHeaderContainer.style.display = "none";
+    this.templateData.metadataHeaderContainer.style.display = "none";
+    this.templateData.metadataInfoContainer.style.display = "none";
+    this._metadataEditor = void 0;
+  }
+  _buildMetadata() {
+    this._metadataHeaderContainer = this.templateData.metadataHeaderContainer;
+    this._metadataInfoContainer = this.templateData.metadataInfoContainer;
+    this._metadataHeaderContainer.style.display = "flex";
+    this._metadataInfoContainer.style.display = "block";
+    this._metadataHeaderContainer.innerText = "";
+    this._metadataInfoContainer.innerText = "";
+    this._metadataHeader = this.instantiationService.createInstance(PropertyHeader, this.cell, this._metadataHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: this.updateMetadataRendering.bind(this),
+      checkIfModified: /* @__PURE__ */ __name(() => {
+        return this.cell.checkMetadataIfModified();
+      }, "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => {
+        return this.cell.metadataFoldingState;
+      }, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => {
+        this.cell.metadataFoldingState = state;
+      }, "updateFoldingState"),
+      unChangedLabel: "Metadata",
+      changedLabel: "Metadata changed",
+      prefix: "metadata",
+      menuId: MenuId.NotebookDiffCellMetadataTitle
+    });
+    this._metadataLocalDisposable.add(this._metadataHeader);
+    this._metadataHeader.buildHeader();
+  }
+  _buildOutput() {
+    this.templateData.outputHeaderContainer.style.display = "flex";
+    this.templateData.outputInfoContainer.style.display = "block";
+    this._outputHeaderContainer = this.templateData.outputHeaderContainer;
+    this._outputInfoContainer = this.templateData.outputInfoContainer;
+    this._outputHeaderContainer.innerText = "";
+    this._outputInfoContainer.innerText = "";
+    this._outputHeader = this.instantiationService.createInstance(PropertyHeader, this.cell, this._outputHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: this.updateOutputRendering.bind(this),
+      checkIfModified: /* @__PURE__ */ __name(() => {
+        return this.cell.checkIfOutputsModified();
+      }, "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => {
+        return this.cell.outputFoldingState;
+      }, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => {
+        this.cell.outputFoldingState = state;
+      }, "updateFoldingState"),
+      unChangedLabel: "Outputs",
+      changedLabel: "Outputs changed",
+      prefix: "output",
+      menuId: MenuId.NotebookDiffCellOutputsTitle
+    });
+    this._outputLocalDisposable.add(this._outputHeader);
+    this._outputHeader.buildHeader();
+  }
+  _disposeOutput() {
+    this._hideOutputsRaw();
+    this._hideOutputsRenderer();
+    this._hideOutputsEmptyView();
+    this.cell.rawOutputHeight = 0;
+    this.cell.outputMetadataHeight = 0;
+    this.cell.outputStatusHeight = 0;
+    this.templateData.outputHeaderContainer.style.display = "none";
+    this.templateData.outputInfoContainer.style.display = "none";
+    this._outputViewContainer = void 0;
+  }
+}
+let DeletedElement = class DeletedElement2 extends SingleSideDiffElement {
+  static {
+    __name(this, "DeletedElement");
+  }
+  constructor(notebookEditor, cell, templateData, languageService, modelService, textModelService, instantiationService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService) {
+    super(notebookEditor, cell, templateData, "left", instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService);
+  }
+  get nestedCellViewModel() {
+    return this.cell.original;
+  }
+  get readonly() {
+    return true;
+  }
+  styleContainer(container) {
+    container.classList.remove("inserted");
+    container.classList.add("removed");
+  }
+  layout(state) {
+    DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this._diffEditorContainer), () => {
+      if ((state.editorHeight || state.outerWidth) && this._editor) {
+        this._editorContainer.style.height = `${this.cell.layoutInfo.editorHeight}px`;
+        this._editor.layout({
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, false),
+          height: this.cell.layoutInfo.editorHeight
+        });
+      }
+      if (state.outerWidth && this._editor) {
+        this._editorContainer.style.height = `${this.cell.layoutInfo.editorHeight}px`;
+        this._editor.layout();
+      }
+      if (state.metadataHeight || state.outerWidth) {
+        this._metadataEditor?.layout({
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, false),
+          height: this.cell.layoutInfo.metadataHeight
+        });
+      }
+      if (state.outputTotalHeight || state.outerWidth) {
+        this._outputEditor?.layout({
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, false),
+          height: this.cell.layoutInfo.outputTotalHeight
+        });
+      }
+      if (this._diagonalFill) {
+        this._diagonalFill.style.height = `${this.calculateDiagonalFillHeight()}px`;
+      }
+      this.layoutNotebookCell();
+    });
+  }
+  _buildOutputRendererContainer() {
+    if (!this._outputViewContainer) {
+      this._outputViewContainer = DOM.append(this._outputInfoContainer, DOM.$(".output-view-container"));
+      this._outputEmptyElement = DOM.append(this._outputViewContainer, DOM.$(".output-empty-view"));
+      const span = DOM.append(this._outputEmptyElement, DOM.$("span"));
+      span.innerText = "No outputs to render";
+      if (!this.cell.original?.outputs.length) {
+        this._outputEmptyElement.style.display = "block";
+      } else {
+        this._outputEmptyElement.style.display = "none";
+      }
+      this.cell.layoutChange();
+      this._outputLeftView = this.instantiationService.createInstance(OutputContainer, this.notebookEditor, this.notebookEditor.textModel, this.cell, this.cell.original, DiffSide.Original, this._outputViewContainer);
+      this._register(this._outputLeftView);
+      this._outputLeftView.render();
+      const removedOutputRenderListener = this.notebookEditor.onDidDynamicOutputRendered((e) => {
+        if (e.cell.uri.toString() === this.cell.original.uri.toString()) {
+          this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Original, this.cell.original.id, ["nb-cellDeleted"], []);
+          removedOutputRenderListener.dispose();
+        }
+      });
+      this._register(removedOutputRenderListener);
+    }
+    this._outputViewContainer.style.display = "block";
+  }
+  _decorate() {
+    this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Original, this.cell.original.id, ["nb-cellDeleted"], []);
+  }
+  _showOutputsRenderer() {
+    if (this._outputViewContainer) {
+      this._outputViewContainer.style.display = "block";
+      this._outputLeftView?.showOutputs();
+      this._decorate();
+    }
+  }
+  _hideOutputsRenderer() {
+    if (this._outputViewContainer) {
+      this._outputViewContainer.style.display = "none";
+      this._outputLeftView?.hideOutputs();
+    }
+  }
+  dispose() {
+    if (this._editor) {
+      this.cell.saveSpirceEditorViewState(this._editor.saveViewState());
+    }
+    super.dispose();
+  }
+};
+DeletedElement = __decorate([
+  __param(3, ILanguageService),
+  __param(4, IModelService),
+  __param(5, ITextModelService),
+  __param(6, IInstantiationService),
+  __param(7, IContextMenuService),
+  __param(8, IKeybindingService),
+  __param(9, INotificationService),
+  __param(10, IMenuService),
+  __param(11, IContextKeyService),
+  __param(12, IConfigurationService),
+  __param(13, ITextResourceConfigurationService)
+], DeletedElement);
+let InsertElement = class InsertElement2 extends SingleSideDiffElement {
+  static {
+    __name(this, "InsertElement");
+  }
+  constructor(notebookEditor, cell, templateData, instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService) {
+    super(notebookEditor, cell, templateData, "right", instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService);
+  }
+  get nestedCellViewModel() {
+    return this.cell.modified;
+  }
+  get readonly() {
+    return false;
+  }
+  styleContainer(container) {
+    container.classList.remove("removed");
+    container.classList.add("inserted");
+  }
+  _buildOutputRendererContainer() {
+    if (!this._outputViewContainer) {
+      this._outputViewContainer = DOM.append(this._outputInfoContainer, DOM.$(".output-view-container"));
+      this._outputEmptyElement = DOM.append(this._outputViewContainer, DOM.$(".output-empty-view"));
+      this._outputEmptyElement.innerText = "No outputs to render";
+      if (!this.cell.modified?.outputs.length) {
+        this._outputEmptyElement.style.display = "block";
+      } else {
+        this._outputEmptyElement.style.display = "none";
+      }
+      this.cell.layoutChange();
+      this._outputRightView = this.instantiationService.createInstance(OutputContainer, this.notebookEditor, this.notebookEditor.textModel, this.cell, this.cell.modified, DiffSide.Modified, this._outputViewContainer);
+      this._register(this._outputRightView);
+      this._outputRightView.render();
+      const insertOutputRenderListener = this.notebookEditor.onDidDynamicOutputRendered((e) => {
+        if (e.cell.uri.toString() === this.cell.modified.uri.toString()) {
+          this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Modified, this.cell.modified.id, ["nb-cellAdded"], []);
+          insertOutputRenderListener.dispose();
+        }
+      });
+      this._register(insertOutputRenderListener);
+    }
+    this._outputViewContainer.style.display = "block";
+  }
+  _decorate() {
+    this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Modified, this.cell.modified.id, ["nb-cellAdded"], []);
+  }
+  _showOutputsRenderer() {
+    if (this._outputViewContainer) {
+      this._outputViewContainer.style.display = "block";
+      this._outputRightView?.showOutputs();
+      this._decorate();
+    }
+  }
+  _hideOutputsRenderer() {
+    if (this._outputViewContainer) {
+      this._outputViewContainer.style.display = "none";
+      this._outputRightView?.hideOutputs();
+    }
+  }
+  layout(state) {
+    DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this._diffEditorContainer), () => {
+      if ((state.editorHeight || state.outerWidth) && this._editor) {
+        this._editorContainer.style.height = `${this.cell.layoutInfo.editorHeight}px`;
+        this._editor.layout({
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, false),
+          height: this.cell.layoutInfo.editorHeight
+        });
+      }
+      if (state.outerWidth && this._editor) {
+        this._editorContainer.style.height = `${this.cell.layoutInfo.editorHeight}px`;
+        this._editor.layout();
+      }
+      if (state.metadataHeight || state.outerWidth) {
+        this._metadataEditor?.layout({
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true),
+          height: this.cell.layoutInfo.metadataHeight
+        });
+      }
+      if (state.outputTotalHeight || state.outerWidth) {
+        this._outputEditor?.layout({
+          width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, false),
+          height: this.cell.layoutInfo.outputTotalHeight
+        });
+      }
+      this.layoutNotebookCell();
+      if (this._diagonalFill) {
+        this._diagonalFill.style.height = `${this.calculateDiagonalFillHeight()}px`;
+      }
+    });
+  }
+  dispose() {
+    if (this._editor) {
+      this.cell.saveSpirceEditorViewState(this._editor.saveViewState());
+    }
+    super.dispose();
+  }
+};
+InsertElement = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, ILanguageService),
+  __param(5, IModelService),
+  __param(6, ITextModelService),
+  __param(7, IContextMenuService),
+  __param(8, IKeybindingService),
+  __param(9, INotificationService),
+  __param(10, IMenuService),
+  __param(11, IContextKeyService),
+  __param(12, IConfigurationService),
+  __param(13, ITextResourceConfigurationService)
+], InsertElement);
+let ModifiedElement = class ModifiedElement2 extends AbstractElementRenderer {
+  static {
+    __name(this, "ModifiedElement");
+  }
+  constructor(notebookEditor, cell, templateData, instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService) {
+    super(notebookEditor, cell, templateData, "full", instantiationService, languageService, modelService, textModelService, contextMenuService, keybindingService, notificationService, menuService, contextKeyService, configurationService, textConfigurationService);
+    this.cell = cell;
+    this.templateData = templateData;
+    this._editorViewStateChanged = false;
+    this.updateBorders();
+  }
+  init() {
+  }
+  styleContainer(container) {
+    container.classList.remove("inserted", "removed");
+  }
+  buildBody() {
+    super.buildBody();
+    if (this.cell.displayIconToHideUnmodifiedCells) {
+      this._register(this.templateData.marginOverlay.onAction(() => this.cell.hideUnchangedCells()));
+      this.templateData.marginOverlay.show();
+    } else {
+      this.templateData.marginOverlay.hide();
+    }
+  }
+  _disposeMetadata() {
+    this.cell.metadataStatusHeight = 0;
+    this.cell.metadataHeight = 0;
+    this.templateData.metadataHeaderContainer.style.display = "none";
+    this.templateData.metadataInfoContainer.style.display = "none";
+    this._metadataEditor = void 0;
+  }
+  _buildMetadata() {
+    this._metadataHeaderContainer = this.templateData.metadataHeaderContainer;
+    this._metadataInfoContainer = this.templateData.metadataInfoContainer;
+    this._metadataHeaderContainer.style.display = "flex";
+    this._metadataInfoContainer.style.display = "block";
+    this._metadataHeaderContainer.innerText = "";
+    this._metadataInfoContainer.innerText = "";
+    this._metadataHeader = this.instantiationService.createInstance(PropertyHeader, this.cell, this._metadataHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: this.updateMetadataRendering.bind(this),
+      checkIfModified: /* @__PURE__ */ __name(() => {
+        return this.cell.checkMetadataIfModified();
+      }, "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => {
+        return this.cell.metadataFoldingState;
+      }, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => {
+        this.cell.metadataFoldingState = state;
+      }, "updateFoldingState"),
+      unChangedLabel: "Metadata",
+      changedLabel: "Metadata changed",
+      prefix: "metadata",
+      menuId: MenuId.NotebookDiffCellMetadataTitle
+    });
+    this._metadataLocalDisposable.add(this._metadataHeader);
+    this._metadataHeader.buildHeader();
+  }
+  _disposeOutput() {
+    this._hideOutputsRaw();
+    this._hideOutputsRenderer();
+    this._hideOutputsEmptyView();
+    this.cell.rawOutputHeight = 0;
+    this.cell.outputMetadataHeight = 0;
+    this.cell.outputStatusHeight = 0;
+    this.templateData.outputHeaderContainer.style.display = "none";
+    this.templateData.outputInfoContainer.style.display = "none";
+    this._outputViewContainer = void 0;
+  }
+  _buildOutput() {
+    this.templateData.outputHeaderContainer.style.display = "flex";
+    this.templateData.outputInfoContainer.style.display = "block";
+    this._outputHeaderContainer = this.templateData.outputHeaderContainer;
+    this._outputInfoContainer = this.templateData.outputInfoContainer;
+    this._outputHeaderContainer.innerText = "";
+    this._outputInfoContainer.innerText = "";
+    if (this.cell.checkIfOutputsModified()) {
+      this._outputInfoContainer.classList.add("modified");
+    } else {
+      this._outputInfoContainer.classList.remove("modified");
+    }
+    this._outputHeader = this.instantiationService.createInstance(PropertyHeader, this.cell, this._outputHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: this.updateOutputRendering.bind(this),
+      checkIfModified: /* @__PURE__ */ __name(() => {
+        return this.cell.checkIfOutputsModified();
+      }, "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => {
+        return this.cell.outputFoldingState;
+      }, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => {
+        this.cell.outputFoldingState = state;
+      }, "updateFoldingState"),
+      unChangedLabel: "Outputs",
+      changedLabel: "Outputs changed",
+      prefix: "output",
+      menuId: MenuId.NotebookDiffCellOutputsTitle
+    });
+    this._outputLocalDisposable.add(this._outputHeader);
+    this._outputHeader.buildHeader();
+  }
+  _buildOutputRendererContainer() {
+    if (!this._outputViewContainer) {
+      this._outputViewContainer = DOM.append(this._outputInfoContainer, DOM.$(".output-view-container"));
+      this._outputEmptyElement = DOM.append(this._outputViewContainer, DOM.$(".output-empty-view"));
+      this._outputEmptyElement.innerText = "No outputs to render";
+      if (!this.cell.checkIfOutputsModified() && this.cell.modified.outputs.length === 0) {
+        this._outputEmptyElement.style.display = "block";
+      } else {
+        this._outputEmptyElement.style.display = "none";
+      }
+      this.cell.layoutChange();
+      this._register(this.cell.modified.textModel.onDidChangeOutputs(() => {
+        if (!this.cell.checkIfOutputsModified() && this.cell.modified.outputs.length === 0) {
+          this._outputEmptyElement.style.display = "block";
+        } else {
+          this._outputEmptyElement.style.display = "none";
+        }
+        this._decorate();
+      }));
+      this._outputLeftContainer = DOM.append(this._outputViewContainer, DOM.$(".output-view-container-left"));
+      this._outputRightContainer = DOM.append(this._outputViewContainer, DOM.$(".output-view-container-right"));
+      this._outputMetadataContainer = DOM.append(this._outputViewContainer, DOM.$(".output-view-container-metadata"));
+      const outputModified = this.cell.checkIfOutputsModified();
+      const outputMetadataChangeOnly = outputModified && outputModified.kind === 1 && this.cell.original.outputs.length === 1 && this.cell.modified.outputs.length === 1 && outputEqual(this.cell.original.outputs[0], this.cell.modified.outputs[0]) === 1;
+      if (outputModified && !outputMetadataChangeOnly) {
+        const originalOutputRenderListener = this.notebookEditor.onDidDynamicOutputRendered((e) => {
+          if (e.cell.uri.toString() === this.cell.original.uri.toString() && this.cell.checkIfOutputsModified()) {
+            this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Original, this.cell.original.id, ["nb-cellDeleted"], []);
+            originalOutputRenderListener.dispose();
+          }
+        });
+        const modifiedOutputRenderListener = this.notebookEditor.onDidDynamicOutputRendered((e) => {
+          if (e.cell.uri.toString() === this.cell.modified.uri.toString() && this.cell.checkIfOutputsModified()) {
+            this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Modified, this.cell.modified.id, ["nb-cellAdded"], []);
+            modifiedOutputRenderListener.dispose();
+          }
+        });
+        this._register(originalOutputRenderListener);
+        this._register(modifiedOutputRenderListener);
+      }
+      this._outputLeftView = this.instantiationService.createInstance(OutputContainer, this.notebookEditor, this.notebookEditor.textModel, this.cell, this.cell.original, DiffSide.Original, this._outputLeftContainer);
+      this._outputLeftView.render();
+      this._register(this._outputLeftView);
+      this._outputRightView = this.instantiationService.createInstance(OutputContainer, this.notebookEditor, this.notebookEditor.textModel, this.cell, this.cell.modified, DiffSide.Modified, this._outputRightContainer);
+      this._outputRightView.render();
+      this._register(this._outputRightView);
+      if (outputModified && !outputMetadataChangeOnly) {
+        this._decorate();
+      }
+      if (outputMetadataChangeOnly) {
+        this._outputMetadataContainer.style.top = `${this.cell.layoutInfo.rawOutputHeight}px`;
+        this._outputMetadataEditor = this.instantiationService.createInstance(DiffEditorWidget, this._outputMetadataContainer, {
+          ...fixedDiffEditorOptions,
+          overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode(),
+          readOnly: true,
+          ignoreTrimWhitespace: false,
+          automaticLayout: false,
+          dimension: {
+            height: OUTPUT_EDITOR_HEIGHT_MAGIC,
+            width: this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true)
+          }
+        }, {
+          originalEditor: getOptimizedNestedCodeEditorWidgetOptions(),
+          modifiedEditor: getOptimizedNestedCodeEditorWidgetOptions()
+        });
+        this._register(this._outputMetadataEditor);
+        const originalOutputMetadataSource = JSON.stringify(this.cell.original.outputs[0].metadata ?? {}, void 0, "	");
+        const modifiedOutputMetadataSource = JSON.stringify(this.cell.modified.outputs[0].metadata ?? {}, void 0, "	");
+        const mode = this.languageService.createById("json");
+        const originalModel = this.modelService.createModel(originalOutputMetadataSource, mode, void 0, true);
+        const modifiedModel = this.modelService.createModel(modifiedOutputMetadataSource, mode, void 0, true);
+        this._outputMetadataEditor.setModel({
+          original: originalModel,
+          modified: modifiedModel
+        });
+        this.cell.outputMetadataHeight = this._outputMetadataEditor.getContentHeight();
+        this._register(this._outputMetadataEditor.onDidContentSizeChange((e) => {
+          this.cell.outputMetadataHeight = e.contentHeight;
+        }));
+      }
+    }
+    this._outputViewContainer.style.display = "block";
+  }
+  _decorate() {
+    if (this.cell.checkIfOutputsModified()) {
+      this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Original, this.cell.original.id, ["nb-cellDeleted"], []);
+      this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Modified, this.cell.modified.id, ["nb-cellAdded"], []);
+    } else {
+      this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Original, this.cell.original.id, [], ["nb-cellDeleted"]);
+      this.notebookEditor.deltaCellOutputContainerClassNames(DiffSide.Modified, this.cell.modified.id, [], ["nb-cellAdded"]);
+    }
+  }
+  _showOutputsRenderer() {
+    if (this._outputViewContainer) {
+      this._outputViewContainer.style.display = "block";
+      this._outputLeftView?.showOutputs();
+      this._outputRightView?.showOutputs();
+      this._outputMetadataEditor?.layout({
+        width: this._editor?.getViewWidth() || this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true),
+        height: this.cell.layoutInfo.outputMetadataHeight
+      });
+      this._decorate();
+    }
+  }
+  _hideOutputsRenderer() {
+    if (this._outputViewContainer) {
+      this._outputViewContainer.style.display = "none";
+      this._outputLeftView?.hideOutputs();
+      this._outputRightView?.hideOutputs();
+    }
+  }
+  updateSourceEditor() {
+    this._cellHeaderContainer = this.templateData.cellHeaderContainer;
+    this._cellHeaderContainer.style.display = "flex";
+    this._cellHeaderContainer.innerText = "";
+    const modifiedCell = this.cell.modified;
+    this._editorContainer = this.templateData.editorContainer;
+    this._editorContainer.classList.add("diff");
+    const renderSourceEditor = /* @__PURE__ */ __name(() => {
+      if (this.cell.cellFoldingState === PropertyFoldingState.Collapsed) {
+        this._editorContainer.style.display = "none";
+        this.cell.editorHeight = 0;
+        return;
+      }
+      const lineCount = modifiedCell.textModel.textBuffer.getLineCount();
+      const lineHeight = this.notebookEditor.getLayoutInfo().fontInfo.lineHeight || 17;
+      const editorHeight = this.cell.layoutInfo.editorHeight !== 0 ? this.cell.layoutInfo.editorHeight : this.cell.computeInputEditorHeight(lineHeight);
+      this._editorContainer.style.height = `${editorHeight}px`;
+      this._editorContainer.style.display = "block";
+      if (this._editor) {
+        const contentHeight = this._editor.getContentHeight();
+        if (contentHeight >= 0) {
+          this.cell.editorHeight = contentHeight;
+        }
+        return;
+      }
+      this._editor = this.templateData.sourceEditor;
+      const options = {
+        padding: getEditorPadding(lineCount)
+      };
+      const unchangedRegions = this._register(getUnchangedRegionSettings(this.configurationService));
+      if (unchangedRegions.options.enabled) {
+        options.hideUnchangedRegions = unchangedRegions.options;
+      }
+      this._editor.updateOptions(options);
+      this._register(unchangedRegions.onDidChangeEnablement(() => {
+        options.hideUnchangedRegions = unchangedRegions.options;
+        this._editor?.updateOptions(options);
+      }));
+      this._editor.layout({
+        width: this.notebookEditor.getLayoutInfo().width - 2 * DIFF_CELL_MARGIN,
+        height: editorHeight
+      });
+      this._register(this._editor.onDidContentSizeChange((e) => {
+        if (this.cell.cellFoldingState === PropertyFoldingState.Expanded && e.contentHeightChanged && this.cell.layoutInfo.editorHeight !== e.contentHeight) {
+          this.cell.editorHeight = e.contentHeight;
+        }
+      }));
+      this._initializeSourceDiffEditor();
+    }, "renderSourceEditor");
+    this._cellHeader = this._register(this.instantiationService.createInstance(PropertyHeader, this.cell, this._cellHeaderContainer, this.notebookEditor, {
+      updateInfoRendering: /* @__PURE__ */ __name(() => renderSourceEditor(), "updateInfoRendering"),
+      checkIfModified: /* @__PURE__ */ __name(() => {
+        return this.cell.modified?.textModel.getTextBufferHash() !== this.cell.original?.textModel.getTextBufferHash() ? { reason: void 0 } : false;
+      }, "checkIfModified"),
+      getFoldingState: /* @__PURE__ */ __name(() => this.cell.cellFoldingState, "getFoldingState"),
+      updateFoldingState: /* @__PURE__ */ __name((state) => this.cell.cellFoldingState = state, "updateFoldingState"),
+      unChangedLabel: "Input",
+      changedLabel: "Input changed",
+      prefix: "input",
+      menuId: MenuId.NotebookDiffCellInputTitle
+    }));
+    this._cellHeader.buildHeader();
+    renderSourceEditor();
+    const scopedContextKeyService = this.contextKeyService.createScoped(this.templateData.inputToolbarContainer);
+    this._register(scopedContextKeyService);
+    const inputChanged = NOTEBOOK_DIFF_CELL_INPUT.bindTo(scopedContextKeyService);
+    inputChanged.set(this.cell.modified.textModel.getTextBufferHash() !== this.cell.original.textModel.getTextBufferHash());
+    const ignoreWhitespace = NOTEBOOK_DIFF_CELL_IGNORE_WHITESPACE.bindTo(scopedContextKeyService);
+    const ignore = this.textConfigurationService.getValue(this.cell.modified.uri, "diffEditor.ignoreTrimWhitespace");
+    ignoreWhitespace.set(ignore);
+    this._toolbar = this.templateData.toolbar;
+    this._toolbar.context = this.cell;
+    const refreshToolbar = /* @__PURE__ */ __name(() => {
+      const ignore2 = this.textConfigurationService.getValue(this.cell.modified.uri, "diffEditor.ignoreTrimWhitespace");
+      ignoreWhitespace.set(ignore2);
+      const hasChanges = this.cell.modified.textModel.getTextBufferHash() !== this.cell.original.textModel.getTextBufferHash();
+      inputChanged.set(hasChanges);
+      if (hasChanges) {
+        const menu = this.menuService.getMenuActions(MenuId.NotebookDiffCellInputTitle, scopedContextKeyService, { shouldForwardArgs: true });
+        const actions = getFlatActionBarActions(menu);
+        this._toolbar.setActions(actions);
+      } else {
+        this._toolbar.setActions([]);
+      }
+    }, "refreshToolbar");
+    this._register(this.cell.modified.textModel.onDidChangeContent(() => refreshToolbar()));
+    this._register(this.textConfigurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(this.cell.modified.uri, "diffEditor") && e.affectedKeys.has("diffEditor.ignoreTrimWhitespace")) {
+        refreshToolbar();
+      }
+    }));
+    refreshToolbar();
+  }
+  async _initializeSourceDiffEditor() {
+    const [originalRef, modifiedRef] = await Promise.all([
+      this.textModelService.createModelReference(this.cell.original.uri),
+      this.textModelService.createModelReference(this.cell.modified.uri)
+    ]);
+    this._register(originalRef);
+    this._register(modifiedRef);
+    if (this._isDisposed) {
+      originalRef.dispose();
+      modifiedRef.dispose();
+      return;
+    }
+    const vm = this._register(this._editor.createViewModel({
+      original: originalRef.object.textEditorModel,
+      modified: modifiedRef.object.textEditorModel
+    }));
+    await vm.waitForDiff();
+    this._editor.setModel(vm);
+    const handleViewStateChange = /* @__PURE__ */ __name(() => {
+      this._editorViewStateChanged = true;
+    }, "handleViewStateChange");
+    const handleScrollChange = /* @__PURE__ */ __name((e) => {
+      if (e.scrollTopChanged || e.scrollLeftChanged) {
+        this._editorViewStateChanged = true;
+      }
+    }, "handleScrollChange");
+    this.updateEditorOptionsForWhitespace();
+    this._register(this._editor.getOriginalEditor().onDidChangeCursorSelection(handleViewStateChange));
+    this._register(this._editor.getOriginalEditor().onDidScrollChange(handleScrollChange));
+    this._register(this._editor.getModifiedEditor().onDidChangeCursorSelection(handleViewStateChange));
+    this._register(this._editor.getModifiedEditor().onDidScrollChange(handleScrollChange));
+    const editorViewState = this.cell.getSourceEditorViewState();
+    if (editorViewState) {
+      this._editor.restoreViewState(editorViewState);
+    }
+    const contentHeight = this._editor.getContentHeight();
+    this.cell.editorHeight = contentHeight;
+  }
+  updateEditorOptionsForWhitespace() {
+    const editor = this._editor;
+    if (!editor) {
+      return;
+    }
+    const uri = editor.getModel()?.modified.uri || editor.getModel()?.original.uri;
+    if (!uri) {
+      return;
+    }
+    const ignoreTrimWhitespace = this.textConfigurationService.getValue(uri, "diffEditor.ignoreTrimWhitespace");
+    editor.updateOptions({ ignoreTrimWhitespace });
+    this._register(this.textConfigurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(uri, "diffEditor") && e.affectedKeys.has("diffEditor.ignoreTrimWhitespace")) {
+        const ignoreTrimWhitespace2 = this.textConfigurationService.getValue(uri, "diffEditor.ignoreTrimWhitespace");
+        editor.updateOptions({ ignoreTrimWhitespace: ignoreTrimWhitespace2 });
+      }
+    }));
+  }
+  layout(state) {
+    DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this._diffEditorContainer), () => {
+      if (state.editorHeight && this._editor) {
+        this._editorContainer.style.height = `${this.cell.layoutInfo.editorHeight}px`;
+        this._editor.layout({
+          width: this._editor.getViewWidth(),
+          height: this.cell.layoutInfo.editorHeight
+        });
+      }
+      if (state.outerWidth && this._editor) {
+        this._editorContainer.style.height = `${this.cell.layoutInfo.editorHeight}px`;
+        this._editor.layout();
+      }
+      if (state.metadataHeight || state.outerWidth) {
+        if (this._metadataEditorContainer) {
+          this._metadataEditorContainer.style.height = `${this.cell.layoutInfo.metadataHeight}px`;
+          this._metadataEditor?.layout({
+            width: this._editor?.getViewWidth() || this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true),
+            height: this.cell.layoutInfo.metadataHeight
+          });
+        }
+      }
+      if (state.outputTotalHeight || state.outerWidth) {
+        if (this._outputEditorContainer) {
+          this._outputEditorContainer.style.height = `${this.cell.layoutInfo.outputTotalHeight}px`;
+          this._outputEditor?.layout({
+            width: this._editor?.getViewWidth() || this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true),
+            height: this.cell.layoutInfo.outputTotalHeight
+          });
+        }
+        if (this._outputMetadataContainer) {
+          this._outputMetadataContainer.style.height = `${this.cell.layoutInfo.outputMetadataHeight}px`;
+          this._outputMetadataContainer.style.top = `${this.cell.layoutInfo.outputTotalHeight - this.cell.layoutInfo.outputMetadataHeight}px`;
+          this._outputMetadataEditor?.layout({
+            width: this._editor?.getViewWidth() || this.cell.getComputedCellContainerWidth(this.notebookEditor.getLayoutInfo(), false, true),
+            height: this.cell.layoutInfo.outputMetadataHeight
+          });
+        }
+      }
+      this.layoutNotebookCell();
+    });
+  }
+  dispose() {
+    if (this._editor) {
+      this._editor.setModel(null);
+    }
+    if (this._editor && this._editorViewStateChanged) {
+      this.cell.saveSpirceEditorViewState(this._editor.saveViewState());
+    }
+    super.dispose();
+  }
+};
+ModifiedElement = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, ILanguageService),
+  __param(5, IModelService),
+  __param(6, ITextModelService),
+  __param(7, IContextMenuService),
+  __param(8, IKeybindingService),
+  __param(9, INotificationService),
+  __param(10, IMenuService),
+  __param(11, IContextKeyService),
+  __param(12, IConfigurationService),
+  __param(13, ITextResourceConfigurationService)
+], ModifiedElement);
+class CollapsedCellOverlayWidget extends Disposable {
+  static {
+    __name(this, "CollapsedCellOverlayWidget");
+  }
+  constructor(container) {
+    super();
+    this.container = container;
+    this._nodes = DOM.h("div.diff-hidden-cells", [
+      DOM.h("div.center@content", { style: { display: "flex" } }, [
+        DOM.$("a", {
+          title: localize("showUnchangedCells", "Show Unchanged Cells"),
+          role: "button",
+          onclick: /* @__PURE__ */ __name(() => {
+            this._action.fire();
+          }, "onclick")
+        }, ...renderLabelWithIcons("$(unfold)"))
+      ])
+    ]);
+    this._action = this._register(new Emitter());
+    this.onAction = this._action.event;
+    this._nodes.root.style.display = "none";
+    container.appendChild(this._nodes.root);
+  }
+  show() {
+    this._nodes.root.style.display = "block";
+  }
+  hide() {
+    this._nodes.root.style.display = "none";
+  }
+  dispose() {
+    this.hide();
+    this.container.removeChild(this._nodes.root);
+    DOM.reset(this._nodes.root);
+    super.dispose();
+  }
+}
+class UnchangedCellOverlayWidget extends Disposable {
+  static {
+    __name(this, "UnchangedCellOverlayWidget");
+  }
+  constructor(container) {
+    super();
+    this.container = container;
+    this._nodes = DOM.h("div.diff-hidden-cells", [
+      DOM.h("div.center@content", { style: { display: "flex" } }, [
+        DOM.$("a", {
+          title: localize("hideUnchangedCells", "Hide Unchanged Cells"),
+          role: "button",
+          onclick: /* @__PURE__ */ __name(() => {
+            this._action.fire();
+          }, "onclick")
+        }, ...renderLabelWithIcons("$(fold)"))
+      ])
+    ]);
+    this._action = this._register(new Emitter());
+    this.onAction = this._action.event;
+    this._nodes.root.style.display = "none";
+    container.appendChild(this._nodes.root);
+  }
+  show() {
+    this._nodes.root.style.display = "block";
+  }
+  hide() {
+    this._nodes.root.style.display = "none";
+  }
+  dispose() {
+    this.hide();
+    this.container.removeChild(this._nodes.root);
+    DOM.reset(this._nodes.root);
+    super.dispose();
+  }
+}
+export {
+  CellDiffPlaceholderElement,
+  CollapsedCellOverlayWidget,
+  DeletedElement,
+  InsertElement,
+  ModifiedElement,
+  NotebookDocumentMetadataElement,
+  UnchangedCellOverlayWidget,
+  getOptimizedNestedCodeEditorWidgetOptions
+};
+//# sourceMappingURL=diffComponents.js.map

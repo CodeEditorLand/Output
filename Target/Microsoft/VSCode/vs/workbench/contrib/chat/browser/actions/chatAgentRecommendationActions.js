@@ -1,1 +1,158 @@
-import{$bk as b}from"../../../../../base/common/codicons.js";import{$hi as g}from"../../../../../base/common/async.js";import{$Ed as x}from"../../../../../base/common/lifecycle.js";import{localize2 as C}from"../../../../../nls.js";import{$vL as v,$qL as y,$wL as R}from"../../../../../platform/actions/common/actions.js";import{$0n as _,$ro as D,$qo as P}from"../../../../../platform/contextkey/common/contextkey.js";import{$$z as I}from"../../../../../platform/extensionManagement/common/extensionManagement.js";import{$uo as A,$vo as m}from"../../../../../platform/commands/common/commands.js";import{$Vn as u}from"../../../../../platform/product/common/productService.js";import{$TZ as E}from"../../../../services/extensionManagement/common/extensionManagement.js";import{$HPb as S}from"./chatActions.js";import{$Iz as h}from"../../../../../platform/extensions/common/extensions.js";import{ChatAgentLocation as L}from"../../common/constants.js";import{$NV as N}from"../../common/chatService/chatService.js";var w=function(s,t,e,i){var n=arguments.length,o=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,t,e,i);else for(var a=s.length-1;a>=0;a--)(r=s[a])&&(o=(n<3?r(o):n>3?r(t,e,o):r(t,e))||o);return n>3&&o&&Object.defineProperty(t,e,o),o},c=function(s,t){return function(e,i){t(e,i,s)}};const j="chat.installRecommendationAvailable";let f=class extends x{static{this.ID="workbench.contrib.chatAgentRecommendation"}constructor(t,e,i,n){super(),this.c=t,this.f=e,this.g=i,this.h=n,this.a=new Map,this.b=0;const o=this.c.chatSessionRecommendations;if(!o?.length||!this.f.isEnabled())return;for(const a of o)this.j(a);const r=()=>this.m();this.D(this.g.onProfileAwareDidInstallExtensions(r)),this.D(this.g.onProfileAwareDidUninstallExtension(r)),this.D(this.g.onDidChangeProfile(r)),this.m()}j(t){const e=h.toKey(t.extensionId),i=`chat.installRecommendation.${e}.${t.name}`,n=`${j}.${e}`,o=new P(n,!1).bindTo(this.h);this.a.set(e,o);const r=C(5210,"New {0}",t.displayName);this.D(R(class extends v{constructor(){super({id:i,title:r,tooltip:t.description,f1:!1,category:S,icon:b.extensions,menu:[{id:y.ChatNewMenu,group:"4_recommendations",when:_.equals(n,!0)}]})}async run(a){const l=a.get(A),p=a.get(u),d=a.get(N),$=p.quality!=="stable";await l.executeCommand("workbench.extensions.installExtension",t.extensionId,{installPreReleaseVersion:$}),await q(l,d,t.postInstallCommand)}}))}m(){if(!this.a.size)return;const t=++this.b;this.g.getInstalled().then(e=>{if(t!==this.b)return;const i=new Set(e.map(n=>h.toKey(n.identifier.id)));for(const[n,o]of this.a)o.set(!i.has(n))},()=>{if(t===this.b)for(const[,e]of this.a)e.set(!1)})}};f=w([c(0,u),c(1,I),c(2,E),c(3,D)],f);async function q(s,t,e){if(e){await T(e),await t.activateDefaultAgent(L.Chat);try{await s.executeCommand(e)}catch{}}}function T(s){return m.getCommands().has(s)?Promise.resolve():new Promise(t=>{const e=new g,i=m.onDidRegisterCommand(n=>{n===s&&(i.dispose(),e.dispose(),t())});e.cancelAndSet(()=>{i.dispose(),t()},1e4)})}export{f as $2oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { TimeoutTimer } from "../../../../../base/common/async.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionGalleryService } from "../../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ICommandService, CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IWorkbenchExtensionManagementService } from "../../../../services/extensionManagement/common/extensionManagement.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
+import { ChatAgentLocation } from "../../common/constants.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+const INSTALL_CONTEXT_PREFIX = "chat.installRecommendationAvailable";
+let ChatAgentRecommendation = class ChatAgentRecommendation2 extends Disposable {
+  static {
+    __name(this, "ChatAgentRecommendation");
+  }
+  static {
+    this.ID = "workbench.contrib.chatAgentRecommendation";
+  }
+  constructor(productService, extensionGalleryService, extensionManagementService, contextKeyService) {
+    super();
+    this.productService = productService;
+    this.extensionGalleryService = extensionGalleryService;
+    this.extensionManagementService = extensionManagementService;
+    this.contextKeyService = contextKeyService;
+    this.availabilityContextKeys = /* @__PURE__ */ new Map();
+    this.refreshRequestId = 0;
+    const recommendations = this.productService.chatSessionRecommendations;
+    if (!recommendations?.length || !this.extensionGalleryService.isEnabled()) {
+      return;
+    }
+    for (const recommendation of recommendations) {
+      this.registerRecommendation(recommendation);
+    }
+    const refresh = /* @__PURE__ */ __name(() => this.refreshInstallAvailability(), "refresh");
+    this._register(this.extensionManagementService.onProfileAwareDidInstallExtensions(refresh));
+    this._register(this.extensionManagementService.onProfileAwareDidUninstallExtension(refresh));
+    this._register(this.extensionManagementService.onDidChangeProfile(refresh));
+    this.refreshInstallAvailability();
+  }
+  registerRecommendation(recommendation) {
+    const extensionKey = ExtensionIdentifier.toKey(recommendation.extensionId);
+    const commandId = `chat.installRecommendation.${extensionKey}.${recommendation.name}`;
+    const availabilityContextId = `${INSTALL_CONTEXT_PREFIX}.${extensionKey}`;
+    const availabilityContext = new RawContextKey(availabilityContextId, false).bindTo(this.contextKeyService);
+    this.availabilityContextKeys.set(extensionKey, availabilityContext);
+    const title = localize2("chat.installRecommendation", "New {0}", recommendation.displayName);
+    this._register(registerAction2(class extends Action2 {
+      constructor() {
+        super({
+          id: commandId,
+          title,
+          tooltip: recommendation.description,
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.extensions,
+          menu: [
+            {
+              id: MenuId.ChatNewMenu,
+              group: "4_recommendations",
+              when: ContextKeyExpr.equals(availabilityContextId, true)
+            }
+          ]
+        });
+      }
+      async run(accessor) {
+        const commandService = accessor.get(ICommandService);
+        const productService = accessor.get(IProductService);
+        const chatService = accessor.get(IChatService);
+        const installPreReleaseVersion = productService.quality !== "stable";
+        await commandService.executeCommand("workbench.extensions.installExtension", recommendation.extensionId, {
+          installPreReleaseVersion
+        });
+        await runPostInstallCommand(commandService, chatService, recommendation.postInstallCommand);
+      }
+    }));
+  }
+  refreshInstallAvailability() {
+    if (!this.availabilityContextKeys.size) {
+      return;
+    }
+    const currentRequest = ++this.refreshRequestId;
+    this.extensionManagementService.getInstalled().then((installedExtensions) => {
+      if (currentRequest !== this.refreshRequestId) {
+        return;
+      }
+      const installed = new Set(installedExtensions.map((ext) => ExtensionIdentifier.toKey(ext.identifier.id)));
+      for (const [extensionKey, context] of this.availabilityContextKeys) {
+        context.set(!installed.has(extensionKey));
+      }
+    }, () => {
+      if (currentRequest !== this.refreshRequestId) {
+        return;
+      }
+      for (const [, context] of this.availabilityContextKeys) {
+        context.set(false);
+      }
+    });
+  }
+};
+ChatAgentRecommendation = __decorate([
+  __param(0, IProductService),
+  __param(1, IExtensionGalleryService),
+  __param(2, IWorkbenchExtensionManagementService),
+  __param(3, IContextKeyService)
+], ChatAgentRecommendation);
+async function runPostInstallCommand(commandService, chatService, commandId) {
+  if (!commandId) {
+    return;
+  }
+  await waitForCommandRegistration(commandId);
+  await chatService.activateDefaultAgent(ChatAgentLocation.Chat);
+  try {
+    await commandService.executeCommand(commandId);
+  } catch {
+  }
+}
+__name(runPostInstallCommand, "runPostInstallCommand");
+function waitForCommandRegistration(commandId) {
+  if (CommandsRegistry.getCommands().has(commandId)) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    const timer = new TimeoutTimer();
+    const listener = CommandsRegistry.onDidRegisterCommand((id) => {
+      if (id === commandId) {
+        listener.dispose();
+        timer.dispose();
+        resolve();
+      }
+    });
+    timer.cancelAndSet(() => {
+      listener.dispose();
+      resolve();
+    }, 1e4);
+  });
+}
+__name(waitForCommandRegistration, "waitForCommandRegistration");
+export {
+  ChatAgentRecommendation
+};
+//# sourceMappingURL=chatAgentRecommendationActions.js.map

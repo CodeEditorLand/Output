@@ -1,1 +1,376 @@
-import{$R8 as w}from"../../../../base/browser/dom.js";import*as R from"../../../../base/browser/ui/aria/aria.js";import{$mb as F}from"../../../../base/common/errors.js";import{$6E as I}from"../../../../base/common/hierarchicalKind.js";import{$Rf as M}from"../../../../base/common/lazy.js";import{$Ed as P,$Fd as _}from"../../../../base/common/lifecycle.js";import{derived as q}from"../../../../base/common/observable.js";import{localize as C}from"../../../../nls.js";import{$jlb as N}from"../../../../platform/actionWidget/browser/actionWidget.js";import{$uo as k}from"../../../../platform/commands/common/commands.js";import{$0l as j}from"../../../../platform/configuration/common/configuration.js";import{$ro as B}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as v}from"../../../../platform/instantiation/common/instantiation.js";import{$iF as H}from"../../../../platform/markers/common/markers.js";import{$zH as y}from"../../../../platform/progress/common/progress.js";import{$cr as W,$gr as T}from"../../../../platform/theme/common/colorRegistry.js";import{$ou as V}from"../../../../platform/theme/common/theme.js";import{$xu as z}from"../../../../platform/theme/common/themeService.js";import{$$D as E}from"../../../common/core/position.js";import{$aL as K}from"../../../common/model/textModel.js";import{$uW as O}from"../../../common/services/languageFeatures.js";import{$Xkb as $}from"../../message/browser/messageController.js";import{$wlb as m,CodeActionTriggerSource as G}from"../common/types.js";import{ApplyCodeActionReason as A,$Klb as Q}from"./codeAction.js";import{$Llb as X}from"./codeActionKeybindingResolver.js";import{$hmb as J}from"./codeActionMenu.js";import{$kmb as U}from"./codeActionModel.js";import{$lmb as Y}from"./lightBulbWidget.js";var D=function(h,t,i,o){var e=arguments.length,r=e<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,i):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(h,t,i,o);else for(var f=h.length-1;f>=0;f--)(l=h[f])&&(r=(e<3?l(r):e>3?l(t,i,r):l(t,i))||r);return e>3&&r&&Object.defineProperty(t,i,r),r},d=function(h,t){return function(i,o){t(i,o,h)}},g;const Z="quickfix-edit-highlight";let L=class extends P{static{g=this}static{this.ID="editor.contrib.codeActionController"}static get(t){return t.getContribution(g.ID)}constructor(t,i,o,e,r,l,f,p,a,u,c){super(),this.m=f,this.n=p,this.q=a,this.r=u,this.s=c,this.f=this.D(new _),this.g=!1,this.j=!1,this.lightBulbState=q(this,n=>{const s=this.c.rawValue;if(s)return s.lightBulbInfo.read(n)}),this.a=t,this.b=this.D(new U(this.a,r.codeActionProvider,i,o,l,p)),this.D(this.b.onDidChangeState(n=>this.w(n))),this.c=new M(()=>{const n=this.a.getContribution(Y.ID);return n&&this.D(n.onClick(s=>this.t(s.actions,s))),n}),this.h=e.createInstance(X),this.D(this.a.onDidLayoutChange(()=>this.q.hide()))}dispose(){this.j=!0,super.dispose()}async t(t,i){if(t.allAIFixes&&t.validActions.length===1){const o=t.validActions[0],e=o.action.command;e&&e.id==="inlineChat.start"&&e.arguments&&e.arguments.length>=1&&e.arguments[0]&&(e.arguments[0]={...e.arguments[0],autoSend:!1}),await this.applyCodeAction(o,!1,!1,A.FromAILightbulb);return}await this.showCodeActionList(t,i,{includeDisabledActions:!1,fromLightbulb:!0})}showCodeActions(t,i,o){return this.showCodeActionList(i,o,{includeDisabledActions:!1,fromLightbulb:!1})}hideCodeActions(){this.q.hide()}manualTriggerAtCurrentPosition(t,i,o,e){if(!this.a.hasModel())return;$.get(this.a)?.closeMessage();const r=this.a.getPosition();this.u({type:1,triggerAction:i,filter:o,autoApply:e,context:{notAvailableMessage:t,position:r}})}u(t){return this.b.trigger(t)}async applyCodeAction(t,i,o,e){const r=this.s.show(!0,500);try{await this.r.invokeFunction(Q,t,e,{preview:o,editor:this.a})}finally{i&&this.u({type:2,triggerAction:G.QuickFix,filter:{}}),r.done()}}hideLightBulbWidget(){this.c.rawValue?.hide(),this.c.rawValue?.gutterHide()}async w(t){if(t.type!==1){this.hideLightBulbWidget();return}let i;try{i=await t.actions}catch(e){F(e);return}if(!(this.j||this.a.getSelection()?.startLineNumber!==t.position.lineNumber))if(this.c.value?.update(i,t.trigger,t.position),t.trigger.type===1){if(t.trigger.filter?.include){const r=this.C(t.trigger,i);if(r){try{this.hideLightBulbWidget(),await this.applyCodeAction(r,!1,!1,A.FromCodeActions)}finally{i.dispose()}return}if(t.trigger.context){const l=this.z(t.trigger,i);if(l&&l.action.disabled){$.get(this.a)?.showMessage(l.action.disabled,t.trigger.context.position),i.dispose();return}}}const e=!!t.trigger.filter?.include;if(t.trigger.context&&(!i.allActions.length||!e&&!i.validActions.length)){$.get(this.a)?.showMessage(t.trigger.context.notAvailableMessage,t.trigger.context.position),this.f.value=i,i.dispose();return}this.f.value=i,this.showCodeActionList(i,this.G(t.position),{includeDisabledActions:e,fromLightbulb:!1})}else this.q.isVisible?i.dispose():this.f.value=i}z(t,i){if(i.allActions.length&&(t.autoApply==="first"&&i.validActions.length===0||t.autoApply==="ifSingle"&&i.allActions.length===1))return i.allActions.find(({action:o})=>o.disabled)}C(t,i){if(i.validActions.length&&(t.autoApply==="first"&&i.validActions.length>0||t.autoApply==="ifSingle"&&i.validActions.length===1))return i.validActions[0]}static{this.F=K.register({description:"quickfix-highlight",className:Z})}async showCodeActionList(t,i,o){const e=this.a.createDecorationsCollection(),r=this.a.getDomNode();if(!r)return;const l=o.includeDisabledActions&&(this.g||t.validActions.length===0)?t.allActions:t.validActions;if(!l.length)return;const f=E.isIPosition(i)?this.G(i):i,p={onSelect:async(a,u)=>{this.applyCodeAction(a,!0,!!u,o.fromLightbulb?A.FromAILightbulb:A.FromCodeActions),this.q.hide(!1),e.clear()},onHide:a=>{this.a?.focus(),e.clear()},onHover:async(a,u)=>{if(u.isCancellationRequested)return;let c=!1;const n=a.action.kind;if(n){const s=new I(n);c=[m.RefactorExtract,m.RefactorInline,m.RefactorRewrite,m.RefactorMove,m.Source].some(x=>x.contains(s))}return{canPreview:c||!!a.action.edit?.edits.length}},onFocus:a=>{if(a&&a.action){const u=a.action.ranges,c=a.action.diagnostics;if(e.clear(),u&&u.length>0){const n=c&&c?.length>1?c.map(s=>({range:s,options:g.F})):u.map(s=>({range:s,options:g.F}));e.set(n)}else if(c&&c.length>0){const n=c.map(b=>({range:b,options:g.F}));e.set(n);const s=c[0];if(s.startLineNumber&&s.startColumn){const b=this.a.getModel()?.getWordAtPosition({lineNumber:s.startLineNumber,column:s.startColumn})?.word;R.$60(C(1027,null,b,s.startLineNumber,s.startColumn))}}}else e.clear()}};this.q.show("codeActionWidget",!0,J(l,this.H(),this.h.getResolver()),p,f,r,this.I(t,i,o))}G(t){if(!this.a.hasModel())return{x:0,y:0};this.a.revealPosition(t,1),this.a.render();const i=this.a.getScrolledVisiblePosition(t),o=w(this.a.getDomNode()),e=o.left+i.left,r=o.top+i.top+i.height;return{x:e,y:r}}H(){const t=this.a?.getModel();return this.n.getValue("editor.codeActionWidget.showHeaders",{resource:t?.uri})}I(t,i,o){if(o.fromLightbulb)return[];const e=t.documentation.map(r=>({id:r.id,label:r.title,tooltip:r.tooltip??"",class:void 0,enabled:!0,run:()=>this.m.executeCommand(r.id,...r.arguments??[])}));return o.includeDisabledActions&&t.validActions.length>0&&t.allActions.length!==t.validActions.length&&e.push(this.g?{id:"hideMoreActions",label:C(1028,null),enabled:!0,tooltip:"",class:void 0,run:()=>(this.g=!1,this.showCodeActionList(t,i,o))}:{id:"showMoreActions",label:C(1029,null),enabled:!0,tooltip:"",class:void 0,run:()=>(this.g=!0,this.showCodeActionList(t,i,o))}),e}};L=g=D([d(1,H),d(2,B),d(3,v),d(4,O),d(5,y),d(6,k),d(7,j),d(8,N),d(9,v),d(10,y)],L);z((h,t)=>{((e,r)=>{r&&t.addRule(`.monaco-editor ${e} { background-color: ${r}; }`)})(".quickfix-edit-highlight",h.getColor(W));const o=h.getColor(T);o&&t.addRule(`.monaco-editor .quickfix-edit-highlight { border: 1px ${V(h.type)?"dotted":"solid"} ${o}; box-sizing: border-box; }`)});export{L as $mmb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CodeActionController_1;
+import { getDomNodePagePosition } from "../../../../base/browser/dom.js";
+import * as aria from "../../../../base/browser/ui/aria/aria.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { derived } from "../../../../base/common/observable.js";
+import { localize } from "../../../../nls.js";
+import { IActionWidgetService } from "../../../../platform/actionWidget/browser/actionWidget.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMarkerService } from "../../../../platform/markers/common/markers.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import { editorFindMatchHighlight, editorFindMatchHighlightBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { isHighContrast } from "../../../../platform/theme/common/theme.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { Position } from "../../../common/core/position.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { MessageController } from "../../message/browser/messageController.js";
+import { CodeActionKind, CodeActionTriggerSource } from "../common/types.js";
+import { ApplyCodeActionReason, applyCodeAction } from "./codeAction.js";
+import { CodeActionKeybindingResolver } from "./codeActionKeybindingResolver.js";
+import { toMenuItems } from "./codeActionMenu.js";
+import { CodeActionModel } from "./codeActionModel.js";
+import { LightBulbWidget } from "./lightBulbWidget.js";
+const DECORATION_CLASS_NAME = "quickfix-edit-highlight";
+let CodeActionController = class CodeActionController2 extends Disposable {
+  static {
+    __name(this, "CodeActionController");
+  }
+  static {
+    CodeActionController_1 = this;
+  }
+  static {
+    this.ID = "editor.contrib.codeActionController";
+  }
+  static get(editor) {
+    return editor.getContribution(CodeActionController_1.ID);
+  }
+  constructor(editor, markerService, contextKeyService, instantiationService, languageFeaturesService, progressService, _commandService, _configurationService, _actionWidgetService, _instantiationService, _progressService) {
+    super();
+    this._commandService = _commandService;
+    this._configurationService = _configurationService;
+    this._actionWidgetService = _actionWidgetService;
+    this._instantiationService = _instantiationService;
+    this._progressService = _progressService;
+    this._activeCodeActions = this._register(new MutableDisposable());
+    this._showDisabled = false;
+    this._disposed = false;
+    this.lightBulbState = derived(this, (reader) => {
+      const widget = this._lightBulbWidget.rawValue;
+      if (!widget) {
+        return void 0;
+      }
+      return widget.lightBulbInfo.read(reader);
+    });
+    this._editor = editor;
+    this._model = this._register(new CodeActionModel(this._editor, languageFeaturesService.codeActionProvider, markerService, contextKeyService, progressService, _configurationService));
+    this._register(this._model.onDidChangeState((newState) => this.update(newState)));
+    this._lightBulbWidget = new Lazy(() => {
+      const widget = this._editor.getContribution(LightBulbWidget.ID);
+      if (widget) {
+        this._register(widget.onClick((e) => this.showCodeActionsFromLightbulb(e.actions, e)));
+      }
+      return widget;
+    });
+    this._resolver = instantiationService.createInstance(CodeActionKeybindingResolver);
+    this._register(this._editor.onDidLayoutChange(() => this._actionWidgetService.hide()));
+  }
+  dispose() {
+    this._disposed = true;
+    super.dispose();
+  }
+  async showCodeActionsFromLightbulb(actions, at) {
+    if (actions.allAIFixes && actions.validActions.length === 1) {
+      const actionItem = actions.validActions[0];
+      const command = actionItem.action.command;
+      if (command && command.id === "inlineChat.start") {
+        if (command.arguments && command.arguments.length >= 1 && command.arguments[0]) {
+          command.arguments[0] = { ...command.arguments[0], autoSend: false };
+        }
+      }
+      await this.applyCodeAction(actionItem, false, false, ApplyCodeActionReason.FromAILightbulb);
+      return;
+    }
+    await this.showCodeActionList(actions, at, { includeDisabledActions: false, fromLightbulb: true });
+  }
+  showCodeActions(_trigger, actions, at) {
+    return this.showCodeActionList(actions, at, { includeDisabledActions: false, fromLightbulb: false });
+  }
+  hideCodeActions() {
+    this._actionWidgetService.hide();
+  }
+  manualTriggerAtCurrentPosition(notAvailableMessage, triggerAction, filter, autoApply) {
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    MessageController.get(this._editor)?.closeMessage();
+    const triggerPosition = this._editor.getPosition();
+    this._trigger({ type: 1, triggerAction, filter, autoApply, context: { notAvailableMessage, position: triggerPosition } });
+  }
+  _trigger(trigger) {
+    return this._model.trigger(trigger);
+  }
+  async applyCodeAction(action, retrigger, preview, actionReason) {
+    const progress = this._progressService.show(true, 500);
+    try {
+      await this._instantiationService.invokeFunction(applyCodeAction, action, actionReason, { preview, editor: this._editor });
+    } finally {
+      if (retrigger) {
+        this._trigger({ type: 2, triggerAction: CodeActionTriggerSource.QuickFix, filter: {} });
+      }
+      progress.done();
+    }
+  }
+  hideLightBulbWidget() {
+    this._lightBulbWidget.rawValue?.hide();
+    this._lightBulbWidget.rawValue?.gutterHide();
+  }
+  async update(newState) {
+    if (newState.type !== 1) {
+      this.hideLightBulbWidget();
+      return;
+    }
+    let actions;
+    try {
+      actions = await newState.actions;
+    } catch (e) {
+      onUnexpectedError(e);
+      return;
+    }
+    if (this._disposed) {
+      return;
+    }
+    const selection = this._editor.getSelection();
+    if (selection?.startLineNumber !== newState.position.lineNumber) {
+      return;
+    }
+    this._lightBulbWidget.value?.update(actions, newState.trigger, newState.position);
+    if (newState.trigger.type === 1) {
+      if (newState.trigger.filter?.include) {
+        const validActionToApply = this.tryGetValidActionToApply(newState.trigger, actions);
+        if (validActionToApply) {
+          try {
+            this.hideLightBulbWidget();
+            await this.applyCodeAction(validActionToApply, false, false, ApplyCodeActionReason.FromCodeActions);
+          } finally {
+            actions.dispose();
+          }
+          return;
+        }
+        if (newState.trigger.context) {
+          const invalidAction = this.getInvalidActionThatWouldHaveBeenApplied(newState.trigger, actions);
+          if (invalidAction && invalidAction.action.disabled) {
+            MessageController.get(this._editor)?.showMessage(invalidAction.action.disabled, newState.trigger.context.position);
+            actions.dispose();
+            return;
+          }
+        }
+      }
+      const includeDisabledActions = !!newState.trigger.filter?.include;
+      if (newState.trigger.context) {
+        if (!actions.allActions.length || !includeDisabledActions && !actions.validActions.length) {
+          MessageController.get(this._editor)?.showMessage(newState.trigger.context.notAvailableMessage, newState.trigger.context.position);
+          this._activeCodeActions.value = actions;
+          actions.dispose();
+          return;
+        }
+      }
+      this._activeCodeActions.value = actions;
+      this.showCodeActionList(actions, this.toCoords(newState.position), { includeDisabledActions, fromLightbulb: false });
+    } else {
+      if (this._actionWidgetService.isVisible) {
+        actions.dispose();
+      } else {
+        this._activeCodeActions.value = actions;
+      }
+    }
+  }
+  getInvalidActionThatWouldHaveBeenApplied(trigger, actions) {
+    if (!actions.allActions.length) {
+      return void 0;
+    }
+    if (trigger.autoApply === "first" && actions.validActions.length === 0 || trigger.autoApply === "ifSingle" && actions.allActions.length === 1) {
+      return actions.allActions.find(({ action }) => action.disabled);
+    }
+    return void 0;
+  }
+  tryGetValidActionToApply(trigger, actions) {
+    if (!actions.validActions.length) {
+      return void 0;
+    }
+    if (trigger.autoApply === "first" && actions.validActions.length > 0 || trigger.autoApply === "ifSingle" && actions.validActions.length === 1) {
+      return actions.validActions[0];
+    }
+    return void 0;
+  }
+  static {
+    this.DECORATION = ModelDecorationOptions.register({
+      description: "quickfix-highlight",
+      className: DECORATION_CLASS_NAME
+    });
+  }
+  async showCodeActionList(actions, at, options) {
+    const currentDecorations = this._editor.createDecorationsCollection();
+    const editorDom = this._editor.getDomNode();
+    if (!editorDom) {
+      return;
+    }
+    const actionsToShow = options.includeDisabledActions && (this._showDisabled || actions.validActions.length === 0) ? actions.allActions : actions.validActions;
+    if (!actionsToShow.length) {
+      return;
+    }
+    const anchor = Position.isIPosition(at) ? this.toCoords(at) : at;
+    const delegate = {
+      onSelect: /* @__PURE__ */ __name(async (action, preview) => {
+        this.applyCodeAction(
+          action,
+          /* retrigger */
+          true,
+          !!preview,
+          options.fromLightbulb ? ApplyCodeActionReason.FromAILightbulb : ApplyCodeActionReason.FromCodeActions
+        );
+        this._actionWidgetService.hide(false);
+        currentDecorations.clear();
+      }, "onSelect"),
+      onHide: /* @__PURE__ */ __name((didCancel) => {
+        this._editor?.focus();
+        currentDecorations.clear();
+      }, "onHide"),
+      onHover: /* @__PURE__ */ __name(async (action, token) => {
+        if (token.isCancellationRequested) {
+          return;
+        }
+        let canPreview = false;
+        const actionKind = action.action.kind;
+        if (actionKind) {
+          const hierarchicalKind = new HierarchicalKind(actionKind);
+          const refactorKinds = [
+            CodeActionKind.RefactorExtract,
+            CodeActionKind.RefactorInline,
+            CodeActionKind.RefactorRewrite,
+            CodeActionKind.RefactorMove,
+            CodeActionKind.Source
+          ];
+          canPreview = refactorKinds.some((refactorKind) => refactorKind.contains(hierarchicalKind));
+        }
+        return { canPreview: canPreview || !!action.action.edit?.edits.length };
+      }, "onHover"),
+      onFocus: /* @__PURE__ */ __name((action) => {
+        if (action && action.action) {
+          const ranges = action.action.ranges;
+          const diagnostics = action.action.diagnostics;
+          currentDecorations.clear();
+          if (ranges && ranges.length > 0) {
+            const decorations = diagnostics && diagnostics?.length > 1 ? diagnostics.map((diagnostic) => ({ range: diagnostic, options: CodeActionController_1.DECORATION })) : ranges.map((range) => ({ range, options: CodeActionController_1.DECORATION }));
+            currentDecorations.set(decorations);
+          } else if (diagnostics && diagnostics.length > 0) {
+            const decorations = diagnostics.map((diagnostic2) => ({ range: diagnostic2, options: CodeActionController_1.DECORATION }));
+            currentDecorations.set(decorations);
+            const diagnostic = diagnostics[0];
+            if (diagnostic.startLineNumber && diagnostic.startColumn) {
+              const selectionText = this._editor.getModel()?.getWordAtPosition({ lineNumber: diagnostic.startLineNumber, column: diagnostic.startColumn })?.word;
+              aria.status(localize("editingNewSelection", "Context: {0} at line {1} and column {2}.", selectionText, diagnostic.startLineNumber, diagnostic.startColumn));
+            }
+          }
+        } else {
+          currentDecorations.clear();
+        }
+      }, "onFocus")
+    };
+    this._actionWidgetService.show("codeActionWidget", true, toMenuItems(actionsToShow, this._shouldShowHeaders(), this._resolver.getResolver()), delegate, anchor, editorDom, this._getActionBarActions(actions, at, options));
+  }
+  toCoords(position) {
+    if (!this._editor.hasModel()) {
+      return { x: 0, y: 0 };
+    }
+    this._editor.revealPosition(
+      position,
+      1
+      /* ScrollType.Immediate */
+    );
+    this._editor.render();
+    const cursorCoords = this._editor.getScrolledVisiblePosition(position);
+    const editorCoords = getDomNodePagePosition(this._editor.getDomNode());
+    const x = editorCoords.left + cursorCoords.left;
+    const y = editorCoords.top + cursorCoords.top + cursorCoords.height;
+    return { x, y };
+  }
+  _shouldShowHeaders() {
+    const model = this._editor?.getModel();
+    return this._configurationService.getValue("editor.codeActionWidget.showHeaders", { resource: model?.uri });
+  }
+  _getActionBarActions(actions, at, options) {
+    if (options.fromLightbulb) {
+      return [];
+    }
+    const resultActions = actions.documentation.map((command) => ({
+      id: command.id,
+      label: command.title,
+      tooltip: command.tooltip ?? "",
+      class: void 0,
+      enabled: true,
+      run: /* @__PURE__ */ __name(() => this._commandService.executeCommand(command.id, ...command.arguments ?? []), "run")
+    }));
+    if (options.includeDisabledActions && actions.validActions.length > 0 && actions.allActions.length !== actions.validActions.length) {
+      resultActions.push(this._showDisabled ? {
+        id: "hideMoreActions",
+        label: localize("hideMoreActions", "Hide Disabled"),
+        enabled: true,
+        tooltip: "",
+        class: void 0,
+        run: /* @__PURE__ */ __name(() => {
+          this._showDisabled = false;
+          return this.showCodeActionList(actions, at, options);
+        }, "run")
+      } : {
+        id: "showMoreActions",
+        label: localize("showMoreActions", "Show Disabled"),
+        enabled: true,
+        tooltip: "",
+        class: void 0,
+        run: /* @__PURE__ */ __name(() => {
+          this._showDisabled = true;
+          return this.showCodeActionList(actions, at, options);
+        }, "run")
+      });
+    }
+    return resultActions;
+  }
+};
+CodeActionController = CodeActionController_1 = __decorate([
+  __param(1, IMarkerService),
+  __param(2, IContextKeyService),
+  __param(3, IInstantiationService),
+  __param(4, ILanguageFeaturesService),
+  __param(5, IEditorProgressService),
+  __param(6, ICommandService),
+  __param(7, IConfigurationService),
+  __param(8, IActionWidgetService),
+  __param(9, IInstantiationService),
+  __param(10, IEditorProgressService)
+], CodeActionController);
+registerThemingParticipant((theme, collector) => {
+  const addBackgroundColorRule = /* @__PURE__ */ __name((selector, color) => {
+    if (color) {
+      collector.addRule(`.monaco-editor ${selector} { background-color: ${color}; }`);
+    }
+  }, "addBackgroundColorRule");
+  addBackgroundColorRule(".quickfix-edit-highlight", theme.getColor(editorFindMatchHighlight));
+  const findMatchHighlightBorder = theme.getColor(editorFindMatchHighlightBorder);
+  if (findMatchHighlightBorder) {
+    collector.addRule(`.monaco-editor .quickfix-edit-highlight { border: 1px ${isHighContrast(theme.type) ? "dotted" : "solid"} ${findMatchHighlightBorder}; box-sizing: border-box; }`);
+  }
+});
+export {
+  CodeActionController
+};
+//# sourceMappingURL=codeActionController.js.map

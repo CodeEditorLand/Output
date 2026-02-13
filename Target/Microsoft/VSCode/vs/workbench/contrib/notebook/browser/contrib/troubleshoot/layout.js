@@ -1,2 +1,345 @@
-import{$Ed as w,$Dd as c,$zd as C,$Cd as E}from"../../../../../../base/common/lifecycle.js";import{localize2 as u}from"../../../../../../nls.js";import{$to as f}from"../../../../../../platform/action/common/actionCommonCategories.js";import{$vL as y,$wL as b}from"../../../../../../platform/actions/common/actions.js";import{$FEb as x}from"../../notebookBrowser.js";import{$SGb as L}from"../../notebookEditorExtensions.js";import{$CDb as I}from"../../../common/notebookService.js";import{$BL as v}from"../../../../../services/editor/common/editorService.js";import{n as p}from"../../../../../../base/browser/dom.js";class g extends w{static{this.id="workbench.notebook.troubleshoot"}constructor(t){super(),this.h=t,this.a=this.D(new c),this.b=[],this.c=!1,this.f=[],this.D(this.h.onDidChangeModel(()=>{this.j()})),this.j()}toggle(){this.c=!this.c,this.j()}j(){this.a.clear(),this.b.forEach(t=>t.dispose()),this.b=[],this.t(),this.h.hasModel()&&this.c&&(this.u(),this.r(),this.q())}m(t,s){if(this.c){const e=this.h.getViewHeight(t)}}q(){if(this.h.hasModel()){for(let t=0;t<this.h.getLength();t++){const s=this.h.cellAt(t);this.s(s,t)}this.a.add(this.h.onDidChangeViewCells(t=>{const s=t.splices.reduce((e,[,,i])=>[...e,...i],[]);for(let e=0;e<s.length;e++){const i=this.h.getCellIndex(s[e]);i!==void 0&&this.s(s[e],i)}}))}}r(){if(!this.h.hasModel())return;const t=this.h.getLayoutInfo().listViewOffsetTop,s=this.h.scrollTop,e=p.div({style:{position:"absolute",top:"0",left:"0",width:"100%",height:"100%",pointerEvents:"none",zIndex:"1000"}},[p.div({style:{position:"absolute",top:`${t}px`,left:"0",width:"100%",height:"2px",backgroundColor:"rgba(0, 0, 255, 0.7)"}}),p.div({style:{position:"absolute",top:`${t}px`,left:"10px",backgroundColor:"rgba(0, 0, 255, 0.7)",color:"white",fontSize:"11px",fontWeight:"bold",padding:"2px 6px",borderRadius:"3px",whiteSpace:"nowrap",pointerEvents:"none",zIndex:"1001"}},[`ScrollTop: ${s}px`])]).keepUpdated(this.B);this.g=e.element,this.g&&this.h.getDomNode().appendChild(this.g),this.a.add(this.h.onDidScroll(()=>{const i=this.h.scrollTop,l=this.h.getLayoutInfo().listViewOffsetTop;if(this.g){const o=this.g.querySelector("div:nth-child(2)");o&&(o.textContent=`ScrollTop: ${i}px`,o.style.top=`${l}px`);const n=this.g.querySelector("div:first-child");n&&(n.style.top=`${l}px`)}}))}s(t,s){const e=document.createElement("div");e.style.position="absolute",e.style.top="0",e.style.left="0",e.style.width="100%",e.style.height="100%",e.style.pointerEvents="none",e.style.zIndex="1000";const i=document.createElement("div");i.style.position="absolute",i.style.top="0",i.style.left="0",i.style.width="100%",i.style.height="2px",i.style.backgroundColor="rgba(255, 0, 0, 0.7)",e.appendChild(i);const l=()=>{const h=t.textBuffer.getEOL()===`
-`?"LF":"CRLF";let r="";return t.layoutInfo.layoutState>0&&(r=`| AbsoluteTopOfElement: ${this.h.getAbsoluteTopOfElement(t)}px`),`cell #${s} (handle: ${t.handle}) ${r} | EOL: ${h}`},o=document.createElement("div");o.textContent=l(),o.style.position="absolute",o.style.top="0px",o.style.right="10px",o.style.backgroundColor="rgba(255, 0, 0, 0.5)",o.style.color="white",o.style.fontSize="11px",o.style.fontWeight="bold",o.style.padding="2px 6px",o.style.borderRadius="3px",o.style.whiteSpace="nowrap",o.style.pointerEvents="none",o.style.zIndex="1001",e.appendChild(o);let n;if(this.h.changeCellOverlays(h=>{n=h.addOverlay({cell:t,domNode:e})}),n){const h=()=>{o.textContent=l(),n&&this.h.changeCellOverlays(d=>{d.layoutOverlay(n)})},r=this.b[s];r.add(t.onDidChangeLayout(d=>{h()})),r.add(t.textBuffer.onDidChangeContent(()=>{h()})),t.textModel&&r.add(t.textModel.onDidChangeContent(()=>{h()})),r.add(this.h.onDidChangeLayout(()=>{h()})),r.add(E(()=>{this.h.changeCellOverlays(d=>{n&&d.removeOverlay(n)})}))}}t(){this.g&&(this.g.remove(),this.g=void 0)}u(){if(!this.h.hasModel())return;for(let e=0;e<this.h.getLength();e++){const i=this.h.cellAt(e),l=new c;this.b.push(l),l.add(i.onDidChangeLayout(o=>{this.m(i,o)}))}this.a.add(this.h.onDidChangeViewCells(e=>{[...e.splices].reverse().forEach(l=>{const[o,n,h]=l,r=this.b.splice(o,n,...h.map(d=>{const m=new c;return m.add(d.onDidChangeLayout($=>{this.m(d,$)})),m}));C(r)});const i=e.splices.reduce((l,[,,o])=>[...l,...o],[]);for(let l=0;l<i.length;l++){const o=this.h.getCellIndex(i[l]);o!==void 0&&this.s(i[l],o)}}));const t=this.h.getViewModel();let s=[];this.c&&(s=this.w()),this.f=t.deltaCellStatusBarItems(this.f,s)}w(){const t=[];for(let s=0;s<this.h.getLength();s++)t.push({handle:s,items:[{text:`index: ${s}`,alignment:1,priority:Number.MAX_SAFE_INTEGER}]});return t}dispose(){C(this.b),this.t(),this.a.clear(),super.dispose()}}L(g.id,g);b(class extends y{constructor(){super({id:"notebook.toggleLayoutTroubleshoot",title:u(10811,"Toggle Notebook Layout Troubleshoot"),category:f.Developer,f1:!0})}async run(a){const t=a.get(v),s=x(t.activeEditorPane);if(!s)return;s.getContribution(g.id)?.toggle()}});b(class extends y{constructor(){super({id:"notebook.inspectLayout",title:u(10812,"Inspect Notebook Layout"),category:f.Developer,f1:!0})}async run(a){const t=a.get(v),s=x(t.activeEditorPane);if(!(!s||!s.hasModel()))for(let e=0;e<s.getLength();e++){const i=s.cellAt(e)}}});b(class extends y{constructor(){super({id:"notebook.clearNotebookEdtitorTypeCache",title:u(10813,"Clear Notebook Editor Type Cache"),category:f.Developer,f1:!0})}async run(a){a.get(I).clearEditorCache()}});export{g as $Ilc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableStore, dispose, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../../nls.js";
+import { Categories } from "../../../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { INotebookService } from "../../../common/notebookService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { n } from "../../../../../../base/browser/dom.js";
+class TroubleshootController extends Disposable {
+  static {
+    __name(this, "TroubleshootController");
+  }
+  static {
+    this.id = "workbench.notebook.troubleshoot";
+  }
+  constructor(_notebookEditor) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._localStore = this._register(new DisposableStore());
+    this._cellDisposables = [];
+    this._enabled = false;
+    this._cellStatusItems = [];
+    this._register(this._notebookEditor.onDidChangeModel(() => {
+      this._update();
+    }));
+    this._update();
+  }
+  toggle() {
+    this._enabled = !this._enabled;
+    this._update();
+  }
+  _update() {
+    this._localStore.clear();
+    this._cellDisposables.forEach((d) => d.dispose());
+    this._cellDisposables = [];
+    this._removeNotebookOverlay();
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    if (this._enabled) {
+      this._updateListener();
+      this._createNotebookOverlay();
+      this._createCellOverlays();
+    }
+  }
+  _log(cell, e) {
+    if (this._enabled) {
+      const oldHeight = this._notebookEditor.getViewHeight(cell);
+      console.log(`cell#${cell.handle}`, e, `${oldHeight} -> ${cell.layoutInfo.totalHeight}`);
+    }
+  }
+  _createCellOverlays() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      const cell = this._notebookEditor.cellAt(i);
+      this._createCellOverlay(cell, i);
+    }
+    this._localStore.add(this._notebookEditor.onDidChangeViewCells((e) => {
+      const addedCells = e.splices.reduce((acc, [, , newCells]) => [...acc, ...newCells], []);
+      for (let i = 0; i < addedCells.length; i++) {
+        const cellIndex = this._notebookEditor.getCellIndex(addedCells[i]);
+        if (cellIndex !== void 0) {
+          this._createCellOverlay(addedCells[i], cellIndex);
+        }
+      }
+    }));
+  }
+  _createNotebookOverlay() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    const listViewTop = this._notebookEditor.getLayoutInfo().listViewOffsetTop;
+    const scrollTop = this._notebookEditor.scrollTop;
+    const overlay = n.div({
+      style: {
+        position: "absolute",
+        top: "0",
+        left: "0",
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: "1000"
+      }
+    }, [
+      // Top line
+      n.div({
+        style: {
+          position: "absolute",
+          top: `${listViewTop}px`,
+          left: "0",
+          width: "100%",
+          height: "2px",
+          backgroundColor: "rgba(0, 0, 255, 0.7)"
+        }
+      }),
+      // Text label for the notebook overlay
+      n.div({
+        style: {
+          position: "absolute",
+          top: `${listViewTop}px`,
+          left: "10px",
+          backgroundColor: "rgba(0, 0, 255, 0.7)",
+          color: "white",
+          fontSize: "11px",
+          fontWeight: "bold",
+          padding: "2px 6px",
+          borderRadius: "3px",
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+          zIndex: "1001"
+        }
+      }, [`ScrollTop: ${scrollTop}px`])
+    ]).keepUpdated(this._store);
+    this._notebookOverlayDomNode = overlay.element;
+    if (this._notebookOverlayDomNode) {
+      this._notebookEditor.getDomNode().appendChild(this._notebookOverlayDomNode);
+    }
+    this._localStore.add(this._notebookEditor.onDidScroll(() => {
+      const scrollTop2 = this._notebookEditor.scrollTop;
+      const listViewTop2 = this._notebookEditor.getLayoutInfo().listViewOffsetTop;
+      if (this._notebookOverlayDomNode) {
+        const labelElement = this._notebookOverlayDomNode.querySelector("div:nth-child(2)");
+        if (labelElement) {
+          labelElement.textContent = `ScrollTop: ${scrollTop2}px`;
+          labelElement.style.top = `${listViewTop2}px`;
+        }
+        const topLineElement = this._notebookOverlayDomNode.querySelector("div:first-child");
+        if (topLineElement) {
+          topLineElement.style.top = `${listViewTop2}px`;
+        }
+      }
+    }));
+  }
+  _createCellOverlay(cell, index) {
+    const overlayContainer = document.createElement("div");
+    overlayContainer.style.position = "absolute";
+    overlayContainer.style.top = "0";
+    overlayContainer.style.left = "0";
+    overlayContainer.style.width = "100%";
+    overlayContainer.style.height = "100%";
+    overlayContainer.style.pointerEvents = "none";
+    overlayContainer.style.zIndex = "1000";
+    const topLine = document.createElement("div");
+    topLine.style.position = "absolute";
+    topLine.style.top = "0";
+    topLine.style.left = "0";
+    topLine.style.width = "100%";
+    topLine.style.height = "2px";
+    topLine.style.backgroundColor = "rgba(255, 0, 0, 0.7)";
+    overlayContainer.appendChild(topLine);
+    const getLayoutInfo = /* @__PURE__ */ __name(() => {
+      const eol = cell.textBuffer.getEOL() === "\n" ? "LF" : "CRLF";
+      let scrollTop = "";
+      if (cell.layoutInfo.layoutState > 0) {
+        scrollTop = `| AbsoluteTopOfElement: ${this._notebookEditor.getAbsoluteTopOfElement(cell)}px`;
+      }
+      return `cell #${index} (handle: ${cell.handle}) ${scrollTop} | EOL: ${eol}`;
+    }, "getLayoutInfo");
+    const label = document.createElement("div");
+    label.textContent = getLayoutInfo();
+    label.style.position = "absolute";
+    label.style.top = "0px";
+    label.style.right = "10px";
+    label.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+    label.style.color = "white";
+    label.style.fontSize = "11px";
+    label.style.fontWeight = "bold";
+    label.style.padding = "2px 6px";
+    label.style.borderRadius = "3px";
+    label.style.whiteSpace = "nowrap";
+    label.style.pointerEvents = "none";
+    label.style.zIndex = "1001";
+    overlayContainer.appendChild(label);
+    let overlayId = void 0;
+    this._notebookEditor.changeCellOverlays((accessor) => {
+      overlayId = accessor.addOverlay({
+        cell,
+        domNode: overlayContainer
+      });
+    });
+    if (overlayId) {
+      const updateLayout = /* @__PURE__ */ __name(() => {
+        label.textContent = getLayoutInfo();
+        if (overlayId) {
+          this._notebookEditor.changeCellOverlays((accessor) => {
+            accessor.layoutOverlay(overlayId);
+          });
+        }
+      }, "updateLayout");
+      const disposables = this._cellDisposables[index];
+      disposables.add(cell.onDidChangeLayout((e) => {
+        updateLayout();
+      }));
+      disposables.add(cell.textBuffer.onDidChangeContent(() => {
+        updateLayout();
+      }));
+      if (cell.textModel) {
+        disposables.add(cell.textModel.onDidChangeContent(() => {
+          updateLayout();
+        }));
+      }
+      disposables.add(this._notebookEditor.onDidChangeLayout(() => {
+        updateLayout();
+      }));
+      disposables.add(toDisposable(() => {
+        this._notebookEditor.changeCellOverlays((accessor) => {
+          if (overlayId) {
+            accessor.removeOverlay(overlayId);
+          }
+        });
+      }));
+    }
+  }
+  _removeNotebookOverlay() {
+    if (this._notebookOverlayDomNode) {
+      this._notebookOverlayDomNode.remove();
+      this._notebookOverlayDomNode = void 0;
+    }
+  }
+  _updateListener() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      const cell = this._notebookEditor.cellAt(i);
+      const disposableStore = new DisposableStore();
+      this._cellDisposables.push(disposableStore);
+      disposableStore.add(cell.onDidChangeLayout((e) => {
+        this._log(cell, e);
+      }));
+    }
+    this._localStore.add(this._notebookEditor.onDidChangeViewCells((e) => {
+      [...e.splices].reverse().forEach((splice) => {
+        const [start, deleted, newCells] = splice;
+        const deletedCells = this._cellDisposables.splice(start, deleted, ...newCells.map((cell) => {
+          const disposableStore = new DisposableStore();
+          disposableStore.add(cell.onDidChangeLayout((e2) => {
+            this._log(cell, e2);
+          }));
+          return disposableStore;
+        }));
+        dispose(deletedCells);
+      });
+      const addedCells = e.splices.reduce((acc, [, , newCells]) => [...acc, ...newCells], []);
+      for (let i = 0; i < addedCells.length; i++) {
+        const cellIndex = this._notebookEditor.getCellIndex(addedCells[i]);
+        if (cellIndex !== void 0) {
+          this._createCellOverlay(addedCells[i], cellIndex);
+        }
+      }
+    }));
+    const vm = this._notebookEditor.getViewModel();
+    let items = [];
+    if (this._enabled) {
+      items = this._getItemsForCells();
+    }
+    this._cellStatusItems = vm.deltaCellStatusBarItems(this._cellStatusItems, items);
+  }
+  _getItemsForCells() {
+    const items = [];
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      items.push({
+        handle: i,
+        items: [
+          {
+            text: `index: ${i}`,
+            alignment: 1,
+            priority: Number.MAX_SAFE_INTEGER
+          }
+        ]
+      });
+    }
+    return items;
+  }
+  dispose() {
+    dispose(this._cellDisposables);
+    this._removeNotebookOverlay();
+    this._localStore.clear();
+    super.dispose();
+  }
+}
+registerNotebookContribution(TroubleshootController.id, TroubleshootController);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.toggleLayoutTroubleshoot",
+      title: localize2("workbench.notebook.toggleLayoutTroubleshoot", "Toggle Notebook Layout Troubleshoot"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor) {
+      return;
+    }
+    const controller = editor.getContribution(TroubleshootController.id);
+    controller?.toggle();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.inspectLayout",
+      title: localize2("workbench.notebook.inspectLayout", "Inspect Notebook Layout"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor || !editor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < editor.getLength(); i++) {
+      const cell = editor.cellAt(i);
+      console.log(`cell#${cell.handle}`, cell.layoutInfo);
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.clearNotebookEdtitorTypeCache",
+      title: localize2("workbench.notebook.clearNotebookEdtitorTypeCache", "Clear Notebook Editor Type Cache"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const notebookService = accessor.get(INotebookService);
+    notebookService.clearEditorCache();
+  }
+});
+export {
+  TroubleshootController
+};
+//# sourceMappingURL=layout.js.map

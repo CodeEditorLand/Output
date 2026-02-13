@@ -1,1 +1,627 @@
-import{$B8 as q}from"../../../../base/browser/dom.js";import{$T7 as J}from"../../../../base/browser/window.js";import{CancellationToken as tt}from"../../../../base/common/cancellation.js";import{Schemas as ot}from"../../../../base/common/network.js";import*as D from"../../../../base/common/performance.js";import{$x as m}from"../../../../base/common/platform.js";import*as u from"../../../../nls.js";import{$to as st}from"../../../../platform/action/common/actionCommonCategories.js";import{$vL as et,$wL as nt}from"../../../../platform/actions/common/actions.js";import{$uo as it}from"../../../../platform/commands/common/commands.js";import{$0l as v}from"../../../../platform/configuration/common/configuration.js";import{$Mp as rt}from"../../../../platform/dialogs/common/dialogs.js";import{$$z as at}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$vk as ct}from"../../../../platform/files/common/files.js";import{$WC as lt}from"../../../../platform/instantiation/common/extensions.js";import{$Mj as T}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as R}from"../../../../platform/log/common/log.js";import{$Xu as ht}from"../../../../platform/native/common/native.js";import{$pH as ft,NotificationPriority as z,Severity as p}from"../../../../platform/notification/common/notification.js";import{$EP as ut}from"../../../../platform/opener/common/opener.js";import{$Vn as mt}from"../../../../platform/product/common/productService.js";import{$eC as O,$hC as _,$iC as d}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$t7 as pt}from"../../../../platform/remote/common/remoteExtensionsScanner.js";import{$_u as dt,$av as xt}from"../../../../platform/remote/common/remoteHosts.js";import{$5o as j}from"../../../../platform/request/common/request.js";import{$pp as $t}from"../../../../platform/telemetry/common/telemetry.js";import{$Ml as yt}from"../../../../platform/workspace/common/workspace.js";import{$2H as wt}from"../../../../platform/workspace/common/workspaceTrust.js";import{$HP as I}from"../../environment/common/environmentService.js";import{$UZ as Z,$TZ as bt}from"../../extensionManagement/common/extensionManagement.js";import{$wNc as Et}from"../browser/webWorkerExtensionHost.js";import{$QNc as gt,$ZNc as vt,$SNc as Rt,$TNc as It,$RNc as Nt,$VNc as Ct,$XNc as Ht,$UNc as Pt}from"../common/abstractExtensionService.js";import{$h5b as kt}from"../common/extensionDevOptions.js";import{$xR as Dt,$yR as zt}from"../common/extensionHostKind.js";import{$RLb as _t}from"../common/extensionManifestPropertiesService.js";import{$MNc as jt}from"../common/extensionRunningLocationTracker.js";import{$PR as x,$NR as F,$UR as Ut,$MR as Tt}from"../common/extensions.js";import{$ONc as Ot}from"../common/extensionsProposedApi.js";import{$2Nc as Zt}from"../common/remoteExtensionHost.js";import{$lWc as Ft}from"./cachedExtensionScanner.js";import{$nWc as Wt}from"./localProcessExtensionHost.js";import{$gcb as W}from"../../host/browser/host.js";import{$WN as Mt}from"../../lifecycle/common/lifecycle.js";import{$4N as M}from"../../remote/common/remoteAgentService.js";import{$W9b as Lt}from"../../remote/common/remoteExplorerService.js";import{$Bi as St}from"../../../../base/common/async.js";var g=function(l,o,t,e){var s=arguments.length,r=s<3?o:e===null?e=Object.getOwnPropertyDescriptor(o,t):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,o,t,e);else for(var i=l.length-1;i>=0;i--)(n=l[i])&&(r=(s<3?n(r):s>3?n(o,t,r):n(o,t))||r);return s>3&&r&&Object.defineProperty(o,t,r),r},a=function(l,o){return function(t,e){o(t,e,l)}},y;let w=class extends gt{constructor(o,t,e,s,r,n,i,h,f,c,S,$,N,B,C,H,V,X,A,G,K,Q){const P=o.createInstance(Ot),k=o.createInstance(Ft),Y=new b(P,k,()=>this.Jb(),o,e,r,c,N,H,$);super({hasLocalProcess:!0,allowRemoteExtensionsInLocalWebWorker:!1},P,Y,new E(e,c,$),o,t,e,s,r,n,i,h,f,c,S,$,N,B,C,H,Q),this.Zb=V,this.$b=X,this.ac=A,this.bc=G,this.cc=K,this.Yb=new vt,this.Xb=k,C.when(2).then(()=>{q(J,()=>{this.mb()},50)})}async dc(){return this.Xb.scannedExtensions}Db(o,t,e){const s=[],r=this.getExtensionsStatus();for(const n of Object.keys(r)){const i=r[n];i.activationStarted&&o.containsExtension(i.id)&&s.push(i.id)}if(super.Db(o,t,e),o.kind===1){if(t===55){this.N.prompt(p.Error,u.localize(16245,null),[{label:u.localize(16246,null),run:()=>{this.M.invokeFunction(n=>{n.get(W).restart()})}}]);return}if(this.Gb(o),this.fc(t,e,s),this.Yb.registerCrash(),this.Yb.shouldAutomaticallyRestart())this.Z.info("Automatically restarting the extension host."),this.N.status(u.localize(16247,null),{hideAfter:5e3}),this.startExtensionHosts();else{const n=[];this.O.isBuilt?n.push({label:u.localize(16248,null),run:()=>{this.M.invokeFunction(i=>{i.get(it).executeCommand("extension.bisect.start")})}}):n.push({label:u.localize(16249,null),run:()=>this.Zb.openDevTools()}),n.push({label:u.localize(16250,null),run:()=>this.startExtensionHosts()}),this.O.isBuilt&&n.push({label:u.localize(16251,null),run:()=>{this.M.invokeFunction(i=>{i.get(ut).open("https://aka.ms/vscode-extension-bisect")})}}),this.N.prompt(p.Error,u.localize(16252,null),n)}}}fc(o,t,e){this.P.publicLog2("extensionHostCrash",{code:o,signal:t,extensionIds:e.map(s=>s.value)});for(const s of e)this.P.publicLog2("extensionHostCrashExtension",{code:o,signal:t,extensionId:s.value})}async Wb(o){if(o.indexOf("+")===-1){const{host:e,port:s}=xt(o);return{authority:{authority:o,connectTo:{type:0,host:e,port:s},connectionToken:void 0}}}return this.wb(1,o)}async hc(o,t){if(o.indexOf("+")===-1)return t;const s=this.eb(1);if(s.length===0)throw new Error("Cannot resolve canonical URI");const r=await Promise.all(s.map(n=>n.getCanonicalURI(o,t)));for(const n of r)if(n)return n;throw new Error(`Cannot get canonical URI because no extension is installed to resolve ${d(o)}`)}Ub(){return new St(o=>this.jc(o))}async jc(o){this.Xb.startScanningExtensions();const t=this.O.remoteAuthority;let e=null,s=[];if(t){this.cb._setCanonicalURIProvider(async c=>{if(c.scheme!==ot.vscodeRemote||c.authority!==t)return c;D.$V(`code/willGetCanonicalURI/${d(t)}`),m&&this.Z.info(`Invoking getCanonicalURI for authority ${d(t)}...`);try{return this.hc(t,c)}finally{D.$V(`code/didGetCanonicalURI/${d(t)}`),m&&this.Z.info(`getCanonicalURI returned for authority ${d(t)}.`)}}),m&&this.Z.info("Starting to wait on IWorkspaceTrustManagementService.workspaceResolved..."),await this.cc.workspaceResolved,m&&this.Z.info("Finished waiting on IWorkspaceTrustManagementService.workspaceResolved.");const n=(await this.dc()).filter(c=>Pt(c));n.length&&o.emitOne(new Nt(n));let i;try{i=await this.tb(t)}catch(c){return _.isNoResolverFound(c)?c.isHandled=await this.mc(t):_.isHandled(c),this.cb._setResolvedAuthorityError(t,c),this.kc(o)}this.cb._setResolvedAuthority(i.authority,i.options),this.ac.setTunnelInformation(i.tunnelInformation);const h=this.$.getConnection();if(h&&(this.D(h.onDidStateChange(async c=>{c.type===0&&this.cb._clearResolvedAuthority(t)})),this.D(h.onReconnecting(()=>this.ub()))),[e,s]=await Promise.all([this.$.getEnvironment(),this.ab.scanExtensions()]),!e)return this.N.notify({severity:p.Error,message:u.localize(16253,null)}),this.kc(o);const f=e.useHostProxy;this.D(this.X.onDidChangeConfiguration(c=>{c.affectsConfiguration("http.useLocalProxyConfiguration")&&j(this.X.getValue("http.useLocalProxyConfiguration"),f)})),j(this.X.getValue("http.useLocalProxyConfiguration"),f)}else this.cb._setCanonicalURIProvider(async r=>r);return this.kc(o,s)}async kc(o,t=[]){await this.cc.workspaceTrustInitialized,t.length&&o.emitOne(new It(t)),o.emitOne(new Rt(await this.dc()))}async Vb(o){await this.xb(),this.$.getConnection()?.dispose(),kt(this.O).isExtensionDevTestFromCli?(m&&this.Z.info(`Asking native host service to exit with code ${o}.`),this.Zb.exit(o)):this.Zb.closeWindow()}async mc(o){const t=dt(o),e=this.S.remoteExtensionTips?.[t];if(!e)return!1;const s=e.extensionId,n=(await this.dc()).filter(i=>i.identifier.value===s)[0];if(n){if(!Ht(this.Z,this.Q,n,!1)){const i=u.localize(16254,null,e.friendlyName);this.N.prompt(p.Info,i,[{label:u.localize(16255,null),run:async()=>{await this.Q.setEnablement([Ut(n)],12),await this.$b.reload()}}],{sticky:!0,priority:z.URGENT})}}else{const i=u.localize(16256,null,e.friendlyName);this.N.prompt(p.Info,i,[{label:u.localize(16257,null),run:async()=>{const[h]=await this.bc.getExtensions([{id:s}],tt.None);h?(await this.U.installFromGallery(h),await this.$b.reload()):this.N.error(u.localize(16258,null))}}],{sticky:!0,priority:z.URGENT})}return!0}};w=g([a(0,T),a(1,ft),a(2,I),a(3,$t),a(4,Z),a(5,ct),a(6,mt),a(7,bt),a(8,yt),a(9,v),a(10,_t),a(11,R),a(12,M),a(13,pt),a(14,Mt),a(15,O),a(16,ht),a(17,W),a(18,Lt),a(19,at),a(20,wt),a(21,rt)],w);let b=class{constructor(o,t,e,s,r,n,i,h,f,c){this.b=o,this.c=t,this.d=e,this.f=s,this.g=n,this.h=h,this.i=f,this.j=c,this.a=L(r,i)}createExtensionHost(o,t,e){switch(t.kind){case 1:{const s=e?2:1;return this.f.createInstance(Wt,t,s,this.l(o,e,t))}case 2:{if(this.a!==0){const s=this.a===2?3:2;return this.f.createInstance(Et,t,s,this.m(o,t))}return null}case 3:{const s=this.h.getConnection();return s?this.f.createInstance(Zt,t,this.n(o,s.remoteAuthority)):null}}}l(o,t,e){return{getInitData:async()=>{if(t){const s=await this.c.scannedExtensions;m&&this.j.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.scannedExtensions: ${s.map(f=>f.identifier.value).join(",")}`);const r=Ct(this.j,this.g,this.b,s,!0);m&&this.j.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.localExtensions: ${r.map(f=>f.identifier.value).join(",")}`);const n=o.computeRunningLocation(r,[],!1),i=jt(r,n,f=>e.equals(f)),h=new x(0,r,i.map(f=>f.identifier));return m&&this.j.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.myExtensions: ${i.map(f=>f.identifier.value).join(",")}`),{extensions:h}}else{const s=await this.d(),r=o.filterByRunningLocation(s.extensions,e);return{extensions:new x(s.versionId,s.extensions,r.map(i=>i.identifier))}}}}}m(o,t){return{getInitData:async()=>{const e=await this.d(),s=o.filterByRunningLocation(e.extensions,t);return{extensions:new x(e.versionId,e.extensions,s.map(n=>n.identifier))}}}}n(o,t){return{remoteAuthority:t,getInitData:async()=>{const e=await this.d(),s=await this.h.getEnvironment();if(!s)throw new Error("Cannot provide init data for remote extension host!");const r=o.filterByExtensionHostKind(e.extensions,3),n=new x(e.versionId,e.extensions,r.map(i=>i.identifier));return{connectionData:this.i.getConnectionData(t),pid:s.pid,appRoot:s.appRoot,extensionHostLogsPath:s.extensionHostLogsPath,globalStorageHome:s.globalStorageHome,workspaceStorageHome:s.workspaceStorageHome,extensions:n}}}}};b=g([a(3,T),a(4,I),a(5,Z),a(6,v),a(7,M),a(8,O),a(9,R)],b);function L(l,o){if(l.isExtensionDevelopment&&l.extensionDevelopmentKind?.some(t=>t==="web"))return 1;{const t=o.getValue(Tt);return t===!0?1:t==="auto"?2:0}}var U;(function(l){l[l.Disabled=0]="Disabled",l[l.Eager=1]="Eager",l[l.Lazy=2]="Lazy"})(U||(U={}));let E=y=class{constructor(o,t,e){this.c=e,this.a=!!o.remoteAuthority;const s=L(o,t);this.b=s!==0}pickExtensionHostKind(o,t,e,s,r){const n=y.pickExtensionHostKind(t,e,s,r,this.a,this.b);return this.c.trace(`pickRunningLocation for ${o.value}, extension kinds: [${t.join(", ")}], isInstalledLocally: ${e}, isInstalledRemotely: ${s}, preference: ${zt(r)} => ${Dt(n)}`),n}static pickExtensionHostKind(o,t,e,s,r,n){const i=[];for(const h of o){if(h==="ui"&&t){if(s===0||s===1)return 1;i.push(1)}if(h==="workspace"&&e){if(s===0||s===2)return 3;i.push(3)}if(h==="workspace"&&!r){if(s===0||s===1)return 1;i.push(1)}if(h==="web"&&t&&n){if(s===0||s===1)return 2;i.push(2)}}return i.length>0?i[0]:null}};E=y=g([a(0,I),a(1,v),a(2,R)],E);class Bt extends et{constructor(){super({id:"workbench.action.restartExtensionHost",title:u.localize2(16260,"Restart Extension Host"),category:st.Developer,f1:!0})}async run(o){const t=o.get(F);await t.stopExtensionHosts(u.localize(16259,null))&&t.startExtensionHosts()}}nt(Bt);lt(F,w,0);export{w as $oWc,E as $pWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NativeExtensionHostKindPicker_1;
+import { runWhenWindowIdle } from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Schemas } from "../../../../base/common/network.js";
+import * as performance from "../../../../base/common/performance.js";
+import { isCI } from "../../../../base/common/platform.js";
+import * as nls from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INotificationService, NotificationPriority, Severity } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRemoteAuthorityResolverService, RemoteAuthorityResolverError, getRemoteAuthorityPrefix } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IRemoteExtensionsScannerService } from "../../../../platform/remote/common/remoteExtensionsScanner.js";
+import { getRemoteName, parseAuthorityWithPort } from "../../../../platform/remote/common/remoteHosts.js";
+import { updateProxyConfigurationsScope } from "../../../../platform/request/common/request.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService } from "../../extensionManagement/common/extensionManagement.js";
+import { WebWorkerExtensionHost } from "../browser/webWorkerExtensionHost.js";
+import { AbstractExtensionService, ExtensionHostCrashTracker, LocalExtensions, RemoteExtensions, ResolverExtensions, checkEnabledAndProposedAPI, extensionIsEnabled, isResolverExtension } from "../common/abstractExtensionService.js";
+import { parseExtensionDevOptions } from "../common/extensionDevOptions.js";
+import { extensionHostKindToString, extensionRunningPreferenceToString } from "../common/extensionHostKind.js";
+import { IExtensionManifestPropertiesService } from "../common/extensionManifestPropertiesService.js";
+import { filterExtensionDescriptions } from "../common/extensionRunningLocationTracker.js";
+import { ExtensionHostExtensions, IExtensionService, toExtension, webWorkerExtHostConfig } from "../common/extensions.js";
+import { ExtensionsProposedApi } from "../common/extensionsProposedApi.js";
+import { RemoteExtensionHost } from "../common/remoteExtensionHost.js";
+import { CachedExtensionScanner } from "./cachedExtensionScanner.js";
+import { NativeLocalProcessExtensionHost } from "./localProcessExtensionHost.js";
+import { IHostService } from "../../host/browser/host.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IRemoteExplorerService } from "../../remote/common/remoteExplorerService.js";
+import { AsyncIterableProducer } from "../../../../base/common/async.js";
+let NativeExtensionService = class NativeExtensionService2 extends AbstractExtensionService {
+  static {
+    __name(this, "NativeExtensionService");
+  }
+  constructor(instantiationService, notificationService, environmentService, telemetryService, extensionEnablementService, fileService, productService, extensionManagementService, contextService, configurationService, extensionManifestPropertiesService, logService, remoteAgentService, remoteExtensionsScannerService, lifecycleService, remoteAuthorityResolverService, _nativeHostService, _hostService, _remoteExplorerService, _extensionGalleryService, _workspaceTrustManagementService, dialogService) {
+    const extensionsProposedApi = instantiationService.createInstance(ExtensionsProposedApi);
+    const extensionScanner = instantiationService.createInstance(CachedExtensionScanner);
+    const extensionHostFactory = new NativeExtensionHostFactory(extensionsProposedApi, extensionScanner, () => this._getExtensionRegistrySnapshotWhenReady(), instantiationService, environmentService, extensionEnablementService, configurationService, remoteAgentService, remoteAuthorityResolverService, logService);
+    super({ hasLocalProcess: true, allowRemoteExtensionsInLocalWebWorker: false }, extensionsProposedApi, extensionHostFactory, new NativeExtensionHostKindPicker(environmentService, configurationService, logService), instantiationService, notificationService, environmentService, telemetryService, extensionEnablementService, fileService, productService, extensionManagementService, contextService, configurationService, extensionManifestPropertiesService, logService, remoteAgentService, remoteExtensionsScannerService, lifecycleService, remoteAuthorityResolverService, dialogService);
+    this._nativeHostService = _nativeHostService;
+    this._hostService = _hostService;
+    this._remoteExplorerService = _remoteExplorerService;
+    this._extensionGalleryService = _extensionGalleryService;
+    this._workspaceTrustManagementService = _workspaceTrustManagementService;
+    this._localCrashTracker = new ExtensionHostCrashTracker();
+    this._extensionScanner = extensionScanner;
+    lifecycleService.when(
+      2
+      /* LifecyclePhase.Ready */
+    ).then(() => {
+      runWhenWindowIdle(
+        mainWindow,
+        () => {
+          this._initializeIfNeeded();
+        },
+        50
+        /*max delay*/
+      );
+    });
+  }
+  async _scanAllLocalExtensions() {
+    return this._extensionScanner.scannedExtensions;
+  }
+  _onExtensionHostCrashed(extensionHost, code, signal) {
+    const activatedExtensions = [];
+    const extensionsStatus = this.getExtensionsStatus();
+    for (const key of Object.keys(extensionsStatus)) {
+      const extensionStatus = extensionsStatus[key];
+      if (extensionStatus.activationStarted && extensionHost.containsExtension(extensionStatus.id)) {
+        activatedExtensions.push(extensionStatus.id);
+      }
+    }
+    super._onExtensionHostCrashed(extensionHost, code, signal);
+    if (extensionHost.kind === 1) {
+      if (code === 55) {
+        this._notificationService.prompt(Severity.Error, nls.localize("extensionService.versionMismatchCrash", "Extension host cannot start: version mismatch."), [{
+          label: nls.localize("relaunch", "Relaunch VS Code"),
+          run: /* @__PURE__ */ __name(() => {
+            this._instantiationService.invokeFunction((accessor) => {
+              const hostService = accessor.get(IHostService);
+              hostService.restart();
+            });
+          }, "run")
+        }]);
+        return;
+      }
+      this._logExtensionHostCrash(extensionHost);
+      this._sendExtensionHostCrashTelemetry(code, signal, activatedExtensions);
+      this._localCrashTracker.registerCrash();
+      if (this._localCrashTracker.shouldAutomaticallyRestart()) {
+        this._logService.info(`Automatically restarting the extension host.`);
+        this._notificationService.status(nls.localize("extensionService.autoRestart", "The extension host terminated unexpectedly. Restarting..."), { hideAfter: 5e3 });
+        this.startExtensionHosts();
+      } else {
+        const choices = [];
+        if (this._environmentService.isBuilt) {
+          choices.push({
+            label: nls.localize("startBisect", "Start Extension Bisect"),
+            run: /* @__PURE__ */ __name(() => {
+              this._instantiationService.invokeFunction((accessor) => {
+                const commandService = accessor.get(ICommandService);
+                commandService.executeCommand("extension.bisect.start");
+              });
+            }, "run")
+          });
+        } else {
+          choices.push({
+            label: nls.localize("devTools", "Open Developer Tools"),
+            run: /* @__PURE__ */ __name(() => this._nativeHostService.openDevTools(), "run")
+          });
+        }
+        choices.push({
+          label: nls.localize("restart", "Restart Extension Host"),
+          run: /* @__PURE__ */ __name(() => this.startExtensionHosts(), "run")
+        });
+        if (this._environmentService.isBuilt) {
+          choices.push({
+            label: nls.localize("learnMore", "Learn More"),
+            run: /* @__PURE__ */ __name(() => {
+              this._instantiationService.invokeFunction((accessor) => {
+                const openerService = accessor.get(IOpenerService);
+                openerService.open("https://aka.ms/vscode-extension-bisect");
+              });
+            }, "run")
+          });
+        }
+        this._notificationService.prompt(Severity.Error, nls.localize("extensionService.crash", "Extension host terminated unexpectedly 3 times within the last 5 minutes."), choices);
+      }
+    }
+  }
+  _sendExtensionHostCrashTelemetry(code, signal, activatedExtensions) {
+    this._telemetryService.publicLog2("extensionHostCrash", {
+      code,
+      signal,
+      extensionIds: activatedExtensions.map((e) => e.value)
+    });
+    for (const extensionId of activatedExtensions) {
+      this._telemetryService.publicLog2("extensionHostCrashExtension", {
+        code,
+        signal,
+        extensionId: extensionId.value
+      });
+    }
+  }
+  // --- impl
+  async _resolveAuthority(remoteAuthority) {
+    const authorityPlusIndex = remoteAuthority.indexOf("+");
+    if (authorityPlusIndex === -1) {
+      const { host, port } = parseAuthorityWithPort(remoteAuthority);
+      return {
+        authority: {
+          authority: remoteAuthority,
+          connectTo: {
+            type: 0,
+            host,
+            port
+          },
+          connectionToken: void 0
+        }
+      };
+    }
+    return this._resolveAuthorityOnExtensionHosts(1, remoteAuthority);
+  }
+  async _getCanonicalURI(remoteAuthority, uri) {
+    const authorityPlusIndex = remoteAuthority.indexOf("+");
+    if (authorityPlusIndex === -1) {
+      return uri;
+    }
+    const localProcessExtensionHosts = this._getExtensionHostManagers(
+      1
+      /* ExtensionHostKind.LocalProcess */
+    );
+    if (localProcessExtensionHosts.length === 0) {
+      throw new Error(`Cannot resolve canonical URI`);
+    }
+    const results = await Promise.all(localProcessExtensionHosts.map((extHost) => extHost.getCanonicalURI(remoteAuthority, uri)));
+    for (const result of results) {
+      if (result) {
+        return result;
+      }
+    }
+    throw new Error(`Cannot get canonical URI because no extension is installed to resolve ${getRemoteAuthorityPrefix(remoteAuthority)}`);
+  }
+  _resolveExtensions() {
+    return new AsyncIterableProducer((emitter) => this._doResolveExtensions(emitter));
+  }
+  async _doResolveExtensions(emitter) {
+    this._extensionScanner.startScanningExtensions();
+    const remoteAuthority = this._environmentService.remoteAuthority;
+    let remoteEnv = null;
+    let remoteExtensions = [];
+    if (remoteAuthority) {
+      this._remoteAuthorityResolverService._setCanonicalURIProvider(async (uri) => {
+        if (uri.scheme !== Schemas.vscodeRemote || uri.authority !== remoteAuthority) {
+          return uri;
+        }
+        performance.mark(`code/willGetCanonicalURI/${getRemoteAuthorityPrefix(remoteAuthority)}`);
+        if (isCI) {
+          this._logService.info(`Invoking getCanonicalURI for authority ${getRemoteAuthorityPrefix(remoteAuthority)}...`);
+        }
+        try {
+          return this._getCanonicalURI(remoteAuthority, uri);
+        } finally {
+          performance.mark(`code/didGetCanonicalURI/${getRemoteAuthorityPrefix(remoteAuthority)}`);
+          if (isCI) {
+            this._logService.info(`getCanonicalURI returned for authority ${getRemoteAuthorityPrefix(remoteAuthority)}.`);
+          }
+        }
+      });
+      if (isCI) {
+        this._logService.info(`Starting to wait on IWorkspaceTrustManagementService.workspaceResolved...`);
+      }
+      await this._workspaceTrustManagementService.workspaceResolved;
+      if (isCI) {
+        this._logService.info(`Finished waiting on IWorkspaceTrustManagementService.workspaceResolved.`);
+      }
+      const localExtensions = await this._scanAllLocalExtensions();
+      const resolverExtensions = localExtensions.filter((extension) => isResolverExtension(extension));
+      if (resolverExtensions.length) {
+        emitter.emitOne(new ResolverExtensions(resolverExtensions));
+      }
+      let resolverResult;
+      try {
+        resolverResult = await this._resolveAuthorityInitial(remoteAuthority);
+      } catch (err) {
+        if (RemoteAuthorityResolverError.isNoResolverFound(err)) {
+          err.isHandled = await this._handleNoResolverFound(remoteAuthority);
+        } else {
+          if (RemoteAuthorityResolverError.isHandled(err)) {
+            console.log(`Error handled: Not showing a notification for the error`);
+          }
+        }
+        this._remoteAuthorityResolverService._setResolvedAuthorityError(remoteAuthority, err);
+        return this._startLocalExtensionHost(emitter);
+      }
+      this._remoteAuthorityResolverService._setResolvedAuthority(resolverResult.authority, resolverResult.options);
+      this._remoteExplorerService.setTunnelInformation(resolverResult.tunnelInformation);
+      const connection = this._remoteAgentService.getConnection();
+      if (connection) {
+        this._register(connection.onDidStateChange(async (e) => {
+          if (e.type === 0) {
+            this._remoteAuthorityResolverService._clearResolvedAuthority(remoteAuthority);
+          }
+        }));
+        this._register(connection.onReconnecting(() => this._resolveAuthorityAgain()));
+      }
+      [remoteEnv, remoteExtensions] = await Promise.all([
+        this._remoteAgentService.getEnvironment(),
+        this._remoteExtensionsScannerService.scanExtensions()
+      ]);
+      if (!remoteEnv) {
+        this._notificationService.notify({ severity: Severity.Error, message: nls.localize("getEnvironmentFailure", "Could not fetch remote environment") });
+        return this._startLocalExtensionHost(emitter);
+      }
+      const useHostProxyDefault = remoteEnv.useHostProxy;
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("http.useLocalProxyConfiguration")) {
+          updateProxyConfigurationsScope(this._configurationService.getValue("http.useLocalProxyConfiguration"), useHostProxyDefault);
+        }
+      }));
+      updateProxyConfigurationsScope(this._configurationService.getValue("http.useLocalProxyConfiguration"), useHostProxyDefault);
+    } else {
+      this._remoteAuthorityResolverService._setCanonicalURIProvider(async (uri) => uri);
+    }
+    return this._startLocalExtensionHost(emitter, remoteExtensions);
+  }
+  async _startLocalExtensionHost(emitter, remoteExtensions = []) {
+    await this._workspaceTrustManagementService.workspaceTrustInitialized;
+    if (remoteExtensions.length) {
+      emitter.emitOne(new RemoteExtensions(remoteExtensions));
+    }
+    emitter.emitOne(new LocalExtensions(await this._scanAllLocalExtensions()));
+  }
+  async _onExtensionHostExit(code) {
+    await this._doStopExtensionHosts();
+    const connection = this._remoteAgentService.getConnection();
+    connection?.dispose();
+    if (parseExtensionDevOptions(this._environmentService).isExtensionDevTestFromCli) {
+      if (isCI) {
+        this._logService.info(`Asking native host service to exit with code ${code}.`);
+      }
+      this._nativeHostService.exit(code);
+    } else {
+      this._nativeHostService.closeWindow();
+    }
+  }
+  async _handleNoResolverFound(remoteAuthority) {
+    const remoteName = getRemoteName(remoteAuthority);
+    const recommendation = this._productService.remoteExtensionTips?.[remoteName];
+    if (!recommendation) {
+      return false;
+    }
+    const resolverExtensionId = recommendation.extensionId;
+    const allExtensions = await this._scanAllLocalExtensions();
+    const extension = allExtensions.filter((e) => e.identifier.value === resolverExtensionId)[0];
+    if (extension) {
+      if (!extensionIsEnabled(this._logService, this._extensionEnablementService, extension, false)) {
+        const message = nls.localize("enableResolver", "Extension '{0}' is required to open the remote window.\nOK to enable?", recommendation.friendlyName);
+        this._notificationService.prompt(Severity.Info, message, [{
+          label: nls.localize("enable", "Enable and Reload"),
+          run: /* @__PURE__ */ __name(async () => {
+            await this._extensionEnablementService.setEnablement(
+              [toExtension(extension)],
+              12
+              /* EnablementState.EnabledGlobally */
+            );
+            await this._hostService.reload();
+          }, "run")
+        }], {
+          sticky: true,
+          priority: NotificationPriority.URGENT
+        });
+      }
+    } else {
+      const message = nls.localize("installResolver", "Extension '{0}' is required to open the remote window.\nDo you want to install the extension?", recommendation.friendlyName);
+      this._notificationService.prompt(Severity.Info, message, [{
+        label: nls.localize("install", "Install and Reload"),
+        run: /* @__PURE__ */ __name(async () => {
+          const [galleryExtension] = await this._extensionGalleryService.getExtensions([{ id: resolverExtensionId }], CancellationToken.None);
+          if (galleryExtension) {
+            await this._extensionManagementService.installFromGallery(galleryExtension);
+            await this._hostService.reload();
+          } else {
+            this._notificationService.error(nls.localize("resolverExtensionNotFound", "`{0}` not found on marketplace"));
+          }
+        }, "run")
+      }], {
+        sticky: true,
+        priority: NotificationPriority.URGENT
+      });
+    }
+    return true;
+  }
+};
+NativeExtensionService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, INotificationService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, ITelemetryService),
+  __param(4, IWorkbenchExtensionEnablementService),
+  __param(5, IFileService),
+  __param(6, IProductService),
+  __param(7, IWorkbenchExtensionManagementService),
+  __param(8, IWorkspaceContextService),
+  __param(9, IConfigurationService),
+  __param(10, IExtensionManifestPropertiesService),
+  __param(11, ILogService),
+  __param(12, IRemoteAgentService),
+  __param(13, IRemoteExtensionsScannerService),
+  __param(14, ILifecycleService),
+  __param(15, IRemoteAuthorityResolverService),
+  __param(16, INativeHostService),
+  __param(17, IHostService),
+  __param(18, IRemoteExplorerService),
+  __param(19, IExtensionGalleryService),
+  __param(20, IWorkspaceTrustManagementService),
+  __param(21, IDialogService)
+], NativeExtensionService);
+let NativeExtensionHostFactory = class NativeExtensionHostFactory2 {
+  static {
+    __name(this, "NativeExtensionHostFactory");
+  }
+  constructor(_extensionsProposedApi, _extensionScanner, _getExtensionRegistrySnapshotWhenReady, _instantiationService, environmentService, _extensionEnablementService, configurationService, _remoteAgentService, _remoteAuthorityResolverService, _logService) {
+    this._extensionsProposedApi = _extensionsProposedApi;
+    this._extensionScanner = _extensionScanner;
+    this._getExtensionRegistrySnapshotWhenReady = _getExtensionRegistrySnapshotWhenReady;
+    this._instantiationService = _instantiationService;
+    this._extensionEnablementService = _extensionEnablementService;
+    this._remoteAgentService = _remoteAgentService;
+    this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
+    this._logService = _logService;
+    this._webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(environmentService, configurationService);
+  }
+  createExtensionHost(runningLocations, runningLocation, isInitialStart) {
+    switch (runningLocation.kind) {
+      case 1: {
+        const startup = isInitialStart ? 2 : 1;
+        return this._instantiationService.createInstance(NativeLocalProcessExtensionHost, runningLocation, startup, this._createLocalProcessExtensionHostDataProvider(runningLocations, isInitialStart, runningLocation));
+      }
+      case 2: {
+        if (this._webWorkerExtHostEnablement !== 0) {
+          const startup = this._webWorkerExtHostEnablement === 2 ? 3 : 2;
+          return this._instantiationService.createInstance(WebWorkerExtensionHost, runningLocation, startup, this._createWebWorkerExtensionHostDataProvider(runningLocations, runningLocation));
+        }
+        return null;
+      }
+      case 3: {
+        const remoteAgentConnection = this._remoteAgentService.getConnection();
+        if (remoteAgentConnection) {
+          return this._instantiationService.createInstance(RemoteExtensionHost, runningLocation, this._createRemoteExtensionHostDataProvider(runningLocations, remoteAgentConnection.remoteAuthority));
+        }
+        return null;
+      }
+    }
+  }
+  _createLocalProcessExtensionHostDataProvider(runningLocations, isInitialStart, desiredRunningLocation) {
+    return {
+      getInitData: /* @__PURE__ */ __name(async () => {
+        if (isInitialStart) {
+          const scannedExtensions = await this._extensionScanner.scannedExtensions;
+          if (isCI) {
+            this._logService.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.scannedExtensions: ${scannedExtensions.map((ext) => ext.identifier.value).join(",")}`);
+          }
+          const localExtensions = checkEnabledAndProposedAPI(
+            this._logService,
+            this._extensionEnablementService,
+            this._extensionsProposedApi,
+            scannedExtensions,
+            /* ignore workspace trust */
+            true
+          );
+          if (isCI) {
+            this._logService.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.localExtensions: ${localExtensions.map((ext) => ext.identifier.value).join(",")}`);
+          }
+          const runningLocation = runningLocations.computeRunningLocation(localExtensions, [], false);
+          const myExtensions = filterExtensionDescriptions(localExtensions, runningLocation, (extRunningLocation) => desiredRunningLocation.equals(extRunningLocation));
+          const extensions = new ExtensionHostExtensions(0, localExtensions, myExtensions.map((extension) => extension.identifier));
+          if (isCI) {
+            this._logService.info(`NativeExtensionHostFactory._createLocalProcessExtensionHostDataProvider.myExtensions: ${myExtensions.map((ext) => ext.identifier.value).join(",")}`);
+          }
+          return { extensions };
+        } else {
+          const snapshot = await this._getExtensionRegistrySnapshotWhenReady();
+          const myExtensions = runningLocations.filterByRunningLocation(snapshot.extensions, desiredRunningLocation);
+          const extensions = new ExtensionHostExtensions(snapshot.versionId, snapshot.extensions, myExtensions.map((extension) => extension.identifier));
+          return { extensions };
+        }
+      }, "getInitData")
+    };
+  }
+  _createWebWorkerExtensionHostDataProvider(runningLocations, desiredRunningLocation) {
+    return {
+      getInitData: /* @__PURE__ */ __name(async () => {
+        const snapshot = await this._getExtensionRegistrySnapshotWhenReady();
+        const myExtensions = runningLocations.filterByRunningLocation(snapshot.extensions, desiredRunningLocation);
+        const extensions = new ExtensionHostExtensions(snapshot.versionId, snapshot.extensions, myExtensions.map((extension) => extension.identifier));
+        return { extensions };
+      }, "getInitData")
+    };
+  }
+  _createRemoteExtensionHostDataProvider(runningLocations, remoteAuthority) {
+    return {
+      remoteAuthority,
+      getInitData: /* @__PURE__ */ __name(async () => {
+        const snapshot = await this._getExtensionRegistrySnapshotWhenReady();
+        const remoteEnv = await this._remoteAgentService.getEnvironment();
+        if (!remoteEnv) {
+          throw new Error("Cannot provide init data for remote extension host!");
+        }
+        const myExtensions = runningLocations.filterByExtensionHostKind(
+          snapshot.extensions,
+          3
+          /* ExtensionHostKind.Remote */
+        );
+        const extensions = new ExtensionHostExtensions(snapshot.versionId, snapshot.extensions, myExtensions.map((extension) => extension.identifier));
+        return {
+          connectionData: this._remoteAuthorityResolverService.getConnectionData(remoteAuthority),
+          pid: remoteEnv.pid,
+          appRoot: remoteEnv.appRoot,
+          extensionHostLogsPath: remoteEnv.extensionHostLogsPath,
+          globalStorageHome: remoteEnv.globalStorageHome,
+          workspaceStorageHome: remoteEnv.workspaceStorageHome,
+          extensions
+        };
+      }, "getInitData")
+    };
+  }
+};
+NativeExtensionHostFactory = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, IWorkbenchEnvironmentService),
+  __param(5, IWorkbenchExtensionEnablementService),
+  __param(6, IConfigurationService),
+  __param(7, IRemoteAgentService),
+  __param(8, IRemoteAuthorityResolverService),
+  __param(9, ILogService)
+], NativeExtensionHostFactory);
+function determineLocalWebWorkerExtHostEnablement(environmentService, configurationService) {
+  if (environmentService.isExtensionDevelopment && environmentService.extensionDevelopmentKind?.some((k) => k === "web")) {
+    return 1;
+  } else {
+    const config = configurationService.getValue(webWorkerExtHostConfig);
+    if (config === true) {
+      return 1;
+    } else if (config === "auto") {
+      return 2;
+    } else {
+      return 0;
+    }
+  }
+}
+__name(determineLocalWebWorkerExtHostEnablement, "determineLocalWebWorkerExtHostEnablement");
+var LocalWebWorkerExtHostEnablement;
+(function(LocalWebWorkerExtHostEnablement2) {
+  LocalWebWorkerExtHostEnablement2[LocalWebWorkerExtHostEnablement2["Disabled"] = 0] = "Disabled";
+  LocalWebWorkerExtHostEnablement2[LocalWebWorkerExtHostEnablement2["Eager"] = 1] = "Eager";
+  LocalWebWorkerExtHostEnablement2[LocalWebWorkerExtHostEnablement2["Lazy"] = 2] = "Lazy";
+})(LocalWebWorkerExtHostEnablement || (LocalWebWorkerExtHostEnablement = {}));
+let NativeExtensionHostKindPicker = NativeExtensionHostKindPicker_1 = class NativeExtensionHostKindPicker2 {
+  static {
+    __name(this, "NativeExtensionHostKindPicker");
+  }
+  constructor(environmentService, configurationService, _logService) {
+    this._logService = _logService;
+    this._hasRemoteExtHost = Boolean(environmentService.remoteAuthority);
+    const webWorkerExtHostEnablement = determineLocalWebWorkerExtHostEnablement(environmentService, configurationService);
+    this._hasWebWorkerExtHost = webWorkerExtHostEnablement !== 0;
+  }
+  pickExtensionHostKind(extensionId, extensionKinds, isInstalledLocally, isInstalledRemotely, preference) {
+    const result = NativeExtensionHostKindPicker_1.pickExtensionHostKind(extensionKinds, isInstalledLocally, isInstalledRemotely, preference, this._hasRemoteExtHost, this._hasWebWorkerExtHost);
+    this._logService.trace(`pickRunningLocation for ${extensionId.value}, extension kinds: [${extensionKinds.join(", ")}], isInstalledLocally: ${isInstalledLocally}, isInstalledRemotely: ${isInstalledRemotely}, preference: ${extensionRunningPreferenceToString(preference)} => ${extensionHostKindToString(result)}`);
+    return result;
+  }
+  static pickExtensionHostKind(extensionKinds, isInstalledLocally, isInstalledRemotely, preference, hasRemoteExtHost, hasWebWorkerExtHost) {
+    const result = [];
+    for (const extensionKind of extensionKinds) {
+      if (extensionKind === "ui" && isInstalledLocally) {
+        if (preference === 0 || preference === 1) {
+          return 1;
+        } else {
+          result.push(
+            1
+            /* ExtensionHostKind.LocalProcess */
+          );
+        }
+      }
+      if (extensionKind === "workspace" && isInstalledRemotely) {
+        if (preference === 0 || preference === 2) {
+          return 3;
+        } else {
+          result.push(
+            3
+            /* ExtensionHostKind.Remote */
+          );
+        }
+      }
+      if (extensionKind === "workspace" && !hasRemoteExtHost) {
+        if (preference === 0 || preference === 1) {
+          return 1;
+        } else {
+          result.push(
+            1
+            /* ExtensionHostKind.LocalProcess */
+          );
+        }
+      }
+      if (extensionKind === "web" && isInstalledLocally && hasWebWorkerExtHost) {
+        if (preference === 0 || preference === 1) {
+          return 2;
+        } else {
+          result.push(
+            2
+            /* ExtensionHostKind.LocalWebWorker */
+          );
+        }
+      }
+    }
+    return result.length > 0 ? result[0] : null;
+  }
+};
+NativeExtensionHostKindPicker = NativeExtensionHostKindPicker_1 = __decorate([
+  __param(0, IWorkbenchEnvironmentService),
+  __param(1, IConfigurationService),
+  __param(2, ILogService)
+], NativeExtensionHostKindPicker);
+class RestartExtensionHostAction extends Action2 {
+  static {
+    __name(this, "RestartExtensionHostAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.restartExtensionHost",
+      title: nls.localize2("restartExtensionHost", "Restart Extension Host"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const extensionService = accessor.get(IExtensionService);
+    const stopped = await extensionService.stopExtensionHosts(nls.localize("restartExtensionHost.reason", "An explicit request"));
+    if (stopped) {
+      extensionService.startExtensionHosts();
+    }
+  }
+}
+registerAction2(RestartExtensionHostAction);
+registerSingleton(
+  IExtensionService,
+  NativeExtensionService,
+  0
+  /* InstantiationType.Eager */
+);
+export {
+  NativeExtensionHostKindPicker,
+  NativeExtensionService
+};
+//# sourceMappingURL=nativeExtensionService.js.map

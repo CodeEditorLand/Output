@@ -1,1 +1,13 @@
-import{$wL as m}from"../../../../platform/actions/common/actions.js";import{$WC as o}from"../../../../platform/instantiation/common/extensions.js";import{$SDb as r}from"../browser/webview.js";import*as i from"./webviewCommands.js";import{$lXc as f}from"./webviewService.js";o(r,f,1);m(i.$iXc);
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWebviewService } from "../browser/webview.js";
+import * as webviewCommands from "./webviewCommands.js";
+import { ElectronWebviewService } from "./webviewService.js";
+registerSingleton(
+  IWebviewService,
+  ElectronWebviewService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerAction2(webviewCommands.OpenWebviewDeveloperToolsAction);
+//# sourceMappingURL=webview.contribution.js.map

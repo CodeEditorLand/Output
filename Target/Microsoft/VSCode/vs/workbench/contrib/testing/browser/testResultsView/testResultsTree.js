@@ -1,3 +1,774 @@
-import*as v from"../../../../../base/browser/dom.js";import{$w0 as ce}from"../../../../../base/browser/ui/actionbar/actionbar.js";import{$G0 as de}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Fm as g,$Gm as he,$Hm as me}from"../../../../../base/common/actions.js";import{$ji as fe}from"../../../../../base/common/async.js";import{$bk as y}from"../../../../../base/common/codicons.js";import{$xf as W,Event as P}from"../../../../../base/common/event.js";import{Iterable as E}from"../../../../../base/common/iterator.js";import{$Ed as ge,$Dd as U}from"../../../../../base/common/lifecycle.js";import{autorun as pe}from"../../../../../base/common/observable.js";import{$1f as Ce}from"../../../../../base/common/strings.js";import{ThemeIcon as f}from"../../../../../base/common/themables.js";import{$dd as $e}from"../../../../../base/common/types.js";import{localize as u}from"../../../../../nls.js";import{$$jb as ke,$0jb as we}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$rL as be,$qL as te,$uL as xe}from"../../../../../platform/actions/common/actions.js";import{$uo as ve}from"../../../../../platform/commands/common/commands.js";import{$ro as Ie}from"../../../../../platform/contextkey/common/contextkey.js";import{$ijb as Re}from"../../../../../platform/contextview/browser/contextView.js";import{$Mj as ae}from"../../../../../platform/instantiation/common/instantiation.js";import{$bsb as Te}from"../../../../../platform/list/browser/listService.js";import{$uH as ye}from"../../../../../platform/progress/common/progress.js";import{$pp as Ee}from"../../../../../platform/telemetry/common/telemetry.js";import{$ju as Pe}from"../../../../../platform/theme/common/iconRegistry.js";import{$BL as De}from"../../../../services/editor/common/editorService.js";import{$Iuc as Ne}from"../../common/testCoverageService.js";import{$Kuc as Oe}from"../../common/testExplorerFilterState.js";import{$zX as Le}from"../../common/testId.js";import{$m0b as je}from"../../common/testProfileService.js";import{$5X as V,$4X as Ae}from"../../common/testResult.js";import{$v0b as Fe}from"../../common/testResultService.js";import{InternalTestItem as Se,$AX as _e}from"../../common/testTypes.js";import{TestingContextKeys as L}from"../../common/testingContextKeys.js";import{$OX as Be,$LX as se}from"../../common/testingStates.js";import{$Tuc as Me}from"../../common/testingUri.js";import{$7vc as Ue}from"../explorerProjections/testItemContextOverlay.js";import*as $ from"../icons.js";import{$_vc as Xe}from"../testMessageColorizer.js";import{$dwc as ie,$ewc as j,$fwc as A,$bwc as qe,$hwc as ze}from"./testResultsSubject.js";var z=function(c,e,s,n){var l=arguments.length,a=l<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,s):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(c,e,s,n);else for(var d=c.length-1;d>=0;d--)(o=c[d])&&(a=(l<3?o(a):l>3?o(e,s,a):o(e,s))||a);return l>3&&a&&Object.defineProperty(e,s,a),a},w=function(c,e){return function(s,n){e(s,n,c)}},M;function G(c,e){return{testRunName:e.name,controllerId:e.ctrlId,resultId:c,taskId:e.id}}class X{get icon(){return $.$Uvc.get(this.value.completedAt===void 0?2:Ae(this.value.counts))}constructor(e){this.value=e,this.changeEmitter=new W,this.onDidChange=this.changeEmitter.event,this.type="result",this.id=e.id,this.context=e.id,this.label=e.name}}const We=u(14371,null),Ve=u(14372,null);class ne{get label(){return this.isOpen?Ve:We}get icon(){return this.isOpen?Pe:$.$Rvc}get isOpen(){return this.d.selected.get()?.fromTaskId===this.task.id}constructor(e,s,n){this.task=s,this.d=n,this.type="coverage",this.id=`coverage-${e.id}/${s.id}`,this.onDidChange=P.fromObservableLight(n.selected)}}class oe{constructor(e){this.d=e,this.type="older",this.onDidChange=P.None,this.label=e===1?u(14373,null):u(14374,null,e),this.id=`older-${this.d}`}}class I{get onDidChange(){return this.results instanceof V?P.filter(this.results.onChange,e=>e.item.item.extId===this.test.item.extId&&e.reason!==2):P.None}get state(){return this.test.tasks[this.taskIndex].state}get label(){return this.test.item.label}get labelWithIcons(){return de(this.label)}get icon(){return $.$Uvc.get(this.state)}get outputSubject(){return new A(this.results,this.taskIndex,this.test)}constructor(e,s,n){this.results=e,this.test=s,this.taskIndex=n,this.type="test",this.id=`${e.id}/${s.item.extId}`;const l=Le.fromString(s.item.extId).parentId;if(l){this.description="";for(const a of l.idsToRoot()){if(a.isRoot)break;const o=e.getStateById(a.toString());if(!o)break;this.description.length&&(this.description+=" \u2039 "),this.description+=o.item.label}}this.context=new H([{$mid:16,tests:[Se.serialize(s)]},G(e.id,e.tasks[this.taskIndex])])}}class N{get icon(){return this.results.tasks[this.index].running?$.$Uvc.get(2):void 0}constructor(e,s,n){this.results=e,this.task=s,this.index=n,this.changeEmitter=new W,this.onDidChange=this.changeEmitter.event,this.type="task",this.itemsCache=new le,this.id=`${e.id}/${n}`,this.task=e.tasks[n],this.context=G(e.id,this.task),this.label=this.task.name}}class D{get onDidChange(){return this.result instanceof V?P.filter(this.result.onChange,e=>e.item.item.extId===this.test.item.extId&&e.reason!==2):P.None}get context(){return new H([qe(this.test,this.message),G(this.result.id,this.result.tasks[this.taskIndex])])}get outputSubject(){return new A(this.result,this.taskIndex,this.test)}constructor(e,s,n,l){this.result=e,this.test=s,this.taskIndex=n,this.messageIndex=l,this.type="message";const a=this.message=s.tasks[n].messages[l];this.location=a.location,this.contextValue=a.type===0?a.contextValue:void 0,this.uri=Me({type:2,messageIndex:l,resultId:e.id,taskIndex:n,testExtId:s.item.extId}),this.id=this.uri.toString();const o=Xe(a.message),d=Ce(o.trimEnd(),`
-`);this.label=Ge(o),d>0&&(this.description=d>1?u(14375,null,d):u(14376,null))}}let re=class extends ge{constructor(e,s,n,l,a,o,d,b,R,S){super(),this.onDidReveal=s,this.r=l,this.f=!1,this.j=this.D(new W),this.q=this.D(new ue),this.onDidRequestReview=this.j.event,this.h=o.createInstance(q,n.showRevealLocationOnMessages,this.j);const p={getId(t){return t.id}};this.g=this.D(o.createInstance(Te,"Test Output Peek",e,{getHeight:()=>22,getTemplateId:()=>F.ID},[o.createInstance(F,this.h)],{compressionEnabled:!0,hideTwistiesOfChildlessElements:!0,identityProvider:p,alwaysConsumeMouseWheel:!1,sorter:{compare(t,i){return t instanceof I&&i instanceof I?Be(t.state,i.state):0}},accessibilityProvider:{getAriaLabel(t){return t.ariaLabel||t.label},getWidgetAriaLabel(){return u(14377,null)}}}));const C=new le,O=t=>{const{results:i,index:r,itemsCache:h,task:m}=t,k=E.filter(i.tests,T=>T.tasks[r].state>=2||T.tasks[r].messages.length>0);let x=E.map(k,T=>({element:h.getOrCreate(T,()=>new I(i,T,r)),incompressible:!0,children:K(i,T,r)}));return m.coverage.get()&&(x=E.concat(E.single({element:new ne(i,m,b),collapsible:!0,incompressible:!0}),x)),x},K=(t,i,r)=>i.tasks[r].messages.map((h,m)=>h.type===0?{element:C.getOrCreate(h,()=>new D(t,i,r,m)),incompressible:!1}:void 0).filter($e),J=t=>t.tasks.map((i,r)=>{const h=C.getOrCreate(i,()=>new N(t,i,r));return{element:h,incompressible:!1,collapsible:!0,children:O(h)}}),_=()=>{let t=[];const i=[];for(const r of a.results)if(!t.length&&r.tasks.length)t=J(r);else if(t){const h=C.getOrCreate(r,()=>new X(r));i.push({element:h,incompressible:!0,collapsible:!0,collapsed:this.g.hasElement(h)?this.g.isCollapsed(h):!0,children:J(r)})}return t.length?(i.length&&t.push({element:new oe(i.length),incompressible:!0,collapsible:!0,collapsed:!0,children:i}),t):i},B=new Set,Q=this.D(new fe(()=>{for(const t of B)this.g.hasElement(t)&&this.g.setChildren(t,O(t),{diffIdentityProvider:p});B.clear()},300)),Y=t=>{B.add(t),Q.isScheduled()||Q.schedule()},Z=t=>{const i=new U;i.add(t.onNewTask(r=>{this.g.setChildren(null,_(),{diffIdentityProvider:p}),t.tasks.length===1&&this.j.fire(new j(t,0));const h=t.tasks[r];i.add(pe(m=>{h.coverage.read(m),Y(C.get(h))}))})),i.add(t.onEndTask(r=>{C.get(t.tasks[r])?.changeEmitter.fire()})),i.add(t.onChange(r=>{for(const[h,m]of t.tasks.entries()){const k=C.get(m);if(!this.g.hasElement(k))continue;const x=k.itemsCache.get(r.item);if(x&&this.g.hasElement(x)){r.reason===2&&r.message.type===0&&this.g.setChildren(x,K(t,r.item,h),{diffIdentityProvider:p});return}Y(k)}})),i.add(t.onComplete(()=>{C.get(t)?.changeEmitter.fire(),i.dispose()}))};this.D(a.onResultsChanged(t=>{this.f||("completed"in t?C.get(t.completed)?.changeEmitter.fire():"started"in t?Z(t.started):this.g.setChildren(null,_(),{diffIdentityProvider:p}))}));const ee=(t,i)=>{this.g.setFocus([t]),this.g.setSelection([t]),i||this.g.domFocus()};this.D(s(async({subject:t,preserveFocus:i=!1})=>{if(t instanceof j){const m=this.g.getNode(null).children.find(k=>k.element instanceof N?k.element.results.id===t.result.id&&k.element.index===t.taskIndex:k.element instanceof X?k.element.id===t.result.id:!1);m&&ee(m.element,i);return}const r=t instanceof A?C.get(t.task)?.itemsCache.get(t.test):C.get(t.message);if(!r||!this.g.hasElement(r))return;const h=[];for(let m=this.g.getParentElement(r);m;m=this.g.getParentElement(m))h.unshift(m);for(const m of h)this.g.expand(m);this.g.getRelativeTop(r)===null&&this.g.reveal(r,.5),ee(r,i)})),this.D(this.g.onDidOpen(async t=>{if(t.element instanceof D)this.j.fire(new ie(t.element.result,t.element.test,t.element.taskIndex,t.element.messageIndex));else if(t.element instanceof I){const i=t.element,r=ze(t.element.test,(h,m,k,x)=>new ie(i.results,i.test,x,k));this.j.fire(r||new A(i.results,0,i.test))}else if(t.element instanceof ne){const i=t.element.task;if(t.element.isOpen)return b.closeCoverage();R.withProgress({location:n.locationForProgress},()=>b.openCoverage(i,!0))}})),this.D(this.g.onDidChangeSelection(t=>{for(const i of t.elements)if(i&&"test"in i){d.reveal.set(i.test.item.extId,void 0);break}})),this.D(d.onDidSelectTestInExplorer(t=>{if(!this.g.getSelection().some(i=>i&&"test"in i&&i.test.item.extId===t)){for(const i of this.g.getNode(null).children)if(i.element instanceof N){for(const r of i.children)if(r.element instanceof I&&r.element.test.item.extId===t){this.g.setSelection([r.element]),this.g.getRelativeTop(r.element)===null&&this.g.reveal(r.element,.5);break}}}})),this.D(this.g.onContextMenu(t=>this.s(t))),this.D(this.g.onDidChangeCollapseState(t=>{t.node.element instanceof oe&&!t.node.collapsed&&S.publicLog2("testing.expandOlderResults")})),this.g.setChildren(null,_());for(const t of a.results)!t.completedAt&&t instanceof V&&Z(t)}layout(e,s){this.g.layout(e,s)}s(e){if(!e.element)return;const s=this.h.provideActionBar(e.element);this.r.showContextMenu({getAnchor:()=>e.anchor,getActions:()=>s.secondary.length?[...s.primary,new me,...s.secondary]:s.primary,getActionsContext:()=>e.element?.context,actionRunner:this.q})}dispose(){super.dispose(),this.f=!0}};re=z([w(3,Re),w(4,Fe),w(5,ae),w(6,Oe),w(7,Ne),w(8,ye),w(9,Ee)],re);let F=class{static{M=this}static{this.ID="testRunElementRenderer"}constructor(e,s){this.d=e,this.f=s,this.templateId=M.ID}renderCompressedElements(e,s,n){const l=e.element.elements,a=l[l.length-1];(a instanceof N||a instanceof D)&&l.length>=2?this.g(l[l.length-2],n,a):this.g(a,n)}renderTemplate(e){const s=new U;e.classList.add("testing-stdtree-container");const n=v.$y9(e,v.$(".state")),l=v.$y9(e,v.$(".label")),a=new ce(e,{actionRunner:s.add(new ue),actionViewItemProvider:(d,b)=>d instanceof xe?this.f.createInstance(ke,d,{hoverDelegate:b.hoverDelegate}):void 0}),o=new U;return s.add(o),s.add(a),{icon:n,label:l,actionBar:a,elementDisposable:o,templateDisposable:s}}renderElement(e,s,n){this.g(e.element,n)}disposeTemplate(e){e.templateDisposable.dispose()}g(e,s,n){s.elementDisposable.clear(),s.elementDisposable.add(e.onDidChange(()=>this.g(e,s,n))),this.h(e,s,n)}h(e,s,n){let{label:l,labelWithIcons:a,description:o}=e;n instanceof D&&(o=n.label,e.description&&(o=`${o} @ ${e.description}`));const d=o?v.$("span.test-label-description",{},o):"";a?v.$A9(s.label,...a,d):v.$A9(s.label,l,d);const b=e.icon;s.icon.className=`computed-state ${b?f.asClassName(b):""}`;const R=this.d.provideActionBar(e);s.actionBar.clear(),s.actionBar.context=e.context,s.actionBar.push(R.primary,{icon:!0,label:!1})}};F=M=z([w(1,ae)],F);let q=class{constructor(e,s,n,l,a,o,d){this.d=e,this.f=s,this.g=n,this.h=l,this.j=a,this.k=o,this.l=d}provideActionBar(e){const s=e instanceof I?e.test:void 0,n=s?this.k.capabilitiesForTest(s.item):0,l=[["peek","editor.contrib.testingOutputPeek"],[L.peekItemType.key,e.type]];let a=te.TestPeekElement;const o=[],d=[];if(e instanceof N)if(o.push(new g("testing.outputPeek.showResultOutput",u(14378,null),f.asClassName(y.terminal),void 0,()=>this.f.fire(new j(e.results,e.index)))),e.task.running)o.push(new g("testing.outputPeek.cancel",u(14379,null),f.asClassName($.$Gvc),void 0,()=>this.j.executeCommand("testing.cancelRun",e.results.id,e.task.id)));else{o.push(new g("testing.outputPeek.rerun",u(14380,null),f.asClassName($.$Avc),void 0,()=>this.j.executeCommand("testing.reRunLastRun",e.results.id)));const p=E.some(e.results.tests,C=>se(C.ownComputedState));p&&o.push(new g("testing.outputPeek.rerunFailed",u(14381,null),f.asClassName($.$Avc),void 0,()=>this.j.executeCommand("testing.reRunFailedFromLastRun",e.results.id))),o.push(new g("testing.outputPeek.debug",u(14382,null),f.asClassName($.$Dvc),void 0,()=>this.j.executeCommand("testing.debugLastRun",e.results.id))),p&&o.push(new g("testing.outputPeek.debugFailed",u(14383,null),f.asClassName($.$Dvc),void 0,()=>this.j.executeCommand("testing.debugFailedFromLastRun",e.results.id)))}if(e instanceof X){e.value.tasks.length===1&&o.push(new g("testing.outputPeek.showResultOutput",u(14384,null),f.asClassName(y.terminal),void 0,()=>this.f.fire(new j(e.value,0)))),o.push(new g("testing.outputPeek.reRunLastRun",u(14385,null),f.asClassName($.$zvc),void 0,()=>this.j.executeCommand("testing.reRunLastRun",e.value.id)));const p=E.some(e.value.tests,C=>se(C.ownComputedState));p&&o.push(new g("testing.outputPeek.rerunFailedResult",u(14386,null),f.asClassName($.$Avc),void 0,()=>this.j.executeCommand("testing.reRunFailedFromLastRun",e.value.id))),n&4&&(o.push(new g("testing.outputPeek.debugLastRun",u(14387,null),f.asClassName($.$Dvc),void 0,()=>this.j.executeCommand("testing.debugLastRun",e.value.id))),p&&o.push(new g("testing.outputPeek.debugFailedResult",u(14388,null),f.asClassName($.$Dvc),void 0,()=>this.j.executeCommand("testing.debugFailedFromLastRun",e.value.id))))}if(e instanceof I||e instanceof D){l.push([L.testResultOutdated.key,e.test.retired],[L.testResultState.key,_e[e.test.ownComputedState]],...Ue(e.test,n));const{extId:p,uri:C}=e.test.item;C&&o.push(new g("testing.outputPeek.goToTest",u(14389,null),f.asClassName(y.goToFile),void 0,()=>this.j.executeCommand("vscode.revealTest",p))),e.test.tasks[e.taskIndex].messages.some(O=>O.type===1)&&o.push(new g("testing.outputPeek.showResultOutput",u(14390,null),f.asClassName(y.terminal),void 0,()=>this.f.fire(e.outputSubject))),d.push(new g("testing.outputPeek.revealInExplorer",u(14391,null),f.asClassName(y.listTree),void 0,()=>this.j.executeCommand("_revealTestInExplorer",p))),n&2&&o.push(new g("testing.outputPeek.runTest",u(14392,null),f.asClassName($.$zvc),void 0,()=>this.j.executeCommand("vscode.runTestsById",2,p))),n&4&&o.push(new g("testing.outputPeek.debugTest",u(14393,null),f.asClassName($.$Dvc),void 0,()=>this.j.executeCommand("vscode.runTestsById",4,p)))}e instanceof D&&(a=te.TestMessageContext,l.push([L.testMessageContext.key,e.contextValue]),this.d&&e.location&&o.push(new g("testing.outputPeek.goToError",u(14394,null),f.asClassName(y.debugStackframe),void 0,()=>this.l.openEditor({resource:e.location.uri,options:{selection:e.location.range,preserveFocus:!0}}))));const b=this.g.createOverlay(l),R={primary:o,secondary:d},S=this.h.getMenuActions(a,b,{shouldForwardArgs:!0});return we(S,R,"inline"),R}};q=z([w(2,Ie),w(3,be),w(4,ve),w(5,je),w(6,De)],q);class le{constructor(){this.d=new WeakMap}get(e){return this.d.get(e)}getOrCreate(e,s){const n=this.d.get(e);if(n)return n;const l=s();return this.d.set(e,l),l}}const Ge=c=>{const e=c.indexOf(`
-`);return e===-1?c:c.slice(0,e)};class H{constructor(e){this.value=e}}class ue extends he{async u(e,s){s instanceof H?await e.run(...s.value):await e.run(s)}}export{re as $twc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TestRunElementRenderer_1;
+import * as dom from "../../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { renderLabelWithIcons } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Action, ActionRunner, Separator } from "../../../../../base/common/actions.js";
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Iterable } from "../../../../../base/common/iterator.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../../base/common/observable.js";
+import { count } from "../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { localize } from "../../../../../nls.js";
+import { MenuEntryActionViewItem, fillInActionBarActions } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchCompressibleObjectTree } from "../../../../../platform/list/browser/listService.js";
+import { IProgressService } from "../../../../../platform/progress/common/progress.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { widgetClose } from "../../../../../platform/theme/common/iconRegistry.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ITestCoverageService } from "../../common/testCoverageService.js";
+import { ITestExplorerFilterState } from "../../common/testExplorerFilterState.js";
+import { TestId } from "../../common/testId.js";
+import { ITestProfileService } from "../../common/testProfileService.js";
+import { LiveTestResult, maxCountPriority } from "../../common/testResult.js";
+import { ITestResultService } from "../../common/testResultService.js";
+import { InternalTestItem, testResultStateToContextValues } from "../../common/testTypes.js";
+import { TestingContextKeys } from "../../common/testingContextKeys.js";
+import { cmpPriority, isFailedState } from "../../common/testingStates.js";
+import { buildTestUri } from "../../common/testingUri.js";
+import { getTestItemContextOverlay } from "../explorerProjections/testItemContextOverlay.js";
+import * as icons from "../icons.js";
+import { renderTestMessageAsText } from "../testMessageColorizer.js";
+import { MessageSubject, TaskSubject, TestOutputSubject, getMessageArgs, mapFindTestMessage } from "./testResultsSubject.js";
+function getTaskContext(resultId, task) {
+  return { testRunName: task.name, controllerId: task.ctrlId, resultId, taskId: task.id };
+}
+__name(getTaskContext, "getTaskContext");
+class TestResultElement {
+  static {
+    __name(this, "TestResultElement");
+  }
+  get icon() {
+    return icons.testingStatesToIcons.get(this.value.completedAt === void 0 ? 2 : maxCountPriority(this.value.counts));
+  }
+  constructor(value) {
+    this.value = value;
+    this.changeEmitter = new Emitter();
+    this.onDidChange = this.changeEmitter.event;
+    this.type = "result";
+    this.id = value.id;
+    this.context = value.id;
+    this.label = value.name;
+  }
+}
+const openCoverageLabel = localize("openTestCoverage", "View Test Coverage");
+const closeCoverageLabel = localize("closeTestCoverage", "Close Test Coverage");
+class CoverageElement {
+  static {
+    __name(this, "CoverageElement");
+  }
+  get label() {
+    return this.isOpen ? closeCoverageLabel : openCoverageLabel;
+  }
+  get icon() {
+    return this.isOpen ? widgetClose : icons.testingCoverageReport;
+  }
+  get isOpen() {
+    return this.coverageService.selected.get()?.fromTaskId === this.task.id;
+  }
+  constructor(results, task, coverageService) {
+    this.task = task;
+    this.coverageService = coverageService;
+    this.type = "coverage";
+    this.id = `coverage-${results.id}/${task.id}`;
+    this.onDidChange = Event.fromObservableLight(coverageService.selected);
+  }
+}
+class OlderResultsElement {
+  static {
+    __name(this, "OlderResultsElement");
+  }
+  constructor(n) {
+    this.n = n;
+    this.type = "older";
+    this.onDidChange = Event.None;
+    this.label = n === 1 ? localize("oneOlderResult", "1 older result") : localize("nOlderResults", "{0} older results", n);
+    this.id = `older-${this.n}`;
+  }
+}
+class TestCaseElement {
+  static {
+    __name(this, "TestCaseElement");
+  }
+  get onDidChange() {
+    if (!(this.results instanceof LiveTestResult)) {
+      return Event.None;
+    }
+    return Event.filter(
+      this.results.onChange,
+      (e) => e.item.item.extId === this.test.item.extId && e.reason !== 2
+      /* TestResultItemChangeReason.NewMessage */
+    );
+  }
+  get state() {
+    return this.test.tasks[this.taskIndex].state;
+  }
+  get label() {
+    return this.test.item.label;
+  }
+  get labelWithIcons() {
+    return renderLabelWithIcons(this.label);
+  }
+  get icon() {
+    return icons.testingStatesToIcons.get(this.state);
+  }
+  get outputSubject() {
+    return new TestOutputSubject(this.results, this.taskIndex, this.test);
+  }
+  constructor(results, test, taskIndex) {
+    this.results = results;
+    this.test = test;
+    this.taskIndex = taskIndex;
+    this.type = "test";
+    this.id = `${results.id}/${test.item.extId}`;
+    const parentId = TestId.fromString(test.item.extId).parentId;
+    if (parentId) {
+      this.description = "";
+      for (const part of parentId.idsToRoot()) {
+        if (part.isRoot) {
+          break;
+        }
+        const test2 = results.getStateById(part.toString());
+        if (!test2) {
+          break;
+        }
+        if (this.description.length) {
+          this.description += " \u2039 ";
+        }
+        this.description += test2.item.label;
+      }
+    }
+    this.context = new ActionSpreadArgs([
+      {
+        $mid: 16,
+        tests: [InternalTestItem.serialize(test)]
+      },
+      getTaskContext(results.id, results.tasks[this.taskIndex])
+    ]);
+  }
+}
+class TaskElement {
+  static {
+    __name(this, "TaskElement");
+  }
+  get icon() {
+    return this.results.tasks[this.index].running ? icons.testingStatesToIcons.get(
+      2
+      /* TestResultState.Running */
+    ) : void 0;
+  }
+  constructor(results, task, index) {
+    this.results = results;
+    this.task = task;
+    this.index = index;
+    this.changeEmitter = new Emitter();
+    this.onDidChange = this.changeEmitter.event;
+    this.type = "task";
+    this.itemsCache = new CreationCache();
+    this.id = `${results.id}/${index}`;
+    this.task = results.tasks[index];
+    this.context = getTaskContext(results.id, this.task);
+    this.label = this.task.name;
+  }
+}
+class TestMessageElement {
+  static {
+    __name(this, "TestMessageElement");
+  }
+  get onDidChange() {
+    if (!(this.result instanceof LiveTestResult)) {
+      return Event.None;
+    }
+    return Event.filter(
+      this.result.onChange,
+      (e) => e.item.item.extId === this.test.item.extId && e.reason !== 2
+      /* TestResultItemChangeReason.NewMessage */
+    );
+  }
+  get context() {
+    return new ActionSpreadArgs([
+      getMessageArgs(this.test, this.message),
+      getTaskContext(this.result.id, this.result.tasks[this.taskIndex])
+    ]);
+  }
+  get outputSubject() {
+    return new TestOutputSubject(this.result, this.taskIndex, this.test);
+  }
+  constructor(result, test, taskIndex, messageIndex) {
+    this.result = result;
+    this.test = test;
+    this.taskIndex = taskIndex;
+    this.messageIndex = messageIndex;
+    this.type = "message";
+    const m = this.message = test.tasks[taskIndex].messages[messageIndex];
+    this.location = m.location;
+    this.contextValue = m.type === 0 ? m.contextValue : void 0;
+    this.uri = buildTestUri({
+      type: 2,
+      messageIndex,
+      resultId: result.id,
+      taskIndex,
+      testExtId: test.item.extId
+    });
+    this.id = this.uri.toString();
+    const asPlaintext = renderTestMessageAsText(m.message);
+    const lines = count(asPlaintext.trimEnd(), "\n");
+    this.label = firstLine(asPlaintext);
+    if (lines > 0) {
+      this.description = lines > 1 ? localize("messageMoreLinesN", "+ {0} more lines", lines) : localize("messageMoreLines1", "+ 1 more line");
+    }
+  }
+}
+let OutputPeekTree = class OutputPeekTree2 extends Disposable {
+  static {
+    __name(this, "OutputPeekTree");
+  }
+  constructor(container, onDidReveal, options, contextMenuService, results, instantiationService, explorerFilter, coverageService, progressService, telemetryService) {
+    super();
+    this.onDidReveal = onDidReveal;
+    this.contextMenuService = contextMenuService;
+    this.disposed = false;
+    this.requestReveal = this._register(new Emitter());
+    this.contextMenuActionRunner = this._register(new SpreadableActionRunner());
+    this.onDidRequestReview = this.requestReveal.event;
+    this.treeActions = instantiationService.createInstance(TreeActionsProvider, options.showRevealLocationOnMessages, this.requestReveal);
+    const diffIdentityProvider = {
+      getId(e) {
+        return e.id;
+      }
+    };
+    this.tree = this._register(instantiationService.createInstance(WorkbenchCompressibleObjectTree, "Test Output Peek", container, {
+      getHeight: /* @__PURE__ */ __name(() => 22, "getHeight"),
+      getTemplateId: /* @__PURE__ */ __name(() => TestRunElementRenderer.ID, "getTemplateId")
+    }, [instantiationService.createInstance(TestRunElementRenderer, this.treeActions)], {
+      compressionEnabled: true,
+      hideTwistiesOfChildlessElements: true,
+      identityProvider: diffIdentityProvider,
+      alwaysConsumeMouseWheel: false,
+      sorter: {
+        compare(a, b) {
+          if (a instanceof TestCaseElement && b instanceof TestCaseElement) {
+            return cmpPriority(a.state, b.state);
+          }
+          return 0;
+        }
+      },
+      accessibilityProvider: {
+        getAriaLabel(element) {
+          return element.ariaLabel || element.label;
+        },
+        getWidgetAriaLabel() {
+          return localize("testingPeekLabel", "Test Result Messages");
+        }
+      }
+    }));
+    const cc = new CreationCache();
+    const getTaskChildren = /* @__PURE__ */ __name((taskElem) => {
+      const { results: results2, index, itemsCache, task } = taskElem;
+      const tests = Iterable.filter(results2.tests, (test) => test.tasks[index].state >= 2 || test.tasks[index].messages.length > 0);
+      let result = Iterable.map(tests, (test) => ({
+        element: itemsCache.getOrCreate(test, () => new TestCaseElement(results2, test, index)),
+        incompressible: true,
+        children: getTestChildren(results2, test, index)
+      }));
+      if (task.coverage.get()) {
+        result = Iterable.concat(Iterable.single({
+          element: new CoverageElement(results2, task, coverageService),
+          collapsible: true,
+          incompressible: true
+        }), result);
+      }
+      return result;
+    }, "getTaskChildren");
+    const getTestChildren = /* @__PURE__ */ __name((result, test, taskIndex) => {
+      return test.tasks[taskIndex].messages.map((m, messageIndex) => m.type === 0 ? { element: cc.getOrCreate(m, () => new TestMessageElement(result, test, taskIndex, messageIndex)), incompressible: false } : void 0).filter(isDefined);
+    }, "getTestChildren");
+    const getResultChildren = /* @__PURE__ */ __name((result) => {
+      return result.tasks.map((task, taskIndex) => {
+        const taskElem = cc.getOrCreate(task, () => new TaskElement(result, task, taskIndex));
+        return {
+          element: taskElem,
+          incompressible: false,
+          collapsible: true,
+          children: getTaskChildren(taskElem)
+        };
+      });
+    }, "getResultChildren");
+    const getRootChildren = /* @__PURE__ */ __name(() => {
+      let children = [];
+      const older = [];
+      for (const result of results.results) {
+        if (!children.length && result.tasks.length) {
+          children = getResultChildren(result);
+        } else if (children) {
+          const element = cc.getOrCreate(result, () => new TestResultElement(result));
+          older.push({
+            element,
+            incompressible: true,
+            collapsible: true,
+            collapsed: this.tree.hasElement(element) ? this.tree.isCollapsed(element) : true,
+            children: getResultChildren(result)
+          });
+        }
+      }
+      if (!children.length) {
+        return older;
+      }
+      if (older.length) {
+        children.push({
+          element: new OlderResultsElement(older.length),
+          incompressible: true,
+          collapsible: true,
+          collapsed: true,
+          children: older
+        });
+      }
+      return children;
+    }, "getRootChildren");
+    const taskChildrenToUpdate = /* @__PURE__ */ new Set();
+    const taskChildrenUpdate = this._register(new RunOnceScheduler(() => {
+      for (const taskNode of taskChildrenToUpdate) {
+        if (this.tree.hasElement(taskNode)) {
+          this.tree.setChildren(taskNode, getTaskChildren(taskNode), { diffIdentityProvider });
+        }
+      }
+      taskChildrenToUpdate.clear();
+    }, 300));
+    const queueTaskChildrenUpdate = /* @__PURE__ */ __name((taskNode) => {
+      taskChildrenToUpdate.add(taskNode);
+      if (!taskChildrenUpdate.isScheduled()) {
+        taskChildrenUpdate.schedule();
+      }
+    }, "queueTaskChildrenUpdate");
+    const attachToResults = /* @__PURE__ */ __name((result) => {
+      const disposable = new DisposableStore();
+      disposable.add(result.onNewTask((i) => {
+        this.tree.setChildren(null, getRootChildren(), { diffIdentityProvider });
+        if (result.tasks.length === 1) {
+          this.requestReveal.fire(new TaskSubject(result, 0));
+        }
+        const task = result.tasks[i];
+        disposable.add(autorun((reader) => {
+          task.coverage.read(reader);
+          queueTaskChildrenUpdate(cc.get(task));
+        }));
+      }));
+      disposable.add(result.onEndTask((index) => {
+        cc.get(result.tasks[index])?.changeEmitter.fire();
+      }));
+      disposable.add(result.onChange((e) => {
+        for (const [index, task] of result.tasks.entries()) {
+          const taskNode = cc.get(task);
+          if (!this.tree.hasElement(taskNode)) {
+            continue;
+          }
+          const itemNode = taskNode.itemsCache.get(e.item);
+          if (itemNode && this.tree.hasElement(itemNode)) {
+            if (e.reason === 2 && e.message.type === 0) {
+              this.tree.setChildren(itemNode, getTestChildren(result, e.item, index), { diffIdentityProvider });
+            }
+            return;
+          }
+          queueTaskChildrenUpdate(taskNode);
+        }
+      }));
+      disposable.add(result.onComplete(() => {
+        cc.get(result)?.changeEmitter.fire();
+        disposable.dispose();
+      }));
+    }, "attachToResults");
+    this._register(results.onResultsChanged((e) => {
+      if (this.disposed) {
+        return;
+      }
+      if ("completed" in e) {
+        cc.get(e.completed)?.changeEmitter.fire();
+      } else if ("started" in e) {
+        attachToResults(e.started);
+      } else {
+        this.tree.setChildren(null, getRootChildren(), { diffIdentityProvider });
+      }
+    }));
+    const revealItem = /* @__PURE__ */ __name((element, preserveFocus) => {
+      this.tree.setFocus([element]);
+      this.tree.setSelection([element]);
+      if (!preserveFocus) {
+        this.tree.domFocus();
+      }
+    }, "revealItem");
+    this._register(onDidReveal(async ({ subject, preserveFocus = false }) => {
+      if (subject instanceof TaskSubject) {
+        const resultItem = this.tree.getNode(null).children.find((c) => {
+          if (c.element instanceof TaskElement) {
+            return c.element.results.id === subject.result.id && c.element.index === subject.taskIndex;
+          }
+          if (c.element instanceof TestResultElement) {
+            return c.element.id === subject.result.id;
+          }
+          return false;
+        });
+        if (resultItem) {
+          revealItem(resultItem.element, preserveFocus);
+        }
+        return;
+      }
+      const revealElement = subject instanceof TestOutputSubject ? cc.get(subject.task)?.itemsCache.get(subject.test) : cc.get(subject.message);
+      if (!revealElement || !this.tree.hasElement(revealElement)) {
+        return;
+      }
+      const parents = [];
+      for (let parent = this.tree.getParentElement(revealElement); parent; parent = this.tree.getParentElement(parent)) {
+        parents.unshift(parent);
+      }
+      for (const parent of parents) {
+        this.tree.expand(parent);
+      }
+      if (this.tree.getRelativeTop(revealElement) === null) {
+        this.tree.reveal(revealElement, 0.5);
+      }
+      revealItem(revealElement, preserveFocus);
+    }));
+    this._register(this.tree.onDidOpen(async (e) => {
+      if (e.element instanceof TestMessageElement) {
+        this.requestReveal.fire(new MessageSubject(e.element.result, e.element.test, e.element.taskIndex, e.element.messageIndex));
+      } else if (e.element instanceof TestCaseElement) {
+        const t = e.element;
+        const message = mapFindTestMessage(e.element.test, (_t, _m, mesasgeIndex, taskIndex) => new MessageSubject(t.results, t.test, taskIndex, mesasgeIndex));
+        this.requestReveal.fire(message || new TestOutputSubject(t.results, 0, t.test));
+      } else if (e.element instanceof CoverageElement) {
+        const task = e.element.task;
+        if (e.element.isOpen) {
+          return coverageService.closeCoverage();
+        }
+        progressService.withProgress({ location: options.locationForProgress }, () => coverageService.openCoverage(task, true));
+      }
+    }));
+    this._register(this.tree.onDidChangeSelection((evt) => {
+      for (const element of evt.elements) {
+        if (element && "test" in element) {
+          explorerFilter.reveal.set(element.test.item.extId, void 0);
+          break;
+        }
+      }
+    }));
+    this._register(explorerFilter.onDidSelectTestInExplorer((testId) => {
+      if (this.tree.getSelection().some((e) => e && "test" in e && e.test.item.extId === testId)) {
+        return;
+      }
+      for (const node of this.tree.getNode(null).children) {
+        if (node.element instanceof TaskElement) {
+          for (const testNode of node.children) {
+            if (testNode.element instanceof TestCaseElement && testNode.element.test.item.extId === testId) {
+              this.tree.setSelection([testNode.element]);
+              if (this.tree.getRelativeTop(testNode.element) === null) {
+                this.tree.reveal(testNode.element, 0.5);
+              }
+              break;
+            }
+          }
+        }
+      }
+    }));
+    this._register(this.tree.onContextMenu((e) => this.onContextMenu(e)));
+    this._register(this.tree.onDidChangeCollapseState((e) => {
+      if (e.node.element instanceof OlderResultsElement && !e.node.collapsed) {
+        telemetryService.publicLog2("testing.expandOlderResults");
+      }
+    }));
+    this.tree.setChildren(null, getRootChildren());
+    for (const result of results.results) {
+      if (!result.completedAt && result instanceof LiveTestResult) {
+        attachToResults(result);
+      }
+    }
+  }
+  layout(height, width) {
+    this.tree.layout(height, width);
+  }
+  onContextMenu(evt) {
+    if (!evt.element) {
+      return;
+    }
+    const actions = this.treeActions.provideActionBar(evt.element);
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => evt.anchor, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => actions.secondary.length ? [...actions.primary, new Separator(), ...actions.secondary] : actions.primary, "getActions"),
+      getActionsContext: /* @__PURE__ */ __name(() => evt.element?.context, "getActionsContext"),
+      actionRunner: this.contextMenuActionRunner
+    });
+  }
+  dispose() {
+    super.dispose();
+    this.disposed = true;
+  }
+};
+OutputPeekTree = __decorate([
+  __param(3, IContextMenuService),
+  __param(4, ITestResultService),
+  __param(5, IInstantiationService),
+  __param(6, ITestExplorerFilterState),
+  __param(7, ITestCoverageService),
+  __param(8, IProgressService),
+  __param(9, ITelemetryService)
+], OutputPeekTree);
+let TestRunElementRenderer = class TestRunElementRenderer2 {
+  static {
+    __name(this, "TestRunElementRenderer");
+  }
+  static {
+    TestRunElementRenderer_1 = this;
+  }
+  static {
+    this.ID = "testRunElementRenderer";
+  }
+  constructor(treeActions, instantiationService) {
+    this.treeActions = treeActions;
+    this.instantiationService = instantiationService;
+    this.templateId = TestRunElementRenderer_1.ID;
+  }
+  /** @inheritdoc */
+  renderCompressedElements(node, _index, templateData) {
+    const chain = node.element.elements;
+    const lastElement = chain[chain.length - 1];
+    if ((lastElement instanceof TaskElement || lastElement instanceof TestMessageElement) && chain.length >= 2) {
+      this.doRender(chain[chain.length - 2], templateData, lastElement);
+    } else {
+      this.doRender(lastElement, templateData);
+    }
+  }
+  /** @inheritdoc */
+  renderTemplate(container) {
+    const templateDisposable = new DisposableStore();
+    container.classList.add("testing-stdtree-container");
+    const icon = dom.append(container, dom.$(".state"));
+    const label = dom.append(container, dom.$(".label"));
+    const actionBar = new ActionBar(container, {
+      actionRunner: templateDisposable.add(new SpreadableActionRunner()),
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => action instanceof MenuItemAction ? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }) : void 0, "actionViewItemProvider")
+    });
+    const elementDisposable = new DisposableStore();
+    templateDisposable.add(elementDisposable);
+    templateDisposable.add(actionBar);
+    return {
+      icon,
+      label,
+      actionBar,
+      elementDisposable,
+      templateDisposable
+    };
+  }
+  /** @inheritdoc */
+  renderElement(element, _index, templateData) {
+    this.doRender(element.element, templateData);
+  }
+  /** @inheritdoc */
+  disposeTemplate(templateData) {
+    templateData.templateDisposable.dispose();
+  }
+  /** Called to render a new element */
+  doRender(element, templateData, subjectElement) {
+    templateData.elementDisposable.clear();
+    templateData.elementDisposable.add(element.onDidChange(() => this.doRender(element, templateData, subjectElement)));
+    this.doRenderInner(element, templateData, subjectElement);
+  }
+  /** Called, and may be re-called, to render or re-render an element */
+  doRenderInner(element, templateData, subjectElement) {
+    let { label, labelWithIcons, description } = element;
+    if (subjectElement instanceof TestMessageElement) {
+      description = subjectElement.label;
+      if (element.description) {
+        description = `${description} @ ${element.description}`;
+      }
+    }
+    const descriptionElement = description ? dom.$("span.test-label-description", {}, description) : "";
+    if (labelWithIcons) {
+      dom.reset(templateData.label, ...labelWithIcons, descriptionElement);
+    } else {
+      dom.reset(templateData.label, label, descriptionElement);
+    }
+    const icon = element.icon;
+    templateData.icon.className = `computed-state ${icon ? ThemeIcon.asClassName(icon) : ""}`;
+    const actions = this.treeActions.provideActionBar(element);
+    templateData.actionBar.clear();
+    templateData.actionBar.context = element.context;
+    templateData.actionBar.push(actions.primary, { icon: true, label: false });
+  }
+};
+TestRunElementRenderer = TestRunElementRenderer_1 = __decorate([
+  __param(1, IInstantiationService)
+], TestRunElementRenderer);
+let TreeActionsProvider = class TreeActionsProvider2 {
+  static {
+    __name(this, "TreeActionsProvider");
+  }
+  constructor(showRevealLocationOnMessages, requestReveal, contextKeyService, menuService, commandService, testProfileService, editorService) {
+    this.showRevealLocationOnMessages = showRevealLocationOnMessages;
+    this.requestReveal = requestReveal;
+    this.contextKeyService = contextKeyService;
+    this.menuService = menuService;
+    this.commandService = commandService;
+    this.testProfileService = testProfileService;
+    this.editorService = editorService;
+  }
+  provideActionBar(element) {
+    const test = element instanceof TestCaseElement ? element.test : void 0;
+    const capabilities = test ? this.testProfileService.capabilitiesForTest(test.item) : 0;
+    const contextKeys = [
+      [
+        "peek",
+        "editor.contrib.testingOutputPeek"
+        /* Testing.OutputPeekContributionId */
+      ],
+      [TestingContextKeys.peekItemType.key, element.type]
+    ];
+    let id = MenuId.TestPeekElement;
+    const primary = [];
+    const secondary = [];
+    if (element instanceof TaskElement) {
+      primary.push(new Action("testing.outputPeek.showResultOutput", localize("testing.showResultOutput", "Show Result Output"), ThemeIcon.asClassName(Codicon.terminal), void 0, () => this.requestReveal.fire(new TaskSubject(element.results, element.index))));
+      if (element.task.running) {
+        primary.push(new Action("testing.outputPeek.cancel", localize("testing.cancelRun", "Cancel Test Run"), ThemeIcon.asClassName(icons.testingCancelIcon), void 0, () => this.commandService.executeCommand("testing.cancelRun", element.results.id, element.task.id)));
+      } else {
+        primary.push(new Action("testing.outputPeek.rerun", localize("testing.reRunLastRun", "Rerun Last Run"), ThemeIcon.asClassName(icons.testingRerunIcon), void 0, () => this.commandService.executeCommand("testing.reRunLastRun", element.results.id)));
+        const hasFailedTests = Iterable.some(element.results.tests, (test2) => isFailedState(test2.ownComputedState));
+        if (hasFailedTests) {
+          primary.push(new Action("testing.outputPeek.rerunFailed", localize("testing.reRunFailedFromLastRun", "Rerun Failed Tests"), ThemeIcon.asClassName(icons.testingRerunIcon), void 0, () => this.commandService.executeCommand("testing.reRunFailedFromLastRun", element.results.id)));
+        }
+        primary.push(new Action("testing.outputPeek.debug", localize("testing.debugLastRun", "Debug Last Run"), ThemeIcon.asClassName(icons.testingDebugIcon), void 0, () => this.commandService.executeCommand("testing.debugLastRun", element.results.id)));
+        if (hasFailedTests) {
+          primary.push(new Action("testing.outputPeek.debugFailed", localize("testing.debugFailedFromLastRun", "Debug Failed Tests"), ThemeIcon.asClassName(icons.testingDebugIcon), void 0, () => this.commandService.executeCommand("testing.debugFailedFromLastRun", element.results.id)));
+        }
+      }
+    }
+    if (element instanceof TestResultElement) {
+      if (element.value.tasks.length === 1) {
+        primary.push(new Action("testing.outputPeek.showResultOutput", localize("testing.showResultOutput", "Show Result Output"), ThemeIcon.asClassName(Codicon.terminal), void 0, () => this.requestReveal.fire(new TaskSubject(element.value, 0))));
+      }
+      primary.push(new Action("testing.outputPeek.reRunLastRun", localize("testing.reRunTest", "Rerun Test"), ThemeIcon.asClassName(icons.testingRunIcon), void 0, () => this.commandService.executeCommand("testing.reRunLastRun", element.value.id)));
+      const hasFailedTests = Iterable.some(element.value.tests, (test2) => isFailedState(test2.ownComputedState));
+      if (hasFailedTests) {
+        primary.push(new Action("testing.outputPeek.rerunFailedResult", localize("testing.reRunFailedFromLastRun", "Rerun Failed Tests"), ThemeIcon.asClassName(icons.testingRerunIcon), void 0, () => this.commandService.executeCommand("testing.reRunFailedFromLastRun", element.value.id)));
+      }
+      if (capabilities & 4) {
+        primary.push(new Action("testing.outputPeek.debugLastRun", localize("testing.debugTest", "Debug Test"), ThemeIcon.asClassName(icons.testingDebugIcon), void 0, () => this.commandService.executeCommand("testing.debugLastRun", element.value.id)));
+        if (hasFailedTests) {
+          primary.push(new Action("testing.outputPeek.debugFailedResult", localize("testing.debugFailedFromLastRun", "Debug Failed Tests"), ThemeIcon.asClassName(icons.testingDebugIcon), void 0, () => this.commandService.executeCommand("testing.debugFailedFromLastRun", element.value.id)));
+        }
+      }
+    }
+    if (element instanceof TestCaseElement || element instanceof TestMessageElement) {
+      contextKeys.push([TestingContextKeys.testResultOutdated.key, element.test.retired], [TestingContextKeys.testResultState.key, testResultStateToContextValues[element.test.ownComputedState]], ...getTestItemContextOverlay(element.test, capabilities));
+      const { extId, uri } = element.test.item;
+      if (uri) {
+        primary.push(new Action("testing.outputPeek.goToTest", localize("testing.goToTest", "Go to Test"), ThemeIcon.asClassName(Codicon.goToFile), void 0, () => this.commandService.executeCommand("vscode.revealTest", extId)));
+      }
+      if (element.test.tasks[element.taskIndex].messages.some(
+        (m) => m.type === 1
+        /* TestMessageType.Output */
+      )) {
+        primary.push(new Action("testing.outputPeek.showResultOutput", localize("testing.showResultOutput", "Show Result Output"), ThemeIcon.asClassName(Codicon.terminal), void 0, () => this.requestReveal.fire(element.outputSubject)));
+      }
+      secondary.push(new Action("testing.outputPeek.revealInExplorer", localize("testing.revealInExplorer", "Reveal in Test Explorer"), ThemeIcon.asClassName(Codicon.listTree), void 0, () => this.commandService.executeCommand("_revealTestInExplorer", extId)));
+      if (capabilities & 2) {
+        primary.push(new Action("testing.outputPeek.runTest", localize("run test", "Run Test"), ThemeIcon.asClassName(icons.testingRunIcon), void 0, () => this.commandService.executeCommand("vscode.runTestsById", 2, extId)));
+      }
+      if (capabilities & 4) {
+        primary.push(new Action("testing.outputPeek.debugTest", localize("debug test", "Debug Test"), ThemeIcon.asClassName(icons.testingDebugIcon), void 0, () => this.commandService.executeCommand("vscode.runTestsById", 4, extId)));
+      }
+    }
+    if (element instanceof TestMessageElement) {
+      id = MenuId.TestMessageContext;
+      contextKeys.push([TestingContextKeys.testMessageContext.key, element.contextValue]);
+      if (this.showRevealLocationOnMessages && element.location) {
+        primary.push(new Action("testing.outputPeek.goToError", localize("testing.goToError", "Go to Error"), ThemeIcon.asClassName(Codicon.debugStackframe), void 0, () => this.editorService.openEditor({
+          resource: element.location.uri,
+          options: {
+            selection: element.location.range,
+            preserveFocus: true
+          }
+        })));
+      }
+    }
+    const contextOverlay = this.contextKeyService.createOverlay(contextKeys);
+    const result = { primary, secondary };
+    const menu = this.menuService.getMenuActions(id, contextOverlay, { shouldForwardArgs: true });
+    fillInActionBarActions(menu, result, "inline");
+    return result;
+  }
+};
+TreeActionsProvider = __decorate([
+  __param(2, IContextKeyService),
+  __param(3, IMenuService),
+  __param(4, ICommandService),
+  __param(5, ITestProfileService),
+  __param(6, IEditorService)
+], TreeActionsProvider);
+class CreationCache {
+  static {
+    __name(this, "CreationCache");
+  }
+  constructor() {
+    this.v = /* @__PURE__ */ new WeakMap();
+  }
+  get(key) {
+    return this.v.get(key);
+  }
+  getOrCreate(ref, factory) {
+    const existing = this.v.get(ref);
+    if (existing) {
+      return existing;
+    }
+    const fresh = factory();
+    this.v.set(ref, fresh);
+    return fresh;
+  }
+}
+const firstLine = /* @__PURE__ */ __name((str) => {
+  const index = str.indexOf("\n");
+  return index === -1 ? str : str.slice(0, index);
+}, "firstLine");
+class ActionSpreadArgs {
+  static {
+    __name(this, "ActionSpreadArgs");
+  }
+  constructor(value) {
+    this.value = value;
+  }
+}
+class SpreadableActionRunner extends ActionRunner {
+  static {
+    __name(this, "SpreadableActionRunner");
+  }
+  async runAction(action, context) {
+    if (context instanceof ActionSpreadArgs) {
+      await action.run(...context.value);
+    } else {
+      await action.run(context);
+    }
+  }
+}
+export {
+  OutputPeekTree
+};
+//# sourceMappingURL=testResultsTree.js.map

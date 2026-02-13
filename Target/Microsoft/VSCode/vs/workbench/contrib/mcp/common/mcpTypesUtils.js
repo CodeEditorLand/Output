@@ -1,1 +1,152 @@
-import{$$h as l,$0h as p}from"../../../../base/common/async.js";import{$sb as $}from"../../../../base/common/errors.js";import{$Dd as f}from"../../../../base/common/lifecycle.js";import{autorun as u,autorunSelfDisposable as w}from"../../../../base/common/observable.js";function x(t,i,n=5e3){return new Promise((e,o)=>{const a=new f;a.add(u(s=>{const r=t.servers.read(s).find(i);r&&(r.start({promptType:"all-untrusted"}).then(d=>{d.state===3&&r.showOutput()}),e(),a.dispose())})),a.add(l(()=>{a.dispose(),o(new $)},n))})}async function C(t,i,n){const e=await t.start(i),o=new f,a=await new Promise(s=>{if(n?.isCancellationRequested||e.state===3||e.state===0)return s(!1);n&&o.add(n.onCancellationRequested(()=>{s(!1)})),o.add(u(c=>{const r=t.connectionState.read(c).state;(r===3||r===0)&&s(!1),t.cacheState.read(c)===5&&s(!0)}))});return a&&await p(0),a}function S(t,i){const n=t.serverMetadata.read(i);return{type:"mcp",serverLabel:n?.serverName,instructions:n?.serverInstructions,label:t.definition.label,collectionId:t.collection.id,definitionId:t.definition.id}}function U(t,i){let n=!1;if(t.protocol==="http:"){const e=i?.connection.get()?.launchDefinition;e&&e.type===2&&e.uri.authority.toLowerCase()===t.host.toLowerCase()&&(n=!0)}else t.protocol==="https:"&&(n=!0);return n}function R(t){return t.task!==void 0}function q(t,i,n){return new Promise(e=>{w(o=>{if(n){if(n.isCancellationRequested){o.dispose(),e(void 0);return}o.store.add(n.onCancellationRequested(()=>{o.dispose(),e(void 0)}))}const s=t.servers.read(o).find(i);s&&(e(s),o.dispose())})})}function D(t,i,n=""){let e=typeof i.data=="string"?i.data:JSON.stringify(i.data);switch(i.logger&&(e=`${i.logger}: ${e}`),n&&(e=`${n} ${e}`),i?.level){case"debug":t.debug(e);break;case"info":case"notice":t.info(e);break;case"warning":t.warn(e);break;case"error":case"critical":case"alert":case"emergency":t.error(e);break;default:t.info(e);break}}export{U as $AU,R as $BU,q as $CU,D as $DU,x as $xU,C as $yU,S as $zU};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { disposableTimeout, timeout } from "../../../../base/common/async.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { autorun, autorunSelfDisposable } from "../../../../base/common/observable.js";
+function startServerByFilter(mcpService, filter, timeout2 = 5e3) {
+  return new Promise((resolve, reject) => {
+    const store = new DisposableStore();
+    store.add(autorun((reader) => {
+      const servers = mcpService.servers.read(reader);
+      const server = servers.find(filter);
+      if (server) {
+        server.start({ promptType: "all-untrusted" }).then((state) => {
+          if (state.state === 3) {
+            server.showOutput();
+          }
+        });
+        resolve();
+        store.dispose();
+      }
+    }));
+    store.add(disposableTimeout(() => {
+      store.dispose();
+      reject(new CancellationError());
+    }, timeout2));
+  });
+}
+__name(startServerByFilter, "startServerByFilter");
+async function startServerAndWaitForLiveTools(server, opts, token) {
+  const r = await server.start(opts);
+  const store = new DisposableStore();
+  const ok = await new Promise((resolve) => {
+    if (token?.isCancellationRequested || r.state === 3 || r.state === 0) {
+      return resolve(false);
+    }
+    if (token) {
+      store.add(token.onCancellationRequested(() => {
+        resolve(false);
+      }));
+    }
+    store.add(autorun((reader) => {
+      const connState = server.connectionState.read(reader).state;
+      if (connState === 3 || connState === 0) {
+        resolve(false);
+      }
+      const toolState = server.cacheState.read(reader);
+      if (toolState === 5) {
+        resolve(true);
+      }
+    }));
+  });
+  if (ok) {
+    await timeout(0);
+  }
+  return ok;
+}
+__name(startServerAndWaitForLiveTools, "startServerAndWaitForLiveTools");
+function mcpServerToSourceData(server, reader) {
+  const metadata = server.serverMetadata.read(reader);
+  return {
+    type: "mcp",
+    serverLabel: metadata?.serverName,
+    instructions: metadata?.serverInstructions,
+    label: server.definition.label,
+    collectionId: server.collection.id,
+    definitionId: server.definition.id
+  };
+}
+__name(mcpServerToSourceData, "mcpServerToSourceData");
+function canLoadMcpNetworkResourceDirectly(resource, server) {
+  let isResourceRequestValid = false;
+  if (resource.protocol === "http:") {
+    const launch = server?.connection.get()?.launchDefinition;
+    if (launch && launch.type === 2 && launch.uri.authority.toLowerCase() === resource.host.toLowerCase()) {
+      isResourceRequestValid = true;
+    }
+  } else if (resource.protocol === "https:") {
+    isResourceRequestValid = true;
+  }
+  return isResourceRequestValid;
+}
+__name(canLoadMcpNetworkResourceDirectly, "canLoadMcpNetworkResourceDirectly");
+function isTaskResult(obj) {
+  return obj.task !== void 0;
+}
+__name(isTaskResult, "isTaskResult");
+function findMcpServer(mcpService, filter, token) {
+  return new Promise((resolve) => {
+    autorunSelfDisposable((reader) => {
+      if (token) {
+        if (token.isCancellationRequested) {
+          reader.dispose();
+          resolve(void 0);
+          return;
+        }
+        reader.store.add(token.onCancellationRequested(() => {
+          reader.dispose();
+          resolve(void 0);
+        }));
+      }
+      const servers = mcpService.servers.read(reader);
+      const server = servers.find(filter);
+      if (server) {
+        resolve(server);
+        reader.dispose();
+      }
+    });
+  });
+}
+__name(findMcpServer, "findMcpServer");
+function translateMcpLogMessage(logger, params, prefix = "") {
+  let contents = typeof params.data === "string" ? params.data : JSON.stringify(params.data);
+  if (params.logger) {
+    contents = `${params.logger}: ${contents}`;
+  }
+  if (prefix) {
+    contents = `${prefix} ${contents}`;
+  }
+  switch (params?.level) {
+    case "debug":
+      logger.debug(contents);
+      break;
+    case "info":
+    case "notice":
+      logger.info(contents);
+      break;
+    case "warning":
+      logger.warn(contents);
+      break;
+    case "error":
+    case "critical":
+    case "alert":
+    case "emergency":
+      logger.error(contents);
+      break;
+    default:
+      logger.info(contents);
+      break;
+  }
+}
+__name(translateMcpLogMessage, "translateMcpLogMessage");
+export {
+  canLoadMcpNetworkResourceDirectly,
+  findMcpServer,
+  isTaskResult,
+  mcpServerToSourceData,
+  startServerAndWaitForLiveTools,
+  startServerByFilter,
+  translateMcpLogMessage
+};
+//# sourceMappingURL=mcpTypesUtils.js.map

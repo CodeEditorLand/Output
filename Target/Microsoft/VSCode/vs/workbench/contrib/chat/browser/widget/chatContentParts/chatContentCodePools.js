@@ -1,1 +1,91 @@
-import{$Ed as u}from"../../../../../../base/common/lifecycle.js";import{$qL as p}from"../../../../../../platform/actions/common/actions.js";import{$Mj as b}from"../../../../../../platform/instantiation/common/instantiation.js";import{$P1b as d,$R1b as $}from"./codeBlockPart.js";import{$3Zb as m}from"./chatCollections.js";var h=function(a,e,t,s){var o=arguments.length,r=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,t,s);else for(var n=a.length-1;n>=0;n--)(i=a[n])&&(r=(o<3?i(r):o>3?i(e,t,r):i(e,t))||r);return o>3&&r&&Object.defineProperty(e,t,r),r},f=function(a,e){return function(t,s){e(t,s,a)}};let c=class extends u{inUse(){return this.a.inUse}constructor(e,t,s,o=!1,r){super(),this.b=o,this.a=this.D(new m(()=>r.createInstance(d,e,p.ChatCodeBlock,t,s,this.b)))}get(){const e=this.a.get();let t=!1;return{object:e,isStale:()=>t,dispose:()=>{e.reset(),t=!0,this.a.release(e)}}}clear(){this.a.clear()}};c=h([f(4,b)],c);let l=class extends u{inUse(){return this.a.inUse}constructor(e,t,s,o=!1,r){super(),this.b=o,this.a=this.D(new m(()=>r.createInstance($,e,p.ChatCompareBlock,t,s,this.b)))}get(){const e=this.a.get();let t=!1;return{object:e,isStale:()=>t,dispose:()=>{e.reset(),t=!0,this.a.release(e)}}}clear(){this.a.clear()}};l=h([f(4,b)],l);export{c as $d4b,l as $e4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { CodeBlockPart, CodeCompareBlockPart } from "./codeBlockPart.js";
+import { ResourcePool } from "./chatCollections.js";
+let EditorPool = class EditorPool2 extends Disposable {
+  static {
+    __name(this, "EditorPool");
+  }
+  inUse() {
+    return this._pool.inUse;
+  }
+  constructor(options, delegate, overflowWidgetsDomNode, isSimpleWidget = false, instantiationService) {
+    super();
+    this.isSimpleWidget = isSimpleWidget;
+    this._pool = this._register(new ResourcePool(() => {
+      return instantiationService.createInstance(CodeBlockPart, options, MenuId.ChatCodeBlock, delegate, overflowWidgetsDomNode, this.isSimpleWidget);
+    }));
+  }
+  get() {
+    const codeBlock = this._pool.get();
+    let stale = false;
+    return {
+      object: codeBlock,
+      isStale: /* @__PURE__ */ __name(() => stale, "isStale"),
+      dispose: /* @__PURE__ */ __name(() => {
+        codeBlock.reset();
+        stale = true;
+        this._pool.release(codeBlock);
+      }, "dispose")
+    };
+  }
+  clear() {
+    this._pool.clear();
+  }
+};
+EditorPool = __decorate([
+  __param(4, IInstantiationService)
+], EditorPool);
+let DiffEditorPool = class DiffEditorPool2 extends Disposable {
+  static {
+    __name(this, "DiffEditorPool");
+  }
+  inUse() {
+    return this._pool.inUse;
+  }
+  constructor(options, delegate, overflowWidgetsDomNode, isSimpleWidget = false, instantiationService) {
+    super();
+    this.isSimpleWidget = isSimpleWidget;
+    this._pool = this._register(new ResourcePool(() => {
+      return instantiationService.createInstance(CodeCompareBlockPart, options, MenuId.ChatCompareBlock, delegate, overflowWidgetsDomNode, this.isSimpleWidget);
+    }));
+  }
+  get() {
+    const codeBlock = this._pool.get();
+    let stale = false;
+    return {
+      object: codeBlock,
+      isStale: /* @__PURE__ */ __name(() => stale, "isStale"),
+      dispose: /* @__PURE__ */ __name(() => {
+        codeBlock.reset();
+        stale = true;
+        this._pool.release(codeBlock);
+      }, "dispose")
+    };
+  }
+  clear() {
+    this._pool.clear();
+  }
+};
+DiffEditorPool = __decorate([
+  __param(4, IInstantiationService)
+], DiffEditorPool);
+export {
+  DiffEditorPool,
+  EditorPool
+};
+//# sourceMappingURL=chatContentCodePools.js.map

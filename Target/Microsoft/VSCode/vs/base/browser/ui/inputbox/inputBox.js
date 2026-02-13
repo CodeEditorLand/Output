@@ -1,1 +1,624 @@
-import*as r from"../../dom.js";import*as b from"../../cssValue.js";import{$30 as v}from"../../event.js";import{$V$ as w,$U$ as I}from"../../formattedTextRenderer.js";import{$w0 as g}from"../actionbar/actionbar.js";import*as p from"../aria/aria.js";import{$y$ as m}from"../hover/hoverDelegate2.js";import{$j0 as x}from"../scrollbar/scrollableElement.js";import{$_9 as H}from"../widget.js";import{$xf as f,Event as $}from"../../../common/event.js";import{$x_ as A}from"../../../common/history.js";import{$Gp as C}from"../../../common/objects.js";import"./inputBox.css";import*as u from"../../../../nls.js";import{$Fd as E}from"../../../common/lifecycle.js";const c=r.$;var y;(function(l){l[l.INFO=1]="INFO",l[l.WARNING=2]="WARNING",l[l.ERROR=3]="ERROR"})(y||(y={}));const W={inputBackground:"#3C3C3C",inputForeground:"#CCCCCC",inputValidationInfoBorder:"#55AAFF",inputValidationInfoBackground:"#063B49",inputValidationWarningBorder:"#B89500",inputValidationWarningBackground:"#352A05",inputValidationErrorBorder:"#BE1100",inputValidationErrorBackground:"#5A1D1D",inputBorder:void 0,inputValidationErrorForeground:void 0,inputValidationInfoForeground:void 0,inputValidationWarningForeground:void 0};class F extends H{get onDidChange(){return this.P.event}get onDidHeightChange(){return this.Q.event}constructor(t,i,e){super(),this.H="idle",this.M=Number.POSITIVE_INFINITY,this.O=this.D(new E),this.P=this.D(new f),this.Q=this.D(new f),this.a=i,this.h=e,this.n=null,this.r=this.h.placeholder||"",this.t=this.h.tooltip??(this.r||""),this.w=this.h.ariaLabel||"",this.h.validationOptions&&(this.y=this.h.validationOptions.validation),this.element=r.$y9(t,c(".monaco-inputbox.idle"));const h=this.h.flexibleHeight?"textarea":"input",s=r.$y9(this.element,c(".ibwrapper"));if(this.c=r.$y9(s,c(h+".input.empty")),this.c.setAttribute("autocorrect","off"),this.c.setAttribute("autocapitalize","off"),this.c.setAttribute("spellcheck","false"),this.C(this.c,()=>this.element.classList.add("synthetic-focus")),this.z(this.c,()=>this.element.classList.remove("synthetic-focus")),this.h.flexibleHeight){this.M=typeof this.h.flexibleMaxHeight=="number"?this.h.flexibleMaxHeight:Number.POSITIVE_INFINITY,this.I=r.$y9(s,c("div.mirror")),this.I.innerText="\xA0",this.N=new x(this.element,{vertical:1}),this.h.flexibleWidth&&(this.c.setAttribute("wrap","off"),this.I.style.whiteSpace="pre",this.I.style.wordWrap="initial"),r.$y9(t,this.N.getDomNode()),this.D(this.N),this.D(this.N.onScroll(o=>this.c.scrollTop=o.scrollTop));const n=this.D(new v(t.ownerDocument,"selectionchange")),a=$.filter(n.event,()=>t.ownerDocument.getSelection()?.anchorNode===s);this.D(a(this.U,this)),this.D(this.onDidHeightChange(this.U,this))}else this.c.type=this.h.type||"text",this.c.setAttribute("wrap","off");this.w&&this.c.setAttribute("aria-label",this.w),this.r&&!this.h.showPlaceholderOnFocus&&this.setPlaceHolder(this.r),this.t&&this.setTooltip(this.t),this.u(this.c,()=>this.ab()),this.z(this.c,()=>this.R()),this.C(this.c,()=>this.S()),this.D(this.G(this.c)),setTimeout(()=>this.bb(),0),this.h.actions&&(this.g=this.D(new g(this.element,{actionViewItemProvider:this.h.actionViewItemProvider})),this.g.push(this.h.actions,{icon:!0,label:!1})),this.cb()}setActions(t,i){this.g?(this.g.clear(),t&&this.g.push(t,{icon:!0,label:!1})):t&&(this.g=this.D(new g(this.element,{actionViewItemProvider:i??this.h.actionViewItemProvider})),this.g.push(t,{icon:!0,label:!1}))}R(){this.Y(),this.h.showPlaceholderOnFocus&&this.c.setAttribute("placeholder","")}S(){this.X(),this.h.showPlaceholderOnFocus&&this.c.setAttribute("placeholder",this.r||"")}setPlaceHolder(t){this.r=t,this.c.setAttribute("placeholder",t)}setTooltip(t){this.t=t,this.O.value||(this.O.value=this.D(m().setupDelayedHoverAtMouse(this.c,()=>({content:this.t,appearance:{compact:!0}}))))}setAriaLabel(t){this.w=t,t?this.c.setAttribute("aria-label",this.w):this.c.removeAttribute("aria-label")}getAriaLabel(){return this.w}get mirrorElement(){return this.I}get inputElement(){return this.c}get value(){return this.c.value}set value(t){this.c.value!==t&&(this.c.value=t,this.ab())}get step(){return this.c.step}set step(t){this.c.step=t}get height(){return typeof this.J=="number"?this.J:r.$Y8(this.element)}focus(){this.c.focus()}blur(){this.c.blur()}hasFocus(){return r.$08(this.c)}select(t=null){this.c.select(),t&&(this.c.setSelectionRange(t.start,t.end),t.end===this.c.value.length&&(this.c.scrollLeft=this.c.scrollWidth))}isSelectionAtEnd(){return this.c.selectionEnd===this.c.value.length&&this.c.selectionStart===this.c.selectionEnd}getSelection(){const t=this.c.selectionStart;if(t===null)return null;const i=this.c.selectionEnd??t;return{start:t,end:i}}enable(){this.c.removeAttribute("disabled")}disable(){this.blur(),this.c.disabled=!0,this.Y()}setEnabled(t){t?this.enable():this.disable()}get width(){return r.$U8(this.c)}set width(t){if(this.h.flexibleHeight&&this.h.flexibleWidth){let i=0;if(this.I){const e=parseFloat(this.I.style.paddingLeft||"")||0,h=parseFloat(this.I.style.paddingRight||"")||0;i=e+h}this.c.style.width=t-i+"px"}else this.c.style.width=t+"px";this.I&&(this.I.style.width=t+"px")}set paddingRight(t){this.c.style.width=`calc(100% - ${t}px)`,this.I&&(this.I.style.paddingRight=t+"px")}U(){if(typeof this.L!="number"||typeof this.J!="number"||!this.N)return;const t=this.L,i=this.J,e=this.c.scrollTop;this.N.setScrollDimensions({scrollHeight:t,height:i}),this.N.setScrollPosition({scrollTop:e})}showMessage(t,i){if(this.H==="open"&&C(this.n,t))return;this.n=t,this.element.classList.remove("idle"),this.element.classList.remove("info"),this.element.classList.remove("warning"),this.element.classList.remove("error"),this.element.classList.add(this.W(t.type));const e=this.stylesForType(this.n.type);this.element.style.border=`1px solid ${b.$T0(e.border,"transparent")}`,this.n.content&&(this.hasFocus()||i)&&this.X()}hideMessage(){this.n=null,this.element.classList.remove("info"),this.element.classList.remove("warning"),this.element.classList.remove("error"),this.element.classList.add("idle"),this.Y(),this.cb()}isInputValid(){return!!this.y&&!this.y(this.value)}validate(){let t=null;return this.y&&(t=this.y(this.value),t?(this.inputElement.setAttribute("aria-invalid","true"),this.showMessage(t)):this.inputElement.hasAttribute("aria-invalid")&&(this.inputElement.removeAttribute("aria-invalid"),this.hideMessage())),t?.type}stylesForType(t){const i=this.h.inputBoxStyles;switch(t){case 1:return{border:i.inputValidationInfoBorder,background:i.inputValidationInfoBackground,foreground:i.inputValidationInfoForeground};case 2:return{border:i.inputValidationWarningBorder,background:i.inputValidationWarningBackground,foreground:i.inputValidationWarningForeground};default:return{border:i.inputValidationErrorBorder,background:i.inputValidationErrorBackground,foreground:i.inputValidationErrorForeground}}}W(t){switch(t){case 1:return"info";case 2:return"warning";default:return"error"}}X(){if(!this.a||!this.n)return;let t;const i=()=>t.style.width=r.$U8(this.element)+"px";this.a.showContextView({getAnchor:()=>this.element,anchorAlignment:1,render:h=>{if(!this.n)return null;t=r.$y9(h,c(".monaco-inputbox-container")),i();const s=c("span.monaco-inputbox-message");this.n.formatContent?w(this.n.content,void 0,s):I(this.n.content,void 0,s),s.classList.add(this.W(this.n.type));const n=this.stylesForType(this.n.type);return s.style.backgroundColor=n.background??"",s.style.color=n.foreground??"",s.style.border=n.border?`1px solid ${n.border}`:"",r.$y9(t,s),null},onHide:()=>{this.H="closed"},layout:i});let e;this.n.type===3?e=u.localize(19,null,this.n.content):this.n.type===2?e=u.localize(20,null,this.n.content):e=u.localize(21,null,this.n.content),p.$50(e),this.H="open"}Y(){this.a&&(this.H==="open"&&this.a.hideContextView(),this.H="idle")}Z(){this.H==="open"&&this.a&&this.a.layout()}ab(){this.P.fire(this.value),this.validate(),this.bb(),this.c.classList.toggle("empty",!this.value),this.H==="open"&&this.a&&this.a.layout(),this.h.hideHoverOnValueChange&&m().hideHover()}bb(){if(!this.I)return;const t=this.value,e=t.charCodeAt(t.length-1)===10?" ":"";(t+e).replace(/\u000c/g,"")?this.I.textContent=t+e:this.I.innerText="\xA0",this.layout()}cb(){const t=this.h.inputBoxStyles,i=t.inputBackground??"",e=t.inputForeground??"",h=t.inputBorder??"";this.element.style.backgroundColor=i,this.element.style.color=e,this.c.style.backgroundColor="inherit",this.c.style.color=e,this.element.style.border=`1px solid ${b.$T0(h,"transparent")}`}layout(){if(!this.I){this.Z();return}const t=this.L;this.L=r.$Y8(this.I),t!==this.L&&(this.J=Math.min(this.L,this.M),this.c.style.height=this.J+"px",this.Q.fire(this.L)),this.Z()}insertAtCursor(t){const i=this.inputElement,e=i.selectionStart,h=i.selectionEnd,s=i.value;e!==null&&h!==null&&(this.value=s.substr(0,e)+t+s.substr(h),i.setSelectionRange(e+1,e+1),this.layout())}dispose(){this.Y(),this.n=null,this.g?.dispose(),super.dispose()}}class _ extends F{constructor(t,i,e){const h=u.localize(22,null,"\u21C5"),s=u.localize(23,null,"\u21C5");super(t,i,e),this.fb=this.D(new f),this.onDidFocus=this.fb.event,this.gb=this.D(new f),this.onDidBlur=this.gb.event,this.db=this.D(new A(e.history,100));const n=()=>{if(e.showHistoryHint&&e.showHistoryHint()&&!this.r.endsWith(h)&&!this.r.endsWith(s)&&this.db.getHistory().length){const a=this.r.endsWith(")")?h:s,o=this.r+a;e.showPlaceholderOnFocus&&!r.$08(this.c)?this.r=o:this.setPlaceHolder(o)}};this.eb=new MutationObserver((a,o)=>{a.forEach(d=>{d.target.textContent||n()})}),this.eb.observe(this.c,{attributeFilter:["class"]}),this.C(this.c,()=>n()),this.z(this.c,()=>{const a=o=>{if(this.r.endsWith(o)){const d=this.r.slice(0,this.r.length-o.length);return e.showPlaceholderOnFocus?this.r=d:this.setPlaceHolder(d),!0}else return!1};a(s)||a(h)})}dispose(){super.dispose(),this.eb&&(this.eb.disconnect(),this.eb=void 0)}addToHistory(t){this.value&&(t||this.value!==this.jb())&&this.db.add(this.value)}prependHistory(t){const i=this.getHistory();this.clearHistory(),t.forEach(e=>{this.db.add(e)}),i.forEach(e=>{this.db.add(e)})}getHistory(){return this.db.getHistory()}isAtFirstInHistory(){return this.db.isFirst()}isAtLastInHistory(){return this.db.isLast()}isNowhereInHistory(){return this.db.isNowhere()}showNextValue(){this.db.has(this.value)||this.addToHistory();let t=this.lb();t&&(t=t===this.value?this.lb():t),this.value=t??"",p.$60(this.value?this.value:u.localize(24,null))}showPreviousValue(){this.db.has(this.value)||this.addToHistory();let t=this.kb();t&&(t=t===this.value?this.kb():t),t&&(this.value=t,p.$60(this.value))}clearHistory(){this.db.clear()}setPlaceHolder(t){super.setPlaceHolder(t),this.setTooltip(t)}R(){super.R(),this.gb.fire()}S(){super.S(),this.fb.fire()}jb(){let t=this.db.current();return t||(t=this.db.last(),this.db.next()),t}kb(){return this.db.previous()||this.db.first()}lb(){return this.db.next()}}export{F as $A_,_ as $B_,W as $z_,y as MessageType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../dom.js";
+import * as cssJs from "../../cssValue.js";
+import { DomEmitter } from "../../event.js";
+import { renderFormattedText, renderText } from "../../formattedTextRenderer.js";
+import { ActionBar } from "../actionbar/actionbar.js";
+import * as aria from "../aria/aria.js";
+import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
+import { ScrollableElement } from "../scrollbar/scrollableElement.js";
+import { Widget } from "../widget.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { HistoryNavigator } from "../../../common/history.js";
+import { equals } from "../../../common/objects.js";
+import "./inputBox.css";
+import * as nls from "../../../../nls.js";
+import { MutableDisposable } from "../../../common/lifecycle.js";
+const $ = dom.$;
+var MessageType;
+(function(MessageType2) {
+  MessageType2[MessageType2["INFO"] = 1] = "INFO";
+  MessageType2[MessageType2["WARNING"] = 2] = "WARNING";
+  MessageType2[MessageType2["ERROR"] = 3] = "ERROR";
+})(MessageType || (MessageType = {}));
+const unthemedInboxStyles = {
+  inputBackground: "#3C3C3C",
+  inputForeground: "#CCCCCC",
+  inputValidationInfoBorder: "#55AAFF",
+  inputValidationInfoBackground: "#063B49",
+  inputValidationWarningBorder: "#B89500",
+  inputValidationWarningBackground: "#352A05",
+  inputValidationErrorBorder: "#BE1100",
+  inputValidationErrorBackground: "#5A1D1D",
+  inputBorder: void 0,
+  inputValidationErrorForeground: void 0,
+  inputValidationInfoForeground: void 0,
+  inputValidationWarningForeground: void 0
+};
+class InputBox extends Widget {
+  static {
+    __name(this, "InputBox");
+  }
+  get onDidChange() {
+    return this._onDidChange.event;
+  }
+  get onDidHeightChange() {
+    return this._onDidHeightChange.event;
+  }
+  constructor(container, contextViewProvider, options) {
+    super();
+    this.state = "idle";
+    this.maxHeight = Number.POSITIVE_INFINITY;
+    this.hover = this._register(new MutableDisposable());
+    this._onDidChange = this._register(new Emitter());
+    this._onDidHeightChange = this._register(new Emitter());
+    this.contextViewProvider = contextViewProvider;
+    this.options = options;
+    this.message = null;
+    this.placeholder = this.options.placeholder || "";
+    this.tooltip = this.options.tooltip ?? (this.placeholder || "");
+    this.ariaLabel = this.options.ariaLabel || "";
+    if (this.options.validationOptions) {
+      this.validation = this.options.validationOptions.validation;
+    }
+    this.element = dom.append(container, $(".monaco-inputbox.idle"));
+    const tagName = this.options.flexibleHeight ? "textarea" : "input";
+    const wrapper = dom.append(this.element, $(".ibwrapper"));
+    this.input = dom.append(wrapper, $(tagName + ".input.empty"));
+    this.input.setAttribute("autocorrect", "off");
+    this.input.setAttribute("autocapitalize", "off");
+    this.input.setAttribute("spellcheck", "false");
+    this.onfocus(this.input, () => this.element.classList.add("synthetic-focus"));
+    this.onblur(this.input, () => this.element.classList.remove("synthetic-focus"));
+    if (this.options.flexibleHeight) {
+      this.maxHeight = typeof this.options.flexibleMaxHeight === "number" ? this.options.flexibleMaxHeight : Number.POSITIVE_INFINITY;
+      this.mirror = dom.append(wrapper, $("div.mirror"));
+      this.mirror.innerText = "\xA0";
+      this.scrollableElement = new ScrollableElement(this.element, {
+        vertical: 1
+        /* ScrollbarVisibility.Auto */
+      });
+      if (this.options.flexibleWidth) {
+        this.input.setAttribute("wrap", "off");
+        this.mirror.style.whiteSpace = "pre";
+        this.mirror.style.wordWrap = "initial";
+      }
+      dom.append(container, this.scrollableElement.getDomNode());
+      this._register(this.scrollableElement);
+      this._register(this.scrollableElement.onScroll((e) => this.input.scrollTop = e.scrollTop));
+      const onSelectionChange = this._register(new DomEmitter(container.ownerDocument, "selectionchange"));
+      const onAnchoredSelectionChange = Event.filter(onSelectionChange.event, () => {
+        const selection = container.ownerDocument.getSelection();
+        return selection?.anchorNode === wrapper;
+      });
+      this._register(onAnchoredSelectionChange(this.updateScrollDimensions, this));
+      this._register(this.onDidHeightChange(this.updateScrollDimensions, this));
+    } else {
+      this.input.type = this.options.type || "text";
+      this.input.setAttribute("wrap", "off");
+    }
+    if (this.ariaLabel) {
+      this.input.setAttribute("aria-label", this.ariaLabel);
+    }
+    if (this.placeholder && !this.options.showPlaceholderOnFocus) {
+      this.setPlaceHolder(this.placeholder);
+    }
+    if (this.tooltip) {
+      this.setTooltip(this.tooltip);
+    }
+    this.oninput(this.input, () => this.onValueChange());
+    this.onblur(this.input, () => this.onBlur());
+    this.onfocus(this.input, () => this.onFocus());
+    this._register(this.ignoreGesture(this.input));
+    setTimeout(() => this.updateMirror(), 0);
+    if (this.options.actions) {
+      this.actionbar = this._register(new ActionBar(this.element, {
+        actionViewItemProvider: this.options.actionViewItemProvider
+      }));
+      this.actionbar.push(this.options.actions, { icon: true, label: false });
+    }
+    this.applyStyles();
+  }
+  setActions(actions, actionViewItemProvider) {
+    if (this.actionbar) {
+      this.actionbar.clear();
+      if (actions) {
+        this.actionbar.push(actions, { icon: true, label: false });
+      }
+    } else if (actions) {
+      this.actionbar = this._register(new ActionBar(this.element, {
+        actionViewItemProvider: actionViewItemProvider ?? this.options.actionViewItemProvider
+      }));
+      this.actionbar.push(actions, { icon: true, label: false });
+    }
+  }
+  onBlur() {
+    this._hideMessage();
+    if (this.options.showPlaceholderOnFocus) {
+      this.input.setAttribute("placeholder", "");
+    }
+  }
+  onFocus() {
+    this._showMessage();
+    if (this.options.showPlaceholderOnFocus) {
+      this.input.setAttribute("placeholder", this.placeholder || "");
+    }
+  }
+  setPlaceHolder(placeHolder) {
+    this.placeholder = placeHolder;
+    this.input.setAttribute("placeholder", placeHolder);
+  }
+  setTooltip(tooltip) {
+    this.tooltip = tooltip;
+    if (!this.hover.value) {
+      this.hover.value = this._register(getBaseLayerHoverDelegate().setupDelayedHoverAtMouse(this.input, () => ({
+        content: this.tooltip,
+        appearance: {
+          compact: true
+        }
+      })));
+    }
+  }
+  setAriaLabel(label) {
+    this.ariaLabel = label;
+    if (label) {
+      this.input.setAttribute("aria-label", this.ariaLabel);
+    } else {
+      this.input.removeAttribute("aria-label");
+    }
+  }
+  getAriaLabel() {
+    return this.ariaLabel;
+  }
+  get mirrorElement() {
+    return this.mirror;
+  }
+  get inputElement() {
+    return this.input;
+  }
+  get value() {
+    return this.input.value;
+  }
+  set value(newValue) {
+    if (this.input.value !== newValue) {
+      this.input.value = newValue;
+      this.onValueChange();
+    }
+  }
+  get step() {
+    return this.input.step;
+  }
+  set step(newValue) {
+    this.input.step = newValue;
+  }
+  get height() {
+    return typeof this.cachedHeight === "number" ? this.cachedHeight : dom.getTotalHeight(this.element);
+  }
+  focus() {
+    this.input.focus();
+  }
+  blur() {
+    this.input.blur();
+  }
+  hasFocus() {
+    return dom.isActiveElement(this.input);
+  }
+  select(range = null) {
+    this.input.select();
+    if (range) {
+      this.input.setSelectionRange(range.start, range.end);
+      if (range.end === this.input.value.length) {
+        this.input.scrollLeft = this.input.scrollWidth;
+      }
+    }
+  }
+  isSelectionAtEnd() {
+    return this.input.selectionEnd === this.input.value.length && this.input.selectionStart === this.input.selectionEnd;
+  }
+  getSelection() {
+    const selectionStart = this.input.selectionStart;
+    if (selectionStart === null) {
+      return null;
+    }
+    const selectionEnd = this.input.selectionEnd ?? selectionStart;
+    return {
+      start: selectionStart,
+      end: selectionEnd
+    };
+  }
+  enable() {
+    this.input.removeAttribute("disabled");
+  }
+  disable() {
+    this.blur();
+    this.input.disabled = true;
+    this._hideMessage();
+  }
+  setEnabled(enabled) {
+    if (enabled) {
+      this.enable();
+    } else {
+      this.disable();
+    }
+  }
+  get width() {
+    return dom.getTotalWidth(this.input);
+  }
+  set width(width) {
+    if (this.options.flexibleHeight && this.options.flexibleWidth) {
+      let horizontalPadding = 0;
+      if (this.mirror) {
+        const paddingLeft = parseFloat(this.mirror.style.paddingLeft || "") || 0;
+        const paddingRight = parseFloat(this.mirror.style.paddingRight || "") || 0;
+        horizontalPadding = paddingLeft + paddingRight;
+      }
+      this.input.style.width = width - horizontalPadding + "px";
+    } else {
+      this.input.style.width = width + "px";
+    }
+    if (this.mirror) {
+      this.mirror.style.width = width + "px";
+    }
+  }
+  set paddingRight(paddingRight) {
+    this.input.style.width = `calc(100% - ${paddingRight}px)`;
+    if (this.mirror) {
+      this.mirror.style.paddingRight = paddingRight + "px";
+    }
+  }
+  updateScrollDimensions() {
+    if (typeof this.cachedContentHeight !== "number" || typeof this.cachedHeight !== "number" || !this.scrollableElement) {
+      return;
+    }
+    const scrollHeight = this.cachedContentHeight;
+    const height = this.cachedHeight;
+    const scrollTop = this.input.scrollTop;
+    this.scrollableElement.setScrollDimensions({ scrollHeight, height });
+    this.scrollableElement.setScrollPosition({ scrollTop });
+  }
+  showMessage(message, force) {
+    if (this.state === "open" && equals(this.message, message)) {
+      return;
+    }
+    this.message = message;
+    this.element.classList.remove("idle");
+    this.element.classList.remove("info");
+    this.element.classList.remove("warning");
+    this.element.classList.remove("error");
+    this.element.classList.add(this.classForType(message.type));
+    const styles = this.stylesForType(this.message.type);
+    this.element.style.border = `1px solid ${cssJs.asCssValueWithDefault(styles.border, "transparent")}`;
+    if (this.message.content && (this.hasFocus() || force)) {
+      this._showMessage();
+    }
+  }
+  hideMessage() {
+    this.message = null;
+    this.element.classList.remove("info");
+    this.element.classList.remove("warning");
+    this.element.classList.remove("error");
+    this.element.classList.add("idle");
+    this._hideMessage();
+    this.applyStyles();
+  }
+  isInputValid() {
+    return !!this.validation && !this.validation(this.value);
+  }
+  validate() {
+    let errorMsg = null;
+    if (this.validation) {
+      errorMsg = this.validation(this.value);
+      if (errorMsg) {
+        this.inputElement.setAttribute("aria-invalid", "true");
+        this.showMessage(errorMsg);
+      } else if (this.inputElement.hasAttribute("aria-invalid")) {
+        this.inputElement.removeAttribute("aria-invalid");
+        this.hideMessage();
+      }
+    }
+    return errorMsg?.type;
+  }
+  stylesForType(type) {
+    const styles = this.options.inputBoxStyles;
+    switch (type) {
+      case 1:
+        return { border: styles.inputValidationInfoBorder, background: styles.inputValidationInfoBackground, foreground: styles.inputValidationInfoForeground };
+      case 2:
+        return { border: styles.inputValidationWarningBorder, background: styles.inputValidationWarningBackground, foreground: styles.inputValidationWarningForeground };
+      default:
+        return { border: styles.inputValidationErrorBorder, background: styles.inputValidationErrorBackground, foreground: styles.inputValidationErrorForeground };
+    }
+  }
+  classForType(type) {
+    switch (type) {
+      case 1:
+        return "info";
+      case 2:
+        return "warning";
+      default:
+        return "error";
+    }
+  }
+  _showMessage() {
+    if (!this.contextViewProvider || !this.message) {
+      return;
+    }
+    let div;
+    const layout = /* @__PURE__ */ __name(() => div.style.width = dom.getTotalWidth(this.element) + "px", "layout");
+    this.contextViewProvider.showContextView({
+      getAnchor: /* @__PURE__ */ __name(() => this.element, "getAnchor"),
+      anchorAlignment: 1,
+      render: /* @__PURE__ */ __name((container) => {
+        if (!this.message) {
+          return null;
+        }
+        div = dom.append(container, $(".monaco-inputbox-container"));
+        layout();
+        const spanElement = $("span.monaco-inputbox-message");
+        if (this.message.formatContent) {
+          renderFormattedText(this.message.content, void 0, spanElement);
+        } else {
+          renderText(this.message.content, void 0, spanElement);
+        }
+        spanElement.classList.add(this.classForType(this.message.type));
+        const styles = this.stylesForType(this.message.type);
+        spanElement.style.backgroundColor = styles.background ?? "";
+        spanElement.style.color = styles.foreground ?? "";
+        spanElement.style.border = styles.border ? `1px solid ${styles.border}` : "";
+        dom.append(div, spanElement);
+        return null;
+      }, "render"),
+      onHide: /* @__PURE__ */ __name(() => {
+        this.state = "closed";
+      }, "onHide"),
+      layout
+    });
+    let alertText;
+    if (this.message.type === 3) {
+      alertText = nls.localize("alertErrorMessage", "Error: {0}", this.message.content);
+    } else if (this.message.type === 2) {
+      alertText = nls.localize("alertWarningMessage", "Warning: {0}", this.message.content);
+    } else {
+      alertText = nls.localize("alertInfoMessage", "Info: {0}", this.message.content);
+    }
+    aria.alert(alertText);
+    this.state = "open";
+  }
+  _hideMessage() {
+    if (!this.contextViewProvider) {
+      return;
+    }
+    if (this.state === "open") {
+      this.contextViewProvider.hideContextView();
+    }
+    this.state = "idle";
+  }
+  layoutMessage() {
+    if (this.state === "open" && this.contextViewProvider) {
+      this.contextViewProvider.layout();
+    }
+  }
+  onValueChange() {
+    this._onDidChange.fire(this.value);
+    this.validate();
+    this.updateMirror();
+    this.input.classList.toggle("empty", !this.value);
+    if (this.state === "open" && this.contextViewProvider) {
+      this.contextViewProvider.layout();
+    }
+    if (this.options.hideHoverOnValueChange) {
+      getBaseLayerHoverDelegate().hideHover();
+    }
+  }
+  updateMirror() {
+    if (!this.mirror) {
+      return;
+    }
+    const value = this.value;
+    const lastCharCode = value.charCodeAt(value.length - 1);
+    const suffix = lastCharCode === 10 ? " " : "";
+    const mirrorTextContent = (value + suffix).replace(/\u000c/g, "");
+    if (mirrorTextContent) {
+      this.mirror.textContent = value + suffix;
+    } else {
+      this.mirror.innerText = "\xA0";
+    }
+    this.layout();
+  }
+  applyStyles() {
+    const styles = this.options.inputBoxStyles;
+    const background = styles.inputBackground ?? "";
+    const foreground = styles.inputForeground ?? "";
+    const border = styles.inputBorder ?? "";
+    this.element.style.backgroundColor = background;
+    this.element.style.color = foreground;
+    this.input.style.backgroundColor = "inherit";
+    this.input.style.color = foreground;
+    this.element.style.border = `1px solid ${cssJs.asCssValueWithDefault(border, "transparent")}`;
+  }
+  layout() {
+    if (!this.mirror) {
+      this.layoutMessage();
+      return;
+    }
+    const previousHeight = this.cachedContentHeight;
+    this.cachedContentHeight = dom.getTotalHeight(this.mirror);
+    if (previousHeight !== this.cachedContentHeight) {
+      this.cachedHeight = Math.min(this.cachedContentHeight, this.maxHeight);
+      this.input.style.height = this.cachedHeight + "px";
+      this._onDidHeightChange.fire(this.cachedContentHeight);
+    }
+    this.layoutMessage();
+  }
+  insertAtCursor(text) {
+    const inputElement = this.inputElement;
+    const start = inputElement.selectionStart;
+    const end = inputElement.selectionEnd;
+    const content = inputElement.value;
+    if (start !== null && end !== null) {
+      this.value = content.substr(0, start) + text + content.substr(end);
+      inputElement.setSelectionRange(start + 1, start + 1);
+      this.layout();
+    }
+  }
+  dispose() {
+    this._hideMessage();
+    this.message = null;
+    this.actionbar?.dispose();
+    super.dispose();
+  }
+}
+class HistoryInputBox extends InputBox {
+  static {
+    __name(this, "HistoryInputBox");
+  }
+  constructor(container, contextViewProvider, options) {
+    const NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_NO_PARENS = nls.localize({
+      key: "history.inputbox.hint.suffix.noparens",
+      comment: ['Text is the suffix of an input field placeholder coming after the action the input field performs, this will be used when the input field ends in a closing parenthesis ")", for example "Filter (e.g. text, !exclude)". The character inserted into the final string is \u21C5 to represent the up and down arrow keys.']
+    }, " or {0} for history", `\u21C5`);
+    const NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_IN_PARENS = nls.localize({
+      key: "history.inputbox.hint.suffix.inparens",
+      comment: ['Text is the suffix of an input field placeholder coming after the action the input field performs, this will be used when the input field does NOT end in a closing parenthesis (eg. "Find"). The character inserted into the final string is \u21C5 to represent the up and down arrow keys.']
+    }, " ({0} for history)", `\u21C5`);
+    super(container, contextViewProvider, options);
+    this._onDidFocus = this._register(new Emitter());
+    this.onDidFocus = this._onDidFocus.event;
+    this._onDidBlur = this._register(new Emitter());
+    this.onDidBlur = this._onDidBlur.event;
+    this.history = this._register(new HistoryNavigator(options.history, 100));
+    const addSuffix = /* @__PURE__ */ __name(() => {
+      if (options.showHistoryHint && options.showHistoryHint() && !this.placeholder.endsWith(NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_NO_PARENS) && !this.placeholder.endsWith(NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_IN_PARENS) && this.history.getHistory().length) {
+        const suffix = this.placeholder.endsWith(")") ? NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_NO_PARENS : NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_IN_PARENS;
+        const suffixedPlaceholder = this.placeholder + suffix;
+        if (options.showPlaceholderOnFocus && !dom.isActiveElement(this.input)) {
+          this.placeholder = suffixedPlaceholder;
+        } else {
+          this.setPlaceHolder(suffixedPlaceholder);
+        }
+      }
+    }, "addSuffix");
+    this.observer = new MutationObserver((mutationList, observer) => {
+      mutationList.forEach((mutation) => {
+        if (!mutation.target.textContent) {
+          addSuffix();
+        }
+      });
+    });
+    this.observer.observe(this.input, { attributeFilter: ["class"] });
+    this.onfocus(this.input, () => addSuffix());
+    this.onblur(this.input, () => {
+      const resetPlaceholder = /* @__PURE__ */ __name((historyHint) => {
+        if (!this.placeholder.endsWith(historyHint)) {
+          return false;
+        } else {
+          const revertedPlaceholder = this.placeholder.slice(0, this.placeholder.length - historyHint.length);
+          if (options.showPlaceholderOnFocus) {
+            this.placeholder = revertedPlaceholder;
+          } else {
+            this.setPlaceHolder(revertedPlaceholder);
+          }
+          return true;
+        }
+      }, "resetPlaceholder");
+      if (!resetPlaceholder(NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_IN_PARENS)) {
+        resetPlaceholder(NLS_PLACEHOLDER_HISTORY_HINT_SUFFIX_NO_PARENS);
+      }
+    });
+  }
+  dispose() {
+    super.dispose();
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = void 0;
+    }
+  }
+  addToHistory(always) {
+    if (this.value && (always || this.value !== this.getCurrentValue())) {
+      this.history.add(this.value);
+    }
+  }
+  prependHistory(restoredHistory) {
+    const newHistory = this.getHistory();
+    this.clearHistory();
+    restoredHistory.forEach((item) => {
+      this.history.add(item);
+    });
+    newHistory.forEach((item) => {
+      this.history.add(item);
+    });
+  }
+  getHistory() {
+    return this.history.getHistory();
+  }
+  isAtFirstInHistory() {
+    return this.history.isFirst();
+  }
+  isAtLastInHistory() {
+    return this.history.isLast();
+  }
+  isNowhereInHistory() {
+    return this.history.isNowhere();
+  }
+  showNextValue() {
+    if (!this.history.has(this.value)) {
+      this.addToHistory();
+    }
+    let next = this.getNextValue();
+    if (next) {
+      next = next === this.value ? this.getNextValue() : next;
+    }
+    this.value = next ?? "";
+    aria.status(this.value ? this.value : nls.localize("clearedInput", "Cleared Input"));
+  }
+  showPreviousValue() {
+    if (!this.history.has(this.value)) {
+      this.addToHistory();
+    }
+    let previous = this.getPreviousValue();
+    if (previous) {
+      previous = previous === this.value ? this.getPreviousValue() : previous;
+    }
+    if (previous) {
+      this.value = previous;
+      aria.status(this.value);
+    }
+  }
+  clearHistory() {
+    this.history.clear();
+  }
+  setPlaceHolder(placeHolder) {
+    super.setPlaceHolder(placeHolder);
+    this.setTooltip(placeHolder);
+  }
+  onBlur() {
+    super.onBlur();
+    this._onDidBlur.fire();
+  }
+  onFocus() {
+    super.onFocus();
+    this._onDidFocus.fire();
+  }
+  getCurrentValue() {
+    let currentValue = this.history.current();
+    if (!currentValue) {
+      currentValue = this.history.last();
+      this.history.next();
+    }
+    return currentValue;
+  }
+  getPreviousValue() {
+    return this.history.previous() || this.history.first();
+  }
+  getNextValue() {
+    return this.history.next();
+  }
+}
+export {
+  HistoryInputBox,
+  InputBox,
+  MessageType,
+  unthemedInboxStyles
+};
+//# sourceMappingURL=inputBox.js.map

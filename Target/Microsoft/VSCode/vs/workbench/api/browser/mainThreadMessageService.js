@@ -1,1 +1,151 @@
-import*as d from"../../../nls.js";import{$Km as p}from"../../../base/common/actions.js";import{$X1 as $}from"../common/extHost.protocol.js";import{$vDb as g}from"../../services/extensions/common/extHostCustomers.js";import{$Mp as y}from"../../../platform/dialogs/common/dialogs.js";import{$pH as x,NotificationPriority as b}from"../../../platform/notification/common/notification.js";import{Event as C}from"../../../base/common/event.js";import{$uo as D}from"../../../platform/commands/common/commands.js";import{$NR as P}from"../../services/extensions/common/extensions.js";var _=function(l,r,n,t){var e=arguments.length,o=e<3?r:t===null?t=Object.getOwnPropertyDescriptor(r,n):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,r,n,t);else for(var i=l.length-1;i>=0;i--)(s=l[i])&&(o=(e<3?s(o):e>3?s(r,n,o):s(r,n))||o);return e>3&&o&&Object.defineProperty(r,n,o),o},f=function(l,r){return function(n,t){r(n,t,l)}},m;let v=class{static{m=this}static{this.b=["vscode.github-authentication","vscode.microsoft-authentication"]}constructor(r,n,t,e,o){this.c=n,this.d=t,this.f=e,this.a=o.onDidChangeExtensions(s=>{for(const i of s.removed)this.c.removeFilter(i.identifier.value)})}dispose(){this.a.dispose()}$showMessage(r,n,t,e){return t.modal?this.h(r,n,t.detail,e,t.useCustom):this.g(r,n,e,t)}g(r,n,t,e){return new Promise(o=>{const s=t.map(h=>p({id:`_extension_message_handle_${h.handle}`,label:h.title,enabled:!0,run:()=>(o(h.handle),Promise.resolve())}));let i,c=!1;e.source&&(i={label:e.source.label,id:e.source.identifier.value},c=m.b.includes(i.id)),i||(i=d.localize(2888,null));const a=[];e.source&&a.push(p({id:e.source.identifier.value,label:d.localize(2889,null),run:()=>this.d.executeCommand("_extensions.manage",e.source.identifier.value)}));const u=this.c.notify({severity:r,message:n,actions:{primary:s,secondary:a},source:i,priority:c?b.URGENT:b.DEFAULT,sticky:c});C.once(u.onDidClose)(()=>{o(void 0)})})}async h(r,n,t,e,o){const s=[];let i;for(const a of e){const u={label:a.title,run:()=>a.handle};a.isCloseAffordance?i=u:s.push(u)}i||(s.length>0?i={label:d.localize(2890,null),run:()=>{}}:i={label:d.localize(2891,null),run:()=>{}});const{result:c}=await this.f.prompt({type:r,message:n,detail:t,buttons:s,cancelButton:i,custom:o});return c}};v=m=_([g($.MainThreadMessageService),f(1,x),f(2,D),f(3,y),f(4,P)],v);export{v as $r7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MainThreadMessageService_1;
+import * as nls from "../../../nls.js";
+import { toAction } from "../../../base/common/actions.js";
+import { MainContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
+import { INotificationService, NotificationPriority } from "../../../platform/notification/common/notification.js";
+import { Event } from "../../../base/common/event.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+let MainThreadMessageService = class MainThreadMessageService2 {
+  static {
+    __name(this, "MainThreadMessageService");
+  }
+  static {
+    MainThreadMessageService_1 = this;
+  }
+  static {
+    this.URGENT_NOTIFICATION_SOURCES = [
+      "vscode.github-authentication",
+      "vscode.microsoft-authentication"
+    ];
+  }
+  constructor(extHostContext, _notificationService, _commandService, _dialogService, extensionService) {
+    this._notificationService = _notificationService;
+    this._commandService = _commandService;
+    this._dialogService = _dialogService;
+    this.extensionsListener = extensionService.onDidChangeExtensions((e) => {
+      for (const extension of e.removed) {
+        this._notificationService.removeFilter(extension.identifier.value);
+      }
+    });
+  }
+  dispose() {
+    this.extensionsListener.dispose();
+  }
+  $showMessage(severity, message, options, commands) {
+    if (options.modal) {
+      return this._showModalMessage(severity, message, options.detail, commands, options.useCustom);
+    } else {
+      return this._showMessage(severity, message, commands, options);
+    }
+  }
+  _showMessage(severity, message, commands, options) {
+    return new Promise((resolve) => {
+      const primaryActions = commands.map((command) => toAction({
+        id: `_extension_message_handle_${command.handle}`,
+        label: command.title,
+        enabled: true,
+        run: /* @__PURE__ */ __name(() => {
+          resolve(command.handle);
+          return Promise.resolve();
+        }, "run")
+      }));
+      let source;
+      let sourceIsUrgent = false;
+      if (options.source) {
+        source = {
+          label: options.source.label,
+          id: options.source.identifier.value
+        };
+        sourceIsUrgent = MainThreadMessageService_1.URGENT_NOTIFICATION_SOURCES.includes(source.id);
+      }
+      if (!source) {
+        source = nls.localize("defaultSource", "Extension");
+      }
+      const secondaryActions = [];
+      if (options.source) {
+        secondaryActions.push(toAction({
+          id: options.source.identifier.value,
+          label: nls.localize("manageExtension", "Manage Extension"),
+          run: /* @__PURE__ */ __name(() => {
+            return this._commandService.executeCommand("_extensions.manage", options.source.identifier.value);
+          }, "run")
+        }));
+      }
+      const messageHandle = this._notificationService.notify({
+        severity,
+        message,
+        actions: { primary: primaryActions, secondary: secondaryActions },
+        source,
+        priority: sourceIsUrgent ? NotificationPriority.URGENT : NotificationPriority.DEFAULT,
+        sticky: sourceIsUrgent
+      });
+      Event.once(messageHandle.onDidClose)(() => {
+        resolve(void 0);
+      });
+    });
+  }
+  async _showModalMessage(severity, message, detail, commands, useCustom) {
+    const buttons = [];
+    let cancelButton = void 0;
+    for (const command of commands) {
+      const button = {
+        label: command.title,
+        run: /* @__PURE__ */ __name(() => command.handle, "run")
+      };
+      if (command.isCloseAffordance) {
+        cancelButton = button;
+      } else {
+        buttons.push(button);
+      }
+    }
+    if (!cancelButton) {
+      if (buttons.length > 0) {
+        cancelButton = {
+          label: nls.localize("cancel", "Cancel"),
+          run: /* @__PURE__ */ __name(() => void 0, "run")
+        };
+      } else {
+        cancelButton = {
+          label: nls.localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
+          run: /* @__PURE__ */ __name(() => void 0, "run")
+        };
+      }
+    }
+    const { result } = await this._dialogService.prompt({
+      type: severity,
+      message,
+      detail,
+      buttons,
+      cancelButton,
+      custom: useCustom
+    });
+    return result;
+  }
+};
+MainThreadMessageService = MainThreadMessageService_1 = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadMessageService),
+  __param(1, INotificationService),
+  __param(2, ICommandService),
+  __param(3, IDialogService),
+  __param(4, IExtensionService)
+], MainThreadMessageService);
+export {
+  MainThreadMessageService
+};
+//# sourceMappingURL=mainThreadMessageService.js.map

@@ -1,1 +1,103 @@
-import{localize2 as u}from"../../../../../nls.js";import{$vL as l,$wL as p}from"../../../../../platform/actions/common/actions.js";import{$HPb as g}from"./chatActions.js";import{$U4b as P}from"../chat.js";import{ChatContextKeys as c}from"../../common/actions/chatContextKeys.js";import{$8Eb as h,$9Eb as b}from"../../common/model/chatViewModel.js";function S(){p(class extends l{constructor(){super({id:"workbench.action.chat.nextUserPrompt",title:u(5347,"Next User Prompt"),keybinding:{primary:2578,weight:200,when:c.inChatSession},precondition:c.enabled,f1:!0,category:g})}run(r,...m){x(r,!1)}}),p(class extends l{constructor(){super({id:"workbench.action.chat.previousUserPrompt",title:u(5348,"Previous User Prompt"),keybinding:{primary:2576,weight:200,when:c.inChatSession},precondition:c.enabled,f1:!0,category:g})}run(r,...m){x(r,!0)}})}function x(d,r){const o=d.get(P).lastFocusedWidget;if(!o)return;const f=o.viewModel?.getItems();if(!f||f.length===0)return;const t=f.filter(s=>h(s));if(t.length===0)return;const n=o.getFocus();let i=-1;n&&(h(n)?i=t.findIndex(s=>s.id===n.id):b(n)&&(i=t.findIndex(s=>s.id===n.requestId)));let e;if(i===-1)e=r?t.length-1:0;else if(e=r?i-1:i+1,e<0?e=0:e>=t.length&&(e=t.length-1),e===i)return;const a=t[e];a&&(o.focus(a),o.reveal(a))}export{S as $Uoc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize2 } from "../../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { IChatWidgetService } from "../chat.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { isRequestVM, isResponseVM } from "../../common/model/chatViewModel.js";
+function registerChatPromptNavigationActions() {
+  registerAction2(class NextUserPromptAction extends Action2 {
+    static {
+      __name(this, "NextUserPromptAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.nextUserPrompt",
+        title: localize2("interactive.nextUserPrompt.label", "Next User Prompt"),
+        keybinding: {
+          primary: 2048 | 512 | 18,
+          weight: 200,
+          when: ChatContextKeys.inChatSession
+        },
+        precondition: ChatContextKeys.enabled,
+        f1: true,
+        category: CHAT_CATEGORY
+      });
+    }
+    run(accessor, ...args) {
+      navigateUserPrompts(accessor, false);
+    }
+  });
+  registerAction2(class PreviousUserPromptAction extends Action2 {
+    static {
+      __name(this, "PreviousUserPromptAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.previousUserPrompt",
+        title: localize2("interactive.previousUserPrompt.label", "Previous User Prompt"),
+        keybinding: {
+          primary: 2048 | 512 | 16,
+          weight: 200,
+          when: ChatContextKeys.inChatSession
+        },
+        precondition: ChatContextKeys.enabled,
+        f1: true,
+        category: CHAT_CATEGORY
+      });
+    }
+    run(accessor, ...args) {
+      navigateUserPrompts(accessor, true);
+    }
+  });
+}
+__name(registerChatPromptNavigationActions, "registerChatPromptNavigationActions");
+function navigateUserPrompts(accessor, reverse) {
+  const chatWidgetService = accessor.get(IChatWidgetService);
+  const widget = chatWidgetService.lastFocusedWidget;
+  if (!widget) {
+    return;
+  }
+  const items = widget.viewModel?.getItems();
+  if (!items || items.length === 0) {
+    return;
+  }
+  const userPrompts = items.filter((item) => isRequestVM(item));
+  if (userPrompts.length === 0) {
+    return;
+  }
+  const focused = widget.getFocus();
+  let currentIndex = -1;
+  if (focused) {
+    if (isRequestVM(focused)) {
+      currentIndex = userPrompts.findIndex((prompt) => prompt.id === focused.id);
+    } else if (isResponseVM(focused)) {
+      currentIndex = userPrompts.findIndex((prompt) => prompt.id === focused.requestId);
+    }
+  }
+  let nextIndex;
+  if (currentIndex === -1) {
+    nextIndex = reverse ? userPrompts.length - 1 : 0;
+  } else {
+    nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
+    if (nextIndex < 0) {
+      nextIndex = 0;
+    } else if (nextIndex >= userPrompts.length) {
+      nextIndex = userPrompts.length - 1;
+    }
+    if (nextIndex === currentIndex) {
+      return;
+    }
+  }
+  const targetPrompt = userPrompts[nextIndex];
+  if (targetPrompt) {
+    widget.focus(targetPrompt);
+    widget.reveal(targetPrompt);
+  }
+}
+__name(navigateUserPrompts, "navigateUserPrompts");
+export {
+  registerChatPromptNavigationActions
+};
+//# sourceMappingURL=chatPromptNavigationActions.js.map

@@ -1,2 +1,105 @@
-import{$Xf as p}from"../../../../base/common/strings.js";const m=/(?<![a-zA-Z0-9])(?<dollars>\${1,2})(?!\.|\(["'])((?:\\.|[^\\\n])*?(?:\\.|[^\\\n\$]))\k<dollars>(?![a-zA-Z0-9])/,$="vscode-katex-container",f="data-latex",b=new RegExp("^"+m.source);var l;(function(c){const i=/^(\${1,2})\n((?:\\[^]|[^\\])+?)\n\1(?:\n|$)/;function u(a,n={}){return{extensions:[x(n,s(a,n,!1)),d(n,s(a,n,!0))]}}c.extension=u;function s(a,n,o){return r=>{let e;try{const t=a.renderToString(r.text,{...n,throwOnError:!0,displayMode:r.displayMode});e=`<span class="${$}" ${f}="${p(r.text)}">${t}</span>`}catch{e=r.raw}return e+(o?`
-`:"")}}function x(a,n){const o=b;return{name:"inlineKatex",level:"inline",start(r){let e,t=r;for(;t;){if(e=t.indexOf("$"),e===-1)return;if(t.substring(e).match(o))return e;t=t.substring(e+1).replace(/^\$+/,"")}},tokenizer(r,e){const t=r.match(o);if(t)return{type:"inlineKatex",raw:t[0],text:t[2].trim(),displayMode:t[1].length===2}},renderer:n}}function d(a,n){return{name:"blockKatex",level:"block",start(o){return o.match(new RegExp(i.source,"m"))?.index},tokenizer(o,r){const e=o.match(i);if(e)return{type:"blockKatex",raw:e[0],text:e[2].trim(),displayMode:e[1].length===2}},renderer:n}}})(l||(l={}));export{m as $3Eb,$ as $4Eb,f as $5Eb,l as MarkedKatexExtension};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { htmlAttributeEncodeValue } from "../../../../base/common/strings.js";
+const mathInlineRegExp = /(?<![a-zA-Z0-9])(?<dollars>\${1,2})(?!\.|\(["'])((?:\\.|[^\\\n])*?(?:\\.|[^\\\n\$]))\k<dollars>(?![a-zA-Z0-9])/;
+const katexContainerClassName = "vscode-katex-container";
+const katexContainerLatexAttributeName = "data-latex";
+const inlineRule = new RegExp("^" + mathInlineRegExp.source);
+var MarkedKatexExtension;
+(function(MarkedKatexExtension2) {
+  const blockRule = /^(\${1,2})\n((?:\\[^]|[^\\])+?)\n\1(?:\n|$)/;
+  function extension(katex, options = {}) {
+    return {
+      extensions: [
+        inlineKatex(options, createRenderer(katex, options, false)),
+        blockKatex(options, createRenderer(katex, options, true))
+      ]
+    };
+  }
+  __name(extension, "extension");
+  MarkedKatexExtension2.extension = extension;
+  function createRenderer(katex, options, isBlock) {
+    return (token) => {
+      let out;
+      try {
+        const html = katex.renderToString(token.text, {
+          ...options,
+          throwOnError: true,
+          displayMode: token.displayMode
+        });
+        out = `<span class="${katexContainerClassName}" ${katexContainerLatexAttributeName}="${htmlAttributeEncodeValue(token.text)}">${html}</span>`;
+      } catch {
+        out = token.raw;
+      }
+      return out + (isBlock ? "\n" : "");
+    };
+  }
+  __name(createRenderer, "createRenderer");
+  function inlineKatex(options, renderer) {
+    const ruleReg = inlineRule;
+    return {
+      name: "inlineKatex",
+      level: "inline",
+      start(src) {
+        let index;
+        let indexSrc = src;
+        while (indexSrc) {
+          index = indexSrc.indexOf("$");
+          if (index === -1) {
+            return;
+          }
+          const possibleKatex = indexSrc.substring(index);
+          if (possibleKatex.match(ruleReg)) {
+            return index;
+          }
+          indexSrc = indexSrc.substring(index + 1).replace(/^\$+/, "");
+        }
+        return;
+      },
+      tokenizer(src, tokens) {
+        const match = src.match(ruleReg);
+        if (match) {
+          return {
+            type: "inlineKatex",
+            raw: match[0],
+            text: match[2].trim(),
+            displayMode: match[1].length === 2
+          };
+        }
+        return;
+      },
+      renderer
+    };
+  }
+  __name(inlineKatex, "inlineKatex");
+  function blockKatex(options, renderer) {
+    return {
+      name: "blockKatex",
+      level: "block",
+      start(src) {
+        return src.match(new RegExp(blockRule.source, "m"))?.index;
+      },
+      tokenizer(src, tokens) {
+        const match = src.match(blockRule);
+        if (match) {
+          return {
+            type: "blockKatex",
+            raw: match[0],
+            text: match[2].trim(),
+            displayMode: match[1].length === 2
+          };
+        }
+        return;
+      },
+      renderer
+    };
+  }
+  __name(blockKatex, "blockKatex");
+})(MarkedKatexExtension || (MarkedKatexExtension = {}));
+export {
+  MarkedKatexExtension,
+  katexContainerClassName,
+  katexContainerLatexAttributeName,
+  mathInlineRegExp
+};
+//# sourceMappingURL=markedKatexExtension.js.map

@@ -1,5 +1,232 @@
-import{$Qn as x,$Sn as g}from"../../../../../base/common/date.js";import{$$c as a}from"../../../../../base/common/types.js";import{localize as u}from"../../../../../nls.js";import{$AYb as M,$zYb as $,$BYb as z}from"../terminalIcons.js";var b;(function(e){e[e.DefaultDimension=16]="DefaultDimension",e[e.MarginLeft=-17]="MarginLeft"})(b||(b={}));var c;(function(e){e.CommandDecoration="terminal-command-decoration",e.Hide="hide",e.ErrorColor="error",e.DefaultColor="default-color",e.Default="default",e.Codicon="codicon",e.XtermDecoration="xterm-decoration",e.OverviewRuler=".xterm-decoration-overview-ruler"})(c||(c={}));function T(e,i,l){let t=l?`${u(13387,null)}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { fromNow, getDurationString } from "../../../../../base/common/date.js";
+import { isNumber } from "../../../../../base/common/types.js";
+import { localize } from "../../../../../nls.js";
+import { terminalDecorationError, terminalDecorationIncomplete, terminalDecorationSuccess } from "../terminalIcons.js";
+var DecorationStyles;
+(function(DecorationStyles2) {
+  DecorationStyles2[DecorationStyles2["DefaultDimension"] = 16] = "DefaultDimension";
+  DecorationStyles2[DecorationStyles2["MarginLeft"] = -17] = "MarginLeft";
+})(DecorationStyles || (DecorationStyles = {}));
+var DecorationSelector;
+(function(DecorationSelector2) {
+  DecorationSelector2["CommandDecoration"] = "terminal-command-decoration";
+  DecorationSelector2["Hide"] = "hide";
+  DecorationSelector2["ErrorColor"] = "error";
+  DecorationSelector2["DefaultColor"] = "default-color";
+  DecorationSelector2["Default"] = "default";
+  DecorationSelector2["Codicon"] = "codicon";
+  DecorationSelector2["XtermDecoration"] = "xterm-decoration";
+  DecorationSelector2["OverviewRuler"] = ".xterm-decoration-overview-ruler";
+})(DecorationSelector || (DecorationSelector = {}));
+function getTerminalDecorationHoverContent(command, hoverMessage, showCommandActions) {
+  let hoverContent = showCommandActions ? `${localize("terminalPromptContextMenu", "Show Command Actions")}
 
 ---
 
-`:"";if(e)if(e.markProperties||i)if(e.markProperties?.hoverMessage||i)t=e.markProperties?.hoverMessage||i||"";else return"";else if(a(e.duration)){const s=g(e.duration);e.exitCode?e.exitCode===-1?t+=u(13388,null,x(e.timestamp,!0),s):t+=u(13389,null,x(e.timestamp,!0),s,e.exitCode):t+=u(13390,null,x(e.timestamp,!0),s)}else e.exitCode?e.exitCode===-1?t+=u(13391,null,x(e.timestamp,!0)):t+=u(13392,null,x(e.timestamp,!0),e.exitCode):t+=u(13393,null);else if(i)t=i;else return"";return t}var k;(function(e){e.Unknown="unknown",e.Running="running",e.Success="success",e.Error="error"})(k||(k={}));const C=u(13394,null),w=u(13395,null);function Y(e,i){if(e)return T(e);if(!i)return"";const l=i.timestamp,t=i.exitCode,s=i.duration;if(typeof l!="number"||l===void 0)return"";let n="";const r=x(l,!0);if(typeof s=="number"){const o=g(Math.max(s,0));t?t===-1?n+=u(13396,null,r,o):n+=u(13397,null,r,o,t):n+=u(13398,null,r,o)}else t?t===-1?n+=u(13399,null,r):n+=u(13400,null,r,t):n+=u(13401,null,r);return n}function E(e,i,l=Date.now()){let t="unknown";const s=e?.exitCode??i?.exitCode;let n=C;const r=e?.timestamp??i?.timestamp;let o=C,f,h=C;typeof r=="number"&&(o=new Date(r).toLocaleString()),e?e.exitCode===void 0?(t="running",n=w,f=r!==void 0?Math.max(0,l-r):void 0):e.exitCode!==0?(t="error",n=String(e.exitCode),f=e.duration??(r!==void 0?Math.max(0,l-r):void 0)):(t="success",n=String(e.exitCode),f=e.duration??(r!==void 0?Math.max(0,l-r):void 0)):i&&(i.exitCode===void 0?(t="running",n=w,f=r!==void 0?Math.max(0,l-r):void 0):i.exitCode!==0?(t="error",n=String(i.exitCode),f=i.duration):(t="success",n=String(i.exitCode),f=i.duration)),typeof f=="number"&&(h=g(Math.max(f,0)));const p=[];let d=$;switch(t){case"running":case"unknown":p.push("default-color","default"),d=$;break;case"error":p.push("error"),d=M;break;case"success":p.push("success"),d=z;break}const v=Y(e,i);return{status:t,icon:d,classNames:p,exitCode:s,exitCodeText:n,startTimestamp:r,startText:o,duration:f,durationText:h,hoverMessage:v}}function N(e,i){if(!i)return;const l=e.inspect("terminal.integrated.fontSize").value,t=e.inspect("terminal.integrated.fontSize").defaultValue,s=e.inspect("terminal.integrated.lineHeight").value;if(a(l)&&a(t)&&a(s)){const n=l/t<=1?l/t:1;i.style.width=`${n*16}px`,i.style.height=`${n*16*s}px`,i.style.fontSize=`${n*16}px`,i.style.marginLeft=`${n*-17}px`}}export{T as $GYb,Y as $HYb,E as $IYb,N as $JYb,c as DecorationSelector,k as TerminalCommandDecorationStatus};
+` : "";
+  if (!command) {
+    if (hoverMessage) {
+      hoverContent = hoverMessage;
+    } else {
+      return "";
+    }
+  } else if (command.markProperties || hoverMessage) {
+    if (command.markProperties?.hoverMessage || hoverMessage) {
+      hoverContent = command.markProperties?.hoverMessage || hoverMessage || "";
+    } else {
+      return "";
+    }
+  } else {
+    if (isNumber(command.duration)) {
+      const durationText = getDurationString(command.duration);
+      if (command.exitCode) {
+        if (command.exitCode === -1) {
+          hoverContent += localize("terminalPromptCommandFailed.duration", "Command executed {0}, took {1} and failed", fromNow(command.timestamp, true), durationText);
+        } else {
+          hoverContent += localize("terminalPromptCommandFailedWithExitCode.duration", "Command executed {0}, took {1} and failed (Exit Code {2})", fromNow(command.timestamp, true), durationText, command.exitCode);
+        }
+      } else {
+        hoverContent += localize("terminalPromptCommandSuccess.duration", "Command executed {0} and took {1}", fromNow(command.timestamp, true), durationText);
+      }
+    } else {
+      if (command.exitCode) {
+        if (command.exitCode === -1) {
+          hoverContent += localize("terminalPromptCommandFailed", "Command executed {0} and failed", fromNow(command.timestamp, true));
+        } else {
+          hoverContent += localize("terminalPromptCommandFailedWithExitCode", "Command executed {0} and failed (Exit Code {1})", fromNow(command.timestamp, true), command.exitCode);
+        }
+      } else {
+        hoverContent += localize("terminalPromptCommandSuccess", "Command executed {0} now");
+      }
+    }
+  }
+  return hoverContent;
+}
+__name(getTerminalDecorationHoverContent, "getTerminalDecorationHoverContent");
+var TerminalCommandDecorationStatus;
+(function(TerminalCommandDecorationStatus2) {
+  TerminalCommandDecorationStatus2["Unknown"] = "unknown";
+  TerminalCommandDecorationStatus2["Running"] = "running";
+  TerminalCommandDecorationStatus2["Success"] = "success";
+  TerminalCommandDecorationStatus2["Error"] = "error";
+})(TerminalCommandDecorationStatus || (TerminalCommandDecorationStatus = {}));
+const unknownText = localize("terminalCommandDecoration.unknown", "Unknown");
+const runningText = localize("terminalCommandDecoration.running", "Running");
+function getTerminalCommandDecorationTooltip(command, storedState) {
+  if (command) {
+    return getTerminalDecorationHoverContent(command);
+  }
+  if (!storedState) {
+    return "";
+  }
+  const timestamp = storedState.timestamp;
+  const exitCode = storedState.exitCode;
+  const duration = storedState.duration;
+  if (typeof timestamp !== "number" || timestamp === void 0) {
+    return "";
+  }
+  let hoverContent = "";
+  const fromNowText = fromNow(timestamp, true);
+  if (typeof duration === "number") {
+    const durationText = getDurationString(Math.max(duration, 0));
+    if (exitCode) {
+      if (exitCode === -1) {
+        hoverContent += localize("terminalPromptCommandFailed.duration", "Command executed {0}, took {1} and failed", fromNowText, durationText);
+      } else {
+        hoverContent += localize("terminalPromptCommandFailedWithExitCode.duration", "Command executed {0}, took {1} and failed (Exit Code {2})", fromNowText, durationText, exitCode);
+      }
+    } else {
+      hoverContent += localize("terminalPromptCommandSuccess.duration", "Command executed {0} and took {1}", fromNowText, durationText);
+    }
+  } else {
+    if (exitCode) {
+      if (exitCode === -1) {
+        hoverContent += localize("terminalPromptCommandFailed", "Command executed {0} and failed", fromNowText);
+      } else {
+        hoverContent += localize("terminalPromptCommandFailedWithExitCode", "Command executed {0} and failed (Exit Code {1})", fromNowText, exitCode);
+      }
+    } else {
+      hoverContent += localize("terminalPromptCommandSuccess.", "Command executed {0} ", fromNowText);
+    }
+  }
+  return hoverContent;
+}
+__name(getTerminalCommandDecorationTooltip, "getTerminalCommandDecorationTooltip");
+function getTerminalCommandDecorationState(command, storedState, now = Date.now()) {
+  let status = "unknown";
+  const exitCode = command?.exitCode ?? storedState?.exitCode;
+  let exitCodeText = unknownText;
+  const startTimestamp = command?.timestamp ?? storedState?.timestamp;
+  let startText = unknownText;
+  let durationMs;
+  let durationText = unknownText;
+  if (typeof startTimestamp === "number") {
+    startText = new Date(startTimestamp).toLocaleString();
+  }
+  if (command) {
+    if (command.exitCode === void 0) {
+      status = "running";
+      exitCodeText = runningText;
+      durationMs = startTimestamp !== void 0 ? Math.max(0, now - startTimestamp) : void 0;
+    } else if (command.exitCode !== 0) {
+      status = "error";
+      exitCodeText = String(command.exitCode);
+      durationMs = command.duration ?? (startTimestamp !== void 0 ? Math.max(0, now - startTimestamp) : void 0);
+    } else {
+      status = "success";
+      exitCodeText = String(command.exitCode);
+      durationMs = command.duration ?? (startTimestamp !== void 0 ? Math.max(0, now - startTimestamp) : void 0);
+    }
+  } else if (storedState) {
+    if (storedState.exitCode === void 0) {
+      status = "running";
+      exitCodeText = runningText;
+      durationMs = startTimestamp !== void 0 ? Math.max(0, now - startTimestamp) : void 0;
+    } else if (storedState.exitCode !== 0) {
+      status = "error";
+      exitCodeText = String(storedState.exitCode);
+      durationMs = storedState.duration;
+    } else {
+      status = "success";
+      exitCodeText = String(storedState.exitCode);
+      durationMs = storedState.duration;
+    }
+  }
+  if (typeof durationMs === "number") {
+    durationText = getDurationString(Math.max(durationMs, 0));
+  }
+  const classNames = [];
+  let icon = terminalDecorationIncomplete;
+  switch (status) {
+    case "running":
+    case "unknown":
+      classNames.push(
+        "default-color",
+        "default"
+        /* DecorationSelector.Default */
+      );
+      icon = terminalDecorationIncomplete;
+      break;
+    case "error":
+      classNames.push(
+        "error"
+        /* DecorationSelector.ErrorColor */
+      );
+      icon = terminalDecorationError;
+      break;
+    case "success":
+      classNames.push("success");
+      icon = terminalDecorationSuccess;
+      break;
+  }
+  const hoverMessage = getTerminalCommandDecorationTooltip(command, storedState);
+  return {
+    status,
+    icon,
+    classNames,
+    exitCode,
+    exitCodeText,
+    startTimestamp,
+    startText,
+    duration: durationMs,
+    durationText,
+    hoverMessage
+  };
+}
+__name(getTerminalCommandDecorationState, "getTerminalCommandDecorationState");
+function updateLayout(configurationService, element) {
+  if (!element) {
+    return;
+  }
+  const fontSize = configurationService.inspect(
+    "terminal.integrated.fontSize"
+    /* TerminalSettingId.FontSize */
+  ).value;
+  const defaultFontSize = configurationService.inspect(
+    "terminal.integrated.fontSize"
+    /* TerminalSettingId.FontSize */
+  ).defaultValue;
+  const lineHeight = configurationService.inspect(
+    "terminal.integrated.lineHeight"
+    /* TerminalSettingId.LineHeight */
+  ).value;
+  if (isNumber(fontSize) && isNumber(defaultFontSize) && isNumber(lineHeight)) {
+    const scalar = fontSize / defaultFontSize <= 1 ? fontSize / defaultFontSize : 1;
+    element.style.width = `${scalar * 16}px`;
+    element.style.height = `${scalar * 16 * lineHeight}px`;
+    element.style.fontSize = `${scalar * 16}px`;
+    element.style.marginLeft = `${scalar * -17}px`;
+  }
+}
+__name(updateLayout, "updateLayout");
+export {
+  DecorationSelector,
+  TerminalCommandDecorationStatus,
+  getTerminalCommandDecorationState,
+  getTerminalCommandDecorationTooltip,
+  getTerminalDecorationHoverContent,
+  updateLayout
+};
+//# sourceMappingURL=decorationStyles.js.map

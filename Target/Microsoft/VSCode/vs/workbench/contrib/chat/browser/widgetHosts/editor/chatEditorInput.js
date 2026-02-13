@@ -1,1 +1,355 @@
-import{CancellationToken as w}from"../../../../../../base/common/cancellation.js";import{$bk as T}from"../../../../../../base/common/codicons.js";import{$Ed as $,$Fd as C}from"../../../../../../base/common/lifecycle.js";import{Schemas as f}from"../../../../../../base/common/network.js";import{$Bh as E}from"../../../../../../base/common/resources.js";import{$2f as R}from"../../../../../../base/common/strings.js";import{ThemeIcon as y}from"../../../../../../base/common/themables.js";import{URI as u}from"../../../../../../base/common/uri.js";import*as c from"../../../../../../nls.js";import{$Mp as z}from"../../../../../../platform/dialogs/common/dialogs.js";import{$gu as N}from"../../../../../../platform/theme/common/iconRegistry.js";import{$4H as D}from"../../../../../common/editor/editorInput.js";import{$NV as P}from"../../../common/chatService/chatService.js";import{$aW as U,$9V as m}from"../../../common/chatSessionsService.js";import{ChatAgentLocation as g,$fW as O}from"../../../common/constants.js";import{LocalChatSessionUri as S,$iS as _}from"../../../common/model/chatUri.js";var b=function(r,t,e,s){var i=arguments.length,n=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,s);else for(var a=r.length-1;a>=0;a--)(o=r[a])&&(n=(i<3?o(n):i>3?o(t,e,n):o(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},p=function(r,t){return function(e,s){t(e,s,r)}},h;const x=N("chat-editor-label-icon",T.chatSparkle,c.localize(6780,null));let l=class extends D{static{h=this}static{this.TypeID="workbench.input.chatSession"}static{this.EditorID="workbench.editor.chatSession"}get sessionResource(){return this.h}get s(){return this.r.value?.object}static getNewEditorUri(){return d.getNewEditorUri()}constructor(t,e,s,i,n){if(super(),this.resource=t,this.options=e,this.t=s,this.u=i,this.w=n,this.m=!1,this.r=this.D(new C),this.closeHandler=this,t.scheme===f.vscodeChatEditor){const o=d.parse(t);if(!o||typeof o!="number")throw new Error("Invalid chat URI")}else if(t.scheme===f.vscodeLocalChatSession){if(!S.parseLocalSessionId(t))throw new Error("Invalid local chat session URI");this.h=t}else this.h=t}showConfirm(){return!!(this.s&&v(this.s))}transferOutEditingSession(){return this.m=!0,this.s?.editingSession}async confirm(t){if(!this.s?.editingSession||this.m||this.getSessionType()!==m)return 0;const e=c.localize(6781,null),s=c.localize(6782,null);return await q(this.s,this.u,{titleOverride:e,messageOverride:s})?0:2}get editorId(){return h.EditorID}get capabilities(){return super.capabilities|8|128}matches(t){return t instanceof h?E(this.sessionResource,t.sessionResource):!1}get typeId(){return h.TypeID}getName(){if(this.s?.title)return this.s.hasCustomTitle?this.s.title:R(this.s.title,O);if(this.h){const t=this.t.getSession(this.h);if(t?.title)return t.title;const e=this.t.getSessionTitle(this.h);if(e&&e.trim())return e}return this.options.title?.preferred?this.options.title.preferred:this.options.title?.fallback??c.localize(6783,null)}getTitle(t){const e=this.getName();if(t===2){const s=this.y();if(s)return`${e} | ${s}`}return e}y(){const t=this.getSessionType();return t===m?void 0:this.w.getAllChatSessionContributions().find(i=>i.type===t)?.displayName}getIcon(){const t=this.z();return t?(this.q=t,t):x}z(){const t=this.getSessionType();if(t!==m){const e=this.w.getIconForSessionType(t);if(e)return e}}getSessionType(){return _(this.resource)}async resolve(){const s=new URLSearchParams(this.resource.query).get("chatSessionType")??this.resource.authority;if(this.h?(this.r.value=await this.t.loadSessionForResource(this.h,g.Chat,w.None),!this.s&&S.parseLocalSessionId(this.h)&&(this.r.value=this.t.startSession(g.Chat,{canUseTools:!0}))):this.options.target?this.options.target.data&&(this.r.value=this.t.loadSessionFromContent(this.options.target.data)):this.r.value=this.t.startSession(g.Chat,{canUseTools:!s}),!this.s||this.isDisposed())return null;this.h=this.s.sessionResource,this.D(this.s.onDidChange(n=>{this.q=void 0,this.g.fire()}));const i=this.z();return i&&(!this.q||!this.C(this.q,i))&&(this.q=i),this.g.fire(),this.D(new j(this.s))}C(t,e){return y.isThemeIcon(t)&&y.isThemeIcon(e)?t.id===e.id:t instanceof u&&e instanceof u?t.toString()===e.toString():!1}};l=h=b([p(2,P),p(3,z),p(4,U)],l);class j extends ${constructor(t){super(),this.model=t,this.f=!1}async resolve(){this.f=!0}isResolved(){return this.f}isDisposed(){return this.B.isDisposed}}var d;(function(r){const t=f.vscodeChatEditor;function e(){const i=Math.floor(Math.random()*1e9);return u.from({scheme:t,path:`chat-${i}`})}r.getNewEditorUri=e;function s(i){if(i.scheme!==t)return;const o=i.path.match(/chat-(\d+)/)?.[1];if(typeof o!="string")return;const a=parseInt(o);if(!isNaN(a))return a}r.parse=s})(d||(d={}));class tt{canSerialize(t){return t instanceof l&&!!t.sessionResource}serialize(t){if(!this.canSerialize(t))return;const e={options:t.options,sessionResource:t.sessionResource,resource:t.resource};return JSON.stringify(e)}deserialize(t,e){try{const s=JSON.parse(e);if(s.sessionResource){const n=u.revive(s.sessionResource);return t.createInstance(l,n,s.options)}let i=u.revive(s.resource);return i.scheme===f.vscodeChatEditor&&s.sessionId&&(i=S.forSession(s.sessionId)),t.createInstance(l,i,s.options)}catch{return}}}async function q(r,t,e){const s=v(r,e);if(!s)return!0;const i=c.localize(6784,null),n=c.localize(6785,null),o=e?.messageOverride??i,a=e?.titleOverride??n,{result:I}=await t.prompt({title:a,message:o+" "+c.localize(6786,null,s),type:"info",cancelButton:!0,buttons:[{label:c.localize(6787,null),run:async()=>(await r.editingSession.accept(),!0)},{label:c.localize(6788,null),run:async()=>(await r.editingSession.reject(),!0)}]});return!!I}function v(r,t){return!r.editingSession||r.willKeepAlive&&!t?.isArchiveAction?0:r.editingSession.entries.get().filter(i=>i.state.get()===0).length}export{tt as $APb,q as $BPb,v as $CPb,l as $yPb,j as $zPb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatEditorInput_1;
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { isEqual } from "../../../../../../base/common/resources.js";
+import { truncate } from "../../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import * as nls from "../../../../../../nls.js";
+import { IDialogService } from "../../../../../../platform/dialogs/common/dialogs.js";
+import { registerIcon } from "../../../../../../platform/theme/common/iconRegistry.js";
+import { EditorInput } from "../../../../../common/editor/editorInput.js";
+import { IChatService } from "../../../common/chatService/chatService.js";
+import { IChatSessionsService, localChatSessionType } from "../../../common/chatSessionsService.js";
+import { ChatAgentLocation, ChatEditorTitleMaxLength } from "../../../common/constants.js";
+import { LocalChatSessionUri, getChatSessionType } from "../../../common/model/chatUri.js";
+const ChatEditorIcon = registerIcon("chat-editor-label-icon", Codicon.chatSparkle, nls.localize("chatEditorLabelIcon", "Icon of the chat editor label."));
+let ChatEditorInput = class ChatEditorInput2 extends EditorInput {
+  static {
+    __name(this, "ChatEditorInput");
+  }
+  static {
+    ChatEditorInput_1 = this;
+  }
+  static {
+    this.TypeID = "workbench.input.chatSession";
+  }
+  static {
+    this.EditorID = "workbench.editor.chatSession";
+  }
+  /**
+   * Get the uri of the session this editor input is associated with.
+   *
+   * This should be preferred over using `resource` directly, as it handles cases where a chat editor becomes a session
+   */
+  get sessionResource() {
+    return this._sessionResource;
+  }
+  get model() {
+    return this.modelRef.value?.object;
+  }
+  static getNewEditorUri() {
+    return ChatEditorUri.getNewEditorUri();
+  }
+  constructor(resource, options, chatService, dialogService, chatSessionsService) {
+    super();
+    this.resource = resource;
+    this.options = options;
+    this.chatService = chatService;
+    this.dialogService = dialogService;
+    this.chatSessionsService = chatSessionsService;
+    this.didTransferOutEditingSession = false;
+    this.modelRef = this._register(new MutableDisposable());
+    this.closeHandler = this;
+    if (resource.scheme === Schemas.vscodeChatEditor) {
+      const parsed = ChatEditorUri.parse(resource);
+      if (!parsed || typeof parsed !== "number") {
+        throw new Error("Invalid chat URI");
+      }
+    } else if (resource.scheme === Schemas.vscodeLocalChatSession) {
+      const localSessionId = LocalChatSessionUri.parseLocalSessionId(resource);
+      if (!localSessionId) {
+        throw new Error("Invalid local chat session URI");
+      }
+      this._sessionResource = resource;
+    } else {
+      this._sessionResource = resource;
+    }
+  }
+  showConfirm() {
+    return !!(this.model && shouldShowClearEditingSessionConfirmation(this.model));
+  }
+  transferOutEditingSession() {
+    this.didTransferOutEditingSession = true;
+    return this.model?.editingSession;
+  }
+  async confirm(editors) {
+    if (!this.model?.editingSession || this.didTransferOutEditingSession || this.getSessionType() !== localChatSessionType) {
+      return 0;
+    }
+    const titleOverride = nls.localize("chatEditorConfirmTitle", "Close Chat Editor");
+    const messageOverride = nls.localize("chat.startEditing.confirmation.pending.message.default", "Closing the chat editor will end your current edit session.");
+    const result = await showClearEditingSessionConfirmation(this.model, this.dialogService, { titleOverride, messageOverride });
+    return result ? 0 : 2;
+  }
+  get editorId() {
+    return ChatEditorInput_1.EditorID;
+  }
+  get capabilities() {
+    return super.capabilities | 8 | 128;
+  }
+  matches(otherInput) {
+    if (!(otherInput instanceof ChatEditorInput_1)) {
+      return false;
+    }
+    return isEqual(this.sessionResource, otherInput.sessionResource);
+  }
+  get typeId() {
+    return ChatEditorInput_1.TypeID;
+  }
+  getName() {
+    if (this.model?.title) {
+      return this.model.hasCustomTitle ? this.model.title : truncate(this.model.title, ChatEditorTitleMaxLength);
+    }
+    if (this._sessionResource) {
+      const existingSession = this.chatService.getSession(this._sessionResource);
+      if (existingSession?.title) {
+        return existingSession.title;
+      }
+      const persistedTitle = this.chatService.getSessionTitle(this._sessionResource);
+      if (persistedTitle && persistedTitle.trim()) {
+        return persistedTitle;
+      }
+    }
+    if (this.options.title?.preferred) {
+      return this.options.title.preferred;
+    }
+    return this.options.title?.fallback ?? nls.localize("chatEditorName", "Chat");
+  }
+  getTitle(verbosity) {
+    const name = this.getName();
+    if (verbosity === 2) {
+      const sessionTypeDisplayName = this.getSessionTypeDisplayName();
+      if (sessionTypeDisplayName) {
+        return `${name} | ${sessionTypeDisplayName}`;
+      }
+    }
+    return name;
+  }
+  getSessionTypeDisplayName() {
+    const sessionType = this.getSessionType();
+    if (sessionType === localChatSessionType) {
+      return;
+    }
+    const contributions = this.chatSessionsService.getAllChatSessionContributions();
+    const contribution = contributions.find((c) => c.type === sessionType);
+    return contribution?.displayName;
+  }
+  getIcon() {
+    const resolvedIcon = this.resolveIcon();
+    if (resolvedIcon) {
+      this.cachedIcon = resolvedIcon;
+      return resolvedIcon;
+    }
+    return ChatEditorIcon;
+  }
+  resolveIcon() {
+    const sessionType = this.getSessionType();
+    if (sessionType !== localChatSessionType) {
+      const typeIcon = this.chatSessionsService.getIconForSessionType(sessionType);
+      if (typeIcon) {
+        return typeIcon;
+      }
+    }
+    return void 0;
+  }
+  /**
+   * Returns chat session type from a URI, or {@linkcode localChatSessionType} if not specified or cannot be determined.
+   */
+  getSessionType() {
+    return getChatSessionType(this.resource);
+  }
+  async resolve() {
+    const searchParams = new URLSearchParams(this.resource.query);
+    const chatSessionType = searchParams.get("chatSessionType");
+    const inputType = chatSessionType ?? this.resource.authority;
+    if (this._sessionResource) {
+      this.modelRef.value = await this.chatService.loadSessionForResource(this._sessionResource, ChatAgentLocation.Chat, CancellationToken.None);
+      if (!this.model && LocalChatSessionUri.parseLocalSessionId(this._sessionResource)) {
+        this.modelRef.value = this.chatService.startSession(ChatAgentLocation.Chat, { canUseTools: true });
+      }
+    } else if (!this.options.target) {
+      this.modelRef.value = this.chatService.startSession(ChatAgentLocation.Chat, { canUseTools: !inputType });
+    } else if (this.options.target.data) {
+      this.modelRef.value = this.chatService.loadSessionFromContent(this.options.target.data);
+    }
+    if (!this.model || this.isDisposed()) {
+      return null;
+    }
+    this._sessionResource = this.model.sessionResource;
+    this._register(this.model.onDidChange((e) => {
+      this.cachedIcon = void 0;
+      this._onDidChangeLabel.fire();
+    }));
+    const newIcon = this.resolveIcon();
+    if (newIcon && (!this.cachedIcon || !this.iconsEqual(this.cachedIcon, newIcon))) {
+      this.cachedIcon = newIcon;
+    }
+    this._onDidChangeLabel.fire();
+    return this._register(new ChatEditorModel(this.model));
+  }
+  iconsEqual(a, b) {
+    if (ThemeIcon.isThemeIcon(a) && ThemeIcon.isThemeIcon(b)) {
+      return a.id === b.id;
+    }
+    if (a instanceof URI && b instanceof URI) {
+      return a.toString() === b.toString();
+    }
+    return false;
+  }
+};
+ChatEditorInput = ChatEditorInput_1 = __decorate([
+  __param(2, IChatService),
+  __param(3, IDialogService),
+  __param(4, IChatSessionsService)
+], ChatEditorInput);
+class ChatEditorModel extends Disposable {
+  static {
+    __name(this, "ChatEditorModel");
+  }
+  constructor(model) {
+    super();
+    this.model = model;
+    this._isResolved = false;
+  }
+  async resolve() {
+    this._isResolved = true;
+  }
+  isResolved() {
+    return this._isResolved;
+  }
+  isDisposed() {
+    return this._store.isDisposed;
+  }
+}
+var ChatEditorUri;
+(function(ChatEditorUri2) {
+  const scheme = Schemas.vscodeChatEditor;
+  function getNewEditorUri() {
+    const handle = Math.floor(Math.random() * 1e9);
+    return URI.from({ scheme, path: `chat-${handle}` });
+  }
+  __name(getNewEditorUri, "getNewEditorUri");
+  ChatEditorUri2.getNewEditorUri = getNewEditorUri;
+  function parse(resource) {
+    if (resource.scheme !== scheme) {
+      return void 0;
+    }
+    const match = resource.path.match(/chat-(\d+)/);
+    const handleStr = match?.[1];
+    if (typeof handleStr !== "string") {
+      return void 0;
+    }
+    const handle = parseInt(handleStr);
+    if (isNaN(handle)) {
+      return void 0;
+    }
+    return handle;
+  }
+  __name(parse, "parse");
+  ChatEditorUri2.parse = parse;
+})(ChatEditorUri || (ChatEditorUri = {}));
+class ChatEditorInputSerializer {
+  static {
+    __name(this, "ChatEditorInputSerializer");
+  }
+  canSerialize(input) {
+    return input instanceof ChatEditorInput && !!input.sessionResource;
+  }
+  serialize(input) {
+    if (!this.canSerialize(input)) {
+      return void 0;
+    }
+    const obj = {
+      options: input.options,
+      sessionResource: input.sessionResource,
+      resource: input.resource
+    };
+    return JSON.stringify(obj);
+  }
+  deserialize(instantiationService, serializedEditor) {
+    try {
+      const parsed = JSON.parse(serializedEditor);
+      if (parsed.sessionResource) {
+        const sessionResource = URI.revive(parsed.sessionResource);
+        return instantiationService.createInstance(ChatEditorInput, sessionResource, parsed.options);
+      }
+      let resource = URI.revive(parsed.resource);
+      if (resource.scheme === Schemas.vscodeChatEditor && parsed.sessionId) {
+        resource = LocalChatSessionUri.forSession(parsed.sessionId);
+      }
+      return instantiationService.createInstance(ChatEditorInput, resource, parsed.options);
+    } catch (err) {
+      return void 0;
+    }
+  }
+}
+async function showClearEditingSessionConfirmation(model, dialogService, options) {
+  const undecidedEdits = shouldShowClearEditingSessionConfirmation(model, options);
+  if (!undecidedEdits) {
+    return true;
+  }
+  const defaultPhrase = nls.localize("chat.startEditing.confirmation.pending.message.default1", "Starting a new chat will end your current edit session.");
+  const defaultTitle = nls.localize("chat.startEditing.confirmation.title", "Start new chat?");
+  const phrase = options?.messageOverride ?? defaultPhrase;
+  const title = options?.titleOverride ?? defaultTitle;
+  const { result } = await dialogService.prompt({
+    title,
+    message: phrase + " " + nls.localize("chat.startEditing.confirmation.pending.message.2", "Do you want to keep pending edits to {0} files?", undecidedEdits),
+    type: "info",
+    cancelButton: true,
+    buttons: [
+      {
+        label: nls.localize("chat.startEditing.confirmation.acceptEdits", "Keep & Continue"),
+        run: /* @__PURE__ */ __name(async () => {
+          await model.editingSession.accept();
+          return true;
+        }, "run")
+      },
+      {
+        label: nls.localize("chat.startEditing.confirmation.discardEdits", "Undo & Continue"),
+        run: /* @__PURE__ */ __name(async () => {
+          await model.editingSession.reject();
+          return true;
+        }, "run")
+      }
+    ]
+  });
+  return Boolean(result);
+}
+__name(showClearEditingSessionConfirmation, "showClearEditingSessionConfirmation");
+function shouldShowClearEditingSessionConfirmation(model, options) {
+  if (!model.editingSession || model.willKeepAlive && !options?.isArchiveAction) {
+    return 0;
+  }
+  const currentEdits = model.editingSession.entries.get();
+  const undecidedEdits = currentEdits.filter(
+    (edit) => edit.state.get() === 0
+    /* ModifiedFileEntryState.Modified */
+  );
+  return undecidedEdits.length;
+}
+__name(shouldShowClearEditingSessionConfirmation, "shouldShowClearEditingSessionConfirmation");
+export {
+  ChatEditorInput,
+  ChatEditorInputSerializer,
+  ChatEditorModel,
+  shouldShowClearEditingSessionConfirmation,
+  showClearEditingSessionConfirmation
+};
+//# sourceMappingURL=chatEditorInput.js.map

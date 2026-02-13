@@ -1,1 +1,113 @@
-import{safeStorage as f,app as h}from"electron";import{$n as p,$m as l}from"../../../base/common/platform.js";import{$yo as v}from"../../log/common/log.js";var u=function(a,e,t,r){var c=arguments.length,n=c<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(a,e,t,r);else for(var s=a.length-1;s>=0;s--)(o=a[s])&&(n=(c<3?o(n):c>3?o(e,t,n):o(e,t))||n);return c>3&&n&&Object.defineProperty(e,t,n),n},S=function(a,e){return function(t,r){e(t,r,a)}};const i=f;let y=class{constructor(e){this.a=e,h.commandLine.getSwitchValue("password-store")==="basic"&&(this.a.trace("[EncryptionMainService] setting usePlainTextEncryption to true..."),i.setUsePlainTextEncryption?.(!0),this.a.trace("[EncryptionMainService] set usePlainTextEncryption to true"))}async encrypt(e){this.a.trace("[EncryptionMainService] Encrypting value...");try{const t=JSON.stringify(i.encryptString(e));return this.a.trace("[EncryptionMainService] Encrypted value."),t}catch(t){throw this.a.error(t),t}}async decrypt(e){let t;try{if(t=JSON.parse(e),!t.data)throw new Error(`[EncryptionMainService] Invalid encrypted value: ${e}`);const r=Buffer.from(t.data);this.a.trace("[EncryptionMainService] Decrypting value...");const c=i.decryptString(r);return this.a.trace("[EncryptionMainService] Decrypted value."),c}catch(r){throw this.a.error(r),r}}isEncryptionAvailable(){this.a.trace("[EncryptionMainService] Checking if encryption is available...");const e=i.isEncryptionAvailable();return this.a.trace("[EncryptionMainService] Encryption is available: ",e),Promise.resolve(e)}getKeyStorageProvider(){if(l)return Promise.resolve("dpapi");if(p)return Promise.resolve("keychain_access");if(i.getSelectedStorageBackend)try{this.a.trace("[EncryptionMainService] Getting selected storage backend...");const e=i.getSelectedStorageBackend();return this.a.trace("[EncryptionMainService] Selected storage backend: ",e),Promise.resolve(e)}catch(e){this.a.error(e)}return Promise.resolve("unknown")}async setUsePlainTextEncryption(){if(l)throw new Error("Setting plain text encryption is not supported on Windows.");if(p)throw new Error("Setting plain text encryption is not supported on macOS.");if(!i.setUsePlainTextEncryption)throw new Error("Setting plain text encryption is not supported.");this.a.trace("[EncryptionMainService] Setting usePlainTextEncryption to true..."),i.setUsePlainTextEncryption(!0),this.a.trace("[EncryptionMainService] Set usePlainTextEncryption to true")}};y=u([S(0,v)],y);export{y as $Sw};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { safeStorage as safeStorageElectron, app } from "electron";
+import { isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { ILogService } from "../../log/common/log.js";
+const safeStorage = safeStorageElectron;
+let EncryptionMainService = class EncryptionMainService2 {
+  static {
+    __name(this, "EncryptionMainService");
+  }
+  constructor(logService) {
+    this.logService = logService;
+    if (app.commandLine.getSwitchValue("password-store") === "basic") {
+      this.logService.trace("[EncryptionMainService] setting usePlainTextEncryption to true...");
+      safeStorage.setUsePlainTextEncryption?.(true);
+      this.logService.trace("[EncryptionMainService] set usePlainTextEncryption to true");
+    }
+  }
+  async encrypt(value) {
+    this.logService.trace("[EncryptionMainService] Encrypting value...");
+    try {
+      const result = JSON.stringify(safeStorage.encryptString(value));
+      this.logService.trace("[EncryptionMainService] Encrypted value.");
+      return result;
+    } catch (e) {
+      this.logService.error(e);
+      throw e;
+    }
+  }
+  async decrypt(value) {
+    let parsedValue;
+    try {
+      parsedValue = JSON.parse(value);
+      if (!parsedValue.data) {
+        throw new Error(`[EncryptionMainService] Invalid encrypted value: ${value}`);
+      }
+      const bufferToDecrypt = Buffer.from(parsedValue.data);
+      this.logService.trace("[EncryptionMainService] Decrypting value...");
+      const result = safeStorage.decryptString(bufferToDecrypt);
+      this.logService.trace("[EncryptionMainService] Decrypted value.");
+      return result;
+    } catch (e) {
+      this.logService.error(e);
+      throw e;
+    }
+  }
+  isEncryptionAvailable() {
+    this.logService.trace("[EncryptionMainService] Checking if encryption is available...");
+    const result = safeStorage.isEncryptionAvailable();
+    this.logService.trace("[EncryptionMainService] Encryption is available: ", result);
+    return Promise.resolve(result);
+  }
+  getKeyStorageProvider() {
+    if (isWindows) {
+      return Promise.resolve(
+        "dpapi"
+        /* KnownStorageProvider.dplib */
+      );
+    }
+    if (isMacintosh) {
+      return Promise.resolve(
+        "keychain_access"
+        /* KnownStorageProvider.keychainAccess */
+      );
+    }
+    if (safeStorage.getSelectedStorageBackend) {
+      try {
+        this.logService.trace("[EncryptionMainService] Getting selected storage backend...");
+        const result = safeStorage.getSelectedStorageBackend();
+        this.logService.trace("[EncryptionMainService] Selected storage backend: ", result);
+        return Promise.resolve(result);
+      } catch (e) {
+        this.logService.error(e);
+      }
+    }
+    return Promise.resolve(
+      "unknown"
+      /* KnownStorageProvider.unknown */
+    );
+  }
+  async setUsePlainTextEncryption() {
+    if (isWindows) {
+      throw new Error("Setting plain text encryption is not supported on Windows.");
+    }
+    if (isMacintosh) {
+      throw new Error("Setting plain text encryption is not supported on macOS.");
+    }
+    if (!safeStorage.setUsePlainTextEncryption) {
+      throw new Error("Setting plain text encryption is not supported.");
+    }
+    this.logService.trace("[EncryptionMainService] Setting usePlainTextEncryption to true...");
+    safeStorage.setUsePlainTextEncryption(true);
+    this.logService.trace("[EncryptionMainService] Set usePlainTextEncryption to true");
+  }
+};
+EncryptionMainService = __decorate([
+  __param(0, ILogService)
+], EncryptionMainService);
+export {
+  EncryptionMainService
+};
+//# sourceMappingURL=encryptionMainService.js.map

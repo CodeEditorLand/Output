@@ -1,1 +1,80 @@
-import{$mT as R}from"../promptTypes.js";import{$VT as _}from"../service/promptsService.js";import{$Mmc as T}from"./promptValidator.js";var v=function(s,e,r,n){var o=arguments.length,t=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,e,r,n);else for(var c=s.length-1;c>=0;c--)(i=s[c])&&(t=(o<3?i(t):o>3?i(e,r,t):i(e,r))||t);return o>3&&t&&Object.defineProperty(e,r,t),t},L=function(s,e){return function(r,n){e(r,n,s)}};let g=class{constructor(e){this.c=e,this._debugDisplayName="PromptDocumentSemanticTokensProvider"}provideDocumentSemanticTokens(e,r,n){const o=R(e.getLanguageId());if(!o)return;const t=this.c.getParsedPromptFile(e);if(!t.body||T(o,t.header?.target))return;const i=t.body.variableReferences;if(!i.length)return;const c=[];let m=0,f=0;const h=[...i].sort((a,u)=>a.range.startLineNumber===u.range.startLineNumber?a.range.startColumn-u.range.startColumn:a.range.startLineNumber-u.range.startLineNumber);for(const a of h){const d=a.range.startLineNumber-1,l=a.range.startColumn-6-1,C=a.range.endColumn-a.range.startColumn+6,p=d-m,b=p===0?l-f:l;if(c.push(p,b,C,0,0),m=d,f=l,n.isCancellationRequested)break}return{data:new Uint32Array(c)}}getLegend(){return{tokenTypes:["variable"],tokenModifiers:[]}}releaseDocumentSemanticTokens(e){}};g=v([L(0,_)],g);export{g as $Rmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { getPromptsTypeForLanguageId } from "../promptTypes.js";
+import { IPromptsService } from "../service/promptsService.js";
+import { isGithubTarget } from "./promptValidator.js";
+let PromptDocumentSemanticTokensProvider = class PromptDocumentSemanticTokensProvider2 {
+  static {
+    __name(this, "PromptDocumentSemanticTokensProvider");
+  }
+  constructor(promptsService) {
+    this.promptsService = promptsService;
+    this._debugDisplayName = "PromptDocumentSemanticTokensProvider";
+  }
+  provideDocumentSemanticTokens(model, lastResultId, token) {
+    const promptType = getPromptsTypeForLanguageId(model.getLanguageId());
+    if (!promptType) {
+      return void 0;
+    }
+    const promptAST = this.promptsService.getParsedPromptFile(model);
+    if (!promptAST.body) {
+      return void 0;
+    }
+    if (isGithubTarget(promptType, promptAST.header?.target)) {
+      return void 0;
+    }
+    const variableReferences = promptAST.body.variableReferences;
+    if (!variableReferences.length) {
+      return void 0;
+    }
+    const data = [];
+    let lastLine = 0;
+    let lastChar = 0;
+    const ordered = [...variableReferences].sort((a, b) => a.range.startLineNumber === b.range.startLineNumber ? a.range.startColumn - b.range.startColumn : a.range.startLineNumber - b.range.startLineNumber);
+    for (const ref of ordered) {
+      const extraCharCount = "#tool:".length;
+      const line = ref.range.startLineNumber - 1;
+      const char = ref.range.startColumn - extraCharCount - 1;
+      const length = ref.range.endColumn - ref.range.startColumn + extraCharCount;
+      const deltaLine = line - lastLine;
+      const deltaChar = deltaLine === 0 ? char - lastChar : char;
+      data.push(
+        deltaLine,
+        deltaChar,
+        length,
+        0,
+        0
+        /* no modifiers */
+      );
+      lastLine = line;
+      lastChar = char;
+      if (token.isCancellationRequested) {
+        break;
+      }
+    }
+    return { data: new Uint32Array(data) };
+  }
+  getLegend() {
+    return { tokenTypes: ["variable"], tokenModifiers: [] };
+  }
+  releaseDocumentSemanticTokens(resultId) {
+  }
+};
+PromptDocumentSemanticTokensProvider = __decorate([
+  __param(0, IPromptsService)
+], PromptDocumentSemanticTokensProvider);
+export {
+  PromptDocumentSemanticTokensProvider
+};
+//# sourceMappingURL=promptDocumentSemanticTokensProvider.js.map

@@ -1,1 +1,48 @@
-import{$Ue as s}from"../transaction.js";import{$6d as o}from"../debugName.js";import{$Ne as g}from"./baseObservable.js";import{DebugLocation as f}from"../debugLocation.js";function l(r,e=f.ofCaller()){return typeof r=="string"?new n(r,void 0,e):new n(void 0,r,e)}class n extends g{get debugName(){return new o(this.c,this.a,void 0).getDebugName(this)??"Observable Signal"}toString(){return this.debugName}constructor(e,i,t){super(t),this.a=e,this.c=i}trigger(e,i){if(!e){s(t=>{this.trigger(t,i)},()=>`Trigger signal ${this.debugName}`);return}for(const t of this.f)e.updateObserver(t,this),t.handleChange(this,i)}get(){}}export{l as $ve};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { transaction } from "../transaction.js";
+import { DebugNameData } from "../debugName.js";
+import { BaseObservable } from "./baseObservable.js";
+import { DebugLocation } from "../debugLocation.js";
+function observableSignal(debugNameOrOwner, debugLocation = DebugLocation.ofCaller()) {
+  if (typeof debugNameOrOwner === "string") {
+    return new ObservableSignal(debugNameOrOwner, void 0, debugLocation);
+  } else {
+    return new ObservableSignal(void 0, debugNameOrOwner, debugLocation);
+  }
+}
+__name(observableSignal, "observableSignal");
+class ObservableSignal extends BaseObservable {
+  static {
+    __name(this, "ObservableSignal");
+  }
+  get debugName() {
+    return new DebugNameData(this._owner, this._debugName, void 0).getDebugName(this) ?? "Observable Signal";
+  }
+  toString() {
+    return this.debugName;
+  }
+  constructor(_debugName, _owner, debugLocation) {
+    super(debugLocation);
+    this._debugName = _debugName;
+    this._owner = _owner;
+  }
+  trigger(tx, change) {
+    if (!tx) {
+      transaction((tx2) => {
+        this.trigger(tx2, change);
+      }, () => `Trigger signal ${this.debugName}`);
+      return;
+    }
+    for (const o of this._observers) {
+      tx.updateObserver(o, this);
+      o.handleChange(this, change);
+    }
+  }
+  get() {
+  }
+}
+export {
+  observableSignal
+};
+//# sourceMappingURL=observableSignal.js.map

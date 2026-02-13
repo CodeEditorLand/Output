@@ -1,1 +1,78 @@
-import{$Ed as g}from"../../../../../base/common/lifecycle.js";import{autorun as h,observableFromEvent as b}from"../../../../../base/common/observable.js";import{$Mj as p}from"../../../../../platform/instantiation/common/instantiation.js";import{$Co as C,$zo as v,LogLevel as M}from"../../../../../platform/log/common/log.js";import{$sib as D}from"../../../../browser/widget/codeEditor/codeEditorWidget.js";import{$oob as _}from"../structuredLogger.js";var u=function(a,e,n,i){var r=arguments.length,t=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(a,e,n,i);else for(var s=a.length-1;s>=0;s--)(o=a[s])&&(t=(r<3?o(t):r>3?o(e,n,t):o(e,n))||t);return r>3&&t&&Object.defineProperty(e,n,t),t},c=function(a,e){return function(n,i){e(n,i,a)}};let m=class extends g{constructor(e,n,i){super(),this.b=e,this.c=n,this.f=i,this.a=this.D(this.c.createInstance(_.cast(),"editor.inlineSuggest.logChangeReason.commandId"));const r=this.f?.createLogger("textModelChanges",{hidden:!1,name:"Text Model Changes Reason"}),t=b(this,r.onDidChangeLogLevel,()=>r.getLevel());this.D(h(o=>{C(t.read(o),M.Trace)&&o.store.add(this.b.onDidChangeModelContent(s=>{this.b.getModel()?.uri.scheme!=="output"&&r.trace("onDidChangeModelContent: "+s.detailedReasons.map(d=>d.toKey(Number.MAX_VALUE)).join(", "))}))})),this.D(h(o=>{this.b instanceof D&&this.a.isEnabled.read(o)&&o.store.add(this.b.onDidChangeModelContent(s=>{const d=this.b.getModel();if(!d)return;const l=s.detailedReasons[0],f={...l.metadata,sourceId:"TextModel.setChangeReason",source:l.metadata.source,time:Date.now(),modelUri:d.uri,modelVersion:d.getVersionId()};setTimeout(()=>{this.a.log(f)},0)}))}))}};m=u([c(1,p),c(2,v)],m);export{m as $Gqb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, observableFromEvent } from "../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { canLog, ILoggerService, LogLevel } from "../../../../../platform/log/common/log.js";
+import { CodeEditorWidget } from "../../../../browser/widget/codeEditor/codeEditorWidget.js";
+import { StructuredLogger } from "../structuredLogger.js";
+let TextModelChangeRecorder = class TextModelChangeRecorder2 extends Disposable {
+  static {
+    __name(this, "TextModelChangeRecorder");
+  }
+  constructor(_editor, _instantiationService, _loggerService) {
+    super();
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._loggerService = _loggerService;
+    this._structuredLogger = this._register(this._instantiationService.createInstance(StructuredLogger.cast(), "editor.inlineSuggest.logChangeReason.commandId"));
+    const logger = this._loggerService?.createLogger("textModelChanges", { hidden: false, name: "Text Model Changes Reason" });
+    const loggingLevel = observableFromEvent(this, logger.onDidChangeLogLevel, () => logger.getLevel());
+    this._register(autorun((reader) => {
+      if (!canLog(loggingLevel.read(reader), LogLevel.Trace)) {
+        return;
+      }
+      reader.store.add(this._editor.onDidChangeModelContent((e) => {
+        if (this._editor.getModel()?.uri.scheme === "output") {
+          return;
+        }
+        logger.trace("onDidChangeModelContent: " + e.detailedReasons.map((r) => r.toKey(Number.MAX_VALUE)).join(", "));
+      }));
+    }));
+    this._register(autorun((reader) => {
+      if (!(this._editor instanceof CodeEditorWidget)) {
+        return;
+      }
+      if (!this._structuredLogger.isEnabled.read(reader)) {
+        return;
+      }
+      reader.store.add(this._editor.onDidChangeModelContent((e) => {
+        const tm = this._editor.getModel();
+        if (!tm) {
+          return;
+        }
+        const reason = e.detailedReasons[0];
+        const data = {
+          ...reason.metadata,
+          sourceId: "TextModel.setChangeReason",
+          source: reason.metadata.source,
+          time: Date.now(),
+          modelUri: tm.uri,
+          modelVersion: tm.getVersionId()
+        };
+        setTimeout(() => {
+          this._structuredLogger.log(data);
+        }, 0);
+      }));
+    }));
+  }
+};
+TextModelChangeRecorder = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, ILoggerService)
+], TextModelChangeRecorder);
+export {
+  TextModelChangeRecorder
+};
+//# sourceMappingURL=changeRecorder.js.map

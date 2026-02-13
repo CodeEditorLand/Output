@@ -1,3 +1,837 @@
-import{$ji as E}from"../../../../base/common/async.js";import{$1m as q}from"../../../../base/common/decorators.js";import{$xf as u}from"../../../../base/common/event.js";import{$Ed as S,$Gd as D,$Fd as O}from"../../../../base/common/lifecycle.js";import{$yo as P}from"../../../log/common/log.js";import{$6c as b}from"../../../../base/common/types.js";import{$ux as p,$tx as v,$sx as y}from"./commandDetection/terminalCommand.js";import{$rx as X}from"./commandDetection/promptInputModel.js";var M=function(s,t,e,n){var r=arguments.length,i=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,n);else for(var o=s.length-1;o>=0;o--)(a=s[o])&&(i=(r<3?a(i):r>3?a(t,e,i):a(t,e))||i);return r>3&&i&&Object.defineProperty(t,e,i),i},L=function(s,t){return function(e,n){t(e,n,s)}};let g=class extends S{get promptInputModel(){return this.c}get hasRichCommandDetection(){return this.u}get commands(){return this.f}get executingCommand(){return this.n.command}get executingCommandObject(){if(this.n.commandStartMarker)return this.n.promoteToFullCommand(this.g,void 0,this.t?.ignoreCommandLine??!1,void 0)}get executingCommandConfidence(){const t=this.n;return p(t)?t.commandLineConfidence:void 0}get currentCommand(){return this.n}get cwd(){return this.g}get promptTerminator(){return this.h}constructor(t,e){super(),this.O=t,this.P=e,this.type=2,this.f=[],this.q=[],this.s=!1,this.u=!1,this.F=this.D(new u),this.onCommandStarted=this.F.event,this.G=this.D(new u),this.onCommandStartChanged=this.G.event,this.H=this.D(new u),this.onBeforeCommandFinished=this.H.event,this.I=this.D(new u),this.onCommandFinished=this.I.event,this.J=this.D(new u),this.onCommandExecuted=this.J.event,this.L=this.D(new u),this.onCommandInvalidated=this.L.event,this.M=this.D(new u),this.onCurrentCommandInvalidated=this.M.event,this.N=this.D(new u),this.onSetRichCommandDetection=this.N.event,this.n=new v(this.O),this.c=this.D(new X(this.O,this.onCommandStarted,this.onCommandStartChanged,this.onCommandExecuted,this.onCommandFinished,this.P)),this.D(this.onCommandExecuted(r=>{if(r.commandLineConfidence!=="high"){const i=r;r.command=i.extractCommandLine(),r.commandLineConfidence="low",p(i)?i.promptStartMarker&&i.marker&&i.executedMarker&&r.command.indexOf(`
-`)===-1&&i.startX!==void 0&&i.startX>0&&(r.commandLineConfidence="medium"):i.promptStartMarker&&i.commandStartMarker&&i.commandExecutedMarker&&r.command.indexOf(`
-`)===-1&&i.commandStartX!==void 0&&i.commandStartX>0&&(r.commandLineConfidence="medium")}})),this.D(this.O.parser.registerCsiHandler({final:"J"},r=>(r.length>=1&&r[0]===2&&(this.O.options.scrollOnEraseInDisplay||this.S(),this.n.wasCleared=!0),!1)));const n=this;this.z=new class{get onCurrentCommandInvalidatedEmitter(){return n.M}get onCommandStartedEmitter(){return n.F}get onCommandExecutedEmitter(){return n.J}get dimensions(){return n.r}get isCommandStorageDisabled(){return n.s}get commandMarkers(){return n.q}set commandMarkers(r){n.q=r}get clearCommandsInViewport(){return n.S.bind(n)}},this.C=this.D(new D(new k(this.O,this,this.z,this.P))),this.r={cols:this.O.cols,rows:this.O.rows},this.D(this.O.onResize(r=>this.Q(r))),this.D(this.O.onCursorMove(()=>this.R()))}Q(t){this.C.value.preHandleResize?.(t),this.r.cols=t.cols,this.r.rows=t.rows}R(){this.B.isDisposed||this.O.buffer.active===this.O.buffer.normal&&this.n.commandStartMarker&&this.O.buffer.active.baseY+this.O.buffer.active.cursorY<this.n.commandStartMarker.line&&(this.S(),this.n.isInvalid=!0,this.M.fire({reason:"windows"}))}S(){let t=0;for(let e=this.f.length-1;e>=0;e--){const n=this.f[e].marker?.line;if(n&&n<this.O.buffer.active.baseY)break;t++}t>0&&this.L.fire(this.f.splice(this.f.length-t,t))}setContinuationPrompt(t){this.c.setContinuationPrompt(t)}setPromptTerminator(t,e){this.P.debug("CommandDetectionCapability#setPromptTerminator",t),this.h=t,this.c.setLastPromptLine(e)}setCwd(t){this.g=t}setIsWindowsPty(t){if(t&&!(this.C.value instanceof l)){const e=this;this.C.value=new l(this.O,this,new class{get onCurrentCommandInvalidatedEmitter(){return e.M}get onCommandStartedEmitter(){return e.F}get onCommandExecutedEmitter(){return e.J}get dimensions(){return e.r}get isCommandStorageDisabled(){return e.s}get commandMarkers(){return e.q}set commandMarkers(n){e.q=n}get clearCommandsInViewport(){return e.S.bind(e)}},this.P)}else!t&&!(this.C.value instanceof k)&&(this.C.value=new k(this.O,this,this.z,this.P))}setHasRichCommandDetection(t){this.u=t,this.N.fire(t)}setIsCommandStorageDisabled(){this.s=!0}getCommandForLine(t){if(this.n.promptStartMarker&&t>=this.n.promptStartMarker?.line)return this.n;if(this.f.length!==0&&!((this.f[0].promptStartMarker??this.f[0].marker).line>t)){for(let e=this.commands.length-1;e>=0;e--)if((this.commands[e].promptStartMarker??this.commands[e].marker).line<=t)return this.commands[e]}}getCwdForLine(t){if(this.n.promptStartMarker&&t>=this.n.promptStartMarker?.line)return this.g;const e=this.getCommandForLine(t);if(e&&p(e))return e.cwd}handlePromptStart(t){const e=this.commands.at(-1);e?.endMarker&&e?.executedMarker&&e.endMarker.line===e.executedMarker.line&&e.executedMarker.line<this.O.buffer.active.baseY+this.O.buffer.active.cursorY&&(this.P.debug("CommandDetectionCapability#handlePromptStart adjusted commandFinished",`${e.endMarker.line} -> ${e.executedMarker.line+1}`),e.endMarker=C(this.O,e.executedMarker,1)),this.n.promptStartMarker=t?.marker||(!this.n.wasCleared&&e?.endMarker?C(this.O,e.endMarker):this.O.registerMarker(0)),this.n.wasCleared=!1}handleContinuationStart(){this.n.currentContinuationMarker=this.O.registerMarker(0),this.P.debug("CommandDetectionCapability#handleContinuationStart",this.n.currentContinuationMarker)}handleContinuationEnd(){if(!this.n.currentContinuationMarker){this.P.warn("CommandDetectionCapability#handleContinuationEnd Received continuation end without start");return}this.n.continuations||(this.n.continuations=[]),this.n.continuations.push({marker:this.n.currentContinuationMarker,end:this.O.buffer.active.cursorX}),this.n.currentContinuationMarker=void 0,this.P.debug("CommandDetectionCapability#handleContinuationEnd",this.n.continuations[this.n.continuations.length-1])}handleRightPromptStart(){this.n.commandRightPromptStartX=this.O.buffer.active.cursorX,this.P.debug("CommandDetectionCapability#handleRightPromptStart",this.n.commandRightPromptStartX)}handleRightPromptEnd(){this.n.commandRightPromptEndX=this.O.buffer.active.cursorX,this.P.debug("CommandDetectionCapability#handleRightPromptEnd",this.n.commandRightPromptEndX)}handleCommandStart(t){if(this.t=t,this.n.cwd=this.g,this.n.commandStartMarker=t?.marker||this.n.commandStartMarker,this.n.commandStartMarker?.line===this.O.buffer.active.cursorY){this.n.commandStartX=this.O.buffer.active.cursorX,this.G.fire(),this.P.debug("CommandDetectionCapability#handleCommandStart",this.n.commandStartX,this.n.commandStartMarker?.line);return}this.C.value.handleCommandStart(t)}setNextCommandId(t,e){this.w={command:t,commandId:e}}handleCommandExecuted(t){this.U(this.n.command??this.n.extractCommandLine()),this.C.value.handleCommandExecuted(t),this.n.markExecutedTime()}handleCommandFinished(t,e){if(this.n.commandExecutedMarker||this.handleCommandExecuted(),this.n.markFinishedTime(),this.C.value.preHandleCommandFinished?.(),this.P.debug("CommandDetectionCapability#handleCommandFinished",this.O.buffer.active.cursorX,e?.marker?.line,this.n.command,this.n),t===void 0){const r=this.commands.length>0?this.commands[this.commands.length-1]:void 0;this.n.command&&this.n.command.length>0&&r?.command===this.n.command&&(t=r.exitCode)}if(this.n.commandStartMarker===void 0||!this.O.buffer.active)return;this.n.commandFinishedMarker=e?.marker||this.O.registerMarker(0),this.C.value.postHandleCommandFinished?.();const n=this.n.promoteToFullCommand(this.g,t,this.t?.ignoreCommandLine??!1,e?.markProperties);n&&(this.f.push(n),this.H.fire(n),this.P.debug("CommandDetectionCapability#onCommandFinished",n),this.I.fire(n)),this.n=new v(this.O),this.t=void 0}U(t){this.w?.commandId&&(this.n.id!==this.w.commandId&&(this.n.id=this.w.commandId),this.w=void 0)}setCommandLine(t,e){this.P.debug("CommandDetectionCapability#setCommandLine",t,e),this.n.command=t,this.n.commandLineConfidence="high",this.n.isTrusted=e,e&&this.c.setConfidentCommandLine(t)}serialize(){const t=this.commands.map(n=>n.serialize(this.s)),e=this.n.serialize(this.g);return e&&t.push(e),{isWindowsPty:this.C.value instanceof l,hasRichCommandDetection:this.u,commands:t,promptInputModel:this.c.serialize()}}deserialize(t){t.isWindowsPty&&this.setIsWindowsPty(t.isWindowsPty),t.hasRichCommandDetection&&this.setHasRichCommandDetection(t.hasRichCommandDetection);const e=this.O.buffer.normal;for(const n of t.commands){if(!n.endLine){const i=n.startLine!==void 0?this.O.registerMarker(n.startLine-(e.baseY+e.cursorY)):void 0;if(!i)continue;this.n.commandStartMarker=n.startLine!==void 0?this.O.registerMarker(n.startLine-(e.baseY+e.cursorY)):void 0,this.n.commandStartX=n.startX,this.n.promptStartMarker=n.promptStartLine!==void 0?this.O.registerMarker(n.promptStartLine-(e.baseY+e.cursorY)):void 0,this.g=n.cwd,this.F.fire({marker:i});continue}const r=y.deserialize(this.O,n,this.s);r&&(this.f.push(r),this.P.debug("CommandDetectionCapability#onCommandFinished",r),this.I.fire(r))}t.promptInputModel&&this.c.deserialize(t.promptInputModel)}};M([q(500)],g.prototype,"R",null);g=M([L(1,P)],g);class k extends S{constructor(t,e,n,r){super(),this.c=t,this.f=e,this.g=n,this.h=r}handleCommandStart(t){const e=this.f.currentCommand;e.commandStartX=this.c.buffer.active.cursorX,e.commandStartMarker=t?.marker||this.c.registerMarker(0),e.commandExecutedMarker?.dispose(),e.commandExecutedMarker=void 0,e.commandExecutedX=void 0;for(const n of this.g.commandMarkers)n.dispose();this.g.commandMarkers.length=0,this.g.onCommandStartedEmitter.fire({marker:t?.marker||e.commandStartMarker,markProperties:t?.markProperties}),this.h.debug("CommandDetectionCapability#handleCommandStart",e.commandStartX,e.commandStartMarker?.line)}handleCommandExecuted(t){const e=this.f.currentCommand;e.commandExecutedMarker=t?.marker||this.c.registerMarker(0),e.commandExecutedX=this.c.buffer.active.cursorX,this.h.debug("CommandDetectionCapability#handleCommandExecuted",e.commandExecutedX,e.commandExecutedMarker?.line),!(!e.commandStartMarker||!e.commandExecutedMarker||e.commandStartX===void 0)&&(e.command=this.f.promptInputModel.ghostTextIndex>-1?this.f.promptInputModel.value.substring(0,this.f.promptInputModel.ghostTextIndex):this.f.promptInputModel.value,this.g.onCommandExecutedEmitter.fire(e))}}var w;(function(s){s[s.MaxCheckLineCount=10]="MaxCheckLineCount",s[s.Interval=20]="Interval",s[s.MaximumPollCount=10]="MaximumPollCount"})(w||(w={}));let l=class extends S{constructor(t,e,n,r){super(),this.n=t,this.q=e,this.r=n,this.s=r,this.c=this.D(new O),this.g=0,this.h=0,this.D(this.q.onBeforeCommandFinished(i=>{(i.command.trim().toLowerCase()==="clear"||i.command.trim().toLowerCase()==="cls")&&(this.f?.cancel(),this.f=void 0,this.r.clearCommandsInViewport(),this.q.currentCommand.isInvalid=!0,this.r.onCurrentCommandInvalidatedEmitter.fire({reason:"windows"}))}))}preHandleResize(t){const e=this.n.buffer.active.baseY,n=t.rows-this.r.dimensions.rows;n>0&&this.C().then(()=>{const r=Math.min(n,e);for(let i=this.q.commands.length-1;i>=0;i--){const a=this.q.commands[i];if(!a.marker||a.marker.line<e||a.commandStartLineContent===void 0)break;const o=this.n.buffer.active.getLine(a.marker.line);if(!o||o.translateToString(!0)===a.commandStartLineContent)continue;const h=a.marker.line-r;this.n.buffer.active.getLine(h)?.translateToString(!0)===a.commandStartLineContent&&this.n._core._bufferService.buffer.lines.onDeleteEmitter.fire({index:this.n.buffer.active.baseY,amount:r})}})}handleCommandStart(){this.q.currentCommand.commandStartX=this.n.buffer.active.cursorX,this.r.commandMarkers.length=0;const t=this.q.currentCommand.commandStartMarker=this.q.currentCommand.promptStartMarker?C(this.n,this.q.currentCommand.promptStartMarker):this.n.registerMarker(0);this.q.currentCommand.commandStartX=0,this.g=0,this.h=0,this.f=new E(()=>this.t(t),20),this.f.schedule()}t(t){if(this.B.isDisposed)return;const e=this.n.buffer.active;let n=this.g;for(;n<10&&t.line+n<e.baseY+this.n.rows;){if(this.z()){const r=this.F(t.line+n);if(r){const i=b(r)?r:r.prompt;if(this.q.currentCommand.commandStartMarker=this.n.registerMarker(0),!b(r)&&r.likelySingleLine){this.s.debug("CommandDetectionCapability#_tryAdjustCommandStartMarker adjusted promptStart",`${this.q.currentCommand.promptStartMarker?.line} -> ${this.q.currentCommand.commandStartMarker.line}`),this.q.currentCommand.promptStartMarker?.dispose(),this.q.currentCommand.promptStartMarker=C(this.n,this.q.currentCommand.commandStartMarker);const a=this.q.commands.at(-1);a&&this.q.currentCommand.commandStartMarker.line!==a.endMarker?.line&&(a.endMarker?.dispose(),a.endMarker=C(this.n,this.q.currentCommand.commandStartMarker))}this.q.currentCommand.commandStartX=i.length,this.s.debug("CommandDetectionCapability#_tryAdjustCommandStartMarker adjusted commandStart",`${t.line} -> ${this.q.currentCommand.commandStartMarker.line}:${this.q.currentCommand.commandStartX}`),this.u();return}}n++}n<10?(this.g=n,++this.h<10?this.f?.schedule():this.u()):this.u()}u(){if(this.f&&(this.h=10,this.f.flush(),this.f=void 0),this.q.currentCommand.commandExecutedMarker||(this.c.value=this.n.onCursorMove(()=>{if(this.r.commandMarkers.length===0||this.r.commandMarkers[this.r.commandMarkers.length-1].line!==this.n.buffer.active.cursorY){const t=this.n.registerMarker(0);t&&this.r.commandMarkers.push(t)}})),this.q.currentCommand.commandStartMarker){const t=this.n.buffer.active.getLine(this.q.currentCommand.commandStartMarker.line);t&&(this.q.currentCommand.commandStartLineContent=t.translateToString(!0))}this.r.onCommandStartedEmitter.fire({marker:this.q.currentCommand.commandStartMarker}),this.s.debug("CommandDetectionCapability#_handleCommandStartWindows",this.q.currentCommand.commandStartX,this.q.currentCommand.commandStartMarker?.line)}handleCommandExecuted(t){this.f&&this.u(),this.c.clear(),this.w(),this.q.currentCommand.commandExecutedX=this.n.buffer.active.cursorX,this.r.onCommandExecutedEmitter.fire(this.q.currentCommand),this.s.debug("CommandDetectionCapability#handleCommandExecuted",this.q.currentCommand.commandExecutedX,this.q.currentCommand.commandExecutedMarker?.line)}preHandleCommandFinished(){this.q.currentCommand.commandExecutedMarker||(this.r.commandMarkers.length===0&&(this.q.currentCommand.commandStartMarker||(this.q.currentCommand.commandStartMarker=this.n.registerMarker(0)),this.q.currentCommand.commandStartMarker&&this.r.commandMarkers.push(this.q.currentCommand.commandStartMarker)),this.w())}postHandleCommandFinished(){const t=this.q.currentCommand,e=t.command,n=t.commandStartMarker?.line,r=t.commandExecutedMarker?.line;if(!e||e.length===0||n===void 0||n===-1||r===void 0||r===-1)return;let i=0,a=!1;for(let o=n;o<=r;o++){const h=this.n.buffer.active.getLine(o);if(!h)break;const m=h.translateToString(!0);for(let d=0;d<m.length;d++){for(;e.length<i&&e[i]===" ";)i++;if(m[d]===e[i]&&i++,i===e.length){const c=d>=this.n.cols-1;t.commandExecutedMarker=this.n.registerMarker(o-(this.n.buffer.active.baseY+this.n.buffer.active.cursorY)+(c?1:0)),t.commandExecutedX=c?0:d+1,a=!0;break}}if(a)break}}w(){if(this.r.commandMarkers.length!==0){if(this.r.commandMarkers=this.r.commandMarkers.sort((t,e)=>t.line-e.line),this.q.currentCommand.commandStartMarker=this.r.commandMarkers[0],this.q.currentCommand.commandStartMarker){const t=this.n.buffer.active.getLine(this.q.currentCommand.commandStartMarker.line);t&&(this.q.currentCommand.commandStartLineContent=t.translateToString(!0))}this.q.currentCommand.commandExecutedMarker=this.r.commandMarkers[this.r.commandMarkers.length-1],this.r.onCommandExecutedEmitter.fire(this.q.currentCommand)}}z(){const t=this.q.commands.at(-1);if(!t)return!0;const e=this.n.buffer.active.baseY+this.n.buffer.active.cursorY,n=(t.endMarker?t.endMarker.line:t.marker?.line)??-1;return e>n}C(){const t=this.n.buffer.active.cursorX,e=this.n.buffer.active.cursorY;let n=0;return new Promise((r,i)=>{const a=setInterval(()=>{if(t!==this.n.buffer.active.cursorX||e!==this.n.buffer.active.cursorY){r(),clearInterval(a);return}n+=10,n>1e3&&(clearInterval(a),r())},10)})}F(t=this.n.buffer.active.baseY+this.n.buffer.active.cursorY){const e=this.n.buffer.active.getLine(t);if(!e)return;const n=e.translateToString(!0);if(!n)return;const r=n.match(/(?<prompt>(\(.+\)\s)?(?:PS.+>\s?))/)?.groups?.prompt;if(r){const m=this.G(r,n,">");if(m)return{prompt:m,likelySingleLine:!0}}const i=n.match(/.*\u276f(?=[^\u276f]*$)/g)?.[0];if(i){const m=this.G(i,n,"\u276F");if(m)return m}const a=n.match(/^(?<prompt>\$)/)?.groups?.prompt;if(a){const m=this.G(a,n,"$");if(m)return m}const o=n.match(/^(?<prompt>>>> )/g)?.groups?.prompt;if(o)return{prompt:o,likelySingleLine:!0};if(this.q.promptTerminator&&(n===this.q.promptTerminator||n.trim().endsWith(this.q.promptTerminator))){const m=this.G(n,n,this.q.promptTerminator);if(m)return m}const h=n.match(/^(?<prompt>(\(.+\)\s)?(?:[A-Z]:\\.*>))/);return h?.groups?.prompt?{prompt:h.groups.prompt,likelySingleLine:!0}:void 0}G(t,e,n){if(t)return e===t&&t.endsWith(n)&&(t+=" "),t}};l=M([L(3,P)],l);function z(s,t,e,n){if(!n)return;const r=t.executedMarker,i=t.endMarker;if(!r||!i)return;const a=r.line,o=i.line,h=n.length,m=[];if(n.anchor==="bottom")for(let d=o-(n.offset||0);d>=a;d--){let c=d;const f=d;for(;c>=a&&s.getLine(c)?.isWrapped;)c--;d=c,m.unshift(x(s,c,f,e)),m.length>h&&m.pop()}else for(let d=a+(n.offset||0);d<o;d++){const c=d;let f=d;for(;f+1<o&&s.getLine(f+1)?.isWrapped;)f++;d=f,m.push(x(s,c,f,e)),m.length===h&&m.shift()}return m}function x(s,t,e,n){const r=Math.max(2048/n*2);e=Math.min(e,t+r);let i="";for(let a=t;a<=e;a++){const o=s.getLine(a);o&&(i+=o.translateToString(!0,0,n))}return i}function C(s,t,e=0){return s.registerMarker(t.line-(s.buffer.active.baseY+s.buffer.active.cursorY)+e)}export{g as $hYb,z as $iYb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { debounce } from "../../../../base/common/decorators.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, MandatoryMutableDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../log/common/log.js";
+import { isString } from "../../../../base/common/types.js";
+import { isFullTerminalCommand, PartialTerminalCommand, TerminalCommand } from "./commandDetection/terminalCommand.js";
+import { PromptInputModel } from "./commandDetection/promptInputModel.js";
+let CommandDetectionCapability = class CommandDetectionCapability2 extends Disposable {
+  static {
+    __name(this, "CommandDetectionCapability");
+  }
+  get promptInputModel() {
+    return this._promptInputModel;
+  }
+  get hasRichCommandDetection() {
+    return this._hasRichCommandDetection;
+  }
+  get commands() {
+    return this._commands;
+  }
+  get executingCommand() {
+    return this._currentCommand.command;
+  }
+  get executingCommandObject() {
+    if (this._currentCommand.commandStartMarker) {
+      return this._currentCommand.promoteToFullCommand(this._cwd, void 0, this._handleCommandStartOptions?.ignoreCommandLine ?? false, void 0);
+    }
+    return void 0;
+  }
+  get executingCommandConfidence() {
+    const casted = this._currentCommand;
+    return isFullTerminalCommand(casted) ? casted.commandLineConfidence : void 0;
+  }
+  get currentCommand() {
+    return this._currentCommand;
+  }
+  get cwd() {
+    return this._cwd;
+  }
+  get promptTerminator() {
+    return this._promptTerminator;
+  }
+  constructor(_terminal, _logService) {
+    super();
+    this._terminal = _terminal;
+    this._logService = _logService;
+    this.type = 2;
+    this._commands = [];
+    this._commandMarkers = [];
+    this.__isCommandStorageDisabled = false;
+    this._hasRichCommandDetection = false;
+    this._onCommandStarted = this._register(new Emitter());
+    this.onCommandStarted = this._onCommandStarted.event;
+    this._onCommandStartChanged = this._register(new Emitter());
+    this.onCommandStartChanged = this._onCommandStartChanged.event;
+    this._onBeforeCommandFinished = this._register(new Emitter());
+    this.onBeforeCommandFinished = this._onBeforeCommandFinished.event;
+    this._onCommandFinished = this._register(new Emitter());
+    this.onCommandFinished = this._onCommandFinished.event;
+    this._onCommandExecuted = this._register(new Emitter());
+    this.onCommandExecuted = this._onCommandExecuted.event;
+    this._onCommandInvalidated = this._register(new Emitter());
+    this.onCommandInvalidated = this._onCommandInvalidated.event;
+    this._onCurrentCommandInvalidated = this._register(new Emitter());
+    this.onCurrentCommandInvalidated = this._onCurrentCommandInvalidated.event;
+    this._onSetRichCommandDetection = this._register(new Emitter());
+    this.onSetRichCommandDetection = this._onSetRichCommandDetection.event;
+    this._currentCommand = new PartialTerminalCommand(this._terminal);
+    this._promptInputModel = this._register(new PromptInputModel(this._terminal, this.onCommandStarted, this.onCommandStartChanged, this.onCommandExecuted, this.onCommandFinished, this._logService));
+    this._register(this.onCommandExecuted((command) => {
+      if (command.commandLineConfidence !== "high") {
+        const typedCommand = command;
+        command.command = typedCommand.extractCommandLine();
+        command.commandLineConfidence = "low";
+        if (isFullTerminalCommand(typedCommand)) {
+          if (
+            // Markers exist
+            typedCommand.promptStartMarker && typedCommand.marker && typedCommand.executedMarker && // Single line command
+            command.command.indexOf("\n") === -1 && // Start marker is not on the left-most column
+            typedCommand.startX !== void 0 && typedCommand.startX > 0
+          ) {
+            command.commandLineConfidence = "medium";
+          }
+        } else {
+          if (
+            // Markers exist
+            typedCommand.promptStartMarker && typedCommand.commandStartMarker && typedCommand.commandExecutedMarker && // Single line command
+            command.command.indexOf("\n") === -1 && // Start marker is not on the left-most column
+            typedCommand.commandStartX !== void 0 && typedCommand.commandStartX > 0
+          ) {
+            command.commandLineConfidence = "medium";
+          }
+        }
+      }
+    }));
+    this._register(this._terminal.parser.registerCsiHandler({ final: "J" }, (params) => {
+      if (params.length >= 1 && params[0] === 2) {
+        if (!this._terminal.options.scrollOnEraseInDisplay) {
+          this._clearCommandsInViewport();
+        }
+        this._currentCommand.wasCleared = true;
+      }
+      return false;
+    }));
+    const that = this;
+    this._ptyHeuristicsHooks = new class {
+      get onCurrentCommandInvalidatedEmitter() {
+        return that._onCurrentCommandInvalidated;
+      }
+      get onCommandStartedEmitter() {
+        return that._onCommandStarted;
+      }
+      get onCommandExecutedEmitter() {
+        return that._onCommandExecuted;
+      }
+      get dimensions() {
+        return that._dimensions;
+      }
+      get isCommandStorageDisabled() {
+        return that.__isCommandStorageDisabled;
+      }
+      get commandMarkers() {
+        return that._commandMarkers;
+      }
+      set commandMarkers(value) {
+        that._commandMarkers = value;
+      }
+      get clearCommandsInViewport() {
+        return that._clearCommandsInViewport.bind(that);
+      }
+    }();
+    this._ptyHeuristics = this._register(new MandatoryMutableDisposable(new UnixPtyHeuristics(this._terminal, this, this._ptyHeuristicsHooks, this._logService)));
+    this._dimensions = {
+      cols: this._terminal.cols,
+      rows: this._terminal.rows
+    };
+    this._register(this._terminal.onResize((e) => this._handleResize(e)));
+    this._register(this._terminal.onCursorMove(() => this._handleCursorMove()));
+  }
+  _handleResize(e) {
+    this._ptyHeuristics.value.preHandleResize?.(e);
+    this._dimensions.cols = e.cols;
+    this._dimensions.rows = e.rows;
+  }
+  _handleCursorMove() {
+    if (this._store.isDisposed) {
+      return;
+    }
+    if (this._terminal.buffer.active === this._terminal.buffer.normal && this._currentCommand.commandStartMarker) {
+      if (this._terminal.buffer.active.baseY + this._terminal.buffer.active.cursorY < this._currentCommand.commandStartMarker.line) {
+        this._clearCommandsInViewport();
+        this._currentCommand.isInvalid = true;
+        this._onCurrentCommandInvalidated.fire({
+          reason: "windows"
+          /* CommandInvalidationReason.Windows */
+        });
+      }
+    }
+  }
+  _clearCommandsInViewport() {
+    let count = 0;
+    for (let i = this._commands.length - 1; i >= 0; i--) {
+      const line = this._commands[i].marker?.line;
+      if (line && line < this._terminal.buffer.active.baseY) {
+        break;
+      }
+      count++;
+    }
+    if (count > 0) {
+      this._onCommandInvalidated.fire(this._commands.splice(this._commands.length - count, count));
+    }
+  }
+  setContinuationPrompt(value) {
+    this._promptInputModel.setContinuationPrompt(value);
+  }
+  // TODO: Simplify this, can everything work off the last line?
+  setPromptTerminator(promptTerminator, lastPromptLine) {
+    this._logService.debug("CommandDetectionCapability#setPromptTerminator", promptTerminator);
+    this._promptTerminator = promptTerminator;
+    this._promptInputModel.setLastPromptLine(lastPromptLine);
+  }
+  setCwd(value) {
+    this._cwd = value;
+  }
+  setIsWindowsPty(value) {
+    if (value && !(this._ptyHeuristics.value instanceof WindowsPtyHeuristics)) {
+      const that = this;
+      this._ptyHeuristics.value = new WindowsPtyHeuristics(this._terminal, this, new class {
+        get onCurrentCommandInvalidatedEmitter() {
+          return that._onCurrentCommandInvalidated;
+        }
+        get onCommandStartedEmitter() {
+          return that._onCommandStarted;
+        }
+        get onCommandExecutedEmitter() {
+          return that._onCommandExecuted;
+        }
+        get dimensions() {
+          return that._dimensions;
+        }
+        get isCommandStorageDisabled() {
+          return that.__isCommandStorageDisabled;
+        }
+        get commandMarkers() {
+          return that._commandMarkers;
+        }
+        set commandMarkers(value2) {
+          that._commandMarkers = value2;
+        }
+        get clearCommandsInViewport() {
+          return that._clearCommandsInViewport.bind(that);
+        }
+      }(), this._logService);
+    } else if (!value && !(this._ptyHeuristics.value instanceof UnixPtyHeuristics)) {
+      this._ptyHeuristics.value = new UnixPtyHeuristics(this._terminal, this, this._ptyHeuristicsHooks, this._logService);
+    }
+  }
+  setHasRichCommandDetection(value) {
+    this._hasRichCommandDetection = value;
+    this._onSetRichCommandDetection.fire(value);
+  }
+  setIsCommandStorageDisabled() {
+    this.__isCommandStorageDisabled = true;
+  }
+  getCommandForLine(line) {
+    if (this._currentCommand.promptStartMarker && line >= this._currentCommand.promptStartMarker?.line) {
+      return this._currentCommand;
+    }
+    if (this._commands.length === 0) {
+      return void 0;
+    }
+    if ((this._commands[0].promptStartMarker ?? this._commands[0].marker).line > line) {
+      return void 0;
+    }
+    for (let i = this.commands.length - 1; i >= 0; i--) {
+      if ((this.commands[i].promptStartMarker ?? this.commands[i].marker).line <= line) {
+        return this.commands[i];
+      }
+    }
+    return void 0;
+  }
+  getCwdForLine(line) {
+    if (this._currentCommand.promptStartMarker && line >= this._currentCommand.promptStartMarker?.line) {
+      return this._cwd;
+    }
+    const command = this.getCommandForLine(line);
+    if (command && isFullTerminalCommand(command)) {
+      return command.cwd;
+    }
+    return void 0;
+  }
+  handlePromptStart(options) {
+    const lastCommand = this.commands.at(-1);
+    if (lastCommand?.endMarker && lastCommand?.executedMarker && lastCommand.endMarker.line === lastCommand.executedMarker.line && lastCommand.executedMarker.line < this._terminal.buffer.active.baseY + this._terminal.buffer.active.cursorY) {
+      this._logService.debug("CommandDetectionCapability#handlePromptStart adjusted commandFinished", `${lastCommand.endMarker.line} -> ${lastCommand.executedMarker.line + 1}`);
+      lastCommand.endMarker = cloneMarker(this._terminal, lastCommand.executedMarker, 1);
+    }
+    this._currentCommand.promptStartMarker = options?.marker || // Generally the prompt start should happen at the exact place the endmarker happened.
+    // However, after ctrl+l is used to clear the display, we want to ensure the actual
+    // prompt start marker position is used. This is mostly a workaround for Windows but we
+    // apply it generally.
+    (!this._currentCommand.wasCleared && lastCommand?.endMarker ? cloneMarker(this._terminal, lastCommand.endMarker) : this._terminal.registerMarker(0));
+    this._currentCommand.wasCleared = false;
+  }
+  handleContinuationStart() {
+    this._currentCommand.currentContinuationMarker = this._terminal.registerMarker(0);
+    this._logService.debug("CommandDetectionCapability#handleContinuationStart", this._currentCommand.currentContinuationMarker);
+  }
+  handleContinuationEnd() {
+    if (!this._currentCommand.currentContinuationMarker) {
+      this._logService.warn("CommandDetectionCapability#handleContinuationEnd Received continuation end without start");
+      return;
+    }
+    if (!this._currentCommand.continuations) {
+      this._currentCommand.continuations = [];
+    }
+    this._currentCommand.continuations.push({
+      marker: this._currentCommand.currentContinuationMarker,
+      end: this._terminal.buffer.active.cursorX
+    });
+    this._currentCommand.currentContinuationMarker = void 0;
+    this._logService.debug("CommandDetectionCapability#handleContinuationEnd", this._currentCommand.continuations[this._currentCommand.continuations.length - 1]);
+  }
+  handleRightPromptStart() {
+    this._currentCommand.commandRightPromptStartX = this._terminal.buffer.active.cursorX;
+    this._logService.debug("CommandDetectionCapability#handleRightPromptStart", this._currentCommand.commandRightPromptStartX);
+  }
+  handleRightPromptEnd() {
+    this._currentCommand.commandRightPromptEndX = this._terminal.buffer.active.cursorX;
+    this._logService.debug("CommandDetectionCapability#handleRightPromptEnd", this._currentCommand.commandRightPromptEndX);
+  }
+  handleCommandStart(options) {
+    this._handleCommandStartOptions = options;
+    this._currentCommand.cwd = this._cwd;
+    this._currentCommand.commandStartMarker = options?.marker || this._currentCommand.commandStartMarker;
+    if (this._currentCommand.commandStartMarker?.line === this._terminal.buffer.active.cursorY) {
+      this._currentCommand.commandStartX = this._terminal.buffer.active.cursorX;
+      this._onCommandStartChanged.fire();
+      this._logService.debug("CommandDetectionCapability#handleCommandStart", this._currentCommand.commandStartX, this._currentCommand.commandStartMarker?.line);
+      return;
+    }
+    this._ptyHeuristics.value.handleCommandStart(options);
+  }
+  /**
+   * Sets the command ID to use for the next command that starts.
+   * This is useful when you want to pre-assign an ID before the shell sends the command start sequence.
+   */
+  setNextCommandId(command, commandId) {
+    this._nextCommandId = { command, commandId };
+  }
+  handleCommandExecuted(options) {
+    this._ensureCurrentCommandId(this._currentCommand.command ?? this._currentCommand.extractCommandLine());
+    this._ptyHeuristics.value.handleCommandExecuted(options);
+    this._currentCommand.markExecutedTime();
+  }
+  handleCommandFinished(exitCode, options) {
+    if (!this._currentCommand.commandExecutedMarker) {
+      this.handleCommandExecuted();
+    }
+    this._currentCommand.markFinishedTime();
+    this._ptyHeuristics.value.preHandleCommandFinished?.();
+    this._logService.debug("CommandDetectionCapability#handleCommandFinished", this._terminal.buffer.active.cursorX, options?.marker?.line, this._currentCommand.command, this._currentCommand);
+    if (exitCode === void 0) {
+      const lastCommand = this.commands.length > 0 ? this.commands[this.commands.length - 1] : void 0;
+      if (this._currentCommand.command && this._currentCommand.command.length > 0 && lastCommand?.command === this._currentCommand.command) {
+        exitCode = lastCommand.exitCode;
+      }
+    }
+    if (this._currentCommand.commandStartMarker === void 0 || !this._terminal.buffer.active) {
+      return;
+    }
+    this._currentCommand.commandFinishedMarker = options?.marker || this._terminal.registerMarker(0);
+    this._ptyHeuristics.value.postHandleCommandFinished?.();
+    const newCommand = this._currentCommand.promoteToFullCommand(this._cwd, exitCode, this._handleCommandStartOptions?.ignoreCommandLine ?? false, options?.markProperties);
+    if (newCommand) {
+      this._commands.push(newCommand);
+      this._onBeforeCommandFinished.fire(newCommand);
+      this._logService.debug("CommandDetectionCapability#onCommandFinished", newCommand);
+      this._onCommandFinished.fire(newCommand);
+    }
+    this._currentCommand = new PartialTerminalCommand(this._terminal);
+    this._handleCommandStartOptions = void 0;
+  }
+  _ensureCurrentCommandId(_commandLine) {
+    if (this._nextCommandId?.commandId) {
+      if (this._currentCommand.id !== this._nextCommandId.commandId) {
+        this._currentCommand.id = this._nextCommandId.commandId;
+      }
+      this._nextCommandId = void 0;
+    }
+  }
+  setCommandLine(commandLine, isTrusted) {
+    this._logService.debug("CommandDetectionCapability#setCommandLine", commandLine, isTrusted);
+    this._currentCommand.command = commandLine;
+    this._currentCommand.commandLineConfidence = "high";
+    this._currentCommand.isTrusted = isTrusted;
+    if (isTrusted) {
+      this._promptInputModel.setConfidentCommandLine(commandLine);
+    }
+  }
+  serialize() {
+    const commands = this.commands.map((e) => e.serialize(this.__isCommandStorageDisabled));
+    const partialCommand = this._currentCommand.serialize(this._cwd);
+    if (partialCommand) {
+      commands.push(partialCommand);
+    }
+    return {
+      isWindowsPty: this._ptyHeuristics.value instanceof WindowsPtyHeuristics,
+      hasRichCommandDetection: this._hasRichCommandDetection,
+      commands,
+      promptInputModel: this._promptInputModel.serialize()
+    };
+  }
+  deserialize(serialized) {
+    if (serialized.isWindowsPty) {
+      this.setIsWindowsPty(serialized.isWindowsPty);
+    }
+    if (serialized.hasRichCommandDetection) {
+      this.setHasRichCommandDetection(serialized.hasRichCommandDetection);
+    }
+    const buffer = this._terminal.buffer.normal;
+    for (const e of serialized.commands) {
+      if (!e.endLine) {
+        const marker = e.startLine !== void 0 ? this._terminal.registerMarker(e.startLine - (buffer.baseY + buffer.cursorY)) : void 0;
+        if (!marker) {
+          continue;
+        }
+        this._currentCommand.commandStartMarker = e.startLine !== void 0 ? this._terminal.registerMarker(e.startLine - (buffer.baseY + buffer.cursorY)) : void 0;
+        this._currentCommand.commandStartX = e.startX;
+        this._currentCommand.promptStartMarker = e.promptStartLine !== void 0 ? this._terminal.registerMarker(e.promptStartLine - (buffer.baseY + buffer.cursorY)) : void 0;
+        this._cwd = e.cwd;
+        this._onCommandStarted.fire({ marker });
+        continue;
+      }
+      const newCommand = TerminalCommand.deserialize(this._terminal, e, this.__isCommandStorageDisabled);
+      if (!newCommand) {
+        continue;
+      }
+      this._commands.push(newCommand);
+      this._logService.debug("CommandDetectionCapability#onCommandFinished", newCommand);
+      this._onCommandFinished.fire(newCommand);
+    }
+    if (serialized.promptInputModel) {
+      this._promptInputModel.deserialize(serialized.promptInputModel);
+    }
+  }
+};
+__decorate([
+  debounce(500)
+], CommandDetectionCapability.prototype, "_handleCursorMove", null);
+CommandDetectionCapability = __decorate([
+  __param(1, ILogService)
+], CommandDetectionCapability);
+class UnixPtyHeuristics extends Disposable {
+  static {
+    __name(this, "UnixPtyHeuristics");
+  }
+  constructor(_terminal, _capability, _hooks, _logService) {
+    super();
+    this._terminal = _terminal;
+    this._capability = _capability;
+    this._hooks = _hooks;
+    this._logService = _logService;
+  }
+  handleCommandStart(options) {
+    const currentCommand = this._capability.currentCommand;
+    currentCommand.commandStartX = this._terminal.buffer.active.cursorX;
+    currentCommand.commandStartMarker = options?.marker || this._terminal.registerMarker(0);
+    currentCommand.commandExecutedMarker?.dispose();
+    currentCommand.commandExecutedMarker = void 0;
+    currentCommand.commandExecutedX = void 0;
+    for (const m of this._hooks.commandMarkers) {
+      m.dispose();
+    }
+    this._hooks.commandMarkers.length = 0;
+    this._hooks.onCommandStartedEmitter.fire({ marker: options?.marker || currentCommand.commandStartMarker, markProperties: options?.markProperties });
+    this._logService.debug("CommandDetectionCapability#handleCommandStart", currentCommand.commandStartX, currentCommand.commandStartMarker?.line);
+  }
+  handleCommandExecuted(options) {
+    const currentCommand = this._capability.currentCommand;
+    currentCommand.commandExecutedMarker = options?.marker || this._terminal.registerMarker(0);
+    currentCommand.commandExecutedX = this._terminal.buffer.active.cursorX;
+    this._logService.debug("CommandDetectionCapability#handleCommandExecuted", currentCommand.commandExecutedX, currentCommand.commandExecutedMarker?.line);
+    if (!currentCommand.commandStartMarker || !currentCommand.commandExecutedMarker || currentCommand.commandStartX === void 0) {
+      return;
+    }
+    currentCommand.command = this._capability.promptInputModel.ghostTextIndex > -1 ? this._capability.promptInputModel.value.substring(0, this._capability.promptInputModel.ghostTextIndex) : this._capability.promptInputModel.value;
+    this._hooks.onCommandExecutedEmitter.fire(currentCommand);
+  }
+}
+var AdjustCommandStartMarkerConstants;
+(function(AdjustCommandStartMarkerConstants2) {
+  AdjustCommandStartMarkerConstants2[AdjustCommandStartMarkerConstants2["MaxCheckLineCount"] = 10] = "MaxCheckLineCount";
+  AdjustCommandStartMarkerConstants2[AdjustCommandStartMarkerConstants2["Interval"] = 20] = "Interval";
+  AdjustCommandStartMarkerConstants2[AdjustCommandStartMarkerConstants2["MaximumPollCount"] = 10] = "MaximumPollCount";
+})(AdjustCommandStartMarkerConstants || (AdjustCommandStartMarkerConstants = {}));
+let WindowsPtyHeuristics = class WindowsPtyHeuristics2 extends Disposable {
+  static {
+    __name(this, "WindowsPtyHeuristics");
+  }
+  constructor(_terminal, _capability, _hooks, _logService) {
+    super();
+    this._terminal = _terminal;
+    this._capability = _capability;
+    this._hooks = _hooks;
+    this._logService = _logService;
+    this._onCursorMoveListener = this._register(new MutableDisposable());
+    this._tryAdjustCommandStartMarkerScannedLineCount = 0;
+    this._tryAdjustCommandStartMarkerPollCount = 0;
+    this._register(this._capability.onBeforeCommandFinished((command) => {
+      if (command.command.trim().toLowerCase() === "clear" || command.command.trim().toLowerCase() === "cls") {
+        this._tryAdjustCommandStartMarkerScheduler?.cancel();
+        this._tryAdjustCommandStartMarkerScheduler = void 0;
+        this._hooks.clearCommandsInViewport();
+        this._capability.currentCommand.isInvalid = true;
+        this._hooks.onCurrentCommandInvalidatedEmitter.fire({
+          reason: "windows"
+          /* CommandInvalidationReason.Windows */
+        });
+      }
+    }));
+  }
+  preHandleResize(e) {
+    const baseY = this._terminal.buffer.active.baseY;
+    const rowsDifference = e.rows - this._hooks.dimensions.rows;
+    if (rowsDifference > 0) {
+      this._waitForCursorMove().then(() => {
+        const potentialShiftedLineCount = Math.min(rowsDifference, baseY);
+        for (let i = this._capability.commands.length - 1; i >= 0; i--) {
+          const command = this._capability.commands[i];
+          if (!command.marker || command.marker.line < baseY || command.commandStartLineContent === void 0) {
+            break;
+          }
+          const line = this._terminal.buffer.active.getLine(command.marker.line);
+          if (!line || line.translateToString(true) === command.commandStartLineContent) {
+            continue;
+          }
+          const shiftedY = command.marker.line - potentialShiftedLineCount;
+          const shiftedLine = this._terminal.buffer.active.getLine(shiftedY);
+          if (shiftedLine?.translateToString(true) !== command.commandStartLineContent) {
+            continue;
+          }
+          this._terminal._core._bufferService.buffer.lines.onDeleteEmitter.fire({
+            index: this._terminal.buffer.active.baseY,
+            amount: potentialShiftedLineCount
+          });
+        }
+      });
+    }
+  }
+  handleCommandStart() {
+    this._capability.currentCommand.commandStartX = this._terminal.buffer.active.cursorX;
+    this._hooks.commandMarkers.length = 0;
+    const initialCommandStartMarker = this._capability.currentCommand.commandStartMarker = this._capability.currentCommand.promptStartMarker ? cloneMarker(this._terminal, this._capability.currentCommand.promptStartMarker) : this._terminal.registerMarker(0);
+    this._capability.currentCommand.commandStartX = 0;
+    this._tryAdjustCommandStartMarkerScannedLineCount = 0;
+    this._tryAdjustCommandStartMarkerPollCount = 0;
+    this._tryAdjustCommandStartMarkerScheduler = new RunOnceScheduler(
+      () => this._tryAdjustCommandStartMarker(initialCommandStartMarker),
+      20
+      /* AdjustCommandStartMarkerConstants.Interval */
+    );
+    this._tryAdjustCommandStartMarkerScheduler.schedule();
+  }
+  _tryAdjustCommandStartMarker(start) {
+    if (this._store.isDisposed) {
+      return;
+    }
+    const buffer = this._terminal.buffer.active;
+    let scannedLineCount = this._tryAdjustCommandStartMarkerScannedLineCount;
+    while (scannedLineCount < 10 && start.line + scannedLineCount < buffer.baseY + this._terminal.rows) {
+      if (this._cursorOnNextLine()) {
+        const prompt = this._getWindowsPrompt(start.line + scannedLineCount);
+        if (prompt) {
+          const adjustedPrompt = isString(prompt) ? prompt : prompt.prompt;
+          this._capability.currentCommand.commandStartMarker = this._terminal.registerMarker(0);
+          if (!isString(prompt) && prompt.likelySingleLine) {
+            this._logService.debug("CommandDetectionCapability#_tryAdjustCommandStartMarker adjusted promptStart", `${this._capability.currentCommand.promptStartMarker?.line} -> ${this._capability.currentCommand.commandStartMarker.line}`);
+            this._capability.currentCommand.promptStartMarker?.dispose();
+            this._capability.currentCommand.promptStartMarker = cloneMarker(this._terminal, this._capability.currentCommand.commandStartMarker);
+            const lastCommand = this._capability.commands.at(-1);
+            if (lastCommand && this._capability.currentCommand.commandStartMarker.line !== lastCommand.endMarker?.line) {
+              lastCommand.endMarker?.dispose();
+              lastCommand.endMarker = cloneMarker(this._terminal, this._capability.currentCommand.commandStartMarker);
+            }
+          }
+          this._capability.currentCommand.commandStartX = adjustedPrompt.length;
+          this._logService.debug("CommandDetectionCapability#_tryAdjustCommandStartMarker adjusted commandStart", `${start.line} -> ${this._capability.currentCommand.commandStartMarker.line}:${this._capability.currentCommand.commandStartX}`);
+          this._flushPendingHandleCommandStartTask();
+          return;
+        }
+      }
+      scannedLineCount++;
+    }
+    if (scannedLineCount < 10) {
+      this._tryAdjustCommandStartMarkerScannedLineCount = scannedLineCount;
+      if (++this._tryAdjustCommandStartMarkerPollCount < 10) {
+        this._tryAdjustCommandStartMarkerScheduler?.schedule();
+      } else {
+        this._flushPendingHandleCommandStartTask();
+      }
+    } else {
+      this._flushPendingHandleCommandStartTask();
+    }
+  }
+  _flushPendingHandleCommandStartTask() {
+    if (this._tryAdjustCommandStartMarkerScheduler) {
+      this._tryAdjustCommandStartMarkerPollCount = 10;
+      this._tryAdjustCommandStartMarkerScheduler.flush();
+      this._tryAdjustCommandStartMarkerScheduler = void 0;
+    }
+    if (!this._capability.currentCommand.commandExecutedMarker) {
+      this._onCursorMoveListener.value = this._terminal.onCursorMove(() => {
+        if (this._hooks.commandMarkers.length === 0 || this._hooks.commandMarkers[this._hooks.commandMarkers.length - 1].line !== this._terminal.buffer.active.cursorY) {
+          const marker = this._terminal.registerMarker(0);
+          if (marker) {
+            this._hooks.commandMarkers.push(marker);
+          }
+        }
+      });
+    }
+    if (this._capability.currentCommand.commandStartMarker) {
+      const line = this._terminal.buffer.active.getLine(this._capability.currentCommand.commandStartMarker.line);
+      if (line) {
+        this._capability.currentCommand.commandStartLineContent = line.translateToString(true);
+      }
+    }
+    this._hooks.onCommandStartedEmitter.fire({ marker: this._capability.currentCommand.commandStartMarker });
+    this._logService.debug("CommandDetectionCapability#_handleCommandStartWindows", this._capability.currentCommand.commandStartX, this._capability.currentCommand.commandStartMarker?.line);
+  }
+  handleCommandExecuted(options) {
+    if (this._tryAdjustCommandStartMarkerScheduler) {
+      this._flushPendingHandleCommandStartTask();
+    }
+    this._onCursorMoveListener.clear();
+    this._evaluateCommandMarkers();
+    this._capability.currentCommand.commandExecutedX = this._terminal.buffer.active.cursorX;
+    this._hooks.onCommandExecutedEmitter.fire(this._capability.currentCommand);
+    this._logService.debug("CommandDetectionCapability#handleCommandExecuted", this._capability.currentCommand.commandExecutedX, this._capability.currentCommand.commandExecutedMarker?.line);
+  }
+  preHandleCommandFinished() {
+    if (this._capability.currentCommand.commandExecutedMarker) {
+      return;
+    }
+    if (this._hooks.commandMarkers.length === 0) {
+      if (!this._capability.currentCommand.commandStartMarker) {
+        this._capability.currentCommand.commandStartMarker = this._terminal.registerMarker(0);
+      }
+      if (this._capability.currentCommand.commandStartMarker) {
+        this._hooks.commandMarkers.push(this._capability.currentCommand.commandStartMarker);
+      }
+    }
+    this._evaluateCommandMarkers();
+  }
+  postHandleCommandFinished() {
+    const currentCommand = this._capability.currentCommand;
+    const commandText = currentCommand.command;
+    const commandLine = currentCommand.commandStartMarker?.line;
+    const executedLine = currentCommand.commandExecutedMarker?.line;
+    if (!commandText || commandText.length === 0 || commandLine === void 0 || commandLine === -1 || executedLine === void 0 || executedLine === -1) {
+      return;
+    }
+    let current = 0;
+    let found = false;
+    for (let i = commandLine; i <= executedLine; i++) {
+      const line = this._terminal.buffer.active.getLine(i);
+      if (!line) {
+        break;
+      }
+      const text = line.translateToString(true);
+      for (let j = 0; j < text.length; j++) {
+        while (commandText.length < current && commandText[current] === " ") {
+          current++;
+        }
+        if (text[j] === commandText[current]) {
+          current++;
+        }
+        if (current === commandText.length) {
+          const wrapsToNextLine = j >= this._terminal.cols - 1;
+          currentCommand.commandExecutedMarker = this._terminal.registerMarker(i - (this._terminal.buffer.active.baseY + this._terminal.buffer.active.cursorY) + (wrapsToNextLine ? 1 : 0));
+          currentCommand.commandExecutedX = wrapsToNextLine ? 0 : j + 1;
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        break;
+      }
+    }
+  }
+  _evaluateCommandMarkers() {
+    if (this._hooks.commandMarkers.length === 0) {
+      return;
+    }
+    this._hooks.commandMarkers = this._hooks.commandMarkers.sort((a, b) => a.line - b.line);
+    this._capability.currentCommand.commandStartMarker = this._hooks.commandMarkers[0];
+    if (this._capability.currentCommand.commandStartMarker) {
+      const line = this._terminal.buffer.active.getLine(this._capability.currentCommand.commandStartMarker.line);
+      if (line) {
+        this._capability.currentCommand.commandStartLineContent = line.translateToString(true);
+      }
+    }
+    this._capability.currentCommand.commandExecutedMarker = this._hooks.commandMarkers[this._hooks.commandMarkers.length - 1];
+    this._hooks.onCommandExecutedEmitter.fire(this._capability.currentCommand);
+  }
+  _cursorOnNextLine() {
+    const lastCommand = this._capability.commands.at(-1);
+    if (!lastCommand) {
+      return true;
+    }
+    const cursorYAbsolute = this._terminal.buffer.active.baseY + this._terminal.buffer.active.cursorY;
+    const lastCommandYAbsolute = (lastCommand.endMarker ? lastCommand.endMarker.line : lastCommand.marker?.line) ?? -1;
+    return cursorYAbsolute > lastCommandYAbsolute;
+  }
+  _waitForCursorMove() {
+    const cursorX = this._terminal.buffer.active.cursorX;
+    const cursorY = this._terminal.buffer.active.cursorY;
+    let totalDelay = 0;
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (cursorX !== this._terminal.buffer.active.cursorX || cursorY !== this._terminal.buffer.active.cursorY) {
+          resolve();
+          clearInterval(interval);
+          return;
+        }
+        totalDelay += 10;
+        if (totalDelay > 1e3) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 10);
+    });
+  }
+  _getWindowsPrompt(y = this._terminal.buffer.active.baseY + this._terminal.buffer.active.cursorY) {
+    const line = this._terminal.buffer.active.getLine(y);
+    if (!line) {
+      return;
+    }
+    const lineText = line.translateToString(true);
+    if (!lineText) {
+      return;
+    }
+    const pwshPrompt = lineText.match(/(?<prompt>(\(.+\)\s)?(?:PS.+>\s?))/)?.groups?.prompt;
+    if (pwshPrompt) {
+      const adjustedPrompt = this._adjustPrompt(pwshPrompt, lineText, ">");
+      if (adjustedPrompt) {
+        return {
+          prompt: adjustedPrompt,
+          likelySingleLine: true
+        };
+      }
+    }
+    const customPrompt = lineText.match(/.*\u276f(?=[^\u276f]*$)/g)?.[0];
+    if (customPrompt) {
+      const adjustedPrompt = this._adjustPrompt(customPrompt, lineText, "\u276F");
+      if (adjustedPrompt) {
+        return adjustedPrompt;
+      }
+    }
+    const bashPrompt = lineText.match(/^(?<prompt>\$)/)?.groups?.prompt;
+    if (bashPrompt) {
+      const adjustedPrompt = this._adjustPrompt(bashPrompt, lineText, "$");
+      if (adjustedPrompt) {
+        return adjustedPrompt;
+      }
+    }
+    const pythonPrompt = lineText.match(/^(?<prompt>>>> )/g)?.groups?.prompt;
+    if (pythonPrompt) {
+      return {
+        prompt: pythonPrompt,
+        likelySingleLine: true
+      };
+    }
+    if (this._capability.promptTerminator && (lineText === this._capability.promptTerminator || lineText.trim().endsWith(this._capability.promptTerminator))) {
+      const adjustedPrompt = this._adjustPrompt(lineText, lineText, this._capability.promptTerminator);
+      if (adjustedPrompt) {
+        return adjustedPrompt;
+      }
+    }
+    const cmdMatch = lineText.match(/^(?<prompt>(\(.+\)\s)?(?:[A-Z]:\\.*>))/);
+    return cmdMatch?.groups?.prompt ? {
+      prompt: cmdMatch.groups.prompt,
+      likelySingleLine: true
+    } : void 0;
+  }
+  _adjustPrompt(prompt, lineText, char) {
+    if (!prompt) {
+      return;
+    }
+    if (lineText === prompt && prompt.endsWith(char)) {
+      prompt += " ";
+    }
+    return prompt;
+  }
+};
+WindowsPtyHeuristics = __decorate([
+  __param(3, ILogService)
+], WindowsPtyHeuristics);
+function getLinesForCommand(buffer, command, cols, outputMatcher) {
+  if (!outputMatcher) {
+    return void 0;
+  }
+  const executedMarker = command.executedMarker;
+  const endMarker = command.endMarker;
+  if (!executedMarker || !endMarker) {
+    return void 0;
+  }
+  const startLine = executedMarker.line;
+  const endLine = endMarker.line;
+  const linesToCheck = outputMatcher.length;
+  const lines = [];
+  if (outputMatcher.anchor === "bottom") {
+    for (let i = endLine - (outputMatcher.offset || 0); i >= startLine; i--) {
+      let wrappedLineStart = i;
+      const wrappedLineEnd = i;
+      while (wrappedLineStart >= startLine && buffer.getLine(wrappedLineStart)?.isWrapped) {
+        wrappedLineStart--;
+      }
+      i = wrappedLineStart;
+      lines.unshift(getXtermLineContent(buffer, wrappedLineStart, wrappedLineEnd, cols));
+      if (lines.length > linesToCheck) {
+        lines.pop();
+      }
+    }
+  } else {
+    for (let i = startLine + (outputMatcher.offset || 0); i < endLine; i++) {
+      const wrappedLineStart = i;
+      let wrappedLineEnd = i;
+      while (wrappedLineEnd + 1 < endLine && buffer.getLine(wrappedLineEnd + 1)?.isWrapped) {
+        wrappedLineEnd++;
+      }
+      i = wrappedLineEnd;
+      lines.push(getXtermLineContent(buffer, wrappedLineStart, wrappedLineEnd, cols));
+      if (lines.length === linesToCheck) {
+        lines.shift();
+      }
+    }
+  }
+  return lines;
+}
+__name(getLinesForCommand, "getLinesForCommand");
+function getXtermLineContent(buffer, lineStart, lineEnd, cols) {
+  const maxLineLength = Math.max(2048 / cols * 2);
+  lineEnd = Math.min(lineEnd, lineStart + maxLineLength);
+  let content = "";
+  for (let i = lineStart; i <= lineEnd; i++) {
+    const line = buffer.getLine(i);
+    if (line) {
+      content += line.translateToString(true, 0, cols);
+    }
+  }
+  return content;
+}
+__name(getXtermLineContent, "getXtermLineContent");
+function cloneMarker(xterm, marker, offset = 0) {
+  return xterm.registerMarker(marker.line - (xterm.buffer.active.baseY + xterm.buffer.active.cursorY) + offset);
+}
+__name(cloneMarker, "cloneMarker");
+export {
+  CommandDetectionCapability,
+  getLinesForCommand
+};
+//# sourceMappingURL=commandDetectionCapability.js.map

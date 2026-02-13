@@ -1,2 +1,468 @@
-import{$rg as w,$sg as m}from"../../../../base/common/strings.js";import{$hE as u}from"../ranges/offsetRange.js";import{$sE as T}from"../text/abstractText.js";import{$tE as y,$uE as v}from"./edit.js";class d extends y{get TReplacement(){throw new Error("TReplacement is not defined for BaseStringEdit")}static composeOrUndefined(e){if(e.length===0)return;let t=e[0];for(let n=1;n<e.length;n++)t=t.compose(e[n]);return t}static trySwap(e,t){const n=e.inverseOnSlice((a,s)=>" ".repeat(s-a)),r=t.tryRebase(n);if(!r)return;const l=e.tryRebase(r);if(l)return{e1:r,e2:l}}apply(e){const t=[];let n=0;for(const r of this.replacements)t.push(e.substring(n,r.replaceRange.start)),t.push(r.newText),n=r.replaceRange.endExclusive;return t.push(e.substring(n)),t.join("")}inverseOnSlice(e){const t=[];let n=0;for(const r of this.replacements)t.push(o.replace(u.ofStartAndLength(r.replaceRange.start+n,r.newText.length),e(r.replaceRange.start,r.replaceRange.endExclusive))),n+=r.newText.length-r.replaceRange.length;return new i(t)}inverse(e){return this.inverseOnSlice((t,n)=>e.substring(t,n))}rebaseSkipConflicting(e){return this.b(e,!1)}tryRebase(e){return this.b(e,!0)}b(e,t){const n=[];let r=0,l=0,a=0;for(;l<this.replacements.length||r<e.replacements.length;){const s=e.replacements.at(r),p=this.replacements.at(l);if(p)if(s)if(p.replaceRange.intersects(s.replaceRange)||S(p.replaceRange,s.replaceRange)||x(p.replaceRange,s.replaceRange)||x(s.replaceRange,p.replaceRange)){if(l++,t)return}else if(p.replaceRange.start<s.replaceRange.start||p.replaceRange.isEmpty&&p.replaceRange.start===s.replaceRange.start){const f=p.replaceRange.delta(a);n.push(new o(f,p.newText)),l++}else r++,a+=s.newText.length-s.replaceRange.length;else{const f=p.replaceRange.delta(a);n.push(new o(f,p.newText)),l++}else break}return new i(n)}toJson(){return this.replacements.map(e=>e.toJson())}isNeutralOn(e){return this.replacements.every(t=>t.isNeutralOn(e))}removeCommonSuffixPrefix(e){const t=[];for(const n of this.replacements){const r=n.removeCommonSuffixPrefix(e);r.isEmpty||t.push(r)}return new i(t)}normalizeEOL(e){return new i(this.replacements.map(t=>t.normalizeEOL(e)))}normalizeOnSource(e){const t=this.apply(e),r=o.replace(u.ofLength(e.length),t).removeCommonSuffixAndPrefix(e);return r.isEmpty?i.empty:r.toEdit()}removeCommonSuffixAndPrefix(e){return this.a(this.replacements.map(t=>t.removeCommonSuffixAndPrefix(e))).normalize()}applyOnText(e){return new T(this.apply(e.value))}mapData(e){return new h(this.replacements.map(t=>new g(t.replaceRange,t.newText,e(t))))}}class R extends v{constructor(e,t){super(e),this.newText=t}getNewLength(){return this.newText.length}toString(){return`${this.replaceRange} -> ${JSON.stringify(this.newText)}`}replace(e){return e.substring(0,this.replaceRange.start)+this.newText+e.substring(this.replaceRange.endExclusive)}isNeutralOn(e){return this.newText===e.substring(this.replaceRange.start,this.replaceRange.endExclusive)}removeCommonSuffixPrefix(e){const t=e.substring(this.replaceRange.start,this.replaceRange.endExclusive),n=w(t,this.newText),r=Math.min(t.length-n,this.newText.length-n,m(t,this.newText)),l=new u(this.replaceRange.start+n,this.replaceRange.endExclusive-r),a=this.newText.substring(n,this.newText.length-r);return new o(l,a)}normalizeEOL(e){const t=this.newText.replace(/\r\n|\n/g,e);return new o(this.replaceRange,t)}removeCommonSuffixAndPrefix(e){return this.removeCommonSuffix(e).removeCommonPrefix(e)}removeCommonPrefix(e){const t=this.replaceRange.substring(e),n=w(t,this.newText);return n===0?this:this.slice(this.replaceRange.deltaStart(n),new u(n,this.newText.length))}removeCommonSuffix(e){const t=this.replaceRange.substring(e),n=m(t,this.newText);return n===0?this:this.slice(this.replaceRange.deltaEnd(-n),new u(0,this.newText.length-n))}toEdit(){return new i([this])}toJson(){return{txt:this.newText,pos:this.replaceRange.start,len:this.replaceRange.length}}}class i extends d{static parse(e){const t=[],n=/\[(\d+),\s*(\d+)\)\s*->\s*"([^"]*)"/g;let r;for(;(r=n.exec(e))!==null;){const l=parseInt(r[1],10),a=parseInt(r[2],10),s=r[3].replace(/\\n/g,`
-`).replace(/\\r/g,"\r").replace(/\\\\/g,"\\");t.push(new o(new u(l,a),s))}return new i(t)}static{this.empty=new i([])}static create(e){return new i(e)}static single(e){return new i([e])}static replace(e,t){return new i([new o(e,t)])}static insert(e,t){return new i([new o(u.emptyAt(e),t)])}static delete(e){return new i([new o(e,"")])}static fromJson(e){return new i(e.map(o.fromJson))}static compose(e){if(e.length===0)return i.empty;let t=e[0];for(let n=1;n<e.length;n++)t=t.compose(e[n]);return t}static composeSequentialReplacements(e){let t=i.empty,n=[];for(const r of e){const l=n.at(-1);!l||r.replaceRange.isBefore(l.replaceRange)?n.push(r):(t=t.compose(i.create(n.reverse())),n=[r])}return t=t.compose(i.create(n.reverse())),t}constructor(e){super(e)}a(e){return new i(e)}}class o extends R{static insert(e,t){return new o(u.emptyAt(e),t)}static replace(e,t){return new o(e,t)}static delete(e){return new o(e,"")}static fromJson(e){return new o(u.ofStartAndLength(e.pos,e.len),e.txt)}equals(e){return this.replaceRange.equals(e.replaceRange)&&this.newText===e.newText}tryJoinTouching(e){return new o(this.replaceRange.joinRightTouching(e.replaceRange),this.newText+e.newText)}slice(e,t){return new o(e,t?t.substring(this.newText):this.newText)}}function J(c,e){c=c.slice();const t=[];let n=0;for(const r of e.replacements){for(;;){const a=c[0];if(!a||a.endExclusive>=r.replaceRange.start)break;c.shift(),t.push(a.delta(n))}const l=[];for(;;){const a=c[0];if(!a||!a.intersectsOrTouches(r.replaceRange))break;c.shift(),l.push(a)}for(let a=l.length-1;a>=0;a--){let s=l[a];const p=s.intersect(r.replaceRange).length;s=s.deltaEnd(-p+(a===0?r.newText.length:0));const f=s.start-r.replaceRange.start;f>0&&(s=s.delta(-f)),a!==0&&(s=s.delta(r.newText.length)),s=s.delta(-(r.newText.length-r.replaceRange.length)),c.unshift(s)}n+=r.newText.length-r.replaceRange.length}for(;;){const r=c[0];if(!r)break;c.shift(),t.push(r.delta(n))}return t}class P{join(e){return this}}class h extends d{static{this.empty=new h([])}static create(e){return new h(e)}static single(e){return new h([e])}static replace(e,t,n){return new h([new g(e,t,n)])}static insert(e,t,n){return new h([new g(u.emptyAt(e),t,n)])}static delete(e,t){return new h([new g(e,"",t)])}static compose(e){if(e.length===0)return h.empty;let t=e[0];for(let n=1;n<e.length;n++)t=t.compose(e[n]);return t}constructor(e){super(e)}a(e){return new h(e)}toStringEdit(e){const t=[];for(const n of this.replacements)(!e||e(n))&&t.push(new o(n.replaceRange,n.newText));return new i(t)}}class g extends R{static insert(e,t,n){return new g(u.emptyAt(e),t,n)}static replace(e,t,n){return new g(e,t,n)}static delete(e,t){return new g(e,"",t)}constructor(e,t,n){super(e,t),this.data=n}equals(e){return this.replaceRange.equals(e.replaceRange)&&this.newText===e.newText&&this.data===e.data}tryJoinTouching(e){const t=this.data.join(e.data);if(t!==void 0)return new g(this.replaceRange.joinRightTouching(e.replaceRange),this.newText+e.newText,t)}slice(e,t){return new g(e,t?t.substring(this.newText):this.newText,this.data)}}function S(c,e){return c.isEmpty&&e.isEmpty&&c.start===e.start}function x(c,e){return c.isEmpty&&e.start<c.start&&c.start<e.endExclusive}export{o as $AE,J as $BE,P as $CE,h as $DE,g as $EE,d as $xE,R as $yE,i as $zE};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { commonPrefixLength, commonSuffixLength } from "../../../../base/common/strings.js";
+import { OffsetRange } from "../ranges/offsetRange.js";
+import { StringText } from "../text/abstractText.js";
+import { BaseEdit, BaseReplacement } from "./edit.js";
+class BaseStringEdit extends BaseEdit {
+  static {
+    __name(this, "BaseStringEdit");
+  }
+  get TReplacement() {
+    throw new Error("TReplacement is not defined for BaseStringEdit");
+  }
+  static composeOrUndefined(edits) {
+    if (edits.length === 0) {
+      return void 0;
+    }
+    let result = edits[0];
+    for (let i = 1; i < edits.length; i++) {
+      result = result.compose(edits[i]);
+    }
+    return result;
+  }
+  /**
+   * r := trySwap(e1, e2);
+   * e1.compose(e2) === r.e1.compose(r.e2)
+  */
+  static trySwap(e1, e2) {
+    const e1Inv = e1.inverseOnSlice((start, endEx) => " ".repeat(endEx - start));
+    const e1_ = e2.tryRebase(e1Inv);
+    if (!e1_) {
+      return void 0;
+    }
+    const e2_ = e1.tryRebase(e1_);
+    if (!e2_) {
+      return void 0;
+    }
+    return { e1: e1_, e2: e2_ };
+  }
+  apply(base) {
+    const resultText = [];
+    let pos = 0;
+    for (const edit of this.replacements) {
+      resultText.push(base.substring(pos, edit.replaceRange.start));
+      resultText.push(edit.newText);
+      pos = edit.replaceRange.endExclusive;
+    }
+    resultText.push(base.substring(pos));
+    return resultText.join("");
+  }
+  /**
+   * Creates an edit that reverts this edit.
+   */
+  inverseOnSlice(getOriginalSlice) {
+    const edits = [];
+    let offset = 0;
+    for (const e of this.replacements) {
+      edits.push(StringReplacement.replace(OffsetRange.ofStartAndLength(e.replaceRange.start + offset, e.newText.length), getOriginalSlice(e.replaceRange.start, e.replaceRange.endExclusive)));
+      offset += e.newText.length - e.replaceRange.length;
+    }
+    return new StringEdit(edits);
+  }
+  /**
+   * Creates an edit that reverts this edit.
+   */
+  inverse(original) {
+    return this.inverseOnSlice((start, endEx) => original.substring(start, endEx));
+  }
+  rebaseSkipConflicting(base) {
+    return this._tryRebase(base, false);
+  }
+  tryRebase(base) {
+    return this._tryRebase(base, true);
+  }
+  _tryRebase(base, noOverlap) {
+    const newEdits = [];
+    let baseIdx = 0;
+    let ourIdx = 0;
+    let offset = 0;
+    while (ourIdx < this.replacements.length || baseIdx < base.replacements.length) {
+      const baseEdit = base.replacements.at(baseIdx);
+      const ourEdit = this.replacements.at(ourIdx);
+      if (!ourEdit) {
+        break;
+      } else if (!baseEdit) {
+        const transformedRange = ourEdit.replaceRange.delta(offset);
+        newEdits.push(new StringReplacement(transformedRange, ourEdit.newText));
+        ourIdx++;
+      } else if (ourEdit.replaceRange.intersects(baseEdit.replaceRange) || areConcurrentInserts(ourEdit.replaceRange, baseEdit.replaceRange) || isInsertStrictlyInsideRange(ourEdit.replaceRange, baseEdit.replaceRange) || isInsertStrictlyInsideRange(baseEdit.replaceRange, ourEdit.replaceRange)) {
+        ourIdx++;
+        if (noOverlap) {
+          return void 0;
+        }
+      } else if (ourEdit.replaceRange.start < baseEdit.replaceRange.start || ourEdit.replaceRange.isEmpty && ourEdit.replaceRange.start === baseEdit.replaceRange.start) {
+        const transformedRange = ourEdit.replaceRange.delta(offset);
+        newEdits.push(new StringReplacement(transformedRange, ourEdit.newText));
+        ourIdx++;
+      } else {
+        baseIdx++;
+        offset += baseEdit.newText.length - baseEdit.replaceRange.length;
+      }
+    }
+    return new StringEdit(newEdits);
+  }
+  toJson() {
+    return this.replacements.map((e) => e.toJson());
+  }
+  isNeutralOn(text) {
+    return this.replacements.every((e) => e.isNeutralOn(text));
+  }
+  removeCommonSuffixPrefix(originalText) {
+    const edits = [];
+    for (const e of this.replacements) {
+      const edit = e.removeCommonSuffixPrefix(originalText);
+      if (!edit.isEmpty) {
+        edits.push(edit);
+      }
+    }
+    return new StringEdit(edits);
+  }
+  normalizeEOL(eol) {
+    return new StringEdit(this.replacements.map((edit) => edit.normalizeEOL(eol)));
+  }
+  /**
+   * If `e1.apply(source) === e2.apply(source)`, then `e1.normalizeOnSource(source).equals(e2.normalizeOnSource(source))`.
+  */
+  normalizeOnSource(source) {
+    const result = this.apply(source);
+    const edit = StringReplacement.replace(OffsetRange.ofLength(source.length), result);
+    const e = edit.removeCommonSuffixAndPrefix(source);
+    if (e.isEmpty) {
+      return StringEdit.empty;
+    }
+    return e.toEdit();
+  }
+  removeCommonSuffixAndPrefix(source) {
+    return this._createNew(this.replacements.map((e) => e.removeCommonSuffixAndPrefix(source))).normalize();
+  }
+  applyOnText(docContents) {
+    return new StringText(this.apply(docContents.value));
+  }
+  mapData(f) {
+    return new AnnotatedStringEdit(this.replacements.map((e) => new AnnotatedStringReplacement(e.replaceRange, e.newText, f(e))));
+  }
+}
+class BaseStringReplacement extends BaseReplacement {
+  static {
+    __name(this, "BaseStringReplacement");
+  }
+  constructor(range, newText) {
+    super(range);
+    this.newText = newText;
+  }
+  getNewLength() {
+    return this.newText.length;
+  }
+  toString() {
+    return `${this.replaceRange} -> ${JSON.stringify(this.newText)}`;
+  }
+  replace(str) {
+    return str.substring(0, this.replaceRange.start) + this.newText + str.substring(this.replaceRange.endExclusive);
+  }
+  /**
+   * Checks if the edit would produce no changes when applied to the given text.
+   */
+  isNeutralOn(text) {
+    return this.newText === text.substring(this.replaceRange.start, this.replaceRange.endExclusive);
+  }
+  removeCommonSuffixPrefix(originalText) {
+    const oldText = originalText.substring(this.replaceRange.start, this.replaceRange.endExclusive);
+    const prefixLen = commonPrefixLength(oldText, this.newText);
+    const suffixLen = Math.min(oldText.length - prefixLen, this.newText.length - prefixLen, commonSuffixLength(oldText, this.newText));
+    const replaceRange = new OffsetRange(this.replaceRange.start + prefixLen, this.replaceRange.endExclusive - suffixLen);
+    const newText = this.newText.substring(prefixLen, this.newText.length - suffixLen);
+    return new StringReplacement(replaceRange, newText);
+  }
+  normalizeEOL(eol) {
+    const newText = this.newText.replace(/\r\n|\n/g, eol);
+    return new StringReplacement(this.replaceRange, newText);
+  }
+  removeCommonSuffixAndPrefix(source) {
+    return this.removeCommonSuffix(source).removeCommonPrefix(source);
+  }
+  removeCommonPrefix(source) {
+    const oldText = this.replaceRange.substring(source);
+    const prefixLen = commonPrefixLength(oldText, this.newText);
+    if (prefixLen === 0) {
+      return this;
+    }
+    return this.slice(this.replaceRange.deltaStart(prefixLen), new OffsetRange(prefixLen, this.newText.length));
+  }
+  removeCommonSuffix(source) {
+    const oldText = this.replaceRange.substring(source);
+    const suffixLen = commonSuffixLength(oldText, this.newText);
+    if (suffixLen === 0) {
+      return this;
+    }
+    return this.slice(this.replaceRange.deltaEnd(-suffixLen), new OffsetRange(0, this.newText.length - suffixLen));
+  }
+  toEdit() {
+    return new StringEdit([this]);
+  }
+  toJson() {
+    return {
+      txt: this.newText,
+      pos: this.replaceRange.start,
+      len: this.replaceRange.length
+    };
+  }
+}
+class StringEdit extends BaseStringEdit {
+  static {
+    __name(this, "StringEdit");
+  }
+  /**
+   * Parses an edit from its string representation.
+   * E.g. [[2, 12) -> "fgh", [14, 20) -> "qrst", [22, 22) -> "de\n"]
+  */
+  static parse(toStringValue) {
+    const replacements = [];
+    const regex = /\[(\d+),\s*(\d+)\)\s*->\s*"([^"]*)"/g;
+    let match;
+    while ((match = regex.exec(toStringValue)) !== null) {
+      const start = parseInt(match[1], 10);
+      const endEx = parseInt(match[2], 10);
+      const text = match[3].replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\\\/g, "\\");
+      replacements.push(new StringReplacement(new OffsetRange(start, endEx), text));
+    }
+    return new StringEdit(replacements);
+  }
+  static {
+    this.empty = new StringEdit([]);
+  }
+  static create(replacements) {
+    return new StringEdit(replacements);
+  }
+  static single(replacement) {
+    return new StringEdit([replacement]);
+  }
+  static replace(range, replacement) {
+    return new StringEdit([new StringReplacement(range, replacement)]);
+  }
+  static insert(offset, replacement) {
+    return new StringEdit([new StringReplacement(OffsetRange.emptyAt(offset), replacement)]);
+  }
+  static delete(range) {
+    return new StringEdit([new StringReplacement(range, "")]);
+  }
+  static fromJson(data) {
+    return new StringEdit(data.map(StringReplacement.fromJson));
+  }
+  static compose(edits) {
+    if (edits.length === 0) {
+      return StringEdit.empty;
+    }
+    let result = edits[0];
+    for (let i = 1; i < edits.length; i++) {
+      result = result.compose(edits[i]);
+    }
+    return result;
+  }
+  /**
+   * The replacements are applied in order!
+   * Equals `StringEdit.compose(replacements.map(r => r.toEdit()))`, but is much more performant.
+  */
+  static composeSequentialReplacements(replacements) {
+    let edit = StringEdit.empty;
+    let curEditReplacements = [];
+    for (const r of replacements) {
+      const last = curEditReplacements.at(-1);
+      if (!last || r.replaceRange.isBefore(last.replaceRange)) {
+        curEditReplacements.push(r);
+      } else {
+        edit = edit.compose(StringEdit.create(curEditReplacements.reverse()));
+        curEditReplacements = [r];
+      }
+    }
+    edit = edit.compose(StringEdit.create(curEditReplacements.reverse()));
+    return edit;
+  }
+  constructor(replacements) {
+    super(replacements);
+  }
+  _createNew(replacements) {
+    return new StringEdit(replacements);
+  }
+}
+class StringReplacement extends BaseStringReplacement {
+  static {
+    __name(this, "StringReplacement");
+  }
+  static insert(offset, text) {
+    return new StringReplacement(OffsetRange.emptyAt(offset), text);
+  }
+  static replace(range, text) {
+    return new StringReplacement(range, text);
+  }
+  static delete(range) {
+    return new StringReplacement(range, "");
+  }
+  static fromJson(data) {
+    return new StringReplacement(OffsetRange.ofStartAndLength(data.pos, data.len), data.txt);
+  }
+  equals(other) {
+    return this.replaceRange.equals(other.replaceRange) && this.newText === other.newText;
+  }
+  tryJoinTouching(other) {
+    return new StringReplacement(this.replaceRange.joinRightTouching(other.replaceRange), this.newText + other.newText);
+  }
+  slice(range, rangeInReplacement) {
+    return new StringReplacement(range, rangeInReplacement ? rangeInReplacement.substring(this.newText) : this.newText);
+  }
+}
+function applyEditsToRanges(sortedRanges, edit) {
+  sortedRanges = sortedRanges.slice();
+  const result = [];
+  let offset = 0;
+  for (const e of edit.replacements) {
+    while (true) {
+      const r = sortedRanges[0];
+      if (!r || r.endExclusive >= e.replaceRange.start) {
+        break;
+      }
+      sortedRanges.shift();
+      result.push(r.delta(offset));
+    }
+    const intersecting = [];
+    while (true) {
+      const r = sortedRanges[0];
+      if (!r || !r.intersectsOrTouches(e.replaceRange)) {
+        break;
+      }
+      sortedRanges.shift();
+      intersecting.push(r);
+    }
+    for (let i = intersecting.length - 1; i >= 0; i--) {
+      let r = intersecting[i];
+      const overlap = r.intersect(e.replaceRange).length;
+      r = r.deltaEnd(-overlap + (i === 0 ? e.newText.length : 0));
+      const rangeAheadOfReplaceRange = r.start - e.replaceRange.start;
+      if (rangeAheadOfReplaceRange > 0) {
+        r = r.delta(-rangeAheadOfReplaceRange);
+      }
+      if (i !== 0) {
+        r = r.delta(e.newText.length);
+      }
+      r = r.delta(-(e.newText.length - e.replaceRange.length));
+      sortedRanges.unshift(r);
+    }
+    offset += e.newText.length - e.replaceRange.length;
+  }
+  while (true) {
+    const r = sortedRanges[0];
+    if (!r) {
+      break;
+    }
+    sortedRanges.shift();
+    result.push(r.delta(offset));
+  }
+  return result;
+}
+__name(applyEditsToRanges, "applyEditsToRanges");
+class VoidEditData {
+  static {
+    __name(this, "VoidEditData");
+  }
+  join(other) {
+    return this;
+  }
+}
+class AnnotatedStringEdit extends BaseStringEdit {
+  static {
+    __name(this, "AnnotatedStringEdit");
+  }
+  static {
+    this.empty = new AnnotatedStringEdit([]);
+  }
+  static create(replacements) {
+    return new AnnotatedStringEdit(replacements);
+  }
+  static single(replacement) {
+    return new AnnotatedStringEdit([replacement]);
+  }
+  static replace(range, replacement, data) {
+    return new AnnotatedStringEdit([new AnnotatedStringReplacement(range, replacement, data)]);
+  }
+  static insert(offset, replacement, data) {
+    return new AnnotatedStringEdit([new AnnotatedStringReplacement(OffsetRange.emptyAt(offset), replacement, data)]);
+  }
+  static delete(range, data) {
+    return new AnnotatedStringEdit([new AnnotatedStringReplacement(range, "", data)]);
+  }
+  static compose(edits) {
+    if (edits.length === 0) {
+      return AnnotatedStringEdit.empty;
+    }
+    let result = edits[0];
+    for (let i = 1; i < edits.length; i++) {
+      result = result.compose(edits[i]);
+    }
+    return result;
+  }
+  constructor(replacements) {
+    super(replacements);
+  }
+  _createNew(replacements) {
+    return new AnnotatedStringEdit(replacements);
+  }
+  toStringEdit(filter) {
+    const newReplacements = [];
+    for (const r of this.replacements) {
+      if (!filter || filter(r)) {
+        newReplacements.push(new StringReplacement(r.replaceRange, r.newText));
+      }
+    }
+    return new StringEdit(newReplacements);
+  }
+}
+class AnnotatedStringReplacement extends BaseStringReplacement {
+  static {
+    __name(this, "AnnotatedStringReplacement");
+  }
+  static insert(offset, text, data) {
+    return new AnnotatedStringReplacement(OffsetRange.emptyAt(offset), text, data);
+  }
+  static replace(range, text, data) {
+    return new AnnotatedStringReplacement(range, text, data);
+  }
+  static delete(range, data) {
+    return new AnnotatedStringReplacement(range, "", data);
+  }
+  constructor(range, newText, data) {
+    super(range, newText);
+    this.data = data;
+  }
+  equals(other) {
+    return this.replaceRange.equals(other.replaceRange) && this.newText === other.newText && this.data === other.data;
+  }
+  tryJoinTouching(other) {
+    const joined = this.data.join(other.data);
+    if (joined === void 0) {
+      return void 0;
+    }
+    return new AnnotatedStringReplacement(this.replaceRange.joinRightTouching(other.replaceRange), this.newText + other.newText, joined);
+  }
+  slice(range, rangeInReplacement) {
+    return new AnnotatedStringReplacement(range, rangeInReplacement ? rangeInReplacement.substring(this.newText) : this.newText, this.data);
+  }
+}
+function areConcurrentInserts(r1, r2) {
+  return r1.isEmpty && r2.isEmpty && r1.start === r2.start;
+}
+__name(areConcurrentInserts, "areConcurrentInserts");
+function isInsertStrictlyInsideRange(insert, range) {
+  return insert.isEmpty && range.start < insert.start && insert.start < range.endExclusive;
+}
+__name(isInsertStrictlyInsideRange, "isInsertStrictlyInsideRange");
+export {
+  AnnotatedStringEdit,
+  AnnotatedStringReplacement,
+  BaseStringEdit,
+  BaseStringReplacement,
+  StringEdit,
+  StringReplacement,
+  VoidEditData,
+  applyEditsToRanges
+};
+//# sourceMappingURL=stringEdit.js.map

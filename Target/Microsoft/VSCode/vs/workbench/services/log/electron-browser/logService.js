@@ -1,1 +1,27 @@
-import{$Ho as i}from"../../../../platform/log/common/log.js";import{$Dd as l}from"../../../../base/common/lifecycle.js";import{$WLb as n,$VLb as a}from"../common/logConstants.js";import{$ZC as g}from"../../../../platform/log/common/logService.js";class f extends g{constructor(s,o){const t=new l,r=t.add(s.createLogger(o.logFile,{id:a,name:n.name,group:n}));let e;o.isExtensionDevelopment&&o.extensionTestsLocationURI?e=s.createConsoleMainLogger():e=new i(r.getLevel()),super(r,[e]),this.D(t)}}export{f as $_Pc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ConsoleLogger } from "../../../../platform/log/common/log.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { windowLogGroup, windowLogId } from "../common/logConstants.js";
+import { LogService } from "../../../../platform/log/common/logService.js";
+class NativeLogService extends LogService {
+  static {
+    __name(this, "NativeLogService");
+  }
+  constructor(loggerService, environmentService) {
+    const disposables = new DisposableStore();
+    const fileLogger = disposables.add(loggerService.createLogger(environmentService.logFile, { id: windowLogId, name: windowLogGroup.name, group: windowLogGroup }));
+    let consoleLogger;
+    if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
+      consoleLogger = loggerService.createConsoleMainLogger();
+    } else {
+      consoleLogger = new ConsoleLogger(fileLogger.getLevel());
+    }
+    super(fileLogger, [consoleLogger]);
+    this._register(disposables);
+  }
+}
+export {
+  NativeLogService
+};
+//# sourceMappingURL=logService.js.map

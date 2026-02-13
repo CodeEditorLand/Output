@@ -1,1 +1,27 @@
-import*as l from"../../../../nls.js";import{$zac as o,$vac as c}from"../sizeUtils.js";const a=o("bodyFontSize",c(13,"px"),l.localize(2645,null)),n=o("bodyFontSize.small",c(12,"px"),l.localize(2646,null)),r=o("bodyFontSize.xSmall",c(11,"px"),l.localize(2647,null)),t=o("codiconFontSize",c(16,"px"),l.localize(2648,null)),i=o("cornerRadius.medium",c(6,"px"),l.localize(2649,null)),x=o("cornerRadius.xSmall",c(2,"px"),l.localize(2650,null)),p=o("cornerRadius.small",c(4,"px"),l.localize(2651,null)),s=o("cornerRadius.large",c(8,"px"),l.localize(2652,null)),u=o("cornerRadius.xLarge",c(12,"px"),l.localize(2653,null)),z=o("cornerRadius.circle",c(9999,"px"),l.localize(2654,null)),$=o("strokeThickness",c(1,"px"),l.localize(2655,null));export{a as $Cac,n as $Dac,r as $Eac,t as $Fac,i as $Gac,x as $Hac,p as $Iac,s as $Jac,u as $Kac,z as $Lac,$ as $Mac};
+import * as nls from "../../../../nls.js";
+import { registerSize, sizeForAllThemes } from "../sizeUtils.js";
+const bodyFontSize = registerSize("bodyFontSize", sizeForAllThemes(13, "px"), nls.localize("bodyFontSize", "Base font size. This size is used if not overridden by a component."));
+const bodyFontSizeSmall = registerSize("bodyFontSize.small", sizeForAllThemes(12, "px"), nls.localize("bodyFontSizeSmall", "Small font size for secondary content."));
+const bodyFontSizeXSmall = registerSize("bodyFontSize.xSmall", sizeForAllThemes(11, "px"), nls.localize("bodyFontSizeXSmall", "Extra small font size for less prominent content."));
+const codiconFontSize = registerSize("codiconFontSize", sizeForAllThemes(16, "px"), nls.localize("codiconFontSize", "Base font size for codicons."));
+const cornerRadiusMedium = registerSize("cornerRadius.medium", sizeForAllThemes(6, "px"), nls.localize("cornerRadiusMedium", "Base corner radius for UI elements."));
+const cornerRadiusXSmall = registerSize("cornerRadius.xSmall", sizeForAllThemes(2, "px"), nls.localize("cornerRadiusXSmall", "Extra small corner radius for very compact UI elements."));
+const cornerRadiusSmall = registerSize("cornerRadius.small", sizeForAllThemes(4, "px"), nls.localize("cornerRadiusSmall", "Small corner radius for compact UI elements."));
+const cornerRadiusLarge = registerSize("cornerRadius.large", sizeForAllThemes(8, "px"), nls.localize("cornerRadiusLarge", "Large corner radius for prominent UI elements."));
+const cornerRadiusXLarge = registerSize("cornerRadius.xLarge", sizeForAllThemes(12, "px"), nls.localize("cornerRadiusXLarge", "Extra large corner radius for very prominent UI elements."));
+const cornerRadiusCircle = registerSize("cornerRadius.circle", sizeForAllThemes(9999, "px"), nls.localize("cornerRadiusCircle", "Circular corner radius for fully rounded UI elements."));
+const strokeThickness = registerSize("strokeThickness", sizeForAllThemes(1, "px"), nls.localize("strokeThickness", "Base stroke thickness for borders and outlines."));
+export {
+  bodyFontSize,
+  bodyFontSizeSmall,
+  bodyFontSizeXSmall,
+  codiconFontSize,
+  cornerRadiusCircle,
+  cornerRadiusLarge,
+  cornerRadiusMedium,
+  cornerRadiusSmall,
+  cornerRadiusXLarge,
+  cornerRadiusXSmall,
+  strokeThickness
+};
+//# sourceMappingURL=baseSizes.js.map

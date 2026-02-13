@@ -1,1 +1,48 @@
-import{$VT as p}from"../service/promptsService.js";var l=function(c,e,n,r){var o=arguments.length,t=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,n):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,e,n,r);else for(var f=c.length-1;f>=0;f--)(i=c[f])&&(t=(o<3?i(t):o>3?i(e,n,t):i(e,n))||t);return o>3&&t&&Object.defineProperty(e,n,t),t},a=function(c,e){return function(n,r){e(n,r,c)}};let s=class{constructor(e){this.a=e}async provideLinks(e,n){const r=this.a.getParsedPromptFile(e);if(!r.body)return;const o=[];for(const t of r.body.fileReferences)if(!t.isMarkdownLink){const i=r.body.resolveFilePath(t.content);i&&o.push({range:t.range,url:i})}return{links:o}}};s=l([a(0,p)],s);export{s as $Emc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IPromptsService } from "../service/promptsService.js";
+let PromptLinkProvider = class PromptLinkProvider2 {
+  static {
+    __name(this, "PromptLinkProvider");
+  }
+  constructor(promptsService) {
+    this.promptsService = promptsService;
+  }
+  /**
+   * Provide list of links for the provided text model.
+   */
+  async provideLinks(model, token) {
+    const promptAST = this.promptsService.getParsedPromptFile(model);
+    if (!promptAST.body) {
+      return;
+    }
+    const links = [];
+    for (const ref of promptAST.body.fileReferences) {
+      if (!ref.isMarkdownLink) {
+        const url = promptAST.body.resolveFilePath(ref.content);
+        if (url) {
+          links.push({ range: ref.range, url });
+        }
+      }
+    }
+    return { links };
+  }
+};
+PromptLinkProvider = __decorate([
+  __param(0, IPromptsService)
+], PromptLinkProvider);
+export {
+  PromptLinkProvider
+};
+//# sourceMappingURL=promptLinkProvider.js.map

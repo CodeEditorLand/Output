@@ -1,1 +1,86 @@
-import{$K1 as M}from"./es5ClassCompat.js";import{$11 as N}from"./location.js";import{$M1 as n}from"./range.js";var E=function(e,t,s,a){var c=arguments.length,r=c<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,s):a,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(e,t,s,a);else for(var u=e.length-1;u>=0;u--)(f=e[u])&&(r=(c<3?f(r):c>3?f(t,s,r):f(t,s))||r);return c>3&&r&&Object.defineProperty(t,s,r),r},p,h;(function(e){e[e.File=0]="File",e[e.Module=1]="Module",e[e.Namespace=2]="Namespace",e[e.Package=3]="Package",e[e.Class=4]="Class",e[e.Method=5]="Method",e[e.Property=6]="Property",e[e.Field=7]="Field",e[e.Constructor=8]="Constructor",e[e.Enum=9]="Enum",e[e.Interface=10]="Interface",e[e.Function=11]="Function",e[e.Variable=12]="Variable",e[e.Constant=13]="Constant",e[e.String=14]="String",e[e.Number=15]="Number",e[e.Boolean=16]="Boolean",e[e.Array=17]="Array",e[e.Object=18]="Object",e[e.Key=19]="Key",e[e.Null=20]="Null",e[e.EnumMember=21]="EnumMember",e[e.Struct=22]="Struct",e[e.Event=23]="Event",e[e.Operator=24]="Operator",e[e.TypeParameter=25]="TypeParameter"})(h||(h={}));var v;(function(e){e[e.Deprecated=1]="Deprecated"})(v||(v={}));let P=p=class{static validate(t){if(!t.name)throw new Error("name must not be falsy")}constructor(t,s,a,c,r){this.name=t,this.kind=s,this.containerName=r,typeof a=="string"&&(this.containerName=a),c instanceof N?this.location=c:a instanceof n&&(this.location=new N(c,a)),p.validate(this)}toJSON(){return{name:this.name,kind:h[this.kind],location:this.location,containerName:this.containerName}}};P=p=E([M],P);export{P as $61,h as SymbolKind,v as SymbolTag};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var SymbolInformation_1;
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { Location } from "./location.js";
+import { Range } from "./range.js";
+var SymbolKind;
+(function(SymbolKind2) {
+  SymbolKind2[SymbolKind2["File"] = 0] = "File";
+  SymbolKind2[SymbolKind2["Module"] = 1] = "Module";
+  SymbolKind2[SymbolKind2["Namespace"] = 2] = "Namespace";
+  SymbolKind2[SymbolKind2["Package"] = 3] = "Package";
+  SymbolKind2[SymbolKind2["Class"] = 4] = "Class";
+  SymbolKind2[SymbolKind2["Method"] = 5] = "Method";
+  SymbolKind2[SymbolKind2["Property"] = 6] = "Property";
+  SymbolKind2[SymbolKind2["Field"] = 7] = "Field";
+  SymbolKind2[SymbolKind2["Constructor"] = 8] = "Constructor";
+  SymbolKind2[SymbolKind2["Enum"] = 9] = "Enum";
+  SymbolKind2[SymbolKind2["Interface"] = 10] = "Interface";
+  SymbolKind2[SymbolKind2["Function"] = 11] = "Function";
+  SymbolKind2[SymbolKind2["Variable"] = 12] = "Variable";
+  SymbolKind2[SymbolKind2["Constant"] = 13] = "Constant";
+  SymbolKind2[SymbolKind2["String"] = 14] = "String";
+  SymbolKind2[SymbolKind2["Number"] = 15] = "Number";
+  SymbolKind2[SymbolKind2["Boolean"] = 16] = "Boolean";
+  SymbolKind2[SymbolKind2["Array"] = 17] = "Array";
+  SymbolKind2[SymbolKind2["Object"] = 18] = "Object";
+  SymbolKind2[SymbolKind2["Key"] = 19] = "Key";
+  SymbolKind2[SymbolKind2["Null"] = 20] = "Null";
+  SymbolKind2[SymbolKind2["EnumMember"] = 21] = "EnumMember";
+  SymbolKind2[SymbolKind2["Struct"] = 22] = "Struct";
+  SymbolKind2[SymbolKind2["Event"] = 23] = "Event";
+  SymbolKind2[SymbolKind2["Operator"] = 24] = "Operator";
+  SymbolKind2[SymbolKind2["TypeParameter"] = 25] = "TypeParameter";
+})(SymbolKind || (SymbolKind = {}));
+var SymbolTag;
+(function(SymbolTag2) {
+  SymbolTag2[SymbolTag2["Deprecated"] = 1] = "Deprecated";
+})(SymbolTag || (SymbolTag = {}));
+let SymbolInformation = SymbolInformation_1 = class SymbolInformation2 {
+  static {
+    __name(this, "SymbolInformation");
+  }
+  static validate(candidate) {
+    if (!candidate.name) {
+      throw new Error("name must not be falsy");
+    }
+  }
+  constructor(name, kind, rangeOrContainer, locationOrUri, containerName) {
+    this.name = name;
+    this.kind = kind;
+    this.containerName = containerName;
+    if (typeof rangeOrContainer === "string") {
+      this.containerName = rangeOrContainer;
+    }
+    if (locationOrUri instanceof Location) {
+      this.location = locationOrUri;
+    } else if (rangeOrContainer instanceof Range) {
+      this.location = new Location(locationOrUri, rangeOrContainer);
+    }
+    SymbolInformation_1.validate(this);
+  }
+  toJSON() {
+    return {
+      name: this.name,
+      kind: SymbolKind[this.kind],
+      location: this.location,
+      containerName: this.containerName
+    };
+  }
+};
+SymbolInformation = SymbolInformation_1 = __decorate([
+  es5ClassCompat
+], SymbolInformation);
+export {
+  SymbolInformation,
+  SymbolKind,
+  SymbolTag
+};
+//# sourceMappingURL=symbolInformation.js.map

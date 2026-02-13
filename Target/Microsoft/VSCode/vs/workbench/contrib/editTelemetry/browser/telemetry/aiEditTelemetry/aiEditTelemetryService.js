@@ -1,1 +1,6 @@
-import{$Nj as e}from"../../../../../../platform/instantiation/common/instantiation.js";const r=e("aiEditTelemetryService");export{r as $o1b};
+import { createDecorator } from "../../../../../../platform/instantiation/common/instantiation.js";
+const IAiEditTelemetryService = createDecorator("aiEditTelemetryService");
+export {
+  IAiEditTelemetryService
+};
+//# sourceMappingURL=aiEditTelemetryService.js.map

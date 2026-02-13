@@ -1,1 +1,112 @@
-import{Schemas as v}from"../../../../../base/common/network.js";import{$Ih as w}from"../../../../../base/common/resources.js";import{$Mdb as S}from"../../../../../editor/browser/services/codeEditorService.js";import{localize2 as o}from"../../../../../nls.js";import{$vL as x,$qL as F}from"../../../../../platform/actions/common/actions.js";import{$0n as s}from"../../../../../platform/contextkey/common/contextkey.js";import{$vk as k}from"../../../../../platform/files/common/files.js";import{$Mj as A}from"../../../../../platform/instantiation/common/instantiation.js";import{$wP as $}from"../../../../common/contextkeys.js";import{$gM as b}from"../../../../services/textfile/common/textfiles.js";import{$VV as y}from"../../common/editing/chatEditingService.js";import{$QT as E}from"../../common/promptSyntax/config/promptFileLocations.js";import{$iT as C,$hT as P,$gT as T,PromptsType as p}from"../../common/promptSyntax/promptTypes.js";import{$HPb as q}from"../actions/chatActions.js";import{$ZYb as M}from"./pickers/askForPromptName.js";import{$1Yb as I}from"./pickers/askForPromptSourceFolder.js";class u extends x{constructor(t,i){super(t),this.a=i}async run(t,i){const n=t.get(A),d=t.get(S),g=t.get(b),h=t.get(k),a=d.getActiveCodeEditor();if(!a)return;const e=a.getModel();if(!e)return;const c=await n.invokeFunction(I,this.a,void 0,!0);if(!c)return;const l=await n.invokeFunction(M,this.a,c.uri,E(e.uri));if(!l)return;const m=w(c.uri,l);e.uri.scheme===v.untitled?await g.saveAs(e.uri,m,{from:e.uri}):await h.copy(e.uri,m),await d.openCodeEditor({resource:m},a)}}function f(r,t,i,n){return{id:r,title:t,metadata:{description:i},category:q,f1:!1,menu:{id:F.EditorContent,when:s.and(s.equals($.Scheme.key,v.untitled),s.equals($.LangId.key,n),s.notEquals(y.key,0))}}}const L="workbench.action.chat.save-as-prompt";class _ extends u{constructor(){super(f(L,o(6367,"Save As Prompt File"),o(6368,"Save as prompt file"),T),p.prompt)}}const H="workbench.action.chat.save-as-agent";class tt extends u{constructor(){super(f(H,o(6369,"Save As Agent File"),o(6370,"Save as agent file"),C),p.agent)}}const V="workbench.action.chat.save-as-instructions";class et extends u{constructor(){super(f(V,o(6371,"Save As Instructions File"),o(6372,"Save as instructions file"),P),p.instructions)}}export{L as $Coc,_ as $Doc,H as $Eoc,tt as $Foc,V as $Goc,et as $Hoc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../../../base/common/network.js";
+import { joinPath } from "../../../../../base/common/resources.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { localize2 } from "../../../../../nls.js";
+import { Action2, MenuId } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import { chatEditingWidgetFileStateContextKey } from "../../common/editing/chatEditingService.js";
+import { getCleanPromptName } from "../../common/promptSyntax/config/promptFileLocations.js";
+import { AGENT_LANGUAGE_ID, INSTRUCTIONS_LANGUAGE_ID, PROMPT_LANGUAGE_ID, PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { CHAT_CATEGORY } from "../actions/chatActions.js";
+import { askForPromptFileName } from "./pickers/askForPromptName.js";
+import { askForPromptSourceFolder } from "./pickers/askForPromptSourceFolder.js";
+class BaseSaveAsPromptFileAction extends Action2 {
+  static {
+    __name(this, "BaseSaveAsPromptFileAction");
+  }
+  constructor(opts, promptType) {
+    super(opts);
+    this.promptType = promptType;
+  }
+  async run(accessor, configUri) {
+    const instantiationService = accessor.get(IInstantiationService);
+    const codeEditorService = accessor.get(ICodeEditorService);
+    const textFileService = accessor.get(ITextFileService);
+    const fileService = accessor.get(IFileService);
+    const activeCodeEditor = codeEditorService.getActiveCodeEditor();
+    if (!activeCodeEditor) {
+      return;
+    }
+    const model = activeCodeEditor.getModel();
+    if (!model) {
+      return;
+    }
+    const newFolder = await instantiationService.invokeFunction(askForPromptSourceFolder, this.promptType, void 0, true);
+    if (!newFolder) {
+      return;
+    }
+    const newName = await instantiationService.invokeFunction(askForPromptFileName, this.promptType, newFolder.uri, getCleanPromptName(model.uri));
+    if (!newName) {
+      return;
+    }
+    const newFile = joinPath(newFolder.uri, newName);
+    if (model.uri.scheme === Schemas.untitled) {
+      await textFileService.saveAs(model.uri, newFile, { from: model.uri });
+    } else {
+      await fileService.copy(model.uri, newFile);
+    }
+    await codeEditorService.openCodeEditor({ resource: newFile }, activeCodeEditor);
+  }
+}
+function createOptions(id, title, description, languageId) {
+  return {
+    id,
+    title,
+    metadata: {
+      description
+    },
+    category: CHAT_CATEGORY,
+    f1: false,
+    menu: {
+      id: MenuId.EditorContent,
+      when: ContextKeyExpr.and(ContextKeyExpr.equals(ResourceContextKey.Scheme.key, Schemas.untitled), ContextKeyExpr.equals(ResourceContextKey.LangId.key, languageId), ContextKeyExpr.notEquals(
+        chatEditingWidgetFileStateContextKey.key,
+        0
+        /* ModifiedFileEntryState.Modified */
+      ))
+    }
+  };
+}
+__name(createOptions, "createOptions");
+const SAVE_AS_PROMPT_FILE_ACTION_ID = "workbench.action.chat.save-as-prompt";
+class SaveAsPromptFileAction extends BaseSaveAsPromptFileAction {
+  static {
+    __name(this, "SaveAsPromptFileAction");
+  }
+  constructor() {
+    super(createOptions(SAVE_AS_PROMPT_FILE_ACTION_ID, localize2("promptfile.savePromptFile", "Save As Prompt File"), localize2("promptfile.savePromptFile.description", "Save as prompt file"), PROMPT_LANGUAGE_ID), PromptsType.prompt);
+  }
+}
+const SAVE_AS_AGENT_FILE_ACTION_ID = "workbench.action.chat.save-as-agent";
+class SaveAsAgentFileAction extends BaseSaveAsPromptFileAction {
+  static {
+    __name(this, "SaveAsAgentFileAction");
+  }
+  constructor() {
+    super(createOptions(SAVE_AS_AGENT_FILE_ACTION_ID, localize2("promptfile.saveAgentFile", "Save As Agent File"), localize2("promptfile.saveAgentFile.description", "Save as agent file"), AGENT_LANGUAGE_ID), PromptsType.agent);
+  }
+}
+const SAVE_AS_INSTRUCTIONS_FILE_ACTION_ID = "workbench.action.chat.save-as-instructions";
+class SaveAsInstructionsFileAction extends BaseSaveAsPromptFileAction {
+  static {
+    __name(this, "SaveAsInstructionsFileAction");
+  }
+  constructor() {
+    super(createOptions(SAVE_AS_INSTRUCTIONS_FILE_ACTION_ID, localize2("promptfile.saveInstructionsFile", "Save As Instructions File"), localize2("promptfile.saveInstructionsFile.description", "Save as instructions file"), INSTRUCTIONS_LANGUAGE_ID), PromptsType.instructions);
+  }
+}
+export {
+  SAVE_AS_AGENT_FILE_ACTION_ID,
+  SAVE_AS_INSTRUCTIONS_FILE_ACTION_ID,
+  SAVE_AS_PROMPT_FILE_ACTION_ID,
+  SaveAsAgentFileAction,
+  SaveAsInstructionsFileAction,
+  SaveAsPromptFileAction
+};
+//# sourceMappingURL=saveAsPromptFileActions.js.map

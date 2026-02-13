@@ -1,1 +1,91 @@
-import{localize as l}from"../../../../../nls.js";import{$2$b as u}from"../../../../browser/parts/editor/binaryEditor.js";import{$pp as h}from"../../../../../platform/telemetry/common/telemetry.js";import{$qu as $}from"../../../../../platform/theme/common/themeService.js";import{$_Tb as a}from"./fileEditorInput.js";import{$wRb as v,$xRb as b}from"../../common/files.js";import{$hp as g}from"../../../../../platform/storage/common/storage.js";import{EditorResolution as _}from"../../../../../platform/editor/common/editor.js";import{$dO as E}from"../../../../services/editor/common/editorResolverService.js";import{$qN as x}from"../../../../common/editor.js";import{$jO as O}from"../../../../common/editor/diffEditorInput.js";var m=function(f,r,o,e){var n=arguments.length,t=n<3?r:e===null?e=Object.getOwnPropertyDescriptor(r,o):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,r,o,e);else for(var s=f.length-1;s>=0;s--)(i=f[s])&&(t=(n<3?i(t):n>3?i(r,o,t):i(r,o))||t);return n>3&&t&&Object.defineProperty(r,o,t),t},p=function(f,r){return function(o,e){r(o,e,f)}},c;let d=class extends u{static{c=this}static{this.ID=v}constructor(r,o,e,n,t){super(c.ID,r,{openInternal:(i,s)=>this.gb(i,s)},o,e,t),this.fb=n}async gb(r,o){if(r instanceof a&&this.group.activeEditor){const e=this.group.activeEditor,n=e?.toUntyped();if(!n)return;let t=await this.fb.resolveEditor({...n,options:{...o,override:_.PICK}},this.group);if(t===2)t=void 0;else if(t===1)return;if(x(t))for(const i of t.editor instanceof O?[t.editor.original,t.editor.modified]:[t.editor])i instanceof a&&(i.setForceOpenAsText(),i.setPreferredLanguageId(b));await this.group.replaceEditors([{editor:e,replacement:t?.editor??r,options:{...t?.options??o}}])}}getTitle(){return this.input?this.input.getName():l(9205,null)}};d=c=m([p(1,h),p(2,$),p(3,E),p(4,g)],d);export{d as $Jxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var BinaryFileEditor_1;
+import { localize } from "../../../../../nls.js";
+import { BaseBinaryResourceEditor } from "../../../../browser/parts/editor/binaryEditor.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { FileEditorInput } from "./fileEditorInput.js";
+import { BINARY_FILE_EDITOR_ID, BINARY_TEXT_FILE_MODE } from "../../common/files.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { EditorResolution } from "../../../../../platform/editor/common/editor.js";
+import { IEditorResolverService } from "../../../../services/editor/common/editorResolverService.js";
+import { isEditorInputWithOptions } from "../../../../common/editor.js";
+import { DiffEditorInput } from "../../../../common/editor/diffEditorInput.js";
+let BinaryFileEditor = class BinaryFileEditor2 extends BaseBinaryResourceEditor {
+  static {
+    __name(this, "BinaryFileEditor");
+  }
+  static {
+    BinaryFileEditor_1 = this;
+  }
+  static {
+    this.ID = BINARY_FILE_EDITOR_ID;
+  }
+  constructor(group, telemetryService, themeService, editorResolverService, storageService) {
+    super(BinaryFileEditor_1.ID, group, {
+      openInternal: /* @__PURE__ */ __name((input, options) => this.openInternal(input, options), "openInternal")
+    }, telemetryService, themeService, storageService);
+    this.editorResolverService = editorResolverService;
+  }
+  async openInternal(input, options) {
+    if (input instanceof FileEditorInput && this.group.activeEditor) {
+      const activeEditor = this.group.activeEditor;
+      const untypedActiveEditor = activeEditor?.toUntyped();
+      if (!untypedActiveEditor) {
+        return;
+      }
+      let resolvedEditor = await this.editorResolverService.resolveEditor({
+        ...untypedActiveEditor,
+        options: {
+          ...options,
+          override: EditorResolution.PICK
+        }
+      }, this.group);
+      if (resolvedEditor === 2) {
+        resolvedEditor = void 0;
+      } else if (resolvedEditor === 1) {
+        return;
+      }
+      if (isEditorInputWithOptions(resolvedEditor)) {
+        for (const editor of resolvedEditor.editor instanceof DiffEditorInput ? [resolvedEditor.editor.original, resolvedEditor.editor.modified] : [resolvedEditor.editor]) {
+          if (editor instanceof FileEditorInput) {
+            editor.setForceOpenAsText();
+            editor.setPreferredLanguageId(BINARY_TEXT_FILE_MODE);
+          }
+        }
+      }
+      await this.group.replaceEditors([{
+        editor: activeEditor,
+        replacement: resolvedEditor?.editor ?? input,
+        options: {
+          ...resolvedEditor?.options ?? options
+        }
+      }]);
+    }
+  }
+  getTitle() {
+    return this.input ? this.input.getName() : localize("binaryFileEditor", "Binary File Viewer");
+  }
+};
+BinaryFileEditor = BinaryFileEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IEditorResolverService),
+  __param(4, IStorageService)
+], BinaryFileEditor);
+export {
+  BinaryFileEditor
+};
+//# sourceMappingURL=binaryFileEditor.js.map

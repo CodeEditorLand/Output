@@ -1,1 +1,49 @@
-import{$Ll as u}from"../../environment/common/environment.js";import{$vk as $}from"../../files/common/files.js";import{$Oj as l}from"../../instantiation/common/instantiation.js";import{$yo as a}from"../../log/common/log.js";import{$$o as v}from"../../uriIdentity/common/uriIdentity.js";import{$ap as h}from"../common/userDataProfile.js";import{$Ov as _}from"../node/userDataProfile.js";import{$op as d}from"../../state/node/state.js";var s=function(n,o,t,e){var i=arguments.length,r=i<3?o:e===null?e=Object.getOwnPropertyDescriptor(o,t):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,o,t,e);else for(var m=n.length-1;m>=0;m--)(f=n[m])&&(r=(i<3?f(r):i>3?f(o,t,r):f(o,t))||r);return i>3&&r&&Object.defineProperty(o,t,r),r},p=function(n,o){return function(t,e){o(t,e,n)}};const P=l(h);let c=class extends _{constructor(o,t,e,i,r){super(o,t,e,i,r)}getAssociatedEmptyWindows(){const o=[];for(const t of this.z.emptyWindows.keys())o.push({id:t});return o}};c=s([p(0,d),p(1,v),p(2,u),p(3,$),p(4,a)],c);export{P as $Qv,c as $Rv};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import { UserDataProfilesService } from "../node/userDataProfile.js";
+import { IStateService } from "../../state/node/state.js";
+const IUserDataProfilesMainService = refineServiceDecorator(IUserDataProfilesService);
+let UserDataProfilesMainService = class UserDataProfilesMainService2 extends UserDataProfilesService {
+  static {
+    __name(this, "UserDataProfilesMainService");
+  }
+  constructor(stateService, uriIdentityService, environmentService, fileService, logService) {
+    super(stateService, uriIdentityService, environmentService, fileService, logService);
+  }
+  getAssociatedEmptyWindows() {
+    const emptyWindows = [];
+    for (const id of this.profilesObject.emptyWindows.keys()) {
+      emptyWindows.push({ id });
+    }
+    return emptyWindows;
+  }
+};
+UserDataProfilesMainService = __decorate([
+  __param(0, IStateService),
+  __param(1, IUriIdentityService),
+  __param(2, INativeEnvironmentService),
+  __param(3, IFileService),
+  __param(4, ILogService)
+], UserDataProfilesMainService);
+export {
+  IUserDataProfilesMainService,
+  UserDataProfilesMainService
+};
+//# sourceMappingURL=userDataProfile.js.map

@@ -1,1 +1,376 @@
-import*as t from"../../../../nls.js";import*as g from"../../../../base/common/types.js";import{$jm as A}from"../../../../platform/registry/common/platform.js";import{$lm as P}from"../../../../platform/configuration/common/configurationRegistry.js";import{$y1b as k,$z1b as N}from"./colorThemeSchema.js";import{$aq as I}from"../../../../platform/theme/common/colorRegistry.js";import{$xyb as y}from"../../../../platform/theme/common/tokenClassificationRegistry.js";import{ThemeSettings as o,ThemeSettingDefaults as a}from"./workbenchThemeService.js";import{$s as $}from"../../../../base/common/platform.js";import{ColorScheme as m}from"../../../../platform/theme/common/theme.js";const _=A.as(P.Configuration),C=[],d=[],T=[];function s(i){return`\`#${i}#\``}const f="colorThemeConfiguration",V={type:"string",markdownDescription:t.localize(16641,null,s(o.DETECT_COLOR_SCHEME)),default:$?a.COLOR_THEME_LIGHT:a.COLOR_THEME_DARK,tags:[f],enum:C,enumDescriptions:T,enumItemLabels:d,errorMessage:t.localize(16642,null)},w={type:"string",markdownDescription:t.localize(16643,null,s(o.DETECT_COLOR_SCHEME)),default:a.COLOR_THEME_DARK,tags:[f],enum:C,enumDescriptions:T,enumItemLabels:d,errorMessage:t.localize(16644,null)},U={type:"string",markdownDescription:t.localize(16645,null,s(o.DETECT_COLOR_SCHEME)),default:a.COLOR_THEME_LIGHT,tags:[f],enum:C,enumDescriptions:T,enumItemLabels:d,errorMessage:t.localize(16646,null)},F={type:"string",markdownDescription:t.localize(16647,null,s(o.DETECT_HC)),default:a.COLOR_THEME_HC_DARK,tags:[f],enum:C,enumDescriptions:T,enumItemLabels:d,errorMessage:t.localize(16648,null)},G={type:"string",markdownDescription:t.localize(16649,null,s(o.DETECT_HC)),default:a.COLOR_THEME_HC_LIGHT,tags:[f],enum:C,enumDescriptions:T,enumItemLabels:d,errorMessage:t.localize(16650,null)},K={type:"boolean",markdownDescription:t.localize(16651,null,s(o.PREFERRED_DARK_THEME),s(o.PREFERRED_LIGHT_THEME)),default:!1,tags:[f]},D={type:"object",description:t.localize(16652,null),allOf:[{$ref:I}],default:{},defaultSnippets:[{body:{}}]},h={type:["string","null"],default:a.FILE_ICON_THEME,description:t.localize(16653,null),enum:[null],enumItemLabels:[t.localize(16654,null)],enumDescriptions:[t.localize(16655,null)],errorMessage:t.localize(16656,null)},R={type:["string","null"],default:a.PRODUCT_ICON_THEME,description:t.localize(16657,null),enum:[a.PRODUCT_ICON_THEME],enumItemLabels:[t.localize(16658,null)],enumDescriptions:[t.localize(16659,null)],errorMessage:t.localize(16660,null)},x={type:"boolean",default:!0,markdownDescription:t.localize(16661,null,s(o.PREFERRED_HC_DARK_THEME),s(o.PREFERRED_HC_LIGHT_THEME)),scope:1,tags:[f]},S={id:"workbench",order:7.1,type:"object",properties:{[o.COLOR_THEME]:V,[o.PREFERRED_DARK_THEME]:w,[o.PREFERRED_LIGHT_THEME]:U,[o.PREFERRED_HC_DARK_THEME]:F,[o.PREFERRED_HC_LIGHT_THEME]:G,[o.FILE_ICON_THEME]:h,[o.COLOR_CUSTOMIZATIONS]:D,[o.PRODUCT_ICON_THEME]:R}};_.registerConfiguration(S);const j={id:"window",order:8.1,type:"object",properties:{[o.DETECT_HC]:x,[o.DETECT_COLOR_SCHEME]:K}};_.registerConfiguration(j);function E(i){return{description:i,$ref:N}}const O="^\\[[^\\]]*(\\]\\s*\\[[^\\]]*)*\\]$",M={type:"object",properties:{comments:E(t.localize(16662,null)),strings:E(t.localize(16663,null)),keywords:E(t.localize(16664,null)),numbers:E(t.localize(16665,null)),types:E(t.localize(16666,null)),functions:E(t.localize(16667,null)),variables:E(t.localize(16668,null)),textMateRules:{description:t.localize(16669,null),$ref:k},semanticHighlighting:{description:t.localize(16670,null),deprecationMessage:t.localize(16671,null),markdownDeprecationMessage:t.localize(16672,null,s("editor.semanticTokenColorCustomizations")),type:"boolean"}},additionalProperties:!1},L={description:t.localize(16673,null),default:{},allOf:[{...M,patternProperties:{"^\\[":{}}}]},H={type:"object",properties:{enabled:{type:"boolean",description:t.localize(16674,null),suggestSortText:"0_enabled"},rules:{$ref:y,description:t.localize(16675,null),suggestSortText:"0_rules"}},additionalProperties:!1},z={description:t.localize(16676,null),default:{},allOf:[{...H,patternProperties:{"^\\[":{}}}]},b={id:"editor",order:7.2,type:"object",properties:{[o.TOKEN_COLOR_CUSTOMIZATIONS]:L,[o.SEMANTIC_TOKEN_COLOR_CUSTOMIZATIONS]:z}};_.registerConfiguration(b);function ee(i){i.sort((l,p)=>l.label.localeCompare(p.label)),C.splice(0,C.length,...i.map(l=>l.settingsId)),T.splice(0,T.length,...i.map(l=>l.description||"")),d.splice(0,d.length,...i.map(l=>l.label||""));const e={properties:{}},n={properties:{}},r={properties:{}},c={$ref:I,additionalProperties:!1},u={properties:M.properties,additionalProperties:!1};for(const l of i){const p=`[${l.settingsId}]`;e.properties[p]=c,n.properties[p]=u,r.properties[p]=H}e.patternProperties={[O]:c},n.patternProperties={[O]:u},r.patternProperties={[O]:H},D.allOf[1]=e,L.allOf[1]=n,z.allOf[1]=r,_.notifyConfigurationSchemaUpdated(S,b)}function te(i){h.enum.splice(1,Number.MAX_VALUE,...i.map(e=>e.settingsId)),h.enumItemLabels.splice(1,Number.MAX_VALUE,...i.map(e=>e.label)),h.enumDescriptions.splice(1,Number.MAX_VALUE,...i.map(e=>e.description||"")),_.notifyConfigurationSchemaUpdated(S)}function oe(i){R.enum.splice(1,Number.MAX_VALUE,...i.map(e=>e.settingsId)),R.enumItemLabels.splice(1,Number.MAX_VALUE,...i.map(e=>e.label)),R.enumDescriptions.splice(1,Number.MAX_VALUE,...i.map(e=>e.description||"")),_.notifyConfigurationSchemaUpdated(S)}const X={[m.DARK]:o.PREFERRED_DARK_THEME,[m.LIGHT]:o.PREFERRED_LIGHT_THEME,[m.HIGH_CONTRAST_DARK]:o.PREFERRED_HC_DARK_THEME,[m.HIGH_CONTRAST_LIGHT]:o.PREFERRED_HC_LIGHT_THEME};class ne{constructor(e,n){this.c=e,this.d=n}get colorTheme(){return this.c.getValue(this.getColorThemeSettingId())}get fileIconTheme(){return this.c.getValue(o.FILE_ICON_THEME)}get productIconTheme(){return this.c.getValue(o.PRODUCT_ICON_THEME)}get colorCustomizations(){return this.c.getValue(o.COLOR_CUSTOMIZATIONS)||{}}get tokenColorCustomizations(){const e=this.c.getValue(o.TOKEN_COLOR_CUSTOMIZATIONS)||{},n=e.textMateRules;if(!n)return e;const r=n.map(u=>{const l=u.settings?.fontSize,p=u.settings?.lineHeight;return l!==void 0&&p===void 0?{...u,settings:{...u.settings,lineHeight:l}}:u});return{...e,textMateRules:r}}get semanticTokenColorCustomizations(){return this.c.getValue(o.SEMANTIC_TOKEN_COLOR_CUSTOMIZATIONS)}getPreferredColorScheme(){if(this.c.getValue(o.DETECT_HC)&&this.d.highContrast)return this.d.dark?m.HIGH_CONTRAST_DARK:m.HIGH_CONTRAST_LIGHT;if(this.c.getValue(o.DETECT_COLOR_SCHEME))return this.d.dark?m.DARK:m.LIGHT}isDetectingColorScheme(){return this.c.getValue(o.DETECT_COLOR_SCHEME)}getColorThemeSettingId(){const e=this.getPreferredColorScheme();return e?X[e]:o.COLOR_THEME}async setColorTheme(e,n){return await this.e(this.getColorThemeSettingId(),e.settingsId,n),e}async setFileIconTheme(e,n){return await this.e(o.FILE_ICON_THEME,e.settingsId,n),e}async setProductIconTheme(e,n){return await this.e(o.PRODUCT_ICON_THEME,e.settingsId,n),e}isDefaultColorTheme(){const e=this.c.inspect(this.getColorThemeSettingId());return e&&e.default?.value===e.value}findAutoConfigurationTarget(e){const n=this.c.inspect(e);if(g.$cd(n.workspaceFolderValue))if(g.$cd(n.workspaceValue)){if(!g.$cd(n.userRemote))return 4}else return 5;else return 6;return 2}async e(e,n,r){if(r===void 0||r==="preview")return;const c=this.c.inspect(e);if(r==="auto")return this.c.updateValue(e,n);if(r===2){if(n===c.userValue)return Promise.resolve(void 0);if(n===c.defaultValue){if(g.$cd(c.userValue))return Promise.resolve(void 0);n=void 0}}else if((r===5||r===6||r===4)&&n===c.value)return Promise.resolve(void 0);return this.c.updateValue(e,n,r)}}export{s as $D1b,f as $E1b,ee as $F1b,te as $G1b,oe as $H1b,ne as $I1b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import * as types from "../../../../base/common/types.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { textmateColorsSchemaId, textmateColorGroupSchemaId } from "./colorThemeSchema.js";
+import { workbenchColorsSchemaId } from "../../../../platform/theme/common/colorRegistry.js";
+import { tokenStylingSchemaId } from "../../../../platform/theme/common/tokenClassificationRegistry.js";
+import { ThemeSettings, ThemeSettingDefaults } from "./workbenchThemeService.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+const colorThemeSettingEnum = [];
+const colorThemeSettingEnumItemLabels = [];
+const colorThemeSettingEnumDescriptions = [];
+function formatSettingAsLink(str) {
+  return `\`#${str}#\``;
+}
+__name(formatSettingAsLink, "formatSettingAsLink");
+const COLOR_THEME_CONFIGURATION_SETTINGS_TAG = "colorThemeConfiguration";
+const colorThemeSettingSchema = {
+  type: "string",
+  markdownDescription: nls.localize({ key: "colorTheme", comment: ["{0} will become a link to another setting."] }, "Specifies the color theme used in the workbench when {0} is not enabled.", formatSettingAsLink(ThemeSettings.DETECT_COLOR_SCHEME)),
+  default: isWeb ? ThemeSettingDefaults.COLOR_THEME_LIGHT : ThemeSettingDefaults.COLOR_THEME_DARK,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG],
+  enum: colorThemeSettingEnum,
+  enumDescriptions: colorThemeSettingEnumDescriptions,
+  enumItemLabels: colorThemeSettingEnumItemLabels,
+  errorMessage: nls.localize("colorThemeError", "Theme is unknown or not installed.")
+};
+const preferredDarkThemeSettingSchema = {
+  type: "string",
+  //
+  markdownDescription: nls.localize({ key: "preferredDarkColorTheme", comment: ["{0} will become a link to another setting."] }, "Specifies the color theme when system color mode is dark and {0} is enabled.", formatSettingAsLink(ThemeSettings.DETECT_COLOR_SCHEME)),
+  default: ThemeSettingDefaults.COLOR_THEME_DARK,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG],
+  enum: colorThemeSettingEnum,
+  enumDescriptions: colorThemeSettingEnumDescriptions,
+  enumItemLabels: colorThemeSettingEnumItemLabels,
+  errorMessage: nls.localize("colorThemeError", "Theme is unknown or not installed.")
+};
+const preferredLightThemeSettingSchema = {
+  type: "string",
+  markdownDescription: nls.localize({ key: "preferredLightColorTheme", comment: ["{0} will become a link to another setting."] }, "Specifies the color theme when system color mode is light and {0} is enabled.", formatSettingAsLink(ThemeSettings.DETECT_COLOR_SCHEME)),
+  default: ThemeSettingDefaults.COLOR_THEME_LIGHT,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG],
+  enum: colorThemeSettingEnum,
+  enumDescriptions: colorThemeSettingEnumDescriptions,
+  enumItemLabels: colorThemeSettingEnumItemLabels,
+  errorMessage: nls.localize("colorThemeError", "Theme is unknown or not installed.")
+};
+const preferredHCDarkThemeSettingSchema = {
+  type: "string",
+  markdownDescription: nls.localize({ key: "preferredHCDarkColorTheme", comment: ["{0} will become a link to another setting."] }, "Specifies the color theme when in high contrast dark mode and {0} is enabled.", formatSettingAsLink(ThemeSettings.DETECT_HC)),
+  default: ThemeSettingDefaults.COLOR_THEME_HC_DARK,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG],
+  enum: colorThemeSettingEnum,
+  enumDescriptions: colorThemeSettingEnumDescriptions,
+  enumItemLabels: colorThemeSettingEnumItemLabels,
+  errorMessage: nls.localize("colorThemeError", "Theme is unknown or not installed.")
+};
+const preferredHCLightThemeSettingSchema = {
+  type: "string",
+  markdownDescription: nls.localize({ key: "preferredHCLightColorTheme", comment: ["{0} will become a link to another setting."] }, "Specifies the color theme when in high contrast light mode and {0} is enabled.", formatSettingAsLink(ThemeSettings.DETECT_HC)),
+  default: ThemeSettingDefaults.COLOR_THEME_HC_LIGHT,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG],
+  enum: colorThemeSettingEnum,
+  enumDescriptions: colorThemeSettingEnumDescriptions,
+  enumItemLabels: colorThemeSettingEnumItemLabels,
+  errorMessage: nls.localize("colorThemeError", "Theme is unknown or not installed.")
+};
+const detectColorSchemeSettingSchema = {
+  type: "boolean",
+  markdownDescription: nls.localize({ key: "detectColorScheme", comment: ["{0} and {1} will become links to other settings."] }, "If enabled, will automatically select a color theme based on the system color mode. If the system color mode is dark, {0} is used, else {1}.", formatSettingAsLink(ThemeSettings.PREFERRED_DARK_THEME), formatSettingAsLink(ThemeSettings.PREFERRED_LIGHT_THEME)),
+  default: false,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG]
+};
+const colorCustomizationsSchema = {
+  type: "object",
+  description: nls.localize("workbenchColors", "Overrides colors from the currently selected color theme."),
+  allOf: [{ $ref: workbenchColorsSchemaId }],
+  default: {},
+  defaultSnippets: [{
+    body: {}
+  }]
+};
+const fileIconThemeSettingSchema = {
+  type: ["string", "null"],
+  default: ThemeSettingDefaults.FILE_ICON_THEME,
+  description: nls.localize("iconTheme", "Specifies the file icon theme used in the workbench or 'null' to not show any file icons."),
+  enum: [null],
+  enumItemLabels: [nls.localize("noIconThemeLabel", "None")],
+  enumDescriptions: [nls.localize("noIconThemeDesc", "No file icons")],
+  errorMessage: nls.localize("iconThemeError", "File icon theme is unknown or not installed.")
+};
+const productIconThemeSettingSchema = {
+  type: ["string", "null"],
+  default: ThemeSettingDefaults.PRODUCT_ICON_THEME,
+  description: nls.localize("productIconTheme", "Specifies the product icon theme used."),
+  enum: [ThemeSettingDefaults.PRODUCT_ICON_THEME],
+  enumItemLabels: [nls.localize("defaultProductIconThemeLabel", "Default")],
+  enumDescriptions: [nls.localize("defaultProductIconThemeDesc", "Default")],
+  errorMessage: nls.localize("productIconThemeError", "Product icon theme is unknown or not installed.")
+};
+const detectHCSchemeSettingSchema = {
+  type: "boolean",
+  default: true,
+  markdownDescription: nls.localize({ key: "autoDetectHighContrast", comment: ["{0} and {1} will become links to other settings."] }, "If enabled, will automatically change to high contrast theme if the OS is using a high contrast theme. The high contrast theme to use is specified by {0} and {1}.", formatSettingAsLink(ThemeSettings.PREFERRED_HC_DARK_THEME), formatSettingAsLink(ThemeSettings.PREFERRED_HC_LIGHT_THEME)),
+  scope: 1,
+  tags: [COLOR_THEME_CONFIGURATION_SETTINGS_TAG]
+};
+const themeSettingsConfiguration = {
+  id: "workbench",
+  order: 7.1,
+  type: "object",
+  properties: {
+    [ThemeSettings.COLOR_THEME]: colorThemeSettingSchema,
+    [ThemeSettings.PREFERRED_DARK_THEME]: preferredDarkThemeSettingSchema,
+    [ThemeSettings.PREFERRED_LIGHT_THEME]: preferredLightThemeSettingSchema,
+    [ThemeSettings.PREFERRED_HC_DARK_THEME]: preferredHCDarkThemeSettingSchema,
+    [ThemeSettings.PREFERRED_HC_LIGHT_THEME]: preferredHCLightThemeSettingSchema,
+    [ThemeSettings.FILE_ICON_THEME]: fileIconThemeSettingSchema,
+    [ThemeSettings.COLOR_CUSTOMIZATIONS]: colorCustomizationsSchema,
+    [ThemeSettings.PRODUCT_ICON_THEME]: productIconThemeSettingSchema
+  }
+};
+configurationRegistry.registerConfiguration(themeSettingsConfiguration);
+const themeSettingsWindowConfiguration = {
+  id: "window",
+  order: 8.1,
+  type: "object",
+  properties: {
+    [ThemeSettings.DETECT_HC]: detectHCSchemeSettingSchema,
+    [ThemeSettings.DETECT_COLOR_SCHEME]: detectColorSchemeSettingSchema
+  }
+};
+configurationRegistry.registerConfiguration(themeSettingsWindowConfiguration);
+function tokenGroupSettings(description) {
+  return {
+    description,
+    $ref: textmateColorGroupSchemaId
+  };
+}
+__name(tokenGroupSettings, "tokenGroupSettings");
+const themeSpecificSettingKey = "^\\[[^\\]]*(\\]\\s*\\[[^\\]]*)*\\]$";
+const tokenColorSchema = {
+  type: "object",
+  properties: {
+    comments: tokenGroupSettings(nls.localize("editorColors.comments", "Sets the colors and styles for comments")),
+    strings: tokenGroupSettings(nls.localize("editorColors.strings", "Sets the colors and styles for strings literals.")),
+    keywords: tokenGroupSettings(nls.localize("editorColors.keywords", "Sets the colors and styles for keywords.")),
+    numbers: tokenGroupSettings(nls.localize("editorColors.numbers", "Sets the colors and styles for number literals.")),
+    types: tokenGroupSettings(nls.localize("editorColors.types", "Sets the colors and styles for type declarations and references.")),
+    functions: tokenGroupSettings(nls.localize("editorColors.functions", "Sets the colors and styles for functions declarations and references.")),
+    variables: tokenGroupSettings(nls.localize("editorColors.variables", "Sets the colors and styles for variables declarations and references.")),
+    textMateRules: {
+      description: nls.localize("editorColors.textMateRules", "Sets colors and styles using textmate theming rules (advanced)."),
+      $ref: textmateColorsSchemaId
+    },
+    semanticHighlighting: {
+      description: nls.localize("editorColors.semanticHighlighting", "Whether semantic highlighting should be enabled for this theme."),
+      deprecationMessage: nls.localize("editorColors.semanticHighlighting.deprecationMessage", "Use `enabled` in `editor.semanticTokenColorCustomizations` setting instead."),
+      markdownDeprecationMessage: nls.localize({ key: "editorColors.semanticHighlighting.deprecationMessageMarkdown", comment: ["{0} will become a link to another setting."] }, "Use `enabled` in {0} setting instead.", formatSettingAsLink("editor.semanticTokenColorCustomizations")),
+      type: "boolean"
+    }
+  },
+  additionalProperties: false
+};
+const tokenColorCustomizationSchema = {
+  description: nls.localize("editorColors", "Overrides editor syntax colors and font style from the currently selected color theme."),
+  default: {},
+  allOf: [{ ...tokenColorSchema, patternProperties: { "^\\[": {} } }]
+};
+const semanticTokenColorSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description: nls.localize("editorColors.semanticHighlighting.enabled", "Whether semantic highlighting is enabled or disabled for this theme"),
+      suggestSortText: "0_enabled"
+    },
+    rules: {
+      $ref: tokenStylingSchemaId,
+      description: nls.localize("editorColors.semanticHighlighting.rules", "Semantic token styling rules for this theme."),
+      suggestSortText: "0_rules"
+    }
+  },
+  additionalProperties: false
+};
+const semanticTokenColorCustomizationSchema = {
+  description: nls.localize("semanticTokenColors", "Overrides editor semantic token color and styles from the currently selected color theme."),
+  default: {},
+  allOf: [{ ...semanticTokenColorSchema, patternProperties: { "^\\[": {} } }]
+};
+const tokenColorCustomizationConfiguration = {
+  id: "editor",
+  order: 7.2,
+  type: "object",
+  properties: {
+    [ThemeSettings.TOKEN_COLOR_CUSTOMIZATIONS]: tokenColorCustomizationSchema,
+    [ThemeSettings.SEMANTIC_TOKEN_COLOR_CUSTOMIZATIONS]: semanticTokenColorCustomizationSchema
+  }
+};
+configurationRegistry.registerConfiguration(tokenColorCustomizationConfiguration);
+function updateColorThemeConfigurationSchemas(themes) {
+  themes.sort((a, b) => a.label.localeCompare(b.label));
+  colorThemeSettingEnum.splice(0, colorThemeSettingEnum.length, ...themes.map((t) => t.settingsId));
+  colorThemeSettingEnumDescriptions.splice(0, colorThemeSettingEnumDescriptions.length, ...themes.map((t) => t.description || ""));
+  colorThemeSettingEnumItemLabels.splice(0, colorThemeSettingEnumItemLabels.length, ...themes.map((t) => t.label || ""));
+  const themeSpecificWorkbenchColors = { properties: {} };
+  const themeSpecificTokenColors = { properties: {} };
+  const themeSpecificSemanticTokenColors = { properties: {} };
+  const workbenchColors = { $ref: workbenchColorsSchemaId, additionalProperties: false };
+  const tokenColors = { properties: tokenColorSchema.properties, additionalProperties: false };
+  for (const t of themes) {
+    const themeId = `[${t.settingsId}]`;
+    themeSpecificWorkbenchColors.properties[themeId] = workbenchColors;
+    themeSpecificTokenColors.properties[themeId] = tokenColors;
+    themeSpecificSemanticTokenColors.properties[themeId] = semanticTokenColorSchema;
+  }
+  themeSpecificWorkbenchColors.patternProperties = { [themeSpecificSettingKey]: workbenchColors };
+  themeSpecificTokenColors.patternProperties = { [themeSpecificSettingKey]: tokenColors };
+  themeSpecificSemanticTokenColors.patternProperties = { [themeSpecificSettingKey]: semanticTokenColorSchema };
+  colorCustomizationsSchema.allOf[1] = themeSpecificWorkbenchColors;
+  tokenColorCustomizationSchema.allOf[1] = themeSpecificTokenColors;
+  semanticTokenColorCustomizationSchema.allOf[1] = themeSpecificSemanticTokenColors;
+  configurationRegistry.notifyConfigurationSchemaUpdated(themeSettingsConfiguration, tokenColorCustomizationConfiguration);
+}
+__name(updateColorThemeConfigurationSchemas, "updateColorThemeConfigurationSchemas");
+function updateFileIconThemeConfigurationSchemas(themes) {
+  fileIconThemeSettingSchema.enum.splice(1, Number.MAX_VALUE, ...themes.map((t) => t.settingsId));
+  fileIconThemeSettingSchema.enumItemLabels.splice(1, Number.MAX_VALUE, ...themes.map((t) => t.label));
+  fileIconThemeSettingSchema.enumDescriptions.splice(1, Number.MAX_VALUE, ...themes.map((t) => t.description || ""));
+  configurationRegistry.notifyConfigurationSchemaUpdated(themeSettingsConfiguration);
+}
+__name(updateFileIconThemeConfigurationSchemas, "updateFileIconThemeConfigurationSchemas");
+function updateProductIconThemeConfigurationSchemas(themes) {
+  productIconThemeSettingSchema.enum.splice(1, Number.MAX_VALUE, ...themes.map((t) => t.settingsId));
+  productIconThemeSettingSchema.enumItemLabels.splice(1, Number.MAX_VALUE, ...themes.map((t) => t.label));
+  productIconThemeSettingSchema.enumDescriptions.splice(1, Number.MAX_VALUE, ...themes.map((t) => t.description || ""));
+  configurationRegistry.notifyConfigurationSchemaUpdated(themeSettingsConfiguration);
+}
+__name(updateProductIconThemeConfigurationSchemas, "updateProductIconThemeConfigurationSchemas");
+const colorSchemeToPreferred = {
+  [ColorScheme.DARK]: ThemeSettings.PREFERRED_DARK_THEME,
+  [ColorScheme.LIGHT]: ThemeSettings.PREFERRED_LIGHT_THEME,
+  [ColorScheme.HIGH_CONTRAST_DARK]: ThemeSettings.PREFERRED_HC_DARK_THEME,
+  [ColorScheme.HIGH_CONTRAST_LIGHT]: ThemeSettings.PREFERRED_HC_LIGHT_THEME
+};
+class ThemeConfiguration {
+  static {
+    __name(this, "ThemeConfiguration");
+  }
+  constructor(configurationService, hostColorService) {
+    this.configurationService = configurationService;
+    this.hostColorService = hostColorService;
+  }
+  get colorTheme() {
+    return this.configurationService.getValue(this.getColorThemeSettingId());
+  }
+  get fileIconTheme() {
+    return this.configurationService.getValue(ThemeSettings.FILE_ICON_THEME);
+  }
+  get productIconTheme() {
+    return this.configurationService.getValue(ThemeSettings.PRODUCT_ICON_THEME);
+  }
+  get colorCustomizations() {
+    return this.configurationService.getValue(ThemeSettings.COLOR_CUSTOMIZATIONS) || {};
+  }
+  get tokenColorCustomizations() {
+    const tokenColorCustomization = this.configurationService.getValue(ThemeSettings.TOKEN_COLOR_CUSTOMIZATIONS) || {};
+    const textMateRules = tokenColorCustomization.textMateRules;
+    if (!textMateRules) {
+      return tokenColorCustomization;
+    }
+    const updatedRules = textMateRules.map((rule) => {
+      const fontSize = rule.settings?.fontSize;
+      const lineHeight = rule.settings?.lineHeight;
+      if (fontSize !== void 0 && lineHeight === void 0) {
+        return {
+          ...rule,
+          settings: {
+            ...rule.settings,
+            lineHeight: fontSize
+          }
+        };
+      }
+      return rule;
+    });
+    const updatedTokenColorCustomization = {
+      ...tokenColorCustomization,
+      textMateRules: updatedRules
+    };
+    return updatedTokenColorCustomization;
+  }
+  get semanticTokenColorCustomizations() {
+    return this.configurationService.getValue(ThemeSettings.SEMANTIC_TOKEN_COLOR_CUSTOMIZATIONS);
+  }
+  getPreferredColorScheme() {
+    if (this.configurationService.getValue(ThemeSettings.DETECT_HC) && this.hostColorService.highContrast) {
+      return this.hostColorService.dark ? ColorScheme.HIGH_CONTRAST_DARK : ColorScheme.HIGH_CONTRAST_LIGHT;
+    }
+    if (this.configurationService.getValue(ThemeSettings.DETECT_COLOR_SCHEME)) {
+      return this.hostColorService.dark ? ColorScheme.DARK : ColorScheme.LIGHT;
+    }
+    return void 0;
+  }
+  isDetectingColorScheme() {
+    return this.configurationService.getValue(ThemeSettings.DETECT_COLOR_SCHEME);
+  }
+  getColorThemeSettingId() {
+    const preferredScheme = this.getPreferredColorScheme();
+    return preferredScheme ? colorSchemeToPreferred[preferredScheme] : ThemeSettings.COLOR_THEME;
+  }
+  async setColorTheme(theme, settingsTarget) {
+    await this.writeConfiguration(this.getColorThemeSettingId(), theme.settingsId, settingsTarget);
+    return theme;
+  }
+  async setFileIconTheme(theme, settingsTarget) {
+    await this.writeConfiguration(ThemeSettings.FILE_ICON_THEME, theme.settingsId, settingsTarget);
+    return theme;
+  }
+  async setProductIconTheme(theme, settingsTarget) {
+    await this.writeConfiguration(ThemeSettings.PRODUCT_ICON_THEME, theme.settingsId, settingsTarget);
+    return theme;
+  }
+  isDefaultColorTheme() {
+    const settings = this.configurationService.inspect(this.getColorThemeSettingId());
+    return settings && settings.default?.value === settings.value;
+  }
+  findAutoConfigurationTarget(key) {
+    const settings = this.configurationService.inspect(key);
+    if (!types.isUndefined(settings.workspaceFolderValue)) {
+      return 6;
+    } else if (!types.isUndefined(settings.workspaceValue)) {
+      return 5;
+    } else if (!types.isUndefined(settings.userRemote)) {
+      return 4;
+    }
+    return 2;
+  }
+  async writeConfiguration(key, value, settingsTarget) {
+    if (settingsTarget === void 0 || settingsTarget === "preview") {
+      return;
+    }
+    const settings = this.configurationService.inspect(key);
+    if (settingsTarget === "auto") {
+      return this.configurationService.updateValue(key, value);
+    }
+    if (settingsTarget === 2) {
+      if (value === settings.userValue) {
+        return Promise.resolve(void 0);
+      } else if (value === settings.defaultValue) {
+        if (types.isUndefined(settings.userValue)) {
+          return Promise.resolve(void 0);
+        }
+        value = void 0;
+      }
+    } else if (settingsTarget === 5 || settingsTarget === 6 || settingsTarget === 4) {
+      if (value === settings.value) {
+        return Promise.resolve(void 0);
+      }
+    }
+    return this.configurationService.updateValue(key, value, settingsTarget);
+  }
+}
+export {
+  COLOR_THEME_CONFIGURATION_SETTINGS_TAG,
+  ThemeConfiguration,
+  formatSettingAsLink,
+  updateColorThemeConfigurationSchemas,
+  updateFileIconThemeConfigurationSchemas,
+  updateProductIconThemeConfigurationSchemas
+};
+//# sourceMappingURL=themeConfiguration.js.map

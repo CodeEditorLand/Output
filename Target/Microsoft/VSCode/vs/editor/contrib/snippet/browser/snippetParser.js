@@ -1,1 +1,1069 @@
-var V;(function(n){n[n.Dollar=0]="Dollar",n[n.Colon=1]="Colon",n[n.Comma=2]="Comma",n[n.CurlyOpen=3]="CurlyOpen",n[n.CurlyClose=4]="CurlyClose",n[n.Backslash=5]="Backslash",n[n.Forwardslash=6]="Forwardslash",n[n.Pipe=7]="Pipe",n[n.Int=8]="Int",n[n.VariableName=9]="VariableName",n[n.Format=10]="Format",n[n.Plus=11]="Plus",n[n.Dash=12]="Dash",n[n.QuestionMark=13]="QuestionMark",n[n.EOF=14]="EOF"})(V||(V={}));class a{constructor(){this.value="",this.pos=0}static{this.d={36:0,58:1,44:2,123:3,125:4,92:5,47:6,124:7,43:11,45:12,63:13}}static isDigitCharacter(e){return e>=48&&e<=57}static isVariableCharacter(e){return e===95||e>=97&&e<=122||e>=65&&e<=90}text(e){this.value=e,this.pos=0}tokenText(e){return this.value.substr(e.pos,e.len)}next(){if(this.pos>=this.value.length)return{type:14,pos:this.pos,len:0};const e=this.pos;let t=0,s=this.value.charCodeAt(e),i;if(i=a.d[s],typeof i=="number")return this.pos+=1,{type:i,pos:e,len:1};if(a.isDigitCharacter(s)){i=8;do t+=1,s=this.value.charCodeAt(e+t);while(a.isDigitCharacter(s));return this.pos+=t,{type:i,pos:e,len:t}}if(a.isVariableCharacter(s)){i=9;do s=this.value.charCodeAt(e+ ++t);while(a.isVariableCharacter(s)||a.isDigitCharacter(s));return this.pos+=t,{type:i,pos:e,len:t}}i=10;do t+=1,s=this.value.charCodeAt(e+t);while(!isNaN(s)&&typeof a.d[s]>"u"&&!a.isDigitCharacter(s)&&!a.isVariableCharacter(s));return this.pos+=t,{type:i,pos:e,len:t}}}class p{constructor(){this.d=[]}appendChild(e){return e instanceof l&&this.d[this.d.length-1]instanceof l?this.d[this.d.length-1].value+=e.value:(e.parent=this,this.d.push(e)),this}replace(e,t){const{parent:s}=e,i=s.children.indexOf(e),r=s.children.slice(0);r.splice(i,1,...t),s.d=r,(function o(C,h){for(const c of C)c.parent=h,o(c.children,c)})(t,s)}get children(){return this.d}get rightMostDescendant(){return this.d.length>0?this.d[this.d.length-1].rightMostDescendant:this}get snippet(){let e=this;for(;;){if(!e)return;if(e instanceof x)return e;e=e.parent}}toString(){return this.children.reduce((e,t)=>e+t.toString(),"")}len(){return 0}}class l extends p{static escape(e){return e.replace(/\$|}|\\/g,"\\$&")}constructor(e){super(),this.value=e}toString(){return this.value}toTextmateString(){return l.escape(this.value)}len(){return this.value.length}clone(){return new l(this.value)}}class N extends p{}class f extends N{static compareByIndex(e,t){return e.index===t.index?0:e.isFinalTabstop?1:t.isFinalTabstop||e.index<t.index?-1:e.index>t.index?1:0}constructor(e){super(),this.index=e}get isFinalTabstop(){return this.index===0}get choice(){return this.d.length===1&&this.d[0]instanceof m?this.d[0]:void 0}toTextmateString(){let e="";return this.transform&&(e=this.transform.toTextmateString()),this.children.length===0&&!this.transform?`$${this.index}`:this.children.length===0?`\${${this.index}${e}}`:this.choice?`\${${this.index}|${this.choice.toTextmateString()}|${e}}`:`\${${this.index}:${this.children.map(t=>t.toTextmateString()).join("")}${e}}`}clone(){const e=new f(this.index);return this.transform&&(e.transform=this.transform.clone()),e.d=this.children.map(t=>t.clone()),e}}class m extends p{constructor(){super(...arguments),this.options=[]}appendChild(e){return e instanceof l&&(e.parent=this,this.options.push(e)),this}toString(){return this.options[0].value}toTextmateString(){return this.options.map(e=>e.value.replace(/\||,|\\/g,"\\$&")).join(",")}len(){return this.options[0].len()}clone(){const e=new m;return this.options.forEach(e.appendChild,e),e}}class $ extends p{constructor(){super(...arguments),this.regexp=new RegExp("")}resolve(e){const t=this;let s=!1,i=e.replace(this.regexp,function(){return s=!0,t.f(Array.prototype.slice.call(arguments,0,-2))});return!s&&this.d.some(r=>r instanceof u&&!!r.elseValue)&&(i=this.f([])),i}f(e){let t="";for(const s of this.d)if(s instanceof u){let i=e[s.index]||"";i=s.resolve(i),t+=i}else t+=s.toString();return t}toString(){return""}toTextmateString(){return`/${this.regexp.source}/${this.children.map(e=>e.toTextmateString())}/${(this.regexp.ignoreCase?"i":"")+(this.regexp.global?"g":"")}`}clone(){const e=new $;return e.regexp=new RegExp(this.regexp.source,(this.regexp.ignoreCase?"i":"")+(this.regexp.global?"g":"")),e.d=this.children.map(t=>t.clone()),e}}class u extends p{constructor(e,t,s,i){super(),this.index=e,this.shorthandName=t,this.ifValue=s,this.elseValue=i}resolve(e){return this.shorthandName==="upcase"?e?e.toLocaleUpperCase():"":this.shorthandName==="downcase"?e?e.toLocaleLowerCase():"":this.shorthandName==="capitalize"?e?e[0].toLocaleUpperCase()+e.substr(1):"":this.shorthandName==="pascalcase"?e?this.g(e):"":this.shorthandName==="camelcase"?e?this.h(e):"":this.shorthandName==="kebabcase"?e?this.f(e):"":this.shorthandName==="snakecase"?e?this.i(e):"":e&&typeof this.ifValue=="string"?this.ifValue:!e&&typeof this.elseValue=="string"?this.elseValue:e||""}f(e){if(!e.match(/[\p{L}0-9]+/gu))return e;if(!e.match(/[\p{L}0-9]/u))return e.trim().toLowerCase().replace(/^_+|_+$/g,"").replace(/[\s_]+/g,"-");const s=e.trim().replace(/^_+|_+$/g,""),i=s.match(new RegExp("\\p{Lu}{2,}(?=\\p{Lu}\\p{Ll}+[0-9]*|[\\s_-]|$)|\\p{Lu}?\\p{Ll}+[0-9]*|\\p{Lu}(?=\\p{Lu}\\p{Ll})|\\p{Lu}(?=[\\s_-]|$)|[0-9]+","gu"));return i?i.map(r=>r.toLowerCase()).join("-"):s.split(/[\s_-]+/).filter(r=>r.length>0).map(r=>r.toLowerCase()).join("-")}g(e){const t=e.match(/[\p{L}0-9]+/gu);return t?t.map(s=>s.charAt(0).toUpperCase()+s.substr(1)).join(""):e}h(e){const t=e.match(/[\p{L}0-9]+/gu);return t?t.map((s,i)=>i===0?s.charAt(0).toLowerCase()+s.substr(1):s.charAt(0).toUpperCase()+s.substr(1)).join(""):e}i(e){return e.replace(new RegExp("(\\p{Ll})(\\p{Lu})","gu"),"$1_$2").replace(/[\s\-]+/g,"_").toLowerCase()}toTextmateString(){let e="${";return e+=this.index,this.shorthandName?e+=`:/${this.shorthandName}`:this.ifValue&&this.elseValue?e+=`:?${this.ifValue}:${this.elseValue}`:this.ifValue?e+=`:+${this.ifValue}`:this.elseValue&&(e+=`:-${this.elseValue}`),e+="}",e}clone(){return new u(this.index,this.shorthandName,this.ifValue,this.elseValue)}}class g extends N{constructor(e){super(),this.name=e}resolve(e){let t=e.resolve(this);return this.transform&&(t=this.transform.resolve(t||"")),t!==void 0?(this.d=[new l(t)],!0):!1}toTextmateString(){let e="";return this.transform&&(e=this.transform.toTextmateString()),this.children.length===0?`\${${this.name}${e}}`:`\${${this.name}:${this.children.map(t=>t.toTextmateString()).join("")}${e}}`}clone(){const e=new g(this.name);return this.transform&&(e.transform=this.transform.clone()),e.d=this.children.map(t=>t.clone()),e}}function L(n,e){const t=[...n];for(;t.length>0;){const s=t.shift();if(!e(s))break;t.unshift(...s.children)}}class x extends p{get placeholderInfo(){if(!this.f){const e=[];let t;this.walk(function(s){return s instanceof f&&(e.push(s),t=!t||t.index<s.index?s:t),!0}),this.f={all:e,last:t}}return this.f}get placeholders(){const{all:e}=this.placeholderInfo;return e}offset(e){let t=0,s=!1;return this.walk(i=>i===e?(s=!0,!1):(t+=i.len(),!0)),s?t:-1}fullLen(e){let t=0;return L([e],s=>(t+=s.len(),!0)),t}enclosingPlaceholders(e){const t=[];let{parent:s}=e;for(;s;)s instanceof f&&t.push(s),s=s.parent;return t}resolveVariables(e){return this.walk(t=>(t instanceof g&&t.resolve(e)&&(this.f=void 0),!0)),this}appendChild(e){return this.f=void 0,super.appendChild(e)}replace(e,t){return this.f=void 0,super.replace(e,t)}toTextmateString(){return this.children.reduce((e,t)=>e+t.toTextmateString(),"")}clone(){const e=new x;return this.d=this.children.map(t=>t.clone()),e}walk(e){L(this.children,e)}}class S{constructor(){this.d=new a,this.f={type:14,pos:0,len:0}}static escape(e){return e.replace(/\$|}|\\/g,"\\$&")}static asInsertText(e){return new S().parse(e).toString()}static guessNeedsClipboard(e){return/\${?CLIPBOARD/.test(e)}parse(e,t,s){const i=new x;return this.parseFragment(e,i),this.ensureFinalTabstop(i,s??!1,t??!1),i}parseFragment(e,t){const s=t.children.length;for(this.d.text(e),this.f=this.d.next();this.j(t););const i=new Map,r=[];t.walk(h=>(h instanceof f&&(h.isFinalTabstop?i.set(0,void 0):!i.has(h.index)&&h.children.length>0?i.set(h.index,h.children):r.push(h)),!0));const o=(h,c)=>{const b=i.get(h.index);if(!b)return;const w=new f(h.index);w.transform=h.transform;for(const F of b){const d=F.clone();w.appendChild(d),d instanceof f&&i.has(d.index)&&!c.has(d.index)&&(c.add(d.index),o(d,c),c.delete(d.index))}t.replace(h,[w])},C=new Set;for(const h of r)o(h,C);return t.children.slice(s)}ensureFinalTabstop(e,t,s){(t||s&&e.placeholders.length>0)&&(e.placeholders.find(r=>r.index===0)||e.appendChild(new f(0)))}g(e,t){if(e===void 0||this.f.type===e){const s=t?this.d.tokenText(this.f):!0;return this.f=this.d.next(),s}return!1}h(e){return this.d.pos=e.pos+e.len,this.f=e,!1}i(e){const t=this.f;for(;this.f.type!==e;){if(this.f.type===14)return!1;if(this.f.type===5){const i=this.d.next();if(i.type!==0&&i.type!==4&&i.type!==5)return!1}this.f=this.d.next()}const s=this.d.value.substring(t.pos,this.f.pos).replace(/\\(\$|}|\\)/g,"$1");return this.f=this.d.next(),s}j(e){return this.k(e)||this.l(e)||this.m(e)||this.o(e)||this.s(e)}k(e){let t;return(t=this.g(5,!0))?(t=this.g(0,!0)||this.g(4,!0)||this.g(5,!0)||t,e.appendChild(new l(t)),!0):!1}l(e){let t;const s=this.f;return this.g(0)&&(t=this.g(9,!0)||this.g(8,!0))?(e.appendChild(/^\d+$/.test(t)?new f(Number(t)):new g(t)),!0):this.h(s)}m(e){let t;const s=this.f;if(!(this.g(0)&&this.g(3)&&(t=this.g(8,!0))))return this.h(s);const r=new f(Number(t));if(this.g(1))for(;;){if(this.g(4))return e.appendChild(r),!0;if(!this.j(r))return e.appendChild(new l("${"+t+":")),r.children.forEach(e.appendChild,e),!0}else if(r.index>0&&this.g(7)){const o=new m;for(;;){if(this.n(o)){if(this.g(2))continue;if(this.g(7)&&(r.appendChild(o),this.g(4)))return e.appendChild(r),!0}return this.h(s),!1}}else return this.g(6)?this.q(r)?(e.appendChild(r),!0):(this.h(s),!1):this.g(4)?(e.appendChild(r),!0):this.h(s)}n(e){const t=this.f,s=[];for(;!(this.f.type===2||this.f.type===7);){let i;if((i=this.g(5,!0))?i=this.g(2,!0)||this.g(7,!0)||this.g(5,!0)||i:i=this.g(void 0,!0),!i)return this.h(t),!1;s.push(i)}return s.length===0?(this.h(t),!1):(e.appendChild(new l(s.join(""))),!0)}o(e){let t;const s=this.f;if(!(this.g(0)&&this.g(3)&&(t=this.g(9,!0))))return this.h(s);const r=new g(t);if(this.g(1))for(;;){if(this.g(4))return e.appendChild(r),!0;if(!this.j(r))return e.appendChild(new l("${"+t+":")),r.children.forEach(e.appendChild,e),!0}else return this.g(6)?this.q(r)?(e.appendChild(r),!0):(this.h(s),!1):this.g(4)?(e.appendChild(r),!0):this.h(s)}q(e){const t=new $;let s="",i="";for(;!this.g(6);){let r;if(r=this.g(5,!0)){r=this.g(6,!0)||r,s+=r;continue}if(this.f.type!==14){s+=this.g(void 0,!0);continue}return!1}for(;!this.g(6);){let r;if(r=this.g(5,!0)){r=this.g(5,!0)||this.g(6,!0)||r,t.appendChild(new l(r));continue}if(!(this.r(t)||this.s(t)))return!1}for(;!this.g(4);){if(this.f.type!==14){i+=this.g(void 0,!0);continue}return!1}try{t.regexp=new RegExp(s,i)}catch{return!1}return e.transform=t,!0}r(e){const t=this.f;if(!this.g(0))return!1;let s=!1;this.g(3)&&(s=!0);const i=this.g(8,!0);if(i)if(s){if(this.g(4))return e.appendChild(new u(Number(i))),!0;if(!this.g(1))return this.h(t),!1}else return e.appendChild(new u(Number(i))),!0;else return this.h(t),!1;if(this.g(6)){const r=this.g(9,!0);return!r||!this.g(4)?(this.h(t),!1):(e.appendChild(new u(Number(i),r)),!0)}else if(this.g(11)){const r=this.i(4);if(r)return e.appendChild(new u(Number(i),void 0,r,void 0)),!0}else if(this.g(12)){const r=this.i(4);if(r)return e.appendChild(new u(Number(i),void 0,void 0,r)),!0}else if(this.g(13)){const r=this.i(1);if(r){const o=this.i(4);if(o)return e.appendChild(new u(Number(i),void 0,r,o)),!0}}else{const r=this.i(4);if(r)return e.appendChild(new u(Number(i),void 0,void 0,r)),!0}return this.h(t),!1}s(e){return this.f.type!==14?(e.appendChild(new l(this.d.tokenText(this.f))),this.g(void 0),!0):!1}}export{$ as $$kb,m as $0kb,a as $5kb,p as $6kb,N as $8kb,f as $9kb,u as $_kb,g as $alb,x as $blb,S as $clb,l as Text,V as TokenType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var TokenType;
+(function(TokenType2) {
+  TokenType2[TokenType2["Dollar"] = 0] = "Dollar";
+  TokenType2[TokenType2["Colon"] = 1] = "Colon";
+  TokenType2[TokenType2["Comma"] = 2] = "Comma";
+  TokenType2[TokenType2["CurlyOpen"] = 3] = "CurlyOpen";
+  TokenType2[TokenType2["CurlyClose"] = 4] = "CurlyClose";
+  TokenType2[TokenType2["Backslash"] = 5] = "Backslash";
+  TokenType2[TokenType2["Forwardslash"] = 6] = "Forwardslash";
+  TokenType2[TokenType2["Pipe"] = 7] = "Pipe";
+  TokenType2[TokenType2["Int"] = 8] = "Int";
+  TokenType2[TokenType2["VariableName"] = 9] = "VariableName";
+  TokenType2[TokenType2["Format"] = 10] = "Format";
+  TokenType2[TokenType2["Plus"] = 11] = "Plus";
+  TokenType2[TokenType2["Dash"] = 12] = "Dash";
+  TokenType2[TokenType2["QuestionMark"] = 13] = "QuestionMark";
+  TokenType2[TokenType2["EOF"] = 14] = "EOF";
+})(TokenType || (TokenType = {}));
+class Scanner {
+  static {
+    __name(this, "Scanner");
+  }
+  constructor() {
+    this.value = "";
+    this.pos = 0;
+  }
+  static {
+    this._table = {
+      [
+        36
+        /* CharCode.DollarSign */
+      ]: 0,
+      [
+        58
+        /* CharCode.Colon */
+      ]: 1,
+      [
+        44
+        /* CharCode.Comma */
+      ]: 2,
+      [
+        123
+        /* CharCode.OpenCurlyBrace */
+      ]: 3,
+      [
+        125
+        /* CharCode.CloseCurlyBrace */
+      ]: 4,
+      [
+        92
+        /* CharCode.Backslash */
+      ]: 5,
+      [
+        47
+        /* CharCode.Slash */
+      ]: 6,
+      [
+        124
+        /* CharCode.Pipe */
+      ]: 7,
+      [
+        43
+        /* CharCode.Plus */
+      ]: 11,
+      [
+        45
+        /* CharCode.Dash */
+      ]: 12,
+      [
+        63
+        /* CharCode.QuestionMark */
+      ]: 13
+    };
+  }
+  static isDigitCharacter(ch) {
+    return ch >= 48 && ch <= 57;
+  }
+  static isVariableCharacter(ch) {
+    return ch === 95 || ch >= 97 && ch <= 122 || ch >= 65 && ch <= 90;
+  }
+  text(value) {
+    this.value = value;
+    this.pos = 0;
+  }
+  tokenText(token) {
+    return this.value.substr(token.pos, token.len);
+  }
+  next() {
+    if (this.pos >= this.value.length) {
+      return { type: 14, pos: this.pos, len: 0 };
+    }
+    const pos = this.pos;
+    let len = 0;
+    let ch = this.value.charCodeAt(pos);
+    let type;
+    type = Scanner._table[ch];
+    if (typeof type === "number") {
+      this.pos += 1;
+      return { type, pos, len: 1 };
+    }
+    if (Scanner.isDigitCharacter(ch)) {
+      type = 8;
+      do {
+        len += 1;
+        ch = this.value.charCodeAt(pos + len);
+      } while (Scanner.isDigitCharacter(ch));
+      this.pos += len;
+      return { type, pos, len };
+    }
+    if (Scanner.isVariableCharacter(ch)) {
+      type = 9;
+      do {
+        ch = this.value.charCodeAt(pos + ++len);
+      } while (Scanner.isVariableCharacter(ch) || Scanner.isDigitCharacter(ch));
+      this.pos += len;
+      return { type, pos, len };
+    }
+    type = 10;
+    do {
+      len += 1;
+      ch = this.value.charCodeAt(pos + len);
+    } while (!isNaN(ch) && typeof Scanner._table[ch] === "undefined" && !Scanner.isDigitCharacter(ch) && !Scanner.isVariableCharacter(ch));
+    this.pos += len;
+    return { type, pos, len };
+  }
+}
+class Marker {
+  static {
+    __name(this, "Marker");
+  }
+  constructor() {
+    this._children = [];
+  }
+  appendChild(child) {
+    if (child instanceof Text && this._children[this._children.length - 1] instanceof Text) {
+      this._children[this._children.length - 1].value += child.value;
+    } else {
+      child.parent = this;
+      this._children.push(child);
+    }
+    return this;
+  }
+  replace(child, others) {
+    const { parent } = child;
+    const idx = parent.children.indexOf(child);
+    const newChildren = parent.children.slice(0);
+    newChildren.splice(idx, 1, ...others);
+    parent._children = newChildren;
+    (/* @__PURE__ */ __name((function _fixParent(children, parent2) {
+      for (const child2 of children) {
+        child2.parent = parent2;
+        _fixParent(child2.children, child2);
+      }
+    }), "_fixParent"))(others, parent);
+  }
+  get children() {
+    return this._children;
+  }
+  get rightMostDescendant() {
+    if (this._children.length > 0) {
+      return this._children[this._children.length - 1].rightMostDescendant;
+    }
+    return this;
+  }
+  get snippet() {
+    let candidate = this;
+    while (true) {
+      if (!candidate) {
+        return void 0;
+      }
+      if (candidate instanceof TextmateSnippet) {
+        return candidate;
+      }
+      candidate = candidate.parent;
+    }
+  }
+  toString() {
+    return this.children.reduce((prev, cur) => prev + cur.toString(), "");
+  }
+  len() {
+    return 0;
+  }
+}
+class Text extends Marker {
+  static {
+    __name(this, "Text");
+  }
+  static escape(value) {
+    return value.replace(/\$|}|\\/g, "\\$&");
+  }
+  constructor(value) {
+    super();
+    this.value = value;
+  }
+  toString() {
+    return this.value;
+  }
+  toTextmateString() {
+    return Text.escape(this.value);
+  }
+  len() {
+    return this.value.length;
+  }
+  clone() {
+    return new Text(this.value);
+  }
+}
+class TransformableMarker extends Marker {
+  static {
+    __name(this, "TransformableMarker");
+  }
+}
+class Placeholder extends TransformableMarker {
+  static {
+    __name(this, "Placeholder");
+  }
+  static compareByIndex(a, b) {
+    if (a.index === b.index) {
+      return 0;
+    } else if (a.isFinalTabstop) {
+      return 1;
+    } else if (b.isFinalTabstop) {
+      return -1;
+    } else if (a.index < b.index) {
+      return -1;
+    } else if (a.index > b.index) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  constructor(index) {
+    super();
+    this.index = index;
+  }
+  get isFinalTabstop() {
+    return this.index === 0;
+  }
+  get choice() {
+    return this._children.length === 1 && this._children[0] instanceof Choice ? this._children[0] : void 0;
+  }
+  toTextmateString() {
+    let transformString = "";
+    if (this.transform) {
+      transformString = this.transform.toTextmateString();
+    }
+    if (this.children.length === 0 && !this.transform) {
+      return `$${this.index}`;
+    } else if (this.children.length === 0) {
+      return `\${${this.index}${transformString}}`;
+    } else if (this.choice) {
+      return `\${${this.index}|${this.choice.toTextmateString()}|${transformString}}`;
+    } else {
+      return `\${${this.index}:${this.children.map((child) => child.toTextmateString()).join("")}${transformString}}`;
+    }
+  }
+  clone() {
+    const ret = new Placeholder(this.index);
+    if (this.transform) {
+      ret.transform = this.transform.clone();
+    }
+    ret._children = this.children.map((child) => child.clone());
+    return ret;
+  }
+}
+class Choice extends Marker {
+  static {
+    __name(this, "Choice");
+  }
+  constructor() {
+    super(...arguments);
+    this.options = [];
+  }
+  appendChild(marker) {
+    if (marker instanceof Text) {
+      marker.parent = this;
+      this.options.push(marker);
+    }
+    return this;
+  }
+  toString() {
+    return this.options[0].value;
+  }
+  toTextmateString() {
+    return this.options.map((option) => option.value.replace(/\||,|\\/g, "\\$&")).join(",");
+  }
+  len() {
+    return this.options[0].len();
+  }
+  clone() {
+    const ret = new Choice();
+    this.options.forEach(ret.appendChild, ret);
+    return ret;
+  }
+}
+class Transform extends Marker {
+  static {
+    __name(this, "Transform");
+  }
+  constructor() {
+    super(...arguments);
+    this.regexp = new RegExp("");
+  }
+  resolve(value) {
+    const _this = this;
+    let didMatch = false;
+    let ret = value.replace(this.regexp, function() {
+      didMatch = true;
+      return _this._replace(Array.prototype.slice.call(arguments, 0, -2));
+    });
+    if (!didMatch && this._children.some((child) => child instanceof FormatString && Boolean(child.elseValue))) {
+      ret = this._replace([]);
+    }
+    return ret;
+  }
+  _replace(groups) {
+    let ret = "";
+    for (const marker of this._children) {
+      if (marker instanceof FormatString) {
+        let value = groups[marker.index] || "";
+        value = marker.resolve(value);
+        ret += value;
+      } else {
+        ret += marker.toString();
+      }
+    }
+    return ret;
+  }
+  toString() {
+    return "";
+  }
+  toTextmateString() {
+    return `/${this.regexp.source}/${this.children.map((c) => c.toTextmateString())}/${(this.regexp.ignoreCase ? "i" : "") + (this.regexp.global ? "g" : "")}`;
+  }
+  clone() {
+    const ret = new Transform();
+    ret.regexp = new RegExp(this.regexp.source, (this.regexp.ignoreCase ? "i" : "") + (this.regexp.global ? "g" : ""));
+    ret._children = this.children.map((child) => child.clone());
+    return ret;
+  }
+}
+class FormatString extends Marker {
+  static {
+    __name(this, "FormatString");
+  }
+  constructor(index, shorthandName, ifValue, elseValue) {
+    super();
+    this.index = index;
+    this.shorthandName = shorthandName;
+    this.ifValue = ifValue;
+    this.elseValue = elseValue;
+  }
+  resolve(value) {
+    if (this.shorthandName === "upcase") {
+      return !value ? "" : value.toLocaleUpperCase();
+    } else if (this.shorthandName === "downcase") {
+      return !value ? "" : value.toLocaleLowerCase();
+    } else if (this.shorthandName === "capitalize") {
+      return !value ? "" : value[0].toLocaleUpperCase() + value.substr(1);
+    } else if (this.shorthandName === "pascalcase") {
+      return !value ? "" : this._toPascalCase(value);
+    } else if (this.shorthandName === "camelcase") {
+      return !value ? "" : this._toCamelCase(value);
+    } else if (this.shorthandName === "kebabcase") {
+      return !value ? "" : this._toKebabCase(value);
+    } else if (this.shorthandName === "snakecase") {
+      return !value ? "" : this._toSnakeCase(value);
+    } else if (Boolean(value) && typeof this.ifValue === "string") {
+      return this.ifValue;
+    } else if (!Boolean(value) && typeof this.elseValue === "string") {
+      return this.elseValue;
+    } else {
+      return value || "";
+    }
+  }
+  // Note: word-based case transforms rely on uppercase/lowercase distinctions.
+  // For scripts without case, transforms are effectively no-ops.
+  _toKebabCase(value) {
+    const match = value.match(/[\p{L}0-9]+/gu);
+    if (!match) {
+      return value;
+    }
+    if (!value.match(/[\p{L}0-9]/u)) {
+      return value.trim().toLowerCase().replace(/^_+|_+$/g, "").replace(/[\s_]+/g, "-");
+    }
+    const cleaned = value.trim().replace(/^_+|_+$/g, "");
+    const match2 = cleaned.match(new RegExp("\\p{Lu}{2,}(?=\\p{Lu}\\p{Ll}+[0-9]*|[\\s_-]|$)|\\p{Lu}?\\p{Ll}+[0-9]*|\\p{Lu}(?=\\p{Lu}\\p{Ll})|\\p{Lu}(?=[\\s_-]|$)|[0-9]+", "gu"));
+    if (!match2) {
+      return cleaned.split(/[\s_-]+/).filter((word) => word.length > 0).map((word) => word.toLowerCase()).join("-");
+    }
+    return match2.map((x) => x.toLowerCase()).join("-");
+  }
+  _toPascalCase(value) {
+    const match = value.match(/[\p{L}0-9]+/gu);
+    if (!match) {
+      return value;
+    }
+    return match.map((word) => {
+      return word.charAt(0).toUpperCase() + word.substr(1);
+    }).join("");
+  }
+  _toCamelCase(value) {
+    const match = value.match(/[\p{L}0-9]+/gu);
+    if (!match) {
+      return value;
+    }
+    return match.map((word, index) => {
+      if (index === 0) {
+        return word.charAt(0).toLowerCase() + word.substr(1);
+      }
+      return word.charAt(0).toUpperCase() + word.substr(1);
+    }).join("");
+  }
+  _toSnakeCase(value) {
+    return value.replace(new RegExp("(\\p{Ll})(\\p{Lu})", "gu"), "$1_$2").replace(/[\s\-]+/g, "_").toLowerCase();
+  }
+  toTextmateString() {
+    let value = "${";
+    value += this.index;
+    if (this.shorthandName) {
+      value += `:/${this.shorthandName}`;
+    } else if (this.ifValue && this.elseValue) {
+      value += `:?${this.ifValue}:${this.elseValue}`;
+    } else if (this.ifValue) {
+      value += `:+${this.ifValue}`;
+    } else if (this.elseValue) {
+      value += `:-${this.elseValue}`;
+    }
+    value += "}";
+    return value;
+  }
+  clone() {
+    const ret = new FormatString(this.index, this.shorthandName, this.ifValue, this.elseValue);
+    return ret;
+  }
+}
+class Variable extends TransformableMarker {
+  static {
+    __name(this, "Variable");
+  }
+  constructor(name) {
+    super();
+    this.name = name;
+  }
+  resolve(resolver) {
+    let value = resolver.resolve(this);
+    if (this.transform) {
+      value = this.transform.resolve(value || "");
+    }
+    if (value !== void 0) {
+      this._children = [new Text(value)];
+      return true;
+    }
+    return false;
+  }
+  toTextmateString() {
+    let transformString = "";
+    if (this.transform) {
+      transformString = this.transform.toTextmateString();
+    }
+    if (this.children.length === 0) {
+      return `\${${this.name}${transformString}}`;
+    } else {
+      return `\${${this.name}:${this.children.map((child) => child.toTextmateString()).join("")}${transformString}}`;
+    }
+  }
+  clone() {
+    const ret = new Variable(this.name);
+    if (this.transform) {
+      ret.transform = this.transform.clone();
+    }
+    ret._children = this.children.map((child) => child.clone());
+    return ret;
+  }
+}
+function walk(marker, visitor) {
+  const stack = [...marker];
+  while (stack.length > 0) {
+    const marker2 = stack.shift();
+    const recurse = visitor(marker2);
+    if (!recurse) {
+      break;
+    }
+    stack.unshift(...marker2.children);
+  }
+}
+__name(walk, "walk");
+class TextmateSnippet extends Marker {
+  static {
+    __name(this, "TextmateSnippet");
+  }
+  get placeholderInfo() {
+    if (!this._placeholders) {
+      const all = [];
+      let last;
+      this.walk(function(candidate) {
+        if (candidate instanceof Placeholder) {
+          all.push(candidate);
+          last = !last || last.index < candidate.index ? candidate : last;
+        }
+        return true;
+      });
+      this._placeholders = { all, last };
+    }
+    return this._placeholders;
+  }
+  get placeholders() {
+    const { all } = this.placeholderInfo;
+    return all;
+  }
+  offset(marker) {
+    let pos = 0;
+    let found = false;
+    this.walk((candidate) => {
+      if (candidate === marker) {
+        found = true;
+        return false;
+      }
+      pos += candidate.len();
+      return true;
+    });
+    if (!found) {
+      return -1;
+    }
+    return pos;
+  }
+  fullLen(marker) {
+    let ret = 0;
+    walk([marker], (marker2) => {
+      ret += marker2.len();
+      return true;
+    });
+    return ret;
+  }
+  enclosingPlaceholders(placeholder) {
+    const ret = [];
+    let { parent } = placeholder;
+    while (parent) {
+      if (parent instanceof Placeholder) {
+        ret.push(parent);
+      }
+      parent = parent.parent;
+    }
+    return ret;
+  }
+  resolveVariables(resolver) {
+    this.walk((candidate) => {
+      if (candidate instanceof Variable) {
+        if (candidate.resolve(resolver)) {
+          this._placeholders = void 0;
+        }
+      }
+      return true;
+    });
+    return this;
+  }
+  appendChild(child) {
+    this._placeholders = void 0;
+    return super.appendChild(child);
+  }
+  replace(child, others) {
+    this._placeholders = void 0;
+    return super.replace(child, others);
+  }
+  toTextmateString() {
+    return this.children.reduce((prev, cur) => prev + cur.toTextmateString(), "");
+  }
+  clone() {
+    const ret = new TextmateSnippet();
+    this._children = this.children.map((child) => child.clone());
+    return ret;
+  }
+  walk(visitor) {
+    walk(this.children, visitor);
+  }
+}
+class SnippetParser {
+  static {
+    __name(this, "SnippetParser");
+  }
+  constructor() {
+    this._scanner = new Scanner();
+    this._token = { type: 14, pos: 0, len: 0 };
+  }
+  static escape(value) {
+    return value.replace(/\$|}|\\/g, "\\$&");
+  }
+  /**
+   * Takes a snippet and returns the insertable string, e.g return the snippet-string
+   * without any placeholder, tabstop, variables etc...
+   */
+  static asInsertText(value) {
+    return new SnippetParser().parse(value).toString();
+  }
+  static guessNeedsClipboard(template) {
+    return /\${?CLIPBOARD/.test(template);
+  }
+  parse(value, insertFinalTabstop, enforceFinalTabstop) {
+    const snippet = new TextmateSnippet();
+    this.parseFragment(value, snippet);
+    this.ensureFinalTabstop(snippet, enforceFinalTabstop ?? false, insertFinalTabstop ?? false);
+    return snippet;
+  }
+  parseFragment(value, snippet) {
+    const offset = snippet.children.length;
+    this._scanner.text(value);
+    this._token = this._scanner.next();
+    while (this._parse(snippet)) {
+    }
+    const placeholderDefaultValues = /* @__PURE__ */ new Map();
+    const incompletePlaceholders = [];
+    snippet.walk((marker) => {
+      if (marker instanceof Placeholder) {
+        if (marker.isFinalTabstop) {
+          placeholderDefaultValues.set(0, void 0);
+        } else if (!placeholderDefaultValues.has(marker.index) && marker.children.length > 0) {
+          placeholderDefaultValues.set(marker.index, marker.children);
+        } else {
+          incompletePlaceholders.push(marker);
+        }
+      }
+      return true;
+    });
+    const fillInIncompletePlaceholder = /* @__PURE__ */ __name((placeholder, stack2) => {
+      const defaultValues = placeholderDefaultValues.get(placeholder.index);
+      if (!defaultValues) {
+        return;
+      }
+      const clone = new Placeholder(placeholder.index);
+      clone.transform = placeholder.transform;
+      for (const child of defaultValues) {
+        const newChild = child.clone();
+        clone.appendChild(newChild);
+        if (newChild instanceof Placeholder && placeholderDefaultValues.has(newChild.index) && !stack2.has(newChild.index)) {
+          stack2.add(newChild.index);
+          fillInIncompletePlaceholder(newChild, stack2);
+          stack2.delete(newChild.index);
+        }
+      }
+      snippet.replace(placeholder, [clone]);
+    }, "fillInIncompletePlaceholder");
+    const stack = /* @__PURE__ */ new Set();
+    for (const placeholder of incompletePlaceholders) {
+      fillInIncompletePlaceholder(placeholder, stack);
+    }
+    return snippet.children.slice(offset);
+  }
+  ensureFinalTabstop(snippet, enforceFinalTabstop, insertFinalTabstop) {
+    if (enforceFinalTabstop || insertFinalTabstop && snippet.placeholders.length > 0) {
+      const finalTabstop = snippet.placeholders.find((p) => p.index === 0);
+      if (!finalTabstop) {
+        snippet.appendChild(new Placeholder(0));
+      }
+    }
+  }
+  _accept(type, value) {
+    if (type === void 0 || this._token.type === type) {
+      const ret = !value ? true : this._scanner.tokenText(this._token);
+      this._token = this._scanner.next();
+      return ret;
+    }
+    return false;
+  }
+  _backTo(token) {
+    this._scanner.pos = token.pos + token.len;
+    this._token = token;
+    return false;
+  }
+  _until(type) {
+    const start = this._token;
+    while (this._token.type !== type) {
+      if (this._token.type === 14) {
+        return false;
+      } else if (this._token.type === 5) {
+        const nextToken = this._scanner.next();
+        if (nextToken.type !== 0 && nextToken.type !== 4 && nextToken.type !== 5) {
+          return false;
+        }
+      }
+      this._token = this._scanner.next();
+    }
+    const value = this._scanner.value.substring(start.pos, this._token.pos).replace(/\\(\$|}|\\)/g, "$1");
+    this._token = this._scanner.next();
+    return value;
+  }
+  _parse(marker) {
+    return this._parseEscaped(marker) || this._parseTabstopOrVariableName(marker) || this._parseComplexPlaceholder(marker) || this._parseComplexVariable(marker) || this._parseAnything(marker);
+  }
+  // \$, \\, \} -> just text
+  _parseEscaped(marker) {
+    let value;
+    if (value = this._accept(5, true)) {
+      value = this._accept(0, true) || this._accept(4, true) || this._accept(5, true) || value;
+      marker.appendChild(new Text(value));
+      return true;
+    }
+    return false;
+  }
+  // $foo -> variable, $1 -> tabstop
+  _parseTabstopOrVariableName(parent) {
+    let value;
+    const token = this._token;
+    const match = this._accept(
+      0
+      /* TokenType.Dollar */
+    ) && (value = this._accept(9, true) || this._accept(8, true));
+    if (!match) {
+      return this._backTo(token);
+    }
+    parent.appendChild(/^\d+$/.test(value) ? new Placeholder(Number(value)) : new Variable(value));
+    return true;
+  }
+  // ${1:<children>}, ${1} -> placeholder
+  _parseComplexPlaceholder(parent) {
+    let index;
+    const token = this._token;
+    const match = this._accept(
+      0
+      /* TokenType.Dollar */
+    ) && this._accept(
+      3
+      /* TokenType.CurlyOpen */
+    ) && (index = this._accept(8, true));
+    if (!match) {
+      return this._backTo(token);
+    }
+    const placeholder = new Placeholder(Number(index));
+    if (this._accept(
+      1
+      /* TokenType.Colon */
+    )) {
+      while (true) {
+        if (this._accept(
+          4
+          /* TokenType.CurlyClose */
+        )) {
+          parent.appendChild(placeholder);
+          return true;
+        }
+        if (this._parse(placeholder)) {
+          continue;
+        }
+        parent.appendChild(new Text("${" + index + ":"));
+        placeholder.children.forEach(parent.appendChild, parent);
+        return true;
+      }
+    } else if (placeholder.index > 0 && this._accept(
+      7
+      /* TokenType.Pipe */
+    )) {
+      const choice = new Choice();
+      while (true) {
+        if (this._parseChoiceElement(choice)) {
+          if (this._accept(
+            2
+            /* TokenType.Comma */
+          )) {
+            continue;
+          }
+          if (this._accept(
+            7
+            /* TokenType.Pipe */
+          )) {
+            placeholder.appendChild(choice);
+            if (this._accept(
+              4
+              /* TokenType.CurlyClose */
+            )) {
+              parent.appendChild(placeholder);
+              return true;
+            }
+          }
+        }
+        this._backTo(token);
+        return false;
+      }
+    } else if (this._accept(
+      6
+      /* TokenType.Forwardslash */
+    )) {
+      if (this._parseTransform(placeholder)) {
+        parent.appendChild(placeholder);
+        return true;
+      }
+      this._backTo(token);
+      return false;
+    } else if (this._accept(
+      4
+      /* TokenType.CurlyClose */
+    )) {
+      parent.appendChild(placeholder);
+      return true;
+    } else {
+      return this._backTo(token);
+    }
+  }
+  _parseChoiceElement(parent) {
+    const token = this._token;
+    const values = [];
+    while (true) {
+      if (this._token.type === 2 || this._token.type === 7) {
+        break;
+      }
+      let value;
+      if (value = this._accept(5, true)) {
+        value = this._accept(2, true) || this._accept(7, true) || this._accept(5, true) || value;
+      } else {
+        value = this._accept(void 0, true);
+      }
+      if (!value) {
+        this._backTo(token);
+        return false;
+      }
+      values.push(value);
+    }
+    if (values.length === 0) {
+      this._backTo(token);
+      return false;
+    }
+    parent.appendChild(new Text(values.join("")));
+    return true;
+  }
+  // ${foo:<children>}, ${foo} -> variable
+  _parseComplexVariable(parent) {
+    let name;
+    const token = this._token;
+    const match = this._accept(
+      0
+      /* TokenType.Dollar */
+    ) && this._accept(
+      3
+      /* TokenType.CurlyOpen */
+    ) && (name = this._accept(9, true));
+    if (!match) {
+      return this._backTo(token);
+    }
+    const variable = new Variable(name);
+    if (this._accept(
+      1
+      /* TokenType.Colon */
+    )) {
+      while (true) {
+        if (this._accept(
+          4
+          /* TokenType.CurlyClose */
+        )) {
+          parent.appendChild(variable);
+          return true;
+        }
+        if (this._parse(variable)) {
+          continue;
+        }
+        parent.appendChild(new Text("${" + name + ":"));
+        variable.children.forEach(parent.appendChild, parent);
+        return true;
+      }
+    } else if (this._accept(
+      6
+      /* TokenType.Forwardslash */
+    )) {
+      if (this._parseTransform(variable)) {
+        parent.appendChild(variable);
+        return true;
+      }
+      this._backTo(token);
+      return false;
+    } else if (this._accept(
+      4
+      /* TokenType.CurlyClose */
+    )) {
+      parent.appendChild(variable);
+      return true;
+    } else {
+      return this._backTo(token);
+    }
+  }
+  _parseTransform(parent) {
+    const transform = new Transform();
+    let regexValue = "";
+    let regexOptions = "";
+    while (true) {
+      if (this._accept(
+        6
+        /* TokenType.Forwardslash */
+      )) {
+        break;
+      }
+      let escaped;
+      if (escaped = this._accept(5, true)) {
+        escaped = this._accept(6, true) || escaped;
+        regexValue += escaped;
+        continue;
+      }
+      if (this._token.type !== 14) {
+        regexValue += this._accept(void 0, true);
+        continue;
+      }
+      return false;
+    }
+    while (true) {
+      if (this._accept(
+        6
+        /* TokenType.Forwardslash */
+      )) {
+        break;
+      }
+      let escaped;
+      if (escaped = this._accept(5, true)) {
+        escaped = this._accept(5, true) || this._accept(6, true) || escaped;
+        transform.appendChild(new Text(escaped));
+        continue;
+      }
+      if (this._parseFormatString(transform) || this._parseAnything(transform)) {
+        continue;
+      }
+      return false;
+    }
+    while (true) {
+      if (this._accept(
+        4
+        /* TokenType.CurlyClose */
+      )) {
+        break;
+      }
+      if (this._token.type !== 14) {
+        regexOptions += this._accept(void 0, true);
+        continue;
+      }
+      return false;
+    }
+    try {
+      transform.regexp = new RegExp(regexValue, regexOptions);
+    } catch (e) {
+      return false;
+    }
+    parent.transform = transform;
+    return true;
+  }
+  _parseFormatString(parent) {
+    const token = this._token;
+    if (!this._accept(
+      0
+      /* TokenType.Dollar */
+    )) {
+      return false;
+    }
+    let complex = false;
+    if (this._accept(
+      3
+      /* TokenType.CurlyOpen */
+    )) {
+      complex = true;
+    }
+    const index = this._accept(8, true);
+    if (!index) {
+      this._backTo(token);
+      return false;
+    } else if (!complex) {
+      parent.appendChild(new FormatString(Number(index)));
+      return true;
+    } else if (this._accept(
+      4
+      /* TokenType.CurlyClose */
+    )) {
+      parent.appendChild(new FormatString(Number(index)));
+      return true;
+    } else if (!this._accept(
+      1
+      /* TokenType.Colon */
+    )) {
+      this._backTo(token);
+      return false;
+    }
+    if (this._accept(
+      6
+      /* TokenType.Forwardslash */
+    )) {
+      const shorthand = this._accept(9, true);
+      if (!shorthand || !this._accept(
+        4
+        /* TokenType.CurlyClose */
+      )) {
+        this._backTo(token);
+        return false;
+      } else {
+        parent.appendChild(new FormatString(Number(index), shorthand));
+        return true;
+      }
+    } else if (this._accept(
+      11
+      /* TokenType.Plus */
+    )) {
+      const ifValue = this._until(
+        4
+        /* TokenType.CurlyClose */
+      );
+      if (ifValue) {
+        parent.appendChild(new FormatString(Number(index), void 0, ifValue, void 0));
+        return true;
+      }
+    } else if (this._accept(
+      12
+      /* TokenType.Dash */
+    )) {
+      const elseValue = this._until(
+        4
+        /* TokenType.CurlyClose */
+      );
+      if (elseValue) {
+        parent.appendChild(new FormatString(Number(index), void 0, void 0, elseValue));
+        return true;
+      }
+    } else if (this._accept(
+      13
+      /* TokenType.QuestionMark */
+    )) {
+      const ifValue = this._until(
+        1
+        /* TokenType.Colon */
+      );
+      if (ifValue) {
+        const elseValue = this._until(
+          4
+          /* TokenType.CurlyClose */
+        );
+        if (elseValue) {
+          parent.appendChild(new FormatString(Number(index), void 0, ifValue, elseValue));
+          return true;
+        }
+      }
+    } else {
+      const elseValue = this._until(
+        4
+        /* TokenType.CurlyClose */
+      );
+      if (elseValue) {
+        parent.appendChild(new FormatString(Number(index), void 0, void 0, elseValue));
+        return true;
+      }
+    }
+    this._backTo(token);
+    return false;
+  }
+  _parseAnything(marker) {
+    if (this._token.type !== 14) {
+      marker.appendChild(new Text(this._scanner.tokenText(this._token)));
+      this._accept(void 0);
+      return true;
+    }
+    return false;
+  }
+}
+export {
+  Choice,
+  FormatString,
+  Marker,
+  Placeholder,
+  Scanner,
+  SnippetParser,
+  Text,
+  TextmateSnippet,
+  TokenType,
+  Transform,
+  TransformableMarker,
+  Variable
+};
+//# sourceMappingURL=snippetParser.js.map

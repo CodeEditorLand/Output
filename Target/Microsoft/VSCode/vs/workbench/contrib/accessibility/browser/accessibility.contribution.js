@@ -1,1 +1,86 @@
-import{$WC as $}from"../../../../platform/instantiation/common/extensions.js";import{$JIb as m,$HIb as b}from"./accessibilityConfiguration.js";import{Extensions as f,$2N as r}from"../../../common/contributions.js";import{$jm as p}from"../../../../platform/registry/common/platform.js";import{$FKc as s}from"./unfocusedViewDimmingContribution.js";import{$GKc as t}from"./accessibilityStatus.js";import{$_Gc as I}from"./editorAccessibilityHelp.js";import{$HKc as i}from"../../accessibilitySignals/browser/saveAccessibilitySignal.js";import{$IKc as n}from"../../accessibilitySignals/browser/openDiffEditorAnnouncement.js";import{$JKc as c}from"../../speech/browser/speechAccessibilitySignal.js";import{$VBb as K,$UBb as h}from"../../../services/accessibility/common/accessibleViewInformationService.js";import{$zvb as k}from"../../../../platform/accessibility/browser/accessibleView.js";import{$MKc as W}from"./accessibleView.js";import{$NKc as D,$OKc as g}from"./accessibleViewContributions.js";import{$PKc as e}from"./extensionAccesibilityHelp.contribution.js";b();$(k,W,1);$(h,K,1);const o=p.as(f.Workbench);o.registerWorkbenchContribution(I,4);o.registerWorkbenchContribution(s,3);o.registerWorkbenchContribution(D,4);o.registerWorkbenchContribution(g,4);r(t.ID,t,2);r(e.ID,e,2);r(i.ID,i,3);r(c.ID,c,3);r(n.ID,n,3);r(m.ID,m,3);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { DynamicSpeechAccessibilityConfiguration, registerAccessibilityConfiguration } from "./accessibilityConfiguration.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { UnfocusedViewDimmingContribution } from "./unfocusedViewDimmingContribution.js";
+import { AccessibilityStatus } from "./accessibilityStatus.js";
+import { EditorAccessibilityHelpContribution } from "./editorAccessibilityHelp.js";
+import { SaveAccessibilitySignalContribution } from "../../accessibilitySignals/browser/saveAccessibilitySignal.js";
+import { DiffEditorActiveAnnouncementContribution } from "../../accessibilitySignals/browser/openDiffEditorAnnouncement.js";
+import { SpeechAccessibilitySignalContribution } from "../../speech/browser/speechAccessibilitySignal.js";
+import { AccessibleViewInformationService, IAccessibleViewInformationService } from "../../../services/accessibility/common/accessibleViewInformationService.js";
+import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { AccessibleViewService } from "./accessibleView.js";
+import { AccesibleViewHelpContribution, AccesibleViewContributions } from "./accessibleViewContributions.js";
+import { ExtensionAccessibilityHelpDialogContribution } from "./extensionAccesibilityHelp.contribution.js";
+registerAccessibilityConfiguration();
+registerSingleton(
+  IAccessibleViewService,
+  AccessibleViewService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IAccessibleViewInformationService,
+  AccessibleViewInformationService,
+  1
+  /* InstantiationType.Delayed */
+);
+const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchRegistry.registerWorkbenchContribution(
+  EditorAccessibilityHelpContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  UnfocusedViewDimmingContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  AccesibleViewHelpContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  AccesibleViewContributions,
+  4
+  /* LifecyclePhase.Eventually */
+);
+registerWorkbenchContribution2(
+  AccessibilityStatus.ID,
+  AccessibilityStatus,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  ExtensionAccessibilityHelpDialogContribution.ID,
+  ExtensionAccessibilityHelpDialogContribution,
+  2
+  /* WorkbenchPhase.BlockRestore */
+);
+registerWorkbenchContribution2(
+  SaveAccessibilitySignalContribution.ID,
+  SaveAccessibilitySignalContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  SpeechAccessibilitySignalContribution.ID,
+  SpeechAccessibilitySignalContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  DiffEditorActiveAnnouncementContribution.ID,
+  DiffEditorActiveAnnouncementContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  DynamicSpeechAccessibilityConfiguration.ID,
+  DynamicSpeechAccessibilityConfiguration,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+//# sourceMappingURL=accessibility.contribution.js.map

@@ -1,1 +1,90 @@
-import{$ as p,$y9 as f}from"../../../base/browser/dom.js";import{$L$ as u}from"../../../base/browser/ui/actionbar/actionViewItems.js";import{$y$ as b}from"../../../base/browser/ui/hover/hoverDelegate2.js";import{$u0 as d}from"../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$jlb as m}from"../../actionWidget/browser/actionWidget.js";import{$MQb as $}from"../../actionWidget/browser/actionWidgetDropdown.js";import{$ro as _}from"../../contextkey/common/contextkey.js";import{$fy as g}from"../../keybinding/common/keybinding.js";import{$pp as v}from"../../telemetry/common/telemetry.js";var c=function(o,t,e,i){var r=arguments.length,s=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,e,i);else for(var a=o.length-1;a>=0;a--)(n=o[a])&&(s=(r<3?n(s):r>3?n(t,e,s):n(t,e))||s);return r>3&&s&&Object.defineProperty(t,e,s),s},h=function(o,t){return function(e,i){t(e,i,o)}};let l=class extends u{constructor(t,e,i,r,s,n){super(void 0,t),this.m=e,this.n=i,this.q=r,this.r=s,this.s=n,this.g=null}render(t){this.g=t;const e=i=>(this.element=f(i,p("a.action-label")),this.w(this.element));this.c=this.D(new $(t,{...this.m,labelRenderer:e},this.n,this.q,this.s)),this.D(this.c.onDidChangeVisibility(i=>{this.element?.setAttribute("aria-expanded",`${i}`)})),this.J(),this.C()}w(t){return t.classList.add("codicon"),this._action.label&&this.D(b().setupManagedHover(this.u.hoverDelegate??d("mouse"),t,this._action.label)),null}L(){this.element&&this.O(this.element)}O(t){t.setAttribute("role","button"),t.setAttribute("aria-haspopup","true"),t.setAttribute("aria-expanded","false"),t.ariaLabel=this.H()+" - "+(t.textContent||this._action.label)||""}H(){const t=this.action.tooltip??this.action.label;return this.q.appendKeybinding(t,this.action.id,this.r)}show(){this.c?.show()}C(){const t=!this.action.enabled;this.g?.classList.toggle("disabled",t),this.element?.classList.toggle("disabled",t),this.c?.setEnabled(!t)}};l=c([h(2,m),h(3,g),h(4,_),h(5,v)],l);export{l as $NQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, append } from "../../../base/browser/dom.js";
+import { BaseActionViewItem } from "../../../base/browser/ui/actionbar/actionViewItems.js";
+import { getBaseLayerHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate2.js";
+import { getDefaultHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IActionWidgetService } from "../../actionWidget/browser/actionWidget.js";
+import { ActionWidgetDropdown } from "../../actionWidget/browser/actionWidgetDropdown.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+let ActionWidgetDropdownActionViewItem = class ActionWidgetDropdownActionViewItem2 extends BaseActionViewItem {
+  static {
+    __name(this, "ActionWidgetDropdownActionViewItem");
+  }
+  constructor(action, actionWidgetOptions, _actionWidgetService, _keybindingService, _contextKeyService, _telemetryService) {
+    super(void 0, action);
+    this.actionWidgetOptions = actionWidgetOptions;
+    this._actionWidgetService = _actionWidgetService;
+    this._keybindingService = _keybindingService;
+    this._contextKeyService = _contextKeyService;
+    this._telemetryService = _telemetryService;
+    this.actionItem = null;
+  }
+  render(container) {
+    this.actionItem = container;
+    const labelRenderer = /* @__PURE__ */ __name((el) => {
+      this.element = append(el, $("a.action-label"));
+      return this.renderLabel(this.element);
+    }, "labelRenderer");
+    this.actionWidgetDropdown = this._register(new ActionWidgetDropdown(container, { ...this.actionWidgetOptions, labelRenderer }, this._actionWidgetService, this._keybindingService, this._telemetryService));
+    this._register(this.actionWidgetDropdown.onDidChangeVisibility((visible) => {
+      this.element?.setAttribute("aria-expanded", `${visible}`);
+    }));
+    this.updateTooltip();
+    this.updateEnabled();
+  }
+  renderLabel(element) {
+    element.classList.add("codicon");
+    if (this._action.label) {
+      this._register(getBaseLayerHoverDelegate().setupManagedHover(this.options.hoverDelegate ?? getDefaultHoverDelegate("mouse"), element, this._action.label));
+    }
+    return null;
+  }
+  updateAriaLabel() {
+    if (this.element) {
+      this.setAriaLabelAttributes(this.element);
+    }
+  }
+  setAriaLabelAttributes(element) {
+    element.setAttribute("role", "button");
+    element.setAttribute("aria-haspopup", "true");
+    element.setAttribute("aria-expanded", "false");
+    element.ariaLabel = this.getTooltip() + " - " + (element.textContent || this._action.label) || "";
+  }
+  getTooltip() {
+    const tooltip = this.action.tooltip ?? this.action.label;
+    return this._keybindingService.appendKeybinding(tooltip, this.action.id, this._contextKeyService);
+  }
+  show() {
+    this.actionWidgetDropdown?.show();
+  }
+  updateEnabled() {
+    const disabled = !this.action.enabled;
+    this.actionItem?.classList.toggle("disabled", disabled);
+    this.element?.classList.toggle("disabled", disabled);
+    this.actionWidgetDropdown?.setEnabled(!disabled);
+  }
+};
+ActionWidgetDropdownActionViewItem = __decorate([
+  __param(2, IActionWidgetService),
+  __param(3, IKeybindingService),
+  __param(4, IContextKeyService),
+  __param(5, ITelemetryService)
+], ActionWidgetDropdownActionViewItem);
+export {
+  ActionWidgetDropdownActionViewItem
+};
+//# sourceMappingURL=actionWidgetDropdownActionViewItem.js.map

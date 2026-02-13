@@ -1,1 +1,85 @@
-import{$0i as g}from"../../../../../base/common/buffer.js";import{localize2 as n}from"../../../../../nls.js";import{$vL as r}from"../../../../../platform/actions/common/actions.js";import{$0n as i}from"../../../../../platform/contextkey/common/contextkey.js";import{$Ll as S}from"../../../../../platform/environment/common/environment.js";import{$vk as h}from"../../../../../platform/files/common/files.js";import{$Xu as k}from"../../../../../platform/native/common/native.js";import{ChatEntitlementContextKeys as s}from"../../../../services/chat/common/chatEntitlementService.js";import{$bMc as m}from"../../../../services/layout/common/workbenchModeService.js";import{$uO as w,$vO as u}from"../../../../common/contextkeys.js";import{$HPb as c}from"../../browser/actions/chatActions.js";import{$TN as a}from"../../../../../platform/contextkey/common/contextkeys.js";class X extends r{constructor(){super({id:"workbench.action.openAgentSessionsWindow",title:n(7183,"Open Agent Sessions Window"),category:c,precondition:i.and(a.notEqualsTo("stable"),s.Setup.hidden.negate()),f1:!0})}async run(e){const t=e.get(S),f=e.get(k),p=e.get(h),o=t.agentSessionsWorkspace;if(!o)throw new Error("Agent Sessions workspace is not configured");if(!await p.exists(o)){const l=JSON.stringify({folders:[]},null,"	");await p.writeFile(o,g.fromString(l))}await f.openWindow([{workspaceUri:o}],{forceNewWindow:!0})}}class C extends r{constructor(){super({id:"workbench.action.switchToAgentSessionsMode",title:n(7184,"Switch to Agent Sessions Mode"),category:c,precondition:i.and(a.notEqualsTo("stable"),s.Setup.hidden.negate(),w.toNegated(),u.notEqualsTo("agent-sessions")),f1:!0})}async run(e){await e.get(m).setWorkbenchMode("agent-sessions")}}class H extends r{constructor(){super({id:"workbench.action.switchToNormalMode",title:n(7185,"Switch to Default Mode"),category:c,precondition:i.and(a.notEqualsTo("stable"),s.Setup.hidden.negate(),w.toNegated(),u.notEqualsTo("")),f1:!0})}async run(e){await e.get(m).setWorkbenchMode(void 0)}}export{H as $$Xc,C as $0Xc,X as $9Xc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { localize2 } from "../../../../../nls.js";
+import { Action2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { INativeEnvironmentService } from "../../../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../../platform/native/common/native.js";
+import { ChatEntitlementContextKeys } from "../../../../services/chat/common/chatEntitlementService.js";
+import { IWorkbenchModeService } from "../../../../services/layout/common/workbenchModeService.js";
+import { IsAgentSessionsWorkspaceContext, WorkbenchModeContext } from "../../../../common/contextkeys.js";
+import { CHAT_CATEGORY } from "../../browser/actions/chatActions.js";
+import { ProductQualityContext } from "../../../../../platform/contextkey/common/contextkeys.js";
+class OpenAgentSessionsWindowAction extends Action2 {
+  static {
+    __name(this, "OpenAgentSessionsWindowAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.openAgentSessionsWindow",
+      title: localize2("openAgentSessionsWindow", "Open Agent Sessions Window"),
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.and(ProductQualityContext.notEqualsTo("stable"), ChatEntitlementContextKeys.Setup.hidden.negate()),
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const environmentService = accessor.get(INativeEnvironmentService);
+    const nativeHostService = accessor.get(INativeHostService);
+    const fileService = accessor.get(IFileService);
+    const workspaceUri = environmentService.agentSessionsWorkspace;
+    if (!workspaceUri) {
+      throw new Error("Agent Sessions workspace is not configured");
+    }
+    const workspaceExists = await fileService.exists(workspaceUri);
+    if (!workspaceExists) {
+      const emptyWorkspaceContent = JSON.stringify({ folders: [] }, null, "	");
+      await fileService.writeFile(workspaceUri, VSBuffer.fromString(emptyWorkspaceContent));
+    }
+    await nativeHostService.openWindow([{ workspaceUri }], { forceNewWindow: true });
+  }
+}
+class SwitchToAgentSessionsModeAction extends Action2 {
+  static {
+    __name(this, "SwitchToAgentSessionsModeAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.switchToAgentSessionsMode",
+      title: localize2("switchToAgentSessionsMode", "Switch to Agent Sessions Mode"),
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.and(ProductQualityContext.notEqualsTo("stable"), ChatEntitlementContextKeys.Setup.hidden.negate(), IsAgentSessionsWorkspaceContext.toNegated(), WorkbenchModeContext.notEqualsTo("agent-sessions")),
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const workbenchModeService = accessor.get(IWorkbenchModeService);
+    await workbenchModeService.setWorkbenchMode("agent-sessions");
+  }
+}
+class SwitchToNormalModeAction extends Action2 {
+  static {
+    __name(this, "SwitchToNormalModeAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.switchToNormalMode",
+      title: localize2("switchToNormalMode", "Switch to Default Mode"),
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.and(ProductQualityContext.notEqualsTo("stable"), ChatEntitlementContextKeys.Setup.hidden.negate(), IsAgentSessionsWorkspaceContext.toNegated(), WorkbenchModeContext.notEqualsTo("")),
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const workbenchModeService = accessor.get(IWorkbenchModeService);
+    await workbenchModeService.setWorkbenchMode(void 0);
+  }
+}
+export {
+  OpenAgentSessionsWindowAction,
+  SwitchToAgentSessionsModeAction,
+  SwitchToNormalModeAction
+};
+//# sourceMappingURL=agentSessionsActions.js.map

@@ -1,1 +1,128 @@
-import{$2b as E}from"../../../../base/common/arrays.js";import{$bk as A}from"../../../../base/common/codicons.js";import{$Ed as P}from"../../../../base/common/lifecycle.js";import{$yh as p}from"../../../../base/common/resources.js";import{localize as d}from"../../../../nls.js";import{$Mj as _}from"../../../../platform/instantiation/common/instantiation.js";import{$oH as F}from"../../../../platform/label/common/label.js";import{$iF as x,MarkerSeverity as v}from"../../../../platform/markers/common/markers.js";import{$vN as I}from"../../../common/editor.js";import{$BL as L}from"../../../services/editor/common/editorService.js";import{$XOb as M,$WOb as O}from"../../chat/browser/attachments/chatContextPickService.js";import{IDiagnosticVariableEntryFilterData as k}from"../../chat/common/attachments/chatVariableEntries.js";var C=function(c,t,r,e){var o=arguments.length,i=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(c,t,r,e);else for(var s=c.length-1;s>=0;s--)(a=c[s])&&(i=(o<3?a(i):o>3?a(t,r,i):a(t,r))||i);return o>3&&i&&Object.defineProperty(t,r,i),i},f=function(c,t){return function(r,e){t(r,e,c)}};let $=class{constructor(t,r,e){this.c=t,this.d=r,this.e=e,this.type="pickerPick",this.label=d(10042,null),this.icon=A.error,this.ordinal=-100}isEnabled(t){return!!t.attachmentCapabilities.supportsProblemAttachments}asPicker(){return{placeholder:d(10043,null),picks:O(async(t,r)=>this.getPicksForQuery(t))}}getPicksForQuery(t){const r=this.c.read({severities:v.Error|v.Warning|v.Info}),e=E(r,(l,u)=>p.compare(l.resource,u.resource)),o=I.getCanonicalUri(this.e.activeEditor),i=e.sort((l,u)=>{const h=l[0].resource,m=u[0].resource;if(o){const b=p.isEqual(h,o),n=p.isEqual(m,o);if(b&&!n)return-1;if(!b&&n)return 1}return p.compare(h,m)}),a=new Set,s=[];let g=0;for(const l of i){const u=l[0].resource,h=o&&p.isEqual(u,o),m=this.d.getUriLabel(u,{relative:!0}),b=h?`${m} (current file)`:m;s.push({type:"separator",label:b});for(const n of l)g++,a.add(n.severity),s.push({label:n.message,description:d(10044,null,""+n.startLineNumber,""+n.startColumn),asAttachment(){return k.toEntry(k.fromMarker(n))}})}return s.unshift({label:d(10045,null),asAttachment(){return k.toEntry({filterSeverity:v.Info})}}),s}};$=C([f(0,x),f(1,F),f(2,L)],$);let y=class extends P{static{this.ID="workbench.contrib.chat.markerChatContextContribution"}constructor(t,r){super(),this.B.add(t.registerChatContextItem(r.createInstance($)))}};y=C([f(0,M),f(1,_)],y);export{y as $gAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { groupBy } from "../../../../base/common/arrays.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { extUri } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { EditorResourceAccessor } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IChatContextPickService, picksWithPromiseFn } from "../../chat/browser/attachments/chatContextPickService.js";
+import { IDiagnosticVariableEntryFilterData } from "../../chat/common/attachments/chatVariableEntries.js";
+let MarkerChatContextPick = class MarkerChatContextPick2 {
+  static {
+    __name(this, "MarkerChatContextPick");
+  }
+  constructor(_markerService, _labelService, _editorService) {
+    this._markerService = _markerService;
+    this._labelService = _labelService;
+    this._editorService = _editorService;
+    this.type = "pickerPick";
+    this.label = localize("chatContext.diagnstic", "Problems...");
+    this.icon = Codicon.error;
+    this.ordinal = -100;
+  }
+  isEnabled(widget) {
+    return !!widget.attachmentCapabilities.supportsProblemAttachments;
+  }
+  asPicker() {
+    return {
+      placeholder: localize("chatContext.diagnstic.placeholder", "Select a problem to attach"),
+      picks: picksWithPromiseFn(async (query, token) => {
+        return this.getPicksForQuery(query);
+      })
+    };
+  }
+  /**
+   * @internal For testing purposes only
+   */
+  getPicksForQuery(query) {
+    const markers = this._markerService.read({ severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info });
+    const grouped = groupBy(markers, (a, b) => extUri.compare(a.resource, b.resource));
+    const activeEditorUri = EditorResourceAccessor.getCanonicalUri(this._editorService.activeEditor);
+    const sortedGroups = grouped.sort((groupA, groupB) => {
+      const resourceA = groupA[0].resource;
+      const resourceB = groupB[0].resource;
+      if (activeEditorUri) {
+        const isAActiveFile = extUri.isEqual(resourceA, activeEditorUri);
+        const isBActiveFile = extUri.isEqual(resourceB, activeEditorUri);
+        if (isAActiveFile && !isBActiveFile) {
+          return -1;
+        }
+        if (!isAActiveFile && isBActiveFile) {
+          return 1;
+        }
+      }
+      return extUri.compare(resourceA, resourceB);
+    });
+    const severities = /* @__PURE__ */ new Set();
+    const items = [];
+    let pickCount = 0;
+    for (const group of sortedGroups) {
+      const resource = group[0].resource;
+      const isActiveFile = activeEditorUri && extUri.isEqual(resource, activeEditorUri);
+      const fileLabel = this._labelService.getUriLabel(resource, { relative: true });
+      const separatorLabel = isActiveFile ? `${fileLabel} (current file)` : fileLabel;
+      items.push({ type: "separator", label: separatorLabel });
+      for (const marker of group) {
+        pickCount++;
+        severities.add(marker.severity);
+        items.push({
+          label: marker.message,
+          description: localize("markers.panel.at.ln.col.number", "[Ln {0}, Col {1}]", "" + marker.startLineNumber, "" + marker.startColumn),
+          asAttachment() {
+            return IDiagnosticVariableEntryFilterData.toEntry(IDiagnosticVariableEntryFilterData.fromMarker(marker));
+          }
+        });
+      }
+    }
+    items.unshift({
+      label: localize("markers.panel.allErrors", "All Problems"),
+      asAttachment() {
+        return IDiagnosticVariableEntryFilterData.toEntry({
+          filterSeverity: MarkerSeverity.Info
+        });
+      }
+    });
+    return items;
+  }
+};
+MarkerChatContextPick = __decorate([
+  __param(0, IMarkerService),
+  __param(1, ILabelService),
+  __param(2, IEditorService)
+], MarkerChatContextPick);
+let MarkerChatContextContribution = class MarkerChatContextContribution2 extends Disposable {
+  static {
+    __name(this, "MarkerChatContextContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chat.markerChatContextContribution";
+  }
+  constructor(contextPickService, instantiationService) {
+    super();
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(MarkerChatContextPick)));
+  }
+};
+MarkerChatContextContribution = __decorate([
+  __param(0, IChatContextPickService),
+  __param(1, IInstantiationService)
+], MarkerChatContextContribution);
+export {
+  MarkerChatContextContribution
+};
+//# sourceMappingURL=markersChatContext.js.map

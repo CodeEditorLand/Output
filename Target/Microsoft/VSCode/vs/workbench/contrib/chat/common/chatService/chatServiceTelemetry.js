@@ -1,2 +1,187 @@
-import{URI as p}from"../../../../../base/common/uri.js";import{$SF as h}from"../../../../../editor/common/languages.js";import{$pp as u}from"../../../../../platform/telemetry/common/telemetry.js";import{ChatAgentVoteDirection as f,ChatCopyKind as g}from"./chatService.js";import{$QS as I}from"../attachments/chatVariableEntries.js";import{$ZR as b}from"../languageModels.js";var m=function(a,e,t,i){var s=arguments.length,n=s<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(a,e,t,i);else for(var r=a.length-1;r>=0;r--)(o=a[r])&&(n=(s<3?o(n):s>3?o(e,t,n):o(e,t))||n);return s>3&&n&&Object.defineProperty(e,t,n),n},l=function(a,e){return function(t,i){e(t,i,a)}};let d=class{constructor(e){this.a=e}notifyUserAction(e){e.action.kind==="vote"?this.a.publicLog2("interactiveSessionVote",{direction:e.action.direction===f.Up?"up":"down",agentId:e.agentId??"",command:e.command,reason:e.action.reason}):e.action.kind==="copy"?this.a.publicLog2("interactiveSessionCopy",{copyKind:e.action.copyKind===g.Action?"action":"toolbar",agentId:e.agentId??"",command:e.command}):e.action.kind==="insert"?this.a.publicLog2("interactiveSessionInsert",{newFile:!!e.action.newFile,agentId:e.agentId??"",command:e.command}):e.action.kind==="apply"?this.a.publicLog2("interactiveSessionApply",{newFile:!!e.action.newFile,codeMapper:e.action.codeMapper,agentId:e.agentId??"",command:e.command,editsProposed:!!e.action.editsProposed}):e.action.kind==="runInTerminal"?this.a.publicLog2("interactiveSessionRunInTerminal",{languageId:e.action.languageId??"",agentId:e.agentId??"",command:e.command}):e.action.kind==="followUp"?this.a.publicLog2("chatFollowupClicked",{agentId:e.agentId??"",command:e.command}):e.action.kind==="chatEditingHunkAction"&&this.a.publicLog2("chatEditHunk",{agentId:e.agentId??"",outcome:e.action.outcome,lineCount:e.action.lineCount,hasRemainingEdits:e.action.hasRemainingEdits})}retrievedFollowups(e,t,i){this.a.publicLog2("chatFollowupsRetrieved",{agentId:e,command:t,numFollowups:i})}};d=m([l(0,u)],d);function k(a){const e=a.split(`
-`),t=[];let i;for(let s=0;s<e.length;s++){const n=e[s];if(i)new RegExp(`^\\s*${i.delimiter}\\s*$`).test(n)&&(t.push(i.languageId),i=void 0);else{const o=n.match(/^(\s*)(`{3,}|~{3,})(\w*)/);o&&(i={delimiter:o[2],languageId:o[3]})}}return t}let c=class{constructor(e,t,i){this.b=e,this.c=t,this.d=i,this.a=!1}complete({timeToFirstProgress:e,totalTime:t,result:i,requestType:s,request:n,detectedAgent:o}){this.a||(this.a=!0,this.c.publicLog2("interactiveSessionProviderInvoked",{timeToFirstProgress:e,totalTime:t,result:i,requestType:s,agent:o?.id??this.b.agent.id,agentExtensionId:o?.extensionId.value??this.b.agent.extensionId.value,slashCommand:this.b.agentSlashCommandPart?this.b.agentSlashCommandPart.command.name:this.b.commandPart?.slashCommand.command,chatSessionId:this.b.sessionId,enableCommandDetection:this.b.enableCommandDetection,isParticipantDetected:!!o,location:this.b.location,citations:n.response?.codeCitations.length??0,numCodeBlocks:k(n.response?.response.toString()??"").length,attachmentKinds:this.e(n.variableData),model:this.f(this.b.options?.userSelectedModelId)}))}e(e){return e.variables.map(t=>t.kind==="implicit"?"implicit":t.range?t.kind==="tool"?"toolInPrompt":t.kind==="toolset"?"toolsetInPrompt":"fileInPrompt":t.kind==="command"?"command":t.kind==="symbol"?"symbol":I(t)?"image":t.kind==="directory"?"directory":t.kind==="tool"?"tool":t.kind==="toolset"?"toolset":p.isUri(t.value)?"file":h(t.value)?"location":"otherAttachment")}f(e){return e&&this.d.lookupLanguageModel(e)?.id}};c=m([l(1,u),l(2,b)],c);export{d as $umc,c as $vmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { URI } from "../../../../../base/common/uri.js";
+import { isLocation } from "../../../../../editor/common/languages.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ChatAgentVoteDirection, ChatCopyKind } from "./chatService.js";
+import { isImageVariableEntry } from "../attachments/chatVariableEntries.js";
+import { ILanguageModelsService } from "../languageModels.js";
+let ChatServiceTelemetry = class ChatServiceTelemetry2 {
+  static {
+    __name(this, "ChatServiceTelemetry");
+  }
+  constructor(telemetryService) {
+    this.telemetryService = telemetryService;
+  }
+  notifyUserAction(action) {
+    if (action.action.kind === "vote") {
+      this.telemetryService.publicLog2("interactiveSessionVote", {
+        direction: action.action.direction === ChatAgentVoteDirection.Up ? "up" : "down",
+        agentId: action.agentId ?? "",
+        command: action.command,
+        reason: action.action.reason
+      });
+    } else if (action.action.kind === "copy") {
+      this.telemetryService.publicLog2("interactiveSessionCopy", {
+        copyKind: action.action.copyKind === ChatCopyKind.Action ? "action" : "toolbar",
+        agentId: action.agentId ?? "",
+        command: action.command
+      });
+    } else if (action.action.kind === "insert") {
+      this.telemetryService.publicLog2("interactiveSessionInsert", {
+        newFile: !!action.action.newFile,
+        agentId: action.agentId ?? "",
+        command: action.command
+      });
+    } else if (action.action.kind === "apply") {
+      this.telemetryService.publicLog2("interactiveSessionApply", {
+        newFile: !!action.action.newFile,
+        codeMapper: action.action.codeMapper,
+        agentId: action.agentId ?? "",
+        command: action.command,
+        editsProposed: !!action.action.editsProposed
+      });
+    } else if (action.action.kind === "runInTerminal") {
+      this.telemetryService.publicLog2("interactiveSessionRunInTerminal", {
+        languageId: action.action.languageId ?? "",
+        agentId: action.agentId ?? "",
+        command: action.command
+      });
+    } else if (action.action.kind === "followUp") {
+      this.telemetryService.publicLog2("chatFollowupClicked", {
+        agentId: action.agentId ?? "",
+        command: action.command
+      });
+    } else if (action.action.kind === "chatEditingHunkAction") {
+      this.telemetryService.publicLog2("chatEditHunk", {
+        agentId: action.agentId ?? "",
+        outcome: action.action.outcome,
+        lineCount: action.action.lineCount,
+        hasRemainingEdits: action.action.hasRemainingEdits
+      });
+    }
+  }
+  retrievedFollowups(agentId, command, numFollowups) {
+    this.telemetryService.publicLog2("chatFollowupsRetrieved", {
+      agentId,
+      command,
+      numFollowups
+    });
+  }
+};
+ChatServiceTelemetry = __decorate([
+  __param(0, ITelemetryService)
+], ChatServiceTelemetry);
+function getCodeBlocks(text) {
+  const lines = text.split("\n");
+  const codeBlockLanguages = [];
+  let codeBlockState;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (codeBlockState) {
+      if (new RegExp(`^\\s*${codeBlockState.delimiter}\\s*$`).test(line)) {
+        codeBlockLanguages.push(codeBlockState.languageId);
+        codeBlockState = void 0;
+      }
+    } else {
+      const match = line.match(/^(\s*)(`{3,}|~{3,})(\w*)/);
+      if (match) {
+        codeBlockState = { delimiter: match[2], languageId: match[3] };
+      }
+    }
+  }
+  return codeBlockLanguages;
+}
+__name(getCodeBlocks, "getCodeBlocks");
+let ChatRequestTelemetry = class ChatRequestTelemetry2 {
+  static {
+    __name(this, "ChatRequestTelemetry");
+  }
+  constructor(opts, telemetryService, languageModelsService) {
+    this.opts = opts;
+    this.telemetryService = telemetryService;
+    this.languageModelsService = languageModelsService;
+    this.isComplete = false;
+  }
+  complete({ timeToFirstProgress, totalTime, result, requestType, request, detectedAgent }) {
+    if (this.isComplete) {
+      return;
+    }
+    this.isComplete = true;
+    this.telemetryService.publicLog2("interactiveSessionProviderInvoked", {
+      timeToFirstProgress,
+      totalTime,
+      result,
+      requestType,
+      agent: detectedAgent?.id ?? this.opts.agent.id,
+      agentExtensionId: detectedAgent?.extensionId.value ?? this.opts.agent.extensionId.value,
+      slashCommand: this.opts.agentSlashCommandPart ? this.opts.agentSlashCommandPart.command.name : this.opts.commandPart?.slashCommand.command,
+      chatSessionId: this.opts.sessionId,
+      enableCommandDetection: this.opts.enableCommandDetection,
+      isParticipantDetected: !!detectedAgent,
+      location: this.opts.location,
+      citations: request.response?.codeCitations.length ?? 0,
+      numCodeBlocks: getCodeBlocks(request.response?.response.toString() ?? "").length,
+      attachmentKinds: this.attachmentKindsForTelemetry(request.variableData),
+      model: this.resolveModelId(this.opts.options?.userSelectedModelId)
+    });
+  }
+  attachmentKindsForTelemetry(variableData) {
+    return variableData.variables.map((v) => {
+      if (v.kind === "implicit") {
+        return "implicit";
+      } else if (v.range) {
+        if (v.kind === "tool") {
+          return "toolInPrompt";
+        } else if (v.kind === "toolset") {
+          return "toolsetInPrompt";
+        } else {
+          return "fileInPrompt";
+        }
+      } else if (v.kind === "command") {
+        return "command";
+      } else if (v.kind === "symbol") {
+        return "symbol";
+      } else if (isImageVariableEntry(v)) {
+        return "image";
+      } else if (v.kind === "directory") {
+        return "directory";
+      } else if (v.kind === "tool") {
+        return "tool";
+      } else if (v.kind === "toolset") {
+        return "toolset";
+      } else {
+        if (URI.isUri(v.value)) {
+          return "file";
+        } else if (isLocation(v.value)) {
+          return "location";
+        } else {
+          return "otherAttachment";
+        }
+      }
+    });
+  }
+  resolveModelId(userSelectedModelId) {
+    return userSelectedModelId && this.languageModelsService.lookupLanguageModel(userSelectedModelId)?.id;
+  }
+};
+ChatRequestTelemetry = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, ILanguageModelsService)
+], ChatRequestTelemetry);
+export {
+  ChatRequestTelemetry,
+  ChatServiceTelemetry
+};
+//# sourceMappingURL=chatServiceTelemetry.js.map

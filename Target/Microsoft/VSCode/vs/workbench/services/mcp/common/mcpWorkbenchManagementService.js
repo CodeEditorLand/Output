@@ -1,1 +1,715 @@
-import{$Dd as x}from"../../../../base/common/lifecycle.js";import{$EQ as q,$DQ as F,$FQ as $}from"../../../../platform/mcp/common/mcpManagement.js";import{$Mj as C,$Oj as G}from"../../../../platform/instantiation/common/instantiation.js";import{$LQ as H}from"../../../services/userDataProfile/common/userDataProfile.js";import{$xf as h}from"../../../../base/common/event.js";import{$2Q as J}from"../../../../platform/mcp/common/mcpResourceScannerService.js";import{$Vl as S,$Ml as E}from"../../../../platform/workspace/common/workspace.js";import{$$o as v}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$HM as m,$IM as d}from"../../configuration/common/configuration.js";import{$yo as I}from"../../../../platform/log/common/log.js";import{$4N as N}from"../../remote/common/remoteAgentService.js";import{$0Q as b}from"../../../../platform/mcp/common/mcpManagementIpc.js";import{$ap as W}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$aR as z}from"../../userDataProfile/common/remoteUserDataProfiles.js";import{$7Q as k,$5Q as Q}from"../../../../platform/mcp/common/mcpManagementService.js";import{$vk as O}from"../../../../platform/files/common/files.js";import{$Oc as _}from"../../../../base/common/map.js";var M=function(u,t,e,r){var i=arguments.length,s=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,t,e,r);else for(var c=u.length-1;c>=0;c--)(a=u[c])&&(s=(i<3?a(s):i>3?a(t,e,s):a(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},o=function(u,t){return function(e,r){t(e,r,u)}};const j="usrlocal",L="usrremote",T="workspace",A="ws";var U;(function(u){u.User="user",u.RemoteUser="remoteUser",u.Workspace="workspace"})(U||(U={}));const ue=G(q);let P=class extends k{constructor(t,e,r,i,s,a,c,f,w,y){super(e,r),this.I=t,this.J=i,this.L=s,this.M=a,this.N=f,this.O=w,this.m=this.D(new h),this.onInstallMcpServer=this.m.event,this.n=this.D(new h),this.onDidInstallMcpServers=this.n.event,this.q=this.D(new h),this.onDidUpdateMcpServers=this.q.event,this.r=this.D(new h),this.onUninstallMcpServer=this.r.event,this.t=this.D(new h),this.onDidUninstallMcpServer=this.t.event,this.u=this.D(new h),this.onInstallMcpServerInCurrentProfile=this.u.event,this.w=this.D(new h),this.onDidInstallMcpServersInCurrentProfile=this.w.event,this.y=this.D(new h),this.onDidUpdateMcpServersInCurrentProfile=this.y.event,this.z=this.D(new h),this.onUninstallMcpServerInCurrentProfile=this.z.event,this.C=this.D(new h),this.onDidUninstallMcpServerInCurrentProfile=this.C.event,this.F=this.D(new h),this.onDidChangeProfile=this.F.event,this.G=this.D(y.createInstance(R));const D=c.getConnection();D&&(this.H=this.D(y.createInstance(b,D.getChannel("mcpManagement")))),this.D(this.I.onInstallMcpServer(n=>{this.m.fire(n),s.extUri.isEqual(n.mcpResource,this.J.currentProfile.mcpResource)&&this.u.fire({...n,scope:"user"})})),this.D(this.I.onDidInstallMcpServers(n=>{const{mcpServerInstallResult:l,mcpServerInstallResultInCurrentProfile:p}=this.P(n,"user");this.n.fire(l),p.length&&this.w.fire(p)})),this.D(this.I.onDidUpdateMcpServers(n=>{const{mcpServerInstallResult:l,mcpServerInstallResultInCurrentProfile:p}=this.P(n,"user");this.q.fire(l),p.length&&this.y.fire(p)})),this.D(this.I.onUninstallMcpServer(n=>{this.r.fire(n),s.extUri.isEqual(n.mcpResource,this.J.currentProfile.mcpResource)&&this.z.fire({...n,scope:"user"})})),this.D(this.I.onDidUninstallMcpServer(n=>{this.t.fire(n),s.extUri.isEqual(n.mcpResource,this.J.currentProfile.mcpResource)&&this.C.fire({...n,scope:"user"})})),this.D(this.G.onInstallMcpServer(async n=>{this.m.fire(n),this.u.fire({...n,scope:"workspace"})})),this.D(this.G.onDidInstallMcpServers(async n=>{const{mcpServerInstallResult:l}=this.P(n,"workspace");this.n.fire(l),this.w.fire(l)})),this.D(this.G.onUninstallMcpServer(async n=>{this.r.fire(n),this.z.fire({...n,scope:"workspace"})})),this.D(this.G.onDidUninstallMcpServer(async n=>{this.t.fire(n),this.C.fire({...n,scope:"workspace"})})),this.D(this.G.onDidUpdateMcpServers(n=>{const{mcpServerInstallResult:l}=this.P(n,"workspace");this.q.fire(l),this.y.fire(l)})),this.H&&(this.D(this.H.onInstallMcpServer(async n=>{this.m.fire(n);const l=await this.U(this.J.currentProfile.mcpResource);(l?s.extUri.isEqual(n.mcpResource,l):this.J.currentProfile.isDefault)&&this.u.fire({...n,scope:"remoteUser"})})),this.D(this.H.onDidInstallMcpServers(n=>this.Q(n,this.n,this.w))),this.D(this.H.onDidUpdateMcpServers(n=>this.Q(n,this.n,this.w))),this.D(this.H.onUninstallMcpServer(async n=>{this.r.fire(n);const l=await this.U(this.J.currentProfile.mcpResource);(l?s.extUri.isEqual(n.mcpResource,l):this.J.currentProfile.isDefault)&&this.z.fire({...n,scope:"remoteUser"})})),this.D(this.H.onDidUninstallMcpServer(async n=>{this.t.fire(n);const l=await this.U(this.J.currentProfile.mcpResource);(l?s.extUri.isEqual(n.mcpResource,l):this.J.currentProfile.isDefault)&&this.C.fire({...n,scope:"remoteUser"})}))),this.D(i.onDidChangeCurrentProfile(n=>{this.L.extUri.isEqual(n.previous.mcpResource,n.profile.mcpResource)||this.F.fire()}))}P(t,e){const r=[],i=[];for(const s of t){const a={...s,local:s.local?this.R(s.local,e):void 0};r.push(a),this.L.extUri.isEqual(s.mcpResource,this.J.currentProfile.mcpResource)&&i.push(a)}return{mcpServerInstallResult:r,mcpServerInstallResultInCurrentProfile:i}}async Q(t,e,r){const i=[],s=[],a=await this.U(this.J.currentProfile.mcpResource);for(const c of t){const f={...c,local:c.local?this.R(c.local,"remoteUser"):void 0};i.push(f),(a?this.L.extUri.isEqual(c.mcpResource,a):this.J.currentProfile.isDefault)&&s.push(f)}e.fire(i),s.length&&r.fire(s)}async getInstalled(){const t=[],[e,r,i]=await Promise.all([this.I.getInstalled(this.J.currentProfile.mcpResource),this.H?.getInstalled(await this.U())??Promise.resolve([]),this.G?.getInstalled()??Promise.resolve([])]);for(const s of e)t.push(this.R(s,"user"));for(const s of r)t.push(this.R(s,"remoteUser"));for(const s of i)t.push(this.R(s,"workspace"));return t}R(t,e){return{...t,id:`mcp.config.${this.S(t,e)}.${t.name}`,scope:e}}S(t,e){if(e==="user")return j;if(e==="remoteUser")return L;if(e==="workspace"){const r=this.M.getWorkspace();if(r.configuration&&this.L.extUri.isEqual(r.configuration,t.mcpResource))return T;const i=r.folders;for(let s=0;s<i.length;s++){const a=i[s];if(this.L.extUri.isEqual(this.L.extUri.joinPath(a.uri,d[m]),t.mcpResource))return`${A}${s}`}}return"unknown"}async install(t,e){if(e=e??{},e.target===5||S(e.target)){const i=e.target===5?this.M.getWorkspace().configuration:e.target.toResource(d[m]);if(!i)throw new Error(`Illegal target: ${e.target}`);e.mcpResource=i;const s=await this.G.install(t,e);return this.R(s,"workspace")}if(e.target===4){if(!this.H)throw new Error(`Illegal target: ${e.target}`);e.mcpResource=await this.U(e.mcpResource);const i=await this.H.install(t,e);return this.R(i,"remoteUser")}if(e.target&&e.target!==2&&e.target!==3)throw new Error(`Illegal target: ${e.target}`);e.mcpResource=this.J.currentProfile.mcpResource;const r=await this.I.install(t,e);return this.R(r,"user")}async installFromGallery(t,e){if(e=e??{},e.target===5||S(e.target)){const i=e.target===5?this.M.getWorkspace().configuration:e.target.toResource(d[m]);if(!i)throw new Error(`Illegal target: ${e.target}`);e.mcpResource=i;const s=await this.G.installFromGallery(t,e);return this.R(s,"workspace")}if(e.target===4){if(!this.H)throw new Error(`Illegal target: ${e.target}`);e.mcpResource=await this.U(e.mcpResource);const i=await this.H.installFromGallery(t,e);return this.R(i,"remoteUser")}if(e.target&&e.target!==2&&e.target!==3)throw new Error(`Illegal target: ${e.target}`);e.mcpResource||(e.mcpResource=this.J.currentProfile.mcpResource);const r=await this.I.installFromGallery(t,e);return this.R(r,"user")}async updateMetadata(t,e,r){if(t.scope==="workspace"){const s=await this.G.updateMetadata(t,e,r);return this.R(s,"workspace")}if(t.scope==="remoteUser"){if(!this.H)throw new Error(`Illegal target: ${t.scope}`);const s=await this.H.updateMetadata(t,e,r);return this.R(s,"remoteUser")}const i=await this.I.updateMetadata(t,e,r);return this.R(i,"user")}async uninstall(t){if(t.scope==="workspace")return this.G.uninstall(t);if(t.scope==="remoteUser"){if(!this.H)throw new Error(`Illegal target: ${t.scope}`);return this.H.uninstall(t)}return this.I.uninstall(t,{mcpResource:this.J.currentProfile.mcpResource})}async U(t){if(!t&&this.J.currentProfile.isDefault)return;t=t??this.J.currentProfile.mcpResource;let e=this.N.profiles.find(r=>this.L.extUri.isEqual(r.mcpResource,t));return e?e=await this.O.getRemoteProfile(e):e=(await this.O.getRemoteProfiles()).find(r=>this.L.extUri.isEqual(r.mcpResource,t)),e?.mcpResource}};P=M([o(1,$),o(2,I),o(3,H),o(4,v),o(5,E),o(6,N),o(7,W),o(8,z),o(9,C)],P);let g=class extends Q{constructor(t,e,r,i,s,a,c){super(t,e,r,i,s,a,c)}async installFromGallery(t,e){this.a.trace("MCP Management Service: installGallery",t.name,t.galleryUrl),this.q.fire({name:t.name,mcpResource:this.y});try{const r=e?.packageType??t.configuration.packages?.[0]?.registryType??"remote",{mcpServerConfiguration:i,notices:s}=this.getMcpServerConfigurationFromManifest(t.configuration,r);s.length>0&&this.a.warn(`MCP Management Service: Warnings while installing ${t.name}`,s);const a={name:t.name,config:{...i.config,gallery:t.galleryUrl??!0,version:t.version},inputs:i.inputs};await this.H.addMcpServers([a],this.y,this.z),await this.M();const c=(await this.getInstalled()).find(f=>f.name===t.name);if(!c)throw new Error(`Failed to install MCP server: ${t.name}`);return c}catch(r){throw this.r.fire([{name:t.name,source:t,error:r,mcpResource:this.y}]),r}}updateMetadata(){throw new Error("Not supported")}P(){throw new Error("Not supported")}async O(t,e){if(!e.gallery)return;const[r]=await this.C.getMcpServersFromGallery([{name:t}]);if(r)return{name:r.name,version:e.version,displayName:r.displayName,description:r.description,galleryUrl:r.galleryUrl,manifest:r.configuration,publisher:r.publisher,publisherDisplayName:r.publisherDisplayName,repositoryUrl:r.repositoryUrl,icon:r.icon}}canInstall(t){throw new Error("Not supported")}};g=M([o(2,F),o(3,O),o(4,v),o(5,I),o(6,J)],g);let R=class extends k{constructor(t,e,r,i,s){super(t,r),this.z=e,this.C=i,this.F=s,this.m=this.D(new h),this.onInstallMcpServer=this.m.event,this.n=this.D(new h),this.onDidInstallMcpServers=this.n.event,this.q=this.D(new h),this.onDidUpdateMcpServers=this.q.event,this.r=this.D(new h),this.onUninstallMcpServer=this.r.event,this.t=this.D(new h),this.onDidUninstallMcpServer=this.t.event,this.u=[],this.y=new _,this.G()}async G(){try{await this.H(),await this.I({added:this.C.getWorkspace().folders,removed:[],changed:[]}),this.D(this.C.onDidChangeWorkspaceFolders(t=>this.I(t))),this.D(this.C.onDidChangeWorkbenchState(t=>this.H()))}catch(t){this.a.error("Failed to initialize workspace folders",t)}}async H(){this.w&&await this.L(this.w),this.w=this.C.getWorkspace().configuration,this.w&&await this.J(this.w,5)}async I(t){try{await Promise.allSettled(t.removed.map(e=>this.L(e.toResource(d[m]))))}catch(e){this.a.error(e)}try{await Promise.allSettled(t.added.map(e=>this.J(e.toResource(d[m]),6)))}catch(e){this.a.error(e)}}async J(t,e){if(this.y.has(t))return;const r=new x,i=r.add(this.F.createInstance(g,t,e));try{const s=await i.getInstalled();if(this.u.push(...s),s.length>0){const a=s.map(c=>({name:c.name,local:c,mcpResource:c.mcpResource}));this.n.fire(a)}}catch(s){this.a.warn("Failed to get installed servers from",t.toString(),s)}r.add(i.onInstallMcpServer(s=>this.m.fire(s))),r.add(i.onDidInstallMcpServers(s=>{for(const{local:a}of s)a&&this.u.push(a);this.n.fire(s)})),r.add(i.onDidUpdateMcpServers(s=>{for(const{local:a,mcpResource:c}of s)if(a){const f=this.u.findIndex(w=>this.z.extUri.isEqual(w.mcpResource,c)&&w.name===a.name);f!==-1&&this.u.splice(f,1,a)}this.q.fire(s)})),r.add(i.onUninstallMcpServer(s=>this.r.fire(s))),r.add(i.onDidUninstallMcpServer(s=>{const a=this.u.findIndex(c=>this.z.extUri.isEqual(c.mcpResource,s.mcpResource)&&c.name===s.name);a!==-1&&(this.u.splice(a,1),this.t.fire(s))})),this.y.set(t,{service:i,dispose:()=>r.dispose()})}async L(t){const e=this.y.get(t);if(e){try{const r=await e.service.getInstalled();this.u=this.u.filter(i=>!r.some(s=>this.z.extUri.isEqual(s.mcpResource,i.mcpResource)));for(const i of r)this.t.fire({name:i.name,mcpResource:i.mcpResource})}catch(r){this.a.warn("Failed to get installed servers from",t.toString(),r)}this.y.delete(t),e.dispose()}}async getInstalled(){return this.u}async install(t,e){if(!e?.mcpResource)throw new Error("MCP resource is required");const r=this.y.get(e?.mcpResource);if(!r)throw new Error(`No MCP management service found for resource: ${e?.mcpResource.toString()}`);return r.service.install(t,e)}async uninstall(t,e){const r=t.mcpResource,i=this.y.get(r);if(!i)throw new Error(`No MCP management service found for resource: ${r.toString()}`);return i.service.uninstall(t,e)}installFromGallery(t,e){if(!e?.mcpResource)throw new Error("MCP resource is required");const r=this.y.get(e?.mcpResource);if(!r)throw new Error(`No MCP management service found for resource: ${e?.mcpResource.toString()}`);return r.service.installFromGallery(t,e)}updateMetadata(){throw new Error("Not supported")}dispose(){this.y.forEach(t=>t.dispose()),this.y.clear(),super.dispose()}};R=M([o(0,$),o(1,v),o(2,I),o(3,E),o(4,C)],R);export{j as $bR,L as $cR,T as $dR,A as $eR,ue as $fR,P as $gR,U as LocalMcpServerScope};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IMcpManagementService, IMcpGalleryService, IAllowedMcpServersService } from "../../../../platform/mcp/common/mcpManagement.js";
+import { IInstantiationService, refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IMcpResourceScannerService } from "../../../../platform/mcp/common/mcpResourceScannerService.js";
+import { isWorkspaceFolder, IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { MCP_CONFIGURATION_KEY, WORKSPACE_STANDALONE_CONFIGURATIONS } from "../../configuration/common/configuration.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { McpManagementChannelClient } from "../../../../platform/mcp/common/mcpManagementIpc.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IRemoteUserDataProfilesService } from "../../userDataProfile/common/remoteUserDataProfiles.js";
+import { AbstractMcpManagementService, AbstractMcpResourceManagementService } from "../../../../platform/mcp/common/mcpManagementService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+const USER_CONFIG_ID = "usrlocal";
+const REMOTE_USER_CONFIG_ID = "usrremote";
+const WORKSPACE_CONFIG_ID = "workspace";
+const WORKSPACE_FOLDER_CONFIG_ID_PREFIX = "ws";
+var LocalMcpServerScope;
+(function(LocalMcpServerScope2) {
+  LocalMcpServerScope2["User"] = "user";
+  LocalMcpServerScope2["RemoteUser"] = "remoteUser";
+  LocalMcpServerScope2["Workspace"] = "workspace";
+})(LocalMcpServerScope || (LocalMcpServerScope = {}));
+const IWorkbenchMcpManagementService = refineServiceDecorator(IMcpManagementService);
+let WorkbenchMcpManagementService = class WorkbenchMcpManagementService2 extends AbstractMcpManagementService {
+  static {
+    __name(this, "WorkbenchMcpManagementService");
+  }
+  constructor(mcpManagementService, allowedMcpServersService, logService, userDataProfileService, uriIdentityService, workspaceContextService, remoteAgentService, userDataProfilesService, remoteUserDataProfilesService, instantiationService) {
+    super(allowedMcpServersService, logService);
+    this.mcpManagementService = mcpManagementService;
+    this.userDataProfileService = userDataProfileService;
+    this.uriIdentityService = uriIdentityService;
+    this.workspaceContextService = workspaceContextService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.remoteUserDataProfilesService = remoteUserDataProfilesService;
+    this._onInstallMcpServer = this._register(new Emitter());
+    this.onInstallMcpServer = this._onInstallMcpServer.event;
+    this._onDidInstallMcpServers = this._register(new Emitter());
+    this.onDidInstallMcpServers = this._onDidInstallMcpServers.event;
+    this._onDidUpdateMcpServers = this._register(new Emitter());
+    this.onDidUpdateMcpServers = this._onDidUpdateMcpServers.event;
+    this._onUninstallMcpServer = this._register(new Emitter());
+    this.onUninstallMcpServer = this._onUninstallMcpServer.event;
+    this._onDidUninstallMcpServer = this._register(new Emitter());
+    this.onDidUninstallMcpServer = this._onDidUninstallMcpServer.event;
+    this._onInstallMcpServerInCurrentProfile = this._register(new Emitter());
+    this.onInstallMcpServerInCurrentProfile = this._onInstallMcpServerInCurrentProfile.event;
+    this._onDidInstallMcpServersInCurrentProfile = this._register(new Emitter());
+    this.onDidInstallMcpServersInCurrentProfile = this._onDidInstallMcpServersInCurrentProfile.event;
+    this._onDidUpdateMcpServersInCurrentProfile = this._register(new Emitter());
+    this.onDidUpdateMcpServersInCurrentProfile = this._onDidUpdateMcpServersInCurrentProfile.event;
+    this._onUninstallMcpServerInCurrentProfile = this._register(new Emitter());
+    this.onUninstallMcpServerInCurrentProfile = this._onUninstallMcpServerInCurrentProfile.event;
+    this._onDidUninstallMcpServerInCurrentProfile = this._register(new Emitter());
+    this.onDidUninstallMcpServerInCurrentProfile = this._onDidUninstallMcpServerInCurrentProfile.event;
+    this._onDidChangeProfile = this._register(new Emitter());
+    this.onDidChangeProfile = this._onDidChangeProfile.event;
+    this.workspaceMcpManagementService = this._register(instantiationService.createInstance(WorkspaceMcpManagementService));
+    const remoteAgentConnection = remoteAgentService.getConnection();
+    if (remoteAgentConnection) {
+      this.remoteMcpManagementService = this._register(instantiationService.createInstance(McpManagementChannelClient, remoteAgentConnection.getChannel("mcpManagement")));
+    }
+    this._register(this.mcpManagementService.onInstallMcpServer((e) => {
+      this._onInstallMcpServer.fire(e);
+      if (uriIdentityService.extUri.isEqual(e.mcpResource, this.userDataProfileService.currentProfile.mcpResource)) {
+        this._onInstallMcpServerInCurrentProfile.fire({
+          ...e,
+          scope: "user"
+          /* LocalMcpServerScope.User */
+        });
+      }
+    }));
+    this._register(this.mcpManagementService.onDidInstallMcpServers((e) => {
+      const { mcpServerInstallResult, mcpServerInstallResultInCurrentProfile } = this.createInstallMcpServerResultsFromEvent(
+        e,
+        "user"
+        /* LocalMcpServerScope.User */
+      );
+      this._onDidInstallMcpServers.fire(mcpServerInstallResult);
+      if (mcpServerInstallResultInCurrentProfile.length) {
+        this._onDidInstallMcpServersInCurrentProfile.fire(mcpServerInstallResultInCurrentProfile);
+      }
+    }));
+    this._register(this.mcpManagementService.onDidUpdateMcpServers((e) => {
+      const { mcpServerInstallResult, mcpServerInstallResultInCurrentProfile } = this.createInstallMcpServerResultsFromEvent(
+        e,
+        "user"
+        /* LocalMcpServerScope.User */
+      );
+      this._onDidUpdateMcpServers.fire(mcpServerInstallResult);
+      if (mcpServerInstallResultInCurrentProfile.length) {
+        this._onDidUpdateMcpServersInCurrentProfile.fire(mcpServerInstallResultInCurrentProfile);
+      }
+    }));
+    this._register(this.mcpManagementService.onUninstallMcpServer((e) => {
+      this._onUninstallMcpServer.fire(e);
+      if (uriIdentityService.extUri.isEqual(e.mcpResource, this.userDataProfileService.currentProfile.mcpResource)) {
+        this._onUninstallMcpServerInCurrentProfile.fire({
+          ...e,
+          scope: "user"
+          /* LocalMcpServerScope.User */
+        });
+      }
+    }));
+    this._register(this.mcpManagementService.onDidUninstallMcpServer((e) => {
+      this._onDidUninstallMcpServer.fire(e);
+      if (uriIdentityService.extUri.isEqual(e.mcpResource, this.userDataProfileService.currentProfile.mcpResource)) {
+        this._onDidUninstallMcpServerInCurrentProfile.fire({
+          ...e,
+          scope: "user"
+          /* LocalMcpServerScope.User */
+        });
+      }
+    }));
+    this._register(this.workspaceMcpManagementService.onInstallMcpServer(async (e) => {
+      this._onInstallMcpServer.fire(e);
+      this._onInstallMcpServerInCurrentProfile.fire({
+        ...e,
+        scope: "workspace"
+        /* LocalMcpServerScope.Workspace */
+      });
+    }));
+    this._register(this.workspaceMcpManagementService.onDidInstallMcpServers(async (e) => {
+      const { mcpServerInstallResult } = this.createInstallMcpServerResultsFromEvent(
+        e,
+        "workspace"
+        /* LocalMcpServerScope.Workspace */
+      );
+      this._onDidInstallMcpServers.fire(mcpServerInstallResult);
+      this._onDidInstallMcpServersInCurrentProfile.fire(mcpServerInstallResult);
+    }));
+    this._register(this.workspaceMcpManagementService.onUninstallMcpServer(async (e) => {
+      this._onUninstallMcpServer.fire(e);
+      this._onUninstallMcpServerInCurrentProfile.fire({
+        ...e,
+        scope: "workspace"
+        /* LocalMcpServerScope.Workspace */
+      });
+    }));
+    this._register(this.workspaceMcpManagementService.onDidUninstallMcpServer(async (e) => {
+      this._onDidUninstallMcpServer.fire(e);
+      this._onDidUninstallMcpServerInCurrentProfile.fire({
+        ...e,
+        scope: "workspace"
+        /* LocalMcpServerScope.Workspace */
+      });
+    }));
+    this._register(this.workspaceMcpManagementService.onDidUpdateMcpServers((e) => {
+      const { mcpServerInstallResult } = this.createInstallMcpServerResultsFromEvent(
+        e,
+        "workspace"
+        /* LocalMcpServerScope.Workspace */
+      );
+      this._onDidUpdateMcpServers.fire(mcpServerInstallResult);
+      this._onDidUpdateMcpServersInCurrentProfile.fire(mcpServerInstallResult);
+    }));
+    if (this.remoteMcpManagementService) {
+      this._register(this.remoteMcpManagementService.onInstallMcpServer(async (e) => {
+        this._onInstallMcpServer.fire(e);
+        const remoteMcpResource = await this.getRemoteMcpResource(this.userDataProfileService.currentProfile.mcpResource);
+        if (remoteMcpResource ? uriIdentityService.extUri.isEqual(e.mcpResource, remoteMcpResource) : this.userDataProfileService.currentProfile.isDefault) {
+          this._onInstallMcpServerInCurrentProfile.fire({
+            ...e,
+            scope: "remoteUser"
+            /* LocalMcpServerScope.RemoteUser */
+          });
+        }
+      }));
+      this._register(this.remoteMcpManagementService.onDidInstallMcpServers((e) => this.handleRemoteInstallMcpServerResultsFromEvent(e, this._onDidInstallMcpServers, this._onDidInstallMcpServersInCurrentProfile)));
+      this._register(this.remoteMcpManagementService.onDidUpdateMcpServers((e) => this.handleRemoteInstallMcpServerResultsFromEvent(e, this._onDidInstallMcpServers, this._onDidInstallMcpServersInCurrentProfile)));
+      this._register(this.remoteMcpManagementService.onUninstallMcpServer(async (e) => {
+        this._onUninstallMcpServer.fire(e);
+        const remoteMcpResource = await this.getRemoteMcpResource(this.userDataProfileService.currentProfile.mcpResource);
+        if (remoteMcpResource ? uriIdentityService.extUri.isEqual(e.mcpResource, remoteMcpResource) : this.userDataProfileService.currentProfile.isDefault) {
+          this._onUninstallMcpServerInCurrentProfile.fire({
+            ...e,
+            scope: "remoteUser"
+            /* LocalMcpServerScope.RemoteUser */
+          });
+        }
+      }));
+      this._register(this.remoteMcpManagementService.onDidUninstallMcpServer(async (e) => {
+        this._onDidUninstallMcpServer.fire(e);
+        const remoteMcpResource = await this.getRemoteMcpResource(this.userDataProfileService.currentProfile.mcpResource);
+        if (remoteMcpResource ? uriIdentityService.extUri.isEqual(e.mcpResource, remoteMcpResource) : this.userDataProfileService.currentProfile.isDefault) {
+          this._onDidUninstallMcpServerInCurrentProfile.fire({
+            ...e,
+            scope: "remoteUser"
+            /* LocalMcpServerScope.RemoteUser */
+          });
+        }
+      }));
+    }
+    this._register(userDataProfileService.onDidChangeCurrentProfile((e) => {
+      if (!this.uriIdentityService.extUri.isEqual(e.previous.mcpResource, e.profile.mcpResource)) {
+        this._onDidChangeProfile.fire();
+      }
+    }));
+  }
+  createInstallMcpServerResultsFromEvent(e, scope) {
+    const mcpServerInstallResult = [];
+    const mcpServerInstallResultInCurrentProfile = [];
+    for (const result of e) {
+      const workbenchResult = {
+        ...result,
+        local: result.local ? this.toWorkspaceMcpServer(result.local, scope) : void 0
+      };
+      mcpServerInstallResult.push(workbenchResult);
+      if (this.uriIdentityService.extUri.isEqual(result.mcpResource, this.userDataProfileService.currentProfile.mcpResource)) {
+        mcpServerInstallResultInCurrentProfile.push(workbenchResult);
+      }
+    }
+    return { mcpServerInstallResult, mcpServerInstallResultInCurrentProfile };
+  }
+  async handleRemoteInstallMcpServerResultsFromEvent(e, emitter, currentProfileEmitter) {
+    const mcpServerInstallResult = [];
+    const mcpServerInstallResultInCurrentProfile = [];
+    const remoteMcpResource = await this.getRemoteMcpResource(this.userDataProfileService.currentProfile.mcpResource);
+    for (const result of e) {
+      const workbenchResult = {
+        ...result,
+        local: result.local ? this.toWorkspaceMcpServer(
+          result.local,
+          "remoteUser"
+          /* LocalMcpServerScope.RemoteUser */
+        ) : void 0
+      };
+      mcpServerInstallResult.push(workbenchResult);
+      if (remoteMcpResource ? this.uriIdentityService.extUri.isEqual(result.mcpResource, remoteMcpResource) : this.userDataProfileService.currentProfile.isDefault) {
+        mcpServerInstallResultInCurrentProfile.push(workbenchResult);
+      }
+    }
+    emitter.fire(mcpServerInstallResult);
+    if (mcpServerInstallResultInCurrentProfile.length) {
+      currentProfileEmitter.fire(mcpServerInstallResultInCurrentProfile);
+    }
+  }
+  async getInstalled() {
+    const installed = [];
+    const [userServers, remoteServers, workspaceServers] = await Promise.all([
+      this.mcpManagementService.getInstalled(this.userDataProfileService.currentProfile.mcpResource),
+      this.remoteMcpManagementService?.getInstalled(await this.getRemoteMcpResource()) ?? Promise.resolve([]),
+      this.workspaceMcpManagementService?.getInstalled() ?? Promise.resolve([])
+    ]);
+    for (const server of userServers) {
+      installed.push(this.toWorkspaceMcpServer(
+        server,
+        "user"
+        /* LocalMcpServerScope.User */
+      ));
+    }
+    for (const server of remoteServers) {
+      installed.push(this.toWorkspaceMcpServer(
+        server,
+        "remoteUser"
+        /* LocalMcpServerScope.RemoteUser */
+      ));
+    }
+    for (const server of workspaceServers) {
+      installed.push(this.toWorkspaceMcpServer(
+        server,
+        "workspace"
+        /* LocalMcpServerScope.Workspace */
+      ));
+    }
+    return installed;
+  }
+  toWorkspaceMcpServer(server, scope) {
+    return { ...server, id: `mcp.config.${this.getConfigId(server, scope)}.${server.name}`, scope };
+  }
+  getConfigId(server, scope) {
+    if (scope === "user") {
+      return USER_CONFIG_ID;
+    }
+    if (scope === "remoteUser") {
+      return REMOTE_USER_CONFIG_ID;
+    }
+    if (scope === "workspace") {
+      const workspace = this.workspaceContextService.getWorkspace();
+      if (workspace.configuration && this.uriIdentityService.extUri.isEqual(workspace.configuration, server.mcpResource)) {
+        return WORKSPACE_CONFIG_ID;
+      }
+      const workspaceFolders = workspace.folders;
+      for (let index = 0; index < workspaceFolders.length; index++) {
+        const workspaceFolder = workspaceFolders[index];
+        if (this.uriIdentityService.extUri.isEqual(this.uriIdentityService.extUri.joinPath(workspaceFolder.uri, WORKSPACE_STANDALONE_CONFIGURATIONS[MCP_CONFIGURATION_KEY]), server.mcpResource)) {
+          return `${WORKSPACE_FOLDER_CONFIG_ID_PREFIX}${index}`;
+        }
+      }
+    }
+    return "unknown";
+  }
+  async install(server, options) {
+    options = options ?? {};
+    if (options.target === 5 || isWorkspaceFolder(options.target)) {
+      const mcpResource = options.target === 5 ? this.workspaceContextService.getWorkspace().configuration : options.target.toResource(WORKSPACE_STANDALONE_CONFIGURATIONS[MCP_CONFIGURATION_KEY]);
+      if (!mcpResource) {
+        throw new Error(`Illegal target: ${options.target}`);
+      }
+      options.mcpResource = mcpResource;
+      const result2 = await this.workspaceMcpManagementService.install(server, options);
+      return this.toWorkspaceMcpServer(
+        result2,
+        "workspace"
+        /* LocalMcpServerScope.Workspace */
+      );
+    }
+    if (options.target === 4) {
+      if (!this.remoteMcpManagementService) {
+        throw new Error(`Illegal target: ${options.target}`);
+      }
+      options.mcpResource = await this.getRemoteMcpResource(options.mcpResource);
+      const result2 = await this.remoteMcpManagementService.install(server, options);
+      return this.toWorkspaceMcpServer(
+        result2,
+        "remoteUser"
+        /* LocalMcpServerScope.RemoteUser */
+      );
+    }
+    if (options.target && options.target !== 2 && options.target !== 3) {
+      throw new Error(`Illegal target: ${options.target}`);
+    }
+    options.mcpResource = this.userDataProfileService.currentProfile.mcpResource;
+    const result = await this.mcpManagementService.install(server, options);
+    return this.toWorkspaceMcpServer(
+      result,
+      "user"
+      /* LocalMcpServerScope.User */
+    );
+  }
+  async installFromGallery(server, options) {
+    options = options ?? {};
+    if (options.target === 5 || isWorkspaceFolder(options.target)) {
+      const mcpResource = options.target === 5 ? this.workspaceContextService.getWorkspace().configuration : options.target.toResource(WORKSPACE_STANDALONE_CONFIGURATIONS[MCP_CONFIGURATION_KEY]);
+      if (!mcpResource) {
+        throw new Error(`Illegal target: ${options.target}`);
+      }
+      options.mcpResource = mcpResource;
+      const result2 = await this.workspaceMcpManagementService.installFromGallery(server, options);
+      return this.toWorkspaceMcpServer(
+        result2,
+        "workspace"
+        /* LocalMcpServerScope.Workspace */
+      );
+    }
+    if (options.target === 4) {
+      if (!this.remoteMcpManagementService) {
+        throw new Error(`Illegal target: ${options.target}`);
+      }
+      options.mcpResource = await this.getRemoteMcpResource(options.mcpResource);
+      const result2 = await this.remoteMcpManagementService.installFromGallery(server, options);
+      return this.toWorkspaceMcpServer(
+        result2,
+        "remoteUser"
+        /* LocalMcpServerScope.RemoteUser */
+      );
+    }
+    if (options.target && options.target !== 2 && options.target !== 3) {
+      throw new Error(`Illegal target: ${options.target}`);
+    }
+    if (!options.mcpResource) {
+      options.mcpResource = this.userDataProfileService.currentProfile.mcpResource;
+    }
+    const result = await this.mcpManagementService.installFromGallery(server, options);
+    return this.toWorkspaceMcpServer(
+      result,
+      "user"
+      /* LocalMcpServerScope.User */
+    );
+  }
+  async updateMetadata(local, server, profileLocation) {
+    if (local.scope === "workspace") {
+      const result2 = await this.workspaceMcpManagementService.updateMetadata(local, server, profileLocation);
+      return this.toWorkspaceMcpServer(
+        result2,
+        "workspace"
+        /* LocalMcpServerScope.Workspace */
+      );
+    }
+    if (local.scope === "remoteUser") {
+      if (!this.remoteMcpManagementService) {
+        throw new Error(`Illegal target: ${local.scope}`);
+      }
+      const result2 = await this.remoteMcpManagementService.updateMetadata(local, server, profileLocation);
+      return this.toWorkspaceMcpServer(
+        result2,
+        "remoteUser"
+        /* LocalMcpServerScope.RemoteUser */
+      );
+    }
+    const result = await this.mcpManagementService.updateMetadata(local, server, profileLocation);
+    return this.toWorkspaceMcpServer(
+      result,
+      "user"
+      /* LocalMcpServerScope.User */
+    );
+  }
+  async uninstall(server) {
+    if (server.scope === "workspace") {
+      return this.workspaceMcpManagementService.uninstall(server);
+    }
+    if (server.scope === "remoteUser") {
+      if (!this.remoteMcpManagementService) {
+        throw new Error(`Illegal target: ${server.scope}`);
+      }
+      return this.remoteMcpManagementService.uninstall(server);
+    }
+    return this.mcpManagementService.uninstall(server, { mcpResource: this.userDataProfileService.currentProfile.mcpResource });
+  }
+  async getRemoteMcpResource(mcpResource) {
+    if (!mcpResource && this.userDataProfileService.currentProfile.isDefault) {
+      return void 0;
+    }
+    mcpResource = mcpResource ?? this.userDataProfileService.currentProfile.mcpResource;
+    let profile = this.userDataProfilesService.profiles.find((p) => this.uriIdentityService.extUri.isEqual(p.mcpResource, mcpResource));
+    if (profile) {
+      profile = await this.remoteUserDataProfilesService.getRemoteProfile(profile);
+    } else {
+      profile = (await this.remoteUserDataProfilesService.getRemoteProfiles()).find((p) => this.uriIdentityService.extUri.isEqual(p.mcpResource, mcpResource));
+    }
+    return profile?.mcpResource;
+  }
+};
+WorkbenchMcpManagementService = __decorate([
+  __param(1, IAllowedMcpServersService),
+  __param(2, ILogService),
+  __param(3, IUserDataProfileService),
+  __param(4, IUriIdentityService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IRemoteAgentService),
+  __param(7, IUserDataProfilesService),
+  __param(8, IRemoteUserDataProfilesService),
+  __param(9, IInstantiationService)
+], WorkbenchMcpManagementService);
+let WorkspaceMcpResourceManagementService = class WorkspaceMcpResourceManagementService2 extends AbstractMcpResourceManagementService {
+  static {
+    __name(this, "WorkspaceMcpResourceManagementService");
+  }
+  constructor(mcpResource, target, mcpGalleryService, fileService, uriIdentityService, logService, mcpResourceScannerService) {
+    super(mcpResource, target, mcpGalleryService, fileService, uriIdentityService, logService, mcpResourceScannerService);
+  }
+  async installFromGallery(server, options) {
+    this.logService.trace("MCP Management Service: installGallery", server.name, server.galleryUrl);
+    this._onInstallMcpServer.fire({ name: server.name, mcpResource: this.mcpResource });
+    try {
+      const packageType = options?.packageType ?? server.configuration.packages?.[0]?.registryType ?? "remote";
+      const { mcpServerConfiguration, notices } = this.getMcpServerConfigurationFromManifest(server.configuration, packageType);
+      if (notices.length > 0) {
+        this.logService.warn(`MCP Management Service: Warnings while installing ${server.name}`, notices);
+      }
+      const installable = {
+        name: server.name,
+        config: {
+          ...mcpServerConfiguration.config,
+          gallery: server.galleryUrl ?? true,
+          version: server.version
+        },
+        inputs: mcpServerConfiguration.inputs
+      };
+      await this.mcpResourceScannerService.addMcpServers([installable], this.mcpResource, this.target);
+      await this.updateLocal();
+      const local = (await this.getInstalled()).find((s) => s.name === server.name);
+      if (!local) {
+        throw new Error(`Failed to install MCP server: ${server.name}`);
+      }
+      return local;
+    } catch (e) {
+      this._onDidInstallMcpServers.fire([{ name: server.name, source: server, error: e, mcpResource: this.mcpResource }]);
+      throw e;
+    }
+  }
+  updateMetadata() {
+    throw new Error("Not supported");
+  }
+  installFromUri() {
+    throw new Error("Not supported");
+  }
+  async getLocalServerInfo(name, mcpServerConfig) {
+    if (!mcpServerConfig.gallery) {
+      return void 0;
+    }
+    const [mcpServer] = await this.mcpGalleryService.getMcpServersFromGallery([{ name }]);
+    if (!mcpServer) {
+      return void 0;
+    }
+    return {
+      name: mcpServer.name,
+      version: mcpServerConfig.version,
+      displayName: mcpServer.displayName,
+      description: mcpServer.description,
+      galleryUrl: mcpServer.galleryUrl,
+      manifest: mcpServer.configuration,
+      publisher: mcpServer.publisher,
+      publisherDisplayName: mcpServer.publisherDisplayName,
+      repositoryUrl: mcpServer.repositoryUrl,
+      icon: mcpServer.icon
+    };
+  }
+  canInstall(server) {
+    throw new Error("Not supported");
+  }
+};
+WorkspaceMcpResourceManagementService = __decorate([
+  __param(2, IMcpGalleryService),
+  __param(3, IFileService),
+  __param(4, IUriIdentityService),
+  __param(5, ILogService),
+  __param(6, IMcpResourceScannerService)
+], WorkspaceMcpResourceManagementService);
+let WorkspaceMcpManagementService = class WorkspaceMcpManagementService2 extends AbstractMcpManagementService {
+  static {
+    __name(this, "WorkspaceMcpManagementService");
+  }
+  constructor(allowedMcpServersService, uriIdentityService, logService, workspaceContextService, instantiationService) {
+    super(allowedMcpServersService, logService);
+    this.uriIdentityService = uriIdentityService;
+    this.workspaceContextService = workspaceContextService;
+    this.instantiationService = instantiationService;
+    this._onInstallMcpServer = this._register(new Emitter());
+    this.onInstallMcpServer = this._onInstallMcpServer.event;
+    this._onDidInstallMcpServers = this._register(new Emitter());
+    this.onDidInstallMcpServers = this._onDidInstallMcpServers.event;
+    this._onDidUpdateMcpServers = this._register(new Emitter());
+    this.onDidUpdateMcpServers = this._onDidUpdateMcpServers.event;
+    this._onUninstallMcpServer = this._register(new Emitter());
+    this.onUninstallMcpServer = this._onUninstallMcpServer.event;
+    this._onDidUninstallMcpServer = this._register(new Emitter());
+    this.onDidUninstallMcpServer = this._onDidUninstallMcpServer.event;
+    this.allMcpServers = [];
+    this.workspaceMcpManagementServices = new ResourceMap();
+    this.initialize();
+  }
+  async initialize() {
+    try {
+      await this.onDidChangeWorkbenchState();
+      await this.onDidChangeWorkspaceFolders({ added: this.workspaceContextService.getWorkspace().folders, removed: [], changed: [] });
+      this._register(this.workspaceContextService.onDidChangeWorkspaceFolders((e) => this.onDidChangeWorkspaceFolders(e)));
+      this._register(this.workspaceContextService.onDidChangeWorkbenchState((e) => this.onDidChangeWorkbenchState()));
+    } catch (error) {
+      this.logService.error("Failed to initialize workspace folders", error);
+    }
+  }
+  async onDidChangeWorkbenchState() {
+    if (this.workspaceConfiguration) {
+      await this.removeWorkspaceService(this.workspaceConfiguration);
+    }
+    this.workspaceConfiguration = this.workspaceContextService.getWorkspace().configuration;
+    if (this.workspaceConfiguration) {
+      await this.addWorkspaceService(
+        this.workspaceConfiguration,
+        5
+        /* ConfigurationTarget.WORKSPACE */
+      );
+    }
+  }
+  async onDidChangeWorkspaceFolders(e) {
+    try {
+      await Promise.allSettled(e.removed.map((folder) => this.removeWorkspaceService(folder.toResource(WORKSPACE_STANDALONE_CONFIGURATIONS[MCP_CONFIGURATION_KEY]))));
+    } catch (error) {
+      this.logService.error(error);
+    }
+    try {
+      await Promise.allSettled(e.added.map((folder) => this.addWorkspaceService(
+        folder.toResource(WORKSPACE_STANDALONE_CONFIGURATIONS[MCP_CONFIGURATION_KEY]),
+        6
+        /* ConfigurationTarget.WORKSPACE_FOLDER */
+      )));
+    } catch (error) {
+      this.logService.error(error);
+    }
+  }
+  async addWorkspaceService(mcpResource, target) {
+    if (this.workspaceMcpManagementServices.has(mcpResource)) {
+      return;
+    }
+    const disposables = new DisposableStore();
+    const service = disposables.add(this.instantiationService.createInstance(WorkspaceMcpResourceManagementService, mcpResource, target));
+    try {
+      const installedServers = await service.getInstalled();
+      this.allMcpServers.push(...installedServers);
+      if (installedServers.length > 0) {
+        const installResults = installedServers.map((server) => ({
+          name: server.name,
+          local: server,
+          mcpResource: server.mcpResource
+        }));
+        this._onDidInstallMcpServers.fire(installResults);
+      }
+    } catch (error) {
+      this.logService.warn("Failed to get installed servers from", mcpResource.toString(), error);
+    }
+    disposables.add(service.onInstallMcpServer((e) => this._onInstallMcpServer.fire(e)));
+    disposables.add(service.onDidInstallMcpServers((e) => {
+      for (const { local } of e) {
+        if (local) {
+          this.allMcpServers.push(local);
+        }
+      }
+      this._onDidInstallMcpServers.fire(e);
+    }));
+    disposables.add(service.onDidUpdateMcpServers((e) => {
+      for (const { local, mcpResource: mcpResource2 } of e) {
+        if (local) {
+          const index = this.allMcpServers.findIndex((server) => this.uriIdentityService.extUri.isEqual(server.mcpResource, mcpResource2) && server.name === local.name);
+          if (index !== -1) {
+            this.allMcpServers.splice(index, 1, local);
+          }
+        }
+      }
+      this._onDidUpdateMcpServers.fire(e);
+    }));
+    disposables.add(service.onUninstallMcpServer((e) => this._onUninstallMcpServer.fire(e)));
+    disposables.add(service.onDidUninstallMcpServer((e) => {
+      const index = this.allMcpServers.findIndex((server) => this.uriIdentityService.extUri.isEqual(server.mcpResource, e.mcpResource) && server.name === e.name);
+      if (index !== -1) {
+        this.allMcpServers.splice(index, 1);
+        this._onDidUninstallMcpServer.fire(e);
+      }
+    }));
+    this.workspaceMcpManagementServices.set(mcpResource, { service, dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose") });
+  }
+  async removeWorkspaceService(mcpResource) {
+    const serviceItem = this.workspaceMcpManagementServices.get(mcpResource);
+    if (serviceItem) {
+      try {
+        const installedServers = await serviceItem.service.getInstalled();
+        this.allMcpServers = this.allMcpServers.filter((server) => !installedServers.some((uninstalled) => this.uriIdentityService.extUri.isEqual(uninstalled.mcpResource, server.mcpResource)));
+        for (const server of installedServers) {
+          this._onDidUninstallMcpServer.fire({
+            name: server.name,
+            mcpResource: server.mcpResource
+          });
+        }
+      } catch (error) {
+        this.logService.warn("Failed to get installed servers from", mcpResource.toString(), error);
+      }
+      this.workspaceMcpManagementServices.delete(mcpResource);
+      serviceItem.dispose();
+    }
+  }
+  async getInstalled() {
+    return this.allMcpServers;
+  }
+  async install(server, options) {
+    if (!options?.mcpResource) {
+      throw new Error("MCP resource is required");
+    }
+    const mcpManagementServiceItem = this.workspaceMcpManagementServices.get(options?.mcpResource);
+    if (!mcpManagementServiceItem) {
+      throw new Error(`No MCP management service found for resource: ${options?.mcpResource.toString()}`);
+    }
+    return mcpManagementServiceItem.service.install(server, options);
+  }
+  async uninstall(server, options) {
+    const mcpResource = server.mcpResource;
+    const mcpManagementServiceItem = this.workspaceMcpManagementServices.get(mcpResource);
+    if (!mcpManagementServiceItem) {
+      throw new Error(`No MCP management service found for resource: ${mcpResource.toString()}`);
+    }
+    return mcpManagementServiceItem.service.uninstall(server, options);
+  }
+  installFromGallery(gallery, options) {
+    if (!options?.mcpResource) {
+      throw new Error("MCP resource is required");
+    }
+    const mcpManagementServiceItem = this.workspaceMcpManagementServices.get(options?.mcpResource);
+    if (!mcpManagementServiceItem) {
+      throw new Error(`No MCP management service found for resource: ${options?.mcpResource.toString()}`);
+    }
+    return mcpManagementServiceItem.service.installFromGallery(gallery, options);
+  }
+  updateMetadata() {
+    throw new Error("Not supported");
+  }
+  dispose() {
+    this.workspaceMcpManagementServices.forEach((service) => service.dispose());
+    this.workspaceMcpManagementServices.clear();
+    super.dispose();
+  }
+};
+WorkspaceMcpManagementService = __decorate([
+  __param(0, IAllowedMcpServersService),
+  __param(1, IUriIdentityService),
+  __param(2, ILogService),
+  __param(3, IWorkspaceContextService),
+  __param(4, IInstantiationService)
+], WorkspaceMcpManagementService);
+export {
+  IWorkbenchMcpManagementService,
+  LocalMcpServerScope,
+  REMOTE_USER_CONFIG_ID,
+  USER_CONFIG_ID,
+  WORKSPACE_CONFIG_ID,
+  WORKSPACE_FOLDER_CONFIG_ID_PREFIX,
+  WorkbenchMcpManagementService
+};
+//# sourceMappingURL=mcpWorkbenchManagementService.js.map

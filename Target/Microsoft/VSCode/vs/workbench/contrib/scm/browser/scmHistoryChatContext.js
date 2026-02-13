@@ -1,1 +1,315 @@
-import{$$b as _}from"../../../../base/common/arrays.js";import{$7h as T}from"../../../../base/common/async.js";import{$bk as m}from"../../../../base/common/codicons.js";import{$Qn as W}from"../../../../base/common/date.js";import{$Ed as A}from"../../../../base/common/lifecycle.js";import{$Fh as O}from"../../../../base/common/resources.js";import{ThemeIcon as j}from"../../../../base/common/themables.js";import{$9H as w}from"../../../../editor/common/services/model.js";import{$5H as k}from"../../../../editor/common/services/resolverService.js";import{localize as u}from"../../../../nls.js";import{$vL as $,$qL as v,$wL as x}from"../../../../platform/actions/common/actions.js";import{$jdb as S}from"../../../../platform/dnd/browser/dnd.js";import{$Mj as U}from"../../../../platform/instantiation/common/instantiation.js";import{$U4b as I}from"../../chat/browser/chat.js";import{$XOb as z,$WOb as D}from"../../chat/browser/attachments/chatContextPickService.js";import{ChatContextKeys as M}from"../../chat/common/actions/chatContextKeys.js";import{$bPb as P}from"../../multiDiffEditor/browser/scmMultiDiffSourceResolver.js";import{$mR as R,$nR as B}from"../common/scm.js";var g=function(n,e,t,r){var i=arguments.length,o=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,t,r);else for(var c=n.length-1;c>=0;c--)(s=n[c])&&(o=(i<3?s(o):i>3?s(e,t,o):s(e,t))||o);return i>3&&o&&Object.defineProperty(e,t,o),o},l=function(n,e){return function(t,r){e(t,r,n)}},C,y;function nt(n){if(!n.dataTransfer?.types.includes(S.SCM_HISTORY_ITEM))return;const e=n.dataTransfer?.getData(S.SCM_HISTORY_ITEM);if(e)return JSON.parse(e)}let H=class extends A{static{this.ID="workbench.contrib.chat.scmHistoryItemContextContribution"}constructor(e,t,r){super(),this.B.add(e.registerChatContextItem(t.createInstance(f))),this.B.add(r.registerTextModelContentProvider(P.scheme,t.createInstance(b))),this.B.add(r.registerTextModelContentProvider(h.scheme,t.createInstance(h)))}};H=g([l(0,z),l(1,U),l(2,k)],H);let f=C=class{static asAttachment(e,t){const r=t.parentIds.length>0?t.parentIds[0]:void 0,i=P.getMultiDiffSourceUri(e,t.id,r,t.displayId),o=`$(${m.repo.id})\xA0${e.name}\xA0$(${m.gitCommit.id})\xA0${t.displayId??t.id}`;return{id:t.id,name:o,value:i,historyItem:{...t,references:[]},kind:"scmHistoryItem"}}constructor(e){this.b=e,this.type="pickerPick",this.label=u(12206,null),this.icon=m.gitCommit,this.a=new T(200)}isEnabled(e){const t=this.b.activeRepository.get(),r=!!e.attachmentCapabilities.supportsSourceControlAttachments;return t?.repository.provider.historyProvider.get()!==void 0&&r}asPicker(e){return{placeholder:u(12207,null),picks:D((t,r)=>{const i=t.trim()!==""?t.trim():void 0,o=this.b.activeRepository.get(),s=o?.repository.provider.historyProvider.get();if(!o||!s)return Promise.resolve([]);const c=_([s.historyItemRef.get(),s.historyItemRemoteRef.get(),s.historyItemBaseRef.get()]).map(d=>d.id);return this.a.trigger(()=>s.provideHistoryItems({historyItemRefs:c,filterText:i,limit:100},r).then(d=>d?d.map(a=>{const p=[`${a.displayId??a.id}`];return a.author&&p.push(a.author),a.statistics&&p.push(`${a.statistics.files} ${u(12208,null)}`),a.timestamp&&p.push(W(a.timestamp,!0,!0)),{iconClass:j.asClassName(m.gitCommit),label:a.subject,detail:p.join(`$(${m.circleSmallFilled.id})`),asAttachment:()=>C.asAttachment(o.repository.provider,a)}}):[]))})}}};f=C=g([l(0,B)],f);let b=class{constructor(e,t){this.a=e,this.b=t}async provideTextContent(e){const t=P.parseUri(e);if(!t)return null;const r=this.a.getModel(e);if(r)return r;const{repositoryId:i,historyItemId:o}=t,s=this.b.getRepository(i),c=s?.provider.historyProvider.get();if(!s||!c)return null;const d=await c.resolveHistoryItemChatContext(o);return d?this.a.createModel(d,null,e,!1):null}};b=g([l(0,w),l(1,R)],b);let h=class{static{y=this}static{this.scheme="scm-history-item-change-range"}constructor(e,t){this.a=e,this.b=t}async provideTextContent(e){const t=this.c(e);if(!t)return null;const r=this.a.getModel(e);if(r)return r;const{repositoryId:i,start:o,end:s}=t,c=this.b.getRepository(i),d=c?.provider.historyProvider.get();if(!c||!d)return null;const a=await d.resolveHistoryItemChangeRangeChatContext(s,o,e.path);return a?this.a.createModel(a,null,e,!1):null}c(e){if(e.scheme!==y.scheme)return;let t;try{t=JSON.parse(e.query)}catch{return}if(typeof t!="object"||t===null)return;const{repositoryId:r,start:i,end:o}=t;if(!(typeof r!="string"||typeof i!="string"||typeof o!="string"))return{repositoryId:r,start:i,end:o}}};h=y=g([l(0,w),l(1,R)],h);x(class extends ${constructor(){super({id:"workbench.scm.action.graph.addHistoryItemToChat",title:u(12209,null),f1:!1,menu:{id:v.SCMHistoryItemContext,group:"z_chat",order:1,when:M.enabled}})}async run(n,e,t){const i=await n.get(I).revealWidget();!e||!t||!i||i.attachmentModel.addContext(f.asAttachment(e,t))}});x(class extends ${constructor(){super({id:"workbench.scm.action.graph.summarizeHistoryItem",title:u(12210,null),f1:!1,menu:{id:v.SCMHistoryItemContext,group:"z_chat",order:2,when:M.enabled}})}async run(n,e,t){const i=await n.get(I).revealWidget();!e||!t||!i||(i.attachmentModel.addContext(f.asAttachment(e,t)),await i.acceptInput("Summarize the attached history item"))}});x(class extends ${constructor(){super({id:"workbench.scm.action.graph.addHistoryItemChangeToChat",title:u(12211,null),f1:!1,menu:{id:v.SCMHistoryItemChangeContext,group:"z_chat",order:1,when:M.enabled}})}async run(n,e,t){const i=await n.get(I).revealWidget();!e||!t.modifiedUri||!i||i.attachmentModel.addContext({id:t.uri.toString(),name:`${O(t.modifiedUri)}`,value:t.modifiedUri,historyItem:e,kind:"scmHistoryItemChange"})}});export{nt as $ePb,H as $fPb,h as $gPb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SCMHistoryItemContext_1, SCMHistoryItemChangeRangeContentProvider_1;
+import { coalesce } from "../../../../base/common/arrays.js";
+import { ThrottledDelayer } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { fromNow } from "../../../../base/common/date.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { basename } from "../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CodeDataTransfers } from "../../../../platform/dnd/browser/dnd.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IChatWidgetService } from "../../chat/browser/chat.js";
+import { IChatContextPickService, picksWithPromiseFn } from "../../chat/browser/attachments/chatContextPickService.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { ScmHistoryItemResolver } from "../../multiDiffEditor/browser/scmMultiDiffSourceResolver.js";
+import { ISCMService, ISCMViewService } from "../common/scm.js";
+function extractSCMHistoryItemDropData(e) {
+  if (!e.dataTransfer?.types.includes(CodeDataTransfers.SCM_HISTORY_ITEM)) {
+    return void 0;
+  }
+  const data = e.dataTransfer?.getData(CodeDataTransfers.SCM_HISTORY_ITEM);
+  if (!data) {
+    return void 0;
+  }
+  return JSON.parse(data);
+}
+__name(extractSCMHistoryItemDropData, "extractSCMHistoryItemDropData");
+let SCMHistoryItemContextContribution = class SCMHistoryItemContextContribution2 extends Disposable {
+  static {
+    __name(this, "SCMHistoryItemContextContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chat.scmHistoryItemContextContribution";
+  }
+  constructor(contextPickService, instantiationService, textModelResolverService) {
+    super();
+    this._store.add(contextPickService.registerChatContextItem(instantiationService.createInstance(SCMHistoryItemContext)));
+    this._store.add(textModelResolverService.registerTextModelContentProvider(ScmHistoryItemResolver.scheme, instantiationService.createInstance(SCMHistoryItemContextContentProvider)));
+    this._store.add(textModelResolverService.registerTextModelContentProvider(SCMHistoryItemChangeRangeContentProvider.scheme, instantiationService.createInstance(SCMHistoryItemChangeRangeContentProvider)));
+  }
+};
+SCMHistoryItemContextContribution = __decorate([
+  __param(0, IChatContextPickService),
+  __param(1, IInstantiationService),
+  __param(2, ITextModelService)
+], SCMHistoryItemContextContribution);
+let SCMHistoryItemContext = SCMHistoryItemContext_1 = class SCMHistoryItemContext2 {
+  static {
+    __name(this, "SCMHistoryItemContext");
+  }
+  static asAttachment(provider, historyItem) {
+    const historyItemParentId = historyItem.parentIds.length > 0 ? historyItem.parentIds[0] : void 0;
+    const multiDiffSourceUri = ScmHistoryItemResolver.getMultiDiffSourceUri(provider, historyItem.id, historyItemParentId, historyItem.displayId);
+    const attachmentName = `$(${Codicon.repo.id})\xA0${provider.name}\xA0$(${Codicon.gitCommit.id})\xA0${historyItem.displayId ?? historyItem.id}`;
+    return {
+      id: historyItem.id,
+      name: attachmentName,
+      value: multiDiffSourceUri,
+      historyItem: {
+        ...historyItem,
+        references: []
+      },
+      kind: "scmHistoryItem"
+    };
+  }
+  constructor(_scmViewService) {
+    this._scmViewService = _scmViewService;
+    this.type = "pickerPick";
+    this.label = localize("chatContext.scmHistoryItems", "Source Control...");
+    this.icon = Codicon.gitCommit;
+    this._delayer = new ThrottledDelayer(200);
+  }
+  isEnabled(widget) {
+    const activeRepository = this._scmViewService.activeRepository.get();
+    const supported = !!widget.attachmentCapabilities.supportsSourceControlAttachments;
+    return activeRepository?.repository.provider.historyProvider.get() !== void 0 && supported;
+  }
+  asPicker(_widget) {
+    return {
+      placeholder: localize("chatContext.scmHistoryItems.placeholder", "Select a change"),
+      picks: picksWithPromiseFn((query, token) => {
+        const filterText = query.trim() !== "" ? query.trim() : void 0;
+        const activeRepository = this._scmViewService.activeRepository.get();
+        const historyProvider = activeRepository?.repository.provider.historyProvider.get();
+        if (!activeRepository || !historyProvider) {
+          return Promise.resolve([]);
+        }
+        const historyItemRefs = coalesce([
+          historyProvider.historyItemRef.get(),
+          historyProvider.historyItemRemoteRef.get(),
+          historyProvider.historyItemBaseRef.get()
+        ]).map((ref) => ref.id);
+        return this._delayer.trigger(() => {
+          return historyProvider.provideHistoryItems({ historyItemRefs, filterText, limit: 100 }, token).then((historyItems) => {
+            if (!historyItems) {
+              return [];
+            }
+            return historyItems.map((historyItem) => {
+              const details = [`${historyItem.displayId ?? historyItem.id}`];
+              if (historyItem.author) {
+                details.push(historyItem.author);
+              }
+              if (historyItem.statistics) {
+                details.push(`${historyItem.statistics.files} ${localize("files", "file(s)")}`);
+              }
+              if (historyItem.timestamp) {
+                details.push(fromNow(historyItem.timestamp, true, true));
+              }
+              return {
+                iconClass: ThemeIcon.asClassName(Codicon.gitCommit),
+                label: historyItem.subject,
+                detail: details.join(`$(${Codicon.circleSmallFilled.id})`),
+                asAttachment: /* @__PURE__ */ __name(() => SCMHistoryItemContext_1.asAttachment(activeRepository.repository.provider, historyItem), "asAttachment")
+              };
+            });
+          });
+        });
+      })
+    };
+  }
+};
+SCMHistoryItemContext = SCMHistoryItemContext_1 = __decorate([
+  __param(0, ISCMViewService)
+], SCMHistoryItemContext);
+let SCMHistoryItemContextContentProvider = class SCMHistoryItemContextContentProvider2 {
+  static {
+    __name(this, "SCMHistoryItemContextContentProvider");
+  }
+  constructor(_modelService, _scmService) {
+    this._modelService = _modelService;
+    this._scmService = _scmService;
+  }
+  async provideTextContent(resource) {
+    const uriFields = ScmHistoryItemResolver.parseUri(resource);
+    if (!uriFields) {
+      return null;
+    }
+    const textModel = this._modelService.getModel(resource);
+    if (textModel) {
+      return textModel;
+    }
+    const { repositoryId, historyItemId } = uriFields;
+    const repository = this._scmService.getRepository(repositoryId);
+    const historyProvider = repository?.provider.historyProvider.get();
+    if (!repository || !historyProvider) {
+      return null;
+    }
+    const historyItemContext = await historyProvider.resolveHistoryItemChatContext(historyItemId);
+    if (!historyItemContext) {
+      return null;
+    }
+    return this._modelService.createModel(historyItemContext, null, resource, false);
+  }
+};
+SCMHistoryItemContextContentProvider = __decorate([
+  __param(0, IModelService),
+  __param(1, ISCMService)
+], SCMHistoryItemContextContentProvider);
+let SCMHistoryItemChangeRangeContentProvider = class SCMHistoryItemChangeRangeContentProvider2 {
+  static {
+    __name(this, "SCMHistoryItemChangeRangeContentProvider");
+  }
+  static {
+    SCMHistoryItemChangeRangeContentProvider_1 = this;
+  }
+  static {
+    this.scheme = "scm-history-item-change-range";
+  }
+  constructor(_modelService, _scmService) {
+    this._modelService = _modelService;
+    this._scmService = _scmService;
+  }
+  async provideTextContent(resource) {
+    const uriFields = this._parseUri(resource);
+    if (!uriFields) {
+      return null;
+    }
+    const textModel = this._modelService.getModel(resource);
+    if (textModel) {
+      return textModel;
+    }
+    const { repositoryId, start, end } = uriFields;
+    const repository = this._scmService.getRepository(repositoryId);
+    const historyProvider = repository?.provider.historyProvider.get();
+    if (!repository || !historyProvider) {
+      return null;
+    }
+    const historyItemChangeRangeContext = await historyProvider.resolveHistoryItemChangeRangeChatContext(end, start, resource.path);
+    if (!historyItemChangeRangeContext) {
+      return null;
+    }
+    return this._modelService.createModel(historyItemChangeRangeContext, null, resource, false);
+  }
+  _parseUri(uri) {
+    if (uri.scheme !== SCMHistoryItemChangeRangeContentProvider_1.scheme) {
+      return void 0;
+    }
+    let query;
+    try {
+      query = JSON.parse(uri.query);
+    } catch (e) {
+      return void 0;
+    }
+    if (typeof query !== "object" || query === null) {
+      return void 0;
+    }
+    const { repositoryId, start, end } = query;
+    if (typeof repositoryId !== "string" || typeof start !== "string" || typeof end !== "string") {
+      return void 0;
+    }
+    return { repositoryId, start, end };
+  }
+};
+SCMHistoryItemChangeRangeContentProvider = SCMHistoryItemChangeRangeContentProvider_1 = __decorate([
+  __param(0, IModelService),
+  __param(1, ISCMService)
+], SCMHistoryItemChangeRangeContentProvider);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.scm.action.graph.addHistoryItemToChat",
+      title: localize("chat.action.scmHistoryItemContext", "Add to Chat"),
+      f1: false,
+      menu: {
+        id: MenuId.SCMHistoryItemContext,
+        group: "z_chat",
+        order: 1,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor, provider, historyItem) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const widget = await chatWidgetService.revealWidget();
+    if (!provider || !historyItem || !widget) {
+      return;
+    }
+    widget.attachmentModel.addContext(SCMHistoryItemContext.asAttachment(provider, historyItem));
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.scm.action.graph.summarizeHistoryItem",
+      title: localize("chat.action.scmHistoryItemSummarize", "Explain Changes"),
+      f1: false,
+      menu: {
+        id: MenuId.SCMHistoryItemContext,
+        group: "z_chat",
+        order: 2,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor, provider, historyItem) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const widget = await chatWidgetService.revealWidget();
+    if (!provider || !historyItem || !widget) {
+      return;
+    }
+    widget.attachmentModel.addContext(SCMHistoryItemContext.asAttachment(provider, historyItem));
+    await widget.acceptInput("Summarize the attached history item");
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.scm.action.graph.addHistoryItemChangeToChat",
+      title: localize("chat.action.scmHistoryItemContext", "Add to Chat"),
+      f1: false,
+      menu: {
+        id: MenuId.SCMHistoryItemChangeContext,
+        group: "z_chat",
+        order: 1,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor, historyItem, historyItemChange) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const widget = await chatWidgetService.revealWidget();
+    if (!historyItem || !historyItemChange.modifiedUri || !widget) {
+      return;
+    }
+    widget.attachmentModel.addContext({
+      id: historyItemChange.uri.toString(),
+      name: `${basename(historyItemChange.modifiedUri)}`,
+      value: historyItemChange.modifiedUri,
+      historyItem,
+      kind: "scmHistoryItemChange"
+    });
+  }
+});
+export {
+  SCMHistoryItemChangeRangeContentProvider,
+  SCMHistoryItemContextContribution,
+  extractSCMHistoryItemDropData
+};
+//# sourceMappingURL=scmHistoryChatContext.js.map

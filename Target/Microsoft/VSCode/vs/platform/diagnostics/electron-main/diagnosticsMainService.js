@@ -1,1 +1,133 @@
-import{app as p}from"electron";import{$wn as m}from"../../../base/parts/ipc/electron-main/ipcMain.js";import{CancellationToken as g}from"../../../base/common/cancellation.js";import{$Nj as h}from"../../instantiation/common/instantiation.js";import{$yv as $,$vv as y}from"../../windows/electron-main/windows.js";import{$Nl as v,$Sl as w}from"../../workspace/common/workspace.js";import{$gw as P}from"../../workspaces/electron-main/workspacesManagementMainService.js";import{$gd as R}from"../../../base/common/types.js";import{$yo as b}from"../../log/common/log.js";import{$Nw as _}from"../../utilityProcess/electron-main/utilityProcess.js";var d=function(i,e,t,o){var r=arguments.length,s=r<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,e,t,o);else for(var c=i.length-1;c>=0;c--)(n=i[c])&&(s=(r<3?n(s):r>3?n(e,t,s):n(e,t))||s);return r>3&&s&&Object.defineProperty(e,t,s),s},f=function(i,e){return function(t,o){e(t,o,i)}};const I="diagnosticsMainService",O=h(I);let l=class{constructor(e,t,o){this.a=e,this.b=t,this.c=o}async getRemoteDiagnostics(e){const t=this.a.getWindows();return(await Promise.all(t.map(async r=>{const s=r.remoteAuthority;if(!s)return;const n=`vscode:getDiagnosticInfoResponse${r.id}`,c={includeProcesses:e.includeProcesses,folders:e.includeWorkspaceMetadata?await this.f(r):void 0};return new Promise(a=>{r.sendWhenReady("vscode:getDiagnosticInfo",g.None,{replyChannel:n,args:c}),m.once(n,(M,u)=>{u||a({hostName:s,errorMessage:`Unable to resolve connection to '${s}'.`}),a(u)}),setTimeout(()=>{a({hostName:s,errorMessage:`Connection to '${s}' could not be established`})},5e3)})}))).filter(r=>!!r)}async getMainDiagnostics(){this.c.trace("Received request for main process info from other instance.");const e=[];for(const s of $()){const n=this.a.getWindowById(s.id);n?e.push(await this.d(n)):e.push(this.e(s))}const t=[];for(const{pid:s,name:n}of _.getAll())t.push({pid:s,name:n});let o=[];const r=p;return typeof r.getGPULogMessages=="function"&&(o=r.getGPULogMessages()),{mainPID:process.pid,mainArguments:process.argv.slice(1),windows:e,pidToNames:t,screenReader:!!p.accessibilitySupportEnabled,gpuFeatureStatus:p.getGPUFeatureStatus(),gpuLogMessages:o}}async d(e){const t=await this.f(e),o=R(e.win);return this.e(o,t,e.remoteAuthority)}e(e,t=[],o){return{id:e.id,pid:e.webContents.getOSProcessId(),title:e.getTitle(),folderURIs:t,remoteAuthority:o}}async f(e){const t=[],o=e.openedWorkspace;if(v(o))t.push(o.uri);else if(w(o)){const r=await this.b.resolveLocalWorkspace(o.configPath);r&&r.folders.forEach(n=>{t.push(n.uri)})}return t}};l=d([f(0,y),f(1,P),f(2,b)],l);export{O as $Qw,l as $Rw,I as ID};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { app } from "electron";
+import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { getAllWindowsExcludingOffscreen, IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
+import { assertReturnsDefined } from "../../../base/common/types.js";
+import { ILogService } from "../../log/common/log.js";
+import { UtilityProcess } from "../../utilityProcess/electron-main/utilityProcess.js";
+const ID = "diagnosticsMainService";
+const IDiagnosticsMainService = createDecorator(ID);
+let DiagnosticsMainService = class DiagnosticsMainService2 {
+  static {
+    __name(this, "DiagnosticsMainService");
+  }
+  constructor(windowsMainService, workspacesManagementMainService, logService) {
+    this.windowsMainService = windowsMainService;
+    this.workspacesManagementMainService = workspacesManagementMainService;
+    this.logService = logService;
+  }
+  async getRemoteDiagnostics(options) {
+    const windows = this.windowsMainService.getWindows();
+    const diagnostics = await Promise.all(windows.map(async (window) => {
+      const remoteAuthority = window.remoteAuthority;
+      if (!remoteAuthority) {
+        return void 0;
+      }
+      const replyChannel = `vscode:getDiagnosticInfoResponse${window.id}`;
+      const args = {
+        includeProcesses: options.includeProcesses,
+        folders: options.includeWorkspaceMetadata ? await this.getFolderURIs(window) : void 0
+      };
+      return new Promise((resolve) => {
+        window.sendWhenReady("vscode:getDiagnosticInfo", CancellationToken.None, { replyChannel, args });
+        validatedIpcMain.once(replyChannel, (_, data) => {
+          if (!data) {
+            resolve({ hostName: remoteAuthority, errorMessage: `Unable to resolve connection to '${remoteAuthority}'.` });
+          }
+          resolve(data);
+        });
+        setTimeout(() => {
+          resolve({ hostName: remoteAuthority, errorMessage: `Connection to '${remoteAuthority}' could not be established` });
+        }, 5e3);
+      });
+    }));
+    return diagnostics.filter((x) => !!x);
+  }
+  async getMainDiagnostics() {
+    this.logService.trace("Received request for main process info from other instance.");
+    const windows = [];
+    for (const window of getAllWindowsExcludingOffscreen()) {
+      const codeWindow = this.windowsMainService.getWindowById(window.id);
+      if (codeWindow) {
+        windows.push(await this.codeWindowToInfo(codeWindow));
+      } else {
+        windows.push(this.browserWindowToInfo(window));
+      }
+    }
+    const pidToNames = [];
+    for (const { pid, name } of UtilityProcess.getAll()) {
+      pidToNames.push({ pid, name });
+    }
+    let gpuLogMessages = [];
+    const customApp = app;
+    if (typeof customApp.getGPULogMessages === "function") {
+      gpuLogMessages = customApp.getGPULogMessages();
+    }
+    return {
+      mainPID: process.pid,
+      mainArguments: process.argv.slice(1),
+      windows,
+      pidToNames,
+      screenReader: !!app.accessibilitySupportEnabled,
+      gpuFeatureStatus: app.getGPUFeatureStatus(),
+      gpuLogMessages
+    };
+  }
+  async codeWindowToInfo(window) {
+    const folderURIs = await this.getFolderURIs(window);
+    const win = assertReturnsDefined(window.win);
+    return this.browserWindowToInfo(win, folderURIs, window.remoteAuthority);
+  }
+  browserWindowToInfo(window, folderURIs = [], remoteAuthority) {
+    return {
+      id: window.id,
+      pid: window.webContents.getOSProcessId(),
+      title: window.getTitle(),
+      folderURIs,
+      remoteAuthority
+    };
+  }
+  async getFolderURIs(window) {
+    const folderURIs = [];
+    const workspace = window.openedWorkspace;
+    if (isSingleFolderWorkspaceIdentifier(workspace)) {
+      folderURIs.push(workspace.uri);
+    } else if (isWorkspaceIdentifier(workspace)) {
+      const resolvedWorkspace = await this.workspacesManagementMainService.resolveLocalWorkspace(workspace.configPath);
+      if (resolvedWorkspace) {
+        const rootFolders = resolvedWorkspace.folders;
+        rootFolders.forEach((root) => {
+          folderURIs.push(root.uri);
+        });
+      }
+    }
+    return folderURIs;
+  }
+};
+DiagnosticsMainService = __decorate([
+  __param(0, IWindowsMainService),
+  __param(1, IWorkspacesManagementMainService),
+  __param(2, ILogService)
+], DiagnosticsMainService);
+export {
+  DiagnosticsMainService,
+  ID,
+  IDiagnosticsMainService
+};
+//# sourceMappingURL=diagnosticsMainService.js.map

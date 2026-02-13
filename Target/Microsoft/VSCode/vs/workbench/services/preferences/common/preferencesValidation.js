@@ -1,12 +1,366 @@
-import*as l from"../../../../nls.js";import{$Up as b}from"../../../../base/common/color.js";import{$9c as z,$ed as V,$6c as M,$7c as y}from"../../../../base/common/types.js";function o(e,...n){return n.some(t=>e.includes(t))}function x(e){return e===""||V(e)}function A(e){const n=Array.isArray(e.type)?e.type:[e.type],t=o(n,"null"),i=(o(n,"number")||o(n,"integer"))&&(n.length===1||n.length===2&&t),r=j(e),m=E(e),s=N(e),a=R(e);return u=>{if(t&&x(u))return"";const f=[];if(s){const c=s(u);c&&f.push(c)}if(a){const c=a(u);c&&f.push(c)}return e.type==="boolean"&&u!==!0&&u!==!1&&f.push(l.localize(16394,null)),i&&(x(u)||typeof u=="boolean"||Array.isArray(u)||isNaN(+u)?f.push(l.localize(16395,null)):f.push(...r.filter(c=>!c.isValid(+u)).map(c=>c.message))),e.type==="string"&&(e.enum&&!y(e.enum)?f.push(l.localize(16396,null)):M(u)?f.push(...m.filter(c=>!c.isValid(u)).map(c=>c.message)):f.push(l.localize(16397,null))),f.length?e.errorMessage?[e.errorMessage,...f].join(" "):f.join(" "):""}}function S(e,n){if(typeof n>"u")return;if(!(Array.isArray(n)?n:[n]).some(i=>$(e,i)))return l.localize(16398,null,JSON.stringify(n))}function $(e,n){const t=typeof e;return n==="boolean"?t==="boolean":n==="object"?e&&!Array.isArray(e)&&t==="object":n==="null"?e===null:n==="array"?Array.isArray(e):n==="string"?t==="string":n==="number"||n==="integer"?t==="number":!0}function h(e){try{return new RegExp(e,"u")}catch{try{return new RegExp(e)}catch{return/.*/}}}function E(e){const n=/^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;let t;return typeof e.pattern=="string"&&(t=h(e.pattern)),[{enabled:e.maxLength!==void 0,isValid:(i=>i.length<=e.maxLength),message:l.localize(16400,null,e.maxLength)},{enabled:e.minLength!==void 0,isValid:(i=>i.length>=e.minLength),message:l.localize(16401,null,e.minLength)},{enabled:t!==void 0,isValid:(i=>t.test(i)),message:e.patternErrorMessage||l.localize(16402,null,e.pattern)},{enabled:e.format==="color-hex",isValid:(i=>b.Format.CSS.parseHex(i)),message:l.localize(16403,null)},{enabled:e.format==="uri"||e.format==="uri-reference",isValid:(i=>!!i.length),message:l.localize(16404,null)},{enabled:e.format==="uri"||e.format==="uri-reference",isValid:(i=>n.test(i)),message:l.localize(16405,null)},{enabled:e.format==="uri",isValid:(i=>{const r=i.match(n);return!!(r&&r[2])}),message:l.localize(16406,null)},{enabled:e.enum!==void 0,isValid:(i=>e.enum.includes(i)),message:l.localize(16407,null,e.enum?e.enum.map(i=>`"${i}"`).join(", "):"[]")}].filter(i=>i.enabled)}function j(e){const n=Array.isArray(e.type)?e.type:[e.type],t=o(n,"null"),i=o(n,"integer")&&(n.length===1||n.length===2&&t);if(!(o(n,"number","integer")&&(n.length===1||n.length===2&&t)))return[];let m,s;return typeof e.exclusiveMaximum=="boolean"?m=e.exclusiveMaximum?e.maximum:void 0:m=e.exclusiveMaximum,typeof e.exclusiveMinimum=="boolean"?s=e.exclusiveMinimum?e.minimum:void 0:s=e.exclusiveMinimum,[{enabled:m!==void 0&&(e.maximum===void 0||m<=e.maximum),isValid:(a=>a<m),message:l.localize(16408,null,m)},{enabled:s!==void 0&&(e.minimum===void 0||s>=e.minimum),isValid:(a=>a>s),message:l.localize(16409,null,s)},{enabled:e.maximum!==void 0&&(m===void 0||m>e.maximum),isValid:(a=>a<=e.maximum),message:l.localize(16410,null,e.maximum)},{enabled:e.minimum!==void 0&&(s===void 0||s<e.minimum),isValid:(a=>a>=e.minimum),message:l.localize(16411,null,e.minimum)},{enabled:e.multipleOf!==void 0,isValid:(a=>a%e.multipleOf===0),message:l.localize(16412,null,e.multipleOf)},{enabled:i,isValid:(a=>a%1===0),message:l.localize(16413,null)}].filter(a=>a.enabled)}function N(e){if(e.type==="array"&&e.items&&!Array.isArray(e.items)){const n=e.items;if(n&&!Array.isArray(n.type)){const t=i=>"'"+i+"'";return i=>{if(!i)return null;let r="";if(!Array.isArray(i))return r+=l.localize(16414,null),r+=`
-`,r;const m=i;if(e.uniqueItems&&new Set(m).size<m.length&&(r+=l.localize(16415,null),r+=`
-`),e.minItems&&m.length<e.minItems&&(r+=l.localize(16416,null,e.minItems),r+=`
-`),e.maxItems&&m.length>e.maxItems&&(r+=l.localize(16417,null,e.maxItems),r+=`
-`),n.type==="string"){if(!y(m))return r+=l.localize(16418,null),r+=`
-`,r;if(typeof n.pattern=="string"){const a=h(n.pattern);m.forEach(u=>{a.test(u)||(r+=n.patternErrorMessage||l.localize(16419,null,t(u),t(n.pattern)))})}const s=n.enum;s&&m.forEach(a=>{s.indexOf(a)===-1&&(r+=l.localize(16420,null,t(a),"["+s.map(t).join(", ")+"]"),r+=`
-`)})}else(n.type==="integer"||n.type==="number")&&m.forEach(s=>{const a=g(n,s);a&&(r+=`${s}: ${a}
-`)});return r}}}return null}function R(e){if(e.type==="object"){const{properties:n,patternProperties:t,additionalProperties:i,propertyNames:r}=e;return m=>{if(!m)return null;const s=[];let a=!1;return z(m)?Object.keys(m).forEach(u=>{const f=m[u];if(r?.pattern&&!a&&!h(r.pattern).test(u)){const d=r.patternErrorMessage||l.localize(16422,null,r.pattern);s.push(d+`
-`),a=!0}if(n&&u in n){const c=g(n[u],f);c&&s.push(`${u}: ${c}
-`);return}if(t){for(const c in t)if(RegExp(c).test(u)){const d=g(t[c],f);d&&s.push(`${u}: ${d}
-`);return}}if(i===!1)s.push(l.localize(16423,null,u));else if(typeof i=="object"){const c=g(i,f);c&&s.push(`${u}: ${c}
-`)}}):s.push(l.localize(16421,null)),s.length?e.errorMessage?[e.errorMessage,...s].join(" "):s.join(" "):""}}return null}function L(e,n){return e?.pattern?h(e.pattern).test(n):!0}function g(e,n){return A(e)(n)}export{A as $NM,S as $OM,L as $PM};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { Color } from "../../../../base/common/color.js";
+import { isObject, isUndefinedOrNull, isString, isStringArray } from "../../../../base/common/types.js";
+function canBeType(propTypes, ...types) {
+  return types.some((t) => propTypes.includes(t));
+}
+__name(canBeType, "canBeType");
+function isNullOrEmpty(value) {
+  return value === "" || isUndefinedOrNull(value);
+}
+__name(isNullOrEmpty, "isNullOrEmpty");
+function createValidator(prop) {
+  const type = Array.isArray(prop.type) ? prop.type : [prop.type];
+  const isNullable = canBeType(type, "null");
+  const isNumeric = (canBeType(type, "number") || canBeType(type, "integer")) && (type.length === 1 || type.length === 2 && isNullable);
+  const numericValidations = getNumericValidators(prop);
+  const stringValidations = getStringValidators(prop);
+  const arrayValidator = getArrayValidator(prop);
+  const objectValidator = getObjectValidator(prop);
+  return (value) => {
+    if (isNullable && isNullOrEmpty(value)) {
+      return "";
+    }
+    const errors = [];
+    if (arrayValidator) {
+      const err = arrayValidator(value);
+      if (err) {
+        errors.push(err);
+      }
+    }
+    if (objectValidator) {
+      const err = objectValidator(value);
+      if (err) {
+        errors.push(err);
+      }
+    }
+    if (prop.type === "boolean" && value !== true && value !== false) {
+      errors.push(nls.localize("validations.booleanIncorrectType", 'Incorrect type. Expected "boolean".'));
+    }
+    if (isNumeric) {
+      if (isNullOrEmpty(value) || typeof value === "boolean" || Array.isArray(value) || isNaN(+value)) {
+        errors.push(nls.localize("validations.expectedNumeric", "Value must be a number."));
+      } else {
+        errors.push(...numericValidations.filter((validator) => !validator.isValid(+value)).map((validator) => validator.message));
+      }
+    }
+    if (prop.type === "string") {
+      if (prop.enum && !isStringArray(prop.enum)) {
+        errors.push(nls.localize("validations.stringIncorrectEnumOptions", "The enum options should be strings, but there is a non-string option. Please file an issue with the extension author."));
+      } else if (!isString(value)) {
+        errors.push(nls.localize("validations.stringIncorrectType", 'Incorrect type. Expected "string".'));
+      } else {
+        errors.push(...stringValidations.filter((validator) => !validator.isValid(value)).map((validator) => validator.message));
+      }
+    }
+    if (errors.length) {
+      return prop.errorMessage ? [prop.errorMessage, ...errors].join(" ") : errors.join(" ");
+    }
+    return "";
+  };
+}
+__name(createValidator, "createValidator");
+function getInvalidTypeError(value, type) {
+  if (typeof type === "undefined") {
+    return;
+  }
+  const typeArr = Array.isArray(type) ? type : [type];
+  if (!typeArr.some((_type) => valueValidatesAsType(value, _type))) {
+    return nls.localize("invalidTypeError", "Setting has an invalid type, expected {0}. Fix in JSON.", JSON.stringify(type));
+  }
+  return;
+}
+__name(getInvalidTypeError, "getInvalidTypeError");
+function valueValidatesAsType(value, type) {
+  const valueType = typeof value;
+  if (type === "boolean") {
+    return valueType === "boolean";
+  } else if (type === "object") {
+    return value && !Array.isArray(value) && valueType === "object";
+  } else if (type === "null") {
+    return value === null;
+  } else if (type === "array") {
+    return Array.isArray(value);
+  } else if (type === "string") {
+    return valueType === "string";
+  } else if (type === "number" || type === "integer") {
+    return valueType === "number";
+  }
+  return true;
+}
+__name(valueValidatesAsType, "valueValidatesAsType");
+function toRegExp(pattern) {
+  try {
+    return new RegExp(pattern, "u");
+  } catch (e) {
+    try {
+      return new RegExp(pattern);
+    } catch (e2) {
+      console.error(nls.localize("regexParsingError", "Error parsing the following regex both with and without the u flag:"), pattern);
+      return /.*/;
+    }
+  }
+}
+__name(toRegExp, "toRegExp");
+function getStringValidators(prop) {
+  const uriRegex = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+  let patternRegex;
+  if (typeof prop.pattern === "string") {
+    patternRegex = toRegExp(prop.pattern);
+  }
+  return [
+    {
+      enabled: prop.maxLength !== void 0,
+      isValid: /* @__PURE__ */ __name(((value) => value.length <= prop.maxLength), "isValid"),
+      message: nls.localize("validations.maxLength", "Value must be {0} or fewer characters long.", prop.maxLength)
+    },
+    {
+      enabled: prop.minLength !== void 0,
+      isValid: /* @__PURE__ */ __name(((value) => value.length >= prop.minLength), "isValid"),
+      message: nls.localize("validations.minLength", "Value must be {0} or more characters long.", prop.minLength)
+    },
+    {
+      enabled: patternRegex !== void 0,
+      isValid: /* @__PURE__ */ __name(((value) => patternRegex.test(value)), "isValid"),
+      message: prop.patternErrorMessage || nls.localize("validations.regex", "Value must match regex `{0}`.", prop.pattern)
+    },
+    {
+      enabled: prop.format === "color-hex",
+      isValid: /* @__PURE__ */ __name(((value) => Color.Format.CSS.parseHex(value)), "isValid"),
+      message: nls.localize("validations.colorFormat", "Invalid color format. Use #RGB, #RGBA, #RRGGBB or #RRGGBBAA.")
+    },
+    {
+      enabled: prop.format === "uri" || prop.format === "uri-reference",
+      isValid: /* @__PURE__ */ __name(((value) => !!value.length), "isValid"),
+      message: nls.localize("validations.uriEmpty", "URI expected.")
+    },
+    {
+      enabled: prop.format === "uri" || prop.format === "uri-reference",
+      isValid: /* @__PURE__ */ __name(((value) => uriRegex.test(value)), "isValid"),
+      message: nls.localize("validations.uriMissing", "URI is expected.")
+    },
+    {
+      enabled: prop.format === "uri",
+      isValid: /* @__PURE__ */ __name(((value) => {
+        const matches = value.match(uriRegex);
+        return !!(matches && matches[2]);
+      }), "isValid"),
+      message: nls.localize("validations.uriSchemeMissing", "URI with a scheme is expected.")
+    },
+    {
+      enabled: prop.enum !== void 0,
+      isValid: /* @__PURE__ */ __name(((value) => {
+        return prop.enum.includes(value);
+      }), "isValid"),
+      message: nls.localize("validations.invalidStringEnumValue", "Value is not accepted. Valid values: {0}.", prop.enum ? prop.enum.map((key) => `"${key}"`).join(", ") : "[]")
+    }
+  ].filter((validation) => validation.enabled);
+}
+__name(getStringValidators, "getStringValidators");
+function getNumericValidators(prop) {
+  const type = Array.isArray(prop.type) ? prop.type : [prop.type];
+  const isNullable = canBeType(type, "null");
+  const isIntegral = canBeType(type, "integer") && (type.length === 1 || type.length === 2 && isNullable);
+  const isNumeric = canBeType(type, "number", "integer") && (type.length === 1 || type.length === 2 && isNullable);
+  if (!isNumeric) {
+    return [];
+  }
+  let exclusiveMax;
+  let exclusiveMin;
+  if (typeof prop.exclusiveMaximum === "boolean") {
+    exclusiveMax = prop.exclusiveMaximum ? prop.maximum : void 0;
+  } else {
+    exclusiveMax = prop.exclusiveMaximum;
+  }
+  if (typeof prop.exclusiveMinimum === "boolean") {
+    exclusiveMin = prop.exclusiveMinimum ? prop.minimum : void 0;
+  } else {
+    exclusiveMin = prop.exclusiveMinimum;
+  }
+  return [
+    {
+      enabled: exclusiveMax !== void 0 && (prop.maximum === void 0 || exclusiveMax <= prop.maximum),
+      isValid: /* @__PURE__ */ __name(((value) => value < exclusiveMax), "isValid"),
+      message: nls.localize("validations.exclusiveMax", "Value must be strictly less than {0}.", exclusiveMax)
+    },
+    {
+      enabled: exclusiveMin !== void 0 && (prop.minimum === void 0 || exclusiveMin >= prop.minimum),
+      isValid: /* @__PURE__ */ __name(((value) => value > exclusiveMin), "isValid"),
+      message: nls.localize("validations.exclusiveMin", "Value must be strictly greater than {0}.", exclusiveMin)
+    },
+    {
+      enabled: prop.maximum !== void 0 && (exclusiveMax === void 0 || exclusiveMax > prop.maximum),
+      isValid: /* @__PURE__ */ __name(((value) => value <= prop.maximum), "isValid"),
+      message: nls.localize("validations.max", "Value must be less than or equal to {0}.", prop.maximum)
+    },
+    {
+      enabled: prop.minimum !== void 0 && (exclusiveMin === void 0 || exclusiveMin < prop.minimum),
+      isValid: /* @__PURE__ */ __name(((value) => value >= prop.minimum), "isValid"),
+      message: nls.localize("validations.min", "Value must be greater than or equal to {0}.", prop.minimum)
+    },
+    {
+      enabled: prop.multipleOf !== void 0,
+      isValid: /* @__PURE__ */ __name(((value) => value % prop.multipleOf === 0), "isValid"),
+      message: nls.localize("validations.multipleOf", "Value must be a multiple of {0}.", prop.multipleOf)
+    },
+    {
+      enabled: isIntegral,
+      isValid: /* @__PURE__ */ __name(((value) => value % 1 === 0), "isValid"),
+      message: nls.localize("validations.expectedInteger", "Value must be an integer.")
+    }
+  ].filter((validation) => validation.enabled);
+}
+__name(getNumericValidators, "getNumericValidators");
+function getArrayValidator(prop) {
+  if (prop.type === "array" && prop.items && !Array.isArray(prop.items)) {
+    const propItems = prop.items;
+    if (propItems && !Array.isArray(propItems.type)) {
+      const withQuotes = /* @__PURE__ */ __name((s) => `'` + s + `'`, "withQuotes");
+      return (value) => {
+        if (!value) {
+          return null;
+        }
+        let message = "";
+        if (!Array.isArray(value)) {
+          message += nls.localize("validations.arrayIncorrectType", "Incorrect type. Expected an array.");
+          message += "\n";
+          return message;
+        }
+        const arrayValue = value;
+        if (prop.uniqueItems) {
+          if (new Set(arrayValue).size < arrayValue.length) {
+            message += nls.localize("validations.stringArrayUniqueItems", "Array has duplicate items");
+            message += "\n";
+          }
+        }
+        if (prop.minItems && arrayValue.length < prop.minItems) {
+          message += nls.localize("validations.stringArrayMinItem", "Array must have at least {0} items", prop.minItems);
+          message += "\n";
+        }
+        if (prop.maxItems && arrayValue.length > prop.maxItems) {
+          message += nls.localize("validations.stringArrayMaxItem", "Array must have at most {0} items", prop.maxItems);
+          message += "\n";
+        }
+        if (propItems.type === "string") {
+          if (!isStringArray(arrayValue)) {
+            message += nls.localize("validations.stringArrayIncorrectType", "Incorrect type. Expected a string array.");
+            message += "\n";
+            return message;
+          }
+          if (typeof propItems.pattern === "string") {
+            const patternRegex = toRegExp(propItems.pattern);
+            arrayValue.forEach((v) => {
+              if (!patternRegex.test(v)) {
+                message += propItems.patternErrorMessage || nls.localize("validations.stringArrayItemPattern", "Value {0} must match regex {1}.", withQuotes(v), withQuotes(propItems.pattern));
+              }
+            });
+          }
+          const propItemsEnum = propItems.enum;
+          if (propItemsEnum) {
+            arrayValue.forEach((v) => {
+              if (propItemsEnum.indexOf(v) === -1) {
+                message += nls.localize("validations.stringArrayItemEnum", "Value {0} is not one of {1}", withQuotes(v), "[" + propItemsEnum.map(withQuotes).join(", ") + "]");
+                message += "\n";
+              }
+            });
+          }
+        } else if (propItems.type === "integer" || propItems.type === "number") {
+          arrayValue.forEach((v) => {
+            const errorMessage = getErrorsForSchema(propItems, v);
+            if (errorMessage) {
+              message += `${v}: ${errorMessage}
+`;
+            }
+          });
+        }
+        return message;
+      };
+    }
+  }
+  return null;
+}
+__name(getArrayValidator, "getArrayValidator");
+function getObjectValidator(prop) {
+  if (prop.type === "object") {
+    const { properties, patternProperties, additionalProperties, propertyNames } = prop;
+    return (value) => {
+      if (!value) {
+        return null;
+      }
+      const errors = [];
+      let propertyNamesErrorShown = false;
+      if (!isObject(value)) {
+        errors.push(nls.localize("validations.objectIncorrectType", "Incorrect type. Expected an object."));
+      } else {
+        Object.keys(value).forEach((key) => {
+          const data = value[key];
+          if (propertyNames?.pattern && !propertyNamesErrorShown) {
+            const patternRegex = toRegExp(propertyNames.pattern);
+            if (!patternRegex.test(key)) {
+              const errorMessage = propertyNames.patternErrorMessage || nls.localize("validations.propertyNamePattern", "Property name must match pattern `{0}`.", propertyNames.pattern);
+              errors.push(errorMessage + "\n");
+              propertyNamesErrorShown = true;
+            }
+          }
+          if (properties && key in properties) {
+            const errorMessage = getErrorsForSchema(properties[key], data);
+            if (errorMessage) {
+              errors.push(`${key}: ${errorMessage}
+`);
+            }
+            return;
+          }
+          if (patternProperties) {
+            for (const pattern in patternProperties) {
+              if (RegExp(pattern).test(key)) {
+                const errorMessage = getErrorsForSchema(patternProperties[pattern], data);
+                if (errorMessage) {
+                  errors.push(`${key}: ${errorMessage}
+`);
+                }
+                return;
+              }
+            }
+          }
+          if (additionalProperties === false) {
+            errors.push(nls.localize("validations.objectPattern", "Property {0} is not allowed.\n", key));
+          } else if (typeof additionalProperties === "object") {
+            const errorMessage = getErrorsForSchema(additionalProperties, data);
+            if (errorMessage) {
+              errors.push(`${key}: ${errorMessage}
+`);
+            }
+          }
+        });
+      }
+      if (errors.length) {
+        return prop.errorMessage ? [prop.errorMessage, ...errors].join(" ") : errors.join(" ");
+      }
+      return "";
+    };
+  }
+  return null;
+}
+__name(getObjectValidator, "getObjectValidator");
+function validatePropertyName(propertyNames, key) {
+  if (!propertyNames?.pattern) {
+    return true;
+  }
+  const patternRegex = toRegExp(propertyNames.pattern);
+  return patternRegex.test(key);
+}
+__name(validatePropertyName, "validatePropertyName");
+function getErrorsForSchema(propertySchema, data) {
+  const validator = createValidator(propertySchema);
+  const errorMessage = validator(data);
+  return errorMessage;
+}
+__name(getErrorsForSchema, "getErrorsForSchema");
+export {
+  createValidator,
+  getInvalidTypeError,
+  validatePropertyName
+};
+//# sourceMappingURL=preferencesValidation.js.map

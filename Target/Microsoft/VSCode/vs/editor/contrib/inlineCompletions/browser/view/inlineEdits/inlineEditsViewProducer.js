@@ -1,1 +1,94 @@
-import{$Ed as S}from"../../../../../../base/common/lifecycle.js";import{derived as a}from"../../../../../../base/common/observable.js";import{$Mj as M}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Xib as v}from"../../../../../browser/observableCodeEditor.js";import{$_D as x}from"../../../../../common/core/range.js";import{$GE as R,$FE as w}from"../../../../../common/core/edits/textEdit.js";import{$ktb as I}from"./inlineEditWithChanges.js";import{$ltb as P}from"./inlineEditsModel.js";import{$Ltb as T}from"./inlineEditsView.js";import{InlineEditTabAction as m}from"./inlineEditsViewInterface.js";import{$htb as j,$itb as A}from"./components/gutterIndicatorView.js";var $=function(f,e,n,o){var c=arguments.length,t=c<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(f,e,n,o);else for(var s=f.length-1;s>=0;s--)(i=f[s])&&(t=(c<3?i(t):c>3?i(e,n,t):i(e,n))||t);return c>3&&t&&Object.defineProperty(e,n,t),t},_=function(f,e){return function(n,o){e(n,o,f)}};let h=class extends S{constructor(e,n,o,c){super(),this.c=e,this.f=n,this.g=o,this.b=a(this,t=>{const i=this.f.read(t);if(!i||!this.c.getModel())return;const r=i.inlineEditState.read(t);if(!r)return;const d=r.inlineSuggestion.action;let l;if(d?.kind==="edit"){const g=d.stringEdit,p=r.inlineSuggestion.originalTextRef.getTransformer(),b=g.replacements.map(u=>{const E=x.fromPositions(p.getPosition(u.replaceRange.start),p.getPosition(u.replaceRange.endExclusive));return new R(E,u.newText)});l=new w(b)}else l=void 0;return new I(r.inlineSuggestion.originalTextRef,d,l,i.primaryPosition.read(void 0),i.allPositions.read(void 0),r.inlineSuggestion.source.inlineSuggestions.commands??[],r.inlineSuggestion)}),this._inlineEditModel=a(this,t=>{const i=this.f.read(t);if(!i)return;const s=this.b.read(t);if(!s)return;const r=a(this,d=>{if(this.a.isFocused.read(d)){if(i.tabShouldJumpToInlineEdit.read(d))return m.Jump;if(i.tabShouldAcceptInlineEdit.read(d))return m.Accept}return m.Inactive});return new P(i,s,r)}),this.a=v(this.c),this.view=this.D(c.createInstance(T,this.c,this._inlineEditModel,this.f.map(t=>t?A.fromInlineCompletionModel(t):void 0),this.b.map(t=>t?j.fromInlineSuggestion(t.inlineCompletion):void 0),this.g))}};h=$([_(3,M)],h);export{h as $Mtb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { derived } from "../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { observableCodeEditor } from "../../../../../browser/observableCodeEditor.js";
+import { Range } from "../../../../../common/core/range.js";
+import { TextReplacement, TextEdit } from "../../../../../common/core/edits/textEdit.js";
+import { InlineEditWithChanges } from "./inlineEditWithChanges.js";
+import { ModelPerInlineEdit } from "./inlineEditsModel.js";
+import { InlineEditsView } from "./inlineEditsView.js";
+import { InlineEditTabAction } from "./inlineEditsViewInterface.js";
+import { InlineSuggestionGutterMenuData, SimpleInlineSuggestModel } from "./components/gutterIndicatorView.js";
+let InlineEditsViewAndDiffProducer = class InlineEditsViewAndDiffProducer2 extends Disposable {
+  static {
+    __name(this, "InlineEditsViewAndDiffProducer");
+  }
+  constructor(_editor, _model, _showCollapsed, instantiationService) {
+    super();
+    this._editor = _editor;
+    this._model = _model;
+    this._showCollapsed = _showCollapsed;
+    this._inlineEdit = derived(this, (reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return void 0;
+      }
+      const textModel = this._editor.getModel();
+      if (!textModel) {
+        return void 0;
+      }
+      const state = model.inlineEditState.read(reader);
+      if (!state) {
+        return void 0;
+      }
+      const action = state.inlineSuggestion.action;
+      let diffEdits;
+      if (action?.kind === "edit") {
+        const editOffset = action.stringEdit;
+        const t = state.inlineSuggestion.originalTextRef.getTransformer();
+        const edits = editOffset.replacements.map((e) => {
+          const innerEditRange = Range.fromPositions(t.getPosition(e.replaceRange.start), t.getPosition(e.replaceRange.endExclusive));
+          return new TextReplacement(innerEditRange, e.newText);
+        });
+        diffEdits = new TextEdit(edits);
+      } else {
+        diffEdits = void 0;
+      }
+      return new InlineEditWithChanges(state.inlineSuggestion.originalTextRef, action, diffEdits, model.primaryPosition.read(void 0), model.allPositions.read(void 0), state.inlineSuggestion.source.inlineSuggestions.commands ?? [], state.inlineSuggestion);
+    });
+    this._inlineEditModel = derived(this, (reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return void 0;
+      }
+      const edit = this._inlineEdit.read(reader);
+      if (!edit) {
+        return void 0;
+      }
+      const tabAction = derived(this, (reader2) => {
+        if (this._editorObs.isFocused.read(reader2)) {
+          if (model.tabShouldJumpToInlineEdit.read(reader2)) {
+            return InlineEditTabAction.Jump;
+          }
+          if (model.tabShouldAcceptInlineEdit.read(reader2)) {
+            return InlineEditTabAction.Accept;
+          }
+        }
+        return InlineEditTabAction.Inactive;
+      });
+      return new ModelPerInlineEdit(model, edit, tabAction);
+    });
+    this._editorObs = observableCodeEditor(this._editor);
+    this.view = this._register(instantiationService.createInstance(InlineEditsView, this._editor, this._inlineEditModel, this._model.map((model) => model ? SimpleInlineSuggestModel.fromInlineCompletionModel(model) : void 0), this._inlineEdit.map((e) => e ? InlineSuggestionGutterMenuData.fromInlineSuggestion(e.inlineCompletion) : void 0), this._showCollapsed));
+  }
+};
+InlineEditsViewAndDiffProducer = __decorate([
+  __param(3, IInstantiationService)
+], InlineEditsViewAndDiffProducer);
+export {
+  InlineEditsViewAndDiffProducer
+};
+//# sourceMappingURL=inlineEditsViewProducer.js.map

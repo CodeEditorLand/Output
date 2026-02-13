@@ -1,1 +1,71 @@
-import{$bk as o}from"../../../../../base/common/codicons.js";import*as t from"../../../../../nls.js";import{$gu as s}from"../../../../../platform/theme/common/iconRegistry.js";import{$4H as a}from"../../../../common/editor/editorInput.js";const c=s("ai-management-editor-label-icon",o.copilot,t.localize(5932,null)),l=s("models-management-editor-label-icon",o.settings,t.localize(5933,null)),d="usage",p="models";class n extends a{static{this.ID="workbench.input.chatManagement"}constructor(){super(),this.resource=void 0}matches(e){return super.matches(e)||e instanceof n}get typeId(){return n.ID}getName(){return t.localize(5934,null)}getIcon(){return c}async resolve(){return null}}class r extends a{static{this.ID="workbench.input.modelsManagement"}constructor(){super(),this.resource=void 0}matches(e){return super.matches(e)||e instanceof r}get typeId(){return r.ID}getName(){return t.localize(5935,null)}getIcon(){return l}async resolve(){return null}}export{d as $eqc,p as $fqc,n as $gqc,r as $hqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import * as nls from "../../../../../nls.js";
+import { registerIcon } from "../../../../../platform/theme/common/iconRegistry.js";
+import { EditorInput } from "../../../../common/editor/editorInput.js";
+const ChatManagementEditorIcon = registerIcon("ai-management-editor-label-icon", Codicon.copilot, nls.localize("aiManagementEditorLabelIcon", "Icon of the AI Management editor label."));
+const ModelsManagementEditorIcon = registerIcon("models-management-editor-label-icon", Codicon.settings, nls.localize("modelsManagementEditorLabelIcon", "Icon of the Models Management editor label."));
+const CHAT_MANAGEMENT_SECTION_USAGE = "usage";
+const CHAT_MANAGEMENT_SECTION_MODELS = "models";
+class ChatManagementEditorInput extends EditorInput {
+  static {
+    __name(this, "ChatManagementEditorInput");
+  }
+  static {
+    this.ID = "workbench.input.chatManagement";
+  }
+  constructor() {
+    super();
+    this.resource = void 0;
+  }
+  matches(otherInput) {
+    return super.matches(otherInput) || otherInput instanceof ChatManagementEditorInput;
+  }
+  get typeId() {
+    return ChatManagementEditorInput.ID;
+  }
+  getName() {
+    return nls.localize("aiManagementEditorInputName", "Manage Copilot");
+  }
+  getIcon() {
+    return ChatManagementEditorIcon;
+  }
+  async resolve() {
+    return null;
+  }
+}
+class ModelsManagementEditorInput extends EditorInput {
+  static {
+    __name(this, "ModelsManagementEditorInput");
+  }
+  static {
+    this.ID = "workbench.input.modelsManagement";
+  }
+  constructor() {
+    super();
+    this.resource = void 0;
+  }
+  matches(otherInput) {
+    return super.matches(otherInput) || otherInput instanceof ModelsManagementEditorInput;
+  }
+  get typeId() {
+    return ModelsManagementEditorInput.ID;
+  }
+  getName() {
+    return nls.localize("modelsManagementEditorInputName", "Language Models");
+  }
+  getIcon() {
+    return ModelsManagementEditorIcon;
+  }
+  async resolve() {
+    return null;
+  }
+}
+export {
+  CHAT_MANAGEMENT_SECTION_MODELS,
+  CHAT_MANAGEMENT_SECTION_USAGE,
+  ChatManagementEditorInput,
+  ModelsManagementEditorInput
+};
+//# sourceMappingURL=chatManagementEditorInput.js.map

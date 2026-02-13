@@ -1,1 +1,724 @@
-import{$th as b}from"../../../../base/common/network.js";import{$n as he,$s as Ge}from"../../../../base/common/platform.js";import{$1db as B}from"../../../../editor/browser/editorExtensions.js";import*as e from"../../../../nls.js";import{$Dvb as F}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$qL as o,$sL as c}from"../../../../platform/actions/common/actions.js";import{$lm as He}from"../../../../platform/configuration/common/configurationRegistry.js";import{$0n as l}from"../../../../platform/contextkey/common/contextkey.js";import{$Kj as m}from"../../../../platform/instantiation/common/descriptors.js";import{$WC as ze}from"../../../../platform/instantiation/common/extensions.js";import{$mL as Pe}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{$AH as we}from"../../../../platform/quickinput/common/quickAccess.js";import{$jm as u}from"../../../../platform/registry/common/platform.js";import{$aSb as Qe}from"../../../browser/editor.js";import{$6Bb as Xe}from"../../../browser/parts/views/viewPaneContainer.js";import{$uP as se}from"../../../common/contextkeys.js";import{Extensions as g,$2N as R}from"../../../common/contributions.js";import{$9M as je}from"../../../common/editor.js";import{Extensions as k}from"../../../common/views.js";import{$vM as Ke}from"../../../services/configuration/common/configuration.js";import{$3yc as Ze,$4yc as Je}from"../../notebook/browser/contrib/notebookVariables/notebookVariableCommands.js";import{$_X as eo,$fZ as oo,$0X as no,$NY as io,$UY as L,$VY as O,$WY as A,$tY as p,$zY as N,$OY as a,$fY as r,$hY as $,$rY as to,$GY as U,$HY as G,$iY as lo,$jY as i,$LY as Ce,$EY as De,$JY as ro,$TY as Ee,$RY as ke,$KY as ao,$MY as co,$YY as ye,$XY as y,$ZY as Te,$1Y as h,$2Y as xe,$3Y as uo,$yY as f,$bY as S,$aY as so,$eZ as po,$lZ as mo,$hZ as bo,$$X as go,$cY as fo,$8X as Me,$7X as de,$9X as qe,$iZ as H}from"../common/debug.js";import{$5yc as pe}from"../common/debugAccessibilityAnnouncer.js";import{$6yc as $o}from"../common/debugContentProvider.js";import{$7yc as ho}from"../common/debugLifecycle.js";import{$QW as zo,$OW as wo}from"../common/debugVisualizers.js";import{$RW as Co}from"../common/disassemblyViewInput.js";import{$8yc as me}from"../common/replAccessibilityAnnouncer.js";import{$Olc as Do}from"./breakpointEditorContribution.js";import{$mhc as Eo}from"./breakpointsView.js";import{$hhc as ko}from"./callStackEditorContribution.js";import{$bzc as yo}from"./callStackView.js";import{$RGb as To}from"./debugColors.js";import{$qhc as xo,$4hc as Ve,$zic as Ie,$1hc as Mo,$tic as qo,$3hc as Vo,$vic as Io,$Zhc as _o,$sic as vo,$2hc as Wo,$uic as So,$Ihc as T,$jic as P,$5hc as Q,$wic as X,$uhc as Yo,$6hc as x,$xic as _e,$_hc as Bo,$Dic as Fo,$Cic as Ro,$Rhc as j,$oic as ve,$Qhc as K,$nic as We,$Fhc as Se,$hic as Ye,$Ehc as Be,$gic as Fe,$Shc as Lo,$Khc as Re,$Whc as Oo,$pic as Ao,$ric as No,$Dhc as Z,$fic as J,$Xhc as Uo,$qic as Go,$Vhc as Ho,$Hhc as Po,$aic as ee,$xhc as M,$Mhc as Le,$lic as Qo,$Nhc as Oe,$Aic as Xo,$Ohc as jo,$Bic as Ko,$Uhc as Zo,$Yhc as Jo,$Ahc as q,$cic as oe,$Bhc as en,$dic as on,$Chc as V,$eic as ne,$zhc as I,$bic as ie,$Ghc as _,$iic as te,$yhc as Ae,$thc as Ne,$rhc as nn,$yic as tn,$shc as ln,$7hc as le,$8hc as re,$9hc as ae}from"./debugCommands.js";import{$czc as rn}from"./debugConsoleQuickAccess.js";import{$dzc as be,$ezc as ge,$fzc as fe}from"./debugEditorActions.js";import{$Tic as an}from"./debugEditorContribution.js";import*as s from"./debugIcons.js";import{$gzc as cn}from"./debugProgress.js";import{$hzc as un}from"./debugQuickAccess.js";import{$yzc as sn}from"./debugService.js";import"./debugSettingMigration.js";import{$Azc as dn}from"./debugStatus.js";import{$Bzc as pn}from"./debugTitle.js";import{$9yc as mn}from"./debugToolBar.js";import{$Dzc as bn}from"./debugViewlet.js";import{$ihc as gn,$jhc as fn}from"./disassemblyView.js";import{$Ezc as $n}from"./loadedScriptsView.js";import"./media/debug.contribution.css";import"./media/debugHover.css";import{Repl as hn}from"./repl.js";import{$Fzc as zn}from"./replAccessibilityHelp.js";import{$Gzc as wn}from"./replAccessibleView.js";import{$Hzc as Cn}from"./runAndDebugAccessibilityHelp.js";import{$Mzc as Dn}from"./statusbarColorProvider.js";import{$Kic as En,$Lic as ce,$Gic as kn}from"./variablesView.js";import{$Qzc as yn,$Rzc as Tn,$Szc as xn,$Tzc as Mn,$Ozc as qn}from"./watchExpressionsView.js";import{$Czc as Y}from"./welcomeView.js";import{$Uzc as $e}from"./debugChatIntegration.js";const Vn=e.localize(7717,null);To();ze(mo,sn,1);ze(wo,zo,1);u.as(g.Workbench).registerWorkbenchContribution(dn,4);u.as(g.Workbench).registerWorkbenchContribution(cn,4);Ge&&u.as(g.Workbench).registerWorkbenchContribution(pn,4);u.as(g.Workbench).registerWorkbenchContribution(mn,3);u.as(g.Workbench).registerWorkbenchContribution($o,4);u.as(g.Workbench).registerWorkbenchContribution(Dn,4);u.as(g.Workbench).registerWorkbenchContribution(fn,4);u.as(g.Workbench).registerWorkbenchContribution(ho,4);R($e.ID,$e,3);u.as(we.Quickaccess).registerQuickAccessProvider({ctor:un,prefix:Ro,contextKey:"inLaunchConfigurationsPicker",placeholder:e.localize(7718,null),helpEntries:[{description:e.localize(7719,null),commandId:Le,commandCenterOrder:50}]});u.as(we.Quickaccess).registerQuickAccessProvider({ctor:rn,prefix:Fo,contextKey:"inDebugConsolePicker",placeholder:e.localize(7720,null),helpEntries:[{description:e.localize(7721,null),commandId:Oe}]});B("editor.contrib.callStack",ko,1);B(oo,Do,1);B(po,an,2);const t=(d,C,D,E)=>{c.appendMenuItem(o.CommandPalette,{when:l.and(a,D),group:Vn,command:{id:d,title:C,category:Bo,precondition:E}})};t(M,ee);t(Ae,e.localize2(7820,"Terminate Thread"),i,Te);t(I,ie,i,r.isEqualTo("stopped"));t(q,oe,i,r.isEqualTo("stopped"));t(en,on,i,l.and(co,i,r.isEqualTo("stopped")));t(V,ne,i,r.isEqualTo("stopped"));t(Z,J,i,l.and(r.isEqualTo("running"),G.toNegated()));t(Be,Fe,i,l.or(U,y));t(Se,Ye,i,l.or(U,l.and(ye,y)));t(_,te,i,l.or(U.toNegated(),y));t(T,P,i,r.isEqualTo("stopped"));t(Re,e.localize2(7821,"Jump to Cursor"),Ce);t(Re,e.localize2(7822,"Set Next Statement"),Ce);t(be.ID,be.LABEL,a);t(ge.ID,ge.LABEL,i);t(fe.ID,fe.LABEL);t(Ne,e.localize2(7823,"Inline Breakpoint"));t(K,We,l.and(a,r.notEqualsTo(H(1))));t(j,ve,l.and(a,r.notEqualsTo(H(1))));t(Le,Qo,l.and(a,r.notEqualsTo(H(1))));t(Oo,Ao);t(Uo,Go);t(Jo,No,i,De);t(Oe,Xo);t(jo,Ko);t(_o,vo,i,r.isEqualTo("stopped"));t(Mo,qo,i,r.isEqualTo("stopped"));t(Wo,So,i,r.isEqualTo("stopped"));t(Vo,Io,i,r.isEqualTo("stopped"));const n=(d,C,D,E,v,W,Ue="navigation",ue)=>{c.appendMenuItem(d,{group:Ue,when:v,order:E,icon:ue,command:{id:C,title:D,icon:ue,precondition:W}})};n(o.DebugCallStackContext,M,ee,10,p.isEqualTo("session"),void 0,"3_modification");n(o.DebugCallStackContext,Be,Fe,20,p.isEqualTo("session"),void 0,"3_modification");n(o.DebugCallStackContext,Se,Ye,21,l.and(p.isEqualTo("session"),ye,y),void 0,"3_modification");n(o.DebugCallStackContext,_,te,30,p.isEqualTo("session"),void 0,"3_modification");n(o.DebugCallStackContext,Z,J,10,l.and(p.isEqualTo("thread"),l.and(r.isEqualTo("running"),G.toNegated())));n(o.DebugCallStackContext,T,P,10,l.and(p.isEqualTo("thread"),r.isEqualTo("stopped")));n(o.DebugCallStackContext,I,ie,20,p.isEqualTo("thread"),r.isEqualTo("stopped"));n(o.DebugCallStackContext,q,oe,30,p.isEqualTo("thread"),r.isEqualTo("stopped"));n(o.DebugCallStackContext,V,ne,40,p.isEqualTo("thread"),r.isEqualTo("stopped"));n(o.DebugCallStackContext,Ae,e.localize(7722,null),10,p.isEqualTo("thread"),Te,"termination");n(o.DebugCallStackContext,Po,e.localize(7723,null),10,l.and(p.isEqualTo("stackFrame"),ro),ao);n(o.DebugCallStackContext,Yo,e.localize(7724,null),20,p.isEqualTo("stackFrame"),void 0,"3_modification");n(o.DebugVariablesContext,ce,e.localize(7725,null),15,N,i,"inline",s.$NGb);n(o.DebugVariablesContext,En,e.localize(7726,null),10,l.or(ke,l.and(h,Ee)),xe.toNegated(),"3_modification");n(o.DebugVariablesContext,x,_e,10,void 0,void 0,"5_cutcopypaste");n(o.DebugVariablesContext,Q,X,20,h,void 0,"5_cutcopypaste");n(o.DebugVariablesContext,Ve,Ie,100,h,void 0,"z_commands");n(o.DebugVariablesContext,ae,e.localize(7727,null),200,A,void 0,"z_commands");n(o.DebugVariablesContext,le,e.localize(7728,null),210,L,void 0,"z_commands");n(o.DebugVariablesContext,re,e.localize(7729,null),220,O,void 0,"z_commands");n(o.DebugHoverContext,ce,e.localize(7730,null),15,N,i,"inline",s.$NGb);n(o.DebugHoverContext,x,_e,10,void 0,void 0,"5_cutcopypaste");n(o.DebugHoverContext,Q,X,20,h,void 0,"5_cutcopypaste");n(o.DebugHoverContext,Ve,Ie,100,h,void 0,"z_commands");n(o.DebugHoverContext,ae,e.localize(7731,null),200,A,void 0,"z_commands");n(o.DebugHoverContext,le,e.localize(7732,null),210,L,void 0,"z_commands");n(o.DebugHoverContext,re,e.localize(7733,null),220,O,void 0,"z_commands");n(o.DebugWatchContext,yn,Tn,10,void 0,void 0,"3_modification");n(o.DebugWatchContext,Lo,e.localize(7734,null),20,f.isEqualTo("expression"),void 0,"3_modification");n(o.DebugWatchContext,Zo,e.localize(7735,null),30,l.or(l.and(f.isEqualTo("expression"),Ee),l.and(f.isEqualTo("variable"),ke)),xe.toNegated(),"3_modification");n(o.DebugWatchContext,x,e.localize(7736,null),40,l.or(f.isEqualTo("expression"),f.isEqualTo("variable")),i,"3_modification");n(o.DebugWatchContext,Q,X,50,h,i,"3_modification");n(o.DebugWatchContext,ce,e.localize(7737,null),10,N,void 0,"inline",s.$NGb);n(o.DebugWatchContext,Ho,e.localize(7738,null),20,f.isEqualTo("expression"),void 0,"inline",s.$FGb);n(o.DebugWatchContext,xn,Mn,20,void 0,void 0,"z_commands");n(o.DebugWatchContext,ae,e.localize(7739,null),200,A,void 0,"z_commands");n(o.DebugWatchContext,le,e.localize(7740,null),210,L,void 0,"z_commands");n(o.DebugWatchContext,re,e.localize(7741,null),220,O,void 0,"z_commands");n(o.NotebookVariablesContext,Ze,Je,20,uo);Pe.registerKeybindingRule({id:x,weight:200,when:l.and(to.negate(),l.or(se.isEqualTo(qe),se.isEqualTo(Me))),primary:2081});if(he){const d=(C,D,E,v,W)=>{c.appendMenuItem(o.TouchBarContext,{command:{id:C,title:D,icon:{dark:W}},when:l.and(a,v),group:"9_debug",order:E})};d(j,ve,0,i.toNegated(),b.asFileUri("vs/workbench/contrib/debug/browser/media/continue-tb.png")),d(K,We,1,i.toNegated(),b.asFileUri("vs/workbench/contrib/debug/browser/media/run-with-debugging-tb.png")),d(T,P,0,r.isEqualTo("stopped"),b.asFileUri("vs/workbench/contrib/debug/browser/media/continue-tb.png")),d(Z,J,1,l.and(i,l.and(r.isEqualTo("running"),G.toNegated())),b.asFileUri("vs/workbench/contrib/debug/browser/media/pause-tb.png")),d(I,ie,2,i,b.asFileUri("vs/workbench/contrib/debug/browser/media/stepover-tb.png")),d(q,oe,3,i,b.asFileUri("vs/workbench/contrib/debug/browser/media/stepinto-tb.png")),d(V,ne,4,i,b.asFileUri("vs/workbench/contrib/debug/browser/media/stepout-tb.png")),d(M,ee,5,i,b.asFileUri("vs/workbench/contrib/debug/browser/media/restart-tb.png")),d(_,te,6,i,b.asFileUri("vs/workbench/contrib/debug/browser/media/stop-tb.png"))}c.appendMenuItem(o.EditorTitle,{submenu:o.EditorTitleRun,isSplitButton:{togglePrimaryAction:!0},title:e.localize2(7824,"Run or Debug..."),icon:s.$wGb,group:"navigation",order:-1});c.appendMenuItem(o.MenubarMainMenu,{submenu:o.MenubarDebugMenu,title:{...e.localize2(7825,"Run"),mnemonicTitle:e.localize(7742,null)},order:6});c.appendMenuItem(o.MenubarDebugMenu,{group:"1_debug",command:{id:K,title:e.localize(7743,null)},order:1,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"1_debug",command:{id:j,title:e.localize(7744,null)},order:2,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"1_debug",command:{id:_,title:e.localize(7745,null),precondition:i},order:3,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"1_debug",command:{id:M,title:e.localize(7746,null),precondition:i},order:4,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"2_configuration",command:{id:xo,title:e.localize(7747,null)},order:2,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"3_step",command:{id:I,title:e.localize(7748,null),precondition:r.isEqualTo("stopped")},order:1,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"3_step",command:{id:q,title:e.localize(7749,null),precondition:r.isEqualTo("stopped")},order:2,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"3_step",command:{id:V,title:e.localize(7750,null),precondition:r.isEqualTo("stopped")},order:3,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"3_step",command:{id:T,title:e.localize(7751,null),precondition:r.isEqualTo("stopped")},order:4,when:a});c.appendMenuItem(o.MenubarNewBreakpointMenu,{group:"1_breakpoints",command:{id:Ne,title:e.localize(7752,null)},order:2,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"4_new_breakpoint",title:e.localize(7753,null),submenu:o.MenubarNewBreakpointMenu,order:2,when:a});c.appendMenuItem(o.DebugDisassemblyContext,{group:"1_edit",command:{id:nn,title:tn},order:2,when:a});c.appendMenuItem(o.DebugDisassemblyContext,{group:"3_breakpoints",command:{id:ln,title:e.localize(7754,null)},order:2,when:a});c.appendMenuItem(o.MenubarDebugMenu,{group:"z_install",command:{id:"debug.installAdditionalDebuggers",title:e.localize(7755,null)},order:1});const In=u.as(k.ViewContainersRegistry).registerViewContainer({id:S,title:e.localize2(7826,"Debug Console"),icon:s.$6Fb,ctorDescriptor:new m(Xe,[S,{mergeViewWithContainerWhenSingleView:!0}]),storageId:S,hideIfEmpty:!0,order:2},1,{doNotRegisterOpenCommand:!0});u.as(k.ViewsRegistry).registerViews([{id:fo,name:e.localize2(7827,"Debug Console"),containerIcon:s.$6Fb,canToggleVisibility:!0,canMoveView:!0,when:a,ctorDescriptor:new m(hn),openCommandActionDescriptor:{id:"workbench.debug.action.toggleRepl",mnemonicTitle:e.localize(7756,null),keybindings:{primary:3127},order:2}}],In);const z=u.as(k.ViewContainersRegistry).registerViewContainer({id:de,title:e.localize2(7828,"Run and Debug"),openCommandActionDescriptor:{id:de,mnemonicTitle:e.localize(7757,null),keybindings:{primary:3106},order:3},ctorDescriptor:new m(bn),icon:s.$7Fb,alwaysUseContainerInfo:!0,order:3},0),w=u.as(k.ViewsRegistry);w.registerViews([{id:Me,name:e.localize2(7829,"Variables"),containerIcon:s.$8Fb,ctorDescriptor:new m(kn),order:10,weight:40,canToggleVisibility:!0,canMoveView:!0,focusCommand:{id:"workbench.debug.action.focusVariablesView"},when:$.isEqualTo("default")}],z);w.registerViews([{id:qe,name:e.localize2(7830,"Watch"),containerIcon:s.$9Fb,ctorDescriptor:new m(qn),order:20,weight:10,canToggleVisibility:!0,canMoveView:!0,focusCommand:{id:"workbench.debug.action.focusWatchView"},when:$.isEqualTo("default")}],z);w.registerViews([{id:no,name:e.localize2(7831,"Call Stack"),containerIcon:s.$0Fb,ctorDescriptor:new m(yo),order:30,weight:30,canToggleVisibility:!0,canMoveView:!0,focusCommand:{id:"workbench.debug.action.focusCallStackView"},when:$.isEqualTo("default")}],z);w.registerViews([{id:eo,name:e.localize2(7832,"Breakpoints"),containerIcon:s.$$Fb,ctorDescriptor:new m(Eo),order:40,weight:20,canToggleVisibility:!0,canMoveView:!0,focusCommand:{id:"workbench.debug.action.focusBreakpointsView"},when:l.or(io,$.isEqualTo("default"),lo)}],z);w.registerViews([{id:Y.ID,name:Y.LABEL,containerIcon:s.$7Fb,ctorDescriptor:new m(Y),order:1,weight:40,canToggleVisibility:!0,when:$.isEqualTo("simple")}],z);w.registerViews([{id:go,name:e.localize2(7833,"Loaded Scripts"),containerIcon:s.$_Fb,ctorDescriptor:new m($n),order:35,weight:5,canToggleVisibility:!0,canMoveView:!0,collapsed:!0,when:l.and(De,$.isEqualTo("default"))}],z);u.as(je.EditorPane).registerEditorPane(Qe.create(gn,so,e.localize(7758,null)),[new m(Co)]);const _n=u.as(He.Configuration);_n.registerConfiguration({id:"debug",order:20,title:e.localize(7759,null),type:"object",properties:{"debug.showVariableTypes":{type:"boolean",description:e.localize(7760,null),default:!1},"debug.allowBreakpointsEverywhere":{type:"boolean",description:e.localize(7761,null),default:!1},"debug.gutterMiddleClickAction":{type:"string",enum:["logpoint","conditionalBreakpoint","triggeredBreakpoint","none"],description:e.localize(7762,null),enumDescriptions:[e.localize(7763,null),e.localize(7764,null),e.localize(7765,null),e.localize(7766,null)],default:"logpoint"},"debug.openExplorerOnEnd":{type:"boolean",description:e.localize(7767,null),default:!1},"debug.closeReadonlyTabsOnEnd":{type:"boolean",description:e.localize(7768,null),default:!1},"debug.inlineValues":{type:"string",enum:["on","off","auto"],description:e.localize(7769,null),enumDescriptions:[e.localize(7770,null),e.localize(7771,null),e.localize(7772,null)],default:"auto"},"debug.toolBarLocation":{enum:["floating","docked","commandCenter","hidden"],markdownDescription:e.localize(7773,null,"`#window.commandCenter#`"),default:"floating",markdownEnumDescriptions:[e.localize(7774,null),e.localize(7775,null),e.localize(7776,null),e.localize(7777,null)]},"debug.showInStatusBar":{enum:["never","always","onFirstSessionStart"],enumDescriptions:[e.localize(7778,null),e.localize(7779,null),e.localize(7780,null)],description:e.localize(7781,null),default:"onFirstSessionStart"},"debug.internalConsoleOptions":bo,"debug.console.closeOnEnd":{type:"boolean",description:e.localize(7782,null),default:!1},"debug.terminal.clearBeforeReusing":{type:"boolean",description:e.localize(7783,null),default:!1},"debug.openDebug":{enum:["neverOpen","openOnSessionStart","openOnFirstSessionStart","openOnDebugBreak"],default:"openOnDebugBreak",description:e.localize(7784,null)},"debug.showSubSessionsInToolBar":{type:"boolean",description:e.localize(7785,null),default:!1},"debug.console.fontSize":{type:"number",description:e.localize(7786,null),default:he?12:14},"debug.console.fontFamily":{type:"string",description:e.localize(7787,null),default:"default"},"debug.console.lineHeight":{type:"number",description:e.localize(7788,null),default:0},"debug.console.wordWrap":{type:"boolean",description:e.localize(7789,null),default:!0},"debug.console.historySuggestions":{type:"boolean",description:e.localize(7790,null),default:!0},"debug.console.collapseIdenticalLines":{type:"boolean",description:e.localize(7791,null),default:!0},"debug.console.acceptSuggestionOnEnter":{enum:["off","on"],description:e.localize(7792,null),default:"off"},"debug.console.maximumLines":{type:"number",description:e.localize(7793,null),default:1e4},launch:{type:"object",description:e.localize(7794,null),default:{configurations:[],compounds:[]},$ref:Ke,disallowConfigurationDefault:!0},"debug.focusWindowOnBreak":{type:"boolean",description:e.localize(7795,null),default:!0},"debug.focusEditorOnBreak":{type:"boolean",description:e.localize(7796,null),default:!0},"debug.onTaskErrors":{enum:["debugAnyway","showErrors","prompt","abort"],enumDescriptions:[e.localize(7797,null),e.localize(7798,null),e.localize(7799,null),e.localize(7800,null)],description:e.localize(7801,null),default:"prompt"},"debug.showBreakpointsInOverviewRuler":{type:"boolean",description:e.localize(7802,null),default:!1},"debug.breakpointsView.presentation":{type:"string",description:e.localize(7803,null),enum:["tree","list"],default:"list"},"debug.showInlineBreakpointCandidates":{type:"boolean",description:e.localize(7804,null),default:!0},"debug.saveBeforeStart":{description:e.localize(7805,null),enum:["allEditorsInActiveGroup","nonUntitledEditorsInActiveGroup","none"],enumDescriptions:[e.localize(7806,null),e.localize(7807,null),e.localize(7808,null)],default:"allEditorsInActiveGroup",scope:6},"debug.confirmOnExit":{description:e.localize(7809,null),type:"string",enum:["never","always"],enumDescriptions:[e.localize(7810,null),e.localize(7811,null)],default:"never"},"debug.disassemblyView.showSourceCode":{type:"boolean",default:!0,description:e.localize(7812,null)},"debug.autoExpandLazyVariables":{type:"string",enum:["auto","on","off"],default:"auto",enumDescriptions:[e.localize(7813,null),e.localize(7814,null),e.localize(7815,null)],description:e.localize(7816,null)},"debug.enableStatusBarColor":{type:"boolean",description:e.localize(7817,null),default:!0},"debug.hideLauncherWhileDebugging":{type:"boolean",markdownDescription:e.localize(7818,null,"`#debug.toolBarLocation#`"),default:!1},"debug.hideSlowPreLaunchWarning":{type:"boolean",markdownDescription:e.localize(7819,null),default:!1}}});F.register(new wn);F.register(new zn);F.register(new Cn);R(me.ID,me,3);R(pe.ID,pe,3);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FileAccess } from "../../../../base/common/network.js";
+import { isMacintosh, isWeb } from "../../../../base/common/platform.js";
+import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import * as nls from "../../../../nls.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Extensions as QuickAccessExtensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { FocusedViewContext } from "../../../common/contextkeys.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { Extensions as ViewExtensions } from "../../../common/views.js";
+import { launchSchemaId } from "../../../services/configuration/common/configuration.js";
+import { COPY_NOTEBOOK_VARIABLE_VALUE_ID, COPY_NOTEBOOK_VARIABLE_VALUE_LABEL } from "../../notebook/browser/contrib/notebookVariables/notebookVariableCommands.js";
+import { BREAKPOINTS_VIEW_ID, BREAKPOINT_EDITOR_CONTRIBUTION_ID, CALLSTACK_VIEW_ID, CONTEXT_BREAKPOINTS_EXIST, CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED, CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED, CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED, CONTEXT_CALLSTACK_ITEM_TYPE, CONTEXT_CAN_VIEW_MEMORY, CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUG_STATE, CONTEXT_DEBUG_UX, CONTEXT_EXPRESSION_SELECTED, CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG, CONTEXT_HAS_DEBUGGED, CONTEXT_IN_DEBUG_MODE, CONTEXT_JUMP_TO_CURSOR_SUPPORTED, CONTEXT_LOADED_SCRIPTS_SUPPORTED, CONTEXT_RESTART_FRAME_SUPPORTED, CONTEXT_SET_EXPRESSION_SUPPORTED, CONTEXT_SET_VARIABLE_SUPPORTED, CONTEXT_STACK_FRAME_SUPPORTS_RESTART, CONTEXT_STEP_INTO_TARGETS_SUPPORTED, CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_THREADS_SUPPORTED, CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, CONTEXT_VARIABLE_IS_READONLY, CONTEXT_VARIABLE_VALUE, CONTEXT_WATCH_ITEM_TYPE, DEBUG_PANEL_ID, DISASSEMBLY_VIEW_ID, EDITOR_CONTRIBUTION_ID, IDebugService, INTERNAL_CONSOLE_OPTIONS_SCHEMA, LOADED_SCRIPTS_VIEW_ID, REPL_VIEW_ID, VARIABLES_VIEW_ID, VIEWLET_ID, WATCH_VIEW_ID, getStateLabel } from "../common/debug.js";
+import { DebugWatchAccessibilityAnnouncer } from "../common/debugAccessibilityAnnouncer.js";
+import { DebugContentProvider } from "../common/debugContentProvider.js";
+import { DebugLifecycle } from "../common/debugLifecycle.js";
+import { DebugVisualizerService, IDebugVisualizerService } from "../common/debugVisualizers.js";
+import { DisassemblyViewInput } from "../common/disassemblyViewInput.js";
+import { ReplAccessibilityAnnouncer } from "../common/replAccessibilityAnnouncer.js";
+import { BreakpointEditorContribution } from "./breakpointEditorContribution.js";
+import { BreakpointsView } from "./breakpointsView.js";
+import { CallStackEditorContribution } from "./callStackEditorContribution.js";
+import { CallStackView } from "./callStackView.js";
+import { registerColors } from "./debugColors.js";
+import { ADD_CONFIGURATION_ID, ADD_TO_WATCH_ID, ADD_TO_WATCH_LABEL, CALLSTACK_BOTTOM_ID, CALLSTACK_BOTTOM_LABEL, CALLSTACK_DOWN_ID, CALLSTACK_DOWN_LABEL, CALLSTACK_TOP_ID, CALLSTACK_TOP_LABEL, CALLSTACK_UP_ID, CALLSTACK_UP_LABEL, CONTINUE_ID, CONTINUE_LABEL, COPY_EVALUATE_PATH_ID, COPY_EVALUATE_PATH_LABEL, COPY_STACK_TRACE_ID, COPY_VALUE_ID, COPY_VALUE_LABEL, DEBUG_COMMAND_CATEGORY, DEBUG_CONSOLE_QUICK_ACCESS_PREFIX, DEBUG_QUICK_ACCESS_PREFIX, DEBUG_RUN_COMMAND_ID, DEBUG_RUN_LABEL, DEBUG_START_COMMAND_ID, DEBUG_START_LABEL, DISCONNECT_AND_SUSPEND_ID, DISCONNECT_AND_SUSPEND_LABEL, DISCONNECT_ID, DISCONNECT_LABEL, EDIT_EXPRESSION_COMMAND_ID, JUMP_TO_CURSOR_ID, NEXT_DEBUG_CONSOLE_ID, NEXT_DEBUG_CONSOLE_LABEL, OPEN_LOADED_SCRIPTS_LABEL, PAUSE_ID, PAUSE_LABEL, PREV_DEBUG_CONSOLE_ID, PREV_DEBUG_CONSOLE_LABEL, REMOVE_EXPRESSION_COMMAND_ID, RESTART_FRAME_ID, RESTART_LABEL, RESTART_SESSION_ID, SELECT_AND_START_ID, SELECT_AND_START_LABEL, SELECT_DEBUG_CONSOLE_ID, SELECT_DEBUG_CONSOLE_LABEL, SELECT_DEBUG_SESSION_ID, SELECT_DEBUG_SESSION_LABEL, SET_EXPRESSION_COMMAND_ID, SHOW_LOADED_SCRIPTS_ID, STEP_INTO_ID, STEP_INTO_LABEL, STEP_INTO_TARGET_ID, STEP_INTO_TARGET_LABEL, STEP_OUT_ID, STEP_OUT_LABEL, STEP_OVER_ID, STEP_OVER_LABEL, STOP_ID, STOP_LABEL, TERMINATE_THREAD_ID, TOGGLE_INLINE_BREAKPOINT_ID, COPY_ADDRESS_ID, COPY_ADDRESS_LABEL, TOGGLE_BREAKPOINT_ID, BREAK_WHEN_VALUE_CHANGES_ID, BREAK_WHEN_VALUE_IS_ACCESSED_ID, BREAK_WHEN_VALUE_IS_READ_ID } from "./debugCommands.js";
+import { DebugConsoleQuickAccess } from "./debugConsoleQuickAccess.js";
+import { RunToCursorAction, SelectionToReplAction, SelectionToWatchExpressionsAction } from "./debugEditorActions.js";
+import { DebugEditorContribution } from "./debugEditorContribution.js";
+import * as icons from "./debugIcons.js";
+import { DebugProgressContribution } from "./debugProgress.js";
+import { StartDebugQuickAccessProvider } from "./debugQuickAccess.js";
+import { DebugService } from "./debugService.js";
+import "./debugSettingMigration.js";
+import { DebugStatusContribution } from "./debugStatus.js";
+import { DebugTitleContribution } from "./debugTitle.js";
+import { DebugToolBar } from "./debugToolBar.js";
+import { DebugViewPaneContainer } from "./debugViewlet.js";
+import { DisassemblyView, DisassemblyViewContribution } from "./disassemblyView.js";
+import { LoadedScriptsView } from "./loadedScriptsView.js";
+import "./media/debug.contribution.css";
+import "./media/debugHover.css";
+import { Repl } from "./repl.js";
+import { ReplAccessibilityHelp } from "./replAccessibilityHelp.js";
+import { ReplAccessibleView } from "./replAccessibleView.js";
+import { RunAndDebugAccessibilityHelp } from "./runAndDebugAccessibilityHelp.js";
+import { StatusBarColorProvider } from "./statusbarColorProvider.js";
+import { SET_VARIABLE_ID, VIEW_MEMORY_ID, VariablesView } from "./variablesView.js";
+import { ADD_WATCH_ID, ADD_WATCH_LABEL, REMOVE_WATCH_EXPRESSIONS_COMMAND_ID, REMOVE_WATCH_EXPRESSIONS_LABEL, WatchExpressionsView } from "./watchExpressionsView.js";
+import { WelcomeView } from "./welcomeView.js";
+import { DebugChatContextContribution } from "./debugChatIntegration.js";
+const debugCategory = nls.localize("debugCategory", "Debug");
+registerColors();
+registerSingleton(
+  IDebugService,
+  DebugService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerSingleton(
+  IDebugVisualizerService,
+  DebugVisualizerService,
+  1
+  /* InstantiationType.Delayed */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DebugStatusContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DebugProgressContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+if (isWeb) {
+  Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+    DebugTitleContribution,
+    4
+    /* LifecyclePhase.Eventually */
+  );
+}
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DebugToolBar,
+  3
+  /* LifecyclePhase.Restored */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DebugContentProvider,
+  4
+  /* LifecyclePhase.Eventually */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  StatusBarColorProvider,
+  4
+  /* LifecyclePhase.Eventually */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DisassemblyViewContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  DebugLifecycle,
+  4
+  /* LifecyclePhase.Eventually */
+);
+registerWorkbenchContribution2(
+  DebugChatContextContribution.ID,
+  DebugChatContextContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+Registry.as(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
+  ctor: StartDebugQuickAccessProvider,
+  prefix: DEBUG_QUICK_ACCESS_PREFIX,
+  contextKey: "inLaunchConfigurationsPicker",
+  placeholder: nls.localize("startDebugPlaceholder", "Type the name of a launch configuration to run."),
+  helpEntries: [{
+    description: nls.localize("startDebuggingHelp", "Start Debugging"),
+    commandId: SELECT_AND_START_ID,
+    commandCenterOrder: 50
+  }]
+});
+Registry.as(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
+  ctor: DebugConsoleQuickAccess,
+  prefix: DEBUG_CONSOLE_QUICK_ACCESS_PREFIX,
+  contextKey: "inDebugConsolePicker",
+  placeholder: nls.localize("tasksQuickAccessPlaceholder", "Type the name of a debug console to open."),
+  helpEntries: [{ description: nls.localize("tasksQuickAccessHelp", "Show All Debug Consoles"), commandId: SELECT_DEBUG_CONSOLE_ID }]
+});
+registerEditorContribution(
+  "editor.contrib.callStack",
+  CallStackEditorContribution,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+registerEditorContribution(
+  BREAKPOINT_EDITOR_CONTRIBUTION_ID,
+  BreakpointEditorContribution,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+registerEditorContribution(
+  EDITOR_CONTRIBUTION_ID,
+  DebugEditorContribution,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+const registerDebugCommandPaletteItem = /* @__PURE__ */ __name((id, title, when, precondition) => {
+  MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+    when: ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, when),
+    group: debugCategory,
+    command: {
+      id,
+      title,
+      category: DEBUG_COMMAND_CATEGORY,
+      precondition
+    }
+  });
+}, "registerDebugCommandPaletteItem");
+registerDebugCommandPaletteItem(RESTART_SESSION_ID, RESTART_LABEL);
+registerDebugCommandPaletteItem(TERMINATE_THREAD_ID, nls.localize2("terminateThread", "Terminate Thread"), CONTEXT_IN_DEBUG_MODE, CONTEXT_TERMINATE_THREADS_SUPPORTED);
+registerDebugCommandPaletteItem(STEP_OVER_ID, STEP_OVER_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(STEP_INTO_ID, STEP_INTO_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(STEP_INTO_TARGET_ID, STEP_INTO_TARGET_LABEL, CONTEXT_IN_DEBUG_MODE, ContextKeyExpr.and(CONTEXT_STEP_INTO_TARGETS_SUPPORTED, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped")));
+registerDebugCommandPaletteItem(STEP_OUT_ID, STEP_OUT_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(PAUSE_ID, PAUSE_LABEL, CONTEXT_IN_DEBUG_MODE, ContextKeyExpr.and(CONTEXT_DEBUG_STATE.isEqualTo("running"), CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG.toNegated()));
+registerDebugCommandPaletteItem(DISCONNECT_ID, DISCONNECT_LABEL, CONTEXT_IN_DEBUG_MODE, ContextKeyExpr.or(CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED));
+registerDebugCommandPaletteItem(DISCONNECT_AND_SUSPEND_ID, DISCONNECT_AND_SUSPEND_LABEL, CONTEXT_IN_DEBUG_MODE, ContextKeyExpr.or(CONTEXT_FOCUSED_SESSION_IS_ATTACH, ContextKeyExpr.and(CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED)));
+registerDebugCommandPaletteItem(STOP_ID, STOP_LABEL, CONTEXT_IN_DEBUG_MODE, ContextKeyExpr.or(CONTEXT_FOCUSED_SESSION_IS_ATTACH.toNegated(), CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED));
+registerDebugCommandPaletteItem(CONTINUE_ID, CONTINUE_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(JUMP_TO_CURSOR_ID, nls.localize2("jumpToCursor", "Jump to Cursor"), CONTEXT_JUMP_TO_CURSOR_SUPPORTED);
+registerDebugCommandPaletteItem(JUMP_TO_CURSOR_ID, nls.localize2("SetNextStatement", "Set Next Statement"), CONTEXT_JUMP_TO_CURSOR_SUPPORTED);
+registerDebugCommandPaletteItem(RunToCursorAction.ID, RunToCursorAction.LABEL, CONTEXT_DEBUGGERS_AVAILABLE);
+registerDebugCommandPaletteItem(SelectionToReplAction.ID, SelectionToReplAction.LABEL, CONTEXT_IN_DEBUG_MODE);
+registerDebugCommandPaletteItem(SelectionToWatchExpressionsAction.ID, SelectionToWatchExpressionsAction.LABEL);
+registerDebugCommandPaletteItem(TOGGLE_INLINE_BREAKPOINT_ID, nls.localize2("inlineBreakpoint", "Inline Breakpoint"));
+registerDebugCommandPaletteItem(DEBUG_START_COMMAND_ID, DEBUG_START_LABEL, ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(
+  1
+  /* State.Initializing */
+))));
+registerDebugCommandPaletteItem(DEBUG_RUN_COMMAND_ID, DEBUG_RUN_LABEL, ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(
+  1
+  /* State.Initializing */
+))));
+registerDebugCommandPaletteItem(SELECT_AND_START_ID, SELECT_AND_START_LABEL, ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(
+  1
+  /* State.Initializing */
+))));
+registerDebugCommandPaletteItem(NEXT_DEBUG_CONSOLE_ID, NEXT_DEBUG_CONSOLE_LABEL);
+registerDebugCommandPaletteItem(PREV_DEBUG_CONSOLE_ID, PREV_DEBUG_CONSOLE_LABEL);
+registerDebugCommandPaletteItem(SHOW_LOADED_SCRIPTS_ID, OPEN_LOADED_SCRIPTS_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_LOADED_SCRIPTS_SUPPORTED);
+registerDebugCommandPaletteItem(SELECT_DEBUG_CONSOLE_ID, SELECT_DEBUG_CONSOLE_LABEL);
+registerDebugCommandPaletteItem(SELECT_DEBUG_SESSION_ID, SELECT_DEBUG_SESSION_LABEL);
+registerDebugCommandPaletteItem(CALLSTACK_TOP_ID, CALLSTACK_TOP_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(CALLSTACK_BOTTOM_ID, CALLSTACK_BOTTOM_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(CALLSTACK_UP_ID, CALLSTACK_UP_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugCommandPaletteItem(CALLSTACK_DOWN_ID, CALLSTACK_DOWN_LABEL, CONTEXT_IN_DEBUG_MODE, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+const registerDebugViewMenuItem = /* @__PURE__ */ __name((menuId, id, title, order, when, precondition, group = "navigation", icon) => {
+  MenuRegistry.appendMenuItem(menuId, {
+    group,
+    when,
+    order,
+    icon,
+    command: {
+      id,
+      title,
+      icon,
+      precondition
+    }
+  });
+}, "registerDebugViewMenuItem");
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, RESTART_SESSION_ID, RESTART_LABEL, 10, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session"), void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, DISCONNECT_ID, DISCONNECT_LABEL, 20, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session"), void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, DISCONNECT_AND_SUSPEND_ID, DISCONNECT_AND_SUSPEND_LABEL, 21, ContextKeyExpr.and(CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session"), CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED), void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, STOP_ID, STOP_LABEL, 30, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("session"), void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, PAUSE_ID, PAUSE_LABEL, 10, ContextKeyExpr.and(CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"), ContextKeyExpr.and(CONTEXT_DEBUG_STATE.isEqualTo("running"), CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG.toNegated())));
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, CONTINUE_ID, CONTINUE_LABEL, 10, ContextKeyExpr.and(CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"), CONTEXT_DEBUG_STATE.isEqualTo("stopped")));
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, STEP_OVER_ID, STEP_OVER_LABEL, 20, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"), CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, STEP_INTO_ID, STEP_INTO_LABEL, 30, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"), CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, STEP_OUT_ID, STEP_OUT_LABEL, 40, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"), CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, TERMINATE_THREAD_ID, nls.localize("terminateThread", "Terminate Thread"), 10, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("thread"), CONTEXT_TERMINATE_THREADS_SUPPORTED, "termination");
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, RESTART_FRAME_ID, nls.localize("restartFrame", "Restart Frame"), 10, ContextKeyExpr.and(CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("stackFrame"), CONTEXT_RESTART_FRAME_SUPPORTED), CONTEXT_STACK_FRAME_SUPPORTS_RESTART);
+registerDebugViewMenuItem(MenuId.DebugCallStackContext, COPY_STACK_TRACE_ID, nls.localize("copyStackTrace", "Copy Call Stack"), 20, CONTEXT_CALLSTACK_ITEM_TYPE.isEqualTo("stackFrame"), void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, VIEW_MEMORY_ID, nls.localize("viewMemory", "View Binary Data"), 15, CONTEXT_CAN_VIEW_MEMORY, CONTEXT_IN_DEBUG_MODE, "inline", icons.debugInspectMemory);
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, SET_VARIABLE_ID, nls.localize("setValue", "Set Value"), 10, ContextKeyExpr.or(CONTEXT_SET_VARIABLE_SUPPORTED, ContextKeyExpr.and(CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, CONTEXT_SET_EXPRESSION_SUPPORTED)), CONTEXT_VARIABLE_IS_READONLY.toNegated(), "3_modification");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, COPY_VALUE_ID, COPY_VALUE_LABEL, 10, void 0, void 0, "5_cutcopypaste");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, COPY_EVALUATE_PATH_ID, COPY_EVALUATE_PATH_LABEL, 20, CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, void 0, "5_cutcopypaste");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, ADD_TO_WATCH_ID, ADD_TO_WATCH_LABEL, 100, CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, BREAK_WHEN_VALUE_IS_READ_ID, nls.localize("breakWhenValueIsRead", "Break on Value Read"), 200, CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, BREAK_WHEN_VALUE_CHANGES_ID, nls.localize("breakWhenValueChanges", "Break on Value Change"), 210, CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugVariablesContext, BREAK_WHEN_VALUE_IS_ACCESSED_ID, nls.localize("breakWhenValueIsAccessed", "Break on Value Access"), 220, CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugHoverContext, VIEW_MEMORY_ID, nls.localize("viewMemory", "View Binary Data"), 15, CONTEXT_CAN_VIEW_MEMORY, CONTEXT_IN_DEBUG_MODE, "inline", icons.debugInspectMemory);
+registerDebugViewMenuItem(MenuId.DebugHoverContext, COPY_VALUE_ID, COPY_VALUE_LABEL, 10, void 0, void 0, "5_cutcopypaste");
+registerDebugViewMenuItem(MenuId.DebugHoverContext, COPY_EVALUATE_PATH_ID, COPY_EVALUATE_PATH_LABEL, 20, CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, void 0, "5_cutcopypaste");
+registerDebugViewMenuItem(MenuId.DebugHoverContext, ADD_TO_WATCH_ID, ADD_TO_WATCH_LABEL, 100, CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugHoverContext, BREAK_WHEN_VALUE_IS_READ_ID, nls.localize("breakWhenValueIsRead", "Break on Value Read"), 200, CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugHoverContext, BREAK_WHEN_VALUE_CHANGES_ID, nls.localize("breakWhenValueChanges", "Break on Value Change"), 210, CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugHoverContext, BREAK_WHEN_VALUE_IS_ACCESSED_ID, nls.localize("breakWhenValueIsAccessed", "Break on Value Access"), 220, CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, ADD_WATCH_ID, ADD_WATCH_LABEL, 10, void 0, void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, EDIT_EXPRESSION_COMMAND_ID, nls.localize("editWatchExpression", "Edit Expression"), 20, CONTEXT_WATCH_ITEM_TYPE.isEqualTo("expression"), void 0, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, SET_EXPRESSION_COMMAND_ID, nls.localize("setValue", "Set Value"), 30, ContextKeyExpr.or(ContextKeyExpr.and(CONTEXT_WATCH_ITEM_TYPE.isEqualTo("expression"), CONTEXT_SET_EXPRESSION_SUPPORTED), ContextKeyExpr.and(CONTEXT_WATCH_ITEM_TYPE.isEqualTo("variable"), CONTEXT_SET_VARIABLE_SUPPORTED)), CONTEXT_VARIABLE_IS_READONLY.toNegated(), "3_modification");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, COPY_VALUE_ID, nls.localize("copyValue", "Copy Value"), 40, ContextKeyExpr.or(CONTEXT_WATCH_ITEM_TYPE.isEqualTo("expression"), CONTEXT_WATCH_ITEM_TYPE.isEqualTo("variable")), CONTEXT_IN_DEBUG_MODE, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, COPY_EVALUATE_PATH_ID, COPY_EVALUATE_PATH_LABEL, 50, CONTEXT_VARIABLE_EVALUATE_NAME_PRESENT, CONTEXT_IN_DEBUG_MODE, "3_modification");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, VIEW_MEMORY_ID, nls.localize("viewMemory", "View Binary Data"), 10, CONTEXT_CAN_VIEW_MEMORY, void 0, "inline", icons.debugInspectMemory);
+registerDebugViewMenuItem(MenuId.DebugWatchContext, REMOVE_EXPRESSION_COMMAND_ID, nls.localize("removeWatchExpression", "Remove Expression"), 20, CONTEXT_WATCH_ITEM_TYPE.isEqualTo("expression"), void 0, "inline", icons.watchExpressionRemove);
+registerDebugViewMenuItem(MenuId.DebugWatchContext, REMOVE_WATCH_EXPRESSIONS_COMMAND_ID, REMOVE_WATCH_EXPRESSIONS_LABEL, 20, void 0, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, BREAK_WHEN_VALUE_IS_READ_ID, nls.localize("breakWhenValueIsRead", "Break on Value Read"), 200, CONTEXT_BREAK_WHEN_VALUE_IS_READ_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, BREAK_WHEN_VALUE_CHANGES_ID, nls.localize("breakWhenValueChanges", "Break on Value Change"), 210, CONTEXT_BREAK_WHEN_VALUE_CHANGES_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.DebugWatchContext, BREAK_WHEN_VALUE_IS_ACCESSED_ID, nls.localize("breakWhenValueIsAccessed", "Break on Value Access"), 220, CONTEXT_BREAK_WHEN_VALUE_IS_ACCESSED_SUPPORTED, void 0, "z_commands");
+registerDebugViewMenuItem(MenuId.NotebookVariablesContext, COPY_NOTEBOOK_VARIABLE_VALUE_ID, COPY_NOTEBOOK_VARIABLE_VALUE_LABEL, 20, CONTEXT_VARIABLE_VALUE);
+KeybindingsRegistry.registerKeybindingRule({
+  id: COPY_VALUE_ID,
+  weight: 200,
+  when: ContextKeyExpr.and(CONTEXT_EXPRESSION_SELECTED.negate(), ContextKeyExpr.or(FocusedViewContext.isEqualTo(WATCH_VIEW_ID), FocusedViewContext.isEqualTo(VARIABLES_VIEW_ID))),
+  primary: 2048 | 33
+  /* KeyCode.KeyC */
+});
+if (isMacintosh) {
+  const registerTouchBarEntry = /* @__PURE__ */ __name((id, title, order, when, iconUri) => {
+    MenuRegistry.appendMenuItem(MenuId.TouchBarContext, {
+      command: {
+        id,
+        title,
+        icon: { dark: iconUri }
+      },
+      when: ContextKeyExpr.and(CONTEXT_DEBUGGERS_AVAILABLE, when),
+      group: "9_debug",
+      order
+    });
+  }, "registerTouchBarEntry");
+  registerTouchBarEntry(DEBUG_RUN_COMMAND_ID, DEBUG_RUN_LABEL, 0, CONTEXT_IN_DEBUG_MODE.toNegated(), FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/continue-tb.png"));
+  registerTouchBarEntry(DEBUG_START_COMMAND_ID, DEBUG_START_LABEL, 1, CONTEXT_IN_DEBUG_MODE.toNegated(), FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/run-with-debugging-tb.png"));
+  registerTouchBarEntry(CONTINUE_ID, CONTINUE_LABEL, 0, CONTEXT_DEBUG_STATE.isEqualTo("stopped"), FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/continue-tb.png"));
+  registerTouchBarEntry(PAUSE_ID, PAUSE_LABEL, 1, ContextKeyExpr.and(CONTEXT_IN_DEBUG_MODE, ContextKeyExpr.and(CONTEXT_DEBUG_STATE.isEqualTo("running"), CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG.toNegated())), FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/pause-tb.png"));
+  registerTouchBarEntry(STEP_OVER_ID, STEP_OVER_LABEL, 2, CONTEXT_IN_DEBUG_MODE, FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/stepover-tb.png"));
+  registerTouchBarEntry(STEP_INTO_ID, STEP_INTO_LABEL, 3, CONTEXT_IN_DEBUG_MODE, FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/stepinto-tb.png"));
+  registerTouchBarEntry(STEP_OUT_ID, STEP_OUT_LABEL, 4, CONTEXT_IN_DEBUG_MODE, FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/stepout-tb.png"));
+  registerTouchBarEntry(RESTART_SESSION_ID, RESTART_LABEL, 5, CONTEXT_IN_DEBUG_MODE, FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/restart-tb.png"));
+  registerTouchBarEntry(STOP_ID, STOP_LABEL, 6, CONTEXT_IN_DEBUG_MODE, FileAccess.asFileUri("vs/workbench/contrib/debug/browser/media/stop-tb.png"));
+}
+MenuRegistry.appendMenuItem(MenuId.EditorTitle, { submenu: MenuId.EditorTitleRun, isSplitButton: { togglePrimaryAction: true }, title: nls.localize2("run", "Run or Debug..."), icon: icons.debugRun, group: "navigation", order: -1 });
+MenuRegistry.appendMenuItem(MenuId.MenubarMainMenu, {
+  submenu: MenuId.MenubarDebugMenu,
+  title: {
+    ...nls.localize2("runMenu", "Run"),
+    mnemonicTitle: nls.localize({ key: "mRun", comment: ["&& denotes a mnemonic"] }, "&&Run")
+  },
+  order: 6
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "1_debug",
+  command: {
+    id: DEBUG_START_COMMAND_ID,
+    title: nls.localize({ key: "miStartDebugging", comment: ["&& denotes a mnemonic"] }, "&&Start Debugging")
+  },
+  order: 1,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "1_debug",
+  command: {
+    id: DEBUG_RUN_COMMAND_ID,
+    title: nls.localize({ key: "miRun", comment: ["&& denotes a mnemonic"] }, "Run &&Without Debugging")
+  },
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "1_debug",
+  command: {
+    id: STOP_ID,
+    title: nls.localize({ key: "miStopDebugging", comment: ["&& denotes a mnemonic"] }, "&&Stop Debugging"),
+    precondition: CONTEXT_IN_DEBUG_MODE
+  },
+  order: 3,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "1_debug",
+  command: {
+    id: RESTART_SESSION_ID,
+    title: nls.localize({ key: "miRestart Debugging", comment: ["&& denotes a mnemonic"] }, "&&Restart Debugging"),
+    precondition: CONTEXT_IN_DEBUG_MODE
+  },
+  order: 4,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "2_configuration",
+  command: {
+    id: ADD_CONFIGURATION_ID,
+    title: nls.localize({ key: "miAddConfiguration", comment: ["&& denotes a mnemonic"] }, "A&&dd Configuration...")
+  },
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "3_step",
+  command: {
+    id: STEP_OVER_ID,
+    title: nls.localize({ key: "miStepOver", comment: ["&& denotes a mnemonic"] }, "Step &&Over"),
+    precondition: CONTEXT_DEBUG_STATE.isEqualTo("stopped")
+  },
+  order: 1,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "3_step",
+  command: {
+    id: STEP_INTO_ID,
+    title: nls.localize({ key: "miStepInto", comment: ["&& denotes a mnemonic"] }, "Step &&Into"),
+    precondition: CONTEXT_DEBUG_STATE.isEqualTo("stopped")
+  },
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "3_step",
+  command: {
+    id: STEP_OUT_ID,
+    title: nls.localize({ key: "miStepOut", comment: ["&& denotes a mnemonic"] }, "Step O&&ut"),
+    precondition: CONTEXT_DEBUG_STATE.isEqualTo("stopped")
+  },
+  order: 3,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "3_step",
+  command: {
+    id: CONTINUE_ID,
+    title: nls.localize({ key: "miContinue", comment: ["&& denotes a mnemonic"] }, "&&Continue"),
+    precondition: CONTEXT_DEBUG_STATE.isEqualTo("stopped")
+  },
+  order: 4,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarNewBreakpointMenu, {
+  group: "1_breakpoints",
+  command: {
+    id: TOGGLE_INLINE_BREAKPOINT_ID,
+    title: nls.localize({ key: "miInlineBreakpoint", comment: ["&& denotes a mnemonic"] }, "Inline Breakp&&oint")
+  },
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "4_new_breakpoint",
+  title: nls.localize({ key: "miNewBreakpoint", comment: ["&& denotes a mnemonic"] }, "&&New Breakpoint"),
+  submenu: MenuId.MenubarNewBreakpointMenu,
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.DebugDisassemblyContext, {
+  group: "1_edit",
+  command: {
+    id: COPY_ADDRESS_ID,
+    title: COPY_ADDRESS_LABEL
+  },
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.DebugDisassemblyContext, {
+  group: "3_breakpoints",
+  command: {
+    id: TOGGLE_BREAKPOINT_ID,
+    title: nls.localize({ key: "miToggleBreakpoint", comment: ["&& denotes a mnemonic"] }, "Toggle Breakpoint")
+  },
+  order: 2,
+  when: CONTEXT_DEBUGGERS_AVAILABLE
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarDebugMenu, {
+  group: "z_install",
+  command: {
+    id: "debug.installAdditionalDebuggers",
+    title: nls.localize({ key: "miInstallAdditionalDebuggers", comment: ["&& denotes a mnemonic"] }, "&&Install Additional Debuggers...")
+  },
+  order: 1
+});
+const VIEW_CONTAINER = Registry.as(ViewExtensions.ViewContainersRegistry).registerViewContainer({
+  id: DEBUG_PANEL_ID,
+  title: nls.localize2({ comment: ["Debug is a noun in this context, not a verb."], key: "debugPanel" }, "Debug Console"),
+  icon: icons.debugConsoleViewIcon,
+  ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [DEBUG_PANEL_ID, { mergeViewWithContainerWhenSingleView: true }]),
+  storageId: DEBUG_PANEL_ID,
+  hideIfEmpty: true,
+  order: 2
+}, 1, { doNotRegisterOpenCommand: true });
+Registry.as(ViewExtensions.ViewsRegistry).registerViews([{
+  id: REPL_VIEW_ID,
+  name: nls.localize2({ comment: ["Debug is a noun in this context, not a verb."], key: "debugPanel" }, "Debug Console"),
+  containerIcon: icons.debugConsoleViewIcon,
+  canToggleVisibility: true,
+  canMoveView: true,
+  when: CONTEXT_DEBUGGERS_AVAILABLE,
+  ctorDescriptor: new SyncDescriptor(Repl),
+  openCommandActionDescriptor: {
+    id: "workbench.debug.action.toggleRepl",
+    mnemonicTitle: nls.localize({ key: "miToggleDebugConsole", comment: ["&& denotes a mnemonic"] }, "De&&bug Console"),
+    keybindings: {
+      primary: 2048 | 1024 | 55
+      /* KeyCode.KeyY */
+    },
+    order: 2
+  }
+}], VIEW_CONTAINER);
+const viewContainer = Registry.as(ViewExtensions.ViewContainersRegistry).registerViewContainer(
+  {
+    id: VIEWLET_ID,
+    title: nls.localize2("run and debug", "Run and Debug"),
+    openCommandActionDescriptor: {
+      id: VIEWLET_ID,
+      mnemonicTitle: nls.localize({ key: "miViewRun", comment: ["&& denotes a mnemonic"] }, "&&Run"),
+      keybindings: {
+        primary: 2048 | 1024 | 34
+        /* KeyCode.KeyD */
+      },
+      order: 3
+    },
+    ctorDescriptor: new SyncDescriptor(DebugViewPaneContainer),
+    icon: icons.runViewIcon,
+    alwaysUseContainerInfo: true,
+    order: 3
+  },
+  0
+  /* ViewContainerLocation.Sidebar */
+);
+const viewsRegistry = Registry.as(ViewExtensions.ViewsRegistry);
+viewsRegistry.registerViews([{ id: VARIABLES_VIEW_ID, name: nls.localize2("variables", "Variables"), containerIcon: icons.variablesViewIcon, ctorDescriptor: new SyncDescriptor(VariablesView), order: 10, weight: 40, canToggleVisibility: true, canMoveView: true, focusCommand: { id: "workbench.debug.action.focusVariablesView" }, when: CONTEXT_DEBUG_UX.isEqualTo("default") }], viewContainer);
+viewsRegistry.registerViews([{ id: WATCH_VIEW_ID, name: nls.localize2("watch", "Watch"), containerIcon: icons.watchViewIcon, ctorDescriptor: new SyncDescriptor(WatchExpressionsView), order: 20, weight: 10, canToggleVisibility: true, canMoveView: true, focusCommand: { id: "workbench.debug.action.focusWatchView" }, when: CONTEXT_DEBUG_UX.isEqualTo("default") }], viewContainer);
+viewsRegistry.registerViews([{ id: CALLSTACK_VIEW_ID, name: nls.localize2("callStack", "Call Stack"), containerIcon: icons.callStackViewIcon, ctorDescriptor: new SyncDescriptor(CallStackView), order: 30, weight: 30, canToggleVisibility: true, canMoveView: true, focusCommand: { id: "workbench.debug.action.focusCallStackView" }, when: CONTEXT_DEBUG_UX.isEqualTo("default") }], viewContainer);
+viewsRegistry.registerViews([{ id: BREAKPOINTS_VIEW_ID, name: nls.localize2("breakpoints", "Breakpoints"), containerIcon: icons.breakpointsViewIcon, ctorDescriptor: new SyncDescriptor(BreakpointsView), order: 40, weight: 20, canToggleVisibility: true, canMoveView: true, focusCommand: { id: "workbench.debug.action.focusBreakpointsView" }, when: ContextKeyExpr.or(CONTEXT_BREAKPOINTS_EXIST, CONTEXT_DEBUG_UX.isEqualTo("default"), CONTEXT_HAS_DEBUGGED) }], viewContainer);
+viewsRegistry.registerViews([{ id: WelcomeView.ID, name: WelcomeView.LABEL, containerIcon: icons.runViewIcon, ctorDescriptor: new SyncDescriptor(WelcomeView), order: 1, weight: 40, canToggleVisibility: true, when: CONTEXT_DEBUG_UX.isEqualTo("simple") }], viewContainer);
+viewsRegistry.registerViews([{ id: LOADED_SCRIPTS_VIEW_ID, name: nls.localize2("loadedScripts", "Loaded Scripts"), containerIcon: icons.loadedScriptsViewIcon, ctorDescriptor: new SyncDescriptor(LoadedScriptsView), order: 35, weight: 5, canToggleVisibility: true, canMoveView: true, collapsed: true, when: ContextKeyExpr.and(CONTEXT_LOADED_SCRIPTS_SUPPORTED, CONTEXT_DEBUG_UX.isEqualTo("default")) }], viewContainer);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(DisassemblyView, DISASSEMBLY_VIEW_ID, nls.localize("disassembly", "Disassembly")), [new SyncDescriptor(DisassemblyViewInput)]);
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "debug",
+  order: 20,
+  title: nls.localize("debugConfigurationTitle", "Debug"),
+  type: "object",
+  properties: {
+    "debug.showVariableTypes": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "showVariableTypes" }, "Show variable type in variable pane during debug session"),
+      default: false
+    },
+    "debug.allowBreakpointsEverywhere": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "allowBreakpointsEverywhere" }, "Allow setting breakpoints in any file."),
+      default: false
+    },
+    "debug.gutterMiddleClickAction": {
+      type: "string",
+      enum: ["logpoint", "conditionalBreakpoint", "triggeredBreakpoint", "none"],
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "gutterMiddleClickAction" }, "Controls the action to perform when clicking the editor gutter with the middle mouse button."),
+      enumDescriptions: [
+        nls.localize("debug.gutterMiddleClickAction.logpoint", "Add Logpoint."),
+        nls.localize("debug.gutterMiddleClickAction.conditionalBreakpoint", "Add Conditional Breakpoint."),
+        nls.localize("debug.gutterMiddleClickAction.triggeredBreakpoint", "Add Triggered Breakpoint."),
+        nls.localize("debug.gutterMiddleClickAction.none", "Don't perform any action.")
+      ],
+      default: "logpoint"
+    },
+    "debug.openExplorerOnEnd": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "openExplorerOnEnd" }, "Automatically open the explorer view at the end of a debug session."),
+      default: false
+    },
+    "debug.closeReadonlyTabsOnEnd": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "closeReadonlyTabsOnEnd" }, "At the end of a debug session, all the read-only tabs associated with that session will be closed"),
+      default: false
+    },
+    "debug.inlineValues": {
+      type: "string",
+      "enum": ["on", "off", "auto"],
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "inlineValues" }, "Show variable values inline in editor while debugging."),
+      "enumDescriptions": [
+        nls.localize("inlineValues.on", "Always show variable values inline in editor while debugging."),
+        nls.localize("inlineValues.off", "Never show variable values inline in editor while debugging."),
+        nls.localize("inlineValues.focusNoScroll", "Show variable values inline in editor while debugging when the language supports inline value locations.")
+      ],
+      default: "auto"
+    },
+    "debug.toolBarLocation": {
+      enum: ["floating", "docked", "commandCenter", "hidden"],
+      markdownDescription: nls.localize({ comment: ["This is the description for a setting"], key: "toolBarLocation" }, "Controls the location of the debug toolbar. Either `floating` in all views, `docked` in the debug view, `commandCenter` (requires {0}), or `hidden`.", "`#window.commandCenter#`"),
+      default: "floating",
+      markdownEnumDescriptions: [
+        nls.localize("debugToolBar.floating", "Show debug toolbar in all views."),
+        nls.localize("debugToolBar.docked", "Show debug toolbar only in debug views."),
+        nls.localize("debugToolBar.commandCenter", "`(Experimental)` Show debug toolbar in the command center."),
+        nls.localize("debugToolBar.hidden", "Do not show debug toolbar.")
+      ]
+    },
+    "debug.showInStatusBar": {
+      enum: ["never", "always", "onFirstSessionStart"],
+      enumDescriptions: [nls.localize("never", "Never show debug item in status bar"), nls.localize("always", "Always show debug item in status bar"), nls.localize("onFirstSessionStart", "Show debug item in status bar only after debug was started for the first time")],
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "showInStatusBar" }, "Controls when the debug status bar item should be visible."),
+      default: "onFirstSessionStart"
+    },
+    "debug.internalConsoleOptions": INTERNAL_CONSOLE_OPTIONS_SCHEMA,
+    "debug.console.closeOnEnd": {
+      type: "boolean",
+      description: nls.localize("debug.console.closeOnEnd", "Controls if the Debug Console should be automatically closed when the debug session ends."),
+      default: false
+    },
+    "debug.terminal.clearBeforeReusing": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "debug.terminal.clearBeforeReusing" }, "Before starting a new debug session in an integrated or external terminal, clear the terminal."),
+      default: false
+    },
+    "debug.openDebug": {
+      enum: ["neverOpen", "openOnSessionStart", "openOnFirstSessionStart", "openOnDebugBreak"],
+      default: "openOnDebugBreak",
+      description: nls.localize("openDebug", "Controls when the debug view should open.")
+    },
+    "debug.showSubSessionsInToolBar": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "showSubSessionsInToolBar" }, "Controls whether the debug sub-sessions are shown in the debug tool bar. When this setting is false the stop command on a sub-session will also stop the parent session."),
+      default: false
+    },
+    "debug.console.fontSize": {
+      type: "number",
+      description: nls.localize("debug.console.fontSize", "Controls the font size in pixels in the Debug Console."),
+      default: isMacintosh ? 12 : 14
+    },
+    "debug.console.fontFamily": {
+      type: "string",
+      description: nls.localize("debug.console.fontFamily", "Controls the font family in the Debug Console."),
+      default: "default"
+    },
+    "debug.console.lineHeight": {
+      type: "number",
+      description: nls.localize("debug.console.lineHeight", "Controls the line height in pixels in the Debug Console. Use 0 to compute the line height from the font size."),
+      default: 0
+    },
+    "debug.console.wordWrap": {
+      type: "boolean",
+      description: nls.localize("debug.console.wordWrap", "Controls if the lines should wrap in the Debug Console."),
+      default: true
+    },
+    "debug.console.historySuggestions": {
+      type: "boolean",
+      description: nls.localize("debug.console.historySuggestions", "Controls if the Debug Console should suggest previously typed input."),
+      default: true
+    },
+    "debug.console.collapseIdenticalLines": {
+      type: "boolean",
+      description: nls.localize("debug.console.collapseIdenticalLines", "Controls if the Debug Console should collapse identical lines and show a number of occurrences with a badge."),
+      default: true
+    },
+    "debug.console.acceptSuggestionOnEnter": {
+      enum: ["off", "on"],
+      description: nls.localize("debug.console.acceptSuggestionOnEnter", "Controls whether suggestions should be accepted on Enter in the Debug Console. Enter is also used to evaluate whatever is typed in the Debug Console."),
+      default: "off"
+    },
+    "debug.console.maximumLines": {
+      type: "number",
+      description: nls.localize("debug.console.maximumLines", "Controls the maximum number of lines in the Debug Console."),
+      default: 1e4
+    },
+    "launch": {
+      type: "object",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "launch" }, "Global debug launch configuration. Should be used as an alternative to 'launch.json' that is shared across workspaces."),
+      default: { configurations: [], compounds: [] },
+      $ref: launchSchemaId,
+      disallowConfigurationDefault: true
+    },
+    "debug.focusWindowOnBreak": {
+      type: "boolean",
+      description: nls.localize("debug.focusWindowOnBreak", "Controls whether the workbench window should be focused when the debugger breaks."),
+      default: true
+    },
+    "debug.focusEditorOnBreak": {
+      type: "boolean",
+      description: nls.localize("debug.focusEditorOnBreak", "Controls whether the editor should be focused when the debugger breaks."),
+      default: true
+    },
+    "debug.onTaskErrors": {
+      enum: ["debugAnyway", "showErrors", "prompt", "abort"],
+      enumDescriptions: [nls.localize("debugAnyway", "Ignore task errors and start debugging."), nls.localize("showErrors", "Show the Problems view and do not start debugging."), nls.localize("prompt", "Prompt user."), nls.localize("cancel", "Cancel debugging.")],
+      description: nls.localize("debug.onTaskErrors", "Controls what to do when errors are encountered after running a preLaunchTask."),
+      default: "prompt"
+    },
+    "debug.showBreakpointsInOverviewRuler": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "showBreakpointsInOverviewRuler" }, "Controls whether breakpoints should be shown in the overview ruler."),
+      default: false
+    },
+    "debug.breakpointsView.presentation": {
+      type: "string",
+      description: nls.localize("debug.breakpointsView.presentation", "Controls whether breakpoints are displayed in a tree view grouped by file, or as a flat list."),
+      enum: ["tree", "list"],
+      default: "list"
+    },
+    "debug.showInlineBreakpointCandidates": {
+      type: "boolean",
+      description: nls.localize({ comment: ["This is the description for a setting"], key: "showInlineBreakpointCandidates" }, "Controls whether inline breakpoints candidate decorations should be shown in the editor while debugging."),
+      default: true
+    },
+    "debug.saveBeforeStart": {
+      description: nls.localize("debug.saveBeforeStart", "Controls what editors to save before starting a debug session."),
+      enum: ["allEditorsInActiveGroup", "nonUntitledEditorsInActiveGroup", "none"],
+      enumDescriptions: [
+        nls.localize("debug.saveBeforeStart.allEditorsInActiveGroup", "Save all editors in the active group before starting a debug session."),
+        nls.localize("debug.saveBeforeStart.nonUntitledEditorsInActiveGroup", "Save all editors in the active group except untitled ones before starting a debug session."),
+        nls.localize("debug.saveBeforeStart.none", "Don't save any editors before starting a debug session.")
+      ],
+      default: "allEditorsInActiveGroup",
+      scope: 6
+      /* ConfigurationScope.LANGUAGE_OVERRIDABLE */
+    },
+    "debug.confirmOnExit": {
+      description: nls.localize("debug.confirmOnExit", "Controls whether to confirm when the window closes if there are active debug sessions."),
+      type: "string",
+      enum: ["never", "always"],
+      enumDescriptions: [
+        nls.localize("debug.confirmOnExit.never", "Never confirm."),
+        nls.localize("debug.confirmOnExit.always", "Always confirm if there are debug sessions.")
+      ],
+      default: "never"
+    },
+    "debug.disassemblyView.showSourceCode": {
+      type: "boolean",
+      default: true,
+      description: nls.localize("debug.disassemblyView.showSourceCode", "Show Source Code in Disassembly View.")
+    },
+    "debug.autoExpandLazyVariables": {
+      type: "string",
+      enum: ["auto", "on", "off"],
+      default: "auto",
+      enumDescriptions: [
+        nls.localize("debug.autoExpandLazyVariables.auto", "When in screen reader optimized mode, automatically expand lazy variables."),
+        nls.localize("debug.autoExpandLazyVariables.on", "Always automatically expand lazy variables."),
+        nls.localize("debug.autoExpandLazyVariables.off", "Never automatically expand lazy variables.")
+      ],
+      description: nls.localize("debug.autoExpandLazyVariables", "Controls whether variables that are lazily resolved, such as getters, are automatically resolved and expanded by the debugger.")
+    },
+    "debug.enableStatusBarColor": {
+      type: "boolean",
+      description: nls.localize("debug.enableStatusBarColor", "Color of the status bar when the debugger is active."),
+      default: true
+    },
+    "debug.hideLauncherWhileDebugging": {
+      type: "boolean",
+      markdownDescription: nls.localize({ comment: ["This is the description for a setting"], key: "debug.hideLauncherWhileDebugging" }, "Hide 'Start Debugging' control in title bar of 'Run and Debug' view while debugging is active. Only relevant when {0} is not `docked`.", "`#debug.toolBarLocation#`"),
+      default: false
+    },
+    "debug.hideSlowPreLaunchWarning": {
+      type: "boolean",
+      markdownDescription: nls.localize("debug.hideSlowPreLaunchWarning", "Hide the warning shown when a `preLaunchTask` has been running for a while."),
+      default: false
+    }
+  }
+});
+AccessibleViewRegistry.register(new ReplAccessibleView());
+AccessibleViewRegistry.register(new ReplAccessibilityHelp());
+AccessibleViewRegistry.register(new RunAndDebugAccessibilityHelp());
+registerWorkbenchContribution2(
+  ReplAccessibilityAnnouncer.ID,
+  ReplAccessibilityAnnouncer,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  DebugWatchAccessibilityAnnouncer.ID,
+  DebugWatchAccessibilityAnnouncer,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+//# sourceMappingURL=debug.contribution.js.map

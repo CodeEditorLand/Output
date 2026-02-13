@@ -1,1 +1,245 @@
-import{$Z$ as A}from"../../../../../../base/browser/trustedTypes.js";import{$7cb as k}from"../../../../config/domFontInfo.js";import{EditorFontLigatures as H}from"../../../../../common/config/editorOptions.js";import{$$D as T}from"../../../../../common/core/position.js";import{$TE as $}from"../../../../../common/core/stringBuilder.js";import{$4fb as W}from"../../../../../common/viewLayout/lineDecorations.js";import{$7fb as y,$0fb as B,$$fb as E}from"../../../../../common/viewLayout/viewLineRenderer.js";import{$Zcb as b}from"../../../../../common/viewModel.js";import{$vgb as R}from"../../../../viewParts/viewLines/viewLine.js";const v=A("diffEditorWidget",{createHTML:a=>a});function X(a,t,i,n,o=!1){k(n,t.fontInfo);const l=i.length>0,e=new $(1e4);let r=0,c=0;const h=[],f=[];for(let g=0;g<a.lineTokens.length;g++){const O=g+1,S=a.lineTokens[g],C=a.lineBreakData[g],I=W.filter(i,O,1,Number.MAX_SAFE_INTEGER);if(C){let d=0;for(const L of C.breakOffsets){const z=S.sliceAndInflate(d,L,0),w=M(c,z,W.extractWrapped(I,d,L),l,a.mightContainNonBasicASCII,a.mightContainRTL,t,e,o);r=Math.max(r,w.maxCharWidth),f.push(new x(w.output.characterMapping,w.output.containsForeignElements,d)),c++,d=L}h.push(C.breakOffsets.length)}else{h.push(1);const d=M(c,S,I,l,a.mightContainNonBasicASCII,a.mightContainRTL,t,e,o);r=Math.max(r,d.maxCharWidth),f.push(new x(d.output.characterMapping,d.output.containsForeignElements,0)),c++}}r+=t.scrollBeyondLastColumn;const s=e.build(),p=v?v.createHTML(s):s;n.innerHTML=p;const u=r*t.typicalHalfwidthCharacterWidth;return new D(c,u,h,f,a)}class J{constructor(t,i=t.map(l=>null),n=!0,o=!0){this.lineTokens=t,this.lineBreakData=i,this.mightContainNonBasicASCII=n,this.mightContainRTL=o}}class m{static fromEditor(t){const i=t.getOptions(),n=i.get(59),o=i.get(165);return new m(t.getModel()?.getOptions().tabSize||0,n,i.get(40),n.typicalHalfwidthCharacterWidth,i.get(118),i.get(75),o.decorationsWidth,i.get(133),i.get(113),i.get(108),i.get(60),i.get(117).verticalScrollbarSize)}constructor(t,i,n,o,l,e,r,c,h,f,s,p,u=!0){this.tabSize=t,this.fontInfo=i,this.disableMonospaceOptimizations=n,this.typicalHalfwidthCharacterWidth=o,this.scrollBeyondLastColumn=l,this.lineHeight=e,this.lineDecorationsWidth=r,this.stopRenderingLineAfter=c,this.renderWhitespace=h,this.renderControlCharacters=f,this.fontLigatures=s,this.verticalScrollbarSize=p,this.setWidth=u}withSetWidth(t){return new m(this.tabSize,this.fontInfo,this.disableMonospaceOptimizations,this.typicalHalfwidthCharacterWidth,this.scrollBeyondLastColumn,this.lineHeight,this.lineDecorationsWidth,this.stopRenderingLineAfter,this.renderWhitespace,this.renderControlCharacters,this.fontLigatures,this.verticalScrollbarSize,t)}withScrollBeyondLastColumn(t){return new m(this.tabSize,this.fontInfo,this.disableMonospaceOptimizations,this.typicalHalfwidthCharacterWidth,t,this.lineHeight,this.lineDecorationsWidth,this.stopRenderingLineAfter,this.renderWhitespace,this.renderControlCharacters,this.fontLigatures,this.verticalScrollbarSize,this.setWidth)}}class D{constructor(t,i,n,o,l){this.heightInLines=t,this.minWidthInPx=i,this.viewLineCounts=n,this.a=o,this.b=l}getModelPositionAt(t,i){let n=t;for(;n&&!n.classList.contains("view-line");)n=n.parentElement;if(!n)return;const o=n.parentElement;if(!o)return;const l=o.querySelectorAll(".view-line");let e=-1;for(let s=0;s<l.length;s++)if(l[s]===n){e=s;break}if(e===-1||e>=this.a.length)return;let r=1,c=e;for(let s=0;s<this.viewLineCounts.length;s++){if(c<this.viewLineCounts[s]){r=s+1;break}c-=this.viewLineCounts[s]}if(r>this.b.lineTokens.length)return;const h=this.a[e];if(!h)return;const f=R(h.characterMapping,t,i)+h.offset;return new T(r,f)}}class x extends B{constructor(t,i,n){super(t,i),this.offset=n}}function M(a,t,i,n,o,l,e,r,c){r.appendString('<div class="view-line'),!c&&!n&&r.appendString(" char-delete"),r.appendString('" style="top:'),r.appendString(String(a*e.lineHeight)),e.setWidth?r.appendString('px;width:1000000px;">'):r.appendString('px;">');const h=t.getLineContent(),f=b.isBasicASCII(h,o),s=b.containsRTL(h,f,l),p=E(new y(e.fontInfo.isMonospace&&!e.disableMonospaceOptimizations,e.fontInfo.canUseHalfwidthRightwardsArrow,h,!1,f,s,0,t,i,e.tabSize,0,e.fontInfo.spaceWidth,e.fontInfo.middotWidth,e.fontInfo.wsmiddotWidth,e.stopRenderingLineAfter,e.renderWhitespace,e.renderControlCharacters,e.fontLigatures!==H.OFF,null,null,e.verticalScrollbarSize),r);r.appendString("</div>");const u=p.characterMapping.getHorizontalOffset(p.characterMapping.length);return{output:p,maxCharWidth:u}}export{X as $jjb,J as $kjb,m as $ljb,D as $mjb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createTrustedTypesPolicy } from "../../../../../../base/browser/trustedTypes.js";
+import { applyFontInfo } from "../../../../config/domFontInfo.js";
+import { EditorFontLigatures } from "../../../../../common/config/editorOptions.js";
+import { Position } from "../../../../../common/core/position.js";
+import { StringBuilder } from "../../../../../common/core/stringBuilder.js";
+import { LineDecoration } from "../../../../../common/viewLayout/lineDecorations.js";
+import { RenderLineInput, RenderLineOutput, renderViewLine } from "../../../../../common/viewLayout/viewLineRenderer.js";
+import { ViewLineRenderingData } from "../../../../../common/viewModel.js";
+import { getColumnOfNodeOffset } from "../../../../viewParts/viewLines/viewLine.js";
+const ttPolicy = createTrustedTypesPolicy("diffEditorWidget", { createHTML: /* @__PURE__ */ __name((value) => value, "createHTML") });
+function renderLines(source, options, decorations, domNode, noExtra = false) {
+  applyFontInfo(domNode, options.fontInfo);
+  const hasCharChanges = decorations.length > 0;
+  const sb = new StringBuilder(1e4);
+  let maxCharsPerLine = 0;
+  let renderedLineCount = 0;
+  const viewLineCounts = [];
+  const renderOutputs = [];
+  for (let lineIndex = 0; lineIndex < source.lineTokens.length; lineIndex++) {
+    const lineNumber = lineIndex + 1;
+    const lineTokens = source.lineTokens[lineIndex];
+    const lineBreakData = source.lineBreakData[lineIndex];
+    const actualDecorations = LineDecoration.filter(decorations, lineNumber, 1, Number.MAX_SAFE_INTEGER);
+    if (lineBreakData) {
+      let lastBreakOffset = 0;
+      for (const breakOffset of lineBreakData.breakOffsets) {
+        const viewLineTokens = lineTokens.sliceAndInflate(lastBreakOffset, breakOffset, 0);
+        const result = renderOriginalLine(renderedLineCount, viewLineTokens, LineDecoration.extractWrapped(actualDecorations, lastBreakOffset, breakOffset), hasCharChanges, source.mightContainNonBasicASCII, source.mightContainRTL, options, sb, noExtra);
+        maxCharsPerLine = Math.max(maxCharsPerLine, result.maxCharWidth);
+        renderOutputs.push(new RenderLineOutputWithOffset(result.output.characterMapping, result.output.containsForeignElements, lastBreakOffset));
+        renderedLineCount++;
+        lastBreakOffset = breakOffset;
+      }
+      viewLineCounts.push(lineBreakData.breakOffsets.length);
+    } else {
+      viewLineCounts.push(1);
+      const result = renderOriginalLine(renderedLineCount, lineTokens, actualDecorations, hasCharChanges, source.mightContainNonBasicASCII, source.mightContainRTL, options, sb, noExtra);
+      maxCharsPerLine = Math.max(maxCharsPerLine, result.maxCharWidth);
+      renderOutputs.push(new RenderLineOutputWithOffset(result.output.characterMapping, result.output.containsForeignElements, 0));
+      renderedLineCount++;
+    }
+  }
+  maxCharsPerLine += options.scrollBeyondLastColumn;
+  const html = sb.build();
+  const trustedhtml = ttPolicy ? ttPolicy.createHTML(html) : html;
+  domNode.innerHTML = trustedhtml;
+  const minWidthInPx = maxCharsPerLine * options.typicalHalfwidthCharacterWidth;
+  return new RenderLinesResult(renderedLineCount, minWidthInPx, viewLineCounts, renderOutputs, source);
+}
+__name(renderLines, "renderLines");
+class LineSource {
+  static {
+    __name(this, "LineSource");
+  }
+  constructor(lineTokens, lineBreakData = lineTokens.map((t) => null), mightContainNonBasicASCII = true, mightContainRTL = true) {
+    this.lineTokens = lineTokens;
+    this.lineBreakData = lineBreakData;
+    this.mightContainNonBasicASCII = mightContainNonBasicASCII;
+    this.mightContainRTL = mightContainRTL;
+  }
+}
+class RenderOptions {
+  static {
+    __name(this, "RenderOptions");
+  }
+  static fromEditor(editor) {
+    const modifiedEditorOptions = editor.getOptions();
+    const fontInfo = modifiedEditorOptions.get(
+      59
+      /* EditorOption.fontInfo */
+    );
+    const layoutInfo = modifiedEditorOptions.get(
+      165
+      /* EditorOption.layoutInfo */
+    );
+    return new RenderOptions(editor.getModel()?.getOptions().tabSize || 0, fontInfo, modifiedEditorOptions.get(
+      40
+      /* EditorOption.disableMonospaceOptimizations */
+    ), fontInfo.typicalHalfwidthCharacterWidth, modifiedEditorOptions.get(
+      118
+      /* EditorOption.scrollBeyondLastColumn */
+    ), modifiedEditorOptions.get(
+      75
+      /* EditorOption.lineHeight */
+    ), layoutInfo.decorationsWidth, modifiedEditorOptions.get(
+      133
+      /* EditorOption.stopRenderingLineAfter */
+    ), modifiedEditorOptions.get(
+      113
+      /* EditorOption.renderWhitespace */
+    ), modifiedEditorOptions.get(
+      108
+      /* EditorOption.renderControlCharacters */
+    ), modifiedEditorOptions.get(
+      60
+      /* EditorOption.fontLigatures */
+    ), modifiedEditorOptions.get(
+      117
+      /* EditorOption.scrollbar */
+    ).verticalScrollbarSize);
+  }
+  constructor(tabSize, fontInfo, disableMonospaceOptimizations, typicalHalfwidthCharacterWidth, scrollBeyondLastColumn, lineHeight, lineDecorationsWidth, stopRenderingLineAfter, renderWhitespace, renderControlCharacters, fontLigatures, verticalScrollbarSize, setWidth = true) {
+    this.tabSize = tabSize;
+    this.fontInfo = fontInfo;
+    this.disableMonospaceOptimizations = disableMonospaceOptimizations;
+    this.typicalHalfwidthCharacterWidth = typicalHalfwidthCharacterWidth;
+    this.scrollBeyondLastColumn = scrollBeyondLastColumn;
+    this.lineHeight = lineHeight;
+    this.lineDecorationsWidth = lineDecorationsWidth;
+    this.stopRenderingLineAfter = stopRenderingLineAfter;
+    this.renderWhitespace = renderWhitespace;
+    this.renderControlCharacters = renderControlCharacters;
+    this.fontLigatures = fontLigatures;
+    this.verticalScrollbarSize = verticalScrollbarSize;
+    this.setWidth = setWidth;
+  }
+  withSetWidth(setWidth) {
+    return new RenderOptions(this.tabSize, this.fontInfo, this.disableMonospaceOptimizations, this.typicalHalfwidthCharacterWidth, this.scrollBeyondLastColumn, this.lineHeight, this.lineDecorationsWidth, this.stopRenderingLineAfter, this.renderWhitespace, this.renderControlCharacters, this.fontLigatures, this.verticalScrollbarSize, setWidth);
+  }
+  withScrollBeyondLastColumn(scrollBeyondLastColumn) {
+    return new RenderOptions(this.tabSize, this.fontInfo, this.disableMonospaceOptimizations, this.typicalHalfwidthCharacterWidth, scrollBeyondLastColumn, this.lineHeight, this.lineDecorationsWidth, this.stopRenderingLineAfter, this.renderWhitespace, this.renderControlCharacters, this.fontLigatures, this.verticalScrollbarSize, this.setWidth);
+  }
+}
+class RenderLinesResult {
+  static {
+    __name(this, "RenderLinesResult");
+  }
+  constructor(heightInLines, minWidthInPx, viewLineCounts, _renderOutputs, _source) {
+    this.heightInLines = heightInLines;
+    this.minWidthInPx = minWidthInPx;
+    this.viewLineCounts = viewLineCounts;
+    this._renderOutputs = _renderOutputs;
+    this._source = _source;
+  }
+  /**
+   * Returns the model position for a given DOM node and offset within that node.
+   * @param domNode The span node within a view-line where the offset is located
+   * @param offset The offset within the span node
+   * @returns The Position in the model, or undefined if the position cannot be determined
+   */
+  getModelPositionAt(domNode, offset) {
+    let viewLineElement = domNode;
+    while (viewLineElement && !viewLineElement.classList.contains("view-line")) {
+      viewLineElement = viewLineElement.parentElement;
+    }
+    if (!viewLineElement) {
+      return void 0;
+    }
+    const container = viewLineElement.parentElement;
+    if (!container) {
+      return void 0;
+    }
+    const viewLines = container.querySelectorAll(".view-line");
+    let viewLineIndex = -1;
+    for (let i = 0; i < viewLines.length; i++) {
+      if (viewLines[i] === viewLineElement) {
+        viewLineIndex = i;
+        break;
+      }
+    }
+    if (viewLineIndex === -1 || viewLineIndex >= this._renderOutputs.length) {
+      return void 0;
+    }
+    let modelLineNumber = 1;
+    let remainingViewLines = viewLineIndex;
+    for (let i = 0; i < this.viewLineCounts.length; i++) {
+      if (remainingViewLines < this.viewLineCounts[i]) {
+        modelLineNumber = i + 1;
+        break;
+      }
+      remainingViewLines -= this.viewLineCounts[i];
+    }
+    if (modelLineNumber > this._source.lineTokens.length) {
+      return void 0;
+    }
+    const renderOutput = this._renderOutputs[viewLineIndex];
+    if (!renderOutput) {
+      return void 0;
+    }
+    const column = getColumnOfNodeOffset(renderOutput.characterMapping, domNode, offset) + renderOutput.offset;
+    return new Position(modelLineNumber, column);
+  }
+}
+class RenderLineOutputWithOffset extends RenderLineOutput {
+  static {
+    __name(this, "RenderLineOutputWithOffset");
+  }
+  constructor(characterMapping, containsForeignElements, offset) {
+    super(characterMapping, containsForeignElements);
+    this.offset = offset;
+  }
+}
+function renderOriginalLine(viewLineIdx, lineTokens, decorations, hasCharChanges, mightContainNonBasicASCII, mightContainRTL, options, sb, noExtra) {
+  sb.appendString('<div class="view-line');
+  if (!noExtra && !hasCharChanges) {
+    sb.appendString(" char-delete");
+  }
+  sb.appendString('" style="top:');
+  sb.appendString(String(viewLineIdx * options.lineHeight));
+  if (options.setWidth) {
+    sb.appendString('px;width:1000000px;">');
+  } else {
+    sb.appendString('px;">');
+  }
+  const lineContent = lineTokens.getLineContent();
+  const isBasicASCII = ViewLineRenderingData.isBasicASCII(lineContent, mightContainNonBasicASCII);
+  const containsRTL = ViewLineRenderingData.containsRTL(lineContent, isBasicASCII, mightContainRTL);
+  const output = renderViewLine(new RenderLineInput(
+    options.fontInfo.isMonospace && !options.disableMonospaceOptimizations,
+    options.fontInfo.canUseHalfwidthRightwardsArrow,
+    lineContent,
+    false,
+    isBasicASCII,
+    containsRTL,
+    0,
+    lineTokens,
+    decorations,
+    options.tabSize,
+    0,
+    options.fontInfo.spaceWidth,
+    options.fontInfo.middotWidth,
+    options.fontInfo.wsmiddotWidth,
+    options.stopRenderingLineAfter,
+    options.renderWhitespace,
+    options.renderControlCharacters,
+    options.fontLigatures !== EditorFontLigatures.OFF,
+    null,
+    // Send no selections, original line cannot be selected
+    null,
+    options.verticalScrollbarSize
+  ), sb);
+  sb.appendString("</div>");
+  const maxCharWidth = output.characterMapping.getHorizontalOffset(output.characterMapping.length);
+  return { output, maxCharWidth };
+}
+__name(renderOriginalLine, "renderOriginalLine");
+export {
+  LineSource,
+  RenderLinesResult,
+  RenderOptions,
+  renderLines
+};
+//# sourceMappingURL=renderLines.js.map

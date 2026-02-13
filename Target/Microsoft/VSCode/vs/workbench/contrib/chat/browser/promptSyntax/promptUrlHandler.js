@@ -1,1 +1,158 @@
-import{$jj as b,$0i as g}from"../../../../../base/common/buffer.js";import{CancellationToken as k}from"../../../../../base/common/cancellation.js";import{$Ed as y}from"../../../../../base/common/lifecycle.js";import{URI as f}from"../../../../../base/common/uri.js";import{$vk as j}from"../../../../../platform/files/common/files.js";import{$Mj as U}from"../../../../../platform/instantiation/common/instantiation.js";import{$pH as R}from"../../../../../platform/notification/common/notification.js";import{$EP as v}from"../../../../../platform/opener/common/opener.js";import{$Vo as _}from"../../../../../platform/request/common/request.js";import{$py as P}from"../../../../../platform/url/common/url.js";import{$ZYb as S}from"./pickers/askForPromptName.js";import{$1Yb as F}from"./pickers/askForPromptSourceFolder.js";import{$QT as H}from"../../common/promptSyntax/config/promptFileLocations.js";import{PromptsType as p}from"../../common/promptSyntax/promptTypes.js";import{$yo as T}from"../../../../../platform/log/common/log.js";import{localize as s}from"../../../../../nls.js";import{$Mp as q}from"../../../../../platform/dialogs/common/dialogs.js";import{Schemas as d}from"../../../../../base/common/network.js";import{$jk as D}from"../../../../../base/common/htmlContent.js";import{$gcb as L}from"../../../../services/host/browser/host.js";import{$T7 as E}from"../../../../../base/browser/window.js";var w=function(c,o,e,t){var i=arguments.length,r=i<3?o:t===null?t=Object.getOwnPropertyDescriptor(o,e):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,o,e,t);else for(var m=c.length-1;m>=0;m--)(n=c[m])&&(r=(i<3?n(r):i>3?n(o,e,r):n(o,e))||r);return i>3&&r&&Object.defineProperty(o,e,r),r},a=function(c,o){return function(e,t){o(e,t,c)}};let $=class extends y{static{this.ID="workbench.contrib.promptUrlHandler"}constructor(o,e,t,i,r,n,m,l,u){super(),this.a=e,this.b=t,this.c=i,this.f=r,this.g=n,this.h=m,this.j=l,this.m=u,this.D(o.registerHandler(this))}async handleURL(o){let e;switch(o.path){case"chat-prompt/install":e=p.prompt;break;case"chat-instructions/install":e=p.instructions;break;case"chat-mode/install":case"chat-agent/install":e=p.agent;break;default:return!1}try{const t=decodeURIComponent(o.query);if(!t||!t.startsWith("url="))return!0;const i=t.substring(4),r=f.parse(i);if(r.scheme!==d.https&&r.scheme!==d.http)return this.h.error(`[PromptUrlHandler] Invalid URL: ${i}`),!0;if(await this.m.focus(E),await this.n(e,r))return!0;const n=await this.b.request({type:"GET",url:i},k.None);if(n.res.statusCode!==200)return this.h.error(`[PromptUrlHandler] Failed to fetch URL: ${i}`),this.a.error(s(6352,null,i)),!0;const m=(await b(n.stream)).toString(),l=await this.c.invokeFunction(F,e);if(!l)return!0;const u=await this.c.invokeFunction(S,e,l.uri,H(r));if(!u)return!0;const h=f.joinPath(l.uri,u);return await this.f.createFolder(l.uri),await this.f.createFile(h,g.fromString(m)),await this.g.open(h),!0}catch(t){return this.h.error(`Error handling prompt URL ${o.toString()}`,t),!0}}async n(o,e){let t=e.toString();t.length>50&&(t=`${t.substring(0,35)}...${t.substring(t.length-15)}`);const i=new D("",{supportHtml:!0});i.appendMarkdown(s(6353,null,`[${t}](${e.toString()})`)),i.appendMarkdown(s(6354,null));let r;switch(o){case p.prompt:r=s(6355,null);break;case p.instructions:r=s(6356,null);break;default:r=s(6357,null);break}const{confirmed:n}=await this.j.confirm({type:"warning",primaryButton:s(6358,null),cancelButton:s(6359,null),message:r,custom:{markdownDetails:[{markdown:i}]}});return!n}};$=w([a(0,P),a(1,R),a(2,_),a(3,U),a(4,j),a(5,v),a(6,T),a(7,q),a(8,L)],$);export{$ as $8qc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { streamToBuffer, VSBuffer } from "../../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IRequestService } from "../../../../../platform/request/common/request.js";
+import { IURLService } from "../../../../../platform/url/common/url.js";
+import { askForPromptFileName } from "./pickers/askForPromptName.js";
+import { askForPromptSourceFolder } from "./pickers/askForPromptSourceFolder.js";
+import { getCleanPromptName } from "../../common/promptSyntax/config/promptFileLocations.js";
+import { PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { localize } from "../../../../../nls.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+import { mainWindow } from "../../../../../base/browser/window.js";
+let PromptUrlHandler = class PromptUrlHandler2 extends Disposable {
+  static {
+    __name(this, "PromptUrlHandler");
+  }
+  static {
+    this.ID = "workbench.contrib.promptUrlHandler";
+  }
+  constructor(urlService, notificationService, requestService, instantiationService, fileService, openerService, logService, dialogService, hostService) {
+    super();
+    this.notificationService = notificationService;
+    this.requestService = requestService;
+    this.instantiationService = instantiationService;
+    this.fileService = fileService;
+    this.openerService = openerService;
+    this.logService = logService;
+    this.dialogService = dialogService;
+    this.hostService = hostService;
+    this._register(urlService.registerHandler(this));
+  }
+  async handleURL(uri) {
+    let promptType;
+    switch (uri.path) {
+      case "chat-prompt/install":
+        promptType = PromptsType.prompt;
+        break;
+      case "chat-instructions/install":
+        promptType = PromptsType.instructions;
+        break;
+      case "chat-mode/install":
+      case "chat-agent/install":
+        promptType = PromptsType.agent;
+        break;
+      default:
+        return false;
+    }
+    try {
+      const query = decodeURIComponent(uri.query);
+      if (!query || !query.startsWith("url=")) {
+        return true;
+      }
+      const urlString = query.substring(4);
+      const url = URI.parse(urlString);
+      if (url.scheme !== Schemas.https && url.scheme !== Schemas.http) {
+        this.logService.error(`[PromptUrlHandler] Invalid URL: ${urlString}`);
+        return true;
+      }
+      await this.hostService.focus(mainWindow);
+      if (await this.shouldBlockInstall(promptType, url)) {
+        return true;
+      }
+      const result = await this.requestService.request({ type: "GET", url: urlString }, CancellationToken.None);
+      if (result.res.statusCode !== 200) {
+        this.logService.error(`[PromptUrlHandler] Failed to fetch URL: ${urlString}`);
+        this.notificationService.error(localize("failed", "Failed to fetch URL: {0}", urlString));
+        return true;
+      }
+      const responseData = (await streamToBuffer(result.stream)).toString();
+      const newFolder = await this.instantiationService.invokeFunction(askForPromptSourceFolder, promptType);
+      if (!newFolder) {
+        return true;
+      }
+      const newName = await this.instantiationService.invokeFunction(askForPromptFileName, promptType, newFolder.uri, getCleanPromptName(url));
+      if (!newName) {
+        return true;
+      }
+      const promptUri = URI.joinPath(newFolder.uri, newName);
+      await this.fileService.createFolder(newFolder.uri);
+      await this.fileService.createFile(promptUri, VSBuffer.fromString(responseData));
+      await this.openerService.open(promptUri);
+      return true;
+    } catch (error) {
+      this.logService.error(`Error handling prompt URL ${uri.toString()}`, error);
+      return true;
+    }
+  }
+  async shouldBlockInstall(promptType, url) {
+    let uriLabel = url.toString();
+    if (uriLabel.length > 50) {
+      uriLabel = `${uriLabel.substring(0, 35)}...${uriLabel.substring(uriLabel.length - 15)}`;
+    }
+    const detail = new MarkdownString("", { supportHtml: true });
+    detail.appendMarkdown(localize("confirmOpenDetail2", "This will access {0}.\n\n", `[${uriLabel}](${url.toString()})`));
+    detail.appendMarkdown(localize("confirmOpenDetail3", "If you did not initiate this request, it may represent an attempted attack on your system. Unless you took an explicit action to initiate this request, you should press 'No'"));
+    let message;
+    switch (promptType) {
+      case PromptsType.prompt:
+        message = localize("confirmInstallPrompt", "An external application wants to create a prompt file with content from a URL. Do you want to continue by selecting a destination folder and name?");
+        break;
+      case PromptsType.instructions:
+        message = localize("confirmInstallInstructions", "An external application wants to create an instructions file with content from a URL. Do you want to continue by selecting a destination folder and name?");
+        break;
+      default:
+        message = localize("confirmInstallAgent", "An external application wants to create a custom agent with content from a URL. Do you want to continue by selecting a destination folder and name?");
+        break;
+    }
+    const { confirmed } = await this.dialogService.confirm({
+      type: "warning",
+      primaryButton: localize({ key: "yesButton", comment: ["&& denotes a mnemonic"] }, "&&Yes"),
+      cancelButton: localize("noButton", "No"),
+      message,
+      custom: {
+        markdownDetails: [{
+          markdown: detail
+        }]
+      }
+    });
+    return !confirmed;
+  }
+};
+PromptUrlHandler = __decorate([
+  __param(0, IURLService),
+  __param(1, INotificationService),
+  __param(2, IRequestService),
+  __param(3, IInstantiationService),
+  __param(4, IFileService),
+  __param(5, IOpenerService),
+  __param(6, ILogService),
+  __param(7, IDialogService),
+  __param(8, IHostService)
+], PromptUrlHandler);
+export {
+  PromptUrlHandler
+};
+//# sourceMappingURL=promptUrlHandler.js.map

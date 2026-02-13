@@ -1,1 +1,30 @@
-import{$0i as n}from"../../../common/buffer.js";import{Event as c}from"../../../common/event.js";import{$an as i}from"../common/ipc.js";import{$An as m}from"../common/ipc.electron.js";import{$rbb as s}from"../../sandbox/electron-browser/globals.js";class t extends i{static f(){const o=c.fromNodeEventEmitter(s,"vscode:message",(r,e)=>n.wrap(e));return s.send("vscode:hello"),new m(s,o)}constructor(o){const r=t.f();super(r,o),this.b=r}dispose(){this.b.disconnect(),super.dispose()}}export{t as $zbb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../common/buffer.js";
+import { Event } from "../../../common/event.js";
+import { IPCClient } from "../common/ipc.js";
+import { Protocol as ElectronProtocol } from "../common/ipc.electron.js";
+import { ipcRenderer } from "../../sandbox/electron-browser/globals.js";
+class Client extends IPCClient {
+  static {
+    __name(this, "Client");
+  }
+  static createProtocol() {
+    const onMessage = Event.fromNodeEventEmitter(ipcRenderer, "vscode:message", (_, message) => VSBuffer.wrap(message));
+    ipcRenderer.send("vscode:hello");
+    return new ElectronProtocol(ipcRenderer, onMessage);
+  }
+  constructor(id) {
+    const protocol = Client.createProtocol();
+    super(protocol, id);
+    this.protocol = protocol;
+  }
+  dispose() {
+    this.protocol.disconnect();
+    super.dispose();
+  }
+}
+export {
+  Client
+};
+//# sourceMappingURL=ipc.electron.js.map

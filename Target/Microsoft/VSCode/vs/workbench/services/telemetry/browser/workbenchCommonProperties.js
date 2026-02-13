@@ -1,1 +1,89 @@
-import*as m from"../../../../base/common/platform.js";import*as a from"../../../../base/common/uuid.js";import{$pv as h}from"../../../../platform/telemetry/common/telemetryUtils.js";import{$Fp as g}from"../../../../base/common/objects.js";import{$tp as w,$up as I,$vp as u}from"../../../../platform/telemetry/common/telemetry.js";import{$89 as v}from"../../../../base/browser/touch.js";function O(o){return o.replace(/(\d+\.\d+)(\.\d+)+/g,"$1")}function z(o,n,i,f,s){const{commit:d,version:l,embedderIdentifier:r,removeTelemetryMachineId:p}=n??{},e=Object.create(null),$=o.get(w,-1),c=o.get(I,-1);let t;p?t=`Redacted-${r??"web"}`:(t=o.get(u,-1),t||(t=a.$ln(),o.store(u,t,-1,1))),e["common.firstSessionDate"]=$,e["common.lastSessionDate"]=c||"",e["common.isNewSession"]=c?"0":"1",e["common.remoteAuthority"]=h(f,n),e["common.machineId"]=t,e.sessionID=a.$ln()+Date.now(),e.commitHash=d,e.version=l,e["common.platform"]=m.$l(m.$y),e["common.product"]=r??"web",e["common.userAgent"]=m.$z?O(m.$z):void 0,e["common.isTouchDevice"]=String(v.isTouchDevice()),i&&(e["common.msftInternal"]=i);let D=0;const b=Date.now();return Object.defineProperties(e,{timestamp:{get:()=>new Date,enumerable:!0},"common.timesincesessionstart":{get:()=>Date.now()-b,enumerable:!0},"common.sequence":{get:()=>D++,enumerable:!0}}),s&&g(e,s()),e}export{z as $bOc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as Platform from "../../../../base/common/platform.js";
+import * as uuid from "../../../../base/common/uuid.js";
+import { cleanRemoteAuthority } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { mixin } from "../../../../base/common/objects.js";
+import { firstSessionDateStorageKey, lastSessionDateStorageKey, machineIdKey } from "../../../../platform/telemetry/common/telemetry.js";
+import { Gesture } from "../../../../base/browser/touch.js";
+function cleanUserAgent(userAgent) {
+  return userAgent.replace(/(\d+\.\d+)(\.\d+)+/g, "$1");
+}
+__name(cleanUserAgent, "cleanUserAgent");
+function resolveWorkbenchCommonProperties(storageService, productService, isInternalTelemetry, remoteAuthority, resolveAdditionalProperties) {
+  const { commit, version, embedderIdentifier: productIdentifier, removeTelemetryMachineId: removeMachineId } = productService ?? {};
+  const result = /* @__PURE__ */ Object.create(null);
+  const firstSessionDate = storageService.get(
+    firstSessionDateStorageKey,
+    -1
+    /* StorageScope.APPLICATION */
+  );
+  const lastSessionDate = storageService.get(
+    lastSessionDateStorageKey,
+    -1
+    /* StorageScope.APPLICATION */
+  );
+  let machineId;
+  if (!removeMachineId) {
+    machineId = storageService.get(
+      machineIdKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (!machineId) {
+      machineId = uuid.generateUuid();
+      storageService.store(
+        machineIdKey,
+        machineId,
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+  } else {
+    machineId = `Redacted-${productIdentifier ?? "web"}`;
+  }
+  result["common.firstSessionDate"] = firstSessionDate;
+  result["common.lastSessionDate"] = lastSessionDate || "";
+  result["common.isNewSession"] = !lastSessionDate ? "1" : "0";
+  result["common.remoteAuthority"] = cleanRemoteAuthority(remoteAuthority, productService);
+  result["common.machineId"] = machineId;
+  result["sessionID"] = uuid.generateUuid() + Date.now();
+  result["commitHash"] = commit;
+  result["version"] = version;
+  result["common.platform"] = Platform.PlatformToString(Platform.platform);
+  result["common.product"] = productIdentifier ?? "web";
+  result["common.userAgent"] = Platform.userAgent ? cleanUserAgent(Platform.userAgent) : void 0;
+  result["common.isTouchDevice"] = String(Gesture.isTouchDevice());
+  if (isInternalTelemetry) {
+    result["common.msftInternal"] = isInternalTelemetry;
+  }
+  let seq = 0;
+  const startTime = Date.now();
+  Object.defineProperties(result, {
+    // __GDPR__COMMON__ "timestamp" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
+    "timestamp": {
+      get: /* @__PURE__ */ __name(() => /* @__PURE__ */ new Date(), "get"),
+      enumerable: true
+    },
+    // __GDPR__COMMON__ "common.timesincesessionstart" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
+    "common.timesincesessionstart": {
+      get: /* @__PURE__ */ __name(() => Date.now() - startTime, "get"),
+      enumerable: true
+    },
+    // __GDPR__COMMON__ "common.sequence" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
+    "common.sequence": {
+      get: /* @__PURE__ */ __name(() => seq++, "get"),
+      enumerable: true
+    }
+  });
+  if (resolveAdditionalProperties) {
+    mixin(result, resolveAdditionalProperties());
+  }
+  return result;
+}
+__name(resolveWorkbenchCommonProperties, "resolveWorkbenchCommonProperties");
+export {
+  resolveWorkbenchCommonProperties
+};
+//# sourceMappingURL=workbenchCommonProperties.js.map

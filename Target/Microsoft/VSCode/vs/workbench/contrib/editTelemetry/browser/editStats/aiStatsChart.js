@@ -1,1 +1,217 @@
-import{$ as V}from"../../../../../base/browser/dom.js";import{localize as q}from"../../../../../nls.js";import{$Wp as b}from"../../../../../platform/theme/common/colorUtils.js";import{$ss as F,$ps as L,$qs as z}from"../../../../../platform/theme/common/colorRegistry.js";function O(N){const l=new Map;for(const r of N){const u=new Date(r.startTime),m=u.toISOString().split("T")[0],g=u.toLocaleDateString(void 0,{month:"short",day:"numeric"});let i=l.get(m);i||(i={date:m,displayDate:g,aiRate:0,totalAiChars:0,totalTypedChars:0,inlineSuggestions:0,chatEdits:0,sessionCount:0},l.set(m,i)),i.totalAiChars+=r.aiCharacters,i.totalTypedChars+=r.typedCharacters,i.inlineSuggestions+=r.acceptedInlineSuggestions??0,i.chatEdits+=r.chatEditCount??0,i.sessionCount+=1}for(const r of l.values()){const u=r.totalAiChars+r.totalTypedChars;r.aiRate=u>0?r.totalAiChars/u:0}return Array.from(l.values()).sort((r,u)=>r.date.localeCompare(u.date))}function P(N){const{sessions:l,viewMode:r}=N,u=280,m=100,g={top:10,right:10,bottom:25,left:30},i=u-g.left-g.right,o=m-g.top-g.bottom,v=V(".ai-stats-chart-container");v.style.position="relative",v.style.marginTop="8px";const C=document.createElementNS("http://www.w3.org/2000/svg","svg");C.setAttribute("width",`${u}px`),C.setAttribute("height",`${m}px`),C.setAttribute("viewBox",`0 0 ${u} ${m}`),C.style.display="block",v.appendChild(C);const a=document.createElementNS("http://www.w3.org/2000/svg","g");if(a.setAttribute("transform",`translate(${g.left},${g.top})`),C.appendChild(a),l.length===0){const t=document.createElementNS("http://www.w3.org/2000/svg","text");return t.setAttribute("x",`${i/2}`),t.setAttribute("y",`${o/2}`),t.setAttribute("text-anchor","middle"),t.setAttribute("fill",b(L)),t.setAttribute("font-size","11px"),t.textContent=q(8450,null),a.appendChild(t),v}const x=document.createElementNS("http://www.w3.org/2000/svg","line");x.setAttribute("x1","0"),x.setAttribute("y1",`${o}`),x.setAttribute("x2",`${i}`),x.setAttribute("y2",`${o}`),x.setAttribute("stroke",b(z)),x.setAttribute("stroke-width","1px"),a.appendChild(x);const f=document.createElementNS("http://www.w3.org/2000/svg","line");f.setAttribute("x1","0"),f.setAttribute("y1","0"),f.setAttribute("x2","0"),f.setAttribute("y2",`${o}`),f.setAttribute("stroke",b(z)),f.setAttribute("stroke-width","1px"),a.appendChild(f);for(const t of[0,50,100]){const e=o-t/100*o,s=document.createElementNS("http://www.w3.org/2000/svg","text");if(s.setAttribute("x","-4"),s.setAttribute("y",`${e+3}`),s.setAttribute("text-anchor","end"),s.setAttribute("fill",b(L)),s.setAttribute("font-size","9px"),s.textContent=`${t}%`,a.appendChild(s),t>0){const n=document.createElementNS("http://www.w3.org/2000/svg","line");n.setAttribute("x1","0"),n.setAttribute("y1",`${e}`),n.setAttribute("x2",`${i}`),n.setAttribute("y2",`${e}`),n.setAttribute("stroke",b(z)),n.setAttribute("stroke-width","0.5px"),n.setAttribute("stroke-dasharray","2,2"),a.appendChild(n)}}r==="days"?R():X();function R(){const t=O(l),e=t.length,s=Math.min(20,(i-(e-1)*2)/e),n=2,S=e*s+(e-1)*n,M=(i-S)/2,E=40,k=Math.max(2,Math.floor(S/E)),A=Math.max(1,Math.ceil(e/k));t.forEach((w,h)=>{const $=M+h*(s+n),c=w.aiRate*o,T=o-c,d=document.createElementNS("http://www.w3.org/2000/svg","rect");d.setAttribute("x",`${$}`),d.setAttribute("y",`${T}`),d.setAttribute("width",`${s}`),d.setAttribute("height",`${Math.max(1,c)}`),d.setAttribute("fill",b(F)),d.setAttribute("rx","2"),a.appendChild(d);const D=h===0,p=h===e-1,B=h%A===0;if(D||p||B&&e>2){if(!D&&!p){const H=h*(s+n),I=(e-1-h)*(s+n);if(H<E||I<E)return}const y=document.createElementNS("http://www.w3.org/2000/svg","text");y.setAttribute("x",`${$+s/2}`),y.setAttribute("y",`${o+12}`),y.setAttribute("text-anchor","middle"),y.setAttribute("fill",b(L)),y.setAttribute("font-size","8px"),y.textContent=w.displayDate,a.appendChild(y)}})}function X(){const t=l.length,e=Math.min(8,(i-(t-1)*1)/t),s=1,n=t*e+(t-1)*s,S=(i-n)/2;l.forEach((w,h)=>{const $=w.aiCharacters+w.typedCharacters,c=$>0?w.aiCharacters/$:0,T=S+h*(e+s),d=c*o,D=o-d,p=document.createElementNS("http://www.w3.org/2000/svg","rect");p.setAttribute("x",`${T}`),p.setAttribute("y",`${D}`),p.setAttribute("width",`${e}`),p.setAttribute("height",`${Math.max(1,d)}`),p.setAttribute("fill",b(F)),p.setAttribute("rx","1"),a.appendChild(p)});const M=40;if(t===0)return;const E=l[0],W=S,k=new Date(E.startTime),A=document.createElementNS("http://www.w3.org/2000/svg","text");if(A.setAttribute("x",`${W+e/2}`),A.setAttribute("y",`${o+12}`),A.setAttribute("text-anchor","start"),A.setAttribute("fill",b(L)),A.setAttribute("font-size","8px"),A.textContent=k.toLocaleDateString(void 0,{month:"short",day:"numeric"}),a.appendChild(A),t>1&&n>=M){const w=l[t-1],h=S+(t-1)*(e+s),$=new Date(w.startTime),c=document.createElementNS("http://www.w3.org/2000/svg","text");c.setAttribute("x",`${h+e/2}`),c.setAttribute("y",`${o+12}`),c.setAttribute("text-anchor","end"),c.setAttribute("fill",b(L)),c.setAttribute("font-size","8px"),c.textContent=$.toLocaleDateString(void 0,{month:"short",day:"numeric"}),a.appendChild(c)}}return v}export{O as $yLc,P as $zLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $ } from "../../../../../base/browser/dom.js";
+import { localize } from "../../../../../nls.js";
+import { asCssVariable } from "../../../../../platform/theme/common/colorUtils.js";
+import { chartsBlue, chartsForeground, chartsLines } from "../../../../../platform/theme/common/colorRegistry.js";
+function aggregateSessionsByDay(sessions) {
+  const dayMap = /* @__PURE__ */ new Map();
+  for (const session of sessions) {
+    const date = new Date(session.startTime);
+    const isoDate = date.toISOString().split("T")[0];
+    const displayDate = date.toLocaleDateString(void 0, { month: "short", day: "numeric" });
+    let aggregate = dayMap.get(isoDate);
+    if (!aggregate) {
+      aggregate = {
+        date: isoDate,
+        displayDate,
+        aiRate: 0,
+        totalAiChars: 0,
+        totalTypedChars: 0,
+        inlineSuggestions: 0,
+        chatEdits: 0,
+        sessionCount: 0
+      };
+      dayMap.set(isoDate, aggregate);
+    }
+    aggregate.totalAiChars += session.aiCharacters;
+    aggregate.totalTypedChars += session.typedCharacters;
+    aggregate.inlineSuggestions += session.acceptedInlineSuggestions ?? 0;
+    aggregate.chatEdits += session.chatEditCount ?? 0;
+    aggregate.sessionCount += 1;
+  }
+  for (const aggregate of dayMap.values()) {
+    const total = aggregate.totalAiChars + aggregate.totalTypedChars;
+    aggregate.aiRate = total > 0 ? aggregate.totalAiChars / total : 0;
+  }
+  return Array.from(dayMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+}
+__name(aggregateSessionsByDay, "aggregateSessionsByDay");
+function createAiStatsChart(options) {
+  const { sessions: sessionsData, viewMode: mode } = options;
+  const width = 280;
+  const height = 100;
+  const margin = { top: 10, right: 10, bottom: 25, left: 30 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  const container = $(".ai-stats-chart-container");
+  container.style.position = "relative";
+  container.style.marginTop = "8px";
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", `${width}px`);
+  svg.setAttribute("height", `${height}px`);
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.style.display = "block";
+  container.appendChild(svg);
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("transform", `translate(${margin.left},${margin.top})`);
+  svg.appendChild(g);
+  if (sessionsData.length === 0) {
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", `${innerWidth / 2}`);
+    text.setAttribute("y", `${innerHeight / 2}`);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("fill", asCssVariable(chartsForeground));
+    text.setAttribute("font-size", "11px");
+    text.textContent = localize("noData", "No data yet");
+    g.appendChild(text);
+    return container;
+  }
+  const xAxisLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xAxisLine.setAttribute("x1", "0");
+  xAxisLine.setAttribute("y1", `${innerHeight}`);
+  xAxisLine.setAttribute("x2", `${innerWidth}`);
+  xAxisLine.setAttribute("y2", `${innerHeight}`);
+  xAxisLine.setAttribute("stroke", asCssVariable(chartsLines));
+  xAxisLine.setAttribute("stroke-width", "1px");
+  g.appendChild(xAxisLine);
+  const yAxisLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yAxisLine.setAttribute("x1", "0");
+  yAxisLine.setAttribute("y1", "0");
+  yAxisLine.setAttribute("x2", "0");
+  yAxisLine.setAttribute("y2", `${innerHeight}`);
+  yAxisLine.setAttribute("stroke", asCssVariable(chartsLines));
+  yAxisLine.setAttribute("stroke-width", "1px");
+  g.appendChild(yAxisLine);
+  for (const pct of [0, 50, 100]) {
+    const y = innerHeight - pct / 100 * innerHeight;
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", "-4");
+    label.setAttribute("y", `${y + 3}`);
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("fill", asCssVariable(chartsForeground));
+    label.setAttribute("font-size", "9px");
+    label.textContent = `${pct}%`;
+    g.appendChild(label);
+    if (pct > 0) {
+      const gridLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      gridLine.setAttribute("x1", "0");
+      gridLine.setAttribute("y1", `${y}`);
+      gridLine.setAttribute("x2", `${innerWidth}`);
+      gridLine.setAttribute("y2", `${y}`);
+      gridLine.setAttribute("stroke", asCssVariable(chartsLines));
+      gridLine.setAttribute("stroke-width", "0.5px");
+      gridLine.setAttribute("stroke-dasharray", "2,2");
+      g.appendChild(gridLine);
+    }
+  }
+  if (mode === "days") {
+    renderDaysView();
+  } else {
+    renderSessionsView();
+  }
+  function renderDaysView() {
+    const dailyData = aggregateSessionsByDay(sessionsData);
+    const barCount = dailyData.length;
+    const barWidth = Math.min(20, (innerWidth - (barCount - 1) * 2) / barCount);
+    const gap = 2;
+    const totalBarSpace = barCount * barWidth + (barCount - 1) * gap;
+    const startX = (innerWidth - totalBarSpace) / 2;
+    const minLabelSpacing = 40;
+    const totalWidth = totalBarSpace;
+    const maxLabels = Math.max(2, Math.floor(totalWidth / minLabelSpacing));
+    const labelStep = Math.max(1, Math.ceil(barCount / maxLabels));
+    dailyData.forEach((day, i) => {
+      const x = startX + i * (barWidth + gap);
+      const barHeight = day.aiRate * innerHeight;
+      const y = innerHeight - barHeight;
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", `${x}`);
+      rect.setAttribute("y", `${y}`);
+      rect.setAttribute("width", `${barWidth}`);
+      rect.setAttribute("height", `${Math.max(1, barHeight)}`);
+      rect.setAttribute("fill", asCssVariable(chartsBlue));
+      rect.setAttribute("rx", "2");
+      g.appendChild(rect);
+      const isFirst = i === 0;
+      const isLast = i === barCount - 1;
+      const isAtInterval = i % labelStep === 0;
+      if (isFirst || isLast || isAtInterval && barCount > 2) {
+        if (!isFirst && !isLast) {
+          const distFromFirst = i * (barWidth + gap);
+          const distFromLast = (barCount - 1 - i) * (barWidth + gap);
+          if (distFromFirst < minLabelSpacing || distFromLast < minLabelSpacing) {
+            return;
+          }
+        }
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", `${x + barWidth / 2}`);
+        label.setAttribute("y", `${innerHeight + 12}`);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("fill", asCssVariable(chartsForeground));
+        label.setAttribute("font-size", "8px");
+        label.textContent = day.displayDate;
+        g.appendChild(label);
+      }
+    });
+  }
+  __name(renderDaysView, "renderDaysView");
+  function renderSessionsView() {
+    const sessionCount = sessionsData.length;
+    const barWidth = Math.min(8, (innerWidth - (sessionCount - 1) * 1) / sessionCount);
+    const gap = 1;
+    const totalBarSpace = sessionCount * barWidth + (sessionCount - 1) * gap;
+    const startX = (innerWidth - totalBarSpace) / 2;
+    sessionsData.forEach((session, i) => {
+      const total = session.aiCharacters + session.typedCharacters;
+      const aiRate = total > 0 ? session.aiCharacters / total : 0;
+      const x = startX + i * (barWidth + gap);
+      const barHeight = aiRate * innerHeight;
+      const y = innerHeight - barHeight;
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", `${x}`);
+      rect.setAttribute("y", `${y}`);
+      rect.setAttribute("width", `${barWidth}`);
+      rect.setAttribute("height", `${Math.max(1, barHeight)}`);
+      rect.setAttribute("fill", asCssVariable(chartsBlue));
+      rect.setAttribute("rx", "1");
+      g.appendChild(rect);
+    });
+    const minLabelSpacing = 40;
+    if (sessionCount === 0) {
+      return;
+    }
+    const firstSession = sessionsData[0];
+    const firstX = startX;
+    const firstDate = new Date(firstSession.startTime);
+    const firstLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    firstLabel.setAttribute("x", `${firstX + barWidth / 2}`);
+    firstLabel.setAttribute("y", `${innerHeight + 12}`);
+    firstLabel.setAttribute("text-anchor", "start");
+    firstLabel.setAttribute("fill", asCssVariable(chartsForeground));
+    firstLabel.setAttribute("font-size", "8px");
+    firstLabel.textContent = firstDate.toLocaleDateString(void 0, { month: "short", day: "numeric" });
+    g.appendChild(firstLabel);
+    if (sessionCount > 1 && totalBarSpace >= minLabelSpacing) {
+      const lastSession = sessionsData[sessionCount - 1];
+      const lastX = startX + (sessionCount - 1) * (barWidth + gap);
+      const lastDate = new Date(lastSession.startTime);
+      const lastLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      lastLabel.setAttribute("x", `${lastX + barWidth / 2}`);
+      lastLabel.setAttribute("y", `${innerHeight + 12}`);
+      lastLabel.setAttribute("text-anchor", "end");
+      lastLabel.setAttribute("fill", asCssVariable(chartsForeground));
+      lastLabel.setAttribute("font-size", "8px");
+      lastLabel.textContent = lastDate.toLocaleDateString(void 0, { month: "short", day: "numeric" });
+      g.appendChild(lastLabel);
+    }
+  }
+  __name(renderSessionsView, "renderSessionsView");
+  return container;
+}
+__name(createAiStatsChart, "createAiStatsChart");
+export {
+  aggregateSessionsByDay,
+  createAiStatsChart
+};
+//# sourceMappingURL=aiStatsChart.js.map

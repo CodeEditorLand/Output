@@ -1,1 +1,91 @@
-import{$Ed as d}from"../../../../base/common/lifecycle.js";import{localize as _}from"../../../../nls.js";import{$wL as f}from"../../../../platform/actions/common/actions.js";import{$Kj as v}from"../../../../platform/instantiation/common/descriptors.js";import{$WC as w}from"../../../../platform/instantiation/common/extensions.js";import{$jm as $}from"../../../../platform/registry/common/platform.js";import{$aSb as g}from"../../../browser/editor.js";import{$2N as E}from"../../../common/contributions.js";import{$9M as b}from"../../../common/editor.js";import{$xL as I}from"../../../services/editor/common/editorGroupsService.js";import{$$Ac as P,$bBc as D,$0Ac as j,$_Ac as O,$aBc as W}from"./webviewCommands.js";import{$VZb as u}from"./webviewEditor.js";import{$8Nb as s}from"./webviewEditorInput.js";import{$z8b as l}from"./webviewEditorInputSerializer.js";import{$S5b as y,$U5b as z}from"./webviewWorkbenchService.js";import{$BL as A}from"../../../services/editor/common/editorService.js";var h=function(n,r,t,o){var e=arguments.length,i=e<3?r:o===null?o=Object.getOwnPropertyDescriptor(r,t):o,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,r,t,o);else for(var c=n.length-1;c>=0;c--)(m=n[c])&&(i=(e<3?m(i):e>3?m(r,t,i):m(r,t))||i);return e>3&&i&&Object.defineProperty(r,t,i),i},a=function(n,r){return function(t,o){r(t,o,n)}};$.as(b.EditorPane).registerEditorPane(g.create(u,u.ID,_(15028,null)),[new v(s)]);let p=class extends d{static{this.ID="workbench.contrib.webviewPanel"}constructor(r,t){super(),this.a=t,this.D(r.onWillOpenEditor(o=>{const e=t.getGroup(o.groupId);e&&this.b(o.editor,e)}))}b(r,t){if(!(r instanceof s)||r.typeId!==s.typeId||t.contains(r))return;let o;const e=this.a.groups;for(const i of e)if(i.contains(r)){o=i;break}o&&o.closeEditor(r)}};p=h([a(0,A),a(1,I)],p);E(p.ID,p,1);$.as(b.EditorFactory).registerEditorSerializer(l.ID,l);w(y,z,1);f(j);f(P);f(O);f(W);f(D);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { HideWebViewEditorFindCommand, ReloadWebviewAction, ShowWebViewEditorFindWidgetAction, WebViewEditorFindNextCommand, WebViewEditorFindPreviousCommand } from "./webviewCommands.js";
+import { WebviewEditor } from "./webviewEditor.js";
+import { WebviewInput } from "./webviewEditorInput.js";
+import { WebviewEditorInputSerializer } from "./webviewEditorInputSerializer.js";
+import { IWebviewWorkbenchService, WebviewEditorService } from "./webviewWorkbenchService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(WebviewEditor, WebviewEditor.ID, localize("webview.editor.label", "webview editor")), [new SyncDescriptor(WebviewInput)]);
+let WebviewPanelContribution = class WebviewPanelContribution2 extends Disposable {
+  static {
+    __name(this, "WebviewPanelContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.webviewPanel";
+  }
+  constructor(editorService, editorGroupService) {
+    super();
+    this.editorGroupService = editorGroupService;
+    this._register(editorService.onWillOpenEditor((e) => {
+      const group = editorGroupService.getGroup(e.groupId);
+      if (group) {
+        this.onEditorOpening(e.editor, group);
+      }
+    }));
+  }
+  onEditorOpening(editor, group) {
+    if (!(editor instanceof WebviewInput) || editor.typeId !== WebviewInput.typeId) {
+      return;
+    }
+    if (group.contains(editor)) {
+      return;
+    }
+    let previousGroup;
+    const groups = this.editorGroupService.groups;
+    for (const group2 of groups) {
+      if (group2.contains(editor)) {
+        previousGroup = group2;
+        break;
+      }
+    }
+    if (!previousGroup) {
+      return;
+    }
+    previousGroup.closeEditor(editor);
+  }
+};
+WebviewPanelContribution = __decorate([
+  __param(0, IEditorService),
+  __param(1, IEditorGroupsService)
+], WebviewPanelContribution);
+registerWorkbenchContribution2(
+  WebviewPanelContribution.ID,
+  WebviewPanelContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(WebviewEditorInputSerializer.ID, WebviewEditorInputSerializer);
+registerSingleton(
+  IWebviewWorkbenchService,
+  WebviewEditorService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerAction2(ShowWebViewEditorFindWidgetAction);
+registerAction2(HideWebViewEditorFindCommand);
+registerAction2(WebViewEditorFindNextCommand);
+registerAction2(WebViewEditorFindPreviousCommand);
+registerAction2(ReloadWebviewAction);
+//# sourceMappingURL=webviewPanel.contribution.js.map

@@ -1,1 +1,191 @@
-import{n as u}from"../../../../../../../base/browser/dom.js";import{$U_ as k}from"../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{$ji as P}from"../../../../../../../base/common/async.js";import{$Ed as R}from"../../../../../../../base/common/lifecycle.js";import{autorun as S,constObservable as h,DebugLocation as v,derived as a,observableFromEvent as x}from"../../../../../../../base/common/observable.js";import{OS as C}from"../../../../../../../base/common/platform.js";import{$ro as D}from"../../../../../../../platform/contextkey/common/contextkey.js";import{$fy as O}from"../../../../../../../platform/keybinding/common/keybinding.js";import{$Gjb as T}from"../../../../../../../platform/theme/browser/defaultStyles.js";import{$Wp as g}from"../../../../../../../platform/theme/common/colorUtils.js";import{$qu as z}from"../../../../../../../platform/theme/common/themeService.js";import{Rect as B}from"../../../../../../common/core/2d/rect.js";import{$_D as F}from"../../../../../../common/core/range.js";import{$_mb as I}from"../../../controller/commandIds.js";import{$Wsb as c,$Msb as W,$Lsb as H,$Ksb as b}from"../theme.js";import{$dtb as M}from"../utils/utils.js";var _=function(r,o,e,n){var s=arguments.length,d=s<3?o:n===null?n=Object.getOwnPropertyDescriptor(o,e):n,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")d=Reflect.decorate(r,o,e,n);else for(var f=r.length-1;f>=0;f--)(l=r[f])&&(d=(s<3?l(d):s>3?l(o,e,d):l(o,e))||d);return s>3&&d&&Object.defineProperty(o,e,d),d},p=function(r,o){return function(e,n){o(e,n,r)}};let y=class extends R{constructor(o,e,n,s,d,l){super(),this.c=o,this.f=n,this.g=s,this.h=d,this.j=l,this.m=a(this,i=>({background:c(W,this.g).read(i).toString(),foreground:c(b,this.g).read(i).toString(),border:c(H,this.g).read(i).toString()})),this.q=a(this,i=>this.c.observePosition(a(t=>this.f.read(t)?.jumpToPosition||null),i.store)).flatten(),this.u=a(this,i=>{const t=this.f.read(i);if(!t)return;const $=t.jumpToPosition,L=this.c.observeLineHeightForLine(h($.lineNumber)).read(i),w=this.c.scrollLeft.read(i),m=this.q.read(i);if(!m)return;const j=this.c.layoutInfo.read(i);return{widgetRect:B.fromLeftTopWidthHeight(m.x+j.contentLeft+2-w,m.y,100,L)}}),this.w=q([{value:!0,durationMs:600},{value:!1,durationMs:600}]),this.z=u.div({class:"inline-edit-jump-to-widget",style:{position:"absolute",display:this.u.map(i=>i?"flex":"none"),alignItems:"center",cursor:"pointer",userSelect:"none",...M(i=>this.u.read(i)?.widgetRect)}},a(i=>this.f.read(i)===void 0?[]:u.div({style:{display:"flex",alignItems:"center",gap:"4px",padding:"0 4px",height:"100%",backgroundColor:this.m.map(t=>t.background),"--vscodeIconForeground":this.m.map(t=>t.foreground),border:this.m.map(t=>`1px solid ${t.border}`),borderRadius:"3px",boxSizing:"border-box",fontSize:"11px",color:this.m.map(t=>t.foreground)}},[this.a==="cursor"?u.elem("div",{style:{borderLeft:"2px solid",height:14,opacity:this.w.map(t=>t?"0":"1")}}):[a(()=>u.elem("div",{},E(this.t))),u.elem("div",{style:{lineHeight:this.u.map(t=>t?.widgetRect.height),marginTop:"-2px"}},["to jump"])]]))),this.a=e.style,this.t=this.r(I);const f=this.z.keepUpdated(this.B);this.D(this.c.createOverlayWidget({domNode:f.element,position:h(null),allowEditorOverflow:!1,minContentWidthInPx:h(0)})),this.D(this.c.setDecorations(a(i=>{const t=this.f.read(i);return t?[{range:F.fromPositions(t.jumpToPosition,t.jumpToPosition),options:{description:"inline-edit-jump-to-decoration",inlineClassNameAffectsLetterSpacing:!0,showIfCollapsed:!0,after:{content:this.a==="label"?"          ":"  "}}}]:[]})))}r(o,e=v.ofCaller()){return o?x(this,this.j.onDidChangeContext,()=>this.h.lookupKeybinding(o),e):h(void 0)}};y=_([p(3,z),p(4,O),p(5,D)],y);function q(r,o=v.ofCaller()){let e=0;return x(void 0,n=>{e=0;const s=new P(()=>{e=(e+1)%r.length,n(null),s.schedule(r[e].durationMs)},0);return s.schedule(0),s},()=>r[e].value,o)}function E(r){return a(o=>u.div({style:{},ref:e=>{const n=o.store.add(new k(e,C,{disableTitle:!0,...T,keybindingLabelShadow:void 0,keybindingLabelForeground:g(b),keybindingLabelBackground:"transparent",keybindingLabelBorder:g(b),keybindingLabelBottomBorder:void 0}));o.store.add(S(s=>{n.set(r.read(s))}))}}))}export{y as $ztb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { n } from "../../../../../../../base/browser/dom.js";
+import { KeybindingLabel } from "../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { RunOnceScheduler } from "../../../../../../../base/common/async.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, DebugLocation, derived, observableFromEvent } from "../../../../../../../base/common/observable.js";
+import { OS } from "../../../../../../../base/common/platform.js";
+import { IContextKeyService } from "../../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../../platform/keybinding/common/keybinding.js";
+import { defaultKeybindingLabelStyles } from "../../../../../../../platform/theme/browser/defaultStyles.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
+import { Rect } from "../../../../../../common/core/2d/rect.js";
+import { Range } from "../../../../../../common/core/range.js";
+import { inlineSuggestCommitId } from "../../../controller/commandIds.js";
+import { getEditorBlendedColor, inlineEditIndicatorPrimaryBackground, inlineEditIndicatorPrimaryBorder, inlineEditIndicatorPrimaryForeground } from "../theme.js";
+import { rectToProps } from "../utils/utils.js";
+let JumpToView = class JumpToView2 extends Disposable {
+  static {
+    __name(this, "JumpToView");
+  }
+  constructor(_editor, options, _data, _themeService, _keybindingService, _contextKeyService) {
+    super();
+    this._editor = _editor;
+    this._data = _data;
+    this._themeService = _themeService;
+    this._keybindingService = _keybindingService;
+    this._contextKeyService = _contextKeyService;
+    this._styles = derived(this, (reader) => ({
+      background: getEditorBlendedColor(inlineEditIndicatorPrimaryBackground, this._themeService).read(reader).toString(),
+      foreground: getEditorBlendedColor(inlineEditIndicatorPrimaryForeground, this._themeService).read(reader).toString(),
+      border: getEditorBlendedColor(inlineEditIndicatorPrimaryBorder, this._themeService).read(reader).toString()
+    }));
+    this._pos = derived(this, (reader) => {
+      return this._editor.observePosition(derived((reader2) => this._data.read(reader2)?.jumpToPosition || null), reader.store);
+    }).flatten();
+    this._layout = derived(this, (reader) => {
+      const data = this._data.read(reader);
+      if (!data) {
+        return void 0;
+      }
+      const position = data.jumpToPosition;
+      const lineHeight = this._editor.observeLineHeightForLine(constObservable(position.lineNumber)).read(reader);
+      const scrollLeft = this._editor.scrollLeft.read(reader);
+      const point = this._pos.read(reader);
+      if (!point) {
+        return void 0;
+      }
+      const layout = this._editor.layoutInfo.read(reader);
+      const widgetRect = Rect.fromLeftTopWidthHeight(point.x + layout.contentLeft + 2 - scrollLeft, point.y, 100, lineHeight);
+      return {
+        widgetRect
+      };
+    });
+    this._blink = animateFixedValues([
+      { value: true, durationMs: 600 },
+      { value: false, durationMs: 600 }
+    ]);
+    this._widget = n.div({
+      class: "inline-edit-jump-to-widget",
+      style: {
+        position: "absolute",
+        display: this._layout.map((l) => l ? "flex" : "none"),
+        alignItems: "center",
+        cursor: "pointer",
+        userSelect: "none",
+        ...rectToProps((reader) => this._layout.read(reader)?.widgetRect)
+      }
+    }, derived((reader) => {
+      if (this._data.read(reader) === void 0) {
+        return [];
+      }
+      return n.div({
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          padding: "0 4px",
+          height: "100%",
+          backgroundColor: this._styles.map((s) => s.background),
+          ["--vscodeIconForeground"]: this._styles.map((s) => s.foreground),
+          border: this._styles.map((s) => `1px solid ${s.border}`),
+          borderRadius: "3px",
+          boxSizing: "border-box",
+          fontSize: "11px",
+          color: this._styles.map((s) => s.foreground)
+        }
+      }, [
+        this._style === "cursor" ? n.elem("div", {
+          style: {
+            borderLeft: "2px solid",
+            height: 14,
+            opacity: this._blink.map((b) => b ? "0" : "1")
+          }
+        }) : [
+          derived(() => n.elem("div", {}, keybindingLabel(this._keybinding))),
+          n.elem("div", { style: { lineHeight: this._layout.map((l) => l?.widgetRect.height), marginTop: "-2px" } }, ["to jump"])
+        ]
+      ]);
+    }));
+    this._style = options.style;
+    this._keybinding = this._getKeybinding(inlineSuggestCommitId);
+    const widget = this._widget.keepUpdated(this._store);
+    this._register(this._editor.createOverlayWidget({
+      domNode: widget.element,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: constObservable(0)
+    }));
+    this._register(this._editor.setDecorations(derived((reader) => {
+      const data = this._data.read(reader);
+      if (!data) {
+        return [];
+      }
+      return [{
+        range: Range.fromPositions(data.jumpToPosition, data.jumpToPosition),
+        options: {
+          description: "inline-edit-jump-to-decoration",
+          inlineClassNameAffectsLetterSpacing: true,
+          showIfCollapsed: true,
+          after: {
+            content: this._style === "label" ? "          " : "  "
+          }
+        }
+      }];
+    })));
+  }
+  _getKeybinding(commandId, debugLocation = DebugLocation.ofCaller()) {
+    if (!commandId) {
+      return constObservable(void 0);
+    }
+    return observableFromEvent(this, this._contextKeyService.onDidChangeContext, () => this._keybindingService.lookupKeybinding(commandId), debugLocation);
+  }
+};
+JumpToView = __decorate([
+  __param(3, IThemeService),
+  __param(4, IKeybindingService),
+  __param(5, IContextKeyService)
+], JumpToView);
+function animateFixedValues(values, debugLocation = DebugLocation.ofCaller()) {
+  let idx = 0;
+  return observableFromEvent(void 0, (l) => {
+    idx = 0;
+    const timer = new RunOnceScheduler(() => {
+      idx = (idx + 1) % values.length;
+      l(null);
+      timer.schedule(values[idx].durationMs);
+    }, 0);
+    timer.schedule(0);
+    return timer;
+  }, () => {
+    return values[idx].value;
+  }, debugLocation);
+}
+__name(animateFixedValues, "animateFixedValues");
+function keybindingLabel(keybinding) {
+  return derived((_reader) => n.div({
+    style: {},
+    ref: /* @__PURE__ */ __name((elem) => {
+      const keybindingLabel2 = _reader.store.add(new KeybindingLabel(elem, OS, {
+        disableTitle: true,
+        ...defaultKeybindingLabelStyles,
+        keybindingLabelShadow: void 0,
+        keybindingLabelForeground: asCssVariable(inlineEditIndicatorPrimaryForeground),
+        keybindingLabelBackground: "transparent",
+        keybindingLabelBorder: asCssVariable(inlineEditIndicatorPrimaryForeground),
+        keybindingLabelBottomBorder: void 0
+      }));
+      _reader.store.add(autorun((reader) => {
+        keybindingLabel2.set(keybinding.read(reader));
+      }));
+    }, "ref")
+  }));
+}
+__name(keybindingLabel, "keybindingLabel");
+export {
+  JumpToView
+};
+//# sourceMappingURL=jumpToView.js.map

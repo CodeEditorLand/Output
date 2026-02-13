@@ -1,1 +1,95 @@
-import{$Wb as f}from"../../../../base/common/arrays.js";import{URI as E}from"../../../../base/common/uri.js";import{$K1 as h}from"./es5ClassCompat.js";import{$M1 as g}from"./range.js";var p=function(t,e,r,o){var n=arguments.length,s=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,r):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(t,e,r,o);else for(var u=t.length-1;u>=0;u--)(i=t[u])&&(s=(n<3?i(s):n>3?i(e,r,s):i(e,r))||s);return n>3&&s&&Object.defineProperty(e,r,s),s},l;(function(t){t[t.Unnecessary=1]="Unnecessary",t[t.Deprecated=2]="Deprecated"})(l||(l={}));var a;(function(t){t[t.Hint=3]="Hint",t[t.Information=2]="Information",t[t.Warning=1]="Warning",t[t.Error=0]="Error"})(a||(a={}));let c=class{static is(e){return e?typeof e.message=="string"&&e.location&&g.isRange(e.location.range)&&E.isUri(e.location.uri):!1}constructor(e,r){this.location=e,this.message=r}static isEqual(e,r){return e===r?!0:!e||!r?!1:e.message===r.message&&e.location.range.isEqual(r.location.range)&&e.location.uri.toString()===r.location.uri.toString()}};c=p([h],c);let m=class{constructor(e,r,o=a.Error){if(!g.isRange(e))throw new TypeError("range must be set");if(!r)throw new TypeError("message must be set");this.range=e,this.message=r,this.severity=o}toJSON(){return{severity:a[this.severity],message:this.message,range:this.range,source:this.source,code:this.code}}static isEqual(e,r){return e===r?!0:!e||!r?!1:e.message===r.message&&e.severity===r.severity&&e.code===r.code&&e.severity===r.severity&&e.source===r.source&&e.range.isEqual(r.range)&&f(e.tags,r.tags)&&f(e.relatedInformation,r.relatedInformation,c.isEqual)}};m=p([h],m);export{c as $21,m as $31,a as DiagnosticSeverity,l as DiagnosticTag};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { equals } from "../../../../base/common/arrays.js";
+import { URI } from "../../../../base/common/uri.js";
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { Range } from "./range.js";
+var DiagnosticTag;
+(function(DiagnosticTag2) {
+  DiagnosticTag2[DiagnosticTag2["Unnecessary"] = 1] = "Unnecessary";
+  DiagnosticTag2[DiagnosticTag2["Deprecated"] = 2] = "Deprecated";
+})(DiagnosticTag || (DiagnosticTag = {}));
+var DiagnosticSeverity;
+(function(DiagnosticSeverity2) {
+  DiagnosticSeverity2[DiagnosticSeverity2["Hint"] = 3] = "Hint";
+  DiagnosticSeverity2[DiagnosticSeverity2["Information"] = 2] = "Information";
+  DiagnosticSeverity2[DiagnosticSeverity2["Warning"] = 1] = "Warning";
+  DiagnosticSeverity2[DiagnosticSeverity2["Error"] = 0] = "Error";
+})(DiagnosticSeverity || (DiagnosticSeverity = {}));
+let DiagnosticRelatedInformation = class DiagnosticRelatedInformation2 {
+  static {
+    __name(this, "DiagnosticRelatedInformation");
+  }
+  static is(thing) {
+    if (!thing) {
+      return false;
+    }
+    return typeof thing.message === "string" && thing.location && Range.isRange(thing.location.range) && URI.isUri(thing.location.uri);
+  }
+  constructor(location, message) {
+    this.location = location;
+    this.message = message;
+  }
+  static isEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.message === b.message && a.location.range.isEqual(b.location.range) && a.location.uri.toString() === b.location.uri.toString();
+  }
+};
+DiagnosticRelatedInformation = __decorate([
+  es5ClassCompat
+], DiagnosticRelatedInformation);
+let Diagnostic = class Diagnostic2 {
+  static {
+    __name(this, "Diagnostic");
+  }
+  constructor(range, message, severity = DiagnosticSeverity.Error) {
+    if (!Range.isRange(range)) {
+      throw new TypeError("range must be set");
+    }
+    if (!message) {
+      throw new TypeError("message must be set");
+    }
+    this.range = range;
+    this.message = message;
+    this.severity = severity;
+  }
+  toJSON() {
+    return {
+      severity: DiagnosticSeverity[this.severity],
+      message: this.message,
+      range: this.range,
+      source: this.source,
+      code: this.code
+    };
+  }
+  static isEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.message === b.message && a.severity === b.severity && a.code === b.code && a.severity === b.severity && a.source === b.source && a.range.isEqual(b.range) && equals(a.tags, b.tags) && equals(a.relatedInformation, b.relatedInformation, DiagnosticRelatedInformation.isEqual);
+  }
+};
+Diagnostic = __decorate([
+  es5ClassCompat
+], Diagnostic);
+export {
+  Diagnostic,
+  DiagnosticRelatedInformation,
+  DiagnosticSeverity,
+  DiagnosticTag
+};
+//# sourceMappingURL=diagnostic.js.map

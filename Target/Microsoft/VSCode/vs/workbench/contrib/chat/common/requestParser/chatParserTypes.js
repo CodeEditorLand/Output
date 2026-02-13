@@ -1,1 +1,302 @@
-import{$5m as b}from"../../../../../base/common/marshalling.js";import{ThemeIcon as T}from"../../../../../base/common/themables.js";import{$hE as o}from"../../../../../editor/common/core/ranges/offsetRange.js";import{$_D as y}from"../../../../../editor/common/core/range.js";import{$qW as D}from"../participants/chatAgents.js";import{IDiagnosticVariableEntryFilterData as I}from"../attachments/chatVariableEntries.js";import{$Ud as q}from"../../../../../base/common/equals.js";var R;(function(r){function t(e,i){return e.text===i.text&&q(e.parts,i.parts,(s,n)=>s.kind===n.kind&&o.equals(s.range,n.range)&&y.equalsRange(s.editorRange,n.editorRange)&&s.text===n.text)}r.equals=t})(R||(R={}));function j(r){const t=r.parts.map(i=>i.promptText).join("").trimStart(),e=r.text.length-t.length;return{message:t,diff:e}}class g{static{this.Kind="text"}constructor(t,e,i){this.range=t,this.editorRange=e,this.text=i,this.kind=g.Kind}get promptText(){return this.text}}const K="#",k="@",d="/";class c{static{this.Kind="var"}constructor(t,e,i,s,n){this.range=t,this.editorRange=e,this.variableName=i,this.variableArg=s,this.variableId=n,this.kind=c.Kind}get text(){const t=this.variableArg?`:${this.variableArg}`:"";return`${K}${this.variableName}${t}`}get promptText(){return this.text}}class m{static{this.Kind="tool"}constructor(t,e,i,s,n,a){this.range=t,this.editorRange=e,this.toolName=i,this.toolId=s,this.displayName=n,this.icon=a,this.kind=m.Kind}get text(){return`${K}${this.toolName}`}get promptText(){return this.text}toVariableEntry(){return{kind:"tool",id:this.toolId,name:this.toolName,range:this.range,value:void 0,icon:T.isThemeIcon(this.icon)?this.icon:void 0,fullName:this.displayName}}}class u{static{this.Kind="toolset"}constructor(t,e,i,s,n,a){this.range=t,this.editorRange=e,this.id=i,this.name=s,this.icon=n,this.tools=a,this.kind=u.Kind}get text(){return`${K}${this.name}`}get promptText(){return this.text}toVariableEntry(){return{kind:"toolset",id:this.id,name:this.name,range:this.range,icon:this.icon,value:this.tools}}}class h{static{this.Kind="agent"}constructor(t,e,i){this.range=t,this.editorRange=e,this.agent=i,this.kind=h.Kind}get text(){return`${k}${this.agent.name}`}get promptText(){return""}}class l{static{this.Kind="subcommand"}constructor(t,e,i){this.range=t,this.editorRange=e,this.command=i,this.kind=l.Kind}get text(){return`${d}${this.command.name}`}get promptText(){return""}}class x{static{this.Kind="slash"}constructor(t,e,i){this.range=t,this.editorRange=e,this.slashCommand=i,this.kind=x.Kind}get text(){return`${d}${this.slashCommand.command}`}get promptText(){return`${d}${this.slashCommand.command}`}}class f{static{this.Kind="prompt"}constructor(t,e,i){this.range=t,this.editorRange=e,this.name=i,this.kind=f.Kind}get text(){return`${d}${this.name}`}get promptText(){return`${d}${this.name}`}}class ${static{this.Kind="dynamic"}constructor(t,e,i,s,n,a,v,w,E,N){this.range=t,this.editorRange=e,this.text=i,this.id=s,this.modelDescription=n,this.data=a,this.fullName=v,this.icon=w,this.isFile=E,this.isDirectory=N,this.kind=$.Kind}get referenceText(){return this.text.replace(K,"")}get promptText(){return this.text}toVariableEntry(){return this.id==="vscode.problems"?I.toEntry(this.data.filter):{kind:this.isDirectory?"directory":this.isFile?"file":"generic",id:this.id,name:this.referenceText,range:this.range,value:this.data,fullName:this.fullName,icon:this.icon}}}function W(r){return{text:r.text,parts:r.parts.map(t=>{if(t.kind===g.Kind)return new g(new o(t.range.start,t.range.endExclusive),t.editorRange,t.text);if(t.kind===c.Kind)return new c(new o(t.range.start,t.range.endExclusive),t.editorRange,t.variableName,t.variableArg,t.variableId||"");if(t.kind===m.Kind)return new m(new o(t.range.start,t.range.endExclusive),t.editorRange,t.toolName,t.toolId,t.displayName,t.icon);if(t.kind===u.Kind)return new u(new o(t.range.start,t.range.endExclusive),t.editorRange,t.id,t.name,t.icon,t.tools??[]);if(t.kind===h.Kind){let e=t.agent;return e=D(e),new h(new o(t.range.start,t.range.endExclusive),t.editorRange,e)}else{if(t.kind===l.Kind)return new l(new o(t.range.start,t.range.endExclusive),t.editorRange,t.command);if(t.kind===x.Kind)return new x(new o(t.range.start,t.range.endExclusive),t.editorRange,t.slashCommand);if(t.kind===f.Kind)return new f(new o(t.range.start,t.range.endExclusive),t.editorRange,t.name);if(t.kind===$.Kind)return new $(new o(t.range.start,t.range.endExclusive),t.editorRange,t.text,t.id,t.modelDescription,b(t.data),t.fullName,t.icon,t.isFile,t.isDirectory);throw new Error(`Unknown chat request part: ${t.kind}`)}})}}function B(r){const t=r.parts.find(i=>i instanceof h),e=r.parts.find(i=>i instanceof l);return{agentPart:t,commandPart:e}}function G(r,t,e,i=null,s=null){let n="";if(i&&i!==r.getDefaultAgent(t)?.id){const a=r.getAgent(i);if(!a)return;n+=`${k}${a.name} `,s&&(n+=`${d}${s} `)}return n+e}export{u as $$R,m as $0R,j as $5R,g as $6R,K as $7R,k as $8R,d as $9R,h as $_R,l as $aS,x as $bS,f as $cS,$ as $dS,W as $eS,B as $fS,G as $gS,R as IParsedChatRequest};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { revive } from "../../../../../base/common/marshalling.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { reviveSerializedAgent } from "../participants/chatAgents.js";
+import { IDiagnosticVariableEntryFilterData } from "../attachments/chatVariableEntries.js";
+import { arrayEquals } from "../../../../../base/common/equals.js";
+var IParsedChatRequest;
+(function(IParsedChatRequest2) {
+  function equals(a, b) {
+    return a.text === b.text && arrayEquals(a.parts, b.parts, (p1, p2) => p1.kind === p2.kind && OffsetRange.equals(p1.range, p2.range) && Range.equalsRange(p1.editorRange, p2.editorRange) && p1.text === p2.text);
+  }
+  __name(equals, "equals");
+  IParsedChatRequest2.equals = equals;
+})(IParsedChatRequest || (IParsedChatRequest = {}));
+function getPromptText(request) {
+  const message = request.parts.map((r) => r.promptText).join("").trimStart();
+  const diff = request.text.length - message.length;
+  return { message, diff };
+}
+__name(getPromptText, "getPromptText");
+class ChatRequestTextPart {
+  static {
+    __name(this, "ChatRequestTextPart");
+  }
+  static {
+    this.Kind = "text";
+  }
+  constructor(range, editorRange, text) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.text = text;
+    this.kind = ChatRequestTextPart.Kind;
+  }
+  get promptText() {
+    return this.text;
+  }
+}
+const chatVariableLeader = "#";
+const chatAgentLeader = "@";
+const chatSubcommandLeader = "/";
+class ChatRequestVariablePart {
+  static {
+    __name(this, "ChatRequestVariablePart");
+  }
+  static {
+    this.Kind = "var";
+  }
+  constructor(range, editorRange, variableName, variableArg, variableId) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.variableName = variableName;
+    this.variableArg = variableArg;
+    this.variableId = variableId;
+    this.kind = ChatRequestVariablePart.Kind;
+  }
+  get text() {
+    const argPart = this.variableArg ? `:${this.variableArg}` : "";
+    return `${chatVariableLeader}${this.variableName}${argPart}`;
+  }
+  get promptText() {
+    return this.text;
+  }
+}
+class ChatRequestToolPart {
+  static {
+    __name(this, "ChatRequestToolPart");
+  }
+  static {
+    this.Kind = "tool";
+  }
+  constructor(range, editorRange, toolName, toolId, displayName, icon) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.toolName = toolName;
+    this.toolId = toolId;
+    this.displayName = displayName;
+    this.icon = icon;
+    this.kind = ChatRequestToolPart.Kind;
+  }
+  get text() {
+    return `${chatVariableLeader}${this.toolName}`;
+  }
+  get promptText() {
+    return this.text;
+  }
+  toVariableEntry() {
+    return { kind: "tool", id: this.toolId, name: this.toolName, range: this.range, value: void 0, icon: ThemeIcon.isThemeIcon(this.icon) ? this.icon : void 0, fullName: this.displayName };
+  }
+}
+class ChatRequestToolSetPart {
+  static {
+    __name(this, "ChatRequestToolSetPart");
+  }
+  static {
+    this.Kind = "toolset";
+  }
+  constructor(range, editorRange, id, name, icon, tools) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.id = id;
+    this.name = name;
+    this.icon = icon;
+    this.tools = tools;
+    this.kind = ChatRequestToolSetPart.Kind;
+  }
+  get text() {
+    return `${chatVariableLeader}${this.name}`;
+  }
+  get promptText() {
+    return this.text;
+  }
+  toVariableEntry() {
+    return { kind: "toolset", id: this.id, name: this.name, range: this.range, icon: this.icon, value: this.tools };
+  }
+}
+class ChatRequestAgentPart {
+  static {
+    __name(this, "ChatRequestAgentPart");
+  }
+  static {
+    this.Kind = "agent";
+  }
+  constructor(range, editorRange, agent) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.agent = agent;
+    this.kind = ChatRequestAgentPart.Kind;
+  }
+  get text() {
+    return `${chatAgentLeader}${this.agent.name}`;
+  }
+  get promptText() {
+    return "";
+  }
+}
+class ChatRequestAgentSubcommandPart {
+  static {
+    __name(this, "ChatRequestAgentSubcommandPart");
+  }
+  static {
+    this.Kind = "subcommand";
+  }
+  constructor(range, editorRange, command) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.command = command;
+    this.kind = ChatRequestAgentSubcommandPart.Kind;
+  }
+  get text() {
+    return `${chatSubcommandLeader}${this.command.name}`;
+  }
+  get promptText() {
+    return "";
+  }
+}
+class ChatRequestSlashCommandPart {
+  static {
+    __name(this, "ChatRequestSlashCommandPart");
+  }
+  static {
+    this.Kind = "slash";
+  }
+  constructor(range, editorRange, slashCommand) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.slashCommand = slashCommand;
+    this.kind = ChatRequestSlashCommandPart.Kind;
+  }
+  get text() {
+    return `${chatSubcommandLeader}${this.slashCommand.command}`;
+  }
+  get promptText() {
+    return `${chatSubcommandLeader}${this.slashCommand.command}`;
+  }
+}
+class ChatRequestSlashPromptPart {
+  static {
+    __name(this, "ChatRequestSlashPromptPart");
+  }
+  static {
+    this.Kind = "prompt";
+  }
+  constructor(range, editorRange, name) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.name = name;
+    this.kind = ChatRequestSlashPromptPart.Kind;
+  }
+  get text() {
+    return `${chatSubcommandLeader}${this.name}`;
+  }
+  get promptText() {
+    return `${chatSubcommandLeader}${this.name}`;
+  }
+}
+class ChatRequestDynamicVariablePart {
+  static {
+    __name(this, "ChatRequestDynamicVariablePart");
+  }
+  static {
+    this.Kind = "dynamic";
+  }
+  constructor(range, editorRange, text, id, modelDescription, data, fullName, icon, isFile, isDirectory) {
+    this.range = range;
+    this.editorRange = editorRange;
+    this.text = text;
+    this.id = id;
+    this.modelDescription = modelDescription;
+    this.data = data;
+    this.fullName = fullName;
+    this.icon = icon;
+    this.isFile = isFile;
+    this.isDirectory = isDirectory;
+    this.kind = ChatRequestDynamicVariablePart.Kind;
+  }
+  get referenceText() {
+    return this.text.replace(chatVariableLeader, "");
+  }
+  get promptText() {
+    return this.text;
+  }
+  toVariableEntry() {
+    if (this.id === "vscode.problems") {
+      return IDiagnosticVariableEntryFilterData.toEntry(this.data.filter);
+    }
+    return { kind: this.isDirectory ? "directory" : this.isFile ? "file" : "generic", id: this.id, name: this.referenceText, range: this.range, value: this.data, fullName: this.fullName, icon: this.icon };
+  }
+}
+function reviveParsedChatRequest(serialized) {
+  return {
+    text: serialized.text,
+    parts: serialized.parts.map((part) => {
+      if (part.kind === ChatRequestTextPart.Kind) {
+        return new ChatRequestTextPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.text);
+      } else if (part.kind === ChatRequestVariablePart.Kind) {
+        return new ChatRequestVariablePart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.variableName, part.variableArg, part.variableId || "");
+      } else if (part.kind === ChatRequestToolPart.Kind) {
+        return new ChatRequestToolPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.toolName, part.toolId, part.displayName, part.icon);
+      } else if (part.kind === ChatRequestToolSetPart.Kind) {
+        return new ChatRequestToolSetPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.id, part.name, part.icon, part.tools ?? []);
+      } else if (part.kind === ChatRequestAgentPart.Kind) {
+        let agent = part.agent;
+        agent = reviveSerializedAgent(agent);
+        return new ChatRequestAgentPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, agent);
+      } else if (part.kind === ChatRequestAgentSubcommandPart.Kind) {
+        return new ChatRequestAgentSubcommandPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.command);
+      } else if (part.kind === ChatRequestSlashCommandPart.Kind) {
+        return new ChatRequestSlashCommandPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.slashCommand);
+      } else if (part.kind === ChatRequestSlashPromptPart.Kind) {
+        return new ChatRequestSlashPromptPart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.name);
+      } else if (part.kind === ChatRequestDynamicVariablePart.Kind) {
+        return new ChatRequestDynamicVariablePart(new OffsetRange(part.range.start, part.range.endExclusive), part.editorRange, part.text, part.id, part.modelDescription, revive(part.data), part.fullName, part.icon, part.isFile, part.isDirectory);
+      } else {
+        throw new Error(`Unknown chat request part: ${part.kind}`);
+      }
+    })
+  };
+}
+__name(reviveParsedChatRequest, "reviveParsedChatRequest");
+function extractAgentAndCommand(parsed) {
+  const agentPart = parsed.parts.find((r) => r instanceof ChatRequestAgentPart);
+  const commandPart = parsed.parts.find((r) => r instanceof ChatRequestAgentSubcommandPart);
+  return { agentPart, commandPart };
+}
+__name(extractAgentAndCommand, "extractAgentAndCommand");
+function formatChatQuestion(chatAgentService, location, prompt, participant = null, command = null) {
+  let question = "";
+  if (participant && participant !== chatAgentService.getDefaultAgent(location)?.id) {
+    const agent = chatAgentService.getAgent(participant);
+    if (!agent) {
+      return void 0;
+    }
+    question += `${chatAgentLeader}${agent.name} `;
+    if (command) {
+      question += `${chatSubcommandLeader}${command} `;
+    }
+  }
+  return question + prompt;
+}
+__name(formatChatQuestion, "formatChatQuestion");
+export {
+  ChatRequestAgentPart,
+  ChatRequestAgentSubcommandPart,
+  ChatRequestDynamicVariablePart,
+  ChatRequestSlashCommandPart,
+  ChatRequestSlashPromptPart,
+  ChatRequestTextPart,
+  ChatRequestToolPart,
+  ChatRequestToolSetPart,
+  IParsedChatRequest,
+  chatAgentLeader,
+  chatSubcommandLeader,
+  chatVariableLeader,
+  extractAgentAndCommand,
+  formatChatQuestion,
+  getPromptText,
+  reviveParsedChatRequest
+};
+//# sourceMappingURL=chatParserTypes.js.map

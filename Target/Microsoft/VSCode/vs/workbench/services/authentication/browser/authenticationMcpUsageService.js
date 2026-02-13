@@ -1,1 +1,137 @@
-import{$di as p}from"../../../../base/common/async.js";import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$WC as l}from"../../../../platform/instantiation/common/extensions.js";import{$Nj as g}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as $}from"../../../../platform/log/common/log.js";import{$Vn as A}from"../../../../platform/product/common/productService.js";import{$hp as b}from"../../../../platform/storage/common/storage.js";import{$BP as v}from"../common/authentication.js";var d=function(n,t,e,o){var c=arguments.length,s=c<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,e,o);else for(var i=n.length-1;i>=0;i--)(r=n[i])&&(s=(c<3?r(s):c>3?r(t,e,s):r(t,e))||s);return c>3&&s&&Object.defineProperty(t,e,s),s},a=function(n,t){return function(e,o){t(e,o,n)}};const y=g("IAuthenticationMcpUsageService");let h=class extends m{constructor(t,e,o,c){super(),this.c=t,this.f=e,this.g=o,this.a=new p,this.b=new Set;const s=c.trustedMcpAuthAccess;if(Array.isArray(s))for(const r of s)this.b.add(r);else if(s)for(const r of Object.values(s))for(const i of r)this.b.add(i);this.D(this.f.onDidRegisterAuthenticationProvider(r=>this.a.queue(()=>this.h(r.id))))}async initializeUsageCache(){await this.a.queue(()=>Promise.all(this.f.getProviderIds().map(t=>this.h(t))))}async hasUsedAuth(t){return await this.a.whenIdle(),this.b.has(t)}readAccountUsages(t,e){const o=`${t}-${e}-mcpserver-usages`,c=this.c.get(o,-1);let s=[];if(c)try{s=JSON.parse(c)}catch{}return s}removeAccountUsage(t,e){const o=`${t}-${e}-mcpserver-usages`;this.c.remove(o,-1)}addAccountUsage(t,e,o,c,s){const r=`${t}-${e}-mcpserver-usages`,i=this.readAccountUsages(t,e),u=i.findIndex(f=>f.mcpServerId===c);u>-1?i.splice(u,1,{mcpServerId:c,mcpServerName:s,scopes:o,lastUsed:Date.now()}):i.push({mcpServerId:c,mcpServerName:s,scopes:o,lastUsed:Date.now()}),this.c.store(r,JSON.stringify(i),-1,1),this.b.add(c)}async h(t){try{const e=await this.f.getAccounts(t);for(const o of e){const c=this.readAccountUsages(t,o.label);for(const s of c)this.b.add(s.mcpServerId)}}catch(e){this.g.error(e)}}};h=d([a(0,b),a(1,v),a(2,$),a(3,A)],h);l(y,h,1);export{y as $J0b,h as $K0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Queue } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IAuthenticationService } from "../common/authentication.js";
+const IAuthenticationMcpUsageService = createDecorator("IAuthenticationMcpUsageService");
+let AuthenticationMcpUsageService = class AuthenticationMcpUsageService2 extends Disposable {
+  static {
+    __name(this, "AuthenticationMcpUsageService");
+  }
+  constructor(_storageService, _authenticationService, _logService, productService) {
+    super();
+    this._storageService = _storageService;
+    this._authenticationService = _authenticationService;
+    this._logService = _logService;
+    this._queue = new Queue();
+    this._mcpServersUsingAuth = /* @__PURE__ */ new Set();
+    const trustedMcpAuthAccess = productService.trustedMcpAuthAccess;
+    if (Array.isArray(trustedMcpAuthAccess)) {
+      for (const mcpServerId of trustedMcpAuthAccess) {
+        this._mcpServersUsingAuth.add(mcpServerId);
+      }
+    } else if (trustedMcpAuthAccess) {
+      for (const mcpServers of Object.values(trustedMcpAuthAccess)) {
+        for (const mcpServerId of mcpServers) {
+          this._mcpServersUsingAuth.add(mcpServerId);
+        }
+      }
+    }
+    this._register(this._authenticationService.onDidRegisterAuthenticationProvider((provider) => this._queue.queue(() => this._addToCache(provider.id))));
+  }
+  async initializeUsageCache() {
+    await this._queue.queue(() => Promise.all(this._authenticationService.getProviderIds().map((providerId) => this._addToCache(providerId))));
+  }
+  async hasUsedAuth(mcpServerId) {
+    await this._queue.whenIdle();
+    return this._mcpServersUsingAuth.has(mcpServerId);
+  }
+  readAccountUsages(providerId, accountName) {
+    const accountKey = `${providerId}-${accountName}-mcpserver-usages`;
+    const storedUsages = this._storageService.get(
+      accountKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    let usages = [];
+    if (storedUsages) {
+      try {
+        usages = JSON.parse(storedUsages);
+      } catch (e) {
+      }
+    }
+    return usages;
+  }
+  removeAccountUsage(providerId, accountName) {
+    const accountKey = `${providerId}-${accountName}-mcpserver-usages`;
+    this._storageService.remove(
+      accountKey,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+  }
+  addAccountUsage(providerId, accountName, scopes, mcpServerId, mcpServerName) {
+    const accountKey = `${providerId}-${accountName}-mcpserver-usages`;
+    const usages = this.readAccountUsages(providerId, accountName);
+    const existingUsageIndex = usages.findIndex((usage) => usage.mcpServerId === mcpServerId);
+    if (existingUsageIndex > -1) {
+      usages.splice(existingUsageIndex, 1, {
+        mcpServerId,
+        mcpServerName,
+        scopes,
+        lastUsed: Date.now()
+      });
+    } else {
+      usages.push({
+        mcpServerId,
+        mcpServerName,
+        scopes,
+        lastUsed: Date.now()
+      });
+    }
+    this._storageService.store(
+      accountKey,
+      JSON.stringify(usages),
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._mcpServersUsingAuth.add(mcpServerId);
+  }
+  async _addToCache(providerId) {
+    try {
+      const accounts = await this._authenticationService.getAccounts(providerId);
+      for (const account of accounts) {
+        const usage = this.readAccountUsages(providerId, account.label);
+        for (const u of usage) {
+          this._mcpServersUsingAuth.add(u.mcpServerId);
+        }
+      }
+    } catch (e) {
+      this._logService.error(e);
+    }
+  }
+};
+AuthenticationMcpUsageService = __decorate([
+  __param(0, IStorageService),
+  __param(1, IAuthenticationService),
+  __param(2, ILogService),
+  __param(3, IProductService)
+], AuthenticationMcpUsageService);
+registerSingleton(
+  IAuthenticationMcpUsageService,
+  AuthenticationMcpUsageService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  AuthenticationMcpUsageService,
+  IAuthenticationMcpUsageService
+};
+//# sourceMappingURL=authenticationMcpUsageService.js.map

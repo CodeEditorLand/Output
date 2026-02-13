@@ -1,1 +1,36 @@
-class o{constructor(t,r,s){this.hoverParts=t,this.isComplete=r,this.options=s}filter(t){const r=this.hoverParts.filter(s=>s.isValidForHoverAnchor(t));return r.length===this.hoverParts.length?this:new h(this,r,this.isComplete,this.options)}}class h extends o{constructor(t,r,s,i){super(r,s,i),this.a=t}filter(t){return this.a.filter(t)}}export{o as $dub,h as $eub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class ContentHoverResult {
+  static {
+    __name(this, "ContentHoverResult");
+  }
+  constructor(hoverParts, isComplete, options) {
+    this.hoverParts = hoverParts;
+    this.isComplete = isComplete;
+    this.options = options;
+  }
+  filter(anchor) {
+    const filteredHoverParts = this.hoverParts.filter((m) => m.isValidForHoverAnchor(anchor));
+    if (filteredHoverParts.length === this.hoverParts.length) {
+      return this;
+    }
+    return new FilteredContentHoverResult(this, filteredHoverParts, this.isComplete, this.options);
+  }
+}
+class FilteredContentHoverResult extends ContentHoverResult {
+  static {
+    __name(this, "FilteredContentHoverResult");
+  }
+  constructor(original, messages, isComplete, options) {
+    super(messages, isComplete, options);
+    this.original = original;
+  }
+  filter(anchor) {
+    return this.original.filter(anchor);
+  }
+}
+export {
+  ContentHoverResult,
+  FilteredContentHoverResult
+};
+//# sourceMappingURL=contentHoverTypes.js.map

@@ -1,1 +1,54 @@
-import*as a from"../../../../base/common/objects.js";import{$Mdb as d}from"../../services/codeEditorService.js";import{$tkb as l}from"./diffEditorWidget.js";import{$yib as O}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$ro as $}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as _}from"../../../../platform/instantiation/common/instantiation.js";import{$zH as j}from"../../../../platform/progress/common/progress.js";var m=function(p,t,r,o){var i=arguments.length,e=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(p,t,r,o);else for(var n=p.length-1;n>=0;n--)(s=p[n])&&(e=(i<3?s(e):i>3?s(t,r,e):s(t,r))||e);return i>3&&e&&Object.defineProperty(t,r,e),e},f=function(p,t){return function(r,o){t(r,o,p)}};let u=class extends l{constructor(t,r,o,i,e,s,n,c,b){super(t,i.getRawOptions(),o,e,s,n,c,b),this.db=i,this.eb=r,super.updateOptions(this.eb),this.D(i.onDidChangeConfiguration(h=>this.fb(h)))}getParentEditor(){return this.db}fb(t){super.updateOptions(this.db.getRawOptions()),super.updateOptions(this.eb)}updateOptions(t){a.$Fp(this.eb,t,!0),super.updateOptions(this.eb)}};u=m([f(4,$),f(5,_),f(6,d),f(7,O),f(8,j)],u);export{u as $crc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as objects from "../../../../base/common/objects.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { DiffEditorWidget } from "./diffEditorWidget.js";
+import { IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+let EmbeddedDiffEditorWidget = class EmbeddedDiffEditorWidget2 extends DiffEditorWidget {
+  static {
+    __name(this, "EmbeddedDiffEditorWidget");
+  }
+  constructor(domElement, options, codeEditorWidgetOptions, parentEditor, contextKeyService, instantiationService, codeEditorService, accessibilitySignalService, editorProgressService) {
+    super(domElement, parentEditor.getRawOptions(), codeEditorWidgetOptions, contextKeyService, instantiationService, codeEditorService, accessibilitySignalService, editorProgressService);
+    this._parentEditor = parentEditor;
+    this._overwriteOptions = options;
+    super.updateOptions(this._overwriteOptions);
+    this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
+  }
+  getParentEditor() {
+    return this._parentEditor;
+  }
+  _onParentConfigurationChanged(e) {
+    super.updateOptions(this._parentEditor.getRawOptions());
+    super.updateOptions(this._overwriteOptions);
+  }
+  updateOptions(newOptions) {
+    objects.mixin(this._overwriteOptions, newOptions, true);
+    super.updateOptions(this._overwriteOptions);
+  }
+};
+EmbeddedDiffEditorWidget = __decorate([
+  __param(4, IContextKeyService),
+  __param(5, IInstantiationService),
+  __param(6, ICodeEditorService),
+  __param(7, IAccessibilitySignalService),
+  __param(8, IEditorProgressService)
+], EmbeddedDiffEditorWidget);
+export {
+  EmbeddedDiffEditorWidget
+};
+//# sourceMappingURL=embeddedDiffEditorWidget.js.map

@@ -1,1 +1,69 @@
-import{Event as r}from"../../../base/common/event.js";import{$Dd as a}from"../../../base/common/lifecycle.js";import{$Cu as h}from"./policy.js";class u{constructor(s){this.b=s,this.a=new a}listen(s,i){if(i==="onDidChange")return r.map(this.b.onDidChange,t=>t.reduce((n,e)=>({...n,[e]:this.b.getPolicyValue(e)??null}),{}),this.a);throw new Error(`Event not found: ${i}`)}call(s,i,t){if(i==="updatePolicyDefinitions")return this.b.updatePolicyDefinitions(t);throw new Error(`Call not found: ${i}`)}dispose(){this.a.dispose()}}class d extends h{constructor(s,i){super(),this.a=i;for(const t in s){const{definition:n,value:e}=s[t];this.policyDefinitions[t]=n,e!==void 0&&this.f.set(t,e)}this.a.listen("onDidChange")(t=>{for(const n in t){const e=t[n];e===null?this.f.delete(n):this.f.set(n,e)}this.g.fire(Object.keys(t))})}async h(s){const i=await this.a.call("updatePolicyDefinitions",s);for(const t in i)this.f.set(t,i[t])}}export{u as $uz,d as $vz};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { AbstractPolicyService } from "./policy.js";
+class PolicyChannel {
+  static {
+    __name(this, "PolicyChannel");
+  }
+  constructor(service) {
+    this.service = service;
+    this.disposables = new DisposableStore();
+  }
+  listen(_, event) {
+    switch (event) {
+      case "onDidChange":
+        return Event.map(this.service.onDidChange, (names) => names.reduce((r, name) => ({ ...r, [name]: this.service.getPolicyValue(name) ?? null }), {}), this.disposables);
+    }
+    throw new Error(`Event not found: ${event}`);
+  }
+  call(_, command, arg) {
+    switch (command) {
+      case "updatePolicyDefinitions":
+        return this.service.updatePolicyDefinitions(arg);
+    }
+    throw new Error(`Call not found: ${command}`);
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+}
+class PolicyChannelClient extends AbstractPolicyService {
+  static {
+    __name(this, "PolicyChannelClient");
+  }
+  constructor(policiesData, channel) {
+    super();
+    this.channel = channel;
+    for (const name in policiesData) {
+      const { definition, value } = policiesData[name];
+      this.policyDefinitions[name] = definition;
+      if (value !== void 0) {
+        this.policies.set(name, value);
+      }
+    }
+    this.channel.listen("onDidChange")((policies) => {
+      for (const name in policies) {
+        const value = policies[name];
+        if (value === null) {
+          this.policies.delete(name);
+        } else {
+          this.policies.set(name, value);
+        }
+      }
+      this._onDidChange.fire(Object.keys(policies));
+    });
+  }
+  async _updatePolicyDefinitions(policyDefinitions) {
+    const result = await this.channel.call("updatePolicyDefinitions", policyDefinitions);
+    for (const name in result) {
+      this.policies.set(name, result[name]);
+    }
+  }
+}
+export {
+  PolicyChannel,
+  PolicyChannelClient
+};
+//# sourceMappingURL=policyIpc.js.map

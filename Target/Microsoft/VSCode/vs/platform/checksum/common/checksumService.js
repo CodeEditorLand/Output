@@ -1,1 +1,6 @@
-import{$Nj as c}from"../../instantiation/common/instantiation.js";const o=c("checksumService");export{o as $kQc};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IChecksumService = createDecorator("checksumService");
+export {
+  IChecksumService
+};
+//# sourceMappingURL=checksumService.js.map

@@ -1,1 +1,73 @@
-import{$Dd as u}from"../../../../base/common/lifecycle.js";import{$rL as l}from"../../../../platform/actions/common/actions.js";import{$ro as $}from"../../../../platform/contextkey/common/contextkey.js";import{$Mp as d}from"../../../../platform/dialogs/common/dialogs.js";import{$Ll as b}from"../../../../platform/environment/common/environment.js";import{$Mj as R}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as _}from"../../../../platform/log/common/log.js";import{$Xu as w}from"../../../../platform/native/common/native.js";import v from"../../../../platform/product/common/product.js";import{$FBb as P}from"../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";import{$gcb as W}from"../../../services/host/browser/host.js";import{$APc as j}from"../browser/issueFormService.js";import{$WWc as x}from"./issueReporterService.js";var a=function(p,t,r,o){var s=arguments.length,e=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(p,t,r,o);else for(var f=p.length-1;f>=0;f--)(n=p[f])&&(e=(s<3?n(e):s>3?n(t,r,e):n(t,r))||e);return s>3&&e&&Object.defineProperty(t,r,e),e},i=function(p,t){return function(r,o){t(r,o,p)}};let c=class extends j{constructor(t,r,o,s,e,n,f,m,h){super(t,r,e,n,o,s,f),this.o=m,this.p=h,this.n=new u}async openReporter(t){if(this.hasToReload(t))return;const r=await this.o.getActiveWindowPosition();if(!r)return;await this.openAuxIssueReporter(t,r);const{arch:o,release:s,type:e}=await this.o.getOSProperties();this.d=o,this.e=s,this.f=e,this.b?this.n.add(this.g.createInstance(x,!!this.p.disableExtensions,t,{type:this.f,arch:this.d,release:this.e},v,this.b)).render():this.n.dispose()}};c=a([i(0,R),i(1,P),i(2,_),i(3,d),i(4,l),i(5,$),i(6,W),i(7,w),i(8,b)],c);export{c as $XWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import product from "../../../../platform/product/common/product.js";
+import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IssueFormService } from "../browser/issueFormService.js";
+import { IssueReporter } from "./issueReporterService.js";
+let NativeIssueFormService = class NativeIssueFormService2 extends IssueFormService {
+  static {
+    __name(this, "NativeIssueFormService");
+  }
+  constructor(instantiationService, auxiliaryWindowService, logService, dialogService, menuService, contextKeyService, hostService, nativeHostService, environmentService) {
+    super(instantiationService, auxiliaryWindowService, menuService, contextKeyService, logService, dialogService, hostService);
+    this.nativeHostService = nativeHostService;
+    this.environmentService = environmentService;
+    this.store = new DisposableStore();
+  }
+  // override to grab platform info
+  async openReporter(data) {
+    if (this.hasToReload(data)) {
+      return;
+    }
+    const bounds = await this.nativeHostService.getActiveWindowPosition();
+    if (!bounds) {
+      return;
+    }
+    await this.openAuxIssueReporter(data, bounds);
+    const { arch, release, type } = await this.nativeHostService.getOSProperties();
+    this.arch = arch;
+    this.release = release;
+    this.type = type;
+    if (this.issueReporterWindow) {
+      const issueReporter = this.store.add(this.instantiationService.createInstance(IssueReporter, !!this.environmentService.disableExtensions, data, { type: this.type, arch: this.arch, release: this.release }, product, this.issueReporterWindow));
+      issueReporter.render();
+    } else {
+      this.store.dispose();
+    }
+  }
+};
+NativeIssueFormService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IAuxiliaryWindowService),
+  __param(2, ILogService),
+  __param(3, IDialogService),
+  __param(4, IMenuService),
+  __param(5, IContextKeyService),
+  __param(6, IHostService),
+  __param(7, INativeHostService),
+  __param(8, INativeEnvironmentService)
+], NativeIssueFormService);
+export {
+  NativeIssueFormService
+};
+//# sourceMappingURL=nativeIssueFormService.js.map

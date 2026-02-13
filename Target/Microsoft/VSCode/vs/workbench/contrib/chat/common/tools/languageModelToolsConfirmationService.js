@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../../../platform/instantiation/common/instantiation.js";const r=o("ILanguageModelToolsConfirmationService");export{r as $xPb};
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+const ILanguageModelToolsConfirmationService = createDecorator("ILanguageModelToolsConfirmationService");
+export {
+  ILanguageModelToolsConfirmationService
+};
+//# sourceMappingURL=languageModelToolsConfirmationService.js.map

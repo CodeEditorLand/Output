@@ -1,1 +1,136 @@
-import{$xf as x}from"../../../../base/common/event.js";import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$Iz as u}from"../../../../platform/extensions/common/extensions.js";import{$WC as A}from"../../../../platform/instantiation/common/extensions.js";import{$Nj as p}from"../../../../platform/instantiation/common/instantiation.js";import{$Vn as w}from"../../../../platform/product/common/productService.js";import{$hp as E}from"../../../../platform/storage/common/storage.js";var h=function(l,e,s,o){var n=arguments.length,i=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,s):o,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,e,s,o);else for(var r=l.length-1;r>=0;r--)(t=l[r])&&(i=(n<3?t(i):n>3?t(e,s,i):t(e,s))||i);return n>3&&i&&Object.defineProperty(e,s,i),i},a=function(l,e){return function(s,o){e(s,o,l)}};const $=p("IAuthenticationAccessService");let d=class extends m{constructor(e,s){super(),this.b=e,this.c=s,this.a=this.D(new x),this.onDidChangeExtensionSessionAccess=this.a.event}isAccessAllowed(e,s,o){const n=this.c.trustedExtensionAuthAccess,i=u.toKey(o);if(Array.isArray(n)){if(n.includes(i))return!0}else if(n?.[e]?.includes(i))return!0;const r=this.readAllowedExtensions(e,s).find(c=>c.id===i);if(r)return r.allowed!==void 0?r.allowed:!0}readAllowedExtensions(e,s){let o=[];try{const t=this.b.get(`${e}-${s}`,-1);t&&(o=JSON.parse(t))}catch{}const n=this.c.trustedExtensionAuthAccess,i=Array.isArray(n)?n:typeof n=="object"?n[e]??[]:[];for(const t of i){const r=u.toKey(t),c=o.find(f=>f.id===r);c?(c.allowed=!0,c.trusted=!0):o.push({id:r,name:t,allowed:!0,trusted:!0})}return o}updateAllowedExtensions(e,s,o){const n=this.readAllowedExtensions(e,s);for(const t of o){const r=u.toKey(t.id),c=n.findIndex(f=>f.id===r);c===-1?n.push({...t,id:r}):(n[c].allowed=t.allowed,t.name&&t.name!==r&&n[c].name!==t.name&&(n[c].name=t.name))}const i=n.filter(t=>!t.trusted);this.b.store(`${e}-${s}`,JSON.stringify(i),-1,0),this.a.fire({providerId:e,accountName:s})}removeAllowedExtensions(e,s){this.b.remove(`${e}-${s}`,-1),this.a.fire({providerId:e,accountName:s})}};d=h([a(0,E),a(1,w)],d);A($,d,1);export{$ as $jcb,d as $kcb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+const IAuthenticationAccessService = createDecorator("IAuthenticationAccessService");
+let AuthenticationAccessService = class AuthenticationAccessService2 extends Disposable {
+  static {
+    __name(this, "AuthenticationAccessService");
+  }
+  constructor(_storageService, _productService) {
+    super();
+    this._storageService = _storageService;
+    this._productService = _productService;
+    this._onDidChangeExtensionSessionAccess = this._register(new Emitter());
+    this.onDidChangeExtensionSessionAccess = this._onDidChangeExtensionSessionAccess.event;
+  }
+  isAccessAllowed(providerId, accountName, extensionId) {
+    const trustedExtensionAuthAccess = this._productService.trustedExtensionAuthAccess;
+    const extensionKey = ExtensionIdentifier.toKey(extensionId);
+    if (Array.isArray(trustedExtensionAuthAccess)) {
+      if (trustedExtensionAuthAccess.includes(extensionKey)) {
+        return true;
+      }
+    } else if (trustedExtensionAuthAccess?.[providerId]?.includes(extensionKey)) {
+      return true;
+    }
+    const allowList = this.readAllowedExtensions(providerId, accountName);
+    const extensionData = allowList.find((extension) => extension.id === extensionKey);
+    if (!extensionData) {
+      return void 0;
+    }
+    return extensionData.allowed !== void 0 ? extensionData.allowed : true;
+  }
+  readAllowedExtensions(providerId, accountName) {
+    let trustedExtensions = [];
+    try {
+      const trustedExtensionSrc = this._storageService.get(
+        `${providerId}-${accountName}`,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+      if (trustedExtensionSrc) {
+        trustedExtensions = JSON.parse(trustedExtensionSrc);
+      }
+    } catch (err) {
+    }
+    const trustedExtensionAuthAccess = this._productService.trustedExtensionAuthAccess;
+    const trustedExtensionIds = (
+      // Case 1: trustedExtensionAuthAccess is an array
+      Array.isArray(trustedExtensionAuthAccess) ? trustedExtensionAuthAccess : typeof trustedExtensionAuthAccess === "object" ? trustedExtensionAuthAccess[providerId] ?? [] : []
+    );
+    for (const extensionId of trustedExtensionIds) {
+      const extensionKey = ExtensionIdentifier.toKey(extensionId);
+      const existingExtension = trustedExtensions.find((extension) => extension.id === extensionKey);
+      if (!existingExtension) {
+        trustedExtensions.push({
+          id: extensionKey,
+          name: extensionId,
+          // Use original casing for display name
+          allowed: true,
+          trusted: true
+        });
+      } else {
+        existingExtension.allowed = true;
+        existingExtension.trusted = true;
+      }
+    }
+    return trustedExtensions;
+  }
+  updateAllowedExtensions(providerId, accountName, extensions) {
+    const allowList = this.readAllowedExtensions(providerId, accountName);
+    for (const extension of extensions) {
+      const extensionKey = ExtensionIdentifier.toKey(extension.id);
+      const index = allowList.findIndex((e) => e.id === extensionKey);
+      if (index === -1) {
+        allowList.push({
+          ...extension,
+          id: extensionKey
+        });
+      } else {
+        allowList[index].allowed = extension.allowed;
+        if (extension.name && extension.name !== extensionKey && allowList[index].name !== extension.name) {
+          allowList[index].name = extension.name;
+        }
+      }
+    }
+    const userManagedExtensions = allowList.filter((extension) => !extension.trusted);
+    this._storageService.store(
+      `${providerId}-${accountName}`,
+      JSON.stringify(userManagedExtensions),
+      -1,
+      0
+      /* StorageTarget.USER */
+    );
+    this._onDidChangeExtensionSessionAccess.fire({ providerId, accountName });
+  }
+  removeAllowedExtensions(providerId, accountName) {
+    this._storageService.remove(
+      `${providerId}-${accountName}`,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    this._onDidChangeExtensionSessionAccess.fire({ providerId, accountName });
+  }
+};
+AuthenticationAccessService = __decorate([
+  __param(0, IStorageService),
+  __param(1, IProductService)
+], AuthenticationAccessService);
+registerSingleton(
+  IAuthenticationAccessService,
+  AuthenticationAccessService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  AuthenticationAccessService,
+  IAuthenticationAccessService
+};
+//# sourceMappingURL=authenticationAccessService.js.map

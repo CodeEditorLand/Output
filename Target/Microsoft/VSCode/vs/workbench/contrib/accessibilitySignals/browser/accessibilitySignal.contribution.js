@@ -1,1 +1,29 @@
-import{$Aib as i,$yib as m}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$wL as o}from"../../../../platform/actions/common/actions.js";import{$WC as t}from"../../../../platform/instantiation/common/extensions.js";import{$2N as r}from"../../../common/contributions.js";import{$BKc as $}from"./accessibilitySignalDebuggerContribution.js";import{$DKc as p,$CKc as f}from"./commands.js";import{$EKc as b}from"./editorTextPropertySignalsContribution.js";import{$6wb as n}from"../../../../platform/observable/common/wrapInReloadableClass.js";t(m,i,1);r("EditorTextPropertySignalsContribution",n(()=>b),3);r("AccessibilitySignalLineDebuggerContribution",$,3);o(f);o(p);
+import { AccessibilitySignalService, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { AccessibilitySignalLineDebuggerContribution } from "./accessibilitySignalDebuggerContribution.js";
+import { ShowAccessibilityAnnouncementHelp, ShowSignalSoundHelp } from "./commands.js";
+import { EditorTextPropertySignalsContribution } from "./editorTextPropertySignalsContribution.js";
+import { wrapInReloadableClass0 } from "../../../../platform/observable/common/wrapInReloadableClass.js";
+registerSingleton(
+  IAccessibilitySignalService,
+  AccessibilitySignalService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerWorkbenchContribution2(
+  "EditorTextPropertySignalsContribution",
+  wrapInReloadableClass0(() => EditorTextPropertySignalsContribution),
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  "AccessibilitySignalLineDebuggerContribution",
+  AccessibilitySignalLineDebuggerContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerAction2(ShowSignalSoundHelp);
+registerAction2(ShowAccessibilityAnnouncementHelp);
+//# sourceMappingURL=accessibilitySignal.contribution.js.map

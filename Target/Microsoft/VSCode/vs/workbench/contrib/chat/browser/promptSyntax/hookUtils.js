@@ -1,2 +1,71 @@
-import{$Dv as f,$Cv as h}from"../../../../../base/common/json.js";function c(e,o){let s=1,r=1;for(let n=0;n<o&&n<e.length;n++)e[n]===`
-`?(s++,r=1):r++;return{line:s,column:r}}function m(e,o,s,r){const n=f(e,["hooks",o]);if(!n||n.type!=="array"||!n.children)return;let t=0;for(let i=0;i<n.children.length;i++){if(n.children[i].type!=="object")continue;const l=f(e,["hooks",o,i,"hooks"]);if(l&&l.type==="array"&&l.children)for(let u=0;u<l.children.length;u++){if(t===s)return f(e,["hooks",o,i,"hooks",u,r]);t++}else{if(t===s)return f(e,["hooks",o,i,r]);t++}}}function k(e,o,s,r){const n=h(e);if(!n)return;const t=m(n,o,s,r);if(!t||t.type!=="string")return;const i=t.offset+1,d=t.offset+t.length-1,l=c(e,i),u=c(e,d);return{startLineNumber:l.line,startColumn:l.column,endLineNumber:u.line,endColumn:u.column}}export{k as $2Yb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { findNodeAtLocation, parseTree } from "../../../../../base/common/json.js";
+function offsetToPosition(content, offset) {
+  let line = 1;
+  let column = 1;
+  for (let i = 0; i < offset && i < content.length; i++) {
+    if (content[i] === "\n") {
+      line++;
+      column = 1;
+    } else {
+      column++;
+    }
+  }
+  return { line, column };
+}
+__name(offsetToPosition, "offsetToPosition");
+function findNthCommandNode(tree, hookType, targetIndex, fieldName) {
+  const hookTypeArray = findNodeAtLocation(tree, ["hooks", hookType]);
+  if (!hookTypeArray || hookTypeArray.type !== "array" || !hookTypeArray.children) {
+    return void 0;
+  }
+  let currentIndex = 0;
+  for (let i = 0; i < hookTypeArray.children.length; i++) {
+    const item = hookTypeArray.children[i];
+    if (item.type !== "object") {
+      continue;
+    }
+    const nestedHooksNode = findNodeAtLocation(tree, ["hooks", hookType, i, "hooks"]);
+    if (nestedHooksNode && nestedHooksNode.type === "array" && nestedHooksNode.children) {
+      for (let j = 0; j < nestedHooksNode.children.length; j++) {
+        if (currentIndex === targetIndex) {
+          return findNodeAtLocation(tree, ["hooks", hookType, i, "hooks", j, fieldName]);
+        }
+        currentIndex++;
+      }
+    } else {
+      if (currentIndex === targetIndex) {
+        return findNodeAtLocation(tree, ["hooks", hookType, i, fieldName]);
+      }
+      currentIndex++;
+    }
+  }
+  return void 0;
+}
+__name(findNthCommandNode, "findNthCommandNode");
+function findHookCommandSelection(content, hookType, index, fieldName) {
+  const tree = parseTree(content);
+  if (!tree) {
+    return void 0;
+  }
+  const node = findNthCommandNode(tree, hookType, index, fieldName);
+  if (!node || node.type !== "string") {
+    return void 0;
+  }
+  const valueStart = node.offset + 1;
+  const valueEnd = node.offset + node.length - 1;
+  const start = offsetToPosition(content, valueStart);
+  const end = offsetToPosition(content, valueEnd);
+  return {
+    startLineNumber: start.line,
+    startColumn: start.column,
+    endLineNumber: end.line,
+    endColumn: end.column
+  };
+}
+__name(findHookCommandSelection, "findHookCommandSelection");
+export {
+  findHookCommandSelection
+};
+//# sourceMappingURL=hookUtils.js.map

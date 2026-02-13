@@ -1,4 +1,537 @@
-import{$dc as x}from"../../../../base/common/arrays.js";import{$Uj as j,$Tj as k,$Vj as E,$Yj as w}from"../../../../base/common/filters.js";import{$Ed as W}from"../../../../base/common/lifecycle.js";import*as v from"../../../../base/common/strings.js";import{$Rab as _}from"../../../../base/common/tfIdf.js";import{$0l as C}from"../../../../platform/configuration/common/configuration.js";import{$WC as F}from"../../../../platform/instantiation/common/extensions.js";import{$Mj as P}from"../../../../platform/instantiation/common/instantiation.js";import{$CZ as O}from"../../../services/aiSettingsSearch/common/aiSettingsSearch.js";import{$ZM as V,SettingMatchType as c}from"../../../services/preferences/common/preferences.js";import{$QM as Z}from"../../../services/preferences/common/preferencesModels.js";import{$Jdc as D,$Rcc as K,$Kdc as G,$Gdc as Q,$Hdc as U}from"../common/preferences.js";var S=function(u,t,e,r){var s=arguments.length,i=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(u,t,e,r);else for(var n=u.length-1;n>=0;n--)(a=u[n])&&(i=(s<3?a(i):s>3?a(t,e,i):a(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},M=function(u,t){return function(e,r){t(e,r,u)}};let $=class extends W{constructor(t,e){super(),this.g=t,this.h=e}getLocalSearchProvider(t){return this.g.createInstance(b,t)}get j(){return this.h.getValue().workbench.settings.enableNaturalLanguageSearch}getRemoteSearchProvider(t){if(this.j)return this.c??=this.g.createInstance(H),this.c.setFilter(t),this.c}getAiSearchProvider(t){if(this.j)return this.f??=this.g.createInstance(R),this.f.setFilter(t),this.f}};$=S([M(0,P),M(1,C)],$);function L(u){return u.replace(/[":]/g," ").replace(/  /g," ").trim()}let b=class{constructor(t,e){this.c=t,this.d=e,this.c=L(this.c)}searchModel(t,e){if(!this.c)return Promise.resolve(null);const r=l=>{let{matches:m,matchType:d,keyMatchScore:y}=new q(this.c,l,!0,this.d);return d===c.None||m.length===0?null:(v.$ng(this.c,l.key)&&(d=c.ExactMatch),{matches:m,matchType:d,keyMatchScore:y,score:0})},s=t.filterSettings(this.c,this.e(this.c),r),i=Math.max(...s.map(l=>l.matchType&V)),a=c.DescriptionOrValueMatch|c.LanguageTagSettingMatch,n=s.filter(l=>l.matchType&i||l.matchType&a||l.matchType===c.ExactMatch).map(l=>({...l,providerName:Q}));return Promise.resolve({filterMatches:n,exactMatch:n.some(l=>l.matchType===c.ExactMatch)})}e(t){const e=v.$8f(t,!1,{global:!0});return r=>r.id!=="defaultOverrides"&&e.test(r.title)}};b=S([M(1,C)],b);class q{constructor(t,e,r,s){this.c=r,this.d=s,this.matchType=c.None,this.keyMatchScore=0,this.matches=x(this.e(t,e),i=>`${i.startLineNumber}_${i.startColumn}_${i.endLineNumber}_${i.endColumn}_`)}e(t,e){return this.h(t,e)}f(t){return t.replace(/[-._]/g," ").replace(/([a-z]+)([A-Z])/g,"$1 $2").replace(/([A-Za-z]+)(\d+)/g,"$1 $2").replace(/(\d+)([A-Za-z]+)/g,"$1 $2").toLowerCase()}g(t){return t.replace(/[^\p{L}\p{N}]+/gu,"")}h(t,e){const r=new Map,s=new Map,i=new Map,a=this.f(e.key),n=new Set(t.split(" "));for(const o of n){const h=w(o,a,!0);h?.length&&s.set(o,h.map(f=>this.i(e,f)))}s.size===n.size?this.matchType|=c.AllWordsInSettingsLabel:s.size>=2&&(this.matchType|=c.ContiguousWordsInSettingsLabel,this.keyMatchScore=s.size);const l=this.g(t),m=this.g(e.key),d=k(l,m);if(d?.length&&(s.set(e.key,d.map(o=>this.i(e,o))),this.matchType|=c.ContiguousQueryInSettingId),this.matchType===c.None){s.clear();for(const o of n){const h=w(o,a,!1);h?.length&&s.set(o,h.map(f=>this.i(e,f)))}if(s.size>=2||s.size===1&&n.size===1)this.matchType|=c.NonContiguousWordsInSettingsLabel,this.keyMatchScore=s.size;else{const o=E(l,m);o?.length&&(s.set(e.key,o.map(h=>this.i(e,h))),this.matchType|=c.NonContiguousQueryInSettingId)}}if(e.overrides?.length&&this.matchType!==c.None)return this.matchType=c.LanguageTagSettingMatch,[...s.size?Array.from(s.values()).flat():[]];const y=this.matchType>=c.ContiguousWordsInSettingsLabel;if(this.c&&!y){for(const o of n)for(let h=0;h<e.description.length;h++){const f=j(o,e.description[h]);f?.length&&r.set(o,f.map(g=>this.j(e,g,h)))}r.size===n.size?this.matchType|=c.DescriptionOrValueMatch:r.clear()}if(!y)if(e.enum?.length){for(const o of e.enum)if(typeof o=="string"){i.clear();for(const h of n){const f=k(h,o);f?.length&&i.set(h,f.map(g=>this.k(e,g)))}if(i.size===n.size){this.matchType|=c.DescriptionOrValueMatch;break}else i.clear()}}else{const o=this.d.getValue(e.key);if(typeof o=="string"){for(const h of n){const f=k(h,o);f?.length&&i.set(h,f.map(g=>this.k(e,g)))}i.size===n.size?this.matchType|=c.DescriptionOrValueMatch:i.clear()}}const z=r.size?Array.from(r.values()).flat():[],A=s.size?Array.from(s.values()).flat():[],I=i.size?Array.from(i.values()).flat():[];return[...z,...A,...I]}i(t,e){return{startLineNumber:t.keyRange.startLineNumber,startColumn:t.keyRange.startColumn+e.start,endLineNumber:t.keyRange.startLineNumber,endColumn:t.keyRange.startColumn+e.end}}j(t,e,r){const s=t.descriptionRanges[r];return s?{startLineNumber:s.startLineNumber,startColumn:s.startColumn+e.start,endLineNumber:s.endLineNumber,endColumn:s.startColumn+e.end}:Z}k(t,e){return{startLineNumber:t.valueRange.startLineNumber,startColumn:t.valueRange.startColumn+e.start+1,endLineNumber:t.valueRange.startLineNumber,endColumn:t.valueRange.startColumn+e.end+1}}}class N{constructor(){this.c={}}updateModel(t){t!==this.d&&(this.d=t,this.e())}e(){if(this.c={},!!this.d){for(const t of this.d.settingsGroups)if(t.id!=="mostCommonlyUsed")for(const e of t.sections)for(const r of e.settings)this.c[r.key]=r}}getSettingsRecord(){return this.c}}class T{static{this.c=10}constructor(t){this.f=t,this.e="",this.d=new N}setFilter(t){this.e=L(t)}async searchModel(t,e){return!this.e||!this.f.isEnabled()?null:(this.d.updateModel(t),this.f.startSearch(this.e,e),{filterMatches:await this.g(e),exactMatch:!1})}async g(t){const e=this.d.getSettingsRecord(),r=[],s=await this.f.getEmbeddingsResults(this.e,t);if(!s)return[];const i=D;for(const a of s){if(r.length===T.c)break;r.push({setting:e[a],matches:[e[a].range],matchType:c.RemoteMatch,keyMatchScore:0,score:0,providerName:i})}return r}}class p{static{this.c=50}static{this.d=.7}static{this.e=5}constructor(){this.g="",this.h=[],this.i={}}setFilter(t){this.g=L(t)}keyToLabel(t){return t.replace(/[-._]/g," ").replace(/([a-z]+)([A-Z])/g,"$1 $2").replace(/([A-Za-z]+)(\d+)/g,"$1 $2").replace(/(\d+)([A-Za-z]+)/g,"$1 $2").toLowerCase()}settingItemToEmbeddingString(t){let e=`Setting Id: ${t.key}
-`;return e+=`Label: ${this.keyToLabel(t.key)}
-`,e+=`Description: ${t.description}
-`,e}async searchModel(t,e){if(!this.g)return null;if(this.f!==t){this.f=t,this.h=[],this.i={};for(const r of t.settingsGroups)if(r.id!=="mostCommonlyUsed")for(const s of r.sections)for(const i of s.settings)this.h.push({key:i.key,textChunks:[this.settingItemToEmbeddingString(i)]}),this.i[i.key]=i}return{filterMatches:await this.j(e),exactMatch:!1}}async j(t){const e=[],r=new _;r.updateDocuments(this.h);const s=r.calculateScores(this.g,t);s.sort((a,n)=>n.score-a.score);const i=s[0].score;if(i<p.c)return[];for(const a of s){if(a.score/i<p.d||e.length===p.e)break;const n=a.key;e.push({setting:this.i[n],matches:[this.i[n].range],matchType:c.RemoteMatch,keyMatchScore:0,score:a.score,providerName:U})}return e}}class H{constructor(){this.d="",this.c=new p}setFilter(t){this.d=t,this.c.setFilter(t)}async searchModel(t,e){return this.d?await this.c.searchModel(t,e):null}}let R=class{constructor(t){this.f=t,this.e="",this.c=new T(this.f),this.d=new N}setFilter(t){this.e=t,this.c.setFilter(t)}async searchModel(t,e){return!this.e||!this.f.isEnabled()?null:(this.d.updateModel(t),await this.c.searchModel(t,e))}async getLLMRankedResults(t){return!this.e||!this.f.isEnabled()?null:{filterMatches:await this.g(t),exactMatch:!1}}async g(t){const e=this.d.getSettingsRecord(),r=[],s=await this.f.getLLMRankedResults(this.e,t);if(!s)return[];for(const i of s)e[i]&&r.push({setting:e[i],matches:[e[i].range],matchType:c.RemoteMatch,keyMatchScore:0,score:0,providerName:G});return r}};R=S([M(0,O)],R);F(K,$,1);export{$ as $nfc,b as $ofc,q as $pfc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { distinct } from "../../../../base/common/arrays.js";
+import { matchesBaseContiguousSubString, matchesContiguousSubString, matchesSubString, matchesWords } from "../../../../base/common/filters.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as strings from "../../../../base/common/strings.js";
+import { TfIdfCalculator } from "../../../../base/common/tfIdf.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IAiSettingsSearchService } from "../../../services/aiSettingsSearch/common/aiSettingsSearch.js";
+import { SettingKeyMatchTypes, SettingMatchType } from "../../../services/preferences/common/preferences.js";
+import { nullRange } from "../../../services/preferences/common/preferencesModels.js";
+import { EMBEDDINGS_SEARCH_PROVIDER_NAME, IPreferencesSearchService, LLM_RANKED_SEARCH_PROVIDER_NAME, STRING_MATCH_SEARCH_PROVIDER_NAME, TF_IDF_SEARCH_PROVIDER_NAME } from "../common/preferences.js";
+let PreferencesSearchService = class PreferencesSearchService2 extends Disposable {
+  static {
+    __name(this, "PreferencesSearchService");
+  }
+  constructor(instantiationService, configurationService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.configurationService = configurationService;
+  }
+  getLocalSearchProvider(filter) {
+    return this.instantiationService.createInstance(LocalSearchProvider, filter);
+  }
+  get remoteSearchAllowed() {
+    const workbenchSettings = this.configurationService.getValue().workbench.settings;
+    return workbenchSettings.enableNaturalLanguageSearch;
+  }
+  getRemoteSearchProvider(filter) {
+    if (!this.remoteSearchAllowed) {
+      return void 0;
+    }
+    this._remoteSearchProvider ??= this.instantiationService.createInstance(RemoteSearchProvider);
+    this._remoteSearchProvider.setFilter(filter);
+    return this._remoteSearchProvider;
+  }
+  getAiSearchProvider(filter) {
+    if (!this.remoteSearchAllowed) {
+      return void 0;
+    }
+    this._aiSearchProvider ??= this.instantiationService.createInstance(AiSearchProvider);
+    this._aiSearchProvider.setFilter(filter);
+    return this._aiSearchProvider;
+  }
+};
+PreferencesSearchService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IConfigurationService)
+], PreferencesSearchService);
+function cleanFilter(filter) {
+  return filter.replace(/[":]/g, " ").replace(/  /g, " ").trim();
+}
+__name(cleanFilter, "cleanFilter");
+let LocalSearchProvider = class LocalSearchProvider2 {
+  static {
+    __name(this, "LocalSearchProvider");
+  }
+  constructor(_filter, configurationService) {
+    this._filter = _filter;
+    this.configurationService = configurationService;
+    this._filter = cleanFilter(this._filter);
+  }
+  searchModel(preferencesModel, token) {
+    if (!this._filter) {
+      return Promise.resolve(null);
+    }
+    const settingMatcher = /* @__PURE__ */ __name((setting) => {
+      let { matches, matchType, keyMatchScore } = new SettingMatches(this._filter, setting, true, this.configurationService);
+      if (matchType === SettingMatchType.None || matches.length === 0) {
+        return null;
+      }
+      if (strings.equalsIgnoreCase(this._filter, setting.key)) {
+        matchType = SettingMatchType.ExactMatch;
+      }
+      return {
+        matches,
+        matchType,
+        keyMatchScore,
+        score: 0
+        // only used for RemoteSearchProvider matches.
+      };
+    }, "settingMatcher");
+    const filterMatches = preferencesModel.filterSettings(this._filter, this.getGroupFilter(this._filter), settingMatcher);
+    const topKeyMatchType = Math.max(...filterMatches.map((m) => m.matchType & SettingKeyMatchTypes));
+    const alwaysAllowedMatchTypes = SettingMatchType.DescriptionOrValueMatch | SettingMatchType.LanguageTagSettingMatch;
+    const filteredMatches = filterMatches.filter((m) => m.matchType & topKeyMatchType || m.matchType & alwaysAllowedMatchTypes || m.matchType === SettingMatchType.ExactMatch).map((m) => ({ ...m, providerName: STRING_MATCH_SEARCH_PROVIDER_NAME }));
+    return Promise.resolve({
+      filterMatches: filteredMatches,
+      exactMatch: filteredMatches.some((m) => m.matchType === SettingMatchType.ExactMatch)
+    });
+  }
+  getGroupFilter(filter) {
+    const regex = strings.createRegExp(filter, false, { global: true });
+    return (group) => {
+      return group.id !== "defaultOverrides" && regex.test(group.title);
+    };
+  }
+};
+LocalSearchProvider = __decorate([
+  __param(1, IConfigurationService)
+], LocalSearchProvider);
+class SettingMatches {
+  static {
+    __name(this, "SettingMatches");
+  }
+  constructor(searchString, setting, searchDescription, configurationService) {
+    this.searchDescription = searchDescription;
+    this.configurationService = configurationService;
+    this.matchType = SettingMatchType.None;
+    this.keyMatchScore = 0;
+    this.matches = distinct(this._findMatchesInSetting(searchString, setting), (match) => `${match.startLineNumber}_${match.startColumn}_${match.endLineNumber}_${match.endColumn}_`);
+  }
+  _findMatchesInSetting(searchString, setting) {
+    const result = this._doFindMatchesInSetting(searchString, setting);
+    return result;
+  }
+  _keyToLabel(settingId) {
+    const label = settingId.replace(/[-._]/g, " ").replace(/([a-z]+)([A-Z])/g, "$1 $2").replace(/([A-Za-z]+)(\d+)/g, "$1 $2").replace(/(\d+)([A-Za-z]+)/g, "$1 $2").toLowerCase();
+    return label;
+  }
+  _toAlphaNumeric(s) {
+    return s.replace(/[^\p{L}\p{N}]+/gu, "");
+  }
+  _doFindMatchesInSetting(searchString, setting) {
+    const descriptionMatchingWords = /* @__PURE__ */ new Map();
+    const keyMatchingWords = /* @__PURE__ */ new Map();
+    const valueMatchingWords = /* @__PURE__ */ new Map();
+    const settingKeyAsWords = this._keyToLabel(setting.key);
+    const queryWords = new Set(searchString.split(" "));
+    for (const word of queryWords) {
+      const keyMatches = matchesWords(word, settingKeyAsWords, true);
+      if (keyMatches?.length) {
+        keyMatchingWords.set(word, keyMatches.map((match) => this.toKeyRange(setting, match)));
+      }
+    }
+    if (keyMatchingWords.size === queryWords.size) {
+      this.matchType |= SettingMatchType.AllWordsInSettingsLabel;
+    } else if (keyMatchingWords.size >= 2) {
+      this.matchType |= SettingMatchType.ContiguousWordsInSettingsLabel;
+      this.keyMatchScore = keyMatchingWords.size;
+    }
+    const searchStringAlphaNumeric = this._toAlphaNumeric(searchString);
+    const keyAlphaNumeric = this._toAlphaNumeric(setting.key);
+    const keyIdMatches = matchesContiguousSubString(searchStringAlphaNumeric, keyAlphaNumeric);
+    if (keyIdMatches?.length) {
+      keyMatchingWords.set(setting.key, keyIdMatches.map((match) => this.toKeyRange(setting, match)));
+      this.matchType |= SettingMatchType.ContiguousQueryInSettingId;
+    }
+    if (this.matchType === SettingMatchType.None) {
+      keyMatchingWords.clear();
+      for (const word of queryWords) {
+        const keyMatches = matchesWords(word, settingKeyAsWords, false);
+        if (keyMatches?.length) {
+          keyMatchingWords.set(word, keyMatches.map((match) => this.toKeyRange(setting, match)));
+        }
+      }
+      if (keyMatchingWords.size >= 2 || keyMatchingWords.size === 1 && queryWords.size === 1) {
+        this.matchType |= SettingMatchType.NonContiguousWordsInSettingsLabel;
+        this.keyMatchScore = keyMatchingWords.size;
+      } else {
+        const keyIdMatches2 = matchesSubString(searchStringAlphaNumeric, keyAlphaNumeric);
+        if (keyIdMatches2?.length) {
+          keyMatchingWords.set(setting.key, keyIdMatches2.map((match) => this.toKeyRange(setting, match)));
+          this.matchType |= SettingMatchType.NonContiguousQueryInSettingId;
+        }
+      }
+    }
+    if (setting.overrides?.length && this.matchType !== SettingMatchType.None) {
+      this.matchType = SettingMatchType.LanguageTagSettingMatch;
+      const keyRanges2 = keyMatchingWords.size ? Array.from(keyMatchingWords.values()).flat() : [];
+      return [...keyRanges2];
+    }
+    const hasContiguousKeyMatchTypes = this.matchType >= SettingMatchType.ContiguousWordsInSettingsLabel;
+    if (this.searchDescription && !hasContiguousKeyMatchTypes) {
+      for (const word of queryWords) {
+        for (let lineIndex = 0; lineIndex < setting.description.length; lineIndex++) {
+          const descriptionMatches = matchesBaseContiguousSubString(word, setting.description[lineIndex]);
+          if (descriptionMatches?.length) {
+            descriptionMatchingWords.set(word, descriptionMatches.map((match) => this.toDescriptionRange(setting, match, lineIndex)));
+          }
+        }
+      }
+      if (descriptionMatchingWords.size === queryWords.size) {
+        this.matchType |= SettingMatchType.DescriptionOrValueMatch;
+      } else {
+        descriptionMatchingWords.clear();
+      }
+    }
+    if (!hasContiguousKeyMatchTypes) {
+      if (setting.enum?.length) {
+        for (const option of setting.enum) {
+          if (typeof option !== "string") {
+            continue;
+          }
+          valueMatchingWords.clear();
+          for (const word of queryWords) {
+            const valueMatches = matchesContiguousSubString(word, option);
+            if (valueMatches?.length) {
+              valueMatchingWords.set(word, valueMatches.map((match) => this.toValueRange(setting, match)));
+            }
+          }
+          if (valueMatchingWords.size === queryWords.size) {
+            this.matchType |= SettingMatchType.DescriptionOrValueMatch;
+            break;
+          } else {
+            valueMatchingWords.clear();
+          }
+        }
+      } else {
+        const settingValue = this.configurationService.getValue(setting.key);
+        if (typeof settingValue === "string") {
+          for (const word of queryWords) {
+            const valueMatches = matchesContiguousSubString(word, settingValue);
+            if (valueMatches?.length) {
+              valueMatchingWords.set(word, valueMatches.map((match) => this.toValueRange(setting, match)));
+            }
+          }
+          if (valueMatchingWords.size === queryWords.size) {
+            this.matchType |= SettingMatchType.DescriptionOrValueMatch;
+          } else {
+            valueMatchingWords.clear();
+          }
+        }
+      }
+    }
+    const descriptionRanges = descriptionMatchingWords.size ? Array.from(descriptionMatchingWords.values()).flat() : [];
+    const keyRanges = keyMatchingWords.size ? Array.from(keyMatchingWords.values()).flat() : [];
+    const valueRanges = valueMatchingWords.size ? Array.from(valueMatchingWords.values()).flat() : [];
+    return [...descriptionRanges, ...keyRanges, ...valueRanges];
+  }
+  toKeyRange(setting, match) {
+    return {
+      startLineNumber: setting.keyRange.startLineNumber,
+      startColumn: setting.keyRange.startColumn + match.start,
+      endLineNumber: setting.keyRange.startLineNumber,
+      endColumn: setting.keyRange.startColumn + match.end
+    };
+  }
+  toDescriptionRange(setting, match, lineIndex) {
+    const descriptionRange = setting.descriptionRanges[lineIndex];
+    if (!descriptionRange) {
+      return nullRange;
+    }
+    return {
+      startLineNumber: descriptionRange.startLineNumber,
+      startColumn: descriptionRange.startColumn + match.start,
+      endLineNumber: descriptionRange.endLineNumber,
+      endColumn: descriptionRange.startColumn + match.end
+    };
+  }
+  toValueRange(setting, match) {
+    return {
+      startLineNumber: setting.valueRange.startLineNumber,
+      startColumn: setting.valueRange.startColumn + match.start + 1,
+      endLineNumber: setting.valueRange.startLineNumber,
+      endColumn: setting.valueRange.startColumn + match.end + 1
+    };
+  }
+}
+class SettingsRecordProvider {
+  static {
+    __name(this, "SettingsRecordProvider");
+  }
+  constructor() {
+    this._settingsRecord = {};
+  }
+  updateModel(preferencesModel) {
+    if (preferencesModel === this._currentPreferencesModel) {
+      return;
+    }
+    this._currentPreferencesModel = preferencesModel;
+    this.refresh();
+  }
+  refresh() {
+    this._settingsRecord = {};
+    if (!this._currentPreferencesModel) {
+      return;
+    }
+    for (const group of this._currentPreferencesModel.settingsGroups) {
+      if (group.id === "mostCommonlyUsed") {
+        continue;
+      }
+      for (const section of group.sections) {
+        for (const setting of section.settings) {
+          this._settingsRecord[setting.key] = setting;
+        }
+      }
+    }
+  }
+  getSettingsRecord() {
+    return this._settingsRecord;
+  }
+}
+class EmbeddingsSearchProvider {
+  static {
+    __name(this, "EmbeddingsSearchProvider");
+  }
+  static {
+    this.EMBEDDINGS_SETTINGS_SEARCH_MAX_PICKS = 10;
+  }
+  constructor(_aiSettingsSearchService) {
+    this._aiSettingsSearchService = _aiSettingsSearchService;
+    this._filter = "";
+    this._recordProvider = new SettingsRecordProvider();
+  }
+  setFilter(filter) {
+    this._filter = cleanFilter(filter);
+  }
+  async searchModel(preferencesModel, token) {
+    if (!this._filter || !this._aiSettingsSearchService.isEnabled()) {
+      return null;
+    }
+    this._recordProvider.updateModel(preferencesModel);
+    this._aiSettingsSearchService.startSearch(this._filter, token);
+    return {
+      filterMatches: await this.getEmbeddingsItems(token),
+      exactMatch: false
+    };
+  }
+  async getEmbeddingsItems(token) {
+    const settingsRecord = this._recordProvider.getSettingsRecord();
+    const filterMatches = [];
+    const settings = await this._aiSettingsSearchService.getEmbeddingsResults(this._filter, token);
+    if (!settings) {
+      return [];
+    }
+    const providerName = EMBEDDINGS_SEARCH_PROVIDER_NAME;
+    for (const settingKey of settings) {
+      if (filterMatches.length === EmbeddingsSearchProvider.EMBEDDINGS_SETTINGS_SEARCH_MAX_PICKS) {
+        break;
+      }
+      filterMatches.push({
+        setting: settingsRecord[settingKey],
+        matches: [settingsRecord[settingKey].range],
+        matchType: SettingMatchType.RemoteMatch,
+        keyMatchScore: 0,
+        score: 0,
+        // the results are sorted upstream.
+        providerName
+      });
+    }
+    return filterMatches;
+  }
+}
+class TfIdfSearchProvider {
+  static {
+    __name(this, "TfIdfSearchProvider");
+  }
+  static {
+    this.TF_IDF_PRE_NORMALIZE_THRESHOLD = 50;
+  }
+  static {
+    this.TF_IDF_POST_NORMALIZE_THRESHOLD = 0.7;
+  }
+  static {
+    this.TF_IDF_MAX_PICKS = 5;
+  }
+  constructor() {
+    this._filter = "";
+    this._documents = [];
+    this._settingsRecord = {};
+  }
+  setFilter(filter) {
+    this._filter = cleanFilter(filter);
+  }
+  keyToLabel(settingId) {
+    const label = settingId.replace(/[-._]/g, " ").replace(/([a-z]+)([A-Z])/g, "$1 $2").replace(/([A-Za-z]+)(\d+)/g, "$1 $2").replace(/(\d+)([A-Za-z]+)/g, "$1 $2").toLowerCase();
+    return label;
+  }
+  settingItemToEmbeddingString(item) {
+    let result = `Setting Id: ${item.key}
+`;
+    result += `Label: ${this.keyToLabel(item.key)}
+`;
+    result += `Description: ${item.description}
+`;
+    return result;
+  }
+  async searchModel(preferencesModel, token) {
+    if (!this._filter) {
+      return null;
+    }
+    if (this._currentPreferencesModel !== preferencesModel) {
+      this._currentPreferencesModel = preferencesModel;
+      this._documents = [];
+      this._settingsRecord = {};
+      for (const group of preferencesModel.settingsGroups) {
+        if (group.id === "mostCommonlyUsed") {
+          continue;
+        }
+        for (const section of group.sections) {
+          for (const setting of section.settings) {
+            this._documents.push({
+              key: setting.key,
+              textChunks: [this.settingItemToEmbeddingString(setting)]
+            });
+            this._settingsRecord[setting.key] = setting;
+          }
+        }
+      }
+    }
+    return {
+      filterMatches: await this.getTfIdfItems(token),
+      exactMatch: false
+    };
+  }
+  async getTfIdfItems(token) {
+    const filterMatches = [];
+    const tfIdfCalculator = new TfIdfCalculator();
+    tfIdfCalculator.updateDocuments(this._documents);
+    const tfIdfRankings = tfIdfCalculator.calculateScores(this._filter, token);
+    tfIdfRankings.sort((a, b) => b.score - a.score);
+    const maxScore = tfIdfRankings[0].score;
+    if (maxScore < TfIdfSearchProvider.TF_IDF_PRE_NORMALIZE_THRESHOLD) {
+      return [];
+    }
+    for (const info of tfIdfRankings) {
+      if (info.score / maxScore < TfIdfSearchProvider.TF_IDF_POST_NORMALIZE_THRESHOLD || filterMatches.length === TfIdfSearchProvider.TF_IDF_MAX_PICKS) {
+        break;
+      }
+      const pick = info.key;
+      filterMatches.push({
+        setting: this._settingsRecord[pick],
+        matches: [this._settingsRecord[pick].range],
+        matchType: SettingMatchType.RemoteMatch,
+        keyMatchScore: 0,
+        score: info.score,
+        providerName: TF_IDF_SEARCH_PROVIDER_NAME
+      });
+    }
+    return filterMatches;
+  }
+}
+class RemoteSearchProvider {
+  static {
+    __name(this, "RemoteSearchProvider");
+  }
+  constructor() {
+    this._filter = "";
+    this._tfIdfSearchProvider = new TfIdfSearchProvider();
+  }
+  setFilter(filter) {
+    this._filter = filter;
+    this._tfIdfSearchProvider.setFilter(filter);
+  }
+  async searchModel(preferencesModel, token) {
+    if (!this._filter) {
+      return null;
+    }
+    const results = await this._tfIdfSearchProvider.searchModel(preferencesModel, token);
+    return results;
+  }
+}
+let AiSearchProvider = class AiSearchProvider2 {
+  static {
+    __name(this, "AiSearchProvider");
+  }
+  constructor(aiSettingsSearchService) {
+    this.aiSettingsSearchService = aiSettingsSearchService;
+    this._filter = "";
+    this._embeddingsSearchProvider = new EmbeddingsSearchProvider(this.aiSettingsSearchService);
+    this._recordProvider = new SettingsRecordProvider();
+  }
+  setFilter(filter) {
+    this._filter = filter;
+    this._embeddingsSearchProvider.setFilter(filter);
+  }
+  async searchModel(preferencesModel, token) {
+    if (!this._filter || !this.aiSettingsSearchService.isEnabled()) {
+      return null;
+    }
+    this._recordProvider.updateModel(preferencesModel);
+    const results = await this._embeddingsSearchProvider.searchModel(preferencesModel, token);
+    return results;
+  }
+  async getLLMRankedResults(token) {
+    if (!this._filter || !this.aiSettingsSearchService.isEnabled()) {
+      return null;
+    }
+    const items = await this.getLLMRankedItems(token);
+    return {
+      filterMatches: items,
+      exactMatch: false
+    };
+  }
+  async getLLMRankedItems(token) {
+    const settingsRecord = this._recordProvider.getSettingsRecord();
+    const filterMatches = [];
+    const settings = await this.aiSettingsSearchService.getLLMRankedResults(this._filter, token);
+    if (!settings) {
+      return [];
+    }
+    for (const settingKey of settings) {
+      if (!settingsRecord[settingKey]) {
+        continue;
+      }
+      filterMatches.push({
+        setting: settingsRecord[settingKey],
+        matches: [settingsRecord[settingKey].range],
+        matchType: SettingMatchType.RemoteMatch,
+        keyMatchScore: 0,
+        score: 0,
+        // the results are sorted upstream.
+        providerName: LLM_RANKED_SEARCH_PROVIDER_NAME
+      });
+    }
+    return filterMatches;
+  }
+};
+AiSearchProvider = __decorate([
+  __param(0, IAiSettingsSearchService)
+], AiSearchProvider);
+registerSingleton(
+  IPreferencesSearchService,
+  PreferencesSearchService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  LocalSearchProvider,
+  PreferencesSearchService,
+  SettingMatches
+};
+//# sourceMappingURL=preferencesSearch.js.map

@@ -1,1 +1,1136 @@
-import{$ji as N}from"../../../base/common/async.js";import{$0i as J}from"../../../base/common/buffer.js";import{CancellationToken as E,$Jf as x}from"../../../base/common/cancellation.js";import{$xf as C,Event as y}from"../../../base/common/event.js";import{$Eb as U}from"../../../base/common/functional.js";import{$Gn as X}from"../../../base/common/hash.js";import{$Ed as M,$Dd as Z,$Cd as D}from"../../../base/common/lifecycle.js";import{$dd as v}from"../../../base/common/types.js";import{URI as K}from"../../../base/common/uri.js";import{$ln as z}from"../../../base/common/uuid.js";import{$Nj as W}from"../../../platform/instantiation/common/instantiation.js";import{$yo as Q}from"../../../platform/log/common/log.js";import{$zX as p}from"../../contrib/testing/common/testId.js";import{$Q4 as Y}from"../../contrib/testing/common/testItemCollection.js";import{$JX as V,TestsDiffOp as P,$DX as q}from"../../contrib/testing/common/testTypes.js";import{$RR as tt}from"../../services/extensions/common/extensions.js";import{$X1 as et}from"./extHost.protocol.js";import{$f5 as st}from"./extHostCommands.js";import{$74 as it}from"./extHostDocumentsAndEditors.js";import{$Y4 as rt}from"./extHostRpcService.js";import{$$4 as nt,$94 as F,$04 as ot,$84 as S}from"./extHostTestItem.js";import*as m from"./extHostTypeConverters.js";import{$I3 as b,$B3 as at,$C3 as lt}from"./extHostTypes.js";var L=function(f,t,e,s){var i=arguments.length,r=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(f,t,e,s);else for(var o=f.length-1;o>=0;o--)(n=f[o])&&(r=(i<3?n(r):i>3?n(t,e,r):n(t,e))||r);return i>3&&r&&Object.defineProperty(t,e,r),r},$=function(f,t){return function(e,s){t(e,s,f)}};let dt=0;const H=new WeakMap,_t=W("IExtHostTesting");let k=class extends M{constructor(t,e,s,i){super(),this.z=e,this.C=s,this.F=i,this.f=this.D(new C),this.g=new Map,this.q=this.D(new C),this.w=new Set,this.y=new Map,this.onResultsChanged=this.f.event,this.results=[],this.h=t.getProxy(et.MainThreadTesting),this.m=new gt(this.h),this.j=new ft(this.h,e),s.registerArgumentProcessor({processArgument:r=>{switch(r?.$mid){case 16:{const n=r,o=n.tests[n.tests.length-1].item.extId;return this.g.get(p.root(o))?.collection.tree.get(o)?.actual??S(r)}case 18:{const{test:n,message:o}=r,d=n.item.extId;return{test:this.g.get(p.root(d))?.collection.tree.get(d)?.actual??S({$mid:16,tests:[n]}),message:m.TestMessage.to(o)}}default:return r}}}),s.registerCommand(!1,"testing.getExplorerSelection",async()=>{const r=await s.executeCommand("_testing.getExplorerSelection"),n=o=>{const d=this.g.get(p.root(o));if(d)return p.isRoot(o)?d.controller:d.collection.tree.get(o)?.actual};return{include:r?.include.map(n).filter(v)||[],exclude:r?.exclude.map(n).filter(v)||[]}})}createTestController(t,e,s,i){if(this.g.has(e))throw new Error(`Attempt to insert a duplicate controller with ID "${e}"`);const r=new Z,n=r.add(new nt(e,s,this.F));n.root.label=s;const o=new Map,d=new Set,h=this.h,l=()=>{let a=0;i&&(a|=2);const g=u.relatedCodeProvider;return g&&(g?.provideRelatedTests&&(a|=8),g?.provideRelatedCode&&(a|=4)),a},c={items:n.root.children,get label(){return s},set label(a){s=a,n.root.label=a,h.$updateController(e,{label:s})},get refreshHandler(){return i},set refreshHandler(a){i=a,h.$updateController(e,{capabilities:l()})},get id(){return e},get relatedCodeProvider(){return u.relatedCodeProvider},set relatedCodeProvider(a){tt(t,"testRelatedCode"),u.relatedCodeProvider=a,h.$updateController(e,{capabilities:l()})},createRunProfile:(a,g,T,_,G,B)=>{let I=X(a);for(;o.has(I);)I++;return new O(this.h,o,d,this.q.event,e,I,a,g,T,_,G,B)},createTestItem(a,g,T){return new F(e,a,g,T)},createTestRun:(a,g,T=!0)=>this.j.createTestRun(t,e,n,a,g,T),invalidateTestResults:a=>{if(a===void 0)this.h.$markTestRetired(void 0);else{const g=a instanceof Array?a:[a];this.h.$markTestRetired(g.map(T=>p.fromExtHostTestItem(T,e).toString()))}},set resolveHandler(a){n.resolveHandler=a},get resolveHandler(){return n.resolveHandler},dispose:()=>{r.dispose()}},u={controller:c,collection:n,profiles:o,extension:t,activeProfiles:d};return h.$registerTestController(e,s,l()),r.add(D(()=>h.$unregisterTestController(e))),this.g.set(e,u),r.add(D(()=>this.g.delete(e))),r.add(n.onDidGenerateDiff(a=>h.$publishDiff(e,a.map(P.serialize)))),c}createTestObserver(){return this.m.checkout()}async runTests(t,e=E.None){const s=A(t);if(!s)throw new Error("The request passed to `vscode.test.runTests` must include a profile");const i=this.g.get(s.controllerId);if(!i)throw new Error("Controller not found");await this.h.$runTests({preserveFocus:t.preserveFocus??!0,group:m.TestRunProfileKind.from(s.kind),targets:[{testIds:t.include?.map(r=>p.fromExtHostTestItem(r,i.collection.root.id).toString())??[i.collection.root.id],profileId:s.profileId,controllerId:s.controllerId}],exclude:t.exclude?.map(r=>r.id)},e)}registerTestFollowupProvider(t){return this.w.add(t),{dispose:()=>{this.w.delete(t)}}}async $getTestsRelatedToCode(t,e,s){const i=this.F.getDocument(K.revive(t));if(!i)return[];const r=m.Position.to(e),n=[];return await Promise.all([...this.g.values()].map(async o=>{let d;try{d=await o.relatedCodeProvider?.provideRelatedTests?.(i.document,r,s)}catch(h){s.isCancellationRequested||this.z.warn(`Error thrown while providing related tests for ${o.controller.label}`,h)}if(d){for(const h of d)n.push(p.fromExtHostTestItem(h,o.controller.id).toString());o.collection.flushDiff()}})),n}async $getCodeRelatedToTest(t,e){const s=this.g.get(p.root(t));if(!s)return[];const i=s.collection.tree.get(t);return i?(await s.relatedCodeProvider?.provideRelatedCode?.(i.actual,e))?.map(m.location.from)??[]:[]}$syncTests(){for(const{collection:t}of this.g.values())t.flushDiff();return Promise.resolve()}async $getCoverageDetails(t,e,s){return(await this.j.getCoverageDetails(t,e,s))?.map(m.TestCoverage.fromDetails)}async $disposeRun(t){this.j.disposeTestRun(t)}$configureRunProfile(t,e){this.g.get(t)?.profiles.get(e)?.configureHandler?.()}$setDefaultRunProfiles(t){const e=new Map;for(const[s,i]of Object.entries(t)){const r=this.g.get(s);if(!r)continue;const n=new Map,o=i.filter(h=>!r.activeProfiles.has(h)),d=[...r.activeProfiles].filter(h=>!i.includes(h));for(const h of o)n.set(h,!0),r.activeProfiles.add(h);for(const h of d)n.set(h,!1),r.activeProfiles.delete(h);n.size&&e.set(s,n)}this.q.fire(e)}async $refreshTests(t,e){await this.g.get(t)?.controller.refreshHandler?.(e)}$publishTestResults(t){this.results=Object.freeze(t.map(e=>{const s=m.TestResults.to(e),i=e.tasks.findIndex(r=>r.hasCoverage);return i!==-1&&(s.getDetailedCoverage=(r,n=E.None)=>this.h.$getCoverageDetails(e.id,i,r,n).then(o=>o.map(m.TestCoverage.to))),H.set(s,e.id),s}).concat(this.results).sort((e,s)=>s.completedAt-e.completedAt).slice(0,32)),this.f.fire()}async $expandTest(t,e){const s=this.g.get(p.fromString(t).controllerId)?.collection;s&&(await s.expand(t,e<0?1/0:e),s.flushDiff())}$acceptDiff(t){this.m.applyDiff(t.map(e=>P.deserialize({asCanonicalUri:s=>s},e)))}async $runControllerTests(t,e){return Promise.all(t.map(s=>this.G(s,!1,e)))}async $startContinuousRun(t,e){const s=new x(e),i=await Promise.all(t.map(r=>this.G(r,!0,s.token)));return!e.isCancellationRequested&&!i.some(r=>r.error)&&await new Promise(r=>e.onCancellationRequested(r)),s.dispose(!0),i}async $provideTestFollowups(t,e){const s=this.results.find(n=>H.get(n)===t.resultId),i=s&&mt(p.fromString(t.extId),s?.results);if(!i)return[];let r=[];return await Promise.all([...this.w].map(async n=>{try{const o=await n.provideFollowup(s,i,t.taskIndex,t.messageIndex,e);o&&(r=r.concat(o))}catch(o){this.z.error("Error thrown while providing followup for test message",o)}})),e.isCancellationRequested?[]:r.map(n=>{const o=dt++;return this.y.set(o,n),{title:n.title,id:o}})}$disposeTestFollowups(t){for(const e of t)this.y.delete(e)}$executeTestFollowup(t){const e=this.y.get(t);return e?this.C.executeCommand(e.command,...e.arguments||[]):Promise.resolve()}$cancelExtensionTestRun(t,e){t===void 0?this.j.cancelAllRuns():this.j.cancelRunById(t,e)}getMetadataForRun(t){for(const e of this.j.trackers){const s=e.getTaskIdForRun(t);if(s)return{taskId:s,runId:e.id}}}async G(t,e,s){const i=this.g.get(t.controllerId);if(!i)return{};const{collection:r,profiles:n,extension:o}=i,d=n.get(t.profileId);if(!d)return{};const h=t.testIds.map(a=>r.tree.get(a)).filter(v),l=t.excludeExtIds.map(a=>i.collection.tree.get(a)).filter(v).filter(a=>h.some(g=>g.fullId.compare(a.fullId)===2));if(!h.length)return{};const c=new lt(h.some(a=>a.actual instanceof ot)?void 0:h.map(a=>a.actual),l.map(a=>a.actual),d,e),u=q(t)&&this.j.prepareForMainThreadTestRun(o,c,R.fromInternal(t,i.collection),d,s);try{return await d.runHandler(c,s),{}}catch(a){return{error:String(a)}}finally{u&&u.hasRunningTasks&&!s.isCancellationRequested&&await y.toPromise(u.onEnd)}}};k=L([$(0,rt),$(1,Q),$(2,st),$(3,it)],k);const ht=1e4;var j;(function(f){f[f.Running=0]="Running",f[f.Cancelling=1]="Cancelling",f[f.Ended=2]="Ended"})(j||(j={}));class ct extends M{get hasRunningTasks(){return this.g>0}get id(){return this.z.id}constructor(t,e,s,i,r,n){super(),this.z=t,this.C=e,this.F=s,this.G=i,this.H=r,this.f=0,this.g=0,this.h=new Map,this.j=new Set,this.q=this.D(new C),this.y=new Map,this.onEnd=this.q.event,this.m=this.D(new x(n));const o=this.D(new N(()=>this.I(),ht));this.D(this.m.token.onCancellationRequested(()=>o.schedule()));const d=new C;this.w=d.event,this.D(D(()=>{d.fire(),d.dispose()}))}getTaskIdForRun(t){for(const[e,{run:s}]of this.h)if(s===t)return e}cancel(t){t?this.h.get(t)?.cts.cancel():this.f===0?(this.m.cancel(),this.f=1):this.f===1&&this.I()}async getCoverageDetails(t,e,s){const[,i]=p.fromString(t).path,r=this.y.get(t);if(!r)return[];const{report:n,extIds:o}=r,d=this.h.get(i);if(!d)throw new Error("unreachable: run task was not found");let h;if(e&&n instanceof b){const c=o.indexOf(e);if(c===-1)return[];h=n.includesTests[c]}return await(h?this.G?.loadDetailedCoverageForTest?.(d.run,n,h,s):this.G?.loadDetailedCoverage?.(d.run,n,s))??[]}createRun(t){const e=this.z.id,s=this.z.controllerId,i=z(),r=l=>(c,...u)=>{if(o){this.F.warn(`Setting the state of test "${c.id}" is a no-op after the run ends.`);return}this.L(c),l(c,...u)},n=(l,c)=>{const u=c instanceof Array?c.map(m.TestMessage.from):[m.TestMessage.from(c)];if(l.uri&&l.range){const a={range:m.Range.from(l.range),uri:l.uri};for(const g of u)g.location=g.location||a}this.C.$appendTestMessagesInRun(e,i,p.fromExtHostTestItem(l,s).toString(),u)};let o=!1;const d=this.D(new x(this.m.token)),h={isPersisted:this.z.isPersisted,token:d.token,name:t,onDidDispose:this.w,addCoverage:l=>{if(o)return;const c=l instanceof b?l.includesTests:[];if(c.length)for(const g of c)this.L(g);const u=l.uri.toString(),a=new p([e,i,u]).toString();this.y.set(a,{report:l,extIds:c.map(g=>p.fromExtHostTestItem(g,s).toString())}),this.C.$appendCoverage(e,i,m.TestCoverage.fromFile(s,a,l))},enqueued:r(l=>{this.C.$updateTestStateInRun(e,i,p.fromExtHostTestItem(l,s).toString(),1)}),skipped:r(l=>{this.C.$updateTestStateInRun(e,i,p.fromExtHostTestItem(l,s).toString(),5)}),started:r(l=>{this.C.$updateTestStateInRun(e,i,p.fromExtHostTestItem(l,s).toString(),2)}),errored:r((l,c,u)=>{n(l,c),this.C.$updateTestStateInRun(e,i,p.fromExtHostTestItem(l,s).toString(),6,u)}),failed:r((l,c,u)=>{n(l,c),this.C.$updateTestStateInRun(e,i,p.fromExtHostTestItem(l,s).toString(),4,u)}),passed:r((l,c)=>{this.C.$updateTestStateInRun(e,i,p.fromExtHostTestItem(l,this.z.controllerId).toString(),3,c)}),appendOutput:(l,c,u)=>{o||(u&&this.L(u),this.C.$appendOutputToRun(e,i,J.fromString(l),c&&m.location.from(c),u&&p.fromExtHostTestItem(u,s).toString()))},end:()=>{o||(o=!0,this.C.$finishedTestRunTask(e,i),--this.g||this.J())}};return this.g++,this.h.set(i,{run:h,cts:d}),this.C.$startedTestRunTask(e,{id:i,ctrlId:this.z.controllerId,name:t||this.H.displayName||this.H.identifier.value,running:!0}),h}I(){for(const{run:t}of this.h.values())t.end()}J(){this.f!==2&&(this.f=2,this.q.fire())}L(t){if(!(t instanceof F))throw new Y(t.id);if(this.j.has(p.fromExtHostTestItem(t,this.z.controllerId).toString()))return;const e=[],s=this.z.colllection.root;for(;;){const i=m.TestItem.from(t);if(e.unshift(i),this.j.has(i.extId)||(this.j.add(i.extId),t===s))break;t=t.parent||s}this.C.$addTestsToRun(this.z.controllerId,this.z.id,e)}dispose(){this.J(),super.dispose()}}class ft{get trackers(){return this.f.values()}constructor(t,e){this.h=t,this.j=e,this.f=new Map,this.g=new Map}getCoverageDetails(t,e,s){const i=p.root(t);return this.g.get(i)?.getCoverageDetails(t,e,s)||[]}disposeTestRun(t){this.g.get(t)?.dispose(),this.g.delete(t);for(const[e,{id:s}]of this.f)s===t&&this.f.delete(e)}prepareForMainThreadTestRun(t,e,s,i,r){return this.k(e,s,i,t,r)}cancelRunById(t,e){this.g.get(t)?.cancel(e)}cancelAllRuns(){for(const t of this.f.values())t.cancel()}createTestRun(t,e,s,i,r,n){const o=this.f.get(i);if(o)return o.createRun(r);const d=R.fromPublic(e,s,i,n),h=A(i);this.h.$startedExtensionTestRun({controllerId:e,continuous:!!i.continuous,profile:h&&{group:m.TestRunProfileKind.from(h.kind),id:h.profileId},exclude:i.exclude?.map(c=>p.fromExtHostTestItem(c,s.root.id).toString())??[],id:d.id,include:i.include?.map(c=>p.fromExtHostTestItem(c,s.root.id).toString())??[s.root.id],preserveFocus:i.preserveFocus??!0,persist:n});const l=this.k(i,d,i.profile,t);return y.once(l.onEnd)(()=>{this.h.$finishedExtensionTestRun(d.id)}),l.createRun(r)}k(t,e,s,i,r){const n=new ct(e,this.h,this.j,s,i,r);return this.f.set(t,n),this.g.set(n.id,n),n}}const A=f=>{if(f.profile){if(!(f.profile instanceof O))throw new Error("TestRunRequest.profile is not an instance created from TestController.createRunProfile");return f.profile}};class R{static fromPublic(t,e,s,i){return new R(t,z(),i,e)}static fromInternal(t,e){return new R(t.controllerId,t.runId,!0,e)}constructor(t,e,s,i){this.controllerId=t,this.id=e,this.isPersisted=s,this.colllection=i}}class ut{get isEmpty(){return this.f.size===0&&this.h.size===0&&this.g.size===0}constructor(t){this.k=t,this.f=new Set,this.g=new Set,this.h=new Set,this.j=new Set}add(t){this.f.add(t)}update(t){Object.assign(t.revived,m.TestItem.toPlain(t.item)),this.f.has(t)||this.g.add(t)}remove(t){if(this.f.delete(t))return;this.g.delete(t);const e=p.parentId(t.item.extId);if(e&&this.j.has(e.toString())){this.j.add(t.item.extId);return}this.h.add(t)}getChangeEvent(){const{f:t,g:e,h:s}=this;return{get added(){return[...t].map(i=>i.revived)},get updated(){return[...e].map(i=>i.revived)},get removed(){return[...s].map(i=>i.revived)}}}complete(){this.isEmpty||this.k.fire(this.getChangeEvent())}}class pt extends V{constructor(){super(...arguments),this.z=new C,this.onDidChangeTests=this.z.event}get rootTests(){return this.h}getMirroredTestDataById(t){return this.g.get(t)}getMirroredTestDataByReference(t){return this.g.get(t.id)}y(t,e){return{...t,revived:m.TestItem.toPlain(t.item),depth:e?e.depth+1:0,children:new Set}}x(){return new ut(this.z)}}class gt{constructor(t){this.g=t}checkout(){this.f||(this.f=this.h());const t=this.f;return t.observers++,{onDidChangeTest:t.tests.onDidChangeTests,get tests(){return[...t.tests.rootTests].map(e=>e.revived)},dispose:U(()=>{--t.observers===0&&(this.g.$unsubscribeFromDiffs(),this.f=void 0)})}}getMirroredTestDataByReference(t){return this.f?.tests.getMirroredTestDataByReference(t)}applyDiff(t){this.f?.tests.apply(t)}h(){const t=new pt({asCanonicalUri:e=>e});return this.g.$subscribeToDiffs(),{observers:0,tests:t}}}const w=(f,t,e,s)=>{e?Object.assign(e,s):t.$updateTestRunConfig(f.controllerId,f.profileId,s)};class O extends at{#e;#s;#r;#t;#i;get label(){return this.g}set label(t){t!==this.g&&(this.g=t,w(this,this.#e,this.#t,{label:t}))}get supportsContinuousRun(){return this.j}set supportsContinuousRun(t){t!==this.j&&(this.j=t,w(this,this.#e,this.#t,{supportsContinuousRun:t}))}get isDefault(){return this.#s.has(this.profileId)}set isDefault(t){t!==this.isDefault&&(t?this.#s.add(this.profileId):this.#s.delete(this.profileId),w(this,this.#e,this.#t,{isDefault:t}))}get tag(){return this._tag}set tag(t){t?.id!==this._tag?.id&&(this._tag=t,w(this,this.#e,this.#t,{tag:t?m.TestTag.namespace(this.controllerId,t.id):null}))}get configureHandler(){return this.f}set configureHandler(t){t!==this.f&&(this.f=t,w(this,this.#e,this.#t,{hasConfigurationHandler:!!t}))}get onDidChangeDefault(){return y.chain(this.#r,t=>t.map(e=>e.get(this.controllerId)?.get(this.profileId)).filter(v))}constructor(t,e,s,i,r,n,o,d,h,l=!1,c=void 0,u=!1){super(r,n,d),this.g=o,this.runHandler=h,this._tag=c,this.j=u,this.#e=t,this.#i=e,this.#s=s,this.#r=i,e.set(n,this);const a=m.TestRunProfileKind.from(d);l&&s.add(n),this.#t={profileId:n,controllerId:r,tag:c?m.TestTag.namespace(this.controllerId,c.id):null,label:o,group:a,isDefault:l,hasConfigurationHandler:!1,supportsContinuousRun:u},queueMicrotask(()=>{this.#t&&(this.#e.$publishTestRunProfile(this.#t),this.#t=void 0)})}dispose(){this.#i?.delete(this.profileId)&&(this.#i=void 0,this.#e.$removeTestProfile(this.controllerId,this.profileId)),this.#t=void 0}}function mt(f,t){for(let e=0;e<f.path.length;e++){const s=t.find(i=>i.id===f.path[e]);if(!s)return;if(e===f.path.length-1)return s;t=s.children}}export{ft as $AZc,R as $BZc,O as $CZc,_t as $yZc,k as $zZc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { RunOnceScheduler } from "../../../base/common/async.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { createSingleCallFunction } from "../../../base/common/functional.js";
+import { hash } from "../../../base/common/hash.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { isDefined } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { TestId } from "../../contrib/testing/common/testId.js";
+import { InvalidTestItemError } from "../../contrib/testing/common/testItemCollection.js";
+import { AbstractIncrementalTestCollection, TestsDiffOp, isStartControllerTests } from "../../contrib/testing/common/testTypes.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { MainContext } from "./extHost.protocol.js";
+import { IExtHostCommands } from "./extHostCommands.js";
+import { IExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { ExtHostTestItemCollection, TestItemImpl, TestItemRootImpl, toItemFromContext } from "./extHostTestItem.js";
+import * as Convert from "./extHostTypeConverters.js";
+import { FileCoverage, TestRunProfileBase, TestRunRequest } from "./extHostTypes.js";
+let followupCounter = 0;
+const testResultInternalIDs = /* @__PURE__ */ new WeakMap();
+const IExtHostTesting = createDecorator("IExtHostTesting");
+let ExtHostTesting = class ExtHostTesting2 extends Disposable {
+  static {
+    __name(this, "ExtHostTesting");
+  }
+  constructor(rpc, logService, commands, editors) {
+    super();
+    this.logService = logService;
+    this.commands = commands;
+    this.editors = editors;
+    this.resultsChangedEmitter = this._register(new Emitter());
+    this.controllers = /* @__PURE__ */ new Map();
+    this.defaultProfilesChangedEmitter = this._register(new Emitter());
+    this.followupProviders = /* @__PURE__ */ new Set();
+    this.testFollowups = /* @__PURE__ */ new Map();
+    this.onResultsChanged = this.resultsChangedEmitter.event;
+    this.results = [];
+    this.proxy = rpc.getProxy(MainContext.MainThreadTesting);
+    this.observer = new TestObservers(this.proxy);
+    this.runTracker = new TestRunCoordinator(this.proxy, logService);
+    commands.registerArgumentProcessor({
+      processArgument: /* @__PURE__ */ __name((arg) => {
+        switch (arg?.$mid) {
+          case 16: {
+            const cast = arg;
+            const targetTest = cast.tests[cast.tests.length - 1].item.extId;
+            const controller = this.controllers.get(TestId.root(targetTest));
+            return controller?.collection.tree.get(targetTest)?.actual ?? toItemFromContext(arg);
+          }
+          case 18: {
+            const { test, message } = arg;
+            const extId = test.item.extId;
+            return {
+              test: this.controllers.get(TestId.root(extId))?.collection.tree.get(extId)?.actual ?? toItemFromContext({ $mid: 16, tests: [test] }),
+              message: Convert.TestMessage.to(message)
+            };
+          }
+          default:
+            return arg;
+        }
+      }, "processArgument")
+    });
+    commands.registerCommand(false, "testing.getExplorerSelection", async () => {
+      const inner = await commands.executeCommand(
+        "_testing.getExplorerSelection"
+        /* TestCommandId.GetExplorerSelection */
+      );
+      const lookup = /* @__PURE__ */ __name((i) => {
+        const controller = this.controllers.get(TestId.root(i));
+        if (!controller) {
+          return void 0;
+        }
+        return TestId.isRoot(i) ? controller.controller : controller.collection.tree.get(i)?.actual;
+      }, "lookup");
+      return {
+        include: inner?.include.map(lookup).filter(isDefined) || [],
+        exclude: inner?.exclude.map(lookup).filter(isDefined) || []
+      };
+    });
+  }
+  //#region public API
+  /**
+   * Implements vscode.test.registerTestProvider
+   */
+  createTestController(extension, controllerId, label, refreshHandler) {
+    if (this.controllers.has(controllerId)) {
+      throw new Error(`Attempt to insert a duplicate controller with ID "${controllerId}"`);
+    }
+    const disposable = new DisposableStore();
+    const collection = disposable.add(new ExtHostTestItemCollection(controllerId, label, this.editors));
+    collection.root.label = label;
+    const profiles = /* @__PURE__ */ new Map();
+    const activeProfiles = /* @__PURE__ */ new Set();
+    const proxy = this.proxy;
+    const getCapability = /* @__PURE__ */ __name(() => {
+      let cap = 0;
+      if (refreshHandler) {
+        cap |= 2;
+      }
+      const rcp = info.relatedCodeProvider;
+      if (rcp) {
+        if (rcp?.provideRelatedTests) {
+          cap |= 8;
+        }
+        if (rcp?.provideRelatedCode) {
+          cap |= 4;
+        }
+      }
+      return cap;
+    }, "getCapability");
+    const controller = {
+      items: collection.root.children,
+      get label() {
+        return label;
+      },
+      set label(value) {
+        label = value;
+        collection.root.label = value;
+        proxy.$updateController(controllerId, { label });
+      },
+      get refreshHandler() {
+        return refreshHandler;
+      },
+      set refreshHandler(value) {
+        refreshHandler = value;
+        proxy.$updateController(controllerId, { capabilities: getCapability() });
+      },
+      get id() {
+        return controllerId;
+      },
+      get relatedCodeProvider() {
+        return info.relatedCodeProvider;
+      },
+      set relatedCodeProvider(value) {
+        checkProposedApiEnabled(extension, "testRelatedCode");
+        info.relatedCodeProvider = value;
+        proxy.$updateController(controllerId, { capabilities: getCapability() });
+      },
+      createRunProfile: /* @__PURE__ */ __name((label2, group, runHandler, isDefault, tag, supportsContinuousRun) => {
+        let profileId = hash(label2);
+        while (profiles.has(profileId)) {
+          profileId++;
+        }
+        return new TestRunProfileImpl(this.proxy, profiles, activeProfiles, this.defaultProfilesChangedEmitter.event, controllerId, profileId, label2, group, runHandler, isDefault, tag, supportsContinuousRun);
+      }, "createRunProfile"),
+      createTestItem(id, label2, uri) {
+        return new TestItemImpl(controllerId, id, label2, uri);
+      },
+      createTestRun: /* @__PURE__ */ __name((request, name, persist = true) => {
+        return this.runTracker.createTestRun(extension, controllerId, collection, request, name, persist);
+      }, "createTestRun"),
+      invalidateTestResults: /* @__PURE__ */ __name((items) => {
+        if (items === void 0) {
+          this.proxy.$markTestRetired(void 0);
+        } else {
+          const itemsArr = items instanceof Array ? items : [items];
+          this.proxy.$markTestRetired(itemsArr.map((i) => TestId.fromExtHostTestItem(i, controllerId).toString()));
+        }
+      }, "invalidateTestResults"),
+      set resolveHandler(fn) {
+        collection.resolveHandler = fn;
+      },
+      get resolveHandler() {
+        return collection.resolveHandler;
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+        disposable.dispose();
+      }, "dispose")
+    };
+    const info = { controller, collection, profiles, extension, activeProfiles };
+    proxy.$registerTestController(controllerId, label, getCapability());
+    disposable.add(toDisposable(() => proxy.$unregisterTestController(controllerId)));
+    this.controllers.set(controllerId, info);
+    disposable.add(toDisposable(() => this.controllers.delete(controllerId)));
+    disposable.add(collection.onDidGenerateDiff((diff) => proxy.$publishDiff(controllerId, diff.map(TestsDiffOp.serialize))));
+    return controller;
+  }
+  /**
+   * Implements vscode.test.createTestObserver
+   */
+  createTestObserver() {
+    return this.observer.checkout();
+  }
+  /**
+   * Implements vscode.test.runTests
+   */
+  async runTests(req, token = CancellationToken.None) {
+    const profile = tryGetProfileFromTestRunReq(req);
+    if (!profile) {
+      throw new Error("The request passed to `vscode.test.runTests` must include a profile");
+    }
+    const controller = this.controllers.get(profile.controllerId);
+    if (!controller) {
+      throw new Error("Controller not found");
+    }
+    await this.proxy.$runTests({
+      preserveFocus: req.preserveFocus ?? true,
+      group: Convert.TestRunProfileKind.from(profile.kind),
+      targets: [{
+        testIds: req.include?.map((t) => TestId.fromExtHostTestItem(t, controller.collection.root.id).toString()) ?? [controller.collection.root.id],
+        profileId: profile.profileId,
+        controllerId: profile.controllerId
+      }],
+      exclude: req.exclude?.map((t) => t.id)
+    }, token);
+  }
+  /**
+   * Implements vscode.test.registerTestFollowupProvider
+   */
+  registerTestFollowupProvider(provider) {
+    this.followupProviders.add(provider);
+    return { dispose: /* @__PURE__ */ __name(() => {
+      this.followupProviders.delete(provider);
+    }, "dispose") };
+  }
+  //#endregion
+  //#region RPC methods
+  /**
+   * @inheritdoc
+   */
+  async $getTestsRelatedToCode(uri, _position, token) {
+    const doc = this.editors.getDocument(URI.revive(uri));
+    if (!doc) {
+      return [];
+    }
+    const position = Convert.Position.to(_position);
+    const related = [];
+    await Promise.all([...this.controllers.values()].map(async (c) => {
+      let tests;
+      try {
+        tests = await c.relatedCodeProvider?.provideRelatedTests?.(doc.document, position, token);
+      } catch (e) {
+        if (!token.isCancellationRequested) {
+          this.logService.warn(`Error thrown while providing related tests for ${c.controller.label}`, e);
+        }
+      }
+      if (tests) {
+        for (const test of tests) {
+          related.push(TestId.fromExtHostTestItem(test, c.controller.id).toString());
+        }
+        c.collection.flushDiff();
+      }
+    }));
+    return related;
+  }
+  /**
+   * @inheritdoc
+   */
+  async $getCodeRelatedToTest(testId, token) {
+    const controller = this.controllers.get(TestId.root(testId));
+    if (!controller) {
+      return [];
+    }
+    const test = controller.collection.tree.get(testId);
+    if (!test) {
+      return [];
+    }
+    const locations = await controller.relatedCodeProvider?.provideRelatedCode?.(test.actual, token);
+    return locations?.map(Convert.location.from) ?? [];
+  }
+  /**
+   * @inheritdoc
+   */
+  $syncTests() {
+    for (const { collection } of this.controllers.values()) {
+      collection.flushDiff();
+    }
+    return Promise.resolve();
+  }
+  /**
+   * @inheritdoc
+   */
+  async $getCoverageDetails(coverageId, testId, token) {
+    const details = await this.runTracker.getCoverageDetails(coverageId, testId, token);
+    return details?.map(Convert.TestCoverage.fromDetails);
+  }
+  /**
+   * @inheritdoc
+   */
+  async $disposeRun(runId) {
+    this.runTracker.disposeTestRun(runId);
+  }
+  /** @inheritdoc */
+  $configureRunProfile(controllerId, profileId) {
+    this.controllers.get(controllerId)?.profiles.get(profileId)?.configureHandler?.();
+  }
+  /** @inheritdoc */
+  $setDefaultRunProfiles(profiles) {
+    const evt = /* @__PURE__ */ new Map();
+    for (const [controllerId, profileIds] of Object.entries(profiles)) {
+      const ctrl = this.controllers.get(controllerId);
+      if (!ctrl) {
+        continue;
+      }
+      const changes = /* @__PURE__ */ new Map();
+      const added = profileIds.filter((id) => !ctrl.activeProfiles.has(id));
+      const removed = [...ctrl.activeProfiles].filter((id) => !profileIds.includes(id));
+      for (const id of added) {
+        changes.set(id, true);
+        ctrl.activeProfiles.add(id);
+      }
+      for (const id of removed) {
+        changes.set(id, false);
+        ctrl.activeProfiles.delete(id);
+      }
+      if (changes.size) {
+        evt.set(controllerId, changes);
+      }
+    }
+    this.defaultProfilesChangedEmitter.fire(evt);
+  }
+  /** @inheritdoc */
+  async $refreshTests(controllerId, token) {
+    await this.controllers.get(controllerId)?.controller.refreshHandler?.(token);
+  }
+  /**
+   * Updates test results shown to extensions.
+   * @override
+   */
+  $publishTestResults(results) {
+    this.results = Object.freeze(results.map((r) => {
+      const o = Convert.TestResults.to(r);
+      const taskWithCoverage = r.tasks.findIndex((t) => t.hasCoverage);
+      if (taskWithCoverage !== -1) {
+        o.getDetailedCoverage = (uri, token = CancellationToken.None) => this.proxy.$getCoverageDetails(r.id, taskWithCoverage, uri, token).then((r2) => r2.map(Convert.TestCoverage.to));
+      }
+      testResultInternalIDs.set(o, r.id);
+      return o;
+    }).concat(this.results).sort((a, b) => b.completedAt - a.completedAt).slice(0, 32));
+    this.resultsChangedEmitter.fire();
+  }
+  /**
+   * Expands the nodes in the test tree. If levels is less than zero, it will
+   * be treated as infinite.
+   */
+  async $expandTest(testId, levels) {
+    const collection = this.controllers.get(TestId.fromString(testId).controllerId)?.collection;
+    if (collection) {
+      await collection.expand(testId, levels < 0 ? Infinity : levels);
+      collection.flushDiff();
+    }
+  }
+  /**
+   * Receives a test update from the main thread. Called (eventually) whenever
+   * tests change.
+   */
+  $acceptDiff(diff) {
+    this.observer.applyDiff(diff.map((d) => TestsDiffOp.deserialize({ asCanonicalUri: /* @__PURE__ */ __name((u) => u, "asCanonicalUri") }, d)));
+  }
+  /**
+   * Runs tests with the given set of IDs. Allows for test from multiple
+   * providers to be run.
+   * @inheritdoc
+   */
+  async $runControllerTests(reqs, token) {
+    return Promise.all(reqs.map((req) => this.runControllerTestRequest(req, false, token)));
+  }
+  /**
+   * Starts continuous test runs with the given set of IDs. Allows for test from
+   * multiple providers to be run.
+   * @inheritdoc
+   */
+  async $startContinuousRun(reqs, token) {
+    const cts = new CancellationTokenSource(token);
+    const res = await Promise.all(reqs.map((req) => this.runControllerTestRequest(req, true, cts.token)));
+    if (!token.isCancellationRequested && !res.some((r) => r.error)) {
+      await new Promise((r) => token.onCancellationRequested(r));
+    }
+    cts.dispose(true);
+    return res;
+  }
+  /** @inheritdoc */
+  async $provideTestFollowups(req, token) {
+    const results = this.results.find((r) => testResultInternalIDs.get(r) === req.resultId);
+    const test = results && findTestInResultSnapshot(TestId.fromString(req.extId), results?.results);
+    if (!test) {
+      return [];
+    }
+    let followups = [];
+    await Promise.all([...this.followupProviders].map(async (provider) => {
+      try {
+        const r = await provider.provideFollowup(results, test, req.taskIndex, req.messageIndex, token);
+        if (r) {
+          followups = followups.concat(r);
+        }
+      } catch (e) {
+        this.logService.error(`Error thrown while providing followup for test message`, e);
+      }
+    }));
+    if (token.isCancellationRequested) {
+      return [];
+    }
+    return followups.map((command) => {
+      const id = followupCounter++;
+      this.testFollowups.set(id, command);
+      return { title: command.title, id };
+    });
+  }
+  $disposeTestFollowups(id) {
+    for (const i of id) {
+      this.testFollowups.delete(i);
+    }
+  }
+  $executeTestFollowup(id) {
+    const command = this.testFollowups.get(id);
+    if (!command) {
+      return Promise.resolve();
+    }
+    return this.commands.executeCommand(command.command, ...command.arguments || []);
+  }
+  /**
+   * Cancels an ongoing test run.
+   */
+  $cancelExtensionTestRun(runId, taskId) {
+    if (runId === void 0) {
+      this.runTracker.cancelAllRuns();
+    } else {
+      this.runTracker.cancelRunById(runId, taskId);
+    }
+  }
+  //#endregion
+  getMetadataForRun(run) {
+    for (const tracker of this.runTracker.trackers) {
+      const taskId = tracker.getTaskIdForRun(run);
+      if (taskId) {
+        return { taskId, runId: tracker.id };
+      }
+    }
+    return void 0;
+  }
+  async runControllerTestRequest(req, isContinuous, token) {
+    const lookup = this.controllers.get(req.controllerId);
+    if (!lookup) {
+      return {};
+    }
+    const { collection, profiles, extension } = lookup;
+    const profile = profiles.get(req.profileId);
+    if (!profile) {
+      return {};
+    }
+    const includeTests = req.testIds.map((testId) => collection.tree.get(testId)).filter(isDefined);
+    const excludeTests = req.excludeExtIds.map((id) => lookup.collection.tree.get(id)).filter(isDefined).filter((exclude) => includeTests.some(
+      (include) => include.fullId.compare(exclude.fullId) === 2
+      /* TestPosition.IsChild */
+    ));
+    if (!includeTests.length) {
+      return {};
+    }
+    const publicReq = new TestRunRequest(includeTests.some((i) => i.actual instanceof TestItemRootImpl) ? void 0 : includeTests.map((t) => t.actual), excludeTests.map((t) => t.actual), profile, isContinuous);
+    const tracker = isStartControllerTests(req) && this.runTracker.prepareForMainThreadTestRun(extension, publicReq, TestRunDto.fromInternal(req, lookup.collection), profile, token);
+    try {
+      await profile.runHandler(publicReq, token);
+      return {};
+    } catch (e) {
+      return { error: String(e) };
+    } finally {
+      if (tracker) {
+        if (tracker.hasRunningTasks && !token.isCancellationRequested) {
+          await Event.toPromise(tracker.onEnd);
+        }
+      }
+    }
+  }
+};
+ExtHostTesting = __decorate([
+  __param(0, IExtHostRpcService),
+  __param(1, ILogService),
+  __param(2, IExtHostCommands),
+  __param(3, IExtHostDocumentsAndEditors)
+], ExtHostTesting);
+const RUN_CANCEL_DEADLINE = 1e4;
+var TestRunTrackerState;
+(function(TestRunTrackerState2) {
+  TestRunTrackerState2[TestRunTrackerState2["Running"] = 0] = "Running";
+  TestRunTrackerState2[TestRunTrackerState2["Cancelling"] = 1] = "Cancelling";
+  TestRunTrackerState2[TestRunTrackerState2["Ended"] = 2] = "Ended";
+})(TestRunTrackerState || (TestRunTrackerState = {}));
+class TestRunTracker extends Disposable {
+  static {
+    __name(this, "TestRunTracker");
+  }
+  /**
+   * Gets whether there are any tests running.
+   */
+  get hasRunningTasks() {
+    return this.running > 0;
+  }
+  /**
+   * Gets the run ID.
+   */
+  get id() {
+    return this.dto.id;
+  }
+  constructor(dto, proxy, logService, profile, extension, parentToken) {
+    super();
+    this.dto = dto;
+    this.proxy = proxy;
+    this.logService = logService;
+    this.profile = profile;
+    this.extension = extension;
+    this.state = 0;
+    this.running = 0;
+    this.tasks = /* @__PURE__ */ new Map();
+    this.sharedTestIds = /* @__PURE__ */ new Set();
+    this.endEmitter = this._register(new Emitter());
+    this.publishedCoverage = /* @__PURE__ */ new Map();
+    this.onEnd = this.endEmitter.event;
+    this.cts = this._register(new CancellationTokenSource(parentToken));
+    const forciblyEnd = this._register(new RunOnceScheduler(() => this.forciblyEndTasks(), RUN_CANCEL_DEADLINE));
+    this._register(this.cts.token.onCancellationRequested(() => forciblyEnd.schedule()));
+    const didDisposeEmitter = new Emitter();
+    this.onDidDispose = didDisposeEmitter.event;
+    this._register(toDisposable(() => {
+      didDisposeEmitter.fire();
+      didDisposeEmitter.dispose();
+    }));
+  }
+  /** Gets the task ID from a test run object. */
+  getTaskIdForRun(run) {
+    for (const [taskId, { run: r }] of this.tasks) {
+      if (r === run) {
+        return taskId;
+      }
+    }
+    return void 0;
+  }
+  /** Requests cancellation of the run. On the second call, forces cancellation. */
+  cancel(taskId) {
+    if (taskId) {
+      this.tasks.get(taskId)?.cts.cancel();
+    } else if (this.state === 0) {
+      this.cts.cancel();
+      this.state = 1;
+    } else if (this.state === 1) {
+      this.forciblyEndTasks();
+    }
+  }
+  /** Gets details for a previously-emitted coverage object. */
+  async getCoverageDetails(id, testId, token) {
+    const [, taskId] = TestId.fromString(id).path;
+    const coverage = this.publishedCoverage.get(id);
+    if (!coverage) {
+      return [];
+    }
+    const { report, extIds } = coverage;
+    const task = this.tasks.get(taskId);
+    if (!task) {
+      throw new Error("unreachable: run task was not found");
+    }
+    let testItem;
+    if (testId && report instanceof FileCoverage) {
+      const index = extIds.indexOf(testId);
+      if (index === -1) {
+        return [];
+      }
+      testItem = report.includesTests[index];
+    }
+    const details = testItem ? this.profile?.loadDetailedCoverageForTest?.(task.run, report, testItem, token) : this.profile?.loadDetailedCoverage?.(task.run, report, token);
+    return await details ?? [];
+  }
+  /** Creates the public test run interface to give to extensions. */
+  createRun(name) {
+    const runId = this.dto.id;
+    const ctrlId = this.dto.controllerId;
+    const taskId = generateUuid();
+    const guardTestMutation = /* @__PURE__ */ __name((fn) => (test, ...args) => {
+      if (ended) {
+        this.logService.warn(`Setting the state of test "${test.id}" is a no-op after the run ends.`);
+        return;
+      }
+      this.ensureTestIsKnown(test);
+      fn(test, ...args);
+    }, "guardTestMutation");
+    const appendMessages = /* @__PURE__ */ __name((test, messages) => {
+      const converted = messages instanceof Array ? messages.map(Convert.TestMessage.from) : [Convert.TestMessage.from(messages)];
+      if (test.uri && test.range) {
+        const defaultLocation = { range: Convert.Range.from(test.range), uri: test.uri };
+        for (const message of converted) {
+          message.location = message.location || defaultLocation;
+        }
+      }
+      this.proxy.$appendTestMessagesInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), converted);
+    }, "appendMessages");
+    let ended = false;
+    const cts = this._register(new CancellationTokenSource(this.cts.token));
+    const run = {
+      isPersisted: this.dto.isPersisted,
+      token: cts.token,
+      name,
+      onDidDispose: this.onDidDispose,
+      addCoverage: /* @__PURE__ */ __name((coverage) => {
+        if (ended) {
+          return;
+        }
+        const includesTests = coverage instanceof FileCoverage ? coverage.includesTests : [];
+        if (includesTests.length) {
+          for (const test of includesTests) {
+            this.ensureTestIsKnown(test);
+          }
+        }
+        const uriStr = coverage.uri.toString();
+        const id = new TestId([runId, taskId, uriStr]).toString();
+        this.publishedCoverage.set(id, { report: coverage, extIds: includesTests.map((t) => TestId.fromExtHostTestItem(t, ctrlId).toString()) });
+        this.proxy.$appendCoverage(runId, taskId, Convert.TestCoverage.fromFile(ctrlId, id, coverage));
+      }, "addCoverage"),
+      //#region state mutation
+      enqueued: guardTestMutation((test) => {
+        this.proxy.$updateTestStateInRun(
+          runId,
+          taskId,
+          TestId.fromExtHostTestItem(test, ctrlId).toString(),
+          1
+          /* TestResultState.Queued */
+        );
+      }),
+      skipped: guardTestMutation((test) => {
+        this.proxy.$updateTestStateInRun(
+          runId,
+          taskId,
+          TestId.fromExtHostTestItem(test, ctrlId).toString(),
+          5
+          /* TestResultState.Skipped */
+        );
+      }),
+      started: guardTestMutation((test) => {
+        this.proxy.$updateTestStateInRun(
+          runId,
+          taskId,
+          TestId.fromExtHostTestItem(test, ctrlId).toString(),
+          2
+          /* TestResultState.Running */
+        );
+      }),
+      errored: guardTestMutation((test, messages, duration) => {
+        appendMessages(test, messages);
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), 6, duration);
+      }),
+      failed: guardTestMutation((test, messages, duration) => {
+        appendMessages(test, messages);
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, ctrlId).toString(), 4, duration);
+      }),
+      passed: guardTestMutation((test, duration) => {
+        this.proxy.$updateTestStateInRun(runId, taskId, TestId.fromExtHostTestItem(test, this.dto.controllerId).toString(), 3, duration);
+      }),
+      //#endregion
+      appendOutput: /* @__PURE__ */ __name((output, location, test) => {
+        if (ended) {
+          return;
+        }
+        if (test) {
+          this.ensureTestIsKnown(test);
+        }
+        this.proxy.$appendOutputToRun(runId, taskId, VSBuffer.fromString(output), location && Convert.location.from(location), test && TestId.fromExtHostTestItem(test, ctrlId).toString());
+      }, "appendOutput"),
+      end: /* @__PURE__ */ __name(() => {
+        if (ended) {
+          return;
+        }
+        ended = true;
+        this.proxy.$finishedTestRunTask(runId, taskId);
+        if (!--this.running) {
+          this.markEnded();
+        }
+      }, "end")
+    };
+    this.running++;
+    this.tasks.set(taskId, { run, cts });
+    this.proxy.$startedTestRunTask(runId, {
+      id: taskId,
+      ctrlId: this.dto.controllerId,
+      name: name || this.extension.displayName || this.extension.identifier.value,
+      running: true
+    });
+    return run;
+  }
+  forciblyEndTasks() {
+    for (const { run } of this.tasks.values()) {
+      run.end();
+    }
+  }
+  markEnded() {
+    if (this.state !== 2) {
+      this.state = 2;
+      this.endEmitter.fire();
+    }
+  }
+  ensureTestIsKnown(test) {
+    if (!(test instanceof TestItemImpl)) {
+      throw new InvalidTestItemError(test.id);
+    }
+    if (this.sharedTestIds.has(TestId.fromExtHostTestItem(test, this.dto.controllerId).toString())) {
+      return;
+    }
+    const chain = [];
+    const root = this.dto.colllection.root;
+    while (true) {
+      const converted = Convert.TestItem.from(test);
+      chain.unshift(converted);
+      if (this.sharedTestIds.has(converted.extId)) {
+        break;
+      }
+      this.sharedTestIds.add(converted.extId);
+      if (test === root) {
+        break;
+      }
+      test = test.parent || root;
+    }
+    this.proxy.$addTestsToRun(this.dto.controllerId, this.dto.id, chain);
+  }
+  dispose() {
+    this.markEnded();
+    super.dispose();
+  }
+}
+class TestRunCoordinator {
+  static {
+    __name(this, "TestRunCoordinator");
+  }
+  get trackers() {
+    return this.tracked.values();
+  }
+  constructor(proxy, logService) {
+    this.proxy = proxy;
+    this.logService = logService;
+    this.tracked = /* @__PURE__ */ new Map();
+    this.trackedById = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Gets a coverage report for a given run and task ID.
+   */
+  getCoverageDetails(id, testId, token) {
+    const runId = TestId.root(id);
+    return this.trackedById.get(runId)?.getCoverageDetails(id, testId, token) || [];
+  }
+  /**
+   * Disposes the test run, called when the main thread is no longer interested
+   * in associated data.
+   */
+  disposeTestRun(runId) {
+    this.trackedById.get(runId)?.dispose();
+    this.trackedById.delete(runId);
+    for (const [req, { id }] of this.tracked) {
+      if (id === runId) {
+        this.tracked.delete(req);
+      }
+    }
+  }
+  /**
+   * Registers a request as being invoked by the main thread, so
+   * `$startedExtensionTestRun` is not invoked. The run must eventually
+   * be cancelled manually.
+   */
+  prepareForMainThreadTestRun(extension, req, dto, profile, token) {
+    return this.getTracker(req, dto, profile, extension, token);
+  }
+  /**
+   * Cancels an existing test run via its cancellation token.
+   */
+  cancelRunById(runId, taskId) {
+    this.trackedById.get(runId)?.cancel(taskId);
+  }
+  /**
+   * Cancels an existing test run via its cancellation token.
+   */
+  cancelAllRuns() {
+    for (const tracker of this.tracked.values()) {
+      tracker.cancel();
+    }
+  }
+  /**
+   * Implements the public `createTestRun` API.
+   */
+  createTestRun(extension, controllerId, collection, request, name, persist) {
+    const existing = this.tracked.get(request);
+    if (existing) {
+      return existing.createRun(name);
+    }
+    const dto = TestRunDto.fromPublic(controllerId, collection, request, persist);
+    const profile = tryGetProfileFromTestRunReq(request);
+    this.proxy.$startedExtensionTestRun({
+      controllerId,
+      continuous: !!request.continuous,
+      profile: profile && { group: Convert.TestRunProfileKind.from(profile.kind), id: profile.profileId },
+      exclude: request.exclude?.map((t) => TestId.fromExtHostTestItem(t, collection.root.id).toString()) ?? [],
+      id: dto.id,
+      include: request.include?.map((t) => TestId.fromExtHostTestItem(t, collection.root.id).toString()) ?? [collection.root.id],
+      preserveFocus: request.preserveFocus ?? true,
+      persist
+    });
+    const tracker = this.getTracker(request, dto, request.profile, extension);
+    Event.once(tracker.onEnd)(() => {
+      this.proxy.$finishedExtensionTestRun(dto.id);
+    });
+    return tracker.createRun(name);
+  }
+  getTracker(req, dto, profile, extension, token) {
+    const tracker = new TestRunTracker(dto, this.proxy, this.logService, profile, extension, token);
+    this.tracked.set(req, tracker);
+    this.trackedById.set(tracker.id, tracker);
+    return tracker;
+  }
+}
+const tryGetProfileFromTestRunReq = /* @__PURE__ */ __name((request) => {
+  if (!request.profile) {
+    return void 0;
+  }
+  if (!(request.profile instanceof TestRunProfileImpl)) {
+    throw new Error(`TestRunRequest.profile is not an instance created from TestController.createRunProfile`);
+  }
+  return request.profile;
+}, "tryGetProfileFromTestRunReq");
+class TestRunDto {
+  static {
+    __name(this, "TestRunDto");
+  }
+  static fromPublic(controllerId, collection, request, persist) {
+    return new TestRunDto(controllerId, generateUuid(), persist, collection);
+  }
+  static fromInternal(request, collection) {
+    return new TestRunDto(request.controllerId, request.runId, true, collection);
+  }
+  constructor(controllerId, id, isPersisted, colllection) {
+    this.controllerId = controllerId;
+    this.id = id;
+    this.isPersisted = isPersisted;
+    this.colllection = colllection;
+  }
+}
+class MirroredChangeCollector {
+  static {
+    __name(this, "MirroredChangeCollector");
+  }
+  get isEmpty() {
+    return this.added.size === 0 && this.removed.size === 0 && this.updated.size === 0;
+  }
+  constructor(emitter) {
+    this.emitter = emitter;
+    this.added = /* @__PURE__ */ new Set();
+    this.updated = /* @__PURE__ */ new Set();
+    this.removed = /* @__PURE__ */ new Set();
+    this.alreadyRemoved = /* @__PURE__ */ new Set();
+  }
+  /**
+   * @inheritdoc
+   */
+  add(node) {
+    this.added.add(node);
+  }
+  /**
+   * @inheritdoc
+   */
+  update(node) {
+    Object.assign(node.revived, Convert.TestItem.toPlain(node.item));
+    if (!this.added.has(node)) {
+      this.updated.add(node);
+    }
+  }
+  /**
+   * @inheritdoc
+   */
+  remove(node) {
+    if (this.added.delete(node)) {
+      return;
+    }
+    this.updated.delete(node);
+    const parentId = TestId.parentId(node.item.extId);
+    if (parentId && this.alreadyRemoved.has(parentId.toString())) {
+      this.alreadyRemoved.add(node.item.extId);
+      return;
+    }
+    this.removed.add(node);
+  }
+  /**
+   * @inheritdoc
+   */
+  getChangeEvent() {
+    const { added, updated, removed } = this;
+    return {
+      get added() {
+        return [...added].map((n) => n.revived);
+      },
+      get updated() {
+        return [...updated].map((n) => n.revived);
+      },
+      get removed() {
+        return [...removed].map((n) => n.revived);
+      }
+    };
+  }
+  complete() {
+    if (!this.isEmpty) {
+      this.emitter.fire(this.getChangeEvent());
+    }
+  }
+}
+class MirroredTestCollection extends AbstractIncrementalTestCollection {
+  static {
+    __name(this, "MirroredTestCollection");
+  }
+  constructor() {
+    super(...arguments);
+    this.changeEmitter = new Emitter();
+    this.onDidChangeTests = this.changeEmitter.event;
+  }
+  /**
+   * Gets a list of root test items.
+   */
+  get rootTests() {
+    return this.roots;
+  }
+  /**
+   *
+   * If the test ID exists, returns its underlying ID.
+   */
+  getMirroredTestDataById(itemId) {
+    return this.items.get(itemId);
+  }
+  /**
+   * If the test item is a mirrored test item, returns its underlying ID.
+   */
+  getMirroredTestDataByReference(item) {
+    return this.items.get(item.id);
+  }
+  /**
+   * @override
+   */
+  createItem(item, parent) {
+    return {
+      ...item,
+      // todo@connor4312: make this work well again with children
+      revived: Convert.TestItem.toPlain(item.item),
+      depth: parent ? parent.depth + 1 : 0,
+      children: /* @__PURE__ */ new Set()
+    };
+  }
+  /**
+   * @override
+   */
+  createChangeCollector() {
+    return new MirroredChangeCollector(this.changeEmitter);
+  }
+}
+class TestObservers {
+  static {
+    __name(this, "TestObservers");
+  }
+  constructor(proxy) {
+    this.proxy = proxy;
+  }
+  checkout() {
+    if (!this.current) {
+      this.current = this.createObserverData();
+    }
+    const current = this.current;
+    current.observers++;
+    return {
+      onDidChangeTest: current.tests.onDidChangeTests,
+      get tests() {
+        return [...current.tests.rootTests].map((t) => t.revived);
+      },
+      dispose: createSingleCallFunction(() => {
+        if (--current.observers === 0) {
+          this.proxy.$unsubscribeFromDiffs();
+          this.current = void 0;
+        }
+      })
+    };
+  }
+  /**
+   * Gets the internal test data by its reference.
+   */
+  getMirroredTestDataByReference(ref) {
+    return this.current?.tests.getMirroredTestDataByReference(ref);
+  }
+  /**
+   * Applies test diffs to the current set of observed tests.
+   */
+  applyDiff(diff) {
+    this.current?.tests.apply(diff);
+  }
+  createObserverData() {
+    const tests = new MirroredTestCollection({ asCanonicalUri: /* @__PURE__ */ __name((u) => u, "asCanonicalUri") });
+    this.proxy.$subscribeToDiffs();
+    return { observers: 0, tests };
+  }
+}
+const updateProfile = /* @__PURE__ */ __name((impl, proxy, initial, update) => {
+  if (initial) {
+    Object.assign(initial, update);
+  } else {
+    proxy.$updateTestRunConfig(impl.controllerId, impl.profileId, update);
+  }
+}, "updateProfile");
+class TestRunProfileImpl extends TestRunProfileBase {
+  static {
+    __name(this, "TestRunProfileImpl");
+  }
+  #proxy;
+  #activeProfiles;
+  #onDidChangeDefaultProfiles;
+  #initialPublish;
+  #profiles;
+  get label() {
+    return this._label;
+  }
+  set label(label) {
+    if (label !== this._label) {
+      this._label = label;
+      updateProfile(this, this.#proxy, this.#initialPublish, { label });
+    }
+  }
+  get supportsContinuousRun() {
+    return this._supportsContinuousRun;
+  }
+  set supportsContinuousRun(supports) {
+    if (supports !== this._supportsContinuousRun) {
+      this._supportsContinuousRun = supports;
+      updateProfile(this, this.#proxy, this.#initialPublish, { supportsContinuousRun: supports });
+    }
+  }
+  get isDefault() {
+    return this.#activeProfiles.has(this.profileId);
+  }
+  set isDefault(isDefault) {
+    if (isDefault !== this.isDefault) {
+      if (isDefault) {
+        this.#activeProfiles.add(this.profileId);
+      } else {
+        this.#activeProfiles.delete(this.profileId);
+      }
+      updateProfile(this, this.#proxy, this.#initialPublish, { isDefault });
+    }
+  }
+  get tag() {
+    return this._tag;
+  }
+  set tag(tag) {
+    if (tag?.id !== this._tag?.id) {
+      this._tag = tag;
+      updateProfile(this, this.#proxy, this.#initialPublish, {
+        tag: tag ? Convert.TestTag.namespace(this.controllerId, tag.id) : null
+      });
+    }
+  }
+  get configureHandler() {
+    return this._configureHandler;
+  }
+  set configureHandler(handler) {
+    if (handler !== this._configureHandler) {
+      this._configureHandler = handler;
+      updateProfile(this, this.#proxy, this.#initialPublish, { hasConfigurationHandler: !!handler });
+    }
+  }
+  get onDidChangeDefault() {
+    return Event.chain(this.#onDidChangeDefaultProfiles, ($) => $.map((ev) => ev.get(this.controllerId)?.get(this.profileId)).filter(isDefined));
+  }
+  constructor(proxy, profiles, activeProfiles, onDidChangeActiveProfiles, controllerId, profileId, _label, kind, runHandler, _isDefault = false, _tag = void 0, _supportsContinuousRun = false) {
+    super(controllerId, profileId, kind);
+    this._label = _label;
+    this.runHandler = runHandler;
+    this._tag = _tag;
+    this._supportsContinuousRun = _supportsContinuousRun;
+    this.#proxy = proxy;
+    this.#profiles = profiles;
+    this.#activeProfiles = activeProfiles;
+    this.#onDidChangeDefaultProfiles = onDidChangeActiveProfiles;
+    profiles.set(profileId, this);
+    const groupBitset = Convert.TestRunProfileKind.from(kind);
+    if (_isDefault) {
+      activeProfiles.add(profileId);
+    }
+    this.#initialPublish = {
+      profileId,
+      controllerId,
+      tag: _tag ? Convert.TestTag.namespace(this.controllerId, _tag.id) : null,
+      label: _label,
+      group: groupBitset,
+      isDefault: _isDefault,
+      hasConfigurationHandler: false,
+      supportsContinuousRun: _supportsContinuousRun
+    };
+    queueMicrotask(() => {
+      if (this.#initialPublish) {
+        this.#proxy.$publishTestRunProfile(this.#initialPublish);
+        this.#initialPublish = void 0;
+      }
+    });
+  }
+  dispose() {
+    if (this.#profiles?.delete(this.profileId)) {
+      this.#profiles = void 0;
+      this.#proxy.$removeTestProfile(this.controllerId, this.profileId);
+    }
+    this.#initialPublish = void 0;
+  }
+}
+function findTestInResultSnapshot(extId, snapshot) {
+  for (let i = 0; i < extId.path.length; i++) {
+    const item = snapshot.find((s) => s.id === extId.path[i]);
+    if (!item) {
+      return void 0;
+    }
+    if (i === extId.path.length - 1) {
+      return item;
+    }
+    snapshot = item.children;
+  }
+  return void 0;
+}
+__name(findTestInResultSnapshot, "findTestInResultSnapshot");
+export {
+  ExtHostTesting,
+  IExtHostTesting,
+  TestRunCoordinator,
+  TestRunDto,
+  TestRunProfileImpl
+};
+//# sourceMappingURL=extHostTesting.js.map

@@ -1,1 +1,135 @@
-import"./media/chatContextUsageDetails.css";import*as y from"../../../../../../base/browser/dom.js";import{$Ed as q}from"../../../../../../base/common/lifecycle.js";import{localize as h}from"../../../../../../nls.js";import{$rL as P,$qL as C}from"../../../../../../platform/actions/common/actions.js";import{$Mj as w}from"../../../../../../platform/instantiation/common/instantiation.js";import{$_Pb as j}from"../../../../../../platform/actions/browser/buttonbar.js";import{$ro as v}from"../../../../../../platform/contextkey/common/contextkey.js";var $=function(l,t,o,i){var s=arguments.length,e=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(l,t,o,i);else for(var r=l.length-1;r>=0;r--)(a=l[r])&&(e=(s<3?a(e):s>3?a(t,o,e):a(t,o))||e);return s>3&&e&&Object.defineProperty(t,o,e),e},g=function(l,t){return function(o,i){t(o,i,l)}};const n=y.$;let b=class extends q{constructor(t,o,i){super(),this.m=t,this.n=o,this.q=i,this.domNode=n(".chat-context-usage-details"),this.a=this.domNode.appendChild(n(".quota-item"));const e=this.a.appendChild(n(".quota-item-header")).appendChild(n(".quota-item-label"));e.textContent=h(6789,null);const a=this.a.appendChild(n(".token-row"));this.c=a.appendChild(n(".token-count-label")),this.b=a.appendChild(n(".quota-item-value"));const r=this.a.appendChild(n(".quota-bar"));this.f=r.appendChild(n(".quota-bit")),this.g=this.domNode.appendChild(n(".token-details-container")),this.h=this.domNode.appendChild(n(".warning-message")),this.h.textContent=h(6790,null),this.h.style.display="none",this.j=this.domNode.appendChild(n(".actions-section")),this.j.appendChild(n(".separator"));const u=this.j.appendChild(n(".actions-header"));u.textContent=h(6791,null);const d=this.j.appendChild(n(".button-bar-container"));this.D(this.m.createInstance(j,d,C.ChatContextUsageActions,{toolbarOptions:{primaryGroup:()=>!0},buttonConfigProvider:()=>({isSecondary:!0})}));const p=this.D(this.n.createMenu(C.ChatContextUsageActions,this.q)),c=()=>{const m=p.getActions(),f=m.length>0&&m.some(([,x])=>x.length>0);this.j.style.display=f?"":"none"};this.D(p.onDidChange(c)),c()}update(t){const{percentage:o,promptTokens:i,maxInputTokens:s,promptTokenDetails:e}=t;this.c.textContent=h(6792,null,this.r(i,1),this.r(s,0)),this.b.textContent=`\u2022 ${o.toFixed(0)}%`,this.f.style.width=`${Math.min(100,o)}%`,this.a.classList.remove("warning","error"),o>=90?this.a.classList.add("error"):o>=75&&this.a.classList.add("warning"),this.s(e,o),this.h.style.display=o>=75?"":"none"}r(t,o){return t>=1e6?`${(t/1e6).toFixed(o)}M`:t>=1e3?`${(t/1e3).toFixed(o)}K`:t.toString()}s(t,o){if(y.$t8(this.g),!t||t.length===0){this.g.style.display="none";return}this.g.style.display="";const i=new Map;let s=0;for(const e of t){const a=i.get(e.category)||[];a.push({label:e.label,percentageOfPrompt:e.percentageOfPrompt}),i.set(e.category,a),s+=e.percentageOfPrompt}if(s<100){const e=100-s;i.set(h(6793,null),[{label:h(6794,null),percentageOfPrompt:e}])}for(const[e,a]of i){const r=this.g.appendChild(n(".token-category")),u=r.appendChild(n(".token-category-header"));u.textContent=e;for(const d of a){const p=r.appendChild(n(".token-detail-item")),c=p.appendChild(n(".token-detail-label"));c.textContent=d.label;const m=d.percentageOfPrompt/100*o,f=p.appendChild(n(".token-detail-value"));f.textContent=`${m.toFixed(1)}%`}}}focus(){this.domNode.focus()}};b=$([g(0,w),g(1,P),g(2,v)],b);export{b as $w4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/chatContextUsageDetails.css";
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { IMenuService, MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { MenuWorkbenchButtonBar } from "../../../../../../platform/actions/browser/buttonbar.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+const $ = dom.$;
+let ChatContextUsageDetails = class ChatContextUsageDetails2 extends Disposable {
+  static {
+    __name(this, "ChatContextUsageDetails");
+  }
+  constructor(instantiationService, menuService, contextKeyService) {
+    super();
+    this.instantiationService = instantiationService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.domNode = $(".chat-context-usage-details");
+    this.quotaItem = this.domNode.appendChild($(".quota-item"));
+    const quotaItemHeader = this.quotaItem.appendChild($(".quota-item-header"));
+    const quotaItemLabel = quotaItemHeader.appendChild($(".quota-item-label"));
+    quotaItemLabel.textContent = localize("contextWindow", "Context Window");
+    const tokenRow = this.quotaItem.appendChild($(".token-row"));
+    this.tokenCountLabel = tokenRow.appendChild($(".token-count-label"));
+    this.percentageLabel = tokenRow.appendChild($(".quota-item-value"));
+    const progressBar = this.quotaItem.appendChild($(".quota-bar"));
+    this.progressFill = progressBar.appendChild($(".quota-bit"));
+    this.tokenDetailsContainer = this.domNode.appendChild($(".token-details-container"));
+    this.warningMessage = this.domNode.appendChild($(".warning-message"));
+    this.warningMessage.textContent = localize("qualityWarning", "Quality may decline as limit nears.");
+    this.warningMessage.style.display = "none";
+    this.actionsSection = this.domNode.appendChild($(".actions-section"));
+    this.actionsSection.appendChild($(".separator"));
+    const actionsHeader = this.actionsSection.appendChild($(".actions-header"));
+    actionsHeader.textContent = localize("actions", "Actions");
+    const buttonBarContainer = this.actionsSection.appendChild($(".button-bar-container"));
+    this._register(this.instantiationService.createInstance(MenuWorkbenchButtonBar, buttonBarContainer, MenuId.ChatContextUsageActions, {
+      toolbarOptions: {
+        primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup")
+      },
+      buttonConfigProvider: /* @__PURE__ */ __name(() => ({ isSecondary: true }), "buttonConfigProvider")
+    }));
+    const menu = this._register(this.menuService.createMenu(MenuId.ChatContextUsageActions, this.contextKeyService));
+    const updateActionsVisibility = /* @__PURE__ */ __name(() => {
+      const actions = menu.getActions();
+      const hasActions = actions.length > 0 && actions.some(([, items]) => items.length > 0);
+      this.actionsSection.style.display = hasActions ? "" : "none";
+    }, "updateActionsVisibility");
+    this._register(menu.onDidChange(updateActionsVisibility));
+    updateActionsVisibility();
+  }
+  update(data) {
+    const { percentage, promptTokens, maxInputTokens, promptTokenDetails } = data;
+    this.tokenCountLabel.textContent = localize("tokenCount", "{0} / {1} tokens", this.formatTokenCount(promptTokens, 1), this.formatTokenCount(maxInputTokens, 0));
+    this.percentageLabel.textContent = `\u2022 ${percentage.toFixed(0)}%`;
+    this.progressFill.style.width = `${Math.min(100, percentage)}%`;
+    this.quotaItem.classList.remove("warning", "error");
+    if (percentage >= 90) {
+      this.quotaItem.classList.add("error");
+    } else if (percentage >= 75) {
+      this.quotaItem.classList.add("warning");
+    }
+    this.renderTokenDetails(promptTokenDetails, percentage);
+    this.warningMessage.style.display = percentage >= 75 ? "" : "none";
+  }
+  formatTokenCount(count, decimals) {
+    if (count >= 1e6) {
+      return `${(count / 1e6).toFixed(decimals)}M`;
+    } else if (count >= 1e3) {
+      return `${(count / 1e3).toFixed(decimals)}K`;
+    }
+    return count.toString();
+  }
+  renderTokenDetails(details, contextWindowPercentage) {
+    dom.clearNode(this.tokenDetailsContainer);
+    if (!details || details.length === 0) {
+      this.tokenDetailsContainer.style.display = "none";
+      return;
+    }
+    this.tokenDetailsContainer.style.display = "";
+    const categoryMap = /* @__PURE__ */ new Map();
+    let totalPercentage = 0;
+    for (const detail of details) {
+      const existing = categoryMap.get(detail.category) || [];
+      existing.push({ label: detail.label, percentageOfPrompt: detail.percentageOfPrompt });
+      categoryMap.set(detail.category, existing);
+      totalPercentage += detail.percentageOfPrompt;
+    }
+    if (totalPercentage < 100) {
+      const uncategorizedPercentage = 100 - totalPercentage;
+      categoryMap.set(localize("uncategorized", "Uncategorized"), [
+        { label: localize("other", "Other"), percentageOfPrompt: uncategorizedPercentage }
+      ]);
+    }
+    for (const [category, items] of categoryMap) {
+      const categorySection = this.tokenDetailsContainer.appendChild($(".token-category"));
+      const categoryHeader = categorySection.appendChild($(".token-category-header"));
+      categoryHeader.textContent = category;
+      for (const item of items) {
+        const itemRow = categorySection.appendChild($(".token-detail-item"));
+        const itemLabel = itemRow.appendChild($(".token-detail-label"));
+        itemLabel.textContent = item.label;
+        const contextRelativePercentage = item.percentageOfPrompt / 100 * contextWindowPercentage;
+        const itemValue = itemRow.appendChild($(".token-detail-value"));
+        itemValue.textContent = `${contextRelativePercentage.toFixed(1)}%`;
+      }
+    }
+  }
+  focus() {
+    this.domNode.focus();
+  }
+};
+ChatContextUsageDetails = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IMenuService),
+  __param(2, IContextKeyService)
+], ChatContextUsageDetails);
+export {
+  ChatContextUsageDetails
+};
+//# sourceMappingURL=chatContextUsageDetails.js.map

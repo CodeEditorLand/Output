@@ -1,1 +1,104 @@
-import{$Ed as c}from"../../../../../base/common/lifecycle.js";import{observableSignal as g,runOnChange as u}from"../../../../../base/common/observable.js";import{$DE as n}from"../../../../../editor/common/core/edits/stringEdit.js";class y extends c{constructor(e,t){super(),this.h=e,this.data=t,this.a=n.empty,this.b=n.empty,this.c=g(this),this.f=new Map,this.g=new Map,this.D(u(this.h.value,(s,r,a)=>{const i=n.compose(a.map(o=>o.edit));i.replacements.every(o=>o.data.source.category==="external")?this.a.isEmpty()||(this.b=this.b.compose(i)):(this.b.isEmpty()||(this.j(this.b),this.b=n.empty),this.j(i)),this.c.trigger(void 0)}))}j(e){for(const t of e.replacements){let s=this.g.get(t.data.key);s===void 0&&(s=0,this.f.set(t.data.key,t.data.representative));const r=s+t.getNewLength();this.g.set(t.data.key,r)}this.a=this.a.compose(e)}async waitForQueue(){await this.h.waitForQueue()}getTotalInsertedCharactersCount(e){return this.g.get(e)??0}getAllKeys(){return Array.from(this.g.keys())}getRepresentative(e){return this.f.get(e)}getTrackedRanges(e){return this.c.read(e),this.a.getNewRanges().map((s,r)=>{const a=this.a.replacements[r];return new p(a.replaceRange,s,a.data.key,a.data.source,a.data.representative)})}isEmpty(){return this.a.isEmpty()}_getDebugVisualization(){const e=this.getTrackedRanges();return{$fileExtension:"text.w",value:this.h.value.get().value,decorations:e.map(s=>({range:[s.range.start,s.range.endExclusive],color:s.source.getColor()}))}}}class p{constructor(e,t,s,r,a){this.originalRange=e,this.range=t,this.sourceKey=s,this.source=r,this.sourceRepresentative=a}}export{y as $nLc,p as $oLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { observableSignal, runOnChange } from "../../../../../base/common/observable.js";
+import { AnnotatedStringEdit } from "../../../../../editor/common/core/edits/stringEdit.js";
+class DocumentEditSourceTracker extends Disposable {
+  static {
+    __name(this, "DocumentEditSourceTracker");
+  }
+  constructor(_doc, data) {
+    super();
+    this._doc = _doc;
+    this.data = data;
+    this._edits = AnnotatedStringEdit.empty;
+    this._pendingExternalEdits = AnnotatedStringEdit.empty;
+    this._update = observableSignal(this);
+    this._representativePerKey = /* @__PURE__ */ new Map();
+    this._sumAddedCharactersPerKey = /* @__PURE__ */ new Map();
+    this._register(runOnChange(this._doc.value, (_val, _prevVal, edits) => {
+      const eComposed = AnnotatedStringEdit.compose(edits.map((e) => e.edit));
+      if (eComposed.replacements.every((e) => e.data.source.category === "external")) {
+        if (this._edits.isEmpty()) {
+        } else {
+          this._pendingExternalEdits = this._pendingExternalEdits.compose(eComposed);
+        }
+      } else {
+        if (!this._pendingExternalEdits.isEmpty()) {
+          this._applyEdit(this._pendingExternalEdits);
+          this._pendingExternalEdits = AnnotatedStringEdit.empty;
+        }
+        this._applyEdit(eComposed);
+      }
+      this._update.trigger(void 0);
+    }));
+  }
+  _applyEdit(e) {
+    for (const r of e.replacements) {
+      let existing = this._sumAddedCharactersPerKey.get(r.data.key);
+      if (existing === void 0) {
+        existing = 0;
+        this._representativePerKey.set(r.data.key, r.data.representative);
+      }
+      const newCount = existing + r.getNewLength();
+      this._sumAddedCharactersPerKey.set(r.data.key, newCount);
+    }
+    this._edits = this._edits.compose(e);
+  }
+  async waitForQueue() {
+    await this._doc.waitForQueue();
+  }
+  getTotalInsertedCharactersCount(key) {
+    const val = this._sumAddedCharactersPerKey.get(key);
+    return val ?? 0;
+  }
+  getAllKeys() {
+    return Array.from(this._sumAddedCharactersPerKey.keys());
+  }
+  getRepresentative(key) {
+    return this._representativePerKey.get(key);
+  }
+  getTrackedRanges(reader) {
+    this._update.read(reader);
+    const ranges = this._edits.getNewRanges();
+    return ranges.map((r, idx) => {
+      const e = this._edits.replacements[idx];
+      const te = new TrackedEdit(e.replaceRange, r, e.data.key, e.data.source, e.data.representative);
+      return te;
+    });
+  }
+  isEmpty() {
+    return this._edits.isEmpty();
+  }
+  _getDebugVisualization() {
+    const ranges = this.getTrackedRanges();
+    const txt = this._doc.value.get().value;
+    return {
+      ...{ $fileExtension: "text.w" },
+      "value": txt,
+      "decorations": ranges.map((r) => {
+        return {
+          range: [r.range.start, r.range.endExclusive],
+          color: r.source.getColor()
+        };
+      })
+    };
+  }
+}
+class TrackedEdit {
+  static {
+    __name(this, "TrackedEdit");
+  }
+  constructor(originalRange, range, sourceKey, source, sourceRepresentative) {
+    this.originalRange = originalRange;
+    this.range = range;
+    this.sourceKey = sourceKey;
+    this.source = source;
+    this.sourceRepresentative = sourceRepresentative;
+  }
+}
+export {
+  DocumentEditSourceTracker,
+  TrackedEdit
+};
+//# sourceMappingURL=editTracker.js.map

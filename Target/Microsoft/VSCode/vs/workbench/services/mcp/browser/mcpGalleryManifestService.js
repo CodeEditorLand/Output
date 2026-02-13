@@ -1,1 +1,95 @@
-import{$7Oc as u}from"../../../../platform/mcp/common/mcpGalleryManifestService.js";import{$Vn as y}from"../../../../platform/product/common/productService.js";import{$4N as g}from"../../remote/common/remoteAgentService.js";import{$Vo as M}from"../../../../platform/request/common/request.js";import{$yo as v}from"../../../../platform/log/common/log.js";import{$xf as h}from"../../../../base/common/event.js";import{$0l as C}from"../../../../platform/configuration/common/configuration.js";import{$HQ as G}from"../../../../platform/mcp/common/mcpManagement.js";var p=function(r,t,e,s){var a=arguments.length,i=a<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,s);else for(var o=r.length-1;o>=0;o--)(n=r[o])&&(i=(a<3?n(i):a>3?n(t,e,i):n(t,e))||i);return a>3&&i&&Object.defineProperty(t,e,i),i},l=function(r,t){return function(e,s){t(e,s,r)}};let f=class extends u{get mcpGalleryManifestStatus(){return this.q}constructor(t,e,s,a,i){super(t,s,a),this.s=i,this.m=null,this.n=this.D(new h),this.onDidChangeMcpGalleryManifest=this.n.event,this.q="unavailable",this.r=this.D(new h),this.onDidChangeMcpGalleryManifestStatus=this.r.event;const n=e.getConnection();if(n){const o=n.getChannel("mcpGalleryManifest");this.getMcpGalleryManifest().then(c=>{o.call("setMcpGalleryManifest",[c]),this.D(this.onDidChangeMcpGalleryManifest(m=>o.call("setMcpGalleryManifest",[m])))})}}async getMcpGalleryManifest(){return this.t||(this.t=this.u()),await this.t,this.m}async u(){await this.w(),this.D(this.s.onDidChangeConfiguration(t=>{(t.affectsConfiguration(G)||t.affectsConfiguration("chat.mcp.gallery.version"))&&this.w()}))}async w(){const t=this.s.getValue("chat.mcp.gallery");t?.serviceUrl?this.y(await this.g(t.serviceUrl,t.version)):this.y(await super.getMcpGalleryManifest())}y(t){this.m?.url===t?.url&&this.m?.version===t?.version||(this.m=t,this.m?this.f.info("MCP Registry configured:",this.m.url):this.f.info("No MCP Registry configured"),this.q=this.m?"available":"unavailable",this.n.fire(this.m),this.r.fire(this.q))}};f=p([l(0,y),l(1,g),l(2,M),l(3,v),l(4,C)],f);export{f as $8Oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { McpGalleryManifestService } from "../../../../platform/mcp/common/mcpGalleryManifestService.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { mcpGalleryServiceUrlConfig } from "../../../../platform/mcp/common/mcpManagement.js";
+let WorkbenchMcpGalleryManifestService = class WorkbenchMcpGalleryManifestService2 extends McpGalleryManifestService {
+  static {
+    __name(this, "WorkbenchMcpGalleryManifestService");
+  }
+  get mcpGalleryManifestStatus() {
+    return this.currentStatus;
+  }
+  constructor(productService, remoteAgentService, requestService, logService, configurationService) {
+    super(productService, requestService, logService);
+    this.configurationService = configurationService;
+    this.mcpGalleryManifest = null;
+    this._onDidChangeMcpGalleryManifest = this._register(new Emitter());
+    this.onDidChangeMcpGalleryManifest = this._onDidChangeMcpGalleryManifest.event;
+    this.currentStatus = "unavailable";
+    this._onDidChangeMcpGalleryManifestStatus = this._register(new Emitter());
+    this.onDidChangeMcpGalleryManifestStatus = this._onDidChangeMcpGalleryManifestStatus.event;
+    const remoteConnection = remoteAgentService.getConnection();
+    if (remoteConnection) {
+      const channel = remoteConnection.getChannel("mcpGalleryManifest");
+      this.getMcpGalleryManifest().then((manifest) => {
+        channel.call("setMcpGalleryManifest", [manifest]);
+        this._register(this.onDidChangeMcpGalleryManifest((manifest2) => channel.call("setMcpGalleryManifest", [manifest2])));
+      });
+    }
+  }
+  async getMcpGalleryManifest() {
+    if (!this.initPromise) {
+      this.initPromise = this.doGetMcpGalleryManifest();
+    }
+    await this.initPromise;
+    return this.mcpGalleryManifest;
+  }
+  async doGetMcpGalleryManifest() {
+    await this.getAndUpdateMcpGalleryManifest();
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(mcpGalleryServiceUrlConfig) || e.affectsConfiguration("chat.mcp.gallery.version")) {
+        this.getAndUpdateMcpGalleryManifest();
+      }
+    }));
+  }
+  async getAndUpdateMcpGalleryManifest() {
+    const mcpGalleryConfig = this.configurationService.getValue("chat.mcp.gallery");
+    if (mcpGalleryConfig?.serviceUrl) {
+      this.update(await this.createMcpGalleryManifest(mcpGalleryConfig.serviceUrl, mcpGalleryConfig.version));
+    } else {
+      this.update(await super.getMcpGalleryManifest());
+    }
+  }
+  update(manifest) {
+    if (this.mcpGalleryManifest?.url === manifest?.url && this.mcpGalleryManifest?.version === manifest?.version) {
+      return;
+    }
+    this.mcpGalleryManifest = manifest;
+    if (this.mcpGalleryManifest) {
+      this.logService.info("MCP Registry configured:", this.mcpGalleryManifest.url);
+    } else {
+      this.logService.info("No MCP Registry configured");
+    }
+    this.currentStatus = this.mcpGalleryManifest ? "available" : "unavailable";
+    this._onDidChangeMcpGalleryManifest.fire(this.mcpGalleryManifest);
+    this._onDidChangeMcpGalleryManifestStatus.fire(this.currentStatus);
+  }
+};
+WorkbenchMcpGalleryManifestService = __decorate([
+  __param(0, IProductService),
+  __param(1, IRemoteAgentService),
+  __param(2, IRequestService),
+  __param(3, ILogService),
+  __param(4, IConfigurationService)
+], WorkbenchMcpGalleryManifestService);
+export {
+  WorkbenchMcpGalleryManifestService
+};
+//# sourceMappingURL=mcpGalleryManifestService.js.map

@@ -1,1 +1,7 @@
-const e="update.showCurrentReleaseNotes",o="developer.showCurrentFileAsReleaseNotes";export{e as $7rc,o as $8rc};
+const ShowCurrentReleaseNotesActionId = "update.showCurrentReleaseNotes";
+const ShowCurrentReleaseNotesFromCurrentFileActionId = "developer.showCurrentFileAsReleaseNotes";
+export {
+  ShowCurrentReleaseNotesActionId,
+  ShowCurrentReleaseNotesFromCurrentFileActionId
+};
+//# sourceMappingURL=update.js.map

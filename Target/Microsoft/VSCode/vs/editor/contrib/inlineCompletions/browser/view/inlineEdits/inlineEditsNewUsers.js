@@ -1,1 +1,180 @@
-import{$0h as g}from"../../../../../../base/common/async.js";import{$Db as v}from"../../../../../../base/common/errors.js";import{$Ed as T,$Dd as A,$Fd as w}from"../../../../../../base/common/lifecycle.js";import{autorun as f,derived as _,observableValue as C,runOnChange as D,runOnChangeWithCancellationToken as $}from"../../../../../../base/common/observable.js";import{$0l as j}from"../../../../../../platform/configuration/common/configuration.js";import{$hp as E}from"../../../../../../platform/storage/common/storage.js";var b=function(a,e,n,s){var d=arguments.length,o=d<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,n):s,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,e,n,s);else for(var r=a.length-1;r>=0;r--)(i=a[r])&&(o=(d<3?i(o):d>3?i(e,n,o):i(e,n))||o);return d>3&&o&&Object.defineProperty(e,n,o),o},l=function(a,e){return function(n,s){e(n,s,a)}},t;(function(a){a.FirstTime="firstTime",a.SecondTime="secondTime",a.Active="active"})(t||(t={}));let m=class extends T{constructor(e,n,s,d,o){super(),this.f=e,this.g=n,this.h=s,this.j=d,this.m=o,this.a=this.D(new w),this.b=C({name:"setupDone"},!1),this.c=_(i=>{const r=this.f.read(i);if(!r||!this.b.read(i))return;const h=this.g.read(i);if(!(!h||!h.isVisible.read(i)))return r.inlineEdit.inlineCompletion.identity.id}),this.D(this.s()),this.a.value=this.n(),this.b.set(!0,void 0)}n(){if(this.q()===t.Active)return;const e=new A;let n=!1,s=!1,d=0,o=0;return e.add($(this.c,async(i,r,h,p)=>{if(i===void 0)return;let c=this.q();switch(c){case t.FirstTime:{(d++>=5||n)&&(c=t.SecondTime,this.r(c));break}case t.SecondTime:{o++>=3&&s&&(c=t.Active,this.r(c));break}}switch(c){case t.FirstTime:{for(let u=0;u<3&&!p.isCancellationRequested;u++)await this.g.get()?.triggerAnimation(),await g(500);break}case t.SecondTime:{this.g.get()?.triggerAnimation();break}}})),e.add(f(i=>{this.h.isVisible.read(i)&&this.q()!==t.Active&&this.h.triggerAnimation()})),e.add(f(i=>{const r=this.g.read(i);r&&i.store.add(D(r.isHoveredOverIcon,async h=>{h&&(n=!0)}))})),e.add(f(i=>{const r=this.f.read(i);r&&i.store.add(r.onDidAccept(()=>{s=!0}))})),e}q(){return this.j.get("inlineEditsGutterIndicatorUserKind",-1,t.FirstTime)}r(e){switch(e){case t.FirstTime:throw new v("UserKind should not be set to first time");case t.SecondTime:break;case t.Active:this.a.clear();break}this.j.store("inlineEditsGutterIndicatorUserKind",e,-1,0)}s(){const e="editor.inlineSuggest.edits.resetNewUserExperience";return this.m.getValue(e)&&this.j.remove("inlineEditsGutterIndicatorUserKind",-1),this.m.onDidChangeConfiguration(s=>{s.affectsConfiguration(e)&&this.m.getValue(e)&&(this.j.remove("inlineEditsGutterIndicatorUserKind",-1),this.a.value=this.n())})}};m=b([l(3,E),l(4,j)],m);export{m as $ntb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../../../base/common/async.js";
+import { BugIndicatingError } from "../../../../../../base/common/errors.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, derived, observableValue, runOnChange, runOnChangeWithCancellationToken } from "../../../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+var UserKind;
+(function(UserKind2) {
+  UserKind2["FirstTime"] = "firstTime";
+  UserKind2["SecondTime"] = "secondTime";
+  UserKind2["Active"] = "active";
+})(UserKind || (UserKind = {}));
+let InlineEditsOnboardingExperience = class InlineEditsOnboardingExperience2 extends Disposable {
+  static {
+    __name(this, "InlineEditsOnboardingExperience");
+  }
+  constructor(_model, _indicator, _collapsedView, _storageService, _configurationService) {
+    super();
+    this._model = _model;
+    this._indicator = _indicator;
+    this._collapsedView = _collapsedView;
+    this._storageService = _storageService;
+    this._configurationService = _configurationService;
+    this._disposables = this._register(new MutableDisposable());
+    this._setupDone = observableValue({ name: "setupDone" }, false);
+    this._activeCompletionId = derived((reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return void 0;
+      }
+      if (!this._setupDone.read(reader)) {
+        return void 0;
+      }
+      const indicator = this._indicator.read(reader);
+      if (!indicator || !indicator.isVisible.read(reader)) {
+        return void 0;
+      }
+      return model.inlineEdit.inlineCompletion.identity.id;
+    });
+    this._register(this._initializeDebugSetting());
+    this._disposables.value = this.setupNewUserExperience();
+    this._setupDone.set(true, void 0);
+  }
+  setupNewUserExperience() {
+    if (this.getNewUserType() === UserKind.Active) {
+      return void 0;
+    }
+    const disposableStore = new DisposableStore();
+    let userHasHoveredOverIcon = false;
+    let inlineEditHasBeenAccepted = false;
+    let firstTimeUserAnimationCount = 0;
+    let secondTimeUserAnimationCount = 0;
+    disposableStore.add(runOnChangeWithCancellationToken(this._activeCompletionId, async (id, _, __, token) => {
+      if (id === void 0) {
+        return;
+      }
+      let userType = this.getNewUserType();
+      switch (userType) {
+        case UserKind.FirstTime: {
+          if (firstTimeUserAnimationCount++ >= 5 || userHasHoveredOverIcon) {
+            userType = UserKind.SecondTime;
+            this.setNewUserType(userType);
+          }
+          break;
+        }
+        case UserKind.SecondTime: {
+          if (secondTimeUserAnimationCount++ >= 3 && inlineEditHasBeenAccepted) {
+            userType = UserKind.Active;
+            this.setNewUserType(userType);
+          }
+          break;
+        }
+      }
+      switch (userType) {
+        case UserKind.FirstTime: {
+          for (let i = 0; i < 3 && !token.isCancellationRequested; i++) {
+            await this._indicator.get()?.triggerAnimation();
+            await timeout(500);
+          }
+          break;
+        }
+        case UserKind.SecondTime: {
+          this._indicator.get()?.triggerAnimation();
+          break;
+        }
+      }
+    }));
+    disposableStore.add(autorun((reader) => {
+      if (this._collapsedView.isVisible.read(reader)) {
+        if (this.getNewUserType() !== UserKind.Active) {
+          this._collapsedView.triggerAnimation();
+        }
+      }
+    }));
+    disposableStore.add(autorun((reader) => {
+      const indicator = this._indicator.read(reader);
+      if (!indicator) {
+        return;
+      }
+      reader.store.add(runOnChange(indicator.isHoveredOverIcon, async (isHovered) => {
+        if (isHovered) {
+          userHasHoveredOverIcon = true;
+        }
+      }));
+    }));
+    disposableStore.add(autorun((reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return;
+      }
+      reader.store.add(model.onDidAccept(() => {
+        inlineEditHasBeenAccepted = true;
+      }));
+    }));
+    return disposableStore;
+  }
+  getNewUserType() {
+    return this._storageService.get("inlineEditsGutterIndicatorUserKind", -1, UserKind.FirstTime);
+  }
+  setNewUserType(value) {
+    switch (value) {
+      case UserKind.FirstTime:
+        throw new BugIndicatingError("UserKind should not be set to first time");
+      case UserKind.SecondTime:
+        break;
+      case UserKind.Active:
+        this._disposables.clear();
+        break;
+    }
+    this._storageService.store(
+      "inlineEditsGutterIndicatorUserKind",
+      value,
+      -1,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  _initializeDebugSetting() {
+    const hiddenDebugSetting = "editor.inlineSuggest.edits.resetNewUserExperience";
+    if (this._configurationService.getValue(hiddenDebugSetting)) {
+      this._storageService.remove(
+        "inlineEditsGutterIndicatorUserKind",
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+    const disposable = this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(hiddenDebugSetting) && this._configurationService.getValue(hiddenDebugSetting)) {
+        this._storageService.remove(
+          "inlineEditsGutterIndicatorUserKind",
+          -1
+          /* StorageScope.APPLICATION */
+        );
+        this._disposables.value = this.setupNewUserExperience();
+      }
+    });
+    return disposable;
+  }
+};
+InlineEditsOnboardingExperience = __decorate([
+  __param(3, IStorageService),
+  __param(4, IConfigurationService)
+], InlineEditsOnboardingExperience);
+export {
+  InlineEditsOnboardingExperience
+};
+//# sourceMappingURL=inlineEditsNewUsers.js.map

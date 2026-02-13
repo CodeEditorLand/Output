@@ -1,1 +1,112 @@
-import{$Nj as u}from"../../instantiation/common/instantiation.js";import{$Ed as d,$Dd as v}from"../../../base/common/lifecycle.js";import{$0l as m}from"../../configuration/common/configuration.js";import{$v8 as p,$f9 as c}from"../../../base/browser/dom.js";var l=function(h,t,e,r){var i=arguments.length,n=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,r);else for(var s=h.length-1;s>=0;s--)(o=h[s])&&(n=(i<3?o(n):i>3?o(t,e,n):o(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},a=function(h,t){return function(e,r){t(e,r,h)}};const g=u("hoverService");let f=class extends d{get delay(){return this.r()?0:this.j?.dynamicDelay?t=>this.j?.dynamicDelay?.(t)??this.g:this.g}constructor(t,e,r={},i,n){super(),this.placement=t,this.j=e,this.m=r,this.n=i,this.q=n,this.c=0,this.f=200,this.h=this.D(new v),this.g=this.n.getValue("workbench.hover.delay"),this.D(this.n.onDidChangeConfiguration(o=>{o.affectsConfiguration("workbench.hover.delay")&&(this.g=this.n.getValue("workbench.hover.delay"))}))}showHover(t,e){const r=typeof this.m=="function"?this.m(t,e):this.m;this.h.clear();const i=c(t.target)?[t.target]:t.target.targetElements;for(const o of i)this.h.add(p(o,"keydown",s=>{s.equals(9)&&this.q.hideHover()}));const n=c(t.content)?void 0:typeof t.content=="string"?t.content.toString():t.content.value;return this.q.showInstantHover({...t,...r,persistence:{hideOnKeyDown:!0,...r.persistence},id:n,appearance:{...t.appearance,compact:!0,skipFadeInAnimation:this.r(),...r.appearance}},e)}r(){return!!this.j?.instantHover&&Date.now()-this.c<this.f}setInstantHoverTimeLimit(t){if(!this.j?.instantHover)throw new Error("Instant hover is not enabled");this.f=t}onDidHideHover(){this.h.clear(),this.j?.instantHover&&(this.c=Date.now())}};f=l([a(3,m),a(4,g)],f);const H={showHover:function(){throw new Error("Native hover function not implemented.")},delay:0,showNativeHover:!0};export{g as $jkb,f as $kkb,H as $lkb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { addStandardDisposableListener, isHTMLElement } from "../../../base/browser/dom.js";
+const IHoverService = createDecorator("hoverService");
+let WorkbenchHoverDelegate = class WorkbenchHoverDelegate2 extends Disposable {
+  static {
+    __name(this, "WorkbenchHoverDelegate");
+  }
+  get delay() {
+    if (this.isInstantlyHovering()) {
+      return 0;
+    }
+    if (this.hoverOptions?.dynamicDelay) {
+      return (content) => this.hoverOptions?.dynamicDelay?.(content) ?? this._delay;
+    }
+    return this._delay;
+  }
+  constructor(placement, hoverOptions, overrideOptions = {}, configurationService, hoverService) {
+    super();
+    this.placement = placement;
+    this.hoverOptions = hoverOptions;
+    this.overrideOptions = overrideOptions;
+    this.configurationService = configurationService;
+    this.hoverService = hoverService;
+    this.lastHoverHideTime = 0;
+    this.timeLimit = 200;
+    this.hoverDisposables = this._register(new DisposableStore());
+    this._delay = this.configurationService.getValue("workbench.hover.delay");
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("workbench.hover.delay")) {
+        this._delay = this.configurationService.getValue("workbench.hover.delay");
+      }
+    }));
+  }
+  showHover(options, focus) {
+    const overrideOptions = typeof this.overrideOptions === "function" ? this.overrideOptions(options, focus) : this.overrideOptions;
+    this.hoverDisposables.clear();
+    const targets = isHTMLElement(options.target) ? [options.target] : options.target.targetElements;
+    for (const target of targets) {
+      this.hoverDisposables.add(addStandardDisposableListener(target, "keydown", (e) => {
+        if (e.equals(
+          9
+          /* KeyCode.Escape */
+        )) {
+          this.hoverService.hideHover();
+        }
+      }));
+    }
+    const id = isHTMLElement(options.content) ? void 0 : typeof options.content === "string" ? options.content.toString() : options.content.value;
+    return this.hoverService.showInstantHover({
+      ...options,
+      ...overrideOptions,
+      persistence: {
+        hideOnKeyDown: true,
+        ...overrideOptions.persistence
+      },
+      id,
+      appearance: {
+        ...options.appearance,
+        compact: true,
+        skipFadeInAnimation: this.isInstantlyHovering(),
+        ...overrideOptions.appearance
+      }
+    }, focus);
+  }
+  isInstantlyHovering() {
+    return !!this.hoverOptions?.instantHover && Date.now() - this.lastHoverHideTime < this.timeLimit;
+  }
+  setInstantHoverTimeLimit(timeLimit) {
+    if (!this.hoverOptions?.instantHover) {
+      throw new Error("Instant hover is not enabled");
+    }
+    this.timeLimit = timeLimit;
+  }
+  onDidHideHover() {
+    this.hoverDisposables.clear();
+    if (this.hoverOptions?.instantHover) {
+      this.lastHoverHideTime = Date.now();
+    }
+  }
+};
+WorkbenchHoverDelegate = __decorate([
+  __param(3, IConfigurationService),
+  __param(4, IHoverService)
+], WorkbenchHoverDelegate);
+const nativeHoverDelegate = {
+  showHover: /* @__PURE__ */ __name(function() {
+    throw new Error("Native hover function not implemented.");
+  }, "showHover"),
+  delay: 0,
+  showNativeHover: true
+};
+export {
+  IHoverService,
+  WorkbenchHoverDelegate,
+  nativeHoverDelegate
+};
+//# sourceMappingURL=hover.js.map

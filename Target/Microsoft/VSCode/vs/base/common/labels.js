@@ -1,1 +1,289 @@
-import{$dh as y,$5g as P}from"./extpath.js";import{$6 as a,sep as w,$5 as A}from"./path.js";import{$n as O,$m as g,OS as W}from"./platform.js";import{$yh as I,$Ah as z}from"./resources.js";import{$6f as V,$pg as L}from"./strings.js";function N(e,t){const{os:n,tildify:i,relative:f}=t;if(f){const r=X(e,f,n);if(typeof r=="string")return r}let s=e.fsPath;if(n===1&&!g?s=s.replace(/\//g,"\\"):n!==1&&g&&(s=s.replace(/\\/g,"/")),n!==1&&i?.userHome){const r=i.userHome.fsPath;let l;e.scheme!==i.userHome.scheme&&e.path[0]===a.sep&&e.path[1]!==a.sep?l=i.userHome.with({path:e.path}).fsPath:l=s,s=H(l,r,n)}return(n===1?A:a).normalize(B(s,n===1))}function X(e,t,n){const i=n===1?A:a,f=n===3?I:z,s=t.getWorkspace(),o=s.folders.at(0);if(!o)return;e.scheme!==o.uri.scheme&&e.path[0]===a.sep&&e.path[1]!==a.sep&&(e=o.uri.with({path:e.path}));const r=t.getWorkspaceFolder(e);if(!r)return;let l;if(f.isEqual(r.uri,e)?l="":l=f.relativePath(r.uri,e)??"",l&&(l=i.normalize(l)),s.folders.length>1&&!t.noPrefix){const c=r.name?r.name:f.basenameOrAuthority(r.uri);l=l?`${c} \u2022 ${l}`:c}return l}function B(e,t=g){return y(e,t)?e.charAt(0).toUpperCase()+e.slice(1):e}let x=Object.create(null);function H(e,t,n=W){if(n===1||!e||!t)return e;let i=x.original===t?x.normalized:void 0;i||(i=t,g&&(i=P(i)),i=`${V(i,a.sep)}${a.sep}`,x={original:t,normalized:i});let f=e;return g&&(f=P(f)),(n===3?f.startsWith(i):L(f,i))?`~/${f.substr(i.length)}`:e}function q(e,t){return e.replace(/^~($|\/|\\)/,`${t}$1`)}const b="\u2026",p="\\\\",$="~";function F(e,t=w){const n=new Array(e.length);let i=!1;for(let f=0;f<e.length;f++){const s=e[f];if(s===""){n[f]=`.${t}`;continue}if(!s){n[f]=s;continue}i=!0;let o="",r=s;r.indexOf(p)===0?(o=r.substr(0,r.indexOf(p)+p.length),r=r.substr(r.indexOf(p)+p.length)):r.indexOf(t)===0?(o=r.substr(0,r.indexOf(t)+t.length),r=r.substr(r.indexOf(t)+t.length)):r.indexOf($)===0&&(o=r.substr(0,r.indexOf($)+$.length),r=r.substr(r.indexOf($)+$.length));const l=r.split(t);for(let c=1;i&&c<=l.length;c++)for(let m=l.length-c;i&&m>=0;m--){i=!1;let d=l.slice(m,m+c).join(t);for(let u=0;!i&&u<e.length;u++)if(u!==f&&e[u]&&e[u].indexOf(d)>-1){const R=m+c===l.length,T=m>0&&e[u].indexOf(t)>-1?t+d:d,v=e[u].endsWith(T);i=!R||v}if(!i){let u="";(l[0].endsWith(":")||o!=="")&&(m===1&&(m=0,c++,d=l[0]+t+d),m>0&&(u=l[0]+t),u=o+u),m>0&&(u=u+b+t),u=u+d,m+c<l.length&&(u=u+t+b),n[f]=u}}i&&(n[f]=s)}return n}var h;(function(e){e[e.TEXT=0]="TEXT",e[e.VARIABLE=1]="VARIABLE",e[e.SEPARATOR=2]="SEPARATOR"})(h||(h={}));function Q(e,t=Object.create(null)){const n=[];let i=!1,f="";for(const s of e)if(s==="$"||i&&s==="{")f&&n.push({value:f,type:h.TEXT}),f="",i=!0;else if(s==="}"&&i){const o=t[f];if(typeof o=="string")o.length&&n.push({value:o,type:h.VARIABLE});else if(o){const r=n[n.length-1];(!r||r.type!==h.SEPARATOR)&&n.push({value:o.label,type:h.SEPARATOR})}f="",i=!1}else f+=s;return f&&!i&&n.push({value:f,type:h.TEXT}),n.filter((s,o)=>{if(s.type===h.SEPARATOR){const r=n[o-1],l=n[o+1];return[r,l].every(c=>c&&(c.type===h.VARIABLE||c.type===h.TEXT)&&c.value.length>0)}return!0}).map(s=>s.value).join("")}function _(e,t){return O||t?e.replace(/\(&&\w\)|&&/g,"").replace(/&/g,O?"&":"&&"):e.replace(/&&|&/g,n=>n==="&"?"&&":"&")}function D(e,t){const n=e.replace(/\(&&\w\)|&&/g,"");if(t)return n;if(O)return{withMnemonic:n,withoutMnemonic:n};let i;return g?i=e.replace(/&&|&/g,f=>f==="&"?"&&":"&"):i=e.replace(/&&/g,"_"),{withMnemonic:i,withoutMnemonic:n}}function G(e){return e.replace(/&/g,"&&")}function J(e){if(e.endsWith("]")){const t=e.lastIndexOf(" [",e.length-2);if(t!==-1){const n=E(e.substring(0,t)),i=e.substring(t);return{name:n.name+i,parentPath:n.parentPath}}}return E(e)}function E(e){const t=e.indexOf("/")!==-1?a:A,n=t.basename(e),i=t.dirname(e);return n.length?{name:n,parentPath:i}:{name:i,parentPath:""}}export{N as $Om,B as $Pm,H as $Qm,q as $Rm,F as $Sm,Q as $Tm,_ as $Um,D as $Vm,G as $Wm,J as $Xm};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { hasDriveLetter, toSlashes } from "./extpath.js";
+import { posix, sep, win32 } from "./path.js";
+import { isMacintosh, isWindows, OS } from "./platform.js";
+import { extUri, extUriIgnorePathCase } from "./resources.js";
+import { rtrim, startsWithIgnoreCase } from "./strings.js";
+function getPathLabel(resource, formatting) {
+  const { os, tildify: tildifier, relative: relatifier } = formatting;
+  if (relatifier) {
+    const relativePath = getRelativePathLabel(resource, relatifier, os);
+    if (typeof relativePath === "string") {
+      return relativePath;
+    }
+  }
+  let absolutePath = resource.fsPath;
+  if (os === 1 && !isWindows) {
+    absolutePath = absolutePath.replace(/\//g, "\\");
+  } else if (os !== 1 && isWindows) {
+    absolutePath = absolutePath.replace(/\\/g, "/");
+  }
+  if (os !== 1 && tildifier?.userHome) {
+    const userHome = tildifier.userHome.fsPath;
+    let userHomeCandidate;
+    if (resource.scheme !== tildifier.userHome.scheme && resource.path[0] === posix.sep && resource.path[1] !== posix.sep) {
+      userHomeCandidate = tildifier.userHome.with({ path: resource.path }).fsPath;
+    } else {
+      userHomeCandidate = absolutePath;
+    }
+    absolutePath = tildify(userHomeCandidate, userHome, os);
+  }
+  const pathLib = os === 1 ? win32 : posix;
+  return pathLib.normalize(normalizeDriveLetter(
+    absolutePath,
+    os === 1
+    /* OperatingSystem.Windows */
+  ));
+}
+__name(getPathLabel, "getPathLabel");
+function getRelativePathLabel(resource, relativePathProvider, os) {
+  const pathLib = os === 1 ? win32 : posix;
+  const extUriLib = os === 3 ? extUri : extUriIgnorePathCase;
+  const workspace = relativePathProvider.getWorkspace();
+  const firstFolder = workspace.folders.at(0);
+  if (!firstFolder) {
+    return void 0;
+  }
+  if (resource.scheme !== firstFolder.uri.scheme && resource.path[0] === posix.sep && resource.path[1] !== posix.sep) {
+    resource = firstFolder.uri.with({ path: resource.path });
+  }
+  const folder = relativePathProvider.getWorkspaceFolder(resource);
+  if (!folder) {
+    return void 0;
+  }
+  let relativePathLabel = void 0;
+  if (extUriLib.isEqual(folder.uri, resource)) {
+    relativePathLabel = "";
+  } else {
+    relativePathLabel = extUriLib.relativePath(folder.uri, resource) ?? "";
+  }
+  if (relativePathLabel) {
+    relativePathLabel = pathLib.normalize(relativePathLabel);
+  }
+  if (workspace.folders.length > 1 && !relativePathProvider.noPrefix) {
+    const rootName = folder.name ? folder.name : extUriLib.basenameOrAuthority(folder.uri);
+    relativePathLabel = relativePathLabel ? `${rootName} \u2022 ${relativePathLabel}` : rootName;
+  }
+  return relativePathLabel;
+}
+__name(getRelativePathLabel, "getRelativePathLabel");
+function normalizeDriveLetter(path, isWindowsOS = isWindows) {
+  if (hasDriveLetter(path, isWindowsOS)) {
+    return path.charAt(0).toUpperCase() + path.slice(1);
+  }
+  return path;
+}
+__name(normalizeDriveLetter, "normalizeDriveLetter");
+let normalizedUserHomeCached = /* @__PURE__ */ Object.create(null);
+function tildify(path, userHome, os = OS) {
+  if (os === 1 || !path || !userHome) {
+    return path;
+  }
+  let normalizedUserHome = normalizedUserHomeCached.original === userHome ? normalizedUserHomeCached.normalized : void 0;
+  if (!normalizedUserHome) {
+    normalizedUserHome = userHome;
+    if (isWindows) {
+      normalizedUserHome = toSlashes(normalizedUserHome);
+    }
+    normalizedUserHome = `${rtrim(normalizedUserHome, posix.sep)}${posix.sep}`;
+    normalizedUserHomeCached = { original: userHome, normalized: normalizedUserHome };
+  }
+  let normalizedPath = path;
+  if (isWindows) {
+    normalizedPath = toSlashes(normalizedPath);
+  }
+  if (os === 3 ? normalizedPath.startsWith(normalizedUserHome) : startsWithIgnoreCase(normalizedPath, normalizedUserHome)) {
+    return `~/${normalizedPath.substr(normalizedUserHome.length)}`;
+  }
+  return path;
+}
+__name(tildify, "tildify");
+function untildify(path, userHome) {
+  return path.replace(/^~($|\/|\\)/, `${userHome}$1`);
+}
+__name(untildify, "untildify");
+const ellipsis = "\u2026";
+const unc = "\\\\";
+const home = "~";
+function shorten(paths, pathSeparator = sep) {
+  const shortenedPaths = new Array(paths.length);
+  let match = false;
+  for (let pathIndex = 0; pathIndex < paths.length; pathIndex++) {
+    const originalPath = paths[pathIndex];
+    if (originalPath === "") {
+      shortenedPaths[pathIndex] = `.${pathSeparator}`;
+      continue;
+    }
+    if (!originalPath) {
+      shortenedPaths[pathIndex] = originalPath;
+      continue;
+    }
+    match = true;
+    let prefix = "";
+    let trimmedPath = originalPath;
+    if (trimmedPath.indexOf(unc) === 0) {
+      prefix = trimmedPath.substr(0, trimmedPath.indexOf(unc) + unc.length);
+      trimmedPath = trimmedPath.substr(trimmedPath.indexOf(unc) + unc.length);
+    } else if (trimmedPath.indexOf(pathSeparator) === 0) {
+      prefix = trimmedPath.substr(0, trimmedPath.indexOf(pathSeparator) + pathSeparator.length);
+      trimmedPath = trimmedPath.substr(trimmedPath.indexOf(pathSeparator) + pathSeparator.length);
+    } else if (trimmedPath.indexOf(home) === 0) {
+      prefix = trimmedPath.substr(0, trimmedPath.indexOf(home) + home.length);
+      trimmedPath = trimmedPath.substr(trimmedPath.indexOf(home) + home.length);
+    }
+    const segments = trimmedPath.split(pathSeparator);
+    for (let subpathLength = 1; match && subpathLength <= segments.length; subpathLength++) {
+      for (let start = segments.length - subpathLength; match && start >= 0; start--) {
+        match = false;
+        let subpath = segments.slice(start, start + subpathLength).join(pathSeparator);
+        for (let otherPathIndex = 0; !match && otherPathIndex < paths.length; otherPathIndex++) {
+          if (otherPathIndex !== pathIndex && paths[otherPathIndex] && paths[otherPathIndex].indexOf(subpath) > -1) {
+            const isSubpathEnding = start + subpathLength === segments.length;
+            const subpathWithSep = start > 0 && paths[otherPathIndex].indexOf(pathSeparator) > -1 ? pathSeparator + subpath : subpath;
+            const isOtherPathEnding = paths[otherPathIndex].endsWith(subpathWithSep);
+            match = !isSubpathEnding || isOtherPathEnding;
+          }
+        }
+        if (!match) {
+          let result = "";
+          if (segments[0].endsWith(":") || prefix !== "") {
+            if (start === 1) {
+              start = 0;
+              subpathLength++;
+              subpath = segments[0] + pathSeparator + subpath;
+            }
+            if (start > 0) {
+              result = segments[0] + pathSeparator;
+            }
+            result = prefix + result;
+          }
+          if (start > 0) {
+            result = result + ellipsis + pathSeparator;
+          }
+          result = result + subpath;
+          if (start + subpathLength < segments.length) {
+            result = result + pathSeparator + ellipsis;
+          }
+          shortenedPaths[pathIndex] = result;
+        }
+      }
+    }
+    if (match) {
+      shortenedPaths[pathIndex] = originalPath;
+    }
+  }
+  return shortenedPaths;
+}
+__name(shorten, "shorten");
+var Type;
+(function(Type2) {
+  Type2[Type2["TEXT"] = 0] = "TEXT";
+  Type2[Type2["VARIABLE"] = 1] = "VARIABLE";
+  Type2[Type2["SEPARATOR"] = 2] = "SEPARATOR";
+})(Type || (Type = {}));
+function template(template2, values = /* @__PURE__ */ Object.create(null)) {
+  const segments = [];
+  let inVariable = false;
+  let curVal = "";
+  for (const char of template2) {
+    if (char === "$" || inVariable && char === "{") {
+      if (curVal) {
+        segments.push({ value: curVal, type: Type.TEXT });
+      }
+      curVal = "";
+      inVariable = true;
+    } else if (char === "}" && inVariable) {
+      const resolved = values[curVal];
+      if (typeof resolved === "string") {
+        if (resolved.length) {
+          segments.push({ value: resolved, type: Type.VARIABLE });
+        }
+      } else if (resolved) {
+        const prevSegment = segments[segments.length - 1];
+        if (!prevSegment || prevSegment.type !== Type.SEPARATOR) {
+          segments.push({ value: resolved.label, type: Type.SEPARATOR });
+        }
+      }
+      curVal = "";
+      inVariable = false;
+    } else {
+      curVal += char;
+    }
+  }
+  if (curVal && !inVariable) {
+    segments.push({ value: curVal, type: Type.TEXT });
+  }
+  return segments.filter((segment, index) => {
+    if (segment.type === Type.SEPARATOR) {
+      const left = segments[index - 1];
+      const right = segments[index + 1];
+      return [left, right].every((segment2) => segment2 && (segment2.type === Type.VARIABLE || segment2.type === Type.TEXT) && segment2.value.length > 0);
+    }
+    return true;
+  }).map((segment) => segment.value).join("");
+}
+__name(template, "template");
+function mnemonicMenuLabel(label, forceDisableMnemonics) {
+  if (isMacintosh || forceDisableMnemonics) {
+    return label.replace(/\(&&\w\)|&&/g, "").replace(/&/g, isMacintosh ? "&" : "&&");
+  }
+  return label.replace(/&&|&/g, (m) => m === "&" ? "&&" : "&");
+}
+__name(mnemonicMenuLabel, "mnemonicMenuLabel");
+function mnemonicButtonLabel(label, forceDisableMnemonics) {
+  const withoutMnemonic = label.replace(/\(&&\w\)|&&/g, "");
+  if (forceDisableMnemonics) {
+    return withoutMnemonic;
+  }
+  if (isMacintosh) {
+    return { withMnemonic: withoutMnemonic, withoutMnemonic };
+  }
+  let withMnemonic;
+  if (isWindows) {
+    withMnemonic = label.replace(/&&|&/g, (m) => m === "&" ? "&&" : "&");
+  } else {
+    withMnemonic = label.replace(/&&/g, "_");
+  }
+  return { withMnemonic, withoutMnemonic };
+}
+__name(mnemonicButtonLabel, "mnemonicButtonLabel");
+function unmnemonicLabel(label) {
+  return label.replace(/&/g, "&&");
+}
+__name(unmnemonicLabel, "unmnemonicLabel");
+function splitRecentLabel(recentLabel) {
+  if (recentLabel.endsWith("]")) {
+    const lastIndexOfSquareBracket = recentLabel.lastIndexOf(" [", recentLabel.length - 2);
+    if (lastIndexOfSquareBracket !== -1) {
+      const split = splitName(recentLabel.substring(0, lastIndexOfSquareBracket));
+      const remoteNameWithSpace = recentLabel.substring(lastIndexOfSquareBracket);
+      return { name: split.name + remoteNameWithSpace, parentPath: split.parentPath };
+    }
+  }
+  return splitName(recentLabel);
+}
+__name(splitRecentLabel, "splitRecentLabel");
+function splitName(fullPath) {
+  const p = fullPath.indexOf("/") !== -1 ? posix : win32;
+  const name = p.basename(fullPath);
+  const parentPath = p.dirname(fullPath);
+  if (name.length) {
+    return { name, parentPath };
+  }
+  return { name: parentPath, parentPath: "" };
+}
+__name(splitName, "splitName");
+export {
+  getPathLabel,
+  mnemonicButtonLabel,
+  mnemonicMenuLabel,
+  normalizeDriveLetter,
+  shorten,
+  splitRecentLabel,
+  template,
+  tildify,
+  unmnemonicLabel,
+  untildify
+};
+//# sourceMappingURL=labels.js.map

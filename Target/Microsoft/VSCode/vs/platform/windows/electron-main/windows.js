@@ -1,1 +1,245 @@
-import m from"electron";import{$Up as x}from"../../../base/common/color.js";import{$9 as g}from"../../../base/common/path.js";import{$o as W,$n as w,$m as s}from"../../../base/common/platform.js";import{$0l as $}from"../../configuration/common/configuration.js";import{$5n as k}from"../../environment/electron-main/environmentMainService.js";import{$Nj as T}from"../../instantiation/common/instantiation.js";import{$Vn as A}from"../../product/common/productService.js";import{$uv as F}from"../../theme/electron-main/themeMainService.js";import{$Eu as y,$Nu as I,$Su as B,$Ru as D,$Tu as N}from"../../window/common/window.js";import{$Yu as S}from"../../window/electron-main/window.js";const _=T("windowsMainService");var p;(function(o){o[o.CLI=0]="CLI",o[o.DOCK=1]="DOCK",o[o.MENU=2]="MENU",o[o.DIALOG=3]="DIALOG",o[o.DESKTOP=4]="DESKTOP",o[o.API=5]="API",o[o.LINK=6]="LINK"})(p||(p={}));function j(o,d,u,l){const i=o.get(F),e=o.get(A),n=o.get($),h=o.get(k),c=n.getValue("window"),t={backgroundColor:i.getBackgroundColor(),minWidth:y.WIDTH,minHeight:y.HEIGHT,title:e.nameLong,show:d.mode!==0&&d.mode!==3,x:d.x,y:d.y,width:d.width,height:d.height,webPreferences:{...l,enableWebSQL:!1,spellcheck:!1,zoomFactor:N(d.zoomLevel??c?.zoomLevel),autoplayPolicy:"user-gesture-required",enableBlinkFeatures:"HighlightAPI",sandbox:!0,enableDeprecatedPaste:!0},experimentalDarkMode:!0};if(s){let a=c?.border||"default";a==="system"&&(a="default"),a!=="default"&&(a==="off"?t.accentColor=!1:typeof a=="string"&&(t.accentColor=a))}if(W?t.icon=g(h.appRoot,"resources/linux/code.png"):s&&!h.isBuilt&&(t.icon=g(h.appRoot,"resources/win32/code_150x150.png")),w&&(t.acceptFirstMouse=!0,c?.clickThroughInactive===!1&&(t.acceptFirstMouse=!1)),u?.disableFullscreen?t.fullscreen=!1:w&&!B(n)&&(t.fullscreenable=!1),w&&c?.nativeTabs===!0&&(t.tabbingIdentifier=e.nameShort),!I(n,u?.forceNativeTitlebar?"native":void 0)&&(t.titleBarStyle="hidden",w||(t.frame=!1),D(n)))if(w)t.titleBarOverlay=!0;else{const a=i.getWindowSplash(void 0)?.colorInfo.titleBarBackground??i.getBackgroundColor(),v=x.fromHex(a).isDarker()?"#FFFFFF":"#000000";t.titleBarOverlay={height:29,color:a,symbolColor:v}}return u?.alwaysOnTop&&(t.alwaysOnTop=!0),t}function q(o){let d,u=Number.MIN_VALUE;for(const l of o)l.lastFocusTime>u&&(u=l.lastFocusTime,d=l);return d}var b;(function(o){function d(i,e,n=m.screen.getAllDisplays()){if(i.trace(`window#validateWindowState: validating window state on ${n.length} display(s)`,e),typeof e.x!="number"||typeof e.y!="number"||typeof e.width!="number"||typeof e.height!="number"){i.trace("window#validateWindowState: unexpected type of state values");return}if(e.width<=0||e.height<=0){i.trace("window#validateWindowState: unexpected negative values");return}if(n.length===1){const r=l(n[0]);if(i.trace("window#validateWindowState: single monitor working area",r),r){let f=function(){!e||typeof e.x!="number"||typeof e.y!="number"||!r||(e.x<r.x&&(e.x=r.x),e.y<r.y&&(e.y=r.y))};var t=f;f(),e.width>r.width&&(e.width=r.width),e.height>r.height&&(e.height=r.height),e.x>r.x+r.width-128&&(e.x=r.x+r.width-e.width),e.y>r.y+r.height-128&&(e.y=r.y+r.height-e.height),f()}return e}if(e.display&&e.mode===3){const r=n.find(f=>f.id===e.display);if(r&&typeof r.bounds?.x=="number"&&typeof r.bounds?.y=="number"){i.trace("window#validateWindowState: restoring fullscreen to previous display");const f=S(3);return f.x=r.bounds.x,f.y=r.bounds.y,f}}let h,c;try{h=m.screen.getDisplayMatching({x:e.x,y:e.y,width:e.width,height:e.height}),c=l(h),i.trace("window#validateWindowState: multi-monitor working area",c)}catch(r){i.error("window#validateWindowState: error finding display for window state",r)}if(h&&u(e,h))return e;i.trace("window#validateWindowState: state is outside of the multi-monitor working area")}o.validateWindowState=d;function u(i,e){if(typeof i.x!="number"||typeof i.y!="number"||typeof i.width!="number"||typeof i.height!="number"||i.width<=0||i.height<=0)return!1;const n=l(e);return!!(n&&i.x+i.width>n.x&&i.y+i.height>n.y&&i.x<n.x+n.width&&i.y<n.y+n.height)}o.validateWindowStateOnDisplay=u;function l(i){if(i.workArea.width>0&&i.workArea.height>0)return i.workArea;if(i.bounds.width>0&&i.bounds.height>0)return i.bounds}})(b||(b={}));function O(){return m.BrowserWindow.getAllWindows().filter(o=>!o.webContents.isOffscreen())}export{_ as $vv,j as $wv,q as $xv,O as $yv,p as OpenContext,b as WindowStateValidator};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import electron from "electron";
+import { Color } from "../../../base/common/color.js";
+import { join } from "../../../base/common/path.js";
+import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IThemeMainService } from "../../theme/electron-main/themeMainService.js";
+import { WindowMinimumSize, hasNativeTitlebar, useNativeFullScreen, useWindowControlsOverlay, zoomLevelToZoomFactor } from "../../window/common/window.js";
+import { defaultWindowState } from "../../window/electron-main/window.js";
+const IWindowsMainService = createDecorator("windowsMainService");
+var OpenContext;
+(function(OpenContext2) {
+  OpenContext2[OpenContext2["CLI"] = 0] = "CLI";
+  OpenContext2[OpenContext2["DOCK"] = 1] = "DOCK";
+  OpenContext2[OpenContext2["MENU"] = 2] = "MENU";
+  OpenContext2[OpenContext2["DIALOG"] = 3] = "DIALOG";
+  OpenContext2[OpenContext2["DESKTOP"] = 4] = "DESKTOP";
+  OpenContext2[OpenContext2["API"] = 5] = "API";
+  OpenContext2[OpenContext2["LINK"] = 6] = "LINK";
+})(OpenContext || (OpenContext = {}));
+function defaultBrowserWindowOptions(accessor, windowState, overrides, webPreferences) {
+  const themeMainService = accessor.get(IThemeMainService);
+  const productService = accessor.get(IProductService);
+  const configurationService = accessor.get(IConfigurationService);
+  const environmentMainService = accessor.get(IEnvironmentMainService);
+  const windowSettings = configurationService.getValue("window");
+  const options = {
+    backgroundColor: themeMainService.getBackgroundColor(),
+    minWidth: WindowMinimumSize.WIDTH,
+    minHeight: WindowMinimumSize.HEIGHT,
+    title: productService.nameLong,
+    show: windowState.mode !== 0 && windowState.mode !== 3,
+    // reduce flicker by showing later
+    x: windowState.x,
+    y: windowState.y,
+    width: windowState.width,
+    height: windowState.height,
+    webPreferences: {
+      ...webPreferences,
+      enableWebSQL: false,
+      spellcheck: false,
+      zoomFactor: zoomLevelToZoomFactor(windowState.zoomLevel ?? windowSettings?.zoomLevel),
+      autoplayPolicy: "user-gesture-required",
+      // Enable experimental css highlight api https://chromestatus.com/feature/5436441440026624
+      // Refs https://github.com/microsoft/vscode/issues/140098
+      enableBlinkFeatures: "HighlightAPI",
+      sandbox: true,
+      // TODO(deepak1556): Should be removed once migration is complete
+      // https://github.com/microsoft/vscode/issues/239228
+      enableDeprecatedPaste: true
+    },
+    experimentalDarkMode: true
+  };
+  if (isWindows) {
+    let borderSetting = windowSettings?.border || "default";
+    if (borderSetting === "system") {
+      borderSetting = "default";
+    }
+    if (borderSetting !== "default") {
+      if (borderSetting === "off") {
+        options.accentColor = false;
+      } else if (typeof borderSetting === "string") {
+        options.accentColor = borderSetting;
+      }
+    }
+  }
+  if (isLinux) {
+    options.icon = join(environmentMainService.appRoot, "resources/linux/code.png");
+  } else if (isWindows && !environmentMainService.isBuilt) {
+    options.icon = join(environmentMainService.appRoot, "resources/win32/code_150x150.png");
+  }
+  if (isMacintosh) {
+    options.acceptFirstMouse = true;
+    if (windowSettings?.clickThroughInactive === false) {
+      options.acceptFirstMouse = false;
+    }
+  }
+  if (overrides?.disableFullscreen) {
+    options.fullscreen = false;
+  } else if (isMacintosh && !useNativeFullScreen(configurationService)) {
+    options.fullscreenable = false;
+  }
+  const useNativeTabs = isMacintosh && windowSettings?.nativeTabs === true;
+  if (useNativeTabs) {
+    options.tabbingIdentifier = productService.nameShort;
+  }
+  const hideNativeTitleBar = !hasNativeTitlebar(configurationService, overrides?.forceNativeTitlebar ? "native" : void 0);
+  if (hideNativeTitleBar) {
+    options.titleBarStyle = "hidden";
+    if (!isMacintosh) {
+      options.frame = false;
+    }
+    if (useWindowControlsOverlay(configurationService)) {
+      if (isMacintosh) {
+        options.titleBarOverlay = true;
+      } else {
+        const titleBarColor = themeMainService.getWindowSplash(void 0)?.colorInfo.titleBarBackground ?? themeMainService.getBackgroundColor();
+        const symbolColor = Color.fromHex(titleBarColor).isDarker() ? "#FFFFFF" : "#000000";
+        options.titleBarOverlay = {
+          height: 29,
+          // the smallest size of the title bar on windows accounting for the border on windows 11
+          color: titleBarColor,
+          symbolColor
+        };
+      }
+    }
+  }
+  if (overrides?.alwaysOnTop) {
+    options.alwaysOnTop = true;
+  }
+  return options;
+}
+__name(defaultBrowserWindowOptions, "defaultBrowserWindowOptions");
+function getLastFocused(windows) {
+  let lastFocusedWindow = void 0;
+  let maxLastFocusTime = Number.MIN_VALUE;
+  for (const window of windows) {
+    if (window.lastFocusTime > maxLastFocusTime) {
+      maxLastFocusTime = window.lastFocusTime;
+      lastFocusedWindow = window;
+    }
+  }
+  return lastFocusedWindow;
+}
+__name(getLastFocused, "getLastFocused");
+var WindowStateValidator;
+(function(WindowStateValidator2) {
+  function validateWindowState(logService, state, displays = electron.screen.getAllDisplays()) {
+    logService.trace(`window#validateWindowState: validating window state on ${displays.length} display(s)`, state);
+    if (typeof state.x !== "number" || typeof state.y !== "number" || typeof state.width !== "number" || typeof state.height !== "number") {
+      logService.trace("window#validateWindowState: unexpected type of state values");
+      return void 0;
+    }
+    if (state.width <= 0 || state.height <= 0) {
+      logService.trace("window#validateWindowState: unexpected negative values");
+      return void 0;
+    }
+    if (displays.length === 1) {
+      const displayWorkingArea2 = getWorkingArea(displays[0]);
+      logService.trace("window#validateWindowState: single monitor working area", displayWorkingArea2);
+      if (displayWorkingArea2) {
+        let ensureStateInDisplayWorkingArea2 = function() {
+          if (!state || typeof state.x !== "number" || typeof state.y !== "number" || !displayWorkingArea2) {
+            return;
+          }
+          if (state.x < displayWorkingArea2.x) {
+            state.x = displayWorkingArea2.x;
+          }
+          if (state.y < displayWorkingArea2.y) {
+            state.y = displayWorkingArea2.y;
+          }
+        };
+        var ensureStateInDisplayWorkingArea = ensureStateInDisplayWorkingArea2;
+        __name(ensureStateInDisplayWorkingArea2, "ensureStateInDisplayWorkingArea");
+        ensureStateInDisplayWorkingArea2();
+        if (state.width > displayWorkingArea2.width) {
+          state.width = displayWorkingArea2.width;
+        }
+        if (state.height > displayWorkingArea2.height) {
+          state.height = displayWorkingArea2.height;
+        }
+        if (state.x > displayWorkingArea2.x + displayWorkingArea2.width - 128) {
+          state.x = displayWorkingArea2.x + displayWorkingArea2.width - state.width;
+        }
+        if (state.y > displayWorkingArea2.y + displayWorkingArea2.height - 128) {
+          state.y = displayWorkingArea2.y + displayWorkingArea2.height - state.height;
+        }
+        ensureStateInDisplayWorkingArea2();
+      }
+      return state;
+    }
+    if (state.display && state.mode === 3) {
+      const display2 = displays.find((d) => d.id === state.display);
+      if (display2 && typeof display2.bounds?.x === "number" && typeof display2.bounds?.y === "number") {
+        logService.trace("window#validateWindowState: restoring fullscreen to previous display");
+        const defaults = defaultWindowState(
+          3
+          /* WindowMode.Fullscreen */
+        );
+        defaults.x = display2.bounds.x;
+        defaults.y = display2.bounds.y;
+        return defaults;
+      }
+    }
+    let display;
+    let displayWorkingArea;
+    try {
+      display = electron.screen.getDisplayMatching({ x: state.x, y: state.y, width: state.width, height: state.height });
+      displayWorkingArea = getWorkingArea(display);
+      logService.trace("window#validateWindowState: multi-monitor working area", displayWorkingArea);
+    } catch (error) {
+      logService.error("window#validateWindowState: error finding display for window state", error);
+    }
+    if (display && validateWindowStateOnDisplay(state, display)) {
+      return state;
+    }
+    logService.trace("window#validateWindowState: state is outside of the multi-monitor working area");
+    return void 0;
+  }
+  __name(validateWindowState, "validateWindowState");
+  WindowStateValidator2.validateWindowState = validateWindowState;
+  function validateWindowStateOnDisplay(state, display) {
+    if (typeof state.x !== "number" || typeof state.y !== "number" || typeof state.width !== "number" || typeof state.height !== "number" || state.width <= 0 || state.height <= 0) {
+      return false;
+    }
+    const displayWorkingArea = getWorkingArea(display);
+    return Boolean(
+      displayWorkingArea && // we have valid working area bounds
+      state.x + state.width > displayWorkingArea.x && // prevent window from falling out of the screen to the left
+      state.y + state.height > displayWorkingArea.y && // prevent window from falling out of the screen to the top
+      state.x < displayWorkingArea.x + displayWorkingArea.width && // prevent window from falling out of the screen to the right
+      state.y < displayWorkingArea.y + displayWorkingArea.height
+      // prevent window from falling out of the screen to the bottom
+    );
+  }
+  __name(validateWindowStateOnDisplay, "validateWindowStateOnDisplay");
+  WindowStateValidator2.validateWindowStateOnDisplay = validateWindowStateOnDisplay;
+  function getWorkingArea(display) {
+    if (display.workArea.width > 0 && display.workArea.height > 0) {
+      return display.workArea;
+    }
+    if (display.bounds.width > 0 && display.bounds.height > 0) {
+      return display.bounds;
+    }
+    return void 0;
+  }
+  __name(getWorkingArea, "getWorkingArea");
+})(WindowStateValidator || (WindowStateValidator = {}));
+function getAllWindowsExcludingOffscreen() {
+  return electron.BrowserWindow.getAllWindows().filter((win) => !win.webContents.isOffscreen());
+}
+__name(getAllWindowsExcludingOffscreen, "getAllWindowsExcludingOffscreen");
+export {
+  IWindowsMainService,
+  OpenContext,
+  WindowStateValidator,
+  defaultBrowserWindowOptions,
+  getAllWindowsExcludingOffscreen,
+  getLastFocused
+};
+//# sourceMappingURL=windows.js.map

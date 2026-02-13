@@ -1,1 +1,162 @@
-import*as s from"../../../../../../base/browser/dom.js";import{$f_ as B}from"../../../../../../base/browser/ui/button/button.js";import{$bk as d}from"../../../../../../base/common/codicons.js";import{$Ed as E}from"../../../../../../base/common/lifecycle.js";import{autorun as x,observableValue as O}from"../../../../../../base/common/observable.js";import{ThemeIcon as p}from"../../../../../../base/common/themables.js";import{$ZF as q}from"../../../../../../editor/common/languages/language.js";import{$9H as z}from"../../../../../../editor/common/services/model.js";import{localize as y}from"../../../../../../nls.js";import{$ro as H}from"../../../../../../platform/contextkey/common/contextkey.js";import{$jkb as N}from"../../../../../../platform/hover/browser/hover.js";import{$Mj as A}from"../../../../../../platform/instantiation/common/instantiation.js";import{LanguageModelPartAudience as F}from"../../../common/languageModels.js";import{$H2b as G}from"./chatConfirmationWidget.js";import{$q3b as D}from"./chatToolOutputContentSubPart.js";var T=function(a,t,e,o){var n=arguments.length,i=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(a,t,e,o);else for(var h=a.length-1;h>=0;h--)(c=a[h])&&(i=(n<3?c(i):n>3?c(t,e,i):c(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},u=function(a,t){return function(e,o){t(e,o,a)}};let $=class extends E{get codeblocks(){return this.c?.codeblocks??[]}set title(t){this.b.title=t}get title(){return this.b.title}get expanded(){return this.g.get()}constructor(t,e,o,n,i,c,h,I,k,C,w,P,_){super(),this.j=n,this.m=i,this.n=c,this.q=k,this.t=C,this.u=P,this.w=_,this.a=[],this.f=!1;const v=s.h(".chat-confirmation-widget-container"),j=s.h(".chat-confirmation-widget-title-inner"),m=s.h(".chat-confirmation-widget");this.domNode=v.root,v.root.appendChild(m.root),this.b=this.D(C.createInstance(G,j.root,t,e));const R=document.createElement("span");R.style.flexGrow="1";const f=this.D(new B(m.root,{}));f.element.classList.add("chat-confirmation-widget-title","monaco-text-button"),f.labelElement.append(j.root);const L=s.h(h?p.asCSSSelector(d.error):c?p.asCSSSelector(d.check):p.asCSSSelector(p.modify(d.loading,"spin")));o&&this.D(w.setupDelayedHover(L.root,{content:o,style:1}));const g=this.g=O(this,I);this.D(x(r=>{const l=g.read(r);if(f.icon=h?d.error:c?d.check:p.modify(d.loading,"spin"),m.root.classList.toggle("collapsed",!l),l&&!this.f){this.f=!0;const b=s.h(".chat-confirmation-widget-message");b.root.appendChild(this.y()),m.root.appendChild(b.root)}}));const M=r=>{if(!r.defaultPrevented){const l=g.get();g.set(!l,void 0),r.preventDefault()}};this.D(f.onDidClick(M));const S=this.n?.parts.filter(r=>r.kind==="data").filter(r=>!r.audience||r.audience.includes(F.User));if(S?.length){const l=this.D(this.t.createInstance(D,this.j,S)).domNode;l.classList.add("chat-collapsible-top-level-resource-group"),v.root.appendChild(l),this.D(x(b=>{l.style.display=g.read(b)?"none":""}))}}y(){const t=s.h("div",[s.h("h3@inputTitle"),s.h("div@input"),s.h("h3@outputTitle"),s.h("div@output")]),{m:e,n:o}=this;if(t.inputTitle.textContent=y(6564,null),this.z(e,t.input),!o)t.output.remove(),t.outputTitle.remove();else{t.outputTitle.textContent=y(6565,null);const n=this.D(this.t.createInstance(D,this.j,o.parts));this.c=n,t.output.appendChild(n.domNode)}return t.root}z(t,e){const o=this.D(this.u.createModel(t.data,this.w.createById(t.languageId),void 0,!0)),n={languageId:t.languageId,textModel:Promise.resolve(o),codeBlockIndex:t.codeBlockIndex,codeBlockPartIndex:0,element:this.j.element,parentContextKeyService:this.q,renderOptions:t.options,chatSessionResource:this.j.element.sessionResource},i=this.D(this.j.editorPool.get());i.object.render(n,this.j.currentWidth.get()||300),e.appendChild(i.object.element),this.a.push(i)}hasSameContent(t,e,o){return!1}layout(t){this.a.forEach(e=>e.object.layout(t)),this.c?.layout(t)}};$=T([u(8,H),u(9,A),u(10,N),u(11,z),u(12,q)],$);export{$ as $r3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { ButtonWithIcon } from "../../../../../../base/browser/ui/button/button.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, observableValue } from "../../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { localize } from "../../../../../../nls.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { LanguageModelPartAudience } from "../../../common/languageModels.js";
+import { ChatQueryTitlePart } from "./chatConfirmationWidget.js";
+import { ChatToolOutputContentSubPart } from "./chatToolOutputContentSubPart.js";
+let ChatCollapsibleInputOutputContentPart = class ChatCollapsibleInputOutputContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatCollapsibleInputOutputContentPart");
+  }
+  get codeblocks() {
+    const outputCodeblocks = this._outputSubPart?.codeblocks ?? [];
+    return outputCodeblocks;
+  }
+  set title(s) {
+    this._titlePart.title = s;
+  }
+  get title() {
+    return this._titlePart.title;
+  }
+  get expanded() {
+    return this._expanded.get();
+  }
+  constructor(title, subtitle, progressTooltip, context, input, output, isError, initiallyExpanded, contextKeyService, _instantiationService, hoverService, modelService, languageService) {
+    super();
+    this.context = context;
+    this.input = input;
+    this.output = output;
+    this.contextKeyService = contextKeyService;
+    this._instantiationService = _instantiationService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this._editorReferences = [];
+    this._contentInitialized = false;
+    const container = dom.h(".chat-confirmation-widget-container");
+    const titleEl = dom.h(".chat-confirmation-widget-title-inner");
+    const elements = dom.h(".chat-confirmation-widget");
+    this.domNode = container.root;
+    container.root.appendChild(elements.root);
+    this._titlePart = this._register(_instantiationService.createInstance(ChatQueryTitlePart, titleEl.root, title, subtitle));
+    const spacer = document.createElement("span");
+    spacer.style.flexGrow = "1";
+    const btn = this._register(new ButtonWithIcon(elements.root, {}));
+    btn.element.classList.add("chat-confirmation-widget-title", "monaco-text-button");
+    btn.labelElement.append(titleEl.root);
+    const check = dom.h(isError ? ThemeIcon.asCSSSelector(Codicon.error) : output ? ThemeIcon.asCSSSelector(Codicon.check) : ThemeIcon.asCSSSelector(ThemeIcon.modify(Codicon.loading, "spin")));
+    if (progressTooltip) {
+      this._register(hoverService.setupDelayedHover(check.root, {
+        content: progressTooltip,
+        style: 1
+      }));
+    }
+    const expanded = this._expanded = observableValue(this, initiallyExpanded);
+    this._register(autorun((r) => {
+      const value = expanded.read(r);
+      btn.icon = isError ? Codicon.error : output ? Codicon.check : ThemeIcon.modify(Codicon.loading, "spin");
+      elements.root.classList.toggle("collapsed", !value);
+      if (value && !this._contentInitialized) {
+        this._contentInitialized = true;
+        const messageContainer = dom.h(".chat-confirmation-widget-message");
+        messageContainer.root.appendChild(this.createMessageContents());
+        elements.root.appendChild(messageContainer.root);
+      }
+    }));
+    const toggle = /* @__PURE__ */ __name((e) => {
+      if (!e.defaultPrevented) {
+        const value = expanded.get();
+        expanded.set(!value, void 0);
+        e.preventDefault();
+      }
+    }, "toggle");
+    this._register(btn.onDidClick(toggle));
+    const topLevelResources = this.output?.parts.filter((p) => p.kind === "data").filter((p) => !p.audience || p.audience.includes(LanguageModelPartAudience.User));
+    if (topLevelResources?.length) {
+      const resourceSubPart = this._register(this._instantiationService.createInstance(ChatToolOutputContentSubPart, this.context, topLevelResources));
+      const group = resourceSubPart.domNode;
+      group.classList.add("chat-collapsible-top-level-resource-group");
+      container.root.appendChild(group);
+      this._register(autorun((r) => {
+        group.style.display = expanded.read(r) ? "none" : "";
+      }));
+    }
+  }
+  createMessageContents() {
+    const contents = dom.h("div", [
+      dom.h("h3@inputTitle"),
+      dom.h("div@input"),
+      dom.h("h3@outputTitle"),
+      dom.h("div@output")
+    ]);
+    const { input, output } = this;
+    contents.inputTitle.textContent = localize("chat.input", "Input");
+    this.addCodeBlock(input, contents.input);
+    if (!output) {
+      contents.output.remove();
+      contents.outputTitle.remove();
+    } else {
+      contents.outputTitle.textContent = localize("chat.output", "Output");
+      const outputSubPart = this._register(this._instantiationService.createInstance(ChatToolOutputContentSubPart, this.context, output.parts));
+      this._outputSubPart = outputSubPart;
+      contents.output.appendChild(outputSubPart.domNode);
+    }
+    return contents.root;
+  }
+  addCodeBlock(part, container) {
+    const textModel = this._register(this.modelService.createModel(part.data, this.languageService.createById(part.languageId), void 0, true));
+    const data = {
+      languageId: part.languageId,
+      textModel: Promise.resolve(textModel),
+      codeBlockIndex: part.codeBlockIndex,
+      codeBlockPartIndex: 0,
+      element: this.context.element,
+      parentContextKeyService: this.contextKeyService,
+      renderOptions: part.options,
+      chatSessionResource: this.context.element.sessionResource
+    };
+    const editorReference = this._register(this.context.editorPool.get());
+    editorReference.object.render(data, this.context.currentWidth.get() || 300);
+    container.appendChild(editorReference.object.element);
+    this._editorReferences.push(editorReference);
+  }
+  hasSameContent(other, followingContent, element) {
+    return false;
+  }
+  layout(width) {
+    this._editorReferences.forEach((r) => r.object.layout(width));
+    this._outputSubPart?.layout(width);
+  }
+};
+ChatCollapsibleInputOutputContentPart = __decorate([
+  __param(8, IContextKeyService),
+  __param(9, IInstantiationService),
+  __param(10, IHoverService),
+  __param(11, IModelService),
+  __param(12, ILanguageService)
+], ChatCollapsibleInputOutputContentPart);
+export {
+  ChatCollapsibleInputOutputContentPart
+};
+//# sourceMappingURL=chatToolInputOutputContentPart.js.map

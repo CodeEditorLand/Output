@@ -1,1 +1,68 @@
-import{$U4b as u}from"../chat.js";import{$J4b as d}from"./chatDynamicVariables.js";import{$_D as p}from"../../../../../editor/common/core/range.js";var l=function(o,n,t,r){var i=arguments.length,e=i<3?n:r===null?r=Object.getOwnPropertyDescriptor(n,t):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(o,n,t,r);else for(var s=o.length-1;s>=0;s--)(c=o[s])&&(e=(i<3?c(e):i>3?c(n,t,e):c(n,t))||e);return i>3&&e&&Object.defineProperty(n,t,e),e},f=function(o,n){return function(t,r){n(t,r,o)}};let a=class{constructor(n){this.a=n}getDynamicVariables(n){const t=this.a.getWidgetBySessionResource(n);if(!t||!t.viewModel||!t.supportsFileReferences)return[];const r=t.getContrib(d.ID);if(!r)return[];if(t.input.attachmentModel.attachments.length>0&&t.viewModel.editing){const i=[];for(const e of t.input.attachmentModel.attachments)if(e.range){const c={id:e.id,fullName:e.name,modelDescription:e.modelDescription,range:new p(1,e.range.start+1,1,e.range.endExclusive+1),icon:e.icon,isFile:e.kind==="file",isDirectory:e.kind==="directory",data:e.value};i.push(c)}return[...r.variables,...i]}return r.variables}getSelectedToolAndToolSets(n){const t=this.a.getWidgetBySessionResource(n);return t?t.input.selectedToolsModel.entriesMap.get():new Map}};a=l([f(0,u)],a);export{a as $Uqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IChatWidgetService } from "../chat.js";
+import { ChatDynamicVariableModel } from "./chatDynamicVariables.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+let ChatVariablesService = class ChatVariablesService2 {
+  static {
+    __name(this, "ChatVariablesService");
+  }
+  constructor(chatWidgetService) {
+    this.chatWidgetService = chatWidgetService;
+  }
+  getDynamicVariables(sessionResource) {
+    const widget = this.chatWidgetService.getWidgetBySessionResource(sessionResource);
+    if (!widget || !widget.viewModel || !widget.supportsFileReferences) {
+      return [];
+    }
+    const model = widget.getContrib(ChatDynamicVariableModel.ID);
+    if (!model) {
+      return [];
+    }
+    if (widget.input.attachmentModel.attachments.length > 0 && widget.viewModel.editing) {
+      const references = [];
+      for (const attachment of widget.input.attachmentModel.attachments) {
+        if (attachment.range) {
+          const referenceObj = {
+            id: attachment.id,
+            fullName: attachment.name,
+            modelDescription: attachment.modelDescription,
+            range: new Range(1, attachment.range.start + 1, 1, attachment.range.endExclusive + 1),
+            icon: attachment.icon,
+            isFile: attachment.kind === "file",
+            isDirectory: attachment.kind === "directory",
+            data: attachment.value
+          };
+          references.push(referenceObj);
+        }
+      }
+      return [...model.variables, ...references];
+    }
+    return model.variables;
+  }
+  getSelectedToolAndToolSets(sessionResource) {
+    const widget = this.chatWidgetService.getWidgetBySessionResource(sessionResource);
+    if (!widget) {
+      return /* @__PURE__ */ new Map();
+    }
+    return widget.input.selectedToolsModel.entriesMap.get();
+  }
+};
+ChatVariablesService = __decorate([
+  __param(0, IChatWidgetService)
+], ChatVariablesService);
+export {
+  ChatVariablesService
+};
+//# sourceMappingURL=chatVariables.js.map

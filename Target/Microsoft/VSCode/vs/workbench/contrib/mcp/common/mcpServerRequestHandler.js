@@ -1,1 +1,665 @@
-import{$Wb as M}from"../../../../base/common/arrays.js";import{$Zc as H,$1c as L}from"../../../../base/common/assert.js";import{$ui as F,$$h as D,$ii as _}from"../../../../base/common/async.js";import{CancellationToken as C,$Jf as y}from"../../../../base/common/cancellation.js";import{$sb as A}from"../../../../base/common/errors.js";import{$xf as u}from"../../../../base/common/event.js";import{Iterable as m}from"../../../../base/common/iterator.js";import{$Ed as N,$Dd as O,$Cd as I}from"../../../../base/common/lifecycle.js";import{autorun as v,ObservablePromise as E,observableValue as R,transaction as J}from"../../../../base/common/observable.js";import{$Co as $,log as S,LogLevel as f}from"../../../../platform/log/common/log.js";import{$Vn as x}from"../../../../platform/product/common/productService.js";import{$YU as p,$PU as U}from"./mcpTypes.js";import{$BU as V,$DU as j}from"./mcpTypesUtils.js";import{MCP as d}from"./modelContextProtocol.js";class P extends N{set roots(t){M(this.f,t)||(this.f=t,this.c&&(this.J({method:"notifications/roots/list_changed"}),this.c=!1))}get capabilities(){return this.g.capabilities}get serverInfo(){return this.g.serverInfo}get serverInstructions(){return this.g.instructions}static async create(t,e,s){const n=new P(e),a=new O;try{return a.add(new _).cancelAndSet(()=>{e.logger.info("Waiting for server to respond to `initialize` request...")},5e3),await t.invokeFunction(async i=>{const r=i.get(x),o=await n.F({method:"initialize",params:{protocolVersion:d.LATEST_PROTOCOL_VERSION,capabilities:{roots:{listChanged:!0},sampling:e.createMessageRequestHandler?{}:void 0,elicitation:e.elicitationRequestHandler?{form:{},url:{}}:void 0,tasks:{list:{},cancel:{},requests:{sampling:e.createMessageRequestHandler?{createMessage:{}}:void 0,elicitation:e.elicitationRequestHandler?{create:{}}:void 0}},extensions:{"io.modelcontextprotocol/ui":{mimeTypes:["text/html;profile=mcp-app"]}}},clientInfo:{name:r.nameLong,version:r.version}}},s);n.g=o,n.$(e.logger.getLevel()),n.J({method:"notifications/initialized"})}),n}catch(c){throw n.dispose(),c}finally{a.dispose()}}constructor({launch:t,logger:e,createMessageRequestHandler:s,elicitationRequestHandler:n,requestLogLevel:a=f.Debug,taskManager:c}){super(),this.a=1,this.b=new Map,this.c=!1,this.f=[],this.h=this.D(new u),this.onDidReceiveCancelledNotification=this.h.event,this.j=this.D(new u),this.onDidReceiveProgressNotification=this.j.event,this.m=this.D(new u),this.onDidReceiveElicitationCompleteNotification=this.m.event,this.n=this.D(new u),this.onDidChangeResourceList=this.n.event,this.q=this.D(new u),this.onDidUpdateResource=this.q.event,this.s=this.D(new u),this.onDidChangeToolList=this.s.event,this.t=this.D(new u),this.onDidChangePromptList=this.t.event,this.u=t,this.logger=e,this.w=a,this.y=s,this.z=n,this.C=c,this.C.setHandler(this),this.D(this.C.onDidUpdateTask(i=>{this.G({jsonrpc:d.JSONRPC_VERSION,method:"notifications/tasks/status",params:i})})),this.D(I(()=>this.C.setHandler(void 0))),this.D(t.onDidReceiveMessage(i=>this.L(i))),this.D(v(i=>{const r=t.state.read(i).state;(r===3||r===0)&&this.Z()})),this.D(e.onDidChangeLogLevel(i=>{this.$(i)}))}async F(t,e=C.None){if(this.B.isDisposed)return Promise.reject(new A);const s=this.a++,n={jsonrpc:d.JSONRPC_VERSION,id:s,...t},a=new F;this.b.set(s,{promise:a});const c=e.onCancellationRequested(()=>{a.isSettled||(this.b.delete(s),this.J({method:"notifications/cancelled",params:{requestId:s}}),a.cancel()),c.dispose()});return this.G(n),a.p.finally(()=>{c.dispose(),this.b.delete(s)})}G(t){$(this.logger.getLevel(),this.w)&&S(this.logger,this.w,`[editor -> server] ${JSON.stringify(t)}`),this.u.send(t)}async*H(t,e,s,n=C.None){let a;do{const c={...s,cursor:a},i=await this.F({method:t,params:c},n);yield e(i),a=i.nextCursor}while(a!==void 0&&!n.isCancellationRequested)}J(t){this.G({...t,jsonrpc:d.JSONRPC_VERSION})}L(t){$(this.logger.getLevel(),this.w)&&S(this.logger,this.w,`[server -> editor] ${JSON.stringify(t)}`),"id"in t&&("result"in t?this.M(t):"error"in t&&this.O(t)),"method"in t&&("id"in t?this.P(t):this.Q(t))}M(t){if(t.id!==void 0){const e=this.b.get(t.id);e&&(this.b.delete(t.id),e.promise.complete(t.result))}}O(t){if(t.id!==void 0){const e=this.b.get(t.id);e&&(this.b.delete(t.id),e.promise.error(new U(t.error.message,t.error.code,t.error.data)))}}async P(t){try{let e;if(t.method==="ping")e=this.X(t);else if(t.method==="roots/list")e=this.Y(t);else if(t.method==="sampling/createMessage"&&this.y)if(t.params.task){const s=this.C.createTask(t.params.task.ttl??null,n=>this.y(t.params,n));s._meta??={},s._meta["io.modelcontextprotocol/related-task"]={taskId:s.task.taskId},e=s}else e=await this.y(t.params);else if(t.method==="elicitation/create"&&this.z)if(t.params.task){const s=this.C.createTask(t.params.task.ttl??null,n=>this.z(t.params,n));s._meta??={},s._meta["io.modelcontextprotocol/related-task"]={taskId:s.task.taskId},e=s}else e=await this.z(t.params);else if(t.method==="tasks/get")e=this.C.getTask(t.params.taskId);else if(t.method==="tasks/result")e=await this.C.getTaskResult(t.params.taskId);else if(t.method==="tasks/cancel")e=this.C.cancelTask(t.params.taskId);else if(t.method==="tasks/list")e=this.C.listTasks();else throw p.methodNotFound(t.method);this.W(t,e)}catch(e){e instanceof p||(this.logger.error(`Error handling request ${t.method}:`,e),e=p.unknown(e));const s={jsonrpc:d.JSONRPC_VERSION,id:t.id,error:{code:e.code,message:e.message,data:e.data}};this.G(s)}}Q(t){switch(t.method){case"notifications/message":return this.U(t);case"notifications/cancelled":return this.h.fire(t),this.S(t);case"notifications/progress":this.j.fire(t);return;case"notifications/resources/list_changed":this.n.fire();return;case"notifications/resources/updated":this.q.fire(t);return;case"notifications/tools/list_changed":this.s.fire();return;case"notifications/prompts/list_changed":this.t.fire();return;case"notifications/elicitation/complete":this.m.fire(t);return;case"notifications/tasks/status":this.C.getClientTask(t.params.taskId)?.onDidUpdateState(t.params);return;default:L(t)}}S(t){if(t.params.requestId){const e=this.b.get(t.params.requestId);e&&(this.b.delete(t.params.requestId),e.promise.cancel())}}U(t){j(this.logger,t.params)}W(t,e){const s={jsonrpc:d.JSONRPC_VERSION,id:t.id,result:e};this.G(s)}X(t){return{}}Y(t){return this.c=!0,{roots:this.f}}Z(){this.b.forEach(t=>t.promise.cancel()),this.b.clear()}dispose(){this.Z(),super.dispose()}async $(t){try{if(!this.capabilities.logging)return;await this.setLevel({level:G(t)})}catch(e){this.logger.error(`Failed to set MCP server log level: ${e}`)}}initialize(t,e){return this.F({method:"initialize",params:t},e)}listResources(t,e){return m.asyncToArrayFlat(this.listResourcesIterable(t,e))}listResourcesIterable(t,e){return this.H("resources/list",s=>s.resources,t,e)}readResource(t,e){return this.F({method:"resources/read",params:t},e)}listResourceTemplates(t,e){return m.asyncToArrayFlat(this.H("resources/templates/list",s=>s.resourceTemplates,t,e))}subscribe(t,e){return this.F({method:"resources/subscribe",params:t},e)}unsubscribe(t,e){return this.F({method:"resources/unsubscribe",params:t},e)}listPrompts(t,e){return m.asyncToArrayFlat(this.H("prompts/list",s=>s.prompts,t,e))}getPrompt(t,e){return this.F({method:"prompts/get",params:t},e)}listTools(t,e){return m.asyncToArrayFlat(this.H("tools/list",s=>s.tools,t,e))}async callTool(t,e){const s=await this.F({method:"tools/call",params:t},e);if(V(s)){const n=new z(s.task,e);return this.C.adoptClientTask(n),n.setHandler(this),n.result.finally(()=>{this.C.abandonClientTask(n.id)})}return s}setLevel(t,e){return this.F({method:"logging/setLevel",params:t},e)}complete(t,e){return this.F({method:"completion/complete",params:t},e)}getTask(t,e){return this.F({method:"tasks/get",params:t},e)}getTaskResult(t,e){return this.F({method:"tasks/result",params:t},e)}cancelTask(t,e){return this.F({method:"tasks/cancel",params:t},e)}listTasks(t,e){return m.asyncToArrayFlat(this.H("tasks/list",s=>s.tasks,t,e))}}function T(h){return h.status==="completed"||h.status==="failed"||h.status==="cancelled"}class z extends N{get result(){return this.a.p}get id(){return this.f.taskId}constructor(t,e=C.None){super(),this.f=t,this.a=new F,this.c=R("mcpTaskHandler",void 0);const s=t.ttl?Date.now()+t.ttl:void 0;this.b=R("lastTaskState",this.f);const n=this.D(new O);if(e.isCancellationRequested?this.b.set({...this.f,status:"cancelled"},void 0):n.add(e.onCancellationRequested(()=>{const i=this.b.get();T(i)||this.b.set({...i,status:"cancelled"},void 0)})),s){const i=s-Date.now();i<=0?this.b.set({...this.f,status:"cancelled",statusMessage:"Task timed out."},void 0):n.add(D(()=>{const r=this.b.get();T(r)||this.b.set({...r,status:"cancelled",statusMessage:"Task timed out."},void 0)},i))}const a=R("activeResultLookup",void 0);n.add(v(i=>{const r=this.b.read(i);if(T(r))return;const o=a.read(i);if(o){const l=o.promiseResult.read(i);return J(w=>{l&&(l.data?(a.set(void 0,w),this.b.set(l.data,w)):(a.set(void 0,w),l.error instanceof p&&l.error.code===d.INVALID_PARAMS?this.b.set({...r,status:"cancelled"},void 0):this.b.set({...r,status:"working"},void 0)))})}const g=this.c.read(i);if(!g)return;const k=t.pollInterval??2e3,b=new y(e);i.store.add(I(()=>b.dispose(!0))),i.store.add(D(()=>{g.getTask({taskId:r.taskId},b.token).catch(l=>l instanceof p&&l.code===d.INVALID_PARAMS?{...r,status:"cancelled"}:{...r}).then(l=>{l&&!b.token.isCancellationRequested&&this.b.set(l,void 0)})},k))}));const c=this.b.map(i=>i.status);n.add(v(i=>{const r=c.read(i);if(r==="failed"){const o=this.b.read(void 0);this.a.error(new Error(`Task ${o.taskId} failed: ${o.statusMessage??"unknown error"}`)),n.dispose()}else if(r==="cancelled")this.a.cancel(),n.dispose();else if(r==="input_required"){const o=this.c.read(i);if(o){const g=this.b.read(void 0),k=new y(e);i.store.add(I(()=>k.dispose(!0))),a.set(new E(o.getTask({taskId:g.taskId},k.token)),void 0)}}else if(r==="completed"){const o=this.c.read(i);o&&(this.a.settleWith(o.getTaskResult({taskId:t.taskId},e)),n.dispose())}else r==="working"||L(r)}))}onDidUpdateState(t){this.b.set(t,void 0)}setHandler(t){this.c.set(t,void 0)}}function G(h){switch(h){case f.Trace:return"debug";case f.Debug:return"debug";case f.Info:return"info";case f.Warning:return"warning";case f.Error:return"error";case f.Off:return"emergency";default:return H(h)}}export{P as $EU,z as $FU};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { equals } from "../../../../base/common/arrays.js";
+import { assertNever, softAssertNever } from "../../../../base/common/assert.js";
+import { DeferredPromise, disposableTimeout, IntervalTimer } from "../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, ObservablePromise, observableValue, transaction } from "../../../../base/common/observable.js";
+import { canLog, log, LogLevel } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { McpError, MpcResponseError } from "./mcpTypes.js";
+import { isTaskResult, translateMcpLogMessage } from "./mcpTypesUtils.js";
+import { MCP } from "./modelContextProtocol.js";
+class McpServerRequestHandler extends Disposable {
+  static {
+    __name(this, "McpServerRequestHandler");
+  }
+  set roots(roots) {
+    if (!equals(this._roots, roots)) {
+      this._roots = roots;
+      if (this._hasAnnouncedRoots) {
+        this.sendNotification({ method: "notifications/roots/list_changed" });
+        this._hasAnnouncedRoots = false;
+      }
+    }
+  }
+  get capabilities() {
+    return this._serverInit.capabilities;
+  }
+  get serverInfo() {
+    return this._serverInit.serverInfo;
+  }
+  get serverInstructions() {
+    return this._serverInit.instructions;
+  }
+  /**
+   * Connects to the MCP server and does the initialization handshake.
+   * @throws MpcResponseError if the server fails to initialize.
+   */
+  static async create(instaService, opts, token) {
+    const mcp = new McpServerRequestHandler(opts);
+    const store = new DisposableStore();
+    try {
+      const timer = store.add(new IntervalTimer());
+      timer.cancelAndSet(() => {
+        opts.logger.info("Waiting for server to respond to `initialize` request...");
+      }, 5e3);
+      await instaService.invokeFunction(async (accessor) => {
+        const productService = accessor.get(IProductService);
+        const initialized = await mcp.sendRequest({
+          method: "initialize",
+          params: {
+            protocolVersion: MCP.LATEST_PROTOCOL_VERSION,
+            capabilities: {
+              roots: { listChanged: true },
+              sampling: opts.createMessageRequestHandler ? {} : void 0,
+              elicitation: opts.elicitationRequestHandler ? { form: {}, url: {} } : void 0,
+              tasks: {
+                list: {},
+                cancel: {},
+                requests: {
+                  sampling: opts.createMessageRequestHandler ? { createMessage: {} } : void 0,
+                  elicitation: opts.elicitationRequestHandler ? { create: {} } : void 0
+                }
+              },
+              extensions: {
+                "io.modelcontextprotocol/ui": {
+                  mimeTypes: ["text/html;profile=mcp-app"]
+                }
+              }
+            },
+            clientInfo: {
+              name: productService.nameLong,
+              version: productService.version
+            }
+          }
+        }, token);
+        mcp._serverInit = initialized;
+        mcp._sendLogLevelToServer(opts.logger.getLevel());
+        mcp.sendNotification({
+          method: "notifications/initialized"
+        });
+      });
+      return mcp;
+    } catch (e) {
+      mcp.dispose();
+      throw e;
+    } finally {
+      store.dispose();
+    }
+  }
+  constructor({ launch, logger, createMessageRequestHandler, elicitationRequestHandler, requestLogLevel = LogLevel.Debug, taskManager }) {
+    super();
+    this._nextRequestId = 1;
+    this._pendingRequests = /* @__PURE__ */ new Map();
+    this._hasAnnouncedRoots = false;
+    this._roots = [];
+    this._onDidReceiveCancelledNotification = this._register(new Emitter());
+    this.onDidReceiveCancelledNotification = this._onDidReceiveCancelledNotification.event;
+    this._onDidReceiveProgressNotification = this._register(new Emitter());
+    this.onDidReceiveProgressNotification = this._onDidReceiveProgressNotification.event;
+    this._onDidReceiveElicitationCompleteNotification = this._register(new Emitter());
+    this.onDidReceiveElicitationCompleteNotification = this._onDidReceiveElicitationCompleteNotification.event;
+    this._onDidChangeResourceList = this._register(new Emitter());
+    this.onDidChangeResourceList = this._onDidChangeResourceList.event;
+    this._onDidUpdateResource = this._register(new Emitter());
+    this.onDidUpdateResource = this._onDidUpdateResource.event;
+    this._onDidChangeToolList = this._register(new Emitter());
+    this.onDidChangeToolList = this._onDidChangeToolList.event;
+    this._onDidChangePromptList = this._register(new Emitter());
+    this.onDidChangePromptList = this._onDidChangePromptList.event;
+    this._launch = launch;
+    this.logger = logger;
+    this._requestLogLevel = requestLogLevel;
+    this._createMessageRequestHandler = createMessageRequestHandler;
+    this._elicitationRequestHandler = elicitationRequestHandler;
+    this._taskManager = taskManager;
+    this._taskManager.setHandler(this);
+    this._register(this._taskManager.onDidUpdateTask((task) => {
+      this.send({
+        jsonrpc: MCP.JSONRPC_VERSION,
+        method: "notifications/tasks/status",
+        params: task
+      });
+    }));
+    this._register(toDisposable(() => this._taskManager.setHandler(void 0)));
+    this._register(launch.onDidReceiveMessage((message) => this.handleMessage(message)));
+    this._register(autorun((reader) => {
+      const state = launch.state.read(reader).state;
+      if (state === 3 || state === 0) {
+        this.cancelAllRequests();
+      }
+    }));
+    this._register(logger.onDidChangeLogLevel((logLevel) => {
+      this._sendLogLevelToServer(logLevel);
+    }));
+  }
+  /**
+   * Send a client request to the server and return the response.
+   *
+   * @param request The request to send
+   * @param token Cancellation token
+   * @param timeoutMs Optional timeout in milliseconds
+   * @returns A promise that resolves with the response
+   */
+  async sendRequest(request, token = CancellationToken.None) {
+    if (this._store.isDisposed) {
+      return Promise.reject(new CancellationError());
+    }
+    const id = this._nextRequestId++;
+    const jsonRpcRequest = {
+      jsonrpc: MCP.JSONRPC_VERSION,
+      id,
+      ...request
+    };
+    const promise = new DeferredPromise();
+    this._pendingRequests.set(id, { promise });
+    const cancelListener = token.onCancellationRequested(() => {
+      if (!promise.isSettled) {
+        this._pendingRequests.delete(id);
+        this.sendNotification({ method: "notifications/cancelled", params: { requestId: id } });
+        promise.cancel();
+      }
+      cancelListener.dispose();
+    });
+    this.send(jsonRpcRequest);
+    const ret = promise.p.finally(() => {
+      cancelListener.dispose();
+      this._pendingRequests.delete(id);
+    });
+    return ret;
+  }
+  send(mcp) {
+    if (canLog(this.logger.getLevel(), this._requestLogLevel)) {
+      log(this.logger, this._requestLogLevel, `[editor -> server] ${JSON.stringify(mcp)}`);
+    }
+    this._launch.send(mcp);
+  }
+  /**
+   * Handles paginated requests by making multiple requests until all items are retrieved.
+   *
+   * @param method The method name to call
+   * @param getItems Function to extract the array of items from a result
+   * @param initialParams Initial parameters
+   * @param token Cancellation token
+   * @returns Promise with all items combined
+   */
+  async *sendRequestPaginated(method, getItems, initialParams, token = CancellationToken.None) {
+    let nextCursor = void 0;
+    do {
+      const params = {
+        ...initialParams,
+        cursor: nextCursor
+      };
+      const result = await this.sendRequest({ method, params }, token);
+      yield getItems(result);
+      nextCursor = result.nextCursor;
+    } while (nextCursor !== void 0 && !token.isCancellationRequested);
+  }
+  sendNotification(notification) {
+    this.send({ ...notification, jsonrpc: MCP.JSONRPC_VERSION });
+  }
+  /**
+   * Handle incoming messages from the server
+   */
+  handleMessage(message) {
+    if (canLog(this.logger.getLevel(), this._requestLogLevel)) {
+      log(this.logger, this._requestLogLevel, `[server -> editor] ${JSON.stringify(message)}`);
+    }
+    if ("id" in message) {
+      if ("result" in message) {
+        this.handleResult(message);
+      } else if ("error" in message) {
+        this.handleError(message);
+      }
+    }
+    if ("method" in message) {
+      if ("id" in message) {
+        this.handleServerRequest(message);
+      } else {
+        this.handleServerNotification(message);
+      }
+    }
+  }
+  /**
+   * Handle successful responses
+   */
+  handleResult(response) {
+    if (response.id !== void 0) {
+      const request = this._pendingRequests.get(response.id);
+      if (request) {
+        this._pendingRequests.delete(response.id);
+        request.promise.complete(response.result);
+      }
+    }
+  }
+  /**
+   * Handle error responses
+   */
+  handleError(response) {
+    if (response.id !== void 0) {
+      const request = this._pendingRequests.get(response.id);
+      if (request) {
+        this._pendingRequests.delete(response.id);
+        request.promise.error(new MpcResponseError(response.error.message, response.error.code, response.error.data));
+      }
+    }
+  }
+  /**
+   * Handle incoming server requests
+   */
+  async handleServerRequest(request) {
+    try {
+      let response;
+      if (request.method === "ping") {
+        response = this.handlePing(request);
+      } else if (request.method === "roots/list") {
+        response = this.handleRootsList(request);
+      } else if (request.method === "sampling/createMessage" && this._createMessageRequestHandler) {
+        if (request.params.task) {
+          const taskResult = this._taskManager.createTask(request.params.task.ttl ?? null, (token) => this._createMessageRequestHandler(request.params, token));
+          taskResult._meta ??= {};
+          taskResult._meta["io.modelcontextprotocol/related-task"] = { taskId: taskResult.task.taskId };
+          response = taskResult;
+        } else {
+          response = await this._createMessageRequestHandler(request.params);
+        }
+      } else if (request.method === "elicitation/create" && this._elicitationRequestHandler) {
+        if (request.params.task) {
+          const taskResult = this._taskManager.createTask(request.params.task.ttl ?? null, (token) => this._elicitationRequestHandler(request.params, token));
+          taskResult._meta ??= {};
+          taskResult._meta["io.modelcontextprotocol/related-task"] = { taskId: taskResult.task.taskId };
+          response = taskResult;
+        } else {
+          response = await this._elicitationRequestHandler(request.params);
+        }
+      } else if (request.method === "tasks/get") {
+        response = this._taskManager.getTask(request.params.taskId);
+      } else if (request.method === "tasks/result") {
+        response = await this._taskManager.getTaskResult(request.params.taskId);
+      } else if (request.method === "tasks/cancel") {
+        response = this._taskManager.cancelTask(request.params.taskId);
+      } else if (request.method === "tasks/list") {
+        response = this._taskManager.listTasks();
+      } else {
+        throw McpError.methodNotFound(request.method);
+      }
+      this.respondToRequest(request, response);
+    } catch (e) {
+      if (!(e instanceof McpError)) {
+        this.logger.error(`Error handling request ${request.method}:`, e);
+        e = McpError.unknown(e);
+      }
+      const errorResponse = {
+        jsonrpc: MCP.JSONRPC_VERSION,
+        id: request.id,
+        error: {
+          code: e.code,
+          message: e.message,
+          data: e.data
+        }
+      };
+      this.send(errorResponse);
+    }
+  }
+  /**
+   * Handle incoming server notifications
+   */
+  handleServerNotification(request) {
+    switch (request.method) {
+      case "notifications/message":
+        return this.handleLoggingNotification(request);
+      case "notifications/cancelled":
+        this._onDidReceiveCancelledNotification.fire(request);
+        return this.handleCancelledNotification(request);
+      case "notifications/progress":
+        this._onDidReceiveProgressNotification.fire(request);
+        return;
+      case "notifications/resources/list_changed":
+        this._onDidChangeResourceList.fire();
+        return;
+      case "notifications/resources/updated":
+        this._onDidUpdateResource.fire(request);
+        return;
+      case "notifications/tools/list_changed":
+        this._onDidChangeToolList.fire();
+        return;
+      case "notifications/prompts/list_changed":
+        this._onDidChangePromptList.fire();
+        return;
+      case "notifications/elicitation/complete":
+        this._onDidReceiveElicitationCompleteNotification.fire(request);
+        return;
+      case "notifications/tasks/status":
+        this._taskManager.getClientTask(request.params.taskId)?.onDidUpdateState(request.params);
+        return;
+      default:
+        softAssertNever(request);
+    }
+  }
+  handleCancelledNotification(request) {
+    if (request.params.requestId) {
+      const pendingRequest = this._pendingRequests.get(request.params.requestId);
+      if (pendingRequest) {
+        this._pendingRequests.delete(request.params.requestId);
+        pendingRequest.promise.cancel();
+      }
+    }
+  }
+  handleLoggingNotification(request) {
+    translateMcpLogMessage(this.logger, request.params);
+  }
+  /**
+   * Send a generic response to a request
+   */
+  respondToRequest(request, result) {
+    const response = {
+      jsonrpc: MCP.JSONRPC_VERSION,
+      id: request.id,
+      result
+    };
+    this.send(response);
+  }
+  /**
+   * Send a response to a ping request
+   */
+  handlePing(_request) {
+    return {};
+  }
+  /**
+   * Send a response to a roots/list request
+   */
+  handleRootsList(_request) {
+    this._hasAnnouncedRoots = true;
+    return { roots: this._roots };
+  }
+  cancelAllRequests() {
+    this._pendingRequests.forEach((pending) => pending.promise.cancel());
+    this._pendingRequests.clear();
+  }
+  dispose() {
+    this.cancelAllRequests();
+    super.dispose();
+  }
+  /**
+   * Forwards log level changes to the MCP server if it supports logging
+   */
+  async _sendLogLevelToServer(logLevel) {
+    try {
+      if (!this.capabilities.logging) {
+        return;
+      }
+      await this.setLevel({ level: mapLogLevelToMcp(logLevel) });
+    } catch (error) {
+      this.logger.error(`Failed to set MCP server log level: ${error}`);
+    }
+  }
+  /**
+   * Send an initialize request
+   */
+  initialize(params, token) {
+    return this.sendRequest({ method: "initialize", params }, token);
+  }
+  /**
+   * List available resources
+   */
+  listResources(params, token) {
+    return Iterable.asyncToArrayFlat(this.listResourcesIterable(params, token));
+  }
+  /**
+   * List available resources (iterable)
+   */
+  listResourcesIterable(params, token) {
+    return this.sendRequestPaginated("resources/list", (result) => result.resources, params, token);
+  }
+  /**
+   * Read a specific resource
+   */
+  readResource(params, token) {
+    return this.sendRequest({ method: "resources/read", params }, token);
+  }
+  /**
+   * List available resource templates
+   */
+  listResourceTemplates(params, token) {
+    return Iterable.asyncToArrayFlat(this.sendRequestPaginated("resources/templates/list", (result) => result.resourceTemplates, params, token));
+  }
+  /**
+   * Subscribe to resource updates
+   */
+  subscribe(params, token) {
+    return this.sendRequest({ method: "resources/subscribe", params }, token);
+  }
+  /**
+   * Unsubscribe from resource updates
+   */
+  unsubscribe(params, token) {
+    return this.sendRequest({ method: "resources/unsubscribe", params }, token);
+  }
+  /**
+   * List available prompts
+   */
+  listPrompts(params, token) {
+    return Iterable.asyncToArrayFlat(this.sendRequestPaginated("prompts/list", (result) => result.prompts, params, token));
+  }
+  /**
+   * Get a specific prompt
+   */
+  getPrompt(params, token) {
+    return this.sendRequest({ method: "prompts/get", params }, token);
+  }
+  /**
+   * List available tools
+   */
+  listTools(params, token) {
+    return Iterable.asyncToArrayFlat(this.sendRequestPaginated("tools/list", (result) => result.tools, params, token));
+  }
+  /**
+   * Call a specific tool. Supports tasks automatically if `task` is set on the request.
+   */
+  async callTool(params, token) {
+    const response = await this.sendRequest({ method: "tools/call", params }, token);
+    if (isTaskResult(response)) {
+      const task = new McpTask(response.task, token);
+      this._taskManager.adoptClientTask(task);
+      task.setHandler(this);
+      return task.result.finally(() => {
+        this._taskManager.abandonClientTask(task.id);
+      });
+    }
+    return response;
+  }
+  /**
+   * Set the logging level
+   */
+  setLevel(params, token) {
+    return this.sendRequest({ method: "logging/setLevel", params }, token);
+  }
+  /**
+   * Find completions for an argument
+   */
+  complete(params, token) {
+    return this.sendRequest({ method: "completion/complete", params }, token);
+  }
+  /**
+   * Get task status
+   */
+  getTask(params, token) {
+    return this.sendRequest({ method: "tasks/get", params }, token);
+  }
+  /**
+   * Get task result
+   */
+  getTaskResult(params, token) {
+    return this.sendRequest({ method: "tasks/result", params }, token);
+  }
+  /**
+   * Cancel a task
+   */
+  cancelTask(params, token) {
+    return this.sendRequest({ method: "tasks/cancel", params }, token);
+  }
+  /**
+   * List all tasks
+   */
+  listTasks(params, token) {
+    return Iterable.asyncToArrayFlat(this.sendRequestPaginated("tasks/list", (result) => result.tasks, params, token));
+  }
+}
+function isTaskInTerminalState(task) {
+  return task.status === "completed" || task.status === "failed" || task.status === "cancelled";
+}
+__name(isTaskInTerminalState, "isTaskInTerminalState");
+class McpTask extends Disposable {
+  static {
+    __name(this, "McpTask");
+  }
+  get result() {
+    return this.promise.p;
+  }
+  get id() {
+    return this._task.taskId;
+  }
+  constructor(_task, _token = CancellationToken.None) {
+    super();
+    this._task = _task;
+    this.promise = new DeferredPromise();
+    this._handler = observableValue("mcpTaskHandler", void 0);
+    const expiresAt = _task.ttl ? Date.now() + _task.ttl : void 0;
+    this._lastTaskState = observableValue("lastTaskState", this._task);
+    const store = this._register(new DisposableStore());
+    if (_token.isCancellationRequested) {
+      this._lastTaskState.set({ ...this._task, status: "cancelled" }, void 0);
+    } else {
+      store.add(_token.onCancellationRequested(() => {
+        const current = this._lastTaskState.get();
+        if (!isTaskInTerminalState(current)) {
+          this._lastTaskState.set({ ...current, status: "cancelled" }, void 0);
+        }
+      }));
+    }
+    if (expiresAt) {
+      const ttlTimeout = expiresAt - Date.now();
+      if (ttlTimeout <= 0) {
+        this._lastTaskState.set({ ...this._task, status: "cancelled", statusMessage: "Task timed out." }, void 0);
+      } else {
+        store.add(disposableTimeout(() => {
+          const current = this._lastTaskState.get();
+          if (!isTaskInTerminalState(current)) {
+            this._lastTaskState.set({ ...current, status: "cancelled", statusMessage: "Task timed out." }, void 0);
+          }
+        }, ttlTimeout));
+      }
+    }
+    const inputRequiredLookup = observableValue("activeResultLookup", void 0);
+    store.add(autorun((reader) => {
+      const current = this._lastTaskState.read(reader);
+      if (isTaskInTerminalState(current)) {
+        return;
+      }
+      const lookup = inputRequiredLookup.read(reader);
+      if (lookup) {
+        const result = lookup.promiseResult.read(reader);
+        return transaction((tx) => {
+          if (!result) {
+          } else if (result.data) {
+            inputRequiredLookup.set(void 0, tx);
+            this._lastTaskState.set(result.data, tx);
+          } else {
+            inputRequiredLookup.set(void 0, tx);
+            if (result.error instanceof McpError && result.error.code === MCP.INVALID_PARAMS) {
+              this._lastTaskState.set({ ...current, status: "cancelled" }, void 0);
+            } else {
+              this._lastTaskState.set({ ...current, status: "working" }, void 0);
+            }
+          }
+        });
+      }
+      const handler = this._handler.read(reader);
+      if (!handler) {
+        return;
+      }
+      const pollInterval = _task.pollInterval ?? 2e3;
+      const cts = new CancellationTokenSource(_token);
+      reader.store.add(toDisposable(() => cts.dispose(true)));
+      reader.store.add(disposableTimeout(() => {
+        handler.getTask({ taskId: current.taskId }, cts.token).catch((e) => {
+          if (e instanceof McpError && e.code === MCP.INVALID_PARAMS) {
+            return { ...current, status: "cancelled" };
+          } else {
+            return { ...current };
+          }
+        }).then((r) => {
+          if (r && !cts.token.isCancellationRequested) {
+            this._lastTaskState.set(r, void 0);
+          }
+        });
+      }, pollInterval));
+    }));
+    const lastStatus = this._lastTaskState.map((task) => task.status);
+    store.add(autorun((reader) => {
+      const status = lastStatus.read(reader);
+      if (status === "failed") {
+        const current = this._lastTaskState.read(void 0);
+        this.promise.error(new Error(`Task ${current.taskId} failed: ${current.statusMessage ?? "unknown error"}`));
+        store.dispose();
+      } else if (status === "cancelled") {
+        this.promise.cancel();
+        store.dispose();
+      } else if (status === "input_required") {
+        const handler = this._handler.read(reader);
+        if (handler) {
+          const current = this._lastTaskState.read(void 0);
+          const cts = new CancellationTokenSource(_token);
+          reader.store.add(toDisposable(() => cts.dispose(true)));
+          inputRequiredLookup.set(new ObservablePromise(handler.getTask({ taskId: current.taskId }, cts.token)), void 0);
+        }
+      } else if (status === "completed") {
+        const handler = this._handler.read(reader);
+        if (handler) {
+          this.promise.settleWith(handler.getTaskResult({ taskId: _task.taskId }, _token));
+          store.dispose();
+        }
+      } else if (status === "working") {
+      } else {
+        softAssertNever(status);
+      }
+    }));
+  }
+  onDidUpdateState(task) {
+    this._lastTaskState.set(task, void 0);
+  }
+  setHandler(handler) {
+    this._handler.set(handler, void 0);
+  }
+}
+function mapLogLevelToMcp(logLevel) {
+  switch (logLevel) {
+    case LogLevel.Trace:
+      return "debug";
+    // MCP doesn't have trace, use debug
+    case LogLevel.Debug:
+      return "debug";
+    case LogLevel.Info:
+      return "info";
+    case LogLevel.Warning:
+      return "warning";
+    case LogLevel.Error:
+      return "error";
+    case LogLevel.Off:
+      return "emergency";
+    // MCP doesn't have off, use emergency
+    default:
+      return assertNever(logLevel);
+  }
+}
+__name(mapLogLevelToMcp, "mapLogLevelToMcp");
+export {
+  McpServerRequestHandler,
+  McpTask
+};
+//# sourceMappingURL=mcpServerRequestHandler.js.map

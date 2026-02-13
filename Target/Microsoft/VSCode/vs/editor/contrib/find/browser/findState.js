@@ -1,1 +1,290 @@
-import{$xf as p}from"../../../../base/common/event.js";import{$Ed as v}from"../../../../base/common/lifecycle.js";import{$_D as a}from"../../../common/core/range.js";import{$Ipb as R}from"./findModel.js";var l;(function(r){r[r.NotSet=0]="NotSet",r[r.True=1]="True",r[r.False=2]="False"})(l||(l={}));function f(r,e){return r===1?!0:r===2?!1:e}class W extends v{get searchString(){return this.a}get replaceString(){return this.b}get isRevealed(){return this.c}get isReplaceRevealed(){return this.f}get isRegex(){return f(this.h,this.g)}get wholeWord(){return f(this.m,this.j)}get matchCase(){return f(this.q,this.n)}get preserveCase(){return f(this.s,this.r)}get actualIsRegex(){return this.g}get actualWholeWord(){return this.j}get actualMatchCase(){return this.n}get actualPreserveCase(){return this.r}get searchScope(){return this.t}get matchesPosition(){return this.u}get matchesCount(){return this.w}get currentMatch(){return this.y}get isSearching(){return this.C}get filters(){return this.F}constructor(){super(),this.G=this.D(new p),this.onFindReplaceStateChange=this.G.event,this.a="",this.b="",this.c=!1,this.f=!1,this.g=!1,this.h=0,this.j=!1,this.m=0,this.n=!1,this.q=0,this.r=!1,this.s=0,this.t=null,this.u=0,this.w=0,this.y=null,this.z=!0,this.C=!1,this.F=null}changeMatchInfo(e,t,h){const s={moveCursor:!1,updateHistory:!1,searchString:!1,replaceString:!1,isRevealed:!1,isReplaceRevealed:!1,isRegex:!1,wholeWord:!1,matchCase:!1,preserveCase:!1,searchScope:!1,matchesPosition:!1,matchesCount:!1,currentMatch:!1,loop:!1,isSearching:!1,filters:!1};let i=!1;t===0&&(e=0),e>t&&(e=t),this.u!==e&&(this.u=e,s.matchesPosition=!0,i=!0),this.w!==t&&(this.w=t,s.matchesCount=!0,i=!0),typeof h<"u"&&(a.equalsRange(this.y,h)||(this.y=h,s.currentMatch=!0,i=!0)),i&&this.G.fire(s)}change(e,t,h=!0){const s={moveCursor:t,updateHistory:h,searchString:!1,replaceString:!1,isRevealed:!1,isReplaceRevealed:!1,isRegex:!1,wholeWord:!1,matchCase:!1,preserveCase:!1,searchScope:!1,matchesPosition:!1,matchesCount:!1,currentMatch:!1,loop:!1,isSearching:!1,filters:!1};let i=!1;const u=this.isRegex,o=this.wholeWord,c=this.matchCase,n=this.preserveCase;typeof e.searchString<"u"&&this.a!==e.searchString&&(this.a=e.searchString,s.searchString=!0,i=!0),typeof e.replaceString<"u"&&this.b!==e.replaceString&&(this.b=e.replaceString,s.replaceString=!0,i=!0),typeof e.isRevealed<"u"&&this.c!==e.isRevealed&&(this.c=e.isRevealed,s.isRevealed=!0,i=!0),typeof e.isReplaceRevealed<"u"&&this.f!==e.isReplaceRevealed&&(this.f=e.isReplaceRevealed,s.isReplaceRevealed=!0,i=!0),typeof e.isRegex<"u"&&(this.g=e.isRegex),typeof e.wholeWord<"u"&&(this.j=e.wholeWord),typeof e.matchCase<"u"&&(this.n=e.matchCase),typeof e.preserveCase<"u"&&(this.r=e.preserveCase),typeof e.searchScope<"u"&&(e.searchScope?.every(d=>this.t?.some(g=>!a.equalsRange(g,d)))||(this.t=e.searchScope,s.searchScope=!0,i=!0)),typeof e.loop<"u"&&this.z!==e.loop&&(this.z=e.loop,s.loop=!0,i=!0),typeof e.isSearching<"u"&&this.C!==e.isSearching&&(this.C=e.isSearching,s.isSearching=!0,i=!0),typeof e.filters<"u"&&(this.F?this.F.update(e.filters):this.F=e.filters,s.filters=!0,i=!0),this.h=typeof e.isRegexOverride<"u"?e.isRegexOverride:0,this.m=typeof e.wholeWordOverride<"u"?e.wholeWordOverride:0,this.q=typeof e.matchCaseOverride<"u"?e.matchCaseOverride:0,this.s=typeof e.preserveCaseOverride<"u"?e.preserveCaseOverride:0,u!==this.isRegex&&(i=!0,s.isRegex=!0),o!==this.wholeWord&&(i=!0,s.wholeWord=!0),c!==this.matchCase&&(i=!0,s.matchCase=!0),n!==this.preserveCase&&(i=!0,s.preserveCase=!0),i&&this.G.fire(s)}canNavigateBack(){return this.H()||this.matchesPosition!==1}canNavigateForward(){return this.H()||this.matchesPosition<this.matchesCount}H(){return this.z||this.matchesCount>=R}}export{W as $tpb,l as FindOptionOverride};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Range } from "../../../common/core/range.js";
+import { MATCHES_LIMIT } from "./findModel.js";
+var FindOptionOverride;
+(function(FindOptionOverride2) {
+  FindOptionOverride2[FindOptionOverride2["NotSet"] = 0] = "NotSet";
+  FindOptionOverride2[FindOptionOverride2["True"] = 1] = "True";
+  FindOptionOverride2[FindOptionOverride2["False"] = 2] = "False";
+})(FindOptionOverride || (FindOptionOverride = {}));
+function effectiveOptionValue(override, value) {
+  if (override === 1) {
+    return true;
+  }
+  if (override === 2) {
+    return false;
+  }
+  return value;
+}
+__name(effectiveOptionValue, "effectiveOptionValue");
+class FindReplaceState extends Disposable {
+  static {
+    __name(this, "FindReplaceState");
+  }
+  get searchString() {
+    return this._searchString;
+  }
+  get replaceString() {
+    return this._replaceString;
+  }
+  get isRevealed() {
+    return this._isRevealed;
+  }
+  get isReplaceRevealed() {
+    return this._isReplaceRevealed;
+  }
+  get isRegex() {
+    return effectiveOptionValue(this._isRegexOverride, this._isRegex);
+  }
+  get wholeWord() {
+    return effectiveOptionValue(this._wholeWordOverride, this._wholeWord);
+  }
+  get matchCase() {
+    return effectiveOptionValue(this._matchCaseOverride, this._matchCase);
+  }
+  get preserveCase() {
+    return effectiveOptionValue(this._preserveCaseOverride, this._preserveCase);
+  }
+  get actualIsRegex() {
+    return this._isRegex;
+  }
+  get actualWholeWord() {
+    return this._wholeWord;
+  }
+  get actualMatchCase() {
+    return this._matchCase;
+  }
+  get actualPreserveCase() {
+    return this._preserveCase;
+  }
+  get searchScope() {
+    return this._searchScope;
+  }
+  get matchesPosition() {
+    return this._matchesPosition;
+  }
+  get matchesCount() {
+    return this._matchesCount;
+  }
+  get currentMatch() {
+    return this._currentMatch;
+  }
+  get isSearching() {
+    return this._isSearching;
+  }
+  get filters() {
+    return this._filters;
+  }
+  constructor() {
+    super();
+    this._onFindReplaceStateChange = this._register(new Emitter());
+    this.onFindReplaceStateChange = this._onFindReplaceStateChange.event;
+    this._searchString = "";
+    this._replaceString = "";
+    this._isRevealed = false;
+    this._isReplaceRevealed = false;
+    this._isRegex = false;
+    this._isRegexOverride = 0;
+    this._wholeWord = false;
+    this._wholeWordOverride = 0;
+    this._matchCase = false;
+    this._matchCaseOverride = 0;
+    this._preserveCase = false;
+    this._preserveCaseOverride = 0;
+    this._searchScope = null;
+    this._matchesPosition = 0;
+    this._matchesCount = 0;
+    this._currentMatch = null;
+    this._loop = true;
+    this._isSearching = false;
+    this._filters = null;
+  }
+  changeMatchInfo(matchesPosition, matchesCount, currentMatch) {
+    const changeEvent = {
+      moveCursor: false,
+      updateHistory: false,
+      searchString: false,
+      replaceString: false,
+      isRevealed: false,
+      isReplaceRevealed: false,
+      isRegex: false,
+      wholeWord: false,
+      matchCase: false,
+      preserveCase: false,
+      searchScope: false,
+      matchesPosition: false,
+      matchesCount: false,
+      currentMatch: false,
+      loop: false,
+      isSearching: false,
+      filters: false
+    };
+    let somethingChanged = false;
+    if (matchesCount === 0) {
+      matchesPosition = 0;
+    }
+    if (matchesPosition > matchesCount) {
+      matchesPosition = matchesCount;
+    }
+    if (this._matchesPosition !== matchesPosition) {
+      this._matchesPosition = matchesPosition;
+      changeEvent.matchesPosition = true;
+      somethingChanged = true;
+    }
+    if (this._matchesCount !== matchesCount) {
+      this._matchesCount = matchesCount;
+      changeEvent.matchesCount = true;
+      somethingChanged = true;
+    }
+    if (typeof currentMatch !== "undefined") {
+      if (!Range.equalsRange(this._currentMatch, currentMatch)) {
+        this._currentMatch = currentMatch;
+        changeEvent.currentMatch = true;
+        somethingChanged = true;
+      }
+    }
+    if (somethingChanged) {
+      this._onFindReplaceStateChange.fire(changeEvent);
+    }
+  }
+  change(newState, moveCursor, updateHistory = true) {
+    const changeEvent = {
+      moveCursor,
+      updateHistory,
+      searchString: false,
+      replaceString: false,
+      isRevealed: false,
+      isReplaceRevealed: false,
+      isRegex: false,
+      wholeWord: false,
+      matchCase: false,
+      preserveCase: false,
+      searchScope: false,
+      matchesPosition: false,
+      matchesCount: false,
+      currentMatch: false,
+      loop: false,
+      isSearching: false,
+      filters: false
+    };
+    let somethingChanged = false;
+    const oldEffectiveIsRegex = this.isRegex;
+    const oldEffectiveWholeWords = this.wholeWord;
+    const oldEffectiveMatchCase = this.matchCase;
+    const oldEffectivePreserveCase = this.preserveCase;
+    if (typeof newState.searchString !== "undefined") {
+      if (this._searchString !== newState.searchString) {
+        this._searchString = newState.searchString;
+        changeEvent.searchString = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.replaceString !== "undefined") {
+      if (this._replaceString !== newState.replaceString) {
+        this._replaceString = newState.replaceString;
+        changeEvent.replaceString = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.isRevealed !== "undefined") {
+      if (this._isRevealed !== newState.isRevealed) {
+        this._isRevealed = newState.isRevealed;
+        changeEvent.isRevealed = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.isReplaceRevealed !== "undefined") {
+      if (this._isReplaceRevealed !== newState.isReplaceRevealed) {
+        this._isReplaceRevealed = newState.isReplaceRevealed;
+        changeEvent.isReplaceRevealed = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.isRegex !== "undefined") {
+      this._isRegex = newState.isRegex;
+    }
+    if (typeof newState.wholeWord !== "undefined") {
+      this._wholeWord = newState.wholeWord;
+    }
+    if (typeof newState.matchCase !== "undefined") {
+      this._matchCase = newState.matchCase;
+    }
+    if (typeof newState.preserveCase !== "undefined") {
+      this._preserveCase = newState.preserveCase;
+    }
+    if (typeof newState.searchScope !== "undefined") {
+      if (!newState.searchScope?.every((newSearchScope) => {
+        return this._searchScope?.some((existingSearchScope) => {
+          return !Range.equalsRange(existingSearchScope, newSearchScope);
+        });
+      })) {
+        this._searchScope = newState.searchScope;
+        changeEvent.searchScope = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.loop !== "undefined") {
+      if (this._loop !== newState.loop) {
+        this._loop = newState.loop;
+        changeEvent.loop = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.isSearching !== "undefined") {
+      if (this._isSearching !== newState.isSearching) {
+        this._isSearching = newState.isSearching;
+        changeEvent.isSearching = true;
+        somethingChanged = true;
+      }
+    }
+    if (typeof newState.filters !== "undefined") {
+      if (this._filters) {
+        this._filters.update(newState.filters);
+      } else {
+        this._filters = newState.filters;
+      }
+      changeEvent.filters = true;
+      somethingChanged = true;
+    }
+    this._isRegexOverride = typeof newState.isRegexOverride !== "undefined" ? newState.isRegexOverride : 0;
+    this._wholeWordOverride = typeof newState.wholeWordOverride !== "undefined" ? newState.wholeWordOverride : 0;
+    this._matchCaseOverride = typeof newState.matchCaseOverride !== "undefined" ? newState.matchCaseOverride : 0;
+    this._preserveCaseOverride = typeof newState.preserveCaseOverride !== "undefined" ? newState.preserveCaseOverride : 0;
+    if (oldEffectiveIsRegex !== this.isRegex) {
+      somethingChanged = true;
+      changeEvent.isRegex = true;
+    }
+    if (oldEffectiveWholeWords !== this.wholeWord) {
+      somethingChanged = true;
+      changeEvent.wholeWord = true;
+    }
+    if (oldEffectiveMatchCase !== this.matchCase) {
+      somethingChanged = true;
+      changeEvent.matchCase = true;
+    }
+    if (oldEffectivePreserveCase !== this.preserveCase) {
+      somethingChanged = true;
+      changeEvent.preserveCase = true;
+    }
+    if (somethingChanged) {
+      this._onFindReplaceStateChange.fire(changeEvent);
+    }
+  }
+  canNavigateBack() {
+    return this.canNavigateInLoop() || this.matchesPosition !== 1;
+  }
+  canNavigateForward() {
+    return this.canNavigateInLoop() || this.matchesPosition < this.matchesCount;
+  }
+  canNavigateInLoop() {
+    return this._loop || this.matchesCount >= MATCHES_LIMIT;
+  }
+}
+export {
+  FindOptionOverride,
+  FindReplaceState
+};
+//# sourceMappingURL=findState.js.map

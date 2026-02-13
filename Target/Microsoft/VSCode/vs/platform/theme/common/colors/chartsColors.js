@@ -1,1 +1,24 @@
-import*as l from"../../../../nls.js";import{$2p as o,$7p as t}from"../colorUtils.js";import{$bq as r}from"./baseColors.js";import{$Vq as s,$2q as c,$Yq as e}from"./editorColors.js";import{$es as a}from"./minimapColors.js";const $=o("charts.foreground",r,l.localize(2404,null)),u=o("charts.lines",t(r,.5),l.localize(2405,null)),m=o("charts.red",s,l.localize(2406,null)),x=o("charts.blue",c,l.localize(2407,null)),z=o("charts.yellow",e,l.localize(2408,null)),D=o("charts.orange",a,l.localize(2409,null)),g=o("charts.green",{dark:"#89D185",light:"#388A34",hcDark:"#89D185",hcLight:"#374e06"},l.localize(2410,null)),f=o("charts.purple",{dark:"#B180D7",light:"#652D90",hcDark:"#B180D7",hcLight:"#652D90"},l.localize(2411,null));export{$ as $ps,u as $qs,m as $rs,x as $ss,z as $ts,D as $us,g as $vs,f as $ws};
+import * as nls from "../../../../nls.js";
+import { registerColor, transparent } from "../colorUtils.js";
+import { foreground } from "./baseColors.js";
+import { editorErrorForeground, editorInfoForeground, editorWarningForeground } from "./editorColors.js";
+import { minimapFindMatch } from "./minimapColors.js";
+const chartsForeground = registerColor("charts.foreground", foreground, nls.localize("chartsForeground", "The foreground color used in charts."));
+const chartsLines = registerColor("charts.lines", transparent(foreground, 0.5), nls.localize("chartsLines", "The color used for horizontal lines in charts."));
+const chartsRed = registerColor("charts.red", editorErrorForeground, nls.localize("chartsRed", "The red color used in chart visualizations."));
+const chartsBlue = registerColor("charts.blue", editorInfoForeground, nls.localize("chartsBlue", "The blue color used in chart visualizations."));
+const chartsYellow = registerColor("charts.yellow", editorWarningForeground, nls.localize("chartsYellow", "The yellow color used in chart visualizations."));
+const chartsOrange = registerColor("charts.orange", minimapFindMatch, nls.localize("chartsOrange", "The orange color used in chart visualizations."));
+const chartsGreen = registerColor("charts.green", { dark: "#89D185", light: "#388A34", hcDark: "#89D185", hcLight: "#374e06" }, nls.localize("chartsGreen", "The green color used in chart visualizations."));
+const chartsPurple = registerColor("charts.purple", { dark: "#B180D7", light: "#652D90", hcDark: "#B180D7", hcLight: "#652D90" }, nls.localize("chartsPurple", "The purple color used in chart visualizations."));
+export {
+  chartsBlue,
+  chartsForeground,
+  chartsGreen,
+  chartsLines,
+  chartsOrange,
+  chartsPurple,
+  chartsRed,
+  chartsYellow
+};
+//# sourceMappingURL=chartsColors.js.map

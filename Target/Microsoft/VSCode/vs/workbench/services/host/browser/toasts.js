@@ -1,1 +1,63 @@
-import{$u8 as d}from"../../../../base/browser/dom.js";import{$Jf as k}from"../../../../base/common/cancellation.js";import{$xf as c,Event as a}from"../../../../base/common/event.js";import{$Dd as f,$Cd as p}from"../../../../base/common/lifecycle.js";async function v(i,t,l){const e=await m(t.title,{detail:t.body,sticky:!t.silent});if(!e)return{supported:!1,clicked:!1};const o=new f;i.onDidCreateToast(e);const n=new k(l);return o.add(p(()=>{i.onDidDisposeToast(e),e.dispose(),n.dispose(!0)})),new Promise(r=>{const s=u=>{r(u),o.dispose()};n.token.onCancellationRequested(()=>s({supported:!0,clicked:!1})),a.once(e.onClick)(()=>s({supported:!0,clicked:!0})),a.once(e.onClose)(()=>s({supported:!0,clicked:!1})),a.once(e.onError)(()=>s({supported:!1,clicked:!1}))})}async function m(i,t){if(await Notification.requestPermission()!=="granted")return;const e=new f,o=new Notification(i,{body:t?.detail,requireInteraction:t?.sticky}),n=e.add(new c),r=e.add(new c),s=e.add(new c);return e.add(d(o,"click",()=>n.fire())),e.add(d(o,"close",()=>r.fire())),e.add(d(o,"error",()=>s.fire())),e.add(p(()=>o.close())),{onClick:n.event,onClose:r.event,onError:s.event,dispose:()=>e.dispose()}}export{v as $kOc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addDisposableListener } from "../../../../base/browser/dom.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+async function showBrowserToast(controller, options, token) {
+  const toast = await triggerBrowserToast(options.title, {
+    detail: options.body,
+    sticky: !options.silent
+  });
+  if (!toast) {
+    return { supported: false, clicked: false };
+  }
+  const disposables = new DisposableStore();
+  controller.onDidCreateToast(toast);
+  const cts = new CancellationTokenSource(token);
+  disposables.add(toDisposable(() => {
+    controller.onDidDisposeToast(toast);
+    toast.dispose();
+    cts.dispose(true);
+  }));
+  return new Promise((r) => {
+    const resolve = /* @__PURE__ */ __name((result) => {
+      r(result);
+      disposables.dispose();
+    }, "resolve");
+    cts.token.onCancellationRequested(() => resolve({ supported: true, clicked: false }));
+    Event.once(toast.onClick)(() => resolve({ supported: true, clicked: true }));
+    Event.once(toast.onClose)(() => resolve({ supported: true, clicked: false }));
+    Event.once(toast.onError)(() => resolve({ supported: false, clicked: false }));
+  });
+}
+__name(showBrowserToast, "showBrowserToast");
+async function triggerBrowserToast(message, options) {
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    return;
+  }
+  const disposables = new DisposableStore();
+  const notification = new Notification(message, {
+    body: options?.detail,
+    requireInteraction: options?.sticky
+  });
+  const onClick = disposables.add(new Emitter());
+  const onClose = disposables.add(new Emitter());
+  const onError = disposables.add(new Emitter());
+  disposables.add(addDisposableListener(notification, "click", () => onClick.fire()));
+  disposables.add(addDisposableListener(notification, "close", () => onClose.fire()));
+  disposables.add(addDisposableListener(notification, "error", () => onError.fire()));
+  disposables.add(toDisposable(() => notification.close()));
+  return {
+    onClick: onClick.event,
+    onClose: onClose.event,
+    onError: onError.event,
+    dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+  };
+}
+__name(triggerBrowserToast, "triggerBrowserToast");
+export {
+  showBrowserToast
+};
+//# sourceMappingURL=toasts.js.map

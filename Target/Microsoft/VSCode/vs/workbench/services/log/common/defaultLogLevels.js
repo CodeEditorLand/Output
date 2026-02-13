@@ -1,1 +1,184 @@
-import{$yo as L,$zo as m,$Po as u,$Oo as g,$Ro as c}from"../../../../platform/log/common/log.js";import{$Nj as p}from"../../../../platform/instantiation/common/instantiation.js";import{$HP as $}from"../../../services/environment/common/environmentService.js";import{$vk as w,$Ok as d}from"../../../../platform/files/common/files.js";import{$CKb as x}from"../../../services/configuration/common/jsonEditing.js";import{$6c as D,$cd as h}from"../../../../base/common/types.js";import{$Xn as b}from"../../../../platform/environment/common/environmentService.js";import{$WC as j}from"../../../../platform/instantiation/common/extensions.js";import{$Bv as y}from"../../../../base/common/json.js";import{$Ed as C}from"../../../../base/common/lifecycle.js";import{$xf as R}from"../../../../base/common/event.js";import{$Gp as _}from"../../../../base/common/objects.js";var v=function(l,e,t,s){var o=arguments.length,i=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(l,e,t,s);else for(var r=l.length-1;r>=0;r--)(n=l[r])&&(i=(o<3?n(i):o>3?n(e,t,i):n(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},f=function(l,e){return function(t,s){e(t,s,l)}};const q=p("IDefaultLogLevelsService");let a=class extends C{constructor(e,t,s,o,i){super(),this.c=e,this.f=t,this.g=s,this.h=o,this.j=i,this.a=this.D(new R),this.onDidChangeDefaultLogLevels=this.a.event,this.b={default:this.u(),extensions:this.w()},this.D(this.f.onDidFilesChange(n=>{n.contains(this.c.argvResource)&&this.m()}))}async m(){const e=await this.s();this.n(e)}get defaultLogLevels(){return this.b}n(e){const t={default:e?.default??this.u(),extensions:e?.extensions??this.w()};_(this.b,t)||(this.b=t,this.a.fire(this.b))}getDefaultLogLevel(e){return e?(e=e.toLowerCase(),this.q(this.b,e)):this.q(this.b)}async setDefaultLogLevel(e,t){const s=await this.s()??{};if(t){t=t.toLowerCase();const o=this.q(s,t);s.extensions=s.extensions??[];const i=s.extensions.find(([r])=>r===t);i?i[1]=e:s.extensions.push([t,e]),await this.r(s);const n=[...this.j.getRegisteredLoggers()].filter(r=>r.extensionId&&r.extensionId.toLowerCase()===t);for(const{resource:r}of n)this.j.getLogLevel(r)===o&&this.j.setLogLevel(r,e)}else{const o=this.q(s);s.default=e,await this.r(s),this.j.getLogLevel()===o&&this.j.setLogLevel(e)}this.n(s)}q(e,t){if(t){const s=e.extensions?.find(([o])=>o===t);if(s)return s[1]}return e.default??g(this.c)}async r(e){const t=[];h(e.default)||t.push(u(e.default));for(const[s,o]of e.extensions??[])t.push(`${s}=${u(o)}`);await this.g.write(this.c.argvResource,[{path:["log-level"],value:t.length?t:void 0}],!0)}async s(){const e={extensions:[]},t=await this.t();for(const s of t){const o=b.exec(s);if(o&&o[1]&&o[2]){const i=c(o[2]);h(i)||e.extensions?.push([o[1].toLowerCase(),i])}else{const i=c(s);h(i)||(e.default=i)}}return!h(e.default)||e.extensions?.length?e:void 0}async t(){try{const e=await this.f.readFile(this.c.argvResource),t=y(e.value.toString());return D(t["log-level"])?[t["log-level"]]:Array.isArray(t["log-level"])?t["log-level"]:[]}catch(e){d(e)!==1&&this.h.error(e)}return[]}u(){return g(this.c)}w(){const e=[];for(const[t,s]of this.c.extensionLogLevel??[]){const o=c(s);h(o)||e.push([t,o])}return e}};a=v([f(0,$),f(1,w),f(2,x),f(3,L),f(4,m)],a);j(q,a,1);export{q as $Ccc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ILogService, ILoggerService, LogLevelToString, getLogLevel, parseLogLevel } from "../../../../platform/log/common/log.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IFileService, toFileOperationResult } from "../../../../platform/files/common/files.js";
+import { IJSONEditingService } from "../../../services/configuration/common/jsonEditing.js";
+import { isString, isUndefined } from "../../../../base/common/types.js";
+import { EXTENSION_IDENTIFIER_WITH_LOG_REGEX } from "../../../../platform/environment/common/environmentService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { parse } from "../../../../base/common/json.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { equals } from "../../../../base/common/objects.js";
+const IDefaultLogLevelsService = createDecorator("IDefaultLogLevelsService");
+let DefaultLogLevelsService = class DefaultLogLevelsService2 extends Disposable {
+  static {
+    __name(this, "DefaultLogLevelsService");
+  }
+  constructor(environmentService, fileService, jsonEditingService, logService, loggerService) {
+    super();
+    this.environmentService = environmentService;
+    this.fileService = fileService;
+    this.jsonEditingService = jsonEditingService;
+    this.logService = logService;
+    this.loggerService = loggerService;
+    this._onDidChangeDefaultLogLevels = this._register(new Emitter());
+    this.onDidChangeDefaultLogLevels = this._onDidChangeDefaultLogLevels.event;
+    this._defaultLogLevels = {
+      default: this._getDefaultLogLevelFromEnv(),
+      extensions: this._getExtensionsDefaultLogLevelsFromEnv()
+    };
+    this._register(this.fileService.onDidFilesChange((e) => {
+      if (e.contains(this.environmentService.argvResource)) {
+        this.onDidChangeArgv();
+      }
+    }));
+  }
+  async onDidChangeArgv() {
+    const defaultLogLevelsFromArgv = await this._parseLogLevelsFromArgv();
+    this.updateDefaultLogLevels(defaultLogLevelsFromArgv);
+  }
+  get defaultLogLevels() {
+    return this._defaultLogLevels;
+  }
+  updateDefaultLogLevels(defaultLogLevelsFromArgv) {
+    const defaultLogLevels = {
+      default: defaultLogLevelsFromArgv?.default ?? this._getDefaultLogLevelFromEnv(),
+      extensions: defaultLogLevelsFromArgv?.extensions ?? this._getExtensionsDefaultLogLevelsFromEnv()
+    };
+    if (!equals(this._defaultLogLevels, defaultLogLevels)) {
+      this._defaultLogLevels = defaultLogLevels;
+      this._onDidChangeDefaultLogLevels.fire(this._defaultLogLevels);
+    }
+  }
+  getDefaultLogLevel(extensionId) {
+    if (extensionId) {
+      extensionId = extensionId.toLowerCase();
+      return this._getDefaultLogLevel(this._defaultLogLevels, extensionId);
+    } else {
+      return this._getDefaultLogLevel(this._defaultLogLevels);
+    }
+  }
+  async setDefaultLogLevel(defaultLogLevel, extensionId) {
+    const defaultLogLevelsFromArgv = await this._parseLogLevelsFromArgv() ?? {};
+    if (extensionId) {
+      extensionId = extensionId.toLowerCase();
+      const currentDefaultLogLevel = this._getDefaultLogLevel(defaultLogLevelsFromArgv, extensionId);
+      defaultLogLevelsFromArgv.extensions = defaultLogLevelsFromArgv.extensions ?? [];
+      const extension = defaultLogLevelsFromArgv.extensions.find(([extension2]) => extension2 === extensionId);
+      if (extension) {
+        extension[1] = defaultLogLevel;
+      } else {
+        defaultLogLevelsFromArgv.extensions.push([extensionId, defaultLogLevel]);
+      }
+      await this._writeLogLevelsToArgv(defaultLogLevelsFromArgv);
+      const extensionLoggers = [...this.loggerService.getRegisteredLoggers()].filter((logger) => logger.extensionId && logger.extensionId.toLowerCase() === extensionId);
+      for (const { resource } of extensionLoggers) {
+        if (this.loggerService.getLogLevel(resource) === currentDefaultLogLevel) {
+          this.loggerService.setLogLevel(resource, defaultLogLevel);
+        }
+      }
+    } else {
+      const currentLogLevel = this._getDefaultLogLevel(defaultLogLevelsFromArgv);
+      defaultLogLevelsFromArgv.default = defaultLogLevel;
+      await this._writeLogLevelsToArgv(defaultLogLevelsFromArgv);
+      if (this.loggerService.getLogLevel() === currentLogLevel) {
+        this.loggerService.setLogLevel(defaultLogLevel);
+      }
+    }
+    this.updateDefaultLogLevels(defaultLogLevelsFromArgv);
+  }
+  _getDefaultLogLevel(argvLogLevels, extension) {
+    if (extension) {
+      const extensionLogLevel = argvLogLevels.extensions?.find(([extensionId]) => extensionId === extension);
+      if (extensionLogLevel) {
+        return extensionLogLevel[1];
+      }
+    }
+    return argvLogLevels.default ?? getLogLevel(this.environmentService);
+  }
+  async _writeLogLevelsToArgv(logLevels) {
+    const logLevelsValue = [];
+    if (!isUndefined(logLevels.default)) {
+      logLevelsValue.push(LogLevelToString(logLevels.default));
+    }
+    for (const [extension, logLevel] of logLevels.extensions ?? []) {
+      logLevelsValue.push(`${extension}=${LogLevelToString(logLevel)}`);
+    }
+    await this.jsonEditingService.write(this.environmentService.argvResource, [{ path: ["log-level"], value: logLevelsValue.length ? logLevelsValue : void 0 }], true);
+  }
+  async _parseLogLevelsFromArgv() {
+    const result = { extensions: [] };
+    const logLevels = await this._readLogLevelsFromArgv();
+    for (const extensionLogLevel of logLevels) {
+      const matches = EXTENSION_IDENTIFIER_WITH_LOG_REGEX.exec(extensionLogLevel);
+      if (matches && matches[1] && matches[2]) {
+        const logLevel = parseLogLevel(matches[2]);
+        if (!isUndefined(logLevel)) {
+          result.extensions?.push([matches[1].toLowerCase(), logLevel]);
+        }
+      } else {
+        const logLevel = parseLogLevel(extensionLogLevel);
+        if (!isUndefined(logLevel)) {
+          result.default = logLevel;
+        }
+      }
+    }
+    return !isUndefined(result.default) || result.extensions?.length ? result : void 0;
+  }
+  async _readLogLevelsFromArgv() {
+    try {
+      const content = await this.fileService.readFile(this.environmentService.argvResource);
+      const argv = parse(content.value.toString());
+      return isString(argv["log-level"]) ? [argv["log-level"]] : Array.isArray(argv["log-level"]) ? argv["log-level"] : [];
+    } catch (error) {
+      if (toFileOperationResult(error) !== 1) {
+        this.logService.error(error);
+      }
+    }
+    return [];
+  }
+  _getDefaultLogLevelFromEnv() {
+    return getLogLevel(this.environmentService);
+  }
+  _getExtensionsDefaultLogLevelsFromEnv() {
+    const result = [];
+    for (const [extension, logLevelValue] of this.environmentService.extensionLogLevel ?? []) {
+      const logLevel = parseLogLevel(logLevelValue);
+      if (!isUndefined(logLevel)) {
+        result.push([extension, logLevel]);
+      }
+    }
+    return result;
+  }
+};
+DefaultLogLevelsService = __decorate([
+  __param(0, IWorkbenchEnvironmentService),
+  __param(1, IFileService),
+  __param(2, IJSONEditingService),
+  __param(3, ILogService),
+  __param(4, ILoggerService)
+], DefaultLogLevelsService);
+registerSingleton(
+  IDefaultLogLevelsService,
+  DefaultLogLevelsService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IDefaultLogLevelsService
+};
+//# sourceMappingURL=defaultLogLevels.js.map

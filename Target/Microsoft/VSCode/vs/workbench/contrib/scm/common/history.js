@@ -1,1 +1,7 @@
-const o="scm-graph-incoming-changes",c="scm-graph-outgoing-changes";export{o as $oR,c as $pR};
+const SCMIncomingHistoryItemId = "scm-graph-incoming-changes";
+const SCMOutgoingHistoryItemId = "scm-graph-outgoing-changes";
+export {
+  SCMIncomingHistoryItemId,
+  SCMOutgoingHistoryItemId
+};
+//# sourceMappingURL=history.js.map

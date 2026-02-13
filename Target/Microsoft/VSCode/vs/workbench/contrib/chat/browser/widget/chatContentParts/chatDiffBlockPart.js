@@ -1,4 +1,136 @@
-import{CancellationToken as D}from"../../../../../../base/common/cancellation.js";import{$Kn as x}from"../../../../../../base/common/hash.js";import{$Ed as R,$Fd as W}from"../../../../../../base/common/lifecycle.js";import{Schemas as p}from"../../../../../../base/common/network.js";import{URI as u}from"../../../../../../base/common/uri.js";import{$ln as m}from"../../../../../../base/common/uuid.js";import{$ZF as _}from"../../../../../../editor/common/languages/language.js";import{$9H as v}from"../../../../../../editor/common/services/model.js";import{$5H as C}from"../../../../../../editor/common/services/resolverService.js";import{$8H as M}from"../../../../../common/editor/editorModel.js";var j=function(r,t,i,s){var e=arguments.length,o=e<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,i,s);else for(var c=r.length-1;c>=0;c--)(n=r[c])&&(o=(e<3?n(o):e>3?n(t,i,o):n(t,i))||o);return e>3&&o&&Object.defineProperty(t,i,o),o},a=function(r,t){return function(i,s){t(i,s,r)}};function z(r){const t=r.split(`
-`),i=[],s=[];for(const e of t)if(e.startsWith("- "))i.push(e.substring(2));else if(e.startsWith("-"))i.push(e.substring(1));else if(e.startsWith("+ "))s.push(e.substring(2));else if(e.startsWith("+"))s.push(e.substring(1));else if(e.startsWith(" ")){const o=e.substring(1);i.push(o),s.push(o)}else!e.startsWith("@@")&&!e.startsWith("---")&&!e.startsWith("+++")&&!e.startsWith("diff ")&&(i.push(e),s.push(e));return{before:i.join(`
-`),after:s.join(`
-`)}}class y extends M{constructor(t,i){super(),this.a=t,this.b=i,this.original=this.a.object.textEditorModel,this.modified=this.b.object.textEditorModel}dispose(){super.dispose(),this.a.dispose(),this.b.dispose()}}let b=class extends R{constructor(t,i,s,e,o,n){super(),this.c=e,this.f=o,this.g=n,this.b=this.D(new W),this.a=this.D(i.get());const c=u.from({scheme:p.vscodeChatCodeBlock,path:`/chat-diff-original-${t.codeBlockIndex}-${m()}`}),h=u.from({scheme:p.vscodeChatCodeBlock,path:`/chat-diff-modified-${t.codeBlockIndex}-${m()}`}),l=this.g.createById(t.languageId);this.D(this.c.createModel(t.beforeContent,l,c,!1)),this.D(this.c.createModel(t.afterContent,l,h,!1));const g=Promise.all([this.f.createModelReference(c),this.f.createModelReference(h)]).then(([f,d])=>new y(f,d)),$={element:t.element,isReadOnly:t.isReadOnly,horizontalPadding:t.horizontalPadding,edit:{uri:t.codeBlockResource||h,edits:[],kind:"textEditGroup",done:!0},diffData:g.then(async f=>(this.b.value=f,{original:f.original,modified:f.modified,originalSha1:await x(f.original.getValue())}))};this.a.object.render($,s,D.None),this.element=this.a.object.element}layout(t){this.a.object.layout(t)}reset(){this.b.clear()}};b=j([a(3,v),a(4,C),a(5,_)],b);export{z as $T1b,b as $U1b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { hashAsync } from "../../../../../../base/common/hash.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { generateUuid } from "../../../../../../base/common/uuid.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
+import { EditorModel } from "../../../../../common/editor/editorModel.js";
+function parseUnifiedDiff(diffText) {
+  const lines = diffText.split("\n");
+  const beforeLines = [];
+  const afterLines = [];
+  for (const line of lines) {
+    if (line.startsWith("- ")) {
+      beforeLines.push(line.substring(2));
+    } else if (line.startsWith("-")) {
+      beforeLines.push(line.substring(1));
+    } else if (line.startsWith("+ ")) {
+      afterLines.push(line.substring(2));
+    } else if (line.startsWith("+")) {
+      afterLines.push(line.substring(1));
+    } else if (line.startsWith(" ")) {
+      const content = line.substring(1);
+      beforeLines.push(content);
+      afterLines.push(content);
+    } else if (!line.startsWith("@@") && !line.startsWith("---") && !line.startsWith("+++") && !line.startsWith("diff ")) {
+      beforeLines.push(line);
+      afterLines.push(line);
+    }
+  }
+  return {
+    before: beforeLines.join("\n"),
+    after: afterLines.join("\n")
+  };
+}
+__name(parseUnifiedDiff, "parseUnifiedDiff");
+class SimpleDiffEditorModel extends EditorModel {
+  static {
+    __name(this, "SimpleDiffEditorModel");
+  }
+  constructor(_original, _modified) {
+    super();
+    this._original = _original;
+    this._modified = _modified;
+    this.original = this._original.object.textEditorModel;
+    this.modified = this._modified.object.textEditorModel;
+  }
+  dispose() {
+    super.dispose();
+    this._original.dispose();
+    this._modified.dispose();
+  }
+}
+let MarkdownDiffBlockPart = class MarkdownDiffBlockPart2 extends Disposable {
+  static {
+    __name(this, "MarkdownDiffBlockPart");
+  }
+  constructor(data, diffEditorPool, currentWidth, modelService, textModelService, languageService) {
+    super();
+    this.modelService = modelService;
+    this.textModelService = textModelService;
+    this.languageService = languageService;
+    this.modelRef = this._register(new MutableDisposable());
+    this.comparePart = this._register(diffEditorPool.get());
+    const originalUri = URI.from({
+      scheme: Schemas.vscodeChatCodeBlock,
+      path: `/chat-diff-original-${data.codeBlockIndex}-${generateUuid()}`
+    });
+    const modifiedUri = URI.from({
+      scheme: Schemas.vscodeChatCodeBlock,
+      path: `/chat-diff-modified-${data.codeBlockIndex}-${generateUuid()}`
+    });
+    const languageSelection = this.languageService.createById(data.languageId);
+    this._register(this.modelService.createModel(data.beforeContent, languageSelection, originalUri, false));
+    this._register(this.modelService.createModel(data.afterContent, languageSelection, modifiedUri, false));
+    const modelsPromise = Promise.all([
+      this.textModelService.createModelReference(originalUri),
+      this.textModelService.createModelReference(modifiedUri)
+    ]).then(([originalRef, modifiedRef]) => {
+      return new SimpleDiffEditorModel(originalRef, modifiedRef);
+    });
+    const compareData = {
+      element: data.element,
+      isReadOnly: data.isReadOnly,
+      horizontalPadding: data.horizontalPadding,
+      edit: {
+        uri: data.codeBlockResource || modifiedUri,
+        edits: [],
+        kind: "textEditGroup",
+        done: true
+      },
+      diffData: modelsPromise.then(async (model) => {
+        this.modelRef.value = model;
+        const diffData = {
+          original: model.original,
+          modified: model.modified,
+          originalSha1: await hashAsync(model.original.getValue())
+        };
+        return diffData;
+      })
+    };
+    this.comparePart.object.render(compareData, currentWidth, CancellationToken.None);
+    this.element = this.comparePart.object.element;
+  }
+  layout(width) {
+    this.comparePart.object.layout(width);
+  }
+  reset() {
+    this.modelRef.clear();
+  }
+};
+MarkdownDiffBlockPart = __decorate([
+  __param(3, IModelService),
+  __param(4, ITextModelService),
+  __param(5, ILanguageService)
+], MarkdownDiffBlockPart);
+export {
+  MarkdownDiffBlockPart,
+  parseUnifiedDiff
+};
+//# sourceMappingURL=chatDiffBlockPart.js.map

@@ -1,1 +1,136 @@
-import{$0i as f}from"../../../../base/common/buffer.js";import{localize as y}from"../../../../nls.js";import{$Sk as $,$vk as b}from"../../../../platform/files/common/files.js";import{$Mj as g}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as C}from"../../../../platform/log/common/log.js";import{$$o as R}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$fTb as d}from"../../../browser/parts/editor/editorCommands.js";import{TreeItemCollapsibleState as m}from"../../../common/views.js";import{$LQ as S}from"../common/userDataProfile.js";var l=function(r,e,t,n){var c=arguments.length,i=c<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,e,t,n);else for(var p=r.length-1;p>=0;p--)(s=r[p])&&(i=(c<3?s(i):c>3?s(e,t,i):s(e,t))||i);return c>3&&i&&Object.defineProperty(e,t,i),i},o=function(r,e){return function(t,n){e(t,n,r)}};let u=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n}async initialize(e){const t=JSON.parse(e);if(!t.mcp){this.c.info("Initializing Profile: No MCP servers to apply...");return}await this.b.writeFile(this.a.currentProfile.mcpResource,f.fromString(t.mcp))}};u=l([o(0,S),o(1,b),o(2,C)],u);let a=class{constructor(e,t){this.a=e,this.b=t}async getContent(e){const t=await this.getMcpResourceContent(e);return JSON.stringify(t)}async getMcpResourceContent(e){return{mcp:await this.c(e)}}async apply(e,t){const n=JSON.parse(e);if(!n.mcp){this.b.info(`Importing Profile (${t.name}): No MCP servers to apply...`);return}await this.a.writeFile(t.mcpResource,f.fromString(n.mcp))}async c(e){try{return(await this.a.readFile(e.mcpResource)).value.toString()}catch(t){if(t instanceof $&&t.fileOperationResult===1)return null;throw t}}};a=l([o(0,b),o(1,C)],a);let h=class{constructor(e,t,n){this.a=e,this.b=t,this.c=n,this.type="mcp",this.handle="mcp",this.label={label:y(16734,null)},this.collapsibleState=m.Expanded}async getChildren(){return[{handle:this.a.mcpResource.toString(),resourceUri:this.a.mcpResource,collapsibleState:m.None,parent:this,accessibilityInformation:{label:this.b.extUri.basename(this.a.mcpResource)},command:{id:d,title:"",arguments:[this.a.mcpResource,void 0,void 0]}}]}async hasContent(){return(await this.c.createInstance(a).getMcpResourceContent(this.a)).mcp!==null}async getContent(){return this.c.createInstance(a).getContent(this.a)}isFromDefaultProfile(){return!this.a.isDefault&&!!this.a.useDefaultFlags?.mcp}};h=l([o(1,R),o(2,g)],h);export{u as $oJc,a as $pJc,h as $qJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { localize } from "../../../../nls.js";
+import { FileOperationError, IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
+import { TreeItemCollapsibleState } from "../../../common/views.js";
+import { IUserDataProfileService } from "../common/userDataProfile.js";
+let McpResourceInitializer = class McpResourceInitializer2 {
+  static {
+    __name(this, "McpResourceInitializer");
+  }
+  constructor(userDataProfileService, fileService, logService) {
+    this.userDataProfileService = userDataProfileService;
+    this.fileService = fileService;
+    this.logService = logService;
+  }
+  async initialize(content) {
+    const mcpContent = JSON.parse(content);
+    if (!mcpContent.mcp) {
+      this.logService.info(`Initializing Profile: No MCP servers to apply...`);
+      return;
+    }
+    await this.fileService.writeFile(this.userDataProfileService.currentProfile.mcpResource, VSBuffer.fromString(mcpContent.mcp));
+  }
+};
+McpResourceInitializer = __decorate([
+  __param(0, IUserDataProfileService),
+  __param(1, IFileService),
+  __param(2, ILogService)
+], McpResourceInitializer);
+let McpProfileResource = class McpProfileResource2 {
+  static {
+    __name(this, "McpProfileResource");
+  }
+  constructor(fileService, logService) {
+    this.fileService = fileService;
+    this.logService = logService;
+  }
+  async getContent(profile) {
+    const mcpContent = await this.getMcpResourceContent(profile);
+    return JSON.stringify(mcpContent);
+  }
+  async getMcpResourceContent(profile) {
+    const mcpContent = await this.getMcpContent(profile);
+    return { mcp: mcpContent };
+  }
+  async apply(content, profile) {
+    const mcpContent = JSON.parse(content);
+    if (!mcpContent.mcp) {
+      this.logService.info(`Importing Profile (${profile.name}): No MCP servers to apply...`);
+      return;
+    }
+    await this.fileService.writeFile(profile.mcpResource, VSBuffer.fromString(mcpContent.mcp));
+  }
+  async getMcpContent(profile) {
+    try {
+      const content = await this.fileService.readFile(profile.mcpResource);
+      return content.value.toString();
+    } catch (error) {
+      if (error instanceof FileOperationError && error.fileOperationResult === 1) {
+        return null;
+      } else {
+        throw error;
+      }
+    }
+  }
+};
+McpProfileResource = __decorate([
+  __param(0, IFileService),
+  __param(1, ILogService)
+], McpProfileResource);
+let McpResourceTreeItem = class McpResourceTreeItem2 {
+  static {
+    __name(this, "McpResourceTreeItem");
+  }
+  constructor(profile, uriIdentityService, instantiationService) {
+    this.profile = profile;
+    this.uriIdentityService = uriIdentityService;
+    this.instantiationService = instantiationService;
+    this.type = "mcp";
+    this.handle = "mcp";
+    this.label = { label: localize("mcp", "MCP Servers") };
+    this.collapsibleState = TreeItemCollapsibleState.Expanded;
+  }
+  async getChildren() {
+    return [{
+      handle: this.profile.mcpResource.toString(),
+      resourceUri: this.profile.mcpResource,
+      collapsibleState: TreeItemCollapsibleState.None,
+      parent: this,
+      accessibilityInformation: {
+        label: this.uriIdentityService.extUri.basename(this.profile.mcpResource)
+      },
+      command: {
+        id: API_OPEN_EDITOR_COMMAND_ID,
+        title: "",
+        arguments: [this.profile.mcpResource, void 0, void 0]
+      }
+    }];
+  }
+  async hasContent() {
+    const mcpContent = await this.instantiationService.createInstance(McpProfileResource).getMcpResourceContent(this.profile);
+    return mcpContent.mcp !== null;
+  }
+  async getContent() {
+    return this.instantiationService.createInstance(McpProfileResource).getContent(this.profile);
+  }
+  isFromDefaultProfile() {
+    return !this.profile.isDefault && !!this.profile.useDefaultFlags?.mcp;
+  }
+};
+McpResourceTreeItem = __decorate([
+  __param(1, IUriIdentityService),
+  __param(2, IInstantiationService)
+], McpResourceTreeItem);
+export {
+  McpProfileResource,
+  McpResourceInitializer,
+  McpResourceTreeItem
+};
+//# sourceMappingURL=mcpProfileResource.js.map

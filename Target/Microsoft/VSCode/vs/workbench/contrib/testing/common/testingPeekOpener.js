@@ -1,1 +1,6 @@
-import{$Nj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("testingPeekOpener");export{o as $Zuc};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITestingPeekOpener = createDecorator("testingPeekOpener");
+export {
+  ITestingPeekOpener
+};
+//# sourceMappingURL=testingPeekOpener.js.map

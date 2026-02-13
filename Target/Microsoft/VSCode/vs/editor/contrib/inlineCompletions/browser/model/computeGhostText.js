@@ -1,1 +1,152 @@
-import{$fE as N}from"../../../../../base/common/diff/diff.js";import{$cg as w}from"../../../../../base/common/strings.js";import{$_D as T}from"../../../../common/core/range.js";import{$GE as P}from"../../../../common/core/edits/textEdit.js";import{$$nb as A,$_nb as I}from"./ghostText.js";import{$dob as M}from"./singleTextEditHelpers.js";function G(g,n,s,d,u=0){let t=M(g,n);if(t.range.endLineNumber!==t.range.startLineNumber)return;const l=n.getLineContent(t.range.startLineNumber),x=w(l).length;if(t.range.startColumn-1<=x){const e=w(t.text).length,i=l.substring(t.range.startColumn-1,x),[m,h]=[t.range.getStartPosition(),t.range.getEndPosition()],C=m.column+i.length<=h.column?m.delta(0,i.length):h,p=T.fromPositions(C,h),E=t.text.startsWith(i)?t.text.substring(i.length):t.text.substring(e);t=new P(p,E)}const r=n.getValueInRange(t.range),o=v(r,t.text);if(!o)return;const c=t.range.startLineNumber,f=new Array;if(s==="prefix"){const e=o.filter(i=>i.originalLength===0);if(e.length>1||e.length===1&&e[0].originalStart!==r.length)return}const a=t.text.length-u;for(const e of o){const i=t.range.startColumn+e.originalStart+e.originalLength;if(s==="subwordSmart"&&d&&d.lineNumber===t.range.startLineNumber&&i<d.column||e.originalLength>0)return;if(e.modifiedLength===0)continue;const m=e.modifiedStart+e.modifiedLength,h=Math.max(e.modifiedStart,Math.min(m,a)),C=t.text.substring(e.modifiedStart,h),p=t.text.substring(h,Math.max(e.modifiedStart,m));C.length>0&&f.push(new I(i,C,!1)),p.length>0&&f.push(new I(i,p,!0))}return new A(c,f)}let b;function v(g,n){if(b?.originalValue===g&&b?.newValue===n)return b?.changes;{let s=$(g,n,!0);if(s){const d=S(s);if(d>0){const u=$(g,n,!1);u&&S(u)<d&&(s=u)}}return b={originalValue:g,newValue:n,changes:s},s}}function S(g){let n=0;for(const s of g)n+=s.originalLength;return n}function $(g,n,s){if(g.length>5e3||n.length>5e3)return;function d(r){let o=0;for(let c=0,f=r.length;c<f;c++){const a=r.charCodeAt(c);a>o&&(o=a)}return o}const u=Math.max(d(g),d(n));function t(r){if(r<0)throw new Error("unexpected");return u+r+1}function l(r){let o=0,c=0;const f=new Int32Array(r.length);for(let a=0,e=r.length;a<e;a++)if(s&&r[a]==="("){const i=c*100+o;f[a]=t(2*i),o++}else if(s&&r[a]===")"){o=Math.max(o-1,0);const i=c*100+o;f[a]=t(2*i+1),o===0&&c++}else f[a]=r.charCodeAt(a);return f}const x=l(g),L=l(n);return new N({getElements:()=>x},{getElements:()=>L}).ComputeDiff(!1).changes}export{G as $fob,$ as $gob};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { LcsDiff } from "../../../../../base/common/diff/diff.js";
+import { getLeadingWhitespace } from "../../../../../base/common/strings.js";
+import { Range } from "../../../../common/core/range.js";
+import { TextReplacement } from "../../../../common/core/edits/textEdit.js";
+import { GhostText, GhostTextPart } from "./ghostText.js";
+import { singleTextRemoveCommonPrefix } from "./singleTextEditHelpers.js";
+function computeGhostText(edit, model, mode, cursorPosition, previewSuffixLength = 0) {
+  let e = singleTextRemoveCommonPrefix(edit, model);
+  if (e.range.endLineNumber !== e.range.startLineNumber) {
+    return void 0;
+  }
+  const sourceLine = model.getLineContent(e.range.startLineNumber);
+  const sourceIndentationLength = getLeadingWhitespace(sourceLine).length;
+  const suggestionTouchesIndentation = e.range.startColumn - 1 <= sourceIndentationLength;
+  if (suggestionTouchesIndentation) {
+    const suggestionAddedIndentationLength = getLeadingWhitespace(e.text).length;
+    const replacedIndentation = sourceLine.substring(e.range.startColumn - 1, sourceIndentationLength);
+    const [startPosition, endPosition] = [e.range.getStartPosition(), e.range.getEndPosition()];
+    const newStartPosition = startPosition.column + replacedIndentation.length <= endPosition.column ? startPosition.delta(0, replacedIndentation.length) : endPosition;
+    const rangeThatDoesNotReplaceIndentation = Range.fromPositions(newStartPosition, endPosition);
+    const suggestionWithoutIndentationChange = e.text.startsWith(replacedIndentation) ? e.text.substring(replacedIndentation.length) : e.text.substring(suggestionAddedIndentationLength);
+    e = new TextReplacement(rangeThatDoesNotReplaceIndentation, suggestionWithoutIndentationChange);
+  }
+  const valueToBeReplaced = model.getValueInRange(e.range);
+  const changes = cachingDiff(valueToBeReplaced, e.text);
+  if (!changes) {
+    return void 0;
+  }
+  const lineNumber = e.range.startLineNumber;
+  const parts = new Array();
+  if (mode === "prefix") {
+    const filteredChanges = changes.filter((c) => c.originalLength === 0);
+    if (filteredChanges.length > 1 || filteredChanges.length === 1 && filteredChanges[0].originalStart !== valueToBeReplaced.length) {
+      return void 0;
+    }
+  }
+  const previewStartInCompletionText = e.text.length - previewSuffixLength;
+  for (const c of changes) {
+    const insertColumn = e.range.startColumn + c.originalStart + c.originalLength;
+    if (mode === "subwordSmart" && cursorPosition && cursorPosition.lineNumber === e.range.startLineNumber && insertColumn < cursorPosition.column) {
+      return void 0;
+    }
+    if (c.originalLength > 0) {
+      return void 0;
+    }
+    if (c.modifiedLength === 0) {
+      continue;
+    }
+    const modifiedEnd = c.modifiedStart + c.modifiedLength;
+    const nonPreviewTextEnd = Math.max(c.modifiedStart, Math.min(modifiedEnd, previewStartInCompletionText));
+    const nonPreviewText = e.text.substring(c.modifiedStart, nonPreviewTextEnd);
+    const italicText = e.text.substring(nonPreviewTextEnd, Math.max(c.modifiedStart, modifiedEnd));
+    if (nonPreviewText.length > 0) {
+      parts.push(new GhostTextPart(insertColumn, nonPreviewText, false));
+    }
+    if (italicText.length > 0) {
+      parts.push(new GhostTextPart(insertColumn, italicText, true));
+    }
+  }
+  return new GhostText(lineNumber, parts);
+}
+__name(computeGhostText, "computeGhostText");
+let lastRequest = void 0;
+function cachingDiff(originalValue, newValue) {
+  if (lastRequest?.originalValue === originalValue && lastRequest?.newValue === newValue) {
+    return lastRequest?.changes;
+  } else {
+    let changes = smartDiff(originalValue, newValue, true);
+    if (changes) {
+      const deletedChars = deletedCharacters(changes);
+      if (deletedChars > 0) {
+        const newChanges = smartDiff(originalValue, newValue, false);
+        if (newChanges && deletedCharacters(newChanges) < deletedChars) {
+          changes = newChanges;
+        }
+      }
+    }
+    lastRequest = {
+      originalValue,
+      newValue,
+      changes
+    };
+    return changes;
+  }
+}
+__name(cachingDiff, "cachingDiff");
+function deletedCharacters(changes) {
+  let sum = 0;
+  for (const c of changes) {
+    sum += c.originalLength;
+  }
+  return sum;
+}
+__name(deletedCharacters, "deletedCharacters");
+function smartDiff(originalValue, newValue, smartBracketMatching) {
+  if (originalValue.length > 5e3 || newValue.length > 5e3) {
+    return void 0;
+  }
+  function getMaxCharCode(val) {
+    let maxCharCode2 = 0;
+    for (let i = 0, len = val.length; i < len; i++) {
+      const charCode = val.charCodeAt(i);
+      if (charCode > maxCharCode2) {
+        maxCharCode2 = charCode;
+      }
+    }
+    return maxCharCode2;
+  }
+  __name(getMaxCharCode, "getMaxCharCode");
+  const maxCharCode = Math.max(getMaxCharCode(originalValue), getMaxCharCode(newValue));
+  function getUniqueCharCode(id) {
+    if (id < 0) {
+      throw new Error("unexpected");
+    }
+    return maxCharCode + id + 1;
+  }
+  __name(getUniqueCharCode, "getUniqueCharCode");
+  function getElements(source) {
+    let level = 0;
+    let group = 0;
+    const characters = new Int32Array(source.length);
+    for (let i = 0, len = source.length; i < len; i++) {
+      if (smartBracketMatching && source[i] === "(") {
+        const id = group * 100 + level;
+        characters[i] = getUniqueCharCode(2 * id);
+        level++;
+      } else if (smartBracketMatching && source[i] === ")") {
+        level = Math.max(level - 1, 0);
+        const id = group * 100 + level;
+        characters[i] = getUniqueCharCode(2 * id + 1);
+        if (level === 0) {
+          group++;
+        }
+      } else {
+        characters[i] = source.charCodeAt(i);
+      }
+    }
+    return characters;
+  }
+  __name(getElements, "getElements");
+  const elements1 = getElements(originalValue);
+  const elements2 = getElements(newValue);
+  return new LcsDiff({ getElements: /* @__PURE__ */ __name(() => elements1, "getElements") }, { getElements: /* @__PURE__ */ __name(() => elements2, "getElements") }).ComputeDiff(false).changes;
+}
+__name(smartDiff, "smartDiff");
+export {
+  computeGhostText,
+  smartDiff
+};
+//# sourceMappingURL=computeGhostText.js.map

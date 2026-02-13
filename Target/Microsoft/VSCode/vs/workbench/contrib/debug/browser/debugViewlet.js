@@ -1,1 +1,268 @@
-import{$Dd as z,$zd as S}from"../../../../base/common/lifecycle.js";import"./media/debugViewlet.css";import*as d from"../../../../nls.js";import{$ckb as P}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$vL as v,$qL as f,$sL as C,$wL as D}from"../../../../platform/actions/common/actions.js";import{$0l as O}from"../../../../platform/configuration/common/configuration.js";import{$0n as t,$ro as F}from"../../../../platform/contextkey/common/contextkey.js";import{$ijb as j,$hjb as k}from"../../../../platform/contextview/browser/contextView.js";import{$Mj as x}from"../../../../platform/instantiation/common/instantiation.js";import{$uH as Y}from"../../../../platform/progress/common/progress.js";import{$YH as N}from"../../../../platform/quickinput/common/quickInput.js";import{$hp as R}from"../../../../platform/storage/common/storage.js";import{$pp as W}from"../../../../platform/telemetry/common/telemetry.js";import{$qu as H}from"../../../../platform/theme/common/themeService.js";import{$Ml as G}from"../../../../platform/workspace/common/workspace.js";import{$6Bb as Z,$5Bb as X}from"../../../browser/parts/views/viewPaneContainer.js";import{$lO as q}from"../../../common/contextkeys.js";import{$FN as A}from"../../../common/views.js";import{$gBb as Q}from"../../../services/views/common/viewsService.js";import{$nuc as J,$muc as K}from"./debugActionViewItems.js";import{$Phc as U,$mic as ee,$Qhc as E,$nic as ie,$Ehc as te,$Lhc as oe,$Mhc as ne,$Ghc as re}from"./debugCommands.js";import{$yGb as se}from"./debugIcons.js";import{$0yc as ae}from"./debugToolBar.js";import{$Czc as ce}from"./welcomeView.js";import{$_X as ue,$OY as le,$fY as m,$hY as $,$gY as he,$iZ as de,$lZ as T,$cY as b,$7X as l,$eZ as fe}from"../common/debug.js";import{$NR as me}from"../../../services/extensions/common/extensions.js";import{$Eyb as ge}from"../../../services/layout/browser/layoutService.js";import{$yo as pe}from"../../../../platform/log/common/log.js";var M=function(u,e,i,n){var c=arguments.length,o=c<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,i):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(u,e,i,n);else for(var a=u.length-1;a>=0;a--)(s=u[a])&&(o=(c<3?s(o):c>3?s(e,i,o):s(e,i))||o);return c>3&&o&&Object.defineProperty(e,i,o),o},r=function(u,e){return function(i,n){e(i,n,u)}};let w=class extends Z{constructor(e,i,n,c,o,s,a,g,p,I,L,V,B,_,y){super(l,{mergeViewWithContainerWhenSingleView:!0},o,L,e,p,i,I,g,a,s,_,y),this.Db=n,this.Eb=c,this.Fb=V,this.Gb=B,this.Bb=new Map,this.Cb=this.D(new z),this.D(this.Eb.onDidChangeState(h=>this.Hb(h))),this.D(this.Gb.onDidChangeContext(h=>{h.affectsSome(new Set([he,"inDebugMode"]))&&this.nb()})),this.D(this.ib.onDidChangeWorkbenchState(()=>this.nb())),this.D(this.cb.onDidChangeConfiguration(h=>{(h.affectsConfiguration("debug.toolBarLocation")||h.affectsConfiguration("debug.hideLauncherWhileDebugging"))&&this.nb()}))}create(e){super.create(e),e.classList.add("debug-viewlet")}focus(){super.focus(),this.c?this.c.focus():this.focusView(ce.ID)}getActionViewItem(e,i){if(e.id===E)return this.c=this.bb.createInstance(K,null,e,i),this.c;if(e.id===oe)return new J(e,void 0,this.Eb,this.Fb,this.cb);if(e.id===re||e.id===te){this.Cb.clear();const n=this.bb.invokeFunction(c=>ae(e,this.Cb,c,{hoverDelegate:i.hoverDelegate}));if(n)return n}return P(this.bb,e,i)}focusView(e){const i=this.getView(e);i&&i.focus()}Hb(e){this.r&&(this.r(),this.r=void 0),e===1&&this.Db.withProgress({location:l},i=>new Promise(n=>this.r=n))}addPanes(e){super.addPanes(e);for(const{pane:i}of e)i.id===ue?(this.t=i,this.Ib()):this.Bb.set(i.id,i.onDidChange(()=>this.Ib()))}removePanes(e){super.removePanes(e);for(const i of e)S(this.Bb.get(i.id)),this.Bb.delete(i.id)}Ib(){if(this.t){const e=this.panes.every(i=>!i.isExpanded()||i===this.t);this.t.maximumBodySize=e?Number.POSITIVE_INFINITY:this.t.minimumBodySize}}};w=M([r(0,ge),r(1,W),r(2,Y),r(3,T),r(4,x),r(5,G),r(6,R),r(7,H),r(8,j),r(9,me),r(10,O),r(11,k),r(12,F),r(13,A),r(14,pe)],w);C.appendMenuItem(f.ViewContainerTitle,{when:t.and(t.equals("viewContainer",l),$.notEqualsTo("simple"),q.notEqualsTo("empty"),t.or(m.isEqualTo("inactive"),t.notEquals("config.debug.toolBarLocation","docked")),t.or(t.not("config.debug.hideLauncherWhileDebugging"),t.not("inDebugMode"))),order:10,group:"navigation",command:{precondition:m.notEqualsTo(de(1)),id:E,title:ie}});D(class extends v{constructor(){super({id:U,title:{value:ee,original:"Open 'launch.json'",mnemonicTitle:d.localize(8109,null)},metadata:{description:d.localize2(8113,"Opens the file used to configure how your program is debugged")},f1:!0,icon:se,precondition:$.notEqualsTo("simple"),menu:[{id:f.ViewContainerTitle,group:"navigation",order:20,when:t.and(t.equals("viewContainer",l),$.notEqualsTo("simple"),q.notEqualsTo("empty"),t.or(m.isEqualTo("inactive"),t.notEquals("config.debug.toolBarLocation","docked")))},{id:f.ViewContainerTitle,order:20,when:t.and(t.equals("viewContainer",l),m.notEqualsTo("inactive"),t.equals("config.debug.toolBarLocation","docked"))},{id:f.MenubarDebugMenu,group:"2_configuration",order:1,when:le}]})}async run(u,e){const i=u.get(T),n=u.get(N),c=i.getConfigurationManager();let o;if(c.selectedConfiguration.name)o=c.selectedConfiguration.launch;else{const s=c.getLaunches().filter(a=>!a.hidden);if(s.length===1)o=s[0];else{const a=s.map(p=>({label:p.name,launch:p})),g=await n.pick(a,{activeItem:a[0],placeHolder:d.localize(8110,null)});g&&(o=g.launch)}}if(o){const{editor:s}=await o.openConfigFile({preserveFocus:!1});if(s&&e?.addNew){const a=s.getControl();a&&await a.getContribution(fe)?.addLaunchConfiguration()}}}});D(class extends v{constructor(){super({id:"debug.toggleReplIgnoreFocus",title:d.localize(8111,null),toggled:t.has(`view.${b}.visible`),menu:[{id:X,group:"3_toggleRepl",order:30,when:t.and(t.equals("viewContainer",l))}]})}async run(u){const e=u.get(Q);e.isViewVisible(b)?e.closeView(b):await e.openView(b)}});C.appendMenuItem(f.ViewContainerTitle,{when:t.and(t.equals("viewContainer",l),m.notEqualsTo("inactive"),t.or(t.equals("config.debug.toolBarLocation","docked"),t.has("config.debug.hideLauncherWhileDebugging"))),order:10,command:{id:ne,title:d.localize(8112,null)}});export{w as $Dzc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DisposableStore, dispose } from "../../../../base/common/lifecycle.js";
+import "./media/debugViewlet.css";
+import * as nls from "../../../../nls.js";
+import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ViewPaneContainer, ViewsSubMenu } from "../../../browser/parts/views/viewPaneContainer.js";
+import { WorkbenchStateContext } from "../../../common/contextkeys.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { FocusSessionActionViewItem, StartDebugActionViewItem } from "./debugActionViewItems.js";
+import { DEBUG_CONFIGURE_COMMAND_ID, DEBUG_CONFIGURE_LABEL, DEBUG_START_COMMAND_ID, DEBUG_START_LABEL, DISCONNECT_ID, FOCUS_SESSION_ID, SELECT_AND_START_ID, STOP_ID } from "./debugCommands.js";
+import { debugConfigure } from "./debugIcons.js";
+import { createDisconnectMenuItemAction } from "./debugToolBar.js";
+import { WelcomeView } from "./welcomeView.js";
+import { BREAKPOINTS_VIEW_ID, CONTEXT_DEBUGGERS_AVAILABLE, CONTEXT_DEBUG_STATE, CONTEXT_DEBUG_UX, CONTEXT_DEBUG_UX_KEY, getStateLabel, IDebugService, REPL_VIEW_ID, VIEWLET_ID, EDITOR_CONTRIBUTION_ID } from "../common/debug.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+let DebugViewPaneContainer = class DebugViewPaneContainer2 extends ViewPaneContainer {
+  static {
+    __name(this, "DebugViewPaneContainer");
+  }
+  constructor(layoutService, telemetryService, progressService, debugService, instantiationService, contextService, storageService, themeService, contextMenuService, extensionService, configurationService, contextViewService, contextKeyService, viewDescriptorService, logService) {
+    super(VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService, logService);
+    this.progressService = progressService;
+    this.debugService = debugService;
+    this.contextViewService = contextViewService;
+    this.contextKeyService = contextKeyService;
+    this.paneListeners = /* @__PURE__ */ new Map();
+    this.stopActionViewItemDisposables = this._register(new DisposableStore());
+    this._register(this.debugService.onDidChangeState((state) => this.onDebugServiceStateChange(state)));
+    this._register(this.contextKeyService.onDidChangeContext((e) => {
+      if (e.affectsSome(/* @__PURE__ */ new Set([CONTEXT_DEBUG_UX_KEY, "inDebugMode"]))) {
+        this.updateTitleArea();
+      }
+    }));
+    this._register(this.contextService.onDidChangeWorkbenchState(() => this.updateTitleArea()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("debug.toolBarLocation") || e.affectsConfiguration("debug.hideLauncherWhileDebugging")) {
+        this.updateTitleArea();
+      }
+    }));
+  }
+  create(parent) {
+    super.create(parent);
+    parent.classList.add("debug-viewlet");
+  }
+  focus() {
+    super.focus();
+    if (this.startDebugActionViewItem) {
+      this.startDebugActionViewItem.focus();
+    } else {
+      this.focusView(WelcomeView.ID);
+    }
+  }
+  getActionViewItem(action, options) {
+    if (action.id === DEBUG_START_COMMAND_ID) {
+      this.startDebugActionViewItem = this.instantiationService.createInstance(StartDebugActionViewItem, null, action, options);
+      return this.startDebugActionViewItem;
+    }
+    if (action.id === FOCUS_SESSION_ID) {
+      return new FocusSessionActionViewItem(action, void 0, this.debugService, this.contextViewService, this.configurationService);
+    }
+    if (action.id === STOP_ID || action.id === DISCONNECT_ID) {
+      this.stopActionViewItemDisposables.clear();
+      const item = this.instantiationService.invokeFunction((accessor) => createDisconnectMenuItemAction(action, this.stopActionViewItemDisposables, accessor, { hoverDelegate: options.hoverDelegate }));
+      if (item) {
+        return item;
+      }
+    }
+    return createActionViewItem(this.instantiationService, action, options);
+  }
+  focusView(id) {
+    const view = this.getView(id);
+    if (view) {
+      view.focus();
+    }
+  }
+  onDebugServiceStateChange(state) {
+    if (this.progressResolve) {
+      this.progressResolve();
+      this.progressResolve = void 0;
+    }
+    if (state === 1) {
+      this.progressService.withProgress({ location: VIEWLET_ID }, (_progress) => {
+        return new Promise((resolve) => this.progressResolve = resolve);
+      });
+    }
+  }
+  addPanes(panes) {
+    super.addPanes(panes);
+    for (const { pane } of panes) {
+      if (pane.id === BREAKPOINTS_VIEW_ID) {
+        this.breakpointView = pane;
+        this.updateBreakpointsMaxSize();
+      } else {
+        this.paneListeners.set(pane.id, pane.onDidChange(() => this.updateBreakpointsMaxSize()));
+      }
+    }
+  }
+  removePanes(panes) {
+    super.removePanes(panes);
+    for (const pane of panes) {
+      dispose(this.paneListeners.get(pane.id));
+      this.paneListeners.delete(pane.id);
+    }
+  }
+  updateBreakpointsMaxSize() {
+    if (this.breakpointView) {
+      const allOtherCollapsed = this.panes.every((view) => !view.isExpanded() || view === this.breakpointView);
+      this.breakpointView.maximumBodySize = allOtherCollapsed ? Number.POSITIVE_INFINITY : this.breakpointView.minimumBodySize;
+    }
+  }
+};
+DebugViewPaneContainer = __decorate([
+  __param(0, IWorkbenchLayoutService),
+  __param(1, ITelemetryService),
+  __param(2, IProgressService),
+  __param(3, IDebugService),
+  __param(4, IInstantiationService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IStorageService),
+  __param(7, IThemeService),
+  __param(8, IContextMenuService),
+  __param(9, IExtensionService),
+  __param(10, IConfigurationService),
+  __param(11, IContextViewService),
+  __param(12, IContextKeyService),
+  __param(13, IViewDescriptorService),
+  __param(14, ILogService)
+], DebugViewPaneContainer);
+MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+  when: ContextKeyExpr.and(ContextKeyExpr.equals("viewContainer", VIEWLET_ID), CONTEXT_DEBUG_UX.notEqualsTo("simple"), WorkbenchStateContext.notEqualsTo("empty"), ContextKeyExpr.or(CONTEXT_DEBUG_STATE.isEqualTo("inactive"), ContextKeyExpr.notEquals("config.debug.toolBarLocation", "docked")), ContextKeyExpr.or(ContextKeyExpr.not("config.debug.hideLauncherWhileDebugging"), ContextKeyExpr.not("inDebugMode"))),
+  order: 10,
+  group: "navigation",
+  command: {
+    precondition: CONTEXT_DEBUG_STATE.notEqualsTo(getStateLabel(
+      1
+      /* State.Initializing */
+    )),
+    id: DEBUG_START_COMMAND_ID,
+    title: DEBUG_START_LABEL
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: DEBUG_CONFIGURE_COMMAND_ID,
+      title: {
+        value: DEBUG_CONFIGURE_LABEL,
+        original: "Open 'launch.json'",
+        mnemonicTitle: nls.localize({ key: "miOpenConfigurations", comment: ["&& denotes a mnemonic"] }, "Open &&Configurations")
+      },
+      metadata: {
+        description: nls.localize2("openLaunchConfigDescription", "Opens the file used to configure how your program is debugged")
+      },
+      f1: true,
+      icon: debugConfigure,
+      precondition: CONTEXT_DEBUG_UX.notEqualsTo("simple"),
+      menu: [{
+        id: MenuId.ViewContainerTitle,
+        group: "navigation",
+        order: 20,
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("viewContainer", VIEWLET_ID), CONTEXT_DEBUG_UX.notEqualsTo("simple"), WorkbenchStateContext.notEqualsTo("empty"), ContextKeyExpr.or(CONTEXT_DEBUG_STATE.isEqualTo("inactive"), ContextKeyExpr.notEquals("config.debug.toolBarLocation", "docked")))
+      }, {
+        id: MenuId.ViewContainerTitle,
+        order: 20,
+        // Show in debug viewlet secondary actions when debugging and debug toolbar is docked
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("viewContainer", VIEWLET_ID), CONTEXT_DEBUG_STATE.notEqualsTo("inactive"), ContextKeyExpr.equals("config.debug.toolBarLocation", "docked"))
+      }, {
+        id: MenuId.MenubarDebugMenu,
+        group: "2_configuration",
+        order: 1,
+        when: CONTEXT_DEBUGGERS_AVAILABLE
+      }]
+    });
+  }
+  async run(accessor, opts) {
+    const debugService = accessor.get(IDebugService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const configurationManager = debugService.getConfigurationManager();
+    let launch;
+    if (configurationManager.selectedConfiguration.name) {
+      launch = configurationManager.selectedConfiguration.launch;
+    } else {
+      const launches = configurationManager.getLaunches().filter((l) => !l.hidden);
+      if (launches.length === 1) {
+        launch = launches[0];
+      } else {
+        const picks = launches.map((l) => ({ label: l.name, launch: l }));
+        const picked = await quickInputService.pick(picks, {
+          activeItem: picks[0],
+          placeHolder: nls.localize({ key: "selectWorkspaceFolder", comment: ["User picks a workspace folder or a workspace configuration file here. Workspace configuration files can contain settings and thus a launch.json configuration can be written into one."] }, "Select a workspace folder to create a launch.json file in or add it to the workspace config file")
+        });
+        if (picked) {
+          launch = picked.launch;
+        }
+      }
+    }
+    if (launch) {
+      const { editor } = await launch.openConfigFile({ preserveFocus: false });
+      if (editor && opts?.addNew) {
+        const codeEditor = editor.getControl();
+        if (codeEditor) {
+          await codeEditor.getContribution(EDITOR_CONTRIBUTION_ID)?.addLaunchConfiguration();
+        }
+      }
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "debug.toggleReplIgnoreFocus",
+      title: nls.localize("debugPanel", "Debug Console"),
+      toggled: ContextKeyExpr.has(`view.${REPL_VIEW_ID}.visible`),
+      menu: [{
+        id: ViewsSubMenu,
+        group: "3_toggleRepl",
+        order: 30,
+        when: ContextKeyExpr.and(ContextKeyExpr.equals("viewContainer", VIEWLET_ID))
+      }]
+    });
+  }
+  async run(accessor) {
+    const viewsService = accessor.get(IViewsService);
+    if (viewsService.isViewVisible(REPL_VIEW_ID)) {
+      viewsService.closeView(REPL_VIEW_ID);
+    } else {
+      await viewsService.openView(REPL_VIEW_ID);
+    }
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+  when: ContextKeyExpr.and(ContextKeyExpr.equals("viewContainer", VIEWLET_ID), CONTEXT_DEBUG_STATE.notEqualsTo("inactive"), ContextKeyExpr.or(ContextKeyExpr.equals("config.debug.toolBarLocation", "docked"), ContextKeyExpr.has("config.debug.hideLauncherWhileDebugging"))),
+  order: 10,
+  command: {
+    id: SELECT_AND_START_ID,
+    title: nls.localize("startAdditionalSession", "Start Additional Session")
+  }
+});
+export {
+  DebugViewPaneContainer
+};
+//# sourceMappingURL=debugViewlet.js.map

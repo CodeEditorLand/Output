@@ -1,1 +1,115 @@
-import"./media/chatUsageWidget.css";import{$Ed as b}from"../../../../../base/common/lifecycle.js";import{$xf as y}from"../../../../../base/common/event.js";import*as i from"../../../../../base/browser/dom.js";import{localize as l}from"../../../../../nls.js";import{$JP as C}from"../../../../services/chat/common/chatEntitlementService.js";import{$A as c}from"../../../../../base/common/platform.js";import{$Un as f}from"../../../../../base/common/date.js";var q=function(u,t,n,e){var o=arguments.length,s=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,n):e,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(u,t,n,e);else for(var r=u.length-1;r>=0;r--)(m=u[r])&&(s=(o<3?m(s):o>3?m(t,n,s):m(t,n))||s);return o>3&&s&&Object.defineProperty(t,n,s),s},d=function(u,t){return function(n,e){t(n,e,u)}};const a=i.$;let g=class extends b{constructor(t){super(),this.g=t,this.a=new y,this.onDidChangeContentHeight=this.a.event,this.c=f.DateTimeFormat(c,{year:"numeric",month:"long",day:"numeric"}),this.f=f.DateTimeFormat(c,{year:"numeric",month:"long",day:"numeric",hour:"numeric",minute:"numeric"}),this.element=i.$(".chat-usage-widget"),this.h(this.element),this.j(),this.D(this.g.onDidChangeQuotaRemaining(()=>this.j())),this.D(this.g.onDidChangeEntitlement(()=>this.j()))}h(t){this.b=i.$y9(t,a(".copilot-usage-section"))}j(){i.$t8(this.b);const{chat:t,completions:n,premiumChat:e,resetDate:o,resetDateHasTime:s}=this.g.quotas;if(this.g.anonymous&&this.g.sentiment.installed&&!n&&!t&&!e)this.q(this.b,l(6003,null)),this.q(this.b,l(6004,null));else if(n||t||e){if(n&&this.m(this.b,l(6005,null),n),t&&this.m(this.b,l(6006,null),t),e&&(this.m(this.b,l(6007,null),e),e.overageEnabled)){const r=i.$y9(this.b,a(".overage-message"));r.textContent=l(6008,null)}if(o){const r=i.$y9(this.b,a(".allowance-resets"));r.textContent=l(6009,null,s?this.f.value.format(new Date(o)):this.c.value.format(new Date(o)))}}const m=this.element.offsetHeight||400;this.a.fire(m)}m(t,n,e){const o=i.$y9(t,a(".quota-item")),s=i.$y9(o,a(".quota-item-header")),m=i.$y9(s,a(".quota-item-label"));m.textContent=n;const r=i.$y9(s,a(".quota-item-value"));e.unlimited?r.textContent=l(6010,null):r.textContent=l(6011,null);const p=i.$y9(o,a(".quota-bar")),$=i.$y9(p,a(".quota-bit")),h=this.n(e);$.style.width=h+"%",h>=90?o.classList.add("error"):h>=75&&o.classList.add("warning")}n(t){return t.unlimited?0:Math.max(0,100-t.percentRemaining)}q(t,n){const e=i.$y9(t,a(".quota-item")),o=i.$y9(e,a(".quota-item-header")),s=i.$y9(o,a(".quota-item-label"));s.textContent=n;const m=i.$y9(o,a(".quota-item-value"));m.textContent=l(6012,null);const r=i.$y9(e,a(".quota-bar"));i.$y9(r,a(".quota-bit"))}};g=q([d(0,C)],g);export{g as $sqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/chatUsageWidget.css";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import * as DOM from "../../../../../base/browser/dom.js";
+import { localize } from "../../../../../nls.js";
+import { IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
+import { language } from "../../../../../base/common/platform.js";
+import { safeIntl } from "../../../../../base/common/date.js";
+const $ = DOM.$;
+let ChatUsageWidget = class ChatUsageWidget2 extends Disposable {
+  static {
+    __name(this, "ChatUsageWidget");
+  }
+  constructor(chatEntitlementService) {
+    super();
+    this.chatEntitlementService = chatEntitlementService;
+    this._onDidChangeContentHeight = new Emitter();
+    this.onDidChangeContentHeight = this._onDidChangeContentHeight.event;
+    this.dateFormatter = safeIntl.DateTimeFormat(language, { year: "numeric", month: "long", day: "numeric" });
+    this.dateTimeFormatter = safeIntl.DateTimeFormat(language, { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" });
+    this.element = DOM.$(".chat-usage-widget");
+    this.create(this.element);
+    this.render();
+    this._register(this.chatEntitlementService.onDidChangeQuotaRemaining(() => this.render()));
+    this._register(this.chatEntitlementService.onDidChangeEntitlement(() => this.render()));
+  }
+  create(container) {
+    this.usageSection = DOM.append(container, $(".copilot-usage-section"));
+  }
+  render() {
+    DOM.clearNode(this.usageSection);
+    const { chat: chatQuota, completions: completionsQuota, premiumChat: premiumChatQuota, resetDate, resetDateHasTime } = this.chatEntitlementService.quotas;
+    if (this.chatEntitlementService.anonymous && this.chatEntitlementService.sentiment.installed && !completionsQuota && !chatQuota && !premiumChatQuota) {
+      this.renderLimitedQuotaItem(this.usageSection, localize("completionsLabel", "Inline Suggestions"));
+      this.renderLimitedQuotaItem(this.usageSection, localize("chatsLabel", "Chat messages"));
+    } else if (completionsQuota || chatQuota || premiumChatQuota) {
+      if (completionsQuota) {
+        this.renderQuotaItem(this.usageSection, localize("plan.inlineSuggestions", "Inline Suggestions"), completionsQuota);
+      }
+      if (chatQuota) {
+        this.renderQuotaItem(this.usageSection, localize("plan.chatMessages", "Chat messages"), chatQuota);
+      }
+      if (premiumChatQuota) {
+        this.renderQuotaItem(this.usageSection, localize("plan.premiumRequests", "Premium requests"), premiumChatQuota);
+        if (premiumChatQuota.overageEnabled) {
+          const overageMessage = DOM.append(this.usageSection, $(".overage-message"));
+          overageMessage.textContent = localize("plan.additionalPaidEnabled", "Additional paid premium requests enabled.");
+        }
+      }
+      if (resetDate) {
+        const resetText = DOM.append(this.usageSection, $(".allowance-resets"));
+        resetText.textContent = localize("plan.allowanceResets", "Allowance resets {0}.", resetDateHasTime ? this.dateTimeFormatter.value.format(new Date(resetDate)) : this.dateFormatter.value.format(new Date(resetDate)));
+      }
+    }
+    const height = this.element.offsetHeight || 400;
+    this._onDidChangeContentHeight.fire(height);
+  }
+  renderQuotaItem(container, label, quota) {
+    const quotaItem = DOM.append(container, $(".quota-item"));
+    const quotaItemHeader = DOM.append(quotaItem, $(".quota-item-header"));
+    const quotaItemLabel = DOM.append(quotaItemHeader, $(".quota-item-label"));
+    quotaItemLabel.textContent = label;
+    const quotaItemValue = DOM.append(quotaItemHeader, $(".quota-item-value"));
+    if (quota.unlimited) {
+      quotaItemValue.textContent = localize("plan.included", "Included");
+    } else {
+      quotaItemValue.textContent = localize("plan.included", "Included");
+    }
+    const progressBarContainer = DOM.append(quotaItem, $(".quota-bar"));
+    const progressBar = DOM.append(progressBarContainer, $(".quota-bit"));
+    const percentageUsed = this.getQuotaPercentageUsed(quota);
+    progressBar.style.width = percentageUsed + "%";
+    if (percentageUsed >= 90) {
+      quotaItem.classList.add("error");
+    } else if (percentageUsed >= 75) {
+      quotaItem.classList.add("warning");
+    }
+  }
+  getQuotaPercentageUsed(quota) {
+    if (quota.unlimited) {
+      return 0;
+    }
+    return Math.max(0, 100 - quota.percentRemaining);
+  }
+  renderLimitedQuotaItem(container, label) {
+    const quotaItem = DOM.append(container, $(".quota-item"));
+    const quotaItemHeader = DOM.append(quotaItem, $(".quota-item-header"));
+    const quotaItemLabel = DOM.append(quotaItemHeader, $(".quota-item-label"));
+    quotaItemLabel.textContent = label;
+    const quotaItemValue = DOM.append(quotaItemHeader, $(".quota-item-value"));
+    quotaItemValue.textContent = localize("quotaLimited", "Limited");
+    const progressBarContainer = DOM.append(quotaItem, $(".quota-bar"));
+    DOM.append(progressBarContainer, $(".quota-bit"));
+  }
+};
+ChatUsageWidget = __decorate([
+  __param(0, IChatEntitlementService)
+], ChatUsageWidget);
+export {
+  ChatUsageWidget
+};
+//# sourceMappingURL=chatUsageWidget.js.map

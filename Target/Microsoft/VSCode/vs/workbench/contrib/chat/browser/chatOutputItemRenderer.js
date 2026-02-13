@@ -1,1 +1,171 @@
-import{getWindow as y}from"../../../../base/browser/dom.js";import{$Wh as h}from"../../../../base/common/async.js";import{$4E as v}from"../../../../base/common/dataTransfer.js";import{$sb as b}from"../../../../base/common/errors.js";import{$xf as g}from"../../../../base/common/event.js";import{$Ed as $,$Dd as R}from"../../../../base/common/lifecycle.js";import{autorun as x}from"../../../../base/common/observable.js";import{$ln as O}from"../../../../base/common/uuid.js";import*as u from"../../../../nls.js";import{$ro as C}from"../../../../platform/contextkey/common/contextkey.js";import{$Nj as S}from"../../../../platform/instantiation/common/instantiation.js";import{$SDb as T}from"../../../contrib/webview/browser/webview.js";import{$NR as D,$QR as P}from"../../../services/extensions/common/extensions.js";import{$KR as j}from"../../../services/extensions/common/extensionsRegistry.js";var w=function(a,e,i,t){var n=arguments.length,r=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,i,t);else for(var s=a.length-1;s>=0;s--)(o=a[s])&&(r=(n<3?o(r):n>3?o(e,i,r):o(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r},d=function(a,e){return function(i,t){e(i,t,a)}};const Q=S("chatOutputRendererService");let l=class extends ${constructor(e,i,t){super(),this.c=e,this.f=i,this.g=t,this.a=new Map,this.b=new Map,this.D(_.setHandler(n=>{this.j(n)}))}registerRenderer(e,i,t){return this.b.set(e,{viewType:e,renderer:i,options:t}),{dispose:()=>{this.b.delete(e)}}}async renderOutputPart(e,i,t,n,r){const o=await this.h(e,r);if(r.isCancellationRequested)throw new b;if(!o)throw new Error(`No renderer registered found for mime type: ${e}`);const s=new R,p=s.add(this.g.createWebviewElement({title:"",origin:n.origin??O(),providedViewType:o.viewType,options:{enableFindWidget:!1,purpose:"chatOutputItem",tryRestoreScrollPosition:!1},contentOptions:{},extension:o.options.extension?o.options.extension:void 0}));p.setContextKeyService(s.add(this.c.createScoped(t)));const f=s.add(new g);return s.add(x(m=>{const c=m.readObservable(p.intrinsicContentSize);c&&(f.fire(c.height),t.style.height=`${c.height}px`)})),n.webviewState&&(p.state=n.webviewState),p.mountTo(t,y(t)),await o.renderer.renderOutputPart(e,i,p,r),{get webview(){return p},onDidChangeHeight:f.event,dispose:()=>{s.dispose()},reinitialize:()=>{p.reinitializeAfterDismount()}}}async h(e,i){await h(this.f.whenInstalledExtensionsRegistered(),i);for(const[t,n]of this.a)if(n.mimes.some(r=>v(r,[e]))){await h(this.f.activateByEvent(`onChatOutputRenderer:${t}`),i);const r=this.b.get(t);if(r)return r}}j(e){this.a.clear();for(const i of e)if(P(i.description,"chatOutputRenderer"))for(const t of i.value){if(this.a.has(t.viewType)){i.collector.error(`Chat output renderer with view type '${t.viewType}' already registered`);continue}this.a.set(t.viewType,{mimes:t.mimeTypes})}}};l=w([d(0,C),d(1,D),d(2,T)],l);const E={type:"object",additionalProperties:!1,required:["viewType","mimeTypes"],properties:{viewType:{type:"string",description:u.localize(6013,null)},mimeTypes:{type:"array",description:u.localize(6014,null),items:{type:"string"}}}},_=j.registerExtensionPoint({extensionPoint:"chatOutputRenderers",activationEventsGenerator:function*(a){for(const e of a)yield`onChatOutputRenderer:${e.viewType}`},jsonSchema:{description:u.localize(6015,null),type:"array",items:E}});export{Q as $W3b,l as $X3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { getWindow } from "../../../../base/browser/dom.js";
+import { raceCancellationError } from "../../../../base/common/async.js";
+import { matchesMimeType } from "../../../../base/common/dataTransfer.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import * as nls from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWebviewService } from "../../../contrib/webview/browser/webview.js";
+import { IExtensionService, isProposedApiEnabled } from "../../../services/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+const IChatOutputRendererService = createDecorator("chatOutputRendererService");
+let ChatOutputRendererService = class ChatOutputRendererService2 extends Disposable {
+  static {
+    __name(this, "ChatOutputRendererService");
+  }
+  constructor(_contextKeyService, _extensionService, _webviewService) {
+    super();
+    this._contextKeyService = _contextKeyService;
+    this._extensionService = _extensionService;
+    this._webviewService = _webviewService;
+    this._contributions = /* @__PURE__ */ new Map();
+    this._renderers = /* @__PURE__ */ new Map();
+    this._register(chatOutputRenderContributionPoint.setHandler((extensions) => {
+      this.updateContributions(extensions);
+    }));
+  }
+  registerRenderer(viewType, renderer, options) {
+    this._renderers.set(viewType, { viewType, renderer, options });
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._renderers.delete(viewType);
+      }, "dispose")
+    };
+  }
+  async renderOutputPart(mime, data, parent, webviewOptions, token) {
+    const rendererData = await this.getRenderer(mime, token);
+    if (token.isCancellationRequested) {
+      throw new CancellationError();
+    }
+    if (!rendererData) {
+      throw new Error(`No renderer registered found for mime type: ${mime}`);
+    }
+    const store = new DisposableStore();
+    const webview = store.add(this._webviewService.createWebviewElement({
+      title: "",
+      origin: webviewOptions.origin ?? generateUuid(),
+      providedViewType: rendererData.viewType,
+      options: {
+        enableFindWidget: false,
+        purpose: "chatOutputItem",
+        tryRestoreScrollPosition: false
+      },
+      contentOptions: {},
+      extension: rendererData.options.extension ? rendererData.options.extension : void 0
+    }));
+    webview.setContextKeyService(store.add(this._contextKeyService.createScoped(parent)));
+    const onDidChangeHeight = store.add(new Emitter());
+    store.add(autorun((reader) => {
+      const height = reader.readObservable(webview.intrinsicContentSize);
+      if (height) {
+        onDidChangeHeight.fire(height.height);
+        parent.style.height = `${height.height}px`;
+      }
+    }));
+    if (webviewOptions.webviewState) {
+      webview.state = webviewOptions.webviewState;
+    }
+    webview.mountTo(parent, getWindow(parent));
+    await rendererData.renderer.renderOutputPart(mime, data, webview, token);
+    return {
+      get webview() {
+        return webview;
+      },
+      onDidChangeHeight: onDidChangeHeight.event,
+      dispose: /* @__PURE__ */ __name(() => {
+        store.dispose();
+      }, "dispose"),
+      reinitialize: /* @__PURE__ */ __name(() => {
+        webview.reinitializeAfterDismount();
+      }, "reinitialize")
+    };
+  }
+  async getRenderer(mime, token) {
+    await raceCancellationError(this._extensionService.whenInstalledExtensionsRegistered(), token);
+    for (const [id, value] of this._contributions) {
+      if (value.mimes.some((m) => matchesMimeType(m, [mime]))) {
+        await raceCancellationError(this._extensionService.activateByEvent(`onChatOutputRenderer:${id}`), token);
+        const rendererData = this._renderers.get(id);
+        if (rendererData) {
+          return rendererData;
+        }
+      }
+    }
+    return void 0;
+  }
+  updateContributions(extensions) {
+    this._contributions.clear();
+    for (const extension of extensions) {
+      if (!isProposedApiEnabled(extension.description, "chatOutputRenderer")) {
+        continue;
+      }
+      for (const contribution of extension.value) {
+        if (this._contributions.has(contribution.viewType)) {
+          extension.collector.error(`Chat output renderer with view type '${contribution.viewType}' already registered`);
+          continue;
+        }
+        this._contributions.set(contribution.viewType, {
+          mimes: contribution.mimeTypes
+        });
+      }
+    }
+  }
+};
+ChatOutputRendererService = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, IExtensionService),
+  __param(2, IWebviewService)
+], ChatOutputRendererService);
+const chatOutputRendererContributionSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["viewType", "mimeTypes"],
+  properties: {
+    viewType: {
+      type: "string",
+      description: nls.localize("chatOutputRenderer.viewType", "Unique identifier for the renderer.")
+    },
+    mimeTypes: {
+      type: "array",
+      description: nls.localize("chatOutputRenderer.mimeTypes", "MIME types that this renderer can handle"),
+      items: {
+        type: "string"
+      }
+    }
+  }
+};
+const chatOutputRenderContributionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "chatOutputRenderers",
+  activationEventsGenerator: /* @__PURE__ */ __name(function* (contributions) {
+    for (const contrib of contributions) {
+      yield `onChatOutputRenderer:${contrib.viewType}`;
+    }
+  }, "activationEventsGenerator"),
+  jsonSchema: {
+    description: nls.localize("vscode.extension.contributes.chatOutputRenderer", "Contributes a renderer for specific MIME types in chat outputs"),
+    type: "array",
+    items: chatOutputRendererContributionSchema
+  }
+});
+export {
+  ChatOutputRendererService,
+  IChatOutputRendererService
+};
+//# sourceMappingURL=chatOutputItemRenderer.js.map

@@ -1,1 +1,37 @@
-import{$gV as i}from"../../../../services/search/common/search.js";import{$_D as o}from"../../../../../editor/common/core/range.js";import{$oZ as t,$nZ as f}from"../../common/searchNotebookHelpers.js";function c(e){return r(e)?e.cell.id:`${f}${e.index}`}function $(e){return"cellResults"in e&&e.cellResults instanceof Array&&e.cellResults.every(r)}function r(e){return"cell"in e}function p(e,n){return t(e,n.textBuffer)}function d(e){return e.map(n=>n.searchPreviewInfo?new i(n.searchPreviewInfo.line,new o(0,n.searchPreviewInfo.range.start,0,n.searchPreviewInfo.range.end),void 0,n.index):void 0).filter(n=>!!n)}export{r as $Ajc,p as $Bjc,d as $Cjc,c as $yjc,$ as $zjc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { TextSearchMatch } from "../../../../services/search/common/search.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { genericCellMatchesToTextSearchMatches, rawCellPrefix } from "../../common/searchNotebookHelpers.js";
+function getIDFromINotebookCellMatch(match) {
+  if (isINotebookCellMatchWithModel(match)) {
+    return match.cell.id;
+  } else {
+    return `${rawCellPrefix}${match.index}`;
+  }
+}
+__name(getIDFromINotebookCellMatch, "getIDFromINotebookCellMatch");
+function isINotebookFileMatchWithModel(object) {
+  return "cellResults" in object && object.cellResults instanceof Array && object.cellResults.every(isINotebookCellMatchWithModel);
+}
+__name(isINotebookFileMatchWithModel, "isINotebookFileMatchWithModel");
+function isINotebookCellMatchWithModel(object) {
+  return "cell" in object;
+}
+__name(isINotebookCellMatchWithModel, "isINotebookCellMatchWithModel");
+function contentMatchesToTextSearchMatches(contentMatches, cell) {
+  return genericCellMatchesToTextSearchMatches(contentMatches, cell.textBuffer);
+}
+__name(contentMatchesToTextSearchMatches, "contentMatchesToTextSearchMatches");
+function webviewMatchesToTextSearchMatches(webviewMatches) {
+  return webviewMatches.map((rawMatch) => rawMatch.searchPreviewInfo ? new TextSearchMatch(rawMatch.searchPreviewInfo.line, new Range(0, rawMatch.searchPreviewInfo.range.start, 0, rawMatch.searchPreviewInfo.range.end), void 0, rawMatch.index) : void 0).filter((e) => !!e);
+}
+__name(webviewMatchesToTextSearchMatches, "webviewMatchesToTextSearchMatches");
+export {
+  contentMatchesToTextSearchMatches,
+  getIDFromINotebookCellMatch,
+  isINotebookCellMatchWithModel,
+  isINotebookFileMatchWithModel,
+  webviewMatchesToTextSearchMatches
+};
+//# sourceMappingURL=searchNotebookHelpers.js.map

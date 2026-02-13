@@ -1,1 +1,427 @@
-import{$Rf as a}from"./lazy.js";import*as h from"./stream.js";const l=typeof Buffer<"u",y=new a(()=>new Uint8Array(256));let p,g;class o{static alloc(t){return l?new o(Buffer.allocUnsafe(t)):new o(new Uint8Array(t))}static wrap(t){return l&&!Buffer.isBuffer(t)&&(t=Buffer.from(t.buffer,t.byteOffset,t.byteLength)),new o(t)}static fromString(t,n){return!(n?.dontUseNodeBuffer||!1)&&l?new o(Buffer.from(t)):(p||(p=new TextEncoder),new o(p.encode(t)))}static fromByteArray(t){const n=o.alloc(t.length);for(let r=0,f=t.length;r<f;r++)n.buffer[r]=t[r];return n}static concat(t,n){if(typeof n>"u"){n=0;for(let s=0,u=t.length;s<u;s++)n+=t[s].byteLength}const r=o.alloc(n);let f=0;for(let s=0,u=t.length;s<u;s++){const i=t[s];r.set(i,f),f+=i.byteLength}return r}static isNativeBuffer(t){return l&&Buffer.isBuffer(t)}constructor(t){this.buffer=t,this.byteLength=this.buffer.byteLength}clone(){const t=o.alloc(this.byteLength);return t.set(this),t}toString(){return l?this.buffer.toString():(g||(g=new TextDecoder(void 0,{ignoreBOM:!0})),g.decode(this.buffer))}slice(t,n){return new o(this.buffer.subarray(t,n))}set(t,n){if(t instanceof o)this.buffer.set(t.buffer,n);else if(t instanceof Uint8Array)this.buffer.set(t,n);else if(t instanceof ArrayBuffer)this.buffer.set(new Uint8Array(t),n);else if(ArrayBuffer.isView(t))this.buffer.set(new Uint8Array(t.buffer,t.byteOffset,t.byteLength),n);else throw new Error("Unknown argument 'array'")}readUInt32BE(t){return $(this.buffer,t)}writeUInt32BE(t,n){U(this.buffer,t,n)}readUInt32LE(t){return B(this.buffer,t)}writeUInt32LE(t,n){d(this.buffer,t,n)}readUInt8(t){return m(this.buffer,t)}writeUInt8(t,n){A(this.buffer,t,n)}indexOf(t,n=0){return j(this.buffer,t instanceof o?t.buffer:t,n)}equals(t){return this===t?!0:this.byteLength!==t.byteLength?!1:this.buffer.every((n,r)=>n===t.buffer[r])}}function j(e,t,n=0){const r=t.byteLength,f=e.byteLength;if(r===0)return 0;if(r===1)return e.indexOf(t[0],n);if(r>f-n)return-1;const s=y.value;s.fill(t.length);for(let b=0;b<t.length;b++)s[t[b]]=t.length-b-1;let u=n+t.length-1,i=u,c=-1;for(;u<f;)if(e[u]===t[i]){if(i===0){c=u;break}u--,i--}else u+=Math.max(t.length-i,s[e[u]]),i=t.length-1;return c}function k(e,t){return e[t+0]<<0>>>0|e[t+1]<<8>>>0}function S(e,t,n){e[n+0]=t&255,t=t>>>8,e[n+1]=t&255}function $(e,t){return e[t]*2**24+e[t+1]*2**16+e[t+2]*2**8+e[t+3]}function U(e,t,n){e[n+3]=t,t=t>>>8,e[n+2]=t,t=t>>>8,e[n+1]=t,t=t>>>8,e[n]=t}function B(e,t){return e[t+0]<<0>>>0|e[t+1]<<8>>>0|e[t+2]<<16>>>0|e[t+3]<<24>>>0}function d(e,t,n){e[n+0]=t&255,t=t>>>8,e[n+1]=t&255,t=t>>>8,e[n+2]=t&255,t=t>>>8,e[n+3]=t&255}function m(e,t){return e[t]}function A(e,t,n){e[n]=t}function C(e){return h.$Yi(e,t=>o.concat(t))}function N(e){return h.$6i(e)}function L(e){return h.$1i(e,t=>o.concat(t))}async function M(e){return e.ended?o.concat(e.buffer):o.concat([...e.buffer,await L(e.stream)])}function T(e){return h.$4i(e,t=>o.concat(t))}function q(e){return h.$7i(e,{data:t=>typeof t=="string"?o.fromString(t):o.wrap(t)},t=>o.concat(t))}function D(e){return h.$Xi(t=>o.concat(t),e)}function H(e,t){return h.$8i(e,t,n=>o.concat(n))}function R(e,t){return h.$9i(e,t,n=>o.concat(n))}function V(e){let t=0,n=0,r=0;const f=new Uint8Array(Math.floor(e.length/4*3)),s=i=>{switch(n){case 3:f[r++]=t|i,n=0;break;case 2:f[r++]=t|i>>>2,t=i<<6,n=3;break;case 1:f[r++]=t|i>>>4,t=i<<4,n=2;break;default:t=i<<2,n=1}};for(let i=0;i<e.length;i++){const c=e.charCodeAt(i);if(c>=65&&c<=90)s(c-65);else if(c>=97&&c<=122)s(c-97+26);else if(c>=48&&c<=57)s(c-48+52);else if(c===43||c===45)s(62);else if(c===47||c===95)s(63);else{if(c===61)break;throw new SyntaxError(`Unexpected base64 character ${e[i]}`)}}const u=r;for(;n>0;)s(0);return o.wrap(f).slice(0,u)}const E="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",I="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";function X({buffer:e},t=!0,n=!1){const r=n?I:E;let f="";const s=e.byteLength%3;let u=0;for(;u<e.byteLength-s;u+=3){const i=e[u+0],c=e[u+1],b=e[u+2];f+=r[i>>>2],f+=r[(i<<4|c>>>4)&63],f+=r[(c<<2|b>>>6)&63],f+=r[b&63]}if(s===1){const i=e[u+0];f+=r[i>>>2],f+=r[i<<4&63],t&&(f+="==")}else if(s===2){const i=e[u+0],c=e[u+1];f+=r[i>>>2],f+=r[(i<<4|c>>>4)&63],f+=r[c<<2&63],t&&(f+="=")}return f}const w="0123456789abcdef";function Y({buffer:e}){let t="";for(let n=0;n<e.length;n++){const r=e[n];t+=w[r>>>4],t+=w[r&15]}return t}function z(e){if(e.length%2!==0)throw new SyntaxError("Hex string must have an even length");const t=new Uint8Array(e.length>>1);for(let n=0;n<e.length;)t[n>>1]=x(e,n++)<<4|x(e,n++);return o.wrap(t)}function x(e,t){const n=e.charCodeAt(t);if(n>=48&&n<=57)return n-48;if(n>=97&&n<=102)return n-87;if(n>=65&&n<=70)return n-55;throw new SyntaxError(`Invalid hex character at position ${t}`)}export{j as $$i,o as $0i,k as $_i,S as $aj,$ as $bj,U as $cj,B as $dj,d as $ej,m as $fj,A as $gj,C as $hj,N as $ij,L as $jj,M as $kj,T as $lj,q as $mj,D as $nj,H as $oj,R as $pj,V as $qj,X as $rj,Y as $sj,z as $tj};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Lazy } from "./lazy.js";
+import * as streams from "./stream.js";
+const hasBuffer = typeof Buffer !== "undefined";
+const indexOfTable = new Lazy(() => new Uint8Array(256));
+let textEncoder;
+let textDecoder;
+class VSBuffer {
+  static {
+    __name(this, "VSBuffer");
+  }
+  /**
+   * When running in a nodejs context, the backing store for the returned `VSBuffer` instance
+   * might use a nodejs Buffer allocated from node's Buffer pool, which is not transferrable.
+   */
+  static alloc(byteLength) {
+    if (hasBuffer) {
+      return new VSBuffer(Buffer.allocUnsafe(byteLength));
+    } else {
+      return new VSBuffer(new Uint8Array(byteLength));
+    }
+  }
+  /**
+   * When running in a nodejs context, if `actual` is not a nodejs Buffer, the backing store for
+   * the returned `VSBuffer` instance might use a nodejs Buffer allocated from node's Buffer pool,
+   * which is not transferrable.
+   */
+  static wrap(actual) {
+    if (hasBuffer && !Buffer.isBuffer(actual)) {
+      actual = Buffer.from(actual.buffer, actual.byteOffset, actual.byteLength);
+    }
+    return new VSBuffer(actual);
+  }
+  /**
+   * When running in a nodejs context, the backing store for the returned `VSBuffer` instance
+   * might use a nodejs Buffer allocated from node's Buffer pool, which is not transferrable.
+   */
+  static fromString(source, options) {
+    const dontUseNodeBuffer = options?.dontUseNodeBuffer || false;
+    if (!dontUseNodeBuffer && hasBuffer) {
+      return new VSBuffer(Buffer.from(source));
+    } else {
+      if (!textEncoder) {
+        textEncoder = new TextEncoder();
+      }
+      return new VSBuffer(textEncoder.encode(source));
+    }
+  }
+  /**
+   * When running in a nodejs context, the backing store for the returned `VSBuffer` instance
+   * might use a nodejs Buffer allocated from node's Buffer pool, which is not transferrable.
+   */
+  static fromByteArray(source) {
+    const result = VSBuffer.alloc(source.length);
+    for (let i = 0, len = source.length; i < len; i++) {
+      result.buffer[i] = source[i];
+    }
+    return result;
+  }
+  /**
+   * When running in a nodejs context, the backing store for the returned `VSBuffer` instance
+   * might use a nodejs Buffer allocated from node's Buffer pool, which is not transferrable.
+   */
+  static concat(buffers, totalLength) {
+    if (typeof totalLength === "undefined") {
+      totalLength = 0;
+      for (let i = 0, len = buffers.length; i < len; i++) {
+        totalLength += buffers[i].byteLength;
+      }
+    }
+    const ret = VSBuffer.alloc(totalLength);
+    let offset = 0;
+    for (let i = 0, len = buffers.length; i < len; i++) {
+      const element = buffers[i];
+      ret.set(element, offset);
+      offset += element.byteLength;
+    }
+    return ret;
+  }
+  static isNativeBuffer(buffer) {
+    return hasBuffer && Buffer.isBuffer(buffer);
+  }
+  constructor(buffer) {
+    this.buffer = buffer;
+    this.byteLength = this.buffer.byteLength;
+  }
+  /**
+   * When running in a nodejs context, the backing store for the returned `VSBuffer` instance
+   * might use a nodejs Buffer allocated from node's Buffer pool, which is not transferrable.
+   */
+  clone() {
+    const result = VSBuffer.alloc(this.byteLength);
+    result.set(this);
+    return result;
+  }
+  toString() {
+    if (hasBuffer) {
+      return this.buffer.toString();
+    } else {
+      if (!textDecoder) {
+        textDecoder = new TextDecoder(void 0, { ignoreBOM: true });
+      }
+      return textDecoder.decode(this.buffer);
+    }
+  }
+  slice(start, end) {
+    return new VSBuffer(this.buffer.subarray(start, end));
+  }
+  set(array, offset) {
+    if (array instanceof VSBuffer) {
+      this.buffer.set(array.buffer, offset);
+    } else if (array instanceof Uint8Array) {
+      this.buffer.set(array, offset);
+    } else if (array instanceof ArrayBuffer) {
+      this.buffer.set(new Uint8Array(array), offset);
+    } else if (ArrayBuffer.isView(array)) {
+      this.buffer.set(new Uint8Array(array.buffer, array.byteOffset, array.byteLength), offset);
+    } else {
+      throw new Error(`Unknown argument 'array'`);
+    }
+  }
+  readUInt32BE(offset) {
+    return readUInt32BE(this.buffer, offset);
+  }
+  writeUInt32BE(value, offset) {
+    writeUInt32BE(this.buffer, value, offset);
+  }
+  readUInt32LE(offset) {
+    return readUInt32LE(this.buffer, offset);
+  }
+  writeUInt32LE(value, offset) {
+    writeUInt32LE(this.buffer, value, offset);
+  }
+  readUInt8(offset) {
+    return readUInt8(this.buffer, offset);
+  }
+  writeUInt8(value, offset) {
+    writeUInt8(this.buffer, value, offset);
+  }
+  indexOf(subarray, offset = 0) {
+    return binaryIndexOf(this.buffer, subarray instanceof VSBuffer ? subarray.buffer : subarray, offset);
+  }
+  equals(other) {
+    if (this === other) {
+      return true;
+    }
+    if (this.byteLength !== other.byteLength) {
+      return false;
+    }
+    return this.buffer.every((value, index) => value === other.buffer[index]);
+  }
+}
+function binaryIndexOf(haystack, needle, offset = 0) {
+  const needleLen = needle.byteLength;
+  const haystackLen = haystack.byteLength;
+  if (needleLen === 0) {
+    return 0;
+  }
+  if (needleLen === 1) {
+    return haystack.indexOf(needle[0], offset);
+  }
+  if (needleLen > haystackLen - offset) {
+    return -1;
+  }
+  const table = indexOfTable.value;
+  table.fill(needle.length);
+  for (let i2 = 0; i2 < needle.length; i2++) {
+    table[needle[i2]] = needle.length - i2 - 1;
+  }
+  let i = offset + needle.length - 1;
+  let j = i;
+  let result = -1;
+  while (i < haystackLen) {
+    if (haystack[i] === needle[j]) {
+      if (j === 0) {
+        result = i;
+        break;
+      }
+      i--;
+      j--;
+    } else {
+      i += Math.max(needle.length - j, table[haystack[i]]);
+      j = needle.length - 1;
+    }
+  }
+  return result;
+}
+__name(binaryIndexOf, "binaryIndexOf");
+function readUInt16LE(source, offset) {
+  return source[offset + 0] << 0 >>> 0 | source[offset + 1] << 8 >>> 0;
+}
+__name(readUInt16LE, "readUInt16LE");
+function writeUInt16LE(destination, value, offset) {
+  destination[offset + 0] = value & 255;
+  value = value >>> 8;
+  destination[offset + 1] = value & 255;
+}
+__name(writeUInt16LE, "writeUInt16LE");
+function readUInt32BE(source, offset) {
+  return source[offset] * 2 ** 24 + source[offset + 1] * 2 ** 16 + source[offset + 2] * 2 ** 8 + source[offset + 3];
+}
+__name(readUInt32BE, "readUInt32BE");
+function writeUInt32BE(destination, value, offset) {
+  destination[offset + 3] = value;
+  value = value >>> 8;
+  destination[offset + 2] = value;
+  value = value >>> 8;
+  destination[offset + 1] = value;
+  value = value >>> 8;
+  destination[offset] = value;
+}
+__name(writeUInt32BE, "writeUInt32BE");
+function readUInt32LE(source, offset) {
+  return source[offset + 0] << 0 >>> 0 | source[offset + 1] << 8 >>> 0 | source[offset + 2] << 16 >>> 0 | source[offset + 3] << 24 >>> 0;
+}
+__name(readUInt32LE, "readUInt32LE");
+function writeUInt32LE(destination, value, offset) {
+  destination[offset + 0] = value & 255;
+  value = value >>> 8;
+  destination[offset + 1] = value & 255;
+  value = value >>> 8;
+  destination[offset + 2] = value & 255;
+  value = value >>> 8;
+  destination[offset + 3] = value & 255;
+}
+__name(writeUInt32LE, "writeUInt32LE");
+function readUInt8(source, offset) {
+  return source[offset];
+}
+__name(readUInt8, "readUInt8");
+function writeUInt8(destination, value, offset) {
+  destination[offset] = value;
+}
+__name(writeUInt8, "writeUInt8");
+function readableToBuffer(readable) {
+  return streams.consumeReadable(readable, (chunks) => VSBuffer.concat(chunks));
+}
+__name(readableToBuffer, "readableToBuffer");
+function bufferToReadable(buffer) {
+  return streams.toReadable(buffer);
+}
+__name(bufferToReadable, "bufferToReadable");
+function streamToBuffer(stream) {
+  return streams.consumeStream(stream, (chunks) => VSBuffer.concat(chunks));
+}
+__name(streamToBuffer, "streamToBuffer");
+async function bufferedStreamToBuffer(bufferedStream) {
+  if (bufferedStream.ended) {
+    return VSBuffer.concat(bufferedStream.buffer);
+  }
+  return VSBuffer.concat([
+    // Include already read chunks...
+    ...bufferedStream.buffer,
+    // ...and all additional chunks
+    await streamToBuffer(bufferedStream.stream)
+  ]);
+}
+__name(bufferedStreamToBuffer, "bufferedStreamToBuffer");
+function bufferToStream(buffer) {
+  return streams.toStream(buffer, (chunks) => VSBuffer.concat(chunks));
+}
+__name(bufferToStream, "bufferToStream");
+function streamToBufferReadableStream(stream) {
+  return streams.transform(stream, { data: /* @__PURE__ */ __name((data) => typeof data === "string" ? VSBuffer.fromString(data) : VSBuffer.wrap(data), "data") }, (chunks) => VSBuffer.concat(chunks));
+}
+__name(streamToBufferReadableStream, "streamToBufferReadableStream");
+function newWriteableBufferStream(options) {
+  return streams.newWriteableStream((chunks) => VSBuffer.concat(chunks), options);
+}
+__name(newWriteableBufferStream, "newWriteableBufferStream");
+function prefixedBufferReadable(prefix, readable) {
+  return streams.prefixedReadable(prefix, readable, (chunks) => VSBuffer.concat(chunks));
+}
+__name(prefixedBufferReadable, "prefixedBufferReadable");
+function prefixedBufferStream(prefix, stream) {
+  return streams.prefixedStream(prefix, stream, (chunks) => VSBuffer.concat(chunks));
+}
+__name(prefixedBufferStream, "prefixedBufferStream");
+function decodeBase64(encoded) {
+  let building = 0;
+  let remainder = 0;
+  let bufi = 0;
+  const buffer = new Uint8Array(Math.floor(encoded.length / 4 * 3));
+  const append = /* @__PURE__ */ __name((value) => {
+    switch (remainder) {
+      case 3:
+        buffer[bufi++] = building | value;
+        remainder = 0;
+        break;
+      case 2:
+        buffer[bufi++] = building | value >>> 2;
+        building = value << 6;
+        remainder = 3;
+        break;
+      case 1:
+        buffer[bufi++] = building | value >>> 4;
+        building = value << 4;
+        remainder = 2;
+        break;
+      default:
+        building = value << 2;
+        remainder = 1;
+    }
+  }, "append");
+  for (let i = 0; i < encoded.length; i++) {
+    const code = encoded.charCodeAt(i);
+    if (code >= 65 && code <= 90) {
+      append(code - 65);
+    } else if (code >= 97 && code <= 122) {
+      append(code - 97 + 26);
+    } else if (code >= 48 && code <= 57) {
+      append(code - 48 + 52);
+    } else if (code === 43 || code === 45) {
+      append(62);
+    } else if (code === 47 || code === 95) {
+      append(63);
+    } else if (code === 61) {
+      break;
+    } else {
+      throw new SyntaxError(`Unexpected base64 character ${encoded[i]}`);
+    }
+  }
+  const unpadded = bufi;
+  while (remainder > 0) {
+    append(0);
+  }
+  return VSBuffer.wrap(buffer).slice(0, unpadded);
+}
+__name(decodeBase64, "decodeBase64");
+const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const base64UrlSafeAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function encodeBase64({ buffer }, padded = true, urlSafe = false) {
+  const dictionary = urlSafe ? base64UrlSafeAlphabet : base64Alphabet;
+  let output = "";
+  const remainder = buffer.byteLength % 3;
+  let i = 0;
+  for (; i < buffer.byteLength - remainder; i += 3) {
+    const a = buffer[i + 0];
+    const b = buffer[i + 1];
+    const c = buffer[i + 2];
+    output += dictionary[a >>> 2];
+    output += dictionary[(a << 4 | b >>> 4) & 63];
+    output += dictionary[(b << 2 | c >>> 6) & 63];
+    output += dictionary[c & 63];
+  }
+  if (remainder === 1) {
+    const a = buffer[i + 0];
+    output += dictionary[a >>> 2];
+    output += dictionary[a << 4 & 63];
+    if (padded) {
+      output += "==";
+    }
+  } else if (remainder === 2) {
+    const a = buffer[i + 0];
+    const b = buffer[i + 1];
+    output += dictionary[a >>> 2];
+    output += dictionary[(a << 4 | b >>> 4) & 63];
+    output += dictionary[b << 2 & 63];
+    if (padded) {
+      output += "=";
+    }
+  }
+  return output;
+}
+__name(encodeBase64, "encodeBase64");
+const hexChars = "0123456789abcdef";
+function encodeHex({ buffer }) {
+  let result = "";
+  for (let i = 0; i < buffer.length; i++) {
+    const byte = buffer[i];
+    result += hexChars[byte >>> 4];
+    result += hexChars[byte & 15];
+  }
+  return result;
+}
+__name(encodeHex, "encodeHex");
+function decodeHex(hex) {
+  if (hex.length % 2 !== 0) {
+    throw new SyntaxError("Hex string must have an even length");
+  }
+  const out = new Uint8Array(hex.length >> 1);
+  for (let i = 0; i < hex.length; ) {
+    out[i >> 1] = decodeHexChar(hex, i++) << 4 | decodeHexChar(hex, i++);
+  }
+  return VSBuffer.wrap(out);
+}
+__name(decodeHex, "decodeHex");
+function decodeHexChar(str, position) {
+  const s = str.charCodeAt(position);
+  if (s >= 48 && s <= 57) {
+    return s - 48;
+  } else if (s >= 97 && s <= 102) {
+    return s - 87;
+  } else if (s >= 65 && s <= 70) {
+    return s - 55;
+  } else {
+    throw new SyntaxError(`Invalid hex character at position ${position}`);
+  }
+}
+__name(decodeHexChar, "decodeHexChar");
+export {
+  VSBuffer,
+  binaryIndexOf,
+  bufferToReadable,
+  bufferToStream,
+  bufferedStreamToBuffer,
+  decodeBase64,
+  decodeHex,
+  encodeBase64,
+  encodeHex,
+  newWriteableBufferStream,
+  prefixedBufferReadable,
+  prefixedBufferStream,
+  readUInt16LE,
+  readUInt32BE,
+  readUInt32LE,
+  readUInt8,
+  readableToBuffer,
+  streamToBuffer,
+  streamToBufferReadableStream,
+  writeUInt16LE,
+  writeUInt32BE,
+  writeUInt32LE,
+  writeUInt8
+};
+//# sourceMappingURL=buffer.js.map

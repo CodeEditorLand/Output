@@ -1,1 +1,75 @@
-import{localize as e}from"../../../../nls.js";import{$wL as r}from"../../../../platform/actions/common/actions.js";import{$lm as m}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Kj as n}from"../../../../platform/instantiation/common/descriptors.js";import{$jm as o}from"../../../../platform/registry/common/platform.js";import{$aSb as A}from"../../../browser/editor.js";import{Extensions as a,$2N as s}from"../../../common/contributions.js";import{$9M as c}from"../../../common/editor.js";import{$IAc as f,$JAc as p,$NAc as l,$FAc as d,$GAc as u,$BAc as b,$CAc as g,$HAc as E,$tAc as h,$AAc as D,$KAc as w,$vAc as y,$uAc as k,$yAc as v,$zAc as C,$xAc as I,$wAc as x,$DAc as z,$EAc as M,$LAc as P,$MAc as S,$OAc as W}from"./commands/commands.js";import{$PAc as j,$RAc as F,$QAc as K}from"./commands/devCommands.js";import{$_6b as $}from"./mergeEditorInput.js";import{$qAc as i,$rAc as L,$sAc as t}from"./view/mergeEditor.js";import{$SAc as N}from"./mergeEditorSerializer.js";import{$Dvb as q}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$TAc as B}from"./mergeEditorAccessibilityHelp.js";o.as(c.EditorPane).registerEditorPane(A.create(i,i.ID,e(10557,null)),[new n($)]);o.as(c.EditorFactory).registerEditorSerializer($.ID,N);o.as(m.Configuration).registerConfiguration({properties:{"mergeEditor.diffAlgorithm":{type:"string",enum:["legacy","advanced"],default:"advanced",markdownEnumDescriptions:[e(10558,null),e(10559,null)]},"mergeEditor.showDeletionMarkers":{type:"boolean",default:!0,description:"Controls if deletions in base or one of the inputs should be indicated by a vertical bar."}}});r(D);r(k);r(y);r(h);r(E);r(x);r(I);r(v);r(C);r(b);r(g);r(z);r(M);r(d);r(u);r(f);r(p);r(w);r(l);r(P);r(S);r(W);r(j);r(K);r(F);o.as(a.Workbench).registerWorkbenchContribution(L,3);s(t.ID,t,1);q.register(new B);
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { Extensions as WorkbenchExtensions, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { AcceptAllInput1, AcceptAllInput2, AcceptMerge, CompareInput1WithBaseCommand, CompareInput2WithBaseCommand, GoToNextUnhandledConflict, GoToPreviousUnhandledConflict, OpenBaseFile, OpenMergeEditor, OpenResultResource, ResetToBaseAndAutoMergeCommand, SetColumnLayout, SetMixedLayout, ShowHideTopBase, ShowHideCenterBase, ShowHideBase, ShowNonConflictingChanges, ToggleActiveConflictInput1, ToggleActiveConflictInput2, ResetCloseWithConflictsChoice, AcceptAllCombination, ToggleBetweenInputs } from "./commands/commands.js";
+import { MergeEditorCopyContentsToJSON, MergeEditorLoadContentsFromFolder, MergeEditorSaveContentsToFolder } from "./commands/devCommands.js";
+import { MergeEditorInput } from "./mergeEditorInput.js";
+import { MergeEditor, MergeEditorOpenHandlerContribution, MergeEditorResolverContribution } from "./view/mergeEditor.js";
+import { MergeEditorSerializer } from "./mergeEditorSerializer.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { MergeEditorAccessibilityHelpProvider } from "./mergeEditorAccessibilityHelp.js";
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(MergeEditor, MergeEditor.ID, localize("name", "Merge Editor")), [
+  new SyncDescriptor(MergeEditorInput)
+]);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(MergeEditorInput.ID, MergeEditorSerializer);
+Registry.as(Extensions.Configuration).registerConfiguration({
+  properties: {
+    "mergeEditor.diffAlgorithm": {
+      type: "string",
+      enum: ["legacy", "advanced"],
+      default: "advanced",
+      markdownEnumDescriptions: [
+        localize("diffAlgorithm.legacy", "Uses the legacy diffing algorithm."),
+        localize("diffAlgorithm.advanced", "Uses the advanced diffing algorithm.")
+      ]
+    },
+    "mergeEditor.showDeletionMarkers": {
+      type: "boolean",
+      default: true,
+      description: "Controls if deletions in base or one of the inputs should be indicated by a vertical bar."
+    }
+  }
+});
+registerAction2(OpenResultResource);
+registerAction2(SetMixedLayout);
+registerAction2(SetColumnLayout);
+registerAction2(OpenMergeEditor);
+registerAction2(OpenBaseFile);
+registerAction2(ShowNonConflictingChanges);
+registerAction2(ShowHideBase);
+registerAction2(ShowHideTopBase);
+registerAction2(ShowHideCenterBase);
+registerAction2(GoToNextUnhandledConflict);
+registerAction2(GoToPreviousUnhandledConflict);
+registerAction2(ToggleActiveConflictInput1);
+registerAction2(ToggleActiveConflictInput2);
+registerAction2(CompareInput1WithBaseCommand);
+registerAction2(CompareInput2WithBaseCommand);
+registerAction2(AcceptAllInput1);
+registerAction2(AcceptAllInput2);
+registerAction2(ResetToBaseAndAutoMergeCommand);
+registerAction2(AcceptMerge);
+registerAction2(ResetCloseWithConflictsChoice);
+registerAction2(AcceptAllCombination);
+registerAction2(ToggleBetweenInputs);
+registerAction2(MergeEditorCopyContentsToJSON);
+registerAction2(MergeEditorSaveContentsToFolder);
+registerAction2(MergeEditorLoadContentsFromFolder);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  MergeEditorOpenHandlerContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+registerWorkbenchContribution2(
+  MergeEditorResolverContribution.ID,
+  MergeEditorResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+AccessibleViewRegistry.register(new MergeEditorAccessibilityHelpProvider());
+//# sourceMappingURL=mergeEditor.contribution.js.map

@@ -1,1 +1,51 @@
-import{$0h as m}from"../../../../base/common/async.js";import{$uo as s}from"../../../../platform/commands/common/commands.js";import{$Xu as u}from"../../../../platform/native/common/native.js";import{$lZ as h}from"../../debug/common/debug.js";import{$v3b as _}from"../common/mcpDevMode.js";var l=function(n,t,r,e){var i=arguments.length,o=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,r,e);else for(var c=n.length-1;c>=0;c--)(f=n[c])&&(o=(i<3?f(o):i>3?f(t,r,o):f(t,r))||o);return i>3&&o&&Object.defineProperty(t,r,o),o},a=function(n,t){return function(r,e){t(r,e,n)}};let p=class extends _{constructor(t,r,e){super(t,r),this.g=e}async c(t){const r=Date.now()+3e4;for(;await this.g.isPortFree(t)&&Date.now()<r;)await m(50)}f(){return this.g.findFreePort(5e3,10,5e3,2048)}};p=l([a(0,h),a(1,s),a(2,u)],p);export{p as $bYc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../base/common/async.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IDebugService } from "../../debug/common/debug.js";
+import { McpDevModeDebugging } from "../common/mcpDevMode.js";
+let McpDevModeDebuggingNode = class McpDevModeDebuggingNode2 extends McpDevModeDebugging {
+  static {
+    __name(this, "McpDevModeDebuggingNode");
+  }
+  constructor(debugService, commandService, _nativeHostService) {
+    super(debugService, commandService);
+    this._nativeHostService = _nativeHostService;
+  }
+  async ensureListeningOnPort(port) {
+    const deadline = Date.now() + 3e4;
+    while (await this._nativeHostService.isPortFree(port) && Date.now() < deadline) {
+      await timeout(50);
+    }
+  }
+  getDebugPort() {
+    return this._nativeHostService.findFreePort(
+      5e3,
+      10,
+      5e3,
+      2048
+      /* skip 2048 ports between attempts */
+    );
+  }
+};
+McpDevModeDebuggingNode = __decorate([
+  __param(0, IDebugService),
+  __param(1, ICommandService),
+  __param(2, INativeHostService)
+], McpDevModeDebuggingNode);
+export {
+  McpDevModeDebuggingNode
+};
+//# sourceMappingURL=mcpDevModeDebuggingNode.js.map

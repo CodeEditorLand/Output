@@ -1,1 +1,176 @@
-import{$5w as f}from"../../../../base/common/keyCodes.js";import*as i from"../../../../nls.js";import{$qL as x}from"../../../../platform/actions/common/actions.js";import{$Sdb as L,$Xdb as a}from"../../../browser/editorExtensions.js";import{$_D as C}from"../../../common/core/range.js";import{EditorContextKeys as o}from"../../../common/editorContextKeys.js";import{$MG as h}from"../../../common/languages/languageConfigurationRegistry.js";import{$Sub as S}from"./blockCommentCommand.js";import{$Tub as E}from"./lineCommentCommand.js";class b extends L{constructor(r,e){super(e),this.d=r}run(r,e){const u=r.get(h);if(!e.hasModel())return;const d=e.getModel(),s=[],g=d.getOptions(),l=e.getOption(29),c=e.getSelections().map((t,n)=>({selection:t,index:n,ignoreFirstLine:!1}));c.sort((t,n)=>C.compareRangesUsingStarts(t.selection,n.selection));let p=c[0];for(let t=1;t<c.length;t++){const n=c[t];p.selection.endLineNumber===n.selection.startLineNumber&&(p.index<n.index?n.ignoreFirstLine=!0:(p.ignoreFirstLine=!0,p=n))}for(const t of c)s.push(new E(u,t.selection,g.indentSize,this.d,l.insertSpace,l.ignoreEmptyLines,t.ignoreFirstLine));e.pushUndoStop(),e.executeCommands(this.id,s),e.pushUndoStop()}}class O extends b{constructor(){super(0,{id:"editor.action.commentLine",label:i.localize2(1061,"Toggle Line Comment"),precondition:o.writable,kbOpts:{kbExpr:o.editorTextFocus,primary:2138,weight:100},menuOpts:{menuId:x.MenubarEditMenu,group:"5_insert",title:i.localize(1059,null),order:1},canTriggerInlineEdits:!0})}}class T extends b{constructor(){super(1,{id:"editor.action.addCommentLine",label:i.localize2(1062,"Add Line Comment"),precondition:o.writable,kbOpts:{kbExpr:o.editorTextFocus,primary:f(2089,2081),weight:100},canTriggerInlineEdits:!0})}}class k extends b{constructor(){super(2,{id:"editor.action.removeCommentLine",label:i.localize2(1063,"Remove Line Comment"),precondition:o.writable,kbOpts:{kbExpr:o.editorTextFocus,primary:f(2089,2099),weight:100},canTriggerInlineEdits:!0})}}class w extends L{constructor(){super({id:"editor.action.blockComment",label:i.localize2(1064,"Toggle Block Comment"),precondition:o.writable,kbOpts:{kbExpr:o.editorTextFocus,primary:1567,linux:{primary:3103},weight:100},menuOpts:{menuId:x.MenubarEditMenu,group:"5_insert",title:i.localize(1060,null),order:2},canTriggerInlineEdits:!0})}run(r,e){const u=r.get(h);if(!e.hasModel())return;const d=e.getOption(29),s=[],g=e.getSelections();for(const l of g)s.push(new S(l,d.insertSpace,u));e.pushUndoStop(),e.executeCommands(this.id,s),e.pushUndoStop()}}a(O);a(T);a(k);a(w);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import * as nls from "../../../../nls.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { EditorAction, registerEditorAction } from "../../../browser/editorExtensions.js";
+import { Range } from "../../../common/core/range.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { BlockCommentCommand } from "./blockCommentCommand.js";
+import { LineCommentCommand } from "./lineCommentCommand.js";
+class CommentLineAction extends EditorAction {
+  static {
+    __name(this, "CommentLineAction");
+  }
+  constructor(type, opts) {
+    super(opts);
+    this._type = type;
+  }
+  run(accessor, editor) {
+    const languageConfigurationService = accessor.get(ILanguageConfigurationService);
+    if (!editor.hasModel()) {
+      return;
+    }
+    const model = editor.getModel();
+    const commands = [];
+    const modelOptions = model.getOptions();
+    const commentsOptions = editor.getOption(
+      29
+      /* EditorOption.comments */
+    );
+    const selections = editor.getSelections().map((selection, index) => ({ selection, index, ignoreFirstLine: false }));
+    selections.sort((a, b) => Range.compareRangesUsingStarts(a.selection, b.selection));
+    let prev = selections[0];
+    for (let i = 1; i < selections.length; i++) {
+      const curr = selections[i];
+      if (prev.selection.endLineNumber === curr.selection.startLineNumber) {
+        if (prev.index < curr.index) {
+          curr.ignoreFirstLine = true;
+        } else {
+          prev.ignoreFirstLine = true;
+          prev = curr;
+        }
+      }
+    }
+    for (const selection of selections) {
+      commands.push(new LineCommentCommand(languageConfigurationService, selection.selection, modelOptions.indentSize, this._type, commentsOptions.insertSpace, commentsOptions.ignoreEmptyLines, selection.ignoreFirstLine));
+    }
+    editor.pushUndoStop();
+    editor.executeCommands(this.id, commands);
+    editor.pushUndoStop();
+  }
+}
+class ToggleCommentLineAction extends CommentLineAction {
+  static {
+    __name(this, "ToggleCommentLineAction");
+  }
+  constructor() {
+    super(0, {
+      id: "editor.action.commentLine",
+      label: nls.localize2("comment.line", "Toggle Line Comment"),
+      precondition: EditorContextKeys.writable,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: 2048 | 90,
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menuOpts: {
+        menuId: MenuId.MenubarEditMenu,
+        group: "5_insert",
+        title: nls.localize({ key: "miToggleLineComment", comment: ["&& denotes a mnemonic"] }, "&&Toggle Line Comment"),
+        order: 1
+      },
+      canTriggerInlineEdits: true
+    });
+  }
+}
+class AddLineCommentAction extends CommentLineAction {
+  static {
+    __name(this, "AddLineCommentAction");
+  }
+  constructor() {
+    super(1, {
+      id: "editor.action.addCommentLine",
+      label: nls.localize2("comment.line.add", "Add Line Comment"),
+      precondition: EditorContextKeys.writable,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: KeyChord(
+          2048 | 41,
+          2048 | 33
+          /* KeyCode.KeyC */
+        ),
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      canTriggerInlineEdits: true
+    });
+  }
+}
+class RemoveLineCommentAction extends CommentLineAction {
+  static {
+    __name(this, "RemoveLineCommentAction");
+  }
+  constructor() {
+    super(2, {
+      id: "editor.action.removeCommentLine",
+      label: nls.localize2("comment.line.remove", "Remove Line Comment"),
+      precondition: EditorContextKeys.writable,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: KeyChord(
+          2048 | 41,
+          2048 | 51
+          /* KeyCode.KeyU */
+        ),
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      canTriggerInlineEdits: true
+    });
+  }
+}
+class BlockCommentAction extends EditorAction {
+  static {
+    __name(this, "BlockCommentAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.blockComment",
+      label: nls.localize2("comment.block", "Toggle Block Comment"),
+      precondition: EditorContextKeys.writable,
+      kbOpts: {
+        kbExpr: EditorContextKeys.editorTextFocus,
+        primary: 1024 | 512 | 31,
+        linux: {
+          primary: 2048 | 1024 | 31
+          /* KeyCode.KeyA */
+        },
+        weight: 100
+        /* KeybindingWeight.EditorContrib */
+      },
+      menuOpts: {
+        menuId: MenuId.MenubarEditMenu,
+        group: "5_insert",
+        title: nls.localize({ key: "miToggleBlockComment", comment: ["&& denotes a mnemonic"] }, "Toggle &&Block Comment"),
+        order: 2
+      },
+      canTriggerInlineEdits: true
+    });
+  }
+  run(accessor, editor) {
+    const languageConfigurationService = accessor.get(ILanguageConfigurationService);
+    if (!editor.hasModel()) {
+      return;
+    }
+    const commentsOptions = editor.getOption(
+      29
+      /* EditorOption.comments */
+    );
+    const commands = [];
+    const selections = editor.getSelections();
+    for (const selection of selections) {
+      commands.push(new BlockCommentCommand(selection, commentsOptions.insertSpace, languageConfigurationService));
+    }
+    editor.pushUndoStop();
+    editor.executeCommands(this.id, commands);
+    editor.pushUndoStop();
+  }
+}
+registerEditorAction(ToggleCommentLineAction);
+registerEditorAction(AddLineCommentAction);
+registerEditorAction(RemoveLineCommentAction);
+registerEditorAction(BlockCommentAction);
+//# sourceMappingURL=comment.js.map

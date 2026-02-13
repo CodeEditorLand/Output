@@ -1,1 +1,95 @@
-import{promises as g}from"fs";import{$ji as w}from"../../../../base/common/async.js";import{$mb as y}from"../../../../base/common/errors.js";import{$Ed as D}from"../../../../base/common/lifecycle.js";import{$9 as s}from"../../../../base/common/path.js";import{Promises as l}from"../../../../base/node/pfs.js";import{$Ll as j}from"../../../../platform/environment/common/environment.js";import{$yo as k}from"../../../../platform/log/common/log.js";import{$Vn as _}from"../../../../platform/product/common/productService.js";var b=function(i,t,c,a){var n=arguments.length,r=n<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,c):a,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,t,c,a);else for(var e=i.length-1;e>=0;e--)(o=i[e])&&(r=(n<3?o(r):n>3?o(t,c,r):o(t,c))||r);return n>3&&r&&Object.defineProperty(t,c,r),r},p=function(i,t){return function(c,a){t(c,a,i)}};let d=class extends D{constructor(t,c,a){super(),this.b=t,this.c=c,this.a=a.quality!=="stable"?1e3*60*60*24*7:1e3*60*60*24*30*3,this.b.isBuilt&&this.D(new w(()=>{this.f()},4e4)).schedule()}async f(){this.c.trace("[language pack cache cleanup]: Starting to clean up unused language packs.");try{const t=Object.create(null),c=JSON.parse(await g.readFile(s(this.b.userDataPath,"languagepacks.json"),"utf8"));for(const e of Object.keys(c)){const f=c[e];t[`${f.hash}.${e}`]=!0}const a=s(this.b.userDataPath,"clp");if(!await l.exists(a))return;const r=await l.readdir(a);for(const e of r){if(t[e]){this.c.trace(`[language pack cache cleanup]: Skipping folder ${e}. Language pack still in use.`);continue}this.c.trace(`[language pack cache cleanup]: Removing unused language pack: ${e}`),await l.rm(s(a,e))}const o=Date.now();for(const e of Object.keys(t)){const f=s(a,e),$=await l.readdir(f);for(const u of $){if(u==="tcf.json")continue;const h=s(f,u),m=await g.stat(h);m.isDirectory()&&o-m.mtime.getTime()>this.a&&(this.c.trace(`[language pack cache cleanup]: Removing language pack cache folder: ${s(e,u)}`),await l.rm(h))}}}catch(t){y(t)}}};d=b([p(0,j),p(1,k),p(2,_)],d);export{d as $gQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { promises } from "fs";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { join } from "../../../../base/common/path.js";
+import { Promises } from "../../../../base/node/pfs.js";
+import { INativeEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+let LanguagePackCachedDataCleaner = class LanguagePackCachedDataCleaner2 extends Disposable {
+  static {
+    __name(this, "LanguagePackCachedDataCleaner");
+  }
+  constructor(environmentService, logService, productService) {
+    super();
+    this.environmentService = environmentService;
+    this.logService = logService;
+    this.dataMaxAge = productService.quality !== "stable" ? 1e3 * 60 * 60 * 24 * 7 : 1e3 * 60 * 60 * 24 * 30 * 3;
+    if (this.environmentService.isBuilt) {
+      const scheduler = this._register(new RunOnceScheduler(
+        () => {
+          this.cleanUpLanguagePackCache();
+        },
+        40 * 1e3
+        /* after 40s */
+      ));
+      scheduler.schedule();
+    }
+  }
+  async cleanUpLanguagePackCache() {
+    this.logService.trace("[language pack cache cleanup]: Starting to clean up unused language packs.");
+    try {
+      const installed = /* @__PURE__ */ Object.create(null);
+      const metaData = JSON.parse(await promises.readFile(join(this.environmentService.userDataPath, "languagepacks.json"), "utf8"));
+      for (const locale of Object.keys(metaData)) {
+        const entry = metaData[locale];
+        installed[`${entry.hash}.${locale}`] = true;
+      }
+      const cacheDir = join(this.environmentService.userDataPath, "clp");
+      const cacheDirExists = await Promises.exists(cacheDir);
+      if (!cacheDirExists) {
+        return;
+      }
+      const entries = await Promises.readdir(cacheDir);
+      for (const entry of entries) {
+        if (installed[entry]) {
+          this.logService.trace(`[language pack cache cleanup]: Skipping folder ${entry}. Language pack still in use.`);
+          continue;
+        }
+        this.logService.trace(`[language pack cache cleanup]: Removing unused language pack: ${entry}`);
+        await Promises.rm(join(cacheDir, entry));
+      }
+      const now = Date.now();
+      for (const packEntry of Object.keys(installed)) {
+        const folder = join(cacheDir, packEntry);
+        const entries2 = await Promises.readdir(folder);
+        for (const entry of entries2) {
+          if (entry === "tcf.json") {
+            continue;
+          }
+          const candidate = join(folder, entry);
+          const stat = await promises.stat(candidate);
+          if (stat.isDirectory() && now - stat.mtime.getTime() > this.dataMaxAge) {
+            this.logService.trace(`[language pack cache cleanup]: Removing language pack cache folder: ${join(packEntry, entry)}`);
+            await Promises.rm(candidate);
+          }
+        }
+      }
+    } catch (error) {
+      onUnexpectedError(error);
+    }
+  }
+};
+LanguagePackCachedDataCleaner = __decorate([
+  __param(0, INativeEnvironmentService),
+  __param(1, ILogService),
+  __param(2, IProductService)
+], LanguagePackCachedDataCleaner);
+export {
+  LanguagePackCachedDataCleaner
+};
+//# sourceMappingURL=languagePackCachedDataCleaner.js.map

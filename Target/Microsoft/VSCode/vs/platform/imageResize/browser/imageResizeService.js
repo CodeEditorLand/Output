@@ -1,1 +1,147 @@
-import{$qj as h,$0i as y}from"../../../base/common/buffer.js";import{$Ih as F}from"../../../base/common/resources.js";import{$WC as U}from"../../instantiation/common/extensions.js";import{$Erc as b}from"../common/imageResizeService.js";class I{async resizeImage(e,t){const s=t==="image/gif";return typeof e=="string"&&(e=this.convertStringToUInt8Array(e)),new Promise((d,i)=>{const c=new Blob([e],{type:t}),o=new Image,n=URL.createObjectURL(c);o.src=n,o.onload=()=>{URL.revokeObjectURL(n);let{width:r,height:a}=o;if((r<=768||a<=768)&&!s){d(e);return}if(r>2048||a>2048){const u=2048/Math.max(r,a);r=Math.round(r*u),a=Math.round(a*u)}const g=768/Math.min(r,a);r=Math.round(r*g),a=Math.round(a*g);const m=document.createElement("canvas");m.width=r,m.height=a;const f=m.getContext("2d");if(f){f.drawImage(o,0,0,r,a);const w=t&&["image/jpeg","image/jpg"].includes(t)?"image/jpeg":"image/png";m.toBlob(p=>{if(p){const l=new FileReader;l.onload=()=>{d(new Uint8Array(l.result))},l.onerror=x=>i(x),l.readAsArrayBuffer(p)}else i(new Error("Failed to create blob from canvas"))},w)}else i(new Error("Failed to get canvas context"))},o.onerror=r=>{URL.revokeObjectURL(n),i(r)}})}convertStringToUInt8Array(e){const t=e.includes(",")?e.split(",")[1]:e;return this.isValidBase64(t)?h(t).buffer:new TextEncoder().encode(e)}convertUint8ArrayToString(e){try{return new TextDecoder().decode(e)}catch{return""}}isValidBase64(e){try{return h(e),!0}catch{return!1}}async createFileForMedia(e,t,s,d){await e.exists(t)||await e.createFolder(t);const c=d.split("/")[1]||"png",o=`image-${Date.now()}.${c}`,n=F(t,o),r=y.wrap(s);return await e.writeFile(n,r),n}async cleanupOldImages(e,t,s){if(!await e.exists(s))return;const i=10080*60*1e3,c=await e.resolve(s);c.children&&await Promise.all(c.children.map(async o=>{try{const n=this.getTimestampFromFilename(o.name);n&&Date.now()-n>i&&await e.del(o.resource)}catch(n){t.error("Failed to clean up old images",n)}}))}getTimestampFromFilename(e){const t=e.match(/image-(\d+)\./);if(t)return parseInt(t[1],10)}}U(b,I,1);export{I as $rOc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { decodeBase64, VSBuffer } from "../../../base/common/buffer.js";
+import { joinPath } from "../../../base/common/resources.js";
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { IImageResizeService } from "../common/imageResizeService.js";
+class ImageResizeService {
+  static {
+    __name(this, "ImageResizeService");
+  }
+  /**
+   * Resizes an image provided as a UInt8Array string. Resizing is based on Open AI's algorithm for tokenzing images.
+   * https://platform.openai.com/docs/guides/vision#calculating-costs
+   * @param data - The UInt8Array string of the image to resize.
+   * @returns A promise that resolves to the UInt8Array string of the resized image.
+   */
+  async resizeImage(data, mimeType) {
+    const isGif = mimeType === "image/gif";
+    if (typeof data === "string") {
+      data = this.convertStringToUInt8Array(data);
+    }
+    return new Promise((resolve, reject) => {
+      const blob = new Blob([data], { type: mimeType });
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.src = url;
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if ((width <= 768 || height <= 768) && !isGif) {
+          resolve(data);
+          return;
+        }
+        if (width > 2048 || height > 2048) {
+          const scaleFactor2 = 2048 / Math.max(width, height);
+          width = Math.round(width * scaleFactor2);
+          height = Math.round(height * scaleFactor2);
+        }
+        const scaleFactor = 768 / Math.min(width, height);
+        width = Math.round(width * scaleFactor);
+        height = Math.round(height * scaleFactor);
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const jpegTypes = ["image/jpeg", "image/jpg"];
+          const outputMimeType = mimeType && jpegTypes.includes(mimeType) ? "image/jpeg" : "image/png";
+          canvas.toBlob((blob2) => {
+            if (blob2) {
+              const reader = new FileReader();
+              reader.onload = () => {
+                resolve(new Uint8Array(reader.result));
+              };
+              reader.onerror = (error) => reject(error);
+              reader.readAsArrayBuffer(blob2);
+            } else {
+              reject(new Error("Failed to create blob from canvas"));
+            }
+          }, outputMimeType);
+        } else {
+          reject(new Error("Failed to get canvas context"));
+        }
+      };
+      img.onerror = (error) => {
+        URL.revokeObjectURL(url);
+        reject(error);
+      };
+    });
+  }
+  convertStringToUInt8Array(data) {
+    const base64Data = data.includes(",") ? data.split(",")[1] : data;
+    if (this.isValidBase64(base64Data)) {
+      return decodeBase64(base64Data).buffer;
+    }
+    return new TextEncoder().encode(data);
+  }
+  // Only used for URLs
+  convertUint8ArrayToString(data) {
+    try {
+      const decoder = new TextDecoder();
+      const decodedString = decoder.decode(data);
+      return decodedString;
+    } catch {
+      return "";
+    }
+  }
+  isValidBase64(str) {
+    try {
+      decodeBase64(str);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  async createFileForMedia(fileService, imagesFolder, dataTransfer, mimeType) {
+    const exists = await fileService.exists(imagesFolder);
+    if (!exists) {
+      await fileService.createFolder(imagesFolder);
+    }
+    const ext = mimeType.split("/")[1] || "png";
+    const filename = `image-${Date.now()}.${ext}`;
+    const fileUri = joinPath(imagesFolder, filename);
+    const buffer = VSBuffer.wrap(dataTransfer);
+    await fileService.writeFile(fileUri, buffer);
+    return fileUri;
+  }
+  async cleanupOldImages(fileService, logService, imagesFolder) {
+    const exists = await fileService.exists(imagesFolder);
+    if (!exists) {
+      return;
+    }
+    const duration = 7 * 24 * 60 * 60 * 1e3;
+    const files = await fileService.resolve(imagesFolder);
+    if (!files.children) {
+      return;
+    }
+    await Promise.all(files.children.map(async (file) => {
+      try {
+        const timestamp = this.getTimestampFromFilename(file.name);
+        if (timestamp && Date.now() - timestamp > duration) {
+          await fileService.del(file.resource);
+        }
+      } catch (err) {
+        logService.error("Failed to clean up old images", err);
+      }
+    }));
+  }
+  getTimestampFromFilename(filename) {
+    const match = filename.match(/image-(\d+)\./);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return void 0;
+  }
+}
+registerSingleton(
+  IImageResizeService,
+  ImageResizeService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ImageResizeService
+};
+//# sourceMappingURL=imageResizeService.js.map

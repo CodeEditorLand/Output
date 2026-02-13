@@ -1,1 +1,299 @@
-import{MessageChannelMain as D,app as g,utilityProcess as P}from"electron";import{$Ed as _}from"../../../base/common/lifecycle.js";import{$xf as f,Event as h}from"../../../base/common/event.js";import{$yo as w}from"../../log/common/log.js";import{StringDecoder as m}from"string_decoder";import{$0h as C}from"../../../base/common/async.js";import{$th as I}from"../../../base/common/network.js";import{$vv as S}from"../../windows/electron-main/windows.js";import n from"../../../base/common/severity.js";import{$pp as E}from"../../telemetry/common/telemetry.js";import{$pw as v}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$Iw as N}from"../../../base/common/processes.js";import{$Cp as x}from"../../../base/common/objects.js";import{$m as O}from"../../../base/common/platform.js";import{$El as q,$Al as L}from"../../../base/node/unc.js";var y=function(o,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,t,e,i);else for(var l=o.length-1;l>=0;l--)(a=o[l])&&(r=(s<3?a(r):s>3?a(t,e,r):a(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},d=function(o,t){return function(e,i){t(e,i,o)}},p;function M(o){return typeof o.responseWindowId=="number"}let c=class extends _{static{p=this}static{this.a=0}static{this.b=new Map}static getAll(){return Array.from(p.b.values())}constructor(t,e,i){super(),this.t=t,this.u=e,this.w=i,this.c=String(++p.a),this.f=this.D(new f),this.onStdout=this.f.event,this.g=this.D(new f),this.onStderr=this.g.event,this.h=this.D(new f),this.onMessage=this.h.event,this.j=this.D(new f),this.onSpawn=this.j.event,this.m=this.D(new f),this.onExit=this.m.event,this.n=this.D(new f),this.onCrash=this.n.event,this.q=void 0,this.r=void 0,this.s=void 0}y(t,e){let i;switch(this.s?.correlationId?i=`[UtilityProcess id: ${this.s?.correlationId}, type: ${this.s?.type}, pid: ${this.r??"<none>"}]: ${t}`:i=`[UtilityProcess type: ${this.s?.type}, pid: ${this.r??"<none>"}]: ${t}`,e){case n.Error:this.t.error(i);break;case n.Warning:this.t.warn(i);break;case n.Info:this.t.trace(i);break}}z(){return this.q?(this.y("Cannot start utility process because it is already running...",n.Error),!1):!0}start(t){const e=this.C(t);return e&&t.payload&&this.postMessage(t.payload)&&this.y("payload sent via postMessage()",n.Info),e}C(t){if(!this.z())return!1;this.s=t;const e=`${this.s.type}-${this.c}`,i=I.asFileUri("bootstrap-fork.js").fsPath,s=this.s.args??[],r=this.s.execArgv??[],a=this.s.allowLoadingUnsignedLibraries,l=this.s.respondToAuthRequestsFromMainProcess,$="pipe",b=this.F(t);return this.y("creating new...",n.Info),this.q=P.fork(i,s,{serviceName:e,env:b,execArgv:r,allowLoadingUnsignedLibraries:a,respondToAuthRequestsFromMainProcess:l,stdio:$}),this.G(this.q,this.s,e),!0}F(t){const e=t.env?{...t.env}:{...x(process.env)};e.VSCODE_ESM_ENTRYPOINT=t.entryPoint,typeof t.parentLifecycleBound=="number"&&(e.VSCODE_PARENT_PID=String(t.parentLifecycleBound)),e.VSCODE_CRASH_REPORTER_PROCESS_TYPE=t.type,O&&(q()?e.NODE_DISABLE_UNC_ACCESS_CHECKS="1":e.NODE_UNC_HOST_ALLOWLIST=L().join("\\")),N(e);for(const i of Object.keys(e))e[i]=String(e[i]);return e}G(t,e,i){if(t.stdout){const s=new m("utf-8");this.D(h.fromNodeEventEmitter(t.stdout,"data")(r=>this.f.fire(typeof r=="string"?r:s.write(r))))}if(t.stderr){const s=new m("utf-8");this.D(h.fromNodeEventEmitter(t.stderr,"data")(r=>this.g.fire(typeof r=="string"?r:s.write(r))))}this.D(h.fromNodeEventEmitter(t,"message")(s=>this.h.fire(s))),this.D(h.fromNodeEventEmitter(t,"spawn")(()=>{this.r=t.pid,typeof t.pid=="number"&&p.b.set(t.pid,{pid:t.pid,name:M(e)?`${e.name} [${e.responseWindowId}]`:e.name}),this.y("successfully created",n.Info),this.j.fire(t.pid)})),this.D(h.fromNodeEventEmitter(t,"exit")(s=>{this.y(`received exit event with code ${s}`,n.Info),this.m.fire({pid:this.r,code:s,signal:"unknown"}),this.H()})),this.D(h.fromNodeEventEmitter(g,"child-process-gone",(s,r)=>({event:s,details:r}))(({details:s})=>{s.type==="Utility"&&s.name===i&&(this.y(`crashed with code ${s.exitCode} and reason '${s.reason}'`,n.Error),this.u.publicLog2("utilityprocesscrash",{type:e.type,reason:s.reason,code:s.exitCode}),this.n.fire({pid:this.r,code:s.exitCode,reason:s.reason}),this.H())}))}once(t,e){const i=this.D(this.h.event(s=>{s===t&&(i.dispose(),e())}))}postMessage(t,e){return this.q?(this.q.postMessage(t,e),!0):!1}connect(t){const{port1:e,port2:i}=new D;return this.postMessage(t,[i]),e}enableInspectPort(){if(!this.q||typeof this.r!="number")return!1;this.y("enabling inspect port",n.Info);const t=process;return typeof t._debugProcess=="function"?(t._debugProcess(this.r),!0):!1}kill(){if(!this.q)return;this.y("attempting to kill the process...",n.Info),this.q.kill()?(this.y("successfully killed the process",n.Info),this.H()):this.y("unable to kill the process",n.Warning)}H(){typeof this.r=="number"&&p.b.delete(this.r),this.q=void 0}async waitForExit(t){this.q&&(this.y("waiting to exit...",n.Info),await Promise.race([h.toPromise(this.onExit),C(t)]),this.q&&(this.y(`did not exit within ${t}ms, will kill it now...`,n.Info),this.kill()))}};c=p=y([d(0,w),d(1,E),d(2,v)],c);let u=class extends c{constructor(t,e,i,s){super(t,i,s),this.I=e}start(t){const e=this.I.getWindowById(t.responseWindowId);if(!e?.win||e.win.isDestroyed()||e.win.webContents.isDestroyed())return this.y("Refusing to start utility process because requesting window cannot be found or is destroyed...",n.Error),!0;if(!super.C(t))return!1;this.J(e.win,t);const s=this.connect(t.payload);return e.win.webContents.postMessage(t.responseChannel,t.responseNonce,[s]),!0}J(t,e){e.windowLifecycleBound&&(this.D(h.filter(this.w.onWillLoadWindow,i=>i.window.win===t)(()=>this.kill())),this.D(h.fromNodeEventEmitter(t,"closed")(()=>this.kill())))}};u=y([d(0,w),d(1,S),d(2,E),d(3,v)],u);export{c as $Nw,u as $Ow};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var UtilityProcess_1;
+import { MessageChannelMain, app, utilityProcess } from "electron";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { ILogService } from "../../log/common/log.js";
+import { StringDecoder } from "string_decoder";
+import { timeout } from "../../../base/common/async.js";
+import { FileAccess } from "../../../base/common/network.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import Severity from "../../../base/common/severity.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { removeDangerousEnvVariables } from "../../../base/common/processes.js";
+import { deepClone } from "../../../base/common/objects.js";
+import { isWindows } from "../../../base/common/platform.js";
+import { isUNCAccessRestrictionsDisabled, getUNCHostAllowlist } from "../../../base/node/unc.js";
+function isWindowUtilityProcessConfiguration(config) {
+  const candidate = config;
+  return typeof candidate.responseWindowId === "number";
+}
+__name(isWindowUtilityProcessConfiguration, "isWindowUtilityProcessConfiguration");
+let UtilityProcess = class UtilityProcess2 extends Disposable {
+  static {
+    __name(this, "UtilityProcess");
+  }
+  static {
+    UtilityProcess_1 = this;
+  }
+  static {
+    this.ID_COUNTER = 0;
+  }
+  static {
+    this.all = /* @__PURE__ */ new Map();
+  }
+  static getAll() {
+    return Array.from(UtilityProcess_1.all.values());
+  }
+  constructor(logService, telemetryService, lifecycleMainService) {
+    super();
+    this.logService = logService;
+    this.telemetryService = telemetryService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.id = String(++UtilityProcess_1.ID_COUNTER);
+    this._onStdout = this._register(new Emitter());
+    this.onStdout = this._onStdout.event;
+    this._onStderr = this._register(new Emitter());
+    this.onStderr = this._onStderr.event;
+    this._onMessage = this._register(new Emitter());
+    this.onMessage = this._onMessage.event;
+    this._onSpawn = this._register(new Emitter());
+    this.onSpawn = this._onSpawn.event;
+    this._onExit = this._register(new Emitter());
+    this.onExit = this._onExit.event;
+    this._onCrash = this._register(new Emitter());
+    this.onCrash = this._onCrash.event;
+    this.process = void 0;
+    this.processPid = void 0;
+    this.configuration = void 0;
+  }
+  log(msg, severity) {
+    let logMsg;
+    if (this.configuration?.correlationId) {
+      logMsg = `[UtilityProcess id: ${this.configuration?.correlationId}, type: ${this.configuration?.type}, pid: ${this.processPid ?? "<none>"}]: ${msg}`;
+    } else {
+      logMsg = `[UtilityProcess type: ${this.configuration?.type}, pid: ${this.processPid ?? "<none>"}]: ${msg}`;
+    }
+    switch (severity) {
+      case Severity.Error:
+        this.logService.error(logMsg);
+        break;
+      case Severity.Warning:
+        this.logService.warn(logMsg);
+        break;
+      case Severity.Info:
+        this.logService.trace(logMsg);
+        break;
+    }
+  }
+  validateCanStart() {
+    if (this.process) {
+      this.log("Cannot start utility process because it is already running...", Severity.Error);
+      return false;
+    }
+    return true;
+  }
+  start(configuration) {
+    const started = this.doStart(configuration);
+    if (started && configuration.payload) {
+      const posted = this.postMessage(configuration.payload);
+      if (posted) {
+        this.log("payload sent via postMessage()", Severity.Info);
+      }
+    }
+    return started;
+  }
+  doStart(configuration) {
+    if (!this.validateCanStart()) {
+      return false;
+    }
+    this.configuration = configuration;
+    const serviceName = `${this.configuration.type}-${this.id}`;
+    const modulePath = FileAccess.asFileUri("bootstrap-fork.js").fsPath;
+    const args = this.configuration.args ?? [];
+    const execArgv = this.configuration.execArgv ?? [];
+    const allowLoadingUnsignedLibraries = this.configuration.allowLoadingUnsignedLibraries;
+    const respondToAuthRequestsFromMainProcess = this.configuration.respondToAuthRequestsFromMainProcess;
+    const stdio = "pipe";
+    const env = this.createEnv(configuration);
+    this.log("creating new...", Severity.Info);
+    this.process = utilityProcess.fork(modulePath, args, {
+      serviceName,
+      env,
+      execArgv,
+      // !!! Add `--trace-warnings` for node.js tracing !!!
+      allowLoadingUnsignedLibraries,
+      respondToAuthRequestsFromMainProcess,
+      stdio
+    });
+    this.registerListeners(this.process, this.configuration, serviceName);
+    return true;
+  }
+  createEnv(configuration) {
+    const env = configuration.env ? { ...configuration.env } : { ...deepClone(process.env) };
+    env["VSCODE_ESM_ENTRYPOINT"] = configuration.entryPoint;
+    if (typeof configuration.parentLifecycleBound === "number") {
+      env["VSCODE_PARENT_PID"] = String(configuration.parentLifecycleBound);
+    }
+    env["VSCODE_CRASH_REPORTER_PROCESS_TYPE"] = configuration.type;
+    if (isWindows) {
+      if (isUNCAccessRestrictionsDisabled()) {
+        env["NODE_DISABLE_UNC_ACCESS_CHECKS"] = "1";
+      } else {
+        env["NODE_UNC_HOST_ALLOWLIST"] = getUNCHostAllowlist().join("\\");
+      }
+    }
+    removeDangerousEnvVariables(env);
+    for (const key of Object.keys(env)) {
+      env[key] = String(env[key]);
+    }
+    return env;
+  }
+  registerListeners(process2, configuration, serviceName) {
+    if (process2.stdout) {
+      const stdoutDecoder = new StringDecoder("utf-8");
+      this._register(Event.fromNodeEventEmitter(process2.stdout, "data")((chunk) => this._onStdout.fire(typeof chunk === "string" ? chunk : stdoutDecoder.write(chunk))));
+    }
+    if (process2.stderr) {
+      const stderrDecoder = new StringDecoder("utf-8");
+      this._register(Event.fromNodeEventEmitter(process2.stderr, "data")((chunk) => this._onStderr.fire(typeof chunk === "string" ? chunk : stderrDecoder.write(chunk))));
+    }
+    this._register(Event.fromNodeEventEmitter(process2, "message")((msg) => this._onMessage.fire(msg)));
+    this._register(Event.fromNodeEventEmitter(process2, "spawn")(() => {
+      this.processPid = process2.pid;
+      if (typeof process2.pid === "number") {
+        UtilityProcess_1.all.set(process2.pid, { pid: process2.pid, name: isWindowUtilityProcessConfiguration(configuration) ? `${configuration.name} [${configuration.responseWindowId}]` : configuration.name });
+      }
+      this.log("successfully created", Severity.Info);
+      this._onSpawn.fire(process2.pid);
+    }));
+    this._register(Event.fromNodeEventEmitter(process2, "exit")((code) => {
+      this.log(`received exit event with code ${code}`, Severity.Info);
+      this._onExit.fire({ pid: this.processPid, code, signal: "unknown" });
+      this.onDidExitOrCrashOrKill();
+    }));
+    this._register(Event.fromNodeEventEmitter(app, "child-process-gone", (event, details) => ({ event, details }))(({ details }) => {
+      if (details.type === "Utility" && details.name === serviceName) {
+        this.log(`crashed with code ${details.exitCode} and reason '${details.reason}'`, Severity.Error);
+        this.telemetryService.publicLog2("utilityprocesscrash", {
+          type: configuration.type,
+          reason: details.reason,
+          code: details.exitCode
+        });
+        this._onCrash.fire({ pid: this.processPid, code: details.exitCode, reason: details.reason });
+        this.onDidExitOrCrashOrKill();
+      }
+    }));
+  }
+  once(message, callback) {
+    const disposable = this._register(this._onMessage.event((msg) => {
+      if (msg === message) {
+        disposable.dispose();
+        callback();
+      }
+    }));
+  }
+  postMessage(message, transfer) {
+    if (!this.process) {
+      return false;
+    }
+    this.process.postMessage(message, transfer);
+    return true;
+  }
+  connect(payload) {
+    const { port1: outPort, port2: utilityProcessPort } = new MessageChannelMain();
+    this.postMessage(payload, [utilityProcessPort]);
+    return outPort;
+  }
+  enableInspectPort() {
+    if (!this.process || typeof this.processPid !== "number") {
+      return false;
+    }
+    this.log("enabling inspect port", Severity.Info);
+    const processExt = process;
+    if (typeof processExt._debugProcess === "function") {
+      processExt._debugProcess(this.processPid);
+      return true;
+    }
+    return false;
+  }
+  kill() {
+    if (!this.process) {
+      return;
+    }
+    this.log("attempting to kill the process...", Severity.Info);
+    const killed = this.process.kill();
+    if (killed) {
+      this.log("successfully killed the process", Severity.Info);
+      this.onDidExitOrCrashOrKill();
+    } else {
+      this.log("unable to kill the process", Severity.Warning);
+    }
+  }
+  onDidExitOrCrashOrKill() {
+    if (typeof this.processPid === "number") {
+      UtilityProcess_1.all.delete(this.processPid);
+    }
+    this.process = void 0;
+  }
+  async waitForExit(maxWaitTimeMs) {
+    if (!this.process) {
+      return;
+    }
+    this.log("waiting to exit...", Severity.Info);
+    await Promise.race([Event.toPromise(this.onExit), timeout(maxWaitTimeMs)]);
+    if (this.process) {
+      this.log(`did not exit within ${maxWaitTimeMs}ms, will kill it now...`, Severity.Info);
+      this.kill();
+    }
+  }
+};
+UtilityProcess = UtilityProcess_1 = __decorate([
+  __param(0, ILogService),
+  __param(1, ITelemetryService),
+  __param(2, ILifecycleMainService)
+], UtilityProcess);
+let WindowUtilityProcess = class WindowUtilityProcess2 extends UtilityProcess {
+  static {
+    __name(this, "WindowUtilityProcess");
+  }
+  constructor(logService, windowsMainService, telemetryService, lifecycleMainService) {
+    super(logService, telemetryService, lifecycleMainService);
+    this.windowsMainService = windowsMainService;
+  }
+  start(configuration) {
+    const responseWindow = this.windowsMainService.getWindowById(configuration.responseWindowId);
+    if (!responseWindow?.win || responseWindow.win.isDestroyed() || responseWindow.win.webContents.isDestroyed()) {
+      this.log("Refusing to start utility process because requesting window cannot be found or is destroyed...", Severity.Error);
+      return true;
+    }
+    const started = super.doStart(configuration);
+    if (!started) {
+      return false;
+    }
+    this.registerWindowListeners(responseWindow.win, configuration);
+    const windowPort = this.connect(configuration.payload);
+    responseWindow.win.webContents.postMessage(configuration.responseChannel, configuration.responseNonce, [windowPort]);
+    return true;
+  }
+  registerWindowListeners(window, configuration) {
+    if (configuration.windowLifecycleBound) {
+      this._register(Event.filter(this.lifecycleMainService.onWillLoadWindow, (e) => e.window.win === window)(() => this.kill()));
+      this._register(Event.fromNodeEventEmitter(window, "closed")(() => this.kill()));
+    }
+  }
+};
+WindowUtilityProcess = __decorate([
+  __param(0, ILogService),
+  __param(1, IWindowsMainService),
+  __param(2, ITelemetryService),
+  __param(3, ILifecycleMainService)
+], WindowUtilityProcess);
+export {
+  UtilityProcess,
+  WindowUtilityProcess
+};
+//# sourceMappingURL=utilityProcess.js.map

@@ -1,1 +1,272 @@
-import{$_D as f}from"./core/range.js";function p(){return s=>({fontFamily:s.fontFamily??"",fontSizeMultiplier:s.fontSizeMultiplier??0,lineHeightMultiplier:s.lineHeightMultiplier??0})}function N(){return s=>({fontFamily:s.fontFamily?String(s.fontFamily):void 0,fontSizeMultiplier:s.fontSizeMultiplier?Number(s.fontSizeMultiplier):void 0,lineHeightMultiplier:s.lineHeightMultiplier?Number(s.lineHeightMultiplier):void 0})}var u;(function(s){s[s.Flush=1]="Flush",s[s.LineChanged=2]="LineChanged",s[s.LinesDeleted=3]="LinesDeleted",s[s.LinesInserted=4]="LinesInserted",s[s.EOLChanged=5]="EOLChanged"})(u||(u={}));class F{constructor(){this.changeType=1}}class o{static applyInjectedText(e,n){if(!n||n.length===0)return e;let t="",i=0;for(const r of n)t+=e.substring(i,r.column-1),i=r.column-1,t+=r.options.content;return t+=e.substring(i),t}static fromDecorations(e){const n=[];for(const t of e)t.options.before&&t.options.before.content.length>0&&n.push(new o(t.ownerId,t.range.startLineNumber,t.range.startColumn,t.options.before,0)),t.options.after&&t.options.after.content.length>0&&n.push(new o(t.ownerId,t.range.endLineNumber,t.range.endColumn,t.options.after,1));return n.sort((t,i)=>t.lineNumber===i.lineNumber?t.column===i.column?t.order-i.order:t.column-i.column:t.lineNumber-i.lineNumber),n}constructor(e,n,t,i,r){this.ownerId=e,this.lineNumber=n,this.column=t,this.options=i,this.order=r}withText(e){return new o(this.ownerId,this.lineNumber,this.column,{...this.options,content:e},this.order)}}class L{constructor(e,n,t){this.changeType=2,this.lineNumber=e,this.detail=n,this.injectedText=t}}class x{constructor(e,n,t,i){this.ownerId=e,this.decorationId=n,this.lineNumber=t,this.lineHeightMultiplier=i}}class I{constructor(e,n){this.ownerId=e,this.lineNumber=n}}class v{constructor(e,n){this.changeType=3,this.fromLineNumber=e,this.toLineNumber=n}}class E{constructor(e,n,t,i){this.changeType=4,this.injectedTexts=i,this.fromLineNumber=e,this.toLineNumber=n,this.detail=t}}class b{constructor(){this.changeType=5}}class h{constructor(e,n,t,i){this.changes=e,this.versionId=n,this.isUndoing=t,this.isRedoing=i,this.resultingSelection=null}containsEvent(e){for(let n=0,t=this.changes.length;n<t;n++)if(this.changes[n].changeType===e)return!0;return!1}static merge(e,n){const t=[].concat(e.changes).concat(n.changes),i=n.versionId,r=e.isUndoing||n.isUndoing,c=e.isRedoing||n.isRedoing;return new h(t,i,r,c)}}class M{constructor(e){this.changes=e}}class C{constructor(e){this.changes=e}affects(e){if(f.isIRange(e)){for(const n of this.changes)if(n.lineNumber>=e.startLineNumber&&n.lineNumber<=e.endLineNumber)return!0;return!1}else{for(const n of this.changes)if(n.lineNumber===e.lineNumber)return!0;return!1}}}class ${constructor(e){this.changes=e}}class l{constructor(e,n){this.rawContentChangedEvent=e,this.contentChangedEvent=n}merge(e){const n=h.merge(this.rawContentChangedEvent,e.rawContentChangedEvent),t=l.c(this.contentChangedEvent,e.contentChangedEvent);return new l(n,t)}static c(e,n){const t=[].concat(e.changes).concat(n.changes),i=n.eol,r=n.versionId,c=e.isUndoing||n.isUndoing,g=e.isRedoing||n.isRedoing,a=e.isFlush||n.isFlush,d=e.isEolChange&&n.isEolChange;return{changes:t,eol:i,isEolChange:d,versionId:r,isUndoing:c,isRedoing:g,isFlush:a,detailedReasons:e.detailedReasons.concat(n.detailedReasons),detailedReasonsChangeLengths:e.detailedReasonsChangeLengths.concat(n.detailedReasonsChangeLengths)}}}export{L as $AF,x as $BF,I as $CF,v as $DF,E as $EF,b as $FF,h as $GF,M as $HF,C as $IF,$ as $JF,l as $KF,p as $wF,N as $xF,F as $yF,o as $zF,u as RawContentChangedType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Range } from "./core/range.js";
+function serializeFontTokenOptions() {
+  return (annotation) => {
+    return {
+      fontFamily: annotation.fontFamily ?? "",
+      fontSizeMultiplier: annotation.fontSizeMultiplier ?? 0,
+      lineHeightMultiplier: annotation.lineHeightMultiplier ?? 0
+    };
+  };
+}
+__name(serializeFontTokenOptions, "serializeFontTokenOptions");
+function deserializeFontTokenOptions() {
+  return (annotation) => {
+    return {
+      fontFamily: annotation.fontFamily ? String(annotation.fontFamily) : void 0,
+      fontSizeMultiplier: annotation.fontSizeMultiplier ? Number(annotation.fontSizeMultiplier) : void 0,
+      lineHeightMultiplier: annotation.lineHeightMultiplier ? Number(annotation.lineHeightMultiplier) : void 0
+    };
+  };
+}
+__name(deserializeFontTokenOptions, "deserializeFontTokenOptions");
+var RawContentChangedType;
+(function(RawContentChangedType2) {
+  RawContentChangedType2[RawContentChangedType2["Flush"] = 1] = "Flush";
+  RawContentChangedType2[RawContentChangedType2["LineChanged"] = 2] = "LineChanged";
+  RawContentChangedType2[RawContentChangedType2["LinesDeleted"] = 3] = "LinesDeleted";
+  RawContentChangedType2[RawContentChangedType2["LinesInserted"] = 4] = "LinesInserted";
+  RawContentChangedType2[RawContentChangedType2["EOLChanged"] = 5] = "EOLChanged";
+})(RawContentChangedType || (RawContentChangedType = {}));
+class ModelRawFlush {
+  static {
+    __name(this, "ModelRawFlush");
+  }
+  constructor() {
+    this.changeType = 1;
+  }
+}
+class LineInjectedText {
+  static {
+    __name(this, "LineInjectedText");
+  }
+  static applyInjectedText(lineText, injectedTexts) {
+    if (!injectedTexts || injectedTexts.length === 0) {
+      return lineText;
+    }
+    let result = "";
+    let lastOriginalOffset = 0;
+    for (const injectedText of injectedTexts) {
+      result += lineText.substring(lastOriginalOffset, injectedText.column - 1);
+      lastOriginalOffset = injectedText.column - 1;
+      result += injectedText.options.content;
+    }
+    result += lineText.substring(lastOriginalOffset);
+    return result;
+  }
+  static fromDecorations(decorations) {
+    const result = [];
+    for (const decoration of decorations) {
+      if (decoration.options.before && decoration.options.before.content.length > 0) {
+        result.push(new LineInjectedText(decoration.ownerId, decoration.range.startLineNumber, decoration.range.startColumn, decoration.options.before, 0));
+      }
+      if (decoration.options.after && decoration.options.after.content.length > 0) {
+        result.push(new LineInjectedText(decoration.ownerId, decoration.range.endLineNumber, decoration.range.endColumn, decoration.options.after, 1));
+      }
+    }
+    result.sort((a, b) => {
+      if (a.lineNumber === b.lineNumber) {
+        if (a.column === b.column) {
+          return a.order - b.order;
+        }
+        return a.column - b.column;
+      }
+      return a.lineNumber - b.lineNumber;
+    });
+    return result;
+  }
+  constructor(ownerId, lineNumber, column, options, order) {
+    this.ownerId = ownerId;
+    this.lineNumber = lineNumber;
+    this.column = column;
+    this.options = options;
+    this.order = order;
+  }
+  withText(text) {
+    return new LineInjectedText(this.ownerId, this.lineNumber, this.column, { ...this.options, content: text }, this.order);
+  }
+}
+class ModelRawLineChanged {
+  static {
+    __name(this, "ModelRawLineChanged");
+  }
+  constructor(lineNumber, detail, injectedText) {
+    this.changeType = 2;
+    this.lineNumber = lineNumber;
+    this.detail = detail;
+    this.injectedText = injectedText;
+  }
+}
+class ModelLineHeightChanged {
+  static {
+    __name(this, "ModelLineHeightChanged");
+  }
+  constructor(ownerId, decorationId, lineNumber, lineHeightMultiplier) {
+    this.ownerId = ownerId;
+    this.decorationId = decorationId;
+    this.lineNumber = lineNumber;
+    this.lineHeightMultiplier = lineHeightMultiplier;
+  }
+}
+class ModelFontChanged {
+  static {
+    __name(this, "ModelFontChanged");
+  }
+  constructor(ownerId, lineNumber) {
+    this.ownerId = ownerId;
+    this.lineNumber = lineNumber;
+  }
+}
+class ModelRawLinesDeleted {
+  static {
+    __name(this, "ModelRawLinesDeleted");
+  }
+  constructor(fromLineNumber, toLineNumber) {
+    this.changeType = 3;
+    this.fromLineNumber = fromLineNumber;
+    this.toLineNumber = toLineNumber;
+  }
+}
+class ModelRawLinesInserted {
+  static {
+    __name(this, "ModelRawLinesInserted");
+  }
+  constructor(fromLineNumber, toLineNumber, detail, injectedTexts) {
+    this.changeType = 4;
+    this.injectedTexts = injectedTexts;
+    this.fromLineNumber = fromLineNumber;
+    this.toLineNumber = toLineNumber;
+    this.detail = detail;
+  }
+}
+class ModelRawEOLChanged {
+  static {
+    __name(this, "ModelRawEOLChanged");
+  }
+  constructor() {
+    this.changeType = 5;
+  }
+}
+class ModelRawContentChangedEvent {
+  static {
+    __name(this, "ModelRawContentChangedEvent");
+  }
+  constructor(changes, versionId, isUndoing, isRedoing) {
+    this.changes = changes;
+    this.versionId = versionId;
+    this.isUndoing = isUndoing;
+    this.isRedoing = isRedoing;
+    this.resultingSelection = null;
+  }
+  containsEvent(type) {
+    for (let i = 0, len = this.changes.length; i < len; i++) {
+      const change = this.changes[i];
+      if (change.changeType === type) {
+        return true;
+      }
+    }
+    return false;
+  }
+  static merge(a, b) {
+    const changes = [].concat(a.changes).concat(b.changes);
+    const versionId = b.versionId;
+    const isUndoing = a.isUndoing || b.isUndoing;
+    const isRedoing = a.isRedoing || b.isRedoing;
+    return new ModelRawContentChangedEvent(changes, versionId, isUndoing, isRedoing);
+  }
+}
+class ModelInjectedTextChangedEvent {
+  static {
+    __name(this, "ModelInjectedTextChangedEvent");
+  }
+  constructor(changes) {
+    this.changes = changes;
+  }
+}
+class ModelLineHeightChangedEvent {
+  static {
+    __name(this, "ModelLineHeightChangedEvent");
+  }
+  constructor(changes) {
+    this.changes = changes;
+  }
+  affects(rangeOrPosition) {
+    if (Range.isIRange(rangeOrPosition)) {
+      for (const change of this.changes) {
+        if (change.lineNumber >= rangeOrPosition.startLineNumber && change.lineNumber <= rangeOrPosition.endLineNumber) {
+          return true;
+        }
+      }
+      return false;
+    } else {
+      for (const change of this.changes) {
+        if (change.lineNumber === rangeOrPosition.lineNumber) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+}
+class ModelFontChangedEvent {
+  static {
+    __name(this, "ModelFontChangedEvent");
+  }
+  constructor(changes) {
+    this.changes = changes;
+  }
+}
+class InternalModelContentChangeEvent {
+  static {
+    __name(this, "InternalModelContentChangeEvent");
+  }
+  constructor(rawContentChangedEvent, contentChangedEvent) {
+    this.rawContentChangedEvent = rawContentChangedEvent;
+    this.contentChangedEvent = contentChangedEvent;
+  }
+  merge(other) {
+    const rawContentChangedEvent = ModelRawContentChangedEvent.merge(this.rawContentChangedEvent, other.rawContentChangedEvent);
+    const contentChangedEvent = InternalModelContentChangeEvent._mergeChangeEvents(this.contentChangedEvent, other.contentChangedEvent);
+    return new InternalModelContentChangeEvent(rawContentChangedEvent, contentChangedEvent);
+  }
+  static _mergeChangeEvents(a, b) {
+    const changes = [].concat(a.changes).concat(b.changes);
+    const eol = b.eol;
+    const versionId = b.versionId;
+    const isUndoing = a.isUndoing || b.isUndoing;
+    const isRedoing = a.isRedoing || b.isRedoing;
+    const isFlush = a.isFlush || b.isFlush;
+    const isEolChange = a.isEolChange && b.isEolChange;
+    return {
+      changes,
+      eol,
+      isEolChange,
+      versionId,
+      isUndoing,
+      isRedoing,
+      isFlush,
+      detailedReasons: a.detailedReasons.concat(b.detailedReasons),
+      detailedReasonsChangeLengths: a.detailedReasonsChangeLengths.concat(b.detailedReasonsChangeLengths)
+    };
+  }
+}
+export {
+  InternalModelContentChangeEvent,
+  LineInjectedText,
+  ModelFontChanged,
+  ModelFontChangedEvent,
+  ModelInjectedTextChangedEvent,
+  ModelLineHeightChanged,
+  ModelLineHeightChangedEvent,
+  ModelRawContentChangedEvent,
+  ModelRawEOLChanged,
+  ModelRawFlush,
+  ModelRawLineChanged,
+  ModelRawLinesDeleted,
+  ModelRawLinesInserted,
+  RawContentChangedType,
+  deserializeFontTokenOptions,
+  serializeFontTokenOptions
+};
+//# sourceMappingURL=textModelEvents.js.map

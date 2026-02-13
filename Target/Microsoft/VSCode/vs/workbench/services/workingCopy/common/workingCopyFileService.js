@@ -1,1 +1,236 @@
-import{$Nj as g,$Mj as C}from"../../../../platform/instantiation/common/instantiation.js";import{$WC as D}from"../../../../platform/instantiation/common/extensions.js";import{$zf as w}from"../../../../base/common/event.js";import{Promises as u}from"../../../../base/common/async.js";import{$ic as F}from"../../../../base/common/arrays.js";import{$Ed as $,$Cd as O}from"../../../../base/common/lifecycle.js";import{$vk as P}from"../../../../platform/files/common/files.js";import{CancellationToken as f}from"../../../../base/common/cancellation.js";import{$bL as A}from"./workingCopyService.js";import{$$o as N}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$5L as W}from"./workingCopyFileOperationParticipant.js";import{$dM as b}from"./storedFileWorkingCopySaveParticipant.js";var v=function(l,t,r,e){var a=arguments.length,o=a<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,t,r,e);else for(var n=l.length-1;n>=0;n--)(i=l[n])&&(o=(a<3?i(o):a>3?i(t,r,o):i(t,r))||o);return a>3&&o&&Object.defineProperty(t,r,o),o},d=function(l,t){return function(r,e){t(r,e,l)}};const j=g("workingCopyFileService");let m=class extends ${constructor(t,r,e,a){super(),this.g=t,this.h=r,this.j=a,this.a=this.D(new w),this.onWillRunWorkingCopyFileOperation=this.a.event,this.b=this.D(new w),this.onDidFailWorkingCopyFileOperation=this.b.event,this.c=this.D(new w),this.onDidRunWorkingCopyFileOperation=this.c.event,this.f=0,this.s=[],this.n=this.D(e.createInstance(W)),this.r=this.D(e.createInstance(b)),this.D(this.registerWorkingCopyProvider(o=>this.h.workingCopies.filter(i=>this.g.hasProvider(o)?this.j.extUri.isEqualOrParent(i.resource,o):this.j.extUri.isEqual(i.resource,o))))}create(t,r,e){return this.doCreateFileOrFolder(t,!0,r,e)}createFolder(t,r,e){return this.doCreateFileOrFolder(t,!1,r,e)}async doCreateFileOrFolder(t,r,e,a){if(t.length===0)return[];if(r){const c=(await u.settled(t.map(h=>this.g.canCreateFile(h.resource,{overwrite:h.overwrite})))).find(h=>h instanceof Error);if(c instanceof Error)throw c}const o=t.map(s=>({target:s.resource}));await this.q(o,0,a,e);const i={correlationId:this.f++,operation:0,files:o};await this.a.fireAsync(i,f.None);let n;try{r?n=await u.settled(t.map(s=>this.g.createFile(s.resource,s.contents,{overwrite:s.overwrite}))):n=await u.settled(t.map(s=>this.g.createFolder(s.resource)))}catch(s){throw await this.b.fireAsync(i,f.None),s}return await this.c.fireAsync(i,f.None),n}async move(t,r,e){return this.m(t,!0,r,e)}async copy(t,r,e){return this.m(t,!1,r,e)}async m(t,r,e,a){const o=[];for(const{file:{source:s,target:c},overwrite:h}of t){const p=await(r?this.g.canMove(s,c,h):this.g.canCopy(s,c,h));if(p instanceof Error)throw p}const i=t.map(s=>s.file);await this.q(i,r?2:3,a,e);const n={correlationId:this.f++,operation:r?2:3,files:i};await this.a.fireAsync(n,f.None);try{for(const{file:{source:s,target:c},overwrite:h}of t){if(!this.j.extUri.isEqual(s,c)){const p=r?[...this.getDirty(s),...this.getDirty(c)]:this.getDirty(c);await u.settled(p.map(y=>y.revert({soft:!0})))}r?o.push(await this.g.move(s,c,h)):o.push(await this.g.copy(s,c,h))}}catch(s){throw await this.b.fireAsync(n,f.None),s}return await this.c.fireAsync(n,f.None),o}async delete(t,r,e){for(const i of t){const n=await this.g.canDelete(i.resource,{recursive:i.recursive,useTrash:i.useTrash});if(n instanceof Error)throw n}const a=t.map(i=>({target:i.resource}));await this.q(a,1,e,r);const o={correlationId:this.f++,operation:1,files:a};await this.a.fireAsync(o,f.None);for(const i of t){const n=this.getDirty(i.resource);await u.settled(n.map(s=>s.revert({soft:!0})))}try{for(const i of t)await this.g.del(i.resource,{recursive:i.recursive,useTrash:i.useTrash})}catch(i){throw await this.b.fireAsync(o,f.None),i}await this.c.fireAsync(o,f.None)}addFileOperationParticipant(t){return this.n.addFileOperationParticipant(t)}q(t,r,e,a){return this.n.participate(t,r,e,a)}get hasSaveParticipants(){return this.r.length>0}addSaveParticipant(t){return this.r.addSaveParticipant(t)}runSaveParticipants(t,r,e,a){return this.r.participate(t,r,e,a)}registerWorkingCopyProvider(t){const r=F(this.s,t);return O(r)}getDirty(t){const r=new Set;for(const e of this.s)for(const a of e(t))a.isDirty()&&r.add(a);return Array.from(r)}};m=v([d(0,P),d(1,A),d(2,C),d(3,N)],m);D(j,m,1);export{j as $eM,m as $fM};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { AsyncEmitter } from "../../../../base/common/event.js";
+import { Promises } from "../../../../base/common/async.js";
+import { insert } from "../../../../base/common/arrays.js";
+import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { WorkingCopyFileOperationParticipant } from "./workingCopyFileOperationParticipant.js";
+import { StoredFileWorkingCopySaveParticipant } from "./storedFileWorkingCopySaveParticipant.js";
+const IWorkingCopyFileService = createDecorator("workingCopyFileService");
+let WorkingCopyFileService = class WorkingCopyFileService2 extends Disposable {
+  static {
+    __name(this, "WorkingCopyFileService");
+  }
+  constructor(fileService, workingCopyService, instantiationService, uriIdentityService) {
+    super();
+    this.fileService = fileService;
+    this.workingCopyService = workingCopyService;
+    this.uriIdentityService = uriIdentityService;
+    this._onWillRunWorkingCopyFileOperation = this._register(new AsyncEmitter());
+    this.onWillRunWorkingCopyFileOperation = this._onWillRunWorkingCopyFileOperation.event;
+    this._onDidFailWorkingCopyFileOperation = this._register(new AsyncEmitter());
+    this.onDidFailWorkingCopyFileOperation = this._onDidFailWorkingCopyFileOperation.event;
+    this._onDidRunWorkingCopyFileOperation = this._register(new AsyncEmitter());
+    this.onDidRunWorkingCopyFileOperation = this._onDidRunWorkingCopyFileOperation.event;
+    this.correlationIds = 0;
+    this.workingCopyProviders = [];
+    this.fileOperationParticipants = this._register(instantiationService.createInstance(WorkingCopyFileOperationParticipant));
+    this.saveParticipants = this._register(instantiationService.createInstance(StoredFileWorkingCopySaveParticipant));
+    this._register(this.registerWorkingCopyProvider((resource) => {
+      return this.workingCopyService.workingCopies.filter((workingCopy) => {
+        if (this.fileService.hasProvider(resource)) {
+          return this.uriIdentityService.extUri.isEqualOrParent(workingCopy.resource, resource);
+        }
+        return this.uriIdentityService.extUri.isEqual(workingCopy.resource, resource);
+      });
+    }));
+  }
+  //#region File operations
+  create(operations, token, undoInfo) {
+    return this.doCreateFileOrFolder(operations, true, token, undoInfo);
+  }
+  createFolder(operations, token, undoInfo) {
+    return this.doCreateFileOrFolder(operations, false, token, undoInfo);
+  }
+  async doCreateFileOrFolder(operations, isFile, token, undoInfo) {
+    if (operations.length === 0) {
+      return [];
+    }
+    if (isFile) {
+      const validateCreates = await Promises.settled(operations.map((operation) => this.fileService.canCreateFile(operation.resource, { overwrite: operation.overwrite })));
+      const error = validateCreates.find((validateCreate) => validateCreate instanceof Error);
+      if (error instanceof Error) {
+        throw error;
+      }
+    }
+    const files = operations.map((operation) => ({ target: operation.resource }));
+    await this.runFileOperationParticipants(files, 0, undoInfo, token);
+    const event = { correlationId: this.correlationIds++, operation: 0, files };
+    await this._onWillRunWorkingCopyFileOperation.fireAsync(
+      event,
+      CancellationToken.None
+      /* intentional: we currently only forward cancellation to participants */
+    );
+    let stats;
+    try {
+      if (isFile) {
+        stats = await Promises.settled(operations.map((operation) => this.fileService.createFile(operation.resource, operation.contents, { overwrite: operation.overwrite })));
+      } else {
+        stats = await Promises.settled(operations.map((operation) => this.fileService.createFolder(operation.resource)));
+      }
+    } catch (error) {
+      await this._onDidFailWorkingCopyFileOperation.fireAsync(
+        event,
+        CancellationToken.None
+        /* intentional: we currently only forward cancellation to participants */
+      );
+      throw error;
+    }
+    await this._onDidRunWorkingCopyFileOperation.fireAsync(
+      event,
+      CancellationToken.None
+      /* intentional: we currently only forward cancellation to participants */
+    );
+    return stats;
+  }
+  async move(operations, token, undoInfo) {
+    return this.doMoveOrCopy(operations, true, token, undoInfo);
+  }
+  async copy(operations, token, undoInfo) {
+    return this.doMoveOrCopy(operations, false, token, undoInfo);
+  }
+  async doMoveOrCopy(operations, move, token, undoInfo) {
+    const stats = [];
+    for (const { file: { source, target }, overwrite } of operations) {
+      const validateMoveOrCopy = await (move ? this.fileService.canMove(source, target, overwrite) : this.fileService.canCopy(source, target, overwrite));
+      if (validateMoveOrCopy instanceof Error) {
+        throw validateMoveOrCopy;
+      }
+    }
+    const files = operations.map((o) => o.file);
+    await this.runFileOperationParticipants(files, move ? 2 : 3, undoInfo, token);
+    const event = { correlationId: this.correlationIds++, operation: move ? 2 : 3, files };
+    await this._onWillRunWorkingCopyFileOperation.fireAsync(
+      event,
+      CancellationToken.None
+      /* intentional: we currently only forward cancellation to participants */
+    );
+    try {
+      for (const { file: { source, target }, overwrite } of operations) {
+        if (!this.uriIdentityService.extUri.isEqual(source, target)) {
+          const dirtyWorkingCopies = move ? [...this.getDirty(source), ...this.getDirty(target)] : this.getDirty(target);
+          await Promises.settled(dirtyWorkingCopies.map((dirtyWorkingCopy) => dirtyWorkingCopy.revert({ soft: true })));
+        }
+        if (move) {
+          stats.push(await this.fileService.move(source, target, overwrite));
+        } else {
+          stats.push(await this.fileService.copy(source, target, overwrite));
+        }
+      }
+    } catch (error) {
+      await this._onDidFailWorkingCopyFileOperation.fireAsync(
+        event,
+        CancellationToken.None
+        /* intentional: we currently only forward cancellation to participants */
+      );
+      throw error;
+    }
+    await this._onDidRunWorkingCopyFileOperation.fireAsync(
+      event,
+      CancellationToken.None
+      /* intentional: we currently only forward cancellation to participants */
+    );
+    return stats;
+  }
+  async delete(operations, token, undoInfo) {
+    for (const operation of operations) {
+      const validateDelete = await this.fileService.canDelete(operation.resource, { recursive: operation.recursive, useTrash: operation.useTrash });
+      if (validateDelete instanceof Error) {
+        throw validateDelete;
+      }
+    }
+    const files = operations.map((operation) => ({ target: operation.resource }));
+    await this.runFileOperationParticipants(files, 1, undoInfo, token);
+    const event = { correlationId: this.correlationIds++, operation: 1, files };
+    await this._onWillRunWorkingCopyFileOperation.fireAsync(
+      event,
+      CancellationToken.None
+      /* intentional: we currently only forward cancellation to participants */
+    );
+    for (const operation of operations) {
+      const dirtyWorkingCopies = this.getDirty(operation.resource);
+      await Promises.settled(dirtyWorkingCopies.map((dirtyWorkingCopy) => dirtyWorkingCopy.revert({ soft: true })));
+    }
+    try {
+      for (const operation of operations) {
+        await this.fileService.del(operation.resource, { recursive: operation.recursive, useTrash: operation.useTrash });
+      }
+    } catch (error) {
+      await this._onDidFailWorkingCopyFileOperation.fireAsync(
+        event,
+        CancellationToken.None
+        /* intentional: we currently only forward cancellation to participants */
+      );
+      throw error;
+    }
+    await this._onDidRunWorkingCopyFileOperation.fireAsync(
+      event,
+      CancellationToken.None
+      /* intentional: we currently only forward cancellation to participants */
+    );
+  }
+  addFileOperationParticipant(participant) {
+    return this.fileOperationParticipants.addFileOperationParticipant(participant);
+  }
+  runFileOperationParticipants(files, operation, undoInfo, token) {
+    return this.fileOperationParticipants.participate(files, operation, undoInfo, token);
+  }
+  get hasSaveParticipants() {
+    return this.saveParticipants.length > 0;
+  }
+  addSaveParticipant(participant) {
+    return this.saveParticipants.addSaveParticipant(participant);
+  }
+  runSaveParticipants(workingCopy, context, progress, token) {
+    return this.saveParticipants.participate(workingCopy, context, progress, token);
+  }
+  registerWorkingCopyProvider(provider) {
+    const remove = insert(this.workingCopyProviders, provider);
+    return toDisposable(remove);
+  }
+  getDirty(resource) {
+    const dirtyWorkingCopies = /* @__PURE__ */ new Set();
+    for (const provider of this.workingCopyProviders) {
+      for (const workingCopy of provider(resource)) {
+        if (workingCopy.isDirty()) {
+          dirtyWorkingCopies.add(workingCopy);
+        }
+      }
+    }
+    return Array.from(dirtyWorkingCopies);
+  }
+};
+WorkingCopyFileService = __decorate([
+  __param(0, IFileService),
+  __param(1, IWorkingCopyService),
+  __param(2, IInstantiationService),
+  __param(3, IUriIdentityService)
+], WorkingCopyFileService);
+registerSingleton(
+  IWorkingCopyFileService,
+  WorkingCopyFileService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IWorkingCopyFileService,
+  WorkingCopyFileService
+};
+//# sourceMappingURL=workingCopyFileService.js.map

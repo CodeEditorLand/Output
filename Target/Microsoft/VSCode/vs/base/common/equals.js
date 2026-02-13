@@ -1,1 +1,150 @@
-import*as p from"./arrays.js";function u(t,r){return t===r}function O(){return(t,r)=>t===r}function l(t,r,e){return p.$Wb(t,r,e??u)}function b(t){return(r,e)=>p.$Wb(r,e,t??u)}function o(t,r){if(t===r)return!0;if(Array.isArray(t)&&Array.isArray(r)){if(t.length!==r.length)return!1;for(let e=0;e<t.length;e++)if(!o(t[e],r[e]))return!1;return!0}if(t&&typeof t=="object"&&r&&typeof r=="object"&&Object.getPrototypeOf(t)===Object.prototype&&Object.getPrototypeOf(r)===Object.prototype){const e=t,n=r,c=Object.keys(e),s=Object.keys(n),j=new Set(s);if(c.length!==s.length)return!1;for(const f of c)if(!j.has(f)||!o(e[f],n[f]))return!1;return!0}return!1}function g(){return(t,r)=>o(t,r)}function A(t){return JSON.stringify(i(t))}let a=0;const y=new WeakMap;function i(t){if(Array.isArray(t))return t.map(i);if(t&&typeof t=="object")if(Object.getPrototypeOf(t)===Object.prototype){const r=t,e=Object.create(null);for(const n of Object.keys(r).sort())e[n]=i(r[n]);return e}else{let r=y.get(t);return r===void 0&&(r=a++,y.set(t,r)),r+"----2b76a038c20c4bcc"}return t}function $(t,r){return JSON.stringify(t)===JSON.stringify(r)}function x(){return(t,r)=>JSON.stringify(t)===JSON.stringify(r)}function S(){return(t,r)=>t.equals(r)}function k(t,r,e){return t==null||r===void 0||r===null?r===t:e(t,r)}function h(t){return(r,e)=>r==null||e===void 0||e===null?e===r:t(r,e)}var d;(function(t){t.strict=u,t.strictC=O,t.array=l,t.arrayC=b,t.structural=o,t.structuralC=g,t.jsonStringify=$,t.jsonStringifyC=x,t.thisC=S,t.ifDefined=k,t.ifDefinedC=h})(d||(d={}));export{x as $1d,S as $2d,k as $3d,h as $4d,u as $Sd,O as $Td,l as $Ud,b as $Vd,o as $Wd,g as $Xd,A as $Yd,$ as $Zd,d as equals};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "./arrays.js";
+function strictEquals(a, b) {
+  return a === b;
+}
+__name(strictEquals, "strictEquals");
+function strictEqualsC() {
+  return (a, b) => a === b;
+}
+__name(strictEqualsC, "strictEqualsC");
+function arrayEquals(a, b, itemEquals) {
+  return arrays.equals(a, b, itemEquals ?? strictEquals);
+}
+__name(arrayEquals, "arrayEquals");
+function arrayEqualsC(itemEquals) {
+  return (a, b) => arrays.equals(a, b, itemEquals ?? strictEquals);
+}
+__name(arrayEqualsC, "arrayEqualsC");
+function structuralEquals(a, b) {
+  if (a === b) {
+    return true;
+  }
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (!structuralEquals(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  if (a && typeof a === "object" && b && typeof b === "object") {
+    if (Object.getPrototypeOf(a) === Object.prototype && Object.getPrototypeOf(b) === Object.prototype) {
+      const aObj = a;
+      const bObj = b;
+      const keysA = Object.keys(aObj);
+      const keysB = Object.keys(bObj);
+      const keysBSet = new Set(keysB);
+      if (keysA.length !== keysB.length) {
+        return false;
+      }
+      for (const key of keysA) {
+        if (!keysBSet.has(key)) {
+          return false;
+        }
+        if (!structuralEquals(aObj[key], bObj[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+  return false;
+}
+__name(structuralEquals, "structuralEquals");
+function structuralEqualsC() {
+  return (a, b) => structuralEquals(a, b);
+}
+__name(structuralEqualsC, "structuralEqualsC");
+function getStructuralKey(t) {
+  return JSON.stringify(toNormalizedJsonStructure(t));
+}
+__name(getStructuralKey, "getStructuralKey");
+let objectId = 0;
+const objIds = /* @__PURE__ */ new WeakMap();
+function toNormalizedJsonStructure(t) {
+  if (Array.isArray(t)) {
+    return t.map(toNormalizedJsonStructure);
+  }
+  if (t && typeof t === "object") {
+    if (Object.getPrototypeOf(t) === Object.prototype) {
+      const tObj = t;
+      const res = /* @__PURE__ */ Object.create(null);
+      for (const key of Object.keys(tObj).sort()) {
+        res[key] = toNormalizedJsonStructure(tObj[key]);
+      }
+      return res;
+    } else {
+      let objId = objIds.get(t);
+      if (objId === void 0) {
+        objId = objectId++;
+        objIds.set(t, objId);
+      }
+      return objId + "----2b76a038c20c4bcc";
+    }
+  }
+  return t;
+}
+__name(toNormalizedJsonStructure, "toNormalizedJsonStructure");
+function jsonStringifyEquals(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+__name(jsonStringifyEquals, "jsonStringifyEquals");
+function jsonStringifyEqualsC() {
+  return (a, b) => JSON.stringify(a) === JSON.stringify(b);
+}
+__name(jsonStringifyEqualsC, "jsonStringifyEqualsC");
+function thisEqualsC() {
+  return (a, b) => a.equals(b);
+}
+__name(thisEqualsC, "thisEqualsC");
+function equalsIfDefined(v1, v2, equals2) {
+  if (v1 === void 0 || v1 === null || v2 === void 0 || v2 === null) {
+    return v2 === v1;
+  }
+  return equals2(v1, v2);
+}
+__name(equalsIfDefined, "equalsIfDefined");
+function equalsIfDefinedC(equals2) {
+  return (v1, v2) => {
+    if (v1 === void 0 || v1 === null || v2 === void 0 || v2 === null) {
+      return v2 === v1;
+    }
+    return equals2(v1, v2);
+  };
+}
+__name(equalsIfDefinedC, "equalsIfDefinedC");
+var equals;
+(function(equals2) {
+  equals2.strict = strictEquals;
+  equals2.strictC = strictEqualsC;
+  equals2.array = arrayEquals;
+  equals2.arrayC = arrayEqualsC;
+  equals2.structural = structuralEquals;
+  equals2.structuralC = structuralEqualsC;
+  equals2.jsonStringify = jsonStringifyEquals;
+  equals2.jsonStringifyC = jsonStringifyEqualsC;
+  equals2.thisC = thisEqualsC;
+  equals2.ifDefined = equalsIfDefined;
+  equals2.ifDefinedC = equalsIfDefinedC;
+})(equals || (equals = {}));
+export {
+  arrayEquals,
+  arrayEqualsC,
+  equals,
+  equalsIfDefined,
+  equalsIfDefinedC,
+  getStructuralKey,
+  jsonStringifyEquals,
+  jsonStringifyEqualsC,
+  strictEquals,
+  strictEqualsC,
+  structuralEquals,
+  structuralEqualsC,
+  thisEqualsC
+};
+//# sourceMappingURL=equals.js.map

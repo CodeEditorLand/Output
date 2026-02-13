@@ -1,1 +1,83 @@
-import{$Ed as d,$Md as k,$Dd as u}from"../../../../base/common/lifecycle.js";import{MarkerSeverity as p}from"../../../../platform/markers/common/markers.js";class h extends d{constructor(){super(),this.a=new Map,this.b=new k}addTerminal(e,t){this.a.set(e.instanceId,{resources:new Map,markers:new Map});const a=new u;this.b.set(e.instanceId,a),a.add(e.onDisposed(()=>{this.a.delete(e.instanceId),this.b.deleteAndDispose(e.instanceId)})),a.add(t.onDidFindErrors(n=>{const s=this.a.get(e.instanceId);if(s){s.markers.clear(),s.resources.clear();for(const r of n)if(r.severity===p.Error){s.resources.set(r.resource.toString(),r.resource);let o=s.markers.get(r.owner);o||(o=new Map,s.markers.set(r.owner,o)),o.set(r.resource.toString(),r),this.a.set(e.instanceId,s)}}})),a.add(t.onDidRequestInvalidateLastMarker(()=>{const n=this.a.get(e.instanceId);n?.markers.clear(),n?.resources.clear(),this.a.set(e.instanceId,{resources:new Map,markers:new Map})}))}getTaskProblems(e){const t=this.a.get(e);if(t){if(t.markers.size===0)return new Map}else return;const a=new Map;for(const[n,s]of t.markers){const r=[],c=[];for(const[o,i]of s)r.push(t.resources.get(o)),c.push(i);a.set(n,{resources:r,markers:c})}return a}}export{h as $rDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+class TaskProblemMonitor extends Disposable {
+  static {
+    __name(this, "TaskProblemMonitor");
+  }
+  constructor() {
+    super();
+    this.terminalMarkerMap = /* @__PURE__ */ new Map();
+    this.terminalDisposables = new DisposableMap();
+  }
+  addTerminal(terminal, problemMatcher) {
+    this.terminalMarkerMap.set(terminal.instanceId, {
+      resources: /* @__PURE__ */ new Map(),
+      markers: /* @__PURE__ */ new Map()
+    });
+    const store = new DisposableStore();
+    this.terminalDisposables.set(terminal.instanceId, store);
+    store.add(terminal.onDisposed(() => {
+      this.terminalMarkerMap.delete(terminal.instanceId);
+      this.terminalDisposables.deleteAndDispose(terminal.instanceId);
+    }));
+    store.add(problemMatcher.onDidFindErrors((markers) => {
+      const markerData = this.terminalMarkerMap.get(terminal.instanceId);
+      if (markerData) {
+        markerData.markers.clear();
+        markerData.resources.clear();
+        for (const marker of markers) {
+          if (marker.severity === MarkerSeverity.Error) {
+            markerData.resources.set(marker.resource.toString(), marker.resource);
+            const markersForOwner = markerData.markers.get(marker.owner);
+            let markerMap = markersForOwner;
+            if (!markerMap) {
+              markerMap = /* @__PURE__ */ new Map();
+              markerData.markers.set(marker.owner, markerMap);
+            }
+            markerMap.set(marker.resource.toString(), marker);
+            this.terminalMarkerMap.set(terminal.instanceId, markerData);
+          }
+        }
+      }
+    }));
+    store.add(problemMatcher.onDidRequestInvalidateLastMarker(() => {
+      const markerData = this.terminalMarkerMap.get(terminal.instanceId);
+      markerData?.markers.clear();
+      markerData?.resources.clear();
+      this.terminalMarkerMap.set(terminal.instanceId, {
+        resources: /* @__PURE__ */ new Map(),
+        markers: /* @__PURE__ */ new Map()
+      });
+    }));
+  }
+  /**
+   * Gets the task problems for a specific terminal instance
+   * @param instanceId The terminal instance ID
+   * @returns Map of problem matchers to their resources and marker data, or undefined if no problems found
+   */
+  getTaskProblems(instanceId) {
+    const markerData = this.terminalMarkerMap.get(instanceId);
+    if (!markerData) {
+      return void 0;
+    } else if (markerData.markers.size === 0) {
+      return /* @__PURE__ */ new Map();
+    }
+    const result = /* @__PURE__ */ new Map();
+    for (const [owner, markersMap] of markerData.markers) {
+      const resources = [];
+      const markers = [];
+      for (const [resource, marker] of markersMap) {
+        resources.push(markerData.resources.get(resource));
+        markers.push(marker);
+      }
+      result.set(owner, { resources, markers });
+    }
+    return result;
+  }
+}
+export {
+  TaskProblemMonitor
+};
+//# sourceMappingURL=taskProblemMonitor.js.map

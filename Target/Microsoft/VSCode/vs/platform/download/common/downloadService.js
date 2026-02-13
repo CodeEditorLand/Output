@@ -1,3 +1,50 @@
-import{CancellationToken as p}from"../../../base/common/cancellation.js";import{Schemas as f}from"../../../base/common/network.js";import{$vk as h}from"../../files/common/files.js";import{$3o as u,$Vo as w}from"../../request/common/request.js";var m=function(i,t,o,n){var r=arguments.length,e=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,o):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(i,t,o,n);else for(var a=i.length-1;a>=0;a--)(s=i[a])&&(e=(r<3?s(e):r>3?s(t,o,e):s(t,o))||e);return r>3&&e&&Object.defineProperty(t,o,e),e},c=function(i,t){return function(o,n){t(o,n,i)}};let l=class{constructor(t,o){this.a=t,this.b=o}async download(t,o,n=p.None){if(t.scheme===f.file||t.scheme===f.vscodeRemote){await this.b.copy(t,o);return}const r={type:"GET",url:t.toString(!0)},e=await this.a.request(r,n);if(e.res.statusCode===200)await this.b.writeFile(o,e.stream);else{const s=await u(e);throw new Error(`Expected 200, got back ${e.res.statusCode} instead.
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Schemas } from "../../../base/common/network.js";
+import { IFileService } from "../../files/common/files.js";
+import { asTextOrError, IRequestService } from "../../request/common/request.js";
+let DownloadService = class DownloadService2 {
+  static {
+    __name(this, "DownloadService");
+  }
+  constructor(requestService, fileService) {
+    this.requestService = requestService;
+    this.fileService = fileService;
+  }
+  async download(resource, target, cancellationToken = CancellationToken.None) {
+    if (resource.scheme === Schemas.file || resource.scheme === Schemas.vscodeRemote) {
+      await this.fileService.copy(resource, target);
+      return;
+    }
+    const options = { type: "GET", url: resource.toString(true) };
+    const context = await this.requestService.request(options, cancellationToken);
+    if (context.res.statusCode === 200) {
+      await this.fileService.writeFile(target, context.stream);
+    } else {
+      const message = await asTextOrError(context);
+      throw new Error(`Expected 200, got back ${context.res.statusCode} instead.
 
-${s}`)}}};l=m([c(0,w),c(1,h)],l);export{l as $O7};
+${message}`);
+    }
+  }
+};
+DownloadService = __decorate([
+  __param(0, IRequestService),
+  __param(1, IFileService)
+], DownloadService);
+export {
+  DownloadService
+};
+//# sourceMappingURL=downloadService.js.map

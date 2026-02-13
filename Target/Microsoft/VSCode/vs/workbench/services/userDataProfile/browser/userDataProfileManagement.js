@@ -1,1 +1,221 @@
-import{CancellationToken as b}from"../../../../base/common/cancellation.js";import{$sb as E}from"../../../../base/common/errors.js";import{$Ed as T}from"../../../../base/common/lifecycle.js";import{$Gp as W}from"../../../../base/common/objects.js";import{localize as a}from"../../../../nls.js";import{$0l as k}from"../../../../platform/configuration/common/configuration.js";import{$Mp as x}from"../../../../platform/dialogs/common/dialogs.js";import{$WC as C}from"../../../../platform/instantiation/common/extensions.js";import{$yo as D}from"../../../../platform/log/common/log.js";import{$Vn as U}from"../../../../platform/product/common/productService.js";import{$Vo as v,$4o as _}from"../../../../platform/request/common/request.js";import{$$o as R}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$ap as j}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$Ol as q,$Ml as A,$Rl as u}from"../../../../platform/workspace/common/workspace.js";import{$bO as F}from"../../../common/configuration.js";import{$HP as O}from"../../environment/common/environmentService.js";import{$NR as H}from"../../extensions/common/extensions.js";import{$gcb as N}from"../../host/browser/host.js";import{$MQ as V,$LQ as M}from"../common/userDataProfile.js";var y=function(f,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(f,t,i,e);else for(var h=f.length-1;h>=0;h--)(l=f[h])&&(s=(r<3?l(s):r>3?l(t,i,s):l(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},o=function(f,t){return function(i,e){t(i,e,f)}};let p=class extends T{constructor(t,i,e,r,s,l,h,d,w,P,$,g){super(),this.a=t,this.b=i,this.c=e,this.f=r,this.g=s,this.h=l,this.j=h,this.m=d,this.n=w,this.q=P,this.r=$,this.s=g,this.D(i.onDidChangeCurrentProfile(c=>this.t(c))),this.D(t.onDidChangeProfiles(c=>{if(c.removed.some(n=>n.id===this.b.currentProfile.id)){const n=this.w();this.switchProfile(n),this.y(n,a(16778,null));return}const m=c.updated.find(n=>this.b.currentProfile.id===n.id);if(m){const n=this.w();n?.id!==m.id?(this.switchProfile(n),this.y(n,a(16779,null))):this.y(m,a(16780,null))}}))}async t(t){t.previous.isTransient&&await this.a.cleanUpTransientProfiles()}u(){const t=this.g.getWorkspace();return t.configuration??t.folders[0]?.uri}w(){const t=this.u();if(t){const i=this.a.profiles.find(e=>e.workspaces?.some(r=>this.r.extUri.isEqual(r,t)));if(i)return i}else{const i=this.a.profiles.find(e=>e.id===this.b.currentProfile.id);if(i)return i}return this.getDefaultProfileToUse()}getDefaultProfileToUse(){const t=this.q.getValue(F);if(t){const i=this.a.profiles.find(e=>e.name===t);if(i)return i}return this.a.defaultProfile}async createProfile(t,i){return this.a.createNamedProfile(t,i)}async createAndEnterProfile(t,i){const e=await this.a.createNamedProfile(t,i,u(this.g.getWorkspace()));return await this.y(e),e}async createAndEnterTransientProfile(){const t=await this.a.createTransientProfile(u(this.g.getWorkspace()));return await this.y(t),t}async updateProfile(t,i){if(!this.a.profiles.some(r=>r.id===t.id))throw new Error(`Profile ${t.name} does not exist`);if(t.isDefault)throw new Error(a(16781,null));return await this.a.updateProfile(t,i)}async removeProfile(t){if(!this.a.profiles.some(i=>i.id===t.id))throw new Error(`Profile ${t.name} does not exist`);if(t.isDefault)throw new Error(a(16782,null));await this.a.removeProfile(t)}async switchProfile(t){if(!this.a.profiles.some(r=>r.id===t.id))throw new Error(`Profile ${t.name} does not exist`);if(this.b.currentProfile.id===t.id)return;const i=this.u();if(i&&t.workspaces?.some(r=>this.r.extUri.isEqual(r,i)))return;const e=u(this.g.getWorkspace());await this.a.setProfileForWorkspace(e,t),q(e)&&await this.y(t)}async getBuiltinProfileTemplates(){if(this.m.profileTemplatesUrl)try{const t=await this.n.request({type:"GET",url:this.m.profileTemplatesUrl},b.None);if(t.res.statusCode===200)return await _(t)||[];this.s.error("Could not get profile templates.",t.res.statusCode)}catch(t){this.s.error(t)}return[]}async y(t,i){const e=!!this.j.remoteAuthority,r=this.b.currentProfile.id!==t.id||!W(this.b.currentProfile.useDefaultFlags,t.useDefaultFlags);if(r&&!e&&!await this.h.stopExtensionHosts(a(16783,null)))throw this.a.profiles.some(s=>s.id===this.b.currentProfile.id)&&await this.a.setProfileForWorkspace(u(this.g.getWorkspace()),this.b.currentProfile),new E;if(await this.b.updateCurrentProfile(t),r)if(e){const{confirmed:s}=await this.f.confirm({message:i??a(16784,null),primaryButton:a(16785,null)});s&&await this.c.reload()}else await this.h.startExtensionHosts()}};p=y([o(0,j),o(1,M),o(2,N),o(3,x),o(4,A),o(5,H),o(6,O),o(7,U),o(8,v),o(9,k),o(10,R),o(11,D)],p);C(V,p,0);export{p as $Abc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { equals } from "../../../../base/common/objects.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService, asJson } from "../../../../platform/request/common/request.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { isEmptyWorkspaceIdentifier, IWorkspaceContextService, toWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { CONFIG_NEW_WINDOW_PROFILE } from "../../../common/configuration.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IHostService } from "../../host/browser/host.js";
+import { IUserDataProfileManagementService, IUserDataProfileService } from "../common/userDataProfile.js";
+let UserDataProfileManagementService = class UserDataProfileManagementService2 extends Disposable {
+  static {
+    __name(this, "UserDataProfileManagementService");
+  }
+  constructor(userDataProfilesService, userDataProfileService, hostService, dialogService, workspaceContextService, extensionService, environmentService, productService, requestService, configurationService, uriIdentityService, logService) {
+    super();
+    this.userDataProfilesService = userDataProfilesService;
+    this.userDataProfileService = userDataProfileService;
+    this.hostService = hostService;
+    this.dialogService = dialogService;
+    this.workspaceContextService = workspaceContextService;
+    this.extensionService = extensionService;
+    this.environmentService = environmentService;
+    this.productService = productService;
+    this.requestService = requestService;
+    this.configurationService = configurationService;
+    this.uriIdentityService = uriIdentityService;
+    this.logService = logService;
+    this._register(userDataProfileService.onDidChangeCurrentProfile((e) => this.onDidChangeCurrentProfile(e)));
+    this._register(userDataProfilesService.onDidChangeProfiles((e) => {
+      if (e.removed.some((profile) => profile.id === this.userDataProfileService.currentProfile.id)) {
+        const profileToUse = this.getProfileToUseForCurrentWorkspace();
+        this.switchProfile(profileToUse);
+        this.changeCurrentProfile(profileToUse, localize("reload message when removed", "The current profile has been removed. Please reload to switch back to default profile"));
+        return;
+      }
+      const updatedCurrentProfile = e.updated.find((p) => this.userDataProfileService.currentProfile.id === p.id);
+      if (updatedCurrentProfile) {
+        const profileToUse = this.getProfileToUseForCurrentWorkspace();
+        if (profileToUse?.id !== updatedCurrentProfile.id) {
+          this.switchProfile(profileToUse);
+          this.changeCurrentProfile(profileToUse, localize("reload message when switched", "The current workspace has been removed from the current profile. Please reload to switch back to the updated profile"));
+        } else {
+          this.changeCurrentProfile(updatedCurrentProfile, localize("reload message when updated", "The current profile has been updated. Please reload to switch back to the updated profile"));
+        }
+      }
+    }));
+  }
+  async onDidChangeCurrentProfile(e) {
+    if (e.previous.isTransient) {
+      await this.userDataProfilesService.cleanUpTransientProfiles();
+    }
+  }
+  getWorkspaceUri() {
+    const workspace = this.workspaceContextService.getWorkspace();
+    return workspace.configuration ?? workspace.folders[0]?.uri;
+  }
+  getProfileToUseForCurrentWorkspace() {
+    const workspaceUri = this.getWorkspaceUri();
+    if (workspaceUri) {
+      const profileForWorkspace = this.userDataProfilesService.profiles.find((profile) => profile.workspaces?.some((ws) => this.uriIdentityService.extUri.isEqual(ws, workspaceUri)));
+      if (profileForWorkspace) {
+        return profileForWorkspace;
+      }
+    } else {
+      const currentProfile = this.userDataProfilesService.profiles.find((profile) => profile.id === this.userDataProfileService.currentProfile.id);
+      if (currentProfile) {
+        return currentProfile;
+      }
+    }
+    return this.getDefaultProfileToUse();
+  }
+  getDefaultProfileToUse() {
+    const newWindowProfileConfigValue = this.configurationService.getValue(CONFIG_NEW_WINDOW_PROFILE);
+    if (newWindowProfileConfigValue) {
+      const newWindowProfile = this.userDataProfilesService.profiles.find((profile) => profile.name === newWindowProfileConfigValue);
+      if (newWindowProfile) {
+        return newWindowProfile;
+      }
+    }
+    return this.userDataProfilesService.defaultProfile;
+  }
+  async createProfile(name, options) {
+    return this.userDataProfilesService.createNamedProfile(name, options);
+  }
+  async createAndEnterProfile(name, options) {
+    const profile = await this.userDataProfilesService.createNamedProfile(name, options, toWorkspaceIdentifier(this.workspaceContextService.getWorkspace()));
+    await this.changeCurrentProfile(profile);
+    return profile;
+  }
+  async createAndEnterTransientProfile() {
+    const profile = await this.userDataProfilesService.createTransientProfile(toWorkspaceIdentifier(this.workspaceContextService.getWorkspace()));
+    await this.changeCurrentProfile(profile);
+    return profile;
+  }
+  async updateProfile(profile, updateOptions) {
+    if (!this.userDataProfilesService.profiles.some((p) => p.id === profile.id)) {
+      throw new Error(`Profile ${profile.name} does not exist`);
+    }
+    if (profile.isDefault) {
+      throw new Error(localize("cannotRenameDefaultProfile", "Cannot rename the default profile"));
+    }
+    const updatedProfile = await this.userDataProfilesService.updateProfile(profile, updateOptions);
+    return updatedProfile;
+  }
+  async removeProfile(profile) {
+    if (!this.userDataProfilesService.profiles.some((p) => p.id === profile.id)) {
+      throw new Error(`Profile ${profile.name} does not exist`);
+    }
+    if (profile.isDefault) {
+      throw new Error(localize("cannotDeleteDefaultProfile", "Cannot delete the default profile"));
+    }
+    await this.userDataProfilesService.removeProfile(profile);
+  }
+  async switchProfile(profile) {
+    if (!this.userDataProfilesService.profiles.some((p) => p.id === profile.id)) {
+      throw new Error(`Profile ${profile.name} does not exist`);
+    }
+    if (this.userDataProfileService.currentProfile.id === profile.id) {
+      return;
+    }
+    const workspaceUri = this.getWorkspaceUri();
+    if (workspaceUri && profile.workspaces?.some((ws) => this.uriIdentityService.extUri.isEqual(ws, workspaceUri))) {
+      return;
+    }
+    const workspaceIdentifier = toWorkspaceIdentifier(this.workspaceContextService.getWorkspace());
+    await this.userDataProfilesService.setProfileForWorkspace(workspaceIdentifier, profile);
+    if (isEmptyWorkspaceIdentifier(workspaceIdentifier)) {
+      await this.changeCurrentProfile(profile);
+    }
+  }
+  async getBuiltinProfileTemplates() {
+    if (this.productService.profileTemplatesUrl) {
+      try {
+        const context = await this.requestService.request({ type: "GET", url: this.productService.profileTemplatesUrl }, CancellationToken.None);
+        if (context.res.statusCode === 200) {
+          return await asJson(context) || [];
+        } else {
+          this.logService.error("Could not get profile templates.", context.res.statusCode);
+        }
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    return [];
+  }
+  async changeCurrentProfile(profile, reloadMessage) {
+    const isRemoteWindow = !!this.environmentService.remoteAuthority;
+    const shouldRestartExtensionHosts = this.userDataProfileService.currentProfile.id !== profile.id || !equals(this.userDataProfileService.currentProfile.useDefaultFlags, profile.useDefaultFlags);
+    if (shouldRestartExtensionHosts) {
+      if (!isRemoteWindow) {
+        if (!await this.extensionService.stopExtensionHosts(localize("switch profile", "Switching to a profile"))) {
+          if (this.userDataProfilesService.profiles.some((p) => p.id === this.userDataProfileService.currentProfile.id)) {
+            await this.userDataProfilesService.setProfileForWorkspace(toWorkspaceIdentifier(this.workspaceContextService.getWorkspace()), this.userDataProfileService.currentProfile);
+          }
+          throw new CancellationError();
+        }
+      }
+    }
+    await this.userDataProfileService.updateCurrentProfile(profile);
+    if (shouldRestartExtensionHosts) {
+      if (isRemoteWindow) {
+        const { confirmed } = await this.dialogService.confirm({
+          message: reloadMessage ?? localize("reload message", "Switching a profile requires reloading VS Code."),
+          primaryButton: localize("reload button", "&&Reload")
+        });
+        if (confirmed) {
+          await this.hostService.reload();
+        }
+      } else {
+        await this.extensionService.startExtensionHosts();
+      }
+    }
+  }
+};
+UserDataProfileManagementService = __decorate([
+  __param(0, IUserDataProfilesService),
+  __param(1, IUserDataProfileService),
+  __param(2, IHostService),
+  __param(3, IDialogService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IExtensionService),
+  __param(6, IWorkbenchEnvironmentService),
+  __param(7, IProductService),
+  __param(8, IRequestService),
+  __param(9, IConfigurationService),
+  __param(10, IUriIdentityService),
+  __param(11, ILogService)
+], UserDataProfileManagementService);
+registerSingleton(
+  IUserDataProfileManagementService,
+  UserDataProfileManagementService,
+  0
+  /* InstantiationType.Eager */
+);
+export {
+  UserDataProfileManagementService
+};
+//# sourceMappingURL=userDataProfileManagement.js.map

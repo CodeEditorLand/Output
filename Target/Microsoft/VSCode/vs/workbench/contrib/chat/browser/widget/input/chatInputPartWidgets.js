@@ -1,1 +1,104 @@
-import{$Ed as p,$Dd as l}from"../../../../../../base/common/lifecycle.js";import{$ro as g}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as u}from"../../../../../../platform/instantiation/common/instantiation.js";var a=function(r,t,e,s){var i=arguments.length,o=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,t,e,s);else for(var d=r.length-1;d>=0;d--)(n=r[d])&&(o=(i<3?n(o):i>3?n(t,e,o):n(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},h=function(r,t){return function(e,s){t(e,s,r)}};const c=new class{constructor(){this.widgets=[]}register(r,t,e){this.widgets.push({id:r,ctor:t,when:e})}getWidgets(){return this.widgets}};let f=class extends p{constructor(t,e,s){super(),this.b=t,this.c=e,this.f=s,this.a=new Map,this.g(),this.D(this.c.onDidChangeContext(i=>{const o=new Set;for(const n of c.getWidgets())if(n.when)for(const d of n.when.keys())o.add(d);i.affectsSome(o)&&this.g()}))}g(){const t=new Set;for(const e of c.getWidgets())this.c.contextMatchesRules(e.when)&&t.add(e.id);for(const[e,s]of this.a)t.has(e)||(s.widget.domNode.remove(),s.disposables.dispose(),this.a.delete(e));for(const e of c.getWidgets())if(t.has(e.id)&&!this.a.has(e.id)){const s=new l,i=this.f.createInstance(e.ctor);s.add(i),this.a.set(e.id,{descriptor:e,widget:i,disposables:s}),this.b.appendChild(i.domNode)}}get height(){let t=0;for(const e of this.a.values())t+=e.widget.height;return t}dispose(){for(const t of this.a.values())t.widget.domNode.remove(),t.disposables.dispose();this.a.clear(),super.dispose()}};f=a([h(1,g),h(2,u)],f);export{c as $m4b,f as $n4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+const ChatInputPartWidgetsRegistry = new class {
+  constructor() {
+    this.widgets = [];
+  }
+  register(id, ctor, when) {
+    this.widgets.push({ id, ctor, when });
+  }
+  getWidgets() {
+    return this.widgets;
+  }
+}();
+let ChatInputPartWidgetController = class ChatInputPartWidgetController2 extends Disposable {
+  static {
+    __name(this, "ChatInputPartWidgetController");
+  }
+  constructor(container, contextKeyService, instantiationService) {
+    super();
+    this.container = container;
+    this.contextKeyService = contextKeyService;
+    this.instantiationService = instantiationService;
+    this.renderedWidgets = /* @__PURE__ */ new Map();
+    this.update();
+    this._register(this.contextKeyService.onDidChangeContext((e) => {
+      const relevantKeys = /* @__PURE__ */ new Set();
+      for (const descriptor of ChatInputPartWidgetsRegistry.getWidgets()) {
+        if (descriptor.when) {
+          for (const key of descriptor.when.keys()) {
+            relevantKeys.add(key);
+          }
+        }
+      }
+      if (e.affectsSome(relevantKeys)) {
+        this.update();
+      }
+    }));
+  }
+  update() {
+    const visibleIds = /* @__PURE__ */ new Set();
+    for (const descriptor of ChatInputPartWidgetsRegistry.getWidgets()) {
+      if (this.contextKeyService.contextMatchesRules(descriptor.when)) {
+        visibleIds.add(descriptor.id);
+      }
+    }
+    for (const [id, rendered] of this.renderedWidgets) {
+      if (!visibleIds.has(id)) {
+        rendered.widget.domNode.remove();
+        rendered.disposables.dispose();
+        this.renderedWidgets.delete(id);
+      }
+    }
+    for (const descriptor of ChatInputPartWidgetsRegistry.getWidgets()) {
+      if (!visibleIds.has(descriptor.id)) {
+        continue;
+      }
+      if (!this.renderedWidgets.has(descriptor.id)) {
+        const disposables = new DisposableStore();
+        const widget = this.instantiationService.createInstance(descriptor.ctor);
+        disposables.add(widget);
+        this.renderedWidgets.set(descriptor.id, { descriptor, widget, disposables });
+        this.container.appendChild(widget.domNode);
+      }
+    }
+  }
+  get height() {
+    let total = 0;
+    for (const rendered of this.renderedWidgets.values()) {
+      total += rendered.widget.height;
+    }
+    return total;
+  }
+  dispose() {
+    for (const rendered of this.renderedWidgets.values()) {
+      rendered.widget.domNode.remove();
+      rendered.disposables.dispose();
+    }
+    this.renderedWidgets.clear();
+    super.dispose();
+  }
+};
+ChatInputPartWidgetController = __decorate([
+  __param(1, IContextKeyService),
+  __param(2, IInstantiationService)
+], ChatInputPartWidgetController);
+export {
+  ChatInputPartWidgetController,
+  ChatInputPartWidgetsRegistry
+};
+//# sourceMappingURL=chatInputPartWidgets.js.map

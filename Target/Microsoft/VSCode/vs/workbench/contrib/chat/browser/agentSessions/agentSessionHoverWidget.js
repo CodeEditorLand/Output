@@ -1,3 +1,252 @@
-import*as e from"../../../../../base/browser/dom.js";import{$H0 as p}from"../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$ji as g}from"../../../../../base/common/async.js";import{$Jf as C}from"../../../../../base/common/cancellation.js";import{$bk as v}from"../../../../../base/common/codicons.js";import{$Qn as m,$Sn as I}from"../../../../../base/common/date.js";import{$jk as _}from"../../../../../base/common/htmlContent.js";import{$Ed as H,$Cd as E}from"../../../../../base/common/lifecycle.js";import{ThemeIcon as N}from"../../../../../base/common/themables.js";import{localize as c}from"../../../../../nls.js";import{$Mj as A}from"../../../../../platform/instantiation/common/instantiation.js";import{$NV as k}from"../../common/chatService/chatService.js";import{ChatAgentLocation as L,ChatModeKind as M}from"../../common/constants.js";import{$aFb as P}from"../../common/model/chatViewModel.js";import{$1Eb as x}from"../../common/widget/codeBlockModelCollection.js";import{$U4b as O}from"../chat.js";import{$C4b as V}from"../widget/chatListWidget.js";import{AgentSessionProviders as b,$XPb as R,$ZPb as w,$YPb as S}from"./agentSessions.js";import{$lQb as D,$kQb as T}from"./agentSessionsModel.js";import"./media/agentSessionHoverWidget.css";var j=function(u,t,i,n){var s=arguments.length,o=s<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(u,t,i,n);else for(var h=u.length-1;h>=0;h--)(l=u[h])&&(o=(s<3?l(o):s>3?l(t,i,o):l(t,i))||o);return s>3&&o&&Object.defineProperty(t,i,o),o},f=function(u,t){return function(i,n){t(i,n,u)}};const B=60,$=240,y=500;let q=class extends H{constructor(t,i,n,s){super(),this.session=t,this.m=i,this.n=n,this.q=s,this.h=!1,this.domNode=e.$(".agent-session-hover.interactive-session"),this.domNode.style.width=`${y}px`,this.domNode.style.height=`${B+$}px`,this.domNode.style.overflow="hidden",this.j=new C,this.D(E(()=>this.j.cancel())),this.t(),this.c=e.$y9(this.domNode,e.$(".agent-session-hover-content")),this.f=e.$y9(this.c,e.$(".agent-session-hover-loading")),e.$y9(this.f,p(N.modify(v.loading,"spin"))),this.g=this.D(new g(()=>this.s(),200))}onRendered(){this.a??=this.r(),this.h?this.b?.layout($,y):(this.h=!0,this.g.schedule())}async r(){const t=await this.m.loadSessionForResource(this.session.resource,L.Chat,this.j.token);if(this.B.isDisposed){t?.dispose();return}if(!t){this.f.remove();const i=this.u(this.session);this.domNode.textContent=typeof i=="string"?i:i.value;return}return this.D(t),t.object}async s(){this.a??=this.r();const t=await this.a;if(!t||this.B.isDisposed)return;this.f.remove();const i=this.D(this.n.createInstance(x,"agentSessionHover")),n=this.D(this.n.createInstance(P,t,i,{maxVisibleItems:2})),s=e.$y9(this.c,e.$(".interactive-list")),o=this.D(this.n.createInstance(V,s,{rendererOptions:{renderStyle:"compact",noHeader:!0,editable:!1},currentChatMode:()=>M.Ask}));o.layout($,y),o.setScrollLock(!0),o.setViewModel(n),o.refresh();const l=this.D(new g(()=>o.refresh(),500));this.D(n.onDidChange(()=>{l.isScheduled()||l.schedule()})),this.D(o.onDidClickFollowup(async h=>{const a=await this.q.openSession(t.sessionResource);a&&a.acceptInput(h.message)}))}t(){const t=this.session,i=e.$y9(this.domNode,e.$(".agent-session-hover-header")),n=e.$y9(i,e.$(".agent-session-hover-title"));e.$y9(n,e.$("span",void 0,t.label));const s=e.$y9(i,e.$(".agent-session-hover-details")),l=R(t.providerType)??b.Local,h=w(l);if(e.$y9(s,p(h)),e.$y9(s,e.$("span",void 0,S(l))),e.$y9(s,e.$("span.separator",void 0,"\u2022")),t.timing.lastRequestEnded&&t.timing.lastRequestStarted){const r=this.w(t.timing.lastRequestStarted,t.timing.lastRequestEnded,!0);r&&e.$y9(s,e.$("span",void 0,r))}else{const r=t.timing.lastRequestStarted??t.timing.created;e.$y9(s,e.$("span",void 0,m(r,!0,!0)))}const a=D(t.changes);if(a&&T(t.changes)){e.$y9(s,e.$("span.separator",void 0,"\u2022"));const r=e.$y9(s,e.$(".agent-session-hover-diff"));a.files>0&&e.$y9(r,e.$("span",void 0,a.files===1?c(5416,null):c(5417,null,a.files))),a.insertions>0&&e.$y9(r,e.$("span.insertions",void 0,`+${a.insertions}`)),a.deletions>0&&e.$y9(r,e.$("span.deletions",void 0,`-${a.deletions}`))}t.status!==1&&(e.$y9(s,e.$("span.separator",void 0,"\u2022")),e.$y9(s,e.$("span",void 0,this.y(t.status)))),t.isArchived()&&(e.$y9(s,e.$("span.separator",void 0,"\u2022")),e.$y9(s,p(v.archive)),e.$y9(s,e.$("span",void 0,c(5418,null))))}u(t){const i=[];if(i.push(`**${t.label}**`),t.tooltip){const d=typeof t.tooltip=="string"?t.tooltip:t.tooltip.value;i.push(d)}else{if(t.description){const d=typeof t.description=="string"?t.description:t.description.value;i.push(d)}if(t.badge){const d=typeof t.badge=="string"?t.badge:t.badge.value;i.push(d)}}const n=[],o=R(t.providerType)??b.Local,l=w(o),h=S(o);let a;if(t.timing.lastRequestEnded&&t.timing.lastRequestStarted)a=this.w(t.timing.lastRequestStarted,t.timing.lastRequestEnded,!0)??m(t.timing.lastRequestStarted,!0,!0);else{const d=t.timing.lastRequestStarted??t.timing.created;a=m(d,!0,!0)}n.push(`$(${l.id}) ${h} \u2022 ${a}`);const r=D(t.changes);if(r&&T(t.changes)){const d=[];r.files>0&&d.push(r.files===1?c(5419,null):c(5420,null,r.files)),r.insertions>0&&d.push(`+${r.insertions}`),r.deletions>0&&d.push(`-${r.deletions}`),d.length>0&&n.push(d.join(" "))}return t.status!==1&&n.push(this.y(t.status)),i.push(n.join(" \u2022 ")),t.isArchived()&&i.push(`$(archive) ${c(5421,null)}`),new _(i.join(`
-
-`),{supportThemeIcons:!0})}w(t,i,n){const s=Math.round((i-t)/1e3)*1e3;if(!(s<1e3))return I(s,n)}y(t){let i;switch(t){case 3:i=c(5422,null);break;case 2:i=c(5423,null);break;case 0:i=c(5424,null);break;default:i=c(5425,null)}return i}};q=j([f(1,k),f(2,A),f(3,O)],q);export{q as $qnc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { fromNow, getDurationString } from "../../../../../base/common/date.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatService } from "../../common/chatService/chatService.js";
+import { ChatAgentLocation, ChatModeKind } from "../../common/constants.js";
+import { ChatViewModel } from "../../common/model/chatViewModel.js";
+import { CodeBlockModelCollection } from "../../common/widget/codeBlockModelCollection.js";
+import { IChatWidgetService } from "../chat.js";
+import { ChatListWidget } from "../widget/chatListWidget.js";
+import { AgentSessionProviders, getAgentSessionProvider, getAgentSessionProviderIcon, getAgentSessionProviderName } from "./agentSessions.js";
+import { getAgentChangesSummary, hasValidDiff } from "./agentSessionsModel.js";
+import "./media/agentSessionHoverWidget.css";
+const HEADER_HEIGHT = 60;
+const CHAT_LIST_HEIGHT = 240;
+const CHAT_HOVER_WIDTH = 500;
+let AgentSessionHoverWidget = class AgentSessionHoverWidget2 extends Disposable {
+  static {
+    __name(this, "AgentSessionHoverWidget");
+  }
+  constructor(session, chatService, instantiationService, chatWidgetService) {
+    super();
+    this.session = session;
+    this.chatService = chatService;
+    this.instantiationService = instantiationService;
+    this.chatWidgetService = chatWidgetService;
+    this.hasRendered = false;
+    this.domNode = dom.$(".agent-session-hover.interactive-session");
+    this.domNode.style.width = `${CHAT_HOVER_WIDTH}px`;
+    this.domNode.style.height = `${HEADER_HEIGHT + CHAT_LIST_HEIGHT}px`;
+    this.domNode.style.overflow = "hidden";
+    this.cts = new CancellationTokenSource();
+    this._register(toDisposable(() => this.cts.cancel()));
+    this.buildHeader();
+    this.contentElement = dom.append(this.domNode, dom.$(".agent-session-hover-content"));
+    this.loadingElement = dom.append(this.contentElement, dom.$(".agent-session-hover-loading"));
+    dom.append(this.loadingElement, renderIcon(ThemeIcon.modify(Codicon.loading, "spin")));
+    this.renderScheduler = this._register(new RunOnceScheduler(() => this.render(), 200));
+  }
+  onRendered() {
+    this.modelRef ??= this.loadModel();
+    if (!this.hasRendered) {
+      this.hasRendered = true;
+      this.renderScheduler.schedule();
+    } else {
+      this.listWidget?.layout(CHAT_LIST_HEIGHT, CHAT_HOVER_WIDTH);
+    }
+  }
+  async loadModel() {
+    const modelRef = await this.chatService.loadSessionForResource(this.session.resource, ChatAgentLocation.Chat, this.cts.token);
+    if (this._store.isDisposed) {
+      modelRef?.dispose();
+      return;
+    }
+    if (!modelRef) {
+      this.loadingElement.remove();
+      const tooltip = this.buildFallbackTooltip(this.session);
+      this.domNode.textContent = typeof tooltip === "string" ? tooltip : tooltip.value;
+      return;
+    }
+    this._register(modelRef);
+    return modelRef.object;
+  }
+  async render() {
+    this.modelRef ??= this.loadModel();
+    const model = await this.modelRef;
+    if (!model || this._store.isDisposed) {
+      return;
+    }
+    this.loadingElement.remove();
+    const codeBlockCollection = this._register(this.instantiationService.createInstance(CodeBlockModelCollection, "agentSessionHover"));
+    const viewModel = this._register(this.instantiationService.createInstance(ChatViewModel, model, codeBlockCollection, { maxVisibleItems: 2 }));
+    const container = dom.append(this.contentElement, dom.$(".interactive-list"));
+    const listWidget = this._register(this.instantiationService.createInstance(ChatListWidget, container, {
+      rendererOptions: {
+        renderStyle: "compact",
+        noHeader: true,
+        editable: false
+      },
+      currentChatMode: /* @__PURE__ */ __name(() => ChatModeKind.Ask, "currentChatMode")
+    }));
+    listWidget.layout(CHAT_LIST_HEIGHT, CHAT_HOVER_WIDTH);
+    listWidget.setScrollLock(true);
+    listWidget.setViewModel(viewModel);
+    listWidget.refresh();
+    const viewModelScheudler = this._register(new RunOnceScheduler(() => listWidget.refresh(), 500));
+    this._register(viewModel.onDidChange(() => {
+      if (!viewModelScheudler.isScheduled()) {
+        viewModelScheudler.schedule();
+      }
+    }));
+    this._register(listWidget.onDidClickFollowup(async (followup) => {
+      const widget = await this.chatWidgetService.openSession(model.sessionResource);
+      if (widget) {
+        widget.acceptInput(followup.message);
+      }
+    }));
+  }
+  buildHeader() {
+    const session = this.session;
+    const header = dom.append(this.domNode, dom.$(".agent-session-hover-header"));
+    const titleRow = dom.append(header, dom.$(".agent-session-hover-title"));
+    dom.append(titleRow, dom.$("span", void 0, session.label));
+    const detailsRow = dom.append(header, dom.$(".agent-session-hover-details"));
+    const providerType = getAgentSessionProvider(session.providerType);
+    const provider = providerType ?? AgentSessionProviders.Local;
+    const providerIcon = getAgentSessionProviderIcon(provider);
+    dom.append(detailsRow, renderIcon(providerIcon));
+    dom.append(detailsRow, dom.$("span", void 0, getAgentSessionProviderName(provider)));
+    dom.append(detailsRow, dom.$("span.separator", void 0, "\u2022"));
+    if (session.timing.lastRequestEnded && session.timing.lastRequestStarted) {
+      const duration = this.toDuration(session.timing.lastRequestStarted, session.timing.lastRequestEnded, true);
+      if (duration) {
+        dom.append(detailsRow, dom.$("span", void 0, duration));
+      }
+    } else {
+      const startTime = session.timing.lastRequestStarted ?? session.timing.created;
+      dom.append(detailsRow, dom.$("span", void 0, fromNow(startTime, true, true)));
+    }
+    const diff = getAgentChangesSummary(session.changes);
+    if (diff && hasValidDiff(session.changes)) {
+      dom.append(detailsRow, dom.$("span.separator", void 0, "\u2022"));
+      const diffContainer = dom.append(detailsRow, dom.$(".agent-session-hover-diff"));
+      if (diff.files > 0) {
+        dom.append(diffContainer, dom.$("span", void 0, diff.files === 1 ? localize("tooltip.file", "1 file") : localize("tooltip.files", "{0} files", diff.files)));
+      }
+      if (diff.insertions > 0) {
+        dom.append(diffContainer, dom.$("span.insertions", void 0, `+${diff.insertions}`));
+      }
+      if (diff.deletions > 0) {
+        dom.append(diffContainer, dom.$("span.deletions", void 0, `-${diff.deletions}`));
+      }
+    }
+    if (session.status !== 1) {
+      dom.append(detailsRow, dom.$("span.separator", void 0, "\u2022"));
+      dom.append(detailsRow, dom.$("span", void 0, this.toStatusLabel(session.status)));
+    }
+    if (session.isArchived()) {
+      dom.append(detailsRow, dom.$("span.separator", void 0, "\u2022"));
+      dom.append(detailsRow, renderIcon(Codicon.archive));
+      dom.append(detailsRow, dom.$("span", void 0, localize("tooltip.archived", "Archived")));
+    }
+  }
+  buildFallbackTooltip(session) {
+    const lines = [];
+    lines.push(`**${session.label}**`);
+    if (session.tooltip) {
+      const tooltip = typeof session.tooltip === "string" ? session.tooltip : session.tooltip.value;
+      lines.push(tooltip);
+    } else {
+      if (session.description) {
+        const description = typeof session.description === "string" ? session.description : session.description.value;
+        lines.push(description);
+      }
+      if (session.badge) {
+        const badge = typeof session.badge === "string" ? session.badge : session.badge.value;
+        lines.push(badge);
+      }
+    }
+    const details = [];
+    const providerType = getAgentSessionProvider(session.providerType);
+    const provider = providerType ?? AgentSessionProviders.Local;
+    const providerIcon = getAgentSessionProviderIcon(provider);
+    const providerName = getAgentSessionProviderName(provider);
+    let timeLabel;
+    if (session.timing.lastRequestEnded && session.timing.lastRequestStarted) {
+      const duration = this.toDuration(session.timing.lastRequestStarted, session.timing.lastRequestEnded, true);
+      timeLabel = duration ?? fromNow(session.timing.lastRequestStarted, true, true);
+    } else {
+      const startTime = session.timing.lastRequestStarted ?? session.timing.created;
+      timeLabel = fromNow(startTime, true, true);
+    }
+    details.push(`$(${providerIcon.id}) ${providerName} \u2022 ${timeLabel}`);
+    const diff = getAgentChangesSummary(session.changes);
+    if (diff && hasValidDiff(session.changes)) {
+      const diffParts = [];
+      if (diff.files > 0) {
+        diffParts.push(diff.files === 1 ? localize("tooltip.file", "1 file") : localize("tooltip.files", "{0} files", diff.files));
+      }
+      if (diff.insertions > 0) {
+        diffParts.push(`+${diff.insertions}`);
+      }
+      if (diff.deletions > 0) {
+        diffParts.push(`-${diff.deletions}`);
+      }
+      if (diffParts.length > 0) {
+        details.push(diffParts.join(" "));
+      }
+    }
+    if (session.status !== 1) {
+      details.push(this.toStatusLabel(session.status));
+    }
+    lines.push(details.join(" \u2022 "));
+    if (session.isArchived()) {
+      lines.push(`$(archive) ${localize("tooltip.archived", "Archived")}`);
+    }
+    return new MarkdownString(lines.join("\n\n"), { supportThemeIcons: true });
+  }
+  toDuration(startTime, endTime, useFullTimeWords) {
+    const elapsed = Math.round((endTime - startTime) / 1e3) * 1e3;
+    if (elapsed < 1e3) {
+      return void 0;
+    }
+    return getDurationString(elapsed, useFullTimeWords);
+  }
+  toStatusLabel(status) {
+    let statusLabel;
+    switch (status) {
+      case 3:
+        statusLabel = localize("agentSessionNeedsInput", "Needs Input");
+        break;
+      case 2:
+        statusLabel = localize("agentSessionInProgress", "In Progress");
+        break;
+      case 0:
+        statusLabel = localize("agentSessionFailed", "Failed");
+        break;
+      default:
+        statusLabel = localize("agentSessionCompleted", "Completed");
+    }
+    return statusLabel;
+  }
+};
+AgentSessionHoverWidget = __decorate([
+  __param(1, IChatService),
+  __param(2, IInstantiationService),
+  __param(3, IChatWidgetService)
+], AgentSessionHoverWidget);
+export {
+  AgentSessionHoverWidget
+};
+//# sourceMappingURL=agentSessionHoverWidget.js.map

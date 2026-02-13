@@ -1,1 +1,443 @@
-import*as h from"../../../../../../base/browser/dom.js";import*as L from"../../../../../../base/browser/domSanitize.js";import{$H0 as p}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$$h as M,$Vh as m}from"../../../../../../base/common/async.js";import{$Jf as C}from"../../../../../../base/common/cancellation.js";import{$bk as b}from"../../../../../../base/common/codicons.js";import{ThemeIcon as y}from"../../../../../../base/common/themables.js";import{$Ed as v,$Dd as w,$Fd as k,$Cd as I}from"../../../../../../base/common/lifecycle.js";import{$sib as x}from"../../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{EditorContextKeys as O}from"../../../../../../editor/common/editorContextKeys.js";import{$ZF as P}from"../../../../../../editor/common/languages/language.js";import{$dib as F}from"../../../../../../editor/common/languages/textToHtmlTokenizer.js";import{localize as D}from"../../../../../../nls.js";import{$MD as N}from"../../../../../../platform/accessibility/common/accessibility.js";import{$0l as T}from"../../../../../../platform/configuration/common/configuration.js";import{$ro as E}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as z}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as W}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$fy as R}from"../../../../../../platform/keybinding/common/keybinding.js";import{CellEditState as f,CellFocusMode as d,$tEb as j}from"../../notebookBrowser.js";import{$8Ib as A,$9Ib as V}from"../../notebookIcons.js";import{$PIb as _}from"./cellEditorOptions.js";import{$fHb as J}from"../notebookRenderingCommon.js";import{$Nxb as $}from"../../../../../../editor/contrib/wordHighlighter/browser/wordHighlighter.js";var H=function(r,t,i,s){var o=arguments.length,e=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(r,t,i,s);else for(var a=r.length-1;a>=0;a--)(n=r[a])&&(e=(o<3?n(e):o>3?n(t,i,e):n(t,i))||e);return o>3&&e&&Object.defineProperty(t,i,e),e},l=function(r,t){return function(i,s){t(i,s,r)}};let S=class extends v{constructor(t,i,s,o,e,n,a,g,c,u){super(),this.r=t,this.s=i,this.t=s,this.u=o,this.w=e,this.y=n,this.z=a,this.C=g,this.F=c,this.G=u,this.a=null,this.f=this.D(new w),this.g=this.D(new k),this.h=this.D(new w),this.q=!1,this.H(),this.c=s.editorPart,this.m=this.D(new _(this.r.getBaseCellEditorOptions(i.language),this.r.notebookOptions,this.F)),this.m.setLineNumbers(this.s.lineNumbers),this.n=this.m.getValue(this.s.internalMetadata,this.s.uri),this.D(I(()=>o.delete(this.s))),this.I(),this.t.cellParts.scheduleRenderCell(this.s),this.D(I(()=>{this.t.cellParts.unrenderCell(this.s)})),this.D(this.w.onDidChangeScreenReaderOptimized(()=>{this.P()})),this.M(),this.N(),this.j=i.foldingState,this.Z(),this.O(),this.s.layoutInfo.totalHeight>0&&this.relayoutCell(),this.P(),this.layoutCellParts(),this.D(this.s.onDidChangeLayout(()=>{this.layoutCellParts()}))}layoutCellParts(){this.t.cellParts.updateInternalLayoutNow(this.s)}H(){const t=`aria-markup-cell-${this.s.id}`;this.b=this.t.cellContainer,this.b.id=t,this.b.style.height="1px",this.b.style.overflow="hidden",this.b.style.position="absolute",this.b.style.top="100000px",this.b.style.left="10000px",this.b.ariaHidden="false",this.t.rootContainer.setAttribute("aria-describedby",t),this.t.container.classList.toggle("webview-backed-markdown-cell",!0)}I(){this.D(this.s.onDidChangeState(t=>{this.t.cellParts.updateState(this.s,t)})),this.D(this.s.model.onDidChangeMetadata(()=>{this.P()})),this.D(this.s.onDidChangeState(t=>{if((t.editStateChanged||t.contentChanged)&&this.P(),t.focusModeChanged&&this.N(),t.foldingStateChanged){const i=this.s.foldingState;i!==this.j&&(this.j=i,this.Z())}t.cellIsHoveredChanged&&this.M(),t.inputCollapsedChanged&&(this.L(),this.P()),t.cellLineNumberChanged&&this.m.setLineNumbers(this.s.lineNumbers)})),this.D(this.r.notebookOptions.onDidChangeOptions(t=>{t.showFoldingControls&&this.O()})),this.D(this.s.onDidChangeLayout(t=>{const i=this.a?.getLayoutInfo();t.outerWidth&&this.s.getEditState()===f.Editing&&i&&i.width!==this.s.layoutInfo.editorWidth&&this.Y()})),this.D(this.m.onDidChange(()=>this.J()))}J(){if(this.updateEditorOptions(this.m.getUpdatedValue(this.s.internalMetadata,this.s.uri)),this.a){this.a.updateOptions(this.m.getUpdatedValue(this.s.internalMetadata,this.s.uri));const t=new C;this.D({dispose(){t.dispose(!0)}}),m(this.s.resolveTextModel(),t.token).then(i=>{this.q||i&&i.updateOptions({indentSize:this.m.indentSize,tabSize:this.m.tabSize,insertSpaces:this.m.insertSpaces})})}}L(){this.s.isInputCollapsed?this.r.hideMarkupPreviews([this.s]):this.r.unhideMarkupPreviews([this.s])}M(){this.t.container.classList.toggle("markdown-cell-hover",this.s.cellIsHovered)}N(){this.s.focusMode===d.Editor&&this.W(),this.t.container.classList.toggle("cell-editor-focus",this.s.focusMode===d.Editor)}dispose(){this.q=!0,this.r.getActiveCell()===this.s&&this.s.focusMode===d.Editor&&(this.r.hasEditorFocus()||this.r.getDomNode().ownerDocument.activeElement===this.r.getDomNode().ownerDocument.body)&&this.r.focusContainer(),this.s.detachTextEditor(),super.dispose()}O(){const t=this.r.notebookOptions.getDisplayOptions().showFoldingControls;this.t.foldingIndicator.classList.remove("mouseover","always"),this.t.foldingIndicator.classList.add(t)}P(){this.s.isInputCollapsed?this.Q():this.s.getEditState()===f.Editing?this.S():this.U()}Q(){h.$E9(this.t.cellInputCollapsedContainer),h.$F9(this.c),this.t.cellInputCollapsedContainer.innerText="",h.$y9(this.t.cellInputCollapsedContainer,h.$("span")).classList.add(...y.asClassNameArray(b.markdown));const i=h.$("div");i.classList.add("cell-collapse-preview");const s=this.R(this.s.textBuffer,this.s.language);i.innerText=s,i.innerHTML=J?.createHTML(s)??s,this.t.cellInputCollapsedContainer.appendChild(i);const o=h.$y9(i,h.$("span.expandInputIcon"));o.classList.add(...y.asClassNameArray(b.more));const e=this.G.lookupKeybinding(j);e&&(i.title=D(11212,null,e.getLabel()),o.title=D(11213,null,e.getLabel())),this.b.ariaHidden="true",this.t.container.classList.toggle("input-collapsed",!0),this.s.renderedMarkdownHeight=0,this.s.layoutChange({})}R(t,i){return F(this.C,t.getLineContent(1),i)}S(){let t;if(h.$E9(this.c),this.b.ariaHidden="true",h.$F9(this.t.cellInputCollapsedContainer),this.r.hideMarkupPreviews([this.s]),this.t.container.classList.toggle("input-collapsed",!1),this.t.container.classList.toggle("markdown-cell-edit-mode",!0),this.a&&this.a.hasModel())t=this.a.getContentHeight(),this.s.attachTextEditor(this.a),this.W(),this.ab(this.a),this.a.layout({width:this.s.layoutInfo.editorWidth,height:t});else{this.h.clear();const i=this.r.notebookOptions.computeMarkdownCellEditorWidth(this.r.getLayoutInfo().width),s=this.s.lineCount,o=this.s.layoutInfo.fontInfo?.lineHeight||17,e=this.r.notebookOptions.computeEditorPadding(this.s.internalMetadata,this.s.uri);t=Math.max(s,1)*o+e.top+e.bottom,this.t.editorContainer.innerText="";const n=this.y.createScoped(this.t.editorPart);O.inCompositeEditor.bindTo(n).set(!0);const a=this.h.add(this.z.createChild(new W([E,n])));this.h.add(n),this.a=this.h.add(a.createInstance(x,this.t.editorContainer,{...this.n,dimension:{width:i,height:t},allowVariableLineHeights:!1},{contributions:this.r.creationOptions.cellEditorContributions})),this.t.currentEditor=this.a,this.h.add(this.a.onDidBlurEditorWidget(()=>{this.a&&$.get(this.a)?.stopHighlighting()})),this.h.add(this.a.onDidFocusEditorWidget(()=>{this.a&&$.get(this.a)?.restoreViewState(!0)}));const g=new C;this.h.add({dispose(){g.dispose(!0)}}),m(this.s.resolveTextModel(),g.token).then(c=>{if(!c)return;this.a.setModel(c),c.updateOptions({indentSize:this.m.indentSize,tabSize:this.m.tabSize,insertSpaces:this.m.insertSpaces});const u=this.a.getContentHeight();u!==t&&(this.a.layout({width:i,height:u}),t=u),this.s.attachTextEditor(this.a),this.s.getEditState()===f.Editing&&this.W(),this.ab(this.a),this.s.editorHeight=t})}this.s.editorHeight=t,this.W(),this.u.set(this.s,this.a)}U(){this.s.detachTextEditor(),h.$F9(this.c),h.$F9(this.t.cellInputCollapsedContainer),this.b.ariaHidden="false",this.t.container.classList.toggle("input-collapsed",!1),this.t.container.classList.toggle("markdown-cell-edit-mode",!1),this.u.delete(this.s),this.b.innerText="",this.s.renderedHtml&&(this.w.isScreenReaderOptimized()?L.$F0(this.b,this.s.renderedHtml):h.$t8(this.b)),this.r.createMarkupPreview(this.s)}W(){if(this.s.focusMode===d.Editor&&(this.r.hasEditorFocus()||this.r.getDomNode().ownerDocument.activeElement===this.r.getDomNode().ownerDocument.body)){if(!this.a)return;this.a.focus();const t=this.a.getSelection();if(!t)return;this.r.revealRangeInViewAsync(this.s,t)}}X(t){this.a?.layout(t)}Y(){const t=this.a.getContentHeight();this.X({width:this.s.layoutInfo.editorWidth,height:t})}relayoutCell(){this.r.layoutNotebookCell(this.s,this.s.layoutInfo.totalHeight),this.Z()}updateEditorOptions(t){this.n=t,this.a?.updateOptions(this.n)}Z(){switch(this.j){case 0:this.t.foldingIndicator.style.display="none",this.t.foldingIndicator.innerText="";break;case 2:this.t.foldingIndicator.style.display="",h.$A9(this.t.foldingIndicator,p(A));break;case 1:this.t.foldingIndicator.style.display="",h.$A9(this.t.foldingIndicator,p(V));break;default:break}}ab(t){this.f.clear(),this.g.clear(),this.f.add(t.onDidContentSizeChange(s=>{s.contentHeightChanged&&this.bb(t,s.contentHeight)})),this.f.add(t.onDidChangeCursorSelection(s=>{if(s.source==="restoreState")return;const o=t.getSelections();if(o?.length){const e=t.getContentHeight(),n=this.s.layoutInfo.editorHeight;e!==n&&this.bb(t,e);const a=o[o.length-1];this.r.revealRangeInViewAsync(this.s,a)}}));const i=()=>this.s.focusMode=t.hasWidgetFocus()?d.Editor:d.Container;this.f.add(t.onDidFocusEditorWidget(()=>{i()})),this.f.add(t.onDidBlurEditorWidget(()=>{this.t.container.ownerDocument.activeElement?.contains(this.t.container)?this.g.value=M(()=>i(),300):i()})),i()}bb(t,i){const s=t.getLayoutInfo();this.s.editorHeight=i,t.layout({width:s.width,height:i})}};S=H([l(4,N),l(5,E),l(6,z),l(7,P),l(8,T),l(9,R)],S);export{S as $9Jb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as DOM from "../../../../../../base/browser/dom.js";
+import * as domSanitize from "../../../../../../base/browser/domSanitize.js";
+import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { disposableTimeout, raceCancellation } from "../../../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { CodeEditorWidget } from "../../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { EditorContextKeys } from "../../../../../../editor/common/editorContextKeys.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { tokenizeToStringSync } from "../../../../../../editor/common/languages/textToHtmlTokenizer.js";
+import { localize } from "../../../../../../nls.js";
+import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { CellEditState, CellFocusMode, EXPAND_CELL_INPUT_COMMAND_ID } from "../../notebookBrowser.js";
+import { collapsedIcon, expandedIcon } from "../../notebookIcons.js";
+import { CellEditorOptions } from "./cellEditorOptions.js";
+import { collapsedCellTTPolicy } from "../notebookRenderingCommon.js";
+import { WordHighlighterContribution } from "../../../../../../editor/contrib/wordHighlighter/browser/wordHighlighter.js";
+let MarkupCell = class MarkupCell2 extends Disposable {
+  static {
+    __name(this, "MarkupCell");
+  }
+  constructor(notebookEditor, viewCell, templateData, renderedEditors, accessibilityService, contextKeyService, instantiationService, languageService, configurationService, keybindingService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.viewCell = viewCell;
+    this.templateData = templateData;
+    this.renderedEditors = renderedEditors;
+    this.accessibilityService = accessibilityService;
+    this.contextKeyService = contextKeyService;
+    this.instantiationService = instantiationService;
+    this.languageService = languageService;
+    this.configurationService = configurationService;
+    this.keybindingService = keybindingService;
+    this.editor = null;
+    this.localDisposables = this._register(new DisposableStore());
+    this.focusSwitchDisposable = this._register(new MutableDisposable());
+    this.editorDisposables = this._register(new DisposableStore());
+    this._isDisposed = false;
+    this.constructDOM();
+    this.editorPart = templateData.editorPart;
+    this.cellEditorOptions = this._register(new CellEditorOptions(this.notebookEditor.getBaseCellEditorOptions(viewCell.language), this.notebookEditor.notebookOptions, this.configurationService));
+    this.cellEditorOptions.setLineNumbers(this.viewCell.lineNumbers);
+    this.editorOptions = this.cellEditorOptions.getValue(this.viewCell.internalMetadata, this.viewCell.uri);
+    this._register(toDisposable(() => renderedEditors.delete(this.viewCell)));
+    this.registerListeners();
+    this.templateData.cellParts.scheduleRenderCell(this.viewCell);
+    this._register(toDisposable(() => {
+      this.templateData.cellParts.unrenderCell(this.viewCell);
+    }));
+    this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => {
+      this.viewUpdate();
+    }));
+    this.updateForHover();
+    this.updateForFocusModeChange();
+    this.foldingState = viewCell.foldingState;
+    this.layoutFoldingIndicator();
+    this.updateFoldingIconShowClass();
+    if (this.viewCell.layoutInfo.totalHeight > 0) {
+      this.relayoutCell();
+    }
+    this.viewUpdate();
+    this.layoutCellParts();
+    this._register(this.viewCell.onDidChangeLayout(() => {
+      this.layoutCellParts();
+    }));
+  }
+  layoutCellParts() {
+    this.templateData.cellParts.updateInternalLayoutNow(this.viewCell);
+  }
+  constructDOM() {
+    const id = `aria-markup-cell-${this.viewCell.id}`;
+    this.markdownAccessibilityContainer = this.templateData.cellContainer;
+    this.markdownAccessibilityContainer.id = id;
+    this.markdownAccessibilityContainer.style.height = "1px";
+    this.markdownAccessibilityContainer.style.overflow = "hidden";
+    this.markdownAccessibilityContainer.style.position = "absolute";
+    this.markdownAccessibilityContainer.style.top = "100000px";
+    this.markdownAccessibilityContainer.style.left = "10000px";
+    this.markdownAccessibilityContainer.ariaHidden = "false";
+    this.templateData.rootContainer.setAttribute("aria-describedby", id);
+    this.templateData.container.classList.toggle("webview-backed-markdown-cell", true);
+  }
+  registerListeners() {
+    this._register(this.viewCell.onDidChangeState((e) => {
+      this.templateData.cellParts.updateState(this.viewCell, e);
+    }));
+    this._register(this.viewCell.model.onDidChangeMetadata(() => {
+      this.viewUpdate();
+    }));
+    this._register(this.viewCell.onDidChangeState((e) => {
+      if (e.editStateChanged || e.contentChanged) {
+        this.viewUpdate();
+      }
+      if (e.focusModeChanged) {
+        this.updateForFocusModeChange();
+      }
+      if (e.foldingStateChanged) {
+        const foldingState = this.viewCell.foldingState;
+        if (foldingState !== this.foldingState) {
+          this.foldingState = foldingState;
+          this.layoutFoldingIndicator();
+        }
+      }
+      if (e.cellIsHoveredChanged) {
+        this.updateForHover();
+      }
+      if (e.inputCollapsedChanged) {
+        this.updateCollapsedState();
+        this.viewUpdate();
+      }
+      if (e.cellLineNumberChanged) {
+        this.cellEditorOptions.setLineNumbers(this.viewCell.lineNumbers);
+      }
+    }));
+    this._register(this.notebookEditor.notebookOptions.onDidChangeOptions((e) => {
+      if (e.showFoldingControls) {
+        this.updateFoldingIconShowClass();
+      }
+    }));
+    this._register(this.viewCell.onDidChangeLayout((e) => {
+      const layoutInfo = this.editor?.getLayoutInfo();
+      if (e.outerWidth && this.viewCell.getEditState() === CellEditState.Editing && layoutInfo && layoutInfo.width !== this.viewCell.layoutInfo.editorWidth) {
+        this.onCellEditorWidthChange();
+      }
+    }));
+    this._register(this.cellEditorOptions.onDidChange(() => this.updateMarkupCellOptions()));
+  }
+  updateMarkupCellOptions() {
+    this.updateEditorOptions(this.cellEditorOptions.getUpdatedValue(this.viewCell.internalMetadata, this.viewCell.uri));
+    if (this.editor) {
+      this.editor.updateOptions(this.cellEditorOptions.getUpdatedValue(this.viewCell.internalMetadata, this.viewCell.uri));
+      const cts = new CancellationTokenSource();
+      this._register({ dispose() {
+        cts.dispose(true);
+      } });
+      raceCancellation(this.viewCell.resolveTextModel(), cts.token).then((model) => {
+        if (this._isDisposed) {
+          return;
+        }
+        if (model) {
+          model.updateOptions({
+            indentSize: this.cellEditorOptions.indentSize,
+            tabSize: this.cellEditorOptions.tabSize,
+            insertSpaces: this.cellEditorOptions.insertSpaces
+          });
+        }
+      });
+    }
+  }
+  updateCollapsedState() {
+    if (this.viewCell.isInputCollapsed) {
+      this.notebookEditor.hideMarkupPreviews([this.viewCell]);
+    } else {
+      this.notebookEditor.unhideMarkupPreviews([this.viewCell]);
+    }
+  }
+  updateForHover() {
+    this.templateData.container.classList.toggle("markdown-cell-hover", this.viewCell.cellIsHovered);
+  }
+  updateForFocusModeChange() {
+    if (this.viewCell.focusMode === CellFocusMode.Editor) {
+      this.focusEditorIfNeeded();
+    }
+    this.templateData.container.classList.toggle("cell-editor-focus", this.viewCell.focusMode === CellFocusMode.Editor);
+  }
+  dispose() {
+    this._isDisposed = true;
+    if (this.notebookEditor.getActiveCell() === this.viewCell && this.viewCell.focusMode === CellFocusMode.Editor && (this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)) {
+      this.notebookEditor.focusContainer();
+    }
+    this.viewCell.detachTextEditor();
+    super.dispose();
+  }
+  updateFoldingIconShowClass() {
+    const showFoldingIcon = this.notebookEditor.notebookOptions.getDisplayOptions().showFoldingControls;
+    this.templateData.foldingIndicator.classList.remove("mouseover", "always");
+    this.templateData.foldingIndicator.classList.add(showFoldingIcon);
+  }
+  viewUpdate() {
+    if (this.viewCell.isInputCollapsed) {
+      this.viewUpdateCollapsed();
+    } else if (this.viewCell.getEditState() === CellEditState.Editing) {
+      this.viewUpdateEditing();
+    } else {
+      this.viewUpdatePreview();
+    }
+  }
+  viewUpdateCollapsed() {
+    DOM.show(this.templateData.cellInputCollapsedContainer);
+    DOM.hide(this.editorPart);
+    this.templateData.cellInputCollapsedContainer.innerText = "";
+    const markdownIcon = DOM.append(this.templateData.cellInputCollapsedContainer, DOM.$("span"));
+    markdownIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.markdown));
+    const element = DOM.$("div");
+    element.classList.add("cell-collapse-preview");
+    const richEditorText = this.getRichText(this.viewCell.textBuffer, this.viewCell.language);
+    element.innerText = richEditorText;
+    element.innerHTML = collapsedCellTTPolicy?.createHTML(richEditorText) ?? richEditorText;
+    this.templateData.cellInputCollapsedContainer.appendChild(element);
+    const expandIcon = DOM.append(element, DOM.$("span.expandInputIcon"));
+    expandIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.more));
+    const keybinding = this.keybindingService.lookupKeybinding(EXPAND_CELL_INPUT_COMMAND_ID);
+    if (keybinding) {
+      element.title = localize("cellExpandInputButtonLabelWithDoubleClick", "Double-click to expand cell input ({0})", keybinding.getLabel());
+      expandIcon.title = localize("cellExpandInputButtonLabel", "Expand Cell Input ({0})", keybinding.getLabel());
+    }
+    this.markdownAccessibilityContainer.ariaHidden = "true";
+    this.templateData.container.classList.toggle("input-collapsed", true);
+    this.viewCell.renderedMarkdownHeight = 0;
+    this.viewCell.layoutChange({});
+  }
+  getRichText(buffer, language) {
+    return tokenizeToStringSync(this.languageService, buffer.getLineContent(1), language);
+  }
+  viewUpdateEditing() {
+    let editorHeight;
+    DOM.show(this.editorPart);
+    this.markdownAccessibilityContainer.ariaHidden = "true";
+    DOM.hide(this.templateData.cellInputCollapsedContainer);
+    this.notebookEditor.hideMarkupPreviews([this.viewCell]);
+    this.templateData.container.classList.toggle("input-collapsed", false);
+    this.templateData.container.classList.toggle("markdown-cell-edit-mode", true);
+    if (this.editor && this.editor.hasModel()) {
+      editorHeight = this.editor.getContentHeight();
+      this.viewCell.attachTextEditor(this.editor);
+      this.focusEditorIfNeeded();
+      this.bindEditorListeners(this.editor);
+      this.editor.layout({
+        width: this.viewCell.layoutInfo.editorWidth,
+        height: editorHeight
+      });
+    } else {
+      this.editorDisposables.clear();
+      const width = this.notebookEditor.notebookOptions.computeMarkdownCellEditorWidth(this.notebookEditor.getLayoutInfo().width);
+      const lineNum = this.viewCell.lineCount;
+      const lineHeight = this.viewCell.layoutInfo.fontInfo?.lineHeight || 17;
+      const editorPadding = this.notebookEditor.notebookOptions.computeEditorPadding(this.viewCell.internalMetadata, this.viewCell.uri);
+      editorHeight = Math.max(lineNum, 1) * lineHeight + editorPadding.top + editorPadding.bottom;
+      this.templateData.editorContainer.innerText = "";
+      const editorContextKeyService = this.contextKeyService.createScoped(this.templateData.editorPart);
+      EditorContextKeys.inCompositeEditor.bindTo(editorContextKeyService).set(true);
+      const editorInstaService = this.editorDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, editorContextKeyService])));
+      this.editorDisposables.add(editorContextKeyService);
+      this.editor = this.editorDisposables.add(editorInstaService.createInstance(CodeEditorWidget, this.templateData.editorContainer, {
+        ...this.editorOptions,
+        dimension: {
+          width,
+          height: editorHeight
+        },
+        allowVariableLineHeights: false
+        // overflowWidgetsDomNode: this.notebookEditor.getOverflowContainerDomNode()
+      }, {
+        contributions: this.notebookEditor.creationOptions.cellEditorContributions
+      }));
+      this.templateData.currentEditor = this.editor;
+      this.editorDisposables.add(this.editor.onDidBlurEditorWidget(() => {
+        if (this.editor) {
+          WordHighlighterContribution.get(this.editor)?.stopHighlighting();
+        }
+      }));
+      this.editorDisposables.add(this.editor.onDidFocusEditorWidget(() => {
+        if (this.editor) {
+          WordHighlighterContribution.get(this.editor)?.restoreViewState(true);
+        }
+      }));
+      const cts = new CancellationTokenSource();
+      this.editorDisposables.add({ dispose() {
+        cts.dispose(true);
+      } });
+      raceCancellation(this.viewCell.resolveTextModel(), cts.token).then((model) => {
+        if (!model) {
+          return;
+        }
+        this.editor.setModel(model);
+        model.updateOptions({
+          indentSize: this.cellEditorOptions.indentSize,
+          tabSize: this.cellEditorOptions.tabSize,
+          insertSpaces: this.cellEditorOptions.insertSpaces
+        });
+        const realContentHeight = this.editor.getContentHeight();
+        if (realContentHeight !== editorHeight) {
+          this.editor.layout({
+            width,
+            height: realContentHeight
+          });
+          editorHeight = realContentHeight;
+        }
+        this.viewCell.attachTextEditor(this.editor);
+        if (this.viewCell.getEditState() === CellEditState.Editing) {
+          this.focusEditorIfNeeded();
+        }
+        this.bindEditorListeners(this.editor);
+        this.viewCell.editorHeight = editorHeight;
+      });
+    }
+    this.viewCell.editorHeight = editorHeight;
+    this.focusEditorIfNeeded();
+    this.renderedEditors.set(this.viewCell, this.editor);
+  }
+  viewUpdatePreview() {
+    this.viewCell.detachTextEditor();
+    DOM.hide(this.editorPart);
+    DOM.hide(this.templateData.cellInputCollapsedContainer);
+    this.markdownAccessibilityContainer.ariaHidden = "false";
+    this.templateData.container.classList.toggle("input-collapsed", false);
+    this.templateData.container.classList.toggle("markdown-cell-edit-mode", false);
+    this.renderedEditors.delete(this.viewCell);
+    this.markdownAccessibilityContainer.innerText = "";
+    if (this.viewCell.renderedHtml) {
+      if (this.accessibilityService.isScreenReaderOptimized()) {
+        domSanitize.safeSetInnerHtml(this.markdownAccessibilityContainer, this.viewCell.renderedHtml);
+      } else {
+        DOM.clearNode(this.markdownAccessibilityContainer);
+      }
+    }
+    this.notebookEditor.createMarkupPreview(this.viewCell);
+  }
+  focusEditorIfNeeded() {
+    if (this.viewCell.focusMode === CellFocusMode.Editor && (this.notebookEditor.hasEditorFocus() || this.notebookEditor.getDomNode().ownerDocument.activeElement === this.notebookEditor.getDomNode().ownerDocument.body)) {
+      if (!this.editor) {
+        return;
+      }
+      this.editor.focus();
+      const primarySelection = this.editor.getSelection();
+      if (!primarySelection) {
+        return;
+      }
+      this.notebookEditor.revealRangeInViewAsync(this.viewCell, primarySelection);
+    }
+  }
+  layoutEditor(dimension) {
+    this.editor?.layout(dimension);
+  }
+  onCellEditorWidthChange() {
+    const realContentHeight = this.editor.getContentHeight();
+    this.layoutEditor({
+      width: this.viewCell.layoutInfo.editorWidth,
+      height: realContentHeight
+    });
+  }
+  relayoutCell() {
+    this.notebookEditor.layoutNotebookCell(this.viewCell, this.viewCell.layoutInfo.totalHeight);
+    this.layoutFoldingIndicator();
+  }
+  updateEditorOptions(newValue) {
+    this.editorOptions = newValue;
+    this.editor?.updateOptions(this.editorOptions);
+  }
+  layoutFoldingIndicator() {
+    switch (this.foldingState) {
+      case 0:
+        this.templateData.foldingIndicator.style.display = "none";
+        this.templateData.foldingIndicator.innerText = "";
+        break;
+      case 2:
+        this.templateData.foldingIndicator.style.display = "";
+        DOM.reset(this.templateData.foldingIndicator, renderIcon(collapsedIcon));
+        break;
+      case 1:
+        this.templateData.foldingIndicator.style.display = "";
+        DOM.reset(this.templateData.foldingIndicator, renderIcon(expandedIcon));
+        break;
+      default:
+        break;
+    }
+  }
+  bindEditorListeners(editor) {
+    this.localDisposables.clear();
+    this.focusSwitchDisposable.clear();
+    this.localDisposables.add(editor.onDidContentSizeChange((e) => {
+      if (e.contentHeightChanged) {
+        this.onCellEditorHeightChange(editor, e.contentHeight);
+      }
+    }));
+    this.localDisposables.add(editor.onDidChangeCursorSelection((e) => {
+      if (e.source === "restoreState") {
+        return;
+      }
+      const selections = editor.getSelections();
+      if (selections?.length) {
+        const contentHeight = editor.getContentHeight();
+        const layoutContentHeight = this.viewCell.layoutInfo.editorHeight;
+        if (contentHeight !== layoutContentHeight) {
+          this.onCellEditorHeightChange(editor, contentHeight);
+        }
+        const lastSelection = selections[selections.length - 1];
+        this.notebookEditor.revealRangeInViewAsync(this.viewCell, lastSelection);
+      }
+    }));
+    const updateFocusMode = /* @__PURE__ */ __name(() => this.viewCell.focusMode = editor.hasWidgetFocus() ? CellFocusMode.Editor : CellFocusMode.Container, "updateFocusMode");
+    this.localDisposables.add(editor.onDidFocusEditorWidget(() => {
+      updateFocusMode();
+    }));
+    this.localDisposables.add(editor.onDidBlurEditorWidget(() => {
+      if (this.templateData.container.ownerDocument.activeElement?.contains(this.templateData.container)) {
+        this.focusSwitchDisposable.value = disposableTimeout(() => updateFocusMode(), 300);
+      } else {
+        updateFocusMode();
+      }
+    }));
+    updateFocusMode();
+  }
+  onCellEditorHeightChange(editor, newHeight) {
+    const viewLayout = editor.getLayoutInfo();
+    this.viewCell.editorHeight = newHeight;
+    editor.layout({
+      width: viewLayout.width,
+      height: newHeight
+    });
+  }
+};
+MarkupCell = __decorate([
+  __param(4, IAccessibilityService),
+  __param(5, IContextKeyService),
+  __param(6, IInstantiationService),
+  __param(7, ILanguageService),
+  __param(8, IConfigurationService),
+  __param(9, IKeybindingService)
+], MarkupCell);
+export {
+  MarkupCell
+};
+//# sourceMappingURL=markupCell.js.map

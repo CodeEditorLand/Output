@@ -1,1 +1,46 @@
-import{$bk as e}from"../../../../base/common/codicons.js";import{localize as l}from"../../../../nls.js";import{$gu as c}from"../../../../platform/theme/common/iconRegistry.js";const t=c("search-details",e.ellipsis,l(12445,null)),n=c("search-see-more",e.goToSearch,l(12446,null)),a=c("search-show-context",e.listSelection,l(12447,null)),p=c("search-hide-replace",e.chevronRight,l(12448,null)),h=c("search-show-replace",e.chevronDown,l(12449,null)),u=c("search-replace-all",e.replaceAll,l(12450,null)),i=c("search-replace",e.replace,l(12451,null)),x=c("search-remove",e.close,l(12452,null)),$=c("search-refresh",e.refresh,l(12453,null)),j=c("search-collapse-results",e.collapseAll,l(12454,null)),m=c("search-expand-results",e.expandAll,l(12455,null)),d=c("search-tree",e.listTree,l(12456,null)),f=c("search-list",e.listFlat,l(12457,null)),w=c("search-clear-results",e.clearAll,l(12458,null)),g=c("search-stop",e.searchStop,l(12459,null)),k=c("search-view-icon",e.searchLarge,l(12460,null)),v=c("search-new-editor",e.newFile,l(12461,null)),A=c("search-open-in-file",e.goToFile,l(12462,null)),F=c("search-sparkle-filled",e.sparkleFilled,l(12463,null)),S=c("search-sparkle-empty",e.sparkle,l(12464,null));export{f as $1jc,w as $2jc,g as $3jc,k as $4jc,v as $5jc,A as $6jc,F as $7jc,S as $8jc,t as $Ojc,n as $Pjc,a as $Qjc,p as $Rjc,h as $Sjc,u as $Tjc,i as $Ujc,x as $Vjc,$ as $Wjc,j as $Xjc,m as $Yjc,d as $Zjc};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+const searchDetailsIcon = registerIcon("search-details", Codicon.ellipsis, localize("searchDetailsIcon", "Icon to make search details visible."));
+const searchActivityBarIcon = registerIcon("search-see-more", Codicon.goToSearch, localize("searchSeeMoreIcon", "Icon to view more context in the search view."));
+const searchShowContextIcon = registerIcon("search-show-context", Codicon.listSelection, localize("searchShowContextIcon", "Icon for toggle the context in the search editor."));
+const searchHideReplaceIcon = registerIcon("search-hide-replace", Codicon.chevronRight, localize("searchHideReplaceIcon", "Icon to collapse the replace section in the search view."));
+const searchShowReplaceIcon = registerIcon("search-show-replace", Codicon.chevronDown, localize("searchShowReplaceIcon", "Icon to expand the replace section in the search view."));
+const searchReplaceAllIcon = registerIcon("search-replace-all", Codicon.replaceAll, localize("searchReplaceAllIcon", "Icon for replace all in the search view."));
+const searchReplaceIcon = registerIcon("search-replace", Codicon.replace, localize("searchReplaceIcon", "Icon for replace in the search view."));
+const searchRemoveIcon = registerIcon("search-remove", Codicon.close, localize("searchRemoveIcon", "Icon to remove a search result."));
+const searchRefreshIcon = registerIcon("search-refresh", Codicon.refresh, localize("searchRefreshIcon", "Icon for refresh in the search view."));
+const searchCollapseAllIcon = registerIcon("search-collapse-results", Codicon.collapseAll, localize("searchCollapseAllIcon", "Icon for collapse results in the search view."));
+const searchExpandAllIcon = registerIcon("search-expand-results", Codicon.expandAll, localize("searchExpandAllIcon", "Icon for expand results in the search view."));
+const searchShowAsTree = registerIcon("search-tree", Codicon.listTree, localize("searchShowAsTree", "Icon for viewing results as a tree in the search view."));
+const searchShowAsList = registerIcon("search-list", Codicon.listFlat, localize("searchShowAsList", "Icon for viewing results as a list in the search view."));
+const searchClearIcon = registerIcon("search-clear-results", Codicon.clearAll, localize("searchClearIcon", "Icon for clear results in the search view."));
+const searchStopIcon = registerIcon("search-stop", Codicon.searchStop, localize("searchStopIcon", "Icon for stop in the search view."));
+const searchViewIcon = registerIcon("search-view-icon", Codicon.searchLarge, localize("searchViewIcon", "View icon of the search view."));
+const searchNewEditorIcon = registerIcon("search-new-editor", Codicon.newFile, localize("searchNewEditorIcon", "Icon for the action to open a new search editor."));
+const searchOpenInFileIcon = registerIcon("search-open-in-file", Codicon.goToFile, localize("searchOpenInFile", "Icon for the action to go to the file of the current search result."));
+const searchSparkleFilled = registerIcon("search-sparkle-filled", Codicon.sparkleFilled, localize("searchSparkleFilled", "Icon to show AI results in search."));
+const searchSparkleEmpty = registerIcon("search-sparkle-empty", Codicon.sparkle, localize("searchSparkleEmpty", "Icon to hide AI results in search."));
+export {
+  searchActivityBarIcon,
+  searchClearIcon,
+  searchCollapseAllIcon,
+  searchDetailsIcon,
+  searchExpandAllIcon,
+  searchHideReplaceIcon,
+  searchNewEditorIcon,
+  searchOpenInFileIcon,
+  searchRefreshIcon,
+  searchRemoveIcon,
+  searchReplaceAllIcon,
+  searchReplaceIcon,
+  searchShowAsList,
+  searchShowAsTree,
+  searchShowContextIcon,
+  searchShowReplaceIcon,
+  searchSparkleEmpty,
+  searchSparkleFilled,
+  searchStopIcon,
+  searchViewIcon
+};
+//# sourceMappingURL=searchIcons.js.map

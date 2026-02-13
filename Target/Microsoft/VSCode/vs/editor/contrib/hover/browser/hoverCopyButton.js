@@ -1,1 +1,55 @@
-import{$Ed as a}from"../../../../base/common/lifecycle.js";import{$gjb as m}from"../../../../platform/clipboard/common/clipboardService.js";import{$jkb as b}from"../../../../platform/hover/browser/hover.js";import{localize as f}from"../../../../nls.js";import{$bk as u}from"../../../../base/common/codicons.js";import{$aub as d}from"../../find/browser/findWidget.js";import{$60 as _}from"../../../../base/browser/ui/aria/aria.js";var p=function(e,t,o,i){var n=arguments.length,r=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,o):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(e,t,o,i);else for(var c=e.length-1;c>=0;c--)(s=e[c])&&(r=(n<3?s(r):n>3?s(t,o,r):s(t,o))||r);return n>3&&r&&Object.defineProperty(t,o,r),r},h=function(e,t){return function(o,i){t(o,i,e)}};let l=class extends a{constructor(t,o,i,n){super(),this.b=t,this.c=o,this.f=i,this.g=n,this.b.classList.add("hover-row-with-copy"),this.a=this.D(new d({label:f(1297,null),icon:u.copy,onTrigger:()=>this.h(),className:"hover-copy-button"},this.g)),this.b.appendChild(this.a.domNode)}async h(){const t=this.c();t&&(await this.f.writeText(t),_(f(1298,null)))}};l=p([h(2,m),h(3,b)],l);export{l as $bub};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { localize } from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { SimpleButton } from "../../find/browser/findWidget.js";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+let HoverCopyButton = class HoverCopyButton2 extends Disposable {
+  static {
+    __name(this, "HoverCopyButton");
+  }
+  constructor(_container, _getContent, _clipboardService, _hoverService) {
+    super();
+    this._container = _container;
+    this._getContent = _getContent;
+    this._clipboardService = _clipboardService;
+    this._hoverService = _hoverService;
+    this._container.classList.add("hover-row-with-copy");
+    this._button = this._register(new SimpleButton({
+      label: localize("hover.copy", "Copy"),
+      icon: Codicon.copy,
+      onTrigger: /* @__PURE__ */ __name(() => this._copyContent(), "onTrigger"),
+      className: "hover-copy-button"
+    }, this._hoverService));
+    this._container.appendChild(this._button.domNode);
+  }
+  async _copyContent() {
+    const content = this._getContent();
+    if (content) {
+      await this._clipboardService.writeText(content);
+      status(localize("hover.copied", "Copied to clipboard"));
+    }
+  }
+};
+HoverCopyButton = __decorate([
+  __param(2, IClipboardService),
+  __param(3, IHoverService)
+], HoverCopyButton);
+export {
+  HoverCopyButton
+};
+//# sourceMappingURL=hoverCopyButton.js.map

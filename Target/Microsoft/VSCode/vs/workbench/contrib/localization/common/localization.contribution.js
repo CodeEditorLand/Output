@@ -1,1 +1,121 @@
-import{$Ed as s}from"../../../../base/common/lifecycle.js";import{localize as e}from"../../../../nls.js";import{$wL as n}from"../../../../platform/actions/common/actions.js";import{$Kj as p}from"../../../../platform/instantiation/common/descriptors.js";import{$jm as u}from"../../../../platform/registry/common/platform.js";import{$_Oc as c,$$Oc as g}from"./localizationsActions.js";import{Extensions as m}from"../../../services/extensionManagement/common/extensionFeatures.js";import{$KR as f}from"../../../services/extensions/common/extensionsRegistry.js";class j extends s{constructor(){super(),n(g),n(c),f.registerExtensionPoint({extensionPoint:"localizations",defaultExtensionKind:["ui","workspace"],jsonSchema:{description:e(9937,null),type:"array",default:[],items:{type:"object",required:["languageId","translations"],defaultSnippets:[{body:{languageId:"",languageName:"",localizedLanguageName:"",translations:[{id:"vscode",path:""}]}}],properties:{languageId:{description:e(9938,null),type:"string"},languageName:{description:e(9939,null),type:"string"},localizedLanguageName:{description:e(9940,null),type:"string"},translations:{description:e(9941,null),type:"array",default:[{id:"vscode",path:""}],items:{type:"object",required:["id","path"],properties:{id:{type:"string",description:e(9942,null),pattern:"^((vscode)|([a-z0-9A-Z][a-z0-9A-Z-]*)\\.([a-z0-9A-Z][a-z0-9A-Z-]*))$",patternErrorMessage:e(9943,null)},path:{type:"string",description:e(9944,null)}},defaultSnippets:[{body:{id:"",path:""}}]}}}}}})}}class y extends s{constructor(){super(...arguments),this.type="table"}shouldRender(a){return!!a.contributes?.localizations}render(a){const r=a.contributes?.localizations||[];if(!r.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const i=[e(9945,null),e(9946,null),e(9947,null)],l=r.sort((t,d)=>t.languageId.localeCompare(d.languageId)).map(t=>[t.languageId,t.languageName??"",t.localizedLanguageName??""]);return{data:{headers:i,rows:l},dispose:()=>{}}}}u.as(m.ExtensionFeaturesRegistry).registerExtensionFeature({id:"localizations",label:e(9948,null),access:{canToggle:!1},renderer:new p(y)});export{j as $aPc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ClearDisplayLanguageAction, ConfigureDisplayLanguageAction } from "./localizationsActions.js";
+import { Extensions } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+class BaseLocalizationWorkbenchContribution extends Disposable {
+  static {
+    __name(this, "BaseLocalizationWorkbenchContribution");
+  }
+  constructor() {
+    super();
+    registerAction2(ConfigureDisplayLanguageAction);
+    registerAction2(ClearDisplayLanguageAction);
+    ExtensionsRegistry.registerExtensionPoint({
+      extensionPoint: "localizations",
+      defaultExtensionKind: ["ui", "workspace"],
+      jsonSchema: {
+        description: localize("vscode.extension.contributes.localizations", "Contributes localizations to the editor"),
+        type: "array",
+        default: [],
+        items: {
+          type: "object",
+          required: ["languageId", "translations"],
+          defaultSnippets: [{ body: { languageId: "", languageName: "", localizedLanguageName: "", translations: [{ id: "vscode", path: "" }] } }],
+          properties: {
+            languageId: {
+              description: localize("vscode.extension.contributes.localizations.languageId", "Id of the language into which the display strings are translated."),
+              type: "string"
+            },
+            languageName: {
+              description: localize("vscode.extension.contributes.localizations.languageName", "Name of the language in English."),
+              type: "string"
+            },
+            localizedLanguageName: {
+              description: localize("vscode.extension.contributes.localizations.languageNameLocalized", "Name of the language in contributed language."),
+              type: "string"
+            },
+            translations: {
+              description: localize("vscode.extension.contributes.localizations.translations", "List of translations associated to the language."),
+              type: "array",
+              default: [{ id: "vscode", path: "" }],
+              items: {
+                type: "object",
+                required: ["id", "path"],
+                properties: {
+                  id: {
+                    type: "string",
+                    description: localize("vscode.extension.contributes.localizations.translations.id", "Id of VS Code or Extension for which this translation is contributed to. Id of VS Code is always `vscode` and of extension should be in format `publisherId.extensionName`."),
+                    pattern: "^((vscode)|([a-z0-9A-Z][a-z0-9A-Z-]*)\\.([a-z0-9A-Z][a-z0-9A-Z-]*))$",
+                    patternErrorMessage: localize("vscode.extension.contributes.localizations.translations.id.pattern", "Id should be `vscode` or in format `publisherId.extensionName` for translating VS code or an extension respectively.")
+                  },
+                  path: {
+                    type: "string",
+                    description: localize("vscode.extension.contributes.localizations.translations.path", "A relative path to a file containing translations for the language.")
+                  }
+                },
+                defaultSnippets: [{ body: { id: "", path: "" } }]
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+class LocalizationsDataRenderer extends Disposable {
+  static {
+    __name(this, "LocalizationsDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.localizations;
+  }
+  render(manifest) {
+    const localizations = manifest.contributes?.localizations || [];
+    if (!localizations.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("language id", "Language ID"),
+      localize("localizations language name", "Language Name"),
+      localize("localizations localized language name", "Language Name (Localized)")
+    ];
+    const rows = localizations.sort((a, b) => a.languageId.localeCompare(b.languageId)).map((localization) => {
+      return [
+        localization.languageId,
+        localization.languageName ?? "",
+        localization.localizedLanguageName ?? ""
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "localizations",
+  label: localize("localizations", "Language Packs"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(LocalizationsDataRenderer)
+});
+export {
+  BaseLocalizationWorkbenchContribution
+};
+//# sourceMappingURL=localization.contribution.js.map

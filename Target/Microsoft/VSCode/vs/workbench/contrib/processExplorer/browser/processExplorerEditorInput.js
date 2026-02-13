@@ -1,1 +1,57 @@
-import{$bk as o}from"../../../../base/common/codicons.js";import{URI as s}from"../../../../base/common/uri.js";import{localize as t}from"../../../../nls.js";import{$gu as i}from"../../../../platform/theme/common/iconRegistry.js";import{$4H as n}from"../../../common/editor/editorInput.js";const a=i("process-explorer-editor-label-icon",o.serverProcess,t(11745,null));class r extends n{constructor(){super(...arguments),this.resource=r.RESOURCE}static{this.ID="workbench.editor.processExplorer"}static{this.RESOURCE=s.from({scheme:"process-explorer",path:"default"})}static get instance(){return(!r.a||r.a.isDisposed())&&(r.a=new r),r.a}get typeId(){return r.ID}get editorId(){return r.ID}get capabilities(){return 10}getName(){return t(11746,null)}getIcon(){return a}matches(e){return super.matches(e)?!0:e instanceof r}}export{r as $hAc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+const processExplorerEditorIcon = registerIcon("process-explorer-editor-label-icon", Codicon.serverProcess, localize("processExplorerEditorLabelIcon", "Icon of the process explorer editor label."));
+class ProcessExplorerEditorInput extends EditorInput {
+  static {
+    __name(this, "ProcessExplorerEditorInput");
+  }
+  constructor() {
+    super(...arguments);
+    this.resource = ProcessExplorerEditorInput.RESOURCE;
+  }
+  static {
+    this.ID = "workbench.editor.processExplorer";
+  }
+  static {
+    this.RESOURCE = URI.from({
+      scheme: "process-explorer",
+      path: "default"
+    });
+  }
+  static get instance() {
+    if (!ProcessExplorerEditorInput._instance || ProcessExplorerEditorInput._instance.isDisposed()) {
+      ProcessExplorerEditorInput._instance = new ProcessExplorerEditorInput();
+    }
+    return ProcessExplorerEditorInput._instance;
+  }
+  get typeId() {
+    return ProcessExplorerEditorInput.ID;
+  }
+  get editorId() {
+    return ProcessExplorerEditorInput.ID;
+  }
+  get capabilities() {
+    return 2 | 8;
+  }
+  getName() {
+    return localize("processExplorerInputName", "Process Explorer");
+  }
+  getIcon() {
+    return processExplorerEditorIcon;
+  }
+  matches(other) {
+    if (super.matches(other)) {
+      return true;
+    }
+    return other instanceof ProcessExplorerEditorInput;
+  }
+}
+export {
+  ProcessExplorerEditorInput
+};
+//# sourceMappingURL=processExplorerEditorInput.js.map

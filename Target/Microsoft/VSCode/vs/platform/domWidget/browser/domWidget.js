@@ -1,1 +1,129 @@
-import{$Fab as a}from"../../../base/common/hotReload.js";import{$Ed as p,$Cd as f}from"../../../base/common/lifecycle.js";import{autorun as h,constObservable as c,derived as u,observableValue as v}from"../../../base/common/observable.js";class I extends p{static createAppend(t,e,...n){if(!a()){const d=new this(...n);t.appendChild(d.element),e.add(d);return}const s=this.createObservable(e,...n);e.add(h(d=>{const i=s.read(d);t.appendChild(i.element),d.store.add(f(()=>i.element.remove())),d.store.add(i)}))}static createInContents(t,...e){const n=document.createElement("div");return n.style.display="contents",this.createAppend(n,t,...e),n}static createObservable(t,...e){if(!a())return c(new this(...e));const n=this[b],s=n?l.get(n):void 0;return s?u(d=>{const i=s.read(d);return new i(...e)}):c(new this(...e))}static instantiateAppend(t,e,n,...s){if(!a()){const r=t.createInstance(this,...s);e.appendChild(r.element),n.add(r);return}const d=this.instantiateObservable(t,n,...s);let i;n.add(h(r=>{const o=d.read(r);i?i.element.replaceWith(o.element):e.appendChild(o.element),i=o,r.delayedStore.add(o)}))}static instantiateInContents(t,e,...n){const s=document.createElement("div");return s.style.display="contents",this.instantiateAppend(t,s,e,...n),s}static instantiateObservable(t,e,...n){if(!a())return c(t.createInstance(this,...n));const s=this[b],d=s?l.get(s):void 0;return d?u(i=>{const r=d.read(i);return t.createInstance(r,...n)}):c(t.createInstance(this,...n))}static registerWidgetHotReplacement(t){if(!a())return;let e=l.get(t);e?e.set(this,void 0):(e=v(t,this),l.set(t,e)),this[b]=t}}const b=Symbol("DomWidgetHotReloadId"),l=new Map;export{I as $Qqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isHotReloadEnabled } from "../../../base/common/hotReload.js";
+import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { autorun, constObservable, derived, observableValue } from "../../../base/common/observable.js";
+class DomWidget extends Disposable {
+  static {
+    __name(this, "DomWidget");
+  }
+  /**
+   * Appends the widget to the provided DOM element.
+  */
+  static createAppend(dom, store, ...params) {
+    if (!isHotReloadEnabled()) {
+      const widget = new this(...params);
+      dom.appendChild(widget.element);
+      store.add(widget);
+      return;
+    }
+    const observable = this.createObservable(store, ...params);
+    store.add(autorun((reader) => {
+      const widget = observable.read(reader);
+      dom.appendChild(widget.element);
+      reader.store.add(toDisposable(() => widget.element.remove()));
+      reader.store.add(widget);
+    }));
+  }
+  /**
+   * Creates the widget in a new div element with "display: contents".
+  */
+  static createInContents(store, ...params) {
+    const div = document.createElement("div");
+    div.style.display = "contents";
+    this.createAppend(div, store, ...params);
+    return div;
+  }
+  /**
+   * Creates an observable instance of the widget.
+   * The observable will change when hot module replacement occurs.
+  */
+  static createObservable(store, ...params) {
+    if (!isHotReloadEnabled()) {
+      return constObservable(new this(...params));
+    }
+    const id = this[_hotReloadId];
+    const observable = id ? hotReloadedWidgets.get(id) : void 0;
+    if (!observable) {
+      return constObservable(new this(...params));
+    }
+    return derived((reader) => {
+      const Ctor = observable.read(reader);
+      return new Ctor(...params);
+    });
+  }
+  /**
+   * Appends the widget to the provided DOM element.
+  */
+  static instantiateAppend(instantiationService, dom, store, ...params) {
+    if (!isHotReloadEnabled()) {
+      const widget = instantiationService.createInstance(this, ...params);
+      dom.appendChild(widget.element);
+      store.add(widget);
+      return;
+    }
+    const observable = this.instantiateObservable(instantiationService, store, ...params);
+    let lastWidget = void 0;
+    store.add(autorun((reader) => {
+      const widget = observable.read(reader);
+      if (lastWidget) {
+        lastWidget.element.replaceWith(widget.element);
+      } else {
+        dom.appendChild(widget.element);
+      }
+      lastWidget = widget;
+      reader.delayedStore.add(widget);
+    }));
+  }
+  /**
+   * Creates the widget in a new div element with "display: contents".
+   * If possible, prefer `instantiateAppend`, as it avoids an extra div in the DOM.
+  */
+  static instantiateInContents(instantiationService, store, ...params) {
+    const div = document.createElement("div");
+    div.style.display = "contents";
+    this.instantiateAppend(instantiationService, div, store, ...params);
+    return div;
+  }
+  /**
+   * Creates an observable instance of the widget.
+   * The observable will change when hot module replacement occurs.
+  */
+  static instantiateObservable(instantiationService, store, ...params) {
+    if (!isHotReloadEnabled()) {
+      return constObservable(instantiationService.createInstance(this, ...params));
+    }
+    const id = this[_hotReloadId];
+    const observable = id ? hotReloadedWidgets.get(id) : void 0;
+    if (!observable) {
+      return constObservable(instantiationService.createInstance(this, ...params));
+    }
+    return derived((reader) => {
+      const Ctor = observable.read(reader);
+      return instantiationService.createInstance(Ctor, ...params);
+    });
+  }
+  /**
+   * @deprecated Do not call manually! Only for use by the hot reload system (a vite plugin will inject calls to this method in dev mode).
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static registerWidgetHotReplacement(id) {
+    if (!isHotReloadEnabled()) {
+      return;
+    }
+    let observable = hotReloadedWidgets.get(id);
+    if (!observable) {
+      observable = observableValue(id, this);
+      hotReloadedWidgets.set(id, observable);
+    } else {
+      observable.set(this, void 0);
+    }
+    this[_hotReloadId] = id;
+  }
+}
+const _hotReloadId = /* @__PURE__ */ Symbol("DomWidgetHotReloadId");
+const hotReloadedWidgets = /* @__PURE__ */ new Map();
+export {
+  DomWidget
+};
+//# sourceMappingURL=domWidget.js.map

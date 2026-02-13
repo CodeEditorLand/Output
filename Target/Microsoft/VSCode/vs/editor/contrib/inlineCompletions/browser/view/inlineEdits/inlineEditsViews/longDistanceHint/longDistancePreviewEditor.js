@@ -1,1 +1,333 @@
-import{n as R}from"../../../../../../../../base/browser/dom.js";import{$Ed as x}from"../../../../../../../../base/common/lifecycle.js";import{$gx as N}from"../../../../../../../../base/common/numbers.js";import{derived as m,constObservable as E,autorun as P,observableValue as I}from"../../../../../../../../base/common/observable.js";import{$Mj as W}from"../../../../../../../../platform/instantiation/common/instantiation.js";import{$Xib as y}from"../../../../../../../browser/observableCodeEditor.js";import{$2ob as j}from"../../../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";import{$$D as A}from"../../../../../../../common/core/position.js";import{$_D as v}from"../../../../../../../common/core/range.js";import{$jE as b}from"../../../../../../../common/core/ranges/lineRange.js";import{$hE as M}from"../../../../../../../common/core/ranges/offsetRange.js";import{$aL as C}from"../../../../../../../common/model/textModel.js";import{$Bnb as _}from"../../../../controller/inlineCompletionContextKeys.js";import{$jtb as z,$gtb as B}from"../../components/gutterIndicatorView.js";import{$0sb as H,$1sb as S}from"../../utils/utils.js";import{$ztb as T}from"../jumpToView.js";import{$Bob as F}from"../../../../model/textModelValueReference.js";var $=function(c,s,n,o){var l=arguments.length,r=l<3?s:o===null?o=Object.getOwnPropertyDescriptor(s,n):o,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,s,n,o);else for(var i=c.length-1;i>=0;i--)(h=c[i])&&(r=(l<3?h(r):l>3?h(s,n,r):h(s,n))||r);return l>3&&r&&Object.defineProperty(s,n,r),r},O=function(c,s){return function(n,o){s(n,o,c)}};let D=class extends x{constructor(s,n,o,l,r){super(),this.g=s,this.h=n,this.j=o,this.q=l,this.r=r,this.b=R.ref(),this.element=R.div({class:"preview",style:{},ref:this.b}),this.s=m(this,i=>{const e=this.h.read(i);if(!e)return;let t,a;e.nextCursorPosition!==null?(t="original",a=b.ofLength(e.nextCursorPosition.lineNumber,1)):e.diff[0].innerChanges?.every(g=>g.modifiedRange.isEmpty())?(t="original",a=b.ofLength(e.diff[0].original.startLineNumber,1)):(t="modified",a=b.ofLength(e.diff[0].modified.startLineNumber,1));const d=t==="modified"?F.snapshot(this.g):e.target;return{mode:t,visibleLineRange:a,textModel:d,diff:e.diff}}),this.updatePreviewEditorEffect=m(this,i=>{this.a.model.read(i);const e=this.s.read(i)?.visibleLineRange;if(!e)return;const t=[];e.startLineNumber>1&&t.push(new v(1,1,e.startLineNumber-1,1)),e.endLineNumberExclusive<this.g.getLineCount()+1&&t.push(new v(e.endLineNumberExclusive,1,this.g.getLineCount()+1,1)),this.previewEditor.setHiddenAreas(t,void 0,!0)}),this.horizontalContentRangeInPreviewEditorToShow=m(this,i=>this.u(this.previewEditor,i)),this.contentHeight=m(this,i=>{const e=this.s.read(i);return e?this.a.observeLineHeightForLine(e.visibleLineRange.startLineNumber):E(null)}).flatten(),this.w=m(this,i=>{const e=this.s.read(i);if(!e)return;const t={mode:"insertionInline",diff:e.diff},a=[],d=[],g=C.register({className:"inlineCompletions-char-delete",description:"char-delete",isWholeLine:!1,zIndex:1}),p=C.register({className:"inlineCompletions-char-insert",description:"char-insert",isWholeLine:!0}),L=C.register({className:"inlineCompletions-char-insert",description:"char-insert",shouldFillLineOnLineBreak:!0}),w=!0;for(const f of t.diff)if(f.modified.isEmpty||f.original.isEmpty)f.original.isEmpty||a.push({range:f.original.toInclusiveRange(),options:g}),f.modified.isEmpty||d.push({range:f.modified.toInclusiveRange(),options:p});else for(const u of f.innerChanges||[])f.original.contains(u.originalRange.startLineNumber)&&!(w&&u.originalRange.isEmpty())&&a.push({range:u.originalRange,options:{description:"char-delete",shouldFillLineOnLineBreak:!1,className:H("inlineCompletions-char-delete",u.originalRange.isEmpty()&&"empty"),zIndex:1}}),f.modified.contains(u.modifiedRange.startLineNumber)&&d.push({range:u.modifiedRange,options:L});return{originalDecorations:a,modifiedDecorations:d}}),this.previewEditor=this.D(this.t()),this.f=y(this.j),this.D(P(i=>{const e=this.s.read(i)?.textModel||null;e&&this.previewEditor.setModel(e.dangerouslyGetUnderlyingModel())})),this.a=y(this.previewEditor),this.D(this.a.setDecorations(m(i=>{const e=this.s.read(i),t=this.w.read(i);return(e?.mode==="original"?t?.originalDecorations:t?.modifiedDecorations)??[]}))),!1&&this.D(this.r.createInstance(T,this.a,{style:"cursor"},m(i=>{const e=this.h.read(i);if(!(!e||!e.nextCursorPosition))return{jumpToPosition:e.nextCursorPosition}}))),this.D(P(i=>{if(!this.h.read(i))return;const e=this.f.cursorPosition.read(i);e&&this.previewEditor.setPosition(this.g.validatePosition(e),"longDistanceHintPreview")})),this.D(P(i=>{const e=this.s.read(i);if(!e)return;const t=e.visibleLineRange.startLineNumber.toString().length;this.previewEditor.updateOptions({lineNumbersMinChars:t+1})})),this.D(this.r.createInstance(z,this.a,m(i=>{const e=this.s.read(i);if(!e)return;const t=this.h.read(i);if(t)return new B(t.inlineSuggestInfo,b.ofLength(e.visibleLineRange.startLineNumber,1),t.model,void 0)}),this.q,E(0),E(!1),I(this,!1))),this.updatePreviewEditorEffect.recomputeInitiallyAndOnChange(this.B)}t(){return this.r.createInstance(j,this.b.element,{glyphMargin:!1,lineNumbers:"on",minimap:{enabled:!1},guides:{indentation:!1,bracketPairs:!1,bracketPairsHorizontal:!1,highlightActiveIndentation:!1},editContext:!1,rulers:[],padding:{top:0,bottom:0},selectOnLineNumbers:!1,selectionHighlight:!1,columnSelection:!1,overviewRulerBorder:!1,overviewRulerLanes:0,revealHorizontalRightPadding:0,bracketPairColorization:{enabled:!0,independentColorPoolPerBracketType:!1},scrollBeyondLastLine:!1,scrollbar:{vertical:"hidden",horizontal:"hidden",handleMouseWheel:!1},readOnly:!0,wordWrap:"off",wordWrapOverride1:"off",wordWrapOverride2:"off"},{contextKeyValues:{[_.inInlineEditsPreviewEditor.key]:!0},contributions:[]},this.j)}u(s,n){const o=this.s.read(n);if(!o)return;const l=o.diff,r=this.h.read(n)?.nextCursorPosition,h=o.visibleLineRange,i=this.a.layoutInfo.read(n),e=S(this.a,h,n);let t;if(r)t=v.fromPositions(r);else if(l[0].innerChanges)t=o.mode==="modified"?l[0].innerChanges[0].modifiedRange:l[0].innerChanges[0].originalRange;else return;const a=V(s.getModel(),t,5),d=this.a.getLeftOfPosition(a.getStartPosition(),n),g=this.a.getLeftOfPosition(a.getEndPosition(),n),p=N(d,0,e),L=N(g,p,e),w=s.getModel().getLineFirstNonWhitespaceColumn(a.startLineNumber),f=this.a.getLeftOfPosition(new A(a.startLineNumber,w),n),u=new M(p,L);return{indentationEnd:f,preferredRangeToReveal:u,maxEditorWidth:e+i.contentLeft,contentWidth:e,nonContentWidth:i.contentLeft}}layout(s,n){this.previewEditor.layout(s),this.a.editor.setScrollLeft(n)}};D=$([O(4,W)],D);function V(c,s,n){const o=s.getStartPosition(),l=s.getEndPosition(),r=c.getLineContent(o.lineNumber);function h(a){const d=r.charAt(a-1);return/[a-zA-Z0-9_]/.test(d)}function i(a){const d=r.charAt(a-1);return d===" "||d==="	"}let e=o.column;for(;e>1&&h(e)&&!i(e-1)&&o.column-e<n;)e--;let t=l.column-1;for(;t<=r.length&&h(t)&&!i(t+1)&&t-l.column<n;)t++;return new v(o.lineNumber,o.column,l.lineNumber,t+1)}export{D as $Atb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { n } from "../../../../../../../../base/browser/dom.js";
+import { Disposable } from "../../../../../../../../base/common/lifecycle.js";
+import { clamp } from "../../../../../../../../base/common/numbers.js";
+import { derived, constObservable, autorun, observableValue } from "../../../../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../../../../platform/instantiation/common/instantiation.js";
+import { observableCodeEditor } from "../../../../../../../browser/observableCodeEditor.js";
+import { EmbeddedCodeEditorWidget } from "../../../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { Position } from "../../../../../../../common/core/position.js";
+import { Range } from "../../../../../../../common/core/range.js";
+import { LineRange } from "../../../../../../../common/core/ranges/lineRange.js";
+import { OffsetRange } from "../../../../../../../common/core/ranges/offsetRange.js";
+import { ModelDecorationOptions } from "../../../../../../../common/model/textModel.js";
+import { InlineCompletionContextKeys } from "../../../../controller/inlineCompletionContextKeys.js";
+import { InlineEditsGutterIndicator, InlineEditsGutterIndicatorData } from "../../components/gutterIndicatorView.js";
+import { classNames, maxContentWidthInRange } from "../../utils/utils.js";
+import { JumpToView } from "../jumpToView.js";
+import { TextModelValueReference } from "../../../../model/textModelValueReference.js";
+let LongDistancePreviewEditor = class LongDistancePreviewEditor2 extends Disposable {
+  static {
+    __name(this, "LongDistancePreviewEditor");
+  }
+  constructor(_previewTextModel, _properties, _parentEditor, _tabAction, _instantiationService) {
+    super();
+    this._previewTextModel = _previewTextModel;
+    this._properties = _properties;
+    this._parentEditor = _parentEditor;
+    this._tabAction = _tabAction;
+    this._instantiationService = _instantiationService;
+    this._previewRef = n.ref();
+    this.element = n.div({ class: "preview", style: {
+      /*pointerEvents: 'none'*/
+    }, ref: this._previewRef });
+    this._state = derived(this, (reader) => {
+      const props = this._properties.read(reader);
+      if (!props) {
+        return void 0;
+      }
+      let mode;
+      let visibleRange;
+      if (props.nextCursorPosition !== null) {
+        mode = "original";
+        visibleRange = LineRange.ofLength(props.nextCursorPosition.lineNumber, 1);
+      } else {
+        if (props.diff[0].innerChanges?.every((c) => c.modifiedRange.isEmpty())) {
+          mode = "original";
+          visibleRange = LineRange.ofLength(props.diff[0].original.startLineNumber, 1);
+        } else {
+          mode = "modified";
+          visibleRange = LineRange.ofLength(props.diff[0].modified.startLineNumber, 1);
+        }
+      }
+      const textModel = mode === "modified" ? TextModelValueReference.snapshot(this._previewTextModel) : props.target;
+      return {
+        mode,
+        visibleLineRange: visibleRange,
+        textModel,
+        diff: props.diff
+      };
+    });
+    this.updatePreviewEditorEffect = derived(this, (reader) => {
+      this._previewEditorObs.model.read(reader);
+      const range = this._state.read(reader)?.visibleLineRange;
+      if (!range) {
+        return;
+      }
+      const hiddenAreas = [];
+      if (range.startLineNumber > 1) {
+        hiddenAreas.push(new Range(1, 1, range.startLineNumber - 1, 1));
+      }
+      if (range.endLineNumberExclusive < this._previewTextModel.getLineCount() + 1) {
+        hiddenAreas.push(new Range(range.endLineNumberExclusive, 1, this._previewTextModel.getLineCount() + 1, 1));
+      }
+      this.previewEditor.setHiddenAreas(hiddenAreas, void 0, true);
+    });
+    this.horizontalContentRangeInPreviewEditorToShow = derived(this, (reader) => {
+      return this._getHorizontalContentRangeInPreviewEditorToShow(this.previewEditor, reader);
+    });
+    this.contentHeight = derived(this, (reader) => {
+      const viewState = this._state.read(reader);
+      if (!viewState) {
+        return constObservable(null);
+      }
+      const previewEditorHeight = this._previewEditorObs.observeLineHeightForLine(viewState.visibleLineRange.startLineNumber);
+      return previewEditorHeight;
+    }).flatten();
+    this._editorDecorations = derived(this, (reader) => {
+      const state = this._state.read(reader);
+      if (!state) {
+        return void 0;
+      }
+      const diff = {
+        mode: "insertionInline",
+        diff: state.diff
+      };
+      const originalDecorations = [];
+      const modifiedDecorations = [];
+      const diffWholeLineDeleteDecoration = ModelDecorationOptions.register({
+        className: "inlineCompletions-char-delete",
+        description: "char-delete",
+        isWholeLine: false,
+        zIndex: 1
+        // be on top of diff background decoration
+      });
+      const diffWholeLineAddDecoration = ModelDecorationOptions.register({
+        className: "inlineCompletions-char-insert",
+        description: "char-insert",
+        isWholeLine: true
+      });
+      const diffAddDecoration = ModelDecorationOptions.register({
+        className: "inlineCompletions-char-insert",
+        description: "char-insert",
+        shouldFillLineOnLineBreak: true
+      });
+      const hideEmptyInnerDecorations = true;
+      for (const m of diff.diff) {
+        if (m.modified.isEmpty || m.original.isEmpty) {
+          if (!m.original.isEmpty) {
+            originalDecorations.push({ range: m.original.toInclusiveRange(), options: diffWholeLineDeleteDecoration });
+          }
+          if (!m.modified.isEmpty) {
+            modifiedDecorations.push({ range: m.modified.toInclusiveRange(), options: diffWholeLineAddDecoration });
+          }
+        } else {
+          for (const i of m.innerChanges || []) {
+            if (m.original.contains(i.originalRange.startLineNumber) && !(hideEmptyInnerDecorations && i.originalRange.isEmpty())) {
+              originalDecorations.push({
+                range: i.originalRange,
+                options: {
+                  description: "char-delete",
+                  shouldFillLineOnLineBreak: false,
+                  className: classNames(
+                    "inlineCompletions-char-delete",
+                    // i.originalRange.isSingleLine() && diff.mode === 'insertionInline' && 'single-line-inline',
+                    i.originalRange.isEmpty() && "empty"
+                  ),
+                  zIndex: 1
+                }
+              });
+            }
+            if (m.modified.contains(i.modifiedRange.startLineNumber)) {
+              modifiedDecorations.push({
+                range: i.modifiedRange,
+                options: diffAddDecoration
+              });
+            }
+          }
+        }
+      }
+      return { originalDecorations, modifiedDecorations };
+    });
+    this.previewEditor = this._register(this._createPreviewEditor());
+    this._parentEditorObs = observableCodeEditor(this._parentEditor);
+    this._register(autorun((reader) => {
+      const tm = this._state.read(reader)?.textModel || null;
+      if (tm) {
+        this.previewEditor.setModel(tm.dangerouslyGetUnderlyingModel());
+      }
+    }));
+    this._previewEditorObs = observableCodeEditor(this.previewEditor);
+    this._register(this._previewEditorObs.setDecorations(derived((reader) => {
+      const state = this._state.read(reader);
+      const decorations = this._editorDecorations.read(reader);
+      return (state?.mode === "original" ? decorations?.originalDecorations : decorations?.modifiedDecorations) ?? [];
+    })));
+    const showJumpToDecoration = false;
+    if (showJumpToDecoration) {
+      this._register(this._instantiationService.createInstance(JumpToView, this._previewEditorObs, { style: "cursor" }, derived((reader) => {
+        const p = this._properties.read(reader);
+        if (!p || !p.nextCursorPosition) {
+          return void 0;
+        }
+        return {
+          jumpToPosition: p.nextCursorPosition
+        };
+      })));
+    }
+    this._register(autorun((reader) => {
+      if (!this._properties.read(reader)) {
+        return;
+      }
+      const cursorPosition = this._parentEditorObs.cursorPosition.read(reader);
+      if (cursorPosition) {
+        this.previewEditor.setPosition(this._previewTextModel.validatePosition(cursorPosition), "longDistanceHintPreview");
+      }
+    }));
+    this._register(autorun((reader) => {
+      const state = this._state.read(reader);
+      if (!state) {
+        return;
+      }
+      const lineNumberDigets = state.visibleLineRange.startLineNumber.toString().length;
+      this.previewEditor.updateOptions({ lineNumbersMinChars: lineNumberDigets + 1 });
+    }));
+    this._register(this._instantiationService.createInstance(InlineEditsGutterIndicator, this._previewEditorObs, derived((reader) => {
+      const state = this._state.read(reader);
+      if (!state) {
+        return void 0;
+      }
+      const props = this._properties.read(reader);
+      if (!props) {
+        return void 0;
+      }
+      return new InlineEditsGutterIndicatorData(props.inlineSuggestInfo, LineRange.ofLength(state.visibleLineRange.startLineNumber, 1), props.model, void 0);
+    }), this._tabAction, constObservable(0), constObservable(false), observableValue(this, false)));
+    this.updatePreviewEditorEffect.recomputeInitiallyAndOnChange(this._store);
+  }
+  _createPreviewEditor() {
+    return this._instantiationService.createInstance(EmbeddedCodeEditorWidget, this._previewRef.element, {
+      glyphMargin: false,
+      lineNumbers: "on",
+      minimap: { enabled: false },
+      guides: {
+        indentation: false,
+        bracketPairs: false,
+        bracketPairsHorizontal: false,
+        highlightActiveIndentation: false
+      },
+      editContext: false,
+      // is a bit faster
+      rulers: [],
+      padding: { top: 0, bottom: 0 },
+      //folding: false,
+      selectOnLineNumbers: false,
+      selectionHighlight: false,
+      columnSelection: false,
+      overviewRulerBorder: false,
+      overviewRulerLanes: 0,
+      //lineDecorationsWidth: 0,
+      //lineNumbersMinChars: 0,
+      revealHorizontalRightPadding: 0,
+      bracketPairColorization: { enabled: true, independentColorPoolPerBracketType: false },
+      scrollBeyondLastLine: false,
+      scrollbar: {
+        vertical: "hidden",
+        horizontal: "hidden",
+        handleMouseWheel: false
+      },
+      readOnly: true,
+      wordWrap: "off",
+      wordWrapOverride1: "off",
+      wordWrapOverride2: "off"
+    }, {
+      contextKeyValues: {
+        [InlineCompletionContextKeys.inInlineEditsPreviewEditor.key]: true
+      },
+      contributions: []
+    }, this._parentEditor);
+  }
+  _getHorizontalContentRangeInPreviewEditorToShow(editor, reader) {
+    const state = this._state.read(reader);
+    if (!state) {
+      return void 0;
+    }
+    const diff = state.diff;
+    const jumpToPos = this._properties.read(reader)?.nextCursorPosition;
+    const visibleRange = state.visibleLineRange;
+    const l = this._previewEditorObs.layoutInfo.read(reader);
+    const trueContentWidth = maxContentWidthInRange(this._previewEditorObs, visibleRange, reader);
+    let firstCharacterChange;
+    if (jumpToPos) {
+      firstCharacterChange = Range.fromPositions(jumpToPos);
+    } else if (diff[0].innerChanges) {
+      firstCharacterChange = state.mode === "modified" ? diff[0].innerChanges[0].modifiedRange : diff[0].innerChanges[0].originalRange;
+    } else {
+      return void 0;
+    }
+    const preferredRange = growUntilVariableBoundaries(editor.getModel(), firstCharacterChange, 5);
+    const leftOffset = this._previewEditorObs.getLeftOfPosition(preferredRange.getStartPosition(), reader);
+    const rightOffset = this._previewEditorObs.getLeftOfPosition(preferredRange.getEndPosition(), reader);
+    const left = clamp(leftOffset, 0, trueContentWidth);
+    const right = clamp(rightOffset, left, trueContentWidth);
+    const indentCol = editor.getModel().getLineFirstNonWhitespaceColumn(preferredRange.startLineNumber);
+    const indentationEnd = this._previewEditorObs.getLeftOfPosition(new Position(preferredRange.startLineNumber, indentCol), reader);
+    const preferredRangeToReveal = new OffsetRange(left, right);
+    return {
+      indentationEnd,
+      preferredRangeToReveal,
+      maxEditorWidth: trueContentWidth + l.contentLeft,
+      contentWidth: trueContentWidth,
+      nonContentWidth: l.contentLeft
+      // Width of area that is not content
+    };
+  }
+  layout(dimension, desiredPreviewEditorScrollLeft) {
+    this.previewEditor.layout(dimension);
+    this._previewEditorObs.editor.setScrollLeft(desiredPreviewEditorScrollLeft);
+  }
+};
+LongDistancePreviewEditor = __decorate([
+  __param(4, IInstantiationService)
+], LongDistancePreviewEditor);
+function growUntilVariableBoundaries(textModel, range, maxGrow) {
+  const startPosition = range.getStartPosition();
+  const endPosition = range.getEndPosition();
+  const line = textModel.getLineContent(startPosition.lineNumber);
+  function isVariableNameCharacter(col) {
+    const char = line.charAt(col - 1);
+    return /[a-zA-Z0-9_]/.test(char);
+  }
+  __name(isVariableNameCharacter, "isVariableNameCharacter");
+  function isWhitespace(col) {
+    const char = line.charAt(col - 1);
+    return char === " " || char === "	";
+  }
+  __name(isWhitespace, "isWhitespace");
+  let startColumn = startPosition.column;
+  while (startColumn > 1 && isVariableNameCharacter(startColumn) && !isWhitespace(startColumn - 1) && startPosition.column - startColumn < maxGrow) {
+    startColumn--;
+  }
+  let endColumn = endPosition.column - 1;
+  while (endColumn <= line.length && isVariableNameCharacter(endColumn) && !isWhitespace(endColumn + 1) && endColumn - endPosition.column < maxGrow) {
+    endColumn++;
+  }
+  return new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endColumn + 1);
+}
+__name(growUntilVariableBoundaries, "growUntilVariableBoundaries");
+export {
+  LongDistancePreviewEditor
+};
+//# sourceMappingURL=longDistancePreviewEditor.js.map

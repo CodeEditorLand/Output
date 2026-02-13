@@ -1,1 +1,598 @@
-import{$dc as P}from"../../../../../base/common/arrays.js";import{or as v,$Xj as $,$Yj as p,$Uj as T}from"../../../../../base/common/filters.js";import{$xf as L}from"../../../../../base/common/event.js";import{$ZR as k}from"../../../chat/common/languageModels.js";import{localize as x}from"../../../../../nls.js";import{$Ed as F}from"../../../../../base/common/lifecycle.js";var S=function(n,t,e,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,t,e,i);else for(var a=n.length-1;a>=0;a--)(r=n[a])&&(o=(s<3?r(o):s>3?r(t,e,o):r(t,e))||o);return s>3&&o&&Object.defineProperty(t,e,o),o},A=function(n,t){return function(e,i){t(e,i,n)}};const B="model.entry.template",O="vendor.entry.template",G="group.entry.template",E=v(T,p),f=/@capability:\s*([^\s]+)/gi,j=/@visible:\s*(true|false)/i,g=/@provider:\s*((".+?")|([^\s]+))/gi,Q={FILTER_TYPES:["@provider:","@capability:","@visible:"],CAPABILITIES:["@capability:tools","@capability:vision","@capability:agent"],VISIBILITY:["@visible:true","@visible:false"]};function m(n){return n.type==="vendor"}function D(n){return n.type==="group"}function W(n){return n.type==="status"}var N;(function(n){n.Vendor="vendor",n.Visibility="visibility"})(N||(N={}));let q=class extends F{get groupBy(){return this.t}set groupBy(t){this.t!==t&&(this.t=t,this.n.clear(),this.j=this.G(this.g),this.z(),this.f.fire(t))}constructor(t){super(),this.u=t,this.c=this.D(new L),this.onDidChange=this.c.event,this.f=this.D(new L),this.onDidChangeGrouping=this.f.event,this.h=[],this.j=[],this.n=new Set,this.q="",this.r=!1,this.t="vendor",this.w=[],this.g=[],this.D(this.u.onDidChangeLanguageModels(e=>this.J(e)))}get viewModelEntries(){return this.w}y(t,e,i){this.w.splice(t,e,...i),this.selectedEntry&&(this.selectedEntry=this.w.find(s=>s.id===this.selectedEntry?.id)),this.c.fire({at:t,removed:e,added:i})}shouldRefilter(){return!this.r}filter(t){return t!==this.q&&(this.q=t,this.n.clear(),this.r||(this.j=this.G(this.g)),this.z()),this.viewModelEntries}z(){const t=[],e=this.j.length>1;for(const i of this.j){if(this.n.has(i.group.id)){i.group.collapsed=!0,e&&t.push(i.group);continue}const s=[];i.status&&s.push(i.status),s.push(...this.C(i.models,this.q)),s.length>0&&(i.group.collapsed=!1,e&&t.push(i.group),t.push(...s))}this.y(0,this.w.length,t)}C(t,e){let i;const s=j.exec(e);s&&s[1]&&(i=s[1].toLowerCase()==="true",e=e.replace(j,""));const o=[];let r;for(g.lastIndex=0;(r=g.exec(e))!==null;){const l=r[2]?r[2].substring(1,r[2].length-1):r[3];o.push(l)}o.length>0&&(e=e.replace(g,""));const a=[];let b;for(f.lastIndex=0;(b=f.exec(e))!==null;)a.push(b[1].toLowerCase());a.length>0&&(e=e.replace(f,""));const M=e.charAt(0)==='"',y=e.charAt(e.length-1)==='"',_=M&&y;M&&(e=e.substring(1)),y&&(e=e.substring(0,e.length-1)),e=e.trim();const C=[],R=e.split(" "),I=o.map(l=>l.toLowerCase().trim());for(const l of t){if(i!==void 0&&l.visible!==i||I.length>0&&!I.some(u=>l.provider.vendor.vendor.toLowerCase()===u||l.provider.vendor.displayName.toLowerCase()===u))continue;let h=[];if(a.length>0){if(!l.metadata.capabilities)continue;let c=!0;for(const u of a){const w=this.F(l,u);if(w.length===0){c=!1;break}h.push(...w)}if(!c)continue;h=P(h)}let d;if(e&&(d=new H(l,e,R,_),!d.modelNameMatches&&!d.modelIdMatches&&!d.providerMatches&&!d.capabilityMatches))continue;const z=this.M(l);C.push({type:"model",id:z,templateId:B,model:l,modelNameMatches:d?.modelNameMatches||void 0,modelIdMatches:d?.modelIdMatches||void 0,providerMatches:d?.providerMatches||void 0,capabilityMatches:h.length?h:void 0})}return C}F(t,e){const i=[];if(!t.metadata.capabilities)return i;switch(e){case"tools":case"toolcalling":t.metadata.capabilities.toolCalling===!0&&i.push("toolCalling");break;case"vision":t.metadata.capabilities.vision===!0&&i.push("vision");break;case"agent":case"agentmode":t.metadata.capabilities.agentMode===!0&&i.push("agentMode");break;default:if(t.metadata.capabilities.editTools)for(const s of t.metadata.capabilities.editTools)s.toLowerCase().includes(e)&&i.push(s);break}return i}G(t){const e=[];if(this.groupBy==="visibility"){const i=[],s=[];for(const o of t)o.visible?i.push(o):s.push(o);e.push({group:{type:"group",id:"visible",label:x(5936,null),templateId:G,collapsed:this.n.has("visible")},models:i}),e.push({group:{type:"group",id:"hidden",label:x(5937,null),templateId:G,collapsed:this.n.has("hidden")},models:s})}else if(this.groupBy==="vendor"){for(const i of t){const s=this.N(i.provider.group);let o=e.find(r=>r.group.id===s);o||(o={group:this.H(i.provider),models:[]},e.push(o)),o.models.push(i)}for(const i of this.h){const s=this.N(i.provider.group);let o=e.find(r=>r.group.id===s);o||(o={group:this.H(i.provider),models:[]},e.push(o)),o.status={id:`status.${o.group.id}`,type:"status",...i.status}}e.sort((i,s)=>i.models[0]?.provider.vendor.isDefault?-1:s.models[0]?.provider.vendor.isDefault?1:i.group.label.localeCompare(s.group.label))}for(const i of e)i.models.sort((s,o)=>s.provider.vendor.isDefault&&o.provider.vendor.isDefault?s.metadata.name.localeCompare(o.metadata.name):s.provider.vendor.isDefault?-1:o.provider.vendor.isDefault?1:s.provider.group.name===o.provider.group.name?s.metadata.name.localeCompare(o.metadata.name):s.provider.group.name.localeCompare(o.provider.group.name));return this.r=!0,e}H(t){const e=this.N(t.group);return{type:"vendor",id:e,label:t.group.name,templateId:O,collapsed:this.n.has(e),vendorEntry:{group:t.group,vendor:t.vendor}}}getVendors(){return[...this.u.getVendors()].sort((t,e)=>t.isDefault?-1:e.isDefault?1:t.displayName.localeCompare(e.displayName))}async refresh(){await this.u.selectLanguageModels({}),await this.I()}async I(){this.g=[],this.h=[];for(const t of this.getVendors())this.L(t);this.j=this.G(this.g),this.z()}J(t){const e=this.getVendors().find(i=>i.vendor===t);e&&(this.g=this.g.filter(i=>i.provider.vendor.vendor!==t),this.h=this.h.filter(i=>i.provider.vendor.vendor!==t),this.L(e),this.j=this.G(this.g),this.z())}L(t){const e=[],i=this.u.getLanguageModelGroups(t.vendor);for(const s of i){const o={group:s.group??{vendor:t.vendor,name:t.displayName},vendor:t};s.status&&this.h.push({provider:o,status:{message:s.status.message,severity:s.status.severity}});for(const r of s.modelIdentifiers){const a=this.u.lookupLanguageModel(r);a&&(t.isDefault&&a.id==="auto"||e.push({identifier:r,metadata:a,provider:o,visible:a.isUserSelectable??!1}))}}this.g.push(...e.sort((s,o)=>s.metadata.name.localeCompare(o.metadata.name)))}toggleVisibility(t){const e=!t.model.visible;this.u.updateModelPickerPreference(t.model.identifier,e);const i=this.u.lookupLanguageModel(t.model.identifier),s=this.viewModelEntries.indexOf(t);i&&s!==-1&&(t.model.visible=e,t.model.metadata=i,t.id=this.M(t.model),this.groupBy==="visibility"&&(this.r=!1),this.y(s,1,[t]))}setModelsVisibility(t,e){for(const i of t)this.u.updateModelPickerPreference(i.model.identifier,e),i.model.visible=e;this.j=this.G(this.g),this.z()}setGroupVisibility(t,e){const i=this.getModelsForGroup(t);for(const s of i)this.u.updateModelPickerPreference(s.identifier,e),s.visible=e;this.j=this.G(this.g),this.z()}getModelsForGroup(t){return m(t)?this.g.filter(e=>this.N(e.provider.group)===t.id):this.g.filter(e=>t.id==="visible"&&e.visible||t.id==="hidden"&&!e.visible)}M(t){return`${t.provider.group.name}.${t.identifier}.${t.metadata.version}-visible:${t.visible}`}N(t){return`${t.vendor}-${t.name}`}toggleCollapsed(t){const e=D(t)||m(t)?t.id:void 0;e&&(this.selectedEntry=t,this.n.delete(e)||this.n.add(e),this.z())}collapseAll(){this.n.clear();for(const t of this.viewModelEntries)(m(t)||D(t))&&this.n.add(t.id);this.z()}getConfiguredVendors(){const t=[],e=new Set;for(const i of this.g)e.has(i.provider.group.name)||(e.add(i.provider.group.name),t.push(i.provider));return t}};q=S([A(0,k)],q);class H{constructor(t,e,i,s){if(this.modelNameMatches=null,this.modelIdMatches=null,this.providerMatches=null,this.capabilityMatches=null,!s&&(this.modelNameMatches=t.metadata.name?this.c(e,t.metadata.name,(o,r)=>p(o,r,!0),i):null,this.modelIdMatches=this.c(e,t.metadata.id,v(p,$),i),this.providerMatches=this.c(e,t.provider.group.name,(o,r)=>p(o,r,!0),i),t.metadata.capabilities)){const o=[];t.metadata.capabilities.toolCalling&&o.push("tools","toolCalling"),t.metadata.capabilities.vision&&o.push("vision"),t.metadata.capabilities.agentMode&&o.push("agent","agentMode"),t.metadata.capabilities.editTools&&o.push(...t.metadata.capabilities.editTools);const r=o.join(" ");r&&(this.capabilityMatches=this.c(e,r,v(p,$),i))}}c(t,e,i,s){let o=t?E(t,e):null;return o||(o=this.d(s,e,i)),o&&(o=this.e(o)),o}d(t,e,i){let s=[];for(const o of t){const r=i(o,e);if(r)s=[...s||[],...r];else{s=null;break}}return s}e(t){return P(t,(e=>e.start+"."+e.end)).filter(e=>!t.some(i=>!(i.start===e.start&&i.end===e.end)&&i.start<=e.start&&i.end>=e.end)).sort((e,i)=>e.start-i.start)}}export{B as $iqc,O as $jqc,G as $kqc,Q as $lqc,m as $mqc,D as $nqc,W as $oqc,q as $pqc,N as ChatModelGroup};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { distinct } from "../../../../../base/common/arrays.js";
+import { or, matchesCamelCase, matchesWords, matchesBaseContiguousSubString } from "../../../../../base/common/filters.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { ILanguageModelsService } from "../../../chat/common/languageModels.js";
+import { localize } from "../../../../../nls.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+const MODEL_ENTRY_TEMPLATE_ID = "model.entry.template";
+const VENDOR_ENTRY_TEMPLATE_ID = "vendor.entry.template";
+const GROUP_ENTRY_TEMPLATE_ID = "group.entry.template";
+const wordFilter = or(matchesBaseContiguousSubString, matchesWords);
+const CAPABILITY_REGEX = /@capability:\s*([^\s]+)/gi;
+const VISIBLE_REGEX = /@visible:\s*(true|false)/i;
+const PROVIDER_REGEX = /@provider:\s*((".+?")|([^\s]+))/gi;
+const SEARCH_SUGGESTIONS = {
+  FILTER_TYPES: [
+    "@provider:",
+    "@capability:",
+    "@visible:"
+  ],
+  CAPABILITIES: [
+    "@capability:tools",
+    "@capability:vision",
+    "@capability:agent"
+  ],
+  VISIBILITY: [
+    "@visible:true",
+    "@visible:false"
+  ]
+};
+function isLanguageModelProviderEntry(entry) {
+  return entry.type === "vendor";
+}
+__name(isLanguageModelProviderEntry, "isLanguageModelProviderEntry");
+function isLanguageModelGroupEntry(entry) {
+  return entry.type === "group";
+}
+__name(isLanguageModelGroupEntry, "isLanguageModelGroupEntry");
+function isStatusEntry(entry) {
+  return entry.type === "status";
+}
+__name(isStatusEntry, "isStatusEntry");
+var ChatModelGroup;
+(function(ChatModelGroup2) {
+  ChatModelGroup2["Vendor"] = "vendor";
+  ChatModelGroup2["Visibility"] = "visibility";
+})(ChatModelGroup || (ChatModelGroup = {}));
+let ChatModelsViewModel = class ChatModelsViewModel2 extends Disposable {
+  static {
+    __name(this, "ChatModelsViewModel");
+  }
+  get groupBy() {
+    return this._groupBy;
+  }
+  set groupBy(groupBy) {
+    if (this._groupBy !== groupBy) {
+      this._groupBy = groupBy;
+      this.collapsedGroups.clear();
+      this.languageModelGroups = this.groupModels(this.languageModels);
+      this.doFilter();
+      this._onDidChangeGrouping.fire(groupBy);
+    }
+  }
+  constructor(languageModelsService) {
+    super();
+    this.languageModelsService = languageModelsService;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._onDidChangeGrouping = this._register(new Emitter());
+    this.onDidChangeGrouping = this._onDidChangeGrouping.event;
+    this.languageModelGroupStatuses = [];
+    this.languageModelGroups = [];
+    this.collapsedGroups = /* @__PURE__ */ new Set();
+    this.searchValue = "";
+    this.modelsSorted = false;
+    this._groupBy = "vendor";
+    this._viewModelEntries = [];
+    this.languageModels = [];
+    this._register(this.languageModelsService.onDidChangeLanguageModels((vendor) => this.refreshVendor(vendor)));
+  }
+  get viewModelEntries() {
+    return this._viewModelEntries;
+  }
+  splice(at, removed, added) {
+    this._viewModelEntries.splice(at, removed, ...added);
+    if (this.selectedEntry) {
+      this.selectedEntry = this._viewModelEntries.find((entry) => entry.id === this.selectedEntry?.id);
+    }
+    this._onDidChange.fire({ at, removed, added });
+  }
+  shouldRefilter() {
+    return !this.modelsSorted;
+  }
+  filter(searchValue) {
+    if (searchValue !== this.searchValue) {
+      this.searchValue = searchValue;
+      this.collapsedGroups.clear();
+      if (!this.modelsSorted) {
+        this.languageModelGroups = this.groupModels(this.languageModels);
+      }
+      this.doFilter();
+    }
+    return this.viewModelEntries;
+  }
+  doFilter() {
+    const viewModelEntries = [];
+    const shouldShowGroupHeaders = this.languageModelGroups.length > 1;
+    for (const group of this.languageModelGroups) {
+      if (this.collapsedGroups.has(group.group.id)) {
+        group.group.collapsed = true;
+        if (shouldShowGroupHeaders) {
+          viewModelEntries.push(group.group);
+        }
+        continue;
+      }
+      const groupEntries = [];
+      if (group.status) {
+        groupEntries.push(group.status);
+      }
+      groupEntries.push(...this.filterModels(group.models, this.searchValue));
+      if (groupEntries.length > 0) {
+        group.group.collapsed = false;
+        if (shouldShowGroupHeaders) {
+          viewModelEntries.push(group.group);
+        }
+        viewModelEntries.push(...groupEntries);
+      }
+    }
+    this.splice(0, this._viewModelEntries.length, viewModelEntries);
+  }
+  filterModels(modelEntries, searchValue) {
+    let visible;
+    const visibleMatches = VISIBLE_REGEX.exec(searchValue);
+    if (visibleMatches && visibleMatches[1]) {
+      visible = visibleMatches[1].toLowerCase() === "true";
+      searchValue = searchValue.replace(VISIBLE_REGEX, "");
+    }
+    const providerNames = [];
+    let providerMatch;
+    PROVIDER_REGEX.lastIndex = 0;
+    while ((providerMatch = PROVIDER_REGEX.exec(searchValue)) !== null) {
+      const providerName = providerMatch[2] ? providerMatch[2].substring(1, providerMatch[2].length - 1) : providerMatch[3];
+      providerNames.push(providerName);
+    }
+    if (providerNames.length > 0) {
+      searchValue = searchValue.replace(PROVIDER_REGEX, "");
+    }
+    const capabilities = [];
+    let capabilityMatch;
+    CAPABILITY_REGEX.lastIndex = 0;
+    while ((capabilityMatch = CAPABILITY_REGEX.exec(searchValue)) !== null) {
+      capabilities.push(capabilityMatch[1].toLowerCase());
+    }
+    if (capabilities.length > 0) {
+      searchValue = searchValue.replace(CAPABILITY_REGEX, "");
+    }
+    const quoteAtFirstChar = searchValue.charAt(0) === '"';
+    const quoteAtLastChar = searchValue.charAt(searchValue.length - 1) === '"';
+    const completeMatch = quoteAtFirstChar && quoteAtLastChar;
+    if (quoteAtFirstChar) {
+      searchValue = searchValue.substring(1);
+    }
+    if (quoteAtLastChar) {
+      searchValue = searchValue.substring(0, searchValue.length - 1);
+    }
+    searchValue = searchValue.trim();
+    const result = [];
+    const words = searchValue.split(" ");
+    const lowerProviders = providerNames.map((p) => p.toLowerCase().trim());
+    for (const modelEntry of modelEntries) {
+      if (visible !== void 0) {
+        if (modelEntry.visible !== visible) {
+          continue;
+        }
+      }
+      if (lowerProviders.length > 0) {
+        const matchesProvider = lowerProviders.some((provider) => modelEntry.provider.vendor.vendor.toLowerCase() === provider || modelEntry.provider.vendor.displayName.toLowerCase() === provider);
+        if (!matchesProvider) {
+          continue;
+        }
+      }
+      let matchedCapabilities = [];
+      if (capabilities.length > 0) {
+        if (!modelEntry.metadata.capabilities) {
+          continue;
+        }
+        let matchesAll = true;
+        for (const capability of capabilities) {
+          const matchedForThisCapability = this.getMatchingCapabilities(modelEntry, capability);
+          if (matchedForThisCapability.length === 0) {
+            matchesAll = false;
+            break;
+          }
+          matchedCapabilities.push(...matchedForThisCapability);
+        }
+        if (!matchesAll) {
+          continue;
+        }
+        matchedCapabilities = distinct(matchedCapabilities);
+      }
+      let modelMatches;
+      if (searchValue) {
+        modelMatches = new ModelItemMatches(modelEntry, searchValue, words, completeMatch);
+        if (!modelMatches.modelNameMatches && !modelMatches.modelIdMatches && !modelMatches.providerMatches && !modelMatches.capabilityMatches) {
+          continue;
+        }
+      }
+      const modelId = this.getModelId(modelEntry);
+      result.push({
+        type: "model",
+        id: modelId,
+        templateId: MODEL_ENTRY_TEMPLATE_ID,
+        model: modelEntry,
+        modelNameMatches: modelMatches?.modelNameMatches || void 0,
+        modelIdMatches: modelMatches?.modelIdMatches || void 0,
+        providerMatches: modelMatches?.providerMatches || void 0,
+        capabilityMatches: matchedCapabilities.length ? matchedCapabilities : void 0
+      });
+    }
+    return result;
+  }
+  getMatchingCapabilities(modelEntry, capability) {
+    const matchedCapabilities = [];
+    if (!modelEntry.metadata.capabilities) {
+      return matchedCapabilities;
+    }
+    switch (capability) {
+      case "tools":
+      case "toolcalling":
+        if (modelEntry.metadata.capabilities.toolCalling === true) {
+          matchedCapabilities.push("toolCalling");
+        }
+        break;
+      case "vision":
+        if (modelEntry.metadata.capabilities.vision === true) {
+          matchedCapabilities.push("vision");
+        }
+        break;
+      case "agent":
+      case "agentmode":
+        if (modelEntry.metadata.capabilities.agentMode === true) {
+          matchedCapabilities.push("agentMode");
+        }
+        break;
+      default:
+        if (modelEntry.metadata.capabilities.editTools) {
+          for (const tool of modelEntry.metadata.capabilities.editTools) {
+            if (tool.toLowerCase().includes(capability)) {
+              matchedCapabilities.push(tool);
+            }
+          }
+        }
+        break;
+    }
+    return matchedCapabilities;
+  }
+  groupModels(languageModels) {
+    const result = [];
+    if (this.groupBy === "visibility") {
+      const visible = [], hidden = [];
+      for (const model of languageModels) {
+        if (model.visible) {
+          visible.push(model);
+        } else {
+          hidden.push(model);
+        }
+      }
+      result.push({
+        group: {
+          type: "group",
+          id: "visible",
+          label: localize("visible", "Visible"),
+          templateId: GROUP_ENTRY_TEMPLATE_ID,
+          collapsed: this.collapsedGroups.has("visible")
+        },
+        models: visible
+      });
+      result.push({
+        group: {
+          type: "group",
+          id: "hidden",
+          label: localize("hidden", "Hidden"),
+          templateId: GROUP_ENTRY_TEMPLATE_ID,
+          collapsed: this.collapsedGroups.has("hidden")
+        },
+        models: hidden
+      });
+    } else if (this.groupBy === "vendor") {
+      for (const model of languageModels) {
+        const groupId = this.getProviderGroupId(model.provider.group);
+        let group = result.find((group2) => group2.group.id === groupId);
+        if (!group) {
+          group = {
+            group: this.createLanguageModelProviderEntry(model.provider),
+            models: []
+          };
+          result.push(group);
+        }
+        group.models.push(model);
+      }
+      for (const statusGroup of this.languageModelGroupStatuses) {
+        const groupId = this.getProviderGroupId(statusGroup.provider.group);
+        let group = result.find((group2) => group2.group.id === groupId);
+        if (!group) {
+          group = {
+            group: this.createLanguageModelProviderEntry(statusGroup.provider),
+            models: []
+          };
+          result.push(group);
+        }
+        group.status = {
+          id: `status.${group.group.id}`,
+          type: "status",
+          ...statusGroup.status
+        };
+      }
+      result.sort((a, b) => {
+        if (a.models[0]?.provider.vendor.isDefault) {
+          return -1;
+        }
+        if (b.models[0]?.provider.vendor.isDefault) {
+          return 1;
+        }
+        return a.group.label.localeCompare(b.group.label);
+      });
+    }
+    for (const group of result) {
+      group.models.sort((a, b) => {
+        if (a.provider.vendor.isDefault && b.provider.vendor.isDefault) {
+          return a.metadata.name.localeCompare(b.metadata.name);
+        }
+        if (a.provider.vendor.isDefault) {
+          return -1;
+        }
+        if (b.provider.vendor.isDefault) {
+          return 1;
+        }
+        if (a.provider.group.name === b.provider.group.name) {
+          return a.metadata.name.localeCompare(b.metadata.name);
+        }
+        return a.provider.group.name.localeCompare(b.provider.group.name);
+      });
+    }
+    this.modelsSorted = true;
+    return result;
+  }
+  createLanguageModelProviderEntry(provider) {
+    const id = this.getProviderGroupId(provider.group);
+    return {
+      type: "vendor",
+      id,
+      label: provider.group.name,
+      templateId: VENDOR_ENTRY_TEMPLATE_ID,
+      collapsed: this.collapsedGroups.has(id),
+      vendorEntry: {
+        group: provider.group,
+        vendor: provider.vendor
+      }
+    };
+  }
+  getVendors() {
+    return [...this.languageModelsService.getVendors()].sort((a, b) => {
+      if (a.isDefault) {
+        return -1;
+      }
+      if (b.isDefault) {
+        return 1;
+      }
+      return a.displayName.localeCompare(b.displayName);
+    });
+  }
+  async refresh() {
+    await this.languageModelsService.selectLanguageModels({});
+    await this.refreshAllVendors();
+  }
+  async refreshAllVendors() {
+    this.languageModels = [];
+    this.languageModelGroupStatuses = [];
+    for (const vendor of this.getVendors()) {
+      this.addVendorModels(vendor);
+    }
+    this.languageModelGroups = this.groupModels(this.languageModels);
+    this.doFilter();
+  }
+  refreshVendor(vendorId) {
+    const vendor = this.getVendors().find((v) => v.vendor === vendorId);
+    if (!vendor) {
+      return;
+    }
+    this.languageModels = this.languageModels.filter((m) => m.provider.vendor.vendor !== vendorId);
+    this.languageModelGroupStatuses = this.languageModelGroupStatuses.filter((s) => s.provider.vendor.vendor !== vendorId);
+    this.addVendorModels(vendor);
+    this.languageModelGroups = this.groupModels(this.languageModels);
+    this.doFilter();
+  }
+  addVendorModels(vendor) {
+    const models = [];
+    const languageModelsGroups = this.languageModelsService.getLanguageModelGroups(vendor.vendor);
+    for (const group of languageModelsGroups) {
+      const provider = {
+        group: group.group ?? {
+          vendor: vendor.vendor,
+          name: vendor.displayName
+        },
+        vendor
+      };
+      if (group.status) {
+        this.languageModelGroupStatuses.push({
+          provider,
+          status: {
+            message: group.status.message,
+            severity: group.status.severity
+          }
+        });
+      }
+      for (const identifier of group.modelIdentifiers) {
+        const metadata = this.languageModelsService.lookupLanguageModel(identifier);
+        if (!metadata) {
+          continue;
+        }
+        if (vendor.isDefault && metadata.id === "auto") {
+          continue;
+        }
+        models.push({
+          identifier,
+          metadata,
+          provider,
+          visible: metadata.isUserSelectable ?? false
+        });
+      }
+    }
+    this.languageModels.push(...models.sort((a, b) => a.metadata.name.localeCompare(b.metadata.name)));
+  }
+  toggleVisibility(model) {
+    const newVisibility = !model.model.visible;
+    this.languageModelsService.updateModelPickerPreference(model.model.identifier, newVisibility);
+    const metadata = this.languageModelsService.lookupLanguageModel(model.model.identifier);
+    const index = this.viewModelEntries.indexOf(model);
+    if (metadata && index !== -1) {
+      model.model.visible = newVisibility;
+      model.model.metadata = metadata;
+      model.id = this.getModelId(model.model);
+      if (this.groupBy === "visibility") {
+        this.modelsSorted = false;
+      }
+      this.splice(index, 1, [model]);
+    }
+  }
+  setModelsVisibility(models, visible) {
+    for (const model of models) {
+      this.languageModelsService.updateModelPickerPreference(model.model.identifier, visible);
+      model.model.visible = visible;
+    }
+    this.languageModelGroups = this.groupModels(this.languageModels);
+    this.doFilter();
+  }
+  setGroupVisibility(group, visible) {
+    const models = this.getModelsForGroup(group);
+    for (const model of models) {
+      this.languageModelsService.updateModelPickerPreference(model.identifier, visible);
+      model.visible = visible;
+    }
+    this.languageModelGroups = this.groupModels(this.languageModels);
+    this.doFilter();
+  }
+  getModelsForGroup(group) {
+    if (isLanguageModelProviderEntry(group)) {
+      return this.languageModels.filter((m) => this.getProviderGroupId(m.provider.group) === group.id);
+    } else {
+      return this.languageModels.filter((m) => group.id === "visible" && m.visible || group.id === "hidden" && !m.visible);
+    }
+  }
+  getModelId(modelEntry) {
+    return `${modelEntry.provider.group.name}.${modelEntry.identifier}.${modelEntry.metadata.version}-visible:${modelEntry.visible}`;
+  }
+  getProviderGroupId(group) {
+    return `${group.vendor}-${group.name}`;
+  }
+  toggleCollapsed(viewModelEntry) {
+    const id = isLanguageModelGroupEntry(viewModelEntry) ? viewModelEntry.id : isLanguageModelProviderEntry(viewModelEntry) ? viewModelEntry.id : void 0;
+    if (!id) {
+      return;
+    }
+    this.selectedEntry = viewModelEntry;
+    if (!this.collapsedGroups.delete(id)) {
+      this.collapsedGroups.add(id);
+    }
+    this.doFilter();
+  }
+  collapseAll() {
+    this.collapsedGroups.clear();
+    for (const entry of this.viewModelEntries) {
+      if (isLanguageModelProviderEntry(entry) || isLanguageModelGroupEntry(entry)) {
+        this.collapsedGroups.add(entry.id);
+      }
+    }
+    this.doFilter();
+  }
+  getConfiguredVendors() {
+    const result = [];
+    const seenVendors = /* @__PURE__ */ new Set();
+    for (const modelEntry of this.languageModels) {
+      if (!seenVendors.has(modelEntry.provider.group.name)) {
+        seenVendors.add(modelEntry.provider.group.name);
+        result.push(modelEntry.provider);
+      }
+    }
+    return result;
+  }
+};
+ChatModelsViewModel = __decorate([
+  __param(0, ILanguageModelsService)
+], ChatModelsViewModel);
+class ModelItemMatches {
+  static {
+    __name(this, "ModelItemMatches");
+  }
+  constructor(modelEntry, searchValue, words, completeMatch) {
+    this.modelNameMatches = null;
+    this.modelIdMatches = null;
+    this.providerMatches = null;
+    this.capabilityMatches = null;
+    if (!completeMatch) {
+      this.modelNameMatches = modelEntry.metadata.name ? this.matches(searchValue, modelEntry.metadata.name, (word, wordToMatchAgainst) => matchesWords(word, wordToMatchAgainst, true), words) : null;
+      this.modelIdMatches = this.matches(searchValue, modelEntry.metadata.id, or(matchesWords, matchesCamelCase), words);
+      this.providerMatches = this.matches(searchValue, modelEntry.provider.group.name, (word, wordToMatchAgainst) => matchesWords(word, wordToMatchAgainst, true), words);
+      if (modelEntry.metadata.capabilities) {
+        const capabilityStrings = [];
+        if (modelEntry.metadata.capabilities.toolCalling) {
+          capabilityStrings.push("tools", "toolCalling");
+        }
+        if (modelEntry.metadata.capabilities.vision) {
+          capabilityStrings.push("vision");
+        }
+        if (modelEntry.metadata.capabilities.agentMode) {
+          capabilityStrings.push("agent", "agentMode");
+        }
+        if (modelEntry.metadata.capabilities.editTools) {
+          capabilityStrings.push(...modelEntry.metadata.capabilities.editTools);
+        }
+        const capabilityString = capabilityStrings.join(" ");
+        if (capabilityString) {
+          this.capabilityMatches = this.matches(searchValue, capabilityString, or(matchesWords, matchesCamelCase), words);
+        }
+      }
+    }
+  }
+  matches(searchValue, wordToMatchAgainst, wordMatchesFilter, words) {
+    let matches = searchValue ? wordFilter(searchValue, wordToMatchAgainst) : null;
+    if (!matches) {
+      matches = this.matchesWords(words, wordToMatchAgainst, wordMatchesFilter);
+    }
+    if (matches) {
+      matches = this.filterAndSort(matches);
+    }
+    return matches;
+  }
+  matchesWords(words, wordToMatchAgainst, wordMatchesFilter) {
+    let matches = [];
+    for (const word of words) {
+      const wordMatches = wordMatchesFilter(word, wordToMatchAgainst);
+      if (wordMatches) {
+        matches = [...matches || [], ...wordMatches];
+      } else {
+        matches = null;
+        break;
+      }
+    }
+    return matches;
+  }
+  filterAndSort(matches) {
+    return distinct(matches, ((a) => a.start + "." + a.end)).filter((match) => !matches.some((m) => !(m.start === match.start && m.end === match.end) && (m.start <= match.start && m.end >= match.end))).sort((a, b) => a.start - b.start);
+  }
+}
+export {
+  ChatModelGroup,
+  ChatModelsViewModel,
+  GROUP_ENTRY_TEMPLATE_ID,
+  MODEL_ENTRY_TEMPLATE_ID,
+  SEARCH_SUGGESTIONS,
+  VENDOR_ENTRY_TEMPLATE_ID,
+  isLanguageModelGroupEntry,
+  isLanguageModelProviderEntry,
+  isStatusEntry
+};
+//# sourceMappingURL=chatModelsViewModel.js.map

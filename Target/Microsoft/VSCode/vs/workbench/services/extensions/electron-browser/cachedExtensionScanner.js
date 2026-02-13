@@ -1,1 +1,135 @@
-import*as b from"../../../../base/common/platform.js";import{$s7 as w}from"../common/extensionsUtil.js";import{$QA as P,$TA as d}from"../../../../platform/extensionManagement/common/extensionsScannerService.js";import{$yo as _}from"../../../../platform/log/common/log.js";import E from"../../../../base/common/severity.js";import{localize as m}from"../../../../nls.js";import{$pH as D}from"../../../../platform/notification/common/notification.js";import{$gcb as S}from"../../host/browser/host.js";import{$0h as R}from"../../../../base/common/async.js";import{$LQ as A}from"../../userDataProfile/common/userDataProfile.js";import{$yb as x}from"../../../../base/common/errors.js";import{$TZ as C}from"../../extensionManagement/common/extensionManagement.js";import{$VR as U}from"../common/extensions.js";import{$HP as W}from"../../environment/common/environmentService.js";var y=function(h,e,t,r){var o=arguments.length,s=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,e,t,r);else for(var a=h.length-1;a>=0;a--)(i=h[a])&&(s=(o<3?i(s):o>3?i(e,t,s):i(e,t))||s);return o>3&&s&&Object.defineProperty(e,t,s),s},f=function(h,e){return function(t,r){e(t,r,h)}};let v=class{constructor(e,t,r,o,s,i,a){this.c=e,this.d=t,this.f=r,this.g=o,this.h=s,this.i=i,this.j=a,this.scannedExtensions=new Promise((p,u)=>{this.a=p,this.b=u})}async startScanningExtensions(){try{const e=await this.k();this.a(e)}catch(e){this.b(e)}}async k(){try{const e=b.$A,t=await Promise.allSettled([this.f.scanSystemExtensions({language:e,checkControlFile:!0}),this.f.scanUserExtensions({language:e,profileLocation:this.g.currentProfile.extensionsResource,useCache:!0}),this.i.remoteAuthority?[]:this.h.getInstalledWorkspaceExtensions(!1)]);let r=!1,o=[];t[0].status==="fulfilled"?o=t[0].value:(r=!0,this.j.error("Error scanning system extensions:",x(t[0].reason)));let s=[];t[1].status==="fulfilled"?s=t[1].value:(r=!0,this.j.error("Error scanning user extensions:",x(t[1].reason)));let i=[];t[2].status==="fulfilled"?i=t[2].value:(r=!0,this.j.error("Error scanning workspace extensions:",x(t[2].reason)));const a=[];try{const n=await this.f.scanExtensionsUnderDevelopment([...o,...s],{language:e,includeInvalid:!0}),l=[];for(const c of n)c.isValid?a.push(c):l.push(c);l.length>0&&this.c.prompt(E.Warning,l.length===1?m(16237,null,l[0].location.fsPath,l[0].validations[0][1]):m(16238,null,l.map(c=>`'${c.location.fsPath}'`).join(", "),l.map(c=>`${c.validations[0][1]}`).join(", ")),[])}catch(n){this.j.error(n)}const p=o.map(n=>d(n,!1)),u=s.map(n=>d(n,!1)),$=i.map(n=>U(n,!1)),g=a.map(n=>d(n,!0)),j=w(p,u,$,g,this.j);if(!r){const n=this.f.onDidChangeCache(()=>{n.dispose(),this.c.prompt(E.Error,m(16239,null),[{label:m(16240,null),run:()=>this.d.reload()}])});R(5e3).then(()=>n.dispose())}return j}catch(e){return this.j.error("Error scanning installed extensions:"),this.j.error(e),[]}}};v=y([f(0,D),f(1,S),f(2,P),f(3,A),f(4,C),f(5,W),f(6,_)],v);export{v as $lWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as platform from "../../../../base/common/platform.js";
+import { dedupExtensions } from "../common/extensionsUtil.js";
+import { IExtensionsScannerService, toExtensionDescription as toExtensionDescriptionFromScannedExtension } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import Severity from "../../../../base/common/severity.js";
+import { localize } from "../../../../nls.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IHostService } from "../../host/browser/host.js";
+import { timeout } from "../../../../base/common/async.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { getErrorMessage } from "../../../../base/common/errors.js";
+import { IWorkbenchExtensionManagementService } from "../../extensionManagement/common/extensionManagement.js";
+import { toExtensionDescription } from "../common/extensions.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+let CachedExtensionScanner = class CachedExtensionScanner2 {
+  static {
+    __name(this, "CachedExtensionScanner");
+  }
+  constructor(_notificationService, _hostService, _extensionsScannerService, _userDataProfileService, _extensionManagementService, _environmentService, _logService) {
+    this._notificationService = _notificationService;
+    this._hostService = _hostService;
+    this._extensionsScannerService = _extensionsScannerService;
+    this._userDataProfileService = _userDataProfileService;
+    this._extensionManagementService = _extensionManagementService;
+    this._environmentService = _environmentService;
+    this._logService = _logService;
+    this.scannedExtensions = new Promise((resolve, reject) => {
+      this._scannedExtensionsResolve = resolve;
+      this._scannedExtensionsReject = reject;
+    });
+  }
+  async startScanningExtensions() {
+    try {
+      const extensions = await this._scanInstalledExtensions();
+      this._scannedExtensionsResolve(extensions);
+    } catch (err) {
+      this._scannedExtensionsReject(err);
+    }
+  }
+  async _scanInstalledExtensions() {
+    try {
+      const language = platform.language;
+      const result = await Promise.allSettled([
+        this._extensionsScannerService.scanSystemExtensions({ language, checkControlFile: true }),
+        this._extensionsScannerService.scanUserExtensions({ language, profileLocation: this._userDataProfileService.currentProfile.extensionsResource, useCache: true }),
+        this._environmentService.remoteAuthority ? [] : this._extensionManagementService.getInstalledWorkspaceExtensions(false)
+      ]);
+      let hasErrors = false;
+      let scannedSystemExtensions = [];
+      if (result[0].status === "fulfilled") {
+        scannedSystemExtensions = result[0].value;
+      } else {
+        hasErrors = true;
+        this._logService.error(`Error scanning system extensions:`, getErrorMessage(result[0].reason));
+      }
+      let scannedUserExtensions = [];
+      if (result[1].status === "fulfilled") {
+        scannedUserExtensions = result[1].value;
+      } else {
+        hasErrors = true;
+        this._logService.error(`Error scanning user extensions:`, getErrorMessage(result[1].reason));
+      }
+      let workspaceExtensions = [];
+      if (result[2].status === "fulfilled") {
+        workspaceExtensions = result[2].value;
+      } else {
+        hasErrors = true;
+        this._logService.error(`Error scanning workspace extensions:`, getErrorMessage(result[2].reason));
+      }
+      const scannedDevelopedExtensions = [];
+      try {
+        const allScannedDevelopedExtensions = await this._extensionsScannerService.scanExtensionsUnderDevelopment([...scannedSystemExtensions, ...scannedUserExtensions], { language, includeInvalid: true });
+        const invalidExtensions = [];
+        for (const extensionUnderDevelopment of allScannedDevelopedExtensions) {
+          if (extensionUnderDevelopment.isValid) {
+            scannedDevelopedExtensions.push(extensionUnderDevelopment);
+          } else {
+            invalidExtensions.push(extensionUnderDevelopment);
+          }
+        }
+        if (invalidExtensions.length > 0) {
+          this._notificationService.prompt(Severity.Warning, invalidExtensions.length === 1 ? localize("extensionUnderDevelopment.invalid", "Failed loading extension '{0}' under development because it is invalid: {1}", invalidExtensions[0].location.fsPath, invalidExtensions[0].validations[0][1]) : localize("extensionsUnderDevelopment.invalid", "Failed loading extensions {0} under development because they are invalid: {1}", invalidExtensions.map((ext) => `'${ext.location.fsPath}'`).join(", "), invalidExtensions.map((ext) => `${ext.validations[0][1]}`).join(", ")), []);
+        }
+      } catch (error) {
+        this._logService.error(error);
+      }
+      const system = scannedSystemExtensions.map((e) => toExtensionDescriptionFromScannedExtension(e, false));
+      const user = scannedUserExtensions.map((e) => toExtensionDescriptionFromScannedExtension(e, false));
+      const workspace = workspaceExtensions.map((e) => toExtensionDescription(e, false));
+      const development = scannedDevelopedExtensions.map((e) => toExtensionDescriptionFromScannedExtension(e, true));
+      const r = dedupExtensions(system, user, workspace, development, this._logService);
+      if (!hasErrors) {
+        const disposable = this._extensionsScannerService.onDidChangeCache(() => {
+          disposable.dispose();
+          this._notificationService.prompt(Severity.Error, localize("extensionCache.invalid", "Extensions have been modified on disk. Please reload the window."), [{
+            label: localize("reloadWindow", "Reload Window"),
+            run: /* @__PURE__ */ __name(() => this._hostService.reload(), "run")
+          }]);
+        });
+        timeout(5e3).then(() => disposable.dispose());
+      }
+      return r;
+    } catch (err) {
+      this._logService.error(`Error scanning installed extensions:`);
+      this._logService.error(err);
+      return [];
+    }
+  }
+};
+CachedExtensionScanner = __decorate([
+  __param(0, INotificationService),
+  __param(1, IHostService),
+  __param(2, IExtensionsScannerService),
+  __param(3, IUserDataProfileService),
+  __param(4, IWorkbenchExtensionManagementService),
+  __param(5, IWorkbenchEnvironmentService),
+  __param(6, ILogService)
+], CachedExtensionScanner);
+export {
+  CachedExtensionScanner
+};
+//# sourceMappingURL=cachedExtensionScanner.js.map

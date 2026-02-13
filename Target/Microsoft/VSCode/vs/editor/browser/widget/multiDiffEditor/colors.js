@@ -1,1 +1,11 @@
-import{localize as c}from"../../../../nls.js";import{$2p as r,$Jq as i}from"../../../../platform/theme/common/colorRegistry.js";const a=r("multiDiffEditor.headerBackground",{dark:"#262626",light:"tab.inactiveBackground",hcDark:"tab.inactiveBackground",hcLight:"tab.inactiveBackground"},c(259,null)),e=r("multiDiffEditor.background",i,c(260,null)),d=r("multiDiffEditor.border",{dark:"sideBarSectionHeader.border",light:"#cccccc",hcDark:"sideBarSectionHeader.border",hcLight:"#cccccc"},c(261,null));export{a as $5Ob,e as $6Ob,d as $7Ob};
+import { localize } from "../../../../nls.js";
+import { registerColor, editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
+const multiDiffEditorHeaderBackground = registerColor("multiDiffEditor.headerBackground", { dark: "#262626", light: "tab.inactiveBackground", hcDark: "tab.inactiveBackground", hcLight: "tab.inactiveBackground" }, localize("multiDiffEditor.headerBackground", "The background color of the diff editor's header"));
+const multiDiffEditorBackground = registerColor("multiDiffEditor.background", editorBackground, localize("multiDiffEditor.background", "The background color of the multi file diff editor"));
+const multiDiffEditorBorder = registerColor("multiDiffEditor.border", { dark: "sideBarSectionHeader.border", light: "#cccccc", hcDark: "sideBarSectionHeader.border", hcLight: "#cccccc" }, localize("multiDiffEditor.border", "The border color of the multi file diff editor"));
+export {
+  multiDiffEditorBackground,
+  multiDiffEditorBorder,
+  multiDiffEditorHeaderBackground
+};
+//# sourceMappingURL=colors.js.map

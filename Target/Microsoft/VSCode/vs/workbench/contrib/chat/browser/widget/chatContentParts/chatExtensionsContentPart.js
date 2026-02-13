@@ -1,1 +1,67 @@
-import"./media/chatExtensionsContent.css";import*as i from"../../../../../../base/browser/dom.js";import{Event as f}from"../../../../../../base/common/event.js";import{$Ed as u}from"../../../../../../base/common/lifecycle.js";import{$Mj as h}from"../../../../../../platform/instantiation/common/instantiation.js";import{$y2b as $,$C2b as b}from"../../../../extensions/browser/extensionsViewer.js";import{$wJb as x}from"../../../../extensions/common/extensions.js";import{$24b as g}from"../../chat.js";import{$xz as y}from"../../../../../../base/common/paging.js";import{$bk as _}from"../../../../../../base/common/codicons.js";import{ThemeIcon as c}from"../../../../../../base/common/themables.js";import{localize as v}from"../../../../../../nls.js";var p=function(l,e,t,n){var s=arguments.length,o=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(l,e,t,n);else for(var m=l.length-1;m>=0;m--)(r=l[m])&&(o=(s<3?r(o):s>3?r(e,t,o):r(e,t))||o);return s>3&&o&&Object.defineProperty(e,t,o),o},a=function(l,e){return function(t,n){e(t,n,l)}};let d=class extends u{get codeblocks(){return[]}get codeblocksPartId(){}constructor(e,t,n){super(),this.a=e,this.domNode=i.$(".chat-extensions-content-part");const s=i.$y9(this.domNode,i.$(".loading-extensions-element"));i.$y9(s,i.$(c.asCSSSelector(c.modify(_.loading,"spin"))),i.$("span.loading-message",void 0,v(6454,null)));const o=i.$y9(this.domNode,i.$(".extensions-list")),r=this.D(n.createInstance($,o,g,{alwaysConsumeMouseWheel:!1},{onFocus:f.None,onBlur:f.None,filters:{}}));b(e.extensions,t).then(m=>{s.remove(),!this.B.isDisposed&&(r.setModel(new y(m)),r.layout())})}hasSameContent(e,t,n){return e.kind==="extensions"&&e.extensions.length===this.a.extensions.length&&e.extensions.every(s=>this.a.extensions.includes(s))}addDisposable(e){this.D(e)}};d=p([a(1,x),a(2,h)],d);export{d as $D2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/chatExtensionsContent.css";
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ExtensionsList, getExtensions } from "../../../../extensions/browser/extensionsViewer.js";
+import { IExtensionsWorkbenchService } from "../../../../extensions/common/extensions.js";
+import { ChatViewId } from "../../chat.js";
+import { PagedModel } from "../../../../../../base/common/paging.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../nls.js";
+let ChatExtensionsContentPart = class ChatExtensionsContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatExtensionsContentPart");
+  }
+  get codeblocks() {
+    return [];
+  }
+  get codeblocksPartId() {
+    return void 0;
+  }
+  constructor(extensionsContent, extensionsWorkbenchService, instantiationService) {
+    super();
+    this.extensionsContent = extensionsContent;
+    this.domNode = dom.$(".chat-extensions-content-part");
+    const loadingElement = dom.append(this.domNode, dom.$(".loading-extensions-element"));
+    dom.append(loadingElement, dom.$(ThemeIcon.asCSSSelector(ThemeIcon.modify(Codicon.loading, "spin"))), dom.$("span.loading-message", void 0, localize("chat.extensions.loading", "Loading extensions...")));
+    const extensionsList = dom.append(this.domNode, dom.$(".extensions-list"));
+    const list = this._register(instantiationService.createInstance(ExtensionsList, extensionsList, ChatViewId, { alwaysConsumeMouseWheel: false }, { onFocus: Event.None, onBlur: Event.None, filters: {} }));
+    getExtensions(extensionsContent.extensions, extensionsWorkbenchService).then((extensions) => {
+      loadingElement.remove();
+      if (this._store.isDisposed) {
+        return;
+      }
+      list.setModel(new PagedModel(extensions));
+      list.layout();
+    });
+  }
+  hasSameContent(other, followingContent, element) {
+    return other.kind === "extensions" && other.extensions.length === this.extensionsContent.extensions.length && other.extensions.every((ext) => this.extensionsContent.extensions.includes(ext));
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatExtensionsContentPart = __decorate([
+  __param(1, IExtensionsWorkbenchService),
+  __param(2, IInstantiationService)
+], ChatExtensionsContentPart);
+export {
+  ChatExtensionsContentPart
+};
+//# sourceMappingURL=chatExtensionsContentPart.js.map

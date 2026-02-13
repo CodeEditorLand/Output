@@ -1,1 +1,26 @@
-function a(f,s){const o=f.start,r=f.endExclusive;let t=Number.MAX_VALUE,e=0;for(const n of s){const i=e+n.width,c=Math.max(o,e),h=Math.min(r,i);c<h&&(t=Math.min(t,n.height)),e=i}return r>e||t===Number.MAX_VALUE?0:t}export{a as $Btb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function getMaxTowerHeightInAvailableArea(towerHorizontalRange, availableTowerAreas) {
+  const towerLeftOffset = towerHorizontalRange.start;
+  const towerRightOffset = towerHorizontalRange.endExclusive;
+  let minHeight = Number.MAX_VALUE;
+  let currentLeftOffset = 0;
+  for (const availableArea of availableTowerAreas) {
+    const currentRightOffset = currentLeftOffset + availableArea.width;
+    const overlapLeft = Math.max(towerLeftOffset, currentLeftOffset);
+    const overlapRight = Math.min(towerRightOffset, currentRightOffset);
+    if (overlapLeft < overlapRight) {
+      minHeight = Math.min(minHeight, availableArea.height);
+    }
+    currentLeftOffset = currentRightOffset;
+  }
+  if (towerRightOffset > currentLeftOffset) {
+    return 0;
+  }
+  return minHeight === Number.MAX_VALUE ? 0 : minHeight;
+}
+__name(getMaxTowerHeightInAvailableArea, "getMaxTowerHeightInAvailableArea");
+export {
+  getMaxTowerHeightInAvailableArea
+};
+//# sourceMappingURL=towersLayout.js.map

@@ -1,1 +1,351 @@
-import{$Ch as z,$Ih as A}from"../../../base/common/resources.js";import i from"../../../base/common/severity.js";import*as o from"../../../nls.js";import*as $ from"../../../base/common/semver/semver.js";import{$Qz as N}from"./extensions.js";import{allApiProposals as P}from"./extensionsApiProposals.js";const j=/^(\^|>=)?((\d+)|x)\.((\d+)|x)\.((\d+)|x)(\-.*)?$/,w=/^-(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?$/;function R(l){return l=l.trim(),l==="*"||j.test(l)}function g(l){if(!R(l))return null;if(l=l.trim(),l==="*")return{hasCaret:!1,hasGreaterEquals:!1,majorBase:0,majorMustEqual:!1,minorBase:0,minorMustEqual:!1,patchBase:0,patchMustEqual:!1,preRelease:null};const t=l.match(j);return t?{hasCaret:t[1]==="^",hasGreaterEquals:t[1]===">=",majorBase:t[2]==="x"?0:parseInt(t[2],10),majorMustEqual:t[2]!=="x",minorBase:t[4]==="x"?0:parseInt(t[4],10),minorMustEqual:t[4]!=="x",patchBase:t[6]==="x"?0:parseInt(t[6],10),patchMustEqual:t[6]!=="x",preRelease:t[8]||null}:null}function q(l){if(!l)return null;const t=l.majorBase,u=l.majorMustEqual,e=l.minorBase;let a=l.minorMustEqual;const n=l.patchBase;let r=l.patchMustEqual;l.hasCaret&&(t===0||(a=!1),r=!1);let f=0;if(l.preRelease){const c=w.exec(l.preRelease);if(c){const[,s,p,m,d,h]=c;f=Date.UTC(Number(s),Number(p)-1,Number(m),Number(d)||0,Number(h)||0)}}return{majorBase:t,majorMustEqual:u,minorBase:e,minorMustEqual:a,patchBase:n,patchMustEqual:r,isMinimum:l.hasGreaterEquals,notBefore:f}}function v(l,t,u){let e;typeof l=="string"?e=q(g(l)):e=l;let a;t instanceof Date?a=t.getTime():typeof t=="string"&&(a=new Date(t).getTime());let n;if(typeof u=="string"?n=q(g(u)):n=u,!e||!n)return!1;const r=e.majorBase,f=e.minorBase,c=e.patchBase;let s=n.majorBase,p=n.minorBase,m=n.patchBase;const d=n.notBefore;let h=n.majorMustEqual,E=n.minorMustEqual,y=n.patchMustEqual;return n.isMinimum?r>s?!0:r<s?!1:f>p?!0:f<p||a&&a<d?!1:c>=m:(r===1&&s===0&&(!h||!E||!y)&&(s=1,p=0,m=0,h=!0,E=!1,y=!1),r<s?!1:r>s?!h:f<p?!1:f>p?!E:c<m?!1:c>m?!y:!(a&&a<d))}function K(l,t,u,e,a,n){const r=[];if(typeof e.publisher<"u"&&typeof e.publisher!="string")return r.push([i.Error,o.localize(2056,null)]),r;if(typeof e.name!="string")return r.push([i.Error,o.localize(2057,null,"name")]),r;if(typeof e.version!="string")return r.push([i.Error,o.localize(2058,null,"version")]),r;if(!e.engines)return r.push([i.Error,o.localize(2059,null,"engines")]),r;if(typeof e.engines.vscode!="string")return r.push([i.Error,o.localize(2060,null,"engines.vscode")]),r;if(typeof e.extensionDependencies<"u"&&!B(e.extensionDependencies))return r.push([i.Error,o.localize(2061,null,"extensionDependencies")]),r;if(typeof e.extensionAffinity<"u"&&!B(e.extensionAffinity))return r.push([i.Error,o.localize(2062,null,"extensionAffinity")]),r;if(typeof e.activationEvents<"u"){if(!B(e.activationEvents))return r.push([i.Error,o.localize(2063,null,"activationEvents")]),r;if(typeof e.main>"u"&&typeof e.browser>"u")return r.push([i.Error,o.localize(2064,null,"activationEvents","main","browser")]),r}if(typeof e.extensionKind<"u"&&typeof e.main>"u"&&r.push([i.Warning,o.localize(2065,null,"extensionKind")]),typeof e.main<"u"){if(typeof e.main!="string")return r.push([i.Error,o.localize(2066,null,"main")]),r;{const s=A(u,e.main);z(s,u)||r.push([i.Warning,o.localize(2067,null,s.path,u.path)])}}if(typeof e.browser<"u"){if(typeof e.browser!="string")return r.push([i.Error,o.localize(2068,null,"browser")]),r;{const s=A(u,e.browser);z(s,u)||r.push([i.Warning,o.localize(2069,null,s.path,u.path)])}}if(!$.valid(e.version))return r.push([i.Error,o.localize(2070,null)]),r;const f=[];if(!I(l,t,e,a,f))for(const s of f)r.push([i.Error,s]);if(n&&e.enabledApiProposals?.length){const s=[];if(!C([...e.enabledApiProposals],s))for(const p of s)r.push([i.Error,p])}return r}function I(l,t,u,e,a){return e||typeof u.main>"u"&&typeof u.browser>"u"?!0:b(l,t,u.engines.vscode,a)}function S(l,t,u){return l==="*"||b(t,u,l)}function C(l,t){if(l.length===0)return!0;const u=Array.isArray(t)?t:void 0,e=(Array.isArray(t)?void 0:t)??P,a=[],n=N(l);for(const{proposalName:r,version:f}of n){if(!f)continue;e[r]?.version!==f&&a.push(r)}return a.length?(u&&(a.length===1?u.push(o.localize(2071,null,a[0])):u.push(o.localize(2072,null,a.slice(0,a.length-1).map(r=>`'${r}'`).join(", "),a[a.length-1]))),!1):!0}function b(l,t,u,e=[]){const a=q(g(u));if(!a)return e.push(o.localize(2073,null,u)),!1;if(a.majorBase===0){if(!a.majorMustEqual||!a.minorMustEqual)return e.push(o.localize(2074,null,u)),!1}else if(!a.majorMustEqual)return e.push(o.localize(2075,null,u)),!1;return v(l,t,a)?!0:(e.push(o.localize(2076,null,l,u)),!1)}function B(l){if(!Array.isArray(l))return!1;for(let t=0,u=l.length;t<u;t++)if(typeof l[t]!="string")return!1;return!0}export{R as $HA,g as $IA,q as $JA,v as $KA,K as $LA,I as $MA,S as $NA,C as $OA};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isEqualOrParent, joinPath } from "../../../base/common/resources.js";
+import Severity from "../../../base/common/severity.js";
+import * as nls from "../../../nls.js";
+import * as semver from "../../../base/common/semver/semver.js";
+import { parseApiProposals } from "./extensions.js";
+import { allApiProposals } from "./extensionsApiProposals.js";
+const VERSION_REGEXP = /^(\^|>=)?((\d+)|x)\.((\d+)|x)\.((\d+)|x)(\-.*)?$/;
+const NOT_BEFORE_REGEXP = /^-(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?$/;
+function isValidVersionStr(version) {
+  version = version.trim();
+  return version === "*" || VERSION_REGEXP.test(version);
+}
+__name(isValidVersionStr, "isValidVersionStr");
+function parseVersion(version) {
+  if (!isValidVersionStr(version)) {
+    return null;
+  }
+  version = version.trim();
+  if (version === "*") {
+    return {
+      hasCaret: false,
+      hasGreaterEquals: false,
+      majorBase: 0,
+      majorMustEqual: false,
+      minorBase: 0,
+      minorMustEqual: false,
+      patchBase: 0,
+      patchMustEqual: false,
+      preRelease: null
+    };
+  }
+  const m = version.match(VERSION_REGEXP);
+  if (!m) {
+    return null;
+  }
+  return {
+    hasCaret: m[1] === "^",
+    hasGreaterEquals: m[1] === ">=",
+    majorBase: m[2] === "x" ? 0 : parseInt(m[2], 10),
+    majorMustEqual: m[2] === "x" ? false : true,
+    minorBase: m[4] === "x" ? 0 : parseInt(m[4], 10),
+    minorMustEqual: m[4] === "x" ? false : true,
+    patchBase: m[6] === "x" ? 0 : parseInt(m[6], 10),
+    patchMustEqual: m[6] === "x" ? false : true,
+    preRelease: m[8] || null
+  };
+}
+__name(parseVersion, "parseVersion");
+function normalizeVersion(version) {
+  if (!version) {
+    return null;
+  }
+  const majorBase = version.majorBase;
+  const majorMustEqual = version.majorMustEqual;
+  const minorBase = version.minorBase;
+  let minorMustEqual = version.minorMustEqual;
+  const patchBase = version.patchBase;
+  let patchMustEqual = version.patchMustEqual;
+  if (version.hasCaret) {
+    if (majorBase === 0) {
+      patchMustEqual = false;
+    } else {
+      minorMustEqual = false;
+      patchMustEqual = false;
+    }
+  }
+  let notBefore = 0;
+  if (version.preRelease) {
+    const match = NOT_BEFORE_REGEXP.exec(version.preRelease);
+    if (match) {
+      const [, year, month, day, hours, minutes] = match;
+      notBefore = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hours) || 0, Number(minutes) || 0);
+    }
+  }
+  return {
+    majorBase,
+    majorMustEqual,
+    minorBase,
+    minorMustEqual,
+    patchBase,
+    patchMustEqual,
+    isMinimum: version.hasGreaterEquals,
+    notBefore
+  };
+}
+__name(normalizeVersion, "normalizeVersion");
+function isValidVersion(_inputVersion, _inputDate, _desiredVersion) {
+  let version;
+  if (typeof _inputVersion === "string") {
+    version = normalizeVersion(parseVersion(_inputVersion));
+  } else {
+    version = _inputVersion;
+  }
+  let productTs;
+  if (_inputDate instanceof Date) {
+    productTs = _inputDate.getTime();
+  } else if (typeof _inputDate === "string") {
+    productTs = new Date(_inputDate).getTime();
+  }
+  let desiredVersion;
+  if (typeof _desiredVersion === "string") {
+    desiredVersion = normalizeVersion(parseVersion(_desiredVersion));
+  } else {
+    desiredVersion = _desiredVersion;
+  }
+  if (!version || !desiredVersion) {
+    return false;
+  }
+  const majorBase = version.majorBase;
+  const minorBase = version.minorBase;
+  const patchBase = version.patchBase;
+  let desiredMajorBase = desiredVersion.majorBase;
+  let desiredMinorBase = desiredVersion.minorBase;
+  let desiredPatchBase = desiredVersion.patchBase;
+  const desiredNotBefore = desiredVersion.notBefore;
+  let majorMustEqual = desiredVersion.majorMustEqual;
+  let minorMustEqual = desiredVersion.minorMustEqual;
+  let patchMustEqual = desiredVersion.patchMustEqual;
+  if (desiredVersion.isMinimum) {
+    if (majorBase > desiredMajorBase) {
+      return true;
+    }
+    if (majorBase < desiredMajorBase) {
+      return false;
+    }
+    if (minorBase > desiredMinorBase) {
+      return true;
+    }
+    if (minorBase < desiredMinorBase) {
+      return false;
+    }
+    if (productTs && productTs < desiredNotBefore) {
+      return false;
+    }
+    return patchBase >= desiredPatchBase;
+  }
+  if (majorBase === 1 && desiredMajorBase === 0 && (!majorMustEqual || !minorMustEqual || !patchMustEqual)) {
+    desiredMajorBase = 1;
+    desiredMinorBase = 0;
+    desiredPatchBase = 0;
+    majorMustEqual = true;
+    minorMustEqual = false;
+    patchMustEqual = false;
+  }
+  if (majorBase < desiredMajorBase) {
+    return false;
+  }
+  if (majorBase > desiredMajorBase) {
+    return !majorMustEqual;
+  }
+  if (minorBase < desiredMinorBase) {
+    return false;
+  }
+  if (minorBase > desiredMinorBase) {
+    return !minorMustEqual;
+  }
+  if (patchBase < desiredPatchBase) {
+    return false;
+  }
+  if (patchBase > desiredPatchBase) {
+    return !patchMustEqual;
+  }
+  if (productTs && productTs < desiredNotBefore) {
+    return false;
+  }
+  return true;
+}
+__name(isValidVersion, "isValidVersion");
+function validateExtensionManifest(productVersion, productDate, extensionLocation, extensionManifest, extensionIsBuiltin, validateApiVersion) {
+  const validations = [];
+  if (typeof extensionManifest.publisher !== "undefined" && typeof extensionManifest.publisher !== "string") {
+    validations.push([Severity.Error, nls.localize("extensionDescription.publisher", "property publisher must be of type `string`.")]);
+    return validations;
+  }
+  if (typeof extensionManifest.name !== "string") {
+    validations.push([Severity.Error, nls.localize("extensionDescription.name", "property `{0}` is mandatory and must be of type `string`", "name")]);
+    return validations;
+  }
+  if (typeof extensionManifest.version !== "string") {
+    validations.push([Severity.Error, nls.localize("extensionDescription.version", "property `{0}` is mandatory and must be of type `string`", "version")]);
+    return validations;
+  }
+  if (!extensionManifest.engines) {
+    validations.push([Severity.Error, nls.localize("extensionDescription.engines", "property `{0}` is mandatory and must be of type `object`", "engines")]);
+    return validations;
+  }
+  if (typeof extensionManifest.engines.vscode !== "string") {
+    validations.push([Severity.Error, nls.localize("extensionDescription.engines.vscode", "property `{0}` is mandatory and must be of type `string`", "engines.vscode")]);
+    return validations;
+  }
+  if (typeof extensionManifest.extensionDependencies !== "undefined") {
+    if (!isStringArray(extensionManifest.extensionDependencies)) {
+      validations.push([Severity.Error, nls.localize("extensionDescription.extensionDependencies", "property `{0}` can be omitted or must be of type `string[]`", "extensionDependencies")]);
+      return validations;
+    }
+  }
+  if (typeof extensionManifest.extensionAffinity !== "undefined") {
+    if (!isStringArray(extensionManifest.extensionAffinity)) {
+      validations.push([Severity.Error, nls.localize("extensionDescription.extensionAffinity", "property `{0}` can be omitted or must be of type `string[]`", "extensionAffinity")]);
+      return validations;
+    }
+  }
+  if (typeof extensionManifest.activationEvents !== "undefined") {
+    if (!isStringArray(extensionManifest.activationEvents)) {
+      validations.push([Severity.Error, nls.localize("extensionDescription.activationEvents1", "property `{0}` can be omitted or must be of type `string[]`", "activationEvents")]);
+      return validations;
+    }
+    if (typeof extensionManifest.main === "undefined" && typeof extensionManifest.browser === "undefined") {
+      validations.push([Severity.Error, nls.localize("extensionDescription.activationEvents2", "property `{0}` should be omitted if the extension doesn't have a `{1}` or `{2}` property.", "activationEvents", "main", "browser")]);
+      return validations;
+    }
+  }
+  if (typeof extensionManifest.extensionKind !== "undefined") {
+    if (typeof extensionManifest.main === "undefined") {
+      validations.push([Severity.Warning, nls.localize("extensionDescription.extensionKind", "property `{0}` can be defined only if property `main` is also defined.", "extensionKind")]);
+    }
+  }
+  if (typeof extensionManifest.main !== "undefined") {
+    if (typeof extensionManifest.main !== "string") {
+      validations.push([Severity.Error, nls.localize("extensionDescription.main1", "property `{0}` can be omitted or must be of type `string`", "main")]);
+      return validations;
+    } else {
+      const mainLocation = joinPath(extensionLocation, extensionManifest.main);
+      if (!isEqualOrParent(mainLocation, extensionLocation)) {
+        validations.push([Severity.Warning, nls.localize("extensionDescription.main2", "Expected `main` ({0}) to be included inside extension's folder ({1}). This might make the extension non-portable.", mainLocation.path, extensionLocation.path)]);
+      }
+    }
+  }
+  if (typeof extensionManifest.browser !== "undefined") {
+    if (typeof extensionManifest.browser !== "string") {
+      validations.push([Severity.Error, nls.localize("extensionDescription.browser1", "property `{0}` can be omitted or must be of type `string`", "browser")]);
+      return validations;
+    } else {
+      const browserLocation = joinPath(extensionLocation, extensionManifest.browser);
+      if (!isEqualOrParent(browserLocation, extensionLocation)) {
+        validations.push([Severity.Warning, nls.localize("extensionDescription.browser2", "Expected `browser` ({0}) to be included inside extension's folder ({1}). This might make the extension non-portable.", browserLocation.path, extensionLocation.path)]);
+      }
+    }
+  }
+  if (!semver.valid(extensionManifest.version)) {
+    validations.push([Severity.Error, nls.localize("notSemver", "Extension version is not semver compatible.")]);
+    return validations;
+  }
+  const notices = [];
+  const validExtensionVersion = isValidExtensionVersion(productVersion, productDate, extensionManifest, extensionIsBuiltin, notices);
+  if (!validExtensionVersion) {
+    for (const notice of notices) {
+      validations.push([Severity.Error, notice]);
+    }
+  }
+  if (validateApiVersion && extensionManifest.enabledApiProposals?.length) {
+    const incompatibleNotices = [];
+    if (!areApiProposalsCompatible([...extensionManifest.enabledApiProposals], incompatibleNotices)) {
+      for (const notice of incompatibleNotices) {
+        validations.push([Severity.Error, notice]);
+      }
+    }
+  }
+  return validations;
+}
+__name(validateExtensionManifest, "validateExtensionManifest");
+function isValidExtensionVersion(productVersion, productDate, extensionManifest, extensionIsBuiltin, notices) {
+  if (extensionIsBuiltin || typeof extensionManifest.main === "undefined" && typeof extensionManifest.browser === "undefined") {
+    return true;
+  }
+  return isVersionValid(productVersion, productDate, extensionManifest.engines.vscode, notices);
+}
+__name(isValidExtensionVersion, "isValidExtensionVersion");
+function isEngineValid(engine, version, date) {
+  return engine === "*" || isVersionValid(version, date, engine);
+}
+__name(isEngineValid, "isEngineValid");
+function areApiProposalsCompatible(apiProposals, arg1) {
+  if (apiProposals.length === 0) {
+    return true;
+  }
+  const notices = Array.isArray(arg1) ? arg1 : void 0;
+  const productApiProposals = (Array.isArray(arg1) ? void 0 : arg1) ?? allApiProposals;
+  const incompatibleProposals = [];
+  const parsedProposals = parseApiProposals(apiProposals);
+  for (const { proposalName, version } of parsedProposals) {
+    if (!version) {
+      continue;
+    }
+    const existingProposal = productApiProposals[proposalName];
+    if (existingProposal?.version !== version) {
+      incompatibleProposals.push(proposalName);
+    }
+  }
+  if (incompatibleProposals.length) {
+    if (notices) {
+      if (incompatibleProposals.length === 1) {
+        notices.push(nls.localize("apiProposalMismatch1", "This extension is using the API proposal '{0}' that is not compatible with the current version of VS Code.", incompatibleProposals[0]));
+      } else {
+        notices.push(nls.localize("apiProposalMismatch2", "This extension is using the API proposals {0} and '{1}' that are not compatible with the current version of VS Code.", incompatibleProposals.slice(0, incompatibleProposals.length - 1).map((p) => `'${p}'`).join(", "), incompatibleProposals[incompatibleProposals.length - 1]));
+      }
+    }
+    return false;
+  }
+  return true;
+}
+__name(areApiProposalsCompatible, "areApiProposalsCompatible");
+function isVersionValid(currentVersion, date, requestedVersion, notices = []) {
+  const desiredVersion = normalizeVersion(parseVersion(requestedVersion));
+  if (!desiredVersion) {
+    notices.push(nls.localize("versionSyntax", "Could not parse `engines.vscode` value {0}. Please use, for example: ^1.22.0, ^1.22.x, etc.", requestedVersion));
+    return false;
+  }
+  if (desiredVersion.majorBase === 0) {
+    if (!desiredVersion.majorMustEqual || !desiredVersion.minorMustEqual) {
+      notices.push(nls.localize("versionSpecificity1", "Version specified in `engines.vscode` ({0}) is not specific enough. For vscode versions before 1.0.0, please define at a minimum the major and minor desired version. E.g. ^0.10.0, 0.10.x, 0.11.0, etc.", requestedVersion));
+      return false;
+    }
+  } else {
+    if (!desiredVersion.majorMustEqual) {
+      notices.push(nls.localize("versionSpecificity2", "Version specified in `engines.vscode` ({0}) is not specific enough. For vscode versions after 1.0.0, please define at a minimum the major desired version. E.g. ^1.10.0, 1.10.x, 1.x.x, 2.x.x, etc.", requestedVersion));
+      return false;
+    }
+  }
+  if (!isValidVersion(currentVersion, date, desiredVersion)) {
+    notices.push(nls.localize("versionMismatch", "Extension is not compatible with Code {0}. Extension requires: {1}.", currentVersion, requestedVersion));
+    return false;
+  }
+  return true;
+}
+__name(isVersionValid, "isVersionValid");
+function isStringArray(arr) {
+  if (!Array.isArray(arr)) {
+    return false;
+  }
+  for (let i = 0, len = arr.length; i < len; i++) {
+    if (typeof arr[i] !== "string") {
+      return false;
+    }
+  }
+  return true;
+}
+__name(isStringArray, "isStringArray");
+export {
+  areApiProposalsCompatible,
+  isEngineValid,
+  isValidExtensionVersion,
+  isValidVersion,
+  isValidVersionStr,
+  normalizeVersion,
+  parseVersion,
+  validateExtensionManifest
+};
+//# sourceMappingURL=extensionValidator.js.map

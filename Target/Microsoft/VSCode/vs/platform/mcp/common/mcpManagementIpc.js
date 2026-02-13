@@ -1,1 +1,173 @@
-import{$xf as p,Event as i}from"../../../base/common/event.js";import{$Ep as I}from"../../../base/common/objects.js";import{URI as M}from"../../../base/common/uri.js";import{$Vx as S,$Yx as D}from"../../../base/common/uriIpc.js";import{$yo as U}from"../../log/common/log.js";import{$FQ as g}from"./mcpManagement.js";import{$7Q as w}from"./mcpManagementService.js";var R=function(l,e,n,s){var t=arguments.length,r=t<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,n):s,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,e,n,s);else for(var u=l.length-1;u>=0;u--)(a=l[u])&&(r=(t<3?a(r):t>3?a(e,n,r):a(e,n))||r);return t>3&&r&&Object.defineProperty(e,n,r),r},d=function(l,e){return function(n,s){e(n,s,l)}};function o(l,e){return l?M.revive(e?e.transformIncoming(l):l):void 0}function c(l,e){e=e||S;const n=l.manifest;return{...D({...l,manifest:void 0},e),manifest:n}}function h(l,e){return l?.mcpResource?D(l,e??S):l}function f(l,e){return e?I(l,n=>n instanceof M?e.transformOutgoingURI(n):void 0):l}function m(l,e){return e?e.transformOutgoingURI(l):l}class E{constructor(e,n){this.a=e,this.b=n,this.onInstallMcpServer=i.buffer(e.onInstallMcpServer,!0),this.onDidInstallMcpServers=i.buffer(e.onDidInstallMcpServers,!0),this.onDidUpdateMcpServers=i.buffer(e.onDidUpdateMcpServers,!0),this.onUninstallMcpServer=i.buffer(e.onUninstallMcpServer,!0),this.onDidUninstallMcpServer=i.buffer(e.onDidUninstallMcpServer,!0)}listen(e,n){const s=this.b(e);switch(n){case"onInstallMcpServer":return i.map(this.onInstallMcpServer,t=>({...t,mcpResource:m(t.mcpResource,s)}));case"onDidInstallMcpServers":return i.map(this.onDidInstallMcpServers,t=>t.map(r=>({...r,local:r.local?f(r.local,s):r.local,mcpResource:m(r.mcpResource,s)})));case"onDidUpdateMcpServers":return i.map(this.onDidUpdateMcpServers,t=>t.map(r=>({...r,local:r.local?f(r.local,s):r.local,mcpResource:m(r.mcpResource,s)})));case"onUninstallMcpServer":return i.map(this.onUninstallMcpServer,t=>({...t,mcpResource:m(t.mcpResource,s)}));case"onDidUninstallMcpServer":return i.map(this.onDidUninstallMcpServer,t=>({...t,mcpResource:m(t.mcpResource,s)}))}throw new Error("Invalid listen")}async call(e,n,s){const t=this.b(e),r=Array.isArray(s)?s:[];switch(n){case"getInstalled":return(await this.a.getInstalled(o(r[0],t))).map(u=>f(u,t));case"install":return this.a.install(r[0],h(r[1],t));case"installFromGallery":return this.a.installFromGallery(r[0],h(r[1],t));case"uninstall":return this.a.uninstall(c(r[0],t),h(r[1],t));case"updateMetadata":return this.a.updateMetadata(c(r[0],t),r[1],o(r[2],t))}throw new Error("Invalid call")}}let v=class extends w{get onInstallMcpServer(){return this.m.event}get onDidInstallMcpServers(){return this.n.event}get onUninstallMcpServer(){return this.q.event}get onDidUninstallMcpServer(){return this.r.event}get onDidUpdateMcpServers(){return this.t.event}constructor(e,n,s){super(n,s),this.u=e,this.m=this.D(new p),this.n=this.D(new p),this.q=this.D(new p),this.r=this.D(new p),this.t=this.D(new p),this.D(this.u.listen("onInstallMcpServer")(t=>this.m.fire({...t,mcpResource:o(t.mcpResource,null)}))),this.D(this.u.listen("onDidInstallMcpServers")(t=>this.n.fire(t.map(r=>({...r,local:r.local?c(r.local,null):r.local,mcpResource:o(r.mcpResource,null)}))))),this.D(this.u.listen("onDidUpdateMcpServers")(t=>this.t.fire(t.map(r=>({...r,local:r.local?c(r.local,null):r.local,mcpResource:o(r.mcpResource,null)}))))),this.D(this.u.listen("onUninstallMcpServer")(t=>this.q.fire({...t,mcpResource:o(t.mcpResource,null)}))),this.D(this.u.listen("onDidUninstallMcpServer")(t=>this.r.fire({...t,mcpResource:o(t.mcpResource,null)})))}install(e,n){return Promise.resolve(this.u.call("install",[e,n])).then(s=>c(s,null))}installFromGallery(e,n){return Promise.resolve(this.u.call("installFromGallery",[e,n])).then(s=>c(s,null))}uninstall(e,n){return Promise.resolve(this.u.call("uninstall",[e,n]))}getInstalled(e){return Promise.resolve(this.u.call("getInstalled",[e])).then(n=>n.map(s=>c(s,null)))}updateMetadata(e,n,s){return Promise.resolve(this.u.call("updateMetadata",[e,n,s])).then(t=>c(t,null))}};v=R([d(1,g),d(2,U)],v);export{v as $0Q,E as $9Q};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter, Event } from "../../../base/common/event.js";
+import { cloneAndChange } from "../../../base/common/objects.js";
+import { URI } from "../../../base/common/uri.js";
+import { DefaultURITransformer, transformAndReviveIncomingURIs } from "../../../base/common/uriIpc.js";
+import { ILogService } from "../../log/common/log.js";
+import { IAllowedMcpServersService } from "./mcpManagement.js";
+import { AbstractMcpManagementService } from "./mcpManagementService.js";
+function transformIncomingURI(uri, transformer) {
+  return uri ? URI.revive(transformer ? transformer.transformIncoming(uri) : uri) : void 0;
+}
+__name(transformIncomingURI, "transformIncomingURI");
+function transformIncomingServer(mcpServer, transformer) {
+  transformer = transformer ? transformer : DefaultURITransformer;
+  const manifest = mcpServer.manifest;
+  const transformed = transformAndReviveIncomingURIs({ ...mcpServer, ...{ manifest: void 0 } }, transformer);
+  return { ...transformed, ...{ manifest } };
+}
+__name(transformIncomingServer, "transformIncomingServer");
+function transformIncomingOptions(options, transformer) {
+  return options?.mcpResource ? transformAndReviveIncomingURIs(options, transformer ?? DefaultURITransformer) : options;
+}
+__name(transformIncomingOptions, "transformIncomingOptions");
+function transformOutgoingExtension(extension, transformer) {
+  return transformer ? cloneAndChange(extension, (value) => value instanceof URI ? transformer.transformOutgoingURI(value) : void 0) : extension;
+}
+__name(transformOutgoingExtension, "transformOutgoingExtension");
+function transformOutgoingURI(uri, transformer) {
+  return transformer ? transformer.transformOutgoingURI(uri) : uri;
+}
+__name(transformOutgoingURI, "transformOutgoingURI");
+class McpManagementChannel {
+  static {
+    __name(this, "McpManagementChannel");
+  }
+  constructor(service, getUriTransformer) {
+    this.service = service;
+    this.getUriTransformer = getUriTransformer;
+    this.onInstallMcpServer = Event.buffer(service.onInstallMcpServer, true);
+    this.onDidInstallMcpServers = Event.buffer(service.onDidInstallMcpServers, true);
+    this.onDidUpdateMcpServers = Event.buffer(service.onDidUpdateMcpServers, true);
+    this.onUninstallMcpServer = Event.buffer(service.onUninstallMcpServer, true);
+    this.onDidUninstallMcpServer = Event.buffer(service.onDidUninstallMcpServer, true);
+  }
+  listen(context, event) {
+    const uriTransformer = this.getUriTransformer(context);
+    switch (event) {
+      case "onInstallMcpServer": {
+        return Event.map(this.onInstallMcpServer, (event2) => {
+          return { ...event2, mcpResource: transformOutgoingURI(event2.mcpResource, uriTransformer) };
+        });
+      }
+      case "onDidInstallMcpServers": {
+        return Event.map(this.onDidInstallMcpServers, (results) => results.map((i) => ({
+          ...i,
+          local: i.local ? transformOutgoingExtension(i.local, uriTransformer) : i.local,
+          mcpResource: transformOutgoingURI(i.mcpResource, uriTransformer)
+        })));
+      }
+      case "onDidUpdateMcpServers": {
+        return Event.map(this.onDidUpdateMcpServers, (results) => results.map((i) => ({
+          ...i,
+          local: i.local ? transformOutgoingExtension(i.local, uriTransformer) : i.local,
+          mcpResource: transformOutgoingURI(i.mcpResource, uriTransformer)
+        })));
+      }
+      case "onUninstallMcpServer": {
+        return Event.map(this.onUninstallMcpServer, (event2) => {
+          return { ...event2, mcpResource: transformOutgoingURI(event2.mcpResource, uriTransformer) };
+        });
+      }
+      case "onDidUninstallMcpServer": {
+        return Event.map(this.onDidUninstallMcpServer, (event2) => {
+          return { ...event2, mcpResource: transformOutgoingURI(event2.mcpResource, uriTransformer) };
+        });
+      }
+    }
+    throw new Error("Invalid listen");
+  }
+  async call(context, command, args) {
+    const uriTransformer = this.getUriTransformer(context);
+    const argsArray = Array.isArray(args) ? args : [];
+    switch (command) {
+      case "getInstalled": {
+        const mcpServers = await this.service.getInstalled(transformIncomingURI(argsArray[0], uriTransformer));
+        return mcpServers.map((e) => transformOutgoingExtension(e, uriTransformer));
+      }
+      case "install": {
+        return this.service.install(argsArray[0], transformIncomingOptions(argsArray[1], uriTransformer));
+      }
+      case "installFromGallery": {
+        return this.service.installFromGallery(argsArray[0], transformIncomingOptions(argsArray[1], uriTransformer));
+      }
+      case "uninstall": {
+        return this.service.uninstall(transformIncomingServer(argsArray[0], uriTransformer), transformIncomingOptions(argsArray[1], uriTransformer));
+      }
+      case "updateMetadata": {
+        return this.service.updateMetadata(transformIncomingServer(argsArray[0], uriTransformer), argsArray[1], transformIncomingURI(argsArray[2], uriTransformer));
+      }
+    }
+    throw new Error("Invalid call");
+  }
+}
+let McpManagementChannelClient = class McpManagementChannelClient2 extends AbstractMcpManagementService {
+  static {
+    __name(this, "McpManagementChannelClient");
+  }
+  get onInstallMcpServer() {
+    return this._onInstallMcpServer.event;
+  }
+  get onDidInstallMcpServers() {
+    return this._onDidInstallMcpServers.event;
+  }
+  get onUninstallMcpServer() {
+    return this._onUninstallMcpServer.event;
+  }
+  get onDidUninstallMcpServer() {
+    return this._onDidUninstallMcpServer.event;
+  }
+  get onDidUpdateMcpServers() {
+    return this._onDidUpdateMcpServers.event;
+  }
+  constructor(channel, allowedMcpServersService, logService) {
+    super(allowedMcpServersService, logService);
+    this.channel = channel;
+    this._onInstallMcpServer = this._register(new Emitter());
+    this._onDidInstallMcpServers = this._register(new Emitter());
+    this._onUninstallMcpServer = this._register(new Emitter());
+    this._onDidUninstallMcpServer = this._register(new Emitter());
+    this._onDidUpdateMcpServers = this._register(new Emitter());
+    this._register(this.channel.listen("onInstallMcpServer")((e) => this._onInstallMcpServer.fire({ ...e, mcpResource: transformIncomingURI(e.mcpResource, null) })));
+    this._register(this.channel.listen("onDidInstallMcpServers")((results) => this._onDidInstallMcpServers.fire(results.map((e) => ({ ...e, local: e.local ? transformIncomingServer(e.local, null) : e.local, mcpResource: transformIncomingURI(e.mcpResource, null) })))));
+    this._register(this.channel.listen("onDidUpdateMcpServers")((results) => this._onDidUpdateMcpServers.fire(results.map((e) => ({ ...e, local: e.local ? transformIncomingServer(e.local, null) : e.local, mcpResource: transformIncomingURI(e.mcpResource, null) })))));
+    this._register(this.channel.listen("onUninstallMcpServer")((e) => this._onUninstallMcpServer.fire({ ...e, mcpResource: transformIncomingURI(e.mcpResource, null) })));
+    this._register(this.channel.listen("onDidUninstallMcpServer")((e) => this._onDidUninstallMcpServer.fire({ ...e, mcpResource: transformIncomingURI(e.mcpResource, null) })));
+  }
+  install(server, options) {
+    return Promise.resolve(this.channel.call("install", [server, options])).then((local) => transformIncomingServer(local, null));
+  }
+  installFromGallery(extension, installOptions) {
+    return Promise.resolve(this.channel.call("installFromGallery", [extension, installOptions])).then((local) => transformIncomingServer(local, null));
+  }
+  uninstall(extension, options) {
+    return Promise.resolve(this.channel.call("uninstall", [extension, options]));
+  }
+  getInstalled(mcpResource) {
+    return Promise.resolve(this.channel.call("getInstalled", [mcpResource])).then((servers) => servers.map((server) => transformIncomingServer(server, null)));
+  }
+  updateMetadata(local, gallery, mcpResource) {
+    return Promise.resolve(this.channel.call("updateMetadata", [local, gallery, mcpResource])).then((local2) => transformIncomingServer(local2, null));
+  }
+};
+McpManagementChannelClient = __decorate([
+  __param(1, IAllowedMcpServersService),
+  __param(2, ILogService)
+], McpManagementChannelClient);
+export {
+  McpManagementChannel,
+  McpManagementChannelClient
+};
+//# sourceMappingURL=mcpManagementIpc.js.map

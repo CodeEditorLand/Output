@@ -1,1 +1,964 @@
-import"./media/agenttitlebarstatuswidget.css";import{$ as l,$u8 as c,$r9 as u,getWindow as nt,$f9 as it,$A9 as y}from"../../../../../../base/browser/dom.js";import{$H0 as x}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Ed as ot,$Dd as rt}from"../../../../../../base/common/lifecycle.js";import{$bk as D}from"../../../../../../base/common/codicons.js";import{Event as at}from"../../../../../../base/common/event.js";import{localize as d}from"../../../../../../nls.js";import{$jkb as dt}from"../../../../../../platform/hover/browser/hover.js";import{$u0 as $}from"../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{AgentStatusMode as V,$6oc as ht}from"./agentTitleBarStatusService.js";import{$uo as lt}from"../../../../../../platform/commands/common/commands.js";import{$fy as ct}from"../../../../../../platform/keybinding/common/keybinding.js";import{$_oc as q,$apc as U}from"./agentSessionProjectionActions.js";import{$fpc as Y}from"./unifiedQuickAccessActions.js";import{$tQb as ut}from"../agentSessionsService.js";import{isSessionInProgressStatus as ft}from"../agentSessionsModel.js";import{$L$ as gt}from"../../../../../../base/browser/ui/actionbar/actionViewItems.js";import{$Hm as pt,$Im as bt,$Km as mt}from"../../../../../../base/common/actions.js";import{$oH as Ct}from"../../../../../../platform/label/common/label.js";import{$Ml as St}from"../../../../../../platform/workspace/common/workspace.js";import{$dcb as vt}from"../../../../../services/environment/browser/environmentService.js";import{$xL as Dt}from"../../../../../services/editor/common/editorGroupsService.js";import{$BL as Et}from"../../../../../services/editor/common/editorService.js";import{Schemas as It}from"../../../../../../base/common/network.js";import{$L0 as j}from"../../../../../../base/browser/markdownRenderer.js";import{$pnc as At}from"../agentSessionsOpener.js";import{$Mj as et}from"../../../../../../platform/instantiation/common/instantiation.js";import{$rL as yt,$qL as R,$uL as xt,$tL as Ot}from"../../../../../../platform/actions/common/actions.js";import{$ro as $t}from"../../../../../../platform/contextkey/common/contextkey.js";import{$hkb as kt}from"../../../../../../platform/actions/browser/toolbar.js";import{$YJb as Pt}from"../../../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";import{$ckb as Tt}from"../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$hp as Lt}from"../../../../../../platform/storage/common/storage.js";import{$coc as _t}from"../agentSessionsActions.js";import{$fkb as wt}from"../../../../../../platform/actions/browser/actionViewItemService.js";import{$0l as st}from"../../../../../../platform/configuration/common/configuration.js";import{$T7 as J}from"../../../../../../base/browser/window.js";import{ChatConfiguration as S}from"../../../common/constants.js";import{ChatEntitlement as X,$JP as Ft}from"../../../../../services/chat/common/chatEntitlementService.js";import{$U4b as Ut}from"../../chat.js";var tt=function(k,t,i,e){var n=arguments.length,s=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(k,t,i,e);else for(var a=k.length-1;a>=0;a--)(o=k[a])&&(s=(n<3?o(s):n>3?o(t,i,s):o(t,i))||s);return n>3&&s&&Object.defineProperty(t,i,s),s},p=function(k,t){return function(i,e){t(i,e,k)}};const Nt="workbench.action.chat.toggle",Rt="workbench.action.chat.triggerSetup",Kt="workbench.action.chat.openQuotaExceededDialog",N="workbench.action.quickOpenWithModes",G="agentSessions.filterExcludes.agentsessionsviewerfiltersubmenu",W="agentSessions.filterExcludes.previousUserFilter",z=d(5545,null),Mt="\u25CF ";let B=class extends gt{constructor(t,i,e,n,s,o,a,r,f,h,v,I,A,O,b,E,P,L,K){super(void 0,t,i),this.y=e,this.O=n,this.P=s,this.Q=o,this.R=a,this.S=r,this.U=f,this.W=h,this.X=v,this.Y=I,this.Z=A,this.ab=O,this.bb=b,this.cb=E,this.db=P,this.eb=L,this.fb=K,this.g=this.D(new rt),this.n=!1,this.r=null,this.t=this.D(this.ab.createMenu(R.CommandCenterCenter,this.bb)),this.w=this.D(this.ab.createMenu(R.ChatTitleBarMenu,this.bb)),this.D(this.O.onDidChangeMode(()=>{this.gb()})),this.D(this.O.onDidChangeSessionInfo(()=>{this.gb()})),this.D(this.S.model.onDidChangeSessions(()=>{this.gb()})),this.D(this.Z.onDidActiveEditorChange(()=>{this.gb()})),this.D(this.Y.onDidChangeEditorPartOptions(({newPartOptions:T,oldPartOptions:_})=>{T.showTabs!==_.showTabs&&this.gb()})),this.D(this.t.onDidChange(()=>{this.m=void 0,this.gb()})),this.D(this.cb.onDidChangeValue(0,"agentSessions.filterExcludes.agentsessionsviewerfiltersubmenu",this.B)(()=>{this.gb()})),this.D(this.db.onDidChangeConfiguration(T=>{(T.affectsConfiguration(S.UnifiedAgentsBar)||T.affectsConfiguration(S.AgentStatusEnabled)||T.affectsConfiguration(S.ChatViewSessionsEnabled))&&(this.m=void 0,this.gb())})),this.D(at.any(this.eb.onDidChangeSentiment,this.eb.onDidChangeQuotaExceeded,this.eb.onDidChangeEntitlement,this.eb.onDidChangeAnonymous)(()=>{this.m=void 0,this.gb()})),this.D(this.fb.onDidAddWidget(()=>{this.gb()})),this.D(this.fb.onDidBackgroundSession(()=>{this.gb()}))}render(t){super.render(t),this.c=t,t.classList.add("agent-status-container"),t.tabIndex=-1,this.gb()}setFocusable(t){}focus(){this.q?.focus()}blur(){if(!this.c)return;const t=nt(this.c).document.activeElement;it(t)&&this.c.contains(t)&&t.blur()}gb(){if(this.c&&!this.n){this.n=!0;try{const t=this.O.mode,i=this.O.sessionInfo,{activeSessions:e,unreadSessions:n,attentionNeededSessions:s}=this.hb(),o=s.length>0?[...s].sort((b,E)=>{const P=b.timing.lastRequestStarted??b.timing.created;return(E.timing.lastRequestStarted??E.timing.created)-P})[0]:void 0,a=o?.description?typeof o.description=="string"?o.description:j(o.description):o?.label,r=this.Bb(),{isFilteredToUnread:f,isFilteredToInProgress:h}=this.qb(),v=this.db.getValue(S.UnifiedAgentsBar)===!0,I=this.db.getValue(S.AgentStatusEnabled)===!0,A=this.db.getValue(S.ChatViewSessionsEnabled)!==!1,O=JSON.stringify({mode:t,sessionTitle:i?.title,activeCount:e.length,unreadCount:n.length,attentionCount:s.length,attentionText:a,label:r,isFilteredToUnread:f,isFilteredToInProgress:h,unifiedAgentsBarEnabled:v,agentStatusEnabled:I,viewSessionsEnabled:A});if(this.m===O)return;this.m=O,y(this.c),this.g.clear(),this.q=void 0,this.O.mode===V.Session?this.jb(this.g):this.O.mode===V.SessionReady?this.kb(this.g):v?this.ib(this.g):I&&this.lb(this.g)}finally{this.n=!1}}}hb(){const t=this.S.model.sessions,e=this.rb()?.providers??[],n=e.length>0?t.filter(r=>!e.includes(r.providerType)):t,s=n.filter(r=>ft(r.status)&&!r.isArchived()),o=n.filter(r=>!r.isRead()),a=n.filter(r=>r.status===3&&!this.fb.getWidgetBySessionResource(r.resource));return{activeSessions:s,unreadSessions:o,attentionNeededSessions:a,hasActiveSessions:s.length>0,hasUnreadSessions:o.length>0,hasAttentionNeeded:a.length>0}}ib(t){if(!this.c)return;const{activeSessions:i,unreadSessions:e,attentionNeededSessions:n,hasAttentionNeeded:s}=this.hb();this.mb(t);const o=l("div.agent-status-pill.chat-input-mode");s&&o.classList.add("needs-attention"),o.setAttribute("role","button"),o.setAttribute("aria-label",d(5546,null)),o.tabIndex=0,this.q=o,this.c.appendChild(o);const a=l("span.agent-status-left-icon");if(s){const b=x(D.report),E=l("span.agent-status-attention-count");E.textContent=String(n.length),y(a,b,E),a.classList.add("has-attention")}else y(a,x(D.searchSparkle));o.appendChild(a);const r=l("span.agent-status-label"),{session:f,progress:h}=this.Ab(n);this.h=f;const v=h??this.Bb();h&&r.classList.add("has-progress");const I=d(5547,null);r.textContent=v,o.appendChild(r);const A=l("span.agent-status-send");y(A,x(D.send)),A.classList.add("hidden"),o.appendChild(A),h||(t.add(c(o,u.MOUSE_ENTER,()=>{y(a,x(D.searchSparkle)),a.classList.remove("has-attention"),r.textContent=I,r.classList.remove("has-progress"),A.classList.remove("hidden")})),t.add(c(o,u.MOUSE_LEAVE,()=>{y(a,x(D.searchSparkle)),r.textContent=v,A.classList.add("hidden")})));const O=$("mouse");t.add(this.P.setupManagedHover(O,o,()=>{if(this.h)return d(5548,null,this.h.label);const b=this.R.lookupKeybinding(Y)?.getLabel();return b?d(5549,null,b):d(5550,null)})),t.add(c(o,u.CLICK,b=>{b.preventDefault(),b.stopPropagation(),this.zb()})),t.add(c(o,u.KEY_DOWN,b=>{(b.key==="Enter"||b.key===" ")&&(b.preventDefault(),b.stopPropagation(),this.zb())})),this.db.getValue(S.AgentStatusEnabled)===!0&&this.ob(t,i,e,n)}jb(t){if(!this.c)return;const{activeSessions:i,unreadSessions:e,attentionNeededSessions:n}=this.hb();this.mb(t);const s=l("div.agent-status-pill.session-mode");this.c.appendChild(s),this.nb(t,s);const o=l("span.agent-status-title"),a=this.O.sessionInfo;o.textContent=a?.title??d(5551,null),s.appendChild(o),this.xb(t,s);const r=$("mouse");t.add(this.P.setupManagedHover(r,s,()=>{const h=this.O.sessionInfo;return h?d(5552,null,h.title):d(5553,null)}));const f=h=>{h.preventDefault(),h.stopPropagation(),this.Q.executeCommand(U.ID)};t.add(c(s,u.CLICK,f)),t.add(c(s,u.MOUSE_DOWN,f)),this.db.getValue(S.AgentStatusEnabled)===!0&&this.ob(t,i,e,n)}kb(t){if(!this.c)return;const{activeSessions:i,unreadSessions:e,attentionNeededSessions:n}=this.hb(),s=l("div.agent-status-pill.session-ready-mode");this.c.appendChild(s);const o=l("span.agent-status-title"),a=this.O.sessionInfo;o.textContent=a?.title??d(5554,null),s.appendChild(o),this.yb(t,s);const r=$("mouse");t.add(this.P.setupManagedHover(r,s,()=>{const h=this.O.sessionInfo;return h?d(5555,null,h.title):d(5556,null)}));const f=h=>{h.preventDefault(),h.stopPropagation();const v=this.O.sessionInfo;if(v){const I=this.S.getSession(v.sessionResource);I&&this.Q.executeCommand(q.ID,I)}};t.add(c(s,u.CLICK,f)),t.add(c(s,u.MOUSE_DOWN,f)),this.db.getValue(S.AgentStatusEnabled)===!0&&this.ob(t,i,e,n)}lb(t){if(!this.c)return;const{activeSessions:i,unreadSessions:e,attentionNeededSessions:n}=this.hb();this.ob(t,i,e,n)}mb(t){if(!this.c)return;const i=[];for(const[,a]of this.t.getActions({shouldForwardArgs:!0}))for(const r of a)r.id!==N&&(r instanceof bt?i.push(...r.actions):i.push(r));if(i.length===0)return;const e=$("mouse"),n=l("div.agent-status-command-center-toolbar");this.c.appendChild(n);const s=this.y.createInstance(kt,n,{hiddenItemStrategy:-1,telemetrySource:"agentStatusCommandCenter",actionViewItemProvider:(a,r)=>Tt(this.y,a,{...r,hoverDelegate:e})});t.add(s),s.setActions(i);const o=x(D.circleSmallFilled);o.classList.add("agent-status-separator"),this.c.appendChild(o)}nb(t,i){const e=i??this.c;if(!e)return;const n=l("span.agent-status-search");y(n,x(D.searchSparkle)),n.setAttribute("role","button"),n.setAttribute("aria-label",d(5557,null)),n.tabIndex=0,this.q||(this.q=n),e.appendChild(n);const s=$("mouse"),o=this.R.lookupKeybinding(N)?.getLabel(),a=o?d(5558,null,o):d(5559,null);t.add(this.P.setupManagedHover(s,n,a)),t.add(c(n,u.CLICK,r=>{r.preventDefault(),r.stopPropagation(),this.Q.executeCommand(N)})),t.add(c(n,u.KEY_DOWN,r=>{(r.key==="Enter"||r.key===" ")&&(r.preventDefault(),r.stopPropagation(),this.Q.executeCommand(N))}))}ob(t,i,e,n){if(!this.c)return;const s=i.length>0,o=e.length>0,a=n.length>0;this.pb(o,s);const r=l("div.agent-status-badge");this.c.appendChild(r);const f=l("span.agent-status-badge-section.sparkle");f.tabIndex=0,this.q||(this.q=f),r.appendChild(f);const h=pt.join(...this.w.getActions({shouldForwardArgs:!0}).map(([,C])=>C)),v=this.eb.sentiment,I=this.eb.quotas.chat?.percentRemaining===0,A=this.eb.entitlement===X.Unknown,O=this.eb.anonymous,b=this.eb.entitlement===X.Free;let E=Nt,P=d(5560,null),L=D.chatSparkle;v.installed&&!v.disabled&&(A&&!O?(E=Rt,P=d(5561,null),L=D.chatSparkleError):I&&b&&(E=Kt,P=d(5562,null),L=D.chatSparkleWarning));const K=this.y.createInstance(xt,{id:E,title:P,icon:L},void 0,void 0,void 0,void 0),T=mt({id:"agentStatus.sparkle.dropdown",label:d(5563,null),run(){}}),_=this.y.createInstance(Pt,K,T,h,"agent-status-sparkle-dropdown",{skipTelemetry:!0});_.render(f),t.add(_),t.add(c(f,u.KEY_DOWN,C=>{C.key==="Enter"||C.key===" "?(C.preventDefault(),C.stopPropagation(),this.Q.executeCommand(E)):(C.key==="ArrowDown"||C.key==="ArrowUp")&&(C.preventDefault(),C.stopPropagation(),_.showDropdown())}));const H=$("mouse"),Q=this.db.getValue(S.ChatViewSessionsEnabled)!==!1;if(Q&&o&&this.W.getWorkbenchState()!==1){const{isFilteredToUnread:C}=this.qb(),g=l("span.agent-status-badge-section.unread");C&&g.classList.add("filtered"),g.setAttribute("role","button"),g.tabIndex=0;const w=l("span.agent-status-icon");y(w,x(D.circleFilled)),g.appendChild(w);const F=l("span.agent-status-text");F.textContent=String(e.length),g.appendChild(F),r.appendChild(g),t.add(c(g,u.CLICK,m=>{m.preventDefault(),m.stopPropagation(),this.wb("unread")})),t.add(c(g,u.KEY_DOWN,m=>{(m.key==="Enter"||m.key===" ")&&(m.preventDefault(),m.stopPropagation(),this.wb("unread"))}));const M=e.length===1?d(5564,null,e.length):d(5565,null,e.length);t.add(this.P.setupManagedHover(H,g,M))}if(Q&&s){const{isFilteredToInProgress:C}=this.qb(),g=l("span.agent-status-badge-section.active");a&&g.classList.add("needs-input"),C&&g.classList.add("filtered"),g.setAttribute("role","button"),g.tabIndex=0;const w=l("span.agent-status-icon");y(w,x(a?D.report:D.sessionInProgress)),g.appendChild(w);const F=l("span.agent-status-text");F.textContent=String(a?n.length:i.length),g.appendChild(F),r.appendChild(g),t.add(c(g,u.CLICK,m=>{m.preventDefault(),m.stopPropagation(),this.wb("inProgress")})),t.add(c(g,u.KEY_DOWN,m=>{(m.key==="Enter"||m.key===" ")&&(m.preventDefault(),m.stopPropagation(),this.wb("inProgress"))}));const M=a?n.length===1?d(5566,null,n.length):d(5567,null,n.length):i.length===1?d(5568,null,i.length):d(5569,null,i.length);t.add(this.P.setupManagedHover(H,g,M))}}pb(t,i){this.r==="unread"&&!t?this.vb():this.r==="inProgress"&&!i&&this.vb()}qb(){const t=this.rb();if(!t)return{isFilteredToUnread:!1,isFilteredToInProgress:!1};const i=t.read===!0&&t.states.length===0,e=t.states?.length===2&&t.read===!1;return{isFilteredToUnread:i,isFilteredToInProgress:e}}rb(){const t=this.cb.get(G,0);if(t)try{return JSON.parse(t)}catch{return}}sb(t){this.cb.store(G,JSON.stringify(t),0,0)}tb(){this.sb({providers:[],states:[],archived:!0,read:!1})}ub(){const{isFilteredToUnread:t,isFilteredToInProgress:i}=this.qb();if(t||i)return;const e=this.rb();e&&this.cb.store(W,JSON.stringify(e),0,0)}vb(){const t=this.cb.get(W,0);if(t)try{const i=JSON.parse(t);this.sb(i)}catch{this.tb()}else this.tb();this.cb.remove(W,0),this.r=null}wb(t){const{isFilteredToUnread:i,isFilteredToInProgress:e}=this.qb(),s=this.rb()?.providers??[];t==="unread"?i?this.vb():(this.ub(),this.sb({providers:s,states:[],archived:!0,read:!0}),this.r="unread"):e?this.vb():(this.ub(),this.sb({providers:s,states:[1,0],archived:!0,read:!1}),this.r="inProgress"),this.Q.executeCommand(_t.id)}xb(t,i){const e=l("span.agent-status-esc-button");e.textContent="Esc",e.setAttribute("role","button"),e.setAttribute("aria-label",d(5570,null)),e.tabIndex=0,i.appendChild(e);const n=$("mouse");t.add(this.P.setupManagedHover(n,e,d(5571,null))),t.add(c(e,u.MOUSE_DOWN,s=>{s.preventDefault(),s.stopPropagation(),this.Q.executeCommand(U.ID)})),t.add(c(e,u.CLICK,s=>{s.preventDefault(),s.stopPropagation(),this.Q.executeCommand(U.ID)})),t.add(c(e,u.KEY_DOWN,s=>{(s.key==="Enter"||s.key===" ")&&(s.preventDefault(),s.stopPropagation(),this.Q.executeCommand(U.ID))}))}yb(t,i){const e=l("span.agent-status-enter-button"),n=this.R.lookupKeybinding(q.ID);e.textContent=n?.getLabel()??d(5572,null),e.setAttribute("role","button"),e.setAttribute("aria-label",d(5573,null)),e.tabIndex=0,this.q||(this.q=e),i.appendChild(e);const s=$("mouse"),o=n?d(5574,null,n.getLabel()):d(5575,null);t.add(this.P.setupManagedHover(s,e,o));const a=r=>{r.preventDefault(),r.stopPropagation();const f=this.O.sessionInfo;if(f){const h=this.S.getSession(f.sessionResource);h&&this.Q.executeCommand(q.ID,h)}};t.add(c(e,u.MOUSE_DOWN,a)),t.add(c(e,u.CLICK,a)),t.add(c(e,u.KEY_DOWN,r=>{(r.key==="Enter"||r.key===" ")&&a(r)}))}zb(){this.h?this.y.invokeFunction(At,this.h):this.Q.executeCommand(Y)}Ab(t){if(t.length===0)return{session:void 0,progress:void 0};const e=[...t].sort((s,o)=>{const a=s.timing.lastRequestStarted??s.timing.created;return(o.timing.lastRequestStarted??o.timing.created)-a})[0];if(!e.description)return{session:e,progress:e.label};const n=typeof e.description=="string"?e.description:j(e.description);return{session:e,progress:n}}Bb(){const{prefix:t,suffix:i}=this.Cb();let e=this.U.getWorkspaceLabel(this.W.getWorkspace());if(this.Y.partOptions.showTabs==="none"){const n=this.Z.activeEditor;n&&(e=`${n.isDirty()&&!n.isSaving()?Mt:""}${n.getTitle(0)}`)}return e||(e=d(5576,null)),t&&(e=d(5577,null,t,e)),i&&(e=d(5578,null,e,i)),e.replaceAll(/\r\n|\r|\n/g,"\u23CE")}Cb(){let t;return this.X.remoteAuthority&&(t=this.U.getHostLabel(It.vscodeRemote,this.X.remoteAuthority)),this.X.isExtensionDevelopment&&(t=t?`${z} - ${t}`:z),{prefix:t,suffix:void 0}}};B=tt([p(2,et),p(3,ht),p(4,dt),p(5,lt),p(6,ct),p(7,ut),p(8,Ct),p(9,St),p(10,vt),p(11,Dt),p(12,Et),p(13,yt),p(14,$t),p(15,Lt),p(16,st),p(17,Ft),p(18,Ut)],B);let Z=class extends ot{static{this.ID="workbench.contrib.agentStatus.rendering"}constructor(t,i,e){super(),this.D(t.register(R.CommandCenter,R.AgentsTitleBarControlMenu,(s,o)=>{if(s instanceof Ot)return i.createInstance(B,s,o)},void 0));const n=()=>{const s=e.getValue("window.commandCenter")===!0,o=e.getValue(S.AgentStatusEnabled)===!0&&s,a=e.getValue(S.UnifiedAgentsBar)===!0&&s;J.document.body.classList.toggle("agent-status-enabled",o),J.document.body.classList.toggle("unified-agents-bar",a)};n(),this.D(e.onDidChangeConfiguration(s=>{(s.affectsConfiguration(S.AgentStatusEnabled)||s.affectsConfiguration(S.UnifiedAgentsBar)||s.affectsConfiguration("window.commandCenter"))&&n()}))}};Z=tt([p(0,wt),p(1,et),p(2,st)],Z);export{B as $kpc,Z as $lpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/agenttitlebarstatuswidget.css";
+import { $, addDisposableListener, EventType, getWindow, isHTMLElement, reset } from "../../../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Event as EventUtils } from "../../../../../../base/common/event.js";
+import { localize } from "../../../../../../nls.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { getDefaultHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { AgentStatusMode, IAgentTitleBarStatusService } from "./agentTitleBarStatusService.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { EnterAgentSessionProjectionAction, ExitAgentSessionProjectionAction } from "./agentSessionProjectionActions.js";
+import { UNIFIED_QUICK_ACCESS_ACTION_ID } from "./unifiedQuickAccessActions.js";
+import { IAgentSessionsService } from "../agentSessionsService.js";
+import { isSessionInProgressStatus } from "../agentSessionsModel.js";
+import { BaseActionViewItem } from "../../../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { Separator, SubmenuAction, toAction } from "../../../../../../base/common/actions.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../../../services/environment/browser/environmentService.js";
+import { IEditorGroupsService } from "../../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { Schemas } from "../../../../../../base/common/network.js";
+import { renderAsPlaintext } from "../../../../../../base/browser/markdownRenderer.js";
+import { openSession } from "../agentSessionsOpener.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { WorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { DropdownWithPrimaryActionViewItem } from "../../../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
+import { createActionViewItem } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { FocusAgentSessionsAction } from "../agentSessionsActions.js";
+import { IActionViewItemService } from "../../../../../../platform/actions/browser/actionViewItemService.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { mainWindow } from "../../../../../../base/browser/window.js";
+import { ChatConfiguration } from "../../../common/constants.js";
+import { ChatEntitlement, IChatEntitlementService } from "../../../../../services/chat/common/chatEntitlementService.js";
+import { IChatWidgetService } from "../../chat.js";
+const TOGGLE_CHAT_ACTION_ID = "workbench.action.chat.toggle";
+const CHAT_SETUP_ACTION_ID = "workbench.action.chat.triggerSetup";
+const OPEN_CHAT_QUOTA_EXCEEDED_DIALOG = "workbench.action.chat.openQuotaExceededDialog";
+const QUICK_OPEN_ACTION_ID = "workbench.action.quickOpenWithModes";
+const FILTER_STORAGE_KEY = "agentSessions.filterExcludes.agentsessionsviewerfiltersubmenu";
+const PREVIOUS_FILTER_STORAGE_KEY = "agentSessions.filterExcludes.previousUserFilter";
+const NLS_EXTENSION_HOST = localize("devExtensionWindowTitlePrefix", "[Extension Development Host]");
+const TITLE_DIRTY = "\u25CF ";
+let AgentTitleBarStatusWidget = class AgentTitleBarStatusWidget2 extends BaseActionViewItem {
+  static {
+    __name(this, "AgentTitleBarStatusWidget");
+  }
+  constructor(action, options, instantiationService, agentTitleBarStatusService, hoverService, commandService, keybindingService, agentSessionsService, labelService, workspaceContextService, environmentService, editorGroupsService, editorService, menuService, contextKeyService, storageService, configurationService, chatEntitlementService, chatWidgetService) {
+    super(void 0, action, options);
+    this.instantiationService = instantiationService;
+    this.agentTitleBarStatusService = agentTitleBarStatusService;
+    this.hoverService = hoverService;
+    this.commandService = commandService;
+    this.keybindingService = keybindingService;
+    this.agentSessionsService = agentSessionsService;
+    this.labelService = labelService;
+    this.workspaceContextService = workspaceContextService;
+    this.environmentService = environmentService;
+    this.editorGroupsService = editorGroupsService;
+    this.editorService = editorService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.storageService = storageService;
+    this.configurationService = configurationService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.chatWidgetService = chatWidgetService;
+    this._dynamicDisposables = this._register(new DisposableStore());
+    this._isRendering = false;
+    this._badgeFilterAppliedByThisWindow = null;
+    this._commandCenterMenu = this._register(this.menuService.createMenu(MenuId.CommandCenterCenter, this.contextKeyService));
+    this._chatTitleBarMenu = this._register(this.menuService.createMenu(MenuId.ChatTitleBarMenu, this.contextKeyService));
+    this._register(this.agentTitleBarStatusService.onDidChangeMode(() => {
+      this._render();
+    }));
+    this._register(this.agentTitleBarStatusService.onDidChangeSessionInfo(() => {
+      this._render();
+    }));
+    this._register(this.agentSessionsService.model.onDidChangeSessions(() => {
+      this._render();
+    }));
+    this._register(this.editorService.onDidActiveEditorChange(() => {
+      this._render();
+    }));
+    this._register(this.editorGroupsService.onDidChangeEditorPartOptions(({ newPartOptions, oldPartOptions }) => {
+      if (newPartOptions.showTabs !== oldPartOptions.showTabs) {
+        this._render();
+      }
+    }));
+    this._register(this._commandCenterMenu.onDidChange(() => {
+      this._lastRenderState = void 0;
+      this._render();
+    }));
+    this._register(this.storageService.onDidChangeValue(0, "agentSessions.filterExcludes.agentsessionsviewerfiltersubmenu", this._store)(() => {
+      this._render();
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(ChatConfiguration.UnifiedAgentsBar) || e.affectsConfiguration(ChatConfiguration.AgentStatusEnabled) || e.affectsConfiguration(ChatConfiguration.ChatViewSessionsEnabled)) {
+        this._lastRenderState = void 0;
+        this._render();
+      }
+    }));
+    this._register(EventUtils.any(this.chatEntitlementService.onDidChangeSentiment, this.chatEntitlementService.onDidChangeQuotaExceeded, this.chatEntitlementService.onDidChangeEntitlement, this.chatEntitlementService.onDidChangeAnonymous)(() => {
+      this._lastRenderState = void 0;
+      this._render();
+    }));
+    this._register(this.chatWidgetService.onDidAddWidget(() => {
+      this._render();
+    }));
+    this._register(this.chatWidgetService.onDidBackgroundSession(() => {
+      this._render();
+    }));
+  }
+  render(container) {
+    super.render(container);
+    this._container = container;
+    container.classList.add("agent-status-container");
+    container.tabIndex = -1;
+    this._render();
+  }
+  // Override focus methods - the container itself shouldn't be focusable,
+  // focus is handled by the inner interactive elements (badge sections)
+  setFocusable(_focusable) {
+  }
+  focus() {
+    this._firstFocusableElement?.focus();
+  }
+  blur() {
+    if (!this._container) {
+      return;
+    }
+    const activeElement = getWindow(this._container).document.activeElement;
+    if (isHTMLElement(activeElement) && this._container.contains(activeElement)) {
+      activeElement.blur();
+    }
+  }
+  _render() {
+    if (!this._container) {
+      return;
+    }
+    if (this._isRendering) {
+      return;
+    }
+    this._isRendering = true;
+    try {
+      const mode = this.agentTitleBarStatusService.mode;
+      const sessionInfo = this.agentTitleBarStatusService.sessionInfo;
+      const { activeSessions, unreadSessions, attentionNeededSessions } = this._getSessionStats();
+      const attentionSession = attentionNeededSessions.length > 0 ? [...attentionNeededSessions].sort((a, b) => {
+        const timeA = a.timing.lastRequestStarted ?? a.timing.created;
+        const timeB = b.timing.lastRequestStarted ?? b.timing.created;
+        return timeB - timeA;
+      })[0] : void 0;
+      const attentionText = attentionSession?.description ? typeof attentionSession.description === "string" ? attentionSession.description : renderAsPlaintext(attentionSession.description) : attentionSession?.label;
+      const label = this._getLabel();
+      const { isFilteredToUnread, isFilteredToInProgress } = this._getCurrentFilterState();
+      const unifiedAgentsBarEnabled = this.configurationService.getValue(ChatConfiguration.UnifiedAgentsBar) === true;
+      const agentStatusEnabled = this.configurationService.getValue(ChatConfiguration.AgentStatusEnabled) === true;
+      const viewSessionsEnabled = this.configurationService.getValue(ChatConfiguration.ChatViewSessionsEnabled) !== false;
+      const stateKey = JSON.stringify({
+        mode,
+        sessionTitle: sessionInfo?.title,
+        activeCount: activeSessions.length,
+        unreadCount: unreadSessions.length,
+        attentionCount: attentionNeededSessions.length,
+        attentionText,
+        label,
+        isFilteredToUnread,
+        isFilteredToInProgress,
+        unifiedAgentsBarEnabled,
+        agentStatusEnabled,
+        viewSessionsEnabled
+      });
+      if (this._lastRenderState === stateKey) {
+        return;
+      }
+      this._lastRenderState = stateKey;
+      reset(this._container);
+      this._dynamicDisposables.clear();
+      this._firstFocusableElement = void 0;
+      if (this.agentTitleBarStatusService.mode === AgentStatusMode.Session) {
+        this._renderSessionMode(this._dynamicDisposables);
+      } else if (this.agentTitleBarStatusService.mode === AgentStatusMode.SessionReady) {
+        this._renderSessionReadyMode(this._dynamicDisposables);
+      } else if (unifiedAgentsBarEnabled) {
+        this._renderChatInputMode(this._dynamicDisposables);
+      } else if (agentStatusEnabled) {
+        this._renderBadgeOnlyMode(this._dynamicDisposables);
+      }
+    } finally {
+      this._isRendering = false;
+    }
+  }
+  // #region Session Statistics
+  /**
+   * Get computed session statistics for rendering.
+   * Respects the current provider (session type) filter when calculating counts.
+   */
+  _getSessionStats() {
+    const sessions = this.agentSessionsService.model.sessions;
+    const currentFilter = this._getStoredFilter();
+    const excludedProviders = currentFilter?.providers ?? [];
+    const filteredSessions = excludedProviders.length > 0 ? sessions.filter((s) => !excludedProviders.includes(s.providerType)) : sessions;
+    const activeSessions = filteredSessions.filter((s) => isSessionInProgressStatus(s.status) && !s.isArchived());
+    const unreadSessions = filteredSessions.filter((s) => !s.isRead());
+    const attentionNeededSessions = filteredSessions.filter((s) => s.status === 3 && !this.chatWidgetService.getWidgetBySessionResource(s.resource));
+    return {
+      activeSessions,
+      unreadSessions,
+      attentionNeededSessions,
+      hasActiveSessions: activeSessions.length > 0,
+      hasUnreadSessions: unreadSessions.length > 0,
+      hasAttentionNeeded: attentionNeededSessions.length > 0
+    };
+  }
+  // #endregion
+  // #region Mode Renderers
+  _renderChatInputMode(disposables) {
+    if (!this._container) {
+      return;
+    }
+    const { activeSessions, unreadSessions, attentionNeededSessions, hasAttentionNeeded } = this._getSessionStats();
+    this._renderCommandCenterToolbar(disposables);
+    const pill = $("div.agent-status-pill.chat-input-mode");
+    if (hasAttentionNeeded) {
+      pill.classList.add("needs-attention");
+    }
+    pill.setAttribute("role", "button");
+    pill.setAttribute("aria-label", localize("openQuickAccess", "Open Quick Access"));
+    pill.tabIndex = 0;
+    this._firstFocusableElement = pill;
+    this._container.appendChild(pill);
+    const leftIcon = $("span.agent-status-left-icon");
+    if (hasAttentionNeeded) {
+      const reportIcon = renderIcon(Codicon.report);
+      const countSpan = $("span.agent-status-attention-count");
+      countSpan.textContent = String(attentionNeededSessions.length);
+      reset(leftIcon, reportIcon, countSpan);
+      leftIcon.classList.add("has-attention");
+    } else {
+      reset(leftIcon, renderIcon(Codicon.searchSparkle));
+    }
+    pill.appendChild(leftIcon);
+    const label = $("span.agent-status-label");
+    const { session: attentionSession, progress: progressText } = this._getSessionNeedingAttention(attentionNeededSessions);
+    this._displayedSession = attentionSession;
+    const defaultLabel = progressText ?? this._getLabel();
+    if (progressText) {
+      label.classList.add("has-progress");
+    }
+    const hoverLabel = localize("askAnythingPlaceholder", "Ask anything or describe what to build next");
+    label.textContent = defaultLabel;
+    pill.appendChild(label);
+    const sendIcon = $("span.agent-status-send");
+    reset(sendIcon, renderIcon(Codicon.send));
+    sendIcon.classList.add("hidden");
+    pill.appendChild(sendIcon);
+    if (!progressText) {
+      disposables.add(addDisposableListener(pill, EventType.MOUSE_ENTER, () => {
+        reset(leftIcon, renderIcon(Codicon.searchSparkle));
+        leftIcon.classList.remove("has-attention");
+        label.textContent = hoverLabel;
+        label.classList.remove("has-progress");
+        sendIcon.classList.remove("hidden");
+      }));
+      disposables.add(addDisposableListener(pill, EventType.MOUSE_LEAVE, () => {
+        reset(leftIcon, renderIcon(Codicon.searchSparkle));
+        label.textContent = defaultLabel;
+        sendIcon.classList.add("hidden");
+      }));
+    }
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    disposables.add(this.hoverService.setupManagedHover(hoverDelegate, pill, () => {
+      if (this._displayedSession) {
+        return localize("openSessionTooltip", "Open session: {0}", this._displayedSession.label);
+      }
+      const kbForTooltip = this.keybindingService.lookupKeybinding(UNIFIED_QUICK_ACCESS_ACTION_ID)?.getLabel();
+      return kbForTooltip ? localize("askTooltip", "Open Quick Access ({0})", kbForTooltip) : localize("askTooltip2", "Open Quick Access");
+    }));
+    disposables.add(addDisposableListener(pill, EventType.CLICK, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this._handlePillClick();
+    }));
+    disposables.add(addDisposableListener(pill, EventType.KEY_DOWN, (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        this._handlePillClick();
+      }
+    }));
+    if (this.configurationService.getValue(ChatConfiguration.AgentStatusEnabled) === true) {
+      this._renderStatusBadge(disposables, activeSessions, unreadSessions, attentionNeededSessions);
+    }
+  }
+  _renderSessionMode(disposables) {
+    if (!this._container) {
+      return;
+    }
+    const { activeSessions, unreadSessions, attentionNeededSessions } = this._getSessionStats();
+    this._renderCommandCenterToolbar(disposables);
+    const pill = $("div.agent-status-pill.session-mode");
+    this._container.appendChild(pill);
+    this._renderSearchButton(disposables, pill);
+    const titleLabel = $("span.agent-status-title");
+    const sessionInfo = this.agentTitleBarStatusService.sessionInfo;
+    titleLabel.textContent = sessionInfo?.title ?? localize("agentSessionProjection", "Agent Session Projection");
+    pill.appendChild(titleLabel);
+    this._renderEscapeButton(disposables, pill);
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    disposables.add(this.hoverService.setupManagedHover(hoverDelegate, pill, () => {
+      const sessionInfo2 = this.agentTitleBarStatusService.sessionInfo;
+      return sessionInfo2 ? localize("agentSessionProjectionTooltip", "Agent Session Projection: {0}", sessionInfo2.title) : localize("agentSessionProjection", "Agent Session Projection");
+    }));
+    const exitHandler = /* @__PURE__ */ __name((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.commandService.executeCommand(ExitAgentSessionProjectionAction.ID);
+    }, "exitHandler");
+    disposables.add(addDisposableListener(pill, EventType.CLICK, exitHandler));
+    disposables.add(addDisposableListener(pill, EventType.MOUSE_DOWN, exitHandler));
+    if (this.configurationService.getValue(ChatConfiguration.AgentStatusEnabled) === true) {
+      this._renderStatusBadge(disposables, activeSessions, unreadSessions, attentionNeededSessions);
+    }
+  }
+  /**
+   * Render session ready mode - shows session title + enter projection button.
+   * Used when a projection-capable session is available but not yet entered.
+   */
+  _renderSessionReadyMode(disposables) {
+    if (!this._container) {
+      return;
+    }
+    const { activeSessions, unreadSessions, attentionNeededSessions } = this._getSessionStats();
+    const pill = $("div.agent-status-pill.session-ready-mode");
+    this._container.appendChild(pill);
+    const titleLabel = $("span.agent-status-title");
+    const sessionInfo = this.agentTitleBarStatusService.sessionInfo;
+    titleLabel.textContent = sessionInfo?.title ?? localize("agentSessionReady", "Review Changes");
+    pill.appendChild(titleLabel);
+    this._renderEnterButton(disposables, pill);
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    disposables.add(this.hoverService.setupManagedHover(hoverDelegate, pill, () => {
+      const sessionInfo2 = this.agentTitleBarStatusService.sessionInfo;
+      return sessionInfo2 ? localize("agentSessionReadyTooltip", "Review changes from: {0}", sessionInfo2.title) : localize("agentSessionReadyGeneric", "Review agent session changes");
+    }));
+    const enterHandler = /* @__PURE__ */ __name((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const sessionInfo2 = this.agentTitleBarStatusService.sessionInfo;
+      if (sessionInfo2) {
+        const session = this.agentSessionsService.getSession(sessionInfo2.sessionResource);
+        if (session) {
+          this.commandService.executeCommand(EnterAgentSessionProjectionAction.ID, session);
+        }
+      }
+    }, "enterHandler");
+    disposables.add(addDisposableListener(pill, EventType.CLICK, enterHandler));
+    disposables.add(addDisposableListener(pill, EventType.MOUSE_DOWN, enterHandler));
+    if (this.configurationService.getValue(ChatConfiguration.AgentStatusEnabled) === true) {
+      this._renderStatusBadge(disposables, activeSessions, unreadSessions, attentionNeededSessions);
+    }
+  }
+  /**
+   * Render badge-only mode - just the status badge without the full pill.
+   * Used when Agent Status is enabled but Enhanced Agent Status is not.
+   */
+  _renderBadgeOnlyMode(disposables) {
+    if (!this._container) {
+      return;
+    }
+    const { activeSessions, unreadSessions, attentionNeededSessions } = this._getSessionStats();
+    this._renderStatusBadge(disposables, activeSessions, unreadSessions, attentionNeededSessions);
+  }
+  // #endregion
+  // #region Reusable Components
+  /**
+   * Render command center toolbar items (like debug toolbar) that are registered to CommandCenter
+   * Filters out the quick open action since we provide our own search UI.
+   * Adds a dot separator after the toolbar if content was rendered.
+   */
+  _renderCommandCenterToolbar(disposables) {
+    if (!this._container) {
+      return;
+    }
+    const allActions = [];
+    for (const [, actions] of this._commandCenterMenu.getActions({ shouldForwardArgs: true })) {
+      for (const action of actions) {
+        if (action.id === QUICK_OPEN_ACTION_ID) {
+          continue;
+        }
+        if (action instanceof SubmenuAction) {
+          allActions.push(...action.actions);
+        } else {
+          allActions.push(action);
+        }
+      }
+    }
+    if (allActions.length === 0) {
+      return;
+    }
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    const toolbarContainer = $("div.agent-status-command-center-toolbar");
+    this._container.appendChild(toolbarContainer);
+    const toolbar = this.instantiationService.createInstance(WorkbenchToolBar, toolbarContainer, {
+      hiddenItemStrategy: -1,
+      telemetrySource: "agentStatusCommandCenter",
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        return createActionViewItem(this.instantiationService, action, { ...options, hoverDelegate });
+      }, "actionViewItemProvider")
+    });
+    disposables.add(toolbar);
+    toolbar.setActions(allActions);
+    const separator = renderIcon(Codicon.circleSmallFilled);
+    separator.classList.add("agent-status-separator");
+    this._container.appendChild(separator);
+  }
+  /**
+   * Render the search button. If parent is provided, appends to parent; otherwise appends to container.
+   */
+  _renderSearchButton(disposables, parent) {
+    const container = parent ?? this._container;
+    if (!container) {
+      return;
+    }
+    const searchButton = $("span.agent-status-search");
+    reset(searchButton, renderIcon(Codicon.searchSparkle));
+    searchButton.setAttribute("role", "button");
+    searchButton.setAttribute("aria-label", localize("openQuickOpen", "Open Quick Open"));
+    searchButton.tabIndex = 0;
+    if (!this._firstFocusableElement) {
+      this._firstFocusableElement = searchButton;
+    }
+    container.appendChild(searchButton);
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    const searchKb = this.keybindingService.lookupKeybinding(QUICK_OPEN_ACTION_ID)?.getLabel();
+    const searchTooltip = searchKb ? localize("openQuickOpenTooltip", "Go to File ({0})", searchKb) : localize("openQuickOpenTooltip2", "Go to File");
+    disposables.add(this.hoverService.setupManagedHover(hoverDelegate, searchButton, searchTooltip));
+    disposables.add(addDisposableListener(searchButton, EventType.CLICK, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.commandService.executeCommand(QUICK_OPEN_ACTION_ID);
+    }));
+    disposables.add(addDisposableListener(searchButton, EventType.KEY_DOWN, (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        this.commandService.executeCommand(QUICK_OPEN_ACTION_ID);
+      }
+    }));
+  }
+  /**
+   * Render the status badge showing in-progress, needs-input, and/or unread session counts.
+   * Shows split UI with sparkle icon on left, then unread, needs-input, and active indicators.
+   * Always renders the sparkle icon section.
+   */
+  _renderStatusBadge(disposables, activeSessions, unreadSessions, attentionNeededSessions) {
+    if (!this._container) {
+      return;
+    }
+    const hasActiveSessions = activeSessions.length > 0;
+    const hasUnreadSessions = unreadSessions.length > 0;
+    const hasAttentionNeeded = attentionNeededSessions.length > 0;
+    this._clearFilterIfCategoryEmpty(hasUnreadSessions, hasActiveSessions);
+    const badge = $("div.agent-status-badge");
+    this._container.appendChild(badge);
+    const sparkleContainer = $("span.agent-status-badge-section.sparkle");
+    sparkleContainer.tabIndex = 0;
+    if (!this._firstFocusableElement) {
+      this._firstFocusableElement = sparkleContainer;
+    }
+    badge.appendChild(sparkleContainer);
+    const menuActions = Separator.join(...this._chatTitleBarMenu.getActions({ shouldForwardArgs: true }).map(([, actions]) => actions));
+    const chatSentiment = this.chatEntitlementService.sentiment;
+    const chatQuotaExceeded = this.chatEntitlementService.quotas.chat?.percentRemaining === 0;
+    const signedOut = this.chatEntitlementService.entitlement === ChatEntitlement.Unknown;
+    const anonymous = this.chatEntitlementService.anonymous;
+    const free = this.chatEntitlementService.entitlement === ChatEntitlement.Free;
+    let primaryActionId = TOGGLE_CHAT_ACTION_ID;
+    let primaryActionTitle = localize("toggleChat", "Toggle Chat");
+    let primaryActionIcon = Codicon.chatSparkle;
+    if (chatSentiment.installed && !chatSentiment.disabled) {
+      if (signedOut && !anonymous) {
+        primaryActionId = CHAT_SETUP_ACTION_ID;
+        primaryActionTitle = localize("signInToChatSetup", "Sign in to use AI features...");
+        primaryActionIcon = Codicon.chatSparkleError;
+      } else if (chatQuotaExceeded && free) {
+        primaryActionId = OPEN_CHAT_QUOTA_EXCEEDED_DIALOG;
+        primaryActionTitle = localize("chatQuotaExceededButton", "GitHub Copilot Free plan chat messages quota reached. Click for details.");
+        primaryActionIcon = Codicon.chatSparkleWarning;
+      }
+    }
+    const primaryAction = this.instantiationService.createInstance(MenuItemAction, {
+      id: primaryActionId,
+      title: primaryActionTitle,
+      icon: primaryActionIcon
+    }, void 0, void 0, void 0, void 0);
+    const dropdownAction = toAction({
+      id: "agentStatus.sparkle.dropdown",
+      label: localize("agentStatus.sparkle.dropdown", "More Actions"),
+      run() {
+      }
+    });
+    const sparkleDropdown = this.instantiationService.createInstance(DropdownWithPrimaryActionViewItem, primaryAction, dropdownAction, menuActions, "agent-status-sparkle-dropdown", { skipTelemetry: true });
+    sparkleDropdown.render(sparkleContainer);
+    disposables.add(sparkleDropdown);
+    disposables.add(addDisposableListener(sparkleContainer, EventType.KEY_DOWN, (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        this.commandService.executeCommand(primaryActionId);
+      } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        e.stopPropagation();
+        sparkleDropdown.showDropdown();
+      }
+    }));
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    const viewSessionsEnabled = this.configurationService.getValue(ChatConfiguration.ChatViewSessionsEnabled) !== false;
+    if (viewSessionsEnabled && hasUnreadSessions && this.workspaceContextService.getWorkbenchState() !== 1) {
+      const { isFilteredToUnread } = this._getCurrentFilterState();
+      const unreadSection = $("span.agent-status-badge-section.unread");
+      if (isFilteredToUnread) {
+        unreadSection.classList.add("filtered");
+      }
+      unreadSection.setAttribute("role", "button");
+      unreadSection.tabIndex = 0;
+      const unreadIcon = $("span.agent-status-icon");
+      reset(unreadIcon, renderIcon(Codicon.circleFilled));
+      unreadSection.appendChild(unreadIcon);
+      const unreadCount = $("span.agent-status-text");
+      unreadCount.textContent = String(unreadSessions.length);
+      unreadSection.appendChild(unreadCount);
+      badge.appendChild(unreadSection);
+      disposables.add(addDisposableListener(unreadSection, EventType.CLICK, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this._openSessionsWithFilter("unread");
+      }));
+      disposables.add(addDisposableListener(unreadSection, EventType.KEY_DOWN, (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          this._openSessionsWithFilter("unread");
+        }
+      }));
+      const unreadTooltip = unreadSessions.length === 1 ? localize("unreadSessionsTooltip1", "{0} unread session", unreadSessions.length) : localize("unreadSessionsTooltip", "{0} unread sessions", unreadSessions.length);
+      disposables.add(this.hoverService.setupManagedHover(hoverDelegate, unreadSection, unreadTooltip));
+    }
+    if (viewSessionsEnabled && hasActiveSessions) {
+      const { isFilteredToInProgress } = this._getCurrentFilterState();
+      const activeSection = $("span.agent-status-badge-section.active");
+      if (hasAttentionNeeded) {
+        activeSection.classList.add("needs-input");
+      }
+      if (isFilteredToInProgress) {
+        activeSection.classList.add("filtered");
+      }
+      activeSection.setAttribute("role", "button");
+      activeSection.tabIndex = 0;
+      const statusIcon = $("span.agent-status-icon");
+      reset(statusIcon, renderIcon(hasAttentionNeeded ? Codicon.report : Codicon.sessionInProgress));
+      activeSection.appendChild(statusIcon);
+      const statusCount = $("span.agent-status-text");
+      statusCount.textContent = String(hasAttentionNeeded ? attentionNeededSessions.length : activeSessions.length);
+      activeSection.appendChild(statusCount);
+      badge.appendChild(activeSection);
+      disposables.add(addDisposableListener(activeSection, EventType.CLICK, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this._openSessionsWithFilter("inProgress");
+      }));
+      disposables.add(addDisposableListener(activeSection, EventType.KEY_DOWN, (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          this._openSessionsWithFilter("inProgress");
+        }
+      }));
+      const activeTooltip = hasAttentionNeeded ? attentionNeededSessions.length === 1 ? localize("needsInputSessionsTooltip1", "{0} session needs input", attentionNeededSessions.length) : localize("needsInputSessionsTooltip", "{0} sessions need input", attentionNeededSessions.length) : activeSessions.length === 1 ? localize("activeSessionsTooltip1", "{0} session in progress", activeSessions.length) : localize("activeSessionsTooltip", "{0} sessions in progress", activeSessions.length);
+      disposables.add(this.hoverService.setupManagedHover(hoverDelegate, activeSection, activeTooltip));
+    }
+  }
+  /**
+   * Clear the filter if the currently filtered category becomes empty.
+   * For example, if filtered to "unread" but no unread sessions exist, restore user's previous filter.
+   * Only auto-clears if THIS window applied the badge filter to avoid cross-window interference.
+   */
+  _clearFilterIfCategoryEmpty(hasUnreadSessions, hasActiveSessions) {
+    if (this._badgeFilterAppliedByThisWindow === "unread" && !hasUnreadSessions) {
+      this._restoreUserFilter();
+    } else if (this._badgeFilterAppliedByThisWindow === "inProgress" && !hasActiveSessions) {
+      this._restoreUserFilter();
+    }
+  }
+  /**
+   * Get the current filter state from storage.
+   */
+  _getCurrentFilterState() {
+    const filter = this._getStoredFilter();
+    if (!filter) {
+      return { isFilteredToUnread: false, isFilteredToInProgress: false };
+    }
+    const isFilteredToUnread = filter.read === true && filter.states.length === 0;
+    const isFilteredToInProgress = filter.states?.length === 2 && filter.read === false;
+    return { isFilteredToUnread, isFilteredToInProgress };
+  }
+  /**
+   * Get the stored filter object from storage.
+   */
+  _getStoredFilter() {
+    const filterStr = this.storageService.get(
+      FILTER_STORAGE_KEY,
+      0
+      /* StorageScope.PROFILE */
+    );
+    if (!filterStr) {
+      return void 0;
+    }
+    try {
+      return JSON.parse(filterStr);
+    } catch {
+      return void 0;
+    }
+  }
+  /**
+   * Store a filter object to storage.
+   */
+  _storeFilter(filter) {
+    this.storageService.store(
+      FILTER_STORAGE_KEY,
+      JSON.stringify(filter),
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  /**
+   * Clear all filters (reset to default).
+   */
+  _clearFilter() {
+    this._storeFilter({
+      providers: [],
+      states: [],
+      archived: true,
+      read: false
+    });
+  }
+  /**
+   * Save the current user filter before we override it with a badge filter.
+   * Only saves if the current filter is NOT already a badge filter (unread or in-progress).
+   * This preserves the original user filter when switching between badge filters.
+   */
+  _saveUserFilter() {
+    const { isFilteredToUnread, isFilteredToInProgress } = this._getCurrentFilterState();
+    if (isFilteredToUnread || isFilteredToInProgress) {
+      return;
+    }
+    const currentFilter = this._getStoredFilter();
+    if (currentFilter) {
+      this.storageService.store(
+        PREVIOUS_FILTER_STORAGE_KEY,
+        JSON.stringify(currentFilter),
+        0,
+        0
+        /* StorageTarget.USER */
+      );
+    }
+  }
+  /**
+   * Restore the user's previous filter (saved before we applied a badge filter).
+   */
+  _restoreUserFilter() {
+    const previousFilterStr = this.storageService.get(
+      PREVIOUS_FILTER_STORAGE_KEY,
+      0
+      /* StorageScope.PROFILE */
+    );
+    if (previousFilterStr) {
+      try {
+        const previousFilter = JSON.parse(previousFilterStr);
+        this._storeFilter(previousFilter);
+      } catch {
+        this._clearFilter();
+      }
+    } else {
+      this._clearFilter();
+    }
+    this.storageService.remove(
+      PREVIOUS_FILTER_STORAGE_KEY,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this._badgeFilterAppliedByThisWindow = null;
+  }
+  /**
+   * Opens the agent sessions view with a specific filter applied, or restores previous filter if already applied.
+   * Preserves session type (provider) filters while toggling only status filters.
+   * @param filterType 'unread' to show only unread sessions, 'inProgress' to show only in-progress sessions
+   */
+  _openSessionsWithFilter(filterType) {
+    const { isFilteredToUnread, isFilteredToInProgress } = this._getCurrentFilterState();
+    const currentFilter = this._getStoredFilter();
+    const preservedProviders = currentFilter?.providers ?? [];
+    if (filterType === "unread") {
+      if (isFilteredToUnread) {
+        this._restoreUserFilter();
+      } else {
+        this._saveUserFilter();
+        this._storeFilter({
+          providers: preservedProviders,
+          states: [],
+          archived: true,
+          read: true
+        });
+        this._badgeFilterAppliedByThisWindow = "unread";
+      }
+    } else {
+      if (isFilteredToInProgress) {
+        this._restoreUserFilter();
+      } else {
+        this._saveUserFilter();
+        this._storeFilter({
+          providers: preservedProviders,
+          states: [
+            1,
+            0
+            /* AgentSessionStatus.Failed */
+          ],
+          archived: true,
+          read: false
+        });
+        this._badgeFilterAppliedByThisWindow = "inProgress";
+      }
+    }
+    this.commandService.executeCommand(FocusAgentSessionsAction.id);
+  }
+  /**
+   * Render the escape button for exiting session projection mode.
+   */
+  _renderEscapeButton(disposables, parent) {
+    const escButton = $("span.agent-status-esc-button");
+    escButton.textContent = "Esc";
+    escButton.setAttribute("role", "button");
+    escButton.setAttribute("aria-label", localize("exitAgentSessionProjection", "Exit Agent Session Projection"));
+    escButton.tabIndex = 0;
+    parent.appendChild(escButton);
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    disposables.add(this.hoverService.setupManagedHover(hoverDelegate, escButton, localize("exitAgentSessionProjectionTooltip", "Exit Agent Session Projection (Escape)")));
+    disposables.add(addDisposableListener(escButton, EventType.MOUSE_DOWN, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.commandService.executeCommand(ExitAgentSessionProjectionAction.ID);
+    }));
+    disposables.add(addDisposableListener(escButton, EventType.CLICK, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.commandService.executeCommand(ExitAgentSessionProjectionAction.ID);
+    }));
+    disposables.add(addDisposableListener(escButton, EventType.KEY_DOWN, (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        this.commandService.executeCommand(ExitAgentSessionProjectionAction.ID);
+      }
+    }));
+  }
+  /**
+   * Render the enter button for entering session projection mode.
+   */
+  _renderEnterButton(disposables, parent) {
+    const enterButton = $("span.agent-status-enter-button");
+    const keybinding = this.keybindingService.lookupKeybinding(EnterAgentSessionProjectionAction.ID);
+    enterButton.textContent = keybinding?.getLabel() ?? localize("review", "Review");
+    enterButton.setAttribute("role", "button");
+    enterButton.setAttribute("aria-label", localize("enterAgentSessionProjection", "Enter Agent Session Projection"));
+    enterButton.tabIndex = 0;
+    if (!this._firstFocusableElement) {
+      this._firstFocusableElement = enterButton;
+    }
+    parent.appendChild(enterButton);
+    const hoverDelegate = getDefaultHoverDelegate("mouse");
+    const hoverText = keybinding ? localize("enterAgentSessionProjectionTooltip", "Review Changes ({0})", keybinding.getLabel()) : localize("enterAgentSessionProjectionTooltipNoKey", "Review Changes");
+    disposables.add(this.hoverService.setupManagedHover(hoverDelegate, enterButton, hoverText));
+    const enterProjection = /* @__PURE__ */ __name((e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const sessionInfo = this.agentTitleBarStatusService.sessionInfo;
+      if (sessionInfo) {
+        const session = this.agentSessionsService.getSession(sessionInfo.sessionResource);
+        if (session) {
+          this.commandService.executeCommand(EnterAgentSessionProjectionAction.ID, session);
+        }
+      }
+    }, "enterProjection");
+    disposables.add(addDisposableListener(enterButton, EventType.MOUSE_DOWN, enterProjection));
+    disposables.add(addDisposableListener(enterButton, EventType.CLICK, enterProjection));
+    disposables.add(addDisposableListener(enterButton, EventType.KEY_DOWN, (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        enterProjection(e);
+      }
+    }));
+  }
+  // #endregion
+  // #region Click Handlers
+  /**
+   * Handle pill click - opens the displayed session if showing progress, otherwise opens unified quick access
+   */
+  _handlePillClick() {
+    if (this._displayedSession) {
+      this.instantiationService.invokeFunction(openSession, this._displayedSession);
+    } else {
+      this.commandService.executeCommand(UNIFIED_QUICK_ACCESS_ACTION_ID);
+    }
+  }
+  // #endregion
+  // #region Session Helpers
+  /**
+   * Get the session most urgently needing user attention (approval/confirmation/input).
+   * Returns undefined if no sessions need attention.
+   */
+  _getSessionNeedingAttention(attentionNeededSessions) {
+    if (attentionNeededSessions.length === 0) {
+      return { session: void 0, progress: void 0 };
+    }
+    const sorted = [...attentionNeededSessions].sort((a, b) => {
+      const timeA = a.timing.lastRequestStarted ?? a.timing.created;
+      const timeB = b.timing.lastRequestStarted ?? b.timing.created;
+      return timeB - timeA;
+    });
+    const mostRecent = sorted[0];
+    if (!mostRecent.description) {
+      return { session: mostRecent, progress: mostRecent.label };
+    }
+    const progress = typeof mostRecent.description === "string" ? mostRecent.description : renderAsPlaintext(mostRecent.description);
+    return { session: mostRecent, progress };
+  }
+  // #endregion
+  // #region Label Helpers
+  /**
+   * Compute the label to display, matching the command center behavior.
+   * Includes prefix and suffix decorations (remote host, extension dev host, etc.)
+   */
+  _getLabel() {
+    const { prefix, suffix } = this._getTitleDecorations();
+    let label = this.labelService.getWorkspaceLabel(this.workspaceContextService.getWorkspace());
+    if (this.editorGroupsService.partOptions.showTabs === "none") {
+      const activeEditor = this.editorService.activeEditor;
+      if (activeEditor) {
+        const dirty = activeEditor.isDirty() && !activeEditor.isSaving() ? TITLE_DIRTY : "";
+        label = `${dirty}${activeEditor.getTitle(
+          0
+          /* Verbosity.SHORT */
+        )}`;
+      }
+    }
+    if (!label) {
+      label = localize("agentStatusWidget.askAnything", "Ask anything...");
+    }
+    if (prefix) {
+      label = localize("label1", "{0} {1}", prefix, label);
+    }
+    if (suffix) {
+      label = localize("label2", "{0} {1}", label, suffix);
+    }
+    return label.replaceAll(/\r\n|\r|\n/g, "\u23CE");
+  }
+  /**
+   * Get prefix and suffix decorations for the title (matching WindowTitle behavior)
+   */
+  _getTitleDecorations() {
+    let prefix;
+    const suffix = void 0;
+    if (this.environmentService.remoteAuthority) {
+      prefix = this.labelService.getHostLabel(Schemas.vscodeRemote, this.environmentService.remoteAuthority);
+    }
+    if (this.environmentService.isExtensionDevelopment) {
+      prefix = !prefix ? NLS_EXTENSION_HOST : `${NLS_EXTENSION_HOST} - ${prefix}`;
+    }
+    return { prefix, suffix };
+  }
+};
+AgentTitleBarStatusWidget = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IAgentTitleBarStatusService),
+  __param(4, IHoverService),
+  __param(5, ICommandService),
+  __param(6, IKeybindingService),
+  __param(7, IAgentSessionsService),
+  __param(8, ILabelService),
+  __param(9, IWorkspaceContextService),
+  __param(10, IBrowserWorkbenchEnvironmentService),
+  __param(11, IEditorGroupsService),
+  __param(12, IEditorService),
+  __param(13, IMenuService),
+  __param(14, IContextKeyService),
+  __param(15, IStorageService),
+  __param(16, IConfigurationService),
+  __param(17, IChatEntitlementService),
+  __param(18, IChatWidgetService)
+], AgentTitleBarStatusWidget);
+let AgentTitleBarStatusRendering = class AgentTitleBarStatusRendering2 extends Disposable {
+  static {
+    __name(this, "AgentTitleBarStatusRendering");
+  }
+  static {
+    this.ID = "workbench.contrib.agentStatus.rendering";
+  }
+  constructor(actionViewItemService, instantiationService, configurationService) {
+    super();
+    this._register(actionViewItemService.register(MenuId.CommandCenter, MenuId.AgentsTitleBarControlMenu, (action, options) => {
+      if (!(action instanceof SubmenuItemAction)) {
+        return void 0;
+      }
+      return instantiationService.createInstance(AgentTitleBarStatusWidget, action, options);
+    }, void 0));
+    const updateClass = /* @__PURE__ */ __name(() => {
+      const commandCenterEnabled = configurationService.getValue(
+        "window.commandCenter"
+        /* LayoutSettings.COMMAND_CENTER */
+      ) === true;
+      const enabled = configurationService.getValue(ChatConfiguration.AgentStatusEnabled) === true && commandCenterEnabled;
+      const enhanced = configurationService.getValue(ChatConfiguration.UnifiedAgentsBar) === true && commandCenterEnabled;
+      mainWindow.document.body.classList.toggle("agent-status-enabled", enabled);
+      mainWindow.document.body.classList.toggle("unified-agents-bar", enhanced);
+    }, "updateClass");
+    updateClass();
+    this._register(configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(ChatConfiguration.AgentStatusEnabled) || e.affectsConfiguration(ChatConfiguration.UnifiedAgentsBar) || e.affectsConfiguration(
+        "window.commandCenter"
+        /* LayoutSettings.COMMAND_CENTER */
+      )) {
+        updateClass();
+      }
+    }));
+  }
+};
+AgentTitleBarStatusRendering = __decorate([
+  __param(0, IActionViewItemService),
+  __param(1, IInstantiationService),
+  __param(2, IConfigurationService)
+], AgentTitleBarStatusRendering);
+export {
+  AgentTitleBarStatusRendering,
+  AgentTitleBarStatusWidget
+};
+//# sourceMappingURL=agentTitleBarStatusWidget.js.map

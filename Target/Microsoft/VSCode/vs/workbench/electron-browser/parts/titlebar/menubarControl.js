@@ -1,1 +1,187 @@
-import{$Hm as c}from"../../../../base/common/actions.js";import{$rL as M,$tL as l,$uL as _}from"../../../../platform/actions/common/actions.js";import{$ro as k}from"../../../../platform/contextkey/common/contextkey.js";import{$5v as w}from"../../../../platform/workspaces/common/workspaces.js";import{$n as A}from"../../../../base/common/platform.js";import{$pH as j}from"../../../../platform/notification/common/notification.js";import{$fy as O}from"../../../../platform/keybinding/common/keybinding.js";import{$SPc as S}from"../../../services/environment/electron-browser/environmentService.js";import{$MD as I}from"../../../../platform/accessibility/common/accessibility.js";import{$0l as R}from"../../../../platform/configuration/common/configuration.js";import{$oH as H}from"../../../../platform/label/common/label.js";import{$My as N}from"../../../../platform/update/common/update.js";import{$X0b as q}from"../../../browser/parts/titlebar/menubarControl.js";import{$hp as x}from"../../../../platform/storage/common/storage.js";import{$WUc as U}from"../../../../platform/menubar/electron-browser/menubar.js";import{$Xu as D}from"../../../../platform/native/common/native.js";import{$gcb as F}from"../../../services/host/browser/host.js";import{$2M as J}from"../../../services/preferences/common/preferences.js";import{$uo as P}from"../../../../platform/commands/common/commands.js";import{$2Wb as V}from"../../../browser/actions/windowActions.js";import{$xo as W}from"../../../../platform/action/common/action.js";import{$7jb as X}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";var v=function(f,e,i,r){var t=arguments.length,n=t<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,i):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(f,e,i,r);else for(var m=f.length-1;m>=0;m--)(s=f[m])&&(n=(t<3?s(n):t>3?s(e,i,n):s(e,i))||n);return t>3&&n&&Object.defineProperty(e,i,n),n},o=function(f,e){return function(i,r){e(i,r,f)}};let u=class extends q{constructor(e,i,r,t,n,s,m,b,a,h,d,p,g,$,y,L){super(e,i,r,t,n,s,m,b,a,h,d,p,$,L),this.$=g,this.ab=y,(async()=>(this.h=await this.q.getRecentlyOpened(),this.J()))(),this.L()}M(){super.M();for(const e of Object.keys(this.f)){const i=this.c[e];i&&this.g.add(i.onDidChange(()=>this.N()))}}J(){if(!this.H.hasFocus)return;const e={menus:{},keybindings:{}};this.db(e)&&this.$.updateMenubar(this.ab.windowId,e)}db(e){if(!e)return!1;e.keybindings=this.gb();for(const i of Object.keys(this.f)){const r=this.c[i];if(r){const t={items:[]},n=X(r.getActions({shouldForwardArgs:!0}));if(this.eb(n,t,e.keybindings),t.items.length===0)return!1;e.menus[i]=t}}return!0}eb(e,i,r){for(const t of e)if(t instanceof c)i.items.push({id:"vscode.menubar.separator"});else if(t instanceof _||t instanceof l){const n=typeof t.item.title=="string"?t.item.title:t.item.title.mnemonicTitle??t.item.title.value;if(t instanceof l){const s={items:[]};if(this.eb(t.actions,s,r),s.items.length>0){const m={id:t.id,label:n,submenu:s};i.items.push(m)}}else{if(t.id===V.ID){const m=this.R().map(this.fb);i.items.push(...m)}const s={id:t.id,label:n};W(t.item.toggled)&&(s.label=t.item.toggled.mnemonicTitle??t.item.toggled.title??n),t.checked&&(s.checked=!0),t.enabled||(s.enabled=!1),r[t.id]=this.hb(t.id),i.items.push(s)}}}fb(e){return e instanceof c?{id:"vscode.menubar.separator"}:{id:e.id,uri:e.uri,remoteAuthority:e.remoteAuthority,enabled:e.enabled,label:e.label}}gb(){const e={};if(A){const i=this.hb("workbench.action.quit");i&&(e["workbench.action.quit"]=i)}return e}hb(e){const i=this.s.lookupKeybinding(e);if(!i)return;const r=i.getElectronAccelerator();if(r)return{label:r,userSettingsLabel:i.getUserSettingsLabel()??void 0};const t=i.getLabel();if(t)return{label:t,isNative:!1,userSettingsLabel:i.getUserSettingsLabel()??void 0}}};u=v([o(0,M),o(1,w),o(2,k),o(3,O),o(4,R),o(5,H),o(6,N),o(7,x),o(8,j),o(9,J),o(10,S),o(11,I),o(12,U),o(13,F),o(14,D),o(15,P)],u);export{u as $PVc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Separator } from "../../../../base/common/actions.js";
+import { IMenuService, SubmenuItemAction, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IWorkspacesService } from "../../../../platform/workspaces/common/workspaces.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-browser/environmentService.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { MenubarControl } from "../../../browser/parts/titlebar/menubarControl.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IMenubarService } from "../../../../platform/menubar/electron-browser/menubar.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { OpenRecentAction } from "../../../browser/actions/windowActions.js";
+import { isICommandActionToggleInfo } from "../../../../platform/action/common/action.js";
+import { getFlatContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+let NativeMenubarControl = class NativeMenubarControl2 extends MenubarControl {
+  static {
+    __name(this, "NativeMenubarControl");
+  }
+  constructor(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, menubarService, hostService, nativeHostService, commandService) {
+    super(menuService, workspacesService, contextKeyService, keybindingService, configurationService, labelService, updateService, storageService, notificationService, preferencesService, environmentService, accessibilityService, hostService, commandService);
+    this.menubarService = menubarService;
+    this.nativeHostService = nativeHostService;
+    (async () => {
+      this.recentlyOpened = await this.workspacesService.getRecentlyOpened();
+      this.doUpdateMenubar();
+    })();
+    this.registerListeners();
+  }
+  setupMainMenu() {
+    super.setupMainMenu();
+    for (const topLevelMenuName of Object.keys(this.topLevelTitles)) {
+      const menu = this.menus[topLevelMenuName];
+      if (menu) {
+        this.mainMenuDisposables.add(menu.onDidChange(() => this.updateMenubar()));
+      }
+    }
+  }
+  doUpdateMenubar() {
+    if (!this.hostService.hasFocus) {
+      return;
+    }
+    const menubarData = { menus: {}, keybindings: {} };
+    if (this.getMenubarMenus(menubarData)) {
+      this.menubarService.updateMenubar(this.nativeHostService.windowId, menubarData);
+    }
+  }
+  getMenubarMenus(menubarData) {
+    if (!menubarData) {
+      return false;
+    }
+    menubarData.keybindings = this.getAdditionalKeybindings();
+    for (const topLevelMenuName of Object.keys(this.topLevelTitles)) {
+      const menu = this.menus[topLevelMenuName];
+      if (menu) {
+        const menubarMenu = { items: [] };
+        const menuActions = getFlatContextMenuActions(menu.getActions({ shouldForwardArgs: true }));
+        this.populateMenuItems(menuActions, menubarMenu, menubarData.keybindings);
+        if (menubarMenu.items.length === 0) {
+          return false;
+        }
+        menubarData.menus[topLevelMenuName] = menubarMenu;
+      }
+    }
+    return true;
+  }
+  populateMenuItems(menuActions, menuToPopulate, keybindings) {
+    for (const menuItem of menuActions) {
+      if (menuItem instanceof Separator) {
+        menuToPopulate.items.push({ id: "vscode.menubar.separator" });
+      } else if (menuItem instanceof MenuItemAction || menuItem instanceof SubmenuItemAction) {
+        const title = typeof menuItem.item.title === "string" ? menuItem.item.title : menuItem.item.title.mnemonicTitle ?? menuItem.item.title.value;
+        if (menuItem instanceof SubmenuItemAction) {
+          const submenu = { items: [] };
+          this.populateMenuItems(menuItem.actions, submenu, keybindings);
+          if (submenu.items.length > 0) {
+            const menubarSubmenuItem = {
+              id: menuItem.id,
+              label: title,
+              submenu
+            };
+            menuToPopulate.items.push(menubarSubmenuItem);
+          }
+        } else {
+          if (menuItem.id === OpenRecentAction.ID) {
+            const actions = this.getOpenRecentActions().map(this.transformOpenRecentAction);
+            menuToPopulate.items.push(...actions);
+          }
+          const menubarMenuItem = {
+            id: menuItem.id,
+            label: title
+          };
+          if (isICommandActionToggleInfo(menuItem.item.toggled)) {
+            menubarMenuItem.label = menuItem.item.toggled.mnemonicTitle ?? menuItem.item.toggled.title ?? title;
+          }
+          if (menuItem.checked) {
+            menubarMenuItem.checked = true;
+          }
+          if (!menuItem.enabled) {
+            menubarMenuItem.enabled = false;
+          }
+          keybindings[menuItem.id] = this.getMenubarKeybinding(menuItem.id);
+          menuToPopulate.items.push(menubarMenuItem);
+        }
+      }
+    }
+  }
+  transformOpenRecentAction(action) {
+    if (action instanceof Separator) {
+      return { id: "vscode.menubar.separator" };
+    }
+    return {
+      id: action.id,
+      uri: action.uri,
+      remoteAuthority: action.remoteAuthority,
+      enabled: action.enabled,
+      label: action.label
+    };
+  }
+  getAdditionalKeybindings() {
+    const keybindings = {};
+    if (isMacintosh) {
+      const keybinding = this.getMenubarKeybinding("workbench.action.quit");
+      if (keybinding) {
+        keybindings["workbench.action.quit"] = keybinding;
+      }
+    }
+    return keybindings;
+  }
+  getMenubarKeybinding(id) {
+    const binding = this.keybindingService.lookupKeybinding(id);
+    if (!binding) {
+      return void 0;
+    }
+    const electronAccelerator = binding.getElectronAccelerator();
+    if (electronAccelerator) {
+      return { label: electronAccelerator, userSettingsLabel: binding.getUserSettingsLabel() ?? void 0 };
+    }
+    const acceleratorLabel = binding.getLabel();
+    if (acceleratorLabel) {
+      return { label: acceleratorLabel, isNative: false, userSettingsLabel: binding.getUserSettingsLabel() ?? void 0 };
+    }
+    return void 0;
+  }
+};
+NativeMenubarControl = __decorate([
+  __param(0, IMenuService),
+  __param(1, IWorkspacesService),
+  __param(2, IContextKeyService),
+  __param(3, IKeybindingService),
+  __param(4, IConfigurationService),
+  __param(5, ILabelService),
+  __param(6, IUpdateService),
+  __param(7, IStorageService),
+  __param(8, INotificationService),
+  __param(9, IPreferencesService),
+  __param(10, INativeWorkbenchEnvironmentService),
+  __param(11, IAccessibilityService),
+  __param(12, IMenubarService),
+  __param(13, IHostService),
+  __param(14, INativeHostService),
+  __param(15, ICommandService)
+], NativeMenubarControl);
+export {
+  NativeMenubarControl
+};
+//# sourceMappingURL=menubarControl.js.map

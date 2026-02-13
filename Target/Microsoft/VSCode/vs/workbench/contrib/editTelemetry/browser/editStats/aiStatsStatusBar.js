@@ -1,1 +1,260 @@
-import{n as e}from"../../../../../base/browser/dom.js";import{$w0 as v}from"../../../../../base/browser/ui/actionbar/actionbar.js";import{$bk as u}from"../../../../../base/common/codicons.js";import{$Jab as y}from"../../../../../base/common/hotReloadHelpers.js";import{$Ed as b,$Dd as $}from"../../../../../base/common/lifecycle.js";import{autorun as w,derived as m,observableValue as R}from"../../../../../base/common/observable.js";import{ThemeIcon as h}from"../../../../../base/common/themables.js";import{localize as d}from"../../../../../nls.js";import{$uo as S}from"../../../../../platform/commands/common/commands.js";import{$lkb as C}from"../../../../../platform/hover/browser/hover.js";import{$pp as L}from"../../../../../platform/telemetry/common/telemetry.js";import{$fDb as B}from"../../../../services/statusbar/browser/statusbar.js";import{$xLc as _}from"../settingIds.js";import{$zLc as I}from"./aiStatsChart.js";import"./media.css";var x=function(i,t,r,n){var a=arguments.length,s=a<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,r):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,t,r,n);else for(var l=i.length-1;l>=0;l--)(o=i[l])&&(s=(a<3?o(s):a>3?o(t,r,s):o(t,r))||s);return a>3&&s&&Object.defineProperty(t,r,s),s},p=function(i,t){return function(r,n){t(r,n,i)}};let g=class extends b{static{this.hot=y(this)}constructor(t,r,n,a){super(),this.a=t,this.b=r,this.c=n,this.f=a,this.D(w(s=>{const o=this.h().keepUpdated(s.store),l=this.D(new $);s.store.add(this.b.addEntry({name:d(8451,null),ariaLabel:d(8452,null),text:"",tooltip:{element:async c=>(this.g(),l.clear(),D({data:this.a,onOpenSettings:()=>M({ids:[_]}).run(this.c)}).keepUpdated(l).element),markdownNotSupportedFallback:void 0},content:o.element},"aiStatsStatusBar",1,100))}))}g(){this.f.publicLog2("aiStatsStatusBar.hover",{aiRate:this.a.aiRate.get()})}h(){return e.div({style:{height:"100%",display:"flex",alignItems:"center",justifyContent:"center",marginLeft:"3px",marginRight:"3px"}},[e.div({class:"ai-stats-status-bar",style:{display:"flex",flexDirection:"column",width:50,height:6,borderRadius:6,borderWidth:"1px",borderStyle:"solid"}},[e.div({style:{flex:1,display:"flex",overflow:"hidden",borderRadius:6,border:"1px solid transparent"}},[e.div({style:{width:this.a.aiRate.map(t=>`${t*100}%`),backgroundColor:"currentColor"}})])])])}};g=x([p(1,B),p(2,S),p(3,L)],g);function D(i){const t=R("chartViewMode","days"),r=i.data.aiRate.map(a=>`${Math.round(a*100)}%`),n=(a,s,o)=>m(l=>{const f=t.read(l)===a;return e.div({class:["chart-toggle-button",f?"active":""],style:{padding:"2px 4px",borderRadius:"3px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},onclick:()=>{t.set(a,void 0)},title:s},[e.div({class:h.asClassName(o),style:{fontSize:"14px"}})])});return e.div({class:"ai-stats-status-bar"},[e.div({class:"header",style:{minWidth:"280px"}},[e.div({style:{flex:1}},[d(8453,null)]),e.div({style:{marginLeft:"auto"}},i.onOpenSettings?j([{action:{id:"aiStats.statusBar.settings",label:"",enabled:!0,run:i.onOpenSettings,class:h.asClassName(u.gear),tooltip:d(8454,null)},options:{icon:!0,label:!1,hoverDelegate:C}}]):[])]),e.div({style:{display:"flex"}},[e.div({style:{flex:1,paddingRight:"4px"}},[d(8455,null,r.get())])]),e.div({style:{flex:1,paddingRight:"4px"}},[d(8456,null,i.data.acceptedInlineSuggestionsToday.get())]),e.div({style:{marginTop:"8px",borderTop:"1px solid var(--vscode-widget-border)",paddingTop:"8px"}},[e.div({class:"header",style:{display:"flex",alignItems:"center",marginBottom:"4px"}},[e.div({style:{flex:1}},[t.map(a=>a==="days"?d(8457,null):d(8458,null))]),e.div({class:"chart-view-toggle",style:{marginLeft:"auto",display:"flex",gap:"2px"}},[n("days",d(8459,null),u.calendar),n("sessions",d(8460,null),u.listFlat)])]),m(a=>{const s=i.data.sessions.read(a),o=t.read(a);return e.div({ref:l=>{const c=I({sessions:s,viewMode:o});l.appendChild(c)}})})])])}function j(i,t){return m(r=>e.div({class:[],style:{},ref:n=>{const a=r.store.add(new v(n,t));for(const{action:s,options:o}of i)a.push(s,o)}}))}class k{constructor(t,r=[]){this.commandId=t,this.args=r}run(t){t.executeCommand(this.commandId,...this.args)}}function M(i={}){return new k("workbench.action.openSettings",[{query:i.ids?i.ids.map(t=>`@id:${t}`).join(" "):void 0}])}export{g as $ALc,D as $BLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { n } from "../../../../../base/browser/dom.js";
+import { ActionBar } from "../../../../../base/browser/ui/actionbar/actionbar.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { createHotClass } from "../../../../../base/common/hotReloadHelpers.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { autorun, derived, observableValue } from "../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { nativeHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IStatusbarService } from "../../../../services/statusbar/browser/statusbar.js";
+import { AI_STATS_SETTING_ID } from "../settingIds.js";
+import { createAiStatsChart } from "./aiStatsChart.js";
+import "./media.css";
+let AiStatsStatusBar = class AiStatsStatusBar2 extends Disposable {
+  static {
+    __name(this, "AiStatsStatusBar");
+  }
+  static {
+    this.hot = createHotClass(this);
+  }
+  constructor(_aiStatsFeature, _statusbarService, _commandService, _telemetryService) {
+    super();
+    this._aiStatsFeature = _aiStatsFeature;
+    this._statusbarService = _statusbarService;
+    this._commandService = _commandService;
+    this._telemetryService = _telemetryService;
+    this._register(autorun((reader) => {
+      const statusBarItem = this._createStatusBar().keepUpdated(reader.store);
+      const store = this._register(new DisposableStore());
+      reader.store.add(this._statusbarService.addEntry({
+        name: localize("inlineSuggestions", "Inline Suggestions"),
+        ariaLabel: localize("inlineSuggestionsStatusBar", "Inline suggestions status bar"),
+        text: "",
+        tooltip: {
+          element: /* @__PURE__ */ __name(async (_token) => {
+            this._sendHoverTelemetry();
+            store.clear();
+            const elem = createAiStatsHover({
+              data: this._aiStatsFeature,
+              onOpenSettings: /* @__PURE__ */ __name(() => openSettingsCommand({ ids: [AI_STATS_SETTING_ID] }).run(this._commandService), "onOpenSettings")
+            });
+            return elem.keepUpdated(store).element;
+          }, "element"),
+          markdownNotSupportedFallback: void 0
+        },
+        content: statusBarItem.element
+      }, "aiStatsStatusBar", 1, 100));
+    }));
+  }
+  _sendHoverTelemetry() {
+    this._telemetryService.publicLog2("aiStatsStatusBar.hover", {
+      aiRate: this._aiStatsFeature.aiRate.get()
+    });
+  }
+  _createStatusBar() {
+    return n.div({
+      style: {
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginLeft: "3px",
+        marginRight: "3px"
+      }
+    }, [
+      n.div({
+        class: "ai-stats-status-bar",
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          width: 50,
+          height: 6,
+          borderRadius: 6,
+          borderWidth: "1px",
+          borderStyle: "solid"
+        }
+      }, [
+        n.div({
+          style: {
+            flex: 1,
+            display: "flex",
+            overflow: "hidden",
+            borderRadius: 6,
+            border: "1px solid transparent"
+          }
+        }, [
+          n.div({
+            style: {
+              width: this._aiStatsFeature.aiRate.map((v) => `${v * 100}%`),
+              backgroundColor: "currentColor"
+            }
+          })
+        ])
+      ])
+    ]);
+  }
+};
+AiStatsStatusBar = __decorate([
+  __param(1, IStatusbarService),
+  __param(2, ICommandService),
+  __param(3, ITelemetryService)
+], AiStatsStatusBar);
+function createAiStatsHover(options) {
+  const chartViewMode = observableValue("chartViewMode", "days");
+  const aiRatePercent = options.data.aiRate.map((r) => `${Math.round(r * 100)}%`);
+  const createToggleButton = /* @__PURE__ */ __name((mode, tooltip, icon) => {
+    return derived((reader) => {
+      const currentMode = chartViewMode.read(reader);
+      const isActive = currentMode === mode;
+      return n.div({
+        class: ["chart-toggle-button", isActive ? "active" : ""],
+        style: {
+          padding: "2px 4px",
+          borderRadius: "3px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        },
+        onclick: /* @__PURE__ */ __name(() => {
+          chartViewMode.set(mode, void 0);
+        }, "onclick"),
+        title: tooltip
+      }, [
+        n.div({
+          class: ThemeIcon.asClassName(icon),
+          style: { fontSize: "14px" }
+        })
+      ]);
+    });
+  }, "createToggleButton");
+  return n.div({
+    class: "ai-stats-status-bar"
+  }, [
+    n.div({
+      class: "header",
+      style: {
+        minWidth: "280px"
+      }
+    }, [
+      n.div({ style: { flex: 1 } }, [localize("aiStatsStatusBarHeader", "AI Usage Statistics")]),
+      n.div({ style: { marginLeft: "auto" } }, options.onOpenSettings ? actionBar([
+        {
+          action: {
+            id: "aiStats.statusBar.settings",
+            label: "",
+            enabled: true,
+            run: options.onOpenSettings,
+            class: ThemeIcon.asClassName(Codicon.gear),
+            tooltip: localize("aiStats.statusBar.configure", "Configure")
+          },
+          options: { icon: true, label: false, hoverDelegate: nativeHoverDelegate }
+        }
+      ]) : [])
+    ]),
+    n.div({ style: { display: "flex" } }, [
+      n.div({ style: { flex: 1, paddingRight: "4px" } }, [
+        localize("text1", "AI vs Typing Average: {0}", aiRatePercent.get())
+      ])
+    ]),
+    n.div({ style: { flex: 1, paddingRight: "4px" } }, [
+      localize("text2", "Accepted inline suggestions today: {0}", options.data.acceptedInlineSuggestionsToday.get())
+    ]),
+    // Chart section
+    n.div({
+      style: {
+        marginTop: "8px",
+        borderTop: "1px solid var(--vscode-widget-border)",
+        paddingTop: "8px"
+      }
+    }, [
+      // Chart header with toggle
+      n.div({
+        class: "header",
+        style: {
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "4px"
+        }
+      }, [
+        n.div({ style: { flex: 1 } }, [
+          chartViewMode.map((mode) => mode === "days" ? localize("chartHeaderDays", "AI Rate by Day") : localize("chartHeaderSessions", "AI Rate by Session"))
+        ]),
+        n.div({
+          class: "chart-view-toggle",
+          style: { marginLeft: "auto", display: "flex", gap: "2px" }
+        }, [
+          createToggleButton("days", localize("viewByDays", "Days"), Codicon.calendar),
+          createToggleButton("sessions", localize("viewBySessions", "Sessions"), Codicon.listFlat)
+        ])
+      ]),
+      // Chart container
+      derived((reader) => {
+        const sessions = options.data.sessions.read(reader);
+        const viewMode = chartViewMode.read(reader);
+        return n.div({
+          ref: /* @__PURE__ */ __name((container) => {
+            const chart = createAiStatsChart({
+              sessions,
+              viewMode
+            });
+            container.appendChild(chart);
+          }, "ref")
+        });
+      })
+    ])
+  ]);
+}
+__name(createAiStatsHover, "createAiStatsHover");
+function actionBar(actions, options) {
+  return derived((_reader) => n.div({
+    class: [],
+    style: {},
+    ref: /* @__PURE__ */ __name((elem) => {
+      const actionBar2 = _reader.store.add(new ActionBar(elem, options));
+      for (const { action, options: options2 } of actions) {
+        actionBar2.push(action, options2);
+      }
+    }, "ref")
+  }));
+}
+__name(actionBar, "actionBar");
+class CommandWithArgs {
+  static {
+    __name(this, "CommandWithArgs");
+  }
+  constructor(commandId, args = []) {
+    this.commandId = commandId;
+    this.args = args;
+  }
+  run(commandService) {
+    commandService.executeCommand(this.commandId, ...this.args);
+  }
+}
+function openSettingsCommand(options = {}) {
+  return new CommandWithArgs("workbench.action.openSettings", [{
+    query: options.ids ? options.ids.map((id) => `@id:${id}`).join(" ") : void 0
+  }]);
+}
+__name(openSettingsCommand, "openSettingsCommand");
+export {
+  AiStatsStatusBar,
+  createAiStatsHover
+};
+//# sourceMappingURL=aiStatsStatusBar.js.map

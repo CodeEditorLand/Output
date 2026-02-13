@@ -1,1 +1,356 @@
-import{$Lm as E}from"../../../../../base/common/errorMessage.js";import{$rb as g}from"../../../../../base/common/errors.js";import{$xf as A}from"../../../../../base/common/event.js";import{$Ed as U}from"../../../../../base/common/lifecycle.js";import c from"../../../../../base/common/severity.js";import{$rf as P}from"../../../../../base/common/stopwatch.js";import{$9c as R,$cd as D}from"../../../../../base/common/types.js";import{localize as d}from"../../../../../nls.js";import{$uo as L}from"../../../../../platform/commands/common/commands.js";import{$0l as x}from"../../../../../platform/configuration/common/configuration.js";import{$lm as j}from"../../../../../platform/configuration/common/configurationRegistry.js";import{$Mp as _}from"../../../../../platform/dialogs/common/dialogs.js";import{$yo as z}from"../../../../../platform/log/common/log.js";import f from"../../../../../platform/product/common/product.js";import{$Vn as F}from"../../../../../platform/product/common/productService.js";import{$uH as H}from"../../../../../platform/progress/common/progress.js";import{$YH as V}from"../../../../../platform/quickinput/common/quickInput.js";import{$jm as q}from"../../../../../platform/registry/common/platform.js";import{$pp as J}from"../../../../../platform/telemetry/common/telemetry.js";import{$aCb as O,$dCb as W}from"../../../../services/activity/common/activity.js";import{$WN as G}from"../../../../services/lifecycle/common/lifecycle.js";import{$wJb as N}from"../../../extensions/common/extensions.js";import{ChatEntitlement as p,$KP as Z}from"../../../../services/chat/common/chatEntitlementService.js";import{$LPb as B}from"../actions/chatActions.js";import{$24b as M,$34b as K}from"../chat.js";import{ChatSetupStep as h,$Eqc as Y}from"./chatSetup.js";import{$IP as Q}from"../../../../../platform/defaultAccount/common/defaultAccount.js";var I=function(u,t,i,e){var n=arguments.length,r=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(u,t,i,e);else for(var o=u.length-1;o>=0;o--)(s=u[o])&&(r=(n<3?s(r):n>3?s(t,i,r):s(t,i))||r);return n>3&&r&&Object.defineProperty(t,i,r),r},l=function(u,t){return function(i,e){t(i,e,u)}};const a={chatExtensionId:f.defaultChatAgent?.chatExtensionId??"",provider:f.defaultChatAgent?.provider??{default:{id:"",name:""},enterprise:{id:"",name:""},apple:{id:"",name:""},google:{id:"",name:""}},providerUriSetting:f.defaultChatAgent?.providerUriSetting??"",completionsAdvancedSetting:f.defaultChatAgent?.completionsAdvancedSetting??""};let v=class extends U{get step(){return this.b}constructor(t,i,e,n,r,s,o,m,y,$,C,w,b,S){super(),this.c=t,this.f=i,this.g=e,this.h=n,this.j=r,this.m=s,this.n=o,this.q=m,this.r=y,this.s=$,this.t=C,this.u=w,this.w=b,this.y=S,this.a=this.D(new A),this.onDidChange=this.a.event,this.b=h.Initial,this.z()}z(){this.D(this.c.onDidChange(()=>this.a.fire()))}C(t){this.b!==t&&(this.b=t,this.a.fire())}async setup(t={}){const i=new P(!1),e=d(6116,null),n=this.q.showViewContainerActivity(K,{badge:new W(()=>e)});try{return await this.n.withProgress({location:10,command:B,title:e},()=>this.F(t,i))}finally{n.dispose()}}async F(t,i){this.c.suspend();let e=!1;try{let n,r;if(t.forceSignIn?r=!0:this.c.state.entitlement===p.Unknown?t.forceAnonymous?r=!1:r=!0:r=!1,r){this.C(h.SigningIn);const s=await this.G(t);if(!s.defaultAccount){this.J();const o=t.useSocialProvider??(t.useEnterpriseProvider?a.provider.enterprise.id:a.provider.default.id);this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedNotSignedIn",installDuration:i.elapsed(),signUpErrorCode:void 0,provider:o});return}n=s.entitlement}this.C(h.Installing),e=await this.H(n??this.c.state.entitlement,i,t)}finally{this.C(h.Initial),this.c.resume()}return e}async G(t){let i,e;try{({defaultAccount:e,entitlements:i}=await this.f.signIn(t))}catch(n){this.m.error(`[chat setup] signIn: error ${n}`)}if(!e&&!this.u.willShutdown){const{confirmed:n}=await this.s.confirm({type:c.Error,message:d(6117,null,this.y.getDefaultAccountAuthenticationProvider().name),detail:d(6118,null),primaryButton:d(6119,null)});if(n)return this.G(t)}return{defaultAccount:e,entitlement:i?.entitlement}}async H(t,i,e){const n=this.c.state.installed&&!this.c.state.disabled;let r,s;e.forceAnonymous&&t===p.Unknown?s="anonymous":s=e.useSocialProvider??(e.useEnterpriseProvider?a.provider.enterprise.id:a.provider.default.id);try{if(!e.forceAnonymous&&t!==p.Free&&!Z(t)&&t!==p.Unavailable){if(r=await this.f.signUpFree(),D(r))return this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedNoSession",installDuration:i.elapsed(),signUpErrorCode:void 0,provider:s}),!1;typeof r!="boolean"&&this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedSignUp",installDuration:i.elapsed(),signUpErrorCode:r.errorCode,provider:s})}await this.I()}catch(o){return this.m.error(`[chat setup] install: error ${o}`),this.g.publicLog2("commandCenter.chatInstall",{installResult:g(o)?"cancelled":"failedInstall",installDuration:i.elapsed(),signUpErrorCode:void 0,provider:s}),!1}return(typeof r=="boolean"||typeof r>"u")&&this.g.publicLog2("commandCenter.chatInstall",{installResult:n&&!r?"alreadyInstalled":"installed",installDuration:i.elapsed(),signUpErrorCode:void 0,provider:s}),n&&Y(this.r),!0}async I(){let t;try{await this.J()}catch(i){this.m.error(`[chat setup] install: error ${t}`),t=i}if(t){if(!this.u.willShutdown){const{confirmed:i}=await this.s.confirm({type:c.Error,message:d(6120,null),detail:t&&!g(t)?E(t):void 0,primaryButton:d(6121,null)});if(i)return this.I()}throw t}}async J(){await this.h.install(a.chatExtensionId,{enable:!0,isApplicationScoped:!0,isMachineScoped:!1,installEverywhere:!0,installPreReleaseVersion:this.j.quality!=="stable"},M)}async setupWithProvider(t){if(q.as(j.Configuration).registerConfiguration({id:"copilot.setup",type:"object",properties:{[a.completionsAdvancedSetting]:{type:"object",properties:{authProvider:{type:"string"}}},[a.providerUriSetting]:{type:"string"}}}),t.useEnterpriseProvider){const n=await this.L();if(!n)return this.g.publicLog2("commandCenter.chatInstall",{installResult:"failedEnterpriseSetup",installDuration:0,signUpErrorCode:void 0,provider:void 0}),n}let e=this.t.inspect(a.completionsAdvancedSetting).user?.value;return R(e)||(e={}),t.useEnterpriseProvider?await this.t.updateValue(`${a.completionsAdvancedSetting}`,{...e,authProvider:a.provider.enterprise.id},2):await this.t.updateValue(`${a.completionsAdvancedSetting}`,Object.keys(e).length>0?{...e,authProvider:void 0}:void 0,2),this.setup({...t,forceSignIn:!0})}async L(){const t=/^[a-zA-Z\-_]+$/,i=/^(https:\/\/)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.ghe\.com\/?$/,e=this.t.getValue(a.providerUriSetting);if(typeof e=="string"&&i.test(e))return!0;let n=!1;const r=await this.w.input({prompt:d(6122,null,a.provider.enterprise.name),placeHolder:d(6123,null),ignoreFocusLost:!0,value:e,validateInput:async o=>{if(n=!1,!!o){if(t.test(o))return n=!0,{content:d(6124,null,`https://${o}.ghe.com`),severity:c.Info};if(!i.test(o))return{content:d(6125,null,a.provider.enterprise.name),severity:c.Error}}}});if(!r)return;let s=r;return n?s=`https://${s}.ghe.com`:r.toLowerCase().startsWith("https://")||(s=`https://${r}`),await this.t.updateValue(a.providerUriSetting,s,2),!0}};v=I([l(2,J),l(3,N),l(4,F),l(5,z),l(6,H),l(7,O),l(8,L),l(9,_),l(10,x),l(11,G),l(12,V),l(13,Q)],v);export{v as $Fqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { isCancellationError } from "../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import Severity from "../../../../../base/common/severity.js";
+import { StopWatch } from "../../../../../base/common/stopwatch.js";
+import { isObject, isUndefined } from "../../../../../base/common/types.js";
+import { localize } from "../../../../../nls.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { Extensions as ConfigurationExtensions } from "../../../../../platform/configuration/common/configurationRegistry.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import product from "../../../../../platform/product/common/product.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IProgressService } from "../../../../../platform/progress/common/progress.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IActivityService, ProgressBadge } from "../../../../services/activity/common/activity.js";
+import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
+import { IExtensionsWorkbenchService } from "../../../extensions/common/extensions.js";
+import { ChatEntitlement, isProUser } from "../../../../services/chat/common/chatEntitlementService.js";
+import { CHAT_OPEN_ACTION_ID } from "../actions/chatActions.js";
+import { ChatViewId, ChatViewContainerId } from "../chat.js";
+import { ChatSetupStep, refreshTokens } from "./chatSetup.js";
+import { IDefaultAccountService } from "../../../../../platform/defaultAccount/common/defaultAccount.js";
+const defaultChat = {
+  chatExtensionId: product.defaultChatAgent?.chatExtensionId ?? "",
+  provider: product.defaultChatAgent?.provider ?? { default: { id: "", name: "" }, enterprise: { id: "", name: "" }, apple: { id: "", name: "" }, google: { id: "", name: "" } },
+  providerUriSetting: product.defaultChatAgent?.providerUriSetting ?? "",
+  completionsAdvancedSetting: product.defaultChatAgent?.completionsAdvancedSetting ?? ""
+};
+let ChatSetupController = class ChatSetupController2 extends Disposable {
+  static {
+    __name(this, "ChatSetupController");
+  }
+  get step() {
+    return this._step;
+  }
+  constructor(context, requests, telemetryService, extensionsWorkbenchService, productService, logService, progressService, activityService, commandService, dialogService, configurationService, lifecycleService, quickInputService, defaultAccountService) {
+    super();
+    this.context = context;
+    this.requests = requests;
+    this.telemetryService = telemetryService;
+    this.extensionsWorkbenchService = extensionsWorkbenchService;
+    this.productService = productService;
+    this.logService = logService;
+    this.progressService = progressService;
+    this.activityService = activityService;
+    this.commandService = commandService;
+    this.dialogService = dialogService;
+    this.configurationService = configurationService;
+    this.lifecycleService = lifecycleService;
+    this.quickInputService = quickInputService;
+    this.defaultAccountService = defaultAccountService;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this._step = ChatSetupStep.Initial;
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.context.onDidChange(() => this._onDidChange.fire()));
+  }
+  setStep(step) {
+    if (this._step === step) {
+      return;
+    }
+    this._step = step;
+    this._onDidChange.fire();
+  }
+  async setup(options = {}) {
+    const watch = new StopWatch(false);
+    const title = localize("setupChatProgress", "Getting chat ready...");
+    const badge = this.activityService.showViewContainerActivity(ChatViewContainerId, {
+      badge: new ProgressBadge(() => title)
+    });
+    try {
+      return await this.progressService.withProgress({
+        location: 10,
+        command: CHAT_OPEN_ACTION_ID,
+        title
+      }, () => this.doSetup(options, watch));
+    } finally {
+      badge.dispose();
+    }
+  }
+  async doSetup(options, watch) {
+    this.context.suspend();
+    let success = false;
+    try {
+      let entitlement;
+      let signIn;
+      if (options.forceSignIn) {
+        signIn = true;
+      } else if (this.context.state.entitlement === ChatEntitlement.Unknown) {
+        if (options.forceAnonymous) {
+          signIn = false;
+        } else {
+          signIn = true;
+        }
+      } else {
+        signIn = false;
+      }
+      if (signIn) {
+        this.setStep(ChatSetupStep.SigningIn);
+        const result = await this.signIn(options);
+        if (!result.defaultAccount) {
+          this.doInstall();
+          const provider = options.useSocialProvider ?? (options.useEnterpriseProvider ? defaultChat.provider.enterprise.id : defaultChat.provider.default.id);
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedNotSignedIn", installDuration: watch.elapsed(), signUpErrorCode: void 0, provider });
+          return void 0;
+        }
+        entitlement = result.entitlement;
+      }
+      this.setStep(ChatSetupStep.Installing);
+      success = await this.install(entitlement ?? this.context.state.entitlement, watch, options);
+    } finally {
+      this.setStep(ChatSetupStep.Initial);
+      this.context.resume();
+    }
+    return success;
+  }
+  async signIn(options) {
+    let entitlements;
+    let defaultAccount;
+    try {
+      ({ defaultAccount, entitlements } = await this.requests.signIn(options));
+    } catch (e) {
+      this.logService.error(`[chat setup] signIn: error ${e}`);
+    }
+    if (!defaultAccount && !this.lifecycleService.willShutdown) {
+      const { confirmed } = await this.dialogService.confirm({
+        type: Severity.Error,
+        message: localize("unknownSignInError", "Failed to sign in to {0}. Would you like to try again?", this.defaultAccountService.getDefaultAccountAuthenticationProvider().name),
+        detail: localize("unknownSignInErrorDetail", "You must be signed in to use AI features."),
+        primaryButton: localize("retry", "Retry")
+      });
+      if (confirmed) {
+        return this.signIn(options);
+      }
+    }
+    return { defaultAccount, entitlement: entitlements?.entitlement };
+  }
+  async install(entitlement, watch, options) {
+    const wasRunning = this.context.state.installed && !this.context.state.disabled;
+    let signUpResult = void 0;
+    let provider;
+    if (options.forceAnonymous && entitlement === ChatEntitlement.Unknown) {
+      provider = "anonymous";
+    } else {
+      provider = options.useSocialProvider ?? (options.useEnterpriseProvider ? defaultChat.provider.enterprise.id : defaultChat.provider.default.id);
+    }
+    try {
+      if (!options.forceAnonymous && // User is not asking for anonymous access
+      entitlement !== ChatEntitlement.Free && // User is not signed up to Copilot Free
+      !isProUser(entitlement) && // User is not signed up for a Copilot subscription
+      entitlement !== ChatEntitlement.Unavailable) {
+        signUpResult = await this.requests.signUpFree();
+        if (isUndefined(signUpResult)) {
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedNoSession", installDuration: watch.elapsed(), signUpErrorCode: void 0, provider });
+          return false;
+        }
+        if (typeof signUpResult !== "boolean") {
+          this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedSignUp", installDuration: watch.elapsed(), signUpErrorCode: signUpResult.errorCode, provider });
+        }
+      }
+      await this.doInstallWithRetry();
+    } catch (error) {
+      this.logService.error(`[chat setup] install: error ${error}`);
+      this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: isCancellationError(error) ? "cancelled" : "failedInstall", installDuration: watch.elapsed(), signUpErrorCode: void 0, provider });
+      return false;
+    }
+    if (typeof signUpResult === "boolean" || typeof signUpResult === "undefined") {
+      this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: wasRunning && !signUpResult ? "alreadyInstalled" : "installed", installDuration: watch.elapsed(), signUpErrorCode: void 0, provider });
+    }
+    if (wasRunning) {
+      refreshTokens(this.commandService);
+    }
+    return true;
+  }
+  async doInstallWithRetry() {
+    let error;
+    try {
+      await this.doInstall();
+    } catch (e) {
+      this.logService.error(`[chat setup] install: error ${error}`);
+      error = e;
+    }
+    if (error) {
+      if (!this.lifecycleService.willShutdown) {
+        const { confirmed } = await this.dialogService.confirm({
+          type: Severity.Error,
+          message: localize("unknownSetupError", "An error occurred while setting up chat. Would you like to try again?"),
+          detail: error && !isCancellationError(error) ? toErrorMessage(error) : void 0,
+          primaryButton: localize("retry", "Retry")
+        });
+        if (confirmed) {
+          return this.doInstallWithRetry();
+        }
+      }
+      throw error;
+    }
+  }
+  async doInstall() {
+    await this.extensionsWorkbenchService.install(defaultChat.chatExtensionId, {
+      enable: true,
+      isApplicationScoped: true,
+      // install into all profiles
+      isMachineScoped: false,
+      // do not ask to sync
+      installEverywhere: true,
+      // install in local and remote
+      installPreReleaseVersion: this.productService.quality !== "stable"
+    }, ChatViewId);
+  }
+  async setupWithProvider(options) {
+    const registry = Registry.as(ConfigurationExtensions.Configuration);
+    registry.registerConfiguration({
+      "id": "copilot.setup",
+      "type": "object",
+      "properties": {
+        [defaultChat.completionsAdvancedSetting]: {
+          "type": "object",
+          "properties": {
+            "authProvider": {
+              "type": "string"
+            }
+          }
+        },
+        [defaultChat.providerUriSetting]: {
+          "type": "string"
+        }
+      }
+    });
+    if (options.useEnterpriseProvider) {
+      const success = await this.handleEnterpriseInstance();
+      if (!success) {
+        this.telemetryService.publicLog2("commandCenter.chatInstall", { installResult: "failedEnterpriseSetup", installDuration: 0, signUpErrorCode: void 0, provider: void 0 });
+        return success;
+      }
+    }
+    let existingAdvancedSetting = this.configurationService.inspect(defaultChat.completionsAdvancedSetting).user?.value;
+    if (!isObject(existingAdvancedSetting)) {
+      existingAdvancedSetting = {};
+    }
+    if (options.useEnterpriseProvider) {
+      await this.configurationService.updateValue(
+        `${defaultChat.completionsAdvancedSetting}`,
+        {
+          ...existingAdvancedSetting,
+          "authProvider": defaultChat.provider.enterprise.id
+        },
+        2
+        /* ConfigurationTarget.USER */
+      );
+    } else {
+      await this.configurationService.updateValue(
+        `${defaultChat.completionsAdvancedSetting}`,
+        Object.keys(existingAdvancedSetting).length > 0 ? {
+          ...existingAdvancedSetting,
+          "authProvider": void 0
+        } : void 0,
+        2
+        /* ConfigurationTarget.USER */
+      );
+    }
+    return this.setup({ ...options, forceSignIn: true });
+  }
+  async handleEnterpriseInstance() {
+    const domainRegEx = /^[a-zA-Z\-_]+$/;
+    const fullUriRegEx = /^(https:\/\/)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.ghe\.com\/?$/;
+    const uri = this.configurationService.getValue(defaultChat.providerUriSetting);
+    if (typeof uri === "string" && fullUriRegEx.test(uri)) {
+      return true;
+    }
+    let isSingleWord = false;
+    const result = await this.quickInputService.input({
+      prompt: localize("enterpriseInstance", "What is your {0} instance?", defaultChat.provider.enterprise.name),
+      placeHolder: localize("enterpriseInstancePlaceholder", 'i.e. "octocat" or "https://octocat.ghe.com"...'),
+      ignoreFocusLost: true,
+      value: uri,
+      validateInput: /* @__PURE__ */ __name(async (value) => {
+        isSingleWord = false;
+        if (!value) {
+          return void 0;
+        }
+        if (domainRegEx.test(value)) {
+          isSingleWord = true;
+          return {
+            content: localize("willResolveTo", "Will resolve to {0}", `https://${value}.ghe.com`),
+            severity: Severity.Info
+          };
+        }
+        if (!fullUriRegEx.test(value)) {
+          return {
+            content: localize("invalidEnterpriseInstance", 'You must enter a valid {0} instance (i.e. "octocat" or "https://octocat.ghe.com")', defaultChat.provider.enterprise.name),
+            severity: Severity.Error
+          };
+        }
+        return void 0;
+      }, "validateInput")
+    });
+    if (!result) {
+      return void 0;
+    }
+    let resolvedUri = result;
+    if (isSingleWord) {
+      resolvedUri = `https://${resolvedUri}.ghe.com`;
+    } else {
+      const normalizedUri = result.toLowerCase();
+      const hasHttps = normalizedUri.startsWith("https://");
+      if (!hasHttps) {
+        resolvedUri = `https://${result}`;
+      }
+    }
+    await this.configurationService.updateValue(
+      defaultChat.providerUriSetting,
+      resolvedUri,
+      2
+      /* ConfigurationTarget.USER */
+    );
+    return true;
+  }
+};
+ChatSetupController = __decorate([
+  __param(2, ITelemetryService),
+  __param(3, IExtensionsWorkbenchService),
+  __param(4, IProductService),
+  __param(5, ILogService),
+  __param(6, IProgressService),
+  __param(7, IActivityService),
+  __param(8, ICommandService),
+  __param(9, IDialogService),
+  __param(10, IConfigurationService),
+  __param(11, ILifecycleService),
+  __param(12, IQuickInputService),
+  __param(13, IDefaultAccountService)
+], ChatSetupController);
+export {
+  ChatSetupController
+};
+//# sourceMappingURL=chatSetupController.js.map

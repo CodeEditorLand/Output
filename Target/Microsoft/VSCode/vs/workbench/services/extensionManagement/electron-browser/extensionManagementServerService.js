@@ -1,1 +1,76 @@
-import{localize as f}from"../../../../nls.js";import{Schemas as c}from"../../../../base/common/network.js";import{$SZ as g}from"../common/extensionManagement.js";import{$4N as v}from"../../remote/common/remoteAgentService.js";import{$XPc as p}from"../../../../platform/ipc/electron-browser/services.js";import{$WC as u}from"../../../../platform/instantiation/common/extensions.js";import{$aWc as x}from"./remoteExtensionManagementService.js";import{$oH as E}from"../../../../platform/label/common/label.js";import{$Mj as M}from"../../../../platform/instantiation/common/instantiation.js";import{$bWc as S}from"./nativeExtensionManagementService.js";import{$Ed as $}from"../../../../base/common/lifecycle.js";var h=function(a,e,t,r){var i=arguments.length,n=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(a,e,t,r);else for(var m=a.length-1;m>=0;m--)(o=a[m])&&(n=(i<3?o(n):i>3?o(e,t,n):o(e,t))||n);return i>3&&n&&Object.defineProperty(e,t,n),n},s=function(a,e){return function(t,r){e(t,r,a)}};let l=class extends ${constructor(e,t,r,i){super(),this.remoteExtensionManagementServer=null,this.webExtensionManagementServer=null;const n=this.D(i.createInstance(S,e.getChannel("extensions")));this.localExtensionManagementServer={extensionManagementService:n,id:"local",label:f(16110,null)};const o=t.getConnection();if(o){const m=i.createInstance(x,o.getChannel("extensions"),this.localExtensionManagementServer);this.remoteExtensionManagementServer={id:"remote",extensionManagementService:m,get label(){return r.getHostLabel(c.vscodeRemote,o.remoteAuthority)||f(16111,null)}}}}getExtensionManagementServer(e){if(e.location.scheme===c.file)return this.localExtensionManagementServer;if(this.remoteExtensionManagementServer&&e.location.scheme===c.vscodeRemote)return this.remoteExtensionManagementServer;throw new Error(`Invalid Extension ${e.location}`)}getExtensionInstallLocation(e){return this.getExtensionManagementServer(e)===this.remoteExtensionManagementServer?2:1}};l=h([s(0,p),s(1,v),s(2,E),s(3,M)],l);u(g,l,1);export{l as $cWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize } from "../../../../nls.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { IExtensionManagementServerService } from "../common/extensionManagement.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-browser/services.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { NativeRemoteExtensionManagementService } from "./remoteExtensionManagementService.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { NativeExtensionManagementService } from "./nativeExtensionManagementService.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+let ExtensionManagementServerService = class ExtensionManagementServerService2 extends Disposable {
+  static {
+    __name(this, "ExtensionManagementServerService");
+  }
+  constructor(sharedProcessService, remoteAgentService, labelService, instantiationService) {
+    super();
+    this.remoteExtensionManagementServer = null;
+    this.webExtensionManagementServer = null;
+    const localExtensionManagementService = this._register(instantiationService.createInstance(NativeExtensionManagementService, sharedProcessService.getChannel("extensions")));
+    this.localExtensionManagementServer = { extensionManagementService: localExtensionManagementService, id: "local", label: localize("local", "Local") };
+    const remoteAgentConnection = remoteAgentService.getConnection();
+    if (remoteAgentConnection) {
+      const extensionManagementService = instantiationService.createInstance(NativeRemoteExtensionManagementService, remoteAgentConnection.getChannel("extensions"), this.localExtensionManagementServer);
+      this.remoteExtensionManagementServer = {
+        id: "remote",
+        extensionManagementService,
+        get label() {
+          return labelService.getHostLabel(Schemas.vscodeRemote, remoteAgentConnection.remoteAuthority) || localize("remote", "Remote");
+        }
+      };
+    }
+  }
+  getExtensionManagementServer(extension) {
+    if (extension.location.scheme === Schemas.file) {
+      return this.localExtensionManagementServer;
+    }
+    if (this.remoteExtensionManagementServer && extension.location.scheme === Schemas.vscodeRemote) {
+      return this.remoteExtensionManagementServer;
+    }
+    throw new Error(`Invalid Extension ${extension.location}`);
+  }
+  getExtensionInstallLocation(extension) {
+    const server = this.getExtensionManagementServer(extension);
+    return server === this.remoteExtensionManagementServer ? 2 : 1;
+  }
+};
+ExtensionManagementServerService = __decorate([
+  __param(0, ISharedProcessService),
+  __param(1, IRemoteAgentService),
+  __param(2, ILabelService),
+  __param(3, IInstantiationService)
+], ExtensionManagementServerService);
+registerSingleton(
+  IExtensionManagementServerService,
+  ExtensionManagementServerService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ExtensionManagementServerService
+};
+//# sourceMappingURL=extensionManagementServerService.js.map

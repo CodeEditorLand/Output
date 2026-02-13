@@ -1,1 +1,263 @@
-import{localize as l}from"../../../../../nls.js";import{$V as u}from"../../../../../base/common/performance.js";import{$gd as _}from"../../../../../base/common/types.js";import{$D1 as D}from"../../../../services/path/common/pathService.js";import{$Km as m}from"../../../../../base/common/actions.js";import{$$Qb as S,$uRb as j,$xRb as C}from"../../common/files.js";import{$gM as N}from"../../../../services/textfile/common/textfiles.js";import{$Y$b as z}from"../../../../browser/parts/editor/textCodeEditor.js";import{$xN as B,$0M as d,$zN as $,$pN as L}from"../../../../common/editor.js";import{applyTextEditorOptions as V}from"../../../../common/editor/editorOptions.js";import{$$Tb as k}from"../../../../common/editor/binaryEditorModel.js";import{$_Tb as P}from"./fileEditorInput.js";import{$Sk as Q,$vk as Y,$6k as A,$Tk as W}from"../../../../../platform/files/common/files.js";import{$pp as q}from"../../../../../platform/telemetry/common/telemetry.js";import{$Ml as U}from"../../../../../platform/workspace/common/workspace.js";import{$hp as X}from"../../../../../platform/storage/common/storage.js";import{$dI as Z}from"../../../../../editor/common/services/textResourceConfiguration.js";import{$Mj as G}from"../../../../../platform/instantiation/common/instantiation.js";import{$qu as K}from"../../../../../platform/theme/common/themeService.js";import{$BL as H}from"../../../../services/editor/common/editorService.js";import{$xL as J}from"../../../../services/editor/common/editorGroupsService.js";import{EditorActivation as ee}from"../../../../../platform/editor/common/editor.js";import{$$o as te}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{$rTb as re}from"../files.js";import{$_Bb as ie}from"../../../../services/panecomposite/browser/panecomposite.js";import{$0l as oe}from"../../../../../platform/configuration/common/configuration.js";import{$2M as se}from"../../../../services/preferences/common/preferences.js";import{$gcb as ce}from"../../../../services/host/browser/host.js";import{$8L as ne}from"../../../../services/filesConfiguration/common/filesConfigurationService.js";var O=function(a,e,t,r){var i=arguments.length,s=i<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(a,e,t,r);else for(var c=a.length-1;c>=0;c--)(n=a[c])&&(s=(i<3?n(s):i>3?n(e,t,s):n(e,t))||s);return i>3&&s&&Object.defineProperty(e,t,s),s},o=function(a,e){return function(t,r){e(t,r,a)}},p;let b=class extends z{static{p=this}static{this.ID=j}constructor(e,t,r,i,s,n,c,f,w,R,g,x,E,v,F,I,T,y,M){super(p.ID,e,t,s,c,f,R,w,g,r),this.f=i,this.$=n,this.Xb=x,this.Yb=E,this.Zb=v,this.$b=F,this.ac=I,this.bc=T,this.cc=y,this.dc=M,this.D(this.xb.onDidFilesChange(h=>this.ec(h))),this.D(this.xb.onDidRunOperation(h=>this.fc(h)))}ec(e){for(const t of e.rawDeleted)this.lb(t)}fc(e){e.operation===2&&e.target&&this.kb(e.resource,e.target.resource,this.Zb.extUri)}getTitle(){return this.input?this.input.getName():l(9206,null)}get input(){return this.Y}async setInput(e,t,r,i){u("code/willSetInputToTextFileEditor"),await super.setInput(e,t,r,i);try{const s=await e.resolve(t);if(i.isCancellationRequested)return;if(s instanceof k)return this.hc(e,t);const n=s,c=_(this.a);if(c.setModel(n.textEditorModel),!B(t?.viewState)){const f=this.jb(e,r);f&&(t?.selection&&(f.cursorState=[]),c.restoreViewState(f))}t&&V(t,c,1),c.updateOptions(this.Gb(n.isReadonly())),c.handleInitialized&&c.handleInitialized()}catch(s){await this.gc(s,e,t)}u("code/didSetInputToTextFileEditor")}async gc(e,t,r){if(e.textFileOperationResult===0)return this.hc(t,r);if(e.fileOperationResult===0){const i=[];throw i.push(m({id:"workbench.files.action.openFolder",label:l(9207,null),run:async()=>this.cc.openWindow([{folderUri:t.resource}],{forceNewWindow:!0})})),this.$.isInsideWorkspace(t.preferredResource)&&i.push(m({id:"workbench.files.action.reveal",label:l(9208,null),run:async()=>(await this.f.openPaneComposite(S,0,!0),this.Yb.select(t.preferredResource,!0))})),$(l(9209,null),i,{forceMessage:!0})}if(e.fileOperationResult===7){let i;throw e instanceof W?i=l(9210,null,A.formatSize(e.size)):i=l(9211,null),L(this.group,t,r,i,this.bc)}throw e.fileOperationResult===1&&!this.dc.isReadonly(t.preferredResource)&&await this.$b.hasValidBasename(t.preferredResource)?$(new Q(l(9212,null),1),[m({id:"workbench.files.action.createMissingFile",label:l(9213,null),run:async()=>(await this.Xb.create([{resource:t.preferredResource}]),this.u.openEditor({resource:t.preferredResource,options:{pinned:!0}}))})],{allowDialog:!0}):e}hc(e,t){const r=this.ac.getValue("workbench.editor.defaultBinaryEditor"),i={...t,activation:ee.PRESERVE};r&&r!==""&&r!==d.id?this.ic(this.group,r,e,i):this.jc(this.group,r,e,i)}ic(e,t,r,i){this.u.replaceEditors([{editor:r,replacement:{resource:r.resource,options:{...i,override:t}}}],e)}jc(e,t,r,i){t===d.id?(r.setForceOpenAsText(),r.setPreferredLanguageId(C),i={...i,forceReload:!0}):r.setForceOpenAsBinary(),e.openEditor(r,i)}clearInput(){super.clearInput(),this.a?.setModel(null)}Lb(e,t){u("code/willCreateTextFileEditorControl"),super.Lb(e,t),u("code/didCreateTextFileEditorControl")}nb(e){return e instanceof P}ob(){return!0}};b=p=O([o(1,q),o(2,Y),o(3,ie),o(4,G),o(5,U),o(6,X),o(7,Z),o(8,H),o(9,K),o(10,J),o(11,N),o(12,re),o(13,te),o(14,D),o(15,oe),o(16,se),o(17,ce),o(18,ne)],b);export{b as $Qxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TextFileEditor_1;
+import { localize } from "../../../../../nls.js";
+import { mark } from "../../../../../base/common/performance.js";
+import { assertReturnsDefined } from "../../../../../base/common/types.js";
+import { IPathService } from "../../../../services/path/common/pathService.js";
+import { toAction } from "../../../../../base/common/actions.js";
+import { VIEWLET_ID, TEXT_FILE_EDITOR_ID, BINARY_TEXT_FILE_MODE } from "../../common/files.js";
+import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
+import { AbstractTextCodeEditor } from "../../../../browser/parts/editor/textCodeEditor.js";
+import { isTextEditorViewState, DEFAULT_EDITOR_ASSOCIATION, createEditorOpenError, createTooLargeFileError } from "../../../../common/editor.js";
+import { applyTextEditorOptions } from "../../../../common/editor/editorOptions.js";
+import { BinaryEditorModel } from "../../../../common/editor/binaryEditorModel.js";
+import { FileEditorInput } from "./fileEditorInput.js";
+import { FileOperationError, IFileService, ByteSize, TooLargeFileOperationError } from "../../../../../platform/files/common/files.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { ITextResourceConfigurationService } from "../../../../../editor/common/services/textResourceConfiguration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { EditorActivation } from "../../../../../platform/editor/common/editor.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IExplorerService } from "../files.js";
+import { IPaneCompositePartService } from "../../../../services/panecomposite/browser/panecomposite.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IPreferencesService } from "../../../../services/preferences/common/preferences.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
+let TextFileEditor = class TextFileEditor2 extends AbstractTextCodeEditor {
+  static {
+    __name(this, "TextFileEditor");
+  }
+  static {
+    TextFileEditor_1 = this;
+  }
+  static {
+    this.ID = TEXT_FILE_EDITOR_ID;
+  }
+  constructor(group, telemetryService, fileService, paneCompositeService, instantiationService, contextService, storageService, textResourceConfigurationService, editorService, themeService, editorGroupService, textFileService, explorerService, uriIdentityService, pathService, configurationService, preferencesService, hostService, filesConfigurationService) {
+    super(TextFileEditor_1.ID, group, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService, fileService);
+    this.paneCompositeService = paneCompositeService;
+    this.contextService = contextService;
+    this.textFileService = textFileService;
+    this.explorerService = explorerService;
+    this.uriIdentityService = uriIdentityService;
+    this.pathService = pathService;
+    this.configurationService = configurationService;
+    this.preferencesService = preferencesService;
+    this.hostService = hostService;
+    this.filesConfigurationService = filesConfigurationService;
+    this._register(this.fileService.onDidFilesChange((e) => this.onDidFilesChange(e)));
+    this._register(this.fileService.onDidRunOperation((e) => this.onDidRunOperation(e)));
+  }
+  onDidFilesChange(e) {
+    for (const resource of e.rawDeleted) {
+      this.clearEditorViewState(resource);
+    }
+  }
+  onDidRunOperation(e) {
+    if (e.operation === 2 && e.target) {
+      this.moveEditorViewState(e.resource, e.target.resource, this.uriIdentityService.extUri);
+    }
+  }
+  getTitle() {
+    if (this.input) {
+      return this.input.getName();
+    }
+    return localize("textFileEditor", "Text File Editor");
+  }
+  get input() {
+    return this._input;
+  }
+  async setInput(input, options, context, token) {
+    mark("code/willSetInputToTextFileEditor");
+    await super.setInput(input, options, context, token);
+    try {
+      const resolvedModel = await input.resolve(options);
+      if (token.isCancellationRequested) {
+        return;
+      }
+      if (resolvedModel instanceof BinaryEditorModel) {
+        return this.openAsBinary(input, options);
+      }
+      const textFileModel = resolvedModel;
+      const control = assertReturnsDefined(this.editorControl);
+      control.setModel(textFileModel.textEditorModel);
+      if (!isTextEditorViewState(options?.viewState)) {
+        const editorViewState = this.loadEditorViewState(input, context);
+        if (editorViewState) {
+          if (options?.selection) {
+            editorViewState.cursorState = [];
+          }
+          control.restoreViewState(editorViewState);
+        }
+      }
+      if (options) {
+        applyTextEditorOptions(
+          options,
+          control,
+          1
+          /* ScrollType.Immediate */
+        );
+      }
+      control.updateOptions(this.getReadonlyConfiguration(textFileModel.isReadonly()));
+      if (control.handleInitialized) {
+        control.handleInitialized();
+      }
+    } catch (error) {
+      await this.handleSetInputError(error, input, options);
+    }
+    mark("code/didSetInputToTextFileEditor");
+  }
+  async handleSetInputError(error, input, options) {
+    if (error.textFileOperationResult === 0) {
+      return this.openAsBinary(input, options);
+    }
+    if (error.fileOperationResult === 0) {
+      const actions = [];
+      actions.push(toAction({
+        id: "workbench.files.action.openFolder",
+        label: localize("openFolder", "Open Folder"),
+        run: /* @__PURE__ */ __name(async () => {
+          return this.hostService.openWindow([{ folderUri: input.resource }], { forceNewWindow: true });
+        }, "run")
+      }));
+      if (this.contextService.isInsideWorkspace(input.preferredResource)) {
+        actions.push(toAction({
+          id: "workbench.files.action.reveal",
+          label: localize("reveal", "Reveal Folder"),
+          run: /* @__PURE__ */ __name(async () => {
+            await this.paneCompositeService.openPaneComposite(VIEWLET_ID, 0, true);
+            return this.explorerService.select(input.preferredResource, true);
+          }, "run")
+        }));
+      }
+      throw createEditorOpenError(localize("fileIsDirectory", "The file is not displayed in the text editor because it is a directory."), actions, { forceMessage: true });
+    }
+    if (error.fileOperationResult === 7) {
+      let message;
+      if (error instanceof TooLargeFileOperationError) {
+        message = localize("fileTooLargeForHeapErrorWithSize", "The file is not displayed in the text editor because it is very large ({0}).", ByteSize.formatSize(error.size));
+      } else {
+        message = localize("fileTooLargeForHeapErrorWithoutSize", "The file is not displayed in the text editor because it is very large.");
+      }
+      throw createTooLargeFileError(this.group, input, options, message, this.preferencesService);
+    }
+    if (error.fileOperationResult === 1 && !this.filesConfigurationService.isReadonly(input.preferredResource) && await this.pathService.hasValidBasename(input.preferredResource)) {
+      const fileNotFoundError = createEditorOpenError(new FileOperationError(
+        localize("unavailableResourceErrorEditorText", "The editor could not be opened because the file was not found."),
+        1
+        /* FileOperationResult.FILE_NOT_FOUND */
+      ), [
+        toAction({
+          id: "workbench.files.action.createMissingFile",
+          label: localize("createFile", "Create File"),
+          run: /* @__PURE__ */ __name(async () => {
+            await this.textFileService.create([{ resource: input.preferredResource }]);
+            return this.editorService.openEditor({
+              resource: input.preferredResource,
+              options: {
+                pinned: true
+                // new file gets pinned by default
+              }
+            });
+          }, "run")
+        })
+      ], {
+        // Support the flow of directly pressing `Enter` on the dialog to
+        // create the file on the go. This is nice when for example following
+        // a link to a file that does not exist to scaffold it quickly.
+        allowDialog: true
+      });
+      throw fileNotFoundError;
+    }
+    throw error;
+  }
+  openAsBinary(input, options) {
+    const defaultBinaryEditor = this.configurationService.getValue("workbench.editor.defaultBinaryEditor");
+    const editorOptions = {
+      ...options,
+      // Make sure to not steal away the currently active group
+      // because we are triggering another openEditor() call
+      // and do not control the initial intent that resulted
+      // in us now opening as binary.
+      activation: EditorActivation.PRESERVE
+    };
+    if (defaultBinaryEditor && defaultBinaryEditor !== "" && defaultBinaryEditor !== DEFAULT_EDITOR_ASSOCIATION.id) {
+      this.doOpenAsBinaryInDifferentEditor(this.group, defaultBinaryEditor, input, editorOptions);
+    } else {
+      this.doOpenAsBinaryInSameEditor(this.group, defaultBinaryEditor, input, editorOptions);
+    }
+  }
+  doOpenAsBinaryInDifferentEditor(group, editorId, editor, editorOptions) {
+    this.editorService.replaceEditors([{
+      editor,
+      replacement: { resource: editor.resource, options: { ...editorOptions, override: editorId } }
+    }], group);
+  }
+  doOpenAsBinaryInSameEditor(group, editorId, editor, editorOptions) {
+    if (editorId === DEFAULT_EDITOR_ASSOCIATION.id) {
+      editor.setForceOpenAsText();
+      editor.setPreferredLanguageId(BINARY_TEXT_FILE_MODE);
+      editorOptions = { ...editorOptions, forceReload: true };
+    } else {
+      editor.setForceOpenAsBinary();
+    }
+    group.openEditor(editor, editorOptions);
+  }
+  clearInput() {
+    super.clearInput();
+    this.editorControl?.setModel(null);
+  }
+  createEditorControl(parent, initialOptions) {
+    mark("code/willCreateTextFileEditorControl");
+    super.createEditorControl(parent, initialOptions);
+    mark("code/didCreateTextFileEditorControl");
+  }
+  tracksEditorViewState(input) {
+    return input instanceof FileEditorInput;
+  }
+  tracksDisposedEditorViewState() {
+    return true;
+  }
+};
+TextFileEditor = TextFileEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IFileService),
+  __param(3, IPaneCompositePartService),
+  __param(4, IInstantiationService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IStorageService),
+  __param(7, ITextResourceConfigurationService),
+  __param(8, IEditorService),
+  __param(9, IThemeService),
+  __param(10, IEditorGroupsService),
+  __param(11, ITextFileService),
+  __param(12, IExplorerService),
+  __param(13, IUriIdentityService),
+  __param(14, IPathService),
+  __param(15, IConfigurationService),
+  __param(16, IPreferencesService),
+  __param(17, IHostService),
+  __param(18, IFilesConfigurationService)
+], TextFileEditor);
+export {
+  TextFileEditor
+};
+//# sourceMappingURL=textFileEditor.js.map

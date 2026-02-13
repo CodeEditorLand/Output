@@ -1,1 +1,245 @@
-import{$7h as c}from"../../../common/async.js";import{Event as f,$Af as o}from"../../../common/event.js";import{$Ed as l}from"../../../common/lifecycle.js";import{$4m as d,$3m as m}from"../../../common/marshalling.js";import{$9c as p,$ed as r}from"../../../common/types.js";var h;(function(i){i[i.STORAGE_DOES_NOT_EXIST=0]="STORAGE_DOES_NOT_EXIST",i[i.STORAGE_IN_MEMORY=1]="STORAGE_IN_MEMORY"})(h||(h={}));function _(i){const t=i;return t?.changed instanceof Map||t?.deleted instanceof Set}var n;(function(i){i[i.None=0]="None",i[i.Initialized=1]="Initialized",i[i.Closed=2]="Closed"})(n||(n={}));class u extends l{static{this.a=100}constructor(t,e=Object.create(null)){super(),this.q=t,this.r=e,this.b=this.D(new o),this.onDidChangeStorage=this.b.event,this.c=n.None,this.f=new Map,this.g=this.D(new c(u.a)),this.h=new Set,this.j=new Map,this.m=void 0,this.n=[],this.s()}s(){this.D(this.q.onDidChangeItemsExternal(t=>this.t(t)))}t(t){this.b.pause();try{t.changed?.forEach((e,s)=>this.u(s,e)),t.deleted?.forEach(e=>this.u(e,void 0))}finally{this.b.resume()}}u(t,e){if(this.c===n.Closed)return;let s=!1;r(e)?s=this.f.delete(t):this.f.get(t)!==e&&(this.f.set(t,e),s=!0),s&&this.b.fire({key:t,external:!0})}get items(){return this.f}get size(){return this.f.size}async init(){this.c===n.None&&(this.c=n.Initialized,this.r.hint!==h.STORAGE_DOES_NOT_EXIST&&(this.f=await this.q.getItems()))}get(t,e){const s=this.f.get(t);return r(s)?e:s}getBoolean(t,e){const s=this.get(t);return r(s)?e:s==="true"}getNumber(t,e){const s=this.get(t);return r(s)?e:parseInt(s,10)}getObject(t,e){const s=this.get(t);return r(s)?e:d(s)}async set(t,e,s=!1){if(this.c===n.Closed)return;if(r(e))return this.delete(t,s);const a=p(e)||Array.isArray(e)?m(e):String(e);if(this.f.get(t)!==a)return this.f.set(t,a),this.j.set(t,a),this.h.delete(t),this.b.fire({key:t,external:s}),this.C()}async delete(t,e=!1){if(!(this.c===n.Closed||!this.f.delete(t)))return this.h.has(t)||this.h.add(t),this.j.delete(t),this.b.fire({key:t,external:e}),this.C()}async optimize(){if(this.c!==n.Closed)return await this.flush(0),this.q.optimize()}async close(){return this.m||(this.m=this.w()),this.m}async w(){this.c=n.Closed;try{await this.C(0)}catch{}await this.q.close(()=>this.f)}get y(){return this.j.size>0||this.h.size>0}async z(){if(!this.y)return;const t={insert:this.j,delete:this.h};return this.h=new Set,this.j=new Map,this.q.updateItems(t).finally(()=>{if(!this.y)for(;this.n.length;)this.n.pop()?.()})}async flush(t){if(!(this.c===n.Closed||this.m))return this.C(t)}async C(t){return this.r.hint===h.STORAGE_IN_MEMORY?this.z():this.g.trigger(()=>this.z(),t)}async whenFlushed(){if(this.y)return new Promise(t=>this.n.push(t))}isInMemory(){return this.r.hint===h.STORAGE_IN_MEMORY}}class M{constructor(){this.onDidChangeItemsExternal=f.None,this.a=new Map}async getItems(){return this.a}async updateItems(t){t.insert?.forEach((e,s)=>this.a.set(s,e)),t.delete?.forEach(e=>this.a.delete(e))}async optimize(){}async close(){}}export{M as $0o,_ as $8o,u as $9o,h as StorageHint,n as StorageState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ThrottledDelayer } from "../../../common/async.js";
+import { Event, PauseableEmitter } from "../../../common/event.js";
+import { Disposable } from "../../../common/lifecycle.js";
+import { parse, stringify } from "../../../common/marshalling.js";
+import { isObject, isUndefinedOrNull } from "../../../common/types.js";
+var StorageHint;
+(function(StorageHint2) {
+  StorageHint2[StorageHint2["STORAGE_DOES_NOT_EXIST"] = 0] = "STORAGE_DOES_NOT_EXIST";
+  StorageHint2[StorageHint2["STORAGE_IN_MEMORY"] = 1] = "STORAGE_IN_MEMORY";
+})(StorageHint || (StorageHint = {}));
+function isStorageItemsChangeEvent(thing) {
+  const candidate = thing;
+  return candidate?.changed instanceof Map || candidate?.deleted instanceof Set;
+}
+__name(isStorageItemsChangeEvent, "isStorageItemsChangeEvent");
+var StorageState;
+(function(StorageState2) {
+  StorageState2[StorageState2["None"] = 0] = "None";
+  StorageState2[StorageState2["Initialized"] = 1] = "Initialized";
+  StorageState2[StorageState2["Closed"] = 2] = "Closed";
+})(StorageState || (StorageState = {}));
+class Storage extends Disposable {
+  static {
+    __name(this, "Storage");
+  }
+  static {
+    this.DEFAULT_FLUSH_DELAY = 100;
+  }
+  constructor(database, options = /* @__PURE__ */ Object.create(null)) {
+    super();
+    this.database = database;
+    this.options = options;
+    this._onDidChangeStorage = this._register(new PauseableEmitter());
+    this.onDidChangeStorage = this._onDidChangeStorage.event;
+    this.state = StorageState.None;
+    this.cache = /* @__PURE__ */ new Map();
+    this.flushDelayer = this._register(new ThrottledDelayer(Storage.DEFAULT_FLUSH_DELAY));
+    this.pendingDeletes = /* @__PURE__ */ new Set();
+    this.pendingInserts = /* @__PURE__ */ new Map();
+    this.pendingClose = void 0;
+    this.whenFlushedCallbacks = [];
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.database.onDidChangeItemsExternal((e) => this.onDidChangeItemsExternal(e)));
+  }
+  onDidChangeItemsExternal(e) {
+    this._onDidChangeStorage.pause();
+    try {
+      e.changed?.forEach((value, key) => this.acceptExternal(key, value));
+      e.deleted?.forEach((key) => this.acceptExternal(key, void 0));
+    } finally {
+      this._onDidChangeStorage.resume();
+    }
+  }
+  acceptExternal(key, value) {
+    if (this.state === StorageState.Closed) {
+      return;
+    }
+    let changed = false;
+    if (isUndefinedOrNull(value)) {
+      changed = this.cache.delete(key);
+    } else {
+      const currentValue = this.cache.get(key);
+      if (currentValue !== value) {
+        this.cache.set(key, value);
+        changed = true;
+      }
+    }
+    if (changed) {
+      this._onDidChangeStorage.fire({ key, external: true });
+    }
+  }
+  get items() {
+    return this.cache;
+  }
+  get size() {
+    return this.cache.size;
+  }
+  async init() {
+    if (this.state !== StorageState.None) {
+      return;
+    }
+    this.state = StorageState.Initialized;
+    if (this.options.hint === StorageHint.STORAGE_DOES_NOT_EXIST) {
+      return;
+    }
+    this.cache = await this.database.getItems();
+  }
+  get(key, fallbackValue) {
+    const value = this.cache.get(key);
+    if (isUndefinedOrNull(value)) {
+      return fallbackValue;
+    }
+    return value;
+  }
+  getBoolean(key, fallbackValue) {
+    const value = this.get(key);
+    if (isUndefinedOrNull(value)) {
+      return fallbackValue;
+    }
+    return value === "true";
+  }
+  getNumber(key, fallbackValue) {
+    const value = this.get(key);
+    if (isUndefinedOrNull(value)) {
+      return fallbackValue;
+    }
+    return parseInt(value, 10);
+  }
+  getObject(key, fallbackValue) {
+    const value = this.get(key);
+    if (isUndefinedOrNull(value)) {
+      return fallbackValue;
+    }
+    return parse(value);
+  }
+  async set(key, value, external = false) {
+    if (this.state === StorageState.Closed) {
+      return;
+    }
+    if (isUndefinedOrNull(value)) {
+      return this.delete(key, external);
+    }
+    const valueStr = isObject(value) || Array.isArray(value) ? stringify(value) : String(value);
+    const currentValue = this.cache.get(key);
+    if (currentValue === valueStr) {
+      return;
+    }
+    this.cache.set(key, valueStr);
+    this.pendingInserts.set(key, valueStr);
+    this.pendingDeletes.delete(key);
+    this._onDidChangeStorage.fire({ key, external });
+    return this.doFlush();
+  }
+  async delete(key, external = false) {
+    if (this.state === StorageState.Closed) {
+      return;
+    }
+    const wasDeleted = this.cache.delete(key);
+    if (!wasDeleted) {
+      return;
+    }
+    if (!this.pendingDeletes.has(key)) {
+      this.pendingDeletes.add(key);
+    }
+    this.pendingInserts.delete(key);
+    this._onDidChangeStorage.fire({ key, external });
+    return this.doFlush();
+  }
+  async optimize() {
+    if (this.state === StorageState.Closed) {
+      return;
+    }
+    await this.flush(0);
+    return this.database.optimize();
+  }
+  async close() {
+    if (!this.pendingClose) {
+      this.pendingClose = this.doClose();
+    }
+    return this.pendingClose;
+  }
+  async doClose() {
+    this.state = StorageState.Closed;
+    try {
+      await this.doFlush(
+        0
+        /* as soon as possible */
+      );
+    } catch {
+    }
+    await this.database.close(() => this.cache);
+  }
+  get hasPending() {
+    return this.pendingInserts.size > 0 || this.pendingDeletes.size > 0;
+  }
+  async flushPending() {
+    if (!this.hasPending) {
+      return;
+    }
+    const updateRequest = { insert: this.pendingInserts, delete: this.pendingDeletes };
+    this.pendingDeletes = /* @__PURE__ */ new Set();
+    this.pendingInserts = /* @__PURE__ */ new Map();
+    return this.database.updateItems(updateRequest).finally(() => {
+      if (!this.hasPending) {
+        while (this.whenFlushedCallbacks.length) {
+          this.whenFlushedCallbacks.pop()?.();
+        }
+      }
+    });
+  }
+  async flush(delay) {
+    if (this.state === StorageState.Closed || // Return early if we are already closed
+    this.pendingClose) {
+      return;
+    }
+    return this.doFlush(delay);
+  }
+  async doFlush(delay) {
+    if (this.options.hint === StorageHint.STORAGE_IN_MEMORY) {
+      return this.flushPending();
+    }
+    return this.flushDelayer.trigger(() => this.flushPending(), delay);
+  }
+  async whenFlushed() {
+    if (!this.hasPending) {
+      return;
+    }
+    return new Promise((resolve) => this.whenFlushedCallbacks.push(resolve));
+  }
+  isInMemory() {
+    return this.options.hint === StorageHint.STORAGE_IN_MEMORY;
+  }
+}
+class InMemoryStorageDatabase {
+  static {
+    __name(this, "InMemoryStorageDatabase");
+  }
+  constructor() {
+    this.onDidChangeItemsExternal = Event.None;
+    this.items = /* @__PURE__ */ new Map();
+  }
+  async getItems() {
+    return this.items;
+  }
+  async updateItems(request) {
+    request.insert?.forEach((value, key) => this.items.set(key, value));
+    request.delete?.forEach((key) => this.items.delete(key));
+  }
+  async optimize() {
+  }
+  async close() {
+  }
+}
+export {
+  InMemoryStorageDatabase,
+  Storage,
+  StorageHint,
+  StorageState,
+  isStorageItemsChangeEvent
+};
+//# sourceMappingURL=storage.js.map

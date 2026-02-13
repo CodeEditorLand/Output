@@ -1,1 +1,11 @@
-import{$nv as o}from"../../../../platform/telemetry/common/telemetryUtils.js";function n(t,s,e){return o(t)===3&&!!s.tasConfig&&!e.disableExperiments&&!e.extensionTestsLocationURI&&!e.enableSmokeTestDriver&&t.getValue("workbench.enableExperiments")===!0}export{n as $OZ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getTelemetryLevel } from "../../../../platform/telemetry/common/telemetryUtils.js";
+function experimentsEnabled(configurationService, productService, environmentService) {
+  return getTelemetryLevel(configurationService) === 3 && !!productService.tasConfig && !environmentService.disableExperiments && !environmentService.extensionTestsLocationURI && !environmentService.enableSmokeTestDriver && configurationService.getValue("workbench.enableExperiments") === true;
+}
+__name(experimentsEnabled, "experimentsEnabled");
+export {
+  experimentsEnabled
+};
+//# sourceMappingURL=workbenchTelemetryUtils.js.map

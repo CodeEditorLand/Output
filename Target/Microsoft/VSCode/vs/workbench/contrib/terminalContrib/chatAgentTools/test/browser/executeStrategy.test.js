@@ -1,11 +1,56 @@
-import{strictEqual as t}from"assert";import{$Ibb as o}from"../../../../../../base/test/common/utils.js";import{$DCc as e}from"../../browser/executeStrategy/executeStrategy.js";suite("Execute Strategy - Prompt Detection",()=>{o(),test("detectsCommonPromptPattern should detect PowerShell prompts",()=>{t(e("PS C:\\>").detected,!0),t(e("PS C:\\Windows\\System32>").detected,!0),t(e("PS C:\\Users\\test> ").detected,!0)}),test("detectsCommonPromptPattern should detect Command Prompt",()=>{t(e("C:\\>").detected,!0),t(e("C:\\Windows\\System32>").detected,!0),t(e("D:\\test> ").detected,!0)}),test("detectsCommonPromptPattern should detect Bash prompts",()=>{t(e("user@host:~$ ").detected,!0),t(e("$ ").detected,!0),t(e("[user@host ~]$ ").detected,!0)}),test("detectsCommonPromptPattern should detect root prompts",()=>{t(e("root@host:~# ").detected,!0),t(e("# ").detected,!0),t(e("[root@host ~]# ").detected,!0)}),test("detectsCommonPromptPattern should detect Python REPL",()=>{t(e(">>> ").detected,!0),t(e(">>>").detected,!0)}),test("detectsCommonPromptPattern should detect starship prompts",()=>{t(e("~ \u276F ").detected,!0),t(e("/path/to/project \u276F").detected,!0)}),test("detectsCommonPromptPattern should detect generic prompts",()=>{t(e("test> ").detected,!0),t(e("someprompt% ").detected,!0)}),test("detectsCommonPromptPattern should handle multiline content",()=>{t(e(`command output line 1
+import { strictEqual } from "assert";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { detectsCommonPromptPattern } from "../../browser/executeStrategy/executeStrategy.js";
+suite("Execute Strategy - Prompt Detection", () => {
+  ensureNoDisposablesAreLeakedInTestSuite();
+  test("detectsCommonPromptPattern should detect PowerShell prompts", () => {
+    strictEqual(detectsCommonPromptPattern("PS C:\\>").detected, true);
+    strictEqual(detectsCommonPromptPattern("PS C:\\Windows\\System32>").detected, true);
+    strictEqual(detectsCommonPromptPattern("PS C:\\Users\\test> ").detected, true);
+  });
+  test("detectsCommonPromptPattern should detect Command Prompt", () => {
+    strictEqual(detectsCommonPromptPattern("C:\\>").detected, true);
+    strictEqual(detectsCommonPromptPattern("C:\\Windows\\System32>").detected, true);
+    strictEqual(detectsCommonPromptPattern("D:\\test> ").detected, true);
+  });
+  test("detectsCommonPromptPattern should detect Bash prompts", () => {
+    strictEqual(detectsCommonPromptPattern("user@host:~$ ").detected, true);
+    strictEqual(detectsCommonPromptPattern("$ ").detected, true);
+    strictEqual(detectsCommonPromptPattern("[user@host ~]$ ").detected, true);
+  });
+  test("detectsCommonPromptPattern should detect root prompts", () => {
+    strictEqual(detectsCommonPromptPattern("root@host:~# ").detected, true);
+    strictEqual(detectsCommonPromptPattern("# ").detected, true);
+    strictEqual(detectsCommonPromptPattern("[root@host ~]# ").detected, true);
+  });
+  test("detectsCommonPromptPattern should detect Python REPL", () => {
+    strictEqual(detectsCommonPromptPattern(">>> ").detected, true);
+    strictEqual(detectsCommonPromptPattern(">>>").detected, true);
+  });
+  test("detectsCommonPromptPattern should detect starship prompts", () => {
+    strictEqual(detectsCommonPromptPattern("~ \u276F ").detected, true);
+    strictEqual(detectsCommonPromptPattern("/path/to/project \u276F").detected, true);
+  });
+  test("detectsCommonPromptPattern should detect generic prompts", () => {
+    strictEqual(detectsCommonPromptPattern("test> ").detected, true);
+    strictEqual(detectsCommonPromptPattern("someprompt% ").detected, true);
+  });
+  test("detectsCommonPromptPattern should handle multiline content", () => {
+    const multilineContent = `command output line 1
 command output line 2
-user@host:~$ `).detected,!0)}),test("detectsCommonPromptPattern should reject non-prompt content",()=>{t(e("just some output").detected,!1),t(e("error: command not found").detected,!1),t(e("").detected,!1),t(e("   ").detected,!1)}),test("detectsCommonPromptPattern should handle edge cases",()=>{t(e(`output
-
-
-`).detected,!1),t(e(`
-
-$ 
-
-`).detected,!0),t(e(`output
-PS C:\\> `).detected,!0)})});
+user@host:~$ `;
+    strictEqual(detectsCommonPromptPattern(multilineContent).detected, true);
+  });
+  test("detectsCommonPromptPattern should reject non-prompt content", () => {
+    strictEqual(detectsCommonPromptPattern("just some output").detected, false);
+    strictEqual(detectsCommonPromptPattern("error: command not found").detected, false);
+    strictEqual(detectsCommonPromptPattern("").detected, false);
+    strictEqual(detectsCommonPromptPattern("   ").detected, false);
+  });
+  test("detectsCommonPromptPattern should handle edge cases", () => {
+    strictEqual(detectsCommonPromptPattern("output\n\n\n").detected, false);
+    strictEqual(detectsCommonPromptPattern("\n\n$ \n\n").detected, true);
+    strictEqual(detectsCommonPromptPattern("output\nPS C:\\> ").detected, true);
+  });
+});
+//# sourceMappingURL=executeStrategy.test.js.map

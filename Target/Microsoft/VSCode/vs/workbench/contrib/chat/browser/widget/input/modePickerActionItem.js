@@ -1,1 +1,267 @@
-import*as B from"../../../../../../base/browser/dom.js";import{$G0 as j}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$$b as J}from"../../../../../../base/common/arrays.js";import{$bk as M}from"../../../../../../base/common/codicons.js";import{$a as Z}from"../../../../../../base/common/collections.js";import{autorun as S}from"../../../../../../base/common/observable.js";import{ThemeIcon as E}from"../../../../../../base/common/themables.js";import{localize as $}from"../../../../../../nls.js";import{$9jb as tt}from"../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$rL as et,$qL as ot}from"../../../../../../platform/actions/common/actions.js";import{$jlb as it}from"../../../../../../platform/actionWidget/browser/actionWidget.js";import{$uo as nt}from"../../../../../../platform/commands/common/commands.js";import{$0l as rt}from"../../../../../../platform/configuration/common/configuration.js";import{$ro as st}from"../../../../../../platform/contextkey/common/contextkey.js";import{$fy as ct}from"../../../../../../platform/keybinding/common/keybinding.js";import{$Vn as lt}from"../../../../../../platform/product/common/productService.js";import{$pp as at}from"../../../../../../platform/telemetry/common/telemetry.js";import{$kW as ut}from"../../../common/participants/chatAgents.js";import{ChatMode as p,$XT as dt}from"../../../common/chatModes.js";import{$0Yb as ft}from"../../../common/promptSyntax/utils/promptsServiceUtils.js";import{ChatAgentLocation as O,ChatConfiguration as V,ChatModeKind as L}from"../../../common/constants.js";import{PromptsStorage as P}from"../../../common/promptSyntax/service/promptsService.js";import{$PPb as mt}from"../../actions/chatActions.js";import{$TQb as U}from"../../actions/chatExecuteActions.js";import{$o4b as ht}from"./chatInputPickerActionItem.js";import{$EP as pt}from"../../../../../../platform/opener/common/opener.js";var Y=function(r,o,e,s){var m=arguments.length,i=m<3?o:s===null?s=Object.getOwnPropertyDescriptor(o,e):s,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,o,e,s);else for(var b=r.length-1;b>=0;b--)(u=r[b])&&(i=(m<3?u(i):m>3?u(o,e,i):u(o,e))||i);return m>3&&i&&Object.defineProperty(o,e,i),i},f=function(r,o){return function(e,s){o(e,s,r)}};const H=M.tasklist;let X=class extends ht{constructor(o,e,s,m,i,u,b,v,R,F,x,K,N,q){const I=e.customAgentTarget?.(),_={label:$(6766,null),order:0},z={label:$(6767,null),order:1},k={label:$(6768,null),order:999,showHeader:!0},w=b.inspect(V.AgentEnabled).policyValue===!1,y=(t,l)=>{const a=t.kind===L.Agent&&w,C=i.getDefaultAgent(O.Chat,t.kind)?.description??o.tooltip,g=[];if(t.kind===L.Agent&&!a){if(t.uri){let c,d,h;t.source?.storage===P.extension?(d=M.eye,h=`viewAgent:${t.id}`,c=$(6769,null,t.label.get())):(d=M.edit,h=`editAgent:${t.id}`,c=$(6770,null,t.label.get()));const W=t.uri;g.push({id:h,label:c,tooltip:c,class:E.asClassName(d),enabled:!0,run:async()=>{q.open(W.get())}})}else if(!I){const c=$(6771,null,t.label.get());g.push({id:`configureTools:${t.id}`,label:c,tooltip:c,class:E.asClassName(M.tools),enabled:!0,run:async()=>{m.hide(),l.id!==t.id&&await x.executeCommand(U,{modeId:t.id,sessionResource:this.t.sessionResource()}),await x.executeCommand("workbench.action.chat.configureTools",s.actionContext,{source:"modePicker"})}})}}return{...o,id:mt(t),label:t.label.get(),icon:a?E.fromId(M.lock.id):t.icon.get(),class:a?"disabled-by-policy":void 0,enabled:!a,checked:!a&&l.id===t.id,tooltip:"",hover:{content:C,position:this.h.hoverPosition},toolbarActions:g,run:async()=>{if(a)return;const c=await x.executeCommand(U,{modeId:t.id,sessionResource:this.t.sessionResource()});return this.element&&this.w(this.element),c},category:a?k:_}},D=(t,l)=>({...y(t,l),tooltip:"",hover:{content:t.description.get()??i.getDefaultAgent(O.Chat,t.kind)?.description??o.tooltip,position:this.h.hoverPosition},icon:t.icon.get()??(T(t,this.W)?H:void 0),category:w?k:z}),G=t=>t.isBuiltin||!t.source?!1:t.source.storage===P.local||t.source.storage===P.user,Q={actionProvider:I?{getActions:()=>{const t=R.getModes(),l=e.currentMode.get(),a=t.custom.filter(d=>{const h=d.target?.get();return G(d)&&(!h||h===I)}),C=l.id===p.Agent.id,g={...y(p.Agent,p.Agent),checked:C},c=a.map(d=>D(d,l));return[g,...c]}}:{getActions:()=>{const t=R.getModes(),l=e.currentMode.get(),a=t.builtin.find(n=>n.id===p.Agent.id),C=b.getValue(V.EditModeHidden)&&i.hasToolsAgent&&l.id!==p.Edit.id,g=t.builtin.filter(n=>n.id!==p.Agent.id&&!(C&&n.id===p.Edit.id)),c=Z(t.custom,n=>T(n,this.W)?"builtin":"custom"),d=c.builtin?.map(n=>{const A=D(n,l);return A.category=w?k:_,A})??[];d.sort((n,A)=>n.label.localeCompare(A.label));const h=c.custom?.map(n=>D(n,l))??[];return h.sort((n,A)=>n.label.localeCompare(A.label)),J([a&&y(a,l),...g.map(n=>n&&y(n,l)),...d,...h])}},actionBarActionProvider:{getActions:()=>this.X()},showItemKeybindings:!0,reporter:{id:"ChatModePicker",name:"ChatModePicker",includeOptions:!0}};super(o,Q,s,m,u,v,N),this.t=e,this.S=v,this.U=F,this.W=K,this.D(S(t=>{this.t.currentMode.read(t).label.read(t),this.element&&this.w(this.element)}))}X(){const o=this.U.createMenu(ot.ChatModePicker,this.S),e=tt(o.getActions({renderShortTitle:!0}));return o.dispose(),e}w(o){this.O(o);const e=this.t.currentMode.get(),s=e.id===p.Agent.id,m=e.label.get();let i=e.icon.get();!i&&T(e,this.W)&&(i=H);const u=[];return i&&u.push(...j(`$(${i.id})`)),(!s||!i||!this.h.onlyShowIconsForDefaultActions.get())&&u.push(B.$("span.chat-input-picker-label",void 0,m)),u.push(...j("$(chevron-down)")),B.$A9(o,...u),null}};X=Y([f(3,it),f(4,ut),f(5,ct),f(6,rt),f(7,st),f(8,dt),f(9,et),f(10,nt),f(11,lt),f(12,at),f(13,pt)],X);function Kt(r,o){if(r.name.get().toLowerCase()!=="implement"||r.source?.storage!==P.extension)return!1;const e=o.defaultChatAgent?.chatExtensionId;return!!e&&r.source.extensionId.value===e}function T(r,o){if(r.isBuiltin)return!0;if(r.source?.storage!==P.extension)return!1;const e=o.defaultChatAgent?.chatExtensionId;if(!e||r.source.extensionId.value!==e)return!1;const s=r.uri?.get();return s?!ft(s,r.source.extensionId,o):!0}export{X as $t4b,Kt as $u4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { coalesce } from "../../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { groupBy } from "../../../../../../base/common/collections.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../nls.js";
+import { getFlatActionBarActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IActionWidgetService } from "../../../../../../platform/actionWidget/browser/actionWidget.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { IProductService } from "../../../../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { IChatAgentService } from "../../../common/participants/chatAgents.js";
+import { ChatMode, IChatModeService } from "../../../common/chatModes.js";
+import { isOrganizationPromptFile } from "../../../common/promptSyntax/utils/promptsServiceUtils.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../../common/constants.js";
+import { PromptsStorage } from "../../../common/promptSyntax/service/promptsService.js";
+import { getOpenChatActionIdForMode } from "../../actions/chatActions.js";
+import { ToggleAgentModeActionId } from "../../actions/chatExecuteActions.js";
+import { ChatInputPickerActionViewItem } from "./chatInputPickerActionItem.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+const builtinDefaultIcon = Codicon.tasklist;
+let ModePickerActionItem = class ModePickerActionItem2 extends ChatInputPickerActionViewItem {
+  static {
+    __name(this, "ModePickerActionItem");
+  }
+  constructor(action, delegate, pickerOptions, actionWidgetService, chatAgentService, keybindingService, configurationService, contextKeyService, chatModeService, menuService, commandService, _productService, telemetryService, openerService) {
+    const customAgentTarget = delegate.customAgentTarget?.();
+    const builtInCategory = { label: localize("built-in", "Built-In"), order: 0 };
+    const customCategory = { label: localize("custom", "Custom"), order: 1 };
+    const policyDisabledCategory = { label: localize("managedByOrganization", "Managed by your organization"), order: 999, showHeader: true };
+    const agentModeDisabledViaPolicy = configurationService.inspect(ChatConfiguration.AgentEnabled).policyValue === false;
+    const makeAction = /* @__PURE__ */ __name((mode, currentMode) => {
+      const isDisabledViaPolicy = mode.kind === ChatModeKind.Agent && agentModeDisabledViaPolicy;
+      const tooltip = chatAgentService.getDefaultAgent(ChatAgentLocation.Chat, mode.kind)?.description ?? action.tooltip;
+      const toolbarActions = [];
+      if (mode.kind === ChatModeKind.Agent && !isDisabledViaPolicy) {
+        if (mode.uri) {
+          let label, icon, id;
+          if (mode.source?.storage === PromptsStorage.extension) {
+            icon = Codicon.eye;
+            id = `viewAgent:${mode.id}`;
+            label = localize("viewModeConfiguration", "View {0} agent", mode.label.get());
+          } else {
+            icon = Codicon.edit;
+            id = `editAgent:${mode.id}`;
+            label = localize("editModeConfiguration", "Edit {0} agent", mode.label.get());
+          }
+          const modeResource = mode.uri;
+          toolbarActions.push({
+            id,
+            label,
+            tooltip: label,
+            class: ThemeIcon.asClassName(icon),
+            enabled: true,
+            run: /* @__PURE__ */ __name(async () => {
+              openerService.open(modeResource.get());
+            }, "run")
+          });
+        } else if (!customAgentTarget) {
+          const label = localize("configureToolsFor", "Configure tools for {0} agent", mode.label.get());
+          toolbarActions.push({
+            id: `configureTools:${mode.id}`,
+            label,
+            tooltip: label,
+            class: ThemeIcon.asClassName(Codicon.tools),
+            enabled: true,
+            run: /* @__PURE__ */ __name(async () => {
+              actionWidgetService.hide();
+              if (currentMode.id !== mode.id) {
+                await commandService.executeCommand(ToggleAgentModeActionId, { modeId: mode.id, sessionResource: this.delegate.sessionResource() });
+              }
+              await commandService.executeCommand("workbench.action.chat.configureTools", pickerOptions.actionContext, { source: "modePicker" });
+            }, "run")
+          });
+        }
+      }
+      return {
+        ...action,
+        id: getOpenChatActionIdForMode(mode),
+        label: mode.label.get(),
+        icon: isDisabledViaPolicy ? ThemeIcon.fromId(Codicon.lock.id) : mode.icon.get(),
+        class: isDisabledViaPolicy ? "disabled-by-policy" : void 0,
+        enabled: !isDisabledViaPolicy,
+        checked: !isDisabledViaPolicy && currentMode.id === mode.id,
+        tooltip: "",
+        hover: { content: tooltip, position: this.pickerOptions.hoverPosition },
+        toolbarActions,
+        run: /* @__PURE__ */ __name(async () => {
+          if (isDisabledViaPolicy) {
+            return;
+          }
+          const result = await commandService.executeCommand(ToggleAgentModeActionId, { modeId: mode.id, sessionResource: this.delegate.sessionResource() });
+          if (this.element) {
+            this.renderLabel(this.element);
+          }
+          return result;
+        }, "run"),
+        category: isDisabledViaPolicy ? policyDisabledCategory : builtInCategory
+      };
+    }, "makeAction");
+    const makeActionFromCustomMode = /* @__PURE__ */ __name((mode, currentMode) => {
+      return {
+        ...makeAction(mode, currentMode),
+        tooltip: "",
+        hover: { content: mode.description.get() ?? chatAgentService.getDefaultAgent(ChatAgentLocation.Chat, mode.kind)?.description ?? action.tooltip, position: this.pickerOptions.hoverPosition },
+        icon: mode.icon.get() ?? (isModeConsideredBuiltIn(mode, this._productService) ? builtinDefaultIcon : void 0),
+        category: agentModeDisabledViaPolicy ? policyDisabledCategory : customCategory
+      };
+    }, "makeActionFromCustomMode");
+    const isUserDefinedCustomAgent = /* @__PURE__ */ __name((mode) => {
+      if (mode.isBuiltin || !mode.source) {
+        return false;
+      }
+      return mode.source.storage === PromptsStorage.local || mode.source.storage === PromptsStorage.user;
+    }, "isUserDefinedCustomAgent");
+    const actionProviderWithCustomAgentTarget = {
+      getActions: /* @__PURE__ */ __name(() => {
+        const modes = chatModeService.getModes();
+        const currentMode = delegate.currentMode.get();
+        const filteredCustomModes = modes.custom.filter((mode) => {
+          const target = mode.target?.get();
+          return isUserDefinedCustomAgent(mode) && (!target || target === customAgentTarget);
+        });
+        const checked = currentMode.id === ChatMode.Agent.id;
+        const defaultAction = { ...makeAction(ChatMode.Agent, ChatMode.Agent), checked };
+        const customActions = filteredCustomModes.map((mode) => makeActionFromCustomMode(mode, currentMode));
+        return [defaultAction, ...customActions];
+      }, "getActions")
+    };
+    const actionProvider = {
+      getActions: /* @__PURE__ */ __name(() => {
+        const modes = chatModeService.getModes();
+        const currentMode = delegate.currentMode.get();
+        const agentMode = modes.builtin.find((mode) => mode.id === ChatMode.Agent.id);
+        const shouldHideEditMode = configurationService.getValue(ChatConfiguration.EditModeHidden) && chatAgentService.hasToolsAgent && currentMode.id !== ChatMode.Edit.id;
+        const otherBuiltinModes = modes.builtin.filter((mode) => mode.id !== ChatMode.Agent.id && !(shouldHideEditMode && mode.id === ChatMode.Edit.id));
+        const customModes = groupBy(modes.custom, (mode) => isModeConsideredBuiltIn(mode, this._productService) ? "builtin" : "custom");
+        const customBuiltinModeActions = customModes.builtin?.map((mode) => {
+          const action2 = makeActionFromCustomMode(mode, currentMode);
+          action2.category = agentModeDisabledViaPolicy ? policyDisabledCategory : builtInCategory;
+          return action2;
+        }) ?? [];
+        customBuiltinModeActions.sort((a, b) => a.label.localeCompare(b.label));
+        const customModeActions = customModes.custom?.map((mode) => makeActionFromCustomMode(mode, currentMode)) ?? [];
+        customModeActions.sort((a, b) => a.label.localeCompare(b.label));
+        const orderedModes = coalesce([
+          agentMode && makeAction(agentMode, currentMode),
+          ...otherBuiltinModes.map((mode) => mode && makeAction(mode, currentMode)),
+          ...customBuiltinModeActions,
+          ...customModeActions
+        ]);
+        return orderedModes;
+      }, "getActions")
+    };
+    const modePickerActionWidgetOptions = {
+      actionProvider: customAgentTarget ? actionProviderWithCustomAgentTarget : actionProvider,
+      actionBarActionProvider: {
+        getActions: /* @__PURE__ */ __name(() => this.getModePickerActionBarActions(), "getActions")
+      },
+      showItemKeybindings: true,
+      reporter: { id: "ChatModePicker", name: "ChatModePicker", includeOptions: true }
+    };
+    super(action, modePickerActionWidgetOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService);
+    this.delegate = delegate;
+    this.contextKeyService = contextKeyService;
+    this.menuService = menuService;
+    this._productService = _productService;
+    this._register(autorun((reader) => {
+      this.delegate.currentMode.read(reader).label.read(reader);
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+    }));
+  }
+  getModePickerActionBarActions() {
+    const menuActions = this.menuService.createMenu(MenuId.ChatModePicker, this.contextKeyService);
+    const menuContributions = getFlatActionBarActions(menuActions.getActions({ renderShortTitle: true }));
+    menuActions.dispose();
+    return menuContributions;
+  }
+  renderLabel(element) {
+    this.setAriaLabelAttributes(element);
+    const currentMode = this.delegate.currentMode.get();
+    const isDefault = currentMode.id === ChatMode.Agent.id;
+    const state = currentMode.label.get();
+    let icon = currentMode.icon.get();
+    if (!icon && isModeConsideredBuiltIn(currentMode, this._productService)) {
+      icon = builtinDefaultIcon;
+    }
+    const labelElements = [];
+    if (icon) {
+      labelElements.push(...renderLabelWithIcons(`$(${icon.id})`));
+    }
+    if (!isDefault || !icon || !this.pickerOptions.onlyShowIconsForDefaultActions.get()) {
+      labelElements.push(dom.$("span.chat-input-picker-label", void 0, state));
+    }
+    labelElements.push(...renderLabelWithIcons(`$(chevron-down)`));
+    dom.reset(element, ...labelElements);
+    return null;
+  }
+};
+ModePickerActionItem = __decorate([
+  __param(3, IActionWidgetService),
+  __param(4, IChatAgentService),
+  __param(5, IKeybindingService),
+  __param(6, IConfigurationService),
+  __param(7, IContextKeyService),
+  __param(8, IChatModeService),
+  __param(9, IMenuService),
+  __param(10, ICommandService),
+  __param(11, IProductService),
+  __param(12, ITelemetryService),
+  __param(13, IOpenerService)
+], ModePickerActionItem);
+function isBuiltinImplementMode(mode, productService) {
+  if (mode.name.get().toLowerCase() !== "implement") {
+    return false;
+  }
+  if (mode.source?.storage !== PromptsStorage.extension) {
+    return false;
+  }
+  const chatExtensionId = productService.defaultChatAgent?.chatExtensionId;
+  return !!chatExtensionId && mode.source.extensionId.value === chatExtensionId;
+}
+__name(isBuiltinImplementMode, "isBuiltinImplementMode");
+function isModeConsideredBuiltIn(mode, productService) {
+  if (mode.isBuiltin) {
+    return true;
+  }
+  if (mode.source?.storage !== PromptsStorage.extension) {
+    return false;
+  }
+  const chatExtensionId = productService.defaultChatAgent?.chatExtensionId;
+  if (!chatExtensionId || mode.source.extensionId.value !== chatExtensionId) {
+    return false;
+  }
+  const modeUri = mode.uri?.get();
+  if (!modeUri) {
+    return true;
+  }
+  return !isOrganizationPromptFile(modeUri, mode.source.extensionId, productService);
+}
+__name(isModeConsideredBuiltIn, "isModeConsideredBuiltIn");
+export {
+  ModePickerActionItem,
+  isBuiltinImplementMode
+};
+//# sourceMappingURL=modePickerActionItem.js.map

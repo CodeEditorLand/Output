@@ -1,18 +1,29 @@
-import{$uk as l}from"../../../../../base/common/htmlContent.js";import{$Yf as o}from"../../../../../base/common/strings.js";import{localize as e}from"../../../../../nls.js";const c=n=>l("notebook.setProfile",{profile:n}).toString(),t=400;var a=()=>`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createCommandUri } from "../../../../../base/common/htmlContent.js";
+import { escape } from "../../../../../base/common/strings.js";
+import { localize } from "../../../../../nls.js";
+const createSetProfileCommandUri = /* @__PURE__ */ __name((profile) => createCommandUri("notebook.setProfile", { profile }).toString(), "createSetProfileCommandUri");
+const imageSize = 400;
+var notebookProfile_default = /* @__PURE__ */ __name(() => `
 <vertically-centered>
 <checklist>
-	<checkbox on-checked="${c("default")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'both' && config.notebook.globalToolbar == false && config.notebook.compactView == true && config.notebook.showCellStatusBar == 'visible'">
-		<img width="${t}" src="./notebookThemes/default.png"/>
-		${o(e(15319,null))}
+	<checkbox on-checked="${createSetProfileCommandUri("default")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'both' && config.notebook.globalToolbar == false && config.notebook.compactView == true && config.notebook.showCellStatusBar == 'visible'">
+		<img width="${imageSize}" src="./notebookThemes/default.png"/>
+		${escape(localize("default", "Default"))}
 	</checkbox>
-	<checkbox on-checked="${c("jupyter")}" checked-on="config.notebook.cellFocusIndicator == 'gutter' && config.notebook.insertToolbarLocation == 'notebookToolbar' && config.notebook.globalToolbar == true && config.notebook.compactView == true  && config.notebook.showCellStatusBar == 'visible'">
-		<img width="${t}" src="./notebookThemes/jupyter.png"/>
-		${o(e(15320,null))}
+	<checkbox on-checked="${createSetProfileCommandUri("jupyter")}" checked-on="config.notebook.cellFocusIndicator == 'gutter' && config.notebook.insertToolbarLocation == 'notebookToolbar' && config.notebook.globalToolbar == true && config.notebook.compactView == true  && config.notebook.showCellStatusBar == 'visible'">
+		<img width="${imageSize}" src="./notebookThemes/jupyter.png"/>
+		${escape(localize("jupyter", "Jupyter"))}
 	</checkbox>
-	<checkbox on-checked="${c("colab")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'betweenCells' && config.notebook.globalToolbar == false && config.notebook.compactView == false && config.notebook.showCellStatusBar == 'hidden'">
-		<img width="${t}" src="./notebookThemes/colab.png"/>
-		${o(e(15321,null))}
+	<checkbox on-checked="${createSetProfileCommandUri("colab")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'betweenCells' && config.notebook.globalToolbar == false && config.notebook.compactView == false && config.notebook.showCellStatusBar == 'hidden'">
+		<img width="${imageSize}" src="./notebookThemes/colab.png"/>
+		${escape(localize("colab", "Colab"))}
 	</checkbox>
 </checklist>
 </vertically-centered>
-`;export{a as default};
+`, "default");
+export {
+  notebookProfile_default as default
+};
+//# sourceMappingURL=notebookProfile.js.map

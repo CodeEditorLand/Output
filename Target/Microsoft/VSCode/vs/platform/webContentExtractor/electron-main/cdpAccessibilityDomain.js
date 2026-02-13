@@ -1,34 +1,365 @@
-import{URI as C}from"../../../base/common/uri.js";function L(t){if(t.length===0)return[];const e=new Map;for(const o of t)e.set(o.nodeId,o);function n(o){const i=e.get(o);if(!i||!i.childIds)return[];const r=[];for(const l of i.childIds){const u=e.get(l);u&&(u.ignored?r.push(...n(l)):r.push(l))}return r}const s=new Map;for(const o of t)o.ignored||s.set(o.nodeId,{node:o,children:[],parent:null});for(const o of t){if(o.ignored)continue;const i=s.get(o.nodeId);if(o.childIds)for(const r of o.childIds){const l=e.get(r);if(l)if(l.ignored){const u=n(r);for(const I of u){const p=s.get(I);p&&(p.parent=i,i.children.push(p))}}else{const u=s.get(r);u&&(u.parent=i,i.children.push(u))}}}const c=[];for(const o of s.values())o.parent||c.push(o);return c}const g=80;function S(t,e){const n=L(e);if(n.length===0)return"";const s=[],c=[];for(const i of n){const r=T(t,i),l=B(i);r.trim().length>0&&s.push(r),c.push(...l)}return s.join(`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../base/common/uri.js";
+function createNodeTrees(nodes) {
+  if (nodes.length === 0) {
+    return [];
+  }
+  const nodeLookup = /* @__PURE__ */ new Map();
+  for (const node of nodes) {
+    nodeLookup.set(node.nodeId, node);
+  }
+  function getNonIgnoredDescendants(nodeId) {
+    const node = nodeLookup.get(nodeId);
+    if (!node || !node.childIds) {
+      return [];
+    }
+    const result = [];
+    for (const childId of node.childIds) {
+      const childNode = nodeLookup.get(childId);
+      if (!childNode) {
+        continue;
+      }
+      if (childNode.ignored) {
+        result.push(...getNonIgnoredDescendants(childId));
+      } else {
+        result.push(childId);
+      }
+    }
+    return result;
+  }
+  __name(getNonIgnoredDescendants, "getNonIgnoredDescendants");
+  const nodeMap = /* @__PURE__ */ new Map();
+  for (const node of nodes) {
+    if (!node.ignored) {
+      nodeMap.set(node.nodeId, { node, children: [], parent: null });
+    }
+  }
+  for (const node of nodes) {
+    if (node.ignored) {
+      continue;
+    }
+    const treeNode = nodeMap.get(node.nodeId);
+    if (node.childIds) {
+      for (const childId of node.childIds) {
+        const childNode = nodeLookup.get(childId);
+        if (!childNode) {
+          continue;
+        }
+        if (childNode.ignored) {
+          const nonIgnoredDescendants = getNonIgnoredDescendants(childId);
+          for (const descendantId of nonIgnoredDescendants) {
+            const descendantTreeNode = nodeMap.get(descendantId);
+            if (descendantTreeNode) {
+              descendantTreeNode.parent = treeNode;
+              treeNode.children.push(descendantTreeNode);
+            }
+          }
+        } else {
+          const childTreeNode = nodeMap.get(childId);
+          if (childTreeNode) {
+            childTreeNode.parent = treeNode;
+            treeNode.children.push(childTreeNode);
+          }
+        }
+      }
+    }
+  }
+  const roots = [];
+  for (const node of nodeMap.values()) {
+    if (!node.parent) {
+      roots.push(node);
+    }
+  }
+  return roots;
+}
+__name(createNodeTrees, "createNodeTrees");
+const LINE_MAX_LENGTH = 80;
+function convertAXTreeToMarkdown(uri, axNodes) {
+  const trees = createNodeTrees(axNodes);
+  if (trees.length === 0) {
+    return "";
+  }
+  const allMainContent = [];
+  const allNavLinks = [];
+  for (const tree of trees) {
+    const mainContent = extractMainContent(uri, tree);
+    const navLinks = collectNavigationLinks(tree);
+    if (mainContent.trim().length > 0) {
+      allMainContent.push(mainContent);
+    }
+    allNavLinks.push(...navLinks);
+  }
+  const combinedMainContent = allMainContent.join("\n\n");
+  return combinedMainContent + (allNavLinks.length > 0 ? "\n\n## Additional Links\n" + allNavLinks.join("\n") : "");
+}
+__name(convertAXTreeToMarkdown, "convertAXTreeToMarkdown");
+function extractMainContent(uri, tree) {
+  const contentBuffer = [];
+  processNode(uri, tree, contentBuffer, 0, true);
+  return contentBuffer.join("");
+}
+__name(extractMainContent, "extractMainContent");
+function processNode(uri, node, buffer, depth, allowWrap) {
+  const role = getNodeRole(node.node);
+  switch (role) {
+    case "navigation":
+      return;
+    // Skip navigation nodes
+    case "heading":
+      processHeadingNode(uri, node, buffer, depth);
+      return;
+    case "paragraph":
+      processParagraphNode(uri, node, buffer, depth, allowWrap);
+      return;
+    case "list":
+      buffer.push("\n");
+      for (const descChild of node.children) {
+        processNode(uri, descChild, buffer, depth + 1, true);
+      }
+      buffer.push("\n");
+      return;
+    case "ListMarker":
+      buffer.push(getNodeText(node.node, allowWrap));
+      return;
+    case "listitem": {
+      const tempBuffer = [];
+      for (const descChild of node.children) {
+        processNode(uri, descChild, tempBuffer, depth + 1, true);
+      }
+      const indent = getLevel(node.node) > 1 ? " ".repeat(getLevel(node.node)) : "";
+      buffer.push(`${indent}${tempBuffer.join("").trim()}
+`);
+      return;
+    }
+    case "link":
+      if (!isNavigationLink(node)) {
+        const linkText = getNodeText(node.node, allowWrap);
+        const url = getLinkUrl(node.node);
+        if (!isSameUriIgnoringQueryAndFragment(uri, node.node)) {
+          buffer.push(`[${linkText}](${url})`);
+        } else {
+          buffer.push(linkText);
+        }
+      }
+      return;
+    case "StaticText": {
+      const staticText = getNodeText(node.node, allowWrap);
+      if (staticText) {
+        buffer.push(staticText);
+      }
+      break;
+    }
+    case "image": {
+      const altText = getNodeText(node.node, allowWrap) || "Image";
+      const imageUrl = getImageUrl(node.node);
+      if (imageUrl) {
+        buffer.push(`![${altText}](${imageUrl})
 
-`)+(c.length>0?`
+`);
+      } else {
+        buffer.push(`[Image: ${altText}]
 
-## Additional Links
-`+c.join(`
-`):"")}function T(t,e){const n=[];return d(t,e,n,0,!0),n.join("")}function d(t,e,n,s,c){switch(h(e.node)){case"navigation":return;case"heading":j(t,e,n,s);return;case"paragraph":M(t,e,n,s,c);return;case"list":n.push(`
-`);for(const i of e.children)d(t,i,n,s+1,!0);n.push(`
-`);return;case"ListMarker":n.push(a(e.node,c));return;case"listitem":{const i=[];for(const l of e.children)d(t,l,i,s+1,!0);const r=m(e.node)>1?" ".repeat(m(e.node)):"";n.push(`${r}${i.join("").trim()}
-`);return}case"link":if(!v(e)){const i=a(e.node,c),r=f(e.node);x(t,e.node)?n.push(i):n.push(`[${i}](${r})`)}return;case"StaticText":{const i=a(e.node,c);i&&n.push(i);break}case"image":{const i=a(e.node,c)||"Image",r=$(e.node);r?n.push(`![${i}](${r})
-
-`):n.push(`[Image: ${i}]
-
-`);break}case"DescriptionList":P(t,e,n,s);return;case"blockquote":n.push("> "+a(e.node,c).replace(/\n/g,`
-> `)+`
-
-`);break;case"generic":n.push(" ");break;case"code":{y(t,e,n,s);return}case"pre":n.push("```\n"+a(e.node,!1)+"\n```\n\n");break;case"table":U(e,n);return}for(const i of e.children)d(t,i,n,s+1,c)}function h(t){return t.role?.value||""}function a(t,e){const n=t.name?.value||t.value?.value||"";if(!e||n.length<=g)return n;const s=n.split("");let c=-1;for(let o=1;o<s.length;o++)s[o]===" "&&(c=o),o%g===0&&c!==-1&&(s[c]=`
-`,c=o);return s.join("")}function m(t){const e=t.properties?.find(n=>n.name==="level");return e?Math.min(Number(e.value.value)||1,6):1}function f(t){return t.properties?.find(n=>n.name==="url")?.value.value||"#"}function $(t){return t.properties?.find(n=>n.name==="url")?.value.value||null}function v(t){let e=t;for(;e;){const n=h(e.node);if(["navigation","menu","menubar"].includes(n))return!0;e=e.parent}return!1}function x(t,e){const n=f(e);try{const s=C.parse(n);return s.scheme===t.scheme&&s.authority===t.authority&&s.path===t.path}catch{return!1}}function M(t,e,n,s,c){n.push(`
-`);for(const o of e.children)d(t,o,n,s+1,c);n.push(`
-
-`)}function j(t,e,n,s){n.push(`
-`);const c=m(e.node);n.push(`${"#".repeat(c)} `);for(const o of e.children)h(o.node)==="StaticText"?n.push(a(o.node,!1)):d(t,o,n,s+1,!1);n.push(`
-
-`)}function P(t,e,n,s){n.push(`
-`);for(const c of e.children)if(h(c.node)==="term"){n.push("- **");for(const o of c.children)d(t,o,n,s+1,!0);n.push("** ")}else if(h(c.node)==="definition"){for(const o of c.children)d(t,o,n,s+1,!0);n.push(`
-`)}n.push(`
-`)}function k(t){return t==="cell"||t==="gridcell"||t==="columnheader"||t==="rowheader"}function U(t,e){e.push(`
-`);const n=t.children.filter(s=>h(s.node).includes("row"));if(n.length>0){const s=n[0].children.filter(o=>k(h(o.node))),c=s.map(o=>a(o.node,!1)||" ");e.push("| "+c.join(" | ")+` |
-`),e.push("| "+s.map(()=>"---").join(" | ")+` |
-`);for(let o=1;o<n.length;o++){const r=n[o].children.filter(l=>k(h(l.node))).map(l=>a(l.node,!1)||" ");e.push("| "+r.join(" | ")+` |
-`)}}e.push(`
-`)}function y(t,e,n,s){const c=[];for(const i of e.children)d(t,i,c,s+1,!1);if(c.some(i=>i.includes(`
-`)))n.push("\n```\n"),n.push(c.join("")),n.push("\n```\n");else{n.push("`");let i=0;for(const r of c)i+=r.length,i>g&&(n.push(`
-`),i=0),n.push(r),n.push("`")}}function B(t){const e=[];return N(t,e),e}function N(t,e){if(h(t.node)==="link"&&v(t)){const s=a(t.node,!0),c=f(t.node),o=t.node.description?.value||"";e.push(`- [${s}](${c})${o?" - "+o:""}`)}for(const s of t.children)N(s,e)}export{S as $PB};
+`);
+      }
+      break;
+    }
+    case "DescriptionList":
+      processDescriptionListNode(uri, node, buffer, depth);
+      return;
+    case "blockquote":
+      buffer.push("> " + getNodeText(node.node, allowWrap).replace(/\n/g, "\n> ") + "\n\n");
+      break;
+    // TODO: Is this the correct way to handle the generic role?
+    case "generic":
+      buffer.push(" ");
+      break;
+    case "code": {
+      processCodeNode(uri, node, buffer, depth);
+      return;
+    }
+    case "pre":
+      buffer.push("```\n" + getNodeText(node.node, false) + "\n```\n\n");
+      break;
+    case "table":
+      processTableNode(node, buffer);
+      return;
+  }
+  for (const child of node.children) {
+    processNode(uri, child, buffer, depth + 1, allowWrap);
+  }
+}
+__name(processNode, "processNode");
+function getNodeRole(node) {
+  return node.role?.value || "";
+}
+__name(getNodeRole, "getNodeRole");
+function getNodeText(node, allowWrap) {
+  const text = node.name?.value || node.value?.value || "";
+  if (!allowWrap) {
+    return text;
+  }
+  if (text.length <= LINE_MAX_LENGTH) {
+    return text;
+  }
+  const chars = text.split("");
+  let lastSpaceIndex = -1;
+  for (let i = 1; i < chars.length; i++) {
+    if (chars[i] === " ") {
+      lastSpaceIndex = i;
+    }
+    if (i % LINE_MAX_LENGTH === 0 && lastSpaceIndex !== -1) {
+      chars[lastSpaceIndex] = "\n";
+      lastSpaceIndex = i;
+    }
+  }
+  return chars.join("");
+}
+__name(getNodeText, "getNodeText");
+function getLevel(node) {
+  const levelProp = node.properties?.find((p) => p.name === "level");
+  return levelProp ? Math.min(Number(levelProp.value.value) || 1, 6) : 1;
+}
+__name(getLevel, "getLevel");
+function getLinkUrl(node) {
+  const urlProp = node.properties?.find((p) => p.name === "url");
+  return urlProp?.value.value || "#";
+}
+__name(getLinkUrl, "getLinkUrl");
+function getImageUrl(node) {
+  const urlProp = node.properties?.find((p) => p.name === "url");
+  return urlProp?.value.value || null;
+}
+__name(getImageUrl, "getImageUrl");
+function isNavigationLink(node) {
+  let current = node;
+  while (current) {
+    const role = getNodeRole(current.node);
+    if (["navigation", "menu", "menubar"].includes(role)) {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
+}
+__name(isNavigationLink, "isNavigationLink");
+function isSameUriIgnoringQueryAndFragment(uri, node) {
+  const link = getLinkUrl(node);
+  try {
+    const parsed = URI.parse(link);
+    return parsed.scheme === uri.scheme && parsed.authority === uri.authority && parsed.path === uri.path;
+  } catch (e) {
+    return false;
+  }
+}
+__name(isSameUriIgnoringQueryAndFragment, "isSameUriIgnoringQueryAndFragment");
+function processParagraphNode(uri, node, buffer, depth, allowWrap) {
+  buffer.push("\n");
+  for (const child of node.children) {
+    processNode(uri, child, buffer, depth + 1, allowWrap);
+  }
+  buffer.push("\n\n");
+}
+__name(processParagraphNode, "processParagraphNode");
+function processHeadingNode(uri, node, buffer, depth) {
+  buffer.push("\n");
+  const level = getLevel(node.node);
+  buffer.push(`${"#".repeat(level)} `);
+  for (const child of node.children) {
+    if (getNodeRole(child.node) === "StaticText") {
+      buffer.push(getNodeText(child.node, false));
+    } else {
+      processNode(uri, child, buffer, depth + 1, false);
+    }
+  }
+  buffer.push("\n\n");
+}
+__name(processHeadingNode, "processHeadingNode");
+function processDescriptionListNode(uri, node, buffer, depth) {
+  buffer.push("\n");
+  for (const child of node.children) {
+    if (getNodeRole(child.node) === "term") {
+      buffer.push("- **");
+      for (const termChild of child.children) {
+        processNode(uri, termChild, buffer, depth + 1, true);
+      }
+      buffer.push("** ");
+    } else if (getNodeRole(child.node) === "definition") {
+      for (const descChild of child.children) {
+        processNode(uri, descChild, buffer, depth + 1, true);
+      }
+      buffer.push("\n");
+    }
+  }
+  buffer.push("\n");
+}
+__name(processDescriptionListNode, "processDescriptionListNode");
+function isTableCell(role) {
+  return role === "cell" || role === "gridcell" || role === "columnheader" || role === "rowheader";
+}
+__name(isTableCell, "isTableCell");
+function processTableNode(node, buffer) {
+  buffer.push("\n");
+  const rows = node.children.filter((child) => getNodeRole(child.node).includes("row"));
+  if (rows.length > 0) {
+    const headerCells = rows[0].children.filter((cell) => isTableCell(getNodeRole(cell.node)));
+    const headerContent = headerCells.map((cell) => getNodeText(cell.node, false) || " ");
+    buffer.push("| " + headerContent.join(" | ") + " |\n");
+    buffer.push("| " + headerCells.map(() => "---").join(" | ") + " |\n");
+    for (let i = 1; i < rows.length; i++) {
+      const dataCells = rows[i].children.filter((cell) => isTableCell(getNodeRole(cell.node)));
+      const rowContent = dataCells.map((cell) => getNodeText(cell.node, false) || " ");
+      buffer.push("| " + rowContent.join(" | ") + " |\n");
+    }
+  }
+  buffer.push("\n");
+}
+__name(processTableNode, "processTableNode");
+function processCodeNode(uri, node, buffer, depth) {
+  const tempBuffer = [];
+  for (const child of node.children) {
+    processNode(uri, child, tempBuffer, depth + 1, false);
+  }
+  const isCodeblock = tempBuffer.some((text) => text.includes("\n"));
+  if (isCodeblock) {
+    buffer.push("\n```\n");
+    buffer.push(tempBuffer.join(""));
+    buffer.push("\n```\n");
+  } else {
+    buffer.push("`");
+    let characterCount = 0;
+    for (const tempItem of tempBuffer) {
+      characterCount += tempItem.length;
+      if (characterCount > LINE_MAX_LENGTH) {
+        buffer.push("\n");
+        characterCount = 0;
+      }
+      buffer.push(tempItem);
+      buffer.push("`");
+    }
+  }
+}
+__name(processCodeNode, "processCodeNode");
+function collectNavigationLinks(tree) {
+  const links = [];
+  collectLinks(tree, links);
+  return links;
+}
+__name(collectNavigationLinks, "collectNavigationLinks");
+function collectLinks(node, links) {
+  const role = getNodeRole(node.node);
+  if (role === "link" && isNavigationLink(node)) {
+    const linkText = getNodeText(node.node, true);
+    const url = getLinkUrl(node.node);
+    const description = node.node.description?.value || "";
+    links.push(`- [${linkText}](${url})${description ? " - " + description : ""}`);
+  }
+  for (const child of node.children) {
+    collectLinks(child, links);
+  }
+}
+__name(collectLinks, "collectLinks");
+export {
+  convertAXTreeToMarkdown
+};
+//# sourceMappingURL=cdpAccessibilityDomain.js.map

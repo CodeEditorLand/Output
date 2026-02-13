@@ -1,1 +1,101 @@
-import{$xf as p}from"../../../../../base/common/event.js";import{$Ed as b}from"../../../../../base/common/lifecycle.js";import{$Nj as l}from"../../../../../platform/instantiation/common/instantiation.js";import{$hp as d}from"../../../../../platform/storage/common/storage.js";import{$JZ as g}from"../../../../common/memento.js";import{$hS as u}from"../model/chatUri.js";var f=function(s,t,o,e){var r=arguments.length,i=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,o):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,o,e);else for(var h=s.length-1;h>=0;h--)(n=s[h])&&(i=(r<3?n(i):r>3?n(t,o,i):n(t,o))||i);return r>3&&i&&Object.defineProperty(t,o,i),i},m=function(s,t){return function(o,e){t(o,e,s)}};const j=l("chatTodoListService");let a=class{constructor(t){this.a=new g("chat-todo-list",t)}b(t){return this.a.getMemento(1,1)[this.d(t)]||[]}c(t,o){const e=this.a.getMemento(1,1);e[this.d(t)]=o,this.a.saveMemento()}getTodoList(t){return this.b(t)}setTodoList(t,o){this.c(t,o)}migrateTodoList(t,o){const e=this.b(t);if(e.length>0){this.c(o,e);const r=this.a.getMemento(1,1);delete r[this.d(t)],this.a.saveMemento()}}d(t){return u(t)}};a=f([m(0,d)],a);let c=class extends b{constructor(t){super(),this.a=this.D(new p),this.onDidUpdateTodos=this.a.event,this.b=new a(t)}getTodos(t){return this.b.getTodoList(t)}setTodos(t,o){this.b.setTodoList(t,o),this.a.fire(t)}migrateTodos(t,o){this.b.migrateTodoList(t,o),this.a.fire(o)}};c=f([m(0,d)],c);export{j as $iPb,a as $jPb,c as $kPb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { Memento } from "../../../../common/memento.js";
+import { chatSessionResourceToId } from "../model/chatUri.js";
+const IChatTodoListService = createDecorator("chatTodoListService");
+let ChatTodoListStorage = class ChatTodoListStorage2 {
+  static {
+    __name(this, "ChatTodoListStorage");
+  }
+  constructor(storageService) {
+    this.memento = new Memento("chat-todo-list", storageService);
+  }
+  getSessionData(sessionResource) {
+    const storage = this.memento.getMemento(
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    return storage[this.toKey(sessionResource)] || [];
+  }
+  setSessionData(sessionResource, todoList) {
+    const storage = this.memento.getMemento(
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    storage[this.toKey(sessionResource)] = todoList;
+    this.memento.saveMemento();
+  }
+  getTodoList(sessionResource) {
+    return this.getSessionData(sessionResource);
+  }
+  setTodoList(sessionResource, todoList) {
+    this.setSessionData(sessionResource, todoList);
+  }
+  migrateTodoList(oldSessionResource, newSessionResource) {
+    const todos = this.getSessionData(oldSessionResource);
+    if (todos.length > 0) {
+      this.setSessionData(newSessionResource, todos);
+      const storage = this.memento.getMemento(
+        1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+      delete storage[this.toKey(oldSessionResource)];
+      this.memento.saveMemento();
+    }
+  }
+  toKey(sessionResource) {
+    return chatSessionResourceToId(sessionResource);
+  }
+};
+ChatTodoListStorage = __decorate([
+  __param(0, IStorageService)
+], ChatTodoListStorage);
+let ChatTodoListService = class ChatTodoListService2 extends Disposable {
+  static {
+    __name(this, "ChatTodoListService");
+  }
+  constructor(storageService) {
+    super();
+    this._onDidUpdateTodos = this._register(new Emitter());
+    this.onDidUpdateTodos = this._onDidUpdateTodos.event;
+    this.todoListStorage = new ChatTodoListStorage(storageService);
+  }
+  getTodos(sessionResource) {
+    return this.todoListStorage.getTodoList(sessionResource);
+  }
+  setTodos(sessionResource, todos) {
+    this.todoListStorage.setTodoList(sessionResource, todos);
+    this._onDidUpdateTodos.fire(sessionResource);
+  }
+  migrateTodos(oldSessionResource, newSessionResource) {
+    this.todoListStorage.migrateTodoList(oldSessionResource, newSessionResource);
+    this._onDidUpdateTodos.fire(newSessionResource);
+  }
+};
+ChatTodoListService = __decorate([
+  __param(0, IStorageService)
+], ChatTodoListService);
+export {
+  ChatTodoListService,
+  ChatTodoListStorage,
+  IChatTodoListService
+};
+//# sourceMappingURL=chatTodoListService.js.map

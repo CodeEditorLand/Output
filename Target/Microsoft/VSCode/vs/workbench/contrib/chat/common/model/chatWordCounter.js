@@ -1,1 +1,52 @@
-import*as a from"../../../markdown/common/markedKatexExtension.js";const t=String.raw,g=t`(?<!\\)`+t`(!?\[`+t`(?:`+t`[^\[\]\\]|`+t`\\.|`+t`\[[^\[\]]*\]`+t`)*`+t`\])`+t`(\(\s*)`+t`(`+t`[^\s\(\)<](?:[^\s\(\)]|\([^\s\(\)]*?\))*|`+t`<(?:\\[<>]|[^<>])+>`+t`)`+t`\s*(?:"[^"]*"|'[^']*'|\([^\(\)]*\))?\s*`+t`\)`;function u(n,r){const l=new RegExp("(?:"+g+")|(?:"+a.$3Eb.source+t`)|\p{sc=Han}|=+|\++|-+|[^\s\|\p{sc=Han}|=|\+|\-|${"`"}]+`,"gu"),o=Array.from(n.matchAll(l)),e=o.slice(0,r),s=r>=o.length?n.length:e.length?e.at(-1).index+e.at(-1)[0].length:0,c=n.substring(0,s);return{value:c,returnedWordCount:e.length===0?c.length?1:0:e.length,isFullString:s>=n.length,totalWordCount:o.length}}function d(n){return u(n,Number.MAX_SAFE_INTEGER).returnedWordCount}export{u as $6Eb,d as $7Eb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as markedKatexExtension from "../../../markdown/common/markedKatexExtension.js";
+const r = String.raw;
+const linkPattern = r`(?<!\\)` + // Must not start with escape
+// text
+r`(!?\[` + // open prefix match -->
+/**/
+r`(?:` + /*****/
+r`[^\[\]\\]|` + // Non-bracket chars, or...
+/*****/
+r`\\.|` + // Escaped char, or...
+/*****/
+r`\[[^\[\]]*\]` + // Matched bracket pair
+/**/
+r`)*` + r`\])` + // <-- close prefix match
+// Destination
+r`(\(\s*)` + // Pre href
+/**/
+r`(` + /*****/
+r`[^\s\(\)<](?:[^\s\(\)]|\([^\s\(\)]*?\))*|` + // Link without whitespace, or...
+/*****/
+r`<(?:\\[<>]|[^<>])+>` + // In angle brackets
+/**/
+r`)` + // Title
+/**/
+r`\s*(?:"[^"]*"|'[^']*'|\([^\(\)]*\))?\s*` + r`\)`;
+function getNWords(str, numWordsToCount) {
+  const backtick = "`";
+  const wordRegExp = new RegExp("(?:" + linkPattern + ")|(?:" + markedKatexExtension.mathInlineRegExp.source + r`)|\p{sc=Han}|=+|\++|-+|[^\s\|\p{sc=Han}|=|\+|\-|${backtick}]+`, "gu");
+  const allWordMatches = Array.from(str.matchAll(wordRegExp));
+  const targetWords = allWordMatches.slice(0, numWordsToCount);
+  const endIndex = numWordsToCount >= allWordMatches.length ? str.length : targetWords.length ? targetWords.at(-1).index + targetWords.at(-1)[0].length : 0;
+  const value = str.substring(0, endIndex);
+  return {
+    value,
+    returnedWordCount: targetWords.length === 0 ? value.length ? 1 : 0 : targetWords.length,
+    isFullString: endIndex >= str.length,
+    totalWordCount: allWordMatches.length
+  };
+}
+__name(getNWords, "getNWords");
+function countWords(str) {
+  const result = getNWords(str, Number.MAX_SAFE_INTEGER);
+  return result.returnedWordCount;
+}
+__name(countWords, "countWords");
+export {
+  countWords,
+  getNWords
+};
+//# sourceMappingURL=chatWordCounter.js.map

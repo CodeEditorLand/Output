@@ -1,1 +1,114 @@
-import{$2b as $}from"../../../../base/common/arrays.js";import{$dd as C}from"../../../../base/common/types.js";import{localize as I}from"../../../../nls.js";import{$vo as k}from"../../../../platform/commands/common/commands.js";import{$YH as D}from"../../../../platform/quickinput/common/quickInput.js";import{ThemeIcon as H}from"../../../../base/common/themables.js";import{$Lvc as P}from"./icons.js";import{$l0b as S}from"../common/constants.js";import{$n0b as y,$m0b as g}from"../common/testProfileService.js";import{$Dd as b}from"../../../../base/common/lifecycle.js";function h(i,{onlyGroup:r,showConfigureButtons:l=!0,onlyForTest:e,onlyConfigurable:t,placeholder:s=I(14308,null)}){const o=i.get(g),n=[],p=(c,m)=>{for(const u of $(c,(f,d)=>f.group-d.group)){let f=!1;if(r){if(u[0].group!==r)continue;f=!0}for(const d of u)t&&!d.hasConfigurationHandler||(f||(n.push({type:"separator",label:S[u[0].group]}),f=!0),n.push({type:"item",profile:d,label:d.label,description:m,alwaysShow:!0,buttons:d.hasConfigurationHandler&&l?[{iconClass:H.asClassName(P),tooltip:I(14309,null)}]:[]}))}};if(e!==void 0)p(o.getControllerProfiles(e.controllerId).filter(c=>y(c,e)));else for(const{profiles:c,controller:m}of o.all())p(c,m.label.get());const a=i.get(D).createQuickPick({useSeparators:!0});return a.items=n,a.placeholder=s,a}const w=(i,r)=>l=>{const e=l.item.profile;e&&(i.configure(e.controllerId,e.profileId),r(void 0))};k.registerCommand({id:"vscode.pickMultipleTestProfiles",handler:async(i,r)=>{const l=i.get(g),e=h(i,r);if(!e)return;const t=new b;t.add(e),e.canSelectMany=!0,r.selected&&(e.selectedItems=e.items.filter(o=>o.type==="item").filter(o=>r.selected.some(n=>n.controllerId===o.profile.controllerId&&n.profileId===o.profile.profileId)));const s=await new Promise(o=>{t.add(e.onDidAccept(()=>{const n=e.selectedItems;o(n.map(p=>p.profile).filter(C))})),t.add(e.onDidHide(()=>o(void 0))),t.add(e.onDidTriggerItemButton(w(l,o))),e.show()});return t.dispose(),s}});k.registerCommand({id:"vscode.pickTestProfile",handler:async(i,r)=>{const l=i.get(g),e=h(i,r);if(!e)return;const t=new b;t.add(e);const s=await new Promise(o=>{t.add(e.onDidAccept(()=>o(e.selectedItems[0]?.profile))),t.add(e.onDidHide(()=>o(void 0))),t.add(e.onDidTriggerItemButton(w(l,o))),e.show()});return t.dispose(),s}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { groupBy } from "../../../../base/common/arrays.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { localize } from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { testingUpdateProfiles } from "./icons.js";
+import { testConfigurationGroupNames } from "../common/constants.js";
+import { canUseProfileWithTest, ITestProfileService } from "../common/testProfileService.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+function buildPicker(accessor, { onlyGroup, showConfigureButtons = true, onlyForTest, onlyConfigurable, placeholder = localize("testConfigurationUi.pick", "Pick a test profile to use") }) {
+  const profileService = accessor.get(ITestProfileService);
+  const items = [];
+  const pushItems = /* @__PURE__ */ __name((allProfiles, description) => {
+    for (const profiles of groupBy(allProfiles, (a, b) => a.group - b.group)) {
+      let addedHeader = false;
+      if (onlyGroup) {
+        if (profiles[0].group !== onlyGroup) {
+          continue;
+        }
+        addedHeader = true;
+      }
+      for (const profile of profiles) {
+        if (onlyConfigurable && !profile.hasConfigurationHandler) {
+          continue;
+        }
+        if (!addedHeader) {
+          items.push({ type: "separator", label: testConfigurationGroupNames[profiles[0].group] });
+          addedHeader = true;
+        }
+        items.push({
+          type: "item",
+          profile,
+          label: profile.label,
+          description,
+          alwaysShow: true,
+          buttons: profile.hasConfigurationHandler && showConfigureButtons ? [{
+            iconClass: ThemeIcon.asClassName(testingUpdateProfiles),
+            tooltip: localize("updateTestConfiguration", "Update Test Configuration")
+          }] : []
+        });
+      }
+    }
+  }, "pushItems");
+  if (onlyForTest !== void 0) {
+    pushItems(profileService.getControllerProfiles(onlyForTest.controllerId).filter((p) => canUseProfileWithTest(p, onlyForTest)));
+  } else {
+    for (const { profiles, controller } of profileService.all()) {
+      pushItems(profiles, controller.label.get());
+    }
+  }
+  const quickpick = accessor.get(IQuickInputService).createQuickPick({ useSeparators: true });
+  quickpick.items = items;
+  quickpick.placeholder = placeholder;
+  return quickpick;
+}
+__name(buildPicker, "buildPicker");
+const triggerButtonHandler = /* @__PURE__ */ __name((service, resolve) => (evt) => {
+  const profile = evt.item.profile;
+  if (profile) {
+    service.configure(profile.controllerId, profile.profileId);
+    resolve(void 0);
+  }
+}, "triggerButtonHandler");
+CommandsRegistry.registerCommand({
+  id: "vscode.pickMultipleTestProfiles",
+  handler: /* @__PURE__ */ __name(async (accessor, options) => {
+    const profileService = accessor.get(ITestProfileService);
+    const quickpick = buildPicker(accessor, options);
+    if (!quickpick) {
+      return;
+    }
+    const disposables = new DisposableStore();
+    disposables.add(quickpick);
+    quickpick.canSelectMany = true;
+    if (options.selected) {
+      quickpick.selectedItems = quickpick.items.filter((i) => i.type === "item").filter((i) => options.selected.some((s) => s.controllerId === i.profile.controllerId && s.profileId === i.profile.profileId));
+    }
+    const pick = await new Promise((resolve) => {
+      disposables.add(quickpick.onDidAccept(() => {
+        const selected = quickpick.selectedItems;
+        resolve(selected.map((s) => s.profile).filter(isDefined));
+      }));
+      disposables.add(quickpick.onDidHide(() => resolve(void 0)));
+      disposables.add(quickpick.onDidTriggerItemButton(triggerButtonHandler(profileService, resolve)));
+      quickpick.show();
+    });
+    disposables.dispose();
+    return pick;
+  }, "handler")
+});
+CommandsRegistry.registerCommand({
+  id: "vscode.pickTestProfile",
+  handler: /* @__PURE__ */ __name(async (accessor, options) => {
+    const profileService = accessor.get(ITestProfileService);
+    const quickpick = buildPicker(accessor, options);
+    if (!quickpick) {
+      return;
+    }
+    const disposables = new DisposableStore();
+    disposables.add(quickpick);
+    const pick = await new Promise((resolve) => {
+      disposables.add(quickpick.onDidAccept(() => resolve(quickpick.selectedItems[0]?.profile)));
+      disposables.add(quickpick.onDidHide(() => resolve(void 0)));
+      disposables.add(quickpick.onDidTriggerItemButton(triggerButtonHandler(profileService, resolve)));
+      quickpick.show();
+    });
+    disposables.dispose();
+    return pick;
+  }, "handler")
+});
+//# sourceMappingURL=testingConfigurationUi.js.map

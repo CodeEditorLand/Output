@@ -1,5 +1,1184 @@
-import c,{screen as te}from"electron";import{$ui as se,$ji as T,$0h as ie,$6h as ne}from"../../../base/common/async.js";import{CancellationToken as v}from"../../../base/common/cancellation.js";import{$Lm as oe}from"../../../base/common/errorMessage.js";import{$xf as f,Event as a}from"../../../base/common/event.js";import{$Ed as re,$Dd as he,$Fd as z,$Cd as ae}from"../../../base/common/lifecycle.js";import{$th as R,Schemas as y}from"../../../base/common/network.js";import{$W as de,$V as w}from"../../../base/common/performance.js";import{$N as N,$o as D,$n as h,$m as m}from"../../../base/common/platform.js";import{URI as x}from"../../../base/common/uri.js";import{localize as d}from"../../../nls.js";import{release as B}from"os";import{$6u as le}from"../../backup/electron-main/backup.js";import{$0l as ce}from"../../configuration/common/configuration.js";import{$7u as ue}from"../../dialogs/electron-main/dialogMainService.js";import{$5n as fe}from"../../environment/electron-main/environmentMainService.js";import{$sl as O}from"../../environment/node/argvHelper.js";import{$vk as be}from"../../files/common/files.js";import{$pw as pe}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$yo as me}from"../../log/common/log.js";import{$Vn as we}from"../../product/common/productService.js";import{$9u as ge}from"../../protocol/electron-main/protocol.js";import{$tv as ve}from"../../externalServices/common/marketplace.js";import{$yw as De,$ww as Ee}from"../../storage/electron-main/storageMainService.js";import{$pp as ye}from"../../telemetry/common/telemetry.js";import{ThemeIcon as xe}from"../../../base/common/themables.js";import{$uv as Ce}from"../../theme/electron-main/themeMainService.js";import{$Lu as $e,$Nu as Se,$Su as ke,$Ru as L,$Qu as Fe}from"../../window/common/window.js";import{$wv as Pe,$yv as Te,$vv as Re,WindowStateValidator as I}from"./windows.js";import{$Nl as M,$Sl as W,$Rl as Ne}from"../../workspace/common/workspace.js";import{$gw as Be}from"../../workspaces/electron-main/workspacesManagementMainService.js";import{$Yu as C}from"../../window/electron-main/window.js";import{$Bu as Oe}from"../../policy/common/policy.js";import{$op as Le}from"../../state/node/state.js";import{$Qv as Me}from"../../userDataProfile/electron-main/userDataProfile.js";import{$kw as We}from"../../log/electron-main/loggerService.js";import{$Mj as He}from"../../instantiation/common/instantiation.js";import{$0i as ze}from"../../../base/common/buffer.js";import{$ib as Ie}from"../../../base/common/errors.js";var ee=function(l,e,t,s){var i=arguments.length,n=i<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(l,e,t,s);else for(var u=l.length-1;u>=0;u--)(o=l[u])&&(n=(i<3?o(n):i>3?o(e,t,n):o(e,t))||n);return i>3&&n&&Object.defineProperty(e,t,n),n},r=function(l,e){return function(t,s){e(t,s,l)}},H;(function(l){l[l.NONE=0]="NONE",l[l.NAVIGATING=1]="NAVIGATING",l[l.READY=2]="READY"})(H||(H={}));class S{constructor(){this.c=new Set}static{this.INSTANCE=new S}acquireBadge(e){return this.c.add(e.id),c.app.setBadgeCount(D?1:void 0),{dispose:()=>{this.c.delete(e.id),this.c.size===0&&c.app.setBadgeCount(0)}}}}class k extends re{get lastFocusTime(){return this.q}get win(){return this.s}t(e,t){this.s=e,this.D(a.fromNodeEventEmitter(e,"maximize")(()=>{if(m&&this.C.enableRDPDisplayTracking&&this.s){const[i,n]=this.s.getPosition(),[o,u]=this.s.getSize();this.r={mode:0,width:o,height:u,x:i,y:n},this.F.debug(`Saved maximized window ${this.id} display state:`,this.r)}this.f.fire()})),this.D(a.fromNodeEventEmitter(e,"unmaximize")(()=>{m&&this.C.enableRDPDisplayTracking&&this.r&&(this.r=void 0,this.F.debug(`Cleared maximized window ${this.id} state`)),this.g.fire()})),this.D(a.fromNodeEventEmitter(e,"closed")(()=>{this.c.fire(),this.dispose()})),this.D(a.fromNodeEventEmitter(e,"focus")(()=>{this.M(),this.q=Date.now()})),this.D(a.fromNodeEventEmitter(this.s,"enter-full-screen")(()=>this.j.fire())),this.D(a.fromNodeEventEmitter(this.s,"leave-full-screen")(()=>this.m.fire())),this.D(a.fromNodeEventEmitter(this.s,"always-on-top-changed",(i,n)=>n)(i=>this.n.fire(i)));const s=!Se(this.w,t?.titleBarStyle==="hidden"?"custom":void 0);if(h&&s&&e.setSheetOffset(N(B())?32:28),s&&L(this.w)){const i=this.z.getItem(k.O);i?this.updateWindowControls({height:i}):this.updateWindowControls({height:Fe})}(m||D)&&s&&this.D(a.fromNodeEventEmitter(e,"system-context-menu",(i,n)=>({event:i,point:n}))(i=>{const[n,o]=e.getPosition(),u=c.screen.screenToDipPoint(i.point),g=Math.floor(u.x)-n,E=Math.floor(u.y)-o;D&&g>35&&(i.event.preventDefault(),this.h.fire({x:g,y:E}))})),this.C.args["open-devtools"]===!0&&e.webContents.openDevTools(),h&&(this.D(this.onDidEnterFullScreen(()=>{this.Q?.complete(!0)})),this.D(this.onDidLeaveFullScreen(()=>{this.Q?.complete(!0)}))),m&&this.C.enableRDPDisplayTracking&&this.D(a.fromNodeEventEmitter(te,"display-added",(i,n)=>({event:i,display:n}))(i=>{this.u(i.display)}))}u(e){const t=this.r;t&&this.s&&I.validateWindowStateOnDisplay(t,e)&&(this.F.debug(`Setting maximized window ${this.id} bounds to match newly added display`,t),this.s.setBounds(t))}constructor(e,t,s,i){super(),this.w=e,this.z=t,this.C=s,this.F=i,this.c=this.D(new f),this.onDidClose=this.c.event,this.f=this.D(new f),this.onDidMaximize=this.f.event,this.g=this.D(new f),this.onDidUnmaximize=this.g.event,this.h=this.D(new f),this.onDidTriggerSystemContextMenu=this.h.event,this.j=this.D(new f),this.onDidEnterFullScreen=this.j.event,this.m=this.D(new f),this.onDidLeaveFullScreen=this.m.event,this.n=this.D(new f),this.onDidChangeAlwaysOnTop=this.n.event,this.q=Date.now(),this.s=null,this.J=this.D(new z),this.P=void 0,this.Q=void 0}G(e,t=c.screen.getAllDisplays().length>0){const s=this.w.getValue("window"),i=h&&s?.nativeTabs===!0;(h||m)&&t&&(!i||Te().length===1)&&[e.width,e.height,e.x,e.y].every(n=>typeof n=="number")&&this.s?.setBounds({width:e.width,height:e.height,x:e.x,y:e.y}),(e.mode===0||e.mode===3)&&(this.s?.maximize(),e.mode===3&&this.R(!0,!0),this.s?.show())}setRepresentedFilename(e){h?this.win?.setRepresentedFilename(e):this.H=e}getRepresentedFilename(){return h?this.win?.getRepresentedFilename():this.H}setDocumentEdited(e){h&&this.win?.setDocumentEdited(e),this.I=e}isDocumentEdited(){return h?!!this.win?.isDocumentEdited():!!this.I}focus(e){switch(e?.mode??0){case 0:this.N();break;case 1:this.L();break;case 2:h&&c.app.focus({steal:!0}),this.N();break}}L(){const e=new he;this.J.value=e,e.add(S.INSTANCE.acquireBadge(this)),m||D?(this.win?.flashFrame(!0),e.add(ae(()=>this.win?.flashFrame(!1)))):h&&c.app.dock?.bounce("informational")}M(){this.J.clear()}N(){const e=this.win;e&&(e.isMinimized()&&e.restore(),e.focus(),e.webContents.focus())}static{this.O="windowControlHeight"}updateWindowControls(e){const t=this.win;if(t){if(e.height&&this.z.setItem($.O,e.height),!h&&L(this.w))t.setTitleBarOverlay({color:e.backgroundColor?.trim()===""?void 0:e.backgroundColor,symbolColor:e.foregroundColor?.trim()===""?void 0:e.foregroundColor,height:e.height?e.height-1:void 0});else if(h&&e.height!==void 0){const s=N(B())?14:16,i=Math.floor((e.height-s)/2);i?t.setWindowButtonPosition({x:i+1,y:i}):t.setWindowButtonPosition(null)}}}toggleFullScreen(){this.R(!this.isFullScreen,!1)}R(e,t){ke(this.w)?this.S(e,t):this.W(e)}get isFullScreen(){if(h&&typeof this.P=="boolean")return this.P;const e=this.win,t=e?.isFullScreen(),s=e?.isSimpleFullScreen();return!!(t||s)}S(e,t){const s=this.win;s?.isSimpleFullScreen()&&s?.setSimpleFullScreen(!1),this.U(e,t)}U(e,t){if(h){this.P=e;const i=this.Q=new se;(async()=>{const n=await Promise.race([i.p,ie(1e4).then(()=>!1)]);this.Q===i&&(this.P=void 0,this.Q=void 0,!n&&e&&t&&this.win&&!this.win.isFullScreen()&&(this.F.warn("window: native macOS fullscreen transition did not happen within 10s from restoring"),this.m.fire()))})()}this.win?.setFullScreen(e)}W(e){const t=this.win;t?.isFullScreen()&&this.U(!1,!1),t?.setSimpleFullScreen(e),t?.webContents.focus()}dispose(){super.dispose(),this.s=null}}let $=class extends k{get id(){return this.$}get backupPath(){return this.bb?.backupPath}get openedWorkspace(){return this.bb?.workspace}get profile(){if(!this.config)return;const e=this.tb.profiles.find(t=>t.id===this.config?.profiles.profile.id);return this.isExtensionDevelopmentHost&&e?e:this.tb.getProfileForWorkspace(this.config.workspace??Ne(this.backupPath,this.isExtensionDevelopmentHost))??this.tb.defaultProfile}get remoteAuthority(){return this.bb?.remoteAuthority}get config(){return this.bb}get isExtensionDevelopmentHost(){return!!this.bb?.extensionDevelopmentPath}get isExtensionTestHost(){return!!this.bb?.extensionTestsPath}get isExtensionDevelopmentTestFromCli(){return this.isExtensionDevelopmentHost&&this.isExtensionTestHost&&!this.bb?.debugId}constructor(e,t,s,i,n,o,u,g,E,A,U,_,V,j,q,G,Y,Q,J,Z,X){super(A,Z,i,t),this.rb=s,this.sb=n,this.tb=o,this.ub=u,this.vb=g,this.wb=E,this.xb=U,this.yb=_,this.zb=V,this.Ab=j,this.Bb=q,this.Cb=G,this.Db=Y,this.Eb=J,this.X=this.D(new f),this.onWillLoad=this.X.event,this.Y=this.D(new f),this.onDidSignalReady=this.Y.event,this.Z=this.D(new f),this.onDidDestroy=this.Z.event,this.fb=[],this.gb=[],this.hb=void 0,this.ib=void 0,this.jb=void 0,this.mb=!1,this.Fb=0,this.Nb=this.D(new z);{this.kb=this.D(Q.createIPCObjectUrl());const[F,K]=this.Rb(e.state);this.db=F,this.F.trace("window#ctor: using window state",F);const P=X.invokeFunction(Pe,this.db,void 0,{preload:R.asFileUri("vs/base/parts/sandbox/electron-browser/preload.js").fsPath,additionalArguments:[`--vscode-window-config=${this.kb.resource.toString()}`],v8CacheOptions:this.C.useCodeCache?"bypassHeatCheck":"none"});w("code/willCreateCodeBrowserWindow"),this.s=new c.BrowserWindow(P),w("code/didCreateCodeBrowserWindow"),this.$=this.s.id,this.t(this.s,P),this.G(this.db,K),this.q=Date.now()}let b=parseInt(this.C.args["unresponsive-sample-interval"]||"1000"),p=parseInt(this.C.args["unresponsive-sample-period"]||"15000");(b<=0||p<=0||b>p)&&(this.F.warn(`Invalid unresponsive sample interval (${b}ms) or period (${p}ms), using defaults.`),b=1e3,p=15e3),this.nb=new Map,this.ob=Math.round(p/b),this.pb=this.D(new ne(b)),this.qb=this.D(new T(()=>{this.ac()},p)),this.Mb(),this.Xb(),this.Gb()}setReady(){for(this.F.trace(`window#load: window reported ready (id: ${this.$})`),this.Fb=2;this.fb.length;)this.fb.pop()(this);this.Y.fire()}ready(){return new Promise(e=>{if(this.isReady)return e(this);this.fb.push(e)})}get isReady(){return this.Fb===2}get whenClosedOrLoaded(){return new Promise(e=>{function t(){s.dispose(),i.dispose(),e()}const s=this.onDidClose(()=>t()),i=this.onWillLoad(()=>t())})}Gb(){this.D(a.fromNodeEventEmitter(this.s,"unresponsive")(()=>this.Jb(1))),this.D(a.fromNodeEventEmitter(this.s,"responsive")(()=>this.Jb(4))),this.D(a.fromNodeEventEmitter(this.s.webContents,"render-process-gone",(t,s)=>s)(t=>this.Jb(2,{...t}))),this.D(a.fromNodeEventEmitter(this.s.webContents,"did-fail-load",(t,s,i)=>({exitCode:s,reason:i}))(({exitCode:t,reason:s})=>this.Jb(3,{reason:s,exitCode:t}))),this.D(a.fromNodeEventEmitter(this.s.webContents,"will-prevent-unload")(t=>t.preventDefault())),this.D(a.fromNodeEventEmitter(this.s.webContents,"did-finish-load")(()=>{this.lb&&(this.bb=this.lb,this.lb=void 0)})),this.D(this.onDidMaximize(()=>{this.bb&&(this.bb.maximized=!0)})),this.D(this.onDidUnmaximize(()=>{this.bb&&(this.bb.maximized=!1)})),this.D(this.onDidEnterFullScreen(()=>{this.sendWhenReady("vscode:enterFullScreen",v.None)})),this.D(this.onDidLeaveFullScreen(()=>{this.sendWhenReady("vscode:leaveFullScreen",v.None)})),this.D(this.w.onDidChangeConfiguration(t=>this.Mb(t))),this.D(this.yb.onDidDeleteUntitledWorkspace(t=>this.Lb(t)));const e=["https://*.vsassets.io/*"];if(this.Db.extensionsGallery?.serviceUrl){const t=x.parse(this.Db.extensionsGallery.serviceUrl);e.push(`${t.scheme}://${t.authority}/*`)}this.s.webContents.session.webRequest.onBeforeSendHeaders({urls:e},async(t,s)=>{const i=await this.Ib();s({cancel:!1,requestHeaders:Object.assign(t.requestHeaders,i)})})}Ib(){return this.Hb||(this.Hb=ve(this.Db.version,this.Db,this.C,this.w,this.ub,this.vb,this.Ab)),this.Hb}async Jb(e,t){switch(e){case 2:this.F.error(`CodeWindow: renderer process gone (reason: ${t?.reason||"<unknown>"}, code: ${t?.exitCode||"<unknown>"})`);break;case 1:this.F.error("CodeWindow: detected unresponsive");break;case 4:this.F.error("CodeWindow: recovered from unresponsive");break;case 3:this.F.error(`CodeWindow: failed to load (reason: ${t?.reason||"<unknown>"}, code: ${t?.exitCode||"<unknown>"})`);break}switch(this.Ab.publicLog2("windowerror",{type:e,reason:t?.reason,code:t?.exitCode}),e){case 1:case 2:if(this.isExtensionDevelopmentTestFromCli){this.Cb.kill(1);return}if(this.C.args["enable-smoke-test-driver"]){await this.Kb(!1,!1),this.Cb.quit();return}if(e===1){if(this.isExtensionDevelopmentHost||this.isExtensionTestHost||this.s?.webContents?.isDevToolsOpened())return;this.pb.trigger(()=>this.$b()),this.qb.schedule();const{response:s,checkboxChecked:i}=await this.Bb.showMessageBox({type:"warning",buttons:[d(2759,null),d(2760,null),d(2761,null)],message:d(2762,null),detail:d(2763,null),checkboxLabel:this.bb?.workspace?d(2764,null):void 0},this.s);if(s!==2){const n=s===0;this.ac(),await this.Kb(n,i)}}else if(e===2){let s;t?s=d(2766,null,t.reason,t.exitCode??"<unknown>"):s=d(2765,null);const{response:i,checkboxChecked:n}=await this.Bb.showMessageBox({type:"warning",buttons:[this.bb?.workspace?d(2767,null):d(2768,null),d(2769,null)],message:s,detail:this.bb?.workspace?d(2770,null):d(2771,null),checkboxLabel:this.bb?.workspace?d(2772,null):void 0},this.s),o=i===0;await this.Kb(o,n)}break;case 4:this.ac();break}}async Kb(e,t){const s=this.bb?.workspace;if(t&&s)try{const i=this.wb.workspaceStorage(s);await i.init(),i.delete("memento/workbench.parts.editor"),await i.close()}catch(i){this.F.error(i)}this.Z.fire();try{if(e&&this.bb){let i,n;M(s)?i={folderUri:s.uri}:W(s)?i={workspaceUri:s.configPath}:n=!0,(await this.Eb.open({context:5,userEnv:this.bb.userEnv,cli:{...this.C.args,_:[]},urisToOpen:i?[i]:void 0,forceEmpty:n,forceNewWindow:!0,remoteAuthority:this.remoteAuthority})).at(0)?.focus()}}finally{this.s?.destroy()}}Lb(e){this.bb?.workspace?.id===e.id&&(this.bb.workspace=void 0)}Mb(e){if(h&&(!e||e.affectsConfiguration("workbench.editor.swipeToNavigate"))&&(this.w.getValue("workbench.editor.swipeToNavigate")?this.Ob():this.Nb.clear()),!e||e.affectsConfiguration("window.menuBarVisibility")){const t=this.Tb();t!==this.eb&&(this.eb=t,this.Ub(t))}if(!e||e.affectsConfiguration("http.proxy")||e.affectsConfiguration("http.noProxy")){let s=(this.w.inspect("http.proxy").userLocalValue||"").trim()||(process.env.https_proxy||process.env.HTTPS_PROXY||process.env.http_proxy||process.env.HTTP_PROXY||"").trim()||void 0;if(s?.indexOf("@")!==-1){const n=x.parse(s),o=n.authority.indexOf("@");o!==-1&&(s=n.with({authority:n.authority.substring(o+1)}).toString())}s?.endsWith("/")&&(s=s.substr(0,s.length-1));const i=(this.w.getValue("http.noProxy")||[]).map(n=>n.trim()).join(",")||(process.env.no_proxy||process.env.NO_PROXY||"").trim()||void 0;if((s||"").indexOf("@")===-1&&(s!==this.hb||i!==this.ib)){this.hb=s,this.ib=i;const n=s||"",o=i?`${i},<local>`:"<local>";this.F.trace(`Setting proxy to '${n}', bypassing '${o}'`),this.s.webContents.session.setProxy({proxyRules:n,proxyBypassRules:o,pacScript:""}),c.app.setProxy({proxyRules:n,proxyBypassRules:o,pacScript:""})}}}Ob(){this.Nb.value=a.fromNodeEventEmitter(this.s,"swipe",(e,t)=>t)(e=>{this.isReady&&(e==="left"?this.send("vscode:runAction",{id:"workbench.action.openPreviousRecentlyUsedEditor",from:"mouse"}):e==="right"&&this.send("vscode:runAction",{id:"workbench.action.openNextRecentlyUsedEditor",from:"mouse"}))})}addTabbedWindow(e){h&&e.win&&this.s.addTabbedWindow(e.win)}load(e,t=Object.create(null)){this.F.trace(`window#load: attempt to load window (id: ${this.$})`),this.isDocumentEdited()&&(!t.isReload||!this.zb.isHotExitEnabled())&&this.setDocumentEdited(!1),t.isReload||(this.getRepresentedFilename()&&this.setRepresentedFilename(""),this.s.setTitle(this.Db.nameLong)),this.Pb(e,t),this.Fb===0?this.bb=e:this.lb=e,this.Fb=1;let s;process.env.VSCODE_DEV&&process.env.VSCODE_DEV_SERVER_URL?s=process.env.VSCODE_DEV_SERVER_URL:s=R.asBrowserUri(`vs/code/electron-browser/workbench/workbench${this.C.isBuilt?"":"-dev"}.html`).toString(!0),this.s.loadURL(s);const i=this.mb;this.mb=!0,!this.C.isBuilt&&!this.C.extensionTestsLocationURI&&this.D(new T(()=>{this.s&&!this.s.isVisible()&&!this.s.isMinimized()&&(this.s.show(),this.focus({mode:2}),this.s.webContents.openDevTools())},1e4)).schedule(),this.X.fire({workspace:e.workspace,reason:t.isReload?3:i?2:1})}Pb(e,t){const s=(this.bb??this.lb)?.userEnv;if(s){const i=O(s)&&!O(e.userEnv),n=this.isExtensionDevelopmentHost;(i||n)&&(e.userEnv={...s,...e.userEnv})}process.env.CHROME_CRASHPAD_PIPE_NAME&&Object.assign(e.userEnv,{CHROME_CRASHPAD_PIPE_NAME:process.env.CHROME_CRASHPAD_PIPE_NAME}),t.disableExtensions!==void 0&&(e["disable-extensions"]=t.disableExtensions);try{e.handle=ze.wrap(this.s.getNativeWindowHandle())}catch(i){this.F.error(`Error getting native window handle: ${i}`)}e.fullscreen=this.isFullScreen,e.maximized=this.s.isMaximized(),e.partsSplash=this.xb.getWindowSplash(e.workspace),e.zoomLevel=this.Wb(),e.isCustomZoomLevel=typeof this.jb=="number",e.isCustomZoomLevel&&e.partsSplash&&(e.partsSplash.zoomLevel=e.zoomLevel),w("code/willOpenNewWindow"),e.perfMarks=de(),this.kb.update(e)}async reload(e){const t=Object.assign({},this.bb);t.workspace=await this.Qb(t),delete t.filesToOpenOrCreate,delete t.filesToDiff,delete t.filesToMerge,delete t.filesToWait,this.isExtensionDevelopmentHost&&e&&(t.verbose=e.verbose,t.debugId=e.debugId,t.extensionEnvironment=e.extensionEnvironment,t["inspect-extensions"]=e["inspect-extensions"],t["inspect-brk-extensions"]=e["inspect-brk-extensions"],t["extensions-dir"]=e["extensions-dir"]),t.accessibilitySupport=c.app.isAccessibilitySupportEnabled(),t.isInitialStartup=!1,t.policiesData=this.sb.serialize(),t.continueOn=this.C.continueOn,t.profiles={all:this.tb.profiles,profile:this.profile||this.tb.defaultProfile,home:this.tb.profilesHome},t.logLevel=this.rb.getLogLevel(),t.loggers=this.rb.getGlobalLoggers(),this.load(t,{isReload:!0,disableExtensions:e?.["disable-extensions"]})}async Qb(e){if(W(e.workspace)){const t=e.workspace.configPath;if(t.scheme===y.file&&!await this.ub.exists(t))return}else if(M(e.workspace)){const t=e.workspace.uri;if(t.scheme===y.file&&!await this.ub.exists(t))return}return e.workspace}serializeWindowState(){if(!this.s)return C();if(this.isFullScreen){let s;try{s=c.screen.getDisplayMatching(this.getBounds())}catch{}const i=C();return{mode:3,display:s?s.id:void 0,width:this.db.width||i.width,height:this.db.height||i.height,x:this.db.x||0,y:this.db.y||0,zoomLevel:this.jb}}const e=Object.create(null);let t;if(!h&&this.s.isMaximized()?t=0:t=1,t===0?e.mode=0:e.mode=1,t===1||t===0){let s;t===1?s=this.getBounds():s=this.s.getNormalBounds(),e.x=s.x,e.y=s.y,e.width=s.width,e.height=s.height}return e.zoomLevel=this.jb,e}Rb(e){w("code/willRestoreCodeWindowState");let t=!1;if(e){this.jb=e.zoomLevel;try{const s=c.screen.getAllDisplays();t=s.length>1,e=I.validateWindowState(this.F,e,s)}catch(s){this.F.warn(`Unexpected error validating window state: ${s}
-${s.stack}`)}}return w("code/didRestoreCodeWindowState"),[e||C(),t]}getBounds(){const[e,t]=this.s.getPosition(),[s,i]=this.s.getSize();return{x:e,y:t,width:s,height:i}}R(e,t){super.R(e,t),this.sendWhenReady(e?"vscode:enterFullScreen":"vscode:leaveFullScreen",v.None),this.eb&&this.Ub(this.eb,!1)}Tb(){let e=$e(this.w);return["visible","toggle","hidden"].indexOf(e)<0&&(e="classic"),e}Ub(e,t=!0){h||(e==="toggle"&&t&&this.send("vscode:showInfoMessage",d(2773,null)),e==="hidden"?setTimeout(()=>{this.Vb(e)}):this.Vb(e))}Vb(e){const t=this.isFullScreen;switch(e){case"classic":this.s.setMenuBarVisibility(!t),this.s.autoHideMenuBar=t;break;case"visible":this.s.setMenuBarVisibility(!0),this.s.autoHideMenuBar=!1;break;case"toggle":this.s.setMenuBarVisibility(!1),this.s.autoHideMenuBar=!0;break;case"hidden":this.s.setMenuBarVisibility(!1),this.s.autoHideMenuBar=!1;break}}notifyZoomLevel(e){this.jb=e}Wb(){return typeof this.jb=="number"?this.jb:this.w.getValue("window")?.zoomLevel}close(){this.s?.close()}sendWhenReady(e,t,...s){this.isReady?this.send(e,...s):this.ready().then(()=>{t.isCancellationRequested||this.send(e,...s)})}send(e,...t){if(this.s){if(this.s.isDestroyed()||this.s.webContents.isDestroyed()){this.F.warn(`Sending IPC message to channel '${e}' for window that is destroyed`);return}try{this.s.webContents.send(e,...t)}catch(s){this.F.warn(`Error sending IPC message to channel '${e}' of window ${this.$}: ${oe(s)}`)}}}updateTouchBar(e){h&&this.gb.forEach((t,s)=>{const i=e[s];t.segments=this.Zb(i)})}Xb(){if(h){for(let e=0;e<10;e++){const t=this.Yb();this.gb.push(t)}this.s.setTouchBar(new c.TouchBar({items:this.gb}))}}Yb(e=[]){const t=this.Zb(e),s=new c.TouchBar.TouchBarSegmentedControl({segments:t,mode:"buttons",segmentStyle:"automatic",change:i=>{this.sendWhenReady("vscode:runAction",v.None,{id:s.segments[i].id,from:"touchbar"})}});return s}Zb(e=[]){return e.map(s=>{let i;s.icon&&!xe.isThemeIcon(s.icon)&&s.icon?.dark?.scheme===y.file&&(i=c.nativeImage.createFromPath(x.revive(s.icon.dark).fsPath),i.isEmpty()&&(i=void 0));let n;return typeof s.title=="string"?n=s.title:n=s.title.value,{id:s.id,label:i?void 0:n,icon:i}})}async $b(){if(!this.pb.isTriggered()){const e=await this.s?.webContents.mainFrame.collectJavaScriptCallStack();if(e){const t=this.nb.get(e)||0;this.nb.set(e,t+1)}this.pb.trigger(()=>this.$b())}}ac(){if(this.qb.cancel(),this.pb.cancel(),this.nb.size){let e=`CodeWindow unresponsive samples:
-`,t=0;const s=Array.from(this.nb.entries()).sort((i,n)=>n[1]-i[1]);for(const[i,n]of s){if(t+=n,Math.round(n*100/this.ob)>20){const o=new Ae(i,this.id,this.s?.webContents.getOSProcessId());Ie.onUnexpectedError(o)}e+=`<${n}> ${i}
-`}e+=`Total Samples: ${t}
-`,e+="For full overview of the unresponsive period, capture cpu profile via https://aka.ms/vscode-tracing-cpu-profile",this.F.error(e)}this.nb.clear()}matches(e){return this.s?.webContents.id===e.id}dispose(){super.dispose(),this.rb.deregisterLoggers(this.id)}};$=ee([r(1,me),r(2,We),r(3,fe),r(4,Oe),r(5,Me),r(6,be),r(7,De),r(8,Ee),r(9,ce),r(10,Ce),r(11,Be),r(12,le),r(13,ye),r(14,ue),r(15,pe),r(16,we),r(17,ge),r(18,Re),r(19,Le),r(20,He)],$);class Ae extends Error{constructor(e,t,s=0){const i=Error.stackTraceLimit;Error.stackTraceLimit=0,super(`UnresponsiveSampleError: from window with ID ${t} belonging to process with pid ${s}`),Error.stackTraceLimit=i,this.name="UnresponsiveSampleError",this.stack=e}}export{k as $mw,$ as $nw};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import electron, { screen } from "electron";
+import { DeferredPromise, RunOnceScheduler, timeout, Delayer } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { toErrorMessage } from "../../../base/common/errorMessage.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { FileAccess, Schemas } from "../../../base/common/network.js";
+import { getMarks, mark } from "../../../base/common/performance.js";
+import { isTahoeOrNewer, isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { release } from "os";
+import { IBackupMainService } from "../../backup/electron-main/backup.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { isLaunchedFromCli } from "../../environment/node/argvHelper.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IProtocolMainService } from "../../protocol/electron-main/protocol.js";
+import { resolveMarketplaceHeaders } from "../../externalServices/common/marketplace.js";
+import { IApplicationStorageMainService, IStorageMainService } from "../../storage/electron-main/storageMainService.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { IThemeMainService } from "../../theme/electron-main/themeMainService.js";
+import { getMenuBarVisibility, hasNativeTitlebar, useNativeFullScreen, useWindowControlsOverlay, DEFAULT_CUSTOM_TITLEBAR_HEIGHT } from "../../window/common/window.js";
+import { defaultBrowserWindowOptions, getAllWindowsExcludingOffscreen, IWindowsMainService, WindowStateValidator } from "./windows.js";
+import { isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, toWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { IWorkspacesManagementMainService } from "../../workspaces/electron-main/workspacesManagementMainService.js";
+import { defaultWindowState } from "../../window/electron-main/window.js";
+import { IPolicyService } from "../../policy/common/policy.js";
+import { IStateService } from "../../state/node/state.js";
+import { IUserDataProfilesMainService } from "../../userDataProfile/electron-main/userDataProfile.js";
+import { ILoggerMainService } from "../../log/electron-main/loggerService.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { errorHandler } from "../../../base/common/errors.js";
+var ReadyState;
+(function(ReadyState2) {
+  ReadyState2[ReadyState2["NONE"] = 0] = "NONE";
+  ReadyState2[ReadyState2["NAVIGATING"] = 1] = "NAVIGATING";
+  ReadyState2[ReadyState2["READY"] = 2] = "READY";
+})(ReadyState || (ReadyState = {}));
+class DockBadgeManager {
+  static {
+    __name(this, "DockBadgeManager");
+  }
+  constructor() {
+    this.windows = /* @__PURE__ */ new Set();
+  }
+  static {
+    this.INSTANCE = new DockBadgeManager();
+  }
+  acquireBadge(window) {
+    this.windows.add(window.id);
+    electron.app.setBadgeCount(
+      isLinux ? 1 : void 0
+      /* generic dot */
+    );
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this.windows.delete(window.id);
+        if (this.windows.size === 0) {
+          electron.app.setBadgeCount(0);
+        }
+      }, "dispose")
+    };
+  }
+}
+class BaseWindow extends Disposable {
+  static {
+    __name(this, "BaseWindow");
+  }
+  get lastFocusTime() {
+    return this._lastFocusTime;
+  }
+  get win() {
+    return this._win;
+  }
+  setWin(win, options) {
+    this._win = win;
+    this._register(Event.fromNodeEventEmitter(win, "maximize")(() => {
+      if (isWindows && this.environmentMainService.enableRDPDisplayTracking && this._win) {
+        const [x, y] = this._win.getPosition();
+        const [width, height] = this._win.getSize();
+        this.maximizedWindowState = { mode: 0, width, height, x, y };
+        this.logService.debug(`Saved maximized window ${this.id} display state:`, this.maximizedWindowState);
+      }
+      this._onDidMaximize.fire();
+    }));
+    this._register(Event.fromNodeEventEmitter(win, "unmaximize")(() => {
+      if (isWindows && this.environmentMainService.enableRDPDisplayTracking && this.maximizedWindowState) {
+        this.maximizedWindowState = void 0;
+        this.logService.debug(`Cleared maximized window ${this.id} state`);
+      }
+      this._onDidUnmaximize.fire();
+    }));
+    this._register(Event.fromNodeEventEmitter(win, "closed")(() => {
+      this._onDidClose.fire();
+      this.dispose();
+    }));
+    this._register(Event.fromNodeEventEmitter(win, "focus")(() => {
+      this.clearNotifyFocus();
+      this._lastFocusTime = Date.now();
+    }));
+    this._register(Event.fromNodeEventEmitter(this._win, "enter-full-screen")(() => this._onDidEnterFullScreen.fire()));
+    this._register(Event.fromNodeEventEmitter(this._win, "leave-full-screen")(() => this._onDidLeaveFullScreen.fire()));
+    this._register(Event.fromNodeEventEmitter(this._win, "always-on-top-changed", (_, alwaysOnTop) => alwaysOnTop)((alwaysOnTop) => this._onDidChangeAlwaysOnTop.fire(alwaysOnTop)));
+    const useCustomTitleStyle = !hasNativeTitlebar(
+      this.configurationService,
+      options?.titleBarStyle === "hidden" ? "custom" : void 0
+      /* unknown */
+    );
+    if (isMacintosh && useCustomTitleStyle) {
+      win.setSheetOffset(isTahoeOrNewer(release()) ? 32 : 28);
+    }
+    if (useCustomTitleStyle && useWindowControlsOverlay(this.configurationService)) {
+      const cachedWindowControlHeight = this.stateService.getItem(BaseWindow.windowControlHeightStateStorageKey);
+      if (cachedWindowControlHeight) {
+        this.updateWindowControls({ height: cachedWindowControlHeight });
+      } else {
+        this.updateWindowControls({ height: DEFAULT_CUSTOM_TITLEBAR_HEIGHT });
+      }
+    }
+    if ((isWindows || isLinux) && useCustomTitleStyle) {
+      this._register(Event.fromNodeEventEmitter(win, "system-context-menu", (event, point) => ({ event, point }))((e) => {
+        const [x, y] = win.getPosition();
+        const cursorPos = electron.screen.screenToDipPoint(e.point);
+        const cx = Math.floor(cursorPos.x) - x;
+        const cy = Math.floor(cursorPos.y) - y;
+        if (isLinux) {
+          if (cx > 35) {
+            e.event.preventDefault();
+            this._onDidTriggerSystemContextMenu.fire({ x: cx, y: cy });
+          }
+        }
+      }));
+    }
+    if (this.environmentMainService.args["open-devtools"] === true) {
+      win.webContents.openDevTools();
+    }
+    if (isMacintosh) {
+      this._register(this.onDidEnterFullScreen(() => {
+        this.joinNativeFullScreenTransition?.complete(true);
+      }));
+      this._register(this.onDidLeaveFullScreen(() => {
+        this.joinNativeFullScreenTransition?.complete(true);
+      }));
+    }
+    if (isWindows && this.environmentMainService.enableRDPDisplayTracking) {
+      this._register(Event.fromNodeEventEmitter(screen, "display-added", (event, display) => ({ event, display }))((e) => {
+        this.onDisplayAdded(e.display);
+      }));
+    }
+  }
+  onDisplayAdded(display) {
+    const state = this.maximizedWindowState;
+    if (state && this._win && WindowStateValidator.validateWindowStateOnDisplay(state, display)) {
+      this.logService.debug(`Setting maximized window ${this.id} bounds to match newly added display`, state);
+      this._win.setBounds(state);
+    }
+  }
+  constructor(configurationService, stateService, environmentMainService, logService) {
+    super();
+    this.configurationService = configurationService;
+    this.stateService = stateService;
+    this.environmentMainService = environmentMainService;
+    this.logService = logService;
+    this._onDidClose = this._register(new Emitter());
+    this.onDidClose = this._onDidClose.event;
+    this._onDidMaximize = this._register(new Emitter());
+    this.onDidMaximize = this._onDidMaximize.event;
+    this._onDidUnmaximize = this._register(new Emitter());
+    this.onDidUnmaximize = this._onDidUnmaximize.event;
+    this._onDidTriggerSystemContextMenu = this._register(new Emitter());
+    this.onDidTriggerSystemContextMenu = this._onDidTriggerSystemContextMenu.event;
+    this._onDidEnterFullScreen = this._register(new Emitter());
+    this.onDidEnterFullScreen = this._onDidEnterFullScreen.event;
+    this._onDidLeaveFullScreen = this._register(new Emitter());
+    this.onDidLeaveFullScreen = this._onDidLeaveFullScreen.event;
+    this._onDidChangeAlwaysOnTop = this._register(new Emitter());
+    this.onDidChangeAlwaysOnTop = this._onDidChangeAlwaysOnTop.event;
+    this._lastFocusTime = Date.now();
+    this._win = null;
+    this.notifyFocusDisposable = this._register(new MutableDisposable());
+    this.transientIsNativeFullScreen = void 0;
+    this.joinNativeFullScreenTransition = void 0;
+  }
+  applyState(state, hasMultipleDisplays = electron.screen.getAllDisplays().length > 0) {
+    const windowSettings = this.configurationService.getValue("window");
+    const useNativeTabs = isMacintosh && windowSettings?.nativeTabs === true;
+    if ((isMacintosh || isWindows) && hasMultipleDisplays && (!useNativeTabs || getAllWindowsExcludingOffscreen().length === 1)) {
+      if ([state.width, state.height, state.x, state.y].every((value) => typeof value === "number")) {
+        this._win?.setBounds({
+          width: state.width,
+          height: state.height,
+          x: state.x,
+          y: state.y
+        });
+      }
+    }
+    if (state.mode === 0 || state.mode === 3) {
+      this._win?.maximize();
+      if (state.mode === 3) {
+        this.setFullScreen(true, true);
+      }
+      this._win?.show();
+    }
+  }
+  setRepresentedFilename(filename) {
+    if (isMacintosh) {
+      this.win?.setRepresentedFilename(filename);
+    } else {
+      this.representedFilename = filename;
+    }
+  }
+  getRepresentedFilename() {
+    if (isMacintosh) {
+      return this.win?.getRepresentedFilename();
+    }
+    return this.representedFilename;
+  }
+  setDocumentEdited(edited) {
+    if (isMacintosh) {
+      this.win?.setDocumentEdited(edited);
+    }
+    this.documentEdited = edited;
+  }
+  isDocumentEdited() {
+    if (isMacintosh) {
+      return Boolean(this.win?.isDocumentEdited());
+    }
+    return !!this.documentEdited;
+  }
+  focus(options) {
+    switch (options?.mode ?? 0) {
+      case 0:
+        this.doFocusWindow();
+        break;
+      case 1:
+        this.showNotifyFocus();
+        break;
+      case 2:
+        if (isMacintosh) {
+          electron.app.focus({ steal: true });
+        }
+        this.doFocusWindow();
+        break;
+    }
+  }
+  showNotifyFocus() {
+    const disposables = new DisposableStore();
+    this.notifyFocusDisposable.value = disposables;
+    disposables.add(DockBadgeManager.INSTANCE.acquireBadge(this));
+    if (isWindows || isLinux) {
+      this.win?.flashFrame(true);
+      disposables.add(toDisposable(() => this.win?.flashFrame(false)));
+    } else if (isMacintosh) {
+      electron.app.dock?.bounce("informational");
+    }
+  }
+  clearNotifyFocus() {
+    this.notifyFocusDisposable.clear();
+  }
+  doFocusWindow() {
+    const win = this.win;
+    if (!win) {
+      return;
+    }
+    if (win.isMinimized()) {
+      win.restore();
+    }
+    win.focus();
+    win.webContents.focus();
+  }
+  static {
+    this.windowControlHeightStateStorageKey = "windowControlHeight";
+  }
+  updateWindowControls(options) {
+    const win = this.win;
+    if (!win) {
+      return;
+    }
+    if (options.height) {
+      this.stateService.setItem(CodeWindow.windowControlHeightStateStorageKey, options.height);
+    }
+    if (!isMacintosh && useWindowControlsOverlay(this.configurationService)) {
+      win.setTitleBarOverlay({
+        color: options.backgroundColor?.trim() === "" ? void 0 : options.backgroundColor,
+        symbolColor: options.foregroundColor?.trim() === "" ? void 0 : options.foregroundColor,
+        height: options.height ? options.height - 1 : void 0
+        // account for window border
+      });
+    } else if (isMacintosh && options.height !== void 0) {
+      const buttonHeight = isTahoeOrNewer(release()) ? 14 : 16;
+      const offset = Math.floor((options.height - buttonHeight) / 2);
+      if (!offset) {
+        win.setWindowButtonPosition(null);
+      } else {
+        win.setWindowButtonPosition({ x: offset + 1, y: offset });
+      }
+    }
+  }
+  toggleFullScreen() {
+    this.setFullScreen(!this.isFullScreen, false);
+  }
+  setFullScreen(fullscreen, fromRestore) {
+    if (useNativeFullScreen(this.configurationService)) {
+      this.setNativeFullScreen(fullscreen, fromRestore);
+    } else {
+      this.setSimpleFullScreen(fullscreen);
+    }
+  }
+  get isFullScreen() {
+    if (isMacintosh && typeof this.transientIsNativeFullScreen === "boolean") {
+      return this.transientIsNativeFullScreen;
+    }
+    const win = this.win;
+    const isFullScreen = win?.isFullScreen();
+    const isSimpleFullScreen = win?.isSimpleFullScreen();
+    return Boolean(isFullScreen || isSimpleFullScreen);
+  }
+  setNativeFullScreen(fullscreen, fromRestore) {
+    const win = this.win;
+    if (win?.isSimpleFullScreen()) {
+      win?.setSimpleFullScreen(false);
+    }
+    this.doSetNativeFullScreen(fullscreen, fromRestore);
+  }
+  doSetNativeFullScreen(fullscreen, fromRestore) {
+    if (isMacintosh) {
+      this.transientIsNativeFullScreen = fullscreen;
+      const joinNativeFullScreenTransition = this.joinNativeFullScreenTransition = new DeferredPromise();
+      (async () => {
+        const transitioned = await Promise.race([
+          joinNativeFullScreenTransition.p,
+          timeout(1e4).then(() => false)
+        ]);
+        if (this.joinNativeFullScreenTransition !== joinNativeFullScreenTransition) {
+          return;
+        }
+        this.transientIsNativeFullScreen = void 0;
+        this.joinNativeFullScreenTransition = void 0;
+        if (!transitioned && fullscreen && fromRestore && this.win && !this.win.isFullScreen()) {
+          this.logService.warn("window: native macOS fullscreen transition did not happen within 10s from restoring");
+          this._onDidLeaveFullScreen.fire();
+        }
+      })();
+    }
+    const win = this.win;
+    win?.setFullScreen(fullscreen);
+  }
+  setSimpleFullScreen(fullscreen) {
+    const win = this.win;
+    if (win?.isFullScreen()) {
+      this.doSetNativeFullScreen(false, false);
+    }
+    win?.setSimpleFullScreen(fullscreen);
+    win?.webContents.focus();
+  }
+  dispose() {
+    super.dispose();
+    this._win = null;
+  }
+}
+let CodeWindow = class CodeWindow2 extends BaseWindow {
+  static {
+    __name(this, "CodeWindow");
+  }
+  get id() {
+    return this._id;
+  }
+  get backupPath() {
+    return this._config?.backupPath;
+  }
+  get openedWorkspace() {
+    return this._config?.workspace;
+  }
+  get profile() {
+    if (!this.config) {
+      return void 0;
+    }
+    const profile = this.userDataProfilesService.profiles.find((profile2) => profile2.id === this.config?.profiles.profile.id);
+    if (this.isExtensionDevelopmentHost && profile) {
+      return profile;
+    }
+    return this.userDataProfilesService.getProfileForWorkspace(this.config.workspace ?? toWorkspaceIdentifier(this.backupPath, this.isExtensionDevelopmentHost)) ?? this.userDataProfilesService.defaultProfile;
+  }
+  get remoteAuthority() {
+    return this._config?.remoteAuthority;
+  }
+  get config() {
+    return this._config;
+  }
+  get isExtensionDevelopmentHost() {
+    return !!this._config?.extensionDevelopmentPath;
+  }
+  get isExtensionTestHost() {
+    return !!this._config?.extensionTestsPath;
+  }
+  get isExtensionDevelopmentTestFromCli() {
+    return this.isExtensionDevelopmentHost && this.isExtensionTestHost && !this._config?.debugId;
+  }
+  constructor(config, logService, loggerMainService, environmentMainService, policyService, userDataProfilesService, fileService, applicationStorageMainService, storageMainService, configurationService, themeMainService, workspacesManagementMainService, backupMainService, telemetryService, dialogMainService, lifecycleMainService, productService, protocolMainService, windowsMainService, stateService, instantiationService) {
+    super(configurationService, stateService, environmentMainService, logService);
+    this.loggerMainService = loggerMainService;
+    this.policyService = policyService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.fileService = fileService;
+    this.applicationStorageMainService = applicationStorageMainService;
+    this.storageMainService = storageMainService;
+    this.themeMainService = themeMainService;
+    this.workspacesManagementMainService = workspacesManagementMainService;
+    this.backupMainService = backupMainService;
+    this.telemetryService = telemetryService;
+    this.dialogMainService = dialogMainService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.productService = productService;
+    this.windowsMainService = windowsMainService;
+    this._onWillLoad = this._register(new Emitter());
+    this.onWillLoad = this._onWillLoad.event;
+    this._onDidSignalReady = this._register(new Emitter());
+    this.onDidSignalReady = this._onDidSignalReady.event;
+    this._onDidDestroy = this._register(new Emitter());
+    this.onDidDestroy = this._onDidDestroy.event;
+    this.whenReadyCallbacks = [];
+    this.touchBarGroups = [];
+    this.currentHttpProxy = void 0;
+    this.currentNoProxy = void 0;
+    this.customZoomLevel = void 0;
+    this.wasLoaded = false;
+    this.readyState = 0;
+    this.swipeListenerDisposable = this._register(new MutableDisposable());
+    {
+      this.configObjectUrl = this._register(protocolMainService.createIPCObjectUrl());
+      const [state, hasMultipleDisplays] = this.restoreWindowState(config.state);
+      this.windowState = state;
+      this.logService.trace("window#ctor: using window state", state);
+      const options = instantiationService.invokeFunction(defaultBrowserWindowOptions, this.windowState, void 0, {
+        preload: FileAccess.asFileUri("vs/base/parts/sandbox/electron-browser/preload.js").fsPath,
+        additionalArguments: [`--vscode-window-config=${this.configObjectUrl.resource.toString()}`],
+        v8CacheOptions: this.environmentMainService.useCodeCache ? "bypassHeatCheck" : "none"
+      });
+      mark("code/willCreateCodeBrowserWindow");
+      this._win = new electron.BrowserWindow(options);
+      mark("code/didCreateCodeBrowserWindow");
+      this._id = this._win.id;
+      this.setWin(this._win, options);
+      this.applyState(this.windowState, hasMultipleDisplays);
+      this._lastFocusTime = Date.now();
+    }
+    let sampleInterval = parseInt(this.environmentMainService.args["unresponsive-sample-interval"] || "1000");
+    let samplePeriod = parseInt(this.environmentMainService.args["unresponsive-sample-period"] || "15000");
+    if (sampleInterval <= 0 || samplePeriod <= 0 || sampleInterval > samplePeriod) {
+      this.logService.warn(`Invalid unresponsive sample interval (${sampleInterval}ms) or period (${samplePeriod}ms), using defaults.`);
+      sampleInterval = 1e3;
+      samplePeriod = 15e3;
+    }
+    this.jsCallStackMap = /* @__PURE__ */ new Map();
+    this.jsCallStackEffectiveSampleCount = Math.round(samplePeriod / sampleInterval);
+    this.jsCallStackCollector = this._register(new Delayer(sampleInterval));
+    this.jsCallStackCollectorStopScheduler = this._register(new RunOnceScheduler(() => {
+      this.stopCollectingJScallStacks();
+    }, samplePeriod));
+    this.onConfigurationUpdated();
+    this.createTouchBar();
+    this.registerListeners();
+  }
+  setReady() {
+    this.logService.trace(`window#load: window reported ready (id: ${this._id})`);
+    this.readyState = 2;
+    while (this.whenReadyCallbacks.length) {
+      this.whenReadyCallbacks.pop()(this);
+    }
+    this._onDidSignalReady.fire();
+  }
+  ready() {
+    return new Promise((resolve) => {
+      if (this.isReady) {
+        return resolve(this);
+      }
+      this.whenReadyCallbacks.push(resolve);
+    });
+  }
+  get isReady() {
+    return this.readyState === 2;
+  }
+  get whenClosedOrLoaded() {
+    return new Promise((resolve) => {
+      function handle() {
+        closeListener.dispose();
+        loadListener.dispose();
+        resolve();
+      }
+      __name(handle, "handle");
+      const closeListener = this.onDidClose(() => handle());
+      const loadListener = this.onWillLoad(() => handle());
+    });
+  }
+  registerListeners() {
+    this._register(Event.fromNodeEventEmitter(this._win, "unresponsive")(() => this.onWindowError(
+      1
+      /* WindowError.UNRESPONSIVE */
+    )));
+    this._register(Event.fromNodeEventEmitter(this._win, "responsive")(() => this.onWindowError(
+      4
+      /* WindowError.RESPONSIVE */
+    )));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "render-process-gone", (event, details) => details)((details) => this.onWindowError(2, { ...details })));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "did-fail-load", (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(3, { reason, exitCode })));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "will-prevent-unload")((event) => event.preventDefault()));
+    this._register(Event.fromNodeEventEmitter(this._win.webContents, "did-finish-load")(() => {
+      if (this.pendingLoadConfig) {
+        this._config = this.pendingLoadConfig;
+        this.pendingLoadConfig = void 0;
+      }
+    }));
+    this._register(this.onDidMaximize(() => {
+      if (this._config) {
+        this._config.maximized = true;
+      }
+    }));
+    this._register(this.onDidUnmaximize(() => {
+      if (this._config) {
+        this._config.maximized = false;
+      }
+    }));
+    this._register(this.onDidEnterFullScreen(() => {
+      this.sendWhenReady("vscode:enterFullScreen", CancellationToken.None);
+    }));
+    this._register(this.onDidLeaveFullScreen(() => {
+      this.sendWhenReady("vscode:leaveFullScreen", CancellationToken.None);
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(this.workspacesManagementMainService.onDidDeleteUntitledWorkspace((e) => this.onDidDeleteUntitledWorkspace(e)));
+    const urls = ["https://*.vsassets.io/*"];
+    if (this.productService.extensionsGallery?.serviceUrl) {
+      const serviceUrl = URI.parse(this.productService.extensionsGallery.serviceUrl);
+      urls.push(`${serviceUrl.scheme}://${serviceUrl.authority}/*`);
+    }
+    this._win.webContents.session.webRequest.onBeforeSendHeaders({ urls }, async (details, cb) => {
+      const headers = await this.getMarketplaceHeaders();
+      cb({ cancel: false, requestHeaders: Object.assign(details.requestHeaders, headers) });
+    });
+  }
+  getMarketplaceHeaders() {
+    if (!this.marketplaceHeadersPromise) {
+      this.marketplaceHeadersPromise = resolveMarketplaceHeaders(this.productService.version, this.productService, this.environmentMainService, this.configurationService, this.fileService, this.applicationStorageMainService, this.telemetryService);
+    }
+    return this.marketplaceHeadersPromise;
+  }
+  async onWindowError(type, details) {
+    switch (type) {
+      case 2:
+        this.logService.error(`CodeWindow: renderer process gone (reason: ${details?.reason || "<unknown>"}, code: ${details?.exitCode || "<unknown>"})`);
+        break;
+      case 1:
+        this.logService.error("CodeWindow: detected unresponsive");
+        break;
+      case 4:
+        this.logService.error("CodeWindow: recovered from unresponsive");
+        break;
+      case 3:
+        this.logService.error(`CodeWindow: failed to load (reason: ${details?.reason || "<unknown>"}, code: ${details?.exitCode || "<unknown>"})`);
+        break;
+    }
+    this.telemetryService.publicLog2("windowerror", {
+      type,
+      reason: details?.reason,
+      code: details?.exitCode
+    });
+    switch (type) {
+      case 1:
+      case 2:
+        if (this.isExtensionDevelopmentTestFromCli) {
+          this.lifecycleMainService.kill(1);
+          return;
+        }
+        if (this.environmentMainService.args["enable-smoke-test-driver"]) {
+          await this.destroyWindow(false, false);
+          this.lifecycleMainService.quit();
+          return;
+        }
+        if (type === 1) {
+          if (this.isExtensionDevelopmentHost || this.isExtensionTestHost || this._win?.webContents?.isDevToolsOpened()) {
+            return;
+          }
+          this.jsCallStackCollector.trigger(() => this.startCollectingJScallStacks());
+          this.jsCallStackCollectorStopScheduler.schedule();
+          const { response, checkboxChecked } = await this.dialogMainService.showMessageBox({
+            type: "warning",
+            buttons: [
+              localize({ key: "reopen", comment: ["&& denotes a mnemonic"] }, "&&Reopen"),
+              localize({ key: "close", comment: ["&& denotes a mnemonic"] }, "&&Close"),
+              localize({ key: "wait", comment: ["&& denotes a mnemonic"] }, "&&Keep Waiting")
+            ],
+            message: localize("appStalled", "The window is not responding"),
+            detail: localize("appStalledDetail", "You can reopen or close the window or keep waiting."),
+            checkboxLabel: this._config?.workspace ? localize("doNotRestoreEditors", "Don't restore editors") : void 0
+          }, this._win);
+          if (response !== 2) {
+            const reopen = response === 0;
+            this.stopCollectingJScallStacks();
+            await this.destroyWindow(reopen, checkboxChecked);
+          }
+        } else if (type === 2) {
+          let message;
+          if (!details) {
+            message = localize("appGone", "The window terminated unexpectedly");
+          } else {
+            message = localize("appGoneDetails", "The window terminated unexpectedly (reason: '{0}', code: '{1}')", details.reason, details.exitCode ?? "<unknown>");
+          }
+          const { response, checkboxChecked } = await this.dialogMainService.showMessageBox({
+            type: "warning",
+            buttons: [
+              this._config?.workspace ? localize({ key: "reopen", comment: ["&& denotes a mnemonic"] }, "&&Reopen") : localize({ key: "newWindow", comment: ["&& denotes a mnemonic"] }, "&&New Window"),
+              localize({ key: "close", comment: ["&& denotes a mnemonic"] }, "&&Close")
+            ],
+            message,
+            detail: this._config?.workspace ? localize("appGoneDetailWorkspace", "We are sorry for the inconvenience. You can reopen the window to continue where you left off.") : localize("appGoneDetailEmptyWindow", "We are sorry for the inconvenience. You can open a new empty window to start again."),
+            checkboxLabel: this._config?.workspace ? localize("doNotRestoreEditors", "Don't restore editors") : void 0
+          }, this._win);
+          const reopen = response === 0;
+          await this.destroyWindow(reopen, checkboxChecked);
+        }
+        break;
+      case 4:
+        this.stopCollectingJScallStacks();
+        break;
+    }
+  }
+  async destroyWindow(reopen, skipRestoreEditors) {
+    const workspace = this._config?.workspace;
+    if (skipRestoreEditors && workspace) {
+      try {
+        const workspaceStorage = this.storageMainService.workspaceStorage(workspace);
+        await workspaceStorage.init();
+        workspaceStorage.delete("memento/workbench.parts.editor");
+        await workspaceStorage.close();
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+    this._onDidDestroy.fire();
+    try {
+      if (reopen && this._config) {
+        let uriToOpen = void 0;
+        let forceEmpty = void 0;
+        if (isSingleFolderWorkspaceIdentifier(workspace)) {
+          uriToOpen = { folderUri: workspace.uri };
+        } else if (isWorkspaceIdentifier(workspace)) {
+          uriToOpen = { workspaceUri: workspace.configPath };
+        } else {
+          forceEmpty = true;
+        }
+        const window = (await this.windowsMainService.open({
+          context: 5,
+          userEnv: this._config.userEnv,
+          cli: {
+            ...this.environmentMainService.args,
+            _: []
+            // we pass in the workspace to open explicitly via `urisToOpen`
+          },
+          urisToOpen: uriToOpen ? [uriToOpen] : void 0,
+          forceEmpty,
+          forceNewWindow: true,
+          remoteAuthority: this.remoteAuthority
+        })).at(0);
+        window?.focus();
+      }
+    } finally {
+      this._win?.destroy();
+    }
+  }
+  onDidDeleteUntitledWorkspace(workspace) {
+    if (this._config?.workspace?.id === workspace.id) {
+      this._config.workspace = void 0;
+    }
+  }
+  onConfigurationUpdated(e) {
+    if (isMacintosh && (!e || e.affectsConfiguration("workbench.editor.swipeToNavigate"))) {
+      const swipeToNavigate = this.configurationService.getValue("workbench.editor.swipeToNavigate");
+      if (swipeToNavigate) {
+        this.registerSwipeListener();
+      } else {
+        this.swipeListenerDisposable.clear();
+      }
+    }
+    if (!e || e.affectsConfiguration(
+      "window.menuBarVisibility"
+      /* MenuSettings.MenuBarVisibility */
+    )) {
+      const newMenuBarVisibility = this.getMenuBarVisibility();
+      if (newMenuBarVisibility !== this.currentMenuBarVisibility) {
+        this.currentMenuBarVisibility = newMenuBarVisibility;
+        this.setMenuBarVisibility(newMenuBarVisibility);
+      }
+    }
+    if (!e || e.affectsConfiguration("http.proxy") || e.affectsConfiguration("http.noProxy")) {
+      const inspect = this.configurationService.inspect("http.proxy");
+      let newHttpProxy = (inspect.userLocalValue || "").trim() || (process.env["https_proxy"] || process.env["HTTPS_PROXY"] || process.env["http_proxy"] || process.env["HTTP_PROXY"] || "").trim() || void 0;
+      if (newHttpProxy?.indexOf("@") !== -1) {
+        const uri = URI.parse(newHttpProxy);
+        const i = uri.authority.indexOf("@");
+        if (i !== -1) {
+          newHttpProxy = uri.with({ authority: uri.authority.substring(i + 1) }).toString();
+        }
+      }
+      if (newHttpProxy?.endsWith("/")) {
+        newHttpProxy = newHttpProxy.substr(0, newHttpProxy.length - 1);
+      }
+      const newNoProxy = (this.configurationService.getValue("http.noProxy") || []).map((item) => item.trim()).join(",") || (process.env["no_proxy"] || process.env["NO_PROXY"] || "").trim() || void 0;
+      if ((newHttpProxy || "").indexOf("@") === -1 && (newHttpProxy !== this.currentHttpProxy || newNoProxy !== this.currentNoProxy)) {
+        this.currentHttpProxy = newHttpProxy;
+        this.currentNoProxy = newNoProxy;
+        const proxyRules = newHttpProxy || "";
+        const proxyBypassRules = newNoProxy ? `${newNoProxy},<local>` : "<local>";
+        this.logService.trace(`Setting proxy to '${proxyRules}', bypassing '${proxyBypassRules}'`);
+        this._win.webContents.session.setProxy({ proxyRules, proxyBypassRules, pacScript: "" });
+        electron.app.setProxy({ proxyRules, proxyBypassRules, pacScript: "" });
+      }
+    }
+  }
+  registerSwipeListener() {
+    this.swipeListenerDisposable.value = Event.fromNodeEventEmitter(this._win, "swipe", (event, cmd) => cmd)((cmd) => {
+      if (!this.isReady) {
+        return;
+      }
+      if (cmd === "left") {
+        this.send("vscode:runAction", { id: "workbench.action.openPreviousRecentlyUsedEditor", from: "mouse" });
+      } else if (cmd === "right") {
+        this.send("vscode:runAction", { id: "workbench.action.openNextRecentlyUsedEditor", from: "mouse" });
+      }
+    });
+  }
+  addTabbedWindow(window) {
+    if (isMacintosh && window.win) {
+      this._win.addTabbedWindow(window.win);
+    }
+  }
+  load(configuration, options = /* @__PURE__ */ Object.create(null)) {
+    this.logService.trace(`window#load: attempt to load window (id: ${this._id})`);
+    if (this.isDocumentEdited()) {
+      if (!options.isReload || !this.backupMainService.isHotExitEnabled()) {
+        this.setDocumentEdited(false);
+      }
+    }
+    if (!options.isReload) {
+      if (this.getRepresentedFilename()) {
+        this.setRepresentedFilename("");
+      }
+      this._win.setTitle(this.productService.nameLong);
+    }
+    this.updateConfiguration(configuration, options);
+    if (this.readyState === 0) {
+      this._config = configuration;
+    } else {
+      this.pendingLoadConfig = configuration;
+    }
+    this.readyState = 1;
+    let windowUrl;
+    if (process.env.VSCODE_DEV && process.env.VSCODE_DEV_SERVER_URL) {
+      windowUrl = process.env.VSCODE_DEV_SERVER_URL;
+    } else {
+      windowUrl = FileAccess.asBrowserUri(`vs/code/electron-browser/workbench/workbench${this.environmentMainService.isBuilt ? "" : "-dev"}.html`).toString(true);
+    }
+    this._win.loadURL(windowUrl);
+    const wasLoaded = this.wasLoaded;
+    this.wasLoaded = true;
+    if (!this.environmentMainService.isBuilt && !this.environmentMainService.extensionTestsLocationURI) {
+      this._register(new RunOnceScheduler(() => {
+        if (this._win && !this._win.isVisible() && !this._win.isMinimized()) {
+          this._win.show();
+          this.focus({
+            mode: 2
+            /* FocusMode.Force */
+          });
+          this._win.webContents.openDevTools();
+        }
+      }, 1e4)).schedule();
+    }
+    this._onWillLoad.fire({
+      workspace: configuration.workspace,
+      reason: options.isReload ? 3 : wasLoaded ? 2 : 1
+      /* LoadReason.INITIAL */
+    });
+  }
+  updateConfiguration(configuration, options) {
+    const currentUserEnv = (this._config ?? this.pendingLoadConfig)?.userEnv;
+    if (currentUserEnv) {
+      const shouldPreserveLaunchCliEnvironment = isLaunchedFromCli(currentUserEnv) && !isLaunchedFromCli(configuration.userEnv);
+      const shouldPreserveDebugEnvironmnet = this.isExtensionDevelopmentHost;
+      if (shouldPreserveLaunchCliEnvironment || shouldPreserveDebugEnvironmnet) {
+        configuration.userEnv = { ...currentUserEnv, ...configuration.userEnv };
+      }
+    }
+    if (process.env["CHROME_CRASHPAD_PIPE_NAME"]) {
+      Object.assign(configuration.userEnv, {
+        CHROME_CRASHPAD_PIPE_NAME: process.env["CHROME_CRASHPAD_PIPE_NAME"]
+      });
+    }
+    if (options.disableExtensions !== void 0) {
+      configuration["disable-extensions"] = options.disableExtensions;
+    }
+    try {
+      configuration.handle = VSBuffer.wrap(this._win.getNativeWindowHandle());
+    } catch (error) {
+      this.logService.error(`Error getting native window handle: ${error}`);
+    }
+    configuration.fullscreen = this.isFullScreen;
+    configuration.maximized = this._win.isMaximized();
+    configuration.partsSplash = this.themeMainService.getWindowSplash(configuration.workspace);
+    configuration.zoomLevel = this.getZoomLevel();
+    configuration.isCustomZoomLevel = typeof this.customZoomLevel === "number";
+    if (configuration.isCustomZoomLevel && configuration.partsSplash) {
+      configuration.partsSplash.zoomLevel = configuration.zoomLevel;
+    }
+    mark("code/willOpenNewWindow");
+    configuration.perfMarks = getMarks();
+    this.configObjectUrl.update(configuration);
+  }
+  async reload(cli) {
+    const configuration = Object.assign({}, this._config);
+    configuration.workspace = await this.validateWorkspaceBeforeReload(configuration);
+    delete configuration.filesToOpenOrCreate;
+    delete configuration.filesToDiff;
+    delete configuration.filesToMerge;
+    delete configuration.filesToWait;
+    if (this.isExtensionDevelopmentHost && cli) {
+      configuration.verbose = cli.verbose;
+      configuration.debugId = cli.debugId;
+      configuration.extensionEnvironment = cli.extensionEnvironment;
+      configuration["inspect-extensions"] = cli["inspect-extensions"];
+      configuration["inspect-brk-extensions"] = cli["inspect-brk-extensions"];
+      configuration["extensions-dir"] = cli["extensions-dir"];
+    }
+    configuration.accessibilitySupport = electron.app.isAccessibilitySupportEnabled();
+    configuration.isInitialStartup = false;
+    configuration.policiesData = this.policyService.serialize();
+    configuration.continueOn = this.environmentMainService.continueOn;
+    configuration.profiles = {
+      all: this.userDataProfilesService.profiles,
+      profile: this.profile || this.userDataProfilesService.defaultProfile,
+      home: this.userDataProfilesService.profilesHome
+    };
+    configuration.logLevel = this.loggerMainService.getLogLevel();
+    configuration.loggers = this.loggerMainService.getGlobalLoggers();
+    this.load(configuration, { isReload: true, disableExtensions: cli?.["disable-extensions"] });
+  }
+  async validateWorkspaceBeforeReload(configuration) {
+    if (isWorkspaceIdentifier(configuration.workspace)) {
+      const configPath = configuration.workspace.configPath;
+      if (configPath.scheme === Schemas.file) {
+        const workspaceExists = await this.fileService.exists(configPath);
+        if (!workspaceExists) {
+          return void 0;
+        }
+      }
+    } else if (isSingleFolderWorkspaceIdentifier(configuration.workspace)) {
+      const uri = configuration.workspace.uri;
+      if (uri.scheme === Schemas.file) {
+        const folderExists = await this.fileService.exists(uri);
+        if (!folderExists) {
+          return void 0;
+        }
+      }
+    }
+    return configuration.workspace;
+  }
+  serializeWindowState() {
+    if (!this._win) {
+      return defaultWindowState();
+    }
+    if (this.isFullScreen) {
+      let display;
+      try {
+        display = electron.screen.getDisplayMatching(this.getBounds());
+      } catch (error) {
+      }
+      const defaultState = defaultWindowState();
+      return {
+        mode: 3,
+        display: display ? display.id : void 0,
+        // Still carry over window dimensions from previous sessions
+        // if we can compute it in fullscreen state.
+        // does not seem possible in all cases on Linux for example
+        // (https://github.com/microsoft/vscode/issues/58218) so we
+        // fallback to the defaults in that case.
+        width: this.windowState.width || defaultState.width,
+        height: this.windowState.height || defaultState.height,
+        x: this.windowState.x || 0,
+        y: this.windowState.y || 0,
+        zoomLevel: this.customZoomLevel
+      };
+    }
+    const state = /* @__PURE__ */ Object.create(null);
+    let mode;
+    if (!isMacintosh && this._win.isMaximized()) {
+      mode = 0;
+    } else {
+      mode = 1;
+    }
+    if (mode === 0) {
+      state.mode = 0;
+    } else {
+      state.mode = 1;
+    }
+    if (mode === 1 || mode === 0) {
+      let bounds;
+      if (mode === 1) {
+        bounds = this.getBounds();
+      } else {
+        bounds = this._win.getNormalBounds();
+      }
+      state.x = bounds.x;
+      state.y = bounds.y;
+      state.width = bounds.width;
+      state.height = bounds.height;
+    }
+    state.zoomLevel = this.customZoomLevel;
+    return state;
+  }
+  restoreWindowState(state) {
+    mark("code/willRestoreCodeWindowState");
+    let hasMultipleDisplays = false;
+    if (state) {
+      this.customZoomLevel = state.zoomLevel;
+      try {
+        const displays = electron.screen.getAllDisplays();
+        hasMultipleDisplays = displays.length > 1;
+        state = WindowStateValidator.validateWindowState(this.logService, state, displays);
+      } catch (err) {
+        this.logService.warn(`Unexpected error validating window state: ${err}
+${err.stack}`);
+      }
+    }
+    mark("code/didRestoreCodeWindowState");
+    return [state || defaultWindowState(), hasMultipleDisplays];
+  }
+  getBounds() {
+    const [x, y] = this._win.getPosition();
+    const [width, height] = this._win.getSize();
+    return { x, y, width, height };
+  }
+  setFullScreen(fullscreen, fromRestore) {
+    super.setFullScreen(fullscreen, fromRestore);
+    this.sendWhenReady(fullscreen ? "vscode:enterFullScreen" : "vscode:leaveFullScreen", CancellationToken.None);
+    if (this.currentMenuBarVisibility) {
+      this.setMenuBarVisibility(this.currentMenuBarVisibility, false);
+    }
+  }
+  getMenuBarVisibility() {
+    let menuBarVisibility = getMenuBarVisibility(this.configurationService);
+    if (["visible", "toggle", "hidden"].indexOf(menuBarVisibility) < 0) {
+      menuBarVisibility = "classic";
+    }
+    return menuBarVisibility;
+  }
+  setMenuBarVisibility(visibility, notify = true) {
+    if (isMacintosh) {
+      return;
+    }
+    if (visibility === "toggle") {
+      if (notify) {
+        this.send("vscode:showInfoMessage", localize("hiddenMenuBar", "You can still access the menu bar by pressing the Alt-key."));
+      }
+    }
+    if (visibility === "hidden") {
+      setTimeout(() => {
+        this.doSetMenuBarVisibility(visibility);
+      });
+    } else {
+      this.doSetMenuBarVisibility(visibility);
+    }
+  }
+  doSetMenuBarVisibility(visibility) {
+    const isFullscreen = this.isFullScreen;
+    switch (visibility) {
+      case "classic":
+        this._win.setMenuBarVisibility(!isFullscreen);
+        this._win.autoHideMenuBar = isFullscreen;
+        break;
+      case "visible":
+        this._win.setMenuBarVisibility(true);
+        this._win.autoHideMenuBar = false;
+        break;
+      case "toggle":
+        this._win.setMenuBarVisibility(false);
+        this._win.autoHideMenuBar = true;
+        break;
+      case "hidden":
+        this._win.setMenuBarVisibility(false);
+        this._win.autoHideMenuBar = false;
+        break;
+    }
+  }
+  notifyZoomLevel(zoomLevel) {
+    this.customZoomLevel = zoomLevel;
+  }
+  getZoomLevel() {
+    if (typeof this.customZoomLevel === "number") {
+      return this.customZoomLevel;
+    }
+    const windowSettings = this.configurationService.getValue("window");
+    return windowSettings?.zoomLevel;
+  }
+  close() {
+    this._win?.close();
+  }
+  sendWhenReady(channel, token, ...args) {
+    if (this.isReady) {
+      this.send(channel, ...args);
+    } else {
+      this.ready().then(() => {
+        if (!token.isCancellationRequested) {
+          this.send(channel, ...args);
+        }
+      });
+    }
+  }
+  send(channel, ...args) {
+    if (this._win) {
+      if (this._win.isDestroyed() || this._win.webContents.isDestroyed()) {
+        this.logService.warn(`Sending IPC message to channel '${channel}' for window that is destroyed`);
+        return;
+      }
+      try {
+        this._win.webContents.send(channel, ...args);
+      } catch (error) {
+        this.logService.warn(`Error sending IPC message to channel '${channel}' of window ${this._id}: ${toErrorMessage(error)}`);
+      }
+    }
+  }
+  updateTouchBar(groups) {
+    if (!isMacintosh) {
+      return;
+    }
+    this.touchBarGroups.forEach((touchBarGroup, index) => {
+      const commands = groups[index];
+      touchBarGroup.segments = this.createTouchBarGroupSegments(commands);
+    });
+  }
+  createTouchBar() {
+    if (!isMacintosh) {
+      return;
+    }
+    for (let i = 0; i < 10; i++) {
+      const groupTouchBar = this.createTouchBarGroup();
+      this.touchBarGroups.push(groupTouchBar);
+    }
+    this._win.setTouchBar(new electron.TouchBar({ items: this.touchBarGroups }));
+  }
+  createTouchBarGroup(items = []) {
+    const segments = this.createTouchBarGroupSegments(items);
+    const control = new electron.TouchBar.TouchBarSegmentedControl({
+      segments,
+      mode: "buttons",
+      segmentStyle: "automatic",
+      change: /* @__PURE__ */ __name((selectedIndex) => {
+        this.sendWhenReady("vscode:runAction", CancellationToken.None, { id: control.segments[selectedIndex].id, from: "touchbar" });
+      }, "change")
+    });
+    return control;
+  }
+  createTouchBarGroupSegments(items = []) {
+    const segments = items.map((item) => {
+      let icon;
+      if (item.icon && !ThemeIcon.isThemeIcon(item.icon) && item.icon?.dark?.scheme === Schemas.file) {
+        icon = electron.nativeImage.createFromPath(URI.revive(item.icon.dark).fsPath);
+        if (icon.isEmpty()) {
+          icon = void 0;
+        }
+      }
+      let title;
+      if (typeof item.title === "string") {
+        title = item.title;
+      } else {
+        title = item.title.value;
+      }
+      return {
+        id: item.id,
+        label: !icon ? title : void 0,
+        icon
+      };
+    });
+    return segments;
+  }
+  async startCollectingJScallStacks() {
+    if (!this.jsCallStackCollector.isTriggered()) {
+      const stack = await this._win?.webContents.mainFrame.collectJavaScriptCallStack();
+      if (stack) {
+        const count = this.jsCallStackMap.get(stack) || 0;
+        this.jsCallStackMap.set(stack, count + 1);
+      }
+      this.jsCallStackCollector.trigger(() => this.startCollectingJScallStacks());
+    }
+  }
+  stopCollectingJScallStacks() {
+    this.jsCallStackCollectorStopScheduler.cancel();
+    this.jsCallStackCollector.cancel();
+    if (this.jsCallStackMap.size) {
+      let logMessage = `CodeWindow unresponsive samples:
+`;
+      let samples = 0;
+      const sortedEntries = Array.from(this.jsCallStackMap.entries()).sort((a, b) => b[1] - a[1]);
+      for (const [stack, count] of sortedEntries) {
+        samples += count;
+        if (Math.round(count * 100 / this.jsCallStackEffectiveSampleCount) > 20) {
+          const fakeError = new UnresponsiveError(stack, this.id, this._win?.webContents.getOSProcessId());
+          errorHandler.onUnexpectedError(fakeError);
+        }
+        logMessage += `<${count}> ${stack}
+`;
+      }
+      logMessage += `Total Samples: ${samples}
+`;
+      logMessage += "For full overview of the unresponsive period, capture cpu profile via https://aka.ms/vscode-tracing-cpu-profile";
+      this.logService.error(logMessage);
+    }
+    this.jsCallStackMap.clear();
+  }
+  matches(webContents) {
+    return this._win?.webContents.id === webContents.id;
+  }
+  dispose() {
+    super.dispose();
+    this.loggerMainService.deregisterLoggers(this.id);
+  }
+};
+CodeWindow = __decorate([
+  __param(1, ILogService),
+  __param(2, ILoggerMainService),
+  __param(3, IEnvironmentMainService),
+  __param(4, IPolicyService),
+  __param(5, IUserDataProfilesMainService),
+  __param(6, IFileService),
+  __param(7, IApplicationStorageMainService),
+  __param(8, IStorageMainService),
+  __param(9, IConfigurationService),
+  __param(10, IThemeMainService),
+  __param(11, IWorkspacesManagementMainService),
+  __param(12, IBackupMainService),
+  __param(13, ITelemetryService),
+  __param(14, IDialogMainService),
+  __param(15, ILifecycleMainService),
+  __param(16, IProductService),
+  __param(17, IProtocolMainService),
+  __param(18, IWindowsMainService),
+  __param(19, IStateService),
+  __param(20, IInstantiationService)
+], CodeWindow);
+class UnresponsiveError extends Error {
+  static {
+    __name(this, "UnresponsiveError");
+  }
+  constructor(sample, windowId, pid = 0) {
+    const stackTraceLimit = Error.stackTraceLimit;
+    Error.stackTraceLimit = 0;
+    super(`UnresponsiveSampleError: from window with ID ${windowId} belonging to process with pid ${pid}`);
+    Error.stackTraceLimit = stackTraceLimit;
+    this.name = "UnresponsiveSampleError";
+    this.stack = sample;
+  }
+}
+export {
+  BaseWindow,
+  CodeWindow
+};
+//# sourceMappingURL=windowImpl.js.map

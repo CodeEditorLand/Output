@@ -1,1 +1,60 @@
-import{$Db as n,$mb as r}from"./errors.js";function u(e,o){if(!e)throw new Error(o?`Assertion failed (${o})`:"Assertion Failed")}function l(e,o="Unreachable"){throw new Error(o)}function w(e){}function p(e,o="unexpected state"){if(!e)throw typeof o=="string"?new n(`Assertion Failed: ${o}`):o}function $(e,o="Soft Assertion Failed"){e||r(new n(o))}function a(e){e()||(e(),r(new n("Assertion Failed")))}function h(e,o){let t=0;for(;t<e.length-1;){const i=e[t],c=e[t+1];if(!o(i,c))return!1;t++}return!0}export{w as $1c,p as $2c,$ as $3c,a as $4c,h as $5c,l as $Zc,u as ok};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BugIndicatingError, onUnexpectedError } from "./errors.js";
+function ok(value, message) {
+  if (!value) {
+    throw new Error(message ? `Assertion failed (${message})` : "Assertion Failed");
+  }
+}
+__name(ok, "ok");
+function assertNever(value, message = "Unreachable") {
+  throw new Error(message);
+}
+__name(assertNever, "assertNever");
+function softAssertNever(value) {
+}
+__name(softAssertNever, "softAssertNever");
+function assert(condition, messageOrError = "unexpected state") {
+  if (!condition) {
+    const errorToThrow = typeof messageOrError === "string" ? new BugIndicatingError(`Assertion Failed: ${messageOrError}`) : messageOrError;
+    throw errorToThrow;
+  }
+}
+__name(assert, "assert");
+function softAssert(condition, message = "Soft Assertion Failed") {
+  if (!condition) {
+    onUnexpectedError(new BugIndicatingError(message));
+  }
+}
+__name(softAssert, "softAssert");
+function assertFn(condition) {
+  if (!condition()) {
+    debugger;
+    condition();
+    onUnexpectedError(new BugIndicatingError("Assertion Failed"));
+  }
+}
+__name(assertFn, "assertFn");
+function checkAdjacentItems(items, predicate) {
+  let i = 0;
+  while (i < items.length - 1) {
+    const a = items[i];
+    const b = items[i + 1];
+    if (!predicate(a, b)) {
+      return false;
+    }
+    i++;
+  }
+  return true;
+}
+__name(checkAdjacentItems, "checkAdjacentItems");
+export {
+  assert,
+  assertFn,
+  assertNever,
+  checkAdjacentItems,
+  ok,
+  softAssert,
+  softAssertNever
+};
+//# sourceMappingURL=assert.js.map

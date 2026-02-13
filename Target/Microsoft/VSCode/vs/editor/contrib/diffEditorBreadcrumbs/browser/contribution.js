@@ -1,1 +1,75 @@
-import{$Ac as c,$wc as d,$yc as f}from"../../../../base/common/arrays.js";import{observableValue as g,observableSignalFromEvent as b,autorunWithStore as L}from"../../../../base/common/observable.js";import{$qkb as N}from"../../../browser/widget/diffEditor/features/hideUnchangedRegionsFeature.js";import{$Sib as v}from"../../../browser/widget/diffEditor/utils.js";import{$jE as D}from"../../../common/core/ranges/lineRange.js";import{$uW as S}from"../../../common/services/languageFeatures.js";import{$urb as y}from"../../documentSymbols/browser/outlineModel.js";import{$Ed as C}from"../../../../base/common/lifecycle.js";import{Event as _}from"../../../../base/common/event.js";var p=function(a,t,n,r){var o=arguments.length,e=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,n):r,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,t,n,r);else for(var m=a.length-1;m>=0;m--)(i=a[m])&&(e=(o<3?i(e):o>3?i(t,n,e):i(t,n))||e);return o>3&&e&&Object.defineProperty(t,n,e),e},u=function(a,t){return function(n,r){t(n,r,a)}};let s=class extends C{constructor(t,n,r){super(),this.b=t,this.c=n,this.f=r,this.a=g(this,void 0);const o=b("documentSymbolProvider.onDidChange",this.c.documentSymbolProvider.onDidChange),e=b("_textModel.onDidChangeContent",_.debounce(i=>this.b.onDidChangeContent(i),()=>{},100));this.D(L(async(i,m)=>{o.read(i),e.read(i);const h=m.add(new v),l=await this.f.getOrCreate(this.b,h.token);m.isDisposed||this.a.set(l,void 0)}))}getBreadcrumbItems(t,n){const r=this.a.read(n);if(!r)return[];const o=r.asListOfDocumentSymbols().filter(e=>t.contains(e.range.startLineNumber)&&!t.contains(e.range.endLineNumber));return o.sort(c(d(e=>e.range.endLineNumber-e.range.startLineNumber,f))),o.map(e=>({name:e.name,kind:e.kind,startLineNumber:e.range.startLineNumber}))}getAt(t,n){const r=this.a.read(n);if(!r)return[];const o=r.asListOfDocumentSymbols().filter(e=>new D(e.range.startLineNumber,e.range.endLineNumber).contains(t));return o.length===0?[]:(o.sort(c(d(e=>e.range.endLineNumber-e.range.startLineNumber,f))),o.map(e=>({name:e.name,kind:e.kind,startLineNumber:e.range.startLineNumber})))}};s=p([u(1,S),u(2,y)],s);N.setBreadcrumbsSourceFactory((a,t)=>t.createInstance(s,a));
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { reverseOrder, compareBy, numberComparator } from "../../../../base/common/arrays.js";
+import { observableValue, observableSignalFromEvent, autorunWithStore } from "../../../../base/common/observable.js";
+import { HideUnchangedRegionsFeature } from "../../../browser/widget/diffEditor/features/hideUnchangedRegionsFeature.js";
+import { DisposableCancellationTokenSource } from "../../../browser/widget/diffEditor/utils.js";
+import { LineRange } from "../../../common/core/ranges/lineRange.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IOutlineModelService } from "../../documentSymbols/browser/outlineModel.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Event } from "../../../../base/common/event.js";
+let DiffEditorBreadcrumbsSource = class DiffEditorBreadcrumbsSource2 extends Disposable {
+  static {
+    __name(this, "DiffEditorBreadcrumbsSource");
+  }
+  constructor(_textModel, _languageFeaturesService, _outlineModelService) {
+    super();
+    this._textModel = _textModel;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._outlineModelService = _outlineModelService;
+    this._currentModel = observableValue(this, void 0);
+    const documentSymbolProviderChanged = observableSignalFromEvent("documentSymbolProvider.onDidChange", this._languageFeaturesService.documentSymbolProvider.onDidChange);
+    const textModelChanged = observableSignalFromEvent("_textModel.onDidChangeContent", Event.debounce((e) => this._textModel.onDidChangeContent(e), () => void 0, 100));
+    this._register(autorunWithStore(async (reader, store) => {
+      documentSymbolProviderChanged.read(reader);
+      textModelChanged.read(reader);
+      const src = store.add(new DisposableCancellationTokenSource());
+      const model = await this._outlineModelService.getOrCreate(this._textModel, src.token);
+      if (store.isDisposed) {
+        return;
+      }
+      this._currentModel.set(model, void 0);
+    }));
+  }
+  getBreadcrumbItems(startRange, reader) {
+    const m = this._currentModel.read(reader);
+    if (!m) {
+      return [];
+    }
+    const symbols = m.asListOfDocumentSymbols().filter((s) => startRange.contains(s.range.startLineNumber) && !startRange.contains(s.range.endLineNumber));
+    symbols.sort(reverseOrder(compareBy((s) => s.range.endLineNumber - s.range.startLineNumber, numberComparator)));
+    return symbols.map((s) => ({ name: s.name, kind: s.kind, startLineNumber: s.range.startLineNumber }));
+  }
+  getAt(lineNumber, reader) {
+    const m = this._currentModel.read(reader);
+    if (!m) {
+      return [];
+    }
+    const symbols = m.asListOfDocumentSymbols().filter((s) => new LineRange(s.range.startLineNumber, s.range.endLineNumber).contains(lineNumber));
+    if (symbols.length === 0) {
+      return [];
+    }
+    symbols.sort(reverseOrder(compareBy((s) => s.range.endLineNumber - s.range.startLineNumber, numberComparator)));
+    return symbols.map((s) => ({ name: s.name, kind: s.kind, startLineNumber: s.range.startLineNumber }));
+  }
+};
+DiffEditorBreadcrumbsSource = __decorate([
+  __param(1, ILanguageFeaturesService),
+  __param(2, IOutlineModelService)
+], DiffEditorBreadcrumbsSource);
+HideUnchangedRegionsFeature.setBreadcrumbsSourceFactory((textModel, instantiationService) => {
+  return instantiationService.createInstance(DiffEditorBreadcrumbsSource, textModel);
+});
+//# sourceMappingURL=contribution.js.map

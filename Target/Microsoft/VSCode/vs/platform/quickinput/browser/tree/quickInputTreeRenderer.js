@@ -1,1 +1,167 @@
-import*as x from"../../../../base/browser/cssValue.js";import*as d from"../../../../base/browser/dom.js";import{$0_ as _}from"../../../../base/browser/ui/toolbar/toolbar.js";import{$L_ as v}from"../../../../base/browser/ui/iconLabel/iconLabel.js";import{$K$ as C,$I$ as q}from"../../../../base/browser/ui/toggle/toggle.js";import{$xf as I,Event as E}from"../../../../base/common/event.js";import{$Ed as g,$Dd as k}from"../../../../base/common/lifecycle.js";import{URI as T}from"../../../../base/common/uri.js";import{$ijb as P}from"../../../contextview/browser/contextView.js";import{$Pjb as j}from"../../../theme/browser/defaultStyles.js";import{$pu as L}from"../../../theme/common/theme.js";import{$Yf as N}from"../../../../base/common/strings.js";import{$qu as B}from"../../../theme/common/themeService.js";import{$Xbb as H}from"../quickInputUtils.js";var y=function(a,i,s,t){var n=arguments.length,o=n<3?i:t===null?t=Object.getOwnPropertyDescriptor(i,s):t,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,i,s,t);else for(var r=a.length-1;r>=0;r--)(e=a[r])&&(o=(n<3?e(o):n>3?e(i,s,o):e(i,s))||o);return n>3&&o&&Object.defineProperty(i,s,o),o},b=function(a,i){return function(s,t){i(s,t,a)}},f;const p=d.$;class V extends g{constructor(){super(...arguments),this.a=this.D(new I),this.onDidChangeCheckboxState=this.a.event}setCheckboxState(i,s){this.a.fire({item:i,checked:s})}}let $=class extends g{static{f=this}static{this.ID="quickInputTreeElement"}constructor(i,s,t,n,o,e,r){super(),this.a=i,this.b=s,this.c=t,this.f=n,this.g=o,this.h=e,this.j=r,this.templateId=f.ID}renderTemplate(i){const s=new k,t=d.$y9(i,p(".quick-input-tree-entry")),n=s.add(new q("",!1,{...j,size:15}));t.appendChild(n.domNode);const o=d.$y9(t,p("label.quick-input-tree-label")),e=d.$y9(o,p(".quick-input-tree-rows")),r=d.$y9(e,p(".quick-input-tree-row")),m=d.$z9(r,p(".quick-input-tree-icon")),u=s.add(new v(r,{supportHighlights:!0,supportDescriptionHighlights:!0,supportIcons:!0,hoverDelegate:this.a})),h=s.add(new _(t,this.h,{actionViewItemProvider:C(this.g),hoverDelegate:this.a,icon:!0,label:!1}));return h.getElement().classList.add("quick-input-tree-entry-action-bar"),{toDisposeTemplate:s,entry:t,checkbox:n,icon:m,label:u,actionBar:h,toDisposeElement:new k}}renderElement(i,s,t,n){const o=t.toDisposeElement,e=i.element;if(e.pickable===!1)t.checkbox.domNode.style.display="none";else{const c=t.checkbox;c.domNode.style.display="",c.checked=e.checked??!1,o.add(E.filter(this.c,l=>l.item===e)(l=>c.checked=l.checked)),e.disabled&&c.disable(),o.add(c.onChange(l=>this.f.setCheckboxState(e,c.checked)))}if(e.iconPath){const c=L(this.j.getColorTheme().type)?e.iconPath.dark:e.iconPath.light??e.iconPath.dark,l=T.revive(c);t.icon.className="quick-input-tree-icon",t.icon.style.backgroundImage=x.$Y0(l)}else t.icon.style.backgroundImage="",t.icon.className=e.iconClass?`quick-input-tree-icon ${e.iconClass}`:"";const{labelHighlights:r,descriptionHighlights:m}=i.filterData||{};let u;e.description&&(u={markdown:{value:N(e.description),supportThemeIcons:!0},markdownNotSupportedFallback:e.description}),t.label.setLabel(e.label,e.description,{matches:r,descriptionMatches:m,extraClasses:e.iconClasses,italic:e.italic,strikethrough:e.strikethrough,labelEscapeNewLines:!0,descriptionTitle:u});const h=e.buttons;if(h&&h.length){const{primary:c,secondary:l}=H(h,"quick-input-tree",w=>this.b.fire({item:e,button:w}));t.actionBar.setActions(c,l),t.entry.classList.add("has-actions")}else t.actionBar.setActions([]),t.entry.classList.remove("has-actions")}disposeElement(i,s,t,n){t.toDisposeElement.clear(),t.actionBar.setActions([])}disposeTemplate(i){i.toDisposeElement.dispose(),i.toDisposeTemplate.dispose()}};$=f=y([b(5,P),b(6,B)],$);export{V as $vCb,$ as $wCb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var QuickInputTreeRenderer_1;
+import * as cssJs from "../../../../base/browser/cssValue.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { ToolBar } from "../../../../base/browser/ui/toolbar/toolbar.js";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { createToggleActionViewItemProvider, TriStateCheckbox } from "../../../../base/browser/ui/toggle/toggle.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextMenuService } from "../../../contextview/browser/contextView.js";
+import { defaultCheckboxStyles } from "../../../theme/browser/defaultStyles.js";
+import { isDark } from "../../../theme/common/theme.js";
+import { escape } from "../../../../base/common/strings.js";
+import { IThemeService } from "../../../theme/common/themeService.js";
+import { quickInputButtonsToActionArrays } from "../quickInputUtils.js";
+const $ = dom.$;
+class QuickInputCheckboxStateHandler extends Disposable {
+  static {
+    __name(this, "QuickInputCheckboxStateHandler");
+  }
+  constructor() {
+    super(...arguments);
+    this._onDidChangeCheckboxState = this._register(new Emitter());
+    this.onDidChangeCheckboxState = this._onDidChangeCheckboxState.event;
+  }
+  setCheckboxState(node, checked) {
+    this._onDidChangeCheckboxState.fire({ item: node, checked });
+  }
+}
+let QuickInputTreeRenderer = class QuickInputTreeRenderer2 extends Disposable {
+  static {
+    __name(this, "QuickInputTreeRenderer");
+  }
+  static {
+    QuickInputTreeRenderer_1 = this;
+  }
+  static {
+    this.ID = "quickInputTreeElement";
+  }
+  constructor(_hoverDelegate, _buttonTriggeredEmitter, onCheckedEvent, _checkboxStateHandler, _toggleStyles, _contextMenuService, _themeService) {
+    super();
+    this._hoverDelegate = _hoverDelegate;
+    this._buttonTriggeredEmitter = _buttonTriggeredEmitter;
+    this.onCheckedEvent = onCheckedEvent;
+    this._checkboxStateHandler = _checkboxStateHandler;
+    this._toggleStyles = _toggleStyles;
+    this._contextMenuService = _contextMenuService;
+    this._themeService = _themeService;
+    this.templateId = QuickInputTreeRenderer_1.ID;
+  }
+  renderTemplate(container) {
+    const store = new DisposableStore();
+    const entry = dom.append(container, $(".quick-input-tree-entry"));
+    const checkbox = store.add(new TriStateCheckbox("", false, { ...defaultCheckboxStyles, size: 15 }));
+    entry.appendChild(checkbox.domNode);
+    const checkboxLabel = dom.append(entry, $("label.quick-input-tree-label"));
+    const rows = dom.append(checkboxLabel, $(".quick-input-tree-rows"));
+    const row1 = dom.append(rows, $(".quick-input-tree-row"));
+    const icon = dom.prepend(row1, $(".quick-input-tree-icon"));
+    const label = store.add(new IconLabel(row1, {
+      supportHighlights: true,
+      supportDescriptionHighlights: true,
+      supportIcons: true,
+      hoverDelegate: this._hoverDelegate
+    }));
+    const actionBar = store.add(new ToolBar(entry, this._contextMenuService, {
+      actionViewItemProvider: createToggleActionViewItemProvider(this._toggleStyles),
+      hoverDelegate: this._hoverDelegate,
+      icon: true,
+      label: false
+    }));
+    actionBar.getElement().classList.add("quick-input-tree-entry-action-bar");
+    return {
+      toDisposeTemplate: store,
+      entry,
+      checkbox,
+      icon,
+      label,
+      actionBar,
+      toDisposeElement: new DisposableStore()
+    };
+  }
+  renderElement(node, _index, templateData, _details) {
+    const store = templateData.toDisposeElement;
+    const quickTreeItem = node.element;
+    if (quickTreeItem.pickable === false) {
+      templateData.checkbox.domNode.style.display = "none";
+    } else {
+      const checkbox = templateData.checkbox;
+      checkbox.domNode.style.display = "";
+      checkbox.checked = quickTreeItem.checked ?? false;
+      store.add(Event.filter(this.onCheckedEvent, (e) => e.item === quickTreeItem)((e) => checkbox.checked = e.checked));
+      if (quickTreeItem.disabled) {
+        checkbox.disable();
+      }
+      store.add(checkbox.onChange((e) => this._checkboxStateHandler.setCheckboxState(quickTreeItem, checkbox.checked)));
+    }
+    if (quickTreeItem.iconPath) {
+      const icon = isDark(this._themeService.getColorTheme().type) ? quickTreeItem.iconPath.dark : quickTreeItem.iconPath.light ?? quickTreeItem.iconPath.dark;
+      const iconUrl = URI.revive(icon);
+      templateData.icon.className = "quick-input-tree-icon";
+      templateData.icon.style.backgroundImage = cssJs.asCSSUrl(iconUrl);
+    } else {
+      templateData.icon.style.backgroundImage = "";
+      templateData.icon.className = quickTreeItem.iconClass ? `quick-input-tree-icon ${quickTreeItem.iconClass}` : "";
+    }
+    const { labelHighlights: matches, descriptionHighlights: descriptionMatches } = node.filterData || {};
+    let descriptionTitle;
+    if (quickTreeItem.description) {
+      descriptionTitle = {
+        markdown: {
+          value: escape(quickTreeItem.description),
+          supportThemeIcons: true
+        },
+        markdownNotSupportedFallback: quickTreeItem.description
+      };
+    }
+    templateData.label.setLabel(quickTreeItem.label, quickTreeItem.description, {
+      matches,
+      descriptionMatches,
+      extraClasses: quickTreeItem.iconClasses,
+      italic: quickTreeItem.italic,
+      strikethrough: quickTreeItem.strikethrough,
+      labelEscapeNewLines: true,
+      descriptionTitle
+    });
+    const buttons = quickTreeItem.buttons;
+    if (buttons && buttons.length) {
+      const { primary, secondary } = quickInputButtonsToActionArrays(buttons, "quick-input-tree", (button) => this._buttonTriggeredEmitter.fire({ item: quickTreeItem, button }));
+      templateData.actionBar.setActions(primary, secondary);
+      templateData.entry.classList.add("has-actions");
+    } else {
+      templateData.actionBar.setActions([]);
+      templateData.entry.classList.remove("has-actions");
+    }
+  }
+  disposeElement(_element, _index, templateData, _details) {
+    templateData.toDisposeElement.clear();
+    templateData.actionBar.setActions([]);
+  }
+  disposeTemplate(templateData) {
+    templateData.toDisposeElement.dispose();
+    templateData.toDisposeTemplate.dispose();
+  }
+};
+QuickInputTreeRenderer = QuickInputTreeRenderer_1 = __decorate([
+  __param(5, IContextMenuService),
+  __param(6, IThemeService)
+], QuickInputTreeRenderer);
+export {
+  QuickInputCheckboxStateHandler,
+  QuickInputTreeRenderer
+};
+//# sourceMappingURL=quickInputTreeRenderer.js.map

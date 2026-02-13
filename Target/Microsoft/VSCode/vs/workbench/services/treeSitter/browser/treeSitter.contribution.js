@@ -1,1 +1,18 @@
-import{$DK as o}from"../../../../editor/common/services/treeSitter/treeSitterLibraryService.js";import{$AK as r}from"../../../../editor/common/services/treeSitter/treeSitterThemeService.js";import{$WC as m}from"../../../../platform/instantiation/common/extensions.js";import{$ucc as f}from"./treeSitterLibraryService.js";import{$vcc as i}from"./treeSitterThemeService.js";m(o,f,0);m(r,i,0);
+import { ITreeSitterLibraryService } from "../../../../editor/common/services/treeSitter/treeSitterLibraryService.js";
+import { ITreeSitterThemeService } from "../../../../editor/common/services/treeSitter/treeSitterThemeService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { TreeSitterLibraryService } from "./treeSitterLibraryService.js";
+import { TreeSitterThemeService } from "./treeSitterThemeService.js";
+registerSingleton(
+  ITreeSitterLibraryService,
+  TreeSitterLibraryService,
+  0
+  /* InstantiationType.Eager */
+);
+registerSingleton(
+  ITreeSitterThemeService,
+  TreeSitterThemeService,
+  0
+  /* InstantiationType.Eager */
+);
+//# sourceMappingURL=treeSitter.contribution.js.map

@@ -1,1 +1,241 @@
-import{$ji as $}from"../../../../base/common/async.js";import{$Ed as g,$zd as k,$Cd as x}from"../../../../base/common/lifecycle.js";import{$o as S,$n as d,$q as f}from"../../../../base/common/platform.js";import{$Bh as v}from"../../../../base/common/resources.js";import{localize as a}from"../../../../nls.js";import{$0l as _}from"../../../../platform/configuration/common/configuration.js";import{$Mp as D}from"../../../../platform/dialogs/common/dialogs.js";import{$Vn as E}from"../../../../platform/product/common/productService.js";import{$jm as W}from"../../../../platform/registry/common/platform.js";import{$_Kb as G,$aLb as F}from"../../../../platform/userDataSync/common/userDataSync.js";import{$Ml as j}from"../../../../platform/workspace/common/workspace.js";import{Extensions as H}from"../../../common/contributions.js";import{$HP as P}from"../../../services/environment/common/environmentService.js";import{$NR as R}from"../../../services/extensions/common/extensions.js";import{$gcb as y}from"../../../services/host/browser/host.js";import{$KYb as T}from"../../../services/userDataSync/common/userDataSync.js";var m=function(h,t,n,i){var e=arguments.length,s=e<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,n):i,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,n,i);else for(var c=h.length-1;c>=0;c--)(l=h[c])&&(s=(e<3?l(s):e>3?l(t,n,s):l(t,n))||s);return e>3&&s&&Object.defineProperty(t,n,s),s},r=function(h,t){return function(n,i){t(n,i,h)}},u;let b=class extends g{static{u=this}static{this.a=["window.titleBarStyle","window.menuStyle","window.nativeTabs","window.nativeFullScreen","window.clickThroughInactive","window.controlsStyle","update.mode","editor.accessibilitySupport","security.workspace.trust.enabled","workbench.enableExperiments","_extensionsGallery.enablePPE","security.restrictUNCAccess","accessibility.verbosity.debug","telemetry.feedback.enabled","chat.extensionUnification.enabled"]}constructor(t,n,i,e,s,l,c){super(),this.z=t,this.C=n,this.F=i,this.G=e,this.H=l,this.I=c,this.b=new o("string"),this.c=new o("string"),this.f=new o("boolean"),this.g=new o("boolean"),this.h=new o("boolean"),this.j=new o("string"),this.m=new o("string"),this.q=new o("boolean"),this.r=new o("boolean"),this.s=new o("boolean"),this.t=new o("boolean"),this.u=new o("boolean"),this.w=new o("boolean"),this.y=new o("boolean"),this.M(!1),this.D(this.C.onDidChangeConfiguration(p=>this.J(p))),this.D(s.onDidTurnOnSync(p=>this.M(!0)))}J(t){t&&!u.a.some(n=>t.affectsConfiguration(n))||this.L()||this.M(t.source!==7)}L(){return!this.G.isEnabled()&&this.F.status==="syncing"}M(t){let n=!1;function i(s){n=n||s}const e=this.C.getValue();f&&(i((e.window.titleBarStyle==="native"||e.window.titleBarStyle==="custom")&&this.b.handleChange(e.window?.titleBarStyle)),i(!d&&this.c.handleChange(e.window?.menuStyle)),i(d&&this.f.handleChange(e.window?.nativeTabs)),i(d&&this.g.handleChange(e.window?.nativeFullScreen)),i(d&&this.h.handleChange(e.window?.clickThroughInactive)),i(!d&&this.j.handleChange(e.window?.controlsStyle)),i(this.m.handleChange(e.update?.mode)),S&&typeof e.editor?.accessibilitySupport=="string"&&e.editor.accessibilitySupport!==this.n&&(this.n=e.editor.accessibilitySupport,this.n==="on"&&(n=!0)),i(this.q.handleChange(e?.security?.workspace?.trust?.enabled)),i(this.t.handleChange(e?.security?.restrictUNCAccess)),i(this.u.handleChange(e?.accessibility?.verbosity?.debug))),i(this.r.handleChange(e.workbench?.enableExperiments)),i(this.H.quality!=="stable"&&this.s.handleChange(e._extensionsGallery?.enablePPE)),i(this.w.handleChange(e.telemetry?.feedback?.enabled)),i(this.y.handleChange(e.chat?.extensionUnification?.enabled)&&e.chat?.extensionUnification?.enabled===!0),t&&n&&this.z.hasFocus&&this.N(f?a(11781,null):a(11782,null),f?a(11783,null,this.H.nameLong):a(11784,null,this.H.nameLong),f?a(11785,null):a(11786,null),()=>this.z.restart())}async N(t,n,i,e){const{confirmed:s}=await this.I.confirm({message:t,detail:n,primaryButton:i});s&&e()}};b=u=m([r(0,y),r(1,_),r(2,F),r(3,G),r(4,T),r(5,E),r(6,D)],b);class o{static create(t){return new o(t)}constructor(t){this.a=t,this.b=void 0}handleChange(t){return typeof t===this.a&&t!==this.b?(this.b=t,!0):!1}}let w=class extends g{constructor(t,n,i,e){super(),this.f=t,this.b=this.D(new $(async()=>{e.extensionTestsLocationURI||(e.remoteAuthority?i.reload():f&&await n.stopExtensionHosts(a(11787,null))&&n.startExtensionHosts())},10)),this.f.getCompleteWorkspace().then(s=>{this.a=s.folders.length>0?s.folders[0].uri:void 0,this.g(),this.D(this.f.onDidChangeWorkbenchState(()=>setTimeout(()=>this.g())))}),this.D(x(()=>{this.c?.dispose()}))}g(){if(this.f.getWorkbenchState()===3){const t=this.f.getWorkspace();this.a=t.folders.length>0?t.folders[0].uri:void 0,this.c||(this.c=this.f.onDidChangeWorkspaceFolders(()=>this.h()))}else k(this.c),this.c=void 0}h(){const t=this.f.getWorkspace(),n=t.folders.length>0?t.folders[0].uri:void 0;v(this.a,n)||(this.a=n,this.b.schedule())}};w=m([r(0,j),r(1,R),r(2,y),r(3,P)],w);const C=W.as(H.Workbench);C.registerWorkbenchContribution(b,3);C.registerWorkbenchContribution(w,3);export{b as $vGc,w as $wGc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SettingsChangeRelauncher_1;
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Disposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { isLinux, isMacintosh, isNative } from "../../../../base/common/platform.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IUserDataSyncEnablementService, IUserDataSyncService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IUserDataSyncWorkbenchService } from "../../../services/userDataSync/common/userDataSync.js";
+let SettingsChangeRelauncher = class SettingsChangeRelauncher2 extends Disposable {
+  static {
+    __name(this, "SettingsChangeRelauncher");
+  }
+  static {
+    SettingsChangeRelauncher_1 = this;
+  }
+  static {
+    this.SETTINGS = [
+      "window.titleBarStyle",
+      "window.menuStyle",
+      "window.nativeTabs",
+      "window.nativeFullScreen",
+      "window.clickThroughInactive",
+      "window.controlsStyle",
+      "update.mode",
+      "editor.accessibilitySupport",
+      "security.workspace.trust.enabled",
+      "workbench.enableExperiments",
+      "_extensionsGallery.enablePPE",
+      "security.restrictUNCAccess",
+      "accessibility.verbosity.debug",
+      "telemetry.feedback.enabled",
+      "chat.extensionUnification.enabled"
+    ];
+  }
+  constructor(hostService, configurationService, userDataSyncService, userDataSyncEnablementService, userDataSyncWorkbenchService, productService, dialogService) {
+    super();
+    this.hostService = hostService;
+    this.configurationService = configurationService;
+    this.userDataSyncService = userDataSyncService;
+    this.userDataSyncEnablementService = userDataSyncEnablementService;
+    this.productService = productService;
+    this.dialogService = dialogService;
+    this.titleBarStyle = new ChangeObserver("string");
+    this.menuStyle = new ChangeObserver("string");
+    this.nativeTabs = new ChangeObserver("boolean");
+    this.nativeFullScreen = new ChangeObserver("boolean");
+    this.clickThroughInactive = new ChangeObserver("boolean");
+    this.controlsStyle = new ChangeObserver("string");
+    this.updateMode = new ChangeObserver("string");
+    this.workspaceTrustEnabled = new ChangeObserver("boolean");
+    this.experimentsEnabled = new ChangeObserver("boolean");
+    this.enablePPEExtensionsGallery = new ChangeObserver("boolean");
+    this.restrictUNCAccess = new ChangeObserver("boolean");
+    this.accessibilityVerbosityDebug = new ChangeObserver("boolean");
+    this.telemetryFeedbackEnabled = new ChangeObserver("boolean");
+    this.extensionUnificationEnabled = new ChangeObserver("boolean");
+    this.update(false);
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationChange(e)));
+    this._register(userDataSyncWorkbenchService.onDidTurnOnSync((e) => this.update(true)));
+  }
+  onConfigurationChange(e) {
+    if (e && !SettingsChangeRelauncher_1.SETTINGS.some((key) => e.affectsConfiguration(key))) {
+      return;
+    }
+    if (this.isTurningOnSyncInProgress()) {
+      return;
+    }
+    this.update(
+      e.source !== 7
+      /* ConfigurationTarget.DEFAULT */
+      /* do not ask to relaunch if defaults changed */
+    );
+  }
+  isTurningOnSyncInProgress() {
+    return !this.userDataSyncEnablementService.isEnabled() && this.userDataSyncService.status === "syncing";
+  }
+  update(askToRelaunch) {
+    let changed = false;
+    function processChanged(didChange) {
+      changed = changed || didChange;
+    }
+    __name(processChanged, "processChanged");
+    const config = this.configurationService.getValue();
+    if (isNative) {
+      processChanged((config.window.titleBarStyle === "native" || config.window.titleBarStyle === "custom") && this.titleBarStyle.handleChange(config.window?.titleBarStyle));
+      processChanged(!isMacintosh && this.menuStyle.handleChange(config.window?.menuStyle));
+      processChanged(isMacintosh && this.nativeTabs.handleChange(config.window?.nativeTabs));
+      processChanged(isMacintosh && this.nativeFullScreen.handleChange(config.window?.nativeFullScreen));
+      processChanged(isMacintosh && this.clickThroughInactive.handleChange(config.window?.clickThroughInactive));
+      processChanged(!isMacintosh && this.controlsStyle.handleChange(config.window?.controlsStyle));
+      processChanged(this.updateMode.handleChange(config.update?.mode));
+      if (isLinux && typeof config.editor?.accessibilitySupport === "string" && config.editor.accessibilitySupport !== this.accessibilitySupport) {
+        this.accessibilitySupport = config.editor.accessibilitySupport;
+        if (this.accessibilitySupport === "on") {
+          changed = true;
+        }
+      }
+      processChanged(this.workspaceTrustEnabled.handleChange(config?.security?.workspace?.trust?.enabled));
+      processChanged(this.restrictUNCAccess.handleChange(config?.security?.restrictUNCAccess));
+      processChanged(this.accessibilityVerbosityDebug.handleChange(config?.accessibility?.verbosity?.debug));
+    }
+    processChanged(this.experimentsEnabled.handleChange(config.workbench?.enableExperiments));
+    processChanged(this.productService.quality !== "stable" && this.enablePPEExtensionsGallery.handleChange(config._extensionsGallery?.enablePPE));
+    processChanged(this.telemetryFeedbackEnabled.handleChange(config.telemetry?.feedback?.enabled));
+    processChanged(this.extensionUnificationEnabled.handleChange(config.chat?.extensionUnification?.enabled) && config.chat?.extensionUnification?.enabled === true);
+    if (askToRelaunch && changed && this.hostService.hasFocus) {
+      this.doConfirm(isNative ? localize("relaunchSettingMessage", "A setting has changed that requires a restart to take effect.") : localize("relaunchSettingMessageWeb", "A setting has changed that requires a reload to take effect."), isNative ? localize("relaunchSettingDetail", "Press the restart button to restart {0} and enable the setting.", this.productService.nameLong) : localize("relaunchSettingDetailWeb", "Press the reload button to reload {0} and enable the setting.", this.productService.nameLong), isNative ? localize({ key: "restart", comment: ["&& denotes a mnemonic"] }, "&&Restart") : localize({ key: "restartWeb", comment: ["&& denotes a mnemonic"] }, "&&Reload"), () => this.hostService.restart());
+    }
+  }
+  async doConfirm(message, detail, primaryButton, confirmedFn) {
+    const { confirmed } = await this.dialogService.confirm({ message, detail, primaryButton });
+    if (confirmed) {
+      confirmedFn();
+    }
+  }
+};
+SettingsChangeRelauncher = SettingsChangeRelauncher_1 = __decorate([
+  __param(0, IHostService),
+  __param(1, IConfigurationService),
+  __param(2, IUserDataSyncService),
+  __param(3, IUserDataSyncEnablementService),
+  __param(4, IUserDataSyncWorkbenchService),
+  __param(5, IProductService),
+  __param(6, IDialogService)
+], SettingsChangeRelauncher);
+class ChangeObserver {
+  static {
+    __name(this, "ChangeObserver");
+  }
+  static create(typeName) {
+    return new ChangeObserver(typeName);
+  }
+  constructor(typeName) {
+    this.typeName = typeName;
+    this.lastValue = void 0;
+  }
+  /**
+   * Returns if there was a change compared to the last value
+   */
+  handleChange(value) {
+    if (typeof value === this.typeName && value !== this.lastValue) {
+      this.lastValue = value;
+      return true;
+    }
+    return false;
+  }
+}
+let WorkspaceChangeExtHostRelauncher = class WorkspaceChangeExtHostRelauncher2 extends Disposable {
+  static {
+    __name(this, "WorkspaceChangeExtHostRelauncher");
+  }
+  constructor(contextService, extensionService, hostService, environmentService) {
+    super();
+    this.contextService = contextService;
+    this.extensionHostRestarter = this._register(new RunOnceScheduler(async () => {
+      if (!!environmentService.extensionTestsLocationURI) {
+        return;
+      }
+      if (environmentService.remoteAuthority) {
+        hostService.reload();
+      } else if (isNative) {
+        const stopped = await extensionService.stopExtensionHosts(localize("restartExtensionHost.reason", "Changing workspace folders"));
+        if (stopped) {
+          extensionService.startExtensionHosts();
+        }
+      }
+    }, 10));
+    this.contextService.getCompleteWorkspace().then((workspace) => {
+      this.firstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : void 0;
+      this.handleWorkbenchState();
+      this._register(this.contextService.onDidChangeWorkbenchState(() => setTimeout(() => this.handleWorkbenchState())));
+    });
+    this._register(toDisposable(() => {
+      this.onDidChangeWorkspaceFoldersUnbind?.dispose();
+    }));
+  }
+  handleWorkbenchState() {
+    if (this.contextService.getWorkbenchState() === 3) {
+      const workspace = this.contextService.getWorkspace();
+      this.firstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : void 0;
+      if (!this.onDidChangeWorkspaceFoldersUnbind) {
+        this.onDidChangeWorkspaceFoldersUnbind = this.contextService.onDidChangeWorkspaceFolders(() => this.onDidChangeWorkspaceFolders());
+      }
+    } else {
+      dispose(this.onDidChangeWorkspaceFoldersUnbind);
+      this.onDidChangeWorkspaceFoldersUnbind = void 0;
+    }
+  }
+  onDidChangeWorkspaceFolders() {
+    const workspace = this.contextService.getWorkspace();
+    const newFirstFolderResource = workspace.folders.length > 0 ? workspace.folders[0].uri : void 0;
+    if (!isEqual(this.firstFolderResource, newFirstFolderResource)) {
+      this.firstFolderResource = newFirstFolderResource;
+      this.extensionHostRestarter.schedule();
+    }
+  }
+};
+WorkspaceChangeExtHostRelauncher = __decorate([
+  __param(0, IWorkspaceContextService),
+  __param(1, IExtensionService),
+  __param(2, IHostService),
+  __param(3, IWorkbenchEnvironmentService)
+], WorkspaceChangeExtHostRelauncher);
+const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchRegistry.registerWorkbenchContribution(
+  SettingsChangeRelauncher,
+  3
+  /* LifecyclePhase.Restored */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  WorkspaceChangeExtHostRelauncher,
+  3
+  /* LifecyclePhase.Restored */
+);
+export {
+  SettingsChangeRelauncher,
+  WorkspaceChangeExtHostRelauncher
+};
+//# sourceMappingURL=relauncher.contribution.js.map

@@ -1,1 +1,555 @@
-import{$ui as U,$$h as q,$ji as F}from"../../../../base/common/async.js";import{CancellationToken as E,$Jf as I}from"../../../../base/common/cancellation.js";import{$bk as L}from"../../../../base/common/codicons.js";import{Event as N}from"../../../../base/common/event.js";import{$Dd as R,$Cd as x,$Ed as Q}from"../../../../base/common/lifecycle.js";import{autorun as z,derived as j,observableValue as M}from"../../../../base/common/observable.js";import{ThemeIcon as V}from"../../../../base/common/themables.js";import{$ln as W}from"../../../../base/common/uuid.js";import{localize as w}from"../../../../nls.js";import{$6k as H,$vk as J}from"../../../../platform/files/common/files.js";import{$Mj as S}from"../../../../platform/instantiation/common/instantiation.js";import{$pH as X}from"../../../../platform/notification/common/notification.js";import{DefaultQuickAccessFilterValue as Y}from"../../../../platform/quickinput/common/quickAccess.js";import{$YH as O}from"../../../../platform/quickinput/common/quickInput.js";import{$BL as B}from"../../../services/editor/common/editorService.js";import{$gBb as C}from"../../../services/views/common/viewsService.js";import{$U4b as D}from"../../chat/browser/chat.js";import{$R4b as G}from"../../chat/browser/attachments/chatAttachmentResolveService.js";import{$JU as K,$LU as g,McpResourceURI as A}from"../common/mcpTypes.js";import{$x3b as Z}from"../common/mcpIcons.js";import{$Nrc as ee}from"./openPanelChatAndGetWidget.js";import{$Rd as te}from"../../../../base/common/linkedList.js";import{$sc as se}from"../../../../base/common/arrays.js";var P=function(h,e,t,s){var n=arguments.length,o=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(h,e,t,s);else for(var i=h.length-1;i>=0;i--)(r=h[i])&&(o=(n<3?r(o):n>3?r(e,t,o):r(e,t))||o);return n>3&&o&&Object.defineProperty(e,t,o),o},m=function(h,e){return function(t,s){e(t,s,h)}};let v=class extends Q{static sep(e){return{id:e.definition.id,type:"separator",label:e.definition.label}}addCurrentMCPQuickPickItemLevel(e,t){let s=!1;if(s=this.f.isEmpty(),!s){const n=this.f.peek();n?.server===e&&n.resources===t?s=!1:s=!0}s&&this.f.push({server:e,resources:t})}navigateBack(){const e=this.f.pop();return e?(this.g.set({server:e.server,resources:e.resources},void 0),!0):!1}static item(e){const t=e.icons.getUrl(22);return g(e)?{id:e.template.template,label:e.title||e.name,description:e.description,detail:w(10309,null,e.template.template),iconPath:t}:{id:e.uri.toString(),label:e.title||e.name,description:e.description,detail:e.mcpUri+(e.sizeInBytes!==void 0?" ("+H.formatSize(e.sizeInBytes)+")":""),iconPath:t}}constructor(e,t,s,n,o){super(),this.h=e,this.j=t,this.m=s,this.n=n,this.q=o,this.b=M(this,{picks:new Map,isBusy:!0}),this.f=new te,this.g=M(this,void 0),this.hasServersWithResources=j(r=>{let i=!1;for(const l of this.h.servers.read(r)){const a=l.capabilities.read(void 0);if(a===void 0)i=!0;else if(a&16){i=!0;break}}return i}),this.checkIfNestedResources=()=>!this.f.isEmpty()}async navigate(e,t){if(g(e))return!1;const s=e.uri;let n;try{n=await this.j.resolve(s,{resolveMetadata:!1})}catch{return!1}if(n&&this.z(e)&&(n.children?.length??0)>0){const o=this.b.get().picks.get(t);o&&this.addCurrentMCPQuickPickItemLevel(t,o);const r=n.children.map(i=>({uri:A.fromServer(t.definition,i.resource.toString()),mcpUri:i.resource.path,name:i.name,title:i.name,description:e.description,mimeType:void 0,sizeInBytes:i.size,icons:Z.fromParsed(void 0)}));return this.g.set({server:t,resources:r},void 0),!0}return!1}toAttachment(e,t){const s="noop";return this.z(e)?(this.checkIfDirectoryAndPopulate(e,t),s):g(e)?this.t(e).then(n=>n||s):this.s(e).then(n=>n||s)}async checkIfDirectoryAndPopulate(e,t){try{return!await this.navigate(e,t)}catch{return!1}}async toURI(e){if(g(e)){const t=await this.w(e);return t&&await this.u(t)}else return e.uri}async s(e){const t=await this.q.resolveImageEditorAttachContext(e.uri,void 0,e.mimeType);return t||{id:e.uri.toString(),kind:"file",name:e.name,value:e.uri}}async t(e){const t=await this.w(e),s=t&&await this.u(t);return s&&this.s({uri:s,name:e.name,mimeType:e.mimeType})}async u({uri:e,needsVerification:t}){if(!t||await this.j.exists(e))return e;this.n.warn(w(10310,null,A.toServer(e).resourceURL.toString()))}async w(e){const t=e.template.components.flatMap(i=>typeof i=="object"?i.variables:[]),s=this.m.createQuickPick(),n=new I,o={};s.totalSteps=t.length,s.ignoreFocusOut=!0;let r=!1;try{for(let i=0;i<t.length;i++){const l=t[i],a=await this.y(s,l,o,e);if(a===void 0)return;r||=!a.completed,o[t[i].name]=l.repeatable?a.value.split("/"):a.value}return{uri:e.resolveURI(o),needsVerification:r}}finally{n.dispose(!0),s.dispose()}}y(e,t,s,n){const o=new R,r=new Map([]),i={...s};for(const c of n.template.components.flatMap(u=>typeof u=="object"?u.variables:[]))i.hasOwnProperty(c.name)||(i[c.name]=`$${c.name.toUpperCase()}`);let l=w(10311,null,t.name.toUpperCase(),n.template.resolve(i).replaceAll("%24","$"));t.optional&&(l+=" ("+w(10312,null)+")"),e.placeholder=l,e.value="",e.items=[],e.show();const a=W(),d=(c,u=[])=>{const b=u.filter($=>$!==c).map($=>({id:$,label:$}));c?b.unshift({id:a,label:c}):t.optional&&b.unshift({id:a,label:w(10313,null)}),e.items=b};let f=new I;o.add(x(()=>f.dispose(!0)));const p=()=>{const c=e.value;let u=r.get(c);u||(u=n.complete(t.name,c,s,f.token),r.set(c,u)),u.then(b=>{f.token.isCancellationRequested||d(c,b)}).catch(()=>{r.delete(c)}).finally(()=>{f.token.isCancellationRequested||(e.busy=!1)})},y=o.add(new F(p,300));return new Promise(c=>{o.add(e.onDidHide(()=>c(void 0))),o.add(e.onDidAccept(()=>{const u=e.selectedItems[0];u.id===a?c({value:e.value,completed:!1}):t.explodable&&u.label.endsWith("/")&&u.label!==e.value?e.value=u.label:c({value:u.label,completed:!0})})),o.add(e.onDidChangeValue(u=>{e.busy=!0,f.dispose(!0),f=new I,y.cancel(),d(u),r.has(e.value)?p():y.schedule()})),p()}).finally(()=>o.dispose())}z(e){return e.mimeType&&e.mimeType==="inode/directory"?!0:g(e)?e.template.template.endsWith("/"):e.uri.path.endsWith("/")}getPicks(e){const t=new I(e);let s=!0;this.D(x(()=>t.dispose(!0)));let n=!0;this.D(q(()=>{n=!1,o()},5e3));const o=()=>{const i=new Map;for(const[l,a]of r){const d=[];if(i.set(l,d),a.templates.isResolved)d.push(...a.templates.value);else if(n)break;if(d.push(...a.resourcesSoFar),!a.resources.isSettled&&n)break}this.b.set({picks:i,isBusy:s},void 0)},r=new Map;return Promise.all((this.explicitServers||this.h.servers.get()).map(async i=>{let l=i.capabilities.get();const a={templates:new U,resourcesSoFar:[],resources:new U};r.set(i,a),l===void 0&&(l=await new Promise(d=>{i.start().then(f=>{(f.state===3||f.state===0)&&d(void 0)}),this.D(t.token.onCancellationRequested(()=>d(void 0))),this.D(z(f=>{const p=i.capabilities.read(f);p!==void 0&&d(p)}))})),l&&l&16?await Promise.all([a.templates.settleWith(i.resourceTemplates(t.token).catch(()=>[])).finally(o),a.resources.settleWith((async()=>{for await(const d of i.resources(t.token))a.resourcesSoFar=a.resourcesSoFar.concat(d),o()})())]):(a.templates.complete([]),a.resources.complete([]))})).finally(()=>{s=!1,o()}),j(this,i=>{const l=this.g.read(i);return l?{picks:new Map([[l.server,l.resources]]),isBusy:!1}:this.b.read(i)})}};v=P([m(0,K),m(1,J),m(2,O),m(3,X),m(4,G)],v);let k=class{constructor(e,t,s,n,o){this.b=e,this.d=t,this.f=s,this.g=n,this.h=o}j(e,t,s){e.canAcceptInBackground=!0,e.busy=!0,e.keepScrollPosition=!0;const n=new R,o="_goback_",r=w(10314,null),i=n.add(this.d.createInstance(v));this.b&&(i.explicitServers=[this.b]);const l=i.getPicks(t);return n.add(z(a=>{const d=l.read(a),f=d.isBusy,p=[];for(const[y,c]of d.picks){p.push(v.sep(y));for(const u of c){const b=v.item(u);b.buttons=[{iconClass:V.asClassName(L.attach),tooltip:r}],p.push({...b,resource:u,server:y})}}if(i.checkIfNestedResources()){const y={id:o,label:w(10315,null),alwaysShow:!0};p.push(y)}e.items=p,e.busy=f})),n.add(e.onDidTriggerItemButton(a=>{if(a.button.tooltip===r){e.busy=!0;const d=a.item,f=i.toAttachment(d.resource,d.server);f instanceof Promise&&f.then(async p=>{p!=="noop"&&(await ee(this.h,this.g))?.attachmentModel.addContext(...se(p)),e.hide()})}})),n.add(e.onDidHide(()=>{i.dispose()})),n.add(e.onDidAccept(async a=>{try{e.busy=!0;const[d]=e.selectedItems;if(d.id===o){i.navigateBack(),e.busy=!1;return}const f=d,p=f.resource;if(!await i.navigate(p,f.server)){const c=await i.toURI(p);c&&(e.hide(),this.f.openEditor({resource:c,options:{preserveFocus:a.inBackground}}))}}finally{e.busy=!1}})),n}};k=P([m(1,S),m(2,B),m(3,D),m(4,C)],k);let T=class extends k{constructor(e,t,s,n,o,r){super(e,t,s,n,o),this.k=r}async pick(e=E.None){const t=new R,s=t.add(this.k.createQuickPick({useSeparators:!0}));s.placeholder=w(10316,null),t.add(this.j(s,e)),t.add(s.onDidHide(()=>t.dispose())),s.show(),await N.toPromise(s.onDidHide)}};T=P([m(1,S),m(2,B),m(3,D),m(4,C),m(5,O)],T);let _=class extends k{static{this.PREFIX="mcpr "}constructor(e,t,s,n){super(void 0,e,t,s,n),this.defaultFilterValue=Y.LAST}provide(e,t,s){return this.j(e,t,s)}};_=P([m(0,S),m(1,B),m(2,D),m(3,C)],_);export{v as $Orc,k as $Prc,T as $Qrc,_ as $Rrc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DeferredPromise, disposableTimeout, RunOnceScheduler } from "../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore, toDisposable, Disposable } from "../../../../base/common/lifecycle.js";
+import { autorun, derived, observableValue } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { localize } from "../../../../nls.js";
+import { ByteSize, IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { DefaultQuickAccessFilterValue } from "../../../../platform/quickinput/common/quickAccess.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IChatWidgetService } from "../../chat/browser/chat.js";
+import { IChatAttachmentResolveService } from "../../chat/browser/attachments/chatAttachmentResolveService.js";
+import { IMcpService, isMcpResourceTemplate, McpResourceURI } from "../common/mcpTypes.js";
+import { McpIcons } from "../common/mcpIcons.js";
+import { openPanelChatAndGetWidget } from "./openPanelChatAndGetWidget.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
+import { asArray } from "../../../../base/common/arrays.js";
+let McpResourcePickHelper = class McpResourcePickHelper2 extends Disposable {
+  static {
+    __name(this, "McpResourcePickHelper");
+  }
+  static sep(server) {
+    return {
+      id: server.definition.id,
+      type: "separator",
+      label: server.definition.label
+    };
+  }
+  addCurrentMCPQuickPickItemLevel(server, resources) {
+    let isValidPush = false;
+    isValidPush = this._pickItemsStack.isEmpty();
+    if (!isValidPush) {
+      const stackedItem = this._pickItemsStack.peek();
+      if (stackedItem?.server === server && stackedItem.resources === resources) {
+        isValidPush = false;
+      } else {
+        isValidPush = true;
+      }
+    }
+    if (isValidPush) {
+      this._pickItemsStack.push({ server, resources });
+    }
+  }
+  navigateBack() {
+    const items = this._pickItemsStack.pop();
+    if (items) {
+      this._inDirectory.set({ server: items.server, resources: items.resources }, void 0);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  static item(resource) {
+    const iconPath = resource.icons.getUrl(22);
+    if (isMcpResourceTemplate(resource)) {
+      return {
+        id: resource.template.template,
+        label: resource.title || resource.name,
+        description: resource.description,
+        detail: localize("mcp.resource.template", "Resource template: {0}", resource.template.template),
+        iconPath
+      };
+    }
+    return {
+      id: resource.uri.toString(),
+      label: resource.title || resource.name,
+      description: resource.description,
+      detail: resource.mcpUri + (resource.sizeInBytes !== void 0 ? " (" + ByteSize.formatSize(resource.sizeInBytes) + ")" : ""),
+      iconPath
+    };
+  }
+  constructor(_mcpService, _fileService, _quickInputService, _notificationService, _chatAttachmentResolveService) {
+    super();
+    this._mcpService = _mcpService;
+    this._fileService = _fileService;
+    this._quickInputService = _quickInputService;
+    this._notificationService = _notificationService;
+    this._chatAttachmentResolveService = _chatAttachmentResolveService;
+    this._resources = observableValue(this, { picks: /* @__PURE__ */ new Map(), isBusy: true });
+    this._pickItemsStack = new LinkedList();
+    this._inDirectory = observableValue(this, void 0);
+    this.hasServersWithResources = derived((reader) => {
+      let enabled = false;
+      for (const server of this._mcpService.servers.read(reader)) {
+        const cap = server.capabilities.read(void 0);
+        if (cap === void 0) {
+          enabled = true;
+        } else if (cap & 16) {
+          enabled = true;
+          break;
+        }
+      }
+      return enabled;
+    });
+    this.checkIfNestedResources = () => !this._pickItemsStack.isEmpty();
+  }
+  /**
+   * Navigate to a resource if it's a directory.
+   * Returns true if the resource is a directory with children (navigation succeeded).
+   * Returns false if the resource is a leaf file (no navigation).
+   * When returning true, statefully updates the picker state to display directory contents.
+   */
+  async navigate(resource, server) {
+    if (isMcpResourceTemplate(resource)) {
+      return false;
+    }
+    const uri = resource.uri;
+    let stat = void 0;
+    try {
+      stat = await this._fileService.resolve(uri, { resolveMetadata: false });
+    } catch (e) {
+      return false;
+    }
+    if (stat && this._isDirectoryResource(resource) && (stat.children?.length ?? 0) > 0) {
+      const currentResources = this._resources.get().picks.get(server);
+      if (currentResources) {
+        this.addCurrentMCPQuickPickItemLevel(server, currentResources);
+      }
+      const childResources = stat.children.map((child) => {
+        const mcpUri = McpResourceURI.fromServer(server.definition, child.resource.toString());
+        return {
+          uri: mcpUri,
+          mcpUri: child.resource.path,
+          name: child.name,
+          title: child.name,
+          description: resource.description,
+          mimeType: void 0,
+          sizeInBytes: child.size,
+          icons: McpIcons.fromParsed(void 0)
+        };
+      });
+      this._inDirectory.set({ server, resources: childResources }, void 0);
+      return true;
+    }
+    return false;
+  }
+  toAttachment(resource, server) {
+    const noop = "noop";
+    if (this._isDirectoryResource(resource)) {
+      this.checkIfDirectoryAndPopulate(resource, server);
+      return noop;
+    }
+    if (isMcpResourceTemplate(resource)) {
+      return this._resourceTemplateToAttachment(resource).then((val) => val || noop);
+    } else {
+      return this._resourceToAttachment(resource).then((val) => val || noop);
+    }
+  }
+  async checkIfDirectoryAndPopulate(resource, server) {
+    try {
+      return !await this.navigate(resource, server);
+    } catch (error) {
+      return false;
+    }
+  }
+  async toURI(resource) {
+    if (isMcpResourceTemplate(resource)) {
+      const maybeUri = await this._resourceTemplateToURI(resource);
+      return maybeUri && await this._verifyUriIfNeeded(maybeUri);
+    } else {
+      return resource.uri;
+    }
+  }
+  async _resourceToAttachment(resource) {
+    const asImage = await this._chatAttachmentResolveService.resolveImageEditorAttachContext(resource.uri, void 0, resource.mimeType);
+    if (asImage) {
+      return asImage;
+    }
+    return {
+      id: resource.uri.toString(),
+      kind: "file",
+      name: resource.name,
+      value: resource.uri
+    };
+  }
+  async _resourceTemplateToAttachment(rt) {
+    const maybeUri = await this._resourceTemplateToURI(rt);
+    const uri = maybeUri && await this._verifyUriIfNeeded(maybeUri);
+    return uri && this._resourceToAttachment({
+      uri,
+      name: rt.name,
+      mimeType: rt.mimeType
+    });
+  }
+  async _verifyUriIfNeeded({ uri, needsVerification }) {
+    if (!needsVerification) {
+      return uri;
+    }
+    const exists = await this._fileService.exists(uri);
+    if (exists) {
+      return uri;
+    }
+    this._notificationService.warn(localize("mcp.resource.template.notFound", "The resource {0} was not found.", McpResourceURI.toServer(uri).resourceURL.toString()));
+    return void 0;
+  }
+  async _resourceTemplateToURI(rt) {
+    const todo = rt.template.components.flatMap((c) => typeof c === "object" ? c.variables : []);
+    const quickInput = this._quickInputService.createQuickPick();
+    const cts = new CancellationTokenSource();
+    const vars = {};
+    quickInput.totalSteps = todo.length;
+    quickInput.ignoreFocusOut = true;
+    let needsVerification = false;
+    try {
+      for (let i = 0; i < todo.length; i++) {
+        const variable = todo[i];
+        const resolved = await this._promptForTemplateValue(quickInput, variable, vars, rt);
+        if (resolved === void 0) {
+          return void 0;
+        }
+        needsVerification ||= !resolved.completed;
+        vars[todo[i].name] = variable.repeatable ? resolved.value.split("/") : resolved.value;
+      }
+      return { uri: rt.resolveURI(vars), needsVerification };
+    } finally {
+      cts.dispose(true);
+      quickInput.dispose();
+    }
+  }
+  _promptForTemplateValue(input, variable, variablesSoFar, rt) {
+    const store = new DisposableStore();
+    const completions = /* @__PURE__ */ new Map([]);
+    const variablesWithPlaceholders = { ...variablesSoFar };
+    for (const variable2 of rt.template.components.flatMap((c) => typeof c === "object" ? c.variables : [])) {
+      if (!variablesWithPlaceholders.hasOwnProperty(variable2.name)) {
+        variablesWithPlaceholders[variable2.name] = `$${variable2.name.toUpperCase()}`;
+      }
+    }
+    let placeholder = localize("mcp.resource.template.placeholder", "Value for ${0} in {1}", variable.name.toUpperCase(), rt.template.resolve(variablesWithPlaceholders).replaceAll("%24", "$"));
+    if (variable.optional) {
+      placeholder += " (" + localize("mcp.resource.template.optional", "Optional") + ")";
+    }
+    input.placeholder = placeholder;
+    input.value = "";
+    input.items = [];
+    input.show();
+    const currentID = generateUuid();
+    const setItems = /* @__PURE__ */ __name((value, completed = []) => {
+      const items = completed.filter((c) => c !== value).map((c) => ({ id: c, label: c }));
+      if (value) {
+        items.unshift({ id: currentID, label: value });
+      } else if (variable.optional) {
+        items.unshift({ id: currentID, label: localize("mcp.resource.template.empty", "<Empty>") });
+      }
+      input.items = items;
+    }, "setItems");
+    let changeCancellation = new CancellationTokenSource();
+    store.add(toDisposable(() => changeCancellation.dispose(true)));
+    const getCompletionItems = /* @__PURE__ */ __name(() => {
+      const inputValue = input.value;
+      let promise = completions.get(inputValue);
+      if (!promise) {
+        promise = rt.complete(variable.name, inputValue, variablesSoFar, changeCancellation.token);
+        completions.set(inputValue, promise);
+      }
+      promise.then((values) => {
+        if (!changeCancellation.token.isCancellationRequested) {
+          setItems(inputValue, values);
+        }
+      }).catch(() => {
+        completions.delete(inputValue);
+      }).finally(() => {
+        if (!changeCancellation.token.isCancellationRequested) {
+          input.busy = false;
+        }
+      });
+    }, "getCompletionItems");
+    const getCompletionItemsScheduler = store.add(new RunOnceScheduler(getCompletionItems, 300));
+    return new Promise((resolve) => {
+      store.add(input.onDidHide(() => resolve(void 0)));
+      store.add(input.onDidAccept(() => {
+        const item = input.selectedItems[0];
+        if (item.id === currentID) {
+          resolve({ value: input.value, completed: false });
+        } else if (variable.explodable && item.label.endsWith("/") && item.label !== input.value) {
+          input.value = item.label;
+        } else {
+          resolve({ value: item.label, completed: true });
+        }
+      }));
+      store.add(input.onDidChangeValue((value) => {
+        input.busy = true;
+        changeCancellation.dispose(true);
+        changeCancellation = new CancellationTokenSource();
+        getCompletionItemsScheduler.cancel();
+        setItems(value);
+        if (completions.has(input.value)) {
+          getCompletionItems();
+        } else {
+          getCompletionItemsScheduler.schedule();
+        }
+      }));
+      getCompletionItems();
+    }).finally(() => store.dispose());
+  }
+  _isDirectoryResource(resource) {
+    if (resource.mimeType && resource.mimeType === "inode/directory") {
+      return true;
+    } else if (isMcpResourceTemplate(resource)) {
+      return resource.template.template.endsWith("/");
+    } else {
+      return resource.uri.path.endsWith("/");
+    }
+  }
+  getPicks(token) {
+    const cts = new CancellationTokenSource(token);
+    let isBusyLoadingPicks = true;
+    this._register(toDisposable(() => cts.dispose(true)));
+    let showInSequence = true;
+    this._register(disposableTimeout(() => {
+      showInSequence = false;
+      publish();
+    }, 5e3));
+    const publish = /* @__PURE__ */ __name(() => {
+      const output = /* @__PURE__ */ new Map();
+      for (const [server, rec] of servers) {
+        const r = [];
+        output.set(server, r);
+        if (rec.templates.isResolved) {
+          r.push(...rec.templates.value);
+        } else if (showInSequence) {
+          break;
+        }
+        r.push(...rec.resourcesSoFar);
+        if (!rec.resources.isSettled && showInSequence) {
+          break;
+        }
+      }
+      this._resources.set({ picks: output, isBusy: isBusyLoadingPicks }, void 0);
+    }, "publish");
+    const servers = /* @__PURE__ */ new Map();
+    Promise.all((this.explicitServers || this._mcpService.servers.get()).map(async (server) => {
+      let cap = server.capabilities.get();
+      const rec = {
+        templates: new DeferredPromise(),
+        resourcesSoFar: [],
+        resources: new DeferredPromise()
+      };
+      servers.set(server, rec);
+      if (cap === void 0) {
+        cap = await new Promise((resolve) => {
+          server.start().then((state) => {
+            if (state.state === 3 || state.state === 0) {
+              resolve(void 0);
+            }
+          });
+          this._register(cts.token.onCancellationRequested(() => resolve(void 0)));
+          this._register(autorun((reader) => {
+            const cap2 = server.capabilities.read(reader);
+            if (cap2 !== void 0) {
+              resolve(cap2);
+            }
+          }));
+        });
+      }
+      if (cap && cap & 16) {
+        await Promise.all([
+          rec.templates.settleWith(server.resourceTemplates(cts.token).catch(() => [])).finally(publish),
+          rec.resources.settleWith((async () => {
+            for await (const page of server.resources(cts.token)) {
+              rec.resourcesSoFar = rec.resourcesSoFar.concat(page);
+              publish();
+            }
+          })())
+        ]);
+      } else {
+        rec.templates.complete([]);
+        rec.resources.complete([]);
+      }
+    })).finally(() => {
+      isBusyLoadingPicks = false;
+      publish();
+    });
+    return derived(this, (reader) => {
+      const directoryResource = this._inDirectory.read(reader);
+      return directoryResource ? { picks: /* @__PURE__ */ new Map([[directoryResource.server, directoryResource.resources]]), isBusy: false } : this._resources.read(reader);
+    });
+  }
+};
+McpResourcePickHelper = __decorate([
+  __param(0, IMcpService),
+  __param(1, IFileService),
+  __param(2, IQuickInputService),
+  __param(3, INotificationService),
+  __param(4, IChatAttachmentResolveService)
+], McpResourcePickHelper);
+let AbstractMcpResourceAccessPick = class AbstractMcpResourceAccessPick2 {
+  static {
+    __name(this, "AbstractMcpResourceAccessPick");
+  }
+  constructor(_scopeTo, _instantiationService, _editorService, _chatWidgetService, _viewsService) {
+    this._scopeTo = _scopeTo;
+    this._instantiationService = _instantiationService;
+    this._editorService = _editorService;
+    this._chatWidgetService = _chatWidgetService;
+    this._viewsService = _viewsService;
+  }
+  applyToPick(picker, token, runOptions) {
+    picker.canAcceptInBackground = true;
+    picker.busy = true;
+    picker.keepScrollPosition = true;
+    const store = new DisposableStore();
+    const goBackId = "_goback_";
+    const attachButton = localize("mcp.quickaccess.attach", "Attach to chat");
+    const helper = store.add(this._instantiationService.createInstance(McpResourcePickHelper));
+    if (this._scopeTo) {
+      helper.explicitServers = [this._scopeTo];
+    }
+    const picksObservable = helper.getPicks(token);
+    store.add(autorun((reader) => {
+      const pickItems = picksObservable.read(reader);
+      const isBusy = pickItems.isBusy;
+      const items = [];
+      for (const [server, resources] of pickItems.picks) {
+        items.push(McpResourcePickHelper.sep(server));
+        for (const resource of resources) {
+          const pickItem = McpResourcePickHelper.item(resource);
+          pickItem.buttons = [{ iconClass: ThemeIcon.asClassName(Codicon.attach), tooltip: attachButton }];
+          items.push({ ...pickItem, resource, server });
+        }
+      }
+      if (helper.checkIfNestedResources()) {
+        const goBackItem = {
+          id: goBackId,
+          label: localize("goBack", "Go back \u21A9"),
+          alwaysShow: true
+        };
+        items.push(goBackItem);
+      }
+      picker.items = items;
+      picker.busy = isBusy;
+    }));
+    store.add(picker.onDidTriggerItemButton((event) => {
+      if (event.button.tooltip === attachButton) {
+        picker.busy = true;
+        const resourceItem = event.item;
+        const attachment = helper.toAttachment(resourceItem.resource, resourceItem.server);
+        if (attachment instanceof Promise) {
+          attachment.then(async (a) => {
+            if (a !== "noop") {
+              const widget = await openPanelChatAndGetWidget(this._viewsService, this._chatWidgetService);
+              widget?.attachmentModel.addContext(...asArray(a));
+            }
+            picker.hide();
+          });
+        }
+      }
+    }));
+    store.add(picker.onDidHide(() => {
+      helper.dispose();
+    }));
+    store.add(picker.onDidAccept(async (event) => {
+      try {
+        picker.busy = true;
+        const [item] = picker.selectedItems;
+        if (item.id === goBackId) {
+          helper.navigateBack();
+          picker.busy = false;
+          return;
+        }
+        const resourceItem = item;
+        const resource = resourceItem.resource;
+        const isNested = await helper.navigate(resource, resourceItem.server);
+        if (!isNested) {
+          const uri = await helper.toURI(resource);
+          if (uri) {
+            picker.hide();
+            this._editorService.openEditor({ resource: uri, options: { preserveFocus: event.inBackground } });
+          }
+        }
+      } finally {
+        picker.busy = false;
+      }
+    }));
+    return store;
+  }
+};
+AbstractMcpResourceAccessPick = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IEditorService),
+  __param(3, IChatWidgetService),
+  __param(4, IViewsService)
+], AbstractMcpResourceAccessPick);
+let McpResourceQuickPick = class McpResourceQuickPick2 extends AbstractMcpResourceAccessPick {
+  static {
+    __name(this, "McpResourceQuickPick");
+  }
+  constructor(scopeTo, instantiationService, editorService, chatWidgetService, viewsService, _quickInputService) {
+    super(scopeTo, instantiationService, editorService, chatWidgetService, viewsService);
+    this._quickInputService = _quickInputService;
+  }
+  async pick(token = CancellationToken.None) {
+    const store = new DisposableStore();
+    const qp = store.add(this._quickInputService.createQuickPick({ useSeparators: true }));
+    qp.placeholder = localize("mcp.quickaccess.placeholder", "Search for resources");
+    store.add(this.applyToPick(qp, token));
+    store.add(qp.onDidHide(() => store.dispose()));
+    qp.show();
+    await Event.toPromise(qp.onDidHide);
+  }
+};
+McpResourceQuickPick = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IEditorService),
+  __param(3, IChatWidgetService),
+  __param(4, IViewsService),
+  __param(5, IQuickInputService)
+], McpResourceQuickPick);
+let McpResourceQuickAccess = class McpResourceQuickAccess2 extends AbstractMcpResourceAccessPick {
+  static {
+    __name(this, "McpResourceQuickAccess");
+  }
+  static {
+    this.PREFIX = "mcpr ";
+  }
+  constructor(instantiationService, editorService, chatWidgetService, viewsService) {
+    super(void 0, instantiationService, editorService, chatWidgetService, viewsService);
+    this.defaultFilterValue = DefaultQuickAccessFilterValue.LAST;
+  }
+  provide(picker, token, runOptions) {
+    return this.applyToPick(picker, token, runOptions);
+  }
+};
+McpResourceQuickAccess = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IEditorService),
+  __param(2, IChatWidgetService),
+  __param(3, IViewsService)
+], McpResourceQuickAccess);
+export {
+  AbstractMcpResourceAccessPick,
+  McpResourcePickHelper,
+  McpResourceQuickAccess,
+  McpResourceQuickPick
+};
+//# sourceMappingURL=mcpResourceQuickAccess.js.map

@@ -1,1 +1,182 @@
-import"./media/scm.css";import{$Dd as T,$Bd as x}from"../../../../base/common/lifecycle.js";import{autorun as $,observableSignalFromEvent as L}from"../../../../base/common/observable.js";import{$y9 as y,$ as g}from"../../../../base/browser/dom.js";import{$nR as S}from"../common/scm.js";import{$v_ as M}from"../../../../base/browser/ui/countBadge/countBadge.js";import{$ijb as P}from"../../../../platform/contextview/browser/contextView.js";import{$uo as R}from"../../../../platform/commands/common/commands.js";import{$Gm as j}from"../../../../base/common/actions.js";import{$EXb as D,$JXb as A,$rXb as V,$GXb as B}from"./util.js";import{$Vjb as N}from"../../../../platform/theme/browser/defaultStyles.js";import{$hkb as X}from"../../../../platform/actions/browser/toolbar.js";import{$rL as O,$qL as E,$uL as q}from"../../../../platform/actions/common/actions.js";import{$ro as G}from"../../../../platform/contextkey/common/contextkey.js";import{$fy as H}from"../../../../platform/keybinding/common/keybinding.js";import{$pp as W}from"../../../../platform/telemetry/common/telemetry.js";import{$L_ as k}from"../../../../base/browser/ui/iconLabel/iconLabel.js";import{ThemeIcon as C}from"../../../../base/common/themables.js";import{$$o as F}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$Sm as J}from"../../../../base/common/labels.js";import{$Hh as z}from"../../../../base/common/resources.js";import{$oH as K}from"../../../../platform/label/common/label.js";import{$bk as _}from"../../../../base/common/codicons.js";var U=function(c,o,r,i){var e=arguments.length,t=e<3?o:i===null?i=Object.getOwnPropertyDescriptor(o,r):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,o,r,i);else for(var d=c.length-1;d>=0;d--)(s=c[d])&&(t=(e<3?s(t):e>3?s(o,r,t):s(o,r))||t);return e>3&&t&&Object.defineProperty(o,r,t),t},m=function(c,o){return function(r,i){o(r,i,c)}},w;class ge extends j{constructor(o){super(),this.a=o}async u(o,r){if(!(o instanceof q))return super.u(o,r);const i=[r],e=this.a().map(t=>t.provider);e.some(t=>t===r)&&i.push(...e.filter(t=>t!==r)),await o.run(...i)}}let I=class{static{w=this}static{this.TEMPLATE_ID="repository"}get templateId(){return w.TEMPLATE_ID}constructor(o,r,i,e,t,s,d,a,h,f,u){this.b=o,this.d=r,this.f=i,this.g=e,this.h=t,this.i=s,this.j=d,this.k=a,this.l=h,this.m=f,this.n=u,this.a=L(this,this.l.onDidChangeVisibleRepositories)}renderTemplate(o){const r=y(o,g(".scm-provider")),i=y(r,g(".icon")),e=new k(r,{supportIcons:!1}),t=y(r,g(".actions")),s=new X(t,{actionViewItemProvider:this.d,resetMenu:this.b,responsiveBehavior:{enabled:!0,kind:"all",minItems:2}},this.k,this.g,this.h,this.i,this.f,this.m),d=y(r,g(".count")),a=new M(d,{},N),h=s.onDidChangeDropdownVisibility(u=>r.classList.toggle("active",u)),f=x(e,h,s);return{icon:i,label:e,countContainer:d,count:a,toolBar:s,elementDisposables:new T,templateDisposable:f}}renderElement(o,r,i){const e=V(o)?o:o.element;i.elementDisposables.add($(n=>{this.a.read(n);const p=this.l.isVisible(e),l=C.isThemeIcon(e.provider.iconPath)?e.provider.iconPath:_.repo,v=l.id===_.repo.id&&p&&this.l.repositories.length>1;i.icon.className=v?`icon ${C.asClassName(_.repoSelected)}`:`icon ${C.asClassName(l)}`}));let t;if(e.provider.rootUri){const n=this.l.repositories.filter(l=>l.provider.rootUri!==void 0&&this.n.extUri.isEqual(l.provider.rootUri,e.provider.rootUri)),p=this.l.repositories.filter(l=>l.provider.rootUri!==void 0&&l.provider.name===e.provider.name);if(n.length>1)t=e.provider.label;else if(p.length>1){const l=p.findIndex(b=>b===e);t=J(p.map(b=>this.j.getUriLabel(z(b.provider.rootUri),{relative:!0})))[l]}}let s;if(this.l.explorerEnabledConfig.get()===!1)s=e.provider.name;else{const n=this.l.repositories.find(p=>p.provider.id===e.provider.parentId);s=n?`${n.provider.name} / ${e.provider.name}`:e.provider.name}const d=e.provider.rootUri?`${e.provider.label}: ${this.j.getUriLabel(e.provider.rootUri)}`:e.provider.label;i.label.setLabel(s,t,{title:d});let a=[],h=[],f=[];const u=()=>{i.toolBar.setActions([...a,...h],f)};i.elementDisposables.add($(n=>{a=(e.provider.statusBarCommands.read(n)??[]).map(l=>n.store.add(new B(l,this.f))),u()})),i.elementDisposables.add($(n=>{const p=e.provider.count.read(n)??A(e.provider);i.countContainer.setAttribute("data-count",String(p)),i.count.setCount(p)})),i.elementDisposables.add($(n=>{e.provider.contextValue.read(n);const p=this.l.menus.getRepositoryMenus(e.provider),l=this.b===E.SCMTitle?p.titleMenu.menu:p.getRepositoryMenu(e);n.store.add(D(l,(v,b)=>{h=v,f=b,u()},this.b===E.SCMTitle?"navigation":"inline"))})),i.toolBar.context=e.provider}renderCompressedElements(){throw new Error("Should never happen since node is incompressible")}disposeElement(o,r,i){i.elementDisposables.clear()}disposeTemplate(o){o.elementDisposables.dispose(),o.templateDisposable.dispose(),o.count.dispose()}};I=w=U([m(2,R),m(3,G),m(4,P),m(5,H),m(6,K),m(7,O),m(8,S),m(9,W),m(10,F)],I);export{ge as $xyc,I as $yyc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var RepositoryRenderer_1;
+import "./media/scm.css";
+import { DisposableStore, combinedDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, observableSignalFromEvent } from "../../../../base/common/observable.js";
+import { append, $ } from "../../../../base/browser/dom.js";
+import { ISCMViewService } from "../common/scm.js";
+import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ActionRunner } from "../../../../base/common/actions.js";
+import { connectPrimaryMenu, getRepositoryResourceCount, isSCMRepository, StatusBarAction } from "./util.js";
+import { defaultCountBadgeStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IconLabel } from "../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { shorten } from "../../../../base/common/labels.js";
+import { dirname } from "../../../../base/common/resources.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+class RepositoryActionRunner extends ActionRunner {
+  static {
+    __name(this, "RepositoryActionRunner");
+  }
+  constructor(getSelectedRepositories) {
+    super();
+    this.getSelectedRepositories = getSelectedRepositories;
+  }
+  async runAction(action, context) {
+    if (!(action instanceof MenuItemAction)) {
+      return super.runAction(action, context);
+    }
+    const actionContext = [context];
+    const selection = this.getSelectedRepositories().map((r) => r.provider);
+    if (selection.some((s) => s === context)) {
+      actionContext.push(...selection.filter((s) => s !== context));
+    }
+    await action.run(...actionContext);
+  }
+}
+let RepositoryRenderer = class RepositoryRenderer2 {
+  static {
+    __name(this, "RepositoryRenderer");
+  }
+  static {
+    RepositoryRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "repository";
+  }
+  get templateId() {
+    return RepositoryRenderer_1.TEMPLATE_ID;
+  }
+  constructor(toolbarMenuId, actionViewItemProvider, commandService, contextKeyService, contextMenuService, keybindingService, labelService, menuService, scmViewService, telemetryService, uriIdentityService) {
+    this.toolbarMenuId = toolbarMenuId;
+    this.actionViewItemProvider = actionViewItemProvider;
+    this.commandService = commandService;
+    this.contextKeyService = contextKeyService;
+    this.contextMenuService = contextMenuService;
+    this.keybindingService = keybindingService;
+    this.labelService = labelService;
+    this.menuService = menuService;
+    this.scmViewService = scmViewService;
+    this.telemetryService = telemetryService;
+    this.uriIdentityService = uriIdentityService;
+    this.onDidChangeVisibleRepositoriesSignal = observableSignalFromEvent(this, this.scmViewService.onDidChangeVisibleRepositories);
+  }
+  renderTemplate(container) {
+    const provider = append(container, $(".scm-provider"));
+    const icon = append(provider, $(".icon"));
+    const label = new IconLabel(provider, { supportIcons: false });
+    const actions = append(provider, $(".actions"));
+    const toolBar = new WorkbenchToolBar(actions, { actionViewItemProvider: this.actionViewItemProvider, resetMenu: this.toolbarMenuId, responsiveBehavior: { enabled: true, kind: "all", minItems: 2 } }, this.menuService, this.contextKeyService, this.contextMenuService, this.keybindingService, this.commandService, this.telemetryService);
+    const countContainer = append(provider, $(".count"));
+    const count = new CountBadge(countContainer, {}, defaultCountBadgeStyles);
+    const visibilityDisposable = toolBar.onDidChangeDropdownVisibility((e) => provider.classList.toggle("active", e));
+    const templateDisposable = combinedDisposable(label, visibilityDisposable, toolBar);
+    return { icon, label, countContainer, count, toolBar, elementDisposables: new DisposableStore(), templateDisposable };
+  }
+  renderElement(arg, index, templateData) {
+    const repository = isSCMRepository(arg) ? arg : arg.element;
+    templateData.elementDisposables.add(autorun((reader) => {
+      this.onDidChangeVisibleRepositoriesSignal.read(reader);
+      const isVisible = this.scmViewService.isVisible(repository);
+      const icon = ThemeIcon.isThemeIcon(repository.provider.iconPath) ? repository.provider.iconPath : Codicon.repo;
+      const showSelectedIcon = icon.id === Codicon.repo.id && isVisible && this.scmViewService.repositories.length > 1;
+      templateData.icon.className = showSelectedIcon ? `icon ${ThemeIcon.asClassName(Codicon.repoSelected)}` : `icon ${ThemeIcon.asClassName(icon)}`;
+    }));
+    let description = void 0;
+    if (repository.provider.rootUri) {
+      const repositoriesWithRootUri = this.scmViewService.repositories.filter((r) => r.provider.rootUri !== void 0 && this.uriIdentityService.extUri.isEqual(r.provider.rootUri, repository.provider.rootUri));
+      const repositoriesWithSameName = this.scmViewService.repositories.filter((r) => r.provider.rootUri !== void 0 && r.provider.name === repository.provider.name);
+      if (repositoriesWithRootUri.length > 1) {
+        description = repository.provider.label;
+      } else if (repositoriesWithSameName.length > 1) {
+        const repositoryIndex = repositoriesWithSameName.findIndex((r) => r === repository);
+        const shortDescription = shorten(repositoriesWithSameName.map((r) => this.labelService.getUriLabel(dirname(r.provider.rootUri), { relative: true })));
+        description = shortDescription[repositoryIndex];
+      }
+    }
+    let label;
+    if (this.scmViewService.explorerEnabledConfig.get() === false) {
+      label = repository.provider.name;
+    } else {
+      const parentRepository = this.scmViewService.repositories.find((r) => r.provider.id === repository.provider.parentId);
+      label = parentRepository ? `${parentRepository.provider.name} / ${repository.provider.name}` : repository.provider.name;
+    }
+    const title = repository.provider.rootUri ? `${repository.provider.label}: ${this.labelService.getUriLabel(repository.provider.rootUri)}` : repository.provider.label;
+    templateData.label.setLabel(label, description, { title });
+    let statusPrimaryActions = [];
+    let menuPrimaryActions = [];
+    let menuSecondaryActions = [];
+    const updateToolbar = /* @__PURE__ */ __name(() => {
+      templateData.toolBar.setActions([...statusPrimaryActions, ...menuPrimaryActions], menuSecondaryActions);
+    }, "updateToolbar");
+    templateData.elementDisposables.add(autorun((reader) => {
+      const commands = repository.provider.statusBarCommands.read(reader) ?? [];
+      statusPrimaryActions = commands.map((c) => reader.store.add(new StatusBarAction(c, this.commandService)));
+      updateToolbar();
+    }));
+    templateData.elementDisposables.add(autorun((reader) => {
+      const count = repository.provider.count.read(reader) ?? getRepositoryResourceCount(repository.provider);
+      templateData.countContainer.setAttribute("data-count", String(count));
+      templateData.count.setCount(count);
+    }));
+    templateData.elementDisposables.add(autorun((reader) => {
+      repository.provider.contextValue.read(reader);
+      const repositoryMenus = this.scmViewService.menus.getRepositoryMenus(repository.provider);
+      const menu = this.toolbarMenuId === MenuId.SCMTitle ? repositoryMenus.titleMenu.menu : repositoryMenus.getRepositoryMenu(repository);
+      reader.store.add(connectPrimaryMenu(menu, (primary, secondary) => {
+        menuPrimaryActions = primary;
+        menuSecondaryActions = secondary;
+        updateToolbar();
+      }, this.toolbarMenuId === MenuId.SCMTitle ? "navigation" : "inline"));
+    }));
+    templateData.toolBar.context = repository.provider;
+  }
+  renderCompressedElements() {
+    throw new Error("Should never happen since node is incompressible");
+  }
+  disposeElement(group, index, template) {
+    template.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+    templateData.templateDisposable.dispose();
+    templateData.count.dispose();
+  }
+};
+RepositoryRenderer = RepositoryRenderer_1 = __decorate([
+  __param(2, ICommandService),
+  __param(3, IContextKeyService),
+  __param(4, IContextMenuService),
+  __param(5, IKeybindingService),
+  __param(6, ILabelService),
+  __param(7, IMenuService),
+  __param(8, ISCMViewService),
+  __param(9, ITelemetryService),
+  __param(10, IUriIdentityService)
+], RepositoryRenderer);
+export {
+  RepositoryActionRunner,
+  RepositoryRenderer
+};
+//# sourceMappingURL=scmRepositoryRenderer.js.map

@@ -1,1 +1,4 @@
-import{$$5 as m}from"../../../../platform/languagePacks/common/languagePacks.js";import{$YPc as o}from"../../../../platform/ipc/electron-browser/services.js";o(m,"languagePacks");
+import { ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
+import { registerSharedProcessRemoteService } from "../../../../platform/ipc/electron-browser/services.js";
+registerSharedProcessRemoteService(ILanguagePackService, "languagePacks");
+//# sourceMappingURL=languagePackService.js.map

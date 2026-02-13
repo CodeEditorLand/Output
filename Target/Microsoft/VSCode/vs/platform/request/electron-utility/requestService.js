@@ -1,1 +1,42 @@
-import{net as m}from"electron";import{$OC as l}from"../node/requestService.js";import{$0l as a}from"../../configuration/common/configuration.js";import{$Ll as R}from"../../environment/common/environment.js";import{$yo as _}from"../../log/common/log.js";var s=function(n,e,r,t){var u=arguments.length,o=u<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,r,t);else for(var f=n.length-1;f>=0;f--)(i=n[f])&&(o=(u<3?i(o):u>3?i(e,r,o):i(e,r))||o);return u>3&&o&&Object.defineProperty(e,r,o),o},c=function(n,e){return function(r,t){e(r,t,n)}};function h(n){return m.request}let p=class extends l{constructor(e,r,t){super("local",e,r,t)}request(e,r){return super.request({...e||{},getRawRequest:h,isChromiumNetwork:!0},r)}};p=s([c(0,a),c(1,R),c(2,_)],p);export{p as $RC};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { net } from "electron";
+import { RequestService as NodeRequestService } from "../node/requestService.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { ILogService } from "../../log/common/log.js";
+function getRawRequest(options) {
+  return net.request;
+}
+__name(getRawRequest, "getRawRequest");
+let RequestService = class RequestService2 extends NodeRequestService {
+  static {
+    __name(this, "RequestService");
+  }
+  constructor(configurationService, environmentService, logService) {
+    super("local", configurationService, environmentService, logService);
+  }
+  request(options, token) {
+    return super.request({ ...options || {}, getRawRequest, isChromiumNetwork: true }, token);
+  }
+};
+RequestService = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, INativeEnvironmentService),
+  __param(2, ILogService)
+], RequestService);
+export {
+  RequestService
+};
+//# sourceMappingURL=requestService.js.map

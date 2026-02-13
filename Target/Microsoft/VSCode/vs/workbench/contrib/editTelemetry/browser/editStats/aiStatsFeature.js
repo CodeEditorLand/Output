@@ -1,1 +1,222 @@
-import{$Hc as V}from"../../../../../base/common/arrays.js";import{$gi as v,$0h as b}from"../../../../../base/common/async.js";import{$Rf as w}from"../../../../../base/common/lazy.js";import{$Ed as I,$Cd as y}from"../../../../../base/common/lifecycle.js";import{autorun as T,derived as g,mapObservableArrayCached as _,observableValue as O,runOnChange as R}from"../../../../../base/common/observable.js";import{$DE as q}from"../../../../../editor/common/core/edits/stringEdit.js";import{$mF as E,$nF as A}from"../../../../../editor/common/textModelEditSource.js";import{$Mj as L}from"../../../../../platform/instantiation/common/instantiation.js";import{$hp as x}from"../../../../../platform/storage/common/storage.js";import{$ALc as D}from"./aiStatsStatusBar.js";var $=function(i,e,n,a){var r=arguments.length,t=r<3?e:a===null?a=Object.getOwnPropertyDescriptor(e,n):a,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,n,a);else for(var s=i.length-1;s>=0;s--)(o=i[s])&&(t=(r<3?o(t):r>3?o(e,n,t):o(e,n))||t);return r>3&&t&&Object.defineProperty(e,n,t),t},S=function(i,e){return function(n,a){e(n,a,i)}};let C=class extends I{constructor(e,n,a){super(),this.c=n,this.f=a,this.b=O(this,0),this.aiRate=this.b.map(()=>{const s=this.a.getValue();return s?j(s.sessions,d=>{const l=d.typedCharacters+d.aiCharacters;return l===0?0:d.aiCharacters/l}):0}),this.sessionCount=g(this,s=>{this.b.read(s);const u=this.a.getValue();return u?u.sessions.length:0}),this.sessions=g(this,s=>{this.b.read(s);const u=this.a.getValue();return u?u.sessions:[]}),this.acceptedInlineSuggestionsToday=g(this,s=>{this.b.read(s);const u=this.a.getValue();if(!u)return 0;const d=new Date;d.setHours(0,0,0,0);const l=u.sessions.filter(h=>h.startTime>d.getTime());return V(l,h=>h.acceptedInlineSuggestions??0)});const r=B(this.c,"aiStats",1,0);this.a=P(r,1/60,this.B),this.aiRate.recomputeInitiallyAndOnChange(this.B),this.D(T(s=>{s.store.add(this.f.createInstance(D.hot.read(s),this))}));const t=[];_(this,e.documents,(s,u)=>{u.add(R(s.documentWithAnnotations.value,(d,l,h)=>{const p=q.compose(h.map(c=>c.edit)),f=new w(()=>this.g());for(const c of p.replacements)E(c.data.editSource)?f.value.currentSession.aiCharacters+=c.newText.length:A(c.data.editSource)&&(f.value.currentSession.typedCharacters+=c.newText.length);if(p.replacements.length>0){const c=f.value.currentSession,m=p.replacements[0].data.editSource;m.metadata.source==="inlineCompletionAccept"&&(c.acceptedInlineSuggestions===void 0&&(c.acceptedInlineSuggestions=0),c.acceptedInlineSuggestions+=1),m.metadata.source==="Chat.applyEdits"&&m.metadata.$$requestId!==void 0&&(t.includes(m.metadata.$$requestId)||(t.push(m.metadata.$$requestId),t.length>10&&t.shift(),c.chatEditCount===void 0&&(c.chatEditCount=0),c.chatEditCount+=1))}f.hasValue&&(this.a.writeValue(f.value.data),this.b.set(this.b.get()+1,void 0))}))}).recomputeInitiallyAndOnChange(this.B)}g(){const e=this.a.getValue()??{sessions:[]},n=300*1e3;let a=e.sessions.at(-1);const r=Date.now();if(!a||r-a.startTime>n){e.sessions.push({startTime:r,typedCharacters:0,aiCharacters:0,acceptedInlineSuggestions:0,chatEditCount:0}),a=e.sessions.at(-1);const t=1440*60*1e3;for(;e.sessions.length>t/n;)e.sessions.shift()}return{data:e,currentSession:a}}};C=$([S(1,x),S(2,L)],C);function j(i,e){return i.length===0?0:V(i,e)/i.length}function P(i,e,n){const a=new v;let r,t=0,o=0;return n.add(y(()=>{t!==o&&(i.writeValue(r),o=t)})),{writeValue(s){t++;const u=t;r=s,a.clearPending(),a.schedule(async()=>{i.writeValue(s),o=u,await b(5e3)})},getValue(){return t>0?r:i.getValue()}}}function B(i,e,n,a){let r,t=!1;return{writeValue(o){o===void 0?i.remove(e,n):i.store(e,JSON.stringify(o),n,a),r=o},getValue(){if(t)return r;const o=i.get(e,n);return r=o===void 0?void 0:JSON.parse(o),t=!0,r}}}export{C as $CLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { sumBy } from "../../../../../base/common/arrays.js";
+import { TaskQueue, timeout } from "../../../../../base/common/async.js";
+import { Lazy } from "../../../../../base/common/lazy.js";
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { autorun, derived, mapObservableArrayCached, observableValue, runOnChange } from "../../../../../base/common/observable.js";
+import { AnnotatedStringEdit } from "../../../../../editor/common/core/edits/stringEdit.js";
+import { isAiEdit, isUserEdit } from "../../../../../editor/common/textModelEditSource.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { AiStatsStatusBar } from "./aiStatsStatusBar.js";
+let AiStatsFeature = class AiStatsFeature2 extends Disposable {
+  static {
+    __name(this, "AiStatsFeature");
+  }
+  constructor(annotatedDocuments, _storageService, _instantiationService) {
+    super();
+    this._storageService = _storageService;
+    this._instantiationService = _instantiationService;
+    this._dataVersion = observableValue(this, 0);
+    this.aiRate = this._dataVersion.map(() => {
+      const val = this._data.getValue();
+      if (!val) {
+        return 0;
+      }
+      const r = average(val.sessions, (session) => {
+        const sum = session.typedCharacters + session.aiCharacters;
+        if (sum === 0) {
+          return 0;
+        }
+        return session.aiCharacters / sum;
+      });
+      return r;
+    });
+    this.sessionCount = derived(this, (r) => {
+      this._dataVersion.read(r);
+      const val = this._data.getValue();
+      if (!val) {
+        return 0;
+      }
+      return val.sessions.length;
+    });
+    this.sessions = derived(this, (r) => {
+      this._dataVersion.read(r);
+      const val = this._data.getValue();
+      if (!val) {
+        return [];
+      }
+      return val.sessions;
+    });
+    this.acceptedInlineSuggestionsToday = derived(this, (r) => {
+      this._dataVersion.read(r);
+      const val = this._data.getValue();
+      if (!val) {
+        return 0;
+      }
+      const startOfToday = /* @__PURE__ */ new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const sessionsToday = val.sessions.filter((s) => s.startTime > startOfToday.getTime());
+      return sumBy(sessionsToday, (s) => s.acceptedInlineSuggestions ?? 0);
+    });
+    const storedValue = getStoredValue(
+      this._storageService,
+      "aiStats",
+      1,
+      0
+      /* StorageTarget.USER */
+    );
+    this._data = rateLimitWrite(storedValue, 1 / 60, this._store);
+    this.aiRate.recomputeInitiallyAndOnChange(this._store);
+    this._register(autorun((reader) => {
+      reader.store.add(this._instantiationService.createInstance(AiStatsStatusBar.hot.read(reader), this));
+    }));
+    const lastRequestIds = [];
+    const obs = mapObservableArrayCached(this, annotatedDocuments.documents, (doc, store) => {
+      store.add(runOnChange(doc.documentWithAnnotations.value, (_val, _prev, edit) => {
+        const e = AnnotatedStringEdit.compose(edit.map((e2) => e2.edit));
+        const curSession = new Lazy(() => this._getDataAndSession());
+        for (const r of e.replacements) {
+          if (isAiEdit(r.data.editSource)) {
+            curSession.value.currentSession.aiCharacters += r.newText.length;
+          } else if (isUserEdit(r.data.editSource)) {
+            curSession.value.currentSession.typedCharacters += r.newText.length;
+          }
+        }
+        if (e.replacements.length > 0) {
+          const sessionToUpdate = curSession.value.currentSession;
+          const s = e.replacements[0].data.editSource;
+          if (s.metadata.source === "inlineCompletionAccept") {
+            if (sessionToUpdate.acceptedInlineSuggestions === void 0) {
+              sessionToUpdate.acceptedInlineSuggestions = 0;
+            }
+            sessionToUpdate.acceptedInlineSuggestions += 1;
+          }
+          if (s.metadata.source === "Chat.applyEdits" && s.metadata.$$requestId !== void 0) {
+            const didSeeRequestId = lastRequestIds.includes(s.metadata.$$requestId);
+            if (!didSeeRequestId) {
+              lastRequestIds.push(s.metadata.$$requestId);
+              if (lastRequestIds.length > 10) {
+                lastRequestIds.shift();
+              }
+              if (sessionToUpdate.chatEditCount === void 0) {
+                sessionToUpdate.chatEditCount = 0;
+              }
+              sessionToUpdate.chatEditCount += 1;
+            }
+          }
+        }
+        if (curSession.hasValue) {
+          this._data.writeValue(curSession.value.data);
+          this._dataVersion.set(this._dataVersion.get() + 1, void 0);
+        }
+      }));
+    });
+    obs.recomputeInitiallyAndOnChange(this._store);
+  }
+  _getDataAndSession() {
+    const state = this._data.getValue() ?? { sessions: [] };
+    const sessionLengthMs = 5 * 60 * 1e3;
+    let lastSession = state.sessions.at(-1);
+    const nowTime = Date.now();
+    if (!lastSession || nowTime - lastSession.startTime > sessionLengthMs) {
+      state.sessions.push({
+        startTime: nowTime,
+        typedCharacters: 0,
+        aiCharacters: 0,
+        acceptedInlineSuggestions: 0,
+        chatEditCount: 0
+      });
+      lastSession = state.sessions.at(-1);
+      const dayMs = 24 * 60 * 60 * 1e3;
+      while (state.sessions.length > dayMs / sessionLengthMs) {
+        state.sessions.shift();
+      }
+    }
+    return { data: state, currentSession: lastSession };
+  }
+};
+AiStatsFeature = __decorate([
+  __param(1, IStorageService),
+  __param(2, IInstantiationService)
+], AiStatsFeature);
+function average(arr, selector) {
+  if (arr.length === 0) {
+    return 0;
+  }
+  const s = sumBy(arr, selector);
+  return s / arr.length;
+}
+__name(average, "average");
+function rateLimitWrite(targetValue, maxWritesPerSecond, store) {
+  const queue = new TaskQueue();
+  let _value = void 0;
+  let valueVersion = 0;
+  let savedVersion = 0;
+  store.add(toDisposable(() => {
+    if (valueVersion !== savedVersion) {
+      targetValue.writeValue(_value);
+      savedVersion = valueVersion;
+    }
+  }));
+  return {
+    writeValue(value) {
+      valueVersion++;
+      const v = valueVersion;
+      _value = value;
+      queue.clearPending();
+      queue.schedule(async () => {
+        targetValue.writeValue(value);
+        savedVersion = v;
+        await timeout(5e3);
+      });
+    },
+    getValue() {
+      if (valueVersion > 0) {
+        return _value;
+      }
+      return targetValue.getValue();
+    }
+  };
+}
+__name(rateLimitWrite, "rateLimitWrite");
+function getStoredValue(service, key, scope, target) {
+  let lastValue = void 0;
+  let hasLastValue = false;
+  return {
+    writeValue(value) {
+      if (value === void 0) {
+        service.remove(key, scope);
+      } else {
+        service.store(key, JSON.stringify(value), scope, target);
+      }
+      lastValue = value;
+    },
+    getValue() {
+      if (hasLastValue) {
+        return lastValue;
+      }
+      const strVal = service.get(key, scope);
+      lastValue = strVal === void 0 ? void 0 : JSON.parse(strVal);
+      hasLastValue = true;
+      return lastValue;
+    }
+  };
+}
+__name(getStoredValue, "getStoredValue");
+export {
+  AiStatsFeature
+};
+//# sourceMappingURL=aiStatsFeature.js.map

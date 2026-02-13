@@ -1,1 +1,239 @@
-import"./media/notificationsActions.css";import{localize as e}from"../../../../nls.js";import{$Fm as n}from"../../../../base/common/actions.js";import{$NLc as x,$LLc as $,$KLc as d,$OLc as I,$ILc as D,$PLc as C,$QLc as N}from"./notificationsCommands.js";import{$uo as u}from"../../../../platform/commands/common/commands.js";import{$gjb as j}from"../../../../platform/clipboard/common/clipboardService.js";import{$bk as h}from"../../../../base/common/codicons.js";import{$gu as L}from"../../../../platform/theme/common/iconRegistry.js";import{ThemeIcon as l}from"../../../../base/common/themables.js";var a=function(o,t,s,c){var m=arguments.length,i=m<3?t:c===null?c=Object.getOwnPropertyDescriptor(t,s):c,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,s,c);else for(var f=o.length-1;f>=0;f--)(p=o[f])&&(i=(m<3?p(i):m>3?p(t,s,i):p(t,s))||i);return m>3&&i&&Object.defineProperty(t,s,i),i},r=function(o,t){return function(s,c){t(s,c,o)}};const O=L("notifications-clear",h.close,e(3961,null)),P=L("notifications-clear-all",h.clearAll,e(3962,null)),R=L("notifications-hide",h.chevronDown,e(3963,null)),U=L("notifications-expand",h.chevronUp,e(3964,null)),M=L("notifications-collapse",h.chevronDown,e(3965,null)),T=L("notifications-configure",h.gear,e(3966,null)),v=L("notifications-do-not-disturb",h.bellSlash,e(3967,null));let b=class extends n{static{this.ID=x}static{this.LABEL=e(3968,null)}constructor(t,s,c){super(t,s,l.asClassName(O)),this.a=c}async run(t){this.a.executeCommand(x,t)}};b=a([r(2,u)],b);let A=class extends n{static{this.ID=I}static{this.LABEL=e(3969,null)}constructor(t,s,c){super(t,s,l.asClassName(P)),this.a=c}async run(){this.a.executeCommand(I)}};A=a([r(2,u)],A);let B=class extends n{static{this.ID=C}static{this.LABEL=e(3970,null)}constructor(t,s,c){super(t,s,l.asClassName(v)),this.a=c}async run(){this.a.executeCommand(C)}};B=a([r(2,u)],B);let E=class extends n{static{this.ID=N}static{this.LABEL=e(3971,null)}constructor(t,s,c){super(t,s),this.a=c}async run(){this.a.executeCommand(N)}};E=a([r(2,u)],E);class H extends n{static{this.ID="workbench.action.configureDoNotDisturbMode"}static{this.LABEL=e(3972,null)}constructor(t,s){super(t,s,l.asClassName(v))}}let g=class extends n{static{this.ID=D}static{this.LABEL=e(3973,null)}constructor(t,s,c){super(t,s,l.asClassName(R)),this.a=c}async run(){this.a.executeCommand(D)}};g=a([r(2,u)],g);let w=class extends n{static{this.ID=$}static{this.LABEL=e(3974,null)}constructor(t,s,c){super(t,s,l.asClassName(U)),this.a=c}async run(t){this.a.executeCommand($,t)}};w=a([r(2,u)],w);let y=class extends n{static{this.ID=d}static{this.LABEL=e(3975,null)}constructor(t,s,c){super(t,s,l.asClassName(M)),this.a=c}async run(t){this.a.executeCommand(d,t)}};y=a([r(2,u)],y);class ct extends n{static{this.ID="workbench.action.configureNotification"}static{this.LABEL=e(3976,null)}constructor(t,s,c){super(t,s,l.asClassName(T)),this.notification=c}}let _=class extends n{static{this.ID="workbench.action.copyNotificationMessage"}static{this.LABEL=e(3977,null)}constructor(t,s,c){super(t,s),this.a=c}run(t){return this.a.writeText(t.message.raw)}};_=a([r(2,j)],_);export{w as $1Lc,y as $2Lc,ct as $3Lc,_ as $4Lc,b as $ULc,A as $VLc,B as $WLc,E as $XLc,H as $YLc,g as $ZLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/notificationsActions.css";
+import { localize } from "../../../../nls.js";
+import { Action } from "../../../../base/common/actions.js";
+import { CLEAR_NOTIFICATION, EXPAND_NOTIFICATION, COLLAPSE_NOTIFICATION, CLEAR_ALL_NOTIFICATIONS, HIDE_NOTIFICATIONS_CENTER, TOGGLE_DO_NOT_DISTURB_MODE, TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE } from "./notificationsCommands.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+const clearIcon = registerIcon("notifications-clear", Codicon.close, localize("clearIcon", "Icon for the clear action in notifications."));
+const clearAllIcon = registerIcon("notifications-clear-all", Codicon.clearAll, localize("clearAllIcon", "Icon for the clear all action in notifications."));
+const hideIcon = registerIcon("notifications-hide", Codicon.chevronDown, localize("hideIcon", "Icon for the hide action in notifications."));
+const expandIcon = registerIcon("notifications-expand", Codicon.chevronUp, localize("expandIcon", "Icon for the expand action in notifications."));
+const collapseIcon = registerIcon("notifications-collapse", Codicon.chevronDown, localize("collapseIcon", "Icon for the collapse action in notifications."));
+const configureIcon = registerIcon("notifications-configure", Codicon.gear, localize("configureIcon", "Icon for the configure action in notifications."));
+const doNotDisturbIcon = registerIcon("notifications-do-not-disturb", Codicon.bellSlash, localize("doNotDisturbIcon", "Icon for the mute all action in notifications."));
+let ClearNotificationAction = class ClearNotificationAction2 extends Action {
+  static {
+    __name(this, "ClearNotificationAction");
+  }
+  static {
+    this.ID = CLEAR_NOTIFICATION;
+  }
+  static {
+    this.LABEL = localize("clearNotification", "Clear Notification");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(clearIcon));
+    this.commandService = commandService;
+  }
+  async run(notification) {
+    this.commandService.executeCommand(CLEAR_NOTIFICATION, notification);
+  }
+};
+ClearNotificationAction = __decorate([
+  __param(2, ICommandService)
+], ClearNotificationAction);
+let ClearAllNotificationsAction = class ClearAllNotificationsAction2 extends Action {
+  static {
+    __name(this, "ClearAllNotificationsAction");
+  }
+  static {
+    this.ID = CLEAR_ALL_NOTIFICATIONS;
+  }
+  static {
+    this.LABEL = localize("clearNotifications", "Clear All Notifications");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(clearAllIcon));
+    this.commandService = commandService;
+  }
+  async run() {
+    this.commandService.executeCommand(CLEAR_ALL_NOTIFICATIONS);
+  }
+};
+ClearAllNotificationsAction = __decorate([
+  __param(2, ICommandService)
+], ClearAllNotificationsAction);
+let ToggleDoNotDisturbAction = class ToggleDoNotDisturbAction2 extends Action {
+  static {
+    __name(this, "ToggleDoNotDisturbAction");
+  }
+  static {
+    this.ID = TOGGLE_DO_NOT_DISTURB_MODE;
+  }
+  static {
+    this.LABEL = localize("toggleDoNotDisturbMode", "Toggle Do Not Disturb Mode");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(doNotDisturbIcon));
+    this.commandService = commandService;
+  }
+  async run() {
+    this.commandService.executeCommand(TOGGLE_DO_NOT_DISTURB_MODE);
+  }
+};
+ToggleDoNotDisturbAction = __decorate([
+  __param(2, ICommandService)
+], ToggleDoNotDisturbAction);
+let ToggleDoNotDisturbBySourceAction = class ToggleDoNotDisturbBySourceAction2 extends Action {
+  static {
+    __name(this, "ToggleDoNotDisturbBySourceAction");
+  }
+  static {
+    this.ID = TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE;
+  }
+  static {
+    this.LABEL = localize("toggleDoNotDisturbModeBySource", "Toggle Do Not Disturb Mode By Source...");
+  }
+  constructor(id, label, commandService) {
+    super(id, label);
+    this.commandService = commandService;
+  }
+  async run() {
+    this.commandService.executeCommand(TOGGLE_DO_NOT_DISTURB_MODE_BY_SOURCE);
+  }
+};
+ToggleDoNotDisturbBySourceAction = __decorate([
+  __param(2, ICommandService)
+], ToggleDoNotDisturbBySourceAction);
+class ConfigureDoNotDisturbAction extends Action {
+  static {
+    __name(this, "ConfigureDoNotDisturbAction");
+  }
+  static {
+    this.ID = "workbench.action.configureDoNotDisturbMode";
+  }
+  static {
+    this.LABEL = localize("configureDoNotDisturbMode", "Configure Do Not Disturb...");
+  }
+  constructor(id, label) {
+    super(id, label, ThemeIcon.asClassName(doNotDisturbIcon));
+  }
+}
+let HideNotificationsCenterAction = class HideNotificationsCenterAction2 extends Action {
+  static {
+    __name(this, "HideNotificationsCenterAction");
+  }
+  static {
+    this.ID = HIDE_NOTIFICATIONS_CENTER;
+  }
+  static {
+    this.LABEL = localize("hideNotificationsCenter", "Hide Notifications");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(hideIcon));
+    this.commandService = commandService;
+  }
+  async run() {
+    this.commandService.executeCommand(HIDE_NOTIFICATIONS_CENTER);
+  }
+};
+HideNotificationsCenterAction = __decorate([
+  __param(2, ICommandService)
+], HideNotificationsCenterAction);
+let ExpandNotificationAction = class ExpandNotificationAction2 extends Action {
+  static {
+    __name(this, "ExpandNotificationAction");
+  }
+  static {
+    this.ID = EXPAND_NOTIFICATION;
+  }
+  static {
+    this.LABEL = localize("expandNotification", "Expand Notification");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(expandIcon));
+    this.commandService = commandService;
+  }
+  async run(notification) {
+    this.commandService.executeCommand(EXPAND_NOTIFICATION, notification);
+  }
+};
+ExpandNotificationAction = __decorate([
+  __param(2, ICommandService)
+], ExpandNotificationAction);
+let CollapseNotificationAction = class CollapseNotificationAction2 extends Action {
+  static {
+    __name(this, "CollapseNotificationAction");
+  }
+  static {
+    this.ID = COLLAPSE_NOTIFICATION;
+  }
+  static {
+    this.LABEL = localize("collapseNotification", "Collapse Notification");
+  }
+  constructor(id, label, commandService) {
+    super(id, label, ThemeIcon.asClassName(collapseIcon));
+    this.commandService = commandService;
+  }
+  async run(notification) {
+    this.commandService.executeCommand(COLLAPSE_NOTIFICATION, notification);
+  }
+};
+CollapseNotificationAction = __decorate([
+  __param(2, ICommandService)
+], CollapseNotificationAction);
+class ConfigureNotificationAction extends Action {
+  static {
+    __name(this, "ConfigureNotificationAction");
+  }
+  static {
+    this.ID = "workbench.action.configureNotification";
+  }
+  static {
+    this.LABEL = localize("configureNotification", "More Actions...");
+  }
+  constructor(id, label, notification) {
+    super(id, label, ThemeIcon.asClassName(configureIcon));
+    this.notification = notification;
+  }
+}
+let CopyNotificationMessageAction = class CopyNotificationMessageAction2 extends Action {
+  static {
+    __name(this, "CopyNotificationMessageAction");
+  }
+  static {
+    this.ID = "workbench.action.copyNotificationMessage";
+  }
+  static {
+    this.LABEL = localize("copyNotification", "Copy Text");
+  }
+  constructor(id, label, clipboardService) {
+    super(id, label);
+    this.clipboardService = clipboardService;
+  }
+  run(notification) {
+    return this.clipboardService.writeText(notification.message.raw);
+  }
+};
+CopyNotificationMessageAction = __decorate([
+  __param(2, IClipboardService)
+], CopyNotificationMessageAction);
+export {
+  ClearAllNotificationsAction,
+  ClearNotificationAction,
+  CollapseNotificationAction,
+  ConfigureDoNotDisturbAction,
+  ConfigureNotificationAction,
+  CopyNotificationMessageAction,
+  ExpandNotificationAction,
+  HideNotificationsCenterAction,
+  ToggleDoNotDisturbAction,
+  ToggleDoNotDisturbBySourceAction
+};
+//# sourceMappingURL=notificationsActions.js.map

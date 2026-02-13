@@ -1,1 +1,4 @@
-import{$kQc as m}from"../../../../platform/checksum/common/checksumService.js";import{$YPc as c}from"../../../../platform/ipc/electron-browser/services.js";c(m,"checksum");
+import { IChecksumService } from "../../../../platform/checksum/common/checksumService.js";
+import { registerSharedProcessRemoteService } from "../../../../platform/ipc/electron-browser/services.js";
+registerSharedProcessRemoteService(IChecksumService, "checksum");
+//# sourceMappingURL=checksumService.js.map

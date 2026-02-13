@@ -1,1 +1,47 @@
-import{$cLb as s,$7Kb as h}from"../../../../platform/userDataSync/common/userDataSync.js";import{$XPc as m}from"../../../../platform/ipc/electron-browser/services.js";import{Event as p}from"../../../../base/common/event.js";import{$WC as S}from"../../../../platform/instantiation/common/extensions.js";var u=function(e,r,t,o){var c=arguments.length,n=c<3?r:o===null?o=Object.getOwnPropertyDescriptor(r,t):o,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(e,r,t,o);else for(var i=e.length-1;i>=0;i--)(a=e[i])&&(n=(c<3?a(n):c>3?a(r,t,n):a(r,t))||n);return c>3&&n&&Object.defineProperty(r,t,n),n},l=function(e,r){return function(t,o){r(t,o,e)}};let f=class{get onError(){return p.map(this.a.listen("onError"),r=>h.toUserDataSyncError(r))}constructor(r){this.a=r.getChannel("userDataAutoSync")}triggerSync(r,t){return this.a.call("triggerSync",[r,t])}turnOn(){return this.a.call("turnOn")}turnOff(r){return this.a.call("turnOff",[r])}};f=u([l(0,m)],f);S(s,f,1);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IUserDataAutoSyncService, UserDataSyncError } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-browser/services.js";
+import { Event } from "../../../../base/common/event.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+let UserDataAutoSyncService = class UserDataAutoSyncService2 {
+  static {
+    __name(this, "UserDataAutoSyncService");
+  }
+  get onError() {
+    return Event.map(this.channel.listen("onError"), (e) => UserDataSyncError.toUserDataSyncError(e));
+  }
+  constructor(sharedProcessService) {
+    this.channel = sharedProcessService.getChannel("userDataAutoSync");
+  }
+  triggerSync(sources, options) {
+    return this.channel.call("triggerSync", [sources, options]);
+  }
+  turnOn() {
+    return this.channel.call("turnOn");
+  }
+  turnOff(everywhere) {
+    return this.channel.call("turnOff", [everywhere]);
+  }
+};
+UserDataAutoSyncService = __decorate([
+  __param(0, ISharedProcessService)
+], UserDataAutoSyncService);
+registerSingleton(
+  IUserDataAutoSyncService,
+  UserDataAutoSyncService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=userDataAutoSyncService.js.map

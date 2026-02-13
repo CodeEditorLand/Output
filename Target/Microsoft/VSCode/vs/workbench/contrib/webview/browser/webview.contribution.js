@@ -1,1 +1,75 @@
-import{$98 as b}from"../../../../base/browser/dom.js";import{$4db as f,$5db as v,$3db as w}from"../../../../editor/browser/editorExtensions.js";import{$qlb as o,$plb as i,$rlb as r}from"../../../../editor/contrib/clipboard/browser/clipboard.js";import*as n from"../../../../nls.js";import{$qL as m,$sL as c}from"../../../../platform/actions/common/actions.js";import{$0n as p}from"../../../../platform/contextkey/common/contextkey.js";import{$SDb as $}from"./webview.js";import{$8Nb as I}from"../../webviewPanel/browser/webviewEditorInput.js";import{$BL as g}from"../../../services/editor/common/editorService.js";const x=100;function t(e,l){e?.addImplementation(x,"webview",a=>{const u=a.get($).activeWebview;if(u?.isFocused)return l(u),!0;if(b()?.classList.contains("action-menu-item")){const s=a.get(g);if(s.activeEditor instanceof I)return l(s.activeEditor.webview),!0}return!1})}t(w,e=>e.undo());t(f,e=>e.redo());t(v,e=>e.selectAll());t(o,e=>e.copy());t(r,e=>e.paste());t(i,e=>e.cut());const d="preventDefaultContextMenuItems";i&&c.appendMenuItem(m.WebviewContext,{command:{id:i.id,title:n.localize(15015,null)},group:"5_cutcopypaste",order:1,when:p.not(d)});o&&c.appendMenuItem(m.WebviewContext,{command:{id:o.id,title:n.localize(15016,null)},group:"5_cutcopypaste",order:2,when:p.not(d)});r&&c.appendMenuItem(m.WebviewContext,{command:{id:r.id,title:n.localize(15017,null)},group:"5_cutcopypaste",order:3,when:p.not(d)});export{d as $9Nb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getActiveElement } from "../../../../base/browser/dom.js";
+import { RedoCommand, SelectAllCommand, UndoCommand } from "../../../../editor/browser/editorExtensions.js";
+import { CopyAction, CutAction, PasteAction } from "../../../../editor/contrib/clipboard/browser/clipboard.js";
+import * as nls from "../../../../nls.js";
+import { MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IWebviewService } from "./webview.js";
+import { WebviewInput } from "../../webviewPanel/browser/webviewEditorInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+const PRIORITY = 100;
+function overrideCommandForWebview(command, f) {
+  command?.addImplementation(PRIORITY, "webview", (accessor) => {
+    const webviewService = accessor.get(IWebviewService);
+    const webview = webviewService.activeWebview;
+    if (webview?.isFocused) {
+      f(webview);
+      return true;
+    }
+    if (getActiveElement()?.classList.contains("action-menu-item")) {
+      const editorService = accessor.get(IEditorService);
+      if (editorService.activeEditor instanceof WebviewInput) {
+        f(editorService.activeEditor.webview);
+        return true;
+      }
+    }
+    return false;
+  });
+}
+__name(overrideCommandForWebview, "overrideCommandForWebview");
+overrideCommandForWebview(UndoCommand, (webview) => webview.undo());
+overrideCommandForWebview(RedoCommand, (webview) => webview.redo());
+overrideCommandForWebview(SelectAllCommand, (webview) => webview.selectAll());
+overrideCommandForWebview(CopyAction, (webview) => webview.copy());
+overrideCommandForWebview(PasteAction, (webview) => webview.paste());
+overrideCommandForWebview(CutAction, (webview) => webview.cut());
+const PreventDefaultContextMenuItemsContextKeyName = "preventDefaultContextMenuItems";
+if (CutAction) {
+  MenuRegistry.appendMenuItem(MenuId.WebviewContext, {
+    command: {
+      id: CutAction.id,
+      title: nls.localize("cut", "Cut")
+    },
+    group: "5_cutcopypaste",
+    order: 1,
+    when: ContextKeyExpr.not(PreventDefaultContextMenuItemsContextKeyName)
+  });
+}
+if (CopyAction) {
+  MenuRegistry.appendMenuItem(MenuId.WebviewContext, {
+    command: {
+      id: CopyAction.id,
+      title: nls.localize("copy", "Copy")
+    },
+    group: "5_cutcopypaste",
+    order: 2,
+    when: ContextKeyExpr.not(PreventDefaultContextMenuItemsContextKeyName)
+  });
+}
+if (PasteAction) {
+  MenuRegistry.appendMenuItem(MenuId.WebviewContext, {
+    command: {
+      id: PasteAction.id,
+      title: nls.localize("paste", "Paste")
+    },
+    group: "5_cutcopypaste",
+    order: 3,
+    when: ContextKeyExpr.not(PreventDefaultContextMenuItemsContextKeyName)
+  });
+}
+export {
+  PreventDefaultContextMenuItemsContextKeyName
+};
+//# sourceMappingURL=webview.contribution.js.map

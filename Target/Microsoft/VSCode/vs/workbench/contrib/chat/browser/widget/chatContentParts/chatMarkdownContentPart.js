@@ -1,2 +1,566 @@
-import*as l from"../../../../../../base/browser/dom.js";import{$K0 as $e}from"../../../../../../base/browser/markdownRenderer.js";import{$h8 as Ie}from"../../../../../../base/browser/mouseEvent.js";import{$60 as ke}from"../../../../../../base/browser/ui/aria/aria.js";import{$l0 as Ce}from"../../../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$$b as ye}from"../../../../../../base/common/arrays.js";import{$Fb as ve}from"../../../../../../base/common/arraysFind.js";import{$bk as X}from"../../../../../../base/common/codicons.js";import{$Rf as Ee}from"../../../../../../base/common/lazy.js";import{$Ed as ae,$Dd as we,$Fd as De,$Cd as Re}from"../../../../../../base/common/lifecycle.js";import{autorun as je,autorunSelfDisposable as Be,derived as Y}from"../../../../../../base/common/observable.js";import{$ng as Se}from"../../../../../../base/common/strings.js";import{ThemeIcon as K}from"../../../../../../base/common/themables.js";import{$_D as xe}from"../../../../../../editor/common/core/range.js";import{$ZF as Le}from"../../../../../../editor/common/languages/language.js";import{$8ob as Pe}from"../../../../../../editor/common/services/getIconClasses.js";import{$9H as Ue}from"../../../../../../editor/common/services/model.js";import{$5H as Me}from"../../../../../../editor/common/services/resolverService.js";import{$pF as ee}from"../../../../../../editor/common/textModelEditSource.js";import{localize as k}from"../../../../../../nls.js";import{$7jb as Oe}from"../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$rL as qe,$qL as Fe}from"../../../../../../platform/actions/common/actions.js";import{$0l as ce}from"../../../../../../platform/configuration/common/configuration.js";import{$ro as le}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ijb as Ne}from"../../../../../../platform/contextview/browser/contextView.js";import{$9Qb as Ae}from"../../../../../../platform/editor/browser/editor.js";import{FileKind as te}from"../../../../../../platform/files/common/files.js";import{$jkb as _e}from"../../../../../../platform/hover/browser/hover.js";import{$Mj as ze}from"../../../../../../platform/instantiation/common/instantiation.js";import{$oH as Te}from"../../../../../../platform/label/common/label.js";import{$BL as We,$DL as se}from"../../../../../services/editor/common/editorService.js";import{$o1b as Ke}from"../../../../editTelemetry/browser/telemetry/aiEditTelemetry/aiEditTelemetryService.js";import{$p1b as _}from"../../../../markdown/browser/markedKatexSupport.js";import{$WEb as He}from"../../../common/widget/annotations.js";import{$NV as Ge}from"../../../common/chatService/chatService.js";import{$8Eb as oe,$9Eb as D}from"../../../common/model/chatViewModel.js";import{ChatConfiguration as he}from"../../../common/constants.js";import{$$Zb as Ve}from"../chatContentMarkdownRenderer.js";import{$U1b as ie,$T1b as Je}from"./chatDiffBlockPart.js";import{$_1b as Ze}from"./chatMarkdownDecorationsRenderer.js";import{$P1b as ne,$N1b as Qe,$O1b as Xe}from"./codeBlockPart.js";import"./media/chatCodeBlockPill.css";import{$D2b as Ye}from"./chatExtensionsContentPart.js";import"./media/chatMarkdownPart.css";var de=function(p,e,t,d){var n=arguments.length,i=n<3?e:d===null?d=Object.getOwnPropertyDescriptor(e,t):d,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(p,e,t,d);else for(var b=p.length-1;b>=0;b--)(f=p[b])&&(i=(n<3?f(i):n>3?f(e,t,i):f(e,t))||i);return n>3&&i&&Object.defineProperty(e,t,i),i},m=function(p,e){return function(t,d){e(t,d,p)}},H;const R=l.$;let re=class extends ae{static{H=this}static{this.a=0}get codeblocks(){return this.c}constructor(e,t,d,n=!1,i=0,f,b,C,y,j,g,E,B,$,S){super(),this.g=e,this.h=d,this.j=y,this.m=j,this.n=B,this.q=$,this.s=S,this.codeblocksPartId=String(++H.a),this.b=[],this.c=[],this.f=new Set;const s=t.element,o=ve(t.content,N=>N.kind==="undoStop",t.contentIndex)?.id,h=[];let I=i,O=0;this.domNode=R("div.chat-markdown-part"),this.m.accessibilityOptions?.statusMessage&&(this.domNode.ariaLabel=this.m.accessibilityOptions.statusMessage,E.getValue("accessibility.verboseChatProgressUpdates")&&ke(this.m.accessibilityOptions.statusMessage));const q=E.getValue(he.EnableMath),F=()=>{if(this.B.isDisposed)return;const N=q?ye([_.getExtension(l.getWindow(t.container),{throwOnError:!1})]):[],me={gfm:!0,breaks:!0},fe=this.D(f.render(e.content,{sanitizerConfig:_.getSanitizerOptions({allowedTags:Ve,allowedAttributes:$e}),fillInIncompleteTokens:n,codeBlockRendererSync:(a,c,A)=>{const x=!D(t.element)||t.element.isComplete||!A||et(A);if((!c||c.startsWith("<vscode_codeblock_uri")&&!c.includes(`
-`))&&!x){const r=R("div");return r.style.display="none",r}if(a==="diff"&&A&&this.m.allowInlineDiffs){const r=A.match(/^```diff:(\w+)/);if(r&&D(t.element)){const u=r[1],w=He(c),{before:M,after:T}=Je(w?.textWithoutResult??c),ge={element:t.element,codeBlockIndex:I++,languageId:u,beforeContent:M,afterContent:T,codeBlockResource:w?.uri,isReadOnly:!0,horizontalPadding:this.m.horizontalPadding},W=this.q.createInstance(ie,ge,t.diffEditorPool,t.currentWidth.get()),Q={object:W,isStale:()=>!1,dispose:()=>W.dispose()};return this.b.push(Q),h.push(Q),W.element}}if(a==="vscode-extensions")return this.D($.createInstance(Ye,{kind:"extensions",extensions:c.split(",")})).domNode;const L=I++,be=O++;let P,G,V,U;if(Se(a,Qe))try{const r=Xe(c);G=r.range&&xe.lift(r.range),P=this.n.createModelReference(r.uri).then(u=>u.object.textEditorModel)}catch{return R("div")}else if(D(s)||oe(s)){const r=this.j.getOrCreate(s.sessionResource,s,L),u=this.j.updateSync(s.sessionResource,s,L,{text:c,languageId:a,isComplete:x});V=r.vulns,U=u,P=r.model}else P=void 0;const J=D(s)&&s.errorDetails?.responseIsFiltered,Z={...this.m.codeBlockRenderOptions};J!==void 0&&(Z.hideToolbar=J);const v={languageId:a,textModel:P,codeBlockIndex:L,codeBlockPartIndex:be,element:s,range:G,parentContextKeyService:g,vulns:V,codemapperUri:U?.codemapperUri,renderOptions:Z,chatSessionResource:s.sessionResource};if(s.isCompleteAddedRequest||!U?.codemapperUri||!U.isEdit){const r=this.u(v,c,x,C);this.b.push(r);const u=this.codeblocksPartId,w=new class{constructor(){this.ownerMarkdownPartId=u,this.codeBlockIndex=L,this.elementId=s.id,this.chatSessionResource=s.sessionResource,this.languageId=a,this.isStreamingEdit=!1,this.editDeltaInfo=ee.fromText(c),this.codemapperUri=void 0,this.uriPromise=P?.then(M=>M.uri)??Promise.resolve(void 0)}get uri(){return r.object.uri}focus(){r.object.focus()}};return this.c.push(w),h.push(r),r.object.element}else{const r=oe(s)?s.id:s.requestId,u=this.t(s.sessionResource,r,o,v.codemapperUri);D(v.element)&&this.j.update(v.element.sessionResource,v.element,v.codeBlockIndex,{text:c,languageId:v.languageId,isComplete:x}).then(T=>{this.c[v.codeBlockPartIndex].codemapperUri=T.codemapperUri}),this.b.push(u);const w=this.codeblocksPartId,M=new class{constructor(){this.ownerMarkdownPartId=w,this.codeBlockIndex=L,this.elementId=s.id,this.codemapperUri=U?.codemapperUri,this.chatSessionResource=s.sessionResource,this.isStreamingEdit=!x,this.uriPromise=Promise.resolve(void 0),this.languageId=a,this.editDeltaInfo=ee.fromText(c)}get uri(){}focus(){return u.object.element.focus()}};return this.c.push(M),h.push(u),u.object.element}},markedOptions:me,markedExtensions:N,...b},this.domNode));D(s)&&!s.model.codeBlockInfos&&s.model.isComplete&&s.model.initializeCodeBlockInfos(this.c.map(a=>({suggestionId:this.s.createSuggestionId({presentation:"codeBlock",feature:"sideBarChat",editDeltaInfo:a.editDeltaInfo,languageId:a.languageId,modeId:s.model.request?.modeInfo?.modeId,modelId:s.model.request?.modelId,applyCodeBlockSuggestionId:void 0,source:void 0})})));const ue=$.createInstance(Ze);this.D(ue.walkTreeAndAnnotateReferenceLinks(e,fe.element));const pe=new Ee(()=>{const a=new ResizeObserver(()=>this.f.forEach(c=>c()));return a.observe(this.domNode),this.D(Re(()=>a.disconnect())),this.f});for(const a of this.domNode.querySelectorAll(".katex-display")){if(!l.$f9(a))continue;const c=new Ce(a.cloneNode(!0),{vertical:2,horizontal:1});h.push(c),a.replaceWith(c.getDomNode()),pe.value.add(()=>{c.scanDomNode()}),c.scanDomNode()}h.reverse().forEach(a=>this.D(a))};q&&!_.getExtension(l.getWindow(t.container))?_.loadExtension(l.getWindow(t.container)).catch(N=>{}).finally(()=>{F()}):F()}t(e,t,d,n){const i=this.q.createInstance(z,e,t,d);return n&&i.render(n),{object:i,isStale:()=>!1,dispose:()=>i.dispose()}}u(e,t,d,n){const i=this.h.get(),f=i.object;return this.j.update(e.element.sessionResource,e.element,e.codeBlockIndex,{text:t,languageId:e.languageId,isComplete:d}).then(b=>{this.c[e.codeBlockPartIndex].codemapperUri=b.codemapperUri}),f.render(e,n),i}hasSameContent(e){if(e.kind!=="markdownContent")return!1;if(e.content.value===this.g.content.value)return!0;const t=this.c.at(-1);return t&&t.codemapperUri!==void 0&&t.isStreamingEdit?e.content.value.lastIndexOf("```")===this.g.content.value.lastIndexOf("```"):!1}layout(e){this.b.forEach((t,d)=>{if(t.object instanceof ne)t.object.layout(e);else if(t.object instanceof ie)t.object.layout(e);else if(t.object instanceof z){const n=this.c[d];n.codemapperUri&&t.object.uri?.toString()!==n.codemapperUri.toString()&&t.object.render(n.codemapperUri)}}),this.f.forEach(t=>t())}onDidRemount(){for(const e of this.b)e.object instanceof ne&&e.object.onDidRemount()}addDisposable(e){this.D(e)}};re=H=de([m(10,le),m(11,ce),m(12,Me),m(13,ze),m(14,Ke)],re);function et(p){return p=p.trim(),!!p.match(/\n```+$/)}let z=class extends ae{get uri(){return this.c}constructor(e,t,d,n,i,f,b,C,y,j,g,E,B){super(),this.m=e,this.n=t,this.q=d,this.s=n,this.t=i,this.u=f,this.w=b,this.y=C,this.z=y,this.C=j,this.F=g,this.G=E,this.H=B,this.f=this.D(new De),this.j=this.B.add(new we),this.element=R("div.chat-codeblock-pill-container"),this.b=R("div.status-indicator-container"),this.a=R(".chat-codeblock-pill-widget"),this.a.tabIndex=0,this.a.classList.add("show-file-icons"),this.a.role="button",this.element.appendChild(this.b),this.element.appendChild(this.a),this.I()}I(){this.D(Ae(this.a,e=>this.J(e))),this.D(l.$u8(this.a,l.$r9.CONTEXT_MENU,e=>{const t=new Ie(l.getWindow(e),e);l.$t9.stop(e,!0),this.y.showContextMenu({contextKeyService:this.z,getAnchor:()=>t,getActions:()=>{if(!this.uri)return[];const d=this.C.getMenuActions(Fe.ChatEditingCodeBlockContext,this.z,{arg:{sessionResource:this.m,requestId:this.n,uri:this.uri,stopId:this.q}});return Oe(d)}})}))}J({editorOptions:e,openToSide:t}){this.h?this.t.openEditor({original:{resource:this.h.originalURI},modified:{resource:this.h.modifiedURI},options:e},t?se:void 0):this.uri&&this.t.openEditor({resource:this.uri,options:e},t?se:void 0)}render(e){this.j.clear(),this.c=e;const t=this.G.getSession(this.m),d=this.s.getUriBasenameLabel(e),n=l.$("span.status-icon"),i=l.$("span.status-label",{},"");this.b.replaceChildren(n,i);const f=l.$("span.icon"),b=l.$("span.icon-label",{},d),C=l.$("span.label-detail",{},""),y=l.$("span.progress-fill");this.a.replaceChildren(y,f,b,C);const j=this.s.getUriLabel(e,{relative:!0});this.L(j);const g=t?.editingSession;if(!g)return;const E=Y(s=>{const o=g.readEntry(e,s);return o&&g.getEntryDiffBetweenStops(o.modifiedURI,this.n,this.q)}).map((s,o)=>s?.read(o)),B=Y(s=>{const h=g.readEntry(e,s)?.isCurrentlyBeingModifiedBy.read(s);return!!h&&h.responseModel.requestId===this.n&&h.undoStopId===this.q});let $=[],S=[];this.j.add(je(s=>{if(n.classList.remove(...$),f.classList.remove(...S),B.read(s)){const o=K.modify(X.loading,"spin");$=K.asClassNameArray(o),n.classList.add(...$);const h=g.readEntry(e,s),I=Math.floor((h?.rewriteRatio.read(s)||0)*100);i.textContent=k(6468,null),this.H.getValue(he.ShowCodeBlockProgressAnimation)?(y.style.width=`${I}%`,this.a.classList.add("progress-filling"),C.textContent=""):(y.style.width="0%",this.a.classList.remove("progress-filling"),C.textContent=I===0||!I?k(6469,null):k(6470,null,I))}else{const o=X.check;$=K.asClassNameArray(o),n.classList.add(...$),i.textContent=k(6471,null);const h=e.path.endsWith("/")?te.FOLDER:te.FILE;S=Pe(this.u,this.w,e,h),f.classList.add(...S),this.a.classList.remove("progress-filling"),y.style.width="0%",C.textContent=""}})),this.j.add(Be(s=>{const o=E.read(s);if(o===void 0)return;const h=this.a.querySelector(".label-added")??this.a.appendChild(l.$("span.label-added")),I=this.a.querySelector(".label-removed")??this.a.appendChild(l.$("span.label-removed"));if(o&&!o?.identical&&!o?.quitEarly){this.h=o,h.textContent=`+${o.added}`,I.textContent=`-${o.removed}`;const O=o.added===1?k(6472,null):k(6473,null,o.added),q=o.removed===1?k(6474,null):k(6475,null,o.removed),F=k(6476,null,d,O,q);this.element.ariaLabel=F,o.isFinal&&s.dispose()}}))}L(e){this.g=e,this.f.value||(this.f.value=this.F.setupDelayedHover(this.a,()=>({content:this.g,style:1,position:{hoverPosition:2},persistence:{hideOnKeyDown:!0}})))}};z=de([m(3,Te),m(4,We),m(5,Ue),m(6,Le),m(7,Ne),m(8,le),m(9,qe),m(10,_e),m(11,Ge),m(12,ce)],z);export{re as $E2b,et as $F2b,z as $G2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatMarkdownContentPart_1;
+import * as dom from "../../../../../../base/browser/dom.js";
+import { allowedMarkdownHtmlAttributes } from "../../../../../../base/browser/markdownRenderer.js";
+import { StandardMouseEvent } from "../../../../../../base/browser/mouseEvent.js";
+import { status } from "../../../../../../base/browser/ui/aria/aria.js";
+import { DomScrollableElement } from "../../../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { coalesce } from "../../../../../../base/common/arrays.js";
+import { findLast } from "../../../../../../base/common/arraysFind.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Lazy } from "../../../../../../base/common/lazy.js";
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, autorunSelfDisposable, derived } from "../../../../../../base/common/observable.js";
+import { equalsIgnoreCase } from "../../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
+import { EditDeltaInfo } from "../../../../../../editor/common/textModelEditSource.js";
+import { localize } from "../../../../../../nls.js";
+import { getFlatContextMenuActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { registerOpenEditorListeners } from "../../../../../../platform/editor/browser/editor.js";
+import { FileKind } from "../../../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { IEditorService, SIDE_GROUP } from "../../../../../services/editor/common/editorService.js";
+import { IAiEditTelemetryService } from "../../../../editTelemetry/browser/telemetry/aiEditTelemetry/aiEditTelemetryService.js";
+import { MarkedKatexSupport } from "../../../../markdown/browser/markedKatexSupport.js";
+import { extractCodeblockUrisFromText } from "../../../common/widget/annotations.js";
+import { IChatService } from "../../../common/chatService/chatService.js";
+import { isRequestVM, isResponseVM } from "../../../common/model/chatViewModel.js";
+import { ChatConfiguration } from "../../../common/constants.js";
+import { allowedChatMarkdownHtmlTags } from "../chatContentMarkdownRenderer.js";
+import { MarkdownDiffBlockPart, parseUnifiedDiff } from "./chatDiffBlockPart.js";
+import { ChatMarkdownDecorationsRenderer } from "./chatMarkdownDecorationsRenderer.js";
+import { CodeBlockPart, localFileLanguageId, parseLocalFileData } from "./codeBlockPart.js";
+import "./media/chatCodeBlockPill.css";
+import { ChatExtensionsContentPart } from "./chatExtensionsContentPart.js";
+import "./media/chatMarkdownPart.css";
+const $ = dom.$;
+let ChatMarkdownContentPart = class ChatMarkdownContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatMarkdownContentPart");
+  }
+  static {
+    ChatMarkdownContentPart_1 = this;
+  }
+  static {
+    this.ID_POOL = 0;
+  }
+  get codeblocks() {
+    return this._codeblocks;
+  }
+  constructor(markdown, context, editorPool, fillInIncompleteTokens = false, codeBlockStartIndex = 0, renderer, markdownRenderOptions, currentWidth, codeBlockModelCollection, rendererOptions, contextKeyService, configurationService, textModelService, instantiationService, aiEditTelemetryService) {
+    super();
+    this.markdown = markdown;
+    this.editorPool = editorPool;
+    this.codeBlockModelCollection = codeBlockModelCollection;
+    this.rendererOptions = rendererOptions;
+    this.textModelService = textModelService;
+    this.instantiationService = instantiationService;
+    this.aiEditTelemetryService = aiEditTelemetryService;
+    this.codeblocksPartId = String(++ChatMarkdownContentPart_1.ID_POOL);
+    this.allRefs = [];
+    this._codeblocks = [];
+    this.mathLayoutParticipants = /* @__PURE__ */ new Set();
+    const element = context.element;
+    const inUndoStop = findLast(context.content, (e) => e.kind === "undoStop", context.contentIndex)?.id;
+    const orderedDisposablesList = [];
+    let globalCodeBlockIndexStart = codeBlockStartIndex;
+    let thisPartCodeBlockIndexStart = 0;
+    this.domNode = $("div.chat-markdown-part");
+    if (this.rendererOptions.accessibilityOptions?.statusMessage) {
+      this.domNode.ariaLabel = this.rendererOptions.accessibilityOptions.statusMessage;
+      if (configurationService.getValue(
+        "accessibility.verboseChatProgressUpdates"
+        /* AccessibilityWorkbenchSettingId.VerboseChatProgressUpdates */
+      )) {
+        status(this.rendererOptions.accessibilityOptions.statusMessage);
+      }
+    }
+    const enableMath = configurationService.getValue(ChatConfiguration.EnableMath);
+    const doRenderMarkdown = /* @__PURE__ */ __name(() => {
+      if (this._store.isDisposed) {
+        return;
+      }
+      const markedExtensions = enableMath ? coalesce([MarkedKatexSupport.getExtension(dom.getWindow(context.container), {
+        throwOnError: false
+      })]) : [];
+      const markedOpts = {
+        gfm: true,
+        breaks: true
+      };
+      const result = this._register(renderer.render(markdown.content, {
+        sanitizerConfig: MarkedKatexSupport.getSanitizerOptions({
+          allowedTags: allowedChatMarkdownHtmlTags,
+          allowedAttributes: allowedMarkdownHtmlAttributes
+        }),
+        fillInIncompleteTokens,
+        codeBlockRendererSync: /* @__PURE__ */ __name((languageId, text, raw) => {
+          const isCodeBlockComplete = !isResponseVM(context.element) || context.element.isComplete || !raw || codeblockHasClosingBackticks(raw);
+          if ((!text || text.startsWith("<vscode_codeblock_uri") && !text.includes("\n")) && !isCodeBlockComplete) {
+            const hideEmptyCodeblock = $("div");
+            hideEmptyCodeblock.style.display = "none";
+            return hideEmptyCodeblock;
+          }
+          if (languageId === "diff" && raw && this.rendererOptions.allowInlineDiffs) {
+            const match = raw.match(/^```diff:(\w+)/);
+            if (match && isResponseVM(context.element)) {
+              const actualLanguageId = match[1];
+              const codeBlockUri = extractCodeblockUrisFromText(text);
+              const { before, after } = parseUnifiedDiff(codeBlockUri?.textWithoutResult ?? text);
+              const diffData = {
+                element: context.element,
+                codeBlockIndex: globalCodeBlockIndexStart++,
+                languageId: actualLanguageId,
+                beforeContent: before,
+                afterContent: after,
+                codeBlockResource: codeBlockUri?.uri,
+                isReadOnly: true,
+                horizontalPadding: this.rendererOptions.horizontalPadding
+              };
+              const diffPart = this.instantiationService.createInstance(MarkdownDiffBlockPart, diffData, context.diffEditorPool, context.currentWidth.get());
+              const ref = {
+                object: diffPart,
+                isStale: /* @__PURE__ */ __name(() => false, "isStale"),
+                dispose: /* @__PURE__ */ __name(() => diffPart.dispose(), "dispose")
+              };
+              this.allRefs.push(ref);
+              orderedDisposablesList.push(ref);
+              return diffPart.element;
+            }
+          }
+          if (languageId === "vscode-extensions") {
+            const chatExtensions = this._register(instantiationService.createInstance(ChatExtensionsContentPart, { kind: "extensions", extensions: text.split(",") }));
+            return chatExtensions.domNode;
+          }
+          const globalIndex = globalCodeBlockIndexStart++;
+          const thisPartIndex = thisPartCodeBlockIndexStart++;
+          let textModel;
+          let range;
+          let vulns;
+          let codeblockEntry;
+          if (equalsIgnoreCase(languageId, localFileLanguageId)) {
+            try {
+              const parsedBody = parseLocalFileData(text);
+              range = parsedBody.range && Range.lift(parsedBody.range);
+              textModel = this.textModelService.createModelReference(parsedBody.uri).then((ref) => ref.object.textEditorModel);
+            } catch (e) {
+              return $("div");
+            }
+          } else {
+            if (isResponseVM(element) || isRequestVM(element)) {
+              const modelEntry = this.codeBlockModelCollection.getOrCreate(element.sessionResource, element, globalIndex);
+              const fastUpdateModelEntry = this.codeBlockModelCollection.updateSync(element.sessionResource, element, globalIndex, { text, languageId, isComplete: isCodeBlockComplete });
+              vulns = modelEntry.vulns;
+              codeblockEntry = fastUpdateModelEntry;
+              textModel = modelEntry.model;
+            } else {
+              textModel = void 0;
+            }
+          }
+          const hideToolbar = isResponseVM(element) && element.errorDetails?.responseIsFiltered;
+          const renderOptions = {
+            ...this.rendererOptions.codeBlockRenderOptions
+          };
+          if (hideToolbar !== void 0) {
+            renderOptions.hideToolbar = hideToolbar;
+          }
+          const codeBlockInfo = { languageId, textModel, codeBlockIndex: globalIndex, codeBlockPartIndex: thisPartIndex, element, range, parentContextKeyService: contextKeyService, vulns, codemapperUri: codeblockEntry?.codemapperUri, renderOptions, chatSessionResource: element.sessionResource };
+          if (element.isCompleteAddedRequest || !codeblockEntry?.codemapperUri || !codeblockEntry.isEdit) {
+            const ref = this.renderCodeBlock(codeBlockInfo, text, isCodeBlockComplete, currentWidth);
+            this.allRefs.push(ref);
+            const ownerMarkdownPartId = this.codeblocksPartId;
+            const info = new class {
+              constructor() {
+                this.ownerMarkdownPartId = ownerMarkdownPartId;
+                this.codeBlockIndex = globalIndex;
+                this.elementId = element.id;
+                this.chatSessionResource = element.sessionResource;
+                this.languageId = languageId;
+                this.isStreamingEdit = false;
+                this.editDeltaInfo = EditDeltaInfo.fromText(text);
+                this.codemapperUri = void 0;
+                this.uriPromise = textModel?.then((model) => model.uri) ?? Promise.resolve(void 0);
+              }
+              get uri() {
+                return ref.object.uri;
+              }
+              focus() {
+                ref.object.focus();
+              }
+            }();
+            this._codeblocks.push(info);
+            orderedDisposablesList.push(ref);
+            return ref.object.element;
+          } else {
+            const requestId = isRequestVM(element) ? element.id : element.requestId;
+            const ref = this.renderCodeBlockPill(element.sessionResource, requestId, inUndoStop, codeBlockInfo.codemapperUri);
+            if (isResponseVM(codeBlockInfo.element)) {
+              this.codeBlockModelCollection.update(codeBlockInfo.element.sessionResource, codeBlockInfo.element, codeBlockInfo.codeBlockIndex, { text, languageId: codeBlockInfo.languageId, isComplete: isCodeBlockComplete }).then((e) => {
+                this._codeblocks[codeBlockInfo.codeBlockPartIndex].codemapperUri = e.codemapperUri;
+              });
+            }
+            this.allRefs.push(ref);
+            const ownerMarkdownPartId = this.codeblocksPartId;
+            const info = new class {
+              constructor() {
+                this.ownerMarkdownPartId = ownerMarkdownPartId;
+                this.codeBlockIndex = globalIndex;
+                this.elementId = element.id;
+                this.codemapperUri = codeblockEntry?.codemapperUri;
+                this.chatSessionResource = element.sessionResource;
+                this.isStreamingEdit = !isCodeBlockComplete;
+                this.uriPromise = Promise.resolve(void 0);
+                this.languageId = languageId;
+                this.editDeltaInfo = EditDeltaInfo.fromText(text);
+              }
+              get uri() {
+                return void 0;
+              }
+              focus() {
+                return ref.object.element.focus();
+              }
+            }();
+            this._codeblocks.push(info);
+            orderedDisposablesList.push(ref);
+            return ref.object.element;
+          }
+        }, "codeBlockRendererSync"),
+        markedOptions: markedOpts,
+        markedExtensions,
+        ...markdownRenderOptions
+      }, this.domNode));
+      if (isResponseVM(element) && !element.model.codeBlockInfos && element.model.isComplete) {
+        element.model.initializeCodeBlockInfos(this._codeblocks.map((info) => {
+          return {
+            suggestionId: this.aiEditTelemetryService.createSuggestionId({
+              presentation: "codeBlock",
+              feature: "sideBarChat",
+              editDeltaInfo: info.editDeltaInfo,
+              languageId: info.languageId,
+              modeId: element.model.request?.modeInfo?.modeId,
+              modelId: element.model.request?.modelId,
+              applyCodeBlockSuggestionId: void 0,
+              source: void 0
+            })
+          };
+        }));
+      }
+      const markdownDecorationsRenderer = instantiationService.createInstance(ChatMarkdownDecorationsRenderer);
+      this._register(markdownDecorationsRenderer.walkTreeAndAnnotateReferenceLinks(markdown, result.element));
+      const layoutParticipants = new Lazy(() => {
+        const observer = new ResizeObserver(() => this.mathLayoutParticipants.forEach((layout) => layout()));
+        observer.observe(this.domNode);
+        this._register(toDisposable(() => observer.disconnect()));
+        return this.mathLayoutParticipants;
+      });
+      for (const katexBlock of this.domNode.querySelectorAll(".katex-display")) {
+        if (!dom.isHTMLElement(katexBlock)) {
+          continue;
+        }
+        const scrollable = new DomScrollableElement(katexBlock.cloneNode(true), {
+          vertical: 2,
+          horizontal: 1
+        });
+        orderedDisposablesList.push(scrollable);
+        katexBlock.replaceWith(scrollable.getDomNode());
+        layoutParticipants.value.add(() => {
+          scrollable.scanDomNode();
+        });
+        scrollable.scanDomNode();
+      }
+      orderedDisposablesList.reverse().forEach((d) => this._register(d));
+    }, "doRenderMarkdown");
+    if (enableMath && !MarkedKatexSupport.getExtension(dom.getWindow(context.container))) {
+      MarkedKatexSupport.loadExtension(dom.getWindow(context.container)).catch((e) => {
+        console.error("Failed to load MarkedKatexSupport extension:", e);
+      }).finally(() => {
+        doRenderMarkdown();
+      });
+    } else {
+      doRenderMarkdown();
+    }
+  }
+  renderCodeBlockPill(sessionResource, requestId, inUndoStop, codemapperUri) {
+    const codeBlock = this.instantiationService.createInstance(CollapsedCodeBlock, sessionResource, requestId, inUndoStop);
+    if (codemapperUri) {
+      codeBlock.render(codemapperUri);
+    }
+    return {
+      object: codeBlock,
+      isStale: /* @__PURE__ */ __name(() => false, "isStale"),
+      dispose: /* @__PURE__ */ __name(() => codeBlock.dispose(), "dispose")
+    };
+  }
+  renderCodeBlock(data, text, isComplete, currentWidth) {
+    const ref = this.editorPool.get();
+    const editorInfo = ref.object;
+    this.codeBlockModelCollection.update(data.element.sessionResource, data.element, data.codeBlockIndex, { text, languageId: data.languageId, isComplete }).then((e) => {
+      this._codeblocks[data.codeBlockPartIndex].codemapperUri = e.codemapperUri;
+    });
+    editorInfo.render(data, currentWidth);
+    return ref;
+  }
+  hasSameContent(other) {
+    if (other.kind !== "markdownContent") {
+      return false;
+    }
+    if (other.content.value === this.markdown.content.value) {
+      return true;
+    }
+    const lastCodeblock = this._codeblocks.at(-1);
+    if (lastCodeblock && lastCodeblock.codemapperUri !== void 0 && lastCodeblock.isStreamingEdit) {
+      return other.content.value.lastIndexOf("```") === this.markdown.content.value.lastIndexOf("```");
+    }
+    return false;
+  }
+  layout(width) {
+    this.allRefs.forEach((ref, index) => {
+      if (ref.object instanceof CodeBlockPart) {
+        ref.object.layout(width);
+      } else if (ref.object instanceof MarkdownDiffBlockPart) {
+        ref.object.layout(width);
+      } else if (ref.object instanceof CollapsedCodeBlock) {
+        const codeblockModel = this._codeblocks[index];
+        if (codeblockModel.codemapperUri && ref.object.uri?.toString() !== codeblockModel.codemapperUri.toString()) {
+          ref.object.render(codeblockModel.codemapperUri);
+        }
+      }
+    });
+    this.mathLayoutParticipants.forEach((layout) => layout());
+  }
+  onDidRemount() {
+    for (const ref of this.allRefs) {
+      if (ref.object instanceof CodeBlockPart) {
+        ref.object.onDidRemount();
+      }
+    }
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatMarkdownContentPart = ChatMarkdownContentPart_1 = __decorate([
+  __param(10, IContextKeyService),
+  __param(11, IConfigurationService),
+  __param(12, ITextModelService),
+  __param(13, IInstantiationService),
+  __param(14, IAiEditTelemetryService)
+], ChatMarkdownContentPart);
+function codeblockHasClosingBackticks(str) {
+  str = str.trim();
+  return !!str.match(/\n```+$/);
+}
+__name(codeblockHasClosingBackticks, "codeblockHasClosingBackticks");
+let CollapsedCodeBlock = class CollapsedCodeBlock2 extends Disposable {
+  static {
+    __name(this, "CollapsedCodeBlock");
+  }
+  get uri() {
+    return this._uri;
+  }
+  constructor(sessionResource, requestId, inUndoStop, labelService, editorService, modelService, languageService, contextMenuService, contextKeyService, menuService, hoverService, chatService, configurationService) {
+    super();
+    this.sessionResource = sessionResource;
+    this.requestId = requestId;
+    this.inUndoStop = inUndoStop;
+    this.labelService = labelService;
+    this.editorService = editorService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this.contextMenuService = contextMenuService;
+    this.contextKeyService = contextKeyService;
+    this.menuService = menuService;
+    this.hoverService = hoverService;
+    this.chatService = chatService;
+    this.configurationService = configurationService;
+    this.hover = this._register(new MutableDisposable());
+    this.progressStore = this._store.add(new DisposableStore());
+    this.element = $("div.chat-codeblock-pill-container");
+    this.statusIndicatorContainer = $("div.status-indicator-container");
+    this.pillElement = $(".chat-codeblock-pill-widget");
+    this.pillElement.tabIndex = 0;
+    this.pillElement.classList.add("show-file-icons");
+    this.pillElement.role = "button";
+    this.element.appendChild(this.statusIndicatorContainer);
+    this.element.appendChild(this.pillElement);
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(registerOpenEditorListeners(this.pillElement, (e) => this.showDiff(e)));
+    this._register(dom.addDisposableListener(this.pillElement, dom.EventType.CONTEXT_MENU, (e) => {
+      const event = new StandardMouseEvent(dom.getWindow(e), e);
+      dom.EventHelper.stop(e, true);
+      this.contextMenuService.showContextMenu({
+        contextKeyService: this.contextKeyService,
+        getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => {
+          if (!this.uri) {
+            return [];
+          }
+          const menu = this.menuService.getMenuActions(MenuId.ChatEditingCodeBlockContext, this.contextKeyService, {
+            arg: {
+              sessionResource: this.sessionResource,
+              requestId: this.requestId,
+              uri: this.uri,
+              stopId: this.inUndoStop
+            }
+          });
+          return getFlatContextMenuActions(menu);
+        }, "getActions")
+      });
+    }));
+  }
+  showDiff({ editorOptions: options, openToSide }) {
+    if (this.currentDiff) {
+      this.editorService.openEditor({
+        original: { resource: this.currentDiff.originalURI },
+        modified: { resource: this.currentDiff.modifiedURI },
+        options
+      }, openToSide ? SIDE_GROUP : void 0);
+    } else if (this.uri) {
+      this.editorService.openEditor({ resource: this.uri, options }, openToSide ? SIDE_GROUP : void 0);
+    }
+  }
+  /**
+   * @param uri URI of the file on-disk being changed
+   * @param isStreaming Whether the edit has completed (at the time of this being rendered)
+   */
+  render(uri) {
+    this.progressStore.clear();
+    this._uri = uri;
+    const session = this.chatService.getSession(this.sessionResource);
+    const iconText = this.labelService.getUriBasenameLabel(uri);
+    const statusIconEl = dom.$("span.status-icon");
+    const statusLabelEl = dom.$("span.status-label", {}, "");
+    this.statusIndicatorContainer.replaceChildren(statusIconEl, statusLabelEl);
+    const iconEl = dom.$("span.icon");
+    const iconLabelEl = dom.$("span.icon-label", {}, iconText);
+    const labelDetail = dom.$("span.label-detail", {}, "");
+    const progressFill = dom.$("span.progress-fill");
+    this.pillElement.replaceChildren(progressFill, iconEl, iconLabelEl, labelDetail);
+    const tooltipLabel = this.labelService.getUriLabel(uri, { relative: true });
+    this.updateTooltip(tooltipLabel);
+    const editSession = session?.editingSession;
+    if (!editSession) {
+      return;
+    }
+    const diffObservable = derived((reader) => {
+      const entry = editSession.readEntry(uri, reader);
+      return entry && editSession.getEntryDiffBetweenStops(entry.modifiedURI, this.requestId, this.inUndoStop);
+    }).map((d, r) => d?.read(r));
+    const isStreaming = derived((r) => {
+      const entry = editSession.readEntry(uri, r);
+      const currentlyModified = entry?.isCurrentlyBeingModifiedBy.read(r);
+      return !!currentlyModified && currentlyModified.responseModel.requestId === this.requestId && currentlyModified.undoStopId === this.inUndoStop;
+    });
+    let statusIconClasses = [];
+    let pillIconClasses = [];
+    this.progressStore.add(autorun((r) => {
+      statusIconEl.classList.remove(...statusIconClasses);
+      iconEl.classList.remove(...pillIconClasses);
+      if (isStreaming.read(r)) {
+        const codicon = ThemeIcon.modify(Codicon.loading, "spin");
+        statusIconClasses = ThemeIcon.asClassNameArray(codicon);
+        statusIconEl.classList.add(...statusIconClasses);
+        const entry = editSession.readEntry(uri, r);
+        const rwRatio = Math.floor((entry?.rewriteRatio.read(r) || 0) * 100);
+        statusLabelEl.textContent = localize("chat.codeblock.applyingEdits", "Applying edits");
+        const showAnimation = this.configurationService.getValue(ChatConfiguration.ShowCodeBlockProgressAnimation);
+        if (showAnimation) {
+          progressFill.style.width = `${rwRatio}%`;
+          this.pillElement.classList.add("progress-filling");
+          labelDetail.textContent = "";
+        } else {
+          progressFill.style.width = "0%";
+          this.pillElement.classList.remove("progress-filling");
+          labelDetail.textContent = rwRatio === 0 || !rwRatio ? localize("chat.codeblock.generating", "Generating edits...") : localize("chat.codeblock.applyingPercentage", "({0}%)...", rwRatio);
+        }
+      } else {
+        const statusCodeicon = Codicon.check;
+        statusIconClasses = ThemeIcon.asClassNameArray(statusCodeicon);
+        statusIconEl.classList.add(...statusIconClasses);
+        statusLabelEl.textContent = localize("chat.codeblock.edited", "Edited");
+        const fileKind = uri.path.endsWith("/") ? FileKind.FOLDER : FileKind.FILE;
+        pillIconClasses = getIconClasses(this.modelService, this.languageService, uri, fileKind);
+        iconEl.classList.add(...pillIconClasses);
+        this.pillElement.classList.remove("progress-filling");
+        progressFill.style.width = "0%";
+        labelDetail.textContent = "";
+      }
+    }));
+    this.progressStore.add(autorunSelfDisposable((r) => {
+      const changes = diffObservable.read(r);
+      if (changes === void 0) {
+        return;
+      }
+      const labelAdded = this.pillElement.querySelector(".label-added") ?? this.pillElement.appendChild(dom.$("span.label-added"));
+      const labelRemoved = this.pillElement.querySelector(".label-removed") ?? this.pillElement.appendChild(dom.$("span.label-removed"));
+      if (changes && !changes?.identical && !changes?.quitEarly) {
+        this.currentDiff = changes;
+        labelAdded.textContent = `+${changes.added}`;
+        labelRemoved.textContent = `-${changes.removed}`;
+        const insertionsFragment = changes.added === 1 ? localize("chat.codeblock.insertions.one", "1 insertion") : localize("chat.codeblock.insertions", "{0} insertions", changes.added);
+        const deletionsFragment = changes.removed === 1 ? localize("chat.codeblock.deletions.one", "1 deletion") : localize("chat.codeblock.deletions", "{0} deletions", changes.removed);
+        const summary = localize("summary", "Edited {0}, {1}, {2}", iconText, insertionsFragment, deletionsFragment);
+        this.element.ariaLabel = summary;
+        if (changes.isFinal) {
+          r.dispose();
+        }
+      }
+    }));
+  }
+  updateTooltip(tooltip) {
+    this.tooltip = tooltip;
+    if (!this.hover.value) {
+      this.hover.value = this.hoverService.setupDelayedHover(this.pillElement, () => ({
+        content: this.tooltip,
+        style: 1,
+        position: {
+          hoverPosition: 2
+          /* HoverPosition.BELOW */
+        },
+        persistence: { hideOnKeyDown: true }
+      }));
+    }
+  }
+};
+CollapsedCodeBlock = __decorate([
+  __param(3, ILabelService),
+  __param(4, IEditorService),
+  __param(5, IModelService),
+  __param(6, ILanguageService),
+  __param(7, IContextMenuService),
+  __param(8, IContextKeyService),
+  __param(9, IMenuService),
+  __param(10, IHoverService),
+  __param(11, IChatService),
+  __param(12, IConfigurationService)
+], CollapsedCodeBlock);
+export {
+  ChatMarkdownContentPart,
+  CollapsedCodeBlock,
+  codeblockHasClosingBackticks
+};
+//# sourceMappingURL=chatMarkdownContentPart.js.map

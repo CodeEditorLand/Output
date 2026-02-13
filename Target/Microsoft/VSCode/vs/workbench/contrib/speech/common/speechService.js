@@ -1,1 +1,149 @@
-import{localize as e}from"../../../../nls.js";import{$qo as r}from"../../../../platform/contextkey/common/contextkey.js";import{$Nj as u}from"../../../../platform/instantiation/common/instantiation.js";import{$A as c}from"../../../../base/common/platform.js";const $=u("speechService"),g=new r("hasSpeechProvider",!1,{type:"boolean",description:e(12666,null)}),C=new r("speechToTextInProgress",!1,{type:"boolean",description:e(12667,null)}),E=new r("textToSpeechInProgress",!1,{type:"boolean",description:e(12668,null)});var a;(function(n){n[n.Started=1]="Started",n[n.Recognizing=2]="Recognizing",n[n.Recognized=3]="Recognized",n[n.Stopped=4]="Stopped",n[n.Error=5]="Error"})(a||(a={}));var i;(function(n){n[n.Started=1]="Started",n[n.Stopped=2]="Stopped",n[n.Error=3]="Error"})(i||(i={}));var p;(function(n){n[n.Recognized=1]="Recognized",n[n.Stopped=2]="Stopped",n[n.Canceled=3]="Canceled"})(p||(p={}));var m;(function(n){n.SpeechTimeout="accessibility.voice.speechTimeout",n.AutoSynthesize="accessibility.voice.autoSynthesize",n.SpeechLanguage="accessibility.voice.speechLanguage",n.IgnoreCodeBlocks="accessibility.voice.ignoreCodeBlocks"})(m||(m={}));const Z="accessibility.voice.speechLanguage",s={"da-DK":{name:e(12669,null)},"de-DE":{name:e(12670,null)},"en-AU":{name:e(12671,null)},"en-CA":{name:e(12672,null)},"en-GB":{name:e(12673,null)},"en-IE":{name:e(12674,null)},"en-IN":{name:e(12675,null)},"en-NZ":{name:e(12676,null)},"en-US":{name:e(12677,null)},"es-ES":{name:e(12678,null)},"es-MX":{name:e(12679,null)},"fr-CA":{name:e(12680,null)},"fr-FR":{name:e(12681,null)},"hi-IN":{name:e(12682,null)},"it-IT":{name:e(12683,null)},"ja-JP":{name:e(12684,null)},"ko-KR":{name:e(12685,null)},"nl-NL":{name:e(12686,null)},"pt-PT":{name:e(12687,null)},"pt-BR":{name:e(12688,null)},"ru-RU":{name:e(12689,null)},"sv-SE":{name:e(12690,null)},"tr-TR":{name:e(12691,null)},"zh-CN":{name:e(12692,null)},"zh-HK":{name:e(12693,null)},"zh-TW":{name:e(12694,null)}};function t(n,o=c){if(typeof n=="string"){if(n==="auto"){if(o!=="en"){const l=o.split("-");return t(`${l[0]}-${(l[1]??l[0]).toUpperCase()}`)}}else if(s[n])return n}return"en-US"}export{$ as $pZ,g as $qZ,C as $rZ,E as $sZ,Z as $tZ,s as $uZ,t as $vZ,m as AccessibilityVoiceSettingId,p as KeywordRecognitionStatus,a as SpeechToTextStatus,i as TextToSpeechStatus};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { language } from "../../../../base/common/platform.js";
+const ISpeechService = createDecorator("speechService");
+const HasSpeechProvider = new RawContextKey("hasSpeechProvider", false, { type: "boolean", description: localize("hasSpeechProvider", "A speech provider is registered to the speech service.") });
+const SpeechToTextInProgress = new RawContextKey("speechToTextInProgress", false, { type: "boolean", description: localize("speechToTextInProgress", "A speech-to-text session is in progress.") });
+const TextToSpeechInProgress = new RawContextKey("textToSpeechInProgress", false, { type: "boolean", description: localize("textToSpeechInProgress", "A text-to-speech session is in progress.") });
+var SpeechToTextStatus;
+(function(SpeechToTextStatus2) {
+  SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
+  SpeechToTextStatus2[SpeechToTextStatus2["Recognizing"] = 2] = "Recognizing";
+  SpeechToTextStatus2[SpeechToTextStatus2["Recognized"] = 3] = "Recognized";
+  SpeechToTextStatus2[SpeechToTextStatus2["Stopped"] = 4] = "Stopped";
+  SpeechToTextStatus2[SpeechToTextStatus2["Error"] = 5] = "Error";
+})(SpeechToTextStatus || (SpeechToTextStatus = {}));
+var TextToSpeechStatus;
+(function(TextToSpeechStatus2) {
+  TextToSpeechStatus2[TextToSpeechStatus2["Started"] = 1] = "Started";
+  TextToSpeechStatus2[TextToSpeechStatus2["Stopped"] = 2] = "Stopped";
+  TextToSpeechStatus2[TextToSpeechStatus2["Error"] = 3] = "Error";
+})(TextToSpeechStatus || (TextToSpeechStatus = {}));
+var KeywordRecognitionStatus;
+(function(KeywordRecognitionStatus2) {
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Recognized"] = 1] = "Recognized";
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Stopped"] = 2] = "Stopped";
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Canceled"] = 3] = "Canceled";
+})(KeywordRecognitionStatus || (KeywordRecognitionStatus = {}));
+var AccessibilityVoiceSettingId;
+(function(AccessibilityVoiceSettingId2) {
+  AccessibilityVoiceSettingId2["SpeechTimeout"] = "accessibility.voice.speechTimeout";
+  AccessibilityVoiceSettingId2["AutoSynthesize"] = "accessibility.voice.autoSynthesize";
+  AccessibilityVoiceSettingId2["SpeechLanguage"] = "accessibility.voice.speechLanguage";
+  AccessibilityVoiceSettingId2["IgnoreCodeBlocks"] = "accessibility.voice.ignoreCodeBlocks";
+})(AccessibilityVoiceSettingId || (AccessibilityVoiceSettingId = {}));
+const SPEECH_LANGUAGE_CONFIG = "accessibility.voice.speechLanguage";
+const SPEECH_LANGUAGES = {
+  ["da-DK"]: {
+    name: localize("speechLanguage.da-DK", "Danish (Denmark)")
+  },
+  ["de-DE"]: {
+    name: localize("speechLanguage.de-DE", "German (Germany)")
+  },
+  ["en-AU"]: {
+    name: localize("speechLanguage.en-AU", "English (Australia)")
+  },
+  ["en-CA"]: {
+    name: localize("speechLanguage.en-CA", "English (Canada)")
+  },
+  ["en-GB"]: {
+    name: localize("speechLanguage.en-GB", "English (United Kingdom)")
+  },
+  ["en-IE"]: {
+    name: localize("speechLanguage.en-IE", "English (Ireland)")
+  },
+  ["en-IN"]: {
+    name: localize("speechLanguage.en-IN", "English (India)")
+  },
+  ["en-NZ"]: {
+    name: localize("speechLanguage.en-NZ", "English (New Zealand)")
+  },
+  ["en-US"]: {
+    name: localize("speechLanguage.en-US", "English (United States)")
+  },
+  ["es-ES"]: {
+    name: localize("speechLanguage.es-ES", "Spanish (Spain)")
+  },
+  ["es-MX"]: {
+    name: localize("speechLanguage.es-MX", "Spanish (Mexico)")
+  },
+  ["fr-CA"]: {
+    name: localize("speechLanguage.fr-CA", "French (Canada)")
+  },
+  ["fr-FR"]: {
+    name: localize("speechLanguage.fr-FR", "French (France)")
+  },
+  ["hi-IN"]: {
+    name: localize("speechLanguage.hi-IN", "Hindi (India)")
+  },
+  ["it-IT"]: {
+    name: localize("speechLanguage.it-IT", "Italian (Italy)")
+  },
+  ["ja-JP"]: {
+    name: localize("speechLanguage.ja-JP", "Japanese (Japan)")
+  },
+  ["ko-KR"]: {
+    name: localize("speechLanguage.ko-KR", "Korean (South Korea)")
+  },
+  ["nl-NL"]: {
+    name: localize("speechLanguage.nl-NL", "Dutch (Netherlands)")
+  },
+  ["pt-PT"]: {
+    name: localize("speechLanguage.pt-PT", "Portuguese (Portugal)")
+  },
+  ["pt-BR"]: {
+    name: localize("speechLanguage.pt-BR", "Portuguese (Brazil)")
+  },
+  ["ru-RU"]: {
+    name: localize("speechLanguage.ru-RU", "Russian (Russia)")
+  },
+  ["sv-SE"]: {
+    name: localize("speechLanguage.sv-SE", "Swedish (Sweden)")
+  },
+  ["tr-TR"]: {
+    // allow-any-unicode-next-line
+    name: localize("speechLanguage.tr-TR", "Turkish (T\xFCrkiye)")
+  },
+  ["zh-CN"]: {
+    name: localize("speechLanguage.zh-CN", "Chinese (Simplified, China)")
+  },
+  ["zh-HK"]: {
+    name: localize("speechLanguage.zh-HK", "Chinese (Traditional, Hong Kong)")
+  },
+  ["zh-TW"]: {
+    name: localize("speechLanguage.zh-TW", "Chinese (Traditional, Taiwan)")
+  }
+};
+function speechLanguageConfigToLanguage(config, lang = language) {
+  if (typeof config === "string") {
+    if (config === "auto") {
+      if (lang !== "en") {
+        const langParts = lang.split("-");
+        return speechLanguageConfigToLanguage(`${langParts[0]}-${(langParts[1] ?? langParts[0]).toUpperCase()}`);
+      }
+    } else {
+      if (SPEECH_LANGUAGES[config]) {
+        return config;
+      }
+    }
+  }
+  return "en-US";
+}
+__name(speechLanguageConfigToLanguage, "speechLanguageConfigToLanguage");
+export {
+  AccessibilityVoiceSettingId,
+  HasSpeechProvider,
+  ISpeechService,
+  KeywordRecognitionStatus,
+  SPEECH_LANGUAGES,
+  SPEECH_LANGUAGE_CONFIG,
+  SpeechToTextInProgress,
+  SpeechToTextStatus,
+  TextToSpeechInProgress,
+  TextToSpeechStatus,
+  speechLanguageConfigToLanguage
+};
+//# sourceMappingURL=speechService.js.map

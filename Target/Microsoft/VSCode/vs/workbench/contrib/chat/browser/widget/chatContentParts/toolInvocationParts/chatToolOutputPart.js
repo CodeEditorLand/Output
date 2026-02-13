@@ -1,1 +1,143 @@
-import*as a from"../../../../../../../base/browser/dom.js";import{$I0 as v}from"../../../../../../../base/browser/markdownRenderer.js";import{$qj as D}from"../../../../../../../base/common/buffer.js";import{$Jf as C}from"../../../../../../../base/common/cancellation.js";import{$bk as c}from"../../../../../../../base/common/codicons.js";import{$rb as y}from"../../../../../../../base/common/errors.js";import{ThemeIcon as g}from"../../../../../../../base/common/themables.js";import{$ln as N}from"../../../../../../../base/common/uuid.js";import{localize as b}from"../../../../../../../nls.js";import{$Mj as O}from"../../../../../../../platform/instantiation/common/instantiation.js";import{IChatToolInvocation as x}from"../../../../common/chatService/chatService.js";import{$U4b as M}from"../../../chat.js";import{$W3b as S}from"../../../chatOutputItemRenderer.js";import{$W2b as _}from"../chatProgressContentPart.js";import{$o3b as R}from"./chatToolInvocationSubPart.js";import{$Y3b as T}from"./chatToolOutputStateCache.js";var w=function(l,e,n,o){var t=arguments.length,r=t<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,e,n,o);else for(var i=l.length-1;i>=0;i--)(p=l[i])&&(r=(t<3?p(r):t>3?p(e,n,r):p(e,n))||r);return t>3&&r&&Object.defineProperty(e,n,r),r},m=function(l,e){return function(n,o){e(n,o,l)}};let $=class extends R{constructor(e,n,o,t,r,p,i){super(e),this.h=n,this.m=o,this.n=t,this.q=r,this.r=p,this.s=i,this.codeblocks=[],this.c=this.D(new C);const s=e.kind==="toolInvocation"?x.resultDetails(e):{output:{type:"data",mimeType:e.resultDetails.output.mimeType,value:D(e.resultDetails.output.base64Data)}};if(this.domNode=a.$("div.tool-output-part"),e.invocationMessage){const h=a.$(".output-title");if(this.domNode.appendChild(h),typeof e.invocationMessage=="string")h.textContent=e.invocationMessage;else{const u=this.D(v(e.invocationMessage));h.appendChild(u.element)}}this.domNode.appendChild(this.t(e,s))}dispose(){this.c.dispose(!0),super.dispose()}t(e,n){const o=a.$("div.webview-output");o.style.maxHeight="80vh";const t=this.s.get(e.toolCallId)??{height:0,webviewOrigin:N()};this.s.set(e.toolCallId,t),t.height&&(o.style.height=`${t.height}px`),t.webviewOrigin&&(t.webviewOrigin=t.webviewOrigin);const r=a.$("span");r.textContent=b(6644,null);const p=this.D(this.r.createInstance(_,r,g.modify(c.loading,"spin"),void 0));return o.appendChild(p.domNode),this.n.renderOutputPart(n.output.mimeType,n.output.value.buffer,o,{origin:t.webviewOrigin,webviewState:t.webviewState},this.c.token).then(i=>{this.c.token.isCancellationRequested||(this.D(i),p.domNode.remove(),this.D(i.webview.onDidUpdateState(s=>{t.webviewState=s})),this.D(i.onDidChangeHeight(s=>{t.height=s})),this.D(i.webview.onDidWheel(s=>{this.q.getWidgetBySessionResource(this.h.element.sessionResource)?.delegateScrollFromMouseWheelEvent({...s,preventDefault:()=>{},stopPropagation:()=>{}})})),this.D(this.h.onDidChangeVisibility(s=>{s&&i.reinitialize()})),this.D(this.m(()=>{i.reinitialize()})))},i=>{if(y(i))return;const s=a.$(".output-error"),h=a.$(".output-error-header");a.$y9(s,h);const u=a.$("div");u.classList.add(...g.asClassNameArray(c.error)),h.append(u);const d=a.$(".output-error-title");d.textContent=b(6645,null),h.append(d);const f=a.$(".output-error-details");f.textContent=i?.message||String(i),s.append(f),p.domNode.replaceWith(s)}),o}};$=w([m(3,S),m(4,M),m(5,O),m(6,T)],$);export{$ as $13b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { renderMarkdown } from "../../../../../../../base/browser/markdownRenderer.js";
+import { decodeBase64 } from "../../../../../../../base/common/buffer.js";
+import { CancellationTokenSource } from "../../../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../../../base/common/codicons.js";
+import { isCancellationError } from "../../../../../../../base/common/errors.js";
+import { ThemeIcon } from "../../../../../../../base/common/themables.js";
+import { generateUuid } from "../../../../../../../base/common/uuid.js";
+import { localize } from "../../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { IChatToolInvocation } from "../../../../common/chatService/chatService.js";
+import { IChatWidgetService } from "../../../chat.js";
+import { IChatOutputRendererService } from "../../../chatOutputItemRenderer.js";
+import { ChatProgressSubPart } from "../chatProgressContentPart.js";
+import { BaseChatToolInvocationSubPart } from "./chatToolInvocationSubPart.js";
+import { IChatToolOutputStateCache } from "./chatToolOutputStateCache.js";
+let ChatToolOutputSubPart = class ChatToolOutputSubPart2 extends BaseChatToolInvocationSubPart {
+  static {
+    __name(this, "ChatToolOutputSubPart");
+  }
+  constructor(toolInvocation, context, onDidRemount, chatOutputItemRendererService, chatWidgetService, instantiationService, stateCache) {
+    super(toolInvocation);
+    this.context = context;
+    this.onDidRemount = onDidRemount;
+    this.chatOutputItemRendererService = chatOutputItemRendererService;
+    this.chatWidgetService = chatWidgetService;
+    this.instantiationService = instantiationService;
+    this.stateCache = stateCache;
+    this.codeblocks = [];
+    this._disposeCts = this._register(new CancellationTokenSource());
+    const details = toolInvocation.kind === "toolInvocation" ? IChatToolInvocation.resultDetails(toolInvocation) : {
+      output: {
+        type: "data",
+        mimeType: toolInvocation.resultDetails.output.mimeType,
+        value: decodeBase64(toolInvocation.resultDetails.output.base64Data)
+      }
+    };
+    this.domNode = dom.$("div.tool-output-part");
+    if (toolInvocation.invocationMessage) {
+      const titleEl = dom.$(".output-title");
+      this.domNode.appendChild(titleEl);
+      if (typeof toolInvocation.invocationMessage === "string") {
+        titleEl.textContent = toolInvocation.invocationMessage;
+      } else {
+        const md = this._register(renderMarkdown(toolInvocation.invocationMessage));
+        titleEl.appendChild(md.element);
+      }
+    }
+    this.domNode.appendChild(this.createOutputPart(toolInvocation, details));
+  }
+  dispose() {
+    this._disposeCts.dispose(true);
+    super.dispose();
+  }
+  createOutputPart(toolInvocation, details) {
+    const parent = dom.$("div.webview-output");
+    parent.style.maxHeight = "80vh";
+    const partState = this.stateCache.get(toolInvocation.toolCallId) ?? { height: 0, webviewOrigin: generateUuid() };
+    this.stateCache.set(toolInvocation.toolCallId, partState);
+    if (partState.height) {
+      parent.style.height = `${partState.height}px`;
+    }
+    if (partState.webviewOrigin) {
+      partState.webviewOrigin = partState.webviewOrigin;
+    }
+    const progressMessage = dom.$("span");
+    progressMessage.textContent = localize("loading", "Rendering tool output...");
+    const progressPart = this._register(this.instantiationService.createInstance(ChatProgressSubPart, progressMessage, ThemeIcon.modify(Codicon.loading, "spin"), void 0));
+    parent.appendChild(progressPart.domNode);
+    this.chatOutputItemRendererService.renderOutputPart(details.output.mimeType, details.output.value.buffer, parent, { origin: partState.webviewOrigin, webviewState: partState.webviewState }, this._disposeCts.token).then((renderedItem) => {
+      if (this._disposeCts.token.isCancellationRequested) {
+        return;
+      }
+      this._register(renderedItem);
+      progressPart.domNode.remove();
+      this._register(renderedItem.webview.onDidUpdateState((e) => {
+        partState.webviewState = e;
+      }));
+      this._register(renderedItem.onDidChangeHeight((newHeight) => {
+        partState.height = newHeight;
+      }));
+      this._register(renderedItem.webview.onDidWheel((e) => {
+        this.chatWidgetService.getWidgetBySessionResource(this.context.element.sessionResource)?.delegateScrollFromMouseWheelEvent({
+          ...e,
+          preventDefault: /* @__PURE__ */ __name(() => {
+          }, "preventDefault"),
+          stopPropagation: /* @__PURE__ */ __name(() => {
+          }, "stopPropagation")
+        });
+      }));
+      this._register(this.context.onDidChangeVisibility((visible) => {
+        if (visible) {
+          renderedItem.reinitialize();
+        }
+      }));
+      this._register(this.onDidRemount(() => {
+        renderedItem.reinitialize();
+      }));
+    }, (error) => {
+      if (isCancellationError(error)) {
+        return;
+      }
+      console.error("Error rendering tool output:", error);
+      const errorNode = dom.$(".output-error");
+      const errorHeaderNode = dom.$(".output-error-header");
+      dom.append(errorNode, errorHeaderNode);
+      const iconElement = dom.$("div");
+      iconElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.error));
+      errorHeaderNode.append(iconElement);
+      const errorTitleNode = dom.$(".output-error-title");
+      errorTitleNode.textContent = localize("chat.toolOutputError", "Error rendering the tool output");
+      errorHeaderNode.append(errorTitleNode);
+      const errorMessageNode = dom.$(".output-error-details");
+      errorMessageNode.textContent = error?.message || String(error);
+      errorNode.append(errorMessageNode);
+      progressPart.domNode.replaceWith(errorNode);
+    });
+    return parent;
+  }
+};
+ChatToolOutputSubPart = __decorate([
+  __param(3, IChatOutputRendererService),
+  __param(4, IChatWidgetService),
+  __param(5, IInstantiationService),
+  __param(6, IChatToolOutputStateCache)
+], ChatToolOutputSubPart);
+export {
+  ChatToolOutputSubPart
+};
+//# sourceMappingURL=chatToolOutputPart.js.map

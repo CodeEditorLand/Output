@@ -1,17 +1,184 @@
-import{$m as P}from"../../../../../../base/common/platform.js";import{$Vf as w}from"../../../../../../base/common/strings.js";import{$0l as F}from"../../../../../../platform/configuration/common/configuration.js";import{$jTc as z}from"../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$oTc as y}from"../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";import{$y5c as g}from"./linkTestUtils.js";import{$0h as x}from"../../../../../../base/common/async.js";import{strictEqual as H}from"assert";import{$1Ec as M}from"../../browser/terminalLinkResolver.js";import{$vk as T}from"../../../../../../platform/files/common/files.js";import{$Q2c as v}from"../../../../../test/common/workbenchTestServices.js";import{URI as o}from"../../../../../../base/common/uri.js";import{$Mo as A}from"../../../../../../platform/log/common/log.js";import{$yx as I}from"../../../../../../platform/terminal/common/terminal.js";import{$WEc as C}from"../../browser/terminalMultiLineLinkDetector.js";import{$HL as E}from"../../../../../../amdX.js";import{$Ibb as S}from"../../../../../../base/test/common/utils.js";import{$6c as s}from"../../../../../../base/common/types.js";import{$dVc as W}from"../../../../../../platform/terminal/test/common/terminalTestHelpers.js";const j=["/foo","/foo/bar","/foo/[bar]","/foo/[bar].baz","/foo/[bar]/baz","/foo/bar+more",{link:"~/foo",resource:o.file("/home/foo")},{link:"./foo",resource:o.file("/parent/cwd/foo")},{link:"./$foo",resource:o.file("/parent/cwd/$foo")},{link:"../foo",resource:o.file("/parent/foo")},{link:"foo/bar",resource:o.file("/parent/cwd/foo/bar")},{link:"foo/bar+more",resource:o.file("/parent/cwd/foo/bar+more")}],D=["c:\\foo",{link:"\\\\?\\C:\\foo",resource:o.file("C:\\foo")},"c:/foo","c:/foo/bar","c:\\foo\\bar","c:\\foo\\bar+more","c:\\foo/bar\\baz",{link:"~\\foo",resource:o.file("C:\\Home\\foo")},{link:"~/foo",resource:o.file("C:\\Home\\foo")},{link:".\\foo",resource:o.file("C:\\Parent\\Cwd\\foo")},{link:"./foo",resource:o.file("C:\\Parent\\Cwd\\foo")},{link:"./$foo",resource:o.file("C:\\Parent\\Cwd\\$foo")},{link:"..\\foo",resource:o.file("C:\\Parent\\foo")},{link:"foo/bar",resource:o.file("C:\\Parent\\Cwd\\foo\\bar")},{link:"foo/bar",resource:o.file("C:\\Parent\\Cwd\\foo\\bar")},{link:"foo/[bar]",resource:o.file("C:\\Parent\\Cwd\\foo\\[bar]")},{link:"foo/[bar].baz",resource:o.file("C:\\Parent\\Cwd\\foo\\[bar].baz")},{link:"foo/[bar]/baz",resource:o.file("C:\\Parent\\Cwd\\foo\\[bar]/baz")},{link:"foo\\bar",resource:o.file("C:\\Parent\\Cwd\\foo\\bar")},{link:"foo\\[bar].baz",resource:o.file("C:\\Parent\\Cwd\\foo\\[bar].baz")},{link:"foo\\[bar]\\baz",resource:o.file("C:\\Parent\\Cwd\\foo\\[bar]\\baz")},{link:"foo\\bar+more",resource:o.file("C:\\Parent\\Cwd\\foo\\bar+more")}],c=[{urlFormat:`{0}\r
-{1}:foo`,line:"5"},{urlFormat:`{0}\r
-{1}: foo`,line:"5"},{urlFormat:`{0}\r
-5:another link\r
-{1}:{2} foo`,line:"5",column:"3"},{urlFormat:`{0}\r
-  {1}:{2} foo`,line:"5",column:"3"},{urlFormat:`{0}\r
-  5:6  error  another one\r
-  {1}:{2}  error`,line:"5",column:"3"},{urlFormat:`{0}\r
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isWindows } from "../../../../../../base/common/platform.js";
+import { format } from "../../../../../../base/common/strings.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { TestConfigurationService } from "../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { TestInstantiationService } from "../../../../../../platform/instantiation/test/common/instantiationServiceMock.js";
+import { assertLinkHelper } from "./linkTestUtils.js";
+import { timeout } from "../../../../../../base/common/async.js";
+import { strictEqual } from "assert";
+import { TerminalLinkResolver } from "../../browser/terminalLinkResolver.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { createFileStat } from "../../../../../test/common/workbenchTestServices.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { NullLogService } from "../../../../../../platform/log/common/log.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { TerminalMultiLineLinkDetector } from "../../browser/terminalMultiLineLinkDetector.js";
+import { importAMDNodeModule } from "../../../../../../amdX.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../base/test/common/utils.js";
+import { isString } from "../../../../../../base/common/types.js";
+import { TestXtermLogger } from "../../../../../../platform/terminal/test/common/terminalTestHelpers.js";
+const unixLinks = [
+  // Absolute
+  "/foo",
+  "/foo/bar",
+  "/foo/[bar]",
+  "/foo/[bar].baz",
+  "/foo/[bar]/baz",
+  "/foo/bar+more",
+  // User home
+  { link: "~/foo", resource: URI.file("/home/foo") },
+  // Relative
+  { link: "./foo", resource: URI.file("/parent/cwd/foo") },
+  { link: "./$foo", resource: URI.file("/parent/cwd/$foo") },
+  { link: "../foo", resource: URI.file("/parent/foo") },
+  { link: "foo/bar", resource: URI.file("/parent/cwd/foo/bar") },
+  { link: "foo/bar+more", resource: URI.file("/parent/cwd/foo/bar+more") }
+];
+const windowsLinks = [
+  // Absolute
+  "c:\\foo",
+  { link: "\\\\?\\C:\\foo", resource: URI.file("C:\\foo") },
+  "c:/foo",
+  "c:/foo/bar",
+  "c:\\foo\\bar",
+  "c:\\foo\\bar+more",
+  "c:\\foo/bar\\baz",
+  // User home
+  { link: "~\\foo", resource: URI.file("C:\\Home\\foo") },
+  { link: "~/foo", resource: URI.file("C:\\Home\\foo") },
+  // Relative
+  { link: ".\\foo", resource: URI.file("C:\\Parent\\Cwd\\foo") },
+  { link: "./foo", resource: URI.file("C:\\Parent\\Cwd\\foo") },
+  { link: "./$foo", resource: URI.file("C:\\Parent\\Cwd\\$foo") },
+  { link: "..\\foo", resource: URI.file("C:\\Parent\\foo") },
+  { link: "foo/bar", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar") },
+  { link: "foo/bar", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar") },
+  { link: "foo/[bar]", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar]") },
+  { link: "foo/[bar].baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar].baz") },
+  { link: "foo/[bar]/baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar]/baz") },
+  { link: "foo\\bar", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar") },
+  { link: "foo\\[bar].baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar].baz") },
+  { link: "foo\\[bar]\\baz", resource: URI.file("C:\\Parent\\Cwd\\foo\\[bar]\\baz") },
+  { link: "foo\\bar+more", resource: URI.file("C:\\Parent\\Cwd\\foo\\bar+more") }
+];
+const supportedLinkFormats = [
+  // 5: file content...                         [#181837]
+  //   5:3  error                               [#181837]
+  { urlFormat: "{0}\r\n{1}:foo", line: "5" },
+  { urlFormat: "{0}\r\n{1}: foo", line: "5" },
+  { urlFormat: "{0}\r\n5:another link\r\n{1}:{2} foo", line: "5", column: "3" },
+  { urlFormat: "{0}\r\n  {1}:{2} foo", line: "5", column: "3" },
+  { urlFormat: "{0}\r\n  5:6  error  another one\r\n  {1}:{2}  error", line: "5", column: "3" },
+  { urlFormat: `{0}\r
   5:6  error  ${"a".repeat(80)}\r
-  {1}:{2}  error`,line:"5",column:"3"},{urlFormat:`+++ b/{0}\r
-@@ -7,6 +{1},7 @@`,line:"5"},{urlFormat:`+++ b/{0}\r
-@@ -1,1 +1,1 @@\r
-foo\r
-bar\r
-@@ -7,6 +{1},7 @@`,line:"5"}];suite("Workbench - TerminalMultiLineLinkDetector",()=>{const m=S();let f,k,u,b,d,l;async function h(r,e,t){let n;const i=await Promise.race([g(e,t,u,r).then(()=>"success"),(n=x(2)).then(()=>"timeout")]);H(i,"success",`Awaiting link assertion for "${e}" timed out`),n.cancel()}async function p(r,e){const t=e??o.file(r),n=r.split(`\r
-`),i=n.at(-1);let a=0;for(const L of n)a+=Math.max(Math.ceil(L.length/80),1);await h("LocalFile",r,[{uri:t,range:[[1,a],[i.length,a]]}])}setup(async()=>{f=m.add(new y),k=new z,f.stub(F,k),f.stub(T,{async stat(e){if(!l.map(t=>t.path).includes(e.path))throw new Error("Doesn't exist");return v(e)}}),f.stub(I,new A),b=f.createInstance(M),l=[];const r=(await E("@xterm/xterm","lib/xterm.js")).Terminal;d=new r({allowProposedApi:!0,cols:80,rows:30,logger:W})}),suite("macOS/Linux",()=>{setup(()=>{u=f.createInstance(C,d,{initialCwd:"/parent/cwd",os:3,remoteAuthority:void 0,userHome:"/home",backend:void 0},b)});for(const r of j){const e=s(r)?r:r.link,t=s(r)?o.file(r):r.resource;suite(`Link: ${e}`,()=>{for(let n=0;n<c.length;n++){const i=c[n],a=w(i.urlFormat,e,i.line,i.column);test(`should detect in "${$(a)}"`,async()=>{l=[t],await p(a,t)})}})}}),P&&suite("Windows",()=>{setup(()=>{u=f.createInstance(C,d,{initialCwd:"C:\\Parent\\Cwd",os:1,remoteAuthority:void 0,userHome:"C:\\Home"},b)});for(const r of D){const e=s(r)?r:r.link,t=s(r)?o.file(r):r.resource;suite(`Link "${e}"`,()=>{for(let n=0;n<c.length;n++){const i=c[n],a=w(i.urlFormat,e,i.line,i.column);test(`should detect in "${$(a)}"`,async()=>{l=[t],await p(a,t)})}})}})});function $(m){return m.replaceAll(`\r
-`,"\\r\\n")}
+  {1}:{2}  error`, line: "5", column: "3" },
+  // @@ ... <to-file-range> @@ content...       [#182878]   (tests check the entire line, so they don't include the line content at the end of the last @@)
+  { urlFormat: "+++ b/{0}\r\n@@ -7,6 +{1},7 @@", line: "5" },
+  { urlFormat: "+++ b/{0}\r\n@@ -1,1 +1,1 @@\r\nfoo\r\nbar\r\n@@ -7,6 +{1},7 @@", line: "5" }
+];
+suite("Workbench - TerminalMultiLineLinkDetector", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let configurationService;
+  let detector;
+  let resolver;
+  let xterm;
+  let validResources;
+  async function assertLinks(type, text, expected) {
+    let to;
+    const race = await Promise.race([
+      assertLinkHelper(text, expected, detector, type).then(() => "success"),
+      (to = timeout(2)).then(() => "timeout")
+    ]);
+    strictEqual(race, "success", `Awaiting link assertion for "${text}" timed out`);
+    to.cancel();
+  }
+  __name(assertLinks, "assertLinks");
+  async function assertLinksMain(link, resource) {
+    const uri = resource ?? URI.file(link);
+    const lines = link.split("\r\n");
+    const lastLine = lines.at(-1);
+    let lineCount = 0;
+    for (const line of lines) {
+      lineCount += Math.max(Math.ceil(line.length / 80), 1);
+    }
+    await assertLinks("LocalFile", link, [{ uri, range: [[1, lineCount], [lastLine.length, lineCount]] }]);
+  }
+  __name(assertLinksMain, "assertLinksMain");
+  setup(async () => {
+    instantiationService = store.add(new TestInstantiationService());
+    configurationService = new TestConfigurationService();
+    instantiationService.stub(IConfigurationService, configurationService);
+    instantiationService.stub(IFileService, {
+      async stat(resource) {
+        if (!validResources.map((e) => e.path).includes(resource.path)) {
+          throw new Error("Doesn't exist");
+        }
+        return createFileStat(resource);
+      }
+    });
+    instantiationService.stub(ITerminalLogService, new NullLogService());
+    resolver = instantiationService.createInstance(TerminalLinkResolver);
+    validResources = [];
+    const TerminalCtor = (await importAMDNodeModule("@xterm/xterm", "lib/xterm.js")).Terminal;
+    xterm = new TerminalCtor({ allowProposedApi: true, cols: 80, rows: 30, logger: TestXtermLogger });
+  });
+  suite("macOS/Linux", () => {
+    setup(() => {
+      detector = instantiationService.createInstance(TerminalMultiLineLinkDetector, xterm, {
+        initialCwd: "/parent/cwd",
+        os: 3,
+        remoteAuthority: void 0,
+        userHome: "/home",
+        backend: void 0
+      }, resolver);
+    });
+    for (const l of unixLinks) {
+      const baseLink = isString(l) ? l : l.link;
+      const resource = isString(l) ? URI.file(l) : l.resource;
+      suite(`Link: ${baseLink}`, () => {
+        for (let i = 0; i < supportedLinkFormats.length; i++) {
+          const linkFormat = supportedLinkFormats[i];
+          const formattedLink = format(linkFormat.urlFormat, baseLink, linkFormat.line, linkFormat.column);
+          test(`should detect in "${escapeMultilineTestName(formattedLink)}"`, async () => {
+            validResources = [resource];
+            await assertLinksMain(formattedLink, resource);
+          });
+        }
+      });
+    }
+  });
+  if (isWindows) {
+    suite("Windows", () => {
+      setup(() => {
+        detector = instantiationService.createInstance(TerminalMultiLineLinkDetector, xterm, {
+          initialCwd: "C:\\Parent\\Cwd",
+          os: 1,
+          remoteAuthority: void 0,
+          userHome: "C:\\Home"
+        }, resolver);
+      });
+      for (const l of windowsLinks) {
+        const baseLink = isString(l) ? l : l.link;
+        const resource = isString(l) ? URI.file(l) : l.resource;
+        suite(`Link "${baseLink}"`, () => {
+          for (let i = 0; i < supportedLinkFormats.length; i++) {
+            const linkFormat = supportedLinkFormats[i];
+            const formattedLink = format(linkFormat.urlFormat, baseLink, linkFormat.line, linkFormat.column);
+            test(`should detect in "${escapeMultilineTestName(formattedLink)}"`, async () => {
+              validResources = [resource];
+              await assertLinksMain(formattedLink, resource);
+            });
+          }
+        });
+      }
+    });
+  }
+});
+function escapeMultilineTestName(text) {
+  return text.replaceAll("\r\n", "\\r\\n");
+}
+__name(escapeMultilineTestName, "escapeMultilineTestName");
+//# sourceMappingURL=terminalMultiLineLinkDetector.test.js.map

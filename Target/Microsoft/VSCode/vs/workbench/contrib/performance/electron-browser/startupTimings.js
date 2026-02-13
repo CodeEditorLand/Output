@@ -1,3 +1,198 @@
-import{$0h as w}from"../../../../base/common/async.js";import{$mb as d}from"../../../../base/common/errors.js";import{$SPc as M}from"../../../services/environment/electron-browser/environmentService.js";import{$WN as b}from"../../../services/lifecycle/common/lifecycle.js";import{$Vn as C}from"../../../../platform/product/common/productService.js";import{$pp as k}from"../../../../platform/telemetry/common/telemetry.js";import{$My as S}from"../../../../platform/update/common/update.js";import{$Xu as j}from"../../../../platform/native/common/native.js";import{$BL as y}from"../../../services/editor/common/editorService.js";import{$f7b as G}from"../../../services/timer/browser/timerService.js";import{$vk as _}from"../../../../platform/files/common/files.js";import{URI as m}from"../../../../base/common/uri.js";import{$0i as l}from"../../../../base/common/buffer.js";import{$2H as B}from"../../../../platform/workspace/common/workspaceTrust.js";import{$_Bb as v}from"../../../services/panecomposite/browser/panecomposite.js";import{$cPc as H}from"../browser/startupTimings.js";import{$$b as P}from"../../../../base/common/arrays.js";var $=function(f,t,e,r){var s=arguments.length,i=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(f,t,e,r);else for(var o=f.length-1;o>=0;o--)(a=f[o])&&(i=(s<3?a(i):s>3?a(t,e,i):a(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},c=function(f,t){return function(e,r){t(e,r,f)}};let g=class extends H{constructor(t,e,r,s,i,a,o,n,p,h,u){super(s,i,o,n,u),this.g=t,this.h=e,this.i=r,this.j=a,this.k=p,this.l=h,this.m().catch(d)}async m(){const t=await this.f();this.n(t).catch(d)}async n(t){const e=this.k.args["prof-append-timers"],r=this.k.args["prof-duration-markers"],s=this.k.args["prof-duration-markers-file"];if(!(!e&&!r))try{await Promise.all([this.h.whenReady(),w(15e3)]);const i=await this.h.perfBaseline,a=await this.q();if(a&&this.r(a),e){const o=P([this.h.startupMetrics.ellapsed,this.l.nameShort,(this.l.commit||"").slice(0,10)||"0000000000",this.j.sessionId,t===void 0?"standard_start":`NO_standard_start : ${t}`,`${String(i).padStart(4,"0")}ms`,a?this.s(a):void 0]).join("	")+`
-`;await this.p(m.file(e),o)}if(r?.length){const o=[];for(const p of r){let h=0;if(p==="ellapsed")h=this.h.startupMetrics.ellapsed;else if(p.indexOf("-")!==-1){const u=p.split("-");u.length===2&&(h=this.h.getDuration(u[0],u[1]))}h&&(o.push(p),o.push(`${h}`))}const n=`${o.join("	")}
-`;s&&await this.p(m.file(s),n)}}catch{}finally{this.i.exit(0)}}async f(){const t=await this.i.getWindowCount();return t!==1?`Expected window count : 1, Actual : ${t}`:super.f()}async p(t,e){const r=[];await this.g.exists(t)&&r.push((await this.g.readFile(t)).value),r.push(l.fromString(e)),await this.g.writeFile(t,l.concat(r))}async q(){if(!this.k.args["enable-tracing"]||!this.k.args["trace-startup-file"]||this.k.args["trace-startup-format"]!=="json"||!this.k.args["trace-startup-duration"])return;const t=await this.i.getProcessId(),e=performance.memory?.usedJSHeapSize??0;let r=0,s=0,i=0,a=0;try{const o=JSON.parse((await this.g.readFile(m.file(this.k.args["trace-startup-file"]))).value.toString());for(const n of o.traceEvents)if(n.pid===t){switch(n.name){case"MinorGC":r++;break;case"MajorGC":s++;break;case"V8.GCFinalizeMC":case"V8.GCScavenger":a+=n.dur;break}(n.name==="MajorGC"||n.name==="MinorGC")&&typeof n.args?.usedHeapSizeAfter=="number"&&typeof n.args.usedHeapSizeBefore=="number"&&(i+=n.args.usedHeapSizeBefore-n.args.usedHeapSizeAfter)}return{minorGCs:r,majorGCs:s,used:e,garbage:i,duration:Math.round(a/1e3)}}catch{}}r({used:t,garbage:e,majorGCs:r,minorGCs:s,duration:i}){this.j.publicLog2("startupHeapStatistics",{heapUsed:t,heapGarbage:e,majorGCs:r,minorGCs:s,gcsDuration:i})}s({used:t,garbage:e,majorGCs:r,minorGCs:s,duration:i}){return`Heap: ${Math.round(t/1048576)}MB (used) ${Math.round(e/1048576)}MB (garbage) ${r} (MajorGC) ${s} (MinorGC) ${i}ms (GC duration)`}};g=$([c(0,_),c(1,G),c(2,j),c(3,y),c(4,v),c(5,k),c(6,b),c(7,S),c(8,M),c(9,C),c(10,B)],g);export{g as $eXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-browser/environmentService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { URI } from "../../../../base/common/uri.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { StartupTimings } from "../browser/startupTimings.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+let NativeStartupTimings = class NativeStartupTimings2 extends StartupTimings {
+  static {
+    __name(this, "NativeStartupTimings");
+  }
+  constructor(_fileService, _timerService, _nativeHostService, editorService, paneCompositeService, _telemetryService, lifecycleService, updateService, _environmentService, _productService, workspaceTrustService) {
+    super(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService);
+    this._fileService = _fileService;
+    this._timerService = _timerService;
+    this._nativeHostService = _nativeHostService;
+    this._telemetryService = _telemetryService;
+    this._environmentService = _environmentService;
+    this._productService = _productService;
+    this._report().catch(onUnexpectedError);
+  }
+  async _report() {
+    const standardStartupError = await this._isStandardStartup();
+    this._appendStartupTimes(standardStartupError).catch(onUnexpectedError);
+  }
+  async _appendStartupTimes(standardStartupError) {
+    const appendTo = this._environmentService.args["prof-append-timers"];
+    const durationMarkers = this._environmentService.args["prof-duration-markers"];
+    const durationMarkersFile = this._environmentService.args["prof-duration-markers-file"];
+    if (!appendTo && !durationMarkers) {
+      return;
+    }
+    try {
+      await Promise.all([
+        this._timerService.whenReady(),
+        timeout(15e3)
+        // wait: cached data creation, telemetry sending
+      ]);
+      const perfBaseline = await this._timerService.perfBaseline;
+      const heapStatistics = await this._resolveStartupHeapStatistics();
+      if (heapStatistics) {
+        this._telemetryLogHeapStatistics(heapStatistics);
+      }
+      if (appendTo) {
+        const content = coalesce([
+          this._timerService.startupMetrics.ellapsed,
+          this._productService.nameShort,
+          (this._productService.commit || "").slice(0, 10) || "0000000000",
+          this._telemetryService.sessionId,
+          standardStartupError === void 0 ? "standard_start" : `NO_standard_start : ${standardStartupError}`,
+          `${String(perfBaseline).padStart(4, "0")}ms`,
+          heapStatistics ? this._printStartupHeapStatistics(heapStatistics) : void 0
+        ]).join("	") + "\n";
+        await this._appendContent(URI.file(appendTo), content);
+      }
+      if (durationMarkers?.length) {
+        const durations = [];
+        for (const durationMarker of durationMarkers) {
+          let duration = 0;
+          if (durationMarker === "ellapsed") {
+            duration = this._timerService.startupMetrics.ellapsed;
+          } else if (durationMarker.indexOf("-") !== -1) {
+            const markers = durationMarker.split("-");
+            if (markers.length === 2) {
+              duration = this._timerService.getDuration(markers[0], markers[1]);
+            }
+          }
+          if (duration) {
+            durations.push(durationMarker);
+            durations.push(`${duration}`);
+          }
+        }
+        const durationsContent = `${durations.join("	")}
+`;
+        if (durationMarkersFile) {
+          await this._appendContent(URI.file(durationMarkersFile), durationsContent);
+        } else {
+          console.log(durationsContent);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this._nativeHostService.exit(0);
+    }
+  }
+  async _isStandardStartup() {
+    const windowCount = await this._nativeHostService.getWindowCount();
+    if (windowCount !== 1) {
+      return `Expected window count : 1, Actual : ${windowCount}`;
+    }
+    return super._isStandardStartup();
+  }
+  async _appendContent(file, content) {
+    const chunks = [];
+    if (await this._fileService.exists(file)) {
+      chunks.push((await this._fileService.readFile(file)).value);
+    }
+    chunks.push(VSBuffer.fromString(content));
+    await this._fileService.writeFile(file, VSBuffer.concat(chunks));
+  }
+  async _resolveStartupHeapStatistics() {
+    if (!this._environmentService.args["enable-tracing"] || !this._environmentService.args["trace-startup-file"] || this._environmentService.args["trace-startup-format"] !== "json" || !this._environmentService.args["trace-startup-duration"]) {
+      return void 0;
+    }
+    const windowProcessId = await this._nativeHostService.getProcessId();
+    const used = performance.memory?.usedJSHeapSize ?? 0;
+    let minorGCs = 0;
+    let majorGCs = 0;
+    let garbage = 0;
+    let duration = 0;
+    try {
+      const traceContents = JSON.parse((await this._fileService.readFile(URI.file(this._environmentService.args["trace-startup-file"]))).value.toString());
+      for (const event of traceContents.traceEvents) {
+        if (event.pid !== windowProcessId) {
+          continue;
+        }
+        switch (event.name) {
+          // Major/Minor GC Events
+          case "MinorGC":
+            minorGCs++;
+            break;
+          case "MajorGC":
+            majorGCs++;
+            break;
+          // GC Events that block the main thread
+          // Refs: https://v8.dev/blog/trash-talk
+          case "V8.GCFinalizeMC":
+          case "V8.GCScavenger":
+            duration += event.dur;
+            break;
+        }
+        if (event.name === "MajorGC" || event.name === "MinorGC") {
+          if (typeof event.args?.usedHeapSizeAfter === "number" && typeof event.args.usedHeapSizeBefore === "number") {
+            garbage += event.args.usedHeapSizeBefore - event.args.usedHeapSizeAfter;
+          }
+        }
+      }
+      return { minorGCs, majorGCs, used, garbage, duration: Math.round(duration / 1e3) };
+    } catch (error) {
+      console.error(error);
+    }
+    return void 0;
+  }
+  _telemetryLogHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }) {
+    this._telemetryService.publicLog2("startupHeapStatistics", {
+      heapUsed: used,
+      heapGarbage: garbage,
+      majorGCs,
+      minorGCs,
+      gcsDuration: duration
+    });
+  }
+  _printStartupHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }) {
+    const MB = 1024 * 1024;
+    return `Heap: ${Math.round(used / MB)}MB (used) ${Math.round(garbage / MB)}MB (garbage) ${majorGCs} (MajorGC) ${minorGCs} (MinorGC) ${duration}ms (GC duration)`;
+  }
+};
+NativeStartupTimings = __decorate([
+  __param(0, IFileService),
+  __param(1, ITimerService),
+  __param(2, INativeHostService),
+  __param(3, IEditorService),
+  __param(4, IPaneCompositePartService),
+  __param(5, ITelemetryService),
+  __param(6, ILifecycleService),
+  __param(7, IUpdateService),
+  __param(8, INativeWorkbenchEnvironmentService),
+  __param(9, IProductService),
+  __param(10, IWorkspaceTrustManagementService)
+], NativeStartupTimings);
+export {
+  NativeStartupTimings
+};
+//# sourceMappingURL=startupTimings.js.map

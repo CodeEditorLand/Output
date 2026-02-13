@@ -1,1 +1,264 @@
-import{$Ac as B,$wc as F,$yc as O,$Hc as v}from"../../../../../base/common/arrays.js";import{$ii as D,$hi as R}from"../../../../../base/common/async.js";import{$Cd as M,$Ed as x}from"../../../../../base/common/lifecycle.js";import{mapObservableArrayCached as L,derived as y,observableSignal as I,runOnChange as $,autorun as _}from"../../../../../base/common/observable.js";import{$Mj as A}from"../../../../../platform/instantiation/common/instantiation.js";import{$pp as j}from"../../../../../platform/telemetry/common/telemetry.js";import{$xcc as E}from"../../../../services/userAttention/common/userAttentionService.js";import{$lLc as K,$mLc as W,$kLc as N}from"./arcTelemetrySender.js";import{$_Kc as G}from"../helpers/documentWithAnnotatedEdits.js";import{$nLc as T}from"./editTracker.js";import{$1Kc as k}from"../helpers/utils.js";import{$dLc as V}from"./scmAdapter.js";import{$iLc as U}from"../randomService.js";var S=function(h,i,s,n){var r=arguments.length,t=r<3?i:n===null?n=Object.getOwnPropertyDescriptor(i,s):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(h,i,s,n);else for(var u=h.length-1;u>=0;u--)(c=h[u])&&(t=(r<3?c(t):r>3?c(i,s,t):c(i,s))||t);return r>3&&t&&Object.defineProperty(i,s,t),t},p=function(h,i){return function(s,n){i(s,n,h)}};let b=class extends x{constructor(i,s,n){super(),this.b=i,this.c=s,this.f=n;const r=this.f.createInstance(V);this.a=L(this,this.c.documents,(t,c)=>[t.document,c.add(this.f.createInstance(w,t,r,this.b))]),this.docsState=this.a.map(t=>new Map(t)),this.docsState.recomputeInitiallyAndOnChange(this.B)}};b=S([p(2,A)],b);let w=class extends x{constructor(i,s,n,r,t,c,u){super(),this.b=i,this.c=s,this.f=n,this.g=r,this.h=t,this.j=c,this.m=u,this.a=y(this,e=>this.c.getRepo(i.document.uri,e));const d=G(i.documentWithAnnotations,this.B),f=I("resetSignal");let a="closed";this.longtermTracker=y(e=>{if(!this.f.read(e))return;f.read(e);const o=e.store.add(new T(d,void 0)),l=this.m.totalFocusTimeMs,m=Date.now();return e.store.add(M(()=>{o.isEmpty()||this.sendTelemetry("longterm",a,o,this.m.totalFocusTimeMs-l,Date.now()-m),o.dispose()})),o}).recomputeInitiallyAndOnChange(this.B),this.B.add(new D).cancelAndSet(()=>{a="10hours",f.trigger(void 0),a="closed"},600*60*1e3),this.B.add(_(e=>{const o=this.a.read(e);o&&(e.store.add($(o.headCommitHashObs,()=>{a="hashChange",f.trigger(void 0),a="closed"})),e.store.add($(o.headBranchNameObs,()=>{a="branchChange",f.trigger(void 0),a="closed"})))})),this.B.add(this.g.createInstance(N,i.documentWithAnnotations,this.a)),this.B.add(this.g.createInstance(W,i.documentWithAnnotations,this.a)),this.B.add(this.g.createInstance(K,i.documentWithAnnotations));const g=I("resetSignal");this.windowedTracker=y(e=>{if(!this.f.read(e)||!this.b.isVisible.read(e))return;g.read(e),e.store.add(new R(()=>{g.trigger(void 0)},300*1e3));const o=e.store.add(new T(d,void 0)),l=this.m.totalFocusTimeMs,m=Date.now();return e.store.add(M(async()=>{this.sendTelemetry("5minWindow","time",o,this.m.totalFocusTimeMs-l,Date.now()-m),o.dispose()})),o}).recomputeInitiallyAndOnChange(this.B);const C=I("focusResetSignal");this.windowedFocusTracker=y(e=>{if(!this.f.read(e)||!this.b.isVisible.read(e))return;C.read(e),e.store.add(this.m.fireAfterGivenFocusTimePassed(1200*1e3,()=>{C.trigger(void 0)}));const o=e.store.add(new T(d,void 0)),l=this.m.totalFocusTimeMs,m=Date.now();return e.store.add(M(async()=>{this.sendTelemetry("20minFocusWindow","time",o,this.m.totalFocusTimeMs-l,Date.now()-m),o.dispose()})),o}).recomputeInitiallyAndOnChange(this.B)}async sendTelemetry(i,s,n,r,t){const c=n.getTrackedRanges(),u=n.getAllKeys();if(u.length===0)return;const d=this.getTelemetryData(c),f=this.j.generateUuid(),a=k(c,e=>e.range.length,e=>e.sourceKey),g=Object.entries(a).filter(([e,o])=>o!==void 0);g.sort(B(F(([e,o])=>o,O))),g.length=i==="longterm"?30:10;for(const e of u)a[e]||(a[e]=0);for(const[e,o]of Object.entries(a)){if(o===void 0)continue;const l=n.getRepresentative(e),m=n.getTotalInsertedCharactersCount(e);this.h.publicLog2("editTelemetry.editSources.details",{mode:i,sourceKey:e,sourceKeyCleaned:l.toKey(1,{$extensionId:!1,$extensionVersion:!1,$modelId:!1}),extensionId:l.props.$extensionId,extensionVersion:l.props.$extensionVersion,modelId:l.props.$modelId,trigger:s,languageId:this.b.document.languageId.get(),statsUuid:f,modifiedCount:o,deltaModifiedCount:m,totalModifiedCount:d.totalModifiedCharactersInFinalState})}const C=await d.isTrackedByGit;this.h.publicLog2("editTelemetry.editSources.stats",{mode:i,languageId:this.b.document.languageId.get(),statsUuid:f,nesModifiedCount:d.nesModifiedCount,inlineCompletionsCopilotModifiedCount:d.inlineCompletionsCopilotModifiedCount,inlineCompletionsNESModifiedCount:d.inlineCompletionsNESModifiedCount,otherAIModifiedCount:d.otherAIModifiedCount,unknownModifiedCount:d.unknownModifiedCount,userModifiedCount:d.userModifiedCount,ideModifiedCount:d.ideModifiedCount,totalModifiedCharacters:d.totalModifiedCharactersInFinalState,externalModifiedCount:d.externalModifiedCount,isTrackedByGit:C?1:0,focusTime:r,actualTime:t,trigger:s})}getTelemetryData(i){const s=t=>t.category==="ai"&&t.kind==="nes"?"nes":t.category==="ai"&&t.kind==="completion"&&t.extensionId==="github.copilot"||t.category==="ai"&&t.kind==="completion"&&t.extensionId==="github.copilot-chat"&&t.providerId==="completions"?"inlineCompletionsCopilot":t.category==="ai"&&t.kind==="completion"&&t.extensionId==="github.copilot-chat"&&t.providerId==="nes"?"inlineCompletionsNES":t.category==="ai"&&t.kind==="completion"?"inlineCompletionsOther":t.category==="ai"?"otherAI":t.category==="user"?"user":t.category==="ide"?"ide":t.category==="external"?"external":(t.category==="unknown","unknown"),n=k(i,t=>t.range.length,t=>s(t.source)),r=v(i,t=>t.range.length);return{nesModifiedCount:n.nes??0,inlineCompletionsCopilotModifiedCount:n.inlineCompletionsCopilot??0,inlineCompletionsNESModifiedCount:n.inlineCompletionsNES??0,otherAIModifiedCount:n.otherAI??0,userModifiedCount:n.user??0,ideModifiedCount:n.ide??0,unknownModifiedCount:n.unknown??0,externalModifiedCount:n.external??0,totalModifiedCharactersInFinalState:r,languageId:this.b.document.languageId.get(),isTrackedByGit:this.a.get()?.isIgnored(this.b.document.uri)}}};w=S([p(3,A),p(4,j),p(5,U),p(6,E)],w);export{b as $pLc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { reverseOrder, compareBy, numberComparator, sumBy } from "../../../../../base/common/arrays.js";
+import { IntervalTimer, TimeoutTimer } from "../../../../../base/common/async.js";
+import { toDisposable, Disposable } from "../../../../../base/common/lifecycle.js";
+import { mapObservableArrayCached, derived, observableSignal, runOnChange, autorun } from "../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IUserAttentionService } from "../../../../services/userAttention/common/userAttentionService.js";
+import { CreateSuggestionIdForChatOrInlineChatCaller, EditTelemetryReportEditArcForChatOrInlineChatSender, EditTelemetryReportInlineEditArcSender } from "./arcTelemetrySender.js";
+import { createDocWithJustReason } from "../helpers/documentWithAnnotatedEdits.js";
+import { DocumentEditSourceTracker } from "./editTracker.js";
+import { sumByCategory } from "../helpers/utils.js";
+import { ScmAdapter } from "./scmAdapter.js";
+import { IRandomService } from "../randomService.js";
+let EditSourceTrackingImpl = class EditSourceTrackingImpl2 extends Disposable {
+  static {
+    __name(this, "EditSourceTrackingImpl");
+  }
+  constructor(_statsEnabled, _annotatedDocuments, _instantiationService) {
+    super();
+    this._statsEnabled = _statsEnabled;
+    this._annotatedDocuments = _annotatedDocuments;
+    this._instantiationService = _instantiationService;
+    const scmBridge = this._instantiationService.createInstance(ScmAdapter);
+    this._states = mapObservableArrayCached(this, this._annotatedDocuments.documents, (doc, store) => {
+      return [doc.document, store.add(this._instantiationService.createInstance(TrackedDocumentInfo, doc, scmBridge, this._statsEnabled))];
+    });
+    this.docsState = this._states.map((entries) => new Map(entries));
+    this.docsState.recomputeInitiallyAndOnChange(this._store);
+  }
+};
+EditSourceTrackingImpl = __decorate([
+  __param(2, IInstantiationService)
+], EditSourceTrackingImpl);
+let TrackedDocumentInfo = class TrackedDocumentInfo2 extends Disposable {
+  static {
+    __name(this, "TrackedDocumentInfo");
+  }
+  constructor(_doc, _scm, _statsEnabled, _instantiationService, _telemetryService, _randomService, _userAttentionService) {
+    super();
+    this._doc = _doc;
+    this._scm = _scm;
+    this._statsEnabled = _statsEnabled;
+    this._instantiationService = _instantiationService;
+    this._telemetryService = _telemetryService;
+    this._randomService = _randomService;
+    this._userAttentionService = _userAttentionService;
+    this._repo = derived(this, (reader) => this._scm.getRepo(_doc.document.uri, reader));
+    const docWithJustReason = createDocWithJustReason(_doc.documentWithAnnotations, this._store);
+    const longtermResetSignal = observableSignal("resetSignal");
+    let longtermReason = "closed";
+    this.longtermTracker = derived((reader) => {
+      if (!this._statsEnabled.read(reader)) {
+        return void 0;
+      }
+      longtermResetSignal.read(reader);
+      const t = reader.store.add(new DocumentEditSourceTracker(docWithJustReason, void 0));
+      const startFocusTime = this._userAttentionService.totalFocusTimeMs;
+      const startTime = Date.now();
+      reader.store.add(toDisposable(() => {
+        if (!t.isEmpty()) {
+          this.sendTelemetry("longterm", longtermReason, t, this._userAttentionService.totalFocusTimeMs - startFocusTime, Date.now() - startTime);
+        }
+        t.dispose();
+      }));
+      return t;
+    }).recomputeInitiallyAndOnChange(this._store);
+    this._store.add(new IntervalTimer()).cancelAndSet(() => {
+      longtermReason = "10hours";
+      longtermResetSignal.trigger(void 0);
+      longtermReason = "closed";
+    }, 10 * 60 * 60 * 1e3);
+    this._store.add(autorun((reader) => {
+      const repo = this._repo.read(reader);
+      if (repo) {
+        reader.store.add(runOnChange(repo.headCommitHashObs, () => {
+          longtermReason = "hashChange";
+          longtermResetSignal.trigger(void 0);
+          longtermReason = "closed";
+        }));
+        reader.store.add(runOnChange(repo.headBranchNameObs, () => {
+          longtermReason = "branchChange";
+          longtermResetSignal.trigger(void 0);
+          longtermReason = "closed";
+        }));
+      }
+    }));
+    this._store.add(this._instantiationService.createInstance(EditTelemetryReportInlineEditArcSender, _doc.documentWithAnnotations, this._repo));
+    this._store.add(this._instantiationService.createInstance(EditTelemetryReportEditArcForChatOrInlineChatSender, _doc.documentWithAnnotations, this._repo));
+    this._store.add(this._instantiationService.createInstance(CreateSuggestionIdForChatOrInlineChatCaller, _doc.documentWithAnnotations));
+    const resetSignal = observableSignal("resetSignal");
+    this.windowedTracker = derived((reader) => {
+      if (!this._statsEnabled.read(reader)) {
+        return void 0;
+      }
+      if (!this._doc.isVisible.read(reader)) {
+        return void 0;
+      }
+      resetSignal.read(reader);
+      reader.store.add(new TimeoutTimer(() => {
+        resetSignal.trigger(void 0);
+      }, 5 * 60 * 1e3));
+      const t = reader.store.add(new DocumentEditSourceTracker(docWithJustReason, void 0));
+      const startFocusTime = this._userAttentionService.totalFocusTimeMs;
+      const startTime = Date.now();
+      reader.store.add(toDisposable(async () => {
+        this.sendTelemetry("5minWindow", "time", t, this._userAttentionService.totalFocusTimeMs - startFocusTime, Date.now() - startTime);
+        t.dispose();
+      }));
+      return t;
+    }).recomputeInitiallyAndOnChange(this._store);
+    const focusResetSignal = observableSignal("focusResetSignal");
+    this.windowedFocusTracker = derived((reader) => {
+      if (!this._statsEnabled.read(reader)) {
+        return void 0;
+      }
+      if (!this._doc.isVisible.read(reader)) {
+        return void 0;
+      }
+      focusResetSignal.read(reader);
+      reader.store.add(this._userAttentionService.fireAfterGivenFocusTimePassed(20 * 60 * 1e3, () => {
+        focusResetSignal.trigger(void 0);
+      }));
+      const t = reader.store.add(new DocumentEditSourceTracker(docWithJustReason, void 0));
+      const startFocusTime = this._userAttentionService.totalFocusTimeMs;
+      const startTime = Date.now();
+      reader.store.add(toDisposable(async () => {
+        this.sendTelemetry("20minFocusWindow", "time", t, this._userAttentionService.totalFocusTimeMs - startFocusTime, Date.now() - startTime);
+        t.dispose();
+      }));
+      return t;
+    }).recomputeInitiallyAndOnChange(this._store);
+  }
+  async sendTelemetry(mode, trigger, t, focusTime, actualTime) {
+    const ranges = t.getTrackedRanges();
+    const keys = t.getAllKeys();
+    if (keys.length === 0) {
+      return;
+    }
+    const data = this.getTelemetryData(ranges);
+    const statsUuid = this._randomService.generateUuid();
+    const sums = sumByCategory(ranges, (r) => r.range.length, (r) => r.sourceKey);
+    const entries = Object.entries(sums).filter(([key, value]) => value !== void 0);
+    entries.sort(reverseOrder(compareBy(([key, value]) => value, numberComparator)));
+    entries.length = mode === "longterm" ? 30 : 10;
+    for (const key of keys) {
+      if (!sums[key]) {
+        sums[key] = 0;
+      }
+    }
+    for (const [key, value] of Object.entries(sums)) {
+      if (value === void 0) {
+        continue;
+      }
+      const repr = t.getRepresentative(key);
+      const deltaModifiedCount = t.getTotalInsertedCharactersCount(key);
+      this._telemetryService.publicLog2("editTelemetry.editSources.details", {
+        mode,
+        sourceKey: key,
+        sourceKeyCleaned: repr.toKey(1, { $extensionId: false, $extensionVersion: false, $modelId: false }),
+        extensionId: repr.props.$extensionId,
+        extensionVersion: repr.props.$extensionVersion,
+        modelId: repr.props.$modelId,
+        trigger,
+        languageId: this._doc.document.languageId.get(),
+        statsUuid,
+        modifiedCount: value,
+        deltaModifiedCount,
+        totalModifiedCount: data.totalModifiedCharactersInFinalState
+      });
+    }
+    const isTrackedByGit = await data.isTrackedByGit;
+    this._telemetryService.publicLog2("editTelemetry.editSources.stats", {
+      mode,
+      languageId: this._doc.document.languageId.get(),
+      statsUuid,
+      nesModifiedCount: data.nesModifiedCount,
+      inlineCompletionsCopilotModifiedCount: data.inlineCompletionsCopilotModifiedCount,
+      inlineCompletionsNESModifiedCount: data.inlineCompletionsNESModifiedCount,
+      otherAIModifiedCount: data.otherAIModifiedCount,
+      unknownModifiedCount: data.unknownModifiedCount,
+      userModifiedCount: data.userModifiedCount,
+      ideModifiedCount: data.ideModifiedCount,
+      totalModifiedCharacters: data.totalModifiedCharactersInFinalState,
+      externalModifiedCount: data.externalModifiedCount,
+      isTrackedByGit: isTrackedByGit ? 1 : 0,
+      focusTime,
+      actualTime,
+      trigger
+    });
+  }
+  getTelemetryData(ranges) {
+    const getEditCategory = /* @__PURE__ */ __name((source) => {
+      if (source.category === "ai" && source.kind === "nes") {
+        return "nes";
+      }
+      if (source.category === "ai" && source.kind === "completion" && source.extensionId === "github.copilot") {
+        return "inlineCompletionsCopilot";
+      }
+      if (source.category === "ai" && source.kind === "completion" && source.extensionId === "github.copilot-chat" && source.providerId === "completions") {
+        return "inlineCompletionsCopilot";
+      }
+      if (source.category === "ai" && source.kind === "completion" && source.extensionId === "github.copilot-chat" && source.providerId === "nes") {
+        return "inlineCompletionsNES";
+      }
+      if (source.category === "ai" && source.kind === "completion") {
+        return "inlineCompletionsOther";
+      }
+      if (source.category === "ai") {
+        return "otherAI";
+      }
+      if (source.category === "user") {
+        return "user";
+      }
+      if (source.category === "ide") {
+        return "ide";
+      }
+      if (source.category === "external") {
+        return "external";
+      }
+      if (source.category === "unknown") {
+        return "unknown";
+      }
+      return "unknown";
+    }, "getEditCategory");
+    const sums = sumByCategory(ranges, (r) => r.range.length, (r) => getEditCategory(r.source));
+    const totalModifiedCharactersInFinalState = sumBy(ranges, (r) => r.range.length);
+    return {
+      nesModifiedCount: sums.nes ?? 0,
+      inlineCompletionsCopilotModifiedCount: sums.inlineCompletionsCopilot ?? 0,
+      inlineCompletionsNESModifiedCount: sums.inlineCompletionsNES ?? 0,
+      otherAIModifiedCount: sums.otherAI ?? 0,
+      userModifiedCount: sums.user ?? 0,
+      ideModifiedCount: sums.ide ?? 0,
+      unknownModifiedCount: sums.unknown ?? 0,
+      externalModifiedCount: sums.external ?? 0,
+      totalModifiedCharactersInFinalState,
+      languageId: this._doc.document.languageId.get(),
+      isTrackedByGit: this._repo.get()?.isIgnored(this._doc.document.uri)
+    };
+  }
+};
+TrackedDocumentInfo = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, ITelemetryService),
+  __param(5, IRandomService),
+  __param(6, IUserAttentionService)
+], TrackedDocumentInfo);
+export {
+  EditSourceTrackingImpl
+};
+//# sourceMappingURL=editSourceTrackingImpl.js.map

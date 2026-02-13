@@ -1,1 +1,196 @@
-import{$4c as j}from"../../../../base/common/assert.js";import{autorun as C}from"../../../../base/common/observable.js";import{$Bh as u}from"../../../../base/common/resources.js";import{$dd as E}from"../../../../base/common/types.js";import{$dI as F}from"../../../../editor/common/services/textResourceConfiguration.js";import{localize as l}from"../../../../nls.js";import{$0l as L}from"../../../../platform/configuration/common/configuration.js";import{$vk as U}from"../../../../platform/files/common/files.js";import{$Mj as W}from"../../../../platform/instantiation/common/instantiation.js";import{$oH as x}from"../../../../platform/label/common/label.js";import{$0M as N,$jN as O}from"../../../common/editor.js";import{$GDb as R}from"../../../services/editor/common/customEditorLabelService.js";import{$eFb as X}from"../../../common/editor/textResourceEditorInput.js";import{$96b as z,$06b as B}from"./mergeEditorInputModel.js";import{$q6b as H}from"./telemetry.js";import{$BL as I}from"../../../services/editor/common/editorService.js";import{$8L as P}from"../../../services/filesConfiguration/common/filesConfigurationService.js";import{$gM as Y}from"../../../services/textfile/common/textfiles.js";import{$50 as f}from"../../../../base/browser/ui/aria/aria.js";import{$yo as Z}from"../../../../platform/log/common/log.js";var M=function(o,t,i,e){var n=arguments.length,r=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,t,i,e);else for(var c=o.length-1;c>=0;c--)(a=o[c])&&(r=(n<3?a(r):n>3?a(t,i,r):a(t,i))||r);return n>3&&r&&Object.defineProperty(t,i,r),r},s=function(o,t){return function(i,e){t(i,e,o)}},p;class lt{constructor(t,i,e,n){this.uri=t,this.title=i,this.detail=e,this.description=n}}let d=class extends X{static{p=this}static{this.ID="mergeEditor.Input"}get W(){return this.Y.getValue("mergeEditor.useWorkingCopy")??!1}constructor(t,i,e,n,r,a,c,b,$,g,v,y,_,D){super(n,void 0,a,c,b,$,v,y,_),this.base=t,this.input1=i,this.input2=e,this.result=n,this.X=r,this.Y=g,this.Z=D,this.U="result",this.closeHandler={showConfirm:()=>this.c?.shouldConfirmClose()??!1,confirm:async m=>{j(()=>m.every(h=>h.editor instanceof p));const w=m.map(h=>h.editor.c).filter(E);return await this.c.confirmClose(w)}},this.$=this.X.createInstance(this.W?z:B,this.X.createInstance(H))}dispose(){super.dispose()}get typeId(){return p.ID}get editorId(){return N.id}get capabilities(){let t=super.capabilities|256;return this.W&&(t|=4),t}getName(){return l(10565,null,super.getName())}async resolve(){if(!this.c){const t=this.D(await this.$.createInputModel({base:this.base,input1:this.input1,input2:this.input2,result:this.result}));this.c=t,this.D(C(i=>{t.isDirty.read(i),this.f.fire()})),await this.c.model.onInitialized}return this.c}async accept(){await this.c?.accept()}async save(t,i){await this.c?.save(i)}toUntyped(){return{input1:{resource:this.input1.uri,label:this.input1.title,description:this.input1.description,detail:this.input1.detail},input2:{resource:this.input2.uri,label:this.input2.title,description:this.input2.description,detail:this.input2.detail},base:{resource:this.base},result:{resource:this.result},options:{override:this.typeId}}}matches(t){return this===t?!0:t instanceof p?u(this.base,t.base)&&u(this.input1.uri,t.input1.uri)&&u(this.input2.uri,t.input2.uri)&&u(this.result,t.result):O(t)?(this.editorId===t.options?.override||t.options?.override===void 0)&&u(this.base,t.base.resource)&&u(this.input1.uri,t.input1.resource)&&u(this.input2.uri,t.input2.resource)&&u(this.result,t.result.resource):!1}async revert(t,i){return this.c?.revert(i)}isDirty(){return this.c?.isDirty.get()??!1}setLanguageId(t,i){this.c?.model.setLanguageId(t,i)}updateFocusedEditor(t){this.U!==t&&(this.U=t,this.Z.trace("alertFocusedEditor",t),k(t))}};d=p=M([s(4,W),s(5,I),s(6,Y),s(7,x),s(8,U),s(9,L),s(10,P),s(11,F),s(12,R),s(13,Z)],d);function k(o){switch(o){case"input1":f(l(10566,null));break;case"input2":f(l(10567,null));break;case"result":f(l(10568,null));break}}export{lt as $$6b,d as $_6b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var MergeEditorInput_1;
+import { assertFn } from "../../../../base/common/assert.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { DEFAULT_EDITOR_ASSOCIATION, isResourceMergeEditorInput } from "../../../common/editor.js";
+import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { AbstractTextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { TempFileMergeEditorModeFactory, WorkspaceMergeEditorModeFactory } from "./mergeEditorInputModel.js";
+import { MergeEditorTelemetry } from "./telemetry.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { alert } from "../../../../base/browser/ui/aria/aria.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+class MergeEditorInputData {
+  static {
+    __name(this, "MergeEditorInputData");
+  }
+  constructor(uri, title, detail, description) {
+    this.uri = uri;
+    this.title = title;
+    this.detail = detail;
+    this.description = description;
+  }
+}
+let MergeEditorInput = class MergeEditorInput2 extends AbstractTextResourceEditorInput {
+  static {
+    __name(this, "MergeEditorInput");
+  }
+  static {
+    MergeEditorInput_1 = this;
+  }
+  static {
+    this.ID = "mergeEditor.Input";
+  }
+  get useWorkingCopy() {
+    return this.configurationService.getValue("mergeEditor.useWorkingCopy") ?? false;
+  }
+  constructor(base, input1, input2, result, _instaService, editorService, textFileService, labelService, fileService, configurationService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService, logService) {
+    super(result, void 0, editorService, textFileService, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    this.base = base;
+    this.input1 = input1;
+    this.input2 = input2;
+    this.result = result;
+    this._instaService = _instaService;
+    this.configurationService = configurationService;
+    this.logService = logService;
+    this._focusedEditor = "result";
+    this.closeHandler = {
+      showConfirm: /* @__PURE__ */ __name(() => this._inputModel?.shouldConfirmClose() ?? false, "showConfirm"),
+      confirm: /* @__PURE__ */ __name(async (editors) => {
+        assertFn(() => editors.every((e) => e.editor instanceof MergeEditorInput_1));
+        const inputModels = editors.map((e) => e.editor._inputModel).filter(isDefined);
+        return await this._inputModel.confirmClose(inputModels);
+      }, "confirm")
+    };
+    this.mergeEditorModeFactory = this._instaService.createInstance(this.useWorkingCopy ? TempFileMergeEditorModeFactory : WorkspaceMergeEditorModeFactory, this._instaService.createInstance(MergeEditorTelemetry));
+  }
+  dispose() {
+    super.dispose();
+  }
+  get typeId() {
+    return MergeEditorInput_1.ID;
+  }
+  get editorId() {
+    return DEFAULT_EDITOR_ASSOCIATION.id;
+  }
+  get capabilities() {
+    let capabilities = super.capabilities | 256;
+    if (this.useWorkingCopy) {
+      capabilities |= 4;
+    }
+    return capabilities;
+  }
+  getName() {
+    return localize("name", "Merging: {0}", super.getName());
+  }
+  async resolve() {
+    if (!this._inputModel) {
+      const inputModel = this._register(await this.mergeEditorModeFactory.createInputModel({
+        base: this.base,
+        input1: this.input1,
+        input2: this.input2,
+        result: this.result
+      }));
+      this._inputModel = inputModel;
+      this._register(autorun((reader) => {
+        inputModel.isDirty.read(reader);
+        this._onDidChangeDirty.fire();
+      }));
+      await this._inputModel.model.onInitialized;
+    }
+    return this._inputModel;
+  }
+  async accept() {
+    await this._inputModel?.accept();
+  }
+  async save(group, options) {
+    await this._inputModel?.save(options);
+    return void 0;
+  }
+  toUntyped() {
+    return {
+      input1: { resource: this.input1.uri, label: this.input1.title, description: this.input1.description, detail: this.input1.detail },
+      input2: { resource: this.input2.uri, label: this.input2.title, description: this.input2.description, detail: this.input2.detail },
+      base: { resource: this.base },
+      result: { resource: this.result },
+      options: {
+        override: this.typeId
+      }
+    };
+  }
+  matches(otherInput) {
+    if (this === otherInput) {
+      return true;
+    }
+    if (otherInput instanceof MergeEditorInput_1) {
+      return isEqual(this.base, otherInput.base) && isEqual(this.input1.uri, otherInput.input1.uri) && isEqual(this.input2.uri, otherInput.input2.uri) && isEqual(this.result, otherInput.result);
+    }
+    if (isResourceMergeEditorInput(otherInput)) {
+      return (this.editorId === otherInput.options?.override || otherInput.options?.override === void 0) && isEqual(this.base, otherInput.base.resource) && isEqual(this.input1.uri, otherInput.input1.resource) && isEqual(this.input2.uri, otherInput.input2.resource) && isEqual(this.result, otherInput.result.resource);
+    }
+    return false;
+  }
+  async revert(group, options) {
+    return this._inputModel?.revert(options);
+  }
+  // ---- FileEditorInput
+  isDirty() {
+    return this._inputModel?.isDirty.get() ?? false;
+  }
+  setLanguageId(languageId, source) {
+    this._inputModel?.model.setLanguageId(languageId, source);
+  }
+  /**
+   * Updates the focused editor and triggers a name change event
+   */
+  updateFocusedEditor(editor) {
+    if (this._focusedEditor !== editor) {
+      this._focusedEditor = editor;
+      this.logService.trace("alertFocusedEditor", editor);
+      alertFocusedEditor(editor);
+    }
+  }
+};
+MergeEditorInput = MergeEditorInput_1 = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IEditorService),
+  __param(6, ITextFileService),
+  __param(7, ILabelService),
+  __param(8, IFileService),
+  __param(9, IConfigurationService),
+  __param(10, IFilesConfigurationService),
+  __param(11, ITextResourceConfigurationService),
+  __param(12, ICustomEditorLabelService),
+  __param(13, ILogService)
+], MergeEditorInput);
+function alertFocusedEditor(editor) {
+  switch (editor) {
+    case "input1":
+      alert(localize("mergeEditor.input1", "Incoming, Left Input"));
+      break;
+    case "input2":
+      alert(localize("mergeEditor.input2", "Current, Right Input"));
+      break;
+    case "result":
+      alert(localize("mergeEditor.result", "Merge Result"));
+      break;
+  }
+}
+__name(alertFocusedEditor, "alertFocusedEditor");
+export {
+  MergeEditorInput,
+  MergeEditorInputData
+};
+//# sourceMappingURL=mergeEditorInput.js.map

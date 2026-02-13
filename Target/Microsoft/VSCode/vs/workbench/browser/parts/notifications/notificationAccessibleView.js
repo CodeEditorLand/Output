@@ -1,1 +1,134 @@
-import{$bk as d}from"../../../../base/common/codicons.js";import{ThemeIcon as p}from"../../../../base/common/themables.js";import{localize as g}from"../../../../nls.js";import{$zvb as v,$Avb as $}from"../../../../platform/accessibility/browser/accessibleView.js";import{$yib as x,$Dib as w}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$uo as C}from"../../../../platform/commands/common/commands.js";import{$Prb as N,$9rb as S}from"../../../../platform/list/browser/listService.js";import{$RLc as y}from"./notificationsCommands.js";import{$hP as F}from"../../../common/contextkeys.js";import{$tH as L}from"../../../../platform/notification/common/notification.js";class T{constructor(){this.priority=90,this.name="notifications",this.when=F,this.type="view"}getProvider(o){const i=o.get(v),r=o.get(N),n=o.get(C),f=o.get(x);function h(){const c=y(r);if(!c)return;n.executeCommand("notifications.showList");let a;const t=r.lastFocusedList;if(t instanceof S&&(a=t.indexOf(c)),a===void 0)return;function l(){if(n.executeCommand("notifications.showList"),t&&a!==void 0){t.domFocus();try{t.setFocus([a])}catch{}}}function u(){const s=y(r),m=s?.message.original.toString();if(!(!s||!m))return L(s.source?g(3958,null,m,s.source):m,s.severity)}const b=u();if(b)return c.onDidClose(()=>i.next()),new $("notification",{type:"view"},()=>b,()=>l(),"accessibility.verbosity.notification",void 0,P(c,f),()=>{if(t)return l(),t.focusNext(),u()},()=>{if(t)return l(),t.focusPrevious(),u()})}return h()}}function P(e,o){let i;if(e.actions&&(i=[],e.actions.primary&&i.push(...e.actions.primary),e.actions.secondary&&i.push(...e.actions.secondary)),i)for(const n of i){n.class=p.asClassName(d.bell);const f=n.run;n.run=()=>{f(),e.close()}}const r=i?.find(n=>n.label.includes("Manage Extension"));return r&&(r.class=p.asClassName(d.gear)),i&&i.push({id:"clearNotification",label:g(3959,null),tooltip:g(3960,null),run:()=>{e.close(),o.playSignal(w.clear)},enabled:!0,class:p.asClassName(d.clearAll)}),i}export{T as $gMc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { IAccessibleViewService, AccessibleContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibilitySignalService, AccessibilitySignal } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IListService, WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { getNotificationFromContext } from "./notificationsCommands.js";
+import { NotificationFocusedContext } from "../../../common/contextkeys.js";
+import { withSeverityPrefix } from "../../../../platform/notification/common/notification.js";
+class NotificationAccessibleView {
+  static {
+    __name(this, "NotificationAccessibleView");
+  }
+  constructor() {
+    this.priority = 90;
+    this.name = "notifications";
+    this.when = NotificationFocusedContext;
+    this.type = "view";
+  }
+  getProvider(accessor) {
+    const accessibleViewService = accessor.get(IAccessibleViewService);
+    const listService = accessor.get(IListService);
+    const commandService = accessor.get(ICommandService);
+    const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
+    function getProvider() {
+      const notification = getNotificationFromContext(listService);
+      if (!notification) {
+        return;
+      }
+      commandService.executeCommand("notifications.showList");
+      let notificationIndex;
+      const list = listService.lastFocusedList;
+      if (list instanceof WorkbenchList) {
+        notificationIndex = list.indexOf(notification);
+      }
+      if (notificationIndex === void 0) {
+        return;
+      }
+      function focusList() {
+        commandService.executeCommand("notifications.showList");
+        if (list && notificationIndex !== void 0) {
+          list.domFocus();
+          try {
+            list.setFocus([notificationIndex]);
+          } catch {
+          }
+        }
+      }
+      __name(focusList, "focusList");
+      function getContentForNotification() {
+        const notification2 = getNotificationFromContext(listService);
+        const message = notification2?.message.original.toString();
+        if (!notification2 || !message) {
+          return;
+        }
+        return withSeverityPrefix(notification2.source ? localize("notification.accessibleViewSrc", "{0} Source: {1}", message, notification2.source) : message, notification2.severity);
+      }
+      __name(getContentForNotification, "getContentForNotification");
+      const content = getContentForNotification();
+      if (!content) {
+        return;
+      }
+      notification.onDidClose(() => accessibleViewService.next());
+      return new AccessibleContentProvider("notification", {
+        type: "view"
+        /* AccessibleViewType.View */
+      }, () => content, () => focusList(), "accessibility.verbosity.notification", void 0, getActionsFromNotification(notification, accessibilitySignalService), () => {
+        if (!list) {
+          return;
+        }
+        focusList();
+        list.focusNext();
+        return getContentForNotification();
+      }, () => {
+        if (!list) {
+          return;
+        }
+        focusList();
+        list.focusPrevious();
+        return getContentForNotification();
+      });
+    }
+    __name(getProvider, "getProvider");
+    return getProvider();
+  }
+}
+function getActionsFromNotification(notification, accessibilitySignalService) {
+  let actions = void 0;
+  if (notification.actions) {
+    actions = [];
+    if (notification.actions.primary) {
+      actions.push(...notification.actions.primary);
+    }
+    if (notification.actions.secondary) {
+      actions.push(...notification.actions.secondary);
+    }
+  }
+  if (actions) {
+    for (const action of actions) {
+      action.class = ThemeIcon.asClassName(Codicon.bell);
+      const initialAction = action.run;
+      action.run = () => {
+        initialAction();
+        notification.close();
+      };
+    }
+  }
+  const manageExtension = actions?.find((a) => a.label.includes("Manage Extension"));
+  if (manageExtension) {
+    manageExtension.class = ThemeIcon.asClassName(Codicon.gear);
+  }
+  if (actions) {
+    actions.push({
+      id: "clearNotification",
+      label: localize("clearNotification", "Clear Notification"),
+      tooltip: localize("clearNotification", "Clear Notification"),
+      run: /* @__PURE__ */ __name(() => {
+        notification.close();
+        accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+      }, "run"),
+      enabled: true,
+      class: ThemeIcon.asClassName(Codicon.clearAll)
+    });
+  }
+  return actions;
+}
+__name(getActionsFromNotification, "getActionsFromNotification");
+export {
+  NotificationAccessibleView
+};
+//# sourceMappingURL=notificationAccessibleView.js.map

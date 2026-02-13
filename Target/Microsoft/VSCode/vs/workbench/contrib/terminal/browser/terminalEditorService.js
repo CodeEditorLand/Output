@@ -1,1 +1,266 @@
-import{$xf as p}from"../../../../base/common/event.js";import{$Ed as E,$zd as I,$Cd as w}from"../../../../base/common/lifecycle.js";import{URI as D}from"../../../../base/common/uri.js";import{$ro as C}from"../../../../platform/contextkey/common/contextkey.js";import{EditorActivation as y}from"../../../../platform/editor/common/editor.js";import{$Mj as R}from"../../../../platform/instantiation/common/instantiation.js";import{TerminalLocation as l}from"../../../../platform/terminal/common/terminal.js";import{$xZb as $}from"./terminal.js";import{$rZb as a}from"./terminalEditorInput.js";import{$gZb as b}from"./terminalUri.js";import{TerminalContextKeys as x}from"../common/terminalContextKey.js";import{$xL as A}from"../../../services/editor/common/editorGroupsService.js";import{$BL as F,$CL as j,$DL as _}from"../../../services/editor/common/editorService.js";import{$WN as L}from"../../../services/lifecycle/common/lifecycle.js";var g=function(d,t,e,i){var s=arguments.length,n=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,u;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(d,t,e,i);else for(var r=d.length-1;r>=0;r--)(u=d[r])&&(n=(s<3?u(n):s>3?u(t,e,n):u(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},f=function(d,t){return function(e,i){t(e,i,d)}};let v=class extends E{constructor(t,e,i,s,n,u){super(),this.s=t,this.t=e,this.u=i,this.w=s,this.instances=[],this.a=-1,this.b=!1,this.g=new Map,this.h=new Map,this.j=this.D(new p),this.onDidDisposeInstance=this.j.event,this.m=this.D(new p),this.onDidFocusInstance=this.m.event,this.n=this.D(new p),this.onDidChangeInstanceCapability=this.n.event,this.q=this.D(new p),this.onDidChangeActiveInstance=this.q.event,this.r=this.D(new p),this.onDidChangeInstances=this.r.event,this.f=x.terminalEditorActive.bindTo(u),this.D(w(()=>{for(const r of this.h.values())I(r)})),this.D(n.onWillShutdown(()=>this.b=!0)),this.D(this.s.onDidActiveEditorChange(()=>{const r=this.s.activeEditor,h=r instanceof a?r?.terminalInstance:void 0,o=!!h&&r instanceof a;if(this.f.set(o),o)r?.setGroup(this.s.activeEditorPane?.group),this.setActiveInstance(h);else for(const c of this.instances)c.resetFocusContextKey()})),this.D(this.s.onDidVisibleEditorsChange(()=>{const r=this.instances.map(c=>c.instanceId),o=this.y().find(c=>{const m=c instanceof a?c.terminalInstance?.instanceId:void 0;return m===void 0?!1:!r.includes(m)});o instanceof a&&o.terminalInstance&&(this.g.set(o.terminalInstance.resource.path,o),this.instances.push(o.terminalInstance))})),this.D(this.s.onDidCloseEditor(r=>{const h=r.editor instanceof a?r.editor.terminalInstance:void 0;if(h){const o=this.instances.findIndex(c=>c===h);if(o!==-1){const c=this.instances[o]===this.activeInstance;this.C(h),c&&this.setActiveInstance(void 0)}}}))}y(){return this.s.visibleEditors.filter(t=>t instanceof a&&t.terminalInstance?.instanceId)}get activeInstance(){if(!(this.instances.length===0||this.a===-1))return this.instances[this.a]}setActiveInstance(t){this.a=t?this.instances.findIndex(e=>e===t):-1,this.q.fire(this.activeInstance)}async focusInstance(t){this.instances.includes(t)&&(this.setActiveInstance(t),await this.F(t),await t.focusWhenReady(!0))}async focusActiveInstance(){return this.activeInstance?.focusWhenReady(!0)}async openEditor(t,e){const i=this.resolveResource(t);i&&(await this.c?.promise,this.c={instanceId:t.instanceId,promise:this.s.openEditor({resource:i,description:t.description||t.shellLaunchConfig.type,options:{pinned:!0,forceReload:!0,preserveFocus:e?.preserveFocus,auxiliary:e?.auxiliary}},e?.viewColumn??j)},await this.c?.promise,this.c=void 0)}resolveResource(t){const e=t.resource,i=e.path,s=this.g.get(i);if(s)return s.resource;t.target=l.Editor;const n=this.w.createInstance(a,e,t);return this.z(i,n,t),n.resource}getInputFromResource(t){const e=this.g.get(t.path);if(!e)throw new Error(`Could not get input from resource: ${t.path}`);return e}z(t,e,i){this.g.set(t,e),this.h.set(t,[i.onDidFocus(this.m.fire,this.m),i.onDisposed(this.j.fire,this.j),i.capabilities.onDidChangeCapabilities(()=>this.n.fire(i))]),this.instances.push(i),this.r.fire()}C(t){const e=t.resource.path;this.g.delete(e);const i=this.instances.findIndex(n=>n===t);i!==-1&&this.instances.splice(i,1);const s=this.h.get(e);this.h.delete(e),s&&I(s),this.r.fire()}getInstanceFromResource(t){return b(this.instances,t)}splitInstance(t,e={}){if(t.target===l.Editor){const n=this.g.get(t.resource.path)?.group;n&&this.t.activateGroup(n)}const i=this.u.createInstance(e,l.Editor),s=this.resolveResource(i);return s&&this.s.openEditor({resource:D.revive(s),description:i.description,options:{pinned:!0,forceReload:!0}},_),i}reviveInput(t){const e={...t,findRevivedId:!0},i=this.u.createInstance({attachPersistentProcess:e},l.Editor),s=this.w.createInstance(a,i.resource,i);return this.z(i.resource.path,s,i),s}detachInstance(t){const e=t.resource.path,i=this.g.get(e);i?.detachInstance(),this.C(t),this.b||i?.dispose()}async revealActiveEditor(t){const e=this.activeInstance;e&&await this.F(e,t)}async F(t,e){if(this.c?.instanceId===t.instanceId){await this.c.promise;return}const i=this.g.get(t.resource.path);i&&await this.s.openEditor(i,{pinned:!0,forceReload:!0,preserveFocus:e,activation:y.PRESERVE})}};v=g([f(0,F),f(1,A),f(2,$),f(3,R),f(4,L),f(5,C)],v);export{v as $5Bc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { EditorActivation } from "../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
+import { ITerminalInstanceService } from "./terminal.js";
+import { TerminalEditorInput } from "./terminalEditorInput.js";
+import { getInstanceFromResource } from "./terminalUri.js";
+import { TerminalContextKeys } from "../common/terminalContextKey.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService, ACTIVE_GROUP, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+let TerminalEditorService = class TerminalEditorService2 extends Disposable {
+  static {
+    __name(this, "TerminalEditorService");
+  }
+  constructor(_editorService, _editorGroupsService, _terminalInstanceService, _instantiationService, lifecycleService, contextKeyService) {
+    super();
+    this._editorService = _editorService;
+    this._editorGroupsService = _editorGroupsService;
+    this._terminalInstanceService = _terminalInstanceService;
+    this._instantiationService = _instantiationService;
+    this.instances = [];
+    this._activeInstanceIndex = -1;
+    this._isShuttingDown = false;
+    this._editorInputs = /* @__PURE__ */ new Map();
+    this._instanceDisposables = /* @__PURE__ */ new Map();
+    this._onDidDisposeInstance = this._register(new Emitter());
+    this.onDidDisposeInstance = this._onDidDisposeInstance.event;
+    this._onDidFocusInstance = this._register(new Emitter());
+    this.onDidFocusInstance = this._onDidFocusInstance.event;
+    this._onDidChangeInstanceCapability = this._register(new Emitter());
+    this.onDidChangeInstanceCapability = this._onDidChangeInstanceCapability.event;
+    this._onDidChangeActiveInstance = this._register(new Emitter());
+    this.onDidChangeActiveInstance = this._onDidChangeActiveInstance.event;
+    this._onDidChangeInstances = this._register(new Emitter());
+    this.onDidChangeInstances = this._onDidChangeInstances.event;
+    this._terminalEditorActive = TerminalContextKeys.terminalEditorActive.bindTo(contextKeyService);
+    this._register(toDisposable(() => {
+      for (const d of this._instanceDisposables.values()) {
+        dispose(d);
+      }
+    }));
+    this._register(lifecycleService.onWillShutdown(() => this._isShuttingDown = true));
+    this._register(this._editorService.onDidActiveEditorChange(() => {
+      const activeEditor = this._editorService.activeEditor;
+      const instance = activeEditor instanceof TerminalEditorInput ? activeEditor?.terminalInstance : void 0;
+      const terminalEditorActive = !!instance && activeEditor instanceof TerminalEditorInput;
+      this._terminalEditorActive.set(terminalEditorActive);
+      if (terminalEditorActive) {
+        activeEditor?.setGroup(this._editorService.activeEditorPane?.group);
+        this.setActiveInstance(instance);
+      } else {
+        for (const instance2 of this.instances) {
+          instance2.resetFocusContextKey();
+        }
+      }
+    }));
+    this._register(this._editorService.onDidVisibleEditorsChange(() => {
+      const knownIds = this.instances.map((i) => i.instanceId);
+      const terminalEditors = this._getActiveTerminalEditors();
+      const unknownEditor = terminalEditors.find((input) => {
+        const inputId = input instanceof TerminalEditorInput ? input.terminalInstance?.instanceId : void 0;
+        if (inputId === void 0) {
+          return false;
+        }
+        return !knownIds.includes(inputId);
+      });
+      if (unknownEditor instanceof TerminalEditorInput && unknownEditor.terminalInstance) {
+        this._editorInputs.set(unknownEditor.terminalInstance.resource.path, unknownEditor);
+        this.instances.push(unknownEditor.terminalInstance);
+      }
+    }));
+    this._register(this._editorService.onDidCloseEditor((e) => {
+      const instance = e.editor instanceof TerminalEditorInput ? e.editor.terminalInstance : void 0;
+      if (instance) {
+        const instanceIndex = this.instances.findIndex((e2) => e2 === instance);
+        if (instanceIndex !== -1) {
+          const wasActiveInstance = this.instances[instanceIndex] === this.activeInstance;
+          this._removeInstance(instance);
+          if (wasActiveInstance) {
+            this.setActiveInstance(void 0);
+          }
+        }
+      }
+    }));
+  }
+  _getActiveTerminalEditors() {
+    return this._editorService.visibleEditors.filter((e) => e instanceof TerminalEditorInput && e.terminalInstance?.instanceId);
+  }
+  get activeInstance() {
+    if (this.instances.length === 0 || this._activeInstanceIndex === -1) {
+      return void 0;
+    }
+    return this.instances[this._activeInstanceIndex];
+  }
+  setActiveInstance(instance) {
+    this._activeInstanceIndex = instance ? this.instances.findIndex((e) => e === instance) : -1;
+    this._onDidChangeActiveInstance.fire(this.activeInstance);
+  }
+  async focusInstance(instance) {
+    if (!this.instances.includes(instance)) {
+      return;
+    }
+    this.setActiveInstance(instance);
+    await this._revealEditor(instance);
+    await instance.focusWhenReady(true);
+  }
+  async focusActiveInstance() {
+    return this.activeInstance?.focusWhenReady(true);
+  }
+  async openEditor(instance, editorOptions) {
+    const resource = this.resolveResource(instance);
+    if (resource) {
+      await this._activeOpenEditorRequest?.promise;
+      this._activeOpenEditorRequest = {
+        instanceId: instance.instanceId,
+        promise: this._editorService.openEditor({
+          resource,
+          description: instance.description || instance.shellLaunchConfig.type,
+          options: {
+            pinned: true,
+            forceReload: true,
+            preserveFocus: editorOptions?.preserveFocus,
+            auxiliary: editorOptions?.auxiliary
+          }
+        }, editorOptions?.viewColumn ?? ACTIVE_GROUP)
+      };
+      await this._activeOpenEditorRequest?.promise;
+      this._activeOpenEditorRequest = void 0;
+    }
+  }
+  resolveResource(instance) {
+    const resource = instance.resource;
+    const inputKey = resource.path;
+    const cachedEditor = this._editorInputs.get(inputKey);
+    if (cachedEditor) {
+      return cachedEditor.resource;
+    }
+    instance.target = TerminalLocation.Editor;
+    const input = this._instantiationService.createInstance(TerminalEditorInput, resource, instance);
+    this._registerInstance(inputKey, input, instance);
+    return input.resource;
+  }
+  getInputFromResource(resource) {
+    const input = this._editorInputs.get(resource.path);
+    if (!input) {
+      throw new Error(`Could not get input from resource: ${resource.path}`);
+    }
+    return input;
+  }
+  _registerInstance(inputKey, input, instance) {
+    this._editorInputs.set(inputKey, input);
+    this._instanceDisposables.set(inputKey, [
+      instance.onDidFocus(this._onDidFocusInstance.fire, this._onDidFocusInstance),
+      instance.onDisposed(this._onDidDisposeInstance.fire, this._onDidDisposeInstance),
+      instance.capabilities.onDidChangeCapabilities(() => this._onDidChangeInstanceCapability.fire(instance))
+    ]);
+    this.instances.push(instance);
+    this._onDidChangeInstances.fire();
+  }
+  _removeInstance(instance) {
+    const inputKey = instance.resource.path;
+    this._editorInputs.delete(inputKey);
+    const instanceIndex = this.instances.findIndex((e) => e === instance);
+    if (instanceIndex !== -1) {
+      this.instances.splice(instanceIndex, 1);
+    }
+    const disposables = this._instanceDisposables.get(inputKey);
+    this._instanceDisposables.delete(inputKey);
+    if (disposables) {
+      dispose(disposables);
+    }
+    this._onDidChangeInstances.fire();
+  }
+  getInstanceFromResource(resource) {
+    return getInstanceFromResource(this.instances, resource);
+  }
+  splitInstance(instanceToSplit, shellLaunchConfig = {}) {
+    if (instanceToSplit.target === TerminalLocation.Editor) {
+      const group = this._editorInputs.get(instanceToSplit.resource.path)?.group;
+      if (group) {
+        this._editorGroupsService.activateGroup(group);
+      }
+    }
+    const instance = this._terminalInstanceService.createInstance(shellLaunchConfig, TerminalLocation.Editor);
+    const resource = this.resolveResource(instance);
+    if (resource) {
+      this._editorService.openEditor({
+        resource: URI.revive(resource),
+        description: instance.description,
+        options: {
+          pinned: true,
+          forceReload: true
+        }
+      }, SIDE_GROUP);
+    }
+    return instance;
+  }
+  reviveInput(deserializedInput) {
+    const newDeserializedInput = { ...deserializedInput, findRevivedId: true };
+    const instance = this._terminalInstanceService.createInstance({ attachPersistentProcess: newDeserializedInput }, TerminalLocation.Editor);
+    const input = this._instantiationService.createInstance(TerminalEditorInput, instance.resource, instance);
+    this._registerInstance(instance.resource.path, input, instance);
+    return input;
+  }
+  detachInstance(instance) {
+    const inputKey = instance.resource.path;
+    const editorInput = this._editorInputs.get(inputKey);
+    editorInput?.detachInstance();
+    this._removeInstance(instance);
+    if (!this._isShuttingDown) {
+      editorInput?.dispose();
+    }
+  }
+  async revealActiveEditor(preserveFocus) {
+    const instance = this.activeInstance;
+    if (!instance) {
+      return;
+    }
+    await this._revealEditor(instance, preserveFocus);
+  }
+  async _revealEditor(instance, preserveFocus) {
+    if (this._activeOpenEditorRequest?.instanceId === instance.instanceId) {
+      await this._activeOpenEditorRequest.promise;
+      return;
+    }
+    const editorInput = this._editorInputs.get(instance.resource.path);
+    if (!editorInput) {
+      return;
+    }
+    await this._editorService.openEditor(editorInput, {
+      pinned: true,
+      forceReload: true,
+      preserveFocus,
+      activation: EditorActivation.PRESERVE
+    });
+  }
+};
+TerminalEditorService = __decorate([
+  __param(0, IEditorService),
+  __param(1, IEditorGroupsService),
+  __param(2, ITerminalInstanceService),
+  __param(3, IInstantiationService),
+  __param(4, ILifecycleService),
+  __param(5, IContextKeyService)
+], TerminalEditorService);
+export {
+  TerminalEditorService
+};
+//# sourceMappingURL=terminalEditorService.js.map

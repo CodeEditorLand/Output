@@ -1,1 +1,10 @@
-import{$WC as m}from"../../../../platform/instantiation/common/extensions.js";import{$aV as o}from"../common/search.js";import{$eNc as r}from"../common/searchService.js";m(o,r,1);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ISearchService } from "../common/search.js";
+import { SearchService } from "../common/searchService.js";
+registerSingleton(
+  ISearchService,
+  SearchService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=searchService.js.map

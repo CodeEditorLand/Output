@@ -1,1 +1,47 @@
-import{$_rc as p}from"./extensionRecommendations.js";import{$Vn as h}from"../../../../platform/product/common/productService.js";import{$l as u,$y as m}from"../../../../base/common/platform.js";var f=function(o,e,n,t){var s=arguments.length,r=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,n,t);else for(var c=o.length-1;c>=0;c--)(i=o[c])&&(r=(s<3?i(r):s>3?i(e,n,r):i(e,n))||r);return s>3&&r&&Object.defineProperty(e,n,r),r},l=function(o,e){return function(n,t){e(n,t,o)}};let a=class extends p{get recommendations(){return this.a}constructor(e){super(),this.b=e,this.a=[]}async c(){const e={...this.b.remoteExtensionTips,...this.b.virtualWorkspaceExtensionTips},n=u(m);this.a=Object.values(e).filter(({supportedPlatforms:t})=>!t||t.includes(n)).map(t=>({extension:t.extensionId.toLowerCase(),reason:{reasonId:6,reasonText:""}}))}};a=f([l(0,h)],a);export{a as $hsc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ExtensionRecommendations } from "./extensionRecommendations.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { PlatformToString, platform } from "../../../../base/common/platform.js";
+let RemoteRecommendations = class RemoteRecommendations2 extends ExtensionRecommendations {
+  static {
+    __name(this, "RemoteRecommendations");
+  }
+  get recommendations() {
+    return this._recommendations;
+  }
+  constructor(productService) {
+    super();
+    this.productService = productService;
+    this._recommendations = [];
+  }
+  async doActivate() {
+    const extensionTips = { ...this.productService.remoteExtensionTips, ...this.productService.virtualWorkspaceExtensionTips };
+    const currentPlatform = PlatformToString(platform);
+    this._recommendations = Object.values(extensionTips).filter(({ supportedPlatforms }) => !supportedPlatforms || supportedPlatforms.includes(currentPlatform)).map((extension) => ({
+      extension: extension.extensionId.toLowerCase(),
+      reason: {
+        reasonId: 6,
+        reasonText: ""
+      }
+    }));
+  }
+};
+RemoteRecommendations = __decorate([
+  __param(0, IProductService)
+], RemoteRecommendations);
+export {
+  RemoteRecommendations
+};
+//# sourceMappingURL=remoteRecommendations.js.map

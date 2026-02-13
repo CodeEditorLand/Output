@@ -1,1 +1,292 @@
-import{$0i as z}from"../../../../base/common/buffer.js";import{$bk as v}from"../../../../base/common/codicons.js";import{Schemas as k}from"../../../../base/common/network.js";import{$Ih as N}from"../../../../base/common/resources.js";import{URI as M}from"../../../../base/common/uri.js";import*as m from"../../../../nls.js";import{$vL as b,$rL as y,$qL as p}from"../../../../platform/actions/common/actions.js";import{$gjb as F}from"../../../../platform/clipboard/common/clipboardService.js";import{$uo as W}from"../../../../platform/commands/common/commands.js";import{$0n as E,$ro as J,$qo as D}from"../../../../platform/contextkey/common/contextkey.js";import{$ijb as V}from"../../../../platform/contextview/browser/contextView.js";import{$Op as Q}from"../../../../platform/dialogs/common/dialogs.js";import{$vk as X}from"../../../../platform/files/common/files.js";import{$jkb as Y}from"../../../../platform/hover/browser/hover.js";import{$Mj as Z,$Nj as _}from"../../../../platform/instantiation/common/instantiation.js";import{$oH as G}from"../../../../platform/label/common/label.js";import{$pH as K}from"../../../../platform/notification/common/notification.js";import{Utils as tt}from"../../../../platform/profiling/common/profiling.js";import{$hp as ot}from"../../../../platform/storage/common/storage.js";import{$pp as it}from"../../../../platform/telemetry/common/telemetry.js";import{$qu as et}from"../../../../platform/theme/common/themeService.js";import{$NO as P}from"../../../common/contextkeys.js";import{$BL as rt,$DL as nt}from"../../../services/editor/common/editorService.js";import{$HP as T}from"../../../services/environment/common/environmentService.js";import{$fU as st}from"../../../services/extensionManagement/common/extensionFeatures.js";import{$NR as lt}from"../../../services/extensions/common/extensions.js";import{$1rc as at}from"../browser/abstractRuntimeExtensionsEditor.js";import{$wJb as pt}from"../common/extensions.js";import{$oPc as ut}from"../common/reportExtensionIssueAction.js";import{$xWc as ft}from"./extensionsSlowActions.js";var U=function(e,t,o,s){var r=arguments.length,n=r<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,o):s,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(e,t,o,s);else for(var a=e.length-1;a>=0;a--)(l=e[a])&&(n=(r<3?l(n):r>3?l(t,o,n):l(t,o))||n);return r>3&&n&&Object.defineProperty(t,o,n),n},i=function(e,t){return function(o,s){t(o,s,e)}};const h=_("extensionHostProfileService"),u=new D("profileSessionState","none"),d=new D("extensionHostProfileRecorded",!1);var $;(function(e){e[e.None=0]="None",e[e.Starting=1]="Starting",e[e.Running=2]="Running",e[e.Stopping=3]="Stopping"})($||($={}));let f=class extends at{constructor(t,o,s,r,n,l,a,c,g,H,S,q,C,A,B,R,j){super(t,o,s,r,n,l,a,c,g,H,S,q,C,B,R,j),this.ub=A,this.rb=this.ub.lastProfile,this.sb=d.bindTo(r),this.tb=u.bindTo(r),this.D(this.ub.onDidChangeLastProfile(()=>{this.rb=this.ub.lastProfile,this.sb.set(!!this.rb),this.kb()})),this.D(this.ub.onDidChangeState(()=>{const O=this.ub.state;this.tb.set($[O].toLowerCase())}))}nb(){return this.rb}ob(t){return this.ub.getUnresponsiveProfile(t)}pb(t){return t.unresponsiveProfile?this.y.createInstance(ft,t.description,t.unresponsiveProfile):null}qb(t){return t.marketplaceInfo?this.y.createInstance(ut,t.description):null}};f=U([i(1,it),i(2,et),i(3,J),i(4,pt),i(5,lt),i(6,K),i(7,V),i(8,Z),i(9,ot),i(10,G),i(11,T),i(12,F),i(13,h),i(14,st),i(15,Y),i(16,y)],f);class w extends b{static{this.ID="workbench.extensions.action.extensionHostProfile"}static{this.LABEL=m.localize(9179,null)}constructor(){super({id:w.ID,title:{value:w.LABEL,original:"Start Extension Host Profile"},precondition:u.isEqualTo("none"),icon:v.circleFilled,menu:[{id:p.EditorTitle,when:E.and(P.isEqualTo(f.ID),u.notEqualsTo("running")),group:"navigation"},{id:p.ExtensionEditorContextMenu,when:u.notEqualsTo("running"),group:"profiling"}]})}run(t){return t.get(h).startProfiling(),Promise.resolve()}}class L extends b{static{this.ID="workbench.extensions.action.stopExtensionHostProfile"}static{this.LABEL=m.localize(9180,null)}constructor(){super({id:L.ID,title:{value:L.LABEL,original:"Stop Extension Host Profile"},icon:v.debugStop,menu:[{id:p.EditorTitle,when:E.and(P.isEqualTo(f.ID),u.isEqualTo("running")),group:"navigation"},{id:p.ExtensionEditorContextMenu,when:u.isEqualTo("running"),group:"profiling"}]})}run(t){return t.get(h).stopProfiling(),Promise.resolve()}}class I extends b{static{this.LABEL=m.localize(9181,null)}static{this.ID="workbench.extensions.action.openExtensionHostProfile"}constructor(){super({id:I.ID,title:{value:I.LABEL,original:"Open Extension Host Profile"},precondition:d,icon:v.graph,menu:[{id:p.EditorTitle,when:E.and(P.isEqualTo(f.ID)),group:"navigation"},{id:p.ExtensionEditorContextMenu,when:d,group:"profiling"}]})}async run(t){const o=t.get(h),s=t.get(W),r=t.get(rt);o.lastProfileSavedTo||await s.executeCommand(x.ID),o.lastProfileSavedTo&&await r.openEditor({resource:o.lastProfileSavedTo,options:{revealIfOpened:!0,override:"jsProfileVisualizer.cpuprofile.table"}},nt)}}class x extends b{static{this.LABEL=m.localize(9182,null)}static{this.ID="workbench.extensions.action.saveExtensionHostProfile"}constructor(){super({id:x.ID,title:{value:x.LABEL,original:"Save Extension Host Profile"},precondition:d,icon:v.saveAll,menu:[{id:p.EditorTitle,when:E.and(P.isEqualTo(f.ID)),group:"navigation"},{id:p.ExtensionEditorContextMenu,when:d,group:"profiling"}]})}run(t){const o=t.get(T),s=t.get(h),r=t.get(X),n=t.get(Q);return this.a(o,s,r,n)}async a(t,o,s,r){const n=await r.showSaveDialog({title:m.localize(9183,null),availableFileSystems:[k.file],defaultUri:N(await r.defaultFilePath(),`CPU-${new Date().toISOString().replace(/[\-:]/g,"")}.cpuprofile`),filters:[{name:"CPU Profiles",extensions:["cpuprofile","txt"]}]});if(!n)return;const l=o.lastProfile;let a=l?l.data:{},c=n.fsPath;t.isBuilt&&(a=tt.rewriteAbsolutePaths(a,"piiRemoved"),c=c+".txt");const g=M.file(c);return o.lastProfileSavedTo=g,s.writeFile(g,z.fromString(JSON.stringify(l?l.data:{},null,"	")))}}export{u as $AWc,d as $BWc,f as $CWc,w as $DWc,L as $EWc,I as $FWc,x as $GWc,h as $zWc,$ as ProfileSessionState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { Action2, IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { Utils } from "../../../../platform/profiling/common/profiling.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ActiveEditorContext } from "../../../common/contextkeys.js";
+import { IEditorService, SIDE_GROUP } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { AbstractRuntimeExtensionsEditor } from "../browser/abstractRuntimeExtensionsEditor.js";
+import { IExtensionsWorkbenchService } from "../common/extensions.js";
+import { ReportExtensionIssueAction } from "../common/reportExtensionIssueAction.js";
+import { SlowExtensionAction } from "./extensionsSlowActions.js";
+const IExtensionHostProfileService = createDecorator("extensionHostProfileService");
+const CONTEXT_PROFILE_SESSION_STATE = new RawContextKey("profileSessionState", "none");
+const CONTEXT_EXTENSION_HOST_PROFILE_RECORDED = new RawContextKey("extensionHostProfileRecorded", false);
+var ProfileSessionState;
+(function(ProfileSessionState2) {
+  ProfileSessionState2[ProfileSessionState2["None"] = 0] = "None";
+  ProfileSessionState2[ProfileSessionState2["Starting"] = 1] = "Starting";
+  ProfileSessionState2[ProfileSessionState2["Running"] = 2] = "Running";
+  ProfileSessionState2[ProfileSessionState2["Stopping"] = 3] = "Stopping";
+})(ProfileSessionState || (ProfileSessionState = {}));
+let RuntimeExtensionsEditor = class RuntimeExtensionsEditor2 extends AbstractRuntimeExtensionsEditor {
+  static {
+    __name(this, "RuntimeExtensionsEditor");
+  }
+  constructor(group, telemetryService, themeService, contextKeyService, extensionsWorkbenchService, extensionService, notificationService, contextMenuService, instantiationService, storageService, labelService, environmentService, clipboardService, _extensionHostProfileService, extensionFeaturesManagementService, hoverService, menuService) {
+    super(group, telemetryService, themeService, contextKeyService, extensionsWorkbenchService, extensionService, notificationService, contextMenuService, instantiationService, storageService, labelService, environmentService, clipboardService, extensionFeaturesManagementService, hoverService, menuService);
+    this._extensionHostProfileService = _extensionHostProfileService;
+    this._profileInfo = this._extensionHostProfileService.lastProfile;
+    this._extensionsHostRecorded = CONTEXT_EXTENSION_HOST_PROFILE_RECORDED.bindTo(contextKeyService);
+    this._profileSessionState = CONTEXT_PROFILE_SESSION_STATE.bindTo(contextKeyService);
+    this._register(this._extensionHostProfileService.onDidChangeLastProfile(() => {
+      this._profileInfo = this._extensionHostProfileService.lastProfile;
+      this._extensionsHostRecorded.set(!!this._profileInfo);
+      this._updateExtensions();
+    }));
+    this._register(this._extensionHostProfileService.onDidChangeState(() => {
+      const state = this._extensionHostProfileService.state;
+      this._profileSessionState.set(ProfileSessionState[state].toLowerCase());
+    }));
+  }
+  _getProfileInfo() {
+    return this._profileInfo;
+  }
+  _getUnresponsiveProfile(extensionId) {
+    return this._extensionHostProfileService.getUnresponsiveProfile(extensionId);
+  }
+  _createSlowExtensionAction(element) {
+    if (element.unresponsiveProfile) {
+      return this._instantiationService.createInstance(SlowExtensionAction, element.description, element.unresponsiveProfile);
+    }
+    return null;
+  }
+  _createReportExtensionIssueAction(element) {
+    if (element.marketplaceInfo) {
+      return this._instantiationService.createInstance(ReportExtensionIssueAction, element.description);
+    }
+    return null;
+  }
+};
+RuntimeExtensionsEditor = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IContextKeyService),
+  __param(4, IExtensionsWorkbenchService),
+  __param(5, IExtensionService),
+  __param(6, INotificationService),
+  __param(7, IContextMenuService),
+  __param(8, IInstantiationService),
+  __param(9, IStorageService),
+  __param(10, ILabelService),
+  __param(11, IWorkbenchEnvironmentService),
+  __param(12, IClipboardService),
+  __param(13, IExtensionHostProfileService),
+  __param(14, IExtensionFeaturesManagementService),
+  __param(15, IHoverService),
+  __param(16, IMenuService)
+], RuntimeExtensionsEditor);
+class StartExtensionHostProfileAction extends Action2 {
+  static {
+    __name(this, "StartExtensionHostProfileAction");
+  }
+  static {
+    this.ID = "workbench.extensions.action.extensionHostProfile";
+  }
+  static {
+    this.LABEL = nls.localize("extensionHostProfileStart", "Start Extension Host Profile");
+  }
+  constructor() {
+    super({
+      id: StartExtensionHostProfileAction.ID,
+      title: { value: StartExtensionHostProfileAction.LABEL, original: "Start Extension Host Profile" },
+      precondition: CONTEXT_PROFILE_SESSION_STATE.isEqualTo("none"),
+      icon: Codicon.circleFilled,
+      menu: [{
+        id: MenuId.EditorTitle,
+        when: ContextKeyExpr.and(ActiveEditorContext.isEqualTo(RuntimeExtensionsEditor.ID), CONTEXT_PROFILE_SESSION_STATE.notEqualsTo("running")),
+        group: "navigation"
+      }, {
+        id: MenuId.ExtensionEditorContextMenu,
+        when: CONTEXT_PROFILE_SESSION_STATE.notEqualsTo("running"),
+        group: "profiling"
+      }]
+    });
+  }
+  run(accessor) {
+    const extensionHostProfileService = accessor.get(IExtensionHostProfileService);
+    extensionHostProfileService.startProfiling();
+    return Promise.resolve();
+  }
+}
+class StopExtensionHostProfileAction extends Action2 {
+  static {
+    __name(this, "StopExtensionHostProfileAction");
+  }
+  static {
+    this.ID = "workbench.extensions.action.stopExtensionHostProfile";
+  }
+  static {
+    this.LABEL = nls.localize("stopExtensionHostProfileStart", "Stop Extension Host Profile");
+  }
+  constructor() {
+    super({
+      id: StopExtensionHostProfileAction.ID,
+      title: { value: StopExtensionHostProfileAction.LABEL, original: "Stop Extension Host Profile" },
+      icon: Codicon.debugStop,
+      menu: [{
+        id: MenuId.EditorTitle,
+        when: ContextKeyExpr.and(ActiveEditorContext.isEqualTo(RuntimeExtensionsEditor.ID), CONTEXT_PROFILE_SESSION_STATE.isEqualTo("running")),
+        group: "navigation"
+      }, {
+        id: MenuId.ExtensionEditorContextMenu,
+        when: CONTEXT_PROFILE_SESSION_STATE.isEqualTo("running"),
+        group: "profiling"
+      }]
+    });
+  }
+  run(accessor) {
+    const extensionHostProfileService = accessor.get(IExtensionHostProfileService);
+    extensionHostProfileService.stopProfiling();
+    return Promise.resolve();
+  }
+}
+class OpenExtensionHostProfileACtion extends Action2 {
+  static {
+    __name(this, "OpenExtensionHostProfileACtion");
+  }
+  static {
+    this.LABEL = nls.localize("openExtensionHostProfile", "Open Extension Host Profile");
+  }
+  static {
+    this.ID = "workbench.extensions.action.openExtensionHostProfile";
+  }
+  constructor() {
+    super({
+      id: OpenExtensionHostProfileACtion.ID,
+      title: { value: OpenExtensionHostProfileACtion.LABEL, original: "Open Extension Host Profile" },
+      precondition: CONTEXT_EXTENSION_HOST_PROFILE_RECORDED,
+      icon: Codicon.graph,
+      menu: [{
+        id: MenuId.EditorTitle,
+        when: ContextKeyExpr.and(ActiveEditorContext.isEqualTo(RuntimeExtensionsEditor.ID)),
+        group: "navigation"
+      }, {
+        id: MenuId.ExtensionEditorContextMenu,
+        when: CONTEXT_EXTENSION_HOST_PROFILE_RECORDED,
+        group: "profiling"
+      }]
+    });
+  }
+  async run(accessor) {
+    const extensionHostProfileService = accessor.get(IExtensionHostProfileService);
+    const commandService = accessor.get(ICommandService);
+    const editorService = accessor.get(IEditorService);
+    if (!extensionHostProfileService.lastProfileSavedTo) {
+      await commandService.executeCommand(SaveExtensionHostProfileAction.ID);
+    }
+    if (!extensionHostProfileService.lastProfileSavedTo) {
+      return;
+    }
+    await editorService.openEditor({
+      resource: extensionHostProfileService.lastProfileSavedTo,
+      options: {
+        revealIfOpened: true,
+        override: "jsProfileVisualizer.cpuprofile.table"
+      }
+    }, SIDE_GROUP);
+  }
+}
+class SaveExtensionHostProfileAction extends Action2 {
+  static {
+    __name(this, "SaveExtensionHostProfileAction");
+  }
+  static {
+    this.LABEL = nls.localize("saveExtensionHostProfile", "Save Extension Host Profile");
+  }
+  static {
+    this.ID = "workbench.extensions.action.saveExtensionHostProfile";
+  }
+  constructor() {
+    super({
+      id: SaveExtensionHostProfileAction.ID,
+      title: { value: SaveExtensionHostProfileAction.LABEL, original: "Save Extension Host Profile" },
+      precondition: CONTEXT_EXTENSION_HOST_PROFILE_RECORDED,
+      icon: Codicon.saveAll,
+      menu: [{
+        id: MenuId.EditorTitle,
+        when: ContextKeyExpr.and(ActiveEditorContext.isEqualTo(RuntimeExtensionsEditor.ID)),
+        group: "navigation"
+      }, {
+        id: MenuId.ExtensionEditorContextMenu,
+        when: CONTEXT_EXTENSION_HOST_PROFILE_RECORDED,
+        group: "profiling"
+      }]
+    });
+  }
+  run(accessor) {
+    const environmentService = accessor.get(IWorkbenchEnvironmentService);
+    const extensionHostProfileService = accessor.get(IExtensionHostProfileService);
+    const fileService = accessor.get(IFileService);
+    const fileDialogService = accessor.get(IFileDialogService);
+    return this._asyncRun(environmentService, extensionHostProfileService, fileService, fileDialogService);
+  }
+  async _asyncRun(environmentService, extensionHostProfileService, fileService, fileDialogService) {
+    const picked = await fileDialogService.showSaveDialog({
+      title: nls.localize("saveprofile.dialogTitle", "Save Extension Host Profile"),
+      availableFileSystems: [Schemas.file],
+      defaultUri: joinPath(await fileDialogService.defaultFilePath(), `CPU-${(/* @__PURE__ */ new Date()).toISOString().replace(/[\-:]/g, "")}.cpuprofile`),
+      filters: [{
+        name: "CPU Profiles",
+        extensions: ["cpuprofile", "txt"]
+      }]
+    });
+    if (!picked) {
+      return;
+    }
+    const profileInfo = extensionHostProfileService.lastProfile;
+    let dataToWrite = profileInfo ? profileInfo.data : {};
+    let savePath = picked.fsPath;
+    if (environmentService.isBuilt) {
+      dataToWrite = Utils.rewriteAbsolutePaths(dataToWrite, "piiRemoved");
+      savePath = savePath + ".txt";
+    }
+    const saveURI = URI.file(savePath);
+    extensionHostProfileService.lastProfileSavedTo = saveURI;
+    return fileService.writeFile(saveURI, VSBuffer.fromString(JSON.stringify(profileInfo ? profileInfo.data : {}, null, "	")));
+  }
+}
+export {
+  CONTEXT_EXTENSION_HOST_PROFILE_RECORDED,
+  CONTEXT_PROFILE_SESSION_STATE,
+  IExtensionHostProfileService,
+  OpenExtensionHostProfileACtion,
+  ProfileSessionState,
+  RuntimeExtensionsEditor,
+  SaveExtensionHostProfileAction,
+  StartExtensionHostProfileAction,
+  StopExtensionHostProfileAction
+};
+//# sourceMappingURL=runtimeExtensionsEditor.js.map

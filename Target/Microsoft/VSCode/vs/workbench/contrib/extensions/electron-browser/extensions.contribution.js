@@ -1,1 +1,104 @@
-import{$Ed as h}from"../../../../base/common/lifecycle.js";import{localize as d}from"../../../../nls.js";import{$wL as t}from"../../../../platform/actions/common/actions.js";import{$Urc as E}from"../../../../platform/extensionRecommendations/common/extensionRecommendations.js";import{$LQc as C}from"../../../../platform/extensionRecommendations/common/extensionRecommendationsIpc.js";import{$Kj as g}from"../../../../platform/instantiation/common/descriptors.js";import{$WC as _}from"../../../../platform/instantiation/common/extensions.js";import{$XPc as x}from"../../../../platform/ipc/electron-browser/services.js";import{$jm as p}from"../../../../platform/registry/common/platform.js";import{$aSb as z}from"../../../browser/editor.js";import{Extensions as R}from"../../../common/contributions.js";import{$9M as l}from"../../../common/editor.js";import{$Zrc as $}from"../common/runtimeExtensionsInput.js";import{$IWc as D,$LWc as I,$HWc as P,$JWc as S,$KWc as j}from"./debugExtensionHostAction.js";import{$NWc as v}from"./extensionProfileService.js";import{$PWc as w,$OWc as k}from"./extensionsActions.js";import{$QWc as O}from"./extensionsAutoProfiler.js";import{$RWc as L,$SWc as y}from"./remoteExtensionsInit.js";import{$zWc as F,$FWc as K,$CWc as W,$GWc as N,$DWc as Q,$EWc as G}from"./runtimeExtensionsEditor.js";var b=function(e,r,o,n){var m=arguments.length,i=m<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,o):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(e,r,o,n);else for(var f=e.length-1;f>=0;f--)(s=e[f])&&(i=(m<3?s(i):m>3?s(r,o,i):s(r,o))||i);return m>3&&i&&Object.defineProperty(r,o,i),i},u=function(e,r){return function(o,n){r(o,n,e)}};_(F,v,1);p.as(l.EditorPane).registerEditorPane(z.create(W,W.ID,d(9167,null)),[new g($)]);class H{canSerialize(r){return!0}serialize(r){return""}deserialize(r){return $.instance}}p.as(l.EditorFactory).registerEditorSerializer($.ID,H);let a=class extends h{constructor(r,o){super(),o.registerChannel("extensionRecommendationNotification",new C(r)),this.D(t(k)),this.D(t(w))}};a=b([u(0,E),u(1,x)],a);const c=p.as(R.Workbench);c.registerWorkbenchContribution(a,3);c.registerWorkbenchContribution(O,4);c.registerWorkbenchContribution(y,3);c.registerWorkbenchContribution(L,3);c.registerWorkbenchContribution(I,3);t(D);t(S);t(j);t(Q);t(G);t(N);t(K);t(P);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IExtensionRecommendationNotificationService } from "../../../../platform/extensionRecommendations/common/extensionRecommendations.js";
+import { ExtensionRecommendationNotificationServiceChannel } from "../../../../platform/extensionRecommendations/common/extensionRecommendationsIpc.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-browser/services.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { RuntimeExtensionsInput } from "../common/runtimeExtensionsInput.js";
+import { DebugExtensionHostInNewWindowAction, DebugExtensionsContribution, DebugExtensionHostInDevToolsAction, DebugRendererInNewWindowAction, DebugExtensionHostAndRendererAction } from "./debugExtensionHostAction.js";
+import { ExtensionHostProfileService } from "./extensionProfileService.js";
+import { CleanUpExtensionsFolderAction, OpenExtensionsFolderAction } from "./extensionsActions.js";
+import { ExtensionsAutoProfiler } from "./extensionsAutoProfiler.js";
+import { InstallRemoteExtensionsContribution, RemoteExtensionsInitializerContribution } from "./remoteExtensionsInit.js";
+import { IExtensionHostProfileService, OpenExtensionHostProfileACtion, RuntimeExtensionsEditor, SaveExtensionHostProfileAction, StartExtensionHostProfileAction, StopExtensionHostProfileAction } from "./runtimeExtensionsEditor.js";
+registerSingleton(
+  IExtensionHostProfileService,
+  ExtensionHostProfileService,
+  1
+  /* InstantiationType.Delayed */
+);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(RuntimeExtensionsEditor, RuntimeExtensionsEditor.ID, localize("runtimeExtension", "Running Extensions")), [new SyncDescriptor(RuntimeExtensionsInput)]);
+class RuntimeExtensionsInputSerializer {
+  static {
+    __name(this, "RuntimeExtensionsInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(editorInput) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return RuntimeExtensionsInput.instance;
+  }
+}
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(RuntimeExtensionsInput.ID, RuntimeExtensionsInputSerializer);
+let ExtensionsContributions = class ExtensionsContributions2 extends Disposable {
+  static {
+    __name(this, "ExtensionsContributions");
+  }
+  constructor(extensionRecommendationNotificationService, sharedProcessService) {
+    super();
+    sharedProcessService.registerChannel("extensionRecommendationNotification", new ExtensionRecommendationNotificationServiceChannel(extensionRecommendationNotificationService));
+    this._register(registerAction2(OpenExtensionsFolderAction));
+    this._register(registerAction2(CleanUpExtensionsFolderAction));
+  }
+};
+ExtensionsContributions = __decorate([
+  __param(0, IExtensionRecommendationNotificationService),
+  __param(1, ISharedProcessService)
+], ExtensionsContributions);
+const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchRegistry.registerWorkbenchContribution(
+  ExtensionsContributions,
+  3
+  /* LifecyclePhase.Restored */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  ExtensionsAutoProfiler,
+  4
+  /* LifecyclePhase.Eventually */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  RemoteExtensionsInitializerContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  InstallRemoteExtensionsContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+workbenchRegistry.registerWorkbenchContribution(
+  DebugExtensionsContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+registerAction2(DebugExtensionHostInNewWindowAction);
+registerAction2(DebugRendererInNewWindowAction);
+registerAction2(DebugExtensionHostAndRendererAction);
+registerAction2(StartExtensionHostProfileAction);
+registerAction2(StopExtensionHostProfileAction);
+registerAction2(SaveExtensionHostProfileAction);
+registerAction2(OpenExtensionHostProfileACtion);
+registerAction2(DebugExtensionHostInDevToolsAction);
+//# sourceMappingURL=extensions.contribution.js.map

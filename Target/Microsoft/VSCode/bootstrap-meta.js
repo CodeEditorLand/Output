@@ -1,1 +1,25 @@
-import{createRequire as t}from"node:module";const e=t(import.meta.url);let I={BUILD_INSERT_PRODUCT_CONFIGURATION:"BUILD_INSERT_PRODUCT_CONFIGURATION"};I.BUILD_INSERT_PRODUCT_CONFIGURATION&&(I=e("../product.json"));let r={BUILD_INSERT_PACKAGE_CONFIGURATION:"BUILD_INSERT_PACKAGE_CONFIGURATION"};r.BUILD_INSERT_PACKAGE_CONFIGURATION&&(r=e("../package.json"));let O={};if(process.env.VSCODE_DEV)try{O=e("../product.overrides.json"),I=Object.assign(I,O)}catch{}const N=I,R=r;export{N as $Q,R as $R};
+import { createRequire } from "node:module";
+const require2 = createRequire(import.meta.url);
+let productObj = { BUILD_INSERT_PRODUCT_CONFIGURATION: "BUILD_INSERT_PRODUCT_CONFIGURATION" };
+if (productObj["BUILD_INSERT_PRODUCT_CONFIGURATION"]) {
+  productObj = require2("../product.json");
+}
+let pkgObj = { BUILD_INSERT_PACKAGE_CONFIGURATION: "BUILD_INSERT_PACKAGE_CONFIGURATION" };
+if (pkgObj["BUILD_INSERT_PACKAGE_CONFIGURATION"]) {
+  pkgObj = require2("../package.json");
+}
+let productOverridesObj = {};
+if (process.env["VSCODE_DEV"]) {
+  try {
+    productOverridesObj = require2("../product.overrides.json");
+    productObj = Object.assign(productObj, productOverridesObj);
+  } catch (error) {
+  }
+}
+const product = productObj;
+const pkg = pkgObj;
+export {
+  pkg,
+  product
+};
+//# sourceMappingURL=bootstrap-meta.js.map

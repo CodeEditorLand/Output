@@ -1,1 +1,391 @@
-import"./media/inlineChatOverlayWidget.css";import*as f from"../../../../base/browser/dom.js";import{$L0 as q}from"../../../../base/browser/markdownRenderer.js";import{$n8 as R}from"../../../../base/browser/keyboardEvent.js";import{$Hm as z}from"../../../../base/common/actions.js";import{$w0 as F}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$bk as v}from"../../../../base/common/codicons.js";import{$Ed as O,$Dd as j,$Cd as V}from"../../../../base/common/lifecycle.js";import{autorun as S,constObservable as w,derived as x,observableFromEvent as E,observableFromEventOpts as _,observableValue as M}from"../../../../base/common/observable.js";import{ThemeIcon as $}from"../../../../base/common/themables.js";import{URI as G}from"../../../../base/common/uri.js";import{EditorExtensionsRegistry as A}from"../../../../editor/browser/editorExtensions.js";import{$sib as K}from"../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{$9H as Q}from"../../../../editor/common/services/model.js";import{localize as g}from"../../../../nls.js";import{$ikb as U}from"../../../../platform/actions/browser/toolbar.js";import{$rL as J,$qL as W}from"../../../../platform/actions/common/actions.js";import{$ro as X}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as N}from"../../../../platform/instantiation/common/instantiation.js";import{$Egc as Y}from"../../chat/browser/chatEditing/chatEditingEditorOverlay.js";import{$pNb as H}from"../common/inlineChat.js";import{$Dsb as B}from"../../../../editor/contrib/stickyScroll/browser/stickyScrollController.js";import{$fy as P}from"../../../../platform/keybinding/common/keybinding.js";import{$9jb as Z}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$0l as tt}from"../../../../platform/configuration/common/configuration.js";import{$gQb as et}from"../../codeEditor/browser/simpleEditorOptions.js";import{$5wb as it}from"../../../../editor/contrib/placeholderText/browser/placeholderTextContribution.js";import{$$D as D}from"../../../../editor/common/core/position.js";import{$4Qb as st}from"../../chat/browser/actions/chatExecuteActions.js";import{$fd as ot}from"../../../../base/common/types.js";var L=function(b,t,i,s){var n=arguments.length,r=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(b,t,i,s);else for(var c=b.length-1;c>=0;c--)(d=b[c])&&(r=(n<3?d(r):n>3?d(t,i,r):d(t,i))||r);return n>3&&r&&Object.defineProperty(t,i,r),r},p=function(b,t){return function(i,s){t(i,s,b)}};let I=class extends O{constructor(t,i,s,n,r,d,c){super(),this.t=t,this.u=i,this.w=s,this.y=n,this.g=M(this,null),this.position=this.g,this.h=this.B.add(new j),this.n=0,this.q=0,this.s=!1,this.a=f.$(".inline-chat-gutter-menu"),this.b=f.$y9(this.a,f.$(".input")),this.b.style.width="200px",this.b.style.height="26px",this.b.style.display="flex",this.b.style.alignItems="center",this.b.style.justifyContent="center";const e=et(c);e.wordWrap="on",e.lineNumbers="off",e.glyphMargin=!1,e.lineDecorationsWidth=0,e.lineNumbersMinChars=0,e.folding=!1,e.minimap={enabled:!1},e.scrollbar={vertical:"auto",horizontal:"hidden",alwaysConsumeMouseWheel:!0,verticalSliderSize:6},e.renderLineHighlight="none";const h={isSimpleWidget:!0,contributions:A.getSomeEditorContributions([it.ID])};this.f=this.B.add(r.createInstance(K,this.b,e,h));const a=this.B.add(d.createModel("",null,G.parse(`gutter-input:${Date.now()}`),!0));this.f.setModel(a);const m=B.get(this.t.editor);this.j=m?E(m.onDidChangeStickyScrollHeight,()=>m.stickyScrollWidgetHeight):w(0),this.B.add(S(o=>{const l=this.t.cursorSelection.read(o),C=l&&!l.isEmpty()?g(9661,null):g(9662,null);this.f.updateOptions({placeholder:this.u.appendKeybinding(C,H)})})),this.B.add(this.f.onDidContentSizeChange(o=>{o.contentHeightChanged&&this.G(o.contentHeight)})),this.B.add(this.f.onKeyDown(o=>{if(o.keyCode===3&&!o.shiftKey){const l=this.f.getModel().getValue()??"";this.m&&l&&(o.preventDefault(),o.stopPropagation(),this.c.actionRunner.run(this.m,{message:l,autoSend:!0}))}else if(o.keyCode===9)(this.f.getModel().getValue()??"")||(o.preventDefault(),o.stopPropagation(),this.C());else if(o.keyCode===18){const l=this.f.getModel(),y=this.f.getPosition(),C=l.getLineCount(),T=l.getLineMaxColumn(C);D.equals(y,new D(C,T))&&(o.preventDefault(),o.stopPropagation(),this.c.focus())}})),this.c=this.B.add(new F(this.a,{orientation:1,preventLoopNavigation:!0})),this.B.add(f.$u8(this.c.domNode,"keydown",o=>{const l=new R(o);l.equals(16)&&this.c.isFocused(this.c.viewItems.findIndex(y=>y.action.id!==z.ID))&&(l.preventDefault(),l.stopPropagation(),this.f.focus())},!0));const u=this.B.add(f.$w9(this.a));this.B.add(u.onDidBlur(()=>this.C())),this.B.add(this.c.onDidCancel(()=>this.C())),this.B.add(this.c.onWillRun(()=>this.C()))}show(t,i,s){this.h.clear(),this.f.getModel().setValue(""),this.G(this.f.getContentHeight()),this.F(),this.n=t,this.q=i,this.s=s,this.z(),this.h.add(this.t.createOverlayWidget({domNode:this.a,position:this.g,minContentWidthInPx:w(0),allowEditorOverflow:!0})),s&&this.z(),this.h.add(this.t.editor.onDidScrollChange(()=>{const r=this.t.editor.getVisibleRanges().some(c=>this.n>=c.startLineNumber&&this.n<=c.endLineNumber),d=!!this.f.getModel().getValue();!r&&!d?this.C():this.z()})),setTimeout(()=>this.f.focus(),0)}z(){const t=this.t.editor,i=t.getOption(75),s=t.getTopForLineNumber(this.n)-t.getScrollTop();let n=s;if(this.s){const u=this.a.offsetHeight;n=s-u}else n=s+i;const r=this.j.get(),d=t.getLayoutInfo(),c=this.a.offsetHeight,e=r,h=d.height-c,a=Math.max(e,Math.min(n,h)),m=a!==n;this.a.classList.toggle("clamped",m),this.g.set({preference:{top:a,left:this.q},stackOrdinal:1e4},void 0)}C(){const t=this.t.editor.getDomNode();t&&f.$$8(t)&&this.t.editor.focus(),this.g.set(null,void 0),this.h.clear()}F(){this.c.clear(),this.m=void 0;const t=Z(this.w.getMenuActions(W.ChatEditorInlineGutter,this.y,{shouldForwardArgs:!0}));for(const i of t){if(i.id===H){this.m=i;continue}const s=this.u.lookupKeybinding(i.id)?.getLabel();this.c.push(i,{icon:!1,label:!0,keybinding:s})}}G(t){const s=3*this.f.getOption(75),n=Math.min(t,s),r=8;this.b.style.height=`${n+r}px`,this.f.layout({width:200,height:n})}};I=L([p(1,P),p(2,J),p(3,X),p(4,N),p(5,Q),p(6,tt)],I);let k=class extends O{constructor(t,i,s){super(),this.s=t,this.t=i,this.u=s,this.a=document.createElement("div"),this.j=this.B.add(new j),this.m=M(this,null),this.n=w(0),this.a.classList.add("inline-chat-session-overlay-widget"),this.b=document.createElement("div"),this.a.appendChild(this.b),this.b.classList.add("inline-chat-session-overlay-container"),this.c=document.createElement("div"),this.c.classList.add("status"),this.f=f.$y9(this.c,f.$("span")),this.g=f.$y9(this.c,f.$("span.message")),this.b.appendChild(this.c),this.h=document.createElement("div"),this.h.classList.add("toolbar");const n=B.get(this.s.editor);this.q=n?E(n.onDidChangeStickyScrollHeight,()=>n.stickyScrollWidgetHeight):w(0)}show(t){ot(this.s.editor.hasModel()),this.j.clear();const i=x(e=>t.editingSession.readEntry(t.uri,e)),s=x(e=>{const h=t?.chatModel;if(!t||!h)return;const a=h.lastRequestObs.read(e)?.response;if(!a)return{message:g(9663,null),icon:$.modify(v.loading,"spin")};if(a.isComplete){if(a.result?.errorDetails)return{message:g(9664,null),icon:v.error};const o=i.read(e)?.changesCount.read(e)??0;return{message:o===0?g(9665,null):o===1?g(9666,null):g(9667,null,o),icon:v.check}}const m=_({equalsFn:()=>!1},a.onDidChange,()=>a.response.value).read(e).filter(u=>u.kind==="progressMessage"||u.kind==="toolInvocation").at(-1);return m?.kind==="toolInvocation"?{message:m.invocationMessage,icon:$.modify(v.loading,"spin")}:m?.kind==="progressMessage"?{message:m.content,icon:$.modify(v.loading,"spin")}:{message:g(9668,null),icon:$.modify(v.loading,"spin")}});this.j.add(S(e=>{const h=s.read(e);h?(this.g.innerText=q(h.message),this.f.className="",this.f.classList.add(...$.asClassNameArray(h.icon))):(this.g.innerText="",this.f.className="")})),this.b.appendChild(this.h),this.j.add(V(()=>this.h.remove()));const n=this;this.j.add(this.t.createInstance(U,this.h,W.ChatEditorInlineExecute,{telemetrySource:"inlineChatProgress.overlayToolbar",hiddenItemStrategy:0,toolbarOptions:{primaryGroup:()=>!0,useSeparatorsInPrimaryActions:!0},menuOptions:{renderShortTitle:!0},actionViewItemProvider:(e,h)=>{const a=[st,"inlineChat2.keep"];if(a.concat(["inlineChat2.undo"]).includes(e.id))return new Y(e,h,i,void 0,n.u,a)}}));const r=this.s.getOption(75),d=M(this,0),c=new f.$U9(()=>{d.set(this.a.offsetWidth,void 0)});this.j.add(c),this.j.add(c.observe(this.a)),this.j.add(S(e=>{const h=this.s.layoutInfo.read(e),a=this.q.read(e),m=d.read(e),u=Math.round(r.read(e)*2/3),o=h.contentWidth-2*u;this.a.style.maxWidth=`${o}px`;const l=a+u,y=h.width-m-h.verticalScrollbarWidth-h.minimap.minimapWidth-u;this.m.set({preference:{top:l,left:y},stackOrdinal:1e4},void 0)})),this.j.add(this.s.createOverlayWidget({domNode:this.a,position:this.m,minContentWidthInPx:this.n,allowEditorOverflow:!1}))}hide(){this.m.set(null,void 0),this.j.clear()}};k=L([p(1,N),p(2,P)],k);export{I as $Ggc,k as $Hgc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/inlineChatOverlayWidget.css";
+import * as dom from "../../../../base/browser/dom.js";
+import { renderAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { Separator } from "../../../../base/common/actions.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, constObservable, derived, observableFromEvent, observableFromEventOpts, observableValue } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { localize } from "../../../../nls.js";
+import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ChatEditingAcceptRejectActionViewItem } from "../../chat/browser/chatEditing/chatEditingEditorOverlay.js";
+import { ACTION_START } from "../common/inlineChat.js";
+import { StickyScrollController } from "../../../../editor/contrib/stickyScroll/browser/stickyScrollController.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { getFlatActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { getSimpleEditorOptions } from "../../codeEditor/browser/simpleEditorOptions.js";
+import { PlaceholderTextContribution } from "../../../../editor/contrib/placeholderText/browser/placeholderTextContribution.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { CancelChatActionId } from "../../chat/browser/actions/chatExecuteActions.js";
+import { assertType } from "../../../../base/common/types.js";
+let InlineChatInputWidget = class InlineChatInputWidget2 extends Disposable {
+  static {
+    __name(this, "InlineChatInputWidget");
+  }
+  constructor(_editorObs, _keybindingService, _menuService, _contextKeyService, instantiationService, modelService, configurationService) {
+    super();
+    this._editorObs = _editorObs;
+    this._keybindingService = _keybindingService;
+    this._menuService = _menuService;
+    this._contextKeyService = _contextKeyService;
+    this._position = observableValue(this, null);
+    this.position = this._position;
+    this._showStore = this._store.add(new DisposableStore());
+    this._anchorLineNumber = 0;
+    this._anchorLeft = 0;
+    this._anchorAbove = false;
+    this._domNode = dom.$(".inline-chat-gutter-menu");
+    this._inputContainer = dom.append(this._domNode, dom.$(".input"));
+    this._inputContainer.style.width = "200px";
+    this._inputContainer.style.height = "26px";
+    this._inputContainer.style.display = "flex";
+    this._inputContainer.style.alignItems = "center";
+    this._inputContainer.style.justifyContent = "center";
+    const options = getSimpleEditorOptions(configurationService);
+    options.wordWrap = "on";
+    options.lineNumbers = "off";
+    options.glyphMargin = false;
+    options.lineDecorationsWidth = 0;
+    options.lineNumbersMinChars = 0;
+    options.folding = false;
+    options.minimap = { enabled: false };
+    options.scrollbar = { vertical: "auto", horizontal: "hidden", alwaysConsumeMouseWheel: true, verticalSliderSize: 6 };
+    options.renderLineHighlight = "none";
+    const codeEditorWidgetOptions = {
+      isSimpleWidget: true,
+      contributions: EditorExtensionsRegistry.getSomeEditorContributions([
+        PlaceholderTextContribution.ID
+      ])
+    };
+    this._input = this._store.add(instantiationService.createInstance(CodeEditorWidget, this._inputContainer, options, codeEditorWidgetOptions));
+    const model = this._store.add(modelService.createModel("", null, URI.parse(`gutter-input:${Date.now()}`), true));
+    this._input.setModel(model);
+    const stickyScrollController = StickyScrollController.get(this._editorObs.editor);
+    this._stickyScrollHeight = stickyScrollController ? observableFromEvent(stickyScrollController.onDidChangeStickyScrollHeight, () => stickyScrollController.stickyScrollWidgetHeight) : constObservable(0);
+    this._store.add(autorun((r) => {
+      const selection = this._editorObs.cursorSelection.read(r);
+      const hasSelection = selection && !selection.isEmpty();
+      const placeholderText = hasSelection ? localize("placeholderWithSelection", "Modify selected code") : localize("placeholderNoSelection", "Generate code");
+      this._input.updateOptions({ placeholder: this._keybindingService.appendKeybinding(placeholderText, ACTION_START) });
+    }));
+    this._store.add(this._input.onDidContentSizeChange((e) => {
+      if (e.contentHeightChanged) {
+        this._updateInputHeight(e.contentHeight);
+      }
+    }));
+    this._store.add(this._input.onKeyDown((e) => {
+      if (e.keyCode === 3 && !e.shiftKey) {
+        const value = this._input.getModel().getValue() ?? "";
+        if (this._inlineStartAction && value) {
+          e.preventDefault();
+          e.stopPropagation();
+          this._actionBar.actionRunner.run(this._inlineStartAction, { message: value, autoSend: true });
+        }
+      } else if (e.keyCode === 9) {
+        const value = this._input.getModel().getValue() ?? "";
+        if (!value) {
+          e.preventDefault();
+          e.stopPropagation();
+          this._hide();
+        }
+      } else if (e.keyCode === 18) {
+        const inputModel = this._input.getModel();
+        const position = this._input.getPosition();
+        const lastLineNumber = inputModel.getLineCount();
+        const lastLineMaxColumn = inputModel.getLineMaxColumn(lastLineNumber);
+        if (Position.equals(position, new Position(lastLineNumber, lastLineMaxColumn))) {
+          e.preventDefault();
+          e.stopPropagation();
+          this._actionBar.focus();
+        }
+      }
+    }));
+    this._actionBar = this._store.add(new ActionBar(this._domNode, {
+      orientation: 1,
+      preventLoopNavigation: true
+    }));
+    this._store.add(dom.addDisposableListener(this._actionBar.domNode, "keydown", (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(
+        16
+        /* KeyCode.UpArrow */
+      ) && this._actionBar.isFocused(this._actionBar.viewItems.findIndex((item) => item.action.id !== Separator.ID))) {
+        event.preventDefault();
+        event.stopPropagation();
+        this._input.focus();
+      }
+    }, true));
+    const focusTracker = this._store.add(dom.trackFocus(this._domNode));
+    this._store.add(focusTracker.onDidBlur(() => this._hide()));
+    this._store.add(this._actionBar.onDidCancel(() => this._hide()));
+    this._store.add(this._actionBar.onWillRun(() => this._hide()));
+  }
+  /**
+   * Show the widget at the specified line.
+   * @param lineNumber The line number to anchor the widget to
+   * @param left Left offset relative to editor
+   * @param anchorAbove Whether to anchor above the position (widget grows upward)
+   */
+  show(lineNumber, left, anchorAbove) {
+    this._showStore.clear();
+    this._input.getModel().setValue("");
+    this._updateInputHeight(this._input.getContentHeight());
+    this._refreshActions();
+    this._anchorLineNumber = lineNumber;
+    this._anchorLeft = left;
+    this._anchorAbove = anchorAbove;
+    this._updatePosition();
+    this._showStore.add(this._editorObs.createOverlayWidget({
+      domNode: this._domNode,
+      position: this._position,
+      minContentWidthInPx: constObservable(0),
+      allowEditorOverflow: true
+    }));
+    if (anchorAbove) {
+      this._updatePosition();
+    }
+    this._showStore.add(this._editorObs.editor.onDidScrollChange(() => {
+      const visibleRanges = this._editorObs.editor.getVisibleRanges();
+      const isLineVisible = visibleRanges.some((range) => this._anchorLineNumber >= range.startLineNumber && this._anchorLineNumber <= range.endLineNumber);
+      const hasContent = !!this._input.getModel().getValue();
+      if (!isLineVisible && !hasContent) {
+        this._hide();
+      } else {
+        this._updatePosition();
+      }
+    }));
+    setTimeout(() => this._input.focus(), 0);
+  }
+  _updatePosition() {
+    const editor = this._editorObs.editor;
+    const lineHeight = editor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const top = editor.getTopForLineNumber(this._anchorLineNumber) - editor.getScrollTop();
+    let adjustedTop = top;
+    if (this._anchorAbove) {
+      const widgetHeight2 = this._domNode.offsetHeight;
+      adjustedTop = top - widgetHeight2;
+    } else {
+      adjustedTop = top + lineHeight;
+    }
+    const stickyScrollHeight = this._stickyScrollHeight.get();
+    const layoutInfo = editor.getLayoutInfo();
+    const widgetHeight = this._domNode.offsetHeight;
+    const minTop = stickyScrollHeight;
+    const maxTop = layoutInfo.height - widgetHeight;
+    const clampedTop = Math.max(minTop, Math.min(adjustedTop, maxTop));
+    const isClamped = clampedTop !== adjustedTop;
+    this._domNode.classList.toggle("clamped", isClamped);
+    this._position.set({
+      preference: { top: clampedTop, left: this._anchorLeft },
+      stackOrdinal: 1e4
+    }, void 0);
+  }
+  /**
+   * Hide the widget (removes from editor but does not dispose).
+   */
+  _hide() {
+    const editorDomNode = this._editorObs.editor.getDomNode();
+    if (editorDomNode && dom.isAncestorOfActiveElement(editorDomNode)) {
+      this._editorObs.editor.focus();
+    }
+    this._position.set(null, void 0);
+    this._showStore.clear();
+  }
+  _refreshActions() {
+    this._actionBar.clear();
+    this._inlineStartAction = void 0;
+    const actions = getFlatActionBarActions(this._menuService.getMenuActions(MenuId.ChatEditorInlineGutter, this._contextKeyService, { shouldForwardArgs: true }));
+    for (const action of actions) {
+      if (action.id === ACTION_START) {
+        this._inlineStartAction = action;
+        continue;
+      }
+      const keybinding = this._keybindingService.lookupKeybinding(action.id)?.getLabel();
+      this._actionBar.push(action, { icon: false, label: true, keybinding });
+    }
+  }
+  _updateInputHeight(contentHeight) {
+    const lineHeight = this._input.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const maxHeight = 3 * lineHeight;
+    const clampedHeight = Math.min(contentHeight, maxHeight);
+    const containerPadding = 8;
+    this._inputContainer.style.height = `${clampedHeight + containerPadding}px`;
+    this._input.layout({ width: 200, height: clampedHeight });
+  }
+};
+InlineChatInputWidget = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IMenuService),
+  __param(3, IContextKeyService),
+  __param(4, IInstantiationService),
+  __param(5, IModelService),
+  __param(6, IConfigurationService)
+], InlineChatInputWidget);
+let InlineChatSessionOverlayWidget = class InlineChatSessionOverlayWidget2 extends Disposable {
+  static {
+    __name(this, "InlineChatSessionOverlayWidget");
+  }
+  constructor(_editorObs, _instaService, _keybindingService) {
+    super();
+    this._editorObs = _editorObs;
+    this._instaService = _instaService;
+    this._keybindingService = _keybindingService;
+    this._domNode = document.createElement("div");
+    this._showStore = this._store.add(new DisposableStore());
+    this._position = observableValue(this, null);
+    this._minContentWidthInPx = constObservable(0);
+    this._domNode.classList.add("inline-chat-session-overlay-widget");
+    this._container = document.createElement("div");
+    this._domNode.appendChild(this._container);
+    this._container.classList.add("inline-chat-session-overlay-container");
+    this._statusNode = document.createElement("div");
+    this._statusNode.classList.add("status");
+    this._icon = dom.append(this._statusNode, dom.$("span"));
+    this._message = dom.append(this._statusNode, dom.$("span.message"));
+    this._container.appendChild(this._statusNode);
+    this._toolbarNode = document.createElement("div");
+    this._toolbarNode.classList.add("toolbar");
+    const stickyScrollController = StickyScrollController.get(this._editorObs.editor);
+    this._stickyScrollHeight = stickyScrollController ? observableFromEvent(stickyScrollController.onDidChangeStickyScrollHeight, () => stickyScrollController.stickyScrollWidgetHeight) : constObservable(0);
+  }
+  show(session) {
+    assertType(this._editorObs.editor.hasModel());
+    this._showStore.clear();
+    const entry = derived((r) => session.editingSession.readEntry(session.uri, r));
+    const requestMessage = derived((r) => {
+      const chatModel = session?.chatModel;
+      if (!session || !chatModel) {
+        return void 0;
+      }
+      const response = chatModel.lastRequestObs.read(r)?.response;
+      if (!response) {
+        return { message: localize("working", "Working..."), icon: ThemeIcon.modify(Codicon.loading, "spin") };
+      }
+      if (response.isComplete) {
+        const result = response.result;
+        if (result?.errorDetails) {
+          return {
+            message: localize("error", "Sorry, your request failed"),
+            icon: Codicon.error
+          };
+        }
+        const changes = entry.read(r)?.changesCount.read(r) ?? 0;
+        return {
+          message: changes === 0 ? localize("done", "Done") : changes === 1 ? localize("done1", "Done, 1 change") : localize("doneN", "Done, {0} changes", changes),
+          icon: Codicon.check
+        };
+      }
+      const lastPart = observableFromEventOpts({ equalsFn: /* @__PURE__ */ __name(() => false, "equalsFn") }, response.onDidChange, () => response.response.value).read(r).filter((part) => part.kind === "progressMessage" || part.kind === "toolInvocation").at(-1);
+      if (lastPart?.kind === "toolInvocation") {
+        return { message: lastPart.invocationMessage, icon: ThemeIcon.modify(Codicon.loading, "spin") };
+      } else if (lastPart?.kind === "progressMessage") {
+        return { message: lastPart.content, icon: ThemeIcon.modify(Codicon.loading, "spin") };
+      } else {
+        return { message: localize("working", "Working..."), icon: ThemeIcon.modify(Codicon.loading, "spin") };
+      }
+    });
+    this._showStore.add(autorun((r) => {
+      const value = requestMessage.read(r);
+      if (value) {
+        this._message.innerText = renderAsPlaintext(value.message);
+        this._icon.className = "";
+        this._icon.classList.add(...ThemeIcon.asClassNameArray(value.icon));
+      } else {
+        this._message.innerText = "";
+        this._icon.className = "";
+      }
+    }));
+    this._container.appendChild(this._toolbarNode);
+    this._showStore.add(toDisposable(() => this._toolbarNode.remove()));
+    const that = this;
+    this._showStore.add(this._instaService.createInstance(MenuWorkbenchToolBar, this._toolbarNode, MenuId.ChatEditorInlineExecute, {
+      telemetrySource: "inlineChatProgress.overlayToolbar",
+      hiddenItemStrategy: 0,
+      toolbarOptions: {
+        primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup"),
+        useSeparatorsInPrimaryActions: true
+      },
+      menuOptions: { renderShortTitle: true },
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        const primaryActions = [CancelChatActionId, "inlineChat2.keep"];
+        const labeledActions = primaryActions.concat(["inlineChat2.undo"]);
+        if (!labeledActions.includes(action.id)) {
+          return void 0;
+        }
+        return new ChatEditingAcceptRejectActionViewItem(action, options, entry, void 0, that._keybindingService, primaryActions);
+      }, "actionViewItemProvider")
+    }));
+    const lineHeight = this._editorObs.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    const widgetWidth = observableValue(this, 0);
+    const resizeObserver = new dom.DisposableResizeObserver(() => {
+      widgetWidth.set(this._domNode.offsetWidth, void 0);
+    });
+    this._showStore.add(resizeObserver);
+    this._showStore.add(resizeObserver.observe(this._domNode));
+    this._showStore.add(autorun((r) => {
+      const layoutInfo = this._editorObs.layoutInfo.read(r);
+      const stickyScrollHeight = this._stickyScrollHeight.read(r);
+      const width = widgetWidth.read(r);
+      const padding = Math.round(lineHeight.read(r) * 2 / 3);
+      const maxWidth = layoutInfo.contentWidth - 2 * padding;
+      this._domNode.style.maxWidth = `${maxWidth}px`;
+      const top = stickyScrollHeight + padding;
+      const left = layoutInfo.width - width - layoutInfo.verticalScrollbarWidth - layoutInfo.minimap.minimapWidth - padding;
+      this._position.set({
+        preference: { top, left },
+        stackOrdinal: 1e4
+      }, void 0);
+    }));
+    this._showStore.add(this._editorObs.createOverlayWidget({
+      domNode: this._domNode,
+      position: this._position,
+      minContentWidthInPx: this._minContentWidthInPx,
+      allowEditorOverflow: false
+    }));
+  }
+  hide() {
+    this._position.set(null, void 0);
+    this._showStore.clear();
+  }
+};
+InlineChatSessionOverlayWidget = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IKeybindingService)
+], InlineChatSessionOverlayWidget);
+export {
+  InlineChatInputWidget,
+  InlineChatSessionOverlayWidget
+};
+//# sourceMappingURL=inlineChatOverlayWidget.js.map

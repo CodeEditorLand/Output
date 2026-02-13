@@ -1,1 +1,97 @@
-import{$Hz as h}from"../../../../platform/extensions/common/extensions.js";import{$jm as g}from"../../../../platform/registry/common/platform.js";import{Extensions as m}from"../../../services/extensionManagement/common/extensionFeatures.js";class c{constructor(e,s){this.value=e,this.sortBy=s,this.value=e.trim()}static suggestions(e,s){const r=["installed","updates","enabled","disabled","builtin","contribute"];s?.capabilities.extensionQuery?.filtering?.some(t=>t.name==="Featured")&&r.push("featured"),r.push("mcp","popular","recommended","recentlyPublished","workspaceUnsupported","deprecated","sort");const o=s?.capabilities.extensionQuery?.filtering?.some(t=>t.name==="Category");o&&r.push("category"),r.push("tag","ext","id","outdated","recentlyUpdated");const i=[];s?.capabilities.extensionQuery?.sorting?.some(t=>t.name==="InstallCount")&&i.push("installs"),s?.capabilities.extensionQuery?.sorting?.some(t=>t.name==="WeightedRating")&&i.push("rating"),i.push("name","publishedDate","updateDate");const u=[];for(const t of g.as(m.ExtensionFeaturesRegistry).getExtensionFeatures())u.push(t.id);const n={sort:i,category:o?h.map(t=>`"${t.toLowerCase()}"`):[],tag:[""],ext:[""],id:[""],contribute:u},a=t=>e.indexOf(t)>-1,l=n.sort.some(t=>a(`@sort:${t}`)),d=n.category.some(t=>a(`@category:${t}`));return r.flatMap(t=>l&&t==="sort"||d&&t==="category"?[]:t in n?n[t].map(p=>`@${t}:${p}${p===""?"":" "}`):a(`@${t}`)?[]:[`@${t} `])}static parse(e){let s="";return e=e.replace(/@sort:(\w+)(-\w*)?/g,(r,o,i)=>(s=o,"")),new c(e,s)}toString(){let e=this.value;return this.sortBy&&(e=`${e}${e?" ":""}@sort:${this.sortBy}`),e}isValid(){return!/@outdated/.test(this.value)}equals(e){return this.value===e.value&&this.sortBy===e.sortBy}}export{c as $Vrc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EXTENSION_CATEGORIES } from "../../../../platform/extensions/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions } from "../../../services/extensionManagement/common/extensionFeatures.js";
+class Query {
+  static {
+    __name(this, "Query");
+  }
+  constructor(value, sortBy) {
+    this.value = value;
+    this.sortBy = sortBy;
+    this.value = value.trim();
+  }
+  static suggestions(query, galleryManifest) {
+    const commands = ["installed", "updates", "enabled", "disabled", "builtin", "contribute"];
+    if (galleryManifest?.capabilities.extensionQuery?.filtering?.some(
+      (c) => c.name === "Featured"
+      /* FilterType.Featured */
+    )) {
+      commands.push("featured");
+    }
+    commands.push(...["mcp", "popular", "recommended", "recentlyPublished", "workspaceUnsupported", "deprecated", "sort"]);
+    const isCategoriesEnabled = galleryManifest?.capabilities.extensionQuery?.filtering?.some(
+      (c) => c.name === "Category"
+      /* FilterType.Category */
+    );
+    if (isCategoriesEnabled) {
+      commands.push("category");
+    }
+    commands.push(...["tag", "ext", "id", "outdated", "recentlyUpdated"]);
+    const sortCommands = [];
+    if (galleryManifest?.capabilities.extensionQuery?.sorting?.some(
+      (c) => c.name === "InstallCount"
+      /* SortBy.InstallCount */
+    )) {
+      sortCommands.push("installs");
+    }
+    if (galleryManifest?.capabilities.extensionQuery?.sorting?.some(
+      (c) => c.name === "WeightedRating"
+      /* SortBy.WeightedRating */
+    )) {
+      sortCommands.push("rating");
+    }
+    sortCommands.push("name", "publishedDate", "updateDate");
+    const contributeCommands = [];
+    for (const feature of Registry.as(Extensions.ExtensionFeaturesRegistry).getExtensionFeatures()) {
+      contributeCommands.push(feature.id);
+    }
+    const subcommands = {
+      "sort": sortCommands,
+      "category": isCategoriesEnabled ? EXTENSION_CATEGORIES.map((c) => `"${c.toLowerCase()}"`) : [],
+      "tag": [""],
+      "ext": [""],
+      "id": [""],
+      "contribute": contributeCommands
+    };
+    const queryContains = /* @__PURE__ */ __name((substr) => query.indexOf(substr) > -1, "queryContains");
+    const hasSort = subcommands.sort.some((subcommand) => queryContains(`@sort:${subcommand}`));
+    const hasCategory = subcommands.category.some((subcommand) => queryContains(`@category:${subcommand}`));
+    return commands.flatMap((command) => {
+      if (hasSort && command === "sort" || hasCategory && command === "category") {
+        return [];
+      }
+      if (command in subcommands) {
+        return subcommands[command].map((subcommand) => `@${command}:${subcommand}${subcommand === "" ? "" : " "}`);
+      } else {
+        return queryContains(`@${command}`) ? [] : [`@${command} `];
+      }
+    });
+  }
+  static parse(value) {
+    let sortBy = "";
+    value = value.replace(/@sort:(\w+)(-\w*)?/g, (match, by, order) => {
+      sortBy = by;
+      return "";
+    });
+    return new Query(value, sortBy);
+  }
+  toString() {
+    let result = this.value;
+    if (this.sortBy) {
+      result = `${result}${result ? " " : ""}@sort:${this.sortBy}`;
+    }
+    return result;
+  }
+  isValid() {
+    return !/@outdated/.test(this.value);
+  }
+  equals(other) {
+    return this.value === other.value && this.sortBy === other.sortBy;
+  }
+}
+export {
+  Query
+};
+//# sourceMappingURL=extensionQuery.js.map

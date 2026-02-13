@@ -1,3 +1,452 @@
-import{$Jf as D}from"../../../../base/common/cancellation.js";import{$bk as u}from"../../../../base/common/codicons.js";import{$Ed as x,$Dd as I,$Cd as N}from"../../../../base/common/lifecycle.js";import{autorun as L,debouncedObservable as O,derived as v,ObservablePromise as _,observableValue as E}from"../../../../base/common/observable.js";import{$Fh as R}from"../../../../base/common/resources.js";import{ThemeIcon as m}from"../../../../base/common/themables.js";import{$_D as j}from"../../../../editor/common/core/range.js";import{localize as l}from"../../../../nls.js";import{$vL as C,$qL as $,$wL as k}from"../../../../platform/actions/common/actions.js";import{$Mj as z}from"../../../../platform/instantiation/common/instantiation.js";import{$U4b as S}from"../../chat/browser/chat.js";import{$XOb as T}from"../../chat/browser/attachments/chatContextPickService.js";import{ChatContextKeys as M}from"../../chat/common/actions/chatContextKeys.js";import{$lZ as p}from"../common/debug.js";import{$VW as q}from"../common/debugModel.js";var A=function(t,e,n,r){var a=arguments.length,o=a<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,n):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(t,e,n,r);else for(var c=t.length-1;c>=0;c--)(s=t[c])&&(o=(a<3?s(o):a>3?s(e,n,o):s(e,n))||o);return a>3&&o&&Object.defineProperty(e,n,o),o},y=function(t,e){return function(n,r){e(n,r,t)}},F;(function(t){t.Main="main",t.Expression="expression"})(F||(F={}));let w=class{constructor(e){this.a=e,this.type="pickerPick",this.label=l(7854,null),this.icon=u.debug,this.ordinal=-200}isEnabled(){const n=this.a.getViewModel().focusedSession;return!!n&&n.state===2}asPicker(e){const n=new I,r=E("debugPicker.mode","main"),a=E("debugPicker.query",""),o=this.b(r,a,n);return{placeholder:l(7855,null),picks:(s,c)=>{n.add(L(d=>{a.set(s.read(d),void 0)}));const i=new D(c);return n.add(N(()=>i.dispose(!0))),o},goBack:()=>r.get()==="expression"?(r.set("main",void 0),!0):!1,dispose:()=>n.dispose()}}b(e,n,r){const a=O(n,300);return v(o=>e.read(o)==="expression"?this.e(a,r):this.c(e)).flatten()}c(e){return v(r=>new _(this.d(e))).map((r,a)=>{const o=r.promiseResult.read(a);return{picks:o?.data||[],busy:o===void 0}})}async d(e){const n=[],r=this.a.getViewModel(),a=r.focusedStackFrame;if(!r.focusedSession||!a)return n;n.push({label:l(7856,null),iconClass:m.asClassName(u.symbolVariable),asAttachment:()=>(e.set("expression",void 0),"noop")});const s=this.a.getModel().getWatchExpressions();if(s.length>0){n.push({type:"separator",label:l(7857,null)});for(const i of s)n.push({label:i.name,description:i.value,iconClass:m.asClassName(u.eye),asAttachment:()=>b(a,f(i))})}let c=[];try{c=await a.getScopes()}catch{}for(const i of c)if(!(i.expensive&&!i.childrenHaveBeenLoaded)){n.push({type:"separator",label:i.name});try{const d=await i.getChildren();d.length>1&&n.push({label:l(7858,null,i.name),iconClass:m.asClassName(u.symbolNamespace),asAttachment:()=>b(a,W(i,d))});for(const g of d)n.push({label:g.name,description:U(g),iconClass:m.asClassName(u.symbolVariable),asAttachment:()=>b(a,f(g))})}catch{}}return n}e(e,n){return v(a=>{const o=e.read(a),s=new D;return a.store.add(N(()=>s.dispose(!0))),new _(this.f(o,s.token))}).map((a,o)=>{const s=a.promiseResult.read(o);return{picks:s?.data||[],busy:s===void 0}})}async f(e,n){if(!e.trim())return[{label:l(7859,null),disabled:!0,asAttachment:()=>"noop"}];const r=this.a.getViewModel(),a=r.focusedSession,o=r.focusedStackFrame;if(!a||!o)return[{label:l(7860,null),disabled:!0,asAttachment:()=>"noop"}];try{const s=await a.evaluate(e,o.frameId,"watch");if(n.isCancellationRequested)return[];if(s?.body){const c=s.body.result,i=s.body.type;return[{label:e,description:B(c,i),iconClass:m.asClassName(u.symbolVariable),asAttachment:()=>b(o,{kind:"debugVariable",id:`debug-expression:${e}`,name:e,fullName:e,icon:u.debug,value:c,expression:e,type:i,modelDescription:V(e,c,i)})}]}else return[{label:e,description:l(7861,null),disabled:!0,asAttachment:()=>"noop"}]}catch(s){return[{label:e,description:s instanceof Error?s.message:l(7862,null),disabled:!0,asAttachment:()=>"noop"}]}}};w=A([y(0,p)],w);function f(t){return{kind:"debugVariable",id:`debug-variable:${t.getId()}`,name:t.name,fullName:t.name,icon:u.debug,value:t.value,expression:t.name,type:t.type,modelDescription:V(t.name,t.value,t.type)}}function h(t){const e=t.source.uri;let n=j.lift(t.range);return n.isEmpty()&&(n=n.setEndPosition(n.startLineNumber+1,1)),{kind:"file",value:{uri:e,range:n},id:`debug-paused-location:${e.toString()}:${n.startLineNumber}`,name:R(e),modelDescription:"The debugger is currently paused at this location"}}function b(t,e){return[h(t),e]}function W(t,e){const n=e.map(r=>`${r.name}: ${r.value}`).join(`
-`);return{kind:"debugVariable",id:`debug-scope:${t.name}`,name:`Scope: ${t.name}`,fullName:`Scope: ${t.name}`,icon:u.debug,value:n,expression:t.name,type:"scope",modelDescription:`Debug scope "${t.name}" with ${e.length} variables:
-${n}`}}function U(t){const e=t.value,n=t.type;return n&&e?`${n}: ${e}`:e||n||""}function B(t,e){return e&&t?`${e}: ${t}`:t||e||""}function V(t,e,n){let r=`Debug variable "${t}"`;return n&&(r+=` of type ${n}`),r+=` with value: ${e}`,r}let P=class extends x{static{this.ID="workbench.contrib.chat.debugChatContextContribution"}constructor(e,n){super(),this.D(e.registerChatContextItem(n.createInstance(w)))}};P=A([y(0,T),y(1,z)],P);k(class extends C{constructor(){super({id:"workbench.debug.action.addVariableToChat",title:l(7863,null),f1:!1,menu:{id:$.DebugVariablesContext,group:"z_commands",order:110,when:M.enabled}})}async run(t,e){const n=t.get(S),r=t.get(p),a=await n.revealWidget();if(!a)return;const o=J(e);if(o){const s=r.getViewModel().focusedStackFrame;s&&a.attachmentModel.addContext(h(s)),a.attachmentModel.addContext(o)}}});k(class extends C{constructor(){super({id:"workbench.debug.action.addWatchExpressionToChat",title:l(7864,null),f1:!1,menu:{id:$.DebugWatchContext,group:"z_commands",order:110,when:M.enabled}})}async run(t,e){const n=t.get(S),r=t.get(p),a=await n.revealWidget();if(!e||!a)return;const o=r.getViewModel().focusedStackFrame;o&&a.attachmentModel.addContext(h(o)),a.attachmentModel.addContext(f(e))}});k(class extends C{constructor(){super({id:"workbench.debug.action.addScopeToChat",title:l(7865,null),f1:!1,menu:{id:$.DebugScopesContext,group:"z_commands",order:1,when:M.enabled}})}async run(t,e){const n=t.get(S),r=t.get(p),a=await n.revealWidget();if(!e||!a)return;const s=r.getViewModel().focusedStackFrame;if(s)try{const i=(await s.getScopes()).find(d=>d.name===e.scope.name);if(i){const d=await i.getChildren();a.attachmentModel.addContext(h(s)),a.attachmentModel.addContext(W(i,d))}}catch{}}});function H(t){return typeof t=="object"&&t!==null&&"variable"in t&&"sessionId"in t}function J(t){if(t instanceof q)return f(t);if(H(t)){const e=t.variable;return{kind:"debugVariable",id:`debug-variable:${e.name}`,name:e.name,fullName:e.evaluateName??e.name,icon:u.debug,value:e.value,expression:e.evaluateName??e.name,type:e.type,modelDescription:V(e.evaluateName||e.name,e.value,e.type)}}}export{P as $Uzc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { autorun, debouncedObservable, derived, ObservablePromise, observableValue } from "../../../../base/common/observable.js";
+import { basename } from "../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { localize } from "../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IChatWidgetService } from "../../chat/browser/chat.js";
+import { IChatContextPickService } from "../../chat/browser/attachments/chatContextPickService.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { IDebugService } from "../common/debug.js";
+import { Variable } from "../common/debugModel.js";
+var PickerMode;
+(function(PickerMode2) {
+  PickerMode2["Main"] = "main";
+  PickerMode2["Expression"] = "expression";
+})(PickerMode || (PickerMode = {}));
+let DebugSessionContextPick = class DebugSessionContextPick2 {
+  static {
+    __name(this, "DebugSessionContextPick");
+  }
+  constructor(debugService) {
+    this.debugService = debugService;
+    this.type = "pickerPick";
+    this.label = localize("chatContext.debugSession", "Debug Session...");
+    this.icon = Codicon.debug;
+    this.ordinal = -200;
+  }
+  isEnabled() {
+    const viewModel = this.debugService.getViewModel();
+    const focusedSession = viewModel.focusedSession;
+    return !!focusedSession && focusedSession.state === 2;
+  }
+  asPicker(_widget) {
+    const store = new DisposableStore();
+    const mode = observableValue(
+      "debugPicker.mode",
+      "main"
+      /* PickerMode.Main */
+    );
+    const query = observableValue("debugPicker.query", "");
+    const picksObservable = this.createPicksObservable(mode, query, store);
+    return {
+      placeholder: localize("selectDebugData", "Select debug data to attach"),
+      picks: /* @__PURE__ */ __name((_queryObs, token) => {
+        store.add(autorun((reader) => {
+          query.set(_queryObs.read(reader), void 0);
+        }));
+        const cts = new CancellationTokenSource(token);
+        store.add(toDisposable(() => cts.dispose(true)));
+        return picksObservable;
+      }, "picks"),
+      goBack: /* @__PURE__ */ __name(() => {
+        if (mode.get() === "expression") {
+          mode.set("main", void 0);
+          return true;
+        }
+        return false;
+      }, "goBack"),
+      dispose: /* @__PURE__ */ __name(() => store.dispose(), "dispose")
+    };
+  }
+  createPicksObservable(mode, query, store) {
+    const debouncedQuery = debouncedObservable(query, 300);
+    return derived((reader) => {
+      const currentMode = mode.read(reader);
+      if (currentMode === "expression") {
+        return this.getExpressionPicks(debouncedQuery, store);
+      } else {
+        return this.getMainPicks(mode);
+      }
+    }).flatten();
+  }
+  getMainPicks(mode) {
+    const promise = derived((_reader) => {
+      return new ObservablePromise(this.buildMainPicks(mode));
+    });
+    return promise.map((value, reader) => {
+      const result = value.promiseResult.read(reader);
+      return { picks: result?.data || [], busy: result === void 0 };
+    });
+  }
+  async buildMainPicks(mode) {
+    const picks = [];
+    const viewModel = this.debugService.getViewModel();
+    const stackFrame = viewModel.focusedStackFrame;
+    const session = viewModel.focusedSession;
+    if (!session || !stackFrame) {
+      return picks;
+    }
+    picks.push({
+      label: localize("expressionValue", "Expression Value..."),
+      iconClass: ThemeIcon.asClassName(Codicon.symbolVariable),
+      asAttachment: /* @__PURE__ */ __name(() => {
+        mode.set("expression", void 0);
+        return "noop";
+      }, "asAttachment")
+    });
+    const watches = this.debugService.getModel().getWatchExpressions();
+    if (watches.length > 0) {
+      picks.push({ type: "separator", label: localize("watchExpressions", "Watch Expressions") });
+      for (const watch of watches) {
+        picks.push({
+          label: watch.name,
+          description: watch.value,
+          iconClass: ThemeIcon.asClassName(Codicon.eye),
+          asAttachment: /* @__PURE__ */ __name(() => createDebugAttachments(stackFrame, createDebugVariableEntry(watch)), "asAttachment")
+        });
+      }
+    }
+    let scopes = [];
+    try {
+      scopes = await stackFrame.getScopes();
+    } catch {
+    }
+    for (const scope of scopes) {
+      if (scope.expensive && !scope.childrenHaveBeenLoaded) {
+        continue;
+      }
+      picks.push({ type: "separator", label: scope.name });
+      try {
+        const variables = await scope.getChildren();
+        if (variables.length > 1) {
+          picks.push({
+            label: localize("allVariablesInScope", "All variables in {0}", scope.name),
+            iconClass: ThemeIcon.asClassName(Codicon.symbolNamespace),
+            asAttachment: /* @__PURE__ */ __name(() => createDebugAttachments(stackFrame, createScopeEntry(scope, variables)), "asAttachment")
+          });
+        }
+        for (const variable of variables) {
+          picks.push({
+            label: variable.name,
+            description: formatVariableDescription(variable),
+            iconClass: ThemeIcon.asClassName(Codicon.symbolVariable),
+            asAttachment: /* @__PURE__ */ __name(() => createDebugAttachments(stackFrame, createDebugVariableEntry(variable)), "asAttachment")
+          });
+        }
+      } catch {
+      }
+    }
+    return picks;
+  }
+  getExpressionPicks(query, _store) {
+    const promise = derived((reader) => {
+      const queryValue = query.read(reader);
+      const cts = new CancellationTokenSource();
+      reader.store.add(toDisposable(() => cts.dispose(true)));
+      return new ObservablePromise(this.evaluateExpression(queryValue, cts.token));
+    });
+    return promise.map((value, r) => {
+      const result = value.promiseResult.read(r);
+      return { picks: result?.data || [], busy: result === void 0 };
+    });
+  }
+  async evaluateExpression(expression, token) {
+    if (!expression.trim()) {
+      return [{
+        label: localize("typeExpression", "Type an expression to evaluate..."),
+        disabled: true,
+        asAttachment: /* @__PURE__ */ __name(() => "noop", "asAttachment")
+      }];
+    }
+    const viewModel = this.debugService.getViewModel();
+    const session = viewModel.focusedSession;
+    const stackFrame = viewModel.focusedStackFrame;
+    if (!session || !stackFrame) {
+      return [{
+        label: localize("noDebugSession", "No active debug session"),
+        disabled: true,
+        asAttachment: /* @__PURE__ */ __name(() => "noop", "asAttachment")
+      }];
+    }
+    try {
+      const response = await session.evaluate(expression, stackFrame.frameId, "watch");
+      if (token.isCancellationRequested) {
+        return [];
+      }
+      if (response?.body) {
+        const resultValue = response.body.result;
+        const resultType = response.body.type;
+        return [{
+          label: expression,
+          description: formatExpressionResult(resultValue, resultType),
+          iconClass: ThemeIcon.asClassName(Codicon.symbolVariable),
+          asAttachment: /* @__PURE__ */ __name(() => createDebugAttachments(stackFrame, {
+            kind: "debugVariable",
+            id: `debug-expression:${expression}`,
+            name: expression,
+            fullName: expression,
+            icon: Codicon.debug,
+            value: resultValue,
+            expression,
+            type: resultType,
+            modelDescription: formatModelDescription(expression, resultValue, resultType)
+          }), "asAttachment")
+        }];
+      } else {
+        return [{
+          label: expression,
+          description: localize("noResult", "No result"),
+          disabled: true,
+          asAttachment: /* @__PURE__ */ __name(() => "noop", "asAttachment")
+        }];
+      }
+    } catch (err) {
+      return [{
+        label: expression,
+        description: err instanceof Error ? err.message : localize("evaluationError", "Evaluation error"),
+        disabled: true,
+        asAttachment: /* @__PURE__ */ __name(() => "noop", "asAttachment")
+      }];
+    }
+  }
+};
+DebugSessionContextPick = __decorate([
+  __param(0, IDebugService)
+], DebugSessionContextPick);
+function createDebugVariableEntry(expression) {
+  return {
+    kind: "debugVariable",
+    id: `debug-variable:${expression.getId()}`,
+    name: expression.name,
+    fullName: expression.name,
+    icon: Codicon.debug,
+    value: expression.value,
+    expression: expression.name,
+    type: expression.type,
+    modelDescription: formatModelDescription(expression.name, expression.value, expression.type)
+  };
+}
+__name(createDebugVariableEntry, "createDebugVariableEntry");
+function createPausedLocationEntry(stackFrame) {
+  const uri = stackFrame.source.uri;
+  let range = Range.lift(stackFrame.range);
+  if (range.isEmpty()) {
+    range = range.setEndPosition(range.startLineNumber + 1, 1);
+  }
+  return {
+    kind: "file",
+    value: { uri, range },
+    id: `debug-paused-location:${uri.toString()}:${range.startLineNumber}`,
+    name: basename(uri),
+    modelDescription: "The debugger is currently paused at this location"
+  };
+}
+__name(createPausedLocationEntry, "createPausedLocationEntry");
+function createDebugAttachments(stackFrame, variableEntry) {
+  return [
+    createPausedLocationEntry(stackFrame),
+    variableEntry
+  ];
+}
+__name(createDebugAttachments, "createDebugAttachments");
+function createScopeEntry(scope, variables) {
+  const variablesSummary = variables.map((v) => `${v.name}: ${v.value}`).join("\n");
+  return {
+    kind: "debugVariable",
+    id: `debug-scope:${scope.name}`,
+    name: `Scope: ${scope.name}`,
+    fullName: `Scope: ${scope.name}`,
+    icon: Codicon.debug,
+    value: variablesSummary,
+    expression: scope.name,
+    type: "scope",
+    modelDescription: `Debug scope "${scope.name}" with ${variables.length} variables:
+${variablesSummary}`
+  };
+}
+__name(createScopeEntry, "createScopeEntry");
+function formatVariableDescription(expression) {
+  const value = expression.value;
+  const type = expression.type;
+  if (type && value) {
+    return `${type}: ${value}`;
+  }
+  return value || type || "";
+}
+__name(formatVariableDescription, "formatVariableDescription");
+function formatExpressionResult(value, type) {
+  if (type && value) {
+    return `${type}: ${value}`;
+  }
+  return value || type || "";
+}
+__name(formatExpressionResult, "formatExpressionResult");
+function formatModelDescription(name, value, type) {
+  let description = `Debug variable "${name}"`;
+  if (type) {
+    description += ` of type ${type}`;
+  }
+  description += ` with value: ${value}`;
+  return description;
+}
+__name(formatModelDescription, "formatModelDescription");
+let DebugChatContextContribution = class DebugChatContextContribution2 extends Disposable {
+  static {
+    __name(this, "DebugChatContextContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chat.debugChatContextContribution";
+  }
+  constructor(contextPickService, instantiationService) {
+    super();
+    this._register(contextPickService.registerChatContextItem(instantiationService.createInstance(DebugSessionContextPick)));
+  }
+};
+DebugChatContextContribution = __decorate([
+  __param(0, IChatContextPickService),
+  __param(1, IInstantiationService)
+], DebugChatContextContribution);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.debug.action.addVariableToChat",
+      title: localize("addToChat", "Add to Chat"),
+      f1: false,
+      menu: {
+        id: MenuId.DebugVariablesContext,
+        group: "z_commands",
+        order: 110,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor, context) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const debugService = accessor.get(IDebugService);
+    const widget = await chatWidgetService.revealWidget();
+    if (!widget) {
+      return;
+    }
+    const entry = createDebugVariableEntryFromContext(context);
+    if (entry) {
+      const stackFrame = debugService.getViewModel().focusedStackFrame;
+      if (stackFrame) {
+        widget.attachmentModel.addContext(createPausedLocationEntry(stackFrame));
+      }
+      widget.attachmentModel.addContext(entry);
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.debug.action.addWatchExpressionToChat",
+      title: localize("addToChat", "Add to Chat"),
+      f1: false,
+      menu: {
+        id: MenuId.DebugWatchContext,
+        group: "z_commands",
+        order: 110,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor, context) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const debugService = accessor.get(IDebugService);
+    const widget = await chatWidgetService.revealWidget();
+    if (!context || !widget) {
+      return;
+    }
+    const stackFrame = debugService.getViewModel().focusedStackFrame;
+    if (stackFrame) {
+      widget.attachmentModel.addContext(createPausedLocationEntry(stackFrame));
+    }
+    widget.attachmentModel.addContext(createDebugVariableEntry(context));
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.debug.action.addScopeToChat",
+      title: localize("addToChat", "Add to Chat"),
+      f1: false,
+      menu: {
+        id: MenuId.DebugScopesContext,
+        group: "z_commands",
+        order: 1,
+        when: ChatContextKeys.enabled
+      }
+    });
+  }
+  async run(accessor, context) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const debugService = accessor.get(IDebugService);
+    const widget = await chatWidgetService.revealWidget();
+    if (!context || !widget) {
+      return;
+    }
+    const viewModel = debugService.getViewModel();
+    const stackFrame = viewModel.focusedStackFrame;
+    if (!stackFrame) {
+      return;
+    }
+    try {
+      const scopes = await stackFrame.getScopes();
+      const scope = scopes.find((s) => s.name === context.scope.name);
+      if (scope) {
+        const variables = await scope.getChildren();
+        widget.attachmentModel.addContext(createPausedLocationEntry(stackFrame));
+        widget.attachmentModel.addContext(createScopeEntry(scope, variables));
+      }
+    } catch {
+    }
+  }
+});
+function isVariablesContext(context) {
+  return typeof context === "object" && context !== null && "variable" in context && "sessionId" in context;
+}
+__name(isVariablesContext, "isVariablesContext");
+function createDebugVariableEntryFromContext(context) {
+  if (context instanceof Variable) {
+    return createDebugVariableEntry(context);
+  }
+  if (isVariablesContext(context)) {
+    const variable = context.variable;
+    return {
+      kind: "debugVariable",
+      id: `debug-variable:${variable.name}`,
+      name: variable.name,
+      fullName: variable.evaluateName ?? variable.name,
+      icon: Codicon.debug,
+      value: variable.value,
+      expression: variable.evaluateName ?? variable.name,
+      type: variable.type,
+      modelDescription: formatModelDescription(variable.evaluateName || variable.name, variable.value, variable.type)
+    };
+  }
+  return void 0;
+}
+__name(createDebugVariableEntryFromContext, "createDebugVariableEntryFromContext");
+export {
+  DebugChatContextContribution
+};
+//# sourceMappingURL=debugChatIntegration.js.map

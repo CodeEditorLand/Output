@@ -1,1 +1,110 @@
-import{$yvb as m,TriggerAction as a}from"../../../../../platform/quickinput/browser/pickerQuickAccess.js";import{localize as h}from"../../../../../nls.js";import{$Mj as f}from"../../../../../platform/instantiation/common/instantiation.js";import{$Zj as d}from"../../../../../base/common/filters.js";import{ThemeIcon as b}from"../../../../../base/common/themables.js";import{$tQb as $}from"./agentSessionsService.js";import{$Dnc as g,$znc as R}from"./agentSessionsViewer.js";import{$pnc as _}from"./agentSessionsOpener.js";import{$uo as v}from"../../../../../platform/commands/common/commands.js";import{$8Pb as E,$7Pb as j}from"./agentSessions.js";import{$Gnc as C,$Jnc as I,$Lnc as P,$Knc as w,$Inc as x,$Hnc as y}from"./agentSessionsPicker.js";import{$rnc as A}from"./agentSessionsFilter.js";var u=function(s,t,o,r){var c=arguments.length,e=c<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,o):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,o,r);else for(var i=s.length-1;i>=0;i--)(n=s[i])&&(e=(c<3?n(e):c>3?n(t,o,e):n(t,o))||e);return c>3&&e&&Object.defineProperty(t,o,e),e},p=function(s,t){return function(o,r){t(o,r,s)}};const O="agent ";let l=class extends m{constructor(t,o,r){super(O,{canAcceptInBackground:!0,noResultsPick:{label:h(5505,null)}}),this.h=t,this.j=o,this.m=r,this.a=new g,this.b=this.D(this.j.createInstance(A,{}))}async g(t){const o=[],r=this.h.model.sessions.filter(e=>!this.b.exclude(e)).sort(this.a.compare.bind(this.a)),c=R(r);for(const e of c.values())if(e.sessions.length>0){o.push({type:"separator",label:e.label});for(const n of e.sessions){const i=d(t,n.label,!0);i&&o.push(this.q(n,i))}}return o}q(t,o){const r=w(t),c=P(t);return{label:t.label,description:r,highlights:{label:o},iconClass:b.asClassName(t.icon),buttons:c,trigger:async e=>{switch(c[e]){case x:return await this.m.executeCommand(j,t),a.REFRESH_PICKER;case I:return await this.m.executeCommand(E,t),a.REFRESH_PICKER;case C:case y:{const i=!t.isArchived();return t.setArchived(i),a.REFRESH_PICKER}default:return a.NO_ACTION}},accept:(e,n)=>{this.j.invokeFunction(_,t,{sideBySide:n.inBackground,editorOptions:{preserveFocus:n.inBackground,pinned:n.inBackground}})}}}};l=u([p(0,$),p(1,f),p(2,v)],l);export{O as $npc,l as $opc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { PickerQuickAccessProvider, TriggerAction } from "../../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { localize } from "../../../../../nls.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { matchesFuzzy } from "../../../../../base/common/filters.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { IAgentSessionsService } from "./agentSessionsService.js";
+import { AgentSessionsSorter, groupAgentSessionsByDate } from "./agentSessionsViewer.js";
+import { openSession } from "./agentSessionsOpener.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { AGENT_SESSION_DELETE_ACTION_ID, AGENT_SESSION_RENAME_ACTION_ID } from "./agentSessions.js";
+import { archiveButton, deleteButton, getSessionButtons, getSessionDescription, renameButton, unarchiveButton } from "./agentSessionsPicker.js";
+import { AgentSessionsFilter } from "./agentSessionsFilter.js";
+const AGENT_SESSIONS_QUICK_ACCESS_PREFIX = "agent ";
+let AgentSessionsQuickAccessProvider = class AgentSessionsQuickAccessProvider2 extends PickerQuickAccessProvider {
+  static {
+    __name(this, "AgentSessionsQuickAccessProvider");
+  }
+  constructor(agentSessionsService, instantiationService, commandService) {
+    super(AGENT_SESSIONS_QUICK_ACCESS_PREFIX, {
+      canAcceptInBackground: true,
+      noResultsPick: {
+        label: localize("noAgentSessionResults", "No matching agent sessions")
+      }
+    });
+    this.agentSessionsService = agentSessionsService;
+    this.instantiationService = instantiationService;
+    this.commandService = commandService;
+    this.sorter = new AgentSessionsSorter();
+    this.filter = this._register(this.instantiationService.createInstance(AgentSessionsFilter, {}));
+  }
+  async _getPicks(filter) {
+    const picks = [];
+    const sessions = this.agentSessionsService.model.sessions.filter((session) => !this.filter.exclude(session)).sort(this.sorter.compare.bind(this.sorter));
+    const groupedSessions = groupAgentSessionsByDate(sessions);
+    for (const group of groupedSessions.values()) {
+      if (group.sessions.length > 0) {
+        picks.push({ type: "separator", label: group.label });
+        for (const session of group.sessions) {
+          const highlights = matchesFuzzy(filter, session.label, true);
+          if (highlights) {
+            picks.push(this.toPickItem(session, highlights));
+          }
+        }
+      }
+    }
+    return picks;
+  }
+  toPickItem(session, highlights) {
+    const description = getSessionDescription(session);
+    const buttons = getSessionButtons(session);
+    return {
+      label: session.label,
+      description,
+      highlights: { label: highlights },
+      iconClass: ThemeIcon.asClassName(session.icon),
+      buttons,
+      trigger: /* @__PURE__ */ __name(async (buttonIndex) => {
+        const button = buttons[buttonIndex];
+        switch (button) {
+          case renameButton:
+            await this.commandService.executeCommand(AGENT_SESSION_RENAME_ACTION_ID, session);
+            return TriggerAction.REFRESH_PICKER;
+          case deleteButton:
+            await this.commandService.executeCommand(AGENT_SESSION_DELETE_ACTION_ID, session);
+            return TriggerAction.REFRESH_PICKER;
+          case archiveButton:
+          case unarchiveButton: {
+            const newArchivedState = !session.isArchived();
+            session.setArchived(newArchivedState);
+            return TriggerAction.REFRESH_PICKER;
+          }
+          default:
+            return TriggerAction.NO_ACTION;
+        }
+      }, "trigger"),
+      accept: /* @__PURE__ */ __name((keyMods, event) => {
+        this.instantiationService.invokeFunction(openSession, session, {
+          sideBySide: event.inBackground,
+          editorOptions: {
+            preserveFocus: event.inBackground,
+            pinned: event.inBackground
+          }
+        });
+      }, "accept")
+    };
+  }
+};
+AgentSessionsQuickAccessProvider = __decorate([
+  __param(0, IAgentSessionsService),
+  __param(1, IInstantiationService),
+  __param(2, ICommandService)
+], AgentSessionsQuickAccessProvider);
+export {
+  AGENT_SESSIONS_QUICK_ACCESS_PREFIX,
+  AgentSessionsQuickAccessProvider
+};
+//# sourceMappingURL=agentSessionsQuickAccess.js.map

@@ -1,1 +1,110 @@
-import*as l from"../../../../../../base/browser/dom.js";import{$Dd as d}from"../../../../../../base/common/lifecycle.js";import{observableValue as $}from"../../../../../../base/common/observable.js";import{localize as _,localize2 as u}from"../../../../../../nls.js";import{$Mj as h}from"../../../../../../platform/instantiation/common/instantiation.js";import{$asb as x}from"../../../../../../platform/list/browser/listService.js";import{$Fic as v}from"../../../../debug/browser/debugExpressionRenderer.js";var f=function(r,e,n,t){var s=arguments.length,a=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(r,e,n,t);else for(var i=r.length-1;i>=0;i--)(o=r[i])&&(a=(s<3?o(a):s>3?o(e,n,a):o(e,n))||a);return s>3&&a&&Object.defineProperty(e,n,a),a},b=function(r,e){return function(n,t){e(n,t,r)}},c;const m=l.$,D=1024,E=u(10787,"Notebook Variables"),T=u(10788,"REPL Variables");class j extends x{}class y{getHeight(e){return 22}getTemplateId(e){return p.ID}}let p=class{static{c=this}static{this.ID="variableElement"}get templateId(){return c.ID}constructor(e){this.a=e.createInstance(v)}renderTemplate(e){const n=l.$y9(e,m(".expression")),t=l.$y9(n,m("span.name")),s=l.$y9(n,m("span.value"));return{expression:n,name:t,value:s,elementDisposables:new d}}renderElement(e,n,t){const s=e.element.value.trim()!==""?`${e.element.name}:`:e.element.name;t.name.textContent=s,t.name.title=e.element.type??"",t.elementDisposables.add(this.a.renderValue(t.value,e.element,{colorize:!0,maxValueLength:D,session:void 0}))}disposeElement(e,n,t){t.elementDisposables.clear()}disposeTemplate(e){e.elementDisposables.dispose()}};p=c=f([b(0,h)],p);class w{constructor(){this.a=$("widgetAriaLabel",E.value)}getWidgetAriaLabel(){return this.a}updateWidgetAriaLabel(e){this.a.set(e,void 0)}getAriaLabel(e){return _(10786,null,e.name,e.value)}}export{T as $$lc,E as $0lc,j as $_lc,y as $amc,p as $bmc,w as $cmc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var NotebookVariableRenderer_1;
+import * as dom from "../../../../../../base/browser/dom.js";
+import { DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { observableValue } from "../../../../../../base/common/observable.js";
+import { localize, localize2 } from "../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchObjectTree } from "../../../../../../platform/list/browser/listService.js";
+import { DebugExpressionRenderer } from "../../../../debug/browser/debugExpressionRenderer.js";
+const $ = dom.$;
+const MAX_VALUE_RENDER_LENGTH_IN_VIEWLET = 1024;
+const NOTEBOOK_TITLE = localize2("notebook.notebookVariables", "Notebook Variables");
+const REPL_TITLE = localize2("notebook.ReplVariables", "REPL Variables");
+class NotebookVariablesTree extends WorkbenchObjectTree {
+  static {
+    __name(this, "NotebookVariablesTree");
+  }
+}
+class NotebookVariablesDelegate {
+  static {
+    __name(this, "NotebookVariablesDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return NotebookVariableRenderer.ID;
+  }
+}
+let NotebookVariableRenderer = class NotebookVariableRenderer2 {
+  static {
+    __name(this, "NotebookVariableRenderer");
+  }
+  static {
+    NotebookVariableRenderer_1 = this;
+  }
+  static {
+    this.ID = "variableElement";
+  }
+  get templateId() {
+    return NotebookVariableRenderer_1.ID;
+  }
+  constructor(instantiationService) {
+    this.expressionRenderer = instantiationService.createInstance(DebugExpressionRenderer);
+  }
+  renderTemplate(container) {
+    const expression = dom.append(container, $(".expression"));
+    const name = dom.append(expression, $("span.name"));
+    const value = dom.append(expression, $("span.value"));
+    const template = { expression, name, value, elementDisposables: new DisposableStore() };
+    return template;
+  }
+  renderElement(element, _index, data) {
+    const text = element.element.value.trim() !== "" ? `${element.element.name}:` : element.element.name;
+    data.name.textContent = text;
+    data.name.title = element.element.type ?? "";
+    data.elementDisposables.add(this.expressionRenderer.renderValue(data.value, element.element, {
+      colorize: true,
+      maxValueLength: MAX_VALUE_RENDER_LENGTH_IN_VIEWLET,
+      session: void 0
+    }));
+  }
+  disposeElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+  }
+};
+NotebookVariableRenderer = NotebookVariableRenderer_1 = __decorate([
+  __param(0, IInstantiationService)
+], NotebookVariableRenderer);
+class NotebookVariableAccessibilityProvider {
+  static {
+    __name(this, "NotebookVariableAccessibilityProvider");
+  }
+  constructor() {
+    this._widgetAriaLabel = observableValue("widgetAriaLabel", NOTEBOOK_TITLE.value);
+  }
+  getWidgetAriaLabel() {
+    return this._widgetAriaLabel;
+  }
+  updateWidgetAriaLabel(label) {
+    this._widgetAriaLabel.set(label, void 0);
+  }
+  getAriaLabel(element) {
+    return localize("notebookVariableAriaLabel", "Variable {0}, value {1}", element.name, element.value);
+  }
+}
+export {
+  NOTEBOOK_TITLE,
+  NotebookVariableAccessibilityProvider,
+  NotebookVariableRenderer,
+  NotebookVariablesDelegate,
+  NotebookVariablesTree,
+  REPL_TITLE
+};
+//# sourceMappingURL=notebookVariablesTree.js.map

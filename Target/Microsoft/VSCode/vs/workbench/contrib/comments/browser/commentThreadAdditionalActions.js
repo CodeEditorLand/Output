@@ -1,1 +1,96 @@
-import*as h from"../../../../base/browser/dom.js";import{$Ed as u}from"../../../../base/common/lifecycle.js";import{$PHb as d}from"./commentFormActions.js";import{$fy as l}from"../../../../platform/keybinding/common/keybinding.js";import{$ijb as p}from"../../../../platform/contextview/browser/contextView.js";var m=function(e,s,t,o){var r=arguments.length,i=r<3?s:o===null?o=Object.getOwnPropertyDescriptor(s,t):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(e,s,t,o);else for(var c=e.length-1;c>=0;c--)(n=e[c])&&(i=(r<3?n(i):r>3?n(s,t,i):n(s,t))||i);return r>3&&i&&Object.defineProperty(s,t,i),i},a=function(e,s){return function(t,o){s(t,o,e)}};let f=class extends u{constructor(s,t,o,r,i,n,c){super(),this.f=t,this.g=o,this.h=r,this.j=i,this.m=n,this.n=c,this.a=h.$y9(s,h.$(".comment-additional-actions")),h.$y9(this.a,h.$(".section-separator")),this.b=h.$y9(this.a,h.$(".button-bar")),this.t(this.b)}q(){this.a?.classList.remove("hidden")}r(){this.a?.classList.add("hidden")}s(s){const t=s.getActions({shouldForwardArgs:!0});for(const o of t){const[,r]=o;for(const i of r){if(i.enabled){this.q();return}for(const n of i.actions??[])if(n.enabled){this.q();return}}}this.r()}t(s){const t=this.h.getCommentThreadAdditionalActions(this.g);this.D(t),this.D(t.onDidChange(()=>{this.c.setActions(t,!0),this.s(t)})),this.c=new d(this.m,this.g,this.n,s,async o=>{this.j?.(),o.run({thread:this.f,$mid:8})},4,!0),this.D(this.c),this.c.setActions(t,!0),this.s(t)}};f=m([a(5,l),a(6,p)],f);export{f as $rIb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { CommentFormActions } from "./commentFormActions.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+let CommentThreadAdditionalActions = class CommentThreadAdditionalActions2 extends Disposable {
+  static {
+    __name(this, "CommentThreadAdditionalActions");
+  }
+  constructor(container, _commentThread, _contextKeyService, _commentMenus, _actionRunDelegate, _keybindingService, _contextMenuService) {
+    super();
+    this._commentThread = _commentThread;
+    this._contextKeyService = _contextKeyService;
+    this._commentMenus = _commentMenus;
+    this._actionRunDelegate = _actionRunDelegate;
+    this._keybindingService = _keybindingService;
+    this._contextMenuService = _contextMenuService;
+    this._container = dom.append(container, dom.$(".comment-additional-actions"));
+    dom.append(this._container, dom.$(".section-separator"));
+    this._buttonBar = dom.append(this._container, dom.$(".button-bar"));
+    this._createAdditionalActions(this._buttonBar);
+  }
+  _showMenu() {
+    this._container?.classList.remove("hidden");
+  }
+  _hideMenu() {
+    this._container?.classList.add("hidden");
+  }
+  _enableDisableMenu(menu) {
+    const groups = menu.getActions({ shouldForwardArgs: true });
+    for (const group of groups) {
+      const [, actions] = group;
+      for (const action of actions) {
+        if (action.enabled) {
+          this._showMenu();
+          return;
+        }
+        for (const subAction of action.actions ?? []) {
+          if (subAction.enabled) {
+            this._showMenu();
+            return;
+          }
+        }
+      }
+    }
+    this._hideMenu();
+  }
+  _createAdditionalActions(container) {
+    const menu = this._commentMenus.getCommentThreadAdditionalActions(this._contextKeyService);
+    this._register(menu);
+    this._register(menu.onDidChange(() => {
+      this._commentFormActions.setActions(
+        menu,
+        /*hasOnlySecondaryActions*/
+        true
+      );
+      this._enableDisableMenu(menu);
+    }));
+    this._commentFormActions = new CommentFormActions(this._keybindingService, this._contextKeyService, this._contextMenuService, container, async (action) => {
+      this._actionRunDelegate?.();
+      action.run({
+        thread: this._commentThread,
+        $mid: 8
+        /* MarshalledId.CommentThreadInstance */
+      });
+    }, 4, true);
+    this._register(this._commentFormActions);
+    this._commentFormActions.setActions(
+      menu,
+      /*hasOnlySecondaryActions*/
+      true
+    );
+    this._enableDisableMenu(menu);
+  }
+};
+CommentThreadAdditionalActions = __decorate([
+  __param(5, IKeybindingService),
+  __param(6, IContextMenuService)
+], CommentThreadAdditionalActions);
+export {
+  CommentThreadAdditionalActions
+};
+//# sourceMappingURL=commentThreadAdditionalActions.js.map

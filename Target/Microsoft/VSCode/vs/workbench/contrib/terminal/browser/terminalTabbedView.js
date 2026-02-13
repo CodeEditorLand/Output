@@ -1,1 +1,591 @@
-import{Sizing as T,$j_ as O}from"../../../../base/browser/ui/splitview/splitview.js";import{$Ed as b,$zd as V}from"../../../../base/common/lifecycle.js";import{Event as p}from"../../../../base/common/event.js";import{$0l as x}from"../../../../platform/configuration/common/configuration.js";import{$Mj as F}from"../../../../platform/instantiation/common/instantiation.js";import{$yZb as W,$tZb as B,$wZb as E,$sZb as k}from"./terminal.js";import{$ABc as j}from"./terminalTabsList.js";import*as h from"../../../../base/browser/dom.js";import{$Fm as D,$Hm as H}from"../../../../base/common/actions.js";import{$rL as N,$qL as I}from"../../../../platform/actions/common/actions.js";import{$ro as Z}from"../../../../platform/contextkey/common/contextkey.js";import{$ijb as _}from"../../../../platform/contextview/browser/contextView.js";import{$hp as R}from"../../../../platform/storage/common/storage.js";import{localize as $}from"../../../../nls.js";import{$wBc as C}from"./terminalContextMenu.js";import{TerminalContextKeys as y}from"../common/terminalContextKey.js";import{$yBc as A}from"./terminalTooltip.js";import{$jkb as X}from"../../../../platform/hover/browser/hover.js";import{$NBc as U}from"./terminalTabsChatEntry.js";import{$odb as Y}from"../../../../platform/dnd/browser/dnd.js";import{$fZb as q,$dZb as G}from"./terminalUri.js";var z=function(c,t,s,i){var n=arguments.length,e=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,s):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,t,s,i);else for(var a=c.length-1;a>=0;a--)(o=c[a])&&(e=(n<3?o(e):n>3?o(t,s,e):o(t,s))||e);return n>3&&e&&Object.defineProperty(t,s,e),e},f=function(c,t){return function(s,i){t(s,i,c)}};const m=h.$;var P;(function(c){c.ViewIsVertical="terminal-side-view"})(P||(P={}));var v;(function(c){c[c.StatusIcon=30]="StatusIcon",c[c.SplitAnnotation=30]="SplitAnnotation"})(v||(v={}));let M=class extends b{constructor(t,s,i,n,e,o,a,r,l,S,u,L){super(),this.M=s,this.N=i,this.O=n,this.P=e,this.Q=o,this.R=a,this.S=r,this.U=S,this.W=L,this.y=!1,this.L=0,this.g=m(".tabs-container");const g=m(".tabs-list-container");this.j=g,this.f=m(".tabs-list"),g.appendChild(this.f),this.g.appendChild(g),this.z=this.D(l.createMenu(I.TerminalInstanceContext,u)),this.C=this.D(l.createMenu(I.TerminalTabContext,u)),this.F=this.D(l.createMenu(I.TerminalTabEmptyAreaContext,u)),this.h=this.D(this.Q.createInstance(j,this.f)),this.m=this.h.getHTMLElement(),this.r=this.D(this.Q.createInstance(U,g,this.g));const w=m(".terminal-outer-container");this.b=m(".terminal-groups-container"),w.appendChild(this.b),this.M.setContainers(t,this.b),this.G=y.tabsNarrow.bindTo(u),this.H=y.tabsFocus.bindTo(u),this.I=y.tabsMouse.bindTo(u),this.s=this.O.config.tabs.location==="left"?0:1,this.t=this.O.config.tabs.location==="left"?1:0,this.D(r.onDidChangeConfiguration(d=>{d.affectsConfiguration("terminal.integrated.tabs.enabled")||d.affectsConfiguration("terminal.integrated.tabs.hideCondition")?this.Y():d.affectsConfiguration("terminal.integrated.tabs.location")&&(this.s=this.O.config.tabs.location==="left"?0:1,this.t=this.O.config.tabs.location==="left"?1:0,this.X()&&(this.a.swapViews(0,1),this.ib(),this.hb(),this.a.resizeView(this.s,this.ab())))})),this.D(p.any(this.P.onDidChangeInstances,this.P.onDidChangeGroups)(()=>{this.Y(),this.Z()})),this.D(p.any(this.N.onDidRegisterTerminalInstanceWithToolSession,this.M.onDidChangeInstances,this.M.onDidDisposeInstance)(()=>{this.Y(),this.Z()})),this.D(u.onDidChangeContext(d=>{d.affectsSome(new Set(["hasHiddenChatTerminals"]))&&(this.Y(),this.Z())})),this.kb(t,this.b),this.D(this.P.onDidChangePanelOrientation(d=>{this.J=d,this.J===0?this.b.classList.add("terminal-side-view"):this.b.classList.remove("terminal-side-view")})),this.a=new O(t,{orientation:1,proportionalLayout:!1}),this.fb(w),this.Z()}X(){const t=this.O.config.tabs.enabled,s=this.O.config.tabs.hideCondition,i=this.N.getToolSessionTerminalInstances(!0);if(!t)return!1;if(i.length>0)return!0;switch(s){case"never":return!0;case"singleTerminal":if(this.P.instances.length>1)return!0;break;case"singleGroup":if(this.P.groups.length>1)return!0;break}return!1}Y(){this.X()?this.a.length===1&&(this.gb(),this.hb(),this.a.resizeView(this.s,this.ab()),this.rerenderTabs()):this.a.length===2&&!this.I.get()&&(this.a.removeView(this.s),this.q?.remove(),this.ib())}Z(){this.r?.update()}ab(){const t=this.J===0?"tabs-list-width-vertical":"tabs-list-width-horizontal",s=this.U.get(t,0);return!s||!parseInt(s)?this.J===0?46:120:parseInt(s)}bb(){let t=80;const s=document.createElement("canvas");s.width=1,s.height=1;const i=s.getContext("2d");if(i){const e=h.getWindow(this.f).getComputedStyle(this.f);i.font=`${e.fontStyle} ${e.fontSize} ${e.fontFamily}`;const o=this.P.instances.reduce((a,r)=>Math.max(a,i.measureText(r.title+(r.description||"")).width+this.cb(r)),0);t=Math.ceil(Math.max(o,80))}Math.ceil(this.a.getViewSize(this.s))===t&&(t=46),this.a.resizeView(this.s,t),this.eb(t)}cb(t){const i=t.statusList.statuses.length>0?30:0;return 40+((this.P.getGroupForInstance(t)?.terminalInstances.length||0)>1?30:0)+i}db(){const t=this.a.getViewSize(this.s);!this.w||t<=0||this.eb(t)}eb(t){t<63&&t>=46?(t=46,this.a.resizeView(this.s,t)):t>=63&&t<80&&(t=80,this.a.resizeView(this.s,t)),this.rerenderTabs();const s=this.J===0?"tabs-list-width-vertical":"tabs-list-width-horizontal";this.U.store(s,t,0,0)}fb(t){this.D(this.a.onDidSashReset(()=>this.bb())),this.D(this.a.onDidSashChange(()=>this.db())),this.X()&&this.gb(),this.a.addView({element:t,layout:s=>this.P.groups.forEach(i=>i.layout(s,this.u||0)),minimumSize:120,maximumSize:Number.POSITIVE_INFINITY,onDidChange:()=>b.None,priority:2},T.Distribute,this.t),this.X()&&this.hb()}gb(){this.a.addView({element:this.g,layout:t=>this.h.layout(this.u||0,t),minimumSize:46,maximumSize:500,onDidChange:()=>b.None,priority:1},T.Distribute,this.s),this.rerenderTabs()}rerenderTabs(){this.jb(),this.h.refresh()}hb(){let t;this.n=[this.a.sashes[0].onDidStart(s=>{t=h.$F8(h.getWindow(this.a.el),()=>{this.rerenderTabs()},100)}),this.a.sashes[0].onDidEnd(s=>{t.dispose()})]}ib(){this.n&&(V(this.n),this.n=void 0)}jb(){const t=this.f.clientWidth>63;this.g.classList.toggle("has-text",t),this.G.set(!t),this.Z()}layout(t,s){const i=this.r?.element.style.display==="none"?0:this.r?.element.clientHeight;this.u=s-(i??0),this.w=t,this.a.layout(t),this.X()&&this.a.resizeView(this.s,this.ab()),this.jb()}kb(t,s){this.D(h.$u8(this.g,"mouseleave",async i=>{this.I.set(!1),this.Y(),i.stopPropagation()})),this.D(h.$u8(this.g,"mouseenter",async i=>{this.I.set(!0),i.stopPropagation()})),this.D(h.$u8(this.g,"dragenter",i=>{if(!this.lb(i)){this.nb();return}this.L++,this.mb(!0)})),this.D(h.$u8(this.g,"dragover",i=>{if(!this.lb(i)){this.nb();return}i.preventDefault(),this.mb(!0),i.dataTransfer&&(i.dataTransfer.dropEffect="move")})),this.D(h.$u8(this.g,"dragleave",i=>{if(!this.lb(i)){this.g.contains(i.relatedTarget)||this.nb();return}this.g.contains(i.relatedTarget)||(this.L=Math.max(0,this.L-1),this.L===0&&this.nb())})),this.D(h.$u8(this.g,"drop",i=>{this.lb(i)&&this.ob(i)})),this.D(h.$u8(s,"mousedown",async i=>{const n=this.P.activeInstance;if(this.P.instances.length>0&&n){const e=await n.handleMouseEvent(i,this.z);typeof e=="object"&&e.cancelContextMenu&&(this.y=!0)}})),this.D(h.$u8(s,"contextmenu",i=>{this.O.config.rightClickBehavior==="nothing"&&!i.shiftKey&&(this.y=!0),s.focus(),this.y||C(h.getWindow(s),i,this.P.activeInstance,this.z,this.R),i.preventDefault(),i.stopImmediatePropagation(),this.y=!1})),this.D(h.$u8(this.g,"contextmenu",i=>{if(this.O.config.rightClickBehavior==="nothing"&&!i.shiftKey&&(this.y=!0),!this.y){const e=this.h.getFocus().length===0;e||(this.P.lastAccessedMenu="tab-list");const o=this.h.getSelectedElements(),a=this.h.getFocusedElements()?.[0];a&&(o.splice(o.findIndex(r=>r.instanceId===a.instanceId),1),o.unshift(a)),C(h.getWindow(this.g),i,o,e?this.F:this.C,this.R,e?this.pb():void 0)}i.preventDefault(),i.stopImmediatePropagation(),this.y=!1})),this.D(h.$u8(s.ownerDocument,"keydown",i=>{s.classList.toggle("alt-active",!!i.altKey)})),this.D(h.$u8(s.ownerDocument,"keyup",i=>{s.classList.toggle("alt-active",!!i.altKey)})),this.D(h.$u8(t,"keyup",i=>{i.keyCode===27&&i.stopPropagation()})),this.D(h.$u8(this.g,h.$r9.FOCUS_IN,()=>{this.H.set(!0)})),this.D(h.$u8(this.g,h.$r9.FOCUS_OUT,()=>{this.H.set(!1)}))}lb(t){const s=t.target;return s&&(this.m.contains(s)||this.f.contains(s))?!1:!!t.dataTransfer&&Y(t,"Terminals")}mb(t){this.j.classList.toggle("drop-target",t),this.g.classList.toggle("drop-target",t),this.r?.element.classList.toggle("drop-target",t)}nb(){this.L=0,this.mb(!1)}async ob(t){t.preventDefault(),t.stopPropagation(),this.nb();const s=this.M.getPrimaryBackend(),i=q(t);let n;const e=[];if(i)for(const a of i){const r=this.M.getInstanceFromResource(a);if(r)n?n.push(r):n=[r],this.M.moveToTerminalView(r);else if(s){const l=G(a);l.instanceId&&e.push(s.requestDetachInstance(l.workspaceId,l.instanceId))}}if(e.length){const a=(await Promise.all(e)).filter(l=>!!l);let r;for(const l of a)r=await this.M.createTerminal({config:{attachPersistentProcess:l}});r&&this.M.setActiveInstance(r);return}if((!n||!n.length)&&(n=this.h.getSelectedElements(),!n.length))return;this.P.moveGroupToEnd(n),this.M.setActiveInstance(n[0]);const o=n.map(a=>this.P.instances.indexOf(a)).filter(a=>a>=0);o.length&&(this.h.setSelection(o),this.h.setFocus([o[0]]))}pb(){return[new H,this.S.inspect("terminal.integrated.tabs.location").userValue==="left"?new D("moveRight",$(13348,null),void 0,void 0,async()=>{this.S.updateValue("terminal.integrated.tabs.location","right")}):new D("moveLeft",$(13349,null),void 0,void 0,async()=>{this.S.updateValue("terminal.integrated.tabs.location","left")}),new D("hideTabs",$(13350,null),void 0,void 0,async()=>{this.S.updateValue("terminal.integrated.tabs.enabled",!1)})]}setEditable(t){t||this.h.domFocus(),this.h.refresh(!1)}focusTabs(){if(!this.X())return;this.H.set(!0);const t=this.h.getSelection();this.h.domFocus(),t&&this.h.setFocus(t)}focus(){if(this.M.connectionState===1){this.qb();return}const t=this.f.ownerDocument.activeElement;if(t){const s=this.D(p.once(this.M.onDidChangeConnectionState)(()=>{h.$08(t)&&this.qb(),this.B.delete(s)}))}}focusHover(){if(this.X()){this.h.focusHover();return}const t=this.P.activeInstance;t&&this.W.showInstantHover({...A(t,this.U),target:this.b,trapFocus:!0},!0)}qb(){this.P.activeInstance?.focusWhenReady()}};M=z([f(1,k),f(2,W),f(3,B),f(4,E),f(5,F),f(6,_),f(7,x),f(8,N),f(9,R),f(10,Z),f(11,X)],M);export{M as $OBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Sizing, SplitView } from "../../../../base/browser/ui/splitview/splitview.js";
+import { Disposable, dispose } from "../../../../base/common/lifecycle.js";
+import { Event } from "../../../../base/common/event.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalChatService, ITerminalConfigurationService, ITerminalGroupService, ITerminalService } from "./terminal.js";
+import { TerminalTabList } from "./terminalTabsList.js";
+import * as dom from "../../../../base/browser/dom.js";
+import { Action, Separator } from "../../../../base/common/actions.js";
+import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { localize } from "../../../../nls.js";
+import { openContextMenu } from "./terminalContextMenu.js";
+import { TerminalContextKeys } from "../common/terminalContextKey.js";
+import { getInstanceHoverInfo } from "./terminalTooltip.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { TerminalTabsChatEntry } from "./terminalTabsChatEntry.js";
+import { containsDragType } from "../../../../platform/dnd/browser/dnd.js";
+import { getTerminalResourcesFromDragEvent, parseTerminalUri } from "./terminalUri.js";
+const $ = dom.$;
+var CssClass;
+(function(CssClass2) {
+  CssClass2["ViewIsVertical"] = "terminal-side-view";
+})(CssClass || (CssClass = {}));
+var WidthConstants;
+(function(WidthConstants2) {
+  WidthConstants2[WidthConstants2["StatusIcon"] = 30] = "StatusIcon";
+  WidthConstants2[WidthConstants2["SplitAnnotation"] = 30] = "SplitAnnotation";
+})(WidthConstants || (WidthConstants = {}));
+let TerminalTabbedView = class TerminalTabbedView2 extends Disposable {
+  static {
+    __name(this, "TerminalTabbedView");
+  }
+  constructor(parentElement, _terminalService, _terminalChatService, _terminalConfigurationService, _terminalGroupService, _instantiationService, _contextMenuService, _configurationService, menuService, _storageService, contextKeyService, _hoverService) {
+    super();
+    this._terminalService = _terminalService;
+    this._terminalChatService = _terminalChatService;
+    this._terminalConfigurationService = _terminalConfigurationService;
+    this._terminalGroupService = _terminalGroupService;
+    this._instantiationService = _instantiationService;
+    this._contextMenuService = _contextMenuService;
+    this._configurationService = _configurationService;
+    this._storageService = _storageService;
+    this._hoverService = _hoverService;
+    this._cancelContextMenu = false;
+    this._emptyAreaDropTargetCount = 0;
+    this._tabContainer = $(".tabs-container");
+    const tabListContainer = $(".tabs-list-container");
+    this._tabListContainer = tabListContainer;
+    this._tabListElement = $(".tabs-list");
+    tabListContainer.appendChild(this._tabListElement);
+    this._tabContainer.appendChild(tabListContainer);
+    this._instanceMenu = this._register(menuService.createMenu(MenuId.TerminalInstanceContext, contextKeyService));
+    this._tabsListMenu = this._register(menuService.createMenu(MenuId.TerminalTabContext, contextKeyService));
+    this._tabsListEmptyMenu = this._register(menuService.createMenu(MenuId.TerminalTabEmptyAreaContext, contextKeyService));
+    this._tabList = this._register(this._instantiationService.createInstance(TerminalTabList, this._tabListElement));
+    this._tabListDomElement = this._tabList.getHTMLElement();
+    this._chatEntry = this._register(this._instantiationService.createInstance(TerminalTabsChatEntry, tabListContainer, this._tabContainer));
+    const terminalOuterContainer = $(".terminal-outer-container");
+    this._terminalContainer = $(".terminal-groups-container");
+    terminalOuterContainer.appendChild(this._terminalContainer);
+    this._terminalService.setContainers(parentElement, this._terminalContainer);
+    this._terminalIsTabsNarrowContextKey = TerminalContextKeys.tabsNarrow.bindTo(contextKeyService);
+    this._terminalTabsFocusContextKey = TerminalContextKeys.tabsFocus.bindTo(contextKeyService);
+    this._terminalTabsMouseContextKey = TerminalContextKeys.tabsMouse.bindTo(contextKeyService);
+    this._tabTreeIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 0 : 1;
+    this._terminalContainerIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 1 : 0;
+    this._register(_configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "terminal.integrated.tabs.enabled"
+        /* TerminalSettingId.TabsEnabled */
+      ) || e.affectsConfiguration(
+        "terminal.integrated.tabs.hideCondition"
+        /* TerminalSettingId.TabsHideCondition */
+      )) {
+        this._refreshShowTabs();
+      } else if (e.affectsConfiguration(
+        "terminal.integrated.tabs.location"
+        /* TerminalSettingId.TabsLocation */
+      )) {
+        this._tabTreeIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 0 : 1;
+        this._terminalContainerIndex = this._terminalConfigurationService.config.tabs.location === "left" ? 1 : 0;
+        if (this._shouldShowTabs()) {
+          this._splitView.swapViews(0, 1);
+          this._removeSashListener();
+          this._addSashListener();
+          this._splitView.resizeView(this._tabTreeIndex, this._getLastListWidth());
+        }
+      }
+    }));
+    this._register(Event.any(this._terminalGroupService.onDidChangeInstances, this._terminalGroupService.onDidChangeGroups)(() => {
+      this._refreshShowTabs();
+      this._updateChatTerminalsEntry();
+    }));
+    this._register(Event.any(this._terminalChatService.onDidRegisterTerminalInstanceWithToolSession, this._terminalService.onDidChangeInstances, this._terminalService.onDidDisposeInstance)(() => {
+      this._refreshShowTabs();
+      this._updateChatTerminalsEntry();
+    }));
+    this._register(contextKeyService.onDidChangeContext((e) => {
+      if (e.affectsSome(/* @__PURE__ */ new Set([
+        "hasHiddenChatTerminals"
+        /* TerminalContribContextKeyStrings.ChatHasHiddenTerminals */
+      ]))) {
+        this._refreshShowTabs();
+        this._updateChatTerminalsEntry();
+      }
+    }));
+    this._attachEventListeners(parentElement, this._terminalContainer);
+    this._register(this._terminalGroupService.onDidChangePanelOrientation((orientation) => {
+      this._panelOrientation = orientation;
+      if (this._panelOrientation === 0) {
+        this._terminalContainer.classList.add(
+          "terminal-side-view"
+          /* CssClass.ViewIsVertical */
+        );
+      } else {
+        this._terminalContainer.classList.remove(
+          "terminal-side-view"
+          /* CssClass.ViewIsVertical */
+        );
+      }
+    }));
+    this._splitView = new SplitView(parentElement, { orientation: 1, proportionalLayout: false });
+    this._setupSplitView(terminalOuterContainer);
+    this._updateChatTerminalsEntry();
+  }
+  _shouldShowTabs() {
+    const enabled = this._terminalConfigurationService.config.tabs.enabled;
+    const hide = this._terminalConfigurationService.config.tabs.hideCondition;
+    const hiddenChatTerminals = this._terminalChatService.getToolSessionTerminalInstances(true);
+    if (!enabled) {
+      return false;
+    }
+    if (hiddenChatTerminals.length > 0) {
+      return true;
+    }
+    switch (hide) {
+      case "never":
+        return true;
+      case "singleTerminal":
+        if (this._terminalGroupService.instances.length > 1) {
+          return true;
+        }
+        break;
+      case "singleGroup":
+        if (this._terminalGroupService.groups.length > 1) {
+          return true;
+        }
+        break;
+    }
+    return false;
+  }
+  _refreshShowTabs() {
+    if (this._shouldShowTabs()) {
+      if (this._splitView.length === 1) {
+        this._addTabTree();
+        this._addSashListener();
+        this._splitView.resizeView(this._tabTreeIndex, this._getLastListWidth());
+        this.rerenderTabs();
+      }
+    } else {
+      if (this._splitView.length === 2 && !this._terminalTabsMouseContextKey.get()) {
+        this._splitView.removeView(this._tabTreeIndex);
+        this._plusButton?.remove();
+        this._removeSashListener();
+      }
+    }
+  }
+  _updateChatTerminalsEntry() {
+    this._chatEntry?.update();
+  }
+  _getLastListWidth() {
+    const widthKey = this._panelOrientation === 0 ? "tabs-list-width-vertical" : "tabs-list-width-horizontal";
+    const storedValue = this._storageService.get(
+      widthKey,
+      0
+      /* StorageScope.PROFILE */
+    );
+    if (!storedValue || !parseInt(storedValue)) {
+      return this._panelOrientation === 0 ? 46 : 120;
+    }
+    return parseInt(storedValue);
+  }
+  _handleOnDidSashReset() {
+    let idealWidth = 80;
+    const offscreenCanvas = document.createElement("canvas");
+    offscreenCanvas.width = 1;
+    offscreenCanvas.height = 1;
+    const ctx = offscreenCanvas.getContext("2d");
+    if (ctx) {
+      const style = dom.getWindow(this._tabListElement).getComputedStyle(this._tabListElement);
+      ctx.font = `${style.fontStyle} ${style.fontSize} ${style.fontFamily}`;
+      const maxInstanceWidth = this._terminalGroupService.instances.reduce((p, c) => {
+        return Math.max(p, ctx.measureText(c.title + (c.description || "")).width + this._getAdditionalWidth(c));
+      }, 0);
+      idealWidth = Math.ceil(Math.max(
+        maxInstanceWidth,
+        80
+        /* TerminalTabsListSizes.WideViewMinimumWidth */
+      ));
+    }
+    const currentWidth = Math.ceil(this._splitView.getViewSize(this._tabTreeIndex));
+    if (currentWidth === idealWidth) {
+      idealWidth = 46;
+    }
+    this._splitView.resizeView(this._tabTreeIndex, idealWidth);
+    this._updateListWidth(idealWidth);
+  }
+  _getAdditionalWidth(instance) {
+    const additionalWidth = 40;
+    const statusIconWidth = instance.statusList.statuses.length > 0 ? 30 : 0;
+    const splitAnnotationWidth = (this._terminalGroupService.getGroupForInstance(instance)?.terminalInstances.length || 0) > 1 ? 30 : 0;
+    return additionalWidth + splitAnnotationWidth + statusIconWidth;
+  }
+  _handleOnDidSashChange() {
+    const listWidth = this._splitView.getViewSize(this._tabTreeIndex);
+    if (!this._width || listWidth <= 0) {
+      return;
+    }
+    this._updateListWidth(listWidth);
+  }
+  _updateListWidth(width) {
+    if (width < 63 && width >= 46) {
+      width = 46;
+      this._splitView.resizeView(this._tabTreeIndex, width);
+    } else if (width >= 63 && width < 80) {
+      width = 80;
+      this._splitView.resizeView(this._tabTreeIndex, width);
+    }
+    this.rerenderTabs();
+    const widthKey = this._panelOrientation === 0 ? "tabs-list-width-vertical" : "tabs-list-width-horizontal";
+    this._storageService.store(
+      widthKey,
+      width,
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  _setupSplitView(terminalOuterContainer) {
+    this._register(this._splitView.onDidSashReset(() => this._handleOnDidSashReset()));
+    this._register(this._splitView.onDidSashChange(() => this._handleOnDidSashChange()));
+    if (this._shouldShowTabs()) {
+      this._addTabTree();
+    }
+    this._splitView.addView({
+      element: terminalOuterContainer,
+      layout: /* @__PURE__ */ __name((width) => this._terminalGroupService.groups.forEach((tab) => tab.layout(width, this._height || 0)), "layout"),
+      minimumSize: 120,
+      maximumSize: Number.POSITIVE_INFINITY,
+      onDidChange: /* @__PURE__ */ __name(() => Disposable.None, "onDidChange"),
+      priority: 2
+      /* LayoutPriority.High */
+    }, Sizing.Distribute, this._terminalContainerIndex);
+    if (this._shouldShowTabs()) {
+      this._addSashListener();
+    }
+  }
+  _addTabTree() {
+    this._splitView.addView({
+      element: this._tabContainer,
+      layout: /* @__PURE__ */ __name((width) => this._tabList.layout(this._height || 0, width), "layout"),
+      minimumSize: 46,
+      maximumSize: 500,
+      onDidChange: /* @__PURE__ */ __name(() => Disposable.None, "onDidChange"),
+      priority: 1
+      /* LayoutPriority.Low */
+    }, Sizing.Distribute, this._tabTreeIndex);
+    this.rerenderTabs();
+  }
+  rerenderTabs() {
+    this._updateHasText();
+    this._tabList.refresh();
+  }
+  _addSashListener() {
+    let interval;
+    this._sashDisposables = [
+      this._splitView.sashes[0].onDidStart((e) => {
+        interval = dom.disposableWindowInterval(dom.getWindow(this._splitView.el), () => {
+          this.rerenderTabs();
+        }, 100);
+      }),
+      this._splitView.sashes[0].onDidEnd((e) => {
+        interval.dispose();
+      })
+    ];
+  }
+  _removeSashListener() {
+    if (this._sashDisposables) {
+      dispose(this._sashDisposables);
+      this._sashDisposables = void 0;
+    }
+  }
+  _updateHasText() {
+    const hasText = this._tabListElement.clientWidth > 63;
+    this._tabContainer.classList.toggle("has-text", hasText);
+    this._terminalIsTabsNarrowContextKey.set(!hasText);
+    this._updateChatTerminalsEntry();
+  }
+  layout(width, height) {
+    const chatItemHeight = this._chatEntry?.element.style.display === "none" ? 0 : this._chatEntry?.element.clientHeight;
+    this._height = height - (chatItemHeight ?? 0);
+    this._width = width;
+    this._splitView.layout(width);
+    if (this._shouldShowTabs()) {
+      this._splitView.resizeView(this._tabTreeIndex, this._getLastListWidth());
+    }
+    this._updateHasText();
+  }
+  _attachEventListeners(parentDomElement, terminalContainer) {
+    this._register(dom.addDisposableListener(this._tabContainer, "mouseleave", async (event) => {
+      this._terminalTabsMouseContextKey.set(false);
+      this._refreshShowTabs();
+      event.stopPropagation();
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, "mouseenter", async (event) => {
+      this._terminalTabsMouseContextKey.set(true);
+      event.stopPropagation();
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, "dragenter", (event) => {
+      if (!this._shouldHandleEmptyAreaDrop(event)) {
+        this._resetEmptyAreaDropState();
+        return;
+      }
+      this._emptyAreaDropTargetCount++;
+      this._setEmptyAreaDropState(true);
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, "dragover", (event) => {
+      if (!this._shouldHandleEmptyAreaDrop(event)) {
+        this._resetEmptyAreaDropState();
+        return;
+      }
+      event.preventDefault();
+      this._setEmptyAreaDropState(true);
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "move";
+      }
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, "dragleave", (event) => {
+      if (!this._shouldHandleEmptyAreaDrop(event)) {
+        if (!this._tabContainer.contains(event.relatedTarget)) {
+          this._resetEmptyAreaDropState();
+        }
+        return;
+      }
+      if (this._tabContainer.contains(event.relatedTarget)) {
+        return;
+      }
+      this._emptyAreaDropTargetCount = Math.max(0, this._emptyAreaDropTargetCount - 1);
+      if (this._emptyAreaDropTargetCount === 0) {
+        this._resetEmptyAreaDropState();
+      }
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, "drop", (event) => {
+      if (!this._shouldHandleEmptyAreaDrop(event)) {
+        return;
+      }
+      void this._handleContainerDrop(event);
+    }));
+    this._register(dom.addDisposableListener(terminalContainer, "mousedown", async (event) => {
+      const terminal = this._terminalGroupService.activeInstance;
+      if (this._terminalGroupService.instances.length > 0 && terminal) {
+        const result = await terminal.handleMouseEvent(event, this._instanceMenu);
+        if (typeof result === "object" && result.cancelContextMenu) {
+          this._cancelContextMenu = true;
+        }
+      }
+    }));
+    this._register(dom.addDisposableListener(terminalContainer, "contextmenu", (event) => {
+      const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
+      if (rightClickBehavior === "nothing" && !event.shiftKey) {
+        this._cancelContextMenu = true;
+      }
+      terminalContainer.focus();
+      if (!this._cancelContextMenu) {
+        openContextMenu(dom.getWindow(terminalContainer), event, this._terminalGroupService.activeInstance, this._instanceMenu, this._contextMenuService);
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this._cancelContextMenu = false;
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, "contextmenu", (event) => {
+      const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
+      if (rightClickBehavior === "nothing" && !event.shiftKey) {
+        this._cancelContextMenu = true;
+      }
+      if (!this._cancelContextMenu) {
+        const emptyList = this._tabList.getFocus().length === 0;
+        if (!emptyList) {
+          this._terminalGroupService.lastAccessedMenu = "tab-list";
+        }
+        const selectedInstances = this._tabList.getSelectedElements();
+        const focusedInstance = this._tabList.getFocusedElements()?.[0];
+        if (focusedInstance) {
+          selectedInstances.splice(selectedInstances.findIndex((e) => e.instanceId === focusedInstance.instanceId), 1);
+          selectedInstances.unshift(focusedInstance);
+        }
+        openContextMenu(dom.getWindow(this._tabContainer), event, selectedInstances, emptyList ? this._tabsListEmptyMenu : this._tabsListMenu, this._contextMenuService, emptyList ? this._getTabActions() : void 0);
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this._cancelContextMenu = false;
+    }));
+    this._register(dom.addDisposableListener(terminalContainer.ownerDocument, "keydown", (event) => {
+      terminalContainer.classList.toggle("alt-active", !!event.altKey);
+    }));
+    this._register(dom.addDisposableListener(terminalContainer.ownerDocument, "keyup", (event) => {
+      terminalContainer.classList.toggle("alt-active", !!event.altKey);
+    }));
+    this._register(dom.addDisposableListener(parentDomElement, "keyup", (event) => {
+      if (event.keyCode === 27) {
+        event.stopPropagation();
+      }
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, dom.EventType.FOCUS_IN, () => {
+      this._terminalTabsFocusContextKey.set(true);
+    }));
+    this._register(dom.addDisposableListener(this._tabContainer, dom.EventType.FOCUS_OUT, () => {
+      this._terminalTabsFocusContextKey.set(false);
+    }));
+  }
+  _shouldHandleEmptyAreaDrop(event) {
+    const targetNode = event.target;
+    if (targetNode && (this._tabListDomElement.contains(targetNode) || this._tabListElement.contains(targetNode))) {
+      return false;
+    }
+    return !!event.dataTransfer && containsDragType(
+      event,
+      "Terminals"
+      /* TerminalDataTransfers.Terminals */
+    );
+  }
+  _setEmptyAreaDropState(active) {
+    this._tabListContainer.classList.toggle("drop-target", active);
+    this._tabContainer.classList.toggle("drop-target", active);
+    this._chatEntry?.element.classList.toggle("drop-target", active);
+  }
+  _resetEmptyAreaDropState() {
+    this._emptyAreaDropTargetCount = 0;
+    this._setEmptyAreaDropState(false);
+  }
+  async _handleContainerDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._resetEmptyAreaDropState();
+    const primaryBackend = this._terminalService.getPrimaryBackend();
+    const resources = getTerminalResourcesFromDragEvent(event);
+    let sourceInstances;
+    const promises = [];
+    if (resources) {
+      for (const uri of resources) {
+        const instance = this._terminalService.getInstanceFromResource(uri);
+        if (instance) {
+          if (sourceInstances) {
+            sourceInstances.push(instance);
+          } else {
+            sourceInstances = [instance];
+          }
+          this._terminalService.moveToTerminalView(instance);
+        } else if (primaryBackend) {
+          const terminalIdentifier = parseTerminalUri(uri);
+          if (terminalIdentifier.instanceId) {
+            promises.push(primaryBackend.requestDetachInstance(terminalIdentifier.workspaceId, terminalIdentifier.instanceId));
+          }
+        }
+      }
+    }
+    if (promises.length) {
+      const processes = (await Promise.all(promises)).filter((process) => !!process);
+      let lastInstance;
+      for (const attachPersistentProcess of processes) {
+        lastInstance = await this._terminalService.createTerminal({ config: { attachPersistentProcess } });
+      }
+      if (lastInstance) {
+        this._terminalService.setActiveInstance(lastInstance);
+      }
+      return;
+    }
+    if (!sourceInstances || !sourceInstances.length) {
+      sourceInstances = this._tabList.getSelectedElements();
+      if (!sourceInstances.length) {
+        return;
+      }
+    }
+    this._terminalGroupService.moveGroupToEnd(sourceInstances);
+    this._terminalService.setActiveInstance(sourceInstances[0]);
+    const indexes = sourceInstances.map((instance) => this._terminalGroupService.instances.indexOf(instance)).filter((index) => index >= 0);
+    if (indexes.length) {
+      this._tabList.setSelection(indexes);
+      this._tabList.setFocus([indexes[0]]);
+    }
+  }
+  _getTabActions() {
+    return [
+      new Separator(),
+      this._configurationService.inspect(
+        "terminal.integrated.tabs.location"
+        /* TerminalSettingId.TabsLocation */
+      ).userValue === "left" ? new Action("moveRight", localize("moveTabsRight", "Move Tabs Right"), void 0, void 0, async () => {
+        this._configurationService.updateValue("terminal.integrated.tabs.location", "right");
+      }) : new Action("moveLeft", localize("moveTabsLeft", "Move Tabs Left"), void 0, void 0, async () => {
+        this._configurationService.updateValue("terminal.integrated.tabs.location", "left");
+      }),
+      new Action("hideTabs", localize("hideTabs", "Hide Tabs"), void 0, void 0, async () => {
+        this._configurationService.updateValue("terminal.integrated.tabs.enabled", false);
+      })
+    ];
+  }
+  setEditable(isEditing) {
+    if (!isEditing) {
+      this._tabList.domFocus();
+    }
+    this._tabList.refresh(false);
+  }
+  focusTabs() {
+    if (!this._shouldShowTabs()) {
+      return;
+    }
+    this._terminalTabsFocusContextKey.set(true);
+    const selected = this._tabList.getSelection();
+    this._tabList.domFocus();
+    if (selected) {
+      this._tabList.setFocus(selected);
+    }
+  }
+  focus() {
+    if (this._terminalService.connectionState === 1) {
+      this._focus();
+      return;
+    }
+    const previousActiveElement = this._tabListElement.ownerDocument.activeElement;
+    if (previousActiveElement) {
+      const listener = this._register(Event.once(this._terminalService.onDidChangeConnectionState)(() => {
+        if (dom.isActiveElement(previousActiveElement)) {
+          this._focus();
+        }
+        this._store.delete(listener);
+      }));
+    }
+  }
+  focusHover() {
+    if (this._shouldShowTabs()) {
+      this._tabList.focusHover();
+      return;
+    }
+    const instance = this._terminalGroupService.activeInstance;
+    if (!instance) {
+      return;
+    }
+    this._hoverService.showInstantHover({
+      ...getInstanceHoverInfo(instance, this._storageService),
+      target: this._terminalContainer,
+      trapFocus: true
+    }, true);
+  }
+  _focus() {
+    this._terminalGroupService.activeInstance?.focusWhenReady();
+  }
+};
+TerminalTabbedView = __decorate([
+  __param(1, ITerminalService),
+  __param(2, ITerminalChatService),
+  __param(3, ITerminalConfigurationService),
+  __param(4, ITerminalGroupService),
+  __param(5, IInstantiationService),
+  __param(6, IContextMenuService),
+  __param(7, IConfigurationService),
+  __param(8, IMenuService),
+  __param(9, IStorageService),
+  __param(10, IContextKeyService),
+  __param(11, IHoverService)
+], TerminalTabbedView);
+export {
+  TerminalTabbedView
+};
+//# sourceMappingURL=terminalTabbedView.js.map

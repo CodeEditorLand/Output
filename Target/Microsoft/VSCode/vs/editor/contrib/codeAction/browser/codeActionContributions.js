@@ -1,1 +1,62 @@
-import{$Xdb as o,$Wdb as s,$1db as m}from"../../../browser/editorExtensions.js";import{$wL as l}from"../../../../platform/actions/common/actions.js";import{$slb as e}from"../../../common/config/editorConfigurationSchema.js";import{$tmb as p,$omb as d,$smb as f,$rmb as c,$nmb as u,$pmb as b,$qmb as $}from"./codeActionCommands.js";import{$mmb as n}from"./codeActionController.js";import{$lmb as a}from"./lightBulbWidget.js";import*as r from"../../../../nls.js";import{$lm as i}from"../../../../platform/configuration/common/configurationRegistry.js";import{$jm as t}from"../../../../platform/registry/common/platform.js";m(n.ID,n,3);m(a.ID,a,4);l(u);o(b);o($);o(c);o(p);o(f);s(new d);t.as(i.Configuration).registerConfiguration({...e,properties:{"editor.codeActionWidget.showHeaders":{type:"boolean",scope:6,description:r.localize(1024,null),default:!0}}});t.as(i.Configuration).registerConfiguration({...e,properties:{"editor.codeActionWidget.includeNearbyQuickFixes":{type:"boolean",scope:6,description:r.localize(1025,null),default:!0}}});t.as(i.Configuration).registerConfiguration({...e,properties:{"editor.codeActions.triggerOnFocusChange":{type:"boolean",scope:6,markdownDescription:r.localize(1026,null,"`#editor.codeActionsOnSave#`","`#files.autoSave#`","`afterDelay`","`always`"),default:!1}}});
+import { registerEditorAction, registerEditorCommand, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { editorConfigurationBaseNode } from "../../../common/config/editorConfigurationSchema.js";
+import { AutoFixAction, CodeActionCommand, FixAllAction, OrganizeImportsAction, QuickFixAction, RefactorAction, SourceAction } from "./codeActionCommands.js";
+import { CodeActionController } from "./codeActionController.js";
+import { LightBulbWidget } from "./lightBulbWidget.js";
+import * as nls from "../../../../nls.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+registerEditorContribution(
+  CodeActionController.ID,
+  CodeActionController,
+  3
+  /* EditorContributionInstantiation.Eventually */
+);
+registerEditorContribution(
+  LightBulbWidget.ID,
+  LightBulbWidget,
+  4
+  /* EditorContributionInstantiation.Lazy */
+);
+registerAction2(QuickFixAction);
+registerEditorAction(RefactorAction);
+registerEditorAction(SourceAction);
+registerEditorAction(OrganizeImportsAction);
+registerEditorAction(AutoFixAction);
+registerEditorAction(FixAllAction);
+registerEditorCommand(new CodeActionCommand());
+Registry.as(Extensions.Configuration).registerConfiguration({
+  ...editorConfigurationBaseNode,
+  properties: {
+    "editor.codeActionWidget.showHeaders": {
+      type: "boolean",
+      scope: 6,
+      description: nls.localize("showCodeActionHeaders", "Enable/disable showing group headers in the Code Action menu."),
+      default: true
+    }
+  }
+});
+Registry.as(Extensions.Configuration).registerConfiguration({
+  ...editorConfigurationBaseNode,
+  properties: {
+    "editor.codeActionWidget.includeNearbyQuickFixes": {
+      type: "boolean",
+      scope: 6,
+      description: nls.localize("includeNearbyQuickFixes", "Enable/disable showing nearest Quick Fix within a line when not currently on a diagnostic."),
+      default: true
+    }
+  }
+});
+Registry.as(Extensions.Configuration).registerConfiguration({
+  ...editorConfigurationBaseNode,
+  properties: {
+    "editor.codeActions.triggerOnFocusChange": {
+      type: "boolean",
+      scope: 6,
+      markdownDescription: nls.localize("triggerOnFocusChange", "Enable triggering {0} when {1} is set to {2}. Code Actions must be set to {3} to be triggered for window and focus changes.", "`#editor.codeActionsOnSave#`", "`#files.autoSave#`", "`afterDelay`", "`always`"),
+      default: false
+    }
+  }
+});
+//# sourceMappingURL=codeActionContributions.js.map

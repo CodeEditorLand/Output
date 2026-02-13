@@ -1,2 +1,77 @@
-import{$bk as f}from"../../../../../../base/common/codicons.js";import{$Ed as p}from"../../../../../../base/common/lifecycle.js";import{localize as l}from"../../../../../../nls.js";import{ToolDataSource as v}from"../../../../chat/common/tools/languageModelToolsService.js";import{$sZb as d}from"../../../../terminal/browser/terminal.js";var u=function(i,e,n,o){var c=arguments.length,t=c<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,n,o);else for(var a=i.length-1;a>=0;a--)(r=i[a])&&(t=(c<3?r(t):c>3?r(e,n,t):r(e,n))||t);return c>3&&t&&Object.defineProperty(e,n,t),t},m=function(i,e){return function(n,o){e(n,o,i)}};const T={id:"terminal_selection",toolReferenceName:"terminalSelection",legacyToolReferenceFullNames:["runCommands/terminalSelection"],displayName:l(13754,null),modelDescription:"Get the current selection in the active terminal.",source:v.Internal,icon:f.terminal};let s=class extends p{constructor(e){super(),this.a=e}async prepareToolInvocation(e,n){return{invocationMessage:l(13755,null),pastTenseMessage:l(13756,null)}}async invoke(e,n,o,c){const t=this.a.activeInstance;if(!t)return{content:[{kind:"text",value:"No active terminal instance found."}]};const r=t.selection;return r?{content:[{kind:"text",value:`The active terminal's selection:
-${r}`}]}:{content:[{kind:"text",value:"No text is currently selected in the active terminal."}]}}};s=u([m(0,d)],s);export{T as $XDc,s as $YDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../../nls.js";
+import { ToolDataSource } from "../../../../chat/common/tools/languageModelToolsService.js";
+import { ITerminalService } from "../../../../terminal/browser/terminal.js";
+const GetTerminalSelectionToolData = {
+  id: "terminal_selection",
+  toolReferenceName: "terminalSelection",
+  legacyToolReferenceFullNames: ["runCommands/terminalSelection"],
+  displayName: localize("terminalSelectionTool.displayName", "Get Terminal Selection"),
+  modelDescription: "Get the current selection in the active terminal.",
+  source: ToolDataSource.Internal,
+  icon: Codicon.terminal
+};
+let GetTerminalSelectionTool = class GetTerminalSelectionTool2 extends Disposable {
+  static {
+    __name(this, "GetTerminalSelectionTool");
+  }
+  constructor(_terminalService) {
+    super();
+    this._terminalService = _terminalService;
+  }
+  async prepareToolInvocation(context, token) {
+    return {
+      invocationMessage: localize("getTerminalSelection.progressive", "Reading terminal selection"),
+      pastTenseMessage: localize("getTerminalSelection.past", "Read terminal selection")
+    };
+  }
+  async invoke(invocation, _countTokens, _progress, token) {
+    const activeInstance = this._terminalService.activeInstance;
+    if (!activeInstance) {
+      return {
+        content: [{
+          kind: "text",
+          value: "No active terminal instance found."
+        }]
+      };
+    }
+    const selection = activeInstance.selection;
+    if (!selection) {
+      return {
+        content: [{
+          kind: "text",
+          value: "No text is currently selected in the active terminal."
+        }]
+      };
+    }
+    return {
+      content: [{
+        kind: "text",
+        value: `The active terminal's selection:
+${selection}`
+      }]
+    };
+  }
+};
+GetTerminalSelectionTool = __decorate([
+  __param(0, ITerminalService)
+], GetTerminalSelectionTool);
+export {
+  GetTerminalSelectionTool,
+  GetTerminalSelectionToolData
+};
+//# sourceMappingURL=getTerminalSelectionTool.js.map

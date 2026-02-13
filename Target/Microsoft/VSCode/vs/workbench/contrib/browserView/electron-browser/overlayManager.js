@@ -1,1 +1,217 @@
-import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$Cf as d}from"../../../../base/common/event.js";import{$Nj as u}from"../../../../platform/instantiation/common/instantiation.js";import{$R8 as l}from"../../../../base/browser/dom.js";var n;(function(a){a.Menu="menu",a.QuickInput="quickInput",a.Hover="hover",a.Dialog="dialog",a.Notification="notification",a.Unknown="unknown"})(n||(n={}));const f=[{className:"monaco-menu-container",type:n.Menu},{className:"quick-input-widget",type:n.QuickInput},{className:"monaco-hover",type:n.Hover},{className:"editor-widget",type:n.Hover},{className:"suggest-details-container",type:n.Hover},{className:"monaco-dialog-modal-block",type:n.Dialog},{className:"notifications-center",type:n.Notification},{className:"notification-toast-container",type:n.Notification},{className:"context-view",type:n.Unknown}],y=u("browserOverlayManager");class b extends m{constructor(e){super(),this.q=e,this.a=this.D(new d({onWillAddFirstListener:()=>{this.h=!0,this.g.observe(this.q.document.body,{childList:!0,subtree:!0}),this.s()},onDidRemoveLastListener:()=>{this.h=!1,this.g.disconnect(),this.w()},merge:()=>{}})),this.onDidChangeOverlayState=this.a.event,this.b=new Map,this.c=new WeakMap,this.f=new WeakMap,this.h=!1,this.m=new WeakMap,this.n=new WeakMap;for(const t of f)this.b.set(t.className,{type:t.type,collection:this.q.document.getElementsByClassName(t.className)});this.j=this.q.document.getElementsByClassName("shadow-root-host"),this.g=new e.MutationObserver(t=>{let s=!1;for(const i of t)for(const o of i.removedNodes){this.f.has(o)&&(this.f.get(o)?.disconnect(),this.f.delete(o),s=!0),this.c.delete(o)&&(s=!0);const h=o;if(h.shadowRoot){const r=h.shadowRoot,c=this.m.get(r);c&&(c.disconnect(),this.m.delete(r),this.n.delete(r),s=!0)}}this.s(s)})}*r(){for(const e of this.b.values())for(const t of e.collection)yield{element:t,type:e.type};for(const e of this.j){const t=e.shadowRoot;if(t){let s=this.n.get(t);if(!s){s=[];for(const i of f){const o=t.querySelectorAll(`.${i.className}`);for(const h of o)s.push({element:h,type:i.type})}this.n.set(t,s)}yield*s}}}s(e=!1){for(const t of this.j){const i=t.shadowRoot;if(i&&!this.m.has(i)){const o=new this.q.MutationObserver(()=>{this.n.delete(i),this.a.fire()});o.observe(i,{childList:!0,subtree:!0}),this.m.set(i,o),e=!0}}for(const t of this.r())if(!this.f.has(t.element)){const s=new this.q.MutationObserver(()=>{this.c.delete(t.element),this.a.fire()});this.f.set(t.element,s),s.observe(t.element,{attributes:!0,attributeFilter:["style","class"],childList:!0,subtree:!0}),e=!0}e&&this.a.fire()}t(e){if(!this.c.has(e)){const t=l(e);if(!this.h)return t;this.c.set(e,t)}return this.c.get(e)}getOverlappingOverlays(e){const t=l(e),s=[];for(const i of this.r()){const o=this.t(i.element);o&&this.u(t,o)&&s.push({type:i.type,rect:o})}return s}u(e,t){return e.width===0||e.height===0||t.width===0||t.height===0?!1:!(e.left+e.width<=t.left||t.left+t.width<=e.left||e.top+e.height<=t.top||t.top+t.height<=e.top)}w(){for(const e of this.r())this.f.get(e.element)?.disconnect();for(const e of this.j){const t=e.shadowRoot;this.m.get(t)?.disconnect()}this.m=new WeakMap,this.n=new WeakMap,this.c=new WeakMap,this.f=new WeakMap}dispose(){this.h=!1,this.g.disconnect(),this.w(),super.dispose()}}export{y as $rXc,b as $sXc,n as BrowserOverlayType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { MicrotaskEmitter } from "../../../../base/common/event.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { getDomNodePagePosition } from "../../../../base/browser/dom.js";
+var BrowserOverlayType;
+(function(BrowserOverlayType2) {
+  BrowserOverlayType2["Menu"] = "menu";
+  BrowserOverlayType2["QuickInput"] = "quickInput";
+  BrowserOverlayType2["Hover"] = "hover";
+  BrowserOverlayType2["Dialog"] = "dialog";
+  BrowserOverlayType2["Notification"] = "notification";
+  BrowserOverlayType2["Unknown"] = "unknown";
+})(BrowserOverlayType || (BrowserOverlayType = {}));
+const OVERLAY_DEFINITIONS = [
+  { className: "monaco-menu-container", type: BrowserOverlayType.Menu },
+  { className: "quick-input-widget", type: BrowserOverlayType.QuickInput },
+  { className: "monaco-hover", type: BrowserOverlayType.Hover },
+  { className: "editor-widget", type: BrowserOverlayType.Hover },
+  { className: "suggest-details-container", type: BrowserOverlayType.Hover },
+  { className: "monaco-dialog-modal-block", type: BrowserOverlayType.Dialog },
+  { className: "notifications-center", type: BrowserOverlayType.Notification },
+  { className: "notification-toast-container", type: BrowserOverlayType.Notification },
+  // Context view is very generic, so treat the content as unknown
+  { className: "context-view", type: BrowserOverlayType.Unknown }
+];
+const IBrowserOverlayManager = createDecorator("browserOverlayManager");
+class BrowserOverlayManager extends Disposable {
+  static {
+    __name(this, "BrowserOverlayManager");
+  }
+  constructor(targetWindow) {
+    super();
+    this.targetWindow = targetWindow;
+    this._onDidChangeOverlayState = this._register(new MicrotaskEmitter({
+      onWillAddFirstListener: /* @__PURE__ */ __name(() => {
+        this._observerIsConnected = true;
+        this._structuralObserver.observe(this.targetWindow.document.body, {
+          childList: true,
+          subtree: true
+        });
+        this.updateTrackedElements();
+      }, "onWillAddFirstListener"),
+      onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
+        this._observerIsConnected = false;
+        this._structuralObserver.disconnect();
+        this.stopTrackingElements();
+      }, "onDidRemoveLastListener"),
+      // Must be passed to prevent duplicate emits
+      merge: /* @__PURE__ */ __name(() => {
+      }, "merge")
+    }));
+    this.onDidChangeOverlayState = this._onDidChangeOverlayState.event;
+    this._overlayCollections = /* @__PURE__ */ new Map();
+    this._overlayRectangles = /* @__PURE__ */ new WeakMap();
+    this._elementObservers = /* @__PURE__ */ new WeakMap();
+    this._observerIsConnected = false;
+    this._shadowRootObservers = /* @__PURE__ */ new WeakMap();
+    this._shadowRootOverlayCache = /* @__PURE__ */ new WeakMap();
+    for (const overlayDefinition of OVERLAY_DEFINITIONS) {
+      this._overlayCollections.set(overlayDefinition.className, {
+        type: overlayDefinition.type,
+        // We need dynamic collections for overlay detection, using getElementsByClassName is intentional here
+        // eslint-disable-next-line no-restricted-syntax
+        collection: this.targetWindow.document.getElementsByClassName(overlayDefinition.className)
+      });
+    }
+    this._shadowRootHostCollection = this.targetWindow.document.getElementsByClassName("shadow-root-host");
+    this._structuralObserver = new targetWindow.MutationObserver((mutations) => {
+      let didRemove = false;
+      for (const mutation of mutations) {
+        for (const node of mutation.removedNodes) {
+          if (this._elementObservers.has(node)) {
+            const observer = this._elementObservers.get(node);
+            observer?.disconnect();
+            this._elementObservers.delete(node);
+            didRemove = true;
+          }
+          if (this._overlayRectangles.delete(node)) {
+            didRemove = true;
+          }
+          const hostElement = node;
+          if (hostElement.shadowRoot) {
+            const shadowRoot = hostElement.shadowRoot;
+            const observer = this._shadowRootObservers.get(shadowRoot);
+            if (observer) {
+              observer.disconnect();
+              this._shadowRootObservers.delete(shadowRoot);
+              this._shadowRootOverlayCache.delete(shadowRoot);
+              didRemove = true;
+            }
+          }
+        }
+      }
+      this.updateTrackedElements(didRemove);
+    });
+  }
+  *overlays() {
+    for (const entry of this._overlayCollections.values()) {
+      for (const element of entry.collection) {
+        yield { element, type: entry.type };
+      }
+    }
+    for (const hostElement of this._shadowRootHostCollection) {
+      const shadowRoot = hostElement.shadowRoot;
+      if (shadowRoot) {
+        let cache = this._shadowRootOverlayCache.get(shadowRoot);
+        if (!cache) {
+          cache = [];
+          for (const overlayDefinition of OVERLAY_DEFINITIONS) {
+            const elements = shadowRoot.querySelectorAll(`.${overlayDefinition.className}`);
+            for (const element of elements) {
+              cache.push({ element, type: overlayDefinition.type });
+            }
+          }
+          this._shadowRootOverlayCache.set(shadowRoot, cache);
+        }
+        yield* cache;
+      }
+    }
+  }
+  updateTrackedElements(shouldEmit = false) {
+    for (const host of this._shadowRootHostCollection) {
+      const hostElement = host;
+      const shadowRoot = hostElement.shadowRoot;
+      if (shadowRoot && !this._shadowRootObservers.has(shadowRoot)) {
+        const observer = new this.targetWindow.MutationObserver(() => {
+          this._shadowRootOverlayCache.delete(shadowRoot);
+          this._onDidChangeOverlayState.fire();
+        });
+        observer.observe(shadowRoot, {
+          childList: true,
+          subtree: true
+        });
+        this._shadowRootObservers.set(shadowRoot, observer);
+        shouldEmit = true;
+      }
+    }
+    for (const overlay of this.overlays()) {
+      if (!this._elementObservers.has(overlay.element)) {
+        const observer = new this.targetWindow.MutationObserver(() => {
+          this._overlayRectangles.delete(overlay.element);
+          this._onDidChangeOverlayState.fire();
+        });
+        this._elementObservers.set(overlay.element, observer);
+        observer.observe(overlay.element, {
+          attributes: true,
+          attributeFilter: ["style", "class"],
+          childList: true,
+          subtree: true
+        });
+        shouldEmit = true;
+      }
+    }
+    if (shouldEmit) {
+      this._onDidChangeOverlayState.fire();
+    }
+  }
+  getRect(element) {
+    if (!this._overlayRectangles.has(element)) {
+      const rect = getDomNodePagePosition(element);
+      if (!this._observerIsConnected) {
+        return rect;
+      }
+      this._overlayRectangles.set(element, rect);
+    }
+    return this._overlayRectangles.get(element);
+  }
+  getOverlappingOverlays(element) {
+    const elementRect = getDomNodePagePosition(element);
+    const overlappingOverlays = [];
+    for (const overlay of this.overlays()) {
+      const overlayRect = this.getRect(overlay.element);
+      if (overlayRect && this.isRectanglesOverlapping(elementRect, overlayRect)) {
+        overlappingOverlays.push({
+          type: overlay.type,
+          rect: overlayRect
+        });
+      }
+    }
+    return overlappingOverlays;
+  }
+  isRectanglesOverlapping(rect1, rect2) {
+    if (rect1.width === 0 || rect1.height === 0 || rect2.width === 0 || rect2.height === 0) {
+      return false;
+    }
+    return !(rect1.left + rect1.width <= rect2.left || rect2.left + rect2.width <= rect1.left || rect1.top + rect1.height <= rect2.top || rect2.top + rect2.height <= rect1.top);
+  }
+  stopTrackingElements() {
+    for (const overlay of this.overlays()) {
+      const observer = this._elementObservers.get(overlay.element);
+      observer?.disconnect();
+    }
+    for (const hostElement of this._shadowRootHostCollection) {
+      const shadowRoot = hostElement.shadowRoot;
+      const shadowObserver = this._shadowRootObservers.get(shadowRoot);
+      shadowObserver?.disconnect();
+    }
+    this._shadowRootObservers = /* @__PURE__ */ new WeakMap();
+    this._shadowRootOverlayCache = /* @__PURE__ */ new WeakMap();
+    this._overlayRectangles = /* @__PURE__ */ new WeakMap();
+    this._elementObservers = /* @__PURE__ */ new WeakMap();
+  }
+  dispose() {
+    this._observerIsConnected = false;
+    this._structuralObserver.disconnect();
+    this.stopTrackingElements();
+    super.dispose();
+  }
+}
+export {
+  BrowserOverlayManager,
+  BrowserOverlayType,
+  IBrowserOverlayManager
+};
+//# sourceMappingURL=overlayManager.js.map

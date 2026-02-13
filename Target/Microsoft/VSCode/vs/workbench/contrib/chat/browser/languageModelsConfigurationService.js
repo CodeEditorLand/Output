@@ -1,2 +1,330 @@
-import{$0i as b}from"../../../../base/common/buffer.js";import{$xf as $}from"../../../../base/common/event.js";import{$Ed as v}from"../../../../base/common/lifecycle.js";import{$vk as y}from"../../../../platform/files/common/files.js";import{$$o as L}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$xL as w}from"../../../services/editor/common/editorGroupsService.js";import{$9$b as P}from"../../../services/textfile/common/textEditorService.js";import{$LQ as N}from"../../../services/userDataProfile/common/userDataProfile.js";import{$Gp as C}from"../../../../base/common/objects.js";import{$Iv as M}from"../../../../base/common/json.js";import{$5H as G}from"../../../../editor/common/services/resolverService.js";import{$gM as _}from"../../../services/textfile/common/textfiles.js";import{$Jdb as x}from"../../../../editor/browser/editorBrowser.js";import{$Qnb as j}from"../../../../editor/contrib/snippet/browser/snippetController2.js";import{$XR as R}from"../common/languageModelsConfiguration.js";import{$km as E}from"../../../../platform/jsonschemas/common/jsonContributionRegistry.js";import{$jm as O}from"../../../../platform/registry/common/platform.js";import{$ZR as D}from"../common/languageModels.js";var d=function(c,n,r,e){var t=arguments.length,o=t<3?n:e===null?e=Object.getOwnPropertyDescriptor(n,r):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,n,r,e);else for(var i=c.length-1;i>=0;i--)(a=c[i])&&(o=(t<3?a(o):t>3?a(n,r,o):a(n,r))||o);return t>3&&o&&Object.defineProperty(n,r,o),o},g=function(c,n){return function(r,e){n(r,e,c)}};let l=class extends v{get configurationFile(){return this.a}constructor(n,r,e,t,o,a,i){super(),this.f=n,this.h=r,this.j=e,this.m=t,this.n=o,this.b=new $,this.onDidChangeLanguageModelGroups=this.b.event,this.c=[],this.a=i.extUri.joinPath(a.currentProfile.location,"chatLanguageModels.json"),this.r(),this.D(n.watch(this.a)),this.D(n.onDidFilesChange(u=>{u.contains(this.a)&&this.r()}))}q(n){const r=[],e=new Map(this.c.map(o=>[`${o.vendor}:${o.name}`,o])),t=new Map(n.map(o=>[`${o.vendor}:${o.name}`,o]));for(const[o,a]of t){const i=e.get(o);(!i||!C(i,a))&&r.push(a)}for(const[o,a]of e)t.has(o)||r.push(a);this.c=n,r.length>0&&this.b.fire(r)}async r(){const n=await this.s();this.q(n)}getLanguageModelsProviderGroups(){return this.c}async addLanguageModelsProviderGroup(n){await this.s(async e=>{if(e.some(({name:t,vendor:o})=>t===n.name&&o===n.vendor))throw new Error(`Language model group with name ${n.name} already exists for vendor ${n.vendor}`);return e.push(n),e}),await this.r();const r=this.getLanguageModelsProviderGroups().find(e=>e.name===n.name&&e.vendor===n.vendor);if(!r)throw new Error(`Language model group with name ${n.name} not found for vendor ${n.vendor}`);return r}async updateLanguageModelsProviderGroup(n,r){await this.s(async t=>{const o=[];for(const a of t)a.name===n.name&&a.vendor===n.vendor?o.push(r):o.push(a);return o}),await this.r();const e=this.getLanguageModelsProviderGroups().find(t=>t.name===r.name&&t.vendor===r.vendor);if(!e)throw new Error(`Language model group with name ${r.name} not found for vendor ${r.vendor}`);return e}async removeLanguageModelsProviderGroup(n){await this.s(async r=>{const e=[];for(const t of r)t.name===n.name&&t.vendor===n.vendor||e.push(t);return e}),await this.r()}async configureLanguageModels(n){const r=await this.m.activeGroup.openEditor(this.n.createTextEditor({resource:this.a}));if(!r||!n?.group)return;const e=x(r.getControl());if(e&&n.group.range)if(n.snippet){const t=e.getModel();if(!t)return;const o=n.group.range.endLineNumber-1,a=t.getLineLength(o),i={lineNumber:o,column:a+1};e.setPosition(i),e.revealPositionNearTop(i),e.focus(),j.get(e)?.insert(`,
-`+n.snippet)}else{const t={lineNumber:n.group.range.startLineNumber,column:n.group.range.startColumn};e.setPosition(t),e.revealPositionNearTop(t),e.focus()}}async s(n){await this.f.exists(this.a)||await this.f.writeFile(this.a,b.fromString(JSON.stringify([],void 0,"	")));const e=await this.j.createModelReference(this.a),t=e.object.textEditorModel;try{const o=S(t);if(!n)return o;const a=await n(o);for(const i of a)delete i.range;return t.setValue(JSON.stringify(a,void 0,"	")),await this.h.save(this.a),a}finally{e.dispose()}}};l=d([g(0,y),g(1,_),g(2,G),g(3,w),g(4,P),g(5,N),g(6,L)],l);function S(c){const n=[];let r=null,e=n;const t=[];function o(i,u,s){Array.isArray(e)?e.push(i):r!==null&&(e[r]=i)}const a={onObjectBegin:(i,u)=>{const s={};if(t.length===1&&Array.isArray(e)){const m=c.getPositionAt(i),p=c.getPositionAt(i+u);s.range={startLineNumber:m.lineNumber,startColumn:m.column,endLineNumber:p.lineNumber,endColumn:p.column}}o(s,i,u),t.push(e),e=s,r=null},onObjectProperty:(i,u,s)=>{r=i},onObjectEnd:(i,u)=>{const s=e;if(s.range){const m=c.getPositionAt(i+u);s.range={startLineNumber:s.range.startLineNumber,startColumn:s.range.startColumn,endLineNumber:m.lineNumber,endColumn:m.column}}if(s._parentConfigurationRange){const m=c.getPositionAt(i+u);s._parentConfigurationRange.endLineNumber=m.lineNumber,s._parentConfigurationRange.endColumn=m.column,delete s._parentConfigurationRange}e=t.pop()},onArrayBegin:(i,u)=>{if(e===n&&t.length===0){t.push(e),r=null;return}const s=[];o(s,i,u),t.push(e),e=s,r=null},onArrayEnd:(i,u)=>{const s=e;if(s._parentConfigurationRange){const m=c.getPositionAt(i+u);s._parentConfigurationRange.endLineNumber=m.lineNumber,s._parentConfigurationRange.endColumn=m.column,delete s._parentConfigurationRange}e=t.pop()},onLiteralValue:(i,u,s)=>{o(i,u,s)}};return M(c.getValue(),a),n}const f="vscode://schemas/language-models";let h=class extends v{static{this.ID="workbench.contrib.chatLanguageModelsData"}constructor(n,r){super(),this.a=n;const e=O.as(E.JSONContribution);this.D(e.registerSchemaAssociation(f,r.configurationFile.toString())),this.b(e),this.D(this.a.onDidChangeLanguageModels(()=>this.b(e)))}b(n){const r=this.a.getVendors(),e={type:"array",items:{properties:{vendor:{type:"string",enum:r.map(t=>t.vendor)},name:{type:"string"}},allOf:r.map(t=>({if:{properties:{vendor:{const:t.vendor}}},then:t.configuration})),required:["vendor","name"]}};n.registerSchema(f,e)}};h=d([g(0,D),g(1,R)],h);export{l as $bqc,S as $cqc,h as $dqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { ITextEditorService } from "../../../services/textfile/common/textEditorService.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { equals } from "../../../../base/common/objects.js";
+import { visit } from "../../../../base/common/json.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { getCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { ILanguageModelsConfigurationService } from "../common/languageModelsConfiguration.js";
+import { Extensions as JSONExtensions } from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { ILanguageModelsService } from "../common/languageModels.js";
+let LanguageModelsConfigurationService = class LanguageModelsConfigurationService2 extends Disposable {
+  static {
+    __name(this, "LanguageModelsConfigurationService");
+  }
+  get configurationFile() {
+    return this.modelsConfigurationFile;
+  }
+  constructor(fileService, textFileService, textModelService, editorGroupsService, textEditorService, userDataProfileService, uriIdentityService) {
+    super();
+    this.fileService = fileService;
+    this.textFileService = textFileService;
+    this.textModelService = textModelService;
+    this.editorGroupsService = editorGroupsService;
+    this.textEditorService = textEditorService;
+    this._onDidChangeLanguageModelGroups = new Emitter();
+    this.onDidChangeLanguageModelGroups = this._onDidChangeLanguageModelGroups.event;
+    this.languageModelsProviderGroups = [];
+    this.modelsConfigurationFile = uriIdentityService.extUri.joinPath(userDataProfileService.currentProfile.location, "chatLanguageModels.json");
+    this.updateLanguageModelsConfiguration();
+    this._register(fileService.watch(this.modelsConfigurationFile));
+    this._register(fileService.onDidFilesChange((e) => {
+      if (e.contains(this.modelsConfigurationFile)) {
+        this.updateLanguageModelsConfiguration();
+      }
+    }));
+  }
+  setLanguageModelsConfiguration(languageModelsConfiguration) {
+    const changedGroups = [];
+    const oldGroupMap = new Map(this.languageModelsProviderGroups.map((g) => [`${g.vendor}:${g.name}`, g]));
+    const newGroupMap = new Map(languageModelsConfiguration.map((g) => [`${g.vendor}:${g.name}`, g]));
+    for (const [key, newGroup] of newGroupMap) {
+      const oldGroup = oldGroupMap.get(key);
+      if (!oldGroup || !equals(oldGroup, newGroup)) {
+        changedGroups.push(newGroup);
+      }
+    }
+    for (const [key, oldGroup] of oldGroupMap) {
+      if (!newGroupMap.has(key)) {
+        changedGroups.push(oldGroup);
+      }
+    }
+    this.languageModelsProviderGroups = languageModelsConfiguration;
+    if (changedGroups.length > 0) {
+      this._onDidChangeLanguageModelGroups.fire(changedGroups);
+    }
+  }
+  async updateLanguageModelsConfiguration() {
+    const languageModelsProviderGroups = await this.withLanguageModelsProviderGroups();
+    this.setLanguageModelsConfiguration(languageModelsProviderGroups);
+  }
+  getLanguageModelsProviderGroups() {
+    return this.languageModelsProviderGroups;
+  }
+  async addLanguageModelsProviderGroup(toAdd) {
+    await this.withLanguageModelsProviderGroups(async (languageModelsProviderGroups) => {
+      if (languageModelsProviderGroups.some(({ name, vendor }) => name === toAdd.name && vendor === toAdd.vendor)) {
+        throw new Error(`Language model group with name ${toAdd.name} already exists for vendor ${toAdd.vendor}`);
+      }
+      languageModelsProviderGroups.push(toAdd);
+      return languageModelsProviderGroups;
+    });
+    await this.updateLanguageModelsConfiguration();
+    const result = this.getLanguageModelsProviderGroups().find((group) => group.name === toAdd.name && group.vendor === toAdd.vendor);
+    if (!result) {
+      throw new Error(`Language model group with name ${toAdd.name} not found for vendor ${toAdd.vendor}`);
+    }
+    return result;
+  }
+  async updateLanguageModelsProviderGroup(from, to) {
+    await this.withLanguageModelsProviderGroups(async (languageModelsProviderGroups) => {
+      const result2 = [];
+      for (const group of languageModelsProviderGroups) {
+        if (group.name === from.name && group.vendor === from.vendor) {
+          result2.push(to);
+        } else {
+          result2.push(group);
+        }
+      }
+      return result2;
+    });
+    await this.updateLanguageModelsConfiguration();
+    const result = this.getLanguageModelsProviderGroups().find((group) => group.name === to.name && group.vendor === to.vendor);
+    if (!result) {
+      throw new Error(`Language model group with name ${to.name} not found for vendor ${to.vendor}`);
+    }
+    return result;
+  }
+  async removeLanguageModelsProviderGroup(toRemove) {
+    await this.withLanguageModelsProviderGroups(async (languageModelsProviderGroups) => {
+      const result = [];
+      for (const group of languageModelsProviderGroups) {
+        if (group.name === toRemove.name && group.vendor === toRemove.vendor) {
+          continue;
+        }
+        result.push(group);
+      }
+      return result;
+    });
+    await this.updateLanguageModelsConfiguration();
+  }
+  async configureLanguageModels(options) {
+    const editor = await this.editorGroupsService.activeGroup.openEditor(this.textEditorService.createTextEditor({ resource: this.modelsConfigurationFile }));
+    if (!editor || !options?.group) {
+      return;
+    }
+    const codeEditor = getCodeEditor(editor.getControl());
+    if (!codeEditor) {
+      return;
+    }
+    if (!options.group.range) {
+      return;
+    }
+    if (options.snippet) {
+      const model = codeEditor.getModel();
+      if (!model) {
+        return;
+      }
+      const lastPropertyLine = options.group.range.endLineNumber - 1;
+      const lastPropertyLineLength = model.getLineLength(lastPropertyLine);
+      const insertPosition = { lineNumber: lastPropertyLine, column: lastPropertyLineLength + 1 };
+      codeEditor.setPosition(insertPosition);
+      codeEditor.revealPositionNearTop(insertPosition);
+      codeEditor.focus();
+      SnippetController2.get(codeEditor)?.insert(",\n" + options.snippet);
+    } else {
+      const position = { lineNumber: options.group.range.startLineNumber, column: options.group.range.startColumn };
+      codeEditor.setPosition(position);
+      codeEditor.revealPositionNearTop(position);
+      codeEditor.focus();
+    }
+  }
+  async withLanguageModelsProviderGroups(update) {
+    const exists = await this.fileService.exists(this.modelsConfigurationFile);
+    if (!exists) {
+      await this.fileService.writeFile(this.modelsConfigurationFile, VSBuffer.fromString(JSON.stringify([], void 0, "	")));
+    }
+    const ref = await this.textModelService.createModelReference(this.modelsConfigurationFile);
+    const model = ref.object.textEditorModel;
+    try {
+      const languageModelsProviderGroups = parseLanguageModelsProviderGroups(model);
+      if (!update) {
+        return languageModelsProviderGroups;
+      }
+      const updatedLanguageModelsProviderGroups = await update(languageModelsProviderGroups);
+      for (const group of updatedLanguageModelsProviderGroups) {
+        delete group.range;
+      }
+      model.setValue(JSON.stringify(updatedLanguageModelsProviderGroups, void 0, "	"));
+      await this.textFileService.save(this.modelsConfigurationFile);
+      return updatedLanguageModelsProviderGroups;
+    } finally {
+      ref.dispose();
+    }
+  }
+};
+LanguageModelsConfigurationService = __decorate([
+  __param(0, IFileService),
+  __param(1, ITextFileService),
+  __param(2, ITextModelService),
+  __param(3, IEditorGroupsService),
+  __param(4, ITextEditorService),
+  __param(5, IUserDataProfileService),
+  __param(6, IUriIdentityService)
+], LanguageModelsConfigurationService);
+function parseLanguageModelsProviderGroups(model) {
+  const configuration = [];
+  let currentProperty = null;
+  let currentParent = configuration;
+  const previousParents = [];
+  function onValue(value, offset, length) {
+    if (Array.isArray(currentParent)) {
+      currentParent.push(value);
+    } else if (currentProperty !== null) {
+      currentParent[currentProperty] = value;
+    }
+  }
+  __name(onValue, "onValue");
+  const visitor = {
+    onObjectBegin: /* @__PURE__ */ __name((offset, length) => {
+      const object = {};
+      if (previousParents.length === 1 && Array.isArray(currentParent)) {
+        const start = model.getPositionAt(offset);
+        const end = model.getPositionAt(offset + length);
+        object.range = {
+          startLineNumber: start.lineNumber,
+          startColumn: start.column,
+          endLineNumber: end.lineNumber,
+          endColumn: end.column
+        };
+      }
+      onValue(object, offset, length);
+      previousParents.push(currentParent);
+      currentParent = object;
+      currentProperty = null;
+    }, "onObjectBegin"),
+    onObjectProperty: /* @__PURE__ */ __name((name, offset, length) => {
+      currentProperty = name;
+    }, "onObjectProperty"),
+    onObjectEnd: /* @__PURE__ */ __name((offset, length) => {
+      const parent = currentParent;
+      if (parent.range) {
+        const end = model.getPositionAt(offset + length);
+        parent.range = {
+          startLineNumber: parent.range.startLineNumber,
+          startColumn: parent.range.startColumn,
+          endLineNumber: end.lineNumber,
+          endColumn: end.column
+        };
+      }
+      if (parent._parentConfigurationRange) {
+        const end = model.getPositionAt(offset + length);
+        parent._parentConfigurationRange.endLineNumber = end.lineNumber;
+        parent._parentConfigurationRange.endColumn = end.column;
+        delete parent._parentConfigurationRange;
+      }
+      currentParent = previousParents.pop();
+    }, "onObjectEnd"),
+    onArrayBegin: /* @__PURE__ */ __name((offset, length) => {
+      if (currentParent === configuration && previousParents.length === 0) {
+        previousParents.push(currentParent);
+        currentProperty = null;
+        return;
+      }
+      const array = [];
+      onValue(array, offset, length);
+      previousParents.push(currentParent);
+      currentParent = array;
+      currentProperty = null;
+    }, "onArrayBegin"),
+    onArrayEnd: /* @__PURE__ */ __name((offset, length) => {
+      const parent = currentParent;
+      if (parent._parentConfigurationRange) {
+        const end = model.getPositionAt(offset + length);
+        parent._parentConfigurationRange.endLineNumber = end.lineNumber;
+        parent._parentConfigurationRange.endColumn = end.column;
+        delete parent._parentConfigurationRange;
+      }
+      currentParent = previousParents.pop();
+    }, "onArrayEnd"),
+    onLiteralValue: /* @__PURE__ */ __name((value, offset, length) => {
+      onValue(value, offset, length);
+    }, "onLiteralValue")
+  };
+  visit(model.getValue(), visitor);
+  return configuration;
+}
+__name(parseLanguageModelsProviderGroups, "parseLanguageModelsProviderGroups");
+const languageModelsSchemaId = "vscode://schemas/language-models";
+let ChatLanguageModelsDataContribution = class ChatLanguageModelsDataContribution2 extends Disposable {
+  static {
+    __name(this, "ChatLanguageModelsDataContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatLanguageModelsData";
+  }
+  constructor(languageModelsService, languageModelsConfigurationService) {
+    super();
+    this.languageModelsService = languageModelsService;
+    const registry = Registry.as(JSONExtensions.JSONContribution);
+    this._register(registry.registerSchemaAssociation(languageModelsSchemaId, languageModelsConfigurationService.configurationFile.toString()));
+    this.updateSchema(registry);
+    this._register(this.languageModelsService.onDidChangeLanguageModels(() => this.updateSchema(registry)));
+  }
+  updateSchema(registry) {
+    const vendors = this.languageModelsService.getVendors();
+    const schema = {
+      type: "array",
+      items: {
+        properties: {
+          vendor: {
+            type: "string",
+            enum: vendors.map((v) => v.vendor)
+          },
+          name: { type: "string" }
+        },
+        allOf: vendors.map((vendor) => ({
+          if: {
+            properties: {
+              vendor: { const: vendor.vendor }
+            }
+          },
+          then: vendor.configuration
+        })),
+        required: ["vendor", "name"]
+      }
+    };
+    registry.registerSchema(languageModelsSchemaId, schema);
+  }
+};
+ChatLanguageModelsDataContribution = __decorate([
+  __param(0, ILanguageModelsService),
+  __param(1, ILanguageModelsConfigurationService)
+], ChatLanguageModelsDataContribution);
+export {
+  ChatLanguageModelsDataContribution,
+  LanguageModelsConfigurationService,
+  parseLanguageModelsProviderGroups
+};
+//# sourceMappingURL=languageModelsConfigurationService.js.map

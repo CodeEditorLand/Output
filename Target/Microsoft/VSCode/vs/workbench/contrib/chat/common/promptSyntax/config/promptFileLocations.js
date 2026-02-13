@@ -1,1 +1,177 @@
-import{$ab as r,$_ as d}from"../../../../../../base/common/path.js";import{PromptsType as e}from"../promptTypes.js";import{PromptsStorage as n}from"../service/promptsService.js";const p=".prompt.md",u=".instructions.md",g=".chatmode.md",i=".agent.md",l="SKILL.md",k="hooks.json",x="copilot-instructions.md",$=".github/prompts",m=".github/instructions",G=".github/chatmodes",c=".github/agents",H=".github/hooks";var s;(function(t){t.GitHubWorkspace="github-workspace",t.CopilotPersonal="copilot-personal",t.ClaudePersonal="claude-personal",t.ClaudeWorkspace="claude-workspace",t.ClaudeWorkspaceLocal="claude-workspace-local",t.AgentsWorkspace="agents-workspace",t.AgentsPersonal="agents-personal",t.ConfigWorkspace="config-workspace",t.ConfigPersonal="config-personal",t.ExtensionContribution="extension-contribution",t.ExtensionAPI="extension-api"})(s||(s={}));const T=[{path:".github/skills",source:s.GitHubWorkspace,storage:n.local},{path:".agents/skills",source:s.AgentsWorkspace,storage:n.local},{path:".claude/skills",source:s.ClaudeWorkspace,storage:n.local},{path:"~/.copilot/skills",source:s.CopilotPersonal,storage:n.user},{path:"~/.agents/skills",source:s.AgentsPersonal,storage:n.user},{path:"~/.claude/skills",source:s.ClaudePersonal,storage:n.user}],W=[{path:m,source:s.GitHubWorkspace,storage:n.local}],w=[{path:$,source:s.GitHubWorkspace,storage:n.local}],C=[{path:c,source:s.GitHubWorkspace,storage:n.local}],b=[{path:".github/hooks/hooks.json",source:s.GitHubWorkspace,storage:n.local},{path:".claude/settings.local.json",source:s.ClaudeWorkspaceLocal,storage:n.local},{path:".claude/settings.json",source:s.ClaudeWorkspace,storage:n.local},{path:"~/.claude/settings.json",source:s.ClaudePersonal,storage:n.user}];function f(t){const o=d(t.path);return o.endsWith("/"+c)||o===c}function L(t){const o=r(t.path);if(o.endsWith(p))return e.prompt;if(o.endsWith(u)||o===x)return e.instructions;if(o.endsWith(g)||o.endsWith(i))return e.agent;if(o.toLowerCase()===l.toLowerCase())return e.skill;if(o.endsWith(".md")&&o!=="README.md"&&f(t))return e.agent;if(o.toLowerCase()===k.toLowerCase())return e.hook;if(o.toLowerCase()==="settings.local.json"||o.toLowerCase()==="settings.json"){const a=d(t.path);if(a.endsWith("/.claude")||a===".claude")return e.hook}}function y(t){return L(t)!==void 0}function I(t){switch(t){case e.instructions:return u;case e.prompt:return p;case e.agent:return i;case e.skill:return l;case e.hook:return k;default:throw new Error("Unknown prompt type")}}function D(t){switch(t){case e.instructions:return W;case e.prompt:return w;case e.agent:return C;case e.skill:return T;case e.hook:return b;default:throw new Error("Unknown prompt type")}}function M(t){const o=r(t.path),a=[p,u,g,i];for(const h of a)if(o.endsWith(h))return r(t.path,h);return o===x?r(t.path,".md"):o.toLowerCase()===l.toLowerCase()?r(t.path,".md"):o.endsWith(".md")&&o!=="README.md"&&f(t)?r(t.path,".md"):r(t.path)}export{k as $AT,x as $BT,$ as $CT,m as $DT,G as $ET,c as $FT,H as $GT,T as $HT,W as $IT,w as $JT,C as $KT,b as $LT,L as $MT,y as $NT,I as $OT,D as $PT,M as $QT,p as $vT,u as $wT,g as $xT,i as $yT,l as $zT,s as PromptFileSource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { basename, dirname } from "../../../../../../base/common/path.js";
+import { PromptsType } from "../promptTypes.js";
+import { PromptsStorage } from "../service/promptsService.js";
+const PROMPT_FILE_EXTENSION = ".prompt.md";
+const INSTRUCTION_FILE_EXTENSION = ".instructions.md";
+const LEGACY_MODE_FILE_EXTENSION = ".chatmode.md";
+const AGENT_FILE_EXTENSION = ".agent.md";
+const SKILL_FILENAME = "SKILL.md";
+const HOOKS_FILENAME = "hooks.json";
+const COPILOT_CUSTOM_INSTRUCTIONS_FILENAME = "copilot-instructions.md";
+const PROMPT_DEFAULT_SOURCE_FOLDER = ".github/prompts";
+const INSTRUCTIONS_DEFAULT_SOURCE_FOLDER = ".github/instructions";
+const LEGACY_MODE_DEFAULT_SOURCE_FOLDER = ".github/chatmodes";
+const AGENTS_SOURCE_FOLDER = ".github/agents";
+const HOOKS_SOURCE_FOLDER = ".github/hooks";
+var PromptFileSource;
+(function(PromptFileSource2) {
+  PromptFileSource2["GitHubWorkspace"] = "github-workspace";
+  PromptFileSource2["CopilotPersonal"] = "copilot-personal";
+  PromptFileSource2["ClaudePersonal"] = "claude-personal";
+  PromptFileSource2["ClaudeWorkspace"] = "claude-workspace";
+  PromptFileSource2["ClaudeWorkspaceLocal"] = "claude-workspace-local";
+  PromptFileSource2["AgentsWorkspace"] = "agents-workspace";
+  PromptFileSource2["AgentsPersonal"] = "agents-personal";
+  PromptFileSource2["ConfigWorkspace"] = "config-workspace";
+  PromptFileSource2["ConfigPersonal"] = "config-personal";
+  PromptFileSource2["ExtensionContribution"] = "extension-contribution";
+  PromptFileSource2["ExtensionAPI"] = "extension-api";
+})(PromptFileSource || (PromptFileSource = {}));
+const DEFAULT_SKILL_SOURCE_FOLDERS = [
+  { path: ".github/skills", source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
+  { path: ".agents/skills", source: PromptFileSource.AgentsWorkspace, storage: PromptsStorage.local },
+  { path: ".claude/skills", source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local },
+  { path: "~/.copilot/skills", source: PromptFileSource.CopilotPersonal, storage: PromptsStorage.user },
+  { path: "~/.agents/skills", source: PromptFileSource.AgentsPersonal, storage: PromptsStorage.user },
+  { path: "~/.claude/skills", source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
+];
+const DEFAULT_INSTRUCTIONS_SOURCE_FOLDERS = [
+  { path: INSTRUCTIONS_DEFAULT_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local }
+];
+const DEFAULT_PROMPT_SOURCE_FOLDERS = [
+  { path: PROMPT_DEFAULT_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local }
+];
+const DEFAULT_AGENT_SOURCE_FOLDERS = [
+  { path: AGENTS_SOURCE_FOLDER, source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local }
+];
+const DEFAULT_HOOK_FILE_PATHS = [
+  { path: ".github/hooks/hooks.json", source: PromptFileSource.GitHubWorkspace, storage: PromptsStorage.local },
+  { path: ".claude/settings.local.json", source: PromptFileSource.ClaudeWorkspaceLocal, storage: PromptsStorage.local },
+  { path: ".claude/settings.json", source: PromptFileSource.ClaudeWorkspace, storage: PromptsStorage.local },
+  { path: "~/.claude/settings.json", source: PromptFileSource.ClaudePersonal, storage: PromptsStorage.user }
+];
+function isInAgentsFolder(fileUri) {
+  const dir = dirname(fileUri.path);
+  return dir.endsWith("/" + AGENTS_SOURCE_FOLDER) || dir === AGENTS_SOURCE_FOLDER;
+}
+__name(isInAgentsFolder, "isInAgentsFolder");
+function getPromptFileType(fileUri) {
+  const filename = basename(fileUri.path);
+  if (filename.endsWith(PROMPT_FILE_EXTENSION)) {
+    return PromptsType.prompt;
+  }
+  if (filename.endsWith(INSTRUCTION_FILE_EXTENSION) || filename === COPILOT_CUSTOM_INSTRUCTIONS_FILENAME) {
+    return PromptsType.instructions;
+  }
+  if (filename.endsWith(LEGACY_MODE_FILE_EXTENSION) || filename.endsWith(AGENT_FILE_EXTENSION)) {
+    return PromptsType.agent;
+  }
+  if (filename.toLowerCase() === SKILL_FILENAME.toLowerCase()) {
+    return PromptsType.skill;
+  }
+  if (filename.endsWith(".md") && filename !== "README.md" && isInAgentsFolder(fileUri)) {
+    return PromptsType.agent;
+  }
+  if (filename.toLowerCase() === HOOKS_FILENAME.toLowerCase()) {
+    return PromptsType.hook;
+  }
+  if (filename.toLowerCase() === "settings.local.json" || filename.toLowerCase() === "settings.json") {
+    const dir = dirname(fileUri.path);
+    if (dir.endsWith("/.claude") || dir === ".claude") {
+      return PromptsType.hook;
+    }
+  }
+  return void 0;
+}
+__name(getPromptFileType, "getPromptFileType");
+function isPromptOrInstructionsFile(fileUri) {
+  return getPromptFileType(fileUri) !== void 0;
+}
+__name(isPromptOrInstructionsFile, "isPromptOrInstructionsFile");
+function getPromptFileExtension(type) {
+  switch (type) {
+    case PromptsType.instructions:
+      return INSTRUCTION_FILE_EXTENSION;
+    case PromptsType.prompt:
+      return PROMPT_FILE_EXTENSION;
+    case PromptsType.agent:
+      return AGENT_FILE_EXTENSION;
+    case PromptsType.skill:
+      return SKILL_FILENAME;
+    case PromptsType.hook:
+      return HOOKS_FILENAME;
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getPromptFileExtension, "getPromptFileExtension");
+function getPromptFileDefaultLocations(type) {
+  switch (type) {
+    case PromptsType.instructions:
+      return DEFAULT_INSTRUCTIONS_SOURCE_FOLDERS;
+    case PromptsType.prompt:
+      return DEFAULT_PROMPT_SOURCE_FOLDERS;
+    case PromptsType.agent:
+      return DEFAULT_AGENT_SOURCE_FOLDERS;
+    case PromptsType.skill:
+      return DEFAULT_SKILL_SOURCE_FOLDERS;
+    case PromptsType.hook:
+      return DEFAULT_HOOK_FILE_PATHS;
+    default:
+      throw new Error("Unknown prompt type");
+  }
+}
+__name(getPromptFileDefaultLocations, "getPromptFileDefaultLocations");
+function getCleanPromptName(fileUri) {
+  const fileName = basename(fileUri.path);
+  const extensions = [
+    PROMPT_FILE_EXTENSION,
+    INSTRUCTION_FILE_EXTENSION,
+    LEGACY_MODE_FILE_EXTENSION,
+    AGENT_FILE_EXTENSION
+  ];
+  for (const ext of extensions) {
+    if (fileName.endsWith(ext)) {
+      return basename(fileUri.path, ext);
+    }
+  }
+  if (fileName === COPILOT_CUSTOM_INSTRUCTIONS_FILENAME) {
+    return basename(fileUri.path, ".md");
+  }
+  if (fileName.toLowerCase() === SKILL_FILENAME.toLowerCase()) {
+    return basename(fileUri.path, ".md");
+  }
+  if (fileName.endsWith(".md") && fileName !== "README.md" && isInAgentsFolder(fileUri)) {
+    return basename(fileUri.path, ".md");
+  }
+  return basename(fileUri.path);
+}
+__name(getCleanPromptName, "getCleanPromptName");
+export {
+  AGENTS_SOURCE_FOLDER,
+  AGENT_FILE_EXTENSION,
+  COPILOT_CUSTOM_INSTRUCTIONS_FILENAME,
+  DEFAULT_AGENT_SOURCE_FOLDERS,
+  DEFAULT_HOOK_FILE_PATHS,
+  DEFAULT_INSTRUCTIONS_SOURCE_FOLDERS,
+  DEFAULT_PROMPT_SOURCE_FOLDERS,
+  DEFAULT_SKILL_SOURCE_FOLDERS,
+  HOOKS_FILENAME,
+  HOOKS_SOURCE_FOLDER,
+  INSTRUCTIONS_DEFAULT_SOURCE_FOLDER,
+  INSTRUCTION_FILE_EXTENSION,
+  LEGACY_MODE_DEFAULT_SOURCE_FOLDER,
+  LEGACY_MODE_FILE_EXTENSION,
+  PROMPT_DEFAULT_SOURCE_FOLDER,
+  PROMPT_FILE_EXTENSION,
+  PromptFileSource,
+  SKILL_FILENAME,
+  getCleanPromptName,
+  getPromptFileDefaultLocations,
+  getPromptFileExtension,
+  getPromptFileType,
+  isPromptOrInstructionsFile
+};
+//# sourceMappingURL=promptFileLocations.js.map

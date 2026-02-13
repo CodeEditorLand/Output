@@ -1,1 +1,23 @@
-import{$Ed as n}from"../../../base/common/lifecycle.js";import{$zbb as r}from"../../../base/parts/ipc/electron-browser/ipc.electron.js";class o extends n{constructor(e){super(),this.a=this.D(new r(`window:${e}`))}getChannel(e){return this.a.getChannel(e)}registerChannel(e,t){this.a.registerChannel(e,t)}}export{o as $$Pc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { Client as IPCElectronClient } from "../../../base/parts/ipc/electron-browser/ipc.electron.js";
+class ElectronIPCMainProcessService extends Disposable {
+  static {
+    __name(this, "ElectronIPCMainProcessService");
+  }
+  constructor(windowId) {
+    super();
+    this.mainProcessConnection = this._register(new IPCElectronClient(`window:${windowId}`));
+  }
+  getChannel(channelName) {
+    return this.mainProcessConnection.getChannel(channelName);
+  }
+  registerChannel(channelName, channel) {
+    this.mainProcessConnection.registerChannel(channelName, channel);
+  }
+}
+export {
+  ElectronIPCMainProcessService
+};
+//# sourceMappingURL=mainProcessService.js.map

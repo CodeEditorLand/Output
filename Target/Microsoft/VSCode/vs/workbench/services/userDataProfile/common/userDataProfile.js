@@ -1,1 +1,58 @@
-import{$cd as e}from"../../../../base/common/types.js";import{localize as s,localize2 as p}from"../../../../nls.js";import{$Nj as r}from"../../../../platform/instantiation/common/instantiation.js";import{$qo as n}from"../../../../platform/contextkey/common/contextkey.js";import{URI as c}from"../../../../base/common/uri.js";import{$gu as f}from"../../../../platform/theme/common/iconRegistry.js";import{$bk as l}from"../../../../base/common/codicons.js";const d=r("IUserDataProfileService"),h=r("IUserDataProfileManagementService");function I(o){const t=o;return!!(t&&typeof t=="object"&&(e(t.settings)||typeof t.settings=="string")&&(e(t.globalState)||typeof t.globalState=="string")&&(e(t.extensions)||typeof t.extensions=="string")&&(e(t.mcp)||typeof t.mcp=="string"))}const i="profile";function U(o,t){return c.from({scheme:t.urlProtocol,authority:i,path:o.startsWith("/")?o:`/${o}`})}const a="profile-";function b(o){return o.authority===i||new RegExp(`^${a}`).test(o.authority)}const w=r("IUserDataProfileImportExportService"),v=f("defaultProfile-icon",l.settings,s(16786,null)),$=p(16788,"Profiles"),D={...$},m="code-profile",R=[{name:s(16787,null),extensions:[m]}],j=new n("currentProfile",""),z=new n("isCurrentProfileTransient",!1),E=new n("hasProfiles",!1);export{E as $1Q,d as $LQ,h as $MQ,I as $NQ,i as $OQ,U as $PQ,a as $QQ,b as $RQ,w as $SQ,v as $TQ,$ as $UQ,D as $VQ,m as $WQ,R as $XQ,j as $YQ,z as $ZQ};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isUndefined } from "../../../../base/common/types.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { URI } from "../../../../base/common/uri.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+const IUserDataProfileService = createDecorator("IUserDataProfileService");
+const IUserDataProfileManagementService = createDecorator("IUserDataProfileManagementService");
+function isUserDataProfileTemplate(thing) {
+  const candidate = thing;
+  return !!(candidate && typeof candidate === "object" && (isUndefined(candidate.settings) || typeof candidate.settings === "string") && (isUndefined(candidate.globalState) || typeof candidate.globalState === "string") && (isUndefined(candidate.extensions) || typeof candidate.extensions === "string") && (isUndefined(candidate.mcp) || typeof candidate.mcp === "string"));
+}
+__name(isUserDataProfileTemplate, "isUserDataProfileTemplate");
+const PROFILE_URL_AUTHORITY = "profile";
+function toUserDataProfileUri(path, productService) {
+  return URI.from({
+    scheme: productService.urlProtocol,
+    authority: PROFILE_URL_AUTHORITY,
+    path: path.startsWith("/") ? path : `/${path}`
+  });
+}
+__name(toUserDataProfileUri, "toUserDataProfileUri");
+const PROFILE_URL_AUTHORITY_PREFIX = "profile-";
+function isProfileURL(uri) {
+  return uri.authority === PROFILE_URL_AUTHORITY || new RegExp(`^${PROFILE_URL_AUTHORITY_PREFIX}`).test(uri.authority);
+}
+__name(isProfileURL, "isProfileURL");
+const IUserDataProfileImportExportService = createDecorator("IUserDataProfileImportExportService");
+const defaultUserDataProfileIcon = registerIcon("defaultProfile-icon", Codicon.settings, localize("defaultProfileIcon", "Icon for Default Profile."));
+const PROFILES_TITLE = localize2("profiles", "Profiles");
+const PROFILES_CATEGORY = { ...PROFILES_TITLE };
+const PROFILE_EXTENSION = "code-profile";
+const PROFILE_FILTER = [{ name: localize("profile", "Profile"), extensions: [PROFILE_EXTENSION] }];
+const CURRENT_PROFILE_CONTEXT = new RawContextKey("currentProfile", "");
+const IS_CURRENT_PROFILE_TRANSIENT_CONTEXT = new RawContextKey("isCurrentProfileTransient", false);
+const HAS_PROFILES_CONTEXT = new RawContextKey("hasProfiles", false);
+export {
+  CURRENT_PROFILE_CONTEXT,
+  HAS_PROFILES_CONTEXT,
+  IS_CURRENT_PROFILE_TRANSIENT_CONTEXT,
+  IUserDataProfileImportExportService,
+  IUserDataProfileManagementService,
+  IUserDataProfileService,
+  PROFILES_CATEGORY,
+  PROFILES_TITLE,
+  PROFILE_EXTENSION,
+  PROFILE_FILTER,
+  PROFILE_URL_AUTHORITY,
+  PROFILE_URL_AUTHORITY_PREFIX,
+  defaultUserDataProfileIcon,
+  isProfileURL,
+  isUserDataProfileTemplate,
+  toUserDataProfileUri
+};
+//# sourceMappingURL=userDataProfile.js.map

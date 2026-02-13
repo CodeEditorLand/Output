@@ -1,1 +1,396 @@
-import{Iterable as m}from"../../../../../base/common/iterator.js";import{$Hh as N,$Ih as I}from"../../../../../base/common/resources.js";import{$_f as $}from"../../../../../base/common/strings.js";import{URI as R}from"../../../../../base/common/uri.js";import{$9S as j}from"../../../../../base/common/yaml.js";import{$_D as c}from"../../../../../editor/common/core/range.js";class U{constructor(){}parse(e,t){const n=$(t);if(n.length===0)return new b(e,void 0,void 0);let l,i,s=0;if(n[0].match(/^---[\s\r\n]*$/)){let f=n.findIndex((g,a)=>a>0&&g.match(/^---[\s\r\n]*$/));f===-1?(f=n.length,s=n.length):s=f+1;const h=new c(2,1,f+1,1);l=new S(h,n)}if(s<n.length){const f=new c(s+1,1,n.length+1,1);i=new M(f,n,e)}return new b(e,l,i)}}class b{constructor(e,t,n){this.uri=e,this.header=t,this.body=n}}var u;(function(r){r.name="name",r.description="description",r.agent="agent",r.mode="mode",r.model="model",r.applyTo="applyTo",r.tools="tools",r.handOffs="handoffs",r.advancedOptions="advancedOptions",r.argumentHint="argument-hint",r.excludeAgent="excludeAgent",r.target="target",r.infer="infer",r.license="license",r.compatibility="compatibility",r.metadata="metadata",r.agents="agents",r.userInvokable="user-invokable",r.disableModelInvocation="disable-model-invocation"})(u||(u={}));var k;(function(r){r.mcpServers="mcp-servers"})(k||(k={}));var x;(function(r){r.VSCode="vscode",r.GitHubCopilot="github-copilot"})(x||(x={}));class S{constructor(e,t){this.range=e,this.d=t}get e(){if(this.c===void 0){const e=[],t=this.d.slice(this.range.startLineNumber-1,this.range.endLineNumber-1).join(""),n=j(t,e),l=[],i=e.map(s=>({message:s.message,range:this.f(s),code:s.code}));if(n)if(n.type!=="object")i.push({message:"Invalid header, expecting <key: value> pairs",range:this.range,code:"INVALID_YAML"});else for(const s of n.properties)l.push({key:s.key.value,range:this.f({start:s.key.start,end:s.value.end}),value:this.g(s.value)});this.c={node:n,attributes:l,errors:i}}return this.c}f({start:e,end:t}){return new c(this.range.startLineNumber+e.line,e.character+1,this.range.startLineNumber+t.line,t.character+1)}g(e){switch(e.type){case"string":return{type:"string",value:e.value,range:this.f(e)};case"number":return{type:"number",value:e.value,range:this.f(e)};case"boolean":return{type:"boolean",value:e.value,range:this.f(e)};case"null":return{type:"null",value:e.value,range:this.f(e)};case"array":return{type:"array",items:e.items.map(t=>this.g(t)),range:this.f(e)};case"object":return{type:"object",properties:e.properties.map(n=>({key:this.g(n.key),value:this.g(n.value)})),range:this.f(e)}}}get attributes(){return this.e.attributes}getAttribute(e){return this.e.attributes.find(t=>t.key===e)}get errors(){return this.e.errors}h(e){const t=this.e.attributes.find(n=>n.key===e);if(t?.value.type==="string")return t.value.value}get name(){return this.h(u.name)}get description(){return this.h(u.description)}get agent(){return this.h(u.agent)??this.h(u.mode)}get model(){return this.k(u.model)}get applyTo(){return this.h(u.applyTo)}get argumentHint(){return this.h(u.argumentHint)}get target(){return this.h(u.target)}get infer(){const e=this.e.attributes.find(t=>t.key===u.infer);if(e?.value.type==="boolean")return e.value.value}get tools(){const e=this.e.attributes.find(t=>t.key===u.tools);if(e){if(e.value.type==="array"){const t=[];for(const n of e.value.items)n.type==="string"&&n.value&&t.push(n.value);return t}else if(e.value.type==="object"){const t=[],n=({key:l,value:i})=>{i.type==="boolean"?t.push(l.value):i.type==="object"&&i.properties.forEach(n)};return e.value.properties.forEach(n),t}}}get handOffs(){const e=this.e.attributes.find(t=>t.key===u.handOffs);if(e&&e.value.type==="array"){const t=[];for(const n of e.value.items)if(n.type==="object"){let l,i,s,f,h,g;for(const a of n.properties)a.key.value==="agent"&&a.value.type==="string"?l=a.value.value:a.key.value==="label"&&a.value.type==="string"?i=a.value.value:a.key.value==="prompt"&&a.value.type==="string"?s=a.value.value:a.key.value==="send"&&a.value.type==="boolean"?f=a.value.value:a.key.value==="showContinueOn"&&a.value.type==="boolean"?h=a.value.value:a.key.value==="model"&&a.value.type==="string"&&(g=a.value.value);if(l&&i&&s!==void 0){const a={agent:l,label:i,prompt:s,...f!==void 0?{send:f}:{},...h!==void 0?{showContinueOn:h}:{},...g!==void 0?{model:g}:{}};t.push(a)}}return t}}j(e){const t=this.e.attributes.find(n=>n.key===e);if(t&&t.value.type==="array"){const n=[];for(const l of t.value.items)l.type==="string"&&l.value&&n.push(l.value);return n}}k(e){const t=this.e.attributes.find(n=>n.key===e);if(t){if(t.value.type==="string")return[t.value.value];if(t.value.type==="array"){const n=[];for(const l of t.value.items)l.type==="string"&&n.push(l.value);return n}}}get agents(){return this.j(u.agents)}get userInvokable(){return this.l(u.userInvokable)}get disableModelInvocation(){return this.l(u.disableModelInvocation)}l(e){const t=this.e.attributes.find(n=>n.key===e);if(t?.value.type==="boolean")return t.value.value}}class M{constructor(e,t,n){this.range=e,this.d=t,this.uri=n}get fileReferences(){return this.e().fileReferences}get variableReferences(){return this.e().variableReferences}get offset(){return this.e().bodyOffset}e(){if(this.c===void 0){const e=[],t=[],n=[],l=m.reduce(m.slice(this.d,0,this.range.startLineNumber-1),(i,s)=>s.length+i,0);for(let i=this.range.startLineNumber-1,s=l;i<this.range.endLineNumber-1;i++){const f=this.d[i],h=f.matchAll(/\[(.*?)\]\((.+?)\)/g);for(const o of h){if(o.index>0&&f[o.index-1]==="!")continue;const d=o.index+o[0].length-1,v=o.index+o[0].length-o[2].length-1,p=new c(i+1,v+1,i+1,d+1);t.push({content:o[2],range:p,isMarkdownLink:!0}),e.push(new c(i+1,o.index+1,i+1,o.index+o[0].length+1))}const g=/#file:(?<filePath>[^\s#]+)|#tool:(?<toolName>[\w_\-\.\/]+)/gi,a=f.matchAll(g);for(const o of a){const d=o[0],v=new c(i+1,o.index+1,i+1,o.index+d.length+1);if(e.some(O=>c.areIntersectingOrTouching(O,v)))continue;const p=o.groups?.filePath||o.groups?.toolName;if(!p)continue;const w=o.index+d.length-p.length,L=o.index+d.length,y=new c(i+1,w+1,i+1,L+1);o.groups?.filePath?t.push({content:o.groups?.filePath,range:y,isMarkdownLink:!1}):o.groups?.toolName&&n.push({name:o.groups?.toolName,range:y,offset:s+o.index})}s+=f.length}this.c={fileReferences:t.sort((i,s)=>c.compareRangesUsingStarts(i.range,s.range)),variableReferences:n,bodyOffset:l}}return this.c}getContent(){return this.d.slice(this.range.startLineNumber-1,this.range.endLineNumber-1).join("")}resolveFilePath(e){try{if(e.startsWith("/"))return this.uri.with({path:e});if(e.match(/^[a-zA-Z]+:\//))return R.parse(e);{const t=N(this.uri);return I(t,e)}}catch{return}}}export{b as $$S,U as $0S,S as $_S,M as $aT,k as GithubPromptHeaderAttributes,u as PromptHeaderAttributes,x as Target};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Iterable } from "../../../../../base/common/iterator.js";
+import { dirname, joinPath } from "../../../../../base/common/resources.js";
+import { splitLinesIncludeSeparators } from "../../../../../base/common/strings.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { parse } from "../../../../../base/common/yaml.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+class PromptFileParser {
+  static {
+    __name(this, "PromptFileParser");
+  }
+  constructor() {
+  }
+  parse(uri, content) {
+    const linesWithEOL = splitLinesIncludeSeparators(content);
+    if (linesWithEOL.length === 0) {
+      return new ParsedPromptFile(uri, void 0, void 0);
+    }
+    let header = void 0;
+    let body = void 0;
+    let bodyStartLine = 0;
+    if (linesWithEOL[0].match(/^---[\s\r\n]*$/)) {
+      let headerEndLine = linesWithEOL.findIndex((line, index) => index > 0 && line.match(/^---[\s\r\n]*$/));
+      if (headerEndLine === -1) {
+        headerEndLine = linesWithEOL.length;
+        bodyStartLine = linesWithEOL.length;
+      } else {
+        bodyStartLine = headerEndLine + 1;
+      }
+      const range = new Range(2, 1, headerEndLine + 1, 1);
+      header = new PromptHeader(range, linesWithEOL);
+    }
+    if (bodyStartLine < linesWithEOL.length) {
+      const range = new Range(bodyStartLine + 1, 1, linesWithEOL.length + 1, 1);
+      body = new PromptBody(range, linesWithEOL, uri);
+    }
+    return new ParsedPromptFile(uri, header, body);
+  }
+}
+class ParsedPromptFile {
+  static {
+    __name(this, "ParsedPromptFile");
+  }
+  constructor(uri, header, body) {
+    this.uri = uri;
+    this.header = header;
+    this.body = body;
+  }
+}
+var PromptHeaderAttributes;
+(function(PromptHeaderAttributes2) {
+  PromptHeaderAttributes2.name = "name";
+  PromptHeaderAttributes2.description = "description";
+  PromptHeaderAttributes2.agent = "agent";
+  PromptHeaderAttributes2.mode = "mode";
+  PromptHeaderAttributes2.model = "model";
+  PromptHeaderAttributes2.applyTo = "applyTo";
+  PromptHeaderAttributes2.tools = "tools";
+  PromptHeaderAttributes2.handOffs = "handoffs";
+  PromptHeaderAttributes2.advancedOptions = "advancedOptions";
+  PromptHeaderAttributes2.argumentHint = "argument-hint";
+  PromptHeaderAttributes2.excludeAgent = "excludeAgent";
+  PromptHeaderAttributes2.target = "target";
+  PromptHeaderAttributes2.infer = "infer";
+  PromptHeaderAttributes2.license = "license";
+  PromptHeaderAttributes2.compatibility = "compatibility";
+  PromptHeaderAttributes2.metadata = "metadata";
+  PromptHeaderAttributes2.agents = "agents";
+  PromptHeaderAttributes2.userInvokable = "user-invokable";
+  PromptHeaderAttributes2.disableModelInvocation = "disable-model-invocation";
+})(PromptHeaderAttributes || (PromptHeaderAttributes = {}));
+var GithubPromptHeaderAttributes;
+(function(GithubPromptHeaderAttributes2) {
+  GithubPromptHeaderAttributes2.mcpServers = "mcp-servers";
+})(GithubPromptHeaderAttributes || (GithubPromptHeaderAttributes = {}));
+var Target;
+(function(Target2) {
+  Target2["VSCode"] = "vscode";
+  Target2["GitHubCopilot"] = "github-copilot";
+})(Target || (Target = {}));
+class PromptHeader {
+  static {
+    __name(this, "PromptHeader");
+  }
+  constructor(range, linesWithEOL) {
+    this.range = range;
+    this.linesWithEOL = linesWithEOL;
+  }
+  get _parsedHeader() {
+    if (this._parsed === void 0) {
+      const yamlErrors = [];
+      const lines = this.linesWithEOL.slice(this.range.startLineNumber - 1, this.range.endLineNumber - 1).join("");
+      const node = parse(lines, yamlErrors);
+      const attributes = [];
+      const errors = yamlErrors.map((err) => ({ message: err.message, range: this.asRange(err), code: err.code }));
+      if (node) {
+        if (node.type !== "object") {
+          errors.push({ message: "Invalid header, expecting <key: value> pairs", range: this.range, code: "INVALID_YAML" });
+        } else {
+          for (const property of node.properties) {
+            attributes.push({
+              key: property.key.value,
+              range: this.asRange({ start: property.key.start, end: property.value.end }),
+              value: this.asValue(property.value)
+            });
+          }
+        }
+      }
+      this._parsed = { node, attributes, errors };
+    }
+    return this._parsed;
+  }
+  asRange({ start, end }) {
+    return new Range(this.range.startLineNumber + start.line, start.character + 1, this.range.startLineNumber + end.line, end.character + 1);
+  }
+  asValue(node) {
+    switch (node.type) {
+      case "string":
+        return { type: "string", value: node.value, range: this.asRange(node) };
+      case "number":
+        return { type: "number", value: node.value, range: this.asRange(node) };
+      case "boolean":
+        return { type: "boolean", value: node.value, range: this.asRange(node) };
+      case "null":
+        return { type: "null", value: node.value, range: this.asRange(node) };
+      case "array":
+        return { type: "array", items: node.items.map((item) => this.asValue(item)), range: this.asRange(node) };
+      case "object": {
+        const properties = node.properties.map((property) => ({ key: this.asValue(property.key), value: this.asValue(property.value) }));
+        return { type: "object", properties, range: this.asRange(node) };
+      }
+    }
+  }
+  get attributes() {
+    return this._parsedHeader.attributes;
+  }
+  getAttribute(key) {
+    return this._parsedHeader.attributes.find((attr) => attr.key === key);
+  }
+  get errors() {
+    return this._parsedHeader.errors;
+  }
+  getStringAttribute(key) {
+    const attribute = this._parsedHeader.attributes.find((attr) => attr.key === key);
+    if (attribute?.value.type === "string") {
+      return attribute.value.value;
+    }
+    return void 0;
+  }
+  get name() {
+    return this.getStringAttribute(PromptHeaderAttributes.name);
+  }
+  get description() {
+    return this.getStringAttribute(PromptHeaderAttributes.description);
+  }
+  get agent() {
+    return this.getStringAttribute(PromptHeaderAttributes.agent) ?? this.getStringAttribute(PromptHeaderAttributes.mode);
+  }
+  get model() {
+    return this.getStringOrStringArrayAttribute(PromptHeaderAttributes.model);
+  }
+  get applyTo() {
+    return this.getStringAttribute(PromptHeaderAttributes.applyTo);
+  }
+  get argumentHint() {
+    return this.getStringAttribute(PromptHeaderAttributes.argumentHint);
+  }
+  get target() {
+    return this.getStringAttribute(PromptHeaderAttributes.target);
+  }
+  get infer() {
+    const attribute = this._parsedHeader.attributes.find((attr) => attr.key === PromptHeaderAttributes.infer);
+    if (attribute?.value.type === "boolean") {
+      return attribute.value.value;
+    }
+    return void 0;
+  }
+  get tools() {
+    const toolsAttribute = this._parsedHeader.attributes.find((attr) => attr.key === PromptHeaderAttributes.tools);
+    if (!toolsAttribute) {
+      return void 0;
+    }
+    if (toolsAttribute.value.type === "array") {
+      const tools = [];
+      for (const item of toolsAttribute.value.items) {
+        if (item.type === "string" && item.value) {
+          tools.push(item.value);
+        }
+      }
+      return tools;
+    } else if (toolsAttribute.value.type === "object") {
+      const tools = [];
+      const collectLeafs = /* @__PURE__ */ __name(({ key, value }) => {
+        if (value.type === "boolean") {
+          tools.push(key.value);
+        } else if (value.type === "object") {
+          value.properties.forEach(collectLeafs);
+        }
+      }, "collectLeafs");
+      toolsAttribute.value.properties.forEach(collectLeafs);
+      return tools;
+    }
+    return void 0;
+  }
+  get handOffs() {
+    const handoffsAttribute = this._parsedHeader.attributes.find((attr) => attr.key === PromptHeaderAttributes.handOffs);
+    if (!handoffsAttribute) {
+      return void 0;
+    }
+    if (handoffsAttribute.value.type === "array") {
+      const handoffs = [];
+      for (const item of handoffsAttribute.value.items) {
+        if (item.type === "object") {
+          let agent;
+          let label;
+          let prompt;
+          let send;
+          let showContinueOn;
+          let model;
+          for (const prop of item.properties) {
+            if (prop.key.value === "agent" && prop.value.type === "string") {
+              agent = prop.value.value;
+            } else if (prop.key.value === "label" && prop.value.type === "string") {
+              label = prop.value.value;
+            } else if (prop.key.value === "prompt" && prop.value.type === "string") {
+              prompt = prop.value.value;
+            } else if (prop.key.value === "send" && prop.value.type === "boolean") {
+              send = prop.value.value;
+            } else if (prop.key.value === "showContinueOn" && prop.value.type === "boolean") {
+              showContinueOn = prop.value.value;
+            } else if (prop.key.value === "model" && prop.value.type === "string") {
+              model = prop.value.value;
+            }
+          }
+          if (agent && label && prompt !== void 0) {
+            const handoff = {
+              agent,
+              label,
+              prompt,
+              ...send !== void 0 ? { send } : {},
+              ...showContinueOn !== void 0 ? { showContinueOn } : {},
+              ...model !== void 0 ? { model } : {}
+            };
+            handoffs.push(handoff);
+          }
+        }
+      }
+      return handoffs;
+    }
+    return void 0;
+  }
+  getStringArrayAttribute(key) {
+    const attribute = this._parsedHeader.attributes.find((attr) => attr.key === key);
+    if (!attribute) {
+      return void 0;
+    }
+    if (attribute.value.type === "array") {
+      const result = [];
+      for (const item of attribute.value.items) {
+        if (item.type === "string" && item.value) {
+          result.push(item.value);
+        }
+      }
+      return result;
+    }
+    return void 0;
+  }
+  getStringOrStringArrayAttribute(key) {
+    const attribute = this._parsedHeader.attributes.find((attr) => attr.key === key);
+    if (!attribute) {
+      return void 0;
+    }
+    if (attribute.value.type === "string") {
+      return [attribute.value.value];
+    }
+    if (attribute.value.type === "array") {
+      const result = [];
+      for (const item of attribute.value.items) {
+        if (item.type === "string") {
+          result.push(item.value);
+        }
+      }
+      return result;
+    }
+    return void 0;
+  }
+  get agents() {
+    return this.getStringArrayAttribute(PromptHeaderAttributes.agents);
+  }
+  get userInvokable() {
+    return this.getBooleanAttribute(PromptHeaderAttributes.userInvokable);
+  }
+  get disableModelInvocation() {
+    return this.getBooleanAttribute(PromptHeaderAttributes.disableModelInvocation);
+  }
+  getBooleanAttribute(key) {
+    const attribute = this._parsedHeader.attributes.find((attr) => attr.key === key);
+    if (attribute?.value.type === "boolean") {
+      return attribute.value.value;
+    }
+    return void 0;
+  }
+}
+class PromptBody {
+  static {
+    __name(this, "PromptBody");
+  }
+  constructor(range, linesWithEOL, uri) {
+    this.range = range;
+    this.linesWithEOL = linesWithEOL;
+    this.uri = uri;
+  }
+  get fileReferences() {
+    return this.getParsedBody().fileReferences;
+  }
+  get variableReferences() {
+    return this.getParsedBody().variableReferences;
+  }
+  get offset() {
+    return this.getParsedBody().bodyOffset;
+  }
+  getParsedBody() {
+    if (this._parsed === void 0) {
+      const markdownLinkRanges = [];
+      const fileReferences = [];
+      const variableReferences = [];
+      const bodyOffset = Iterable.reduce(Iterable.slice(this.linesWithEOL, 0, this.range.startLineNumber - 1), (len, line) => line.length + len, 0);
+      for (let i = this.range.startLineNumber - 1, lineStartOffset = bodyOffset; i < this.range.endLineNumber - 1; i++) {
+        const line = this.linesWithEOL[i];
+        const linkMatch = line.matchAll(/\[(.*?)\]\((.+?)\)/g);
+        for (const match of linkMatch) {
+          if (match.index > 0 && line[match.index - 1] === "!") {
+            continue;
+          }
+          const linkEndOffset = match.index + match[0].length - 1;
+          const linkStartOffset = match.index + match[0].length - match[2].length - 1;
+          const range = new Range(i + 1, linkStartOffset + 1, i + 1, linkEndOffset + 1);
+          fileReferences.push({ content: match[2], range, isMarkdownLink: true });
+          markdownLinkRanges.push(new Range(i + 1, match.index + 1, i + 1, match.index + match[0].length + 1));
+        }
+        const reg = /#file:(?<filePath>[^\s#]+)|#tool:(?<toolName>[\w_\-\.\/]+)/gi;
+        const matches = line.matchAll(reg);
+        for (const match of matches) {
+          const fullMatch = match[0];
+          const fullRange = new Range(i + 1, match.index + 1, i + 1, match.index + fullMatch.length + 1);
+          if (markdownLinkRanges.some((mdRange) => Range.areIntersectingOrTouching(mdRange, fullRange))) {
+            continue;
+          }
+          const contentMatch = match.groups?.["filePath"] || match.groups?.["toolName"];
+          if (!contentMatch) {
+            continue;
+          }
+          const startOffset = match.index + fullMatch.length - contentMatch.length;
+          const endOffset = match.index + fullMatch.length;
+          const range = new Range(i + 1, startOffset + 1, i + 1, endOffset + 1);
+          if (match.groups?.["filePath"]) {
+            fileReferences.push({ content: match.groups?.["filePath"], range, isMarkdownLink: false });
+          } else if (match.groups?.["toolName"]) {
+            variableReferences.push({ name: match.groups?.["toolName"], range, offset: lineStartOffset + match.index });
+          }
+        }
+        lineStartOffset += line.length;
+      }
+      this._parsed = { fileReferences: fileReferences.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range)), variableReferences, bodyOffset };
+    }
+    return this._parsed;
+  }
+  getContent() {
+    return this.linesWithEOL.slice(this.range.startLineNumber - 1, this.range.endLineNumber - 1).join("");
+  }
+  resolveFilePath(path) {
+    try {
+      if (path.startsWith("/")) {
+        return this.uri.with({ path });
+      } else if (path.match(/^[a-zA-Z]+:\//)) {
+        return URI.parse(path);
+      } else {
+        const dirName = dirname(this.uri);
+        return joinPath(dirName, path);
+      }
+    } catch {
+      return void 0;
+    }
+  }
+}
+export {
+  GithubPromptHeaderAttributes,
+  ParsedPromptFile,
+  PromptBody,
+  PromptFileParser,
+  PromptHeader,
+  PromptHeaderAttributes,
+  Target
+};
+//# sourceMappingURL=promptFileParser.js.map

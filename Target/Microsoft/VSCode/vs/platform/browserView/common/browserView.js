@@ -1,1 +1,21 @@
-var r;(function(o){o.Foreground="foreground",o.Background="background",o.NewWindow="newWindow"})(r||(r={}));var n;(function(o){o.Global="global",o.Workspace="workspace",o.Ephemeral="ephemeral"})(n||(n={}));const e="browserView",a=999;export{e as $Ww,a as $Xw,r as BrowserNewPageLocation,n as BrowserViewStorageScope};
+var BrowserNewPageLocation;
+(function(BrowserNewPageLocation2) {
+  BrowserNewPageLocation2["Foreground"] = "foreground";
+  BrowserNewPageLocation2["Background"] = "background";
+  BrowserNewPageLocation2["NewWindow"] = "newWindow";
+})(BrowserNewPageLocation || (BrowserNewPageLocation = {}));
+var BrowserViewStorageScope;
+(function(BrowserViewStorageScope2) {
+  BrowserViewStorageScope2["Global"] = "global";
+  BrowserViewStorageScope2["Workspace"] = "workspace";
+  BrowserViewStorageScope2["Ephemeral"] = "ephemeral";
+})(BrowserViewStorageScope || (BrowserViewStorageScope = {}));
+const ipcBrowserViewChannelName = "browserView";
+const browserViewIsolatedWorldId = 999;
+export {
+  BrowserNewPageLocation,
+  BrowserViewStorageScope,
+  browserViewIsolatedWorldId,
+  ipcBrowserViewChannelName
+};
+//# sourceMappingURL=browserView.js.map

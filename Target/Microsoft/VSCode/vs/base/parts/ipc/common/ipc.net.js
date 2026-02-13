@@ -1,1 +1,866 @@
-import{$0i as u}from"../../../common/buffer.js";import{$xf as w}from"../../../common/event.js";import{$Ed as z,$Dd as R}from"../../../common/lifecycle.js";import{$an as q}from"./ipc.js";var D;(function(t){t.Created="created",t.Read="read",t.Write="write",t.Open="open",t.Error="error",t.Close="close",t.BrowserWebSocketBlobReceived="browserWebSocketBlobReceived",t.NodeEndReceived="nodeEndReceived",t.NodeEndSent="nodeEndSent",t.NodeDrainBegin="nodeDrainBegin",t.NodeDrainEnd="nodeDrainEnd",t.zlibInflateError="zlibInflateError",t.zlibInflateData="zlibInflateData",t.zlibInflateInitialWrite="zlibInflateInitialWrite",t.zlibInflateInitialFlushFired="zlibInflateInitialFlushFired",t.zlibInflateWrite="zlibInflateWrite",t.zlibInflateFlushFired="zlibInflateFlushFired",t.zlibDeflateError="zlibDeflateError",t.zlibDeflateData="zlibDeflateData",t.zlibDeflateWrite="zlibDeflateWrite",t.zlibDeflateFlushFired="zlibDeflateFlushFired",t.WebSocketNodeSocketWrite="webSocketNodeSocketWrite",t.WebSocketNodeSocketPeekedHeader="webSocketNodeSocketPeekedHeader",t.WebSocketNodeSocketReadHeader="webSocketNodeSocketReadHeader",t.WebSocketNodeSocketReadData="webSocketNodeSocketReadData",t.WebSocketNodeSocketUnmaskedData="webSocketNodeSocketUnmaskedData",t.WebSocketNodeSocketDrainBegin="webSocketNodeSocketDrainBegin",t.WebSocketNodeSocketDrainEnd="webSocketNodeSocketDrainEnd",t.ProtocolHeaderRead="protocolHeaderRead",t.ProtocolMessageRead="protocolMessageRead",t.ProtocolHeaderWrite="protocolHeaderWrite",t.ProtocolMessageWrite="protocolMessageWrite",t.ProtocolWrite="protocolWrite"})(D||(D={}));var W;(function(t){t.enableDiagnostics=!1,t.records=[];const e=new WeakMap;let i=0;function s(n,r){if(!e.has(n)){const o=String(++i);e.set(n,o)}return e.get(n)}function h(n,r,o,d){if(!t.enableDiagnostics)return;const g=s(n,r);if(d instanceof u||d instanceof Uint8Array||d instanceof ArrayBuffer||ArrayBuffer.isView(d)){const p=u.alloc(d.byteLength);p.set(d),t.records.push({timestamp:Date.now(),id:g,label:r,type:o,buff:p})}else t.records.push({timestamp:Date.now(),id:g,label:r,type:o,data:d})}t.traceSocketEvent=h})(W||(W={}));var I;(function(t){t[t.NodeSocketCloseEvent=0]="NodeSocketCloseEvent",t[t.WebSocketCloseEvent=1]="WebSocketCloseEvent"})(I||(I={}));let b=null;function c(){return b||(b=u.alloc(0)),b}class A{get byteLength(){return this.b}constructor(){this.a=[],this.b=0}acceptChunk(e){this.a.push(e),this.b+=e.byteLength}read(e){return this.c(e,!0)}peek(e){return this.c(e,!1)}c(e,i){if(e===0)return c();if(e>this.b)throw new Error("Cannot read so many bytes!");if(this.a[0].byteLength===e){const r=this.a[0];return i&&(this.a.shift(),this.b-=e),r}if(this.a[0].byteLength>e){const r=this.a[0].slice(0,e);return i&&(this.a[0]=this.a[0].slice(e),this.b-=e),r}const s=u.alloc(e);let h=0,n=0;for(;e>0;){const r=this.a[n];if(r.byteLength>e){const o=r.slice(0,e);s.set(o,h),h+=e,i&&(this.a[n]=r.slice(e),this.b-=e),e-=e}else s.set(r,h),h+=r.byteLength,i?(this.a.shift(),this.b-=r.byteLength):n++,e-=r.byteLength}return s}}var S;(function(t){t[t.None=0]="None",t[t.Regular=1]="Regular",t[t.Control=2]="Control",t[t.Ack=3]="Ack",t[t.Disconnect=5]="Disconnect",t[t.ReplayRequest=6]="ReplayRequest",t[t.Pause=7]="Pause",t[t.Resume=8]="Resume",t[t.KeepAlive=9]="KeepAlive"})(S||(S={}));function B(t){switch(t){case 0:return"None";case 1:return"Regular";case 2:return"Control";case 3:return"Ack";case 5:return"Disconnect";case 6:return"ReplayRequest";case 7:return"PauseWriting";case 8:return"ResumeWriting";case 9:return"KeepAlive"}}var L;(function(t){t[t.HeaderLength=13]="HeaderLength",t[t.AcknowledgeTime=2e3]="AcknowledgeTime",t[t.TimeoutTime=2e4]="TimeoutTime",t[t.ReconnectionGraceTime=108e5]="ReconnectionGraceTime",t[t.ReconnectionShortGraceTime=3e5]="ReconnectionShortGraceTime",t[t.KeepAliveSendTime=5e3]="KeepAliveSendTime"})(L||(L={}));class a{constructor(e,i,s,h){this.type=e,this.id=i,this.ack=s,this.data=h,this.writtenTime=0}get size(){return this.data.byteLength}}class k extends z{constructor(e){super(),this.f=this.D(new w),this.onMessage=this.f.event,this.g={readHead:!0,readLen:13,messageType:0,id:0,ack:0},this.a=e,this.b=!1,this.c=new A,this.D(this.a.onData(i=>this.acceptChunk(i))),this.lastReadTime=Date.now()}acceptChunk(e){if(!(!e||e.byteLength===0))for(this.lastReadTime=Date.now(),this.c.acceptChunk(e);this.c.byteLength>=this.g.readLen;){const i=this.c.read(this.g.readLen);if(this.g.readHead)this.g.readHead=!1,this.g.readLen=i.readUInt32BE(9),this.g.messageType=i.readUInt8(0),this.g.id=i.readUInt32BE(1),this.g.ack=i.readUInt32BE(5),this.a.traceSocketEvent("protocolHeaderRead",{messageType:B(this.g.messageType),id:this.g.id,ack:this.g.ack,messageSize:this.g.readLen});else{const s=this.g.messageType,h=this.g.id,n=this.g.ack;if(this.g.readHead=!0,this.g.readLen=13,this.g.messageType=0,this.g.id=0,this.g.ack=0,this.a.traceSocketEvent("protocolMessageRead",i),this.f.fire(new a(s,h,n,i)),this.b)break}}}readEntireBuffer(){return this.c.read(this.c.byteLength)}dispose(){this.b=!0,super.dispose()}}class m{constructor(e){this.k=null,this.a=!1,this.b=!1,this.c=e,this.d=[],this.f=0,this.lastWriteTime=0}dispose(){try{this.flush()}catch{}this.a=!0}drain(){return this.flush(),this.c.drain()}flush(){this.m()}pause(){this.b=!0}resume(){this.b=!1,this.l()}write(e){if(this.a)return;e.writtenTime=Date.now(),this.lastWriteTime=Date.now();const i=u.alloc(13);i.writeUInt8(e.type,0),i.writeUInt32BE(e.id,1),i.writeUInt32BE(e.ack,5),i.writeUInt32BE(e.data.byteLength,9),this.c.traceSocketEvent("protocolHeaderWrite",{messageType:B(e.type),id:e.id,ack:e.ack,messageSize:e.data.byteLength}),this.c.traceSocketEvent("protocolMessageWrite",e.data),this.j(i,e.data)}g(e,i){const s=this.f===0;return this.d.push(e,i),this.f+=e.byteLength+i.byteLength,s}h(){const e=u.concat(this.d,this.f);return this.d.length=0,this.f=0,e}j(e,i){this.g(e,i)&&this.l()}l(){this.k||(this.k=setTimeout(()=>{this.k=null,this.m()}))}m(){if(this.f===0||this.b)return;const e=this.h();this.c.traceSocketEvent("protocolWrite",{byteLength:e.byteLength}),this.c.write(e)}}class N extends z{constructor(e){super(),this.f=new w,this.onMessage=this.f.event,this.g=new w,this.onDidDispose=this.g.event,this.a=e,this.b=this.D(new m(this.a)),this.c=this.D(new k(this.a)),this.D(this.c.onMessage(i=>{i.type===1&&this.f.fire(i.data)})),this.D(this.a.onClose(()=>this.g.fire()))}drain(){return this.b.drain()}getSocket(){return this.a}sendDisconnect(){}send(e){this.b.write(new a(1,0,0,e))}}class x extends q{static fromSocket(e,i){return new x(new N(e),i)}get onDidDispose(){return this.b.onDidDispose}constructor(e,i,s=null){super(e,i,s),this.b=e}dispose(){super.dispose();const e=this.b.getSocket();this.b.sendDisconnect(),this.b.dispose(),e.end()}}class f{constructor(){this.b=!1,this.c=!1,this.d=[],this.a=new w({onWillAddFirstListener:()=>{this.b=!0,queueMicrotask(()=>this.f())},onDidRemoveLastListener:()=>{this.b=!1}}),this.event=this.a.event}f(){if(!this.c){for(this.c=!0;this.b&&this.d.length>0;)this.a.fire(this.d.shift());this.c=!1}}fire(e){this.b?this.d.length>0?this.d.push(e):this.a.fire(e):this.d.push(e)}flushBuffer(){this.d=[]}}class H{constructor(e){this.data=e,this.next=null}}class U{constructor(){this.a=null,this.b=null}length(){let e=0,i=this.a;for(;i;)i=i.next,e++;return e}peek(){return this.a?this.a.data:null}toArray(){const e=[];let i=0,s=this.a;for(;s;)e[i++]=s.data,s=s.next;return e}pop(){if(this.a){if(this.a===this.b){this.a=null,this.b=null;return}this.a=this.a.next}}push(e){const i=new H(e);if(!this.a){this.a=i,this.b=i;return}this.b.next=i,this.b=i}}class l{static{this.a=10}static{this.b=null}static getInstance(){return l.b||(l.b=new l),l.b}constructor(){this.c=[];const e=Date.now();for(let i=0;i<l.a;i++)this.c[i]=e-1e3*i;setInterval(()=>{for(let i=l.a;i>=1;i--)this.c[i]=this.c[i-1];this.c[0]=Date.now()},1e3)}d(){const e=Date.now(),i=(1+l.a)*1e3;let s=0;for(let h=0;h<l.a;h++)e-this.c[h]<=i&&s++;return 1-s/l.a}hasHighLoad(){return this.d()>=.5}}class K{get unacknowledgedCount(){return this.d-this.f}constructor(e){this.v=new f,this.onControlMessage=this.v.event,this.w=new f,this.onMessage=this.w.event,this.x=new f,this.onDidDispose=this.x.event,this.y=new f,this.onSocketClose=this.y.event,this.z=new f,this.onSocketTimeout=this.z.event,this.t=e.loadEstimator??l.getInstance(),this.u=e.sendKeepAlive??!0,this.a=!1,this.c=new U,this.d=0,this.f=0,this.g=null,this.h=0,this.j=0,this.k=0,this.l=null,this.n=0,this.o=Date.now(),this.s=new R,this.p=e.socket,this.q=this.s.add(new m(this.p)),this.r=this.s.add(new k(this.p)),this.s.add(this.r.onMessage(i=>this.A(i))),this.s.add(this.p.onClose(i=>this.y.fire(i))),e.initialChunk&&this.r.acceptChunk(e.initialChunk),this.u?this.m=setInterval(()=>{this.E()},5e3):this.m=null}dispose(){this.g&&(clearTimeout(this.g),this.g=null),this.l&&(clearTimeout(this.l),this.l=null),this.m&&(clearInterval(this.m),this.m=null),this.s.dispose()}drain(){return this.q.drain()}sendDisconnect(){if(!this.b){this.b=!0;const e=new a(5,0,0,c());this.q.write(e),this.q.flush()}}sendPause(){const e=new a(7,0,0,c());this.q.write(e)}sendResume(){const e=new a(8,0,0,c());this.q.write(e)}pauseSocketWriting(){this.q.pause()}getSocket(){return this.p}getMillisSinceLastIncomingData(){return Date.now()-this.r.lastReadTime}beginAcceptReconnection(e,i){this.a=!0,this.s.dispose(),this.s=new R,this.v.flushBuffer(),this.y.flushBuffer(),this.z.flushBuffer(),this.p.dispose(),this.n=0,this.o=Date.now(),this.p=e,this.q=this.s.add(new m(this.p)),this.r=this.s.add(new k(this.p)),this.s.add(this.r.onMessage(s=>this.A(s))),this.s.add(this.p.onClose(s=>this.y.fire(s))),this.r.acceptChunk(i)}endAcceptReconnection(){this.a=!1,this.j=this.h;const e=new a(3,0,this.j,c());this.q.write(e);const i=this.c.toArray();for(let s=0,h=i.length;s<h;s++)this.q.write(i[s]);this.C()}acceptDisconnect(){this.x.fire()}A(e){if(e.ack>this.f){this.f=e.ack;do{const i=this.c.peek();if(i&&i.id<=e.ack)this.c.pop();else break}while(!0)}switch(e.type){case 0:break;case 1:{if(e.id>this.h)if(e.id!==this.h+1){const i=Date.now();i-this.n>1e4&&(this.n=i,this.q.write(new a(6,0,0,c())))}else this.h=e.id,this.k=Date.now(),this.B(),this.w.fire(e.data);break}case 2:{this.v.fire(e.data);break}case 3:break;case 5:{this.x.fire();break}case 6:{const i=this.c.toArray();for(let s=0,h=i.length;s<h;s++)this.q.write(i[s]);this.C();break}case 7:{this.q.pause();break}case 8:{this.q.resume();break}case 9:break}}readEntireBuffer(){return this.r.readEntireBuffer()}flush(){this.q.flush()}send(e){const i=++this.d;this.j=this.h;const s=new a(1,i,this.j,e);this.c.push(s),this.a||(this.q.write(s),this.C())}sendControl(e){const i=new a(2,0,0,e);this.q.write(i)}B(){if(this.h<=this.j||this.l)return;const e=Date.now()-this.k;if(e>=2e3){this.D();return}this.l=setTimeout(()=>{this.l=null,this.B()},2e3-e+5)}C(){if(this.d<=this.f||this.g||this.a)return;const e=this.c.peek(),i=Date.now()-e.writtenTime,s=Date.now()-this.r.lastReadTime,h=Date.now()-this.o;if(i>=2e4&&s>=2e4&&h>=2e4&&!this.t.hasHighLoad()){this.o=Date.now(),this.z.fire({unacknowledgedMsgCount:this.c.length(),timeSinceOldestUnacknowledgedMsg:i,timeSinceLastReceivedSomeData:s});return}const n=Math.max(2e4-i,2e4-s,2e4-h,500);this.g=setTimeout(()=>{this.g=null,this.C()},n)}D(){if(this.h<=this.j)return;this.j=this.h;const e=new a(3,0,this.j,c());this.q.write(e)}E(){this.j=this.h;const e=new a(9,0,this.j,c());this.q.write(e)}}export{A as $fn,N as $gn,x as $hn,f as $in,K as $jn,L as ProtocolConstants,I as SocketCloseEventType,W as SocketDiagnostics,D as SocketDiagnosticsEventType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../common/buffer.js";
+import { Emitter } from "../../../common/event.js";
+import { Disposable, DisposableStore } from "../../../common/lifecycle.js";
+import { IPCClient } from "./ipc.js";
+var SocketDiagnosticsEventType;
+(function(SocketDiagnosticsEventType2) {
+  SocketDiagnosticsEventType2["Created"] = "created";
+  SocketDiagnosticsEventType2["Read"] = "read";
+  SocketDiagnosticsEventType2["Write"] = "write";
+  SocketDiagnosticsEventType2["Open"] = "open";
+  SocketDiagnosticsEventType2["Error"] = "error";
+  SocketDiagnosticsEventType2["Close"] = "close";
+  SocketDiagnosticsEventType2["BrowserWebSocketBlobReceived"] = "browserWebSocketBlobReceived";
+  SocketDiagnosticsEventType2["NodeEndReceived"] = "nodeEndReceived";
+  SocketDiagnosticsEventType2["NodeEndSent"] = "nodeEndSent";
+  SocketDiagnosticsEventType2["NodeDrainBegin"] = "nodeDrainBegin";
+  SocketDiagnosticsEventType2["NodeDrainEnd"] = "nodeDrainEnd";
+  SocketDiagnosticsEventType2["zlibInflateError"] = "zlibInflateError";
+  SocketDiagnosticsEventType2["zlibInflateData"] = "zlibInflateData";
+  SocketDiagnosticsEventType2["zlibInflateInitialWrite"] = "zlibInflateInitialWrite";
+  SocketDiagnosticsEventType2["zlibInflateInitialFlushFired"] = "zlibInflateInitialFlushFired";
+  SocketDiagnosticsEventType2["zlibInflateWrite"] = "zlibInflateWrite";
+  SocketDiagnosticsEventType2["zlibInflateFlushFired"] = "zlibInflateFlushFired";
+  SocketDiagnosticsEventType2["zlibDeflateError"] = "zlibDeflateError";
+  SocketDiagnosticsEventType2["zlibDeflateData"] = "zlibDeflateData";
+  SocketDiagnosticsEventType2["zlibDeflateWrite"] = "zlibDeflateWrite";
+  SocketDiagnosticsEventType2["zlibDeflateFlushFired"] = "zlibDeflateFlushFired";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketWrite"] = "webSocketNodeSocketWrite";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketPeekedHeader"] = "webSocketNodeSocketPeekedHeader";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketReadHeader"] = "webSocketNodeSocketReadHeader";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketReadData"] = "webSocketNodeSocketReadData";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketUnmaskedData"] = "webSocketNodeSocketUnmaskedData";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketDrainBegin"] = "webSocketNodeSocketDrainBegin";
+  SocketDiagnosticsEventType2["WebSocketNodeSocketDrainEnd"] = "webSocketNodeSocketDrainEnd";
+  SocketDiagnosticsEventType2["ProtocolHeaderRead"] = "protocolHeaderRead";
+  SocketDiagnosticsEventType2["ProtocolMessageRead"] = "protocolMessageRead";
+  SocketDiagnosticsEventType2["ProtocolHeaderWrite"] = "protocolHeaderWrite";
+  SocketDiagnosticsEventType2["ProtocolMessageWrite"] = "protocolMessageWrite";
+  SocketDiagnosticsEventType2["ProtocolWrite"] = "protocolWrite";
+})(SocketDiagnosticsEventType || (SocketDiagnosticsEventType = {}));
+var SocketDiagnostics;
+(function(SocketDiagnostics2) {
+  SocketDiagnostics2.enableDiagnostics = false;
+  SocketDiagnostics2.records = [];
+  const socketIds = /* @__PURE__ */ new WeakMap();
+  let lastUsedSocketId = 0;
+  function getSocketId(nativeObject, label) {
+    if (!socketIds.has(nativeObject)) {
+      const id = String(++lastUsedSocketId);
+      socketIds.set(nativeObject, id);
+    }
+    return socketIds.get(nativeObject);
+  }
+  __name(getSocketId, "getSocketId");
+  function traceSocketEvent(nativeObject, socketDebugLabel, type, data) {
+    if (!SocketDiagnostics2.enableDiagnostics) {
+      return;
+    }
+    const id = getSocketId(nativeObject, socketDebugLabel);
+    if (data instanceof VSBuffer || data instanceof Uint8Array || data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
+      const copiedData = VSBuffer.alloc(data.byteLength);
+      copiedData.set(data);
+      SocketDiagnostics2.records.push({ timestamp: Date.now(), id, label: socketDebugLabel, type, buff: copiedData });
+    } else {
+      SocketDiagnostics2.records.push({ timestamp: Date.now(), id, label: socketDebugLabel, type, data });
+    }
+  }
+  __name(traceSocketEvent, "traceSocketEvent");
+  SocketDiagnostics2.traceSocketEvent = traceSocketEvent;
+})(SocketDiagnostics || (SocketDiagnostics = {}));
+var SocketCloseEventType;
+(function(SocketCloseEventType2) {
+  SocketCloseEventType2[SocketCloseEventType2["NodeSocketCloseEvent"] = 0] = "NodeSocketCloseEvent";
+  SocketCloseEventType2[SocketCloseEventType2["WebSocketCloseEvent"] = 1] = "WebSocketCloseEvent";
+})(SocketCloseEventType || (SocketCloseEventType = {}));
+let emptyBuffer = null;
+function getEmptyBuffer() {
+  if (!emptyBuffer) {
+    emptyBuffer = VSBuffer.alloc(0);
+  }
+  return emptyBuffer;
+}
+__name(getEmptyBuffer, "getEmptyBuffer");
+class ChunkStream {
+  static {
+    __name(this, "ChunkStream");
+  }
+  get byteLength() {
+    return this._totalLength;
+  }
+  constructor() {
+    this._chunks = [];
+    this._totalLength = 0;
+  }
+  acceptChunk(buff) {
+    this._chunks.push(buff);
+    this._totalLength += buff.byteLength;
+  }
+  read(byteCount) {
+    return this._read(byteCount, true);
+  }
+  peek(byteCount) {
+    return this._read(byteCount, false);
+  }
+  _read(byteCount, advance) {
+    if (byteCount === 0) {
+      return getEmptyBuffer();
+    }
+    if (byteCount > this._totalLength) {
+      throw new Error(`Cannot read so many bytes!`);
+    }
+    if (this._chunks[0].byteLength === byteCount) {
+      const result2 = this._chunks[0];
+      if (advance) {
+        this._chunks.shift();
+        this._totalLength -= byteCount;
+      }
+      return result2;
+    }
+    if (this._chunks[0].byteLength > byteCount) {
+      const result2 = this._chunks[0].slice(0, byteCount);
+      if (advance) {
+        this._chunks[0] = this._chunks[0].slice(byteCount);
+        this._totalLength -= byteCount;
+      }
+      return result2;
+    }
+    const result = VSBuffer.alloc(byteCount);
+    let resultOffset = 0;
+    let chunkIndex = 0;
+    while (byteCount > 0) {
+      const chunk = this._chunks[chunkIndex];
+      if (chunk.byteLength > byteCount) {
+        const chunkPart = chunk.slice(0, byteCount);
+        result.set(chunkPart, resultOffset);
+        resultOffset += byteCount;
+        if (advance) {
+          this._chunks[chunkIndex] = chunk.slice(byteCount);
+          this._totalLength -= byteCount;
+        }
+        byteCount -= byteCount;
+      } else {
+        result.set(chunk, resultOffset);
+        resultOffset += chunk.byteLength;
+        if (advance) {
+          this._chunks.shift();
+          this._totalLength -= chunk.byteLength;
+        } else {
+          chunkIndex++;
+        }
+        byteCount -= chunk.byteLength;
+      }
+    }
+    return result;
+  }
+}
+var ProtocolMessageType;
+(function(ProtocolMessageType2) {
+  ProtocolMessageType2[ProtocolMessageType2["None"] = 0] = "None";
+  ProtocolMessageType2[ProtocolMessageType2["Regular"] = 1] = "Regular";
+  ProtocolMessageType2[ProtocolMessageType2["Control"] = 2] = "Control";
+  ProtocolMessageType2[ProtocolMessageType2["Ack"] = 3] = "Ack";
+  ProtocolMessageType2[ProtocolMessageType2["Disconnect"] = 5] = "Disconnect";
+  ProtocolMessageType2[ProtocolMessageType2["ReplayRequest"] = 6] = "ReplayRequest";
+  ProtocolMessageType2[ProtocolMessageType2["Pause"] = 7] = "Pause";
+  ProtocolMessageType2[ProtocolMessageType2["Resume"] = 8] = "Resume";
+  ProtocolMessageType2[ProtocolMessageType2["KeepAlive"] = 9] = "KeepAlive";
+})(ProtocolMessageType || (ProtocolMessageType = {}));
+function protocolMessageTypeToString(messageType) {
+  switch (messageType) {
+    case 0:
+      return "None";
+    case 1:
+      return "Regular";
+    case 2:
+      return "Control";
+    case 3:
+      return "Ack";
+    case 5:
+      return "Disconnect";
+    case 6:
+      return "ReplayRequest";
+    case 7:
+      return "PauseWriting";
+    case 8:
+      return "ResumeWriting";
+    case 9:
+      return "KeepAlive";
+  }
+}
+__name(protocolMessageTypeToString, "protocolMessageTypeToString");
+var ProtocolConstants;
+(function(ProtocolConstants2) {
+  ProtocolConstants2[ProtocolConstants2["HeaderLength"] = 13] = "HeaderLength";
+  ProtocolConstants2[ProtocolConstants2["AcknowledgeTime"] = 2e3] = "AcknowledgeTime";
+  ProtocolConstants2[ProtocolConstants2["TimeoutTime"] = 2e4] = "TimeoutTime";
+  ProtocolConstants2[ProtocolConstants2["ReconnectionGraceTime"] = 108e5] = "ReconnectionGraceTime";
+  ProtocolConstants2[ProtocolConstants2["ReconnectionShortGraceTime"] = 3e5] = "ReconnectionShortGraceTime";
+  ProtocolConstants2[ProtocolConstants2["KeepAliveSendTime"] = 5e3] = "KeepAliveSendTime";
+})(ProtocolConstants || (ProtocolConstants = {}));
+class ProtocolMessage {
+  static {
+    __name(this, "ProtocolMessage");
+  }
+  constructor(type, id, ack, data) {
+    this.type = type;
+    this.id = id;
+    this.ack = ack;
+    this.data = data;
+    this.writtenTime = 0;
+  }
+  get size() {
+    return this.data.byteLength;
+  }
+}
+class ProtocolReader extends Disposable {
+  static {
+    __name(this, "ProtocolReader");
+  }
+  constructor(socket) {
+    super();
+    this._onMessage = this._register(new Emitter());
+    this.onMessage = this._onMessage.event;
+    this._state = {
+      readHead: true,
+      readLen: 13,
+      messageType: 0,
+      id: 0,
+      ack: 0
+    };
+    this._socket = socket;
+    this._isDisposed = false;
+    this._incomingData = new ChunkStream();
+    this._register(this._socket.onData((data) => this.acceptChunk(data)));
+    this.lastReadTime = Date.now();
+  }
+  acceptChunk(data) {
+    if (!data || data.byteLength === 0) {
+      return;
+    }
+    this.lastReadTime = Date.now();
+    this._incomingData.acceptChunk(data);
+    while (this._incomingData.byteLength >= this._state.readLen) {
+      const buff = this._incomingData.read(this._state.readLen);
+      if (this._state.readHead) {
+        this._state.readHead = false;
+        this._state.readLen = buff.readUInt32BE(9);
+        this._state.messageType = buff.readUInt8(0);
+        this._state.id = buff.readUInt32BE(1);
+        this._state.ack = buff.readUInt32BE(5);
+        this._socket.traceSocketEvent("protocolHeaderRead", { messageType: protocolMessageTypeToString(this._state.messageType), id: this._state.id, ack: this._state.ack, messageSize: this._state.readLen });
+      } else {
+        const messageType = this._state.messageType;
+        const id = this._state.id;
+        const ack = this._state.ack;
+        this._state.readHead = true;
+        this._state.readLen = 13;
+        this._state.messageType = 0;
+        this._state.id = 0;
+        this._state.ack = 0;
+        this._socket.traceSocketEvent("protocolMessageRead", buff);
+        this._onMessage.fire(new ProtocolMessage(messageType, id, ack, buff));
+        if (this._isDisposed) {
+          break;
+        }
+      }
+    }
+  }
+  readEntireBuffer() {
+    return this._incomingData.read(this._incomingData.byteLength);
+  }
+  dispose() {
+    this._isDisposed = true;
+    super.dispose();
+  }
+}
+class ProtocolWriter {
+  static {
+    __name(this, "ProtocolWriter");
+  }
+  constructor(socket) {
+    this._writeNowTimeout = null;
+    this._isDisposed = false;
+    this._isPaused = false;
+    this._socket = socket;
+    this._data = [];
+    this._totalLength = 0;
+    this.lastWriteTime = 0;
+  }
+  dispose() {
+    try {
+      this.flush();
+    } catch (err) {
+    }
+    this._isDisposed = true;
+  }
+  drain() {
+    this.flush();
+    return this._socket.drain();
+  }
+  flush() {
+    this._writeNow();
+  }
+  pause() {
+    this._isPaused = true;
+  }
+  resume() {
+    this._isPaused = false;
+    this._scheduleWriting();
+  }
+  write(msg) {
+    if (this._isDisposed) {
+      return;
+    }
+    msg.writtenTime = Date.now();
+    this.lastWriteTime = Date.now();
+    const header = VSBuffer.alloc(
+      13
+      /* ProtocolConstants.HeaderLength */
+    );
+    header.writeUInt8(msg.type, 0);
+    header.writeUInt32BE(msg.id, 1);
+    header.writeUInt32BE(msg.ack, 5);
+    header.writeUInt32BE(msg.data.byteLength, 9);
+    this._socket.traceSocketEvent("protocolHeaderWrite", { messageType: protocolMessageTypeToString(msg.type), id: msg.id, ack: msg.ack, messageSize: msg.data.byteLength });
+    this._socket.traceSocketEvent("protocolMessageWrite", msg.data);
+    this._writeSoon(header, msg.data);
+  }
+  _bufferAdd(head, body) {
+    const wasEmpty = this._totalLength === 0;
+    this._data.push(head, body);
+    this._totalLength += head.byteLength + body.byteLength;
+    return wasEmpty;
+  }
+  _bufferTake() {
+    const ret = VSBuffer.concat(this._data, this._totalLength);
+    this._data.length = 0;
+    this._totalLength = 0;
+    return ret;
+  }
+  _writeSoon(header, data) {
+    if (this._bufferAdd(header, data)) {
+      this._scheduleWriting();
+    }
+  }
+  _scheduleWriting() {
+    if (this._writeNowTimeout) {
+      return;
+    }
+    this._writeNowTimeout = setTimeout(() => {
+      this._writeNowTimeout = null;
+      this._writeNow();
+    });
+  }
+  _writeNow() {
+    if (this._totalLength === 0) {
+      return;
+    }
+    if (this._isPaused) {
+      return;
+    }
+    const data = this._bufferTake();
+    this._socket.traceSocketEvent("protocolWrite", { byteLength: data.byteLength });
+    this._socket.write(data);
+  }
+}
+class Protocol extends Disposable {
+  static {
+    __name(this, "Protocol");
+  }
+  constructor(socket) {
+    super();
+    this._onMessage = new Emitter();
+    this.onMessage = this._onMessage.event;
+    this._onDidDispose = new Emitter();
+    this.onDidDispose = this._onDidDispose.event;
+    this._socket = socket;
+    this._socketWriter = this._register(new ProtocolWriter(this._socket));
+    this._socketReader = this._register(new ProtocolReader(this._socket));
+    this._register(this._socketReader.onMessage((msg) => {
+      if (msg.type === 1) {
+        this._onMessage.fire(msg.data);
+      }
+    }));
+    this._register(this._socket.onClose(() => this._onDidDispose.fire()));
+  }
+  drain() {
+    return this._socketWriter.drain();
+  }
+  getSocket() {
+    return this._socket;
+  }
+  sendDisconnect() {
+  }
+  send(buffer) {
+    this._socketWriter.write(new ProtocolMessage(1, 0, 0, buffer));
+  }
+}
+class Client extends IPCClient {
+  static {
+    __name(this, "Client");
+  }
+  static fromSocket(socket, id) {
+    return new Client(new Protocol(socket), id);
+  }
+  get onDidDispose() {
+    return this.protocol.onDidDispose;
+  }
+  constructor(protocol, id, ipcLogger = null) {
+    super(protocol, id, ipcLogger);
+    this.protocol = protocol;
+  }
+  dispose() {
+    super.dispose();
+    const socket = this.protocol.getSocket();
+    this.protocol.sendDisconnect();
+    this.protocol.dispose();
+    socket.end();
+  }
+}
+class BufferedEmitter {
+  static {
+    __name(this, "BufferedEmitter");
+  }
+  constructor() {
+    this._hasListeners = false;
+    this._isDeliveringMessages = false;
+    this._bufferedMessages = [];
+    this._emitter = new Emitter({
+      onWillAddFirstListener: /* @__PURE__ */ __name(() => {
+        this._hasListeners = true;
+        queueMicrotask(() => this._deliverMessages());
+      }, "onWillAddFirstListener"),
+      onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
+        this._hasListeners = false;
+      }, "onDidRemoveLastListener")
+    });
+    this.event = this._emitter.event;
+  }
+  _deliverMessages() {
+    if (this._isDeliveringMessages) {
+      return;
+    }
+    this._isDeliveringMessages = true;
+    while (this._hasListeners && this._bufferedMessages.length > 0) {
+      this._emitter.fire(this._bufferedMessages.shift());
+    }
+    this._isDeliveringMessages = false;
+  }
+  fire(event) {
+    if (this._hasListeners) {
+      if (this._bufferedMessages.length > 0) {
+        this._bufferedMessages.push(event);
+      } else {
+        this._emitter.fire(event);
+      }
+    } else {
+      this._bufferedMessages.push(event);
+    }
+  }
+  flushBuffer() {
+    this._bufferedMessages = [];
+  }
+}
+class QueueElement {
+  static {
+    __name(this, "QueueElement");
+  }
+  constructor(data) {
+    this.data = data;
+    this.next = null;
+  }
+}
+class Queue {
+  static {
+    __name(this, "Queue");
+  }
+  constructor() {
+    this._first = null;
+    this._last = null;
+  }
+  length() {
+    let result = 0;
+    let current = this._first;
+    while (current) {
+      current = current.next;
+      result++;
+    }
+    return result;
+  }
+  peek() {
+    if (!this._first) {
+      return null;
+    }
+    return this._first.data;
+  }
+  toArray() {
+    const result = [];
+    let resultLen = 0;
+    let it = this._first;
+    while (it) {
+      result[resultLen++] = it.data;
+      it = it.next;
+    }
+    return result;
+  }
+  pop() {
+    if (!this._first) {
+      return;
+    }
+    if (this._first === this._last) {
+      this._first = null;
+      this._last = null;
+      return;
+    }
+    this._first = this._first.next;
+  }
+  push(item) {
+    const element = new QueueElement(item);
+    if (!this._first) {
+      this._first = element;
+      this._last = element;
+      return;
+    }
+    this._last.next = element;
+    this._last = element;
+  }
+}
+class LoadEstimator {
+  static {
+    __name(this, "LoadEstimator");
+  }
+  static {
+    this._HISTORY_LENGTH = 10;
+  }
+  static {
+    this._INSTANCE = null;
+  }
+  static getInstance() {
+    if (!LoadEstimator._INSTANCE) {
+      LoadEstimator._INSTANCE = new LoadEstimator();
+    }
+    return LoadEstimator._INSTANCE;
+  }
+  constructor() {
+    this.lastRuns = [];
+    const now = Date.now();
+    for (let i = 0; i < LoadEstimator._HISTORY_LENGTH; i++) {
+      this.lastRuns[i] = now - 1e3 * i;
+    }
+    setInterval(() => {
+      for (let i = LoadEstimator._HISTORY_LENGTH; i >= 1; i--) {
+        this.lastRuns[i] = this.lastRuns[i - 1];
+      }
+      this.lastRuns[0] = Date.now();
+    }, 1e3);
+  }
+  /**
+   * returns an estimative number, from 0 (low load) to 1 (high load)
+   */
+  load() {
+    const now = Date.now();
+    const historyLimit = (1 + LoadEstimator._HISTORY_LENGTH) * 1e3;
+    let score = 0;
+    for (let i = 0; i < LoadEstimator._HISTORY_LENGTH; i++) {
+      if (now - this.lastRuns[i] <= historyLimit) {
+        score++;
+      }
+    }
+    return 1 - score / LoadEstimator._HISTORY_LENGTH;
+  }
+  hasHighLoad() {
+    return this.load() >= 0.5;
+  }
+}
+class PersistentProtocol {
+  static {
+    __name(this, "PersistentProtocol");
+  }
+  get unacknowledgedCount() {
+    return this._outgoingMsgId - this._outgoingAckId;
+  }
+  constructor(opts) {
+    this._onControlMessage = new BufferedEmitter();
+    this.onControlMessage = this._onControlMessage.event;
+    this._onMessage = new BufferedEmitter();
+    this.onMessage = this._onMessage.event;
+    this._onDidDispose = new BufferedEmitter();
+    this.onDidDispose = this._onDidDispose.event;
+    this._onSocketClose = new BufferedEmitter();
+    this.onSocketClose = this._onSocketClose.event;
+    this._onSocketTimeout = new BufferedEmitter();
+    this.onSocketTimeout = this._onSocketTimeout.event;
+    this._loadEstimator = opts.loadEstimator ?? LoadEstimator.getInstance();
+    this._shouldSendKeepAlive = opts.sendKeepAlive ?? true;
+    this._isReconnecting = false;
+    this._outgoingUnackMsg = new Queue();
+    this._outgoingMsgId = 0;
+    this._outgoingAckId = 0;
+    this._outgoingAckTimeout = null;
+    this._incomingMsgId = 0;
+    this._incomingAckId = 0;
+    this._incomingMsgLastTime = 0;
+    this._incomingAckTimeout = null;
+    this._lastReplayRequestTime = 0;
+    this._lastSocketTimeoutTime = Date.now();
+    this._socketDisposables = new DisposableStore();
+    this._socket = opts.socket;
+    this._socketWriter = this._socketDisposables.add(new ProtocolWriter(this._socket));
+    this._socketReader = this._socketDisposables.add(new ProtocolReader(this._socket));
+    this._socketDisposables.add(this._socketReader.onMessage((msg) => this._receiveMessage(msg)));
+    this._socketDisposables.add(this._socket.onClose((e) => this._onSocketClose.fire(e)));
+    if (opts.initialChunk) {
+      this._socketReader.acceptChunk(opts.initialChunk);
+    }
+    if (this._shouldSendKeepAlive) {
+      this._keepAliveInterval = setInterval(
+        () => {
+          this._sendKeepAlive();
+        },
+        5e3
+        /* ProtocolConstants.KeepAliveSendTime */
+      );
+    } else {
+      this._keepAliveInterval = null;
+    }
+  }
+  dispose() {
+    if (this._outgoingAckTimeout) {
+      clearTimeout(this._outgoingAckTimeout);
+      this._outgoingAckTimeout = null;
+    }
+    if (this._incomingAckTimeout) {
+      clearTimeout(this._incomingAckTimeout);
+      this._incomingAckTimeout = null;
+    }
+    if (this._keepAliveInterval) {
+      clearInterval(this._keepAliveInterval);
+      this._keepAliveInterval = null;
+    }
+    this._socketDisposables.dispose();
+  }
+  drain() {
+    return this._socketWriter.drain();
+  }
+  sendDisconnect() {
+    if (!this._didSendDisconnect) {
+      this._didSendDisconnect = true;
+      const msg = new ProtocolMessage(5, 0, 0, getEmptyBuffer());
+      this._socketWriter.write(msg);
+      this._socketWriter.flush();
+    }
+  }
+  sendPause() {
+    const msg = new ProtocolMessage(7, 0, 0, getEmptyBuffer());
+    this._socketWriter.write(msg);
+  }
+  sendResume() {
+    const msg = new ProtocolMessage(8, 0, 0, getEmptyBuffer());
+    this._socketWriter.write(msg);
+  }
+  pauseSocketWriting() {
+    this._socketWriter.pause();
+  }
+  getSocket() {
+    return this._socket;
+  }
+  getMillisSinceLastIncomingData() {
+    return Date.now() - this._socketReader.lastReadTime;
+  }
+  beginAcceptReconnection(socket, initialDataChunk) {
+    this._isReconnecting = true;
+    this._socketDisposables.dispose();
+    this._socketDisposables = new DisposableStore();
+    this._onControlMessage.flushBuffer();
+    this._onSocketClose.flushBuffer();
+    this._onSocketTimeout.flushBuffer();
+    this._socket.dispose();
+    this._lastReplayRequestTime = 0;
+    this._lastSocketTimeoutTime = Date.now();
+    this._socket = socket;
+    this._socketWriter = this._socketDisposables.add(new ProtocolWriter(this._socket));
+    this._socketReader = this._socketDisposables.add(new ProtocolReader(this._socket));
+    this._socketDisposables.add(this._socketReader.onMessage((msg) => this._receiveMessage(msg)));
+    this._socketDisposables.add(this._socket.onClose((e) => this._onSocketClose.fire(e)));
+    this._socketReader.acceptChunk(initialDataChunk);
+  }
+  endAcceptReconnection() {
+    this._isReconnecting = false;
+    this._incomingAckId = this._incomingMsgId;
+    const msg = new ProtocolMessage(3, 0, this._incomingAckId, getEmptyBuffer());
+    this._socketWriter.write(msg);
+    const toSend = this._outgoingUnackMsg.toArray();
+    for (let i = 0, len = toSend.length; i < len; i++) {
+      this._socketWriter.write(toSend[i]);
+    }
+    this._recvAckCheck();
+  }
+  acceptDisconnect() {
+    this._onDidDispose.fire();
+  }
+  _receiveMessage(msg) {
+    if (msg.ack > this._outgoingAckId) {
+      this._outgoingAckId = msg.ack;
+      do {
+        const first = this._outgoingUnackMsg.peek();
+        if (first && first.id <= msg.ack) {
+          this._outgoingUnackMsg.pop();
+        } else {
+          break;
+        }
+      } while (true);
+    }
+    switch (msg.type) {
+      case 0: {
+        break;
+      }
+      case 1: {
+        if (msg.id > this._incomingMsgId) {
+          if (msg.id !== this._incomingMsgId + 1) {
+            const now = Date.now();
+            if (now - this._lastReplayRequestTime > 1e4) {
+              this._lastReplayRequestTime = now;
+              this._socketWriter.write(new ProtocolMessage(6, 0, 0, getEmptyBuffer()));
+            }
+          } else {
+            this._incomingMsgId = msg.id;
+            this._incomingMsgLastTime = Date.now();
+            this._sendAckCheck();
+            this._onMessage.fire(msg.data);
+          }
+        }
+        break;
+      }
+      case 2: {
+        this._onControlMessage.fire(msg.data);
+        break;
+      }
+      case 3: {
+        break;
+      }
+      case 5: {
+        this._onDidDispose.fire();
+        break;
+      }
+      case 6: {
+        const toSend = this._outgoingUnackMsg.toArray();
+        for (let i = 0, len = toSend.length; i < len; i++) {
+          this._socketWriter.write(toSend[i]);
+        }
+        this._recvAckCheck();
+        break;
+      }
+      case 7: {
+        this._socketWriter.pause();
+        break;
+      }
+      case 8: {
+        this._socketWriter.resume();
+        break;
+      }
+      case 9: {
+        break;
+      }
+    }
+  }
+  readEntireBuffer() {
+    return this._socketReader.readEntireBuffer();
+  }
+  flush() {
+    this._socketWriter.flush();
+  }
+  send(buffer) {
+    const myId = ++this._outgoingMsgId;
+    this._incomingAckId = this._incomingMsgId;
+    const msg = new ProtocolMessage(1, myId, this._incomingAckId, buffer);
+    this._outgoingUnackMsg.push(msg);
+    if (!this._isReconnecting) {
+      this._socketWriter.write(msg);
+      this._recvAckCheck();
+    }
+  }
+  /**
+   * Send a message which will not be part of the regular acknowledge flow.
+   * Use this for early control messages which are repeated in case of reconnection.
+   */
+  sendControl(buffer) {
+    const msg = new ProtocolMessage(2, 0, 0, buffer);
+    this._socketWriter.write(msg);
+  }
+  _sendAckCheck() {
+    if (this._incomingMsgId <= this._incomingAckId) {
+      return;
+    }
+    if (this._incomingAckTimeout) {
+      return;
+    }
+    const timeSinceLastIncomingMsg = Date.now() - this._incomingMsgLastTime;
+    if (timeSinceLastIncomingMsg >= 2e3) {
+      this._sendAck();
+      return;
+    }
+    this._incomingAckTimeout = setTimeout(() => {
+      this._incomingAckTimeout = null;
+      this._sendAckCheck();
+    }, 2e3 - timeSinceLastIncomingMsg + 5);
+  }
+  _recvAckCheck() {
+    if (this._outgoingMsgId <= this._outgoingAckId) {
+      return;
+    }
+    if (this._outgoingAckTimeout) {
+      return;
+    }
+    if (this._isReconnecting) {
+      return;
+    }
+    const oldestUnacknowledgedMsg = this._outgoingUnackMsg.peek();
+    const timeSinceOldestUnacknowledgedMsg = Date.now() - oldestUnacknowledgedMsg.writtenTime;
+    const timeSinceLastReceivedSomeData = Date.now() - this._socketReader.lastReadTime;
+    const timeSinceLastTimeout = Date.now() - this._lastSocketTimeoutTime;
+    if (timeSinceOldestUnacknowledgedMsg >= 2e4 && timeSinceLastReceivedSomeData >= 2e4 && timeSinceLastTimeout >= 2e4) {
+      if (!this._loadEstimator.hasHighLoad()) {
+        this._lastSocketTimeoutTime = Date.now();
+        this._onSocketTimeout.fire({
+          unacknowledgedMsgCount: this._outgoingUnackMsg.length(),
+          timeSinceOldestUnacknowledgedMsg,
+          timeSinceLastReceivedSomeData
+        });
+        return;
+      }
+    }
+    const minimumTimeUntilTimeout = Math.max(2e4 - timeSinceOldestUnacknowledgedMsg, 2e4 - timeSinceLastReceivedSomeData, 2e4 - timeSinceLastTimeout, 500);
+    this._outgoingAckTimeout = setTimeout(() => {
+      this._outgoingAckTimeout = null;
+      this._recvAckCheck();
+    }, minimumTimeUntilTimeout);
+  }
+  _sendAck() {
+    if (this._incomingMsgId <= this._incomingAckId) {
+      return;
+    }
+    this._incomingAckId = this._incomingMsgId;
+    const msg = new ProtocolMessage(3, 0, this._incomingAckId, getEmptyBuffer());
+    this._socketWriter.write(msg);
+  }
+  _sendKeepAlive() {
+    this._incomingAckId = this._incomingMsgId;
+    const msg = new ProtocolMessage(9, 0, this._incomingAckId, getEmptyBuffer());
+    this._socketWriter.write(msg);
+  }
+}
+export {
+  BufferedEmitter,
+  ChunkStream,
+  Client,
+  PersistentProtocol,
+  Protocol,
+  ProtocolConstants,
+  SocketCloseEventType,
+  SocketDiagnostics,
+  SocketDiagnosticsEventType
+};
+//# sourceMappingURL=ipc.net.js.map

@@ -1,1 +1,132 @@
-import{$u8 as f}from"../../../base/browser/dom.js";import{$50 as l,$60 as m}from"../../../base/browser/ui/aria/aria.js";import{$T7 as g}from"../../../base/browser/window.js";import{$xf as a}from"../../../base/common/event.js";import{$Ed as p}from"../../../base/common/lifecycle.js";import{$ND as b}from"../common/accessibility.js";import{$0l as C}from"../../configuration/common/configuration.js";import{$ro as D}from"../../contextkey/common/contextkey.js";import{$flb as R}from"../../layout/browser/layoutService.js";var d=function(o,i,t,e){var s=arguments.length,n=s<3?i:e===null?e=Object.getOwnPropertyDescriptor(i,t):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,i,t,e);else for(var h=o.length-1;h>=0;h--)(r=o[h])&&(n=(s<3?r(n):s>3?r(i,t,n):r(i,t))||n);return s>3&&n&&Object.defineProperty(i,t,n),n},c=function(o,i){return function(t,e){i(t,e,o)}};let u=class extends p{constructor(i,t,e){super(),this.n=i,this.q=t,this.r=e,this.b=0,this.c=new a,this.h=new a,this.m=new a,this.a=b.bindTo(this.n);const s=()=>this.a.set(this.isScreenReaderOptimized());this.D(this.r.onDidChangeConfiguration(r=>{r.affectsConfiguration("editor.accessibilitySupport")&&(s(),this.c.fire()),r.affectsConfiguration("workbench.reduceMotion")&&(this.f=this.r.getValue("workbench.reduceMotion"),this.h.fire())})),s(),this.D(this.onDidChangeScreenReaderOptimized(()=>s()));const n=g.matchMedia("(prefers-reduced-motion: reduce)");this.g=n.matches,this.f=this.r.getValue("workbench.reduceMotion"),this.j=this.r.getValue("accessibility.underlineLinks"),this.s(n),this.t()}s(i){this.D(f(i,"change",()=>{this.g=i.matches,this.f==="auto"&&this.h.fire()}));const t=()=>{const e=this.isMotionReduced();this.q.mainContainer.classList.toggle("monaco-reduce-motion",e),this.q.mainContainer.classList.toggle("monaco-enable-motion",!e)};t(),this.D(this.onDidChangeReducedMotion(()=>t()))}t(){this.D(this.r.onDidChangeConfiguration(t=>{if(t.affectsConfiguration("accessibility.underlineLinks")){const e=this.r.getValue("accessibility.underlineLinks");this.j=e,this.m.fire()}}));const i=()=>{const t=this.j;this.q.mainContainer.classList.toggle("underline-links",t)};i(),this.D(this.onDidChangeLinkUnderlines(()=>i()))}onDidChangeLinkUnderlines(i){return this.m.event(i)}get onDidChangeScreenReaderOptimized(){return this.c.event}isScreenReaderOptimized(){const i=this.r.getValue("editor.accessibilitySupport");return i==="on"||i==="auto"&&this.b===2}get onDidChangeReducedMotion(){return this.h.event}isMotionReduced(){const i=this.f;return i==="on"||i==="auto"&&this.g}alwaysUnderlineAccessKeys(){return Promise.resolve(!1)}getAccessibilitySupport(){return this.b}setAccessibilitySupport(i){this.b!==i&&(this.b=i,this.c.fire())}alert(i){l(i)}status(i){m(i)}};u=d([c(0,D),c(1,R),c(2,C)],u);export{u as $5Oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { addDisposableListener } from "../../../base/browser/dom.js";
+import { alert, status } from "../../../base/browser/ui/aria/aria.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../common/accessibility.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+let AccessibilityService = class AccessibilityService2 extends Disposable {
+  static {
+    __name(this, "AccessibilityService");
+  }
+  constructor(_contextKeyService, _layoutService, _configurationService) {
+    super();
+    this._contextKeyService = _contextKeyService;
+    this._layoutService = _layoutService;
+    this._configurationService = _configurationService;
+    this._accessibilitySupport = 0;
+    this._onDidChangeScreenReaderOptimized = new Emitter();
+    this._onDidChangeReducedMotion = new Emitter();
+    this._onDidChangeLinkUnderline = new Emitter();
+    this._accessibilityModeEnabledContext = CONTEXT_ACCESSIBILITY_MODE_ENABLED.bindTo(this._contextKeyService);
+    const updateContextKey = /* @__PURE__ */ __name(() => this._accessibilityModeEnabledContext.set(this.isScreenReaderOptimized()), "updateContextKey");
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("editor.accessibilitySupport")) {
+        updateContextKey();
+        this._onDidChangeScreenReaderOptimized.fire();
+      }
+      if (e.affectsConfiguration("workbench.reduceMotion")) {
+        this._configMotionReduced = this._configurationService.getValue("workbench.reduceMotion");
+        this._onDidChangeReducedMotion.fire();
+      }
+    }));
+    updateContextKey();
+    this._register(this.onDidChangeScreenReaderOptimized(() => updateContextKey()));
+    const reduceMotionMatcher = mainWindow.matchMedia(`(prefers-reduced-motion: reduce)`);
+    this._systemMotionReduced = reduceMotionMatcher.matches;
+    this._configMotionReduced = this._configurationService.getValue("workbench.reduceMotion");
+    this._linkUnderlinesEnabled = this._configurationService.getValue("accessibility.underlineLinks");
+    this.initReducedMotionListeners(reduceMotionMatcher);
+    this.initLinkUnderlineListeners();
+  }
+  initReducedMotionListeners(reduceMotionMatcher) {
+    this._register(addDisposableListener(reduceMotionMatcher, "change", () => {
+      this._systemMotionReduced = reduceMotionMatcher.matches;
+      if (this._configMotionReduced === "auto") {
+        this._onDidChangeReducedMotion.fire();
+      }
+    }));
+    const updateRootClasses = /* @__PURE__ */ __name(() => {
+      const reduce = this.isMotionReduced();
+      this._layoutService.mainContainer.classList.toggle("monaco-reduce-motion", reduce);
+      this._layoutService.mainContainer.classList.toggle("monaco-enable-motion", !reduce);
+    }, "updateRootClasses");
+    updateRootClasses();
+    this._register(this.onDidChangeReducedMotion(() => updateRootClasses()));
+  }
+  initLinkUnderlineListeners() {
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("accessibility.underlineLinks")) {
+        const linkUnderlinesEnabled = this._configurationService.getValue("accessibility.underlineLinks");
+        this._linkUnderlinesEnabled = linkUnderlinesEnabled;
+        this._onDidChangeLinkUnderline.fire();
+      }
+    }));
+    const updateLinkUnderlineClasses = /* @__PURE__ */ __name(() => {
+      const underlineLinks = this._linkUnderlinesEnabled;
+      this._layoutService.mainContainer.classList.toggle("underline-links", underlineLinks);
+    }, "updateLinkUnderlineClasses");
+    updateLinkUnderlineClasses();
+    this._register(this.onDidChangeLinkUnderlines(() => updateLinkUnderlineClasses()));
+  }
+  onDidChangeLinkUnderlines(listener) {
+    return this._onDidChangeLinkUnderline.event(listener);
+  }
+  get onDidChangeScreenReaderOptimized() {
+    return this._onDidChangeScreenReaderOptimized.event;
+  }
+  isScreenReaderOptimized() {
+    const config = this._configurationService.getValue("editor.accessibilitySupport");
+    return config === "on" || config === "auto" && this._accessibilitySupport === 2;
+  }
+  get onDidChangeReducedMotion() {
+    return this._onDidChangeReducedMotion.event;
+  }
+  isMotionReduced() {
+    const config = this._configMotionReduced;
+    return config === "on" || config === "auto" && this._systemMotionReduced;
+  }
+  alwaysUnderlineAccessKeys() {
+    return Promise.resolve(false);
+  }
+  getAccessibilitySupport() {
+    return this._accessibilitySupport;
+  }
+  setAccessibilitySupport(accessibilitySupport) {
+    if (this._accessibilitySupport === accessibilitySupport) {
+      return;
+    }
+    this._accessibilitySupport = accessibilitySupport;
+    this._onDidChangeScreenReaderOptimized.fire();
+  }
+  alert(message) {
+    alert(message);
+  }
+  status(message) {
+    status(message);
+  }
+};
+AccessibilityService = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, ILayoutService),
+  __param(2, IConfigurationService)
+], AccessibilityService);
+export {
+  AccessibilityService
+};
+//# sourceMappingURL=accessibilityService.js.map

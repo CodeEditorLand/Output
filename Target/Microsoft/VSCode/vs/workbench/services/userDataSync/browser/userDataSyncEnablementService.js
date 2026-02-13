@@ -1,1 +1,26 @@
-import{$WC as t}from"../../../../platform/instantiation/common/extensions.js";import{$_Kb as n}from"../../../../platform/userDataSync/common/userDataSync.js";import{$GOc as s}from"../../../../platform/userDataSync/common/userDataSyncEnablementService.js";class r extends s{get m(){return this.f}getResourceSyncStateVersion(e){return e==="extensions"?this.m.options?.settingsSyncOptions?.extensionsSyncStateVersion:void 0}}t(n,r,1);export{r as $HOc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { UserDataSyncEnablementService as BaseUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSyncEnablementService.js";
+class UserDataSyncEnablementService extends BaseUserDataSyncEnablementService {
+  static {
+    __name(this, "UserDataSyncEnablementService");
+  }
+  get workbenchEnvironmentService() {
+    return this.environmentService;
+  }
+  getResourceSyncStateVersion(resource) {
+    return resource === "extensions" ? this.workbenchEnvironmentService.options?.settingsSyncOptions?.extensionsSyncStateVersion : void 0;
+  }
+}
+registerSingleton(
+  IUserDataSyncEnablementService,
+  UserDataSyncEnablementService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  UserDataSyncEnablementService
+};
+//# sourceMappingURL=userDataSyncEnablementService.js.map

@@ -1,2 +1,130 @@
-import{$Kb as c}from"../../../../base/common/arraysFind.js";import{$hE as u}from"../ranges/offsetRange.js";import{$$D as i}from"../position.js";import{$_D as l}from"../range.js";class o{getOffsetRange(t){return new u(this.getOffset(t.getStartPosition()),this.getOffset(t.getEndPosition()))}getRange(t){return l.fromPositions(this.getPosition(t.start),this.getPosition(t.endExclusive))}getStringEdit(t){const e=t.replacements.map(n=>this.getStringReplacement(n));return new s.deps.StringEdit(e)}getStringReplacement(t){return new s.deps.StringReplacement(this.getOffsetRange(t.range),t.text)}getTextReplacement(t){return new s.deps.TextReplacement(this.getRange(t.replaceRange),t.newText)}getTextEdit(t){const e=t.replacements.map(n=>this.getTextReplacement(n));return new s.deps.TextEdit(e)}}class s{static{this._deps=void 0}static get deps(){if(!this._deps)throw new Error("Dependencies not set. Call _setDependencies first.");return this._deps}}function d(r){s._deps=r}class x extends o{constructor(t){super(),this.text=t}get c(){return this.a||this.f(),this.a}get d(){return this.b||this.f(),this.b}f(){this.a=[],this.b=[],this.a.push(0);for(let t=0;t<this.text.length;t++)this.text.charAt(t)===`
-`&&(this.a.push(t+1),t>0&&this.text.charAt(t-1)==="\r"?this.b.push(t-1):this.b.push(t));this.b.push(this.text.length)}getOffset(t){const e=this.g(t);return this.c[e.lineNumber-1]+e.column-1}g(t){if(t.lineNumber<1)return new i(1,1);const e=this.textLength.lineCount+1;if(t.lineNumber>e){const h=this.getLineLength(e);return new i(e,h+1)}if(t.column<1)return new i(t.lineNumber,1);const n=this.getLineLength(t.lineNumber);return t.column-1>n?new i(t.lineNumber,n+1):t}getPosition(t){const e=c(this.c,g=>g<=t),n=e+1,h=t-this.c[e]+1;return new i(n,h)}getTextLength(t){return s.deps.TextLength.ofRange(this.getRange(t))}get textLength(){const t=this.c.length-1;return new s.deps.TextLength(t,this.text.length-this.c[t])}getLineLength(t){return this.d[t-1]-this.c[t-1]}}export{o as $mE,d as $nE,x as $oE};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { findLastIdxMonotonous } from "../../../../base/common/arraysFind.js";
+import { OffsetRange } from "../ranges/offsetRange.js";
+import { Position } from "../position.js";
+import { Range } from "../range.js";
+class PositionOffsetTransformerBase {
+  static {
+    __name(this, "PositionOffsetTransformerBase");
+  }
+  getOffsetRange(range) {
+    return new OffsetRange(this.getOffset(range.getStartPosition()), this.getOffset(range.getEndPosition()));
+  }
+  getRange(offsetRange) {
+    return Range.fromPositions(this.getPosition(offsetRange.start), this.getPosition(offsetRange.endExclusive));
+  }
+  getStringEdit(edit) {
+    const edits = edit.replacements.map((e) => this.getStringReplacement(e));
+    return new Deps.deps.StringEdit(edits);
+  }
+  getStringReplacement(edit) {
+    return new Deps.deps.StringReplacement(this.getOffsetRange(edit.range), edit.text);
+  }
+  getTextReplacement(edit) {
+    return new Deps.deps.TextReplacement(this.getRange(edit.replaceRange), edit.newText);
+  }
+  getTextEdit(edit) {
+    const edits = edit.replacements.map((e) => this.getTextReplacement(e));
+    return new Deps.deps.TextEdit(edits);
+  }
+}
+class Deps {
+  static {
+    __name(this, "Deps");
+  }
+  static {
+    this._deps = void 0;
+  }
+  static get deps() {
+    if (!this._deps) {
+      throw new Error("Dependencies not set. Call _setDependencies first.");
+    }
+    return this._deps;
+  }
+}
+function _setPositionOffsetTransformerDependencies(deps) {
+  Deps._deps = deps;
+}
+__name(_setPositionOffsetTransformerDependencies, "_setPositionOffsetTransformerDependencies");
+class PositionOffsetTransformer extends PositionOffsetTransformerBase {
+  static {
+    __name(this, "PositionOffsetTransformer");
+  }
+  constructor(text) {
+    super();
+    this.text = text;
+  }
+  get lineStartOffsetByLineIdx() {
+    if (!this._lineStartOffsetByLineIdx) {
+      this._computeLineOffsets();
+    }
+    return this._lineStartOffsetByLineIdx;
+  }
+  get lineEndOffsetByLineIdx() {
+    if (!this._lineEndOffsetByLineIdx) {
+      this._computeLineOffsets();
+    }
+    return this._lineEndOffsetByLineIdx;
+  }
+  _computeLineOffsets() {
+    this._lineStartOffsetByLineIdx = [];
+    this._lineEndOffsetByLineIdx = [];
+    this._lineStartOffsetByLineIdx.push(0);
+    for (let i = 0; i < this.text.length; i++) {
+      if (this.text.charAt(i) === "\n") {
+        this._lineStartOffsetByLineIdx.push(i + 1);
+        if (i > 0 && this.text.charAt(i - 1) === "\r") {
+          this._lineEndOffsetByLineIdx.push(i - 1);
+        } else {
+          this._lineEndOffsetByLineIdx.push(i);
+        }
+      }
+    }
+    this._lineEndOffsetByLineIdx.push(this.text.length);
+  }
+  getOffset(position) {
+    const valPos = this._validatePosition(position);
+    return this.lineStartOffsetByLineIdx[valPos.lineNumber - 1] + valPos.column - 1;
+  }
+  _validatePosition(position) {
+    if (position.lineNumber < 1) {
+      return new Position(1, 1);
+    }
+    const lineCount = this.textLength.lineCount + 1;
+    if (position.lineNumber > lineCount) {
+      const lineLength2 = this.getLineLength(lineCount);
+      return new Position(lineCount, lineLength2 + 1);
+    }
+    if (position.column < 1) {
+      return new Position(position.lineNumber, 1);
+    }
+    const lineLength = this.getLineLength(position.lineNumber);
+    if (position.column - 1 > lineLength) {
+      return new Position(position.lineNumber, lineLength + 1);
+    }
+    return position;
+  }
+  getPosition(offset) {
+    const idx = findLastIdxMonotonous(this.lineStartOffsetByLineIdx, (i) => i <= offset);
+    const lineNumber = idx + 1;
+    const column = offset - this.lineStartOffsetByLineIdx[idx] + 1;
+    return new Position(lineNumber, column);
+  }
+  getTextLength(offsetRange) {
+    return Deps.deps.TextLength.ofRange(this.getRange(offsetRange));
+  }
+  get textLength() {
+    const lineIdx = this.lineStartOffsetByLineIdx.length - 1;
+    return new Deps.deps.TextLength(lineIdx, this.text.length - this.lineStartOffsetByLineIdx[lineIdx]);
+  }
+  getLineLength(lineNumber) {
+    return this.lineEndOffsetByLineIdx[lineNumber - 1] - this.lineStartOffsetByLineIdx[lineNumber - 1];
+  }
+}
+export {
+  PositionOffsetTransformer,
+  PositionOffsetTransformerBase,
+  _setPositionOffsetTransformerDependencies
+};
+//# sourceMappingURL=positionToOffsetImpl.js.map

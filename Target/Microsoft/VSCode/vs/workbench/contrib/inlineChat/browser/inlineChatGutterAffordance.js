@@ -1,1 +1,105 @@
-import{$bk as _}from"../../../../base/common/codicons.js";import{autorun as j,constObservable as d,derived as I,observableValue as P}from"../../../../base/common/observable.js";import{$jE as w}from"../../../../editor/common/core/ranges/lineRange.js";import{$jtb as O,$gtb as N,$htb as R,$itb as D}from"../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/components/gutterIndicatorView.js";import{InlineEditTabAction as M}from"../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/inlineEditsViewInterface.js";import{localize as E}from"../../../../nls.js";import{$MD as q}from"../../../../platform/accessibility/common/accessibility.js";import{$jkb as x}from"../../../../platform/hover/browser/hover.js";import{$Mj as y}from"../../../../platform/instantiation/common/instantiation.js";import{$fy as B}from"../../../../platform/keybinding/common/keybinding.js";import{$qu as S}from"../../../../platform/theme/common/themeService.js";import{$pNb as X}from"../common/inlineChat.js";var v=function(r,e,t,n){var o=arguments.length,i=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,e,t,n);else for(var c=r.length-1;c>=0;c--)(s=r[c])&&(i=(o<3?s(i):o>3?s(e,t,i):s(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},f=function(r,e){return function(t,n){e(t,n,r)}};let a=class extends O{constructor(e,t,n,o,i,s,c,p){const h=I(m=>{const u=t.read(m);if(!u)return;const l=u.getPosition(),$=new w(l.lineNumber,l.lineNumber+1),g=new R(void 0,"",[],void 0,void 0,void 0);return new N(g,$,new D(()=>{},()=>this.$()),void 0,{icon:_.sparkle})}),b=P({},!1);super(e,h,d(M.Inactive),d(0),d(!1),b,i,s,c,p),this.W=e,this.X=n,this.Y=o,this.B.add(j(m=>{const u=n.read(m);this.P.set(!!u,void 0)}))}S(){this.q.showInstantHover({target:this.O.element,content:this.Y.appendKeybinding(E(9660,null),X)})}$(){if(this.P.get())return;const e=this.O.element;if(!e){this.X.set(void 0,void 0);return}const t=this.W.cursorSelection.get(),n=t?.getDirection()??0,o=t?.getPosition().lineNumber??1;this.X.set({rect:e.getBoundingClientRect(),above:n===1,lineNumber:o},void 0)}};a=v([f(3,B),f(4,x),f(5,y),f(6,q),f(7,S)],a);export{a as $Igc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { autorun, constObservable, derived, observableValue } from "../../../../base/common/observable.js";
+import { LineRange } from "../../../../editor/common/core/ranges/lineRange.js";
+import { InlineEditsGutterIndicator, InlineEditsGutterIndicatorData, InlineSuggestionGutterMenuData, SimpleInlineSuggestModel } from "../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/components/gutterIndicatorView.js";
+import { InlineEditTabAction } from "../../../../editor/contrib/inlineCompletions/browser/view/inlineEdits/inlineEditsViewInterface.js";
+import { localize } from "../../../../nls.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ACTION_START } from "../common/inlineChat.js";
+let InlineChatGutterAffordance = class InlineChatGutterAffordance2 extends InlineEditsGutterIndicator {
+  static {
+    __name(this, "InlineChatGutterAffordance");
+  }
+  constructor(_myEditorObs, selection, _hover, _keybindingService, hoverService, instantiationService, accessibilityService, themeService) {
+    const data = derived((r) => {
+      const value = selection.read(r);
+      if (!value) {
+        return void 0;
+      }
+      const cursorPosition = value.getPosition();
+      const lineRange = new LineRange(cursorPosition.lineNumber, cursorPosition.lineNumber + 1);
+      const gutterMenuData = new InlineSuggestionGutterMenuData(
+        void 0,
+        // action
+        "",
+        // displayName
+        [],
+        // extensionCommands
+        void 0,
+        // alternativeAction
+        void 0,
+        // modelInfo
+        void 0
+      );
+      return new InlineEditsGutterIndicatorData(
+        gutterMenuData,
+        lineRange,
+        new SimpleInlineSuggestModel(() => {
+        }, () => this._doShowHover()),
+        void 0,
+        // altAction
+        {
+          icon: Codicon.sparkle
+        }
+      );
+    });
+    const focusIsInMenu = observableValue({}, false);
+    super(_myEditorObs, data, constObservable(InlineEditTabAction.Inactive), constObservable(0), constObservable(false), focusIsInMenu, hoverService, instantiationService, accessibilityService, themeService);
+    this._myEditorObs = _myEditorObs;
+    this._hover = _hover;
+    this._keybindingService = _keybindingService;
+    this._store.add(autorun((r) => {
+      const element = _hover.read(r);
+      this._hoverVisible.set(!!element, void 0);
+    }));
+  }
+  _showHover() {
+    this._hoverService.showInstantHover({
+      target: this._iconRef.element,
+      content: this._keybindingService.appendKeybinding(localize("inlineChatGutterHover", "Inline Chat"), ACTION_START)
+      // appearance: { showPointer: true }
+    });
+  }
+  _doShowHover() {
+    if (this._hoverVisible.get()) {
+      return;
+    }
+    const iconElement = this._iconRef.element;
+    if (!iconElement) {
+      this._hover.set(void 0, void 0);
+      return;
+    }
+    const selection = this._myEditorObs.cursorSelection.get();
+    const direction = selection?.getDirection() ?? 0;
+    const lineNumber = selection?.getPosition().lineNumber ?? 1;
+    this._hover.set({ rect: iconElement.getBoundingClientRect(), above: direction === 1, lineNumber }, void 0);
+  }
+};
+InlineChatGutterAffordance = __decorate([
+  __param(3, IKeybindingService),
+  __param(4, IHoverService),
+  __param(5, IInstantiationService),
+  __param(6, IAccessibilityService),
+  __param(7, IThemeService)
+], InlineChatGutterAffordance);
+export {
+  InlineChatGutterAffordance
+};
+//# sourceMappingURL=inlineChatGutterAffordance.js.map

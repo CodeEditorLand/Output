@@ -1,1 +1,172 @@
-import{localize as d,localize2 as h}from"../../../../nls.js";import{$Mj as E}from"../../../../platform/instantiation/common/instantiation.js";import{$jm as $}from"../../../../platform/registry/common/platform.js";import{$2N as b}from"../../../common/contributions.js";import{$9M as g}from"../../../common/editor.js";import{$dO as w,RegisteredEditorPriority as S}from"../../../services/editor/common/editorResolverService.js";import{$hAc as a}from"./processExplorerEditorInput.js";import{$vL as I,$qL as v,$sL as R,$wL as y}from"../../../../platform/actions/common/actions.js";import{$to as D}from"../../../../platform/action/common/actionCommonCategories.js";import{$EL as O,$BL as x}from"../../../services/editor/common/editorService.js";import{$hp as z}from"../../../../platform/storage/common/storage.js";import{$FBb as L}from"../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";import{$xL as P}from"../../../services/editor/common/editorGroupsService.js";import{$rO as j}from"../../../common/contextkeys.js";import{$ON as C}from"../../../../platform/contextkey/common/contextkeys.js";import{$0n as M}from"../../../../platform/contextkey/common/contextkey.js";var f=function(c,r,t,o){var n=arguments.length,e=n<3?r:o===null?o=Object.getOwnPropertyDescriptor(r,t):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(c,r,t,o);else for(var p=c.length-1;p>=0;p--)(i=c[p])&&(e=(n<3?i(e):n>3?i(r,t,e):i(r,t))||e);return n>3&&e&&Object.defineProperty(r,t,e),e},l=function(c,r){return function(t,o){r(t,o,c)}};let u=class{static{this.ID="workbench.contrib.processExplorerEditor"}constructor(r,t){r.registerEditor(`${a.RESOURCE.scheme}:**/**`,{id:a.ID,label:d(11731,null),priority:S.exclusive},{singlePerResource:!0,canSupportResource:o=>o.scheme===a.RESOURCE.scheme},{createEditorInput:()=>({editor:t.createInstance(a),options:{pinned:!0}})})}};u=f([l(0,w),l(1,E)],u);b(u.ID,u,1);class W{canSerialize(r){return!0}serialize(r){return""}deserialize(r){return a.instance}}$.as(g.EditorFactory).registerEditorSerializer(a.ID,W);const m=M.or(C.negate(),j.notEqualsTo(""));class s extends I{static{this.ID="workbench.action.openProcessExplorer"}static{this.a="workbench.processExplorerWindowState"}static{this.b={bounds:{width:800,height:500}}}constructor(){super({id:s.ID,title:h(11733,"Open Process Explorer"),category:D.Developer,precondition:m,f1:!0})}async run(r){const t=r.get(x),o=r.get(P),n=r.get(L),e=r.get(z),i=await t.openEditor({resource:a.RESOURCE,options:{pinned:!0,revealIfOpened:!0,auxiliary:{...this.c(e),compact:!0,alwaysOnTop:!0}}},O);if(i){const p=i.input?.onWillDispose(()=>{p?.dispose(),this.d(i.group.id,e,o,n)})}}c(r){const t=r.get(s.a,-1);if(!t)return s.b;try{return JSON.parse(t)}catch{return s.b}}d(r,t,o,n){const e=n.getWindow(o.getPart(r).windowId);if(!e)return;const i=e.createState().bounds;i&&t.store(s.a,JSON.stringify({bounds:i}),-1,1)}}y(s);R.appendMenuItem(v.MenubarHelpMenu,{group:"5_tools",command:{id:s.ID,title:d(11732,null)},when:m,order:2});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { localize, localize2 } from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { ProcessExplorerEditorInput } from "./processExplorerEditorInput.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { AUX_WINDOW_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { RemoteNameContext } from "../../../common/contextkeys.js";
+import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+let ProcessExplorerEditorContribution = class ProcessExplorerEditorContribution2 {
+  static {
+    __name(this, "ProcessExplorerEditorContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.processExplorerEditor";
+  }
+  constructor(editorResolverService, instantiationService) {
+    editorResolverService.registerEditor(`${ProcessExplorerEditorInput.RESOURCE.scheme}:**/**`, {
+      id: ProcessExplorerEditorInput.ID,
+      label: localize("promptOpenWith.processExplorer.displayName", "Process Explorer"),
+      priority: RegisteredEditorPriority.exclusive
+    }, {
+      singlePerResource: true,
+      canSupportResource: /* @__PURE__ */ __name((resource) => resource.scheme === ProcessExplorerEditorInput.RESOURCE.scheme, "canSupportResource")
+    }, {
+      createEditorInput: /* @__PURE__ */ __name(() => {
+        return {
+          editor: instantiationService.createInstance(ProcessExplorerEditorInput),
+          options: {
+            pinned: true
+          }
+        };
+      }, "createEditorInput")
+    });
+  }
+};
+ProcessExplorerEditorContribution = __decorate([
+  __param(0, IEditorResolverService),
+  __param(1, IInstantiationService)
+], ProcessExplorerEditorContribution);
+registerWorkbenchContribution2(
+  ProcessExplorerEditorContribution.ID,
+  ProcessExplorerEditorContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+class ProcessExplorerEditorInputSerializer {
+  static {
+    __name(this, "ProcessExplorerEditorInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(editorInput) {
+    return "";
+  }
+  deserialize(instantiationService) {
+    return ProcessExplorerEditorInput.instance;
+  }
+}
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(ProcessExplorerEditorInput.ID, ProcessExplorerEditorInputSerializer);
+const supported = ContextKeyExpr.or(IsWebContext.negate(), RemoteNameContext.notEqualsTo(""));
+class OpenProcessExplorer extends Action2 {
+  static {
+    __name(this, "OpenProcessExplorer");
+  }
+  static {
+    this.ID = "workbench.action.openProcessExplorer";
+  }
+  static {
+    this.STATE_KEY = "workbench.processExplorerWindowState";
+  }
+  static {
+    this.DEFAULT_STATE = { bounds: { width: 800, height: 500 } };
+  }
+  constructor() {
+    super({
+      id: OpenProcessExplorer.ID,
+      title: localize2("openProcessExplorer", "Open Process Explorer"),
+      category: Categories.Developer,
+      precondition: supported,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editorGroupService = accessor.get(IEditorGroupsService);
+    const auxiliaryWindowService = accessor.get(IAuxiliaryWindowService);
+    const storageService = accessor.get(IStorageService);
+    const pane = await editorService.openEditor({
+      resource: ProcessExplorerEditorInput.RESOURCE,
+      options: {
+        pinned: true,
+        revealIfOpened: true,
+        auxiliary: {
+          ...this.loadState(storageService),
+          compact: true,
+          alwaysOnTop: true
+        }
+      }
+    }, AUX_WINDOW_GROUP);
+    if (pane) {
+      const listener = pane.input?.onWillDispose(() => {
+        listener?.dispose();
+        this.saveState(pane.group.id, storageService, editorGroupService, auxiliaryWindowService);
+      });
+    }
+  }
+  loadState(storageService) {
+    const stateRaw = storageService.get(
+      OpenProcessExplorer.STATE_KEY,
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (!stateRaw) {
+      return OpenProcessExplorer.DEFAULT_STATE;
+    }
+    try {
+      return JSON.parse(stateRaw);
+    } catch {
+      return OpenProcessExplorer.DEFAULT_STATE;
+    }
+  }
+  saveState(group, storageService, editorGroupService, auxiliaryWindowService) {
+    const auxiliaryWindow = auxiliaryWindowService.getWindow(editorGroupService.getPart(group).windowId);
+    if (!auxiliaryWindow) {
+      return;
+    }
+    const bounds = auxiliaryWindow.createState().bounds;
+    if (!bounds) {
+      return;
+    }
+    storageService.store(
+      OpenProcessExplorer.STATE_KEY,
+      JSON.stringify({ bounds }),
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+}
+registerAction2(OpenProcessExplorer);
+MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+  group: "5_tools",
+  command: {
+    id: OpenProcessExplorer.ID,
+    title: localize({ key: "miOpenProcessExplorerer", comment: ["&& denotes a mnemonic"] }, "Open &&Process Explorer")
+  },
+  when: supported,
+  order: 2
+});
+//# sourceMappingURL=processExplorer.contribution.js.map

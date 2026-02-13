@@ -1,1 +1,670 @@
-import{$$b as R}from"../../../base/common/arrays.js";import{CancellationToken as y,$Jf as E}from"../../../base/common/cancellation.js";import{$sb as z}from"../../../base/common/errors.js";import{$xf as I,Event as j}from"../../../base/common/event.js";import{$Ed as q,$Dd as C,$Cd as H}from"../../../base/common/lifecycle.js";import{$Oc as $}from"../../../base/common/map.js";import{$Fh as N}from"../../../base/common/resources.js";import{URI as d}from"../../../base/common/uri.js";import{SymbolKinds as A}from"../../../editor/common/languages.js";import{$yo as M}from"../../../platform/log/common/log.js";import{IDiagnosticVariableEntryFilterData as x,PromptFileVariableKind as k}from"../../contrib/chat/common/attachments/chatVariableEntries.js";import{ChatAgentLocation as L}from"../../contrib/chat/common/constants.js";import{$X1 as F}from"./extHost.protocol.js";import{$EYc as D}from"./extHostChatAgents2.js";import{$Y4 as _}from"./extHostRpcService.js";import*as m from"./extHostTypeConverters.js";import{Diagnostic as T}from"./extHostTypeConverters.js";import*as v from"./extHostTypes.js";import*as J from"../../../base/common/objects.js";var O=function(c,e,t,i){var r=arguments.length,s=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(c,e,t,i);else for(var o=c.length-1;o>=0;o--)(n=c[o])&&(s=(r<3?n(s):r>3?n(e,t,s):n(e,t))||s);return r>3&&s&&Object.defineProperty(e,t,s),s},w=function(c,e){return function(t,i){e(t,i,c)}},S;class U{#e;#s;#i;#n;#r;#o;#a;#h;#d;#c;#t;constructor(e,t,i){this.resource=e,this.#e=t,this.#t=i}get label(){return this.#e}set label(e){this.#e!==e&&(this.#e=e,this.#t())}get iconPath(){return this.#s}set iconPath(e){this.#s!==e&&(this.#s=e,this.#t())}get description(){return this.#i}set description(e){this.#i!==e&&(this.#i=e,this.#t())}get badge(){return this.#n}set badge(e){this.#n!==e&&(this.#n=e,this.#t())}get status(){return this.#r}set status(e){this.#r!==e&&(this.#r=e,this.#t())}get archived(){return this.#o}set archived(e){this.#o!==e&&(this.#o=e,this.#t())}get tooltip(){return this.#a}set tooltip(e){this.#a!==e&&(this.#a=e,this.#t())}get timing(){return this.#h}set timing(e){this.#h!==e&&(this.#h=e,this.#t())}get changes(){return this.#d}set changes(e){this.#d!==e&&(this.#d=e,this.#t())}get metadata(){return this.#c}set metadata(e){if(e!==void 0)try{JSON.stringify(e)}catch{throw new Error("metadata must be JSON-serializable")}J.$Gp(this.#c,e)||(this.#c=e,this.#t())}}class W{#e=new $;#s;constructor(e){this.#s=e}get size(){return this.#e.size}replace(e){if(!(e.length===0&&this.#e.size===0)){this.#e.clear();for(const t of e)this.#e.set(t.resource,t);this.#s()}}forEach(e,t){for(const[i,r]of this.#e)e.call(t,r,this)}add(e){this.#e.set(e.resource,e),this.#s()}delete(e){this.#e.delete(e),this.#s()}get(e){return this.#e.get(e)}[Symbol.iterator](){return this.#e.entries()}}class Y{constructor(e,t,i,r,s,n){this.session=e,this.extension=t,this.proxy=r,this.commandsConverter=s,this.sessionDisposables=n,this.b=new Map,this.a=new D(t,i,r,s,n,this.b,y.None)}get activeResponseStream(){return this.a}getActiveRequestStream(e){return new D(this.extension,e,this.proxy,this.commandsConverter,this.sessionDisposables,this.b,y.None)}}let P=class extends q{static{S=this}static{this.a=0}constructor(e,t,i,r){super(),this.u=e,this.w=t,this.y=i,this.z=r,this.c=0,this.f=new Map,this.h=0,this.j=new Map,this.m=0,this.n=new Map,this.q=new $,this.s=new $,this.t=new Map,this.b=this.y.getProxy(F.MainThreadChatSessions),e.registerArgumentProcessor({processArgument:s=>{if(s&&s.$mid===25){const n=s.session.resource||s.sessionId,o=this.q.get(n);return o||(this.z.warn(`No chat session found for ID: ${n}`),s)}return s}})}registerChatSessionItemProvider(e,t,i){const r=this.c++,s=new C;return this.f.set(r,{provider:i,extension:e,disposable:s,sessionType:t}),this.b.$registerChatSessionItemProvider(r,t),i.onDidChangeChatSessionItems&&s.add(i.onDidChangeChatSessionItems(()=>{this.z.trace(`ExtHostChatSessions. Firing $onDidChangeChatSessionItems for ${t}`),this.b.$onDidChangeChatSessionItems(r)})),i.onDidCommitChatSessionItem&&s.add(i.onDidCommitChatSessionItem(n=>{const{original:o,modified:a}=n;this.b.$onDidCommitChatSessionItem(r,o.resource,a.resource)})),{dispose:()=>{this.f.delete(r),s.dispose(),this.b.$unregisterChatSessionItemProvider(r)}}}createChatSessionItemController(e,t,i){const r=this.h++,s=new C;let n=!1,o=0,a;const g=s.add(new I),u=s.add(new I),f=()=>{typeof a>"u"&&g.fire()},b=new W(()=>{f()}),h=Object.freeze({id:t,refreshHandler:async l=>{if(n)throw new Error("ChatSessionItemController has been disposed");const p=++o;a=p;try{this.z.trace(`ExtHostChatSessions. Controller(${t}).refresh()`),await i(l)}finally{a===p&&(a=void 0)}},items:b,onDidChangeChatSessionItemState:u.event,createChatSessionItem:(l,p)=>{if(n)throw new Error("ChatSessionItemController has been disposed");return new U(l,p,()=>{f()})},dispose:()=>{n=!0,s.dispose()}});return this.j.set(r,{controller:h,extension:e,disposable:s,sessionType:t,onDidChangeChatSessionItemStateEmitter:u}),s.add(this.registerChatSessionItemProvider(e,t,{onDidChangeChatSessionItems:g.event,onDidCommitChatSessionItem:j.None,provideChatSessionItems:async l=>(await h.refreshHandler(l),Array.from(h.items,p=>p[1]))})),s.add(H(()=>{this.j.delete(r),this.b.$unregisterChatSessionItemProvider(r)})),h}registerChatSessionContentProvider(e,t,i,r,s){const n=this.m++,o=new C;return this.n.set(n,{provider:r,extension:e,capabilities:s,disposable:o}),this.b.$registerChatSessionContentProvider(n,t),r.onDidChangeChatSessionOptions&&o.add(r.onDidChangeChatSessionOptions(a=>{this.b.$onDidChangeChatSessionOptions(n,a.resource,a.updates)})),r.onDidChangeChatSessionProviderOptions&&o.add(r.onDidChangeChatSessionProviderOptions(()=>{this.b.$onDidChangeChatSessionProviderOptions(n)})),new v.$e2(()=>{this.n.delete(n),o.dispose(),this.b.$unregisterChatSessionContentProvider(n)})}C(e){if(e!==void 0)switch(e){case 0:return 0;case 1:return 1;case 2:return 2;default:return}}F(e){const t=e.timing,i=t?.created??t?.startTime??0,r=t?.lastRequestStarted??t?.startTime,s=t?.lastRequestEnded??t?.endTime;return{resource:e.resource,label:e.label,description:e.description?m.MarkdownString.from(e.description):void 0,badge:e.badge?m.MarkdownString.from(e.badge):void 0,status:this.C(e.status),archived:e.archived,tooltip:m.MarkdownString.fromStrict(e.tooltip),timing:{created:i,lastRequestStarted:r,lastRequestEnded:s},changes:e.changes instanceof Array?e.changes:void 0,metadata:e.metadata}}async $provideChatSessionItems(e,t){const i=this.f.get(e);if(!i)return this.z.error(`No provider registered for handle ${e}`),[];this.z.trace(`ExtHostChatSessions:$provideChatSessionItems(${i.sessionType})`);const r=await i.provider.provideChatSessionItems(t)??[];if(t.isCancellationRequested)return[];const s=[];for(const n of r)this.q.set(n.resource,n),s.push(this.F(n));return s}async $provideChatSessionContent(e,t,i){const r=this.n.get(e);if(!r)throw new Error(`No provider for handle ${e}`);const s=d.revive(t),n=await r.provider.provideChatSessionContent(s,i);if(i.isCancellationRequested)throw new z;const o=new C,a=S.a++,g=s.toString(),u=new Y(n,r.extension,{sessionResource:s,requestId:"ongoing",agentId:g,message:"",variables:{variables:[]},location:L.Chat},{$handleProgressChunk:(h,l)=>this.b.$handleProgressChunk(e,s,h,l),$handleAnchorResolve:(h,l,p)=>{this.b.$handleAnchorResolve(e,s,h,l,p)}},this.u.converter,o),f=o.add(new E);this.s.set(s,{sessionObj:u,disposeCts:f}),n.activeResponseCallback&&Promise.resolve(n.activeResponseCallback(u.activeResponseStream.apiObject,f.token)).finally(()=>{this.b.$handleProgressComplete(e,s,"ongoing")});const{capabilities:b}=r;return{id:a+"",resource:d.revive(s),hasActiveResponseCallback:!!n.activeResponseCallback,hasRequestHandler:!!n.requestHandler,supportsInterruption:!!b?.supportsInterruptions,options:n.options,history:n.history.map(h=>h instanceof v.$m4?this.H(h):this.J(h,o))}}async $provideHandleOptionsChange(e,t,i,r){const s=d.revive(t),n=this.n.get(e);if(!n){this.z.warn(`No provider for handle ${e}`);return}if(!n.provider.provideHandleOptionsChange){this.z.debug(`Provider for handle ${e} does not implement provideHandleOptionsChange`);return}try{const o=i.map(a=>({optionId:a.optionId,value:a.value===void 0?void 0:typeof a.value=="string"?a.value:a.value.id}));await n.provider.provideHandleOptionsChange(s,o,r)}catch(o){this.z.error(`Error calling provideHandleOptionsChange for handle ${e}, sessionResource ${s}:`,o)}}async $provideChatSessionProviderOptions(e,t){const i=this.n.get(e);if(!i){this.z.warn(`No provider for handle ${e} when requesting chat session options`);return}const r=i.provider;if(r.provideChatSessionProviderOptions)try{const{optionGroups:s}=await r.provideChatSessionProviderOptions(t);return s?(this.t.set(e,s),{optionGroups:s}):void 0}catch(s){this.z.error(`Error calling provideChatSessionProviderOptions for handle ${e}:`,s);return}}async $interruptChatSessionActiveResponse(e,t,i){this.s.get(d.revive(t))?.disposeCts.cancel()}async $disposeChatSessionContent(e,t){const i=this.s.get(d.revive(t));if(!i){this.z.warn(`No chat session found for resource: ${t}`);return}i.disposeCts.cancel(),i.sessionObj.sessionDisposables.dispose(),this.s.delete(d.revive(t))}async $invokeChatSessionRequestHandler(e,t,i,r,s){const n=this.s.get(d.revive(t));if(!n||!n.sessionObj.session.requestHandler)return{};const o=m.ChatAgentRequest.to(i,void 0,await this.G(i,n.sessionObj.extension),[],new Map,n.sessionObj.extension,this.z),a=n.sessionObj.getActiveRequestStream(i);return await n.sessionObj.session.requestHandler(o,{history:r,yieldRequested:!1},a.apiObject,s),{}}async G(e,t){let i;if(e.userSelectedModelId&&(i=await this.w.getLanguageModelByIdentifier(t,e.userSelectedModelId)),!i&&(i=await this.w.getDefaultLanguageModel(t),!i))throw new Error("Language model unavailable");return i}H(e){const t=e.references.map(i=>this.I(i));return{type:"request",id:e.id,prompt:e.prompt,participant:e.participant,command:e.command,variableData:t.length>0?{variables:t}:void 0}}I(e){const t=e.value&&typeof e.value=="object"&&"uri"in e.value&&"range"in e.value?m.Location.from(e.value):e.value,i=e.range?{start:e.range[0],endExclusive:e.range[1]}:void 0;if(t&&t instanceof v.$u4&&Array.isArray(t.diagnostics)&&t.diagnostics.length&&t.diagnostics[0][1].length){const n=T.from(t.diagnostics[0][1][0]),o={filterRange:{startLineNumber:n.startLineNumber,startColumn:n.startColumn,endLineNumber:n.endLineNumber,endColumn:n.endColumn},filterSeverity:n.severity,filterUri:t.diagnostics[0][0],problemMessage:t.diagnostics[0][1][0].message};return x.toEntry(o)}if(v.Location.isLocation(e.value)&&e.name.startsWith("sym:")){const n=m.Location.from(e.value);return{id:e.id,name:e.name,fullName:e.name.substring(4),value:{uri:e.value.uri,range:n.range},symbolKind:6,icon:A.toIcon(6),kind:"symbol",range:i}}if(d.isUri(t)&&e.name.startsWith("prompt:")&&e.id.startsWith(k.PromptFile)&&e.id.endsWith(t.toString()))return{id:e.id,name:`prompt:${N(t)}`,value:t,kind:"promptFile",modelDescription:"Prompt instructions file",isRoot:!0,automaticallyAdded:!1,range:i};const r=d.isUri(t)||t&&typeof t=="object"&&"uri"in t,s=r&&d.isUri(t)&&t.path.endsWith("/");return{id:e.id,name:e.name,value:t,modelDescription:e.modelDescription,range:i,kind:s?"directory":r?"file":"generic"}}J(e,t){return{type:"response",parts:R(e.response.map(r=>m.ChatResponsePart.from(r,this.u.converter,t))),participant:e.participant}}async $invokeOptionGroupSearch(e,t,i,r){const s=this.t.get(e);if(!s)return this.z.warn(`No option groups found for provider handle ${e}`),[];const n=s.find(o=>o.id===t);if(!n||!n.onSearch)return this.z.warn(`No onSearch callback found for option group ${t}`),[];try{return await n.onSearch(i,r)??[]}catch(o){return this.z.error(`Error calling onSearch for option group ${t}:`,o),[]}}$onDidChangeChatSessionItemState(e,t,i){const r=this.j.get(e);if(!r){this.z.warn(`No controller found for handle ${e}`);return}const s=d.revive(t),n=r.controller.items.get(s);if(!n){this.z.warn(`No item found for session resource ${s.toString()}`);return}n.archived=i,r.onDidChangeChatSessionItemStateEmitter.fire(n)}};P=S=O([w(2,_),w(3,M)],P);export{P as $QYc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ExtHostChatSessions_1;
+import { coalesce } from "../../../base/common/arrays.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { basename } from "../../../base/common/resources.js";
+import { URI } from "../../../base/common/uri.js";
+import { SymbolKinds } from "../../../editor/common/languages.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IDiagnosticVariableEntryFilterData, PromptFileVariableKind } from "../../contrib/chat/common/attachments/chatVariableEntries.js";
+import { ChatAgentLocation } from "../../contrib/chat/common/constants.js";
+import { MainContext } from "./extHost.protocol.js";
+import { ChatAgentResponseStream } from "./extHostChatAgents2.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import * as typeConvert from "./extHostTypeConverters.js";
+import { Diagnostic } from "./extHostTypeConverters.js";
+import * as extHostTypes from "./extHostTypes.js";
+import * as objects from "../../../base/common/objects.js";
+class ChatSessionItemImpl {
+  static {
+    __name(this, "ChatSessionItemImpl");
+  }
+  #label;
+  #iconPath;
+  #description;
+  #badge;
+  #status;
+  #archived;
+  #tooltip;
+  #timing;
+  #changes;
+  #metadata;
+  #onChanged;
+  constructor(resource, label, onChanged) {
+    this.resource = resource;
+    this.#label = label;
+    this.#onChanged = onChanged;
+  }
+  get label() {
+    return this.#label;
+  }
+  set label(value) {
+    if (this.#label !== value) {
+      this.#label = value;
+      this.#onChanged();
+    }
+  }
+  get iconPath() {
+    return this.#iconPath;
+  }
+  set iconPath(value) {
+    if (this.#iconPath !== value) {
+      this.#iconPath = value;
+      this.#onChanged();
+    }
+  }
+  get description() {
+    return this.#description;
+  }
+  set description(value) {
+    if (this.#description !== value) {
+      this.#description = value;
+      this.#onChanged();
+    }
+  }
+  get badge() {
+    return this.#badge;
+  }
+  set badge(value) {
+    if (this.#badge !== value) {
+      this.#badge = value;
+      this.#onChanged();
+    }
+  }
+  get status() {
+    return this.#status;
+  }
+  set status(value) {
+    if (this.#status !== value) {
+      this.#status = value;
+      this.#onChanged();
+    }
+  }
+  get archived() {
+    return this.#archived;
+  }
+  set archived(value) {
+    if (this.#archived !== value) {
+      this.#archived = value;
+      this.#onChanged();
+    }
+  }
+  get tooltip() {
+    return this.#tooltip;
+  }
+  set tooltip(value) {
+    if (this.#tooltip !== value) {
+      this.#tooltip = value;
+      this.#onChanged();
+    }
+  }
+  get timing() {
+    return this.#timing;
+  }
+  set timing(value) {
+    if (this.#timing !== value) {
+      this.#timing = value;
+      this.#onChanged();
+    }
+  }
+  get changes() {
+    return this.#changes;
+  }
+  set changes(value) {
+    if (this.#changes !== value) {
+      this.#changes = value;
+      this.#onChanged();
+    }
+  }
+  get metadata() {
+    return this.#metadata;
+  }
+  set metadata(value) {
+    if (value !== void 0) {
+      try {
+        JSON.stringify(value);
+      } catch {
+        throw new Error("metadata must be JSON-serializable");
+      }
+    }
+    if (!objects.equals(this.#metadata, value)) {
+      this.#metadata = value;
+      this.#onChanged();
+    }
+  }
+}
+class ChatSessionItemCollectionImpl {
+  static {
+    __name(this, "ChatSessionItemCollectionImpl");
+  }
+  #items = new ResourceMap();
+  #onItemsChanged;
+  constructor(onItemsChanged) {
+    this.#onItemsChanged = onItemsChanged;
+  }
+  get size() {
+    return this.#items.size;
+  }
+  replace(items) {
+    if (items.length === 0 && this.#items.size === 0) {
+      return;
+    }
+    this.#items.clear();
+    for (const item of items) {
+      this.#items.set(item.resource, item);
+    }
+    this.#onItemsChanged();
+  }
+  forEach(callback, thisArg) {
+    for (const [_, item] of this.#items) {
+      callback.call(thisArg, item, this);
+    }
+  }
+  add(item) {
+    this.#items.set(item.resource, item);
+    this.#onItemsChanged();
+  }
+  delete(resource) {
+    this.#items.delete(resource);
+    this.#onItemsChanged();
+  }
+  get(resource) {
+    return this.#items.get(resource);
+  }
+  [Symbol.iterator]() {
+    return this.#items.entries();
+  }
+}
+class ExtHostChatSession {
+  static {
+    __name(this, "ExtHostChatSession");
+  }
+  constructor(session, extension, request, proxy, commandsConverter, sessionDisposables) {
+    this.session = session;
+    this.extension = extension;
+    this.proxy = proxy;
+    this.commandsConverter = commandsConverter;
+    this.sessionDisposables = sessionDisposables;
+    this._pendingCarouselResolvers = /* @__PURE__ */ new Map();
+    this._stream = new ChatAgentResponseStream(extension, request, proxy, commandsConverter, sessionDisposables, this._pendingCarouselResolvers, CancellationToken.None);
+  }
+  get activeResponseStream() {
+    return this._stream;
+  }
+  getActiveRequestStream(request) {
+    return new ChatAgentResponseStream(this.extension, request, this.proxy, this.commandsConverter, this.sessionDisposables, this._pendingCarouselResolvers, CancellationToken.None);
+  }
+}
+let ExtHostChatSessions = class ExtHostChatSessions2 extends Disposable {
+  static {
+    __name(this, "ExtHostChatSessions");
+  }
+  static {
+    ExtHostChatSessions_1 = this;
+  }
+  static {
+    this._sessionHandlePool = 0;
+  }
+  constructor(commands, _languageModels, _extHostRpc, _logService) {
+    super();
+    this.commands = commands;
+    this._languageModels = _languageModels;
+    this._extHostRpc = _extHostRpc;
+    this._logService = _logService;
+    this._itemProviderHandlePool = 0;
+    this._chatSessionItemProviders = /* @__PURE__ */ new Map();
+    this._itemControllerHandlePool = 0;
+    this._chatSessionItemControllers = /* @__PURE__ */ new Map();
+    this._contentProviderHandlePool = 0;
+    this._chatSessionContentProviders = /* @__PURE__ */ new Map();
+    this._sessionItems = new ResourceMap();
+    this._extHostChatSessions = new ResourceMap();
+    this._providerOptionGroups = /* @__PURE__ */ new Map();
+    this._proxy = this._extHostRpc.getProxy(MainContext.MainThreadChatSessions);
+    commands.registerArgumentProcessor({
+      processArgument: /* @__PURE__ */ __name((arg) => {
+        if (arg && arg.$mid === 25) {
+          const id = arg.session.resource || arg.sessionId;
+          const sessionContent = this._sessionItems.get(id);
+          if (sessionContent) {
+            return sessionContent;
+          } else {
+            this._logService.warn(`No chat session found for ID: ${id}`);
+            return arg;
+          }
+        }
+        return arg;
+      }, "processArgument")
+    });
+  }
+  registerChatSessionItemProvider(extension, chatSessionType, provider) {
+    const handle = this._itemProviderHandlePool++;
+    const disposables = new DisposableStore();
+    this._chatSessionItemProviders.set(handle, { provider, extension, disposable: disposables, sessionType: chatSessionType });
+    this._proxy.$registerChatSessionItemProvider(handle, chatSessionType);
+    if (provider.onDidChangeChatSessionItems) {
+      disposables.add(provider.onDidChangeChatSessionItems(() => {
+        this._logService.trace(`ExtHostChatSessions. Firing $onDidChangeChatSessionItems for ${chatSessionType}`);
+        this._proxy.$onDidChangeChatSessionItems(handle);
+      }));
+    }
+    if (provider.onDidCommitChatSessionItem) {
+      disposables.add(provider.onDidCommitChatSessionItem((e) => {
+        const { original, modified } = e;
+        this._proxy.$onDidCommitChatSessionItem(handle, original.resource, modified.resource);
+      }));
+    }
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        this._chatSessionItemProviders.delete(handle);
+        disposables.dispose();
+        this._proxy.$unregisterChatSessionItemProvider(handle);
+      }, "dispose")
+    };
+  }
+  createChatSessionItemController(extension, id, refreshHandler) {
+    const controllerHandle = this._itemControllerHandlePool++;
+    const disposables = new DisposableStore();
+    let isDisposed = false;
+    let refreshIdPool = 0;
+    let activeRefreshId = void 0;
+    const onDidChangeItemsEmitter = disposables.add(new Emitter());
+    const onDidChangeChatSessionItemStateEmitter = disposables.add(new Emitter());
+    const notifyItemsChanged = /* @__PURE__ */ __name(() => {
+      if (typeof activeRefreshId === "undefined") {
+        onDidChangeItemsEmitter.fire();
+      }
+    }, "notifyItemsChanged");
+    const collection = new ChatSessionItemCollectionImpl(() => {
+      notifyItemsChanged();
+    });
+    const controller = Object.freeze({
+      id,
+      refreshHandler: /* @__PURE__ */ __name(async (refreshToken) => {
+        if (isDisposed) {
+          throw new Error("ChatSessionItemController has been disposed");
+        }
+        const opId = ++refreshIdPool;
+        activeRefreshId = opId;
+        try {
+          this._logService.trace(`ExtHostChatSessions. Controller(${id}).refresh()`);
+          await refreshHandler(refreshToken);
+        } finally {
+          if (activeRefreshId === opId) {
+            activeRefreshId = void 0;
+          }
+        }
+      }, "refreshHandler"),
+      items: collection,
+      onDidChangeChatSessionItemState: onDidChangeChatSessionItemStateEmitter.event,
+      createChatSessionItem: /* @__PURE__ */ __name((resource, label) => {
+        if (isDisposed) {
+          throw new Error("ChatSessionItemController has been disposed");
+        }
+        return new ChatSessionItemImpl(resource, label, () => {
+          notifyItemsChanged();
+        });
+      }, "createChatSessionItem"),
+      dispose: /* @__PURE__ */ __name(() => {
+        isDisposed = true;
+        disposables.dispose();
+      }, "dispose")
+    });
+    this._chatSessionItemControllers.set(controllerHandle, { controller, extension, disposable: disposables, sessionType: id, onDidChangeChatSessionItemStateEmitter });
+    disposables.add(this.registerChatSessionItemProvider(extension, id, {
+      onDidChangeChatSessionItems: onDidChangeItemsEmitter.event,
+      onDidCommitChatSessionItem: Event.None,
+      provideChatSessionItems: /* @__PURE__ */ __name(async (token) => {
+        await controller.refreshHandler(token);
+        return Array.from(controller.items, (x) => x[1]);
+      }, "provideChatSessionItems")
+    }));
+    disposables.add(toDisposable(() => {
+      this._chatSessionItemControllers.delete(controllerHandle);
+      this._proxy.$unregisterChatSessionItemProvider(controllerHandle);
+    }));
+    return controller;
+  }
+  registerChatSessionContentProvider(extension, chatSessionScheme, chatParticipant, provider, capabilities) {
+    const handle = this._contentProviderHandlePool++;
+    const disposables = new DisposableStore();
+    this._chatSessionContentProviders.set(handle, { provider, extension, capabilities, disposable: disposables });
+    this._proxy.$registerChatSessionContentProvider(handle, chatSessionScheme);
+    if (provider.onDidChangeChatSessionOptions) {
+      disposables.add(provider.onDidChangeChatSessionOptions((evt) => {
+        this._proxy.$onDidChangeChatSessionOptions(handle, evt.resource, evt.updates);
+      }));
+    }
+    if (provider.onDidChangeChatSessionProviderOptions) {
+      disposables.add(provider.onDidChangeChatSessionProviderOptions(() => {
+        this._proxy.$onDidChangeChatSessionProviderOptions(handle);
+      }));
+    }
+    return new extHostTypes.Disposable(() => {
+      this._chatSessionContentProviders.delete(handle);
+      disposables.dispose();
+      this._proxy.$unregisterChatSessionContentProvider(handle);
+    });
+  }
+  convertChatSessionStatus(status) {
+    if (status === void 0) {
+      return void 0;
+    }
+    switch (status) {
+      case 0:
+        return 0;
+      case 1:
+        return 1;
+      case 2:
+        return 2;
+      // Need to support NeedsInput status if we ever export it to the extension API
+      default:
+        return void 0;
+    }
+  }
+  convertChatSessionItem(sessionContent) {
+    const timing = sessionContent.timing;
+    const created = timing?.created ?? timing?.startTime ?? 0;
+    const lastRequestStarted = timing?.lastRequestStarted ?? timing?.startTime;
+    const lastRequestEnded = timing?.lastRequestEnded ?? timing?.endTime;
+    return {
+      resource: sessionContent.resource,
+      label: sessionContent.label,
+      description: sessionContent.description ? typeConvert.MarkdownString.from(sessionContent.description) : void 0,
+      badge: sessionContent.badge ? typeConvert.MarkdownString.from(sessionContent.badge) : void 0,
+      status: this.convertChatSessionStatus(sessionContent.status),
+      archived: sessionContent.archived,
+      tooltip: typeConvert.MarkdownString.fromStrict(sessionContent.tooltip),
+      timing: {
+        created,
+        lastRequestStarted,
+        lastRequestEnded
+      },
+      changes: sessionContent.changes instanceof Array ? sessionContent.changes : void 0,
+      metadata: sessionContent.metadata
+    };
+  }
+  async $provideChatSessionItems(handle, token) {
+    const itemProvider = this._chatSessionItemProviders.get(handle);
+    if (!itemProvider) {
+      this._logService.error(`No provider registered for handle ${handle}`);
+      return [];
+    }
+    this._logService.trace(`ExtHostChatSessions:$provideChatSessionItems(${itemProvider.sessionType})`);
+    const items = await itemProvider.provider.provideChatSessionItems(token) ?? [];
+    if (token.isCancellationRequested) {
+      return [];
+    }
+    const response = [];
+    for (const sessionContent of items) {
+      this._sessionItems.set(sessionContent.resource, sessionContent);
+      response.push(this.convertChatSessionItem(sessionContent));
+    }
+    return response;
+  }
+  async $provideChatSessionContent(handle, sessionResourceComponents, token) {
+    const provider = this._chatSessionContentProviders.get(handle);
+    if (!provider) {
+      throw new Error(`No provider for handle ${handle}`);
+    }
+    const sessionResource = URI.revive(sessionResourceComponents);
+    const session = await provider.provider.provideChatSessionContent(sessionResource, token);
+    if (token.isCancellationRequested) {
+      throw new CancellationError();
+    }
+    const sessionDisposables = new DisposableStore();
+    const sessionId = ExtHostChatSessions_1._sessionHandlePool++;
+    const id = sessionResource.toString();
+    const chatSession = new ExtHostChatSession(session, provider.extension, {
+      sessionResource,
+      requestId: "ongoing",
+      agentId: id,
+      message: "",
+      variables: { variables: [] },
+      location: ChatAgentLocation.Chat
+    }, {
+      $handleProgressChunk: /* @__PURE__ */ __name((requestId, chunks) => {
+        return this._proxy.$handleProgressChunk(handle, sessionResource, requestId, chunks);
+      }, "$handleProgressChunk"),
+      $handleAnchorResolve: /* @__PURE__ */ __name((requestId, requestHandle, anchor) => {
+        this._proxy.$handleAnchorResolve(handle, sessionResource, requestId, requestHandle, anchor);
+      }, "$handleAnchorResolve")
+    }, this.commands.converter, sessionDisposables);
+    const disposeCts = sessionDisposables.add(new CancellationTokenSource());
+    this._extHostChatSessions.set(sessionResource, { sessionObj: chatSession, disposeCts });
+    if (session.activeResponseCallback) {
+      Promise.resolve(session.activeResponseCallback(chatSession.activeResponseStream.apiObject, disposeCts.token)).finally(() => {
+        this._proxy.$handleProgressComplete(handle, sessionResource, "ongoing");
+      });
+    }
+    const { capabilities } = provider;
+    return {
+      id: sessionId + "",
+      resource: URI.revive(sessionResource),
+      hasActiveResponseCallback: !!session.activeResponseCallback,
+      hasRequestHandler: !!session.requestHandler,
+      supportsInterruption: !!capabilities?.supportsInterruptions,
+      options: session.options,
+      history: session.history.map((turn) => {
+        if (turn instanceof extHostTypes.ChatRequestTurn) {
+          return this.convertRequestTurn(turn);
+        } else {
+          return this.convertResponseTurn(turn, sessionDisposables);
+        }
+      })
+    };
+  }
+  async $provideHandleOptionsChange(handle, sessionResourceComponents, updates, token) {
+    const sessionResource = URI.revive(sessionResourceComponents);
+    const provider = this._chatSessionContentProviders.get(handle);
+    if (!provider) {
+      this._logService.warn(`No provider for handle ${handle}`);
+      return;
+    }
+    if (!provider.provider.provideHandleOptionsChange) {
+      this._logService.debug(`Provider for handle ${handle} does not implement provideHandleOptionsChange`);
+      return;
+    }
+    try {
+      const updatesToSend = updates.map((update) => ({
+        optionId: update.optionId,
+        value: update.value === void 0 ? void 0 : typeof update.value === "string" ? update.value : update.value.id
+      }));
+      await provider.provider.provideHandleOptionsChange(sessionResource, updatesToSend, token);
+    } catch (error) {
+      this._logService.error(`Error calling provideHandleOptionsChange for handle ${handle}, sessionResource ${sessionResource}:`, error);
+    }
+  }
+  async $provideChatSessionProviderOptions(handle, token) {
+    const entry = this._chatSessionContentProviders.get(handle);
+    if (!entry) {
+      this._logService.warn(`No provider for handle ${handle} when requesting chat session options`);
+      return;
+    }
+    const provider = entry.provider;
+    if (!provider.provideChatSessionProviderOptions) {
+      return;
+    }
+    try {
+      const { optionGroups } = await provider.provideChatSessionProviderOptions(token);
+      if (!optionGroups) {
+        return;
+      }
+      this._providerOptionGroups.set(handle, optionGroups);
+      return {
+        optionGroups
+      };
+    } catch (error) {
+      this._logService.error(`Error calling provideChatSessionProviderOptions for handle ${handle}:`, error);
+      return;
+    }
+  }
+  async $interruptChatSessionActiveResponse(providerHandle, sessionResource, requestId) {
+    const entry = this._extHostChatSessions.get(URI.revive(sessionResource));
+    entry?.disposeCts.cancel();
+  }
+  async $disposeChatSessionContent(providerHandle, sessionResource) {
+    const entry = this._extHostChatSessions.get(URI.revive(sessionResource));
+    if (!entry) {
+      this._logService.warn(`No chat session found for resource: ${sessionResource}`);
+      return;
+    }
+    entry.disposeCts.cancel();
+    entry.sessionObj.sessionDisposables.dispose();
+    this._extHostChatSessions.delete(URI.revive(sessionResource));
+  }
+  async $invokeChatSessionRequestHandler(handle, sessionResource, request, history, token) {
+    const entry = this._extHostChatSessions.get(URI.revive(sessionResource));
+    if (!entry || !entry.sessionObj.session.requestHandler) {
+      return {};
+    }
+    const chatRequest = typeConvert.ChatAgentRequest.to(request, void 0, await this.getModelForRequest(request, entry.sessionObj.extension), [], /* @__PURE__ */ new Map(), entry.sessionObj.extension, this._logService);
+    const stream = entry.sessionObj.getActiveRequestStream(request);
+    await entry.sessionObj.session.requestHandler(chatRequest, { history, yieldRequested: false }, stream.apiObject, token);
+    return {};
+  }
+  async getModelForRequest(request, extension) {
+    let model;
+    if (request.userSelectedModelId) {
+      model = await this._languageModels.getLanguageModelByIdentifier(extension, request.userSelectedModelId);
+    }
+    if (!model) {
+      model = await this._languageModels.getDefaultLanguageModel(extension);
+      if (!model) {
+        throw new Error("Language model unavailable");
+      }
+    }
+    return model;
+  }
+  convertRequestTurn(turn) {
+    const variables = turn.references.map((ref) => this.convertReferenceToVariable(ref));
+    return {
+      type: "request",
+      id: turn.id,
+      prompt: turn.prompt,
+      participant: turn.participant,
+      command: turn.command,
+      variableData: variables.length > 0 ? { variables } : void 0
+    };
+  }
+  convertReferenceToVariable(ref) {
+    const value = ref.value && typeof ref.value === "object" && "uri" in ref.value && "range" in ref.value ? typeConvert.Location.from(ref.value) : ref.value;
+    const range = ref.range ? { start: ref.range[0], endExclusive: ref.range[1] } : void 0;
+    if (value && value instanceof extHostTypes.ChatReferenceDiagnostic && Array.isArray(value.diagnostics) && value.diagnostics.length && value.diagnostics[0][1].length) {
+      const marker = Diagnostic.from(value.diagnostics[0][1][0]);
+      const refValue = {
+        filterRange: { startLineNumber: marker.startLineNumber, startColumn: marker.startColumn, endLineNumber: marker.endLineNumber, endColumn: marker.endColumn },
+        filterSeverity: marker.severity,
+        filterUri: value.diagnostics[0][0],
+        problemMessage: value.diagnostics[0][1][0].message
+      };
+      return IDiagnosticVariableEntryFilterData.toEntry(refValue);
+    }
+    if (extHostTypes.Location.isLocation(ref.value) && ref.name.startsWith(`sym:`)) {
+      const loc = typeConvert.Location.from(ref.value);
+      return {
+        id: ref.id,
+        name: ref.name,
+        fullName: ref.name.substring(4),
+        value: { uri: ref.value.uri, range: loc.range },
+        // We never send this information to extensions, so default to Property
+        symbolKind: 6,
+        // We never send this information to extensions, so default to Property
+        icon: SymbolKinds.toIcon(
+          6
+          /* SymbolKind.Property */
+        ),
+        kind: "symbol",
+        range
+      };
+    }
+    if (URI.isUri(value) && ref.name.startsWith(`prompt:`) && ref.id.startsWith(PromptFileVariableKind.PromptFile) && ref.id.endsWith(value.toString())) {
+      return {
+        id: ref.id,
+        name: `prompt:${basename(value)}`,
+        value,
+        kind: "promptFile",
+        modelDescription: "Prompt instructions file",
+        isRoot: true,
+        automaticallyAdded: false,
+        range
+      };
+    }
+    const isFile = URI.isUri(value) || value && typeof value === "object" && "uri" in value;
+    const isFolder = isFile && URI.isUri(value) && value.path.endsWith("/");
+    return {
+      id: ref.id,
+      name: ref.name,
+      value,
+      modelDescription: ref.modelDescription,
+      range,
+      kind: isFolder ? "directory" : isFile ? "file" : "generic"
+    };
+  }
+  convertResponseTurn(turn, sessionDisposables) {
+    const parts = coalesce(turn.response.map((r) => typeConvert.ChatResponsePart.from(r, this.commands.converter, sessionDisposables)));
+    return {
+      type: "response",
+      parts,
+      participant: turn.participant
+    };
+  }
+  async $invokeOptionGroupSearch(providerHandle, optionGroupId, query, token) {
+    const optionGroups = this._providerOptionGroups.get(providerHandle);
+    if (!optionGroups) {
+      this._logService.warn(`No option groups found for provider handle ${providerHandle}`);
+      return [];
+    }
+    const group = optionGroups.find((g) => g.id === optionGroupId);
+    if (!group || !group.onSearch) {
+      this._logService.warn(`No onSearch callback found for option group ${optionGroupId}`);
+      return [];
+    }
+    try {
+      const results = await group.onSearch(query, token);
+      return results ?? [];
+    } catch (error) {
+      this._logService.error(`Error calling onSearch for option group ${optionGroupId}:`, error);
+      return [];
+    }
+  }
+  $onDidChangeChatSessionItemState(controllerHandle, sessionResourceComponents, archived) {
+    const controllerData = this._chatSessionItemControllers.get(controllerHandle);
+    if (!controllerData) {
+      this._logService.warn(`No controller found for handle ${controllerHandle}`);
+      return;
+    }
+    const sessionResource = URI.revive(sessionResourceComponents);
+    const item = controllerData.controller.items.get(sessionResource);
+    if (!item) {
+      this._logService.warn(`No item found for session resource ${sessionResource.toString()}`);
+      return;
+    }
+    item.archived = archived;
+    controllerData.onDidChangeChatSessionItemStateEmitter.fire(item);
+  }
+};
+ExtHostChatSessions = ExtHostChatSessions_1 = __decorate([
+  __param(2, IExtHostRpcService),
+  __param(3, ILogService)
+], ExtHostChatSessions);
+export {
+  ExtHostChatSessions
+};
+//# sourceMappingURL=extHostChatSessions.js.map

@@ -1,1 +1,225 @@
-import{CancellationToken as p}from"../../../base/common/cancellation.js";import{$xf as g}from"../../../base/common/event.js";import{$ro as b,$qo as v}from"../../contextkey/common/contextkey.js";import{$Mj as I}from"../../instantiation/common/instantiation.js";import{$flb as C}from"../../layout/browser/layoutService.js";import{$EP as F}from"../../opener/common/opener.js";import{$Ibc as D}from"./quickAccess.js";import{$Ijb as y,$Vjb as B,$Sjb as w,$Gjb as S,$Kjb as j,$Mjb as q,$1jb as O}from"../../theme/browser/defaultStyles.js";import{$iq as m,$Wp as o,$3t as P,$2t as _,$Yt as f,$Zt as Q,$7t as h,$5t as l,$6t as T,$1t as x,$Sr as A,$Rr as G}from"../../theme/common/colorRegistry.js";import{$qu as H,$yu as R}from"../../theme/common/themeService.js";import{$RCb as W}from"./quickInput.js";import{$Hbc as K}from"./quickInputController.js";import{$0l as L}from"../../configuration/common/configuration.js";import{getWindow as k}from"../../../base/browser/dom.js";var $=function(c,t,e,n){var r=arguments.length,i=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(c,t,e,n);else for(var a=c.length-1;a>=0;a--)(s=c[a])&&(i=(r<3?s(i):r>3?s(t,e,i):s(t,e))||i);return r>3&&i&&Object.defineProperty(t,e,i),i},u=function(c,t){return function(e,n){t(e,n,c)}};let d=class extends R{get backButton(){return this.f.backButton}get f(){return this.c||(this.c=this.D(this.w())),this.c}get g(){return!!this.c}get currentQuickInput(){return this.f.currentQuickInput}get quickAccess(){return this.j||(this.j=this.D(this.r.createInstance(D))),this.j}constructor(t,e,n,r,i){super(n),this.r=t,this.s=e,this.t=r,this.u=i,this.a=this.D(new g),this.onShow=this.a.event,this.b=this.D(new g),this.onHide=this.b.event,this.m=new Map}w(t=this.t,e){const n={idPrefix:"quickInput_",container:t.activeContainer,ignoreFocusOut:()=>!1,backKeybindingLabel:()=>{},setContextKey:i=>this.y(i),linkOpenerDelegate:i=>{this.r.invokeFunction(s=>{s.get(F).open(i,{allowCommands:!0,fromUserGesture:!0})})},returnFocus:()=>t.focus(),styles:this.F(),hoverDelegate:this.D(this.r.createInstance(W))},r=this.D(this.r.createInstance(K,{...n,...e}));return r.layout(t.activeContainerDimension,t.activeContainerOffset.quickPickTop),this.D(t.onDidLayoutActiveContainer(i=>{k(t.activeContainer)===k(r.container)&&r.layout(i,t.activeContainerOffset.quickPickTop)})),this.D(t.onDidChangeActiveContainer(()=>{r.isVisible()||r.layout(t.activeContainerDimension,t.activeContainerOffset.quickPickTop)})),this.D(r.onShow(()=>{this.C(),this.a.fire()})),this.D(r.onHide(()=>{this.C(),this.b.fire()})),r}y(t){let e;t&&(e=this.m.get(t),e||(e=new v(t,!1).bindTo(this.s),this.m.set(t,e))),!(e&&e.get())&&(this.C(),e?.set(!0))}C(){this.m.forEach(t=>{t.get()&&t.reset()})}pick(t,e,n=p.None){return this.f.pick(t,e,n)}input(t={},e=p.None){return this.f.input(t,e)}createQuickPick(t={useSeparators:!1}){return this.f.createQuickPick(t)}createInputBox(){return this.f.createInputBox()}createQuickWidget(){return this.f.createQuickWidget()}createQuickTree(){return this.f.createQuickTree()}focus(){this.f.focus()}toggle(){this.f.toggle()}navigate(t,e){this.f.navigate(t,e)}accept(t){return this.f.accept(t)}back(){return this.f.back()}cancel(t){return this.f.cancel(t)}setAlignment(t){this.f.setAlignment(t)}toggleHover(){this.g&&this.f.toggleHover()}updateStyles(){this.g&&this.f.applyStyles(this.F())}F(){return{widget:{quickInputBackground:o(f),quickInputForeground:o(Q),quickInputTitleBackground:o(x),widgetBorder:o(A),widgetShadow:o(G)},inputBox:w,toggle:q,countBadge:B,button:y,progressBar:j,keybindingLabel:S,list:O({listBackground:f,listFocusBackground:h,listFocusForeground:l,listInactiveFocusForeground:l,listInactiveSelectionIconForeground:T,listInactiveFocusBackground:h,listInactiveSelectionBackground:h,listInactiveSelectionForeground:l,listFocusOutline:m,listInactiveFocusOutline:m,treeStickyScrollBackground:f}),pickerGroup:{pickerGroupBorder:o(P),pickerGroupForeground:o(_)}}}};d=$([u(0,I),u(1,b),u(2,H),u(3,C),u(4,L)],d);export{d as $Jbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter } from "../../../base/common/event.js";
+import { IContextKeyService, RawContextKey } from "../../contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { IOpenerService } from "../../opener/common/opener.js";
+import { QuickAccessController } from "./quickAccess.js";
+import { defaultButtonStyles, defaultCountBadgeStyles, defaultInputBoxStyles, defaultKeybindingLabelStyles, defaultProgressBarStyles, defaultToggleStyles, getListStyles } from "../../theme/browser/defaultStyles.js";
+import { activeContrastBorder, asCssVariable, pickerGroupBorder, pickerGroupForeground, quickInputBackground, quickInputForeground, quickInputListFocusBackground, quickInputListFocusForeground, quickInputListFocusIconForeground, quickInputTitleBackground, widgetBorder, widgetShadow } from "../../theme/common/colorRegistry.js";
+import { IThemeService, Themable } from "../../theme/common/themeService.js";
+import { QuickInputHoverDelegate } from "./quickInput.js";
+import { QuickInputController } from "./quickInputController.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { getWindow } from "../../../base/browser/dom.js";
+let QuickInputService = class QuickInputService2 extends Themable {
+  static {
+    __name(this, "QuickInputService");
+  }
+  get backButton() {
+    return this.controller.backButton;
+  }
+  get controller() {
+    if (!this._controller) {
+      this._controller = this._register(this.createController());
+    }
+    return this._controller;
+  }
+  get hasController() {
+    return !!this._controller;
+  }
+  get currentQuickInput() {
+    return this.controller.currentQuickInput;
+  }
+  get quickAccess() {
+    if (!this._quickAccess) {
+      this._quickAccess = this._register(this.instantiationService.createInstance(QuickAccessController));
+    }
+    return this._quickAccess;
+  }
+  constructor(instantiationService, contextKeyService, themeService, layoutService, configurationService) {
+    super(themeService);
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.layoutService = layoutService;
+    this.configurationService = configurationService;
+    this._onShow = this._register(new Emitter());
+    this.onShow = this._onShow.event;
+    this._onHide = this._register(new Emitter());
+    this.onHide = this._onHide.event;
+    this.contexts = /* @__PURE__ */ new Map();
+  }
+  createController(host = this.layoutService, options) {
+    const defaultOptions = {
+      idPrefix: "quickInput_",
+      container: host.activeContainer,
+      ignoreFocusOut: /* @__PURE__ */ __name(() => false, "ignoreFocusOut"),
+      backKeybindingLabel: /* @__PURE__ */ __name(() => void 0, "backKeybindingLabel"),
+      setContextKey: /* @__PURE__ */ __name((id) => this.setContextKey(id), "setContextKey"),
+      linkOpenerDelegate: /* @__PURE__ */ __name((content) => {
+        this.instantiationService.invokeFunction((accessor) => {
+          const openerService = accessor.get(IOpenerService);
+          openerService.open(content, { allowCommands: true, fromUserGesture: true });
+        });
+      }, "linkOpenerDelegate"),
+      returnFocus: /* @__PURE__ */ __name(() => host.focus(), "returnFocus"),
+      styles: this.computeStyles(),
+      hoverDelegate: this._register(this.instantiationService.createInstance(QuickInputHoverDelegate))
+    };
+    const controller = this._register(this.instantiationService.createInstance(QuickInputController, {
+      ...defaultOptions,
+      ...options
+    }));
+    controller.layout(host.activeContainerDimension, host.activeContainerOffset.quickPickTop);
+    this._register(host.onDidLayoutActiveContainer((dimension) => {
+      if (getWindow(host.activeContainer) === getWindow(controller.container)) {
+        controller.layout(dimension, host.activeContainerOffset.quickPickTop);
+      }
+    }));
+    this._register(host.onDidChangeActiveContainer(() => {
+      if (controller.isVisible()) {
+        return;
+      }
+      controller.layout(host.activeContainerDimension, host.activeContainerOffset.quickPickTop);
+    }));
+    this._register(controller.onShow(() => {
+      this.resetContextKeys();
+      this._onShow.fire();
+    }));
+    this._register(controller.onHide(() => {
+      this.resetContextKeys();
+      this._onHide.fire();
+    }));
+    return controller;
+  }
+  setContextKey(id) {
+    let key;
+    if (id) {
+      key = this.contexts.get(id);
+      if (!key) {
+        key = new RawContextKey(id, false).bindTo(this.contextKeyService);
+        this.contexts.set(id, key);
+      }
+    }
+    if (key && key.get()) {
+      return;
+    }
+    this.resetContextKeys();
+    key?.set(true);
+  }
+  resetContextKeys() {
+    this.contexts.forEach((context) => {
+      if (context.get()) {
+        context.reset();
+      }
+    });
+  }
+  pick(picks, options, token = CancellationToken.None) {
+    return this.controller.pick(picks, options, token);
+  }
+  input(options = {}, token = CancellationToken.None) {
+    return this.controller.input(options, token);
+  }
+  createQuickPick(options = { useSeparators: false }) {
+    return this.controller.createQuickPick(options);
+  }
+  createInputBox() {
+    return this.controller.createInputBox();
+  }
+  createQuickWidget() {
+    return this.controller.createQuickWidget();
+  }
+  createQuickTree() {
+    return this.controller.createQuickTree();
+  }
+  focus() {
+    this.controller.focus();
+  }
+  toggle() {
+    this.controller.toggle();
+  }
+  navigate(next, quickNavigate) {
+    this.controller.navigate(next, quickNavigate);
+  }
+  accept(keyMods) {
+    return this.controller.accept(keyMods);
+  }
+  back() {
+    return this.controller.back();
+  }
+  cancel(reason) {
+    return this.controller.cancel(reason);
+  }
+  setAlignment(alignment) {
+    this.controller.setAlignment(alignment);
+  }
+  toggleHover() {
+    if (this.hasController) {
+      this.controller.toggleHover();
+    }
+  }
+  updateStyles() {
+    if (this.hasController) {
+      this.controller.applyStyles(this.computeStyles());
+    }
+  }
+  computeStyles() {
+    return {
+      widget: {
+        quickInputBackground: asCssVariable(quickInputBackground),
+        quickInputForeground: asCssVariable(quickInputForeground),
+        quickInputTitleBackground: asCssVariable(quickInputTitleBackground),
+        widgetBorder: asCssVariable(widgetBorder),
+        widgetShadow: asCssVariable(widgetShadow)
+      },
+      inputBox: defaultInputBoxStyles,
+      toggle: defaultToggleStyles,
+      countBadge: defaultCountBadgeStyles,
+      button: defaultButtonStyles,
+      progressBar: defaultProgressBarStyles,
+      keybindingLabel: defaultKeybindingLabelStyles,
+      list: getListStyles({
+        listBackground: quickInputBackground,
+        listFocusBackground: quickInputListFocusBackground,
+        listFocusForeground: quickInputListFocusForeground,
+        // Look like focused when inactive.
+        listInactiveFocusForeground: quickInputListFocusForeground,
+        listInactiveSelectionIconForeground: quickInputListFocusIconForeground,
+        listInactiveFocusBackground: quickInputListFocusBackground,
+        listInactiveSelectionBackground: quickInputListFocusBackground,
+        listInactiveSelectionForeground: quickInputListFocusForeground,
+        listFocusOutline: activeContrastBorder,
+        listInactiveFocusOutline: activeContrastBorder,
+        treeStickyScrollBackground: quickInputBackground
+      }),
+      pickerGroup: {
+        pickerGroupBorder: asCssVariable(pickerGroupBorder),
+        pickerGroupForeground: asCssVariable(pickerGroupForeground)
+      }
+    };
+  }
+};
+QuickInputService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IContextKeyService),
+  __param(2, IThemeService),
+  __param(3, ILayoutService),
+  __param(4, IConfigurationService)
+], QuickInputService);
+export {
+  QuickInputService
+};
+//# sourceMappingURL=quickInputService.js.map

@@ -1,1 +1,117 @@
-import{$xf as r}from"../../../../base/common/event.js";import{$Ed as H}from"../../../../base/common/lifecycle.js";import{Schemas as P}from"../../../../base/common/network.js";import{$$c as g,$9c as w}from"../../../../base/common/types.js";import{localize as o}from"../../../../nls.js";class C extends H{get isResponsive(){return!this.a}constructor(e,t,l,d,p,u){super(),this.h=e,this.j=t,this.m=u,this.a=!1,this.b=this.D(new r),this.onPtyHostConnected=this.b.event,this.c=this.D(new r),this.onPtyHostRestart=this.c.event,this.f=this.D(new r),this.onPtyHostUnresponsive=this.f.event,this.g=this.D(new r),this.onPtyHostResponsive=this.g.event;let n,i,h=!1;this.D(this.h.onPtyHostExit(()=>{this.j.error("The terminal's pty host process exited, the connection to all terminal processes was lost")})),this.D(this.onPtyHostConnected(()=>h=!0)),this.D(this.h.onPtyHostStart(()=>{this.j.debug("The terminal's pty host process is starting"),h&&(this.j.trace("IPtyHostController#onPtyHostRestart"),this.c.fire()),i?.dispose(),this.a=!1})),this.D(this.h.onPtyHostUnresponsive(()=>{i?.dispose(),n||(n={name:o(13169,null),text:`$(debug-disconnect) ${o(13170,null)}`,tooltip:o(13171,null),ariaLabel:o(13172,null),command:"workbench.action.terminal.restartPtyHost",kind:"warning"}),i=p.addEntry(n,"ptyHostStatus",0),this.a=!0,this.f.fire()})),this.D(this.h.onPtyHostResponsive(()=>{this.a&&(this.j.info("The pty host became responsive again"),i?.dispose(),this.a=!1,this.g.fire())})),this.D(this.h.onPtyHostRequestResolveVariables(async a=>{if(a.workspaceId!==this.m.getWorkspace().id)return;const c=l.getLastActiveWorkspaceRoot(P.file),f=c?this.m.getWorkspaceFolder(c)??void 0:void 0,m=a.originalText.map(y=>d.resolveAsync(f,y)),v=await Promise.all(m);this.h.acceptPtyHostResolvedVariables(a.requestId,v)}))}restartPtyHost(){this.h.restartPtyHost()}n(e){if(e===void 0)return;const t=JSON.parse(e);if(!R(t)){this.j.warn("Could not revive serialized processes, wrong format",t);return}if(t.version!==1){this.j.warn(`Could not revive serialized processes, wrong version "${t.version}"`,t);return}return t.state}q(){return this.m.getWorkspace().id}}function R(s){return w(s)&&"version"in s&&g(s.version)&&"state"in s&&Array.isArray(s.state)}export{C as $VBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isNumber, isObject } from "../../../../base/common/types.js";
+import { localize } from "../../../../nls.js";
+class BaseTerminalBackend extends Disposable {
+  static {
+    __name(this, "BaseTerminalBackend");
+  }
+  get isResponsive() {
+    return !this._isPtyHostUnresponsive;
+  }
+  constructor(_ptyHostController, _logService, historyService, configurationResolverService, statusBarService, _workspaceContextService) {
+    super();
+    this._ptyHostController = _ptyHostController;
+    this._logService = _logService;
+    this._workspaceContextService = _workspaceContextService;
+    this._isPtyHostUnresponsive = false;
+    this._onPtyHostConnected = this._register(new Emitter());
+    this.onPtyHostConnected = this._onPtyHostConnected.event;
+    this._onPtyHostRestart = this._register(new Emitter());
+    this.onPtyHostRestart = this._onPtyHostRestart.event;
+    this._onPtyHostUnresponsive = this._register(new Emitter());
+    this.onPtyHostUnresponsive = this._onPtyHostUnresponsive.event;
+    this._onPtyHostResponsive = this._register(new Emitter());
+    this.onPtyHostResponsive = this._onPtyHostResponsive.event;
+    let unresponsiveStatusBarEntry;
+    let statusBarAccessor;
+    let hasStarted = false;
+    this._register(this._ptyHostController.onPtyHostExit(() => {
+      this._logService.error(`The terminal's pty host process exited, the connection to all terminal processes was lost`);
+    }));
+    this._register(this.onPtyHostConnected(() => hasStarted = true));
+    this._register(this._ptyHostController.onPtyHostStart(() => {
+      this._logService.debug(`The terminal's pty host process is starting`);
+      if (hasStarted) {
+        this._logService.trace("IPtyHostController#onPtyHostRestart");
+        this._onPtyHostRestart.fire();
+      }
+      statusBarAccessor?.dispose();
+      this._isPtyHostUnresponsive = false;
+    }));
+    this._register(this._ptyHostController.onPtyHostUnresponsive(() => {
+      statusBarAccessor?.dispose();
+      if (!unresponsiveStatusBarEntry) {
+        unresponsiveStatusBarEntry = {
+          name: localize("ptyHostStatus", "Pty Host Status"),
+          text: `$(debug-disconnect) ${localize("ptyHostStatus.short", "Pty Host")}`,
+          tooltip: localize("nonResponsivePtyHost", "The connection to the terminal's pty host process is unresponsive, terminals may stop working. Click to manually restart the pty host."),
+          ariaLabel: localize("ptyHostStatus.ariaLabel", "Pty Host is unresponsive"),
+          command: "workbench.action.terminal.restartPtyHost",
+          kind: "warning"
+        };
+      }
+      statusBarAccessor = statusBarService.addEntry(
+        unresponsiveStatusBarEntry,
+        "ptyHostStatus",
+        0
+        /* StatusbarAlignment.LEFT */
+      );
+      this._isPtyHostUnresponsive = true;
+      this._onPtyHostUnresponsive.fire();
+    }));
+    this._register(this._ptyHostController.onPtyHostResponsive(() => {
+      if (!this._isPtyHostUnresponsive) {
+        return;
+      }
+      this._logService.info("The pty host became responsive again");
+      statusBarAccessor?.dispose();
+      this._isPtyHostUnresponsive = false;
+      this._onPtyHostResponsive.fire();
+    }));
+    this._register(this._ptyHostController.onPtyHostRequestResolveVariables(async (e) => {
+      if (e.workspaceId !== this._workspaceContextService.getWorkspace().id) {
+        return;
+      }
+      const activeWorkspaceRootUri = historyService.getLastActiveWorkspaceRoot(Schemas.file);
+      const lastActiveWorkspaceRoot = activeWorkspaceRootUri ? this._workspaceContextService.getWorkspaceFolder(activeWorkspaceRootUri) ?? void 0 : void 0;
+      const resolveCalls = e.originalText.map((t) => {
+        return configurationResolverService.resolveAsync(lastActiveWorkspaceRoot, t);
+      });
+      const result = await Promise.all(resolveCalls);
+      this._ptyHostController.acceptPtyHostResolvedVariables(e.requestId, result);
+    }));
+  }
+  restartPtyHost() {
+    this._ptyHostController.restartPtyHost();
+  }
+  _deserializeTerminalState(serializedState) {
+    if (serializedState === void 0) {
+      return void 0;
+    }
+    const crossVersionState = JSON.parse(serializedState);
+    if (!isCrossVersionSerializedTerminalState(crossVersionState)) {
+      this._logService.warn("Could not revive serialized processes, wrong format", crossVersionState);
+      return void 0;
+    }
+    if (crossVersionState.version !== 1) {
+      this._logService.warn(`Could not revive serialized processes, wrong version "${crossVersionState.version}"`, crossVersionState);
+      return void 0;
+    }
+    return crossVersionState.state;
+  }
+  _getWorkspaceId() {
+    return this._workspaceContextService.getWorkspace().id;
+  }
+}
+function isCrossVersionSerializedTerminalState(obj) {
+  return isObject(obj) && "version" in obj && isNumber(obj.version) && "state" in obj && Array.isArray(obj.state);
+}
+__name(isCrossVersionSerializedTerminalState, "isCrossVersionSerializedTerminalState");
+export {
+  BaseTerminalBackend
+};
+//# sourceMappingURL=baseTerminalBackend.js.map

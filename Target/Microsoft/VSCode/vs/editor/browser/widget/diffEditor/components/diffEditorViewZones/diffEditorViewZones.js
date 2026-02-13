@@ -1,1 +1,544 @@
-import{$ as re,$u8 as X}from"../../../../../../base/browser/dom.js";import{$Cc as J}from"../../../../../../base/common/arrays.js";import{$ji as de}from"../../../../../../base/common/async.js";import{$bk as ae}from"../../../../../../base/common/codicons.js";import{$Ed as le,$Dd as ue}from"../../../../../../base/common/lifecycle.js";import{autorun as q,derived as F,observableFromEvent as Z,observableValue as O}from"../../../../../../base/common/observable.js";import{ThemeIcon as K}from"../../../../../../base/common/themables.js";import{$gd as he}from"../../../../../../base/common/types.js";import{$7cb as ge}from"../../../../config/domFontInfo.js";import{$djb as me,$8ib as fe}from"../../registrations.contribution.js";import{$vjb as ce}from"../../diffEditorViewModel.js";import{$ojb as pe}from"./inlineDiffDeletedCodeMargin.js";import{$kjb as be,$ljb as Ne,$jjb as Le}from"./renderLines.js";import{$Lib as Q,$Gib as we}from"../../utils.js";import{$jE as V}from"../../../../../common/core/ranges/lineRange.js";import{$$D as Ce}from"../../../../../common/core/position.js";import{$gjb as xe}from"../../../../../../platform/clipboard/common/clipboardService.js";import{$ijb as Ie}from"../../../../../../platform/contextview/browser/contextView.js";import{$_D as Re}from"../../../../../common/core/range.js";import{$Ucb as Me}from"../../../../../common/viewModel/inlineDecorations.js";var se=function(o,d,m,c){var w=arguments.length,u=w<3?d:c===null?c=Object.getOwnPropertyDescriptor(d,m):c,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")u=Reflect.decorate(o,d,m,c);else for(var N=o.length-1;N>=0;N--)(p=o[N])&&(u=(w<3?p(u):w>3?p(d,m,u):p(d,m))||u);return w>3&&u&&Object.defineProperty(d,m,u),u},U=function(o,d){return function(m,c){d(m,c,o)}};let Y=class extends le{constructor(d,m,c,w,u,p,N,a,L,S){super(),this.t=d,this.u=m,this.y=c,this.z=w,this.C=u,this.F=p,this.G=N,this.H=a,this.I=L,this.J=S,this.b=O(this,0),this.g=O(this,0),this.h=Q(this.t,this.g,this.B),this.j=O(this,0),this.q=O(this,0),this.s=Q(this.t,this.q,this.B);const C=O("invalidateAlignmentsState",0),x=this.D(new de(()=>{C.set(C.get()+1,void 0)},0));this.D(this.u.original.onDidChangeViewZones(e=>{this.F()||x.schedule()})),this.D(this.u.modified.onDidChangeViewZones(e=>{this.F()||x.schedule()})),this.D(this.u.original.onDidChangeConfiguration(e=>{(e.hasChanged(166)||e.hasChanged(75))&&x.schedule()})),this.D(this.u.modified.onDidChangeConfiguration(e=>{(e.hasChanged(166)||e.hasChanged(75))&&x.schedule()}));const _=this.y.map(e=>e?Z(this,e.model.original.onDidChangeTokens,()=>e.model.original.tokenization.backgroundTokenizationState===2):void 0).map((e,t)=>e?.read(t)),W=F(e=>{const t=this.y.read(e),i=t?.diff.read(e);if(!t||!i)return null;C.read(e);const I=this.z.renderSideBySide.read(e);return ee(this.u.original,this.u.modified,i.mappings,this.G,this.H,I)}),v=F(e=>{const t=this.y.read(e)?.movedTextToCompare.read(e);if(!t)return null;C.read(e);const i=t.changes.map(r=>new ce(r));return ee(this.u.original,this.u.modified,i,this.G,this.H,!0)});function l(){const e=document.createElement("div");return e.className="diagonal-fill",e}const h=this.D(new ue);this.viewZones=F(this,e=>{h.clear();const t=W.read(e)||[],i=[],r=[],I=this.j.read(e);I>0&&r.push({afterLineNumber:0,domNode:document.createElement("div"),heightInPx:I,showInHiddenAreas:!0,suppressMouseDown:!0});const D=this.b.read(e);D>0&&i.push({afterLineNumber:0,domNode:document.createElement("div"),heightInPx:D,showInHiddenAreas:!0,suppressMouseDown:!0});const P=this.z.renderSideBySide.read(e),j=P?void 0:this.u.modified._getViewModel()?.createLineBreaksComputer();if(j){const n=this.u.original.getModel();for(const f of t)if(f.diff)for(let b=f.originalRange.startLineNumber;b<f.originalRange.endLineNumberExclusive;b++){if(b>n.getLineCount())return{orig:i,mod:r};j?.addRequest(n.getLineContent(b),null,null)}}const z=j?.finalize()??[];let R=0;const M=this.u.modified.getOption(75),k=this.y.read(e)?.movedTextToCompare.read(e),te=this.u.original.getModel()?.mightContainNonBasicASCII()??!1,oe=this.u.original.getModel()?.mightContainRTL()??!1,B=Ne.fromEditor(this.u.modified);for(const n of t)if(n.diff&&!P&&(!this.z.useTrueInlineDiffRendering.read(e)||!ve(n.diff))){if(!n.originalRange.isEmpty){_.read(e);const b=document.createElement("div");b.classList.add("view-lines","line-delete","line-delete-selectable","monaco-mouse-cursor-text");const E=this.u.original.getModel();if(n.originalRange.endLineNumberExclusive-1>E.getLineCount())return{orig:i,mod:r};const T=new be(n.originalRange.mapToLineArray(g=>E.tokenization.getLineTokens(g)),n.originalRange.mapToLineArray(g=>z[R++]),te,oe),H=[];for(const g of n.diff.innerChanges||[])H.push(new Me(g.originalRange.delta(-(n.diff.original.startLineNumber-1)),me.className,0));const $=Le(T,B,H,b),y=document.createElement("div");if(y.className="inline-deleted-margin-view-zone",ge(y,B.fontInfo),this.z.renderIndicators.read(e))for(let g=0;g<$.heightInLines;g++){const A=document.createElement("div");A.className=`delete-sign ${K.asClassName(fe)}`,A.setAttribute("style",`position:absolute;top:${g*M}px;width:${B.lineDecorationsWidth}px;height:${M}px;right:0;`),y.appendChild(A)}let G;h.add(new pe(()=>he(G),y,b,this.u.modified,n.diff,this.C,$,this.u.original.getModel(),this.J,this.I));for(let g=0;g<$.viewLineCounts.length;g++){const A=$.viewLineCounts[g];A>1&&i.push({afterLineNumber:n.originalRange.startLineNumber+g,domNode:l(),heightInPx:(A-1)*M,showInHiddenAreas:!0,suppressMouseDown:!0})}r.push({afterLineNumber:n.modifiedRange.startLineNumber-1,domNode:b,heightInPx:$.heightInLines*M,minWidthInPx:$.minWidthInPx,marginDomNode:y,setZoneId(g){G=g},showInHiddenAreas:!0,suppressMouseDown:!1})}const f=document.createElement("div");f.className="gutter-delete",i.push({afterLineNumber:n.originalRange.endLineNumberExclusive-1,domNode:l(),heightInPx:n.modifiedHeightInPx,marginDomNode:f,showInHiddenAreas:!0,suppressMouseDown:!0})}else{const f=n.modifiedHeightInPx-n.originalHeightInPx;if(f>0){if(k?.lineRangeMapping.original.delta(-1).deltaLength(2).contains(n.originalRange.endLineNumberExclusive-1))continue;i.push({afterLineNumber:n.originalRange.endLineNumberExclusive-1,domNode:l(),heightInPx:f,showInHiddenAreas:!0,suppressMouseDown:!0})}else{let b=function(){const T=document.createElement("div");return T.className="arrow-revert-change "+K.asClassName(ae.arrowRight),e.store.add(X(T,"mousedown",H=>H.stopPropagation())),e.store.add(X(T,"click",H=>{H.stopPropagation(),u.revert(n.diff)})),re("div",{},T)};var De=b;if(k?.lineRangeMapping.modified.delta(-1).deltaLength(2).contains(n.modifiedRange.endLineNumberExclusive-1))continue;let E;n.diff&&n.diff.modified.isEmpty&&this.z.shouldRenderOldRevertArrows.read(e)&&(E=b()),r.push({afterLineNumber:n.modifiedRange.endLineNumberExclusive-1,domNode:l(),heightInPx:-f,marginDomNode:E,showInHiddenAreas:!0,suppressMouseDown:!0})}}for(const n of v.read(e)??[]){if(!k?.lineRangeMapping.original.intersect(n.originalRange)||!k?.lineRangeMapping.modified.intersect(n.modifiedRange))continue;const f=n.modifiedHeightInPx-n.originalHeightInPx;f>0?i.push({afterLineNumber:n.originalRange.endLineNumberExclusive-1,domNode:l(),heightInPx:f,showInHiddenAreas:!0,suppressMouseDown:!0}):r.push({afterLineNumber:n.modifiedRange.endLineNumberExclusive-1,domNode:l(),heightInPx:-f,showInHiddenAreas:!0,suppressMouseDown:!0})}return{orig:i,mod:r}});let s=!1;this.D(this.u.original.onDidScrollChange(e=>{e.scrollLeftChanged&&!s&&(s=!0,this.u.modified.setScrollLeft(e.scrollLeft),s=!1)})),this.D(this.u.modified.onDidScrollChange(e=>{e.scrollLeftChanged&&!s&&(s=!0,this.u.original.setScrollLeft(e.scrollLeft),s=!1)})),this.f=Z(this.u.original.onDidScrollChange,()=>this.u.original.getScrollTop()),this.n=Z(this.u.modified.onDidScrollChange,()=>this.u.modified.getScrollTop()),this.D(q(e=>{const t=this.f.read(e)-(this.h.read(void 0)-this.s.read(e))-(this.b.read(void 0)-this.j.read(e));t!==this.u.modified.getScrollTop()&&this.u.modified.setScrollTop(t,1)})),this.D(q(e=>{const t=this.n.read(e)-(this.s.read(void 0)-this.h.read(e))-(this.j.read(void 0)-this.b.read(e));t!==this.u.original.getScrollTop()&&this.u.original.setScrollTop(t,1)})),this.D(q(e=>{const t=this.y.read(e)?.movedTextToCompare.read(e);let i=0;if(t){const r=this.u.original.getTopForLineNumber(t.lineRangeMapping.original.startLineNumber,!0)-this.b.read(void 0);i=this.u.modified.getTopForLineNumber(t.lineRangeMapping.modified.startLineNumber,!0)-this.j.read(void 0)-r}i>0?(this.j.set(0,void 0),this.b.set(i,void 0)):i<0?(this.j.set(-i,void 0),this.b.set(0,void 0)):setTimeout(()=>{this.j.set(0,void 0),this.b.set(0,void 0)},400),this.u.modified.hasTextFocus()?this.g.set(this.q.read(void 0)-i,void 0,!0):this.q.set(this.g.read(void 0)+i,void 0,!0)}))}};Y=se([U(8,xe),U(9,Ie)],Y);function ee(o,d,m,c,w,u){const p=new J(ie(o,c)),N=new J(ie(d,w)),a=o.getOption(75),L=d.getOption(75),S=[];let C=0,x=0;function _(v,l){for(;;){let h=p.peek(),s=N.peek();if(h&&h.lineNumber>=v&&(h=void 0),s&&s.lineNumber>=l&&(s=void 0),!h&&!s)break;const e=h?h.lineNumber-C:Number.MAX_VALUE,t=s?s.lineNumber-x:Number.MAX_VALUE;e<t?(p.dequeue(),s={lineNumber:h.lineNumber-C+x,heightInPx:0}):e>t?(N.dequeue(),h={lineNumber:s.lineNumber-x+C,heightInPx:0}):(p.dequeue(),N.dequeue()),S.push({originalRange:V.ofLength(h.lineNumber,1),modifiedRange:V.ofLength(s.lineNumber,1),originalHeightInPx:a+h.heightInPx,modifiedHeightInPx:L+s.heightInPx,diff:void 0})}}for(const v of m){let t=function(i,r,I=!1){if(i<e||r<s)return;if(h)h=!1;else if(!I&&(i===e||r===s))return;const D=new V(e,i),P=new V(s,r);if(D.isEmpty&&P.isEmpty)return;const j=p.takeWhile(R=>R.lineNumber<i)?.reduce((R,M)=>R+M.heightInPx,0)??0,z=N.takeWhile(R=>R.lineNumber<r)?.reduce((R,M)=>R+M.heightInPx,0)??0;S.push({originalRange:D,modifiedRange:P,originalHeightInPx:D.length*a+j,modifiedHeightInPx:P.length*L+z,diff:v.lineRangeMapping}),e=i,s=r};var W=t;const l=v.lineRangeMapping;_(l.original.startLineNumber,l.modified.startLineNumber);let h=!0,s=l.modified.startLineNumber,e=l.original.startLineNumber;if(u)for(const i of l.innerChanges||[]){i.originalRange.startColumn>1&&i.modifiedRange.startColumn>1&&t(i.originalRange.startLineNumber,i.modifiedRange.startLineNumber);const r=o.getModel(),I=i.originalRange.endLineNumber<=r.getLineCount()?r.getLineMaxColumn(i.originalRange.endLineNumber):Number.MAX_SAFE_INTEGER;i.originalRange.endColumn<I&&t(i.originalRange.endLineNumber,i.modifiedRange.endLineNumber)}t(l.original.endLineNumberExclusive,l.modified.endLineNumberExclusive,!0),C=l.original.endLineNumberExclusive,x=l.modified.endLineNumberExclusive}return _(Number.MAX_VALUE,Number.MAX_VALUE),S}function ie(o,d){const m=[],c=[],w=o.getOption(166).wrappingColumn!==-1,u=o._getViewModel().coordinatesConverter,p=o.getOption(75);if(w)for(let a=1;a<=o.getModel().getLineCount();a++){const L=u.getModelLineViewLineCount(a);L>1&&c.push({lineNumber:a,heightInPx:p*(L-1)})}for(const a of o.getWhitespaces()){if(d.has(a.id))continue;const L=a.afterLineNumber===0?0:u.convertViewPositionToModelPosition(new Ce(a.afterLineNumber,1)).lineNumber;m.push({lineNumber:L,heightInPx:a.height})}return we(m,c,a=>a.lineNumber,(a,L)=>({lineNumber:a.lineNumber,heightInPx:a.heightInPx+L.heightInPx}))}function ve(o){return o.innerChanges?o.innerChanges.every(d=>ne(d.modifiedRange)&&ne(d.originalRange)||d.originalRange.equalsRange(new Re(1,1,1,1))):!1}function ne(o){return o.startLineNumber===o.endLineNumber}export{Y as $pjb,ve as $qjb,ne as $rjb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $, addDisposableListener } from "../../../../../../base/browser/dom.js";
+import { ArrayQueue } from "../../../../../../base/common/arrays.js";
+import { RunOnceScheduler } from "../../../../../../base/common/async.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { autorun, derived, observableFromEvent, observableValue } from "../../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { assertReturnsDefined } from "../../../../../../base/common/types.js";
+import { applyFontInfo } from "../../../../config/domFontInfo.js";
+import { diffDeleteDecoration, diffRemoveIcon } from "../../registrations.contribution.js";
+import { DiffMapping } from "../../diffEditorViewModel.js";
+import { InlineDiffDeletedCodeMargin } from "./inlineDiffDeletedCodeMargin.js";
+import { LineSource, RenderOptions, renderLines } from "./renderLines.js";
+import { animatedObservable, joinCombine } from "../../utils.js";
+import { LineRange } from "../../../../../common/core/ranges/lineRange.js";
+import { Position } from "../../../../../common/core/position.js";
+import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { Range } from "../../../../../common/core/range.js";
+import { InlineDecoration } from "../../../../../common/viewModel/inlineDecorations.js";
+let DiffEditorViewZones = class DiffEditorViewZones2 extends Disposable {
+  static {
+    __name(this, "DiffEditorViewZones");
+  }
+  constructor(_targetWindow, _editors, _diffModel, _options, _diffEditorWidget, _canIgnoreViewZoneUpdateEvent, _origViewZonesToIgnore, _modViewZonesToIgnore, _clipboardService, _contextMenuService) {
+    super();
+    this._targetWindow = _targetWindow;
+    this._editors = _editors;
+    this._diffModel = _diffModel;
+    this._options = _options;
+    this._diffEditorWidget = _diffEditorWidget;
+    this._canIgnoreViewZoneUpdateEvent = _canIgnoreViewZoneUpdateEvent;
+    this._origViewZonesToIgnore = _origViewZonesToIgnore;
+    this._modViewZonesToIgnore = _modViewZonesToIgnore;
+    this._clipboardService = _clipboardService;
+    this._contextMenuService = _contextMenuService;
+    this._originalTopPadding = observableValue(this, 0);
+    this._originalScrollOffset = observableValue(this, 0);
+    this._originalScrollOffsetAnimated = animatedObservable(this._targetWindow, this._originalScrollOffset, this._store);
+    this._modifiedTopPadding = observableValue(this, 0);
+    this._modifiedScrollOffset = observableValue(this, 0);
+    this._modifiedScrollOffsetAnimated = animatedObservable(this._targetWindow, this._modifiedScrollOffset, this._store);
+    const state = observableValue("invalidateAlignmentsState", 0);
+    const updateImmediately = this._register(new RunOnceScheduler(() => {
+      state.set(state.get() + 1, void 0);
+    }, 0));
+    this._register(this._editors.original.onDidChangeViewZones((_args) => {
+      if (!this._canIgnoreViewZoneUpdateEvent()) {
+        updateImmediately.schedule();
+      }
+    }));
+    this._register(this._editors.modified.onDidChangeViewZones((_args) => {
+      if (!this._canIgnoreViewZoneUpdateEvent()) {
+        updateImmediately.schedule();
+      }
+    }));
+    this._register(this._editors.original.onDidChangeConfiguration((args) => {
+      if (args.hasChanged(
+        166
+        /* EditorOption.wrappingInfo */
+      ) || args.hasChanged(
+        75
+        /* EditorOption.lineHeight */
+      )) {
+        updateImmediately.schedule();
+      }
+    }));
+    this._register(this._editors.modified.onDidChangeConfiguration((args) => {
+      if (args.hasChanged(
+        166
+        /* EditorOption.wrappingInfo */
+      ) || args.hasChanged(
+        75
+        /* EditorOption.lineHeight */
+      )) {
+        updateImmediately.schedule();
+      }
+    }));
+    const originalModelTokenizationCompleted = this._diffModel.map((m) => m ? observableFromEvent(
+      this,
+      m.model.original.onDidChangeTokens,
+      () => m.model.original.tokenization.backgroundTokenizationState === 2
+      /* BackgroundTokenizationState.Completed */
+    ) : void 0).map((m, reader) => m?.read(reader));
+    const alignments = derived((reader) => {
+      const diffModel = this._diffModel.read(reader);
+      const diff = diffModel?.diff.read(reader);
+      if (!diffModel || !diff) {
+        return null;
+      }
+      state.read(reader);
+      const renderSideBySide = this._options.renderSideBySide.read(reader);
+      const innerHunkAlignment = renderSideBySide;
+      return computeRangeAlignment(this._editors.original, this._editors.modified, diff.mappings, this._origViewZonesToIgnore, this._modViewZonesToIgnore, innerHunkAlignment);
+    });
+    const alignmentsSyncedMovedText = derived((reader) => {
+      const syncedMovedText = this._diffModel.read(reader)?.movedTextToCompare.read(reader);
+      if (!syncedMovedText) {
+        return null;
+      }
+      state.read(reader);
+      const mappings = syncedMovedText.changes.map((c) => new DiffMapping(c));
+      return computeRangeAlignment(this._editors.original, this._editors.modified, mappings, this._origViewZonesToIgnore, this._modViewZonesToIgnore, true);
+    });
+    function createFakeLinesDiv() {
+      const r = document.createElement("div");
+      r.className = "diagonal-fill";
+      return r;
+    }
+    __name(createFakeLinesDiv, "createFakeLinesDiv");
+    const alignmentViewZonesDisposables = this._register(new DisposableStore());
+    this.viewZones = derived(this, (reader) => {
+      alignmentViewZonesDisposables.clear();
+      const alignmentsVal = alignments.read(reader) || [];
+      const origViewZones = [];
+      const modViewZones = [];
+      const modifiedTopPaddingVal = this._modifiedTopPadding.read(reader);
+      if (modifiedTopPaddingVal > 0) {
+        modViewZones.push({
+          afterLineNumber: 0,
+          domNode: document.createElement("div"),
+          heightInPx: modifiedTopPaddingVal,
+          showInHiddenAreas: true,
+          suppressMouseDown: true
+        });
+      }
+      const originalTopPaddingVal = this._originalTopPadding.read(reader);
+      if (originalTopPaddingVal > 0) {
+        origViewZones.push({
+          afterLineNumber: 0,
+          domNode: document.createElement("div"),
+          heightInPx: originalTopPaddingVal,
+          showInHiddenAreas: true,
+          suppressMouseDown: true
+        });
+      }
+      const renderSideBySide = this._options.renderSideBySide.read(reader);
+      const deletedCodeLineBreaksComputer = !renderSideBySide ? this._editors.modified._getViewModel()?.createLineBreaksComputer() : void 0;
+      if (deletedCodeLineBreaksComputer) {
+        const originalModel = this._editors.original.getModel();
+        for (const a of alignmentsVal) {
+          if (a.diff) {
+            for (let i = a.originalRange.startLineNumber; i < a.originalRange.endLineNumberExclusive; i++) {
+              if (i > originalModel.getLineCount()) {
+                return { orig: origViewZones, mod: modViewZones };
+              }
+              deletedCodeLineBreaksComputer?.addRequest(originalModel.getLineContent(i), null, null);
+            }
+          }
+        }
+      }
+      const lineBreakData = deletedCodeLineBreaksComputer?.finalize() ?? [];
+      let lineBreakDataIdx = 0;
+      const modLineHeight = this._editors.modified.getOption(
+        75
+        /* EditorOption.lineHeight */
+      );
+      const syncedMovedText = this._diffModel.read(reader)?.movedTextToCompare.read(reader);
+      const mightContainNonBasicASCII = this._editors.original.getModel()?.mightContainNonBasicASCII() ?? false;
+      const mightContainRTL = this._editors.original.getModel()?.mightContainRTL() ?? false;
+      const renderOptions = RenderOptions.fromEditor(this._editors.modified);
+      for (const a of alignmentsVal) {
+        if (a.diff && !renderSideBySide && (!this._options.useTrueInlineDiffRendering.read(reader) || !allowsTrueInlineDiffRendering(a.diff))) {
+          if (!a.originalRange.isEmpty) {
+            originalModelTokenizationCompleted.read(reader);
+            const deletedCodeDomNode = document.createElement("div");
+            deletedCodeDomNode.classList.add("view-lines", "line-delete", "line-delete-selectable", "monaco-mouse-cursor-text");
+            const originalModel = this._editors.original.getModel();
+            if (a.originalRange.endLineNumberExclusive - 1 > originalModel.getLineCount()) {
+              return { orig: origViewZones, mod: modViewZones };
+            }
+            const source = new LineSource(a.originalRange.mapToLineArray((l) => originalModel.tokenization.getLineTokens(l)), a.originalRange.mapToLineArray((_) => lineBreakData[lineBreakDataIdx++]), mightContainNonBasicASCII, mightContainRTL);
+            const decorations = [];
+            for (const i of a.diff.innerChanges || []) {
+              decorations.push(new InlineDecoration(
+                i.originalRange.delta(-(a.diff.original.startLineNumber - 1)),
+                diffDeleteDecoration.className,
+                0
+                /* InlineDecorationType.Regular */
+              ));
+            }
+            const result = renderLines(source, renderOptions, decorations, deletedCodeDomNode);
+            const marginDomNode2 = document.createElement("div");
+            marginDomNode2.className = "inline-deleted-margin-view-zone";
+            applyFontInfo(marginDomNode2, renderOptions.fontInfo);
+            if (this._options.renderIndicators.read(reader)) {
+              for (let i = 0; i < result.heightInLines; i++) {
+                const marginElement = document.createElement("div");
+                marginElement.className = `delete-sign ${ThemeIcon.asClassName(diffRemoveIcon)}`;
+                marginElement.setAttribute("style", `position:absolute;top:${i * modLineHeight}px;width:${renderOptions.lineDecorationsWidth}px;height:${modLineHeight}px;right:0;`);
+                marginDomNode2.appendChild(marginElement);
+              }
+            }
+            let zoneId = void 0;
+            alignmentViewZonesDisposables.add(new InlineDiffDeletedCodeMargin(() => assertReturnsDefined(zoneId), marginDomNode2, deletedCodeDomNode, this._editors.modified, a.diff, this._diffEditorWidget, result, this._editors.original.getModel(), this._contextMenuService, this._clipboardService));
+            for (let i = 0; i < result.viewLineCounts.length; i++) {
+              const count = result.viewLineCounts[i];
+              if (count > 1) {
+                origViewZones.push({
+                  afterLineNumber: a.originalRange.startLineNumber + i,
+                  domNode: createFakeLinesDiv(),
+                  heightInPx: (count - 1) * modLineHeight,
+                  showInHiddenAreas: true,
+                  suppressMouseDown: true
+                });
+              }
+            }
+            modViewZones.push({
+              afterLineNumber: a.modifiedRange.startLineNumber - 1,
+              domNode: deletedCodeDomNode,
+              heightInPx: result.heightInLines * modLineHeight,
+              minWidthInPx: result.minWidthInPx,
+              marginDomNode: marginDomNode2,
+              setZoneId(id) {
+                zoneId = id;
+              },
+              showInHiddenAreas: true,
+              suppressMouseDown: false
+            });
+          }
+          const marginDomNode = document.createElement("div");
+          marginDomNode.className = "gutter-delete";
+          origViewZones.push({
+            afterLineNumber: a.originalRange.endLineNumberExclusive - 1,
+            domNode: createFakeLinesDiv(),
+            heightInPx: a.modifiedHeightInPx,
+            marginDomNode,
+            showInHiddenAreas: true,
+            suppressMouseDown: true
+          });
+        } else {
+          const delta = a.modifiedHeightInPx - a.originalHeightInPx;
+          if (delta > 0) {
+            if (syncedMovedText?.lineRangeMapping.original.delta(-1).deltaLength(2).contains(a.originalRange.endLineNumberExclusive - 1)) {
+              continue;
+            }
+            origViewZones.push({
+              afterLineNumber: a.originalRange.endLineNumberExclusive - 1,
+              domNode: createFakeLinesDiv(),
+              heightInPx: delta,
+              showInHiddenAreas: true,
+              suppressMouseDown: true
+            });
+          } else {
+            let createViewZoneMarginArrow2 = function() {
+              const arrow = document.createElement("div");
+              arrow.className = "arrow-revert-change " + ThemeIcon.asClassName(Codicon.arrowRight);
+              reader.store.add(addDisposableListener(arrow, "mousedown", (e) => e.stopPropagation()));
+              reader.store.add(addDisposableListener(arrow, "click", (e) => {
+                e.stopPropagation();
+                _diffEditorWidget.revert(a.diff);
+              }));
+              return $("div", {}, arrow);
+            };
+            var createViewZoneMarginArrow = createViewZoneMarginArrow2;
+            __name(createViewZoneMarginArrow2, "createViewZoneMarginArrow");
+            if (syncedMovedText?.lineRangeMapping.modified.delta(-1).deltaLength(2).contains(a.modifiedRange.endLineNumberExclusive - 1)) {
+              continue;
+            }
+            let marginDomNode = void 0;
+            if (a.diff && a.diff.modified.isEmpty && this._options.shouldRenderOldRevertArrows.read(reader)) {
+              marginDomNode = createViewZoneMarginArrow2();
+            }
+            modViewZones.push({
+              afterLineNumber: a.modifiedRange.endLineNumberExclusive - 1,
+              domNode: createFakeLinesDiv(),
+              heightInPx: -delta,
+              marginDomNode,
+              showInHiddenAreas: true,
+              suppressMouseDown: true
+            });
+          }
+        }
+      }
+      for (const a of alignmentsSyncedMovedText.read(reader) ?? []) {
+        if (!syncedMovedText?.lineRangeMapping.original.intersect(a.originalRange) || !syncedMovedText?.lineRangeMapping.modified.intersect(a.modifiedRange)) {
+          continue;
+        }
+        const delta = a.modifiedHeightInPx - a.originalHeightInPx;
+        if (delta > 0) {
+          origViewZones.push({
+            afterLineNumber: a.originalRange.endLineNumberExclusive - 1,
+            domNode: createFakeLinesDiv(),
+            heightInPx: delta,
+            showInHiddenAreas: true,
+            suppressMouseDown: true
+          });
+        } else {
+          modViewZones.push({
+            afterLineNumber: a.modifiedRange.endLineNumberExclusive - 1,
+            domNode: createFakeLinesDiv(),
+            heightInPx: -delta,
+            showInHiddenAreas: true,
+            suppressMouseDown: true
+          });
+        }
+      }
+      return { orig: origViewZones, mod: modViewZones };
+    });
+    let ignoreChange = false;
+    this._register(this._editors.original.onDidScrollChange((e) => {
+      if (e.scrollLeftChanged && !ignoreChange) {
+        ignoreChange = true;
+        this._editors.modified.setScrollLeft(e.scrollLeft);
+        ignoreChange = false;
+      }
+    }));
+    this._register(this._editors.modified.onDidScrollChange((e) => {
+      if (e.scrollLeftChanged && !ignoreChange) {
+        ignoreChange = true;
+        this._editors.original.setScrollLeft(e.scrollLeft);
+        ignoreChange = false;
+      }
+    }));
+    this._originalScrollTop = observableFromEvent(this._editors.original.onDidScrollChange, () => (
+      /** @description original.getScrollTop */
+      this._editors.original.getScrollTop()
+    ));
+    this._modifiedScrollTop = observableFromEvent(this._editors.modified.onDidScrollChange, () => (
+      /** @description modified.getScrollTop */
+      this._editors.modified.getScrollTop()
+    ));
+    this._register(autorun((reader) => {
+      const newScrollTopModified = this._originalScrollTop.read(reader) - (this._originalScrollOffsetAnimated.read(void 0) - this._modifiedScrollOffsetAnimated.read(reader)) - (this._originalTopPadding.read(void 0) - this._modifiedTopPadding.read(reader));
+      if (newScrollTopModified !== this._editors.modified.getScrollTop()) {
+        this._editors.modified.setScrollTop(
+          newScrollTopModified,
+          1
+          /* ScrollType.Immediate */
+        );
+      }
+    }));
+    this._register(autorun((reader) => {
+      const newScrollTopOriginal = this._modifiedScrollTop.read(reader) - (this._modifiedScrollOffsetAnimated.read(void 0) - this._originalScrollOffsetAnimated.read(reader)) - (this._modifiedTopPadding.read(void 0) - this._originalTopPadding.read(reader));
+      if (newScrollTopOriginal !== this._editors.original.getScrollTop()) {
+        this._editors.original.setScrollTop(
+          newScrollTopOriginal,
+          1
+          /* ScrollType.Immediate */
+        );
+      }
+    }));
+    this._register(autorun((reader) => {
+      const m = this._diffModel.read(reader)?.movedTextToCompare.read(reader);
+      let deltaOrigToMod = 0;
+      if (m) {
+        const trueTopOriginal = this._editors.original.getTopForLineNumber(m.lineRangeMapping.original.startLineNumber, true) - this._originalTopPadding.read(void 0);
+        const trueTopModified = this._editors.modified.getTopForLineNumber(m.lineRangeMapping.modified.startLineNumber, true) - this._modifiedTopPadding.read(void 0);
+        deltaOrigToMod = trueTopModified - trueTopOriginal;
+      }
+      if (deltaOrigToMod > 0) {
+        this._modifiedTopPadding.set(0, void 0);
+        this._originalTopPadding.set(deltaOrigToMod, void 0);
+      } else if (deltaOrigToMod < 0) {
+        this._modifiedTopPadding.set(-deltaOrigToMod, void 0);
+        this._originalTopPadding.set(0, void 0);
+      } else {
+        setTimeout(() => {
+          this._modifiedTopPadding.set(0, void 0);
+          this._originalTopPadding.set(0, void 0);
+        }, 400);
+      }
+      if (this._editors.modified.hasTextFocus()) {
+        this._originalScrollOffset.set(this._modifiedScrollOffset.read(void 0) - deltaOrigToMod, void 0, true);
+      } else {
+        this._modifiedScrollOffset.set(this._originalScrollOffset.read(void 0) + deltaOrigToMod, void 0, true);
+      }
+    }));
+  }
+};
+DiffEditorViewZones = __decorate([
+  __param(8, IClipboardService),
+  __param(9, IContextMenuService)
+], DiffEditorViewZones);
+function computeRangeAlignment(originalEditor, modifiedEditor, diffs, originalEditorAlignmentViewZones, modifiedEditorAlignmentViewZones, innerHunkAlignment) {
+  const originalLineHeightOverrides = new ArrayQueue(getAdditionalLineHeights(originalEditor, originalEditorAlignmentViewZones));
+  const modifiedLineHeightOverrides = new ArrayQueue(getAdditionalLineHeights(modifiedEditor, modifiedEditorAlignmentViewZones));
+  const origLineHeight = originalEditor.getOption(
+    75
+    /* EditorOption.lineHeight */
+  );
+  const modLineHeight = modifiedEditor.getOption(
+    75
+    /* EditorOption.lineHeight */
+  );
+  const result = [];
+  let lastOriginalLineNumber = 0;
+  let lastModifiedLineNumber = 0;
+  function handleAlignmentsOutsideOfDiffs(untilOriginalLineNumberExclusive, untilModifiedLineNumberExclusive) {
+    while (true) {
+      let origNext = originalLineHeightOverrides.peek();
+      let modNext = modifiedLineHeightOverrides.peek();
+      if (origNext && origNext.lineNumber >= untilOriginalLineNumberExclusive) {
+        origNext = void 0;
+      }
+      if (modNext && modNext.lineNumber >= untilModifiedLineNumberExclusive) {
+        modNext = void 0;
+      }
+      if (!origNext && !modNext) {
+        break;
+      }
+      const distOrig = origNext ? origNext.lineNumber - lastOriginalLineNumber : Number.MAX_VALUE;
+      const distNext = modNext ? modNext.lineNumber - lastModifiedLineNumber : Number.MAX_VALUE;
+      if (distOrig < distNext) {
+        originalLineHeightOverrides.dequeue();
+        modNext = {
+          lineNumber: origNext.lineNumber - lastOriginalLineNumber + lastModifiedLineNumber,
+          heightInPx: 0
+        };
+      } else if (distOrig > distNext) {
+        modifiedLineHeightOverrides.dequeue();
+        origNext = {
+          lineNumber: modNext.lineNumber - lastModifiedLineNumber + lastOriginalLineNumber,
+          heightInPx: 0
+        };
+      } else {
+        originalLineHeightOverrides.dequeue();
+        modifiedLineHeightOverrides.dequeue();
+      }
+      result.push({
+        originalRange: LineRange.ofLength(origNext.lineNumber, 1),
+        modifiedRange: LineRange.ofLength(modNext.lineNumber, 1),
+        originalHeightInPx: origLineHeight + origNext.heightInPx,
+        modifiedHeightInPx: modLineHeight + modNext.heightInPx,
+        diff: void 0
+      });
+    }
+  }
+  __name(handleAlignmentsOutsideOfDiffs, "handleAlignmentsOutsideOfDiffs");
+  for (const m of diffs) {
+    let emitAlignment2 = function(origLineNumberExclusive, modLineNumberExclusive, forceAlignment = false) {
+      if (origLineNumberExclusive < lastOrigLineNumber || modLineNumberExclusive < lastModLineNumber) {
+        return;
+      }
+      if (first) {
+        first = false;
+      } else if (!forceAlignment && (origLineNumberExclusive === lastOrigLineNumber || modLineNumberExclusive === lastModLineNumber)) {
+        return;
+      }
+      const originalRange = new LineRange(lastOrigLineNumber, origLineNumberExclusive);
+      const modifiedRange = new LineRange(lastModLineNumber, modLineNumberExclusive);
+      if (originalRange.isEmpty && modifiedRange.isEmpty) {
+        return;
+      }
+      const originalAdditionalHeight = originalLineHeightOverrides.takeWhile((v) => v.lineNumber < origLineNumberExclusive)?.reduce((p, c2) => p + c2.heightInPx, 0) ?? 0;
+      const modifiedAdditionalHeight = modifiedLineHeightOverrides.takeWhile((v) => v.lineNumber < modLineNumberExclusive)?.reduce((p, c2) => p + c2.heightInPx, 0) ?? 0;
+      result.push({
+        originalRange,
+        modifiedRange,
+        originalHeightInPx: originalRange.length * origLineHeight + originalAdditionalHeight,
+        modifiedHeightInPx: modifiedRange.length * modLineHeight + modifiedAdditionalHeight,
+        diff: m.lineRangeMapping
+      });
+      lastOrigLineNumber = origLineNumberExclusive;
+      lastModLineNumber = modLineNumberExclusive;
+    };
+    var emitAlignment = emitAlignment2;
+    __name(emitAlignment2, "emitAlignment");
+    const c = m.lineRangeMapping;
+    handleAlignmentsOutsideOfDiffs(c.original.startLineNumber, c.modified.startLineNumber);
+    let first = true;
+    let lastModLineNumber = c.modified.startLineNumber;
+    let lastOrigLineNumber = c.original.startLineNumber;
+    if (innerHunkAlignment) {
+      for (const i of c.innerChanges || []) {
+        if (i.originalRange.startColumn > 1 && i.modifiedRange.startColumn > 1) {
+          emitAlignment2(i.originalRange.startLineNumber, i.modifiedRange.startLineNumber);
+        }
+        const originalModel = originalEditor.getModel();
+        const maxColumn = i.originalRange.endLineNumber <= originalModel.getLineCount() ? originalModel.getLineMaxColumn(i.originalRange.endLineNumber) : Number.MAX_SAFE_INTEGER;
+        if (i.originalRange.endColumn < maxColumn) {
+          emitAlignment2(i.originalRange.endLineNumber, i.modifiedRange.endLineNumber);
+        }
+      }
+    }
+    emitAlignment2(c.original.endLineNumberExclusive, c.modified.endLineNumberExclusive, true);
+    lastOriginalLineNumber = c.original.endLineNumberExclusive;
+    lastModifiedLineNumber = c.modified.endLineNumberExclusive;
+  }
+  handleAlignmentsOutsideOfDiffs(Number.MAX_VALUE, Number.MAX_VALUE);
+  return result;
+}
+__name(computeRangeAlignment, "computeRangeAlignment");
+function getAdditionalLineHeights(editor, viewZonesToIgnore) {
+  const viewZoneHeights = [];
+  const wrappingZoneHeights = [];
+  const hasWrapping = editor.getOption(
+    166
+    /* EditorOption.wrappingInfo */
+  ).wrappingColumn !== -1;
+  const coordinatesConverter = editor._getViewModel().coordinatesConverter;
+  const editorLineHeight = editor.getOption(
+    75
+    /* EditorOption.lineHeight */
+  );
+  if (hasWrapping) {
+    for (let i = 1; i <= editor.getModel().getLineCount(); i++) {
+      const lineCount = coordinatesConverter.getModelLineViewLineCount(i);
+      if (lineCount > 1) {
+        wrappingZoneHeights.push({ lineNumber: i, heightInPx: editorLineHeight * (lineCount - 1) });
+      }
+    }
+  }
+  for (const w of editor.getWhitespaces()) {
+    if (viewZonesToIgnore.has(w.id)) {
+      continue;
+    }
+    const modelLineNumber = w.afterLineNumber === 0 ? 0 : coordinatesConverter.convertViewPositionToModelPosition(new Position(w.afterLineNumber, 1)).lineNumber;
+    viewZoneHeights.push({ lineNumber: modelLineNumber, heightInPx: w.height });
+  }
+  const result = joinCombine(viewZoneHeights, wrappingZoneHeights, (v) => v.lineNumber, (v1, v2) => ({ lineNumber: v1.lineNumber, heightInPx: v1.heightInPx + v2.heightInPx }));
+  return result;
+}
+__name(getAdditionalLineHeights, "getAdditionalLineHeights");
+function allowsTrueInlineDiffRendering(mapping) {
+  if (!mapping.innerChanges) {
+    return false;
+  }
+  return mapping.innerChanges.every((c) => rangeIsSingleLine(c.modifiedRange) && rangeIsSingleLine(c.originalRange) || c.originalRange.equalsRange(new Range(1, 1, 1, 1)));
+}
+__name(allowsTrueInlineDiffRendering, "allowsTrueInlineDiffRendering");
+function rangeIsSingleLine(range) {
+  return range.startLineNumber === range.endLineNumber;
+}
+__name(rangeIsSingleLine, "rangeIsSingleLine");
+export {
+  DiffEditorViewZones,
+  allowsTrueInlineDiffRendering,
+  rangeIsSingleLine
+};
+//# sourceMappingURL=diffEditorViewZones.js.map

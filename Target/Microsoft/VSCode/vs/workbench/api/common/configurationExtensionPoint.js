@@ -1,1 +1,493 @@
-import*as e from"../../../nls.js";import*as b from"../../../base/common/objects.js";import{$jm as y}from"../../../platform/registry/common/platform.js";import{$KR as C}from"../../services/extensions/common/extensionsRegistry.js";import{$lm as N,$Am as P,$wm as v,$um as x,$zm as M,$Cm as O,$Dm as R,$Em as A,$xm as T}from"../../../platform/configuration/common/configurationRegistry.js";import{$km as q}from"../../../platform/jsonschemas/common/jsonContributionRegistry.js";import{$tM as F,$vM as I,$wM as J,$xM as H}from"../../services/configuration/common/configuration.js";import{$9c as L,$cd as _}from"../../../base/common/types.js";import{$Kz as K}from"../../../platform/extensions/common/extensions.js";import{Extensions as j}from"../../services/extensionManagement/common/extensionFeatures.js";import{$Ed as k}from"../../../base/common/lifecycle.js";import{$Kj as D}from"../../../platform/instantiation/common/descriptors.js";import{$jk as m}from"../../../base/common/htmlContent.js";import W from"../../../platform/product/common/product.js";const B=y.as(q.JSONContribution),g=y.as(N.Configuration),$={type:"object",defaultSnippets:[{body:{title:"",properties:{}}}],properties:{title:{description:e.localize(2981,null),type:"string"},order:{description:e.localize(2982,null),type:"integer"},properties:{description:e.localize(2983,null),type:"object",propertyNames:{pattern:"\\S+",patternErrorMessage:e.localize(2984,null)},additionalProperties:{anyOf:[{title:e.localize(2985,null),$ref:"http://json-schema.org/draft-07/schema#"},{type:"object",properties:{scope:{type:"string",enum:["application","machine","window","resource","language-overridable","machine-overridable"],default:"window",enumDescriptions:[e.localize(2986,null),e.localize(2987,null),e.localize(2988,null),e.localize(2989,null),e.localize(2990,null),e.localize(2991,null)],markdownDescription:e.localize(2992,null)},enumDescriptions:{type:"array",items:{type:"string"},description:e.localize(2993,null)},markdownEnumDescriptions:{type:"array",items:{type:"string"},description:e.localize(2994,null)},enumItemLabels:{type:"array",items:{type:"string"},markdownDescription:e.localize(2995,null,"`enum`")},markdownDescription:{type:"string",description:e.localize(2996,null)},deprecationMessage:{type:"string",description:e.localize(2997,null)},markdownDeprecationMessage:{type:"string",description:e.localize(2998,null)},editPresentation:{type:"string",enum:["singlelineText","multilineText"],enumDescriptions:[e.localize(2999,null),e.localize(3e3,null)],default:"singlelineText",description:e.localize(3001,null)},order:{type:"integer",description:e.localize(3002,null)},ignoreSync:{type:"boolean",description:e.localize(3003,null)},tags:{type:"array",items:{type:"string",enum:["accessibility","advanced","experimental","telemetry","usesOnlineServices"],enumDescriptions:[e.localize(3004,null),e.localize(3005,null),e.localize(3006,null),e.localize(3007,null),e.localize(3008,null),e.localize(3009,null)]},additionalItems:!0,markdownDescription:e.localize(3010,null)}}}]}}}};let u;const S=C.registerExtensionPoint({extensionPoint:"configurationDefaults",jsonSchema:{$ref:x},canHandleResolver:!0});S.setHandler((z,{added:n,removed:d})=>{u&&g.deltaConfiguration(u);const l=u={};if(queueMicrotask(()=>{u===l&&(g.deltaConfiguration(u),u=void 0)}),d.length){const p=d.map(s=>({overrides:b.$Cp(s.value),source:{id:s.description.identifier.value,displayName:s.description.displayName}}));u.removedDefaults=p}if(n.length){const p=g.getConfigurationProperties(),s=[7,4,5,6],o=n.map(i=>{const t=b.$Cp(i.value);for(const r of Object.keys(t)){const a=p[r];if(a?.disallowConfigurationDefault){i.collector.warn(e.localize(3011,null,r)),delete t[r];continue}if(!v.test(r)&&a?.scope&&!s.includes(a.scope)){i.collector.warn(e.localize(3012,null,r)),delete t[r];continue}}return{overrides:t,source:{id:i.description.identifier.value,displayName:i.description.displayName}}});u.addedDefaults=o}});const G=C.registerExtensionPoint({extensionPoint:"configuration",deps:[S],jsonSchema:{description:e.localize(3013,null),oneOf:[$,{type:"array",items:$}]},canHandleResolver:!0}),w=new K;G.setHandler((z,{added:n,removed:d})=>{if(u??={},d.length){const o=[];for(const i of d)o.push(...w.get(i.description.identifier)||[]),w.delete(i.description.identifier);u.removedConfigurations=o}const l=new Set;function p(o,i){const t=b.$Cp(o);return t.title&&typeof t.title!="string"&&i.collector.error(e.localize(3014,null)),s(t,i),t.id=o.id||i.description.identifier.value,t.extensionInfo={id:i.description.identifier.value,displayName:i.description.displayName},t.restrictedProperties=i.description.capabilities?.untrustedWorkspaces?.supported==="limited"?i.description.capabilities?.untrustedWorkspaces.restrictedConfigurations:void 0,t.title=t.title||i.description.displayName||i.description.identifier.value,t}function s(o,i){const t=o.properties,r=W.extensionConfigurationPolicy;if(t){typeof t!="object"&&(i.collector.error(e.localize(3015,null)),o.properties={});for(const c in t){const f=t[c],h=P(c,f,i.description.identifier.value);if(h){delete t[c],i.collector.warn(h);continue}if(l.has(c)&&!A.has(i.description.identifier.value.toLowerCase())){delete t[c],i.collector.warn(e.localize(3016,null,c));continue}if(!L(f)){delete t[c],i.collector.error(e.localize(3017,null,c));continue}r?.[c]&&(f.policy=r?.[c]),f.tags?.some(E=>E.toLowerCase()==="onexp")&&(f.experiment={mode:"startup"}),l.add(c),f.scope=f.scope?R(f.scope.toString()):4}}const a=o.allOf;if(a){i.collector.error(e.localize(3018,null));for(const c of a)s(c,i)}}if(n.length){const o=[];for(const i of n){const t=[],r=i.value;Array.isArray(r)?r.forEach(a=>t.push(p(a,i))):t.push(p(r,i)),w.set(i.description.identifier,t),o.push(...t)}u.addedConfigurations=o}g.deltaConfiguration(u),u=void 0});B.registerSchema("vscode://schemas/workspaceConfig",{allowComments:!0,allowTrailingCommas:!0,default:{folders:[{path:""}],settings:{}},required:["folders"],properties:{folders:{minItems:0,uniqueItems:!0,description:e.localize(3019,null),items:{type:"object",defaultSnippets:[{body:{path:"$1"}}],oneOf:[{properties:{path:{type:"string",description:e.localize(3020,null)},name:{type:"string",description:e.localize(3021,null)}},required:["path"]},{properties:{uri:{type:"string",description:e.localize(3022,null)},name:{type:"string",description:e.localize(3023,null)}},required:["uri"]}]}},settings:{type:"object",default:{},description:e.localize(3024,null),$ref:F},launch:{type:"object",default:{configurations:[],compounds:[]},description:e.localize(3025,null),$ref:I},tasks:{type:"object",default:{version:"2.0.0",tasks:[]},description:e.localize(3026,null),$ref:J},mcp:{type:"object",default:{inputs:[],servers:{"mcp-server-time":{command:"uvx",args:["mcp_server_time","--local-timezone=America/Los_Angeles"]}}},description:e.localize(3027,null),$ref:H},extensions:{type:"object",default:{},description:e.localize(3028,null),$ref:"vscode://schemas/extensions"},remoteAuthority:{type:"string",doNotSuggest:!0,description:e.localize(3029,null)},transient:{type:"boolean",doNotSuggest:!0,description:e.localize(3030,null)}},errorMessage:e.localize(3031,null)});class Q extends k{constructor(){super(...arguments),this.type="table"}shouldRender(n){return!!n.contributes?.configuration}render(n){const d=n.contributes?.configuration?Array.isArray(n.contributes.configuration)?n.contributes.configuration:[n.contributes.configuration]:[],l=O(d),p=l?Object.keys(l):[],s=[e.localize(3032,null),e.localize(3033,null),e.localize(3034,null)],o=p.sort((i,t)=>i.localeCompare(t)).map(i=>[new m().appendMarkdown(`\`${i}\``),l[i].markdownDescription?new m(l[i].markdownDescription,!1):l[i].description??"",new m().appendCodeblock("json",JSON.stringify(_(l[i].default)?M(l[i].type):l[i].default,null,2))]);return{data:{headers:s,rows:o},dispose:()=>{}}}}y.as(j.ExtensionFeaturesRegistry).registerExtensionFeature({id:"configuration",label:e.localize(3035,null),access:{canToggle:!1},renderer:new D(Q)});class U extends k{constructor(){super(...arguments),this.type="table"}shouldRender(n){return!!n.contributes?.configurationDefaults}render(n){const d=n.contributes?.configurationDefaults??{},l=[e.localize(3036,null),e.localize(3037,null),e.localize(3038,null)],p=[];for(const s of Object.keys(d).sort((o,i)=>o.localeCompare(i))){const o=d[s];if(v.test(s)){const i=T(s),t=new m().appendMarkdown(`${i.join(", ")}`);for(const r of Object.keys(o).sort((a,c)=>a.localeCompare(c))){const a=[];a.push(t),a.push(new m().appendMarkdown(`\`${r}\``)),a.push(new m().appendCodeblock("json",JSON.stringify(o[r],null,2))),p.push(a)}}else{const i=[];i.push(""),i.push(new m().appendMarkdown(`\`${s}\``)),i.push(new m().appendCodeblock("json",JSON.stringify(o,null,2))),p.push(i)}}return{data:{headers:l,rows:p},dispose:()=>{}}}}y.as(j.ExtensionFeaturesRegistry).registerExtensionFeature({id:"configurationDefaults",label:e.localize(3039,null),access:{canToggle:!1},renderer:new D(U)});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../nls.js";
+import * as objects from "../../../base/common/objects.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import { ExtensionsRegistry } from "../../services/extensions/common/extensionsRegistry.js";
+import { Extensions, validateProperty, OVERRIDE_PROPERTY_REGEX, configurationDefaultsSchemaId, getDefaultValue, getAllConfigurationProperties, parseScope, EXTENSION_UNIFICATION_EXTENSION_IDS, overrideIdentifiersFromKey } from "../../../platform/configuration/common/configurationRegistry.js";
+import { Extensions as JSONExtensions } from "../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { workspaceSettingsSchemaId, launchSchemaId, tasksSchemaId, mcpSchemaId } from "../../services/configuration/common/configuration.js";
+import { isObject, isUndefined } from "../../../base/common/types.js";
+import { ExtensionIdentifierMap } from "../../../platform/extensions/common/extensions.js";
+import { Extensions as ExtensionFeaturesExtensions } from "../../services/extensionManagement/common/extensionFeatures.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { SyncDescriptor } from "../../../platform/instantiation/common/descriptors.js";
+import { MarkdownString } from "../../../base/common/htmlContent.js";
+import product from "../../../platform/product/common/product.js";
+const jsonRegistry = Registry.as(JSONExtensions.JSONContribution);
+const configurationRegistry = Registry.as(Extensions.Configuration);
+const configurationEntrySchema = {
+  type: "object",
+  defaultSnippets: [{ body: { title: "", properties: {} } }],
+  properties: {
+    title: {
+      description: nls.localize("vscode.extension.contributes.configuration.title", "A title for the current category of settings. This label will be rendered in the Settings editor as a subheading. If the title is the same as the extension display name, then the category will be grouped under the main extension heading."),
+      type: "string"
+    },
+    order: {
+      description: nls.localize("vscode.extension.contributes.configuration.order", "When specified, gives the order of this category of settings relative to other categories."),
+      type: "integer"
+    },
+    properties: {
+      description: nls.localize("vscode.extension.contributes.configuration.properties", "Description of the configuration properties."),
+      type: "object",
+      propertyNames: {
+        pattern: "\\S+",
+        patternErrorMessage: nls.localize("vscode.extension.contributes.configuration.property.empty", "Property should not be empty.")
+      },
+      additionalProperties: {
+        anyOf: [
+          {
+            title: nls.localize("vscode.extension.contributes.configuration.properties.schema", "Schema of the configuration property."),
+            $ref: "http://json-schema.org/draft-07/schema#"
+          },
+          {
+            type: "object",
+            properties: {
+              scope: {
+                type: "string",
+                enum: ["application", "machine", "window", "resource", "language-overridable", "machine-overridable"],
+                default: "window",
+                enumDescriptions: [
+                  nls.localize("scope.application.description", "Configuration that can be configured only in the user settings."),
+                  nls.localize("scope.machine.description", "Configuration that can be configured only in the user settings or only in the remote settings."),
+                  nls.localize("scope.window.description", "Configuration that can be configured in the user, remote or workspace settings."),
+                  nls.localize("scope.resource.description", "Configuration that can be configured in the user, remote, workspace or folder settings."),
+                  nls.localize("scope.language-overridable.description", "Resource configuration that can be configured in language specific settings."),
+                  nls.localize("scope.machine-overridable.description", "Machine configuration that can be configured also in workspace or folder settings.")
+                ],
+                markdownDescription: nls.localize("scope.description", "Scope in which the configuration is applicable. Available scopes are `application`, `machine`, `window`, `resource`, and `machine-overridable`.")
+              },
+              enumDescriptions: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: nls.localize("scope.enumDescriptions", "Descriptions for enum values")
+              },
+              markdownEnumDescriptions: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: nls.localize("scope.markdownEnumDescriptions", "Descriptions for enum values in the markdown format.")
+              },
+              enumItemLabels: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                markdownDescription: nls.localize("scope.enumItemLabels", "Labels for enum values to be displayed in the Settings editor. When specified, the {0} values still show after the labels, but less prominently.", "`enum`")
+              },
+              markdownDescription: {
+                type: "string",
+                description: nls.localize("scope.markdownDescription", "The description in the markdown format.")
+              },
+              deprecationMessage: {
+                type: "string",
+                description: nls.localize("scope.deprecationMessage", "If set, the property is marked as deprecated and the given message is shown as an explanation.")
+              },
+              markdownDeprecationMessage: {
+                type: "string",
+                description: nls.localize("scope.markdownDeprecationMessage", "If set, the property is marked as deprecated and the given message is shown as an explanation in the markdown format.")
+              },
+              editPresentation: {
+                type: "string",
+                enum: ["singlelineText", "multilineText"],
+                enumDescriptions: [
+                  nls.localize("scope.singlelineText.description", "The value will be shown in an inputbox."),
+                  nls.localize("scope.multilineText.description", "The value will be shown in a textarea.")
+                ],
+                default: "singlelineText",
+                description: nls.localize("scope.editPresentation", "When specified, controls the presentation format of the string setting.")
+              },
+              order: {
+                type: "integer",
+                description: nls.localize("scope.order", "When specified, gives the order of this setting relative to other settings within the same category. Settings with an order property will be placed before settings without this property set.")
+              },
+              ignoreSync: {
+                type: "boolean",
+                description: nls.localize("scope.ignoreSync", "When enabled, Settings Sync will not sync the user value of this configuration by default.")
+              },
+              tags: {
+                type: "array",
+                items: {
+                  type: "string",
+                  enum: [
+                    "accessibility",
+                    "advanced",
+                    "experimental",
+                    "telemetry",
+                    "usesOnlineServices"
+                  ],
+                  enumDescriptions: [
+                    nls.localize("accessibility", "Accessibility settings"),
+                    nls.localize("advanced", "Advanced settings are hidden by default in the Settings editor unless the user chooses to show advanced settings."),
+                    nls.localize("experimental", "Experimental settings are subject to change and may be removed in future releases."),
+                    nls.localize("preview", "Preview settings can be used to try out new features before they are finalized."),
+                    nls.localize("telemetry", "Telemetry settings"),
+                    nls.localize("usesOnlineServices", "Settings that use online services")
+                  ]
+                },
+                additionalItems: true,
+                markdownDescription: nls.localize("scope.tags", "A list of tags under which to place the setting. The tag can then be searched up in the Settings editor. For example, specifying the `experimental` tag allows one to find the setting by searching `@tag:experimental`.")
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+};
+let _configDelta;
+const defaultConfigurationExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "configurationDefaults",
+  jsonSchema: {
+    $ref: configurationDefaultsSchemaId
+  },
+  canHandleResolver: true
+});
+defaultConfigurationExtPoint.setHandler((extensions, { added, removed }) => {
+  if (_configDelta) {
+    configurationRegistry.deltaConfiguration(_configDelta);
+  }
+  const configNow = _configDelta = {};
+  queueMicrotask(() => {
+    if (_configDelta === configNow) {
+      configurationRegistry.deltaConfiguration(_configDelta);
+      _configDelta = void 0;
+    }
+  });
+  if (removed.length) {
+    const removedDefaultConfigurations = removed.map((extension) => ({ overrides: objects.deepClone(extension.value), source: { id: extension.description.identifier.value, displayName: extension.description.displayName } }));
+    _configDelta.removedDefaults = removedDefaultConfigurations;
+  }
+  if (added.length) {
+    const registeredProperties = configurationRegistry.getConfigurationProperties();
+    const allowedScopes = [
+      7,
+      4,
+      5,
+      6
+      /* ConfigurationScope.LANGUAGE_OVERRIDABLE */
+    ];
+    const addedDefaultConfigurations = added.map((extension) => {
+      const overrides = objects.deepClone(extension.value);
+      for (const key of Object.keys(overrides)) {
+        const registeredPropertyScheme = registeredProperties[key];
+        if (registeredPropertyScheme?.disallowConfigurationDefault) {
+          extension.collector.warn(nls.localize("config.property.preventDefaultConfiguration.warning", "Cannot register configuration defaults for '{0}'. This setting does not allow contributing configuration defaults.", key));
+          delete overrides[key];
+          continue;
+        }
+        if (!OVERRIDE_PROPERTY_REGEX.test(key)) {
+          if (registeredPropertyScheme?.scope && !allowedScopes.includes(registeredPropertyScheme.scope)) {
+            extension.collector.warn(nls.localize("config.property.defaultConfiguration.warning", "Cannot register configuration defaults for '{0}'. Only defaults for machine-overridable, window, resource and language overridable scoped settings are supported.", key));
+            delete overrides[key];
+            continue;
+          }
+        }
+      }
+      return { overrides, source: { id: extension.description.identifier.value, displayName: extension.description.displayName } };
+    });
+    _configDelta.addedDefaults = addedDefaultConfigurations;
+  }
+});
+const configurationExtPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "configuration",
+  deps: [defaultConfigurationExtPoint],
+  jsonSchema: {
+    description: nls.localize("vscode.extension.contributes.configuration", "Contributes configuration settings."),
+    oneOf: [
+      configurationEntrySchema,
+      {
+        type: "array",
+        items: configurationEntrySchema
+      }
+    ]
+  },
+  canHandleResolver: true
+});
+const extensionConfigurations = new ExtensionIdentifierMap();
+configurationExtPoint.setHandler((extensions, { added, removed }) => {
+  _configDelta ??= {};
+  if (removed.length) {
+    const removedConfigurations = [];
+    for (const extension of removed) {
+      removedConfigurations.push(...extensionConfigurations.get(extension.description.identifier) || []);
+      extensionConfigurations.delete(extension.description.identifier);
+    }
+    _configDelta.removedConfigurations = removedConfigurations;
+  }
+  const seenProperties = /* @__PURE__ */ new Set();
+  function handleConfiguration(node, extension) {
+    const configuration = objects.deepClone(node);
+    if (configuration.title && typeof configuration.title !== "string") {
+      extension.collector.error(nls.localize("invalid.title", "'configuration.title' must be a string"));
+    }
+    validateProperties(configuration, extension);
+    configuration.id = node.id || extension.description.identifier.value;
+    configuration.extensionInfo = { id: extension.description.identifier.value, displayName: extension.description.displayName };
+    configuration.restrictedProperties = extension.description.capabilities?.untrustedWorkspaces?.supported === "limited" ? extension.description.capabilities?.untrustedWorkspaces.restrictedConfigurations : void 0;
+    configuration.title = configuration.title || extension.description.displayName || extension.description.identifier.value;
+    return configuration;
+  }
+  __name(handleConfiguration, "handleConfiguration");
+  function validateProperties(configuration, extension) {
+    const properties = configuration.properties;
+    const extensionConfigurationPolicy = product.extensionConfigurationPolicy;
+    if (properties) {
+      if (typeof properties !== "object") {
+        extension.collector.error(nls.localize("invalid.properties", "'configuration.properties' must be an object"));
+        configuration.properties = {};
+      }
+      for (const key in properties) {
+        const propertyConfiguration = properties[key];
+        const message = validateProperty(key, propertyConfiguration, extension.description.identifier.value);
+        if (message) {
+          delete properties[key];
+          extension.collector.warn(message);
+          continue;
+        }
+        if (seenProperties.has(key) && !EXTENSION_UNIFICATION_EXTENSION_IDS.has(extension.description.identifier.value.toLowerCase())) {
+          delete properties[key];
+          extension.collector.warn(nls.localize("config.property.duplicate", "Cannot register '{0}'. This property is already registered.", key));
+          continue;
+        }
+        if (!isObject(propertyConfiguration)) {
+          delete properties[key];
+          extension.collector.error(nls.localize("invalid.property", "configuration.properties property '{0}' must be an object", key));
+          continue;
+        }
+        if (extensionConfigurationPolicy?.[key]) {
+          propertyConfiguration.policy = extensionConfigurationPolicy?.[key];
+        }
+        if (propertyConfiguration.tags?.some((tag) => tag.toLowerCase() === "onexp")) {
+          propertyConfiguration.experiment = {
+            mode: "startup"
+          };
+        }
+        seenProperties.add(key);
+        propertyConfiguration.scope = propertyConfiguration.scope ? parseScope(propertyConfiguration.scope.toString()) : 4;
+      }
+    }
+    const subNodes = configuration.allOf;
+    if (subNodes) {
+      extension.collector.error(nls.localize("invalid.allOf", "'configuration.allOf' is deprecated and should no longer be used. Instead, pass multiple configuration sections as an array to the 'configuration' contribution point."));
+      for (const node of subNodes) {
+        validateProperties(node, extension);
+      }
+    }
+  }
+  __name(validateProperties, "validateProperties");
+  if (added.length) {
+    const addedConfigurations = [];
+    for (const extension of added) {
+      const configurations = [];
+      const value = extension.value;
+      if (Array.isArray(value)) {
+        value.forEach((v) => configurations.push(handleConfiguration(v, extension)));
+      } else {
+        configurations.push(handleConfiguration(value, extension));
+      }
+      extensionConfigurations.set(extension.description.identifier, configurations);
+      addedConfigurations.push(...configurations);
+    }
+    _configDelta.addedConfigurations = addedConfigurations;
+  }
+  configurationRegistry.deltaConfiguration(_configDelta);
+  _configDelta = void 0;
+});
+jsonRegistry.registerSchema("vscode://schemas/workspaceConfig", {
+  allowComments: true,
+  allowTrailingCommas: true,
+  default: {
+    folders: [
+      {
+        path: ""
+      }
+    ],
+    settings: {}
+  },
+  required: ["folders"],
+  properties: {
+    "folders": {
+      minItems: 0,
+      uniqueItems: true,
+      description: nls.localize("workspaceConfig.folders.description", "List of folders to be loaded in the workspace."),
+      items: {
+        type: "object",
+        defaultSnippets: [{ body: { path: "$1" } }],
+        oneOf: [{
+          properties: {
+            path: {
+              type: "string",
+              description: nls.localize("workspaceConfig.path.description", "A file path. e.g. `/root/folderA` or `./folderA` for a relative path that will be resolved against the location of the workspace file.")
+            },
+            name: {
+              type: "string",
+              description: nls.localize("workspaceConfig.name.description", "An optional name for the folder. ")
+            }
+          },
+          required: ["path"]
+        }, {
+          properties: {
+            uri: {
+              type: "string",
+              description: nls.localize("workspaceConfig.uri.description", "URI of the folder")
+            },
+            name: {
+              type: "string",
+              description: nls.localize("workspaceConfig.name.description", "An optional name for the folder. ")
+            }
+          },
+          required: ["uri"]
+        }]
+      }
+    },
+    "settings": {
+      type: "object",
+      default: {},
+      description: nls.localize("workspaceConfig.settings.description", "Workspace settings"),
+      $ref: workspaceSettingsSchemaId
+    },
+    "launch": {
+      type: "object",
+      default: { configurations: [], compounds: [] },
+      description: nls.localize("workspaceConfig.launch.description", "Workspace launch configurations"),
+      $ref: launchSchemaId
+    },
+    "tasks": {
+      type: "object",
+      default: { version: "2.0.0", tasks: [] },
+      description: nls.localize("workspaceConfig.tasks.description", "Workspace task configurations"),
+      $ref: tasksSchemaId
+    },
+    "mcp": {
+      type: "object",
+      default: {
+        inputs: [],
+        servers: {
+          "mcp-server-time": {
+            command: "uvx",
+            args: ["mcp_server_time", "--local-timezone=America/Los_Angeles"]
+          }
+        }
+      },
+      description: nls.localize("workspaceConfig.mcp.description", "Model Context Protocol server configurations"),
+      $ref: mcpSchemaId
+    },
+    "extensions": {
+      type: "object",
+      default: {},
+      description: nls.localize("workspaceConfig.extensions.description", "Workspace extensions"),
+      $ref: "vscode://schemas/extensions"
+    },
+    "remoteAuthority": {
+      type: "string",
+      doNotSuggest: true,
+      description: nls.localize("workspaceConfig.remoteAuthority", "The remote server where the workspace is located.")
+    },
+    "transient": {
+      type: "boolean",
+      doNotSuggest: true,
+      description: nls.localize("workspaceConfig.transient", "A transient workspace will disappear when restarting or reloading.")
+    }
+  },
+  errorMessage: nls.localize("unknownWorkspaceProperty", "Unknown workspace configuration property")
+});
+class SettingsTableRenderer extends Disposable {
+  static {
+    __name(this, "SettingsTableRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.configuration;
+  }
+  render(manifest) {
+    const configuration = manifest.contributes?.configuration ? Array.isArray(manifest.contributes.configuration) ? manifest.contributes.configuration : [manifest.contributes.configuration] : [];
+    const properties = getAllConfigurationProperties(configuration);
+    const contrib = properties ? Object.keys(properties) : [];
+    const headers = [nls.localize("setting name", "ID"), nls.localize("description", "Description"), nls.localize("default", "Default")];
+    const rows = contrib.sort((a, b) => a.localeCompare(b)).map((key) => {
+      return [
+        new MarkdownString().appendMarkdown(`\`${key}\``),
+        properties[key].markdownDescription ? new MarkdownString(properties[key].markdownDescription, false) : properties[key].description ?? "",
+        new MarkdownString().appendCodeblock("json", JSON.stringify(isUndefined(properties[key].default) ? getDefaultValue(properties[key].type) : properties[key].default, null, 2))
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(ExtensionFeaturesExtensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "configuration",
+  label: nls.localize("settings", "Settings"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(SettingsTableRenderer)
+});
+class ConfigurationDefaultsTableRenderer extends Disposable {
+  static {
+    __name(this, "ConfigurationDefaultsTableRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.configurationDefaults;
+  }
+  render(manifest) {
+    const configurationDefaults = manifest.contributes?.configurationDefaults ?? {};
+    const headers = [nls.localize("language", "Languages"), nls.localize("setting", "Setting"), nls.localize("default override value", "Override Value")];
+    const rows = [];
+    for (const key of Object.keys(configurationDefaults).sort((a, b) => a.localeCompare(b))) {
+      const value = configurationDefaults[key];
+      if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+        const languages = overrideIdentifiersFromKey(key);
+        const languageMarkdown = new MarkdownString().appendMarkdown(`${languages.join(", ")}`);
+        for (const key2 of Object.keys(value).sort((a, b) => a.localeCompare(b))) {
+          const row = [];
+          row.push(languageMarkdown);
+          row.push(new MarkdownString().appendMarkdown(`\`${key2}\``));
+          row.push(new MarkdownString().appendCodeblock("json", JSON.stringify(value[key2], null, 2)));
+          rows.push(row);
+        }
+      } else {
+        const row = [];
+        row.push("");
+        row.push(new MarkdownString().appendMarkdown(`\`${key}\``));
+        row.push(new MarkdownString().appendCodeblock("json", JSON.stringify(value, null, 2)));
+        rows.push(row);
+      }
+    }
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(ExtensionFeaturesExtensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "configurationDefaults",
+  label: nls.localize("settings default overrides", "Settings Default Overrides"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(ConfigurationDefaultsTableRenderer)
+});
+//# sourceMappingURL=configurationExtensionPoint.js.map

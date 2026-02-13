@@ -1,1 +1,172 @@
-import{$0i as v}from"../../../base/common/buffer.js";import{$Dd as y,$Cd as I}from"../../../base/common/lifecycle.js";import{$ln as T}from"../../../base/common/uuid.js";import{$nn as S}from"../../../base/parts/ipc/node/ipc.net.js";import{$jl as C,$kl as b}from"../../environment/node/argv.js";import{$Ew as $}from"../common/extensionHostDebugIpc.js";class P extends ${constructor(t){super(),this.f=t}call(t,o,s){return o==="openExtensionDevelopmentHostWindow"?this.h(s[0],s[1]):o==="attachToCurrentWindowRenderer"?this.g(s[0]):super.call(t,o,s)}async g(t){const o=this.f.getWindowById(t);return o?.win?this.j(o.win,!0):{success:!1}}async h(t,o){const s=b(t,C);s.debugRenderer=o;const i=s.extensionDevelopmentPath;if(!i)return{success:!1};const[n]=await this.f.openExtensionDevelopmentHostWindow(i,{context:5,cli:s,forceProfile:s.profile,forceTempProfile:s["profile-temp"]});if(!o)return{success:!0};const l=n.win;return l?this.j(l,!1):{success:!0}}async i(t,o){const{createServer:s}=await import("http"),i=s((d,r)=>{if(d.url==="/json/list"||d.url==="/json"){r.setHeader("Content-Type","application/json"),r.end(JSON.stringify([{description:"VS Code Renderer",devtoolsFrontendUrl:"",id:t,title:"VS Code Renderer",type:"page",url:"vscode://renderer",webSocketDebuggerUrl:f}]));return}else if(d.url==="/json/version"){r.setHeader("Content-Type","application/json"),r.end(JSON.stringify({Browser:"VS Code Renderer","Protocol-Version":"1.3",webSocketDebuggerUrl:f}));return}r.statusCode=404,r.end()});await new Promise(d=>i.listen(0,"127.0.0.1",d));const n=i.address(),l=typeof n=="object"&&n?n.port:0,f=`${typeof n=="string"?n:`ws://127.0.0.1:${n?.port}`}/${t}`;return i.on("upgrade",(d,r)=>{if(!d.url?.includes(t)){r.end();return}const a=S(d,r,{debugLabel:"extension-host-cdp-"+T(),enableMessageSplitting:!1});a&&o(a)}),{server:i,wsUrl:f,port:l}}async j(t,o){const s=t.webContents.debugger;let i=s.isAttached()?1/0:0;const n=T(),l=o?`page-${n}`:void 0,{server:h,wsUrl:f,port:d}=await this.i(n,r=>{i++===0&&s.attach();const a=new y;a.add(r);const u=g=>{a.isDisposed||r.write(v.fromString(JSON.stringify(g)))},m=(g,e,p,c)=>u({method:e,params:p,sessionId:c||l}),w=()=>{r.end(),a.dispose()};t.addListener("close",w),a.add(I(()=>t.removeListener("close",w))),s.addListener("message",m),a.add(I(()=>s.removeListener("message",m))),a.add(r.onData(g=>{let e;try{e=JSON.parse(g.toString())}catch{return}if(o){const c={targetId:n,type:"page",title:"VS Code Renderer",url:"vscode://renderer"};if(e.method==="Target.setDiscoverTargets"){u({id:e.id,sessionId:e.sessionId,result:{}}),u({method:"Target.targetCreated",sessionId:e.sessionId,params:{targetInfo:{...c,attached:!1,canAccessOpener:!1}}});return}if(e.method==="Target.attachToTarget"){u({id:e.id,sessionId:e.sessionId,result:{sessionId:l}}),u({method:"Target.attachedToTarget",params:{sessionId:l,targetInfo:{...c,attached:!0,canAccessOpener:!1},waitingForDebugger:!1}});return}if(e.method==="Target.setAutoAttach"||e.method==="Target.attachToBrowserTarget"){u({id:e.id,sessionId:e.sessionId,result:e.method==="Target.attachToBrowserTarget"?{sessionId:"browser"}:{}});return}if(e.method==="Target.getTargets"){u({id:e.id,sessionId:e.sessionId,result:{targetInfos:[{...c,attached:!0}]}});return}}const p=e.sessionId===l?void 0:e.sessionId;s.sendCommand(e.method,e.params,p).then(c=>u({id:e.id,sessionId:e.sessionId,result:c})).catch(c=>u({id:e.id,sessionId:e.sessionId,error:{code:0,message:c.message}}))})),a.add(r.onClose(()=>{--i===0&&s.detach()}))});return t.on("close",()=>h.close()),{rendererDebugAddr:f,success:!0,port:d}}}export{P as $Gw};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { upgradeToISocket } from "../../../base/parts/ipc/node/ipc.net.js";
+import { OPTIONS, parseArgs } from "../../environment/node/argv.js";
+import { ExtensionHostDebugBroadcastChannel } from "../common/extensionHostDebugIpc.js";
+class ElectronExtensionHostDebugBroadcastChannel extends ExtensionHostDebugBroadcastChannel {
+  static {
+    __name(this, "ElectronExtensionHostDebugBroadcastChannel");
+  }
+  constructor(windowsMainService) {
+    super();
+    this.windowsMainService = windowsMainService;
+  }
+  call(ctx, command, arg) {
+    if (command === "openExtensionDevelopmentHostWindow") {
+      return this.openExtensionDevelopmentHostWindow(arg[0], arg[1]);
+    } else if (command === "attachToCurrentWindowRenderer") {
+      return this.attachToCurrentWindowRenderer(arg[0]);
+    } else {
+      return super.call(ctx, command, arg);
+    }
+  }
+  async attachToCurrentWindowRenderer(windowId) {
+    const codeWindow = this.windowsMainService.getWindowById(windowId);
+    if (!codeWindow?.win) {
+      return { success: false };
+    }
+    return this.openCdp(codeWindow.win, true);
+  }
+  async openExtensionDevelopmentHostWindow(args, debugRenderer) {
+    const pargs = parseArgs(args, OPTIONS);
+    pargs.debugRenderer = debugRenderer;
+    const extDevPaths = pargs.extensionDevelopmentPath;
+    if (!extDevPaths) {
+      return { success: false };
+    }
+    const [codeWindow] = await this.windowsMainService.openExtensionDevelopmentHostWindow(extDevPaths, {
+      context: 5,
+      cli: pargs,
+      forceProfile: pargs.profile,
+      forceTempProfile: pargs["profile-temp"]
+    });
+    if (!debugRenderer) {
+      return { success: true };
+    }
+    const win = codeWindow.win;
+    if (!win) {
+      return { success: true };
+    }
+    return this.openCdp(win, false);
+  }
+  async openCdpServer(ident, onSocket) {
+    const { createServer } = await import("http");
+    const server = createServer((req, res) => {
+      if (req.url === "/json/list" || req.url === "/json") {
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify([{
+          description: "VS Code Renderer",
+          devtoolsFrontendUrl: "",
+          id: ident,
+          title: "VS Code Renderer",
+          type: "page",
+          url: "vscode://renderer",
+          webSocketDebuggerUrl: wsUrl
+        }]));
+        return;
+      } else if (req.url === "/json/version") {
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({
+          "Browser": "VS Code Renderer",
+          "Protocol-Version": "1.3",
+          "webSocketDebuggerUrl": wsUrl
+        }));
+        return;
+      }
+      res.statusCode = 404;
+      res.end();
+    });
+    await new Promise((r) => server.listen(0, "127.0.0.1", r));
+    const serverAddr = server.address();
+    const port = typeof serverAddr === "object" && serverAddr ? serverAddr.port : 0;
+    const serverAddrBase = typeof serverAddr === "string" ? serverAddr : `ws://127.0.0.1:${serverAddr?.port}`;
+    const wsUrl = `${serverAddrBase}/${ident}`;
+    server.on("upgrade", (req, socket) => {
+      if (!req.url?.includes(ident)) {
+        socket.end();
+        return;
+      }
+      const upgraded = upgradeToISocket(req, socket, {
+        debugLabel: "extension-host-cdp-" + generateUuid(),
+        enableMessageSplitting: false
+      });
+      if (upgraded) {
+        onSocket(upgraded);
+      }
+    });
+    return { server, wsUrl, port };
+  }
+  async openCdp(win, debugRenderer) {
+    const debug = win.webContents.debugger;
+    let listeners = debug.isAttached() ? Infinity : 0;
+    const ident = generateUuid();
+    const pageSessionId = debugRenderer ? `page-${ident}` : void 0;
+    const { server, wsUrl, port } = await this.openCdpServer(ident, (listener) => {
+      if (listeners++ === 0) {
+        debug.attach();
+      }
+      const store = new DisposableStore();
+      store.add(listener);
+      const writeMessage = /* @__PURE__ */ __name((message) => {
+        if (!store.isDisposed) {
+          listener.write(VSBuffer.fromString(JSON.stringify(message)));
+        }
+      }, "writeMessage");
+      const onMessage = /* @__PURE__ */ __name((_event, method, params, sessionId) => writeMessage({ method, params, sessionId: sessionId || pageSessionId }), "onMessage");
+      const onWindowClose = /* @__PURE__ */ __name(() => {
+        listener.end();
+        store.dispose();
+      }, "onWindowClose");
+      win.addListener("close", onWindowClose);
+      store.add(toDisposable(() => win.removeListener("close", onWindowClose)));
+      debug.addListener("message", onMessage);
+      store.add(toDisposable(() => debug.removeListener("message", onMessage)));
+      store.add(listener.onData((rawData) => {
+        let data;
+        try {
+          data = JSON.parse(rawData.toString());
+        } catch (e) {
+          console.error("error reading cdp line", e);
+          return;
+        }
+        if (debugRenderer) {
+          const targetInfo = { targetId: ident, type: "page", title: "VS Code Renderer", url: "vscode://renderer" };
+          if (data.method === "Target.setDiscoverTargets") {
+            writeMessage({ id: data.id, sessionId: data.sessionId, result: {} });
+            writeMessage({ method: "Target.targetCreated", sessionId: data.sessionId, params: { targetInfo: { ...targetInfo, attached: false, canAccessOpener: false } } });
+            return;
+          }
+          if (data.method === "Target.attachToTarget") {
+            writeMessage({ id: data.id, sessionId: data.sessionId, result: { sessionId: pageSessionId } });
+            writeMessage({ method: "Target.attachedToTarget", params: { sessionId: pageSessionId, targetInfo: { ...targetInfo, attached: true, canAccessOpener: false }, waitingForDebugger: false } });
+            return;
+          }
+          if (data.method === "Target.setAutoAttach" || data.method === "Target.attachToBrowserTarget") {
+            writeMessage({ id: data.id, sessionId: data.sessionId, result: data.method === "Target.attachToBrowserTarget" ? { sessionId: "browser" } : {} });
+            return;
+          }
+          if (data.method === "Target.getTargets") {
+            writeMessage({ id: data.id, sessionId: data.sessionId, result: { targetInfos: [{ ...targetInfo, attached: true }] } });
+            return;
+          }
+        }
+        const forwardSessionId = data.sessionId === pageSessionId ? void 0 : data.sessionId;
+        debug.sendCommand(data.method, data.params, forwardSessionId).then((result) => writeMessage({ id: data.id, sessionId: data.sessionId, result })).catch((error) => writeMessage({ id: data.id, sessionId: data.sessionId, error: { code: 0, message: error.message } }));
+      }));
+      store.add(listener.onClose(() => {
+        if (--listeners === 0) {
+          debug.detach();
+        }
+      }));
+    });
+    win.on("close", () => server.close());
+    return { rendererDebugAddr: wsUrl, success: true, port };
+  }
+}
+export {
+  ElectronExtensionHostDebugBroadcastChannel
+};
+//# sourceMappingURL=extensionHostDebugIpc.js.map

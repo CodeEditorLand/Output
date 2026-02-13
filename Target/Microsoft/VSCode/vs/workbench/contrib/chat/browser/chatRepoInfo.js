@@ -1,6 +1,538 @@
-import{$Ed as O}from"../../../../base/common/lifecycle.js";import{$Kh as k}from"../../../../base/common/resources.js";import{$cfb as P}from"../../../../editor/common/diff/linesDiffComputers.js";import{$0l as z}from"../../../../platform/configuration/common/configuration.js";import{$lm as B}from"../../../../platform/configuration/common/configurationRegistry.js";import{$vk as U}from"../../../../platform/files/common/files.js";import{$yo as j}from"../../../../platform/log/common/log.js";import{$jm as H}from"../../../../platform/registry/common/platform.js";import{$JP as T}from"../../../services/chat/common/chatEntitlementService.js";import{$mR as W}from"../../scm/common/scm.js";import{$NV as q}from"../common/chatService/chatService.js";import{ChatConfiguration as E}from"../common/constants.js";import*as F from"../../../../nls.js";var M=function(o,e,t,i){var r=arguments.length,n=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(o,e,t,i);else for(var f=o.length-1;f>=0;f--)(c=o[f])&&(n=(r<3?c(n):r>3?c(e,t,n):c(e,t))||n);return r>3&&n&&Object.defineProperty(e,t,n),n},v=function(o,e){return function(t,i){e(t,i,o)}};const A=100,V=900*1024,G=5,J=/^\s*url\s*=\s*(.+\S)\s*$/mg;function X(o){const e=[];let t;for(;t=J.exec(o);)e.push(t[1]);return e}function K(o){try{return new URL(o).hostname.toLowerCase()}catch{const e=o.lastIndexOf("@"),t=e!==-1?o.slice(e+1):o,i=t.indexOf(":");if(i!==-1){const n=t.slice(0,i);return n?n.toLowerCase():void 0}const r=t.indexOf("/");if(r!==-1){const n=t.slice(0,r);return n?n.toLowerCase():void 0}return}}function Y(o,e){const t=o.contextValue?.toLowerCase()??"",i=e.toLowerCase();return t.includes("untracked")||t.includes("add")?"added":t.includes("delete")?"deleted":t.includes("rename")?"renamed":i.includes("untracked")?"added":o.decorations.strikeThrough?"deleted":o.multiDiffEditorOriginalUri?"modified":"added"}async function Z(o,e,t,i,r){try{let n="",c="";if(t&&r!=="added")try{n=(await o.readFile(t)).value.toString()}catch{if(r==="modified")return}if(r!=="deleted")try{c=(await o.readFile(i)).value.toString()}catch{return}const f=n.split(`
-`),a=c.split(`
-`),d=n.length>0&&n.endsWith(`
-`),l=c.length>0&&c.endsWith(`
-`);d&&f.length>0&&f[f.length-1]===""&&f.pop(),l&&a.length>0&&a[a.length-1]===""&&a.pop();const u=[],y=r==="added"?"/dev/null":`a/${e}`,S=r==="deleted"?"/dev/null":`b/${e}`;if(u.push(`--- ${y}`),u.push(`+++ ${S}`),r==="added"){if(a.length>0){u.push(`@@ -0,0 +1,${a.length} @@`);for(const m of a)u.push(`+${m}`);l||u.push("\\ No newline at end of file")}}else if(r==="deleted"){if(f.length>0){u.push(`@@ -1,${f.length} +0,0 @@`);for(const m of f)u.push(`-${m}`);d||u.push("\\ No newline at end of file")}}else{const m=Q(f,a,d,l);for(const w of m)u.push(w)}return u.join(`
-`)}catch{return}}function Q(o,e,t,i){const n=[],f=P.getDefault().computeDiff(o,e,{ignoreTrimWhitespace:!1,maxComputationTimeMs:1e3,computeMoves:!1});if(f.changes.length===0)return n;const a=[];let d=[];for(const l of f.changes)if(d.length===0)d.push(l);else{const y=d[d.length-1].original.endLineNumberExclusive-1+3;l.original.startLineNumber-3<=y+1?d.push(l):(a.push(d),d=[l])}d.length>0&&a.push(d);for(const l of a){const u=l[0],y=l[l.length-1],S=Math.max(1,u.original.startLineNumber-3),m=Math.min(o.length,y.original.endLineNumberExclusive-1+3),w=Math.max(1,u.modified.startLineNumber-3),h=[];let R=-1,b=-1,x=S,D=0,I=0;for(const g of l){const s=g.original.startLineNumber,p=g.original.endLineNumberExclusive,$=g.modified.startLineNumber,L=g.modified.endLineNumberExclusive;for(;x<s;){const C=h.length;h.push(` ${o[x-1]}`),x===o.length&&(R=C),w+I===e.length&&(b=C),x++,D++,I++}for(let C=s;C<p;C++){const N=h.length;h.push(`-${o[C-1]}`),C===o.length&&(R=N),x++,D++}for(let C=$;C<L;C++){const N=h.length;h.push(`+${e[C-1]}`),C===e.length&&(b=N),I++}}for(;x<=m;){const g=h.length;h.push(` ${o[x-1]}`),x===o.length&&(R=g),w+I===e.length&&(b=g),x++,D++,I++}n.push(`@@ -${S},${D} +${w},${I} @@`);for(let g=0;g<h.length;g++){n.push(h[g]);const s=g===R,p=g===b;s&&p?(!t||!i)&&n.push("\\ No newline at end of file"):(s&&!t||p&&!i)&&n.push("\\ No newline at end of file")}}return n}async function tt(o,e){const t=[...o.repositories];if(t.length===0)return;const i=t[0],r=i.provider.rootUri;if(!r)return;let n=!1;try{const s=r.with({path:`${r.path}/.git`});n=await e.exists(s)}catch{}if(!n)return{workspaceType:"plain-folder",syncStatus:"no-git",diffs:void 0};let c;try{const s=r.with({path:`${r.path}/.git/config`});if(await e.exists(s)){const $=await e.readFile(s);c=X($.value.toString())[0]}}catch{}let f,a,d,l,u;const y=i.provider.historyProvider?.get();if(y){const s=y.historyItemRef.get();f=s?.name,a=s?.revision;const p=y.historyItemRemoteRef.get();p&&(d=p.name,l=p.revision);const $=y.historyItemBaseRef.get();$&&(u=$.name)}let S,m;c?(S="remote-git",d?a===l?m="synced":m="unpushed":m="unpublished"):(S="local-git",m="local-only");let w;if(c){const s=K(c);s==="github.com"?w="github":s==="dev.azure.com"||s&&s.endsWith(".visualstudio.com")?w="ado":w="other"}let h=0;for(const s of i.provider.groups)h+=s.resources.length;const R={workspaceType:S,syncStatus:m,remoteUrl:c,remoteVendor:w,localBranch:f,remoteTrackingBranch:d,remoteBaseBranch:u,localHeadCommit:a,remoteHeadCommit:l};if(h===0)return{...R,diffs:void 0,diffsStatus:"noChanges",changedFileCount:0};if(h>A)return{...R,diffs:void 0,diffsStatus:"tooManyChanges",changedFileCount:h};const b=[],x=[];for(const s of i.provider.groups)for(const p of s.resources){const $=k(r,p.sourceUri)??p.sourceUri.path,L=Y(p,s.id),C=(async()=>{const N=await Z(e,$,p.multiDiffEditorOriginalUri,p.sourceUri,L);return{relativePath:$,changeType:L,status:s.label||s.id,unifiedDiff:N}})();x.push(C)}const D=await Promise.all(x);for(const s of D)s&&b.push(s);const I=JSON.stringify(b);return new TextEncoder().encode(I).length>V?{...R,diffs:void 0,diffsStatus:"tooLarge",changedFileCount:h}:{...R,diffs:b,diffsStatus:"included",changedFileCount:h}}let _=class extends O{static{this.ID="workbench.contrib.chatRepoInfo"}constructor(e,t,i,r,n,c){super(),this.f=e,this.g=t,this.h=i,this.j=r,this.m=n,this.n=c,this.c=!1,this.q(),this.D(this.g.onDidChangeEntitlement(()=>{this.q()})),this.D(this.f.onDidSubmitRequest(async({chatSessionResource:f})=>{const a=this.f.getSession(f);a&&await this.r(a)}))}q(){if(this.c||!this.g.isInternal)return;H.as(B.Configuration).registerConfiguration({id:"chatRepoInfo",title:F.localize(6049,null),type:"object",properties:{[E.RepoInfoEnabled]:{type:"boolean",description:F.localize(6050,null),default:!0}}}),this.c=!0,this.m.debug("[ChatRepoInfo] Configuration registered for internal user")}async r(e){if(this.g.isInternal&&this.n.getValue(E.RepoInfoEnabled)&&!e.repoData)try{const t=await tt(this.h,this.j);t?(e.setRepoData(t),!t.localHeadCommit&&t.workspaceType!=="plain-folder"&&this.m.warn("[ChatRepoInfo] Captured repo data without commit hash - git history may not be ready"),this.s()):this.m.debug("[ChatRepoInfo] No SCM repository available for chat session")}catch(t){this.m.warn("[ChatRepoInfo] Failed to capture repo info:",t)}}s(){try{const e=[];for(const t of this.f.chatModels.get())t.repoData?.diffs&&t.repoData.diffs.length>0&&t.repoData.diffsStatus==="included"&&e.push({model:t,timestamp:t.timestamp});e.sort((t,i)=>i.timestamp-t.timestamp);for(let t=G;t<e.length;t++){const{model:i}=e[t];if(i.repoData){const r={...i.repoData,diffs:void 0,diffsStatus:"trimmedForStorage"};i.setRepoData(r),this.m.trace(`[ChatRepoInfo] Trimmed diffs from older session: ${i.sessionResource.toString()}`)}}}catch(e){this.m.warn("[ChatRepoInfo] Failed to trim old session diffs:",e)}}};_=M([v(0,q),v(1,T),v(2,W),v(3,U),v(4,j),v(5,z)],_);export{tt as $_qc,_ as $arc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { relativePath } from "../../../../base/common/resources.js";
+import { linesDiffComputers } from "../../../../editor/common/diff/linesDiffComputers.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
+import { ISCMService } from "../../scm/common/scm.js";
+import { IChatService } from "../common/chatService/chatService.js";
+import { ChatConfiguration } from "../common/constants.js";
+import * as nls from "../../../../nls.js";
+const MAX_CHANGES = 100;
+const MAX_DIFFS_SIZE_BYTES = 900 * 1024;
+const MAX_SESSIONS_WITH_FULL_DIFFS = 5;
+const RemoteMatcher = /^\s*url\s*=\s*(.+\S)\s*$/mg;
+function getRawRemotes(text) {
+  const remotes = [];
+  let match;
+  while (match = RemoteMatcher.exec(text)) {
+    remotes.push(match[1]);
+  }
+  return remotes;
+}
+__name(getRawRemotes, "getRawRemotes");
+function getRemoteHost(remoteUrl) {
+  try {
+    const url = new URL(remoteUrl);
+    return url.hostname.toLowerCase();
+  } catch {
+    const atIndex = remoteUrl.lastIndexOf("@");
+    const hostAndPath = atIndex !== -1 ? remoteUrl.slice(atIndex + 1) : remoteUrl;
+    const colonIndex = hostAndPath.indexOf(":");
+    if (colonIndex !== -1) {
+      const host = hostAndPath.slice(0, colonIndex);
+      return host ? host.toLowerCase() : void 0;
+    }
+    const slashIndex = hostAndPath.indexOf("/");
+    if (slashIndex !== -1) {
+      const host = hostAndPath.slice(0, slashIndex);
+      return host ? host.toLowerCase() : void 0;
+    }
+    return void 0;
+  }
+}
+__name(getRemoteHost, "getRemoteHost");
+function determineChangeType(resource, groupId) {
+  const contextValue = resource.contextValue?.toLowerCase() ?? "";
+  const groupIdLower = groupId.toLowerCase();
+  if (contextValue.includes("untracked") || contextValue.includes("add")) {
+    return "added";
+  }
+  if (contextValue.includes("delete")) {
+    return "deleted";
+  }
+  if (contextValue.includes("rename")) {
+    return "renamed";
+  }
+  if (groupIdLower.includes("untracked")) {
+    return "added";
+  }
+  if (resource.decorations.strikeThrough) {
+    return "deleted";
+  }
+  if (!resource.multiDiffEditorOriginalUri) {
+    return "added";
+  }
+  return "modified";
+}
+__name(determineChangeType, "determineChangeType");
+async function generateUnifiedDiff(fileService, relPath, originalUri, modifiedUri, changeType) {
+  try {
+    let originalContent = "";
+    let modifiedContent = "";
+    if (originalUri && changeType !== "added") {
+      try {
+        const originalFile = await fileService.readFile(originalUri);
+        originalContent = originalFile.value.toString();
+      } catch {
+        if (changeType === "modified") {
+          return void 0;
+        }
+      }
+    }
+    if (changeType !== "deleted") {
+      try {
+        const modifiedFile = await fileService.readFile(modifiedUri);
+        modifiedContent = modifiedFile.value.toString();
+      } catch {
+        return void 0;
+      }
+    }
+    const originalLines = originalContent.split("\n");
+    const modifiedLines = modifiedContent.split("\n");
+    const originalEndsWithNewline = originalContent.length > 0 && originalContent.endsWith("\n");
+    const modifiedEndsWithNewline = modifiedContent.length > 0 && modifiedContent.endsWith("\n");
+    if (originalEndsWithNewline && originalLines.length > 0 && originalLines[originalLines.length - 1] === "") {
+      originalLines.pop();
+    }
+    if (modifiedEndsWithNewline && modifiedLines.length > 0 && modifiedLines[modifiedLines.length - 1] === "") {
+      modifiedLines.pop();
+    }
+    const diffLines = [];
+    const aPath = changeType === "added" ? "/dev/null" : `a/${relPath}`;
+    const bPath = changeType === "deleted" ? "/dev/null" : `b/${relPath}`;
+    diffLines.push(`--- ${aPath}`);
+    diffLines.push(`+++ ${bPath}`);
+    if (changeType === "added") {
+      if (modifiedLines.length > 0) {
+        diffLines.push(`@@ -0,0 +1,${modifiedLines.length} @@`);
+        for (const line of modifiedLines) {
+          diffLines.push(`+${line}`);
+        }
+        if (!modifiedEndsWithNewline) {
+          diffLines.push("\\ No newline at end of file");
+        }
+      }
+    } else if (changeType === "deleted") {
+      if (originalLines.length > 0) {
+        diffLines.push(`@@ -1,${originalLines.length} +0,0 @@`);
+        for (const line of originalLines) {
+          diffLines.push(`-${line}`);
+        }
+        if (!originalEndsWithNewline) {
+          diffLines.push("\\ No newline at end of file");
+        }
+      }
+    } else {
+      const hunks = computeDiffHunks(originalLines, modifiedLines, originalEndsWithNewline, modifiedEndsWithNewline);
+      for (const hunk of hunks) {
+        diffLines.push(hunk);
+      }
+    }
+    return diffLines.join("\n");
+  } catch {
+    return void 0;
+  }
+}
+__name(generateUnifiedDiff, "generateUnifiedDiff");
+function computeDiffHunks(originalLines, modifiedLines, originalEndsWithNewline, modifiedEndsWithNewline) {
+  const contextSize = 3;
+  const result = [];
+  const diffComputer = linesDiffComputers.getDefault();
+  const diffResult = diffComputer.computeDiff(originalLines, modifiedLines, {
+    ignoreTrimWhitespace: false,
+    maxComputationTimeMs: 1e3,
+    computeMoves: false
+  });
+  if (diffResult.changes.length === 0) {
+    return result;
+  }
+  const hunkGroups = [];
+  let currentGroup = [];
+  for (const change of diffResult.changes) {
+    if (currentGroup.length === 0) {
+      currentGroup.push(change);
+    } else {
+      const lastChange = currentGroup[currentGroup.length - 1];
+      const lastContextEnd = lastChange.original.endLineNumberExclusive - 1 + contextSize;
+      const currentContextStart = change.original.startLineNumber - contextSize;
+      if (currentContextStart <= lastContextEnd + 1) {
+        currentGroup.push(change);
+      } else {
+        hunkGroups.push(currentGroup);
+        currentGroup = [change];
+      }
+    }
+  }
+  if (currentGroup.length > 0) {
+    hunkGroups.push(currentGroup);
+  }
+  for (const group of hunkGroups) {
+    const firstChange = group[0];
+    const lastChange = group[group.length - 1];
+    const hunkOrigStart = Math.max(1, firstChange.original.startLineNumber - contextSize);
+    const hunkOrigEnd = Math.min(originalLines.length, lastChange.original.endLineNumberExclusive - 1 + contextSize);
+    const hunkModStart = Math.max(1, firstChange.modified.startLineNumber - contextSize);
+    const hunkLines = [];
+    let lastOriginalLineIndex = -1;
+    let lastModifiedLineIndex = -1;
+    let origLineNum = hunkOrigStart;
+    let origCount = 0;
+    let modCount = 0;
+    for (const change of group) {
+      const origStart = change.original.startLineNumber;
+      const origEnd = change.original.endLineNumberExclusive;
+      const modStart = change.modified.startLineNumber;
+      const modEnd = change.modified.endLineNumberExclusive;
+      while (origLineNum < origStart) {
+        const idx = hunkLines.length;
+        hunkLines.push(` ${originalLines[origLineNum - 1]}`);
+        if (origLineNum === originalLines.length) {
+          lastOriginalLineIndex = idx;
+        }
+        const modLineNum = hunkModStart + modCount;
+        if (modLineNum === modifiedLines.length) {
+          lastModifiedLineIndex = idx;
+        }
+        origLineNum++;
+        origCount++;
+        modCount++;
+      }
+      for (let i = origStart; i < origEnd; i++) {
+        const idx = hunkLines.length;
+        hunkLines.push(`-${originalLines[i - 1]}`);
+        if (i === originalLines.length) {
+          lastOriginalLineIndex = idx;
+        }
+        origLineNum++;
+        origCount++;
+      }
+      for (let i = modStart; i < modEnd; i++) {
+        const idx = hunkLines.length;
+        hunkLines.push(`+${modifiedLines[i - 1]}`);
+        if (i === modifiedLines.length) {
+          lastModifiedLineIndex = idx;
+        }
+        modCount++;
+      }
+    }
+    while (origLineNum <= hunkOrigEnd) {
+      const idx = hunkLines.length;
+      hunkLines.push(` ${originalLines[origLineNum - 1]}`);
+      if (origLineNum === originalLines.length) {
+        lastOriginalLineIndex = idx;
+      }
+      const modLineNum = hunkModStart + modCount;
+      if (modLineNum === modifiedLines.length) {
+        lastModifiedLineIndex = idx;
+      }
+      origLineNum++;
+      origCount++;
+      modCount++;
+    }
+    result.push(`@@ -${hunkOrigStart},${origCount} +${hunkModStart},${modCount} @@`);
+    for (let i = 0; i < hunkLines.length; i++) {
+      result.push(hunkLines[i]);
+      const isLastOriginal = i === lastOriginalLineIndex;
+      const isLastModified = i === lastModifiedLineIndex;
+      if (isLastOriginal && isLastModified) {
+        if (!originalEndsWithNewline || !modifiedEndsWithNewline) {
+          result.push("\\ No newline at end of file");
+        }
+      } else if (isLastOriginal && !originalEndsWithNewline) {
+        result.push("\\ No newline at end of file");
+      } else if (isLastModified && !modifiedEndsWithNewline) {
+        result.push("\\ No newline at end of file");
+      }
+    }
+  }
+  return result;
+}
+__name(computeDiffHunks, "computeDiffHunks");
+async function captureRepoInfo(scmService, fileService) {
+  const repositories = [...scmService.repositories];
+  if (repositories.length === 0) {
+    return void 0;
+  }
+  const repository = repositories[0];
+  const rootUri = repository.provider.rootUri;
+  if (!rootUri) {
+    return void 0;
+  }
+  let hasGit = false;
+  try {
+    const gitDirUri = rootUri.with({ path: `${rootUri.path}/.git` });
+    hasGit = await fileService.exists(gitDirUri);
+  } catch {
+  }
+  if (!hasGit) {
+    return {
+      workspaceType: "plain-folder",
+      syncStatus: "no-git",
+      diffs: void 0
+    };
+  }
+  let remoteUrl;
+  try {
+    const gitConfigUri = rootUri.with({ path: `${rootUri.path}/.git/config` });
+    const exists = await fileService.exists(gitConfigUri);
+    if (exists) {
+      const content = await fileService.readFile(gitConfigUri);
+      const remotes = getRawRemotes(content.value.toString());
+      remoteUrl = remotes[0];
+    }
+  } catch {
+  }
+  let localBranch;
+  let localHeadCommit;
+  let remoteTrackingBranch;
+  let remoteHeadCommit;
+  let remoteBaseBranch;
+  const historyProvider = repository.provider.historyProvider?.get();
+  if (historyProvider) {
+    const historyItemRef = historyProvider.historyItemRef.get();
+    localBranch = historyItemRef?.name;
+    localHeadCommit = historyItemRef?.revision;
+    const historyItemRemoteRef = historyProvider.historyItemRemoteRef.get();
+    if (historyItemRemoteRef) {
+      remoteTrackingBranch = historyItemRemoteRef.name;
+      remoteHeadCommit = historyItemRemoteRef.revision;
+    }
+    const historyItemBaseRef = historyProvider.historyItemBaseRef.get();
+    if (historyItemBaseRef) {
+      remoteBaseBranch = historyItemBaseRef.name;
+    }
+  }
+  let workspaceType;
+  let syncStatus;
+  if (!remoteUrl) {
+    workspaceType = "local-git";
+    syncStatus = "local-only";
+  } else {
+    workspaceType = "remote-git";
+    if (!remoteTrackingBranch) {
+      syncStatus = "unpublished";
+    } else if (localHeadCommit === remoteHeadCommit) {
+      syncStatus = "synced";
+    } else {
+      syncStatus = "unpushed";
+    }
+  }
+  let remoteVendor;
+  if (remoteUrl) {
+    const host = getRemoteHost(remoteUrl);
+    if (host === "github.com") {
+      remoteVendor = "github";
+    } else if (host === "dev.azure.com" || host && host.endsWith(".visualstudio.com")) {
+      remoteVendor = "ado";
+    } else {
+      remoteVendor = "other";
+    }
+  }
+  let totalChangeCount = 0;
+  for (const group of repository.provider.groups) {
+    totalChangeCount += group.resources.length;
+  }
+  const baseRepoData = {
+    workspaceType,
+    syncStatus,
+    remoteUrl,
+    remoteVendor,
+    localBranch,
+    remoteTrackingBranch,
+    remoteBaseBranch,
+    localHeadCommit,
+    remoteHeadCommit
+  };
+  if (totalChangeCount === 0) {
+    return {
+      ...baseRepoData,
+      diffs: void 0,
+      diffsStatus: "noChanges",
+      changedFileCount: 0
+    };
+  }
+  if (totalChangeCount > MAX_CHANGES) {
+    return {
+      ...baseRepoData,
+      diffs: void 0,
+      diffsStatus: "tooManyChanges",
+      changedFileCount: totalChangeCount
+    };
+  }
+  const diffs = [];
+  const diffPromises = [];
+  for (const group of repository.provider.groups) {
+    for (const resource of group.resources) {
+      const relPath = relativePath(rootUri, resource.sourceUri) ?? resource.sourceUri.path;
+      const changeType = determineChangeType(resource, group.id);
+      const diffPromise = (async () => {
+        const unifiedDiff = await generateUnifiedDiff(fileService, relPath, resource.multiDiffEditorOriginalUri, resource.sourceUri, changeType);
+        return {
+          relativePath: relPath,
+          changeType,
+          status: group.label || group.id,
+          unifiedDiff
+        };
+      })();
+      diffPromises.push(diffPromise);
+    }
+  }
+  const generatedDiffs = await Promise.all(diffPromises);
+  for (const diff of generatedDiffs) {
+    if (diff) {
+      diffs.push(diff);
+    }
+  }
+  const diffsJson = JSON.stringify(diffs);
+  const diffsSizeBytes = new TextEncoder().encode(diffsJson).length;
+  if (diffsSizeBytes > MAX_DIFFS_SIZE_BYTES) {
+    return {
+      ...baseRepoData,
+      diffs: void 0,
+      diffsStatus: "tooLarge",
+      changedFileCount: totalChangeCount
+    };
+  }
+  return {
+    ...baseRepoData,
+    diffs,
+    diffsStatus: "included",
+    changedFileCount: totalChangeCount
+  };
+}
+__name(captureRepoInfo, "captureRepoInfo");
+let ChatRepoInfoContribution = class ChatRepoInfoContribution2 extends Disposable {
+  static {
+    __name(this, "ChatRepoInfoContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.chatRepoInfo";
+  }
+  constructor(chatService, chatEntitlementService, scmService, fileService, logService, configurationService) {
+    super();
+    this.chatService = chatService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.scmService = scmService;
+    this.fileService = fileService;
+    this.logService = logService;
+    this.configurationService = configurationService;
+    this._configurationRegistered = false;
+    this.registerConfigurationIfInternal();
+    this._register(this.chatEntitlementService.onDidChangeEntitlement(() => {
+      this.registerConfigurationIfInternal();
+    }));
+    this._register(this.chatService.onDidSubmitRequest(async ({ chatSessionResource }) => {
+      const model = this.chatService.getSession(chatSessionResource);
+      if (!model) {
+        return;
+      }
+      await this.captureAndSetRepoData(model);
+    }));
+  }
+  registerConfigurationIfInternal() {
+    if (this._configurationRegistered) {
+      return;
+    }
+    if (!this.chatEntitlementService.isInternal) {
+      return;
+    }
+    const registry = Registry.as(ConfigurationExtensions.Configuration);
+    registry.registerConfiguration({
+      id: "chatRepoInfo",
+      title: nls.localize("chatRepoInfoConfigurationTitle", "Chat Repository Info"),
+      type: "object",
+      properties: {
+        [ChatConfiguration.RepoInfoEnabled]: {
+          type: "boolean",
+          description: nls.localize("chat.repoInfo.enabled", "Controls whether repository information (branch, commit, working tree diffs) is captured at the start of chat sessions for internal diagnostics."),
+          default: true
+        }
+      }
+    });
+    this._configurationRegistered = true;
+    this.logService.debug("[ChatRepoInfo] Configuration registered for internal user");
+  }
+  async captureAndSetRepoData(model) {
+    if (!this.chatEntitlementService.isInternal) {
+      return;
+    }
+    if (!this.configurationService.getValue(ChatConfiguration.RepoInfoEnabled)) {
+      return;
+    }
+    if (model.repoData) {
+      return;
+    }
+    try {
+      const repoData = await captureRepoInfo(this.scmService, this.fileService);
+      if (repoData) {
+        model.setRepoData(repoData);
+        if (!repoData.localHeadCommit && repoData.workspaceType !== "plain-folder") {
+          this.logService.warn("[ChatRepoInfo] Captured repo data without commit hash - git history may not be ready");
+        }
+        this.trimOldSessionDiffs();
+      } else {
+        this.logService.debug("[ChatRepoInfo] No SCM repository available for chat session");
+      }
+    } catch (error) {
+      this.logService.warn("[ChatRepoInfo] Failed to capture repo info:", error);
+    }
+  }
+  /**
+   * Trims diffs from older sessions, keeping full diffs only for the most recent sessions.
+   */
+  trimOldSessionDiffs() {
+    try {
+      const sessionsWithDiffs = [];
+      for (const model of this.chatService.chatModels.get()) {
+        if (model.repoData?.diffs && model.repoData.diffs.length > 0 && model.repoData.diffsStatus === "included") {
+          sessionsWithDiffs.push({ model, timestamp: model.timestamp });
+        }
+      }
+      sessionsWithDiffs.sort((a, b) => b.timestamp - a.timestamp);
+      for (let i = MAX_SESSIONS_WITH_FULL_DIFFS; i < sessionsWithDiffs.length; i++) {
+        const { model } = sessionsWithDiffs[i];
+        if (model.repoData) {
+          const trimmedRepoData = {
+            ...model.repoData,
+            diffs: void 0,
+            diffsStatus: "trimmedForStorage"
+          };
+          model.setRepoData(trimmedRepoData);
+          this.logService.trace(`[ChatRepoInfo] Trimmed diffs from older session: ${model.sessionResource.toString()}`);
+        }
+      }
+    } catch (error) {
+      this.logService.warn("[ChatRepoInfo] Failed to trim old session diffs:", error);
+    }
+  }
+};
+ChatRepoInfoContribution = __decorate([
+  __param(0, IChatService),
+  __param(1, IChatEntitlementService),
+  __param(2, ISCMService),
+  __param(3, IFileService),
+  __param(4, ILogService),
+  __param(5, IConfigurationService)
+], ChatRepoInfoContribution);
+export {
+  ChatRepoInfoContribution,
+  captureRepoInfo
+};
+//# sourceMappingURL=chatRepoInfo.js.map

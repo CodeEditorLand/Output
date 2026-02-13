@@ -1,1 +1,10 @@
-import{$Erc as r}from"../../../../platform/imageResize/common/imageResizeService.js";import{$rOc as m}from"../../../../platform/imageResize/browser/imageResizeService.js";import{$WC as o}from"../../../../platform/instantiation/common/extensions.js";o(r,m,1);
+import { IImageResizeService } from "../../../../platform/imageResize/common/imageResizeService.js";
+import { ImageResizeService } from "../../../../platform/imageResize/browser/imageResizeService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+registerSingleton(
+  IImageResizeService,
+  ImageResizeService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=imageResizeService.js.map

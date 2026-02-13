@@ -1,1 +1,90 @@
-import{$2N as l}from"../../../common/contributions.js";import{$u_b as h}from"../../../services/banner/browser/bannerService.js";import{$4o as u,$Vo as p}from"../../../../platform/request/common/request.js";import{$Vn as y}from"../../../../platform/product/common/productService.js";import{CancellationToken as b}from"../../../../base/common/cancellation.js";import{$yo as g}from"../../../../platform/log/common/log.js";import{$bk as $}from"../../../../base/common/codicons.js";import{$4 as w,$3 as d}from"../../../../base/common/process.js";var f=function(n,r,e,o){var t=arguments.length,i=t<3?r:o===null?o=Object.getOwnPropertyDescriptor(r,e):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,r,e,o);else for(var a=n.length-1;a>=0;a--)(c=n[a])&&(i=(t<3?c(i):t>3?c(r,e,i):c(r,e))||i);return t>3&&i&&Object.defineProperty(r,e,i),i},s=function(n,r){return function(e,o){r(e,o,n)}};let m=class{static{this.ID="workbench.contrib.emergencyAlert"}constructor(r,e,o,t){if(this.a=r,this.b=e,this.c=o,this.d=t,o.quality!=="insider")return;const i=o.emergencyAlertUrl;i&&this.f(i)}async f(r){try{await this.g(r)}catch(e){this.d.error(e)}}async g(r){const e=await this.b.request({type:"GET",url:r,disableCache:!0},b.None);if(e.res.statusCode!==200)throw new Error(`Failed to fetch emergency alerts: HTTP ${e.res.statusCode}`);const o=await u(e);if(o)for(const t of o.alerts){if(t.commit!==this.c.commit||t.platform&&t.platform!==d||t.arch&&t.arch!==w)return;this.a.show({id:"emergencyAlert.banner",icon:$.warning,message:t.message,actions:t.actions});break}}};m=f([s(0,h),s(1,p),s(2,y),s(3,g)],m);l("workbench.emergencyAlert",m,4);export{m as $aYc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { asJson, IRequestService } from "../../../../platform/request/common/request.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { arch, platform } from "../../../../base/common/process.js";
+let EmergencyAlert = class EmergencyAlert2 {
+  static {
+    __name(this, "EmergencyAlert");
+  }
+  static {
+    this.ID = "workbench.contrib.emergencyAlert";
+  }
+  constructor(bannerService, requestService, productService, logService) {
+    this.bannerService = bannerService;
+    this.requestService = requestService;
+    this.productService = productService;
+    this.logService = logService;
+    if (productService.quality !== "insider") {
+      return;
+    }
+    const emergencyAlertUrl = productService.emergencyAlertUrl;
+    if (!emergencyAlertUrl) {
+      return;
+    }
+    this.fetchAlerts(emergencyAlertUrl);
+  }
+  async fetchAlerts(url) {
+    try {
+      await this.doFetchAlerts(url);
+    } catch (e) {
+      this.logService.error(e);
+    }
+  }
+  async doFetchAlerts(url) {
+    const requestResult = await this.requestService.request({ type: "GET", url, disableCache: true }, CancellationToken.None);
+    if (requestResult.res.statusCode !== 200) {
+      throw new Error(`Failed to fetch emergency alerts: HTTP ${requestResult.res.statusCode}`);
+    }
+    const emergencyAlerts = await asJson(requestResult);
+    if (!emergencyAlerts) {
+      return;
+    }
+    for (const emergencyAlert of emergencyAlerts.alerts) {
+      if (emergencyAlert.commit !== this.productService.commit || // version mismatch
+      emergencyAlert.platform && emergencyAlert.platform !== platform || // platform mismatch
+      emergencyAlert.arch && emergencyAlert.arch !== arch) {
+        return;
+      }
+      this.bannerService.show({
+        id: "emergencyAlert.banner",
+        icon: Codicon.warning,
+        message: emergencyAlert.message,
+        actions: emergencyAlert.actions
+      });
+      break;
+    }
+  }
+};
+EmergencyAlert = __decorate([
+  __param(0, IBannerService),
+  __param(1, IRequestService),
+  __param(2, IProductService),
+  __param(3, ILogService)
+], EmergencyAlert);
+registerWorkbenchContribution2(
+  "workbench.emergencyAlert",
+  EmergencyAlert,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+export {
+  EmergencyAlert
+};
+//# sourceMappingURL=emergencyAlert.contribution.js.map

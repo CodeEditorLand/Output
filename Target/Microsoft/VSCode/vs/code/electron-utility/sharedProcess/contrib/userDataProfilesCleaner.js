@@ -1,1 +1,39 @@
-import{$ji as s}from"../../../../base/common/async.js";import{$Ed as h}from"../../../../base/common/lifecycle.js";import{$ap as a}from"../../../../platform/userDataProfile/common/userDataProfile.js";var p=function(c,e,t,n){var o=arguments.length,r=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,e,t,n);else for(var i=c.length-1;i>=0;i--)(f=c[i])&&(r=(o<3?f(r):o>3?f(e,t,r):f(e,t))||r);return o>3&&r&&Object.defineProperty(e,t,r),r},u=function(c,e){return function(t,n){e(t,n,c)}};let l=class extends h{constructor(e){super(),this.D(new s(()=>{e.cleanUp()},10*1e3)).schedule()}};l=p([u(0,a)],l);export{l as $yQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+let UserDataProfilesCleaner = class UserDataProfilesCleaner2 extends Disposable {
+  static {
+    __name(this, "UserDataProfilesCleaner");
+  }
+  constructor(userDataProfilesService) {
+    super();
+    const scheduler = this._register(new RunOnceScheduler(
+      () => {
+        userDataProfilesService.cleanUp();
+      },
+      10 * 1e3
+      /* after 10s */
+    ));
+    scheduler.schedule();
+  }
+};
+UserDataProfilesCleaner = __decorate([
+  __param(0, IUserDataProfilesService)
+], UserDataProfilesCleaner);
+export {
+  UserDataProfilesCleaner
+};
+//# sourceMappingURL=userDataProfilesCleaner.js.map

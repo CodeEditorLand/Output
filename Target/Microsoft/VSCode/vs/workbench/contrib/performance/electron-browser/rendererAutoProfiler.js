@@ -1,1 +1,98 @@
-import{$0h as v}from"../../../../base/common/async.js";import{$0i as y}from"../../../../base/common/buffer.js";import{$Ih as O}from"../../../../base/common/resources.js";import{$ln as _}from"../../../../base/common/uuid.js";import{$0l as w}from"../../../../platform/configuration/common/configuration.js";import{$vk as R}from"../../../../platform/files/common/files.js";import{$yo as S}from"../../../../platform/log/common/log.js";import{$Xu as x}from"../../../../platform/native/common/native.js";import{$2Uc as P}from"../../../../platform/profiling/electron-browser/profileAnalysisWorkerService.js";import{$SPc as D}from"../../../services/environment/electron-browser/environmentService.js";import{$h5b as T}from"../../../services/extensions/common/extensionDevOptions.js";import{$f7b as j}from"../../../services/timer/browser/timerService.js";var g=function(n,e,t,r){var s=arguments.length,o=s<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,p;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,t,r);else for(var c=n.length-1;c>=0;c--)(p=n[c])&&(o=(s<3?p(o):s>3?p(e,t,o):p(e,t))||o);return s>3&&o&&Object.defineProperty(e,t,o),o},i=function(n,e){return function(t,r){e(t,r,n)}};let h=class{constructor(e,t,r,s,o,p,c){this.b=e,this.d=t,this.f=r,!T(e).isExtensionDevTestFromCli&&o.perfBaseline.then(l=>{if((e.isBuilt?r.info:r.trace).apply(r,[`[perf] Render performance baseline is ${l}ms`]),l<0)return;const $=l*10,m=new PerformanceObserver(async b=>{m.takeRecords();const d=b.getEntries().map(a=>a.duration).reduce((a,f)=>Math.max(a,f),0);if(d<$)return;if(!p.getValue("application.experimental.rendererProfiling")){r.debug(`[perf] SLOW task detected (${d}ms) but renderer profiling is disabled via 'application.experimental.rendererProfiling'`);return}const u=_();r.warn(`[perf] Renderer reported VERY LONG TASK (${d}ms), starting profiling session '${u}'`),m.disconnect();for(let a=0;a<3;a++)try{const f=await s.profileRenderer(u,5e3);if(await c.analyseBottomUp(f,I=>"<<renderer>>",l,!0)===2){this.g(f,u);break}v(15e3)}catch(f){r.error(f);break}m.observe({entryTypes:["longtask"]})});m.observe({entryTypes:["longtask"]}),this.a=m})}dispose(){this.a?.disconnect()}async g(e,t){const r=O(this.b.tmpDir,`renderer-${Math.random().toString(16).slice(2,8)}.cpuprofile.json`);await this.d.writeFile(r,y.fromString(JSON.stringify(e))),this.f.info(`[perf] stored profile to DISK '${r}'`,t)}};h=g([i(0,D),i(1,R),i(2,S),i(3,x),i(4,j),i(5,w),i(6,P)],h);export{h as $fXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { timeout } from "../../../../base/common/async.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProfileAnalysisWorkerService } from "../../../../platform/profiling/electron-browser/profileAnalysisWorkerService.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-browser/environmentService.js";
+import { parseExtensionDevOptions } from "../../../services/extensions/common/extensionDevOptions.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
+let RendererProfiling = class RendererProfiling2 {
+  static {
+    __name(this, "RendererProfiling");
+  }
+  constructor(_environmentService, _fileService, _logService, nativeHostService, timerService, configService, profileAnalysisService) {
+    this._environmentService = _environmentService;
+    this._fileService = _fileService;
+    this._logService = _logService;
+    const devOpts = parseExtensionDevOptions(_environmentService);
+    if (devOpts.isExtensionDevTestFromCli) {
+      return;
+    }
+    timerService.perfBaseline.then((perfBaseline) => {
+      (_environmentService.isBuilt ? _logService.info : _logService.trace).apply(_logService, [`[perf] Render performance baseline is ${perfBaseline}ms`]);
+      if (perfBaseline < 0) {
+        return;
+      }
+      const slowThreshold = perfBaseline * 10;
+      const obs = new PerformanceObserver(async (list) => {
+        obs.takeRecords();
+        const maxDuration = list.getEntries().map((e) => e.duration).reduce((p, c) => Math.max(p, c), 0);
+        if (maxDuration < slowThreshold) {
+          return;
+        }
+        if (!configService.getValue("application.experimental.rendererProfiling")) {
+          _logService.debug(`[perf] SLOW task detected (${maxDuration}ms) but renderer profiling is disabled via 'application.experimental.rendererProfiling'`);
+          return;
+        }
+        const sessionId = generateUuid();
+        _logService.warn(`[perf] Renderer reported VERY LONG TASK (${maxDuration}ms), starting profiling session '${sessionId}'`);
+        obs.disconnect();
+        for (let i = 0; i < 3; i++) {
+          try {
+            const profile = await nativeHostService.profileRenderer(sessionId, 5e3);
+            const output = await profileAnalysisService.analyseBottomUp(profile, (_url) => "<<renderer>>", perfBaseline, true);
+            if (output === 2) {
+              this._store(profile, sessionId);
+              break;
+            }
+            timeout(15e3);
+          } catch (err) {
+            _logService.error(err);
+            break;
+          }
+        }
+        obs.observe({ entryTypes: ["longtask"] });
+      });
+      obs.observe({ entryTypes: ["longtask"] });
+      this._observer = obs;
+    });
+  }
+  dispose() {
+    this._observer?.disconnect();
+  }
+  async _store(profile, sessionId) {
+    const path = joinPath(this._environmentService.tmpDir, `renderer-${Math.random().toString(16).slice(2, 8)}.cpuprofile.json`);
+    await this._fileService.writeFile(path, VSBuffer.fromString(JSON.stringify(profile)));
+    this._logService.info(`[perf] stored profile to DISK '${path}'`, sessionId);
+  }
+};
+RendererProfiling = __decorate([
+  __param(0, INativeWorkbenchEnvironmentService),
+  __param(1, IFileService),
+  __param(2, ILogService),
+  __param(3, INativeHostService),
+  __param(4, ITimerService),
+  __param(5, IConfigurationService),
+  __param(6, IProfileAnalysisWorkerService)
+], RendererProfiling);
+export {
+  RendererProfiling
+};
+//# sourceMappingURL=rendererAutoProfiler.js.map

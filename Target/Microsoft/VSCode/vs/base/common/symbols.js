@@ -1,1 +1,5 @@
-const o=Symbol("MicrotaskDelay");export{o as $sf};
+const MicrotaskDelay = /* @__PURE__ */ Symbol("MicrotaskDelay");
+export {
+  MicrotaskDelay
+};
+//# sourceMappingURL=symbols.js.map

@@ -1,1 +1,47 @@
-import*as l from"../../../../editor/common/languages.js";import{$Rpb as p}from"../../../../editor/contrib/peekView/browser/peekView.js";import*as o from"../../../../nls.js";import{$hq as e,$cq as i,$zs as s,$2p as t,$7p as h}from"../../../../platform/theme/common/colorRegistry.js";const d=t("commentsView.resolvedIcon",{dark:i,light:i,hcDark:e,hcLight:e},o.localize(7383,null)),c=t("commentsView.unresolvedIcon",{dark:s,light:s,hcDark:e,hcLight:e},o.localize(7384,null));t("editorCommentsWidget.replyInputBackground",p,o.localize(7385,null));const C=t("editorCommentsWidget.resolvedBorder",{dark:d,light:d,hcDark:e,hcLight:e},o.localize(7386,null)),m=t("editorCommentsWidget.unresolvedBorder",{dark:c,light:c,hcDark:e,hcLight:e},o.localize(7387,null)),b=t("editorCommentsWidget.rangeBackground",h(m,.1),o.localize(7388,null)),z=t("editorCommentsWidget.rangeActiveBackground",h(m,.1),o.localize(7389,null)),v=new Map([[l.CommentThreadState.Unresolved,m],[l.CommentThreadState.Resolved,C]]),$=new Map([[l.CommentThreadState.Unresolved,c],[l.CommentThreadState.Resolved,d]]),B="--comment-thread-state-color",S="--comment-view-thread-state-color",T="--comment-thread-state-background-color";function u(n,r,g){const a=n!==void 0?g.get(n):void 0;return a!==void 0?r.getColor(a):void 0}function w(n,r){return u(n,r,v)}function x(n,r){return u(n,r,$)}export{b as $R8b,z as $S8b,B as $T8b,S as $U8b,T as $V8b,w as $W8b,x as $X8b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as languages from "../../../../editor/common/languages.js";
+import { peekViewTitleBackground } from "../../../../editor/contrib/peekView/browser/peekView.js";
+import * as nls from "../../../../nls.js";
+import { contrastBorder, disabledForeground, listFocusOutline, registerColor, transparent } from "../../../../platform/theme/common/colorRegistry.js";
+const resolvedCommentViewIcon = registerColor("commentsView.resolvedIcon", { dark: disabledForeground, light: disabledForeground, hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("resolvedCommentIcon", "Icon color for resolved comments."));
+const unresolvedCommentViewIcon = registerColor("commentsView.unresolvedIcon", { dark: listFocusOutline, light: listFocusOutline, hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("unresolvedCommentIcon", "Icon color for unresolved comments."));
+registerColor("editorCommentsWidget.replyInputBackground", peekViewTitleBackground, nls.localize("commentReplyInputBackground", "Background color for comment reply input box."));
+const resolvedCommentBorder = registerColor("editorCommentsWidget.resolvedBorder", { dark: resolvedCommentViewIcon, light: resolvedCommentViewIcon, hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("resolvedCommentBorder", "Color of borders and arrow for resolved comments."));
+const unresolvedCommentBorder = registerColor("editorCommentsWidget.unresolvedBorder", { dark: unresolvedCommentViewIcon, light: unresolvedCommentViewIcon, hcDark: contrastBorder, hcLight: contrastBorder }, nls.localize("unresolvedCommentBorder", "Color of borders and arrow for unresolved comments."));
+const commentThreadRangeBackground = registerColor("editorCommentsWidget.rangeBackground", transparent(unresolvedCommentBorder, 0.1), nls.localize("commentThreadRangeBackground", "Color of background for comment ranges."));
+const commentThreadRangeActiveBackground = registerColor("editorCommentsWidget.rangeActiveBackground", transparent(unresolvedCommentBorder, 0.1), nls.localize("commentThreadActiveRangeBackground", "Color of background for currently selected or hovered comment range."));
+const commentThreadStateBorderColors = /* @__PURE__ */ new Map([
+  [languages.CommentThreadState.Unresolved, unresolvedCommentBorder],
+  [languages.CommentThreadState.Resolved, resolvedCommentBorder]
+]);
+const commentThreadStateIconColors = /* @__PURE__ */ new Map([
+  [languages.CommentThreadState.Unresolved, unresolvedCommentViewIcon],
+  [languages.CommentThreadState.Resolved, resolvedCommentViewIcon]
+]);
+const commentThreadStateColorVar = "--comment-thread-state-color";
+const commentViewThreadStateColorVar = "--comment-view-thread-state-color";
+const commentThreadStateBackgroundColorVar = "--comment-thread-state-background-color";
+function getCommentThreadStateColor(state, theme, map) {
+  const colorId = state !== void 0 ? map.get(state) : void 0;
+  return colorId !== void 0 ? theme.getColor(colorId) : void 0;
+}
+__name(getCommentThreadStateColor, "getCommentThreadStateColor");
+function getCommentThreadStateBorderColor(state, theme) {
+  return getCommentThreadStateColor(state, theme, commentThreadStateBorderColors);
+}
+__name(getCommentThreadStateBorderColor, "getCommentThreadStateBorderColor");
+function getCommentThreadStateIconColor(state, theme) {
+  return getCommentThreadStateColor(state, theme, commentThreadStateIconColors);
+}
+__name(getCommentThreadStateIconColor, "getCommentThreadStateIconColor");
+export {
+  commentThreadRangeActiveBackground,
+  commentThreadRangeBackground,
+  commentThreadStateBackgroundColorVar,
+  commentThreadStateColorVar,
+  commentViewThreadStateColorVar,
+  getCommentThreadStateBorderColor,
+  getCommentThreadStateIconColor
+};
+//# sourceMappingURL=commentColors.js.map

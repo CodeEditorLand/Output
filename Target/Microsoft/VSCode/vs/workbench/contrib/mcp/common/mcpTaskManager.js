@@ -1,1 +1,204 @@
-import{$$h as l}from"../../../../base/common/async.js";import{$Jf as m}from"../../../../base/common/cancellation.js";import{$sb as k}from"../../../../base/common/errors.js";import{$xf as w}from"../../../../base/common/event.js";import{$Ed as g,$Md as u,$Dd as p,$Cd as A}from"../../../../base/common/lifecycle.js";import{$ln as T}from"../../../../base/common/uuid.js";import{$YU as i}from"./mcpTypes.js";import{MCP as o}from"./modelContextProtocol.js";class I extends g{constructor(){super(...arguments),this.a=this.D(new u),this.b=this.D(new u),this.c=this.D(new w),this.onDidUpdateTask=this.c.event}setHandler(t){for(const e of this.b.values())e.setHandler(t)}getClientTask(t){return this.b.get(t)}adoptClientTask(t){this.b.set(t.id,t)}abandonClientTask(t){this.b.deleteAndDispose(t)}createTask(t,e){const s=T(),n=new Date().toISOString(),r=Date.now(),a={taskId:s,status:"working",createdAt:n,ttl:t,lastUpdatedAt:new Date().toISOString(),pollInterval:1e3},d=new p,c=new m;d.add(A(()=>c.dispose(!0)));const f=this.f(s,e,c.token);return t?d.add(l(()=>this.a.deleteAndDispose(s),t)):f.finally(()=>{const h=this.D(l(()=>{this.a.deleteAndDispose(s),this.B.delete(h)},6e4))}),this.a.set(s,{task:a,cts:c,dispose:()=>d.dispose(),createdAtTime:r,executionPromise:f}),{task:a}}async f(t,e,s){try{const n=await e(s);this.g(t,"completed",void 0,n)}catch(n){n instanceof k?this.g(t,"cancelled","Task was cancelled by the client"):n instanceof i?this.g(t,"failed",n.message,void 0,{code:n.code,message:n.message,data:n.data}):n instanceof Error?this.g(t,"failed",n.message,void 0,{code:o.INTERNAL_ERROR,message:n.message}):this.g(t,"failed","Unknown error",void 0,{code:o.INTERNAL_ERROR,message:"Unknown error"})}}g(t,e,s,n,r){const a=this.a.get(t);a&&(a.task.status=e,a.task.lastUpdatedAt=new Date().toISOString(),s!==void 0&&(a.task.statusMessage=s),n!==void 0&&(a.result=n),r!==void 0&&(a.error=r),this.c.fire({...a.task}))}getTask(t){const e=this.a.get(t);if(!e)throw new i(o.INVALID_PARAMS,`Task not found: ${t}`);return{...e.task}}async getTaskResult(t){const e=this.a.get(t);if(!e)throw new i(o.INVALID_PARAMS,`Task not found: ${t}`);(e.task.status==="working"||e.task.status==="input_required")&&await e.executionPromise;const s=this.a.get(t);if(!s)throw new i(o.INVALID_PARAMS,`Task not found: ${t}`);if(s.error)throw new i(s.error.code,s.error.message,s.error.data);if(!s.result)throw new i(o.INTERNAL_ERROR,"Task completed but no result available");return s.result}cancelTask(t){const e=this.a.get(t);if(!e)throw new i(o.INVALID_PARAMS,`Task not found: ${t}`);if(e.task.status==="completed"||e.task.status==="failed"||e.task.status==="cancelled")throw new i(o.INVALID_PARAMS,`Cannot cancel task in ${e.task.status} status`);return e.task.status="cancelled",e.task.statusMessage="Task was cancelled by the client",e.cts.cancel(),{...e.task}}listTasks(){const t=[];for(const e of this.a.values())t.push({...e.task});return{tasks:t}}}export{I as $vU};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { disposableTimeout } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, DisposableMap, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { McpError } from "./mcpTypes.js";
+import { MCP } from "./modelContextProtocol.js";
+class McpTaskManager extends Disposable {
+  static {
+    __name(this, "McpTaskManager");
+  }
+  constructor() {
+    super(...arguments);
+    this._serverTasks = this._register(new DisposableMap());
+    this._clientTasks = this._register(new DisposableMap());
+    this._onDidUpdateTask = this._register(new Emitter());
+    this.onDidUpdateTask = this._onDidUpdateTask.event;
+  }
+  /**
+   * Attach a new handler to this task manager.
+   * Updates all client tasks to use the new handler.
+   */
+  setHandler(handler) {
+    for (const task of this._clientTasks.values()) {
+      task.setHandler(handler);
+    }
+  }
+  /**
+   * Get a client task by ID for status notification handling.
+   */
+  getClientTask(taskId) {
+    return this._clientTasks.get(taskId);
+  }
+  /**
+   * Track a new client task.
+   */
+  adoptClientTask(task) {
+    this._clientTasks.set(task.id, task);
+  }
+  /**
+   * Untracks a client task.
+   */
+  abandonClientTask(taskId) {
+    this._clientTasks.deleteAndDispose(taskId);
+  }
+  /**
+   * Create a new task and execute it asynchronously.
+   * Returns the task immediately while execution continues in the background.
+   */
+  createTask(ttl, executor) {
+    const taskId = generateUuid();
+    const createdAt = (/* @__PURE__ */ new Date()).toISOString();
+    const createdAtTime = Date.now();
+    const task = {
+      taskId,
+      status: "working",
+      createdAt,
+      ttl,
+      lastUpdatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      pollInterval: 1e3
+      // Suggest 1 second polling interval
+    };
+    const store = new DisposableStore();
+    const cts = new CancellationTokenSource();
+    store.add(toDisposable(() => cts.dispose(true)));
+    const executionPromise = this._executeTask(taskId, executor, cts.token);
+    if (ttl) {
+      store.add(disposableTimeout(() => this._serverTasks.deleteAndDispose(taskId), ttl));
+    } else {
+      executionPromise.finally(() => {
+        const timeout = this._register(disposableTimeout(() => {
+          this._serverTasks.deleteAndDispose(taskId);
+          this._store.delete(timeout);
+        }, 6e4));
+      });
+    }
+    this._serverTasks.set(taskId, {
+      task,
+      cts,
+      dispose: /* @__PURE__ */ __name(() => store.dispose(), "dispose"),
+      createdAtTime,
+      executionPromise
+    });
+    return { task };
+  }
+  /**
+   * Execute a task asynchronously and update its state.
+   */
+  async _executeTask(taskId, executor, token) {
+    try {
+      const result = await executor(token);
+      this._updateTaskStatus(taskId, "completed", void 0, result);
+    } catch (error) {
+      if (error instanceof CancellationError) {
+        this._updateTaskStatus(taskId, "cancelled", "Task was cancelled by the client");
+      } else if (error instanceof McpError) {
+        this._updateTaskStatus(taskId, "failed", error.message, void 0, {
+          code: error.code,
+          message: error.message,
+          data: error.data
+        });
+      } else if (error instanceof Error) {
+        this._updateTaskStatus(taskId, "failed", error.message, void 0, {
+          code: MCP.INTERNAL_ERROR,
+          message: error.message
+        });
+      } else {
+        this._updateTaskStatus(taskId, "failed", "Unknown error", void 0, {
+          code: MCP.INTERNAL_ERROR,
+          message: "Unknown error"
+        });
+      }
+    }
+  }
+  /**
+   * Update task status and optionally store result or error.
+   */
+  _updateTaskStatus(taskId, status, statusMessage, result, error) {
+    const entry = this._serverTasks.get(taskId);
+    if (!entry) {
+      return;
+    }
+    entry.task.status = status;
+    entry.task.lastUpdatedAt = (/* @__PURE__ */ new Date()).toISOString();
+    if (statusMessage !== void 0) {
+      entry.task.statusMessage = statusMessage;
+    }
+    if (result !== void 0) {
+      entry.result = result;
+    }
+    if (error !== void 0) {
+      entry.error = error;
+    }
+    this._onDidUpdateTask.fire({ ...entry.task });
+  }
+  /**
+   * Get the current state of a task.
+   * Returns an error if the task doesn't exist or has expired.
+   */
+  getTask(taskId) {
+    const entry = this._serverTasks.get(taskId);
+    if (!entry) {
+      throw new McpError(MCP.INVALID_PARAMS, `Task not found: ${taskId}`);
+    }
+    return { ...entry.task };
+  }
+  /**
+   * Get the result of a completed task.
+   * Blocks until the task completes if it's still in progress.
+   */
+  async getTaskResult(taskId) {
+    const entry = this._serverTasks.get(taskId);
+    if (!entry) {
+      throw new McpError(MCP.INVALID_PARAMS, `Task not found: ${taskId}`);
+    }
+    if (entry.task.status === "working" || entry.task.status === "input_required") {
+      await entry.executionPromise;
+    }
+    const updatedEntry = this._serverTasks.get(taskId);
+    if (!updatedEntry) {
+      throw new McpError(MCP.INVALID_PARAMS, `Task not found: ${taskId}`);
+    }
+    if (updatedEntry.error) {
+      throw new McpError(updatedEntry.error.code, updatedEntry.error.message, updatedEntry.error.data);
+    }
+    if (!updatedEntry.result) {
+      throw new McpError(MCP.INTERNAL_ERROR, "Task completed but no result available");
+    }
+    return updatedEntry.result;
+  }
+  /**
+   * Cancel a task.
+   */
+  cancelTask(taskId) {
+    const entry = this._serverTasks.get(taskId);
+    if (!entry) {
+      throw new McpError(MCP.INVALID_PARAMS, `Task not found: ${taskId}`);
+    }
+    if (entry.task.status === "completed" || entry.task.status === "failed" || entry.task.status === "cancelled") {
+      throw new McpError(MCP.INVALID_PARAMS, `Cannot cancel task in ${entry.task.status} status`);
+    }
+    entry.task.status = "cancelled";
+    entry.task.statusMessage = "Task was cancelled by the client";
+    entry.cts.cancel();
+    return { ...entry.task };
+  }
+  /**
+   * List all tasks.
+   */
+  listTasks() {
+    const tasks = [];
+    for (const entry of this._serverTasks.values()) {
+      tasks.push({ ...entry.task });
+    }
+    return { tasks };
+  }
+}
+export {
+  McpTaskManager
+};
+//# sourceMappingURL=mcpTaskManager.js.map

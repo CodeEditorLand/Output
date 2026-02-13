@@ -1,1 +1,10 @@
-import{$WC as m}from"../../../../platform/instantiation/common/extensions.js";import{$SDb as o}from"./webview.js";import{$nPc as r}from"./webviewService.js";m(o,r,1);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWebviewService } from "./webview.js";
+import { WebviewService } from "./webviewService.js";
+registerSingleton(
+  IWebviewService,
+  WebviewService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=webview.web.contribution.js.map

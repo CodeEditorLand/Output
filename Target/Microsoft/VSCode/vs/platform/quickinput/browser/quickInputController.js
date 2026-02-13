@@ -1,2 +1,989 @@
-import*as o from"../../../base/browser/dom.js";import*as at from"../../../base/browser/domStylesheets.js";import{$0_ as q}from"../../../base/browser/ui/toolbar/toolbar.js";import{$b_ as Q}from"../../../base/browser/ui/button/button.js";import{$v_ as U}from"../../../base/browser/ui/countBadge/countBadge.js";import{$2_ as lt}from"../../../base/browser/ui/progressbar/progressbar.js";import{CancellationToken as Y}from"../../../base/common/cancellation.js";import{$xf as v,Event as T}from"../../../base/common/event.js";import{$Ed as st,$zd as R}from"../../../base/common/lifecycle.js";import A from"../../../base/common/severity.js";import{$6c as S}from"../../../base/common/types.js";import{$6w as ut}from"../../../base/common/keyCodes.js";import{localize as w}from"../../../nls.js";import{QuickInputHideReason as dt,QuickPickFocus as J}from"../common/quickInput.js";import{$sCb as ft}from"./quickInputBox.js";import{$OCb as B,$MCb as Z,$PCb as pt,$QCb as gt,$DCb as mt,$ICb as bt,$KCb as yt,$GCb as kt}from"./quickInput.js";import{$flb as ot}from"../../layout/browser/layoutService.js";import{$T7 as Dt}from"../../../base/browser/window.js";import{$Mj as Ct}from"../../instantiation/common/instantiation.js";import{$ijb as wt}from"../../contextview/browser/contextView.js";import{$tCb as $t}from"./quickInputList.js";import{$ro as rt}from"../../contextkey/common/contextkey.js";import"./quickInputActions.js";import{autorun as vt,observableValue as Bt}from"../../../base/common/observable.js";import{$h8 as F}from"../../../base/browser/mouseEvent.js";import{$hp as Lt}from"../../storage/common/storage.js";import{$0l as At}from"../../configuration/common/configuration.js";import{$y as M,$F as xt}from"../../../base/common/platform.js";import{$Pu as It}from"../../window/common/window.js";import{$17 as tt}from"../../../base/browser/browser.js";import{$I$ as qt,$K$ as z}from"../../../base/browser/ui/toggle/toggle.js";import{$Pjb as St}from"../../theme/browser/defaultStyles.js";import{$BCb as Ft}from"./tree/quickInputTreeController.js";import{$Gbc as et}from"./tree/quickTree.js";var nt=function(k,e,t,s){var n=arguments.length,r=n<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(k,e,t,s);else for(var i=k.length-1;i>=0;i--)(h=k[i])&&(r=(n<3?h(r):n>3?h(e,t,r):h(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},y=function(k,e){return function(t,s){e(t,s,k)}},P;const g=o.$,O="workbench.quickInput.viewState";let it=class extends st{static{P=this}static{this.f=600}get currentQuickInput(){return this.u??void 0}get container(){return this.w}constructor(e,t,s,n,r,h){super(),this.N=e,this.P=t,this.Q=s,this.S=r,this.U=h,this.n=!0,this.q=this.D(new v),this.r=this.D(new v),this.s=this.D(new v),this.t={ctrlCmd:!1,alt:!1},this.u=null,this.C=this.D(new v),this.onShow=this.C.event,this.F=this.D(new v),this.onHide=this.F.event,this.backButton=Z,this.J=mt.bindTo(n),this.L=bt.bindTo(n),this.M=yt.bindTo(n),this.g=e.idPrefix,this.w=e.container,this.z=e.styles,this.D(T.runAndSubscribe(o.onDidRegisterWindow,({window:i,disposables:u})=>this.W(i,u),{window:Dt,disposables:this.B})),this.D(o.onWillUnregisterWindow(i=>{this.h&&o.getWindow(this.h.container)===i&&(this.Y(this.P.mainContainer),this.layout(this.P.mainContainerDimension,this.P.mainContainerOffset.quickPickTop))})),this.H=this.fb()}W(e,t){const s=n=>{this.t.ctrlCmd=n.ctrlKey||n.metaKey,this.t.alt=n.altKey};for(const n of[o.$r9.KEY_DOWN,o.$r9.KEY_UP,o.$r9.MOUSE_DOWN])t.add(o.$u8(e,n,s,!0))}X(e){if(this.h)return e&&o.getWindow(this.w)!==o.getWindow(this.P.activeContainer)&&(this.Y(this.P.activeContainer),this.layout(this.P.activeContainerDimension,this.P.activeContainerOffset.quickPickTop)),this.h;const t=o.$y9(this.w,g(".quick-input-widget.show-file-icons"));t.tabIndex=-1,t.style.display="none";const s=at.$O0(t),n=o.$y9(t,g(".quick-input-titlebar")),r=this.D(new q(n,this.U,{hoverDelegate:this.N.hoverDelegate,actionViewItemProvider:z(this.z.toggle),icon:!0,label:!1}));r.getElement().classList.add("quick-input-left-action-bar");const h=o.$y9(n,g(".quick-input-title")),i=this.D(new q(n,this.U,{hoverDelegate:this.N.hoverDelegate,actionViewItemProvider:z(this.z.toggle),icon:!0,label:!1}));i.getElement().classList.add("quick-input-right-action-bar");const u=o.$y9(t,g(".quick-input-header")),p=this.D(new qt(w(2278,null),!1,{...St,size:15}));o.$y9(u,p.domNode),this.D(p.onChange(()=>{const a=p.checked;b.setAllVisibleChecked(a===!0)})),this.D(o.$u8(p.domNode,o.$r9.CLICK,a=>{(a.x||a.y)&&l.setFocus()}));const c=o.$y9(u,g(".quick-input-description")),d=o.$y9(u,g(".quick-input-and-message")),f=o.$y9(d,g(".quick-input-filter")),l=this.D(new ft(f,this.z.inputBox,this.z.toggle));l.setAttribute("aria-describedby",`${this.g}message`);const D=o.$y9(f,g(".quick-input-visible-count"));D.setAttribute("aria-live","polite"),D.setAttribute("aria-atomic","true");const L=this.D(new U(D,{countFormat:w(2279,null)},this.z.countBadge)),$=o.$y9(f,g(".quick-input-count"));$.setAttribute("aria-live","polite");const H=this.D(new U($,{countFormat:w(2280,null)},this.z.countBadge)),W=this.D(new q(u,this.U,{hoverDelegate:this.N.hoverDelegate,actionViewItemProvider:z(this.z.toggle),icon:!0,label:!1}));W.getElement().classList.add("quick-input-inline-action-bar");const E=o.$y9(u,g(".quick-input-action")),x=this.D(new Q(E,this.z.button));x.label=w(2281,null),this.D(x.onDidClick(a=>{this.q.fire()}));const N=o.$y9(u,g(".quick-input-action")),I=this.D(new Q(N,{...this.z.button,supportIcons:!0}));I.label=w(2282,null),this.D(I.onDidClick(a=>{this.r.fire()}));const ht=o.$y9(d,g(`#${this.g}message.quick-input-message`)),X=this.D(new lt(t,this.z.progressBar));X.getContainer().classList.add("quick-input-progress");const G=o.$y9(t,g(".quick-input-html-widget"));G.tabIndex=-1;const ct=o.$y9(t,g(".quick-input-description")),_=this.g+"list",b=this.D(this.Q.createInstance($t,t,this.N.hoverDelegate,this.N.linkOpenerDelegate,_,this.z));l.setAttribute("aria-controls",_),this.D(b.onDidChangeFocus(()=>{if(l.hasFocus()){const a=b.getActiveDescendant();a?(l.setAttribute("aria-activedescendant",a),l.setListFocusMode(!0)):(l.removeAttribute("aria-activedescendant"),l.setListFocusMode(!1))}})),this.D(b.onChangedAllVisibleChecked(a=>{p.checked=a})),this.D(b.onChangedVisibleCount(a=>{L.setCount(a)})),this.D(b.onChangedCheckedCount(a=>{xt(()=>H.setCount(a))})),this.D(b.onLeave(()=>{setTimeout(()=>{this.u&&(l.setFocus(),this.u instanceof B&&this.u.canSelectMany&&b.clearFocus())},0)}));const C=this.D(this.Q.createInstance(Ft,t,this.N.hoverDelegate,this.z));this.D(C.tree.onDidChangeFocus(()=>{if(l.hasFocus()){const a=C.getActiveDescendant();a?(l.setAttribute("aria-activedescendant",a),l.setListFocusMode(!0)):(l.removeAttribute("aria-activedescendant"),l.setListFocusMode(!1))}})),this.D(C.onLeave(()=>{setTimeout(()=>{this.u&&(l.setFocus(),C.tree.setFocus([]))},0)})),this.D(C.onDidAccept(()=>{this.q.fire()})),this.D(C.tree.onDidChangeContentHeight(()=>this.db()));const j=o.$w9(t);return this.D(j),this.D(o.$u8(t,o.$r9.FOCUS,a=>{const m=this.X();if(o.$18(a.relatedTarget,m.inputContainer)){const K=m.inputBox.isSelectionAtEnd();this.M.get()!==K&&this.M.set(K)}o.$18(a.relatedTarget,m.container)||(this.J.set(!0),this.G=o.$f9(a.relatedTarget)?a.relatedTarget:void 0)},!0)),this.D(j.onDidBlur(()=>{!this.X().ignoreFocusOut&&!this.N.ignoreFocusOut()&&this.hide(dt.Blur),this.J.set(!1),this.M.set(!1),this.G=void 0})),this.D(l.onKeyDown(a=>{const m=this.X().inputBox.isSelectionAtEnd();this.M.get()!==m&&this.M.set(m),ut(a.keyCode)||(l.removeAttribute("aria-activedescendant"),l.setListFocusMode(!1))})),this.D(o.$u8(t,o.$r9.FOCUS,a=>{l.setFocus()})),this.I=this.D(this.Q.createInstance(V,this.w,t,[{node:n,includeChildren:!0,excludeNodes:[r.getElement(),i.getElement()]},{node:u,includeChildren:!1}],this.H)),this.D(vt(a=>{const m=this.I?.dndViewState.read(a);m&&(m.top!==void 0&&m.left!==void 0?this.H={...this.H,top:m.top,left:m.left}:this.H=void 0,this.db(),m.done&&this.gb(this.H))})),this.h={container:t,styleSheet:s,leftActionBar:r,titleBar:n,title:h,description1:ct,description2:c,widget:G,rightActionBar:i,inlineActionBar:W,checkAll:p,inputContainer:d,filterContainer:f,inputBox:l,visibleCountContainer:D,visibleCount:L,countContainer:$,count:H,okContainer:E,ok:x,message:ht,customButtonContainer:N,customButton:I,list:b,tree:C,progressBar:X,onDidAccept:this.q.event,onDidCustom:this.r.event,onDidTriggerButton:this.s.event,ignoreFocusOut:!1,keyMods:this.t,show:a=>this.ab(a),hide:()=>this.hide(),setVisibilities:a=>this.bb(a),setEnabled:a=>this.cb(a),setContextKey:a=>this.N.setContextKey(a),linkOpenerDelegate:a=>this.N.linkOpenerDelegate(a)},this.eb(),this.h}Y(e){this.h&&(this.w=e,o.$y9(this.w,this.h.container),this.I?.reparentUI(this.w))}pick(e,t={},s=Y.None){return new Promise((n,r)=>{let h=c=>{h=n,t.onKeyMods?.(i.keyMods),n(c)};if(s.isCancellationRequested){h(void 0);return}const i=this.createQuickPick({useSeparators:!0});let u;const p=[i,i.onDidAccept(()=>{if(i.canSelectMany)h(i.selectedItems.slice()),i.hide();else{const c=i.activeItems[0];c&&(h(c),i.hide())}}),i.onDidChangeActive(c=>{const d=c[0];d&&t.onDidFocus&&t.onDidFocus(d)}),i.onDidChangeSelection(c=>{if(!i.canSelectMany){const d=c[0];d&&(h(d),i.hide())}}),i.onDidTriggerItemButton(c=>t.onDidTriggerItemButton&&t.onDidTriggerItemButton({...c,removeItem:()=>{const d=i.items.indexOf(c.item);if(d!==-1){const f=i.items.slice(),l=f.splice(d,1),D=i.activeItems.filter($=>$!==l[0]),L=i.keepScrollPosition;i.keepScrollPosition=!0,i.items=f,D&&(i.activeItems=D),i.keepScrollPosition=L}}})),i.onDidTriggerSeparatorButton(c=>t.onDidTriggerSeparatorButton?.(c)),i.onDidChangeValue(c=>{u&&!c&&(i.activeItems.length!==1||i.activeItems[0]!==u)&&(i.activeItems=[u])}),s.onCancellationRequested(()=>{i.hide()}),i.onDidHide(()=>{R(p),h(void 0)})];i.title=t.title,t.value&&(i.value=t.value),i.canSelectMany=!!t.canPickMany,i.placeholder=t.placeHolder,i.prompt=t.prompt,i.ignoreFocusOut=!!t.ignoreFocusLost,i.matchOnDescription=!!t.matchOnDescription,i.matchOnDetail=!!t.matchOnDetail,t.sortByLabel!==void 0&&(i.sortByLabel=t.sortByLabel),i.matchOnLabel=t.matchOnLabel===void 0||t.matchOnLabel,i.quickNavigate=t.quickNavigate,i.hideInput=!!t.hideInput,i.contextKey=t.contextKey,i.busy=!0,Promise.all([e,t.activeItem]).then(([c,d])=>{u=d,i.busy=!1,i.items=c,i.canSelectMany&&(i.selectedItems=c.filter(f=>f.type!=="separator"&&f.picked)),u&&(i.activeItems=[u])}),i.show(),Promise.resolve(e).then(void 0,c=>{r(c),i.hide()})})}Z(e,t){t&&S(t)?(e.severity=A.Error,e.validationMessage=t):t&&!S(t)?(e.severity=t.severity,e.validationMessage=t.content):(e.severity=A.Ignore,e.validationMessage=void 0)}input(e={},t=Y.None){return new Promise(s=>{if(t.isCancellationRequested){s(void 0);return}const n=this.createInputBox(),r=e.validateInput||(()=>Promise.resolve(void 0)),h=T.debounce(n.onDidChangeValue,(c,d)=>d,100);let i=e.value||"",u=Promise.resolve(r(i));const p=[n,h(c=>{c!==i&&(u=Promise.resolve(r(c)),i=c),u.then(d=>{c===i&&this.Z(n,d)})}),n.onDidAccept(()=>{const c=n.value;c!==i&&(u=Promise.resolve(r(c)),i=c),u.then(d=>{!d||!S(d)&&d.severity!==A.Error?(s(c),n.hide()):c===i&&this.Z(n,d)})}),t.onCancellationRequested(()=>{n.hide()}),n.onDidHide(()=>{R(p),s(void 0)})];n.title=e.title,n.value=e.value||"",n.valueSelection=e.valueSelection,n.prompt=e.prompt,n.placeholder=e.placeHolder,n.password=!!e.password,n.ignoreFocusOut=!!e.ignoreFocusLost,n.show()})}createQuickPick(e={useSeparators:!1}){const t=this.X(!0);return new B(t)}createInputBox(){const e=this.X(!0);return new pt(e)}setAlignment(e){this.I?.setAlignment(e)}createQuickWidget(){const e=this.X(!0);return new gt(e)}createQuickTree(){const e=this.X(!0);return new et(e)}ab(e){const t=this.X(!0);this.C.fire();const s=this.u;this.u=e,s?.didHide(),this.cb(!0),t.leftActionBar.setActions([]),t.title.textContent="",t.description1.textContent="",t.description2.textContent="",o.$A9(t.widget),t.rightActionBar.setActions([]),t.inlineActionBar.setActions([]),t.checkAll.checked=!1,t.inputBox.placeholder="",t.inputBox.password=!1,t.inputBox.showDecoration(A.Ignore),t.visibleCount.setCount(0),t.count.setCount(0),t.countContainer.style.right="4px",o.$A9(t.message),t.progressBar.stop(),t.progressBar.getContainer().setAttribute("aria-hidden","true"),t.list.setElements([]),t.list.matchOnDescription=!1,t.list.matchOnDetail=!1,t.list.matchOnLabel=!0,t.list.sortByLabel=!0,t.tree.updateFilterOptions({matchOnDescription:!1,matchOnLabel:!0}),t.tree.sortByLabel=!0,t.ignoreFocusOut=!1,t.inputBox.toggles=void 0,t.inputBox.actions=void 0;const n=this.N.backKeybindingLabel();Z.tooltip=n?w(2283,null,n):w(2284,null),t.container.style.display="",this.db(),this.I?.layoutContainer(),t.inputBox.setFocus(),this.L.set(e.type)}isVisible(){return!!this.h&&this.h.container.style.display!=="none"}bb(e){const t=this.X();t.title.style.display=e.title?"":"none",t.description1.style.display=e.description&&(e.inputBox||e.checkAll)?"":"none",t.description2.style.display=e.description&&!(e.inputBox||e.checkAll)?"":"none",t.checkAll.domNode.style.display=e.checkAll?"":"none",t.inputContainer.style.display=e.inputBox?"":"none",t.filterContainer.style.display=e.inputBox?"":"none",t.visibleCountContainer.style.display=e.visibleCount?"":"none",t.countContainer.style.display=e.count?"":"none",t.okContainer.style.display=e.ok?"":"none",t.customButtonContainer.style.display=e.customButton?"":"none",t.message.style.display=e.message?"":"none",t.progressBar.getContainer().style.display=e.progressBar?"":"none",t.list.displayed=!!e.list,t.tree.displayed=!!e.tree,t.container.classList.toggle("show-checkboxes",!!e.checkBox),t.container.classList.toggle("hidden-input",!e.inputBox&&!e.description),this.db()}cb(e){if(e!==this.n){this.n=e;const t=this.X();for(let s=0;s<t.leftActionBar.getItemsLength();s++){const n=t.leftActionBar.getItemAction(s);n&&(n.enabled=e)}for(let s=0;s<t.rightActionBar.getItemsLength();s++){const n=t.rightActionBar.getItemAction(s);n&&(n.enabled=e)}e?t.checkAll.enable():t.checkAll.disable(),t.inputBox.enabled=e,t.ok.enabled=e,t.list.enabled=e}}hide(e){const t=this.u;if(!t)return;t.willHide(e);const s=this.h?.container,n=s&&!o.$$8(s);if(this.u=null,this.F.fire(),s&&(s.style.display="none"),!n){let r=this.G;for(;r&&!r.offsetParent;)r=r.parentElement??void 0;r?.offsetParent?(r.focus(),this.G=void 0):this.N.returnFocus()}t.didHide(e)}focus(){if(this.isVisible()){const e=this.X();e.inputBox.enabled?e.inputBox.setFocus():e.list.domFocus()}}toggle(){this.isVisible()&&(this.u instanceof B&&this.u.canSelectMany?this.X().list.toggleCheckbox():this.u instanceof et&&this.X().tree.toggleCheckbox())}toggleHover(){this.isVisible()&&this.u instanceof B&&this.X().list.toggleHover()}navigate(e,t){this.isVisible()&&this.X().list.displayed&&(this.X().list.focus(e?J.Next:J.Previous),t&&this.u instanceof B&&(this.u.quickNavigate=t))}async accept(e={alt:!1,ctrlCmd:!1}){this.t.alt=e.alt,this.t.ctrlCmd=e.ctrlCmd,this.q.fire()}async back(){this.s.fire(this.backButton)}async cancel(e){this.hide(e)}layout(e,t){this.j=e,this.m=t,this.db()}db(){if(this.h&&this.isVisible()){const e=this.h.container.style,t=Math.min(this.j.width*.62,P.f);e.width=t+"px",e.top=`${this.H?.top?Math.round(this.j.height*this.H.top):this.m}px`,e.left=`${Math.round(this.j.width*(this.H?.left??.5)-t/2)}px`,this.h.inputBox.layout(),this.h.list.layout(this.j&&this.j.height*.4),this.h.tree.layout(this.j&&this.j.height*.4)}}applyStyles(e){this.z=e,this.eb()}eb(){if(this.h){const{quickInputTitleBackground:e,quickInputBackground:t,quickInputForeground:s,widgetBorder:n,widgetShadow:r}=this.z.widget;this.h.titleBar.style.backgroundColor=e??"",this.h.container.style.backgroundColor=t??"",this.h.container.style.color=s??"",this.h.container.style.border=n?`1px solid ${n}`:"",this.h.container.style.boxShadow=r?`0 0 8px 2px ${r}`:"",this.h.list.style(this.z.list),this.h.tree.tree.style(this.z.list);const h=[];this.z.pickerGroup.pickerGroupBorder&&h.push(`.quick-input-list .quick-input-list-entry { border-top-color:  ${this.z.pickerGroup.pickerGroupBorder}; }`),this.z.pickerGroup.pickerGroupForeground&&h.push(`.quick-input-list .quick-input-list-separator { color:  ${this.z.pickerGroup.pickerGroupForeground}; }`),this.z.pickerGroup.pickerGroupForeground&&h.push(".quick-input-list .quick-input-list-separator-as-item { color: var(--vscode-descriptionForeground); }"),(this.z.keybindingLabel.keybindingLabelBackground||this.z.keybindingLabel.keybindingLabelBorder||this.z.keybindingLabel.keybindingLabelBottomBorder||this.z.keybindingLabel.keybindingLabelShadow||this.z.keybindingLabel.keybindingLabelForeground)&&(h.push(".quick-input-list .monaco-keybinding > .monaco-keybinding-key {"),this.z.keybindingLabel.keybindingLabelBackground&&h.push(`background-color: ${this.z.keybindingLabel.keybindingLabelBackground};`),this.z.keybindingLabel.keybindingLabelBorder&&h.push(`border-color: ${this.z.keybindingLabel.keybindingLabelBorder};`),this.z.keybindingLabel.keybindingLabelBottomBorder&&h.push(`border-bottom-color: ${this.z.keybindingLabel.keybindingLabelBottomBorder};`),this.z.keybindingLabel.keybindingLabelShadow&&h.push(`box-shadow: inset 0 -1px 0 ${this.z.keybindingLabel.keybindingLabelShadow};`),this.z.keybindingLabel.keybindingLabelForeground&&h.push(`color: ${this.z.keybindingLabel.keybindingLabelForeground};`),h.push("}"));const i=h.join(`
-`);i!==this.h.styleSheet.textContent&&(this.h.styleSheet.textContent=i)}}fb(){try{const e=JSON.parse(this.S.get(O,-1,"{}"));if(e.top!==void 0||e.left!==void 0)return e}catch{}}gb(e){this.P.activeContainer===this.P.mainContainer&&(e!==void 0?this.S.store(O,JSON.stringify(e),-1,1):this.S.remove(O,-1))}};it=P=nt([y(1,ot),y(2,Ct),y(3,rt),y(4,Lt),y(5,wt)],it);let V=class extends st{constructor(e,t,s,n,r,h,i){super(),this.n=e,this.q=t,this.r=s,this.s=r,this.t=i,this.dndViewState=Bt(this,void 0),this.f=20,this.g=.25,this.m=kt.bindTo(h);const u=It(this.t)==="custom";this.h=u&&M===1,this.j=u&&(M===3||M===2),this.u(),this.w(),this.dndViewState.set({...n,done:!0},void 0)}reparentUI(e){this.n=e}layoutContainer(e=this.s.activeContainerDimension){const t=this.dndViewState.get(),s=this.q.getBoundingClientRect();if(t?.top&&t?.left){const n=Math.round(t.left*100)/100,r=e.width,h=s.width,i=n*r-h/2;this.z(t.top*e.height,i)}}setAlignment(e,t=!0){e==="top"?(this.dndViewState.set({top:this.C()/this.n.clientHeight,left:(this.G()+this.q.clientWidth/2)/this.n.clientWidth,done:t},void 0),this.m.set("top")):e==="center"?(this.dndViewState.set({top:this.F()/this.n.clientHeight,left:(this.G()+this.q.clientWidth/2)/this.n.clientWidth,done:t},void 0),this.m.set("center")):(this.dndViewState.set({top:e.top,left:e.left,done:t},void 0),this.m.set(void 0))}u(){this.D(T.filter(this.s.onDidLayoutContainer,e=>e.container===this.n)(e=>this.layoutContainer(e.dimension)))}w(){const e=this.q;this.D(o.$A8(e,t=>{const s=new F(o.getWindow(e),t);if(s.detail!==2)return;const n=this.r.find(({node:r,includeChildren:h})=>h?o.$18(s.target,r):s.target===r);!n||n.excludeNodes?.some(r=>o.$18(s.target,r))||this.dndViewState.set({top:void 0,left:void 0,done:!0},void 0)})),this.D(o.$y8(e,t=>{const s=o.getWindow(this.s.activeContainer),n=new F(s,t),r=this.r.find(({node:f,includeChildren:l})=>l?o.$18(n.target,f):n.target===f);if(!r||r.excludeNodes?.some(f=>o.$18(n.target,f)))return;const h=this.q.getBoundingClientRect(),i=n.browserEvent.clientX-h.left,u=n.browserEvent.clientY-h.top;let p=!1;const c=o.$z8(s,f=>{new F(s,f).preventDefault(),p||(p=!0),this.z(f.clientY-u,f.clientX-i)}),d=o.$A8(s,f=>{if(p){const l=this.dndViewState.get();this.dndViewState.set({top:l?.top,left:l?.left,done:!0},void 0)}c.dispose(),d.dispose()})}))}z(e,t){const s=this.C(),n=this.F(),r=this.G();e=Math.max(0,Math.min(e,this.n.clientHeight-this.q.clientHeight)),e<this.s.activeContainerOffset.top&&(this.h?t=Math.max(t,80/tt(o.$b9())):this.j&&(t=Math.min(t,this.n.clientWidth-this.q.clientWidth-140/tt(o.$b9()))));const h=Math.abs(e-s)<this.f;e=h?s:e;const i=Math.abs(e-n)<this.f;e=i?n:e;const u=e/this.n.clientHeight;t=Math.max(0,Math.min(t,this.n.clientWidth-this.q.clientWidth));const p=Math.abs(t-r)<this.f;t=p?r:t;const c=this.n.clientWidth,d=this.q.clientWidth,l=(t+d/2)/c;if(this.dndViewState.set({top:u,left:l,done:!1},void 0),p){if(h){this.m.set("top");return}else if(i){this.m.set("center");return}}this.m.set(void 0)}C(){return this.s.activeContainerOffset.quickPickTop}F(){return Math.round(this.n.clientHeight*this.g)}G(){return Math.round(this.n.clientWidth/2)-Math.round(this.q.clientWidth/2)}};V=nt([y(4,ot),y(5,rt),y(6,At)],V);export{it as $Hbc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var QuickInputController_1;
+import * as dom from "../../../base/browser/dom.js";
+import * as domStylesheetsJs from "../../../base/browser/domStylesheets.js";
+import { ToolBar } from "../../../base/browser/ui/toolbar/toolbar.js";
+import { Button } from "../../../base/browser/ui/button/button.js";
+import { CountBadge } from "../../../base/browser/ui/countBadge/countBadge.js";
+import { ProgressBar } from "../../../base/browser/ui/progressbar/progressbar.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { Disposable, dispose } from "../../../base/common/lifecycle.js";
+import Severity from "../../../base/common/severity.js";
+import { isString } from "../../../base/common/types.js";
+import { isModifierKey } from "../../../base/common/keyCodes.js";
+import { localize } from "../../../nls.js";
+import { QuickInputHideReason, QuickPickFocus } from "../common/quickInput.js";
+import { QuickInputBox } from "./quickInputBox.js";
+import { QuickPick, backButton, InputBox, QuickWidget, InQuickInputContextKey, QuickInputTypeContextKey, EndOfQuickInputBoxContextKey, QuickInputAlignmentContextKey } from "./quickInput.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { IInstantiationService } from "../../instantiation/common/instantiation.js";
+import { IContextMenuService } from "../../contextview/browser/contextView.js";
+import { QuickInputList } from "./quickInputList.js";
+import { IContextKeyService } from "../../contextkey/common/contextkey.js";
+import "./quickInputActions.js";
+import { autorun, observableValue } from "../../../base/common/observable.js";
+import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { platform, setTimeout0 } from "../../../base/common/platform.js";
+import { getWindowControlsStyle } from "../../window/common/window.js";
+import { getZoomFactor } from "../../../base/browser/browser.js";
+import { TriStateCheckbox, createToggleActionViewItemProvider } from "../../../base/browser/ui/toggle/toggle.js";
+import { defaultCheckboxStyles } from "../../theme/browser/defaultStyles.js";
+import { QuickInputTreeController } from "./tree/quickInputTreeController.js";
+import { QuickTree } from "./tree/quickTree.js";
+const $ = dom.$;
+const VIEWSTATE_STORAGE_KEY = "workbench.quickInput.viewState";
+let QuickInputController = class QuickInputController2 extends Disposable {
+  static {
+    __name(this, "QuickInputController");
+  }
+  static {
+    QuickInputController_1 = this;
+  }
+  static {
+    this.MAX_WIDTH = 600;
+  }
+  // Max total width of quick input widget
+  get currentQuickInput() {
+    return this.controller ?? void 0;
+  }
+  get container() {
+    return this._container;
+  }
+  constructor(options, layoutService, instantiationService, contextKeyService, storageService, contextMenuService) {
+    super();
+    this.options = options;
+    this.layoutService = layoutService;
+    this.instantiationService = instantiationService;
+    this.storageService = storageService;
+    this.contextMenuService = contextMenuService;
+    this.enabled = true;
+    this.onDidAcceptEmitter = this._register(new Emitter());
+    this.onDidCustomEmitter = this._register(new Emitter());
+    this.onDidTriggerButtonEmitter = this._register(new Emitter());
+    this.keyMods = { ctrlCmd: false, alt: false };
+    this.controller = null;
+    this.onShowEmitter = this._register(new Emitter());
+    this.onShow = this.onShowEmitter.event;
+    this.onHideEmitter = this._register(new Emitter());
+    this.onHide = this.onHideEmitter.event;
+    this.backButton = backButton;
+    this.inQuickInputContext = InQuickInputContextKey.bindTo(contextKeyService);
+    this.quickInputTypeContext = QuickInputTypeContextKey.bindTo(contextKeyService);
+    this.endOfQuickInputBoxContext = EndOfQuickInputBoxContextKey.bindTo(contextKeyService);
+    this.idPrefix = options.idPrefix;
+    this._container = options.container;
+    this.styles = options.styles;
+    this._register(Event.runAndSubscribe(dom.onDidRegisterWindow, ({ window, disposables }) => this.registerKeyModsListeners(window, disposables), { window: mainWindow, disposables: this._store }));
+    this._register(dom.onWillUnregisterWindow((window) => {
+      if (this.ui && dom.getWindow(this.ui.container) === window) {
+        this.reparentUI(this.layoutService.mainContainer);
+        this.layout(this.layoutService.mainContainerDimension, this.layoutService.mainContainerOffset.quickPickTop);
+      }
+    }));
+    this.viewState = this.loadViewState();
+  }
+  registerKeyModsListeners(window, disposables) {
+    const listener = /* @__PURE__ */ __name((e) => {
+      this.keyMods.ctrlCmd = e.ctrlKey || e.metaKey;
+      this.keyMods.alt = e.altKey;
+    }, "listener");
+    for (const event of [dom.EventType.KEY_DOWN, dom.EventType.KEY_UP, dom.EventType.MOUSE_DOWN]) {
+      disposables.add(dom.addDisposableListener(window, event, listener, true));
+    }
+  }
+  getUI(showInActiveContainer) {
+    if (this.ui) {
+      if (showInActiveContainer) {
+        if (dom.getWindow(this._container) !== dom.getWindow(this.layoutService.activeContainer)) {
+          this.reparentUI(this.layoutService.activeContainer);
+          this.layout(this.layoutService.activeContainerDimension, this.layoutService.activeContainerOffset.quickPickTop);
+        }
+      }
+      return this.ui;
+    }
+    const container = dom.append(this._container, $(".quick-input-widget.show-file-icons"));
+    container.tabIndex = -1;
+    container.style.display = "none";
+    const styleSheet = domStylesheetsJs.createStyleSheet(container);
+    const titleBar = dom.append(container, $(".quick-input-titlebar"));
+    const leftActionBar = this._register(new ToolBar(titleBar, this.contextMenuService, {
+      hoverDelegate: this.options.hoverDelegate,
+      actionViewItemProvider: createToggleActionViewItemProvider(this.styles.toggle),
+      icon: true,
+      label: false
+    }));
+    leftActionBar.getElement().classList.add("quick-input-left-action-bar");
+    const title = dom.append(titleBar, $(".quick-input-title"));
+    const rightActionBar = this._register(new ToolBar(titleBar, this.contextMenuService, {
+      hoverDelegate: this.options.hoverDelegate,
+      actionViewItemProvider: createToggleActionViewItemProvider(this.styles.toggle),
+      icon: true,
+      label: false
+    }));
+    rightActionBar.getElement().classList.add("quick-input-right-action-bar");
+    const headerContainer = dom.append(container, $(".quick-input-header"));
+    const checkAll = this._register(new TriStateCheckbox(localize("quickInput.checkAll", "Toggle all checkboxes"), false, { ...defaultCheckboxStyles, size: 15 }));
+    dom.append(headerContainer, checkAll.domNode);
+    this._register(checkAll.onChange(() => {
+      const checked = checkAll.checked;
+      list.setAllVisibleChecked(checked === true);
+    }));
+    this._register(dom.addDisposableListener(checkAll.domNode, dom.EventType.CLICK, (e) => {
+      if (e.x || e.y) {
+        inputBox.setFocus();
+      }
+    }));
+    const description2 = dom.append(headerContainer, $(".quick-input-description"));
+    const inputContainer = dom.append(headerContainer, $(".quick-input-and-message"));
+    const filterContainer = dom.append(inputContainer, $(".quick-input-filter"));
+    const inputBox = this._register(new QuickInputBox(filterContainer, this.styles.inputBox, this.styles.toggle));
+    inputBox.setAttribute("aria-describedby", `${this.idPrefix}message`);
+    const visibleCountContainer = dom.append(filterContainer, $(".quick-input-visible-count"));
+    visibleCountContainer.setAttribute("aria-live", "polite");
+    visibleCountContainer.setAttribute("aria-atomic", "true");
+    const visibleCount = this._register(new CountBadge(visibleCountContainer, { countFormat: localize({ key: "quickInput.visibleCount", comment: ["This tells the user how many items are shown in a list of items to select from. The items can be anything. Currently not visible, but read by screen readers."] }, "{0} Results") }, this.styles.countBadge));
+    const countContainer = dom.append(filterContainer, $(".quick-input-count"));
+    countContainer.setAttribute("aria-live", "polite");
+    const count = this._register(new CountBadge(countContainer, { countFormat: localize({ key: "quickInput.countSelected", comment: ["This tells the user how many items are selected in a list of items to select from. The items can be anything."] }, "{0} Selected") }, this.styles.countBadge));
+    const inlineActionBar = this._register(new ToolBar(headerContainer, this.contextMenuService, {
+      hoverDelegate: this.options.hoverDelegate,
+      actionViewItemProvider: createToggleActionViewItemProvider(this.styles.toggle),
+      icon: true,
+      label: false
+    }));
+    inlineActionBar.getElement().classList.add("quick-input-inline-action-bar");
+    const okContainer = dom.append(headerContainer, $(".quick-input-action"));
+    const ok = this._register(new Button(okContainer, this.styles.button));
+    ok.label = localize("ok", "OK");
+    this._register(ok.onDidClick((e) => {
+      this.onDidAcceptEmitter.fire();
+    }));
+    const customButtonContainer = dom.append(headerContainer, $(".quick-input-action"));
+    const customButton = this._register(new Button(customButtonContainer, { ...this.styles.button, supportIcons: true }));
+    customButton.label = localize("custom", "Custom");
+    this._register(customButton.onDidClick((e) => {
+      this.onDidCustomEmitter.fire();
+    }));
+    const message = dom.append(inputContainer, $(`#${this.idPrefix}message.quick-input-message`));
+    const progressBar = this._register(new ProgressBar(container, this.styles.progressBar));
+    progressBar.getContainer().classList.add("quick-input-progress");
+    const widget = dom.append(container, $(".quick-input-html-widget"));
+    widget.tabIndex = -1;
+    const description1 = dom.append(container, $(".quick-input-description"));
+    const listId = this.idPrefix + "list";
+    const list = this._register(this.instantiationService.createInstance(QuickInputList, container, this.options.hoverDelegate, this.options.linkOpenerDelegate, listId, this.styles));
+    inputBox.setAttribute("aria-controls", listId);
+    this._register(list.onDidChangeFocus(() => {
+      if (inputBox.hasFocus()) {
+        const activeDescendant = list.getActiveDescendant();
+        if (activeDescendant) {
+          inputBox.setAttribute("aria-activedescendant", activeDescendant);
+          inputBox.setListFocusMode(true);
+        } else {
+          inputBox.removeAttribute("aria-activedescendant");
+          inputBox.setListFocusMode(false);
+        }
+      }
+    }));
+    this._register(list.onChangedAllVisibleChecked((checked) => {
+      checkAll.checked = checked;
+    }));
+    this._register(list.onChangedVisibleCount((c) => {
+      visibleCount.setCount(c);
+    }));
+    this._register(list.onChangedCheckedCount((c) => {
+      setTimeout0(() => count.setCount(c));
+    }));
+    this._register(list.onLeave(() => {
+      setTimeout(() => {
+        if (!this.controller) {
+          return;
+        }
+        inputBox.setFocus();
+        if (this.controller instanceof QuickPick && this.controller.canSelectMany) {
+          list.clearFocus();
+        }
+      }, 0);
+    }));
+    const tree = this._register(this.instantiationService.createInstance(QuickInputTreeController, container, this.options.hoverDelegate, this.styles));
+    this._register(tree.tree.onDidChangeFocus(() => {
+      if (inputBox.hasFocus()) {
+        const activeDescendant = tree.getActiveDescendant();
+        if (activeDescendant) {
+          inputBox.setAttribute("aria-activedescendant", activeDescendant);
+          inputBox.setListFocusMode(true);
+        } else {
+          inputBox.removeAttribute("aria-activedescendant");
+          inputBox.setListFocusMode(false);
+        }
+      }
+    }));
+    this._register(tree.onLeave(() => {
+      setTimeout(() => {
+        if (!this.controller) {
+          return;
+        }
+        inputBox.setFocus();
+        tree.tree.setFocus([]);
+      }, 0);
+    }));
+    this._register(tree.onDidAccept(() => {
+      this.onDidAcceptEmitter.fire();
+    }));
+    this._register(tree.tree.onDidChangeContentHeight(() => this.updateLayout()));
+    const focusTracker = dom.trackFocus(container);
+    this._register(focusTracker);
+    this._register(dom.addDisposableListener(container, dom.EventType.FOCUS, (e) => {
+      const ui = this.getUI();
+      if (dom.isAncestor(e.relatedTarget, ui.inputContainer)) {
+        const value = ui.inputBox.isSelectionAtEnd();
+        if (this.endOfQuickInputBoxContext.get() !== value) {
+          this.endOfQuickInputBoxContext.set(value);
+        }
+      }
+      if (dom.isAncestor(e.relatedTarget, ui.container)) {
+        return;
+      }
+      this.inQuickInputContext.set(true);
+      this.previousFocusElement = dom.isHTMLElement(e.relatedTarget) ? e.relatedTarget : void 0;
+    }, true));
+    this._register(focusTracker.onDidBlur(() => {
+      if (!this.getUI().ignoreFocusOut && !this.options.ignoreFocusOut()) {
+        this.hide(QuickInputHideReason.Blur);
+      }
+      this.inQuickInputContext.set(false);
+      this.endOfQuickInputBoxContext.set(false);
+      this.previousFocusElement = void 0;
+    }));
+    this._register(inputBox.onKeyDown((e) => {
+      const value = this.getUI().inputBox.isSelectionAtEnd();
+      if (this.endOfQuickInputBoxContext.get() !== value) {
+        this.endOfQuickInputBoxContext.set(value);
+      }
+      if (!isModifierKey(e.keyCode)) {
+        inputBox.removeAttribute("aria-activedescendant");
+        inputBox.setListFocusMode(false);
+      }
+    }));
+    this._register(dom.addDisposableListener(container, dom.EventType.FOCUS, (e) => {
+      inputBox.setFocus();
+    }));
+    this.dndController = this._register(this.instantiationService.createInstance(QuickInputDragAndDropController, this._container, container, [
+      {
+        node: titleBar,
+        includeChildren: true,
+        excludeNodes: [leftActionBar.getElement(), rightActionBar.getElement()]
+      },
+      {
+        node: headerContainer,
+        includeChildren: false
+      }
+    ], this.viewState));
+    this._register(autorun((reader) => {
+      const dndViewState = this.dndController?.dndViewState.read(reader);
+      if (!dndViewState) {
+        return;
+      }
+      if (dndViewState.top !== void 0 && dndViewState.left !== void 0) {
+        this.viewState = {
+          ...this.viewState,
+          top: dndViewState.top,
+          left: dndViewState.left
+        };
+      } else {
+        this.viewState = void 0;
+      }
+      this.updateLayout();
+      if (dndViewState.done) {
+        this.saveViewState(this.viewState);
+      }
+    }));
+    this.ui = {
+      container,
+      styleSheet,
+      leftActionBar,
+      titleBar,
+      title,
+      description1,
+      description2,
+      widget,
+      rightActionBar,
+      inlineActionBar,
+      checkAll,
+      inputContainer,
+      filterContainer,
+      inputBox,
+      visibleCountContainer,
+      visibleCount,
+      countContainer,
+      count,
+      okContainer,
+      ok,
+      message,
+      customButtonContainer,
+      customButton,
+      list,
+      tree,
+      progressBar,
+      onDidAccept: this.onDidAcceptEmitter.event,
+      onDidCustom: this.onDidCustomEmitter.event,
+      onDidTriggerButton: this.onDidTriggerButtonEmitter.event,
+      ignoreFocusOut: false,
+      keyMods: this.keyMods,
+      show: /* @__PURE__ */ __name((controller) => this.show(controller), "show"),
+      hide: /* @__PURE__ */ __name(() => this.hide(), "hide"),
+      setVisibilities: /* @__PURE__ */ __name((visibilities) => this.setVisibilities(visibilities), "setVisibilities"),
+      setEnabled: /* @__PURE__ */ __name((enabled) => this.setEnabled(enabled), "setEnabled"),
+      setContextKey: /* @__PURE__ */ __name((contextKey) => this.options.setContextKey(contextKey), "setContextKey"),
+      linkOpenerDelegate: /* @__PURE__ */ __name((content) => this.options.linkOpenerDelegate(content), "linkOpenerDelegate")
+    };
+    this.updateStyles();
+    return this.ui;
+  }
+  reparentUI(container) {
+    if (this.ui) {
+      this._container = container;
+      dom.append(this._container, this.ui.container);
+      this.dndController?.reparentUI(this._container);
+    }
+  }
+  pick(picks, options = {}, token = CancellationToken.None) {
+    return new Promise((doResolve, reject) => {
+      let resolve = /* @__PURE__ */ __name((result) => {
+        resolve = doResolve;
+        options.onKeyMods?.(input.keyMods);
+        doResolve(result);
+      }, "resolve");
+      if (token.isCancellationRequested) {
+        resolve(void 0);
+        return;
+      }
+      const input = this.createQuickPick({ useSeparators: true });
+      let activeItem;
+      const disposables = [
+        input,
+        input.onDidAccept(() => {
+          if (input.canSelectMany) {
+            resolve(input.selectedItems.slice());
+            input.hide();
+          } else {
+            const result = input.activeItems[0];
+            if (result) {
+              resolve(result);
+              input.hide();
+            }
+          }
+        }),
+        input.onDidChangeActive((items) => {
+          const focused = items[0];
+          if (focused && options.onDidFocus) {
+            options.onDidFocus(focused);
+          }
+        }),
+        input.onDidChangeSelection((items) => {
+          if (!input.canSelectMany) {
+            const result = items[0];
+            if (result) {
+              resolve(result);
+              input.hide();
+            }
+          }
+        }),
+        input.onDidTriggerItemButton((event) => options.onDidTriggerItemButton && options.onDidTriggerItemButton({
+          ...event,
+          removeItem: /* @__PURE__ */ __name(() => {
+            const index = input.items.indexOf(event.item);
+            if (index !== -1) {
+              const items = input.items.slice();
+              const removed = items.splice(index, 1);
+              const activeItems = input.activeItems.filter((activeItem2) => activeItem2 !== removed[0]);
+              const keepScrollPositionBefore = input.keepScrollPosition;
+              input.keepScrollPosition = true;
+              input.items = items;
+              if (activeItems) {
+                input.activeItems = activeItems;
+              }
+              input.keepScrollPosition = keepScrollPositionBefore;
+            }
+          }, "removeItem")
+        })),
+        input.onDidTriggerSeparatorButton((event) => options.onDidTriggerSeparatorButton?.(event)),
+        input.onDidChangeValue((value) => {
+          if (activeItem && !value && (input.activeItems.length !== 1 || input.activeItems[0] !== activeItem)) {
+            input.activeItems = [activeItem];
+          }
+        }),
+        token.onCancellationRequested(() => {
+          input.hide();
+        }),
+        input.onDidHide(() => {
+          dispose(disposables);
+          resolve(void 0);
+        })
+      ];
+      input.title = options.title;
+      if (options.value) {
+        input.value = options.value;
+      }
+      input.canSelectMany = !!options.canPickMany;
+      input.placeholder = options.placeHolder;
+      input.prompt = options.prompt;
+      input.ignoreFocusOut = !!options.ignoreFocusLost;
+      input.matchOnDescription = !!options.matchOnDescription;
+      input.matchOnDetail = !!options.matchOnDetail;
+      if (options.sortByLabel !== void 0) {
+        input.sortByLabel = options.sortByLabel;
+      }
+      input.matchOnLabel = options.matchOnLabel === void 0 || options.matchOnLabel;
+      input.quickNavigate = options.quickNavigate;
+      input.hideInput = !!options.hideInput;
+      input.contextKey = options.contextKey;
+      input.busy = true;
+      Promise.all([picks, options.activeItem]).then(([items, _activeItem]) => {
+        activeItem = _activeItem;
+        input.busy = false;
+        input.items = items;
+        if (input.canSelectMany) {
+          input.selectedItems = items.filter((item) => item.type !== "separator" && item.picked);
+        }
+        if (activeItem) {
+          input.activeItems = [activeItem];
+        }
+      });
+      input.show();
+      Promise.resolve(picks).then(void 0, (err) => {
+        reject(err);
+        input.hide();
+      });
+    });
+  }
+  setValidationOnInput(input, validationResult) {
+    if (validationResult && isString(validationResult)) {
+      input.severity = Severity.Error;
+      input.validationMessage = validationResult;
+    } else if (validationResult && !isString(validationResult)) {
+      input.severity = validationResult.severity;
+      input.validationMessage = validationResult.content;
+    } else {
+      input.severity = Severity.Ignore;
+      input.validationMessage = void 0;
+    }
+  }
+  input(options = {}, token = CancellationToken.None) {
+    return new Promise((resolve) => {
+      if (token.isCancellationRequested) {
+        resolve(void 0);
+        return;
+      }
+      const input = this.createInputBox();
+      const validateInput = options.validateInput || (() => Promise.resolve(void 0));
+      const onDidValueChange = Event.debounce(input.onDidChangeValue, (last, cur) => cur, 100);
+      let validationValue = options.value || "";
+      let validation = Promise.resolve(validateInput(validationValue));
+      const disposables = [
+        input,
+        onDidValueChange((value) => {
+          if (value !== validationValue) {
+            validation = Promise.resolve(validateInput(value));
+            validationValue = value;
+          }
+          validation.then((result) => {
+            if (value === validationValue) {
+              this.setValidationOnInput(input, result);
+            }
+          });
+        }),
+        input.onDidAccept(() => {
+          const value = input.value;
+          if (value !== validationValue) {
+            validation = Promise.resolve(validateInput(value));
+            validationValue = value;
+          }
+          validation.then((result) => {
+            if (!result || !isString(result) && result.severity !== Severity.Error) {
+              resolve(value);
+              input.hide();
+            } else if (value === validationValue) {
+              this.setValidationOnInput(input, result);
+            }
+          });
+        }),
+        token.onCancellationRequested(() => {
+          input.hide();
+        }),
+        input.onDidHide(() => {
+          dispose(disposables);
+          resolve(void 0);
+        })
+      ];
+      input.title = options.title;
+      input.value = options.value || "";
+      input.valueSelection = options.valueSelection;
+      input.prompt = options.prompt;
+      input.placeholder = options.placeHolder;
+      input.password = !!options.password;
+      input.ignoreFocusOut = !!options.ignoreFocusLost;
+      input.show();
+    });
+  }
+  createQuickPick(options = { useSeparators: false }) {
+    const ui = this.getUI(true);
+    return new QuickPick(ui);
+  }
+  createInputBox() {
+    const ui = this.getUI(true);
+    return new InputBox(ui);
+  }
+  setAlignment(alignment) {
+    this.dndController?.setAlignment(alignment);
+  }
+  createQuickWidget() {
+    const ui = this.getUI(true);
+    return new QuickWidget(ui);
+  }
+  createQuickTree() {
+    const ui = this.getUI(true);
+    return new QuickTree(ui);
+  }
+  show(controller) {
+    const ui = this.getUI(true);
+    this.onShowEmitter.fire();
+    const oldController = this.controller;
+    this.controller = controller;
+    oldController?.didHide();
+    this.setEnabled(true);
+    ui.leftActionBar.setActions([]);
+    ui.title.textContent = "";
+    ui.description1.textContent = "";
+    ui.description2.textContent = "";
+    dom.reset(ui.widget);
+    ui.rightActionBar.setActions([]);
+    ui.inlineActionBar.setActions([]);
+    ui.checkAll.checked = false;
+    ui.inputBox.placeholder = "";
+    ui.inputBox.password = false;
+    ui.inputBox.showDecoration(Severity.Ignore);
+    ui.visibleCount.setCount(0);
+    ui.count.setCount(0);
+    ui.countContainer.style.right = "4px";
+    dom.reset(ui.message);
+    ui.progressBar.stop();
+    ui.progressBar.getContainer().setAttribute("aria-hidden", "true");
+    ui.list.setElements([]);
+    ui.list.matchOnDescription = false;
+    ui.list.matchOnDetail = false;
+    ui.list.matchOnLabel = true;
+    ui.list.sortByLabel = true;
+    ui.tree.updateFilterOptions({
+      matchOnDescription: false,
+      matchOnLabel: true
+    });
+    ui.tree.sortByLabel = true;
+    ui.ignoreFocusOut = false;
+    ui.inputBox.toggles = void 0;
+    ui.inputBox.actions = void 0;
+    const backKeybindingLabel = this.options.backKeybindingLabel();
+    backButton.tooltip = backKeybindingLabel ? localize("quickInput.backWithKeybinding", "Back ({0})", backKeybindingLabel) : localize("quickInput.back", "Back");
+    ui.container.style.display = "";
+    this.updateLayout();
+    this.dndController?.layoutContainer();
+    ui.inputBox.setFocus();
+    this.quickInputTypeContext.set(controller.type);
+  }
+  isVisible() {
+    return !!this.ui && this.ui.container.style.display !== "none";
+  }
+  setVisibilities(visibilities) {
+    const ui = this.getUI();
+    ui.title.style.display = visibilities.title ? "" : "none";
+    ui.description1.style.display = visibilities.description && (visibilities.inputBox || visibilities.checkAll) ? "" : "none";
+    ui.description2.style.display = visibilities.description && !(visibilities.inputBox || visibilities.checkAll) ? "" : "none";
+    ui.checkAll.domNode.style.display = visibilities.checkAll ? "" : "none";
+    ui.inputContainer.style.display = visibilities.inputBox ? "" : "none";
+    ui.filterContainer.style.display = visibilities.inputBox ? "" : "none";
+    ui.visibleCountContainer.style.display = visibilities.visibleCount ? "" : "none";
+    ui.countContainer.style.display = visibilities.count ? "" : "none";
+    ui.okContainer.style.display = visibilities.ok ? "" : "none";
+    ui.customButtonContainer.style.display = visibilities.customButton ? "" : "none";
+    ui.message.style.display = visibilities.message ? "" : "none";
+    ui.progressBar.getContainer().style.display = visibilities.progressBar ? "" : "none";
+    ui.list.displayed = !!visibilities.list;
+    ui.tree.displayed = !!visibilities.tree;
+    ui.container.classList.toggle("show-checkboxes", !!visibilities.checkBox);
+    ui.container.classList.toggle("hidden-input", !visibilities.inputBox && !visibilities.description);
+    this.updateLayout();
+  }
+  setEnabled(enabled) {
+    if (enabled !== this.enabled) {
+      this.enabled = enabled;
+      const ui = this.getUI();
+      for (let i = 0; i < ui.leftActionBar.getItemsLength(); i++) {
+        const action = ui.leftActionBar.getItemAction(i);
+        if (action) {
+          action.enabled = enabled;
+        }
+      }
+      for (let i = 0; i < ui.rightActionBar.getItemsLength(); i++) {
+        const action = ui.rightActionBar.getItemAction(i);
+        if (action) {
+          action.enabled = enabled;
+        }
+      }
+      if (enabled) {
+        ui.checkAll.enable();
+      } else {
+        ui.checkAll.disable();
+      }
+      ui.inputBox.enabled = enabled;
+      ui.ok.enabled = enabled;
+      ui.list.enabled = enabled;
+    }
+  }
+  hide(reason) {
+    const controller = this.controller;
+    if (!controller) {
+      return;
+    }
+    controller.willHide(reason);
+    const container = this.ui?.container;
+    const focusChanged = container && !dom.isAncestorOfActiveElement(container);
+    this.controller = null;
+    this.onHideEmitter.fire();
+    if (container) {
+      container.style.display = "none";
+    }
+    if (!focusChanged) {
+      let currentElement = this.previousFocusElement;
+      while (currentElement && !currentElement.offsetParent) {
+        currentElement = currentElement.parentElement ?? void 0;
+      }
+      if (currentElement?.offsetParent) {
+        currentElement.focus();
+        this.previousFocusElement = void 0;
+      } else {
+        this.options.returnFocus();
+      }
+    }
+    controller.didHide(reason);
+  }
+  focus() {
+    if (this.isVisible()) {
+      const ui = this.getUI();
+      if (ui.inputBox.enabled) {
+        ui.inputBox.setFocus();
+      } else {
+        ui.list.domFocus();
+      }
+    }
+  }
+  toggle() {
+    if (!this.isVisible()) {
+      return;
+    }
+    if (this.controller instanceof QuickPick && this.controller.canSelectMany) {
+      this.getUI().list.toggleCheckbox();
+    } else if (this.controller instanceof QuickTree) {
+      this.getUI().tree.toggleCheckbox();
+    }
+  }
+  toggleHover() {
+    if (this.isVisible() && this.controller instanceof QuickPick) {
+      this.getUI().list.toggleHover();
+    }
+  }
+  navigate(next, quickNavigate) {
+    if (this.isVisible() && this.getUI().list.displayed) {
+      this.getUI().list.focus(next ? QuickPickFocus.Next : QuickPickFocus.Previous);
+      if (quickNavigate && this.controller instanceof QuickPick) {
+        this.controller.quickNavigate = quickNavigate;
+      }
+    }
+  }
+  async accept(keyMods = { alt: false, ctrlCmd: false }) {
+    this.keyMods.alt = keyMods.alt;
+    this.keyMods.ctrlCmd = keyMods.ctrlCmd;
+    this.onDidAcceptEmitter.fire();
+  }
+  async back() {
+    this.onDidTriggerButtonEmitter.fire(this.backButton);
+  }
+  async cancel(reason) {
+    this.hide(reason);
+  }
+  layout(dimension, titleBarOffset) {
+    this.dimension = dimension;
+    this.titleBarOffset = titleBarOffset;
+    this.updateLayout();
+  }
+  updateLayout() {
+    if (this.ui && this.isVisible()) {
+      const style = this.ui.container.style;
+      const width = Math.min(this.dimension.width * 0.62, QuickInputController_1.MAX_WIDTH);
+      style.width = width + "px";
+      style.top = `${this.viewState?.top ? Math.round(this.dimension.height * this.viewState.top) : this.titleBarOffset}px`;
+      style.left = `${Math.round(this.dimension.width * (this.viewState?.left ?? 0.5) - width / 2)}px`;
+      this.ui.inputBox.layout();
+      this.ui.list.layout(this.dimension && this.dimension.height * 0.4);
+      this.ui.tree.layout(this.dimension && this.dimension.height * 0.4);
+    }
+  }
+  applyStyles(styles) {
+    this.styles = styles;
+    this.updateStyles();
+  }
+  updateStyles() {
+    if (this.ui) {
+      const { quickInputTitleBackground, quickInputBackground, quickInputForeground, widgetBorder, widgetShadow } = this.styles.widget;
+      this.ui.titleBar.style.backgroundColor = quickInputTitleBackground ?? "";
+      this.ui.container.style.backgroundColor = quickInputBackground ?? "";
+      this.ui.container.style.color = quickInputForeground ?? "";
+      this.ui.container.style.border = widgetBorder ? `1px solid ${widgetBorder}` : "";
+      this.ui.container.style.boxShadow = widgetShadow ? `0 0 8px 2px ${widgetShadow}` : "";
+      this.ui.list.style(this.styles.list);
+      this.ui.tree.tree.style(this.styles.list);
+      const content = [];
+      if (this.styles.pickerGroup.pickerGroupBorder) {
+        content.push(`.quick-input-list .quick-input-list-entry { border-top-color:  ${this.styles.pickerGroup.pickerGroupBorder}; }`);
+      }
+      if (this.styles.pickerGroup.pickerGroupForeground) {
+        content.push(`.quick-input-list .quick-input-list-separator { color:  ${this.styles.pickerGroup.pickerGroupForeground}; }`);
+      }
+      if (this.styles.pickerGroup.pickerGroupForeground) {
+        content.push(`.quick-input-list .quick-input-list-separator-as-item { color: var(--vscode-descriptionForeground); }`);
+      }
+      if (this.styles.keybindingLabel.keybindingLabelBackground || this.styles.keybindingLabel.keybindingLabelBorder || this.styles.keybindingLabel.keybindingLabelBottomBorder || this.styles.keybindingLabel.keybindingLabelShadow || this.styles.keybindingLabel.keybindingLabelForeground) {
+        content.push(".quick-input-list .monaco-keybinding > .monaco-keybinding-key {");
+        if (this.styles.keybindingLabel.keybindingLabelBackground) {
+          content.push(`background-color: ${this.styles.keybindingLabel.keybindingLabelBackground};`);
+        }
+        if (this.styles.keybindingLabel.keybindingLabelBorder) {
+          content.push(`border-color: ${this.styles.keybindingLabel.keybindingLabelBorder};`);
+        }
+        if (this.styles.keybindingLabel.keybindingLabelBottomBorder) {
+          content.push(`border-bottom-color: ${this.styles.keybindingLabel.keybindingLabelBottomBorder};`);
+        }
+        if (this.styles.keybindingLabel.keybindingLabelShadow) {
+          content.push(`box-shadow: inset 0 -1px 0 ${this.styles.keybindingLabel.keybindingLabelShadow};`);
+        }
+        if (this.styles.keybindingLabel.keybindingLabelForeground) {
+          content.push(`color: ${this.styles.keybindingLabel.keybindingLabelForeground};`);
+        }
+        content.push("}");
+      }
+      const newStyles = content.join("\n");
+      if (newStyles !== this.ui.styleSheet.textContent) {
+        this.ui.styleSheet.textContent = newStyles;
+      }
+    }
+  }
+  loadViewState() {
+    try {
+      const data = JSON.parse(this.storageService.get(VIEWSTATE_STORAGE_KEY, -1, "{}"));
+      if (data.top !== void 0 || data.left !== void 0) {
+        return data;
+      }
+    } catch {
+    }
+    return void 0;
+  }
+  saveViewState(viewState) {
+    const isMainWindow = this.layoutService.activeContainer === this.layoutService.mainContainer;
+    if (!isMainWindow) {
+      return;
+    }
+    if (viewState !== void 0) {
+      this.storageService.store(
+        VIEWSTATE_STORAGE_KEY,
+        JSON.stringify(viewState),
+        -1,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.storageService.remove(
+        VIEWSTATE_STORAGE_KEY,
+        -1
+        /* StorageScope.APPLICATION */
+      );
+    }
+  }
+};
+QuickInputController = QuickInputController_1 = __decorate([
+  __param(1, ILayoutService),
+  __param(2, IInstantiationService),
+  __param(3, IContextKeyService),
+  __param(4, IStorageService),
+  __param(5, IContextMenuService)
+], QuickInputController);
+let QuickInputDragAndDropController = class QuickInputDragAndDropController2 extends Disposable {
+  static {
+    __name(this, "QuickInputDragAndDropController");
+  }
+  constructor(_container, _quickInputContainer, _quickInputDragAreas, initialViewState, _layoutService, contextKeyService, configurationService) {
+    super();
+    this._container = _container;
+    this._quickInputContainer = _quickInputContainer;
+    this._quickInputDragAreas = _quickInputDragAreas;
+    this._layoutService = _layoutService;
+    this.configurationService = configurationService;
+    this.dndViewState = observableValue(this, void 0);
+    this._snapThreshold = 20;
+    this._snapLineHorizontalRatio = 0.25;
+    this._quickInputAlignmentContext = QuickInputAlignmentContextKey.bindTo(contextKeyService);
+    const customWindowControls = getWindowControlsStyle(this.configurationService) === "custom";
+    this._controlsOnLeft = customWindowControls && platform === 1;
+    this._controlsOnRight = customWindowControls && (platform === 3 || platform === 2);
+    this._registerLayoutListener();
+    this.registerMouseListeners();
+    this.dndViewState.set({ ...initialViewState, done: true }, void 0);
+  }
+  reparentUI(container) {
+    this._container = container;
+  }
+  layoutContainer(dimension = this._layoutService.activeContainerDimension) {
+    const state = this.dndViewState.get();
+    const dragAreaRect = this._quickInputContainer.getBoundingClientRect();
+    if (state?.top && state?.left) {
+      const a = Math.round(state.left * 100) / 100;
+      const b = dimension.width;
+      const c = dragAreaRect.width;
+      const d = a * b - c / 2;
+      this._layout(state.top * dimension.height, d);
+    }
+  }
+  setAlignment(alignment, done = true) {
+    if (alignment === "top") {
+      this.dndViewState.set({
+        top: this._getTopSnapValue() / this._container.clientHeight,
+        left: (this._getCenterXSnapValue() + this._quickInputContainer.clientWidth / 2) / this._container.clientWidth,
+        done
+      }, void 0);
+      this._quickInputAlignmentContext.set("top");
+    } else if (alignment === "center") {
+      this.dndViewState.set({
+        top: this._getCenterYSnapValue() / this._container.clientHeight,
+        left: (this._getCenterXSnapValue() + this._quickInputContainer.clientWidth / 2) / this._container.clientWidth,
+        done
+      }, void 0);
+      this._quickInputAlignmentContext.set("center");
+    } else {
+      this.dndViewState.set({ top: alignment.top, left: alignment.left, done }, void 0);
+      this._quickInputAlignmentContext.set(void 0);
+    }
+  }
+  _registerLayoutListener() {
+    this._register(Event.filter(this._layoutService.onDidLayoutContainer, (e) => e.container === this._container)((e) => this.layoutContainer(e.dimension)));
+  }
+  registerMouseListeners() {
+    const dragArea = this._quickInputContainer;
+    this._register(dom.addDisposableGenericMouseUpListener(dragArea, (event) => {
+      const originEvent = new StandardMouseEvent(dom.getWindow(dragArea), event);
+      if (originEvent.detail !== 2) {
+        return;
+      }
+      const area = this._quickInputDragAreas.find(({ node, includeChildren }) => includeChildren ? dom.isAncestor(originEvent.target, node) : originEvent.target === node);
+      if (!area || area.excludeNodes?.some((node) => dom.isAncestor(originEvent.target, node))) {
+        return;
+      }
+      this.dndViewState.set({ top: void 0, left: void 0, done: true }, void 0);
+    }));
+    this._register(dom.addDisposableGenericMouseDownListener(dragArea, (e) => {
+      const activeWindow = dom.getWindow(this._layoutService.activeContainer);
+      const originEvent = new StandardMouseEvent(activeWindow, e);
+      const area = this._quickInputDragAreas.find(({ node, includeChildren }) => includeChildren ? dom.isAncestor(originEvent.target, node) : originEvent.target === node);
+      if (!area || area.excludeNodes?.some((node) => dom.isAncestor(originEvent.target, node))) {
+        return;
+      }
+      const dragAreaRect = this._quickInputContainer.getBoundingClientRect();
+      const dragOffsetX = originEvent.browserEvent.clientX - dragAreaRect.left;
+      const dragOffsetY = originEvent.browserEvent.clientY - dragAreaRect.top;
+      let isMovingQuickInput = false;
+      const mouseMoveListener = dom.addDisposableGenericMouseMoveListener(activeWindow, (e2) => {
+        const mouseMoveEvent = new StandardMouseEvent(activeWindow, e2);
+        mouseMoveEvent.preventDefault();
+        if (!isMovingQuickInput) {
+          isMovingQuickInput = true;
+        }
+        this._layout(e2.clientY - dragOffsetY, e2.clientX - dragOffsetX);
+      });
+      const mouseUpListener = dom.addDisposableGenericMouseUpListener(activeWindow, (e2) => {
+        if (isMovingQuickInput) {
+          const state = this.dndViewState.get();
+          this.dndViewState.set({ top: state?.top, left: state?.left, done: true }, void 0);
+        }
+        mouseMoveListener.dispose();
+        mouseUpListener.dispose();
+      });
+    }));
+  }
+  _layout(topCoordinate, leftCoordinate) {
+    const snapCoordinateYTop = this._getTopSnapValue();
+    const snapCoordinateY = this._getCenterYSnapValue();
+    const snapCoordinateX = this._getCenterXSnapValue();
+    topCoordinate = Math.max(0, Math.min(topCoordinate, this._container.clientHeight - this._quickInputContainer.clientHeight));
+    if (topCoordinate < this._layoutService.activeContainerOffset.top) {
+      if (this._controlsOnLeft) {
+        leftCoordinate = Math.max(leftCoordinate, 80 / getZoomFactor(dom.getActiveWindow()));
+      } else if (this._controlsOnRight) {
+        leftCoordinate = Math.min(leftCoordinate, this._container.clientWidth - this._quickInputContainer.clientWidth - 140 / getZoomFactor(dom.getActiveWindow()));
+      }
+    }
+    const snappingToTop = Math.abs(topCoordinate - snapCoordinateYTop) < this._snapThreshold;
+    topCoordinate = snappingToTop ? snapCoordinateYTop : topCoordinate;
+    const snappingToCenter = Math.abs(topCoordinate - snapCoordinateY) < this._snapThreshold;
+    topCoordinate = snappingToCenter ? snapCoordinateY : topCoordinate;
+    const top = topCoordinate / this._container.clientHeight;
+    leftCoordinate = Math.max(0, Math.min(leftCoordinate, this._container.clientWidth - this._quickInputContainer.clientWidth));
+    const snappingToCenterX = Math.abs(leftCoordinate - snapCoordinateX) < this._snapThreshold;
+    leftCoordinate = snappingToCenterX ? snapCoordinateX : leftCoordinate;
+    const b = this._container.clientWidth;
+    const c = this._quickInputContainer.clientWidth;
+    const d = leftCoordinate;
+    const left = (d + c / 2) / b;
+    this.dndViewState.set({ top, left, done: false }, void 0);
+    if (snappingToCenterX) {
+      if (snappingToTop) {
+        this._quickInputAlignmentContext.set("top");
+        return;
+      } else if (snappingToCenter) {
+        this._quickInputAlignmentContext.set("center");
+        return;
+      }
+    }
+    this._quickInputAlignmentContext.set(void 0);
+  }
+  _getTopSnapValue() {
+    return this._layoutService.activeContainerOffset.quickPickTop;
+  }
+  _getCenterYSnapValue() {
+    return Math.round(this._container.clientHeight * this._snapLineHorizontalRatio);
+  }
+  _getCenterXSnapValue() {
+    return Math.round(this._container.clientWidth / 2) - Math.round(this._quickInputContainer.clientWidth / 2);
+  }
+};
+QuickInputDragAndDropController = __decorate([
+  __param(4, ILayoutService),
+  __param(5, IContextKeyService),
+  __param(6, IConfigurationService)
+], QuickInputDragAndDropController);
+export {
+  QuickInputController
+};
+//# sourceMappingURL=quickInputController.js.map

@@ -1,1 +1,11 @@
-import{localize as l}from"../../../../nls.js";const n={showLanguagePackExtensions:l(9959,null),searchMarketplace:l(9960,null),installAndRestartMessage:l(9961,null),installAndRestart:l(9962,null)};export{n as $uWc};
+import { localize } from "../../../../nls.js";
+const minimumTranslatedStrings = {
+  showLanguagePackExtensions: localize("showLanguagePackExtensions", "Search language packs in the Marketplace to change the display language to {0}."),
+  searchMarketplace: localize("searchMarketplace", "Search Marketplace"),
+  installAndRestartMessage: localize("installAndRestartMessage", "Install language pack to change the display language to {0}."),
+  installAndRestart: localize("installAndRestart", "Install and Restart")
+};
+export {
+  minimumTranslatedStrings
+};
+//# sourceMappingURL=minimalTranslations.js.map

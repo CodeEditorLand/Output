@@ -1,1 +1,85 @@
-import{$I0 as f}from"../../../base/browser/markdownRenderer.js";import{$mb as s}from"../../../base/common/errors.js";import{$WC as u}from"../../instantiation/common/extensions.js";import{$Nj as p}from"../../instantiation/common/instantiation.js";import{$EP as b}from"../../opener/common/opener.js";var m=function(r,e,n,a){var t=arguments.length,o=t<3?e:a===null?a=Object.getOwnPropertyDescriptor(e,n):a,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(r,e,n,a);else for(var i=r.length-1;i>=0;i--)(c=r[i])&&(o=(t<3?c(o):t>3?c(e,n,o):c(e,n))||o);return t>3&&o&&Object.defineProperty(e,n,o),o},d=function(r,e){return function(n,a){e(n,a,r)}};const h=p("markdownRendererService");let l=class{constructor(e){this.b=e}render(e,n,a){const t={...n};t.actionHandler||(t.actionHandler=(c,i)=>$(this.b,c,i.isTrusted)),t.codeBlockRenderer||(t.codeBlockRenderer=(c,i)=>this.a?.renderCodeBlock(c,i,t??{})??Promise.resolve(document.createElement("span")));const o=f(e,t,a);return o.element.classList.add("rendered-markdown"),o}setDefaultCodeBlockRenderer(e){this.a=e}};l=m([d(0,b)],l);async function $(r,e,n,a){try{return await r.open(e,{fromUserGesture:!0,allowContributedOpeners:!0,allowCommands:C(n),skipValidation:a})}catch(t){return s(t),!1}}function C(r){return r===!0?!0:r&&Array.isArray(r.enabledCommands)?r.enabledCommands:!1}u(h,l,1);export{h as $Ukb,l as $Vkb,$ as $Wkb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { renderMarkdown } from "../../../base/browser/markdownRenderer.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { IOpenerService } from "../../opener/common/opener.js";
+const IMarkdownRendererService = createDecorator("markdownRendererService");
+let MarkdownRendererService = class MarkdownRendererService2 {
+  static {
+    __name(this, "MarkdownRendererService");
+  }
+  constructor(_openerService) {
+    this._openerService = _openerService;
+  }
+  render(markdown, options, outElement) {
+    const resolvedOptions = { ...options };
+    if (!resolvedOptions.actionHandler) {
+      resolvedOptions.actionHandler = (link, mdStr) => {
+        return openLinkFromMarkdown(this._openerService, link, mdStr.isTrusted);
+      };
+    }
+    if (!resolvedOptions.codeBlockRenderer) {
+      resolvedOptions.codeBlockRenderer = (alias, value) => {
+        return this._defaultCodeBlockRenderer?.renderCodeBlock(alias, value, resolvedOptions ?? {}) ?? Promise.resolve(document.createElement("span"));
+      };
+    }
+    const rendered = renderMarkdown(markdown, resolvedOptions, outElement);
+    rendered.element.classList.add("rendered-markdown");
+    return rendered;
+  }
+  setDefaultCodeBlockRenderer(renderer) {
+    this._defaultCodeBlockRenderer = renderer;
+  }
+};
+MarkdownRendererService = __decorate([
+  __param(0, IOpenerService)
+], MarkdownRendererService);
+async function openLinkFromMarkdown(openerService, link, isTrusted, skipValidation) {
+  try {
+    return await openerService.open(link, {
+      fromUserGesture: true,
+      allowContributedOpeners: true,
+      allowCommands: toAllowCommandsOption(isTrusted),
+      skipValidation
+    });
+  } catch (e) {
+    onUnexpectedError(e);
+    return false;
+  }
+}
+__name(openLinkFromMarkdown, "openLinkFromMarkdown");
+function toAllowCommandsOption(isTrusted) {
+  if (isTrusted === true) {
+    return true;
+  }
+  if (isTrusted && Array.isArray(isTrusted.enabledCommands)) {
+    return isTrusted.enabledCommands;
+  }
+  return false;
+}
+__name(toAllowCommandsOption, "toAllowCommandsOption");
+registerSingleton(
+  IMarkdownRendererService,
+  MarkdownRendererService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IMarkdownRendererService,
+  MarkdownRendererService,
+  openLinkFromMarkdown
+};
+//# sourceMappingURL=markdownRenderer.js.map

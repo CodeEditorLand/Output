@@ -1,1 +1,129 @@
-import{$ab as l}from"../../../../../base/common/path.js";import{$Y7b as o}from"../../../../services/suggest/browser/simpleCompletionItem.js";var t;(function(s){s[s.File=0]="File",s[s.Folder=1]="Folder",s[s.Method=2]="Method",s[s.Alias=3]="Alias",s[s.Argument=4]="Argument",s[s.Option=5]="Option",s[s.OptionValue=6]="OptionValue",s[s.Flag=7]="Flag",s[s.SymbolicLinkFile=8]="SymbolicLinkFile",s[s.SymbolicLinkFolder=9]="SymbolicLinkFolder",s[s.Commit=10]="Commit",s[s.Branch=11]="Branch",s[s.Tag=12]="Tag",s[s.Stash=13]="Stash",s[s.Remote=14]="Remote",s[s.PullRequest=15]="PullRequest",s[s.PullRequestDone=16]="PullRequestDone",s[s.InlineSuggestion=100]="InlineSuggestion",s[s.InlineSuggestionAlwaysOnTop=101]="InlineSuggestionAlwaysOnTop"})(t||(t={}));function L(s){switch(s){case 20:return t.File;case 23:return t.Folder;case 0:return t.Method;case 18:return t.Argument;case 4:return t.Argument;case 16:return t.OptionValue;case 17:return t.Alias;default:return t.Method}}class F extends o{constructor(e,r){super(e),this.completion=e,this.fileExtLow="",this.punctuationPenalty=0;const u=(r??(this.labelLow.includes("\\")?"\\":void 0))==="\\";if(this.labelLowExcludeFileExt=this.labelLow,this.labelLowNormalizedPath=this.labelLow,(a(e)||e.kind===t.Branch)&&u&&(this.labelLow=this.labelLow.replaceAll("/","\\")),a(e)){const c=this.labelLow.lastIndexOf(".");c>0&&(this.labelLowExcludeFileExt=this.labelLow.substring(0,c),this.fileExtLow=this.labelLow.substring(c+1))}(a(e)||e.kind===t.Folder)&&(u&&(this.labelLowNormalizedPath=this.labelLow.replaceAll("\\","/")),e.kind===t.Folder&&(this.labelLowNormalizedPath=this.labelLowNormalizedPath.replace(/\/$/,""))),this.punctuationPenalty=b(this.labelLowExcludeFileExt)?1:0}async resolve(e){if(this.resolveCache)return this.resolveCache;const r=this.completion._unresolvedItem,h=this.completion._resolveProvider;if(!(!r||!h||!h.resolveCompletionItem))return this.resolveCache=(async()=>{try{const u=await h.resolveCompletionItem(r,e);u&&(u.detail&&(this.completion.detail=u.detail),u.documentation&&(this.completion.documentation=u.documentation))}catch{return}})(),this.resolveCache}}function a(s){return!!(s.kind===t.File||s.isFileOverride)}function b(s){return l(s).startsWith("_")||/^[\[\]\{\}\(\)\.,;:!?\/\\\-_@#~*%^=$]+$/.test(s)}export{F as $17b,L as $Z7b,t as TerminalCompletionItemKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { basename } from "../../../../../base/common/path.js";
+import { SimpleCompletionItem } from "../../../../services/suggest/browser/simpleCompletionItem.js";
+var TerminalCompletionItemKind;
+(function(TerminalCompletionItemKind2) {
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["File"] = 0] = "File";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Folder"] = 1] = "Folder";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Method"] = 2] = "Method";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Alias"] = 3] = "Alias";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Argument"] = 4] = "Argument";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Option"] = 5] = "Option";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["OptionValue"] = 6] = "OptionValue";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Flag"] = 7] = "Flag";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["SymbolicLinkFile"] = 8] = "SymbolicLinkFile";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["SymbolicLinkFolder"] = 9] = "SymbolicLinkFolder";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Commit"] = 10] = "Commit";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Branch"] = 11] = "Branch";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Tag"] = 12] = "Tag";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Stash"] = 13] = "Stash";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Remote"] = 14] = "Remote";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["PullRequest"] = 15] = "PullRequest";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["PullRequestDone"] = 16] = "PullRequestDone";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["InlineSuggestion"] = 100] = "InlineSuggestion";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["InlineSuggestionAlwaysOnTop"] = 101] = "InlineSuggestionAlwaysOnTop";
+})(TerminalCompletionItemKind || (TerminalCompletionItemKind = {}));
+function mapLspKindToTerminalKind(lspKind) {
+  switch (lspKind) {
+    case 20:
+      return TerminalCompletionItemKind.File;
+    case 23:
+      return TerminalCompletionItemKind.Folder;
+    case 0:
+      return TerminalCompletionItemKind.Method;
+    case 18:
+      return TerminalCompletionItemKind.Argument;
+    // consider adding new type?
+    case 4:
+      return TerminalCompletionItemKind.Argument;
+    // ""
+    case 16:
+      return TerminalCompletionItemKind.OptionValue;
+    // ""
+    case 17:
+      return TerminalCompletionItemKind.Alias;
+    default:
+      return TerminalCompletionItemKind.Method;
+  }
+}
+__name(mapLspKindToTerminalKind, "mapLspKindToTerminalKind");
+class TerminalCompletionItem extends SimpleCompletionItem {
+  static {
+    __name(this, "TerminalCompletionItem");
+  }
+  constructor(completion, pathSeparator) {
+    super(completion);
+    this.completion = completion;
+    this.fileExtLow = "";
+    this.punctuationPenalty = 0;
+    const detectedSeparator = pathSeparator ?? (this.labelLow.includes("\\") ? "\\" : void 0);
+    const useWindowsStylePath = detectedSeparator === "\\";
+    this.labelLowExcludeFileExt = this.labelLow;
+    this.labelLowNormalizedPath = this.labelLow;
+    if (isFile(completion) || completion.kind === TerminalCompletionItemKind.Branch) {
+      if (useWindowsStylePath) {
+        this.labelLow = this.labelLow.replaceAll("/", "\\");
+      }
+    }
+    if (isFile(completion)) {
+      const extIndex = this.labelLow.lastIndexOf(".");
+      if (extIndex > 0) {
+        this.labelLowExcludeFileExt = this.labelLow.substring(0, extIndex);
+        this.fileExtLow = this.labelLow.substring(extIndex + 1);
+      }
+    }
+    if (isFile(completion) || completion.kind === TerminalCompletionItemKind.Folder) {
+      if (useWindowsStylePath) {
+        this.labelLowNormalizedPath = this.labelLow.replaceAll("\\", "/");
+      }
+      if (completion.kind === TerminalCompletionItemKind.Folder) {
+        this.labelLowNormalizedPath = this.labelLowNormalizedPath.replace(/\/$/, "");
+      }
+    }
+    this.punctuationPenalty = shouldPenalizeForPunctuation(this.labelLowExcludeFileExt) ? 1 : 0;
+  }
+  /**
+   * Resolves the completion item's details lazily when needed.
+   */
+  async resolve(token) {
+    if (this.resolveCache) {
+      return this.resolveCache;
+    }
+    const unresolvedItem = this.completion._unresolvedItem;
+    const provider = this.completion._resolveProvider;
+    if (!unresolvedItem || !provider || !provider.resolveCompletionItem) {
+      return;
+    }
+    this.resolveCache = (async () => {
+      try {
+        const resolved = await provider.resolveCompletionItem(unresolvedItem, token);
+        if (resolved) {
+          if (resolved.detail) {
+            this.completion.detail = resolved.detail;
+          }
+          if (resolved.documentation) {
+            this.completion.documentation = resolved.documentation;
+          }
+        }
+      } catch (error) {
+        return;
+      }
+    })();
+    return this.resolveCache;
+  }
+}
+function isFile(completion) {
+  return !!(completion.kind === TerminalCompletionItemKind.File || completion.isFileOverride);
+}
+__name(isFile, "isFile");
+function shouldPenalizeForPunctuation(label) {
+  return basename(label).startsWith("_") || /^[\[\]\{\}\(\)\.,;:!?\/\\\-_@#~*%^=$]+$/.test(label);
+}
+__name(shouldPenalizeForPunctuation, "shouldPenalizeForPunctuation");
+export {
+  TerminalCompletionItem,
+  TerminalCompletionItemKind,
+  mapLspKindToTerminalKind
+};
+//# sourceMappingURL=terminalCompletionItem.js.map

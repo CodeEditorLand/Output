@@ -1,1 +1,102 @@
-import{$Ed as p}from"../../../base/common/lifecycle.js";import{$vDb as v}from"../../services/extensions/common/extHostCustomers.js";import{$Y1 as m,$X1 as d}from"../common/extHost.protocol.js";import{$CZb as f}from"../../contrib/chat/browser/contextContrib/chatContextService.js";import{URI as $}from"../../../base/common/uri.js";var u=function(s,t,e,r){var o=arguments.length,i=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,r);else for(var a=s.length-1;a>=0;a--)(n=s[a])&&(i=(o<3?n(i):o>3?n(t,e,i):n(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},x=function(s,t){return function(e,r){t(e,r,s)}};function c(s){return{...s,resourceUri:s.resourceUri?$.revive(s.resourceUri):void 0}}function C(s){return s.map(c)}let h=class extends p{constructor(t,e){super(),this.c=e,this.b=new Map,this.a=t.getProxy(m.ExtHostChatContext),this.c.setExecuteCommandCallback(r=>this.a.$executeChatContextItemCommand(r))}$registerChatWorkspaceContextProvider(t,e){this.b.set(t,{id:e}),this.c.registerChatWorkspaceContextProvider(e,{provideWorkspaceChatContext:async r=>{const o=await this.a.$provideWorkspaceChatContext(t,r);return C(o)}})}$registerChatExplicitContextProvider(t,e){this.b.set(t,{id:e}),this.c.registerChatExplicitContextProvider(e,{provideChatContext:async r=>{const o=await this.a.$provideExplicitChatContext(t,r);return C(o)},resolveChatContext:async(r,o)=>{const i=await this.a.$resolveExplicitChatContext(t,r,o);return c(i)}})}$registerChatResourceContextProvider(t,e,r){this.b.set(t,{id:e,selector:r}),this.c.registerChatResourceContextProvider(e,r,{provideChatContext:async(o,i,n)=>{const a=await this.a.$provideResourceChatContext(t,{resource:o,withValue:i},n);return a?c(a):void 0},resolveChatContext:async(o,i)=>{const n=await this.a.$resolveResourceChatContext(t,o,i);return c(n)}})}$unregisterChatContextProvider(t){const e=this.b.get(t);e&&(this.c.unregisterChatContextProvider(e.id),this.b.delete(t))}$updateWorkspaceContextItems(t,e){const r=this.b.get(t);r&&this.c.updateWorkspaceContextItems(r.id,C(e))}$executeChatContextItemCommand(t){return this.a.$executeChatContextItemCommand(t)}};h=u([v(d.MainThreadChatContext),x(1,f)],h);export{h as $O0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IChatContextService } from "../../contrib/chat/browser/contextContrib/chatContextService.js";
+import { URI } from "../../../base/common/uri.js";
+function reviveContextItem(item) {
+  return {
+    ...item,
+    resourceUri: item.resourceUri ? URI.revive(item.resourceUri) : void 0
+  };
+}
+__name(reviveContextItem, "reviveContextItem");
+function reviveContextItems(items) {
+  return items.map(reviveContextItem);
+}
+__name(reviveContextItems, "reviveContextItems");
+let MainThreadChatContext = class MainThreadChatContext2 extends Disposable {
+  static {
+    __name(this, "MainThreadChatContext");
+  }
+  constructor(extHostContext, _chatContextService) {
+    super();
+    this._chatContextService = _chatContextService;
+    this._providers = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChatContext);
+    this._chatContextService.setExecuteCommandCallback((itemHandle) => this._proxy.$executeChatContextItemCommand(itemHandle));
+  }
+  $registerChatWorkspaceContextProvider(handle, id) {
+    this._providers.set(handle, { id });
+    this._chatContextService.registerChatWorkspaceContextProvider(id, {
+      provideWorkspaceChatContext: /* @__PURE__ */ __name(async (token) => {
+        const items = await this._proxy.$provideWorkspaceChatContext(handle, token);
+        return reviveContextItems(items);
+      }, "provideWorkspaceChatContext")
+    });
+  }
+  $registerChatExplicitContextProvider(handle, id) {
+    this._providers.set(handle, { id });
+    this._chatContextService.registerChatExplicitContextProvider(id, {
+      provideChatContext: /* @__PURE__ */ __name(async (token) => {
+        const items = await this._proxy.$provideExplicitChatContext(handle, token);
+        return reviveContextItems(items);
+      }, "provideChatContext"),
+      resolveChatContext: /* @__PURE__ */ __name(async (context, token) => {
+        const result = await this._proxy.$resolveExplicitChatContext(handle, context, token);
+        return reviveContextItem(result);
+      }, "resolveChatContext")
+    });
+  }
+  $registerChatResourceContextProvider(handle, id, selector) {
+    this._providers.set(handle, { id, selector });
+    this._chatContextService.registerChatResourceContextProvider(id, selector, {
+      provideChatContext: /* @__PURE__ */ __name(async (resource, withValue, token) => {
+        const result = await this._proxy.$provideResourceChatContext(handle, { resource, withValue }, token);
+        return result ? reviveContextItem(result) : void 0;
+      }, "provideChatContext"),
+      resolveChatContext: /* @__PURE__ */ __name(async (context, token) => {
+        const result = await this._proxy.$resolveResourceChatContext(handle, context, token);
+        return reviveContextItem(result);
+      }, "resolveChatContext")
+    });
+  }
+  $unregisterChatContextProvider(handle) {
+    const provider = this._providers.get(handle);
+    if (!provider) {
+      return;
+    }
+    this._chatContextService.unregisterChatContextProvider(provider.id);
+    this._providers.delete(handle);
+  }
+  $updateWorkspaceContextItems(handle, items) {
+    const provider = this._providers.get(handle);
+    if (!provider) {
+      return;
+    }
+    this._chatContextService.updateWorkspaceContextItems(provider.id, reviveContextItems(items));
+  }
+  $executeChatContextItemCommand(itemHandle) {
+    return this._proxy.$executeChatContextItemCommand(itemHandle);
+  }
+};
+MainThreadChatContext = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadChatContext),
+  __param(1, IChatContextService)
+], MainThreadChatContext);
+export {
+  MainThreadChatContext
+};
+//# sourceMappingURL=mainThreadChatContext.js.map

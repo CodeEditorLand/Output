@@ -1,1 +1,252 @@
-import{$Hc as C}from"../../../../base/common/arrays.js";import{$$h as _}from"../../../../base/common/async.js";import{$qj as x,$0i as F}from"../../../../base/common/buffer.js";import{CancellationToken as v,$Lf as j,$Jf as O}from"../../../../base/common/cancellation.js";import{$xf as M,Event as k}from"../../../../base/common/event.js";import{$Rf as A}from"../../../../base/common/lazy.js";import{$Ed as y,$Dd as B,$Fd as U}from"../../../../base/common/lifecycle.js";import{$Oc as L}from"../../../../base/common/map.js";import{autorun as q}from"../../../../base/common/observable.js";import{$Xi as E}from"../../../../base/common/stream.js";import{$ng as P}from"../../../../base/common/strings.js";import{URI as b}from"../../../../base/common/uri.js";import{$Kk as a,FileSystemProviderErrorCode as h,FileType as m,$vk as T}from"../../../../platform/files/common/files.js";import{$Mj as J}from"../../../../platform/instantiation/common/instantiation.js";import{$GB as H}from"../../../../platform/webContentExtractor/common/webContentExtractor.js";import{$z3b as z}from"./mcpServer.js";import{$JU as G,McpResourceURI as I}from"./mcpTypes.js";import{$AU as K}from"./mcpTypesUtils.js";var D=function(c,t,r,e){var n=arguments.length,o=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(c,t,r,e);else for(var s=c.length-1;s>=0;s--)(i=c[s])&&(o=(n<3?i(o):n>3?i(t,r,o):i(t,r))||o);return n>3&&o&&Object.defineProperty(t,r,o),o},g=function(c,t){return function(r,e){t(r,e,c)}};const W=3e3;let N=class extends y{get h(){return this.f.value}constructor(t,r,e){super(),this.m=t,this.n=r,this.q=e,this.f=new A(()=>this.m.invokeFunction(n=>n.get(G))),this.g=new L,this.onDidChangeCapabilities=k.None,this.j=this.D(new M),this.onDidChangeFile=this.j.event,this.capabilities=19474,this.D(this.n.registerProvider(I.scheme,this))}async readFile(t){return this.t(t)}readFileStream(t,r,e){const n=E(o=>F.concat(o.map(i=>F.wrap(i))).buffer);return this.t(t,e).then(o=>{r.position&&(o=o.slice(r.position)),r.length&&(o=o.slice(0,r.length)),n.end(o)},o=>n.error(o)),n}watch(t,r){const{resourceURI:e,server:n}=this.u(t),o=n.capabilities.get();if(o!==void 0&&!(o&32))return y.None;n.start();const i=new B;let s;const f=i.add(new U),l=i.add(new U);return i.add(q(u=>{const p=n.connection.read(u);if(!p)return;const d=p.handler.read(u);if(!d||s===d)return;l.value?.dispose(!0),l.value=new O,s=d;const R=l.value.token;d.subscribe({uri:e.toString()},R).then(()=>{R.isCancellationRequested||(f.value=d.onDidUpdateResource(w=>{S(w.params.uri,e)&&this.j.fire([{resource:t,type:0}])}))},w=>{d.logger.warn(`Failed to subscribe to resource changes for ${e}: ${w}`),s=void 0})})),i}async stat(t){const{forSameURI:r,contents:e}=await this.w(t);if(!e.length)throw a("File not found",h.FileNotFound);return{ctime:0,mtime:0,size:C(e,n=>$(n).byteLength),type:r.length?m.File:m.Directory}}async readdir(t){const{forSameURI:r,contents:e,resourceURI:n}=await this.w(t);if(r.length>0)throw a("File is not a directory",h.FileNotADirectory);const o=n.pathname.split("/"),i=new Map;for(const s of e){const l=b.parse(s.uri).path.split("/");if(!(l.length<=o.length||!o.every((u,p)=>P(u,l[p]))))if(l.length>o.length+1)i.set(l[o.length],m.Directory);else{const u=l[l.length-1];i.set(u,$(s).byteLength>0?m.File:m.Directory)}}return[...i]}mkdir(t){throw a("write is not supported",h.NoPermissions)}writeFile(t,r,e){throw a("write is not supported",h.NoPermissions)}delete(t,r){throw a("delete is not supported",h.NoPermissions)}rename(t,r,e){throw a("rename is not supported",h.NoPermissions)}async t(t,r){const{forSameURI:e,contents:n}=await this.w(t);if(!e.length)throw n.length?a("File is a directory",h.FileIsADirectory):a("File not found",h.FileNotFound);return $(e[0])}u(t){let r,e;try{({definitionId:r,resourceURL:e}=I.toServer(t))}catch(i){throw a(String(i),h.FileNotFound)}e.pathname.endsWith("/")&&(e.pathname=e.pathname.slice(0,-1));const n=this.h.servers.get().find(i=>i.definition.id===r);if(!n)throw a(`MCP server ${r} not found`,h.FileNotFound);const o=n.capabilities.get();if(o!==void 0&&!(o&16))throw a(`MCP server ${r} does not support resources`,h.FileNotFound);return{definitionId:r,resourceURI:e,server:n}}async w(t,r){const e=this.g.get(t);if(e)return e.pool.add(r||v.None),e.promise;const n=this.B.add(new j);n.add(r||v.None);const o=this.y(t,n.token);this.g.set(t,{pool:n,promise:o});const i=this.B.add(_(()=>{this.g.delete(t),this.B.delete(i),this.B.delete(n)},W));return o}async y(t,r){const{resourceURI:e,server:n}=this.u(t),o=this.h.servers.get().find(s=>s.definition.id===n.definition.id);if(K(e,o)){const s=b.parse(e.toString()),f=(await this.q.extract([s],{followRedirects:!1})).at(0);if(f?.status==="ok")return{contents:[{uri:e.toString(),text:f.result}],resourceURI:e,forSameURI:[{uri:e.toString(),text:f.result}]}}const i=await z.callOn(n,s=>s.readResource({uri:e.toString()},r),r);return{contents:i.contents,resourceURI:e,forSameURI:i.contents.filter(s=>S(s.uri,e))}}};N=D([g(0,J),g(1,T),g(2,H)],N);function S(c,t){return P(new URL(c).pathname,t.pathname)}function $(c){if("text"in c)return F.fromString(c.text).buffer;if("blob"in c)return x(c.blob).buffer;throw a("Unknown content type",h.Unknown)}export{N as $Jrc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { sumBy } from "../../../../base/common/arrays.js";
+import { disposableTimeout } from "../../../../base/common/async.js";
+import { decodeBase64, VSBuffer } from "../../../../base/common/buffer.js";
+import { CancellationToken, CancellationTokenPool, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { newWriteableStream } from "../../../../base/common/stream.js";
+import { equalsIgnoreCase } from "../../../../base/common/strings.js";
+import { URI } from "../../../../base/common/uri.js";
+import { createFileSystemProviderError, FileSystemProviderErrorCode, FileType, IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWebContentExtractorService } from "../../../../platform/webContentExtractor/common/webContentExtractor.js";
+import { McpServer } from "./mcpServer.js";
+import { IMcpService, McpResourceURI } from "./mcpTypes.js";
+import { canLoadMcpNetworkResourceDirectly } from "./mcpTypesUtils.js";
+const MOMENTARY_CACHE_DURATION = 3e3;
+let McpResourceFilesystem = class McpResourceFilesystem2 extends Disposable {
+  static {
+    __name(this, "McpResourceFilesystem");
+  }
+  get _mcpService() {
+    return this._mcpServiceLazy.value;
+  }
+  constructor(_instantiationService, _fileService, _webContentExtractorService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._fileService = _fileService;
+    this._webContentExtractorService = _webContentExtractorService;
+    this._mcpServiceLazy = new Lazy(() => this._instantiationService.invokeFunction((a) => a.get(IMcpService)));
+    this._momentaryCache = new ResourceMap();
+    this.onDidChangeCapabilities = Event.None;
+    this._onDidChangeFile = this._register(new Emitter());
+    this.onDidChangeFile = this._onDidChangeFile.event;
+    this.capabilities = 0 | 2048 | 1024 | 16 | 16384 | 2;
+    this._register(this._fileService.registerProvider(McpResourceURI.scheme, this));
+  }
+  //#region Filesystem API
+  async readFile(resource) {
+    return this._readFile(resource);
+  }
+  readFileStream(resource, opts, token) {
+    const stream = newWriteableStream((data) => VSBuffer.concat(data.map((data2) => VSBuffer.wrap(data2))).buffer);
+    this._readFile(resource, token).then((data) => {
+      if (opts.position) {
+        data = data.slice(opts.position);
+      }
+      if (opts.length) {
+        data = data.slice(0, opts.length);
+      }
+      stream.end(data);
+    }, (err) => stream.error(err));
+    return stream;
+  }
+  watch(uri, _opts) {
+    const { resourceURI, server } = this._decodeURI(uri);
+    const cap = server.capabilities.get();
+    if (cap !== void 0 && !(cap & 32)) {
+      return Disposable.None;
+    }
+    server.start();
+    const store = new DisposableStore();
+    let watchedOnHandler;
+    const watchListener = store.add(new MutableDisposable());
+    const callCts = store.add(new MutableDisposable());
+    store.add(autorun((reader) => {
+      const connection = server.connection.read(reader);
+      if (!connection) {
+        return;
+      }
+      const handler = connection.handler.read(reader);
+      if (!handler || watchedOnHandler === handler) {
+        return;
+      }
+      callCts.value?.dispose(true);
+      callCts.value = new CancellationTokenSource();
+      watchedOnHandler = handler;
+      const token = callCts.value.token;
+      handler.subscribe({ uri: resourceURI.toString() }, token).then(() => {
+        if (!token.isCancellationRequested) {
+          watchListener.value = handler.onDidUpdateResource((e) => {
+            if (equalsUrlPath(e.params.uri, resourceURI)) {
+              this._onDidChangeFile.fire([{
+                resource: uri,
+                type: 0
+                /* FileChangeType.UPDATED */
+              }]);
+            }
+          });
+        }
+      }, (err) => {
+        handler.logger.warn(`Failed to subscribe to resource changes for ${resourceURI}: ${err}`);
+        watchedOnHandler = void 0;
+      });
+    }));
+    return store;
+  }
+  async stat(resource) {
+    const { forSameURI, contents } = await this._readURI(resource);
+    if (!contents.length) {
+      throw createFileSystemProviderError(`File not found`, FileSystemProviderErrorCode.FileNotFound);
+    }
+    return {
+      ctime: 0,
+      mtime: 0,
+      size: sumBy(contents, (c) => contentToBuffer(c).byteLength),
+      type: forSameURI.length ? FileType.File : FileType.Directory
+    };
+  }
+  async readdir(resource) {
+    const { forSameURI, contents, resourceURI } = await this._readURI(resource);
+    if (forSameURI.length > 0) {
+      throw createFileSystemProviderError(`File is not a directory`, FileSystemProviderErrorCode.FileNotADirectory);
+    }
+    const resourcePathParts = resourceURI.pathname.split("/");
+    const output = /* @__PURE__ */ new Map();
+    for (const content of contents) {
+      const contentURI = URI.parse(content.uri);
+      const contentPathParts = contentURI.path.split("/");
+      if (contentPathParts.length <= resourcePathParts.length || !resourcePathParts.every((part, index) => equalsIgnoreCase(part, contentPathParts[index]))) {
+        continue;
+      } else if (contentPathParts.length > resourcePathParts.length + 1) {
+        output.set(contentPathParts[resourcePathParts.length], FileType.Directory);
+      } else {
+        const name = contentPathParts[contentPathParts.length - 1];
+        output.set(name, contentToBuffer(content).byteLength > 0 ? FileType.File : FileType.Directory);
+      }
+    }
+    return [...output];
+  }
+  mkdir(resource) {
+    throw createFileSystemProviderError("write is not supported", FileSystemProviderErrorCode.NoPermissions);
+  }
+  writeFile(resource, content, opts) {
+    throw createFileSystemProviderError("write is not supported", FileSystemProviderErrorCode.NoPermissions);
+  }
+  delete(resource, opts) {
+    throw createFileSystemProviderError("delete is not supported", FileSystemProviderErrorCode.NoPermissions);
+  }
+  rename(from, to, opts) {
+    throw createFileSystemProviderError("rename is not supported", FileSystemProviderErrorCode.NoPermissions);
+  }
+  //#endregion
+  async _readFile(resource, token) {
+    const { forSameURI, contents } = await this._readURI(resource);
+    if (!forSameURI.length) {
+      if (!contents.length) {
+        throw createFileSystemProviderError(`File not found`, FileSystemProviderErrorCode.FileNotFound);
+      } else {
+        throw createFileSystemProviderError(`File is a directory`, FileSystemProviderErrorCode.FileIsADirectory);
+      }
+    }
+    return contentToBuffer(forSameURI[0]);
+  }
+  _decodeURI(uri) {
+    let definitionId;
+    let resourceURL;
+    try {
+      ({ definitionId, resourceURL } = McpResourceURI.toServer(uri));
+    } catch (e) {
+      throw createFileSystemProviderError(String(e), FileSystemProviderErrorCode.FileNotFound);
+    }
+    if (resourceURL.pathname.endsWith("/")) {
+      resourceURL.pathname = resourceURL.pathname.slice(0, -1);
+    }
+    const server = this._mcpService.servers.get().find((s) => s.definition.id === definitionId);
+    if (!server) {
+      throw createFileSystemProviderError(`MCP server ${definitionId} not found`, FileSystemProviderErrorCode.FileNotFound);
+    }
+    const cap = server.capabilities.get();
+    if (cap !== void 0 && !(cap & 16)) {
+      throw createFileSystemProviderError(`MCP server ${definitionId} does not support resources`, FileSystemProviderErrorCode.FileNotFound);
+    }
+    return { definitionId, resourceURI: resourceURL, server };
+  }
+  async _readURI(uri, token) {
+    const cached = this._momentaryCache.get(uri);
+    if (cached) {
+      cached.pool.add(token || CancellationToken.None);
+      return cached.promise;
+    }
+    const pool = this._store.add(new CancellationTokenPool());
+    pool.add(token || CancellationToken.None);
+    const promise = this._readURIInner(uri, pool.token);
+    this._momentaryCache.set(uri, { pool, promise });
+    const disposable = this._store.add(disposableTimeout(() => {
+      this._momentaryCache.delete(uri);
+      this._store.delete(disposable);
+      this._store.delete(pool);
+    }, MOMENTARY_CACHE_DURATION));
+    return promise;
+  }
+  async _readURIInner(uri, token) {
+    const { resourceURI, server } = this._decodeURI(uri);
+    const matchedServer = this._mcpService.servers.get().find((s) => s.definition.id === server.definition.id);
+    if (canLoadMcpNetworkResourceDirectly(resourceURI, matchedServer)) {
+      const extractURI = URI.parse(resourceURI.toString());
+      const result = (await this._webContentExtractorService.extract([extractURI], { followRedirects: false })).at(0);
+      if (result?.status === "ok") {
+        return {
+          contents: [{ uri: resourceURI.toString(), text: result.result }],
+          resourceURI,
+          forSameURI: [{ uri: resourceURI.toString(), text: result.result }]
+        };
+      }
+    }
+    const res = await McpServer.callOn(server, (r) => r.readResource({ uri: resourceURI.toString() }, token), token);
+    return {
+      contents: res.contents,
+      resourceURI,
+      forSameURI: res.contents.filter((c) => equalsUrlPath(c.uri, resourceURI))
+    };
+  }
+};
+McpResourceFilesystem = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IFileService),
+  __param(2, IWebContentExtractorService)
+], McpResourceFilesystem);
+function equalsUrlPath(a, b) {
+  return equalsIgnoreCase(new URL(a).pathname, b.pathname);
+}
+__name(equalsUrlPath, "equalsUrlPath");
+function contentToBuffer(content) {
+  if ("text" in content) {
+    return VSBuffer.fromString(content.text).buffer;
+  } else if ("blob" in content) {
+    return decodeBase64(content.blob).buffer;
+  } else {
+    throw createFileSystemProviderError("Unknown content type", FileSystemProviderErrorCode.Unknown);
+  }
+}
+__name(contentToBuffer, "contentToBuffer");
+export {
+  McpResourceFilesystem
+};
+//# sourceMappingURL=mcpResourceFilesystem.js.map

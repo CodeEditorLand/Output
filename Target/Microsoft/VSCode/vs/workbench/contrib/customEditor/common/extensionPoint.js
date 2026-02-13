@@ -1,1 +1,145 @@
-import{$$b as p}from"../../../../base/common/arrays.js";import{$Ed as c}from"../../../../base/common/lifecycle.js";import*as e from"../../../../nls.js";import{$Kj as d}from"../../../../platform/instantiation/common/descriptors.js";import{$jm as m}from"../../../../platform/registry/common/platform.js";import{Extensions as u}from"../../../services/extensionManagement/common/extensionFeatures.js";import{$KR as y}from"../../../services/extensions/common/extensionsRegistry.js";import{$8Hb as f}from"../../../services/language/common/languageService.js";const t=Object.freeze({viewType:"viewType",displayName:"displayName",selector:"selector",priority:"priority"}),w={type:"object",required:[t.viewType,t.displayName,t.selector],additionalProperties:!1,properties:{[t.viewType]:{type:"string",markdownDescription:e.localize(7547,null)},[t.displayName]:{type:"string",description:e.localize(7548,null)},[t.selector]:{type:"array",description:e.localize(7549,null),items:{type:"object",defaultSnippets:[{body:{filenamePattern:"$1"}}],additionalProperties:!1,properties:{filenamePattern:{type:"string",description:e.localize(7550,null)}}}},[t.priority]:{type:"string",markdownDeprecationMessage:e.localize(7551,null),enum:["default","option"],markdownEnumDescriptions:[e.localize(7552,null),e.localize(7553,null)],default:"default"}}},h=y.registerExtensionPoint({extensionPoint:"customEditors",deps:[f],jsonSchema:{description:e.localize(7554,null),type:"array",defaultSnippets:[{body:[{[t.viewType]:"$1",[t.displayName]:"$2",[t.selector]:[{filenamePattern:"$3"}]}]}],items:w},activationEventsGenerator:function*(s){for(const i of s){const o=i[t.viewType];o&&(yield`onCustomEditor:${o}`)}}});class b extends c{constructor(){super(...arguments),this.type="table"}shouldRender(i){return!!i.contributes?.customEditors}render(i){const o=i.contributes?.customEditors||[];if(!o.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const n=[e.localize(7555,null),e.localize(7556,null),e.localize(7557,null)],l=o.map(r=>[r.viewType,r.priority??"",p(r.selector.map(a=>a.filenamePattern)).join(", ")]);return{data:{headers:n,rows:l},dispose:()=>{}}}}m.as(u.ExtensionFeaturesRegistry).registerExtensionFeature({id:"customEditors",label:e.localize(7558,null),access:{canToggle:!1},renderer:new d(b)});export{h as $dBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { coalesce } from "../../../../base/common/arrays.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import * as nls from "../../../../nls.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+import { languagesExtPoint } from "../../../services/language/common/languageService.js";
+const Fields = Object.freeze({
+  viewType: "viewType",
+  displayName: "displayName",
+  selector: "selector",
+  priority: "priority"
+});
+const customEditorsContributionSchema = {
+  type: "object",
+  required: [
+    Fields.viewType,
+    Fields.displayName,
+    Fields.selector
+  ],
+  additionalProperties: false,
+  properties: {
+    [Fields.viewType]: {
+      type: "string",
+      markdownDescription: nls.localize("contributes.viewType", "Identifier for the custom editor. This must be unique across all custom editors, so we recommend including your extension id as part of `viewType`. The `viewType` is used when registering custom editors with `vscode.registerCustomEditorProvider` and in the `onCustomEditor:${id}` [activation event](https://code.visualstudio.com/api/references/activation-events).")
+    },
+    [Fields.displayName]: {
+      type: "string",
+      description: nls.localize("contributes.displayName", "Human readable name of the custom editor. This is displayed to users when selecting which editor to use.")
+    },
+    [Fields.selector]: {
+      type: "array",
+      description: nls.localize("contributes.selector", "Set of globs that the custom editor is enabled for."),
+      items: {
+        type: "object",
+        defaultSnippets: [{
+          body: {
+            filenamePattern: "$1"
+          }
+        }],
+        additionalProperties: false,
+        properties: {
+          filenamePattern: {
+            type: "string",
+            description: nls.localize("contributes.selector.filenamePattern", "Glob that the custom editor is enabled for.")
+          }
+        }
+      }
+    },
+    [Fields.priority]: {
+      type: "string",
+      markdownDeprecationMessage: nls.localize("contributes.priority", "Controls if the custom editor is enabled automatically when the user opens a file. This may be overridden by users using the `workbench.editorAssociations` setting."),
+      enum: [
+        "default",
+        "option"
+      ],
+      markdownEnumDescriptions: [
+        nls.localize("contributes.priority.default", "The editor is automatically used when the user opens a resource, provided that no other default custom editors are registered for that resource."),
+        nls.localize("contributes.priority.option", "The editor is not automatically used when the user opens a resource, but a user can switch to the editor using the `Reopen With` command.")
+      ],
+      default: "default"
+      /* CustomEditorPriority.default */
+    }
+  }
+};
+const customEditorsExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "customEditors",
+  deps: [languagesExtPoint],
+  jsonSchema: {
+    description: nls.localize("contributes.customEditors", "Contributed custom editors."),
+    type: "array",
+    defaultSnippets: [{
+      body: [{
+        [Fields.viewType]: "$1",
+        [Fields.displayName]: "$2",
+        [Fields.selector]: [{
+          filenamePattern: "$3"
+        }]
+      }]
+    }],
+    items: customEditorsContributionSchema
+  },
+  activationEventsGenerator: /* @__PURE__ */ __name(function* (contribs) {
+    for (const contrib of contribs) {
+      const viewType = contrib[Fields.viewType];
+      if (viewType) {
+        yield `onCustomEditor:${viewType}`;
+      }
+    }
+  }, "activationEventsGenerator")
+});
+class CustomEditorsDataRenderer extends Disposable {
+  static {
+    __name(this, "CustomEditorsDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.customEditors;
+  }
+  render(manifest) {
+    const customEditors = manifest.contributes?.customEditors || [];
+    if (!customEditors.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      nls.localize("customEditors view type", "View Type"),
+      nls.localize("customEditors priority", "Priority"),
+      nls.localize("customEditors filenamePattern", "Filename Pattern")
+    ];
+    const rows = customEditors.map((customEditor) => {
+      return [
+        customEditor.viewType,
+        customEditor.priority ?? "",
+        coalesce(customEditor.selector.map((x) => x.filenamePattern)).join(", ")
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "customEditors",
+  label: nls.localize("customEditors", "Custom Editors"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(CustomEditorsDataRenderer)
+});
+export {
+  customEditorsExtensionPoint
+};
+//# sourceMappingURL=extensionPoint.js.map

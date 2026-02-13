@@ -1,5 +1,179 @@
-import{$Ed as h}from"../../../../base/common/lifecycle.js";import{$Mdb as m}from"../../../../editor/browser/services/codeEditorService.js";import{AccessibilityHelpNLS as e}from"../../../../editor/common/standaloneStrings.js";import{$uo as f}from"../../../../platform/commands/common/commands.js";import{$ro as g}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as b}from"../../../../platform/instantiation/common/instantiation.js";import{$fy as C}from"../../../../platform/keybinding/common/keybinding.js";import{$i9b as v}from"./accessibleViewActions.js";import{ChatContextKeys as y}from"../../chat/common/actions/chatContextKeys.js";import{CommentAccessibilityHelpNLS as d}from"../../comments/browser/commentsAccessibility.js";import{CommentContextKeys as E}from"../../comments/common/commentContextKeys.js";import{$6Rb as S}from"../../files/browser/fileConstants.js";import{$zvb as x}from"../../../../platform/accessibility/browser/accessibleView.js";import{$EQb as $,$HQb as w}from"../../chat/browser/chatEditing/chatEditingEditorContextKeys.js";import{$MD as A}from"../../../../platform/accessibility/common/accessibility.js";import{$0l as H}from"../../../../platform/configuration/common/configuration.js";var l=function(r,i,t,o){var s=arguments.length,n=s<3?i:o===null?o=Object.getOwnPropertyDescriptor(i,t):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,i,t,o);else for(var p=r.length-1;p>=0;p--)(c=r[p])&&(n=(s<3?c(n):s>3?c(i,t,n):c(i,t))||n);return s>3&&n&&Object.defineProperty(i,t,n),n},u=function(r,i){return function(t,o){i(t,o,r)}};class B extends h{constructor(){super(),this.D(v.addImplementation(90,"editor",async i=>{const t=i.get(m),o=i.get(x),s=i.get(b),n=i.get(f);let c=t.getActiveCodeEditor()||t.getFocusedCodeEditor();c||(await n.executeCommand(S),c=t.getActiveCodeEditor()),o.show(s.createInstance(a,c))}))}}let a=class extends h{onClose(){this.a.focus()}constructor(i,t,o,s,n){super(),this.a=i,this.b=t,this.c=o,this.f=s,this.g=n,this.id="editor",this.options={type:"help",readMoreUrl:"https://go.microsoft.com/fwlink/?linkid=851010"},this.verbositySettingKey="accessibility.verbosity.editor"}provideContent(){const i=this.a.getOptions(),t=[];i.get(70)?i.get(104)?t.push(e.readonlyDiffEditor):t.push(e.editableDiffEditor):i.get(104)?t.push(e.readonlyEditor):t.push(e.editableEditor),this.f.isScreenReaderOptimized()&&this.g.getValue("accessibility.windowTitleOptimized")?t.push(e.defaultWindowTitleIncludesEditorState):t.push(e.defaultWindowTitleExcludingEditorState),t.push(e.toolbar);const o=R(this.b,this.c,this.a);o&&t.push(o),t.push(e.listSignalSounds),t.push(e.listAlerts),t.push(e.announceCursorPosition);const s=O(this.b,this.c);s&&t.push(s);const n=M(this.b,this.c,this.a);return n&&t.push(n),t.push(e.suggestActions),t.push(e.acceptSuggestAction),t.push(e.toggleSuggestionFocus),i.get(131).enabled&&t.push(e.stickScroll),i.get(164)?t.push(e.tabFocusModeOnMsg):t.push(e.tabFocusModeOffMsg),t.push(e.codeFolding),t.push(e.intellisense),t.push(e.showOrFocusHover),t.push(e.goToSymbol),t.push(e.startDebugging),t.push(e.setBreakpoint),t.push(e.debugExecuteSelection),t.push(e.addToWatch),t.join(`
-`)}};a=l([u(1,C),u(2,g),u(3,A),u(4,H)],a);function M(r,i,t){if(i.getContext(t.getDomNode()).getValue(E.activeEditorHasCommentingRange.key))return[d.intro,d.addComment,d.nextCommentThread,d.previousCommentThread,d.nextRange,d.previousRange].join(`
-`)}function O(r,i){if(y.enabled.getValue(i))return[e.quickChat,e.startInlineChat].join(`
-`)}function R(r,i,t){const o=i.getContext(t.getDomNode());if(o.getValue($.key))return e.chatEditorModification+`
-`+e.chatEditActions;if(o.getValue(w.key))return e.chatEditorRequestInProgress}export{B as $_Gc,M as $aHc,O as $bHc,R as $cHc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { AccessibilityHelpNLS } from "../../../../editor/common/standaloneStrings.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { AccessibilityHelpAction } from "./accessibleViewActions.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { CommentAccessibilityHelpNLS } from "../../comments/browser/commentsAccessibility.js";
+import { CommentContextKeys } from "../../comments/common/commentContextKeys.js";
+import { NEW_UNTITLED_FILE_COMMAND_ID } from "../../files/browser/fileConstants.js";
+import { IAccessibleViewService } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ctxHasEditorModification, ctxHasRequestInProgress } from "../../chat/browser/chatEditing/chatEditingEditorContextKeys.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+class EditorAccessibilityHelpContribution extends Disposable {
+  static {
+    __name(this, "EditorAccessibilityHelpContribution");
+  }
+  constructor() {
+    super();
+    this._register(AccessibilityHelpAction.addImplementation(90, "editor", async (accessor) => {
+      const codeEditorService = accessor.get(ICodeEditorService);
+      const accessibleViewService = accessor.get(IAccessibleViewService);
+      const instantiationService = accessor.get(IInstantiationService);
+      const commandService = accessor.get(ICommandService);
+      let codeEditor = codeEditorService.getActiveCodeEditor() || codeEditorService.getFocusedCodeEditor();
+      if (!codeEditor) {
+        await commandService.executeCommand(NEW_UNTITLED_FILE_COMMAND_ID);
+        codeEditor = codeEditorService.getActiveCodeEditor();
+      }
+      accessibleViewService.show(instantiationService.createInstance(EditorAccessibilityHelpProvider, codeEditor));
+    }));
+  }
+}
+let EditorAccessibilityHelpProvider = class EditorAccessibilityHelpProvider2 extends Disposable {
+  static {
+    __name(this, "EditorAccessibilityHelpProvider");
+  }
+  onClose() {
+    this._editor.focus();
+  }
+  constructor(_editor, _keybindingService, _contextKeyService, accessibilityService, _configurationService) {
+    super();
+    this._editor = _editor;
+    this._keybindingService = _keybindingService;
+    this._contextKeyService = _contextKeyService;
+    this.accessibilityService = accessibilityService;
+    this._configurationService = _configurationService;
+    this.id = "editor";
+    this.options = { type: "help", readMoreUrl: "https://go.microsoft.com/fwlink/?linkid=851010" };
+    this.verbositySettingKey = "accessibility.verbosity.editor";
+  }
+  provideContent() {
+    const options = this._editor.getOptions();
+    const content = [];
+    if (options.get(
+      70
+      /* EditorOption.inDiffEditor */
+    )) {
+      if (options.get(
+        104
+        /* EditorOption.readOnly */
+      )) {
+        content.push(AccessibilityHelpNLS.readonlyDiffEditor);
+      } else {
+        content.push(AccessibilityHelpNLS.editableDiffEditor);
+      }
+    } else {
+      if (options.get(
+        104
+        /* EditorOption.readOnly */
+      )) {
+        content.push(AccessibilityHelpNLS.readonlyEditor);
+      } else {
+        content.push(AccessibilityHelpNLS.editableEditor);
+      }
+    }
+    if (this.accessibilityService.isScreenReaderOptimized() && this._configurationService.getValue("accessibility.windowTitleOptimized")) {
+      content.push(AccessibilityHelpNLS.defaultWindowTitleIncludesEditorState);
+    } else {
+      content.push(AccessibilityHelpNLS.defaultWindowTitleExcludingEditorState);
+    }
+    content.push(AccessibilityHelpNLS.toolbar);
+    const chatEditInfo = getChatEditInfo(this._keybindingService, this._contextKeyService, this._editor);
+    if (chatEditInfo) {
+      content.push(chatEditInfo);
+    }
+    content.push(AccessibilityHelpNLS.listSignalSounds);
+    content.push(AccessibilityHelpNLS.listAlerts);
+    content.push(AccessibilityHelpNLS.announceCursorPosition);
+    const chatCommandInfo = getChatCommandInfo(this._keybindingService, this._contextKeyService);
+    if (chatCommandInfo) {
+      content.push(chatCommandInfo);
+    }
+    const commentCommandInfo = getCommentCommandInfo(this._keybindingService, this._contextKeyService, this._editor);
+    if (commentCommandInfo) {
+      content.push(commentCommandInfo);
+    }
+    content.push(AccessibilityHelpNLS.suggestActions);
+    content.push(AccessibilityHelpNLS.acceptSuggestAction);
+    content.push(AccessibilityHelpNLS.toggleSuggestionFocus);
+    if (options.get(
+      131
+      /* EditorOption.stickyScroll */
+    ).enabled) {
+      content.push(AccessibilityHelpNLS.stickScroll);
+    }
+    if (options.get(
+      164
+      /* EditorOption.tabFocusMode */
+    )) {
+      content.push(AccessibilityHelpNLS.tabFocusModeOnMsg);
+    } else {
+      content.push(AccessibilityHelpNLS.tabFocusModeOffMsg);
+    }
+    content.push(AccessibilityHelpNLS.codeFolding);
+    content.push(AccessibilityHelpNLS.intellisense);
+    content.push(AccessibilityHelpNLS.showOrFocusHover);
+    content.push(AccessibilityHelpNLS.goToSymbol);
+    content.push(AccessibilityHelpNLS.startDebugging);
+    content.push(AccessibilityHelpNLS.setBreakpoint);
+    content.push(AccessibilityHelpNLS.debugExecuteSelection);
+    content.push(AccessibilityHelpNLS.addToWatch);
+    return content.join("\n");
+  }
+};
+EditorAccessibilityHelpProvider = __decorate([
+  __param(1, IKeybindingService),
+  __param(2, IContextKeyService),
+  __param(3, IAccessibilityService),
+  __param(4, IConfigurationService)
+], EditorAccessibilityHelpProvider);
+function getCommentCommandInfo(keybindingService, contextKeyService, editor) {
+  const editorContext = contextKeyService.getContext(editor.getDomNode());
+  if (editorContext.getValue(CommentContextKeys.activeEditorHasCommentingRange.key)) {
+    return [CommentAccessibilityHelpNLS.intro, CommentAccessibilityHelpNLS.addComment, CommentAccessibilityHelpNLS.nextCommentThread, CommentAccessibilityHelpNLS.previousCommentThread, CommentAccessibilityHelpNLS.nextRange, CommentAccessibilityHelpNLS.previousRange].join("\n");
+  }
+  return;
+}
+__name(getCommentCommandInfo, "getCommentCommandInfo");
+function getChatCommandInfo(keybindingService, contextKeyService) {
+  if (ChatContextKeys.enabled.getValue(contextKeyService)) {
+    return [AccessibilityHelpNLS.quickChat, AccessibilityHelpNLS.startInlineChat].join("\n");
+  }
+  return;
+}
+__name(getChatCommandInfo, "getChatCommandInfo");
+function getChatEditInfo(keybindingService, contextKeyService, editor) {
+  const editorContext = contextKeyService.getContext(editor.getDomNode());
+  if (editorContext.getValue(ctxHasEditorModification.key)) {
+    return AccessibilityHelpNLS.chatEditorModification + "\n" + AccessibilityHelpNLS.chatEditActions;
+  } else if (editorContext.getValue(ctxHasRequestInProgress.key)) {
+    return AccessibilityHelpNLS.chatEditorRequestInProgress;
+  }
+  return;
+}
+__name(getChatEditInfo, "getChatEditInfo");
+export {
+  EditorAccessibilityHelpContribution,
+  getChatCommandInfo,
+  getChatEditInfo,
+  getCommentCommandInfo
+};
+//# sourceMappingURL=editorAccessibilityHelp.js.map

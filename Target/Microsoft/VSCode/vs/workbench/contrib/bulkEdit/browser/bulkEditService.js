@@ -1,1 +1,306 @@
-import{CancellationToken as R}from"../../../../base/common/cancellation.js";import{$Cd as j}from"../../../../base/common/lifecycle.js";import{$Rd as S}from"../../../../base/common/linkedList.js";import{$Oc as y,$Pc as _}from"../../../../base/common/map.js";import{$Gdb as x,$Hdb as C}from"../../../../editor/browser/editorBrowser.js";import{$Lkb as N,$Okb as d,$Nkb as p}from"../../../../editor/browser/services/bulkEditService.js";import{localize as l}from"../../../../nls.js";import{$0l as P}from"../../../../platform/configuration/common/configuration.js";import{$lm as I}from"../../../../platform/configuration/common/configurationRegistry.js";import{$Mp as z}from"../../../../platform/dialogs/common/dialogs.js";import{$WC as B}from"../../../../platform/instantiation/common/extensions.js";import{$Mj as k}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as v}from"../../../../platform/log/common/log.js";import{$wH as q}from"../../../../platform/progress/common/progress.js";import{$jm as A}from"../../../../platform/registry/common/platform.js";import{$aH as G}from"../../../../platform/undoRedo/common/undoRedo.js";import{$JEb as H,$IEb as g}from"./bulkCellEdits.js";import{$Rxc as J}from"./bulkFileEdits.js";import{$Sxc as M}from"./bulkTextEdits.js";import{$BL as T}from"../../../services/editor/common/editorService.js";import{$WN as L}from"../../../services/lifecycle/common/lifecycle.js";import{$bL as U}from"../../../services/workingCopy/common/workingCopyService.js";import{$Uxc as W,$Txc as b}from"./opaqueEdits.js";import{$n as V}from"../../../../base/common/platform.js";var E=function(c,t,e,r){var i=arguments.length,s=i<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(c,t,e,r);else for(var o=c.length-1;o>=0;o--)(n=c[o])&&(s=(i<3?n(s):i>3?n(t,e,s):n(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},h=function(c,t){return function(e,r){t(e,r,c)}};function D(c){return c.map(t=>{if(p.is(t))return p.lift(t);if(d.is(t))return d.lift(t);if(g.is(t))return g.lift(t);if(b.is(t))return b.lift(t);throw new Error("Unsupported edit")})}let w=class{constructor(t,e,r,i,s,n,o,f,u,a,m){this.a=t,this.b=e,this.c=r,this.d=i,this.f=s,this.g=n,this.h=o,this.j=f,this.k=u,this.l=a,this.m=m}ariaMessage(){const t=new y,e=new y;let r=0;for(const i of this.g)i instanceof p?(r+=1,e.set(i.resource,!0)):i instanceof d&&t.set(i.oldResource??i.newResource,!0);return this.g.length===0?l(5009,null):t.size===0?r>1&&e.size>1?l(5010,null,r,e.size):l(5011,null,r):l(5012,null,r,e.size,t.size)}async perform(t){if(this.g.length===0)return[];const e=[1];for(let o=1;o<this.g.length;o++)Object.getPrototypeOf(this.g[o-1])===Object.getPrototypeOf(this.g[o])?e[e.length-1]++:e.push(1);const r=this.g.length>1?0:void 0;this.d.report({increment:r,total:100});const i={report:o=>this.d.report({increment:100/this.g.length})},s=[];let n=0;for(const o of e){if(this.f.isCancellationRequested)break;const f=this.g.slice(n,n+o);f[0]instanceof d?s.push(await this.n(f,this.h,this.j,this.k,i)):f[0]instanceof p?s.push(await this.o(f,this.h,this.j,i,t)):f[0]instanceof g?s.push(await this.p(f,this.h,this.j,i)):f[0]instanceof b&&s.push(await this.q(f,this.h,this.j,i)),n=n+o}return s.flat()}async n(t,e,r,i,s){return this.m.debug("_performFileEdits",JSON.stringify(t)),await this.l.createInstance(J,this.a||l(5013,null),this.b||"undoredo.workspaceEdit",e,r,i,s,this.f,t).apply()}async o(t,e,r,i,s){return this.m.debug("_performTextEdits",JSON.stringify(t)),await this.l.createInstance(M,this.a||l(5014,null),this.b||"undoredo.workspaceEdit",this.c,e,r,i,this.f,t).apply(s)}async p(t,e,r,i){return this.m.debug("_performCellEdits",JSON.stringify(t)),await this.l.createInstance(H,e,r,i,this.f,t).apply()}async q(t,e,r,i){return this.m.debug("_performOpaqueEdits",JSON.stringify(t)),await this.l.createInstance(W,e,r,i,this.f,t).apply()}};w=E([h(9,k),h(10,v)],w);let $=class{constructor(t,e,r,i,s,n,o){this.c=t,this.d=e,this.f=r,this.g=i,this.h=s,this.j=n,this.k=o,this.a=new S}setPreviewHandler(t){return this.b=t,j(()=>{this.b===t&&(this.b=void 0)})}hasPreviewHandler(){return!!this.b}async apply(t,e){let r=D(Array.isArray(t)?t:t.edits);if(r.length===0)return{ariaSummary:l(5015,null),isApplied:!1};this.b&&(e?.showPreview||r.some(a=>a.metadata?.needsConfirmation))&&(r=await this.b(r,e));let i=e?.editor;if(!i){const a=this.f.activeTextEditorControl;x(a)?i=a:C(a)&&(i=a.getModifiedEditor())}i&&i.getOption(104)&&(i=void 0);let s,n=()=>{};if(typeof e?.undoRedoGroupId=="number"){for(const a of this.a)if(a.id===e.undoRedoGroupId){s=a;break}}s||(s=new G,n=this.a.push(s));const o=e?.quotableLabel||e?.label,f=this.c.createInstance(w,o,e?.code,i,e?.progress??q.None,e?.token??R.None,r,s,e?.undoRedoSource,!!e?.confirmBeforeUndo);let u;try{u=this.g.onBeforeShutdown(m=>m.veto(this.m(o,m.reason),"veto.blukEditService"));const a=await f.perform(e?.reason);return e?.respectAutoSaveConfig&&this.k.getValue(O)===!0&&a.length>1&&await this.l(a),{ariaSummary:f.ariaMessage(),isApplied:r.length>0}}catch(a){throw this.d.error(a),a}finally{u?.dispose(),n()}}async l(t){const e=new _(t),r=this.j.dirtyWorkingCopies.map(async s=>{e.has(s.resource)&&await s.save()}),i=await Promise.allSettled(r);for(const s of i)s.status==="rejected"&&this.d.warn(s.reason)}async m(t,e){let r;switch(e){case 1:r=l(5016,null);break;case 4:r=l(5017,null);break;case 3:r=l(5018,null);break;default:r=V?l(5019,null):l(5020,null);break}return!(await this.h.confirm({message:r,detail:l(5021,null,t||l(5022,null))})).confirmed}};$=E([h(0,k),h(1,v),h(2,T),h(3,L),h(4,z),h(5,U),h(6,P)],$);B(N,$,1);const O="files.refactoring.autoSave";A.as(I.Configuration).registerConfiguration({id:"files",properties:{[O]:{description:l(5023,null),default:!0,type:"boolean"}}});export{$ as $Vxc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
+import { ResourceMap, ResourceSet } from "../../../../base/common/map.js";
+import { isCodeEditor, isDiffEditor } from "../../../../editor/browser/editorBrowser.js";
+import { IBulkEditService, ResourceFileEdit, ResourceTextEdit } from "../../../../editor/browser/services/bulkEditService.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Progress } from "../../../../platform/progress/common/progress.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { UndoRedoGroup } from "../../../../platform/undoRedo/common/undoRedo.js";
+import { BulkCellEdits, ResourceNotebookCellEdit } from "./bulkCellEdits.js";
+import { BulkFileEdits } from "./bulkFileEdits.js";
+import { BulkTextEdits } from "./bulkTextEdits.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
+import { OpaqueEdits, ResourceAttachmentEdit } from "./opaqueEdits.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+function liftEdits(edits) {
+  return edits.map((edit) => {
+    if (ResourceTextEdit.is(edit)) {
+      return ResourceTextEdit.lift(edit);
+    }
+    if (ResourceFileEdit.is(edit)) {
+      return ResourceFileEdit.lift(edit);
+    }
+    if (ResourceNotebookCellEdit.is(edit)) {
+      return ResourceNotebookCellEdit.lift(edit);
+    }
+    if (ResourceAttachmentEdit.is(edit)) {
+      return ResourceAttachmentEdit.lift(edit);
+    }
+    throw new Error("Unsupported edit");
+  });
+}
+__name(liftEdits, "liftEdits");
+let BulkEdit = class BulkEdit2 {
+  static {
+    __name(this, "BulkEdit");
+  }
+  constructor(_label, _code, _editor, _progress, _token, _edits, _undoRedoGroup, _undoRedoSource, _confirmBeforeUndo, _instaService, _logService) {
+    this._label = _label;
+    this._code = _code;
+    this._editor = _editor;
+    this._progress = _progress;
+    this._token = _token;
+    this._edits = _edits;
+    this._undoRedoGroup = _undoRedoGroup;
+    this._undoRedoSource = _undoRedoSource;
+    this._confirmBeforeUndo = _confirmBeforeUndo;
+    this._instaService = _instaService;
+    this._logService = _logService;
+  }
+  ariaMessage() {
+    const otherResources = new ResourceMap();
+    const textEditResources = new ResourceMap();
+    let textEditCount = 0;
+    for (const edit of this._edits) {
+      if (edit instanceof ResourceTextEdit) {
+        textEditCount += 1;
+        textEditResources.set(edit.resource, true);
+      } else if (edit instanceof ResourceFileEdit) {
+        otherResources.set(edit.oldResource ?? edit.newResource, true);
+      }
+    }
+    if (this._edits.length === 0) {
+      return localize("summary.0", "Made no edits");
+    } else if (otherResources.size === 0) {
+      if (textEditCount > 1 && textEditResources.size > 1) {
+        return localize("summary.nm", "Made {0} text edits in {1} files", textEditCount, textEditResources.size);
+      } else {
+        return localize("summary.n0", "Made {0} text edits in one file", textEditCount);
+      }
+    } else {
+      return localize("summary.textFiles", "Made {0} text edits in {1} files, also created or deleted {2} files", textEditCount, textEditResources.size, otherResources.size);
+    }
+  }
+  async perform(reason) {
+    if (this._edits.length === 0) {
+      return [];
+    }
+    const ranges = [1];
+    for (let i = 1; i < this._edits.length; i++) {
+      if (Object.getPrototypeOf(this._edits[i - 1]) === Object.getPrototypeOf(this._edits[i])) {
+        ranges[ranges.length - 1]++;
+      } else {
+        ranges.push(1);
+      }
+    }
+    const increment = this._edits.length > 1 ? 0 : void 0;
+    this._progress.report({ increment, total: 100 });
+    const progress = { report: /* @__PURE__ */ __name((_) => this._progress.report({ increment: 100 / this._edits.length }), "report") };
+    const resources = [];
+    let index = 0;
+    for (const range of ranges) {
+      if (this._token.isCancellationRequested) {
+        break;
+      }
+      const group = this._edits.slice(index, index + range);
+      if (group[0] instanceof ResourceFileEdit) {
+        resources.push(await this._performFileEdits(group, this._undoRedoGroup, this._undoRedoSource, this._confirmBeforeUndo, progress));
+      } else if (group[0] instanceof ResourceTextEdit) {
+        resources.push(await this._performTextEdits(group, this._undoRedoGroup, this._undoRedoSource, progress, reason));
+      } else if (group[0] instanceof ResourceNotebookCellEdit) {
+        resources.push(await this._performCellEdits(group, this._undoRedoGroup, this._undoRedoSource, progress));
+      } else if (group[0] instanceof ResourceAttachmentEdit) {
+        resources.push(await this._performOpaqueEdits(group, this._undoRedoGroup, this._undoRedoSource, progress));
+      } else {
+        console.log("UNKNOWN EDIT");
+      }
+      index = index + range;
+    }
+    return resources.flat();
+  }
+  async _performFileEdits(edits, undoRedoGroup, undoRedoSource, confirmBeforeUndo, progress) {
+    this._logService.debug("_performFileEdits", JSON.stringify(edits));
+    const model = this._instaService.createInstance(BulkFileEdits, this._label || localize("workspaceEdit", "Workspace Edit"), this._code || "undoredo.workspaceEdit", undoRedoGroup, undoRedoSource, confirmBeforeUndo, progress, this._token, edits);
+    return await model.apply();
+  }
+  async _performTextEdits(edits, undoRedoGroup, undoRedoSource, progress, reason) {
+    this._logService.debug("_performTextEdits", JSON.stringify(edits));
+    const model = this._instaService.createInstance(BulkTextEdits, this._label || localize("workspaceEdit", "Workspace Edit"), this._code || "undoredo.workspaceEdit", this._editor, undoRedoGroup, undoRedoSource, progress, this._token, edits);
+    return await model.apply(reason);
+  }
+  async _performCellEdits(edits, undoRedoGroup, undoRedoSource, progress) {
+    this._logService.debug("_performCellEdits", JSON.stringify(edits));
+    const model = this._instaService.createInstance(BulkCellEdits, undoRedoGroup, undoRedoSource, progress, this._token, edits);
+    return await model.apply();
+  }
+  async _performOpaqueEdits(edits, undoRedoGroup, undoRedoSource, progress) {
+    this._logService.debug("_performOpaqueEdits", JSON.stringify(edits));
+    const model = this._instaService.createInstance(OpaqueEdits, undoRedoGroup, undoRedoSource, progress, this._token, edits);
+    return await model.apply();
+  }
+};
+BulkEdit = __decorate([
+  __param(9, IInstantiationService),
+  __param(10, ILogService)
+], BulkEdit);
+let BulkEditService = class BulkEditService2 {
+  static {
+    __name(this, "BulkEditService");
+  }
+  constructor(_instaService, _logService, _editorService, _lifecycleService, _dialogService, _workingCopyService, _configService) {
+    this._instaService = _instaService;
+    this._logService = _logService;
+    this._editorService = _editorService;
+    this._lifecycleService = _lifecycleService;
+    this._dialogService = _dialogService;
+    this._workingCopyService = _workingCopyService;
+    this._configService = _configService;
+    this._activeUndoRedoGroups = new LinkedList();
+  }
+  setPreviewHandler(handler) {
+    this._previewHandler = handler;
+    return toDisposable(() => {
+      if (this._previewHandler === handler) {
+        this._previewHandler = void 0;
+      }
+    });
+  }
+  hasPreviewHandler() {
+    return Boolean(this._previewHandler);
+  }
+  async apply(editsIn, options) {
+    let edits = liftEdits(Array.isArray(editsIn) ? editsIn : editsIn.edits);
+    if (edits.length === 0) {
+      return { ariaSummary: localize("nothing", "Made no edits"), isApplied: false };
+    }
+    if (this._previewHandler && (options?.showPreview || edits.some((value) => value.metadata?.needsConfirmation))) {
+      edits = await this._previewHandler(edits, options);
+    }
+    let codeEditor = options?.editor;
+    if (!codeEditor) {
+      const candidate = this._editorService.activeTextEditorControl;
+      if (isCodeEditor(candidate)) {
+        codeEditor = candidate;
+      } else if (isDiffEditor(candidate)) {
+        codeEditor = candidate.getModifiedEditor();
+      }
+    }
+    if (codeEditor && codeEditor.getOption(
+      104
+      /* EditorOption.readOnly */
+    )) {
+      codeEditor = void 0;
+    }
+    let undoRedoGroup;
+    let undoRedoGroupRemove = /* @__PURE__ */ __name(() => {
+    }, "undoRedoGroupRemove");
+    if (typeof options?.undoRedoGroupId === "number") {
+      for (const candidate of this._activeUndoRedoGroups) {
+        if (candidate.id === options.undoRedoGroupId) {
+          undoRedoGroup = candidate;
+          break;
+        }
+      }
+    }
+    if (!undoRedoGroup) {
+      undoRedoGroup = new UndoRedoGroup();
+      undoRedoGroupRemove = this._activeUndoRedoGroups.push(undoRedoGroup);
+    }
+    const label = options?.quotableLabel || options?.label;
+    const bulkEdit = this._instaService.createInstance(BulkEdit, label, options?.code, codeEditor, options?.progress ?? Progress.None, options?.token ?? CancellationToken.None, edits, undoRedoGroup, options?.undoRedoSource, !!options?.confirmBeforeUndo);
+    let listener;
+    try {
+      listener = this._lifecycleService.onBeforeShutdown((e) => e.veto(this._shouldVeto(label, e.reason), "veto.blukEditService"));
+      const resources = await bulkEdit.perform(options?.reason);
+      if (options?.respectAutoSaveConfig && this._configService.getValue(autoSaveSetting) === true && resources.length > 1) {
+        await this._saveAll(resources);
+      }
+      return { ariaSummary: bulkEdit.ariaMessage(), isApplied: edits.length > 0 };
+    } catch (err) {
+      this._logService.error(err);
+      throw err;
+    } finally {
+      listener?.dispose();
+      undoRedoGroupRemove();
+    }
+  }
+  async _saveAll(resources) {
+    const set = new ResourceSet(resources);
+    const saves = this._workingCopyService.dirtyWorkingCopies.map(async (copy) => {
+      if (set.has(copy.resource)) {
+        await copy.save();
+      }
+    });
+    const result = await Promise.allSettled(saves);
+    for (const item of result) {
+      if (item.status === "rejected") {
+        this._logService.warn(item.reason);
+      }
+    }
+  }
+  async _shouldVeto(label, reason) {
+    let message;
+    switch (reason) {
+      case 1:
+        message = localize("closeTheWindow.message", "Are you sure you want to close the window?");
+        break;
+      case 4:
+        message = localize("changeWorkspace.message", "Are you sure you want to change the workspace?");
+        break;
+      case 3:
+        message = localize("reloadTheWindow.message", "Are you sure you want to reload the window?");
+        break;
+      default:
+        message = isMacintosh ? localize("quitMessageMac", "Are you sure you want to quit?") : localize("quitMessage", "Are you sure you want to exit?");
+        break;
+    }
+    const result = await this._dialogService.confirm({
+      message,
+      detail: localize("areYouSureQuiteBulkEdit.detail", "'{0}' is in progress.", label || localize("fileOperation", "File operation"))
+    });
+    return !result.confirmed;
+  }
+};
+BulkEditService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, ILogService),
+  __param(2, IEditorService),
+  __param(3, ILifecycleService),
+  __param(4, IDialogService),
+  __param(5, IWorkingCopyService),
+  __param(6, IConfigurationService)
+], BulkEditService);
+registerSingleton(
+  IBulkEditService,
+  BulkEditService,
+  1
+  /* InstantiationType.Delayed */
+);
+const autoSaveSetting = "files.refactoring.autoSave";
+Registry.as(Extensions.Configuration).registerConfiguration({
+  id: "files",
+  properties: {
+    [autoSaveSetting]: {
+      description: localize("refactoring.autoSave", "Controls if files that were part of a refactoring are saved automatically"),
+      default: true,
+      type: "boolean"
+    }
+  }
+});
+export {
+  BulkEditService
+};
+//# sourceMappingURL=bulkEditService.js.map

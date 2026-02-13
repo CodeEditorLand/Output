@@ -1,1 +1,325 @@
-import{$bk as b}from"../../../../../base/common/codicons.js";import{$Fh as f}from"../../../../../base/common/resources.js";import{ThemeIcon as x}from"../../../../../base/common/themables.js";import{URI as $}from"../../../../../base/common/uri.js";import{$SF as g}from"../../../../../editor/common/languages.js";import{localize as l}from"../../../../../nls.js";import{$qj as S,$rj as h,$0i as k}from"../../../../../base/common/buffer.js";var m;(function(e){e[e.NotOmitted=0]="NotOmitted",e[e.Partial=1]="Partial",e[e.Full=2]="Full"})(m||(m={}));var a;(function(e){e.icon=b.error;function n(t){return{filterUri:t.resource,owner:t.owner,problemMessage:t.message,filterRange:{startLineNumber:t.startLineNumber,endLineNumber:t.endLineNumber,startColumn:t.startColumn,endColumn:t.endColumn}}}e.fromMarker=n;function o(t){return{id:u(t),name:r(t),icon:e.icon,value:t,kind:"diagnostic",...t}}e.toEntry=o;function u(t){return[t.filterUri,t.owner,t.filterSeverity,t.filterRange?.startLineNumber,t.filterRange?.startColumn].join(":")}e.id=u;function r(t){let c;if((function(i){i[i.MaxChars=30]="MaxChars",i[i.MaxSpaceLookback=10]="MaxSpaceLookback"})(c||(c={})),t.problemMessage){if(t.problemMessage.length<30)return t.problemMessage;const i=t.problemMessage.lastIndexOf(" ",30);return i===-1||i+10<30?t.problemMessage.substring(0,30)+"\u2026":t.problemMessage.substring(0,i)+"\u2026"}let p=l(6865,null);return t.filterUri&&(p=l(6866,null,f(t.filterUri))),p}e.label=r})(a||(a={}));var d;(function(e){function n(r){return $.isUri(r.value)?r.value:g(r.value)?r.value.uri:void 0}e.toUri=n;function o(r){if(r.value instanceof Uint8Array){const t={...r};return t.value={$base64:h(k.wrap(r.value))},t}return r}e.toExport=o;function u(r){if(r&&"values"in r&&Array.isArray(r.values))return{kind:"generic",id:r.id??"",name:r.name,value:r.values[0]?.value,range:r.range,modelDescription:r.modelDescription,references:r.references};if(r.value&&typeof r.value=="object"&&"$base64"in r.value&&typeof r.value.$base64=="string"){const t={...r};return t.value=S(r.value.$base64).buffer,t}return r}e.fromExport=u})(d||(d={}));function j(e){return e.kind==="implicit"}function w(e){return e.kind==="string"}function y(e){return e.kind==="terminalCommand"}function A(e){return e.kind==="debugVariable"}function P(e){return e.kind==="paste"}function F(e){return e.kind==="workspace"}function H(e){return e.kind==="image"}function T(e){return e.kind==="notebookOutput"}function _(e){return e.kind==="element"}function z(e){return e.kind==="diagnostic"}function E(e){return e.kind==="file"}function O(e){return e.kind==="promptFile"}function Q(e){return e.kind==="promptText"}function W(e){const n=e;return typeof n=="object"&&n!==null&&typeof n.id=="string"&&typeof n.name=="string"}function X(e){return e.kind==="scmHistoryItem"}function Y(e){return e.kind==="scmHistoryItemChange"}function Z(e){return e.kind==="scmHistoryItemChangeRange"}function q(e){const n=e;return typeof n=="object"&&n!==null&&(typeof n.value=="string"||typeof n.value>"u")&&(typeof n.name=="string"||typeof n.name>"u")&&(n.icon===void 0||x.isThemeIcon(n.icon))&&$.isUri(n.uri)}var s;(function(e){e.Instruction="vscode.prompt.instructions.root",e.InstructionReference="vscode.prompt.instructions",e.PromptFile="vscode.prompt.file"})(s||(s={}));function B(e,n,o,u=!1,r){return{id:`${n}__${e.toString()}`,name:`prompt:${f(e)}`,value:e,kind:"promptFile",modelDescription:"Prompt instructions file",isRoot:n!==s.InstructionReference,originLabel:o,toolReferences:r,automaticallyAdded:u}}function G(e,n=!1,o){return{id:"vscode.prompt.instructions.text",name:"prompt:instructionsList",value:e,kind:"promptText",modelDescription:"Prompt instructions list",automaticallyAdded:n,toolReferences:o}}function J(e,n){return{kind:"file",value:n?{uri:e,range:n}:e,id:e.toString()+(n?.toString()??""),name:f(e)}}function v(e,n){return{kind:"tool",id:e.id,icon:x.isThemeIcon(e.icon)?e.icon:void 0,name:e.displayName,value:void 0,range:n}}function K(e,n){return{kind:"toolset",id:e.id,icon:e.icon,name:e.referenceName,value:Array.from(e.getTools()).map(o=>v(o)),range:n}}class V{constructor(n){this.a=new Set,this.b=[],n&&this.add(...n)}add(...n){for(const o of n)this.a.has(o.id)||(this.a.add(o.id),this.b.push(o))}insertFirst(n){this.a.has(n.id)||(this.a.add(n.id),this.b.unshift(n))}remove(n){this.a.delete(n.id),this.b=this.b.filter(o=>o.id!==n.id)}has(n){return this.a.has(n.id)}asArray(){return this.b.slice(0)}get length(){return this.b.length}}export{Z as $1S,q as $2S,B as $3S,G as $4S,J as $5S,v as $6S,K as $7S,V as $8S,j as $KS,w as $LS,y as $MS,A as $NS,P as $OS,F as $PS,H as $QS,T as $RS,_ as $SS,z as $TS,E as $US,O as $VS,Q as $WS,W as $XS,X as $YS,Y as $ZS,d as IChatRequestVariableEntry,a as IDiagnosticVariableEntryFilterData,m as OmittedState,s as PromptFileVariableKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { isLocation } from "../../../../../editor/common/languages.js";
+import { localize } from "../../../../../nls.js";
+import { decodeBase64, encodeBase64, VSBuffer } from "../../../../../base/common/buffer.js";
+var OmittedState;
+(function(OmittedState2) {
+  OmittedState2[OmittedState2["NotOmitted"] = 0] = "NotOmitted";
+  OmittedState2[OmittedState2["Partial"] = 1] = "Partial";
+  OmittedState2[OmittedState2["Full"] = 2] = "Full";
+})(OmittedState || (OmittedState = {}));
+var IDiagnosticVariableEntryFilterData;
+(function(IDiagnosticVariableEntryFilterData2) {
+  IDiagnosticVariableEntryFilterData2.icon = Codicon.error;
+  function fromMarker(marker) {
+    return {
+      filterUri: marker.resource,
+      owner: marker.owner,
+      problemMessage: marker.message,
+      filterRange: { startLineNumber: marker.startLineNumber, endLineNumber: marker.endLineNumber, startColumn: marker.startColumn, endColumn: marker.endColumn }
+    };
+  }
+  __name(fromMarker, "fromMarker");
+  IDiagnosticVariableEntryFilterData2.fromMarker = fromMarker;
+  function toEntry(data) {
+    return {
+      id: id(data),
+      name: label(data),
+      icon: IDiagnosticVariableEntryFilterData2.icon,
+      value: data,
+      kind: "diagnostic",
+      ...data
+    };
+  }
+  __name(toEntry, "toEntry");
+  IDiagnosticVariableEntryFilterData2.toEntry = toEntry;
+  function id(data) {
+    return [data.filterUri, data.owner, data.filterSeverity, data.filterRange?.startLineNumber, data.filterRange?.startColumn].join(":");
+  }
+  __name(id, "id");
+  IDiagnosticVariableEntryFilterData2.id = id;
+  function label(data) {
+    let TrimThreshold;
+    (function(TrimThreshold2) {
+      TrimThreshold2[TrimThreshold2["MaxChars"] = 30] = "MaxChars";
+      TrimThreshold2[TrimThreshold2["MaxSpaceLookback"] = 10] = "MaxSpaceLookback";
+    })(TrimThreshold || (TrimThreshold = {}));
+    if (data.problemMessage) {
+      if (data.problemMessage.length < 30) {
+        return data.problemMessage;
+      }
+      const lastSpace = data.problemMessage.lastIndexOf(
+        " ",
+        30
+        /* TrimThreshold.MaxChars */
+      );
+      if (lastSpace === -1 || lastSpace + 10 < 30) {
+        return data.problemMessage.substring(
+          0,
+          30
+          /* TrimThreshold.MaxChars */
+        ) + "\u2026";
+      }
+      return data.problemMessage.substring(0, lastSpace) + "\u2026";
+    }
+    let labelStr = localize("chat.attachment.problems.all", "All Problems");
+    if (data.filterUri) {
+      labelStr = localize("chat.attachment.problems.inFile", "Problems in {0}", basename(data.filterUri));
+    }
+    return labelStr;
+  }
+  __name(label, "label");
+  IDiagnosticVariableEntryFilterData2.label = label;
+})(IDiagnosticVariableEntryFilterData || (IDiagnosticVariableEntryFilterData = {}));
+var IChatRequestVariableEntry;
+(function(IChatRequestVariableEntry2) {
+  function toUri(entry) {
+    return URI.isUri(entry.value) ? entry.value : isLocation(entry.value) ? entry.value.uri : void 0;
+  }
+  __name(toUri, "toUri");
+  IChatRequestVariableEntry2.toUri = toUri;
+  function toExport(v) {
+    if (v.value instanceof Uint8Array) {
+      const dup = { ...v };
+      dup.value = { $base64: encodeBase64(VSBuffer.wrap(v.value)) };
+      return dup;
+    }
+    return v;
+  }
+  __name(toExport, "toExport");
+  IChatRequestVariableEntry2.toExport = toExport;
+  function fromExport(v) {
+    if (v && "values" in v && Array.isArray(v.values)) {
+      return {
+        kind: "generic",
+        id: v.id ?? "",
+        name: v.name,
+        value: v.values[0]?.value,
+        range: v.range,
+        modelDescription: v.modelDescription,
+        references: v.references
+      };
+    } else {
+      if (v.value && typeof v.value === "object" && "$base64" in v.value && typeof v.value.$base64 === "string") {
+        const dup = { ...v };
+        dup.value = decodeBase64(v.value.$base64).buffer;
+        return dup;
+      }
+      return v;
+    }
+  }
+  __name(fromExport, "fromExport");
+  IChatRequestVariableEntry2.fromExport = fromExport;
+})(IChatRequestVariableEntry || (IChatRequestVariableEntry = {}));
+function isImplicitVariableEntry(obj) {
+  return obj.kind === "implicit";
+}
+__name(isImplicitVariableEntry, "isImplicitVariableEntry");
+function isStringVariableEntry(obj) {
+  return obj.kind === "string";
+}
+__name(isStringVariableEntry, "isStringVariableEntry");
+function isTerminalVariableEntry(obj) {
+  return obj.kind === "terminalCommand";
+}
+__name(isTerminalVariableEntry, "isTerminalVariableEntry");
+function isDebugVariableEntry(obj) {
+  return obj.kind === "debugVariable";
+}
+__name(isDebugVariableEntry, "isDebugVariableEntry");
+function isPasteVariableEntry(obj) {
+  return obj.kind === "paste";
+}
+__name(isPasteVariableEntry, "isPasteVariableEntry");
+function isWorkspaceVariableEntry(obj) {
+  return obj.kind === "workspace";
+}
+__name(isWorkspaceVariableEntry, "isWorkspaceVariableEntry");
+function isImageVariableEntry(obj) {
+  return obj.kind === "image";
+}
+__name(isImageVariableEntry, "isImageVariableEntry");
+function isNotebookOutputVariableEntry(obj) {
+  return obj.kind === "notebookOutput";
+}
+__name(isNotebookOutputVariableEntry, "isNotebookOutputVariableEntry");
+function isElementVariableEntry(obj) {
+  return obj.kind === "element";
+}
+__name(isElementVariableEntry, "isElementVariableEntry");
+function isDiagnosticsVariableEntry(obj) {
+  return obj.kind === "diagnostic";
+}
+__name(isDiagnosticsVariableEntry, "isDiagnosticsVariableEntry");
+function isChatRequestFileEntry(obj) {
+  return obj.kind === "file";
+}
+__name(isChatRequestFileEntry, "isChatRequestFileEntry");
+function isPromptFileVariableEntry(obj) {
+  return obj.kind === "promptFile";
+}
+__name(isPromptFileVariableEntry, "isPromptFileVariableEntry");
+function isPromptTextVariableEntry(obj) {
+  return obj.kind === "promptText";
+}
+__name(isPromptTextVariableEntry, "isPromptTextVariableEntry");
+function isChatRequestVariableEntry(obj) {
+  const entry = obj;
+  return typeof entry === "object" && entry !== null && typeof entry.id === "string" && typeof entry.name === "string";
+}
+__name(isChatRequestVariableEntry, "isChatRequestVariableEntry");
+function isSCMHistoryItemVariableEntry(obj) {
+  return obj.kind === "scmHistoryItem";
+}
+__name(isSCMHistoryItemVariableEntry, "isSCMHistoryItemVariableEntry");
+function isSCMHistoryItemChangeVariableEntry(obj) {
+  return obj.kind === "scmHistoryItemChange";
+}
+__name(isSCMHistoryItemChangeVariableEntry, "isSCMHistoryItemChangeVariableEntry");
+function isSCMHistoryItemChangeRangeVariableEntry(obj) {
+  return obj.kind === "scmHistoryItemChangeRange";
+}
+__name(isSCMHistoryItemChangeRangeVariableEntry, "isSCMHistoryItemChangeRangeVariableEntry");
+function isStringImplicitContextValue(value) {
+  const asStringImplicitContextValue = value;
+  return typeof asStringImplicitContextValue === "object" && asStringImplicitContextValue !== null && (typeof asStringImplicitContextValue.value === "string" || typeof asStringImplicitContextValue.value === "undefined") && (typeof asStringImplicitContextValue.name === "string" || typeof asStringImplicitContextValue.name === "undefined") && (asStringImplicitContextValue.icon === void 0 || ThemeIcon.isThemeIcon(asStringImplicitContextValue.icon)) && URI.isUri(asStringImplicitContextValue.uri);
+}
+__name(isStringImplicitContextValue, "isStringImplicitContextValue");
+var PromptFileVariableKind;
+(function(PromptFileVariableKind2) {
+  PromptFileVariableKind2["Instruction"] = "vscode.prompt.instructions.root";
+  PromptFileVariableKind2["InstructionReference"] = "vscode.prompt.instructions";
+  PromptFileVariableKind2["PromptFile"] = "vscode.prompt.file";
+})(PromptFileVariableKind || (PromptFileVariableKind = {}));
+function toPromptFileVariableEntry(uri, kind, originLabel, automaticallyAdded = false, toolReferences) {
+  return {
+    id: `${kind}__${uri.toString()}`,
+    name: `prompt:${basename(uri)}`,
+    value: uri,
+    kind: "promptFile",
+    modelDescription: "Prompt instructions file",
+    isRoot: kind !== PromptFileVariableKind.InstructionReference,
+    originLabel,
+    toolReferences,
+    automaticallyAdded
+  };
+}
+__name(toPromptFileVariableEntry, "toPromptFileVariableEntry");
+function toPromptTextVariableEntry(content, automaticallyAdded = false, toolReferences) {
+  return {
+    id: `vscode.prompt.instructions.text`,
+    name: `prompt:instructionsList`,
+    value: content,
+    kind: "promptText",
+    modelDescription: "Prompt instructions list",
+    automaticallyAdded,
+    toolReferences
+  };
+}
+__name(toPromptTextVariableEntry, "toPromptTextVariableEntry");
+function toFileVariableEntry(uri, range) {
+  return {
+    kind: "file",
+    value: range ? { uri, range } : uri,
+    id: uri.toString() + (range?.toString() ?? ""),
+    name: basename(uri)
+  };
+}
+__name(toFileVariableEntry, "toFileVariableEntry");
+function toToolVariableEntry(entry, range) {
+  return {
+    kind: "tool",
+    id: entry.id,
+    icon: ThemeIcon.isThemeIcon(entry.icon) ? entry.icon : void 0,
+    name: entry.displayName,
+    value: void 0,
+    range
+  };
+}
+__name(toToolVariableEntry, "toToolVariableEntry");
+function toToolSetVariableEntry(entry, range) {
+  return {
+    kind: "toolset",
+    id: entry.id,
+    icon: entry.icon,
+    name: entry.referenceName,
+    value: Array.from(entry.getTools()).map((t) => toToolVariableEntry(t)),
+    range
+  };
+}
+__name(toToolSetVariableEntry, "toToolSetVariableEntry");
+class ChatRequestVariableSet {
+  static {
+    __name(this, "ChatRequestVariableSet");
+  }
+  constructor(entries) {
+    this._ids = /* @__PURE__ */ new Set();
+    this._entries = [];
+    if (entries) {
+      this.add(...entries);
+    }
+  }
+  add(...entry) {
+    for (const e of entry) {
+      if (!this._ids.has(e.id)) {
+        this._ids.add(e.id);
+        this._entries.push(e);
+      }
+    }
+  }
+  insertFirst(entry) {
+    if (!this._ids.has(entry.id)) {
+      this._ids.add(entry.id);
+      this._entries.unshift(entry);
+    }
+  }
+  remove(entry) {
+    this._ids.delete(entry.id);
+    this._entries = this._entries.filter((e) => e.id !== entry.id);
+  }
+  has(entry) {
+    return this._ids.has(entry.id);
+  }
+  asArray() {
+    return this._entries.slice(0);
+  }
+  get length() {
+    return this._entries.length;
+  }
+}
+export {
+  ChatRequestVariableSet,
+  IChatRequestVariableEntry,
+  IDiagnosticVariableEntryFilterData,
+  OmittedState,
+  PromptFileVariableKind,
+  isChatRequestFileEntry,
+  isChatRequestVariableEntry,
+  isDebugVariableEntry,
+  isDiagnosticsVariableEntry,
+  isElementVariableEntry,
+  isImageVariableEntry,
+  isImplicitVariableEntry,
+  isNotebookOutputVariableEntry,
+  isPasteVariableEntry,
+  isPromptFileVariableEntry,
+  isPromptTextVariableEntry,
+  isSCMHistoryItemChangeRangeVariableEntry,
+  isSCMHistoryItemChangeVariableEntry,
+  isSCMHistoryItemVariableEntry,
+  isStringImplicitContextValue,
+  isStringVariableEntry,
+  isTerminalVariableEntry,
+  isWorkspaceVariableEntry,
+  toFileVariableEntry,
+  toPromptFileVariableEntry,
+  toPromptTextVariableEntry,
+  toToolSetVariableEntry,
+  toToolVariableEntry
+};
+//# sourceMappingURL=chatVariableEntries.js.map

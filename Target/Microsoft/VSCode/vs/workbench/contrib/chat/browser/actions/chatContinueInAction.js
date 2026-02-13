@@ -1,1 +1,340 @@
-import{$bk as R}from"../../../../../base/common/codicons.js";import{h as x}from"../../../../../base/browser/dom.js";import{$Ed as X,$xd as tt}from"../../../../../base/common/lifecycle.js";import{Schemas as et}from"../../../../../base/common/network.js";import{$Fh as W}from"../../../../../base/common/resources.js";import{ThemeIcon as F}from"../../../../../base/common/themables.js";import{URI as ot}from"../../../../../base/common/uri.js";import{$fH as B}from"../../../../../editor/common/model.js";import{localize as m,localize2 as nt}from"../../../../../nls.js";import{$NQb as rt}from"../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";import{$fkb as it}from"../../../../../platform/actions/browser/actionViewItemService.js";import{$vL as at,$qL as P,$uL as st}from"../../../../../platform/actions/common/actions.js";import{$jlb as ct}from"../../../../../platform/actionWidget/browser/actionWidget.js";import{$uo as q}from"../../../../../platform/commands/common/commands.js";import{$0n as p,$ro as J}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as k}from"../../../../../platform/instantiation/common/instantiation.js";import{$fy as dt}from"../../../../../platform/keybinding/common/keybinding.js";import{$pp as ut}from"../../../../../platform/telemetry/common/telemetry.js";import{$EP as lt}from"../../../../../platform/opener/common/opener.js";import{$wP as L}from"../../../../common/contextkeys.js";import{$BL as V}from"../../../../services/editor/common/editorService.js";import{$kW as mt}from"../../common/participants/chatAgents.js";import{ChatContextKeys as l}from"../../common/actions/chatContextKeys.js";import{$VV as pt}from"../../common/editing/chatEditingService.js";import{$EV as ft}from"../../common/requestParser/chatRequestParser.js";import{ChatSendResult as ht,$NV as gt}from"../../common/chatService/chatService.js";import{$aW as Ct}from"../../common/chatSessionsService.js";import{ChatAgentLocation as E}from"../../common/constants.js";import{$gT as bt}from"../../common/promptSyntax/promptTypes.js";import{AgentSessionProviders as f,$ZPb as T,$YPb as $}from"../agentSessions/agentSessions.js";import{$U4b as $t}from"../chat.js";import{$EQb as vt}from"../chatEditing/chatEditingEditorContextKeys.js";import{$MPb as St}from"./chatActions.js";import{PromptFileVariableKind as wt,$3S as yt}from"../../common/attachments/chatVariableEntries.js";var U=function(c,t,e,n){var o=arguments.length,r=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,t,e,n);else for(var a=c.length-1;a>=0;a--)(i=c[a])&&(r=(o<3?i(r):o>3?i(t,e,r):i(t,e))||r);return o>3&&r&&Object.defineProperty(t,e,r),r},u=function(c,t){return function(e,n){t(e,n,c)}},v,j;(function(c){c.ChatWidget="chatWidget",c.Editor="editor"})(j||(j={}));class M extends at{static{this.ID="workbench.action.chat.continueChatInSession"}constructor(){super({id:M.ID,title:nt(5248,"Continue Chat in..."),tooltip:m(5240,null),precondition:p.and(l.enabled,l.requestInProgress.negate(),l.remoteJobCreating.negate(),l.hasCanDelegateProviders),menu:[{id:P.ChatExecute,group:"navigation",order:3.4,when:p.and(l.lockedToCodingAgent.negate(),l.hasCanDelegateProviders)},{id:P.EditorContent,group:"continueIn",when:p.and(p.equals(L.Scheme.key,et.untitled),p.equals(L.LangId.key,bt),p.notEquals(pt.key,0),vt.negate(),l.hasCanDelegateProviders)}]})}async run(){}}let A=v=class extends rt{constructor(t,e,n,o,r,i,a,d,h){super(t,{actionProvider:v.R(i,a,e),actionBarActions:v.t(d),reporter:{id:"ChatContinueInSession",name:"ChatContinueInSession",includeOptions:!0}},n,r,o,h),this.a=e,this.b=o}static t(t){const e="https://aka.ms/vscode-continue-chat-in";return[{id:"workbench.action.chat.continueChatInSession.learnMore",label:m(5241,null),tooltip:m(5242,null),class:void 0,enabled:!0,run:async()=>{await t.open(ot.parse(e))}}]}static R(t,e,n){return{getActions:()=>{const o=[],r=t.getAllChatSessionContributions(),i=r.find(d=>d.type===f.Background);i&&i.canDelegate&&o.push(this.S(f.Background,i,e,n));const a=r.find(d=>d.type===f.Cloud);return a&&a.canDelegate&&o.push(this.S(f.Cloud,a,e,n)),o.length===0&&(o.push(this.U(f.Background,e)),o.push(this.U(f.Cloud,e))),o}}}static S(t,e,n,o){return{id:e.type,enabled:!0,icon:T(t),class:void 0,description:`@${e.name}`,label:$(t),tooltip:m(5243,null,$(t)),category:{label:m(5244,null),order:0,showHeader:!0},run:()=>n.invokeFunction(r=>o==="editor"?new Rt().run(r,e):new It().run(r,e))}}static U(t,e){return{id:t,enabled:!0,icon:T(t),class:void 0,label:$(t),tooltip:m(5245,null,$(t)),category:{label:m(5246,null),order:0,showHeader:!0},run:()=>e.invokeFunction(n=>n.get(q).executeCommand(St))}}w(t){if(this.a==="editor"){const e=x("span.action-widget-delegate-label",[x("span",{className:F.asClassName(R.forward)}),x("span",[m(5247,null)])]);return t.appendChild(e.root),null}else{const e=this.b.contextMatchesRules(l.remoteJobCreating)?R.sync:R.forward;return t.classList.add(...F.asClassNameArray(e)),super.w(t)}}};A=v=U([u(2,ct),u(3,J),u(4,dt),u(5,Ct),u(6,k),u(7,lt),u(8,ut)],A);const H="workbench.action.chat.openNewSessionEditor";class It{constructor(){}a(t,e){t.executeCommand(`${H}.${e.type}`)}async run(t,e,n){const o=t.get(J),r=t.get(q),i=t.get($t),a=t.get(mt),d=t.get(gt),h=t.get(V),D=l.remoteJobCreating.bindTo(o);try{D.set(!0);const s=n??i.lastFocusedWidget;if(!s||!s.viewModel)return this.a(r,e);const S=s.viewModel.model;if(!S)return;const g=s.viewModel.sessionResource,K=S.getRequests();let C=s.getInput();if(!C){if(!K.length)return this.a(r,e);C="implement this."}const w=s.input.getAttachedAndImplicitContext(g);if(s.input.acceptInput(!0),s.location===E.EditorInline){const y=h.activeTextEditorControl;if(y){const I=y.getModel();let b;I&&B(I)&&(b=I.uri);const Q=y.getSelection();b&&Q&&w.add({kind:"file",id:"vscode.implicit.selection",name:W(b),value:{uri:b,range:Q}})}}const _=a.getDefaultAgent(E.Chat),z=t.get(k).createInstance(ft),Y=e.type,Z=z.parseChatRequest(g,C,E.Chat),G=S.addRequest(Z,{variables:w.asArray()},0,void 0,_);await d.removeRequest(g,G.id);const N=await d.sendRequest(g,C,{agentIdSilent:Y,attachedContext:w.asArray(),userSelectedModelId:s.input.currentLanguageModel,...s.getModeRequestOptions()});ht.isSent(N)&&await s.handleDelegationExitIfNeeded(_,N.data.agent)}catch(s){throw s}finally{D.set(!1)}}}class Rt{constructor(){}async run(t,e){try{const o=t.get(V).activeTextEditorControl,r=t.get(q);if(!o)return;const i=o.getModel();if(!i||!B(i))return;const a=i.uri,d=[yt(a,wt.PromptFile,void 0,!1,[])],h=`Follow instructions in [${W(a)}](${a.toString()}).`;await r.executeCommand(`${H}.${e.type}`,{prompt:h,attachedContext:d})}catch(n){throw n}}}let O=class extends X{static{this.ID="chat.continueChatInSessionActionRendering"}constructor(t,e){super();const n=t.register(P.EditorContent,M.ID,(o,r,i)=>{if(o instanceof st)return e.createInstance(A,o,"editor")});tt(n)}};O=U([u(0,it),u(1,k)],O);export{M as $OQb,A as $PQb,It as $QQb,O as $RQb,j as ActionLocation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatContinueInSessionActionItem_1;
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { h } from "../../../../../base/browser/dom.js";
+import { Disposable, markAsSingleton } from "../../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { isITextModel } from "../../../../../editor/common/model.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { ActionWidgetDropdownActionViewItem } from "../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";
+import { IActionViewItemService } from "../../../../../platform/actions/browser/actionViewItemService.js";
+import { Action2, MenuId, MenuItemAction } from "../../../../../platform/actions/common/actions.js";
+import { IActionWidgetService } from "../../../../../platform/actionWidget/browser/actionWidget.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IChatAgentService } from "../../common/participants/chatAgents.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { chatEditingWidgetFileStateContextKey } from "../../common/editing/chatEditingService.js";
+import { ChatRequestParser } from "../../common/requestParser/chatRequestParser.js";
+import { ChatSendResult, IChatService } from "../../common/chatService/chatService.js";
+import { IChatSessionsService } from "../../common/chatSessionsService.js";
+import { ChatAgentLocation } from "../../common/constants.js";
+import { PROMPT_LANGUAGE_ID } from "../../common/promptSyntax/promptTypes.js";
+import { AgentSessionProviders, getAgentSessionProviderIcon, getAgentSessionProviderName } from "../agentSessions/agentSessions.js";
+import { IChatWidgetService } from "../chat.js";
+import { ctxHasEditorModification } from "../chatEditing/chatEditingEditorContextKeys.js";
+import { CHAT_SETUP_ACTION_ID } from "./chatActions.js";
+import { PromptFileVariableKind, toPromptFileVariableEntry } from "../../common/attachments/chatVariableEntries.js";
+var ActionLocation;
+(function(ActionLocation2) {
+  ActionLocation2["ChatWidget"] = "chatWidget";
+  ActionLocation2["Editor"] = "editor";
+})(ActionLocation || (ActionLocation = {}));
+class ContinueChatInSessionAction extends Action2 {
+  static {
+    __name(this, "ContinueChatInSessionAction");
+  }
+  static {
+    this.ID = "workbench.action.chat.continueChatInSession";
+  }
+  constructor() {
+    super({
+      id: ContinueChatInSessionAction.ID,
+      title: localize2("continueChatInSession", "Continue Chat in..."),
+      tooltip: localize("continueChatInSession", "Continue Chat in..."),
+      precondition: ContextKeyExpr.and(ChatContextKeys.enabled, ChatContextKeys.requestInProgress.negate(), ChatContextKeys.remoteJobCreating.negate(), ChatContextKeys.hasCanDelegateProviders),
+      menu: [
+        {
+          id: MenuId.ChatExecute,
+          group: "navigation",
+          order: 3.4,
+          when: ContextKeyExpr.and(ChatContextKeys.lockedToCodingAgent.negate(), ChatContextKeys.hasCanDelegateProviders)
+        },
+        {
+          id: MenuId.EditorContent,
+          group: "continueIn",
+          when: ContextKeyExpr.and(ContextKeyExpr.equals(ResourceContextKey.Scheme.key, Schemas.untitled), ContextKeyExpr.equals(ResourceContextKey.LangId.key, PROMPT_LANGUAGE_ID), ContextKeyExpr.notEquals(
+            chatEditingWidgetFileStateContextKey.key,
+            0
+            /* ModifiedFileEntryState.Modified */
+          ), ctxHasEditorModification.negate(), ChatContextKeys.hasCanDelegateProviders)
+        }
+      ]
+    });
+  }
+  async run() {
+  }
+}
+let ChatContinueInSessionActionItem = ChatContinueInSessionActionItem_1 = class ChatContinueInSessionActionItem2 extends ActionWidgetDropdownActionViewItem {
+  static {
+    __name(this, "ChatContinueInSessionActionItem");
+  }
+  constructor(action, location, actionWidgetService, contextKeyService, keybindingService, chatSessionsService, instantiationService, openerService, telemetryService) {
+    super(action, {
+      actionProvider: ChatContinueInSessionActionItem_1.actionProvider(chatSessionsService, instantiationService, location),
+      actionBarActions: ChatContinueInSessionActionItem_1.getActionBarActions(openerService),
+      reporter: { id: "ChatContinueInSession", name: "ChatContinueInSession", includeOptions: true }
+    }, actionWidgetService, keybindingService, contextKeyService, telemetryService);
+    this.location = location;
+    this.contextKeyService = contextKeyService;
+  }
+  static getActionBarActions(openerService) {
+    const learnMoreUrl = "https://aka.ms/vscode-continue-chat-in";
+    return [{
+      id: "workbench.action.chat.continueChatInSession.learnMore",
+      label: localize("chat.learnMore", "Learn More"),
+      tooltip: localize("chat.learnMore", "Learn More"),
+      class: void 0,
+      enabled: true,
+      run: /* @__PURE__ */ __name(async () => {
+        await openerService.open(URI.parse(learnMoreUrl));
+      }, "run")
+    }];
+  }
+  static actionProvider(chatSessionsService, instantiationService, location) {
+    return {
+      getActions: /* @__PURE__ */ __name(() => {
+        const actions = [];
+        const contributions = chatSessionsService.getAllChatSessionContributions();
+        const backgroundContrib = contributions.find((contrib) => contrib.type === AgentSessionProviders.Background);
+        if (backgroundContrib && backgroundContrib.canDelegate) {
+          actions.push(this.toAction(AgentSessionProviders.Background, backgroundContrib, instantiationService, location));
+        }
+        const cloudContrib = contributions.find((contrib) => contrib.type === AgentSessionProviders.Cloud);
+        if (cloudContrib && cloudContrib.canDelegate) {
+          actions.push(this.toAction(AgentSessionProviders.Cloud, cloudContrib, instantiationService, location));
+        }
+        if (actions.length === 0) {
+          actions.push(this.toSetupAction(AgentSessionProviders.Background, instantiationService));
+          actions.push(this.toSetupAction(AgentSessionProviders.Cloud, instantiationService));
+        }
+        return actions;
+      }, "getActions")
+    };
+  }
+  static toAction(provider, contrib, instantiationService, location) {
+    return {
+      id: contrib.type,
+      enabled: true,
+      icon: getAgentSessionProviderIcon(provider),
+      class: void 0,
+      description: `@${contrib.name}`,
+      label: getAgentSessionProviderName(provider),
+      tooltip: localize("continueSessionIn", "Continue in {0}", getAgentSessionProviderName(provider)),
+      category: { label: localize("continueIn", "Continue In"), order: 0, showHeader: true },
+      run: /* @__PURE__ */ __name(() => instantiationService.invokeFunction((accessor) => {
+        if (location === "editor") {
+          return new CreateRemoteAgentJobFromEditorAction().run(accessor, contrib);
+        }
+        return new CreateRemoteAgentJobAction().run(accessor, contrib);
+      }), "run")
+    };
+  }
+  static toSetupAction(provider, instantiationService) {
+    return {
+      id: provider,
+      enabled: true,
+      icon: getAgentSessionProviderIcon(provider),
+      class: void 0,
+      label: getAgentSessionProviderName(provider),
+      tooltip: localize("continueSessionIn", "Continue in {0}", getAgentSessionProviderName(provider)),
+      category: { label: localize("continueIn", "Continue In"), order: 0, showHeader: true },
+      run: /* @__PURE__ */ __name(() => instantiationService.invokeFunction((accessor) => {
+        const commandService = accessor.get(ICommandService);
+        return commandService.executeCommand(CHAT_SETUP_ACTION_ID);
+      }), "run")
+    };
+  }
+  renderLabel(element) {
+    if (this.location === "editor") {
+      const view = h("span.action-widget-delegate-label", [
+        h("span", { className: ThemeIcon.asClassName(Codicon.forward) }),
+        h("span", [localize("continueInEllipsis", "Continue in...")])
+      ]);
+      element.appendChild(view.root);
+      return null;
+    } else {
+      const icon = this.contextKeyService.contextMatchesRules(ChatContextKeys.remoteJobCreating) ? Codicon.sync : Codicon.forward;
+      element.classList.add(...ThemeIcon.asClassNameArray(icon));
+      return super.renderLabel(element);
+    }
+  }
+};
+ChatContinueInSessionActionItem = ChatContinueInSessionActionItem_1 = __decorate([
+  __param(2, IActionWidgetService),
+  __param(3, IContextKeyService),
+  __param(4, IKeybindingService),
+  __param(5, IChatSessionsService),
+  __param(6, IInstantiationService),
+  __param(7, IOpenerService),
+  __param(8, ITelemetryService)
+], ChatContinueInSessionActionItem);
+const NEW_CHAT_SESSION_ACTION_ID = "workbench.action.chat.openNewSessionEditor";
+class CreateRemoteAgentJobAction {
+  static {
+    __name(this, "CreateRemoteAgentJobAction");
+  }
+  constructor() {
+  }
+  openUntitledEditor(commandService, continuationTarget) {
+    commandService.executeCommand(`${NEW_CHAT_SESSION_ACTION_ID}.${continuationTarget.type}`);
+  }
+  async run(accessor, continuationTarget, _widget) {
+    const contextKeyService = accessor.get(IContextKeyService);
+    const commandService = accessor.get(ICommandService);
+    const widgetService = accessor.get(IChatWidgetService);
+    const chatAgentService = accessor.get(IChatAgentService);
+    const chatService = accessor.get(IChatService);
+    const editorService = accessor.get(IEditorService);
+    const remoteJobCreatingKey = ChatContextKeys.remoteJobCreating.bindTo(contextKeyService);
+    try {
+      remoteJobCreatingKey.set(true);
+      const widget = _widget ?? widgetService.lastFocusedWidget;
+      if (!widget || !widget.viewModel) {
+        return this.openUntitledEditor(commandService, continuationTarget);
+      }
+      const chatModel = widget.viewModel.model;
+      if (!chatModel) {
+        return;
+      }
+      const sessionResource = widget.viewModel.sessionResource;
+      const chatRequests = chatModel.getRequests();
+      let userPrompt = widget.getInput();
+      if (!userPrompt) {
+        if (!chatRequests.length) {
+          return this.openUntitledEditor(commandService, continuationTarget);
+        }
+        userPrompt = "implement this.";
+      }
+      const attachedContext = widget.input.getAttachedAndImplicitContext(sessionResource);
+      widget.input.acceptInput(true);
+      if (widget.location === ChatAgentLocation.EditorInline) {
+        const activeEditor = editorService.activeTextEditorControl;
+        if (activeEditor) {
+          const model = activeEditor.getModel();
+          let activeEditorUri = void 0;
+          if (model && isITextModel(model)) {
+            activeEditorUri = model.uri;
+          }
+          const selection = activeEditor.getSelection();
+          if (activeEditorUri && selection) {
+            attachedContext.add({
+              kind: "file",
+              id: "vscode.implicit.selection",
+              name: basename(activeEditorUri),
+              value: {
+                uri: activeEditorUri,
+                range: selection
+              }
+            });
+          }
+        }
+      }
+      const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Chat);
+      const instantiationService = accessor.get(IInstantiationService);
+      const requestParser = instantiationService.createInstance(ChatRequestParser);
+      const continuationTargetType = continuationTarget.type;
+      const parsedRequest = requestParser.parseChatRequest(sessionResource, userPrompt, ChatAgentLocation.Chat);
+      const addedRequest = chatModel.addRequest(parsedRequest, { variables: attachedContext.asArray() }, 0, void 0, defaultAgent);
+      await chatService.removeRequest(sessionResource, addedRequest.id);
+      const sendResult = await chatService.sendRequest(sessionResource, userPrompt, {
+        agentIdSilent: continuationTargetType,
+        attachedContext: attachedContext.asArray(),
+        userSelectedModelId: widget.input.currentLanguageModel,
+        ...widget.getModeRequestOptions()
+      });
+      if (ChatSendResult.isSent(sendResult)) {
+        await widget.handleDelegationExitIfNeeded(defaultAgent, sendResult.data.agent);
+      }
+    } catch (e) {
+      console.error("Error creating remote coding agent job", e);
+      throw e;
+    } finally {
+      remoteJobCreatingKey.set(false);
+    }
+  }
+}
+class CreateRemoteAgentJobFromEditorAction {
+  static {
+    __name(this, "CreateRemoteAgentJobFromEditorAction");
+  }
+  constructor() {
+  }
+  async run(accessor, continuationTarget) {
+    try {
+      const editorService = accessor.get(IEditorService);
+      const activeEditor = editorService.activeTextEditorControl;
+      const commandService = accessor.get(ICommandService);
+      if (!activeEditor) {
+        return;
+      }
+      const model = activeEditor.getModel();
+      if (!model || !isITextModel(model)) {
+        return;
+      }
+      const uri = model.uri;
+      const attachedContext = [toPromptFileVariableEntry(uri, PromptFileVariableKind.PromptFile, void 0, false, [])];
+      const prompt = `Follow instructions in [${basename(uri)}](${uri.toString()}).`;
+      await commandService.executeCommand(`${NEW_CHAT_SESSION_ACTION_ID}.${continuationTarget.type}`, { prompt, attachedContext });
+    } catch (e) {
+      console.error("Error creating remote agent job from editor", e);
+      throw e;
+    }
+  }
+}
+let ContinueChatInSessionActionRendering = class ContinueChatInSessionActionRendering2 extends Disposable {
+  static {
+    __name(this, "ContinueChatInSessionActionRendering");
+  }
+  static {
+    this.ID = "chat.continueChatInSessionActionRendering";
+  }
+  constructor(actionViewItemService, instantiationService) {
+    super();
+    const disposable = actionViewItemService.register(MenuId.EditorContent, ContinueChatInSessionAction.ID, (action, options, instantiationService2) => {
+      if (!(action instanceof MenuItemAction)) {
+        return void 0;
+      }
+      return instantiationService.createInstance(
+        ChatContinueInSessionActionItem,
+        action,
+        "editor"
+        /* ActionLocation.Editor */
+      );
+    });
+    markAsSingleton(disposable);
+  }
+};
+ContinueChatInSessionActionRendering = __decorate([
+  __param(0, IActionViewItemService),
+  __param(1, IInstantiationService)
+], ContinueChatInSessionActionRendering);
+export {
+  ActionLocation,
+  ChatContinueInSessionActionItem,
+  ContinueChatInSessionAction,
+  ContinueChatInSessionActionRendering,
+  CreateRemoteAgentJobAction
+};
+//# sourceMappingURL=chatContinueInAction.js.map

@@ -1,1 +1,456 @@
-import{$V as q}from"../../base/common/performance.js";import{$I9 as Y,$Q9 as O,$S9 as ee,getWindow as re}from"../../base/browser/dom.js";import{$gd as oe}from"../../base/common/types.js";import{$Lj as te}from"../../platform/instantiation/common/serviceCollection.js";import{$yo as N,$Ho as ie,$Oo as ne,$zo as se}from"../../platform/log/common/log.js";import{$ABb as ce}from"../../platform/log/browser/log.js";import{$Ed as me,$Dd as ae,$Cd as B}from"../../base/common/lifecycle.js";import{$ecb as fe,$dcb as j}from"../services/environment/browser/environmentService.js";import{$iMc as pe}from"./workbench.js";import{$o7 as de}from"../services/remote/common/remoteFileSystemProviderClient.js";import{$Vn as V}from"../../platform/product/common/productService.js";import le from"../../platform/product/common/product.js";import{$kMc as ue}from"../services/remote/browser/remoteAgentService.js";import{$lMc as $e}from"../../platform/remote/browser/remoteAuthorityResolverService.js";import{$eC as Q}from"../../platform/remote/common/remoteAuthorityResolver.js";import{$4N as he}from"../services/remote/common/remoteAgentService.js";import{$vk as we}from"../../platform/files/common/files.js";import{$0B as ge}from"../../platform/files/common/fileService.js";import{Schemas as g,$kh as ve}from"../../base/common/network.js";import{$Ml as ye,$Ql as Se,$5l as be,$Sl as Pe}from"../../platform/workspace/common/workspace.js";import{$KM as Me}from"../services/configuration/common/configuration.js";import{$mb as G}from"../../base/common/errors.js";import{$37 as De}from"../../base/browser/browser.js";import{URI as I}from"../../base/common/uri.js";import{$xMc as ke}from"../services/configuration/browser/configurationService.js";import{$yMc as Re}from"../services/configuration/common/configurationCache.js";import{$Xy as Le}from"../../platform/sign/common/sign.js";import{$zMc as Ue}from"../../platform/sign/browser/signService.js";import{$AMc as J}from"../services/storage/browser/storageService.js";import{$hp as K}from"../../platform/storage/common/storage.js";import{$Tn as Ae}from"../../base/common/date.js";import{$Gu as Ce,$Hu as Ie}from"../../platform/window/common/window.js";import{$DMc as Te,$CMc as xe}from"../services/workspaces/browser/workspaces.js";import{$ybc as T}from"../../platform/files/common/inMemoryFilesystemProvider.js";import{$uo as He}from"../../platform/commands/common/commands.js";import{$EMc as X}from"../../platform/files/browser/indexedDBFileSystemProvider.js";import{$FMc as Ee}from"../services/request/browser/requestService.js";import{$Vo as Fe}from"../../platform/request/common/request.js";import{$mac as We,$nac as ze}from"../services/userData/browser/userDataInit.js";import{$Mbc as qe}from"../../platform/userDataSync/common/userDataSyncStoreService.js";import{$1Kb as Ne}from"../../platform/userDataSync/common/userDataSync.js";import{$WN as Be}from"../services/lifecycle/common/lifecycle.js";import{$vL as je,$qL as Ve,$wL as Qe}from"../../platform/actions/common/actions.js";import{$Mj as Ge}from"../../platform/instantiation/common/instantiation.js";import{localize as Je,localize2 as Ke}from"../../nls.js";import{$to as Xe}from"../../platform/action/common/actionCommonCategories.js";import{$Mp as Ze}from"../../platform/dialogs/common/dialogs.js";import{$gcb as _e}from"../services/host/browser/host.js";import{$$o as Ye}from"../../platform/uriIdentity/common/uriIdentity.js";import{$YC as Oe}from"../../platform/uriIdentity/common/uriIdentityService.js";import{$EBb as er}from"./window.js";import{$f7b as rr}from"../services/timer/browser/timerService.js";import{$OLb as or,$PLb as tr}from"../services/workspaces/common/workspaceTrust.js";import{$1H as ir,$2H as nr}from"../../platform/workspace/common/workspaceTrust.js";import{$idb as sr}from"../../platform/files/browser/htmlFileSystemProvider.js";import{$EP as cr}from"../../platform/opener/common/opener.js";import{$Fp as mr,$Hp as ar}from"../../base/common/objects.js";import{$X$ as fr}from"../../base/browser/indexedDB.js";import{WebFileSystemAccess as pr}from"../../platform/files/browser/webFileSystemAccess.js";import{$uH as dr}from"../../platform/progress/common/progress.js";import{$GMc as lr}from"../services/output/common/delayedLogChannel.js";import{$Hh as ur,$Ih as $r}from"../../base/common/resources.js";import{$ap as hr}from"../../platform/userDataProfile/common/userDataProfile.js";import{$Bu as wr}from"../../platform/policy/common/policy.js";import{$W9b as gr}from"../services/remote/common/remoteExplorerService.js";import{$HC as vr,TunnelProtocol as Z}from"../../platform/tunnel/common/tunnel.js";import{$oH as yr}from"../../platform/label/common/label.js";import{$HMc as Sr}from"../services/userDataProfile/common/userDataProfileService.js";import{$LQ as br}from"../services/userDataProfile/common/userDataProfile.js";import{$IMc as Pr}from"../../platform/userDataProfile/browser/userDataProfile.js";import{$ui as Mr,$0h as Dr}from"../../base/common/async.js";import{$WLb as _,$VLb as kr}from"../services/log/common/logConstants.js";import{$ZC as Rr}from"../../platform/log/common/logService.js";import{$jC as Lr,$kC as Ur}from"../../platform/remote/common/remoteSocketFactoryService.js";import{$ccb as Ar}from"../../platform/remote/browser/browserSocketFactory.js";import{$0i as Cr}from"../../base/common/buffer.js";import{$JMc as Ir}from"../services/userDataProfile/browser/userDataProfileInit.js";import{$7Mc as Tr}from"../services/userDataSync/browser/userDataSyncInit.js";import{$8Mc as xr}from"../services/remote/browser/browserRemoteResourceHandler.js";import{$cC as Hr}from"../../platform/log/common/bufferLog.js";import{$9Mc as Er}from"../../platform/log/common/fileLog.js";import{$icb as Fr}from"../services/terminal/common/embedderTerminalService.js";import{$0Mc as Wr}from"../services/secrets/browser/secretStorageService.js";import{$$Mc as zr}from"../services/encryption/browser/encryptionService.js";import{$Mn as qr}from"../../platform/encryption/common/encryptionService.js";import{$tR as Nr}from"../../platform/secrets/common/secrets.js";import{TunnelSource as Br}from"../services/remote/common/tunnelModel.js";import{$T7 as x}from"../../base/browser/window.js";import{$pH as jr,Severity as Vr}from"../../platform/notification/common/notification.js";import{$IP as Qr}from"../../platform/defaultAccount/common/defaultAccount.js";import{$Occ as Gr}from"../services/accounts/browser/defaultAccount.js";import{$_Mc as Jr}from"../services/policies/common/accountPolicyService.js";import{$aNc as Kr}from"../services/layout/browser/workbenchModeService.js";import{$bMc as Xr}from"../services/layout/common/workbenchModeService.js";class Wt extends me{constructor(e,t){super(),this.c=e,this.f=t,this.a=this.D(new ae),this.b=[],this.g()}g(){De(!!O(x),x)}async open(){const[e]=await Promise.all([this.j(),Y(re(this.c))]),t=new pe(this.c,void 0,e.serviceCollection,e.logService);this.h(t);const s=t.startup();return this.D(s.createInstance(er)),e.logService.trace("workbench#open with configuration",ar(this.f)),s.invokeFunction(o=>{const r=o.get(He),a=o.get(Be),c=o.get(rr),p=o.get(cr),f=o.get(V),l=o.get(dr),n=o.get(j),$=o.get(Ge),L=o.get(gr),U=o.get(yr),P=o.get(Fr),k=o.get(Q),h=o.get(jr);async function v(i,m,...S){const b=new Mr,M=h.prompt(i,m,S.map(D=>({label:D,run:()=>b.complete(D)}))),d=M.onDidClose(()=>{b.complete(void 0),d.dispose()}),w=await b.p;return M.close(),w}let y;return{commands:{executeCommand:(i,...m)=>r.executeCommand(i,...m)},env:{async getUriScheme(){return f.urlProtocol},async retrievePerformanceMarks(){return await c.whenReady(),c.getPerformanceMarks()},async openUri(i){return p.open(I.isUri(i)?i:I.from(i),{})}},logger:{log:(i,m)=>{y||(y=$.createInstance(lr,"webEmbedder",f.embedderIdentifier||f.nameShort,$r(ur(n.logFile),"webEmbedder.log"))),y.log(i,m)}},window:{withProgress:(i,m)=>l.withProgress(i,m),createTerminal:async i=>P.createTerminal(i),showInformationMessage:(i,...m)=>v(Vr.Info,i,...m)},workspace:{didResolveRemoteAuthority:async()=>{this.f.remoteAuthority&&await k.resolveAuthority(this.f.remoteAuthority)},openTunnel:async i=>{const m=oe(await L.forward({remote:i.remoteAddress,local:i.localAddressPort,name:i.label,source:{source:Br.Extension,description:U.getHostLabel(g.vscodeRemote,this.f.remoteAuthority)},elevateIfNeeded:!1,privacy:i.privacy},{label:i.label,elevateIfNeeded:void 0,onAutoForward:void 0,requireLocalPort:void 0,protocol:i.protocol===Z.Https?i.protocol:Z.Http}));if(typeof m=="string")throw new Error(m);return new class extends vr{}({port:m.tunnelRemotePort,host:m.tunnelRemoteHost},m.localAddress,()=>m.dispose())}},shutdown:()=>a.shutdown()}})}h(e){this.D(e.onWillShutdown(()=>this.a.clear())),this.D(e.onDidShutdown(()=>this.dispose()))}async j(){const e=new te,t=this.u(),s=mr({_serviceBrand:void 0,...le},this.f.productConfiguration);e.set(V,s);const o=I.file(Ae(new Date).replace(/-|:|\.\d+Z$/g,"")).with({scheme:"vscode-log"}),r=new fe(t.id,o,this.f,s);e.set(j,r);const a=new Hr,c=this.D(new ge(a));e.set(we,c);const p=new Er(ne(r),o,c);e.set(se,p);const f=[new ie(p.getLogLevel())];r.isExtensionDevelopment&&r.extensionTestsLocationURI&&f.push(new ce(p.getLogLevel()));const l=p.createLogger(r.logFile,{id:kr,name:_.name,group:_}),n=new Rr(l,f);e.set(N,n),a.logger=n,await this.n(r,c,n,p,o);const $=r.options.connectionToken||ee(ve),L=this.f.remoteResourceProvider?new xr(c,this.f.remoteResourceProvider):void 0,U=this.f.resourceUriProvider??L?.getResourceUriProvider(),P=new $e(!r.expectsResolverExtension,$,U,this.f.serverBasePath,s,n);e.set(Q,P);const k=new Ue(s);e.set(Le,k);const h=new Oe(c);e.set(Ye,h);const v=new Pr(r,c,h,n);e.set(hr,v);const y=await this.t(t,v,r);await v.setProfileForWorkspace(t,y);const i=new Sr(y);e.set(br,i);const m=new Ur;m.register(0,new Ar(this.f.webSocketFactory)),e.set(Lr,m);const S=this.D(new ue(m,i,r,s,P,k,n));e.set(he,S),this.D(de.register(S,c,n));const b=this.D(new Gr(s));e.set(Qr,b);const M=new Jr(n,b);e.set(wr,M);const[d,w]=await Promise.all([this.s(t,r,i,v,c,S,h,M,n).then(u=>(e.set(ye,u),e.set(Me,u),u)),this.r(t,n,i).then(u=>(e.set(K,u),u))]),D=this.D(new Kr(d,c,r,h,n,w));e.set(Xr,D);try{await D.initialize()}catch(u){n.error("Error while initializing workbench mode service",u)}const H=new or(d,r);e.set(ir,H);const R=new tr(d,P,w,h,r,d,H,c);e.set(nr,R),d.updateWorkspaceTrust(R.isWorkspaceTrusted()),this.D(R.onDidChangeTrust(()=>d.updateWorkspaceTrust(R.isWorkspaceTrusted())));const A=new Ee(S,d,p);e.set(Fe,A);const E=new qe(s,d,w);e.set(Ne,E);const F=new zr;e.set(qr,F);const W=new Wr(w,F,r,n);e.set(Nr,W);const C=[];C.push(new Tr(r,W,E,c,v,w,s,A,n,h)),r.options.profile&&C.push(new Ir(r,c,i,w,n,h,A));const z=new ze(C);e.set(We,z);try{await Promise.race([Dr(5e3),this.m(z,d)])}catch(u){n.error(u)}return{serviceCollection:e,configurationService:d,logService:n}}async m(e,t){await e.requiresInitialization()&&(q("code/willInitRequiredUserData"),await e.initializeRequiredResources(),await t.reloadLocalUserConfiguration(),q("code/didInitRequiredUserData"))}async n(e,t,s,o,r){let a;const c="vscode-userdata-store",p="vscode-logs-store",f="vscode-filehandles-store";try{a=await fr.create("vscode-web-db",3,[c,p,f]),this.a.add(B(()=>a?.close()))}catch(n){s.error("Error while creating IndexedDB",n)}if(a){const n=new X(r.scheme,a,p,!1);this.b.push(n),t.registerProvider(r.scheme,n)}else t.registerProvider(r.scheme,new T);let l;a?(l=new X(g.vscodeUserData,a,c,!0),this.b.push(l),this.q(l)):(s.info("Using in-memory user data provider"),l=new T),t.registerProvider(g.vscodeUserData,l),pr.supported(x)&&t.registerProvider(g.file,new sr(a,f,s)),t.registerProvider(g.tmp,new T)}q(e){this.D(Qe(class extends je{constructor(){super({id:"workbench.action.resetUserData",title:Ke(4157,"Reset User Data"),category:Xe.Developer,menu:{id:Ve.CommandPalette}})}async run(s){const o=s.get(Ze),r=s.get(_e),a=s.get(K),c=s.get(N);if((await o.confirm({message:Je(4156,null)})).confirmed)try{await e?.reset(),a instanceof J&&await a.clear()}catch(f){throw c.error(f),f}r.reload()}}))}async r(e,t,s){const o=new J(e,s,t);try{return await o.initialize(),this.a.add(B(()=>o.close())),o}catch(r){return G(r),t.error(r),o}}async s(e,t,s,o,r,a,c,p,f){if(Pe(e)&&be(e.configPath))try{const $={folders:[]};await r.createFile(e.configPath,Cr.fromString(JSON.stringify($,null,"	")),{overwrite:!1})}catch{}const l=new Re([g.file,g.vscodeUserData,g.tmp],t,r),n=new ke({remoteAuthority:this.f.remoteAuthority,configurationCache:l},t,s,o,r,a,c,f,p);try{return await n.initialize(e),n}catch($){return G($),f.error($),n}}async t(e,t,s){const o=s.options?.profile?.name??s.profile;if(o){const r=t.profiles.find(a=>a.name===o);return r||t.createNamedProfile(o,void 0,e)}return t.getProfileForWorkspace(e)??t.defaultProfile}u(){let e;return this.f.workspaceProvider&&(e=this.f.workspaceProvider.workspace),e&&Ce(e)?xe(e.workspaceUri):e&&Ie(e)?Te(e.folderUri):Se}}export{Wt as $bNc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { mark } from "../../base/common/performance.js";
+import { domContentLoaded, detectFullscreen, getCookieValue, getWindow } from "../../base/browser/dom.js";
+import { assertReturnsDefined } from "../../base/common/types.js";
+import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
+import { ILogService, ConsoleLogger, getLogLevel, ILoggerService } from "../../platform/log/common/log.js";
+import { ConsoleLogInAutomationLogger } from "../../platform/log/browser/log.js";
+import { Disposable, DisposableStore, toDisposable } from "../../base/common/lifecycle.js";
+import { BrowserWorkbenchEnvironmentService, IBrowserWorkbenchEnvironmentService } from "../services/environment/browser/environmentService.js";
+import { Workbench } from "./workbench.js";
+import { RemoteFileSystemProviderClient } from "../services/remote/common/remoteFileSystemProviderClient.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import product from "../../platform/product/common/product.js";
+import { RemoteAgentService } from "../services/remote/browser/remoteAgentService.js";
+import { RemoteAuthorityResolverService } from "../../platform/remote/browser/remoteAuthorityResolverService.js";
+import { IRemoteAuthorityResolverService } from "../../platform/remote/common/remoteAuthorityResolver.js";
+import { IRemoteAgentService } from "../services/remote/common/remoteAgentService.js";
+import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
+import { Schemas, connectionTokenCookieName } from "../../base/common/network.js";
+import { IWorkspaceContextService, UNKNOWN_EMPTY_WINDOW_WORKSPACE, isTemporaryWorkspace, isWorkspaceIdentifier } from "../../platform/workspace/common/workspace.js";
+import { IWorkbenchConfigurationService } from "../services/configuration/common/configuration.js";
+import { onUnexpectedError } from "../../base/common/errors.js";
+import { setFullscreen } from "../../base/browser/browser.js";
+import { URI } from "../../base/common/uri.js";
+import { WorkspaceService } from "../services/configuration/browser/configurationService.js";
+import { ConfigurationCache } from "../services/configuration/common/configurationCache.js";
+import { ISignService } from "../../platform/sign/common/sign.js";
+import { SignService } from "../../platform/sign/browser/signService.js";
+import { BrowserStorageService } from "../services/storage/browser/storageService.js";
+import { IStorageService } from "../../platform/storage/common/storage.js";
+import { toLocalISOString } from "../../base/common/date.js";
+import { isWorkspaceToOpen, isFolderToOpen } from "../../platform/window/common/window.js";
+import { getSingleFolderWorkspaceIdentifier, getWorkspaceIdentifier } from "../services/workspaces/browser/workspaces.js";
+import { InMemoryFileSystemProvider } from "../../platform/files/common/inMemoryFilesystemProvider.js";
+import { ICommandService } from "../../platform/commands/common/commands.js";
+import { IndexedDBFileSystemProvider } from "../../platform/files/browser/indexedDBFileSystemProvider.js";
+import { BrowserRequestService } from "../services/request/browser/requestService.js";
+import { IRequestService } from "../../platform/request/common/request.js";
+import { IUserDataInitializationService, UserDataInitializationService } from "../services/userData/browser/userDataInit.js";
+import { UserDataSyncStoreManagementService } from "../../platform/userDataSync/common/userDataSyncStoreService.js";
+import { IUserDataSyncStoreManagementService } from "../../platform/userDataSync/common/userDataSync.js";
+import { ILifecycleService } from "../services/lifecycle/common/lifecycle.js";
+import { Action2, MenuId, registerAction2 } from "../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { localize, localize2 } from "../../nls.js";
+import { Categories } from "../../platform/action/common/actionCommonCategories.js";
+import { IDialogService } from "../../platform/dialogs/common/dialogs.js";
+import { IHostService } from "../services/host/browser/host.js";
+import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
+import { UriIdentityService } from "../../platform/uriIdentity/common/uriIdentityService.js";
+import { BrowserWindow } from "./window.js";
+import { ITimerService } from "../services/timer/browser/timerService.js";
+import { WorkspaceTrustEnablementService, WorkspaceTrustManagementService } from "../services/workspaces/common/workspaceTrust.js";
+import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService } from "../../platform/workspace/common/workspaceTrust.js";
+import { HTMLFileSystemProvider } from "../../platform/files/browser/htmlFileSystemProvider.js";
+import { IOpenerService } from "../../platform/opener/common/opener.js";
+import { mixin, safeStringify } from "../../base/common/objects.js";
+import { IndexedDB } from "../../base/browser/indexedDB.js";
+import { WebFileSystemAccess } from "../../platform/files/browser/webFileSystemAccess.js";
+import { IProgressService } from "../../platform/progress/common/progress.js";
+import { DelayedLogChannel } from "../services/output/common/delayedLogChannel.js";
+import { dirname, joinPath } from "../../base/common/resources.js";
+import { IUserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfile.js";
+import { IPolicyService } from "../../platform/policy/common/policy.js";
+import { IRemoteExplorerService } from "../services/remote/common/remoteExplorerService.js";
+import { DisposableTunnel, TunnelProtocol } from "../../platform/tunnel/common/tunnel.js";
+import { ILabelService } from "../../platform/label/common/label.js";
+import { UserDataProfileService } from "../services/userDataProfile/common/userDataProfileService.js";
+import { IUserDataProfileService } from "../services/userDataProfile/common/userDataProfile.js";
+import { BrowserUserDataProfilesService } from "../../platform/userDataProfile/browser/userDataProfile.js";
+import { DeferredPromise, timeout } from "../../base/common/async.js";
+import { windowLogGroup, windowLogId } from "../services/log/common/logConstants.js";
+import { LogService } from "../../platform/log/common/logService.js";
+import { IRemoteSocketFactoryService, RemoteSocketFactoryService } from "../../platform/remote/common/remoteSocketFactoryService.js";
+import { BrowserSocketFactory } from "../../platform/remote/browser/browserSocketFactory.js";
+import { VSBuffer } from "../../base/common/buffer.js";
+import { UserDataProfileInitializer } from "../services/userDataProfile/browser/userDataProfileInit.js";
+import { UserDataSyncInitializer } from "../services/userDataSync/browser/userDataSyncInit.js";
+import { BrowserRemoteResourceLoader } from "../services/remote/browser/browserRemoteResourceHandler.js";
+import { BufferLogger } from "../../platform/log/common/bufferLog.js";
+import { FileLoggerService } from "../../platform/log/common/fileLog.js";
+import { IEmbedderTerminalService } from "../services/terminal/common/embedderTerminalService.js";
+import { BrowserSecretStorageService } from "../services/secrets/browser/secretStorageService.js";
+import { EncryptionService } from "../services/encryption/browser/encryptionService.js";
+import { IEncryptionService } from "../../platform/encryption/common/encryptionService.js";
+import { ISecretStorageService } from "../../platform/secrets/common/secrets.js";
+import { TunnelSource } from "../services/remote/common/tunnelModel.js";
+import { mainWindow } from "../../base/browser/window.js";
+import { INotificationService, Severity } from "../../platform/notification/common/notification.js";
+import { IDefaultAccountService } from "../../platform/defaultAccount/common/defaultAccount.js";
+import { DefaultAccountService } from "../services/accounts/browser/defaultAccount.js";
+import { AccountPolicyService } from "../services/policies/common/accountPolicyService.js";
+import { WorkbenchModeService } from "../services/layout/browser/workbenchModeService.js";
+import { IWorkbenchModeService } from "../services/layout/common/workbenchModeService.js";
+class BrowserMain extends Disposable {
+  static {
+    __name(this, "BrowserMain");
+  }
+  constructor(domElement, configuration) {
+    super();
+    this.domElement = domElement;
+    this.configuration = configuration;
+    this.onWillShutdownDisposables = this._register(new DisposableStore());
+    this.indexedDBFileSystemProviders = [];
+    this.init();
+  }
+  init() {
+    setFullscreen(!!detectFullscreen(mainWindow), mainWindow);
+  }
+  async open() {
+    const [services] = await Promise.all([this.initServices(), domContentLoaded(getWindow(this.domElement))]);
+    const workbench = new Workbench(this.domElement, void 0, services.serviceCollection, services.logService);
+    this.registerListeners(workbench);
+    const instantiationService = workbench.startup();
+    this._register(instantiationService.createInstance(BrowserWindow));
+    services.logService.trace("workbench#open with configuration", safeStringify(this.configuration));
+    return instantiationService.invokeFunction((accessor) => {
+      const commandService = accessor.get(ICommandService);
+      const lifecycleService = accessor.get(ILifecycleService);
+      const timerService = accessor.get(ITimerService);
+      const openerService = accessor.get(IOpenerService);
+      const productService = accessor.get(IProductService);
+      const progressService = accessor.get(IProgressService);
+      const environmentService = accessor.get(IBrowserWorkbenchEnvironmentService);
+      const instantiationService2 = accessor.get(IInstantiationService);
+      const remoteExplorerService = accessor.get(IRemoteExplorerService);
+      const labelService = accessor.get(ILabelService);
+      const embedderTerminalService = accessor.get(IEmbedderTerminalService);
+      const remoteAuthorityResolverService = accessor.get(IRemoteAuthorityResolverService);
+      const notificationService = accessor.get(INotificationService);
+      async function showMessage(severity, message, ...items) {
+        const choice = new DeferredPromise();
+        const handle = notificationService.prompt(severity, message, items.map((item) => ({
+          label: item,
+          run: /* @__PURE__ */ __name(() => choice.complete(item), "run")
+        })));
+        const disposable = handle.onDidClose(() => {
+          choice.complete(void 0);
+          disposable.dispose();
+        });
+        const result = await choice.p;
+        handle.close();
+        return result;
+      }
+      __name(showMessage, "showMessage");
+      let logger = void 0;
+      return {
+        commands: {
+          executeCommand: /* @__PURE__ */ __name((command, ...args) => commandService.executeCommand(command, ...args), "executeCommand")
+        },
+        env: {
+          async getUriScheme() {
+            return productService.urlProtocol;
+          },
+          async retrievePerformanceMarks() {
+            await timerService.whenReady();
+            return timerService.getPerformanceMarks();
+          },
+          async openUri(uri) {
+            return openerService.open(URI.isUri(uri) ? uri : URI.from(uri), {});
+          }
+        },
+        logger: {
+          log: /* @__PURE__ */ __name((level, message) => {
+            if (!logger) {
+              logger = instantiationService2.createInstance(DelayedLogChannel, "webEmbedder", productService.embedderIdentifier || productService.nameShort, joinPath(dirname(environmentService.logFile), "webEmbedder.log"));
+            }
+            logger.log(level, message);
+          }, "log")
+        },
+        window: {
+          withProgress: /* @__PURE__ */ __name((options, task) => progressService.withProgress(options, task), "withProgress"),
+          createTerminal: /* @__PURE__ */ __name(async (options) => embedderTerminalService.createTerminal(options), "createTerminal"),
+          showInformationMessage: /* @__PURE__ */ __name((message, ...items) => showMessage(Severity.Info, message, ...items), "showInformationMessage")
+        },
+        workspace: {
+          didResolveRemoteAuthority: /* @__PURE__ */ __name(async () => {
+            if (!this.configuration.remoteAuthority) {
+              return;
+            }
+            await remoteAuthorityResolverService.resolveAuthority(this.configuration.remoteAuthority);
+          }, "didResolveRemoteAuthority"),
+          openTunnel: /* @__PURE__ */ __name(async (tunnelOptions) => {
+            const tunnel = assertReturnsDefined(await remoteExplorerService.forward({
+              remote: tunnelOptions.remoteAddress,
+              local: tunnelOptions.localAddressPort,
+              name: tunnelOptions.label,
+              source: {
+                source: TunnelSource.Extension,
+                description: labelService.getHostLabel(Schemas.vscodeRemote, this.configuration.remoteAuthority)
+              },
+              elevateIfNeeded: false,
+              privacy: tunnelOptions.privacy
+            }, {
+              label: tunnelOptions.label,
+              elevateIfNeeded: void 0,
+              onAutoForward: void 0,
+              requireLocalPort: void 0,
+              protocol: tunnelOptions.protocol === TunnelProtocol.Https ? tunnelOptions.protocol : TunnelProtocol.Http
+            }));
+            if (typeof tunnel === "string") {
+              throw new Error(tunnel);
+            }
+            return new class extends DisposableTunnel {
+            }({
+              port: tunnel.tunnelRemotePort,
+              host: tunnel.tunnelRemoteHost
+            }, tunnel.localAddress, () => tunnel.dispose());
+          }, "openTunnel")
+        },
+        shutdown: /* @__PURE__ */ __name(() => lifecycleService.shutdown(), "shutdown")
+      };
+    });
+  }
+  registerListeners(workbench) {
+    this._register(workbench.onWillShutdown(() => this.onWillShutdownDisposables.clear()));
+    this._register(workbench.onDidShutdown(() => this.dispose()));
+  }
+  async initServices() {
+    const serviceCollection = new ServiceCollection();
+    const workspace = this.resolveWorkspace();
+    const productService = mixin({ _serviceBrand: void 0, ...product }, this.configuration.productConfiguration);
+    serviceCollection.set(IProductService, productService);
+    const logsPath = URI.file(toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")).with({ scheme: "vscode-log" });
+    const environmentService = new BrowserWorkbenchEnvironmentService(workspace.id, logsPath, this.configuration, productService);
+    serviceCollection.set(IBrowserWorkbenchEnvironmentService, environmentService);
+    const fileLogger = new BufferLogger();
+    const fileService = this._register(new FileService(fileLogger));
+    serviceCollection.set(IFileService, fileService);
+    const loggerService = new FileLoggerService(getLogLevel(environmentService), logsPath, fileService);
+    serviceCollection.set(ILoggerService, loggerService);
+    const otherLoggers = [new ConsoleLogger(loggerService.getLogLevel())];
+    if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
+      otherLoggers.push(new ConsoleLogInAutomationLogger(loggerService.getLogLevel()));
+    }
+    const logger = loggerService.createLogger(environmentService.logFile, { id: windowLogId, name: windowLogGroup.name, group: windowLogGroup });
+    const logService = new LogService(logger, otherLoggers);
+    serviceCollection.set(ILogService, logService);
+    fileLogger.logger = logService;
+    await this.registerIndexedDBFileSystemProviders(environmentService, fileService, logService, loggerService, logsPath);
+    const connectionToken = environmentService.options.connectionToken || getCookieValue(connectionTokenCookieName);
+    const remoteResourceLoader = this.configuration.remoteResourceProvider ? new BrowserRemoteResourceLoader(fileService, this.configuration.remoteResourceProvider) : void 0;
+    const resourceUriProvider = this.configuration.resourceUriProvider ?? remoteResourceLoader?.getResourceUriProvider();
+    const remoteAuthorityResolverService = new RemoteAuthorityResolverService(!environmentService.expectsResolverExtension, connectionToken, resourceUriProvider, this.configuration.serverBasePath, productService, logService);
+    serviceCollection.set(IRemoteAuthorityResolverService, remoteAuthorityResolverService);
+    const signService = new SignService(productService);
+    serviceCollection.set(ISignService, signService);
+    const uriIdentityService = new UriIdentityService(fileService);
+    serviceCollection.set(IUriIdentityService, uriIdentityService);
+    const userDataProfilesService = new BrowserUserDataProfilesService(environmentService, fileService, uriIdentityService, logService);
+    serviceCollection.set(IUserDataProfilesService, userDataProfilesService);
+    const currentProfile = await this.getCurrentProfile(workspace, userDataProfilesService, environmentService);
+    await userDataProfilesService.setProfileForWorkspace(workspace, currentProfile);
+    const userDataProfileService = new UserDataProfileService(currentProfile);
+    serviceCollection.set(IUserDataProfileService, userDataProfileService);
+    const remoteSocketFactoryService = new RemoteSocketFactoryService();
+    remoteSocketFactoryService.register(0, new BrowserSocketFactory(this.configuration.webSocketFactory));
+    serviceCollection.set(IRemoteSocketFactoryService, remoteSocketFactoryService);
+    const remoteAgentService = this._register(new RemoteAgentService(remoteSocketFactoryService, userDataProfileService, environmentService, productService, remoteAuthorityResolverService, signService, logService));
+    serviceCollection.set(IRemoteAgentService, remoteAgentService);
+    this._register(RemoteFileSystemProviderClient.register(remoteAgentService, fileService, logService));
+    const defaultAccountService = this._register(new DefaultAccountService(productService));
+    serviceCollection.set(IDefaultAccountService, defaultAccountService);
+    const policyService = new AccountPolicyService(logService, defaultAccountService);
+    serviceCollection.set(IPolicyService, policyService);
+    const [configurationService, storageService] = await Promise.all([
+      this.createWorkspaceService(workspace, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, policyService, logService).then((service) => {
+        serviceCollection.set(IWorkspaceContextService, service);
+        serviceCollection.set(IWorkbenchConfigurationService, service);
+        return service;
+      }),
+      this.createStorageService(workspace, logService, userDataProfileService).then((service) => {
+        serviceCollection.set(IStorageService, service);
+        return service;
+      })
+    ]);
+    const workbenchModeService = this._register(new WorkbenchModeService(configurationService, fileService, environmentService, uriIdentityService, logService, storageService));
+    serviceCollection.set(IWorkbenchModeService, workbenchModeService);
+    try {
+      await workbenchModeService.initialize();
+    } catch (error) {
+      logService.error("Error while initializing workbench mode service", error);
+    }
+    const workspaceTrustEnablementService = new WorkspaceTrustEnablementService(configurationService, environmentService);
+    serviceCollection.set(IWorkspaceTrustEnablementService, workspaceTrustEnablementService);
+    const workspaceTrustManagementService = new WorkspaceTrustManagementService(configurationService, remoteAuthorityResolverService, storageService, uriIdentityService, environmentService, configurationService, workspaceTrustEnablementService, fileService);
+    serviceCollection.set(IWorkspaceTrustManagementService, workspaceTrustManagementService);
+    configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted());
+    this._register(workspaceTrustManagementService.onDidChangeTrust(() => configurationService.updateWorkspaceTrust(workspaceTrustManagementService.isWorkspaceTrusted())));
+    const requestService = new BrowserRequestService(remoteAgentService, configurationService, loggerService);
+    serviceCollection.set(IRequestService, requestService);
+    const userDataSyncStoreManagementService = new UserDataSyncStoreManagementService(productService, configurationService, storageService);
+    serviceCollection.set(IUserDataSyncStoreManagementService, userDataSyncStoreManagementService);
+    const encryptionService = new EncryptionService();
+    serviceCollection.set(IEncryptionService, encryptionService);
+    const secretStorageService = new BrowserSecretStorageService(storageService, encryptionService, environmentService, logService);
+    serviceCollection.set(ISecretStorageService, secretStorageService);
+    const userDataInitializers = [];
+    userDataInitializers.push(new UserDataSyncInitializer(environmentService, secretStorageService, userDataSyncStoreManagementService, fileService, userDataProfilesService, storageService, productService, requestService, logService, uriIdentityService));
+    if (environmentService.options.profile) {
+      userDataInitializers.push(new UserDataProfileInitializer(environmentService, fileService, userDataProfileService, storageService, logService, uriIdentityService, requestService));
+    }
+    const userDataInitializationService = new UserDataInitializationService(userDataInitializers);
+    serviceCollection.set(IUserDataInitializationService, userDataInitializationService);
+    try {
+      await Promise.race([
+        // Do not block more than 5s
+        timeout(5e3),
+        this.initializeUserData(userDataInitializationService, configurationService)
+      ]);
+    } catch (error) {
+      logService.error(error);
+    }
+    return { serviceCollection, configurationService, logService };
+  }
+  async initializeUserData(userDataInitializationService, configurationService) {
+    if (await userDataInitializationService.requiresInitialization()) {
+      mark("code/willInitRequiredUserData");
+      await userDataInitializationService.initializeRequiredResources();
+      await configurationService.reloadLocalUserConfiguration();
+      mark("code/didInitRequiredUserData");
+    }
+  }
+  async registerIndexedDBFileSystemProviders(environmentService, fileService, logService, loggerService, logsPath) {
+    let indexedDB;
+    const userDataStore = "vscode-userdata-store";
+    const logsStore = "vscode-logs-store";
+    const handlesStore = "vscode-filehandles-store";
+    try {
+      indexedDB = await IndexedDB.create("vscode-web-db", 3, [userDataStore, logsStore, handlesStore]);
+      this.onWillShutdownDisposables.add(toDisposable(() => indexedDB?.close()));
+    } catch (error) {
+      logService.error("Error while creating IndexedDB", error);
+    }
+    if (indexedDB) {
+      const logFileSystemProvider = new IndexedDBFileSystemProvider(logsPath.scheme, indexedDB, logsStore, false);
+      this.indexedDBFileSystemProviders.push(logFileSystemProvider);
+      fileService.registerProvider(logsPath.scheme, logFileSystemProvider);
+    } else {
+      fileService.registerProvider(logsPath.scheme, new InMemoryFileSystemProvider());
+    }
+    let userDataProvider;
+    if (indexedDB) {
+      userDataProvider = new IndexedDBFileSystemProvider(Schemas.vscodeUserData, indexedDB, userDataStore, true);
+      this.indexedDBFileSystemProviders.push(userDataProvider);
+      this.registerDeveloperActions(userDataProvider);
+    } else {
+      logService.info("Using in-memory user data provider");
+      userDataProvider = new InMemoryFileSystemProvider();
+    }
+    fileService.registerProvider(Schemas.vscodeUserData, userDataProvider);
+    if (WebFileSystemAccess.supported(mainWindow)) {
+      fileService.registerProvider(Schemas.file, new HTMLFileSystemProvider(indexedDB, handlesStore, logService));
+    }
+    fileService.registerProvider(Schemas.tmp, new InMemoryFileSystemProvider());
+  }
+  registerDeveloperActions(provider) {
+    this._register(registerAction2(class ResetUserDataAction extends Action2 {
+      static {
+        __name(this, "ResetUserDataAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.resetUserData",
+          title: localize2("reset", "Reset User Data"),
+          category: Categories.Developer,
+          menu: {
+            id: MenuId.CommandPalette
+          }
+        });
+      }
+      async run(accessor) {
+        const dialogService = accessor.get(IDialogService);
+        const hostService = accessor.get(IHostService);
+        const storageService = accessor.get(IStorageService);
+        const logService = accessor.get(ILogService);
+        const result = await dialogService.confirm({
+          message: localize("reset user data message", "Would you like to reset your data (settings, keybindings, extensions, snippets and UI State) and reload?")
+        });
+        if (result.confirmed) {
+          try {
+            await provider?.reset();
+            if (storageService instanceof BrowserStorageService) {
+              await storageService.clear();
+            }
+          } catch (error) {
+            logService.error(error);
+            throw error;
+          }
+        }
+        hostService.reload();
+      }
+    }));
+  }
+  async createStorageService(workspace, logService, userDataProfileService) {
+    const storageService = new BrowserStorageService(workspace, userDataProfileService, logService);
+    try {
+      await storageService.initialize();
+      this.onWillShutdownDisposables.add(toDisposable(() => storageService.close()));
+      return storageService;
+    } catch (error) {
+      onUnexpectedError(error);
+      logService.error(error);
+      return storageService;
+    }
+  }
+  async createWorkspaceService(workspace, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, policyService, logService) {
+    if (isWorkspaceIdentifier(workspace) && isTemporaryWorkspace(workspace.configPath)) {
+      try {
+        const emptyWorkspace = { folders: [] };
+        await fileService.createFile(workspace.configPath, VSBuffer.fromString(JSON.stringify(emptyWorkspace, null, "	")), { overwrite: false });
+      } catch (error) {
+      }
+    }
+    const configurationCache = new ConfigurationCache([Schemas.file, Schemas.vscodeUserData, Schemas.tmp], environmentService, fileService);
+    const workspaceService = new WorkspaceService({ remoteAuthority: this.configuration.remoteAuthority, configurationCache }, environmentService, userDataProfileService, userDataProfilesService, fileService, remoteAgentService, uriIdentityService, logService, policyService);
+    try {
+      await workspaceService.initialize(workspace);
+      return workspaceService;
+    } catch (error) {
+      onUnexpectedError(error);
+      logService.error(error);
+      return workspaceService;
+    }
+  }
+  async getCurrentProfile(workspace, userDataProfilesService, environmentService) {
+    const profileName = environmentService.options?.profile?.name ?? environmentService.profile;
+    if (profileName) {
+      const profile = userDataProfilesService.profiles.find((p) => p.name === profileName);
+      if (profile) {
+        return profile;
+      }
+      return userDataProfilesService.createNamedProfile(profileName, void 0, workspace);
+    }
+    return userDataProfilesService.getProfileForWorkspace(workspace) ?? userDataProfilesService.defaultProfile;
+  }
+  resolveWorkspace() {
+    let workspace = void 0;
+    if (this.configuration.workspaceProvider) {
+      workspace = this.configuration.workspaceProvider.workspace;
+    }
+    if (workspace && isWorkspaceToOpen(workspace)) {
+      return getWorkspaceIdentifier(workspace.workspaceUri);
+    }
+    if (workspace && isFolderToOpen(workspace)) {
+      return getSingleFolderWorkspaceIdentifier(workspace.folderUri);
+    }
+    return UNKNOWN_EMPTY_WINDOW_WORKSPACE;
+  }
+}
+export {
+  BrowserMain
+};
+//# sourceMappingURL=web.main.js.map

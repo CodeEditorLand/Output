@@ -1,1 +1,6 @@
-import{$Nj as e}from"../../instantiation/common/instantiation.js";const r=e("themeMainService");export{r as $uv};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IThemeMainService = createDecorator("themeMainService");
+export {
+  IThemeMainService
+};
+//# sourceMappingURL=themeMainService.js.map

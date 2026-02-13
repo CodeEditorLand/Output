@@ -1,1 +1,30 @@
-import*as i from"../../../../nls.js";import{$Up as o,$Rp as n}from"../../../../base/common/color.js";import{$2p as l,$7p as r}from"../colorUtils.js";import{$cr as m,$3q as t,$2q as e,$7q as p,$0q as h,$Zq as c,$Yq as a}from"./editorColors.js";import{$Dq as s,$Bq as g,$Cq as $}from"./miscColors.js";const k=l("minimap.findMatchHighlight",m,i.localize(2598,null),!0),z=l("minimap.selectionOccurrenceHighlight",h,i.localize(2599,null),!0),q=l("minimap.selectionHighlight",p,i.localize(2600,null),!0),w=l("minimap.infoHighlight",{dark:e,light:e,hcDark:t,hcLight:t},i.localize(2601,null)),H=l("minimap.warningHighlight",{dark:a,light:a,hcDark:c,hcLight:c},i.localize(2602,null)),D=l("minimap.errorHighlight",{dark:new o(new n(255,18,18,.7)),light:new o(new n(255,18,18,.7)),hcDark:new o(new n(255,50,50,1)),hcLight:"#B5200D"},i.localize(2603,null)),B=l("minimap.background",null,i.localize(2604,null)),L=l("minimap.foregroundOpacity",o.fromHex("#000f"),i.localize(2605,null)),S=l("minimapSlider.background",r(g,.5),i.localize(2606,null)),b=l("minimapSlider.hoverBackground",r($,.5),i.localize(2607,null)),v=l("minimapSlider.activeBackground",r(s,.5),i.localize(2608,null));export{k as $es,z as $fs,q as $gs,w as $hs,H as $is,D as $js,B as $ks,L as $ls,S as $ms,b as $ns,v as $os};
+import * as nls from "../../../../nls.js";
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { registerColor, transparent } from "../colorUtils.js";
+import { editorFindMatchHighlight, editorInfoBorder, editorInfoForeground, editorSelectionBackground, editorSelectionHighlight, editorWarningBorder, editorWarningForeground } from "./editorColors.js";
+import { scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground } from "./miscColors.js";
+const minimapFindMatch = registerColor("minimap.findMatchHighlight", editorFindMatchHighlight, nls.localize("minimapFindMatchHighlight", "Minimap marker color for find matches."), true);
+const minimapSelectionOccurrenceHighlight = registerColor("minimap.selectionOccurrenceHighlight", editorSelectionHighlight, nls.localize("minimapSelectionOccurrenceHighlight", "Minimap marker color for repeating editor selections."), true);
+const minimapSelection = registerColor("minimap.selectionHighlight", editorSelectionBackground, nls.localize("minimapSelectionHighlight", "Minimap marker color for the editor selection."), true);
+const minimapInfo = registerColor("minimap.infoHighlight", { dark: editorInfoForeground, light: editorInfoForeground, hcDark: editorInfoBorder, hcLight: editorInfoBorder }, nls.localize("minimapInfo", "Minimap marker color for infos."));
+const minimapWarning = registerColor("minimap.warningHighlight", { dark: editorWarningForeground, light: editorWarningForeground, hcDark: editorWarningBorder, hcLight: editorWarningBorder }, nls.localize("overviewRuleWarning", "Minimap marker color for warnings."));
+const minimapError = registerColor("minimap.errorHighlight", { dark: new Color(new RGBA(255, 18, 18, 0.7)), light: new Color(new RGBA(255, 18, 18, 0.7)), hcDark: new Color(new RGBA(255, 50, 50, 1)), hcLight: "#B5200D" }, nls.localize("minimapError", "Minimap marker color for errors."));
+const minimapBackground = registerColor("minimap.background", null, nls.localize("minimapBackground", "Minimap background color."));
+const minimapForegroundOpacity = registerColor("minimap.foregroundOpacity", Color.fromHex("#000f"), nls.localize("minimapForegroundOpacity", 'Opacity of foreground elements rendered in the minimap. For example, "#000000c0" will render the elements with 75% opacity.'));
+const minimapSliderBackground = registerColor("minimapSlider.background", transparent(scrollbarSliderBackground, 0.5), nls.localize("minimapSliderBackground", "Minimap slider background color."));
+const minimapSliderHoverBackground = registerColor("minimapSlider.hoverBackground", transparent(scrollbarSliderHoverBackground, 0.5), nls.localize("minimapSliderHoverBackground", "Minimap slider background color when hovering."));
+const minimapSliderActiveBackground = registerColor("minimapSlider.activeBackground", transparent(scrollbarSliderActiveBackground, 0.5), nls.localize("minimapSliderActiveBackground", "Minimap slider background color when clicked on."));
+export {
+  minimapBackground,
+  minimapError,
+  minimapFindMatch,
+  minimapForegroundOpacity,
+  minimapInfo,
+  minimapSelection,
+  minimapSelectionOccurrenceHighlight,
+  minimapSliderActiveBackground,
+  minimapSliderBackground,
+  minimapSliderHoverBackground,
+  minimapWarning
+};
+//# sourceMappingURL=minimapColors.js.map

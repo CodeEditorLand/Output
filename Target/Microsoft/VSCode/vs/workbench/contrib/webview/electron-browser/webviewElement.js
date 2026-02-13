@@ -1,1 +1,149 @@
-import{$6h as I}from"../../../../base/common/async.js";import{Schemas as v}from"../../../../base/common/network.js";import{$1i as _}from"../../../../base/common/stream.js";import{ProxyChannel as g}from"../../../../base/parts/ipc/common/ipc.js";import{$MD as j}from"../../../../platform/accessibility/common/accessibility.js";import{$0l as y}from"../../../../platform/configuration/common/configuration.js";import{$ijb as D}from"../../../../platform/contextview/browser/contextView.js";import{$vk as G}from"../../../../platform/files/common/files.js";import{$Mj as L}from"../../../../platform/instantiation/common/instantiation.js";import{$UPc as x}from"../../../../platform/ipc/common/mainProcessService.js";import{$yo as C}from"../../../../platform/log/common/log.js";import{$Xu as P}from"../../../../platform/native/common/native.js";import{$pH as H}from"../../../../platform/notification/common/notification.js";import{$eC as X}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$wC as A}from"../../../../platform/tunnel/common/tunnel.js";import{$$o as B}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$HP as J}from"../../../services/environment/common/environmentService.js";import{$lPc as O}from"../browser/webviewElement.js";import{$jXc as R}from"./windowIgnoreMenuShortcutsManager.js";var F=function(h,t,i,e){var n=arguments.length,o=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(h,t,i,e);else for(var s=h.length-1;s>=0;s--)(f=h[s])&&(o=(n<3?f(o):n>3?f(t,i,o):f(t,i))||o);return n>3&&o&&Object.defineProperty(t,i,o),o},r=function(h,t){return function(i,e){t(i,e,h)}};let c=class extends O{get h(){return"electron"}constructor(t,i,e,n,o,f,s,p,d,b,l,a,u,w,$){super(t,i,d,e,l,f,o,p,s,n,u,w,$),this.Lb=a,this.Gb=!1,this.Jb=this.D(new I(200)),this.Fb=new R(d,b,a),this.Ib=g.toService(b.getChannel("webview")),t.options.enableFindWidget&&(this.D(this.G(m=>{this.Gb&&this.Hb!==m&&(this.stopFind(!1),this.Hb=m)})),this.D(this.Ib.onFoundInFrame(m=>{this.Db.fire(m.matches>0)})))}dispose(){this.Fb.didBlur(),super.dispose()}nb(t){return`${v.vscodeWebview}://${t}`}Ab(t){return _(t,i=>{const e=i.reduce((s,p)=>s+p.byteLength,0),n=new ArrayBuffer(e),o=new Uint8Array(n);let f=0;for(const s of i)o.set(s.buffer,f),f+=s.byteLength;return n})}find(t,i){if(this.n)if(!this.Gb)this.updateFind(t);else{const e={forward:!i,findNext:!1,matchCase:!1};this.Ib.findInFrame({windowId:this.Lb.windowId},this.a,t,e)}}updateFind(t){if(!t||!this.n)return;const i={forward:!0,findNext:!0,matchCase:!1};this.Jb.trigger(()=>{this.Gb=!0,this.Ib.findInFrame({windowId:this.Lb.windowId},this.a,t,i)})}stopFind(t){this.n&&(this.Jb.cancel(),this.Gb=!1,this.Ib.stopFindInFrame({windowId:this.Lb.windowId},this.a,{keepSelection:t}),this.Eb.fire())}vb(t){super.vb(t),t?this.Fb.didFocus():this.Fb.didBlur()}};c=F([r(2,D),r(3,A),r(4,G),r(5,J),r(6,X),r(7,C),r(8,y),r(9,x),r(10,H),r(11,P),r(12,L),r(13,j),r(14,B)],c);export{c as $kXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Delayer } from "../../../../base/common/async.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { consumeStream } from "../../../../base/common/stream.js";
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { WebviewElement } from "../browser/webviewElement.js";
+import { WindowIgnoreMenuShortcutsManager } from "./windowIgnoreMenuShortcutsManager.js";
+let ElectronWebviewElement = class ElectronWebviewElement2 extends WebviewElement {
+  static {
+    __name(this, "ElectronWebviewElement");
+  }
+  get platform() {
+    return "electron";
+  }
+  constructor(initInfo, webviewThemeDataProvider, contextMenuService, tunnelService, fileService, environmentService, remoteAuthorityResolverService, logService, configurationService, mainProcessService, notificationService, _nativeHostService, instantiationService, accessibilityService, uriIdentityService) {
+    super(initInfo, webviewThemeDataProvider, configurationService, contextMenuService, notificationService, environmentService, fileService, logService, remoteAuthorityResolverService, tunnelService, instantiationService, accessibilityService, uriIdentityService);
+    this._nativeHostService = _nativeHostService;
+    this._findStarted = false;
+    this._iframeDelayer = this._register(new Delayer(200));
+    this._webviewKeyboardHandler = new WindowIgnoreMenuShortcutsManager(configurationService, mainProcessService, _nativeHostService);
+    this._webviewMainService = ProxyChannel.toService(mainProcessService.getChannel("webview"));
+    if (initInfo.options.enableFindWidget) {
+      this._register(this.onDidHtmlChange((newContent) => {
+        if (this._findStarted && this._cachedHtmlContent !== newContent) {
+          this.stopFind(false);
+          this._cachedHtmlContent = newContent;
+        }
+      }));
+      this._register(this._webviewMainService.onFoundInFrame((result) => {
+        this._hasFindResult.fire(result.matches > 0);
+      }));
+    }
+  }
+  dispose() {
+    this._webviewKeyboardHandler.didBlur();
+    super.dispose();
+  }
+  webviewContentEndpoint(iframeId) {
+    return `${Schemas.vscodeWebview}://${iframeId}`;
+  }
+  streamToBuffer(stream) {
+    return consumeStream(stream, (buffers) => {
+      const totalLength = buffers.reduce((prev, curr) => prev + curr.byteLength, 0);
+      const ret = new ArrayBuffer(totalLength);
+      const view = new Uint8Array(ret);
+      let offset = 0;
+      for (const element of buffers) {
+        view.set(element.buffer, offset);
+        offset += element.byteLength;
+      }
+      return ret;
+    });
+  }
+  /**
+   * Webviews expose a stateful find API.
+   * Successive calls to find will move forward or backward through onFindResults
+   * depending on the supplied options.
+   *
+   * @param value The string to search for. Empty strings are ignored.
+   */
+  find(value, previous) {
+    if (!this.element) {
+      return;
+    }
+    if (!this._findStarted) {
+      this.updateFind(value);
+    } else {
+      const options = { forward: !previous, findNext: false, matchCase: false };
+      this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
+    }
+  }
+  updateFind(value) {
+    if (!value || !this.element) {
+      return;
+    }
+    const options = {
+      forward: true,
+      findNext: true,
+      matchCase: false
+    };
+    this._iframeDelayer.trigger(() => {
+      this._findStarted = true;
+      this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
+    });
+  }
+  stopFind(keepSelection) {
+    if (!this.element) {
+      return;
+    }
+    this._iframeDelayer.cancel();
+    this._findStarted = false;
+    this._webviewMainService.stopFindInFrame({ windowId: this._nativeHostService.windowId }, this.id, {
+      keepSelection
+    });
+    this._onDidStopFind.fire();
+  }
+  handleFocusChange(isFocused) {
+    super.handleFocusChange(isFocused);
+    if (isFocused) {
+      this._webviewKeyboardHandler.didFocus();
+    } else {
+      this._webviewKeyboardHandler.didBlur();
+    }
+  }
+};
+ElectronWebviewElement = __decorate([
+  __param(2, IContextMenuService),
+  __param(3, ITunnelService),
+  __param(4, IFileService),
+  __param(5, IWorkbenchEnvironmentService),
+  __param(6, IRemoteAuthorityResolverService),
+  __param(7, ILogService),
+  __param(8, IConfigurationService),
+  __param(9, IMainProcessService),
+  __param(10, INotificationService),
+  __param(11, INativeHostService),
+  __param(12, IInstantiationService),
+  __param(13, IAccessibilityService),
+  __param(14, IUriIdentityService)
+], ElectronWebviewElement);
+export {
+  ElectronWebviewElement
+};
+//# sourceMappingURL=webviewElement.js.map

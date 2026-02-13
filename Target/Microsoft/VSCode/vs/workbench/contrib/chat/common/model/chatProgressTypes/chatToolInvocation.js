@@ -1,1 +1,245 @@
-import{$rj as f}from"../../../../../../base/common/buffer.js";import{observableValue as n}from"../../../../../../base/common/observable.js";import{localize as p}from"../../../../../../nls.js";import{IChatToolInvocation as c}from"../../chatService/chatService.js";import{$7T as l}from"../../tools/languageModelToolsService.js";class g{get state(){return this.b}static createStreaming(e){return new g(void 0,e.toolData,e.toolCallId,e.subagentInvocationId,void 0,!0,e.chatRequestId)}constructor(e,s,t,o,i,r=!1,a){this.toolCallId=t,this.kind="toolInvocation",this.a=n(this,{progress:0}),this.c=n(this,void 0),this.d=n(this,void 0);const m=r?p(6907,null,s.displayName):"";this.invocationMessage=e?.invocationMessage??m,this.pastTenseMessage=e?.pastTenseMessage,this.originMessage=e?.originMessage,this.confirmationMessages=e?.confirmationMessages,this.presentation=e?.presentation,this.toolSpecificData=e?.toolSpecificData,this.toolId=s.id,this.source=s.source,this.subAgentInvocationId=o,this.parameters=i,this.chatRequestId=a,r?this.b=n(this,{type:0,partialInput:this.c,streamingMessage:this.d}):this.confirmationMessages?.title?this.b=n(this,{type:1,parameters:this.parameters,confirmationMessages:this.confirmationMessages,confirm:h=>{h.type===0||h.type===5?this.b.set({type:5,reason:h.type,parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0):this.b.set({type:2,confirmed:h,progress:this.a,parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0)}}):this.b=n(this,{type:2,confirmed:{type:1,reason:this.confirmationMessages?.confirmationNotNeededReason},progress:this.a,parameters:this.parameters,confirmationMessages:this.confirmationMessages})}updatePartialInput(e){this.b.get().type===0&&this.c.set(e,void 0)}updateStreamingMessage(e){this.b.get().type===0&&this.d.set(e,void 0)}transitionFromStreaming(e,s,t){if(this.b.get().type!==0)return;const i=this.d.get();i&&!e?.invocationMessage&&(this.invocationMessage=i),this.parameters=s,e&&(e.invocationMessage&&(this.invocationMessage=e.invocationMessage),this.pastTenseMessage=e.pastTenseMessage,this.confirmationMessages=e.confirmationMessages,this.presentation=e.presentation,this.toolSpecificData=e.toolSpecificData);const r=a=>{a.type===0||a.type===5?this.b.set({type:5,reason:a.type,parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0):this.b.set({type:2,confirmed:a,progress:this.a,parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0)};t?r(t):this.confirmationMessages?.title?this.b.set({type:1,parameters:this.parameters,confirmationMessages:this.confirmationMessages,confirm:r},void 0):this.b.set({type:2,confirmed:{type:1,reason:this.confirmationMessages?.confirmationNotNeededReason},progress:this.a,parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0)}e(e,s){if(s&&(s.type===0||s.type===5)){this.b.set({type:5,reason:s.type,parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0);return}this.b.set({type:4,confirmed:c.executionConfirmedOrDenied(this)||{type:1},resultDetails:e?.toolResultDetails,postConfirmed:s,contentForModel:e?.content||[],parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0)}async didExecuteTool(e,s,t){if(e?.toolResultMessage?this.pastTenseMessage=e.toolResultMessage:this.a.get().message&&(this.pastTenseMessage=this.a.get().message),this.confirmationMessages?.confirmResults&&!e?.toolResultError&&e?.confirmResults!==!1&&!s){const o=await t?.();o?this.e(e,o):this.b.set({type:3,confirmed:c.executionConfirmedOrDenied(this)||{type:1},resultDetails:e?.toolResultDetails,contentForModel:e?.content||[],confirm:i=>this.e(e,i),parameters:this.parameters,confirmationMessages:this.confirmationMessages},void 0)}else this.e(e);return this.b.get()}acceptProgress(e){const s=this.a.get();this.a.set({progress:e.progress||s.progress||0,message:e.message},void 0)}toJSON(){const e=this.state.get().type===3,s=e?void 0:c.resultDetails(this);return{kind:"toolInvocationSerialized",presentation:this.presentation,invocationMessage:this.invocationMessage,pastTenseMessage:this.pastTenseMessage,originMessage:this.originMessage,isConfirmed:e?{type:5}:c.executionConfirmedOrDenied(this),isComplete:!0,source:this.source,resultDetails:l(s)?{output:{type:"data",mimeType:s.output.mimeType,base64Data:f(s.output.value)}}:s,toolSpecificData:this.toolSpecificData,toolCallId:this.toolCallId,toolId:this.toolId,subAgentInvocationId:this.subAgentInvocationId,generatedTitle:this.generatedTitle}}}export{g as $1qc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { encodeBase64 } from "../../../../../../base/common/buffer.js";
+import { observableValue } from "../../../../../../base/common/observable.js";
+import { localize } from "../../../../../../nls.js";
+import { IChatToolInvocation } from "../../chatService/chatService.js";
+import { isToolResultOutputDetails } from "../../tools/languageModelToolsService.js";
+class ChatToolInvocation {
+  static {
+    __name(this, "ChatToolInvocation");
+  }
+  get state() {
+    return this._state;
+  }
+  /**
+   * Create a tool invocation in streaming state.
+   * Use this when the tool call is beginning to stream partial input from the LM.
+   */
+  static createStreaming(options) {
+    return new ChatToolInvocation(void 0, options.toolData, options.toolCallId, options.subagentInvocationId, void 0, true, options.chatRequestId);
+  }
+  constructor(preparedInvocation, toolData, toolCallId, subAgentInvocationId, parameters, isStreaming = false, chatRequestId) {
+    this.toolCallId = toolCallId;
+    this.kind = "toolInvocation";
+    this._progress = observableValue(this, { progress: 0 });
+    this._partialInput = observableValue(this, void 0);
+    this._streamingMessage = observableValue(this, void 0);
+    const defaultStreamingMessage = isStreaming ? localize("toolInvocationMessage", 'Using "{0}"', toolData.displayName) : "";
+    this.invocationMessage = preparedInvocation?.invocationMessage ?? defaultStreamingMessage;
+    this.pastTenseMessage = preparedInvocation?.pastTenseMessage;
+    this.originMessage = preparedInvocation?.originMessage;
+    this.confirmationMessages = preparedInvocation?.confirmationMessages;
+    this.presentation = preparedInvocation?.presentation;
+    this.toolSpecificData = preparedInvocation?.toolSpecificData;
+    this.toolId = toolData.id;
+    this.source = toolData.source;
+    this.subAgentInvocationId = subAgentInvocationId;
+    this.parameters = parameters;
+    this.chatRequestId = chatRequestId;
+    if (isStreaming) {
+      this._state = observableValue(this, {
+        type: 0,
+        partialInput: this._partialInput,
+        streamingMessage: this._streamingMessage
+      });
+    } else if (!this.confirmationMessages?.title) {
+      this._state = observableValue(this, {
+        type: 2,
+        confirmed: { type: 1, reason: this.confirmationMessages?.confirmationNotNeededReason },
+        progress: this._progress,
+        parameters: this.parameters,
+        confirmationMessages: this.confirmationMessages
+      });
+    } else {
+      this._state = observableValue(this, {
+        type: 1,
+        parameters: this.parameters,
+        confirmationMessages: this.confirmationMessages,
+        confirm: /* @__PURE__ */ __name((reason) => {
+          if (reason.type === 0 || reason.type === 5) {
+            this._state.set({
+              type: 5,
+              reason: reason.type,
+              parameters: this.parameters,
+              confirmationMessages: this.confirmationMessages
+            }, void 0);
+          } else {
+            this._state.set({
+              type: 2,
+              confirmed: reason,
+              progress: this._progress,
+              parameters: this.parameters,
+              confirmationMessages: this.confirmationMessages
+            }, void 0);
+          }
+        }, "confirm")
+      });
+    }
+  }
+  /**
+   * Update the partial input observable during streaming.
+   */
+  updatePartialInput(input) {
+    if (this._state.get().type !== 0) {
+      return;
+    }
+    this._partialInput.set(input, void 0);
+  }
+  /**
+   * Update the streaming message (from handleToolStream).
+   */
+  updateStreamingMessage(message) {
+    const state = this._state.get();
+    if (state.type !== 0) {
+      return;
+    }
+    this._streamingMessage.set(message, void 0);
+  }
+  /**
+   * Transition from streaming state to prepared/executing state.
+   * Called when the full tool call is ready.
+   */
+  transitionFromStreaming(preparedInvocation, parameters, autoConfirmed) {
+    const currentState = this._state.get();
+    if (currentState.type !== 0) {
+      return;
+    }
+    const lastStreamingMessage = this._streamingMessage.get();
+    if (lastStreamingMessage && !preparedInvocation?.invocationMessage) {
+      this.invocationMessage = lastStreamingMessage;
+    }
+    this.parameters = parameters;
+    if (preparedInvocation) {
+      if (preparedInvocation.invocationMessage) {
+        this.invocationMessage = preparedInvocation.invocationMessage;
+      }
+      this.pastTenseMessage = preparedInvocation.pastTenseMessage;
+      this.confirmationMessages = preparedInvocation.confirmationMessages;
+      this.presentation = preparedInvocation.presentation;
+      this.toolSpecificData = preparedInvocation.toolSpecificData;
+    }
+    const confirm = /* @__PURE__ */ __name((reason) => {
+      if (reason.type === 0 || reason.type === 5) {
+        this._state.set({
+          type: 5,
+          reason: reason.type,
+          parameters: this.parameters,
+          confirmationMessages: this.confirmationMessages
+        }, void 0);
+      } else {
+        this._state.set({
+          type: 2,
+          confirmed: reason,
+          progress: this._progress,
+          parameters: this.parameters,
+          confirmationMessages: this.confirmationMessages
+        }, void 0);
+      }
+    }, "confirm");
+    if (autoConfirmed) {
+      confirm(autoConfirmed);
+    } else if (!this.confirmationMessages?.title) {
+      this._state.set({
+        type: 2,
+        confirmed: { type: 1, reason: this.confirmationMessages?.confirmationNotNeededReason },
+        progress: this._progress,
+        parameters: this.parameters,
+        confirmationMessages: this.confirmationMessages
+      }, void 0);
+    } else {
+      this._state.set({
+        type: 1,
+        parameters: this.parameters,
+        confirmationMessages: this.confirmationMessages,
+        confirm
+      }, void 0);
+    }
+  }
+  _setCompleted(result, postConfirmed) {
+    if (postConfirmed && (postConfirmed.type === 0 || postConfirmed.type === 5)) {
+      this._state.set({
+        type: 5,
+        reason: postConfirmed.type,
+        parameters: this.parameters,
+        confirmationMessages: this.confirmationMessages
+      }, void 0);
+      return;
+    }
+    this._state.set({
+      type: 4,
+      confirmed: IChatToolInvocation.executionConfirmedOrDenied(this) || {
+        type: 1
+        /* ToolConfirmKind.ConfirmationNotNeeded */
+      },
+      resultDetails: result?.toolResultDetails,
+      postConfirmed,
+      contentForModel: result?.content || [],
+      parameters: this.parameters,
+      confirmationMessages: this.confirmationMessages
+    }, void 0);
+  }
+  async didExecuteTool(result, final, checkIfResultAutoApproved) {
+    if (result?.toolResultMessage) {
+      this.pastTenseMessage = result.toolResultMessage;
+    } else if (this._progress.get().message) {
+      this.pastTenseMessage = this._progress.get().message;
+    }
+    if (this.confirmationMessages?.confirmResults && !result?.toolResultError && result?.confirmResults !== false && !final) {
+      const autoApproved = await checkIfResultAutoApproved?.();
+      if (autoApproved) {
+        this._setCompleted(result, autoApproved);
+      } else {
+        this._state.set({
+          type: 3,
+          confirmed: IChatToolInvocation.executionConfirmedOrDenied(this) || {
+            type: 1
+            /* ToolConfirmKind.ConfirmationNotNeeded */
+          },
+          resultDetails: result?.toolResultDetails,
+          contentForModel: result?.content || [],
+          confirm: /* @__PURE__ */ __name((reason) => this._setCompleted(result, reason), "confirm"),
+          parameters: this.parameters,
+          confirmationMessages: this.confirmationMessages
+        }, void 0);
+      }
+    } else {
+      this._setCompleted(result);
+    }
+    return this._state.get();
+  }
+  acceptProgress(step) {
+    const prev = this._progress.get();
+    this._progress.set({
+      progress: step.progress || prev.progress || 0,
+      message: step.message
+    }, void 0);
+  }
+  toJSON() {
+    const waitingForPostApproval = this.state.get().type === 3;
+    const details = waitingForPostApproval ? void 0 : IChatToolInvocation.resultDetails(this);
+    return {
+      kind: "toolInvocationSerialized",
+      presentation: this.presentation,
+      invocationMessage: this.invocationMessage,
+      pastTenseMessage: this.pastTenseMessage,
+      originMessage: this.originMessage,
+      isConfirmed: waitingForPostApproval ? {
+        type: 5
+        /* ToolConfirmKind.Skipped */
+      } : IChatToolInvocation.executionConfirmedOrDenied(this),
+      isComplete: true,
+      source: this.source,
+      resultDetails: isToolResultOutputDetails(details) ? { output: { type: "data", mimeType: details.output.mimeType, base64Data: encodeBase64(details.output.value) } } : details,
+      toolSpecificData: this.toolSpecificData,
+      toolCallId: this.toolCallId,
+      toolId: this.toolId,
+      subAgentInvocationId: this.subAgentInvocationId,
+      generatedTitle: this.generatedTitle
+    };
+  }
+}
+export {
+  ChatToolInvocation
+};
+//# sourceMappingURL=chatToolInvocation.js.map

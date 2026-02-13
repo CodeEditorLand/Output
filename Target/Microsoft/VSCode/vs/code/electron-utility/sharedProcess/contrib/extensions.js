@@ -1,1 +1,56 @@
-import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$$z as a,$eA as l}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{$nH as $,$mH as u}from"../../../../platform/extensionManagement/common/extensionStorage.js";import{$Vsc as _}from"../../../../platform/extensionManagement/common/unsupportedExtensionsMigration.js";import{$75 as b}from"../../../../platform/extensionManagement/node/extensionManagementService.js";import{$yo as d}from"../../../../platform/log/common/log.js";import{$hp as j}from"../../../../platform/storage/common/storage.js";import{$ap as v}from"../../../../platform/userDataProfile/common/userDataProfile.js";var p=function(f,t,r,i){var s=arguments.length,o=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,r):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(f,t,r,i);else for(var c=f.length-1;c>=0;c--)(n=f[c])&&(o=(s<3?n(o):s>3?n(t,r,o):n(t,r))||o);return s>3&&o&&Object.defineProperty(t,r,o),o},e=function(f,t){return function(r,i){t(r,i,f)}};let h=class extends m{constructor(t,r,i,s,o,n,c){super(),this.a=t,this.b=r,this.c=i,this.f=s,this.g=o,this.h=c,t.cleanUp(),this.j(),$.removeOutdatedExtensionVersions(t,n)}async j(){for(const t of this.g.profiles)await _(t,this.a,this.b,this.c,this.f,this.h)}};h=p([e(0,b),e(1,a),e(2,u),e(3,l),e(4,v),e(5,j),e(6,d)],h);export{h as $GQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IExtensionGalleryService, IGlobalExtensionEnablementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionStorageService, IExtensionStorageService } from "../../../../platform/extensionManagement/common/extensionStorage.js";
+import { migrateUnsupportedExtensions } from "../../../../platform/extensionManagement/common/unsupportedExtensionsMigration.js";
+import { INativeServerExtensionManagementService } from "../../../../platform/extensionManagement/node/extensionManagementService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+let ExtensionsContributions = class ExtensionsContributions2 extends Disposable {
+  static {
+    __name(this, "ExtensionsContributions");
+  }
+  constructor(extensionManagementService, extensionGalleryService, extensionStorageService, extensionEnablementService, userDataProfilesService, storageService, logService) {
+    super();
+    this.extensionManagementService = extensionManagementService;
+    this.extensionGalleryService = extensionGalleryService;
+    this.extensionStorageService = extensionStorageService;
+    this.extensionEnablementService = extensionEnablementService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.logService = logService;
+    extensionManagementService.cleanUp();
+    this.migrateUnsupportedExtensions();
+    ExtensionStorageService.removeOutdatedExtensionVersions(extensionManagementService, storageService);
+  }
+  async migrateUnsupportedExtensions() {
+    for (const profile of this.userDataProfilesService.profiles) {
+      await migrateUnsupportedExtensions(profile, this.extensionManagementService, this.extensionGalleryService, this.extensionStorageService, this.extensionEnablementService, this.logService);
+    }
+  }
+};
+ExtensionsContributions = __decorate([
+  __param(0, INativeServerExtensionManagementService),
+  __param(1, IExtensionGalleryService),
+  __param(2, IExtensionStorageService),
+  __param(3, IGlobalExtensionEnablementService),
+  __param(4, IUserDataProfilesService),
+  __param(5, IStorageService),
+  __param(6, ILogService)
+], ExtensionsContributions);
+export {
+  ExtensionsContributions
+};
+//# sourceMappingURL=extensions.js.map

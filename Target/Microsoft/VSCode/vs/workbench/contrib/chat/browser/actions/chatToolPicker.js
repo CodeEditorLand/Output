@@ -1,1 +1,551 @@
-import{$Zc as Z}from"../../../../../base/common/assert.js";import{$bk as T}from"../../../../../base/common/codicons.js";import{$xf as se,Event as W}from"../../../../../base/common/event.js";import{$Dd as ie}from"../../../../../base/common/lifecycle.js";import{ThemeIcon as b}from"../../../../../base/common/themables.js";import{localize as g}from"../../../../../nls.js";import{$uo as re}from"../../../../../platform/commands/common/commands.js";import{$Iz as j}from"../../../../../platform/extensions/common/extensions.js";import{$YH as le}from"../../../../../platform/quickinput/common/quickInput.js";import{$pp as ce}from"../../../../../platform/telemetry/common/telemetry.js";import{$BL as ae}from"../../../../services/editor/common/editorService.js";import{$wJb as de}from"../../../extensions/common/extensions.js";import{$wU as ue}from"../../../mcp/common/mcpRegistryTypes.js";import{$JU as pe,$SU as fe}from"../../../mcp/common/mcpTypes.js";import{$yU as me}from"../../../mcp/common/mcpTypesUtils.js";import{$bU as be,ToolDataSource as he}from"../../common/tools/languageModelToolsService.js";import{$h3b as ge}from"../tools/toolSetsContribution.js";var H;(function(e){e[e.User=0]="User",e[e.BuiltIn=1]="BuiltIn",e[e.Mcp=2]="Mcp",e[e.Extension=3]="Extension"})(H||(H={}));function Te(e){return e.itemType==="bucket"}function Q(e){return e.itemType==="toolset"}function ye(e){return e.itemType==="tool"}function xe(e){return e.itemType==="callback"}function V(e,u=!1){return e?b.isThemeIcon(e)?{iconClass:b.asClassName(e)}:{iconPath:e}:u?{iconClass:b.asClassName(T.tools)}:{}}function Y(e,u){const p=V(e.icon,!0);return{itemType:"tool",tool:e,id:e.id,label:e.toolReferenceName??e.displayName,description:e.userDescription??e.modelDescription,checked:u,...p}}function Ie(e,u,p){const r=V(e.icon),d=[];if(e.source.type==="user"){const o=e.source.file;d.push({iconClass:b.asClassName(T.edit),tooltip:g(5386,null),action:()=>p.openEditor({resource:o})})}return{itemType:"toolset",toolset:e,buttons:d,id:e.id,label:e.referenceName,description:e.description,checked:u,children:void 0,collapsed:!0,...r}}async function qe(e,u,p,r,d,o,k){const N=e.get(le),x=e.get(pe),m=e.get(ue),P=e.get(re),B=e.get(de),U=e.get(ae),X=e.get(fe),C=e.get(be),_=e.get(ce),ee=new Map;for(const l of x.servers.get())for(const a of l.tools.get())ee.set(a.id,l);function O(l){let a=d?new Map([...d()].map(([t,n])=>[t.id,n])):void 0;if(!a){const t=new Map;for(const n of C.getTools(o))n.canBeReferencedInPrompt&&t.set(n,!1);for(const n of C.getToolSetsForModel(o))t.set(n,!1);a=t}l?.forEach((t,n)=>{a.set(n.id,t)});const E=[],c=new Map,M=t=>{switch(t.type){case"mcp":case"extension":return he.toKey(t);case"internal":return"1";case"user":return"0";case"external":throw new Error("should not be reachable");default:Z(t)}},J=new Map(x.servers.get().map(t=>[t.definition.id,{server:t,seen:!1}])),ne=(t,n)=>{if(t.type==="mcp"){const i=J.get(t.definitionId);if(!i)return;i.seen=!0;const f=i.server,I=[],h=m.collections.get().find(K=>K.id===f.collection.id);h?.source?I.push({iconClass:b.asClassName(T.settingsGear),tooltip:g(5387,null,h.label),action:()=>h.source?h.source instanceof j?B.open(h.source.value,{tab:"features",feature:"mcp"}):X.open(h.source,{tab:"configuration"}):void 0}):h?.presentation?.origin&&I.push({iconClass:b.asClassName(T.settingsGear),tooltip:g(5388,null,h.label),action:()=>U.openEditor({resource:h.presentation.origin})}),f.connectionState.get().state===3&&I.push({iconClass:b.asClassName(T.warning),tooltip:g(5389,null),action:()=>f.showOutput()});const v=f.cacheState.get(),S=[];let q=!0;(v===0||v===2)&&(q=!1,S.push({itemType:"callback",iconClass:b.asClassName(T.sync),label:g(5390,null),pickable:!1,run:()=>(s.busy=!0,(async()=>{if(!await me(f,{promptType:"all-untrusted"})){f.showOutput(),s.hide();return}s.busy=!1,O(D())})(),!1)}));const $={itemType:"bucket",ordinal:2,id:n,label:t.label,checked:void 0,collapsed:q,children:S,buttons:I,sortOrder:2},G=f.serverMetadata.get()?.icons.getUrl(22);return G?$.iconPath=G:$.iconClass=b.asClassName(T.mcp),$}else return t.type==="extension"?{itemType:"bucket",ordinal:3,id:n,label:t.label,checked:void 0,children:[],buttons:[],collapsed:!0,iconClass:b.asClassName(T.extensions),sortOrder:3}:t.type==="internal"?{itemType:"bucket",ordinal:1,id:n,label:g(5391,null),checked:void 0,children:[],buttons:[],collapsed:!1,sortOrder:1}:{itemType:"bucket",ordinal:0,id:n,label:g(5392,null),checked:void 0,children:[],buttons:[],collapsed:!0,sortOrder:4}},w=t=>{const n=M(t);let i=c.get(n);return i||(i=ne(t,n),i&&c.set(n,i)),i};for(const t of C.getToolSetsForModel(o)){if(!a.has(t.id))continue;const n=w(t.source);if(!n)continue;const i=a.get(t.id)===!0;if(t.source.type==="mcp")n.toolset=t,i&&(n.checked=i);else{const f=Ie(t,i,U);n.children.push(f);const I=[];for(const h of t.getTools()){const v=i||a.get(h.id)===!0,S=Y(h,v);I.push(S)}I.length>0&&(f.children=I)}}for(const t of C.getAllToolsIncludingDisabled()){if(!t.canBeReferencedInPrompt||!a.has(t.id))continue;const n=w(t.source);if(!n)continue;const i=n.checked===!0||a.get(t.id)===!0,f=Y(t,i);n.children.push(f)}for(const{server:t,seen:n}of J.values()){const i=t.cacheState.get();!n&&(i===0||i===2)&&w({type:"mcp",definitionId:t.definition.id,label:t.definition.label,instructions:"",serverLabel:"",collectionId:t.collection.id})}const oe=Array.from(c.values()).sort((t,n)=>t.sortOrder!==n.sortOrder?t.sortOrder-n.sortOrder:t.label.localeCompare(n.label));for(const t of oe){E.push(t),t.children.sort((n,i)=>n.label.localeCompare(i.label));for(const n of t.children)Q(n)&&n.children&&n.children.sort((i,f)=>i.label.localeCompare(f.label))}E.length===0?s.placeholder=g(5393,null):s.placeholder=u,s.setItemTree(E)}const y=new ie,s=y.add(N.createQuickTree());s.placeholder=u,s.description=r,s.matchOnDescription=!0,s.matchOnLabel=!0,s.sortByLabel=!1,O(),y.add(s.onDidTriggerItemButton(l=>{l.button&&typeof l.button.action=="function"&&(l.button.action(),y.dispose())}));const D=()=>{const l=new Map,a=E=>{for(const c of E)if(Te(c)){if(c.toolset){const M=c.checked===!0;l.set(c.toolset,M)}a(c.children)}else Q(c)?(l.set(c.toolset,c.checked===!0),c.children&&a(c.children)):ye(c)&&l.set(c.tool,c.checked||l.get(c.tool)===!0)};return a(s.itemTree),l};let R=!1;const A=y.add(new se);y.add(s.onDidAccept(()=>{const a=s.activeItems.find(xe);if(!a){R=!0,s.hide();return}a.run()!==!1&&A.fire()}));const L={iconClass:b.asClassName(T.mcp),tooltip:g(5394,null)},z={iconClass:b.asClassName(T.extensions),tooltip:g(5395,null)},F={iconClass:b.asClassName(T.gear),tooltip:g(5396,null)};s.title=g(5397,null),s.buttons=[L,z,F],y.add(s.onDidTriggerButton(l=>{l===L?P.executeCommand("workbench.mcp.addConfiguration"):l===z?B.openSearch("@tag:language-model-tools"):l===F&&P.executeCommand(ge.ID),s.hide()})),k&&y.add(k.onCancellationRequested(()=>{s.hide()}));const te=D();return s.show(),await Promise.race([W.toPromise(W.any(s.onDidHide,A.event),y)]),Ce(p,_,te,D(),m),y.dispose(),R?D():void 0}function ke(e,u){const p=e.source;switch(p.type){case"internal":return{category:"builtin",name:e.id};case"extension":return{category:"extension",name:e.id,extensionId:p.extensionId.value};case"mcp":{const r=u.collections.get().find(d=>d.id===p.collectionId);return r?.source instanceof j?{category:"extension-mcp",extensionId:r.source.value}:{category:"user-mcp"}}case"user":return{category:"user-toolset"};case"external":return{category:"user-toolset"};default:Z(p)}}function Ee(e,u,p){const r={builtinEnabled:0,builtinDisabled:0,extensionEnabled:0,extensionDisabled:0,extensionMcpEnabled:0,extensionMcpDisabled:0,userMcpEnabled:0,userMcpDisabled:0,userToolsetEnabled:0,userToolsetDisabled:0,details:""},d=[];for(const[o,k]of u){if((e.get(o)??!1)===k)continue;const x=ke(o,p),m=k;switch(x.category){case"builtin":m?r.builtinEnabled++:r.builtinDisabled++,d.push({category:"builtin",name:x.name,enabled:m});break;case"extension":m?r.extensionEnabled++:r.extensionDisabled++,d.push({category:"extension",name:x.name,extensionId:x.extensionId,enabled:m});break;case"extension-mcp":m?r.extensionMcpEnabled++:r.extensionMcpDisabled++,d.push({category:"extension-mcp",extensionId:x.extensionId,enabled:m});break;case"user-mcp":m?r.userMcpEnabled++:r.userMcpDisabled++,d.push({category:"user-mcp",enabled:m});break;case"user-toolset":m?r.userToolsetEnabled++:r.userToolsetDisabled++,d.push({category:"user-toolset",enabled:m});break}}return r.details=JSON.stringify(d),r}function Ce(e,u,p,r,d){const o=Ee(p,r,d),k=o.builtinEnabled>0||o.builtinDisabled>0||o.extensionEnabled>0||o.extensionDisabled>0||o.extensionMcpEnabled>0||o.extensionMcpDisabled>0||o.userMcpEnabled>0||o.userMcpDisabled>0||o.userToolsetEnabled>0||o.userToolsetDisabled>0;u.publicLog2("chatToolPickerClosed",{source:e,changed:k,builtinEnabled:o.builtinEnabled,builtinDisabled:o.builtinDisabled,extensionEnabled:o.extensionEnabled,extensionDisabled:o.extensionDisabled,extensionMcpEnabled:o.extensionMcpEnabled,extensionMcpDisabled:o.extensionMcpDisabled,userMcpEnabled:o.userMcpEnabled,userMcpDisabled:o.userMcpDisabled,userToolsetEnabled:o.userToolsetEnabled,userToolsetDisabled:o.userToolsetDisabled,details:o.details})}export{qe as $i3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertNever } from "../../../../../base/common/assert.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { localize } from "../../../../../nls.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IExtensionsWorkbenchService } from "../../../extensions/common/extensions.js";
+import { IMcpRegistry } from "../../../mcp/common/mcpRegistryTypes.js";
+import { IMcpService, IMcpWorkbenchService } from "../../../mcp/common/mcpTypes.js";
+import { startServerAndWaitForLiveTools } from "../../../mcp/common/mcpTypesUtils.js";
+import { ILanguageModelToolsService, ToolDataSource } from "../../common/tools/languageModelToolsService.js";
+import { ConfigureToolSets } from "../tools/toolSetsContribution.js";
+var BucketOrdinal;
+(function(BucketOrdinal2) {
+  BucketOrdinal2[BucketOrdinal2["User"] = 0] = "User";
+  BucketOrdinal2[BucketOrdinal2["BuiltIn"] = 1] = "BuiltIn";
+  BucketOrdinal2[BucketOrdinal2["Mcp"] = 2] = "Mcp";
+  BucketOrdinal2[BucketOrdinal2["Extension"] = 3] = "Extension";
+})(BucketOrdinal || (BucketOrdinal = {}));
+function isBucketTreeItem(item) {
+  return item.itemType === "bucket";
+}
+__name(isBucketTreeItem, "isBucketTreeItem");
+function isToolSetTreeItem(item) {
+  return item.itemType === "toolset";
+}
+__name(isToolSetTreeItem, "isToolSetTreeItem");
+function isToolTreeItem(item) {
+  return item.itemType === "tool";
+}
+__name(isToolTreeItem, "isToolTreeItem");
+function isCallbackTreeItem(item) {
+  return item.itemType === "callback";
+}
+__name(isCallbackTreeItem, "isCallbackTreeItem");
+function mapIconToTreeItem(icon, useDefaultToolIcon = false) {
+  if (!icon) {
+    if (useDefaultToolIcon) {
+      return { iconClass: ThemeIcon.asClassName(Codicon.tools) };
+    }
+    return {};
+  }
+  if (ThemeIcon.isThemeIcon(icon)) {
+    return { iconClass: ThemeIcon.asClassName(icon) };
+  } else {
+    return { iconPath: icon };
+  }
+}
+__name(mapIconToTreeItem, "mapIconToTreeItem");
+function createToolTreeItemFromData(tool, checked) {
+  const iconProps = mapIconToTreeItem(tool.icon, true);
+  return {
+    itemType: "tool",
+    tool,
+    id: tool.id,
+    label: tool.toolReferenceName ?? tool.displayName,
+    description: tool.userDescription ?? tool.modelDescription,
+    checked,
+    ...iconProps
+  };
+}
+__name(createToolTreeItemFromData, "createToolTreeItemFromData");
+function createToolSetTreeItem(toolset, checked, editorService) {
+  const iconProps = mapIconToTreeItem(toolset.icon);
+  const buttons = [];
+  if (toolset.source.type === "user") {
+    const resource = toolset.source.file;
+    buttons.push({
+      iconClass: ThemeIcon.asClassName(Codicon.edit),
+      tooltip: localize("editUserBucket", "Edit Tool Set"),
+      action: /* @__PURE__ */ __name(() => editorService.openEditor({ resource }), "action")
+    });
+  }
+  return {
+    itemType: "toolset",
+    toolset,
+    buttons,
+    id: toolset.id,
+    label: toolset.referenceName,
+    description: toolset.description,
+    checked,
+    children: void 0,
+    collapsed: true,
+    ...iconProps
+  };
+}
+__name(createToolSetTreeItem, "createToolSetTreeItem");
+async function showToolsPicker(accessor, placeHolder, source, description, getToolsEntries, model, token) {
+  const quickPickService = accessor.get(IQuickInputService);
+  const mcpService = accessor.get(IMcpService);
+  const mcpRegistry = accessor.get(IMcpRegistry);
+  const commandService = accessor.get(ICommandService);
+  const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+  const editorService = accessor.get(IEditorService);
+  const mcpWorkbenchService = accessor.get(IMcpWorkbenchService);
+  const toolsService = accessor.get(ILanguageModelToolsService);
+  const telemetryService = accessor.get(ITelemetryService);
+  const mcpServerByTool = /* @__PURE__ */ new Map();
+  for (const server of mcpService.servers.get()) {
+    for (const tool of server.tools.get()) {
+      mcpServerByTool.set(tool.id, server);
+    }
+  }
+  function computeItems(previousToolsEntries) {
+    let toolsEntries = getToolsEntries ? new Map([...getToolsEntries()].map(([k, enabled]) => [k.id, enabled])) : void 0;
+    if (!toolsEntries) {
+      const defaultEntries = /* @__PURE__ */ new Map();
+      for (const tool of toolsService.getTools(model)) {
+        if (tool.canBeReferencedInPrompt) {
+          defaultEntries.set(tool, false);
+        }
+      }
+      for (const toolSet of toolsService.getToolSetsForModel(model)) {
+        defaultEntries.set(toolSet, false);
+      }
+      toolsEntries = defaultEntries;
+    }
+    previousToolsEntries?.forEach((value, key) => {
+      toolsEntries.set(key.id, value);
+    });
+    const treeItems = [];
+    const bucketMap = /* @__PURE__ */ new Map();
+    const getKey = /* @__PURE__ */ __name((source2) => {
+      switch (source2.type) {
+        case "mcp":
+        case "extension":
+          return ToolDataSource.toKey(source2);
+        case "internal":
+          return 1 .toString();
+        case "user":
+          return 0 .toString();
+        case "external":
+          throw new Error("should not be reachable");
+        default:
+          assertNever(source2);
+      }
+    }, "getKey");
+    const mcpServers = new Map(mcpService.servers.get().map((s) => [s.definition.id, { server: s, seen: false }]));
+    const createBucket = /* @__PURE__ */ __name((source2, key) => {
+      if (source2.type === "mcp") {
+        const mcpServerEntry = mcpServers.get(source2.definitionId);
+        if (!mcpServerEntry) {
+          return void 0;
+        }
+        mcpServerEntry.seen = true;
+        const mcpServer = mcpServerEntry.server;
+        const buttons = [];
+        const collection = mcpRegistry.collections.get().find((c) => c.id === mcpServer.collection.id);
+        if (collection?.source) {
+          buttons.push({
+            iconClass: ThemeIcon.asClassName(Codicon.settingsGear),
+            tooltip: localize("configMcpCol", "Configure {0}", collection.label),
+            action: /* @__PURE__ */ __name(() => collection.source ? collection.source instanceof ExtensionIdentifier ? extensionsWorkbenchService.open(collection.source.value, { tab: "features", feature: "mcp" }) : mcpWorkbenchService.open(collection.source, {
+              tab: "configuration"
+              /* McpServerEditorTab.Configuration */
+            }) : void 0, "action")
+          });
+        } else if (collection?.presentation?.origin) {
+          buttons.push({
+            iconClass: ThemeIcon.asClassName(Codicon.settingsGear),
+            tooltip: localize("configMcpCol", "Configure {0}", collection.label),
+            action: /* @__PURE__ */ __name(() => editorService.openEditor({
+              resource: collection.presentation.origin
+            }), "action")
+          });
+        }
+        if (mcpServer.connectionState.get().state === 3) {
+          buttons.push({
+            iconClass: ThemeIcon.asClassName(Codicon.warning),
+            tooltip: localize("mcpShowOutput", "Show Output"),
+            action: /* @__PURE__ */ __name(() => mcpServer.showOutput(), "action")
+          });
+        }
+        const cacheState = mcpServer.cacheState.get();
+        const children = [];
+        let collapsed = true;
+        if (cacheState === 0 || cacheState === 2) {
+          collapsed = false;
+          children.push({
+            itemType: "callback",
+            iconClass: ThemeIcon.asClassName(Codicon.sync),
+            label: localize("mcpUpdate", "Update Tools"),
+            pickable: false,
+            run: /* @__PURE__ */ __name(() => {
+              treePicker.busy = true;
+              (async () => {
+                const ok = await startServerAndWaitForLiveTools(mcpServer, { promptType: "all-untrusted" });
+                if (!ok) {
+                  mcpServer.showOutput();
+                  treePicker.hide();
+                  return;
+                }
+                treePicker.busy = false;
+                computeItems(collectResults());
+              })();
+              return false;
+            }, "run")
+          });
+        }
+        const bucket = {
+          itemType: "bucket",
+          ordinal: 2,
+          id: key,
+          label: source2.label,
+          checked: void 0,
+          collapsed,
+          children,
+          buttons,
+          sortOrder: 2
+        };
+        const iconPath = mcpServer.serverMetadata.get()?.icons.getUrl(22);
+        if (iconPath) {
+          bucket.iconPath = iconPath;
+        } else {
+          bucket.iconClass = ThemeIcon.asClassName(Codicon.mcp);
+        }
+        return bucket;
+      } else if (source2.type === "extension") {
+        return {
+          itemType: "bucket",
+          ordinal: 3,
+          id: key,
+          label: source2.label,
+          checked: void 0,
+          children: [],
+          buttons: [],
+          collapsed: true,
+          iconClass: ThemeIcon.asClassName(Codicon.extensions),
+          sortOrder: 3
+        };
+      } else if (source2.type === "internal") {
+        return {
+          itemType: "bucket",
+          ordinal: 1,
+          id: key,
+          label: localize("defaultBucketLabel", "Built-In"),
+          checked: void 0,
+          children: [],
+          buttons: [],
+          collapsed: false,
+          sortOrder: 1
+        };
+      } else {
+        return {
+          itemType: "bucket",
+          ordinal: 0,
+          id: key,
+          label: localize("userBucket", "User Defined Tool Sets"),
+          checked: void 0,
+          children: [],
+          buttons: [],
+          collapsed: true,
+          sortOrder: 4
+        };
+      }
+    }, "createBucket");
+    const getBucket = /* @__PURE__ */ __name((source2) => {
+      const key = getKey(source2);
+      let bucket = bucketMap.get(key);
+      if (!bucket) {
+        bucket = createBucket(source2, key);
+        if (bucket) {
+          bucketMap.set(key, bucket);
+        }
+      }
+      return bucket;
+    }, "getBucket");
+    for (const toolSet of toolsService.getToolSetsForModel(model)) {
+      if (!toolsEntries.has(toolSet.id)) {
+        continue;
+      }
+      const bucket = getBucket(toolSet.source);
+      if (!bucket) {
+        continue;
+      }
+      const toolSetChecked = toolsEntries.get(toolSet.id) === true;
+      if (toolSet.source.type === "mcp") {
+        bucket.toolset = toolSet;
+        if (toolSetChecked) {
+          bucket.checked = toolSetChecked;
+        }
+      } else {
+        const treeItem = createToolSetTreeItem(toolSet, toolSetChecked, editorService);
+        bucket.children.push(treeItem);
+        const children = [];
+        for (const tool of toolSet.getTools()) {
+          const toolChecked = toolSetChecked || toolsEntries.get(tool.id) === true;
+          const toolTreeItem = createToolTreeItemFromData(tool, toolChecked);
+          children.push(toolTreeItem);
+        }
+        if (children.length > 0) {
+          treeItem.children = children;
+        }
+      }
+    }
+    for (const tool of toolsService.getAllToolsIncludingDisabled()) {
+      if (!tool.canBeReferencedInPrompt || !toolsEntries.has(tool.id)) {
+        continue;
+      }
+      const bucket = getBucket(tool.source);
+      if (!bucket) {
+        continue;
+      }
+      const toolChecked = bucket.checked === true || toolsEntries.get(tool.id) === true;
+      const toolTreeItem = createToolTreeItemFromData(tool, toolChecked);
+      bucket.children.push(toolTreeItem);
+    }
+    for (const { server, seen } of mcpServers.values()) {
+      const cacheState = server.cacheState.get();
+      if (!seen && (cacheState === 0 || cacheState === 2)) {
+        getBucket({ type: "mcp", definitionId: server.definition.id, label: server.definition.label, instructions: "", serverLabel: "", collectionId: server.collection.id });
+      }
+    }
+    const sortedBuckets = Array.from(bucketMap.values()).sort((a, b) => {
+      if (a.sortOrder !== b.sortOrder) {
+        return a.sortOrder - b.sortOrder;
+      }
+      return a.label.localeCompare(b.label);
+    });
+    for (const bucket of sortedBuckets) {
+      treeItems.push(bucket);
+      bucket.children.sort((a, b) => a.label.localeCompare(b.label));
+      for (const child of bucket.children) {
+        if (isToolSetTreeItem(child) && child.children) {
+          child.children.sort((a, b) => a.label.localeCompare(b.label));
+        }
+      }
+    }
+    if (treeItems.length === 0) {
+      treePicker.placeholder = localize("noTools", "Add tools to chat");
+    } else {
+      treePicker.placeholder = placeHolder;
+    }
+    treePicker.setItemTree(treeItems);
+  }
+  __name(computeItems, "computeItems");
+  const store = new DisposableStore();
+  const treePicker = store.add(quickPickService.createQuickTree());
+  treePicker.placeholder = placeHolder;
+  treePicker.description = description;
+  treePicker.matchOnDescription = true;
+  treePicker.matchOnLabel = true;
+  treePicker.sortByLabel = false;
+  computeItems();
+  store.add(treePicker.onDidTriggerItemButton((e) => {
+    if (e.button && typeof e.button.action === "function") {
+      e.button.action();
+      store.dispose();
+    }
+  }));
+  const collectResults = /* @__PURE__ */ __name(() => {
+    const result = /* @__PURE__ */ new Map();
+    const traverse = /* @__PURE__ */ __name((items) => {
+      for (const item of items) {
+        if (isBucketTreeItem(item)) {
+          if (item.toolset) {
+            const allChecked = item.checked === true;
+            result.set(item.toolset, allChecked);
+          }
+          traverse(item.children);
+        } else if (isToolSetTreeItem(item)) {
+          result.set(item.toolset, item.checked === true);
+          if (item.children) {
+            traverse(item.children);
+          }
+        } else if (isToolTreeItem(item)) {
+          result.set(item.tool, item.checked || result.get(item.tool) === true);
+        }
+      }
+    }, "traverse");
+    traverse(treePicker.itemTree);
+    return result;
+  }, "collectResults");
+  let didAccept = false;
+  const didAcceptFinalItem = store.add(new Emitter());
+  store.add(treePicker.onDidAccept(() => {
+    const activeItems = treePicker.activeItems;
+    const callbackItem = activeItems.find(isCallbackTreeItem);
+    if (!callbackItem) {
+      didAccept = true;
+      treePicker.hide();
+      return;
+    }
+    const ret = callbackItem.run();
+    if (ret !== false) {
+      didAcceptFinalItem.fire();
+    }
+  }));
+  const addMcpServerButton = {
+    iconClass: ThemeIcon.asClassName(Codicon.mcp),
+    tooltip: localize("addMcpServer", "Add MCP Server...")
+  };
+  const installExtension = {
+    iconClass: ThemeIcon.asClassName(Codicon.extensions),
+    tooltip: localize("addExtensionButton", "Install Extension...")
+  };
+  const configureToolSets = {
+    iconClass: ThemeIcon.asClassName(Codicon.gear),
+    tooltip: localize("configToolSets", "Configure Tool Sets...")
+  };
+  treePicker.title = localize("configureTools", "Configure Tools");
+  treePicker.buttons = [addMcpServerButton, installExtension, configureToolSets];
+  store.add(treePicker.onDidTriggerButton((button) => {
+    if (button === addMcpServerButton) {
+      commandService.executeCommand(
+        "workbench.mcp.addConfiguration"
+        /* McpCommandIds.AddConfiguration */
+      );
+    } else if (button === installExtension) {
+      extensionsWorkbenchService.openSearch("@tag:language-model-tools");
+    } else if (button === configureToolSets) {
+      commandService.executeCommand(ConfigureToolSets.ID);
+    }
+    treePicker.hide();
+  }));
+  if (token) {
+    store.add(token.onCancellationRequested(() => {
+      treePicker.hide();
+    }));
+  }
+  const initialState = collectResults();
+  treePicker.show();
+  await Promise.race([Event.toPromise(Event.any(treePicker.onDidHide, didAcceptFinalItem.event), store)]);
+  sendDidChangeEvent(source, telemetryService, initialState, collectResults(), mcpRegistry);
+  store.dispose();
+  return didAccept ? collectResults() : void 0;
+}
+__name(showToolsPicker, "showToolsPicker");
+function categorizeTool(item, mcpRegistry) {
+  const source = item.source;
+  switch (source.type) {
+    case "internal":
+      return { category: "builtin", name: item.id };
+    case "extension":
+      return { category: "extension", name: item.id, extensionId: source.extensionId.value };
+    case "mcp": {
+      const collection = mcpRegistry.collections.get().find((c) => c.id === source.collectionId);
+      if (collection?.source instanceof ExtensionIdentifier) {
+        return { category: "extension-mcp", extensionId: collection.source.value };
+      }
+      return { category: "user-mcp" };
+    }
+    case "user":
+      return { category: "user-toolset" };
+    case "external":
+      return { category: "user-toolset" };
+    default:
+      assertNever(source);
+  }
+}
+__name(categorizeTool, "categorizeTool");
+function computeToolToggleSummary(initialState, finalState, mcpRegistry) {
+  const summary = {
+    builtinEnabled: 0,
+    builtinDisabled: 0,
+    extensionEnabled: 0,
+    extensionDisabled: 0,
+    extensionMcpEnabled: 0,
+    extensionMcpDisabled: 0,
+    userMcpEnabled: 0,
+    userMcpDisabled: 0,
+    userToolsetEnabled: 0,
+    userToolsetDisabled: 0,
+    details: ""
+  };
+  const detailItems = [];
+  for (const [item, finalEnabled] of finalState) {
+    const initialEnabled = initialState.get(item) ?? false;
+    if (initialEnabled === finalEnabled) {
+      continue;
+    }
+    const categorized = categorizeTool(item, mcpRegistry);
+    const enabled = finalEnabled;
+    switch (categorized.category) {
+      case "builtin":
+        if (enabled) {
+          summary.builtinEnabled++;
+        } else {
+          summary.builtinDisabled++;
+        }
+        detailItems.push({ category: "builtin", name: categorized.name, enabled });
+        break;
+      case "extension":
+        if (enabled) {
+          summary.extensionEnabled++;
+        } else {
+          summary.extensionDisabled++;
+        }
+        detailItems.push({ category: "extension", name: categorized.name, extensionId: categorized.extensionId, enabled });
+        break;
+      case "extension-mcp":
+        if (enabled) {
+          summary.extensionMcpEnabled++;
+        } else {
+          summary.extensionMcpDisabled++;
+        }
+        detailItems.push({ category: "extension-mcp", extensionId: categorized.extensionId, enabled });
+        break;
+      case "user-mcp":
+        if (enabled) {
+          summary.userMcpEnabled++;
+        } else {
+          summary.userMcpDisabled++;
+        }
+        detailItems.push({ category: "user-mcp", enabled });
+        break;
+      case "user-toolset":
+        if (enabled) {
+          summary.userToolsetEnabled++;
+        } else {
+          summary.userToolsetDisabled++;
+        }
+        detailItems.push({ category: "user-toolset", enabled });
+        break;
+    }
+  }
+  summary.details = JSON.stringify(detailItems);
+  return summary;
+}
+__name(computeToolToggleSummary, "computeToolToggleSummary");
+function sendDidChangeEvent(source, telemetryService, initialState, finalState, mcpRegistry) {
+  const summary = computeToolToggleSummary(initialState, finalState, mcpRegistry);
+  const changed = summary.builtinEnabled > 0 || summary.builtinDisabled > 0 || summary.extensionEnabled > 0 || summary.extensionDisabled > 0 || summary.extensionMcpEnabled > 0 || summary.extensionMcpDisabled > 0 || summary.userMcpEnabled > 0 || summary.userMcpDisabled > 0 || summary.userToolsetEnabled > 0 || summary.userToolsetDisabled > 0;
+  telemetryService.publicLog2("chatToolPickerClosed", {
+    source,
+    changed,
+    builtinEnabled: summary.builtinEnabled,
+    builtinDisabled: summary.builtinDisabled,
+    extensionEnabled: summary.extensionEnabled,
+    extensionDisabled: summary.extensionDisabled,
+    extensionMcpEnabled: summary.extensionMcpEnabled,
+    extensionMcpDisabled: summary.extensionMcpDisabled,
+    userMcpEnabled: summary.userMcpEnabled,
+    userMcpDisabled: summary.userMcpDisabled,
+    userToolsetEnabled: summary.userToolsetEnabled,
+    userToolsetDisabled: summary.userToolsetDisabled,
+    details: summary.details
+  });
+}
+__name(sendDidChangeEvent, "sendDidChangeEvent");
+export {
+  showToolsPicker
+};
+//# sourceMappingURL=chatToolPicker.js.map

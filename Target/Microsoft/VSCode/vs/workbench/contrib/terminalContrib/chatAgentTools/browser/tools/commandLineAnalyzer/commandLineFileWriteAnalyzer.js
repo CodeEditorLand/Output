@@ -1,1 +1,170 @@
-import{$Ed as w}from"../../../../../../../base/common/lifecycle.js";import{URI as u}from"../../../../../../../base/common/uri.js";import{$5 as f,$6 as m}from"../../../../../../../base/common/path.js";import{localize as b}from"../../../../../../../nls.js";import{$0l as k}from"../../../../../../../platform/configuration/common/configuration.js";import{$Ml as v}from"../../../../../../../platform/workspace/common/workspace.js";import{$6c as A}from"../../../../../../../base/common/types.js";import{$oH as F}from"../../../../../../../platform/label/common/label.js";var g=function(a,e,t,s){var o=arguments.length,l=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(a,e,t,s);else for(var i=a.length-1;i>=0;i--)(r=a[i])&&(l=(o<3?r(l):o>3?r(e,t,l):r(e,t))||l);return o>3&&l&&Object.defineProperty(e,t,l),l},d=function(a,e){return function(t,s){e(t,s,a)}};const c=Symbol("null device");let p=class extends w{constructor(e,t,s,o,l){super(),this.a=e,this.b=t,this.c=s,this.f=o,this.g=l}async analyze(e){let t;try{t=await this.h(e)}catch{return this.b("Failed to get file writes via grammar",e.treeSitterLanguage),{isAutoApproveAllowed:!1}}return this.n(e,t)}async h(e){let t=[];const s=(await this.a.getFileWrites(e.treeSitterLanguage,e.commandLine)).map(this.m.bind(this,e)),o=(await this.a.getCommandFileWrites(e.treeSitterLanguage,e.commandLine)).map(this.m.bind(this,e)),l=[...s,...o];if(l.length){const r=e.cwd;r?(this.b("Detected cwd",r.toString()),t=l.map(i=>i===c?i:(/^['"].*['"]$/.test(i)&&(i=this.j(i)),(e.os===1?f.isAbsolute(i):m.isAbsolute(i))?r.with({path:i}):u.joinPath(r,i)))):(this.b("Cwd could not be detected"),t=l)}return this.b("File writes detected",t.map(r=>r.toString())),t}j(e){return e.startsWith('"')&&e.endsWith('"')||e.startsWith("'")&&e.endsWith("'")?e.slice(1,-1):e}m(e,t){return e.treeSitterLanguage==="powershell"?t==="$null"?c:t:t==="/dev/null"?c:t}n(e,t){let s=!0;if(t.length>0)switch(this.c.getValue("chat.tools.terminal.blockDetectedFileWrites")){case"all":{s=!1,this.b('File writes blocked due to "all" setting');break}case"outsideWorkspace":{const r=this.g.getWorkspace().folders;if(r.length>0)for(const i of t){if(i===c){this.b("File write to null device allowed",u.isUri(i)?i.toString():i);continue}if(A(i)&&!(e.os===1?f.isAbsolute(i):m.isAbsolute(i))){s=!1,this.b("File write blocked due to unknown terminal cwd",i);break}const n=u.isUri(i)?i:u.file(i);if(n.fsPath.match(/[$\(\){}`]/)){s=!1,this.b("File write blocked due to likely containing a variable or sub-command",n.toString());break}if(!r.some(h=>h.uri.scheme===n.scheme&&(n.path.startsWith(h.uri.path+"/")||n.path===h.uri.path))){s=!1,this.b("File write blocked outside workspace",n.toString());break}}else t.every(n=>n===c)||(s=!1,this.b("File writes blocked - no workspace folders"));break}default:break}const o=[];if(t.length>0){const l=t.map(r=>`\`${u.isUri(r)?this.f.getUriLabel(r):r===c?"/dev/null":r.toString()}\``).join(", ");s?o.push(b(13747,null,l)):o.push(b(13746,null,l))}return{isAutoApproveAllowed:s,disclaimers:o}}};p=g([d(2,k),d(3,F),d(4,v)],p);export{p as $dDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../../../base/common/uri.js";
+import { win32, posix } from "../../../../../../../base/common/path.js";
+import { localize } from "../../../../../../../nls.js";
+import { IConfigurationService } from "../../../../../../../platform/configuration/common/configuration.js";
+import { IWorkspaceContextService } from "../../../../../../../platform/workspace/common/workspace.js";
+import { isString } from "../../../../../../../base/common/types.js";
+import { ILabelService } from "../../../../../../../platform/label/common/label.js";
+const nullDevice = /* @__PURE__ */ Symbol("null device");
+let CommandLineFileWriteAnalyzer = class CommandLineFileWriteAnalyzer2 extends Disposable {
+  static {
+    __name(this, "CommandLineFileWriteAnalyzer");
+  }
+  constructor(_treeSitterCommandParser, _log, _configurationService, _labelService, _workspaceContextService) {
+    super();
+    this._treeSitterCommandParser = _treeSitterCommandParser;
+    this._log = _log;
+    this._configurationService = _configurationService;
+    this._labelService = _labelService;
+    this._workspaceContextService = _workspaceContextService;
+  }
+  async analyze(options) {
+    let fileWrites;
+    try {
+      fileWrites = await this._getFileWrites(options);
+    } catch (e) {
+      console.error(e);
+      this._log("Failed to get file writes via grammar", options.treeSitterLanguage);
+      return {
+        isAutoApproveAllowed: false
+      };
+    }
+    return this._getResult(options, fileWrites);
+  }
+  async _getFileWrites(options) {
+    let fileWrites = [];
+    const capturedFileWrites = (await this._treeSitterCommandParser.getFileWrites(options.treeSitterLanguage, options.commandLine)).map(this._mapNullDevice.bind(this, options));
+    const commandFileWrites = (await this._treeSitterCommandParser.getCommandFileWrites(options.treeSitterLanguage, options.commandLine)).map(this._mapNullDevice.bind(this, options));
+    const allCapturedFileWrites = [...capturedFileWrites, ...commandFileWrites];
+    if (allCapturedFileWrites.length) {
+      const cwd = options.cwd;
+      if (cwd) {
+        this._log("Detected cwd", cwd.toString());
+        fileWrites = allCapturedFileWrites.map((e) => {
+          if (e === nullDevice) {
+            return e;
+          }
+          if (/^['"].*['"]$/.test(e)) {
+            e = this._stripSurroundingQuotes(e);
+          }
+          const isAbsolute = options.os === 1 ? win32.isAbsolute(e) : posix.isAbsolute(e);
+          if (isAbsolute) {
+            return cwd.with({ path: e });
+          }
+          return URI.joinPath(cwd, e);
+        });
+      } else {
+        this._log("Cwd could not be detected");
+        fileWrites = allCapturedFileWrites;
+      }
+    }
+    this._log("File writes detected", fileWrites.map((e) => e.toString()));
+    return fileWrites;
+  }
+  _stripSurroundingQuotes(text) {
+    if (text.startsWith('"') && text.endsWith('"') || text.startsWith("'") && text.endsWith("'")) {
+      return text.slice(1, -1);
+    }
+    return text;
+  }
+  _mapNullDevice(options, rawFileWrite) {
+    if (options.treeSitterLanguage === "powershell") {
+      return rawFileWrite === "$null" ? nullDevice : rawFileWrite;
+    }
+    return rawFileWrite === "/dev/null" ? nullDevice : rawFileWrite;
+  }
+  _getResult(options, fileWrites) {
+    let isAutoApproveAllowed = true;
+    if (fileWrites.length > 0) {
+      const blockDetectedFileWrites = this._configurationService.getValue(
+        "chat.tools.terminal.blockDetectedFileWrites"
+        /* TerminalChatAgentToolsSettingId.BlockDetectedFileWrites */
+      );
+      switch (blockDetectedFileWrites) {
+        case "all": {
+          isAutoApproveAllowed = false;
+          this._log('File writes blocked due to "all" setting');
+          break;
+        }
+        case "outsideWorkspace": {
+          const workspaceFolders = this._workspaceContextService.getWorkspace().folders;
+          if (workspaceFolders.length > 0) {
+            for (const fileWrite of fileWrites) {
+              if (fileWrite === nullDevice) {
+                this._log("File write to null device allowed", URI.isUri(fileWrite) ? fileWrite.toString() : fileWrite);
+                continue;
+              }
+              if (isString(fileWrite)) {
+                const isAbsolute = options.os === 1 ? win32.isAbsolute(fileWrite) : posix.isAbsolute(fileWrite);
+                if (!isAbsolute) {
+                  isAutoApproveAllowed = false;
+                  this._log("File write blocked due to unknown terminal cwd", fileWrite);
+                  break;
+                }
+              }
+              const fileUri = URI.isUri(fileWrite) ? fileWrite : URI.file(fileWrite);
+              if (fileUri.fsPath.match(/[$\(\){}`]/)) {
+                isAutoApproveAllowed = false;
+                this._log("File write blocked due to likely containing a variable or sub-command", fileUri.toString());
+                break;
+              }
+              const isInsideWorkspace = workspaceFolders.some((folder) => folder.uri.scheme === fileUri.scheme && (fileUri.path.startsWith(folder.uri.path + "/") || fileUri.path === folder.uri.path));
+              if (!isInsideWorkspace) {
+                isAutoApproveAllowed = false;
+                this._log("File write blocked outside workspace", fileUri.toString());
+                break;
+              }
+            }
+          } else {
+            const hasOnlyNullDevices = fileWrites.every((fw) => fw === nullDevice);
+            if (!hasOnlyNullDevices) {
+              isAutoApproveAllowed = false;
+              this._log("File writes blocked - no workspace folders");
+            }
+          }
+          break;
+        }
+        case "never":
+        default: {
+          break;
+        }
+      }
+    }
+    const disclaimers = [];
+    if (fileWrites.length > 0) {
+      const fileWritesList = fileWrites.map((fw) => `\`${URI.isUri(fw) ? this._labelService.getUriLabel(fw) : fw === nullDevice ? "/dev/null" : fw.toString()}\``).join(", ");
+      if (!isAutoApproveAllowed) {
+        disclaimers.push(localize("runInTerminal.fileWriteBlockedDisclaimer", "File write operations detected that cannot be auto approved: {0}", fileWritesList));
+      } else {
+        disclaimers.push(localize("runInTerminal.fileWriteDisclaimer", "File write operations detected: {0}", fileWritesList));
+      }
+    }
+    return {
+      isAutoApproveAllowed,
+      disclaimers
+    };
+  }
+};
+CommandLineFileWriteAnalyzer = __decorate([
+  __param(2, IConfigurationService),
+  __param(3, ILabelService),
+  __param(4, IWorkspaceContextService)
+], CommandLineFileWriteAnalyzer);
+export {
+  CommandLineFileWriteAnalyzer
+};
+//# sourceMappingURL=commandLineFileWriteAnalyzer.js.map

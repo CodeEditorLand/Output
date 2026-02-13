@@ -1,1 +1,84 @@
-import{$jk as d}from"../../../../base/common/htmlContent.js";import{$K1 as c}from"./es5ClassCompat.js";var l=function(s,e,t,p){var n=arguments.length,r=n<3?e:p===null?p=Object.getOwnPropertyDescriptor(e,t):p,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(s,e,t,p);else for(var u=s.length-1;u>=0;u--)(o=s[u])&&(r=(n<3?o(r):n>3?o(e,t,r):o(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},a;let i=a=class{#e;static isMarkdownString(e){return e instanceof a?!0:!e||typeof e!="object"?!1:e.appendCodeblock&&e.appendMarkdown&&e.appendText&&e.value!==void 0}constructor(e,t=!1){this.#e=new d(e,{supportThemeIcons:t})}get value(){return this.#e.value}set value(e){this.#e.value=e}get isTrusted(){return this.#e.isTrusted}set isTrusted(e){this.#e.isTrusted=e}get supportThemeIcons(){return this.#e.supportThemeIcons}set supportThemeIcons(e){this.#e.supportThemeIcons=e}get supportHtml(){return this.#e.supportHtml}set supportHtml(e){this.#e.supportHtml=e}get supportAlertSyntax(){return this.#e.supportAlertSyntax}set supportAlertSyntax(e){this.#e.supportAlertSyntax=e}get baseUri(){return this.#e.baseUri}set baseUri(e){this.#e.baseUri=e}appendText(e){return this.#e.appendText(e),this}appendMarkdown(e){return this.#e.appendMarkdown(e),this}appendCodeblock(e,t){return this.#e.appendCodeblock(t??"",e),this}};i=a=l([c],i);export{i as $41};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var MarkdownString_1;
+import { MarkdownString as BaseMarkdownString } from "../../../../base/common/htmlContent.js";
+import { es5ClassCompat } from "./es5ClassCompat.js";
+let MarkdownString = MarkdownString_1 = class MarkdownString2 {
+  static {
+    __name(this, "MarkdownString");
+  }
+  #delegate;
+  static isMarkdownString(thing) {
+    if (thing instanceof MarkdownString_1) {
+      return true;
+    }
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    return thing.appendCodeblock && thing.appendMarkdown && thing.appendText && thing.value !== void 0;
+  }
+  constructor(value, supportThemeIcons = false) {
+    this.#delegate = new BaseMarkdownString(value, { supportThemeIcons });
+  }
+  get value() {
+    return this.#delegate.value;
+  }
+  set value(value) {
+    this.#delegate.value = value;
+  }
+  get isTrusted() {
+    return this.#delegate.isTrusted;
+  }
+  set isTrusted(value) {
+    this.#delegate.isTrusted = value;
+  }
+  get supportThemeIcons() {
+    return this.#delegate.supportThemeIcons;
+  }
+  set supportThemeIcons(value) {
+    this.#delegate.supportThemeIcons = value;
+  }
+  get supportHtml() {
+    return this.#delegate.supportHtml;
+  }
+  set supportHtml(value) {
+    this.#delegate.supportHtml = value;
+  }
+  get supportAlertSyntax() {
+    return this.#delegate.supportAlertSyntax;
+  }
+  set supportAlertSyntax(value) {
+    this.#delegate.supportAlertSyntax = value;
+  }
+  get baseUri() {
+    return this.#delegate.baseUri;
+  }
+  set baseUri(value) {
+    this.#delegate.baseUri = value;
+  }
+  appendText(value) {
+    this.#delegate.appendText(value);
+    return this;
+  }
+  appendMarkdown(value) {
+    this.#delegate.appendMarkdown(value);
+    return this;
+  }
+  appendCodeblock(value, language) {
+    this.#delegate.appendCodeblock(language ?? "", value);
+    return this;
+  }
+};
+MarkdownString = MarkdownString_1 = __decorate([
+  es5ClassCompat
+], MarkdownString);
+export {
+  MarkdownString
+};
+//# sourceMappingURL=markdownString.js.map

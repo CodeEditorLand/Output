@@ -1,1 +1,54 @@
-import{$Ed as p,$Md as u}from"../../../base/common/lifecycle.js";import{$5m as m}from"../../../base/common/marshalling.js";import{$Y1 as $,$X1 as P}from"../common/extHost.protocol.js";import{$vDb as d}from"../../services/extensions/common/extHostCustomers.js";import{$SQ as b}from"../../services/userDataProfile/common/userDataProfile.js";var c=function(i,e,r,n){var s=arguments.length,t=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,r):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(i,e,r,n);else for(var l=i.length-1;l>=0;l--)(o=i[l])&&(t=(s<3?o(t):s>3?o(e,r,t):o(e,r))||t);return s>3&&t&&Object.defineProperty(e,r,t),t},h=function(i,e){return function(r,n){e(r,n,i)}};let f=class extends p{constructor(e,r){super(),this.c=r,this.b=this.D(new u),this.a=e.getProxy($.ExtHostProfileContentHandlers)}async $registerProfileContentHandler(e,r,n,s){this.b.set(e,this.c.registerProfileContentHandler(e,{name:r,description:n,extensionId:s,saveProfile:async(t,o,l)=>{const a=await this.a.$saveProfile(e,t,o,l);return a?m(a):null},readProfile:async(t,o)=>this.a.$readProfile(e,t,o)}))}async $unregisterProfileContentHandler(e){this.b.deleteAndDispose(e)}};f=c([d(P.MainThreadProfileContentHandlers),h(1,b)],f);export{f as $B0b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { IUserDataProfileImportExportService } from "../../services/userDataProfile/common/userDataProfile.js";
+let MainThreadProfileContentHandlers = class MainThreadProfileContentHandlers2 extends Disposable {
+  static {
+    __name(this, "MainThreadProfileContentHandlers");
+  }
+  constructor(context, userDataProfileImportExportService) {
+    super();
+    this.userDataProfileImportExportService = userDataProfileImportExportService;
+    this.registeredHandlers = this._register(new DisposableMap());
+    this.proxy = context.getProxy(ExtHostContext.ExtHostProfileContentHandlers);
+  }
+  async $registerProfileContentHandler(id, name, description, extensionId) {
+    this.registeredHandlers.set(id, this.userDataProfileImportExportService.registerProfileContentHandler(id, {
+      name,
+      description,
+      extensionId,
+      saveProfile: /* @__PURE__ */ __name(async (name2, content, token) => {
+        const result = await this.proxy.$saveProfile(id, name2, content, token);
+        return result ? revive(result) : null;
+      }, "saveProfile"),
+      readProfile: /* @__PURE__ */ __name(async (uri, token) => {
+        return this.proxy.$readProfile(id, uri, token);
+      }, "readProfile")
+    }));
+  }
+  async $unregisterProfileContentHandler(id) {
+    this.registeredHandlers.deleteAndDispose(id);
+  }
+};
+MainThreadProfileContentHandlers = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadProfileContentHandlers),
+  __param(1, IUserDataProfileImportExportService)
+], MainThreadProfileContentHandlers);
+export {
+  MainThreadProfileContentHandlers
+};
+//# sourceMappingURL=mainThreadProfileContentHandlers.js.map

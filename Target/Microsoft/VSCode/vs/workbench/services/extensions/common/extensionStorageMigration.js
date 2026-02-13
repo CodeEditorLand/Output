@@ -1,1 +1,71 @@
-import{$yb as h}from"../../../../base/common/errors.js";import{$Kl as v}from"../../../../platform/environment/common/environment.js";import{$mH as L}from"../../../../platform/extensionManagement/common/extensionStorage.js";import{FileSystemProviderErrorCode as P,$vk as F}from"../../../../platform/files/common/files.js";import{$yo as K}from"../../../../platform/log/common/log.js";import{$hp as M}from"../../../../platform/storage/common/storage.js";import{$$o as H}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$ap as U}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$Ml as j}from"../../../../platform/workspace/common/workspace.js";async function Q(e,r,t,w){return w.invokeFunction(async o=>{const y=o.get(v),l=o.get(U),g=o.get(L),n=o.get(M),m=o.get(H),k=o.get(F),C=o.get(j),f=o.get(K),p=`extensionStorage.migrate.${e}-${r}`,S=e.toLowerCase()===r.toLowerCase()?`extension.storage.migrateFromLowerCaseKey.${e.toLowerCase()}`:void 0;if(e===r)return;const c=(a,i)=>i?m.extUri.joinPath(l.defaultProfile.globalStorageHome,a.toLowerCase()):m.extUri.joinPath(y.workspaceStorageHome,C.getWorkspace().id,a),$=t?0:1;if(!n.getBoolean(p,$,!1)&&!(S&&n.getBoolean(S,$,!1))){f.info(`Migrating ${t?"global":"workspace"} extension storage from ${e} to ${r}...`);const a=g.getExtensionState(e,t);a&&(g.setExtensionState(r,a,t),g.setExtensionState(e,void 0,t));const i=c(e,t),s=c(r,t);if(!m.extUri.isEqual(i,s))try{await k.move(i,s,!0)}catch(u){u.code!==P.FileNotFound&&f.info(`Error while migrating ${t?"global":"workspace"} file storage from '${e}' to '${r}'`,h(u))}f.info(`Migrated ${t?"global":"workspace"} extension storage from ${e} to ${r}`),n.store(p,!0,$,1)}})}export{Q as $K7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getErrorMessage } from "../../../../base/common/errors.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IExtensionStorageService } from "../../../../platform/extensionManagement/common/extensionStorage.js";
+import { FileSystemProviderErrorCode, IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+async function migrateExtensionStorage(fromExtensionId, toExtensionId, global, instantionService) {
+  return instantionService.invokeFunction(async (serviceAccessor) => {
+    const environmentService = serviceAccessor.get(IEnvironmentService);
+    const userDataProfilesService = serviceAccessor.get(IUserDataProfilesService);
+    const extensionStorageService = serviceAccessor.get(IExtensionStorageService);
+    const storageService = serviceAccessor.get(IStorageService);
+    const uriIdentityService = serviceAccessor.get(IUriIdentityService);
+    const fileService = serviceAccessor.get(IFileService);
+    const workspaceContextService = serviceAccessor.get(IWorkspaceContextService);
+    const logService = serviceAccessor.get(ILogService);
+    const storageMigratedKey = `extensionStorage.migrate.${fromExtensionId}-${toExtensionId}`;
+    const migrateLowerCaseStorageKey = fromExtensionId.toLowerCase() === toExtensionId.toLowerCase() ? `extension.storage.migrateFromLowerCaseKey.${fromExtensionId.toLowerCase()}` : void 0;
+    if (fromExtensionId === toExtensionId) {
+      return;
+    }
+    const getExtensionStorageLocation = /* @__PURE__ */ __name((extensionId, global2) => {
+      if (global2) {
+        return uriIdentityService.extUri.joinPath(
+          userDataProfilesService.defaultProfile.globalStorageHome,
+          extensionId.toLowerCase()
+          /* Extension id is lower cased for global storage */
+        );
+      }
+      return uriIdentityService.extUri.joinPath(environmentService.workspaceStorageHome, workspaceContextService.getWorkspace().id, extensionId);
+    }, "getExtensionStorageLocation");
+    const storageScope = global ? 0 : 1;
+    if (!storageService.getBoolean(storageMigratedKey, storageScope, false) && !(migrateLowerCaseStorageKey && storageService.getBoolean(migrateLowerCaseStorageKey, storageScope, false))) {
+      logService.info(`Migrating ${global ? "global" : "workspace"} extension storage from ${fromExtensionId} to ${toExtensionId}...`);
+      const value = extensionStorageService.getExtensionState(fromExtensionId, global);
+      if (value) {
+        extensionStorageService.setExtensionState(toExtensionId, value, global);
+        extensionStorageService.setExtensionState(fromExtensionId, void 0, global);
+      }
+      const fromPath = getExtensionStorageLocation(fromExtensionId, global);
+      const toPath = getExtensionStorageLocation(toExtensionId, global);
+      if (!uriIdentityService.extUri.isEqual(fromPath, toPath)) {
+        try {
+          await fileService.move(fromPath, toPath, true);
+        } catch (error) {
+          if (error.code !== FileSystemProviderErrorCode.FileNotFound) {
+            logService.info(`Error while migrating ${global ? "global" : "workspace"} file storage from '${fromExtensionId}' to '${toExtensionId}'`, getErrorMessage(error));
+          }
+        }
+      }
+      logService.info(`Migrated ${global ? "global" : "workspace"} extension storage from ${fromExtensionId} to ${toExtensionId}`);
+      storageService.store(
+        storageMigratedKey,
+        true,
+        storageScope,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+  });
+}
+__name(migrateExtensionStorage, "migrateExtensionStorage");
+export {
+  migrateExtensionStorage
+};
+//# sourceMappingURL=extensionStorageMigration.js.map

@@ -1,1 +1,83 @@
-import{$Ed as m}from"../../../../base/common/lifecycle.js";import{Event as a}from"../../../../base/common/event.js";import{$0n as f,$ro as d}from"../../../../platform/contextkey/common/contextkey.js";import{$WC as u}from"../../../../platform/instantiation/common/extensions.js";import{$Nj as g}from"../../../../platform/instantiation/common/instantiation.js";import{ChatContextKeys as x}from"../../chat/common/actions/chatContextKeys.js";var l=function(n,t,e,i){var s=arguments.length,r=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,t,e,i);else for(var h=n.length-1;h>=0;h--)(o=n[h])&&(r=(s<3?o(r):s>3?o(t,e,r):o(t,e))||r);return s>3&&r&&Object.defineProperty(t,e,r),r},p=function(n,t){return function(e,i){t(e,i,n)}};const A=g("remoteCodingAgentsService");let c=class extends m{constructor(t){super(),this.g=t,this.c=[],this.f=new Set,this.b=x.hasRemoteCodingAgent.bindTo(this.g),this.D(a.filter(t.onDidChangeContext,e=>e.affectsSome(this.f))(()=>{this.j()}))}getRegisteredAgents(){return[...this.c]}getAvailableAgents(){return this.c.filter(t=>this.h(t))}registerAgent(t){const e=this.c.findIndex(i=>i.id===t.id);if(e>=0?this.c[e]=t:this.c.push(t),t.when){const i=f.deserialize(t.when);if(i)for(const s of i.keys())this.f.add(s)}this.j()}h(t){if(!t.when)return!0;const e=f.deserialize(t.when);return!e||this.g.contextMatchesRules(e)}j(){const t=this.getAvailableAgents().length>0;this.b.set(t)}};c=l([p(0,d)],c);u(A,c,1);export{A as $4qc,c as $5qc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Event } from "../../../../base/common/event.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+const IRemoteCodingAgentsService = createDecorator("remoteCodingAgentsService");
+let RemoteCodingAgentsService = class RemoteCodingAgentsService2 extends Disposable {
+  static {
+    __name(this, "RemoteCodingAgentsService");
+  }
+  constructor(contextKeyService) {
+    super();
+    this.contextKeyService = contextKeyService;
+    this.agents = [];
+    this.contextKeys = /* @__PURE__ */ new Set();
+    this._ctxHasRemoteCodingAgent = ChatContextKeys.hasRemoteCodingAgent.bindTo(this.contextKeyService);
+    this._register(Event.filter(contextKeyService.onDidChangeContext, (e) => e.affectsSome(this.contextKeys))(() => {
+      this.updateContextKeys();
+    }));
+  }
+  getRegisteredAgents() {
+    return [...this.agents];
+  }
+  getAvailableAgents() {
+    return this.agents.filter((agent) => this.isAgentAvailable(agent));
+  }
+  registerAgent(agent) {
+    const existingIndex = this.agents.findIndex((a) => a.id === agent.id);
+    if (existingIndex >= 0) {
+      this.agents[existingIndex] = agent;
+    } else {
+      this.agents.push(agent);
+    }
+    if (agent.when) {
+      const whenExpr = ContextKeyExpr.deserialize(agent.when);
+      if (whenExpr) {
+        for (const key of whenExpr.keys()) {
+          this.contextKeys.add(key);
+        }
+      }
+    }
+    this.updateContextKeys();
+  }
+  isAgentAvailable(agent) {
+    if (!agent.when) {
+      return true;
+    }
+    const whenExpr = ContextKeyExpr.deserialize(agent.when);
+    return !whenExpr || this.contextKeyService.contextMatchesRules(whenExpr);
+  }
+  updateContextKeys() {
+    const hasAvailableAgent = this.getAvailableAgents().length > 0;
+    this._ctxHasRemoteCodingAgent.set(hasAvailableAgent);
+  }
+};
+RemoteCodingAgentsService = __decorate([
+  __param(0, IContextKeyService)
+], RemoteCodingAgentsService);
+registerSingleton(
+  IRemoteCodingAgentsService,
+  RemoteCodingAgentsService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IRemoteCodingAgentsService,
+  RemoteCodingAgentsService
+};
+//# sourceMappingURL=remoteCodingAgentsService.js.map

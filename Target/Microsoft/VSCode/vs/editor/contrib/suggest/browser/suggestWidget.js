@@ -1,1 +1,946 @@
-import*as h from"../../../../base/browser/dom.js";import"../../../../base/browser/ui/codicons/codiconStyles.js";import{$w$ as E}from"../../../../base/browser/ui/list/listWidget.js";import{$Uh as M,$$h as C,$hi as B}from"../../../../base/common/async.js";import{$mb as O}from"../../../../base/common/errors.js";import{$xf as I,$Af as H}from"../../../../base/common/event.js";import{$Dd as q,$Fd as F}from"../../../../base/common/lifecycle.js";import{$gx as A}from"../../../../base/common/numbers.js";import*as k from"../../../../base/common/strings.js";import"./media/suggest.css";import{$2ob as T}from"../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";import{$4ob as j}from"./suggestWidgetStatus.js";import"../../symbolIcons/browser/symbolIcons.js";import*as a from"../../../../nls.js";import{$ro as _}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as Q}from"../../../../platform/instantiation/common/instantiation.js";import{$hp as V}from"../../../../platform/storage/common/storage.js";import{$iq as U,$Kq as J,$Qq as G,$Sq as K,$Os as X,$Ns as Y,$7t as Z,$5t as tt,$6t as et,$2p as g,$7p as it}from"../../../../platform/theme/common/colorRegistry.js";import{$qu as st}from"../../../../platform/theme/common/themeService.js";import{$4_ as ht}from"../../../../base/browser/ui/resizable/resizable.js";import{$mnb as S,$nnb as ot}from"./suggest.js";import{$5ob as nt,$7ob as rt,$6ob as lt}from"./suggestWidgetDetails.js";import{$$ob as dt}from"./suggestWidgetRenderer.js";import{$1jb as at}from"../../../../platform/theme/browser/defaultStyles.js";import{$60 as P}from"../../../../base/browser/ui/aria/aria.js";import{CompletionItemKinds as ct}from"../../../common/languages.js";import{$m as ut}from"../../../../base/common/platform.js";var R=function(r,t,i,e){var o=arguments.length,n=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,i,e);else for(var l=r.length-1;l>=0;l--)(c=r[l])&&(n=(o<3?c(n):o>3?c(t,i,n):c(t,i))||n);return o>3&&n&&Object.defineProperty(t,i,n),n},W=function(r,t){return function(i,e){t(i,e,r)}},v;g("editorSuggestWidget.background",G,a.localize(1650,null));g("editorSuggestWidget.border",K,a.localize(1651,null));const ft=g("editorSuggestWidget.foreground",J,a.localize(1652,null));g("editorSuggestWidget.selectedForeground",tt,a.localize(1653,null));g("editorSuggestWidget.selectedIconForeground",et,a.localize(1654,null));const gt=g("editorSuggestWidget.selectedBackground",Z,a.localize(1655,null));g("editorSuggestWidget.highlightForeground",Y,a.localize(1656,null));g("editorSuggestWidget.focusHighlightForeground",X,a.localize(1657,null));g("editorSuggestWidgetStatus.foreground",it(ft,.5),a.localize(1658,null));var x;(function(r){r[r.Hidden=0]="Hidden",r[r.Loading=1]="Loading",r[r.Empty=2]="Empty",r[r.Open=3]="Open",r[r.Frozen=4]="Frozen",r[r.Details=5]="Details",r[r.onDetailsKeyDown=6]="onDetailsKeyDown"})(x||(x={}));class mt{constructor(t,i){this.b=t,this.a=`suggestWidget.size/${i.getEditorType()}/${i instanceof T}`}restore(){const t=this.b.get(this.a,0)??"";try{const i=JSON.parse(t);if(h.$N8.is(i))return h.$N8.lift(i)}catch{}}store(t){this.b.store(this.a,JSON.stringify(t),0,1)}reset(){this.b.remove(this.a,0)}}let L=class{static{v=this}static{this.a=a.localize(1659,null)}static{this.b=a.localize(1660,null)}constructor(t,i,e,o,n){this.I=t,this.J=i,this.c=0,this.d=!1,this.g=new F,this.h=new F,this.k=!1,this.n=!1,this.o=!1,this.B=new B,this.C=new q,this.D=new H,this.E=new H,this.F=new I,this.G=new I,this.onDidSelect=this.D.event,this.onDidFocus=this.E.event,this.onDidHide=this.F.event,this.onDidShow=this.G.event,this.H=new I,this.onDetailsKeyDown=this.H.event,this.element=new ht,this.element.domNode.classList.add("editor-widget","suggest-widget"),this.u=new pt(this,t),this.v=new mt(i,t);class c{constructor(d,f,u=!1,m=!1){this.persistedSize=d,this.currentSize=f,this.persistHeight=u,this.persistWidth=m}}let l;this.C.add(this.element.onDidWillResize(()=>{this.u.lockPreference(),l=new c(this.v.restore(),this.element.size)})),this.C.add(this.element.onDidResize(s=>{if(this.U(s.dimension.width,s.dimension.height),l&&(l.persistHeight=l.persistHeight||!!s.north||!!s.south,l.persistWidth=l.persistWidth||!!s.east||!!s.west),!!s.done){if(l){const{itemHeight:d,defaultSize:f}=this.getLayoutInfo(),u=Math.round(d/2);let{width:m,height:y}=this.element.size;(!l.persistHeight||Math.abs(l.currentSize.height-y)<=u)&&(y=l.persistedSize?.height??f.height),(!l.persistWidth||Math.abs(l.currentSize.width-m)<=u)&&(m=l.persistedSize?.width??f.width),this.v.store(new h.$N8(m,y))}this.u.unlockPreference(),l=void 0}})),this.p=h.$y9(this.element.domNode,h.$(".message")),this.q=h.$y9(this.element.domNode,h.$(".tree"));const p=this.C.add(n.createInstance(lt,this.I));p.onDidClose(()=>this.toggleDetails(),this,this.C),this.t=new rt(p,this.I);const w=()=>this.element.domNode.classList.toggle("no-icons",!this.I.getOption(134).showIcons);w();const b=n.createInstance(dt,this.I);this.C.add(b),this.C.add(b.onDidToggleDetails(()=>this.toggleDetails())),this.r=new E("SuggestWidget",this.q,{getHeight:s=>this.getLayoutInfo().itemHeight,getTemplateId:s=>"suggestion"},[b],{alwaysConsumeMouseWheel:!0,useShadows:!1,mouseSupport:!1,multipleSelectionSupport:!1,accessibilityProvider:{getRole:()=>ut?"listitem":"option",getWidgetAriaLabel:()=>a.localize(1661,null),getWidgetRole:()=>"listbox",getAriaLabel:s=>{let d=s.textLabel;const f=ct.toLabel(s.completion.kind);if(typeof s.completion.label!="string"){const{detail:z,description:N}=s.completion.label;z&&N?d=a.localize(1662,null,d,z,N,f):z?d=a.localize(1663,null,d,z,f):N&&(d=a.localize(1664,null,d,N,f))}else d=a.localize(1665,null,d,f);if(!s.isResolved||!this.W())return d;const{documentation:u,detail:m}=s.completion,y=k.$Vf("{0}{1}",m||"",u?typeof u=="string"?u:u.value:"");return a.localize(1666,null,d,y)}}}),this.r.style(at({listInactiveFocusBackground:gt,listInactiveFocusOutline:U})),this.s=n.createInstance(j,this.element.domNode,ot,void 0);const $=()=>this.element.domNode.classList.toggle("with-status-bar",this.I.getOption(134).showStatusBar);$(),this.C.add(this.r.onMouseDown(s=>this.M(s))),this.C.add(this.r.onTap(s=>this.M(s))),this.C.add(this.r.onDidChangeSelection(s=>this.N(s))),this.C.add(this.r.onDidChangeFocus(s=>this.P(s))),this.C.add(this.I.onDidChangeCursorSelection(()=>this.L())),this.C.add(this.I.onDidChangeConfiguration(s=>{s.hasChanged(134)&&($(),w()),this.l&&(s.hasChanged(59)||s.hasChanged(135)||s.hasChanged(136))&&this.r.splice(0,this.r.length,this.l.items)})),this.w=S.Visible.bindTo(e),this.x=S.DetailsVisible.bindTo(e),this.y=S.MultipleSuggestions.bindTo(e),this.z=S.HasFocusedSuggestion.bindTo(e),this.A=S.DetailsFocused.bindTo(e);const D=h.$w9(this.t.widget.domNode);this.C.add(D),this.C.add(D.onDidFocus(()=>this.A.set(!0))),this.C.add(D.onDidBlur(()=>this.A.set(!1))),this.C.add(h.$v8(this.t.widget.domNode,"keydown",s=>{this.H.fire(s)})),this.C.add(this.I.onMouseDown(s=>this.K(s)))}dispose(){this.t.widget.dispose(),this.t.dispose(),this.r.dispose(),this.s.dispose(),this.C.dispose(),this.f?.dispose(),this.g.dispose(),this.h.dispose(),this.B.dispose(),this.u.dispose(),this.element.dispose()}K(t){this.t.widget.domNode.contains(t.target.element)?this.t.widget.domNode.focus():this.element.domNode.contains(t.target.element)&&this.I.focus()}L(){this.c!==0&&this.u.layout()}M(t){typeof t.element>"u"||typeof t.index>"u"||(t.browserEvent.preventDefault(),t.browserEvent.stopPropagation(),this.O(t.element,t.index))}N(t){t.elements.length&&this.O(t.elements[0],t.indexes[0])}O(t,i){const e=this.l;e&&(this.D.fire({item:t,index:i,model:e}),this.I.focus())}P(t){if(this.k)return;if(this.c===5&&this.Q(3),!t.elements.length){this.i&&(this.i.cancel(),this.i=void 0,this.j=void 0),this.I.setAriaOptions({activeDescendant:void 0}),this.z.set(!1);return}if(!this.l)return;this.z.set(!0);const i=t.elements[0],e=t.indexes[0];i!==this.j&&(this.i?.cancel(),this.i=void 0,this.j=i,this.r.reveal(e),this.i=M(async o=>{const n=C(()=>{this.W()&&this.S(!0,!1)},250),c=o.onCancellationRequested(()=>n.dispose());try{return await i.resolve(o)}finally{n.dispose(),c.dispose()}}),this.i.then(()=>{e>=this.r.length||i!==this.r.element(e)||(this.k=!0,this.r.splice(e,1,[i]),this.r.setFocus([e]),this.k=!1,this.W()?this.S(!1,!1):this.element.domNode.classList.remove("docs-side"),this.I.setAriaOptions({activeDescendant:this.r.getElementID(e)}))}).catch(O)),this.E.fire({item:i,index:e,model:this.l})}Q(t){if(this.c!==t)switch(this.c=t,this.element.domNode.classList.toggle("frozen",t===4),this.element.domNode.classList.remove("message"),t){case 0:h.$F9(this.p,this.q,this.s.element),this.t.hide(!0),this.s.hide(),this.u.hide(),this.w.reset(),this.y.reset(),this.z.reset(),this.B.cancel(),this.element.domNode.classList.remove("visible"),this.r.splice(0,this.r.length),this.j=void 0,this.m=void 0,this.o=!1;break;case 1:this.element.domNode.classList.add("message"),this.p.textContent=v.a,h.$F9(this.q,this.s.element),h.$E9(this.p),this.t.hide(),this.R(),this.j=void 0,P(v.a);break;case 2:this.element.domNode.classList.add("message"),this.p.textContent=v.b,h.$F9(this.q,this.s.element),h.$E9(this.p),this.t.hide(),this.R(),this.j=void 0,P(v.b);break;case 3:h.$F9(this.p),h.$E9(this.q,this.s.element),this.R();break;case 4:h.$F9(this.p),h.$E9(this.q,this.s.element),this.R();break;case 5:h.$F9(this.p),h.$E9(this.q,this.s.element),this.t.show(),this.R(),this.t.widget.focus();break}}R(){this.s.show(),this.u.show(),this.T(this.v.restore()),this.w.set(!0),this.B.cancelAndSet(()=>{this.element.domNode.classList.add("visible"),this.G.fire(this)},100)}showTriggered(t,i){this.c===0&&(this.u.setPosition(this.I.getPosition()),this.d=!!t,this.d||(this.f=C(()=>this.Q(1),i)))}showSuggestions(t,i,e,o,n){if(this.u.setPosition(this.I.getPosition()),this.f?.dispose(),this.i?.cancel(),this.i=void 0,this.l!==t&&(this.l=t),e&&this.c!==2&&this.c!==0){this.Q(4);return}const c=this.l.items.length,l=c===0;if(this.y.set(c>1),l){this.Q(o?0:2),this.l=void 0;return}this.j=void 0,this.E.pause(),this.D.pause();try{this.r.splice(0,this.r.length,this.l.items),this.Q(e?4:3),this.r.reveal(i,0,i===0?0:this.getLayoutInfo().itemHeight*.33),this.r.setFocus(n?[]:[i])}finally{this.E.resume(),this.D.resume()}this.g.value=h.$D8(h.getWindow(this.element.domNode),()=>{this.g.clear(),this.T(this.element.size),this.t.widget.domNode.classList.remove("focused")})}focusSelected(){this.r.length>0&&this.r.setFocus([0])}selectNextPage(){switch(this.c){case 0:return!1;case 5:return this.t.widget.pageDown(),!0;case 1:return!this.d;default:return this.r.focusNextPage(),!0}}selectNext(){switch(this.c){case 0:return!1;case 1:return!this.d;default:return this.r.focusNext(1,!0),!0}}selectLast(){switch(this.c){case 0:return!1;case 5:return this.t.widget.scrollBottom(),!0;case 1:return!this.d;default:return this.r.focusLast(),!0}}selectPreviousPage(){switch(this.c){case 0:return!1;case 5:return this.t.widget.pageUp(),!0;case 1:return!this.d;default:return this.r.focusPreviousPage(),!0}}selectPrevious(){switch(this.c){case 0:return!1;case 1:return!this.d;default:return this.r.focusPrevious(1,!0),!1}}selectFirst(){switch(this.c){case 0:return!1;case 5:return this.t.widget.scrollTop(),!0;case 1:return!this.d;default:return this.r.focusFirst(),!0}}getFocusedItem(){if(this.c!==0&&this.c!==2&&this.c!==1&&this.l&&this.r.getFocus().length>0)return{item:this.r.getFocusedElements()[0],index:this.r.getFocus()[0],model:this.l}}toggleDetailsFocus(){this.c===5?(this.r.setFocus(this.r.getFocus()),this.Q(3)):this.c===3&&(this.Q(5),this.W()?this.t.widget.focus():this.toggleDetails(!0))}toggleDetails(t=!1){this.W()?(this.h.clear(),this.x.set(!1),this.X(!1),this.t.hide(),this.element.domNode.classList.remove("shows-details")):(nt(this.r.getFocusedElements()[0])||this.o)&&(this.c===3||this.c===5||this.c===4)&&(this.x.set(!0),this.X(!0),this.S(!1,t))}S(t,i){this.h.value=h.$D8(h.getWindow(this.element.domNode),()=>{this.h.clear(),this.t.show();let e=!1;t?this.t.widget.renderLoading():this.t.widget.renderItem(this.r.getFocusedElements()[0],this.o),this.t.widget.isEmpty?this.t.hide():(this.V(),this.element.domNode.classList.add("shows-details"),i&&(this.t.widget.focus(),e=!0)),e||this.I.focus()})}toggleExplainMode(){this.r.getFocusedElements()[0]&&(this.o=!this.o,this.W()?this.S(!1,!1):this.toggleDetails())}resetPersistedSize(){this.v.reset()}hideWidget(){this.g.clear(),this.h.clear(),this.f?.dispose(),this.Q(0),this.F.fire(this),this.element.clearSashHoverState();const t=this.v.restore(),i=Math.ceil(this.getLayoutInfo().itemHeight*4.3);t&&t.height<i&&this.v.store(t.with(void 0,i))}isFrozen(){return this.c===4}_afterRender(t){if(t===null){this.W()&&this.t.hide();return}this.c===2||this.c===1||(this.W()&&!this.t.widget.isEmpty&&this.t.show(),this.V())}T(t){if(!this.I.hasModel()||!this.I.getDomNode())return;const i=h.$M8(this.element.domNode.ownerDocument.body),e=this.getLayoutInfo();t||(t=e.defaultSize);let o=t.height,n=t.width;if(this.s.element.style.height=`${e.itemHeight}px`,this.c===2||this.c===1)o=e.itemHeight+e.borderHeight,n=e.defaultSize.width/2,this.element.enableSashes(!1,!1,!1,!1),this.element.minSize=this.element.maxSize=new h.$N8(n,o),this.u.setPreference(2);else{const c=i.width-e.borderHeight-2*e.horizontalPadding;n>c&&(n=c);const l=this.l?this.l.stats.pLabelLen*e.typicalHalfwidthCharacterWidth:n,p=e.statusBarHeight+this.r.contentHeight+e.borderHeight,w=e.itemHeight+e.statusBarHeight,b=h.$R8(this.I.getDomNode()),$=this.I.getScrolledVisiblePosition(this.I.getPosition()),D=b.top+$.top+$.height,s=Math.min(i.height-D-e.verticalPadding,p),d=b.top+$.top-e.verticalPadding,f=Math.min(d,p);let u=Math.min(Math.max(f,s)+e.borderHeight,p);o===this.m?.capped&&(o=this.m.wanted),o<w&&(o=w),o>u&&(o=u),o>s&&f>s||this.n&&d>150?(this.u.setPreference(1),this.element.enableSashes(!0,!0,!1,!1),u=f):(this.u.setPreference(2),this.element.enableSashes(!1,!0,!0,!1),u=s),this.element.preferredSize=new h.$N8(l,e.defaultSize.height),this.element.maxSize=new h.$N8(c,u),this.element.minSize=new h.$N8(220,w),this.m=o===p?{wanted:this.m?.wanted??t.height,capped:o}:void 0}this.U(n,o)}U(t,i){const{width:e,height:o}=this.element.maxSize;t=Math.min(e,t),i=Math.min(o,i);const{statusBarHeight:n}=this.getLayoutInfo();this.r.layout(i-n,t),this.q.style.height=`${i-n}px`,this.element.layout(i,t),this.u.layout(),this.V()}V(){this.W()&&this.t.placeAtAnchor(this.element.domNode,this.u.getPosition()?.preference[0]===2)}getLayoutInfo(){const t=this.I.getOption(59),i=A(this.I.getOption(136)||t.lineHeight,8,1e3),e=!this.I.getOption(134).showStatusBar||this.c===2||this.c===1?0:i,o=this.t.widget.getLayoutInfo().borderWidth,n=2*o;return{itemHeight:i,statusBarHeight:e,borderWidth:o,borderHeight:n,typicalHalfwidthCharacterWidth:t.typicalHalfwidthCharacterWidth,verticalPadding:22,horizontalPadding:14,defaultSize:new h.$N8(430,e+12*i)}}W(){return this.J.getBoolean("expandSuggestionDocs",0,!1)}X(t){this.J.store("expandSuggestionDocs",t,0,0)}forceRenderingAbove(){this.n||(this.n=!0,this.T(this.v.restore()))}stopForceRenderingAbove(){this.n=!1}};L=v=R([W(1,V),W(2,_),W(3,st),W(4,Q)],L);class pt{constructor(t,i){this.g=t,this.h=i,this.allowEditorOverflow=!0,this.suppressMouseDown=!1,this.c=!1,this.d=!1,this.f=!1}dispose(){this.d&&(this.d=!1,this.h.removeContentWidget(this))}getId(){return"editor.widget.suggestWidget"}getDomNode(){return this.g.element.domNode}show(){this.f=!1,this.d||(this.d=!0,this.h.addContentWidget(this))}hide(){this.f||(this.f=!0,this.layout())}layout(){this.h.layoutContentWidget(this)}getPosition(){return this.f||!this.a||!this.b?null:{position:this.a,preference:[this.b]}}beforeRender(){const{height:t,width:i}=this.g.element.size,{borderWidth:e,horizontalPadding:o}=this.g.getLayoutInfo();return new h.$N8(i+2*e+o,t+2*e)}afterRender(t){this.g._afterRender(t)}setPreference(t){this.c||(this.b=t)}lockPreference(){this.c=!0}unlockPreference(){this.c=!1}setPosition(t){this.a=t}}export{ft as $_ob,gt as $apb,L as $bpb,pt as $cpb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SuggestWidget_1;
+import * as dom from "../../../../base/browser/dom.js";
+import "../../../../base/browser/ui/codicons/codiconStyles.js";
+import { List } from "../../../../base/browser/ui/list/listWidget.js";
+import { createCancelablePromise, disposableTimeout, TimeoutTimer } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Emitter, PauseableEmitter } from "../../../../base/common/event.js";
+import { DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { clamp } from "../../../../base/common/numbers.js";
+import * as strings from "../../../../base/common/strings.js";
+import "./media/suggest.css";
+import { EmbeddedCodeEditorWidget } from "../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { SuggestWidgetStatus } from "./suggestWidgetStatus.js";
+import "../../symbolIcons/browser/symbolIcons.js";
+import * as nls from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { activeContrastBorder, editorForeground, editorWidgetBackground, editorWidgetBorder, listFocusHighlightForeground, listHighlightForeground, quickInputListFocusBackground, quickInputListFocusForeground, quickInputListFocusIconForeground, registerColor, transparent } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
+import { Context as SuggestContext, suggestWidgetStatusbarMenu } from "./suggest.js";
+import { canExpandCompletionItem, SuggestDetailsOverlay, SuggestDetailsWidget } from "./suggestWidgetDetails.js";
+import { ItemRenderer } from "./suggestWidgetRenderer.js";
+import { getListStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { CompletionItemKinds } from "../../../common/languages.js";
+import { isWindows } from "../../../../base/common/platform.js";
+registerColor("editorSuggestWidget.background", editorWidgetBackground, nls.localize("editorSuggestWidgetBackground", "Background color of the suggest widget."));
+registerColor("editorSuggestWidget.border", editorWidgetBorder, nls.localize("editorSuggestWidgetBorder", "Border color of the suggest widget."));
+const editorSuggestWidgetForeground = registerColor("editorSuggestWidget.foreground", editorForeground, nls.localize("editorSuggestWidgetForeground", "Foreground color of the suggest widget."));
+registerColor("editorSuggestWidget.selectedForeground", quickInputListFocusForeground, nls.localize("editorSuggestWidgetSelectedForeground", "Foreground color of the selected entry in the suggest widget."));
+registerColor("editorSuggestWidget.selectedIconForeground", quickInputListFocusIconForeground, nls.localize("editorSuggestWidgetSelectedIconForeground", "Icon foreground color of the selected entry in the suggest widget."));
+const editorSuggestWidgetSelectedBackground = registerColor("editorSuggestWidget.selectedBackground", quickInputListFocusBackground, nls.localize("editorSuggestWidgetSelectedBackground", "Background color of the selected entry in the suggest widget."));
+registerColor("editorSuggestWidget.highlightForeground", listHighlightForeground, nls.localize("editorSuggestWidgetHighlightForeground", "Color of the match highlights in the suggest widget."));
+registerColor("editorSuggestWidget.focusHighlightForeground", listFocusHighlightForeground, nls.localize("editorSuggestWidgetFocusHighlightForeground", "Color of the match highlights in the suggest widget when an item is focused."));
+registerColor("editorSuggestWidgetStatus.foreground", transparent(editorSuggestWidgetForeground, 0.5), nls.localize("editorSuggestWidgetStatusForeground", "Foreground color of the suggest widget status."));
+var State;
+(function(State2) {
+  State2[State2["Hidden"] = 0] = "Hidden";
+  State2[State2["Loading"] = 1] = "Loading";
+  State2[State2["Empty"] = 2] = "Empty";
+  State2[State2["Open"] = 3] = "Open";
+  State2[State2["Frozen"] = 4] = "Frozen";
+  State2[State2["Details"] = 5] = "Details";
+  State2[State2["onDetailsKeyDown"] = 6] = "onDetailsKeyDown";
+})(State || (State = {}));
+class PersistedWidgetSize {
+  static {
+    __name(this, "PersistedWidgetSize");
+  }
+  constructor(_service, editor) {
+    this._service = _service;
+    this._key = `suggestWidget.size/${editor.getEditorType()}/${editor instanceof EmbeddedCodeEditorWidget}`;
+  }
+  restore() {
+    const raw = this._service.get(
+      this._key,
+      0
+      /* StorageScope.PROFILE */
+    ) ?? "";
+    try {
+      const obj = JSON.parse(raw);
+      if (dom.Dimension.is(obj)) {
+        return dom.Dimension.lift(obj);
+      }
+    } catch {
+    }
+    return void 0;
+  }
+  store(size) {
+    this._service.store(
+      this._key,
+      JSON.stringify(size),
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  reset() {
+    this._service.remove(
+      this._key,
+      0
+      /* StorageScope.PROFILE */
+    );
+  }
+}
+let SuggestWidget = class SuggestWidget2 {
+  static {
+    __name(this, "SuggestWidget");
+  }
+  static {
+    SuggestWidget_1 = this;
+  }
+  static {
+    this.LOADING_MESSAGE = nls.localize("suggestWidget.loading", "Loading...");
+  }
+  static {
+    this.NO_SUGGESTIONS_MESSAGE = nls.localize("suggestWidget.noSuggestions", "No suggestions.");
+  }
+  constructor(editor, _storageService, _contextKeyService, _themeService, instantiationService) {
+    this.editor = editor;
+    this._storageService = _storageService;
+    this._state = 0;
+    this._isAuto = false;
+    this._pendingLayout = new MutableDisposable();
+    this._pendingShowDetails = new MutableDisposable();
+    this._ignoreFocusEvents = false;
+    this._forceRenderingAbove = false;
+    this._explainMode = false;
+    this._showTimeout = new TimeoutTimer();
+    this._disposables = new DisposableStore();
+    this._onDidSelect = new PauseableEmitter();
+    this._onDidFocus = new PauseableEmitter();
+    this._onDidHide = new Emitter();
+    this._onDidShow = new Emitter();
+    this.onDidSelect = this._onDidSelect.event;
+    this.onDidFocus = this._onDidFocus.event;
+    this.onDidHide = this._onDidHide.event;
+    this.onDidShow = this._onDidShow.event;
+    this._onDetailsKeydown = new Emitter();
+    this.onDetailsKeyDown = this._onDetailsKeydown.event;
+    this.element = new ResizableHTMLElement();
+    this.element.domNode.classList.add("editor-widget", "suggest-widget");
+    this._contentWidget = new SuggestContentWidget(this, editor);
+    this._persistedSize = new PersistedWidgetSize(_storageService, editor);
+    class ResizeState {
+      static {
+        __name(this, "ResizeState");
+      }
+      constructor(persistedSize, currentSize, persistHeight = false, persistWidth = false) {
+        this.persistedSize = persistedSize;
+        this.currentSize = currentSize;
+        this.persistHeight = persistHeight;
+        this.persistWidth = persistWidth;
+      }
+    }
+    let state;
+    this._disposables.add(this.element.onDidWillResize(() => {
+      this._contentWidget.lockPreference();
+      state = new ResizeState(this._persistedSize.restore(), this.element.size);
+    }));
+    this._disposables.add(this.element.onDidResize((e) => {
+      this._resize(e.dimension.width, e.dimension.height);
+      if (state) {
+        state.persistHeight = state.persistHeight || !!e.north || !!e.south;
+        state.persistWidth = state.persistWidth || !!e.east || !!e.west;
+      }
+      if (!e.done) {
+        return;
+      }
+      if (state) {
+        const { itemHeight, defaultSize } = this.getLayoutInfo();
+        const threshold = Math.round(itemHeight / 2);
+        let { width, height } = this.element.size;
+        if (!state.persistHeight || Math.abs(state.currentSize.height - height) <= threshold) {
+          height = state.persistedSize?.height ?? defaultSize.height;
+        }
+        if (!state.persistWidth || Math.abs(state.currentSize.width - width) <= threshold) {
+          width = state.persistedSize?.width ?? defaultSize.width;
+        }
+        this._persistedSize.store(new dom.Dimension(width, height));
+      }
+      this._contentWidget.unlockPreference();
+      state = void 0;
+    }));
+    this._messageElement = dom.append(this.element.domNode, dom.$(".message"));
+    this._listElement = dom.append(this.element.domNode, dom.$(".tree"));
+    const details = this._disposables.add(instantiationService.createInstance(SuggestDetailsWidget, this.editor));
+    details.onDidClose(() => this.toggleDetails(), this, this._disposables);
+    this._details = new SuggestDetailsOverlay(details, this.editor);
+    const applyIconStyle = /* @__PURE__ */ __name(() => this.element.domNode.classList.toggle("no-icons", !this.editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).showIcons), "applyIconStyle");
+    applyIconStyle();
+    const renderer = instantiationService.createInstance(ItemRenderer, this.editor);
+    this._disposables.add(renderer);
+    this._disposables.add(renderer.onDidToggleDetails(() => this.toggleDetails()));
+    this._list = new List("SuggestWidget", this._listElement, {
+      getHeight: /* @__PURE__ */ __name((_element) => this.getLayoutInfo().itemHeight, "getHeight"),
+      getTemplateId: /* @__PURE__ */ __name((_element) => "suggestion", "getTemplateId")
+    }, [renderer], {
+      alwaysConsumeMouseWheel: true,
+      useShadows: false,
+      mouseSupport: false,
+      multipleSelectionSupport: false,
+      accessibilityProvider: {
+        getRole: /* @__PURE__ */ __name(() => isWindows ? "listitem" : "option", "getRole"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => nls.localize("suggest", "Suggest"), "getWidgetAriaLabel"),
+        getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole"),
+        getAriaLabel: /* @__PURE__ */ __name((item) => {
+          let label = item.textLabel;
+          const kindLabel = CompletionItemKinds.toLabel(item.completion.kind);
+          if (typeof item.completion.label !== "string") {
+            const { detail: detail2, description } = item.completion.label;
+            if (detail2 && description) {
+              label = nls.localize("label.full", "{0} {1}, {2}, {3}", label, detail2, description, kindLabel);
+            } else if (detail2) {
+              label = nls.localize("label.detail", "{0} {1}, {2}", label, detail2, kindLabel);
+            } else if (description) {
+              label = nls.localize("label.desc", "{0}, {1}, {2}", label, description, kindLabel);
+            }
+          } else {
+            label = nls.localize("label", "{0}, {1}", label, kindLabel);
+          }
+          if (!item.isResolved || !this._isDetailsVisible()) {
+            return label;
+          }
+          const { documentation, detail } = item.completion;
+          const docs = strings.format("{0}{1}", detail || "", documentation ? typeof documentation === "string" ? documentation : documentation.value : "");
+          return nls.localize("ariaCurrenttSuggestionReadDetails", "{0}, docs: {1}", label, docs);
+        }, "getAriaLabel")
+      }
+    });
+    this._list.style(getListStyles({
+      listInactiveFocusBackground: editorSuggestWidgetSelectedBackground,
+      listInactiveFocusOutline: activeContrastBorder
+    }));
+    this._status = instantiationService.createInstance(SuggestWidgetStatus, this.element.domNode, suggestWidgetStatusbarMenu, void 0);
+    const applyStatusBarStyle = /* @__PURE__ */ __name(() => this.element.domNode.classList.toggle("with-status-bar", this.editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).showStatusBar), "applyStatusBarStyle");
+    applyStatusBarStyle();
+    this._disposables.add(this._list.onMouseDown((e) => this._onListMouseDownOrTap(e)));
+    this._disposables.add(this._list.onTap((e) => this._onListMouseDownOrTap(e)));
+    this._disposables.add(this._list.onDidChangeSelection((e) => this._onListSelection(e)));
+    this._disposables.add(this._list.onDidChangeFocus((e) => this._onListFocus(e)));
+    this._disposables.add(this.editor.onDidChangeCursorSelection(() => this._onCursorSelectionChanged()));
+    this._disposables.add(this.editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(
+        134
+        /* EditorOption.suggest */
+      )) {
+        applyStatusBarStyle();
+        applyIconStyle();
+      }
+      if (this._completionModel && (e.hasChanged(
+        59
+        /* EditorOption.fontInfo */
+      ) || e.hasChanged(
+        135
+        /* EditorOption.suggestFontSize */
+      ) || e.hasChanged(
+        136
+        /* EditorOption.suggestLineHeight */
+      ))) {
+        this._list.splice(0, this._list.length, this._completionModel.items);
+      }
+    }));
+    this._ctxSuggestWidgetVisible = SuggestContext.Visible.bindTo(_contextKeyService);
+    this._ctxSuggestWidgetDetailsVisible = SuggestContext.DetailsVisible.bindTo(_contextKeyService);
+    this._ctxSuggestWidgetMultipleSuggestions = SuggestContext.MultipleSuggestions.bindTo(_contextKeyService);
+    this._ctxSuggestWidgetHasFocusedSuggestion = SuggestContext.HasFocusedSuggestion.bindTo(_contextKeyService);
+    this._ctxSuggestWidgetDetailsFocused = SuggestContext.DetailsFocused.bindTo(_contextKeyService);
+    const detailsFocusTracker = dom.trackFocus(this._details.widget.domNode);
+    this._disposables.add(detailsFocusTracker);
+    this._disposables.add(detailsFocusTracker.onDidFocus(() => this._ctxSuggestWidgetDetailsFocused.set(true)));
+    this._disposables.add(detailsFocusTracker.onDidBlur(() => this._ctxSuggestWidgetDetailsFocused.set(false)));
+    this._disposables.add(dom.addStandardDisposableListener(this._details.widget.domNode, "keydown", (e) => {
+      this._onDetailsKeydown.fire(e);
+    }));
+    this._disposables.add(this.editor.onMouseDown((e) => this._onEditorMouseDown(e)));
+  }
+  dispose() {
+    this._details.widget.dispose();
+    this._details.dispose();
+    this._list.dispose();
+    this._status.dispose();
+    this._disposables.dispose();
+    this._loadingTimeout?.dispose();
+    this._pendingLayout.dispose();
+    this._pendingShowDetails.dispose();
+    this._showTimeout.dispose();
+    this._contentWidget.dispose();
+    this.element.dispose();
+  }
+  _onEditorMouseDown(mouseEvent) {
+    if (this._details.widget.domNode.contains(mouseEvent.target.element)) {
+      this._details.widget.domNode.focus();
+    } else {
+      if (this.element.domNode.contains(mouseEvent.target.element)) {
+        this.editor.focus();
+      }
+    }
+  }
+  _onCursorSelectionChanged() {
+    if (this._state !== 0) {
+      this._contentWidget.layout();
+    }
+  }
+  _onListMouseDownOrTap(e) {
+    if (typeof e.element === "undefined" || typeof e.index === "undefined") {
+      return;
+    }
+    e.browserEvent.preventDefault();
+    e.browserEvent.stopPropagation();
+    this._select(e.element, e.index);
+  }
+  _onListSelection(e) {
+    if (e.elements.length) {
+      this._select(e.elements[0], e.indexes[0]);
+    }
+  }
+  _select(item, index) {
+    const completionModel = this._completionModel;
+    if (completionModel) {
+      this._onDidSelect.fire({ item, index, model: completionModel });
+      this.editor.focus();
+    }
+  }
+  _onListFocus(e) {
+    if (this._ignoreFocusEvents) {
+      return;
+    }
+    if (this._state === 5) {
+      this._setState(
+        3
+        /* State.Open */
+      );
+    }
+    if (!e.elements.length) {
+      if (this._currentSuggestionDetails) {
+        this._currentSuggestionDetails.cancel();
+        this._currentSuggestionDetails = void 0;
+        this._focusedItem = void 0;
+      }
+      this.editor.setAriaOptions({ activeDescendant: void 0 });
+      this._ctxSuggestWidgetHasFocusedSuggestion.set(false);
+      return;
+    }
+    if (!this._completionModel) {
+      return;
+    }
+    this._ctxSuggestWidgetHasFocusedSuggestion.set(true);
+    const item = e.elements[0];
+    const index = e.indexes[0];
+    if (item !== this._focusedItem) {
+      this._currentSuggestionDetails?.cancel();
+      this._currentSuggestionDetails = void 0;
+      this._focusedItem = item;
+      this._list.reveal(index);
+      this._currentSuggestionDetails = createCancelablePromise(async (token) => {
+        const loading = disposableTimeout(() => {
+          if (this._isDetailsVisible()) {
+            this._showDetails(true, false);
+          }
+        }, 250);
+        const sub = token.onCancellationRequested(() => loading.dispose());
+        try {
+          return await item.resolve(token);
+        } finally {
+          loading.dispose();
+          sub.dispose();
+        }
+      });
+      this._currentSuggestionDetails.then(() => {
+        if (index >= this._list.length || item !== this._list.element(index)) {
+          return;
+        }
+        this._ignoreFocusEvents = true;
+        this._list.splice(index, 1, [item]);
+        this._list.setFocus([index]);
+        this._ignoreFocusEvents = false;
+        if (this._isDetailsVisible()) {
+          this._showDetails(false, false);
+        } else {
+          this.element.domNode.classList.remove("docs-side");
+        }
+        this.editor.setAriaOptions({ activeDescendant: this._list.getElementID(index) });
+      }).catch(onUnexpectedError);
+    }
+    this._onDidFocus.fire({ item, index, model: this._completionModel });
+  }
+  _setState(state) {
+    if (this._state === state) {
+      return;
+    }
+    this._state = state;
+    this.element.domNode.classList.toggle(
+      "frozen",
+      state === 4
+      /* State.Frozen */
+    );
+    this.element.domNode.classList.remove("message");
+    switch (state) {
+      case 0:
+        dom.hide(this._messageElement, this._listElement, this._status.element);
+        this._details.hide(true);
+        this._status.hide();
+        this._contentWidget.hide();
+        this._ctxSuggestWidgetVisible.reset();
+        this._ctxSuggestWidgetMultipleSuggestions.reset();
+        this._ctxSuggestWidgetHasFocusedSuggestion.reset();
+        this._showTimeout.cancel();
+        this.element.domNode.classList.remove("visible");
+        this._list.splice(0, this._list.length);
+        this._focusedItem = void 0;
+        this._cappedHeight = void 0;
+        this._explainMode = false;
+        break;
+      case 1:
+        this.element.domNode.classList.add("message");
+        this._messageElement.textContent = SuggestWidget_1.LOADING_MESSAGE;
+        dom.hide(this._listElement, this._status.element);
+        dom.show(this._messageElement);
+        this._details.hide();
+        this._show();
+        this._focusedItem = void 0;
+        status(SuggestWidget_1.LOADING_MESSAGE);
+        break;
+      case 2:
+        this.element.domNode.classList.add("message");
+        this._messageElement.textContent = SuggestWidget_1.NO_SUGGESTIONS_MESSAGE;
+        dom.hide(this._listElement, this._status.element);
+        dom.show(this._messageElement);
+        this._details.hide();
+        this._show();
+        this._focusedItem = void 0;
+        status(SuggestWidget_1.NO_SUGGESTIONS_MESSAGE);
+        break;
+      case 3:
+        dom.hide(this._messageElement);
+        dom.show(this._listElement, this._status.element);
+        this._show();
+        break;
+      case 4:
+        dom.hide(this._messageElement);
+        dom.show(this._listElement, this._status.element);
+        this._show();
+        break;
+      case 5:
+        dom.hide(this._messageElement);
+        dom.show(this._listElement, this._status.element);
+        this._details.show();
+        this._show();
+        this._details.widget.focus();
+        break;
+    }
+  }
+  _show() {
+    this._status.show();
+    this._contentWidget.show();
+    this._layout(this._persistedSize.restore());
+    this._ctxSuggestWidgetVisible.set(true);
+    this._showTimeout.cancelAndSet(() => {
+      this.element.domNode.classList.add("visible");
+      this._onDidShow.fire(this);
+    }, 100);
+  }
+  showTriggered(auto, delay) {
+    if (this._state !== 0) {
+      return;
+    }
+    this._contentWidget.setPosition(this.editor.getPosition());
+    this._isAuto = !!auto;
+    if (!this._isAuto) {
+      this._loadingTimeout = disposableTimeout(() => this._setState(
+        1
+        /* State.Loading */
+      ), delay);
+    }
+  }
+  showSuggestions(completionModel, selectionIndex, isFrozen, isAuto, noFocus) {
+    this._contentWidget.setPosition(this.editor.getPosition());
+    this._loadingTimeout?.dispose();
+    this._currentSuggestionDetails?.cancel();
+    this._currentSuggestionDetails = void 0;
+    if (this._completionModel !== completionModel) {
+      this._completionModel = completionModel;
+    }
+    if (isFrozen && this._state !== 2 && this._state !== 0) {
+      this._setState(
+        4
+        /* State.Frozen */
+      );
+      return;
+    }
+    const visibleCount = this._completionModel.items.length;
+    const isEmpty = visibleCount === 0;
+    this._ctxSuggestWidgetMultipleSuggestions.set(visibleCount > 1);
+    if (isEmpty) {
+      this._setState(
+        isAuto ? 0 : 2
+        /* State.Empty */
+      );
+      this._completionModel = void 0;
+      return;
+    }
+    this._focusedItem = void 0;
+    this._onDidFocus.pause();
+    this._onDidSelect.pause();
+    try {
+      this._list.splice(0, this._list.length, this._completionModel.items);
+      this._setState(
+        isFrozen ? 4 : 3
+        /* State.Open */
+      );
+      this._list.reveal(selectionIndex, 0, selectionIndex === 0 ? 0 : this.getLayoutInfo().itemHeight * 0.33);
+      this._list.setFocus(noFocus ? [] : [selectionIndex]);
+    } finally {
+      this._onDidFocus.resume();
+      this._onDidSelect.resume();
+    }
+    this._pendingLayout.value = dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(this.element.domNode), () => {
+      this._pendingLayout.clear();
+      this._layout(this.element.size);
+      this._details.widget.domNode.classList.remove("focused");
+    });
+  }
+  focusSelected() {
+    if (this._list.length > 0) {
+      this._list.setFocus([0]);
+    }
+  }
+  selectNextPage() {
+    switch (this._state) {
+      case 0:
+        return false;
+      case 5:
+        this._details.widget.pageDown();
+        return true;
+      case 1:
+        return !this._isAuto;
+      default:
+        this._list.focusNextPage();
+        return true;
+    }
+  }
+  selectNext() {
+    switch (this._state) {
+      case 0:
+        return false;
+      case 1:
+        return !this._isAuto;
+      default:
+        this._list.focusNext(1, true);
+        return true;
+    }
+  }
+  selectLast() {
+    switch (this._state) {
+      case 0:
+        return false;
+      case 5:
+        this._details.widget.scrollBottom();
+        return true;
+      case 1:
+        return !this._isAuto;
+      default:
+        this._list.focusLast();
+        return true;
+    }
+  }
+  selectPreviousPage() {
+    switch (this._state) {
+      case 0:
+        return false;
+      case 5:
+        this._details.widget.pageUp();
+        return true;
+      case 1:
+        return !this._isAuto;
+      default:
+        this._list.focusPreviousPage();
+        return true;
+    }
+  }
+  selectPrevious() {
+    switch (this._state) {
+      case 0:
+        return false;
+      case 1:
+        return !this._isAuto;
+      default:
+        this._list.focusPrevious(1, true);
+        return false;
+    }
+  }
+  selectFirst() {
+    switch (this._state) {
+      case 0:
+        return false;
+      case 5:
+        this._details.widget.scrollTop();
+        return true;
+      case 1:
+        return !this._isAuto;
+      default:
+        this._list.focusFirst();
+        return true;
+    }
+  }
+  getFocusedItem() {
+    if (this._state !== 0 && this._state !== 2 && this._state !== 1 && this._completionModel && this._list.getFocus().length > 0) {
+      return {
+        item: this._list.getFocusedElements()[0],
+        index: this._list.getFocus()[0],
+        model: this._completionModel
+      };
+    }
+    return void 0;
+  }
+  toggleDetailsFocus() {
+    if (this._state === 5) {
+      this._list.setFocus(this._list.getFocus());
+      this._setState(
+        3
+        /* State.Open */
+      );
+    } else if (this._state === 3) {
+      this._setState(
+        5
+        /* State.Details */
+      );
+      if (!this._isDetailsVisible()) {
+        this.toggleDetails(true);
+      } else {
+        this._details.widget.focus();
+      }
+    }
+  }
+  toggleDetails(focused = false) {
+    if (this._isDetailsVisible()) {
+      this._pendingShowDetails.clear();
+      this._ctxSuggestWidgetDetailsVisible.set(false);
+      this._setDetailsVisible(false);
+      this._details.hide();
+      this.element.domNode.classList.remove("shows-details");
+    } else if ((canExpandCompletionItem(this._list.getFocusedElements()[0]) || this._explainMode) && (this._state === 3 || this._state === 5 || this._state === 4)) {
+      this._ctxSuggestWidgetDetailsVisible.set(true);
+      this._setDetailsVisible(true);
+      this._showDetails(false, focused);
+    }
+  }
+  _showDetails(loading, focused) {
+    this._pendingShowDetails.value = dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(this.element.domNode), () => {
+      this._pendingShowDetails.clear();
+      this._details.show();
+      let didFocusDetails = false;
+      if (loading) {
+        this._details.widget.renderLoading();
+      } else {
+        this._details.widget.renderItem(this._list.getFocusedElements()[0], this._explainMode);
+      }
+      if (!this._details.widget.isEmpty) {
+        this._positionDetails();
+        this.element.domNode.classList.add("shows-details");
+        if (focused) {
+          this._details.widget.focus();
+          didFocusDetails = true;
+        }
+      } else {
+        this._details.hide();
+      }
+      if (!didFocusDetails) {
+        this.editor.focus();
+      }
+    });
+  }
+  toggleExplainMode() {
+    if (this._list.getFocusedElements()[0]) {
+      this._explainMode = !this._explainMode;
+      if (!this._isDetailsVisible()) {
+        this.toggleDetails();
+      } else {
+        this._showDetails(false, false);
+      }
+    }
+  }
+  resetPersistedSize() {
+    this._persistedSize.reset();
+  }
+  hideWidget() {
+    this._pendingLayout.clear();
+    this._pendingShowDetails.clear();
+    this._loadingTimeout?.dispose();
+    this._setState(
+      0
+      /* State.Hidden */
+    );
+    this._onDidHide.fire(this);
+    this.element.clearSashHoverState();
+    const dim = this._persistedSize.restore();
+    const minPersistedHeight = Math.ceil(this.getLayoutInfo().itemHeight * 4.3);
+    if (dim && dim.height < minPersistedHeight) {
+      this._persistedSize.store(dim.with(void 0, minPersistedHeight));
+    }
+  }
+  isFrozen() {
+    return this._state === 4;
+  }
+  _afterRender(position) {
+    if (position === null) {
+      if (this._isDetailsVisible()) {
+        this._details.hide();
+      }
+      return;
+    }
+    if (this._state === 2 || this._state === 1) {
+      return;
+    }
+    if (this._isDetailsVisible() && !this._details.widget.isEmpty) {
+      this._details.show();
+    }
+    this._positionDetails();
+  }
+  _layout(size) {
+    if (!this.editor.hasModel()) {
+      return;
+    }
+    if (!this.editor.getDomNode()) {
+      return;
+    }
+    const bodyBox = dom.getClientArea(this.element.domNode.ownerDocument.body);
+    const info = this.getLayoutInfo();
+    if (!size) {
+      size = info.defaultSize;
+    }
+    let height = size.height;
+    let width = size.width;
+    this._status.element.style.height = `${info.itemHeight}px`;
+    if (this._state === 2 || this._state === 1) {
+      height = info.itemHeight + info.borderHeight;
+      width = info.defaultSize.width / 2;
+      this.element.enableSashes(false, false, false, false);
+      this.element.minSize = this.element.maxSize = new dom.Dimension(width, height);
+      this._contentWidget.setPreference(
+        2
+        /* ContentWidgetPositionPreference.BELOW */
+      );
+    } else {
+      const maxWidth = bodyBox.width - info.borderHeight - 2 * info.horizontalPadding;
+      if (width > maxWidth) {
+        width = maxWidth;
+      }
+      const preferredWidth = this._completionModel ? this._completionModel.stats.pLabelLen * info.typicalHalfwidthCharacterWidth : width;
+      const fullHeight = info.statusBarHeight + this._list.contentHeight + info.borderHeight;
+      const minHeight = info.itemHeight + info.statusBarHeight;
+      const editorBox = dom.getDomNodePagePosition(this.editor.getDomNode());
+      const cursorBox = this.editor.getScrolledVisiblePosition(this.editor.getPosition());
+      const cursorBottom = editorBox.top + cursorBox.top + cursorBox.height;
+      const maxHeightBelow = Math.min(bodyBox.height - cursorBottom - info.verticalPadding, fullHeight);
+      const availableSpaceAbove = editorBox.top + cursorBox.top - info.verticalPadding;
+      const maxHeightAbove = Math.min(availableSpaceAbove, fullHeight);
+      let maxHeight = Math.min(Math.max(maxHeightAbove, maxHeightBelow) + info.borderHeight, fullHeight);
+      if (height === this._cappedHeight?.capped) {
+        height = this._cappedHeight.wanted;
+      }
+      if (height < minHeight) {
+        height = minHeight;
+      }
+      if (height > maxHeight) {
+        height = maxHeight;
+      }
+      const forceRenderingAboveRequiredSpace = 150;
+      if (height > maxHeightBelow && maxHeightAbove > maxHeightBelow || this._forceRenderingAbove && availableSpaceAbove > forceRenderingAboveRequiredSpace) {
+        this._contentWidget.setPreference(
+          1
+          /* ContentWidgetPositionPreference.ABOVE */
+        );
+        this.element.enableSashes(true, true, false, false);
+        maxHeight = maxHeightAbove;
+      } else {
+        this._contentWidget.setPreference(
+          2
+          /* ContentWidgetPositionPreference.BELOW */
+        );
+        this.element.enableSashes(false, true, true, false);
+        maxHeight = maxHeightBelow;
+      }
+      this.element.preferredSize = new dom.Dimension(preferredWidth, info.defaultSize.height);
+      this.element.maxSize = new dom.Dimension(maxWidth, maxHeight);
+      this.element.minSize = new dom.Dimension(220, minHeight);
+      this._cappedHeight = height === fullHeight ? { wanted: this._cappedHeight?.wanted ?? size.height, capped: height } : void 0;
+    }
+    this._resize(width, height);
+  }
+  _resize(width, height) {
+    const { width: maxWidth, height: maxHeight } = this.element.maxSize;
+    width = Math.min(maxWidth, width);
+    height = Math.min(maxHeight, height);
+    const { statusBarHeight } = this.getLayoutInfo();
+    this._list.layout(height - statusBarHeight, width);
+    this._listElement.style.height = `${height - statusBarHeight}px`;
+    this.element.layout(height, width);
+    this._contentWidget.layout();
+    this._positionDetails();
+  }
+  _positionDetails() {
+    if (this._isDetailsVisible()) {
+      this._details.placeAtAnchor(
+        this.element.domNode,
+        this._contentWidget.getPosition()?.preference[0] === 2
+        /* ContentWidgetPositionPreference.BELOW */
+      );
+    }
+  }
+  getLayoutInfo() {
+    const fontInfo = this.editor.getOption(
+      59
+      /* EditorOption.fontInfo */
+    );
+    const itemHeight = clamp(this.editor.getOption(
+      136
+      /* EditorOption.suggestLineHeight */
+    ) || fontInfo.lineHeight, 8, 1e3);
+    const statusBarHeight = !this.editor.getOption(
+      134
+      /* EditorOption.suggest */
+    ).showStatusBar || this._state === 2 || this._state === 1 ? 0 : itemHeight;
+    const borderWidth = this._details.widget.getLayoutInfo().borderWidth;
+    const borderHeight = 2 * borderWidth;
+    return {
+      itemHeight,
+      statusBarHeight,
+      borderWidth,
+      borderHeight,
+      typicalHalfwidthCharacterWidth: fontInfo.typicalHalfwidthCharacterWidth,
+      verticalPadding: 22,
+      horizontalPadding: 14,
+      defaultSize: new dom.Dimension(430, statusBarHeight + 12 * itemHeight)
+    };
+  }
+  _isDetailsVisible() {
+    return this._storageService.getBoolean("expandSuggestionDocs", 0, false);
+  }
+  _setDetailsVisible(value) {
+    this._storageService.store(
+      "expandSuggestionDocs",
+      value,
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  forceRenderingAbove() {
+    if (!this._forceRenderingAbove) {
+      this._forceRenderingAbove = true;
+      this._layout(this._persistedSize.restore());
+    }
+  }
+  stopForceRenderingAbove() {
+    this._forceRenderingAbove = false;
+  }
+};
+SuggestWidget = SuggestWidget_1 = __decorate([
+  __param(1, IStorageService),
+  __param(2, IContextKeyService),
+  __param(3, IThemeService),
+  __param(4, IInstantiationService)
+], SuggestWidget);
+class SuggestContentWidget {
+  static {
+    __name(this, "SuggestContentWidget");
+  }
+  constructor(_widget, _editor) {
+    this._widget = _widget;
+    this._editor = _editor;
+    this.allowEditorOverflow = true;
+    this.suppressMouseDown = false;
+    this._preferenceLocked = false;
+    this._added = false;
+    this._hidden = false;
+  }
+  dispose() {
+    if (this._added) {
+      this._added = false;
+      this._editor.removeContentWidget(this);
+    }
+  }
+  getId() {
+    return "editor.widget.suggestWidget";
+  }
+  getDomNode() {
+    return this._widget.element.domNode;
+  }
+  show() {
+    this._hidden = false;
+    if (!this._added) {
+      this._added = true;
+      this._editor.addContentWidget(this);
+    }
+  }
+  hide() {
+    if (!this._hidden) {
+      this._hidden = true;
+      this.layout();
+    }
+  }
+  layout() {
+    this._editor.layoutContentWidget(this);
+  }
+  getPosition() {
+    if (this._hidden || !this._position || !this._preference) {
+      return null;
+    }
+    return {
+      position: this._position,
+      preference: [this._preference]
+    };
+  }
+  beforeRender() {
+    const { height, width } = this._widget.element.size;
+    const { borderWidth, horizontalPadding } = this._widget.getLayoutInfo();
+    return new dom.Dimension(width + 2 * borderWidth + horizontalPadding, height + 2 * borderWidth);
+  }
+  afterRender(position) {
+    this._widget._afterRender(position);
+  }
+  setPreference(preference) {
+    if (!this._preferenceLocked) {
+      this._preference = preference;
+    }
+  }
+  lockPreference() {
+    this._preferenceLocked = true;
+  }
+  unlockPreference() {
+    this._preferenceLocked = false;
+  }
+  setPosition(position) {
+    this._position = position;
+  }
+}
+export {
+  SuggestContentWidget,
+  SuggestWidget,
+  editorSuggestWidgetForeground,
+  editorSuggestWidgetSelectedBackground
+};
+//# sourceMappingURL=suggestWidget.js.map

@@ -1,1 +1,51 @@
-import{$9vb as v,$7vb as d,$6vb as n,$Yvb as a,$8vb as f,$5vb as s,$4vb as h,$1vb as u,$2vb as w,$3vb as g,$Zvb as l,$Xvb as c,$Wvb as x}from"./hoverActions.js";import{$Xdb as r,$1db as $}from"../../../browser/editorExtensions.js";import{$lr as D}from"../../../../platform/theme/common/colorRegistry.js";import{$xu as I}from"../../../../platform/theme/common/themeService.js";import{$Imb as i}from"./hoverTypes.js";import{$jub as R}from"./markdownHoverParticipant.js";import{$Dub as X}from"./markerHoverParticipant.js";import{$Iub as m}from"./contentHoverController.js";import{$_vb as b}from"./glyphHoverController.js";import"./hover.css";import{$Dvb as e}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{$ewb as j,$bwb as y,$awb as B}from"./hoverAccessibleViews.js";$(m.ID,m,2);$(b.ID,b,2);r(x);r(c);r(a);r(l);r(u);r(w);r(g);r(h);r(s);r(n);r(d);r(f);r(v);i.register(R);i.register(X);I((p,t)=>{const o=p.getColor(D);o&&(t.addRule(`.monaco-editor .monaco-hover .hover-row:not(:first-child):not(:empty) { border-top: 1px solid ${o.transparent(.5)}; }`),t.addRule(`.monaco-editor .monaco-hover hr { border-top: 1px solid ${o.transparent(.5)}; }`),t.addRule(`.monaco-editor .monaco-hover hr { border-bottom: 0px solid ${o.transparent(.5)}; }`))});e.register(new B);e.register(new y);e.register(new j);
+import { DecreaseHoverVerbosityLevel, GoToBottomHoverAction, GoToTopHoverAction, HideContentHoverAction, IncreaseHoverVerbosityLevel, PageDownHoverAction, PageUpHoverAction, ScrollDownHoverAction, ScrollLeftHoverAction, ScrollRightHoverAction, ScrollUpHoverAction, ShowDefinitionPreviewHoverAction, ShowOrFocusHoverAction } from "./hoverActions.js";
+import { registerEditorAction, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { editorHoverBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { HoverParticipantRegistry } from "./hoverTypes.js";
+import { MarkdownHoverParticipant } from "./markdownHoverParticipant.js";
+import { MarkerHoverParticipant } from "./markerHoverParticipant.js";
+import { ContentHoverController } from "./contentHoverController.js";
+import { GlyphHoverController } from "./glyphHoverController.js";
+import "./hover.css";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ExtHoverAccessibleView, HoverAccessibilityHelp, HoverAccessibleView } from "./hoverAccessibleViews.js";
+registerEditorContribution(
+  ContentHoverController.ID,
+  ContentHoverController,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+registerEditorContribution(
+  GlyphHoverController.ID,
+  GlyphHoverController,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+registerEditorAction(ShowOrFocusHoverAction);
+registerEditorAction(ShowDefinitionPreviewHoverAction);
+registerEditorAction(HideContentHoverAction);
+registerEditorAction(ScrollUpHoverAction);
+registerEditorAction(ScrollDownHoverAction);
+registerEditorAction(ScrollLeftHoverAction);
+registerEditorAction(ScrollRightHoverAction);
+registerEditorAction(PageUpHoverAction);
+registerEditorAction(PageDownHoverAction);
+registerEditorAction(GoToTopHoverAction);
+registerEditorAction(GoToBottomHoverAction);
+registerEditorAction(IncreaseHoverVerbosityLevel);
+registerEditorAction(DecreaseHoverVerbosityLevel);
+HoverParticipantRegistry.register(MarkdownHoverParticipant);
+HoverParticipantRegistry.register(MarkerHoverParticipant);
+registerThemingParticipant((theme, collector) => {
+  const hoverBorder = theme.getColor(editorHoverBorder);
+  if (hoverBorder) {
+    collector.addRule(`.monaco-editor .monaco-hover .hover-row:not(:first-child):not(:empty) { border-top: 1px solid ${hoverBorder.transparent(0.5)}; }`);
+    collector.addRule(`.monaco-editor .monaco-hover hr { border-top: 1px solid ${hoverBorder.transparent(0.5)}; }`);
+    collector.addRule(`.monaco-editor .monaco-hover hr { border-bottom: 0px solid ${hoverBorder.transparent(0.5)}; }`);
+  }
+});
+AccessibleViewRegistry.register(new HoverAccessibleView());
+AccessibleViewRegistry.register(new HoverAccessibilityHelp());
+AccessibleViewRegistry.register(new ExtHoverAccessibleView());
+//# sourceMappingURL=hoverContribution.js.map

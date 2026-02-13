@@ -1,1 +1,495 @@
-import*as e from"../../../../base/browser/dom.js";import{$n8 as L}from"../../../../base/browser/keyboardEvent.js";import{$w0 as v}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$L$ as R}from"../../../../base/browser/ui/actionbar/actionViewItems.js";import{$u0 as S}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{$_9 as k}from"../../../../base/browser/ui/widget.js";import{$Fm as u}from"../../../../base/common/actions.js";import{$xf as g}from"../../../../base/common/event.js";import{$jk as W}from"../../../../base/common/htmlContent.js";import{$Ed as T}from"../../../../base/common/lifecycle.js";import{Schemas as $}from"../../../../base/common/network.js";import{$Bh as f}from"../../../../base/common/resources.js";import{ThemeIcon as x}from"../../../../base/common/themables.js";import{URI as d}from"../../../../base/common/uri.js";import{$ZF as _}from"../../../../editor/common/languages/language.js";import{localize as r}from"../../../../nls.js";import{$ro as B}from"../../../../platform/contextkey/common/contextkey.js";import{$ijb as I,$hjb as M}from"../../../../platform/contextview/browser/contextView.js";import{$jnb as E}from"../../../../platform/history/browser/contextScopedHistoryWidget.js";import{$3tb as F}from"../../../../platform/history/browser/historyWidgetKeybindingHint.js";import{$jkb as N}from"../../../../platform/hover/browser/hover.js";import{$Mj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$fy as H}from"../../../../platform/keybinding/common/keybinding.js";import{$oH as O}from"../../../../platform/label/common/label.js";import{$Wp as p,$uq as A,$vq as j,$hq as V}from"../../../../platform/theme/common/colorRegistry.js";import{$Vl as P,$Ml as C}from"../../../../platform/workspace/common/workspace.js";import{$HP as q}from"../../../services/environment/common/environmentService.js";import{$2dc as U,$Vdc as K}from"./preferencesIcons.js";var b=function(a,t,s,i){var o=arguments.length,h=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,s):i,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")h=Reflect.decorate(a,t,s,i);else for(var c=a.length-1;c>=0;c--)(l=a[c])&&(h=(o<3?l(h):o>3?l(t,s,h):l(t,s))||h);return o>3&&h&&Object.defineProperty(t,s,h),h},n=function(a,t){return function(s,i){t(s,i,a)}};let m=class extends R{constructor(t,s,i,o){super(null,t),this.s=s,this.t=i,this.w=o,this.b=new Map;const h=this.s.getWorkspace();this.a=h.folders.length===1?h.folders[0]:null,this.D(this.s.onDidChangeWorkspaceFolders(()=>this.Q()))}get folder(){return this.a}set folder(t){this.a=t,this.R()}setCount(t,s){const i=this.s.getWorkspaceFolder(t);if(!i)throw new Error("unknown folder");const o=i.uri;this.b.set(o.toString(),s),this.R()}render(t){this.element=t,this.c=t,this.m=e.$(".action-title"),this.q=e.$(".action-details"),this.r=e.$(".dropdown-icon.hide"+x.asCSSSelector(K)),this.g=e.$("a.action-label.folder-settings",{role:"button","aria-haspopup":"true",tabindex:"0"},this.m,this.q,this.r),this.h=this.D(this.w.setupManagedHover(S("mouse"),this.g,"")),this.D(e.$u8(this.g,e.$r9.MOUSE_DOWN,s=>e.$t9.stop(s))),this.D(e.$u8(this.g,e.$r9.CLICK,s=>this.onClick(s))),this.D(e.$u8(this.c,e.$r9.KEY_UP,s=>this.y(s))),e.$y9(this.c,this.g),this.R()}y(t){switch(new L(t).keyCode){case 3:case 10:this.onClick(t);return}}onClick(t){e.$t9.stop(t,!0),!this.folder||this._action.checked?this.S():this._action.run(this.a)}C(){this.R()}N(){this.R()}Q(){const t=this.a,s=this.s.getWorkspace();t&&(this.a=s.folders.filter(i=>f(i.uri,t.uri))[0]||s.folders[0]),this.a=this.a?this.a:s.folders.length===1?s.folders[0]:null,this.R(),this._action.checked&&this._action.run(this.a)}R(){let t=0;this.b.forEach(i=>t+=i);const s=this.s.getWorkspace();if(this.a){this.m.textContent=this.a.name,this.h.update(this.a.name);const i=this.W(this._action.label,t);this.q.textContent=i,this.r.classList.toggle("hide",s.folders.length===1||!this._action.checked)}else{const i=this.W(this._action.label,t);this.m.textContent=i,this.q.textContent="",this.h.update(this._action.label),this.r.classList.remove("hide")}this.g.classList.toggle("checked",this._action.checked),this.c.classList.toggle("disabled",!this._action.enabled)}S(){this.t.showContextMenu({getAnchor:()=>this.c,getActions:()=>this.U(),getActionViewItem:()=>{},onHide:()=>{this.g.blur()}})}U(){const t=[],s=this.s.getWorkspace().folders;return this.s.getWorkbenchState()===3&&s.length>0&&t.push(...s.map((i,o)=>{const h=this.b.get(i.uri.toString());return{id:"folderSettingsTarget"+o,label:this.W(i.name,h),tooltip:this.W(i.name,h),checked:!!this.folder&&f(this.folder.uri,i.uri),enabled:!0,class:void 0,run:()=>this._action.run(i)}})),t}W(t,s){return s&&(t+=` (${s})`),t}};m=b([n(1,C),n(2,I),n(3,N)],m);let w=class extends k{constructor(t,s,i,o,h,l,c){super(),this.I=i,this.J=o,this.L=h,this.M=l,this.N=c,this.y=null,this.H=this.D(new g),this.onDidTargetChange=this.H.event,this.w=s??{},this.P(t),this.D(this.I.onDidChangeWorkbenchState(()=>this.Q())),this.D(this.I.onDidChangeWorkspaceFolders(()=>this.R()))}O(){const t=this.L.remoteAuthority,s=t&&this.M.getHostLabel($.vscodeRemote,t);this.c.label=r(11488,null),this.g.label=r(11489,null)+(s?` [${s}]`:""),this.h.label=r(11490,null),this.r.label=r(11491,null)}P(t){const s=e.$y9(t,e.$(".settings-tabs-widget"));this.a=this.D(new v(s,{orientation:0,focusOnlyEnabledItems:!0,ariaLabel:r(11492,null),ariaRole:"tablist",actionViewItemProvider:(h,l)=>h.id==="folderSettings"?this.t:void 0})),this.c=this.D(new u("userSettings","",".settings-tab",!0,()=>this.updateTarget(3))),this.c.tooltip=r(11493,null),this.g=this.D(new u("userSettingsRemote","",".settings-tab",!0,()=>this.updateTarget(4)));const i=this.L.remoteAuthority,o=i&&this.M.getHostLabel($.vscodeRemote,i);this.g.tooltip=r(11494,null)+(o?` [${o}]`:""),this.h=this.D(new u("workspaceSettings","",".settings-tab",!1,()=>this.updateTarget(5))),this.r=this.D(new u("folderSettings","",".settings-tab",!1,async h=>{this.updateTarget(P(h)?h.uri:3)})),this.t=this.D(this.J.createInstance(m,this.r)),this.O(),this.R(),this.a.push([this.c,this.g,this.h,this.r])}get settingsTarget(){return this.y}set settingsTarget(t){this.y=t,this.c.checked=this.settingsTarget===3,this.g.checked=this.settingsTarget===4,this.h.checked=this.settingsTarget===5,this.settingsTarget instanceof d?(this.t.action.checked=!0,this.t.folder=this.I.getWorkspaceFolder(this.settingsTarget)):this.t.action.checked=!1}setResultCount(t,s){if(t===5){let i=r(11495,null);s&&(i+=` (${s})`),this.h.label=i}else if(t===3){let i=r(11496,null);s&&(i+=` (${s})`),this.c.label=i}else t instanceof d&&this.t.setCount(t,s)}updateLanguageFilterIndicators(t){if(this.O(),t){const s=this.N.getLanguageName(t);if(s){const i=` [${s}]`;this.c.label+=i,this.g.label+=i,this.h.label+=i,this.r.label+=i}}}Q(){this.t.folder=null,this.R(),this.settingsTarget===5&&this.I.getWorkbenchState()===3&&this.updateTarget(3)}updateTarget(t){return this.settingsTarget===t||t instanceof d&&this.settingsTarget instanceof d&&f(this.settingsTarget,t)||(this.settingsTarget=t,this.H.fire(this.settingsTarget)),Promise.resolve(void 0)}async R(){this.a.domNode.classList.toggle("empty-workbench",this.I.getWorkbenchState()===1),this.g.enabled=!!(this.w.enableRemoteSettings&&this.L.remoteAuthority),this.h.enabled=this.I.getWorkbenchState()!==1,this.t.action.enabled=this.I.getWorkbenchState()===3&&this.I.getWorkspace().folders.length>0,this.h.tooltip=r(11497,null)}};w=b([n(2,C),n(3,D),n(4,q),n(5,O),n(6,_)],w);let y=class extends k{get onDidChange(){return this.r.event}get onFocus(){return this.t.event}constructor(t,s,i,o,h,l){super(),this.w=s,this.y=i,this.H=o,this.I=h,this.J=l,this.r=this.D(new g),this.t=this.D(new g),this.L(t)}L(t){this.domNode=e.$y9(t,e.$("div.settings-header-widget")),this.M(e.$y9(this.domNode,e.$("div.settings-search-container"))),this.h=e.$y9(this.domNode,e.$("div.settings-search-controls")),this.w.showResultCount&&(this.a=e.$y9(this.h,e.$(".settings-count-widget")),this.a.style.backgroundColor=p(A),this.a.style.color=p(j),this.a.style.border=`1px solid ${p(V)}`),this.inputBox.inputElement.setAttribute("aria-live",this.w.ariaLive||"off"),this.w.ariaLabelledBy&&this.inputBox.inputElement.setAttribute("aria-labelledBy",this.w.ariaLabelledBy);const s=this.D(e.$w9(this.inputBox.inputElement));this.D(s.onDidFocus(()=>this.t.fire()));const i=this.w.focusKey;i&&(this.D(s.onDidFocus(()=>i.set(!0))),this.D(s.onDidBlur(()=>i.set(!1))))}M(t){this.g=t;const s=e.$y9(this.g,e.$("div.settings-search-input"));this.inputBox=this.D(this.N(s)),this.D(this.inputBox.onDidChange(i=>this.r.fire(i)))}N(t){const s=()=>F(this.J);return new E(t,this.y,{...this.w,showHistoryHint:s},this.I)}showMessage(t){this.a&&t!==this.a.textContent&&(this.a.textContent=t,this.inputBox.inputElement.setAttribute("aria-label",t),this.inputBox.inputElement.style.paddingRight=this.O()+"px")}layout(t){t.width<400?(this.a?.classList.add("hide"),this.inputBox.inputElement.style.paddingRight="0px"):(this.a?.classList.remove("hide"),this.inputBox.inputElement.style.paddingRight=this.O()+"px")}O(){return(this.a?e.$U8(this.a):0)+20}focus(){this.inputBox.focus(),this.getValue()&&this.inputBox.select()}hasFocus(){return this.inputBox.hasFocus()}clear(){this.inputBox.value=""}getValue(){return this.inputBox.value}setValue(t){return this.inputBox.value=t}dispose(){this.w.focusKey?.set(!1),super.dispose()}};y=b([n(2,M),n(3,D),n(4,B),n(5,H)],y);class Dt extends T{constructor(t){super(),this.g=t,this.a=-1,this.b=[],this.f=this.D(new g),this.onClick=this.f.event,this.c=this.g.createDecorationsCollection(),this.D(this.g.onMouseDown(s=>{s.target.type!==2||s.target.detail.isAfterLines||!this.isVisible()||this.f.fire(s)}))}get preferences(){return this.b}getLine(){return this.a}show(t,s,i){this.b=i;const o=[];this.a=t,o.push({options:{description:"edit-preference-widget-decoration",glyphMarginClassName:x.asClassName(U),glyphMarginHoverMessage:new W().appendText(s),stickiness:1},range:{startLineNumber:t,startColumn:1,endLineNumber:t,endColumn:1}}),this.c.set(o)}hide(){this.c.clear()}isVisible(){return this.c.length>0}dispose(){this.hide(),super.dispose()}}export{y as $$dc,w as $0dc,m as $9dc,Dt as $_dc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as DOM from "../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { BaseActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Widget } from "../../../../base/browser/ui/widget.js";
+import { Action } from "../../../../base/common/actions.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { ContextScopedHistoryInputBox } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { showHistoryKeybindingHint } from "../../../../platform/history/browser/historyWidgetKeybindingHint.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { asCssVariable, badgeBackground, badgeForeground, contrastBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { isWorkspaceFolder, IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { settingsEditIcon, settingsScopeDropDownIcon } from "./preferencesIcons.js";
+let FolderSettingsActionViewItem = class FolderSettingsActionViewItem2 extends BaseActionViewItem {
+  static {
+    __name(this, "FolderSettingsActionViewItem");
+  }
+  constructor(action, contextService, contextMenuService, hoverService) {
+    super(null, action);
+    this.contextService = contextService;
+    this.contextMenuService = contextMenuService;
+    this.hoverService = hoverService;
+    this._folderSettingCounts = /* @__PURE__ */ new Map();
+    const workspace = this.contextService.getWorkspace();
+    this._folder = workspace.folders.length === 1 ? workspace.folders[0] : null;
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.onWorkspaceFoldersChanged()));
+  }
+  get folder() {
+    return this._folder;
+  }
+  set folder(folder) {
+    this._folder = folder;
+    this.update();
+  }
+  setCount(settingsTarget, count) {
+    const workspaceFolder = this.contextService.getWorkspaceFolder(settingsTarget);
+    if (!workspaceFolder) {
+      throw new Error("unknown folder");
+    }
+    const folder = workspaceFolder.uri;
+    this._folderSettingCounts.set(folder.toString(), count);
+    this.update();
+  }
+  render(container) {
+    this.element = container;
+    this.container = container;
+    this.labelElement = DOM.$(".action-title");
+    this.detailsElement = DOM.$(".action-details");
+    this.dropDownElement = DOM.$(".dropdown-icon.hide" + ThemeIcon.asCSSSelector(settingsScopeDropDownIcon));
+    this.anchorElement = DOM.$("a.action-label.folder-settings", {
+      role: "button",
+      "aria-haspopup": "true",
+      "tabindex": "0"
+    }, this.labelElement, this.detailsElement, this.dropDownElement);
+    this.anchorElementHover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.anchorElement, ""));
+    this._register(DOM.addDisposableListener(this.anchorElement, DOM.EventType.MOUSE_DOWN, (e) => DOM.EventHelper.stop(e)));
+    this._register(DOM.addDisposableListener(this.anchorElement, DOM.EventType.CLICK, (e) => this.onClick(e)));
+    this._register(DOM.addDisposableListener(this.container, DOM.EventType.KEY_UP, (e) => this.onKeyUp(e)));
+    DOM.append(this.container, this.anchorElement);
+    this.update();
+  }
+  onKeyUp(event) {
+    const keyboardEvent = new StandardKeyboardEvent(event);
+    switch (keyboardEvent.keyCode) {
+      case 3:
+      case 10:
+        this.onClick(event);
+        return;
+    }
+  }
+  onClick(event) {
+    DOM.EventHelper.stop(event, true);
+    if (!this.folder || this._action.checked) {
+      this.showMenu();
+    } else {
+      this._action.run(this._folder);
+    }
+  }
+  updateEnabled() {
+    this.update();
+  }
+  updateChecked() {
+    this.update();
+  }
+  onWorkspaceFoldersChanged() {
+    const oldFolder = this._folder;
+    const workspace = this.contextService.getWorkspace();
+    if (oldFolder) {
+      this._folder = workspace.folders.filter((folder) => isEqual(folder.uri, oldFolder.uri))[0] || workspace.folders[0];
+    }
+    this._folder = this._folder ? this._folder : workspace.folders.length === 1 ? workspace.folders[0] : null;
+    this.update();
+    if (this._action.checked) {
+      this._action.run(this._folder);
+    }
+  }
+  update() {
+    let total = 0;
+    this._folderSettingCounts.forEach((n) => total += n);
+    const workspace = this.contextService.getWorkspace();
+    if (this._folder) {
+      this.labelElement.textContent = this._folder.name;
+      this.anchorElementHover.update(this._folder.name);
+      const detailsText = this.labelWithCount(this._action.label, total);
+      this.detailsElement.textContent = detailsText;
+      this.dropDownElement.classList.toggle("hide", workspace.folders.length === 1 || !this._action.checked);
+    } else {
+      const labelText = this.labelWithCount(this._action.label, total);
+      this.labelElement.textContent = labelText;
+      this.detailsElement.textContent = "";
+      this.anchorElementHover.update(this._action.label);
+      this.dropDownElement.classList.remove("hide");
+    }
+    this.anchorElement.classList.toggle("checked", this._action.checked);
+    this.container.classList.toggle("disabled", !this._action.enabled);
+  }
+  showMenu() {
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => this.container, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => this.getDropdownMenuActions(), "getActions"),
+      getActionViewItem: /* @__PURE__ */ __name(() => void 0, "getActionViewItem"),
+      onHide: /* @__PURE__ */ __name(() => {
+        this.anchorElement.blur();
+      }, "onHide")
+    });
+  }
+  getDropdownMenuActions() {
+    const actions = [];
+    const workspaceFolders = this.contextService.getWorkspace().folders;
+    if (this.contextService.getWorkbenchState() === 3 && workspaceFolders.length > 0) {
+      actions.push(...workspaceFolders.map((folder, index) => {
+        const folderCount = this._folderSettingCounts.get(folder.uri.toString());
+        return {
+          id: "folderSettingsTarget" + index,
+          label: this.labelWithCount(folder.name, folderCount),
+          tooltip: this.labelWithCount(folder.name, folderCount),
+          checked: !!this.folder && isEqual(this.folder.uri, folder.uri),
+          enabled: true,
+          class: void 0,
+          run: /* @__PURE__ */ __name(() => this._action.run(folder), "run")
+        };
+      }));
+    }
+    return actions;
+  }
+  labelWithCount(label, count) {
+    if (count) {
+      label += ` (${count})`;
+    }
+    return label;
+  }
+};
+FolderSettingsActionViewItem = __decorate([
+  __param(1, IWorkspaceContextService),
+  __param(2, IContextMenuService),
+  __param(3, IHoverService)
+], FolderSettingsActionViewItem);
+let SettingsTargetsWidget = class SettingsTargetsWidget2 extends Widget {
+  static {
+    __name(this, "SettingsTargetsWidget");
+  }
+  constructor(parent, options, contextService, instantiationService, environmentService, labelService, languageService) {
+    super();
+    this.contextService = contextService;
+    this.instantiationService = instantiationService;
+    this.environmentService = environmentService;
+    this.labelService = labelService;
+    this.languageService = languageService;
+    this._settingsTarget = null;
+    this._onDidTargetChange = this._register(new Emitter());
+    this.onDidTargetChange = this._onDidTargetChange.event;
+    this.options = options ?? {};
+    this.create(parent);
+    this._register(this.contextService.onDidChangeWorkbenchState(() => this.onWorkbenchStateChanged()));
+    this._register(this.contextService.onDidChangeWorkspaceFolders(() => this.update()));
+  }
+  resetLabels() {
+    const remoteAuthority = this.environmentService.remoteAuthority;
+    const hostLabel = remoteAuthority && this.labelService.getHostLabel(Schemas.vscodeRemote, remoteAuthority);
+    this.userLocalSettings.label = localize("userSettings", "User");
+    this.userRemoteSettings.label = localize("userSettingsRemote", "Remote") + (hostLabel ? ` [${hostLabel}]` : "");
+    this.workspaceSettings.label = localize("workspaceSettings", "Workspace");
+    this.folderSettingsAction.label = localize("folderSettings", "Folder");
+  }
+  create(parent) {
+    const settingsTabsWidget = DOM.append(parent, DOM.$(".settings-tabs-widget"));
+    this.settingsSwitcherBar = this._register(new ActionBar(settingsTabsWidget, {
+      orientation: 0,
+      focusOnlyEnabledItems: true,
+      ariaLabel: localize("settingsSwitcherBarAriaLabel", "Settings Switcher"),
+      ariaRole: "tablist",
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => action.id === "folderSettings" ? this.folderSettings : void 0, "actionViewItemProvider")
+    }));
+    this.userLocalSettings = this._register(new Action("userSettings", "", ".settings-tab", true, () => this.updateTarget(
+      3
+      /* ConfigurationTarget.USER_LOCAL */
+    )));
+    this.userLocalSettings.tooltip = localize("userSettings", "User");
+    this.userRemoteSettings = this._register(new Action("userSettingsRemote", "", ".settings-tab", true, () => this.updateTarget(
+      4
+      /* ConfigurationTarget.USER_REMOTE */
+    )));
+    const remoteAuthority = this.environmentService.remoteAuthority;
+    const hostLabel = remoteAuthority && this.labelService.getHostLabel(Schemas.vscodeRemote, remoteAuthority);
+    this.userRemoteSettings.tooltip = localize("userSettingsRemote", "Remote") + (hostLabel ? ` [${hostLabel}]` : "");
+    this.workspaceSettings = this._register(new Action("workspaceSettings", "", ".settings-tab", false, () => this.updateTarget(
+      5
+      /* ConfigurationTarget.WORKSPACE */
+    )));
+    this.folderSettingsAction = this._register(new Action("folderSettings", "", ".settings-tab", false, async (folder) => {
+      this.updateTarget(
+        isWorkspaceFolder(folder) ? folder.uri : 3
+        /* ConfigurationTarget.USER_LOCAL */
+      );
+    }));
+    this.folderSettings = this._register(this.instantiationService.createInstance(FolderSettingsActionViewItem, this.folderSettingsAction));
+    this.resetLabels();
+    this.update();
+    this.settingsSwitcherBar.push([this.userLocalSettings, this.userRemoteSettings, this.workspaceSettings, this.folderSettingsAction]);
+  }
+  get settingsTarget() {
+    return this._settingsTarget;
+  }
+  set settingsTarget(settingsTarget) {
+    this._settingsTarget = settingsTarget;
+    this.userLocalSettings.checked = 3 === this.settingsTarget;
+    this.userRemoteSettings.checked = 4 === this.settingsTarget;
+    this.workspaceSettings.checked = 5 === this.settingsTarget;
+    if (this.settingsTarget instanceof URI) {
+      this.folderSettings.action.checked = true;
+      this.folderSettings.folder = this.contextService.getWorkspaceFolder(this.settingsTarget);
+    } else {
+      this.folderSettings.action.checked = false;
+    }
+  }
+  setResultCount(settingsTarget, count) {
+    if (settingsTarget === 5) {
+      let label = localize("workspaceSettings", "Workspace");
+      if (count) {
+        label += ` (${count})`;
+      }
+      this.workspaceSettings.label = label;
+    } else if (settingsTarget === 3) {
+      let label = localize("userSettings", "User");
+      if (count) {
+        label += ` (${count})`;
+      }
+      this.userLocalSettings.label = label;
+    } else if (settingsTarget instanceof URI) {
+      this.folderSettings.setCount(settingsTarget, count);
+    }
+  }
+  updateLanguageFilterIndicators(filter) {
+    this.resetLabels();
+    if (filter) {
+      const languageToUse = this.languageService.getLanguageName(filter);
+      if (languageToUse) {
+        const languageSuffix = ` [${languageToUse}]`;
+        this.userLocalSettings.label += languageSuffix;
+        this.userRemoteSettings.label += languageSuffix;
+        this.workspaceSettings.label += languageSuffix;
+        this.folderSettingsAction.label += languageSuffix;
+      }
+    }
+  }
+  onWorkbenchStateChanged() {
+    this.folderSettings.folder = null;
+    this.update();
+    if (this.settingsTarget === 5 && this.contextService.getWorkbenchState() === 3) {
+      this.updateTarget(
+        3
+        /* ConfigurationTarget.USER_LOCAL */
+      );
+    }
+  }
+  updateTarget(settingsTarget) {
+    const isSameTarget = this.settingsTarget === settingsTarget || settingsTarget instanceof URI && this.settingsTarget instanceof URI && isEqual(this.settingsTarget, settingsTarget);
+    if (!isSameTarget) {
+      this.settingsTarget = settingsTarget;
+      this._onDidTargetChange.fire(this.settingsTarget);
+    }
+    return Promise.resolve(void 0);
+  }
+  async update() {
+    this.settingsSwitcherBar.domNode.classList.toggle(
+      "empty-workbench",
+      this.contextService.getWorkbenchState() === 1
+      /* WorkbenchState.EMPTY */
+    );
+    this.userRemoteSettings.enabled = !!(this.options.enableRemoteSettings && this.environmentService.remoteAuthority);
+    this.workspaceSettings.enabled = this.contextService.getWorkbenchState() !== 1;
+    this.folderSettings.action.enabled = this.contextService.getWorkbenchState() === 3 && this.contextService.getWorkspace().folders.length > 0;
+    this.workspaceSettings.tooltip = localize("workspaceSettings", "Workspace");
+  }
+};
+SettingsTargetsWidget = __decorate([
+  __param(2, IWorkspaceContextService),
+  __param(3, IInstantiationService),
+  __param(4, IWorkbenchEnvironmentService),
+  __param(5, ILabelService),
+  __param(6, ILanguageService)
+], SettingsTargetsWidget);
+let SearchWidget = class SearchWidget2 extends Widget {
+  static {
+    __name(this, "SearchWidget");
+  }
+  get onDidChange() {
+    return this._onDidChange.event;
+  }
+  get onFocus() {
+    return this._onFocus.event;
+  }
+  constructor(parent, options, contextViewService, instantiationService, contextKeyService, keybindingService) {
+    super();
+    this.options = options;
+    this.contextViewService = contextViewService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.keybindingService = keybindingService;
+    this._onDidChange = this._register(new Emitter());
+    this._onFocus = this._register(new Emitter());
+    this.create(parent);
+  }
+  create(parent) {
+    this.domNode = DOM.append(parent, DOM.$("div.settings-header-widget"));
+    this.createSearchContainer(DOM.append(this.domNode, DOM.$("div.settings-search-container")));
+    this.controlsDiv = DOM.append(this.domNode, DOM.$("div.settings-search-controls"));
+    if (this.options.showResultCount) {
+      this.countElement = DOM.append(this.controlsDiv, DOM.$(".settings-count-widget"));
+      this.countElement.style.backgroundColor = asCssVariable(badgeBackground);
+      this.countElement.style.color = asCssVariable(badgeForeground);
+      this.countElement.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
+    }
+    this.inputBox.inputElement.setAttribute("aria-live", this.options.ariaLive || "off");
+    if (this.options.ariaLabelledBy) {
+      this.inputBox.inputElement.setAttribute("aria-labelledBy", this.options.ariaLabelledBy);
+    }
+    const focusTracker = this._register(DOM.trackFocus(this.inputBox.inputElement));
+    this._register(focusTracker.onDidFocus(() => this._onFocus.fire()));
+    const focusKey = this.options.focusKey;
+    if (focusKey) {
+      this._register(focusTracker.onDidFocus(() => focusKey.set(true)));
+      this._register(focusTracker.onDidBlur(() => focusKey.set(false)));
+    }
+  }
+  createSearchContainer(searchContainer) {
+    this.searchContainer = searchContainer;
+    const searchInput = DOM.append(this.searchContainer, DOM.$("div.settings-search-input"));
+    this.inputBox = this._register(this.createInputBox(searchInput));
+    this._register(this.inputBox.onDidChange((value) => this._onDidChange.fire(value)));
+  }
+  createInputBox(parent) {
+    const showHistoryHint = /* @__PURE__ */ __name(() => showHistoryKeybindingHint(this.keybindingService), "showHistoryHint");
+    return new ContextScopedHistoryInputBox(parent, this.contextViewService, { ...this.options, showHistoryHint }, this.contextKeyService);
+  }
+  showMessage(message) {
+    if (this.countElement && message !== this.countElement.textContent) {
+      this.countElement.textContent = message;
+      this.inputBox.inputElement.setAttribute("aria-label", message);
+      this.inputBox.inputElement.style.paddingRight = this.getControlsWidth() + "px";
+    }
+  }
+  layout(dimension) {
+    if (dimension.width < 400) {
+      this.countElement?.classList.add("hide");
+      this.inputBox.inputElement.style.paddingRight = "0px";
+    } else {
+      this.countElement?.classList.remove("hide");
+      this.inputBox.inputElement.style.paddingRight = this.getControlsWidth() + "px";
+    }
+  }
+  getControlsWidth() {
+    const countWidth = this.countElement ? DOM.getTotalWidth(this.countElement) : 0;
+    return countWidth + 20;
+  }
+  focus() {
+    this.inputBox.focus();
+    if (this.getValue()) {
+      this.inputBox.select();
+    }
+  }
+  hasFocus() {
+    return this.inputBox.hasFocus();
+  }
+  clear() {
+    this.inputBox.value = "";
+  }
+  getValue() {
+    return this.inputBox.value;
+  }
+  setValue(value) {
+    return this.inputBox.value = value;
+  }
+  dispose() {
+    this.options.focusKey?.set(false);
+    super.dispose();
+  }
+};
+SearchWidget = __decorate([
+  __param(2, IContextViewService),
+  __param(3, IInstantiationService),
+  __param(4, IContextKeyService),
+  __param(5, IKeybindingService)
+], SearchWidget);
+class EditPreferenceWidget extends Disposable {
+  static {
+    __name(this, "EditPreferenceWidget");
+  }
+  constructor(editor) {
+    super();
+    this.editor = editor;
+    this._line = -1;
+    this._preferences = [];
+    this._onClick = this._register(new Emitter());
+    this.onClick = this._onClick.event;
+    this._editPreferenceDecoration = this.editor.createDecorationsCollection();
+    this._register(this.editor.onMouseDown((e) => {
+      if (e.target.type !== 2 || e.target.detail.isAfterLines || !this.isVisible()) {
+        return;
+      }
+      this._onClick.fire(e);
+    }));
+  }
+  get preferences() {
+    return this._preferences;
+  }
+  getLine() {
+    return this._line;
+  }
+  show(line, hoverMessage, preferences) {
+    this._preferences = preferences;
+    const newDecoration = [];
+    this._line = line;
+    newDecoration.push({
+      options: {
+        description: "edit-preference-widget-decoration",
+        glyphMarginClassName: ThemeIcon.asClassName(settingsEditIcon),
+        glyphMarginHoverMessage: new MarkdownString().appendText(hoverMessage),
+        stickiness: 1
+      },
+      range: {
+        startLineNumber: line,
+        startColumn: 1,
+        endLineNumber: line,
+        endColumn: 1
+      }
+    });
+    this._editPreferenceDecoration.set(newDecoration);
+  }
+  hide() {
+    this._editPreferenceDecoration.clear();
+  }
+  isVisible() {
+    return this._editPreferenceDecoration.length > 0;
+  }
+  dispose() {
+    this.hide();
+    super.dispose();
+  }
+}
+export {
+  EditPreferenceWidget,
+  FolderSettingsActionViewItem,
+  SearchWidget,
+  SettingsTargetsWidget
+};
+//# sourceMappingURL=preferencesWidgets.js.map

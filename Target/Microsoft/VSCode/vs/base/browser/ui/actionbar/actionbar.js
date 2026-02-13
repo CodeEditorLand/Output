@@ -1,1 +1,548 @@
-import*as o from"../../dom.js";import{$n8 as w}from"../../keyboardEvent.js";import{$M$ as p,$L$ as a}from"./actionViewItems.js";import{$v0 as v}from"../hover/hoverDelegateFactory.js";import{$Gm as g,$Hm as f}from"../../../common/actions.js";import{$xf as d}from"../../../common/event.js";import{$Ed as D,$Md as $,$Dd as y,$zd as c}from"../../../common/lifecycle.js";import*as m from"../../../common/types.js";import"./actionbar.css";var b;(function(l){l[l.HORIZONTAL=0]="HORIZONTAL",l[l.VERTICAL=1]="VERTICAL"})(b||(b={}));class C extends D{get onDidBlur(){return this.C.event}get onDidCancel(){return this.F.event}get onDidRun(){return this.H.event}get onWillRun(){return this.I.event}constructor(t,e={}){super(),this.j=this.D(new y),this.r=this.D(new $),this.w=!1,this.y=!0,this.C=this.D(new d),this.F=this.D(new d({onWillAddFirstListener:()=>this.G=!0})),this.G=!1,this.H=this.D(new d),this.I=this.D(new d),this.b=e,this.m=e.context??null,this.n=this.b.orientation??0,this.q={keyDown:this.b.triggerKeys?.keyDown??!1,keys:this.b.triggerKeys?.keys??[3,10]},this.f=e.hoverDelegate??this.D(v()),this.b.actionRunner?this.g=this.b.actionRunner:(this.g=new g,this.j.add(this.g)),this.j.add(this.g.onDidRun(r=>this.H.fire(r))),this.j.add(this.g.onWillRun(r=>this.I.fire(r))),this.viewItems=[],this.t=void 0,this.domNode=document.createElement("div"),this.domNode.className="monaco-action-bar";let i,h;switch(this.n){case 0:i=[15],h=[17];break;case 1:i=[16],h=[18],this.domNode.className+=" vertical";break}this.D(o.$u8(this.domNode,o.$r9.KEY_DOWN,r=>{const s=new w(r);let n=!0;const u=typeof this.t=="number"?this.viewItems[this.t]:void 0;i&&(s.equals(i[0])||s.equals(i[1]))?n=this.Q():h&&(s.equals(h[0])||s.equals(h[1]))?n=this.P():s.equals(9)&&this.G?this.F.fire():s.equals(14)?n=this.N():s.equals(13)?n=this.O():s.equals(2)&&u instanceof a&&u.trapsArrowNavigation?n=this.P(void 0,!0):this.L(s)?this.q.keyDown?this.S(s):this.w=!0:n=!1,n&&(s.preventDefault(),s.stopPropagation())})),this.D(o.$u8(this.domNode,o.$r9.KEY_UP,r=>{const s=new w(r);this.L(s)?(!this.q.keyDown&&this.w&&(this.w=!1,this.S(s)),s.preventDefault(),s.stopPropagation()):(s.equals(2)||s.equals(1026)||s.equals(16)||s.equals(18)||s.equals(15)||s.equals(17))&&this.M()})),this.u=this.D(o.$w9(this.domNode)),this.D(this.u.onDidBlur(()=>{(o.$98()===this.domNode||!o.$18(o.$98(),this.domNode))&&(this.C.fire(),this.s=this.t,this.t=void 0,this.w=!1)})),this.D(this.u.onDidFocus(()=>this.M())),this.z=document.createElement("ul"),this.z.className="actions-container",this.b.highlightToggledItems&&this.z.classList.add("highlight-toggled"),this.z.setAttribute("role",this.b.ariaRole||"toolbar"),this.b.ariaLabel&&this.z.setAttribute("aria-label",this.b.ariaLabel),this.domNode.appendChild(this.z),t.appendChild(this.domNode)}J(){this.length()>=1?this.z.setAttribute("role",this.b.ariaRole||"toolbar"):this.z.setAttribute("role","presentation")}setAriaLabel(t){t?this.z.setAttribute("aria-label",t):this.z.removeAttribute("aria-label")}setFocusable(t){if(this.y=t,this.y){const e=this.viewItems.find(i=>i instanceof a&&i.isEnabled());e instanceof a&&e.setFocusable(!0)}else this.viewItems.forEach(e=>{e instanceof a&&e.setFocusable(!1)})}L(t){let e=!1;return this.q.keys.forEach(i=>{e=e||t.equals(i)}),e}M(){for(let t=0;t<this.z.children.length;t++){const e=this.z.children[t];if(o.$18(o.$98(),e)){this.t=t,this.viewItems[this.t]?.showHover?.();break}}}get context(){return this.m}set context(t){this.m=t,this.viewItems.forEach(e=>e.setActionContext(t))}get actionRunner(){return this.g}set actionRunner(t){this.g=t,this.j.clear(),this.j.add(this.g.onDidRun(e=>this.H.fire(e))),this.j.add(this.g.onWillRun(e=>this.I.fire(e))),this.viewItems.forEach(e=>e.actionRunner=t)}getContainer(){return this.domNode}hasAction(t){return this.viewItems.findIndex(e=>e.action.id===t.id)!==-1}getAction(t){if(typeof t=="number")return this.viewItems[t]?.action;if(o.$f9(t)){for(;t.parentElement!==this.z;){if(!t.parentElement)return;t=t.parentElement}for(let e=0;e<this.z.childNodes.length;e++)if(this.z.childNodes[e]===t)return this.viewItems[e].action}}push(t,e={}){const i=Array.isArray(t)?t:[t];let h=m.$$c(e.index)?e.index:null;if(i.forEach(r=>{const s=document.createElement("li");s.className="action-item",s.setAttribute("role","presentation");let n;const u={hoverDelegate:this.f,...e,isTabList:this.b.ariaRole==="tablist"};this.b.actionViewItemProvider&&(n=this.b.actionViewItemProvider(r,u)),n||(n=new p(this.context,r,u)),this.b.allowContextMenu||this.r.set(n,o.$u8(s,o.$r9.CONTEXT_MENU,I=>{o.$t9.stop(I,!0)})),n.actionRunner=this.g,n.setActionContext(this.context),n.render(s),h===null||h<0||h>=this.z.children.length?(this.z.appendChild(s),this.viewItems.push(n)):(this.z.insertBefore(s,this.z.children[h]),this.viewItems.splice(h,0,n),h++)}),this.y){let r=!1;for(const s of this.viewItems){if(!(s instanceof a))continue;let n;r||s.action.id===f.ID||!s.isEnabled()&&this.b.focusOnlyEnabledItems?n=!1:n=!0,n?(s.setFocusable(!0),r=!0):s.setFocusable(!1)}}typeof this.t=="number"&&this.focus(this.t),this.J()}getWidth(t){if(t>=0&&t<this.z.children.length){const e=this.z.children.item(t);if(e)return e.clientWidth}return 0}getHeight(t){if(t>=0&&t<this.z.children.length){const e=this.z.children.item(t);if(e)return e.clientHeight}return 0}pull(t){t>=0&&t<this.viewItems.length&&(this.z.childNodes[t].remove(),this.r.deleteAndDispose(this.viewItems[t]),c(this.viewItems.splice(t,1)),this.J())}clear(){this.isEmpty()||(this.viewItems=c(this.viewItems),this.r.clearAndDisposeAll(),o.$t8(this.z),this.J())}length(){return this.viewItems.length}isEmpty(){return this.viewItems.length===0}isFocused(t){return t===void 0?o.$18(o.$98(),this.domNode):o.$18(o.$98(),this.z.children[t])}focus(t){let e=!1,i;if(t===void 0?e=!0:typeof t=="number"?i=t:typeof t=="boolean"&&(e=t),e&&typeof this.t>"u"){const h=this.viewItems.findIndex(r=>r.isEnabled());this.t=h===-1?void 0:h,this.R(void 0,void 0,!0)}else i!==void 0&&(this.t=i),this.R(void 0,void 0,!0)}N(){return this.t=this.length()-1,this.P(!0)}O(){return this.t=0,this.Q(!0)}P(t,e){if(typeof this.t>"u")this.t=this.viewItems.length-1;else if(this.viewItems.length<=1)return!1;const i=this.t;let h;do{if(!t&&this.b.preventLoopNavigation&&this.t+1>=this.viewItems.length)return this.t=i,!1;this.t=(this.t+1)%this.viewItems.length,h=this.viewItems[this.t]}while(this.t!==i&&(this.b.focusOnlyEnabledItems&&!h.isEnabled()||h.action.id===f.ID));return this.R(void 0,void 0,e),!0}Q(t){if(typeof this.t>"u")this.t=0;else if(this.viewItems.length<=1)return!1;const e=this.t;let i;do{if(this.t=this.t-1,this.t<0){if(!t&&this.b.preventLoopNavigation)return this.t=e,!1;this.t=this.viewItems.length-1}i=this.viewItems[this.t]}while(this.t!==e&&(this.b.focusOnlyEnabledItems&&!i.isEnabled()||i.action.id===f.ID));return this.R(!0),!0}R(t,e,i=!1){typeof this.t>"u"&&this.z.focus({preventScroll:e}),this.s!==void 0&&this.s!==this.t&&this.viewItems[this.s]?.blur();const h=this.t!==void 0?this.viewItems[this.t]:void 0;if(h){let r=!0;m.$md(h.focus)||(r=!1),this.b.focusOnlyEnabledItems&&m.$md(h.isEnabled)&&!h.isEnabled()&&(r=!1),h.action.id===f.ID&&(r=!1),r?(i||this.s!==this.t)&&(h.focus(t),this.s=this.t):(this.z.focus({preventScroll:e}),this.s=void 0),r&&h.showHover?.()}}S(t){if(typeof this.t>"u")return;const e=this.viewItems[this.t];if(e instanceof a){const i=e._context===null||e._context===void 0?t:e._context;this.run(e._action,i)}}async run(t,e){await this.g.run(t,e)}dispose(){this.m=void 0,this.viewItems=c(this.viewItems),this.getContainer().remove(),super.dispose()}}function k(l){if(!l.length)return l;let t=-1;for(let i=0;i<l.length;i++)if(l[i].id!==f.ID){t=i;break}if(t===-1)return[];l=l.slice(t);for(let i=l.length-1;i>=0&&l[i].id===f.ID;i--)l.splice(i,1);let e=!1;for(let i=l.length-1;i>=0;i--){const h=l[i].id===f.ID;h&&!e?l.splice(i,1):h?h&&(e=!1):e=!0}return l}export{C as $w0,k as $x0,b as ActionsOrientation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../dom.js";
+import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import { ActionViewItem, BaseActionViewItem } from "./actionViewItems.js";
+import { createInstantHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import { ActionRunner, Separator } from "../../../common/actions.js";
+import { Emitter } from "../../../common/event.js";
+import { Disposable, DisposableMap, DisposableStore, dispose } from "../../../common/lifecycle.js";
+import * as types from "../../../common/types.js";
+import "./actionbar.css";
+var ActionsOrientation;
+(function(ActionsOrientation2) {
+  ActionsOrientation2[ActionsOrientation2["HORIZONTAL"] = 0] = "HORIZONTAL";
+  ActionsOrientation2[ActionsOrientation2["VERTICAL"] = 1] = "VERTICAL";
+})(ActionsOrientation || (ActionsOrientation = {}));
+class ActionBar extends Disposable {
+  static {
+    __name(this, "ActionBar");
+  }
+  get onDidBlur() {
+    return this._onDidBlur.event;
+  }
+  get onDidCancel() {
+    return this._onDidCancel.event;
+  }
+  get onDidRun() {
+    return this._onDidRun.event;
+  }
+  get onWillRun() {
+    return this._onWillRun.event;
+  }
+  constructor(container, options = {}) {
+    super();
+    this._actionRunnerDisposables = this._register(new DisposableStore());
+    this.viewItemDisposables = this._register(new DisposableMap());
+    this.triggerKeyDown = false;
+    this.focusable = true;
+    this._onDidBlur = this._register(new Emitter());
+    this._onDidCancel = this._register(new Emitter({ onWillAddFirstListener: /* @__PURE__ */ __name(() => this.cancelHasListener = true, "onWillAddFirstListener") }));
+    this.cancelHasListener = false;
+    this._onDidRun = this._register(new Emitter());
+    this._onWillRun = this._register(new Emitter());
+    this.options = options;
+    this._context = options.context ?? null;
+    this._orientation = this.options.orientation ?? 0;
+    this._triggerKeys = {
+      keyDown: this.options.triggerKeys?.keyDown ?? false,
+      keys: this.options.triggerKeys?.keys ?? [
+        3,
+        10
+        /* KeyCode.Space */
+      ]
+    };
+    this._hoverDelegate = options.hoverDelegate ?? this._register(createInstantHoverDelegate());
+    if (this.options.actionRunner) {
+      this._actionRunner = this.options.actionRunner;
+    } else {
+      this._actionRunner = new ActionRunner();
+      this._actionRunnerDisposables.add(this._actionRunner);
+    }
+    this._actionRunnerDisposables.add(this._actionRunner.onDidRun((e) => this._onDidRun.fire(e)));
+    this._actionRunnerDisposables.add(this._actionRunner.onWillRun((e) => this._onWillRun.fire(e)));
+    this.viewItems = [];
+    this.focusedItem = void 0;
+    this.domNode = document.createElement("div");
+    this.domNode.className = "monaco-action-bar";
+    let previousKeys;
+    let nextKeys;
+    switch (this._orientation) {
+      case 0:
+        previousKeys = [
+          15
+          /* KeyCode.LeftArrow */
+        ];
+        nextKeys = [
+          17
+          /* KeyCode.RightArrow */
+        ];
+        break;
+      case 1:
+        previousKeys = [
+          16
+          /* KeyCode.UpArrow */
+        ];
+        nextKeys = [
+          18
+          /* KeyCode.DownArrow */
+        ];
+        this.domNode.className += " vertical";
+        break;
+    }
+    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.KEY_DOWN, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      let eventHandled = true;
+      const focusedItem = typeof this.focusedItem === "number" ? this.viewItems[this.focusedItem] : void 0;
+      if (previousKeys && (event.equals(previousKeys[0]) || event.equals(previousKeys[1]))) {
+        eventHandled = this.focusPrevious();
+      } else if (nextKeys && (event.equals(nextKeys[0]) || event.equals(nextKeys[1]))) {
+        eventHandled = this.focusNext();
+      } else if (event.equals(
+        9
+        /* KeyCode.Escape */
+      ) && this.cancelHasListener) {
+        this._onDidCancel.fire();
+      } else if (event.equals(
+        14
+        /* KeyCode.Home */
+      )) {
+        eventHandled = this.focusFirst();
+      } else if (event.equals(
+        13
+        /* KeyCode.End */
+      )) {
+        eventHandled = this.focusLast();
+      } else if (event.equals(
+        2
+        /* KeyCode.Tab */
+      ) && focusedItem instanceof BaseActionViewItem && focusedItem.trapsArrowNavigation) {
+        eventHandled = this.focusNext(void 0, true);
+      } else if (this.isTriggerKeyEvent(event)) {
+        if (this._triggerKeys.keyDown) {
+          this.doTrigger(event);
+        } else {
+          this.triggerKeyDown = true;
+        }
+      } else {
+        eventHandled = false;
+      }
+      if (eventHandled) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }));
+    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.KEY_UP, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (this.isTriggerKeyEvent(event)) {
+        if (!this._triggerKeys.keyDown && this.triggerKeyDown) {
+          this.triggerKeyDown = false;
+          this.doTrigger(event);
+        }
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (event.equals(
+        2
+        /* KeyCode.Tab */
+      ) || event.equals(
+        1024 | 2
+        /* KeyCode.Tab */
+      ) || event.equals(
+        16
+        /* KeyCode.UpArrow */
+      ) || event.equals(
+        18
+        /* KeyCode.DownArrow */
+      ) || event.equals(
+        15
+        /* KeyCode.LeftArrow */
+      ) || event.equals(
+        17
+        /* KeyCode.RightArrow */
+      )) {
+        this.updateFocusedItem();
+      }
+    }));
+    this.focusTracker = this._register(DOM.trackFocus(this.domNode));
+    this._register(this.focusTracker.onDidBlur(() => {
+      if (DOM.getActiveElement() === this.domNode || !DOM.isAncestor(DOM.getActiveElement(), this.domNode)) {
+        this._onDidBlur.fire();
+        this.previouslyFocusedItem = this.focusedItem;
+        this.focusedItem = void 0;
+        this.triggerKeyDown = false;
+      }
+    }));
+    this._register(this.focusTracker.onDidFocus(() => this.updateFocusedItem()));
+    this.actionsList = document.createElement("ul");
+    this.actionsList.className = "actions-container";
+    if (this.options.highlightToggledItems) {
+      this.actionsList.classList.add("highlight-toggled");
+    }
+    this.actionsList.setAttribute("role", this.options.ariaRole || "toolbar");
+    if (this.options.ariaLabel) {
+      this.actionsList.setAttribute("aria-label", this.options.ariaLabel);
+    }
+    this.domNode.appendChild(this.actionsList);
+    container.appendChild(this.domNode);
+  }
+  refreshRole() {
+    if (this.length() >= 1) {
+      this.actionsList.setAttribute("role", this.options.ariaRole || "toolbar");
+    } else {
+      this.actionsList.setAttribute("role", "presentation");
+    }
+  }
+  setAriaLabel(label) {
+    if (label) {
+      this.actionsList.setAttribute("aria-label", label);
+    } else {
+      this.actionsList.removeAttribute("aria-label");
+    }
+  }
+  // Some action bars should not be focusable at times
+  // When an action bar is not focusable make sure to make all the elements inside it not focusable
+  // When an action bar is focusable again, make sure the first item can be focused
+  setFocusable(focusable) {
+    this.focusable = focusable;
+    if (this.focusable) {
+      const firstEnabled = this.viewItems.find((vi) => vi instanceof BaseActionViewItem && vi.isEnabled());
+      if (firstEnabled instanceof BaseActionViewItem) {
+        firstEnabled.setFocusable(true);
+      }
+    } else {
+      this.viewItems.forEach((vi) => {
+        if (vi instanceof BaseActionViewItem) {
+          vi.setFocusable(false);
+        }
+      });
+    }
+  }
+  isTriggerKeyEvent(event) {
+    let ret = false;
+    this._triggerKeys.keys.forEach((keyCode) => {
+      ret = ret || event.equals(keyCode);
+    });
+    return ret;
+  }
+  updateFocusedItem() {
+    for (let i = 0; i < this.actionsList.children.length; i++) {
+      const elem = this.actionsList.children[i];
+      if (DOM.isAncestor(DOM.getActiveElement(), elem)) {
+        this.focusedItem = i;
+        this.viewItems[this.focusedItem]?.showHover?.();
+        break;
+      }
+    }
+  }
+  get context() {
+    return this._context;
+  }
+  set context(context) {
+    this._context = context;
+    this.viewItems.forEach((i) => i.setActionContext(context));
+  }
+  get actionRunner() {
+    return this._actionRunner;
+  }
+  set actionRunner(actionRunner) {
+    this._actionRunner = actionRunner;
+    this._actionRunnerDisposables.clear();
+    this._actionRunnerDisposables.add(this._actionRunner.onDidRun((e) => this._onDidRun.fire(e)));
+    this._actionRunnerDisposables.add(this._actionRunner.onWillRun((e) => this._onWillRun.fire(e)));
+    this.viewItems.forEach((item) => item.actionRunner = actionRunner);
+  }
+  getContainer() {
+    return this.domNode;
+  }
+  hasAction(action) {
+    return this.viewItems.findIndex((candidate) => candidate.action.id === action.id) !== -1;
+  }
+  getAction(indexOrElement) {
+    if (typeof indexOrElement === "number") {
+      return this.viewItems[indexOrElement]?.action;
+    }
+    if (DOM.isHTMLElement(indexOrElement)) {
+      while (indexOrElement.parentElement !== this.actionsList) {
+        if (!indexOrElement.parentElement) {
+          return void 0;
+        }
+        indexOrElement = indexOrElement.parentElement;
+      }
+      for (let i = 0; i < this.actionsList.childNodes.length; i++) {
+        if (this.actionsList.childNodes[i] === indexOrElement) {
+          return this.viewItems[i].action;
+        }
+      }
+    }
+    return void 0;
+  }
+  push(arg, options = {}) {
+    const actions = Array.isArray(arg) ? arg : [arg];
+    let index = types.isNumber(options.index) ? options.index : null;
+    actions.forEach((action) => {
+      const actionViewItemElement = document.createElement("li");
+      actionViewItemElement.className = "action-item";
+      actionViewItemElement.setAttribute("role", "presentation");
+      let item;
+      const viewItemOptions = { hoverDelegate: this._hoverDelegate, ...options, isTabList: this.options.ariaRole === "tablist" };
+      if (this.options.actionViewItemProvider) {
+        item = this.options.actionViewItemProvider(action, viewItemOptions);
+      }
+      if (!item) {
+        item = new ActionViewItem(this.context, action, viewItemOptions);
+      }
+      if (!this.options.allowContextMenu) {
+        this.viewItemDisposables.set(item, DOM.addDisposableListener(actionViewItemElement, DOM.EventType.CONTEXT_MENU, (e) => {
+          DOM.EventHelper.stop(e, true);
+        }));
+      }
+      item.actionRunner = this._actionRunner;
+      item.setActionContext(this.context);
+      item.render(actionViewItemElement);
+      if (index === null || index < 0 || index >= this.actionsList.children.length) {
+        this.actionsList.appendChild(actionViewItemElement);
+        this.viewItems.push(item);
+      } else {
+        this.actionsList.insertBefore(actionViewItemElement, this.actionsList.children[index]);
+        this.viewItems.splice(index, 0, item);
+        index++;
+      }
+    });
+    if (this.focusable) {
+      let didFocus = false;
+      for (const item of this.viewItems) {
+        if (!(item instanceof BaseActionViewItem)) {
+          continue;
+        }
+        let focus;
+        if (didFocus) {
+          focus = false;
+        } else if (item.action.id === Separator.ID) {
+          focus = false;
+        } else if (!item.isEnabled() && this.options.focusOnlyEnabledItems) {
+          focus = false;
+        } else {
+          focus = true;
+        }
+        if (focus) {
+          item.setFocusable(true);
+          didFocus = true;
+        } else {
+          item.setFocusable(false);
+        }
+      }
+    }
+    if (typeof this.focusedItem === "number") {
+      this.focus(this.focusedItem);
+    }
+    this.refreshRole();
+  }
+  getWidth(index) {
+    if (index >= 0 && index < this.actionsList.children.length) {
+      const item = this.actionsList.children.item(index);
+      if (item) {
+        return item.clientWidth;
+      }
+    }
+    return 0;
+  }
+  getHeight(index) {
+    if (index >= 0 && index < this.actionsList.children.length) {
+      const item = this.actionsList.children.item(index);
+      if (item) {
+        return item.clientHeight;
+      }
+    }
+    return 0;
+  }
+  pull(index) {
+    if (index >= 0 && index < this.viewItems.length) {
+      this.actionsList.childNodes[index].remove();
+      this.viewItemDisposables.deleteAndDispose(this.viewItems[index]);
+      dispose(this.viewItems.splice(index, 1));
+      this.refreshRole();
+    }
+  }
+  clear() {
+    if (this.isEmpty()) {
+      return;
+    }
+    this.viewItems = dispose(this.viewItems);
+    this.viewItemDisposables.clearAndDisposeAll();
+    DOM.clearNode(this.actionsList);
+    this.refreshRole();
+  }
+  length() {
+    return this.viewItems.length;
+  }
+  isEmpty() {
+    return this.viewItems.length === 0;
+  }
+  isFocused(index) {
+    return index === void 0 ? DOM.isAncestor(DOM.getActiveElement(), this.domNode) : DOM.isAncestor(DOM.getActiveElement(), this.actionsList.children[index]);
+  }
+  focus(arg) {
+    let selectFirst = false;
+    let index = void 0;
+    if (arg === void 0) {
+      selectFirst = true;
+    } else if (typeof arg === "number") {
+      index = arg;
+    } else if (typeof arg === "boolean") {
+      selectFirst = arg;
+    }
+    if (selectFirst && typeof this.focusedItem === "undefined") {
+      const firstEnabled = this.viewItems.findIndex((item) => item.isEnabled());
+      this.focusedItem = firstEnabled === -1 ? void 0 : firstEnabled;
+      this.updateFocus(void 0, void 0, true);
+    } else {
+      if (index !== void 0) {
+        this.focusedItem = index;
+      }
+      this.updateFocus(void 0, void 0, true);
+    }
+  }
+  focusFirst() {
+    this.focusedItem = this.length() - 1;
+    return this.focusNext(true);
+  }
+  focusLast() {
+    this.focusedItem = 0;
+    return this.focusPrevious(true);
+  }
+  focusNext(forceLoop, forceFocus) {
+    if (typeof this.focusedItem === "undefined") {
+      this.focusedItem = this.viewItems.length - 1;
+    } else if (this.viewItems.length <= 1) {
+      return false;
+    }
+    const startIndex = this.focusedItem;
+    let item;
+    do {
+      if (!forceLoop && this.options.preventLoopNavigation && this.focusedItem + 1 >= this.viewItems.length) {
+        this.focusedItem = startIndex;
+        return false;
+      }
+      this.focusedItem = (this.focusedItem + 1) % this.viewItems.length;
+      item = this.viewItems[this.focusedItem];
+    } while (this.focusedItem !== startIndex && (this.options.focusOnlyEnabledItems && !item.isEnabled() || item.action.id === Separator.ID));
+    this.updateFocus(void 0, void 0, forceFocus);
+    return true;
+  }
+  focusPrevious(forceLoop) {
+    if (typeof this.focusedItem === "undefined") {
+      this.focusedItem = 0;
+    } else if (this.viewItems.length <= 1) {
+      return false;
+    }
+    const startIndex = this.focusedItem;
+    let item;
+    do {
+      this.focusedItem = this.focusedItem - 1;
+      if (this.focusedItem < 0) {
+        if (!forceLoop && this.options.preventLoopNavigation) {
+          this.focusedItem = startIndex;
+          return false;
+        }
+        this.focusedItem = this.viewItems.length - 1;
+      }
+      item = this.viewItems[this.focusedItem];
+    } while (this.focusedItem !== startIndex && (this.options.focusOnlyEnabledItems && !item.isEnabled() || item.action.id === Separator.ID));
+    this.updateFocus(true);
+    return true;
+  }
+  updateFocus(fromRight, preventScroll, forceFocus = false) {
+    if (typeof this.focusedItem === "undefined") {
+      this.actionsList.focus({ preventScroll });
+    }
+    if (this.previouslyFocusedItem !== void 0 && this.previouslyFocusedItem !== this.focusedItem) {
+      this.viewItems[this.previouslyFocusedItem]?.blur();
+    }
+    const actionViewItem = this.focusedItem !== void 0 ? this.viewItems[this.focusedItem] : void 0;
+    if (actionViewItem) {
+      let focusItem = true;
+      if (!types.isFunction(actionViewItem.focus)) {
+        focusItem = false;
+      }
+      if (this.options.focusOnlyEnabledItems && types.isFunction(actionViewItem.isEnabled) && !actionViewItem.isEnabled()) {
+        focusItem = false;
+      }
+      if (actionViewItem.action.id === Separator.ID) {
+        focusItem = false;
+      }
+      if (!focusItem) {
+        this.actionsList.focus({ preventScroll });
+        this.previouslyFocusedItem = void 0;
+      } else if (forceFocus || this.previouslyFocusedItem !== this.focusedItem) {
+        actionViewItem.focus(fromRight);
+        this.previouslyFocusedItem = this.focusedItem;
+      }
+      if (focusItem) {
+        actionViewItem.showHover?.();
+      }
+    }
+  }
+  doTrigger(event) {
+    if (typeof this.focusedItem === "undefined") {
+      return;
+    }
+    const actionViewItem = this.viewItems[this.focusedItem];
+    if (actionViewItem instanceof BaseActionViewItem) {
+      const context = actionViewItem._context === null || actionViewItem._context === void 0 ? event : actionViewItem._context;
+      this.run(actionViewItem._action, context);
+    }
+  }
+  async run(action, context) {
+    await this._actionRunner.run(action, context);
+  }
+  dispose() {
+    this._context = void 0;
+    this.viewItems = dispose(this.viewItems);
+    this.getContainer().remove();
+    super.dispose();
+  }
+}
+function prepareActions(actions) {
+  if (!actions.length) {
+    return actions;
+  }
+  let firstIndexOfAction = -1;
+  for (let i = 0; i < actions.length; i++) {
+    if (actions[i].id === Separator.ID) {
+      continue;
+    }
+    firstIndexOfAction = i;
+    break;
+  }
+  if (firstIndexOfAction === -1) {
+    return [];
+  }
+  actions = actions.slice(firstIndexOfAction);
+  for (let h = actions.length - 1; h >= 0; h--) {
+    const isSeparator = actions[h].id === Separator.ID;
+    if (isSeparator) {
+      actions.splice(h, 1);
+    } else {
+      break;
+    }
+  }
+  let foundAction = false;
+  for (let k = actions.length - 1; k >= 0; k--) {
+    const isSeparator = actions[k].id === Separator.ID;
+    if (isSeparator && !foundAction) {
+      actions.splice(k, 1);
+    } else if (!isSeparator) {
+      foundAction = true;
+    } else if (isSeparator) {
+      foundAction = false;
+    }
+  }
+  return actions;
+}
+__name(prepareActions, "prepareActions");
+export {
+  ActionBar,
+  ActionsOrientation,
+  prepareActions
+};
+//# sourceMappingURL=actionbar.js.map

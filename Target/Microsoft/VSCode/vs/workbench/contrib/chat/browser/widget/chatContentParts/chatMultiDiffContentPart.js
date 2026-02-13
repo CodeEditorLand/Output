@@ -1,1 +1,261 @@
-import*as g from"../../../../../../base/browser/dom.js";import{$f_ as I}from"../../../../../../base/browser/ui/button/button.js";import{$bk as u}from"../../../../../../base/common/codicons.js";import{Event as M}from"../../../../../../base/common/event.js";import{$Ed as S,$Dd as p,$Cd as L}from"../../../../../../base/common/lifecycle.js";import{autorun as $,constObservable as U,isObservable as C}from"../../../../../../base/common/observable.js";import{ThemeIcon as _}from"../../../../../../base/common/themables.js";import{URI as w}from"../../../../../../base/common/uri.js";import{localize as f}from"../../../../../../nls.js";import{$ikb as A}from"../../../../../../platform/actions/browser/toolbar.js";import{$qL as T}from"../../../../../../platform/actions/common/actions.js";import{$ro as v}from"../../../../../../platform/contextkey/common/contextkey.js";import{FileKind as N}from"../../../../../../platform/files/common/files.js";import{$Mj as R}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as O}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$9rb as j}from"../../../../../../platform/list/browser/listService.js";import{$qu as x}from"../../../../../../platform/theme/common/themeService.js";import{$eQb as F}from"../../../../../browser/labels.js";import{$CL as H,$BL as P,$DL as q}from"../../../../../services/editor/common/editorService.js";import{$xUb as B}from"../../../../files/browser/views/explorerView.js";import{$e1b as k}from"../../../../multiDiffEditor/browser/multiDiffEditorInput.js";import{$$Ob as G}from"../../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";import{ChatContextKeys as K}from"../../../common/actions/chatContextKeys.js";import{$iS as W}from"../../../common/model/chatUri.js";var y=function(l,t,s,i){var r=arguments.length,e=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,s):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(l,t,s,i);else for(var o=l.length-1;o>=0;o--)(n=l[o])&&(e=(r<3?n(e):r>3?n(t,s,e):n(t,s))||e);return r>3&&e&&Object.defineProperty(t,s,e),e},h=function(l,t){return function(s,i){t(s,i,l)}};const d=g.$,z=22,Y=6;let E=class extends S{constructor(t,s,i,r,e,n){super(),this.g=t,this.h=s,this.j=i,this.m=r,this.n=e,this.q=n,this.b=!1,this.c=t.readOnly??!1,this.f=C(this.g.multiDiffData)?this.g.multiDiffData.map(c=>c):U(this.g.multiDiffData);const o=d(".checkpoint-file-changes-summary-header");this.domNode=d(".checkpoint-file-changes-summary",void 0,o),this.domNode.tabIndex=0,this.b=t?.collapsed??!1,this.D(this.r(o)),this.D(this.u(this.domNode))}r(t){const s=t.appendChild(d(".chat-file-changes-label")),i=new I(s,{});this.D($(n=>{const o=this.f.read(n).resources.length;i.label=o===1?f(6483,null):f(6484,null,o)}));const r=()=>{i.icon=this.b?u.chevronRight:u.chevronDown,this.domNode.classList.toggle("chat-file-changes-collapsed",this.b)};r();const e=new p;return e.add(i),e.add(i.onDidClick(()=>{this.b=!this.b,r()})),this.c||e.add(this.s(i.element)),e.add(this.t(i.element)),L(()=>e.dispose())}s(t){const s=t.appendChild(d(".chat-view-changes-icon"));return s.classList.add(..._.asClassNameArray(u.diffMultiple)),s.title=f(6485,null),g.$u8(s,"click",i=>{const r=w.parse(`multi-diff-editor:${new Date().getMilliseconds().toString()+Math.random().toString()}`),{title:e,resources:n}=this.f.get(),o=this.j.createInstance(k,r,e||"Multi-Diff",n.map(a=>new G(a.originalUri,a.modifiedUri,a.goToFileUri)),!1),c=i.altKey;this.m.openEditor(o,c?q:H),g.$t9.stop(i,!0)})}t(t){const s=t.appendChild(d(".chat-multidiff-contributed-buttons")),i=new p,r=W(this.h.sessionResource),e=this.q.createOverlay([[K.agentSessionType.key,r]]),n=i.add(this.j.createChild(new O([v,e]))),o={...this.h.sessionResource,$mid:1};return i.add(n.createInstance(A,s,T.ChatMultiDiffContext,{menuOptions:{arg:o,shouldForwardArgs:!0},toolbarOptions:{primaryGroup:()=>!0}})),i}u(t){const s=new p,i=t.appendChild(d(".chat-summary-list"));s.add(B(i,this.n));const r=s.add(this.j.createInstance(F,{onDidChangeVisibility:M.None}));return this.a=s.add(this.j.createInstance(j,"ChatMultiDiffList",i,new Z,[this.j.createInstance(m,r)],{identityProvider:{getId:e=>e.uri.toString()},setRowLineHeight:!0,horizontalScrolling:!1,supportDynamicHeights:!1,mouseSupport:!this.c,alwaysConsumeMouseWheel:!1,accessibilityProvider:{getAriaLabel:e=>e.uri.path,getWidgetAriaLabel:()=>f(6486,null)}})),this.D($(e=>{const{resources:n}=this.f.read(e),o=[];for(const a of n){const b=a.modifiedUri||a.originalUri||a.goToFileUri;if(!b)continue;const D={uri:b};a.originalUri&&a.modifiedUri&&(D.diff={originalURI:a.originalUri,modifiedURI:a.modifiedUri,isFinal:!0,quitEarly:!1,identical:!1,added:a.added||0,removed:a.removed||0,isBusy:!1}),o.push(D)}this.a.splice(0,this.a.length,o);const c=Math.min(o.length,Y)*z;this.a.layout(c),i.style.height=`${c}px`})),this.c||s.add(this.a.onDidOpen(e=>{e.element&&(e.element.diff?this.m.openEditor({original:{resource:e.element.diff.originalURI},modified:{resource:e.element.diff.modifiedURI},options:{preserveFocus:!0}}):this.m.openEditor({resource:e.element.uri,options:{preserveFocus:!0}}))})),s}hasSameContent(t){return t.kind==="multiDiffData"&&this.f.get().resources.length===(C(t.multiDiffData)?t.multiDiffData.get().resources.length:t.multiDiffData.resources.length)}addDisposable(t){this.D(t)}};E=y([h(2,R),h(3,P),h(4,x),h(5,v)],E);class Z{getHeight(){return 22}getTemplateId(){return"chatMultiDiffItem"}}class m{static{this.TEMPLATE_ID="chatMultiDiffItem"}static{this.CHANGES_SUMMARY_CLASS_NAME="insertions-and-deletions"}constructor(t){this.a=t,this.templateId=m.TEMPLATE_ID}renderTemplate(t){const s=this.a.create(t,{supportHighlights:!0,supportIcons:!0});return{label:s,dispose:()=>s.dispose()}}renderElement(t,s,i){i.label.setFile(t.uri,{fileKind:N.FILE,title:t.uri.path});const r=i.label.element;if(i.changesElement?.remove(),t.diff?.added||t.diff?.removed){const e=r.appendChild(d(`.${m.CHANGES_SUMMARY_CLASS_NAME}`)),n=e.appendChild(d(".insertions"));n.textContent=`+${t.diff.added}`;const o=e.appendChild(d(".deletions"));o.textContent=`-${t.diff.removed}`,e.setAttribute("aria-label",f(6487,null,t.diff.added,t.diff.removed)),i.changesElement=e}}disposeTemplate(t){t.dispose()}}export{E as $Z2b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { ButtonWithIcon } from "../../../../../../base/browser/ui/button/button.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Event } from "../../../../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, isObservable } from "../../../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { localize } from "../../../../../../nls.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { FileKind } from "../../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { WorkbenchList } from "../../../../../../platform/list/browser/listService.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { ResourceLabels } from "../../../../../browser/labels.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../../../services/editor/common/editorService.js";
+import { createFileIconThemableTreeContainerScope } from "../../../../files/browser/views/explorerView.js";
+import { MultiDiffEditorInput } from "../../../../multiDiffEditor/browser/multiDiffEditorInput.js";
+import { MultiDiffEditorItem } from "../../../../multiDiffEditor/browser/multiDiffSourceResolverService.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { getChatSessionType } from "../../../common/model/chatUri.js";
+const $ = dom.$;
+const ELEMENT_HEIGHT = 22;
+const MAX_ITEMS_SHOWN = 6;
+let ChatMultiDiffContentPart = class ChatMultiDiffContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatMultiDiffContentPart");
+  }
+  constructor(content, _element, instantiationService, editorService, themeService, contextKeyService) {
+    super();
+    this.content = content;
+    this._element = _element;
+    this.instantiationService = instantiationService;
+    this.editorService = editorService;
+    this.themeService = themeService;
+    this.contextKeyService = contextKeyService;
+    this.isCollapsed = false;
+    this.readOnly = content.readOnly ?? false;
+    this.diffData = isObservable(this.content.multiDiffData) ? this.content.multiDiffData.map((d) => d) : constObservable(this.content.multiDiffData);
+    const headerDomNode = $(".checkpoint-file-changes-summary-header");
+    this.domNode = $(".checkpoint-file-changes-summary", void 0, headerDomNode);
+    this.domNode.tabIndex = 0;
+    this.isCollapsed = content?.collapsed ?? false;
+    this._register(this.renderHeader(headerDomNode));
+    this._register(this.renderFilesList(this.domNode));
+  }
+  renderHeader(container) {
+    const viewListButtonContainer = container.appendChild($(".chat-file-changes-label"));
+    const viewListButton = new ButtonWithIcon(viewListButtonContainer, {});
+    this._register(autorun((reader) => {
+      const fileCount = this.diffData.read(reader).resources.length;
+      viewListButton.label = fileCount === 1 ? localize("chatMultiDiff.oneFile", "Changed 1 file") : localize("chatMultiDiff.manyFiles", "Changed {0} files", fileCount);
+    }));
+    const setExpansionState = /* @__PURE__ */ __name(() => {
+      viewListButton.icon = this.isCollapsed ? Codicon.chevronRight : Codicon.chevronDown;
+      this.domNode.classList.toggle("chat-file-changes-collapsed", this.isCollapsed);
+    }, "setExpansionState");
+    setExpansionState();
+    const disposables = new DisposableStore();
+    disposables.add(viewListButton);
+    disposables.add(viewListButton.onDidClick(() => {
+      this.isCollapsed = !this.isCollapsed;
+      setExpansionState();
+    }));
+    if (!this.readOnly) {
+      disposables.add(this.renderViewAllFileChangesButton(viewListButton.element));
+    }
+    disposables.add(this.renderContributedButtons(viewListButton.element));
+    return toDisposable(() => disposables.dispose());
+  }
+  renderViewAllFileChangesButton(container) {
+    const button = container.appendChild($(".chat-view-changes-icon"));
+    button.classList.add(...ThemeIcon.asClassNameArray(Codicon.diffMultiple));
+    button.title = localize("chatMultiDiff.openAllChanges", "Open Changes");
+    return dom.addDisposableListener(button, "click", (e) => {
+      const source = URI.parse(`multi-diff-editor:${(/* @__PURE__ */ new Date()).getMilliseconds().toString() + Math.random().toString()}`);
+      const { title, resources } = this.diffData.get();
+      const input = this.instantiationService.createInstance(MultiDiffEditorInput, source, title || "Multi-Diff", resources.map((resource) => new MultiDiffEditorItem(resource.originalUri, resource.modifiedUri, resource.goToFileUri)), false);
+      const sideBySide = e.altKey;
+      this.editorService.openEditor(input, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+      dom.EventHelper.stop(e, true);
+    });
+  }
+  renderContributedButtons(container) {
+    const buttonsContainer = container.appendChild($(".chat-multidiff-contributed-buttons"));
+    const disposables = new DisposableStore();
+    const type = getChatSessionType(this._element.sessionResource);
+    const overlay = this.contextKeyService.createOverlay([
+      [ChatContextKeys.agentSessionType.key, type]
+    ]);
+    const nestedInsta = disposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, overlay])));
+    const marshalledUri = {
+      ...this._element.sessionResource,
+      $mid: 1
+      /* MarshalledId.Uri */
+    };
+    disposables.add(nestedInsta.createInstance(MenuWorkbenchToolBar, buttonsContainer, MenuId.ChatMultiDiffContext, {
+      menuOptions: {
+        arg: marshalledUri,
+        shouldForwardArgs: true
+      },
+      toolbarOptions: {
+        primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup")
+      }
+    }));
+    return disposables;
+  }
+  renderFilesList(container) {
+    const store = new DisposableStore();
+    const listContainer = container.appendChild($(".chat-summary-list"));
+    store.add(createFileIconThemableTreeContainerScope(listContainer, this.themeService));
+    const resourceLabels = store.add(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: Event.None }));
+    this.list = store.add(this.instantiationService.createInstance(WorkbenchList, "ChatMultiDiffList", listContainer, new ChatMultiDiffListDelegate(), [this.instantiationService.createInstance(ChatMultiDiffListRenderer, resourceLabels)], {
+      identityProvider: {
+        getId: /* @__PURE__ */ __name((element) => element.uri.toString(), "getId")
+      },
+      setRowLineHeight: true,
+      horizontalScrolling: false,
+      supportDynamicHeights: false,
+      mouseSupport: !this.readOnly,
+      alwaysConsumeMouseWheel: false,
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((element) => element.uri.path, "getAriaLabel"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("chatMultiDiffList", "File Changes"), "getWidgetAriaLabel")
+      }
+    }));
+    this._register(autorun((reader) => {
+      const { resources } = this.diffData.read(reader);
+      const items = [];
+      for (const resource of resources) {
+        const uri = resource.modifiedUri || resource.originalUri || resource.goToFileUri;
+        if (!uri) {
+          continue;
+        }
+        const item = { uri };
+        if (resource.originalUri && resource.modifiedUri) {
+          item.diff = {
+            originalURI: resource.originalUri,
+            modifiedURI: resource.modifiedUri,
+            isFinal: true,
+            quitEarly: false,
+            identical: false,
+            added: resource.added || 0,
+            removed: resource.removed || 0,
+            isBusy: false
+          };
+        }
+        items.push(item);
+      }
+      this.list.splice(0, this.list.length, items);
+      const height = Math.min(items.length, MAX_ITEMS_SHOWN) * ELEMENT_HEIGHT;
+      this.list.layout(height);
+      listContainer.style.height = `${height}px`;
+    }));
+    if (!this.readOnly) {
+      store.add(this.list.onDidOpen((e) => {
+        if (!e.element) {
+          return;
+        }
+        if (e.element.diff) {
+          this.editorService.openEditor({
+            original: { resource: e.element.diff.originalURI },
+            modified: { resource: e.element.diff.modifiedURI },
+            options: { preserveFocus: true }
+          });
+        } else {
+          this.editorService.openEditor({
+            resource: e.element.uri,
+            options: { preserveFocus: true }
+          });
+        }
+      }));
+    }
+    return store;
+  }
+  hasSameContent(other) {
+    return other.kind === "multiDiffData" && this.diffData.get().resources.length === (isObservable(other.multiDiffData) ? other.multiDiffData.get().resources.length : other.multiDiffData.resources.length);
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatMultiDiffContentPart = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IEditorService),
+  __param(4, IThemeService),
+  __param(5, IContextKeyService)
+], ChatMultiDiffContentPart);
+class ChatMultiDiffListDelegate {
+  static {
+    __name(this, "ChatMultiDiffListDelegate");
+  }
+  getHeight() {
+    return 22;
+  }
+  getTemplateId() {
+    return "chatMultiDiffItem";
+  }
+}
+class ChatMultiDiffListRenderer {
+  static {
+    __name(this, "ChatMultiDiffListRenderer");
+  }
+  static {
+    this.TEMPLATE_ID = "chatMultiDiffItem";
+  }
+  static {
+    this.CHANGES_SUMMARY_CLASS_NAME = "insertions-and-deletions";
+  }
+  constructor(labels) {
+    this.labels = labels;
+    this.templateId = ChatMultiDiffListRenderer.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const label = this.labels.create(container, { supportHighlights: true, supportIcons: true });
+    return {
+      label,
+      dispose: /* @__PURE__ */ __name(() => label.dispose(), "dispose")
+    };
+  }
+  renderElement(element, _index, templateData) {
+    templateData.label.setFile(element.uri, {
+      fileKind: FileKind.FILE,
+      title: element.uri.path
+    });
+    const labelElement = templateData.label.element;
+    templateData.changesElement?.remove();
+    if (element.diff?.added || element.diff?.removed) {
+      const changesSummary = labelElement.appendChild($(`.${ChatMultiDiffListRenderer.CHANGES_SUMMARY_CLASS_NAME}`));
+      const addedElement = changesSummary.appendChild($(".insertions"));
+      addedElement.textContent = `+${element.diff.added}`;
+      const removedElement = changesSummary.appendChild($(".deletions"));
+      removedElement.textContent = `-${element.diff.removed}`;
+      changesSummary.setAttribute("aria-label", localize("chatEditingSession.fileCounts", "{0} lines added, {1} lines removed", element.diff.added, element.diff.removed));
+      templateData.changesElement = changesSummary;
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.dispose();
+  }
+}
+export {
+  ChatMultiDiffContentPart
+};
+//# sourceMappingURL=chatMultiDiffContentPart.js.map

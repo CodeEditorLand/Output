@@ -1,1 +1,73 @@
-import{$$h as l,$ji as m,$ni as v}from"../../../../base/common/async.js";import{$xf as $}from"../../../../base/common/event.js";import{$Ed as f,$Dd as d,$Cd as p}from"../../../../base/common/lifecycle.js";import{$WC as b}from"../../../../platform/instantiation/common/extensions.js";import{$Mj as _,$Nj as A}from"../../../../platform/instantiation/common/instantiation.js";import{$u8b as w}from"./userActivityRegistry.js";var a=function(r,t,e,s){var n=arguments.length,i=n<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,s);else for(var c=r.length-1;c>=0;c--)(o=r[c])&&(i=(n<3?o(i):n>3?o(t,e,i):o(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},u=function(r,t){return function(e,s){t(e,s,r)}};const D=1e4,j=A("IUserActivityService");let h=class extends f{constructor(t){super(),this.a=this.D(new m(()=>{this.isActive=!1,this.b.fire(!1)},D)),this.b=this.D(new $),this.c=0,this.isActive=!0,this.onDidChangeIsActive=this.b.event,this.D(v(()=>w.take(this,t)))}markActive(t){if(t?.extendOnly&&!this.isActive)return f.None;if(t?.whenHeldFor){const e=new d;return e.add(l(()=>e.add(this.markActive()),t.whenHeldFor)),e}return++this.c===1&&(this.isActive=!0,this.b.fire(!0),this.a.cancel()),p(()=>{--this.c===0&&this.a.schedule()})}};h=a([u(0,_)],h);b(j,h,1);export{j as $v8b,h as $w8b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { disposableTimeout, RunOnceScheduler, runWhenGlobalIdle } from "../../../../base/common/async.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { userActivityRegistry } from "./userActivityRegistry.js";
+const MARK_INACTIVE_DEBOUNCE = 1e4;
+const IUserActivityService = createDecorator("IUserActivityService");
+let UserActivityService = class UserActivityService2 extends Disposable {
+  static {
+    __name(this, "UserActivityService");
+  }
+  constructor(instantiationService) {
+    super();
+    this.markInactive = this._register(new RunOnceScheduler(() => {
+      this.isActive = false;
+      this.changeEmitter.fire(false);
+    }, MARK_INACTIVE_DEBOUNCE));
+    this.changeEmitter = this._register(new Emitter());
+    this.active = 0;
+    this.isActive = true;
+    this.onDidChangeIsActive = this.changeEmitter.event;
+    this._register(runWhenGlobalIdle(() => userActivityRegistry.take(this, instantiationService)));
+  }
+  /** @inheritdoc */
+  markActive(opts) {
+    if (opts?.extendOnly && !this.isActive) {
+      return Disposable.None;
+    }
+    if (opts?.whenHeldFor) {
+      const store = new DisposableStore();
+      store.add(disposableTimeout(() => store.add(this.markActive()), opts.whenHeldFor));
+      return store;
+    }
+    if (++this.active === 1) {
+      this.isActive = true;
+      this.changeEmitter.fire(true);
+      this.markInactive.cancel();
+    }
+    return toDisposable(() => {
+      if (--this.active === 0) {
+        this.markInactive.schedule();
+      }
+    });
+  }
+};
+UserActivityService = __decorate([
+  __param(0, IInstantiationService)
+], UserActivityService);
+registerSingleton(
+  IUserActivityService,
+  UserActivityService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IUserActivityService,
+  UserActivityService
+};
+//# sourceMappingURL=userActivityService.js.map

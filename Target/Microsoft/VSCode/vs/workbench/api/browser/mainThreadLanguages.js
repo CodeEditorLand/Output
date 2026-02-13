@@ -1,1 +1,84 @@
-import{URI as g}from"../../../base/common/uri.js";import{$ZF as d}from"../../../editor/common/languages/language.js";import{$9H as h}from"../../../editor/common/services/model.js";import{$X1 as m,$Y1 as p}from"../common/extHost.protocol.js";import{$vDb as l}from"../../services/extensions/common/extHostCustomers.js";import{$_D as $}from"../../../editor/common/core/range.js";import{$5H as b}from"../../../editor/common/services/resolverService.js";import{$ZZ as L}from"../../services/languageStatus/common/languageStatusService.js";import{$Ed as v,$Md as _}from"../../../base/common/lifecycle.js";var c=function(s,t,e,i){var r=arguments.length,n=r<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(s,t,e,i);else for(var f=s.length-1;f>=0;f--)(o=s[f])&&(n=(r<3?o(n):r>3?o(t,e,n):o(t,e))||n);return r>3&&n&&Object.defineProperty(t,e,n),n},a=function(s,t){return function(e,i){t(e,i,s)}};let u=class extends v{constructor(t,e,i,r,n){super(),this.c=e,this.f=i,this.g=r,this.h=n,this.b=this.D(new _),this.a=t.getProxy(p.ExtHostLanguages),this.a.$acceptLanguageIds(e.getRegisteredLanguageIds()),this.D(e.onDidChange(o=>{this.a.$acceptLanguageIds(e.getRegisteredLanguageIds())}))}async $changeLanguage(t,e){if(!this.c.isRegisteredLanguageId(e))return Promise.reject(new Error(`Unknown language id: ${e}`));const i=g.revive(t),r=await this.g.createModelReference(i);try{r.object.textEditorModel.setLanguage(this.c.createById(e))}finally{r.dispose()}}async $tokensAtPosition(t,e){const i=g.revive(t),r=this.f.getModel(i);if(!r)return;r.tokenization.tokenizeIfCheap(e.lineNumber);const n=r.tokenization.getLineTokens(e.lineNumber),o=n.findTokenIndexAtOffset(e.column-1);return{type:n.getStandardTokenType(o),range:new $(e.lineNumber,1+n.getStartOffset(o),e.lineNumber,1+n.getEndOffset(o))}}$setLanguageStatus(t,e){this.b.set(t,this.h.addStatus(e))}$removeLanguageStatus(t){this.b.deleteAndDispose(t)}};u=c([l(m.MainThreadLanguages),a(1,d),a(2,h),a(3,b),a(4,L)],u);export{u as $p7b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { URI } from "../../../base/common/uri.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { MainContext, ExtHostContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { Range } from "../../../editor/common/core/range.js";
+import { ITextModelService } from "../../../editor/common/services/resolverService.js";
+import { ILanguageStatusService } from "../../services/languageStatus/common/languageStatusService.js";
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+let MainThreadLanguages = class MainThreadLanguages2 extends Disposable {
+  static {
+    __name(this, "MainThreadLanguages");
+  }
+  constructor(_extHostContext, _languageService, _modelService, _resolverService, _languageStatusService) {
+    super();
+    this._languageService = _languageService;
+    this._modelService = _modelService;
+    this._resolverService = _resolverService;
+    this._languageStatusService = _languageStatusService;
+    this._status = this._register(new DisposableMap());
+    this._proxy = _extHostContext.getProxy(ExtHostContext.ExtHostLanguages);
+    this._proxy.$acceptLanguageIds(_languageService.getRegisteredLanguageIds());
+    this._register(_languageService.onDidChange((_) => {
+      this._proxy.$acceptLanguageIds(_languageService.getRegisteredLanguageIds());
+    }));
+  }
+  async $changeLanguage(resource, languageId) {
+    if (!this._languageService.isRegisteredLanguageId(languageId)) {
+      return Promise.reject(new Error(`Unknown language id: ${languageId}`));
+    }
+    const uri = URI.revive(resource);
+    const ref = await this._resolverService.createModelReference(uri);
+    try {
+      ref.object.textEditorModel.setLanguage(this._languageService.createById(languageId));
+    } finally {
+      ref.dispose();
+    }
+  }
+  async $tokensAtPosition(resource, position) {
+    const uri = URI.revive(resource);
+    const model = this._modelService.getModel(uri);
+    if (!model) {
+      return void 0;
+    }
+    model.tokenization.tokenizeIfCheap(position.lineNumber);
+    const tokens = model.tokenization.getLineTokens(position.lineNumber);
+    const idx = tokens.findTokenIndexAtOffset(position.column - 1);
+    return {
+      type: tokens.getStandardTokenType(idx),
+      range: new Range(position.lineNumber, 1 + tokens.getStartOffset(idx), position.lineNumber, 1 + tokens.getEndOffset(idx))
+    };
+  }
+  // --- language status
+  $setLanguageStatus(handle, status) {
+    this._status.set(handle, this._languageStatusService.addStatus(status));
+  }
+  $removeLanguageStatus(handle) {
+    this._status.deleteAndDispose(handle);
+  }
+};
+MainThreadLanguages = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadLanguages),
+  __param(1, ILanguageService),
+  __param(2, IModelService),
+  __param(3, ITextModelService),
+  __param(4, ILanguageStatusService)
+], MainThreadLanguages);
+export {
+  MainThreadLanguages
+};
+//# sourceMappingURL=mainThreadLanguages.js.map

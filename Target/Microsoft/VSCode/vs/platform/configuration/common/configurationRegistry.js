@@ -1,1 +1,667 @@
-import{$dc as y}from"../../../base/common/arrays.js";import{$xf as A}from"../../../base/common/event.js";import*as l from"../../../base/common/types.js";import*as d from"../../../nls.js";import{$im as z}from"./configuration.js";import{$km as S}from"../../jsonschemas/common/jsonContributionRegistry.js";import{$jm as N}from"../../registry/common/platform.js";import{$Ed as q}from"../../../base/common/lifecycle.js";import w from"../../product/common/product.js";var V;(function(o){o.Multiline="multilineText",o.Singleline="singlelineText"})(V||(V={}));const T={Configuration:"base.contributions.configuration"};var R;(function(o){o[o.APPLICATION=1]="APPLICATION",o[o.MACHINE=2]="MACHINE",o[o.APPLICATION_MACHINE=3]="APPLICATION_MACHINE",o[o.WINDOW=4]="WINDOW",o[o.RESOURCE=5]="RESOURCE",o[o.LANGUAGE_OVERRIDABLE=6]="LANGUAGE_OVERRIDABLE",o[o.MACHINE_OVERRIDABLE=7]="MACHINE_OVERRIDABLE"})(R||(R={}));const $={properties:{},patternProperties:{}},v={properties:{},patternProperties:{}},x={properties:{},patternProperties:{}},C={properties:{},patternProperties:{}},b={properties:{},patternProperties:{}},E={properties:{},patternProperties:{}},g={properties:{},patternProperties:{}},h="vscode://schemas/settings/resourceLanguage",Z="vscode://schemas/settings/configurationDefaults",I=N.as(S.JSONContribution);class _ extends q{constructor(){super(),this.a=[],this.n=new Set,this.q=this.D(new A),this.onDidSchemaChange=this.q.event,this.r=this.D(new A),this.onDidUpdateConfiguration=this.r.event,this.b=new Map,this.c={id:"defaultOverrides",title:d.localize(1844,null),properties:{}},this.f=[this.c],this.m={properties:{},patternProperties:{},additionalProperties:!0,allowTrailingCommas:!0,allowComments:!0},this.g={},this.h=new Map,this.j={},I.registerSchema(h,this.m),this.N()}registerConfiguration(e,t=!0){return this.registerConfigurations([e],t),e}registerConfigurations(e,t=!0){const r=new Set;this.F(e,t,r),I.registerSchema(h,this.m),this.q.fire(),this.r.fire({properties:r})}deregisterConfigurations(e){const t=new Set;this.G(e,t),I.registerSchema(h,this.m),this.q.fire(),this.r.fire({properties:t})}updateConfigurations({add:e,remove:t}){const r=new Set;this.G(t,r),this.F(e,!1,r),I.registerSchema(h,this.m),this.q.fire(),this.r.fire({properties:r})}registerDefaultConfigurations(e){const t=new Set;this.s(e,t),this.q.fire(),this.r.fire({properties:t,defaultsOverrides:!0})}s(e,t){this.a.push(...e);const r=[];for(const{overrides:s,source:i}of e)for(const n in s){t.add(n);const f=this.b.get(n)??this.b.set(n,{configurationDefaultOverrides:[]}).get(n),u=s[n];if(f.configurationDefaultOverrides.push({value:u,source:i}),m.test(n)){const a=this.y(n,u,i,f.configurationDefaultOverrideValue);if(!a)continue;f.configurationDefaultOverrideValue=a,this.w(n,a,i),r.push(...G(n))}else{const a=this.z(n,u,i,f.configurationDefaultOverrideValue);if(!a)continue;f.configurationDefaultOverrideValue=a;const c=this.g[n];c&&(this.O(n,c),this.J(n,c))}}this.C(r)}deregisterDefaultConfigurations(e){const t=new Set;this.u(e,t),this.q.fire(),this.r.fire({properties:t,defaultsOverrides:!0})}u(e,t){for(const r of e){const s=this.a.indexOf(r);s!==-1&&this.a.splice(s,1)}for(const{overrides:r,source:s}of e)for(const i in r){const n=this.b.get(i);if(!n)continue;const f=n.configurationDefaultOverrides.findIndex(u=>s?u.source?.id===s.id:u.value===r[i]);if(f!==-1){if(n.configurationDefaultOverrides.splice(f,1),n.configurationDefaultOverrides.length===0&&this.b.delete(i),m.test(i)){let u;for(const a of n.configurationDefaultOverrides)u=this.y(i,a.value,a.source,u);u&&!l.$ld(u.value)?(n.configurationDefaultOverrideValue=u,this.w(i,u,s)):(this.b.delete(i),delete this.g[i],delete this.c.properties[i])}else{let u;for(const c of n.configurationDefaultOverrides)u=this.z(i,c.value,c.source,u);n.configurationDefaultOverrideValue=u;const a=this.g[i];a&&(this.O(i,a),this.J(i,a))}t.add(i)}}this.M()}w(e,t,r){const s={section:{id:this.c.id,title:this.c.title,order:this.c.order,extensionInfo:this.c.extensionInfo},type:"object",default:t.value,description:d.localize(1845,null,z(e)),$ref:h,defaultDefaultValue:t.value,source:r,defaultValueSource:r};this.g[e]=s,this.c.properties[e]=s}y(e,t,r,s){const i=s?.value||{},n=s?.source??new Map;if(n instanceof Map){for(const f of Object.keys(t)){const u=t[f];if(l.$9c(u)&&(l.$cd(i[f])||l.$9c(i[f]))){if(i[f]={...i[f]??{},...u},r)for(const c in u)n.set(`${f}.${c}`,r)}else i[f]=u,r?n.set(f,r):n.delete(f)}return{value:i,source:n}}}z(e,t,r,s){const i=this.g[e],n=s?.value??i?.defaultDefaultValue;let f=r;if(l.$9c(t)&&(i!==void 0&&i.type==="object"||i===void 0&&(l.$cd(n)||l.$9c(n)))){if(f=s?.source??new Map,!(f instanceof Map))return;for(const a in t)r&&f.set(`${e}.${a}`,r);t={...l.$9c(n)?n:{},...t}}return{value:t,source:f}}deltaConfiguration(e){let t=!1;const r=new Set;e.removedDefaults&&(this.u(e.removedDefaults,r),t=!0),e.addedDefaults&&(this.s(e.addedDefaults,r),t=!0),e.removedConfigurations&&this.G(e.removedConfigurations,r),e.addedConfigurations&&this.F(e.addedConfigurations,!1,r),this.q.fire(),this.r.fire({properties:r,defaultsOverrides:t})}notifyConfigurationSchemaUpdated(...e){this.q.fire()}registerOverrideIdentifiers(e){this.C(e),this.q.fire()}C(e){for(const t of e)this.n.add(t);this.M()}F(e,t,r){e.forEach(s=>{this.H(s,t,s.extensionInfo,s.restrictedProperties,void 0,r),this.f.push(s),this.I(s)})}G(e,t){const r=s=>{if(s.properties)for(const i in s.properties){t.add(i);const n=this.g[i];n?.policy?.name&&this.h.delete(n.policy.name),delete this.g[i],this.L(i,s.properties[i])}s.allOf?.forEach(i=>r(i))};for(const s of e){r(s);const i=this.f.indexOf(s);i!==-1&&this.f.splice(i,1)}}H(e,t=!0,r,s,i=4,n){i=l.$ed(e.scope)?i:e.scope;const f=e.properties;if(f)for(const a in f){const c=f[a];if(c.section={id:e.id,title:e.title,order:e.order,extensionInfo:e.extensionInfo},t&&F(a,c,r?.id)){delete f[a];continue}c.source=r,c.defaultDefaultValue=f[a].default,this.O(a,c),m.test(a)?c.scope=void 0:(c.scope=l.$ed(c.scope)?i:c.scope,c.restricted=l.$ed(c.restricted)?!!s?.includes(a):c.restricted),c.experiment?c.tags?.some(P=>P.toLowerCase()==="onexp")||(c.tags=c.tags??[],c.tags.push("onExP")):c.tags?.some(P=>P.toLowerCase()==="onexp")&&(c.experiment={mode:"startup"});const j=f[a].hasOwnProperty("included")&&!f[a].included,D=f[a].policy?.name;j?(this.j[a]=f[a],D&&(this.h.set(D,a),n.add(a)),delete f[a]):(n.add(a),D&&this.h.set(D,a),this.g[a]=f[a],!f[a].deprecationMessage&&f[a].markdownDeprecationMessage&&(f[a].deprecationMessage=f[a].markdownDeprecationMessage))}const u=e.allOf;if(u)for(const a of u)this.H(a,t,r,s,i,n)}getConfigurations(){return this.f}getConfigurationProperties(){return this.g}getPolicyConfigurations(){return this.h}getExcludedConfigurationProperties(){return this.j}getRegisteredDefaultConfigurations(){return[...this.a]}getConfigurationDefaultsOverrides(){const e=new Map;for(const[t,r]of this.b)r.configurationDefaultOverrideValue&&e.set(t,r.configurationDefaultOverrideValue);return e}I(e){const t=r=>{const s=r.properties;if(s)for(const n in s)this.J(n,s[n]);r.allOf?.forEach(t)};t(e)}J(e,t){switch($.properties[e]=t,t.scope){case 1:v.properties[e]=t;break;case 2:C.properties[e]=t;break;case 3:x.properties[e]=t;break;case 7:b.properties[e]=t;break;case 4:E.properties[e]=t;break;case 5:g.properties[e]=t;break;case 6:g.properties[e]=t,this.m.properties[e]=t;break}}L(e,t){switch(delete $.properties[e],t.scope){case 1:delete v.properties[e];break;case 2:delete C.properties[e];break;case 3:delete x.properties[e];break;case 7:delete b.properties[e];break;case 4:delete E.properties[e];break;case 5:case 6:delete g.properties[e],delete this.m.properties[e];break}}M(){for(const e of this.n.values()){const t=`[${e}]`,r={type:"object",description:d.localize(1846,null),errorMessage:d.localize(1847,null),$ref:h};this.O(t,r),$.properties[t]=r,v.properties[t]=r,x.properties[t]=r,C.properties[t]=r,b.properties[t]=r,E.properties[t]=r,g.properties[t]=r}}N(){const e={type:"object",description:d.localize(1848,null),errorMessage:d.localize(1849,null),$ref:h};$.patternProperties[p]=e,v.patternProperties[p]=e,x.patternProperties[p]=e,C.patternProperties[p]=e,b.patternProperties[p]=e,E.patternProperties[p]=e,g.patternProperties[p]=e,this.q.fire()}O(e,t){const r=this.b.get(e)?.configurationDefaultOverrideValue;let s,i;r&&(!t.disallowConfigurationDefault||!r.source)&&(s=r.value,i=r.source),l.$cd(s)&&(s=t.defaultDefaultValue,i=void 0),l.$cd(s)&&(s=H(t.type)),t.default=s,t.defaultValueSource=i}}const L="\\[([^\\]]+)\\]",M=new RegExp(L,"g"),p=`^(${L})+$`,m=new RegExp(p);function G(o){const e=[];if(m.test(o)){let t=M.exec(o);for(;t?.length;){const r=t[1].trim();r&&e.push(r),t=M.exec(o)}}return y(e)}function ee(o){return o.reduce((e,t)=>`${e}[${t}]`,"")}function H(o){switch(Array.isArray(o)?o[0]:o){case"boolean":return!1;case"integer":case"number":return 0;case"string":return"";case"array":return[];case"object":return{};default:return null}}const O=new _;N.add(T.Configuration,O);function F(o,e,t){return o.trim()?m.test(o)?d.localize(1851,null,o):O.getConfigurationProperties()[o]!==void 0&&(!t||!J.has(t.toLowerCase()))?d.localize(1852,null,o):e.policy?.name&&O.getPolicyConfigurations().get(e.policy?.name)!==void 0?d.localize(1853,null,o,e.policy?.name,O.getPolicyConfigurations().get(e.policy?.name)):null:d.localize(1850,null)}function te(){const o=[],e=O.getConfigurationProperties();for(const t of Object.keys(e))o.push([t,e[t].scope]);return o.push(["launch",5]),o.push(["task",5]),o}function k(o){const e={};for(const t of o){const r=t.properties;if(l.$9c(r))for(const s in r)e[s]=r[s];t.allOf&&Object.assign(e,k(t.allOf))}return e}function re(o){switch(o){case"application":return 1;case"machine":return 2;case"resource":return 5;case"machine-overridable":return 7;case"language-overridable":return 6;default:return 4}}const J=new Set(w.defaultChatAgent?[w.defaultChatAgent.extensionId,w.defaultChatAgent.chatExtensionId].map(o=>o.toLowerCase()):[]);export{F as $Am,te as $Bm,k as $Cm,re as $Dm,J as $Em,T as $lm,$ as $mm,v as $nm,x as $om,C as $pm,b as $qm,E as $rm,g as $sm,h as $tm,Z as $um,p as $vm,m as $wm,G as $xm,ee as $ym,H as $zm,R as ConfigurationScope,V as EditPresentationTypes};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { distinct } from "../../../base/common/arrays.js";
+import { Emitter } from "../../../base/common/event.js";
+import * as types from "../../../base/common/types.js";
+import * as nls from "../../../nls.js";
+import { getLanguageTagSettingPlainKey } from "./configuration.js";
+import { Extensions as JSONExtensions } from "../../jsonschemas/common/jsonContributionRegistry.js";
+import { Registry } from "../../registry/common/platform.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import product from "../../product/common/product.js";
+var EditPresentationTypes;
+(function(EditPresentationTypes2) {
+  EditPresentationTypes2["Multiline"] = "multilineText";
+  EditPresentationTypes2["Singleline"] = "singlelineText";
+})(EditPresentationTypes || (EditPresentationTypes = {}));
+const Extensions = {
+  Configuration: "base.contributions.configuration"
+};
+var ConfigurationScope;
+(function(ConfigurationScope2) {
+  ConfigurationScope2[ConfigurationScope2["APPLICATION"] = 1] = "APPLICATION";
+  ConfigurationScope2[ConfigurationScope2["MACHINE"] = 2] = "MACHINE";
+  ConfigurationScope2[ConfigurationScope2["APPLICATION_MACHINE"] = 3] = "APPLICATION_MACHINE";
+  ConfigurationScope2[ConfigurationScope2["WINDOW"] = 4] = "WINDOW";
+  ConfigurationScope2[ConfigurationScope2["RESOURCE"] = 5] = "RESOURCE";
+  ConfigurationScope2[ConfigurationScope2["LANGUAGE_OVERRIDABLE"] = 6] = "LANGUAGE_OVERRIDABLE";
+  ConfigurationScope2[ConfigurationScope2["MACHINE_OVERRIDABLE"] = 7] = "MACHINE_OVERRIDABLE";
+})(ConfigurationScope || (ConfigurationScope = {}));
+const allSettings = { properties: {}, patternProperties: {} };
+const applicationSettings = { properties: {}, patternProperties: {} };
+const applicationMachineSettings = { properties: {}, patternProperties: {} };
+const machineSettings = { properties: {}, patternProperties: {} };
+const machineOverridableSettings = { properties: {}, patternProperties: {} };
+const windowSettings = { properties: {}, patternProperties: {} };
+const resourceSettings = { properties: {}, patternProperties: {} };
+const resourceLanguageSettingsSchemaId = "vscode://schemas/settings/resourceLanguage";
+const configurationDefaultsSchemaId = "vscode://schemas/settings/configurationDefaults";
+const contributionRegistry = Registry.as(JSONExtensions.JSONContribution);
+class ConfigurationRegistry extends Disposable {
+  static {
+    __name(this, "ConfigurationRegistry");
+  }
+  constructor() {
+    super();
+    this.registeredConfigurationDefaults = [];
+    this.overrideIdentifiers = /* @__PURE__ */ new Set();
+    this._onDidSchemaChange = this._register(new Emitter());
+    this.onDidSchemaChange = this._onDidSchemaChange.event;
+    this._onDidUpdateConfiguration = this._register(new Emitter());
+    this.onDidUpdateConfiguration = this._onDidUpdateConfiguration.event;
+    this.configurationDefaultsOverrides = /* @__PURE__ */ new Map();
+    this.defaultLanguageConfigurationOverridesNode = {
+      id: "defaultOverrides",
+      title: nls.localize("defaultLanguageConfigurationOverrides.title", "Default Language Configuration Overrides"),
+      properties: {}
+    };
+    this.configurationContributors = [this.defaultLanguageConfigurationOverridesNode];
+    this.resourceLanguageSettingsSchema = {
+      properties: {},
+      patternProperties: {},
+      additionalProperties: true,
+      allowTrailingCommas: true,
+      allowComments: true
+    };
+    this.configurationProperties = {};
+    this.policyConfigurations = /* @__PURE__ */ new Map();
+    this.excludedConfigurationProperties = {};
+    contributionRegistry.registerSchema(resourceLanguageSettingsSchemaId, this.resourceLanguageSettingsSchema);
+    this.registerOverridePropertyPatternKey();
+  }
+  registerConfiguration(configuration, validate = true) {
+    this.registerConfigurations([configuration], validate);
+    return configuration;
+  }
+  registerConfigurations(configurations, validate = true) {
+    const properties = /* @__PURE__ */ new Set();
+    this.doRegisterConfigurations(configurations, validate, properties);
+    contributionRegistry.registerSchema(resourceLanguageSettingsSchemaId, this.resourceLanguageSettingsSchema);
+    this._onDidSchemaChange.fire();
+    this._onDidUpdateConfiguration.fire({ properties });
+  }
+  deregisterConfigurations(configurations) {
+    const properties = /* @__PURE__ */ new Set();
+    this.doDeregisterConfigurations(configurations, properties);
+    contributionRegistry.registerSchema(resourceLanguageSettingsSchemaId, this.resourceLanguageSettingsSchema);
+    this._onDidSchemaChange.fire();
+    this._onDidUpdateConfiguration.fire({ properties });
+  }
+  updateConfigurations({ add, remove }) {
+    const properties = /* @__PURE__ */ new Set();
+    this.doDeregisterConfigurations(remove, properties);
+    this.doRegisterConfigurations(add, false, properties);
+    contributionRegistry.registerSchema(resourceLanguageSettingsSchemaId, this.resourceLanguageSettingsSchema);
+    this._onDidSchemaChange.fire();
+    this._onDidUpdateConfiguration.fire({ properties });
+  }
+  registerDefaultConfigurations(configurationDefaults) {
+    const properties = /* @__PURE__ */ new Set();
+    this.doRegisterDefaultConfigurations(configurationDefaults, properties);
+    this._onDidSchemaChange.fire();
+    this._onDidUpdateConfiguration.fire({ properties, defaultsOverrides: true });
+  }
+  doRegisterDefaultConfigurations(configurationDefaults, bucket) {
+    this.registeredConfigurationDefaults.push(...configurationDefaults);
+    const overrideIdentifiers = [];
+    for (const { overrides, source } of configurationDefaults) {
+      for (const key in overrides) {
+        bucket.add(key);
+        const configurationDefaultOverridesForKey = this.configurationDefaultsOverrides.get(key) ?? this.configurationDefaultsOverrides.set(key, { configurationDefaultOverrides: [] }).get(key);
+        const value = overrides[key];
+        configurationDefaultOverridesForKey.configurationDefaultOverrides.push({ value, source });
+        if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+          const newDefaultOverride = this.mergeDefaultConfigurationsForOverrideIdentifier(key, value, source, configurationDefaultOverridesForKey.configurationDefaultOverrideValue);
+          if (!newDefaultOverride) {
+            continue;
+          }
+          configurationDefaultOverridesForKey.configurationDefaultOverrideValue = newDefaultOverride;
+          this.updateDefaultOverrideProperty(key, newDefaultOverride, source);
+          overrideIdentifiers.push(...overrideIdentifiersFromKey(key));
+        } else {
+          const newDefaultOverride = this.mergeDefaultConfigurationsForConfigurationProperty(key, value, source, configurationDefaultOverridesForKey.configurationDefaultOverrideValue);
+          if (!newDefaultOverride) {
+            continue;
+          }
+          configurationDefaultOverridesForKey.configurationDefaultOverrideValue = newDefaultOverride;
+          const property = this.configurationProperties[key];
+          if (property) {
+            this.updatePropertyDefaultValue(key, property);
+            this.updateSchema(key, property);
+          }
+        }
+      }
+    }
+    this.doRegisterOverrideIdentifiers(overrideIdentifiers);
+  }
+  deregisterDefaultConfigurations(defaultConfigurations) {
+    const properties = /* @__PURE__ */ new Set();
+    this.doDeregisterDefaultConfigurations(defaultConfigurations, properties);
+    this._onDidSchemaChange.fire();
+    this._onDidUpdateConfiguration.fire({ properties, defaultsOverrides: true });
+  }
+  doDeregisterDefaultConfigurations(defaultConfigurations, bucket) {
+    for (const defaultConfiguration of defaultConfigurations) {
+      const index = this.registeredConfigurationDefaults.indexOf(defaultConfiguration);
+      if (index !== -1) {
+        this.registeredConfigurationDefaults.splice(index, 1);
+      }
+    }
+    for (const { overrides, source } of defaultConfigurations) {
+      for (const key in overrides) {
+        const configurationDefaultOverridesForKey = this.configurationDefaultsOverrides.get(key);
+        if (!configurationDefaultOverridesForKey) {
+          continue;
+        }
+        const index = configurationDefaultOverridesForKey.configurationDefaultOverrides.findIndex((configurationDefaultOverride) => source ? configurationDefaultOverride.source?.id === source.id : configurationDefaultOverride.value === overrides[key]);
+        if (index === -1) {
+          continue;
+        }
+        configurationDefaultOverridesForKey.configurationDefaultOverrides.splice(index, 1);
+        if (configurationDefaultOverridesForKey.configurationDefaultOverrides.length === 0) {
+          this.configurationDefaultsOverrides.delete(key);
+        }
+        if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+          let configurationDefaultOverrideValue;
+          for (const configurationDefaultOverride of configurationDefaultOverridesForKey.configurationDefaultOverrides) {
+            configurationDefaultOverrideValue = this.mergeDefaultConfigurationsForOverrideIdentifier(key, configurationDefaultOverride.value, configurationDefaultOverride.source, configurationDefaultOverrideValue);
+          }
+          if (configurationDefaultOverrideValue && !types.isEmptyObject(configurationDefaultOverrideValue.value)) {
+            configurationDefaultOverridesForKey.configurationDefaultOverrideValue = configurationDefaultOverrideValue;
+            this.updateDefaultOverrideProperty(key, configurationDefaultOverrideValue, source);
+          } else {
+            this.configurationDefaultsOverrides.delete(key);
+            delete this.configurationProperties[key];
+            delete this.defaultLanguageConfigurationOverridesNode.properties[key];
+          }
+        } else {
+          let configurationDefaultOverrideValue;
+          for (const configurationDefaultOverride of configurationDefaultOverridesForKey.configurationDefaultOverrides) {
+            configurationDefaultOverrideValue = this.mergeDefaultConfigurationsForConfigurationProperty(key, configurationDefaultOverride.value, configurationDefaultOverride.source, configurationDefaultOverrideValue);
+          }
+          configurationDefaultOverridesForKey.configurationDefaultOverrideValue = configurationDefaultOverrideValue;
+          const property = this.configurationProperties[key];
+          if (property) {
+            this.updatePropertyDefaultValue(key, property);
+            this.updateSchema(key, property);
+          }
+        }
+        bucket.add(key);
+      }
+    }
+    this.updateOverridePropertyPatternKey();
+  }
+  updateDefaultOverrideProperty(key, newDefaultOverride, source) {
+    const property = {
+      section: {
+        id: this.defaultLanguageConfigurationOverridesNode.id,
+        title: this.defaultLanguageConfigurationOverridesNode.title,
+        order: this.defaultLanguageConfigurationOverridesNode.order,
+        extensionInfo: this.defaultLanguageConfigurationOverridesNode.extensionInfo
+      },
+      type: "object",
+      default: newDefaultOverride.value,
+      description: nls.localize("defaultLanguageConfiguration.description", "Configure settings to be overridden for {0}.", getLanguageTagSettingPlainKey(key)),
+      $ref: resourceLanguageSettingsSchemaId,
+      defaultDefaultValue: newDefaultOverride.value,
+      source,
+      defaultValueSource: source
+    };
+    this.configurationProperties[key] = property;
+    this.defaultLanguageConfigurationOverridesNode.properties[key] = property;
+  }
+  mergeDefaultConfigurationsForOverrideIdentifier(overrideIdentifier, configurationValueObject, valueSource, existingDefaultOverride) {
+    const defaultValue = existingDefaultOverride?.value || {};
+    const source = existingDefaultOverride?.source ?? /* @__PURE__ */ new Map();
+    if (!(source instanceof Map)) {
+      console.error("objectConfigurationSources is not a Map");
+      return void 0;
+    }
+    for (const propertyKey of Object.keys(configurationValueObject)) {
+      const propertyDefaultValue = configurationValueObject[propertyKey];
+      const isObjectSetting = types.isObject(propertyDefaultValue) && (types.isUndefined(defaultValue[propertyKey]) || types.isObject(defaultValue[propertyKey]));
+      if (isObjectSetting) {
+        defaultValue[propertyKey] = { ...defaultValue[propertyKey] ?? {}, ...propertyDefaultValue };
+        if (valueSource) {
+          for (const objectKey in propertyDefaultValue) {
+            source.set(`${propertyKey}.${objectKey}`, valueSource);
+          }
+        }
+      } else {
+        defaultValue[propertyKey] = propertyDefaultValue;
+        if (valueSource) {
+          source.set(propertyKey, valueSource);
+        } else {
+          source.delete(propertyKey);
+        }
+      }
+    }
+    return { value: defaultValue, source };
+  }
+  mergeDefaultConfigurationsForConfigurationProperty(propertyKey, value, valuesSource, existingDefaultOverride) {
+    const property = this.configurationProperties[propertyKey];
+    const existingDefaultValue = existingDefaultOverride?.value ?? property?.defaultDefaultValue;
+    let source = valuesSource;
+    const isObjectSetting = types.isObject(value) && (property !== void 0 && property.type === "object" || property === void 0 && (types.isUndefined(existingDefaultValue) || types.isObject(existingDefaultValue)));
+    if (isObjectSetting) {
+      source = existingDefaultOverride?.source ?? /* @__PURE__ */ new Map();
+      if (!(source instanceof Map)) {
+        console.error("defaultValueSource is not a Map");
+        return void 0;
+      }
+      for (const objectKey in value) {
+        if (valuesSource) {
+          source.set(`${propertyKey}.${objectKey}`, valuesSource);
+        }
+      }
+      value = { ...types.isObject(existingDefaultValue) ? existingDefaultValue : {}, ...value };
+    }
+    return { value, source };
+  }
+  deltaConfiguration(delta) {
+    let defaultsOverrides = false;
+    const properties = /* @__PURE__ */ new Set();
+    if (delta.removedDefaults) {
+      this.doDeregisterDefaultConfigurations(delta.removedDefaults, properties);
+      defaultsOverrides = true;
+    }
+    if (delta.addedDefaults) {
+      this.doRegisterDefaultConfigurations(delta.addedDefaults, properties);
+      defaultsOverrides = true;
+    }
+    if (delta.removedConfigurations) {
+      this.doDeregisterConfigurations(delta.removedConfigurations, properties);
+    }
+    if (delta.addedConfigurations) {
+      this.doRegisterConfigurations(delta.addedConfigurations, false, properties);
+    }
+    this._onDidSchemaChange.fire();
+    this._onDidUpdateConfiguration.fire({ properties, defaultsOverrides });
+  }
+  notifyConfigurationSchemaUpdated(...configurations) {
+    this._onDidSchemaChange.fire();
+  }
+  registerOverrideIdentifiers(overrideIdentifiers) {
+    this.doRegisterOverrideIdentifiers(overrideIdentifiers);
+    this._onDidSchemaChange.fire();
+  }
+  doRegisterOverrideIdentifiers(overrideIdentifiers) {
+    for (const overrideIdentifier of overrideIdentifiers) {
+      this.overrideIdentifiers.add(overrideIdentifier);
+    }
+    this.updateOverridePropertyPatternKey();
+  }
+  doRegisterConfigurations(configurations, validate, bucket) {
+    configurations.forEach((configuration) => {
+      this.validateAndRegisterProperties(configuration, validate, configuration.extensionInfo, configuration.restrictedProperties, void 0, bucket);
+      this.configurationContributors.push(configuration);
+      this.registerJSONConfiguration(configuration);
+    });
+  }
+  doDeregisterConfigurations(configurations, bucket) {
+    const deregisterConfiguration = /* @__PURE__ */ __name((configuration) => {
+      if (configuration.properties) {
+        for (const key in configuration.properties) {
+          bucket.add(key);
+          const property = this.configurationProperties[key];
+          if (property?.policy?.name) {
+            this.policyConfigurations.delete(property.policy.name);
+          }
+          delete this.configurationProperties[key];
+          this.removeFromSchema(key, configuration.properties[key]);
+        }
+      }
+      configuration.allOf?.forEach((node) => deregisterConfiguration(node));
+    }, "deregisterConfiguration");
+    for (const configuration of configurations) {
+      deregisterConfiguration(configuration);
+      const index = this.configurationContributors.indexOf(configuration);
+      if (index !== -1) {
+        this.configurationContributors.splice(index, 1);
+      }
+    }
+  }
+  validateAndRegisterProperties(configuration, validate = true, extensionInfo, restrictedProperties, scope = 4, bucket) {
+    scope = types.isUndefinedOrNull(configuration.scope) ? scope : configuration.scope;
+    const properties = configuration.properties;
+    if (properties) {
+      for (const key in properties) {
+        const property = properties[key];
+        property.section = {
+          id: configuration.id,
+          title: configuration.title,
+          order: configuration.order,
+          extensionInfo: configuration.extensionInfo
+        };
+        if (validate && validateProperty(key, property, extensionInfo?.id)) {
+          delete properties[key];
+          continue;
+        }
+        property.source = extensionInfo;
+        property.defaultDefaultValue = properties[key].default;
+        this.updatePropertyDefaultValue(key, property);
+        if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+          property.scope = void 0;
+        } else {
+          property.scope = types.isUndefinedOrNull(property.scope) ? scope : property.scope;
+          property.restricted = types.isUndefinedOrNull(property.restricted) ? !!restrictedProperties?.includes(key) : property.restricted;
+        }
+        if (property.experiment) {
+          if (!property.tags?.some((tag) => tag.toLowerCase() === "onexp")) {
+            property.tags = property.tags ?? [];
+            property.tags.push("onExP");
+          }
+        } else if (property.tags?.some((tag) => tag.toLowerCase() === "onexp")) {
+          console.error(`Invalid tag 'onExP' found for property '${key}'. Please use 'experiment' property instead.`);
+          property.experiment = { mode: "startup" };
+        }
+        const excluded = properties[key].hasOwnProperty("included") && !properties[key].included;
+        const policyName = properties[key].policy?.name;
+        if (excluded) {
+          this.excludedConfigurationProperties[key] = properties[key];
+          if (policyName) {
+            this.policyConfigurations.set(policyName, key);
+            bucket.add(key);
+          }
+          delete properties[key];
+        } else {
+          bucket.add(key);
+          if (policyName) {
+            this.policyConfigurations.set(policyName, key);
+          }
+          this.configurationProperties[key] = properties[key];
+          if (!properties[key].deprecationMessage && properties[key].markdownDeprecationMessage) {
+            properties[key].deprecationMessage = properties[key].markdownDeprecationMessage;
+          }
+        }
+      }
+    }
+    const subNodes = configuration.allOf;
+    if (subNodes) {
+      for (const node of subNodes) {
+        this.validateAndRegisterProperties(node, validate, extensionInfo, restrictedProperties, scope, bucket);
+      }
+    }
+  }
+  // Only for tests
+  getConfigurations() {
+    return this.configurationContributors;
+  }
+  getConfigurationProperties() {
+    return this.configurationProperties;
+  }
+  getPolicyConfigurations() {
+    return this.policyConfigurations;
+  }
+  getExcludedConfigurationProperties() {
+    return this.excludedConfigurationProperties;
+  }
+  getRegisteredDefaultConfigurations() {
+    return [...this.registeredConfigurationDefaults];
+  }
+  getConfigurationDefaultsOverrides() {
+    const configurationDefaultsOverrides = /* @__PURE__ */ new Map();
+    for (const [key, value] of this.configurationDefaultsOverrides) {
+      if (value.configurationDefaultOverrideValue) {
+        configurationDefaultsOverrides.set(key, value.configurationDefaultOverrideValue);
+      }
+    }
+    return configurationDefaultsOverrides;
+  }
+  registerJSONConfiguration(configuration) {
+    const register = /* @__PURE__ */ __name((configuration2) => {
+      const properties = configuration2.properties;
+      if (properties) {
+        for (const key in properties) {
+          this.updateSchema(key, properties[key]);
+        }
+      }
+      const subNodes = configuration2.allOf;
+      subNodes?.forEach(register);
+    }, "register");
+    register(configuration);
+  }
+  updateSchema(key, property) {
+    allSettings.properties[key] = property;
+    switch (property.scope) {
+      case 1:
+        applicationSettings.properties[key] = property;
+        break;
+      case 2:
+        machineSettings.properties[key] = property;
+        break;
+      case 3:
+        applicationMachineSettings.properties[key] = property;
+        break;
+      case 7:
+        machineOverridableSettings.properties[key] = property;
+        break;
+      case 4:
+        windowSettings.properties[key] = property;
+        break;
+      case 5:
+        resourceSettings.properties[key] = property;
+        break;
+      case 6:
+        resourceSettings.properties[key] = property;
+        this.resourceLanguageSettingsSchema.properties[key] = property;
+        break;
+    }
+  }
+  removeFromSchema(key, property) {
+    delete allSettings.properties[key];
+    switch (property.scope) {
+      case 1:
+        delete applicationSettings.properties[key];
+        break;
+      case 2:
+        delete machineSettings.properties[key];
+        break;
+      case 3:
+        delete applicationMachineSettings.properties[key];
+        break;
+      case 7:
+        delete machineOverridableSettings.properties[key];
+        break;
+      case 4:
+        delete windowSettings.properties[key];
+        break;
+      case 5:
+      case 6:
+        delete resourceSettings.properties[key];
+        delete this.resourceLanguageSettingsSchema.properties[key];
+        break;
+    }
+  }
+  updateOverridePropertyPatternKey() {
+    for (const overrideIdentifier of this.overrideIdentifiers.values()) {
+      const overrideIdentifierProperty = `[${overrideIdentifier}]`;
+      const resourceLanguagePropertiesSchema = {
+        type: "object",
+        description: nls.localize("overrideSettings.defaultDescription", "Configure editor settings to be overridden for a language."),
+        errorMessage: nls.localize("overrideSettings.errorMessage", "This setting does not support per-language configuration."),
+        $ref: resourceLanguageSettingsSchemaId
+      };
+      this.updatePropertyDefaultValue(overrideIdentifierProperty, resourceLanguagePropertiesSchema);
+      allSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+      applicationSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+      applicationMachineSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+      machineSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+      machineOverridableSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+      windowSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+      resourceSettings.properties[overrideIdentifierProperty] = resourceLanguagePropertiesSchema;
+    }
+  }
+  registerOverridePropertyPatternKey() {
+    const resourceLanguagePropertiesSchema = {
+      type: "object",
+      description: nls.localize("overrideSettings.defaultDescription", "Configure editor settings to be overridden for a language."),
+      errorMessage: nls.localize("overrideSettings.errorMessage", "This setting does not support per-language configuration."),
+      $ref: resourceLanguageSettingsSchemaId
+    };
+    allSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    applicationSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    applicationMachineSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    machineSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    machineOverridableSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    windowSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    resourceSettings.patternProperties[OVERRIDE_PROPERTY_PATTERN] = resourceLanguagePropertiesSchema;
+    this._onDidSchemaChange.fire();
+  }
+  updatePropertyDefaultValue(key, property) {
+    const configurationdefaultOverride = this.configurationDefaultsOverrides.get(key)?.configurationDefaultOverrideValue;
+    let defaultValue = void 0;
+    let defaultSource = void 0;
+    if (configurationdefaultOverride && (!property.disallowConfigurationDefault || !configurationdefaultOverride.source)) {
+      defaultValue = configurationdefaultOverride.value;
+      defaultSource = configurationdefaultOverride.source;
+    }
+    if (types.isUndefined(defaultValue)) {
+      defaultValue = property.defaultDefaultValue;
+      defaultSource = void 0;
+    }
+    if (types.isUndefined(defaultValue)) {
+      defaultValue = getDefaultValue(property.type);
+    }
+    property.default = defaultValue;
+    property.defaultValueSource = defaultSource;
+  }
+}
+const OVERRIDE_IDENTIFIER_PATTERN = `\\[([^\\]]+)\\]`;
+const OVERRIDE_IDENTIFIER_REGEX = new RegExp(OVERRIDE_IDENTIFIER_PATTERN, "g");
+const OVERRIDE_PROPERTY_PATTERN = `^(${OVERRIDE_IDENTIFIER_PATTERN})+$`;
+const OVERRIDE_PROPERTY_REGEX = new RegExp(OVERRIDE_PROPERTY_PATTERN);
+function overrideIdentifiersFromKey(key) {
+  const identifiers = [];
+  if (OVERRIDE_PROPERTY_REGEX.test(key)) {
+    let matches = OVERRIDE_IDENTIFIER_REGEX.exec(key);
+    while (matches?.length) {
+      const identifier = matches[1].trim();
+      if (identifier) {
+        identifiers.push(identifier);
+      }
+      matches = OVERRIDE_IDENTIFIER_REGEX.exec(key);
+    }
+  }
+  return distinct(identifiers);
+}
+__name(overrideIdentifiersFromKey, "overrideIdentifiersFromKey");
+function keyFromOverrideIdentifiers(overrideIdentifiers) {
+  return overrideIdentifiers.reduce((result, overrideIdentifier) => `${result}[${overrideIdentifier}]`, "");
+}
+__name(keyFromOverrideIdentifiers, "keyFromOverrideIdentifiers");
+function getDefaultValue(type) {
+  const t = Array.isArray(type) ? type[0] : type;
+  switch (t) {
+    case "boolean":
+      return false;
+    case "integer":
+    case "number":
+      return 0;
+    case "string":
+      return "";
+    case "array":
+      return [];
+    case "object":
+      return {};
+    default:
+      return null;
+  }
+}
+__name(getDefaultValue, "getDefaultValue");
+const configurationRegistry = new ConfigurationRegistry();
+Registry.add(Extensions.Configuration, configurationRegistry);
+function validateProperty(property, schema, extensionId) {
+  if (!property.trim()) {
+    return nls.localize("config.property.empty", "Cannot register an empty property");
+  }
+  if (OVERRIDE_PROPERTY_REGEX.test(property)) {
+    return nls.localize("config.property.languageDefault", "Cannot register '{0}'. This matches property pattern '\\\\[.*\\\\]$' for describing language specific editor settings. Use 'configurationDefaults' contribution.", property);
+  }
+  if (configurationRegistry.getConfigurationProperties()[property] !== void 0 && (!extensionId || !EXTENSION_UNIFICATION_EXTENSION_IDS.has(extensionId.toLowerCase()))) {
+    return nls.localize("config.property.duplicate", "Cannot register '{0}'. This property is already registered.", property);
+  }
+  if (schema.policy?.name && configurationRegistry.getPolicyConfigurations().get(schema.policy?.name) !== void 0) {
+    return nls.localize("config.policy.duplicate", "Cannot register '{0}'. The associated policy {1} is already registered with {2}.", property, schema.policy?.name, configurationRegistry.getPolicyConfigurations().get(schema.policy?.name));
+  }
+  return null;
+}
+__name(validateProperty, "validateProperty");
+function getScopes() {
+  const scopes = [];
+  const configurationProperties = configurationRegistry.getConfigurationProperties();
+  for (const key of Object.keys(configurationProperties)) {
+    scopes.push([key, configurationProperties[key].scope]);
+  }
+  scopes.push([
+    "launch",
+    5
+    /* ConfigurationScope.RESOURCE */
+  ]);
+  scopes.push([
+    "task",
+    5
+    /* ConfigurationScope.RESOURCE */
+  ]);
+  return scopes;
+}
+__name(getScopes, "getScopes");
+function getAllConfigurationProperties(configurationNode) {
+  const result = {};
+  for (const configuration of configurationNode) {
+    const properties = configuration.properties;
+    if (types.isObject(properties)) {
+      for (const key in properties) {
+        result[key] = properties[key];
+      }
+    }
+    if (configuration.allOf) {
+      Object.assign(result, getAllConfigurationProperties(configuration.allOf));
+    }
+  }
+  return result;
+}
+__name(getAllConfigurationProperties, "getAllConfigurationProperties");
+function parseScope(scope) {
+  switch (scope) {
+    case "application":
+      return 1;
+    case "machine":
+      return 2;
+    case "resource":
+      return 5;
+    case "machine-overridable":
+      return 7;
+    case "language-overridable":
+      return 6;
+    default:
+      return 4;
+  }
+}
+__name(parseScope, "parseScope");
+const EXTENSION_UNIFICATION_EXTENSION_IDS = new Set(product.defaultChatAgent ? [product.defaultChatAgent.extensionId, product.defaultChatAgent.chatExtensionId].map((id) => id.toLowerCase()) : []);
+export {
+  ConfigurationScope,
+  EXTENSION_UNIFICATION_EXTENSION_IDS,
+  EditPresentationTypes,
+  Extensions,
+  OVERRIDE_PROPERTY_PATTERN,
+  OVERRIDE_PROPERTY_REGEX,
+  allSettings,
+  applicationMachineSettings,
+  applicationSettings,
+  configurationDefaultsSchemaId,
+  getAllConfigurationProperties,
+  getDefaultValue,
+  getScopes,
+  keyFromOverrideIdentifiers,
+  machineOverridableSettings,
+  machineSettings,
+  overrideIdentifiersFromKey,
+  parseScope,
+  resourceLanguageSettingsSchemaId,
+  resourceSettings,
+  validateProperty,
+  windowSettings
+};
+//# sourceMappingURL=configurationRegistry.js.map

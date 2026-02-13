@@ -1,1 +1,148 @@
-import{$0Dc as c}from"../../codeEditor/browser/find/simpleFindWidget.js";import{$hjb as u}from"../../../../platform/contextview/browser/contextView.js";import{$ro as p,$qo as f}from"../../../../platform/contextkey/common/contextkey.js";import{$jkb as m}from"../../../../platform/hover/browser/hover.js";import{$fy as g}from"../../../../platform/keybinding/common/keybinding.js";import{localize as l}from"../../../../nls.js";import{$Dd as w}from"../../../../base/common/lifecycle.js";var d=function(n,t,i,e){var r=arguments.length,s=r<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(n,t,i,e);else for(var a=n.length-1;a>=0;a--)(h=n[a])&&(s=(r<3?h(s):r>3?h(t,i,s):h(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},o=function(n,t){return function(i,e){t(i,e,n)}};const v=new f("browserFindWidgetVisible",!1,l(4982,null)),j=new f("browserFindWidgetFocused",!1,l(4983,null));let b=class extends c{constructor(t,i,e,r,s){super({showCommonFindToggles:!0,checkImeCompletionState:!0,showResultCount:!0,enableSash:!0,initialWidth:350,previousMatchActionId:"workbench.action.browser.findPrevious",nextMatchActionId:"workbench.action.browser.findNext",closeWidgetActionId:"workbench.action.browser.hideFind"},i,e,r,s),this.kb=t,this.fb=this.D(new w),this.jb=!1,this.gb=v.bindTo(e),this.hb=j.bindTo(e),t.appendChild(this.getDomNode())}setModel(t){this.fb.clear(),this.eb=t,this.ib=void 0,this.jb=!1,t&&(this.fb.add(t.onDidFindInPage(i=>{this.ib={resultIndex:i.activeMatchOrdinal-1,resultCount:i.matches},this.jb=i.matches>0,this.bb(this.jb),this.updateResultCount()})),this.fb.add(t.onWillDispose(()=>{this.setModel(void 0)})))}reveal(t){const i=this.isVisible();super.reveal(t),this.gb.set(!0),this.kb.classList.toggle("find-visible",!0),this.cb(),this.U&&!i&&this.N()}hide(){super.hide(!1),this.gb.reset(),this.kb.classList.toggle("find-visible",!1),this.eb?.stopFindInPage(!0),this.ib=void 0,this.jb=!1}find(t){const i=this.U;i&&this.eb&&this.eb.findInPage(i,{forward:!t,recompute:!1,matchCase:this.ab()})}findFirst(){const t=this.U;t&&this.eb&&this.eb.findInPage(t,{forward:!0,recompute:!0,matchCase:this.ab()})}clear(){this.eb&&(this.eb.stopFindInPage(!1),this.ib=void 0,this.jb=!1)}N(){return this.U?this.findFirst():this.eb&&this.clear(),!1}async S(){return this.ib}O(){this.hb.set(!0)}P(){this.hb.reset()}Q(){}R(){}};b=d([o(1,u),o(2,p),o(3,m),o(4,g)],b);export{v as $tXc,j as $uXc,b as $vXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { SimpleFindWidget } from "../../codeEditor/browser/find/simpleFindWidget.js";
+import { IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { localize } from "../../../../nls.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+const CONTEXT_BROWSER_FIND_WIDGET_VISIBLE = new RawContextKey("browserFindWidgetVisible", false, localize("browser.findWidgetVisible", "Whether the browser find widget is visible"));
+const CONTEXT_BROWSER_FIND_WIDGET_FOCUSED = new RawContextKey("browserFindWidgetFocused", false, localize("browser.findWidgetFocused", "Whether the browser find widget is focused"));
+let BrowserFindWidget = class BrowserFindWidget2 extends SimpleFindWidget {
+  static {
+    __name(this, "BrowserFindWidget");
+  }
+  constructor(container, contextViewService, contextKeyService, hoverService, keybindingService) {
+    super({
+      showCommonFindToggles: true,
+      checkImeCompletionState: true,
+      showResultCount: true,
+      enableSash: true,
+      initialWidth: 350,
+      previousMatchActionId: "workbench.action.browser.findPrevious",
+      nextMatchActionId: "workbench.action.browser.findNext",
+      closeWidgetActionId: "workbench.action.browser.hideFind"
+    }, contextViewService, contextKeyService, hoverService, keybindingService);
+    this.container = container;
+    this._modelDisposables = this._register(new DisposableStore());
+    this._hasFoundMatch = false;
+    this._findWidgetVisible = CONTEXT_BROWSER_FIND_WIDGET_VISIBLE.bindTo(contextKeyService);
+    this._findWidgetFocused = CONTEXT_BROWSER_FIND_WIDGET_FOCUSED.bindTo(contextKeyService);
+    container.appendChild(this.getDomNode());
+  }
+  /**
+   * Set the browser view model to use for find operations.
+   * This should be called whenever the editor input changes.
+   */
+  setModel(model) {
+    this._modelDisposables.clear();
+    this._model = model;
+    this._lastFindResult = void 0;
+    this._hasFoundMatch = false;
+    if (model) {
+      this._modelDisposables.add(model.onDidFindInPage((result) => {
+        this._lastFindResult = {
+          resultIndex: result.activeMatchOrdinal - 1,
+          // Convert to 0-based index
+          resultCount: result.matches
+        };
+        this._hasFoundMatch = result.matches > 0;
+        this.updateButtons(this._hasFoundMatch);
+        this.updateResultCount();
+      }));
+      this._modelDisposables.add(model.onWillDispose(() => {
+        this.setModel(void 0);
+      }));
+    }
+  }
+  reveal(initialInput) {
+    const wasVisible = this.isVisible();
+    super.reveal(initialInput);
+    this._findWidgetVisible.set(true);
+    this.container.classList.toggle("find-visible", true);
+    this.focusFindBox();
+    if (this.inputValue && !wasVisible) {
+      this._onInputChanged();
+    }
+  }
+  hide() {
+    super.hide(false);
+    this._findWidgetVisible.reset();
+    this.container.classList.toggle("find-visible", false);
+    this._model?.stopFindInPage(true);
+    this._lastFindResult = void 0;
+    this._hasFoundMatch = false;
+  }
+  find(previous) {
+    const value = this.inputValue;
+    if (value && this._model) {
+      this._model.findInPage(value, {
+        forward: !previous,
+        recompute: false,
+        matchCase: this._getCaseSensitiveValue()
+      });
+    }
+  }
+  findFirst() {
+    const value = this.inputValue;
+    if (value && this._model) {
+      this._model.findInPage(value, {
+        forward: true,
+        recompute: true,
+        matchCase: this._getCaseSensitiveValue()
+      });
+    }
+  }
+  clear() {
+    if (this._model) {
+      this._model.stopFindInPage(false);
+      this._lastFindResult = void 0;
+      this._hasFoundMatch = false;
+    }
+  }
+  _onInputChanged() {
+    if (this.inputValue) {
+      this.findFirst();
+    } else if (this._model) {
+      this.clear();
+    }
+    return false;
+  }
+  async _getResultCount() {
+    return this._lastFindResult;
+  }
+  _onFocusTrackerFocus() {
+    this._findWidgetFocused.set(true);
+  }
+  _onFocusTrackerBlur() {
+    this._findWidgetFocused.reset();
+  }
+  _onFindInputFocusTrackerFocus() {
+  }
+  _onFindInputFocusTrackerBlur() {
+  }
+};
+BrowserFindWidget = __decorate([
+  __param(1, IContextViewService),
+  __param(2, IContextKeyService),
+  __param(3, IHoverService),
+  __param(4, IKeybindingService)
+], BrowserFindWidget);
+export {
+  BrowserFindWidget,
+  CONTEXT_BROWSER_FIND_WIDGET_FOCUSED,
+  CONTEXT_BROWSER_FIND_WIDGET_VISIBLE
+};
+//# sourceMappingURL=browserFindWidget.js.map

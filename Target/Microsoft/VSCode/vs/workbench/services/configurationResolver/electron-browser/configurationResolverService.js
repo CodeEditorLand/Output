@@ -1,1 +1,65 @@
-import{$SPc as _}from"../../environment/electron-browser/environmentService.js";import{$0l as s}from"../../../../platform/configuration/common/configuration.js";import{$uo as R}from"../../../../platform/commands/common/commands.js";import{$Ml as P}from"../../../../platform/workspace/common/workspace.js";import{$BL as x}from"../../editor/common/editorService.js";import{$YH as O}from"../../../../platform/quickinput/common/quickInput.js";import{$rU as b}from"../common/configurationResolver.js";import{$WC as j}from"../../../../platform/instantiation/common/extensions.js";import{$KOc as v}from"../browser/baseConfigurationResolverService.js";import{$oH as V}from"../../../../platform/label/common/label.js";import{$YVc as d}from"../../environment/electron-browser/shellEnvironmentService.js";import{$D1 as g}from"../../path/common/pathService.js";import{$NR as D}from"../../extensions/common/extensions.js";import{$hp as E}from"../../../../platform/storage/common/storage.js";var h=function(p,o,t,e){var f=arguments.length,m=f<3?o:e===null?e=Object.getOwnPropertyDescriptor(o,t):e,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")m=Reflect.decorate(p,o,t,e);else for(var c=p.length-1;c>=0;c--)(i=p[c])&&(m=(f<3?i(m):f>3?i(o,t,m):i(o,t))||m);return f>3&&m&&Object.defineProperty(o,t,m),m},r=function(p,o){return function(t,e){o(t,e,p)}};let n=class extends v{constructor(o,t,e,f,m,i,c,$,l,u,a){super({getAppRoot:()=>t.appRoot,getExecPath:()=>t.execPath},$.getShellEnv(),o,e,f,m,i,c,l,u,a)}};n=h([r(0,x),r(1,_),r(2,s),r(3,R),r(4,P),r(5,O),r(6,V),r(7,d),r(8,g),r(9,D),r(10,E)],n);j(b,n,1);export{n as $1Vc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IConfigurationResolverService } from "../common/configurationResolver.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { BaseConfigurationResolverService } from "../browser/baseConfigurationResolverService.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IShellEnvironmentService } from "../../environment/electron-browser/shellEnvironmentService.js";
+import { IPathService } from "../../path/common/pathService.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+let ConfigurationResolverService = class ConfigurationResolverService2 extends BaseConfigurationResolverService {
+  static {
+    __name(this, "ConfigurationResolverService");
+  }
+  constructor(editorService, environmentService, configurationService, commandService, workspaceContextService, quickInputService, labelService, shellEnvironmentService, pathService, extensionService, storageService) {
+    super({
+      getAppRoot: /* @__PURE__ */ __name(() => {
+        return environmentService.appRoot;
+      }, "getAppRoot"),
+      getExecPath: /* @__PURE__ */ __name(() => {
+        return environmentService.execPath;
+      }, "getExecPath")
+    }, shellEnvironmentService.getShellEnv(), editorService, configurationService, commandService, workspaceContextService, quickInputService, labelService, pathService, extensionService, storageService);
+  }
+};
+ConfigurationResolverService = __decorate([
+  __param(0, IEditorService),
+  __param(1, INativeWorkbenchEnvironmentService),
+  __param(2, IConfigurationService),
+  __param(3, ICommandService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IQuickInputService),
+  __param(6, ILabelService),
+  __param(7, IShellEnvironmentService),
+  __param(8, IPathService),
+  __param(9, IExtensionService),
+  __param(10, IStorageService)
+], ConfigurationResolverService);
+registerSingleton(
+  IConfigurationResolverService,
+  ConfigurationResolverService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ConfigurationResolverService
+};
+//# sourceMappingURL=configurationResolverService.js.map

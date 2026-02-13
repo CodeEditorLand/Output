@@ -1,1 +1,626 @@
-import{$Db as I}from"../../../../../base/common/errors.js";import{observableSignal as J,observableValue as W}from"../../../../../base/common/observable.js";import{$rg as A,$sg as v,$$f as O}from"../../../../../base/common/strings.js";import{$BE as L,$zE as w,$AE as u}from"../../../../common/core/edits/stringEdit.js";import{$FE as U,$GE as q}from"../../../../common/core/edits/textEdit.js";import{$_D as R}from"../../../../common/core/range.js";import{$hE as P}from"../../../../common/core/ranges/offsetRange.js";import{$sE as K}from"../../../../common/core/text/abstractText.js";import{$Rnb as k}from"../../../../common/core/text/getPositionOffsetTransformerFromTextModel.js";import{$lE as E}from"../../../../common/core/text/textLength.js";import{$cfb as B}from"../../../../common/diff/linesDiffComputers.js";import{InlineCompletionTriggerKind as H}from"../../../../common/languages.js";import{$mkb as z}from"../../../../common/model/textModelText.js";import{$tob as C}from"./editKind.js";import{$uob as F}from"./inlineCompletionIsVisible.js";import{$zob as G}from"./provideInlineCompletions.js";import{InlineSuggestAlternativeAction as Q}from"./InlineSuggestAlternativeAction.js";var y;(function(s){function e(t,n,i=!0){return!t.isInlineEdit&&!t.action?.uri&&t.action?.kind==="edit"?m.create(t,n,t.action):p.create(t,n,i)}s.create=e})(y||(y={}));function X(s){const e=s?.kind==="edit"?{...s,alternativeAction:Q.toString(s.alternativeAction),target:s?.target.uri.toString()}:{...s,target:s?.target.uri.toString()};return JSON.stringify(e)}class V{constructor(e,t,n,i){this.a=e,this.identity=t,this.hint=n,this.originalTextRef=i}get source(){return this.a.source}get isFromExplicitRequest(){return this.a.context.triggerKind===H.Explicit}get forwardStable(){return this.source.inlineSuggestions.enableForwardStability??!1}get targetRange(){if(this.hint)return this.hint.range;if(this.action?.kind==="edit")return this.action.textReplacement.range;if(this.action?.kind==="jumpTo")return R.fromPositions(this.action.position);throw new I("InlineSuggestionItem: Either hint or action must be set")}get semanticId(){return this.hash}get gutterMenuLinkAction(){return this.b.gutterMenuLinkAction}get command(){return this.b.command}get supportsRename(){return this.a.supportsRename}get warning(){return this.b.warning}get showInlineEditMenu(){return!!this.b.showInlineEditMenu}get hash(){return X(this.action)}get shownCommand(){return this.b.shownCommand}get requestUuid(){return this.a.context.requestUuid}get partialAccepts(){return this.a.partialAccepts}get b(){return this.a.sourceInlineCompletion}addRef(){this.identity.addRef(),this.source.addRef()}removeRef(){this.identity.removeRef(),this.source.removeRef()}reportInlineEditShown(e,t,n,i,r){const a=this.action?.kind==="edit"?this.action.textReplacement.text:"";this.a.reportInlineEditShown(e,a,t,n,this.computeEditKind(i),r)}reportPartialAccept(e,t,n){this.a.reportPartialAccept(e,t,n)}reportEndOfLife(e){this.a.reportEndOfLife(e)}setEndOfLifeReason(e){this.a.setEndOfLifeReason(e)}setIsPreceeded(e){this.a.setIsPreceeded(e.partialAccepts)}setNotShownReasonIfNotSet(e){this.a.setNotShownReason(e)}getSourceCompletion(){return this.b}setRenameProcessingInfo(e){this.a.setRenameProcessingInfo(e)}withAction(e){return this.a.withAction(e)}addPerformanceMarker(e){this.a.addPerformanceMarker(e)}}class S{constructor(){this.b=J(this),this.onDispose=this.b,this.d=W(this,!1),this.e=0,this.id="InlineCompletionIdentity"+S.a++}static{this.a=0}get jumpedTo(){return this.d}addRef(){this.e++}removeRef(){this.e--,this.e===0&&this.b.trigger(void 0)}setJumpTo(e){this.d.set(!0,e)}}class T{static create(e){return new T(R.lift(e.range),e.content,e.style)}constructor(e,t,n){this.range=e,this.content=t,this.style=n}withEdit(e,t){const n=new P(t.getOffset(this.range.getStartPosition()),t.getOffset(this.range.getEndPosition())),i=L([n],e)[0];if(!i)return;const r=t.getRange(i);return new T(r,this.content,this.style)}}class m extends V{static create(e,t,n){const i=new S,r=t.getTransformer(),a=n.insertText.replace(/\r\n|\r|\n/g,t.getEOL()),c=_(new u(r.getOffsetRange(n.range),a),t),h=c.removeCommonSuffixAndPrefix(t.getValue()),o=r.getTextReplacement(c),f=e.hint?T.create(e.hint):void 0;return new m(c,h,o,o.range,n.snippetInfo,e.additionalTextEdits,e,i,f,t)}constructor(e,t,n,i,r,a,c,h,o,f){super(c,h,o,f),this.d=e,this.e=t,this.f=n,this.g=i,this.snippetInfo=r,this.additionalTextEdits=a,this.isInlineEdit=!1}get action(){return{kind:"edit",textReplacement:this.getSingleTextEdit(),snippetInfo:this.snippetInfo,stringEdit:new w([this.e]),alternativeAction:void 0,target:this.originalTextRef}}get hash(){return JSON.stringify(this.e.toJson())}getSingleTextEdit(){return this.f}withIdentity(e){return new m(this.d,this.e,this.f,this.g,this.snippetInfo,this.additionalTextEdits,this.a,e,this.hint,this.originalTextRef)}withEdit(e,t){if(!this.originalTextRef.targets(t))return this;const n=L([this.d.replaceRange],e);if(n.length===0)return;const i=new u(n[0],this.f.text),r=k(t),a=r.getTextReplacement(i);let c=this.hint;if(c&&(c=c.withEdit(e,r),!c))return;const h=i.removeCommonSuffixAndPrefix(t.getValue());return new m(i,h,a,this.g,this.snippetInfo,this.additionalTextEdits,this.a,this.identity,c,this.originalTextRef)}canBeReused(e,t){const n=this.f.range;return!!n&&n.containsPosition(t)&&this.isVisible(e,t)&&E.ofRange(n).isGreaterThanOrEqualTo(E.ofRange(this.g))}isVisible(e,t){const n=this.getSingleTextEdit();return F(n,this.g,e,t)}computeEditKind(e){return C(new w([this.d]),e)}get editRange(){return this.getSingleTextEdit().range}get insertText(){return this.getSingleTextEdit().text}}class p extends V{static createForTest(e,t,n){const i={kind:"edit",snippetInfo:void 0,insertText:n,range:t,uri:e.uri,alternativeAction:void 0};return p.create(G.createForTest(i,e.uri),e)}static create(e,t,n=!0){let i,r=[];if(e.action?.kind==="edit"){const h=n?Y(t,e.action.range,e.action.insertText):Z(t,e.action.range,e.action.insertText),o=U.fromStringEdit(h,t),f=h.isEmpty()?new q(new R(1,1,1,1),""):o.toReplacement(t);r=h.replacements.map(l=>{const g=R.fromPositions(t.getPositionAt(l.replaceRange.start),t.getTransformer().getPosition(l.replaceRange.endExclusive)),d=t.getValueInRange(g);return x.create(l,d)}),i={kind:"edit",snippetInfo:e.action.snippetInfo,stringEdit:h,textReplacement:f,alternativeAction:e.action.alternativeAction,target:t}}else if(e.action?.kind==="jumpTo")i={kind:"jumpTo",position:e.action.position,offset:t.getTransformer().getOffset(e.action.position),target:t};else if(i=void 0,!e.hint)throw new I("InlineEditItem: action is undefined and no hint is provided");const a=new S,c=e.hint?T.create(e.hint):void 0;return new p(i,e,a,r,c,!1,t.getVersionId(),t)}constructor(e,t,n,i,r,a=!1,c,h){super(t,n,r,h),this.d=e,this.e=i,this.f=a,this.g=c,this.snippetInfo=void 0,this.additionalTextEdits=[],this.isInlineEdit=!0}get updatedEditModelVersion(){return this.g}get action(){return this.d}withIdentity(e){return new p(this.d,this.a,e,this.e,this.hint,this.f,this.g,this.originalTextRef)}canBeReused(e,t){return this.f&&this.updatedEditModelVersion===e.getVersionId()}withEdit(e,t){return this.originalTextRef.targets(t)?this.h(e,this.e,t):this}h(e,t,n){const i=k(n);let r=!1,a=this.g,c;if(this.action?.kind==="edit"){if(t=t.map(g=>g.applyTextModelChanges(e)),t.some(g=>g.edit===void 0))return;const o=n.getVersionId();if(r=t.some(g=>g.lastChangeUpdatedEdit),r&&(a=o??-1),o===null||a+20<o||(t=t.filter(g=>!g.edit.isEmpty),t.length===0))return;const f=new w(t.map(g=>g.edit));c={kind:"edit",textReplacement:i.getTextEdit(f).toReplacement(new z(n)),snippetInfo:this.snippetInfo,stringEdit:f,alternativeAction:this.action.alternativeAction,target:this.originalTextRef}}else if(this.action?.kind==="jumpTo"){const o=this.action.offset,f=e.applyToOffsetOrUndefined(o);if(f===void 0)return;c={kind:"jumpTo",position:i.getPosition(f),offset:f,target:this.originalTextRef}}else c=void 0;let h=this.hint;if(!(h&&(h=h.withEdit(e,i),!h)))return new p(c,this.a,this.identity,t,h,r,a,this.originalTextRef)}computeEditKind(e){const t=this.action?.kind==="edit"?this.action.stringEdit:void 0;if(t)return C(t,e)}}function Y(s,e,t){const n=s.getEOL(),i=s.getValueOfRange(e),r=t.replace(/\r\n|\r|\n/g,n),h=B.getDefault().computeDiff(O(i),O(r),{ignoreTrimWhitespace:!1,computeMoves:!1,extendToSubwords:!0,maxComputationTimeMs:50}).changes.flatMap(g=>g.innerChanges??[]);function o(g,d){const b=E.fromPosition(d.getStartPosition());return E.ofRange(d).createRange(b.addToPosition(g))}const f=new K(r);return new w(h.map(g=>{const d=o(e.getStartPosition(),g.originalRange),b=s.getTransformer().getOffsetRange(d),D=f.getValueOfRange(g.modifiedRange),j=new u(b,D),N=s.getValueOfRange(d);return M(j,N,h.length,s)}))}function Z(s,e,t){return new w([new u(s.getTransformer().getOffsetRange(e),t)])}class x{static create(e,t){const n=A(e.newText,t),i=v(e.newText,t),r=e.newText.substring(n,e.newText.length-i);return new x(e,r,n,i)}get edit(){return this.a}get lastChangeUpdatedEdit(){return this.f}constructor(e,t,n,i,r=!1){this.a=e,this.b=t,this.d=n,this.e=i,this.f=r}applyTextModelChanges(e){const t=this.g();return t.h(e),t}g(){return new x(this.a,this.b,this.d,this.e,this.f)}h(e){if(this.f=!1,!this.a)throw new I("UpdatedInnerEdits: No edit to apply changes to");const t=this.j(this.a,e);if(!t){this.a=void 0;return}this.a=t.edit,this.f=t.editHasChanged}j(e,t){let n=e.replaceRange.start,i=e.replaceRange.endExclusive,r=e.newText,a=!1;const c=this.d>0||this.e>0;for(let h=t.replacements.length-1;h>=0;h--){const o=t.replacements[h],f=o.newText.length>0&&o.replaceRange.isEmpty;if(f&&!c&&o.replaceRange.start===n&&r.startsWith(o.newText)){n+=o.newText.length,r=r.substring(o.newText.length),i+=o.newText.length,a=!0;continue}if(f&&c&&o.replaceRange.start===n+this.d&&this.b.startsWith(o.newText)){i+=o.newText.length,a=!0,this.d+=o.newText.length,this.b=this.b.substring(o.newText.length);continue}if(o.newText.length===0&&o.replaceRange.length>0&&o.replaceRange.start>=n+this.d&&o.replaceRange.endExclusive<=i-this.e){i-=o.replaceRange.length,a=!0;continue}if(o.equals(e)){a=!0,n=o.replaceRange.endExclusive,r="";continue}if(!(o.replaceRange.start>i)){if(o.replaceRange.endExclusive<n){n+=o.newText.length-o.replaceRange.length,i+=o.newText.length-o.replaceRange.length;continue}return}}return this.b.length===0&&n+this.d===i-this.e?{edit:new u(new P(n+this.d,n+this.d),""),editHasChanged:!0}:{edit:new u(new P(n,i),r),editHasChanged:a}}}function _(s,e){const t=e.getEOL();return s.replaceRange.isEmpty&&s.newText.includes(t)&&(s=$(s,e)),s}function M(s,e,t,n){const i=n.getEOL();if(s.newText.endsWith(i)&&e.endsWith(i)&&(s=new u(s.replaceRange.deltaEnd(-i.length),s.newText.slice(0,-i.length))),t===1&&s.replaceRange.isEmpty&&s.newText.includes(i)){const r=n.getTransformer().getPosition(s.replaceRange.start);n.getLineLength(r.lineNumber)!==0&&(s=$(s,n))}if(t===1){const r=A(e,s.newText),a=v(e.slice(r),s.newText.slice(r));if(r+a===e.length)return new u(s.replaceRange.deltaStart(r).deltaEnd(-a),s.newText.substring(r,s.newText.length-a));if(r+a===s.newText.length)return new u(s.replaceRange.deltaStart(r).deltaEnd(-a),"")}return s}function $(s,e){if(!s.replaceRange.isEmpty)throw new I("Unexpected original range");if(s.replaceRange.start===0)return s;const t=e.getEOL(),n=e.getTransformer().getPosition(s.replaceRange.start),i=n.column,r=n.lineNumber;return i===1&&r>1&&s.newText.endsWith(t)&&!s.newText.startsWith(t)?new u(s.replaceRange.delta(-1),t+s.newText.slice(0,-t.length)):s}export{S as $Cob,T as $Dob,m as $Eob,p as $Fob,y as InlineSuggestionItem};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { observableSignal, observableValue } from "../../../../../base/common/observable.js";
+import { commonPrefixLength, commonSuffixLength, splitLines } from "../../../../../base/common/strings.js";
+import { applyEditsToRanges, StringEdit, StringReplacement } from "../../../../common/core/edits/stringEdit.js";
+import { TextEdit, TextReplacement } from "../../../../common/core/edits/textEdit.js";
+import { Range } from "../../../../common/core/range.js";
+import { OffsetRange } from "../../../../common/core/ranges/offsetRange.js";
+import { StringText } from "../../../../common/core/text/abstractText.js";
+import { getPositionOffsetTransformerFromTextModel } from "../../../../common/core/text/getPositionOffsetTransformerFromTextModel.js";
+import { TextLength } from "../../../../common/core/text/textLength.js";
+import { linesDiffComputers } from "../../../../common/diff/linesDiffComputers.js";
+import { InlineCompletionTriggerKind } from "../../../../common/languages.js";
+import { TextModelText } from "../../../../common/model/textModelText.js";
+import { computeEditKind } from "./editKind.js";
+import { inlineCompletionIsVisible } from "./inlineCompletionIsVisible.js";
+import { InlineSuggestData } from "./provideInlineCompletions.js";
+import { InlineSuggestAlternativeAction } from "./InlineSuggestAlternativeAction.js";
+var InlineSuggestionItem;
+(function(InlineSuggestionItem2) {
+  function create(data, textModel, shouldDiffEdit = true) {
+    if (!data.isInlineEdit && !data.action?.uri && data.action?.kind === "edit") {
+      return InlineCompletionItem.create(data, textModel, data.action);
+    } else {
+      return InlineEditItem.create(data, textModel, shouldDiffEdit);
+    }
+  }
+  __name(create, "create");
+  InlineSuggestionItem2.create = create;
+})(InlineSuggestionItem || (InlineSuggestionItem = {}));
+function hashInlineSuggestionAction(action) {
+  const obj = action?.kind === "edit" ? {
+    ...action,
+    alternativeAction: InlineSuggestAlternativeAction.toString(action.alternativeAction),
+    target: action?.target.uri.toString()
+  } : {
+    ...action,
+    target: action?.target.uri.toString()
+  };
+  return JSON.stringify(obj);
+}
+__name(hashInlineSuggestionAction, "hashInlineSuggestionAction");
+class InlineSuggestionItemBase {
+  static {
+    __name(this, "InlineSuggestionItemBase");
+  }
+  constructor(_data, identity, hint, originalTextRef) {
+    this._data = _data;
+    this.identity = identity;
+    this.hint = hint;
+    this.originalTextRef = originalTextRef;
+  }
+  /**
+   * A reference to the original inline completion list this inline completion has been constructed from.
+   * Used for event data to ensure referential equality.
+  */
+  get source() {
+    return this._data.source;
+  }
+  get isFromExplicitRequest() {
+    return this._data.context.triggerKind === InlineCompletionTriggerKind.Explicit;
+  }
+  get forwardStable() {
+    return this.source.inlineSuggestions.enableForwardStability ?? false;
+  }
+  get targetRange() {
+    if (this.hint) {
+      return this.hint.range;
+    }
+    if (this.action?.kind === "edit") {
+      return this.action.textReplacement.range;
+    } else if (this.action?.kind === "jumpTo") {
+      return Range.fromPositions(this.action.position);
+    }
+    throw new BugIndicatingError("InlineSuggestionItem: Either hint or action must be set");
+  }
+  get semanticId() {
+    return this.hash;
+  }
+  get gutterMenuLinkAction() {
+    return this._sourceInlineCompletion.gutterMenuLinkAction;
+  }
+  get command() {
+    return this._sourceInlineCompletion.command;
+  }
+  get supportsRename() {
+    return this._data.supportsRename;
+  }
+  get warning() {
+    return this._sourceInlineCompletion.warning;
+  }
+  get showInlineEditMenu() {
+    return !!this._sourceInlineCompletion.showInlineEditMenu;
+  }
+  get hash() {
+    return hashInlineSuggestionAction(this.action);
+  }
+  /** @deprecated */
+  get shownCommand() {
+    return this._sourceInlineCompletion.shownCommand;
+  }
+  get requestUuid() {
+    return this._data.context.requestUuid;
+  }
+  get partialAccepts() {
+    return this._data.partialAccepts;
+  }
+  /**
+   * A reference to the original inline completion this inline completion has been constructed from.
+   * Used for event data to ensure referential equality.
+  */
+  get _sourceInlineCompletion() {
+    return this._data.sourceInlineCompletion;
+  }
+  addRef() {
+    this.identity.addRef();
+    this.source.addRef();
+  }
+  removeRef() {
+    this.identity.removeRef();
+    this.source.removeRef();
+  }
+  reportInlineEditShown(commandService, viewKind, viewData, model, timeWhenShown) {
+    const insertText = this.action?.kind === "edit" ? this.action.textReplacement.text : "";
+    this._data.reportInlineEditShown(commandService, insertText, viewKind, viewData, this.computeEditKind(model), timeWhenShown);
+  }
+  reportPartialAccept(acceptedCharacters, info, partialAcceptance) {
+    this._data.reportPartialAccept(acceptedCharacters, info, partialAcceptance);
+  }
+  reportEndOfLife(reason) {
+    this._data.reportEndOfLife(reason);
+  }
+  setEndOfLifeReason(reason) {
+    this._data.setEndOfLifeReason(reason);
+  }
+  setIsPreceeded(item) {
+    this._data.setIsPreceeded(item.partialAccepts);
+  }
+  setNotShownReasonIfNotSet(reason) {
+    this._data.setNotShownReason(reason);
+  }
+  /**
+   * Avoid using this method. Instead introduce getters for the needed properties.
+  */
+  getSourceCompletion() {
+    return this._sourceInlineCompletion;
+  }
+  setRenameProcessingInfo(info) {
+    this._data.setRenameProcessingInfo(info);
+  }
+  withAction(action) {
+    return this._data.withAction(action);
+  }
+  addPerformanceMarker(marker) {
+    this._data.addPerformanceMarker(marker);
+  }
+}
+class InlineSuggestionIdentity {
+  static {
+    __name(this, "InlineSuggestionIdentity");
+  }
+  constructor() {
+    this._onDispose = observableSignal(this);
+    this.onDispose = this._onDispose;
+    this._jumpedTo = observableValue(this, false);
+    this._refCount = 0;
+    this.id = "InlineCompletionIdentity" + InlineSuggestionIdentity.idCounter++;
+  }
+  static {
+    this.idCounter = 0;
+  }
+  get jumpedTo() {
+    return this._jumpedTo;
+  }
+  addRef() {
+    this._refCount++;
+  }
+  removeRef() {
+    this._refCount--;
+    if (this._refCount === 0) {
+      this._onDispose.trigger(void 0);
+    }
+  }
+  setJumpTo(tx) {
+    this._jumpedTo.set(true, tx);
+  }
+}
+class InlineSuggestHint {
+  static {
+    __name(this, "InlineSuggestHint");
+  }
+  static create(hint) {
+    return new InlineSuggestHint(Range.lift(hint.range), hint.content, hint.style);
+  }
+  constructor(range, content, style) {
+    this.range = range;
+    this.content = content;
+    this.style = style;
+  }
+  withEdit(edit, positionOffsetTransformer) {
+    const offsetRange = new OffsetRange(positionOffsetTransformer.getOffset(this.range.getStartPosition()), positionOffsetTransformer.getOffset(this.range.getEndPosition()));
+    const newOffsetRange = applyEditsToRanges([offsetRange], edit)[0];
+    if (!newOffsetRange) {
+      return void 0;
+    }
+    const newRange = positionOffsetTransformer.getRange(newOffsetRange);
+    return new InlineSuggestHint(newRange, this.content, this.style);
+  }
+}
+class InlineCompletionItem extends InlineSuggestionItemBase {
+  static {
+    __name(this, "InlineCompletionItem");
+  }
+  static create(data, textModel, action) {
+    const identity = new InlineSuggestionIdentity();
+    const transformer = textModel.getTransformer();
+    const insertText = action.insertText.replace(/\r\n|\r|\n/g, textModel.getEOL());
+    const edit = reshapeInlineCompletion(new StringReplacement(transformer.getOffsetRange(action.range), insertText), textModel);
+    const trimmedEdit = edit.removeCommonSuffixAndPrefix(textModel.getValue());
+    const textEdit = transformer.getTextReplacement(edit);
+    const displayLocation = data.hint ? InlineSuggestHint.create(data.hint) : void 0;
+    return new InlineCompletionItem(edit, trimmedEdit, textEdit, textEdit.range, action.snippetInfo, data.additionalTextEdits, data, identity, displayLocation, textModel);
+  }
+  constructor(_edit, _trimmedEdit, _textEdit, _originalRange, snippetInfo, additionalTextEdits, data, identity, displayLocation, originalTextRef) {
+    super(data, identity, displayLocation, originalTextRef);
+    this._edit = _edit;
+    this._trimmedEdit = _trimmedEdit;
+    this._textEdit = _textEdit;
+    this._originalRange = _originalRange;
+    this.snippetInfo = snippetInfo;
+    this.additionalTextEdits = additionalTextEdits;
+    this.isInlineEdit = false;
+  }
+  get action() {
+    return {
+      kind: "edit",
+      textReplacement: this.getSingleTextEdit(),
+      snippetInfo: this.snippetInfo,
+      stringEdit: new StringEdit([this._trimmedEdit]),
+      alternativeAction: void 0,
+      target: this.originalTextRef
+    };
+  }
+  get hash() {
+    return JSON.stringify(this._trimmedEdit.toJson());
+  }
+  getSingleTextEdit() {
+    return this._textEdit;
+  }
+  withIdentity(identity) {
+    return new InlineCompletionItem(this._edit, this._trimmedEdit, this._textEdit, this._originalRange, this.snippetInfo, this.additionalTextEdits, this._data, identity, this.hint, this.originalTextRef);
+  }
+  withEdit(textModelEdit, textModel) {
+    if (!this.originalTextRef.targets(textModel)) {
+      return this;
+    }
+    const newEditRange = applyEditsToRanges([this._edit.replaceRange], textModelEdit);
+    if (newEditRange.length === 0) {
+      return void 0;
+    }
+    const newEdit = new StringReplacement(newEditRange[0], this._textEdit.text);
+    const positionOffsetTransformer = getPositionOffsetTransformerFromTextModel(textModel);
+    const newTextEdit = positionOffsetTransformer.getTextReplacement(newEdit);
+    let newDisplayLocation = this.hint;
+    if (newDisplayLocation) {
+      newDisplayLocation = newDisplayLocation.withEdit(textModelEdit, positionOffsetTransformer);
+      if (!newDisplayLocation) {
+        return void 0;
+      }
+    }
+    const trimmedEdit = newEdit.removeCommonSuffixAndPrefix(textModel.getValue());
+    return new InlineCompletionItem(newEdit, trimmedEdit, newTextEdit, this._originalRange, this.snippetInfo, this.additionalTextEdits, this._data, this.identity, newDisplayLocation, this.originalTextRef);
+  }
+  canBeReused(model, position) {
+    const updatedRange = this._textEdit.range;
+    const result = !!updatedRange && updatedRange.containsPosition(position) && this.isVisible(model, position) && TextLength.ofRange(updatedRange).isGreaterThanOrEqualTo(TextLength.ofRange(this._originalRange));
+    return result;
+  }
+  isVisible(model, cursorPosition) {
+    const singleTextEdit = this.getSingleTextEdit();
+    return inlineCompletionIsVisible(singleTextEdit, this._originalRange, model, cursorPosition);
+  }
+  computeEditKind(model) {
+    return computeEditKind(new StringEdit([this._edit]), model);
+  }
+  get editRange() {
+    return this.getSingleTextEdit().range;
+  }
+  get insertText() {
+    return this.getSingleTextEdit().text;
+  }
+}
+class InlineEditItem extends InlineSuggestionItemBase {
+  static {
+    __name(this, "InlineEditItem");
+  }
+  static createForTest(textModel, range, newText) {
+    const action = {
+      kind: "edit",
+      snippetInfo: void 0,
+      insertText: newText,
+      range,
+      uri: textModel.uri,
+      alternativeAction: void 0
+    };
+    return InlineEditItem.create(InlineSuggestData.createForTest(action, textModel.uri), textModel);
+  }
+  static create(data, textModel, shouldDiffEdit = true) {
+    let action;
+    let edits = [];
+    if (data.action?.kind === "edit") {
+      const offsetEdit = shouldDiffEdit ? getDiffedStringEdit(textModel, data.action.range, data.action.insertText) : getStringEdit(textModel, data.action.range, data.action.insertText);
+      const textEdit = TextEdit.fromStringEdit(offsetEdit, textModel);
+      const singleTextEdit = offsetEdit.isEmpty() ? new TextReplacement(new Range(1, 1, 1, 1), "") : textEdit.toReplacement(textModel);
+      edits = offsetEdit.replacements.map((edit) => {
+        const replacedRange = Range.fromPositions(textModel.getPositionAt(edit.replaceRange.start), textModel.getTransformer().getPosition(edit.replaceRange.endExclusive));
+        const replacedText = textModel.getValueInRange(replacedRange);
+        return SingleUpdatedNextEdit.create(edit, replacedText);
+      });
+      action = {
+        kind: "edit",
+        snippetInfo: data.action.snippetInfo,
+        stringEdit: offsetEdit,
+        textReplacement: singleTextEdit,
+        alternativeAction: data.action.alternativeAction,
+        target: textModel
+      };
+    } else if (data.action?.kind === "jumpTo") {
+      action = {
+        kind: "jumpTo",
+        position: data.action.position,
+        offset: textModel.getTransformer().getOffset(data.action.position),
+        target: textModel
+      };
+    } else {
+      action = void 0;
+      if (!data.hint) {
+        throw new BugIndicatingError("InlineEditItem: action is undefined and no hint is provided");
+      }
+    }
+    const identity = new InlineSuggestionIdentity();
+    const hint = data.hint ? InlineSuggestHint.create(data.hint) : void 0;
+    return new InlineEditItem(action, data, identity, edits, hint, false, textModel.getVersionId(), textModel);
+  }
+  constructor(_action, data, identity, _edits, hint, _lastChangePartOfInlineEdit = false, _inlineEditModelVersion, originalTextRef) {
+    super(data, identity, hint, originalTextRef);
+    this._action = _action;
+    this._edits = _edits;
+    this._lastChangePartOfInlineEdit = _lastChangePartOfInlineEdit;
+    this._inlineEditModelVersion = _inlineEditModelVersion;
+    this.snippetInfo = void 0;
+    this.additionalTextEdits = [];
+    this.isInlineEdit = true;
+  }
+  get updatedEditModelVersion() {
+    return this._inlineEditModelVersion;
+  }
+  // public get updatedEdit(): StringEdit { return this._edit; }
+  get action() {
+    return this._action;
+  }
+  withIdentity(identity) {
+    return new InlineEditItem(this._action, this._data, identity, this._edits, this.hint, this._lastChangePartOfInlineEdit, this._inlineEditModelVersion, this.originalTextRef);
+  }
+  canBeReused(model, position) {
+    return this._lastChangePartOfInlineEdit && this.updatedEditModelVersion === model.getVersionId();
+  }
+  withEdit(textModelChanges, textModel) {
+    if (!this.originalTextRef.targets(textModel)) {
+      return this;
+    }
+    const edit = this._applyTextModelChanges(textModelChanges, this._edits, textModel);
+    return edit;
+  }
+  _applyTextModelChanges(textModelChanges, edits, textModel) {
+    const positionOffsetTransformer = getPositionOffsetTransformerFromTextModel(textModel);
+    let lastChangePartOfInlineEdit = false;
+    let inlineEditModelVersion = this._inlineEditModelVersion;
+    let newAction;
+    if (this.action?.kind === "edit") {
+      edits = edits.map((innerEdit) => innerEdit.applyTextModelChanges(textModelChanges));
+      if (edits.some((edit) => edit.edit === void 0)) {
+        return void 0;
+      }
+      const newTextModelVersion = textModel.getVersionId();
+      lastChangePartOfInlineEdit = edits.some((edit) => edit.lastChangeUpdatedEdit);
+      if (lastChangePartOfInlineEdit) {
+        inlineEditModelVersion = newTextModelVersion ?? -1;
+      }
+      if (newTextModelVersion === null || inlineEditModelVersion + 20 < newTextModelVersion) {
+        return void 0;
+      }
+      edits = edits.filter((innerEdit) => !innerEdit.edit.isEmpty);
+      if (edits.length === 0) {
+        return void 0;
+      }
+      const newEdit = new StringEdit(edits.map((edit) => edit.edit));
+      const newTextEdit = positionOffsetTransformer.getTextEdit(newEdit).toReplacement(new TextModelText(textModel));
+      newAction = {
+        kind: "edit",
+        textReplacement: newTextEdit,
+        snippetInfo: this.snippetInfo,
+        stringEdit: newEdit,
+        alternativeAction: this.action.alternativeAction,
+        target: this.originalTextRef
+      };
+    } else if (this.action?.kind === "jumpTo") {
+      const jumpToOffset = this.action.offset;
+      const newJumpToOffset = textModelChanges.applyToOffsetOrUndefined(jumpToOffset);
+      if (newJumpToOffset === void 0) {
+        return void 0;
+      }
+      const newJumpToPosition = positionOffsetTransformer.getPosition(newJumpToOffset);
+      newAction = {
+        kind: "jumpTo",
+        position: newJumpToPosition,
+        offset: newJumpToOffset,
+        target: this.originalTextRef
+      };
+    } else {
+      newAction = void 0;
+    }
+    let newDisplayLocation = this.hint;
+    if (newDisplayLocation) {
+      newDisplayLocation = newDisplayLocation.withEdit(textModelChanges, positionOffsetTransformer);
+      if (!newDisplayLocation) {
+        return void 0;
+      }
+    }
+    return new InlineEditItem(newAction, this._data, this.identity, edits, newDisplayLocation, lastChangePartOfInlineEdit, inlineEditModelVersion, this.originalTextRef);
+  }
+  computeEditKind(model) {
+    const edit = this.action?.kind === "edit" ? this.action.stringEdit : void 0;
+    if (!edit) {
+      return void 0;
+    }
+    return computeEditKind(edit, model);
+  }
+}
+function getDiffedStringEdit(textModel, editRange, replaceText) {
+  const eol = textModel.getEOL();
+  const editOriginalText = textModel.getValueOfRange(editRange);
+  const editReplaceText = replaceText.replace(/\r\n|\r|\n/g, eol);
+  const diffAlgorithm = linesDiffComputers.getDefault();
+  const lineDiffs = diffAlgorithm.computeDiff(splitLines(editOriginalText), splitLines(editReplaceText), {
+    ignoreTrimWhitespace: false,
+    computeMoves: false,
+    extendToSubwords: true,
+    maxComputationTimeMs: 50
+  });
+  const innerChanges = lineDiffs.changes.flatMap((c) => c.innerChanges ?? []);
+  function addRangeToPos(pos, range) {
+    const start = TextLength.fromPosition(range.getStartPosition());
+    return TextLength.ofRange(range).createRange(start.addToPosition(pos));
+  }
+  __name(addRangeToPos, "addRangeToPos");
+  const modifiedText = new StringText(editReplaceText);
+  const offsetEdit = new StringEdit(innerChanges.map((c) => {
+    const rangeInModel = addRangeToPos(editRange.getStartPosition(), c.originalRange);
+    const originalRange = textModel.getTransformer().getOffsetRange(rangeInModel);
+    const replaceText2 = modifiedText.getValueOfRange(c.modifiedRange);
+    const edit = new StringReplacement(originalRange, replaceText2);
+    const originalText = textModel.getValueOfRange(rangeInModel);
+    return reshapeInlineEdit(edit, originalText, innerChanges.length, textModel);
+  }));
+  return offsetEdit;
+}
+__name(getDiffedStringEdit, "getDiffedStringEdit");
+function getStringEdit(textModel, editRange, replaceText) {
+  return new StringEdit([new StringReplacement(textModel.getTransformer().getOffsetRange(editRange), replaceText)]);
+}
+__name(getStringEdit, "getStringEdit");
+class SingleUpdatedNextEdit {
+  static {
+    __name(this, "SingleUpdatedNextEdit");
+  }
+  static create(edit, replacedText) {
+    const prefixLength = commonPrefixLength(edit.newText, replacedText);
+    const suffixLength = commonSuffixLength(edit.newText, replacedText);
+    const trimmedNewText = edit.newText.substring(prefixLength, edit.newText.length - suffixLength);
+    return new SingleUpdatedNextEdit(edit, trimmedNewText, prefixLength, suffixLength);
+  }
+  get edit() {
+    return this._edit;
+  }
+  get lastChangeUpdatedEdit() {
+    return this._lastChangeUpdatedEdit;
+  }
+  constructor(_edit, _trimmedNewText, _prefixLength, _suffixLength, _lastChangeUpdatedEdit = false) {
+    this._edit = _edit;
+    this._trimmedNewText = _trimmedNewText;
+    this._prefixLength = _prefixLength;
+    this._suffixLength = _suffixLength;
+    this._lastChangeUpdatedEdit = _lastChangeUpdatedEdit;
+  }
+  applyTextModelChanges(textModelChanges) {
+    const c = this._clone();
+    c._applyTextModelChanges(textModelChanges);
+    return c;
+  }
+  _clone() {
+    return new SingleUpdatedNextEdit(this._edit, this._trimmedNewText, this._prefixLength, this._suffixLength, this._lastChangeUpdatedEdit);
+  }
+  _applyTextModelChanges(textModelChanges) {
+    this._lastChangeUpdatedEdit = false;
+    if (!this._edit) {
+      throw new BugIndicatingError("UpdatedInnerEdits: No edit to apply changes to");
+    }
+    const result = this._applyChanges(this._edit, textModelChanges);
+    if (!result) {
+      this._edit = void 0;
+      return;
+    }
+    this._edit = result.edit;
+    this._lastChangeUpdatedEdit = result.editHasChanged;
+  }
+  _applyChanges(edit, textModelChanges) {
+    let editStart = edit.replaceRange.start;
+    let editEnd = edit.replaceRange.endExclusive;
+    let editReplaceText = edit.newText;
+    let editHasChanged = false;
+    const shouldPreserveEditShape = this._prefixLength > 0 || this._suffixLength > 0;
+    for (let i = textModelChanges.replacements.length - 1; i >= 0; i--) {
+      const change = textModelChanges.replacements[i];
+      const isInsertion = change.newText.length > 0 && change.replaceRange.isEmpty;
+      if (isInsertion && !shouldPreserveEditShape && change.replaceRange.start === editStart && editReplaceText.startsWith(change.newText)) {
+        editStart += change.newText.length;
+        editReplaceText = editReplaceText.substring(change.newText.length);
+        editEnd += change.newText.length;
+        editHasChanged = true;
+        continue;
+      }
+      if (isInsertion && shouldPreserveEditShape && change.replaceRange.start === editStart + this._prefixLength && this._trimmedNewText.startsWith(change.newText)) {
+        editEnd += change.newText.length;
+        editHasChanged = true;
+        this._prefixLength += change.newText.length;
+        this._trimmedNewText = this._trimmedNewText.substring(change.newText.length);
+        continue;
+      }
+      const isDeletion = change.newText.length === 0 && change.replaceRange.length > 0;
+      if (isDeletion && change.replaceRange.start >= editStart + this._prefixLength && change.replaceRange.endExclusive <= editEnd - this._suffixLength) {
+        editEnd -= change.replaceRange.length;
+        editHasChanged = true;
+        continue;
+      }
+      if (change.equals(edit)) {
+        editHasChanged = true;
+        editStart = change.replaceRange.endExclusive;
+        editReplaceText = "";
+        continue;
+      }
+      if (change.replaceRange.start > editEnd) {
+        continue;
+      }
+      if (change.replaceRange.endExclusive < editStart) {
+        editStart += change.newText.length - change.replaceRange.length;
+        editEnd += change.newText.length - change.replaceRange.length;
+        continue;
+      }
+      return void 0;
+    }
+    if (this._trimmedNewText.length === 0 && editStart + this._prefixLength === editEnd - this._suffixLength) {
+      return { edit: new StringReplacement(new OffsetRange(editStart + this._prefixLength, editStart + this._prefixLength), ""), editHasChanged: true };
+    }
+    return { edit: new StringReplacement(new OffsetRange(editStart, editEnd), editReplaceText), editHasChanged };
+  }
+}
+function reshapeInlineCompletion(edit, textModel) {
+  const eol = textModel.getEOL();
+  if (edit.replaceRange.isEmpty && edit.newText.includes(eol)) {
+    edit = reshapeMultiLineInsertion(edit, textModel);
+  }
+  return edit;
+}
+__name(reshapeInlineCompletion, "reshapeInlineCompletion");
+function reshapeInlineEdit(edit, originalText, totalInnerEdits, textModel) {
+  const eol = textModel.getEOL();
+  if (edit.newText.endsWith(eol) && originalText.endsWith(eol)) {
+    edit = new StringReplacement(edit.replaceRange.deltaEnd(-eol.length), edit.newText.slice(0, -eol.length));
+  }
+  if (totalInnerEdits === 1 && edit.replaceRange.isEmpty && edit.newText.includes(eol)) {
+    const startPosition = textModel.getTransformer().getPosition(edit.replaceRange.start);
+    const hasTextOnInsertionLine = textModel.getLineLength(startPosition.lineNumber) !== 0;
+    if (hasTextOnInsertionLine) {
+      edit = reshapeMultiLineInsertion(edit, textModel);
+    }
+  }
+  if (totalInnerEdits === 1) {
+    const prefixLength = commonPrefixLength(originalText, edit.newText);
+    const suffixLength = commonSuffixLength(originalText.slice(prefixLength), edit.newText.slice(prefixLength));
+    if (prefixLength + suffixLength === originalText.length) {
+      return new StringReplacement(edit.replaceRange.deltaStart(prefixLength).deltaEnd(-suffixLength), edit.newText.substring(prefixLength, edit.newText.length - suffixLength));
+    }
+    if (prefixLength + suffixLength === edit.newText.length) {
+      return new StringReplacement(edit.replaceRange.deltaStart(prefixLength).deltaEnd(-suffixLength), "");
+    }
+  }
+  return edit;
+}
+__name(reshapeInlineEdit, "reshapeInlineEdit");
+function reshapeMultiLineInsertion(edit, textModel) {
+  if (!edit.replaceRange.isEmpty) {
+    throw new BugIndicatingError("Unexpected original range");
+  }
+  if (edit.replaceRange.start === 0) {
+    return edit;
+  }
+  const eol = textModel.getEOL();
+  const startPosition = textModel.getTransformer().getPosition(edit.replaceRange.start);
+  const startColumn = startPosition.column;
+  const startLineNumber = startPosition.lineNumber;
+  if (startColumn === 1 && startLineNumber > 1 && edit.newText.endsWith(eol) && !edit.newText.startsWith(eol)) {
+    return new StringReplacement(edit.replaceRange.delta(-1), eol + edit.newText.slice(0, -eol.length));
+  }
+  return edit;
+}
+__name(reshapeMultiLineInsertion, "reshapeMultiLineInsertion");
+export {
+  InlineCompletionItem,
+  InlineEditItem,
+  InlineSuggestHint,
+  InlineSuggestionIdentity,
+  InlineSuggestionItem
+};
+//# sourceMappingURL=inlineSuggestionItem.js.map

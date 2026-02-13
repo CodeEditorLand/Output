@@ -1,3 +1,137 @@
-import{$v8 as L,$R8 as w}from"../../../../../../base/browser/dom.js";import{$Fm as y}from"../../../../../../base/common/actions.js";import{$bk as $}from"../../../../../../base/common/codicons.js";import{$Ed as D}from"../../../../../../base/common/lifecycle.js";import{$v as N}from"../../../../../../base/common/platform.js";import{ThemeIcon as O}from"../../../../../../base/common/themables.js";import{localize as s}from"../../../../../../nls.js";import{$njb as M}from"./copySelection.js";class H extends D{get visibility(){return this.b}set visibility(i){this.b!==i&&(this.b=i,this.a.style.visibility=i?"visible":"hidden")}constructor(i,c,a,n,t,l,p,u,o,b){super(),this.c=i,this.f=c,this.g=a,this.h=n,this.j=t,this.m=l,this.n=p,this.q=u,this.r=o,this.s=b,this.b=!1,this.f.style.zIndex="10",this.a=document.createElement("div"),this.a.className=O.asClassName($.lightBulb)+" lightbulb-glyph",this.a.style.position="absolute";const f=this.h.getOption(75);this.a.style.right="0px",this.a.style.visibility="hidden",this.a.style.height=`${f}px`,this.a.style.lineHeight=`${f}px`,this.f.appendChild(this.a);let d=0;const x=n.getOption(144)&&!N,C=(e,g,m)=>{this.r.showContextMenu({domForShadowRoot:x?n.getDomNode()??void 0:void 0,getAnchor:()=>e,onHide:m,getActions:()=>{const r=g??[],v=t.modified.isEmpty;return r.push(new y("diff.clipboard.copyDeletedContent",v?t.original.length>1?s(229,null):s(230,null):t.original.length>1?s(231,null):s(232,null),void 0,!0,async()=>{const h=this.q.getValueInRange(t.original.toExclusiveRange());await this.s.writeText(h)})),t.original.length>1&&r.push(new y("diff.clipboard.copyDeletedLineContent",v?s(233,null,t.original.startLineNumber+d):s(234,null,t.original.startLineNumber+d),void 0,!0,async()=>{let h=this.q.getLineContent(t.original.startLineNumber+d);h===""&&(h=this.q.getEndOfLineSequence()===0?`
-`:`\r
-`),await this.s.writeText(h)})),n.getOption(104)||r.push(new y("diff.inline.revertChange",s(235,null),void 0,!0,async()=>{this.m.revert(this.j)})),r},autoSelectFirstItem:!0})};this.D(L(this.a,"mousedown",e=>{if(!e.leftButton)return;const{top:g,height:m}=w(this.a),r=Math.floor(f/3);e.preventDefault(),C({x:e.posx,y:g+m+r})})),this.D(n.onMouseMove(e=>{(e.target.type===8||e.target.type===5)&&e.target.detail.viewZoneId===this.c()?(d=this.t(this.f,e.event.browserEvent.y,f),this.visibility=!0):this.visibility=!1})),this.D(M({domNode:this.g,diffEntry:t,originalModel:this.q,renderLinesResult:this.n,clipboardService:b}))}t(i,c,a){const{top:n}=w(i),t=c-n,l=Math.floor(t/a),p=l*a;if(this.a.style.top=`${p}px`,this.n.viewLineCounts){let u=0;for(let o=0;o<this.n.viewLineCounts.length;o++)if(u+=this.n.viewLineCounts[o],l<u)return o}return l}}export{H as $ojb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addStandardDisposableListener, getDomNodePagePosition } from "../../../../../../base/browser/dom.js";
+import { Action } from "../../../../../../base/common/actions.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { isIOS } from "../../../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { localize } from "../../../../../../nls.js";
+import { enableCopySelection } from "./copySelection.js";
+class InlineDiffDeletedCodeMargin extends Disposable {
+  static {
+    __name(this, "InlineDiffDeletedCodeMargin");
+  }
+  get visibility() {
+    return this._visibility;
+  }
+  set visibility(_visibility) {
+    if (this._visibility !== _visibility) {
+      this._visibility = _visibility;
+      this._diffActions.style.visibility = _visibility ? "visible" : "hidden";
+    }
+  }
+  constructor(_getViewZoneId, _marginDomNode, _deletedCodeDomNode, _modifiedEditor, _diff, _editor, _renderLinesResult, _originalTextModel, _contextMenuService, _clipboardService) {
+    super();
+    this._getViewZoneId = _getViewZoneId;
+    this._marginDomNode = _marginDomNode;
+    this._deletedCodeDomNode = _deletedCodeDomNode;
+    this._modifiedEditor = _modifiedEditor;
+    this._diff = _diff;
+    this._editor = _editor;
+    this._renderLinesResult = _renderLinesResult;
+    this._originalTextModel = _originalTextModel;
+    this._contextMenuService = _contextMenuService;
+    this._clipboardService = _clipboardService;
+    this._visibility = false;
+    this._marginDomNode.style.zIndex = "10";
+    this._diffActions = document.createElement("div");
+    this._diffActions.className = ThemeIcon.asClassName(Codicon.lightBulb) + " lightbulb-glyph";
+    this._diffActions.style.position = "absolute";
+    const lineHeight = this._modifiedEditor.getOption(
+      75
+      /* EditorOption.lineHeight */
+    );
+    this._diffActions.style.right = "0px";
+    this._diffActions.style.visibility = "hidden";
+    this._diffActions.style.height = `${lineHeight}px`;
+    this._diffActions.style.lineHeight = `${lineHeight}px`;
+    this._marginDomNode.appendChild(this._diffActions);
+    let currentLineNumberOffset = 0;
+    const useShadowDOM = _modifiedEditor.getOption(
+      144
+      /* EditorOption.useShadowDOM */
+    ) && !isIOS;
+    const showContextMenu = /* @__PURE__ */ __name((anchor, baseActions, onHide) => {
+      this._contextMenuService.showContextMenu({
+        domForShadowRoot: useShadowDOM ? _modifiedEditor.getDomNode() ?? void 0 : void 0,
+        getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
+        onHide,
+        getActions: /* @__PURE__ */ __name(() => {
+          const actions = baseActions ?? [];
+          const isDeletion = _diff.modified.isEmpty;
+          actions.push(new Action("diff.clipboard.copyDeletedContent", isDeletion ? _diff.original.length > 1 ? localize("diff.clipboard.copyDeletedLinesContent.label", "Copy deleted lines") : localize("diff.clipboard.copyDeletedLinesContent.single.label", "Copy deleted line") : _diff.original.length > 1 ? localize("diff.clipboard.copyChangedLinesContent.label", "Copy changed lines") : localize("diff.clipboard.copyChangedLinesContent.single.label", "Copy changed line"), void 0, true, async () => {
+            const originalText = this._originalTextModel.getValueInRange(_diff.original.toExclusiveRange());
+            await this._clipboardService.writeText(originalText);
+          }));
+          if (_diff.original.length > 1) {
+            actions.push(new Action("diff.clipboard.copyDeletedLineContent", isDeletion ? localize("diff.clipboard.copyDeletedLineContent.label", "Copy deleted line ({0})", _diff.original.startLineNumber + currentLineNumberOffset) : localize("diff.clipboard.copyChangedLineContent.label", "Copy changed line ({0})", _diff.original.startLineNumber + currentLineNumberOffset), void 0, true, async () => {
+              let lineContent = this._originalTextModel.getLineContent(_diff.original.startLineNumber + currentLineNumberOffset);
+              if (lineContent === "") {
+                const eof = this._originalTextModel.getEndOfLineSequence();
+                lineContent = eof === 0 ? "\n" : "\r\n";
+              }
+              await this._clipboardService.writeText(lineContent);
+            }));
+          }
+          const readOnly = _modifiedEditor.getOption(
+            104
+            /* EditorOption.readOnly */
+          );
+          if (!readOnly) {
+            actions.push(new Action("diff.inline.revertChange", localize("diff.inline.revertChange.label", "Revert this change"), void 0, true, async () => {
+              this._editor.revert(this._diff);
+            }));
+          }
+          return actions;
+        }, "getActions"),
+        autoSelectFirstItem: true
+      });
+    }, "showContextMenu");
+    this._register(addStandardDisposableListener(this._diffActions, "mousedown", (e) => {
+      if (!e.leftButton) {
+        return;
+      }
+      const { top, height } = getDomNodePagePosition(this._diffActions);
+      const pad = Math.floor(lineHeight / 3);
+      e.preventDefault();
+      showContextMenu({ x: e.posx, y: top + height + pad });
+    }));
+    this._register(_modifiedEditor.onMouseMove((e) => {
+      if ((e.target.type === 8 || e.target.type === 5) && e.target.detail.viewZoneId === this._getViewZoneId()) {
+        currentLineNumberOffset = this._updateLightBulbPosition(this._marginDomNode, e.event.browserEvent.y, lineHeight);
+        this.visibility = true;
+      } else {
+        this.visibility = false;
+      }
+    }));
+    this._register(enableCopySelection({
+      domNode: this._deletedCodeDomNode,
+      diffEntry: _diff,
+      originalModel: this._originalTextModel,
+      renderLinesResult: this._renderLinesResult,
+      clipboardService: _clipboardService
+    }));
+  }
+  _updateLightBulbPosition(marginDomNode, y, lineHeight) {
+    const { top } = getDomNodePagePosition(marginDomNode);
+    const offset = y - top;
+    const lineNumberOffset = Math.floor(offset / lineHeight);
+    const newTop = lineNumberOffset * lineHeight;
+    this._diffActions.style.top = `${newTop}px`;
+    if (this._renderLinesResult.viewLineCounts) {
+      let acc = 0;
+      for (let i = 0; i < this._renderLinesResult.viewLineCounts.length; i++) {
+        acc += this._renderLinesResult.viewLineCounts[i];
+        if (lineNumberOffset < acc) {
+          return i;
+        }
+      }
+    }
+    return lineNumberOffset;
+  }
+}
+export {
+  InlineDiffDeletedCodeMargin
+};
+//# sourceMappingURL=inlineDiffDeletedCodeMargin.js.map

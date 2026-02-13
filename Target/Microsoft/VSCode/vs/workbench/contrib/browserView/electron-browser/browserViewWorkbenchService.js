@@ -1,1 +1,61 @@
-import{$Ww as h}from"../../../../platform/browserView/common/browserView.js";import{$nXc as p}from"../common/browserView.js";import{$UPc as m}from"../../../../platform/ipc/common/mainProcessService.js";import{ProxyChannel as u}from"../../../../base/parts/ipc/common/ipc.js";import{$Mj as b}from"../../../../platform/instantiation/common/instantiation.js";import{$Ml as _}from"../../../../platform/workspace/common/workspace.js";import{Event as g}from"../../../../base/common/event.js";var f=function(n,e,t,r){var a=arguments.length,o=a<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,t,r);else for(var i=n.length-1;i>=0;i--)(c=n[i])&&(o=(a<3?c(o):a>3?c(e,t,o):c(e,t))||o);return a>3&&o&&Object.defineProperty(e,t,o),o},s=function(n,e){return function(t,r){e(t,r,n)}};let l=class{constructor(e,t,r){this.c=t,this.d=r,this.b=new Map;const a=e.getChannel(h);this.a=u.toService(a)}async getOrCreateBrowserViewModel(e){let t=this.b.get(e);return t||(t=this.c.createInstance(p,e,this.a),this.b.set(e,t),await t.initialize(),g.once(t.onWillDispose)(()=>{this.b.delete(e)}),t)}async clearGlobalStorage(){return this.a.clearGlobalStorage()}async clearWorkspaceStorage(){const e=this.d.getWorkspace().id;return this.a.clearWorkspaceStorage(e)}};l=f([s(0,m),s(1,b),s(2,_)],l);export{l as $DXc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ipcBrowserViewChannelName } from "../../../../platform/browserView/common/browserView.js";
+import { BrowserViewModel } from "../common/browserView.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { Event } from "../../../../base/common/event.js";
+let BrowserViewWorkbenchService = class BrowserViewWorkbenchService2 {
+  static {
+    __name(this, "BrowserViewWorkbenchService");
+  }
+  constructor(mainProcessService, instantiationService, workspaceContextService) {
+    this.instantiationService = instantiationService;
+    this.workspaceContextService = workspaceContextService;
+    this._models = /* @__PURE__ */ new Map();
+    const channel = mainProcessService.getChannel(ipcBrowserViewChannelName);
+    this._browserViewService = ProxyChannel.toService(channel);
+  }
+  async getOrCreateBrowserViewModel(id) {
+    let model = this._models.get(id);
+    if (model) {
+      return model;
+    }
+    model = this.instantiationService.createInstance(BrowserViewModel, id, this._browserViewService);
+    this._models.set(id, model);
+    await model.initialize();
+    Event.once(model.onWillDispose)(() => {
+      this._models.delete(id);
+    });
+    return model;
+  }
+  async clearGlobalStorage() {
+    return this._browserViewService.clearGlobalStorage();
+  }
+  async clearWorkspaceStorage() {
+    const workspaceId = this.workspaceContextService.getWorkspace().id;
+    return this._browserViewService.clearWorkspaceStorage(workspaceId);
+  }
+};
+BrowserViewWorkbenchService = __decorate([
+  __param(0, IMainProcessService),
+  __param(1, IInstantiationService),
+  __param(2, IWorkspaceContextService)
+], BrowserViewWorkbenchService);
+export {
+  BrowserViewWorkbenchService
+};
+//# sourceMappingURL=browserViewWorkbenchService.js.map

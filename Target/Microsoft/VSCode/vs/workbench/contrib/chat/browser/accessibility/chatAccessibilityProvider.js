@@ -1,1 +1,164 @@
-import{marked as S}from"../../../../../base/common/marked/marked.js";import{$dd as $}from"../../../../../base/common/types.js";import{localize as a}from"../../../../../nls.js";import{$zvb as D}from"../../../../../platform/accessibility/browser/accessibleView.js";import{$ro as v}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mj as j}from"../../../../../platform/instantiation/common/instantiation.js";import{$fy as x}from"../../../../../platform/keybinding/common/keybinding.js";import{$rR as C}from"../../common/chat.js";import{$8Eb as w,$9Eb as _}from"../../common/model/chatViewModel.js";import{$6T as O,$7T as A,$8T as H}from"../../common/tools/languageModelToolsService.js";import{$4Qb as L}from"../actions/chatExecuteActions.js";import{$j3b as R}from"../actions/chatToolActions.js";var y=function(p,t,n,s){var f=arguments.length,r=f<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,n):s,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(p,t,n,s);else for(var l=p.length-1;l>=0;l--)(c=p[l])&&(r=(f<3?c(r):f>3?c(t,n,r):c(t,n))||r);return f>3&&r&&Object.defineProperty(t,n,r),r},h=function(p,t){return function(n,s){t(n,s,p)}};const T=(p,t)=>{const n=p.get(x),s=p.get(v),f=n.lookupKeybinding(R,s)?.getAriaLabel(),r=n.lookupKeybinding(L,s)?.getAriaLabel(),c=t.map(i=>{const o=i.state.get();if(o.type===3){const e=O(o.resultDetails)?o.resultDetails.input:A(o.resultDetails)?void 0:H(o.contentForModel);return{title:a(5084,null),detail:e}}if(!(o.type===1&&o.confirmationMessages?.message))return;let g="";if(i.toolSpecificData)if(i.toolSpecificData.kind==="terminal"){const e=C(i.toolSpecificData);g=e.commandLine.toolEdited??e.commandLine.original}else i.toolSpecificData.kind==="extensions"?g=JSON.stringify(i.toolSpecificData.extensions):i.toolSpecificData.kind==="input"&&(g=JSON.stringify(i.toolSpecificData.rawInput));const u=o.confirmationMessages?.title;return{title:((typeof u=="string"?u:u?.value||"")+(g?": "+g:"")).trim(),detail:void 0}}).filter($);let l=f&&r?a(5085,null,c.map(i=>i.title).join(", "),f,r):a(5086,null,c.map(i=>i.title).join(", "));return c.some(i=>i.detail)&&(l+=" "+a(5087,null,c.map(i=>i.detail?i.detail:"").join(" "))),l};let k=class{constructor(t,n){this.a=t,this.b=n}getWidgetRole(){return"list"}getRole(t){return"listitem"}getWidgetAriaLabel(){return a(5088,null)}getAriaLabel(t){return w(t)?t.messageText:_(t)?this.c(t):""}c(t){const n=this.a.getOpenAriaHint("accessibility.verbosity.panelChat");let s="";const f=t.response.value.filter(e=>e.kind==="toolInvocation");let r="";f.length&&f.filter(d=>{const b=d.state.get().type;return b===1||b===3}).length&&(r=this.b.invokeFunction(T,f));const c=S.lexer(t.response.toString()).filter(e=>e.type==="table")?.length??0;let l="";switch(c){case 0:break;case 1:l=a(5089,null);break;default:l=a(5090,null,c);break}const i=t.response.value.filter(e=>e.kind==="treeData").length??0;let o="";switch(i){case 0:break;case 1:o=a(5091,null);break;default:o=a(5092,null,i);break}const g=t.response.value.filter(e=>e.kind==="elicitation2"||e.kind==="elicitationSerialized");let u="";for(const e of g){const d=typeof e.title=="string"?e.title:e.title.value,b=typeof e.message=="string"?e.message:e.message.value;u+=d+" "+b}const m=S.lexer(t.response.toString()).filter(e=>e.type==="code")?.length??0;switch(m){case 0:s=n?a(5093,null,r,o,u,l,t.response.toString(),n):a(5094,null,o,u,l,t.response.toString());break;case 1:s=n?a(5095,null,r,o,u,l,t.response.toString(),n):a(5096,null,o,u,l,t.response.toString());break;default:s=n?a(5097,null,r,o,u,l,m,t.response.toString(),n):a(5098,null,o,u,m,l,t.response.toString());break}return s}};k=y([h(0,D),h(1,j)],k);export{T as $A4b,k as $B4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { marked } from "../../../../../base/common/marked/marked.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { localize } from "../../../../../nls.js";
+import { IAccessibleViewService } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { migrateLegacyTerminalToolSpecificData } from "../../common/chat.js";
+import { isRequestVM, isResponseVM } from "../../common/model/chatViewModel.js";
+import { isToolResultInputOutputDetails, isToolResultOutputDetails, toolContentToA11yString } from "../../common/tools/languageModelToolsService.js";
+import { CancelChatActionId } from "../actions/chatExecuteActions.js";
+import { AcceptToolConfirmationActionId } from "../actions/chatToolActions.js";
+const getToolConfirmationAlert = /* @__PURE__ */ __name((accessor, toolInvocation) => {
+  const keybindingService = accessor.get(IKeybindingService);
+  const contextKeyService = accessor.get(IContextKeyService);
+  const acceptKb = keybindingService.lookupKeybinding(AcceptToolConfirmationActionId, contextKeyService)?.getAriaLabel();
+  const cancelKb = keybindingService.lookupKeybinding(CancelChatActionId, contextKeyService)?.getAriaLabel();
+  const text = toolInvocation.map((v) => {
+    const state = v.state.get();
+    if (state.type === 3) {
+      const detail = isToolResultInputOutputDetails(state.resultDetails) ? state.resultDetails.input : isToolResultOutputDetails(state.resultDetails) ? void 0 : toolContentToA11yString(state.contentForModel);
+      return {
+        title: localize("toolPostApprovalTitle", "Approve results of tool"),
+        detail
+      };
+    }
+    if (!(state.type === 1 && state.confirmationMessages?.message)) {
+      return;
+    }
+    let input = "";
+    if (v.toolSpecificData) {
+      if (v.toolSpecificData.kind === "terminal") {
+        const terminalData = migrateLegacyTerminalToolSpecificData(v.toolSpecificData);
+        input = terminalData.commandLine.toolEdited ?? terminalData.commandLine.original;
+      } else if (v.toolSpecificData.kind === "extensions") {
+        input = JSON.stringify(v.toolSpecificData.extensions);
+      } else if (v.toolSpecificData.kind === "input") {
+        input = JSON.stringify(v.toolSpecificData.rawInput);
+      }
+    }
+    const titleObj = state.confirmationMessages?.title;
+    const title = typeof titleObj === "string" ? titleObj : titleObj?.value || "";
+    return {
+      title: (title + (input ? ": " + input : "")).trim(),
+      detail: void 0
+    };
+  }).filter(isDefined);
+  let message = acceptKb && cancelKb ? localize("toolInvocationsHintKb", "Chat confirmation required: {0}. Press {1} to accept or {2} to cancel.", text.map((t) => t.title).join(", "), acceptKb, cancelKb) : localize("toolInvocationsHint", "Chat confirmation required: {0}", text.map((t) => t.title).join(", "));
+  if (text.some((t) => t.detail)) {
+    message += " " + localize("toolInvocationsHintDetails", "Details: {0}", text.map((t) => t.detail ? t.detail : "").join(" "));
+  }
+  return message;
+}, "getToolConfirmationAlert");
+let ChatAccessibilityProvider = class ChatAccessibilityProvider2 {
+  static {
+    __name(this, "ChatAccessibilityProvider");
+  }
+  constructor(_accessibleViewService, _instantiationService) {
+    this._accessibleViewService = _accessibleViewService;
+    this._instantiationService = _instantiationService;
+  }
+  getWidgetRole() {
+    return "list";
+  }
+  getRole(element) {
+    return "listitem";
+  }
+  getWidgetAriaLabel() {
+    return localize("chat", "Chat");
+  }
+  getAriaLabel(element) {
+    if (isRequestVM(element)) {
+      return element.messageText;
+    }
+    if (isResponseVM(element)) {
+      return this._getLabelWithInfo(element);
+    }
+    return "";
+  }
+  _getLabelWithInfo(element) {
+    const accessibleViewHint = this._accessibleViewService.getOpenAriaHint(
+      "accessibility.verbosity.panelChat"
+      /* AccessibilityVerbositySettingId.Chat */
+    );
+    let label = "";
+    const toolInvocation = element.response.value.filter((v) => v.kind === "toolInvocation");
+    let toolInvocationHint = "";
+    if (toolInvocation.length) {
+      const waitingForConfirmation = toolInvocation.filter((v) => {
+        const state = v.state.get().type;
+        return state === 1 || state === 3;
+      });
+      if (waitingForConfirmation.length) {
+        toolInvocationHint = this._instantiationService.invokeFunction(getToolConfirmationAlert, toolInvocation);
+      }
+    }
+    const tableCount = marked.lexer(element.response.toString()).filter((token) => token.type === "table")?.length ?? 0;
+    let tableCountHint = "";
+    switch (tableCount) {
+      case 0:
+        break;
+      case 1:
+        tableCountHint = localize("singleTableHint", "1 table ");
+        break;
+      default:
+        tableCountHint = localize("multiTableHint", "{0} tables ", tableCount);
+        break;
+    }
+    const fileTreeCount = element.response.value.filter((v) => v.kind === "treeData").length ?? 0;
+    let fileTreeCountHint = "";
+    switch (fileTreeCount) {
+      case 0:
+        break;
+      case 1:
+        fileTreeCountHint = localize("singleFileTreeHint", "1 file tree ");
+        break;
+      default:
+        fileTreeCountHint = localize("multiFileTreeHint", "{0} file trees ", fileTreeCount);
+        break;
+    }
+    const elicitationCount = element.response.value.filter((v) => v.kind === "elicitation2" || v.kind === "elicitationSerialized");
+    let elicitationHint = "";
+    for (const elicitation of elicitationCount) {
+      const title = typeof elicitation.title === "string" ? elicitation.title : elicitation.title.value;
+      const message = typeof elicitation.message === "string" ? elicitation.message : elicitation.message.value;
+      elicitationHint += title + " " + message;
+    }
+    const codeBlockCount = marked.lexer(element.response.toString()).filter((token) => token.type === "code")?.length ?? 0;
+    switch (codeBlockCount) {
+      case 0:
+        label = accessibleViewHint ? localize("noCodeBlocksHint", "{0}{1}{2}{3}{4} {5}", toolInvocationHint, fileTreeCountHint, elicitationHint, tableCountHint, element.response.toString(), accessibleViewHint) : localize("noCodeBlocks", "{0}{1}{2} {3}", fileTreeCountHint, elicitationHint, tableCountHint, element.response.toString());
+        break;
+      case 1:
+        label = accessibleViewHint ? localize("singleCodeBlockHint", "{0}{1}{2}1 code block: {3} {4}{5}", toolInvocationHint, fileTreeCountHint, elicitationHint, tableCountHint, element.response.toString(), accessibleViewHint) : localize("singleCodeBlock", "{0}{1}1 code block: {2} {3}", fileTreeCountHint, elicitationHint, tableCountHint, element.response.toString());
+        break;
+      default:
+        label = accessibleViewHint ? localize("multiCodeBlockHint", "{0}{1}{2}{3} code blocks: {4}{5} {6}", toolInvocationHint, fileTreeCountHint, elicitationHint, tableCountHint, codeBlockCount, element.response.toString(), accessibleViewHint) : localize("multiCodeBlock", "{0}{1}{2} code blocks: {3} {4}", fileTreeCountHint, elicitationHint, codeBlockCount, tableCountHint, element.response.toString());
+        break;
+    }
+    return label;
+  }
+};
+ChatAccessibilityProvider = __decorate([
+  __param(0, IAccessibleViewService),
+  __param(1, IInstantiationService)
+], ChatAccessibilityProvider);
+export {
+  ChatAccessibilityProvider,
+  getToolConfirmationAlert
+};
+//# sourceMappingURL=chatAccessibilityProvider.js.map

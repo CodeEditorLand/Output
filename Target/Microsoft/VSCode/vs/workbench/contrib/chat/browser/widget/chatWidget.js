@@ -1,2 +1,1909 @@
-import"./media/chat.css";import"./media/chatAgentHover.css";import"./media/chatViewWelcome.css";import*as p from"../../../../../base/browser/dom.js";import{$$h as St,$0h as Rt}from"../../../../../base/common/async.js";import{CancellationToken as q}from"../../../../../base/common/cancellation.js";import{$bk as P}from"../../../../../base/common/codicons.js";import{$Lm as yt}from"../../../../../base/common/errorMessage.js";import{$xf as w,Event as O}from"../../../../../base/common/event.js";import{$jk as y}from"../../../../../base/common/htmlContent.js";import{Iterable as $t}from"../../../../../base/common/iterator.js";import{$Ed as Pt,$Dd as Et,$Fd as F,$Od as Tt}from"../../../../../base/common/lifecycle.js";import{$Pc as Ft}from"../../../../../base/common/map.js";import{Schemas as z}from"../../../../../base/common/network.js";import{$Kp as At}from"../../../../../base/common/objects.js";import{autorun as H,observableFromEvent as N,observableValue as xt}from"../../../../../base/common/observable.js";import{$Fh as qt,$yh as Ht,$Bh as K}from"../../../../../base/common/resources.js";import{$sf as kt}from"../../../../../base/common/symbols.js";import{$dd as Wt}from"../../../../../base/common/types.js";import{URI as Ot}from"../../../../../base/common/uri.js";import{$Mdb as Lt}from"../../../../../editor/browser/services/codeEditorService.js";import{$hE as Vt}from"../../../../../editor/common/core/ranges/offsetRange.js";import{localize as f}from"../../../../../nls.js";import{$qL as Bt}from"../../../../../platform/actions/common/actions.js";import{$0l as Nt}from"../../../../../platform/configuration/common/configuration.js";import{$0n as Kt,$ro as ht}from"../../../../../platform/contextkey/common/contextkey.js";import{$Mp as Ut}from"../../../../../platform/dialogs/common/dialogs.js";import{$Mj as _t}from"../../../../../platform/instantiation/common/instantiation.js";import{$Lj as Gt}from"../../../../../platform/instantiation/common/serviceCollection.js";import{$yo as Xt}from"../../../../../platform/log/common/log.js";import{$wib as E}from"../../../../../platform/observable/common/platformObservableUtils.js";import U from"../../../../../platform/product/common/product.js";import{$pp as jt}from"../../../../../platform/telemetry/common/telemetry.js";import{$qu as Qt}from"../../../../../platform/theme/common/themeService.js";import{$Ml as Yt}from"../../../../../platform/workspace/common/workspace.js";import{$vN as zt}from"../../../../common/editor.js";import{$BL as Jt}from"../../../../services/editor/common/editorService.js";import{$JP as Zt}from"../../../../services/chat/common/chatEntitlementService.js";import{$WN as te}from"../../../../services/lifecycle/common/lifecycle.js";import{$qR as J}from"../../common/chat.js";import{$kW as ee}from"../../common/participants/chatAgents.js";import{ChatContextKeys as C}from"../../common/actions/chatContextKeys.js";import{$3V as ie,$XV as se,$2V as ne,$1V as oe,$PV as re,$ZV as he}from"../../common/editing/chatEditingService.js";import{$hPb as de}from"../../common/widget/chatLayoutService.js";import{ChatMode as ae,$XT as le}from"../../common/chatModes.js";import{$8R as ue,$_R as ce,$dS as pe,$cS as Z,$0R as fe,$$R as ge,$9R as tt,$gS as be,IParsedChatRequest as me}from"../../common/requestParser/chatParserTypes.js";import{$EV as et}from"../../common/requestParser/chatRequestParser.js";import{ChatSendResult as _,$NV as we}from"../../common/chatService/chatService.js";import{$aW as Ce}from"../../common/chatSessionsService.js";import{$3R as ve}from"../../common/participants/chatSlashCommands.js";import{$iPb as Me}from"../../common/tools/chatTodoListService.js";import{$VS as De,$WS as Ie,$PS as Se,PromptFileVariableKind as Re,$3S as ye}from"../../common/attachments/chatVariableEntries.js";import{$aFb as $e,$8Eb as it,$9Eb as T}from"../../common/model/chatViewModel.js";import{$1Eb as Pe}from"../../common/widget/codeBlockModelCollection.js";import{ChatConfiguration as Ee,ChatModeKind as R}from"../../common/constants.js";import{$bU as Te,$$T as Fe}from"../../common/tools/languageModelToolsService.js";import{$pPb as Ae}from"../../common/promptSyntax/computeAutomaticInstructions.js";import{PromptsConfig as G}from"../../common/promptSyntax/config/config.js";import{Target as xe}from"../../common/promptSyntax/promptFileParser.js";import{$VT as qe}from"../../common/promptSyntax/service/promptsService.js";import{$VPb as He}from"../actions/chatActions.js";import{$X4b as ke,$U4b as We,$Z4b as dt,$Y4b as X}from"../chat.js";import{$0Pb as Oe}from"./chatContentParts/chatSuggestNextWidget.js";import{$z4b as st}from"./input/chatInputPart.js";import{$C4b as Le}from"./chatListWidget.js";import{$M1b as Ve}from"./chatOptions.js";import{$F4b as Be}from"../viewsWelcome/chatViewWelcomeController.js";import{$tQb as Ne}from"../agentSessions/agentSessionsService.js";var It=function(v,t,e,n){var i=arguments.length,s=i<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(v,t,e,n);else for(var a=v.length-1;a>=0;a--)(r=v[a])&&(s=(i<3?r(s):i>3?r(t,e,s):r(t,e))||s);return i>3&&s&&Object.defineProperty(t,e,s),s},c=function(v,t){return function(e,n){t(e,n,v)}},Q;const L=p.$;function nt(v){return dt(v.viewContext)&&!!v.viewContext.isQuickChat}function Ke(v){return dt(v.viewContext)&&!!v.viewContext.isInlineChat}const ot={supportsFileAttachments:!0,supportsToolAttachments:!0,supportsMCPAttachments:!0,supportsImageAttachments:!0,supportsSearchResultAttachments:!0,supportsInstructionAttachments:!0,supportsSourceControlAttachments:!0,supportsProblemAttachments:!0,supportsSymbolAttachments:!0,supportsTerminalAttachments:!0},j=f(6687,null);let rt=class extends Pt{static{Q=this}static{this.CONTRIBS=[]}get domNode(){return this.G}get visible(){return this.bb}set viewModel(t){if(this.pb===t)return;const e=this.pb?.sessionResource;this.ob.clear(),this.pb=t,t?(this.ob.add(t),this.Fb.debug("ChatWidget#setViewModel: have viewModel"),t.model.requestInProgress.get()&&this.Eb.acceptRequest(t.sessionResource,!0)):this.Fb.debug("ChatWidget#setViewModel: no viewModel"),this.j.fire({previousSessionResource:e,currentSessionResource:this.pb?.sessionResource})}get viewModel(){return this.pb}get parsedInput(){if(this.rb===void 0){if(!this.viewModel)return{text:"",parts:[]};this.rb=this.Ab.createInstance(et).parseChatRequest(this.viewModel.sessionResource,this.getInput(),this.location,{selectedAgent:this.Tb,mode:this.input.currentModeKind,forcedAgent:this.fb?.id?this.Cb.getAgent(this.fb.id):void 0}),this.u.fire()}return this.rb}get scopedContextKeyService(){return this.zb}get location(){return this.sb.location}get supportsChangingModes(){return!!this.tb.supportsChangingModes}get locationData(){return this.sb.resolveData?.()}constructor(t,e,n,i,s,r,a,o,h,l,u,g,M,D,I,at,lt,ut,ct,pt,ft,gt,bt,mt,wt,Ct,vt,Mt,Dt){super(),this.tb=n,this.ub=i,this.vb=s,this.wb=r,this.xb=a,this.yb=o,this.zb=h,this.Ab=l,this.Bb=u,this.Cb=g,this.Db=M,this.Eb=D,this.Fb=I,this.Gb=at,this.Hb=lt,this.Ib=ct,this.Jb=pt,this.Kb=ft,this.Lb=gt,this.Mb=bt,this.Nb=mt,this.Ob=wt,this.Pb=Ct,this.Qb=vt,this.Rb=Mt,this.Sb=Dt,this.f=this.D(new w),this.onDidSubmitAgent=this.f.event,this.g=this.D(new w),this.onDidChangeAgent=this.g.event,this.h=this.D(new w),this.onDidFocus=this.h.event,this.j=this.D(new w),this.onDidChangeViewModel=this.j.event,this.n=this.D(new w),this.onDidScroll=this.n.event,this.q=this.D(new w),this.onDidAcceptInput=this.q.event,this.s=this.D(new w),this.onDidHide=this.s.event,this.t=this.D(new w),this.onDidShow=this.t.event,this.u=this.D(new w),this.onDidChangeParsedInput=this.u.event,this.w=new w,this.onWillMaybeChangeHeight=this.w.event,this.y=this.D(new w),this.onDidChangeHeight=this.y.event,this.z=new w,this.onDidChangeContentHeight=this.z.event,this.C=this.D(new w),this.onDidChangeEmptyState=this.C.event,this.contribs=[],this.J=this.D(new F),this.L=this.D(new F),this.M=this.D(new F),this.N=this.D(new F),this.R=!1,this.U=this.D(new F),this.Y=0,this.bb=!1,this.eb=!1,this.kb=ot,this.lb=new Map,this.mb=new Map,this.nb=!1,this.ob=this.D(new Et),this.qb=xt(this,void 0),this.gb=C.lockedToCodingAgent.bindTo(this.zb),this.hb=C.agentSupportsAttachments.bindTo(this.zb),this.ib=C.chatSessionIsEmpty.bindTo(this.zb),this.jb=C.hasPendingRequests.bindTo(this.zb),this.viewContext=e??{};const Y=N(this,this.onDidChangeViewModel,()=>this.viewModel);typeof t=="object"?this.sb=t:this.sb={location:t},C.inChatSession.bindTo(h).set(!0),C.location.bindTo(h).set(this.sb.location),C.inQuickChat.bindTo(h).set(nt(this)),this.ab=C.inputHasAgent.bindTo(h),this.Z=C.requestInProgress.bindTo(h),this.D(this.Nb.onDidChangeAnonymous(()=>this.Yb())),this.D(E(se,h,d=>{const b=this.qb.read(d);return b?b.entries.read(d).filter(S=>S.state.read(d)!==0).map(S=>S.entryId):void 0})),this.D(E(oe,h,d=>(this.qb.read(d)?.entries.read(d)??[]).filter(S=>S.state.read(d)===0).length>0)),this.D(E(ne,h,d=>{const b=this.qb.read(d);return b?b.entries.read(d).length>0:!1})),this.D(E(he,h,d=>this.qb.read(d)!==null)),this.D(E(C.chatEditingCanUndo,h,d=>this.qb.read(d)?.canUndo.read(d)||!1)),this.D(E(C.chatEditingCanRedo,h,d=>this.qb.read(d)?.canRedo.read(d)||!1)),this.D(E(ie,h,d=>{const b=Y.read(d)?.model;if(!this.qb.read(d)||!b)return!1;const m=N(this,b.onDidChange,()=>b.getRequests().at(-1)?.response).read(d);return m?.result?.errorDetails&&!m?.result?.errorDetails.responseIsIncomplete})),this.I=this.D(l.createInstance(Pe,void 0)),this.W=this.D(this.Ab.createInstance(Oe)),this.D(H(d=>{const b=Y.read(d),m=ut.editingSessionsObs.read(d).find($=>K($.chatSessionResource,b?.sessionResource));if(this.qb.set(void 0,void 0),this.dc(),!m)return;const S=m.entries.read(d);for(const $ of S)$.state.read(d);this.qb.set(m,void 0),d.store.add(m.onDidDispose(()=>{this.qb.set(void 0,void 0),this.dc()})),d.store.add(this.inputEditor.onDidChangeModelContent(()=>{this.getInput()===""&&this.refreshParsedInput()})),this.dc()})),this.D(s.registerCodeEditorOpenHandler(async(d,b,A)=>{const m=d.resource;if(m.scheme!==z.vscodeChatCodeBlock)return null;const S=m.path.split("/").at(1);if(!S)return null;const $=this.viewModel?.getItems().find(k=>k.id===S);if(!$)return null;this.reveal($),await Rt(0);for(const k of this.H.editorsInUse())if(Ht.isEqual(k.uri,m,!0)){const x=k.editor;let V=0;const B=x.getDomNode();if(B){const W=p.$48(B,"monaco-list-row");W&&(V=p.$O8(B).top-p.$O8(W).top)}if(d.options?.selection){const W=x.getTopForPosition(d.options.selection.startLineNumber,d.options.selection.startColumn);V+=W,x.focus(),x.setSelection({startLineNumber:d.options.selection.startLineNumber,startColumn:d.options.selection.startColumn,endLineNumber:d.options.selection.endLineNumber??d.options.selection.startLineNumber,endColumn:d.options.selection.endColumn??d.options.selection.startColumn})}return this.reveal($,V),x}return null})),this.D(this.onDidChangeParsedInput(()=>this.tc())),this.D(this.Qb.onDidUpdateTodos(d=>{K(this.viewModel?.sessionResource,d)&&this.inputPart.renderChatTodoListWidget(d)}))}set lastSelectedAgent(t){this.rb=void 0,this.Tb=t,this.Ub(t),this.u.fire()}get lastSelectedAgent(){return this.Tb}Ub(t){const e=t?.capabilities??(this.fb?this.Ob.getCapabilitiesForSessionType(this.fb.id):void 0);this.kb=e??ot;const n=Object.keys(At(this.kb,(i,s)=>s===!0)).length>0;this.hb.set(n)}get supportsFileReferences(){return!!this.tb.supportsFileReferences}get attachmentCapabilities(){return this.kb}get input(){return this.viewModel?.editing&&this.xb.getValue("chat.editRequests")!=="input"?this.Vb:this.inputPart}get inputPart(){return this.M.value}get Vb(){return this.N.value}get inputEditor(){return this.input.inputEditor}get contentHeight(){return this.input.height.get()+this.H.contentHeight+this.W.height}get attachmentModel(){return this.input.attachmentModel}render(t){const e=X(this.viewContext)?this.viewContext.viewId:void 0;this.Q=this.D(this.Ab.createInstance(Ve,e,this.ub.listForeground,this.ub.inputEditorBackground,this.ub.resultEditorBackground));const n=this.tb.renderInputOnTop??!1,i=this.tb.renderFollowups??!n,s=this.tb.renderStyle,r=this.tb.renderInputToolbarBelowInput??!1;this.G=p.$y9(t,L(".interactive-session")),this.S=p.$y9(this.G,L(".chat-welcome-view-container",{style:"display: none"})),this.D(p.$v8(this.S,p.$r9.CLICK,()=>this.focusInput())),this.D(this.W.onDidChangeHeight(()=>{this.X&&this.layout(this.X.height,this.X.width)})),this.D(this.W.onDidSelectPrompt(({handoff:o,agentId:h})=>{this.gc(o,h)})),n?(this.nc(this.G,{renderFollowups:i,renderStyle:s,renderInputToolbarBelowInput:r}),this.F=p.$y9(this.G,L(".interactive-list"))):(this.F=p.$y9(this.G,L(".interactive-list")),p.$y9(this.G,this.W.domNode),this.nc(this.G,{renderFollowups:i,renderStyle:s,renderInputToolbarBelowInput:r})),this.Yb(),this.kc(this.F,{editable:!Ke(this)&&!nt(this),...this.tb.rendererOptions,renderStyle:s}),this.D(H(o=>{const h=this.Mb.fontFamily.read(o),l=this.Mb.fontSize.read(o);this.G.style.setProperty("--vscode-chat-font-family",h),this.G.style.fontSize=`${l}px`,this.visible&&this.H.rerender()})),this.D(O.runAndSubscribe(this.Q.onDidChange,()=>this.oc())),this.viewModel&&(this.Wb(),this.H.scrollToEnd()),this.contribs=Q.CONTRIBS.map(o=>{try{return this.D(this.Ab.createInstance(o,this))}catch(h){this.Fb.error("Failed to instantiate chat widget contrib",yt(h));return}}).filter(Wt),this.D(this.Db.register(this));const a=N(this.onDidChangeParsedInput,()=>this.parsedInput);this.D(H(o=>{const h=a.read(o),l=new Map,u=new Set;for(const g of this.attachmentModel.attachments)g.range&&u.add(g.id);for(const g of h.parts)if(g instanceof fe||g instanceof ge||g instanceof pe){const M=g.toVariableEntry();l.set(M.id,M),u.delete(M.id)}this.attachmentModel.updateContext(u,l.values())})),this.P||(this.P=this.G.appendChild(p.$(".focused-input-dom")))}focusInput(){this.input.focus(),this.h.fire()}hasInputFocus(){return this.input.hasFocus()}refreshParsedInput(){if(!this.viewModel)return;const t=this.rb;this.rb=this.Ab.createInstance(et).parseChatRequest(this.viewModel.sessionResource,this.getInput(),this.location,{selectedAgent:this.Tb,mode:this.input.currentModeKind}),(!t||!me.equals(t,this.rb))&&this.u.fire()}getSibling(t,e){if(!T(t))return;const n=this.viewModel?.getItems();if(!n)return;const i=n.filter(a=>T(a)),s=i.indexOf(t);if(s===void 0)return;const r=e==="next"?s+1:s-1;if(!(r<0||r>i.length-1))return i[r]}async clear(){this.Fb.debug("ChatWidget#clear"),this.sc&&(this.sc.enabled=!0),this.viewModel?.editing&&this.finishedEditing(),this.viewModel&&this.viewModel.resetInputPlaceholder(),this.fb?this.lockToCodingAgent(this.fb.name,this.fb.displayName,this.fb.id):this.unlockFromCodingAgent(),this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource,!0),this.W.hide(),await this.tb.clear?.()}Wb(t){(this.bb||!this.viewModel)&&((this.viewModel?.getItems()??[]).length>0?this.Xb():this.Yb(),this.w.fire(),this.H.setVisibleChangeCount(this.Y),this.H.refresh(),!t&&this.sc&&this.layoutDynamicChatTreeItemMode(),this.ec())}Xb(){if(this.viewModel){const t=this.viewModel.getItems().length;p.$D9(t===0,this.S),p.$D9(t!==0,this.F)}this.G.classList.toggle("chat-view-getting-started-disabled",this.Nb.sentiment.installed),this.C.fire()}isEmpty(){return(this.viewModel?.getItems().length??0)===0}Yb(){if(!this.eb){this.eb=!0;try{if(this.tb.renderStyle==="compact"||this.tb.renderStyle==="minimal"||this.Sb.willShutdown)return;if(!(this.viewModel?.getItems().length??0)){const e=this.Cb.getDefaultAgent(this.location,this.input.currentModeKind);let n;if(this.Nb.anonymous&&!this.Nb.sentiment.installed){const s=U.defaultChatAgent.provider;n=new y(f(6688,null,s.default.name,s.default.name,U.defaultChatAgent.termsStatementUrl,U.defaultChatAgent.privacyStatementUrl),{isTrusted:!0})}else n=e?.metadata.additionalWelcomeMessage;!n&&!this.fb&&(n=this.Zb());const i=this.ac(n);(!this.U.value||this.U.value.needsRerender(i))&&(p.$t8(this.S),this.U.value=this.Ab.createInstance(Be,i,{location:this.location,isWidgetAgentWelcomeViewContent:this.input?.currentModeKind===R.Agent}),p.$y9(this.S,this.U.value.element))}this.Xb()}finally{this.eb=!1}}}Zb(){if(this.cb||(this.cb=this.$b(),this.D(Tt(this.cb,t=>{this.db=t,(this.viewModel?.getItems().length??0)===0&&this.Yb()}))),this.db===!0)return new y("");if(this.db===!1){const t="workbench.action.chat.generateInstructions";return new y(f(6689,null,`command:${t}`),{isTrusted:{enabledCommands:[t]}})}return new y("")}async $b(){try{const t=this.xb.getValue(G.USE_COPILOT_INSTRUCTION_FILES),e=this.xb.getValue(G.USE_AGENT_MD);return!t&&!e?!0:(await this.Jb.listCopilotInstructionsMDs(q.None)).length>0||(await this.Jb.listAgentMDs(q.None,!1)).length>0}catch(t){return this.Fb.warn("[ChatWidget] Error checking for instruction files:",t),!1}}ac(t){if(this.isLockedToCodingAgent){const n=this.fb?this.Ob.getIconForSessionType(this.fb.id):void 0,i=this.fb?this.Ob.getWelcomeTitleForSessionType(this.fb.id):void 0,s=this.fb?this.Ob.getWelcomeMessageForSessionType(this.fb.id):void 0,r=s?new y(s):this.fb?.prefix==="@copilot "?new y(f(6690,null,this.fb.prefix,"https://aka.ms/coding-agent-docs")+j,{isTrusted:!0}):new y(f(6691,null,this.fb?.prefix)+j);return{title:i??f(6692,null,this.fb?.prefix),message:r,icon:n??P.sendToRemoteAgent,additionalMessage:t,useLargeIcon:!!n}}let e;return this.input.currentModeKind===R.Ask?e=f(6693,null):this.input.currentModeKind===R.Edit?e=f(6694,null):e=f(6695,null),{title:e,message:new y(j),icon:P.chatSparkle,additionalMessage:t,suggestedPrompts:this.bc()}}bc(){if(!this.Nb.sentiment.installed)return this.Rb.getWorkbenchState()===1?[{icon:P.vscode,label:f(6696,null),prompt:f(6697,null)},{icon:P.newFolder,label:f(6698,null),prompt:f(6699,null)}]:[{icon:P.debugAlt,label:f(6700,null),prompt:f(6701,null)},{icon:P.gear,label:f(6702,null),prompt:f(6703,null)}];const t=this.wb.activeEditor,e=t?zt.getOriginalUri(t):void 0,n=G.getPromptFilesRecommendationsValue(this.xb,e);if(!n)return[];const i=[],s=[];for(const[o]of Object.entries(n))this.lb.get(o)===void 0&&s.push(o);if(s.length>0&&!this.nb)return this.cc(s),[];const r=[];for(const[o,h]of Object.entries(n)){let l=0;if(typeof h=="boolean")l=h?1:0;else if(typeof h=="string")try{const u=Kt.deserialize(h);if(u){const g=this.vb.listCodeEditors();g.length>0?l=g.reduce((M,D)=>{try{const I=this.zb.getContext(D.getDomNode());return M+(u.evaluate(I)?1:0)}catch(I){return this.Fb.warn("Failed to evaluate when clause for editor:",I),M}},0):l=this.zb.contextMatchesRules(u)?1:0}else l=0}catch(u){this.Fb.warn("Failed to parse when clause for prompt file suggestion:",h,u),l=0}l>0&&r.push({promptName:o,condition:h,score:l})}r.sort((o,h)=>h.score-o.score);const a=r.slice(0,5);for(const{promptName:o}of a){const h=this.lb.get(o),l=f(6704,null,o),u=this.mb.get(o),g=h?.trim()?h:void 0;i.push({icon:P.run,label:l,description:g,prompt:`/${o} `,uri:u})}return i}async cc(t){if(!this.B.isDisposed){this.nb=!0;try{const e=await this.Jb.getPromptSlashCommands(q.None);let n=!1;for(const i of e)if(t.includes(i.name)){const s=i.description;s?(this.lb.set(i.name,s),n=!0):(this.lb.set(i.name,""),n=!0)}n&&this.Yb()}catch(e){this.Fb.warn("Failed to load specific prompt descriptions:",e)}finally{this.nb=!1}}}async dc(){this.input&&this.input.renderChatEditingSessionState(this.qb.get()??null)}async ec(){const t=this.H.lastItem;t&&T(t)&&t.isComplete?this.input.renderFollowups(t.replyFollowups,t):this.input.renderFollowups(void 0,void 0)}fc(){if(this.Sb.willShutdown)return;if(this.isLockedToCodingAgent){this.W.hide();return}const t=this.viewModel?.getItems()??[];if(!t.length)return;const e=t[t.length-1];if(!(e&&T(e)&&e.isComplete))return;const i=this.input.currentModeObs.get(),s=i?.handOffs?.get();if(i&&s&&s.length>0){const a=this.W.domNode.style.display==="none";this.W.render(i),a&&this.Ib.publicLog2("chat.handoffWidgetShown",{agent:i.id,handoffCount:s.length})}else this.W.hide();this.X&&this.layout(this.X.height,this.X.width)}gc(t,e){this.W.hide();const n=t.prompt,s=this.input.currentModeObs.get()?.id??"";this.Ib.publicLog2("chat.handoffClicked",{fromAgent:s,toAgent:e||t.agent||"",hasPrompt:!!n,autoSend:!!t.send}),e?(this.input.setValue(`@${e} ${n}`,!1),this.input.focus(),this.acceptInput().catch(r=>this.Fb.error("Failed to handle handoff continueOn",r))):t.agent&&(this.uc(t.agent),t.model&&this.input.switchModelByQualifiedName([t.model]),this.input.setValue(n,!1),this.input.focus(),t.send&&this.acceptInput())}async handleDelegationExitIfNeeded(t,e){if(this.hc(t,e)){this.Fb.debug(`[Delegation] Will exit after delegation: sourceAgent=${t?.id}, targetAgent=${e?.id}`);try{await this.ic()}catch(n){this.Fb.error("[Delegation] Failed to handle delegation exit",n)}}}hc(t,e){if(!e)return this.Fb.debug("[Delegation] _shouldExitAfterDelegation: false (no targetAgent)"),!1;if(!this.xb.getValue(Ee.ExitAfterDelegation))return this.Fb.debug("[Delegation] _shouldExitAfterDelegation: false (ExitAfterDelegation config disabled)"),!1;if(t&&t.id===e.id)return this.Fb.debug("[Delegation] _shouldExitAfterDelegation: false (source and target agents are the same)"),!1;if(!X(this.viewContext))return this.Fb.debug("[Delegation] _shouldExitAfterDelegation: false (not in chat view context)"),!1;const n=this.Ob.getChatSessionContribution(e.id);return n?n.canDelegate!==!0?(this.Fb.debug(`[Delegation] _shouldExitAfterDelegation: false (contribution.canDelegate=${n.canDelegate}, expected true)`),!1):(this.Fb.debug("[Delegation] _shouldExitAfterDelegation: true"),!0):(this.Fb.debug(`[Delegation] _shouldExitAfterDelegation: false (no contribution found for targetAgent.id=${e.id})`),!1)}async ic(){const t=this.viewModel;if(!t){this.Fb.debug("[Delegation] _handleDelegationExit: no viewModel, returning");return}const e=t.sessionResource;this.Fb.debug(`[Delegation] _handleDelegationExit: parentSessionResource=${e.toString()}`);const n=()=>{const s=t.getItems(),r=s[s.length-1];return r&&T(r)&&r.model&&r.isComplete&&!r.model.isPendingConfirmation.get()?!!!r.result?.errorDetails:!1};if(n()){this.Fb.debug("[Delegation] Response complete, archiving session before clearing"),await this.jc(e),await this.clear();return}this.Fb.debug("[Delegation] Waiting for response to complete..."),await new Promise(s=>{const r=t.onDidChange(()=>{n()&&(o(),s(!0))}),a=setTimeout(()=>{this.Fb.debug("[Delegation] Timeout waiting for response to complete"),o(),s(!1)},3e4),o=()=>{clearTimeout(a),r.dispose()}})?(this.Fb.debug("[Delegation] Response completed, archiving session before clearing"),await this.jc(e),await this.clear()):this.Fb.debug("[Delegation] Not clearing (timeout or error)")}async jc(t){if(t.scheme!==z.vscodeLocalChatSession){this.Fb.debug(`[Delegation] archiveLocalParentSession: skipping, scheme=${t.scheme} is not vscodeLocalChatSession`);return}this.Fb.debug(`[Delegation] archiveLocalParentSession: archiving session ${t.toString()}`),await this.Bb.getSession(t)?.editingSession?.accept();const e=this.Pb.getSession(t);e?(e.setArchived(!0),this.Fb.debug("[Delegation] archiveLocalParentSession: session archived successfully")):this.Fb.warn(`[Delegation] archiveLocalParentSession: session not found in agentSessionsService for ${t.toString()}`)}setVisible(t){const e=this.bb;this.bb=t,this.Y++,this.H.setVisible(t),this.input.setVisible(t),t?e||(this.J.value=St(()=>{this.bb&&this.Wb(!0)},0),this.L.value=p.$E8(p.getWindow(this.F),()=>{this.t.fire()})):e&&this.s.fire()}kc(t,e){const n=document.createElement("div");n.classList.add("chat-overflow-widget-container","monaco-editor"),t.append(n),this.H=this.D(this.Ab.createInstance(Le,t,{rendererOptions:e,renderStyle:this.tb.renderStyle,defaultElementHeight:this.tb.defaultElementHeight??200,overflowWidgetsDomNode:n,styles:{listForeground:this.ub.listForeground,listBackground:this.ub.listBackground},currentChatMode:()=>this.input.currentModeKind,filter:this.tb.filter?{filter:this.tb.filter.bind(this.tb)}:void 0,codeBlockModelCollection:this.I,viewModel:this.viewModel,editorOptions:this.Q,location:this.location,getCurrentLanguageModelId:()=>this.input.currentLanguageModel,getCurrentModeInfo:()=>this.input.currentModeInfo})),this.D(this.H.onDidClickRequest(async i=>{this.lc(i)})),this.D(this.H.onDidRerender(i=>{it(i.currentElement)&&this.xb.getValue("chat.editRequests")!=="input"&&(i.rowContainer.contains(this.O)||i.rowContainer.appendChild(this.O),this.input.focus())})),this.D(this.H.onDidDispose(()=>{this.P.appendChild(this.O),this.input.focus()})),this.D(this.H.onDidFocusOutside(()=>{this.finishedEditing()})),this.D(this.H.onDidClickFollowup(i=>{this.acceptInput(i.message)})),this.D(this.H.onDidChangeContentHeight(()=>{this.z.fire()})),this.D(this.H.onDidFocus(()=>{this.h.fire()})),this.D(this.H.onDidScroll(()=>{this.n.fire()}))}startEditing(t){const e=this.H.getTemplateDataForRequestId(t);e&&this.lc(e)}lc(t){const e=t.currentElement;if(it(e)&&!this.viewModel?.editing){const n=this.viewModel?.model.getRequests();if(!n||!this.viewModel?.sessionResource)return;this.viewModel?.model.checkpoint&&(this.R=!0),this.viewModel?.model.setCheckpoint(e.id);const i=[],s=new Set,r=o=>{s.has(o.id)||Se(o)||(De(o)||Ie(o))&&o.automaticallyAdded||(s.add(o.id),i.push(o))};for(let o=n.length-1;o>=0;o-=1){const h=n[o];h.id===e.id&&(h.setShouldBeBlocked(!1),h.attachedContext?.forEach(r),e.variables.forEach(r))}this.viewModel?.setEditing(e),t?.contextKeyService&&C.currentlyEditing.bindTo(t.contextKeyService).set(!0);const a=this.xb.getValue("chat.editRequests")==="input";if(this.inputPart?.setEditing(!!this.viewModel?.editing&&a),a)this.inputPart.element.classList.add("editing");else{const o=t.rowContainer;this.O=p.$(".chat-edit-input-container"),o.appendChild(this.O),this.nc(this.O),this.input.setChatMode(this.inputPart.currentModeObs.get().id)}this.inputPart.toggleChatInputOverlay(!a),i.length>0&&this.input.attachmentModel.addContext(...i),this.inputPart.dnd.setDisabledOverlay(!a),this.input.renderAttachedContext(),this.input.setValue(e.messageText,!1),this.Wb(),this.input.inputEditor.focus(),this.D(this.inputPart.onDidClickOverlay(()=>{this.viewModel?.editing&&this.xb.getValue("chat.editRequests")!=="input"&&this.finishedEditing()})),a||(this.D(this.Vb.inputEditor.onDidChangeModelContent(()=>{this.H.scrollToCurrentItem(e)})),this.D(this.Vb.inputEditor.onDidChangeCursorSelection(o=>{this.H.scrollToCurrentItem(e)})))}this.Ib.publicLog2("chat.startEditingRequests",{editRequestType:this.xb.getValue("chat.editRequests")})}finishedEditing(t){const e=this.H.getTemplateDataForRequestId(this.viewModel?.editing?.id);this.R?this.R=!1:this.viewModel?.model.setCheckpoint(void 0),this.inputPart.dnd.setDisabledOverlay(!1),e?.contextKeyService&&C.currentlyEditing.bindTo(e.contextKeyService).set(!1);const n=this.xb.getValue("chat.editRequests")==="input";if(!n){this.inputPart.setChatMode(this.input.currentModeObs.get().id);const i=this.input.selectedLanguageModel.get();i&&this.inputPart.switchModel(i.metadata),this.inputPart?.toggleChatInputOverlay(!1);try{e?.rowContainer?.contains(this.O)?e.rowContainer.removeChild(this.O):this.O.parentElement&&this.O.parentElement.removeChild(this.O)}catch(s){this.Fb.error("Error occurred while finishing editing:",s)}this.O=p.$(".empty-chat-state"),this.input.dispose()}n&&this.inputPart.element.classList.remove("editing"),this.viewModel?.setEditing(void 0),this.inputPart?.setEditing(!!this.viewModel?.editing&&n),this.Wb(),this.Ib.publicLog2("chat.editRequestsFinished",{editRequestType:this.xb.getValue("chat.editRequests"),editCanceled:!t}),this.inputPart.focus()}mc(){return this.viewContext?X(this.viewContext)?"view":"quick":"editor"}nc(t,e){const n={renderFollowups:e?.renderFollowups??!0,renderStyle:e?.renderStyle==="minimal"?"compact":e?.renderStyle,renderInputToolbarBelowInput:e?.renderInputToolbarBelowInput??!1,menus:{executeToolbar:Bt.ChatExecute,telemetrySource:"chatWidget",...this.tb.menus},editorOverflowWidgetsDomNode:this.tb.editorOverflowWidgetsDomNode,enableImplicitContext:this.tb.enableImplicitContext,renderWorkingSet:this.tb.enableWorkingSet==="explicit",supportsChangingModes:this.tb.supportsChangingModes,dndContainer:this.tb.dndContainer,widgetViewKindTag:this.mc(),defaultMode:this.tb.defaultMode,sessionTypePickerDelegate:this.tb.sessionTypePickerDelegate,workspacePickerDelegate:this.tb.workspacePickerDelegate};if(this.viewModel?.editing){const i=this.H.getTemplateDataForRequestId(this.viewModel?.editing?.id),s=this.D(this.Ab.createChild(new Gt([ht,i?.contextKeyService])));this.N.value=s.createInstance(st,this.location,n,this.ub,!0)}else this.M.value=this.Ab.createInstance(st,this.location,n,this.ub,!1),this.D(H(i=>{this.inputPart.height.read(i),this.H&&(this.X&&this.layout(this.X.height,this.X.width),this.z.fire())}));this.input.render(t,"",this),this.X?.width&&this.input.layout(this.X.width),this.D(this.input.onDidLoadInputState(()=>{this.refreshParsedInput()})),this.D(this.input.onDidFocus(()=>this.h.fire())),this.D(this.input.onDidAcceptFollowup(i=>{if(!this.viewModel)return;let s="";if(i.followup.agentId&&i.followup.agentId!==this.Cb.getDefaultAgent(this.location,this.input.currentModeKind)?.id){const r=this.Cb.getAgent(i.followup.agentId);if(!r)return;this.lastSelectedAgent=r,s=`${ue}${r.name} `,i.followup.subCommand&&(s+=`${tt}${i.followup.subCommand} `)}else!i.followup.agentId&&i.followup.subCommand&&this.Hb.hasCommand(i.followup.subCommand)&&(s=`${tt}${i.followup.subCommand} `);s+=i.followup.message,this.acceptInput(s),i.response&&this.Bb.notifyUserAction({sessionResource:this.viewModel.sessionResource,requestId:i.response.requestId,agentId:i.response.agent?.id,command:i.response.slashCommand?.name,result:i.response.result,action:{kind:"followUp",followup:i.followup}})})),this.D(this.inputEditor.onDidChangeModelContent(()=>{this.rb=void 0,this.tc()})),this.D(this.Cb.onDidChangeAgents(()=>{this.rb=void 0,this.Yb()})),this.D(this.input.onDidChangeCurrentChatMode(()=>{this.Yb(),this.refreshParsedInput(),this.ec(),this.fc()})),this.D(H(i=>{const s=new Set,r=new Set;for(const[o,h]of this.input.selectedToolsModel.entriesMap.read(i))h&&(Fe(o)?s.add(o.id):r.add(o.id));const a=this.input.attachmentModel.attachments.filter(o=>o.kind==="tool"&&!r.has(o.id)||o.kind==="toolset"&&!s.has(o.id)).map(o=>o.id);this.input.attachmentModel.updateContext(a,$t.empty()),this.refreshParsedInput()}))}oc(){this.G.style.setProperty("--vscode-interactive-result-editor-background-color",this.Q.configuration.resultEditor.backgroundColor?.toString()??""),this.G.style.setProperty("--vscode-interactive-session-foreground",this.Q.configuration.foreground?.toString()??""),this.G.style.setProperty("--vscode-chat-list-background",this.Gb.getColorTheme().getColor(this.ub.listBackground)?.toString()??"")}setModel(t){if(!this.G)throw new Error("Call render() before setModel()");if(!t){this.viewModel?.editing&&this.finishedEditing(),this.viewModel=void 0,this.Wb(),this.jb.set(!1);return}if(K(t.sessionResource,this.viewModel?.sessionResource))return;if(this.viewModel?.editing&&this.finishedEditing(),this.inputPart.clearTodoListWidget(t.sessionResource,!1),this.W.hide(),this.I.clear(),this.G.setAttribute("data-session-id",t.sessionId),this.viewModel=this.Ab.createInstance($e,t,this.I,void 0),this.inputPart.setInputModel(t.inputModel,t.getRequests().length===0),this.H.setViewModel(this.viewModel),this.fb){let s=this.Ob.getInputPlaceholderForSessionType(this.fb.id);s||(s=f(6705,null,this.fb.id)),this.viewModel.setInputPlaceholder(s),this.inputEditor.updateOptions({placeholder:s})}else this.viewModel.inputPlaceholder&&this.inputEditor.updateOptions({placeholder:this.viewModel.inputPlaceholder});const n=this.xb.getValue("chat.experimental.renderMarkdownImmediately")?kt:0;this.ob.add(O.runAndSubscribe(O.accumulate(this.viewModel.onDidChange,n),(s=>{!this.viewModel||this.B.isDisposed||(this.Z.set(this.viewModel.model.requestInProgress.get()),s?.some(r=>r?.kind==="changePlaceholder")&&this.inputEditor.updateOptions({placeholder:this.viewModel.inputPlaceholder}),this.Wb(),s?.some(r=>r?.kind==="addRequest")&&this.visible&&this.H.scrollToEnd())}))),this.ob.add(this.viewModel.onDidDisposeModel(()=>{this.viewModel?.editing&&this.finishedEditing(),this.viewModel=void 0,this.Wb()})),this.ib.set(t.getRequests().length===0);const i=()=>{const s=t.getPendingRequests().length;this.jb.set(s>0)};i(),this.ob.add(t.onDidChangePendingRequests(()=>i())),this.refreshParsedInput(),this.ob.add(t.onDidChange(s=>{s.kind==="setAgent"&&(this.g.fire({agent:s.agent,slashCommand:s.command}),this.Ub(s.agent)),s.kind==="addRequest"&&(this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource,!1),this.ib.set(!1)),s.kind==="removeRequest"&&(this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource,!0),this.W.hide(),this.ib.set((this.viewModel?.model.getRequests().length??0)===0)),s.kind==="completedRequest"&&((this.viewModel?.model.getRequests().at(-1)?.response?.isCanceled??!1)&&this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource,!0),this.fc(),this.visible&&this.viewModel?.sessionResource&&this.Pb.getSession(this.viewModel.sessionResource)?.setRead(!0))})),this.H&&this.visible&&(this.Wb(),this.H.scrollToEnd()),this.tc(),this.input.renderChatTodoListWidget(this.viewModel.sessionResource)}getFocus(){return this.H.getFocus()[0]??void 0}reveal(t,e){this.H.reveal(t,e)}focus(t){this.H.hasElement(t)&&this.H.focusItem(t)}setInputPlaceholder(t){this.viewModel?.setInputPlaceholder(t)}resetInputPlaceholder(){this.viewModel?.resetInputPlaceholder()}setInput(t=""){this.input.setValue(t,!1),this.refreshParsedInput()}getInput(){return this.input.inputEditor.getValue()}getContrib(t){return this.contribs.find(e=>e.id===t)}lockToCodingAgent(t,e,n){this.fb={id:n,name:t,prefix:`@${t} `,displayName:e},this.gb.set(!0),this.Yb();const i=this.Cb.getAgent(n);this.Ub(i),this.H?.updateRendererOptions({restorable:!1,editable:!1,noFooter:!0,progressMessageAtBottomOfResponse:!0}),this.visible&&this.H?.rerender()}unlockFromCodingAgent(){this.fb=void 0,this.gb.set(!1),this.Ub(void 0),this.Yb(),this.viewModel&&this.viewModel.resetInputPlaceholder(),this.inputEditor?.updateOptions({placeholder:void 0}),this.H?.updateRendererOptions({restorable:!0,editable:!0,noFooter:!1,progressMessageAtBottomOfResponse:t=>t!==R.Ask}),this.visible&&this.H?.rerender()}get isLockedToCodingAgent(){return!!this.fb}get lockedAgentId(){return this.fb?.id}logInputHistory(){this.input.logInputHistory()}async acceptInput(t,e){return this.qc(t?{query:t}:void 0,e)}async rerunLastRequest(){if(!this.viewModel)return;const t=this.viewModel.sessionResource,e=this.Bb.getSession(t)?.getRequests().at(-1);if(!e)return;const n={attempt:e.attempt+1,location:this.location,userSelectedModelId:this.input.currentLanguageModel};return await this.Bb.resendRequest(e,n)}async pc(t){const e=this.parsedInput.parts.find(o=>o instanceof Z);if(!e)return;const n=await this.Jb.resolvePromptSlashCommand(e.name,q.None);if(!n)return;const i=n.parsedPromptFile,s=i.body?.variableReferences.map(({name:o,offset:h})=>({name:o,range:new Vt(h,h+o.length+1)}))??[],r=this.Kb.toToolReferences(s);t.attachedContext.insertFirst(ye(i.uri,Re.PromptFile,void 0,!0,r)),t.input=this.parsedInput.parts.filter(o=>!(o instanceof Z)).map(o=>o.text).join("").trim();const a=t.input.trim();t.input=`Follow instructions in [${qt(i.uri)}](${i.uri.toString()}).`,a&&(t.input+=`
-${a}`),i.header&&await this.vc(i.header,t)}async qc(t,e={}){if(!t&&this.input.generating){const u=Date.now();if(await this.input.generating,Date.now()-u>500)return}for(;!this.pb&&!this.B.isDisposed;)await O.toPromise(this.onDidChangeViewModel,this.B);if(!this.viewModel)return;if(this.tb.submitHandler){const l=t?t.query:this.getInput();if(await this.tb.submitHandler(l,this.input.currentModeKind))return}this.q.fire(),this.H.setScrollLock(this.isLockedToCodingAgent||!!J(this.input.currentModeKind,this.tb.autoScroll));const n=this.getInput(),i={input:t?t.query:n,attachedContext:e?.enableImplicitContext===!1?this.input.getAttachedContext(this.viewModel.sessionResource):this.input.getAttachedAndImplicitContext(this.viewModel.sessionResource)},s=!t;if(this.viewModel?.editing){const l=this.viewModel.editing.pendingKind;if(l!==void 0){const u=this.viewModel.editing.id;this.Bb.removePendingRequest(this.viewModel.sessionResource,u),e.queue??=l}this.finishedEditing(!0),this.viewModel.model?.setCheckpoint(void 0)}const r=this.viewModel.model,a=r.requestInProgress.get();if(a&&(e.queue??="queued"),!a&&!await this.rc(r,e))return;if(await this.pc(i),await this.wc(i),this.tb.enableWorkingSet!==void 0&&this.input.currentModeKind===R.Edit&&!this.Bb.edits2Enabled){const l=new Ft,u=i.attachedContext,g=this.viewModel.model.getRequests();for(const M of g)for(const D of M.variableData.variables)if(Ot.isUri(D.value)&&D.kind==="file"){const I=D.value;l.has(I)||(u.add(D),l.add(D.value))}i.attachedContext=u,this.Ib.publicLog2("chatEditing/workingSetSize",{originalSize:l.size,actualSize:l.size})}if(this.input.validateAgentMode(),this.viewModel.model.checkpoint){const l=this.viewModel.model.getRequests();for(let u=l.length-1;u>=0;u-=1){const g=l[u];g.shouldBeBlocked&&this.Bb.removeRequest(this.viewModel.sessionResource,g.id)}}this.viewModel.sessionResource&&!e.queue&&this.Eb.acceptRequest(this.pb.sessionResource);const o=await this.Bb.sendRequest(this.viewModel.sessionResource,i.input,{userSelectedModelId:this.input.currentLanguageModel,location:this.location,locationData:this.sb.resolveData?.(),parserContext:{selectedAgent:this.Tb,mode:this.input.currentModeKind},attachedContext:i.attachedContext.asArray(),noCommandDetection:e?.noCommandDetection,...this.getModeRequestOptions(),modeInfo:this.input.currentModeInfo,agentIdSilent:this.fb?.id,queue:e?.queue});if(this.viewModel.sessionResource&&!e.queue&&this.Eb.disposeRequest(this.viewModel.sessionResource),_.isRejected(o))return;this.Xb(),this.input.acceptInput(e?.storeToHistory??s);const h=_.isQueued(o)?await o.deferred:o;if(_.isSent(h))return this.f.fire({agent:h.data.agent,slashCommand:h.data.slashCommand}),this.handleDelegationExitIfNeeded(this.fb,h.data.agent),h.data.responseCompletePromise.then(()=>{const l=this.viewModel?.getItems().filter(T),u=l?.[l.length-1];if(this.Eb.acceptResponse(this,this.G,u,this.viewModel?.sessionResource,e?.isVoiceInput),u?.result?.nextQuestion){const{prompt:g,participant:M,command:D}=u.result.nextQuestion,I=be(this.Cb,this.location,g,M,D);I&&this.input.setValue(I,!1)}}),h.data.responseCreatedPromise}async rc(t,e){if(e.queue||!(t.getPendingRequests().length>0))return!0;const i=await this.yb.prompt({type:"question",message:f(6706,null),detail:f(6707,null),buttons:[{label:f(6708,null),run:()=>"keep"},{label:f(6709,null),run:()=>"remove"}],cancelButton:!0});if(!i.result)return!1;if(i.result==="remove")for(const s of[...t.getPendingRequests()])this.Bb.removePendingRequest(t.sessionResource,s.request.id);return!0}getModeRequestOptions(){return{modeInfo:this.input.currentModeInfo,userSelectedTools:this.input.selectedToolsModel.userSelectedTools}}getCodeBlockInfosForResponse(t){return this.H.getCodeBlockInfosForResponse(t)}getCodeBlockInfoForEditor(t){return this.H.getCodeBlockInfoForEditor(t)}getFileTreeInfosForResponse(t){return this.H.getFileTreeInfosForResponse(t)}getLastFocusedFileTreeForResponse(t){return this.H.getLastFocusedFileTreeForResponse(t)}focusResponseItem(t){this.H.focusLastItem(t)}layout(t,e){e=Math.min(e,this.tb.renderStyle==="minimal"?e:950),this.X=new p.$N8(e,t),this.viewModel?.editing&&this.Vb?.layout(e),this.inputPart.layout(e);const n=this.inputPart.height.get(),i=this.W.height,s=this.H.isScrolledToBottom,r=this.H.lastItem,a=Math.max(0,t-n-i);this.H.layout(a,e),this.S.style.height=`${a}px`;const o=T(r)&&r.renderData;s&&(!o||J(this.input.currentModeKind,this.tb.autoScroll))&&this.H.scrollToEnd(),this.F.style.height=`${a}px`,this.y.fire(t)}setDynamicChatTreeItemLayout(t,e){this.sc={numOfMessages:t,maxHeight:e,enabled:!0},this.D(this.H.onDidChangeItemHeight(()=>this.layoutDynamicChatTreeItemMode()));const n=this.D(new F);this.D(this.H.onDidScroll(i=>{this.sc?.enabled&&(n.value=p.$E8(p.getWindow(this.F),()=>{if(!i.scrollTopChanged||i.heightChanged||i.scrollHeightChanged)return;const s=i.height,r=i.scrollHeight-s-i.scrollTop;if(r===0)return;const a=this.sc?.maxHeight??e,o=this.X?.width??this.G.offsetWidth;this.input.layout(o);const h=this.input.height.get(),l=this.W.height,u=Math.min(s+r,a-h-l);this.layout(u+h+l,o)}))}))}updateDynamicChatTreeItemLayout(t,e){this.sc={numOfMessages:t,maxHeight:e,enabled:!0};let n=!1,i=this.X.height,s=this.X.width;e<this.X.height&&(i=e,n=!0);const r=this.G.offsetWidth;this.X?.width!==r&&(s=r,n=!0),n&&this.layout(i,s)}get isDynamicChatTreeItemLayoutEnabled(){return this.sc?.enabled??!1}set isDynamicChatTreeItemLayoutEnabled(t){this.sc&&(this.sc.enabled=t)}layoutDynamicChatTreeItemMode(){if(!this.viewModel||!this.sc?.enabled)return;const t=this.X?.width??this.G.offsetWidth;this.input.layout(t);const e=this.input.height.get(),n=this.W.height,i=this.viewModel.getItems(),s=i.slice(-this.sc.numOfMessages),r=s.some(o=>o.currentRenderedHeight===void 0),a=r?this.sc.maxHeight:s.reduce((o,h)=>o+h.currentRenderedHeight,0);this.layout(Math.min(e+n+a+(i.length>2?18:0),this.sc.maxHeight),t),(r||!a)&&this.H.scrollToEnd()}saveState(){}getViewState(){return this.input.getCurrentInputState()}tc(){const t=this.parsedInput.parts.find(e=>e instanceof ce);this.ab.set(!!t)}async uc(t){const e=this.input.currentModeObs.get();if(t!==e.name.get()){const n=this.Lb.findModeByName(t);if(n){if(e.kind!==n.kind){const i=await this.Ab.invokeFunction(He,e.kind,n.kind,this.viewModel?.model.getRequests().length??0,this.viewModel?.model);if(!i)return;i.needToClearSession&&await this.clear()}this.input.setChatMode(n.id)}}}async vc({agent:t,tools:e,model:n},i){if(e!==void 0&&!t&&this.input.currentModeKind!==R.Agent&&(t=ae.Agent.name.get()),t&&this.uc(t),e!==void 0&&this.input.currentModeKind===R.Agent){const s=this.Kb.toToolAndToolSetEnablementMap(e,xe.VSCode,this.input.selectedLanguageModel.get()?.metadata);this.input.selectedToolsModel.set(s,!0)}n!==void 0&&this.input.switchModelByQualifiedName(n)}async wc({attachedContext:t}){this.Fb.debug("ChatWidget#_autoAttachInstructions: prompt files are always enabled");const e=this.input.currentModeKind===R.Agent?this.input.selectedToolsModel.userSelectedTools.get():void 0,n=this.input.currentModeKind===R.Agent?this.input.currentModeObs.get().agents?.get():void 0;await this.Ab.createInstance(Ae,this.input.currentModeKind,e,n).collect(t,q.None)}delegateScrollFromMouseWheelEvent(t){this.H.delegateScrollFromMouseWheelEvent(t)}};rt=Q=It([c(4,Lt),c(5,Jt),c(6,Nt),c(7,Ut),c(8,ht),c(9,_t),c(10,we),c(11,ee),c(12,We),c(13,ke),c(14,Xt),c(15,Qt),c(16,ve),c(17,re),c(18,jt),c(19,qe),c(20,Te),c(21,le),c(22,de),c(23,Zt),c(24,Ce),c(25,Ne),c(26,Me),c(27,Yt),c(28,te)],rt);export{nt as $G4b,rt as $H4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatWidget_1;
+import "./media/chat.css";
+import "./media/chatAgentHover.css";
+import "./media/chatViewWelcome.css";
+import * as dom from "../../../../../base/browser/dom.js";
+import { disposableTimeout, timeout } from "../../../../../base/common/async.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../../base/common/iterator.js";
+import { Disposable, DisposableStore, MutableDisposable, thenIfNotDisposed } from "../../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { filter } from "../../../../../base/common/objects.js";
+import { autorun, observableFromEvent, observableValue } from "../../../../../base/common/observable.js";
+import { basename, extUri, isEqual } from "../../../../../base/common/resources.js";
+import { MicrotaskDelay } from "../../../../../base/common/symbols.js";
+import { isDefined } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { OffsetRange } from "../../../../../editor/common/core/ranges/offsetRange.js";
+import { localize } from "../../../../../nls.js";
+import { MenuId } from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../platform/instantiation/common/serviceCollection.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { bindContextKey } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import product from "../../../../../platform/product/common/product.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { EditorResourceAccessor } from "../../../../common/editor.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IChatEntitlementService } from "../../../../services/chat/common/chatEntitlementService.js";
+import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
+import { checkModeOption } from "../../common/chat.js";
+import { IChatAgentService } from "../../common/participants/chatAgents.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { applyingChatEditsFailedContextKey, decidedChatEditingResourceContextKey, hasAppliedChatEditsContextKey, hasUndecidedChatEditingResourceContextKey, IChatEditingService, inChatEditingSessionContextKey } from "../../common/editing/chatEditingService.js";
+import { IChatLayoutService } from "../../common/widget/chatLayoutService.js";
+import { ChatMode, IChatModeService } from "../../common/chatModes.js";
+import { chatAgentLeader, ChatRequestAgentPart, ChatRequestDynamicVariablePart, ChatRequestSlashPromptPart, ChatRequestToolPart, ChatRequestToolSetPart, chatSubcommandLeader, formatChatQuestion, IParsedChatRequest } from "../../common/requestParser/chatParserTypes.js";
+import { ChatRequestParser } from "../../common/requestParser/chatRequestParser.js";
+import { ChatSendResult, IChatService } from "../../common/chatService/chatService.js";
+import { IChatSessionsService } from "../../common/chatSessionsService.js";
+import { IChatSlashCommandService } from "../../common/participants/chatSlashCommands.js";
+import { IChatTodoListService } from "../../common/tools/chatTodoListService.js";
+import { isPromptFileVariableEntry, isPromptTextVariableEntry, isWorkspaceVariableEntry, PromptFileVariableKind, toPromptFileVariableEntry } from "../../common/attachments/chatVariableEntries.js";
+import { ChatViewModel, isRequestVM, isResponseVM } from "../../common/model/chatViewModel.js";
+import { CodeBlockModelCollection } from "../../common/widget/codeBlockModelCollection.js";
+import { ChatConfiguration, ChatModeKind } from "../../common/constants.js";
+import { ILanguageModelToolsService, isToolSet } from "../../common/tools/languageModelToolsService.js";
+import { ComputeAutomaticInstructions } from "../../common/promptSyntax/computeAutomaticInstructions.js";
+import { PromptsConfig } from "../../common/promptSyntax/config/config.js";
+import { Target } from "../../common/promptSyntax/promptFileParser.js";
+import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+import { handleModeSwitch } from "../actions/chatActions.js";
+import { IChatAccessibilityService, IChatWidgetService, isIChatResourceViewContext, isIChatViewViewContext } from "../chat.js";
+import { ChatSuggestNextWidget } from "./chatContentParts/chatSuggestNextWidget.js";
+import { ChatInputPart } from "./input/chatInputPart.js";
+import { ChatListWidget } from "./chatListWidget.js";
+import { ChatEditorOptions } from "./chatOptions.js";
+import { ChatViewWelcomePart } from "../viewsWelcome/chatViewWelcomeController.js";
+import { IAgentSessionsService } from "../agentSessions/agentSessionsService.js";
+const $ = dom.$;
+function isQuickChat(widget) {
+  return isIChatResourceViewContext(widget.viewContext) && Boolean(widget.viewContext.isQuickChat);
+}
+__name(isQuickChat, "isQuickChat");
+function isInlineChat(widget) {
+  return isIChatResourceViewContext(widget.viewContext) && Boolean(widget.viewContext.isInlineChat);
+}
+__name(isInlineChat, "isInlineChat");
+const supportsAllAttachments = {
+  supportsFileAttachments: true,
+  supportsToolAttachments: true,
+  supportsMCPAttachments: true,
+  supportsImageAttachments: true,
+  supportsSearchResultAttachments: true,
+  supportsInstructionAttachments: true,
+  supportsSourceControlAttachments: true,
+  supportsProblemAttachments: true,
+  supportsSymbolAttachments: true,
+  supportsTerminalAttachments: true
+};
+const DISCLAIMER = localize("chatDisclaimer", "AI responses may be inaccurate.");
+let ChatWidget = class ChatWidget2 extends Disposable {
+  static {
+    __name(this, "ChatWidget");
+  }
+  static {
+    ChatWidget_1 = this;
+  }
+  static {
+    this.CONTRIBS = [];
+  }
+  get domNode() {
+    return this.container;
+  }
+  get visible() {
+    return this._visible;
+  }
+  set viewModel(viewModel) {
+    if (this._viewModel === viewModel) {
+      return;
+    }
+    const previousSessionResource = this._viewModel?.sessionResource;
+    this.viewModelDisposables.clear();
+    this._viewModel = viewModel;
+    if (viewModel) {
+      this.viewModelDisposables.add(viewModel);
+      this.logService.debug("ChatWidget#setViewModel: have viewModel");
+      if (viewModel.model.requestInProgress.get()) {
+        this.chatAccessibilityService.acceptRequest(viewModel.sessionResource, true);
+      }
+    } else {
+      this.logService.debug("ChatWidget#setViewModel: no viewModel");
+    }
+    this._onDidChangeViewModel.fire({ previousSessionResource, currentSessionResource: this._viewModel?.sessionResource });
+  }
+  get viewModel() {
+    return this._viewModel;
+  }
+  get parsedInput() {
+    if (this.parsedChatRequest === void 0) {
+      if (!this.viewModel) {
+        return { text: "", parts: [] };
+      }
+      this.parsedChatRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(this.viewModel.sessionResource, this.getInput(), this.location, {
+        selectedAgent: this._lastSelectedAgent,
+        mode: this.input.currentModeKind,
+        forcedAgent: this._lockedAgent?.id ? this.chatAgentService.getAgent(this._lockedAgent.id) : void 0
+      });
+      this._onDidChangeParsedInput.fire();
+    }
+    return this.parsedChatRequest;
+  }
+  get scopedContextKeyService() {
+    return this.contextKeyService;
+  }
+  get location() {
+    return this._location.location;
+  }
+  get supportsChangingModes() {
+    return !!this.viewOptions.supportsChangingModes;
+  }
+  get locationData() {
+    return this._location.resolveData?.();
+  }
+  constructor(location, viewContext, viewOptions, styles, codeEditorService, editorService, configurationService, dialogService, contextKeyService, instantiationService, chatService, chatAgentService, chatWidgetService, chatAccessibilityService, logService, themeService, chatSlashCommandService, chatEditingService, telemetryService, promptsService, toolsService, chatModeService, chatLayoutService, chatEntitlementService, chatSessionsService, agentSessionsService, chatTodoListService, contextService, lifecycleService) {
+    super();
+    this.viewOptions = viewOptions;
+    this.styles = styles;
+    this.codeEditorService = codeEditorService;
+    this.editorService = editorService;
+    this.configurationService = configurationService;
+    this.dialogService = dialogService;
+    this.contextKeyService = contextKeyService;
+    this.instantiationService = instantiationService;
+    this.chatService = chatService;
+    this.chatAgentService = chatAgentService;
+    this.chatWidgetService = chatWidgetService;
+    this.chatAccessibilityService = chatAccessibilityService;
+    this.logService = logService;
+    this.themeService = themeService;
+    this.chatSlashCommandService = chatSlashCommandService;
+    this.telemetryService = telemetryService;
+    this.promptsService = promptsService;
+    this.toolsService = toolsService;
+    this.chatModeService = chatModeService;
+    this.chatLayoutService = chatLayoutService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.chatSessionsService = chatSessionsService;
+    this.agentSessionsService = agentSessionsService;
+    this.chatTodoListService = chatTodoListService;
+    this.contextService = contextService;
+    this.lifecycleService = lifecycleService;
+    this._onDidSubmitAgent = this._register(new Emitter());
+    this.onDidSubmitAgent = this._onDidSubmitAgent.event;
+    this._onDidChangeAgent = this._register(new Emitter());
+    this.onDidChangeAgent = this._onDidChangeAgent.event;
+    this._onDidFocus = this._register(new Emitter());
+    this.onDidFocus = this._onDidFocus.event;
+    this._onDidChangeViewModel = this._register(new Emitter());
+    this.onDidChangeViewModel = this._onDidChangeViewModel.event;
+    this._onDidScroll = this._register(new Emitter());
+    this.onDidScroll = this._onDidScroll.event;
+    this._onDidAcceptInput = this._register(new Emitter());
+    this.onDidAcceptInput = this._onDidAcceptInput.event;
+    this._onDidHide = this._register(new Emitter());
+    this.onDidHide = this._onDidHide.event;
+    this._onDidShow = this._register(new Emitter());
+    this.onDidShow = this._onDidShow.event;
+    this._onDidChangeParsedInput = this._register(new Emitter());
+    this.onDidChangeParsedInput = this._onDidChangeParsedInput.event;
+    this._onWillMaybeChangeHeight = new Emitter();
+    this.onWillMaybeChangeHeight = this._onWillMaybeChangeHeight.event;
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
+    this._onDidChangeContentHeight = new Emitter();
+    this.onDidChangeContentHeight = this._onDidChangeContentHeight.event;
+    this._onDidChangeEmptyState = this._register(new Emitter());
+    this.onDidChangeEmptyState = this._onDidChangeEmptyState.event;
+    this.contribs = [];
+    this.visibilityTimeoutDisposable = this._register(new MutableDisposable());
+    this.visibilityAnimationFrameDisposable = this._register(new MutableDisposable());
+    this.inputPartDisposable = this._register(new MutableDisposable());
+    this.inlineInputPartDisposable = this._register(new MutableDisposable());
+    this.recentlyRestoredCheckpoint = false;
+    this.welcomePart = this._register(new MutableDisposable());
+    this.visibleChangeCount = 0;
+    this._visible = false;
+    this._isRenderingWelcome = false;
+    this._attachmentCapabilities = supportsAllAttachments;
+    this.promptDescriptionsCache = /* @__PURE__ */ new Map();
+    this.promptUriCache = /* @__PURE__ */ new Map();
+    this._isLoadingPromptDescriptions = false;
+    this.viewModelDisposables = this._register(new DisposableStore());
+    this._editingSession = observableValue(this, void 0);
+    this._lockedToCodingAgentContextKey = ChatContextKeys.lockedToCodingAgent.bindTo(this.contextKeyService);
+    this._agentSupportsAttachmentsContextKey = ChatContextKeys.agentSupportsAttachments.bindTo(this.contextKeyService);
+    this._sessionIsEmptyContextKey = ChatContextKeys.chatSessionIsEmpty.bindTo(this.contextKeyService);
+    this._hasPendingRequestsContextKey = ChatContextKeys.hasPendingRequests.bindTo(this.contextKeyService);
+    this.viewContext = viewContext ?? {};
+    const viewModelObs = observableFromEvent(this, this.onDidChangeViewModel, () => this.viewModel);
+    if (typeof location === "object") {
+      this._location = location;
+    } else {
+      this._location = { location };
+    }
+    ChatContextKeys.inChatSession.bindTo(contextKeyService).set(true);
+    ChatContextKeys.location.bindTo(contextKeyService).set(this._location.location);
+    ChatContextKeys.inQuickChat.bindTo(contextKeyService).set(isQuickChat(this));
+    this.agentInInput = ChatContextKeys.inputHasAgent.bindTo(contextKeyService);
+    this.requestInProgress = ChatContextKeys.requestInProgress.bindTo(contextKeyService);
+    this._register(this.chatEntitlementService.onDidChangeAnonymous(() => this.renderWelcomeViewContentIfNeeded()));
+    this._register(bindContextKey(decidedChatEditingResourceContextKey, contextKeyService, (reader) => {
+      const currentSession = this._editingSession.read(reader);
+      if (!currentSession) {
+        return;
+      }
+      const entries = currentSession.entries.read(reader);
+      const decidedEntries = entries.filter(
+        (entry) => entry.state.read(reader) !== 0
+        /* ModifiedFileEntryState.Modified */
+      );
+      return decidedEntries.map((entry) => entry.entryId);
+    }));
+    this._register(bindContextKey(hasUndecidedChatEditingResourceContextKey, contextKeyService, (reader) => {
+      const currentSession = this._editingSession.read(reader);
+      const entries = currentSession?.entries.read(reader) ?? [];
+      const decidedEntries = entries.filter(
+        (entry) => entry.state.read(reader) === 0
+        /* ModifiedFileEntryState.Modified */
+      );
+      return decidedEntries.length > 0;
+    }));
+    this._register(bindContextKey(hasAppliedChatEditsContextKey, contextKeyService, (reader) => {
+      const currentSession = this._editingSession.read(reader);
+      if (!currentSession) {
+        return false;
+      }
+      const entries = currentSession.entries.read(reader);
+      return entries.length > 0;
+    }));
+    this._register(bindContextKey(inChatEditingSessionContextKey, contextKeyService, (reader) => {
+      return this._editingSession.read(reader) !== null;
+    }));
+    this._register(bindContextKey(ChatContextKeys.chatEditingCanUndo, contextKeyService, (r) => {
+      return this._editingSession.read(r)?.canUndo.read(r) || false;
+    }));
+    this._register(bindContextKey(ChatContextKeys.chatEditingCanRedo, contextKeyService, (r) => {
+      return this._editingSession.read(r)?.canRedo.read(r) || false;
+    }));
+    this._register(bindContextKey(applyingChatEditsFailedContextKey, contextKeyService, (r) => {
+      const chatModel = viewModelObs.read(r)?.model;
+      const editingSession = this._editingSession.read(r);
+      if (!editingSession || !chatModel) {
+        return false;
+      }
+      const lastResponse = observableFromEvent(this, chatModel.onDidChange, () => chatModel.getRequests().at(-1)?.response).read(r);
+      return lastResponse?.result?.errorDetails && !lastResponse?.result?.errorDetails.responseIsIncomplete;
+    }));
+    this._codeBlockModelCollection = this._register(instantiationService.createInstance(CodeBlockModelCollection, void 0));
+    this.chatSuggestNextWidget = this._register(this.instantiationService.createInstance(ChatSuggestNextWidget));
+    this._register(autorun((r) => {
+      const viewModel = viewModelObs.read(r);
+      const sessions = chatEditingService.editingSessionsObs.read(r);
+      const session = sessions.find((candidate) => isEqual(candidate.chatSessionResource, viewModel?.sessionResource));
+      this._editingSession.set(void 0, void 0);
+      this.renderChatEditingSessionState();
+      if (!session) {
+        return;
+      }
+      const entries = session.entries.read(r);
+      for (const entry of entries) {
+        entry.state.read(r);
+      }
+      this._editingSession.set(session, void 0);
+      r.store.add(session.onDidDispose(() => {
+        this._editingSession.set(void 0, void 0);
+        this.renderChatEditingSessionState();
+      }));
+      r.store.add(this.inputEditor.onDidChangeModelContent(() => {
+        if (this.getInput() === "") {
+          this.refreshParsedInput();
+        }
+      }));
+      this.renderChatEditingSessionState();
+    }));
+    this._register(codeEditorService.registerCodeEditorOpenHandler(async (input, _source, _sideBySide) => {
+      const resource = input.resource;
+      if (resource.scheme !== Schemas.vscodeChatCodeBlock) {
+        return null;
+      }
+      const responseId = resource.path.split("/").at(1);
+      if (!responseId) {
+        return null;
+      }
+      const item = this.viewModel?.getItems().find((item2) => item2.id === responseId);
+      if (!item) {
+        return null;
+      }
+      this.reveal(item);
+      await timeout(0);
+      for (const codeBlockPart of this.listWidget.editorsInUse()) {
+        if (extUri.isEqual(codeBlockPart.uri, resource, true)) {
+          const editor = codeBlockPart.editor;
+          let relativeTop = 0;
+          const editorDomNode = editor.getDomNode();
+          if (editorDomNode) {
+            const row = dom.findParentWithClass(editorDomNode, "monaco-list-row");
+            if (row) {
+              relativeTop = dom.getTopLeftOffset(editorDomNode).top - dom.getTopLeftOffset(row).top;
+            }
+          }
+          if (input.options?.selection) {
+            const editorSelectionTopOffset = editor.getTopForPosition(input.options.selection.startLineNumber, input.options.selection.startColumn);
+            relativeTop += editorSelectionTopOffset;
+            editor.focus();
+            editor.setSelection({
+              startLineNumber: input.options.selection.startLineNumber,
+              startColumn: input.options.selection.startColumn,
+              endLineNumber: input.options.selection.endLineNumber ?? input.options.selection.startLineNumber,
+              endColumn: input.options.selection.endColumn ?? input.options.selection.startColumn
+            });
+          }
+          this.reveal(item, relativeTop);
+          return editor;
+        }
+      }
+      return null;
+    }));
+    this._register(this.onDidChangeParsedInput(() => this.updateChatInputContext()));
+    this._register(this.chatTodoListService.onDidUpdateTodos((sessionResource) => {
+      if (isEqual(this.viewModel?.sessionResource, sessionResource)) {
+        this.inputPart.renderChatTodoListWidget(sessionResource);
+      }
+    }));
+  }
+  set lastSelectedAgent(agent) {
+    this.parsedChatRequest = void 0;
+    this._lastSelectedAgent = agent;
+    this._updateAgentCapabilitiesContextKeys(agent);
+    this._onDidChangeParsedInput.fire();
+  }
+  get lastSelectedAgent() {
+    return this._lastSelectedAgent;
+  }
+  _updateAgentCapabilitiesContextKeys(agent) {
+    const capabilities = agent?.capabilities ?? (this._lockedAgent ? this.chatSessionsService.getCapabilitiesForSessionType(this._lockedAgent.id) : void 0);
+    this._attachmentCapabilities = capabilities ?? supportsAllAttachments;
+    const supportsAttachments = Object.keys(filter(this._attachmentCapabilities, (key, value) => value === true)).length > 0;
+    this._agentSupportsAttachmentsContextKey.set(supportsAttachments);
+  }
+  get supportsFileReferences() {
+    return !!this.viewOptions.supportsFileReferences;
+  }
+  get attachmentCapabilities() {
+    return this._attachmentCapabilities;
+  }
+  /**
+   * Either the inline input (when editing) or the main input part
+   */
+  get input() {
+    return this.viewModel?.editing && this.configurationService.getValue("chat.editRequests") !== "input" ? this.inlineInputPart : this.inputPart;
+  }
+  /**
+   * The main input part at the buttom of the chat widget. Use `input` to get the active input (main or inline editing part).
+   */
+  get inputPart() {
+    return this.inputPartDisposable.value;
+  }
+  get inlineInputPart() {
+    return this.inlineInputPartDisposable.value;
+  }
+  get inputEditor() {
+    return this.input.inputEditor;
+  }
+  get contentHeight() {
+    return this.input.height.get() + this.listWidget.contentHeight + this.chatSuggestNextWidget.height;
+  }
+  get attachmentModel() {
+    return this.input.attachmentModel;
+  }
+  render(parent) {
+    const viewId = isIChatViewViewContext(this.viewContext) ? this.viewContext.viewId : void 0;
+    this.editorOptions = this._register(this.instantiationService.createInstance(ChatEditorOptions, viewId, this.styles.listForeground, this.styles.inputEditorBackground, this.styles.resultEditorBackground));
+    const renderInputOnTop = this.viewOptions.renderInputOnTop ?? false;
+    const renderFollowups = this.viewOptions.renderFollowups ?? !renderInputOnTop;
+    const renderStyle = this.viewOptions.renderStyle;
+    const renderInputToolbarBelowInput = this.viewOptions.renderInputToolbarBelowInput ?? false;
+    this.container = dom.append(parent, $(".interactive-session"));
+    this.welcomeMessageContainer = dom.append(this.container, $(".chat-welcome-view-container", { style: "display: none" }));
+    this._register(dom.addStandardDisposableListener(this.welcomeMessageContainer, dom.EventType.CLICK, () => this.focusInput()));
+    this._register(this.chatSuggestNextWidget.onDidChangeHeight(() => {
+      if (this.bodyDimension) {
+        this.layout(this.bodyDimension.height, this.bodyDimension.width);
+      }
+    }));
+    this._register(this.chatSuggestNextWidget.onDidSelectPrompt(({ handoff, agentId }) => {
+      this.handleNextPromptSelection(handoff, agentId);
+    }));
+    if (renderInputOnTop) {
+      this.createInput(this.container, { renderFollowups, renderStyle, renderInputToolbarBelowInput });
+      this.listContainer = dom.append(this.container, $(`.interactive-list`));
+    } else {
+      this.listContainer = dom.append(this.container, $(`.interactive-list`));
+      dom.append(this.container, this.chatSuggestNextWidget.domNode);
+      this.createInput(this.container, { renderFollowups, renderStyle, renderInputToolbarBelowInput });
+    }
+    this.renderWelcomeViewContentIfNeeded();
+    this.createList(this.listContainer, { editable: !isInlineChat(this) && !isQuickChat(this), ...this.viewOptions.rendererOptions, renderStyle });
+    this._register(autorun((reader) => {
+      const fontFamily = this.chatLayoutService.fontFamily.read(reader);
+      const fontSize = this.chatLayoutService.fontSize.read(reader);
+      this.container.style.setProperty("--vscode-chat-font-family", fontFamily);
+      this.container.style.fontSize = `${fontSize}px`;
+      if (this.visible) {
+        this.listWidget.rerender();
+      }
+    }));
+    this._register(Event.runAndSubscribe(this.editorOptions.onDidChange, () => this.onDidStyleChange()));
+    if (this.viewModel) {
+      this.onDidChangeItems();
+      this.listWidget.scrollToEnd();
+    }
+    this.contribs = ChatWidget_1.CONTRIBS.map((contrib) => {
+      try {
+        return this._register(this.instantiationService.createInstance(contrib, this));
+      } catch (err) {
+        this.logService.error("Failed to instantiate chat widget contrib", toErrorMessage(err));
+        return void 0;
+      }
+    }).filter(isDefined);
+    this._register(this.chatWidgetService.register(this));
+    const parsedInput = observableFromEvent(this.onDidChangeParsedInput, () => this.parsedInput);
+    this._register(autorun((r) => {
+      const input = parsedInput.read(r);
+      const newPromptAttachments = /* @__PURE__ */ new Map();
+      const oldPromptAttachments = /* @__PURE__ */ new Set();
+      for (const attachment of this.attachmentModel.attachments) {
+        if (attachment.range) {
+          oldPromptAttachments.add(attachment.id);
+        }
+      }
+      for (const part of input.parts) {
+        if (part instanceof ChatRequestToolPart || part instanceof ChatRequestToolSetPart || part instanceof ChatRequestDynamicVariablePart) {
+          const entry = part.toVariableEntry();
+          newPromptAttachments.set(entry.id, entry);
+          oldPromptAttachments.delete(entry.id);
+        }
+      }
+      this.attachmentModel.updateContext(oldPromptAttachments, newPromptAttachments.values());
+    }));
+    if (!this.focusedInputDOM) {
+      this.focusedInputDOM = this.container.appendChild(dom.$(".focused-input-dom"));
+    }
+  }
+  focusInput() {
+    this.input.focus();
+    this._onDidFocus.fire();
+  }
+  hasInputFocus() {
+    return this.input.hasFocus();
+  }
+  refreshParsedInput() {
+    if (!this.viewModel) {
+      return;
+    }
+    const previous = this.parsedChatRequest;
+    this.parsedChatRequest = this.instantiationService.createInstance(ChatRequestParser).parseChatRequest(this.viewModel.sessionResource, this.getInput(), this.location, { selectedAgent: this._lastSelectedAgent, mode: this.input.currentModeKind });
+    if (!previous || !IParsedChatRequest.equals(previous, this.parsedChatRequest)) {
+      this._onDidChangeParsedInput.fire();
+    }
+  }
+  getSibling(item, type) {
+    if (!isResponseVM(item)) {
+      return;
+    }
+    const items = this.viewModel?.getItems();
+    if (!items) {
+      return;
+    }
+    const responseItems = items.filter((i) => isResponseVM(i));
+    const targetIndex = responseItems.indexOf(item);
+    if (targetIndex === void 0) {
+      return;
+    }
+    const indexToFocus = type === "next" ? targetIndex + 1 : targetIndex - 1;
+    if (indexToFocus < 0 || indexToFocus > responseItems.length - 1) {
+      return;
+    }
+    return responseItems[indexToFocus];
+  }
+  async clear() {
+    this.logService.debug("ChatWidget#clear");
+    if (this._dynamicMessageLayoutData) {
+      this._dynamicMessageLayoutData.enabled = true;
+    }
+    if (this.viewModel?.editing) {
+      this.finishedEditing();
+    }
+    if (this.viewModel) {
+      this.viewModel.resetInputPlaceholder();
+    }
+    if (this._lockedAgent) {
+      this.lockToCodingAgent(this._lockedAgent.name, this._lockedAgent.displayName, this._lockedAgent.id);
+    } else {
+      this.unlockFromCodingAgent();
+    }
+    this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource, true);
+    this.chatSuggestNextWidget.hide();
+    await this.viewOptions.clear?.();
+  }
+  onDidChangeItems(skipDynamicLayout) {
+    if (this._visible || !this.viewModel) {
+      const items = this.viewModel?.getItems() ?? [];
+      if (items.length > 0) {
+        this.updateChatViewVisibility();
+      } else {
+        this.renderWelcomeViewContentIfNeeded();
+      }
+      this._onWillMaybeChangeHeight.fire();
+      this.listWidget.setVisibleChangeCount(this.visibleChangeCount);
+      this.listWidget.refresh();
+      if (!skipDynamicLayout && this._dynamicMessageLayoutData) {
+        this.layoutDynamicChatTreeItemMode();
+      }
+      this.renderFollowups();
+    }
+  }
+  /**
+   * Updates the DOM visibility of welcome view and chat list immediately
+   */
+  updateChatViewVisibility() {
+    if (this.viewModel) {
+      const numItems = this.viewModel.getItems().length;
+      dom.setVisibility(numItems === 0, this.welcomeMessageContainer);
+      dom.setVisibility(numItems !== 0, this.listContainer);
+    }
+    this.container.classList.toggle("chat-view-getting-started-disabled", this.chatEntitlementService.sentiment.installed);
+    this._onDidChangeEmptyState.fire();
+  }
+  isEmpty() {
+    return (this.viewModel?.getItems().length ?? 0) === 0;
+  }
+  /**
+   * Renders the welcome view content when needed.
+   */
+  renderWelcomeViewContentIfNeeded() {
+    if (this._isRenderingWelcome) {
+      return;
+    }
+    this._isRenderingWelcome = true;
+    try {
+      if (this.viewOptions.renderStyle === "compact" || this.viewOptions.renderStyle === "minimal" || this.lifecycleService.willShutdown) {
+        return;
+      }
+      const numItems = this.viewModel?.getItems().length ?? 0;
+      if (!numItems) {
+        const defaultAgent = this.chatAgentService.getDefaultAgent(this.location, this.input.currentModeKind);
+        let additionalMessage;
+        if (this.chatEntitlementService.anonymous && !this.chatEntitlementService.sentiment.installed) {
+          const providers = product.defaultChatAgent.provider;
+          additionalMessage = new MarkdownString(localize({ key: "settings", comment: ['{Locked="]({2})"}', '{Locked="]({3})"}'] }, "By continuing with {0} Copilot, you agree to {1}'s [Terms]({2}) and [Privacy Statement]({3}).", providers.default.name, providers.default.name, product.defaultChatAgent.termsStatementUrl, product.defaultChatAgent.privacyStatementUrl), { isTrusted: true });
+        } else {
+          additionalMessage = defaultAgent?.metadata.additionalWelcomeMessage;
+        }
+        if (!additionalMessage && !this._lockedAgent) {
+          additionalMessage = this._getGenerateInstructionsMessage();
+        }
+        const welcomeContent = this.getWelcomeViewContent(additionalMessage);
+        if (!this.welcomePart.value || this.welcomePart.value.needsRerender(welcomeContent)) {
+          dom.clearNode(this.welcomeMessageContainer);
+          this.welcomePart.value = this.instantiationService.createInstance(ChatViewWelcomePart, welcomeContent, {
+            location: this.location,
+            isWidgetAgentWelcomeViewContent: this.input?.currentModeKind === ChatModeKind.Agent
+          });
+          dom.append(this.welcomeMessageContainer, this.welcomePart.value.element);
+        }
+      }
+      this.updateChatViewVisibility();
+    } finally {
+      this._isRenderingWelcome = false;
+    }
+  }
+  _getGenerateInstructionsMessage() {
+    if (!this._instructionFilesCheckPromise) {
+      this._instructionFilesCheckPromise = this._checkForAgentInstructionFiles();
+      this._register(thenIfNotDisposed(this._instructionFilesCheckPromise, (hasFiles) => {
+        this._instructionFilesExist = hasFiles;
+        const hasViewModelItems = this.viewModel?.getItems().length ?? 0;
+        if (hasViewModelItems === 0) {
+          this.renderWelcomeViewContentIfNeeded();
+        }
+      }));
+    }
+    if (this._instructionFilesExist === true) {
+      return new MarkdownString("");
+    } else if (this._instructionFilesExist === false) {
+      const generateInstructionsCommand = "workbench.action.chat.generateInstructions";
+      return new MarkdownString(localize("chatWidget.instructions", "[Generate Agent Instructions]({0}) to onboard AI onto your codebase.", `command:${generateInstructionsCommand}`), { isTrusted: { enabledCommands: [generateInstructionsCommand] } });
+    }
+    return new MarkdownString("");
+  }
+  /**
+   * Checks if any agent instruction files (.github/copilot-instructions.md or AGENTS.md) exist in the workspace.
+   * Used to determine whether to show the "Generate Agent Instructions" hint.
+   *
+   * @returns true if instruction files exist OR if instruction features are disabled (to hide the hint)
+   */
+  async _checkForAgentInstructionFiles() {
+    try {
+      const useCopilotInstructionsFiles = this.configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES);
+      const useAgentMd = this.configurationService.getValue(PromptsConfig.USE_AGENT_MD);
+      if (!useCopilotInstructionsFiles && !useAgentMd) {
+        return true;
+      }
+      return (await this.promptsService.listCopilotInstructionsMDs(CancellationToken.None)).length > 0 || // Note: only checking for AGENTS.md files at the root folder, not ones in subfolders.
+      (await this.promptsService.listAgentMDs(CancellationToken.None, false)).length > 0;
+    } catch (error) {
+      this.logService.warn("[ChatWidget] Error checking for instruction files:", error);
+      return false;
+    }
+  }
+  getWelcomeViewContent(additionalMessage) {
+    if (this.isLockedToCodingAgent) {
+      const providerIcon = this._lockedAgent ? this.chatSessionsService.getIconForSessionType(this._lockedAgent.id) : void 0;
+      const providerTitle = this._lockedAgent ? this.chatSessionsService.getWelcomeTitleForSessionType(this._lockedAgent.id) : void 0;
+      const providerMessage = this._lockedAgent ? this.chatSessionsService.getWelcomeMessageForSessionType(this._lockedAgent.id) : void 0;
+      const message = providerMessage ? new MarkdownString(providerMessage) : this._lockedAgent?.prefix === "@copilot " ? new MarkdownString(localize("copilotCodingAgentMessage", "This chat session will be forwarded to the {0} [coding agent]({1}) where work is completed in the background. ", this._lockedAgent.prefix, "https://aka.ms/coding-agent-docs") + DISCLAIMER, { isTrusted: true }) : new MarkdownString(localize("genericCodingAgentMessage", "This chat session will be forwarded to the {0} coding agent where work is completed in the background. ", this._lockedAgent?.prefix) + DISCLAIMER);
+      return {
+        title: providerTitle ?? localize("codingAgentTitle", "Delegate to {0}", this._lockedAgent?.prefix),
+        message,
+        icon: providerIcon ?? Codicon.sendToRemoteAgent,
+        additionalMessage,
+        useLargeIcon: !!providerIcon
+      };
+    }
+    let title;
+    if (this.input.currentModeKind === ChatModeKind.Ask) {
+      title = localize("chatDescription", "Ask about your code");
+    } else if (this.input.currentModeKind === ChatModeKind.Edit) {
+      title = localize("editsTitle", "Edit in context");
+    } else {
+      title = localize("agentTitle", "Build with Agent");
+    }
+    return {
+      title,
+      message: new MarkdownString(DISCLAIMER),
+      icon: Codicon.chatSparkle,
+      additionalMessage,
+      suggestedPrompts: this.getPromptFileSuggestions()
+    };
+  }
+  getPromptFileSuggestions() {
+    if (!this.chatEntitlementService.sentiment.installed) {
+      const isEmpty = this.contextService.getWorkbenchState() === 1;
+      if (isEmpty) {
+        return [
+          {
+            icon: Codicon.vscode,
+            label: localize("chatWidget.suggestedPrompts.gettingStarted", "Ask @vscode"),
+            prompt: localize("chatWidget.suggestedPrompts.gettingStartedPrompt", "@vscode How do I change the theme to light mode?")
+          },
+          {
+            icon: Codicon.newFolder,
+            label: localize("chatWidget.suggestedPrompts.newProject", "Create Project"),
+            prompt: localize("chatWidget.suggestedPrompts.newProjectPrompt", "Create a #new Hello World project in TypeScript")
+          }
+        ];
+      } else {
+        return [
+          {
+            icon: Codicon.debugAlt,
+            label: localize("chatWidget.suggestedPrompts.buildWorkspace", "Build Workspace"),
+            prompt: localize("chatWidget.suggestedPrompts.buildWorkspacePrompt", "How do I build this workspace?")
+          },
+          {
+            icon: Codicon.gear,
+            label: localize("chatWidget.suggestedPrompts.findConfig", "Show Config"),
+            prompt: localize("chatWidget.suggestedPrompts.findConfigPrompt", "Where is the configuration for this project defined?")
+          }
+        ];
+      }
+    }
+    const activeEditor = this.editorService.activeEditor;
+    const resource = activeEditor ? EditorResourceAccessor.getOriginalUri(activeEditor) : void 0;
+    const suggestions = PromptsConfig.getPromptFilesRecommendationsValue(this.configurationService, resource);
+    if (!suggestions) {
+      return [];
+    }
+    const result = [];
+    const promptsToLoad = [];
+    for (const [promptName] of Object.entries(suggestions)) {
+      const description = this.promptDescriptionsCache.get(promptName);
+      if (description === void 0) {
+        promptsToLoad.push(promptName);
+      }
+    }
+    if (promptsToLoad.length > 0 && !this._isLoadingPromptDescriptions) {
+      this.loadPromptDescriptions(promptsToLoad);
+      return [];
+    }
+    const promptsWithScores = [];
+    for (const [promptName, condition] of Object.entries(suggestions)) {
+      let score = 0;
+      if (typeof condition === "boolean") {
+        score = condition ? 1 : 0;
+      } else if (typeof condition === "string") {
+        try {
+          const whenClause = ContextKeyExpr.deserialize(condition);
+          if (whenClause) {
+            const allEditors = this.codeEditorService.listCodeEditors();
+            if (allEditors.length > 0) {
+              score = allEditors.reduce((count, editor) => {
+                try {
+                  const editorContext = this.contextKeyService.getContext(editor.getDomNode());
+                  return count + (whenClause.evaluate(editorContext) ? 1 : 0);
+                } catch (error) {
+                  this.logService.warn("Failed to evaluate when clause for editor:", error);
+                  return count;
+                }
+              }, 0);
+            } else {
+              score = this.contextKeyService.contextMatchesRules(whenClause) ? 1 : 0;
+            }
+          } else {
+            score = 0;
+          }
+        } catch (error) {
+          this.logService.warn("Failed to parse when clause for prompt file suggestion:", condition, error);
+          score = 0;
+        }
+      }
+      if (score > 0) {
+        promptsWithScores.push({ promptName, condition, score });
+      }
+    }
+    promptsWithScores.sort((a, b) => b.score - a.score);
+    const topPrompts = promptsWithScores.slice(0, 5);
+    for (const { promptName } of topPrompts) {
+      const description = this.promptDescriptionsCache.get(promptName);
+      const commandLabel = localize("chatWidget.promptFile.commandLabel", "{0}", promptName);
+      const uri = this.promptUriCache.get(promptName);
+      const descriptionText = description?.trim() ? description : void 0;
+      result.push({
+        icon: Codicon.run,
+        label: commandLabel,
+        description: descriptionText,
+        prompt: `/${promptName} `,
+        uri
+      });
+    }
+    return result;
+  }
+  async loadPromptDescriptions(promptNames) {
+    if (this._store.isDisposed) {
+      return;
+    }
+    this._isLoadingPromptDescriptions = true;
+    try {
+      const promptCommands = await this.promptsService.getPromptSlashCommands(CancellationToken.None);
+      let cacheUpdated = false;
+      for (const promptCommand of promptCommands) {
+        if (promptNames.includes(promptCommand.name)) {
+          const description = promptCommand.description;
+          if (description) {
+            this.promptDescriptionsCache.set(promptCommand.name, description);
+            cacheUpdated = true;
+          } else {
+            this.promptDescriptionsCache.set(promptCommand.name, "");
+            cacheUpdated = true;
+          }
+        }
+      }
+      if (cacheUpdated) {
+        this.renderWelcomeViewContentIfNeeded();
+      }
+    } catch (error) {
+      this.logService.warn("Failed to load specific prompt descriptions:", error);
+    } finally {
+      this._isLoadingPromptDescriptions = false;
+    }
+  }
+  async renderChatEditingSessionState() {
+    if (!this.input) {
+      return;
+    }
+    this.input.renderChatEditingSessionState(this._editingSession.get() ?? null);
+  }
+  async renderFollowups() {
+    const lastItem = this.listWidget.lastItem;
+    if (lastItem && isResponseVM(lastItem) && lastItem.isComplete) {
+      this.input.renderFollowups(lastItem.replyFollowups, lastItem);
+    } else {
+      this.input.renderFollowups(void 0, void 0);
+    }
+  }
+  renderChatSuggestNextWidget() {
+    if (this.lifecycleService.willShutdown) {
+      return;
+    }
+    if (this.isLockedToCodingAgent) {
+      this.chatSuggestNextWidget.hide();
+      return;
+    }
+    const items = this.viewModel?.getItems() ?? [];
+    if (!items.length) {
+      return;
+    }
+    const lastItem = items[items.length - 1];
+    const lastResponseComplete = lastItem && isResponseVM(lastItem) && lastItem.isComplete;
+    if (!lastResponseComplete) {
+      return;
+    }
+    const currentMode = this.input.currentModeObs.get();
+    const handoffs = currentMode?.handOffs?.get();
+    const shouldShow = currentMode && handoffs && handoffs.length > 0;
+    if (shouldShow) {
+      const wasHidden = this.chatSuggestNextWidget.domNode.style.display === "none";
+      this.chatSuggestNextWidget.render(currentMode);
+      if (wasHidden) {
+        this.telemetryService.publicLog2("chat.handoffWidgetShown", {
+          agent: currentMode.id,
+          handoffCount: handoffs.length
+        });
+      }
+    } else {
+      this.chatSuggestNextWidget.hide();
+    }
+    if (this.bodyDimension) {
+      this.layout(this.bodyDimension.height, this.bodyDimension.width);
+    }
+  }
+  handleNextPromptSelection(handoff, agentId) {
+    this.chatSuggestNextWidget.hide();
+    const promptToUse = handoff.prompt;
+    const currentMode = this.input.currentModeObs.get();
+    const fromAgent = currentMode?.id ?? "";
+    this.telemetryService.publicLog2("chat.handoffClicked", {
+      fromAgent,
+      toAgent: agentId || handoff.agent || "",
+      hasPrompt: Boolean(promptToUse),
+      autoSend: Boolean(handoff.send)
+    });
+    if (agentId) {
+      this.input.setValue(`@${agentId} ${promptToUse}`, false);
+      this.input.focus();
+      this.acceptInput().catch((e) => this.logService.error("Failed to handle handoff continueOn", e));
+    } else if (handoff.agent) {
+      this._switchToAgentByName(handoff.agent);
+      if (handoff.model) {
+        this.input.switchModelByQualifiedName([handoff.model]);
+      }
+      this.input.setValue(promptToUse, false);
+      this.input.focus();
+      if (handoff.send) {
+        this.acceptInput();
+      }
+    }
+  }
+  async handleDelegationExitIfNeeded(sourceAgent, targetAgent) {
+    if (!this._shouldExitAfterDelegation(sourceAgent, targetAgent)) {
+      return;
+    }
+    this.logService.debug(`[Delegation] Will exit after delegation: sourceAgent=${sourceAgent?.id}, targetAgent=${targetAgent?.id}`);
+    try {
+      await this._handleDelegationExit();
+    } catch (e) {
+      this.logService.error("[Delegation] Failed to handle delegation exit", e);
+    }
+  }
+  _shouldExitAfterDelegation(sourceAgent, targetAgent) {
+    if (!targetAgent) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (no targetAgent)");
+      return false;
+    }
+    if (!this.configurationService.getValue(ChatConfiguration.ExitAfterDelegation)) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (ExitAfterDelegation config disabled)");
+      return false;
+    }
+    if (sourceAgent && sourceAgent.id === targetAgent.id) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (source and target agents are the same)");
+      return false;
+    }
+    if (!isIChatViewViewContext(this.viewContext)) {
+      this.logService.debug("[Delegation] _shouldExitAfterDelegation: false (not in chat view context)");
+      return false;
+    }
+    const contribution = this.chatSessionsService.getChatSessionContribution(targetAgent.id);
+    if (!contribution) {
+      this.logService.debug(`[Delegation] _shouldExitAfterDelegation: false (no contribution found for targetAgent.id=${targetAgent.id})`);
+      return false;
+    }
+    if (contribution.canDelegate !== true) {
+      this.logService.debug(`[Delegation] _shouldExitAfterDelegation: false (contribution.canDelegate=${contribution.canDelegate}, expected true)`);
+      return false;
+    }
+    this.logService.debug("[Delegation] _shouldExitAfterDelegation: true");
+    return true;
+  }
+  /**
+   * Handles the exit of the panel chat when a delegation to another session occurs.
+   * Waits for the response to complete and any pending confirmations to be resolved,
+   * then clears the widget unless the final message is an error.
+   */
+  async _handleDelegationExit() {
+    const viewModel = this.viewModel;
+    if (!viewModel) {
+      this.logService.debug("[Delegation] _handleDelegationExit: no viewModel, returning");
+      return;
+    }
+    const parentSessionResource = viewModel.sessionResource;
+    this.logService.debug(`[Delegation] _handleDelegationExit: parentSessionResource=${parentSessionResource.toString()}`);
+    const checkIfShouldClear = /* @__PURE__ */ __name(() => {
+      const items = viewModel.getItems();
+      const lastItem = items[items.length - 1];
+      if (lastItem && isResponseVM(lastItem) && lastItem.model && lastItem.isComplete && !lastItem.model.isPendingConfirmation.get()) {
+        const hasError = Boolean(lastItem.result?.errorDetails);
+        return !hasError;
+      }
+      return false;
+    }, "checkIfShouldClear");
+    if (checkIfShouldClear()) {
+      this.logService.debug("[Delegation] Response complete, archiving session before clearing");
+      await this.archiveLocalParentSession(parentSessionResource);
+      await this.clear();
+      return;
+    }
+    this.logService.debug("[Delegation] Waiting for response to complete...");
+    const shouldClear = await new Promise((resolve) => {
+      const disposable = viewModel.onDidChange(() => {
+        const result = checkIfShouldClear();
+        if (result) {
+          cleanup();
+          resolve(true);
+        }
+      });
+      const timeout2 = setTimeout(() => {
+        this.logService.debug("[Delegation] Timeout waiting for response to complete");
+        cleanup();
+        resolve(false);
+      }, 3e4);
+      const cleanup = /* @__PURE__ */ __name(() => {
+        clearTimeout(timeout2);
+        disposable.dispose();
+      }, "cleanup");
+    });
+    if (shouldClear) {
+      this.logService.debug("[Delegation] Response completed, archiving session before clearing");
+      await this.archiveLocalParentSession(parentSessionResource);
+      await this.clear();
+    } else {
+      this.logService.debug("[Delegation] Not clearing (timeout or error)");
+    }
+  }
+  async archiveLocalParentSession(sessionResource) {
+    if (sessionResource.scheme !== Schemas.vscodeLocalChatSession) {
+      this.logService.debug(`[Delegation] archiveLocalParentSession: skipping, scheme=${sessionResource.scheme} is not vscodeLocalChatSession`);
+      return;
+    }
+    this.logService.debug(`[Delegation] archiveLocalParentSession: archiving session ${sessionResource.toString()}`);
+    await this.chatService.getSession(sessionResource)?.editingSession?.accept();
+    const session = this.agentSessionsService.getSession(sessionResource);
+    if (session) {
+      session.setArchived(true);
+      this.logService.debug("[Delegation] archiveLocalParentSession: session archived successfully");
+    } else {
+      this.logService.warn(`[Delegation] archiveLocalParentSession: session not found in agentSessionsService for ${sessionResource.toString()}`);
+    }
+  }
+  setVisible(visible) {
+    const wasVisible = this._visible;
+    this._visible = visible;
+    this.visibleChangeCount++;
+    this.listWidget.setVisible(visible);
+    this.input.setVisible(visible);
+    if (visible) {
+      if (!wasVisible) {
+        this.visibilityTimeoutDisposable.value = disposableTimeout(() => {
+          if (this._visible) {
+            this.onDidChangeItems(true);
+          }
+        }, 0);
+        this.visibilityAnimationFrameDisposable.value = dom.scheduleAtNextAnimationFrame(dom.getWindow(this.listContainer), () => {
+          this._onDidShow.fire();
+        });
+      }
+    } else if (wasVisible) {
+      this._onDidHide.fire();
+    }
+  }
+  createList(listContainer, options) {
+    const overflowWidgetsContainer = document.createElement("div");
+    overflowWidgetsContainer.classList.add("chat-overflow-widget-container", "monaco-editor");
+    listContainer.append(overflowWidgetsContainer);
+    this.listWidget = this._register(this.instantiationService.createInstance(ChatListWidget, listContainer, {
+      rendererOptions: options,
+      renderStyle: this.viewOptions.renderStyle,
+      defaultElementHeight: this.viewOptions.defaultElementHeight ?? 200,
+      overflowWidgetsDomNode: overflowWidgetsContainer,
+      styles: {
+        listForeground: this.styles.listForeground,
+        listBackground: this.styles.listBackground
+      },
+      currentChatMode: /* @__PURE__ */ __name(() => this.input.currentModeKind, "currentChatMode"),
+      filter: this.viewOptions.filter ? { filter: this.viewOptions.filter.bind(this.viewOptions) } : void 0,
+      codeBlockModelCollection: this._codeBlockModelCollection,
+      viewModel: this.viewModel,
+      editorOptions: this.editorOptions,
+      location: this.location,
+      getCurrentLanguageModelId: /* @__PURE__ */ __name(() => this.input.currentLanguageModel, "getCurrentLanguageModelId"),
+      getCurrentModeInfo: /* @__PURE__ */ __name(() => this.input.currentModeInfo, "getCurrentModeInfo")
+    }));
+    this._register(this.listWidget.onDidClickRequest(async (item) => {
+      this.clickedRequest(item);
+    }));
+    this._register(this.listWidget.onDidRerender((item) => {
+      if (isRequestVM(item.currentElement) && this.configurationService.getValue("chat.editRequests") !== "input") {
+        if (!item.rowContainer.contains(this.inputContainer)) {
+          item.rowContainer.appendChild(this.inputContainer);
+        }
+        this.input.focus();
+      }
+    }));
+    this._register(this.listWidget.onDidDispose(() => {
+      this.focusedInputDOM.appendChild(this.inputContainer);
+      this.input.focus();
+    }));
+    this._register(this.listWidget.onDidFocusOutside(() => {
+      this.finishedEditing();
+    }));
+    this._register(this.listWidget.onDidClickFollowup((item) => {
+      this.acceptInput(item.message);
+    }));
+    this._register(this.listWidget.onDidChangeContentHeight(() => {
+      this._onDidChangeContentHeight.fire();
+    }));
+    this._register(this.listWidget.onDidFocus(() => {
+      this._onDidFocus.fire();
+    }));
+    this._register(this.listWidget.onDidScroll(() => {
+      this._onDidScroll.fire();
+    }));
+  }
+  startEditing(requestId) {
+    const editedRequest = this.listWidget.getTemplateDataForRequestId(requestId);
+    if (editedRequest) {
+      this.clickedRequest(editedRequest);
+    }
+  }
+  clickedRequest(item) {
+    const currentElement = item.currentElement;
+    if (isRequestVM(currentElement) && !this.viewModel?.editing) {
+      const requests = this.viewModel?.model.getRequests();
+      if (!requests || !this.viewModel?.sessionResource) {
+        return;
+      }
+      if (this.viewModel?.model.checkpoint) {
+        this.recentlyRestoredCheckpoint = true;
+      }
+      this.viewModel?.model.setCheckpoint(currentElement.id);
+      const currentContext = [];
+      const addedContextIds = /* @__PURE__ */ new Set();
+      const addToContext = /* @__PURE__ */ __name((entry) => {
+        if (addedContextIds.has(entry.id) || isWorkspaceVariableEntry(entry)) {
+          return;
+        }
+        if ((isPromptFileVariableEntry(entry) || isPromptTextVariableEntry(entry)) && entry.automaticallyAdded) {
+          return;
+        }
+        addedContextIds.add(entry.id);
+        currentContext.push(entry);
+      }, "addToContext");
+      for (let i = requests.length - 1; i >= 0; i -= 1) {
+        const request = requests[i];
+        if (request.id === currentElement.id) {
+          request.setShouldBeBlocked(false);
+          request.attachedContext?.forEach(addToContext);
+          currentElement.variables.forEach(addToContext);
+        }
+      }
+      this.viewModel?.setEditing(currentElement);
+      if (item?.contextKeyService) {
+        ChatContextKeys.currentlyEditing.bindTo(item.contextKeyService).set(true);
+      }
+      const isInput = this.configurationService.getValue("chat.editRequests") === "input";
+      this.inputPart?.setEditing(!!this.viewModel?.editing && isInput);
+      if (!isInput) {
+        const rowContainer = item.rowContainer;
+        this.inputContainer = dom.$(".chat-edit-input-container");
+        rowContainer.appendChild(this.inputContainer);
+        this.createInput(this.inputContainer);
+        this.input.setChatMode(this.inputPart.currentModeObs.get().id);
+      } else {
+        this.inputPart.element.classList.add("editing");
+      }
+      this.inputPart.toggleChatInputOverlay(!isInput);
+      if (currentContext.length > 0) {
+        this.input.attachmentModel.addContext(...currentContext);
+      }
+      this.inputPart.dnd.setDisabledOverlay(!isInput);
+      this.input.renderAttachedContext();
+      this.input.setValue(currentElement.messageText, false);
+      this.onDidChangeItems();
+      this.input.inputEditor.focus();
+      this._register(this.inputPart.onDidClickOverlay(() => {
+        if (this.viewModel?.editing && this.configurationService.getValue("chat.editRequests") !== "input") {
+          this.finishedEditing();
+        }
+      }));
+      if (!isInput) {
+        this._register(this.inlineInputPart.inputEditor.onDidChangeModelContent(() => {
+          this.listWidget.scrollToCurrentItem(currentElement);
+        }));
+        this._register(this.inlineInputPart.inputEditor.onDidChangeCursorSelection((e) => {
+          this.listWidget.scrollToCurrentItem(currentElement);
+        }));
+      }
+    }
+    this.telemetryService.publicLog2("chat.startEditingRequests", {
+      editRequestType: this.configurationService.getValue("chat.editRequests")
+    });
+  }
+  finishedEditing(completedEdit) {
+    const editedRequest = this.listWidget.getTemplateDataForRequestId(this.viewModel?.editing?.id);
+    if (this.recentlyRestoredCheckpoint) {
+      this.recentlyRestoredCheckpoint = false;
+    } else {
+      this.viewModel?.model.setCheckpoint(void 0);
+    }
+    this.inputPart.dnd.setDisabledOverlay(false);
+    if (editedRequest?.contextKeyService) {
+      ChatContextKeys.currentlyEditing.bindTo(editedRequest.contextKeyService).set(false);
+    }
+    const isInput = this.configurationService.getValue("chat.editRequests") === "input";
+    if (!isInput) {
+      this.inputPart.setChatMode(this.input.currentModeObs.get().id);
+      const currentModel = this.input.selectedLanguageModel.get();
+      if (currentModel) {
+        this.inputPart.switchModel(currentModel.metadata);
+      }
+      this.inputPart?.toggleChatInputOverlay(false);
+      try {
+        if (editedRequest?.rowContainer?.contains(this.inputContainer)) {
+          editedRequest.rowContainer.removeChild(this.inputContainer);
+        } else if (this.inputContainer.parentElement) {
+          this.inputContainer.parentElement.removeChild(this.inputContainer);
+        }
+      } catch (e) {
+        this.logService.error("Error occurred while finishing editing:", e);
+      }
+      this.inputContainer = dom.$(".empty-chat-state");
+      this.input.dispose();
+    }
+    if (isInput) {
+      this.inputPart.element.classList.remove("editing");
+    }
+    this.viewModel?.setEditing(void 0);
+    this.inputPart?.setEditing(!!this.viewModel?.editing && isInput);
+    this.onDidChangeItems();
+    this.telemetryService.publicLog2("chat.editRequestsFinished", {
+      editRequestType: this.configurationService.getValue("chat.editRequests"),
+      editCanceled: !completedEdit
+    });
+    this.inputPart.focus();
+  }
+  getWidgetViewKindTag() {
+    if (!this.viewContext) {
+      return "editor";
+    } else if (isIChatViewViewContext(this.viewContext)) {
+      return "view";
+    } else {
+      return "quick";
+    }
+  }
+  createInput(container, options) {
+    const commonConfig = {
+      renderFollowups: options?.renderFollowups ?? true,
+      renderStyle: options?.renderStyle === "minimal" ? "compact" : options?.renderStyle,
+      renderInputToolbarBelowInput: options?.renderInputToolbarBelowInput ?? false,
+      menus: {
+        executeToolbar: MenuId.ChatExecute,
+        telemetrySource: "chatWidget",
+        ...this.viewOptions.menus
+      },
+      editorOverflowWidgetsDomNode: this.viewOptions.editorOverflowWidgetsDomNode,
+      enableImplicitContext: this.viewOptions.enableImplicitContext,
+      renderWorkingSet: this.viewOptions.enableWorkingSet === "explicit",
+      supportsChangingModes: this.viewOptions.supportsChangingModes,
+      dndContainer: this.viewOptions.dndContainer,
+      widgetViewKindTag: this.getWidgetViewKindTag(),
+      defaultMode: this.viewOptions.defaultMode,
+      sessionTypePickerDelegate: this.viewOptions.sessionTypePickerDelegate,
+      workspacePickerDelegate: this.viewOptions.workspacePickerDelegate
+    };
+    if (this.viewModel?.editing) {
+      const editedRequest = this.listWidget.getTemplateDataForRequestId(this.viewModel?.editing?.id);
+      const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, editedRequest?.contextKeyService])));
+      this.inlineInputPartDisposable.value = scopedInstantiationService.createInstance(ChatInputPart, this.location, commonConfig, this.styles, true);
+    } else {
+      this.inputPartDisposable.value = this.instantiationService.createInstance(ChatInputPart, this.location, commonConfig, this.styles, false);
+      this._register(autorun((reader) => {
+        this.inputPart.height.read(reader);
+        if (!this.listWidget) {
+          return;
+        }
+        if (this.bodyDimension) {
+          this.layout(this.bodyDimension.height, this.bodyDimension.width);
+        }
+        this._onDidChangeContentHeight.fire();
+      }));
+    }
+    this.input.render(container, "", this);
+    if (this.bodyDimension?.width) {
+      this.input.layout(this.bodyDimension.width);
+    }
+    this._register(this.input.onDidLoadInputState(() => {
+      this.refreshParsedInput();
+    }));
+    this._register(this.input.onDidFocus(() => this._onDidFocus.fire()));
+    this._register(this.input.onDidAcceptFollowup((e) => {
+      if (!this.viewModel) {
+        return;
+      }
+      let msg = "";
+      if (e.followup.agentId && e.followup.agentId !== this.chatAgentService.getDefaultAgent(this.location, this.input.currentModeKind)?.id) {
+        const agent = this.chatAgentService.getAgent(e.followup.agentId);
+        if (!agent) {
+          return;
+        }
+        this.lastSelectedAgent = agent;
+        msg = `${chatAgentLeader}${agent.name} `;
+        if (e.followup.subCommand) {
+          msg += `${chatSubcommandLeader}${e.followup.subCommand} `;
+        }
+      } else if (!e.followup.agentId && e.followup.subCommand && this.chatSlashCommandService.hasCommand(e.followup.subCommand)) {
+        msg = `${chatSubcommandLeader}${e.followup.subCommand} `;
+      }
+      msg += e.followup.message;
+      this.acceptInput(msg);
+      if (!e.response) {
+        return;
+      }
+      this.chatService.notifyUserAction({
+        sessionResource: this.viewModel.sessionResource,
+        requestId: e.response.requestId,
+        agentId: e.response.agent?.id,
+        command: e.response.slashCommand?.name,
+        result: e.response.result,
+        action: {
+          kind: "followUp",
+          followup: e.followup
+        }
+      });
+    }));
+    this._register(this.inputEditor.onDidChangeModelContent(() => {
+      this.parsedChatRequest = void 0;
+      this.updateChatInputContext();
+    }));
+    this._register(this.chatAgentService.onDidChangeAgents(() => {
+      this.parsedChatRequest = void 0;
+      this.renderWelcomeViewContentIfNeeded();
+    }));
+    this._register(this.input.onDidChangeCurrentChatMode(() => {
+      this.renderWelcomeViewContentIfNeeded();
+      this.refreshParsedInput();
+      this.renderFollowups();
+      this.renderChatSuggestNextWidget();
+    }));
+    this._register(autorun((r) => {
+      const toolSetIds = /* @__PURE__ */ new Set();
+      const toolIds = /* @__PURE__ */ new Set();
+      for (const [entry, enabled] of this.input.selectedToolsModel.entriesMap.read(r)) {
+        if (enabled) {
+          if (isToolSet(entry)) {
+            toolSetIds.add(entry.id);
+          } else {
+            toolIds.add(entry.id);
+          }
+        }
+      }
+      const disabledTools = this.input.attachmentModel.attachments.filter((a) => a.kind === "tool" && !toolIds.has(a.id) || a.kind === "toolset" && !toolSetIds.has(a.id)).map((a) => a.id);
+      this.input.attachmentModel.updateContext(disabledTools, Iterable.empty());
+      this.refreshParsedInput();
+    }));
+  }
+  onDidStyleChange() {
+    this.container.style.setProperty("--vscode-interactive-result-editor-background-color", this.editorOptions.configuration.resultEditor.backgroundColor?.toString() ?? "");
+    this.container.style.setProperty("--vscode-interactive-session-foreground", this.editorOptions.configuration.foreground?.toString() ?? "");
+    this.container.style.setProperty("--vscode-chat-list-background", this.themeService.getColorTheme().getColor(this.styles.listBackground)?.toString() ?? "");
+  }
+  setModel(model) {
+    if (!this.container) {
+      throw new Error("Call render() before setModel()");
+    }
+    if (!model) {
+      if (this.viewModel?.editing) {
+        this.finishedEditing();
+      }
+      this.viewModel = void 0;
+      this.onDidChangeItems();
+      this._hasPendingRequestsContextKey.set(false);
+      return;
+    }
+    if (isEqual(model.sessionResource, this.viewModel?.sessionResource)) {
+      return;
+    }
+    if (this.viewModel?.editing) {
+      this.finishedEditing();
+    }
+    this.inputPart.clearTodoListWidget(model.sessionResource, false);
+    this.chatSuggestNextWidget.hide();
+    this._codeBlockModelCollection.clear();
+    this.container.setAttribute("data-session-id", model.sessionId);
+    this.viewModel = this.instantiationService.createInstance(ChatViewModel, model, this._codeBlockModelCollection, void 0);
+    this.inputPart.setInputModel(model.inputModel, model.getRequests().length === 0);
+    this.listWidget.setViewModel(this.viewModel);
+    if (this._lockedAgent) {
+      let placeholder = this.chatSessionsService.getInputPlaceholderForSessionType(this._lockedAgent.id);
+      if (!placeholder) {
+        placeholder = localize("chat.input.placeholder.lockedToAgent", "Chat with {0}", this._lockedAgent.id);
+      }
+      this.viewModel.setInputPlaceholder(placeholder);
+      this.inputEditor.updateOptions({ placeholder });
+    } else if (this.viewModel.inputPlaceholder) {
+      this.inputEditor.updateOptions({ placeholder: this.viewModel.inputPlaceholder });
+    }
+    const renderImmediately = this.configurationService.getValue("chat.experimental.renderMarkdownImmediately");
+    const delay = renderImmediately ? MicrotaskDelay : 0;
+    this.viewModelDisposables.add(Event.runAndSubscribe(Event.accumulate(this.viewModel.onDidChange, delay), ((events) => {
+      if (!this.viewModel || this._store.isDisposed) {
+        return;
+      }
+      this.requestInProgress.set(this.viewModel.model.requestInProgress.get());
+      if (events?.some((e) => e?.kind === "changePlaceholder")) {
+        this.inputEditor.updateOptions({ placeholder: this.viewModel.inputPlaceholder });
+      }
+      this.onDidChangeItems();
+      if (events?.some((e) => e?.kind === "addRequest") && this.visible) {
+        this.listWidget.scrollToEnd();
+      }
+    })));
+    this.viewModelDisposables.add(this.viewModel.onDidDisposeModel(() => {
+      if (this.viewModel?.editing) {
+        this.finishedEditing();
+      }
+      this.viewModel = void 0;
+      this.onDidChangeItems();
+    }));
+    this._sessionIsEmptyContextKey.set(model.getRequests().length === 0);
+    const updatePendingRequestKeys = /* @__PURE__ */ __name(() => {
+      const pendingCount = model.getPendingRequests().length;
+      this._hasPendingRequestsContextKey.set(pendingCount > 0);
+    }, "updatePendingRequestKeys");
+    updatePendingRequestKeys();
+    this.viewModelDisposables.add(model.onDidChangePendingRequests(() => updatePendingRequestKeys()));
+    this.refreshParsedInput();
+    this.viewModelDisposables.add(model.onDidChange((e) => {
+      if (e.kind === "setAgent") {
+        this._onDidChangeAgent.fire({ agent: e.agent, slashCommand: e.command });
+        this._updateAgentCapabilitiesContextKeys(e.agent);
+      }
+      if (e.kind === "addRequest") {
+        this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource, false);
+        this._sessionIsEmptyContextKey.set(false);
+      }
+      if (e.kind === "removeRequest") {
+        this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource, true);
+        this.chatSuggestNextWidget.hide();
+        this._sessionIsEmptyContextKey.set((this.viewModel?.model.getRequests().length ?? 0) === 0);
+      }
+      if (e.kind === "completedRequest") {
+        const lastRequest = this.viewModel?.model.getRequests().at(-1);
+        const wasCancelled = lastRequest?.response?.isCanceled ?? false;
+        if (wasCancelled) {
+          this.inputPart.clearTodoListWidget(this.viewModel?.sessionResource, true);
+        }
+        this.renderChatSuggestNextWidget();
+        if (this.visible && this.viewModel?.sessionResource) {
+          this.agentSessionsService.getSession(this.viewModel.sessionResource)?.setRead(true);
+        }
+      }
+    }));
+    if (this.listWidget && this.visible) {
+      this.onDidChangeItems();
+      this.listWidget.scrollToEnd();
+    }
+    this.updateChatInputContext();
+    this.input.renderChatTodoListWidget(this.viewModel.sessionResource);
+  }
+  getFocus() {
+    return this.listWidget.getFocus()[0] ?? void 0;
+  }
+  reveal(item, relativeTop) {
+    this.listWidget.reveal(item, relativeTop);
+  }
+  focus(item) {
+    if (!this.listWidget.hasElement(item)) {
+      return;
+    }
+    this.listWidget.focusItem(item);
+  }
+  setInputPlaceholder(placeholder) {
+    this.viewModel?.setInputPlaceholder(placeholder);
+  }
+  resetInputPlaceholder() {
+    this.viewModel?.resetInputPlaceholder();
+  }
+  setInput(value = "") {
+    this.input.setValue(value, false);
+    this.refreshParsedInput();
+  }
+  getInput() {
+    return this.input.inputEditor.getValue();
+  }
+  getContrib(id) {
+    return this.contribs.find((c) => c.id === id);
+  }
+  // Coding agent locking methods
+  lockToCodingAgent(name, displayName, agentId) {
+    this._lockedAgent = {
+      id: agentId,
+      name,
+      prefix: `@${name} `,
+      displayName
+    };
+    this._lockedToCodingAgentContextKey.set(true);
+    this.renderWelcomeViewContentIfNeeded();
+    const agent = this.chatAgentService.getAgent(agentId);
+    this._updateAgentCapabilitiesContextKeys(agent);
+    this.listWidget?.updateRendererOptions({ restorable: false, editable: false, noFooter: true, progressMessageAtBottomOfResponse: true });
+    if (this.visible) {
+      this.listWidget?.rerender();
+    }
+  }
+  unlockFromCodingAgent() {
+    this._lockedAgent = void 0;
+    this._lockedToCodingAgentContextKey.set(false);
+    this._updateAgentCapabilitiesContextKeys(void 0);
+    this.renderWelcomeViewContentIfNeeded();
+    if (this.viewModel) {
+      this.viewModel.resetInputPlaceholder();
+    }
+    this.inputEditor?.updateOptions({ placeholder: void 0 });
+    this.listWidget?.updateRendererOptions({ restorable: true, editable: true, noFooter: false, progressMessageAtBottomOfResponse: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "progressMessageAtBottomOfResponse") });
+    if (this.visible) {
+      this.listWidget?.rerender();
+    }
+  }
+  get isLockedToCodingAgent() {
+    return !!this._lockedAgent;
+  }
+  get lockedAgentId() {
+    return this._lockedAgent?.id;
+  }
+  logInputHistory() {
+    this.input.logInputHistory();
+  }
+  async acceptInput(query, options) {
+    return this._acceptInput(query ? { query } : void 0, options);
+  }
+  async rerunLastRequest() {
+    if (!this.viewModel) {
+      return;
+    }
+    const sessionResource = this.viewModel.sessionResource;
+    const lastRequest = this.chatService.getSession(sessionResource)?.getRequests().at(-1);
+    if (!lastRequest) {
+      return;
+    }
+    const options = {
+      attempt: lastRequest.attempt + 1,
+      location: this.location,
+      userSelectedModelId: this.input.currentLanguageModel
+    };
+    return await this.chatService.resendRequest(lastRequest, options);
+  }
+  async _applyPromptFileIfSet(requestInput) {
+    const agentSlashPromptPart = this.parsedInput.parts.find((r) => r instanceof ChatRequestSlashPromptPart);
+    if (!agentSlashPromptPart) {
+      return;
+    }
+    const slashCommand = await this.promptsService.resolvePromptSlashCommand(agentSlashPromptPart.name, CancellationToken.None);
+    if (!slashCommand) {
+      return;
+    }
+    const parseResult = slashCommand.parsedPromptFile;
+    const refs = parseResult.body?.variableReferences.map(({ name, offset }) => ({ name, range: new OffsetRange(offset, offset + name.length + 1) })) ?? [];
+    const toolReferences = this.toolsService.toToolReferences(refs);
+    requestInput.attachedContext.insertFirst(toPromptFileVariableEntry(parseResult.uri, PromptFileVariableKind.PromptFile, void 0, true, toolReferences));
+    requestInput.input = this.parsedInput.parts.filter((part) => !(part instanceof ChatRequestSlashPromptPart)).map((part) => part.text).join("").trim();
+    const input = requestInput.input.trim();
+    requestInput.input = `Follow instructions in [${basename(parseResult.uri)}](${parseResult.uri.toString()}).`;
+    if (input) {
+      requestInput.input += `
+${input}`;
+    }
+    if (parseResult.header) {
+      await this._applyPromptMetadata(parseResult.header, requestInput);
+    }
+  }
+  async _acceptInput(query, options = {}) {
+    if (!query && this.input.generating) {
+      const generatingAutoSubmitWindow = 500;
+      const start = Date.now();
+      await this.input.generating;
+      if (Date.now() - start > generatingAutoSubmitWindow) {
+        return;
+      }
+    }
+    while (!this._viewModel && !this._store.isDisposed) {
+      await Event.toPromise(this.onDidChangeViewModel, this._store);
+    }
+    if (!this.viewModel) {
+      return;
+    }
+    if (this.viewOptions.submitHandler) {
+      const inputValue = !query ? this.getInput() : query.query;
+      const handled = await this.viewOptions.submitHandler(inputValue, this.input.currentModeKind);
+      if (handled) {
+        return;
+      }
+    }
+    this._onDidAcceptInput.fire();
+    this.listWidget.setScrollLock(this.isLockedToCodingAgent || !!checkModeOption(this.input.currentModeKind, this.viewOptions.autoScroll));
+    const editorValue = this.getInput();
+    const requestInputs = {
+      input: !query ? editorValue : query.query,
+      attachedContext: options?.enableImplicitContext === false ? this.input.getAttachedContext(this.viewModel.sessionResource) : this.input.getAttachedAndImplicitContext(this.viewModel.sessionResource)
+    };
+    const isUserQuery = !query;
+    if (this.viewModel?.editing) {
+      const editingPendingRequest = this.viewModel.editing.pendingKind;
+      if (editingPendingRequest !== void 0) {
+        const editingRequestId = this.viewModel.editing.id;
+        this.chatService.removePendingRequest(this.viewModel.sessionResource, editingRequestId);
+        options.queue ??= editingPendingRequest;
+      }
+      this.finishedEditing(true);
+      this.viewModel.model?.setCheckpoint(void 0);
+    }
+    const model = this.viewModel.model;
+    const requestInProgress = model.requestInProgress.get();
+    if (requestInProgress) {
+      options.queue ??= "queued";
+    }
+    if (!requestInProgress && !await this.confirmPendingRequestsBeforeSend(model, options)) {
+      return;
+    }
+    await this._applyPromptFileIfSet(requestInputs);
+    await this._autoAttachInstructions(requestInputs);
+    if (this.viewOptions.enableWorkingSet !== void 0 && this.input.currentModeKind === ChatModeKind.Edit && !this.chatService.edits2Enabled) {
+      const uniqueWorkingSetEntries = new ResourceSet();
+      const editingSessionAttachedContext = requestInputs.attachedContext;
+      const previousRequests = this.viewModel.model.getRequests();
+      for (const request of previousRequests) {
+        for (const variable of request.variableData.variables) {
+          if (URI.isUri(variable.value) && variable.kind === "file") {
+            const uri = variable.value;
+            if (!uniqueWorkingSetEntries.has(uri)) {
+              editingSessionAttachedContext.add(variable);
+              uniqueWorkingSetEntries.add(variable.value);
+            }
+          }
+        }
+      }
+      requestInputs.attachedContext = editingSessionAttachedContext;
+      this.telemetryService.publicLog2("chatEditing/workingSetSize", { originalSize: uniqueWorkingSetEntries.size, actualSize: uniqueWorkingSetEntries.size });
+    }
+    this.input.validateAgentMode();
+    if (this.viewModel.model.checkpoint) {
+      const requests = this.viewModel.model.getRequests();
+      for (let i = requests.length - 1; i >= 0; i -= 1) {
+        const request = requests[i];
+        if (request.shouldBeBlocked) {
+          this.chatService.removeRequest(this.viewModel.sessionResource, request.id);
+        }
+      }
+    }
+    if (this.viewModel.sessionResource && !options.queue) {
+      this.chatAccessibilityService.acceptRequest(this._viewModel.sessionResource);
+    }
+    const result = await this.chatService.sendRequest(this.viewModel.sessionResource, requestInputs.input, {
+      userSelectedModelId: this.input.currentLanguageModel,
+      location: this.location,
+      locationData: this._location.resolveData?.(),
+      parserContext: { selectedAgent: this._lastSelectedAgent, mode: this.input.currentModeKind },
+      attachedContext: requestInputs.attachedContext.asArray(),
+      noCommandDetection: options?.noCommandDetection,
+      ...this.getModeRequestOptions(),
+      modeInfo: this.input.currentModeInfo,
+      agentIdSilent: this._lockedAgent?.id,
+      queue: options?.queue
+    });
+    if (this.viewModel.sessionResource && !options.queue) {
+      this.chatAccessibilityService.disposeRequest(this.viewModel.sessionResource);
+    }
+    if (ChatSendResult.isRejected(result)) {
+      return;
+    }
+    this.updateChatViewVisibility();
+    this.input.acceptInput(options?.storeToHistory ?? isUserQuery);
+    const sent = ChatSendResult.isQueued(result) ? await result.deferred : result;
+    if (!ChatSendResult.isSent(sent)) {
+      return;
+    }
+    this._onDidSubmitAgent.fire({ agent: sent.data.agent, slashCommand: sent.data.slashCommand });
+    this.handleDelegationExitIfNeeded(this._lockedAgent, sent.data.agent);
+    sent.data.responseCompletePromise.then(() => {
+      const responses = this.viewModel?.getItems().filter(isResponseVM);
+      const lastResponse = responses?.[responses.length - 1];
+      this.chatAccessibilityService.acceptResponse(this, this.container, lastResponse, this.viewModel?.sessionResource, options?.isVoiceInput);
+      if (lastResponse?.result?.nextQuestion) {
+        const { prompt, participant, command } = lastResponse.result.nextQuestion;
+        const question = formatChatQuestion(this.chatAgentService, this.location, prompt, participant, command);
+        if (question) {
+          this.input.setValue(question, false);
+        }
+      }
+    });
+    return sent.data.responseCreatedPromise;
+  }
+  async confirmPendingRequestsBeforeSend(model, options) {
+    if (options.queue) {
+      return true;
+    }
+    const hasPendingRequests = model.getPendingRequests().length > 0;
+    if (!hasPendingRequests) {
+      return true;
+    }
+    const promptResult = await this.dialogService.prompt({
+      type: "question",
+      message: localize("chat.pendingRequests.prompt.message", "You already have pending requests."),
+      detail: localize("chat.pendingRequests.prompt.detail", "Do you want to keep them in the queue or remove them before sending this message?"),
+      buttons: [
+        {
+          label: localize("chat.pendingRequests.prompt.keep", "Keep Pending Requests"),
+          run: /* @__PURE__ */ __name(() => "keep", "run")
+        },
+        {
+          label: localize("chat.pendingRequests.prompt.remove", "Remove Pending Requests"),
+          run: /* @__PURE__ */ __name(() => "remove", "run")
+        }
+      ],
+      cancelButton: true
+    });
+    if (!promptResult.result) {
+      return false;
+    }
+    if (promptResult.result === "remove") {
+      for (const pendingRequest of [...model.getPendingRequests()]) {
+        this.chatService.removePendingRequest(model.sessionResource, pendingRequest.request.id);
+      }
+    }
+    return true;
+  }
+  getModeRequestOptions() {
+    return {
+      modeInfo: this.input.currentModeInfo,
+      userSelectedTools: this.input.selectedToolsModel.userSelectedTools
+    };
+  }
+  getCodeBlockInfosForResponse(response) {
+    return this.listWidget.getCodeBlockInfosForResponse(response);
+  }
+  getCodeBlockInfoForEditor(uri) {
+    return this.listWidget.getCodeBlockInfoForEditor(uri);
+  }
+  getFileTreeInfosForResponse(response) {
+    return this.listWidget.getFileTreeInfosForResponse(response);
+  }
+  getLastFocusedFileTreeForResponse(response) {
+    return this.listWidget.getLastFocusedFileTreeForResponse(response);
+  }
+  focusResponseItem(lastFocused) {
+    this.listWidget.focusLastItem(lastFocused);
+  }
+  layout(height, width) {
+    width = Math.min(width, this.viewOptions.renderStyle === "minimal" ? width : 950);
+    this.bodyDimension = new dom.Dimension(width, height);
+    if (this.viewModel?.editing) {
+      this.inlineInputPart?.layout(width);
+    }
+    this.inputPart.layout(width);
+    const inputHeight = this.inputPart.height.get();
+    const chatSuggestNextWidgetHeight = this.chatSuggestNextWidget.height;
+    const lastElementVisible = this.listWidget.isScrolledToBottom;
+    const lastItem = this.listWidget.lastItem;
+    const contentHeight = Math.max(0, height - inputHeight - chatSuggestNextWidgetHeight);
+    this.listWidget.layout(contentHeight, width);
+    this.welcomeMessageContainer.style.height = `${contentHeight}px`;
+    const lastResponseIsRendering = isResponseVM(lastItem) && lastItem.renderData;
+    if (lastElementVisible && (!lastResponseIsRendering || checkModeOption(this.input.currentModeKind, this.viewOptions.autoScroll))) {
+      this.listWidget.scrollToEnd();
+    }
+    this.listContainer.style.height = `${contentHeight}px`;
+    this._onDidChangeHeight.fire(height);
+  }
+  // An alternative to layout, this allows you to specify the number of ChatTreeItems
+  // you want to show, and the max height of the container. It will then layout the
+  // tree to show that many items.
+  // TODO@TylerLeonhardt: This could use some refactoring to make it clear which layout strategy is being used
+  setDynamicChatTreeItemLayout(numOfChatTreeItems, maxHeight) {
+    this._dynamicMessageLayoutData = { numOfMessages: numOfChatTreeItems, maxHeight, enabled: true };
+    this._register(this.listWidget.onDidChangeItemHeight(() => this.layoutDynamicChatTreeItemMode()));
+    const mutableDisposable = this._register(new MutableDisposable());
+    this._register(this.listWidget.onDidScroll((e) => {
+      if (!this._dynamicMessageLayoutData?.enabled) {
+        return;
+      }
+      mutableDisposable.value = dom.scheduleAtNextAnimationFrame(dom.getWindow(this.listContainer), () => {
+        if (!e.scrollTopChanged || e.heightChanged || e.scrollHeightChanged) {
+          return;
+        }
+        const renderHeight = e.height;
+        const diff = e.scrollHeight - renderHeight - e.scrollTop;
+        if (diff === 0) {
+          return;
+        }
+        const possibleMaxHeight = this._dynamicMessageLayoutData?.maxHeight ?? maxHeight;
+        const width = this.bodyDimension?.width ?? this.container.offsetWidth;
+        this.input.layout(width);
+        const inputPartHeight = this.input.height.get();
+        const chatSuggestNextWidgetHeight = this.chatSuggestNextWidget.height;
+        const newHeight = Math.min(renderHeight + diff, possibleMaxHeight - inputPartHeight - chatSuggestNextWidgetHeight);
+        this.layout(newHeight + inputPartHeight + chatSuggestNextWidgetHeight, width);
+      });
+    }));
+  }
+  updateDynamicChatTreeItemLayout(numOfChatTreeItems, maxHeight) {
+    this._dynamicMessageLayoutData = { numOfMessages: numOfChatTreeItems, maxHeight, enabled: true };
+    let hasChanged = false;
+    let height = this.bodyDimension.height;
+    let width = this.bodyDimension.width;
+    if (maxHeight < this.bodyDimension.height) {
+      height = maxHeight;
+      hasChanged = true;
+    }
+    const containerWidth = this.container.offsetWidth;
+    if (this.bodyDimension?.width !== containerWidth) {
+      width = containerWidth;
+      hasChanged = true;
+    }
+    if (hasChanged) {
+      this.layout(height, width);
+    }
+  }
+  get isDynamicChatTreeItemLayoutEnabled() {
+    return this._dynamicMessageLayoutData?.enabled ?? false;
+  }
+  set isDynamicChatTreeItemLayoutEnabled(value) {
+    if (!this._dynamicMessageLayoutData) {
+      return;
+    }
+    this._dynamicMessageLayoutData.enabled = value;
+  }
+  layoutDynamicChatTreeItemMode() {
+    if (!this.viewModel || !this._dynamicMessageLayoutData?.enabled) {
+      return;
+    }
+    const width = this.bodyDimension?.width ?? this.container.offsetWidth;
+    this.input.layout(width);
+    const inputHeight = this.input.height.get();
+    const chatSuggestNextWidgetHeight = this.chatSuggestNextWidget.height;
+    const totalMessages = this.viewModel.getItems();
+    const messages = totalMessages.slice(-this._dynamicMessageLayoutData.numOfMessages);
+    const needsRerender = messages.some((m) => m.currentRenderedHeight === void 0);
+    const listHeight = needsRerender ? this._dynamicMessageLayoutData.maxHeight : messages.reduce((acc, message) => acc + message.currentRenderedHeight, 0);
+    this.layout(Math.min(
+      // we add an additional 18px in order to show that there is scrollable content
+      inputHeight + chatSuggestNextWidgetHeight + listHeight + (totalMessages.length > 2 ? 18 : 0),
+      this._dynamicMessageLayoutData.maxHeight
+    ), width);
+    if (needsRerender || !listHeight) {
+      this.listWidget.scrollToEnd();
+    }
+  }
+  saveState() {
+  }
+  getViewState() {
+    return this.input.getCurrentInputState();
+  }
+  updateChatInputContext() {
+    const currentAgent = this.parsedInput.parts.find((part) => part instanceof ChatRequestAgentPart);
+    this.agentInInput.set(!!currentAgent);
+  }
+  async _switchToAgentByName(agentName) {
+    const currentAgent = this.input.currentModeObs.get();
+    if (agentName !== currentAgent.name.get()) {
+      const agent = this.chatModeService.findModeByName(agentName);
+      if (agent) {
+        if (currentAgent.kind !== agent.kind) {
+          const chatModeCheck = await this.instantiationService.invokeFunction(handleModeSwitch, currentAgent.kind, agent.kind, this.viewModel?.model.getRequests().length ?? 0, this.viewModel?.model);
+          if (!chatModeCheck) {
+            return;
+          }
+          if (chatModeCheck.needToClearSession) {
+            await this.clear();
+          }
+        }
+        this.input.setChatMode(agent.id);
+      }
+    }
+  }
+  async _applyPromptMetadata({ agent, tools, model }, requestInput) {
+    if (tools !== void 0 && !agent && this.input.currentModeKind !== ChatModeKind.Agent) {
+      agent = ChatMode.Agent.name.get();
+    }
+    if (agent) {
+      this._switchToAgentByName(agent);
+    }
+    if (tools !== void 0 && this.input.currentModeKind === ChatModeKind.Agent) {
+      const enablementMap = this.toolsService.toToolAndToolSetEnablementMap(tools, Target.VSCode, this.input.selectedLanguageModel.get()?.metadata);
+      this.input.selectedToolsModel.set(enablementMap, true);
+    }
+    if (model !== void 0) {
+      this.input.switchModelByQualifiedName(model);
+    }
+  }
+  /**
+   * Adds additional instructions to the context
+   * - instructions that have a 'applyTo' pattern that matches the current input
+   * - instructions referenced in the copilot settings 'copilot-instructions'
+   * - instructions referenced in an already included instruction file
+   */
+  async _autoAttachInstructions({ attachedContext }) {
+    this.logService.debug(`ChatWidget#_autoAttachInstructions: prompt files are always enabled`);
+    const enabledTools = this.input.currentModeKind === ChatModeKind.Agent ? this.input.selectedToolsModel.userSelectedTools.get() : void 0;
+    const enabledSubAgents = this.input.currentModeKind === ChatModeKind.Agent ? this.input.currentModeObs.get().agents?.get() : void 0;
+    const computer = this.instantiationService.createInstance(ComputeAutomaticInstructions, this.input.currentModeKind, enabledTools, enabledSubAgents);
+    await computer.collect(attachedContext, CancellationToken.None);
+  }
+  delegateScrollFromMouseWheelEvent(browserEvent) {
+    this.listWidget.delegateScrollFromMouseWheelEvent(browserEvent);
+  }
+};
+ChatWidget = ChatWidget_1 = __decorate([
+  __param(4, ICodeEditorService),
+  __param(5, IEditorService),
+  __param(6, IConfigurationService),
+  __param(7, IDialogService),
+  __param(8, IContextKeyService),
+  __param(9, IInstantiationService),
+  __param(10, IChatService),
+  __param(11, IChatAgentService),
+  __param(12, IChatWidgetService),
+  __param(13, IChatAccessibilityService),
+  __param(14, ILogService),
+  __param(15, IThemeService),
+  __param(16, IChatSlashCommandService),
+  __param(17, IChatEditingService),
+  __param(18, ITelemetryService),
+  __param(19, IPromptsService),
+  __param(20, ILanguageModelToolsService),
+  __param(21, IChatModeService),
+  __param(22, IChatLayoutService),
+  __param(23, IChatEntitlementService),
+  __param(24, IChatSessionsService),
+  __param(25, IAgentSessionsService),
+  __param(26, IChatTodoListService),
+  __param(27, IWorkspaceContextService),
+  __param(28, ILifecycleService)
+], ChatWidget);
+export {
+  ChatWidget,
+  isQuickChat
+};
+//# sourceMappingURL=chatWidget.js.map

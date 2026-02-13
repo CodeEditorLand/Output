@@ -1,1 +1,59 @@
-import{shell as l}from"electron";import{localize as i}from"../../../nls.js";import{$m as p}from"../../../base/common/platform.js";import{URI as u}from"../../../base/common/uri.js";import{$Kk as a,FileSystemProviderErrorCode as c}from"../common/files.js";import{$ab as m,$7 as $}from"../../../base/common/path.js";import{$Zx as w,$1x as x}from"../node/diskFileSystemProviderServer.js";import{$Vx as v}from"../../../base/common/uriIpc.js";import{$Lm as n}from"../../../base/common/errorMessage.js";class S extends w{constructor(r,e,t){super(r,e),this.N=t}c(r){return v}f(r,e){return u.revive(e)}async y(r,e,t){if(!t.useTrash)return super.y(r,e,t);const h=this.f(r,e),o=$(h.fsPath);try{await l.trashItem(o)}catch(s){throw a(p?i(2126,null,m(o),n(s)):i(2127,null,m(o),n(s)),c.Unknown)}}M(r,e){return new d(r,e,this.b,this.N)}}class d extends x{watch(r,e,t){if(t.recursive)throw a("Recursive file watching is not supported from main process for performance reasons.",c.Unavailable);return super.watch(r,e,t)}}export{S as $2x};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { shell } from "electron";
+import { localize } from "../../../nls.js";
+import { isWindows } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { createFileSystemProviderError, FileSystemProviderErrorCode } from "../common/files.js";
+import { basename, normalize } from "../../../base/common/path.js";
+import { AbstractDiskFileSystemProviderChannel, AbstractSessionFileWatcher } from "../node/diskFileSystemProviderServer.js";
+import { DefaultURITransformer } from "../../../base/common/uriIpc.js";
+import { toErrorMessage } from "../../../base/common/errorMessage.js";
+class DiskFileSystemProviderChannel extends AbstractDiskFileSystemProviderChannel {
+  static {
+    __name(this, "DiskFileSystemProviderChannel");
+  }
+  constructor(provider, logService, environmentService) {
+    super(provider, logService);
+    this.environmentService = environmentService;
+  }
+  getUriTransformer(ctx) {
+    return DefaultURITransformer;
+  }
+  transformIncoming(uriTransformer, _resource) {
+    return URI.revive(_resource);
+  }
+  //#region Delete: override to support Electron's trash support
+  async delete(uriTransformer, _resource, opts) {
+    if (!opts.useTrash) {
+      return super.delete(uriTransformer, _resource, opts);
+    }
+    const resource = this.transformIncoming(uriTransformer, _resource);
+    const filePath = normalize(resource.fsPath);
+    try {
+      await shell.trashItem(filePath);
+    } catch (error) {
+      throw createFileSystemProviderError(isWindows ? localize("binFailed", "Failed to move '{0}' to the recycle bin ({1})", basename(filePath), toErrorMessage(error)) : localize("trashFailed", "Failed to move '{0}' to the trash ({1})", basename(filePath), toErrorMessage(error)), FileSystemProviderErrorCode.Unknown);
+    }
+  }
+  //#endregion
+  //#region File Watching
+  createSessionFileWatcher(uriTransformer, emitter) {
+    return new SessionFileWatcher(uriTransformer, emitter, this.logService, this.environmentService);
+  }
+}
+class SessionFileWatcher extends AbstractSessionFileWatcher {
+  static {
+    __name(this, "SessionFileWatcher");
+  }
+  watch(req, resource, opts) {
+    if (opts.recursive) {
+      throw createFileSystemProviderError("Recursive file watching is not supported from main process for performance reasons.", FileSystemProviderErrorCode.Unavailable);
+    }
+    return super.watch(req, resource, opts);
+  }
+}
+export {
+  DiskFileSystemProviderChannel
+};
+//# sourceMappingURL=diskFileSystemProviderServer.js.map

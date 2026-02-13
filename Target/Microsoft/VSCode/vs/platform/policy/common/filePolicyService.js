@@ -1,1 +1,84 @@
-import{$7h as l}from"../../../base/common/async.js";import{Event as p}from"../../../base/common/event.js";import{Iterable as u}from"../../../base/common/iterator.js";import{$9c as m}from"../../../base/common/types.js";import{$vk as y}from"../../files/common/files.js";import{$yo as w}from"../../log/common/log.js";import{$Cu as d}from"./policy.js";var a=function(s,i,t,e){var o=arguments.length,r=o<3?i:e===null?e=Object.getOwnPropertyDescriptor(i,t):e,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(s,i,t,e);else for(var c=s.length-1;c>=0;c--)(n=s[c])&&(r=(o<3?n(r):o>3?n(i,t,r):n(i,t))||r);return o>3&&r&&Object.defineProperty(i,t,r),r},f=function(s,i){return function(t,e){i(t,e,s)}};function g(s,i){const t=[];for(const e of new Set(u.concat(s.keys(),i.keys())))s.get(e)!==i.get(e)&&t.push(e);return t}let h=class extends d{constructor(i,t,e){super(),this.j=i,this.m=t,this.n=e,this.c=this.D(new l(500));const o=p.filter(t.onDidFilesChange,r=>r.affects(i));this.D(t.watch(i)),this.D(o(()=>this.c.trigger(()=>this.t())))}async h(){await this.t()}async s(){const i=new Map;try{const t=await this.m.readFile(this.j),e=JSON.parse(t.value.toString());if(!m(e))throw new Error("Policy file isn't a JSON object");for(const o of Object.keys(e))this.policyDefinitions[o]&&i.set(o,e[o])}catch(t){t.fileOperationResult!==1&&this.n.error("[FilePolicyService] Failed to read policies",t)}return i}async t(){const i=await this.s(),t=g(this.f,i);this.f=i,t.length>0&&this.g.fire(t)}};h=a([f(1,y),f(2,w)],h);export{h as $VC};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ThrottledDelayer } from "../../../base/common/async.js";
+import { Event } from "../../../base/common/event.js";
+import { Iterable } from "../../../base/common/iterator.js";
+import { isObject } from "../../../base/common/types.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { AbstractPolicyService } from "./policy.js";
+function keysDiff(a, b) {
+  const result = [];
+  for (const key of new Set(Iterable.concat(a.keys(), b.keys()))) {
+    if (a.get(key) !== b.get(key)) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+__name(keysDiff, "keysDiff");
+let FilePolicyService = class FilePolicyService2 extends AbstractPolicyService {
+  static {
+    __name(this, "FilePolicyService");
+  }
+  constructor(file, fileService, logService) {
+    super();
+    this.file = file;
+    this.fileService = fileService;
+    this.logService = logService;
+    this.throttledDelayer = this._register(new ThrottledDelayer(500));
+    const onDidChangePolicyFile = Event.filter(fileService.onDidFilesChange, (e) => e.affects(file));
+    this._register(fileService.watch(file));
+    this._register(onDidChangePolicyFile(() => this.throttledDelayer.trigger(() => this.refresh())));
+  }
+  async _updatePolicyDefinitions() {
+    await this.refresh();
+  }
+  async read() {
+    const policies = /* @__PURE__ */ new Map();
+    try {
+      const content = await this.fileService.readFile(this.file);
+      const raw = JSON.parse(content.value.toString());
+      if (!isObject(raw)) {
+        throw new Error("Policy file isn't a JSON object");
+      }
+      for (const key of Object.keys(raw)) {
+        if (this.policyDefinitions[key]) {
+          policies.set(key, raw[key]);
+        }
+      }
+    } catch (error) {
+      if (error.fileOperationResult !== 1) {
+        this.logService.error(`[FilePolicyService] Failed to read policies`, error);
+      }
+    }
+    return policies;
+  }
+  async refresh() {
+    const policies = await this.read();
+    const diff = keysDiff(this.policies, policies);
+    this.policies = policies;
+    if (diff.length > 0) {
+      this._onDidChange.fire(diff);
+    }
+  }
+};
+FilePolicyService = __decorate([
+  __param(1, IFileService),
+  __param(2, ILogService)
+], FilePolicyService);
+export {
+  FilePolicyService
+};
+//# sourceMappingURL=filePolicyService.js.map

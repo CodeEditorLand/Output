@@ -1,1 +1,48 @@
-import{$Nj as s}from"../../../../platform/instantiation/common/instantiation.js";const m="workbench.view.scm",x="workbench.scm",v="workbench.scm.repositories",f="workbench.scm.history";var o;(function(r){r.List="list",r.Tree="tree"})(o||(o={}));const $=s("scm");var t;(function(r){r[r.Error=0]="Error",r[r.Warning=1]="Warning",r[r.Information=2]="Information"})(t||(t={}));var e;(function(r){r[r.HistoryPrevious=0]="HistoryPrevious",r[r.HistoryNext=1]="HistoryNext"})(e||(e={}));var c;(function(r){r.DiscoveryTime="discoveryTime",r.Name="name",r.Path="path"})(c||(c={}));var i;(function(r){r.Single="single",r.Multiple="multiple"})(i||(i={}));const w=s("scmView");export{m as $iR,x as $jR,v as $kR,f as $lR,$ as $mR,w as $nR,i as ISCMRepositorySelectionMode,c as ISCMRepositorySortKey,t as InputValidationType,e as SCMInputChangeReason,o as ViewMode};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const VIEWLET_ID = "workbench.view.scm";
+const VIEW_PANE_ID = "workbench.scm";
+const REPOSITORIES_VIEW_PANE_ID = "workbench.scm.repositories";
+const HISTORY_VIEW_PANE_ID = "workbench.scm.history";
+var ViewMode;
+(function(ViewMode2) {
+  ViewMode2["List"] = "list";
+  ViewMode2["Tree"] = "tree";
+})(ViewMode || (ViewMode = {}));
+const ISCMService = createDecorator("scm");
+var InputValidationType;
+(function(InputValidationType2) {
+  InputValidationType2[InputValidationType2["Error"] = 0] = "Error";
+  InputValidationType2[InputValidationType2["Warning"] = 1] = "Warning";
+  InputValidationType2[InputValidationType2["Information"] = 2] = "Information";
+})(InputValidationType || (InputValidationType = {}));
+var SCMInputChangeReason;
+(function(SCMInputChangeReason2) {
+  SCMInputChangeReason2[SCMInputChangeReason2["HistoryPrevious"] = 0] = "HistoryPrevious";
+  SCMInputChangeReason2[SCMInputChangeReason2["HistoryNext"] = 1] = "HistoryNext";
+})(SCMInputChangeReason || (SCMInputChangeReason = {}));
+var ISCMRepositorySortKey;
+(function(ISCMRepositorySortKey2) {
+  ISCMRepositorySortKey2["DiscoveryTime"] = "discoveryTime";
+  ISCMRepositorySortKey2["Name"] = "name";
+  ISCMRepositorySortKey2["Path"] = "path";
+})(ISCMRepositorySortKey || (ISCMRepositorySortKey = {}));
+var ISCMRepositorySelectionMode;
+(function(ISCMRepositorySelectionMode2) {
+  ISCMRepositorySelectionMode2["Single"] = "single";
+  ISCMRepositorySelectionMode2["Multiple"] = "multiple";
+})(ISCMRepositorySelectionMode || (ISCMRepositorySelectionMode = {}));
+const ISCMViewService = createDecorator("scmView");
+export {
+  HISTORY_VIEW_PANE_ID,
+  ISCMRepositorySelectionMode,
+  ISCMRepositorySortKey,
+  ISCMService,
+  ISCMViewService,
+  InputValidationType,
+  REPOSITORIES_VIEW_PANE_ID,
+  SCMInputChangeReason,
+  VIEWLET_ID,
+  VIEW_PANE_ID,
+  ViewMode
+};
+//# sourceMappingURL=scm.js.map

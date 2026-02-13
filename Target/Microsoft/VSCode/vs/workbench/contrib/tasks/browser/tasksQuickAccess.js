@@ -1,1 +1,121 @@
-import{localize as $}from"../../../../nls.js";import{$YH as d}from"../../../../platform/quickinput/common/quickInput.js";import{$yvb as v,TriggerAction as R}from"../../../../platform/quickinput/browser/pickerQuickAccess.js";import{$Zj as y}from"../../../../base/common/filters.js";import{$NR as _}from"../../../services/extensions/common/extensions.js";import{$R9b as E}from"../common/taskService.js";import{$qX as k,$sX as w,$rX as I}from"../common/tasks.js";import{$GGc as j}from"./taskQuickPick.js";import{$0l as q}from"../../../../platform/configuration/common/configuration.js";import{$6c as b}from"../../../../base/common/types.js";import{$pH as C}from"../../../../platform/notification/common/notification.js";import{$Mp as G}from"../../../../platform/dialogs/common/dialogs.js";import{$qu as X}from"../../../../platform/theme/common/themeService.js";import{$hp as O}from"../../../../platform/storage/common/storage.js";var P=function(h,t,s,r){var c=arguments.length,e=c<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,s):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(h,t,s,r);else for(var i=h.length-1;i>=0;i--)(o=h[i])&&(e=(c<3?o(e):c>3?o(t,s,e):o(t,s))||e);return c>3&&e&&Object.defineProperty(t,s,e),e},a=function(h,t){return function(s,r){t(s,r,h)}},u;let g=class extends v{static{u=this}static{this.PREFIX="task "}constructor(t,s,r,c,e,o,i,l){super(u.PREFIX,{noResultsPick:{label:$(12893,null)}}),this.a=s,this.b=r,this.h=c,this.j=e,this.m=o,this.n=i,this.q=l}async g(t,s,r){if(r.isCancellationRequested)return[];const c=new j(this.a,this.b,this.h,this.j,this.n,this.m,this.q),e=await c.getTopLevelEntries(),o=[];for(const i of e.entries){const l=y(t,i.label);if(!l)continue;i.type==="separator"&&o.push(i);const n=i.task,f=i;f.highlights={label:l},f.trigger=m=>{if(m===1&&f.buttons?.length===2){const p=n&&!b(n)?n.getKey():void 0;return p&&this.a.removeRecentlyUsedTask(p),R.REFRESH_PICKER}else return w.is(n)?this.a.customize(n,void 0,!0):k.is(n)&&this.a.openConfig(n),R.CLOSE_PICKER},f.accept=async()=>{if(b(n)){const m=await c.show($(12894,null),void 0,n);m&&this.a.run(m,{attachProblemMatcher:!0})}else this.a.run(await this.s(n),{attachProblemMatcher:!0})},o.push(f)}return o}async s(t){return I.is(t)?this.a.tryResolveTask(t):t}};g=u=P([a(0,_),a(1,E),a(2,q),a(3,d),a(4,C),a(5,G),a(6,X),a(7,O)],g);export{g as $IGc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TasksQuickAccessProvider_1;
+import { localize } from "../../../../nls.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { PickerQuickAccessProvider, TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { ITaskService } from "../common/taskService.js";
+import { CustomTask, ContributedTask, ConfiguringTask } from "../common/tasks.js";
+import { TaskQuickPick } from "./taskQuickPick.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { isString } from "../../../../base/common/types.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+let TasksQuickAccessProvider = class TasksQuickAccessProvider2 extends PickerQuickAccessProvider {
+  static {
+    __name(this, "TasksQuickAccessProvider");
+  }
+  static {
+    TasksQuickAccessProvider_1 = this;
+  }
+  static {
+    this.PREFIX = "task ";
+  }
+  constructor(extensionService, _taskService, _configurationService, _quickInputService, _notificationService, _dialogService, _themeService, _storageService) {
+    super(TasksQuickAccessProvider_1.PREFIX, {
+      noResultsPick: {
+        label: localize("noTaskResults", "No matching tasks")
+      }
+    });
+    this._taskService = _taskService;
+    this._configurationService = _configurationService;
+    this._quickInputService = _quickInputService;
+    this._notificationService = _notificationService;
+    this._dialogService = _dialogService;
+    this._themeService = _themeService;
+    this._storageService = _storageService;
+  }
+  async _getPicks(filter, disposables, token) {
+    if (token.isCancellationRequested) {
+      return [];
+    }
+    const taskQuickPick = new TaskQuickPick(this._taskService, this._configurationService, this._quickInputService, this._notificationService, this._themeService, this._dialogService, this._storageService);
+    const topLevelPicks = await taskQuickPick.getTopLevelEntries();
+    const taskPicks = [];
+    for (const entry of topLevelPicks.entries) {
+      const highlights = matchesFuzzy(filter, entry.label);
+      if (!highlights) {
+        continue;
+      }
+      if (entry.type === "separator") {
+        taskPicks.push(entry);
+      }
+      const task = entry.task;
+      const quickAccessEntry = entry;
+      quickAccessEntry.highlights = { label: highlights };
+      quickAccessEntry.trigger = (index) => {
+        if (index === 1 && quickAccessEntry.buttons?.length === 2) {
+          const key = task && !isString(task) ? task.getKey() : void 0;
+          if (key) {
+            this._taskService.removeRecentlyUsedTask(key);
+          }
+          return TriggerAction.REFRESH_PICKER;
+        } else {
+          if (ContributedTask.is(task)) {
+            this._taskService.customize(task, void 0, true);
+          } else if (CustomTask.is(task)) {
+            this._taskService.openConfig(task);
+          }
+          return TriggerAction.CLOSE_PICKER;
+        }
+      };
+      quickAccessEntry.accept = async () => {
+        if (isString(task)) {
+          const showResult = await taskQuickPick.show(localize("TaskService.pickRunTask", "Select the task to run"), void 0, task);
+          if (showResult) {
+            this._taskService.run(showResult, { attachProblemMatcher: true });
+          }
+        } else {
+          this._taskService.run(await this._toTask(task), { attachProblemMatcher: true });
+        }
+      };
+      taskPicks.push(quickAccessEntry);
+    }
+    return taskPicks;
+  }
+  async _toTask(task) {
+    if (!ConfiguringTask.is(task)) {
+      return task;
+    }
+    return this._taskService.tryResolveTask(task);
+  }
+};
+TasksQuickAccessProvider = TasksQuickAccessProvider_1 = __decorate([
+  __param(0, IExtensionService),
+  __param(1, ITaskService),
+  __param(2, IConfigurationService),
+  __param(3, IQuickInputService),
+  __param(4, INotificationService),
+  __param(5, IDialogService),
+  __param(6, IThemeService),
+  __param(7, IStorageService)
+], TasksQuickAccessProvider);
+export {
+  TasksQuickAccessProvider
+};
+//# sourceMappingURL=tasksQuickAccess.js.map

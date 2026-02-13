@@ -1,1 +1,111 @@
-import{$ui as f}from"../../../base/common/async.js";import*as u from"../../../base/common/errors.js";import{$xf as m}from"../../../base/common/event.js";import{$Ed as b}from"../../../base/common/lifecycle.js";import{$mh as r}from"../../../base/common/network.js";import{$Vn as g}from"../../product/common/productService.js";var p=function(s,t,e,n){var o=arguments.length,i=o<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,n);else for(var h=s.length-1;h>=0;h--)(c=s[h])&&(i=(o<3?c(i):o>3?c(t,e,i):c(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},l=function(s,t){return function(e,n){t(e,n,s)}};let a=class extends b{constructor(t,e){super(),this.h=e,this.a=this.D(new m),this.onDidChangeConnectionData=this.a.event,this.b=new Map,this.c=new Map,this.f=new Map,this.g=null,r.setServerRootPath(t,void 0)}resolveAuthority(t){return this.b.has(t)||this.b.set(t,new f),this.b.get(t).p}async getCanonicalURI(t){const e=t.toString(),n=this.f.get(e);if(n)return n.result.p;const o=new f;return this.g?.(t).then(i=>o.complete(i),i=>o.error(i)),this.f.set(e,{input:t,result:o}),o.p}getConnectionData(t){if(!this.b.has(t))return null;const e=this.b.get(t);if(!e.isResolved)return null;const n=this.c.get(t);return{connectTo:e.value.authority.connectTo,connectionToken:n}}_clearResolvedAuthority(t){this.b.has(t)&&(this.b.get(t).cancel(),this.b.delete(t))}_setResolvedAuthority(t,e){if(this.b.has(t.authority)){const n=this.b.get(t.authority);t.connectTo.type===0?r.set(t.authority,t.connectTo.host,t.connectTo.port):r.setDelegate(this.h.getResourceUriProvider()),t.connectionToken&&r.setConnectionToken(t.authority,t.connectionToken),n.complete({authority:t,options:e}),this.a.fire()}}_setResolvedAuthorityError(t,e){this.b.has(t)&&this.b.get(t).error(u.$Cb.fromError(e))}_setAuthorityConnectionToken(t,e){this.c.set(t,e),r.setConnectionToken(t,e),this.a.fire()}_setCanonicalURIProvider(t){this.g=t,this.f.forEach(({result:e,input:n})=>{this.g(n).then(o=>e.complete(o),o=>e.error(o))})}};a=p([l(0,g)],a);export{a as $7Pc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { DeferredPromise } from "../../../base/common/async.js";
+import * as errors from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { RemoteAuthorities } from "../../../base/common/network.js";
+import { IProductService } from "../../product/common/productService.js";
+let RemoteAuthorityResolverService = class RemoteAuthorityResolverService2 extends Disposable {
+  static {
+    __name(this, "RemoteAuthorityResolverService");
+  }
+  constructor(productService, remoteResourceLoader) {
+    super();
+    this.remoteResourceLoader = remoteResourceLoader;
+    this._onDidChangeConnectionData = this._register(new Emitter());
+    this.onDidChangeConnectionData = this._onDidChangeConnectionData.event;
+    this._resolveAuthorityRequests = /* @__PURE__ */ new Map();
+    this._connectionTokens = /* @__PURE__ */ new Map();
+    this._canonicalURIRequests = /* @__PURE__ */ new Map();
+    this._canonicalURIProvider = null;
+    RemoteAuthorities.setServerRootPath(productService, void 0);
+  }
+  resolveAuthority(authority) {
+    if (!this._resolveAuthorityRequests.has(authority)) {
+      this._resolveAuthorityRequests.set(authority, new DeferredPromise());
+    }
+    return this._resolveAuthorityRequests.get(authority).p;
+  }
+  async getCanonicalURI(uri) {
+    const key = uri.toString();
+    const existing = this._canonicalURIRequests.get(key);
+    if (existing) {
+      return existing.result.p;
+    }
+    const result = new DeferredPromise();
+    this._canonicalURIProvider?.(uri).then((uri2) => result.complete(uri2), (err) => result.error(err));
+    this._canonicalURIRequests.set(key, { input: uri, result });
+    return result.p;
+  }
+  getConnectionData(authority) {
+    if (!this._resolveAuthorityRequests.has(authority)) {
+      return null;
+    }
+    const request = this._resolveAuthorityRequests.get(authority);
+    if (!request.isResolved) {
+      return null;
+    }
+    const connectionToken = this._connectionTokens.get(authority);
+    return {
+      connectTo: request.value.authority.connectTo,
+      connectionToken
+    };
+  }
+  _clearResolvedAuthority(authority) {
+    if (this._resolveAuthorityRequests.has(authority)) {
+      this._resolveAuthorityRequests.get(authority).cancel();
+      this._resolveAuthorityRequests.delete(authority);
+    }
+  }
+  _setResolvedAuthority(resolvedAuthority, options) {
+    if (this._resolveAuthorityRequests.has(resolvedAuthority.authority)) {
+      const request = this._resolveAuthorityRequests.get(resolvedAuthority.authority);
+      if (resolvedAuthority.connectTo.type === 0) {
+        RemoteAuthorities.set(resolvedAuthority.authority, resolvedAuthority.connectTo.host, resolvedAuthority.connectTo.port);
+      } else {
+        RemoteAuthorities.setDelegate(this.remoteResourceLoader.getResourceUriProvider());
+      }
+      if (resolvedAuthority.connectionToken) {
+        RemoteAuthorities.setConnectionToken(resolvedAuthority.authority, resolvedAuthority.connectionToken);
+      }
+      request.complete({ authority: resolvedAuthority, options });
+      this._onDidChangeConnectionData.fire();
+    }
+  }
+  _setResolvedAuthorityError(authority, err) {
+    if (this._resolveAuthorityRequests.has(authority)) {
+      const request = this._resolveAuthorityRequests.get(authority);
+      request.error(errors.ErrorNoTelemetry.fromError(err));
+    }
+  }
+  _setAuthorityConnectionToken(authority, connectionToken) {
+    this._connectionTokens.set(authority, connectionToken);
+    RemoteAuthorities.setConnectionToken(authority, connectionToken);
+    this._onDidChangeConnectionData.fire();
+  }
+  _setCanonicalURIProvider(provider) {
+    this._canonicalURIProvider = provider;
+    this._canonicalURIRequests.forEach(({ result, input }) => {
+      this._canonicalURIProvider(input).then((uri) => result.complete(uri), (err) => result.error(err));
+    });
+  }
+};
+RemoteAuthorityResolverService = __decorate([
+  __param(0, IProductService)
+], RemoteAuthorityResolverService);
+export {
+  RemoteAuthorityResolverService
+};
+//# sourceMappingURL=remoteAuthorityResolverService.js.map

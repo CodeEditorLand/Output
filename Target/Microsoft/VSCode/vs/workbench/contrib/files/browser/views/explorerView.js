@@ -1,1 +1,929 @@
-import*as p from"../../../../../nls.js";import*as S from"../../../../../base/common/performance.js";import{$Zm as T}from"../../../../../base/common/decorators.js";import{$cRb as y,$kRb as J,$mRb as Z,$hRb as Q,$dRb as K,$iRb as X,$jRb as ee,$oRb as te,$pRb as ie,$qRb as se,$gRb as oe,$_Qb as m,$eRb as re,$rRb as ne,$bRb as ae,$fRb as N,$nRb as ce}from"../../common/files.js";import{$ITb as he,$ATb as I,$CTb as le}from"../fileActions.js";import*as d from"../../../../../base/browser/dom.js";import{$Eyb as de}from"../../../../services/layout/browser/layoutService.js";import{$uUb as ue}from"./explorerDecorationsProvider.js";import{$Ml as fe}from"../../../../../platform/workspace/common/workspace.js";import{$0l as pe}from"../../../../../platform/configuration/common/configuration.js";import{$fy as me}from"../../../../../platform/keybinding/common/keybinding.js";import{$Mj as ge}from"../../../../../platform/instantiation/common/instantiation.js";import{$uH as be}from"../../../../../platform/progress/common/progress.js";import{$ijb as Ce}from"../../../../../platform/contextview/browser/contextView.js";import{$ro as we,$0n as f}from"../../../../../platform/contextkey/common/contextkey.js";import{$wP as $e}from"../../../../common/contextkeys.js";import{$cQb as Ee}from"../../../../services/decorations/common/decorations.js";import{$esb as ve}from"../../../../../platform/list/browser/listService.js";import{$69 as xe}from"../../../../../base/browser/dnd.js";import{$BL as ye,$DL as Fe,$CL as De}from"../../../../services/editor/common/editorService.js";import{$ZBb as Se}from"../../../../browser/parts/views/viewPane.js";import{$oH as Re}from"../../../../../platform/label/common/label.js";import{$hUb as R,$jUb as Te,$nUb as Ne,$oUb as Ie,$pUb as Ae,$qUb as Ve,$sUb as Oe,$rUb as Le,$lUb as _e}from"./explorerViewer.js";import{$qu as ke}from"../../../../../platform/theme/common/themeService.js";import{$qL as C,$vL as E,$wL as v}from"../../../../../platform/actions/common/actions.js";import{$pp as Pe}from"../../../../../platform/telemetry/common/telemetry.js";import{$pTb as b,$qTb as je}from"../../common/explorerModel.js";import{$eQb as Be}from"../../../../browser/labels.js";import{$hp as Ue}from"../../../../../platform/storage/common/storage.js";import{$gjb as We}from"../../../../../platform/clipboard/common/clipboardService.js";import{$vk as qe}from"../../../../../platform/files/common/files.js";import{Event as ze}from"../../../../../base/common/event.js";import{$FN as He}from"../../../../common/views.js";import{$gBb as A}from"../../../../services/views/common/viewsService.js";import{$EP as Me}from"../../../../../platform/opener/common/opener.js";import{$$o as Ge}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{$vN as Ye,SideBySideEditor as Je}from"../../../../common/editor.js";import{$rTb as V}from"../files.js";import{$bk as x}from"../../../../../base/common/codicons.js";import{$uo as D}from"../../../../../platform/commands/common/commands.js";import{$dO as Ze}from"../../../../services/editor/common/editorResolverService.js";import{EditorOpenSource as Qe}from"../../../../../platform/editor/common/editor.js";import{$Oc as Ke}from"../../../../../base/common/map.js";import{$jkb as Xe}from"../../../../../platform/hover/browser/hover.js";import{$MD as et}from"../../../../../platform/accessibility/common/accessibility.js";var F=function(r,e,t,s){var o=arguments.length,a=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(r,e,t,s);else for(var i=r.length-1;i>=0;i--)(h=r[i])&&(a=(o<3?h(a):o>3?h(e,t,a):h(e,t))||a);return o>3&&a&&Object.defineProperty(e,t,a),a},c=function(r,e){return function(t,s){e(t,s,r)}},w;function tt(r,e){for(const t of e)if(r.hasNode(t)&&!r.isCollapsed(t)){for(const[,s]of t.children.entries())if(r.hasNode(s)&&r.isCollapsible(s)&&!r.isCollapsed(s))return!0}return!1}function it(r,e){for(const t of e)if(r.hasNode(t)&&!r.isCollapsed(t))return!0;return!1}const st={getId:r=>r instanceof je?`new:${r.getId()}`:r.getId()};function ot(r,e,t,s){let o;o=r.length?r[0]:void 0,t&&e.length>1&&(o=void 0);const a=o&&s.getCompressedNavigationController(o),h=a?.length?a[0]:void 0;o=h?h.current:o;const i=[];for(const n of e){const u=s.getCompressedNavigationController(n)?.at(0);if(u&&o&&u===h){n===o&&i.push(n);continue}u?i.push(...u.items):i.push(n)}return o?t&&i.indexOf(o)>=0?i:[o]:t?i:[]}let $=class extends Se{static{w=this}static{this.TREE_VIEW_STATE_STORAGE_KEY="workbench.explorer.treeViewState"}get singleViewPaneContainerTitle(){return this.name}constructor(e,t,s,o,a,h,i,n,g,u,l,L,_,k,P,j,B,U,W,q,z,H,M,G,Y){super(e,u,t,L,l,s,o,G,P,B),this.mc=a,this.nc=h,this.oc=i,this.pc=n,this.qc=g,this.rc=_,this.sc=k,this.tc=j,this.uc=U,this.vc=W,this.wc=q,this.xc=z,this.yc=H,this.zc=M,this.Ac=Y,this.jc=!1,this.lc=e.delegate,this.f=o.createInstance($e),this.D(this.f),this.h=N.bindTo(l),this.g=y.bindTo(l),this.j=K.bindTo(l),this.m=oe.bindTo(l),this.n=Q.bindTo(l),this.r=ee.bindTo(l),this.sb=te.bindTo(l),this.cc=ie.bindTo(l),this.dc=se.bindTo(l),this.ec=ne.bindTo(l),this.fc=ae.bindTo(l),this.uc.registerView(this)}get autoReveal(){return this.jc}set autoReveal(e){this.jc=e}get name(){return this.sc.getWorkspaceLabel(this.mc.getWorkspace())}get title(){return this.name}set title(e){}setVisible(e){this.fc.set(e),super.setVisible(e)}get Bc(){return he.bindTo(this.Db)}get Cc(){return X.bindTo(this.Db)}W(e){super.W(e),this.ic=new xe(e,()=>this.setExpanded(!0));const t=e.querySelector(".title"),s=()=>{t.textContent=this.name,this.Rb(this.name),this.ariaHeaderLabel=p.localize(9547,null,this.name),t.setAttribute("aria-label",this.ariaHeaderLabel)};this.D(this.mc.onDidChangeWorkspaceName(s)),this.D(this.sc.onDidChangeFormatters(s)),s()}Y(e,t){super.Y(e,t),this.a.layout(e,t)}X(e){super.X(e),this.ab=e,this.L=d.$y9(e,d.$(".explorer-folders-view")),this.Hc(this.L),this.D(this.sc.onDidChangeFormatters(()=>{this.eb.fire()})),this.Ic(void 0),this.D(this.oc.onDidActiveEditorChange(()=>{this.Gc()})),this.D(this.Cb.onDidChangeConfiguration(t=>this.Ic(t))),this.D(this.onDidChangeBodyVisibility(async t=>{t&&(await this.setTreeInput(),this.Oc(),this.Gc(!0))})),this.D(d.$u8(d.getWindow(this.ab),d.$r9.PASTE,async t=>{!this.hasFocus()||this.j.get()||t.clipboardData?.files?.length&&await this.zc.executeCommand("filesExplorer.paste",t.clipboardData?.files)}))}focus(){if(super.focus(),this.a.domFocus(),this.a.getFocusedPart()===0){const e=this.a.getFocus();e.length===1&&this.jc&&this.a.reveal(e[0],.5)}}hasFocus(){return d.$$8(this.ab)}getFocus(){return this.a.getFocus()}focusNext(){this.a.focusNext()}focusLast(){this.a.focusLast()}getContext(e){const t=this.a.getFocusedPart()===1?this.a.getStickyScrollFocus():this.a.getFocus();return ot(t,this.a.getSelection(),e,this.t)}isItemVisible(e){return this.b?this.b.filter(e,1):!1}isItemCollapsed(e){return this.a.isCollapsed(e)}async setEditable(e,t){t?(this.hc=this.a.options.horizontalScrolling,this.hc&&this.a.updateOptions({horizontalScrolling:!1}),await this.a.expand(e.parent)):(this.hc!==void 0&&this.a.updateOptions({horizontalScrolling:this.hc}),this.hc=void 0,this.L.classList.remove("highlight")),await this.refresh(!1,e.parent,!1),t?(this.L.classList.add("highlight"),this.a.reveal(e)):this.a.domFocus()}async Gc(e=this.jc){if(this.jc){const t=Ye.getCanonicalUri(this.oc.activeEditor,{supportSideBySide:Je.PRIMARY});if(t){const s=this.a.getFocus(),o=this.a.getSelection();return s.length===1&&this.yc.extUri.isEqual(s[0].resource,t)&&o.length===1&&this.yc.extUri.isEqual(o[0].resource,t)?void 0:this.uc.select(t,e)}}}Hc(e){this.b=this.Fb.createInstance(Ie),this.D(this.b),this.D(this.b.onDidChange(()=>this.refresh(!0)));const t=this.Fb.createInstance(Be,{onDidChangeVisibility:this.onDidChangeBodyVisibility});this.D(t),this.c=this.Fb.createInstance(_e,this.b,()=>this.a);const s=i=>this.a.updateWidth(i);this.t=this.Fb.createInstance(Ne,e,t,this.c.highlightTree,s),this.D(this.t),this.D(rt(e,this.Hb));const o=()=>{const i=this.Cb.getValue("explorer.compactFolders");return this.Ac.isScreenReaderOptimized()?!1:i},a=i=>this.Cb.getValue({resource:i?.root.resource}).explorer.fileNesting;this.a=this.Fb.createInstance(ve,"FileExplorer",e,new R,new Oe,[this.t],this.Fb.createInstance(Te,this.b,this.c),{compressionEnabled:o(),accessibilityProvider:this.t,identityProvider:st,keyboardNavigationLabelProvider:{getKeyboardNavigationLabel:i=>{if(!this.uc.isEditable(i))return i.name},getCompressedNodeKeyboardNavigationLabel:i=>{if(!i.some(n=>this.uc.isEditable(n)))return i.map(n=>n.name).join("/")}},multipleSelectionSupport:!0,filter:this.b,sorter:this.Fb.createInstance(Ae),dnd:this.Fb.createInstance(Ve,i=>this.isItemCollapsed(i)),collapseByDefault:i=>!(i instanceof b&&(i.hasNests&&a(i).expand||this.c.isShowingFilterResults())),autoExpandSingleChildren:!0,expandOnlyOnTwistieClick:i=>{if(i instanceof b){if(i.hasNests)return!0;if(this.Cb.getValue("workbench.tree.expandMode")==="doubleClick")return!0}return!1},paddingBottom:R.ITEM_HEIGHT,overrideStyles:this.Zb().listOverrideStyles,findProvider:this.c}),this.D(this.a),this.D(this.Hb.onDidColorThemeChange(()=>this.a.rerender()));const h=ze.filter(this.Cb.onDidChangeConfiguration,i=>i.affectsConfiguration("explorer.compactFolders"));this.D(h(i=>this.a.updateOptions({compressionEnabled:o()}))),this.D(this.Ac.onDidChangeScreenReaderOptimized(()=>{this.a.updateOptions({compressionEnabled:o()})})),J.bindTo(this.a.contextKeyService),Z.bindTo(this.a.contextKeyService),this.D(this.a.onDidChangeFocus(i=>this.Mc(i.elements))),this.Mc([]),this.D(this.a.onDidOpen(async i=>{const n=i.element;if(!n)return;if(!(d.$o9(i.browserEvent)&&i.browserEvent.shiftKey)){if(n.isDirectory||this.uc.isEditable(void 0))return;this.tc.publicLog2("workbenchActionExecuted",{id:"workbench.files.openFile",from:"explorer"});try{this.lc?.willOpenElement(i.browserEvent),await this.oc.openEditor({resource:n.resource,options:{preserveFocus:i.editorOptions.preserveFocus,pinned:i.editorOptions.pinned,source:Qe.USER}},i.sideBySide?Fe:De)}finally{this.lc?.didOpenElement()}}})),this.D(this.a.onContextMenu(i=>this.Lc(i))),this.D(this.a.onDidScroll(async i=>{const n=this.uc.getEditable();i.scrollTopChanged&&n&&this.a.getRelativeTop(n.stat)===null&&await n.data.onFinish("",!1)})),this.D(this.a.onDidChangeCollapseState(i=>{const n=i.node.element?.element;n&&this.t.getCompressedNavigationController(Array.isArray(n)?n[0]:n)?.forEach(u=>u.updateCollapsed(i.node.collapsed)),this.Oc()})),this.Oc(),this.D(this.a.onMouseDblClick(i=>{const n=this.Cb.getValue("workbench.list.scrollByPage");i.element===null&&!n&&this.zc.executeCommand(I)})),this.D(this.vc.onWillSaveState(()=>{this.Jc()}))}Ic(e){if(!e||e.affectsConfiguration("explorer.autoReveal")){const t=this.Cb.getValue();this.jc=t?.explorer?.autoReveal}e&&(e.affectsConfiguration("explorer.decorations.colors")||e.affectsConfiguration("explorer.decorations.badges"))&&this.refresh(!0)}Jc(){this.vc.store(w.TREE_VIEW_STATE_STORAGE_KEY,JSON.stringify(this.a.getViewState()),1,1)}Kc(e){const t=this.mc.getWorkspace().folders,s=e?e.resource:t[t.length-1].uri;if(e=e||this.uc.findClosest(s),this.f.set(s),this.g.set(!!e&&e.isDirectory),this.j.set(!!e&&!!e.isReadonly),this.h.set(!!e?.parent?.isReadonly),this.n.set(!!e&&e.isRoot),s){const o=s?this.pc.getEditors(s).map(a=>a.id):[];this.m.set(o.join(","))}else this.m.reset()}async Lc(e){if(d.$Z9(e.browserEvent.target))return;const t=e.element;let s=e.anchor;if(d.$f9(s)&&t){const i=this.t.getCompressedNavigationController(t);i&&i.length>0&&(d.$o9(e.browserEvent)||Le(e.browserEvent.target)?s=i[0].labels[i[0].index]:i.forEach(n=>n.last()))}this.Bc.set(await this.wc.hasResources()),this.Kc(t);const o=this.a.getSelection(),a=this.uc.roots;let h;if(t instanceof b){const i=this.t.getCompressedNavigationController(t);h=i?.length?i[0].current.resource:t.resource}else h=a.length===1?a[0].resource:{};this.Bb.showContextMenu({menuId:C.ExplorerContext,menuActionOptions:{arg:h,shouldForwardArgs:!0},contextKeyService:this.a.contextKeyService,getAnchor:()=>s,onHide:i=>{i&&this.a.domFocus()},getActionsContext:()=>t&&o&&o.indexOf(t)>=0?o.map(i=>i.resource):t instanceof b?[t.resource]:[]})}Mc(e){const t=e.at(0);if(this.Kc(t),t){const o=!!this.Cb.getValue().files?.enableTrash,a=this.xc.hasCapability(t.resource,4096);this.r.set(o&&a)}else this.r.reset();const s=t&&this.t.getCompressedNavigationController(t);if(!s){this.sb.set(!1);return}this.sb.set(!0),s.forEach(o=>{this.Nc(o)})}refresh(e,t,s=!0){if(!this.a||!this.isBodyVisible()||t&&!this.a.hasNode(t)||this.c?.isShowingFilterResults()&&e)return Promise.resolve(void 0);s&&this.uc.isEditable(void 0)&&this.a.domFocus();const o=t||this.a.getInput();return this.a.updateChildren(o,e,!!t)}getOptimalWidth(){const e=this.a.getHTMLElement(),t=[].slice.call(e.querySelectorAll(".explorer-item .label-name"));return d.$Z8(e,t)}async setTreeInput(){if(!this.isBodyVisible())return Promise.resolve(void 0);this.gc&&await this.gc;const e=!this.a.getInput();e&&S.$V("code/willResolveExplorer");const t=this.uc.roots;let s=t[0];(this.mc.getWorkbenchState()!==2||t[0].error)&&(s=t);let o;if(this.a?.getInput())o=this.a.getViewState();else{const i=this.vc.get(w.TREE_VIEW_STATE_STORAGE_KEY,1);i&&(o=JSON.parse(i))}const a=this.a.getInput(),h=this.gc=this.a.setInput(s,o).then(async()=>{if(Array.isArray(s)){if(!o||a instanceof b)for(let i=0;i<Math.min(s.length,5);i++)try{await this.a.expand(s[i])}catch{}if(!a&&s.length===1&&this.Cb.getValue().explorer.expandSingleFolderWorkspaces&&await this.a.expand(s[0]).catch(()=>{}),Array.isArray(a)){const i=new Ke;a.forEach(n=>i.set(n.resource,!0)),await Promise.all(s.map(async n=>{if(!i.has(n.resource))try{await this.a.expand(n)}catch{}}))}}e&&S.$V("code/didResolveExplorer")});this.nc.withProgress({location:1,delay:this.qc.isRestored()?800:1500},i=>h),await h,this.kc||(this.kc=new ue(this.uc,this.mc),this.D(this.rc.registerDecorationsProvider(this.kc)))}async selectResource(e,t=this.jc,s=0){if(s===2||!e||!this.isBodyVisible())return;this.gc&&await this.gc;let o=this.uc.findClosestRoot(e);for(;o&&o.resource.toString()!==e.toString();){try{await this.a.expand(o)}catch{return this.selectResource(e,t,s+1)}if(!o.children.size)o=null;else for(const a of o.children.values()){if(this.yc.extUri.isEqualOrParent(e,a.resource)){o=a;break}o=null}}if(o){if(o===this.a.getInput()){this.a.setFocus([]),this.a.setSelection([]);return}try{o.nestedParent&&await this.a.expand(o.nestedParent),(t===!0||t==="force")&&this.a.getRelativeTop(o)===null&&this.a.reveal(o,.5),this.a.setFocus([o]),this.a.setSelection([o])}catch{return this.selectResource(e,t,s+1)}}}itemsCopied(e,t,s){this.Bc.set(e.length>0),this.Cc.set(t&&e.length>0),s?.forEach(o=>this.a.rerender(o)),t&&e.forEach(o=>this.a.rerender(o))}expandAll(){this.uc.isEditable(void 0)&&this.a.domFocus(),this.a.expandAll()}collapseAll(){this.uc.isEditable(void 0)&&this.a.domFocus();const e=this.a.getInput();if(Array.isArray(e)&&tt(this.a,e)){e.forEach(t=>{t.children.forEach(s=>this.a.hasNode(s)&&this.a.collapse(s,!0))});return}this.a.collapseAll()}previousCompressedStat(){const e=this.a.getFocus();if(!e.length)return;this.t.getCompressedNavigationController(e[0]).forEach(s=>{s.previous(),this.Nc(s)})}nextCompressedStat(){const e=this.a.getFocus();if(!e.length)return;this.t.getCompressedNavigationController(e[0]).forEach(s=>{s.next(),this.Nc(s)})}firstCompressedStat(){const e=this.a.getFocus();if(!e.length)return;this.t.getCompressedNavigationController(e[0]).forEach(s=>{s.first(),this.Nc(s)})}lastCompressedStat(){const e=this.a.getFocus();if(!e.length)return;this.t.getCompressedNavigationController(e[0]).forEach(s=>{s.last(),this.Nc(s)})}Nc(e){this.cc.set(e.index===0),this.dc.set(e.index===e.count-1)}Oc(){const e=this.a.getInput();if(e===void 0)return;const t=Array.isArray(e)?e:Array.from(e.children.values());this.ec.set(it(this.a,t)),this.Jc()}hasPhantomElements(){return!!this.c?.isShowingFilterResults()}dispose(){this.ic?.dispose(),super.dispose()}};F([T],$.prototype,"Bc",null);F([T],$.prototype,"Cc",null);$=w=F([c(1,Ce),c(2,He),c(3,ge),c(4,fe),c(5,be),c(6,ye),c(7,Ze),c(8,de),c(9,me),c(10,we),c(11,pe),c(12,Ee),c(13,Re),c(14,ke),c(15,Pe),c(16,Xe),c(17,V),c(18,Ue),c(19,We),c(20,qe),c(21,Ge),c(22,D),c(23,Me),c(24,et)],$);function rt(r,e){r.classList.add("file-icon-themable-tree"),r.classList.add("show-file-icons");const t=s=>{r.classList.toggle("align-icons-and-twisties",s.hasFileIcons&&!s.hasFolderIcons),r.classList.toggle("hide-arrows",s.hidesExplorerArrows===!0)};return t(e.getFileIconTheme()),e.onDidFileIconThemeChange(t)}const O=f.or(f.and(y,re),f.and(y.toNegated(),N.toNegated()));v(class extends E{constructor(){super({id:"workbench.files.action.createFileFromExplorer",title:p.localize(9548,null),f1:!1,icon:x.newFile,precondition:O,menu:{id:C.ViewTitle,group:"navigation",when:f.equals("view",m),order:10}})}run(r){r.get(D).executeCommand(I)}});v(class extends E{constructor(){super({id:"workbench.files.action.createFolderFromExplorer",title:p.localize(9549,null),f1:!1,icon:x.newFolder,precondition:O,menu:{id:C.ViewTitle,group:"navigation",when:f.equals("view",m),order:20}})}run(r){r.get(D).executeCommand(le)}});v(class extends E{constructor(){super({id:"workbench.files.action.refreshFilesExplorer",title:p.localize2(9550,"Refresh Explorer"),f1:!0,icon:x.refresh,menu:{id:C.ViewTitle,group:"navigation",when:f.equals("view",m),order:30},metadata:{description:p.localize2(9551,"Forces a refresh of the Explorer.")},precondition:ce.negate()})}async run(r){const e=r.get(A),t=r.get(V);await e.openView(m),await t.refresh()}});v(class extends E{constructor(){super({id:"workbench.files.action.collapseExplorerFolders",title:p.localize2(9552,"Collapse Folders in Explorer"),f1:!0,icon:x.collapseAll,menu:{id:C.ViewTitle,group:"navigation",when:f.equals("view",m),order:40},metadata:{description:p.localize2(9553,"Folds all folders in the Explorer.")}})}run(r){const t=r.get(A).getViewWithId(m);t!==null&&t.collapseAll()}});export{ot as $vUb,$ as $wUb,rt as $xUb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ExplorerView_1;
+import * as nls from "../../../../../nls.js";
+import * as perf from "../../../../../base/common/performance.js";
+import { memoize } from "../../../../../base/common/decorators.js";
+import { ExplorerFolderContext, FilesExplorerFocusedContext, ExplorerFocusedContext, ExplorerRootContext, ExplorerResourceReadonlyContext, ExplorerResourceCut, ExplorerResourceMoveableToTrash, ExplorerCompressedFocusContext, ExplorerCompressedFirstFocusContext, ExplorerCompressedLastFocusContext, ExplorerResourceAvailableEditorIdsContext, VIEW_ID, ExplorerResourceWritableContext, ViewHasSomeCollapsibleRootItemContext, FoldersViewVisibleContext, ExplorerResourceParentReadOnlyContext, ExplorerFindProviderActive } from "../../common/files.js";
+import { FileCopiedContext, NEW_FILE_COMMAND_ID, NEW_FOLDER_COMMAND_ID } from "../fileActions.js";
+import * as DOM from "../../../../../base/browser/dom.js";
+import { IWorkbenchLayoutService } from "../../../../services/layout/browser/layoutService.js";
+import { ExplorerDecorationsProvider } from "./explorerDecorationsProvider.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IProgressService } from "../../../../../platform/progress/common/progress.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IContextKeyService, ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { IDecorationsService } from "../../../../services/decorations/common/decorations.js";
+import { WorkbenchCompressibleAsyncDataTree } from "../../../../../platform/list/browser/listService.js";
+import { DelayedDragHandler } from "../../../../../base/browser/dnd.js";
+import { IEditorService, SIDE_GROUP, ACTIVE_GROUP } from "../../../../services/editor/common/editorService.js";
+import { ViewPane } from "../../../../browser/parts/views/viewPane.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { ExplorerDelegate, ExplorerDataSource, FilesRenderer, FilesFilter, FileSorter, FileDragAndDrop, ExplorerCompressionDelegate, isCompressedFolderName, ExplorerFindProvider } from "./explorerViewer.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { MenuId, Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { ExplorerItem, NewExplorerItem } from "../../common/explorerModel.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { Event } from "../../../../../base/common/event.js";
+import { IViewDescriptorService } from "../../../../common/views.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../../common/editor.js";
+import { IExplorerService } from "../files.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IEditorResolverService } from "../../../../services/editor/common/editorResolverService.js";
+import { EditorOpenSource } from "../../../../../platform/editor/common/editor.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+function hasExpandedRootChild(tree, treeInput) {
+  for (const folder of treeInput) {
+    if (tree.hasNode(folder) && !tree.isCollapsed(folder)) {
+      for (const [, child] of folder.children.entries()) {
+        if (tree.hasNode(child) && tree.isCollapsible(child) && !tree.isCollapsed(child)) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+__name(hasExpandedRootChild, "hasExpandedRootChild");
+function hasExpandedNode(tree, treeInput) {
+  for (const folder of treeInput) {
+    if (tree.hasNode(folder) && !tree.isCollapsed(folder)) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(hasExpandedNode, "hasExpandedNode");
+const identityProvider = {
+  getId: /* @__PURE__ */ __name((stat) => {
+    if (stat instanceof NewExplorerItem) {
+      return `new:${stat.getId()}`;
+    }
+    return stat.getId();
+  }, "getId")
+};
+function getContext(focus, selection, respectMultiSelection, compressedNavigationControllerProvider) {
+  let focusedStat;
+  focusedStat = focus.length ? focus[0] : void 0;
+  if (respectMultiSelection && selection.length > 1) {
+    focusedStat = void 0;
+  }
+  const compressedNavigationControllers = focusedStat && compressedNavigationControllerProvider.getCompressedNavigationController(focusedStat);
+  const compressedNavigationController = compressedNavigationControllers?.length ? compressedNavigationControllers[0] : void 0;
+  focusedStat = compressedNavigationController ? compressedNavigationController.current : focusedStat;
+  const selectedStats = [];
+  for (const stat of selection) {
+    const controllers = compressedNavigationControllerProvider.getCompressedNavigationController(stat);
+    const controller = controllers?.at(0);
+    if (controller && focusedStat && controller === compressedNavigationController) {
+      if (stat === focusedStat) {
+        selectedStats.push(stat);
+      }
+      continue;
+    }
+    if (controller) {
+      selectedStats.push(...controller.items);
+    } else {
+      selectedStats.push(stat);
+    }
+  }
+  if (!focusedStat) {
+    if (respectMultiSelection) {
+      return selectedStats;
+    } else {
+      return [];
+    }
+  }
+  if (respectMultiSelection && selectedStats.indexOf(focusedStat) >= 0) {
+    return selectedStats;
+  }
+  return [focusedStat];
+}
+__name(getContext, "getContext");
+let ExplorerView = class ExplorerView2 extends ViewPane {
+  static {
+    __name(this, "ExplorerView");
+  }
+  static {
+    ExplorerView_1 = this;
+  }
+  static {
+    this.TREE_VIEW_STATE_STORAGE_KEY = "workbench.explorer.treeViewState";
+  }
+  get singleViewPaneContainerTitle() {
+    return this.name;
+  }
+  constructor(options, contextMenuService, viewDescriptorService, instantiationService, contextService, progressService, editorService, editorResolverService, layoutService, keybindingService, contextKeyService, configurationService, decorationService, labelService, themeService, telemetryService, hoverService, explorerService, storageService, clipboardService, fileService, uriIdentityService, commandService, openerService, accessibilityService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.contextService = contextService;
+    this.progressService = progressService;
+    this.editorService = editorService;
+    this.editorResolverService = editorResolverService;
+    this.layoutService = layoutService;
+    this.decorationService = decorationService;
+    this.labelService = labelService;
+    this.telemetryService = telemetryService;
+    this.explorerService = explorerService;
+    this.storageService = storageService;
+    this.clipboardService = clipboardService;
+    this.fileService = fileService;
+    this.uriIdentityService = uriIdentityService;
+    this.commandService = commandService;
+    this.accessibilityService = accessibilityService;
+    this._autoReveal = false;
+    this.delegate = options.delegate;
+    this.resourceContext = instantiationService.createInstance(ResourceContextKey);
+    this._register(this.resourceContext);
+    this.parentReadonlyContext = ExplorerResourceParentReadOnlyContext.bindTo(contextKeyService);
+    this.folderContext = ExplorerFolderContext.bindTo(contextKeyService);
+    this.readonlyContext = ExplorerResourceReadonlyContext.bindTo(contextKeyService);
+    this.availableEditorIdsContext = ExplorerResourceAvailableEditorIdsContext.bindTo(contextKeyService);
+    this.rootContext = ExplorerRootContext.bindTo(contextKeyService);
+    this.resourceMoveableToTrash = ExplorerResourceMoveableToTrash.bindTo(contextKeyService);
+    this.compressedFocusContext = ExplorerCompressedFocusContext.bindTo(contextKeyService);
+    this.compressedFocusFirstContext = ExplorerCompressedFirstFocusContext.bindTo(contextKeyService);
+    this.compressedFocusLastContext = ExplorerCompressedLastFocusContext.bindTo(contextKeyService);
+    this.viewHasSomeCollapsibleRootItem = ViewHasSomeCollapsibleRootItemContext.bindTo(contextKeyService);
+    this.viewVisibleContextKey = FoldersViewVisibleContext.bindTo(contextKeyService);
+    this.explorerService.registerView(this);
+  }
+  get autoReveal() {
+    return this._autoReveal;
+  }
+  set autoReveal(autoReveal) {
+    this._autoReveal = autoReveal;
+  }
+  get name() {
+    return this.labelService.getWorkspaceLabel(this.contextService.getWorkspace());
+  }
+  get title() {
+    return this.name;
+  }
+  set title(_) {
+  }
+  setVisible(visible) {
+    this.viewVisibleContextKey.set(visible);
+    super.setVisible(visible);
+  }
+  get fileCopiedContextKey() {
+    return FileCopiedContext.bindTo(this.contextKeyService);
+  }
+  get resourceCutContextKey() {
+    return ExplorerResourceCut.bindTo(this.contextKeyService);
+  }
+  // Split view methods
+  renderHeader(container) {
+    super.renderHeader(container);
+    this.dragHandler = new DelayedDragHandler(container, () => this.setExpanded(true));
+    const titleElement = container.querySelector(".title");
+    const setHeader = /* @__PURE__ */ __name(() => {
+      titleElement.textContent = this.name;
+      this.updateTitle(this.name);
+      this.ariaHeaderLabel = nls.localize("explorerSection", "Explorer Section: {0}", this.name);
+      titleElement.setAttribute("aria-label", this.ariaHeaderLabel);
+    }, "setHeader");
+    this._register(this.contextService.onDidChangeWorkspaceName(setHeader));
+    this._register(this.labelService.onDidChangeFormatters(setHeader));
+    setHeader();
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.tree.layout(height, width);
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this.container = container;
+    this.treeContainer = DOM.append(container, DOM.$(".explorer-folders-view"));
+    this.createTree(this.treeContainer);
+    this._register(this.labelService.onDidChangeFormatters(() => {
+      this._onDidChangeTitleArea.fire();
+    }));
+    this.onConfigurationUpdated(void 0);
+    this._register(this.editorService.onDidActiveEditorChange(() => {
+      this.selectActiveFile();
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(this.onDidChangeBodyVisibility(async (visible) => {
+      if (visible) {
+        await this.setTreeInput();
+        this.updateAnyCollapsedContext();
+        this.selectActiveFile(true);
+      }
+    }));
+    this._register(DOM.addDisposableListener(DOM.getWindow(this.container), DOM.EventType.PASTE, async (event) => {
+      if (!this.hasFocus() || this.readonlyContext.get()) {
+        return;
+      }
+      if (event.clipboardData?.files?.length) {
+        await this.commandService.executeCommand("filesExplorer.paste", event.clipboardData?.files);
+      }
+    }));
+  }
+  focus() {
+    super.focus();
+    this.tree.domFocus();
+    if (this.tree.getFocusedPart() === 0) {
+      const focused = this.tree.getFocus();
+      if (focused.length === 1 && this._autoReveal) {
+        this.tree.reveal(focused[0], 0.5);
+      }
+    }
+  }
+  hasFocus() {
+    return DOM.isAncestorOfActiveElement(this.container);
+  }
+  getFocus() {
+    return this.tree.getFocus();
+  }
+  focusNext() {
+    this.tree.focusNext();
+  }
+  focusLast() {
+    this.tree.focusLast();
+  }
+  getContext(respectMultiSelection) {
+    const focusedItems = this.tree.getFocusedPart() === 1 ? this.tree.getStickyScrollFocus() : this.tree.getFocus();
+    return getContext(focusedItems, this.tree.getSelection(), respectMultiSelection, this.renderer);
+  }
+  isItemVisible(item) {
+    if (!this.filter) {
+      return false;
+    }
+    return this.filter.filter(
+      item,
+      1
+      /* TreeVisibility.Visible */
+    );
+  }
+  isItemCollapsed(item) {
+    return this.tree.isCollapsed(item);
+  }
+  async setEditable(stat, isEditing) {
+    if (isEditing) {
+      this.horizontalScrolling = this.tree.options.horizontalScrolling;
+      if (this.horizontalScrolling) {
+        this.tree.updateOptions({ horizontalScrolling: false });
+      }
+      await this.tree.expand(stat.parent);
+    } else {
+      if (this.horizontalScrolling !== void 0) {
+        this.tree.updateOptions({ horizontalScrolling: this.horizontalScrolling });
+      }
+      this.horizontalScrolling = void 0;
+      this.treeContainer.classList.remove("highlight");
+    }
+    await this.refresh(false, stat.parent, false);
+    if (isEditing) {
+      this.treeContainer.classList.add("highlight");
+      this.tree.reveal(stat);
+    } else {
+      this.tree.domFocus();
+    }
+  }
+  async selectActiveFile(reveal = this._autoReveal) {
+    if (this._autoReveal) {
+      const activeFile = EditorResourceAccessor.getCanonicalUri(this.editorService.activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY });
+      if (activeFile) {
+        const focus = this.tree.getFocus();
+        const selection = this.tree.getSelection();
+        if (focus.length === 1 && this.uriIdentityService.extUri.isEqual(focus[0].resource, activeFile) && selection.length === 1 && this.uriIdentityService.extUri.isEqual(selection[0].resource, activeFile)) {
+          return;
+        }
+        return this.explorerService.select(activeFile, reveal);
+      }
+    }
+  }
+  createTree(container) {
+    this.filter = this.instantiationService.createInstance(FilesFilter);
+    this._register(this.filter);
+    this._register(this.filter.onDidChange(() => this.refresh(true)));
+    const explorerLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
+    this._register(explorerLabels);
+    this.findProvider = this.instantiationService.createInstance(ExplorerFindProvider, this.filter, () => this.tree);
+    const updateWidth = /* @__PURE__ */ __name((stat) => this.tree.updateWidth(stat), "updateWidth");
+    this.renderer = this.instantiationService.createInstance(FilesRenderer, container, explorerLabels, this.findProvider.highlightTree, updateWidth);
+    this._register(this.renderer);
+    this._register(createFileIconThemableTreeContainerScope(container, this.themeService));
+    const isCompressionEnabled = /* @__PURE__ */ __name(() => {
+      const configValue = this.configurationService.getValue("explorer.compactFolders");
+      if (this.accessibilityService.isScreenReaderOptimized()) {
+        return false;
+      }
+      return configValue;
+    }, "isCompressionEnabled");
+    const getFileNestingSettings = /* @__PURE__ */ __name((item) => this.configurationService.getValue({ resource: item?.root.resource }).explorer.fileNesting, "getFileNestingSettings");
+    this.tree = this.instantiationService.createInstance(WorkbenchCompressibleAsyncDataTree, "FileExplorer", container, new ExplorerDelegate(), new ExplorerCompressionDelegate(), [this.renderer], this.instantiationService.createInstance(ExplorerDataSource, this.filter, this.findProvider), {
+      compressionEnabled: isCompressionEnabled(),
+      accessibilityProvider: this.renderer,
+      identityProvider,
+      keyboardNavigationLabelProvider: {
+        getKeyboardNavigationLabel: /* @__PURE__ */ __name((stat) => {
+          if (this.explorerService.isEditable(stat)) {
+            return void 0;
+          }
+          return stat.name;
+        }, "getKeyboardNavigationLabel"),
+        getCompressedNodeKeyboardNavigationLabel: /* @__PURE__ */ __name((stats) => {
+          if (stats.some((stat) => this.explorerService.isEditable(stat))) {
+            return void 0;
+          }
+          return stats.map((stat) => stat.name).join("/");
+        }, "getCompressedNodeKeyboardNavigationLabel")
+      },
+      multipleSelectionSupport: true,
+      filter: this.filter,
+      sorter: this.instantiationService.createInstance(FileSorter),
+      dnd: this.instantiationService.createInstance(FileDragAndDrop, (item) => this.isItemCollapsed(item)),
+      collapseByDefault: /* @__PURE__ */ __name((e) => {
+        if (e instanceof ExplorerItem) {
+          if (e.hasNests && getFileNestingSettings(e).expand) {
+            return false;
+          }
+          if (this.findProvider.isShowingFilterResults()) {
+            return false;
+          }
+        }
+        return true;
+      }, "collapseByDefault"),
+      autoExpandSingleChildren: true,
+      expandOnlyOnTwistieClick: /* @__PURE__ */ __name((e) => {
+        if (e instanceof ExplorerItem) {
+          if (e.hasNests) {
+            return true;
+          } else if (this.configurationService.getValue("workbench.tree.expandMode") === "doubleClick") {
+            return true;
+          }
+        }
+        return false;
+      }, "expandOnlyOnTwistieClick"),
+      paddingBottom: ExplorerDelegate.ITEM_HEIGHT,
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+      findProvider: this.findProvider
+    });
+    this._register(this.tree);
+    this._register(this.themeService.onDidColorThemeChange(() => this.tree.rerender()));
+    const onDidChangeCompressionConfiguration = Event.filter(this.configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("explorer.compactFolders"));
+    this._register(onDidChangeCompressionConfiguration((_) => this.tree.updateOptions({ compressionEnabled: isCompressionEnabled() })));
+    this._register(this.accessibilityService.onDidChangeScreenReaderOptimized(() => {
+      this.tree.updateOptions({ compressionEnabled: isCompressionEnabled() });
+    }));
+    FilesExplorerFocusedContext.bindTo(this.tree.contextKeyService);
+    ExplorerFocusedContext.bindTo(this.tree.contextKeyService);
+    this._register(this.tree.onDidChangeFocus((e) => this.onFocusChanged(e.elements)));
+    this.onFocusChanged([]);
+    this._register(this.tree.onDidOpen(async (e) => {
+      const element = e.element;
+      if (!element) {
+        return;
+      }
+      const shiftDown = DOM.isKeyboardEvent(e.browserEvent) && e.browserEvent.shiftKey;
+      if (!shiftDown) {
+        if (element.isDirectory || this.explorerService.isEditable(void 0)) {
+          return;
+        }
+        this.telemetryService.publicLog2("workbenchActionExecuted", { id: "workbench.files.openFile", from: "explorer" });
+        try {
+          this.delegate?.willOpenElement(e.browserEvent);
+          await this.editorService.openEditor({ resource: element.resource, options: { preserveFocus: e.editorOptions.preserveFocus, pinned: e.editorOptions.pinned, source: EditorOpenSource.USER } }, e.sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+        } finally {
+          this.delegate?.didOpenElement();
+        }
+      }
+    }));
+    this._register(this.tree.onContextMenu((e) => this.onContextMenu(e)));
+    this._register(this.tree.onDidScroll(async (e) => {
+      const editable = this.explorerService.getEditable();
+      if (e.scrollTopChanged && editable && this.tree.getRelativeTop(editable.stat) === null) {
+        await editable.data.onFinish("", false);
+      }
+    }));
+    this._register(this.tree.onDidChangeCollapseState((e) => {
+      const element = e.node.element?.element;
+      if (element) {
+        const navigationControllers = this.renderer.getCompressedNavigationController(Array.isArray(element) ? element[0] : element);
+        navigationControllers?.forEach((controller) => controller.updateCollapsed(e.node.collapsed));
+      }
+      this.updateAnyCollapsedContext();
+    }));
+    this.updateAnyCollapsedContext();
+    this._register(this.tree.onMouseDblClick((e) => {
+      const scrollingByPage = this.configurationService.getValue("workbench.list.scrollByPage");
+      if (e.element === null && !scrollingByPage) {
+        this.commandService.executeCommand(NEW_FILE_COMMAND_ID);
+      }
+    }));
+    this._register(this.storageService.onWillSaveState(() => {
+      this.storeTreeViewState();
+    }));
+  }
+  // React on events
+  onConfigurationUpdated(event) {
+    if (!event || event.affectsConfiguration("explorer.autoReveal")) {
+      const configuration = this.configurationService.getValue();
+      this._autoReveal = configuration?.explorer?.autoReveal;
+    }
+    if (event && (event.affectsConfiguration("explorer.decorations.colors") || event.affectsConfiguration("explorer.decorations.badges"))) {
+      this.refresh(true);
+    }
+  }
+  storeTreeViewState() {
+    this.storageService.store(
+      ExplorerView_1.TREE_VIEW_STATE_STORAGE_KEY,
+      JSON.stringify(this.tree.getViewState()),
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  setContextKeys(stat) {
+    const folders = this.contextService.getWorkspace().folders;
+    const resource = stat ? stat.resource : folders[folders.length - 1].uri;
+    stat = stat || this.explorerService.findClosest(resource);
+    this.resourceContext.set(resource);
+    this.folderContext.set(!!stat && stat.isDirectory);
+    this.readonlyContext.set(!!stat && !!stat.isReadonly);
+    this.parentReadonlyContext.set(Boolean(stat?.parent?.isReadonly));
+    this.rootContext.set(!!stat && stat.isRoot);
+    if (resource) {
+      const overrides = resource ? this.editorResolverService.getEditors(resource).map((editor) => editor.id) : [];
+      this.availableEditorIdsContext.set(overrides.join(","));
+    } else {
+      this.availableEditorIdsContext.reset();
+    }
+  }
+  async onContextMenu(e) {
+    if (DOM.isEditableElement(e.browserEvent.target)) {
+      return;
+    }
+    const stat = e.element;
+    let anchor = e.anchor;
+    if (DOM.isHTMLElement(anchor)) {
+      if (stat) {
+        const controllers = this.renderer.getCompressedNavigationController(stat);
+        if (controllers && controllers.length > 0) {
+          if (DOM.isKeyboardEvent(e.browserEvent) || isCompressedFolderName(e.browserEvent.target)) {
+            anchor = controllers[0].labels[controllers[0].index];
+          } else {
+            controllers.forEach((controller) => controller.last());
+          }
+        }
+      }
+    }
+    this.fileCopiedContextKey.set(await this.clipboardService.hasResources());
+    this.setContextKeys(stat);
+    const selection = this.tree.getSelection();
+    const roots = this.explorerService.roots;
+    let arg;
+    if (stat instanceof ExplorerItem) {
+      const compressedControllers = this.renderer.getCompressedNavigationController(stat);
+      arg = compressedControllers?.length ? compressedControllers[0].current.resource : stat.resource;
+    } else {
+      arg = roots.length === 1 ? roots[0].resource : {};
+    }
+    this.contextMenuService.showContextMenu({
+      menuId: MenuId.ExplorerContext,
+      menuActionOptions: { arg, shouldForwardArgs: true },
+      contextKeyService: this.tree.contextKeyService,
+      getAnchor: /* @__PURE__ */ __name(() => anchor, "getAnchor"),
+      onHide: /* @__PURE__ */ __name((wasCancelled) => {
+        if (wasCancelled) {
+          this.tree.domFocus();
+        }
+      }, "onHide"),
+      getActionsContext: /* @__PURE__ */ __name(() => stat && selection && selection.indexOf(stat) >= 0 ? selection.map((fs) => fs.resource) : stat instanceof ExplorerItem ? [stat.resource] : [], "getActionsContext")
+    });
+  }
+  onFocusChanged(elements) {
+    const stat = elements.at(0);
+    this.setContextKeys(stat);
+    if (stat) {
+      const enableTrash = Boolean(this.configurationService.getValue().files?.enableTrash);
+      const hasCapability = this.fileService.hasCapability(
+        stat.resource,
+        4096
+        /* FileSystemProviderCapabilities.Trash */
+      );
+      this.resourceMoveableToTrash.set(enableTrash && hasCapability);
+    } else {
+      this.resourceMoveableToTrash.reset();
+    }
+    const compressedNavigationControllers = stat && this.renderer.getCompressedNavigationController(stat);
+    if (!compressedNavigationControllers) {
+      this.compressedFocusContext.set(false);
+      return;
+    }
+    this.compressedFocusContext.set(true);
+    compressedNavigationControllers.forEach((controller) => {
+      this.updateCompressedNavigationContextKeys(controller);
+    });
+  }
+  // General methods
+  /**
+   * Refresh the contents of the explorer to get up to date data from the disk about the file structure.
+   * If the item is passed we refresh only that level of the tree, otherwise we do a full refresh.
+   */
+  refresh(recursive, item, cancelEditing = true) {
+    if (!this.tree || !this.isBodyVisible() || item && !this.tree.hasNode(item) || this.findProvider?.isShowingFilterResults() && recursive) {
+      return Promise.resolve(void 0);
+    }
+    if (cancelEditing && this.explorerService.isEditable(void 0)) {
+      this.tree.domFocus();
+    }
+    const toRefresh = item || this.tree.getInput();
+    return this.tree.updateChildren(toRefresh, recursive, !!item);
+  }
+  getOptimalWidth() {
+    const parentNode = this.tree.getHTMLElement();
+    const childNodes = [].slice.call(parentNode.querySelectorAll(".explorer-item .label-name"));
+    return DOM.getLargestChildWidth(parentNode, childNodes);
+  }
+  async setTreeInput() {
+    if (!this.isBodyVisible()) {
+      return Promise.resolve(void 0);
+    }
+    if (this.setTreeInputPromise) {
+      await this.setTreeInputPromise;
+    }
+    const initialInputSetup = !this.tree.getInput();
+    if (initialInputSetup) {
+      perf.mark("code/willResolveExplorer");
+    }
+    const roots = this.explorerService.roots;
+    let input = roots[0];
+    if (this.contextService.getWorkbenchState() !== 2 || roots[0].error) {
+      input = roots;
+    }
+    let viewState;
+    if (this.tree?.getInput()) {
+      viewState = this.tree.getViewState();
+    } else {
+      const rawViewState = this.storageService.get(
+        ExplorerView_1.TREE_VIEW_STATE_STORAGE_KEY,
+        1
+        /* StorageScope.WORKSPACE */
+      );
+      if (rawViewState) {
+        viewState = JSON.parse(rawViewState);
+      }
+    }
+    const previousInput = this.tree.getInput();
+    const promise = this.setTreeInputPromise = this.tree.setInput(input, viewState).then(async () => {
+      if (Array.isArray(input)) {
+        if (!viewState || previousInput instanceof ExplorerItem) {
+          for (let i = 0; i < Math.min(input.length, 5); i++) {
+            try {
+              await this.tree.expand(input[i]);
+            } catch (e) {
+            }
+          }
+        }
+        if (!previousInput && input.length === 1 && this.configurationService.getValue().explorer.expandSingleFolderWorkspaces) {
+          await this.tree.expand(input[0]).catch(() => {
+          });
+        }
+        if (Array.isArray(previousInput)) {
+          const previousRoots = new ResourceMap();
+          previousInput.forEach((previousRoot) => previousRoots.set(previousRoot.resource, true));
+          await Promise.all(input.map(async (item) => {
+            if (!previousRoots.has(item.resource)) {
+              try {
+                await this.tree.expand(item);
+              } catch (e) {
+              }
+            }
+          }));
+        }
+      }
+      if (initialInputSetup) {
+        perf.mark("code/didResolveExplorer");
+      }
+    });
+    this.progressService.withProgress({
+      location: 1,
+      delay: this.layoutService.isRestored() ? 800 : 1500
+      // reduce progress visibility when still restoring
+    }, (_progress) => promise);
+    await promise;
+    if (!this.decorationsProvider) {
+      this.decorationsProvider = new ExplorerDecorationsProvider(this.explorerService, this.contextService);
+      this._register(this.decorationService.registerDecorationsProvider(this.decorationsProvider));
+    }
+  }
+  async selectResource(resource, reveal = this._autoReveal, retry = 0) {
+    if (retry === 2) {
+      return;
+    }
+    if (!resource || !this.isBodyVisible()) {
+      return;
+    }
+    if (this.setTreeInputPromise) {
+      await this.setTreeInputPromise;
+    }
+    let item = this.explorerService.findClosestRoot(resource);
+    while (item && item.resource.toString() !== resource.toString()) {
+      try {
+        await this.tree.expand(item);
+      } catch (e) {
+        return this.selectResource(resource, reveal, retry + 1);
+      }
+      if (!item.children.size) {
+        item = null;
+      } else {
+        for (const child of item.children.values()) {
+          if (this.uriIdentityService.extUri.isEqualOrParent(resource, child.resource)) {
+            item = child;
+            break;
+          }
+          item = null;
+        }
+      }
+    }
+    if (item) {
+      if (item === this.tree.getInput()) {
+        this.tree.setFocus([]);
+        this.tree.setSelection([]);
+        return;
+      }
+      try {
+        if (item.nestedParent) {
+          await this.tree.expand(item.nestedParent);
+        }
+        if ((reveal === true || reveal === "force") && this.tree.getRelativeTop(item) === null) {
+          this.tree.reveal(item, 0.5);
+        }
+        this.tree.setFocus([item]);
+        this.tree.setSelection([item]);
+      } catch (e) {
+        return this.selectResource(resource, reveal, retry + 1);
+      }
+    }
+  }
+  itemsCopied(stats, cut, previousCut) {
+    this.fileCopiedContextKey.set(stats.length > 0);
+    this.resourceCutContextKey.set(cut && stats.length > 0);
+    previousCut?.forEach((item) => this.tree.rerender(item));
+    if (cut) {
+      stats.forEach((s) => this.tree.rerender(s));
+    }
+  }
+  expandAll() {
+    if (this.explorerService.isEditable(void 0)) {
+      this.tree.domFocus();
+    }
+    this.tree.expandAll();
+  }
+  collapseAll() {
+    if (this.explorerService.isEditable(void 0)) {
+      this.tree.domFocus();
+    }
+    const treeInput = this.tree.getInput();
+    if (Array.isArray(treeInput)) {
+      if (hasExpandedRootChild(this.tree, treeInput)) {
+        treeInput.forEach((folder) => {
+          folder.children.forEach((child) => this.tree.hasNode(child) && this.tree.collapse(child, true));
+        });
+        return;
+      }
+    }
+    this.tree.collapseAll();
+  }
+  previousCompressedStat() {
+    const focused = this.tree.getFocus();
+    if (!focused.length) {
+      return;
+    }
+    const compressedNavigationControllers = this.renderer.getCompressedNavigationController(focused[0]);
+    compressedNavigationControllers.forEach((controller) => {
+      controller.previous();
+      this.updateCompressedNavigationContextKeys(controller);
+    });
+  }
+  nextCompressedStat() {
+    const focused = this.tree.getFocus();
+    if (!focused.length) {
+      return;
+    }
+    const compressedNavigationControllers = this.renderer.getCompressedNavigationController(focused[0]);
+    compressedNavigationControllers.forEach((controller) => {
+      controller.next();
+      this.updateCompressedNavigationContextKeys(controller);
+    });
+  }
+  firstCompressedStat() {
+    const focused = this.tree.getFocus();
+    if (!focused.length) {
+      return;
+    }
+    const compressedNavigationControllers = this.renderer.getCompressedNavigationController(focused[0]);
+    compressedNavigationControllers.forEach((controller) => {
+      controller.first();
+      this.updateCompressedNavigationContextKeys(controller);
+    });
+  }
+  lastCompressedStat() {
+    const focused = this.tree.getFocus();
+    if (!focused.length) {
+      return;
+    }
+    const compressedNavigationControllers = this.renderer.getCompressedNavigationController(focused[0]);
+    compressedNavigationControllers.forEach((controller) => {
+      controller.last();
+      this.updateCompressedNavigationContextKeys(controller);
+    });
+  }
+  updateCompressedNavigationContextKeys(controller) {
+    this.compressedFocusFirstContext.set(controller.index === 0);
+    this.compressedFocusLastContext.set(controller.index === controller.count - 1);
+  }
+  updateAnyCollapsedContext() {
+    const treeInput = this.tree.getInput();
+    if (treeInput === void 0) {
+      return;
+    }
+    const treeInputArray = Array.isArray(treeInput) ? treeInput : Array.from(treeInput.children.values());
+    this.viewHasSomeCollapsibleRootItem.set(hasExpandedNode(this.tree, treeInputArray));
+    this.storeTreeViewState();
+  }
+  hasPhantomElements() {
+    return !!this.findProvider?.isShowingFilterResults();
+  }
+  dispose() {
+    this.dragHandler?.dispose();
+    super.dispose();
+  }
+};
+__decorate([
+  memoize
+], ExplorerView.prototype, "fileCopiedContextKey", null);
+__decorate([
+  memoize
+], ExplorerView.prototype, "resourceCutContextKey", null);
+ExplorerView = ExplorerView_1 = __decorate([
+  __param(1, IContextMenuService),
+  __param(2, IViewDescriptorService),
+  __param(3, IInstantiationService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IProgressService),
+  __param(6, IEditorService),
+  __param(7, IEditorResolverService),
+  __param(8, IWorkbenchLayoutService),
+  __param(9, IKeybindingService),
+  __param(10, IContextKeyService),
+  __param(11, IConfigurationService),
+  __param(12, IDecorationsService),
+  __param(13, ILabelService),
+  __param(14, IThemeService),
+  __param(15, ITelemetryService),
+  __param(16, IHoverService),
+  __param(17, IExplorerService),
+  __param(18, IStorageService),
+  __param(19, IClipboardService),
+  __param(20, IFileService),
+  __param(21, IUriIdentityService),
+  __param(22, ICommandService),
+  __param(23, IOpenerService),
+  __param(24, IAccessibilityService)
+], ExplorerView);
+function createFileIconThemableTreeContainerScope(container, themeService) {
+  container.classList.add("file-icon-themable-tree");
+  container.classList.add("show-file-icons");
+  const onDidChangeFileIconTheme = /* @__PURE__ */ __name((theme) => {
+    container.classList.toggle("align-icons-and-twisties", theme.hasFileIcons && !theme.hasFolderIcons);
+    container.classList.toggle("hide-arrows", theme.hidesExplorerArrows === true);
+  }, "onDidChangeFileIconTheme");
+  onDidChangeFileIconTheme(themeService.getFileIconTheme());
+  return themeService.onDidFileIconThemeChange(onDidChangeFileIconTheme);
+}
+__name(createFileIconThemableTreeContainerScope, "createFileIconThemableTreeContainerScope");
+const CanCreateContext = ContextKeyExpr.or(
+  // Folder: can create unless readonly
+  ContextKeyExpr.and(ExplorerFolderContext, ExplorerResourceWritableContext),
+  // File: can create unless parent is readonly
+  ContextKeyExpr.and(ExplorerFolderContext.toNegated(), ExplorerResourceParentReadOnlyContext.toNegated())
+);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.files.action.createFileFromExplorer",
+      title: nls.localize("createNewFile", "New File..."),
+      f1: false,
+      icon: Codicon.newFile,
+      precondition: CanCreateContext,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", VIEW_ID),
+        order: 10
+      }
+    });
+  }
+  run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    commandService.executeCommand(NEW_FILE_COMMAND_ID);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.files.action.createFolderFromExplorer",
+      title: nls.localize("createNewFolder", "New Folder..."),
+      f1: false,
+      icon: Codicon.newFolder,
+      precondition: CanCreateContext,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", VIEW_ID),
+        order: 20
+      }
+    });
+  }
+  run(accessor) {
+    const commandService = accessor.get(ICommandService);
+    commandService.executeCommand(NEW_FOLDER_COMMAND_ID);
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.files.action.refreshFilesExplorer",
+      title: nls.localize2("refreshExplorer", "Refresh Explorer"),
+      f1: true,
+      icon: Codicon.refresh,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", VIEW_ID),
+        order: 30
+      },
+      metadata: {
+        description: nls.localize2("refreshExplorerMetadata", "Forces a refresh of the Explorer.")
+      },
+      precondition: ExplorerFindProviderActive.negate()
+    });
+  }
+  async run(accessor) {
+    const viewsService = accessor.get(IViewsService);
+    const explorerService = accessor.get(IExplorerService);
+    await viewsService.openView(VIEW_ID);
+    await explorerService.refresh();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "workbench.files.action.collapseExplorerFolders",
+      title: nls.localize2("collapseExplorerFolders", "Collapse Folders in Explorer"),
+      f1: true,
+      icon: Codicon.collapseAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", VIEW_ID),
+        order: 40
+      },
+      metadata: {
+        description: nls.localize2("collapseExplorerFoldersMetadata", "Folds all folders in the Explorer.")
+      }
+    });
+  }
+  run(accessor) {
+    const viewsService = accessor.get(IViewsService);
+    const view = viewsService.getViewWithId(VIEW_ID);
+    if (view !== null) {
+      const explorerView = view;
+      explorerView.collapseAll();
+    }
+  }
+});
+export {
+  ExplorerView,
+  createFileIconThemableTreeContainerScope,
+  getContext
+};
+//# sourceMappingURL=explorerView.js.map

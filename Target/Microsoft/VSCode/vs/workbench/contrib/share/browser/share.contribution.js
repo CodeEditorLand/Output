@@ -1,1 +1,184 @@
-import"./share.css";import{CancellationToken as y}from"../../../../base/common/cancellation.js";import{$bk as $}from"../../../../base/common/codicons.js";import{$jk as L}from"../../../../base/common/htmlContent.js";import{localize as l,localize2 as R}from"../../../../nls.js";import{$vL as D,$qL as s,$sL as M,$wL as T}from"../../../../platform/actions/common/actions.js";import{$gjb as W}from"../../../../platform/clipboard/common/clipboardService.js";import{$0l as _}from"../../../../platform/configuration/common/configuration.js";import{$0n as j}from"../../../../platform/contextkey/common/contextkey.js";import{$vN as A,SideBySideEditor as B}from"../../../common/editor.js";import{$Mp as I}from"../../../../platform/dialogs/common/dialogs.js";import{$WC as O}from"../../../../platform/instantiation/common/extensions.js";import{Severity as P}from"../../../../platform/notification/common/notification.js";import{$EP as q}from"../../../../platform/opener/common/opener.js";import{$jm as S}from"../../../../platform/registry/common/platform.js";import{$Ml as z}from"../../../../platform/workspace/common/workspace.js";import{$mO as N}from"../../../common/contextkeys.js";import{Extensions as V}from"../../../common/contributions.js";import{$QKc as H,$RKc as K}from"./shareService.js";import{$z0b as g}from"../common/share.js";import{$BL as U}from"../../../services/editor/common/editorService.js";import{$uH as Q}from"../../../../platform/progress/common/progress.js";import{$Mdb as Y}from"../../../../editor/browser/services/codeEditorService.js";import{$lm as F}from"../../../../platform/configuration/common/configurationRegistry.js";import{$7N as G}from"../../../common/configuration.js";import{$Ed as J,$Dd as X}from"../../../../base/common/lifecycle.js";var k=function(a,e,o,t){var i=arguments.length,r=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,o,t);else for(var c=a.length-1;c>=0;c--)(n=a[c])&&(r=(i<3?n(r):i>3?n(e,o,r):n(e,o))||r);return i>3&&r&&Object.defineProperty(e,o,r),r},b=function(a,e){return function(o,t){e(o,t,a)}},m;const Z=[s.EditorContextShare,s.SCMResourceContextShare,s.OpenEditorsContextShare,s.EditorTitleContextShare,s.MenubarShare,s.ExplorerContextShare];let d=class extends J{static{m=this}static{this.a="workbench.experimental.share.enabled"}constructor(e,o){super(),this.c=e,this.f=o,this.f.getValue(m.a)&&this.g(),this.D(this.f.onDidChangeConfiguration(t=>{if(t.affectsConfiguration(m.a)){const i=this.f.getValue(m.a);i===!0&&this.b===void 0?this.g():i===!1&&this.b!==void 0&&(this.b?.clear(),this.b=void 0)}}))}dispose(){super.dispose(),this.b?.dispose()}g(){this.b||(this.b=new X),this.b.add(T(class h extends D{static{this.ID="workbench.action.share"}static{this.LABEL=R(12597,"Share...")}constructor(){super({id:h.ID,title:h.LABEL,f1:!0,icon:$.linkExternal,precondition:j.and(H.notEqualsTo(0),N.notEqualsTo(0)),keybinding:{weight:200,primary:2609},menu:[{id:s.CommandCenter,order:1e3}]})}async run(t,...i){const r=t.get(g),n=t.get(U)?.activeEditor,c=(n&&A.getOriginalUri(n,{supportSideBySide:B.PRIMARY}))??t.get(z).getWorkspace().folders[0].uri,C=t.get(W),v=t.get(I),x=t.get(q),w=t.get(Q),E=t.get(Y).getActiveCodeEditor()?.getSelection()??void 0,f=await w.withProgress({location:10,detail:l(12591,null)},async()=>r.provideShare({resourceUri:c,selection:E},y.None));if(f){const p=f.toString(),u=typeof f=="string";await C.writeText(p),v.prompt({type:P.Info,message:u?l(12592,null):l(12593,null),custom:{icon:$.check,markdownDetails:[{markdown:new L(`<div aria-label='${p}'>${p}</div>`,{supportHtml:!0}),classes:[u?"share-dialog-input-text":"share-dialog-input-link"]}]},cancelButton:l(12594,null),buttons:u?[]:[{label:l(12595,null),run:()=>{x.open(f,{openExternal:!0})}}]})}}}));const e=this.c.getShareActions();for(const o of Z)for(const t of e)this.b.add(M.appendMenuItem(o,t))}};d=m=k([b(0,g),b(1,_)],d);O(g,K,1);const tt=S.as(V.Workbench);tt.registerWorkbenchContribution(d,4);S.as(F.Configuration).registerConfiguration({...G,properties:{"workbench.experimental.share.enabled":{type:"boolean",default:!1,tags:["experimental"],markdownDescription:l(12596,null,"`#window.commandCenter#`","`true`"),restricted:!1}}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ShareWorkbenchContribution_1;
+import "./share.css";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Severity } from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { WorkspaceFolderCountContext } from "../../../common/contextkeys.js";
+import { Extensions } from "../../../common/contributions.js";
+import { ShareProviderCountContext, ShareService } from "./shareService.js";
+import { IShareService } from "../common/share.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
+import { Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+const targetMenus = [
+  MenuId.EditorContextShare,
+  MenuId.SCMResourceContextShare,
+  MenuId.OpenEditorsContextShare,
+  MenuId.EditorTitleContextShare,
+  MenuId.MenubarShare,
+  // MenuId.EditorLineNumberContext, // todo@joyceerhl add share
+  MenuId.ExplorerContextShare
+];
+let ShareWorkbenchContribution = class ShareWorkbenchContribution2 extends Disposable {
+  static {
+    __name(this, "ShareWorkbenchContribution");
+  }
+  static {
+    ShareWorkbenchContribution_1 = this;
+  }
+  static {
+    this.SHARE_ENABLED_SETTING = "workbench.experimental.share.enabled";
+  }
+  constructor(shareService, configurationService) {
+    super();
+    this.shareService = shareService;
+    this.configurationService = configurationService;
+    if (this.configurationService.getValue(ShareWorkbenchContribution_1.SHARE_ENABLED_SETTING)) {
+      this.registerActions();
+    }
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(ShareWorkbenchContribution_1.SHARE_ENABLED_SETTING)) {
+        const settingValue = this.configurationService.getValue(ShareWorkbenchContribution_1.SHARE_ENABLED_SETTING);
+        if (settingValue === true && this._disposables === void 0) {
+          this.registerActions();
+        } else if (settingValue === false && this._disposables !== void 0) {
+          this._disposables?.clear();
+          this._disposables = void 0;
+        }
+      }
+    }));
+  }
+  dispose() {
+    super.dispose();
+    this._disposables?.dispose();
+  }
+  registerActions() {
+    if (!this._disposables) {
+      this._disposables = new DisposableStore();
+    }
+    this._disposables.add(registerAction2(class ShareAction extends Action2 {
+      static {
+        __name(this, "ShareAction");
+      }
+      static {
+        this.ID = "workbench.action.share";
+      }
+      static {
+        this.LABEL = localize2("share", "Share...");
+      }
+      constructor() {
+        super({
+          id: ShareAction.ID,
+          title: ShareAction.LABEL,
+          f1: true,
+          icon: Codicon.linkExternal,
+          precondition: ContextKeyExpr.and(ShareProviderCountContext.notEqualsTo(0), WorkspaceFolderCountContext.notEqualsTo(0)),
+          keybinding: {
+            weight: 200,
+            primary: 512 | 2048 | 49
+          },
+          menu: [
+            { id: MenuId.CommandCenter, order: 1e3 }
+          ]
+        });
+      }
+      async run(accessor, ...args) {
+        const shareService = accessor.get(IShareService);
+        const activeEditor = accessor.get(IEditorService)?.activeEditor;
+        const resourceUri = (activeEditor && EditorResourceAccessor.getOriginalUri(activeEditor, { supportSideBySide: SideBySideEditor.PRIMARY })) ?? accessor.get(IWorkspaceContextService).getWorkspace().folders[0].uri;
+        const clipboardService = accessor.get(IClipboardService);
+        const dialogService = accessor.get(IDialogService);
+        const urlService = accessor.get(IOpenerService);
+        const progressService = accessor.get(IProgressService);
+        const selection = accessor.get(ICodeEditorService).getActiveCodeEditor()?.getSelection() ?? void 0;
+        const result = await progressService.withProgress({
+          location: 10,
+          detail: localize("generating link", "Generating link...")
+        }, async () => shareService.provideShare({ resourceUri, selection }, CancellationToken.None));
+        if (result) {
+          const uriText = result.toString();
+          const isResultText = typeof result === "string";
+          await clipboardService.writeText(uriText);
+          dialogService.prompt({
+            type: Severity.Info,
+            message: isResultText ? localize("shareTextSuccess", "Copied text to clipboard!") : localize("shareSuccess", "Copied link to clipboard!"),
+            custom: {
+              icon: Codicon.check,
+              markdownDetails: [{
+                markdown: new MarkdownString(`<div aria-label='${uriText}'>${uriText}</div>`, { supportHtml: true }),
+                classes: [isResultText ? "share-dialog-input-text" : "share-dialog-input-link"]
+              }]
+            },
+            cancelButton: localize("close", "Close"),
+            buttons: isResultText ? [] : [{ label: localize("open link", "Open Link"), run: /* @__PURE__ */ __name(() => {
+              urlService.open(result, { openExternal: true });
+            }, "run") }]
+          });
+        }
+      }
+    }));
+    const actions = this.shareService.getShareActions();
+    for (const menuId of targetMenus) {
+      for (const action of actions) {
+        this._disposables.add(MenuRegistry.appendMenuItem(menuId, action));
+      }
+    }
+  }
+};
+ShareWorkbenchContribution = ShareWorkbenchContribution_1 = __decorate([
+  __param(0, IShareService),
+  __param(1, IConfigurationService)
+], ShareWorkbenchContribution);
+registerSingleton(
+  IShareService,
+  ShareService,
+  1
+  /* InstantiationType.Delayed */
+);
+const workbenchContributionsRegistry = Registry.as(Extensions.Workbench);
+workbenchContributionsRegistry.registerWorkbenchContribution(
+  ShareWorkbenchContribution,
+  4
+  /* LifecyclePhase.Eventually */
+);
+Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.experimental.share.enabled": {
+      type: "boolean",
+      default: false,
+      tags: ["experimental"],
+      markdownDescription: localize("experimental.share.enabled", "Controls whether to render the Share action next to the command center when {0} is {1}.", "`#window.commandCenter#`", "`true`"),
+      restricted: false
+    }
+  }
+});
+//# sourceMappingURL=share.contribution.js.map

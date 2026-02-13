@@ -1,1 +1,516 @@
-import*as m from"../../../../../../base/browser/dom.js";import{$$b as R}from"../../../../../../base/common/arrays.js";import{$bk as b}from"../../../../../../base/common/codicons.js";import{$Ed as D,$Dd as A}from"../../../../../../base/common/lifecycle.js";import{$jh as G,Schemas as d}from"../../../../../../base/common/network.js";import{$ab as I}from"../../../../../../base/common/path.js";import{$Eh as B,$Nh as k}from"../../../../../../base/common/resources.js";import{ThemeIcon as Q}from"../../../../../../base/common/themables.js";import{URI as p}from"../../../../../../base/common/uri.js";import{localize as g,localize2 as P}from"../../../../../../nls.js";import{$7jb as z}from"../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$ikb as Z}from"../../../../../../platform/actions/browser/toolbar.js";import{$vL as T,$rL as M,$qL as S,$wL as U}from"../../../../../../platform/actions/common/actions.js";import{$gjb as J}from"../../../../../../platform/clipboard/common/clipboardService.js";import{$0n as F,$ro as O}from"../../../../../../platform/contextkey/common/contextkey.js";import{$ijb as _}from"../../../../../../platform/contextview/browser/contextView.js";import{FileKind as X}from"../../../../../../platform/files/common/files.js";import{$Mj as L}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as Y}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$oH as ee}from"../../../../../../platform/label/common/label.js";import{$9rb as te}from"../../../../../../platform/list/browser/listService.js";import{$EP as K}from"../../../../../../platform/opener/common/opener.js";import{$Vn as ne}from"../../../../../../platform/product/common/productService.js";import{$pu as ie}from"../../../../../../platform/theme/common/theme.js";import{$qu as H}from"../../../../../../platform/theme/common/themeService.js";import{$pBb as re}from"../../../../../browser/dnd.js";import{$eQb as se}from"../../../../../browser/labels.js";import{$wP as $}from"../../../../../common/contextkeys.js";import{$8M as oe}from"../../../../../services/preferences/common/preferences.js";import{$xUb as le}from"../../../../files/browser/views/explorerView.js";import{$cRb as ce}from"../../../../files/common/files.js";import{$VV as ae}from"../../../common/editing/chatEditingService.js";import{ChatResponseReferencePartStatusKind as E}from"../../../common/chatService/chatService.js";import{$U4b as he}from"../../chat.js";import{$f4b as ue}from"./chatCollapsibleContentPart.js";import{$3Zb as de}from"./chatCollections.js";import{$jkb as q}from"../../../../../../platform/hover/browser/hover.js";var C=function(c,e,i,n){var r=arguments.length,s=r<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,i):n,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(c,e,i,n);else for(var t=c.length-1;t>=0;t--)(l=c[t])&&(s=(r<3?l(s):r>3?l(e,i,s):l(e,i))||s);return r>3&&s&&Object.defineProperty(e,i,s),s},h=function(c,e){return function(i,n){e(i,n,c)}},x;const w=m.$;let y=class extends ue{constructor(e,i,n,r,s,l,t,o,a,u){super(i??(e.length>1?g(6508,null,e.length):g(6509,null,1)),n,s,u),this.c=e,this.h=r,this.t=l,this.M=t,this.N=o,this.O=a}C(){const i=this.D(this.h.get()).object;this.D(i.onDidOpen(t=>{if(t.element&&"reference"in t.element&&typeof t.element.reference=="object"){const o="variableName"in t.element.reference?t.element.reference.value:t.element.reference,a=p.isUri(o)?o:o?.uri;a&&this.t.open(a,{fromUserGesture:!0,editorOptions:{...t.editorOptions,selection:o&&"range"in o?o.range:void 0}})}})),this.D(i.onContextMenu(t=>{m.$t9.stop(t.browserEvent,!0);const o=t.element&&f(t.element);o&&this.O.showContextMenu({getAnchor:()=>t.anchor,getActions:()=>{const a=this.M.getMenuActions(S.ChatAttachmentsContext,i.contextKeyService,{shouldForwardArgs:!0,arg:o});return z(a)}})}));const n=this.D(this.N.createInstance($));this.D(i.onDidChangeFocus(t=>{n.reset();const o=t.elements.length?t.elements[0]:void 0,a=o&&f(o);n.set(a??null)}));const l=Math.min(this.c.length,6)*22;return i.layout(l),i.getHTMLElement().style.height=`${l}px`,i.splice(0,i.length,this.c),i.getHTMLElement().parentElement}hasSameContent(e,i,n){return e.kind==="references"&&e.references.length===this.c.length&&!!i.length===this.f}};y=C([h(5,K),h(6,M),h(7,L),h(8,_),h(9,q)],y);let N=class extends y{constructor(e,i,n,r,s,l,t,o,a,u){super(e,i,n,r,void 0,l,t,o,a,u),this.Q=s,e.length===0&&m.$F9(this.domNode)}H(){const e=this.s;return e.usedReferencesExpanded??!!(this.Q.expandedWhenEmptyResponse&&e.response.value.length===0)}I(e){const i=this.s;i.usedReferencesExpanded=!this.H()}};N=C([h(5,K),h(6,M),h(7,L),h(8,_),h(9,q)],N);let j=class extends D{get inUse(){return this.a.inUse}constructor(e,i,n,r,s,l){super(),this.b=e,this.c=i,this.f=n,this.g=r,this.h=s,this.j=l,this.a=this.D(new de(()=>this.m()))}m(){const e=new A,i=e.add(this.g.createInstance(se,{onDidChangeVisibility:this.b})),n=w(".chat-used-context-list");return e.add(le(n,this.h)),{list:this.g.createInstance(te,"ChatListRenderer",n,new fe,[this.g.createInstance(v,i,this.c)],{...this.f,alwaysConsumeMouseWheel:!1,accessibilityProvider:{getAriaLabel:s=>{if(s.kind==="warning")return s.content.value;const l=s.reference;return typeof l=="string"?l:"variableName"in l?l.variableName:p.isUri(l)?I(l.path):I(l.uri.path)},getWidgetAriaLabel:()=>g(6510,null)},dnd:{getDragURI:s=>f(s)?.toString()??null,getDragLabel:(s,l)=>{const t=R(s.map(f));if(t.length)return t.length===1?this.j.getUriLabel(t[0],{relative:!0}):`${t.length}`},dispose:()=>{},onDragOver:()=>!1,drop:()=>{},onDragStart:(s,l)=>{try{const t=s.getData(),o=R(t.map(f));this.g.invokeFunction(a=>re(a,o,l))}catch{}}}}),dispose:()=>e.dispose()}}get(){const e=this.a.get();let i=!1;return{object:e.list,isStale:()=>i,dispose:()=>{i=!0,this.a.release(e)}}}clear(){this.a.clear()}};j=C([h(3,L),h(4,H),h(5,ee)],j);class fe{getHeight(e){return 22}getTemplateId(e){return v.TEMPLATE_ID}}let v=class{static{x=this}static{this.TEMPLATE_ID="chatCollapsibleListRenderer"}constructor(e,i,n,r,s,l){this.a=e,this.b=i,this.c=n,this.d=r,this.f=s,this.g=l,this.templateId=x.TEMPLATE_ID}renderTemplate(e){const i=new A,n=i.add(this.a.create(e,{supportHighlights:!0,supportIcons:!0})),r=w(".working-set-line-counts"),s=m.$(".working-set-lines-added"),l=m.$(".working-set-lines-removed");r.appendChild(s),r.appendChild(l),n.element.appendChild(r);let t,o,a;if(this.b){o=w(".chat-collapsible-list-action-bar"),a=i.add(this.g.createScoped(o));const u=i.add(this.f.createChild(new Y([O,a])));t=i.add(u.createInstance(Z,o,this.b,{menuOptions:{shouldForwardArgs:!0,arg:void 0}})),n.element.appendChild(o)}return{templateDisposables:i,label:n,toolbar:t,actionBarContainer:o,contextKeyService:a,fileDiffsContainer:r,addedSpan:s,removedSpan:l}}h(e){return Q.isThemeIcon(e.iconPath)?e.iconPath:ie(this.c.getColorTheme().type)&&e.iconPath?.dark?e.iconPath?.dark:e.iconPath?.light}renderElement(e,i,n){if(e.kind==="warning"){n.label.setResource({name:e.content.value},{icon:b.warning});return}const r=e.reference,s=this.h(e);n.label.element.style.display="flex";let l;if(typeof r=="object"&&"variableName"in r)if(r.value){const t=p.isUri(r.value)?r.value:r.value.uri;n.label.setResource({resource:t,name:B(t),description:`#${r.variableName}`,range:"range"in r.value?r.value.range:void 0},{icon:s,title:e.options?.status?.description??e.title})}else if(r.variableName.startsWith("kernelVariable")){const o=`${r.variableName.split(":")[1]}`;n.label.setLabel("Kernel variable",o,{title:e.options?.status?.description})}else n.label.setLabel("Unknown variable type: "+r.variableName);else if(typeof r=="string")n.label.setLabel(r,void 0,{iconPath:p.isUri(s)?s:void 0,title:e.options?.status?.description??e.title});else{const t="uri"in r?r.uri:r;l=t;const o=e.excluded?["excluded"]:[];if(t.scheme==="https"&&k(t.authority,"github.com")&&t.path.includes("/tree/"))n.label.setResource(me(t),{icon:b.github,title:e.title,strikethrough:e.excluded,extraClasses:o});else if(t.scheme===this.d.urlProtocol&&k(t.authority,oe)){const a=t.path.substring(1);n.label.setResource({resource:t,name:a},{icon:b.settingsGear,title:g(6511,null,a),strikethrough:e.excluded,extraClasses:o})}else G(t,d.mailto,d.http,d.https)?n.label.setResource({resource:t,name:t.toString(!0)},{icon:s??b.globe,title:e.options?.status?.description??e.title??t.toString(!0),strikethrough:e.excluded,extraClasses:o}):n.label.setFile(t,{fileKind:X.FILE,fileDecorations:void 0,range:"range"in r?r.range:void 0,title:e.options?.status?.description??e.title,strikethrough:e.excluded,extraClasses:o})}for(const t of[".monaco-icon-suffix-container",".monaco-icon-name-container"]){const o=n.label.element.querySelector(t);o&&(e.options?.status?.kind===E.Omitted||e.options?.status?.kind===E.Partial?o.classList.add("warning"):o.classList.remove("warning"))}if(e.state!==void 0){if(n.actionBarContainer){const t=e?.options?.diffMeta;if(t){if(!n.fileDiffsContainer||!n.addedSpan||!n.removedSpan)return;n.addedSpan.textContent=`+${t.added}`,n.removedSpan.textContent=`-${t.removed}`,n.fileDiffsContainer.setAttribute("aria-label",g(6512,null,t.added,t.removed))}n.label.element.querySelector(".monaco-icon-name-container")?.classList.add("modified")}n.toolbar&&(n.toolbar.context=l),n.contextKeyService&&e.state!==void 0&&ae.bindTo(n.contextKeyService).set(e.state)}}disposeTemplate(e){e.templateDisposables.dispose()}};v=x=C([h(2,H),h(3,ne),h(4,L),h(5,O)],v);function me(c){const e=c.path.split("/").slice(1,3).join("/"),i=c.path.split("/").slice(5),n=i.at(-1),r=pe(c);return{resource:c,name:n??i.join("/"),description:[e,...i.slice(0,-1)].join("/"),range:r}}function pe(c){if(!c.fragment)return;const e=c.fragment.match(/\bL(\d+)(?:-L(\d+))?/);if(!e)return;const i=parseInt(e[1]);if(isNaN(i))return;const n=e[2]?parseInt(e[2]):i;if(!isNaN(n))return{startLineNumber:i,startColumn:1,endLineNumber:n,endColumn:1}}function f(c){if(c.kind==="warning")return null;const{reference:e}=c;return typeof e=="string"||"variableName"in e?null:p.isUri(e)?e:e.uri}U(class V extends T{static{this.id="workbench.action.chat.addToChatAction"}constructor(){super({id:V.id,title:{...P(6513,"Add File to Chat")},f1:!1,menu:[{id:S.ChatAttachmentsContext,group:"chat",order:1,when:F.and($.IsFileSystemResource,ce.negate())}]})}async run(e,i){const n=e.get(he);if(!i)return;const r=n.lastFocusedWidget;r&&r.attachmentModel.addFile(i)}});U(class W extends T{static{this.id="workbench.action.chat.copyLink"}constructor(){super({id:W.id,title:{...P(6514,"Copy Link")},f1:!1,menu:[{id:S.ChatAttachmentsContext,group:"chat",order:0,when:F.or($.Scheme.isEqualTo(d.http),$.Scheme.isEqualTo(d.https))}]})}async run(e,i){await e.get(J).writeResources([i])}});export{y as $g4b,N as $h4b,j as $i4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CollapsibleListRenderer_1;
+import * as dom from "../../../../../../base/browser/dom.js";
+import { coalesce } from "../../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { matchesSomeScheme, Schemas } from "../../../../../../base/common/network.js";
+import { basename } from "../../../../../../base/common/path.js";
+import { basenameOrAuthority, isEqualAuthority } from "../../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../../../nls.js";
+import { getFlatContextMenuActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { Action2, IMenuService, MenuId, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import { FileKind } from "../../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { WorkbenchList } from "../../../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../../../platform/product/common/productService.js";
+import { isDark } from "../../../../../../platform/theme/common/theme.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { fillEditorsDragData } from "../../../../../browser/dnd.js";
+import { ResourceLabels } from "../../../../../browser/labels.js";
+import { ResourceContextKey } from "../../../../../common/contextkeys.js";
+import { SETTINGS_AUTHORITY } from "../../../../../services/preferences/common/preferences.js";
+import { createFileIconThemableTreeContainerScope } from "../../../../files/browser/views/explorerView.js";
+import { ExplorerFolderContext } from "../../../../files/common/files.js";
+import { chatEditingWidgetFileStateContextKey } from "../../../common/editing/chatEditingService.js";
+import { ChatResponseReferencePartStatusKind } from "../../../common/chatService/chatService.js";
+import { IChatWidgetService } from "../../chat.js";
+import { ChatCollapsibleContentPart } from "./chatCollapsibleContentPart.js";
+import { ResourcePool } from "./chatCollections.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+const $ = dom.$;
+let ChatCollapsibleListContentPart = class ChatCollapsibleListContentPart2 extends ChatCollapsibleContentPart {
+  static {
+    __name(this, "ChatCollapsibleListContentPart");
+  }
+  constructor(data, labelOverride, context, contentReferencesListPool, hoverMessage, openerService, menuService, instantiationService, contextMenuService, hoverService) {
+    super(labelOverride ?? (data.length > 1 ? localize("usedReferencesPlural", "Used {0} references", data.length) : localize("usedReferencesSingular", "Used {0} reference", 1)), context, hoverMessage, hoverService);
+    this.data = data;
+    this.contentReferencesListPool = contentReferencesListPool;
+    this.openerService = openerService;
+    this.menuService = menuService;
+    this.instantiationService = instantiationService;
+    this.contextMenuService = contextMenuService;
+  }
+  initContent() {
+    const ref = this._register(this.contentReferencesListPool.get());
+    const list = ref.object;
+    this._register(list.onDidOpen((e) => {
+      if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
+        const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
+        const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
+        if (uri) {
+          this.openerService.open(uri, {
+            fromUserGesture: true,
+            editorOptions: {
+              ...e.editorOptions,
+              ...{
+                selection: uriOrLocation && "range" in uriOrLocation ? uriOrLocation.range : void 0
+              }
+            }
+          });
+        }
+      }
+    }));
+    this._register(list.onContextMenu((e) => {
+      dom.EventHelper.stop(e.browserEvent, true);
+      const uri = e.element && getResourceForElement(e.element);
+      if (!uri) {
+        return;
+      }
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => {
+          const menu = this.menuService.getMenuActions(MenuId.ChatAttachmentsContext, list.contextKeyService, { shouldForwardArgs: true, arg: uri });
+          return getFlatContextMenuActions(menu);
+        }, "getActions")
+      });
+    }));
+    const resourceContextKey = this._register(this.instantiationService.createInstance(ResourceContextKey));
+    this._register(list.onDidChangeFocus((e) => {
+      resourceContextKey.reset();
+      const element = e.elements.length ? e.elements[0] : void 0;
+      const uri = element && getResourceForElement(element);
+      resourceContextKey.set(uri ?? null);
+    }));
+    const maxItemsShown = 6;
+    const itemsShown = Math.min(this.data.length, maxItemsShown);
+    const height = itemsShown * 22;
+    list.layout(height);
+    list.getHTMLElement().style.height = `${height}px`;
+    list.splice(0, list.length, this.data);
+    return list.getHTMLElement().parentElement;
+  }
+  hasSameContent(other, followingContent, element) {
+    return other.kind === "references" && other.references.length === this.data.length && !!followingContent.length === this.hasFollowingContent;
+  }
+};
+ChatCollapsibleListContentPart = __decorate([
+  __param(5, IOpenerService),
+  __param(6, IMenuService),
+  __param(7, IInstantiationService),
+  __param(8, IContextMenuService),
+  __param(9, IHoverService)
+], ChatCollapsibleListContentPart);
+let ChatUsedReferencesListContentPart = class ChatUsedReferencesListContentPart2 extends ChatCollapsibleListContentPart {
+  static {
+    __name(this, "ChatUsedReferencesListContentPart");
+  }
+  constructor(data, labelOverride, context, contentReferencesListPool, options, openerService, menuService, instantiationService, contextMenuService, hoverService) {
+    super(data, labelOverride, context, contentReferencesListPool, void 0, openerService, menuService, instantiationService, contextMenuService, hoverService);
+    this.options = options;
+    if (data.length === 0) {
+      dom.hide(this.domNode);
+    }
+  }
+  isExpanded() {
+    const element = this.element;
+    return element.usedReferencesExpanded ?? !!(this.options.expandedWhenEmptyResponse && element.response.value.length === 0);
+  }
+  setExpanded(value) {
+    const element = this.element;
+    element.usedReferencesExpanded = !this.isExpanded();
+  }
+};
+ChatUsedReferencesListContentPart = __decorate([
+  __param(5, IOpenerService),
+  __param(6, IMenuService),
+  __param(7, IInstantiationService),
+  __param(8, IContextMenuService),
+  __param(9, IHoverService)
+], ChatUsedReferencesListContentPart);
+let CollapsibleListPool = class CollapsibleListPool2 extends Disposable {
+  static {
+    __name(this, "CollapsibleListPool");
+  }
+  get inUse() {
+    return this._pool.inUse;
+  }
+  constructor(_onDidChangeVisibility, menuId, listOptions, instantiationService, themeService, labelService) {
+    super();
+    this._onDidChangeVisibility = _onDidChangeVisibility;
+    this.menuId = menuId;
+    this.listOptions = listOptions;
+    this.instantiationService = instantiationService;
+    this.themeService = themeService;
+    this.labelService = labelService;
+    this._pool = this._register(new ResourcePool(() => this.listFactory()));
+  }
+  listFactory() {
+    const store = new DisposableStore();
+    const resourceLabels = store.add(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility }));
+    const container = $(".chat-used-context-list");
+    store.add(createFileIconThemableTreeContainerScope(container, this.themeService));
+    const list = this.instantiationService.createInstance(WorkbenchList, "ChatListRenderer", container, new CollapsibleListDelegate(), [this.instantiationService.createInstance(CollapsibleListRenderer, resourceLabels, this.menuId)], {
+      ...this.listOptions,
+      alwaysConsumeMouseWheel: false,
+      accessibilityProvider: {
+        getAriaLabel: /* @__PURE__ */ __name((element) => {
+          if (element.kind === "warning") {
+            return element.content.value;
+          }
+          const reference = element.reference;
+          if (typeof reference === "string") {
+            return reference;
+          } else if ("variableName" in reference) {
+            return reference.variableName;
+          } else if (URI.isUri(reference)) {
+            return basename(reference.path);
+          } else {
+            return basename(reference.uri.path);
+          }
+        }, "getAriaLabel"),
+        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("chatCollapsibleList", "Collapsible Chat References List"), "getWidgetAriaLabel")
+      },
+      dnd: {
+        getDragURI: /* @__PURE__ */ __name((element) => getResourceForElement(element)?.toString() ?? null, "getDragURI"),
+        getDragLabel: /* @__PURE__ */ __name((elements, originalEvent) => {
+          const uris = coalesce(elements.map(getResourceForElement));
+          if (!uris.length) {
+            return void 0;
+          } else if (uris.length === 1) {
+            return this.labelService.getUriLabel(uris[0], { relative: true });
+          } else {
+            return `${uris.length}`;
+          }
+        }, "getDragLabel"),
+        dispose: /* @__PURE__ */ __name(() => {
+        }, "dispose"),
+        onDragOver: /* @__PURE__ */ __name(() => false, "onDragOver"),
+        drop: /* @__PURE__ */ __name(() => {
+        }, "drop"),
+        onDragStart: /* @__PURE__ */ __name((data, originalEvent) => {
+          try {
+            const elements = data.getData();
+            const uris = coalesce(elements.map(getResourceForElement));
+            this.instantiationService.invokeFunction((accessor) => fillEditorsDragData(accessor, uris, originalEvent));
+          } catch {
+          }
+        }, "onDragStart")
+      }
+    });
+    return {
+      list,
+      dispose: /* @__PURE__ */ __name(() => store.dispose(), "dispose")
+    };
+  }
+  get() {
+    const wrapper = this._pool.get();
+    let stale = false;
+    return {
+      object: wrapper.list,
+      isStale: /* @__PURE__ */ __name(() => stale, "isStale"),
+      dispose: /* @__PURE__ */ __name(() => {
+        stale = true;
+        this._pool.release(wrapper);
+      }, "dispose")
+    };
+  }
+  clear() {
+    this._pool.clear();
+  }
+};
+CollapsibleListPool = __decorate([
+  __param(3, IInstantiationService),
+  __param(4, IThemeService),
+  __param(5, ILabelService)
+], CollapsibleListPool);
+class CollapsibleListDelegate {
+  static {
+    __name(this, "CollapsibleListDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return CollapsibleListRenderer.TEMPLATE_ID;
+  }
+}
+let CollapsibleListRenderer = class CollapsibleListRenderer2 {
+  static {
+    __name(this, "CollapsibleListRenderer");
+  }
+  static {
+    CollapsibleListRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "chatCollapsibleListRenderer";
+  }
+  constructor(labels, menuId, themeService, productService, instantiationService, contextKeyService) {
+    this.labels = labels;
+    this.menuId = menuId;
+    this.themeService = themeService;
+    this.productService = productService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.templateId = CollapsibleListRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const templateDisposables = new DisposableStore();
+    const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true, supportIcons: true }));
+    const fileDiffsContainer = $(".working-set-line-counts");
+    const addedSpan = dom.$(".working-set-lines-added");
+    const removedSpan = dom.$(".working-set-lines-removed");
+    fileDiffsContainer.appendChild(addedSpan);
+    fileDiffsContainer.appendChild(removedSpan);
+    label.element.appendChild(fileDiffsContainer);
+    let toolbar;
+    let actionBarContainer;
+    let contextKeyService;
+    if (this.menuId) {
+      actionBarContainer = $(".chat-collapsible-list-action-bar");
+      contextKeyService = templateDisposables.add(this.contextKeyService.createScoped(actionBarContainer));
+      const scopedInstantiationService = templateDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, contextKeyService])));
+      toolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, actionBarContainer, this.menuId, { menuOptions: { shouldForwardArgs: true, arg: void 0 } }));
+      label.element.appendChild(actionBarContainer);
+    }
+    return { templateDisposables, label, toolbar, actionBarContainer, contextKeyService, fileDiffsContainer, addedSpan, removedSpan };
+  }
+  getReferenceIcon(data) {
+    if (ThemeIcon.isThemeIcon(data.iconPath)) {
+      return data.iconPath;
+    } else {
+      return isDark(this.themeService.getColorTheme().type) && data.iconPath?.dark ? data.iconPath?.dark : data.iconPath?.light;
+    }
+  }
+  renderElement(data, index, templateData) {
+    if (data.kind === "warning") {
+      templateData.label.setResource({ name: data.content.value }, { icon: Codicon.warning });
+      return;
+    }
+    const reference = data.reference;
+    const icon = this.getReferenceIcon(data);
+    templateData.label.element.style.display = "flex";
+    let arg;
+    if (typeof reference === "object" && "variableName" in reference) {
+      if (reference.value) {
+        const uri = URI.isUri(reference.value) ? reference.value : reference.value.uri;
+        templateData.label.setResource({
+          resource: uri,
+          name: basenameOrAuthority(uri),
+          description: `#${reference.variableName}`,
+          range: "range" in reference.value ? reference.value.range : void 0
+        }, { icon, title: data.options?.status?.description ?? data.title });
+      } else if (reference.variableName.startsWith("kernelVariable")) {
+        const variable = reference.variableName.split(":")[1];
+        const asVariableName = `${variable}`;
+        const label = `Kernel variable`;
+        templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description });
+      } else {
+        templateData.label.setLabel("Unknown variable type: " + reference.variableName);
+      }
+    } else if (typeof reference === "string") {
+      templateData.label.setLabel(reference, void 0, { iconPath: URI.isUri(icon) ? icon : void 0, title: data.options?.status?.description ?? data.title });
+    } else {
+      const uri = "uri" in reference ? reference.uri : reference;
+      arg = uri;
+      const extraClasses = data.excluded ? ["excluded"] : [];
+      if (uri.scheme === "https" && isEqualAuthority(uri.authority, "github.com") && uri.path.includes("/tree/")) {
+        templateData.label.setResource(getResourceLabelForGithubUri(uri), { icon: Codicon.github, title: data.title, strikethrough: data.excluded, extraClasses });
+      } else if (uri.scheme === this.productService.urlProtocol && isEqualAuthority(uri.authority, SETTINGS_AUTHORITY)) {
+        const settingId = uri.path.substring(1);
+        templateData.label.setResource({ resource: uri, name: settingId }, { icon: Codicon.settingsGear, title: localize("setting.hover", "Open setting '{0}'", settingId), strikethrough: data.excluded, extraClasses });
+      } else if (matchesSomeScheme(uri, Schemas.mailto, Schemas.http, Schemas.https)) {
+        templateData.label.setResource({ resource: uri, name: uri.toString(true) }, { icon: icon ?? Codicon.globe, title: data.options?.status?.description ?? data.title ?? uri.toString(true), strikethrough: data.excluded, extraClasses });
+      } else {
+        templateData.label.setFile(uri, {
+          fileKind: FileKind.FILE,
+          // Should not have this live-updating data on a historical reference
+          fileDecorations: void 0,
+          range: "range" in reference ? reference.range : void 0,
+          title: data.options?.status?.description ?? data.title,
+          strikethrough: data.excluded,
+          extraClasses
+        });
+      }
+    }
+    for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
+      const element = templateData.label.element.querySelector(selector);
+      if (element) {
+        if (data.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted || data.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial) {
+          element.classList.add("warning");
+        } else {
+          element.classList.remove("warning");
+        }
+      }
+    }
+    if (data.state !== void 0) {
+      if (templateData.actionBarContainer) {
+        const diffMeta = data?.options?.diffMeta;
+        if (diffMeta) {
+          if (!templateData.fileDiffsContainer || !templateData.addedSpan || !templateData.removedSpan) {
+            return;
+          }
+          templateData.addedSpan.textContent = `+${diffMeta.added}`;
+          templateData.removedSpan.textContent = `-${diffMeta.removed}`;
+          templateData.fileDiffsContainer.setAttribute("aria-label", localize("chatEditingSession.fileCounts", "{0} lines added, {1} lines removed", diffMeta.added, diffMeta.removed));
+        }
+        templateData.label.element.querySelector(".monaco-icon-name-container")?.classList.add("modified");
+      }
+      if (templateData.toolbar) {
+        templateData.toolbar.context = arg;
+      }
+      if (templateData.contextKeyService) {
+        if (data.state !== void 0) {
+          chatEditingWidgetFileStateContextKey.bindTo(templateData.contextKeyService).set(data.state);
+        }
+      }
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+};
+CollapsibleListRenderer = CollapsibleListRenderer_1 = __decorate([
+  __param(2, IThemeService),
+  __param(3, IProductService),
+  __param(4, IInstantiationService),
+  __param(5, IContextKeyService)
+], CollapsibleListRenderer);
+function getResourceLabelForGithubUri(uri) {
+  const repoPath = uri.path.split("/").slice(1, 3).join("/");
+  const filePath = uri.path.split("/").slice(5);
+  const fileName = filePath.at(-1);
+  const range = getLineRangeFromGithubUri(uri);
+  return {
+    resource: uri,
+    name: fileName ?? filePath.join("/"),
+    description: [repoPath, ...filePath.slice(0, -1)].join("/"),
+    range
+  };
+}
+__name(getResourceLabelForGithubUri, "getResourceLabelForGithubUri");
+function getLineRangeFromGithubUri(uri) {
+  if (!uri.fragment) {
+    return void 0;
+  }
+  const match = uri.fragment.match(/\bL(\d+)(?:-L(\d+))?/);
+  if (!match) {
+    return void 0;
+  }
+  const startLine = parseInt(match[1]);
+  if (isNaN(startLine)) {
+    return void 0;
+  }
+  const endLine = match[2] ? parseInt(match[2]) : startLine;
+  if (isNaN(endLine)) {
+    return void 0;
+  }
+  return {
+    startLineNumber: startLine,
+    startColumn: 1,
+    endLineNumber: endLine,
+    endColumn: 1
+  };
+}
+__name(getLineRangeFromGithubUri, "getLineRangeFromGithubUri");
+function getResourceForElement(element) {
+  if (element.kind === "warning") {
+    return null;
+  }
+  const { reference } = element;
+  if (typeof reference === "string" || "variableName" in reference) {
+    return null;
+  } else if (URI.isUri(reference)) {
+    return reference;
+  } else {
+    return reference.uri;
+  }
+}
+__name(getResourceForElement, "getResourceForElement");
+registerAction2(class AddToChatAction extends Action2 {
+  static {
+    __name(this, "AddToChatAction");
+  }
+  static {
+    this.id = "workbench.action.chat.addToChatAction";
+  }
+  constructor() {
+    super({
+      id: AddToChatAction.id,
+      title: {
+        ...localize2("addToChat", "Add File to Chat")
+      },
+      f1: false,
+      menu: [{
+        id: MenuId.ChatAttachmentsContext,
+        group: "chat",
+        order: 1,
+        when: ContextKeyExpr.and(ResourceContextKey.IsFileSystemResource, ExplorerFolderContext.negate())
+      }]
+    });
+  }
+  async run(accessor, resource) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    if (!resource) {
+      return;
+    }
+    const widget = chatWidgetService.lastFocusedWidget;
+    if (widget) {
+      widget.attachmentModel.addFile(resource);
+    }
+  }
+});
+registerAction2(class OpenChatReferenceLinkAction extends Action2 {
+  static {
+    __name(this, "OpenChatReferenceLinkAction");
+  }
+  static {
+    this.id = "workbench.action.chat.copyLink";
+  }
+  constructor() {
+    super({
+      id: OpenChatReferenceLinkAction.id,
+      title: {
+        ...localize2("copyLink", "Copy Link")
+      },
+      f1: false,
+      menu: [{
+        id: MenuId.ChatAttachmentsContext,
+        group: "chat",
+        order: 0,
+        when: ContextKeyExpr.or(ResourceContextKey.Scheme.isEqualTo(Schemas.http), ResourceContextKey.Scheme.isEqualTo(Schemas.https))
+      }]
+    });
+  }
+  async run(accessor, resource) {
+    await accessor.get(IClipboardService).writeResources([resource]);
+  }
+});
+export {
+  ChatCollapsibleListContentPart,
+  ChatUsedReferencesListContentPart,
+  CollapsibleListPool
+};
+//# sourceMappingURL=chatReferencesContentPart.js.map

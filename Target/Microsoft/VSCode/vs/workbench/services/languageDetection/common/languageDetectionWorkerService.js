@@ -1,1 +1,12 @@
-import{$Nj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("ILanguageDetectionService"),a="languageDetection",n="automaticlanguagedetection.likelywrong",c="automaticlanguagedetection.stats";export{a as $$H,o as $0H,n as $_H,c as $aI};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ILanguageDetectionService = createDecorator("ILanguageDetectionService");
+const LanguageDetectionLanguageEventSource = "languageDetection";
+const AutomaticLanguageDetectionLikelyWrongId = "automaticlanguagedetection.likelywrong";
+const LanguageDetectionStatsId = "automaticlanguagedetection.stats";
+export {
+  AutomaticLanguageDetectionLikelyWrongId,
+  ILanguageDetectionService,
+  LanguageDetectionLanguageEventSource,
+  LanguageDetectionStatsId
+};
+//# sourceMappingURL=languageDetectionWorkerService.js.map

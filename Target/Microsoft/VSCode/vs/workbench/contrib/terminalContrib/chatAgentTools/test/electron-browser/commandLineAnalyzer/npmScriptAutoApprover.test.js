@@ -1,1 +1,149 @@
-import{strictEqual as r}from"assert";import{$0i as b}from"../../../../../../../base/common/buffer.js";import{Schemas as c}from"../../../../../../../base/common/network.js";import{URI as o}from"../../../../../../../base/common/uri.js";import{$Ibb as g}from"../../../../../../../base/test/common/utils.js";import{$jTc as x}from"../../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$0B as y}from"../../../../../../../platform/files/common/fileService.js";import{$vk as A}from"../../../../../../../platform/files/common/files.js";import{$ybc as j}from"../../../../../../../platform/files/common/inMemoryFilesystemProvider.js";import{$Mo as k}from"../../../../../../../platform/log/common/log.js";import{$Ml as S,$Yl as $}from"../../../../../../../platform/workspace/common/workspace.js";import{$hUc as P}from"../../../../../../../platform/workspace/test/common/testWorkspace.js";import{$b3c as C}from"../../../../../../test/browser/workbenchTestServices.js";import{$V4c as J}from"../../../../../../test/electron-browser/workbenchTestServices.js";import{$M2c as U}from"../../../../../../test/common/workbenchTestServices.js";import{$LCc as M}from"../../../browser/tools/commandLineAnalyzer/autoApprove/npmScriptAutoApprover.js";suite("NpmScriptAutoApprover",()=>{const p=g();let m,a,l,h,i,f;const n=o.from({scheme:c.inMemory,path:"/workspace/project"});setup(async()=>{i=p.add(new y(new k)),p.add(i.registerProvider(c.file,new J)),f=p.add(new j),p.add(i.registerProvider(c.inMemory,f)),await i.createFolder(n),l=new x,h=new U,m=C({fileService:()=>i,configurationService:()=>l},p),m.stub(S,h),m.stub(A,i),a=p.add(m.createInstance(M)),l.setUserConfiguration("chat.tools.terminal.autoApproveWorkspaceNpmScripts",!0);const s=new P("test",[$(n)]);h.setWorkspace(s)});async function d(s,e){const u={name:"test-project",version:"1.0.0",scripts:e};await i.writeFile(s,b.fromString(JSON.stringify(u,null,2)))}async function t(s,e,u){const v=o.joinPath(n,"package.json");await d(v,e);const w=await a.isCommandAutoApproved(s,n);r(w.isAutoApproved,u,`Expected isAutoApproved to be ${u} for: ${s}`)}suite("npm run commands",()=>{test("npm run build - script exists",()=>t("npm run build",{build:"tsc"},!0)),test("npm run test - script exists",()=>t("npm run test",{test:"jest"},!0)),test("npm run dev - script exists",()=>t("npm run dev",{dev:"vite"},!0)),test("npm run start - script exists",()=>t("npm run start",{start:"node index.js"},!0)),test("npm run lint - script exists",()=>t("npm run lint",{lint:"eslint ."},!0)),test("npm run-script build - script exists",()=>t("npm run-script build",{build:"tsc"},!0)),test("npm test - shorthand script exists",()=>t("npm test",{test:"jest"},!0)),test("npm start - shorthand script exists",()=>t("npm start",{start:"node index.js"},!0)),test("npm stop - shorthand script exists",()=>t("npm stop",{stop:"pkill node"},!0)),test("npm restart - shorthand script exists",()=>t("npm restart",{restart:"npm stop && npm start"},!0)),test("npm test - shorthand script does not exist",()=>t("npm test",{build:"tsc"},!1)),test("npm test -- --watch - shorthand with args",()=>t("npm test -- --watch",{test:"jest"},!0)),test("npm startevil - word boundary prevents match",()=>t("npm startevil",{start:"node index.js",startevil:"evil"},!1)),test("npm install - built-in command, not a script",()=>t("npm install",{install:"echo should not match"},!1)),test("npm run build:prod - script with colon exists",()=>t("npm run build:prod",{"build:prod":"tsc --build"},!0)),test("npm run test:unit - script with colon exists",()=>t("npm run test:unit",{"test:unit":"jest --testPathPattern=unit"},!0)),test("npm run lint:fix - script with colon exists",()=>t("npm run lint:fix",{"lint:fix":"eslint . --fix"},!0)),test("npm run missing - script does not exist",()=>t("npm run missing",{build:"tsc"},!1)),test("npm run build - no scripts section",async()=>{const s=o.joinPath(n,"package.json");await i.writeFile(s,b.fromString(JSON.stringify({name:"test"})));const e=await a.isCommandAutoApproved("npm run build",n);r(e.isAutoApproved,!1)})}),suite("yarn commands",()=>{test("yarn run build - script exists",()=>t("yarn run build",{build:"tsc"},!0)),test("yarn run test - script exists",()=>t("yarn run test",{test:"jest"},!0)),test("yarn build - script exists (shorthand)",()=>t("yarn build",{build:"tsc"},!0)),test("yarn test - script exists (shorthand)",()=>t("yarn test",{test:"jest"},!0)),test("yarn install - built-in command, not a script",()=>t("yarn install",{install:"echo should not match"},!1)),test("yarn add - built-in command, not a script",()=>t("yarn add lodash",{add:"echo should not match"},!1)),test("yarn run missing - script does not exist",()=>t("yarn run missing",{build:"tsc"},!1))}),suite("pnpm commands",()=>{test("pnpm run build - script exists",()=>t("pnpm run build",{build:"tsc"},!0)),test("pnpm run test - script exists",()=>t("pnpm run test",{test:"jest"},!0)),test("pnpm build - script exists (shorthand)",()=>t("pnpm build",{build:"tsc"},!0)),test("pnpm test - script exists (shorthand)",()=>t("pnpm test",{test:"jest"},!0)),test("pnpm install - built-in command, not a script",()=>t("pnpm install",{install:"echo should not match"},!1)),test("pnpm add - built-in command, not a script",()=>t("pnpm add lodash",{add:"echo should not match"},!1)),test("pnpm run missing - script does not exist",()=>t("pnpm run missing",{build:"tsc"},!1))}),suite("no package.json",()=>{test("npm run build - no package.json file",async()=>{const s=await a.isCommandAutoApproved("npm run build",o.from({scheme:c.inMemory,path:"/nonexistent/path"}));r(s.isAutoApproved,!1)})}),suite("non-npm commands",()=>{test("git status - not an npm command",()=>t("git status",{build:"tsc"},!1)),test("ls -la - not an npm command",()=>t("ls -la",{build:"tsc"},!1)),test("echo hello - not an npm command",()=>t("echo hello",{build:"tsc"},!1))}),suite("auto-approve disabled",()=>{test("npm run build - npm script auto-approve setting disabled",async()=>{l.setUserConfiguration("chat.tools.terminal.autoApproveWorkspaceNpmScripts",!1);const s=o.joinPath(n,"package.json");await d(s,{build:"tsc"});const e=await a.isCommandAutoApproved("npm run build",n);r(e.isAutoApproved,!1)})}),suite("autoApproveInfo message",()=>{test("single script - message contains script name",async()=>{const s=o.joinPath(n,"package.json");await d(s,{build:"tsc"});const e=await a.isCommandAutoApproved("npm run build",n);r(e.isAutoApproved,!0),r(e.scriptName,"build","Should return script name"),r(e.autoApproveInfo?.value.includes("build"),!0,"Should mention script name"),r(e.autoApproveInfo?.value.includes("package.json"),!0,"Should mention package.json")})}),suite("workspace folder security",()=>{test("cwd outside workspace - does not auto-approve",async()=>{const s=o.from({scheme:c.inMemory,path:"/outside/project"});await i.createFolder(s);const e=o.joinPath(s,"package.json");await d(e,{build:"tsc"});const u=await a.isCommandAutoApproved("npm run build",s);r(u.isAutoApproved,!1,"Should not auto-approve when cwd is outside workspace")})})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { strictEqual } from "assert";
+import { VSBuffer } from "../../../../../../../base/common/buffer.js";
+import { Schemas } from "../../../../../../../base/common/network.js";
+import { URI } from "../../../../../../../base/common/uri.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../../base/test/common/utils.js";
+import { TestConfigurationService } from "../../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { FileService } from "../../../../../../../platform/files/common/fileService.js";
+import { IFileService } from "../../../../../../../platform/files/common/files.js";
+import { InMemoryFileSystemProvider } from "../../../../../../../platform/files/common/inMemoryFilesystemProvider.js";
+import { NullLogService } from "../../../../../../../platform/log/common/log.js";
+import { IWorkspaceContextService, toWorkspaceFolder } from "../../../../../../../platform/workspace/common/workspace.js";
+import { Workspace } from "../../../../../../../platform/workspace/test/common/testWorkspace.js";
+import { workbenchInstantiationService } from "../../../../../../test/browser/workbenchTestServices.js";
+import { TestIPCFileSystemProvider } from "../../../../../../test/electron-browser/workbenchTestServices.js";
+import { TestContextService } from "../../../../../../test/common/workbenchTestServices.js";
+import { NpmScriptAutoApprover } from "../../../browser/tools/commandLineAnalyzer/autoApprove/npmScriptAutoApprover.js";
+suite("NpmScriptAutoApprover", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let approver;
+  let configurationService;
+  let workspaceContextService;
+  let fileService;
+  let fileSystemProvider;
+  const cwd = URI.from({ scheme: Schemas.inMemory, path: "/workspace/project" });
+  setup(async () => {
+    fileService = store.add(new FileService(new NullLogService()));
+    store.add(fileService.registerProvider(Schemas.file, new TestIPCFileSystemProvider()));
+    fileSystemProvider = store.add(new InMemoryFileSystemProvider());
+    store.add(fileService.registerProvider(Schemas.inMemory, fileSystemProvider));
+    await fileService.createFolder(cwd);
+    configurationService = new TestConfigurationService();
+    workspaceContextService = new TestContextService();
+    instantiationService = workbenchInstantiationService({
+      fileService: /* @__PURE__ */ __name(() => fileService, "fileService"),
+      configurationService: /* @__PURE__ */ __name(() => configurationService, "configurationService")
+    }, store);
+    instantiationService.stub(IWorkspaceContextService, workspaceContextService);
+    instantiationService.stub(IFileService, fileService);
+    approver = store.add(instantiationService.createInstance(NpmScriptAutoApprover));
+    configurationService.setUserConfiguration("chat.tools.terminal.autoApproveWorkspaceNpmScripts", true);
+    const workspace = new Workspace("test", [toWorkspaceFolder(cwd)]);
+    workspaceContextService.setWorkspace(workspace);
+  });
+  async function writePackageJson(uri, scripts) {
+    const packageJson = {
+      name: "test-project",
+      version: "1.0.0",
+      scripts
+    };
+    await fileService.writeFile(uri, VSBuffer.fromString(JSON.stringify(packageJson, null, 2)));
+  }
+  __name(writePackageJson, "writePackageJson");
+  async function t(command, scripts, expectedAutoApproved) {
+    const packageJsonUri = URI.joinPath(cwd, "package.json");
+    await writePackageJson(packageJsonUri, scripts);
+    const result = await approver.isCommandAutoApproved(command, cwd);
+    strictEqual(result.isAutoApproved, expectedAutoApproved, `Expected isAutoApproved to be ${expectedAutoApproved} for: ${command}`);
+  }
+  __name(t, "t");
+  suite("npm run commands", () => {
+    test("npm run build - script exists", () => t("npm run build", { build: "tsc" }, true));
+    test("npm run test - script exists", () => t("npm run test", { test: "jest" }, true));
+    test("npm run dev - script exists", () => t("npm run dev", { dev: "vite" }, true));
+    test("npm run start - script exists", () => t("npm run start", { start: "node index.js" }, true));
+    test("npm run lint - script exists", () => t("npm run lint", { lint: "eslint ." }, true));
+    test("npm run-script build - script exists", () => t("npm run-script build", { build: "tsc" }, true));
+    test("npm test - shorthand script exists", () => t("npm test", { test: "jest" }, true));
+    test("npm start - shorthand script exists", () => t("npm start", { start: "node index.js" }, true));
+    test("npm stop - shorthand script exists", () => t("npm stop", { stop: "pkill node" }, true));
+    test("npm restart - shorthand script exists", () => t("npm restart", { restart: "npm stop && npm start" }, true));
+    test("npm test - shorthand script does not exist", () => t("npm test", { build: "tsc" }, false));
+    test("npm test -- --watch - shorthand with args", () => t("npm test -- --watch", { test: "jest" }, true));
+    test("npm startevil - word boundary prevents match", () => t("npm startevil", { start: "node index.js", startevil: "evil" }, false));
+    test("npm install - built-in command, not a script", () => t("npm install", { install: "echo should not match" }, false));
+    test("npm run build:prod - script with colon exists", () => t("npm run build:prod", { "build:prod": "tsc --build" }, true));
+    test("npm run test:unit - script with colon exists", () => t("npm run test:unit", { "test:unit": "jest --testPathPattern=unit" }, true));
+    test("npm run lint:fix - script with colon exists", () => t("npm run lint:fix", { "lint:fix": "eslint . --fix" }, true));
+    test("npm run missing - script does not exist", () => t("npm run missing", { build: "tsc" }, false));
+    test("npm run build - no scripts section", async () => {
+      const packageJsonUri = URI.joinPath(cwd, "package.json");
+      await fileService.writeFile(packageJsonUri, VSBuffer.fromString(JSON.stringify({ name: "test" })));
+      const result = await approver.isCommandAutoApproved("npm run build", cwd);
+      strictEqual(result.isAutoApproved, false);
+    });
+  });
+  suite("yarn commands", () => {
+    test("yarn run build - script exists", () => t("yarn run build", { build: "tsc" }, true));
+    test("yarn run test - script exists", () => t("yarn run test", { test: "jest" }, true));
+    test("yarn build - script exists (shorthand)", () => t("yarn build", { build: "tsc" }, true));
+    test("yarn test - script exists (shorthand)", () => t("yarn test", { test: "jest" }, true));
+    test("yarn install - built-in command, not a script", () => t("yarn install", { install: "echo should not match" }, false));
+    test("yarn add - built-in command, not a script", () => t("yarn add lodash", { add: "echo should not match" }, false));
+    test("yarn run missing - script does not exist", () => t("yarn run missing", { build: "tsc" }, false));
+  });
+  suite("pnpm commands", () => {
+    test("pnpm run build - script exists", () => t("pnpm run build", { build: "tsc" }, true));
+    test("pnpm run test - script exists", () => t("pnpm run test", { test: "jest" }, true));
+    test("pnpm build - script exists (shorthand)", () => t("pnpm build", { build: "tsc" }, true));
+    test("pnpm test - script exists (shorthand)", () => t("pnpm test", { test: "jest" }, true));
+    test("pnpm install - built-in command, not a script", () => t("pnpm install", { install: "echo should not match" }, false));
+    test("pnpm add - built-in command, not a script", () => t("pnpm add lodash", { add: "echo should not match" }, false));
+    test("pnpm run missing - script does not exist", () => t("pnpm run missing", { build: "tsc" }, false));
+  });
+  suite("no package.json", () => {
+    test("npm run build - no package.json file", async () => {
+      const result = await approver.isCommandAutoApproved("npm run build", URI.from({ scheme: Schemas.inMemory, path: "/nonexistent/path" }));
+      strictEqual(result.isAutoApproved, false);
+    });
+  });
+  suite("non-npm commands", () => {
+    test("git status - not an npm command", () => t("git status", { build: "tsc" }, false));
+    test("ls -la - not an npm command", () => t("ls -la", { build: "tsc" }, false));
+    test("echo hello - not an npm command", () => t("echo hello", { build: "tsc" }, false));
+  });
+  suite("auto-approve disabled", () => {
+    test("npm run build - npm script auto-approve setting disabled", async () => {
+      configurationService.setUserConfiguration("chat.tools.terminal.autoApproveWorkspaceNpmScripts", false);
+      const packageJsonUri = URI.joinPath(cwd, "package.json");
+      await writePackageJson(packageJsonUri, { build: "tsc" });
+      const result = await approver.isCommandAutoApproved("npm run build", cwd);
+      strictEqual(result.isAutoApproved, false);
+    });
+  });
+  suite("autoApproveInfo message", () => {
+    test("single script - message contains script name", async () => {
+      const packageJsonUri = URI.joinPath(cwd, "package.json");
+      await writePackageJson(packageJsonUri, { build: "tsc" });
+      const result = await approver.isCommandAutoApproved("npm run build", cwd);
+      strictEqual(result.isAutoApproved, true);
+      strictEqual(result.scriptName, "build", "Should return script name");
+      strictEqual(result.autoApproveInfo?.value.includes("build"), true, "Should mention script name");
+      strictEqual(result.autoApproveInfo?.value.includes("package.json"), true, "Should mention package.json");
+    });
+  });
+  suite("workspace folder security", () => {
+    test("cwd outside workspace - does not auto-approve", async () => {
+      const outsideCwd = URI.from({ scheme: Schemas.inMemory, path: "/outside/project" });
+      await fileService.createFolder(outsideCwd);
+      const outsidePackageJsonUri = URI.joinPath(outsideCwd, "package.json");
+      await writePackageJson(outsidePackageJsonUri, { build: "tsc" });
+      const result = await approver.isCommandAutoApproved("npm run build", outsideCwd);
+      strictEqual(result.isAutoApproved, false, "Should not auto-approve when cwd is outside workspace");
+    });
+  });
+});
+//# sourceMappingURL=npmScriptAutoApprover.test.js.map

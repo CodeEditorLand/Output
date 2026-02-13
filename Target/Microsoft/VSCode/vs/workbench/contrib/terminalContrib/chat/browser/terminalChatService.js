@@ -1,1 +1,314 @@
-import{$xf as c}from"../../../../../base/common/event.js";import{$Ed as C,$Md as d,$Cd as I}from"../../../../../base/common/lifecycle.js";import{$Oc as u}from"../../../../../base/common/map.js";import{$yo as P}from"../../../../../platform/log/common/log.js";import{$sZb as w}from"../../../terminal/browser/terminal.js";import{$ro as D}from"../../../../../platform/contextkey/common/contextkey.js";import{$hp as M}from"../../../../../platform/storage/common/storage.js";import{$NV as S}from"../../../chat/common/chatService/chatService.js";import{TerminalChatContextKeys as l}from"./terminalChat.js";import{$hS as A,LocalChatSessionUri as $}from"../../../chat/common/model/chatUri.js";import{$$c as f,$6c as b}from"../../../../../base/common/types.js";var m=function(r,t,s,e){var i=arguments.length,n=i<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,s):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,s,e);else for(var h=r.length-1;h>=0;h--)(o=r[h])&&(n=(i<3?o(n):i>3?o(t,s,n):o(t,s))||n);return i>3&&n&&Object.defineProperty(t,s,n),n},a=function(r,t){return function(s,e){t(s,e,r)}},p;(function(r){r.ToolSessionMappings="terminalChat.toolSessionMappings",r.CommandIdMappings="terminalChat.commandIdMappings"})(p||(p={}));let g=class extends C{constructor(t,s,e,i,n){super(),this.y=t,this.z=s,this.C=e,this.F=i,this.G=n,this.a=new Map,this.b=new Map,this.c=new Map,this.f=this.D(new d),this.g=this.D(new d),this.h=this.D(new c),this.onDidContinueInBackground=this.h.event,this.j=this.D(new c),this.onDidRegisterTerminalInstanceWithToolSession=this.j.event,this.m=new Set,this.r=new Map,this.u=new u,this.w=new u,this.s=l.hasChatTerminals.bindTo(this.F),this.t=l.hasHiddenChatTerminals.bindTo(this.F),this.J(),this.D(this.G.onDidDisposeSession(o=>{for(const h of o.sessionResource)this.w.delete(h),this.u.delete(h)}))}registerTerminalInstanceWithToolSession(t,s){if(!t){this.y.warn("Attempted to register a terminal instance with an undefined tool session ID");return}this.a.set(t,s),this.b.set(s,t),this.j.fire(s),this.f.set(t,s.onDisposed(()=>{this.a.delete(t),this.b.delete(s),this.f.deleteAndDispose(t),this.M(),this.N()})),this.D(this.G.onDidDisposeSession(e=>{for(const i of e.sessionResource)$.parseLocalSessionId(i)===t&&(this.a.delete(t),this.b.delete(s),this.f.deleteAndDispose(t),this.u.delete(i),this.M(),this.N())})),this.D(this.z.onDidChangeInstances(()=>this.N())),(f(s.shellLaunchConfig?.attachPersistentProcess?.id)||f(s.persistentProcessId))&&this.M(),this.N()}async getTerminalInstanceByToolSessionId(t){if(await this.z.whenConnected,!!t){if(this.r.has(t)){const s=this.z.instances.find(e=>e.shellLaunchConfig.attachPersistentProcess?.id===this.r.get(t));if(s)return this.L(s),s}return this.a.get(t)}}getToolSessionTerminalInstances(t){if(t){const s=new Set(this.z.foregroundInstances.map(i=>i.instanceId)),e=new Set(this.a.values());return Array.from(e).filter(i=>!s.has(i.instanceId))}return Array.from(new Set(this.a.values()))}getToolSessionIdForInstance(t){return this.b.get(t)}registerTerminalInstanceWithChatSession(t,s){const e=this.c.get(s);if(e&&e.toString()===t.toString())return;this.g.deleteAndDispose(s),this.c.set(s,t);const i=s.onDisposed(()=>{this.c.delete(s),this.g.deleteAndDispose(s)});this.g.set(s,i)}getChatSessionResourceForInstance(t){return this.c.get(t)}getChatSessionIdForInstance(t){const s=this.c.get(t);return s?A(s):void 0}isBackgroundTerminal(t){if(!t)return!1;const s=this.a.get(t);return s?this.z.instances.includes(s)&&!this.z.foregroundInstances.includes(s):!1}registerProgressPart(t){return this.m.add(t),this.I(t,this.q)&&(this.q=t),I(()=>{this.m.delete(t),this.n===t&&(this.n=void 0),this.q===t&&(this.q=this.H())})}setFocusedProgressPart(t){this.n=t}clearFocusedProgressPart(t){this.n===t&&(this.n=void 0)}getFocusedProgressPart(){return this.n}getMostRecentProgressPart(){return(!this.q||!this.m.has(this.q))&&(this.q=this.H()),this.q}H(){let t;for(const s of this.m)this.I(s,t)&&(t=s);return t}I(t,s){return s?t.elementIndex===s.elementIndex?t.contentIndex>=s.contentIndex:t.elementIndex>s.elementIndex:!0}J(){try{const t=this.C.get("terminalChat.toolSessionMappings",1);if(!t)return;const s=JSON.parse(t);for(const[e,i]of s)b(e)&&f(i)&&this.r.set(e,i)}catch(t){this.y.warn("Failed to restore terminal chat tool session mappings",t)}}L(t){if(this.r.size!==0){for(const[s,e]of this.r)if(e===t.shellLaunchConfig.attachPersistentProcess?.id){this.a.set(s,t),this.b.set(t,s),this.j.fire(t),this.f.set(s,t.onDisposed(()=>{this.a.delete(s),this.b.delete(t),this.f.deleteAndDispose(s),this.M()})),this.r.delete(s),this.M();break}}}M(){this.N();try{const t=[];for(const[s,e]of this.a.entries()){const i=f(e.persistentProcessId)?e.persistentProcessId:e.shellLaunchConfig.attachPersistentProcess?.id,n=e.shouldPersist||e.shellLaunchConfig.forcePersist;f(i)&&n&&t.push([s,i])}t.length>0?this.C.store("terminalChat.toolSessionMappings",JSON.stringify(t),1,1):this.C.remove("terminalChat.toolSessionMappings",1)}catch(t){this.y.warn("Failed to persist terminal chat tool session mappings",t)}}N(){const t=this.a.size;this.s.set(t>0);const s=this.getToolSessionTerminalInstances(!0).length;this.t.set(s>0)}setChatSessionAutoApproval(t,s){s?this.u.set(t,!0):this.u.delete(t)}hasChatSessionAutoApproval(t){return this.u.has(t)}addSessionAutoApproveRule(t,s,e){let i=this.w.get(t);i||(i={},this.w.set(t,i)),i[s]=e}getSessionAutoApproveRules(t){return this.w.get(t)??{}}continueInBackground(t){this.h.fire(t)}};g=m([a(0,P),a(1,w),a(2,M),a(3,D),a(4,S)],g);export{g as $mEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, DisposableMap, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { ITerminalService } from "../../../terminal/browser/terminal.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { IChatService } from "../../../chat/common/chatService/chatService.js";
+import { TerminalChatContextKeys } from "./terminalChat.js";
+import { chatSessionResourceToId, LocalChatSessionUri } from "../../../chat/common/model/chatUri.js";
+import { isNumber, isString } from "../../../../../base/common/types.js";
+var StorageKeys;
+(function(StorageKeys2) {
+  StorageKeys2["ToolSessionMappings"] = "terminalChat.toolSessionMappings";
+  StorageKeys2["CommandIdMappings"] = "terminalChat.commandIdMappings";
+})(StorageKeys || (StorageKeys = {}));
+let TerminalChatService = class TerminalChatService2 extends Disposable {
+  static {
+    __name(this, "TerminalChatService");
+  }
+  constructor(_logService, _terminalService, _storageService, _contextKeyService, _chatService) {
+    super();
+    this._logService = _logService;
+    this._terminalService = _terminalService;
+    this._storageService = _storageService;
+    this._contextKeyService = _contextKeyService;
+    this._chatService = _chatService;
+    this._terminalInstancesByToolSessionId = /* @__PURE__ */ new Map();
+    this._toolSessionIdByTerminalInstance = /* @__PURE__ */ new Map();
+    this._chatSessionResourceByTerminalInstance = /* @__PURE__ */ new Map();
+    this._terminalInstanceListenersByToolSessionId = this._register(new DisposableMap());
+    this._chatSessionListenersByTerminalInstance = this._register(new DisposableMap());
+    this._onDidContinueInBackground = this._register(new Emitter());
+    this.onDidContinueInBackground = this._onDidContinueInBackground.event;
+    this._onDidRegisterTerminalInstanceForToolSession = this._register(new Emitter());
+    this.onDidRegisterTerminalInstanceWithToolSession = this._onDidRegisterTerminalInstanceForToolSession.event;
+    this._activeProgressParts = /* @__PURE__ */ new Set();
+    this._pendingRestoredMappings = /* @__PURE__ */ new Map();
+    this._sessionAutoApprovalEnabled = new ResourceMap();
+    this._sessionAutoApproveRules = new ResourceMap();
+    this._hasToolTerminalContext = TerminalChatContextKeys.hasChatTerminals.bindTo(this._contextKeyService);
+    this._hasHiddenToolTerminalContext = TerminalChatContextKeys.hasHiddenChatTerminals.bindTo(this._contextKeyService);
+    this._restoreFromStorage();
+    this._register(this._chatService.onDidDisposeSession((e) => {
+      for (const resource of e.sessionResource) {
+        this._sessionAutoApproveRules.delete(resource);
+        this._sessionAutoApprovalEnabled.delete(resource);
+      }
+    }));
+  }
+  registerTerminalInstanceWithToolSession(terminalToolSessionId, instance) {
+    if (!terminalToolSessionId) {
+      this._logService.warn("Attempted to register a terminal instance with an undefined tool session ID");
+      return;
+    }
+    this._terminalInstancesByToolSessionId.set(terminalToolSessionId, instance);
+    this._toolSessionIdByTerminalInstance.set(instance, terminalToolSessionId);
+    this._onDidRegisterTerminalInstanceForToolSession.fire(instance);
+    this._terminalInstanceListenersByToolSessionId.set(terminalToolSessionId, instance.onDisposed(() => {
+      this._terminalInstancesByToolSessionId.delete(terminalToolSessionId);
+      this._toolSessionIdByTerminalInstance.delete(instance);
+      this._terminalInstanceListenersByToolSessionId.deleteAndDispose(terminalToolSessionId);
+      this._persistToStorage();
+      this._updateHasToolTerminalContextKeys();
+    }));
+    this._register(this._chatService.onDidDisposeSession((e) => {
+      for (const resource of e.sessionResource) {
+        if (LocalChatSessionUri.parseLocalSessionId(resource) === terminalToolSessionId) {
+          this._terminalInstancesByToolSessionId.delete(terminalToolSessionId);
+          this._toolSessionIdByTerminalInstance.delete(instance);
+          this._terminalInstanceListenersByToolSessionId.deleteAndDispose(terminalToolSessionId);
+          this._sessionAutoApprovalEnabled.delete(resource);
+          this._persistToStorage();
+          this._updateHasToolTerminalContextKeys();
+        }
+      }
+    }));
+    this._register(this._terminalService.onDidChangeInstances(() => this._updateHasToolTerminalContextKeys()));
+    if (isNumber(instance.shellLaunchConfig?.attachPersistentProcess?.id) || isNumber(instance.persistentProcessId)) {
+      this._persistToStorage();
+    }
+    this._updateHasToolTerminalContextKeys();
+  }
+  async getTerminalInstanceByToolSessionId(terminalToolSessionId) {
+    await this._terminalService.whenConnected;
+    if (!terminalToolSessionId) {
+      return void 0;
+    }
+    if (this._pendingRestoredMappings.has(terminalToolSessionId)) {
+      const instance = this._terminalService.instances.find((i) => i.shellLaunchConfig.attachPersistentProcess?.id === this._pendingRestoredMappings.get(terminalToolSessionId));
+      if (instance) {
+        this._tryAdoptRestoredMapping(instance);
+        return instance;
+      }
+    }
+    return this._terminalInstancesByToolSessionId.get(terminalToolSessionId);
+  }
+  getToolSessionTerminalInstances(hiddenOnly) {
+    if (hiddenOnly) {
+      const foregroundInstances = new Set(this._terminalService.foregroundInstances.map((i) => i.instanceId));
+      const uniqueInstances = new Set(this._terminalInstancesByToolSessionId.values());
+      return Array.from(uniqueInstances).filter((i) => !foregroundInstances.has(i.instanceId));
+    }
+    return Array.from(new Set(this._terminalInstancesByToolSessionId.values()));
+  }
+  getToolSessionIdForInstance(instance) {
+    return this._toolSessionIdByTerminalInstance.get(instance);
+  }
+  registerTerminalInstanceWithChatSession(chatSessionResource, instance) {
+    const existingResource = this._chatSessionResourceByTerminalInstance.get(instance);
+    if (existingResource && existingResource.toString() === chatSessionResource.toString()) {
+      return;
+    }
+    this._chatSessionListenersByTerminalInstance.deleteAndDispose(instance);
+    this._chatSessionResourceByTerminalInstance.set(instance, chatSessionResource);
+    const disposable = instance.onDisposed(() => {
+      this._chatSessionResourceByTerminalInstance.delete(instance);
+      this._chatSessionListenersByTerminalInstance.deleteAndDispose(instance);
+    });
+    this._chatSessionListenersByTerminalInstance.set(instance, disposable);
+  }
+  getChatSessionResourceForInstance(instance) {
+    return this._chatSessionResourceByTerminalInstance.get(instance);
+  }
+  getChatSessionIdForInstance(instance) {
+    const resource = this._chatSessionResourceByTerminalInstance.get(instance);
+    return resource ? chatSessionResourceToId(resource) : void 0;
+  }
+  isBackgroundTerminal(terminalToolSessionId) {
+    if (!terminalToolSessionId) {
+      return false;
+    }
+    const instance = this._terminalInstancesByToolSessionId.get(terminalToolSessionId);
+    if (!instance) {
+      return false;
+    }
+    return this._terminalService.instances.includes(instance) && !this._terminalService.foregroundInstances.includes(instance);
+  }
+  registerProgressPart(part) {
+    this._activeProgressParts.add(part);
+    if (this._isAfter(part, this._mostRecentProgressPart)) {
+      this._mostRecentProgressPart = part;
+    }
+    return toDisposable(() => {
+      this._activeProgressParts.delete(part);
+      if (this._focusedProgressPart === part) {
+        this._focusedProgressPart = void 0;
+      }
+      if (this._mostRecentProgressPart === part) {
+        this._mostRecentProgressPart = this._getLastActiveProgressPart();
+      }
+    });
+  }
+  setFocusedProgressPart(part) {
+    this._focusedProgressPart = part;
+  }
+  clearFocusedProgressPart(part) {
+    if (this._focusedProgressPart === part) {
+      this._focusedProgressPart = void 0;
+    }
+  }
+  getFocusedProgressPart() {
+    return this._focusedProgressPart;
+  }
+  getMostRecentProgressPart() {
+    if (!this._mostRecentProgressPart || !this._activeProgressParts.has(this._mostRecentProgressPart)) {
+      this._mostRecentProgressPart = this._getLastActiveProgressPart();
+    }
+    return this._mostRecentProgressPart;
+  }
+  _getLastActiveProgressPart() {
+    let latest;
+    for (const part of this._activeProgressParts) {
+      if (this._isAfter(part, latest)) {
+        latest = part;
+      }
+    }
+    return latest;
+  }
+  _isAfter(candidate, current) {
+    if (!current) {
+      return true;
+    }
+    if (candidate.elementIndex === current.elementIndex) {
+      return candidate.contentIndex >= current.contentIndex;
+    }
+    return candidate.elementIndex > current.elementIndex;
+  }
+  _restoreFromStorage() {
+    try {
+      const raw = this._storageService.get(
+        "terminalChat.toolSessionMappings",
+        1
+        /* StorageScope.WORKSPACE */
+      );
+      if (!raw) {
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      for (const [toolSessionId, persistentProcessId] of parsed) {
+        if (isString(toolSessionId) && isNumber(persistentProcessId)) {
+          this._pendingRestoredMappings.set(toolSessionId, persistentProcessId);
+        }
+      }
+    } catch (err) {
+      this._logService.warn("Failed to restore terminal chat tool session mappings", err);
+    }
+  }
+  _tryAdoptRestoredMapping(instance) {
+    if (this._pendingRestoredMappings.size === 0) {
+      return;
+    }
+    for (const [toolSessionId, persistentProcessId] of this._pendingRestoredMappings) {
+      if (persistentProcessId === instance.shellLaunchConfig.attachPersistentProcess?.id) {
+        this._terminalInstancesByToolSessionId.set(toolSessionId, instance);
+        this._toolSessionIdByTerminalInstance.set(instance, toolSessionId);
+        this._onDidRegisterTerminalInstanceForToolSession.fire(instance);
+        this._terminalInstanceListenersByToolSessionId.set(toolSessionId, instance.onDisposed(() => {
+          this._terminalInstancesByToolSessionId.delete(toolSessionId);
+          this._toolSessionIdByTerminalInstance.delete(instance);
+          this._terminalInstanceListenersByToolSessionId.deleteAndDispose(toolSessionId);
+          this._persistToStorage();
+        }));
+        this._pendingRestoredMappings.delete(toolSessionId);
+        this._persistToStorage();
+        break;
+      }
+    }
+  }
+  _persistToStorage() {
+    this._updateHasToolTerminalContextKeys();
+    try {
+      const entries = [];
+      for (const [toolSessionId, instance] of this._terminalInstancesByToolSessionId.entries()) {
+        const persistentId = isNumber(instance.persistentProcessId) ? instance.persistentProcessId : instance.shellLaunchConfig.attachPersistentProcess?.id;
+        const shouldPersist = instance.shouldPersist || instance.shellLaunchConfig.forcePersist;
+        if (isNumber(persistentId) && shouldPersist) {
+          entries.push([toolSessionId, persistentId]);
+        }
+      }
+      if (entries.length > 0) {
+        this._storageService.store(
+          "terminalChat.toolSessionMappings",
+          JSON.stringify(entries),
+          1,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      } else {
+        this._storageService.remove(
+          "terminalChat.toolSessionMappings",
+          1
+          /* StorageScope.WORKSPACE */
+        );
+      }
+    } catch (err) {
+      this._logService.warn("Failed to persist terminal chat tool session mappings", err);
+    }
+  }
+  _updateHasToolTerminalContextKeys() {
+    const toolCount = this._terminalInstancesByToolSessionId.size;
+    this._hasToolTerminalContext.set(toolCount > 0);
+    const hiddenTerminalCount = this.getToolSessionTerminalInstances(true).length;
+    this._hasHiddenToolTerminalContext.set(hiddenTerminalCount > 0);
+  }
+  setChatSessionAutoApproval(chatSessionResource, enabled) {
+    if (enabled) {
+      this._sessionAutoApprovalEnabled.set(chatSessionResource, true);
+    } else {
+      this._sessionAutoApprovalEnabled.delete(chatSessionResource);
+    }
+  }
+  hasChatSessionAutoApproval(chatSessionResource) {
+    return this._sessionAutoApprovalEnabled.has(chatSessionResource);
+  }
+  addSessionAutoApproveRule(chatSessionResource, key, value) {
+    let sessionRules = this._sessionAutoApproveRules.get(chatSessionResource);
+    if (!sessionRules) {
+      sessionRules = {};
+      this._sessionAutoApproveRules.set(chatSessionResource, sessionRules);
+    }
+    sessionRules[key] = value;
+  }
+  getSessionAutoApproveRules(chatSessionResource) {
+    return this._sessionAutoApproveRules.get(chatSessionResource) ?? {};
+  }
+  continueInBackground(terminalToolSessionId) {
+    this._onDidContinueInBackground.fire(terminalToolSessionId);
+  }
+};
+TerminalChatService = __decorate([
+  __param(0, ILogService),
+  __param(1, ITerminalService),
+  __param(2, IStorageService),
+  __param(3, IContextKeyService),
+  __param(4, IChatService)
+], TerminalChatService);
+export {
+  TerminalChatService
+};
+//# sourceMappingURL=terminalChatService.js.map

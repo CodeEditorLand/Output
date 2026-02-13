@@ -1,2 +1,129 @@
-import{$sb as w}from"../../../../../../base/common/errors.js";import{$xf as x,Event as p}from"../../../../../../base/common/event.js";import{$Ed as y,$Dd as D,$Fd as b}from"../../../../../../base/common/lifecycle.js";import{$$c as g}from"../../../../../../base/common/types.js";import{$yx as P}from"../../../../../../platform/terminal/common/terminal.js";import{$FCc as R}from"./executeStrategy.js";import{$HCc as _,$GCc as F}from"./strategyHelpers.js";var C=function(s,t,n,o){var i=arguments.length,e=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,n):o,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,n,o);else for(var c=s.length-1;c>=0;c--)(a=s[c])&&(e=(i<3?a(e):i>3?a(t,n,e):a(t,n))||e);return i>3&&e&&Object.defineProperty(t,n,e),e},$=function(s,t){return function(n,o){t(n,o,s)}};let l=class extends y{constructor(t,n,o){super(),this.c=t,this.f=n,this.g=o,this.type="rich",this.a=this.D(new b),this.b=this.D(new x),this.onDidCreateStartMarker=this.b.event}async execute(t,n,o){const i=new D;try{this.h("Waiting for xterm");const e=await this.c.xtermReadyPromise;if(!e)throw new Error("Xterm is not available");const a=_(e,i,this.h.bind(this)),c=Promise.race([p.toPromise(this.f.onCommandFinished,i).then(d=>(this.h("onDone via end event"),{type:"success",command:d})),p.toPromise(n.onCancellationRequested,i).then(()=>{this.h("onDone via cancellation")}),p.toPromise(this.c.onDisposed,i).then(()=>(this.h("onDone via terminal disposal"),{type:"disposal"})),R(this.c,1e3,i).then(()=>{this.h("onDone via idle prompt")})]);F(e,this.a,d=>this.b.fire(d),i,this.h.bind(this)),this.h(`Executing command line \`${t}\``),this.c.runCommand(t,!0,o),this.h("Waiting for done event");const r=await Promise.race([c,a.then(()=>({type:"alternateBuffer"}))]);if(r&&r.type==="disposal")throw new Error("The terminal was closed");if(r&&r.type==="alternateBuffer")return this.h("Detected alternate buffer entry, skipping output capture"),{output:void 0,exitCode:void 0,error:"alternateBuffer",didEnterAltBuffer:!0};const m=r&&r.type==="success"?r.command:void 0;if(n.isCancellationRequested)throw new w;const v=i.add(e.raw.registerMarker());let h;const u=[];if(m){const d=m?.getOutput();d!==void 0&&(this.h("Fetched output via finished command"),h=d)}if(h===void 0)try{h=e.getContentsAsText(this.a.value,v),this.h("Fetched output via markers")}catch{this.h("Failed to fetch output via markers"),u.push("Failed to retrieve command output")}h!==void 0&&h.trim().length===0&&u.push("Command produced no output");const f=m?.exitCode;return g(f)&&f>0&&u.push(`Command exited with code ${f}`),{output:h,additionalInformation:u.length>0?u.join(`
-`):void 0,exitCode:f}}finally{i.dispose()}}h(t){this.g.debug(`RunInTerminalTool#Rich: ${t}`)}};l=C([$(2,P)],l);export{l as $KCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { isNumber } from "../../../../../../base/common/types.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { trackIdleOnPrompt } from "./executeStrategy.js";
+import { createAltBufferPromise, setupRecreatingStartMarker } from "./strategyHelpers.js";
+let RichExecuteStrategy = class RichExecuteStrategy2 extends Disposable {
+  static {
+    __name(this, "RichExecuteStrategy");
+  }
+  constructor(_instance, _commandDetection, _logService) {
+    super();
+    this._instance = _instance;
+    this._commandDetection = _commandDetection;
+    this._logService = _logService;
+    this.type = "rich";
+    this._startMarker = this._register(new MutableDisposable());
+    this._onDidCreateStartMarker = this._register(new Emitter());
+    this.onDidCreateStartMarker = this._onDidCreateStartMarker.event;
+  }
+  async execute(commandLine, token, commandId) {
+    const store = new DisposableStore();
+    try {
+      this._log("Waiting for xterm");
+      const xterm = await this._instance.xtermReadyPromise;
+      if (!xterm) {
+        throw new Error("Xterm is not available");
+      }
+      const alternateBufferPromise = createAltBufferPromise(xterm, store, this._log.bind(this));
+      const onDone = Promise.race([
+        Event.toPromise(this._commandDetection.onCommandFinished, store).then((e) => {
+          this._log("onDone via end event");
+          return {
+            "type": "success",
+            command: e
+          };
+        }),
+        Event.toPromise(token.onCancellationRequested, store).then(() => {
+          this._log("onDone via cancellation");
+        }),
+        Event.toPromise(this._instance.onDisposed, store).then(() => {
+          this._log("onDone via terminal disposal");
+          return { type: "disposal" };
+        }),
+        trackIdleOnPrompt(this._instance, 1e3, store).then(() => {
+          this._log("onDone via idle prompt");
+        })
+      ]);
+      setupRecreatingStartMarker(xterm, this._startMarker, (m) => this._onDidCreateStartMarker.fire(m), store, this._log.bind(this));
+      this._log(`Executing command line \`${commandLine}\``);
+      this._instance.runCommand(commandLine, true, commandId);
+      this._log("Waiting for done event");
+      const onDoneResult = await Promise.race([onDone, alternateBufferPromise.then(() => ({ type: "alternateBuffer" }))]);
+      if (onDoneResult && onDoneResult.type === "disposal") {
+        throw new Error("The terminal was closed");
+      }
+      if (onDoneResult && onDoneResult.type === "alternateBuffer") {
+        this._log("Detected alternate buffer entry, skipping output capture");
+        return {
+          output: void 0,
+          exitCode: void 0,
+          error: "alternateBuffer",
+          didEnterAltBuffer: true
+        };
+      }
+      const finishedCommand = onDoneResult && onDoneResult.type === "success" ? onDoneResult.command : void 0;
+      if (token.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      const endMarker = store.add(xterm.raw.registerMarker());
+      let output;
+      const additionalInformationLines = [];
+      if (finishedCommand) {
+        const commandOutput = finishedCommand?.getOutput();
+        if (commandOutput !== void 0) {
+          this._log("Fetched output via finished command");
+          output = commandOutput;
+        }
+      }
+      if (output === void 0) {
+        try {
+          output = xterm.getContentsAsText(this._startMarker.value, endMarker);
+          this._log("Fetched output via markers");
+        } catch {
+          this._log("Failed to fetch output via markers");
+          additionalInformationLines.push("Failed to retrieve command output");
+        }
+      }
+      if (output !== void 0 && output.trim().length === 0) {
+        additionalInformationLines.push("Command produced no output");
+      }
+      const exitCode = finishedCommand?.exitCode;
+      if (isNumber(exitCode) && exitCode > 0) {
+        additionalInformationLines.push(`Command exited with code ${exitCode}`);
+      }
+      return {
+        output,
+        additionalInformation: additionalInformationLines.length > 0 ? additionalInformationLines.join("\n") : void 0,
+        exitCode
+      };
+    } finally {
+      store.dispose();
+    }
+  }
+  _log(message) {
+    this._logService.debug(`RunInTerminalTool#Rich: ${message}`);
+  }
+};
+RichExecuteStrategy = __decorate([
+  __param(2, ITerminalLogService)
+], RichExecuteStrategy);
+export {
+  RichExecuteStrategy
+};
+//# sourceMappingURL=richExecuteStrategy.js.map

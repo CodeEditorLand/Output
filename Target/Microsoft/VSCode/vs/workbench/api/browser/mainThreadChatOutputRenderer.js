@@ -1,1 +1,59 @@
-import{$0i as f}from"../../../base/common/buffer.js";import{$Ed as d}from"../../../base/common/lifecycle.js";import{URI as l}from"../../../base/common/uri.js";import{$W3b as m}from"../../contrib/chat/browser/chatOutputItemRenderer.js";import{$Y1 as b}from"../common/extHost.protocol.js";var c=function(s,t,e,r){var o=arguments.length,i=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,t,e,r);else for(var u=s.length-1;u>=0;u--)(n=s[u])&&(i=(o<3?n(i):o>3?n(t,e,i):n(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},h=function(s,t){return function(e,r){t(e,r,s)}};let a=class extends d{constructor(t,e,r){super(),this.f=e,this.g=r,this.b=0,this.c=new Map,this.a=t.getProxy(b.ExtHostChatOutputRenderer)}dispose(){super.dispose(),this.c.forEach(t=>t.dispose()),this.c.clear()}$registerChatOutputRenderer(t,e,r){this.g.registerRenderer(t,{renderOutputPart:async(o,i,n,u)=>{const p=`chat-output-${++this.b}`;return this.f.addWebview(p,n,{serializeBuffersForPostMessage:!0}),this.a.$renderChatOutput(t,o,f.wrap(i),p,u)}},{extension:{id:e,location:l.revive(r)}})}$unregisterChatOutputRenderer(t){this.c.get(t)?.dispose()}};a=c([h(2,m)],a);export{a as $L8b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { IChatOutputRendererService } from "../../contrib/chat/browser/chatOutputItemRenderer.js";
+import { ExtHostContext } from "../common/extHost.protocol.js";
+let MainThreadChatOutputRenderer = class MainThreadChatOutputRenderer2 extends Disposable {
+  static {
+    __name(this, "MainThreadChatOutputRenderer");
+  }
+  constructor(extHostContext, _mainThreadWebview, _rendererService) {
+    super();
+    this._mainThreadWebview = _mainThreadWebview;
+    this._rendererService = _rendererService;
+    this._webviewHandlePool = 0;
+    this.registeredRenderers = /* @__PURE__ */ new Map();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChatOutputRenderer);
+  }
+  dispose() {
+    super.dispose();
+    this.registeredRenderers.forEach((disposable) => disposable.dispose());
+    this.registeredRenderers.clear();
+  }
+  $registerChatOutputRenderer(viewType, extensionId, extensionLocation) {
+    this._rendererService.registerRenderer(viewType, {
+      renderOutputPart: /* @__PURE__ */ __name(async (mime, data, webview, token) => {
+        const webviewHandle = `chat-output-${++this._webviewHandlePool}`;
+        this._mainThreadWebview.addWebview(webviewHandle, webview, {
+          serializeBuffersForPostMessage: true
+        });
+        return this._proxy.$renderChatOutput(viewType, mime, VSBuffer.wrap(data), webviewHandle, token);
+      }, "renderOutputPart")
+    }, {
+      extension: { id: extensionId, location: URI.revive(extensionLocation) }
+    });
+  }
+  $unregisterChatOutputRenderer(viewType) {
+    this.registeredRenderers.get(viewType)?.dispose();
+  }
+};
+MainThreadChatOutputRenderer = __decorate([
+  __param(2, IChatOutputRendererService)
+], MainThreadChatOutputRenderer);
+export {
+  MainThreadChatOutputRenderer
+};
+//# sourceMappingURL=mainThreadChatOutputRenderer.js.map

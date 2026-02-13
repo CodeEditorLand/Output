@@ -1,1 +1,60 @@
-import{CancellationToken as f}from"../../../../../../base/common/cancellation.js";import{URI as d}from"../../../../../../base/common/uri.js";import{localize as l}from"../../../../../../nls.js";import{$vL as c,$wL as a}from"../../../../../../platform/actions/common/actions.js";import{$gjb as p}from"../../../../../../platform/clipboard/common/clipboardService.js";import{$4P as m}from"../../../common/notebookKernelService.js";import{$CDb as v}from"../../../common/notebookService.js";const k="workbench.debug.viewlet.action.copyWorkspaceVariableValue",g=l(10782,null);a(class extends c{constructor(){super({id:k,title:g,f1:!1})}run(o,e){const t=o.get(p);e.value&&t.writeText(e.value)}});a(class extends c{constructor(){super({id:"_executeNotebookVariableProvider",title:l(10783,null),f1:!1})}async run(o,e){if(!e)return[];const t=d.revive(e),s=o.get(m),r=o.get(v).getNotebookTextModel(t);if(!r)return[];const i=s.getMatchingKernel(r).selected;if(i&&i.hasVariableProvider){const u=i.provideVariables(r.uri,void 0,"named",0,f.None),n=[];for await(const b of u)n.push(b);return n}return[]}});export{k as $3yc,g as $4yc};
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { localize } from "../../../../../../nls.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../../../platform/clipboard/common/clipboardService.js";
+import { INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { INotebookService } from "../../../common/notebookService.js";
+const COPY_NOTEBOOK_VARIABLE_VALUE_ID = "workbench.debug.viewlet.action.copyWorkspaceVariableValue";
+const COPY_NOTEBOOK_VARIABLE_VALUE_LABEL = localize("copyWorkspaceVariableValue", "Copy Value");
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: COPY_NOTEBOOK_VARIABLE_VALUE_ID,
+      title: COPY_NOTEBOOK_VARIABLE_VALUE_LABEL,
+      f1: false
+    });
+  }
+  run(accessor, context) {
+    const clipboardService = accessor.get(IClipboardService);
+    if (context.value) {
+      clipboardService.writeText(context.value);
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "_executeNotebookVariableProvider",
+      title: localize("executeNotebookVariableProvider", "Execute Notebook Variable Provider"),
+      f1: false
+    });
+  }
+  async run(accessor, resource) {
+    if (!resource) {
+      return [];
+    }
+    const uri = URI.revive(resource);
+    const notebookKernelService = accessor.get(INotebookKernelService);
+    const notebookService = accessor.get(INotebookService);
+    const notebookTextModel = notebookService.getNotebookTextModel(uri);
+    if (!notebookTextModel) {
+      return [];
+    }
+    const selectedKernel = notebookKernelService.getMatchingKernel(notebookTextModel).selected;
+    if (selectedKernel && selectedKernel.hasVariableProvider) {
+      const variableIterable = selectedKernel.provideVariables(notebookTextModel.uri, void 0, "named", 0, CancellationToken.None);
+      const collected = [];
+      for await (const variable of variableIterable) {
+        collected.push(variable);
+      }
+      return collected;
+    }
+    return [];
+  }
+});
+export {
+  COPY_NOTEBOOK_VARIABLE_VALUE_ID,
+  COPY_NOTEBOOK_VARIABLE_VALUE_LABEL
+};
+//# sourceMappingURL=notebookVariableCommands.js.map

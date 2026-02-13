@@ -1,1 +1,16 @@
-import{$ujc as t}from"../searchTreeModel/searchTreeCommon.js";function i(e){return e&&typeof e.bindNotebookEditorWidget=="function"&&typeof e.updateMatchesForEditorWidget=="function"&&typeof e.unbindNotebookEditorWidget=="function"&&typeof e.updateNotebookHighlights=="function"&&t(e)}function o(e){return typeof e=="object"&&e!==null&&typeof e.parent=="function"&&typeof e.cellParent=="object"&&typeof e.isWebviewMatch=="function"&&typeof e.cellIndex=="number"&&(typeof e.webviewIndex=="number"||e.webviewIndex===void 0)&&(typeof e.cell=="object"||e.cell===void 0)}export{i as $Djc,o as $Ejc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isSearchTreeFileMatch } from "../searchTreeModel/searchTreeCommon.js";
+function isNotebookFileMatch(obj) {
+  return obj && typeof obj.bindNotebookEditorWidget === "function" && typeof obj.updateMatchesForEditorWidget === "function" && typeof obj.unbindNotebookEditorWidget === "function" && typeof obj.updateNotebookHighlights === "function" && isSearchTreeFileMatch(obj);
+}
+__name(isNotebookFileMatch, "isNotebookFileMatch");
+function isIMatchInNotebook(obj) {
+  return typeof obj === "object" && obj !== null && typeof obj.parent === "function" && typeof obj.cellParent === "object" && typeof obj.isWebviewMatch === "function" && typeof obj.cellIndex === "number" && (typeof obj.webviewIndex === "number" || obj.webviewIndex === void 0) && (typeof obj.cell === "object" || obj.cell === void 0);
+}
+__name(isIMatchInNotebook, "isIMatchInNotebook");
+export {
+  isIMatchInNotebook,
+  isNotebookFileMatch
+};
+//# sourceMappingURL=notebookSearchModelBase.js.map

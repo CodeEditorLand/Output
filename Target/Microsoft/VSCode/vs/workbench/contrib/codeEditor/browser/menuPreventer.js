@@ -1,1 +1,56 @@
-import{$Ed as e}from"../../../../base/common/lifecycle.js";import{$1db as h}from"../../../../editor/browser/editorExtensions.js";class s extends e{static{this.ID="editor.contrib.menuPreventer"}constructor(i){super(),this.a=i,this.b=!1,this.c=!1,this.D(this.a.onMouseDown(t=>{this.b&&(this.c=!0)})),this.D(this.a.onKeyDown(t=>{t.equals(512)&&(this.b||(this.c=!1),this.b=!0)})),this.D(this.a.onKeyUp(t=>{t.equals(512)&&(this.c&&t.preventDefault(),this.b=!1,this.c=!1)}))}}h(s.ID,s,2);export{s as $QHb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+class MenuPreventer extends Disposable {
+  static {
+    __name(this, "MenuPreventer");
+  }
+  static {
+    this.ID = "editor.contrib.menuPreventer";
+  }
+  constructor(editor) {
+    super();
+    this._editor = editor;
+    this._altListeningMouse = false;
+    this._altMouseTriggered = false;
+    this._register(this._editor.onMouseDown((e) => {
+      if (this._altListeningMouse) {
+        this._altMouseTriggered = true;
+      }
+    }));
+    this._register(this._editor.onKeyDown((e) => {
+      if (e.equals(
+        512
+        /* KeyMod.Alt */
+      )) {
+        if (!this._altListeningMouse) {
+          this._altMouseTriggered = false;
+        }
+        this._altListeningMouse = true;
+      }
+    }));
+    this._register(this._editor.onKeyUp((e) => {
+      if (e.equals(
+        512
+        /* KeyMod.Alt */
+      )) {
+        if (this._altMouseTriggered) {
+          e.preventDefault();
+        }
+        this._altListeningMouse = false;
+        this._altMouseTriggered = false;
+      }
+    }));
+  }
+}
+registerEditorContribution(
+  MenuPreventer.ID,
+  MenuPreventer,
+  2
+  /* EditorContributionInstantiation.BeforeFirstInteraction */
+);
+export {
+  MenuPreventer
+};
+//# sourceMappingURL=menuPreventer.js.map

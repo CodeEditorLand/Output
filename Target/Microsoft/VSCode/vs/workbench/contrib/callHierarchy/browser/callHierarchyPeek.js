@@ -1,1 +1,382 @@
-import"./media/callHierarchy.css";import*as d from"../../../../editor/contrib/peekView/browser/peekView.js";import{$Mj as j}from"../../../../platform/instantiation/common/instantiation.js";import{$dsb as R}from"../../../../platform/list/browser/listService.js";import*as u from"./callHierarchyTree.js";import{localize as m}from"../../../../nls.js";import{$_D as g}from"../../../../editor/common/core/range.js";import{$j_ as S,Sizing as w}from"../../../../base/browser/ui/splitview/splitview.js";import{$N8 as C,$o9 as T}from"../../../../base/browser/dom.js";import{Event as $}from"../../../../base/common/event.js";import{$BL as D}from"../../../services/editor/common/editorService.js";import{$2ob as E}from"../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";import{$5H as O}from"../../../../editor/common/services/resolverService.js";import{$Cd as _,$Dd as x}from"../../../../base/common/lifecycle.js";import{OverviewRulerLane as z}from"../../../../editor/common/model.js";import{$ru as N,$qu as V}from"../../../../platform/theme/common/themeService.js";import{$hp as A}from"../../../../platform/storage/common/storage.js";import{$Up as v}from"../../../../base/common/color.js";import{TreeMouseEventTarget as H}from"../../../../base/browser/ui/tree/tree.js";import{$qL as F,$rL as P}from"../../../../platform/actions/common/actions.js";import{$ro as k}from"../../../../platform/contextkey/common/contextkey.js";import{$9jb as q}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";var L=function(h,t,e,i){var s=arguments.length,n=s<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,i);else for(var l=h.length-1;l>=0;l--)(o=h[l])&&(n=(s<3?o(n):s>3?o(t,e,n):o(t,e))||n);return s>3&&n&&Object.defineProperty(t,e,n),n},c=function(h,t){return function(e,i){t(e,i,h)}},f,y;(function(h){h.Loading="loading",h.Message="message",h.Data="data"})(y||(y={}));class I{static store(t,e){e.store("callHierarchyPeekLayout",JSON.stringify(t),0,1)}static retrieve(t){const e=t.get("callHierarchyPeekLayout",0,"{}"),i={ratio:.7,height:17};try{return{...i,...JSON.parse(e)}}catch{return i}}constructor(t,e){this.ratio=t,this.height=e}}class U extends R{}let M=class extends d.$Qpb{static{f=this}static{this.TitleMenu=new F("callhierarchy/title")}constructor(t,e,i,s,n,o,l,r,a,p,b){super(t,{showFrame:!0,showArrow:!0,isResizeable:!0,isAccessible:!0},b),this.eb=e,this.fb=i,this.gb=n,this.hb=o,this.ib=l,this.jb=r,this.kb=a,this.lb=p,this.mb=b,this.Z=new Map,this.db=new x,this.create(),this.gb.addExclusiveWidget(t,this),this.nb(s.getColorTheme()),this.j.add(s.onDidColorThemeChange(this.nb,this)),this.j.add(this.db)}dispose(){I.store(this.cb,this.jb),this.m.dispose(),this.r.dispose(),this.ab.dispose(),super.dispose()}get direction(){return this.fb}nb(t){const e=t.getColor(d.$Upb)||v.transparent;this.style({arrowColor:e,frameColor:e,headerBackgroundColor:t.getColor(d.$Rpb)||v.transparent,primaryHeadingColor:t.getColor(d.$Spb),secondaryHeadingColor:t.getColor(d.$Tpb)})}R(t){super.R(t,!0);const e=this.kb.createMenu(f.TitleMenu,this.lb),i=()=>{const s=q(e.getActions());this.M.clear(),this.M.push(s,{label:!1,icon:!0})};this.j.add(e),this.j.add(e.onDidChange(i)),i()}V(t){this.cb=I.retrieve(this.jb),this.bb=new C(0,0),this.c=t,t.classList.add("call-hierarchy");const e=document.createElement("div");e.classList.add("message"),t.appendChild(e),this.i=e,this.i.tabIndex=0;const i=document.createElement("div");i.classList.add("results"),t.appendChild(i),this.m=new S(i,{orientation:1});const s=document.createElement("div");s.classList.add("editor"),i.appendChild(s);const n={scrollBeyondLastLine:!1,scrollbar:{verticalScrollbarSize:14,horizontal:"auto",useShadows:!0,verticalHasArrows:!1,horizontalHasArrows:!1,alwaysConsumeMouseWheel:!1},overviewRulerLanes:2,fixedOverflowWidgets:!0,minimap:{enabled:!1}};this.ab=this.mb.createInstance(E,s,n,{},this.editor);const o=document.createElement("div");o.classList.add("tree"),i.appendChild(o);const l={sorter:new u.$JIc,accessibilityProvider:new u.$NIc(()=>this.fb),identityProvider:new u.$KIc(()=>this.fb),expandOnlyOnTwistieClick:!0,overrideStyles:{listBackground:d.$Vpb}};this.r=this.mb.createInstance(U,"CallHierarchyPeek",o,new u.$MIc,[this.mb.createInstance(u.$LIc)],this.mb.createInstance(u.$IIc,()=>this.fb),l),this.m.addView({onDidChange:$.None,element:s,minimumSize:200,maximumSize:Number.MAX_VALUE,layout:r=>{this.bb.height&&this.ab.layout({height:this.bb.height,width:r})}},w.Distribute),this.m.addView({onDidChange:$.None,element:o,minimumSize:100,maximumSize:Number.MAX_VALUE,layout:r=>{this.bb.height&&this.r.layout(this.bb.height,r)}},w.Distribute),this.j.add(this.m.onDidSashChange(()=>{this.bb.width&&(this.cb.ratio=this.m.getViewSize(0)/this.bb.width)})),this.j.add(this.r.onDidChangeFocus(this.qb,this)),this.j.add(this.ab.onMouseDown(r=>{const{event:a,target:p}=r;if(a.detail!==2)return;const[b]=this.r.getFocus();b&&(this.dispose(),this.hb.openEditor({resource:b.item.uri,options:{selection:p.range}}))})),this.j.add(this.r.onMouseDblClick(r=>{r.target!==H.Twistie&&r.element&&(this.dispose(),this.hb.openEditor({resource:r.element.item.uri,options:{selection:r.element.item.selectionRange,pinned:!0}}))})),this.j.add(this.r.onDidChangeSelection(r=>{const[a]=r.elements;a&&T(r.browserEvent)&&(this.dispose(),this.hb.openEditor({resource:a.item.uri,options:{selection:a.item.selectionRange,pinned:!0}}))}))}async qb(){const[t]=this.r.getFocus();if(!t)return;this.db.clear();const e={description:"call-hierarchy-decoration",stickiness:1,className:"call-decoration",overviewRuler:{color:N(d.$6pb),position:z.Center}};let i;this.fb==="outgoingCalls"?i=t.parent?t.parent.item.uri:t.model.root.uri:i=t.item.uri;const s=await this.ib.createModelReference(i);this.ab.setModel(s.object.textEditorModel);const n=[];let o,l=t.locations;l||(l=[{uri:t.item.uri,range:t.item.selectionRange}]);for(const a of l)a.uri.toString()===i.toString()&&(n.push({range:a.range,options:e}),o=o?g.plusRange(a.range,o):a.range);if(o){this.ab.revealRangeInCenter(o,1);const a=this.ab.createDecorationsCollection(n);this.db.add(_(()=>a.clear()))}this.db.add(s);const r=this.fb==="outgoingCalls"?m(5076,null,t.model.root.name):m(5077,null,t.model.root.name);this.setTitle(r)}showLoading(){this.c.dataset.state="loading",this.setTitle(m(5078,null)),this.rb()}showMessage(t){this.c.dataset.state="message",this.setTitle(""),this.setMetaTitle(""),this.i.innerText=t,this.rb(),this.i.focus()}async showModel(t){this.rb();const e=this.Z.get(this.fb);await this.r.setInput(t,e);const i=this.r.getNode(t).children[0];await this.r.expand(i.element),i.children.length===0?this.showMessage(this.fb==="outgoingCalls"?m(5079,null,t.root.name):m(5080,null,t.root.name)):(this.c.dataset.state="data",(!e||this.r.getFocus().length===0)&&this.r.setFocus([i.children[0].element]),this.r.domFocus(),this.qb())}getModel(){return this.r.getInput()}getFocused(){return this.r.getFocus()[0]}async updateDirection(t){const e=this.r.getInput();e&&t!==this.fb&&(this.Z.set(this.fb,this.r.getViewState()),this.fb=t,await this.showModel(e))}rb(){this.t||(this.editor.revealLineInCenterIfOutsideViewport(this.eb.lineNumber,0),super.show(g.fromPositions(this.eb),this.cb.height))}A(t){this.bb&&this.Y(this.bb.height,t)}Y(t,e){(this.bb.height!==t||this.bb.width!==e)&&(super.Y(t,e),this.bb=new C(e,t),this.cb.height=this.h?this.h.heightInLines:this.cb.height,this.m.layout(e),this.m.resizeView(0,e*this.cb.ratio))}};M=f=L([c(3,V),c(4,d.$Ppb),c(5,D),c(6,O),c(7,A),c(8,P),c(9,k),c(10,j)],M);export{M as $OIc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CallHierarchyTreePeekWidget_1;
+import "./media/callHierarchy.css";
+import * as peekView from "../../../../editor/contrib/peekView/browser/peekView.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import * as callHTree from "./callHierarchyTree.js";
+import { localize } from "../../../../nls.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { SplitView, Sizing } from "../../../../base/browser/ui/splitview/splitview.js";
+import { Dimension, isKeyboardEvent } from "../../../../base/browser/dom.js";
+import { Event } from "../../../../base/common/event.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { EmbeddedCodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { toDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { OverviewRulerLane } from "../../../../editor/common/model.js";
+import { themeColorFromId, IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { Color } from "../../../../base/common/color.js";
+import { TreeMouseEventTarget } from "../../../../base/browser/ui/tree/tree.js";
+import { MenuId, IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { getFlatActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+var State;
+(function(State2) {
+  State2["Loading"] = "loading";
+  State2["Message"] = "message";
+  State2["Data"] = "data";
+})(State || (State = {}));
+class LayoutInfo {
+  static {
+    __name(this, "LayoutInfo");
+  }
+  static store(info, storageService) {
+    storageService.store(
+      "callHierarchyPeekLayout",
+      JSON.stringify(info),
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  static retrieve(storageService) {
+    const value = storageService.get("callHierarchyPeekLayout", 0, "{}");
+    const defaultInfo = { ratio: 0.7, height: 17 };
+    try {
+      return { ...defaultInfo, ...JSON.parse(value) };
+    } catch {
+      return defaultInfo;
+    }
+  }
+  constructor(ratio, height) {
+    this.ratio = ratio;
+    this.height = height;
+  }
+}
+class CallHierarchyTree extends WorkbenchAsyncDataTree {
+  static {
+    __name(this, "CallHierarchyTree");
+  }
+}
+let CallHierarchyTreePeekWidget = class CallHierarchyTreePeekWidget2 extends peekView.PeekViewWidget {
+  static {
+    __name(this, "CallHierarchyTreePeekWidget");
+  }
+  static {
+    CallHierarchyTreePeekWidget_1 = this;
+  }
+  static {
+    this.TitleMenu = new MenuId("callhierarchy/title");
+  }
+  constructor(editor, _where, _direction, themeService, _peekViewService, _editorService, _textModelService, _storageService, _menuService, _contextKeyService, _instantiationService) {
+    super(editor, { showFrame: true, showArrow: true, isResizeable: true, isAccessible: true }, _instantiationService);
+    this._where = _where;
+    this._direction = _direction;
+    this._peekViewService = _peekViewService;
+    this._editorService = _editorService;
+    this._textModelService = _textModelService;
+    this._storageService = _storageService;
+    this._menuService = _menuService;
+    this._contextKeyService = _contextKeyService;
+    this._instantiationService = _instantiationService;
+    this._treeViewStates = /* @__PURE__ */ new Map();
+    this._previewDisposable = new DisposableStore();
+    this.create();
+    this._peekViewService.addExclusiveWidget(editor, this);
+    this._applyTheme(themeService.getColorTheme());
+    this._disposables.add(themeService.onDidColorThemeChange(this._applyTheme, this));
+    this._disposables.add(this._previewDisposable);
+  }
+  dispose() {
+    LayoutInfo.store(this._layoutInfo, this._storageService);
+    this._splitView.dispose();
+    this._tree.dispose();
+    this._editor.dispose();
+    super.dispose();
+  }
+  get direction() {
+    return this._direction;
+  }
+  _applyTheme(theme) {
+    const borderColor = theme.getColor(peekView.peekViewBorder) || Color.transparent;
+    this.style({
+      arrowColor: borderColor,
+      frameColor: borderColor,
+      headerBackgroundColor: theme.getColor(peekView.peekViewTitleBackground) || Color.transparent,
+      primaryHeadingColor: theme.getColor(peekView.peekViewTitleForeground),
+      secondaryHeadingColor: theme.getColor(peekView.peekViewTitleInfoForeground)
+    });
+  }
+  _fillHead(container) {
+    super._fillHead(container, true);
+    const menu = this._menuService.createMenu(CallHierarchyTreePeekWidget_1.TitleMenu, this._contextKeyService);
+    const updateToolbar = /* @__PURE__ */ __name(() => {
+      const actions = getFlatActionBarActions(menu.getActions());
+      this._actionbarWidget.clear();
+      this._actionbarWidget.push(actions, { label: false, icon: true });
+    }, "updateToolbar");
+    this._disposables.add(menu);
+    this._disposables.add(menu.onDidChange(updateToolbar));
+    updateToolbar();
+  }
+  _fillBody(parent) {
+    this._layoutInfo = LayoutInfo.retrieve(this._storageService);
+    this._dim = new Dimension(0, 0);
+    this._parent = parent;
+    parent.classList.add("call-hierarchy");
+    const message = document.createElement("div");
+    message.classList.add("message");
+    parent.appendChild(message);
+    this._message = message;
+    this._message.tabIndex = 0;
+    const container = document.createElement("div");
+    container.classList.add("results");
+    parent.appendChild(container);
+    this._splitView = new SplitView(container, {
+      orientation: 1
+      /* Orientation.HORIZONTAL */
+    });
+    const editorContainer = document.createElement("div");
+    editorContainer.classList.add("editor");
+    container.appendChild(editorContainer);
+    const editorOptions = {
+      scrollBeyondLastLine: false,
+      scrollbar: {
+        verticalScrollbarSize: 14,
+        horizontal: "auto",
+        useShadows: true,
+        verticalHasArrows: false,
+        horizontalHasArrows: false,
+        alwaysConsumeMouseWheel: false
+      },
+      overviewRulerLanes: 2,
+      fixedOverflowWidgets: true,
+      minimap: {
+        enabled: false
+      }
+    };
+    this._editor = this._instantiationService.createInstance(EmbeddedCodeEditorWidget, editorContainer, editorOptions, {}, this.editor);
+    const treeContainer = document.createElement("div");
+    treeContainer.classList.add("tree");
+    container.appendChild(treeContainer);
+    const options = {
+      sorter: new callHTree.Sorter(),
+      accessibilityProvider: new callHTree.AccessibilityProvider(() => this._direction),
+      identityProvider: new callHTree.IdentityProvider(() => this._direction),
+      expandOnlyOnTwistieClick: true,
+      overrideStyles: {
+        listBackground: peekView.peekViewResultsBackground
+      }
+    };
+    this._tree = this._instantiationService.createInstance(CallHierarchyTree, "CallHierarchyPeek", treeContainer, new callHTree.VirtualDelegate(), [this._instantiationService.createInstance(callHTree.CallRenderer)], this._instantiationService.createInstance(callHTree.DataSource, () => this._direction), options);
+    this._splitView.addView({
+      onDidChange: Event.None,
+      element: editorContainer,
+      minimumSize: 200,
+      maximumSize: Number.MAX_VALUE,
+      layout: /* @__PURE__ */ __name((width) => {
+        if (this._dim.height) {
+          this._editor.layout({ height: this._dim.height, width });
+        }
+      }, "layout")
+    }, Sizing.Distribute);
+    this._splitView.addView({
+      onDidChange: Event.None,
+      element: treeContainer,
+      minimumSize: 100,
+      maximumSize: Number.MAX_VALUE,
+      layout: /* @__PURE__ */ __name((width) => {
+        if (this._dim.height) {
+          this._tree.layout(this._dim.height, width);
+        }
+      }, "layout")
+    }, Sizing.Distribute);
+    this._disposables.add(this._splitView.onDidSashChange(() => {
+      if (this._dim.width) {
+        this._layoutInfo.ratio = this._splitView.getViewSize(0) / this._dim.width;
+      }
+    }));
+    this._disposables.add(this._tree.onDidChangeFocus(this._updatePreview, this));
+    this._disposables.add(this._editor.onMouseDown((e) => {
+      const { event, target } = e;
+      if (event.detail !== 2) {
+        return;
+      }
+      const [focus] = this._tree.getFocus();
+      if (!focus) {
+        return;
+      }
+      this.dispose();
+      this._editorService.openEditor({
+        resource: focus.item.uri,
+        options: { selection: target.range }
+      });
+    }));
+    this._disposables.add(this._tree.onMouseDblClick((e) => {
+      if (e.target === TreeMouseEventTarget.Twistie) {
+        return;
+      }
+      if (e.element) {
+        this.dispose();
+        this._editorService.openEditor({
+          resource: e.element.item.uri,
+          options: { selection: e.element.item.selectionRange, pinned: true }
+        });
+      }
+    }));
+    this._disposables.add(this._tree.onDidChangeSelection((e) => {
+      const [element] = e.elements;
+      if (element && isKeyboardEvent(e.browserEvent)) {
+        this.dispose();
+        this._editorService.openEditor({
+          resource: element.item.uri,
+          options: { selection: element.item.selectionRange, pinned: true }
+        });
+      }
+    }));
+  }
+  async _updatePreview() {
+    const [element] = this._tree.getFocus();
+    if (!element) {
+      return;
+    }
+    this._previewDisposable.clear();
+    const options = {
+      description: "call-hierarchy-decoration",
+      stickiness: 1,
+      className: "call-decoration",
+      overviewRuler: {
+        color: themeColorFromId(peekView.peekViewEditorMatchHighlight),
+        position: OverviewRulerLane.Center
+      }
+    };
+    let previewUri;
+    if (this._direction === "outgoingCalls") {
+      previewUri = element.parent ? element.parent.item.uri : element.model.root.uri;
+    } else {
+      previewUri = element.item.uri;
+    }
+    const value = await this._textModelService.createModelReference(previewUri);
+    this._editor.setModel(value.object.textEditorModel);
+    const decorations = [];
+    let fullRange;
+    let locations = element.locations;
+    if (!locations) {
+      locations = [{ uri: element.item.uri, range: element.item.selectionRange }];
+    }
+    for (const loc of locations) {
+      if (loc.uri.toString() === previewUri.toString()) {
+        decorations.push({ range: loc.range, options });
+        fullRange = !fullRange ? loc.range : Range.plusRange(loc.range, fullRange);
+      }
+    }
+    if (fullRange) {
+      this._editor.revealRangeInCenter(
+        fullRange,
+        1
+        /* ScrollType.Immediate */
+      );
+      const decorationsCollection = this._editor.createDecorationsCollection(decorations);
+      this._previewDisposable.add(toDisposable(() => decorationsCollection.clear()));
+    }
+    this._previewDisposable.add(value);
+    const title = this._direction === "outgoingCalls" ? localize("callFrom", "Calls from '{0}'", element.model.root.name) : localize("callsTo", "Callers of '{0}'", element.model.root.name);
+    this.setTitle(title);
+  }
+  showLoading() {
+    this._parent.dataset["state"] = "loading";
+    this.setTitle(localize("title.loading", "Loading..."));
+    this._show();
+  }
+  showMessage(message) {
+    this._parent.dataset["state"] = "message";
+    this.setTitle("");
+    this.setMetaTitle("");
+    this._message.innerText = message;
+    this._show();
+    this._message.focus();
+  }
+  async showModel(model) {
+    this._show();
+    const viewState = this._treeViewStates.get(this._direction);
+    await this._tree.setInput(model, viewState);
+    const root = this._tree.getNode(model).children[0];
+    await this._tree.expand(root.element);
+    if (root.children.length === 0) {
+      this.showMessage(this._direction === "outgoingCalls" ? localize("empt.callsFrom", "No calls from '{0}'", model.root.name) : localize("empt.callsTo", "No callers of '{0}'", model.root.name));
+    } else {
+      this._parent.dataset["state"] = "data";
+      if (!viewState || this._tree.getFocus().length === 0) {
+        this._tree.setFocus([root.children[0].element]);
+      }
+      this._tree.domFocus();
+      this._updatePreview();
+    }
+  }
+  getModel() {
+    return this._tree.getInput();
+  }
+  getFocused() {
+    return this._tree.getFocus()[0];
+  }
+  async updateDirection(newDirection) {
+    const model = this._tree.getInput();
+    if (model && newDirection !== this._direction) {
+      this._treeViewStates.set(this._direction, this._tree.getViewState());
+      this._direction = newDirection;
+      await this.showModel(model);
+    }
+  }
+  _show() {
+    if (!this._isShowing) {
+      this.editor.revealLineInCenterIfOutsideViewport(
+        this._where.lineNumber,
+        0
+        /* ScrollType.Smooth */
+      );
+      super.show(Range.fromPositions(this._where), this._layoutInfo.height);
+    }
+  }
+  _onWidth(width) {
+    if (this._dim) {
+      this._doLayoutBody(this._dim.height, width);
+    }
+  }
+  _doLayoutBody(height, width) {
+    if (this._dim.height !== height || this._dim.width !== width) {
+      super._doLayoutBody(height, width);
+      this._dim = new Dimension(width, height);
+      this._layoutInfo.height = this._viewZone ? this._viewZone.heightInLines : this._layoutInfo.height;
+      this._splitView.layout(width);
+      this._splitView.resizeView(0, width * this._layoutInfo.ratio);
+    }
+  }
+};
+CallHierarchyTreePeekWidget = CallHierarchyTreePeekWidget_1 = __decorate([
+  __param(3, IThemeService),
+  __param(4, peekView.IPeekViewService),
+  __param(5, IEditorService),
+  __param(6, ITextModelService),
+  __param(7, IStorageService),
+  __param(8, IMenuService),
+  __param(9, IContextKeyService),
+  __param(10, IInstantiationService)
+], CallHierarchyTreePeekWidget);
+export {
+  CallHierarchyTreePeekWidget
+};
+//# sourceMappingURL=callHierarchyPeek.js.map

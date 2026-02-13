@@ -1,1 +1,82 @@
-function g(y,x){const o={};for(const[t,r]of Object.entries(x))Array.isArray(r)?o[t]={min:0,rules:r}:o[t]={min:r.min??0,rules:r.rules??[{max:r.max,priority:r.priority,share:r.share}]};const s={};let u=0;for(const[t,r]of Object.entries(o))s[t]=r.min,u+=r.min;if(u>y)return null;let c=y-u;for(;c>0;){const t=[];for(const[e,i]of Object.entries(o))for(let n=0;n<i.rules.length;n++){const a=i.rules[n],f=s[e],m=a.max??1/0;f<m&&t.push({partKey:e,ruleIndex:n,rule:a,priority:a.priority??0,share:a.share??1})}if(t.length===0)break;const r=Math.max(...t.map(e=>e.priority)),h=t.filter(e=>e.priority===r),b=h.reduce((e,i)=>e+i.share,0);let l=0;const d=[];for(const e of h){const i=e.rule,n=s[e.partKey],f=(i.max??1/0)-n,m=c*e.share/b,p=Math.min(m,f);d.push({partKey:e.partKey,ruleIndex:e.ruleIndex,amount:p}),l+=p}if(l===0)break;for(const e of d)s[e.partKey]+=e.amount;if(c-=l,c<1e-4)break}return s}export{g as $ytb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function distributeFlexBoxLayout(totalSize, parts) {
+  const normalizedParts = {};
+  for (const [key, part] of Object.entries(parts)) {
+    if (Array.isArray(part)) {
+      normalizedParts[key] = { min: 0, rules: part };
+    } else {
+      normalizedParts[key] = {
+        min: part.min ?? 0,
+        rules: part.rules ?? [{ max: part.max, priority: part.priority, share: part.share }]
+      };
+    }
+  }
+  const result = {};
+  let usedSize = 0;
+  for (const [key, part] of Object.entries(normalizedParts)) {
+    result[key] = part.min;
+    usedSize += part.min;
+  }
+  if (usedSize > totalSize) {
+    return null;
+  }
+  let remainingSize = totalSize - usedSize;
+  while (remainingSize > 0) {
+    const candidateRules = [];
+    for (const [key, part] of Object.entries(normalizedParts)) {
+      for (let i = 0; i < part.rules.length; i++) {
+        const rule = part.rules[i];
+        const currentUsage = result[key];
+        const maxSize = rule.max ?? Infinity;
+        if (currentUsage < maxSize) {
+          candidateRules.push({
+            partKey: key,
+            ruleIndex: i,
+            rule,
+            priority: rule.priority ?? 0,
+            share: rule.share ?? 1
+          });
+        }
+      }
+    }
+    if (candidateRules.length === 0) {
+      break;
+    }
+    const maxPriority = Math.max(...candidateRules.map((c) => c.priority));
+    const highestPriorityCandidates = candidateRules.filter((c) => c.priority === maxPriority);
+    const totalShare = highestPriorityCandidates.reduce((sum, c) => sum + c.share, 0);
+    let distributedThisRound = 0;
+    const distributions = [];
+    for (const candidate of highestPriorityCandidates) {
+      const rule = candidate.rule;
+      const currentUsage = result[candidate.partKey];
+      const maxSize = rule.max ?? Infinity;
+      const availableForThisRule = maxSize - currentUsage;
+      const idealShare = remainingSize * candidate.share / totalShare;
+      const actualAmount = Math.min(idealShare, availableForThisRule);
+      distributions.push({
+        partKey: candidate.partKey,
+        ruleIndex: candidate.ruleIndex,
+        amount: actualAmount
+      });
+      distributedThisRound += actualAmount;
+    }
+    if (distributedThisRound === 0) {
+      break;
+    }
+    for (const dist of distributions) {
+      result[dist.partKey] += dist.amount;
+    }
+    remainingSize -= distributedThisRound;
+    if (remainingSize < 1e-4) {
+      break;
+    }
+  }
+  return result;
+}
+__name(distributeFlexBoxLayout, "distributeFlexBoxLayout");
+export {
+  distributeFlexBoxLayout
+};
+//# sourceMappingURL=flexBoxLayout.js.map

@@ -1,15 +1,174 @@
-import*as k from"../../../../../../../base/browser/dom.js";import{$1c as I}from"../../../../../../../base/common/assert.js";import{$$h as x}from"../../../../../../../base/common/async.js";import{$qj as g}from"../../../../../../../base/common/buffer.js";import{$Jf as E}from"../../../../../../../base/common/cancellation.js";import{$xf as S}from"../../../../../../../base/common/event.js";import{$Gn as j}from"../../../../../../../base/common/hash.js";import{$jk as w}from"../../../../../../../base/common/htmlContent.js";import{$Ed as L}from"../../../../../../../base/common/lifecycle.js";import{autorun as R,autorunSelfDisposable as T,observableValue as A}from"../../../../../../../base/common/observable.js";import{$Fh as v}from"../../../../../../../base/common/resources.js";import{$Uf as H}from"../../../../../../../base/common/strings.js";import{$rd as b,$dd as O}from"../../../../../../../base/common/types.js";import{localize as P}from"../../../../../../../nls.js";import{$Mj as Y}from"../../../../../../../platform/instantiation/common/instantiation.js";import{$yo as W}from"../../../../../../../platform/log/common/log.js";import{$EP as _}from"../../../../../../../platform/opener/common/opener.js";import{$Vn as q}from"../../../../../../../platform/product/common/productService.js";import{$hp as F}from"../../../../../../../platform/storage/common/storage.js";import{$B3b as N}from"../../../../../mcp/browser/mcpToolCallUI.js";import{McpResourceURI as y}from"../../../../../mcp/common/mcpTypes.js";import{McpApps as z}from"../../../../../mcp/common/modelContextProtocolApps.js";import{$SDb as B,$UDb as U}from"../../../../../webview/browser/webview.js";import{$6T as X}from"../../../../common/tools/languageModelToolsService.js";import{$U4b as Z}from"../../../chat.js";var C=function(h,t,e,o){var i=arguments.length,n=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(h,t,e,o);else for(var a=h.length-1;a>=0;a--)(s=h[a])&&(n=(i<3?s(n):i>3?s(t,e,n):s(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},d=function(h,t){return function(e,o){t(e,o,h)}},m;const J="chatMcpApp.origins";let D=class extends L{static{m=this}static{this.a=new WeakMap}constructor(t,e,o,i,n,s,a,r,l,c,p,$){super(),this.toolInvocation=t,this.renderData=e,this.u=o,this.w=s,this.y=a,this.z=r,this.C=c,this.F=p,this.G=$,this.h=this.D(new E),this.j=!1,this.m=void 0,this.r=A(this,{status:"loading"}),this.loadState=this.r,this.t=this.D(new S),this.onDidChangeHeight=this.t.event,this.b=new U(J,l),this.q=this.b.getOrigin("mcpApp",e.serverDefinitionId),this.g=this.D(this.w.createInstance(N,e)),this.n=m.a.get(this.toolInvocation)??300,this.f=this.D(this.z.createWebviewElement({origin:this.q,title:P(6595,null),options:{purpose:"chatOutputItem",enableFindWidget:!1,disableServiceWorker:!0,retainContextWhenHidden:!0},contentOptions:{allowMultipleAPIAcquire:!0,allowScripts:!0,allowForms:!0},extension:void 0}));const M=k.getWindow(this.u);this.f.mountTo(this.u,M),this.hostContext=this.g.hostContext.map((u,f)=>({...u,containerDimensions:{width:n.read(f),maxHeight:i.read(f)},toolCall:{toolCallId:this.toolInvocation.toolCallId,toolName:this.toolInvocation.toolId}})),this.D(R(u=>{const f=this.hostContext.read(u);this.j&&this.Z({method:"ui/notifications/host-context-changed",params:f})})),this.D(this.f.onMessage(async({message:u})=>{await this.L(u)})),this.H()}get height(){return this.n}remount(){this.f.reinitializeAfterDismount(),this.j=!1}retry(){this.r.set({status:"loading"},void 0),this.H()}async H(){const t=this.h.token;try{const e=await this.g.loadResource(t);if(t.isCancellationRequested)return;const o=this.I(e);this.j=!1,this.m=e.csp,this.f.setHtml(o),this.r.set({status:"loaded"},void 0)}catch(e){this.C.error("[MCP App] Error loading app:",e),this.r.set({status:"error",error:e},void 0)}}I({html:t,csp:e}){const o=a=>(a?.join(" ")||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;"),n=`<meta http-equiv="Content-Security-Policy" content="${`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatMcpAppModel_1;
+import * as dom from "../../../../../../../base/browser/dom.js";
+import { softAssertNever } from "../../../../../../../base/common/assert.js";
+import { disposableTimeout } from "../../../../../../../base/common/async.js";
+import { decodeBase64 } from "../../../../../../../base/common/buffer.js";
+import { CancellationTokenSource } from "../../../../../../../base/common/cancellation.js";
+import { Emitter } from "../../../../../../../base/common/event.js";
+import { hash } from "../../../../../../../base/common/hash.js";
+import { MarkdownString } from "../../../../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, autorunSelfDisposable, observableValue } from "../../../../../../../base/common/observable.js";
+import { basename } from "../../../../../../../base/common/resources.js";
+import { isFalsyOrWhitespace } from "../../../../../../../base/common/strings.js";
+import { hasKey, isDefined } from "../../../../../../../base/common/types.js";
+import { localize } from "../../../../../../../nls.js";
+import { IInstantiationService } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../../../platform/log/common/log.js";
+import { IOpenerService } from "../../../../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../../../../platform/storage/common/storage.js";
+import { McpToolCallUI } from "../../../../../mcp/browser/mcpToolCallUI.js";
+import { McpResourceURI } from "../../../../../mcp/common/mcpTypes.js";
+import { McpApps } from "../../../../../mcp/common/modelContextProtocolApps.js";
+import { IWebviewService, WebviewOriginStore } from "../../../../../webview/browser/webview.js";
+import { isToolResultInputOutputDetails } from "../../../../common/tools/languageModelToolsService.js";
+import { IChatWidgetService } from "../../../chat.js";
+const ORIGIN_STORE_KEY = "chatMcpApp.origins";
+let ChatMcpAppModel = class ChatMcpAppModel2 extends Disposable {
+  static {
+    __name(this, "ChatMcpAppModel");
+  }
+  static {
+    ChatMcpAppModel_1 = this;
+  }
+  static {
+    this.heightCache = /* @__PURE__ */ new WeakMap();
+  }
+  constructor(toolInvocation, renderData, _container, maxHeight, currentWidth, _instantiationService, _chatWidgetService, _webviewService, storageService, _logService, _productService, _openerService) {
+    super();
+    this.toolInvocation = toolInvocation;
+    this.renderData = renderData;
+    this._container = _container;
+    this._instantiationService = _instantiationService;
+    this._chatWidgetService = _chatWidgetService;
+    this._webviewService = _webviewService;
+    this._logService = _logService;
+    this._productService = _productService;
+    this._openerService = _openerService;
+    this._disposeCts = this._register(new CancellationTokenSource());
+    this._announcedCapabilities = false;
+    this._latestCsp = void 0;
+    this._loadState = observableValue(this, { status: "loading" });
+    this.loadState = this._loadState;
+    this._onDidChangeHeight = this._register(new Emitter());
+    this.onDidChangeHeight = this._onDidChangeHeight.event;
+    this._originStore = new WebviewOriginStore(ORIGIN_STORE_KEY, storageService);
+    this._webviewOrigin = this._originStore.getOrigin("mcpApp", renderData.serverDefinitionId);
+    this._mcpToolCallUI = this._register(this._instantiationService.createInstance(McpToolCallUI, renderData));
+    this._height = ChatMcpAppModel_1.heightCache.get(this.toolInvocation) ?? 300;
+    this._webview = this._register(this._webviewService.createWebviewElement({
+      origin: this._webviewOrigin,
+      title: localize("mcpAppTitle", "MCP App"),
+      options: {
+        purpose: "chatOutputItem",
+        enableFindWidget: false,
+        disableServiceWorker: true,
+        retainContextWhenHidden: true
+      },
+      contentOptions: {
+        allowMultipleAPIAcquire: true,
+        allowScripts: true,
+        allowForms: true
+      },
+      extension: void 0
+    }));
+    const targetWindow = dom.getWindow(this._container);
+    this._webview.mountTo(this._container, targetWindow);
+    this.hostContext = this._mcpToolCallUI.hostContext.map((context, reader) => ({
+      ...context,
+      containerDimensions: {
+        width: currentWidth.read(reader),
+        maxHeight: maxHeight.read(reader)
+      },
+      toolCall: {
+        toolCallId: this.toolInvocation.toolCallId,
+        toolName: this.toolInvocation.toolId
+      }
+    }));
+    this._register(autorun((reader) => {
+      const context = this.hostContext.read(reader);
+      if (this._announcedCapabilities) {
+        this._sendNotification({
+          method: "ui/notifications/host-context-changed",
+          params: context
+        });
+      }
+    }));
+    this._register(this._webview.onMessage(async ({ message }) => {
+      await this._handleWebviewMessage(message);
+    }));
+    this._loadContent();
+  }
+  /**
+   * Gets the current height of the webview.
+   */
+  get height() {
+    return this._height;
+  }
+  remount() {
+    this._webview.reinitializeAfterDismount();
+    this._announcedCapabilities = false;
+  }
+  /**
+   * Retries loading the MCP App content.
+   */
+  retry() {
+    this._loadState.set({ status: "loading" }, void 0);
+    this._loadContent();
+  }
+  /**
+   * Loads the MCP App content into the webview.
+   */
+  async _loadContent() {
+    const token = this._disposeCts.token;
+    try {
+      const resourceContent = await this._mcpToolCallUI.loadResource(token);
+      if (token.isCancellationRequested) {
+        return;
+      }
+      const htmlWithCsp = this._injectPreamble(resourceContent);
+      this._announcedCapabilities = false;
+      this._latestCsp = resourceContent.csp;
+      this._webview.setHtml(htmlWithCsp);
+      this._loadState.set({ status: "loaded" }, void 0);
+    } catch (error) {
+      this._logService.error("[MCP App] Error loading app:", error);
+      this._loadState.set({ status: "error", error }, void 0);
+    }
+  }
+  /**
+   * Injects a Content-Security-Policy meta tag into the HTML.
+   */
+  _injectPreamble({ html, csp }) {
+    const cleanDomains = /* @__PURE__ */ __name((s) => (s?.join(" ") || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"), "cleanDomains");
+    const cspContent = `
 			default-src 'none';
-			script-src 'self' 'unsafe-inline' ${o(e?.resourceDomains)};
-			style-src 'self' 'unsafe-inline' ${o(e?.resourceDomains)};
-			connect-src 'self' ${o(e?.connectDomains)};
-			img-src 'self' data: ${o(e?.resourceDomains)};
-			font-src 'self' ${o(e?.resourceDomains)};
-			media-src 'self' data: ${o(e?.resourceDomains)};
-			frame-src ${o(e?.frameDomains)||"'none'"};
+			script-src 'self' 'unsafe-inline' ${cleanDomains(csp?.resourceDomains)};
+			style-src 'self' 'unsafe-inline' ${cleanDomains(csp?.resourceDomains)};
+			connect-src 'self' ${cleanDomains(csp?.connectDomains)};
+			img-src 'self' data: ${cleanDomains(csp?.resourceDomains)};
+			font-src 'self' ${cleanDomains(csp?.resourceDomains)};
+			media-src 'self' data: ${cleanDomains(csp?.resourceDomains)};
+			frame-src ${cleanDomains(csp?.frameDomains) || `'none'`};
 			object-src 'none';
-			base-uri ${o(e?.baseUriDomains)||"'self'"};
-		`}">`;return this.J(t,n+`
+			base-uri ${cleanDomains(csp?.baseUriDomains) || `'self'`};
+		`;
+    const cspTag = `<meta http-equiv="Content-Security-Policy" content="${cspContent}">`;
+    const postMessageRehoist = `
 			<script>(() => {
 				const api = acquireVsCodeApi();
 				const setMessageSource = (obj, src) => new Proxy(obj, {
@@ -133,8 +292,318 @@ import*as k from"../../../../../../../base/browser/dom.js";import{$1c as I}from"
 					});
 				}, { passive: true });
 			})();<\/script>
-		`)}J(t,e){const o=t.match(/<head[^>]*>/i);if(o){const n=o.index+o[0].length;return t.slice(0,n)+`
-`+e+t.slice(n)}const i=t.match(/<html[^>]*>/i);if(i){const n=i.index+i[0].length;return t.slice(0,n)+`
-<head>`+e+"</head>"+t.slice(n)}return`<!DOCTYPE html><html><head>${e}</head><body>${t}</body></html>`}async L(t){const e=t,o=this.h.token;try{let i={};switch(e.method){case"ui/initialize":i=await this.M(e.params);break;case"tools/call":i=await this.U(e.params,o);break;case"resources/read":i=await this.W(e.params,o);break;case"ping":break;case"ui/notifications/size-changed":this.Q(e.params);break;case"ui/open-link":i=await this.S(e.params);break;case"ui/request-display-mode":i={mode:"inline"};break;case"ui/notifications/initialized":break;case"ui/message":i=await this.O(e.params);break;case"ui/update-model-context":i=await this.P(e.params);break;case"notifications/message":await this.g.log(e.params);break;case"ui/notifications/sandbox-wheel":this.R(e.params);break;default:{I(e);const n=e;n.id!==void 0&&await this.Y(n.id,-32601,`Method not found: ${n.method}`);return}}b(e,{id:!0})&&await this.X(e.id,i)}catch(i){if(this.C.error(`[MCP App] Error handling ${e.method}:`,i),b(e,{id:!0})){const n=i instanceof Error?i.message:String(i);await this.Y(e.id,-32e3,n)}}}async M(t){this.j=!0;let e;try{e=JSON.parse(this.renderData.input)}catch{e=this.renderData.input}const o=this.D(x(async()=>{if(this.B.delete(o),await this.Z({method:"ui/notifications/tool-input",params:{arguments:e}}),this.toolInvocation.kind==="toolInvocationSerialized")this.N(this.toolInvocation.resultDetails);else if(this.toolInvocation.kind==="toolInvocation"){const i=this.toolInvocation;this.D(T(n=>{const s=i.state.read(n);s.type===4&&(this.N(s.resultDetails),n.dispose())}))}}));return{protocolVersion:z.LATEST_PROTOCOL_VERSION,hostInfo:{name:this.F.nameLong,version:this.F.version},hostCapabilities:{openLinks:{},serverTools:{listChanged:!0},serverResources:{listChanged:!0},logging:{},sandbox:{csp:this.m,permissions:{clipboardWrite:{}}},updateModelContext:{audio:{},image:{},resourceLink:{},resource:{},structuredContent:{}}},hostContext:this.hostContext.get()}}N(t){X(t)&&t.mcpOutput&&this.Z({method:"ui/notifications/tool-result",params:t.mcpOutput})}async O(t){const e=this.y.getWidgetBySessionResource(this.renderData.sessionResource);return e?H(e.getInput())?(e.setInput(t.content.filter(o=>o.type==="text").map(o=>o.text).join(`
-
-`)),e.attachmentModel.clearAndSetContext(...t.content.map((o,i)=>{const n=`mcpui-${i}-${Date.now()}`;if(o.type==="image")return{kind:"image",value:g(o.data).buffer,id:n,name:"Image"};if(o.type==="resource_link"){const s=y.fromServer({id:this.renderData.serverDefinitionId,label:""},o.uri);return{kind:"file",value:s,id:n,name:v(s)}}else return}).filter(O)),e.focusInput(),{isError:!1}):{isError:!0}:{isError:!0}}async P(t){const e=this.y.getWidgetBySessionResource(this.renderData.sessionResource);if(!e)return{};const o=`mcpui-context-${j(this.renderData.serverDefinitionId)}-`,i=e.attachmentModel.getAttachmentIDs(),n=Array.from(i).filter(r=>r.startsWith(o)),s=[];let a=0;if(t.content)for(const r of t.content){const l=`${o}${a++}`;if(r.type==="image")s.push({kind:"image",value:g(r.data).buffer,id:l,name:"Image",mimeType:r.mimeType});else if(r.type==="resource_link"){const c=y.fromServer({id:this.renderData.serverDefinitionId,label:""},r.uri);s.push({kind:"file",value:c,id:l,name:v(c)})}else if(r.type==="text"){const c=r.text.replaceAll(/\s+/g," ").trim(),p=20;s.push({kind:"generic",value:r.text,id:l,tooltip:new w().appendCodeblock("plaintext",r.text),name:c.length>p?c.slice(0,p)+"\u2026":c})}}if(t.structuredContent&&Object.keys(t.structuredContent).length>0){const r=`${o}structured`,l=JSON.stringify(t.structuredContent,null,2);s.push({kind:"generic",value:l,tooltip:new w().appendCodeblock("json",l),id:r,name:"UI Data"})}return e.attachmentModel.updateContext(n,s),{}}Q(t){t.height!==void 0&&t.height!==this.n&&(this.n=t.height,m.a.set(this.toolInvocation,t.height),this.t.fire())}R(t){let e=!1;const o={wheelDeltaX:t.deltaX,wheelDeltaY:-t.deltaY,wheelDelta:Math.abs(t.deltaY),deltaX:t.deltaX,deltaY:-t.deltaY,deltaZ:t.deltaZ,deltaMode:t.deltaMode,preventDefault:()=>{e=!0},stopPropagation:()=>{},get defaultPrevented(){return e}};this.y.getWidgetBySessionResource(this.renderData.sessionResource)?.delegateScrollFromMouseWheelEvent(o)}async S(t){return{isError:!await this.G.open(t.url)}}async U(t,e){if(!t?.name)throw new Error("Missing tool name in tools/call request");return this.g.callTool(t.name,t.arguments||{},e)}async W(t,e){if(!t?.uri)throw new Error("Missing uri in resources/read request");return this.g.readResource(t.uri,e)}async X(t,e){await this.f.postMessage({jsonrpc:"2.0",id:t,result:e})}async Y(t,e,o){await this.f.postMessage({jsonrpc:"2.0",id:t,error:{code:e,message:o}})}async Z(t){await this.f.postMessage({jsonrpc:"2.0",...t})}dispose(){this.h.dispose(!0),super.dispose()}};D=m=C([d(5,Y),d(6,Z),d(7,B),d(8,F),d(9,W),d(10,q),d(11,_)],D);export{D as $C3b};
+		`;
+    return this._prependToHead(html, cspTag + postMessageRehoist);
+  }
+  _prependToHead(html, content) {
+    const headMatch = html.match(/<head[^>]*>/i);
+    if (headMatch) {
+      const insertIndex = headMatch.index + headMatch[0].length;
+      return html.slice(0, insertIndex) + "\n" + content + html.slice(insertIndex);
+    }
+    const htmlMatch = html.match(/<html[^>]*>/i);
+    if (htmlMatch) {
+      const insertIndex = htmlMatch.index + htmlMatch[0].length;
+      return html.slice(0, insertIndex) + "\n<head>" + content + "</head>" + html.slice(insertIndex);
+    }
+    return `<!DOCTYPE html><html><head>${content}</head><body>${html}</body></html>`;
+  }
+  /**
+   * Handles incoming JSON-RPC messages from the webview.
+   */
+  async _handleWebviewMessage(message) {
+    const request = message;
+    const token = this._disposeCts.token;
+    try {
+      let result = {};
+      switch (request.method) {
+        case "ui/initialize":
+          result = await this._handleInitialize(request.params);
+          break;
+        case "tools/call":
+          result = await this._handleToolsCall(request.params, token);
+          break;
+        case "resources/read":
+          result = await this._handleResourcesRead(request.params, token);
+          break;
+        case "ping":
+          break;
+        case "ui/notifications/size-changed":
+          this._handleSizeChanged(request.params);
+          break;
+        case "ui/open-link":
+          result = await this._handleOpenLink(request.params);
+          break;
+        case "ui/request-display-mode":
+          result = { mode: "inline" };
+          break;
+        case "ui/notifications/initialized":
+          break;
+        case "ui/message":
+          result = await this._handleUiMessage(request.params);
+          break;
+        case "ui/update-model-context":
+          result = await this._handleUpdateModelContext(request.params);
+          break;
+        case "notifications/message":
+          await this._mcpToolCallUI.log(request.params);
+          break;
+        case "ui/notifications/sandbox-wheel":
+          this._handleSandboxWheel(request.params);
+          break;
+        default: {
+          softAssertNever(request);
+          const cast = request;
+          if (cast.id !== void 0) {
+            await this._sendError(cast.id, -32601, `Method not found: ${cast.method}`);
+          }
+          return;
+        }
+      }
+      if (hasKey(request, { id: true })) {
+        await this._sendResponse(request.id, result);
+      }
+    } catch (error) {
+      this._logService.error(`[MCP App] Error handling ${request.method}:`, error);
+      if (hasKey(request, { id: true })) {
+        const message2 = error instanceof Error ? error.message : String(error);
+        await this._sendError(request.id, -32e3, message2);
+      }
+    }
+  }
+  /**
+   * Handles the ui/initialize request from the MCP App View.
+   */
+  async _handleInitialize(_params) {
+    this._announcedCapabilities = true;
+    let args;
+    try {
+      args = JSON.parse(this.renderData.input);
+    } catch {
+      args = this.renderData.input;
+    }
+    const timeout = this._register(disposableTimeout(async () => {
+      this._store.delete(timeout);
+      await this._sendNotification({
+        method: "ui/notifications/tool-input",
+        params: { arguments: args }
+      });
+      if (this.toolInvocation.kind === "toolInvocationSerialized") {
+        this._sendToolResult(this.toolInvocation.resultDetails);
+      } else if (this.toolInvocation.kind === "toolInvocation") {
+        const invocation = this.toolInvocation;
+        this._register(autorunSelfDisposable((reader) => {
+          const state = invocation.state.read(reader);
+          if (state.type === 4) {
+            this._sendToolResult(state.resultDetails);
+            reader.dispose();
+          }
+        }));
+      }
+    }));
+    return {
+      protocolVersion: McpApps.LATEST_PROTOCOL_VERSION,
+      hostInfo: {
+        name: this._productService.nameLong,
+        version: this._productService.version
+      },
+      hostCapabilities: {
+        openLinks: {},
+        serverTools: { listChanged: true },
+        serverResources: { listChanged: true },
+        logging: {},
+        sandbox: {
+          csp: this._latestCsp,
+          permissions: { clipboardWrite: {} }
+        },
+        updateModelContext: {
+          audio: {},
+          image: {},
+          resourceLink: {},
+          resource: {},
+          structuredContent: {}
+        }
+      },
+      hostContext: this.hostContext.get()
+    };
+  }
+  /**
+   * Sends the tool result notification when the result becomes available.
+   */
+  _sendToolResult(resultDetails) {
+    if (isToolResultInputOutputDetails(resultDetails) && resultDetails.mcpOutput) {
+      this._sendNotification({
+        method: "ui/notifications/tool-result",
+        params: resultDetails.mcpOutput
+      });
+    }
+  }
+  async _handleUiMessage(params) {
+    const widget = this._chatWidgetService.getWidgetBySessionResource(this.renderData.sessionResource);
+    if (!widget) {
+      return { isError: true };
+    }
+    if (!isFalsyOrWhitespace(widget.getInput())) {
+      return { isError: true };
+    }
+    widget.setInput(params.content.filter((c) => c.type === "text").map((c) => c.text).join("\n\n"));
+    widget.attachmentModel.clearAndSetContext(...params.content.map((c, i) => {
+      const id = `mcpui-${i}-${Date.now()}`;
+      if (c.type === "image") {
+        return { kind: "image", value: decodeBase64(c.data).buffer, id, name: "Image" };
+      } else if (c.type === "resource_link") {
+        const uri = McpResourceURI.fromServer({ id: this.renderData.serverDefinitionId, label: "" }, c.uri);
+        return { kind: "file", value: uri, id, name: basename(uri) };
+      } else {
+        return void 0;
+      }
+    }).filter(isDefined));
+    widget.focusInput();
+    return { isError: false };
+  }
+  async _handleUpdateModelContext(params) {
+    const widget = this._chatWidgetService.getWidgetBySessionResource(this.renderData.sessionResource);
+    if (!widget) {
+      return {};
+    }
+    const idPrefix = `mcpui-context-${hash(this.renderData.serverDefinitionId)}-`;
+    const toDelete = widget.attachmentModel.getAttachmentIDs();
+    const idsToDelete = Array.from(toDelete).filter((id) => id.startsWith(idPrefix));
+    const entries = [];
+    let entryIndex = 0;
+    if (params.content) {
+      for (const block of params.content) {
+        const id = `${idPrefix}${entryIndex++}`;
+        if (block.type === "image") {
+          entries.push({
+            kind: "image",
+            value: decodeBase64(block.data).buffer,
+            id,
+            name: "Image",
+            mimeType: block.mimeType
+          });
+        } else if (block.type === "resource_link") {
+          const uri = McpResourceURI.fromServer({ id: this.renderData.serverDefinitionId, label: "" }, block.uri);
+          entries.push({
+            kind: "file",
+            value: uri,
+            id,
+            name: basename(uri)
+          });
+        } else if (block.type === "text") {
+          const preview = block.text.replaceAll(/\s+/g, " ").trim();
+          const truncateTo = 20;
+          entries.push({
+            kind: "generic",
+            value: block.text,
+            id,
+            tooltip: new MarkdownString().appendCodeblock("plaintext", block.text),
+            name: preview.length > truncateTo ? preview.slice(0, truncateTo) + "\u2026" : preview
+          });
+        }
+      }
+    }
+    if (params.structuredContent && Object.keys(params.structuredContent).length > 0) {
+      const id = `${idPrefix}structured`;
+      const value = JSON.stringify(params.structuredContent, null, 2);
+      entries.push({
+        kind: "generic",
+        value,
+        tooltip: new MarkdownString().appendCodeblock("json", value),
+        id,
+        name: "UI Data"
+      });
+    }
+    widget.attachmentModel.updateContext(idsToDelete, entries);
+    return {};
+  }
+  _handleSizeChanged(params) {
+    if (params.height !== void 0 && params.height !== this._height) {
+      this._height = params.height;
+      ChatMcpAppModel_1.heightCache.set(this.toolInvocation, params.height);
+      this._onDidChangeHeight.fire();
+    }
+  }
+  _handleSandboxWheel(params) {
+    let defaultPrevented = false;
+    const evt = {
+      wheelDeltaX: params.deltaX,
+      wheelDeltaY: -params.deltaY,
+      wheelDelta: Math.abs(params.deltaY),
+      deltaX: params.deltaX,
+      deltaY: -params.deltaY,
+      deltaZ: params.deltaZ,
+      deltaMode: params.deltaMode,
+      preventDefault: /* @__PURE__ */ __name(() => {
+        defaultPrevented = true;
+      }, "preventDefault"),
+      stopPropagation: /* @__PURE__ */ __name(() => {
+      }, "stopPropagation"),
+      get defaultPrevented() {
+        return defaultPrevented;
+      }
+    };
+    const widget = this._chatWidgetService.getWidgetBySessionResource(this.renderData.sessionResource);
+    widget?.delegateScrollFromMouseWheelEvent(evt);
+  }
+  async _handleOpenLink(params) {
+    const ok = await this._openerService.open(params.url);
+    return { isError: !ok };
+  }
+  /**
+   * Handles tools/call requests from the MCP App.
+   */
+  async _handleToolsCall(params, token) {
+    if (!params?.name) {
+      throw new Error("Missing tool name in tools/call request");
+    }
+    return this._mcpToolCallUI.callTool(params.name, params.arguments || {}, token);
+  }
+  /**
+   * Handles resources/read requests from the MCP App.
+   */
+  async _handleResourcesRead(params, token) {
+    if (!params?.uri) {
+      throw new Error("Missing uri in resources/read request");
+    }
+    return this._mcpToolCallUI.readResource(params.uri, token);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async _sendResponse(id, result) {
+    await this._webview.postMessage({
+      jsonrpc: "2.0",
+      id,
+      result
+    });
+  }
+  async _sendError(id, code, message) {
+    await this._webview.postMessage({
+      jsonrpc: "2.0",
+      id,
+      error: { code, message }
+    });
+  }
+  async _sendNotification(message) {
+    await this._webview.postMessage({
+      jsonrpc: "2.0",
+      ...message
+    });
+  }
+  dispose() {
+    this._disposeCts.dispose(true);
+    super.dispose();
+  }
+};
+ChatMcpAppModel = ChatMcpAppModel_1 = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, IChatWidgetService),
+  __param(7, IWebviewService),
+  __param(8, IStorageService),
+  __param(9, ILogService),
+  __param(10, IProductService),
+  __param(11, IOpenerService)
+], ChatMcpAppModel);
+export {
+  ChatMcpAppModel
+};
+//# sourceMappingURL=chatMcpAppModel.js.map

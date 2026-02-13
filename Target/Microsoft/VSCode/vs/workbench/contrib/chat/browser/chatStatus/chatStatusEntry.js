@@ -1,1 +1,196 @@
-import"./media/chatStatus.css";import{$Ed as p,$Dd as g,$Fd as $}from"../../../../../base/common/lifecycle.js";import{localize as r}from"../../../../../nls.js";import{$fDb as b,$iDb as D}from"../../../../services/statusbar/browser/statusbar.js";import{ChatEntitlement as c,$JP as C,$KP as E}from"../../../../services/chat/common/chatEntitlementService.js";import{$0l as v}from"../../../../../platform/configuration/common/configuration.js";import{$BL as q}from"../../../../services/editor/common/editorService.js";import{$Mj as j}from"../../../../../platform/instantiation/common/instantiation.js";import{$Jdb as x}from"../../../../../editor/browser/editorBrowser.js";import{$kpb as I}from"../../../../../editor/browser/services/inlineCompletionsService.js";import{$aW as R}from"../../common/chatSessionsService.js";import{$Sqc as w}from"./chatStatusDashboard.js";import{$T7 as S}from"../../../../../base/browser/window.js";import{$F8 as _}from"../../../../../base/browser/dom.js";import{$Rqc as P}from"./chatStatus.js";import T from"../../../../../platform/product/common/product.js";import{$sfb as y}from"../../../../../editor/common/services/completionsEnablement.js";var u=function(a,t,i,o){var h=arguments.length,e=h<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,i):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(a,t,i,o);else for(var s=a.length-1;s>=0;s--)(n=a[s])&&(e=(h<3?n(e):h>3?n(t,i,e):n(t,i))||e);return h>3&&e&&Object.defineProperty(t,i,e),e},l=function(a,t){return function(i,o){t(i,o,a)}};let f=class extends p{static{this.ID="workbench.contrib.chatStatusBarEntry"}constructor(t,i,o,h,e,n,s){super(),this.f=t,this.g=i,this.h=o,this.j=h,this.m=e,this.n=n,this.q=s,this.a=void 0,this.b=this.D(new $),this.c=this.q.getInProgress().reduce((m,d)=>m+d.count,0),this.r(),this.s()}r(){if(this.f.sentiment.hidden)this.a?.dispose(),this.a=void 0;else{const i=this.u();this.a?this.a.update(i):this.a=this.h.addEntry(i,"chat.statusBarEntry",1,{location:{id:"status.editor.mode",priority:100.1},alignment:1})}}s(){this.D(this.f.onDidChangeQuotaExceeded(()=>this.r())),this.D(this.f.onDidChangeSentiment(()=>this.r())),this.D(this.f.onDidChangeEntitlement(()=>this.r())),this.D(this.n.onDidChangeIsSnoozing(()=>this.r())),this.D(this.q.onDidChangeInProgress(()=>{const t=this.c;this.c=this.q.getInProgress().reduce((i,o)=>i+o.count,0),this.c!==t&&this.r()})),this.D(this.j.onDidActiveEditorChange(()=>this.t())),this.D(this.m.onDidChangeConfiguration(t=>{t.affectsConfiguration(T.defaultChatAgent?.completionsEnablementSetting)&&this.r()}))}t(){this.r(),this.b.clear();const t=x(this.j.activeTextEditorControl);t&&(this.b.value=t.onDidChangeModelLanguage(()=>{this.r()}))}u(){let t="$(copilot)",i=r(6223,null),o;if(P(this.f)){const e=this.f.entitlement;if(this.f.sentiment.later||e===c.Available||E(e)||e===c.Free){const n=r(6224,null);t=`$(copilot) ${n}`,i=n,o="prominent"}}else{const e=this.f.quotas.chat?.percentRemaining===0,n=this.f.quotas.completions?.percentRemaining===0;if(this.f.sentiment.disabled||this.f.sentiment.untrusted)t="$(copilot-unavailable)",i=r(6225,null);else if(this.c>0)t="$(copilot-in-progress)",this.c>1?i=r(6226,null,this.c):i=r(6227,null);else if(this.f.entitlement===c.Unknown){const s=r(6228,null);t=`${this.f.anonymous?"$(copilot)":"$(copilot-not-connected)"} ${s}`,i=s,o="prominent"}else if(this.f.entitlement===c.Free&&(e||n)){let s;e&&!n?s=r(6229,null):n&&!e?s=r(6230,null):s=r(6231,null),t=`$(copilot-warning) ${s}`,i=s,o="prominent"}else this.j.activeTextEditorLanguageId&&!y(this.m,this.j.activeTextEditorLanguageId)?(t="$(copilot-unavailable)",i=r(6232,null)):this.n.isSnoozing()&&(t="$(copilot-snooze)",i=r(6233,null))}return{name:r(6234,null),text:t,ariaLabel:i,command:D,showInAllWindows:!0,kind:o,tooltip:{element:e=>{const n=new g;n.add(e.onCancellationRequested(()=>{n.dispose()}));const s=w.instantiateInContents(this.g,n);return n.add(_(S,()=>{s.isConnected||n.dispose()},2e3)),s}}}}dispose(){super.dispose(),this.a?.dispose(),this.a=void 0}};f=u([l(0,C),l(1,j),l(2,b),l(3,q),l(4,v),l(5,I),l(6,R)],f);export{f as $Tqc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import "./media/chatStatus.css";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { IStatusbarService, ShowTooltipCommand } from "../../../../services/statusbar/browser/statusbar.js";
+import { ChatEntitlement, IChatEntitlementService, isProUser } from "../../../../services/chat/common/chatEntitlementService.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { getCodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { IInlineCompletionsService } from "../../../../../editor/browser/services/inlineCompletionsService.js";
+import { IChatSessionsService } from "../../common/chatSessionsService.js";
+import { ChatStatusDashboard } from "./chatStatusDashboard.js";
+import { mainWindow } from "../../../../../base/browser/window.js";
+import { disposableWindowInterval } from "../../../../../base/browser/dom.js";
+import { isNewUser } from "./chatStatus.js";
+import product from "../../../../../platform/product/common/product.js";
+import { isCompletionsEnabled } from "../../../../../editor/common/services/completionsEnablement.js";
+let ChatStatusBarEntry = class ChatStatusBarEntry2 extends Disposable {
+  static {
+    __name(this, "ChatStatusBarEntry");
+  }
+  static {
+    this.ID = "workbench.contrib.chatStatusBarEntry";
+  }
+  constructor(chatEntitlementService, instantiationService, statusbarService, editorService, configurationService, completionsService, chatSessionsService) {
+    super();
+    this.chatEntitlementService = chatEntitlementService;
+    this.instantiationService = instantiationService;
+    this.statusbarService = statusbarService;
+    this.editorService = editorService;
+    this.configurationService = configurationService;
+    this.completionsService = completionsService;
+    this.chatSessionsService = chatSessionsService;
+    this.entry = void 0;
+    this.activeCodeEditorListener = this._register(new MutableDisposable());
+    this.runningSessionsCount = this.chatSessionsService.getInProgress().reduce((total, item) => total + item.count, 0);
+    this.update();
+    this.registerListeners();
+  }
+  update() {
+    const sentiment = this.chatEntitlementService.sentiment;
+    if (!sentiment.hidden) {
+      const props = this.getEntryProps();
+      if (this.entry) {
+        this.entry.update(props);
+      } else {
+        this.entry = this.statusbarService.addEntry(props, "chat.statusBarEntry", 1, {
+          location: { id: "status.editor.mode", priority: 100.1 },
+          alignment: 1
+          /* StatusbarAlignment.RIGHT */
+        });
+      }
+    } else {
+      this.entry?.dispose();
+      this.entry = void 0;
+    }
+  }
+  registerListeners() {
+    this._register(this.chatEntitlementService.onDidChangeQuotaExceeded(() => this.update()));
+    this._register(this.chatEntitlementService.onDidChangeSentiment(() => this.update()));
+    this._register(this.chatEntitlementService.onDidChangeEntitlement(() => this.update()));
+    this._register(this.completionsService.onDidChangeIsSnoozing(() => this.update()));
+    this._register(this.chatSessionsService.onDidChangeInProgress(() => {
+      const oldSessionsCount = this.runningSessionsCount;
+      this.runningSessionsCount = this.chatSessionsService.getInProgress().reduce((total, item) => total + item.count, 0);
+      if (this.runningSessionsCount !== oldSessionsCount) {
+        this.update();
+      }
+    }));
+    this._register(this.editorService.onDidActiveEditorChange(() => this.onDidActiveEditorChange()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(product.defaultChatAgent?.completionsEnablementSetting)) {
+        this.update();
+      }
+    }));
+  }
+  onDidActiveEditorChange() {
+    this.update();
+    this.activeCodeEditorListener.clear();
+    const activeCodeEditor = getCodeEditor(this.editorService.activeTextEditorControl);
+    if (activeCodeEditor) {
+      this.activeCodeEditorListener.value = activeCodeEditor.onDidChangeModelLanguage(() => {
+        this.update();
+      });
+    }
+  }
+  getEntryProps() {
+    let text = "$(copilot)";
+    let ariaLabel = localize("chatStatusAria", "Copilot status");
+    let kind;
+    if (isNewUser(this.chatEntitlementService)) {
+      const entitlement = this.chatEntitlementService.entitlement;
+      if (this.chatEntitlementService.sentiment.later || // user skipped setup
+      entitlement === ChatEntitlement.Available || // user is entitled
+      isProUser(entitlement) || // user is already pro
+      entitlement === ChatEntitlement.Free) {
+        const finishSetup = localize("finishSetup", "Finish Setup");
+        text = `$(copilot) ${finishSetup}`;
+        ariaLabel = finishSetup;
+        kind = "prominent";
+      }
+    } else {
+      const chatQuotaExceeded = this.chatEntitlementService.quotas.chat?.percentRemaining === 0;
+      const completionsQuotaExceeded = this.chatEntitlementService.quotas.completions?.percentRemaining === 0;
+      if (this.chatEntitlementService.sentiment.disabled || this.chatEntitlementService.sentiment.untrusted) {
+        text = "$(copilot-unavailable)";
+        ariaLabel = localize("copilotDisabledStatus", "Copilot disabled");
+      } else if (this.runningSessionsCount > 0) {
+        text = "$(copilot-in-progress)";
+        if (this.runningSessionsCount > 1) {
+          ariaLabel = localize("chatSessionsInProgressStatus", "{0} agent sessions in progress", this.runningSessionsCount);
+        } else {
+          ariaLabel = localize("chatSessionInProgressStatus", "1 agent session in progress");
+        }
+      } else if (this.chatEntitlementService.entitlement === ChatEntitlement.Unknown) {
+        const signedOutWarning = localize("notSignedIn", "Signed out");
+        text = `${this.chatEntitlementService.anonymous ? "$(copilot)" : "$(copilot-not-connected)"} ${signedOutWarning}`;
+        ariaLabel = signedOutWarning;
+        kind = "prominent";
+      } else if (this.chatEntitlementService.entitlement === ChatEntitlement.Free && (chatQuotaExceeded || completionsQuotaExceeded)) {
+        let quotaWarning;
+        if (chatQuotaExceeded && !completionsQuotaExceeded) {
+          quotaWarning = localize("chatQuotaExceededStatus", "Chat quota reached");
+        } else if (completionsQuotaExceeded && !chatQuotaExceeded) {
+          quotaWarning = localize("completionsQuotaExceededStatus", "Inline suggestions quota reached");
+        } else {
+          quotaWarning = localize("chatAndCompletionsQuotaExceededStatus", "Quota reached");
+        }
+        text = `$(copilot-warning) ${quotaWarning}`;
+        ariaLabel = quotaWarning;
+        kind = "prominent";
+      } else if (this.editorService.activeTextEditorLanguageId && !isCompletionsEnabled(this.configurationService, this.editorService.activeTextEditorLanguageId)) {
+        text = "$(copilot-unavailable)";
+        ariaLabel = localize("completionsDisabledStatus", "Inline suggestions disabled");
+      } else if (this.completionsService.isSnoozing()) {
+        text = "$(copilot-snooze)";
+        ariaLabel = localize("completionsSnoozedStatus", "Inline suggestions snoozed");
+      }
+    }
+    const baseResult = {
+      name: localize("chatStatus", "Copilot Status"),
+      text,
+      ariaLabel,
+      command: ShowTooltipCommand,
+      showInAllWindows: true,
+      kind,
+      tooltip: {
+        element: /* @__PURE__ */ __name((token) => {
+          const store = new DisposableStore();
+          store.add(token.onCancellationRequested(() => {
+            store.dispose();
+          }));
+          const elem = ChatStatusDashboard.instantiateInContents(this.instantiationService, store);
+          store.add(disposableWindowInterval(mainWindow, () => {
+            if (!elem.isConnected) {
+              store.dispose();
+            }
+          }, 2e3));
+          return elem;
+        }, "element")
+      }
+    };
+    return baseResult;
+  }
+  dispose() {
+    super.dispose();
+    this.entry?.dispose();
+    this.entry = void 0;
+  }
+};
+ChatStatusBarEntry = __decorate([
+  __param(0, IChatEntitlementService),
+  __param(1, IInstantiationService),
+  __param(2, IStatusbarService),
+  __param(3, IEditorService),
+  __param(4, IConfigurationService),
+  __param(5, IInlineCompletionsService),
+  __param(6, IChatSessionsService)
+], ChatStatusBarEntry);
+export {
+  ChatStatusBarEntry
+};
+//# sourceMappingURL=chatStatusEntry.js.map

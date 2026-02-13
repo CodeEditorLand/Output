@@ -1,1 +1,104 @@
-import{$Ed as m}from"../../lifecycle.js";import{DisposableStore as c,toDisposable as a}from"../commonFacade/deps.js";import{$Ze as h}from"../observables/observableValue.js";import{$he as o}from"../reactions/autorun.js";class w extends m{constructor(s){super(),this.c=s,this.a=0,this.b=void 0,this.D(o(n=>{if(this.c.read(n))this.b=Date.now();else if(this.b!==void 0){const e=Date.now()-this.b;this.a+=e,this.b=void 0}}))}totalTimeMs(){return this.b!==void 0?this.a+(Date.now()-this.b):this.a}fireWhenTimeIncreasedBy(s,n){const t=new c;let e=0,i;return t.add(o(d=>{if(this.c.read(d)){i=Date.now();const u=s-e;if(u<=0){n(),t.dispose();return}const f=setTimeout(()=>{e+=Date.now()-i,i=void 0,n(),t.dispose()},u);d.store.add(a(()=>{clearTimeout(f),i!==void 0&&(e+=Date.now()-i,i=void 0)}))}})),t}}function $(r,s,n){const t=h("wasTrueRecently",!1);let e;return n.add(o(i=>{r.read(i)?(t.set(!0,void 0),e!==void 0&&(clearTimeout(e),e=void 0)):e=setTimeout(()=>{t.set(!1,void 0),e=void 0},s)})),n.add(a(()=>{e!==void 0&&clearTimeout(e)})),t}export{w as $hbb,$ as $ibb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../lifecycle.js";
+import { DisposableStore, toDisposable } from "../commonFacade/deps.js";
+import { observableValue } from "../observables/observableValue.js";
+import { autorun } from "../reactions/autorun.js";
+class TotalTrueTimeObservable extends Disposable {
+  static {
+    __name(this, "TotalTrueTimeObservable");
+  }
+  constructor(value) {
+    super();
+    this.value = value;
+    this._totalTime = 0;
+    this._startTime = void 0;
+    this._register(autorun((reader) => {
+      const isTrue = this.value.read(reader);
+      if (isTrue) {
+        this._startTime = Date.now();
+      } else {
+        if (this._startTime !== void 0) {
+          const delta = Date.now() - this._startTime;
+          this._totalTime += delta;
+          this._startTime = void 0;
+        }
+      }
+    }));
+  }
+  /**
+   * Reports the total time the observable has been true in milliseconds.
+   * E.g. `true` for 100ms, then `false` for 50ms, then `true` for 200ms results in 300ms.
+  */
+  totalTimeMs() {
+    if (this._startTime !== void 0) {
+      return this._totalTime + (Date.now() - this._startTime);
+    }
+    return this._totalTime;
+  }
+  /**
+   * Runs the callback when the total time the observable has been true increased by the given delta in milliseconds.
+  */
+  fireWhenTimeIncreasedBy(deltaTimeMs, callback) {
+    const store = new DisposableStore();
+    let accumulatedTime = 0;
+    let startTime = void 0;
+    store.add(autorun((reader) => {
+      const isTrue = this.value.read(reader);
+      if (isTrue) {
+        startTime = Date.now();
+        const remainingTime = deltaTimeMs - accumulatedTime;
+        if (remainingTime <= 0) {
+          callback();
+          store.dispose();
+          return;
+        }
+        const handle = setTimeout(() => {
+          accumulatedTime += Date.now() - startTime;
+          startTime = void 0;
+          callback();
+          store.dispose();
+        }, remainingTime);
+        reader.store.add(toDisposable(() => {
+          clearTimeout(handle);
+          if (startTime !== void 0) {
+            accumulatedTime += Date.now() - startTime;
+            startTime = void 0;
+          }
+        }));
+      }
+    }));
+    return store;
+  }
+}
+function wasTrueRecently(obs, timeMs, store) {
+  const result = observableValue("wasTrueRecently", false);
+  let timeout;
+  store.add(autorun((reader) => {
+    const value = obs.read(reader);
+    if (value) {
+      result.set(true, void 0);
+      if (timeout !== void 0) {
+        clearTimeout(timeout);
+        timeout = void 0;
+      }
+    } else {
+      timeout = setTimeout(() => {
+        result.set(false, void 0);
+        timeout = void 0;
+      }, timeMs);
+    }
+  }));
+  store.add(toDisposable(() => {
+    if (timeout !== void 0) {
+      clearTimeout(timeout);
+    }
+  }));
+  return result;
+}
+__name(wasTrueRecently, "wasTrueRecently");
+export {
+  TotalTrueTimeObservable,
+  wasTrueRecently
+};
+//# sourceMappingURL=time.js.map

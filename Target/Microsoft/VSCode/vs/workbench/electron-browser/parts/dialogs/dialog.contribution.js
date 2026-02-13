@@ -1,1 +1,113 @@
-import{$gjb as w}from"../../../../platform/clipboard/common/clipboardService.js";import{$0l as d}from"../../../../platform/configuration/common/configuration.js";import{$Mp as b}from"../../../../platform/dialogs/common/dialogs.js";import{$fy as v}from"../../../../platform/keybinding/common/keybinding.js";import{$flb as D}from"../../../../platform/layout/browser/layoutService.js";import{$yo as _}from"../../../../platform/log/common/log.js";import{$Xu as j}from"../../../../platform/native/common/native.js";import{$Vn as y}from"../../../../platform/product/common/productService.js";import{$2N as A}from"../../../common/contributions.js";import{$FLc as P}from"../../../browser/parts/dialogs/dialogHandler.js";import{$IVc as V}from"./dialogHandler.js";import{$Ed as O}from"../../../../base/common/lifecycle.js";import{$Mj as R}from"../../../../platform/instantiation/common/instantiation.js";import{$Rf as l}from"../../../../base/common/lazy.js";import{$EP as q}from"../../../../platform/opener/common/opener.js";import{$KUc as I}from"../../../../platform/dialogs/electron-browser/dialog.js";import{$HP as T}from"../../../services/environment/common/environmentService.js";import{$Ukb as x}from"../../../../platform/markdown/browser/markdownRenderer.js";var $=function(e,i,t,s){var a=arguments.length,o=a<3?i:s===null?s=Object.getOwnPropertyDescriptor(i,t):s,m;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(e,i,t,s);else for(var f=e.length-1;f>=0;f--)(m=e[f])&&(o=(a<3?m(o):a>3?m(i,t,o):m(i,t))||o);return a>3&&o&&Object.defineProperty(i,t,o),o},r=function(e,i){return function(t,s){i(t,s,e)}};let n=class extends O{static{this.ID="workbench.contrib.dialogHandler"}constructor(i,t,s,a,o,m,f,h,p,c,u,g){super(),this.g=i,this.h=t,this.j=f,this.m=p,this.n=c,this.b=new l(()=>new P(s,a,o,m,h,u,g)),this.a=new l(()=>new V(s,p,h)),this.c=this.h.model,this.D(this.c.onWillShowDialog(()=>{this.f||this.q()})),this.q()}async q(){for(;this.c.dialogs.length;){this.f=this.c.dialogs[0];let i;try{if(this.f.args.confirmArgs){const t=this.f.args.confirmArgs;i=this.r||t?.confirmation.custom?await this.b.value.confirm(t.confirmation):await this.a.value.confirm(t.confirmation)}else if(this.f.args.inputArgs){const t=this.f.args.inputArgs;i=await this.b.value.input(t.input)}else if(this.f.args.promptArgs){const t=this.f.args.promptArgs;i=this.r||t?.prompt.custom?await this.b.value.prompt(t.prompt):await this.a.value.prompt(t.prompt)}else{const t=I(this.j,await this.m.getOSProperties());this.r?await this.b.value.about(t.title,t.details,t.detailsToCopy):await this.a.value.about(t.title,t.details,t.detailsToCopy)}}catch(t){i=t}this.f.close(i),this.f=void 0}}get r(){return this.g.getValue("window.dialogStyle")==="custom"||!!this.n.enableSmokeTestDriver}};n=$([r(0,d),r(1,b),r(2,_),r(3,D),r(4,v),r(5,R),r(6,y),r(7,w),r(8,j),r(9,T),r(10,q),r(11,x)],n);A(n.ID,n,1);export{n as $JVc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { BrowserDialogHandler } from "../../../browser/parts/dialogs/dialogHandler.js";
+import { NativeDialogHandler } from "./dialogHandler.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { createNativeAboutDialogDetails } from "../../../../platform/dialogs/electron-browser/dialog.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+let DialogHandlerContribution = class DialogHandlerContribution2 extends Disposable {
+  static {
+    __name(this, "DialogHandlerContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.dialogHandler";
+  }
+  constructor(configurationService, dialogService, logService, layoutService, keybindingService, instantiationService, productService, clipboardService, nativeHostService, environmentService, openerService, markdownRendererService) {
+    super();
+    this.configurationService = configurationService;
+    this.dialogService = dialogService;
+    this.productService = productService;
+    this.nativeHostService = nativeHostService;
+    this.environmentService = environmentService;
+    this.browserImpl = new Lazy(() => new BrowserDialogHandler(logService, layoutService, keybindingService, instantiationService, clipboardService, openerService, markdownRendererService));
+    this.nativeImpl = new Lazy(() => new NativeDialogHandler(logService, nativeHostService, clipboardService));
+    this.model = this.dialogService.model;
+    this._register(this.model.onWillShowDialog(() => {
+      if (!this.currentDialog) {
+        this.processDialogs();
+      }
+    }));
+    this.processDialogs();
+  }
+  async processDialogs() {
+    while (this.model.dialogs.length) {
+      this.currentDialog = this.model.dialogs[0];
+      let result = void 0;
+      try {
+        if (this.currentDialog.args.confirmArgs) {
+          const args = this.currentDialog.args.confirmArgs;
+          result = this.useCustomDialog || args?.confirmation.custom ? await this.browserImpl.value.confirm(args.confirmation) : await this.nativeImpl.value.confirm(args.confirmation);
+        } else if (this.currentDialog.args.inputArgs) {
+          const args = this.currentDialog.args.inputArgs;
+          result = await this.browserImpl.value.input(args.input);
+        } else if (this.currentDialog.args.promptArgs) {
+          const args = this.currentDialog.args.promptArgs;
+          result = this.useCustomDialog || args?.prompt.custom ? await this.browserImpl.value.prompt(args.prompt) : await this.nativeImpl.value.prompt(args.prompt);
+        } else {
+          const aboutDialogDetails = createNativeAboutDialogDetails(this.productService, await this.nativeHostService.getOSProperties());
+          if (this.useCustomDialog) {
+            await this.browserImpl.value.about(aboutDialogDetails.title, aboutDialogDetails.details, aboutDialogDetails.detailsToCopy);
+          } else {
+            await this.nativeImpl.value.about(aboutDialogDetails.title, aboutDialogDetails.details, aboutDialogDetails.detailsToCopy);
+          }
+        }
+      } catch (error) {
+        result = error;
+      }
+      this.currentDialog.close(result);
+      this.currentDialog = void 0;
+    }
+  }
+  get useCustomDialog() {
+    return this.configurationService.getValue("window.dialogStyle") === "custom" || // Use the custom dialog while driven so that the driver can interact with it
+    !!this.environmentService.enableSmokeTestDriver;
+  }
+};
+DialogHandlerContribution = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IDialogService),
+  __param(2, ILogService),
+  __param(3, ILayoutService),
+  __param(4, IKeybindingService),
+  __param(5, IInstantiationService),
+  __param(6, IProductService),
+  __param(7, IClipboardService),
+  __param(8, INativeHostService),
+  __param(9, IWorkbenchEnvironmentService),
+  __param(10, IOpenerService),
+  __param(11, IMarkdownRendererService)
+], DialogHandlerContribution);
+registerWorkbenchContribution2(
+  DialogHandlerContribution.ID,
+  DialogHandlerContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+export {
+  DialogHandlerContribution
+};
+//# sourceMappingURL=dialog.contribution.js.map

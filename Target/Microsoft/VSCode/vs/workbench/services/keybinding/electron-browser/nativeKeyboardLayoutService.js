@@ -1,1 +1,77 @@
-import{$Ed as c}from"../../../../base/common/lifecycle.js";import{$my as y,$ly as l}from"../../../../platform/keyboardLayout/common/keyboardLayout.js";import{$xf as p}from"../../../../base/common/event.js";import{OS as m}from"../../../../base/common/platform.js";import{$UPc as d}from"../../../../platform/ipc/common/mainProcessService.js";import{ProxyChannel as b}from"../../../../base/parts/ipc/common/ipc.js";import{$Nj as g}from"../../../../platform/instantiation/common/instantiation.js";var f=function(e,t,i,r){var n=arguments.length,o=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,i):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(e,t,i,r);else for(var h=e.length-1;h>=0;h--)(a=e[h])&&(o=(n<3?a(o):n>3?a(t,i,o):a(t,i))||o);return n>3&&o&&Object.defineProperty(t,i,o),o},u=function(e,t){return function(i,r){t(i,r,e)}};const w=g("nativeKeyboardLayoutService");let s=class extends c{constructor(t){super(),this.c=this.D(new p),this.onDidChangeKeyboardLayout=this.c.event,this.f=b.toService(t.getChannel("keyboardLayout")),this.g=null,this.h=null,this.j=null,this.D(this.f.onDidChangeKeyboardLayout(async({keyboardLayoutInfo:i,keyboardMapping:r})=>{await this.initialize(),!$(this.h,r)&&(this.h=r,this.j=i,this.c.fire())}))}initialize(){return this.g||(this.g=this.m()),this.g}async m(){const t=await this.f.getKeyboardLayoutData(),{keyboardLayoutInfo:i,keyboardMapping:r}=t;this.h=r,this.j=i}getRawKeyboardMapping(){return this.h}getCurrentKeyboardLayout(){return this.j}};s=f([u(0,d)],s);function $(e,t){return m===1?l(e,t):y(e,t)}export{s as $0Pc,w as $9Pc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { macLinuxKeyboardMappingEquals, windowsKeyboardMappingEquals } from "../../../../platform/keyboardLayout/common/keyboardLayout.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { OS } from "../../../../base/common/platform.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const INativeKeyboardLayoutService = createDecorator("nativeKeyboardLayoutService");
+let NativeKeyboardLayoutService = class NativeKeyboardLayoutService2 extends Disposable {
+  static {
+    __name(this, "NativeKeyboardLayoutService");
+  }
+  constructor(mainProcessService) {
+    super();
+    this._onDidChangeKeyboardLayout = this._register(new Emitter());
+    this.onDidChangeKeyboardLayout = this._onDidChangeKeyboardLayout.event;
+    this._keyboardLayoutService = ProxyChannel.toService(mainProcessService.getChannel("keyboardLayout"));
+    this._initPromise = null;
+    this._keyboardMapping = null;
+    this._keyboardLayoutInfo = null;
+    this._register(this._keyboardLayoutService.onDidChangeKeyboardLayout(async ({ keyboardLayoutInfo, keyboardMapping }) => {
+      await this.initialize();
+      if (keyboardMappingEquals(this._keyboardMapping, keyboardMapping)) {
+        return;
+      }
+      this._keyboardMapping = keyboardMapping;
+      this._keyboardLayoutInfo = keyboardLayoutInfo;
+      this._onDidChangeKeyboardLayout.fire();
+    }));
+  }
+  initialize() {
+    if (!this._initPromise) {
+      this._initPromise = this._doInitialize();
+    }
+    return this._initPromise;
+  }
+  async _doInitialize() {
+    const keyboardLayoutData = await this._keyboardLayoutService.getKeyboardLayoutData();
+    const { keyboardLayoutInfo, keyboardMapping } = keyboardLayoutData;
+    this._keyboardMapping = keyboardMapping;
+    this._keyboardLayoutInfo = keyboardLayoutInfo;
+  }
+  getRawKeyboardMapping() {
+    return this._keyboardMapping;
+  }
+  getCurrentKeyboardLayout() {
+    return this._keyboardLayoutInfo;
+  }
+};
+NativeKeyboardLayoutService = __decorate([
+  __param(0, IMainProcessService)
+], NativeKeyboardLayoutService);
+function keyboardMappingEquals(a, b) {
+  if (OS === 1) {
+    return windowsKeyboardMappingEquals(a, b);
+  }
+  return macLinuxKeyboardMappingEquals(a, b);
+}
+__name(keyboardMappingEquals, "keyboardMappingEquals");
+export {
+  INativeKeyboardLayoutService,
+  NativeKeyboardLayoutService
+};
+//# sourceMappingURL=nativeKeyboardLayoutService.js.map

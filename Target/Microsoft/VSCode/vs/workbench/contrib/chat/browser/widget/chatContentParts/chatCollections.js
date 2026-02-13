@@ -1,1 +1,49 @@
-class i{get inUse(){return this.b}constructor(t){this.c=t,this.a=[],this.b=new Set}get(){if(this.a.length>0){const s=this.a.pop();return this.b.add(s),s}const t=this.c();return this.b.add(t),t}release(t){this.b.delete(t),this.a.push(t)}clear(){for(const t of this.a)t.dispose();this.a.length=0}dispose(){this.clear();for(const t of this.b)t.dispose();this.b.clear()}}export{i as $3Zb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class ResourcePool {
+  static {
+    __name(this, "ResourcePool");
+  }
+  get inUse() {
+    return this._inUse;
+  }
+  constructor(_itemFactory) {
+    this._itemFactory = _itemFactory;
+    this.pool = [];
+    this._inUse = /* @__PURE__ */ new Set();
+  }
+  get() {
+    if (this.pool.length > 0) {
+      const item2 = this.pool.pop();
+      this._inUse.add(item2);
+      return item2;
+    }
+    const item = this._itemFactory();
+    this._inUse.add(item);
+    return item;
+  }
+  release(item) {
+    this._inUse.delete(item);
+    this.pool.push(item);
+  }
+  /**
+   * Clear and dispose the items in the pool that are not in use.
+   */
+  clear() {
+    for (const item of this.pool) {
+      item.dispose();
+    }
+    this.pool.length = 0;
+  }
+  dispose() {
+    this.clear();
+    for (const item of this._inUse) {
+      item.dispose();
+    }
+    this._inUse.clear();
+  }
+}
+export {
+  ResourcePool
+};
+//# sourceMappingURL=chatCollections.js.map

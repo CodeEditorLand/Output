@@ -1,1 +1,74 @@
-const c="https://aka.ms/vscode-ghcp-prompt-snippets",a="https://aka.ms/vscode-ghcp-custom-instructions",p="https://aka.ms/vscode-ghcp-custom-chat-modes",i="https://aka.ms/vscode-agent-skills",u="https://aka.ms/vscode-chat-hooks",o="prompt",n="instructions",e="chatagent",r="skill",h=[o,n,e,r];function k(t){switch(t){case s.prompt:return o;case s.instructions:return n;case s.agent:return e;case s.skill:return r;case s.hook:return"json";default:throw new Error(`Unknown prompt type: ${t}`)}}function l(t){switch(t){case o:return s.prompt;case n:return s.instructions;case e:return s.agent;case r:return s.skill;default:return}}var s;(function(t){t.instructions="instructions",t.prompt="prompt",t.agent="agent",t.skill="skill",t.hook="hook"})(s||(s={}));function x(t){return Object.values(s).includes(t)}export{c as $bT,a as $cT,p as $dT,i as $eT,u as $fT,o as $gT,n as $hT,e as $iT,r as $jT,h as $kT,k as $lT,l as $mT,x as $nT,s as PromptsType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+const PROMPT_DOCUMENTATION_URL = "https://aka.ms/vscode-ghcp-prompt-snippets";
+const INSTRUCTIONS_DOCUMENTATION_URL = "https://aka.ms/vscode-ghcp-custom-instructions";
+const AGENT_DOCUMENTATION_URL = "https://aka.ms/vscode-ghcp-custom-chat-modes";
+const SKILL_DOCUMENTATION_URL = "https://aka.ms/vscode-agent-skills";
+const HOOK_DOCUMENTATION_URL = "https://aka.ms/vscode-chat-hooks";
+const PROMPT_LANGUAGE_ID = "prompt";
+const INSTRUCTIONS_LANGUAGE_ID = "instructions";
+const AGENT_LANGUAGE_ID = "chatagent";
+const SKILL_LANGUAGE_ID = "skill";
+const ALL_PROMPTS_LANGUAGE_SELECTOR = [PROMPT_LANGUAGE_ID, INSTRUCTIONS_LANGUAGE_ID, AGENT_LANGUAGE_ID, SKILL_LANGUAGE_ID];
+function getLanguageIdForPromptsType(type) {
+  switch (type) {
+    case PromptsType.prompt:
+      return PROMPT_LANGUAGE_ID;
+    case PromptsType.instructions:
+      return INSTRUCTIONS_LANGUAGE_ID;
+    case PromptsType.agent:
+      return AGENT_LANGUAGE_ID;
+    case PromptsType.skill:
+      return SKILL_LANGUAGE_ID;
+    case PromptsType.hook:
+      return "json";
+    default:
+      throw new Error(`Unknown prompt type: ${type}`);
+  }
+}
+__name(getLanguageIdForPromptsType, "getLanguageIdForPromptsType");
+function getPromptsTypeForLanguageId(languageId) {
+  switch (languageId) {
+    case PROMPT_LANGUAGE_ID:
+      return PromptsType.prompt;
+    case INSTRUCTIONS_LANGUAGE_ID:
+      return PromptsType.instructions;
+    case AGENT_LANGUAGE_ID:
+      return PromptsType.agent;
+    case SKILL_LANGUAGE_ID:
+      return PromptsType.skill;
+    // Note: hook uses 'json' language ID which is shared, so we don't map it here
+    default:
+      return void 0;
+  }
+}
+__name(getPromptsTypeForLanguageId, "getPromptsTypeForLanguageId");
+var PromptsType;
+(function(PromptsType2) {
+  PromptsType2["instructions"] = "instructions";
+  PromptsType2["prompt"] = "prompt";
+  PromptsType2["agent"] = "agent";
+  PromptsType2["skill"] = "skill";
+  PromptsType2["hook"] = "hook";
+})(PromptsType || (PromptsType = {}));
+function isValidPromptType(type) {
+  return Object.values(PromptsType).includes(type);
+}
+__name(isValidPromptType, "isValidPromptType");
+export {
+  AGENT_DOCUMENTATION_URL,
+  AGENT_LANGUAGE_ID,
+  ALL_PROMPTS_LANGUAGE_SELECTOR,
+  HOOK_DOCUMENTATION_URL,
+  INSTRUCTIONS_DOCUMENTATION_URL,
+  INSTRUCTIONS_LANGUAGE_ID,
+  PROMPT_DOCUMENTATION_URL,
+  PROMPT_LANGUAGE_ID,
+  PromptsType,
+  SKILL_DOCUMENTATION_URL,
+  SKILL_LANGUAGE_ID,
+  getLanguageIdForPromptsType,
+  getPromptsTypeForLanguageId,
+  isValidPromptType
+};
+//# sourceMappingURL=promptTypes.js.map

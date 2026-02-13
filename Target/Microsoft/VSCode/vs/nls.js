@@ -1,1 +1,73 @@
-function p(){return globalThis._VSCODE_NLS_MESSAGES}function s(){return globalThis._VSCODE_NLS_LANGUAGE}const S=s()==="pseudo"||typeof document<"u"&&document.location&&typeof document.location.hash=="string"&&document.location.hash.indexOf("pseudo=true")>=0;function i(o,t){let e;return t.length===0?e=o:e=o.replace(/\{(\d+)\}/g,(r,u)=>{const c=u[0],n=t[c];let f=r;return typeof n=="string"?f=n:(typeof n=="number"||typeof n=="boolean"||n===void 0||n===null)&&(f=String(n)),f}),S&&(e="\uFF3B"+e.replace(/[aouei]/g,"$&$&")+"\uFF3D"),e}function d(o,t,...e){return i(typeof o=="number"?l(o,t):t,e)}function l(o,t){const e=p()?.[o];if(typeof e!="string"){if(typeof t=="string")return t;throw new Error(`!!! NLS MISSING: ${o} !!!`)}return e}function h(o,t,...e){let r;typeof o=="number"?r=l(o,t):r=t;const u=i(r,e);return{value:u,original:t===r?u:i(t,e)}}export{p as $g,s as $h,d as localize,h as localize2};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function getNLSMessages() {
+  return globalThis._VSCODE_NLS_MESSAGES;
+}
+__name(getNLSMessages, "getNLSMessages");
+function getNLSLanguage() {
+  return globalThis._VSCODE_NLS_LANGUAGE;
+}
+__name(getNLSLanguage, "getNLSLanguage");
+const isPseudo = getNLSLanguage() === "pseudo" || typeof document !== "undefined" && document.location && typeof document.location.hash === "string" && document.location.hash.indexOf("pseudo=true") >= 0;
+function _format(message, args) {
+  let result;
+  if (args.length === 0) {
+    result = message;
+  } else {
+    result = message.replace(/\{(\d+)\}/g, (match, rest) => {
+      const index = rest[0];
+      const arg = args[index];
+      let result2 = match;
+      if (typeof arg === "string") {
+        result2 = arg;
+      } else if (typeof arg === "number" || typeof arg === "boolean" || arg === void 0 || arg === null) {
+        result2 = String(arg);
+      }
+      return result2;
+    });
+  }
+  if (isPseudo) {
+    result = "\uFF3B" + result.replace(/[aouei]/g, "$&$&") + "\uFF3D";
+  }
+  return result;
+}
+__name(_format, "_format");
+function localize(data, message, ...args) {
+  if (typeof data === "number") {
+    return _format(lookupMessage(data, message), args);
+  }
+  return _format(message, args);
+}
+__name(localize, "localize");
+function lookupMessage(index, fallback) {
+  const message = getNLSMessages()?.[index];
+  if (typeof message !== "string") {
+    if (typeof fallback === "string") {
+      return fallback;
+    }
+    throw new Error(`!!! NLS MISSING: ${index} !!!`);
+  }
+  return message;
+}
+__name(lookupMessage, "lookupMessage");
+function localize2(data, originalMessage, ...args) {
+  let message;
+  if (typeof data === "number") {
+    message = lookupMessage(data, originalMessage);
+  } else {
+    message = originalMessage;
+  }
+  const value = _format(message, args);
+  return {
+    value,
+    original: originalMessage === message ? value : _format(originalMessage, args)
+  };
+}
+__name(localize2, "localize2");
+export {
+  getNLSLanguage,
+  getNLSMessages,
+  localize,
+  localize2
+};
+//# sourceMappingURL=nls.js.map

@@ -1,1 +1,122 @@
-import"./symbolIcons.css";import{localize as o}from"../../../../nls.js";import{$bq as r,$2p as n}from"../../../../platform/theme/common/colorRegistry.js";const c=n("symbolIcon.arrayForeground",r,o(1672,null)),u=n("symbolIcon.booleanForeground",r,o(1673,null)),s=n("symbolIcon.classForeground",{dark:"#EE9D28",light:"#D67E00",hcDark:"#EE9D28",hcLight:"#D67E00"},o(1674,null)),b=n("symbolIcon.colorForeground",r,o(1675,null)),g=n("symbolIcon.constantForeground",r,o(1676,null)),m=n("symbolIcon.constructorForeground",{dark:"#B180D7",light:"#652D90",hcDark:"#B180D7",hcLight:"#652D90"},o(1677,null)),d=n("symbolIcon.enumeratorForeground",{dark:"#EE9D28",light:"#D67E00",hcDark:"#EE9D28",hcLight:"#D67E00"},o(1678,null)),F=n("symbolIcon.enumeratorMemberForeground",{dark:"#75BEFF",light:"#007ACC",hcDark:"#75BEFF",hcLight:"#007ACC"},o(1679,null)),p=n("symbolIcon.eventForeground",{dark:"#EE9D28",light:"#D67E00",hcDark:"#EE9D28",hcLight:"#D67E00"},o(1680,null)),h=n("symbolIcon.fieldForeground",{dark:"#75BEFF",light:"#007ACC",hcDark:"#75BEFF",hcLight:"#007ACC"},o(1681,null)),a=n("symbolIcon.fileForeground",r,o(1682,null)),y=n("symbolIcon.folderForeground",r,o(1683,null)),$=n("symbolIcon.functionForeground",{dark:"#B180D7",light:"#652D90",hcDark:"#B180D7",hcLight:"#652D90"},o(1684,null)),x=n("symbolIcon.interfaceForeground",{dark:"#75BEFF",light:"#007ACC",hcDark:"#75BEFF",hcLight:"#007ACC"},o(1685,null)),D=n("symbolIcon.keyForeground",r,o(1686,null)),I=n("symbolIcon.keywordForeground",r,o(1687,null)),i=n("symbolIcon.methodForeground",{dark:"#B180D7",light:"#652D90",hcDark:"#B180D7",hcLight:"#652D90"},o(1688,null)),E=n("symbolIcon.moduleForeground",r,o(1689,null)),k=n("symbolIcon.namespaceForeground",r,o(1690,null)),C=n("symbolIcon.nullForeground",r,o(1691,null)),B=n("symbolIcon.numberForeground",r,o(1692,null)),L=n("symbolIcon.objectForeground",r,o(1693,null)),f=n("symbolIcon.operatorForeground",r,o(1694,null)),A=n("symbolIcon.packageForeground",r,o(1695,null)),v=n("symbolIcon.propertyForeground",r,o(1696,null)),M=n("symbolIcon.referenceForeground",r,o(1697,null)),P=n("symbolIcon.snippetForeground",r,o(1698,null)),j=n("symbolIcon.stringForeground",r,o(1699,null)),q=n("symbolIcon.structForeground",r,o(1700,null)),w=n("symbolIcon.textForeground",r,o(1701,null)),z=n("symbolIcon.typeParameterForeground",r,o(1702,null)),N=n("symbolIcon.unitForeground",r,o(1703,null)),O=n("symbolIcon.variableForeground",{dark:"#75BEFF",light:"#007ACC",hcDark:"#75BEFF",hcLight:"#007ACC"},o(1704,null));export{v as $$lb,A as $0lb,D as $1lb,I as $2lb,i as $3lb,E as $4lb,k as $5lb,C as $6lb,B as $7lb,L as $8lb,f as $9lb,c as $Mlb,u as $Nlb,s as $Olb,b as $Plb,g as $Qlb,m as $Rlb,d as $Slb,F as $Tlb,p as $Ulb,h as $Vlb,a as $Wlb,y as $Xlb,$ as $Ylb,x as $Zlb,M as $_lb,P as $amb,j as $bmb,q as $cmb,w as $dmb,z as $emb,N as $fmb,O as $gmb};
+import "./symbolIcons.css";
+import { localize } from "../../../../nls.js";
+import { foreground, registerColor } from "../../../../platform/theme/common/colorRegistry.js";
+const SYMBOL_ICON_ARRAY_FOREGROUND = registerColor("symbolIcon.arrayForeground", foreground, localize("symbolIcon.arrayForeground", "The foreground color for array symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_BOOLEAN_FOREGROUND = registerColor("symbolIcon.booleanForeground", foreground, localize("symbolIcon.booleanForeground", "The foreground color for boolean symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_CLASS_FOREGROUND = registerColor("symbolIcon.classForeground", {
+  dark: "#EE9D28",
+  light: "#D67E00",
+  hcDark: "#EE9D28",
+  hcLight: "#D67E00"
+}, localize("symbolIcon.classForeground", "The foreground color for class symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_COLOR_FOREGROUND = registerColor("symbolIcon.colorForeground", foreground, localize("symbolIcon.colorForeground", "The foreground color for color symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_CONSTANT_FOREGROUND = registerColor("symbolIcon.constantForeground", foreground, localize("symbolIcon.constantForeground", "The foreground color for constant symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_CONSTRUCTOR_FOREGROUND = registerColor("symbolIcon.constructorForeground", {
+  dark: "#B180D7",
+  light: "#652D90",
+  hcDark: "#B180D7",
+  hcLight: "#652D90"
+}, localize("symbolIcon.constructorForeground", "The foreground color for constructor symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_ENUMERATOR_FOREGROUND = registerColor("symbolIcon.enumeratorForeground", {
+  dark: "#EE9D28",
+  light: "#D67E00",
+  hcDark: "#EE9D28",
+  hcLight: "#D67E00"
+}, localize("symbolIcon.enumeratorForeground", "The foreground color for enumerator symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_ENUMERATOR_MEMBER_FOREGROUND = registerColor("symbolIcon.enumeratorMemberForeground", {
+  dark: "#75BEFF",
+  light: "#007ACC",
+  hcDark: "#75BEFF",
+  hcLight: "#007ACC"
+}, localize("symbolIcon.enumeratorMemberForeground", "The foreground color for enumerator member symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_EVENT_FOREGROUND = registerColor("symbolIcon.eventForeground", {
+  dark: "#EE9D28",
+  light: "#D67E00",
+  hcDark: "#EE9D28",
+  hcLight: "#D67E00"
+}, localize("symbolIcon.eventForeground", "The foreground color for event symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_FIELD_FOREGROUND = registerColor("symbolIcon.fieldForeground", {
+  dark: "#75BEFF",
+  light: "#007ACC",
+  hcDark: "#75BEFF",
+  hcLight: "#007ACC"
+}, localize("symbolIcon.fieldForeground", "The foreground color for field symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_FILE_FOREGROUND = registerColor("symbolIcon.fileForeground", foreground, localize("symbolIcon.fileForeground", "The foreground color for file symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_FOLDER_FOREGROUND = registerColor("symbolIcon.folderForeground", foreground, localize("symbolIcon.folderForeground", "The foreground color for folder symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_FUNCTION_FOREGROUND = registerColor("symbolIcon.functionForeground", {
+  dark: "#B180D7",
+  light: "#652D90",
+  hcDark: "#B180D7",
+  hcLight: "#652D90"
+}, localize("symbolIcon.functionForeground", "The foreground color for function symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_INTERFACE_FOREGROUND = registerColor("symbolIcon.interfaceForeground", {
+  dark: "#75BEFF",
+  light: "#007ACC",
+  hcDark: "#75BEFF",
+  hcLight: "#007ACC"
+}, localize("symbolIcon.interfaceForeground", "The foreground color for interface symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_KEY_FOREGROUND = registerColor("symbolIcon.keyForeground", foreground, localize("symbolIcon.keyForeground", "The foreground color for key symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_KEYWORD_FOREGROUND = registerColor("symbolIcon.keywordForeground", foreground, localize("symbolIcon.keywordForeground", "The foreground color for keyword symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_METHOD_FOREGROUND = registerColor("symbolIcon.methodForeground", {
+  dark: "#B180D7",
+  light: "#652D90",
+  hcDark: "#B180D7",
+  hcLight: "#652D90"
+}, localize("symbolIcon.methodForeground", "The foreground color for method symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_MODULE_FOREGROUND = registerColor("symbolIcon.moduleForeground", foreground, localize("symbolIcon.moduleForeground", "The foreground color for module symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_NAMESPACE_FOREGROUND = registerColor("symbolIcon.namespaceForeground", foreground, localize("symbolIcon.namespaceForeground", "The foreground color for namespace symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_NULL_FOREGROUND = registerColor("symbolIcon.nullForeground", foreground, localize("symbolIcon.nullForeground", "The foreground color for null symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_NUMBER_FOREGROUND = registerColor("symbolIcon.numberForeground", foreground, localize("symbolIcon.numberForeground", "The foreground color for number symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_OBJECT_FOREGROUND = registerColor("symbolIcon.objectForeground", foreground, localize("symbolIcon.objectForeground", "The foreground color for object symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_OPERATOR_FOREGROUND = registerColor("symbolIcon.operatorForeground", foreground, localize("symbolIcon.operatorForeground", "The foreground color for operator symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_PACKAGE_FOREGROUND = registerColor("symbolIcon.packageForeground", foreground, localize("symbolIcon.packageForeground", "The foreground color for package symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_PROPERTY_FOREGROUND = registerColor("symbolIcon.propertyForeground", foreground, localize("symbolIcon.propertyForeground", "The foreground color for property symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_REFERENCE_FOREGROUND = registerColor("symbolIcon.referenceForeground", foreground, localize("symbolIcon.referenceForeground", "The foreground color for reference symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_SNIPPET_FOREGROUND = registerColor("symbolIcon.snippetForeground", foreground, localize("symbolIcon.snippetForeground", "The foreground color for snippet symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_STRING_FOREGROUND = registerColor("symbolIcon.stringForeground", foreground, localize("symbolIcon.stringForeground", "The foreground color for string symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_STRUCT_FOREGROUND = registerColor("symbolIcon.structForeground", foreground, localize("symbolIcon.structForeground", "The foreground color for struct symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_TEXT_FOREGROUND = registerColor("symbolIcon.textForeground", foreground, localize("symbolIcon.textForeground", "The foreground color for text symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_TYPEPARAMETER_FOREGROUND = registerColor("symbolIcon.typeParameterForeground", foreground, localize("symbolIcon.typeParameterForeground", "The foreground color for type parameter symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_UNIT_FOREGROUND = registerColor("symbolIcon.unitForeground", foreground, localize("symbolIcon.unitForeground", "The foreground color for unit symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+const SYMBOL_ICON_VARIABLE_FOREGROUND = registerColor("symbolIcon.variableForeground", {
+  dark: "#75BEFF",
+  light: "#007ACC",
+  hcDark: "#75BEFF",
+  hcLight: "#007ACC"
+}, localize("symbolIcon.variableForeground", "The foreground color for variable symbols. These symbols appear in the outline, breadcrumb, and suggest widget."));
+export {
+  SYMBOL_ICON_ARRAY_FOREGROUND,
+  SYMBOL_ICON_BOOLEAN_FOREGROUND,
+  SYMBOL_ICON_CLASS_FOREGROUND,
+  SYMBOL_ICON_COLOR_FOREGROUND,
+  SYMBOL_ICON_CONSTANT_FOREGROUND,
+  SYMBOL_ICON_CONSTRUCTOR_FOREGROUND,
+  SYMBOL_ICON_ENUMERATOR_FOREGROUND,
+  SYMBOL_ICON_ENUMERATOR_MEMBER_FOREGROUND,
+  SYMBOL_ICON_EVENT_FOREGROUND,
+  SYMBOL_ICON_FIELD_FOREGROUND,
+  SYMBOL_ICON_FILE_FOREGROUND,
+  SYMBOL_ICON_FOLDER_FOREGROUND,
+  SYMBOL_ICON_FUNCTION_FOREGROUND,
+  SYMBOL_ICON_INTERFACE_FOREGROUND,
+  SYMBOL_ICON_KEYWORD_FOREGROUND,
+  SYMBOL_ICON_KEY_FOREGROUND,
+  SYMBOL_ICON_METHOD_FOREGROUND,
+  SYMBOL_ICON_MODULE_FOREGROUND,
+  SYMBOL_ICON_NAMESPACE_FOREGROUND,
+  SYMBOL_ICON_NULL_FOREGROUND,
+  SYMBOL_ICON_NUMBER_FOREGROUND,
+  SYMBOL_ICON_OBJECT_FOREGROUND,
+  SYMBOL_ICON_OPERATOR_FOREGROUND,
+  SYMBOL_ICON_PACKAGE_FOREGROUND,
+  SYMBOL_ICON_PROPERTY_FOREGROUND,
+  SYMBOL_ICON_REFERENCE_FOREGROUND,
+  SYMBOL_ICON_SNIPPET_FOREGROUND,
+  SYMBOL_ICON_STRING_FOREGROUND,
+  SYMBOL_ICON_STRUCT_FOREGROUND,
+  SYMBOL_ICON_TEXT_FOREGROUND,
+  SYMBOL_ICON_TYPEPARAMETER_FOREGROUND,
+  SYMBOL_ICON_UNIT_FOREGROUND,
+  SYMBOL_ICON_VARIABLE_FOREGROUND
+};
+//# sourceMappingURL=symbolIcons.js.map

@@ -1,1 +1,35 @@
-import{$Ed as a}from"../../../../base/common/lifecycle.js";import{$$5 as l}from"../../../../platform/languagePacks/common/languagePacks.js";var h=function(n,t,r,o){var c=arguments.length,e=c<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,r,o);else for(var i=n.length-1;i>=0;i--)(f=n[i])&&(e=(c<3?f(e):c>3?f(t,r,e):f(t,r))||e);return c>3&&e&&Object.defineProperty(t,r,e),e},u=function(n,t){return function(r,o){t(r,o,n)}};let p=class extends a{constructor(t){super(),this.a=t,this.b()}b(){this.a.update()}};p=h([u(0,l)],p);export{p as $hQc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
+let LocalizationsUpdater = class LocalizationsUpdater2 extends Disposable {
+  static {
+    __name(this, "LocalizationsUpdater");
+  }
+  constructor(localizationsService) {
+    super();
+    this.localizationsService = localizationsService;
+    this.updateLocalizations();
+  }
+  updateLocalizations() {
+    this.localizationsService.update();
+  }
+};
+LocalizationsUpdater = __decorate([
+  __param(0, ILanguagePackService)
+], LocalizationsUpdater);
+export {
+  LocalizationsUpdater
+};
+//# sourceMappingURL=localizationsUpdater.js.map

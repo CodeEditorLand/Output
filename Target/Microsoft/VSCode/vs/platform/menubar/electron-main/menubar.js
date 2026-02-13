@@ -1,1 +1,687 @@
-import{app as F,BrowserWindow as y,Menu as a,MenuItem as r}from"electron";import{$ji as z}from"../../../base/common/async.js";import{CancellationToken as C}from"../../../base/common/cancellation.js";import{$Um as $}from"../../../base/common/labels.js";import{$n as h,$A as I}from"../../../base/common/platform.js";import{URI as R}from"../../../base/common/uri.js";import*as l from"../../../nls.js";import{$Vw as q}from"../../auxiliaryWindow/electron-main/auxiliaryWindows.js";import{$0l as L}from"../../configuration/common/configuration.js";import{$5n as N}from"../../environment/electron-main/environmentMainService.js";import{$pw as x}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$yo as D}from"../../log/common/log.js";import{$wy as O,$vy as P,$uy as B,$ty as E}from"../common/menubar.js";import{$Jy as S}from"../../native/electron-main/nativeHostMainService.js";import{$Vn as j}from"../../product/common/productService.js";import{$op as _}from"../../state/node/state.js";import{$pp as K}from"../../telemetry/common/telemetry.js";import{$My as J}from"../../update/common/update.js";import{$Ku as V}from"../../window/common/window.js";import{$vv as H}from"../../windows/electron-main/windows.js";import{$Ny as Y}from"../../workspaces/electron-main/workspacesHistoryMainService.js";import{$Ed as G}from"../../../base/common/lifecycle.js";var U=function(g,e,t,n){var o=arguments.length,i=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(g,e,t,n);else for(var c=g.length-1;c>=0;c--)(s=g[c])&&(i=(o<3?s(i):o>3?s(e,t,i):s(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},w=function(g,e){return function(t,n){e(t,n,g)}},k;const W="menu";let A=class extends G{static{k=this}static{this.a="lastKnownMenubarData"}constructor(e,t,n,o,i,s,c,u,b,d,m,f){super(),this.t=e,this.u=t,this.w=n,this.y=o,this.z=i,this.C=s,this.F=c,this.G=u,this.H=b,this.I=d,this.J=m,this.L=f,this.s=Object.create(null),this.j=new z(()=>this.S(),0),this.m=new z(()=>{this.n=[]},1e4),this.q=Object.create(null),this.r=Object.create(null),this.h=V(t),(h||this.h)&&this.M(),this.N(),this.f=!1,this.g=!1,this.n=[],this.X(),this.O()}M(){const e=this.F.getItem(k.a);e&&(e.menus&&(this.q=e.menus),e.keybindings&&(this.r=e.keybindings))}N(){this.s["workbench.action.files.newUntitledFile"]=(s,c,u)=>{this.mb({type:"commandId",commandId:"workbench.action.files.newUntitledFile"})||this.w.openEmptyWindow({context:2,contextWindowId:c?.id})},this.s["workbench.action.newWindow"]=(s,c,u)=>this.w.openEmptyWindow({context:2,contextWindowId:c?.id}),this.s["workbench.action.files.openFileFolder"]=(s,c,u)=>this.I.pickFileFolderAndOpen(void 0,{forceNewWindow:this.fb(u),telemetryExtraData:{from:W}}),this.s["workbench.action.files.openFolder"]=(s,c,u)=>this.I.pickFolderAndOpen(void 0,{forceNewWindow:this.fb(u),telemetryExtraData:{from:W}}),this.s["workbench.action.openWorkspace"]=(s,c,u)=>this.I.pickWorkspaceAndOpen(void 0,{forceNewWindow:this.fb(u),telemetryExtraData:{from:W}}),this.s["workbench.action.clearRecentFiles"]=()=>this.C.clearRecentlyOpened({confirm:!0});const e=this.J.youTubeUrl;e&&(this.s["workbench.action.openYouTubeUrl"]=()=>this.pb(e,"openYouTubeUrl"));const t=this.J.requestFeatureUrl;t&&(this.s["workbench.action.openRequestFeatureUrl"]=()=>this.pb(t,"openUserVoiceUrl"));const n=this.J.reportIssueUrl;n&&(this.s["workbench.action.openIssueReporter"]=()=>this.pb(n,"openReportIssues"));const o=this.J.licenseUrl;o&&(this.s["workbench.action.openLicenseUrl"]=()=>{if(I){const s=o.indexOf("?")>0?"&":"?";this.pb(`${o}${s}lang=${I}`,"openLicenseUrl")}else this.pb(o,"openLicenseUrl")});const i=this.J.privacyStatementUrl;i&&o&&(this.s["workbench.action.openPrivacyStatementUrl"]=()=>{this.pb(i,"openPrivacyStatement")})}O(){this.D(this.G.onWillShutdown(()=>this.b=!0)),this.D(this.w.onDidChangeWindowsCount(e=>this.U(e))),this.D(this.I.onDidBlurMainWindow(()=>this.W())),this.D(this.I.onDidFocusMainWindow(()=>this.W()))}get P(){const e=this.u.getValue("window.enableMenuBarMnemonics");return typeof e!="boolean"?!0:e}get Q(){if(!h)return!1;const e=this.u.getValue("window.nativeTabs");return typeof e!="boolean"?!1:e}updateMenu(e,t){this.q=e.menus,this.r=e.keybindings,this.F.setItem(k.a,e),this.R()}R(){this.j.schedule()}S(){this.b||setTimeout(()=>{this.b||this.X()},10)}U(e){h&&(e.oldCount===0&&e.newCount>0||e.oldCount>0&&e.newCount===0)&&(this.f=e.newCount===0,this.R())}W(){if(!h)return;const e=y.getFocusedWindow();this.g=!e||!!this.L.getWindowByWebContents(e.webContents),this.R()}X(){const e=a.getApplicationMenu();if(e&&this.n.push(e),Object.keys(this.q).length===0){this.Y(h?new a:null);return}const t=new a;let n;if(h){const i=new a;n=new r({label:this.J.nameShort,submenu:i}),this.Z(i),t.append(n)}if(h&&!this.c){this.c=!0;const i=new a;i.append(new r({label:this.rb(l.localize(2195,null)),click:()=>this.w.openEmptyWindow({context:1})})),F.dock.setMenu(i)}if(this.ab("File")){const i=new a,s=new r({label:this.rb(l.localize(2196,null)),submenu:i});this.cb(i,"File"),t.append(s)}if(this.ab("Edit")){const i=new a,s=new r({label:this.rb(l.localize(2197,null)),submenu:i});this.cb(i,"Edit"),t.append(s)}if(this.ab("Selection")){const i=new a,s=new r({label:this.rb(l.localize(2198,null)),submenu:i});this.cb(i,"Selection"),t.append(s)}if(this.ab("View")){const i=new a,s=new r({label:this.rb(l.localize(2199,null)),submenu:i});this.cb(i,"View"),t.append(s)}if(this.ab("Go")){const i=new a,s=new r({label:this.rb(l.localize(2200,null)),submenu:i});this.cb(i,"Go"),t.append(s)}if(this.ab("Run")){const i=new a,s=new r({label:this.rb(l.localize(2201,null)),submenu:i});this.cb(i,"Run"),t.append(s)}if(this.ab("Terminal")){const i=new a,s=new r({label:this.rb(l.localize(2202,null)),submenu:i});this.cb(i,"Terminal"),t.append(s)}let o;if(this.ab("Window")){const i=new a;o=new r({label:this.rb(l.localize(2203,null)),submenu:i,role:"window"}),this.ib(i)}if(o&&t.append(o),this.ab("Help")){const i=new a,s=new r({label:this.rb(l.localize(2204,null)),submenu:i,role:"help"});this.cb(i,"Help"),t.append(s)}t.items&&t.items.length>0?this.Y(t):this.Y(null),this.m.schedule()}Y(e){if(a.setApplicationMenu(e),e)for(const t of this.L.getWindows())t.win?.setMenu(null)}Z(e){const t=this.kb(l.localize(2205,null,this.J.nameLong),"workbench.action.showAboutDialog"),n=this.jb();let o;if(this.ab("Preferences")){const f=new a;this.cb(f,"Preferences"),o=new r({label:this.rb(l.localize(2206,null)),submenu:f})}const i=new a,s=new r({label:l.localize(2207,null),role:"services",submenu:i}),c=new r({label:l.localize(2208,null,this.J.nameLong),role:"hide",accelerator:"Command+H"}),u=new r({label:l.localize(2209,null),role:"hideOthers",accelerator:"Command+Alt+H"}),b=new r({label:l.localize(2210,null),role:"unhide"}),d=new r(this.ob("workbench.action.quit",{label:l.localize(2211,null,this.J.nameLong),click:async(f,M,v)=>{const T=this.w.getLastActiveWindow();(this.w.getWindowCount()===0||y.getFocusedWindow()||T?.win?.isMinimized())&&await this.$(v)&&this.I.quit(void 0)}})),m=[t];m.push(...n),o&&m.push(p(),o),m.push(p(),s,p(),c,u,b,p(),d),m.forEach(f=>e.append(f))}async $(e){if(this.w.getWindowCount()===0)return!0;const t=this.u.getValue("window.confirmBeforeClose");if(t==="always"||t==="keyboardOnly"&&this.gb(e)){const{response:n}=await this.I.showMessageBox(this.w.getFocusedWindow()?.id,{type:"question",buttons:[h?l.localize(2212,null):l.localize(2213,null),l.localize(2214,null)],message:h?l.localize(2215,null):l.localize(2216,null)});return n===0}return!0}ab(e){if(!h&&!this.h)return!1;switch(e){case"File":case"Help":if(h)return this.w.getWindowCount()===0&&this.f||this.w.getWindowCount()>0&&this.g||!!this.q&&!!this.q[e];case"Window":if(h)return this.w.getWindowCount()===0&&this.f||this.w.getWindowCount()>0&&this.g||!!this.q;default:return this.w.getWindowCount()>0&&!!this.q&&!!this.q[e]}}bb(e,t){t.forEach(n=>{if(B(n))e.append(p());else if(E(n)){const o=new a,i=new r({label:this.rb(n.label),submenu:o});this.bb(o,n.submenu.items),e.append(i)}else P(n)?e.append(this.eb(n)):O(n)&&(n.id==="workbench.action.showAboutDialog"&&this.db(e),h?this.w.getWindowCount()===0&&this.f||this.w.getWindowCount()>0&&this.g?this.s[n.id]?e.append(new r(this.ob(n.id,{label:this.rb(n.label),click:this.s[n.id]}))):e.append(this.kb(n.label,n.id,!1,n.checked)):e.append(this.kb(n.label,n.id,n.enabled!==!1,!!n.checked)):e.append(this.kb(n.label,n.id,n.enabled!==!1,!!n.checked)))})}cb(e,t){this.q?.[t]&&this.bb(e,this.q[t].items)}db(e){const t=this.jb();t.length&&(t.forEach(n=>e.append(n)),e.append(p()))}eb(e){const t=R.revive(e.uri),n=e.id,o=n==="openRecentFile"?{fileUri:t}:n==="openRecentWorkspace"?{workspaceUri:t}:{folderUri:t};return new r(this.ob(n,{label:e.label,click:async(i,s,c)=>{const u=this.fb(c);(await this.w.open({context:2,cli:this.y.args,urisToOpen:[o],forceNewWindow:u,gotoLineMode:!1,remoteAuthority:e.remoteAuthority})).length>0||await this.C.removeRecentlyOpened([t])}},!1))}fb(e){return!!(e&&(!h&&(e.ctrlKey||e.shiftKey)||h&&(e.metaKey||e.altKey)))}gb(e){return!!(e.triggeredByAccelerator||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)}hb(e,t,n){const o={label:this.rb(e),role:n,enabled:!0};return new r(this.nb(t,o))}ib(e){const t=new r({label:l.localize(2217,null),role:"minimize",accelerator:"Command+M",enabled:this.w.getWindowCount()>0}),n=new r({label:l.localize(2218,null),role:"zoom",enabled:this.w.getWindowCount()>0}),o=new r({label:l.localize(2219,null),role:"front",enabled:this.w.getWindowCount()>0}),i=this.kb(l.localize(2220,null),"workbench.action.switchWindow"),s=[];this.Q&&(s.push(p()),s.push(this.kb(l.localize(2221,null),"workbench.action.newWindowTab")),s.push(this.hb(l.localize(2222,null),"workbench.action.showPreviousWindowTab","selectPreviousTab")),s.push(this.hb(l.localize(2223,null),"workbench.action.showNextWindowTab","selectNextTab")),s.push(this.hb(l.localize(2224,null),"workbench.action.moveWindowTabToNewWindow","moveTabToNewWindow")),s.push(this.hb(l.localize(2225,null),"workbench.action.mergeAllWindowTabs","mergeAllWindows"))),[t,n,p(),i,...s,p(),o].forEach(c=>e.append(c))}jb(){switch(this.t.state.type){case"idle":return[new r({label:this.rb(l.localize(2226,null)),click:()=>setTimeout(()=>{this.qb("CheckForUpdate"),this.t.checkForUpdates(!0)},0)})];case"checking for updates":return[new r({label:l.localize(2227,null),enabled:!1})];case"available for download":return[new r({label:this.rb(l.localize(2228,null)),click:()=>{this.t.downloadUpdate()}})];case"downloading":case"overwriting":return[new r({label:l.localize(2229,null),enabled:!1})];case"downloaded":return h?[]:[new r({label:this.rb(l.localize(2230,null)),click:()=>{this.qb("InstallUpdate"),this.t.applyUpdate()}})];case"updating":return[new r({label:l.localize(2231,null),enabled:!1})];case"ready":return[new r({label:this.rb(l.localize(2232,null)),click:()=>{this.qb("RestartToUpdate"),this.t.quitAndInstall()}})];default:return[]}}kb(e,t,n,o){const i=this.rb(e),s=(d,m,f)=>{const M=d?d.userSettingsLabel:null;M&&f.triggeredByAccelerator?this.mb({type:"keybinding",userSettingsLabel:M}):this.mb({type:"commandId",commandId:t})},c=typeof n=="boolean"?n:this.w.getWindowCount()>0,u=typeof o=="boolean"?o:!1,b={label:i,click:s,enabled:c};return u&&(b.type="checkbox",b.checked=u),h&&(t==="editor.action.clipboardCutAction"?b.role="cut":t==="editor.action.clipboardCopyAction"?b.role="copy":t==="editor.action.clipboardPasteAction"&&(b.role="paste"),t==="undo"?b.click=this.lb(s,{inDevTools:d=>d.undo(),inNoWindow:()=>a.sendActionToFirstResponder("undo:")}):t==="redo"?b.click=this.lb(s,{inDevTools:d=>d.redo(),inNoWindow:()=>a.sendActionToFirstResponder("redo:")}):t==="editor.action.selectAll"&&(b.click=this.lb(s,{inDevTools:d=>d.selectAll(),inNoWindow:()=>a.sendActionToFirstResponder("selectAll:")}))),new r(this.nb(t,b))}lb(e,t){return(n,o,i)=>{const s=y.getFocusedWindow();if(!s)return t.inNoWindow();if(s.webContents.isDevToolsFocused()&&s.webContents.devToolsWebContents)return t.inDevTools(s.webContents.devToolsWebContents);if(!s.webContents.isFocused())return t.inNoWindow();e(n,o||s,i)}}mb(e){let t=y.getFocusedWindow();if(t){const o=this.L.getWindowByWebContents(t.webContents);o&&(t=this.w.getWindowById(o.parentId)?.win??null)}if(!t){const o=this.w.getLastActiveWindow();o?.win?.isMinimized()&&(t=o.win)}const n=t?this.w.getWindowById(t.id):void 0;if(n){if(this.H.trace("menubar#runActionInRenderer",e),h&&!this.y.isBuilt&&!n.isReady&&(e.type==="commandId"&&e.commandId==="workbench.action.toggleDevTools"||e.type!=="commandId"&&e.userSettingsLabel==="alt+cmd+i"))return!1;if(e.type==="commandId"){const o={id:e.commandId,from:"menu"};n.sendWhenReady("vscode:runAction",C.None,o)}else{const o={userSettingsLabel:e.userSettingsLabel};n.sendWhenReady("vscode:runKeybinding",C.None,o)}return!0}else return this.H.trace("menubar#runActionInRenderer: no active window found",e),!1}nb(e,t){const n=typeof e=="string"?this.r[e]:void 0;if(n?.label){if(n.isNative!==!1)t.accelerator=n.label,t.userSettingsLabel=n.userSettingsLabel;else if(typeof t.label=="string"){const o=t.label.indexOf("[");o>=0?t.label=`${t.label.substr(0,o)} [${n.label}]`:t.label=`${t.label} [${n.label}]`}}else t.accelerator=void 0;return t}ob(e,t,n=!t.accelerator){n&&(t=this.nb(e,t));const o=t.click;return t.click=(i,s,c)=>{this.qb(e),o?.(i,s,c)},t}pb(e,t){this.I.openExternal(void 0,e),this.qb(t)}qb(e){this.z.publicLog2("workbenchActionExecuted",{id:e,from:W})}rb(e){return $(e,!this.P)}};A=k=U([w(0,J),w(1,L),w(2,H),w(3,N),w(4,K),w(5,Y),w(6,_),w(7,x),w(8,D),w(9,S),w(10,j),w(11,q)],A);function p(){return new r({type:"separator"})}export{A as $Py};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var Menubar_1;
+import { app, BrowserWindow, Menu, MenuItem } from "electron";
+import { RunOnceScheduler } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { mnemonicMenuLabel } from "../../../base/common/labels.js";
+import { isMacintosh, language } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import * as nls from "../../../nls.js";
+import { IAuxiliaryWindowsMainService } from "../../auxiliaryWindow/electron-main/auxiliaryWindows.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { isMenubarMenuItemAction, isMenubarMenuItemRecentAction, isMenubarMenuItemSeparator, isMenubarMenuItemSubmenu } from "../common/menubar.js";
+import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStateService } from "../../state/node/state.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUpdateService } from "../../update/common/update.js";
+import { hasNativeMenu } from "../../window/common/window.js";
+import { IWindowsMainService } from "../../windows/electron-main/windows.js";
+import { IWorkspacesHistoryMainService } from "../../workspaces/electron-main/workspacesHistoryMainService.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+const telemetryFrom = "menu";
+let Menubar = class Menubar2 extends Disposable {
+  static {
+    __name(this, "Menubar");
+  }
+  static {
+    Menubar_1 = this;
+  }
+  static {
+    this.lastKnownMenubarStorageKey = "lastKnownMenubarData";
+  }
+  constructor(updateService, configurationService, windowsMainService, environmentMainService, telemetryService, workspacesHistoryMainService, stateService, lifecycleMainService, logService, nativeHostMainService, productService, auxiliaryWindowsMainService) {
+    super();
+    this.updateService = updateService;
+    this.configurationService = configurationService;
+    this.windowsMainService = windowsMainService;
+    this.environmentMainService = environmentMainService;
+    this.telemetryService = telemetryService;
+    this.workspacesHistoryMainService = workspacesHistoryMainService;
+    this.stateService = stateService;
+    this.lifecycleMainService = lifecycleMainService;
+    this.logService = logService;
+    this.nativeHostMainService = nativeHostMainService;
+    this.productService = productService;
+    this.auxiliaryWindowsMainService = auxiliaryWindowsMainService;
+    this.fallbackMenuHandlers = /* @__PURE__ */ Object.create(null);
+    this.menuUpdater = new RunOnceScheduler(() => this.doUpdateMenu(), 0);
+    this.menuGC = new RunOnceScheduler(() => {
+      this.oldMenus = [];
+    }, 1e4);
+    this.menubarMenus = /* @__PURE__ */ Object.create(null);
+    this.keybindings = /* @__PURE__ */ Object.create(null);
+    this.showNativeMenu = hasNativeMenu(configurationService);
+    if (isMacintosh || this.showNativeMenu) {
+      this.restoreCachedMenubarData();
+    }
+    this.addFallbackHandlers();
+    this.closedLastWindow = false;
+    this.noActiveMainWindow = false;
+    this.oldMenus = [];
+    this.install();
+    this.registerListeners();
+  }
+  restoreCachedMenubarData() {
+    const menubarData = this.stateService.getItem(Menubar_1.lastKnownMenubarStorageKey);
+    if (menubarData) {
+      if (menubarData.menus) {
+        this.menubarMenus = menubarData.menus;
+      }
+      if (menubarData.keybindings) {
+        this.keybindings = menubarData.keybindings;
+      }
+    }
+  }
+  addFallbackHandlers() {
+    this.fallbackMenuHandlers["workbench.action.files.newUntitledFile"] = (menuItem, win, event) => {
+      if (!this.runActionInRenderer({ type: "commandId", commandId: "workbench.action.files.newUntitledFile" })) {
+        this.windowsMainService.openEmptyWindow({ context: 2, contextWindowId: win?.id });
+      }
+    };
+    this.fallbackMenuHandlers["workbench.action.newWindow"] = (menuItem, win, event) => this.windowsMainService.openEmptyWindow({ context: 2, contextWindowId: win?.id });
+    this.fallbackMenuHandlers["workbench.action.files.openFileFolder"] = (menuItem, win, event) => this.nativeHostMainService.pickFileFolderAndOpen(void 0, { forceNewWindow: this.isOptionClick(event), telemetryExtraData: { from: telemetryFrom } });
+    this.fallbackMenuHandlers["workbench.action.files.openFolder"] = (menuItem, win, event) => this.nativeHostMainService.pickFolderAndOpen(void 0, { forceNewWindow: this.isOptionClick(event), telemetryExtraData: { from: telemetryFrom } });
+    this.fallbackMenuHandlers["workbench.action.openWorkspace"] = (menuItem, win, event) => this.nativeHostMainService.pickWorkspaceAndOpen(void 0, { forceNewWindow: this.isOptionClick(event), telemetryExtraData: { from: telemetryFrom } });
+    this.fallbackMenuHandlers["workbench.action.clearRecentFiles"] = () => this.workspacesHistoryMainService.clearRecentlyOpened({
+      confirm: true
+      /* ask for confirmation */
+    });
+    const youTubeUrl = this.productService.youTubeUrl;
+    if (youTubeUrl) {
+      this.fallbackMenuHandlers["workbench.action.openYouTubeUrl"] = () => this.openUrl(youTubeUrl, "openYouTubeUrl");
+    }
+    const requestFeatureUrl = this.productService.requestFeatureUrl;
+    if (requestFeatureUrl) {
+      this.fallbackMenuHandlers["workbench.action.openRequestFeatureUrl"] = () => this.openUrl(requestFeatureUrl, "openUserVoiceUrl");
+    }
+    const reportIssueUrl = this.productService.reportIssueUrl;
+    if (reportIssueUrl) {
+      this.fallbackMenuHandlers["workbench.action.openIssueReporter"] = () => this.openUrl(reportIssueUrl, "openReportIssues");
+    }
+    const licenseUrl = this.productService.licenseUrl;
+    if (licenseUrl) {
+      this.fallbackMenuHandlers["workbench.action.openLicenseUrl"] = () => {
+        if (language) {
+          const queryArgChar = licenseUrl.indexOf("?") > 0 ? "&" : "?";
+          this.openUrl(`${licenseUrl}${queryArgChar}lang=${language}`, "openLicenseUrl");
+        } else {
+          this.openUrl(licenseUrl, "openLicenseUrl");
+        }
+      };
+    }
+    const privacyStatementUrl = this.productService.privacyStatementUrl;
+    if (privacyStatementUrl && licenseUrl) {
+      this.fallbackMenuHandlers["workbench.action.openPrivacyStatementUrl"] = () => {
+        this.openUrl(privacyStatementUrl, "openPrivacyStatement");
+      };
+    }
+  }
+  registerListeners() {
+    this._register(this.lifecycleMainService.onWillShutdown(() => this.willShutdown = true));
+    this._register(this.windowsMainService.onDidChangeWindowsCount((e) => this.onDidChangeWindowsCount(e)));
+    this._register(this.nativeHostMainService.onDidBlurMainWindow(() => this.onDidChangeWindowFocus()));
+    this._register(this.nativeHostMainService.onDidFocusMainWindow(() => this.onDidChangeWindowFocus()));
+  }
+  get currentEnableMenuBarMnemonics() {
+    const enableMenuBarMnemonics = this.configurationService.getValue("window.enableMenuBarMnemonics");
+    if (typeof enableMenuBarMnemonics !== "boolean") {
+      return true;
+    }
+    return enableMenuBarMnemonics;
+  }
+  get currentEnableNativeTabs() {
+    if (!isMacintosh) {
+      return false;
+    }
+    const enableNativeTabs = this.configurationService.getValue("window.nativeTabs");
+    if (typeof enableNativeTabs !== "boolean") {
+      return false;
+    }
+    return enableNativeTabs;
+  }
+  updateMenu(menubarData, windowId) {
+    this.menubarMenus = menubarData.menus;
+    this.keybindings = menubarData.keybindings;
+    this.stateService.setItem(Menubar_1.lastKnownMenubarStorageKey, menubarData);
+    this.scheduleUpdateMenu();
+  }
+  scheduleUpdateMenu() {
+    this.menuUpdater.schedule();
+  }
+  doUpdateMenu() {
+    if (!this.willShutdown) {
+      setTimeout(
+        () => {
+          if (!this.willShutdown) {
+            this.install();
+          }
+        },
+        10
+        /* delay this because there is an issue with updating a menu when it is open */
+      );
+    }
+  }
+  onDidChangeWindowsCount(e) {
+    if (!isMacintosh) {
+      return;
+    }
+    if (e.oldCount === 0 && e.newCount > 0 || e.oldCount > 0 && e.newCount === 0) {
+      this.closedLastWindow = e.newCount === 0;
+      this.scheduleUpdateMenu();
+    }
+  }
+  onDidChangeWindowFocus() {
+    if (!isMacintosh) {
+      return;
+    }
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    this.noActiveMainWindow = !focusedWindow || !!this.auxiliaryWindowsMainService.getWindowByWebContents(focusedWindow.webContents);
+    this.scheduleUpdateMenu();
+  }
+  install() {
+    const oldMenu = Menu.getApplicationMenu();
+    if (oldMenu) {
+      this.oldMenus.push(oldMenu);
+    }
+    if (Object.keys(this.menubarMenus).length === 0) {
+      this.doSetApplicationMenu(isMacintosh ? new Menu() : null);
+      return;
+    }
+    const menubar = new Menu();
+    let macApplicationMenuItem;
+    if (isMacintosh) {
+      const applicationMenu = new Menu();
+      macApplicationMenuItem = new MenuItem({ label: this.productService.nameShort, submenu: applicationMenu });
+      this.setMacApplicationMenu(applicationMenu);
+      menubar.append(macApplicationMenuItem);
+    }
+    if (isMacintosh && !this.appMenuInstalled) {
+      this.appMenuInstalled = true;
+      const dockMenu = new Menu();
+      dockMenu.append(new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "miNewWindow", comment: ["&& denotes a mnemonic"] }, "New &&Window")), click: /* @__PURE__ */ __name(() => this.windowsMainService.openEmptyWindow({
+        context: 1
+        /* OpenContext.DOCK */
+      }), "click") }));
+      app.dock.setMenu(dockMenu);
+    }
+    if (this.shouldDrawMenu("File")) {
+      const fileMenu = new Menu();
+      const fileMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mFile", comment: ["&& denotes a mnemonic"] }, "&&File")), submenu: fileMenu });
+      this.setMenuById(fileMenu, "File");
+      menubar.append(fileMenuItem);
+    }
+    if (this.shouldDrawMenu("Edit")) {
+      const editMenu = new Menu();
+      const editMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mEdit", comment: ["&& denotes a mnemonic"] }, "&&Edit")), submenu: editMenu });
+      this.setMenuById(editMenu, "Edit");
+      menubar.append(editMenuItem);
+    }
+    if (this.shouldDrawMenu("Selection")) {
+      const selectionMenu = new Menu();
+      const selectionMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mSelection", comment: ["&& denotes a mnemonic"] }, "&&Selection")), submenu: selectionMenu });
+      this.setMenuById(selectionMenu, "Selection");
+      menubar.append(selectionMenuItem);
+    }
+    if (this.shouldDrawMenu("View")) {
+      const viewMenu = new Menu();
+      const viewMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mView", comment: ["&& denotes a mnemonic"] }, "&&View")), submenu: viewMenu });
+      this.setMenuById(viewMenu, "View");
+      menubar.append(viewMenuItem);
+    }
+    if (this.shouldDrawMenu("Go")) {
+      const gotoMenu = new Menu();
+      const gotoMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mGoto", comment: ["&& denotes a mnemonic"] }, "&&Go")), submenu: gotoMenu });
+      this.setMenuById(gotoMenu, "Go");
+      menubar.append(gotoMenuItem);
+    }
+    if (this.shouldDrawMenu("Run")) {
+      const debugMenu = new Menu();
+      const debugMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mRun", comment: ["&& denotes a mnemonic"] }, "&&Run")), submenu: debugMenu });
+      this.setMenuById(debugMenu, "Run");
+      menubar.append(debugMenuItem);
+    }
+    if (this.shouldDrawMenu("Terminal")) {
+      const terminalMenu = new Menu();
+      const terminalMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mTerminal", comment: ["&& denotes a mnemonic"] }, "&&Terminal")), submenu: terminalMenu });
+      this.setMenuById(terminalMenu, "Terminal");
+      menubar.append(terminalMenuItem);
+    }
+    let macWindowMenuItem;
+    if (this.shouldDrawMenu("Window")) {
+      const windowMenu = new Menu();
+      macWindowMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize("mWindow", "Window")), submenu: windowMenu, role: "window" });
+      this.setMacWindowMenu(windowMenu);
+    }
+    if (macWindowMenuItem) {
+      menubar.append(macWindowMenuItem);
+    }
+    if (this.shouldDrawMenu("Help")) {
+      const helpMenu = new Menu();
+      const helpMenuItem = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "mHelp", comment: ["&& denotes a mnemonic"] }, "&&Help")), submenu: helpMenu, role: "help" });
+      this.setMenuById(helpMenu, "Help");
+      menubar.append(helpMenuItem);
+    }
+    if (menubar.items && menubar.items.length > 0) {
+      this.doSetApplicationMenu(menubar);
+    } else {
+      this.doSetApplicationMenu(null);
+    }
+    this.menuGC.schedule();
+  }
+  doSetApplicationMenu(menu) {
+    Menu.setApplicationMenu(menu);
+    if (menu) {
+      for (const window of this.auxiliaryWindowsMainService.getWindows()) {
+        window.win?.setMenu(null);
+      }
+    }
+  }
+  setMacApplicationMenu(macApplicationMenu) {
+    const about = this.createMenuItem(nls.localize("mAbout", "About {0}", this.productService.nameLong), "workbench.action.showAboutDialog");
+    const checkForUpdates = this.getUpdateMenuItems();
+    let preferences;
+    if (this.shouldDrawMenu("Preferences")) {
+      const preferencesMenu = new Menu();
+      this.setMenuById(preferencesMenu, "Preferences");
+      preferences = new MenuItem({ label: this.mnemonicLabel(nls.localize({ key: "miPreferences", comment: ["&& denotes a mnemonic"] }, "&&Preferences")), submenu: preferencesMenu });
+    }
+    const servicesMenu = new Menu();
+    const services = new MenuItem({ label: nls.localize("mServices", "Services"), role: "services", submenu: servicesMenu });
+    const hide = new MenuItem({ label: nls.localize("mHide", "Hide {0}", this.productService.nameLong), role: "hide", accelerator: "Command+H" });
+    const hideOthers = new MenuItem({ label: nls.localize("mHideOthers", "Hide Others"), role: "hideOthers", accelerator: "Command+Alt+H" });
+    const showAll = new MenuItem({ label: nls.localize("mShowAll", "Show All"), role: "unhide" });
+    const quit = new MenuItem(this.likeAction("workbench.action.quit", {
+      label: nls.localize("miQuit", "Quit {0}", this.productService.nameLong),
+      click: /* @__PURE__ */ __name(async (item, window, event) => {
+        const lastActiveWindow = this.windowsMainService.getLastActiveWindow();
+        if (this.windowsMainService.getWindowCount() === 0 || // allow to quit when no more windows are open
+        !!BrowserWindow.getFocusedWindow() || // allow to quit when window has focus (fix for https://github.com/microsoft/vscode/issues/39191)
+        lastActiveWindow?.win?.isMinimized()) {
+          const confirmed = await this.confirmBeforeQuit(event);
+          if (confirmed) {
+            this.nativeHostMainService.quit(void 0);
+          }
+        }
+      }, "click")
+    }));
+    const actions = [about];
+    actions.push(...checkForUpdates);
+    if (preferences) {
+      actions.push(...[
+        __separator__(),
+        preferences
+      ]);
+    }
+    actions.push(...[
+      __separator__(),
+      services,
+      __separator__(),
+      hide,
+      hideOthers,
+      showAll,
+      __separator__(),
+      quit
+    ]);
+    actions.forEach((i) => macApplicationMenu.append(i));
+  }
+  async confirmBeforeQuit(event) {
+    if (this.windowsMainService.getWindowCount() === 0) {
+      return true;
+    }
+    const confirmBeforeClose = this.configurationService.getValue("window.confirmBeforeClose");
+    if (confirmBeforeClose === "always" || confirmBeforeClose === "keyboardOnly" && this.isKeyboardEvent(event)) {
+      const { response } = await this.nativeHostMainService.showMessageBox(this.windowsMainService.getFocusedWindow()?.id, {
+        type: "question",
+        buttons: [
+          isMacintosh ? nls.localize({ key: "quit", comment: ["&& denotes a mnemonic"] }, "&&Quit") : nls.localize({ key: "exit", comment: ["&& denotes a mnemonic"] }, "&&Exit"),
+          nls.localize("cancel", "Cancel")
+        ],
+        message: isMacintosh ? nls.localize("quitMessageMac", "Are you sure you want to quit?") : nls.localize("quitMessage", "Are you sure you want to exit?")
+      });
+      return response === 0;
+    }
+    return true;
+  }
+  shouldDrawMenu(menuId) {
+    if (!isMacintosh && !this.showNativeMenu) {
+      return false;
+    }
+    switch (menuId) {
+      case "File":
+      case "Help":
+        if (isMacintosh) {
+          return this.windowsMainService.getWindowCount() === 0 && this.closedLastWindow || this.windowsMainService.getWindowCount() > 0 && this.noActiveMainWindow || !!this.menubarMenus && !!this.menubarMenus[menuId];
+        }
+      case "Window":
+        if (isMacintosh) {
+          return this.windowsMainService.getWindowCount() === 0 && this.closedLastWindow || this.windowsMainService.getWindowCount() > 0 && this.noActiveMainWindow || !!this.menubarMenus;
+        }
+      default:
+        return this.windowsMainService.getWindowCount() > 0 && (!!this.menubarMenus && !!this.menubarMenus[menuId]);
+    }
+  }
+  setMenu(menu, items) {
+    items.forEach((item) => {
+      if (isMenubarMenuItemSeparator(item)) {
+        menu.append(__separator__());
+      } else if (isMenubarMenuItemSubmenu(item)) {
+        const submenu = new Menu();
+        const submenuItem = new MenuItem({ label: this.mnemonicLabel(item.label), submenu });
+        this.setMenu(submenu, item.submenu.items);
+        menu.append(submenuItem);
+      } else if (isMenubarMenuItemRecentAction(item)) {
+        menu.append(this.createOpenRecentMenuItem(item));
+      } else if (isMenubarMenuItemAction(item)) {
+        if (item.id === "workbench.action.showAboutDialog") {
+          this.insertCheckForUpdatesItems(menu);
+        }
+        if (isMacintosh) {
+          if (this.windowsMainService.getWindowCount() === 0 && this.closedLastWindow || this.windowsMainService.getWindowCount() > 0 && this.noActiveMainWindow) {
+            if (this.fallbackMenuHandlers[item.id]) {
+              menu.append(new MenuItem(this.likeAction(item.id, { label: this.mnemonicLabel(item.label), click: this.fallbackMenuHandlers[item.id] })));
+            } else {
+              menu.append(this.createMenuItem(item.label, item.id, false, item.checked));
+            }
+          } else {
+            menu.append(this.createMenuItem(item.label, item.id, item.enabled !== false, !!item.checked));
+          }
+        } else {
+          menu.append(this.createMenuItem(item.label, item.id, item.enabled !== false, !!item.checked));
+        }
+      }
+    });
+  }
+  setMenuById(menu, menuId) {
+    if (this.menubarMenus?.[menuId]) {
+      this.setMenu(menu, this.menubarMenus[menuId].items);
+    }
+  }
+  insertCheckForUpdatesItems(menu) {
+    const updateItems = this.getUpdateMenuItems();
+    if (updateItems.length) {
+      updateItems.forEach((i) => menu.append(i));
+      menu.append(__separator__());
+    }
+  }
+  createOpenRecentMenuItem(item) {
+    const revivedUri = URI.revive(item.uri);
+    const commandId = item.id;
+    const openable = commandId === "openRecentFile" ? { fileUri: revivedUri } : commandId === "openRecentWorkspace" ? { workspaceUri: revivedUri } : { folderUri: revivedUri };
+    return new MenuItem(this.likeAction(commandId, {
+      label: item.label,
+      click: /* @__PURE__ */ __name(async (menuItem, win, event) => {
+        const openInNewWindow = this.isOptionClick(event);
+        const success = (await this.windowsMainService.open({
+          context: 2,
+          cli: this.environmentMainService.args,
+          urisToOpen: [openable],
+          forceNewWindow: openInNewWindow,
+          gotoLineMode: false,
+          remoteAuthority: item.remoteAuthority
+        })).length > 0;
+        if (!success) {
+          await this.workspacesHistoryMainService.removeRecentlyOpened([revivedUri]);
+        }
+      }, "click")
+    }, false));
+  }
+  isOptionClick(event) {
+    return !!(event && (!isMacintosh && (event.ctrlKey || event.shiftKey) || isMacintosh && (event.metaKey || event.altKey)));
+  }
+  isKeyboardEvent(event) {
+    return !!(event.triggeredByAccelerator || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey);
+  }
+  createRoleMenuItem(label, commandId, role) {
+    const options = {
+      label: this.mnemonicLabel(label),
+      role,
+      enabled: true
+    };
+    return new MenuItem(this.withKeybinding(commandId, options));
+  }
+  setMacWindowMenu(macWindowMenu) {
+    const minimize = new MenuItem({ label: nls.localize("mMinimize", "Minimize"), role: "minimize", accelerator: "Command+M", enabled: this.windowsMainService.getWindowCount() > 0 });
+    const zoom = new MenuItem({ label: nls.localize("mZoom", "Zoom"), role: "zoom", enabled: this.windowsMainService.getWindowCount() > 0 });
+    const bringAllToFront = new MenuItem({ label: nls.localize("mBringToFront", "Bring All to Front"), role: "front", enabled: this.windowsMainService.getWindowCount() > 0 });
+    const switchWindow = this.createMenuItem(nls.localize({ key: "miSwitchWindow", comment: ["&& denotes a mnemonic"] }, "Switch &&Window..."), "workbench.action.switchWindow");
+    const nativeTabMenuItems = [];
+    if (this.currentEnableNativeTabs) {
+      nativeTabMenuItems.push(__separator__());
+      nativeTabMenuItems.push(this.createMenuItem(nls.localize("mNewTab", "New Tab"), "workbench.action.newWindowTab"));
+      nativeTabMenuItems.push(this.createRoleMenuItem(nls.localize("mShowPreviousTab", "Show Previous Tab"), "workbench.action.showPreviousWindowTab", "selectPreviousTab"));
+      nativeTabMenuItems.push(this.createRoleMenuItem(nls.localize("mShowNextTab", "Show Next Tab"), "workbench.action.showNextWindowTab", "selectNextTab"));
+      nativeTabMenuItems.push(this.createRoleMenuItem(nls.localize("mMoveTabToNewWindow", "Move Tab to New Window"), "workbench.action.moveWindowTabToNewWindow", "moveTabToNewWindow"));
+      nativeTabMenuItems.push(this.createRoleMenuItem(nls.localize("mMergeAllWindows", "Merge All Windows"), "workbench.action.mergeAllWindowTabs", "mergeAllWindows"));
+    }
+    [
+      minimize,
+      zoom,
+      __separator__(),
+      switchWindow,
+      ...nativeTabMenuItems,
+      __separator__(),
+      bringAllToFront
+    ].forEach((item) => macWindowMenu.append(item));
+  }
+  getUpdateMenuItems() {
+    const state = this.updateService.state;
+    switch (state.type) {
+      case "idle":
+        return [new MenuItem({
+          label: this.mnemonicLabel(nls.localize("miCheckForUpdates", "Check for &&Updates...")),
+          click: /* @__PURE__ */ __name(() => setTimeout(() => {
+            this.reportMenuActionTelemetry("CheckForUpdate");
+            this.updateService.checkForUpdates(true);
+          }, 0), "click")
+        })];
+      case "checking for updates":
+        return [new MenuItem({ label: nls.localize("miCheckingForUpdates", "Checking for Updates..."), enabled: false })];
+      case "available for download":
+        return [new MenuItem({
+          label: this.mnemonicLabel(nls.localize("miDownloadUpdate", "D&&ownload Available Update")),
+          click: /* @__PURE__ */ __name(() => {
+            this.updateService.downloadUpdate();
+          }, "click")
+        })];
+      case "downloading":
+      case "overwriting":
+        return [new MenuItem({ label: nls.localize("miDownloadingUpdate", "Downloading Update..."), enabled: false })];
+      case "downloaded":
+        return isMacintosh ? [] : [new MenuItem({
+          label: this.mnemonicLabel(nls.localize("miInstallUpdate", "Install &&Update...")),
+          click: /* @__PURE__ */ __name(() => {
+            this.reportMenuActionTelemetry("InstallUpdate");
+            this.updateService.applyUpdate();
+          }, "click")
+        })];
+      case "updating":
+        return [new MenuItem({ label: nls.localize("miInstallingUpdate", "Installing Update..."), enabled: false })];
+      case "ready":
+        return [new MenuItem({
+          label: this.mnemonicLabel(nls.localize("miRestartToUpdate", "Restart to &&Update")),
+          click: /* @__PURE__ */ __name(() => {
+            this.reportMenuActionTelemetry("RestartToUpdate");
+            this.updateService.quitAndInstall();
+          }, "click")
+        })];
+      default:
+        return [];
+    }
+  }
+  createMenuItem(labelOpt, commandId, enabledOpt, checkedOpt) {
+    const label = this.mnemonicLabel(labelOpt);
+    const click = /* @__PURE__ */ __name((menuItem, window, event) => {
+      const userSettingsLabel = menuItem ? menuItem.userSettingsLabel : null;
+      if (userSettingsLabel && event.triggeredByAccelerator) {
+        this.runActionInRenderer({ type: "keybinding", userSettingsLabel });
+      } else {
+        this.runActionInRenderer({ type: "commandId", commandId });
+      }
+    }, "click");
+    const enabled = typeof enabledOpt === "boolean" ? enabledOpt : this.windowsMainService.getWindowCount() > 0;
+    const checked = typeof checkedOpt === "boolean" ? checkedOpt : false;
+    const options = {
+      label,
+      click,
+      enabled
+    };
+    if (checked) {
+      options.type = "checkbox";
+      options.checked = checked;
+    }
+    if (isMacintosh) {
+      if (commandId === "editor.action.clipboardCutAction") {
+        options.role = "cut";
+      } else if (commandId === "editor.action.clipboardCopyAction") {
+        options.role = "copy";
+      } else if (commandId === "editor.action.clipboardPasteAction") {
+        options.role = "paste";
+      }
+      if (commandId === "undo") {
+        options.click = this.makeContextAwareClickHandler(click, {
+          inDevTools: /* @__PURE__ */ __name((devTools) => devTools.undo(), "inDevTools"),
+          inNoWindow: /* @__PURE__ */ __name(() => Menu.sendActionToFirstResponder("undo:"), "inNoWindow")
+        });
+      } else if (commandId === "redo") {
+        options.click = this.makeContextAwareClickHandler(click, {
+          inDevTools: /* @__PURE__ */ __name((devTools) => devTools.redo(), "inDevTools"),
+          inNoWindow: /* @__PURE__ */ __name(() => Menu.sendActionToFirstResponder("redo:"), "inNoWindow")
+        });
+      } else if (commandId === "editor.action.selectAll") {
+        options.click = this.makeContextAwareClickHandler(click, {
+          inDevTools: /* @__PURE__ */ __name((devTools) => devTools.selectAll(), "inDevTools"),
+          inNoWindow: /* @__PURE__ */ __name(() => Menu.sendActionToFirstResponder("selectAll:"), "inNoWindow")
+        });
+      }
+    }
+    return new MenuItem(this.withKeybinding(commandId, options));
+  }
+  makeContextAwareClickHandler(click, contextSpecificHandlers) {
+    return (menuItem, win, event) => {
+      const activeWindow = BrowserWindow.getFocusedWindow();
+      if (!activeWindow) {
+        return contextSpecificHandlers.inNoWindow();
+      }
+      if (activeWindow.webContents.isDevToolsFocused() && activeWindow.webContents.devToolsWebContents) {
+        return contextSpecificHandlers.inDevTools(activeWindow.webContents.devToolsWebContents);
+      }
+      if (!activeWindow.webContents.isFocused()) {
+        return contextSpecificHandlers.inNoWindow();
+      }
+      click(menuItem, win || activeWindow, event);
+    };
+  }
+  runActionInRenderer(invocation) {
+    let activeBrowserWindow = BrowserWindow.getFocusedWindow();
+    if (activeBrowserWindow) {
+      const auxiliaryWindowCandidate = this.auxiliaryWindowsMainService.getWindowByWebContents(activeBrowserWindow.webContents);
+      if (auxiliaryWindowCandidate) {
+        activeBrowserWindow = this.windowsMainService.getWindowById(auxiliaryWindowCandidate.parentId)?.win ?? null;
+      }
+    }
+    if (!activeBrowserWindow) {
+      const lastActiveWindow = this.windowsMainService.getLastActiveWindow();
+      if (lastActiveWindow?.win?.isMinimized()) {
+        activeBrowserWindow = lastActiveWindow.win;
+      }
+    }
+    const activeWindow = activeBrowserWindow ? this.windowsMainService.getWindowById(activeBrowserWindow.id) : void 0;
+    if (activeWindow) {
+      this.logService.trace("menubar#runActionInRenderer", invocation);
+      if (isMacintosh && !this.environmentMainService.isBuilt && !activeWindow.isReady) {
+        if (invocation.type === "commandId" && invocation.commandId === "workbench.action.toggleDevTools" || invocation.type !== "commandId" && invocation.userSettingsLabel === "alt+cmd+i") {
+          return false;
+        }
+      }
+      if (invocation.type === "commandId") {
+        const runActionPayload = { id: invocation.commandId, from: "menu" };
+        activeWindow.sendWhenReady("vscode:runAction", CancellationToken.None, runActionPayload);
+      } else {
+        const runKeybindingPayload = { userSettingsLabel: invocation.userSettingsLabel };
+        activeWindow.sendWhenReady("vscode:runKeybinding", CancellationToken.None, runKeybindingPayload);
+      }
+      return true;
+    } else {
+      this.logService.trace("menubar#runActionInRenderer: no active window found", invocation);
+      return false;
+    }
+  }
+  withKeybinding(commandId, options) {
+    const binding = typeof commandId === "string" ? this.keybindings[commandId] : void 0;
+    if (binding?.label) {
+      if (binding.isNative !== false) {
+        options.accelerator = binding.label;
+        options.userSettingsLabel = binding.userSettingsLabel;
+      } else if (typeof options.label === "string") {
+        const bindingIndex = options.label.indexOf("[");
+        if (bindingIndex >= 0) {
+          options.label = `${options.label.substr(0, bindingIndex)} [${binding.label}]`;
+        } else {
+          options.label = `${options.label} [${binding.label}]`;
+        }
+      }
+    } else {
+      options.accelerator = void 0;
+    }
+    return options;
+  }
+  likeAction(commandId, options, setAccelerator = !options.accelerator) {
+    if (setAccelerator) {
+      options = this.withKeybinding(commandId, options);
+    }
+    const originalClick = options.click;
+    options.click = (item, window, event) => {
+      this.reportMenuActionTelemetry(commandId);
+      originalClick?.(item, window, event);
+    };
+    return options;
+  }
+  openUrl(url, id) {
+    this.nativeHostMainService.openExternal(void 0, url);
+    this.reportMenuActionTelemetry(id);
+  }
+  reportMenuActionTelemetry(id) {
+    this.telemetryService.publicLog2("workbenchActionExecuted", { id, from: telemetryFrom });
+  }
+  mnemonicLabel(label) {
+    return mnemonicMenuLabel(label, !this.currentEnableMenuBarMnemonics);
+  }
+};
+Menubar = Menubar_1 = __decorate([
+  __param(0, IUpdateService),
+  __param(1, IConfigurationService),
+  __param(2, IWindowsMainService),
+  __param(3, IEnvironmentMainService),
+  __param(4, ITelemetryService),
+  __param(5, IWorkspacesHistoryMainService),
+  __param(6, IStateService),
+  __param(7, ILifecycleMainService),
+  __param(8, ILogService),
+  __param(9, INativeHostMainService),
+  __param(10, IProductService),
+  __param(11, IAuxiliaryWindowsMainService)
+], Menubar);
+function __separator__() {
+  return new MenuItem({ type: "separator" });
+}
+__name(__separator__, "__separator__");
+export {
+  Menubar
+};
+//# sourceMappingURL=menubar.js.map

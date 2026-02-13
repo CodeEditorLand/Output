@@ -1,2 +1,108 @@
-import{$sb as d}from"../../../../../../base/common/errors.js";import{$xf as x}from"../../../../../../base/common/event.js";import{$Ed as C,$Dd as b,$Fd as g}from"../../../../../../base/common/lifecycle.js";import{$yx as v}from"../../../../../../platform/terminal/common/terminal.js";import{$CCc as u,$ECc as R}from"./executeStrategy.js";import{$HCc as y,$GCc as D}from"./strategyHelpers.js";var w=function(o,t,i,r){var n=arguments.length,e=n<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,i):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(o,t,i,r);else for(var s=o.length-1;s>=0;s--)(a=o[s])&&(e=(n<3?a(e):n>3?a(t,i,e):a(t,i))||e);return n>3&&e&&Object.defineProperty(t,i,e),e},$=function(o,t){return function(i,r){t(i,r,o)}};let l=class extends C{constructor(t,i,r){super(),this.c=t,this.f=i,this.g=r,this.type="none",this.a=this.D(new g),this.b=this.D(new x),this.onDidCreateStartMarker=this.b.event}async execute(t,i,r){const n=new b;try{if(i.isCancellationRequested)throw new d;this.h("Waiting for xterm");const e=await this.c.xtermReadyPromise;if(!e)throw new Error("Xterm is not available");const a=y(e,n,this.h.bind(this));if(this.h("Waiting for idle"),await u(this.c.onData,1e3),i.isCancellationRequested)throw new d;D(e,this.a,p=>this.b.fire(p),n,this.h.bind(this)),this.f()&&(this.h("Command timed out, sending SIGINT and retrying"),await this.c.sendText("",!1),await u(this.c.onData,100)),this.h(`Executing command line \`${t}\``),this.c.sendText(t,!0),this.h("Waiting for idle with prompt heuristics");const s=await Promise.race([R(this.c.onData,this.c,1e3,1e4),a.then(()=>"alternateBuffer")]);if(s==="alternateBuffer")return this.h("Detected alternate buffer entry, skipping output capture"),{output:void 0,additionalInformation:void 0,exitCode:void 0,error:"alternateBuffer",didEnterAltBuffer:!0};const f=s;if(this.h(`Prompt detection result: ${f.detected?"detected":"not detected"} - ${f.reason}`),i.isCancellationRequested)throw new d;const m=n.add(e.raw.registerMarker());let c;const h=[];try{c=e.getContentsAsText(this.a.value,m),this.h("Fetched output via markers")}catch{this.h("Failed to fetch output via markers"),h.push("Failed to retrieve command output")}return{output:c,additionalInformation:h.length>0?h.join(`
-`):void 0,exitCode:void 0}}finally{n.dispose()}}h(t){this.g.debug(`RunInTerminalTool#None: ${t}`)}};l=w([$(2,v)],l);export{l as $JCc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { ITerminalLogService } from "../../../../../../platform/terminal/common/terminal.js";
+import { waitForIdle, waitForIdleWithPromptHeuristics } from "./executeStrategy.js";
+import { createAltBufferPromise, setupRecreatingStartMarker } from "./strategyHelpers.js";
+let NoneExecuteStrategy = class NoneExecuteStrategy2 extends Disposable {
+  static {
+    __name(this, "NoneExecuteStrategy");
+  }
+  constructor(_instance, _hasReceivedUserInput, _logService) {
+    super();
+    this._instance = _instance;
+    this._hasReceivedUserInput = _hasReceivedUserInput;
+    this._logService = _logService;
+    this.type = "none";
+    this._startMarker = this._register(new MutableDisposable());
+    this._onDidCreateStartMarker = this._register(new Emitter());
+    this.onDidCreateStartMarker = this._onDidCreateStartMarker.event;
+  }
+  async execute(commandLine, token, commandId) {
+    const store = new DisposableStore();
+    try {
+      if (token.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      this._log("Waiting for xterm");
+      const xterm = await this._instance.xtermReadyPromise;
+      if (!xterm) {
+        throw new Error("Xterm is not available");
+      }
+      const alternateBufferPromise = createAltBufferPromise(xterm, store, this._log.bind(this));
+      this._log("Waiting for idle");
+      await waitForIdle(this._instance.onData, 1e3);
+      if (token.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      setupRecreatingStartMarker(xterm, this._startMarker, (m) => this._onDidCreateStartMarker.fire(m), store, this._log.bind(this));
+      if (this._hasReceivedUserInput()) {
+        this._log("Command timed out, sending SIGINT and retrying");
+        await this._instance.sendText("", false);
+        await waitForIdle(this._instance.onData, 100);
+      }
+      this._log(`Executing command line \`${commandLine}\``);
+      this._instance.sendText(commandLine, true);
+      this._log("Waiting for idle with prompt heuristics");
+      const promptResultOrAltBuffer = await Promise.race([
+        waitForIdleWithPromptHeuristics(this._instance.onData, this._instance, 1e3, 1e4),
+        alternateBufferPromise.then(() => "alternateBuffer")
+      ]);
+      if (promptResultOrAltBuffer === "alternateBuffer") {
+        this._log("Detected alternate buffer entry, skipping output capture");
+        return {
+          output: void 0,
+          additionalInformation: void 0,
+          exitCode: void 0,
+          error: "alternateBuffer",
+          didEnterAltBuffer: true
+        };
+      }
+      const promptResult = promptResultOrAltBuffer;
+      this._log(`Prompt detection result: ${promptResult.detected ? "detected" : "not detected"} - ${promptResult.reason}`);
+      if (token.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      const endMarker = store.add(xterm.raw.registerMarker());
+      let output;
+      const additionalInformationLines = [];
+      try {
+        output = xterm.getContentsAsText(this._startMarker.value, endMarker);
+        this._log("Fetched output via markers");
+      } catch {
+        this._log("Failed to fetch output via markers");
+        additionalInformationLines.push("Failed to retrieve command output");
+      }
+      return {
+        output,
+        additionalInformation: additionalInformationLines.length > 0 ? additionalInformationLines.join("\n") : void 0,
+        exitCode: void 0
+      };
+    } finally {
+      store.dispose();
+    }
+  }
+  _log(message) {
+    this._logService.debug(`RunInTerminalTool#None: ${message}`);
+  }
+};
+NoneExecuteStrategy = __decorate([
+  __param(2, ITerminalLogService)
+], NoneExecuteStrategy);
+export {
+  NoneExecuteStrategy
+};
+//# sourceMappingURL=noneExecuteStrategy.js.map

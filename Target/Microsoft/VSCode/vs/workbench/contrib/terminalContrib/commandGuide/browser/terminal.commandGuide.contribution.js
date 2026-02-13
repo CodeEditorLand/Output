@@ -1,1 +1,103 @@
-import{$u8 as u}from"../../../../../base/browser/dom.js";import{$Bd as C,$Ed as w,$Fd as g,$Cd as b}from"../../../../../base/common/lifecycle.js";import{localize as v}from"../../../../../nls.js";import{$0l as $}from"../../../../../platform/configuration/common/configuration.js";import{$Es as d}from"../../../../../platform/theme/common/colorRegistry.js";import{$2p as G,$7p as f}from"../../../../../platform/theme/common/colorUtils.js";import{$$zb as h}from"../../../../common/theme.js";import{$I3b as D}from"../../../terminal/browser/terminalExtensions.js";import{$v6 as _}from"../common/terminalCommandGuideConfiguration.js";import{$ux as k}from"../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";var l=function(m,e,t,i){var o=arguments.length,r=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(m,e,t,i);else for(var s=m.length-1;s>=0;s--)(n=m[s])&&(r=(o<3?n(r):o>3?n(e,t,r):n(e,t))||r);return o>3&&r&&Object.defineProperty(e,t,r),r},p=function(m,e){return function(t,i){e(t,i,m)}},c;let a=class extends w{static{c=this}static{this.ID="terminal.commandGuide"}static get(e){return e.getContribution(c.ID)}constructor(e,t){super(),this.c=e,this.f=t,this.b=this.D(new g)}xtermOpen(e){this.a=e,this.g(),this.D(this.f.onDidChangeConfiguration(t=>{t.affectsConfiguration("terminal.integrated.shellIntegration.showCommandGuide")&&this.g()}))}g(){const e=this.a;if(!e)return;const t=this.f.getValue(_).showCommandGuide;if(!!this.b.value!==t)if(!t)this.b.clear();else{const i=e.raw.element.querySelector(".xterm-screen"),o=e.raw.element.querySelector(".xterm-viewport");this.b.value=C(u(i,"mousemove",r=>this.h(i,e,r)),u(o,"mousemove",r=>this.h(i,e,r)),u(e.raw.element,"mouseleave",()=>e.markTracker.showCommandGuide(void 0)),e.raw.onData(()=>e.markTracker.showCommandGuide(void 0)),b(()=>e.markTracker.showCommandGuide(void 0)))}}h(e,t,i){const o=e.getBoundingClientRect();if(!o)return;const r=Math.floor((i.clientY-o.top)/(o.height/t.raw.rows)),n=this.c.instance.capabilities.get(2)?.getCommandForLine(t.raw.buffer.active.viewportY+r);n&&k(n)?t.markTracker.showCommandGuide(n):t.markTracker.showCommandGuide(void 0)}};a=c=l([p(1,$)],a);D(a.ID,a,!1);const B=G("terminalCommandGuide.foreground",{dark:f(d,1),light:f(d,1),hcDark:h,hcLight:h},v(13896,null));export{B as $nEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalCommandGuideContribution_1;
+import { addDisposableListener } from "../../../../../base/browser/dom.js";
+import { combinedDisposable, Disposable, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { listInactiveSelectionBackground } from "../../../../../platform/theme/common/colorRegistry.js";
+import { registerColor, transparent } from "../../../../../platform/theme/common/colorUtils.js";
+import { PANEL_BORDER } from "../../../../common/theme.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { terminalCommandGuideConfigSection } from "../common/terminalCommandGuideConfiguration.js";
+import { isFullTerminalCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
+let TerminalCommandGuideContribution = class TerminalCommandGuideContribution2 extends Disposable {
+  static {
+    __name(this, "TerminalCommandGuideContribution");
+  }
+  static {
+    TerminalCommandGuideContribution_1 = this;
+  }
+  static {
+    this.ID = "terminal.commandGuide";
+  }
+  static get(instance) {
+    return instance.getContribution(TerminalCommandGuideContribution_1.ID);
+  }
+  constructor(_ctx, _configurationService) {
+    super();
+    this._ctx = _ctx;
+    this._configurationService = _configurationService;
+    this._activeCommandGuide = this._register(new MutableDisposable());
+  }
+  xtermOpen(xterm) {
+    this._xterm = xterm;
+    this._refreshActivatedState();
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "terminal.integrated.shellIntegration.showCommandGuide"
+        /* TerminalCommandGuideSettingId.ShowCommandGuide */
+      )) {
+        this._refreshActivatedState();
+      }
+    }));
+  }
+  _refreshActivatedState() {
+    const xterm = this._xterm;
+    if (!xterm) {
+      return;
+    }
+    const showCommandGuide = this._configurationService.getValue(terminalCommandGuideConfigSection).showCommandGuide;
+    if (!!this._activeCommandGuide.value === showCommandGuide) {
+      return;
+    }
+    if (!showCommandGuide) {
+      this._activeCommandGuide.clear();
+    } else {
+      const screenElement = xterm.raw.element.querySelector(".xterm-screen");
+      const viewportElement = xterm.raw.element.querySelector(".xterm-viewport");
+      this._activeCommandGuide.value = combinedDisposable(addDisposableListener(screenElement, "mousemove", (e) => this._tryShowHighlight(screenElement, xterm, e)), addDisposableListener(viewportElement, "mousemove", (e) => this._tryShowHighlight(screenElement, xterm, e)), addDisposableListener(xterm.raw.element, "mouseleave", () => xterm.markTracker.showCommandGuide(void 0)), xterm.raw.onData(() => xterm.markTracker.showCommandGuide(void 0)), toDisposable(() => xterm.markTracker.showCommandGuide(void 0)));
+    }
+  }
+  _tryShowHighlight(element, xterm, e) {
+    const rect = element.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+    const mouseCursorY = Math.floor((e.clientY - rect.top) / (rect.height / xterm.raw.rows));
+    const command = this._ctx.instance.capabilities.get(
+      2
+      /* TerminalCapability.CommandDetection */
+    )?.getCommandForLine(xterm.raw.buffer.active.viewportY + mouseCursorY);
+    if (command && isFullTerminalCommand(command)) {
+      xterm.markTracker.showCommandGuide(command);
+    } else {
+      xterm.markTracker.showCommandGuide(void 0);
+    }
+  }
+};
+TerminalCommandGuideContribution = TerminalCommandGuideContribution_1 = __decorate([
+  __param(1, IConfigurationService)
+], TerminalCommandGuideContribution);
+registerTerminalContribution(TerminalCommandGuideContribution.ID, TerminalCommandGuideContribution, false);
+const TERMINAL_COMMAND_GUIDE_COLOR = registerColor("terminalCommandGuide.foreground", {
+  dark: transparent(listInactiveSelectionBackground, 1),
+  light: transparent(listInactiveSelectionBackground, 1),
+  hcDark: PANEL_BORDER,
+  hcLight: PANEL_BORDER
+}, localize("terminalCommandGuide.foreground", "The foreground color of the terminal command guide that appears to the left of a command and its output on hover."));
+export {
+  TERMINAL_COMMAND_GUIDE_COLOR
+};
+//# sourceMappingURL=terminal.commandGuide.contribution.js.map

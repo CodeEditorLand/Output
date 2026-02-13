@@ -1,2 +1,82 @@
-import{$hi as d}from"../../../../base/common/async.js";import{$ex as h}from"../../../../base/node/processes.js";import{$m as n}from"../../../../base/common/platform.js";var e;(function(i){i[i.Running=0]="Running",i[i.StdinEnded=1]="StdinEnded",i[i.KilledPolite=2]="KilledPolite",i[i.KilledForceful=3]="KilledForceful"})(e||(e={}));class l{static{this.a=1e4}get stopped(){return this.b!==0}constructor(t,s=l.a){this.d=t,this.e=s,this.b=0}stop(){if(this.b===0){let t=this.e;try{this.d.stdin.end()}catch{t=1}this.b=1,this.c=new d(()=>this.f(),t)}else this.c?.dispose(),this.g()}async f(){this.b=2,this.c=new d(()=>this.g(),this.e),this.d.pid?n||await h(this.d.pid,!1).catch(()=>{this.d.kill("SIGTERM")}):this.d.kill("SIGTERM")}async g(){this.b=3,this.d.pid?await h(this.d.pid,!0).catch(()=>{this.d.kill("SIGKILL")}):this.d.kill()}write(t){this.stopped||this.d.stdin.write(t+`
-`)}dispose(){this.c?.dispose()}}export{l as $C2c};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { TimeoutTimer } from "../../../../base/common/async.js";
+import { killTree } from "../../../../base/node/processes.js";
+import { isWindows } from "../../../../base/common/platform.js";
+var McpProcessState;
+(function(McpProcessState2) {
+  McpProcessState2[McpProcessState2["Running"] = 0] = "Running";
+  McpProcessState2[McpProcessState2["StdinEnded"] = 1] = "StdinEnded";
+  McpProcessState2[McpProcessState2["KilledPolite"] = 2] = "KilledPolite";
+  McpProcessState2[McpProcessState2["KilledForceful"] = 3] = "KilledForceful";
+})(McpProcessState || (McpProcessState = {}));
+class McpStdioStateHandler {
+  static {
+    __name(this, "McpStdioStateHandler");
+  }
+  static {
+    this.GRACE_TIME_MS = 1e4;
+  }
+  get stopped() {
+    return this._procState !== 0;
+  }
+  constructor(_child, _graceTimeMs = McpStdioStateHandler.GRACE_TIME_MS) {
+    this._child = _child;
+    this._graceTimeMs = _graceTimeMs;
+    this._procState = 0;
+  }
+  /**
+   * Initiates graceful shutdown. If called while shutdown is already in progress,
+   * forces immediate termination.
+   */
+  stop() {
+    if (this._procState === 0) {
+      let graceTime = this._graceTimeMs;
+      try {
+        this._child.stdin.end();
+      } catch (error) {
+        graceTime = 1;
+      }
+      this._procState = 1;
+      this._nextTimeout = new TimeoutTimer(() => this.killPolite(), graceTime);
+    } else {
+      this._nextTimeout?.dispose();
+      this.killForceful();
+    }
+  }
+  async killPolite() {
+    this._procState = 2;
+    this._nextTimeout = new TimeoutTimer(() => this.killForceful(), this._graceTimeMs);
+    if (this._child.pid) {
+      if (!isWindows) {
+        await killTree(this._child.pid, false).catch(() => {
+          this._child.kill("SIGTERM");
+        });
+      }
+    } else {
+      this._child.kill("SIGTERM");
+    }
+  }
+  async killForceful() {
+    this._procState = 3;
+    if (this._child.pid) {
+      await killTree(this._child.pid, true).catch(() => {
+        this._child.kill("SIGKILL");
+      });
+    } else {
+      this._child.kill();
+    }
+  }
+  write(message) {
+    if (!this.stopped) {
+      this._child.stdin.write(message + "\n");
+    }
+  }
+  dispose() {
+    this._nextTimeout?.dispose();
+  }
+}
+export {
+  McpStdioStateHandler
+};
+//# sourceMappingURL=mcpStdioStateHandler.js.map

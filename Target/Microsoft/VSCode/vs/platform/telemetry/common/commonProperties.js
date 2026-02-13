@@ -1,1 +1,72 @@
-import{$p as $,$y as s,$l as b}from"../../../base/common/platform.js";import{$2 as g,$3 as v}from"../../../base/common/process.js";import{$ln as w}from"../../../base/common/uuid.js";function I(o){if(s===2&&/^penguin(\.|$)/i.test(o))return"chromebook"}function O(o,t,n,m,a,i,f,u,r,l,d){const e=Object.create(null);e["common.machineId"]=i,e["common.sqmId"]=f,e["common.devDeviceId"]=u,e.sessionID=w()+Date.now(),e.commitHash=m,e.version=a,e["common.releaseDate"]=l,e["common.platformVersion"]=(o||"").replace(/^(\d+)(\.\d+)?(\.\d+)?(.*)/,"$1$2$3"),e["common.platform"]=b(s),e["common.nodePlatform"]=v,e["common.nodeArch"]=n,e["common.product"]=d||"desktop",r&&(e["common.msftInternal"]=r);let p=0;const D=Date.now();Object.defineProperties(e,{timestamp:{get:()=>new Date,enumerable:!0},"common.timesincesessionstart":{get:()=>Date.now()-D,enumerable:!0},"common.sequence":{get:()=>p++,enumerable:!0}}),$&&(e["common.snap"]="true");const c=I(t);return c&&(e["common.platformDetail"]=c),e}function j(o){const t=g.USERDNSDOMAIN;if(!t)return!1;const n=t.toLowerCase();return o.some(m=>n===m)}export{O as $cv,j as $dv};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isLinuxSnap, platform, PlatformToString } from "../../../base/common/platform.js";
+import { env, platform as nodePlatform } from "../../../base/common/process.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+function getPlatformDetail(hostname) {
+  if (platform === 2 && /^penguin(\.|$)/i.test(hostname)) {
+    return "chromebook";
+  }
+  return void 0;
+}
+__name(getPlatformDetail, "getPlatformDetail");
+function resolveCommonProperties(release, hostname, arch, commit, version, machineId, sqmId, devDeviceId, isInternalTelemetry, releaseDate, product) {
+  const result = /* @__PURE__ */ Object.create(null);
+  result["common.machineId"] = machineId;
+  result["common.sqmId"] = sqmId;
+  result["common.devDeviceId"] = devDeviceId;
+  result["sessionID"] = generateUuid() + Date.now();
+  result["commitHash"] = commit;
+  result["version"] = version;
+  result["common.releaseDate"] = releaseDate;
+  result["common.platformVersion"] = (release || "").replace(/^(\d+)(\.\d+)?(\.\d+)?(.*)/, "$1$2$3");
+  result["common.platform"] = PlatformToString(platform);
+  result["common.nodePlatform"] = nodePlatform;
+  result["common.nodeArch"] = arch;
+  result["common.product"] = product || "desktop";
+  if (isInternalTelemetry) {
+    result["common.msftInternal"] = isInternalTelemetry;
+  }
+  let seq = 0;
+  const startTime = Date.now();
+  Object.defineProperties(result, {
+    // __GDPR__COMMON__ "timestamp" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
+    "timestamp": {
+      get: /* @__PURE__ */ __name(() => /* @__PURE__ */ new Date(), "get"),
+      enumerable: true
+    },
+    // __GDPR__COMMON__ "common.timesincesessionstart" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
+    "common.timesincesessionstart": {
+      get: /* @__PURE__ */ __name(() => Date.now() - startTime, "get"),
+      enumerable: true
+    },
+    // __GDPR__COMMON__ "common.sequence" : { "classification": "SystemMetaData", "purpose": "FeatureInsight", "isMeasurement": true }
+    "common.sequence": {
+      get: /* @__PURE__ */ __name(() => seq++, "get"),
+      enumerable: true
+    }
+  });
+  if (isLinuxSnap) {
+    result["common.snap"] = "true";
+  }
+  const platformDetail = getPlatformDetail(hostname);
+  if (platformDetail) {
+    result["common.platformDetail"] = platformDetail;
+  }
+  return result;
+}
+__name(resolveCommonProperties, "resolveCommonProperties");
+function verifyMicrosoftInternalDomain(domainList) {
+  const userDnsDomain = env["USERDNSDOMAIN"];
+  if (!userDnsDomain) {
+    return false;
+  }
+  const domain = userDnsDomain.toLowerCase();
+  return domainList.some((msftDomain) => domain === msftDomain);
+}
+__name(verifyMicrosoftInternalDomain, "verifyMicrosoftInternalDomain");
+export {
+  resolveCommonProperties,
+  verifyMicrosoftInternalDomain
+};
+//# sourceMappingURL=commonProperties.js.map

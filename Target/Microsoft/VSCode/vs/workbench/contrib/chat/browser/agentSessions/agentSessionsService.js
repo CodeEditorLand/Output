@@ -1,1 +1,47 @@
-import{$Ed as l}from"../../../../../base/common/lifecycle.js";import{$Nj as p,$Mj as u}from"../../../../../platform/instantiation/common/instantiation.js";import{$rQb as m}from"./agentSessionsModel.js";var a=function(n,t,r,o){var s=arguments.length,e=s<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,r,o);else for(var f=n.length-1;f>=0;f--)(i=n[f])&&(e=(s<3?i(e):s>3?i(t,r,e):i(t,r))||e);return s>3&&e&&Object.defineProperty(t,r,e),e},h=function(n,t){return function(r,o){t(r,o,n)}};let c=class extends l{get model(){return this.a||(this.a=this.D(this.b.createInstance(m)),this.a.resolve(void 0)),this.a}constructor(t){super(),this.b=t}getSession(t){return this.model.getSession(t)}};c=a([h(0,u)],c);const j=p("agentSessions");export{c as $sQb,j as $tQb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { createDecorator, IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { AgentSessionsModel } from "./agentSessionsModel.js";
+let AgentSessionsService = class AgentSessionsService2 extends Disposable {
+  static {
+    __name(this, "AgentSessionsService");
+  }
+  get model() {
+    if (!this._model) {
+      this._model = this._register(this.instantiationService.createInstance(AgentSessionsModel));
+      this._model.resolve(
+        void 0
+        /* all providers */
+      );
+    }
+    return this._model;
+  }
+  constructor(instantiationService) {
+    super();
+    this.instantiationService = instantiationService;
+  }
+  getSession(resource) {
+    return this.model.getSession(resource);
+  }
+};
+AgentSessionsService = __decorate([
+  __param(0, IInstantiationService)
+], AgentSessionsService);
+const IAgentSessionsService = createDecorator("agentSessions");
+export {
+  AgentSessionsService,
+  IAgentSessionsService
+};
+//# sourceMappingURL=agentSessionsService.js.map

@@ -1,1 +1,824 @@
-import f from"../../../../platform/product/common/product.js";import{$8h as N}from"../../../../base/common/async.js";import{CancellationToken as C,$Jf as P}from"../../../../base/common/cancellation.js";import{$xf as b,Event as y}from"../../../../base/common/event.js";import{$Rf as x}from"../../../../base/common/lazy.js";import{$Ed as $,$Fd as F}from"../../../../base/common/lifecycle.js";import{localize as m}from"../../../../nls.js";import{$0l as R}from"../../../../platform/configuration/common/configuration.js";import{$ro as Q,$qo as u}from"../../../../platform/contextkey/common/contextkey.js";import{$Mp as V}from"../../../../platform/dialogs/common/dialogs.js";import{$Nj as J,$Mj as I}from"../../../../platform/instantiation/common/instantiation.js";import{$yo as T}from"../../../../platform/log/common/log.js";import{$Vn as H}from"../../../../platform/product/common/productService.js";import{$2o as U,$Vo as L}from"../../../../platform/request/common/request.js";import{$hp as M}from"../../../../platform/storage/common/storage.js";import{$pp as v}from"../../../../platform/telemetry/common/telemetry.js";import{$BP as j}from"../../authentication/common/authentication.js";import{$EP as z}from"../../../../platform/opener/common/opener.js";import{URI as W}from"../../../../base/common/uri.js";import O from"../../../../base/common/severity.js";import{$HP as Y}from"../../environment/common/environmentService.js";import{$s as K}from"../../../../base/common/platform.js";import{$WN as X}from"../../lifecycle/common/lifecycle.js";import{$WC as Z}from"../../../../platform/instantiation/common/extensions.js";import{observableFromEvent as _}from"../../../../base/common/observable.js";import{$IP as tt}from"../../../../platform/defaultAccount/common/defaultAccount.js";var q=function(s,t,e,n){var r=arguments.length,a=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,e):n,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(s,t,e,n);else for(var c=s.length-1;c>=0;c--)(h=s[c])&&(a=(r<3?h(a):r>3?h(t,e,a):h(t,e))||a);return r>3&&a&&Object.defineProperty(t,e,a),a},l=function(s,t){return function(e,n){t(e,n,s)}},p,i;(function(s){s.Setup={hidden:new u("chatSetupHidden",!1,!0),installed:new u("chatSetupInstalled",!1,!0),disabled:new u("chatSetupDisabled",!1,!0),untrusted:new u("chatSetupUntrusted",!1,!0),later:new u("chatSetupLater",!1,!0),registered:new u("chatSetupRegistered",!1,!0)},s.Entitlement={signedOut:new u("chatEntitlementSignedOut",!1,!0),canSignUp:new u("chatPlanCanSignUp",!1,!0),planFree:new u("chatPlanFree",!1,!0),planPro:new u("chatPlanPro",!1,!0),planProPlus:new u("chatPlanProPlus",!1,!0),planBusiness:new u("chatPlanBusiness",!1,!0),planEnterprise:new u("chatPlanEnterprise",!1,!0),organisations:new u("chatEntitlementOrganisations",void 0,!0),internal:new u("chatEntitlementInternal",!1,!0),sku:new u("chatEntitlementSku",void 0,!0)},s.chatQuotaExceeded=new u("chatQuotaExceeded",!1,!0),s.completionsQuotaExceeded=new u("completionsQuotaExceeded",!1,!0),s.chatAnonymous=new u("chatAnonymous",!1,!0)})(i||(i={}));const et=J("chatEntitlementService");var o;(function(s){s[s.Unknown=1]="Unknown",s[s.Unresolved=2]="Unresolved",s[s.Available=3]="Available",s[s.Unavailable=4]="Unavailable",s[s.Free=5]="Free",s[s.Pro=6]="Pro",s[s.ProPlus=7]="ProPlus",s[s.Business=8]="Business",s[s.Enterprise=9]="Enterprise"})(o||(o={}));function nt(s){return s===o.Pro||s===o.ProPlus||s===o.Business||s===o.Enterprise}function At(s){switch(s){case o.Pro:return m(15850,null);case o.ProPlus:return m(15851,null);case o.Business:return m(15852,null);case o.Enterprise:return m(15853,null);default:return m(15854,null)}}const w={upgradePlanUrl:f.defaultChatAgent?.upgradePlanUrl??"",providerUriSetting:f.defaultChatAgent?.providerUriSetting??"",entitlementSignupLimitedUrl:f.defaultChatAgent?.entitlementSignupLimitedUrl??"",chatQuotaExceededContext:f.defaultChatAgent?.chatQuotaExceededContext??"",completionsQuotaExceededContext:f.defaultChatAgent?.completionsQuotaExceededContext??""},D="chat.allowAnonymousAccess";function A(s,t,e){return!(s.getValue(D)!==!0||t!==o.Unknown||e.hidden||e.disabled)}function G(s,t,e){e.publicLog2("chatEntitlements",{chatHidden:!!s.hidden,chatDisabled:!!s.disabled,chatEntitlement:s.entitlement,chatRegistered:!!s.registered,chatAnonymous:A(t,s.entitlement,s)})}let E=class extends ${constructor(t,e,n,r,a,h){if(super(),this.a=r,this.b=a,this.c=h,this.f=this.D(new b),this.onDidChangeQuotaExceeded=this.f.event,this.g=this.D(new b),this.onDidChangeQuotaRemaining=this.g.event,this.h={},this.n={chatQuotaExceeded:w.chatQuotaExceededContext,completionsQuotaExceeded:w.completionsQuotaExceededContext},this.w=this.D(new b),this.onDidChangeAnonymous=this.w.event,this.anonymousObs=_(this.onDidChangeAnonymous,()=>this.anonymous),this.j=i.chatQuotaExceeded.bindTo(this.a),this.m=i.completionsQuotaExceeded.bindTo(this.a),this.u=i.chatAnonymous.bindTo(this.a),this.u.set(this.anonymous),this.onDidChangeEntitlement=y.map(y.filter(this.a.onDidChangeContext,d=>d.affectsSome(new Set([i.Entitlement.planPro.key,i.Entitlement.planBusiness.key,i.Entitlement.planEnterprise.key,i.Entitlement.planProPlus.key,i.Entitlement.planFree.key,i.Entitlement.canSignUp.key,i.Entitlement.signedOut.key,i.Entitlement.organisations.key,i.Entitlement.internal.key,i.Entitlement.sku.key])),this.B),()=>{},this.B),this.entitlementObs=_(this.onDidChangeEntitlement,()=>this.entitlement),this.onDidChangeSentiment=y.map(y.filter(this.a.onDidChangeContext,d=>d.affectsSome(new Set([i.Setup.hidden.key,i.Setup.disabled.key,i.Setup.untrusted.key,i.Setup.installed.key,i.Setup.later.key,i.Setup.registered.key])),this.B),()=>{},this.B),this.sentimentObs=_(this.onDidChangeSentiment,()=>this.sentiment),K&&!n.remoteAuthority){i.Setup.hidden.bindTo(this.a).set(!0);return}if(!e.defaultChatAgent)return;const c=this.context=new x(()=>this.D(t.createInstance(S)));this.requests=new x(()=>this.D(t.createInstance(k,c.value,{clearQuotas:()=>this.clearQuotas(),acceptQuotas:d=>this.acceptQuotas(d)}))),this.q()}get entitlement(){return this.a.getContextKeyValue(i.Entitlement.planPro.key)===!0?o.Pro:this.a.getContextKeyValue(i.Entitlement.planBusiness.key)===!0?o.Business:this.a.getContextKeyValue(i.Entitlement.planEnterprise.key)===!0?o.Enterprise:this.a.getContextKeyValue(i.Entitlement.planProPlus.key)===!0?o.ProPlus:this.a.getContextKeyValue(i.Entitlement.planFree.key)===!0?o.Free:this.a.getContextKeyValue(i.Entitlement.canSignUp.key)===!0?o.Available:this.a.getContextKeyValue(i.Entitlement.signedOut.key)===!0?o.Unknown:o.Unresolved}get isInternal(){return this.a.getContextKeyValue(i.Entitlement.internal.key)===!0}get organisations(){return this.a.getContextKeyValue(i.Entitlement.organisations.key)}get sku(){return this.a.getContextKeyValue(i.Entitlement.sku.key)}get quotas(){return this.h}q(){const t=new Set([this.n.chatQuotaExceeded,this.n.completionsQuotaExceeded]),e=this.D(new F);this.D(this.a.onDidChangeContext(a=>{a.affectsSome(t)&&(e.value&&e.value.cancel(),e.value=new P,this.update(e.value.token))}));let n=this.anonymous;const r=()=>{const a=this.anonymous;a!==n&&(n=a,this.u.set(a),this.context?.hasValue&&G(this.context.value.state,this.b,this.c),this.w.fire())};this.D(this.b.onDidChangeConfiguration(a=>{a.affectsConfiguration(D)&&r()})),this.D(this.onDidChangeEntitlement(()=>r())),this.D(this.onDidChangeSentiment(()=>r()))}acceptQuotas(t){const e=this.h;this.h=t,this.t();const{changed:n}=this.r(e.chat,t.chat),{changed:r}=this.r(e.completions,t.completions),{changed:a}=this.r(e.premiumChat,t.premiumChat);(n.exceeded||r.exceeded||a.exceeded)&&this.f.fire(),(n.remaining||r.remaining||a.remaining)&&this.g.fire()}r(t,e){return{changed:{exceeded:t?.percentRemaining===0!=(e?.percentRemaining===0),remaining:t?.percentRemaining!==e?.percentRemaining}}}clearQuotas(){this.acceptQuotas({})}t(){this.j.set(this.h.chat?.percentRemaining===0),this.m.set(this.h.completions?.percentRemaining===0)}get sentiment(){return{installed:this.a.getContextKeyValue(i.Setup.installed.key)===!0,hidden:this.a.getContextKeyValue(i.Setup.hidden.key)===!0,disabled:this.a.getContextKeyValue(i.Setup.disabled.key)===!0,untrusted:this.a.getContextKeyValue(i.Setup.untrusted.key)===!0,later:this.a.getContextKeyValue(i.Setup.later.key)===!0,registered:this.a.getContextKeyValue(i.Setup.registered.key)===!0}}get anonymous(){return A(this.b,this.entitlement,this.sentiment)}async update(t){await this.requests?.value.forceResolveEntitlement(t)}};E=q([l(0,I),l(1,H),l(2,Y),l(3,Q),l(4,R),l(5,v)],E);let k=class extends ${constructor(t,e,n,r,a,h,c,d,g,B){super(),this.c=t,this.f=e,this.g=n,this.h=r,this.j=a,this.m=h,this.n=c,this.q=d,this.r=g,this.t=B,this.b=new P,this.a={entitlement:this.c.state.entitlement},this.u(),this.w()}u(){this.D(this.r.onDidChangeDefaultAccount(()=>this.w())),this.D(this.c.onDidChange(()=>{(!this.c.state.installed||this.c.state.disabled||this.c.state.entitlement===o.Unknown)&&(this.a={entitlement:this.a.entitlement,quotas:void 0},this.f.clearQuotas())}))}async w(){this.b.dispose(!0);const t=this.b=new P,e=await this.r.getDefaultAccount();if(t.token.isCancellationRequested)return;let n;e?this.a.entitlement===o.Unknown&&(n={entitlement:o.Unresolved}):n={entitlement:o.Unknown},n&&this.G(n),e&&await this.y(e,t.token)}async y(t,e){const n=await this.z(t,e);return typeof n?.entitlement=="number"&&!e.isCancellationRequested&&this.G(n),n}async z(t,e){if(e.isCancellationRequested)return;const n=t.entitlementsData;if(!n)return this.h.trace("[chat entitlement]: no entitlements data available on default account"),{entitlement:n===null?o.Unknown:o.Unresolved};let r;n.access_type_sku==="free_limited_copilot"?r=o.Free:n.can_signup_for_limited?r=o.Available:n.copilot_plan==="individual"?r=o.Pro:n.copilot_plan==="individual_pro"?r=o.ProPlus:n.copilot_plan==="business"?r=o.Business:n.copilot_plan==="enterprise"?r=o.Enterprise:r=o.Unavailable;const a={entitlement:r,organisations:n.organization_login_list,quotas:this.C(n),sku:n.access_type_sku};return this.h.trace(`[chat entitlement]: resolved to ${a.entitlement}, quotas: ${JSON.stringify(a.quotas)}`),this.g.publicLog2("chatInstallEntitlement",{entitlement:a.entitlement,tid:n.analytics_tracking_id,sku:a.sku,quotaChat:a.quotas?.chat?.remaining,quotaPremiumChat:a.quotas?.premiumChat?.remaining,quotaCompletions:a.quotas?.completions?.remaining,quotaResetDate:a.quotas?.resetDate}),a}C(t){const e={resetDate:t.quota_reset_date_utc??t.quota_reset_date??t.limited_user_reset_date,resetDateHasTime:typeof t.quota_reset_date_utc=="string"};if(t.monthly_quotas?.chat&&typeof t.limited_user_quotas?.chat=="number"&&(e.chat={total:t.monthly_quotas.chat,remaining:t.limited_user_quotas.chat,percentRemaining:Math.min(100,Math.max(0,t.limited_user_quotas.chat/t.monthly_quotas.chat*100)),overageEnabled:!1,overageCount:0,unlimited:!1}),t.monthly_quotas?.completions&&typeof t.limited_user_quotas?.completions=="number"&&(e.completions={total:t.monthly_quotas.completions,remaining:t.limited_user_quotas.completions,percentRemaining:Math.min(100,Math.max(0,t.limited_user_quotas.completions/t.monthly_quotas.completions*100)),overageEnabled:!1,overageCount:0,unlimited:!1}),t.quota_snapshots)for(const n of["chat","completions","premium_interactions"]){const r=t.quota_snapshots[n];if(!r)continue;const a={total:r.entitlement,remaining:r.remaining,percentRemaining:Math.min(100,Math.max(0,r.percent_remaining)),overageEnabled:r.overage_permitted,overageCount:r.overage_count,unlimited:r.unlimited};switch(n){case"chat":e.chat=a;break;case"completions":e.completions=a;break;case"premium_interactions":e.premiumChat=a;break}}return e}async F(t,e,n,r,a){let h;for(const c of r){if(a.isCancellationRequested)return h;try{const d=await this.j.request({type:e,url:t,data:e==="POST"?JSON.stringify(n):void 0,disableCache:!0,headers:{Authorization:`Bearer ${c.accessToken}`}},a),g=d.res.statusCode;if(g&&g!==200){h=d;continue}return d}catch(d){a.isCancellationRequested||this.h.error(`[chat entitlement] request: error ${d}`)}}return h}G(t){this.a=t,this.c.update({entitlement:this.a.entitlement,organisations:this.a.organisations,sku:this.a.sku}),t.quotas&&this.f.acceptQuotas(t.quotas)}async forceResolveEntitlement(t=C.None){const e=await this.r.refresh();if(e)return this.y(e,t)}async signUpFree(){const t=await this.I();if(t.length!==0)return this.H(t)}async H(t){const e={restricted_telemetry:this.g.telemetryLevel===0?"disabled":"enabled",public_code_suggestions:"enabled"},n=await this.F(w.entitlementSignupLimitedUrl,"POST",e,t,C.None);if(!n)return await this.J(m(15855,null),"[chat entitlement] sign-up: no response")?this.H(t):{errorCode:1};if(n.res.statusCode&&n.res.statusCode!==200){if(n.res.statusCode===422)try{const c=await U(n);if(c){const d=JSON.parse(c);if(typeof d.message=="string"&&d.message)return this.L(`[chat entitlement] sign-up: unprocessable entity (${d.message})`,d.message),{errorCode:n.res.statusCode}}}catch{}return await this.J(m(15856,null,n.res.statusCode),`[chat entitlement] sign-up: unexpected status code ${n.res.statusCode}`)?this.H(t):{errorCode:n.res.statusCode}}let r=null;try{r=await U(n)}catch{}if(!r)return await this.J(m(15857,null),"[chat entitlement] sign-up: response has no content")?this.H(t):{errorCode:2};let a;try{a=JSON.parse(r),this.h.trace(`[chat entitlement] sign-up: response is ${r}`)}catch(h){return await this.J(m(15858,null),`[chat entitlement] sign-up: error parsing response (${h})`)?this.H(t):{errorCode:3}}return this.G({entitlement:o.Free}),!!a?.subscribed}async I(){const t=await this.r.getDefaultAccount();if(t){const n=(await this.t.getSessions(t.authenticationProvider.id)).filter(r=>r.id===t.sessionId);if(n.length)return n}return[...await this.t.getSessions(this.r.getDefaultAccountAuthenticationProvider().id)]}async J(t,e){if(this.h.error(e),!this.q.willShutdown){const{confirmed:n}=await this.m.confirm({type:O.Error,message:m(15859,null),detail:t,primaryButton:m(15860,null)});return n}return!1}L(t,e){this.h.error(t),this.q.willShutdown||this.m.prompt({type:O.Error,message:m(15861,null),detail:e,buttons:[{label:m(15862,null),run:()=>{}},{label:m(15863,null),run:()=>this.n.open(W.parse(w.upgradePlanUrl))}]})}async signIn(t){const e=await this.r.signIn({additionalScopes:t?.additionalScopes,extraAuthorizeParameters:{get_started_with:"copilot-vscode"},provider:t?.useSocialProvider});if(!e)return{};const n=await this.z(e,C.None);return{defaultAccount:e,entitlements:n}}dispose(){this.b.dispose(!0),super.dispose()}};k=q([l(2,v),l(3,T),l(4,L),l(5,V),l(6,z),l(7,X),l(8,tt),l(9,j)],k);let S=class extends ${static{p=this}static{this.a="chat.setupContext"}static{this.b="chat.disableAIFeatures"}get state(){return this.Q(this.H??this.G)}constructor(t,e,n,r,a){super(),this.L=e,this.M=n,this.N=r,this.O=a,this.H=void 0,this.I=this.D(new b),this.onDidChange=this.I.event,this.J=void 0,this.c=i.Entitlement.canSignUp.bindTo(t),this.f=i.Entitlement.signedOut.bindTo(t),this.g=i.Entitlement.planFree.bindTo(t),this.h=i.Entitlement.planPro.bindTo(t),this.j=i.Entitlement.planProPlus.bindTo(t),this.m=i.Entitlement.planBusiness.bindTo(t),this.n=i.Entitlement.planEnterprise.bindTo(t),this.q=i.Entitlement.organisations.bindTo(t),this.r=i.Entitlement.internal.bindTo(t),this.t=i.Entitlement.sku.bindTo(t),this.u=i.Setup.hidden.bindTo(t),this.w=i.Setup.later.bindTo(t),this.y=i.Setup.installed.bindTo(t),this.z=i.Setup.disabled.bindTo(t),this.C=i.Setup.untrusted.bindTo(t),this.F=i.Setup.registered.bindTo(t),this.G=this.L.getObject(p.a,0)??{entitlement:o.Unknown,organisations:void 0,sku:void 0},this.S(),this.P()}P(){this.D(this.N.onDidChangeConfiguration(t=>{t.affectsConfiguration(p.b)&&this.R()}))}Q(t){return this.N.getValue(p.b)===!0?{...t,hidden:!0}:t}async update(t){this.M.trace(`[chat entitlement context] update(): ${JSON.stringify(t)}`);const e=JSON.stringify(this.G);if(typeof t.installed=="boolean"&&typeof t.disabled=="boolean"&&typeof t.untrusted=="boolean"&&(this.G.installed=t.installed,this.G.disabled=t.disabled,this.G.untrusted=t.untrusted,t.installed&&!t.disabled&&(t.hidden=!1)),typeof t.hidden=="boolean"&&(this.G.hidden=t.hidden),typeof t.later=="boolean"&&(this.G.later=t.later),typeof t.entitlement=="number"&&(this.G.entitlement=t.entitlement,this.G.organisations=t.organisations,this.G.sku=t.sku,this.G.entitlement===o.Free||nt(this.G.entitlement)?this.G.registered=!0:this.G.entitlement===o.Available&&(this.G.registered=!1)),A(this.N,this.G.entitlement,this.G)&&(this.G.sku="no_auth_limited_copilot"),e!==JSON.stringify(this.G))return this.L.store(p.a,{...this.G,later:void 0},0,1),this.R()}async R(){await this.J?.wait(),this.S()}S(){const t=this.Q(this.G);this.f.set(t.entitlement===o.Unknown),this.c.set(t.entitlement===o.Available),this.g.set(t.entitlement===o.Free),this.h.set(t.entitlement===o.Pro),this.j.set(t.entitlement===o.ProPlus),this.m.set(t.entitlement===o.Business),this.n.set(t.entitlement===o.Enterprise),this.q.set(t.organisations),this.r.set(!!t.organisations?.some(e=>e==="github"||e==="microsoft"||e==="ms-copilot"||e==="MicrosoftCopilot")),this.t.set(t.sku),this.u.set(!!t.hidden),this.w.set(!!t.later),this.y.set(!!t.installed),this.z.set(!!t.disabled),this.C.set(!!t.untrusted),this.F.set(!!t.registered),this.M.trace(`[chat entitlement context] updateContext(): ${JSON.stringify(t)}`),G(t,this.N,this.O),this.I.fire()}suspend(){this.H={...this.G},this.J=new N}resume(){this.H=void 0,this.J?.open(),this.J=void 0}};S=p=q([l(0,Q),l(1,M),l(2,T),l(3,R),l(4,v)],S);Z(et,E,0);export{et as $JP,nt as $KP,At as $LP,E as $MP,k as $NP,S as $OP,o as ChatEntitlement,i as ChatEntitlementContextKeys};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatEntitlementContext_1;
+import product from "../../../../platform/product/common/product.js";
+import { Barrier } from "../../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { asText, IRequestService } from "../../../../platform/request/common/request.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IAuthenticationService } from "../../authentication/common/authentication.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { URI } from "../../../../base/common/uri.js";
+import Severity from "../../../../base/common/severity.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { observableFromEvent } from "../../../../base/common/observable.js";
+import { IDefaultAccountService } from "../../../../platform/defaultAccount/common/defaultAccount.js";
+var ChatEntitlementContextKeys;
+(function(ChatEntitlementContextKeys2) {
+  ChatEntitlementContextKeys2.Setup = {
+    hidden: new RawContextKey("chatSetupHidden", false, true),
+    // True when chat setup is explicitly hidden.
+    installed: new RawContextKey("chatSetupInstalled", false, true),
+    // True when the chat extension is installed and enabled.
+    disabled: new RawContextKey("chatSetupDisabled", false, true),
+    // True when the chat extension is disabled due to any other reason than workspace trust.
+    untrusted: new RawContextKey("chatSetupUntrusted", false, true),
+    // True when the chat extension is disabled due to workspace trust.
+    later: new RawContextKey("chatSetupLater", false, true),
+    // True when the user wants to finish setup later.
+    registered: new RawContextKey("chatSetupRegistered", false, true)
+    // True when the user has registered as Free or Pro user.
+  };
+  ChatEntitlementContextKeys2.Entitlement = {
+    signedOut: new RawContextKey("chatEntitlementSignedOut", false, true),
+    // True when user is signed out.
+    canSignUp: new RawContextKey("chatPlanCanSignUp", false, true),
+    // True when user can sign up to be a chat free user.
+    planFree: new RawContextKey("chatPlanFree", false, true),
+    // True when user is a chat free user.
+    planPro: new RawContextKey("chatPlanPro", false, true),
+    // True when user is a chat pro user.
+    planProPlus: new RawContextKey("chatPlanProPlus", false, true),
+    // True when user is a chat pro plus user.
+    planBusiness: new RawContextKey("chatPlanBusiness", false, true),
+    // True when user is a chat business user.
+    planEnterprise: new RawContextKey("chatPlanEnterprise", false, true),
+    // True when user is a chat enterprise user.
+    organisations: new RawContextKey("chatEntitlementOrganisations", void 0, true),
+    // The organizations the user belongs to.
+    internal: new RawContextKey("chatEntitlementInternal", false, true),
+    // True when user belongs to internal organisation.
+    sku: new RawContextKey("chatEntitlementSku", void 0, true)
+    // The SKU of the user.
+  };
+  ChatEntitlementContextKeys2.chatQuotaExceeded = new RawContextKey("chatQuotaExceeded", false, true);
+  ChatEntitlementContextKeys2.completionsQuotaExceeded = new RawContextKey("completionsQuotaExceeded", false, true);
+  ChatEntitlementContextKeys2.chatAnonymous = new RawContextKey("chatAnonymous", false, true);
+})(ChatEntitlementContextKeys || (ChatEntitlementContextKeys = {}));
+const IChatEntitlementService = createDecorator("chatEntitlementService");
+var ChatEntitlement;
+(function(ChatEntitlement2) {
+  ChatEntitlement2[ChatEntitlement2["Unknown"] = 1] = "Unknown";
+  ChatEntitlement2[ChatEntitlement2["Unresolved"] = 2] = "Unresolved";
+  ChatEntitlement2[ChatEntitlement2["Available"] = 3] = "Available";
+  ChatEntitlement2[ChatEntitlement2["Unavailable"] = 4] = "Unavailable";
+  ChatEntitlement2[ChatEntitlement2["Free"] = 5] = "Free";
+  ChatEntitlement2[ChatEntitlement2["Pro"] = 6] = "Pro";
+  ChatEntitlement2[ChatEntitlement2["ProPlus"] = 7] = "ProPlus";
+  ChatEntitlement2[ChatEntitlement2["Business"] = 8] = "Business";
+  ChatEntitlement2[ChatEntitlement2["Enterprise"] = 9] = "Enterprise";
+})(ChatEntitlement || (ChatEntitlement = {}));
+function isProUser(chatEntitlement) {
+  return chatEntitlement === ChatEntitlement.Pro || chatEntitlement === ChatEntitlement.ProPlus || chatEntitlement === ChatEntitlement.Business || chatEntitlement === ChatEntitlement.Enterprise;
+}
+__name(isProUser, "isProUser");
+function getChatPlanName(chatEntitlement) {
+  switch (chatEntitlement) {
+    case ChatEntitlement.Pro:
+      return localize("plan.proName", "Copilot Pro");
+    case ChatEntitlement.ProPlus:
+      return localize("plan.proPlusName", "Copilot Pro+");
+    case ChatEntitlement.Business:
+      return localize("plan.businessName", "Copilot Business");
+    case ChatEntitlement.Enterprise:
+      return localize("plan.enterpriseName", "Copilot Enterprise");
+    default:
+      return localize("plan.freeName", "Copilot Free");
+  }
+}
+__name(getChatPlanName, "getChatPlanName");
+const defaultChatAgent = {
+  upgradePlanUrl: product.defaultChatAgent?.upgradePlanUrl ?? "",
+  providerUriSetting: product.defaultChatAgent?.providerUriSetting ?? "",
+  entitlementSignupLimitedUrl: product.defaultChatAgent?.entitlementSignupLimitedUrl ?? "",
+  chatQuotaExceededContext: product.defaultChatAgent?.chatQuotaExceededContext ?? "",
+  completionsQuotaExceededContext: product.defaultChatAgent?.completionsQuotaExceededContext ?? ""
+};
+const CHAT_ALLOW_ANONYMOUS_CONFIGURATION_KEY = "chat.allowAnonymousAccess";
+function isAnonymous(configurationService, entitlement, sentiment) {
+  if (configurationService.getValue(CHAT_ALLOW_ANONYMOUS_CONFIGURATION_KEY) !== true) {
+    return false;
+  }
+  if (entitlement !== ChatEntitlement.Unknown) {
+    return false;
+  }
+  if (sentiment.hidden || sentiment.disabled) {
+    return false;
+  }
+  return true;
+}
+__name(isAnonymous, "isAnonymous");
+function logChatEntitlements(state, configurationService, telemetryService) {
+  telemetryService.publicLog2("chatEntitlements", {
+    chatHidden: Boolean(state.hidden),
+    chatDisabled: Boolean(state.disabled),
+    chatEntitlement: state.entitlement,
+    chatRegistered: Boolean(state.registered),
+    chatAnonymous: isAnonymous(configurationService, state.entitlement, state)
+  });
+}
+__name(logChatEntitlements, "logChatEntitlements");
+let ChatEntitlementService = class ChatEntitlementService2 extends Disposable {
+  static {
+    __name(this, "ChatEntitlementService");
+  }
+  constructor(instantiationService, productService, environmentService, contextKeyService, configurationService, telemetryService) {
+    super();
+    this.contextKeyService = contextKeyService;
+    this.configurationService = configurationService;
+    this.telemetryService = telemetryService;
+    this._onDidChangeQuotaExceeded = this._register(new Emitter());
+    this.onDidChangeQuotaExceeded = this._onDidChangeQuotaExceeded.event;
+    this._onDidChangeQuotaRemaining = this._register(new Emitter());
+    this.onDidChangeQuotaRemaining = this._onDidChangeQuotaRemaining.event;
+    this._quotas = {};
+    this.ExtensionQuotaContextKeys = {
+      chatQuotaExceeded: defaultChatAgent.chatQuotaExceededContext,
+      completionsQuotaExceeded: defaultChatAgent.completionsQuotaExceededContext
+    };
+    this._onDidChangeAnonymous = this._register(new Emitter());
+    this.onDidChangeAnonymous = this._onDidChangeAnonymous.event;
+    this.anonymousObs = observableFromEvent(this.onDidChangeAnonymous, () => this.anonymous);
+    this.chatQuotaExceededContextKey = ChatEntitlementContextKeys.chatQuotaExceeded.bindTo(this.contextKeyService);
+    this.completionsQuotaExceededContextKey = ChatEntitlementContextKeys.completionsQuotaExceeded.bindTo(this.contextKeyService);
+    this.anonymousContextKey = ChatEntitlementContextKeys.chatAnonymous.bindTo(this.contextKeyService);
+    this.anonymousContextKey.set(this.anonymous);
+    this.onDidChangeEntitlement = Event.map(Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(/* @__PURE__ */ new Set([
+      ChatEntitlementContextKeys.Entitlement.planPro.key,
+      ChatEntitlementContextKeys.Entitlement.planBusiness.key,
+      ChatEntitlementContextKeys.Entitlement.planEnterprise.key,
+      ChatEntitlementContextKeys.Entitlement.planProPlus.key,
+      ChatEntitlementContextKeys.Entitlement.planFree.key,
+      ChatEntitlementContextKeys.Entitlement.canSignUp.key,
+      ChatEntitlementContextKeys.Entitlement.signedOut.key,
+      ChatEntitlementContextKeys.Entitlement.organisations.key,
+      ChatEntitlementContextKeys.Entitlement.internal.key,
+      ChatEntitlementContextKeys.Entitlement.sku.key
+    ])), this._store), () => {
+    }, this._store);
+    this.entitlementObs = observableFromEvent(this.onDidChangeEntitlement, () => this.entitlement);
+    this.onDidChangeSentiment = Event.map(Event.filter(this.contextKeyService.onDidChangeContext, (e) => e.affectsSome(/* @__PURE__ */ new Set([
+      ChatEntitlementContextKeys.Setup.hidden.key,
+      ChatEntitlementContextKeys.Setup.disabled.key,
+      ChatEntitlementContextKeys.Setup.untrusted.key,
+      ChatEntitlementContextKeys.Setup.installed.key,
+      ChatEntitlementContextKeys.Setup.later.key,
+      ChatEntitlementContextKeys.Setup.registered.key
+    ])), this._store), () => {
+    }, this._store);
+    this.sentimentObs = observableFromEvent(this.onDidChangeSentiment, () => this.sentiment);
+    if (isWeb && !environmentService.remoteAuthority) {
+      ChatEntitlementContextKeys.Setup.hidden.bindTo(this.contextKeyService).set(true);
+      return;
+    }
+    if (!productService.defaultChatAgent) {
+      return;
+    }
+    const context = this.context = new Lazy(() => this._register(instantiationService.createInstance(ChatEntitlementContext)));
+    this.requests = new Lazy(() => this._register(instantiationService.createInstance(ChatEntitlementRequests, context.value, {
+      clearQuotas: /* @__PURE__ */ __name(() => this.clearQuotas(), "clearQuotas"),
+      acceptQuotas: /* @__PURE__ */ __name((quotas) => this.acceptQuotas(quotas), "acceptQuotas")
+    })));
+    this.registerListeners();
+  }
+  get entitlement() {
+    if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.planPro.key) === true) {
+      return ChatEntitlement.Pro;
+    } else if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.planBusiness.key) === true) {
+      return ChatEntitlement.Business;
+    } else if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.planEnterprise.key) === true) {
+      return ChatEntitlement.Enterprise;
+    } else if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.planProPlus.key) === true) {
+      return ChatEntitlement.ProPlus;
+    } else if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.planFree.key) === true) {
+      return ChatEntitlement.Free;
+    } else if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.canSignUp.key) === true) {
+      return ChatEntitlement.Available;
+    } else if (this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.signedOut.key) === true) {
+      return ChatEntitlement.Unknown;
+    }
+    return ChatEntitlement.Unresolved;
+  }
+  get isInternal() {
+    return this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.internal.key) === true;
+  }
+  get organisations() {
+    return this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.organisations.key);
+  }
+  get sku() {
+    return this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Entitlement.sku.key);
+  }
+  get quotas() {
+    return this._quotas;
+  }
+  registerListeners() {
+    const quotaExceededSet = /* @__PURE__ */ new Set([this.ExtensionQuotaContextKeys.chatQuotaExceeded, this.ExtensionQuotaContextKeys.completionsQuotaExceeded]);
+    const cts = this._register(new MutableDisposable());
+    this._register(this.contextKeyService.onDidChangeContext((e) => {
+      if (e.affectsSome(quotaExceededSet)) {
+        if (cts.value) {
+          cts.value.cancel();
+        }
+        cts.value = new CancellationTokenSource();
+        this.update(cts.value.token);
+      }
+    }));
+    let anonymousUsage = this.anonymous;
+    const updateAnonymousUsage = /* @__PURE__ */ __name(() => {
+      const newAnonymousUsage = this.anonymous;
+      if (newAnonymousUsage !== anonymousUsage) {
+        anonymousUsage = newAnonymousUsage;
+        this.anonymousContextKey.set(newAnonymousUsage);
+        if (this.context?.hasValue) {
+          logChatEntitlements(this.context.value.state, this.configurationService, this.telemetryService);
+        }
+        this._onDidChangeAnonymous.fire();
+      }
+    }, "updateAnonymousUsage");
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(CHAT_ALLOW_ANONYMOUS_CONFIGURATION_KEY)) {
+        updateAnonymousUsage();
+      }
+    }));
+    this._register(this.onDidChangeEntitlement(() => updateAnonymousUsage()));
+    this._register(this.onDidChangeSentiment(() => updateAnonymousUsage()));
+  }
+  acceptQuotas(quotas) {
+    const oldQuota = this._quotas;
+    this._quotas = quotas;
+    this.updateContextKeys();
+    const { changed: chatChanged } = this.compareQuotas(oldQuota.chat, quotas.chat);
+    const { changed: completionsChanged } = this.compareQuotas(oldQuota.completions, quotas.completions);
+    const { changed: premiumChatChanged } = this.compareQuotas(oldQuota.premiumChat, quotas.premiumChat);
+    if (chatChanged.exceeded || completionsChanged.exceeded || premiumChatChanged.exceeded) {
+      this._onDidChangeQuotaExceeded.fire();
+    }
+    if (chatChanged.remaining || completionsChanged.remaining || premiumChatChanged.remaining) {
+      this._onDidChangeQuotaRemaining.fire();
+    }
+  }
+  compareQuotas(oldQuota, newQuota) {
+    return {
+      changed: {
+        exceeded: oldQuota?.percentRemaining === 0 !== (newQuota?.percentRemaining === 0),
+        remaining: oldQuota?.percentRemaining !== newQuota?.percentRemaining
+      }
+    };
+  }
+  clearQuotas() {
+    this.acceptQuotas({});
+  }
+  updateContextKeys() {
+    this.chatQuotaExceededContextKey.set(this._quotas.chat?.percentRemaining === 0);
+    this.completionsQuotaExceededContextKey.set(this._quotas.completions?.percentRemaining === 0);
+  }
+  get sentiment() {
+    return {
+      installed: this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Setup.installed.key) === true,
+      hidden: this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Setup.hidden.key) === true,
+      disabled: this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Setup.disabled.key) === true,
+      untrusted: this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Setup.untrusted.key) === true,
+      later: this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Setup.later.key) === true,
+      registered: this.contextKeyService.getContextKeyValue(ChatEntitlementContextKeys.Setup.registered.key) === true
+    };
+  }
+  get anonymous() {
+    return isAnonymous(this.configurationService, this.entitlement, this.sentiment);
+  }
+  //#endregion
+  async update(token) {
+    await this.requests?.value.forceResolveEntitlement(token);
+  }
+};
+ChatEntitlementService = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IProductService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IContextKeyService),
+  __param(4, IConfigurationService),
+  __param(5, ITelemetryService)
+], ChatEntitlementService);
+let ChatEntitlementRequests = class ChatEntitlementRequests2 extends Disposable {
+  static {
+    __name(this, "ChatEntitlementRequests");
+  }
+  constructor(context, chatQuotasAccessor, telemetryService, logService, requestService, dialogService, openerService, lifecycleService, defaultAccountService, authenticationService) {
+    super();
+    this.context = context;
+    this.chatQuotasAccessor = chatQuotasAccessor;
+    this.telemetryService = telemetryService;
+    this.logService = logService;
+    this.requestService = requestService;
+    this.dialogService = dialogService;
+    this.openerService = openerService;
+    this.lifecycleService = lifecycleService;
+    this.defaultAccountService = defaultAccountService;
+    this.authenticationService = authenticationService;
+    this.pendingResolveCts = new CancellationTokenSource();
+    this.state = { entitlement: this.context.state.entitlement };
+    this.registerListeners();
+    this.resolve();
+  }
+  registerListeners() {
+    this._register(this.defaultAccountService.onDidChangeDefaultAccount(() => this.resolve()));
+    this._register(this.context.onDidChange(() => {
+      if (!this.context.state.installed || this.context.state.disabled || this.context.state.entitlement === ChatEntitlement.Unknown) {
+        this.state = { entitlement: this.state.entitlement, quotas: void 0 };
+        this.chatQuotasAccessor.clearQuotas();
+      }
+    }));
+  }
+  async resolve() {
+    this.pendingResolveCts.dispose(true);
+    const cts = this.pendingResolveCts = new CancellationTokenSource();
+    const defaultAccount = await this.defaultAccountService.getDefaultAccount();
+    if (cts.token.isCancellationRequested) {
+      return;
+    }
+    let state = void 0;
+    if (defaultAccount) {
+      if (this.state.entitlement === ChatEntitlement.Unknown) {
+        state = { entitlement: ChatEntitlement.Unresolved };
+      }
+    } else {
+      state = { entitlement: ChatEntitlement.Unknown };
+    }
+    if (state) {
+      this.update(state);
+    }
+    if (defaultAccount) {
+      await this.resolveEntitlement(defaultAccount, cts.token);
+    }
+  }
+  async resolveEntitlement(defaultAccount, token) {
+    const entitlements = await this.doResolveEntitlement(defaultAccount, token);
+    if (typeof entitlements?.entitlement === "number" && !token.isCancellationRequested) {
+      this.update(entitlements);
+    }
+    return entitlements;
+  }
+  async doResolveEntitlement(defaultAccount, token) {
+    if (token.isCancellationRequested) {
+      return void 0;
+    }
+    const entitlementsData = defaultAccount.entitlementsData;
+    if (!entitlementsData) {
+      this.logService.trace("[chat entitlement]: no entitlements data available on default account");
+      return { entitlement: entitlementsData === null ? ChatEntitlement.Unknown : ChatEntitlement.Unresolved };
+    }
+    let entitlement;
+    if (entitlementsData.access_type_sku === "free_limited_copilot") {
+      entitlement = ChatEntitlement.Free;
+    } else if (entitlementsData.can_signup_for_limited) {
+      entitlement = ChatEntitlement.Available;
+    } else if (entitlementsData.copilot_plan === "individual") {
+      entitlement = ChatEntitlement.Pro;
+    } else if (entitlementsData.copilot_plan === "individual_pro") {
+      entitlement = ChatEntitlement.ProPlus;
+    } else if (entitlementsData.copilot_plan === "business") {
+      entitlement = ChatEntitlement.Business;
+    } else if (entitlementsData.copilot_plan === "enterprise") {
+      entitlement = ChatEntitlement.Enterprise;
+    } else {
+      entitlement = ChatEntitlement.Unavailable;
+    }
+    const entitlements = {
+      entitlement,
+      organisations: entitlementsData.organization_login_list,
+      quotas: this.toQuotas(entitlementsData),
+      sku: entitlementsData.access_type_sku
+    };
+    this.logService.trace(`[chat entitlement]: resolved to ${entitlements.entitlement}, quotas: ${JSON.stringify(entitlements.quotas)}`);
+    this.telemetryService.publicLog2("chatInstallEntitlement", {
+      entitlement: entitlements.entitlement,
+      tid: entitlementsData.analytics_tracking_id,
+      sku: entitlements.sku,
+      quotaChat: entitlements.quotas?.chat?.remaining,
+      quotaPremiumChat: entitlements.quotas?.premiumChat?.remaining,
+      quotaCompletions: entitlements.quotas?.completions?.remaining,
+      quotaResetDate: entitlements.quotas?.resetDate
+    });
+    return entitlements;
+  }
+  toQuotas(entitlementsData) {
+    const quotas = {
+      resetDate: entitlementsData.quota_reset_date_utc ?? entitlementsData.quota_reset_date ?? entitlementsData.limited_user_reset_date,
+      resetDateHasTime: typeof entitlementsData.quota_reset_date_utc === "string"
+    };
+    if (entitlementsData.monthly_quotas?.chat && typeof entitlementsData.limited_user_quotas?.chat === "number") {
+      quotas.chat = {
+        total: entitlementsData.monthly_quotas.chat,
+        remaining: entitlementsData.limited_user_quotas.chat,
+        percentRemaining: Math.min(100, Math.max(0, entitlementsData.limited_user_quotas.chat / entitlementsData.monthly_quotas.chat * 100)),
+        overageEnabled: false,
+        overageCount: 0,
+        unlimited: false
+      };
+    }
+    if (entitlementsData.monthly_quotas?.completions && typeof entitlementsData.limited_user_quotas?.completions === "number") {
+      quotas.completions = {
+        total: entitlementsData.monthly_quotas.completions,
+        remaining: entitlementsData.limited_user_quotas.completions,
+        percentRemaining: Math.min(100, Math.max(0, entitlementsData.limited_user_quotas.completions / entitlementsData.monthly_quotas.completions * 100)),
+        overageEnabled: false,
+        overageCount: 0,
+        unlimited: false
+      };
+    }
+    if (entitlementsData.quota_snapshots) {
+      for (const quotaType of ["chat", "completions", "premium_interactions"]) {
+        const rawQuotaSnapshot = entitlementsData.quota_snapshots[quotaType];
+        if (!rawQuotaSnapshot) {
+          continue;
+        }
+        const quotaSnapshot = {
+          total: rawQuotaSnapshot.entitlement,
+          remaining: rawQuotaSnapshot.remaining,
+          percentRemaining: Math.min(100, Math.max(0, rawQuotaSnapshot.percent_remaining)),
+          overageEnabled: rawQuotaSnapshot.overage_permitted,
+          overageCount: rawQuotaSnapshot.overage_count,
+          unlimited: rawQuotaSnapshot.unlimited
+        };
+        switch (quotaType) {
+          case "chat":
+            quotas.chat = quotaSnapshot;
+            break;
+          case "completions":
+            quotas.completions = quotaSnapshot;
+            break;
+          case "premium_interactions":
+            quotas.premiumChat = quotaSnapshot;
+            break;
+        }
+      }
+    }
+    return quotas;
+  }
+  async request(url, type, body, sessions, token) {
+    let lastRequest;
+    for (const session of sessions) {
+      if (token.isCancellationRequested) {
+        return lastRequest;
+      }
+      try {
+        const response = await this.requestService.request({
+          type,
+          url,
+          data: type === "POST" ? JSON.stringify(body) : void 0,
+          disableCache: true,
+          headers: {
+            "Authorization": `Bearer ${session.accessToken}`
+          }
+        }, token);
+        const status = response.res.statusCode;
+        if (status && status !== 200) {
+          lastRequest = response;
+          continue;
+        }
+        return response;
+      } catch (error) {
+        if (!token.isCancellationRequested) {
+          this.logService.error(`[chat entitlement] request: error ${error}`);
+        }
+      }
+    }
+    return lastRequest;
+  }
+  update(state) {
+    this.state = state;
+    this.context.update({ entitlement: this.state.entitlement, organisations: this.state.organisations, sku: this.state.sku });
+    if (state.quotas) {
+      this.chatQuotasAccessor.acceptQuotas(state.quotas);
+    }
+  }
+  async forceResolveEntitlement(token = CancellationToken.None) {
+    const defaultAccount = await this.defaultAccountService.refresh();
+    if (!defaultAccount) {
+      return void 0;
+    }
+    return this.resolveEntitlement(defaultAccount, token);
+  }
+  async signUpFree() {
+    const sessions = await this.getSessions();
+    if (sessions.length === 0) {
+      return void 0;
+    }
+    return this.doSignUpFree(sessions);
+  }
+  async doSignUpFree(sessions) {
+    const body = {
+      restricted_telemetry: this.telemetryService.telemetryLevel === 0 ? "disabled" : "enabled",
+      public_code_suggestions: "enabled"
+    };
+    const response = await this.request(defaultChatAgent.entitlementSignupLimitedUrl, "POST", body, sessions, CancellationToken.None);
+    if (!response) {
+      const retry = await this.onUnknownSignUpError(localize("signUpNoResponseError", "No response received."), "[chat entitlement] sign-up: no response");
+      return retry ? this.doSignUpFree(sessions) : { errorCode: 1 };
+    }
+    if (response.res.statusCode && response.res.statusCode !== 200) {
+      if (response.res.statusCode === 422) {
+        try {
+          const responseText2 = await asText(response);
+          if (responseText2) {
+            const responseError = JSON.parse(responseText2);
+            if (typeof responseError.message === "string" && responseError.message) {
+              this.onUnprocessableSignUpError(`[chat entitlement] sign-up: unprocessable entity (${responseError.message})`, responseError.message);
+              return { errorCode: response.res.statusCode };
+            }
+          }
+        } catch (error) {
+        }
+      }
+      const retry = await this.onUnknownSignUpError(localize("signUpUnexpectedStatusError", "Unexpected status code {0}.", response.res.statusCode), `[chat entitlement] sign-up: unexpected status code ${response.res.statusCode}`);
+      return retry ? this.doSignUpFree(sessions) : { errorCode: response.res.statusCode };
+    }
+    let responseText = null;
+    try {
+      responseText = await asText(response);
+    } catch (error) {
+    }
+    if (!responseText) {
+      const retry = await this.onUnknownSignUpError(localize("signUpNoResponseContentsError", "Response has no contents."), "[chat entitlement] sign-up: response has no content");
+      return retry ? this.doSignUpFree(sessions) : { errorCode: 2 };
+    }
+    let parsedResult = void 0;
+    try {
+      parsedResult = JSON.parse(responseText);
+      this.logService.trace(`[chat entitlement] sign-up: response is ${responseText}`);
+    } catch (err) {
+      const retry = await this.onUnknownSignUpError(localize("signUpInvalidResponseError", "Invalid response contents."), `[chat entitlement] sign-up: error parsing response (${err})`);
+      return retry ? this.doSignUpFree(sessions) : { errorCode: 3 };
+    }
+    this.update({ entitlement: ChatEntitlement.Free });
+    return Boolean(parsedResult?.subscribed);
+  }
+  async getSessions() {
+    const defaultAccount = await this.defaultAccountService.getDefaultAccount();
+    if (defaultAccount) {
+      const sessions = await this.authenticationService.getSessions(defaultAccount.authenticationProvider.id);
+      const accountSessions = sessions.filter((s) => s.id === defaultAccount.sessionId);
+      if (accountSessions.length) {
+        return accountSessions;
+      }
+    }
+    return [...await this.authenticationService.getSessions(this.defaultAccountService.getDefaultAccountAuthenticationProvider().id)];
+  }
+  async onUnknownSignUpError(detail, logMessage) {
+    this.logService.error(logMessage);
+    if (!this.lifecycleService.willShutdown) {
+      const { confirmed } = await this.dialogService.confirm({
+        type: Severity.Error,
+        message: localize("unknownSignUpError", "An error occurred while signing up for the GitHub Copilot Free plan. Would you like to try again?"),
+        detail,
+        primaryButton: localize("retry", "Retry")
+      });
+      return confirmed;
+    }
+    return false;
+  }
+  onUnprocessableSignUpError(logMessage, logDetails) {
+    this.logService.error(logMessage);
+    if (!this.lifecycleService.willShutdown) {
+      this.dialogService.prompt({
+        type: Severity.Error,
+        message: localize("unprocessableSignUpError", "An error occurred while signing up for the GitHub Copilot Free plan."),
+        detail: logDetails,
+        buttons: [
+          {
+            label: localize("ok", "OK"),
+            run: /* @__PURE__ */ __name(() => {
+            }, "run")
+          },
+          {
+            label: localize("learnMore", "Learn More"),
+            run: /* @__PURE__ */ __name(() => this.openerService.open(URI.parse(defaultChatAgent.upgradePlanUrl)), "run")
+          }
+        ]
+      });
+    }
+  }
+  async signIn(options) {
+    const defaultAccount = await this.defaultAccountService.signIn({
+      additionalScopes: options?.additionalScopes,
+      extraAuthorizeParameters: { get_started_with: "copilot-vscode" },
+      provider: options?.useSocialProvider
+    });
+    if (!defaultAccount) {
+      return {};
+    }
+    const entitlements = await this.doResolveEntitlement(defaultAccount, CancellationToken.None);
+    return { defaultAccount, entitlements };
+  }
+  dispose() {
+    this.pendingResolveCts.dispose(true);
+    super.dispose();
+  }
+};
+ChatEntitlementRequests = __decorate([
+  __param(2, ITelemetryService),
+  __param(3, ILogService),
+  __param(4, IRequestService),
+  __param(5, IDialogService),
+  __param(6, IOpenerService),
+  __param(7, ILifecycleService),
+  __param(8, IDefaultAccountService),
+  __param(9, IAuthenticationService)
+], ChatEntitlementRequests);
+let ChatEntitlementContext = class ChatEntitlementContext2 extends Disposable {
+  static {
+    __name(this, "ChatEntitlementContext");
+  }
+  static {
+    ChatEntitlementContext_1 = this;
+  }
+  static {
+    this.CHAT_ENTITLEMENT_CONTEXT_STORAGE_KEY = "chat.setupContext";
+  }
+  static {
+    this.CHAT_DISABLED_CONFIGURATION_KEY = "chat.disableAIFeatures";
+  }
+  get state() {
+    return this.withConfiguration(this.suspendedState ?? this._state);
+  }
+  constructor(contextKeyService, storageService, logService, configurationService, telemetryService) {
+    super();
+    this.storageService = storageService;
+    this.logService = logService;
+    this.configurationService = configurationService;
+    this.telemetryService = telemetryService;
+    this.suspendedState = void 0;
+    this._onDidChange = this._register(new Emitter());
+    this.onDidChange = this._onDidChange.event;
+    this.updateBarrier = void 0;
+    this.canSignUpContextKey = ChatEntitlementContextKeys.Entitlement.canSignUp.bindTo(contextKeyService);
+    this.signedOutContextKey = ChatEntitlementContextKeys.Entitlement.signedOut.bindTo(contextKeyService);
+    this.freeContextKey = ChatEntitlementContextKeys.Entitlement.planFree.bindTo(contextKeyService);
+    this.proContextKey = ChatEntitlementContextKeys.Entitlement.planPro.bindTo(contextKeyService);
+    this.proPlusContextKey = ChatEntitlementContextKeys.Entitlement.planProPlus.bindTo(contextKeyService);
+    this.businessContextKey = ChatEntitlementContextKeys.Entitlement.planBusiness.bindTo(contextKeyService);
+    this.enterpriseContextKey = ChatEntitlementContextKeys.Entitlement.planEnterprise.bindTo(contextKeyService);
+    this.organisationsContextKey = ChatEntitlementContextKeys.Entitlement.organisations.bindTo(contextKeyService);
+    this.isInternalContextKey = ChatEntitlementContextKeys.Entitlement.internal.bindTo(contextKeyService);
+    this.skuContextKey = ChatEntitlementContextKeys.Entitlement.sku.bindTo(contextKeyService);
+    this.hiddenContext = ChatEntitlementContextKeys.Setup.hidden.bindTo(contextKeyService);
+    this.laterContext = ChatEntitlementContextKeys.Setup.later.bindTo(contextKeyService);
+    this.installedContext = ChatEntitlementContextKeys.Setup.installed.bindTo(contextKeyService);
+    this.disabledContext = ChatEntitlementContextKeys.Setup.disabled.bindTo(contextKeyService);
+    this.untrustedContext = ChatEntitlementContextKeys.Setup.untrusted.bindTo(contextKeyService);
+    this.registeredContext = ChatEntitlementContextKeys.Setup.registered.bindTo(contextKeyService);
+    this._state = this.storageService.getObject(
+      ChatEntitlementContext_1.CHAT_ENTITLEMENT_CONTEXT_STORAGE_KEY,
+      0
+      /* StorageScope.PROFILE */
+    ) ?? { entitlement: ChatEntitlement.Unknown, organisations: void 0, sku: void 0 };
+    this.updateContextSync();
+    this.registerListeners();
+  }
+  registerListeners() {
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(ChatEntitlementContext_1.CHAT_DISABLED_CONFIGURATION_KEY)) {
+        this.updateContext();
+      }
+    }));
+  }
+  withConfiguration(state) {
+    if (this.configurationService.getValue(ChatEntitlementContext_1.CHAT_DISABLED_CONFIGURATION_KEY) === true) {
+      return {
+        ...state,
+        hidden: true
+        // Setting always wins: if AI is disabled, set `hidden: true`
+      };
+    }
+    return state;
+  }
+  async update(context) {
+    this.logService.trace(`[chat entitlement context] update(): ${JSON.stringify(context)}`);
+    const oldState = JSON.stringify(this._state);
+    if (typeof context.installed === "boolean" && typeof context.disabled === "boolean" && typeof context.untrusted === "boolean") {
+      this._state.installed = context.installed;
+      this._state.disabled = context.disabled;
+      this._state.untrusted = context.untrusted;
+      if (context.installed && !context.disabled) {
+        context.hidden = false;
+      }
+    }
+    if (typeof context.hidden === "boolean") {
+      this._state.hidden = context.hidden;
+    }
+    if (typeof context.later === "boolean") {
+      this._state.later = context.later;
+    }
+    if (typeof context.entitlement === "number") {
+      this._state.entitlement = context.entitlement;
+      this._state.organisations = context.organisations;
+      this._state.sku = context.sku;
+      if (this._state.entitlement === ChatEntitlement.Free || isProUser(this._state.entitlement)) {
+        this._state.registered = true;
+      } else if (this._state.entitlement === ChatEntitlement.Available) {
+        this._state.registered = false;
+      }
+    }
+    if (isAnonymous(this.configurationService, this._state.entitlement, this._state)) {
+      this._state.sku = "no_auth_limited_copilot";
+    }
+    if (oldState === JSON.stringify(this._state)) {
+      return;
+    }
+    this.storageService.store(
+      ChatEntitlementContext_1.CHAT_ENTITLEMENT_CONTEXT_STORAGE_KEY,
+      {
+        ...this._state,
+        later: void 0
+        // do not persist this across restarts for now
+      },
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    return this.updateContext();
+  }
+  async updateContext() {
+    await this.updateBarrier?.wait();
+    this.updateContextSync();
+  }
+  updateContextSync() {
+    const state = this.withConfiguration(this._state);
+    this.signedOutContextKey.set(state.entitlement === ChatEntitlement.Unknown);
+    this.canSignUpContextKey.set(state.entitlement === ChatEntitlement.Available);
+    this.freeContextKey.set(state.entitlement === ChatEntitlement.Free);
+    this.proContextKey.set(state.entitlement === ChatEntitlement.Pro);
+    this.proPlusContextKey.set(state.entitlement === ChatEntitlement.ProPlus);
+    this.businessContextKey.set(state.entitlement === ChatEntitlement.Business);
+    this.enterpriseContextKey.set(state.entitlement === ChatEntitlement.Enterprise);
+    this.organisationsContextKey.set(state.organisations);
+    this.isInternalContextKey.set(Boolean(state.organisations?.some((org) => org === "github" || org === "microsoft" || org === "ms-copilot" || org === "MicrosoftCopilot")));
+    this.skuContextKey.set(state.sku);
+    this.hiddenContext.set(!!state.hidden);
+    this.laterContext.set(!!state.later);
+    this.installedContext.set(!!state.installed);
+    this.disabledContext.set(!!state.disabled);
+    this.untrustedContext.set(!!state.untrusted);
+    this.registeredContext.set(!!state.registered);
+    this.logService.trace(`[chat entitlement context] updateContext(): ${JSON.stringify(state)}`);
+    logChatEntitlements(state, this.configurationService, this.telemetryService);
+    this._onDidChange.fire();
+  }
+  suspend() {
+    this.suspendedState = { ...this._state };
+    this.updateBarrier = new Barrier();
+  }
+  resume() {
+    this.suspendedState = void 0;
+    this.updateBarrier?.open();
+    this.updateBarrier = void 0;
+  }
+};
+ChatEntitlementContext = ChatEntitlementContext_1 = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, IStorageService),
+  __param(2, ILogService),
+  __param(3, IConfigurationService),
+  __param(4, ITelemetryService)
+], ChatEntitlementContext);
+registerSingleton(
+  IChatEntitlementService,
+  ChatEntitlementService,
+  0
+  /* InstantiationType.Eager */
+);
+export {
+  ChatEntitlement,
+  ChatEntitlementContext,
+  ChatEntitlementContextKeys,
+  ChatEntitlementRequests,
+  ChatEntitlementService,
+  IChatEntitlementService,
+  getChatPlanName,
+  isProUser
+};
+//# sourceMappingURL=chatEntitlementService.js.map

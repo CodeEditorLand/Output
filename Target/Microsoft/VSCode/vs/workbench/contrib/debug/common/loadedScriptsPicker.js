@@ -1,1 +1,88 @@
-import*as u from"../../../../nls.js";import{$Zj as m}from"../../../../base/common/filters.js";import{$YH as p}from"../../../../platform/quickinput/common/quickInput.js";import{$lZ as f}from"./debug.js";import{$BL as g}from"../../../services/editor/common/editorService.js";import{$8ob as h}from"../../../../editor/common/services/getIconClasses.js";import{$9H as b}from"../../../../editor/common/services/model.js";import{$ZF as k}from"../../../../editor/common/languages/language.js";import{$Dd as S}from"../../../../base/common/lifecycle.js";import{$Hh as $}from"../../../../base/common/resources.js";import{$oH as v}from"../../../../platform/label/common/label.js";async function E(t){const r=t.get(p),l=t.get(f),c=t.get(g),a=l.getModel().getSessions(!1),n=t.get(b),i=t.get(k),s=t.get(v),o=new S,e=r.createQuickPick({useSeparators:!0});o.add(e),e.matchOnLabel=e.matchOnDescription=e.matchOnDetail=e.sortByLabel=!1,e.placeholder=u.localize(8357,null),e.items=await d(e.value,a,c,n,i,s),o.add(e.onDidChangeValue(async()=>{e.items=await d(e.value,a,c,n,i,s)})),o.add(e.onDidAccept(()=>{e.selectedItems[0].accept(),e.hide(),o.dispose()})),e.show()}async function L(t,r,l,c,a,n){const i=[];return i.push({type:"separator",label:t.name}),(await t.getLoadedSources()).forEach(o=>{const e=w(o,r,l,c,a,n);e&&i.push(e)}),i}async function d(t,r,l,c,a,n){const i=[],s=await Promise.all(r.map(o=>L(o,t,l,c,a,n)));for(const o of s)for(const e of o)i.push(e);return i}function w(t,r,l,c,a,n){const i=n.getUriBasenameLabel(t.uri),s=n.getUriLabel($(t.uri)),o=m(r,i,!0),e=m(r,s,!0);if(o||e)return{label:i,description:s==="."?void 0:s,highlights:{label:o??void 0,description:e??void 0},iconClasses:h(c,a,t.uri),accept:()=>{t.available&&t.openInEditor(l,{startLineNumber:0,startColumn:0,endLineNumber:0,endColumn:0})}}}export{E as $ahc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { matchesFuzzy } from "../../../../base/common/filters.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IDebugService } from "./debug.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { dirname } from "../../../../base/common/resources.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+async function showLoadedScriptMenu(accessor) {
+  const quickInputService = accessor.get(IQuickInputService);
+  const debugService = accessor.get(IDebugService);
+  const editorService = accessor.get(IEditorService);
+  const sessions = debugService.getModel().getSessions(false);
+  const modelService = accessor.get(IModelService);
+  const languageService = accessor.get(ILanguageService);
+  const labelService = accessor.get(ILabelService);
+  const localDisposableStore = new DisposableStore();
+  const quickPick = quickInputService.createQuickPick({ useSeparators: true });
+  localDisposableStore.add(quickPick);
+  quickPick.matchOnLabel = quickPick.matchOnDescription = quickPick.matchOnDetail = quickPick.sortByLabel = false;
+  quickPick.placeholder = nls.localize("moveFocusedView.selectView", "Search loaded scripts by name");
+  quickPick.items = await _getPicks(quickPick.value, sessions, editorService, modelService, languageService, labelService);
+  localDisposableStore.add(quickPick.onDidChangeValue(async () => {
+    quickPick.items = await _getPicks(quickPick.value, sessions, editorService, modelService, languageService, labelService);
+  }));
+  localDisposableStore.add(quickPick.onDidAccept(() => {
+    const selectedItem = quickPick.selectedItems[0];
+    selectedItem.accept();
+    quickPick.hide();
+    localDisposableStore.dispose();
+  }));
+  quickPick.show();
+}
+__name(showLoadedScriptMenu, "showLoadedScriptMenu");
+async function _getPicksFromSession(session, filter, editorService, modelService, languageService, labelService) {
+  const items = [];
+  items.push({ type: "separator", label: session.name });
+  const sources = await session.getLoadedSources();
+  sources.forEach((element) => {
+    const pick = _createPick(element, filter, editorService, modelService, languageService, labelService);
+    if (pick) {
+      items.push(pick);
+    }
+  });
+  return items;
+}
+__name(_getPicksFromSession, "_getPicksFromSession");
+async function _getPicks(filter, sessions, editorService, modelService, languageService, labelService) {
+  const loadedScriptPicks = [];
+  const picks = await Promise.all(sessions.map((session) => _getPicksFromSession(session, filter, editorService, modelService, languageService, labelService)));
+  for (const row of picks) {
+    for (const elem of row) {
+      loadedScriptPicks.push(elem);
+    }
+  }
+  return loadedScriptPicks;
+}
+__name(_getPicks, "_getPicks");
+function _createPick(source, filter, editorService, modelService, languageService, labelService) {
+  const label = labelService.getUriBasenameLabel(source.uri);
+  const desc = labelService.getUriLabel(dirname(source.uri));
+  const labelHighlights = matchesFuzzy(filter, label, true);
+  const descHighlights = matchesFuzzy(filter, desc, true);
+  if (labelHighlights || descHighlights) {
+    return {
+      label,
+      description: desc === "." ? void 0 : desc,
+      highlights: { label: labelHighlights ?? void 0, description: descHighlights ?? void 0 },
+      iconClasses: getIconClasses(modelService, languageService, source.uri),
+      accept: /* @__PURE__ */ __name(() => {
+        if (source.available) {
+          source.openInEditor(editorService, { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 });
+        }
+      }, "accept")
+    };
+  }
+  return void 0;
+}
+__name(_createPick, "_createPick");
+export {
+  showLoadedScriptMenu
+};
+//# sourceMappingURL=loadedScriptsPicker.js.map

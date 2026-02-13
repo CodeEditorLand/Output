@@ -1,1 +1,38 @@
-import{$Ed as u}from"../../../base/common/lifecycle.js";import{$X1 as s}from"../common/extHost.protocol.js";import{$vDb as v}from"../../services/extensions/common/extHostCustomers.js";import{$I5 as d}from"../../../platform/download/common/download.js";import{URI as c}from"../../../base/common/uri.js";var l=function(o,r,t,n){var i=arguments.length,e=i<3?r:n===null?n=Object.getOwnPropertyDescriptor(r,t):n,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(o,r,t,n);else for(var a=o.length-1;a>=0;a--)(f=o[a])&&(e=(i<3?f(e):i>3?f(r,t,e):f(r,t))||e);return i>3&&e&&Object.defineProperty(r,t,e),e},m=function(o,r){return function(t,n){r(t,n,o)}};let p=class extends u{constructor(r,t){super(),this.a=t}$download(r,t){return this.a.download(c.revive(r),c.revive(t))}};p=l([v(s.MainThreadDownloadService),m(1,d)],p);export{p as $a8b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { MainContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { IDownloadService } from "../../../platform/download/common/download.js";
+import { URI } from "../../../base/common/uri.js";
+let MainThreadDownloadService = class MainThreadDownloadService2 extends Disposable {
+  static {
+    __name(this, "MainThreadDownloadService");
+  }
+  constructor(extHostContext, downloadService) {
+    super();
+    this.downloadService = downloadService;
+  }
+  $download(uri, to) {
+    return this.downloadService.download(URI.revive(uri), URI.revive(to));
+  }
+};
+MainThreadDownloadService = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadDownloadService),
+  __param(1, IDownloadService)
+], MainThreadDownloadService);
+export {
+  MainThreadDownloadService
+};
+//# sourceMappingURL=mainThreadDownloadService.js.map

@@ -1,1 +1,153 @@
-import{$M$ as b}from"../../../../../../base/browser/ui/actionbar/actionViewItems.js";import{$Ed as v,$Dd as C}from"../../../../../../base/common/lifecycle.js";import{$Dib as p,$yib as w}from"../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{$ikb as S}from"../../../../../../platform/actions/browser/toolbar.js";import{$qL as $}from"../../../../../../platform/actions/common/actions.js";import{$ro as E}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as I}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as O}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{CellEditState as u}from"../../../../notebook/browser/notebookBrowser.js";import{CellKind as x}from"../../../../notebook/common/notebookCommon.js";var g=function(a,e,i,o){var n=arguments.length,t=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,i):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(a,e,i,o);else for(var d=a.length-1;d>=0;d--)(s=a[d])&&(t=(n<3?s(t):n>3?s(e,i,t):s(e,i))||t);return n>3&&t&&Object.defineProperty(e,i,t),t},h=function(a,e){return function(i,o){e(i,o,a)}};let m=class extends v{constructor(e,i,o,n){super(),this.f=e,this.g=i,this.h=o,this.j=n,this.a=void 0,this.b=this.D(new C)}decorate(e){this.a!==void 0&&clearTimeout(this.a),this.a=setTimeout(()=>{this.a=void 0,this.m(e)},100)}m(e){this.b.clear();const i=this.j,o=this.f;for(const n of e){const t=this.n(n);if(!t||t.cellKind!==x.Markup)continue;const s=document.createElement("div");let d;o.changeCellOverlays(r=>{s.style.right="44px",d=r.addOverlay({cell:t,domNode:s})});const c=()=>{o.changeCellOverlays(r=>{d&&r.removeOverlay(d)})};this.b.add({dispose:c});const l=document.createElement("div");s.appendChild(l),l.className="chat-diff-change-content-widget",l.classList.add("hover"),l.style.position="relative",l.style.top="18px",l.style.zIndex="10",l.style.display=t.getEditState()===u.Editing?"none":"block",this.b.add(t.onDidChangeState(r=>{r.editStateChanged&&(t.getEditState()===u.Editing?l.style.display="none":l.style.display="block")}));const f=this.D(this.h.createChild(new O([E,this.f.scopedContextKeyService]))).createInstance(S,l,$.ChatEditingEditorHunk,{telemetrySource:"chatEditingNotebookHunk",hiddenItemStrategy:-1,toolbarOptions:{primaryGroup:()=>!0},menuOptions:{renderShortTitle:!0,arg:{async accept(){i.playSignal(p.editsKept,{allowManyInParallel:!0}),c(),f.dispose();for(const r of n.diff.get().changes)await n.keep(r);return!0},async reject(){i.playSignal(p.editsUndone,{allowManyInParallel:!0}),c(),f.dispose();for(const r of n.diff.get().changes)await n.undo(r);return!0}}},actionViewItemProvider:(r,y)=>{if(!r.class)return new class extends b{constructor(){super(void 0,r,{...y,keybindingNotRenderedWithLabel:!0,icon:!1,label:!0})}}}});this.b.add(f)}}n(e){if(e.type==="delete"||e.modifiedCellIndex===void 0)return;const i=this.g.cells[e.modifiedCellIndex];return this.f.getViewModel()?.viewCells.find(n=>n.handle===i.handle)}dispose(){super.dispose(),this.a!==void 0&&clearTimeout(this.a)}};m=g([h(2,I),h(3,w)],m);export{m as $Rpc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ActionViewItem } from "../../../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { MenuId } from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { CellEditState } from "../../../../notebook/browser/notebookBrowser.js";
+import { CellKind } from "../../../../notebook/common/notebookCommon.js";
+let OverlayToolbarDecorator = class OverlayToolbarDecorator2 extends Disposable {
+  static {
+    __name(this, "OverlayToolbarDecorator");
+  }
+  constructor(notebookEditor, notebookModel, instantiationService, accessibilitySignalService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.notebookModel = notebookModel;
+    this.instantiationService = instantiationService;
+    this.accessibilitySignalService = accessibilitySignalService;
+    this._timeout = void 0;
+    this.overlayDisposables = this._register(new DisposableStore());
+  }
+  decorate(changes) {
+    if (this._timeout !== void 0) {
+      clearTimeout(this._timeout);
+    }
+    this._timeout = setTimeout(() => {
+      this._timeout = void 0;
+      this.createMarkdownPreviewToolbars(changes);
+    }, 100);
+  }
+  createMarkdownPreviewToolbars(changes) {
+    this.overlayDisposables.clear();
+    const accessibilitySignalService = this.accessibilitySignalService;
+    const editor = this.notebookEditor;
+    for (const change of changes) {
+      const cellViewModel = this.getCellViewModel(change);
+      if (!cellViewModel || cellViewModel.cellKind !== CellKind.Markup) {
+        continue;
+      }
+      const toolbarContainer = document.createElement("div");
+      let overlayId = void 0;
+      editor.changeCellOverlays((accessor) => {
+        toolbarContainer.style.right = "44px";
+        overlayId = accessor.addOverlay({
+          cell: cellViewModel,
+          domNode: toolbarContainer
+        });
+      });
+      const removeOverlay = /* @__PURE__ */ __name(() => {
+        editor.changeCellOverlays((accessor) => {
+          if (overlayId) {
+            accessor.removeOverlay(overlayId);
+          }
+        });
+      }, "removeOverlay");
+      this.overlayDisposables.add({ dispose: removeOverlay });
+      const toolbar = document.createElement("div");
+      toolbarContainer.appendChild(toolbar);
+      toolbar.className = "chat-diff-change-content-widget";
+      toolbar.classList.add("hover");
+      toolbar.style.position = "relative";
+      toolbar.style.top = "18px";
+      toolbar.style.zIndex = "10";
+      toolbar.style.display = cellViewModel.getEditState() === CellEditState.Editing ? "none" : "block";
+      this.overlayDisposables.add(cellViewModel.onDidChangeState((e) => {
+        if (e.editStateChanged) {
+          if (cellViewModel.getEditState() === CellEditState.Editing) {
+            toolbar.style.display = "none";
+          } else {
+            toolbar.style.display = "block";
+          }
+        }
+      }));
+      const scopedInstaService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.notebookEditor.scopedContextKeyService])));
+      const toolbarWidget = scopedInstaService.createInstance(MenuWorkbenchToolBar, toolbar, MenuId.ChatEditingEditorHunk, {
+        telemetrySource: "chatEditingNotebookHunk",
+        hiddenItemStrategy: -1,
+        toolbarOptions: { primaryGroup: /* @__PURE__ */ __name(() => true, "primaryGroup") },
+        menuOptions: {
+          renderShortTitle: true,
+          arg: {
+            async accept() {
+              accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
+              removeOverlay();
+              toolbarWidget.dispose();
+              for (const singleChange of change.diff.get().changes) {
+                await change.keep(singleChange);
+              }
+              return true;
+            },
+            async reject() {
+              accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
+              removeOverlay();
+              toolbarWidget.dispose();
+              for (const singleChange of change.diff.get().changes) {
+                await change.undo(singleChange);
+              }
+              return true;
+            }
+          }
+        },
+        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+          if (!action.class) {
+            return new class extends ActionViewItem {
+              constructor() {
+                super(void 0, action, { ...options, keybindingNotRenderedWithLabel: true, icon: false, label: true });
+              }
+            }();
+          }
+          return void 0;
+        }, "actionViewItemProvider")
+      });
+      this.overlayDisposables.add(toolbarWidget);
+    }
+  }
+  getCellViewModel(change) {
+    if (change.type === "delete" || change.modifiedCellIndex === void 0) {
+      return void 0;
+    }
+    const cell = this.notebookModel.cells[change.modifiedCellIndex];
+    const cellViewModel = this.notebookEditor.getViewModel()?.viewCells.find((c) => c.handle === cell.handle);
+    return cellViewModel;
+  }
+  dispose() {
+    super.dispose();
+    if (this._timeout !== void 0) {
+      clearTimeout(this._timeout);
+    }
+  }
+};
+OverlayToolbarDecorator = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IAccessibilitySignalService)
+], OverlayToolbarDecorator);
+export {
+  OverlayToolbarDecorator
+};
+//# sourceMappingURL=overlayToolbarDecorator.js.map

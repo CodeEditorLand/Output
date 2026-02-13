@@ -1,1 +1,114 @@
-import{localize as o,localize2 as c}from"../../../../nls.js";import{$YH as w}from"../../../../platform/quickinput/common/quickInput.js";import{$Dd as D}from"../../../../base/common/lifecycle.js";import{$vL as u,$qL as m}from"../../../../platform/actions/common/actions.js";import{$$5 as I}from"../../../../platform/languagePacks/common/languagePacks.js";import{$TLb as g}from"../../../services/localization/common/locale.js";import{$wJb as S}from"../../extensions/common/extensions.js";class p extends u{static{this.ID="workbench.action.configureLocale"}constructor(){super({id:p.ID,title:c(9953,"Configure Display Language"),menu:{id:m.CommandPalette},metadata:{description:c(9954,"Changes the locale of VS Code based on installed language packs. Common languages include French, Chinese, Spanish, Japanese, German, Korean, and more.")}})}async run(a){const n=a.get(I),f=a.get(w),h=a.get(g),L=a.get(S),s=await n.getInstalledLanguages(),i=new D,e=i.add(f.createQuickPick({useSeparators:!0}));if(e.matchOnDescription=!0,e.placeholder=o(9949,null),s?.length){const t=[{type:"separator",label:o(9950,null)}];e.items=t.concat(this.a(s))}i.add(e.onDidHide(()=>{i.dispose()}));const b=new Set(s?.map(t=>t.id)??[]);n.getAvailableLanguages().then(t=>{const l=t.filter(d=>d.id&&!b.has(d.id));l.length&&(e.items=[...e.items,{type:"separator",label:o(9951,null)},...this.a(l)]),e.busy=!1}),i.add(e.onDidAccept(async()=>{const t=e.activeItems[0];t&&(e.hide(),await h.setLocale(t))})),i.add(e.onDidTriggerItemButton(async t=>{e.hide(),t.item.extensionId&&await L.open(t.item.extensionId)})),e.show(),e.busy=!0}a(a){for(const n of a)n.extensionId&&(n.buttons=[{tooltip:o(9952,null),iconClass:"codicon-info"}]);return a}}class r extends u{static{this.ID="workbench.action.clearLocalePreference"}static{this.LABEL=c(9955,"Clear Display Language Preference")}constructor(){super({id:r.ID,title:r.LABEL,menu:{id:m.CommandPalette}})}async run(a){await a.get(g).clearLocalePreference()}}export{p as $$Oc,r as $_Oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../nls.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { Action2, MenuId } from "../../../../platform/actions/common/actions.js";
+import { ILanguagePackService } from "../../../../platform/languagePacks/common/languagePacks.js";
+import { ILocaleService } from "../../../services/localization/common/locale.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+class ConfigureDisplayLanguageAction extends Action2 {
+  static {
+    __name(this, "ConfigureDisplayLanguageAction");
+  }
+  static {
+    this.ID = "workbench.action.configureLocale";
+  }
+  constructor() {
+    super({
+      id: ConfigureDisplayLanguageAction.ID,
+      title: localize2("configureLocale", "Configure Display Language"),
+      menu: {
+        id: MenuId.CommandPalette
+      },
+      metadata: {
+        description: localize2("configureLocaleDescription", "Changes the locale of VS Code based on installed language packs. Common languages include French, Chinese, Spanish, Japanese, German, Korean, and more.")
+      }
+    });
+  }
+  async run(accessor) {
+    const languagePackService = accessor.get(ILanguagePackService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const localeService = accessor.get(ILocaleService);
+    const extensionWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+    const installedLanguages = await languagePackService.getInstalledLanguages();
+    const disposables = new DisposableStore();
+    const qp = disposables.add(quickInputService.createQuickPick({ useSeparators: true }));
+    qp.matchOnDescription = true;
+    qp.placeholder = localize("chooseLocale", "Select Display Language");
+    if (installedLanguages?.length) {
+      const items = [{ type: "separator", label: localize("installed", "Installed") }];
+      qp.items = items.concat(this.withMoreInfoButton(installedLanguages));
+    }
+    disposables.add(qp.onDidHide(() => {
+      disposables.dispose();
+    }));
+    const installedSet = new Set(installedLanguages?.map((language) => language.id) ?? []);
+    languagePackService.getAvailableLanguages().then((availableLanguages) => {
+      const newLanguages = availableLanguages.filter((l) => l.id && !installedSet.has(l.id));
+      if (newLanguages.length) {
+        qp.items = [
+          ...qp.items,
+          { type: "separator", label: localize("available", "Available") },
+          ...this.withMoreInfoButton(newLanguages)
+        ];
+      }
+      qp.busy = false;
+    });
+    disposables.add(qp.onDidAccept(async () => {
+      const selectedLanguage = qp.activeItems[0];
+      if (selectedLanguage) {
+        qp.hide();
+        await localeService.setLocale(selectedLanguage);
+      }
+    }));
+    disposables.add(qp.onDidTriggerItemButton(async (e) => {
+      qp.hide();
+      if (e.item.extensionId) {
+        await extensionWorkbenchService.open(e.item.extensionId);
+      }
+    }));
+    qp.show();
+    qp.busy = true;
+  }
+  withMoreInfoButton(items) {
+    for (const item of items) {
+      if (item.extensionId) {
+        item.buttons = [{
+          tooltip: localize("moreInfo", "More Info"),
+          iconClass: "codicon-info"
+        }];
+      }
+    }
+    return items;
+  }
+}
+class ClearDisplayLanguageAction extends Action2 {
+  static {
+    __name(this, "ClearDisplayLanguageAction");
+  }
+  static {
+    this.ID = "workbench.action.clearLocalePreference";
+  }
+  static {
+    this.LABEL = localize2("clearDisplayLanguage", "Clear Display Language Preference");
+  }
+  constructor() {
+    super({
+      id: ClearDisplayLanguageAction.ID,
+      title: ClearDisplayLanguageAction.LABEL,
+      menu: {
+        id: MenuId.CommandPalette
+      }
+    });
+  }
+  async run(accessor) {
+    const localeService = accessor.get(ILocaleService);
+    await localeService.clearLocalePreference();
+  }
+}
+export {
+  ClearDisplayLanguageAction,
+  ConfigureDisplayLanguageAction
+};
+//# sourceMappingURL=localizationsActions.js.map

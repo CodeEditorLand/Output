@@ -1,3 +1,288 @@
-import{CancellationToken as I}from"../../../../../../base/common/cancellation.js";import{$$D as L}from"../../../../../../editor/common/core/position.js";import{$_D as h}from"../../../../../../editor/common/core/range.js";import{ILanguageModelChatMetadata as $,$ZR as M}from"../../languageModels.js";import{$bU as _}from"../../tools/languageModelToolsService.js";import{$XT as R}from"../../chatModes.js";import{$mT as O,PromptsType as c}from"../promptTypes.js";import{$VT as A}from"../service/promptsService.js";import{Iterable as P}from"../../../../../../base/common/iterator.js";import{PromptHeaderAttributes as o}from"../promptFileParser.js";import{$Kmc as j,$Imc as x,$Mmc as k,$Lmc as y}from"./promptValidator.js";import{localize as v}from"../../../../../../nls.js";var w=function(m,t,e,i){var a=arguments.length,n=a<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(m,t,e,i);else for(var r=m.length-1;r>=0;r--)(f=m[r])&&(n=(a<3?f(n):a>3?f(t,e,n):f(t,e))||n);return a>3&&n&&Object.defineProperty(t,e,n),n},d=function(m,t){return function(e,i){t(e,i,m)}};let C=class{constructor(t,e,i,a){this.a=t,this.b=e,this.c=i,this.d=a,this._debugDisplayName="PromptHeaderAutocompletion",this.triggerCharacters=[":"]}async provideCompletionItems(t,e,i,a){const n=O(t.getLanguageId());if(!n)return;if(/^\s*$/.test(t.getValue()))return{suggestions:[{label:v(6975,null),kind:28,insertText:["---","description: $1","---","$0"].join(`
-`),insertTextRules:4,range:t.getFullModelRange()}]};const f=this.a.getParsedPromptFile(t),r=f.header;if(!r)return;const g=f.header.range;if(e.lineNumber<g.startLineNumber||e.lineNumber>=g.endLineNumber)return;const s=t.getLineContent(e.lineNumber).indexOf(":"),u=s!==-1?new L(e.lineNumber,s+1):void 0;if(!u||e.isBeforeOrEqual(u))return this.e(t,e,r,u,n);if(u&&u.isBefore(e))return this.f(t,e,r,u,n)}async e(t,e,i,a,n){const f=[],r=k(n,i.target),g=new Set(x(n,!1,r));for(const s of i.attributes)g.delete(s.key);const b=s=>{if(a)return s;const u=this.g(n,s);return u.length>0?`${s}: \${0:${u[0]}}`:`${s}: $0`};for(const s of g){const u={label:s,documentation:j(s,n),kind:9,insertText:b(s),insertTextRules:4,range:new h(e.lineNumber,1,e.lineNumber,a?a.column:t.getLineMaxColumn(e.lineNumber))};f.push(u)}return{suggestions:f}}async f(t,e,i,a,n){const f=[],r=i.attributes.find(l=>l.range.containsPosition(e));if(!r)return;const g=k(n,i.target);if(!x(n,!0,g).includes(r.key))return;if(n===c.prompt||n===c.agent){if(r.key===o.model&&r.value.type==="array"){const l=async()=>this.h(n===c.agent);return this.i(t,e,r,l)}if(r.key===o.tools&&r.value.type==="array"){const l=async()=>g?y:Array.from(this.c.getFullReferenceNames());return this.i(t,e,r,l)}}if(n===c.agent&&r.key===o.agents&&!g&&r.value.type==="array")return this.i(t,e,r,async()=>(await this.a.getCustomAgents(I.None)).map(l=>l.name));const s=t.getLineContent(r.range.startLineNumber).substring(a.column).match(/^\s*/)?.[0].length??0,u=this.g(n,r.key);for(const l of u){const N={label:l,kind:13,insertText:s===0?` ${l}`:l,range:new h(e.lineNumber,a.column+s+1,e.lineNumber,t.getLineMaxColumn(e.lineNumber))};f.push(N)}if(r.key===o.handOffs&&n===c.agent){const l=["","  - label: Start Implementation","    agent: agent","    prompt: Implement the plan","    send: true"].join(`
-`),N={label:v(6976,null),kind:13,insertText:s===0?` ${l}`:l,range:new h(e.lineNumber,a.column+s+1,e.lineNumber,t.getLineMaxColumn(e.lineNumber))};f.push(N)}return{suggestions:f}}g(t,e){switch(e){case o.applyTo:if(t===c.instructions)return["'**'","'**/*.ts, **/*.js'","'**/*.php'","'**/*.py'"];break;case o.agent:case o.mode:if(t===c.prompt){const i=this.d.getModes(),a=[];for(const n of P.concat(i.builtin,i.custom))a.push(n.name.get());return a}break;case o.target:if(t===c.agent)return["vscode","github-copilot"];break;case o.tools:if(t===c.prompt||t===c.agent)return["[]","['search', 'edit', 'fetch']"];break;case o.model:if(t===c.prompt||t===c.agent)return this.h(t===c.agent);break;case o.infer:if(t===c.agent)return["true","false"];break;case o.agents:if(t===c.agent)return['["*"]'];break;case o.userInvokable:if(t===c.agent)return["true","false"];break;case o.disableModelInvocation:if(t===c.agent)return["true","false"];break}return[]}h(t){const e=[];for(const i of this.b.getLanguageModelIds()){const a=this.b.lookupLanguageModel(i);a&&a.isUserSelectable!==!1&&(!t||$.suitableForAgentMode(a))&&e.push($.asQualifiedName(a))}return e}async i(t,e,i,a){if(i.value.type!=="array")return;const n=async r=>{const g=[],b=await a();for(const s of b){let u;if(r.isEmpty())u=`'${s}'`;else{const l=t.getValueInRange(r).charCodeAt(0);u=l===39?`'${s}'`:l===34?`"${s}"`:s}g.push({label:s,kind:13,filterText:u,insertText:u,range:r})}return{suggestions:g}};for(const r of i.value.items)if(r.range.containsPosition(e))return await n(r.range);if(t.getValueInRange(new h(e.lineNumber,1,e.lineNumber,e.column)).match(/[,[]\s*$/))return await n(new h(e.lineNumber,e.column,e.lineNumber,e.column))}};C=w([d(0,A),d(1,M),d(2,_),d(3,R)],C);export{C as $Omc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { Position } from "../../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../../editor/common/core/range.js";
+import { ILanguageModelChatMetadata, ILanguageModelsService } from "../../languageModels.js";
+import { ILanguageModelToolsService } from "../../tools/languageModelToolsService.js";
+import { IChatModeService } from "../../chatModes.js";
+import { getPromptsTypeForLanguageId, PromptsType } from "../promptTypes.js";
+import { IPromptsService } from "../service/promptsService.js";
+import { Iterable } from "../../../../../../base/common/iterator.js";
+import { PromptHeaderAttributes } from "../promptFileParser.js";
+import { getAttributeDescription, getValidAttributeNames, isGithubTarget, knownGithubCopilotTools } from "./promptValidator.js";
+import { localize } from "../../../../../../nls.js";
+let PromptHeaderAutocompletion = class PromptHeaderAutocompletion2 {
+  static {
+    __name(this, "PromptHeaderAutocompletion");
+  }
+  constructor(promptsService, languageModelsService, languageModelToolsService, chatModeService) {
+    this.promptsService = promptsService;
+    this.languageModelsService = languageModelsService;
+    this.languageModelToolsService = languageModelToolsService;
+    this.chatModeService = chatModeService;
+    this._debugDisplayName = "PromptHeaderAutocompletion";
+    this.triggerCharacters = [":"];
+  }
+  /**
+   * The main function of this provider that calculates
+   * completion items based on the provided arguments.
+   */
+  async provideCompletionItems(model, position, context, token) {
+    const promptType = getPromptsTypeForLanguageId(model.getLanguageId());
+    if (!promptType) {
+      return void 0;
+    }
+    if (/^\s*$/.test(model.getValue())) {
+      return {
+        suggestions: [{
+          label: localize("promptHeaderAutocompletion.addHeader", "Add Prompt Header"),
+          kind: 28,
+          insertText: [
+            `---`,
+            `description: $1`,
+            `---`,
+            `$0`
+          ].join("\n"),
+          insertTextRules: 4,
+          range: model.getFullModelRange()
+        }]
+      };
+    }
+    const parsedAST = this.promptsService.getParsedPromptFile(model);
+    const header = parsedAST.header;
+    if (!header) {
+      return void 0;
+    }
+    const headerRange = parsedAST.header.range;
+    if (position.lineNumber < headerRange.startLineNumber || position.lineNumber >= headerRange.endLineNumber) {
+      return void 0;
+    }
+    const lineText = model.getLineContent(position.lineNumber);
+    const colonIndex = lineText.indexOf(":");
+    const colonPosition = colonIndex !== -1 ? new Position(position.lineNumber, colonIndex + 1) : void 0;
+    if (!colonPosition || position.isBeforeOrEqual(colonPosition)) {
+      return this.provideAttributeNameCompletions(model, position, header, colonPosition, promptType);
+    } else if (colonPosition && colonPosition.isBefore(position)) {
+      return this.provideValueCompletions(model, position, header, colonPosition, promptType);
+    }
+    return void 0;
+  }
+  async provideAttributeNameCompletions(model, position, header, colonPosition, promptType) {
+    const suggestions = [];
+    const isGitHubTarget = isGithubTarget(promptType, header.target);
+    const attributesToPropose = new Set(getValidAttributeNames(promptType, false, isGitHubTarget));
+    for (const attr of header.attributes) {
+      attributesToPropose.delete(attr.key);
+    }
+    const getInsertText = /* @__PURE__ */ __name((key) => {
+      if (colonPosition) {
+        return key;
+      }
+      const valueSuggestions = this.getValueSuggestions(promptType, key);
+      if (valueSuggestions.length > 0) {
+        return `${key}: \${0:${valueSuggestions[0]}}`;
+      } else {
+        return `${key}: $0`;
+      }
+    }, "getInsertText");
+    for (const attribute of attributesToPropose) {
+      const item = {
+        label: attribute,
+        documentation: getAttributeDescription(attribute, promptType),
+        kind: 9,
+        insertText: getInsertText(attribute),
+        insertTextRules: 4,
+        range: new Range(position.lineNumber, 1, position.lineNumber, !colonPosition ? model.getLineMaxColumn(position.lineNumber) : colonPosition.column)
+      };
+      suggestions.push(item);
+    }
+    return { suggestions };
+  }
+  async provideValueCompletions(model, position, header, colonPosition, promptType) {
+    const suggestions = [];
+    const attribute = header.attributes.find((attr) => attr.range.containsPosition(position));
+    if (!attribute) {
+      return void 0;
+    }
+    const isGitHubTarget = isGithubTarget(promptType, header.target);
+    if (!getValidAttributeNames(promptType, true, isGitHubTarget).includes(attribute.key)) {
+      return void 0;
+    }
+    if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
+      if (attribute.key === PromptHeaderAttributes.model) {
+        if (attribute.value.type === "array") {
+          const getValues = /* @__PURE__ */ __name(async () => this.getModelNames(promptType === PromptsType.agent), "getValues");
+          return this.provideArrayCompletions(model, position, attribute, getValues);
+        }
+      }
+      if (attribute.key === PromptHeaderAttributes.tools) {
+        if (attribute.value.type === "array") {
+          const getValues = /* @__PURE__ */ __name(async () => isGitHubTarget ? knownGithubCopilotTools : Array.from(this.languageModelToolsService.getFullReferenceNames()), "getValues");
+          return this.provideArrayCompletions(model, position, attribute, getValues);
+        }
+      }
+    }
+    if (promptType === PromptsType.agent) {
+      if (attribute.key === PromptHeaderAttributes.agents && !isGitHubTarget) {
+        if (attribute.value.type === "array") {
+          return this.provideArrayCompletions(model, position, attribute, async () => (await this.promptsService.getCustomAgents(CancellationToken.None)).map((agent) => agent.name));
+        }
+      }
+    }
+    const lineContent = model.getLineContent(attribute.range.startLineNumber);
+    const whilespaceAfterColon = lineContent.substring(colonPosition.column).match(/^\s*/)?.[0].length ?? 0;
+    const values = this.getValueSuggestions(promptType, attribute.key);
+    for (const value of values) {
+      const item = {
+        label: value,
+        kind: 13,
+        insertText: whilespaceAfterColon === 0 ? ` ${value}` : value,
+        range: new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber))
+      };
+      suggestions.push(item);
+    }
+    if (attribute.key === PromptHeaderAttributes.handOffs && promptType === PromptsType.agent) {
+      const value = [
+        "",
+        "  - label: Start Implementation",
+        "    agent: agent",
+        "    prompt: Implement the plan",
+        "    send: true"
+      ].join("\n");
+      const item = {
+        label: localize("promptHeaderAutocompletion.handoffsExample", "Handoff Example"),
+        kind: 13,
+        insertText: whilespaceAfterColon === 0 ? ` ${value}` : value,
+        range: new Range(position.lineNumber, colonPosition.column + whilespaceAfterColon + 1, position.lineNumber, model.getLineMaxColumn(position.lineNumber))
+      };
+      suggestions.push(item);
+    }
+    return { suggestions };
+  }
+  getValueSuggestions(promptType, attribute) {
+    switch (attribute) {
+      case PromptHeaderAttributes.applyTo:
+        if (promptType === PromptsType.instructions) {
+          return [`'**'`, `'**/*.ts, **/*.js'`, `'**/*.php'`, `'**/*.py'`];
+        }
+        break;
+      case PromptHeaderAttributes.agent:
+      case PromptHeaderAttributes.mode:
+        if (promptType === PromptsType.prompt) {
+          const agents = this.chatModeService.getModes();
+          const suggestions = [];
+          for (const agent of Iterable.concat(agents.builtin, agents.custom)) {
+            suggestions.push(agent.name.get());
+          }
+          return suggestions;
+        }
+        break;
+      case PromptHeaderAttributes.target:
+        if (promptType === PromptsType.agent) {
+          return ["vscode", "github-copilot"];
+        }
+        break;
+      case PromptHeaderAttributes.tools:
+        if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
+          return ["[]", `['search', 'edit', 'fetch']`];
+        }
+        break;
+      case PromptHeaderAttributes.model:
+        if (promptType === PromptsType.prompt || promptType === PromptsType.agent) {
+          return this.getModelNames(promptType === PromptsType.agent);
+        }
+        break;
+      case PromptHeaderAttributes.infer:
+        if (promptType === PromptsType.agent) {
+          return ["true", "false"];
+        }
+        break;
+      case PromptHeaderAttributes.agents:
+        if (promptType === PromptsType.agent) {
+          return ['["*"]'];
+        }
+        break;
+      case PromptHeaderAttributes.userInvokable:
+        if (promptType === PromptsType.agent) {
+          return ["true", "false"];
+        }
+        break;
+      case PromptHeaderAttributes.disableModelInvocation:
+        if (promptType === PromptsType.agent) {
+          return ["true", "false"];
+        }
+        break;
+    }
+    return [];
+  }
+  getModelNames(agentModeOnly) {
+    const result = [];
+    for (const model of this.languageModelsService.getLanguageModelIds()) {
+      const metadata = this.languageModelsService.lookupLanguageModel(model);
+      if (metadata && metadata.isUserSelectable !== false) {
+        if (!agentModeOnly || ILanguageModelChatMetadata.suitableForAgentMode(metadata)) {
+          result.push(ILanguageModelChatMetadata.asQualifiedName(metadata));
+        }
+      }
+    }
+    return result;
+  }
+  async provideArrayCompletions(model, position, agentsAttr, getValues) {
+    if (agentsAttr.value.type !== "array") {
+      return void 0;
+    }
+    const getSuggestions = /* @__PURE__ */ __name(async (toolRange) => {
+      const suggestions = [];
+      const toolNames = await getValues();
+      for (const toolName of toolNames) {
+        let insertText;
+        if (!toolRange.isEmpty()) {
+          const firstChar = model.getValueInRange(toolRange).charCodeAt(0);
+          insertText = firstChar === 39 ? `'${toolName}'` : firstChar === 34 ? `"${toolName}"` : toolName;
+        } else {
+          insertText = `'${toolName}'`;
+        }
+        suggestions.push({
+          label: toolName,
+          kind: 13,
+          filterText: insertText,
+          insertText,
+          range: toolRange
+        });
+      }
+      return { suggestions };
+    }, "getSuggestions");
+    for (const toolNameNode of agentsAttr.value.items) {
+      if (toolNameNode.range.containsPosition(position)) {
+        return await getSuggestions(toolNameNode.range);
+      }
+    }
+    const prefix = model.getValueInRange(new Range(position.lineNumber, 1, position.lineNumber, position.column));
+    if (prefix.match(/[,[]\s*$/)) {
+      return await getSuggestions(new Range(position.lineNumber, position.column, position.lineNumber, position.column));
+    }
+    return void 0;
+  }
+};
+PromptHeaderAutocompletion = __decorate([
+  __param(0, IPromptsService),
+  __param(1, ILanguageModelsService),
+  __param(2, ILanguageModelToolsService),
+  __param(3, IChatModeService)
+], PromptHeaderAutocompletion);
+export {
+  PromptHeaderAutocompletion
+};
+//# sourceMappingURL=promptHeaderAutocompletion.js.map

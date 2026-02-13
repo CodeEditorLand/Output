@@ -1,1 +1,97 @@
-import"./media/gettingStarted.css";import{localize as r}from"../../../../nls.js";import{$4H as s}from"../../../common/editor/editorInput.js";import{URI as h}from"../../../../base/common/uri.js";import{Schemas as i}from"../../../../base/common/network.js";const o="workbench.editors.gettingStartedInput";class t extends s{static{this.ID=o}static{this.RESOURCE=h.from({scheme:i.walkThrough,authority:"vscode_getting_started_page"})}get typeId(){return t.ID}get editorId(){return this.typeId}toUntyped(){return{resource:t.RESOURCE,options:{override:t.ID,pinned:!1}}}get resource(){return t.RESOURCE}matches(e){return super.matches(e)?!0:e instanceof t}constructor(e){super(),this.a=e.selectedCategory,this.b=e.selectedStep,this.c=!!e.showTelemetryNotice,this.h=e.showWelcome??!0,this.q=e.walkthroughPageTitle,this.m=e.returnToCommand}getName(){return this.walkthroughPageTitle?r(15159,null,this.walkthroughPageTitle):r(15160,null)}get selectedCategory(){return this.a}set selectedCategory(e){this.a=e,this.g.fire()}get selectedStep(){return this.b}set selectedStep(e){this.b=e}get showTelemetryNotice(){return this.c}set showTelemetryNotice(e){this.c=e}get showWelcome(){return this.h}set showWelcome(e){this.h=e}get walkthroughPageTitle(){return this.q}set walkthroughPageTitle(e){this.q=e}get returnToCommand(){return this.m}set returnToCommand(e){this.m=e}}export{o as $XGc,t as $YGc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/gettingStarted.css";
+import { localize } from "../../../../nls.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Schemas } from "../../../../base/common/network.js";
+const gettingStartedInputTypeId = "workbench.editors.gettingStartedInput";
+class GettingStartedInput extends EditorInput {
+  static {
+    __name(this, "GettingStartedInput");
+  }
+  static {
+    this.ID = gettingStartedInputTypeId;
+  }
+  static {
+    this.RESOURCE = URI.from({ scheme: Schemas.walkThrough, authority: "vscode_getting_started_page" });
+  }
+  get typeId() {
+    return GettingStartedInput.ID;
+  }
+  get editorId() {
+    return this.typeId;
+  }
+  toUntyped() {
+    return {
+      resource: GettingStartedInput.RESOURCE,
+      options: {
+        override: GettingStartedInput.ID,
+        pinned: false
+      }
+    };
+  }
+  get resource() {
+    return GettingStartedInput.RESOURCE;
+  }
+  matches(other) {
+    if (super.matches(other)) {
+      return true;
+    }
+    return other instanceof GettingStartedInput;
+  }
+  constructor(options) {
+    super();
+    this._selectedCategory = options.selectedCategory;
+    this._selectedStep = options.selectedStep;
+    this._showTelemetryNotice = !!options.showTelemetryNotice;
+    this._showWelcome = options.showWelcome ?? true;
+    this._walkthroughPageTitle = options.walkthroughPageTitle;
+    this._returnToCommand = options.returnToCommand;
+  }
+  getName() {
+    return this.walkthroughPageTitle ? localize("walkthroughPageTitle", "Walkthrough: {0}", this.walkthroughPageTitle) : localize("getStarted", "Welcome");
+  }
+  get selectedCategory() {
+    return this._selectedCategory;
+  }
+  set selectedCategory(selectedCategory) {
+    this._selectedCategory = selectedCategory;
+    this._onDidChangeLabel.fire();
+  }
+  get selectedStep() {
+    return this._selectedStep;
+  }
+  set selectedStep(selectedStep) {
+    this._selectedStep = selectedStep;
+  }
+  get showTelemetryNotice() {
+    return this._showTelemetryNotice;
+  }
+  set showTelemetryNotice(value) {
+    this._showTelemetryNotice = value;
+  }
+  get showWelcome() {
+    return this._showWelcome;
+  }
+  set showWelcome(value) {
+    this._showWelcome = value;
+  }
+  get walkthroughPageTitle() {
+    return this._walkthroughPageTitle;
+  }
+  set walkthroughPageTitle(value) {
+    this._walkthroughPageTitle = value;
+  }
+  get returnToCommand() {
+    return this._returnToCommand;
+  }
+  set returnToCommand(value) {
+    this._returnToCommand = value;
+  }
+}
+export {
+  GettingStartedInput,
+  gettingStartedInputTypeId
+};
+//# sourceMappingURL=gettingStartedInput.js.map

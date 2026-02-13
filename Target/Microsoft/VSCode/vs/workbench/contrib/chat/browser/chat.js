@@ -1,1 +1,31 @@
-import{$Nj as t}from"../../../../platform/instantiation/common/instantiation.js";import{$jW as o}from"../common/participants/chatParticipantContribTypes.js";const i=t("chatWidgetService"),p=Symbol("ChatViewPaneTarget"),b=t("quickChatService"),$=t("chatAccessibilityService");function r(e){return typeof e.viewId=="string"}function a(e){return!r(e)}const s=t("chatCodeBlockContextProviderService"),x=`workbench.panel.chat.view.${o}`,h="workbench.panel.chat";export{s as $14b,x as $24b,h as $34b,i as $U4b,p as $V4b,b as $W4b,$ as $X4b,r as $Y4b,a as $Z4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { CHAT_PROVIDER_ID } from "../common/participants/chatParticipantContribTypes.js";
+const IChatWidgetService = createDecorator("chatWidgetService");
+const ChatViewPaneTarget = /* @__PURE__ */ Symbol("ChatViewPaneTarget");
+const IQuickChatService = createDecorator("quickChatService");
+const IChatAccessibilityService = createDecorator("chatAccessibilityService");
+function isIChatViewViewContext(context) {
+  return typeof context.viewId === "string";
+}
+__name(isIChatViewViewContext, "isIChatViewViewContext");
+function isIChatResourceViewContext(context) {
+  return !isIChatViewViewContext(context);
+}
+__name(isIChatResourceViewContext, "isIChatResourceViewContext");
+const IChatCodeBlockContextProviderService = createDecorator("chatCodeBlockContextProviderService");
+const ChatViewId = `workbench.panel.chat.view.${CHAT_PROVIDER_ID}`;
+const ChatViewContainerId = "workbench.panel.chat";
+export {
+  ChatViewContainerId,
+  ChatViewId,
+  ChatViewPaneTarget,
+  IChatAccessibilityService,
+  IChatCodeBlockContextProviderService,
+  IChatWidgetService,
+  IQuickChatService,
+  isIChatResourceViewContext,
+  isIChatViewViewContext
+};
+//# sourceMappingURL=chat.js.map

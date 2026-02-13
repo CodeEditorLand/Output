@@ -1,1 +1,166 @@
-import{sum as u}from"../../../../../base/common/arrays.js";import{$Ed as m}from"../../../../../base/common/lifecycle.js";class i extends m{static{this.n=3e3}static{this.q=1e3}static{this.r=50}static{this.s=3e5}static{this.t=20}getTypingInterval(){return(this.m||this.j===null)&&(this.j=this.G(),this.m=!1),this.j}constructor(t){super(),this.u=t,this.f=[],this.g=null,this.h=0,this.j=null,this.m=!0,this.D(this.u.onDidChangeContent(s=>this.w(s)))}w(t){const s=Date.now();if(!this.z(t)){this.F();return}this.g&&s-this.h>i.n&&this.F(),this.g||(this.g={startTime:s,endTime:s,characterCount:0}),this.g.endTime=s,this.g.characterCount+=this.y(t),this.h=s,this.m=!0}y(t){let s=0;for(const n of t.changes)s+=Math.max(n.text.length,n.rangeLength);return s}z(t){if(!t.detailedReasons||t.detailedReasons.length===0)return!1;for(const s of t.detailedReasons)if(this.C(s))return!0;return!1}C(t){if(t.metadata.isUndoing||t.metadata.isRedoing)return!1;if(t.metadata.source==="cursor"){const s=t.metadata.kind;return s==="type"||s==="compositionType"||s==="compositionEnd"}else return!1}F(){if(!this.g)return;this.g.endTime-this.g.startTime>=i.q&&this.g.characterCount>0&&(this.f.push(this.g),this.f.length>i.r&&this.f.shift()),this.g=null}G(){if(this.g){const t={...this.g};if(t.endTime-t.startTime>=i.q&&t.characterCount>0){const n=[...this.f,t];return this.H(n)}}return this.H(this.f)}H(t){if(t.length===0)return{averageInterval:0,characterCount:0};const s=[...t].sort((e,f)=>f.endTime-e.endTime),n=Date.now()-i.s,h=s.filter(e=>e.endTime>n),a=s.splice(h.length);let r=u(h.map(e=>e.characterCount));for(let e=0;e<a.length&&r<i.t;e++)h.push(a[e]),r+=a[e].characterCount;const o=u(h.map(e=>e.endTime-e.startTime));if(o===0||r<=1)return{averageInterval:0,characterCount:r};const c=Math.max(1,r-1),l=o/c;return{averageInterval:Math.round(l),characterCount:r}}reset(){this.f.length=0,this.g=null,this.h=0,this.j=null,this.m=!0}dispose(){this.F(),super.dispose()}}export{i as $opb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { sum } from "../../../../../base/common/arrays.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+class TypingInterval extends Disposable {
+  static {
+    __name(this, "TypingInterval");
+  }
+  static {
+    this.MAX_SESSION_GAP_MS = 3e3;
+  }
+  static {
+    this.MIN_SESSION_DURATION_MS = 1e3;
+  }
+  static {
+    this.SESSION_HISTORY_LIMIT = 50;
+  }
+  static {
+    this.TYPING_SPEED_WINDOW_MS = 3e5;
+  }
+  static {
+    this.MIN_CHARS_FOR_RELIABLE_SPEED = 20;
+  }
+  // Minimum characters needed for reliable speed calculation
+  /**
+   * Gets the current typing interval as average milliseconds between keystrokes
+   * and the number of characters involved in the computation.
+   * Higher interval values indicate slower typing.
+   * Returns { interval: 0, characterCount: 0 } if no typing data is available.
+   */
+  getTypingInterval() {
+    if (this._cacheInvalidated || this._cachedTypingIntervalResult === null) {
+      this._cachedTypingIntervalResult = this._calculateTypingInterval();
+      this._cacheInvalidated = false;
+    }
+    return this._cachedTypingIntervalResult;
+  }
+  constructor(_textModel) {
+    super();
+    this._textModel = _textModel;
+    this._typingSessions = [];
+    this._currentSession = null;
+    this._lastChangeTime = 0;
+    this._cachedTypingIntervalResult = null;
+    this._cacheInvalidated = true;
+    this._register(this._textModel.onDidChangeContent((e) => this._updateTypingSpeed(e)));
+  }
+  _updateTypingSpeed(change) {
+    const now = Date.now();
+    if (!this._isUserTyping(change)) {
+      this._finalizeCurrentSession();
+      return;
+    }
+    if (this._currentSession && now - this._lastChangeTime > TypingInterval.MAX_SESSION_GAP_MS) {
+      this._finalizeCurrentSession();
+    }
+    if (!this._currentSession) {
+      this._currentSession = {
+        startTime: now,
+        endTime: now,
+        characterCount: 0
+      };
+    }
+    this._currentSession.endTime = now;
+    this._currentSession.characterCount += this._getActualCharacterCount(change);
+    this._lastChangeTime = now;
+    this._cacheInvalidated = true;
+  }
+  _getActualCharacterCount(change) {
+    let totalChars = 0;
+    for (const c of change.changes) {
+      totalChars += Math.max(c.text.length, c.rangeLength);
+    }
+    return totalChars;
+  }
+  _isUserTyping(change) {
+    if (!change.detailedReasons || change.detailedReasons.length === 0) {
+      return false;
+    }
+    for (const reason of change.detailedReasons) {
+      if (this._isUserTypingReason(reason)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _isUserTypingReason(reason) {
+    if (reason.metadata.isUndoing || reason.metadata.isRedoing) {
+      return false;
+    }
+    switch (reason.metadata.source) {
+      case "cursor": {
+        const kind = reason.metadata.kind;
+        return kind === "type" || kind === "compositionType" || kind === "compositionEnd";
+      }
+      default:
+        return false;
+    }
+  }
+  _finalizeCurrentSession() {
+    if (!this._currentSession) {
+      return;
+    }
+    const sessionDuration = this._currentSession.endTime - this._currentSession.startTime;
+    if (sessionDuration >= TypingInterval.MIN_SESSION_DURATION_MS && this._currentSession.characterCount > 0) {
+      this._typingSessions.push(this._currentSession);
+      if (this._typingSessions.length > TypingInterval.SESSION_HISTORY_LIMIT) {
+        this._typingSessions.shift();
+      }
+    }
+    this._currentSession = null;
+  }
+  _calculateTypingInterval() {
+    if (this._currentSession) {
+      const tempSession = { ...this._currentSession };
+      const sessionDuration = tempSession.endTime - tempSession.startTime;
+      if (sessionDuration >= TypingInterval.MIN_SESSION_DURATION_MS && tempSession.characterCount > 0) {
+        const allSessions = [...this._typingSessions, tempSession];
+        return this._calculateSpeedFromSessions(allSessions);
+      }
+    }
+    return this._calculateSpeedFromSessions(this._typingSessions);
+  }
+  _calculateSpeedFromSessions(sessions) {
+    if (sessions.length === 0) {
+      return { averageInterval: 0, characterCount: 0 };
+    }
+    const sortedSessions = [...sessions].sort((a, b) => b.endTime - a.endTime);
+    const cutoffTime = Date.now() - TypingInterval.TYPING_SPEED_WINDOW_MS;
+    const recentSessions = sortedSessions.filter((session) => session.endTime > cutoffTime);
+    const olderSessions = sortedSessions.splice(recentSessions.length);
+    let totalChars = sum(recentSessions.map((session) => session.characterCount));
+    for (let i = 0; i < olderSessions.length && totalChars < TypingInterval.MIN_CHARS_FOR_RELIABLE_SPEED; i++) {
+      recentSessions.push(olderSessions[i]);
+      totalChars += olderSessions[i].characterCount;
+    }
+    const totalTime = sum(recentSessions.map((session) => session.endTime - session.startTime));
+    if (totalTime === 0 || totalChars <= 1) {
+      return { averageInterval: 0, characterCount: totalChars };
+    }
+    const keystrokeIntervals = Math.max(1, totalChars - 1);
+    const avgMsBetweenKeystrokes = totalTime / keystrokeIntervals;
+    return {
+      averageInterval: Math.round(avgMsBetweenKeystrokes),
+      characterCount: totalChars
+    };
+  }
+  /**
+   * Reset all typing speed data
+   */
+  reset() {
+    this._typingSessions.length = 0;
+    this._currentSession = null;
+    this._lastChangeTime = 0;
+    this._cachedTypingIntervalResult = null;
+    this._cacheInvalidated = true;
+  }
+  dispose() {
+    this._finalizeCurrentSession();
+    super.dispose();
+  }
+}
+export {
+  TypingInterval
+};
+//# sourceMappingURL=typingSpeed.js.map

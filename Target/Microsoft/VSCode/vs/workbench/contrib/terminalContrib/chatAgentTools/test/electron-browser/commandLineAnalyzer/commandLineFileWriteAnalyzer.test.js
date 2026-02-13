@@ -1,3 +1,353 @@
-import{strictEqual as d}from"assert";import{Schemas as $}from"../../../../../../../base/common/network.js";import{$m as v}from"../../../../../../../base/common/platform.js";import{URI as f}from"../../../../../../../base/common/uri.js";import{$Ibb as H}from"../../../../../../../base/test/common/utils.js";import{$DK as S}from"../../../../../../../editor/common/services/treeSitter/treeSitterLibraryService.js";import{$jTc as y}from"../../../../../../../platform/configuration/test/common/testConfigurationService.js";import{$0B as q}from"../../../../../../../platform/files/common/fileService.js";import{$Mo as C}from"../../../../../../../platform/log/common/log.js";import{$Ml as E,$Yl as k}from"../../../../../../../platform/workspace/common/workspace.js";import{$hUc as w}from"../../../../../../../platform/workspace/test/common/testWorkspace.js";import{$ucc as F}from"../../../../../../services/treeSitter/browser/treeSitterLibraryService.js";import{$b3c as D}from"../../../../../../test/browser/workbenchTestServices.js";import{$M2c as j}from"../../../../../../test/common/workbenchTestServices.js";import{$V4c as I}from"../../../../../../test/electron-browser/workbenchTestServices.js";import{$dDc as U}from"../../../browser/tools/commandLineAnalyzer/commandLineFileWriteAnalyzer.js";import{$NCc as T}from"../../../browser/treeSitterCommandParser.js";suite("CommandLineFileWriteAnalyzer",()=>{const b=H();let m,x,h,p,n;const g=(...t)=>{};setup(()=>{const t=b.add(new q(new C)),e=new I;b.add(t.registerProvider($.file,e)),p=new y,n=new j,m=D({fileService:()=>t,configurationService:()=>p},b),m.stub(E,n);const o=b.add(m.createInstance(F));o.isTest=!0,m.stub(S,o),x=b.add(m.createInstance(T)),h=b.add(m.createInstance(U,x,g))}),(v?suite.skip:suite)("bash",()=>{const t=f.file("/workspace/project");async function e(o,i,s,l=0,r=[t]){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites",i);const a=new w("test",r.map(W=>k(W)));n.setWorkspace(a);const c={commandLine:o,cwd:t,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},u=await h.analyze(c);d(u.isAutoApproveAllowed,s,`Expected auto approve to be ${s} for: ${o}`),d((u.disclaimers||[]).length,l,`Expected ${l} disclaimers for: ${o}`)}suite("blockDetectedFileWrites: never",()=>{test("relative path - simple output redirection",()=>e("echo hello > file.txt","never",!0,1)),test("relative path - append redirection",()=>e("echo hello >> file.txt","never",!0,1)),test("relative paths - multiple redirections",()=>e("echo hello > file1.txt && echo world > file2.txt","never",!0,1)),test("relative path - error redirection",()=>e("cat missing.txt 2> error.log","never",!0,1)),test("no redirections",()=>e("echo hello","never",!0,0)),test("absolute path - /dev/null allowed with never",()=>e("echo hello > /dev/null","never",!0,1))}),suite("blockDetectedFileWrites: outsideWorkspace",()=>{test("relative path - file in workspace root - allow",()=>e("echo hello > file.txt","outsideWorkspace",!0,1)),test("relative path - file in subdirectory - allow",()=>e("echo hello > subdir/file.txt","outsideWorkspace",!0,1)),test("relative path - parent directory - block",()=>e("echo hello > ../file.txt","outsideWorkspace",!1,1)),test("relative path - grandparent directory - block",()=>e("echo hello > ../../file.txt","outsideWorkspace",!1,1)),test("absolute path - /tmp - block",()=>e("echo hello > /tmp/file.txt","outsideWorkspace",!1,1)),test("absolute path - /etc - block",()=>e("echo hello > /etc/config.txt","outsideWorkspace",!1,1)),test("absolute path - /home - block",()=>e("echo hello > /home/user/file.txt","outsideWorkspace",!1,1)),test("absolute path - root - block",()=>e("echo hello > /file.txt","outsideWorkspace",!1,1)),test("absolute path - /dev/null - allow (null device)",()=>e("echo hello > /dev/null","outsideWorkspace",!0,1)),test("no workspace folders - block",()=>e("echo hello > file.txt","outsideWorkspace",!1,1,[])),test("no workspace folders - /dev/null allowed",()=>e("echo hello > /dev/null","outsideWorkspace",!0,1,[])),test("no redirections - allow",()=>e("echo hello","outsideWorkspace",!0,0)),test("variable in filename - block",()=>e("echo hello > $HOME/file.txt","outsideWorkspace",!1,1)),test("command substitution - block",()=>e("echo hello > $(pwd)/file.txt","outsideWorkspace",!1,1)),test("brace expansion - block",()=>e("echo hello > {a,b}.txt","outsideWorkspace",!1,1))}),suite("blockDetectedFileWrites: all",()=>{test("inside workspace - block",()=>e("echo hello > file.txt","all",!1,1)),test("outside workspace - block",()=>e("echo hello > /tmp/file.txt","all",!1,1)),test("no redirections - allow",()=>e("echo hello","all",!0,0)),test("multiple inside workspace - block",()=>e("echo hello > file1.txt && echo world > file2.txt","all",!1,1))}),suite("complex scenarios",()=>{test("pipeline with redirection inside workspace",()=>e('cat file.txt | grep "test" > output.txt',"outsideWorkspace",!0,1)),test("multiple redirections mixed inside/outside",()=>e("echo hello > file.txt && echo world > /tmp/file.txt","outsideWorkspace",!1,1)),test("here-document",()=>e(`cat > file.txt << EOF
-hello
-EOF`,"outsideWorkspace",!0,1)),test("error output to /dev/null - allow",()=>e("cat missing.txt 2> /dev/null","outsideWorkspace",!0,1))}),suite("sed in-place editing",()=>{test("sed -i inside workspace - allow",()=>e("sed -i 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed -I (uppercase) inside workspace - allow",()=>e("sed -I 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed --in-place inside workspace - allow",()=>e("sed --in-place 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed -i.bak inside workspace - allow",()=>e("sed -i.bak 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed --in-place=.bak inside workspace - allow",()=>e("sed --in-place=.bak 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed -i with empty backup (macOS) inside workspace - allow",()=>e("sed -i '' 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed -ni inside workspace - allow",()=>e("sed -ni 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed -n -i inside workspace - allow",()=>e("sed -n -i 's/foo/bar/' file.txt","outsideWorkspace",!0,1)),test("sed -i multiple files inside workspace - allow",()=>e("sed -i 's/foo/bar/' file1.txt file2.txt","outsideWorkspace",!0,1)),test("sed -i outside workspace - block",()=>e("sed -i 's/foo/bar/' /tmp/file.txt","outsideWorkspace",!1,1)),test("sed -i absolute path outside workspace - block",()=>e("sed -i 's/foo/bar/' /etc/config","outsideWorkspace",!1,1)),test("sed -i mixed inside/outside - block",()=>e("sed -i 's/foo/bar/' file.txt /tmp/other.txt","outsideWorkspace",!1,1)),test("sed -i with all setting - block",()=>e("sed -i 's/foo/bar/' file.txt","all",!1,1)),test("sed -i with never setting - allow",()=>e("sed -i 's/foo/bar/' file.txt","never",!0,1)),test("sed without -i - no file write detected",()=>e("sed 's/foo/bar/' file.txt","outsideWorkspace",!0,0)),test("sed with pipe - no file write detected",()=>e("cat file.txt | sed 's/foo/bar/'","outsideWorkspace",!0,0))}),suite("no cwd provided",()=>{async function o(i,s,l,r=0){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites",s);const a=new w("test",[k(t)]);n.setWorkspace(a);const c={commandLine:i,cwd:void 0,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},u=await h.analyze(c);d(u.isAutoApproveAllowed,l,`Expected auto approve to be ${l} for: ${i}`),d((u.disclaimers||[]).length,r,`Expected ${r} disclaimers for: ${i}`)}test("relative path - never setting - allow",()=>o("echo hello > file.txt","never",!0,1)),test("relative path - outsideWorkspace setting - block (unknown cwd)",()=>o("echo hello > file.txt","outsideWorkspace",!1,1)),test("relative path - all setting - block",()=>o("echo hello > file.txt","all",!1,1)),test("absolute path inside workspace - outsideWorkspace setting - allow",()=>o("echo hello > /workspace/project/file.txt","outsideWorkspace",!0,1)),test("absolute path outside workspace - outsideWorkspace setting - block",()=>o("echo hello > /tmp/file.txt","outsideWorkspace",!1,1)),test("absolute path - all setting - block",()=>o("echo hello > /tmp/file.txt","all",!1,1))})}),(v?suite:suite.skip)("pwsh",()=>{const t=f.file("C:/workspace/project");async function e(o,i,s,l=0,r=[t]){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites",i);const a=new w("test",r.map(W=>k(W)));n.setWorkspace(a);const c={commandLine:o,cwd:t,shell:"pwsh",os:1,treeSitterLanguage:"powershell",terminalToolSessionId:"test",chatSessionResource:void 0},u=await h.analyze(c);d(u.isAutoApproveAllowed,s,`Expected auto approve to be ${s} for: ${o}`),d((u.disclaimers||[]).length,l,`Expected ${l} disclaimers for: ${o}`)}suite("blockDetectedFileWrites: never",()=>{test("simple output redirection",()=>e('Write-Host "hello" > file.txt',"never",!0,1)),test("append redirection",()=>e('Write-Host "hello" >> file.txt',"never",!0,1)),test("multiple redirections",()=>e('Write-Host "hello" > file1.txt ; Write-Host "world" > file2.txt',"never",!0,1)),test("error redirection",()=>e("Get-Content missing.txt 2> error.log","never",!0,1)),test("no redirections",()=>e('Write-Host "hello"',"never",!0,0))}),suite("blockDetectedFileWrites: outsideWorkspace",()=>{test("relative path - file in workspace root - allow",()=>e('Write-Host "hello" > file.txt',"outsideWorkspace",!0,1)),test("relative path - file in subdirectory - allow",()=>e('Write-Host "hello" > subdir\\file.txt',"outsideWorkspace",!0,1)),test("relative path - parent directory - block",()=>e('Write-Host "hello" > ..\\file.txt',"outsideWorkspace",!1,1)),test("relative path - grandparent directory - block",()=>e('Write-Host "hello" > ..\\..\\file.txt',"outsideWorkspace",!1,1)),test("absolute path - C: drive - block",()=>e('Write-Host "hello" > C:\\temp\\file.txt',"outsideWorkspace",!1,1)),test("absolute path - D: drive - block",()=>e('Write-Host "hello" > D:\\data\\config.txt',"outsideWorkspace",!1,1)),test("absolute path - different drive than workspace - block",()=>e('Write-Host "hello" > E:\\external\\file.txt',"outsideWorkspace",!1,1)),test("absolute path - UNC path - block",()=>e('Write-Host "hello" > \\\\server\\share\\file.txt',"outsideWorkspace",!1,1)),test("no workspace folders - block",()=>e('Write-Host "hello" > file.txt',"outsideWorkspace",!1,1,[])),test("no redirections - allow",()=>e('Write-Host "hello"',"outsideWorkspace",!0,0)),test("variable in filename - block",()=>e('Write-Host "hello" > $env:TEMP\\file.txt',"outsideWorkspace",!1,1)),test("subexpression - block",()=>e('Write-Host "hello" > $(Get-Date).log',"outsideWorkspace",!1,1))}),suite("blockDetectedFileWrites: all",()=>{test("inside workspace - block",()=>e('Write-Host "hello" > file.txt',"all",!1,1)),test("outside workspace - block",()=>e('Write-Host "hello" > C:\\temp\\file.txt',"all",!1,1)),test("no redirections - allow",()=>e('Write-Host "hello"',"all",!0,0)),test("multiple inside workspace - block",()=>e('Write-Host "hello" > file1.txt ; Write-Host "world" > file2.txt',"all",!1,1))}),suite("complex scenarios",()=>{test("pipeline with redirection inside workspace",()=>e("Get-Process | Where-Object {$_.CPU -gt 100} > processes.txt","outsideWorkspace",!0,1)),test("multiple redirections mixed inside/outside",()=>e('Write-Host "hello" > file.txt ; Write-Host "world" > C:\\temp\\file.txt',"outsideWorkspace",!1,1)),test("all streams redirection",()=>e("Get-Process *> all.log","outsideWorkspace",!0,1)),test("multiple stream redirections",()=>e("Get-Content missing.txt > output.txt 2> error.txt 3> warning.txt","outsideWorkspace",!0,1))}),suite("edge cases",()=>{test("redirection to $null (PowerShell null device) - allow",()=>e('Write-Host "hello" > $null',"outsideWorkspace",!0,1)),test("relative path with backslashes - allow",()=>e('Write-Host "hello" > server\\share\\file.txt',"outsideWorkspace",!0,1)),test("forward slashes on Windows (relative) - allow",()=>e('Write-Host "hello" > subdir/file.txt',"outsideWorkspace",!0,1))}),suite("quoted file paths",()=>{test("double-quoted relative path inside workspace - allow",()=>e('Write-Host "hello" > "file.txt"',"outsideWorkspace",!0,1)),test("double-quoted relative path with spaces inside workspace - allow",()=>e('Write-Host "hello" > "file with spaces.txt"',"outsideWorkspace",!0,1)),test("double-quoted absolute path outside workspace - block",()=>e('Write-Host "hello" > "C:\\temp\\file.txt"',"outsideWorkspace",!1,1)),test("double-quoted absolute path to different drive - block",()=>e('Write-Host "hello" > "D:\\data\\file.txt"',"outsideWorkspace",!1,1)),test("single-quoted relative path inside workspace - allow",()=>e("Write-Host 'hello' > 'file.txt'","outsideWorkspace",!0,1)),test("single-quoted relative path with spaces inside workspace - allow",()=>e("Write-Host 'hello' > 'file with spaces.txt'","outsideWorkspace",!0,1)),test("single-quoted absolute path outside workspace - block",()=>e("Write-Host 'hello' > 'C:\\temp\\file.txt'","outsideWorkspace",!1,1)),test("single-quoted absolute path to different drive - block",()=>e("Write-Host 'hello' > 'D:\\data\\file.txt'","outsideWorkspace",!1,1))})}),suite("disclaimer messages",()=>{const t=f.file("/workspace/project");async function e(o,i,s){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites",i);const l=new w("test",[k(t)]);n.setWorkspace(l);const r={commandLine:o,cwd:t,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},c=(await h.analyze(r)).disclaimers||[];d(c.length>0,!0,"Expected at least one disclaimer");const u=c.join(" ");d(u.includes(s),!0,`Expected disclaimer to contain "${s}" but got: ${u}`)}test("blocked disclaimer - absolute path outside workspace",()=>e("echo hello > /tmp/file.txt","outsideWorkspace","cannot be auto approved")),test("allowed disclaimer - relative path inside workspace",()=>e("echo hello > file.txt","outsideWorkspace","File write operations detected")),test("blocked disclaimer - all setting blocks everything",()=>e("echo hello > file.txt","all","cannot be auto approved"))}),suite("multiple workspace folders",()=>{const t=f.file("/workspace/project1"),e=f.file("/workspace/project2");async function o(i,s,l,r=0){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites","outsideWorkspace");const a=new w("test",[t,e].map(W=>k(W)));n.setWorkspace(a);const c={commandLine:s,cwd:i,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},u=await h.analyze(c);d(u.isAutoApproveAllowed,l,`Expected auto approve to be ${l} for: ${s}`),d((u.disclaimers||[]).length,r,`Expected ${r} disclaimers for: ${s}`)}test("relative path in same workspace - allow",()=>o(t,"echo hello > file.txt",!0,1)),test("absolute path to other workspace - allow",()=>o(t,"echo hello > /workspace/project2/file.txt",!0,1)),test("absolute path outside all workspaces - block",()=>o(t,"echo hello > /tmp/file.txt",!1,1)),test("relative path to parent of workspace - block",()=>o(t,"echo hello > ../file.txt",!1,1))}),suite("uri schemes",()=>{async function t(e,o,i,s){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites","outsideWorkspace");const l=f.from({scheme:e,authority:o,path:"/workspace/project"}),r=new w("test",[k(l)]);n.setWorkspace(r);const a={commandLine:`echo hello > ${i}`,cwd:l,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},c=await h.analyze(a);d(c.isAutoApproveAllowed,s)}test("file scheme - relative path inside workspace",()=>t("file",void 0,"file.txt",!0)),test("vscode-remote scheme - relative path inside workspace",()=>t("vscode-remote","wsl+debian","file.txt",!0)),test("vscode-remote scheme - absolute path inside workspace",()=>t("vscode-remote","wsl+debian","/workspace/project/file.txt",!0)),test("vscode-remote scheme - absolute path outside workspace",()=>t("vscode-remote","wsl+debian","/tmp/file.txt",!1)),test("vscode-remote scheme - absolute path to home directory outside workspace",()=>t("vscode-remote","wsl+debian","/home/user/file.txt",!1))}),suite("quoted file paths",()=>{const t=f.file("/workspace/project");async function e(o,i,s,l=0){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites",i);const r=new w("test",[k(t)]);n.setWorkspace(r);const a={commandLine:o,cwd:t,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},c=await h.analyze(a);d(c.isAutoApproveAllowed,s,`Expected auto approve to be ${s} for: ${o}`),d((c.disclaimers||[]).length,l,`Expected ${l} disclaimers for: ${o}`)}test("double-quoted relative path inside workspace - allow",()=>e('echo hello > "file.txt"',"outsideWorkspace",!0,1)),test("double-quoted relative path with spaces inside workspace - allow",()=>e('echo hello > "file with spaces.txt"',"outsideWorkspace",!0,1)),test("double-quoted absolute path outside workspace - block",()=>e('echo hello > "/tmp/file.txt"',"outsideWorkspace",!1,1)),test("double-quoted absolute path to home - block",()=>e('echo hello > "/home/user/foo.txt"',"outsideWorkspace",!1,1)),test("single-quoted relative path inside workspace - allow",()=>e("echo hello > 'file.txt'","outsideWorkspace",!0,1)),test("single-quoted relative path with spaces inside workspace - allow",()=>e("echo hello > 'file with spaces.txt'","outsideWorkspace",!0,1)),test("single-quoted absolute path outside workspace - block",()=>e("echo hello > '/tmp/file.txt'","outsideWorkspace",!1,1)),test("single-quoted absolute path to home - block",()=>e("echo hello > '/home/user/foo.txt'","outsideWorkspace",!1,1))}),suite("remote workspace with quoted absolute paths",()=>{async function t(e,o,i=0){p.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites","outsideWorkspace");const s=f.from({scheme:"vscode-remote",authority:"wsl+debian",path:"/home/user/workspace"}),l=new w("test",[k(s)]);n.setWorkspace(l);const r={commandLine:e,cwd:s,shell:"bash",os:3,treeSitterLanguage:"bash",terminalToolSessionId:"test",chatSessionResource:void 0},a=await h.analyze(r);d(a.isAutoApproveAllowed,o,`Expected auto approve to be ${o} for: ${e}`),d((a.disclaimers||[]).length,i,`Expected ${i} disclaimers for: ${e}`)}test("quoted absolute path inside remote workspace - allow",()=>t('echo hello > "/home/user/workspace/file.txt"',!0,1)),test("quoted absolute path outside remote workspace - block",()=>t('echo hello > "/home/user/other/file.txt"',!1,1)),test("quoted absolute path to different home dir - block",()=>t('echo hello > "/home/otheruser/file.txt"',!1,1)),test("quoted absolute path to settings.json - block",()=>t('echo hello > "/home/user/.vscode/settings.json"',!1,1)),test("unquoted absolute path inside remote workspace - allow",()=>t("echo hello > /home/user/workspace/file.txt",!0,1)),test("unquoted absolute path outside remote workspace - block",()=>t("echo hello > /home/user/other/file.txt",!1,1)),test("relative path in remote workspace - allow",()=>t("echo hello > file.txt",!0,1)),test("relative path with subdirectory in remote workspace - allow",()=>t("echo hello > subdir/file.txt",!0,1))})});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { strictEqual } from "assert";
+import { Schemas } from "../../../../../../../base/common/network.js";
+import { isWindows } from "../../../../../../../base/common/platform.js";
+import { URI } from "../../../../../../../base/common/uri.js";
+import { ensureNoDisposablesAreLeakedInTestSuite } from "../../../../../../../base/test/common/utils.js";
+import { ITreeSitterLibraryService } from "../../../../../../../editor/common/services/treeSitter/treeSitterLibraryService.js";
+import { TestConfigurationService } from "../../../../../../../platform/configuration/test/common/testConfigurationService.js";
+import { FileService } from "../../../../../../../platform/files/common/fileService.js";
+import { NullLogService } from "../../../../../../../platform/log/common/log.js";
+import { IWorkspaceContextService, toWorkspaceFolder } from "../../../../../../../platform/workspace/common/workspace.js";
+import { Workspace } from "../../../../../../../platform/workspace/test/common/testWorkspace.js";
+import { TreeSitterLibraryService } from "../../../../../../services/treeSitter/browser/treeSitterLibraryService.js";
+import { workbenchInstantiationService } from "../../../../../../test/browser/workbenchTestServices.js";
+import { TestContextService } from "../../../../../../test/common/workbenchTestServices.js";
+import { TestIPCFileSystemProvider } from "../../../../../../test/electron-browser/workbenchTestServices.js";
+import { CommandLineFileWriteAnalyzer } from "../../../browser/tools/commandLineAnalyzer/commandLineFileWriteAnalyzer.js";
+import { TreeSitterCommandParser } from "../../../browser/treeSitterCommandParser.js";
+suite("CommandLineFileWriteAnalyzer", () => {
+  const store = ensureNoDisposablesAreLeakedInTestSuite();
+  let instantiationService;
+  let parser;
+  let analyzer;
+  let configurationService;
+  let workspaceContextService;
+  const mockLog = /* @__PURE__ */ __name((..._args) => {
+  }, "mockLog");
+  setup(() => {
+    const fileService = store.add(new FileService(new NullLogService()));
+    const fileSystemProvider = new TestIPCFileSystemProvider();
+    store.add(fileService.registerProvider(Schemas.file, fileSystemProvider));
+    configurationService = new TestConfigurationService();
+    workspaceContextService = new TestContextService();
+    instantiationService = workbenchInstantiationService({
+      fileService: /* @__PURE__ */ __name(() => fileService, "fileService"),
+      configurationService: /* @__PURE__ */ __name(() => configurationService, "configurationService")
+    }, store);
+    instantiationService.stub(IWorkspaceContextService, workspaceContextService);
+    const treeSitterLibraryService = store.add(instantiationService.createInstance(TreeSitterLibraryService));
+    treeSitterLibraryService.isTest = true;
+    instantiationService.stub(ITreeSitterLibraryService, treeSitterLibraryService);
+    parser = store.add(instantiationService.createInstance(TreeSitterCommandParser));
+    analyzer = store.add(instantiationService.createInstance(CommandLineFileWriteAnalyzer, parser, mockLog));
+  });
+  (isWindows ? suite.skip : suite)("bash", () => {
+    const cwd = URI.file("/workspace/project");
+    async function t(commandLine, blockDetectedFileWrites, expectedAutoApprove, expectedDisclaimers = 0, workspaceFolders = [cwd]) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", blockDetectedFileWrites);
+      const workspace = new Workspace("test", workspaceFolders.map((uri) => toWorkspaceFolder(uri)));
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine,
+        cwd,
+        shell: "bash",
+        os: 3,
+        treeSitterLanguage: "bash",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      strictEqual(result.isAutoApproveAllowed, expectedAutoApprove, `Expected auto approve to be ${expectedAutoApprove} for: ${commandLine}`);
+      strictEqual((result.disclaimers || []).length, expectedDisclaimers, `Expected ${expectedDisclaimers} disclaimers for: ${commandLine}`);
+    }
+    __name(t, "t");
+    suite("blockDetectedFileWrites: never", () => {
+      test("relative path - simple output redirection", () => t("echo hello > file.txt", "never", true, 1));
+      test("relative path - append redirection", () => t("echo hello >> file.txt", "never", true, 1));
+      test("relative paths - multiple redirections", () => t("echo hello > file1.txt && echo world > file2.txt", "never", true, 1));
+      test("relative path - error redirection", () => t("cat missing.txt 2> error.log", "never", true, 1));
+      test("no redirections", () => t("echo hello", "never", true, 0));
+      test("absolute path - /dev/null allowed with never", () => t("echo hello > /dev/null", "never", true, 1));
+    });
+    suite("blockDetectedFileWrites: outsideWorkspace", () => {
+      test("relative path - file in workspace root - allow", () => t("echo hello > file.txt", "outsideWorkspace", true, 1));
+      test("relative path - file in subdirectory - allow", () => t("echo hello > subdir/file.txt", "outsideWorkspace", true, 1));
+      test("relative path - parent directory - block", () => t("echo hello > ../file.txt", "outsideWorkspace", false, 1));
+      test("relative path - grandparent directory - block", () => t("echo hello > ../../file.txt", "outsideWorkspace", false, 1));
+      test("absolute path - /tmp - block", () => t("echo hello > /tmp/file.txt", "outsideWorkspace", false, 1));
+      test("absolute path - /etc - block", () => t("echo hello > /etc/config.txt", "outsideWorkspace", false, 1));
+      test("absolute path - /home - block", () => t("echo hello > /home/user/file.txt", "outsideWorkspace", false, 1));
+      test("absolute path - root - block", () => t("echo hello > /file.txt", "outsideWorkspace", false, 1));
+      test("absolute path - /dev/null - allow (null device)", () => t("echo hello > /dev/null", "outsideWorkspace", true, 1));
+      test("no workspace folders - block", () => t("echo hello > file.txt", "outsideWorkspace", false, 1, []));
+      test("no workspace folders - /dev/null allowed", () => t("echo hello > /dev/null", "outsideWorkspace", true, 1, []));
+      test("no redirections - allow", () => t("echo hello", "outsideWorkspace", true, 0));
+      test("variable in filename - block", () => t("echo hello > $HOME/file.txt", "outsideWorkspace", false, 1));
+      test("command substitution - block", () => t("echo hello > $(pwd)/file.txt", "outsideWorkspace", false, 1));
+      test("brace expansion - block", () => t("echo hello > {a,b}.txt", "outsideWorkspace", false, 1));
+    });
+    suite("blockDetectedFileWrites: all", () => {
+      test("inside workspace - block", () => t("echo hello > file.txt", "all", false, 1));
+      test("outside workspace - block", () => t("echo hello > /tmp/file.txt", "all", false, 1));
+      test("no redirections - allow", () => t("echo hello", "all", true, 0));
+      test("multiple inside workspace - block", () => t("echo hello > file1.txt && echo world > file2.txt", "all", false, 1));
+    });
+    suite("complex scenarios", () => {
+      test("pipeline with redirection inside workspace", () => t('cat file.txt | grep "test" > output.txt', "outsideWorkspace", true, 1));
+      test("multiple redirections mixed inside/outside", () => t("echo hello > file.txt && echo world > /tmp/file.txt", "outsideWorkspace", false, 1));
+      test("here-document", () => t("cat > file.txt << EOF\nhello\nEOF", "outsideWorkspace", true, 1));
+      test("error output to /dev/null - allow", () => t("cat missing.txt 2> /dev/null", "outsideWorkspace", true, 1));
+    });
+    suite("sed in-place editing", () => {
+      test("sed -i inside workspace - allow", () => t("sed -i 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed -I (uppercase) inside workspace - allow", () => t("sed -I 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed --in-place inside workspace - allow", () => t("sed --in-place 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed -i.bak inside workspace - allow", () => t("sed -i.bak 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed --in-place=.bak inside workspace - allow", () => t("sed --in-place=.bak 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed -i with empty backup (macOS) inside workspace - allow", () => t("sed -i '' 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed -ni inside workspace - allow", () => t("sed -ni 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed -n -i inside workspace - allow", () => t("sed -n -i 's/foo/bar/' file.txt", "outsideWorkspace", true, 1));
+      test("sed -i multiple files inside workspace - allow", () => t("sed -i 's/foo/bar/' file1.txt file2.txt", "outsideWorkspace", true, 1));
+      test("sed -i outside workspace - block", () => t("sed -i 's/foo/bar/' /tmp/file.txt", "outsideWorkspace", false, 1));
+      test("sed -i absolute path outside workspace - block", () => t("sed -i 's/foo/bar/' /etc/config", "outsideWorkspace", false, 1));
+      test("sed -i mixed inside/outside - block", () => t("sed -i 's/foo/bar/' file.txt /tmp/other.txt", "outsideWorkspace", false, 1));
+      test("sed -i with all setting - block", () => t("sed -i 's/foo/bar/' file.txt", "all", false, 1));
+      test("sed -i with never setting - allow", () => t("sed -i 's/foo/bar/' file.txt", "never", true, 1));
+      test("sed without -i - no file write detected", () => t("sed 's/foo/bar/' file.txt", "outsideWorkspace", true, 0));
+      test("sed with pipe - no file write detected", () => t("cat file.txt | sed 's/foo/bar/'", "outsideWorkspace", true, 0));
+    });
+    suite("no cwd provided", () => {
+      async function tNoCwd(commandLine, blockDetectedFileWrites, expectedAutoApprove, expectedDisclaimers = 0) {
+        configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", blockDetectedFileWrites);
+        const workspace = new Workspace("test", [toWorkspaceFolder(cwd)]);
+        workspaceContextService.setWorkspace(workspace);
+        const options = {
+          commandLine,
+          cwd: void 0,
+          shell: "bash",
+          os: 3,
+          treeSitterLanguage: "bash",
+          terminalToolSessionId: "test",
+          chatSessionResource: void 0
+        };
+        const result = await analyzer.analyze(options);
+        strictEqual(result.isAutoApproveAllowed, expectedAutoApprove, `Expected auto approve to be ${expectedAutoApprove} for: ${commandLine}`);
+        strictEqual((result.disclaimers || []).length, expectedDisclaimers, `Expected ${expectedDisclaimers} disclaimers for: ${commandLine}`);
+      }
+      __name(tNoCwd, "tNoCwd");
+      test("relative path - never setting - allow", () => tNoCwd("echo hello > file.txt", "never", true, 1));
+      test("relative path - outsideWorkspace setting - block (unknown cwd)", () => tNoCwd("echo hello > file.txt", "outsideWorkspace", false, 1));
+      test("relative path - all setting - block", () => tNoCwd("echo hello > file.txt", "all", false, 1));
+      test("absolute path inside workspace - outsideWorkspace setting - allow", () => tNoCwd("echo hello > /workspace/project/file.txt", "outsideWorkspace", true, 1));
+      test("absolute path outside workspace - outsideWorkspace setting - block", () => tNoCwd("echo hello > /tmp/file.txt", "outsideWorkspace", false, 1));
+      test("absolute path - all setting - block", () => tNoCwd("echo hello > /tmp/file.txt", "all", false, 1));
+    });
+  });
+  (isWindows ? suite : suite.skip)("pwsh", () => {
+    const cwd = URI.file("C:/workspace/project");
+    async function t(commandLine, blockDetectedFileWrites, expectedAutoApprove, expectedDisclaimers = 0, workspaceFolders = [cwd]) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", blockDetectedFileWrites);
+      const workspace = new Workspace("test", workspaceFolders.map((uri) => toWorkspaceFolder(uri)));
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine,
+        cwd,
+        shell: "pwsh",
+        os: 1,
+        treeSitterLanguage: "powershell",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      strictEqual(result.isAutoApproveAllowed, expectedAutoApprove, `Expected auto approve to be ${expectedAutoApprove} for: ${commandLine}`);
+      strictEqual((result.disclaimers || []).length, expectedDisclaimers, `Expected ${expectedDisclaimers} disclaimers for: ${commandLine}`);
+    }
+    __name(t, "t");
+    suite("blockDetectedFileWrites: never", () => {
+      test("simple output redirection", () => t('Write-Host "hello" > file.txt', "never", true, 1));
+      test("append redirection", () => t('Write-Host "hello" >> file.txt', "never", true, 1));
+      test("multiple redirections", () => t('Write-Host "hello" > file1.txt ; Write-Host "world" > file2.txt', "never", true, 1));
+      test("error redirection", () => t("Get-Content missing.txt 2> error.log", "never", true, 1));
+      test("no redirections", () => t('Write-Host "hello"', "never", true, 0));
+    });
+    suite("blockDetectedFileWrites: outsideWorkspace", () => {
+      test("relative path - file in workspace root - allow", () => t('Write-Host "hello" > file.txt', "outsideWorkspace", true, 1));
+      test("relative path - file in subdirectory - allow", () => t('Write-Host "hello" > subdir\\file.txt', "outsideWorkspace", true, 1));
+      test("relative path - parent directory - block", () => t('Write-Host "hello" > ..\\file.txt', "outsideWorkspace", false, 1));
+      test("relative path - grandparent directory - block", () => t('Write-Host "hello" > ..\\..\\file.txt', "outsideWorkspace", false, 1));
+      test("absolute path - C: drive - block", () => t('Write-Host "hello" > C:\\temp\\file.txt', "outsideWorkspace", false, 1));
+      test("absolute path - D: drive - block", () => t('Write-Host "hello" > D:\\data\\config.txt', "outsideWorkspace", false, 1));
+      test("absolute path - different drive than workspace - block", () => t('Write-Host "hello" > E:\\external\\file.txt', "outsideWorkspace", false, 1));
+      test("absolute path - UNC path - block", () => t('Write-Host "hello" > \\\\server\\share\\file.txt', "outsideWorkspace", false, 1));
+      test("no workspace folders - block", () => t('Write-Host "hello" > file.txt', "outsideWorkspace", false, 1, []));
+      test("no redirections - allow", () => t('Write-Host "hello"', "outsideWorkspace", true, 0));
+      test("variable in filename - block", () => t('Write-Host "hello" > $env:TEMP\\file.txt', "outsideWorkspace", false, 1));
+      test("subexpression - block", () => t('Write-Host "hello" > $(Get-Date).log', "outsideWorkspace", false, 1));
+    });
+    suite("blockDetectedFileWrites: all", () => {
+      test("inside workspace - block", () => t('Write-Host "hello" > file.txt', "all", false, 1));
+      test("outside workspace - block", () => t('Write-Host "hello" > C:\\temp\\file.txt', "all", false, 1));
+      test("no redirections - allow", () => t('Write-Host "hello"', "all", true, 0));
+      test("multiple inside workspace - block", () => t('Write-Host "hello" > file1.txt ; Write-Host "world" > file2.txt', "all", false, 1));
+    });
+    suite("complex scenarios", () => {
+      test("pipeline with redirection inside workspace", () => t("Get-Process | Where-Object {$_.CPU -gt 100} > processes.txt", "outsideWorkspace", true, 1));
+      test("multiple redirections mixed inside/outside", () => t('Write-Host "hello" > file.txt ; Write-Host "world" > C:\\temp\\file.txt', "outsideWorkspace", false, 1));
+      test("all streams redirection", () => t("Get-Process *> all.log", "outsideWorkspace", true, 1));
+      test("multiple stream redirections", () => t("Get-Content missing.txt > output.txt 2> error.txt 3> warning.txt", "outsideWorkspace", true, 1));
+    });
+    suite("edge cases", () => {
+      test("redirection to $null (PowerShell null device) - allow", () => t('Write-Host "hello" > $null', "outsideWorkspace", true, 1));
+      test("relative path with backslashes - allow", () => t('Write-Host "hello" > server\\share\\file.txt', "outsideWorkspace", true, 1));
+      test("forward slashes on Windows (relative) - allow", () => t('Write-Host "hello" > subdir/file.txt', "outsideWorkspace", true, 1));
+    });
+    suite("quoted file paths", () => {
+      test("double-quoted relative path inside workspace - allow", () => t('Write-Host "hello" > "file.txt"', "outsideWorkspace", true, 1));
+      test("double-quoted relative path with spaces inside workspace - allow", () => t('Write-Host "hello" > "file with spaces.txt"', "outsideWorkspace", true, 1));
+      test("double-quoted absolute path outside workspace - block", () => t('Write-Host "hello" > "C:\\temp\\file.txt"', "outsideWorkspace", false, 1));
+      test("double-quoted absolute path to different drive - block", () => t('Write-Host "hello" > "D:\\data\\file.txt"', "outsideWorkspace", false, 1));
+      test("single-quoted relative path inside workspace - allow", () => t("Write-Host 'hello' > 'file.txt'", "outsideWorkspace", true, 1));
+      test("single-quoted relative path with spaces inside workspace - allow", () => t("Write-Host 'hello' > 'file with spaces.txt'", "outsideWorkspace", true, 1));
+      test("single-quoted absolute path outside workspace - block", () => t("Write-Host 'hello' > 'C:\\temp\\file.txt'", "outsideWorkspace", false, 1));
+      test("single-quoted absolute path to different drive - block", () => t("Write-Host 'hello' > 'D:\\data\\file.txt'", "outsideWorkspace", false, 1));
+    });
+  });
+  suite("disclaimer messages", () => {
+    const cwd = URI.file("/workspace/project");
+    async function checkDisclaimer(commandLine, blockDetectedFileWrites, expectedContains) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", blockDetectedFileWrites);
+      const workspace = new Workspace("test", [toWorkspaceFolder(cwd)]);
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine,
+        cwd,
+        shell: "bash",
+        os: 3,
+        treeSitterLanguage: "bash",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      const disclaimers = result.disclaimers || [];
+      strictEqual(disclaimers.length > 0, true, "Expected at least one disclaimer");
+      const combinedDisclaimers = disclaimers.join(" ");
+      strictEqual(combinedDisclaimers.includes(expectedContains), true, `Expected disclaimer to contain "${expectedContains}" but got: ${combinedDisclaimers}`);
+    }
+    __name(checkDisclaimer, "checkDisclaimer");
+    test("blocked disclaimer - absolute path outside workspace", () => checkDisclaimer("echo hello > /tmp/file.txt", "outsideWorkspace", "cannot be auto approved"));
+    test("allowed disclaimer - relative path inside workspace", () => checkDisclaimer("echo hello > file.txt", "outsideWorkspace", "File write operations detected"));
+    test("blocked disclaimer - all setting blocks everything", () => checkDisclaimer("echo hello > file.txt", "all", "cannot be auto approved"));
+  });
+  suite("multiple workspace folders", () => {
+    const workspace1 = URI.file("/workspace/project1");
+    const workspace2 = URI.file("/workspace/project2");
+    async function t(cwd, commandLine, expectedAutoApprove, expectedDisclaimers = 0) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", "outsideWorkspace");
+      const workspace = new Workspace("test", [workspace1, workspace2].map((uri) => toWorkspaceFolder(uri)));
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine,
+        cwd,
+        shell: "bash",
+        os: 3,
+        treeSitterLanguage: "bash",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      strictEqual(result.isAutoApproveAllowed, expectedAutoApprove, `Expected auto approve to be ${expectedAutoApprove} for: ${commandLine}`);
+      strictEqual((result.disclaimers || []).length, expectedDisclaimers, `Expected ${expectedDisclaimers} disclaimers for: ${commandLine}`);
+    }
+    __name(t, "t");
+    test("relative path in same workspace - allow", () => t(workspace1, "echo hello > file.txt", true, 1));
+    test("absolute path to other workspace - allow", () => t(workspace1, "echo hello > /workspace/project2/file.txt", true, 1));
+    test("absolute path outside all workspaces - block", () => t(workspace1, "echo hello > /tmp/file.txt", false, 1));
+    test("relative path to parent of workspace - block", () => t(workspace1, "echo hello > ../file.txt", false, 1));
+  });
+  suite("uri schemes", () => {
+    async function t(cwdScheme, cwdAuthority, filePath, expectedAutoApprove) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", "outsideWorkspace");
+      const cwd = URI.from({ scheme: cwdScheme, authority: cwdAuthority, path: "/workspace/project" });
+      const workspace = new Workspace("test", [toWorkspaceFolder(cwd)]);
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine: `echo hello > ${filePath}`,
+        cwd,
+        shell: "bash",
+        os: 3,
+        treeSitterLanguage: "bash",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      strictEqual(result.isAutoApproveAllowed, expectedAutoApprove);
+    }
+    __name(t, "t");
+    test("file scheme - relative path inside workspace", () => t("file", void 0, "file.txt", true));
+    test("vscode-remote scheme - relative path inside workspace", () => t("vscode-remote", "wsl+debian", "file.txt", true));
+    test("vscode-remote scheme - absolute path inside workspace", () => t("vscode-remote", "wsl+debian", "/workspace/project/file.txt", true));
+    test("vscode-remote scheme - absolute path outside workspace", () => t("vscode-remote", "wsl+debian", "/tmp/file.txt", false));
+    test("vscode-remote scheme - absolute path to home directory outside workspace", () => t("vscode-remote", "wsl+debian", "/home/user/file.txt", false));
+  });
+  suite("quoted file paths", () => {
+    const cwd = URI.file("/workspace/project");
+    async function t(commandLine, blockDetectedFileWrites, expectedAutoApprove, expectedDisclaimers = 0) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", blockDetectedFileWrites);
+      const workspace = new Workspace("test", [toWorkspaceFolder(cwd)]);
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine,
+        cwd,
+        shell: "bash",
+        os: 3,
+        treeSitterLanguage: "bash",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      strictEqual(result.isAutoApproveAllowed, expectedAutoApprove, `Expected auto approve to be ${expectedAutoApprove} for: ${commandLine}`);
+      strictEqual((result.disclaimers || []).length, expectedDisclaimers, `Expected ${expectedDisclaimers} disclaimers for: ${commandLine}`);
+    }
+    __name(t, "t");
+    test("double-quoted relative path inside workspace - allow", () => t('echo hello > "file.txt"', "outsideWorkspace", true, 1));
+    test("double-quoted relative path with spaces inside workspace - allow", () => t('echo hello > "file with spaces.txt"', "outsideWorkspace", true, 1));
+    test("double-quoted absolute path outside workspace - block", () => t('echo hello > "/tmp/file.txt"', "outsideWorkspace", false, 1));
+    test("double-quoted absolute path to home - block", () => t('echo hello > "/home/user/foo.txt"', "outsideWorkspace", false, 1));
+    test("single-quoted relative path inside workspace - allow", () => t("echo hello > 'file.txt'", "outsideWorkspace", true, 1));
+    test("single-quoted relative path with spaces inside workspace - allow", () => t("echo hello > 'file with spaces.txt'", "outsideWorkspace", true, 1));
+    test("single-quoted absolute path outside workspace - block", () => t("echo hello > '/tmp/file.txt'", "outsideWorkspace", false, 1));
+    test("single-quoted absolute path to home - block", () => t("echo hello > '/home/user/foo.txt'", "outsideWorkspace", false, 1));
+  });
+  suite("remote workspace with quoted absolute paths", () => {
+    async function t(commandLine, expectedAutoApprove, expectedDisclaimers = 0) {
+      configurationService.setUserConfiguration("chat.tools.terminal.blockDetectedFileWrites", "outsideWorkspace");
+      const cwd = URI.from({ scheme: "vscode-remote", authority: "wsl+debian", path: "/home/user/workspace" });
+      const workspace = new Workspace("test", [toWorkspaceFolder(cwd)]);
+      workspaceContextService.setWorkspace(workspace);
+      const options = {
+        commandLine,
+        cwd,
+        shell: "bash",
+        os: 3,
+        treeSitterLanguage: "bash",
+        terminalToolSessionId: "test",
+        chatSessionResource: void 0
+      };
+      const result = await analyzer.analyze(options);
+      strictEqual(result.isAutoApproveAllowed, expectedAutoApprove, `Expected auto approve to be ${expectedAutoApprove} for: ${commandLine}`);
+      strictEqual((result.disclaimers || []).length, expectedDisclaimers, `Expected ${expectedDisclaimers} disclaimers for: ${commandLine}`);
+    }
+    __name(t, "t");
+    test("quoted absolute path inside remote workspace - allow", () => t('echo hello > "/home/user/workspace/file.txt"', true, 1));
+    test("quoted absolute path outside remote workspace - block", () => t('echo hello > "/home/user/other/file.txt"', false, 1));
+    test("quoted absolute path to different home dir - block", () => t('echo hello > "/home/otheruser/file.txt"', false, 1));
+    test("quoted absolute path to settings.json - block", () => t('echo hello > "/home/user/.vscode/settings.json"', false, 1));
+    test("unquoted absolute path inside remote workspace - allow", () => t("echo hello > /home/user/workspace/file.txt", true, 1));
+    test("unquoted absolute path outside remote workspace - block", () => t("echo hello > /home/user/other/file.txt", false, 1));
+    test("relative path in remote workspace - allow", () => t("echo hello > file.txt", true, 1));
+    test("relative path with subdirectory in remote workspace - allow", () => t("echo hello > subdir/file.txt", true, 1));
+  });
+});
+//# sourceMappingURL=commandLineFileWriteAnalyzer.test.js.map

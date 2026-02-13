@@ -1,1 +1,466 @@
-import{$4d as g,$Vd as D}from"../../base/common/equals.js";import{$Ed as F,$Dd as T,$Cd as p}from"../../base/common/lifecycle.js";import{DebugLocation as N,TransactionImpl as E,autorun as v,autorunOpts as O,derived as r,derivedOpts as y,derivedWithSetter as P,observableFromEvent as S,observableFromEventOpts as n,observableSignal as w,observableSignalFromEvent as b,observableValue as C,observableValueOpts as L}from"../../base/common/observable.js";import{$jE as x}from"../common/core/ranges/lineRange.js";import{$hE as H}from"../common/core/ranges/offsetRange.js";import{$$D as d}from"../common/core/position.js";import{$bE as I}from"../common/core/selection.js";import{$Wib as f}from"../common/core/2d/point.js";function U(W){return a.get(W)}class a extends F{static{this.a=new Map}static get(e){let t=a.a.get(e);if(!t){t=new a(e),a.a.set(e,t);const i=e.onDidDispose(()=>{const o=a.a.get(e);o&&(a.a.delete(e),o.dispose(),i.dispose())})}return t}f(){this.b++,this.b===1&&(this.c=new E(()=>{}))}g(){if(this.b--,this.b===0){const e=this.c;this.c=void 0,e.finish()}}constructor(e){super(),this.editor=e,this.C=!1,this.F=n({owner:this,getTransaction:()=>this.c},t=>{const i=this.editor.getContainerDomNode(),o=new ResizeObserver(()=>{this.C&&(this.C=!1,this.editor.resetLineWidthCaches()),t(void 0)});return o.observe(i),{dispose:()=>o.disconnect()}},()=>({})),this.b=0,this.c=void 0,this.j=C(this,this.editor.getModel()),this.model=this.j,this.isReadonly=n({owner:this,getTransaction:()=>this.c},this.editor.onDidChangeConfiguration,()=>this.editor.getOption(104)),this.m=L({owner:this,lazy:!0},this.editor.getModel()?.getVersionId()??null),this.versionId=this.m,this.n=L({owner:this,equalsFn:g(D(I.selectionsEqual)),lazy:!0},this.editor.getSelections()??null),this.selections=this.n,this.positions=y({owner:this,equalsFn:g(D(d.equals))},t=>this.selections.read(t)?.map(i=>i.getStartPosition())??null),this.isFocused=n({owner:this,getTransaction:()=>this.c},t=>{const i=this.editor.onDidFocusEditorWidget(t),o=this.editor.onDidBlurEditorWidget(t);return{dispose(){i.dispose(),o.dispose()}}},()=>this.editor.hasWidgetFocus()),this.isTextFocused=n({owner:this,getTransaction:()=>this.c},t=>{const i=this.editor.onDidFocusEditorText(t),o=this.editor.onDidBlurEditorText(t);return{dispose(){i.dispose(),o.dispose()}}},()=>this.editor.hasTextFocus()),this.inComposition=n({owner:this,getTransaction:()=>this.c},t=>{const i=this.editor.onDidCompositionStart(()=>{t(void 0)}),o=this.editor.onDidCompositionEnd(()=>{t(void 0)});return{dispose(){i.dispose(),o.dispose()}}},()=>this.editor.inComposition),this.value=P(this,t=>(this.versionId.read(t),this.model.read(t)?.getValue()??""),(t,i)=>{const o=this.model.get();o!==null&&t!==o.getValue()&&o.setValue(t)}),this.valueIsEmpty=r(this,t=>(this.versionId.read(t),this.editor.getModel()?.getValueLength()===0)),this.cursorSelection=y({owner:this,equalsFn:g(I.selectionsEqual)},t=>this.selections.read(t)?.[0]??null),this.cursorPosition=y({owner:this,equalsFn:d.equals},t=>this.selections.read(t)?.[0]?.getPosition()??null),this.cursorLineNumber=r(this,t=>this.cursorPosition.read(t)?.lineNumber??null),this.onDidType=w(this),this.onDidPaste=w(this),this.scrollTop=n({owner:this,getTransaction:()=>this.c},this.editor.onDidScrollChange,()=>this.editor.getScrollTop()),this.scrollLeft=n({owner:this,getTransaction:()=>this.c},this.editor.onDidScrollChange,()=>this.editor.getScrollLeft()),this.layoutInfo=n({owner:this,getTransaction:()=>this.c},this.editor.onDidLayoutChange,()=>this.editor.getLayoutInfo()),this.layoutInfoContentLeft=this.layoutInfo.map(t=>t.contentLeft),this.layoutInfoDecorationsLeft=this.layoutInfo.map(t=>t.decorationsLeft),this.layoutInfoWidth=this.layoutInfo.map(t=>t.width),this.layoutInfoHeight=this.layoutInfo.map(t=>t.height),this.layoutInfoMinimap=this.layoutInfo.map(t=>t.minimap),this.layoutInfoVerticalScrollbarWidth=this.layoutInfo.map(t=>t.verticalScrollbarWidth),this.contentWidth=n({owner:this,getTransaction:()=>this.c},this.editor.onDidContentSizeChange,()=>this.editor.getContentWidth()),this.contentHeight=n({owner:this,getTransaction:()=>this.c},this.editor.onDidContentSizeChange,()=>this.editor.getContentHeight()),this.u=b(this,this.editor.onDidChangeViewZones),this.y=b(this,this.editor.onDidChangeHiddenAreas),this.z=b(this,this.editor.onDidChangeLineHeight),this.q=0,this.openedPeekWidgets=C(this,0),this.D(this.editor.onBeginUpdate(()=>this.f())),this.D(this.editor.onEndUpdate(()=>this.g())),this.D(this.editor.onDidChangeModel(()=>{this.f();try{this.j.set(this.editor.getModel(),this.c),this.h()}finally{this.g()}})),this.D(this.editor.onDidType(t=>{this.f();try{this.h(),this.onDidType.trigger(this.c,t)}finally{this.g()}})),this.D(this.editor.onDidPaste(t=>{this.f();try{this.h(),this.onDidPaste.trigger(this.c,t)}finally{this.g()}})),this.D(this.editor.onDidChangeModelContent(t=>{this.f();try{this.m.set(this.editor.getModel()?.getVersionId()??null,this.c,t),this.h()}finally{this.g()}})),this.D(this.editor.onDidChangeCursorSelection(t=>{this.f();try{this.n.set(this.editor.getSelections(),this.c,t),this.h()}finally{this.g()}})),this.domNode=r(t=>(this.model.read(t),this.editor.getDomNode()))}transaction(e){this.f();try{return e(this.c)}finally{this.g()}}forceUpdate(e){this.f();try{return this.h(),e?e(this.c):void 0}finally{this.g()}}h(){this.f();try{this.j.set(this.editor.getModel(),this.c),this.m.set(this.editor.getModel()?.getVersionId()??null,this.c,void 0),this.n.set(this.editor.getSelections(),this.c,void 0)}finally{this.g()}}getOption(e,t=N.ofCaller()){return S(this,i=>this.editor.onDidChangeConfiguration(o=>{o.hasChanged(e)&&i(void 0)}),()=>this.editor.getOption(e),t)}setDecorations(e){const t=new T,i=this.editor.createDecorationsCollection();return t.add(O({owner:this,debugName:()=>`Apply decorations from ${e.debugName}`},o=>{const s=e.read(o);i.set(s)})),t.add({dispose:()=>{i.clear()}}),t}createOverlayWidget(e){const t="observableOverlayWidget"+this.q++,i={getDomNode:()=>e.domNode,getPosition:()=>e.position.get(),getId:()=>t,allowEditorOverflow:e.allowEditorOverflow,getMinContentWidthInPx:()=>e.minContentWidthInPx.get()};this.editor.addOverlayWidget(i);const o=v(s=>{e.position.read(s),e.minContentWidthInPx.read(s),this.editor.layoutOverlayWidget(i)});return p(()=>{o.dispose(),this.editor.removeOverlayWidget(i)})}createContentWidget(e){const t="observableContentWidget"+this.q++,i={getDomNode:()=>e.domNode,getPosition:()=>e.position.get(),getId:()=>t,allowEditorOverflow:e.allowEditorOverflow};this.editor.addContentWidget(i);const o=v(s=>{e.position.read(s),this.editor.layoutContentWidget(i)});return p(()=>{o.dispose(),this.editor.removeContentWidget(i)})}observeLineOffsetRange(e,t){const i=this.observePosition(e.map(s=>new d(s.startLineNumber,1)),t),o=this.observePosition(e.map(s=>new d(s.endLineNumberExclusive+1,1)),t);return r(s=>{i.read(s),o.read(s);const l=e.read(s),h=this.model.read(s)?.getLineCount(),u=(typeof h<"u"&&l.startLineNumber>h?this.editor.getBottomForLineNumber(h):this.editor.getTopForLineNumber(l.startLineNumber))-this.scrollTop.read(s),c=l.isEmpty?u:this.editor.getBottomForLineNumber(l.endLineNumberExclusive-1)-this.scrollTop.read(s);return new H(u,c)})}getLeftOfPosition(e,t){this.layoutInfo.read(t),this.value.read(t);let i=this.editor.getOffsetForColumn(e.lineNumber,e.column);if(i===-1){const o=this.editor.getOption(59).typicalHalfwidthCharacterWidth;i=e.column*o}return i}observePosition(e,t){let i=e.get();const o=L({owner:this,debugName:()=>`topLeftOfPosition${i?.toString()}`,equalsFn:g(f.equals)},new f(0,0)),s="observablePositionWidget"+this.q++,l=document.createElement("div"),h={getDomNode:()=>l,getPosition:()=>i?{preference:[0],position:e.get()}:null,getId:()=>s,allowEditorOverflow:!1,useDisplayNone:!0,afterRender:(u,c)=>{const m=this.j.get();m&&i&&i.lineNumber>m.getLineCount()?o.set(new f(0,this.editor.getBottomForLineNumber(m.getLineCount())-this.scrollTop.get()),void 0):o.set(c?new f(c.left,c.top):null,void 0)}};return this.editor.addContentWidget(h),t.add(v(u=>{i=e.read(u),this.editor.layoutContentWidget(h)})),t.add(p(()=>{this.editor.removeContentWidget(h)})),o}isTargetHovered(e,t){const i=C("isInjectedTextHovered",!1);return t.add(this.editor.onMouseMove(o=>{const s=e(o);i.set(s,void 0)})),t.add(this.editor.onMouseLeave(o=>{i.set(!1,void 0)})),i}observeLineHeightForPosition(e){return r(t=>{const i=e instanceof d?e:e.read(t);return i===null?null:(this.getOption(75).read(t),this.editor.getLineHeightForPosition(i))})}observeLineHeightForLine(e){return typeof e=="number"?this.observeLineHeightForPosition(new d(e,1)):r(t=>{const i=e.read(t);return i===null?null:this.observeLineHeightForPosition(new d(i,1)).read(t)})}observeLineHeightsForLineRange(e){return r(t=>{const i=e instanceof x?e:e.read(t),o=[];for(let s=i.startLineNumber;s<i.endLineNumberExclusive;s++)o.push(this.observeLineHeightForLine(s).read(t));return o})}getWidthOfLine(e,t){this.layoutInfo.read(t),this.value.read(t),this.scrollTop.read(t);const i=this.editor.getWidthOfLine(e);return this.F.read(t),i===0&&(this.C=!0),i}observeTopForLineNumber(e){return r(t=>(this.layoutInfo.read(t),this.u.read(t),this.y.read(t),this.z.read(t),this.m.read(t),this.editor.getTopForLineNumber(e)))}observeBottomForLineNumber(e){return r(t=>(this.layoutInfo.read(t),this.u.read(t),this.y.read(t),this.z.read(t),this.m.read(t),this.editor.getBottomForLineNumber(e)))}}export{U as $Xib,a as $Yib};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { equalsIfDefinedC, arrayEqualsC } from "../../base/common/equals.js";
+import { Disposable, DisposableStore, toDisposable } from "../../base/common/lifecycle.js";
+import { DebugLocation, TransactionImpl, autorun, autorunOpts, derived, derivedOpts, derivedWithSetter, observableFromEvent, observableFromEventOpts, observableSignal, observableSignalFromEvent, observableValue, observableValueOpts } from "../../base/common/observable.js";
+import { LineRange } from "../common/core/ranges/lineRange.js";
+import { OffsetRange } from "../common/core/ranges/offsetRange.js";
+import { Position } from "../common/core/position.js";
+import { Selection } from "../common/core/selection.js";
+import { Point } from "../common/core/2d/point.js";
+function observableCodeEditor(editor) {
+  return ObservableCodeEditor.get(editor);
+}
+__name(observableCodeEditor, "observableCodeEditor");
+class ObservableCodeEditor extends Disposable {
+  static {
+    __name(this, "ObservableCodeEditor");
+  }
+  static {
+    this._map = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Make sure that editor is not disposed yet!
+  */
+  static get(editor) {
+    let result = ObservableCodeEditor._map.get(editor);
+    if (!result) {
+      result = new ObservableCodeEditor(editor);
+      ObservableCodeEditor._map.set(editor, result);
+      const d = editor.onDidDispose(() => {
+        const item = ObservableCodeEditor._map.get(editor);
+        if (item) {
+          ObservableCodeEditor._map.delete(editor);
+          item.dispose();
+          d.dispose();
+        }
+      });
+    }
+    return result;
+  }
+  _beginUpdate() {
+    this._updateCounter++;
+    if (this._updateCounter === 1) {
+      this._currentTransaction = new TransactionImpl(() => {
+      });
+    }
+  }
+  _endUpdate() {
+    this._updateCounter--;
+    if (this._updateCounter === 0) {
+      const t = this._currentTransaction;
+      this._currentTransaction = void 0;
+      t.finish();
+    }
+  }
+  constructor(editor) {
+    super();
+    this.editor = editor;
+    this._sawZeroLineWidth = false;
+    this._onDidContainerResize = observableFromEventOpts(
+      { owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") },
+      (e) => {
+        const container = this.editor.getContainerDomNode();
+        const resizeObserver = new ResizeObserver(() => {
+          if (this._sawZeroLineWidth) {
+            this._sawZeroLineWidth = false;
+            this.editor.resetLineWidthCaches();
+          }
+          e(void 0);
+        });
+        resizeObserver.observe(container);
+        return { dispose: /* @__PURE__ */ __name(() => resizeObserver.disconnect(), "dispose") };
+      },
+      () => ({})
+      // Return new object each time to ensure change detection
+    );
+    this._updateCounter = 0;
+    this._currentTransaction = void 0;
+    this._model = observableValue(this, this.editor.getModel());
+    this.model = this._model;
+    this.isReadonly = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, this.editor.onDidChangeConfiguration, () => this.editor.getOption(
+      104
+      /* EditorOption.readOnly */
+    ));
+    this._versionId = observableValueOpts({ owner: this, lazy: true }, this.editor.getModel()?.getVersionId() ?? null);
+    this.versionId = this._versionId;
+    this._selections = observableValueOpts({ owner: this, equalsFn: equalsIfDefinedC(arrayEqualsC(Selection.selectionsEqual)), lazy: true }, this.editor.getSelections() ?? null);
+    this.selections = this._selections;
+    this.positions = derivedOpts({ owner: this, equalsFn: equalsIfDefinedC(arrayEqualsC(Position.equals)) }, (reader) => this.selections.read(reader)?.map((s) => s.getStartPosition()) ?? null);
+    this.isFocused = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, (e) => {
+      const d1 = this.editor.onDidFocusEditorWidget(e);
+      const d2 = this.editor.onDidBlurEditorWidget(e);
+      return {
+        dispose() {
+          d1.dispose();
+          d2.dispose();
+        }
+      };
+    }, () => this.editor.hasWidgetFocus());
+    this.isTextFocused = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, (e) => {
+      const d1 = this.editor.onDidFocusEditorText(e);
+      const d2 = this.editor.onDidBlurEditorText(e);
+      return {
+        dispose() {
+          d1.dispose();
+          d2.dispose();
+        }
+      };
+    }, () => this.editor.hasTextFocus());
+    this.inComposition = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, (e) => {
+      const d1 = this.editor.onDidCompositionStart(() => {
+        e(void 0);
+      });
+      const d2 = this.editor.onDidCompositionEnd(() => {
+        e(void 0);
+      });
+      return {
+        dispose() {
+          d1.dispose();
+          d2.dispose();
+        }
+      };
+    }, () => this.editor.inComposition);
+    this.value = derivedWithSetter(this, (reader) => {
+      this.versionId.read(reader);
+      return this.model.read(reader)?.getValue() ?? "";
+    }, (value, tx) => {
+      const model = this.model.get();
+      if (model !== null) {
+        if (value !== model.getValue()) {
+          model.setValue(value);
+        }
+      }
+    });
+    this.valueIsEmpty = derived(this, (reader) => {
+      this.versionId.read(reader);
+      return this.editor.getModel()?.getValueLength() === 0;
+    });
+    this.cursorSelection = derivedOpts({ owner: this, equalsFn: equalsIfDefinedC(Selection.selectionsEqual) }, (reader) => this.selections.read(reader)?.[0] ?? null);
+    this.cursorPosition = derivedOpts({ owner: this, equalsFn: Position.equals }, (reader) => this.selections.read(reader)?.[0]?.getPosition() ?? null);
+    this.cursorLineNumber = derived(this, (reader) => this.cursorPosition.read(reader)?.lineNumber ?? null);
+    this.onDidType = observableSignal(this);
+    this.onDidPaste = observableSignal(this);
+    this.scrollTop = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, this.editor.onDidScrollChange, () => this.editor.getScrollTop());
+    this.scrollLeft = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, this.editor.onDidScrollChange, () => this.editor.getScrollLeft());
+    this.layoutInfo = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, this.editor.onDidLayoutChange, () => this.editor.getLayoutInfo());
+    this.layoutInfoContentLeft = this.layoutInfo.map((l) => l.contentLeft);
+    this.layoutInfoDecorationsLeft = this.layoutInfo.map((l) => l.decorationsLeft);
+    this.layoutInfoWidth = this.layoutInfo.map((l) => l.width);
+    this.layoutInfoHeight = this.layoutInfo.map((l) => l.height);
+    this.layoutInfoMinimap = this.layoutInfo.map((l) => l.minimap);
+    this.layoutInfoVerticalScrollbarWidth = this.layoutInfo.map((l) => l.verticalScrollbarWidth);
+    this.contentWidth = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, this.editor.onDidContentSizeChange, () => this.editor.getContentWidth());
+    this.contentHeight = observableFromEventOpts({ owner: this, getTransaction: /* @__PURE__ */ __name(() => this._currentTransaction, "getTransaction") }, this.editor.onDidContentSizeChange, () => this.editor.getContentHeight());
+    this._onDidChangeViewZones = observableSignalFromEvent(this, this.editor.onDidChangeViewZones);
+    this._onDidHiddenAreasChanged = observableSignalFromEvent(this, this.editor.onDidChangeHiddenAreas);
+    this._onDidLineHeightChanged = observableSignalFromEvent(this, this.editor.onDidChangeLineHeight);
+    this._widgetCounter = 0;
+    this.openedPeekWidgets = observableValue(this, 0);
+    this._register(this.editor.onBeginUpdate(() => this._beginUpdate()));
+    this._register(this.editor.onEndUpdate(() => this._endUpdate()));
+    this._register(this.editor.onDidChangeModel(() => {
+      this._beginUpdate();
+      try {
+        this._model.set(this.editor.getModel(), this._currentTransaction);
+        this._forceUpdate();
+      } finally {
+        this._endUpdate();
+      }
+    }));
+    this._register(this.editor.onDidType((e) => {
+      this._beginUpdate();
+      try {
+        this._forceUpdate();
+        this.onDidType.trigger(this._currentTransaction, e);
+      } finally {
+        this._endUpdate();
+      }
+    }));
+    this._register(this.editor.onDidPaste((e) => {
+      this._beginUpdate();
+      try {
+        this._forceUpdate();
+        this.onDidPaste.trigger(this._currentTransaction, e);
+      } finally {
+        this._endUpdate();
+      }
+    }));
+    this._register(this.editor.onDidChangeModelContent((e) => {
+      this._beginUpdate();
+      try {
+        this._versionId.set(this.editor.getModel()?.getVersionId() ?? null, this._currentTransaction, e);
+        this._forceUpdate();
+      } finally {
+        this._endUpdate();
+      }
+    }));
+    this._register(this.editor.onDidChangeCursorSelection((e) => {
+      this._beginUpdate();
+      try {
+        this._selections.set(this.editor.getSelections(), this._currentTransaction, e);
+        this._forceUpdate();
+      } finally {
+        this._endUpdate();
+      }
+    }));
+    this.domNode = derived((reader) => {
+      this.model.read(reader);
+      return this.editor.getDomNode();
+    });
+  }
+  /**
+   * Batches the transactions started by observableFromEvent.
+   *
+   * If the callback causes the editor to fire an event that updates
+   * an observable value backed by observableFromEvent (such as scrollTop etc.),
+   * then all such updates will be part of the same transaction.
+  */
+  transaction(cb) {
+    this._beginUpdate();
+    try {
+      return cb(this._currentTransaction);
+    } finally {
+      this._endUpdate();
+    }
+  }
+  forceUpdate(cb) {
+    this._beginUpdate();
+    try {
+      this._forceUpdate();
+      if (!cb) {
+        return void 0;
+      }
+      return cb(this._currentTransaction);
+    } finally {
+      this._endUpdate();
+    }
+  }
+  _forceUpdate() {
+    this._beginUpdate();
+    try {
+      this._model.set(this.editor.getModel(), this._currentTransaction);
+      this._versionId.set(this.editor.getModel()?.getVersionId() ?? null, this._currentTransaction, void 0);
+      this._selections.set(this.editor.getSelections(), this._currentTransaction, void 0);
+    } finally {
+      this._endUpdate();
+    }
+  }
+  getOption(id, debugLocation = DebugLocation.ofCaller()) {
+    return observableFromEvent(this, (cb) => this.editor.onDidChangeConfiguration((e) => {
+      if (e.hasChanged(id)) {
+        cb(void 0);
+      }
+    }), () => this.editor.getOption(id), debugLocation);
+  }
+  setDecorations(decorations) {
+    const d = new DisposableStore();
+    const decorationsCollection = this.editor.createDecorationsCollection();
+    d.add(autorunOpts({ owner: this, debugName: /* @__PURE__ */ __name(() => `Apply decorations from ${decorations.debugName}`, "debugName") }, (reader) => {
+      const d2 = decorations.read(reader);
+      decorationsCollection.set(d2);
+    }));
+    d.add({
+      dispose: /* @__PURE__ */ __name(() => {
+        decorationsCollection.clear();
+      }, "dispose")
+    });
+    return d;
+  }
+  createOverlayWidget(widget) {
+    const overlayWidgetId = "observableOverlayWidget" + this._widgetCounter++;
+    const w = {
+      getDomNode: /* @__PURE__ */ __name(() => widget.domNode, "getDomNode"),
+      getPosition: /* @__PURE__ */ __name(() => widget.position.get(), "getPosition"),
+      getId: /* @__PURE__ */ __name(() => overlayWidgetId, "getId"),
+      allowEditorOverflow: widget.allowEditorOverflow,
+      getMinContentWidthInPx: /* @__PURE__ */ __name(() => widget.minContentWidthInPx.get(), "getMinContentWidthInPx")
+    };
+    this.editor.addOverlayWidget(w);
+    const d = autorun((reader) => {
+      widget.position.read(reader);
+      widget.minContentWidthInPx.read(reader);
+      this.editor.layoutOverlayWidget(w);
+    });
+    return toDisposable(() => {
+      d.dispose();
+      this.editor.removeOverlayWidget(w);
+    });
+  }
+  createContentWidget(widget) {
+    const contentWidgetId = "observableContentWidget" + this._widgetCounter++;
+    const w = {
+      getDomNode: /* @__PURE__ */ __name(() => widget.domNode, "getDomNode"),
+      getPosition: /* @__PURE__ */ __name(() => widget.position.get(), "getPosition"),
+      getId: /* @__PURE__ */ __name(() => contentWidgetId, "getId"),
+      allowEditorOverflow: widget.allowEditorOverflow
+    };
+    this.editor.addContentWidget(w);
+    const d = autorun((reader) => {
+      widget.position.read(reader);
+      this.editor.layoutContentWidget(w);
+    });
+    return toDisposable(() => {
+      d.dispose();
+      this.editor.removeContentWidget(w);
+    });
+  }
+  observeLineOffsetRange(lineRange, store) {
+    const start = this.observePosition(lineRange.map((r) => new Position(r.startLineNumber, 1)), store);
+    const end = this.observePosition(lineRange.map((r) => new Position(r.endLineNumberExclusive + 1, 1)), store);
+    return derived((reader) => {
+      start.read(reader);
+      end.read(reader);
+      const range = lineRange.read(reader);
+      const lineCount = this.model.read(reader)?.getLineCount();
+      const s = (typeof lineCount !== "undefined" && range.startLineNumber > lineCount ? this.editor.getBottomForLineNumber(lineCount) : this.editor.getTopForLineNumber(range.startLineNumber)) - this.scrollTop.read(reader);
+      const e = range.isEmpty ? s : this.editor.getBottomForLineNumber(range.endLineNumberExclusive - 1) - this.scrollTop.read(reader);
+      return new OffsetRange(s, e);
+    });
+  }
+  /**
+   * Uses an approximation if the exact position cannot be determined.
+   */
+  getLeftOfPosition(position, reader) {
+    this.layoutInfo.read(reader);
+    this.value.read(reader);
+    let offset = this.editor.getOffsetForColumn(position.lineNumber, position.column);
+    if (offset === -1) {
+      const typicalHalfwidthCharacterWidth = this.editor.getOption(
+        59
+        /* EditorOption.fontInfo */
+      ).typicalHalfwidthCharacterWidth;
+      const approximation = position.column * typicalHalfwidthCharacterWidth;
+      offset = approximation;
+    }
+    return offset;
+  }
+  observePosition(position, store) {
+    let pos = position.get();
+    const result = observableValueOpts({ owner: this, debugName: /* @__PURE__ */ __name(() => `topLeftOfPosition${pos?.toString()}`, "debugName"), equalsFn: equalsIfDefinedC(Point.equals) }, new Point(0, 0));
+    const contentWidgetId = `observablePositionWidget` + this._widgetCounter++;
+    const domNode = document.createElement("div");
+    const w = {
+      getDomNode: /* @__PURE__ */ __name(() => domNode, "getDomNode"),
+      getPosition: /* @__PURE__ */ __name(() => {
+        return pos ? { preference: [
+          0
+          /* ContentWidgetPositionPreference.EXACT */
+        ], position: position.get() } : null;
+      }, "getPosition"),
+      getId: /* @__PURE__ */ __name(() => contentWidgetId, "getId"),
+      allowEditorOverflow: false,
+      useDisplayNone: true,
+      afterRender: /* @__PURE__ */ __name((position2, coordinate) => {
+        const model = this._model.get();
+        if (model && pos && pos.lineNumber > model.getLineCount()) {
+          result.set(new Point(0, this.editor.getBottomForLineNumber(model.getLineCount()) - this.scrollTop.get()), void 0);
+        } else {
+          result.set(coordinate ? new Point(coordinate.left, coordinate.top) : null, void 0);
+        }
+      }, "afterRender")
+    };
+    this.editor.addContentWidget(w);
+    store.add(autorun((reader) => {
+      pos = position.read(reader);
+      this.editor.layoutContentWidget(w);
+    }));
+    store.add(toDisposable(() => {
+      this.editor.removeContentWidget(w);
+    }));
+    return result;
+  }
+  isTargetHovered(predicate, store) {
+    const isHovered = observableValue("isInjectedTextHovered", false);
+    store.add(this.editor.onMouseMove((e) => {
+      const val = predicate(e);
+      isHovered.set(val, void 0);
+    }));
+    store.add(this.editor.onMouseLeave((E) => {
+      isHovered.set(false, void 0);
+    }));
+    return isHovered;
+  }
+  observeLineHeightForPosition(position) {
+    return derived((reader) => {
+      const pos = position instanceof Position ? position : position.read(reader);
+      if (pos === null) {
+        return null;
+      }
+      this.getOption(
+        75
+        /* EditorOption.lineHeight */
+      ).read(reader);
+      return this.editor.getLineHeightForPosition(pos);
+    });
+  }
+  observeLineHeightForLine(lineNumber) {
+    if (typeof lineNumber === "number") {
+      return this.observeLineHeightForPosition(new Position(lineNumber, 1));
+    }
+    return derived((reader) => {
+      const line = lineNumber.read(reader);
+      if (line === null) {
+        return null;
+      }
+      return this.observeLineHeightForPosition(new Position(line, 1)).read(reader);
+    });
+  }
+  observeLineHeightsForLineRange(lineNumber) {
+    return derived((reader) => {
+      const range = lineNumber instanceof LineRange ? lineNumber : lineNumber.read(reader);
+      const heights = [];
+      for (let i = range.startLineNumber; i < range.endLineNumberExclusive; i++) {
+        heights.push(this.observeLineHeightForLine(i).read(reader));
+      }
+      return heights;
+    });
+  }
+  /**
+   * Get the width of a line in pixels.
+   * Reading the returned value depends on layoutInfo, value, scrollTop, and container resize events.
+   * The container resize dependency ensures correct values when the editor becomes visible after being hidden.
+   */
+  getWidthOfLine(lineNumber, reader) {
+    this.layoutInfo.read(reader);
+    this.value.read(reader);
+    this.scrollTop.read(reader);
+    const width = this.editor.getWidthOfLine(lineNumber);
+    this._onDidContainerResize.read(reader);
+    if (width === 0) {
+      this._sawZeroLineWidth = true;
+    }
+    return width;
+  }
+  /**
+   * Get the vertical position (top offset) for the line's bottom w.r.t. to the first line.
+   */
+  observeTopForLineNumber(lineNumber) {
+    return derived((reader) => {
+      this.layoutInfo.read(reader);
+      this._onDidChangeViewZones.read(reader);
+      this._onDidHiddenAreasChanged.read(reader);
+      this._onDidLineHeightChanged.read(reader);
+      this._versionId.read(reader);
+      return this.editor.getTopForLineNumber(lineNumber);
+    });
+  }
+  /**
+   * Get the vertical position (top offset) for the line's bottom w.r.t. to the first line.
+   */
+  observeBottomForLineNumber(lineNumber) {
+    return derived((reader) => {
+      this.layoutInfo.read(reader);
+      this._onDidChangeViewZones.read(reader);
+      this._onDidHiddenAreasChanged.read(reader);
+      this._onDidLineHeightChanged.read(reader);
+      this._versionId.read(reader);
+      return this.editor.getBottomForLineNumber(lineNumber);
+    });
+  }
+}
+export {
+  ObservableCodeEditor,
+  observableCodeEditor
+};
+//# sourceMappingURL=observableCodeEditor.js.map

@@ -1,1 +1,46 @@
-import{Schemas as a}from"../../../base/common/network.js";import{URI as c}from"../../../base/common/uri.js";import{$ln as h}from"../../../base/common/uuid.js";var u;(function(n){n.scheme=a.vscodeBrowser;function m(t,e){const r=e??h();return c.from({scheme:n.scheme,path:`/${r}`,query:t?`url=${encodeURIComponent(t)}`:void 0})}n.forUrl=m;function f(t){if(t.scheme!==n.scheme)return;const e=t.path.startsWith("/")?t.path.substring(1):t.path;if(!e)return;const r=t.query?new URLSearchParams(t.query).get("url")??"":"";return{id:e,url:r}}n.parse=f;function d(t){return f(t)?.id}n.getId=d;function o(t){return f(t)?.url}n.getUrl=o})(u||(u={}));export{u as BrowserViewUri};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../base/common/network.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+var BrowserViewUri;
+(function(BrowserViewUri2) {
+  BrowserViewUri2.scheme = Schemas.vscodeBrowser;
+  function forUrl(url, id) {
+    const viewId = id ?? generateUuid();
+    return URI.from({
+      scheme: BrowserViewUri2.scheme,
+      path: `/${viewId}`,
+      query: url ? `url=${encodeURIComponent(url)}` : void 0
+    });
+  }
+  __name(forUrl, "forUrl");
+  BrowserViewUri2.forUrl = forUrl;
+  function parse(resource) {
+    if (resource.scheme !== BrowserViewUri2.scheme) {
+      return void 0;
+    }
+    const id = resource.path.startsWith("/") ? resource.path.substring(1) : resource.path;
+    if (!id) {
+      return void 0;
+    }
+    const url = resource.query ? new URLSearchParams(resource.query).get("url") ?? "" : "";
+    return { id, url };
+  }
+  __name(parse, "parse");
+  BrowserViewUri2.parse = parse;
+  function getId(resource) {
+    return parse(resource)?.id;
+  }
+  __name(getId, "getId");
+  BrowserViewUri2.getId = getId;
+  function getUrl(resource) {
+    return parse(resource)?.url;
+  }
+  __name(getUrl, "getUrl");
+  BrowserViewUri2.getUrl = getUrl;
+})(BrowserViewUri || (BrowserViewUri = {}));
+export {
+  BrowserViewUri
+};
+//# sourceMappingURL=browserViewUri.js.map

@@ -1,1 +1,116 @@
-import{localize as e}from"../../../../nls.js";import{$AH as w}from"../../../../platform/quickinput/common/quickAccess.js";import{$jm as P}from"../../../../platform/registry/common/platform.js";import{$yxc as c}from"../../../../platform/quickinput/browser/helpQuickAccess.js";import{$zxc as a,$Axc as m,$Bxc as I}from"./viewQuickAccess.js";import{$Fxc as l,$Gxc as r,$Hxc as h}from"./commandsQuickAccess.js";import{$sL as n,$qL as o,$wL as t}from"../../../../platform/actions/common/actions.js";import{$0n as p}from"../../../../platform/contextkey/common/contextkey.js";import{$VWb as f,$YWb as g}from"../../../browser/quickaccess.js";import{$mL as k}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{EditorContextKeys as y}from"../../../../editor/common/editorContextKeys.js";const d=P.as(w.Quickaccess);d.registerQuickAccessProvider({ctor:c,prefix:c.PREFIX,placeholder:e(11758,null,c.PREFIX),helpEntries:[{description:e(11759,null),commandCenterOrder:70,commandCenterLabel:e(11760,null)}]});d.registerQuickAccessProvider({ctor:a,prefix:a.PREFIX,contextKey:"inViewsPicker",placeholder:e(11761,null),helpEntries:[{description:e(11762,null),commandId:m.ID}]});d.registerQuickAccessProvider({ctor:l,prefix:l.PREFIX,contextKey:"inCommandsPicker",placeholder:e(11763,null),helpEntries:[{description:e(11764,null),commandId:r.ID,commandCenterOrder:20}]});n.appendMenuItem(o.MenubarViewMenu,{group:"1_open",command:{id:r.ID,title:e(11765,null)},order:1});n.appendMenuItem(o.MenubarHelpMenu,{group:"1_welcome",command:{id:r.ID,title:e(11766,null)},order:2});n.appendMenuItem(o.MenubarViewMenu,{group:"1_open",command:{id:m.ID,title:e(11767,null)},order:2});n.appendMenuItem(o.MenubarGoMenu,{group:"5_infile_nav",command:{id:"workbench.action.gotoLine",title:e(11768,null)},order:1});n.appendMenuItem(o.GlobalActivity,{group:"1_command",command:{id:r.ID,title:e(11769,null)},order:1});n.appendMenuItem(o.EditorContext,{group:"z_commands",when:y.editorSimpleInput.toNegated(),command:{id:r.ID,title:e(11770,null)},order:1});t(h);t(r);t(m);t(I);const $="inViewsPicker",x=p.and(f,p.has($)),i=I.KEYBINDING,u="workbench.action.quickOpenNavigateNextInViewPicker";k.registerCommandAndKeybindingRule({id:u,weight:250,handler:g(u,!0),when:x,primary:i.primary,linux:i.linux,mac:i.mac});const s="workbench.action.quickOpenNavigatePreviousInViewPicker";k.registerCommandAndKeybindingRule({id:s,weight:250,handler:g(s,!1),when:x,primary:i.primary|1024,linux:i.linux,mac:{primary:i.mac.primary|1024}});
+import { localize } from "../../../../nls.js";
+import { Extensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { HelpQuickAccessProvider } from "../../../../platform/quickinput/browser/helpQuickAccess.js";
+import { ViewQuickAccessProvider, OpenViewPickerAction, QuickAccessViewPickerAction } from "./viewQuickAccess.js";
+import { CommandsQuickAccessProvider, ShowAllCommandsAction, ClearCommandHistoryAction } from "./commandsQuickAccess.js";
+import { MenuRegistry, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { inQuickPickContext, getQuickNavigateHandler } from "../../../browser/quickaccess.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+const quickAccessRegistry = Registry.as(Extensions.Quickaccess);
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: HelpQuickAccessProvider,
+  prefix: HelpQuickAccessProvider.PREFIX,
+  placeholder: localize("helpQuickAccessPlaceholder", "Type '{0}' to get help on the actions you can take from here.", HelpQuickAccessProvider.PREFIX),
+  helpEntries: [{
+    description: localize("helpQuickAccess", "Show all Quick Access Providers"),
+    commandCenterOrder: 70,
+    commandCenterLabel: localize("more", "More")
+  }]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: ViewQuickAccessProvider,
+  prefix: ViewQuickAccessProvider.PREFIX,
+  contextKey: "inViewsPicker",
+  placeholder: localize("viewQuickAccessPlaceholder", "Type the name of a view, output channel or terminal to open."),
+  helpEntries: [{ description: localize("viewQuickAccess", "Open View"), commandId: OpenViewPickerAction.ID }]
+});
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: CommandsQuickAccessProvider,
+  prefix: CommandsQuickAccessProvider.PREFIX,
+  contextKey: "inCommandsPicker",
+  placeholder: localize("commandsQuickAccessPlaceholder", "Type the name of a command to run."),
+  helpEntries: [{ description: localize("commandsQuickAccess", "Show and Run Commands"), commandId: ShowAllCommandsAction.ID, commandCenterOrder: 20 }]
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarViewMenu, {
+  group: "1_open",
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize({ key: "miCommandPalette", comment: ["&& denotes a mnemonic"] }, "&&Command Palette...")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+  group: "1_welcome",
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize({ key: "miShowAllCommands", comment: ["&& denotes a mnemonic"] }, "Show All Commands")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarViewMenu, {
+  group: "1_open",
+  command: {
+    id: OpenViewPickerAction.ID,
+    title: localize({ key: "miOpenView", comment: ["&& denotes a mnemonic"] }, "&&Open View...")
+  },
+  order: 2
+});
+MenuRegistry.appendMenuItem(MenuId.MenubarGoMenu, {
+  group: "5_infile_nav",
+  command: {
+    id: "workbench.action.gotoLine",
+    title: localize({ key: "miGotoLine", comment: ["&& denotes a mnemonic"] }, "Go to &&Line/Column...")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+  group: "1_command",
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize("commandPalette", "Command Palette...")
+  },
+  order: 1
+});
+MenuRegistry.appendMenuItem(MenuId.EditorContext, {
+  group: "z_commands",
+  when: EditorContextKeys.editorSimpleInput.toNegated(),
+  command: {
+    id: ShowAllCommandsAction.ID,
+    title: localize("commandPalette", "Command Palette...")
+  },
+  order: 1
+});
+registerAction2(ClearCommandHistoryAction);
+registerAction2(ShowAllCommandsAction);
+registerAction2(OpenViewPickerAction);
+registerAction2(QuickAccessViewPickerAction);
+const inViewsPickerContextKey = "inViewsPicker";
+const inViewsPickerContext = ContextKeyExpr.and(inQuickPickContext, ContextKeyExpr.has(inViewsPickerContextKey));
+const viewPickerKeybinding = QuickAccessViewPickerAction.KEYBINDING;
+const quickAccessNavigateNextInViewPickerId = "workbench.action.quickOpenNavigateNextInViewPicker";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: quickAccessNavigateNextInViewPickerId,
+  weight: 200 + 50,
+  handler: getQuickNavigateHandler(quickAccessNavigateNextInViewPickerId, true),
+  when: inViewsPickerContext,
+  primary: viewPickerKeybinding.primary,
+  linux: viewPickerKeybinding.linux,
+  mac: viewPickerKeybinding.mac
+});
+const quickAccessNavigatePreviousInViewPickerId = "workbench.action.quickOpenNavigatePreviousInViewPicker";
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: quickAccessNavigatePreviousInViewPickerId,
+  weight: 200 + 50,
+  handler: getQuickNavigateHandler(quickAccessNavigatePreviousInViewPickerId, false),
+  when: inViewsPickerContext,
+  primary: viewPickerKeybinding.primary | 1024,
+  linux: viewPickerKeybinding.linux,
+  mac: {
+    primary: viewPickerKeybinding.mac.primary | 1024
+    /* KeyMod.Shift */
+  }
+});
+//# sourceMappingURL=quickAccess.contribution.js.map

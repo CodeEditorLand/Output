@@ -1,1 +1,129 @@
-import{$yo as $}from"../../../../platform/log/common/log.js";import{$HP as w}from"../../environment/common/environmentService.js";import{$WC as y}from"../../../../platform/instantiation/common/extensions.js";import{$wC as v,$IC as C,TunnelPrivacyId as T,$GC as S,$zC as _}from"../../../../platform/tunnel/common/tunnel.js";import{$Ed as g}from"../../../../base/common/lifecycle.js";import{$uQc as m}from"../../../../platform/remote/common/sharedProcessTunnelService.js";import{$WN as j}from"../../lifecycle/common/lifecycle.js";import{$eC as A}from"../../../../platform/remote/common/remoteAuthorityResolver.js";import{$Mj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$SPc as P}from"../../environment/electron-browser/environmentService.js";import{OS as b}from"../../../../base/common/platform.js";import{$0l as I}from"../../../../platform/configuration/common/configuration.js";var d=function(u,t,i,s){var o=arguments.length,n=o<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,i):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(u,t,i,s);else for(var e=u.length-1;e>=0;e--)(r=u[e])&&(n=(o<3?r(n):o>3?r(t,i,n):r(t,i))||n);return o>3&&n&&Object.defineProperty(t,i,n),n},h=function(u,t){return function(i,s){t(i,s,u)}};let f=class extends g{constructor(t,i,s,o,n,r,e,a,c){super(),this.a=t,this.b=i,this.tunnelRemoteHost=s,this.tunnelRemotePort=o,this.tunnelLocalPort=n,this.localAddress=r,this.c=e,this.f=a,this.g=c,this.privacy=T.Private,this.protocol=void 0,this.h(),this.D(this.g.onDidChangeConnectionData(()=>this.h()))}h(){this.b.getAddress().then(t=>{this.f.setAddress(this.a,t)})}async dispose(){this.c(),super.dispose(),await this.f.destroyTunnel(this.a)}};f=d([h(7,m),h(8,A)],f);let p=class extends C{constructor(t,i,s,o,n,r,e){super(t,e),this.I=i,this.J=s,this.L=o,this.M=r,this.H=new Set,this.D(n.onDidShutdown(()=>{this.H.forEach(a=>{this.J.destroyTunnel(a)})}))}isPortPrivileged(t){return S(t,this.s,b,this.M.os.release)}F(t,i,s,o,n,r,e,a){const c=this.C(i,s);if(c)return++c.refcount,c.value;if(_(t))return this.G(t,i,s,n,r,e,a);{this.q.trace(`ForwardedPorts: (TunnelService) Creating tunnel without provider ${i}:${s} on local port ${n}.`);const l=this.O(t,i,s,o,n,r);return this.q.trace("ForwardedPorts: (TunnelService) Tunnel created without provider."),this.y(i,s,l),l}}async O(t,i,s,o,n,r){const{id:e}=await this.J.createTunnel();this.H.add(e);const a=this.I.remoteAuthority,c=await this.J.startTunnel(a,e,i,s,o,n,r);return this.L.createInstance(f,e,t,i,s,c.tunnelLocalPort,c.localAddress,()=>{this.H.delete(e)})}canTunnel(t){return super.canTunnel(t)&&!!this.I.remoteAuthority}};p=d([h(0,$),h(1,w),h(2,m),h(3,D),h(4,j),h(5,P),h(6,I)],p);y(v,p,1);export{p as $jWc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ITunnelService, AbstractTunnelService, TunnelPrivacyId, isPortPrivileged, isTunnelProvider } from "../../../../platform/tunnel/common/tunnel.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ISharedProcessTunnelService } from "../../../../platform/remote/common/sharedProcessTunnelService.js";
+import { ILifecycleService } from "../../lifecycle/common/lifecycle.js";
+import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-browser/environmentService.js";
+import { OS } from "../../../../base/common/platform.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+let SharedProcessTunnel = class SharedProcessTunnel2 extends Disposable {
+  static {
+    __name(this, "SharedProcessTunnel");
+  }
+  constructor(_id, _addressProvider, tunnelRemoteHost, tunnelRemotePort, tunnelLocalPort, localAddress, _onBeforeDispose, _sharedProcessTunnelService, _remoteAuthorityResolverService) {
+    super();
+    this._id = _id;
+    this._addressProvider = _addressProvider;
+    this.tunnelRemoteHost = tunnelRemoteHost;
+    this.tunnelRemotePort = tunnelRemotePort;
+    this.tunnelLocalPort = tunnelLocalPort;
+    this.localAddress = localAddress;
+    this._onBeforeDispose = _onBeforeDispose;
+    this._sharedProcessTunnelService = _sharedProcessTunnelService;
+    this._remoteAuthorityResolverService = _remoteAuthorityResolverService;
+    this.privacy = TunnelPrivacyId.Private;
+    this.protocol = void 0;
+    this._updateAddress();
+    this._register(this._remoteAuthorityResolverService.onDidChangeConnectionData(() => this._updateAddress()));
+  }
+  _updateAddress() {
+    this._addressProvider.getAddress().then((address) => {
+      this._sharedProcessTunnelService.setAddress(this._id, address);
+    });
+  }
+  async dispose() {
+    this._onBeforeDispose();
+    super.dispose();
+    await this._sharedProcessTunnelService.destroyTunnel(this._id);
+  }
+};
+SharedProcessTunnel = __decorate([
+  __param(7, ISharedProcessTunnelService),
+  __param(8, IRemoteAuthorityResolverService)
+], SharedProcessTunnel);
+let TunnelService = class TunnelService2 extends AbstractTunnelService {
+  static {
+    __name(this, "TunnelService");
+  }
+  constructor(logService, _environmentService, _sharedProcessTunnelService, _instantiationService, lifecycleService, _nativeWorkbenchEnvironmentService, configurationService) {
+    super(logService, configurationService);
+    this._environmentService = _environmentService;
+    this._sharedProcessTunnelService = _sharedProcessTunnelService;
+    this._instantiationService = _instantiationService;
+    this._nativeWorkbenchEnvironmentService = _nativeWorkbenchEnvironmentService;
+    this._activeSharedProcessTunnels = /* @__PURE__ */ new Set();
+    this._register(lifecycleService.onDidShutdown(() => {
+      this._activeSharedProcessTunnels.forEach((id) => {
+        this._sharedProcessTunnelService.destroyTunnel(id);
+      });
+    }));
+  }
+  isPortPrivileged(port) {
+    return isPortPrivileged(port, this.defaultTunnelHost, OS, this._nativeWorkbenchEnvironmentService.os.release);
+  }
+  retainOrCreateTunnel(addressOrTunnelProvider, remoteHost, remotePort, localHost, localPort, elevateIfNeeded, privacy, protocol) {
+    const existing = this.getTunnelFromMap(remoteHost, remotePort);
+    if (existing) {
+      ++existing.refcount;
+      return existing.value;
+    }
+    if (isTunnelProvider(addressOrTunnelProvider)) {
+      return this.createWithProvider(addressOrTunnelProvider, remoteHost, remotePort, localPort, elevateIfNeeded, privacy, protocol);
+    } else {
+      this.logService.trace(`ForwardedPorts: (TunnelService) Creating tunnel without provider ${remoteHost}:${remotePort} on local port ${localPort}.`);
+      const tunnel = this._createSharedProcessTunnel(addressOrTunnelProvider, remoteHost, remotePort, localHost, localPort, elevateIfNeeded);
+      this.logService.trace("ForwardedPorts: (TunnelService) Tunnel created without provider.");
+      this.addTunnelToMap(remoteHost, remotePort, tunnel);
+      return tunnel;
+    }
+  }
+  async _createSharedProcessTunnel(addressProvider, tunnelRemoteHost, tunnelRemotePort, tunnelLocalHost, tunnelLocalPort, elevateIfNeeded) {
+    const { id } = await this._sharedProcessTunnelService.createTunnel();
+    this._activeSharedProcessTunnels.add(id);
+    const authority = this._environmentService.remoteAuthority;
+    const result = await this._sharedProcessTunnelService.startTunnel(authority, id, tunnelRemoteHost, tunnelRemotePort, tunnelLocalHost, tunnelLocalPort, elevateIfNeeded);
+    const tunnel = this._instantiationService.createInstance(SharedProcessTunnel, id, addressProvider, tunnelRemoteHost, tunnelRemotePort, result.tunnelLocalPort, result.localAddress, () => {
+      this._activeSharedProcessTunnels.delete(id);
+    });
+    return tunnel;
+  }
+  canTunnel(uri) {
+    return super.canTunnel(uri) && !!this._environmentService.remoteAuthority;
+  }
+};
+TunnelService = __decorate([
+  __param(0, ILogService),
+  __param(1, IWorkbenchEnvironmentService),
+  __param(2, ISharedProcessTunnelService),
+  __param(3, IInstantiationService),
+  __param(4, ILifecycleService),
+  __param(5, INativeWorkbenchEnvironmentService),
+  __param(6, IConfigurationService)
+], TunnelService);
+registerSingleton(
+  ITunnelService,
+  TunnelService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  TunnelService
+};
+//# sourceMappingURL=tunnelService.js.map

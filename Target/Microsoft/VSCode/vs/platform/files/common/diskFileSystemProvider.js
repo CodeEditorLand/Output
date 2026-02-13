@@ -1,1 +1,136 @@
-import{$ic as h}from"../../../base/common/arrays.js";import{$7h as n}from"../../../base/common/async.js";import{$mb as c}from"../../../base/common/errors.js";import{$xf as l}from"../../../base/common/event.js";import{$bh as u}from"../../../base/common/extpath.js";import{$Ed as g,$Cd as o}from"../../../base/common/lifecycle.js";import{$7 as f}from"../../../base/common/path.js";import{$9k as m,$al as a}from"./watcher.js";import{LogLevel as s}from"../../log/common/log.js";class x extends g{constructor(t,e){super(),this.a=t,this.b=e,this.c=this.D(new l),this.onDidChangeFile=this.c.event,this.g=this.D(new l),this.onDidWatchError=this.g.event,this.m=[],this.n=this.D(new n(this.h(this.m.length))),this.y=[],this.z=this.D(new n(this.h(this.y.length)))}watch(t,e){return e.recursive||this.b?.watcher?.forceUniversal?this.q(t,e):this.C(t,e)}h(t){return t>200?500:0}q(t,e){const i=this.r(t,e),r=h(this.m,i);return this.s(),o(()=>{r(),this.s()})}r(t,e){const i={path:this.M(t),excludes:e.excludes,includes:e.includes,recursive:e.recursive,filter:e.filter,correlationId:e.correlationId};if(m(i)){const r=this.b?.watcher?.recursive?.usePolling;r===!0?i.pollingInterval=this.b?.watcher?.recursive?.pollingInterval??5e3:Array.isArray(r)&&r.includes(i.path)&&(i.pollingInterval=this.b?.watcher?.recursive?.pollingInterval??5e3)}return i}s(){this.n.trigger(()=>this.t(),this.h(this.m.length)).catch(t=>c(t))}t(){return this.j||(this.j=this.D(this.u(t=>this.c.fire(a(t)),t=>this.I(t),this.a.getLevel()===s.Trace)),this.D(this.a.onDidChangeLogLevel(()=>{this.j?.setVerboseLogging(this.a.getLevel()===s.Trace)}))),this.j.watch(this.m)}C(t,e){const i={path:this.M(t),excludes:e.excludes,includes:e.includes,recursive:!1,filter:e.filter,correlationId:e.correlationId},r=h(this.y,i);return this.F(),o(()=>{r(),this.F()})}F(){this.z.trigger(()=>this.G(),this.h(this.y.length)).catch(t=>c(t))}G(){return this.w||(this.w=this.D(this.H(t=>this.c.fire(a(t)),t=>this.I(t),this.a.getLevel()===s.Trace)),this.D(this.a.onDidChangeLogLevel(()=>{this.w?.setVerboseLogging(this.a.getLevel()===s.Trace)}))),this.w.watch(this.y)}I(t){t.type==="error"&&this.g.fire(t.message),this.J(t)}J(t){this.a[t.type](t.message)}L(t){return f(t.fsPath)}M(t){const e=this.L(t);return u(e)}}export{x as $Ix};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { insert } from "../../../base/common/arrays.js";
+import { ThrottledDelayer } from "../../../base/common/async.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { removeTrailingPathSeparator } from "../../../base/common/extpath.js";
+import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { normalize } from "../../../base/common/path.js";
+import { isRecursiveWatchRequest, reviveFileChanges } from "./watcher.js";
+import { LogLevel } from "../../log/common/log.js";
+class AbstractDiskFileSystemProvider extends Disposable {
+  static {
+    __name(this, "AbstractDiskFileSystemProvider");
+  }
+  constructor(logService, options) {
+    super();
+    this.logService = logService;
+    this.options = options;
+    this._onDidChangeFile = this._register(new Emitter());
+    this.onDidChangeFile = this._onDidChangeFile.event;
+    this._onDidWatchError = this._register(new Emitter());
+    this.onDidWatchError = this._onDidWatchError.event;
+    this.universalWatchRequests = [];
+    this.universalWatchRequestDelayer = this._register(new ThrottledDelayer(this.getRefreshWatchersDelay(this.universalWatchRequests.length)));
+    this.nonRecursiveWatchRequests = [];
+    this.nonRecursiveWatchRequestDelayer = this._register(new ThrottledDelayer(this.getRefreshWatchersDelay(this.nonRecursiveWatchRequests.length)));
+  }
+  watch(resource, opts) {
+    if (opts.recursive || this.options?.watcher?.forceUniversal) {
+      return this.watchUniversal(resource, opts);
+    }
+    return this.watchNonRecursive(resource, opts);
+  }
+  getRefreshWatchersDelay(count) {
+    if (count > 200) {
+      return 500;
+    }
+    return 0;
+  }
+  watchUniversal(resource, opts) {
+    const request = this.toWatchRequest(resource, opts);
+    const remove = insert(this.universalWatchRequests, request);
+    this.refreshUniversalWatchers();
+    return toDisposable(() => {
+      remove();
+      this.refreshUniversalWatchers();
+    });
+  }
+  toWatchRequest(resource, opts) {
+    const request = {
+      path: this.toWatchPath(resource),
+      excludes: opts.excludes,
+      includes: opts.includes,
+      recursive: opts.recursive,
+      filter: opts.filter,
+      correlationId: opts.correlationId
+    };
+    if (isRecursiveWatchRequest(request)) {
+      const usePolling = this.options?.watcher?.recursive?.usePolling;
+      if (usePolling === true) {
+        request.pollingInterval = this.options?.watcher?.recursive?.pollingInterval ?? 5e3;
+      } else if (Array.isArray(usePolling)) {
+        if (usePolling.includes(request.path)) {
+          request.pollingInterval = this.options?.watcher?.recursive?.pollingInterval ?? 5e3;
+        }
+      }
+    }
+    return request;
+  }
+  refreshUniversalWatchers() {
+    this.universalWatchRequestDelayer.trigger(() => {
+      return this.doRefreshUniversalWatchers();
+    }, this.getRefreshWatchersDelay(this.universalWatchRequests.length)).catch((error) => onUnexpectedError(error));
+  }
+  doRefreshUniversalWatchers() {
+    if (!this.universalWatcher) {
+      this.universalWatcher = this._register(this.createUniversalWatcher((changes) => this._onDidChangeFile.fire(reviveFileChanges(changes)), (msg) => this.onWatcherLogMessage(msg), this.logService.getLevel() === LogLevel.Trace));
+      this._register(this.logService.onDidChangeLogLevel(() => {
+        this.universalWatcher?.setVerboseLogging(this.logService.getLevel() === LogLevel.Trace);
+      }));
+    }
+    return this.universalWatcher.watch(this.universalWatchRequests);
+  }
+  watchNonRecursive(resource, opts) {
+    const request = {
+      path: this.toWatchPath(resource),
+      excludes: opts.excludes,
+      includes: opts.includes,
+      recursive: false,
+      filter: opts.filter,
+      correlationId: opts.correlationId
+    };
+    const remove = insert(this.nonRecursiveWatchRequests, request);
+    this.refreshNonRecursiveWatchers();
+    return toDisposable(() => {
+      remove();
+      this.refreshNonRecursiveWatchers();
+    });
+  }
+  refreshNonRecursiveWatchers() {
+    this.nonRecursiveWatchRequestDelayer.trigger(() => {
+      return this.doRefreshNonRecursiveWatchers();
+    }, this.getRefreshWatchersDelay(this.nonRecursiveWatchRequests.length)).catch((error) => onUnexpectedError(error));
+  }
+  doRefreshNonRecursiveWatchers() {
+    if (!this.nonRecursiveWatcher) {
+      this.nonRecursiveWatcher = this._register(this.createNonRecursiveWatcher((changes) => this._onDidChangeFile.fire(reviveFileChanges(changes)), (msg) => this.onWatcherLogMessage(msg), this.logService.getLevel() === LogLevel.Trace));
+      this._register(this.logService.onDidChangeLogLevel(() => {
+        this.nonRecursiveWatcher?.setVerboseLogging(this.logService.getLevel() === LogLevel.Trace);
+      }));
+    }
+    return this.nonRecursiveWatcher.watch(this.nonRecursiveWatchRequests);
+  }
+  //#endregion
+  onWatcherLogMessage(msg) {
+    if (msg.type === "error") {
+      this._onDidWatchError.fire(msg.message);
+    }
+    this.logWatcherMessage(msg);
+  }
+  logWatcherMessage(msg) {
+    this.logService[msg.type](msg.message);
+  }
+  toFilePath(resource) {
+    return normalize(resource.fsPath);
+  }
+  toWatchPath(resource) {
+    const filePath = this.toFilePath(resource);
+    return removeTrailingPathSeparator(filePath);
+  }
+}
+export {
+  AbstractDiskFileSystemProvider
+};
+//# sourceMappingURL=diskFileSystemProvider.js.map

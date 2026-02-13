@@ -1,1 +1,66 @@
-import{$$c as h,$9c as f}from"../../../../base/common/types.js";import{$uZb as p}from"./terminal.js";var a=function(r,e,t,i){var o=arguments.length,n=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,i);else for(var s=r.length-1;s>=0;s--)(l=r[s])&&(n=(o<3?l(n):o>3?l(e,t,n):l(e,t))||n);return o>3&&n&&Object.defineProperty(e,t,n),n},u=function(r,e){return function(t,i){e(t,i,r)}};let c=class{constructor(e){this.a=e}canSerialize(e){return h(e.terminalInstance?.persistentProcessId)&&e.terminalInstance.shouldPersist}serialize(e){if(this.canSerialize(e))return JSON.stringify(this.b(e.terminalInstance))}deserialize(e,t){const i=JSON.parse(t);if(!d(i))throw new Error(`Could not revive terminal editor input, ${i}`);return this.a.reviveInput(i)}b(e){return{id:e.persistentProcessId,pid:e.processId||0,title:e.title,titleSource:e.titleSource,cwd:"",icon:e.icon,color:e.color,hasChildProcesses:e.hasChildProcesses,isFeatureTerminal:e.shellLaunchConfig.isFeatureTerminal,hideFromUser:e.shellLaunchConfig.hideFromUser,reconnectionProperties:e.shellLaunchConfig.reconnectionProperties,shellIntegrationNonce:e.shellIntegrationNonce}}};c=a([u(0,p)],c);function d(r){return f(r)&&"id"in r&&"pid"in r}export{c as $4Bc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { isNumber, isObject } from "../../../../base/common/types.js";
+import { ITerminalEditorService } from "./terminal.js";
+let TerminalInputSerializer = class TerminalInputSerializer2 {
+  static {
+    __name(this, "TerminalInputSerializer");
+  }
+  constructor(_terminalEditorService) {
+    this._terminalEditorService = _terminalEditorService;
+  }
+  canSerialize(editorInput) {
+    return isNumber(editorInput.terminalInstance?.persistentProcessId) && editorInput.terminalInstance.shouldPersist;
+  }
+  serialize(editorInput) {
+    if (!this.canSerialize(editorInput)) {
+      return;
+    }
+    return JSON.stringify(this._toJson(editorInput.terminalInstance));
+  }
+  deserialize(instantiationService, serializedEditorInput) {
+    const editorInput = JSON.parse(serializedEditorInput);
+    if (!isDeserializedTerminalEditorInput(editorInput)) {
+      throw new Error(`Could not revive terminal editor input, ${editorInput}`);
+    }
+    return this._terminalEditorService.reviveInput(editorInput);
+  }
+  _toJson(instance) {
+    return {
+      id: instance.persistentProcessId,
+      pid: instance.processId || 0,
+      title: instance.title,
+      titleSource: instance.titleSource,
+      cwd: "",
+      icon: instance.icon,
+      color: instance.color,
+      hasChildProcesses: instance.hasChildProcesses,
+      isFeatureTerminal: instance.shellLaunchConfig.isFeatureTerminal,
+      hideFromUser: instance.shellLaunchConfig.hideFromUser,
+      reconnectionProperties: instance.shellLaunchConfig.reconnectionProperties,
+      shellIntegrationNonce: instance.shellIntegrationNonce
+    };
+  }
+};
+TerminalInputSerializer = __decorate([
+  __param(0, ITerminalEditorService)
+], TerminalInputSerializer);
+function isDeserializedTerminalEditorInput(obj) {
+  return isObject(obj) && "id" in obj && "pid" in obj;
+}
+__name(isDeserializedTerminalEditorInput, "isDeserializedTerminalEditorInput");
+export {
+  TerminalInputSerializer
+};
+//# sourceMappingURL=terminalEditorSerializer.js.map

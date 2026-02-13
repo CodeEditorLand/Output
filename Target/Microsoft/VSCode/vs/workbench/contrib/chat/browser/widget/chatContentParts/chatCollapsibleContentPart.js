@@ -1,1 +1,135 @@
-import{$ as d}from"../../../../../../base/browser/dom.js";import{$f_ as m}from"../../../../../../base/browser/ui/button/button.js";import{$bk as u}from"../../../../../../base/common/codicons.js";import{$Ed as p,$Fd as b}from"../../../../../../base/common/lifecycle.js";import{autorun as g,observableValue as a}from"../../../../../../base/common/observable.js";import{$jkb as v}from"../../../../../../platform/hover/browser/hover.js";import{$m1b as D}from"./chatInlineAnchorWidget.js";var c=function(r,t,i,e){var s=arguments.length,n=s<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,i,e);else for(var h=r.length-1;h>=0;h--)(o=r[h])&&(n=(s<3?o(n):s>3?o(t,i,n):o(t,i))||n);return s>3&&n&&Object.defineProperty(t,i,n),n},f=function(r,t){return function(i,e){t(i,e,r)}};let l=class extends p{get icon(){return this.m.get()}set icon(t){this.m.set(t,void 0)}constructor(t,i,e,s){super(),this.u=t,this.w=e,this.y=s,this.b=this.D(new b),this.g=a(this,!1),this.m=a(this,void 0),this.q=!1,this.s=i.element,this.f=i.contentIndex+1<i.content.length}get domNode(){return this.a??=this.z(),this.a}z(){const t=this.u,i=d(".chat-used-context-label",void 0),e=this.D(new m(i,{buttonBackground:void 0,buttonBorder:void 0,buttonForeground:void 0,buttonHoverBackground:void 0,buttonSecondaryBackground:void 0,buttonSecondaryForeground:void 0,buttonSecondaryHoverBackground:void 0,buttonSeparator:void 0}));return this.j=e,this.a=d(".chat-used-context",void 0,i),e.label=t,this.w&&this.D(this.y.setupDelayedHover(e.iconElement,{content:this.w,style:1})),this.D(e.onDidClick(()=>{const s=this.g.get();this.g.set(!s,void 0)})),this.g.set(this.H(),void 0),this.D(g(s=>{const n=this.g.read(s);e.icon=this.m.read(s)??(n?u.chevronDown:u.chevronRight),this.a?.classList.toggle("chat-used-context-collapsed",!n),this.G(e.element,typeof t=="string"?t:t.value,n),(n||this.F())&&!this.q&&(this.q=!0,this.n=this.C(),this.a?.appendChild(this.n))})),this.a}F(){return!1}G(t,i,e){t.ariaLabel=i,t.ariaExpanded=String(e)}addDisposable(t){this.D(t)}get expanded(){return this.g}H(){return this.g.get()}I(t){this.g.set(t,void 0)}J(t){this.u=t,this.j&&(this.j.label=t,this.G(this.j.element,t,this.H()))}L(t,i,e,s){if(this.B.isDisposed||!this.j)return;const n=s.render(t);n.element.classList.add("collapsible-title-content"),D(n.element,i,e,this.B);const o=this.j.labelElement;o.textContent="",o.appendChild(n.element);const h=n.element.textContent||"";this.G(this.j.element,h,this.H()),this.b.value=n}};l=c([f(3,v)],l);export{l as $f4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { $ } from "../../../../../../base/browser/dom.js";
+import { ButtonWithIcon } from "../../../../../../base/browser/ui/button/button.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, observableValue } from "../../../../../../base/common/observable.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { renderFileWidgets } from "./chatInlineAnchorWidget.js";
+let ChatCollapsibleContentPart = class ChatCollapsibleContentPart2 extends Disposable {
+  static {
+    __name(this, "ChatCollapsibleContentPart");
+  }
+  get icon() {
+    return this._overrideIcon.get();
+  }
+  set icon(value) {
+    this._overrideIcon.set(value, void 0);
+  }
+  constructor(title, context, hoverMessage, hoverService) {
+    super();
+    this.title = title;
+    this.hoverMessage = hoverMessage;
+    this.hoverService = hoverService;
+    this._renderedTitleWithWidgets = this._register(new MutableDisposable());
+    this._isExpanded = observableValue(this, false);
+    this._overrideIcon = observableValue(this, void 0);
+    this._contentInitialized = false;
+    this.element = context.element;
+    this.hasFollowingContent = context.contentIndex + 1 < context.content.length;
+  }
+  get domNode() {
+    this._domNode ??= this.init();
+    return this._domNode;
+  }
+  init() {
+    const referencesLabel = this.title;
+    const buttonElement = $(".chat-used-context-label", void 0);
+    const collapseButton = this._register(new ButtonWithIcon(buttonElement, {
+      buttonBackground: void 0,
+      buttonBorder: void 0,
+      buttonForeground: void 0,
+      buttonHoverBackground: void 0,
+      buttonSecondaryBackground: void 0,
+      buttonSecondaryForeground: void 0,
+      buttonSecondaryHoverBackground: void 0,
+      buttonSeparator: void 0
+    }));
+    this._collapseButton = collapseButton;
+    this._domNode = $(".chat-used-context", void 0, buttonElement);
+    collapseButton.label = referencesLabel;
+    if (this.hoverMessage) {
+      this._register(this.hoverService.setupDelayedHover(collapseButton.iconElement, {
+        content: this.hoverMessage,
+        style: 1
+      }));
+    }
+    this._register(collapseButton.onDidClick(() => {
+      const value = this._isExpanded.get();
+      this._isExpanded.set(!value, void 0);
+    }));
+    this._isExpanded.set(this.isExpanded(), void 0);
+    this._register(autorun((r) => {
+      const expanded = this._isExpanded.read(r);
+      collapseButton.icon = this._overrideIcon.read(r) ?? (expanded ? Codicon.chevronDown : Codicon.chevronRight);
+      this._domNode?.classList.toggle("chat-used-context-collapsed", !expanded);
+      this.updateAriaLabel(collapseButton.element, typeof referencesLabel === "string" ? referencesLabel : referencesLabel.value, expanded);
+      if ((expanded || this.shouldInitEarly()) && !this._contentInitialized) {
+        this._contentInitialized = true;
+        this._contentElement = this.initContent();
+        this._domNode?.appendChild(this._contentElement);
+      }
+    }));
+    return this._domNode;
+  }
+  shouldInitEarly() {
+    return false;
+  }
+  updateAriaLabel(element, label, expanded) {
+    element.ariaLabel = label;
+    element.ariaExpanded = String(expanded);
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+  get expanded() {
+    return this._isExpanded;
+  }
+  isExpanded() {
+    return this._isExpanded.get();
+  }
+  setExpanded(value) {
+    this._isExpanded.set(value, void 0);
+  }
+  setTitle(title) {
+    this.title = title;
+    if (this._collapseButton) {
+      this._collapseButton.label = title;
+      this.updateAriaLabel(this._collapseButton.element, title, this.isExpanded());
+    }
+  }
+  // Render collapsible dropdown title with widgets
+  setTitleWithWidgets(content, instantiationService, chatMarkdownAnchorService, chatContentMarkdownRenderer) {
+    if (this._store.isDisposed || !this._collapseButton) {
+      return;
+    }
+    const result = chatContentMarkdownRenderer.render(content);
+    result.element.classList.add("collapsible-title-content");
+    renderFileWidgets(result.element, instantiationService, chatMarkdownAnchorService, this._store);
+    const labelElement = this._collapseButton.labelElement;
+    labelElement.textContent = "";
+    labelElement.appendChild(result.element);
+    const textContent = result.element.textContent || "";
+    this.updateAriaLabel(this._collapseButton.element, textContent, this.isExpanded());
+    this._renderedTitleWithWidgets.value = result;
+  }
+};
+ChatCollapsibleContentPart = __decorate([
+  __param(3, IHoverService)
+], ChatCollapsibleContentPart);
+export {
+  ChatCollapsibleContentPart
+};
+//# sourceMappingURL=chatCollapsibleContentPart.js.map

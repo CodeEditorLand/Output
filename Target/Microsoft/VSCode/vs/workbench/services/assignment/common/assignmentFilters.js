@@ -1,1 +1,204 @@
-import{$NR as g}from"../../extensions/common/extensions.js";import{$Ed as m}from"../../../../base/common/lifecycle.js";import{$Iz as u}from"../../../../platform/extensions/common/extensions.js";import{$yo as V}from"../../../../platform/log/common/log.js";import{$xf as d}from"../../../../base/common/event.js";import{$hp as x}from"../../../../platform/storage/common/storage.js";import{$JP as b}from"../../chat/common/chatEntitlementService.js";var f=function(o,t,i,n){var r=arguments.length,s=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,t,i,n);else for(var p=o.length-1;p>=0;p--)(h=o[p])&&(s=(r<3?h(s):r>3?h(t,i,s):h(t,i))||s);return r>3&&s&&Object.defineProperty(t,i,s),s},c=function(o,t){return function(i,n){t(i,n,o)}},a,l;(function(o){o.CopilotExtensionVersion="X-Copilot-RelatedPluginVersion-githubcopilot",o.CopilotChatExtensionVersion="X-Copilot-RelatedPluginVersion-githubcopilotchat",o.CompletionsVersionInCopilotChat="X-VSCode-CompletionsInChatExtensionVersion",o.CopilotSku="X-GitHub-Copilot-SKU",o.MicrosoftInternalOrg="X-Microsoft-Internal-Org"})(l||(l={}));var e;(function(o){o.CopilotExtensionVersion="extensionsAssignmentFilterProvider.copilotExtensionVersion",o.CopilotChatExtensionVersion="extensionsAssignmentFilterProvider.copilotChatExtensionVersion",o.CompletionsVersion="extensionsAssignmentFilterProvider.copilotCompletionsVersion",o.CopilotSku="extensionsAssignmentFilterProvider.copilotSku",o.CopilotInternalOrg="extensionsAssignmentFilterProvider.copilotInternalOrg"})(e||(e={}));let C=a=class extends m{constructor(t,i,n,r){super(),this.j=t,this.m=i,this.n=n,this.q=r,this.h=this.D(new d),this.onDidChangeFilters=this.h.event,this.b=this.n.get(e.CopilotExtensionVersion,0),this.a=this.n.get(e.CopilotChatExtensionVersion,0),this.c=this.n.get(e.CompletionsVersion,0),this.g=this.n.get(e.CopilotSku,0),this.f=this.n.get(e.CopilotInternalOrg,0),this.D(this.j.onDidChangeExtensionsStatus(s=>{s.some(h=>u.equals(h,"github.copilot")||u.equals(h,"github.copilot-chat"))&&this.r()})),this.D(this.q.onDidChangeEntitlement(()=>{this.s()})),this.r(),this.s()}async r(){let t,i,n;try{const[r,s]=await Promise.all([this.j.getExtension("github.copilot"),this.j.getExtension("github.copilot-chat")]);t=r?.version,i=s?.version,n=s?.completionsCoreVersion}catch(r){this.m.error("Failed to update extension version assignments",r)}this.c===n&&this.b===t&&this.a===i||(this.b=t,this.a=i,this.c=n,this.n.store(e.CopilotExtensionVersion,this.b,0,1),this.n.store(e.CopilotChatExtensionVersion,this.a,0,1),this.n.store(e.CompletionsVersion,this.c,0,1),this.h.fire())}s(){const t=this.q.sku,i=this.q.organisations?.includes("github"),n=this.q.organisations?.includes("microsoft")||this.q.organisations?.includes("ms-copilot")||this.q.organisations?.includes("MicrosoftCopilot"),s=this.q.organisations?.includes("Visual-Studio-Code")?"vscode":i?"github":n?"microsoft":void 0;this.g===t&&this.f===s||(this.g=t,this.f=s,this.n.store(e.CopilotSku,this.g,0,1),this.n.store(e.CopilotInternalOrg,this.f,0,1),this.h.fire())}static t(t){const i=/\-[a-zA-Z0-9]+$/;return t.split(i)[0]}getFilterValue(t){switch(t){case l.CopilotExtensionVersion:return this.b?a.t(this.b):null;case l.CompletionsVersionInCopilotChat:return this.c?a.t(this.c):null;case l.CopilotChatExtensionVersion:return this.a?a.t(this.a):null;case l.CopilotSku:return this.g??null;case l.MicrosoftInternalOrg:return this.f??null;default:return null}}getFilters(){const t=new Map,i=Object.values(l);for(const n of i)t.set(n,this.getFilterValue(n));return t}};C=a=f([c(0,g),c(1,V),c(2,x),c(3,b)],C);export{C as $NZ,l as ExtensionsFilter};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CopilotAssignmentFilterProvider_1;
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IChatEntitlementService } from "../../chat/common/chatEntitlementService.js";
+var ExtensionsFilter;
+(function(ExtensionsFilter2) {
+  ExtensionsFilter2["CopilotExtensionVersion"] = "X-Copilot-RelatedPluginVersion-githubcopilot";
+  ExtensionsFilter2["CopilotChatExtensionVersion"] = "X-Copilot-RelatedPluginVersion-githubcopilotchat";
+  ExtensionsFilter2["CompletionsVersionInCopilotChat"] = "X-VSCode-CompletionsInChatExtensionVersion";
+  ExtensionsFilter2["CopilotSku"] = "X-GitHub-Copilot-SKU";
+  ExtensionsFilter2["MicrosoftInternalOrg"] = "X-Microsoft-Internal-Org";
+})(ExtensionsFilter || (ExtensionsFilter = {}));
+var StorageVersionKeys;
+(function(StorageVersionKeys2) {
+  StorageVersionKeys2["CopilotExtensionVersion"] = "extensionsAssignmentFilterProvider.copilotExtensionVersion";
+  StorageVersionKeys2["CopilotChatExtensionVersion"] = "extensionsAssignmentFilterProvider.copilotChatExtensionVersion";
+  StorageVersionKeys2["CompletionsVersion"] = "extensionsAssignmentFilterProvider.copilotCompletionsVersion";
+  StorageVersionKeys2["CopilotSku"] = "extensionsAssignmentFilterProvider.copilotSku";
+  StorageVersionKeys2["CopilotInternalOrg"] = "extensionsAssignmentFilterProvider.copilotInternalOrg";
+})(StorageVersionKeys || (StorageVersionKeys = {}));
+let CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = class CopilotAssignmentFilterProvider2 extends Disposable {
+  static {
+    __name(this, "CopilotAssignmentFilterProvider");
+  }
+  constructor(_extensionService, _logService, _storageService, _chatEntitlementService) {
+    super();
+    this._extensionService = _extensionService;
+    this._logService = _logService;
+    this._storageService = _storageService;
+    this._chatEntitlementService = _chatEntitlementService;
+    this._onDidChangeFilters = this._register(new Emitter());
+    this.onDidChangeFilters = this._onDidChangeFilters.event;
+    this.copilotExtensionVersion = this._storageService.get(
+      StorageVersionKeys.CopilotExtensionVersion,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this.copilotChatExtensionVersion = this._storageService.get(
+      StorageVersionKeys.CopilotChatExtensionVersion,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this.copilotCompletionsVersion = this._storageService.get(
+      StorageVersionKeys.CompletionsVersion,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this.copilotSku = this._storageService.get(
+      StorageVersionKeys.CopilotSku,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this.copilotInternalOrg = this._storageService.get(
+      StorageVersionKeys.CopilotInternalOrg,
+      0
+      /* StorageScope.PROFILE */
+    );
+    this._register(this._extensionService.onDidChangeExtensionsStatus((extensionIdentifiers) => {
+      if (extensionIdentifiers.some((identifier) => ExtensionIdentifier.equals(identifier, "github.copilot") || ExtensionIdentifier.equals(identifier, "github.copilot-chat"))) {
+        this.updateExtensionVersions();
+      }
+    }));
+    this._register(this._chatEntitlementService.onDidChangeEntitlement(() => {
+      this.updateCopilotEntitlementInfo();
+    }));
+    this.updateExtensionVersions();
+    this.updateCopilotEntitlementInfo();
+  }
+  async updateExtensionVersions() {
+    let copilotExtensionVersion;
+    let copilotChatExtensionVersion;
+    let copilotCompletionsVersion;
+    try {
+      const [copilotExtension, copilotChatExtension] = await Promise.all([
+        this._extensionService.getExtension("github.copilot"),
+        this._extensionService.getExtension("github.copilot-chat")
+      ]);
+      copilotExtensionVersion = copilotExtension?.version;
+      copilotChatExtensionVersion = copilotChatExtension?.version;
+      copilotCompletionsVersion = copilotChatExtension?.completionsCoreVersion;
+    } catch (error) {
+      this._logService.error("Failed to update extension version assignments", error);
+    }
+    if (this.copilotCompletionsVersion === copilotCompletionsVersion && this.copilotExtensionVersion === copilotExtensionVersion && this.copilotChatExtensionVersion === copilotChatExtensionVersion) {
+      return;
+    }
+    this.copilotExtensionVersion = copilotExtensionVersion;
+    this.copilotChatExtensionVersion = copilotChatExtensionVersion;
+    this.copilotCompletionsVersion = copilotCompletionsVersion;
+    this._storageService.store(
+      StorageVersionKeys.CopilotExtensionVersion,
+      this.copilotExtensionVersion,
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._storageService.store(
+      StorageVersionKeys.CopilotChatExtensionVersion,
+      this.copilotChatExtensionVersion,
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._storageService.store(
+      StorageVersionKeys.CompletionsVersion,
+      this.copilotCompletionsVersion,
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._onDidChangeFilters.fire();
+  }
+  updateCopilotEntitlementInfo() {
+    const newSku = this._chatEntitlementService.sku;
+    const newIsGitHubInternal = this._chatEntitlementService.organisations?.includes("github");
+    const newIsMicrosoftInternal = this._chatEntitlementService.organisations?.includes("microsoft") || this._chatEntitlementService.organisations?.includes("ms-copilot") || this._chatEntitlementService.organisations?.includes("MicrosoftCopilot");
+    const newIsVSCodeInternal = this._chatEntitlementService.organisations?.includes("Visual-Studio-Code");
+    const newInternalOrg = newIsVSCodeInternal ? "vscode" : newIsGitHubInternal ? "github" : newIsMicrosoftInternal ? "microsoft" : void 0;
+    if (this.copilotSku === newSku && this.copilotInternalOrg === newInternalOrg) {
+      return;
+    }
+    this.copilotSku = newSku;
+    this.copilotInternalOrg = newInternalOrg;
+    this._storageService.store(
+      StorageVersionKeys.CopilotSku,
+      this.copilotSku,
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._storageService.store(
+      StorageVersionKeys.CopilotInternalOrg,
+      this.copilotInternalOrg,
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    this._onDidChangeFilters.fire();
+  }
+  /**
+   * Returns a version string that can be parsed by the TAS client.
+   * The tas client cannot handle suffixes lke "-insider"
+   * Ref: https://github.com/microsoft/tas-client/blob/30340d5e1da37c2789049fcf45928b954680606f/vscode-tas-client/src/vscode-tas-client/VSCodeFilterProvider.ts#L35
+   *
+   * @param version Version string to be trimmed.
+  */
+  static trimVersionSuffix(version) {
+    const regex = /\-[a-zA-Z0-9]+$/;
+    const result = version.split(regex);
+    return result[0];
+  }
+  getFilterValue(filter) {
+    switch (filter) {
+      case ExtensionsFilter.CopilotExtensionVersion:
+        return this.copilotExtensionVersion ? CopilotAssignmentFilterProvider_1.trimVersionSuffix(this.copilotExtensionVersion) : null;
+      case ExtensionsFilter.CompletionsVersionInCopilotChat:
+        return this.copilotCompletionsVersion ? CopilotAssignmentFilterProvider_1.trimVersionSuffix(this.copilotCompletionsVersion) : null;
+      case ExtensionsFilter.CopilotChatExtensionVersion:
+        return this.copilotChatExtensionVersion ? CopilotAssignmentFilterProvider_1.trimVersionSuffix(this.copilotChatExtensionVersion) : null;
+      case ExtensionsFilter.CopilotSku:
+        return this.copilotSku ?? null;
+      case ExtensionsFilter.MicrosoftInternalOrg:
+        return this.copilotInternalOrg ?? null;
+      default:
+        return null;
+    }
+  }
+  getFilters() {
+    const filters = /* @__PURE__ */ new Map();
+    const filterValues = Object.values(ExtensionsFilter);
+    for (const value of filterValues) {
+      filters.set(value, this.getFilterValue(value));
+    }
+    return filters;
+  }
+};
+CopilotAssignmentFilterProvider = CopilotAssignmentFilterProvider_1 = __decorate([
+  __param(0, IExtensionService),
+  __param(1, ILogService),
+  __param(2, IStorageService),
+  __param(3, IChatEntitlementService)
+], CopilotAssignmentFilterProvider);
+export {
+  CopilotAssignmentFilterProvider,
+  ExtensionsFilter
+};
+//# sourceMappingURL=assignmentFilters.js.map

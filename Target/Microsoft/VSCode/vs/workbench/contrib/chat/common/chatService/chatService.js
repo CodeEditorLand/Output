@@ -1,1 +1,373 @@
-import{$Dd as m}from"../../../../../base/common/lifecycle.js";import{autorun as l,autorunSelfDisposable as I}from"../../../../../base/common/observable.js";import{$rd as W}from"../../../../../base/common/types.js";import{URI as J}from"../../../../../base/common/uri.js";import{$_D as Q}from"../../../../../editor/common/core/range.js";import{$Nj as V}from"../../../../../platform/instantiation/common/instantiation.js";var y;(function(e){e[e.Info=0]="Info",e[e.Warning=1]="Warning",e[e.Error=2]="Error"})(y||(y={}));function G(e){return!!e&&typeof e=="object"&&"uri"in e&&e.uri instanceof J&&"version"in e&&typeof e.version=="number"&&"ranges"in e&&Array.isArray(e.ranges)&&e.ranges.every(Q.isIRange)}function L(e){return!!e&&typeof e=="object"&&"documents"in e&&Array.isArray(e.documents)&&e.documents.every(G)}function M(e){return!!e&&typeof e=="object"&&typeof e.variableName=="string"}var g;(function(e){e[e.Complete=1]="Complete",e[e.Partial=2]="Partial",e[e.Omitted=3]="Omitted"})(g||(g={}));var x;(function(e){e[e.NoReason=0]="NoReason",e[e.FilteredContentRetry=1]="FilteredContentRetry",e[e.CopyrightContentRetry=2]="CopyrightContentRetry"})(x||(x={}));class b{constructor(n){this.kind="multiDiffData",this.readOnly=n.readOnly,this.collapsed=n.collapsed,this.multiDiffData=n.multiDiffData}toJSON(){return{kind:this.kind,multiDiffData:W(this.multiDiffData,{title:!0})?this.multiDiffData:this.multiDiffData.get(),collapsed:this.collapsed,readOnly:this.readOnly}}}var k;(function(e){e.Pending="pending",e.Accepted="accepted",e.Rejected="rejected"})(k||(k={}));function C(e){return!!e&&typeof e=="object"&&"command"in e}var D;(function(e){e[e.Denied=0]="Denied",e[e.ConfirmationNotNeeded=1]="ConfirmationNotNeeded",e[e.Setting=2]="Setting",e[e.LmServicePerTool=3]="LmServicePerTool",e[e.UserAction=4]="UserAction",e[e.Skipped=5]="Skipped"})(D||(D={}));var O;(function(e){let n;(function(t){t[t.Streaming=0]="Streaming",t[t.WaitingForConfirmation=1]="WaitingForConfirmation",t[t.Executing=2]="Executing",t[t.WaitingForPostApproval=3]="WaitingForPostApproval",t[t.Completed=4]="Completed",t[t.Cancelled=5]="Cancelled"})(n=e.StateKind||(e.StateKind={}));function d(t,i){if(t.kind==="toolInvocationSerialized")return t.isConfirmed===void 0||typeof t.isConfirmed=="boolean"?{type:t.isConfirmed?4:0}:t.isConfirmed;const r=t.state.read(i);if(!(r.type===0||r.type===1))return r.type===5?{type:r.reason}:r.confirmed}e.executionConfirmedOrDenied=d;function f(t,i){const r=d(t);if(r)return Promise.resolve(r);const u=new m;return new Promise(a=>{i&&u.add(i.onCancellationRequested(()=>{a({type:0})})),u.add(l(p=>{const o=d(t,p);o&&(u.dispose(),a(o))}))}).finally(()=>{u.dispose()})}e.awaitConfirmation=f;function c(t,i){const r=t.state.read(i);if(r.type===4)return r.postConfirmed||{type:1};if(r.type===5)return{type:r.reason}}function s(t,i){const r=t?.state.get();return r?.type===1||r?.type===3?(r.confirm(i),!0):!1}e.confirmWith=s;function q(t,i){const r=c(t);if(r)return Promise.resolve(r);const u=new m;return new Promise(a=>{i&&u.add(i.onCancellationRequested(()=>{a({type:0})})),u.add(l(p=>{const o=c(t,p);o&&(u.dispose(),a(o))}))}).finally(()=>{u.dispose()})}e.awaitPostConfirmation=q;function U(t,i){if(t.kind==="toolInvocationSerialized")return t.resultDetails;const r=t.state.read(i);if(r.type===4||r.type===3)return r.resultDetails}e.resultDetails=U;function z(t,i){if(t.kind==="toolInvocationSerialized")return!0;const r=t.state.read(i);return r.type===4||r.type===5}e.isComplete=z;function A(t,i){return t.kind==="toolInvocationSerialized"?!1:t.state.read(i).type===0}e.isStreaming=A;function v(t,i){if(t.kind==="toolInvocationSerialized")return;const r=t.state.read(i);if(r.type!==0)return r.parameters}e.getParameters=v;function E(t,i){if(t.kind==="toolInvocationSerialized")return;const r=t.state.read(i);if(r.type!==0)return r.confirmationMessages}e.getConfirmationMessages=E})(O||(O={}));class j{get isEmpty(){const n=this.state.get();return!n.working&&n.serversRequiringInteraction.length===0}constructor(n){this.state=n,this.kind="mcpServersStarting",this.didStartServerIds=[]}wait(){return new Promise(n=>{I(d=>{const f=this.state.read(d);f.working||(d.dispose(),n(f))})})}toJSON(){return{kind:"mcpServersStarting",didStartServerIds:this.didStartServerIds}}}function h(e){return!!e&&e.kind==="reply"&&typeof e.message=="string"&&typeof e.agentId=="string"}var N;(function(e){e[e.Down=0]="Down",e[e.Up=1]="Up"})(N||(N={}));var $;(function(e){e.IncorrectCode="incorrectCode",e.DidNotFollowInstructions="didNotFollowInstructions",e.IncompleteCode="incompleteCode",e.MissingContext="missingContext",e.PoorlyWrittenOrFormatted="poorlyWrittenOrFormatted",e.RefusedAValidRequest="refusedAValidRequest",e.OffensiveOrUnsafe="offensiveOrUnsafe",e.Other="other",e.WillReportIssue="willReportIssue"})($||($={}));var w;(function(e){e[e.Action=1]="Action",e[e.Toolbar=2]="Toolbar"})(w||(w={}));function R(e){return W(e,{created:!0})?e:{created:e.startTime,lastRequestStarted:e.startTime,lastRequestEnded:e.endTime}}var S;(function(e){e[e.Pending=0]="Pending",e[e.Complete=1]="Complete",e[e.Cancelled=2]="Cancelled",e[e.Failed=3]="Failed",e[e.NeedsInput=4]="NeedsInput"})(S||(S={}));var F;(function(e){function n(s){return s.kind==="sent"}e.isSent=n;function d(s){return s.kind==="rejected"}e.isRejected=d;function f(s){return s.kind==="queued"}e.isQueued=f;function c(s){if(s.kind!=="sent")throw new Error(`Expected ChatSendResult to be 'sent', but was '${s.kind}'`)}e.assertSent=c})(F||(F={}));var P;(function(e){e.Queued="queued",e.Steering="steering"})(P||(P={}));const T=V("IChatService"),K="accessibility.voice.keywordActivation";export{G as $FV,L as $GV,M as $HV,b as $IV,C as $JV,j as $KV,h as $LV,R as $MV,T as $NV,K as $OV,N as ChatAgentVoteDirection,$ as ChatAgentVoteDownReason,w as ChatCopyKind,y as ChatErrorLevel,P as ChatRequestQueueKind,x as ChatResponseClearToPreviousToolInvocationReason,g as ChatResponseReferencePartStatusKind,F as ChatSendResult,k as ElicitationState,O as IChatToolInvocation,S as ResponseModelState,D as ToolConfirmKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { autorun, autorunSelfDisposable } from "../../../../../base/common/observable.js";
+import { hasKey } from "../../../../../base/common/types.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+var ChatErrorLevel;
+(function(ChatErrorLevel2) {
+  ChatErrorLevel2[ChatErrorLevel2["Info"] = 0] = "Info";
+  ChatErrorLevel2[ChatErrorLevel2["Warning"] = 1] = "Warning";
+  ChatErrorLevel2[ChatErrorLevel2["Error"] = 2] = "Error";
+})(ChatErrorLevel || (ChatErrorLevel = {}));
+function isIDocumentContext(obj) {
+  return !!obj && typeof obj === "object" && "uri" in obj && obj.uri instanceof URI && "version" in obj && typeof obj.version === "number" && "ranges" in obj && Array.isArray(obj.ranges) && obj.ranges.every(Range.isIRange);
+}
+__name(isIDocumentContext, "isIDocumentContext");
+function isIUsedContext(obj) {
+  return !!obj && typeof obj === "object" && "documents" in obj && Array.isArray(obj.documents) && obj.documents.every(isIDocumentContext);
+}
+__name(isIUsedContext, "isIUsedContext");
+function isChatContentVariableReference(obj) {
+  return !!obj && typeof obj === "object" && typeof obj.variableName === "string";
+}
+__name(isChatContentVariableReference, "isChatContentVariableReference");
+var ChatResponseReferencePartStatusKind;
+(function(ChatResponseReferencePartStatusKind2) {
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Complete"] = 1] = "Complete";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Partial"] = 2] = "Partial";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Omitted"] = 3] = "Omitted";
+})(ChatResponseReferencePartStatusKind || (ChatResponseReferencePartStatusKind = {}));
+var ChatResponseClearToPreviousToolInvocationReason;
+(function(ChatResponseClearToPreviousToolInvocationReason2) {
+  ChatResponseClearToPreviousToolInvocationReason2[ChatResponseClearToPreviousToolInvocationReason2["NoReason"] = 0] = "NoReason";
+  ChatResponseClearToPreviousToolInvocationReason2[ChatResponseClearToPreviousToolInvocationReason2["FilteredContentRetry"] = 1] = "FilteredContentRetry";
+  ChatResponseClearToPreviousToolInvocationReason2[ChatResponseClearToPreviousToolInvocationReason2["CopyrightContentRetry"] = 2] = "CopyrightContentRetry";
+})(ChatResponseClearToPreviousToolInvocationReason || (ChatResponseClearToPreviousToolInvocationReason = {}));
+class ChatMultiDiffData {
+  static {
+    __name(this, "ChatMultiDiffData");
+  }
+  constructor(opts) {
+    this.kind = "multiDiffData";
+    this.readOnly = opts.readOnly;
+    this.collapsed = opts.collapsed;
+    this.multiDiffData = opts.multiDiffData;
+  }
+  toJSON() {
+    return {
+      kind: this.kind,
+      multiDiffData: hasKey(this.multiDiffData, { title: true }) ? this.multiDiffData : this.multiDiffData.get(),
+      collapsed: this.collapsed,
+      readOnly: this.readOnly
+    };
+  }
+}
+var ElicitationState;
+(function(ElicitationState2) {
+  ElicitationState2["Pending"] = "pending";
+  ElicitationState2["Accepted"] = "accepted";
+  ElicitationState2["Rejected"] = "rejected";
+})(ElicitationState || (ElicitationState = {}));
+function isLegacyChatTerminalToolInvocationData(data) {
+  return !!data && typeof data === "object" && "command" in data;
+}
+__name(isLegacyChatTerminalToolInvocationData, "isLegacyChatTerminalToolInvocationData");
+var ToolConfirmKind;
+(function(ToolConfirmKind2) {
+  ToolConfirmKind2[ToolConfirmKind2["Denied"] = 0] = "Denied";
+  ToolConfirmKind2[ToolConfirmKind2["ConfirmationNotNeeded"] = 1] = "ConfirmationNotNeeded";
+  ToolConfirmKind2[ToolConfirmKind2["Setting"] = 2] = "Setting";
+  ToolConfirmKind2[ToolConfirmKind2["LmServicePerTool"] = 3] = "LmServicePerTool";
+  ToolConfirmKind2[ToolConfirmKind2["UserAction"] = 4] = "UserAction";
+  ToolConfirmKind2[ToolConfirmKind2["Skipped"] = 5] = "Skipped";
+})(ToolConfirmKind || (ToolConfirmKind = {}));
+var IChatToolInvocation;
+(function(IChatToolInvocation2) {
+  let StateKind;
+  (function(StateKind2) {
+    StateKind2[StateKind2["Streaming"] = 0] = "Streaming";
+    StateKind2[StateKind2["WaitingForConfirmation"] = 1] = "WaitingForConfirmation";
+    StateKind2[StateKind2["Executing"] = 2] = "Executing";
+    StateKind2[StateKind2["WaitingForPostApproval"] = 3] = "WaitingForPostApproval";
+    StateKind2[StateKind2["Completed"] = 4] = "Completed";
+    StateKind2[StateKind2["Cancelled"] = 5] = "Cancelled";
+  })(StateKind = IChatToolInvocation2.StateKind || (IChatToolInvocation2.StateKind = {}));
+  function executionConfirmedOrDenied(invocation, reader) {
+    if (invocation.kind === "toolInvocationSerialized") {
+      if (invocation.isConfirmed === void 0 || typeof invocation.isConfirmed === "boolean") {
+        return {
+          type: invocation.isConfirmed ? 4 : 0
+          /* ToolConfirmKind.Denied */
+        };
+      }
+      return invocation.isConfirmed;
+    }
+    const state = invocation.state.read(reader);
+    if (state.type === 0 || state.type === 1) {
+      return void 0;
+    }
+    if (state.type === 5) {
+      return { type: state.reason };
+    }
+    return state.confirmed;
+  }
+  __name(executionConfirmedOrDenied, "executionConfirmedOrDenied");
+  IChatToolInvocation2.executionConfirmedOrDenied = executionConfirmedOrDenied;
+  function awaitConfirmation(invocation, token) {
+    const reason = executionConfirmedOrDenied(invocation);
+    if (reason) {
+      return Promise.resolve(reason);
+    }
+    const store = new DisposableStore();
+    return new Promise((resolve) => {
+      if (token) {
+        store.add(token.onCancellationRequested(() => {
+          resolve({
+            type: 0
+            /* ToolConfirmKind.Denied */
+          });
+        }));
+      }
+      store.add(autorun((reader) => {
+        const reason2 = executionConfirmedOrDenied(invocation, reader);
+        if (reason2) {
+          store.dispose();
+          resolve(reason2);
+        }
+      }));
+    }).finally(() => {
+      store.dispose();
+    });
+  }
+  __name(awaitConfirmation, "awaitConfirmation");
+  IChatToolInvocation2.awaitConfirmation = awaitConfirmation;
+  function postApprovalConfirmedOrDenied(invocation, reader) {
+    const state = invocation.state.read(reader);
+    if (state.type === 4) {
+      return state.postConfirmed || {
+        type: 1
+        /* ToolConfirmKind.ConfirmationNotNeeded */
+      };
+    }
+    if (state.type === 5) {
+      return { type: state.reason };
+    }
+    return void 0;
+  }
+  __name(postApprovalConfirmedOrDenied, "postApprovalConfirmedOrDenied");
+  function confirmWith(invocation, reason) {
+    const state = invocation?.state.get();
+    if (state?.type === 1 || state?.type === 3) {
+      state.confirm(reason);
+      return true;
+    }
+    return false;
+  }
+  __name(confirmWith, "confirmWith");
+  IChatToolInvocation2.confirmWith = confirmWith;
+  function awaitPostConfirmation(invocation, token) {
+    const reason = postApprovalConfirmedOrDenied(invocation);
+    if (reason) {
+      return Promise.resolve(reason);
+    }
+    const store = new DisposableStore();
+    return new Promise((resolve) => {
+      if (token) {
+        store.add(token.onCancellationRequested(() => {
+          resolve({
+            type: 0
+            /* ToolConfirmKind.Denied */
+          });
+        }));
+      }
+      store.add(autorun((reader) => {
+        const reason2 = postApprovalConfirmedOrDenied(invocation, reader);
+        if (reason2) {
+          store.dispose();
+          resolve(reason2);
+        }
+      }));
+    }).finally(() => {
+      store.dispose();
+    });
+  }
+  __name(awaitPostConfirmation, "awaitPostConfirmation");
+  IChatToolInvocation2.awaitPostConfirmation = awaitPostConfirmation;
+  function resultDetails(invocation, reader) {
+    if (invocation.kind === "toolInvocationSerialized") {
+      return invocation.resultDetails;
+    }
+    const state = invocation.state.read(reader);
+    if (state.type === 4 || state.type === 3) {
+      return state.resultDetails;
+    }
+    return void 0;
+  }
+  __name(resultDetails, "resultDetails");
+  IChatToolInvocation2.resultDetails = resultDetails;
+  function isComplete(invocation, reader) {
+    if (invocation.kind === "toolInvocationSerialized") {
+      return true;
+    }
+    const state = invocation.state.read(reader);
+    return state.type === 4 || state.type === 5;
+  }
+  __name(isComplete, "isComplete");
+  IChatToolInvocation2.isComplete = isComplete;
+  function isStreaming(invocation, reader) {
+    if (invocation.kind === "toolInvocationSerialized") {
+      return false;
+    }
+    const state = invocation.state.read(reader);
+    return state.type === 0;
+  }
+  __name(isStreaming, "isStreaming");
+  IChatToolInvocation2.isStreaming = isStreaming;
+  function getParameters(invocation, reader) {
+    if (invocation.kind === "toolInvocationSerialized") {
+      return void 0;
+    }
+    const state = invocation.state.read(reader);
+    if (state.type === 0) {
+      return void 0;
+    }
+    return state.parameters;
+  }
+  __name(getParameters, "getParameters");
+  IChatToolInvocation2.getParameters = getParameters;
+  function getConfirmationMessages(invocation, reader) {
+    if (invocation.kind === "toolInvocationSerialized") {
+      return void 0;
+    }
+    const state = invocation.state.read(reader);
+    if (state.type === 0) {
+      return void 0;
+    }
+    return state.confirmationMessages;
+  }
+  __name(getConfirmationMessages, "getConfirmationMessages");
+  IChatToolInvocation2.getConfirmationMessages = getConfirmationMessages;
+})(IChatToolInvocation || (IChatToolInvocation = {}));
+class ChatMcpServersStarting {
+  static {
+    __name(this, "ChatMcpServersStarting");
+  }
+  get isEmpty() {
+    const s = this.state.get();
+    return !s.working && s.serversRequiringInteraction.length === 0;
+  }
+  constructor(state) {
+    this.state = state;
+    this.kind = "mcpServersStarting";
+    this.didStartServerIds = [];
+  }
+  wait() {
+    return new Promise((resolve) => {
+      autorunSelfDisposable((reader) => {
+        const s = this.state.read(reader);
+        if (!s.working) {
+          reader.dispose();
+          resolve(s);
+        }
+      });
+    });
+  }
+  toJSON() {
+    return { kind: "mcpServersStarting", didStartServerIds: this.didStartServerIds };
+  }
+}
+function isChatFollowup(obj) {
+  return !!obj && obj.kind === "reply" && typeof obj.message === "string" && typeof obj.agentId === "string";
+}
+__name(isChatFollowup, "isChatFollowup");
+var ChatAgentVoteDirection;
+(function(ChatAgentVoteDirection2) {
+  ChatAgentVoteDirection2[ChatAgentVoteDirection2["Down"] = 0] = "Down";
+  ChatAgentVoteDirection2[ChatAgentVoteDirection2["Up"] = 1] = "Up";
+})(ChatAgentVoteDirection || (ChatAgentVoteDirection = {}));
+var ChatAgentVoteDownReason;
+(function(ChatAgentVoteDownReason2) {
+  ChatAgentVoteDownReason2["IncorrectCode"] = "incorrectCode";
+  ChatAgentVoteDownReason2["DidNotFollowInstructions"] = "didNotFollowInstructions";
+  ChatAgentVoteDownReason2["IncompleteCode"] = "incompleteCode";
+  ChatAgentVoteDownReason2["MissingContext"] = "missingContext";
+  ChatAgentVoteDownReason2["PoorlyWrittenOrFormatted"] = "poorlyWrittenOrFormatted";
+  ChatAgentVoteDownReason2["RefusedAValidRequest"] = "refusedAValidRequest";
+  ChatAgentVoteDownReason2["OffensiveOrUnsafe"] = "offensiveOrUnsafe";
+  ChatAgentVoteDownReason2["Other"] = "other";
+  ChatAgentVoteDownReason2["WillReportIssue"] = "willReportIssue";
+})(ChatAgentVoteDownReason || (ChatAgentVoteDownReason = {}));
+var ChatCopyKind;
+(function(ChatCopyKind2) {
+  ChatCopyKind2[ChatCopyKind2["Action"] = 1] = "Action";
+  ChatCopyKind2[ChatCopyKind2["Toolbar"] = 2] = "Toolbar";
+})(ChatCopyKind || (ChatCopyKind = {}));
+function convertLegacyChatSessionTiming(timing) {
+  if (hasKey(timing, { created: true })) {
+    return timing;
+  }
+  return {
+    created: timing.startTime,
+    lastRequestStarted: timing.startTime,
+    lastRequestEnded: timing.endTime
+  };
+}
+__name(convertLegacyChatSessionTiming, "convertLegacyChatSessionTiming");
+var ResponseModelState;
+(function(ResponseModelState2) {
+  ResponseModelState2[ResponseModelState2["Pending"] = 0] = "Pending";
+  ResponseModelState2[ResponseModelState2["Complete"] = 1] = "Complete";
+  ResponseModelState2[ResponseModelState2["Cancelled"] = 2] = "Cancelled";
+  ResponseModelState2[ResponseModelState2["Failed"] = 3] = "Failed";
+  ResponseModelState2[ResponseModelState2["NeedsInput"] = 4] = "NeedsInput";
+})(ResponseModelState || (ResponseModelState = {}));
+var ChatSendResult;
+(function(ChatSendResult2) {
+  function isSent(result) {
+    return result.kind === "sent";
+  }
+  __name(isSent, "isSent");
+  ChatSendResult2.isSent = isSent;
+  function isRejected(result) {
+    return result.kind === "rejected";
+  }
+  __name(isRejected, "isRejected");
+  ChatSendResult2.isRejected = isRejected;
+  function isQueued(result) {
+    return result.kind === "queued";
+  }
+  __name(isQueued, "isQueued");
+  ChatSendResult2.isQueued = isQueued;
+  function assertSent(result) {
+    if (result.kind !== "sent") {
+      throw new Error(`Expected ChatSendResult to be 'sent', but was '${result.kind}'`);
+    }
+  }
+  __name(assertSent, "assertSent");
+  ChatSendResult2.assertSent = assertSent;
+})(ChatSendResult || (ChatSendResult = {}));
+var ChatRequestQueueKind;
+(function(ChatRequestQueueKind2) {
+  ChatRequestQueueKind2["Queued"] = "queued";
+  ChatRequestQueueKind2["Steering"] = "steering";
+})(ChatRequestQueueKind || (ChatRequestQueueKind = {}));
+const IChatService = createDecorator("IChatService");
+const KEYWORD_ACTIVIATION_SETTING_ID = "accessibility.voice.keywordActivation";
+export {
+  ChatAgentVoteDirection,
+  ChatAgentVoteDownReason,
+  ChatCopyKind,
+  ChatErrorLevel,
+  ChatMcpServersStarting,
+  ChatMultiDiffData,
+  ChatRequestQueueKind,
+  ChatResponseClearToPreviousToolInvocationReason,
+  ChatResponseReferencePartStatusKind,
+  ChatSendResult,
+  ElicitationState,
+  IChatService,
+  IChatToolInvocation,
+  KEYWORD_ACTIVIATION_SETTING_ID,
+  ResponseModelState,
+  ToolConfirmKind,
+  convertLegacyChatSessionTiming,
+  isChatContentVariableReference,
+  isChatFollowup,
+  isIDocumentContext,
+  isIUsedContext,
+  isLegacyChatTerminalToolInvocationData
+};
+//# sourceMappingURL=chatService.js.map

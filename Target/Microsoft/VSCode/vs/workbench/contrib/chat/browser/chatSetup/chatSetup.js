@@ -1,1 +1,40 @@
-import e from"../../../../../platform/product/common/product.js";const o={completionsRefreshTokenCommand:e.defaultChatAgent?.completionsRefreshTokenCommand??"",chatRefreshTokenCommand:e.defaultChatAgent?.chatRefreshTokenCommand??""};var n;(function(i){i[i.Disabled=0]="Disabled",i[i.EnabledWithDialog=1]="EnabledWithDialog",i[i.EnabledWithoutDialog=2]="EnabledWithoutDialog"})(n||(n={}));var l;(function(i){i[i.Initial=1]="Initial",i[i.SigningIn=2]="SigningIn",i[i.Installing=3]="Installing"})(l||(l={}));var r;(function(i){i[i.Canceled=0]="Canceled",i[i.DefaultSetup=1]="DefaultSetup",i[i.SetupWithoutEnterpriseProvider=2]="SetupWithoutEnterpriseProvider",i[i.SetupWithEnterpriseProvider=3]="SetupWithEnterpriseProvider",i[i.SetupWithGoogleProvider=4]="SetupWithGoogleProvider",i[i.SetupWithAppleProvider=5]="SetupWithAppleProvider"})(r||(r={}));function f(i){i.executeCommand(o.completionsRefreshTokenCommand),i.executeCommand(o.chatRefreshTokenCommand)}export{f as $Eqc,n as ChatSetupAnonymous,l as ChatSetupStep,r as ChatSetupStrategy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import product from "../../../../../platform/product/common/product.js";
+const defaultChat = {
+  completionsRefreshTokenCommand: product.defaultChatAgent?.completionsRefreshTokenCommand ?? "",
+  chatRefreshTokenCommand: product.defaultChatAgent?.chatRefreshTokenCommand ?? ""
+};
+var ChatSetupAnonymous;
+(function(ChatSetupAnonymous2) {
+  ChatSetupAnonymous2[ChatSetupAnonymous2["Disabled"] = 0] = "Disabled";
+  ChatSetupAnonymous2[ChatSetupAnonymous2["EnabledWithDialog"] = 1] = "EnabledWithDialog";
+  ChatSetupAnonymous2[ChatSetupAnonymous2["EnabledWithoutDialog"] = 2] = "EnabledWithoutDialog";
+})(ChatSetupAnonymous || (ChatSetupAnonymous = {}));
+var ChatSetupStep;
+(function(ChatSetupStep2) {
+  ChatSetupStep2[ChatSetupStep2["Initial"] = 1] = "Initial";
+  ChatSetupStep2[ChatSetupStep2["SigningIn"] = 2] = "SigningIn";
+  ChatSetupStep2[ChatSetupStep2["Installing"] = 3] = "Installing";
+})(ChatSetupStep || (ChatSetupStep = {}));
+var ChatSetupStrategy;
+(function(ChatSetupStrategy2) {
+  ChatSetupStrategy2[ChatSetupStrategy2["Canceled"] = 0] = "Canceled";
+  ChatSetupStrategy2[ChatSetupStrategy2["DefaultSetup"] = 1] = "DefaultSetup";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithoutEnterpriseProvider"] = 2] = "SetupWithoutEnterpriseProvider";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithEnterpriseProvider"] = 3] = "SetupWithEnterpriseProvider";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithGoogleProvider"] = 4] = "SetupWithGoogleProvider";
+  ChatSetupStrategy2[ChatSetupStrategy2["SetupWithAppleProvider"] = 5] = "SetupWithAppleProvider";
+})(ChatSetupStrategy || (ChatSetupStrategy = {}));
+function refreshTokens(commandService) {
+  commandService.executeCommand(defaultChat.completionsRefreshTokenCommand);
+  commandService.executeCommand(defaultChat.chatRefreshTokenCommand);
+}
+__name(refreshTokens, "refreshTokens");
+export {
+  ChatSetupAnonymous,
+  ChatSetupStep,
+  ChatSetupStrategy,
+  refreshTokens
+};
+//# sourceMappingURL=chatSetup.js.map

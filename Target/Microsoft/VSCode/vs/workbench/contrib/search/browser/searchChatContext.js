@@ -1,1 +1,313 @@
-import{$bk as g}from"../../../../base/common/codicons.js";import{$Ed as x}from"../../../../base/common/lifecycle.js";import{ThemeIcon as E}from"../../../../base/common/themables.js";import{localize as f}from"../../../../nls.js";import{$ro as S}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as P}from"../../../../platform/instantiation/common/instantiation.js";import{$oH as I}from"../../../../platform/label/common/label.js";import{$jV as j,$aV as O,$9U as V}from"../../../services/search/common/search.js";import{$gBb as v}from"../../../services/views/common/viewsService.js";import{$XOb as _,$WOb as w}from"../../chat/browser/attachments/chatContextPickService.js";import{$H7b as A}from"../common/constants.js";import{$alc as B}from"./searchView.js";import{$Fh as F,$Hh as L,$Ih as M,$Kh as H}from"../../../../base/common/resources.js";import{$gg as D}from"../../../../base/common/strings.js";import{$ZF as G}from"../../../../editor/common/languages/language.js";import{$8ob as z}from"../../../../editor/common/services/getIconClasses.js";import{$9H as K}from"../../../../editor/common/services/model.js";import{$0l as W}from"../../../../platform/configuration/common/configuration.js";import{FileKind as m,FileType as N,$vk as T}from"../../../../platform/files/common/files.js";import{$Ml as U}from"../../../../platform/workspace/common/workspace.js";import{$06 as q}from"../../../services/history/common/history.js";import{$rb as J}from"../../../../base/common/errors.js";import*as Q from"../../../../base/common/glob.js";import{$Pc as X}from"../../../../base/common/map.js";import{$dlc as Z}from"./symbolsQuickAccess.js";import{SymbolKinds as C}from"../../../../editor/common/languages.js";import{$dW as Y}from"../../chat/common/constants.js";var d=function(n,t,r,s){var c=arguments.length,e=c<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,r):s,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,r,s);else for(var i=n.length-1;i>=0;i--)(o=n[i])&&(e=(c<3?o(e):c>3?o(t,r,e):o(t,r))||e);return c>3&&e&&Object.defineProperty(t,r,e),e},l=function(n,t){return function(r,s){t(r,s,n)}};let R=class extends x{static{this.ID="workbench.contributions.searchChatContextContribution"}constructor(t,r){super(),this.B.add(r.registerChatContextItem(t.createInstance(b))),this.B.add(r.registerChatContextItem(t.createInstance(y))),this.B.add(r.registerChatContextItem(this.B.add(t.createInstance($))))}};R=d([l(0,P),l(1,_)],R);let b=class{constructor(t,r,s){this.c=t,this.d=r,this.f=s,this.type="valuePick",this.label=f(12439,null),this.icon=g.search,this.ordinal=500}isEnabled(t){return!!A.HasSearchResults.getValue(this.c)&&!!t.attachmentCapabilities.supportsSearchResultAttachments}async asAttachment(){const t=this.d.getViewWithId(V);return t instanceof B?t.model.searchResult.matches().map(r=>({kind:"file",id:r.resource.toString(),value:r.resource,name:this.f.getUriBasenameLabel(r.resource)})):[]}};b=d([l(0,S),l(1,v),l(2,I)],b);let $=class{constructor(t){this.d=t,this.type="pickerPick",this.label=f(12440,null),this.icon=g.symbolField,this.ordinal=-200}dispose(){this.c?.dispose()}isEnabled(t){return!!t.attachmentCapabilities.supportsSymbolAttachments}asPicker(){return{placeholder:f(12441,null),picks:w((t,r)=>(this.c??=this.d.createInstance(Z),this.c.getSymbolPicks(t,void 0,r).then(s=>{const c=[];for(const e of s){if(!e.symbol)continue;const o={kind:"symbol",id:JSON.stringify(e.symbol.location),value:e.symbol.location,symbolKind:e.symbol.kind,icon:C.toIcon(e.symbol.kind),fullName:e.label,name:e.symbol.name};c.push({label:e.symbol.name,iconClass:E.asClassName(C.toIcon(e.symbol.kind)),asAttachment(){return o}})}return c})))}}};$=d([l(0,P)],$);let y=class{constructor(t,r,s,c,e,o,i,a,h){this.c=t,this.d=r,this.f=s,this.g=c,this.h=e,this.i=o,this.j=i,this.k=a,this.l=h,this.type="pickerPick",this.label=f(12442,null),this.icon=g.folder,this.ordinal=600}asPicker(){return{placeholder:f(12443,null),picks:w(async(t,r)=>{const s=this.i.getWorkspace().folders.map(o=>o.uri),c=[];if((await st(s,this.j)).forEach(o=>c.push(this.m(o,m.FOLDER))),this.k.getHistory().filter(o=>o.resource&&this.l.invokeFunction(i=>Y(i,o.resource.scheme))).slice(0,30).forEach(o=>c.push(this.m(o.resource,m.FILE))),t==="")return c;const e=[];return await Promise.all(s.map(async o=>{const{folders:i,files:a}=await tt(o,t,!0,r,void 0,this.h,this.c);for(const h of i)e.push(this.m(h,m.FOLDER));for(const h of a)e.push(this.m(h,m.FILE))})),e.sort((o,i)=>D(o.label,i.label)),e})}}m(t,r){return{label:F(t),description:this.d.getUriLabel(L(t),{relative:!0}),iconClasses:z(this.f,this.g,t,r),asAttachment:()=>({kind:r===m.FILE?"file":"directory",id:t.toString(),value:t,name:F(t)})}}};y=d([l(0,O),l(1,I),l(2,K),l(3,G),l(4,W),l(5,U),l(6,T),l(7,q),l(8,P)],y);async function tt(n,t,r,s,c,e,o){const i=r?et(t):rt(t),a=j(e.getValue({resource:n}))||{},h={folderQueries:[{folder:n,disregardIgnoreFiles:e.getValue("explorer.excludeGitIgnore")}],type:1,shouldGlobMatchFilePattern:!0,cacheKey:c,excludePattern:a,sortByScore:!0,ignoreGlobCase:!0};let p;try{p=await o.fileSearch({...h,filePattern:`{**/${i}/**,${t}}`},s)}catch(u){if(!J(u))throw u}if(!p||s?.isCancellationRequested)return{files:[],folders:[]};const k=p.results.map(u=>u.resource);return{folders:ot(k,n,i),files:k}}function et(n){return n?"*"+n.split("").join("*")+"*":"*"}function rt(n){return n?"*"+n+"*":"*"}function ot(n,t,r){const s=new X;for(const e of n){const o=H(t,e);if(!o)throw new Error("Resource is not a child of the workspace");let i=t;const a=o.split("/").slice(0,-1);for(const h of a)i=i.with({path:`${i.path}/${h}`}),s.add(i)}const c=[];for(const e of s){const o=e.path.split("/"),i=o[o.length-1];!i||!Q.$zj(r,i,{ignoreCase:!0})||c.push(e)}return c}async function st(n,t){const r=[];for(const s of n){const c=t.getProvider(s.scheme);if(!c)continue;const e=await c.readdir(s);for(const[o,i]of e){const a=M(s,o);i===N.Directory&&r.push(a)}}return r}export{R as $elc,tt as $flc,st as $glc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { getExcludes, ISearchService, VIEW_ID } from "../../../services/search/common/search.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IChatContextPickService, picksWithPromiseFn } from "../../chat/browser/attachments/chatContextPickService.js";
+import { SearchContext } from "../common/constants.js";
+import { SearchView } from "./searchView.js";
+import { basename, dirname, joinPath, relativePath } from "../../../../base/common/resources.js";
+import { compare } from "../../../../base/common/strings.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { FileKind, FileType, IFileService } from "../../../../platform/files/common/files.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IHistoryService } from "../../../services/history/common/history.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import * as glob from "../../../../base/common/glob.js";
+import { ResourceSet } from "../../../../base/common/map.js";
+import { SymbolsQuickAccessProvider } from "./symbolsQuickAccess.js";
+import { SymbolKinds } from "../../../../editor/common/languages.js";
+import { isSupportedChatFileScheme } from "../../chat/common/constants.js";
+let SearchChatContextContribution = class SearchChatContextContribution2 extends Disposable {
+  static {
+    __name(this, "SearchChatContextContribution");
+  }
+  static {
+    this.ID = "workbench.contributions.searchChatContextContribution";
+  }
+  constructor(instantiationService, chatContextPickService) {
+    super();
+    this._store.add(chatContextPickService.registerChatContextItem(instantiationService.createInstance(SearchViewResultChatContextPick)));
+    this._store.add(chatContextPickService.registerChatContextItem(instantiationService.createInstance(FilesAndFoldersPickerPick)));
+    this._store.add(chatContextPickService.registerChatContextItem(this._store.add(instantiationService.createInstance(SymbolsContextPickerPick))));
+  }
+};
+SearchChatContextContribution = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IChatContextPickService)
+], SearchChatContextContribution);
+let SearchViewResultChatContextPick = class SearchViewResultChatContextPick2 {
+  static {
+    __name(this, "SearchViewResultChatContextPick");
+  }
+  constructor(_contextKeyService, _viewsService, _labelService) {
+    this._contextKeyService = _contextKeyService;
+    this._viewsService = _viewsService;
+    this._labelService = _labelService;
+    this.type = "valuePick";
+    this.label = localize("chatContext.searchResults", "Search Results");
+    this.icon = Codicon.search;
+    this.ordinal = 500;
+  }
+  isEnabled(widget) {
+    return !!SearchContext.HasSearchResults.getValue(this._contextKeyService) && !!widget.attachmentCapabilities.supportsSearchResultAttachments;
+  }
+  async asAttachment() {
+    const searchView = this._viewsService.getViewWithId(VIEW_ID);
+    if (!(searchView instanceof SearchView)) {
+      return [];
+    }
+    return searchView.model.searchResult.matches().map((result) => ({
+      kind: "file",
+      id: result.resource.toString(),
+      value: result.resource,
+      name: this._labelService.getUriBasenameLabel(result.resource)
+    }));
+  }
+};
+SearchViewResultChatContextPick = __decorate([
+  __param(0, IContextKeyService),
+  __param(1, IViewsService),
+  __param(2, ILabelService)
+], SearchViewResultChatContextPick);
+let SymbolsContextPickerPick = class SymbolsContextPickerPick2 {
+  static {
+    __name(this, "SymbolsContextPickerPick");
+  }
+  constructor(_instantiationService) {
+    this._instantiationService = _instantiationService;
+    this.type = "pickerPick";
+    this.label = localize("symbols", "Symbols...");
+    this.icon = Codicon.symbolField;
+    this.ordinal = -200;
+  }
+  dispose() {
+    this._provider?.dispose();
+  }
+  isEnabled(widget) {
+    return !!widget.attachmentCapabilities.supportsSymbolAttachments;
+  }
+  asPicker() {
+    return {
+      placeholder: localize("select.symb", "Select a symbol"),
+      picks: picksWithPromiseFn((query, token) => {
+        this._provider ??= this._instantiationService.createInstance(SymbolsQuickAccessProvider);
+        return this._provider.getSymbolPicks(query, void 0, token).then((symbolItems) => {
+          const result = [];
+          for (const item of symbolItems) {
+            if (!item.symbol) {
+              continue;
+            }
+            const attachment = {
+              kind: "symbol",
+              id: JSON.stringify(item.symbol.location),
+              value: item.symbol.location,
+              symbolKind: item.symbol.kind,
+              icon: SymbolKinds.toIcon(item.symbol.kind),
+              fullName: item.label,
+              name: item.symbol.name
+            };
+            result.push({
+              label: item.symbol.name,
+              iconClass: ThemeIcon.asClassName(SymbolKinds.toIcon(item.symbol.kind)),
+              asAttachment() {
+                return attachment;
+              }
+            });
+          }
+          return result;
+        });
+      })
+    };
+  }
+};
+SymbolsContextPickerPick = __decorate([
+  __param(0, IInstantiationService)
+], SymbolsContextPickerPick);
+let FilesAndFoldersPickerPick = class FilesAndFoldersPickerPick2 {
+  static {
+    __name(this, "FilesAndFoldersPickerPick");
+  }
+  constructor(_searchService, _labelService, _modelService, _languageService, _configurationService, _workspaceService, _fileService, _historyService, _instantiationService) {
+    this._searchService = _searchService;
+    this._labelService = _labelService;
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this._configurationService = _configurationService;
+    this._workspaceService = _workspaceService;
+    this._fileService = _fileService;
+    this._historyService = _historyService;
+    this._instantiationService = _instantiationService;
+    this.type = "pickerPick";
+    this.label = localize("chatContext.folder", "Files & Folders...");
+    this.icon = Codicon.folder;
+    this.ordinal = 600;
+  }
+  asPicker() {
+    return {
+      placeholder: localize("chatContext.attach.files.placeholder", "Search file or folder by name"),
+      picks: picksWithPromiseFn(async (value, token) => {
+        const workspaces = this._workspaceService.getWorkspace().folders.map((folder) => folder.uri);
+        const defaultItems = [];
+        (await getTopLevelFolders(workspaces, this._fileService)).forEach((uri) => defaultItems.push(this._createPickItem(uri, FileKind.FOLDER)));
+        this._historyService.getHistory().filter((a) => a.resource && this._instantiationService.invokeFunction((accessor) => isSupportedChatFileScheme(accessor, a.resource.scheme))).slice(0, 30).forEach((uri) => defaultItems.push(this._createPickItem(uri.resource, FileKind.FILE)));
+        if (value === "") {
+          return defaultItems;
+        }
+        const result = [];
+        await Promise.all(workspaces.map(async (workspace) => {
+          const { folders, files } = await searchFilesAndFolders(workspace, value, true, token, void 0, this._configurationService, this._searchService);
+          for (const folder of folders) {
+            result.push(this._createPickItem(folder, FileKind.FOLDER));
+          }
+          for (const file of files) {
+            result.push(this._createPickItem(file, FileKind.FILE));
+          }
+        }));
+        result.sort((a, b) => compare(a.label, b.label));
+        return result;
+      })
+    };
+  }
+  _createPickItem(resource, kind) {
+    return {
+      label: basename(resource),
+      description: this._labelService.getUriLabel(dirname(resource), { relative: true }),
+      iconClasses: getIconClasses(this._modelService, this._languageService, resource, kind),
+      asAttachment: /* @__PURE__ */ __name(() => {
+        return {
+          kind: kind === FileKind.FILE ? "file" : "directory",
+          id: resource.toString(),
+          value: resource,
+          name: basename(resource)
+        };
+      }, "asAttachment")
+    };
+  }
+};
+FilesAndFoldersPickerPick = __decorate([
+  __param(0, ISearchService),
+  __param(1, ILabelService),
+  __param(2, IModelService),
+  __param(3, ILanguageService),
+  __param(4, IConfigurationService),
+  __param(5, IWorkspaceContextService),
+  __param(6, IFileService),
+  __param(7, IHistoryService),
+  __param(8, IInstantiationService)
+], FilesAndFoldersPickerPick);
+async function searchFilesAndFolders(workspace, pattern, fuzzyMatch, token, cacheKey, configurationService, searchService) {
+  const segmentMatchPattern = fuzzyMatch ? fuzzyMatchingGlobPattern(pattern) : continousMatchingGlobPattern(pattern);
+  const searchExcludePattern = getExcludes(configurationService.getValue({ resource: workspace })) || {};
+  const searchOptions = {
+    folderQueries: [{
+      folder: workspace,
+      disregardIgnoreFiles: configurationService.getValue("explorer.excludeGitIgnore")
+    }],
+    type: 1,
+    shouldGlobMatchFilePattern: true,
+    cacheKey,
+    excludePattern: searchExcludePattern,
+    sortByScore: true,
+    ignoreGlobCase: true
+  };
+  let searchResult;
+  try {
+    searchResult = await searchService.fileSearch({ ...searchOptions, filePattern: `{**/${segmentMatchPattern}/**,${pattern}}` }, token);
+  } catch (e) {
+    if (!isCancellationError(e)) {
+      throw e;
+    }
+  }
+  if (!searchResult || token?.isCancellationRequested) {
+    return { files: [], folders: [] };
+  }
+  const fileResources = searchResult.results.map((result) => result.resource);
+  const folderResources = getMatchingFoldersFromFiles(fileResources, workspace, segmentMatchPattern);
+  return { folders: folderResources, files: fileResources };
+}
+__name(searchFilesAndFolders, "searchFilesAndFolders");
+function fuzzyMatchingGlobPattern(pattern) {
+  if (!pattern) {
+    return "*";
+  }
+  return "*" + pattern.split("").join("*") + "*";
+}
+__name(fuzzyMatchingGlobPattern, "fuzzyMatchingGlobPattern");
+function continousMatchingGlobPattern(pattern) {
+  if (!pattern) {
+    return "*";
+  }
+  return "*" + pattern + "*";
+}
+__name(continousMatchingGlobPattern, "continousMatchingGlobPattern");
+function getMatchingFoldersFromFiles(resources, workspace, segmentMatchPattern) {
+  const uniqueFolders = new ResourceSet();
+  for (const resource of resources) {
+    const relativePathToRoot = relativePath(workspace, resource);
+    if (!relativePathToRoot) {
+      throw new Error("Resource is not a child of the workspace");
+    }
+    let dirResource = workspace;
+    const stats = relativePathToRoot.split("/").slice(0, -1);
+    for (const stat of stats) {
+      dirResource = dirResource.with({ path: `${dirResource.path}/${stat}` });
+      uniqueFolders.add(dirResource);
+    }
+  }
+  const matchingFolders = [];
+  for (const folderResource of uniqueFolders) {
+    const stats = folderResource.path.split("/");
+    const dirStat = stats[stats.length - 1];
+    if (!dirStat || !glob.match(segmentMatchPattern, dirStat, { ignoreCase: true })) {
+      continue;
+    }
+    matchingFolders.push(folderResource);
+  }
+  return matchingFolders;
+}
+__name(getMatchingFoldersFromFiles, "getMatchingFoldersFromFiles");
+async function getTopLevelFolders(workspaces, fileService) {
+  const folders = [];
+  for (const workspace of workspaces) {
+    const fileSystemProvider = fileService.getProvider(workspace.scheme);
+    if (!fileSystemProvider) {
+      continue;
+    }
+    const entries = await fileSystemProvider.readdir(workspace);
+    for (const [name, type] of entries) {
+      const entryResource = joinPath(workspace, name);
+      if (type === FileType.Directory) {
+        folders.push(entryResource);
+      }
+    }
+  }
+  return folders;
+}
+__name(getTopLevelFolders, "getTopLevelFolders");
+export {
+  SearchChatContextContribution,
+  getTopLevelFolders,
+  searchFilesAndFolders
+};
+//# sourceMappingURL=searchChatContext.js.map

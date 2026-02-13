@@ -1,1 +1,188 @@
-import{$Kl as h}from"../../../../platform/environment/common/environment.js";import{$Oj as m}from"../../../../platform/instantiation/common/instantiation.js";import{$Yn as c}from"../../../../platform/environment/common/environmentService.js";import{$Zm as t}from"../../../../base/common/decorators.js";import{Schemas as g}from"../../../../base/common/network.js";import{$Ih as d}from"../../../../base/common/resources.js";var e=function(s,r,n,l){var p=arguments.length,i=p<3?r:l===null?l=Object.getOwnPropertyDescriptor(r,n):l,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(s,r,n,l);else for(var u=s.length-1;u>=0;u--)(a=s[u])&&(i=(p<3?a(i):p>3?a(r,n,i):a(r,n))||i);return p>3&&i&&Object.defineProperty(r,n,i),i};const v=m(h);class o extends c{get mainPid(){return this.d.mainPid}get machineId(){return this.d.machineId}get sqmId(){return this.d.sqmId}get devDeviceId(){return this.d.devDeviceId}get isPortable(){return this.d.isPortable}get remoteAuthority(){return this.d.remoteAuthority}get expectsResolverExtension(){return!!this.d.remoteAuthority?.includes("+")}get execPath(){return this.d.execPath}get backupPath(){return this.d.backupPath}get window(){return{id:this.d.windowId,handle:this.d.handle,colorScheme:this.d.colorScheme,maximized:this.d.maximized,accessibilitySupport:this.d.accessibilitySupport,perfMarks:this.d.perfMarks,isInitialStartup:this.d.isInitialStartup,isCodeCaching:typeof this.d.codeCachePath=="string"}}get windowLogsPath(){return d(this.logsHome,`window${this.d.windowId}`)}get logFile(){return d(this.windowLogsPath,"renderer.log")}get extHostLogsPath(){return d(this.windowLogsPath,"exthost")}get webviewExternalEndpoint(){return`${g.vscodeWebview}://{{uuid}}`}get skipReleaseNotes(){return!!this.args["skip-release-notes"]}get skipWelcome(){return!!this.args["skip-welcome"]}get logExtensionHostCommunication(){return!!this.args.logExtensionHostCommunication}get enableSmokeTestDriver(){return!!this.args["enable-smoke-test-driver"]}get extensionEnabledProposedApi(){if(Array.isArray(this.args["enable-proposed-api"]))return this.args["enable-proposed-api"];if("enable-proposed-api"in this.args)return[]}get os(){return this.d.os}get filesToOpenOrCreate(){return this.d.filesToOpenOrCreate}get filesToDiff(){return this.d.filesToDiff}get filesToMerge(){return this.d.filesToMerge}get filesToWait(){return this.d.filesToWait}constructor(r,n){super(r,{homeDir:r.homeDir,tmpDir:r.tmpDir,userDataDir:r.userDataDir},n),this.d=r}}e([t],o.prototype,"mainPid",null);e([t],o.prototype,"machineId",null);e([t],o.prototype,"sqmId",null);e([t],o.prototype,"devDeviceId",null);e([t],o.prototype,"isPortable",null);e([t],o.prototype,"remoteAuthority",null);e([t],o.prototype,"expectsResolverExtension",null);e([t],o.prototype,"execPath",null);e([t],o.prototype,"backupPath",null);e([t],o.prototype,"window",null);e([t],o.prototype,"windowLogsPath",null);e([t],o.prototype,"logFile",null);e([t],o.prototype,"extHostLogsPath",null);e([t],o.prototype,"webviewExternalEndpoint",null);e([t],o.prototype,"skipReleaseNotes",null);e([t],o.prototype,"skipWelcome",null);e([t],o.prototype,"logExtensionHostCommunication",null);e([t],o.prototype,"enableSmokeTestDriver",null);e([t],o.prototype,"extensionEnabledProposedApi",null);e([t],o.prototype,"os",null);e([t],o.prototype,"filesToOpenOrCreate",null);e([t],o.prototype,"filesToDiff",null);e([t],o.prototype,"filesToMerge",null);e([t],o.prototype,"filesToWait",null);export{v as $SPc,o as $TPc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { AbstractNativeEnvironmentService } from "../../../../platform/environment/common/environmentService.js";
+import { memoize } from "../../../../base/common/decorators.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { joinPath } from "../../../../base/common/resources.js";
+const INativeWorkbenchEnvironmentService = refineServiceDecorator(IEnvironmentService);
+class NativeWorkbenchEnvironmentService extends AbstractNativeEnvironmentService {
+  static {
+    __name(this, "NativeWorkbenchEnvironmentService");
+  }
+  get mainPid() {
+    return this.configuration.mainPid;
+  }
+  get machineId() {
+    return this.configuration.machineId;
+  }
+  get sqmId() {
+    return this.configuration.sqmId;
+  }
+  get devDeviceId() {
+    return this.configuration.devDeviceId;
+  }
+  get isPortable() {
+    return this.configuration.isPortable;
+  }
+  get remoteAuthority() {
+    return this.configuration.remoteAuthority;
+  }
+  get expectsResolverExtension() {
+    return !!this.configuration.remoteAuthority?.includes("+");
+  }
+  get execPath() {
+    return this.configuration.execPath;
+  }
+  get backupPath() {
+    return this.configuration.backupPath;
+  }
+  get window() {
+    return {
+      id: this.configuration.windowId,
+      handle: this.configuration.handle,
+      colorScheme: this.configuration.colorScheme,
+      maximized: this.configuration.maximized,
+      accessibilitySupport: this.configuration.accessibilitySupport,
+      perfMarks: this.configuration.perfMarks,
+      isInitialStartup: this.configuration.isInitialStartup,
+      isCodeCaching: typeof this.configuration.codeCachePath === "string"
+    };
+  }
+  get windowLogsPath() {
+    return joinPath(this.logsHome, `window${this.configuration.windowId}`);
+  }
+  get logFile() {
+    return joinPath(this.windowLogsPath, `renderer.log`);
+  }
+  get extHostLogsPath() {
+    return joinPath(this.windowLogsPath, "exthost");
+  }
+  get webviewExternalEndpoint() {
+    return `${Schemas.vscodeWebview}://{{uuid}}`;
+  }
+  get skipReleaseNotes() {
+    return !!this.args["skip-release-notes"];
+  }
+  get skipWelcome() {
+    return !!this.args["skip-welcome"];
+  }
+  get logExtensionHostCommunication() {
+    return !!this.args.logExtensionHostCommunication;
+  }
+  get enableSmokeTestDriver() {
+    return !!this.args["enable-smoke-test-driver"];
+  }
+  get extensionEnabledProposedApi() {
+    if (Array.isArray(this.args["enable-proposed-api"])) {
+      return this.args["enable-proposed-api"];
+    }
+    if ("enable-proposed-api" in this.args) {
+      return [];
+    }
+    return void 0;
+  }
+  get os() {
+    return this.configuration.os;
+  }
+  get filesToOpenOrCreate() {
+    return this.configuration.filesToOpenOrCreate;
+  }
+  get filesToDiff() {
+    return this.configuration.filesToDiff;
+  }
+  get filesToMerge() {
+    return this.configuration.filesToMerge;
+  }
+  get filesToWait() {
+    return this.configuration.filesToWait;
+  }
+  constructor(configuration, productService) {
+    super(configuration, { homeDir: configuration.homeDir, tmpDir: configuration.tmpDir, userDataDir: configuration.userDataDir }, productService);
+    this.configuration = configuration;
+  }
+}
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "mainPid", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "machineId", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "sqmId", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "devDeviceId", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "isPortable", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "remoteAuthority", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "expectsResolverExtension", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "execPath", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "backupPath", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "window", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "windowLogsPath", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "logFile", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "extHostLogsPath", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "webviewExternalEndpoint", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "skipReleaseNotes", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "skipWelcome", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "logExtensionHostCommunication", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "enableSmokeTestDriver", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "extensionEnabledProposedApi", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "os", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "filesToOpenOrCreate", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "filesToDiff", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "filesToMerge", null);
+__decorate([
+  memoize
+], NativeWorkbenchEnvironmentService.prototype, "filesToWait", null);
+export {
+  INativeWorkbenchEnvironmentService,
+  NativeWorkbenchEnvironmentService
+};
+//# sourceMappingURL=environmentService.js.map

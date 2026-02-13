@@ -1,1 +1,44 @@
-import{$By as o}from"../../../base/node/id.js";import{$vp as r,$wp as s,$xp as i}from"../common/telemetry.js";import{$2A as c,$3A as m,$4A as a}from"../node/telemetryUtils.js";async function p(n,e){e.trace("Resolving machine identifier...");const t=await c(n,e);return n.setItem(r,t),e.trace(`Resolved machine identifier: ${t}`),t}async function u(n,e){e.trace("Resolving SQM identifier...");const t=await m(n,e);return n.setItem(s,t),e.trace(`Resolved SQM identifier: ${t}`),t}async function v(n,e){e.trace("Resolving devDevice identifier...");const t=await a(n,e);return n.setItem(i,t),e.trace(`Resolved devDevice identifier: ${t}`),t}async function A(n,e){const t=await o(e.error.bind(e)),d=await a(n,e);t!==d&&n.setItem(i,t)}export{p as $5A,u as $6A,v as $7A,A as $8A};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getDevDeviceId } from "../../../base/node/id.js";
+import { machineIdKey, sqmIdKey, devDeviceIdKey } from "../common/telemetry.js";
+import { resolveMachineId as resolveNodeMachineId, resolveSqmId as resolveNodeSqmId, resolveDevDeviceId as resolveNodeDevDeviceId } from "../node/telemetryUtils.js";
+async function resolveMachineId(stateService, logService) {
+  logService.trace("Resolving machine identifier...");
+  const machineId = await resolveNodeMachineId(stateService, logService);
+  stateService.setItem(machineIdKey, machineId);
+  logService.trace(`Resolved machine identifier: ${machineId}`);
+  return machineId;
+}
+__name(resolveMachineId, "resolveMachineId");
+async function resolveSqmId(stateService, logService) {
+  logService.trace("Resolving SQM identifier...");
+  const sqmId = await resolveNodeSqmId(stateService, logService);
+  stateService.setItem(sqmIdKey, sqmId);
+  logService.trace(`Resolved SQM identifier: ${sqmId}`);
+  return sqmId;
+}
+__name(resolveSqmId, "resolveSqmId");
+async function resolveDevDeviceId(stateService, logService) {
+  logService.trace("Resolving devDevice identifier...");
+  const devDeviceId = await resolveNodeDevDeviceId(stateService, logService);
+  stateService.setItem(devDeviceIdKey, devDeviceId);
+  logService.trace(`Resolved devDevice identifier: ${devDeviceId}`);
+  return devDeviceId;
+}
+__name(resolveDevDeviceId, "resolveDevDeviceId");
+async function validateDevDeviceId(stateService, logService) {
+  const actualDeviceId = await getDevDeviceId(logService.error.bind(logService));
+  const currentDeviceId = await resolveNodeDevDeviceId(stateService, logService);
+  if (actualDeviceId !== currentDeviceId) {
+    stateService.setItem(devDeviceIdKey, actualDeviceId);
+  }
+}
+__name(validateDevDeviceId, "validateDevDeviceId");
+export {
+  resolveDevDeviceId,
+  resolveMachineId,
+  resolveSqmId,
+  validateDevDeviceId
+};
+//# sourceMappingURL=telemetryUtils.js.map

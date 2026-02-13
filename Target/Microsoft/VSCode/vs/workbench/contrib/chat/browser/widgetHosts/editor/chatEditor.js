@@ -1,1 +1,217 @@
-import*as a from"../../../../../../base/browser/dom.js";import{$H0 as $}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{$Wh as l}from"../../../../../../base/common/async.js";import{$bk as y}from"../../../../../../base/common/codicons.js";import{ThemeIcon as C}from"../../../../../../base/common/themables.js";import*as S from"../../../../../../nls.js";import{$ro as g}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as v}from"../../../../../../platform/instantiation/common/instantiation.js";import{$Lj as x}from"../../../../../../platform/instantiation/common/serviceCollection.js";import{$hp as A}from"../../../../../../platform/storage/common/storage.js";import{$pp as E}from"../../../../../../platform/telemetry/common/telemetry.js";import{$Jq as f,$Kq as I,$8s as j}from"../../../../../../platform/theme/common/colorRegistry.js";import{$qu as R}from"../../../../../../platform/theme/common/themeService.js";import{$vKb as M}from"../../../../../browser/parts/editor/editorPane.js";import{$mzb as D}from"../../../../../common/theme.js";import{ChatContextKeys as T}from"../../../common/actions/chatContextKeys.js";import{$NV as _}from"../../../common/chatService/chatService.js";import{$aW as F,$9V as c}from"../../../common/chatSessionsService.js";import{ChatAgentLocation as K,ChatModeKind as p}from"../../../common/constants.js";import{$DPb as P}from"../../actions/chatClear.js";import{$yPb as k}from"./chatEditorInput.js";import{$H4b as q}from"../../widget/chatWidget.js";var w=function(d,t,e,i){var o=arguments.length,r=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(d,t,e,i);else for(var s=d.length-1;s>=0;s--)(n=d[s])&&(r=(o<3?n(r):o>3?n(t,e,r):n(t,e))||r);return o>3&&r&&Object.defineProperty(t,e,r),r},h=function(d,t){return function(e,i){t(e,i,d)}};let m=class extends M{get widget(){return this.a}get scopedContextKeyService(){return this.b}constructor(t,e,i,o,r,n,s,u){super(k.EditorID,t,e,i,r),this.m=o,this.r=n,this.s=s,this.u=u,this.f=new a.$N8(0,0)}async w(){if(this.input)return this.m.invokeFunction(P,this.input)}ab(t){this.j=t,t.classList.add("chat-editor-relative"),this.b=this.D(this.s.createScoped(t));const e=this.D(this.m.createChild(new x([g,this.scopedContextKeyService])));T.inChatEditor.bindTo(this.b).set(!0),this.a=this.D(e.createInstance(q,K.Chat,void 0,{autoScroll:i=>i!==p.Ask,renderFollowups:!0,supportsFileReferences:!0,clear:()=>this.w(),rendererOptions:{renderTextEditsAsSummary:i=>!0,referencesExpandedWhenEmptyResponse:!1,progressMessageAtBottomOfResponse:i=>i!==p.Ask},enableImplicitContext:!0,enableWorkingSet:"explicit",supportsChangingModes:!0},{listForeground:I,listBackground:f,overlayBackground:D,inputEditorBackground:j,resultEditorBackground:f})),this.D(this.widget.onDidSubmitAgent(()=>{this.group.pinEditor(this.input)})),this.widget.render(t),this.widget.setVisible(!0)}bb(t){super.bb(t),this.widget?.setVisible(t),t&&this.widget&&this.widget.layout(this.f.height,this.f.width)}focus(){super.focus(),this.widget?.focusInput()}clearInput(){this.J(),this.widget.setModel(void 0),super.clearInput()}fb(t){if(!this.j)return;if(this.g){const r=this.g.querySelector(".chat-loading-content span");if(r){r.textContent=t;return}this.gb()}this.j.setAttribute("aria-busy","true"),this.g=a.$y9(this.j,a.$(".chat-loading-overlay")),this.g.setAttribute("role","status"),this.g.setAttribute("aria-live","polite"),this.g.tabIndex=-1;const e=a.$y9(this.g,a.$(".chat-loading-content")),i=$(C.modify(y.loading,"spin"));i.setAttribute("aria-hidden","true"),e.appendChild(i);const o=a.$y9(e,a.$("span"));o.textContent=t}gb(){this.g&&(this.g.remove(),this.g=void 0),this.j&&this.j.removeAttribute("aria-busy")}async setInput(t,e,i,o){let r=!1;const n=t.getSessionType();if(n!==c){const s=S.localize(6779,null);this.fb(s)}if(await super.setInput(t,e,i,o),o.isCancellationRequested){this.gb();return}if(!this.widget)throw new Error("ChatEditor lifecycle issue: no editor widget");if(n!==c)try{await l(this.r.canResolveChatSession(t.resource),o);const u=this.r.getAllChatSessionContributions().find(b=>b.type===n);u?(this.widget.lockToCodingAgent(u.name,u.displayName,u.type),r=!0):this.widget.unlockFromCodingAgent()}catch(s){throw this.gb(),s}else this.widget.unlockFromCodingAgent();try{const s=await l(t.resolve(),o);if(!s)throw new Error(`Failed to get model for chat editor. resource: ${t.sessionResource}`);n!==c&&this.gb(),e?.modelInputState&&s.model.inputModel.setState(e.modelInputState),this.hb(s.model),r&&e?.title?.preferred&&t.sessionResource&&this.u.setChatSessionTitle(t.sessionResource,e.title.preferred)}catch(s){throw this.gb(),s}}hb(t){this.widget.setModel(t)}layout(t,e){this.f=t,this.widget&&this.widget.layout(t.height,t.width)}};m=w([h(1,E),h(2,R),h(3,v),h(4,A),h(5,F),h(6,g),h(7,_)],m);export{m as $EPb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { raceCancellationError } from "../../../../../../base/common/async.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import * as nls from "../../../../../../nls.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../../platform/instantiation/common/serviceCollection.js";
+import { IStorageService } from "../../../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+import { editorBackground, editorForeground, inputBackground } from "../../../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../../../browser/parts/editor/editorPane.js";
+import { EDITOR_DRAG_AND_DROP_BACKGROUND } from "../../../../../common/theme.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { IChatService } from "../../../common/chatService/chatService.js";
+import { IChatSessionsService, localChatSessionType } from "../../../common/chatSessionsService.js";
+import { ChatAgentLocation, ChatModeKind } from "../../../common/constants.js";
+import { clearChatEditor } from "../../actions/chatClear.js";
+import { ChatEditorInput } from "./chatEditorInput.js";
+import { ChatWidget } from "../../widget/chatWidget.js";
+let ChatEditor = class ChatEditor2 extends EditorPane {
+  static {
+    __name(this, "ChatEditor");
+  }
+  get widget() {
+    return this._widget;
+  }
+  get scopedContextKeyService() {
+    return this._scopedContextKeyService;
+  }
+  constructor(group, telemetryService, themeService, instantiationService, storageService, chatSessionsService, contextKeyService, chatService) {
+    super(ChatEditorInput.EditorID, group, telemetryService, themeService, storageService);
+    this.instantiationService = instantiationService;
+    this.chatSessionsService = chatSessionsService;
+    this.contextKeyService = contextKeyService;
+    this.chatService = chatService;
+    this.dimension = new dom.Dimension(0, 0);
+  }
+  async clear() {
+    if (this.input) {
+      return this.instantiationService.invokeFunction(clearChatEditor, this.input);
+    }
+  }
+  createEditor(parent) {
+    this._editorContainer = parent;
+    parent.classList.add("chat-editor-relative");
+    this._scopedContextKeyService = this._register(this.contextKeyService.createScoped(parent));
+    const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+    ChatContextKeys.inChatEditor.bindTo(this._scopedContextKeyService).set(true);
+    this._widget = this._register(scopedInstantiationService.createInstance(ChatWidget, ChatAgentLocation.Chat, void 0, {
+      autoScroll: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "autoScroll"),
+      renderFollowups: true,
+      supportsFileReferences: true,
+      clear: /* @__PURE__ */ __name(() => this.clear(), "clear"),
+      rendererOptions: {
+        renderTextEditsAsSummary: /* @__PURE__ */ __name((uri) => {
+          return true;
+        }, "renderTextEditsAsSummary"),
+        referencesExpandedWhenEmptyResponse: false,
+        progressMessageAtBottomOfResponse: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "progressMessageAtBottomOfResponse")
+      },
+      enableImplicitContext: true,
+      enableWorkingSet: "explicit",
+      supportsChangingModes: true
+    }, {
+      listForeground: editorForeground,
+      listBackground: editorBackground,
+      overlayBackground: EDITOR_DRAG_AND_DROP_BACKGROUND,
+      inputEditorBackground: inputBackground,
+      resultEditorBackground: editorBackground
+    }));
+    this._register(this.widget.onDidSubmitAgent(() => {
+      this.group.pinEditor(this.input);
+    }));
+    this.widget.render(parent);
+    this.widget.setVisible(true);
+  }
+  setEditorVisible(visible) {
+    super.setEditorVisible(visible);
+    this.widget?.setVisible(visible);
+    if (visible && this.widget) {
+      this.widget.layout(this.dimension.height, this.dimension.width);
+    }
+  }
+  focus() {
+    super.focus();
+    this.widget?.focusInput();
+  }
+  clearInput() {
+    this.saveState();
+    this.widget.setModel(void 0);
+    super.clearInput();
+  }
+  showLoadingInChatWidget(message) {
+    if (!this._editorContainer) {
+      return;
+    }
+    if (this._loadingContainer) {
+      const existingText = this._loadingContainer.querySelector(".chat-loading-content span");
+      if (existingText) {
+        existingText.textContent = message;
+        return;
+      }
+      this.hideLoadingInChatWidget();
+    }
+    this._editorContainer.setAttribute("aria-busy", "true");
+    this._loadingContainer = dom.append(this._editorContainer, dom.$(".chat-loading-overlay"));
+    this._loadingContainer.setAttribute("role", "status");
+    this._loadingContainer.setAttribute("aria-live", "polite");
+    this._loadingContainer.tabIndex = -1;
+    const loadingContent = dom.append(this._loadingContainer, dom.$(".chat-loading-content"));
+    const spinner = renderIcon(ThemeIcon.modify(Codicon.loading, "spin"));
+    spinner.setAttribute("aria-hidden", "true");
+    loadingContent.appendChild(spinner);
+    const text = dom.append(loadingContent, dom.$("span"));
+    text.textContent = message;
+  }
+  hideLoadingInChatWidget() {
+    if (this._loadingContainer) {
+      this._loadingContainer.remove();
+      this._loadingContainer = void 0;
+    }
+    if (this._editorContainer) {
+      this._editorContainer.removeAttribute("aria-busy");
+    }
+  }
+  async setInput(input, options, context, token) {
+    let isContributedChatSession = false;
+    const chatSessionType = input.getSessionType();
+    if (chatSessionType !== localChatSessionType) {
+      const loadingMessage = nls.localize("chatEditor.loadingSession", "Loading...");
+      this.showLoadingInChatWidget(loadingMessage);
+    }
+    await super.setInput(input, options, context, token);
+    if (token.isCancellationRequested) {
+      this.hideLoadingInChatWidget();
+      return;
+    }
+    if (!this.widget) {
+      throw new Error("ChatEditor lifecycle issue: no editor widget");
+    }
+    if (chatSessionType !== localChatSessionType) {
+      try {
+        await raceCancellationError(this.chatSessionsService.canResolveChatSession(input.resource), token);
+        const contributions = this.chatSessionsService.getAllChatSessionContributions();
+        const contribution = contributions.find((c) => c.type === chatSessionType);
+        if (contribution) {
+          this.widget.lockToCodingAgent(contribution.name, contribution.displayName, contribution.type);
+          isContributedChatSession = true;
+        } else {
+          this.widget.unlockFromCodingAgent();
+        }
+      } catch (error) {
+        this.hideLoadingInChatWidget();
+        throw error;
+      }
+    } else {
+      this.widget.unlockFromCodingAgent();
+    }
+    try {
+      const editorModel = await raceCancellationError(input.resolve(), token);
+      if (!editorModel) {
+        throw new Error(`Failed to get model for chat editor. resource: ${input.sessionResource}`);
+      }
+      if (chatSessionType !== localChatSessionType) {
+        this.hideLoadingInChatWidget();
+      }
+      if (options?.modelInputState) {
+        editorModel.model.inputModel.setState(options.modelInputState);
+      }
+      this.updateModel(editorModel.model);
+      if (isContributedChatSession && options?.title?.preferred && input.sessionResource) {
+        this.chatService.setChatSessionTitle(input.sessionResource, options.title.preferred);
+      }
+    } catch (error) {
+      this.hideLoadingInChatWidget();
+      throw error;
+    }
+  }
+  updateModel(model) {
+    this.widget.setModel(model);
+  }
+  layout(dimension, position) {
+    this.dimension = dimension;
+    if (this.widget) {
+      this.widget.layout(dimension.height, dimension.width);
+    }
+  }
+};
+ChatEditor = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IInstantiationService),
+  __param(4, IStorageService),
+  __param(5, IChatSessionsService),
+  __param(6, IContextKeyService),
+  __param(7, IChatService)
+], ChatEditor);
+export {
+  ChatEditor
+};
+//# sourceMappingURL=chatEditor.js.map

@@ -1,1 +1,6 @@
-import{$Nj as o}from"../../../platform/instantiation/common/instantiation.js";const e=o("editorWorkerService");export{e as $ofb};
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IEditorWorkerService = createDecorator("editorWorkerService");
+export {
+  IEditorWorkerService
+};
+//# sourceMappingURL=editorWorker.js.map

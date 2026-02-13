@@ -1,1 +1,118 @@
-import{ThemeIcon as b}from"../../../../base/common/themables.js";import{$bk as f}from"../../../../base/common/codicons.js";import{$Ed as $}from"../../../../base/common/lifecycle.js";import{$ as c}from"../../../../base/browser/dom.js";import{localize as l}from"../../../../nls.js";import{$uo as v}from"../../../../platform/commands/common/commands.js";import{$yZb as C,$sZb as D}from"./terminal.js";import*as s from"../../../../base/browser/dom.js";var y=function(h,t,i,n){var r=arguments.length,a=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")a=Reflect.decorate(h,t,i,n);else for(var m=h.length-1;m>=0;m--)(o=h[m])&&(a=(r<3?o(a):r>3?o(t,i,a):o(t,i))||a);return r>3&&a&&Object.defineProperty(t,i,a),a},u=function(h,t){return function(i,n){t(i,n,h)}};let d=class extends ${dispose(){this.a.remove(),this.b.remove(),this.c.remove(),super.dispose()}constructor(t,i,n,r,a){super(),this.f=i,this.g=n,this.h=r,this.j=a,this.a=s.$y9(t,c(".terminal-tabs-chat-entry")),this.a.tabIndex=0,this.a.setAttribute("role","button");const o=s.$y9(this.a,c(".terminal-tabs-entry"));s.$y9(o,c(".terminal-tabs-chat-entry-icon")).classList.add(...b.asClassNameArray(f.commentDiscussionSparkle)),this.b=s.$y9(o,c(".terminal-tabs-chat-entry-label")),this.c=s.$y9(o,c(".terminal-tabs-chat-entry-delete")),this.c.classList.add(...b.asClassNameArray(f.trashcan)),this.c.tabIndex=0,this.c.setAttribute("role","button"),this.c.setAttribute("aria-label",l(13351,null)),this.c.setAttribute("title",l(13352,null));const p=()=>{this.g.executeCommand("workbench.action.terminal.chat.viewHiddenChatTerminals")};this.D(s.$u8(this.a,s.$r9.CLICK,e=>{e.target===this.c||this.c.contains(e.target)||(e.preventDefault(),p())})),this.D(s.$u8(this.a,s.$r9.KEY_DOWN,e=>{(e.key==="Enter"||e.key===" ")&&(e.preventDefault(),p())})),this.D(s.$u8(this.c,s.$r9.CLICK,async e=>{e.preventDefault(),e.stopPropagation(),await this.m()})),this.D(s.$u8(this.c,s.$r9.KEY_DOWN,async e=>{(e.key==="Enter"||e.key===" ")&&(e.preventDefault(),e.stopPropagation(),await this.m())})),this.update()}async m(){const t=this.h.getToolSessionTerminalInstances(!0);await Promise.all(t.map(i=>this.j.safeDisposeTerminal(i)))}get element(){return this.a}update(){const t=this.h.getToolSessionTerminalInstances(!0).length;if(t<=0){this.a.style.display="none",this.b.textContent="",this.a.removeAttribute("aria-label"),this.a.removeAttribute("title");return}this.a.style.display="";const i=l(13353,null);this.a.setAttribute("title",i),this.f.classList.contains("has-text")?this.b.textContent=t===1?l(13354,null,t):l(13355,null,t):this.b.textContent=`${t}`;const r=t===1?l(13356,null):l(13357,null,t);this.a.setAttribute("aria-label",r)}};d=y([u(2,v),u(3,C),u(4,D)],d);export{d as $NBc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { $ } from "../../../../base/browser/dom.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ITerminalChatService, ITerminalService } from "./terminal.js";
+import * as dom from "../../../../base/browser/dom.js";
+let TerminalTabsChatEntry = class TerminalTabsChatEntry2 extends Disposable {
+  static {
+    __name(this, "TerminalTabsChatEntry");
+  }
+  dispose() {
+    this._entry.remove();
+    this._label.remove();
+    this._deleteButton.remove();
+    super.dispose();
+  }
+  constructor(container, _tabContainer, _commandService, _terminalChatService, _terminalService) {
+    super();
+    this._tabContainer = _tabContainer;
+    this._commandService = _commandService;
+    this._terminalChatService = _terminalChatService;
+    this._terminalService = _terminalService;
+    this._entry = dom.append(container, $(".terminal-tabs-chat-entry"));
+    this._entry.tabIndex = 0;
+    this._entry.setAttribute("role", "button");
+    const entry = dom.append(this._entry, $(".terminal-tabs-entry"));
+    const icon = dom.append(entry, $(".terminal-tabs-chat-entry-icon"));
+    icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.commentDiscussionSparkle));
+    this._label = dom.append(entry, $(".terminal-tabs-chat-entry-label"));
+    this._deleteButton = dom.append(entry, $(".terminal-tabs-chat-entry-delete"));
+    this._deleteButton.classList.add(...ThemeIcon.asClassNameArray(Codicon.trashcan));
+    this._deleteButton.tabIndex = 0;
+    this._deleteButton.setAttribute("role", "button");
+    this._deleteButton.setAttribute("aria-label", localize("terminal.tabs.chatEntryDeleteAriaLabel", "Kill all hidden chat terminals"));
+    this._deleteButton.setAttribute("title", localize("terminal.tabs.chatEntryDeleteTooltip", "Kill all hidden chat terminals"));
+    const runChatTerminalsCommand = /* @__PURE__ */ __name(() => {
+      void this._commandService.executeCommand("workbench.action.terminal.chat.viewHiddenChatTerminals");
+    }, "runChatTerminalsCommand");
+    this._register(dom.addDisposableListener(this._entry, dom.EventType.CLICK, (e) => {
+      if (e.target === this._deleteButton || this._deleteButton.contains(e.target)) {
+        return;
+      }
+      e.preventDefault();
+      runChatTerminalsCommand();
+    }));
+    this._register(dom.addDisposableListener(this._entry, dom.EventType.KEY_DOWN, (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        runChatTerminalsCommand();
+      }
+    }));
+    this._register(dom.addDisposableListener(this._deleteButton, dom.EventType.CLICK, async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      await this._deleteAllHiddenTerminals();
+    }));
+    this._register(dom.addDisposableListener(this._deleteButton, dom.EventType.KEY_DOWN, async (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        e.stopPropagation();
+        await this._deleteAllHiddenTerminals();
+      }
+    }));
+    this.update();
+  }
+  async _deleteAllHiddenTerminals() {
+    const hiddenTerminals = this._terminalChatService.getToolSessionTerminalInstances(true);
+    await Promise.all(hiddenTerminals.map((terminal) => this._terminalService.safeDisposeTerminal(terminal)));
+  }
+  get element() {
+    return this._entry;
+  }
+  update() {
+    const hiddenChatTerminalCount = this._terminalChatService.getToolSessionTerminalInstances(true).length;
+    if (hiddenChatTerminalCount <= 0) {
+      this._entry.style.display = "none";
+      this._label.textContent = "";
+      this._entry.removeAttribute("aria-label");
+      this._entry.removeAttribute("title");
+      return;
+    }
+    this._entry.style.display = "";
+    const tooltip = localize("terminal.tabs.chatEntryTooltip", "Show hidden chat terminals");
+    this._entry.setAttribute("title", tooltip);
+    const hasText = this._tabContainer.classList.contains("has-text");
+    if (hasText) {
+      this._label.textContent = hiddenChatTerminalCount === 1 ? localize("terminal.tabs.chatEntryLabelSingle", "{0} Hidden Terminal", hiddenChatTerminalCount) : localize("terminal.tabs.chatEntryLabelPlural", "{0} Hidden Terminals", hiddenChatTerminalCount);
+    } else {
+      this._label.textContent = `${hiddenChatTerminalCount}`;
+    }
+    const ariaLabel = hiddenChatTerminalCount === 1 ? localize("terminal.tabs.chatEntryAriaLabelSingle", "Show 1 hidden chat terminal") : localize("terminal.tabs.chatEntryAriaLabelPlural", "Show {0} hidden chat terminals", hiddenChatTerminalCount);
+    this._entry.setAttribute("aria-label", ariaLabel);
+  }
+};
+TerminalTabsChatEntry = __decorate([
+  __param(2, ICommandService),
+  __param(3, ITerminalChatService),
+  __param(4, ITerminalService)
+], TerminalTabsChatEntry);
+export {
+  TerminalTabsChatEntry
+};
+//# sourceMappingURL=terminalTabsChatEntry.js.map

@@ -1,1 +1,167 @@
-import{$xf as c,Event as a}from"./event.js";import{$Dd as h}from"./lifecycle.js";const o=Object.freeze(function(t,e){const s=setTimeout(t.bind(e),0);return{dispose(){clearTimeout(s)}}});var n;(function(t){function e(s){return s===t.None||s===t.Cancelled||s instanceof i?!0:!s||typeof s!="object"?!1:typeof s.isCancellationRequested=="boolean"&&typeof s.onCancellationRequested=="function"}t.isCancellationToken=e,t.None=Object.freeze({isCancellationRequested:!1,onCancellationRequested:a.None}),t.Cancelled=Object.freeze({isCancellationRequested:!0,onCancellationRequested:o})})(n||(n={}));class i{constructor(){this.a=!1,this.b=null}cancel(){this.a||(this.a=!0,this.b&&(this.b.fire(void 0),this.dispose()))}get isCancellationRequested(){return this.a}get onCancellationRequested(){return this.a?o:(this.b||(this.b=new c),this.b.event)}dispose(){this.b&&(this.b.dispose(),this.b=null)}}class f{constructor(e){this.f=void 0,this.g=void 0,this.g=e&&e.onCancellationRequested(this.cancel,this)}get token(){return this.f||(this.f=new i),this.f}cancel(){this.f?this.f instanceof i&&this.f.cancel():this.f=n.Cancelled}dispose(e=!1){e&&this.cancel(),this.g?.dispose(),this.f?this.f instanceof i&&this.f.dispose():this.f=n.None}}function u(t){const e=new f;return t.add({dispose(){e.cancel()}}),e.token}class d{constructor(){this.a=new f,this.b=new h,this.c=0,this.f=0,this.g=!1}get token(){return this.a.token}add(e){if(this.g)return;if(this.c++,e.isCancellationRequested){this.f++,this.h();return}const s=e.onCancellationRequested(()=>{s.dispose(),this.f++,this.h()});this.b.add(s)}h(){!this.g&&this.c>0&&this.c===this.f&&(this.g=!0,this.b.dispose(),this.a.cancel())}dispose(){this.b.dispose(),this.a.dispose()}}export{f as $Jf,u as $Kf,d as $Lf,n as CancellationToken};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter, Event } from "./event.js";
+import { DisposableStore } from "./lifecycle.js";
+const shortcutEvent = Object.freeze(function(callback, context) {
+  const handle = setTimeout(callback.bind(context), 0);
+  return { dispose() {
+    clearTimeout(handle);
+  } };
+});
+var CancellationToken;
+(function(CancellationToken2) {
+  function isCancellationToken(thing) {
+    if (thing === CancellationToken2.None || thing === CancellationToken2.Cancelled) {
+      return true;
+    }
+    if (thing instanceof MutableToken) {
+      return true;
+    }
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    return typeof thing.isCancellationRequested === "boolean" && typeof thing.onCancellationRequested === "function";
+  }
+  __name(isCancellationToken, "isCancellationToken");
+  CancellationToken2.isCancellationToken = isCancellationToken;
+  CancellationToken2.None = Object.freeze({
+    isCancellationRequested: false,
+    onCancellationRequested: Event.None
+  });
+  CancellationToken2.Cancelled = Object.freeze({
+    isCancellationRequested: true,
+    onCancellationRequested: shortcutEvent
+  });
+})(CancellationToken || (CancellationToken = {}));
+class MutableToken {
+  static {
+    __name(this, "MutableToken");
+  }
+  constructor() {
+    this._isCancelled = false;
+    this._emitter = null;
+  }
+  cancel() {
+    if (!this._isCancelled) {
+      this._isCancelled = true;
+      if (this._emitter) {
+        this._emitter.fire(void 0);
+        this.dispose();
+      }
+    }
+  }
+  get isCancellationRequested() {
+    return this._isCancelled;
+  }
+  get onCancellationRequested() {
+    if (this._isCancelled) {
+      return shortcutEvent;
+    }
+    if (!this._emitter) {
+      this._emitter = new Emitter();
+    }
+    return this._emitter.event;
+  }
+  dispose() {
+    if (this._emitter) {
+      this._emitter.dispose();
+      this._emitter = null;
+    }
+  }
+}
+class CancellationTokenSource {
+  static {
+    __name(this, "CancellationTokenSource");
+  }
+  constructor(parent) {
+    this._token = void 0;
+    this._parentListener = void 0;
+    this._parentListener = parent && parent.onCancellationRequested(this.cancel, this);
+  }
+  get token() {
+    if (!this._token) {
+      this._token = new MutableToken();
+    }
+    return this._token;
+  }
+  cancel() {
+    if (!this._token) {
+      this._token = CancellationToken.Cancelled;
+    } else if (this._token instanceof MutableToken) {
+      this._token.cancel();
+    }
+  }
+  dispose(cancel = false) {
+    if (cancel) {
+      this.cancel();
+    }
+    this._parentListener?.dispose();
+    if (!this._token) {
+      this._token = CancellationToken.None;
+    } else if (this._token instanceof MutableToken) {
+      this._token.dispose();
+    }
+  }
+}
+function cancelOnDispose(store) {
+  const source = new CancellationTokenSource();
+  store.add({ dispose() {
+    source.cancel();
+  } });
+  return source.token;
+}
+__name(cancelOnDispose, "cancelOnDispose");
+class CancellationTokenPool {
+  static {
+    __name(this, "CancellationTokenPool");
+  }
+  constructor() {
+    this._source = new CancellationTokenSource();
+    this._listeners = new DisposableStore();
+    this._total = 0;
+    this._cancelled = 0;
+    this._isDone = false;
+  }
+  get token() {
+    return this._source.token;
+  }
+  /**
+   * Add a token to the pool. If the token is already cancelled it is counted
+   * immediately. Tokens added after the pool token has been cancelled are ignored.
+   */
+  add(token) {
+    if (this._isDone) {
+      return;
+    }
+    this._total++;
+    if (token.isCancellationRequested) {
+      this._cancelled++;
+      this._check();
+      return;
+    }
+    const d = token.onCancellationRequested(() => {
+      d.dispose();
+      this._cancelled++;
+      this._check();
+    });
+    this._listeners.add(d);
+  }
+  _check() {
+    if (!this._isDone && this._total > 0 && this._total === this._cancelled) {
+      this._isDone = true;
+      this._listeners.dispose();
+      this._source.cancel();
+    }
+  }
+  dispose() {
+    this._listeners.dispose();
+    this._source.dispose();
+  }
+}
+export {
+  CancellationToken,
+  CancellationTokenPool,
+  CancellationTokenSource,
+  cancelOnDispose
+};
+//# sourceMappingURL=cancellation.js.map

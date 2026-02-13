@@ -1,1 +1,128 @@
-import*as c from"../../../../base/browser/dom.js";import{$6h as p}from"../../../../base/common/async.js";import{$mb as h}from"../../../../base/common/errors.js";import{$Ed as f,$Dd as $,$Fd as g}from"../../../../base/common/lifecycle.js";import{$sf as w}from"../../../../base/common/symbols.js";import{$Mj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$fYb as m}from"../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";import{TerminalExtensionsRegistry as S}from"./terminalExtensions.js";import{$H3b as E}from"./widgets/widgetManager.js";var b=function(n,t,e,r){var o=arguments.length,i=o<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,t,e,r);else for(var a=n.length-1;a>=0;a--)(s=n[a])&&(i=(o<3?s(i):o>3?s(t,e,i):s(t,e))||i);return o>3&&i&&Object.defineProperty(t,e,i),i},d=function(n,t){return function(e,r){t(e,r,n)}};let l=class extends f{get xterm(){return this.f}constructor(t,e,r){super(),this.f=t,this.a=this.D(new E),this.b=new Map,this.c=this.D(new g),this.onData=this.f.raw.onData;const o=e.capabilities??new m;this.D(o),this.capabilities=o,this.D(t);const i=S.getTerminalContributions();for(const s of i){if(this.b.has(s.id)){h(new Error(`Cannot have two terminal contributions with the same id ${s.id}`));continue}if(s.canRunInDetachedTerminals===!1)continue;let a;try{a=r.createInstance(s.ctor,{instance:this,processManager:e.processInfo,widgetManager:this.a}),this.b.set(s.id,a),this.D(a)}catch(u){h(u)}}this.D(new p(w)).trigger(()=>{for(const s of this.b.values())s.xtermReady?.(this.f)})}get selection(){return this.f&&this.hasSelection()?this.f.raw.getSelection():void 0}hasSelection(){return this.f.hasSelection()}clearSelection(){this.f.clearSelection()}focus(t){(t||!c.$b9().getSelection()?.toString())&&this.xterm.focus()}attachToElement(t,e){this.domElement=t;const r=this.f.attachToElement(t,e);this.a.attachToElement(r);const o=new $,i=()=>{setTimeout(()=>this.focus(!0),0)};o.add(c.$u8(t,c.$r9.MOUSE_DOWN,i)),this.c.value=o}forceScrollbarVisibility(){this.domElement?.classList.add("force-scrollbar")}resetScrollbarVisibility(){this.domElement?.classList.remove("force-scrollbar")}getContribution(t){return this.b.get(t)}};l=b([d(2,D)],l);class C extends f{constructor(t){super(),this.processState=3,this.ptyProcessReady=Promise.resolve(),this.initialCwd="",this.shouldPersist=!1,this.hasWrittenData=!1,this.hasChildProcesses=!1,this.shellIntegrationNonce="",Object.assign(this,t),this.capabilities=this.D(new m)}}export{l as $J3b,C as $K3b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { Delayer } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { MicrotaskDelay } from "../../../../base/common/symbols.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
+import { TerminalExtensionsRegistry } from "./terminalExtensions.js";
+import { TerminalWidgetManager } from "./widgets/widgetManager.js";
+let DetachedTerminal = class DetachedTerminal2 extends Disposable {
+  static {
+    __name(this, "DetachedTerminal");
+  }
+  get xterm() {
+    return this._xterm;
+  }
+  constructor(_xterm, options, instantiationService) {
+    super();
+    this._xterm = _xterm;
+    this._widgets = this._register(new TerminalWidgetManager());
+    this._contributions = /* @__PURE__ */ new Map();
+    this._attachDisposables = this._register(new MutableDisposable());
+    this.onData = this._xterm.raw.onData;
+    const capabilities = options.capabilities ?? new TerminalCapabilityStore();
+    this._register(capabilities);
+    this.capabilities = capabilities;
+    this._register(_xterm);
+    const contributionDescs = TerminalExtensionsRegistry.getTerminalContributions();
+    for (const desc of contributionDescs) {
+      if (this._contributions.has(desc.id)) {
+        onUnexpectedError(new Error(`Cannot have two terminal contributions with the same id ${desc.id}`));
+        continue;
+      }
+      if (desc.canRunInDetachedTerminals === false) {
+        continue;
+      }
+      let contribution;
+      try {
+        contribution = instantiationService.createInstance(desc.ctor, {
+          instance: this,
+          processManager: options.processInfo,
+          widgetManager: this._widgets
+        });
+        this._contributions.set(desc.id, contribution);
+        this._register(contribution);
+      } catch (err) {
+        onUnexpectedError(err);
+      }
+    }
+    this._register(new Delayer(MicrotaskDelay)).trigger(() => {
+      for (const contr of this._contributions.values()) {
+        contr.xtermReady?.(this._xterm);
+      }
+    });
+  }
+  get selection() {
+    return this._xterm && this.hasSelection() ? this._xterm.raw.getSelection() : void 0;
+  }
+  hasSelection() {
+    return this._xterm.hasSelection();
+  }
+  clearSelection() {
+    this._xterm.clearSelection();
+  }
+  focus(force) {
+    if (force || !dom.getActiveWindow().getSelection()?.toString()) {
+      this.xterm.focus();
+    }
+  }
+  attachToElement(container, options) {
+    this.domElement = container;
+    const screenElement = this._xterm.attachToElement(container, options);
+    this._widgets.attachToElement(screenElement);
+    const attachStore = new DisposableStore();
+    const scheduleFocus = /* @__PURE__ */ __name(() => {
+      setTimeout(() => this.focus(true), 0);
+    }, "scheduleFocus");
+    attachStore.add(dom.addDisposableListener(container, dom.EventType.MOUSE_DOWN, scheduleFocus));
+    this._attachDisposables.value = attachStore;
+  }
+  forceScrollbarVisibility() {
+    this.domElement?.classList.add("force-scrollbar");
+  }
+  resetScrollbarVisibility() {
+    this.domElement?.classList.remove("force-scrollbar");
+  }
+  getContribution(id) {
+    return this._contributions.get(id);
+  }
+};
+DetachedTerminal = __decorate([
+  __param(2, IInstantiationService)
+], DetachedTerminal);
+class DetachedProcessInfo extends Disposable {
+  static {
+    __name(this, "DetachedProcessInfo");
+  }
+  constructor(initialValues) {
+    super();
+    this.processState = 3;
+    this.ptyProcessReady = Promise.resolve();
+    this.initialCwd = "";
+    this.shouldPersist = false;
+    this.hasWrittenData = false;
+    this.hasChildProcesses = false;
+    this.shellIntegrationNonce = "";
+    Object.assign(this, initialValues);
+    this.capabilities = this._register(new TerminalCapabilityStore());
+  }
+}
+export {
+  DetachedProcessInfo,
+  DetachedTerminal
+};
+//# sourceMappingURL=detachedTerminal.js.map

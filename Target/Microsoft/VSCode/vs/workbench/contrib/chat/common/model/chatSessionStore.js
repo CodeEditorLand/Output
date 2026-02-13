@@ -1,1 +1,582 @@
-import{$4h as F}from"../../../../../base/common/async.js";import{$0i as O}from"../../../../../base/common/buffer.js";import{$Lm as R}from"../../../../../base/common/errorMessage.js";import{$jk as E}from"../../../../../base/common/htmlContent.js";import{$Ed as M}from"../../../../../base/common/lifecycle.js";import{$5m as p}from"../../../../../base/common/marshalling.js";import{$Ih as l}from"../../../../../base/common/resources.js";import{URI as P}from"../../../../../base/common/uri.js";import{localize as C}from"../../../../../nls.js";import{$0l as D}from"../../../../../platform/configuration/common/configuration.js";import{$Kl as W}from"../../../../../platform/environment/common/environment.js";import{$vk as T,$Ok as g}from"../../../../../platform/files/common/files.js";import{$yo as b}from"../../../../../platform/log/common/log.js";import{$hp as Q}from"../../../../../platform/storage/common/storage.js";import{$pp as J}from"../../../../../platform/telemetry/common/telemetry.js";import{$ap as N}from"../../../../../platform/userDataProfile/common/userDataProfile.js";import{$Ml as _}from"../../../../../platform/workspace/common/workspace.js";import{$WN as z}from"../../../../services/lifecycle/common/lifecycle.js";import{$sR as H}from"../chat.js";import{$CS as h,$zS as K}from"./chatModel.js";import{$xmc as S}from"./chatSessionOperationLog.js";import{LocalChatSessionUri as d}from"./chatUri.js";var k=function(r,t,e,s){var i=arguments.length,n=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,s);else for(var o=r.length-1;o>=0;o--)(a=r[o])&&(n=(i<3?a(n):i>3?a(t,e,n):a(t,e))||n);return i>3&&n&&Object.defineProperty(t,e,n),n},c=function(r,t){return function(e,s){t(e,s,r)}},w;const v=50,m="chat.ChatSessionStore.index",y="ChatSessionStore.transferIndex";let I=class extends M{static{w=this}constructor(t,e,s,i,n,a,o,f,u){super(),this.n=t,this.q=e,this.r=s,this.s=i,this.t=n,this.u=a,this.w=o,this.y=f,this.z=u,this.h=new F,this.m=!1;const x=this.s.getWorkspace(),$=!x.configuration&&x.folders.length===0,L=this.s.getWorkspace().id;this.c=$?l(this.y.defaultProfile.globalStorageHome,"emptyWindowChatSessions"):l(this.q.workspaceStorageHome,L,"chatSessions"),this.f=$?l(this.q.workspaceStorageHome,"no-workspace","chatSessions"):void 0,this.g=l(this.y.defaultProfile.globalStorageHome,"transferredChatSessions"),this.D(this.w.onWillShutdown(q=>{this.m=!0,this.j&&q.join(this.j,{id:"join.chatSessionStore",label:C(6908,null)})}))}async storeSessions(t){if(!this.m)try{this.j=this.h.queue(async()=>{try{await Promise.all(t.map(e=>this.H(e))),await this.M(),await this.J()}catch(e){this.O("storeSessions","Error storing chat sessions",e)}}),await this.j}finally{this.j=void 0}}async storeSessionsMetadataOnly(t){if(!this.m)try{this.j=this.h.queue(async()=>{try{await Promise.all(t.map(e=>this.I(e))),await this.J()}catch(e){this.O("storeSessions","Error storing chat sessions",e)}}),await this.j}finally{this.j=void 0}}async storeTransferSession(t,e){const s=this.C(),i=t.toWorkspace.toString(),n=s[i];if(n)try{const a=P.revive(n.sessionResource);if(a&&d.parseLocalSessionId(a)){const o=this.Y(a);await this.n.del(o)}}catch(a){g(a)!==1&&this.O("storeTransferSession","Error deleting old transferred session file",a)}try{const a=JSON.stringify(e,void 0,2),o=this.Y(e.sessionResource);await this.n.writeFile(o,O.fromString(a))}catch(a){this.O("sessionWrite","Error writing chat session",a);return}s[i]=t;try{this.u.store(y,s,0,1)}catch(a){this.O("storeTransferSession","Error storing chat transfer session",a)}}C(){try{return this.u.getObject(y,0,{})}catch(t){return this.O("getTransferredSessionIndex","Error reading chat transfer index",t),{}}}static{this.F=60*1e3*5}getTransferredSessionData(){try{const t=this.C(),e=this.s.getWorkspace().folders;if(e.length!==1)return;const s=e[0].uri.toString(),i=t[s];if(!i)return;const n=p(i);if(Date.now()-i.timestampInMilliseconds>w.F){this.r.info("ChatSessionStore: Transferred session has expired"),this.G(n.sessionResource);return}return!!d.parseLocalSessionId(n.sessionResource)&&n.sessionResource}catch(t){this.O("getTransferredSession","Error getting transferred chat session URI",t);return}}async readTransferredSession(t){try{const e=this.Y(t),s=d.parseLocalSessionId(t);if(!s)return;const i=await this.U(e,void 0,s);return await this.G(t),i}catch(e){this.O("getTransferredSession","Error getting transferred chat session",e);return}}async G(t){try{const e=this.C(),s=this.s.getWorkspace().folders;if(s.length===1){const n=s[0].uri.toString();delete e[n],this.u.store(y,e,0,1)}const i=this.Y(t);await this.n.del(i)}catch(e){g(e)!==1&&this.O("cleanupTransferredSession","Error cleaning up transferred session",e)}}async H(t){try{const e=this.Q(),s=this.X(t.sessionId);if(s.log)if(t instanceof h){t.dataSerializer||(t.dataSerializer=new S);const{op:n,data:a}=t.dataSerializer.write(t);a.byteLength>0&&await this.n.writeFile(s.log,a,{append:n==="append"})}else{const n=new S().createInitialFromSerialized(t);await this.n.writeFile(s.log,n)}else await this.n.writeFile(s.flat,O.fromString(JSON.stringify(t)));const i=await j(t);e.entries[t.sessionId]=i}catch(e){this.O("sessionWrite","Error writing chat session",e)}}async I(t){if(!d.parseLocalSessionId(t.sessionResource))try{const e=this.Q(),s=t.sessionResource.toString();e.entries[s]=await j(t)}catch(e){this.O("sessionMetadataWrite","Error writing chat session metadata",e)}}async J(){const t=this.Q();try{this.u.store(m,t,this.L(),1)}catch(e){this.O("indexWrite","Error writing index",e)}}L(){const t=this.s.getWorkspace();return!t.configuration&&t.folders.length===0?-1:1}async M(){const t=this.Q(),e=Object.entries(t.entries).filter(([s,i])=>!i.isExternal).sort((s,i)=>i[1].lastMessageDate-s[1].lastMessageDate).map(([s])=>s);if(e.length>v){const s=e.slice(v);for(const i of s)delete t.entries[i];this.r.trace(`ChatSessionStore: Trimmed ${s.length} old chat sessions from index`)}}async N(t){const e=this.Q();if(!e.entries[t])return;const s=this.X(t);for(const i of[s.flat,s.log]){try{i&&await this.n.del(i)}catch(n){g(n)!==1&&this.O("sessionDelete","Error deleting chat session",n)}delete e.entries[t]}}hasSessions(){return Object.keys(this.Q().entries).length>0}isSessionEmpty(t){return this.Q().entries[t]?.isEmpty??!0}async deleteSession(t){await this.h.queue(async()=>{await this.N(t),await this.J()})}async clearAllSessions(){await this.h.queue(async()=>{const t=this.Q(),e=Object.keys(t.entries);this.r.info(`ChatSessionStore: Clearing ${e.length} chat sessions`),await Promise.all(e.map(s=>this.N(s))),await this.J()})}async setSessionTitle(t,e){await this.h.queue(async()=>{const s=this.Q();s.entries[t]&&(s.entries[t].title=e)})}O(t,e,s){const i=s&&g(s);i===1?this.r.trace("ChatSessionStore: "+e,R(s)):this.r.error("ChatSessionStore: "+e,R(s)),this.t.publicLog2("chatSessionStoreError",{reason:t,fileOperationReason:i??-1})}Q(){if(this.P)return this.P;const t=this.u.get(m,this.L(),void 0);if(!t)return this.P={version:1,entries:{}},this.P;try{const e=JSON.parse(t);Y(e)?this.P=e:(this.O("invalidIndexFormat",`Invalid index format: ${t}`),this.P={version:1,entries:{}})}catch(e){this.O("invalidIndexJSON",`Index corrupt: ${t}`,e),this.P={version:1,entries:{}}}for(const e of Object.values(this.P.entries))e.timing??={created:e.lastMessageDate,lastRequestStarted:void 0,lastRequestEnded:e.lastMessageDate},e.lastResponseState??=e.lastResponseState===0||e.lastResponseState===4?1:e.lastResponseState||1;return this.P}async getIndex(){return this.h.queue(async()=>this.Q().entries)}getMetadataForSessionSync(t){return this.Q().entries[this.R(t)]}R(t){return d.parseLocalSessionId(t)??t.toString()}logIndex(){const t=this.u.get(m,this.L(),void 0);this.r.info("ChatSessionStore index: ",t)}async migrateDataIfNeeded(t){await this.h.queue(async()=>{if(!this.u.get(m,this.L(),void 0)){const i=t();i&&await this.S(i)}})}async S(t){const e=Object.keys(t).length;this.r.info(`ChatSessionStore: Migrating ${e} chat sessions from storage service to file system`),await Promise.all(Object.values(t).map(async s=>{await this.H(s)})),await this.J()}async readSession(t){return await this.h.queue(async()=>{const e=this.X(t);return this.U(e.flat,e.log,t)})}async U(t,e,s){let i=t,n;if(e)try{n=(await this.n.readFile(e)).value,i=e}catch(a){this.O("sessionReadFile",`Error reading log chat session file ${s}`,a)}if(!n)try{n=(await this.n.readFile(t)).value,i=t}catch(a){this.O("sessionReadFile",`Error reading flat chat session file ${s}`,a),g(a)===1&&this.f&&(n=await this.W(s))}if(n)try{let a;const o=new S;i===e?a=p(o.read(n)):a=p(JSON.parse(n.toString()));for(const f of a.requests)Array.isArray(f.response)?f.response=f.response.map(u=>typeof u=="string"?new E(u):u):typeof f.response=="string"&&(f.response=[new E(f.response)]);return{value:K(a),serializer:o}}catch(a){this.O("malformedSession",`Malformed session data in ${i.fsPath}: [${n.slice(0,20).toString()}${n.byteLength>20?"...":""}]`,a);return}}async W(t){let e;if(this.f){const s=l(this.f,`${t}.json`);try{e=(await this.n.readFile(s)).value,this.r.info(`ChatSessionStore: Read chat session ${t} from previous location`)}catch(i){this.O("sessionReadFile",`Error reading chat session file ${t} from previous location`,i);return}}return e}X(t){return{flat:l(this.c,`${t}.json`),log:this.z.getValue("chat.useLogSessionStorage")!==!1?l(this.c,`${t}.jsonl`):void 0}}Y(t){const e=d.parseLocalSessionId(t);return l(this.g,`${e}.json`)}getChatStorageFolder(){return this.c}};I=w=k([c(0,T),c(1,W),c(2,b),c(3,_),c(4,J),c(5,Q),c(6,z),c(7,N),c(8,D)],I);function U(r){return!!r&&typeof r=="object"&&typeof r.sessionId=="string"&&typeof r.title=="string"&&typeof r.lastMessageDate=="number"}function Y(r){if(typeof r!="object"||r===null)return!1;const t=r;if(t.version!==1||typeof t.entries!="object"||t.entries===null)return!1;for(const e in t.entries)if(!U(t.entries[e]))return!1;return!0}async function j(r){const t=r.customTitle||(r instanceof h?r.title:void 0);let e;r instanceof h&&(e=await H(r));const s=r instanceof h?r.lastMessageDate:r.requests.at(-1)?.timestamp??r.creationDate,i=r instanceof h?r.timing:{created:r.creationDate,lastRequestStarted:r.requests.at(-1)?.timestamp,lastRequestEnded:s};let n=r instanceof h?r.lastRequest?.response?.state??1:1;return(n===0||n===4)&&(n=2),{sessionId:r.sessionId,title:t||C(6909,null),lastMessageDate:s,timing:i,initialLocation:r.initialLocation,hasPendingEdits:r instanceof h?r.editingSession?.entries.get().some(a=>a.state.get()===0):!1,isEmpty:r instanceof h?r.getRequests().length===0:r.requests.length===0,stats:e,isExternal:r instanceof h&&!d.parseLocalSessionId(r.sessionResource),lastResponseState:n}}export{I as $ymc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatSessionStore_1;
+import { Sequencer } from "../../../../../base/common/async.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { revive } from "../../../../../base/common/marshalling.js";
+import { joinPath } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../../platform/environment/common/environment.js";
+import { IFileService, toFileOperationResult } from "../../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { IUserDataProfilesService } from "../../../../../platform/userDataProfile/common/userDataProfile.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { ILifecycleService } from "../../../../services/lifecycle/common/lifecycle.js";
+import { awaitStatsForSession } from "../chat.js";
+import { ChatModel, normalizeSerializableChatData } from "./chatModel.js";
+import { ChatSessionOperationLog } from "./chatSessionOperationLog.js";
+import { LocalChatSessionUri } from "./chatUri.js";
+const maxPersistedSessions = 50;
+const ChatIndexStorageKey = "chat.ChatSessionStore.index";
+const ChatTransferIndexStorageKey = "ChatSessionStore.transferIndex";
+let ChatSessionStore = class ChatSessionStore2 extends Disposable {
+  static {
+    __name(this, "ChatSessionStore");
+  }
+  static {
+    ChatSessionStore_1 = this;
+  }
+  constructor(fileService, environmentService, logService, workspaceContextService, telemetryService, storageService, lifecycleService, userDataProfilesService, configurationService) {
+    super();
+    this.fileService = fileService;
+    this.environmentService = environmentService;
+    this.logService = logService;
+    this.workspaceContextService = workspaceContextService;
+    this.telemetryService = telemetryService;
+    this.storageService = storageService;
+    this.lifecycleService = lifecycleService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.configurationService = configurationService;
+    this.storeQueue = new Sequencer();
+    this.shuttingDown = false;
+    const workspace = this.workspaceContextService.getWorkspace();
+    const isEmptyWindow = !workspace.configuration && workspace.folders.length === 0;
+    const workspaceId = this.workspaceContextService.getWorkspace().id;
+    this.storageRoot = isEmptyWindow ? joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, "emptyWindowChatSessions") : joinPath(this.environmentService.workspaceStorageHome, workspaceId, "chatSessions");
+    this.previousEmptyWindowStorageRoot = isEmptyWindow ? joinPath(this.environmentService.workspaceStorageHome, "no-workspace", "chatSessions") : void 0;
+    this.transferredSessionStorageRoot = joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, "transferredChatSessions");
+    this._register(this.lifecycleService.onWillShutdown((e) => {
+      this.shuttingDown = true;
+      if (!this.storeTask) {
+        return;
+      }
+      e.join(this.storeTask, {
+        id: "join.chatSessionStore",
+        label: localize("join.chatSessionStore", "Saving chat history")
+      });
+    }));
+  }
+  async storeSessions(sessions) {
+    if (this.shuttingDown) {
+      return;
+    }
+    try {
+      this.storeTask = this.storeQueue.queue(async () => {
+        try {
+          await Promise.all(sessions.map((session) => this.writeSession(session)));
+          await this.trimEntries();
+          await this.flushIndex();
+        } catch (e) {
+          this.reportError("storeSessions", "Error storing chat sessions", e);
+        }
+      });
+      await this.storeTask;
+    } finally {
+      this.storeTask = void 0;
+    }
+  }
+  async storeSessionsMetadataOnly(sessions) {
+    if (this.shuttingDown) {
+      return;
+    }
+    try {
+      this.storeTask = this.storeQueue.queue(async () => {
+        try {
+          await Promise.all(sessions.map((session) => this.writeSessionMetadataOnly(session)));
+          await this.flushIndex();
+        } catch (e) {
+          this.reportError("storeSessions", "Error storing chat sessions", e);
+        }
+      });
+      await this.storeTask;
+    } finally {
+      this.storeTask = void 0;
+    }
+  }
+  async storeTransferSession(transferData, session) {
+    const index = this.getTransferredSessionIndex();
+    const workspaceKey = transferData.toWorkspace.toString();
+    const existingTransfer = index[workspaceKey];
+    if (existingTransfer) {
+      try {
+        const existingSessionResource = URI.revive(existingTransfer.sessionResource);
+        if (existingSessionResource && LocalChatSessionUri.parseLocalSessionId(existingSessionResource)) {
+          const existingStorageLocation = this.getTransferredSessionStorageLocation(existingSessionResource);
+          await this.fileService.del(existingStorageLocation);
+        }
+      } catch (e) {
+        if (toFileOperationResult(e) !== 1) {
+          this.reportError("storeTransferSession", "Error deleting old transferred session file", e);
+        }
+      }
+    }
+    try {
+      const content = JSON.stringify(session, void 0, 2);
+      const storageLocation = this.getTransferredSessionStorageLocation(session.sessionResource);
+      await this.fileService.writeFile(storageLocation, VSBuffer.fromString(content));
+    } catch (e) {
+      this.reportError("sessionWrite", "Error writing chat session", e);
+      return;
+    }
+    index[workspaceKey] = transferData;
+    try {
+      this.storageService.store(
+        ChatTransferIndexStorageKey,
+        index,
+        0,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } catch (e) {
+      this.reportError("storeTransferSession", "Error storing chat transfer session", e);
+    }
+  }
+  getTransferredSessionIndex() {
+    try {
+      const data = this.storageService.getObject(ChatTransferIndexStorageKey, 0, {});
+      return data;
+    } catch (e) {
+      this.reportError("getTransferredSessionIndex", "Error reading chat transfer index", e);
+      return {};
+    }
+  }
+  static {
+    this.TRANSFER_EXPIRATION_MS = 60 * 1e3 * 5;
+  }
+  getTransferredSessionData() {
+    try {
+      const index = this.getTransferredSessionIndex();
+      const workspaceFolders = this.workspaceContextService.getWorkspace().folders;
+      if (workspaceFolders.length !== 1) {
+        return void 0;
+      }
+      const workspaceKey = workspaceFolders[0].uri.toString();
+      const transferredSessionForWorkspace = index[workspaceKey];
+      if (!transferredSessionForWorkspace) {
+        return void 0;
+      }
+      const revivedTransferData = revive(transferredSessionForWorkspace);
+      if (Date.now() - transferredSessionForWorkspace.timestampInMilliseconds > ChatSessionStore_1.TRANSFER_EXPIRATION_MS) {
+        this.logService.info("ChatSessionStore: Transferred session has expired");
+        this.cleanupTransferredSession(revivedTransferData.sessionResource);
+        return void 0;
+      }
+      return !!LocalChatSessionUri.parseLocalSessionId(revivedTransferData.sessionResource) && revivedTransferData.sessionResource;
+    } catch (e) {
+      this.reportError("getTransferredSession", "Error getting transferred chat session URI", e);
+      return void 0;
+    }
+  }
+  async readTransferredSession(sessionResource) {
+    try {
+      const storageLocation = this.getTransferredSessionStorageLocation(sessionResource);
+      const sessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+      if (!sessionId) {
+        return void 0;
+      }
+      const sessionData = await this.readSessionFromLocation(storageLocation, void 0, sessionId);
+      await this.cleanupTransferredSession(sessionResource);
+      return sessionData;
+    } catch (e) {
+      this.reportError("getTransferredSession", "Error getting transferred chat session", e);
+      return void 0;
+    }
+  }
+  async cleanupTransferredSession(sessionResource) {
+    try {
+      const index = this.getTransferredSessionIndex();
+      const workspaceFolders = this.workspaceContextService.getWorkspace().folders;
+      if (workspaceFolders.length === 1) {
+        const workspaceKey = workspaceFolders[0].uri.toString();
+        delete index[workspaceKey];
+        this.storageService.store(
+          ChatTransferIndexStorageKey,
+          index,
+          0,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      }
+      const storageLocation = this.getTransferredSessionStorageLocation(sessionResource);
+      await this.fileService.del(storageLocation);
+    } catch (e) {
+      if (toFileOperationResult(e) !== 1) {
+        this.reportError("cleanupTransferredSession", "Error cleaning up transferred session", e);
+      }
+    }
+  }
+  async writeSession(session) {
+    try {
+      const index = this.internalGetIndex();
+      const storageLocation = this.getStorageLocation(session.sessionId);
+      if (storageLocation.log) {
+        if (session instanceof ChatModel) {
+          if (!session.dataSerializer) {
+            session.dataSerializer = new ChatSessionOperationLog();
+          }
+          const { op, data } = session.dataSerializer.write(session);
+          if (data.byteLength > 0) {
+            await this.fileService.writeFile(storageLocation.log, data, { append: op === "append" });
+          }
+        } else {
+          const content = new ChatSessionOperationLog().createInitialFromSerialized(session);
+          await this.fileService.writeFile(storageLocation.log, content);
+        }
+      } else {
+        await this.fileService.writeFile(storageLocation.flat, VSBuffer.fromString(JSON.stringify(session)));
+      }
+      const newMetadata = await getSessionMetadata(session);
+      index.entries[session.sessionId] = newMetadata;
+    } catch (e) {
+      this.reportError("sessionWrite", "Error writing chat session", e);
+    }
+  }
+  async writeSessionMetadataOnly(session) {
+    if (LocalChatSessionUri.parseLocalSessionId(session.sessionResource)) {
+      return;
+    }
+    try {
+      const index = this.internalGetIndex();
+      const externalSessionId = session.sessionResource.toString();
+      index.entries[externalSessionId] = await getSessionMetadata(session);
+    } catch (e) {
+      this.reportError("sessionMetadataWrite", "Error writing chat session metadata", e);
+    }
+  }
+  async flushIndex() {
+    const index = this.internalGetIndex();
+    try {
+      this.storageService.store(
+        ChatIndexStorageKey,
+        index,
+        this.getIndexStorageScope(),
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } catch (e) {
+      this.reportError("indexWrite", "Error writing index", e);
+    }
+  }
+  getIndexStorageScope() {
+    const workspace = this.workspaceContextService.getWorkspace();
+    const isEmptyWindow = !workspace.configuration && workspace.folders.length === 0;
+    return isEmptyWindow ? -1 : 1;
+  }
+  async trimEntries() {
+    const index = this.internalGetIndex();
+    const entries = Object.entries(index.entries).filter(([_id, entry]) => !entry.isExternal).sort((a, b) => b[1].lastMessageDate - a[1].lastMessageDate).map(([id]) => id);
+    if (entries.length > maxPersistedSessions) {
+      const entriesToDelete = entries.slice(maxPersistedSessions);
+      for (const entry of entriesToDelete) {
+        delete index.entries[entry];
+      }
+      this.logService.trace(`ChatSessionStore: Trimmed ${entriesToDelete.length} old chat sessions from index`);
+    }
+  }
+  async internalDeleteSession(sessionId) {
+    const index = this.internalGetIndex();
+    if (!index.entries[sessionId]) {
+      return;
+    }
+    const storageLocation = this.getStorageLocation(sessionId);
+    for (const uri of [storageLocation.flat, storageLocation.log]) {
+      try {
+        if (uri) {
+          await this.fileService.del(uri);
+        }
+      } catch (e) {
+        if (toFileOperationResult(e) !== 1) {
+          this.reportError("sessionDelete", "Error deleting chat session", e);
+        }
+      }
+      delete index.entries[sessionId];
+    }
+  }
+  hasSessions() {
+    return Object.keys(this.internalGetIndex().entries).length > 0;
+  }
+  isSessionEmpty(sessionId) {
+    const index = this.internalGetIndex();
+    return index.entries[sessionId]?.isEmpty ?? true;
+  }
+  async deleteSession(sessionId) {
+    await this.storeQueue.queue(async () => {
+      await this.internalDeleteSession(sessionId);
+      await this.flushIndex();
+    });
+  }
+  async clearAllSessions() {
+    await this.storeQueue.queue(async () => {
+      const index = this.internalGetIndex();
+      const entries = Object.keys(index.entries);
+      this.logService.info(`ChatSessionStore: Clearing ${entries.length} chat sessions`);
+      await Promise.all(entries.map((entry) => this.internalDeleteSession(entry)));
+      await this.flushIndex();
+    });
+  }
+  async setSessionTitle(sessionId, title) {
+    await this.storeQueue.queue(async () => {
+      const index = this.internalGetIndex();
+      if (index.entries[sessionId]) {
+        index.entries[sessionId].title = title;
+      }
+    });
+  }
+  reportError(reasonForTelemetry, message, error) {
+    const fileOperationReason = error && toFileOperationResult(error);
+    if (fileOperationReason === 1) {
+      this.logService.trace(`ChatSessionStore: ` + message, toErrorMessage(error));
+    } else {
+      this.logService.error(`ChatSessionStore: ` + message, toErrorMessage(error));
+    }
+    this.telemetryService.publicLog2("chatSessionStoreError", {
+      reason: reasonForTelemetry,
+      fileOperationReason: fileOperationReason ?? -1
+    });
+  }
+  internalGetIndex() {
+    if (this.indexCache) {
+      return this.indexCache;
+    }
+    const data = this.storageService.get(ChatIndexStorageKey, this.getIndexStorageScope(), void 0);
+    if (!data) {
+      this.indexCache = { version: 1, entries: {} };
+      return this.indexCache;
+    }
+    try {
+      const index = JSON.parse(data);
+      if (isChatSessionIndex(index)) {
+        this.indexCache = index;
+      } else {
+        this.reportError("invalidIndexFormat", `Invalid index format: ${data}`);
+        this.indexCache = { version: 1, entries: {} };
+      }
+    } catch (e) {
+      this.reportError("invalidIndexJSON", `Index corrupt: ${data}`, e);
+      this.indexCache = { version: 1, entries: {} };
+    }
+    for (const entry of Object.values(this.indexCache.entries)) {
+      entry.timing ??= {
+        created: entry.lastMessageDate,
+        lastRequestStarted: void 0,
+        lastRequestEnded: entry.lastMessageDate
+      };
+      entry.lastResponseState ??= entry.lastResponseState === 0 || entry.lastResponseState === 4 ? 1 : entry.lastResponseState || 1;
+    }
+    return this.indexCache;
+  }
+  async getIndex() {
+    return this.storeQueue.queue(async () => {
+      return this.internalGetIndex().entries;
+    });
+  }
+  getMetadataForSessionSync(sessionResource) {
+    const index = this.internalGetIndex();
+    return index.entries[this.getIndexKey(sessionResource)];
+  }
+  getIndexKey(sessionResource) {
+    const sessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+    return sessionId ?? sessionResource.toString();
+  }
+  logIndex() {
+    const data = this.storageService.get(ChatIndexStorageKey, this.getIndexStorageScope(), void 0);
+    this.logService.info("ChatSessionStore index: ", data);
+  }
+  async migrateDataIfNeeded(getInitialData) {
+    await this.storeQueue.queue(async () => {
+      const data = this.storageService.get(ChatIndexStorageKey, this.getIndexStorageScope(), void 0);
+      const needsMigrationFromStorageService = !data;
+      if (needsMigrationFromStorageService) {
+        const initialData = getInitialData();
+        if (initialData) {
+          await this.migrate(initialData);
+        }
+      }
+    });
+  }
+  async migrate(initialData) {
+    const numSessions = Object.keys(initialData).length;
+    this.logService.info(`ChatSessionStore: Migrating ${numSessions} chat sessions from storage service to file system`);
+    await Promise.all(Object.values(initialData).map(async (session) => {
+      await this.writeSession(session);
+    }));
+    await this.flushIndex();
+  }
+  async readSession(sessionId) {
+    return await this.storeQueue.queue(async () => {
+      const storageLocation = this.getStorageLocation(sessionId);
+      return this.readSessionFromLocation(storageLocation.flat, storageLocation.log, sessionId);
+    });
+  }
+  async readSessionFromLocation(flatStorageLocation, logStorageLocation, sessionId) {
+    let fromLocation = flatStorageLocation;
+    let rawData;
+    if (logStorageLocation) {
+      try {
+        rawData = (await this.fileService.readFile(logStorageLocation)).value;
+        fromLocation = logStorageLocation;
+      } catch (e) {
+        this.reportError("sessionReadFile", `Error reading log chat session file ${sessionId}`, e);
+      }
+    }
+    if (!rawData) {
+      try {
+        rawData = (await this.fileService.readFile(flatStorageLocation)).value;
+        fromLocation = flatStorageLocation;
+      } catch (e) {
+        this.reportError("sessionReadFile", `Error reading flat chat session file ${sessionId}`, e);
+        if (toFileOperationResult(e) === 1 && this.previousEmptyWindowStorageRoot) {
+          rawData = await this.readSessionFromPreviousLocation(sessionId);
+        }
+      }
+    }
+    if (!rawData) {
+      return void 0;
+    }
+    try {
+      let session;
+      const log = new ChatSessionOperationLog();
+      if (fromLocation === logStorageLocation) {
+        session = revive(log.read(rawData));
+      } else {
+        session = revive(JSON.parse(rawData.toString()));
+      }
+      for (const request of session.requests) {
+        if (Array.isArray(request.response)) {
+          request.response = request.response.map((response) => {
+            if (typeof response === "string") {
+              return new MarkdownString(response);
+            }
+            return response;
+          });
+        } else if (typeof request.response === "string") {
+          request.response = [new MarkdownString(request.response)];
+        }
+      }
+      return { value: normalizeSerializableChatData(session), serializer: log };
+    } catch (err) {
+      this.reportError("malformedSession", `Malformed session data in ${fromLocation.fsPath}: [${rawData.slice(0, 20).toString()}${rawData.byteLength > 20 ? "..." : ""}]`, err);
+      return void 0;
+    }
+  }
+  async readSessionFromPreviousLocation(sessionId) {
+    let rawData;
+    if (this.previousEmptyWindowStorageRoot) {
+      const storageLocation2 = joinPath(this.previousEmptyWindowStorageRoot, `${sessionId}.json`);
+      try {
+        rawData = (await this.fileService.readFile(storageLocation2)).value;
+        this.logService.info(`ChatSessionStore: Read chat session ${sessionId} from previous location`);
+      } catch (e) {
+        this.reportError("sessionReadFile", `Error reading chat session file ${sessionId} from previous location`, e);
+        return void 0;
+      }
+    }
+    return rawData;
+  }
+  getStorageLocation(chatSessionId) {
+    return {
+      flat: joinPath(this.storageRoot, `${chatSessionId}.json`),
+      // todo@connor4312: remove after stabilizing
+      log: this.configurationService.getValue("chat.useLogSessionStorage") !== false ? joinPath(this.storageRoot, `${chatSessionId}.jsonl`) : void 0
+    };
+  }
+  getTransferredSessionStorageLocation(sessionResource) {
+    const sessionId = LocalChatSessionUri.parseLocalSessionId(sessionResource);
+    return joinPath(this.transferredSessionStorageRoot, `${sessionId}.json`);
+  }
+  getChatStorageFolder() {
+    return this.storageRoot;
+  }
+};
+ChatSessionStore = ChatSessionStore_1 = __decorate([
+  __param(0, IFileService),
+  __param(1, IEnvironmentService),
+  __param(2, ILogService),
+  __param(3, IWorkspaceContextService),
+  __param(4, ITelemetryService),
+  __param(5, IStorageService),
+  __param(6, ILifecycleService),
+  __param(7, IUserDataProfilesService),
+  __param(8, IConfigurationService)
+], ChatSessionStore);
+function isChatSessionEntryMetadata(obj) {
+  return !!obj && typeof obj === "object" && typeof obj.sessionId === "string" && typeof obj.title === "string" && typeof obj.lastMessageDate === "number";
+}
+__name(isChatSessionEntryMetadata, "isChatSessionEntryMetadata");
+function isChatSessionIndex(data) {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const index = data;
+  if (index.version !== 1) {
+    return false;
+  }
+  if (typeof index.entries !== "object" || index.entries === null) {
+    return false;
+  }
+  for (const key in index.entries) {
+    if (!isChatSessionEntryMetadata(index.entries[key])) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(isChatSessionIndex, "isChatSessionIndex");
+async function getSessionMetadata(session) {
+  const title = session.customTitle || (session instanceof ChatModel ? session.title : void 0);
+  let stats;
+  if (session instanceof ChatModel) {
+    stats = await awaitStatsForSession(session);
+  }
+  const lastMessageDate = session instanceof ChatModel ? session.lastMessageDate : session.requests.at(-1)?.timestamp ?? session.creationDate;
+  const timing = session instanceof ChatModel ? session.timing : (
+    // session is only ISerializableChatData in the old pre-fs storage data migration scenario
+    {
+      created: session.creationDate,
+      lastRequestStarted: session.requests.at(-1)?.timestamp,
+      lastRequestEnded: lastMessageDate
+    }
+  );
+  let lastResponseState = session instanceof ChatModel ? session.lastRequest?.response?.state ?? 1 : 1;
+  if (lastResponseState === 0 || lastResponseState === 4) {
+    lastResponseState = 2;
+  }
+  return {
+    sessionId: session.sessionId,
+    title: title || localize("newChat", "New Chat"),
+    lastMessageDate,
+    timing,
+    initialLocation: session.initialLocation,
+    hasPendingEdits: session instanceof ChatModel ? session.editingSession?.entries.get().some(
+      (e) => e.state.get() === 0
+      /* ModifiedFileEntryState.Modified */
+    ) : false,
+    isEmpty: session instanceof ChatModel ? session.getRequests().length === 0 : session.requests.length === 0,
+    stats,
+    isExternal: session instanceof ChatModel && !LocalChatSessionUri.parseLocalSessionId(session.sessionResource),
+    lastResponseState
+  };
+}
+__name(getSessionMetadata, "getSessionMetadata");
+export {
+  ChatSessionStore
+};
+//# sourceMappingURL=chatSessionStore.js.map

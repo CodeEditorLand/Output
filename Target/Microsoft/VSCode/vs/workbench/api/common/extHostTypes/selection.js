@@ -1,1 +1,83 @@
-import{$K1 as b}from"./es5ClassCompat.js";import{$L1 as o}from"./position.js";import{$N1 as d,$M1 as a}from"./range.js";var l=function(s,t,r,f){var n=arguments.length,e=n<3?t:f===null?f=Object.getOwnPropertyDescriptor(t,r):f,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(s,t,r,f);else for(var u=s.length-1;u>=0;u--)(i=s[u])&&(e=(n<3?i(e):n>3?i(t,r,e):i(t,r))||e);return n>3&&e&&Object.defineProperty(t,r,e),e},p;let c=p=class extends a{static isSelection(t){return t instanceof p?!0:!t||typeof t!="object"?!1:a.isRange(t)&&o.isPosition(t.anchor)&&o.isPosition(t.active)&&typeof t.isReversed=="boolean"}get anchor(){return this.c}get active(){return this.d}constructor(t,r,f,n){let e,i;if(typeof t=="number"&&typeof r=="number"&&typeof f=="number"&&typeof n=="number"?(e=new o(t,r),i=new o(f,n)):o.isPosition(t)&&o.isPosition(r)&&(e=o.of(t),i=o.of(r)),!e||!i)throw new Error("Invalid arguments");super(e,i),this.c=e,this.d=i}get isReversed(){return this.c===this.b}toJSON(){return{start:this.start,end:this.end,active:this.active,anchor:this.anchor}}[Symbol.for("debug.description")](){return m(this)}};c=p=l([b],c);function m(s){let t=d(s);return s.isEmpty||(s.active.isEqual(s.start)?t=`|${t}`:t=`${t}|`),t}export{c as $c2,m as $d2};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Selection_1;
+import { es5ClassCompat } from "./es5ClassCompat.js";
+import { Position } from "./position.js";
+import { getDebugDescriptionOfRange, Range } from "./range.js";
+let Selection = Selection_1 = class Selection2 extends Range {
+  static {
+    __name(this, "Selection");
+  }
+  static isSelection(thing) {
+    if (thing instanceof Selection_1) {
+      return true;
+    }
+    if (!thing || typeof thing !== "object") {
+      return false;
+    }
+    return Range.isRange(thing) && Position.isPosition(thing.anchor) && Position.isPosition(thing.active) && typeof thing.isReversed === "boolean";
+  }
+  get anchor() {
+    return this._anchor;
+  }
+  get active() {
+    return this._active;
+  }
+  constructor(anchorLineOrAnchor, anchorColumnOrActive, activeLine, activeColumn) {
+    let anchor;
+    let active;
+    if (typeof anchorLineOrAnchor === "number" && typeof anchorColumnOrActive === "number" && typeof activeLine === "number" && typeof activeColumn === "number") {
+      anchor = new Position(anchorLineOrAnchor, anchorColumnOrActive);
+      active = new Position(activeLine, activeColumn);
+    } else if (Position.isPosition(anchorLineOrAnchor) && Position.isPosition(anchorColumnOrActive)) {
+      anchor = Position.of(anchorLineOrAnchor);
+      active = Position.of(anchorColumnOrActive);
+    }
+    if (!anchor || !active) {
+      throw new Error("Invalid arguments");
+    }
+    super(anchor, active);
+    this._anchor = anchor;
+    this._active = active;
+  }
+  get isReversed() {
+    return this._anchor === this._end;
+  }
+  toJSON() {
+    return {
+      start: this.start,
+      end: this.end,
+      active: this.active,
+      anchor: this.anchor
+    };
+  }
+  [/* @__PURE__ */ Symbol.for("debug.description")]() {
+    return getDebugDescriptionOfSelection(this);
+  }
+};
+Selection = Selection_1 = __decorate([
+  es5ClassCompat
+], Selection);
+function getDebugDescriptionOfSelection(selection) {
+  let rangeStr = getDebugDescriptionOfRange(selection);
+  if (!selection.isEmpty) {
+    if (selection.active.isEqual(selection.start)) {
+      rangeStr = `|${rangeStr}`;
+    } else {
+      rangeStr = `${rangeStr}|`;
+    }
+  }
+  return rangeStr;
+}
+__name(getDebugDescriptionOfSelection, "getDebugDescriptionOfSelection");
+export {
+  Selection,
+  getDebugDescriptionOfSelection
+};
+//# sourceMappingURL=selection.js.map

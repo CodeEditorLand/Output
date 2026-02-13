@@ -1,1 +1,22 @@
-import{$xf as t}from"../../../../base/common/event.js";import{$Wfb as s}from"../../view/viewPart.js";class n extends s{constructor(){super(...arguments),this.a=this.D(new t),this.onWillCopy=this.a.event,this.b=this.D(new t),this.onWillCut=this.b.event,this.c=this.D(new t),this.onWillPaste=this.c.event}}export{n as $Bhb};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { ViewPart } from "../../view/viewPart.js";
+class AbstractEditContext extends ViewPart {
+  static {
+    __name(this, "AbstractEditContext");
+  }
+  constructor() {
+    super(...arguments);
+    this._onWillCopy = this._register(new Emitter());
+    this.onWillCopy = this._onWillCopy.event;
+    this._onWillCut = this._register(new Emitter());
+    this.onWillCut = this._onWillCut.event;
+    this._onWillPaste = this._register(new Emitter());
+    this.onWillPaste = this._onWillPaste.event;
+  }
+}
+export {
+  AbstractEditContext
+};
+//# sourceMappingURL=editContext.js.map

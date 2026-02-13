@@ -1,2 +1,182 @@
-import{$Ed as p}from"../../../../../base/common/lifecycle.js";import{localize as t}from"../../../../../nls.js";import{$uo as b}from"../../../../../platform/commands/common/commands.js";import{$0n as u,$ro as g}from"../../../../../platform/contextkey/common/contextkey.js";import{$0l as d}from"../../../../../platform/configuration/common/configuration.js";import{$uIb as w,$zIb as v}from"../../../accessibility/browser/accessibilityConfiguration.js";var f=function(i,e,o,l){var r=arguments.length,n=r<3?e:l===null?l=Object.getOwnPropertyDescriptor(e,o):l,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,e,o,l);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(n=(r<3?s(n):r>3?s(e,o,n):s(e,o))||n);return r>3&&n&&Object.defineProperty(e,o,n),n},a=function(i,e){return function(o,l){e(o,l,i)}},h;(function(i){i.Active="active",i.EditorTextArea="textarea"})(h||(h={}));let m=class extends p{onClose(){u.and(w,u.equals(v.key,"terminal-help"))?.evaluate(this.g.getContext(null))?this.c.executeCommand("workbench.action.terminal.focusAccessibleBuffer"):this.b.focus(),this.dispose()}constructor(e,o,l,r,n){super(),this.b=e,this.c=l,this.f=r,this.g=n,this.id="terminal-help",this.a=!1,this.options={type:"help",readMoreUrl:"https://code.visualstudio.com/docs/editor/accessibility#_terminal-accessibility"},this.verbositySettingKey="accessibility.verbosity.terminal",this.a=o.shellIntegration.status===2}provideContent(){const e=[t(13650,null,"workbench.action.terminal.focusAccessibleBuffer"),t(13651,null),t(13652,null,"workbench.action.terminal.openDetectedLink"),t(13653,null,"workbench.action.terminal.newWithProfile"),t(13654,null,"terminal.integrated.focusAfterRun")];return this.f.getValue("terminal.integrated.accessibleViewFocusOnCommandExecution")||e.push(t(13655,null)),this.f.getValue("terminal.integrated.suggest.enabled")&&(e.push(t(13656,null,"workbench.action.terminal.triggerSuggest")),e.push(t(13657,null)),e.push(t(13658,null,"workbench.action.terminal.acceptSelectedSuggestion","workbench.action.terminal.configureSuggestSettings")),e.push(t(13659,null,"workbench.action.terminal.suggestToggleDetails","workbench.action.terminal.suggestToggleDetailsFocus")),e.push(t(13660,null,"workbench.action.terminal.suggestLearnMore")),e.push(t(13661,null,"workbench.action.terminal.configureSuggestSettings"))),this.b.shellType==="cmd"&&e.push(t(13662,null)),this.a?(e.push(t(13663,null)),e.push("- "+t(13664,null,"workbench.action.terminal.accessibleBufferGoToNextCommand")),e.push("- "+t(13665,null,"workbench.action.terminal.accessibleBufferGoToPreviousCommand")),e.push("- "+t(13666,null,"editor.action.accessibleViewGoToSymbol")),e.push("- "+t(13667,null,"workbench.action.terminal.runRecentCommand")),e.push("- "+t(13668,null,"workbench.action.terminal.goToRecentDirectory"))):e.push(t(13669,null)),e.join(`
-`)}};m=f([a(2,b),a(3,d),a(4,g)],m);export{m as $vCc,h as ClassName};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { localize } from "../../../../../nls.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { accessibleViewIsShown, accessibleViewCurrentProviderId } from "../../../accessibility/browser/accessibilityConfiguration.js";
+var ClassName;
+(function(ClassName2) {
+  ClassName2["Active"] = "active";
+  ClassName2["EditorTextArea"] = "textarea";
+})(ClassName || (ClassName = {}));
+let TerminalAccessibilityHelpProvider = class TerminalAccessibilityHelpProvider2 extends Disposable {
+  static {
+    __name(this, "TerminalAccessibilityHelpProvider");
+  }
+  onClose() {
+    const expr = ContextKeyExpr.and(accessibleViewIsShown, ContextKeyExpr.equals(
+      accessibleViewCurrentProviderId.key,
+      "terminal-help"
+      /* AccessibleViewProviderId.TerminalHelp */
+    ));
+    if (expr?.evaluate(this._contextKeyService.getContext(null))) {
+      this._commandService.executeCommand(
+        "workbench.action.terminal.focusAccessibleBuffer"
+        /* TerminalAccessibilityCommandId.FocusAccessibleBuffer */
+      );
+    } else {
+      this._instance.focus();
+    }
+    this.dispose();
+  }
+  constructor(_instance, _xterm, _commandService, _configurationService, _contextKeyService) {
+    super();
+    this._instance = _instance;
+    this._commandService = _commandService;
+    this._configurationService = _configurationService;
+    this._contextKeyService = _contextKeyService;
+    this.id = "terminal-help";
+    this._hasShellIntegration = false;
+    this.options = {
+      type: "help",
+      readMoreUrl: "https://code.visualstudio.com/docs/editor/accessibility#_terminal-accessibility"
+    };
+    this.verbositySettingKey = "accessibility.verbosity.terminal";
+    this._hasShellIntegration = _xterm.shellIntegration.status === 2;
+  }
+  provideContent() {
+    const content = [
+      localize(
+        "focusAccessibleTerminalView",
+        "The Focus Accessible Terminal View command<keybinding:{0}> enables screen readers to read terminal contents.",
+        "workbench.action.terminal.focusAccessibleBuffer"
+        /* TerminalAccessibilityCommandId.FocusAccessibleBuffer */
+      ),
+      localize("preserveCursor", "Customize the behavior of the cursor when toggling between the terminal and accessible view with `terminal.integrated.accessibleViewPreserveCursorPosition.`"),
+      localize(
+        "openDetectedLink",
+        "The Open Detected Link command<keybinding:{0}> enables screen readers to easily open links found in the terminal.",
+        "workbench.action.terminal.openDetectedLink"
+        /* TerminalLinksCommandId.OpenDetectedLink */
+      ),
+      localize(
+        "newWithProfile",
+        "The Create New Terminal (With Profile) command<keybinding:{0}> allows for easy terminal creation using a specific profile.",
+        "workbench.action.terminal.newWithProfile"
+        /* TerminalCommandId.NewWithProfile */
+      ),
+      localize(
+        "focusAfterRun",
+        "Configure what gets focused after running selected text in the terminal with `{0}`.",
+        "terminal.integrated.focusAfterRun"
+        /* TerminalSettingId.FocusAfterRun */
+      )
+    ];
+    if (!this._configurationService.getValue(
+      "terminal.integrated.accessibleViewFocusOnCommandExecution"
+      /* TerminalAccessibilitySettingId.AccessibleViewFocusOnCommandExecution */
+    )) {
+      content.push(localize("focusViewOnExecution", "Enable `terminal.integrated.accessibleViewFocusOnCommandExecution` to automatically focus the terminal accessible view when a command is executed in the terminal."));
+    }
+    if (this._configurationService.getValue(
+      "terminal.integrated.suggest.enabled"
+      /* TerminalSuggestSettingId.Enabled */
+    )) {
+      content.push(localize(
+        "suggestTrigger",
+        "The terminal request completions command can be invoked manually<keybinding:{0}>, but also appears while typing.",
+        "workbench.action.terminal.triggerSuggest"
+        /* TerminalSuggestCommandId.TriggerSuggest */
+      ));
+      content.push(localize("suggest", "When the terminal suggest widget is focused:"));
+      content.push(localize(
+        "suggestCommands",
+        "- Accept the suggestion<keybinding:{0}> and configure suggest settings<keybinding:{1}>.",
+        "workbench.action.terminal.acceptSelectedSuggestion",
+        "workbench.action.terminal.configureSuggestSettings"
+        /* TerminalSuggestCommandId.ConfigureSettings */
+      ));
+      content.push(localize(
+        "suggestCommandsMore",
+        "- Toggle between the widget and terminal<keybinding:{0}> and toggle details focus<keybinding:{1}> to learn more about the suggestion.",
+        "workbench.action.terminal.suggestToggleDetails",
+        "workbench.action.terminal.suggestToggleDetailsFocus"
+        /* TerminalSuggestCommandId.ToggleDetailsFocus */
+      ));
+      content.push(localize(
+        "suggestLearnMore",
+        "- Learn more about the suggestion<keybinding:{0}>.",
+        "workbench.action.terminal.suggestLearnMore"
+        /* TerminalSuggestCommandId.LearnMore */
+      ));
+      content.push(localize(
+        "suggestConfigure",
+        "-Configure suggest settings<keybinding:{0}> ",
+        "workbench.action.terminal.configureSuggestSettings"
+        /* TerminalSuggestCommandId.ConfigureSettings */
+      ));
+    }
+    if (this._instance.shellType === "cmd") {
+      content.push(localize("commandPromptMigration", "Consider using powershell instead of command prompt for an improved experience"));
+    }
+    if (this._hasShellIntegration) {
+      content.push(localize("shellIntegration", "The terminal has a feature called shell integration that offers an enhanced experience and provides useful commands for screen readers such as:"));
+      content.push("- " + localize(
+        "goToNextCommand",
+        "Go to Next Command<keybinding:{0}> in the accessible view",
+        "workbench.action.terminal.accessibleBufferGoToNextCommand"
+        /* TerminalAccessibilityCommandId.AccessibleBufferGoToNextCommand */
+      ));
+      content.push("- " + localize(
+        "goToPreviousCommand",
+        "Go to Previous Command<keybinding:{0}> in the accessible view",
+        "workbench.action.terminal.accessibleBufferGoToPreviousCommand"
+        /* TerminalAccessibilityCommandId.AccessibleBufferGoToPreviousCommand */
+      ));
+      content.push("- " + localize(
+        "goToSymbol",
+        "Go to Symbol<keybinding:{0}>",
+        "editor.action.accessibleViewGoToSymbol"
+        /* AccessibilityCommandId.GoToSymbol */
+      ));
+      content.push("- " + localize(
+        "runRecentCommand",
+        "Run Recent Command<keybinding:{0}>",
+        "workbench.action.terminal.runRecentCommand"
+        /* TerminalHistoryCommandId.RunRecentCommand */
+      ));
+      content.push("- " + localize(
+        "goToRecentDirectory",
+        "Go to Recent Directory<keybinding:{0}>",
+        "workbench.action.terminal.goToRecentDirectory"
+        /* TerminalHistoryCommandId.GoToRecentDirectory */
+      ));
+    } else {
+      content.push(localize("noShellIntegration", "Shell integration is not enabled. Some accessibility features may not be available."));
+    }
+    return content.join("\n");
+  }
+};
+TerminalAccessibilityHelpProvider = __decorate([
+  __param(2, ICommandService),
+  __param(3, IConfigurationService),
+  __param(4, IContextKeyService)
+], TerminalAccessibilityHelpProvider);
+export {
+  ClassName,
+  TerminalAccessibilityHelpProvider
+};
+//# sourceMappingURL=terminalAccessibilityHelp.js.map

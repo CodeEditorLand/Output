@@ -1,1 +1,16 @@
-const o=globalThis.vscode,e=o.ipcRenderer,t=o.ipcMessagePort,b=o.webFrame,s=o.process,c=o.context,r=o.webUtils;export{e as $rbb,t as $sbb,b as $tbb,s as $ubb,c as $vbb,r as $wbb};
+const vscodeGlobal = globalThis.vscode;
+const ipcRenderer = vscodeGlobal.ipcRenderer;
+const ipcMessagePort = vscodeGlobal.ipcMessagePort;
+const webFrame = vscodeGlobal.webFrame;
+const process = vscodeGlobal.process;
+const context = vscodeGlobal.context;
+const webUtils = vscodeGlobal.webUtils;
+export {
+  context,
+  ipcMessagePort,
+  ipcRenderer,
+  process,
+  webFrame,
+  webUtils
+};
+//# sourceMappingURL=globals.js.map

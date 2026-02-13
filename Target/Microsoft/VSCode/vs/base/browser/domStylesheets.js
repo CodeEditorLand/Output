@@ -1,1 +1,157 @@
-import{$Dd as l,$Cd as u,$Ed as S}from"../common/lifecycle.js";import{autorun as w}from"../common/observable.js";import{$67 as f}from"./browser.js";import{getWindows as b,$c9 as g}from"./dom.js";import{$T7 as i}from"./window.js";const d=new Map;function T(e){return d.has(e)}class R extends S{constructor(){super(...arguments),this.a="",this.b=void 0}setStyle(t){t!==this.a&&(this.a=t,this.b?this.b.textContent=t:this.b=a(i.document.head,r=>r.textContent=t,this.B))}dispose(){super.dispose(),this.b=void 0}}function a(e=i.document.head,t,r){const n=document.createElement("style");if(n.type="text/css",n.media="screen",t?.(n),e.appendChild(n),r&&r.add(u(()=>n.remove())),e===i.document.head){const o=new Set;d.set(n,o),r&&r.add(u(()=>d.delete(n)));for(const{window:s,disposables:x}of b()){if(s===i)continue;const $=x.add(h(n,o,s));r?.add($)}}return n}function B(e){const t=new l;for(const[r,n]of d)t.add(h(r,n,e));return t}function h(e,t,r){const n=new l,o=e.cloneNode(!0);r.document.head.appendChild(o),n.add(u(()=>o.remove()));for(const s of m(e))o.sheet?.insertRule(s.cssText,o.sheet?.cssRules.length);return n.add(g.observe(e,n,{childList:!0,subtree:f,characterData:f})(()=>{o.textContent=e.textContent})),t.add(o),n.add(u(()=>t.delete(o))),n}let c=null;function p(){return c||(c=a()),c}function m(e){return e?.sheet?.rules?e.sheet.rules:e?.sheet?.cssRules?e.sheet.cssRules:[]}function C(e,t,r=p()){if(!(!r||!t)){r.sheet?.insertRule(`${e} {${t}}`,0);for(const n of d.get(r)??[])C(e,t,n)}}function D(e,t=p()){if(!t)return;const r=m(t),n=[];for(let o=0;o<r.length;o++){const s=r[o];y(s)&&s.selectorText.indexOf(e)!==-1&&n.push(o)}for(let o=n.length-1;o>=0;o--)t.sheet?.deleteRule(n[o]);for(const o of d.get(t)??[])D(e,o)}function y(e){return typeof e.selectorText=="string"}function L(e){const t=new l,r=t.add(new R);return t.add(w(n=>{r.setStyle(e.read(n))})),t}export{T as $N0,a as $O0,B as $P0,C as $Q0,D as $R0,L as $S0};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DisposableStore, toDisposable, Disposable } from "../common/lifecycle.js";
+import { autorun } from "../common/observable.js";
+import { isFirefox } from "./browser.js";
+import { getWindows, sharedMutationObserver } from "./dom.js";
+import { mainWindow } from "./window.js";
+const globalStylesheets = /* @__PURE__ */ new Map();
+function isGlobalStylesheet(node) {
+  return globalStylesheets.has(node);
+}
+__name(isGlobalStylesheet, "isGlobalStylesheet");
+class WrappedStyleElement extends Disposable {
+  static {
+    __name(this, "WrappedStyleElement");
+  }
+  constructor() {
+    super(...arguments);
+    this._currentCssStyle = "";
+    this._styleSheet = void 0;
+  }
+  setStyle(cssStyle) {
+    if (cssStyle === this._currentCssStyle) {
+      return;
+    }
+    this._currentCssStyle = cssStyle;
+    if (!this._styleSheet) {
+      this._styleSheet = createStyleSheet(mainWindow.document.head, (s) => s.textContent = cssStyle, this._store);
+    } else {
+      this._styleSheet.textContent = cssStyle;
+    }
+  }
+  dispose() {
+    super.dispose();
+    this._styleSheet = void 0;
+  }
+}
+function createStyleSheet(container = mainWindow.document.head, beforeAppend, disposableStore) {
+  const style = document.createElement("style");
+  style.type = "text/css";
+  style.media = "screen";
+  beforeAppend?.(style);
+  container.appendChild(style);
+  if (disposableStore) {
+    disposableStore.add(toDisposable(() => style.remove()));
+  }
+  if (container === mainWindow.document.head) {
+    const globalStylesheetClones = /* @__PURE__ */ new Set();
+    globalStylesheets.set(style, globalStylesheetClones);
+    if (disposableStore) {
+      disposableStore.add(toDisposable(() => globalStylesheets.delete(style)));
+    }
+    for (const { window: targetWindow, disposables } of getWindows()) {
+      if (targetWindow === mainWindow) {
+        continue;
+      }
+      const cloneDisposable = disposables.add(cloneGlobalStyleSheet(style, globalStylesheetClones, targetWindow));
+      disposableStore?.add(cloneDisposable);
+    }
+  }
+  return style;
+}
+__name(createStyleSheet, "createStyleSheet");
+function cloneGlobalStylesheets(targetWindow) {
+  const disposables = new DisposableStore();
+  for (const [globalStylesheet, clonedGlobalStylesheets] of globalStylesheets) {
+    disposables.add(cloneGlobalStyleSheet(globalStylesheet, clonedGlobalStylesheets, targetWindow));
+  }
+  return disposables;
+}
+__name(cloneGlobalStylesheets, "cloneGlobalStylesheets");
+function cloneGlobalStyleSheet(globalStylesheet, globalStylesheetClones, targetWindow) {
+  const disposables = new DisposableStore();
+  const clone = globalStylesheet.cloneNode(true);
+  targetWindow.document.head.appendChild(clone);
+  disposables.add(toDisposable(() => clone.remove()));
+  for (const rule of getDynamicStyleSheetRules(globalStylesheet)) {
+    clone.sheet?.insertRule(rule.cssText, clone.sheet?.cssRules.length);
+  }
+  disposables.add(sharedMutationObserver.observe(globalStylesheet, disposables, { childList: true, subtree: isFirefox, characterData: isFirefox })(() => {
+    clone.textContent = globalStylesheet.textContent;
+  }));
+  globalStylesheetClones.add(clone);
+  disposables.add(toDisposable(() => globalStylesheetClones.delete(clone)));
+  return disposables;
+}
+__name(cloneGlobalStyleSheet, "cloneGlobalStyleSheet");
+let _sharedStyleSheet = null;
+function getSharedStyleSheet() {
+  if (!_sharedStyleSheet) {
+    _sharedStyleSheet = createStyleSheet();
+  }
+  return _sharedStyleSheet;
+}
+__name(getSharedStyleSheet, "getSharedStyleSheet");
+function getDynamicStyleSheetRules(style) {
+  if (style?.sheet?.rules) {
+    return style.sheet.rules;
+  }
+  if (style?.sheet?.cssRules) {
+    return style.sheet.cssRules;
+  }
+  return [];
+}
+__name(getDynamicStyleSheetRules, "getDynamicStyleSheetRules");
+function createCSSRule(selector, cssText, style = getSharedStyleSheet()) {
+  if (!style || !cssText) {
+    return;
+  }
+  style.sheet?.insertRule(`${selector} {${cssText}}`, 0);
+  for (const clonedGlobalStylesheet of globalStylesheets.get(style) ?? []) {
+    createCSSRule(selector, cssText, clonedGlobalStylesheet);
+  }
+}
+__name(createCSSRule, "createCSSRule");
+function removeCSSRulesContainingSelector(ruleName, style = getSharedStyleSheet()) {
+  if (!style) {
+    return;
+  }
+  const rules = getDynamicStyleSheetRules(style);
+  const toDelete = [];
+  for (let i = 0; i < rules.length; i++) {
+    const rule = rules[i];
+    if (isCSSStyleRule(rule) && rule.selectorText.indexOf(ruleName) !== -1) {
+      toDelete.push(i);
+    }
+  }
+  for (let i = toDelete.length - 1; i >= 0; i--) {
+    style.sheet?.deleteRule(toDelete[i]);
+  }
+  for (const clonedGlobalStylesheet of globalStylesheets.get(style) ?? []) {
+    removeCSSRulesContainingSelector(ruleName, clonedGlobalStylesheet);
+  }
+}
+__name(removeCSSRulesContainingSelector, "removeCSSRulesContainingSelector");
+function isCSSStyleRule(rule) {
+  return typeof rule.selectorText === "string";
+}
+__name(isCSSStyleRule, "isCSSStyleRule");
+function createStyleSheetFromObservable(css) {
+  const store = new DisposableStore();
+  const w = store.add(new WrappedStyleElement());
+  store.add(autorun((reader) => {
+    w.setStyle(css.read(reader));
+  }));
+  return store;
+}
+__name(createStyleSheetFromObservable, "createStyleSheetFromObservable");
+export {
+  cloneGlobalStylesheets,
+  createCSSRule,
+  createStyleSheet,
+  createStyleSheetFromObservable,
+  isGlobalStylesheet,
+  removeCSSRulesContainingSelector
+};
+//# sourceMappingURL=domStylesheets.js.map

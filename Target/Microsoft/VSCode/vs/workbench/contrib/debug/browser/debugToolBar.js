@@ -1,7 +1,436 @@
-import*as o from"../../../../base/browser/dom.js";import{$h8 as x}from"../../../../base/browser/mouseEvent.js";import{$Y$ as tt}from"../../../../base/browser/pixelRatio.js";import{$w0 as it}from"../../../../base/browser/ui/actionbar/actionbar.js";import{$T7 as Y}from"../../../../base/browser/window.js";import{$Fm as et}from"../../../../base/common/actions.js";import*as ot from"../../../../base/common/arrays.js";import{$ji as nt}from"../../../../base/common/async.js";import{$bk as N}from"../../../../base/common/codicons.js";import*as st from"../../../../base/common/errors.js";import{$Dd as R,$xd as rt,$Fd as at}from"../../../../base/common/lifecycle.js";import{$y as G}from"../../../../base/common/platform.js";import{ThemeIcon as ht}from"../../../../base/common/themables.js";import{localize as B}from"../../../../nls.js";import{$YJb as ct}from"../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";import{$ckb as dt,$9jb as P}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{$rL as j,$qL as d,$sL as f}from"../../../../platform/actions/common/actions.js";import{$0l as ut}from"../../../../platform/configuration/common/configuration.js";import{$0n as r,$ro as k}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as U}from"../../../../platform/instantiation/common/instantiation.js";import{$pH as lt}from"../../../../platform/notification/common/notification.js";import{$hp as mt}from"../../../../platform/storage/common/storage.js";import{$pp as pt}from"../../../../platform/telemetry/common/telemetry.js";import{$Sr as gt,$Rr as ft}from"../../../../platform/theme/common/colorRegistry.js";import{$qu as $t,$yu as bt}from"../../../../platform/theme/common/themeService.js";import{$Ou as wt}from"../../../../platform/window/common/window.js";import{$Eyb as vt}from"../../../services/layout/browser/layoutService.js";import{$fY as m,$GY as $,$HY as Ct,$jY as Dt,$$Y as yt,$IY as V,$YY as q,$XY as D,$lZ as Tt,$7X as F}from"../common/debug.js";import{$nuc as Mt}from"./debugActionViewItems.js";import{$OGb as xt,$PGb as Gt}from"./debugColors.js";import{$Ihc as Wt,$jic as Bt,$Fhc as Et,$hic as It,$Ehc as T,$gic as E,$Lhc as X,$kic as Lt,$Dhc as Ot,$fic as St,$aic as Yt,$xhc as qt,$vhc as Ht,$whc as _t,$Ahc as At,$cic as Nt,$Chc as Rt,$eic as Pt,$zhc as jt,$bic as kt,$Ghc as M,$iic as I}from"./debugCommands.js";import*as a from"./debugIcons.js";import"./media/debugToolBar.css";var Z=function(h,t,i,e){var n=arguments.length,s=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,t,i,e);else for(var p=h.length-1;p>=0;p--)(c=h[p])&&(s=(n<3?c(s):n>3?c(t,i,s):c(t,i))||s);return n>3&&s&&Object.defineProperty(t,i,s),s},l=function(h,t){return function(i,e){t(i,e,h)}};const H="debug.actionswidgetposition",_="debug.actionswidgety";let A=class extends bt{constructor(t,i,e,n,s,c,p,b,w,L){super(p),this.C=t,this.F=i,this.G=e,this.H=n,this.I=s,this.J=c,this.L=b,this.m=!1,this.r=!1,this.t=this.D(new R),this.u=new WeakMap,this.w=this.D(new at),this.a=o.$("div.debug-toolbar");const O=wt(this.J)==="custom",J=O&&G===1,K=O&&(G===3||G===2);this.a.style.transform=`translate(
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { PixelRatio } from "../../../../base/browser/pixelRatio.js";
+import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Action } from "../../../../base/common/actions.js";
+import * as arrays from "../../../../base/common/arrays.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import * as errors from "../../../../base/common/errors.js";
+import { DisposableStore, markAsSingleton, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { platform } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { DropdownWithPrimaryActionViewItem } from "../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
+import { createActionViewItem, getFlatActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { widgetBorder, widgetShadow } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { getTitleBarStyle } from "../../../../platform/window/common/window.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { CONTEXT_DEBUG_STATE, CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG, CONTEXT_IN_DEBUG_MODE, CONTEXT_MULTI_SESSION_DEBUG, CONTEXT_STEP_BACK_SUPPORTED, CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED, IDebugService, VIEWLET_ID } from "../common/debug.js";
+import { FocusSessionActionViewItem } from "./debugActionViewItems.js";
+import { debugToolBarBackground, debugToolBarBorder } from "./debugColors.js";
+import { CONTINUE_ID, CONTINUE_LABEL, DISCONNECT_AND_SUSPEND_ID, DISCONNECT_AND_SUSPEND_LABEL, DISCONNECT_ID, DISCONNECT_LABEL, FOCUS_SESSION_ID, FOCUS_SESSION_LABEL, PAUSE_ID, PAUSE_LABEL, RESTART_LABEL, RESTART_SESSION_ID, REVERSE_CONTINUE_ID, STEP_BACK_ID, STEP_INTO_ID, STEP_INTO_LABEL, STEP_OUT_ID, STEP_OUT_LABEL, STEP_OVER_ID, STEP_OVER_LABEL, STOP_ID, STOP_LABEL } from "./debugCommands.js";
+import * as icons from "./debugIcons.js";
+import "./media/debugToolBar.css";
+const DEBUG_TOOLBAR_POSITION_KEY = "debug.actionswidgetposition";
+const DEBUG_TOOLBAR_Y_KEY = "debug.actionswidgety";
+let DebugToolBar = class DebugToolBar2 extends Themable {
+  static {
+    __name(this, "DebugToolBar");
+  }
+  constructor(notificationService, telemetryService, debugService, layoutService, storageService, configurationService, themeService, instantiationService, menuService, contextKeyService) {
+    super(themeService);
+    this.notificationService = notificationService;
+    this.telemetryService = telemetryService;
+    this.debugService = debugService;
+    this.layoutService = layoutService;
+    this.storageService = storageService;
+    this.configurationService = configurationService;
+    this.instantiationService = instantiationService;
+    this.isVisible = false;
+    this.isBuilt = false;
+    this.stopActionViewItemDisposables = this._register(new DisposableStore());
+    this.auxWindowCoordinates = /* @__PURE__ */ new WeakMap();
+    this.trackPixelRatioListener = this._register(new MutableDisposable());
+    this.$el = dom.$("div.debug-toolbar");
+    const controlsOnTitlebar = getTitleBarStyle(this.configurationService) === "custom";
+    const controlsOnLeft = controlsOnTitlebar && platform === 1;
+    const controlsOnRight = controlsOnTitlebar && (platform === 3 || platform === 2);
+    this.$el.style.transform = `translate(
 			min(
-				max(${J?"60px":"0px"}, calc(-50% + (100vw * var(--x-position)))),
-				calc(100vw - 100% - ${K?"100px":"0px"})
+				max(${controlsOnLeft ? "60px" : "0px"}, calc(-50% + (100vw * var(--x-position)))),
+				calc(100vw - 100% - ${controlsOnRight ? "100px" : "0px"})
 			),
 			var(--y-position)
-		)`,this.b=o.$y9(this.a,o.$("div.drag-area"+ht.asCSSSelector(a.$kGb)));const Q=o.$y9(this.a,o.$("div.action-bar-container"));this.j=w.createMenu(d.DebugToolBar,L),this.D(this.j),this.f=[],this.c=this.D(new it(Q,{orientation:0,actionViewItemProvider:(g,y)=>{if(g.id===X)return this.L.createInstance(Mt,g,void 0);if(g.id===M||g.id===T){this.t.clear();const v=this.L.invokeFunction(C=>Ut(g,this.t,C,{hoverDelegate:y.hoverDelegate}));if(v)return v}return dt(this.L,g,y)}})),this.g=this.D(new nt(()=>{const g=this.G.state,y=this.J.getValue("debug").toolBarLocation;if(g===0||y!=="floating"||this.G.getModel().getSessions().every(C=>C.suppressDebugToolbar)||g===1&&this.G.initializingOptions?.suppressDebugToolbar)return this.bb();const v=P(this.j.getActions({shouldForwardArgs:!0}));ot.$Wb(v,this.f,(C,S)=>C.id===S.id&&C.enabled===S.enabled)||(this.c.clear(),this.c.push(v,{icon:!0,label:!1}),this.f=v),this.Z()},20)),this.updateStyles(),this.M(),this.bb()}M(){this.D(this.G.onDidChangeState(()=>this.g.schedule())),this.D(this.J.onDidChangeConfiguration(t=>{t.affectsConfiguration("debug.toolBarLocation")&&this.g.schedule(),(t.affectsConfiguration("workbench.editor.showTabs")||t.affectsConfiguration("window.commandCenter"))&&(this.X=void 0,this.U())})),this.D(this.j.onDidChange(()=>this.g.schedule())),this.D(this.c.actionRunner.onDidRun(t=>{t.error&&!st.$rb(t.error)&&this.C.warn(t.error),this.F.publicLog2("workbenchActionExecuted",{id:t.action.id,from:"debugActionsWidget"})})),this.D(o.$A8(this.b,t=>{new x(o.getWindow(this.b),t).detail===2&&(this.U(.5,this.W),this.Q())})),this.D(o.$y8(this.b,t=>{this.b.classList.add("dragged");const i=o.getWindow(this.H.activeContainer),e=new x(i,t),n=this.N(),s=this.P(),c=o.$z8(i,b=>{const w=new x(i,b);w.preventDefault(),this.U(n+(w.posx-e.posx)/i.innerWidth,s+w.posy-e.posy)}),p=o.$A8(i,b=>{this.Q(),this.b.classList.remove("dragged"),c.dispose(),p.dispose()})})),this.D(this.H.onDidChangePartVisibility(()=>this.U())),this.D(this.H.onDidChangeActiveContainer(async()=>{this.X=void 0,await this.H.whenContainerStylesLoaded(o.getWindow(this.H.activeContainer)),this.r&&(this.ab(),this.U())}))}N(){const{left:t,width:i}=this.a.getBoundingClientRect();return(t+i/2)/o.getWindow(this.a).innerWidth}O(){return Number(this.a.style.getPropertyValue("--x-position"))}P(){return parseInt(this.a.style.getPropertyValue("--y-position"))}Q(){const t=o.getWindow(this.H.activeContainer),i=this.H.activeContainer===this.H.mainContainer,e=this.O(),n=this.P();i?(this.I.store(H,e,0,1),this.I.store(_,n,0,1)):this.u.set(t,{x:e,y:n})}updateStyles(){if(super.updateStyles(),this.a){this.a.style.backgroundColor=this.z(xt)||"";const t=this.z(ft);this.a.style.boxShadow=t?`0 0 8px 2px ${t}`:"";const i=this.z(gt),e=this.z(Gt);i?this.a.style.border=`1px solid ${i}`:(this.a.style.border=e?`solid ${e}`:"none",this.a.style.border="1px 0")}}R(){const t=o.getWindow(this.H.activeContainer),e=t===Y?Number(this.I.get(H,0)):this.u.get(t)?.x;return e!==void 0&&!isNaN(e)?e:.5}S(){const t=o.getWindow(this.H.activeContainer);return(t===Y?this.I.getNumber(_,0):this.u.get(t)?.y)??this.W}U(t,i){if(!this.m)return;t??=this.R(),i??=this.S();const[e,n]=this.Y;i=Math.max(e,Math.min(i,n)),this.a.style.setProperty("--x-position",`${t}`),this.a.style.setProperty("--y-position",`${i}px`)}get W(){return this.H.mainContainerOffset.top}get Y(){if(!this.X){const t=this.H.isVisible("workbench.parts.titlebar",o.getWindow(this.H.activeContainer)),i=t?0:this.H.mainContainerOffset.top;let e=0;t&&(this.J.getValue("window.commandCenter")===!0?e+=35:e+=28),this.J.getValue("workbench.editor.showTabs")!=="none"&&(e+=35),this.X=[i,e]}return this.X}Z(){if(this.m){this.U();return}this.r||(this.r=!0,this.ab()),this.m=!0,o.$E9(this.a),this.U()}ab(){this.H.activeContainer.appendChild(this.a),this.w.value=tt.getInstance(o.getWindow(this.a)).onDidChange(()=>this.U())}bb(){this.m=!1,o.$F9(this.a)}dispose(){super.dispose(),this.a?.remove()}};A=Z([l(0,lt),l(1,pt),l(2,Tt),l(3,vt),l(4,mt),l(5,ut),l(6,$t),l(7,U),l(8,j),l(9,k)],A);function Ut(h,t,i,e){const n=i.get(j),s=i.get(k),c=i.get(U),p=n.getMenuActions(d.DebugToolBarStop,s,{shouldForwardArgs:!0}),b=P(p);if(!b.length)return;const w=t.add(new et("notebook.moreRunActions",B(8106,null),"codicon-chevron-down",!0));return c.createInstance(ct,h,w,b,"debug-stop-actions",e)}const W=new R,u=(h,t,i,e,n,s,c)=>{f.appendMenuItem(d.DebugToolBar,{group:"navigation",when:n,order:i,command:{id:h,title:t,icon:e,precondition:s},alt:c}),W.add(f.appendMenuItem(d.ViewContainerTitle,{group:"navigation",when:r.and(n,r.equals("viewContainer",F),m.notEqualsTo("inactive"),r.equals("config.debug.toolBarLocation","docked")),order:i,command:{id:h,title:t,icon:e,precondition:s}}))};rt(f.onDidChangeMenu(h=>{if(h.has(d.DebugToolBar)){W.clear();const t=f.getMenuItems(d.DebugToolBar);for(const i of t)W.add(f.appendMenuItem(d.ViewContainerTitle,{...i,when:r.and(i.when,r.equals("viewContainer",F),m.notEqualsTo("inactive"),r.equals("config.debug.toolBarLocation","docked"))}))}}));const z=r.equals("config.debug.toolBarLocation","commandCenter");f.appendMenuItem(d.CommandCenterCenter,{submenu:d.DebugToolBar,title:"Debug",icon:N.debug,order:1,when:r.and(Dt,z)});u(Wt,Bt,10,a.$uGb,m.isEqualTo("stopped"));u(Ot,St,10,a.$tGb,m.notEqualsTo("stopped"),r.and(m.isEqualTo("running"),Ct.toNegated()));u(M,I,70,a.$mGb,$.toNegated(),void 0,{id:T,title:E,icon:a.$nGb,precondition:r.and($.toNegated(),D)});u(T,E,70,a.$nGb,$,void 0,{id:M,title:I,icon:a.$mGb,precondition:r.and($,D)});u(jt,kt,20,a.$pGb,void 0,m.isEqualTo("stopped"));u(At,Nt,30,a.$qGb,void 0,m.isEqualTo("stopped"));u(Rt,Pt,40,a.$rGb,void 0,m.isEqualTo("stopped"));u(qt,Yt,60,a.$oGb);u(_t,B(8107,null),50,a.$sGb,V,m.isEqualTo("stopped"));u(Ht,B(8108,null),55,a.$vGb,V,m.isEqualTo("stopped"));u(X,Lt,100,N.listTree,r.and(yt,z.negate()));f.appendMenuItem(d.DebugToolBarStop,{group:"navigation",when:r.and($.toNegated(),D),order:0,command:{id:T,title:E,icon:a.$nGb}});f.appendMenuItem(d.DebugToolBarStop,{group:"navigation",when:r.and($,D),order:0,command:{id:M,title:I,icon:a.$mGb}});f.appendMenuItem(d.DebugToolBarStop,{group:"navigation",when:r.or(r.and($.toNegated(),q,D),r.and($,q)),order:0,command:{id:Et,title:It,icon:a.$nGb}});export{Ut as $0yc,A as $9yc};
+		)`;
+    this.dragArea = dom.append(this.$el, dom.$("div.drag-area" + ThemeIcon.asCSSSelector(icons.debugGripper)));
+    const actionBarContainer = dom.append(this.$el, dom.$("div.action-bar-container"));
+    this.debugToolBarMenu = menuService.createMenu(MenuId.DebugToolBar, contextKeyService);
+    this._register(this.debugToolBarMenu);
+    this.activeActions = [];
+    this.actionBar = this._register(new ActionBar(actionBarContainer, {
+      orientation: 0,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action.id === FOCUS_SESSION_ID) {
+          return this.instantiationService.createInstance(FocusSessionActionViewItem, action, void 0);
+        } else if (action.id === STOP_ID || action.id === DISCONNECT_ID) {
+          this.stopActionViewItemDisposables.clear();
+          const item = this.instantiationService.invokeFunction((accessor) => createDisconnectMenuItemAction(action, this.stopActionViewItemDisposables, accessor, { hoverDelegate: options.hoverDelegate }));
+          if (item) {
+            return item;
+          }
+        }
+        return createActionViewItem(this.instantiationService, action, options);
+      }, "actionViewItemProvider")
+    }));
+    this.updateScheduler = this._register(new RunOnceScheduler(() => {
+      const state = this.debugService.state;
+      const toolBarLocation = this.configurationService.getValue("debug").toolBarLocation;
+      if (state === 0 || toolBarLocation !== "floating" || this.debugService.getModel().getSessions().every((s) => s.suppressDebugToolbar) || state === 1 && this.debugService.initializingOptions?.suppressDebugToolbar) {
+        return this.hide();
+      }
+      const actions = getFlatActionBarActions(this.debugToolBarMenu.getActions({ shouldForwardArgs: true }));
+      if (!arrays.equals(actions, this.activeActions, (first, second) => first.id === second.id && first.enabled === second.enabled)) {
+        this.actionBar.clear();
+        this.actionBar.push(actions, { icon: true, label: false });
+        this.activeActions = actions;
+      }
+      this.show();
+    }, 20));
+    this.updateStyles();
+    this.registerListeners();
+    this.hide();
+  }
+  registerListeners() {
+    this._register(this.debugService.onDidChangeState(() => this.updateScheduler.schedule()));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("debug.toolBarLocation")) {
+        this.updateScheduler.schedule();
+      }
+      if (e.affectsConfiguration(
+        "workbench.editor.showTabs"
+        /* LayoutSettings.EDITOR_TABS_MODE */
+      ) || e.affectsConfiguration(
+        "window.commandCenter"
+        /* LayoutSettings.COMMAND_CENTER */
+      )) {
+        this._yRange = void 0;
+        this.setCoordinates();
+      }
+    }));
+    this._register(this.debugToolBarMenu.onDidChange(() => this.updateScheduler.schedule()));
+    this._register(this.actionBar.actionRunner.onDidRun((e) => {
+      if (e.error && !errors.isCancellationError(e.error)) {
+        this.notificationService.warn(e.error);
+      }
+      this.telemetryService.publicLog2("workbenchActionExecuted", { id: e.action.id, from: "debugActionsWidget" });
+    }));
+    this._register(dom.addDisposableGenericMouseUpListener(this.dragArea, (event) => {
+      const mouseClickEvent = new StandardMouseEvent(dom.getWindow(this.dragArea), event);
+      if (mouseClickEvent.detail === 2) {
+        this.setCoordinates(0.5, this.yDefault);
+        this.storePosition();
+      }
+    }));
+    this._register(dom.addDisposableGenericMouseDownListener(this.dragArea, (e) => {
+      this.dragArea.classList.add("dragged");
+      const activeWindow = dom.getWindow(this.layoutService.activeContainer);
+      const originEvent = new StandardMouseEvent(activeWindow, e);
+      const originX = this.computeCurrentXPercent();
+      const originY = this.getCurrentYPosition();
+      const mouseMoveListener = dom.addDisposableGenericMouseMoveListener(activeWindow, (e2) => {
+        const mouseMoveEvent = new StandardMouseEvent(activeWindow, e2);
+        mouseMoveEvent.preventDefault();
+        this.setCoordinates(originX + (mouseMoveEvent.posx - originEvent.posx) / activeWindow.innerWidth, originY + mouseMoveEvent.posy - originEvent.posy);
+      });
+      const mouseUpListener = dom.addDisposableGenericMouseUpListener(activeWindow, (e2) => {
+        this.storePosition();
+        this.dragArea.classList.remove("dragged");
+        mouseMoveListener.dispose();
+        mouseUpListener.dispose();
+      });
+    }));
+    this._register(this.layoutService.onDidChangePartVisibility(() => this.setCoordinates()));
+    this._register(this.layoutService.onDidChangeActiveContainer(async () => {
+      this._yRange = void 0;
+      await this.layoutService.whenContainerStylesLoaded(dom.getWindow(this.layoutService.activeContainer));
+      if (this.isBuilt) {
+        this.doShowInActiveContainer();
+        this.setCoordinates();
+      }
+    }));
+  }
+  /**
+   * Computes the x percent position at which the toolbar is currently displayed.
+   */
+  computeCurrentXPercent() {
+    const { left, width } = this.$el.getBoundingClientRect();
+    return (left + width / 2) / dom.getWindow(this.$el).innerWidth;
+  }
+  /**
+   * Gets the x position set in the style of the toolbar. This may not be its
+   * actual position on screen depending on toolbar locations.
+   */
+  getCurrentXPercent() {
+    return Number(this.$el.style.getPropertyValue("--x-position"));
+  }
+  /** Gets the y position set in the style of the toolbar */
+  getCurrentYPosition() {
+    return parseInt(this.$el.style.getPropertyValue("--y-position"));
+  }
+  storePosition() {
+    const activeWindow = dom.getWindow(this.layoutService.activeContainer);
+    const isMainWindow = this.layoutService.activeContainer === this.layoutService.mainContainer;
+    const x = this.getCurrentXPercent();
+    const y = this.getCurrentYPosition();
+    if (isMainWindow) {
+      this.storageService.store(
+        DEBUG_TOOLBAR_POSITION_KEY,
+        x,
+        0,
+        1
+        /* StorageTarget.MACHINE */
+      );
+      this.storageService.store(
+        DEBUG_TOOLBAR_Y_KEY,
+        y,
+        0,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    } else {
+      this.auxWindowCoordinates.set(activeWindow, { x, y });
+    }
+  }
+  updateStyles() {
+    super.updateStyles();
+    if (this.$el) {
+      this.$el.style.backgroundColor = this.getColor(debugToolBarBackground) || "";
+      const widgetShadowColor = this.getColor(widgetShadow);
+      this.$el.style.boxShadow = widgetShadowColor ? `0 0 8px 2px ${widgetShadowColor}` : "";
+      const contrastBorderColor = this.getColor(widgetBorder);
+      const borderColor = this.getColor(debugToolBarBorder);
+      if (contrastBorderColor) {
+        this.$el.style.border = `1px solid ${contrastBorderColor}`;
+      } else {
+        this.$el.style.border = borderColor ? `solid ${borderColor}` : "none";
+        this.$el.style.border = "1px 0";
+      }
+    }
+  }
+  /** Gets the stored X position of the middle of the toolbar based on the current window width */
+  getStoredXPosition() {
+    const currentWindow = dom.getWindow(this.layoutService.activeContainer);
+    const isMainWindow = currentWindow === mainWindow;
+    const storedPercentage = isMainWindow ? Number(this.storageService.get(
+      DEBUG_TOOLBAR_POSITION_KEY,
+      0
+      /* StorageScope.PROFILE */
+    )) : this.auxWindowCoordinates.get(currentWindow)?.x;
+    return storedPercentage !== void 0 && !isNaN(storedPercentage) ? storedPercentage : 0.5;
+  }
+  getStoredYPosition() {
+    const currentWindow = dom.getWindow(this.layoutService.activeContainer);
+    const isMainWindow = currentWindow === mainWindow;
+    const storedY = isMainWindow ? this.storageService.getNumber(
+      DEBUG_TOOLBAR_Y_KEY,
+      0
+      /* StorageScope.PROFILE */
+    ) : this.auxWindowCoordinates.get(currentWindow)?.y;
+    return storedY ?? this.yDefault;
+  }
+  setCoordinates(x, y) {
+    if (!this.isVisible) {
+      return;
+    }
+    x ??= this.getStoredXPosition();
+    y ??= this.getStoredYPosition();
+    const [yMin, yMax] = this.yRange;
+    y = Math.max(yMin, Math.min(y, yMax));
+    this.$el.style.setProperty("--x-position", `${x}`);
+    this.$el.style.setProperty("--y-position", `${y}px`);
+  }
+  get yDefault() {
+    return this.layoutService.mainContainerOffset.top;
+  }
+  get yRange() {
+    if (!this._yRange) {
+      const isTitleBarVisible = this.layoutService.isVisible("workbench.parts.titlebar", dom.getWindow(this.layoutService.activeContainer));
+      const yMin = isTitleBarVisible ? 0 : this.layoutService.mainContainerOffset.top;
+      let yMax = 0;
+      if (isTitleBarVisible) {
+        if (this.configurationService.getValue(
+          "window.commandCenter"
+          /* LayoutSettings.COMMAND_CENTER */
+        ) === true) {
+          yMax += 35;
+        } else {
+          yMax += 28;
+        }
+      }
+      if (this.configurationService.getValue(
+        "workbench.editor.showTabs"
+        /* LayoutSettings.EDITOR_TABS_MODE */
+      ) !== "none") {
+        yMax += 35;
+      }
+      this._yRange = [yMin, yMax];
+    }
+    return this._yRange;
+  }
+  show() {
+    if (this.isVisible) {
+      this.setCoordinates();
+      return;
+    }
+    if (!this.isBuilt) {
+      this.isBuilt = true;
+      this.doShowInActiveContainer();
+    }
+    this.isVisible = true;
+    dom.show(this.$el);
+    this.setCoordinates();
+  }
+  doShowInActiveContainer() {
+    this.layoutService.activeContainer.appendChild(this.$el);
+    this.trackPixelRatioListener.value = PixelRatio.getInstance(dom.getWindow(this.$el)).onDidChange(() => this.setCoordinates());
+  }
+  hide() {
+    this.isVisible = false;
+    dom.hide(this.$el);
+  }
+  dispose() {
+    super.dispose();
+    this.$el?.remove();
+  }
+};
+DebugToolBar = __decorate([
+  __param(0, INotificationService),
+  __param(1, ITelemetryService),
+  __param(2, IDebugService),
+  __param(3, IWorkbenchLayoutService),
+  __param(4, IStorageService),
+  __param(5, IConfigurationService),
+  __param(6, IThemeService),
+  __param(7, IInstantiationService),
+  __param(8, IMenuService),
+  __param(9, IContextKeyService)
+], DebugToolBar);
+function createDisconnectMenuItemAction(action, disposables, accessor, options) {
+  const menuService = accessor.get(IMenuService);
+  const contextKeyService = accessor.get(IContextKeyService);
+  const instantiationService = accessor.get(IInstantiationService);
+  const menu = menuService.getMenuActions(MenuId.DebugToolBarStop, contextKeyService, { shouldForwardArgs: true });
+  const secondary = getFlatActionBarActions(menu);
+  if (!secondary.length) {
+    return void 0;
+  }
+  const dropdownAction = disposables.add(new Action("notebook.moreRunActions", localize("notebook.moreRunActionsLabel", "More..."), "codicon-chevron-down", true));
+  const item = instantiationService.createInstance(DropdownWithPrimaryActionViewItem, action, dropdownAction, secondary, "debug-stop-actions", options);
+  return item;
+}
+__name(createDisconnectMenuItemAction, "createDisconnectMenuItemAction");
+const debugViewTitleItems = new DisposableStore();
+const registerDebugToolBarItem = /* @__PURE__ */ __name((id, title, order, icon, when, precondition, alt) => {
+  MenuRegistry.appendMenuItem(MenuId.DebugToolBar, {
+    group: "navigation",
+    when,
+    order,
+    command: {
+      id,
+      title,
+      icon,
+      precondition
+    },
+    alt
+  });
+  debugViewTitleItems.add(MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+    group: "navigation",
+    when: ContextKeyExpr.and(when, ContextKeyExpr.equals("viewContainer", VIEWLET_ID), CONTEXT_DEBUG_STATE.notEqualsTo("inactive"), ContextKeyExpr.equals("config.debug.toolBarLocation", "docked")),
+    order,
+    command: {
+      id,
+      title,
+      icon,
+      precondition
+    }
+  }));
+}, "registerDebugToolBarItem");
+markAsSingleton(MenuRegistry.onDidChangeMenu((e) => {
+  if (e.has(MenuId.DebugToolBar)) {
+    debugViewTitleItems.clear();
+    const items = MenuRegistry.getMenuItems(MenuId.DebugToolBar);
+    for (const i of items) {
+      debugViewTitleItems.add(MenuRegistry.appendMenuItem(MenuId.ViewContainerTitle, {
+        ...i,
+        when: ContextKeyExpr.and(i.when, ContextKeyExpr.equals("viewContainer", VIEWLET_ID), CONTEXT_DEBUG_STATE.notEqualsTo("inactive"), ContextKeyExpr.equals("config.debug.toolBarLocation", "docked"))
+      }));
+    }
+  }
+}));
+const CONTEXT_TOOLBAR_COMMAND_CENTER = ContextKeyExpr.equals("config.debug.toolBarLocation", "commandCenter");
+MenuRegistry.appendMenuItem(MenuId.CommandCenterCenter, {
+  submenu: MenuId.DebugToolBar,
+  title: "Debug",
+  icon: Codicon.debug,
+  order: 1,
+  when: ContextKeyExpr.and(CONTEXT_IN_DEBUG_MODE, CONTEXT_TOOLBAR_COMMAND_CENTER)
+});
+registerDebugToolBarItem(CONTINUE_ID, CONTINUE_LABEL, 10, icons.debugContinue, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugToolBarItem(PAUSE_ID, PAUSE_LABEL, 10, icons.debugPause, CONTEXT_DEBUG_STATE.notEqualsTo("stopped"), ContextKeyExpr.and(CONTEXT_DEBUG_STATE.isEqualTo("running"), CONTEXT_FOCUSED_SESSION_IS_NO_DEBUG.toNegated()));
+registerDebugToolBarItem(STOP_ID, STOP_LABEL, 70, icons.debugStop, CONTEXT_FOCUSED_SESSION_IS_ATTACH.toNegated(), void 0, { id: DISCONNECT_ID, title: DISCONNECT_LABEL, icon: icons.debugDisconnect, precondition: ContextKeyExpr.and(CONTEXT_FOCUSED_SESSION_IS_ATTACH.toNegated(), CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED) });
+registerDebugToolBarItem(DISCONNECT_ID, DISCONNECT_LABEL, 70, icons.debugDisconnect, CONTEXT_FOCUSED_SESSION_IS_ATTACH, void 0, { id: STOP_ID, title: STOP_LABEL, icon: icons.debugStop, precondition: ContextKeyExpr.and(CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED) });
+registerDebugToolBarItem(STEP_OVER_ID, STEP_OVER_LABEL, 20, icons.debugStepOver, void 0, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugToolBarItem(STEP_INTO_ID, STEP_INTO_LABEL, 30, icons.debugStepInto, void 0, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugToolBarItem(STEP_OUT_ID, STEP_OUT_LABEL, 40, icons.debugStepOut, void 0, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugToolBarItem(RESTART_SESSION_ID, RESTART_LABEL, 60, icons.debugRestart);
+registerDebugToolBarItem(STEP_BACK_ID, localize("stepBackDebug", "Step Back"), 50, icons.debugStepBack, CONTEXT_STEP_BACK_SUPPORTED, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugToolBarItem(REVERSE_CONTINUE_ID, localize("reverseContinue", "Reverse"), 55, icons.debugReverseContinue, CONTEXT_STEP_BACK_SUPPORTED, CONTEXT_DEBUG_STATE.isEqualTo("stopped"));
+registerDebugToolBarItem(FOCUS_SESSION_ID, FOCUS_SESSION_LABEL, 100, Codicon.listTree, ContextKeyExpr.and(CONTEXT_MULTI_SESSION_DEBUG, CONTEXT_TOOLBAR_COMMAND_CENTER.negate()));
+MenuRegistry.appendMenuItem(MenuId.DebugToolBarStop, {
+  group: "navigation",
+  when: ContextKeyExpr.and(CONTEXT_FOCUSED_SESSION_IS_ATTACH.toNegated(), CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED),
+  order: 0,
+  command: {
+    id: DISCONNECT_ID,
+    title: DISCONNECT_LABEL,
+    icon: icons.debugDisconnect
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.DebugToolBarStop, {
+  group: "navigation",
+  when: ContextKeyExpr.and(CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED),
+  order: 0,
+  command: {
+    id: STOP_ID,
+    title: STOP_LABEL,
+    icon: icons.debugStop
+  }
+});
+MenuRegistry.appendMenuItem(MenuId.DebugToolBarStop, {
+  group: "navigation",
+  when: ContextKeyExpr.or(ContextKeyExpr.and(CONTEXT_FOCUSED_SESSION_IS_ATTACH.toNegated(), CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED, CONTEXT_TERMINATE_DEBUGGEE_SUPPORTED), ContextKeyExpr.and(CONTEXT_FOCUSED_SESSION_IS_ATTACH, CONTEXT_SUSPEND_DEBUGGEE_SUPPORTED)),
+  order: 0,
+  command: {
+    id: DISCONNECT_AND_SUSPEND_ID,
+    title: DISCONNECT_AND_SUSPEND_LABEL,
+    icon: icons.debugDisconnect
+  }
+});
+export {
+  DebugToolBar,
+  createDisconnectMenuItemAction
+};
+//# sourceMappingURL=debugToolBar.js.map

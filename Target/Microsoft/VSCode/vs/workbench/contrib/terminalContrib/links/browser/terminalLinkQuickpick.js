@@ -1,1 +1,252 @@
-import{$r9 as S}from"../../../../../base/browser/dom.js";import{$xf as g,Event as P}from"../../../../../base/common/event.js";import{localize as p}from"../../../../../nls.js";import{$YH as T,QuickInputHideReason as _}from"../../../../../platform/quickinput/common/quickInput.js";import{$AZb as j}from"../../../terminal/browser/terminal.js";import{$Dd as E}from"../../../../../base/common/lifecycle.js";import{$4h as D,$0h as C}from"../../../../../base/common/async.js";import{$ZWb as F}from"../../../../browser/quickaccess.js";import{$S7b as R}from"./terminalLinkParsing.js";import{$oH as H}from"../../../../../platform/label/common/label.js";import{$Eh as O,$Hh as A}from"../../../../../base/common/resources.js";import{$Mj as Z}from"../../../../../platform/instantiation/common/instantiation.js";import{$zvb as K}from"../../../../../platform/accessibility/browser/accessibleView.js";import{$rd as b}from"../../../../../base/common/types.js";var q=function(k,i,e,n){var l=arguments.length,s=l<3?i:n===null?n=Object.getOwnPropertyDescriptor(i,e):n,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(k,i,e,n);else for(var r=k.length-1;r>=0;r--)(t=k[r])&&(s=(l<3?t(s):l>3?t(i,e,s):t(i,e))||s);return l>3&&s&&Object.defineProperty(i,e,s),s},L=function(k,i){return function(e,n){i(e,n,k)}};let I=class extends E{constructor(i,e,n,l){super(),this.j=i,this.m=n,this.n=l,this.a=new D,this.h=this.add(new g),this.onDidRequestMoreLinks=this.h.event,this.u=!1,this.b=this.add(e.createInstance(F))}async show(i,e){this.c=i;const n=await Promise.race([e.all,C(500)]),l=typeof n=="object",s=l?n:e.viewport,t=s.wordLinks?await this.q(s.wordLinks):void 0,r=s.fileLinks?await this.q(s.fileLinks):void 0,f=s.folderLinks?await this.q(s.folderLinks):void 0,v=s.webLinks?await this.q(s.webLinks):void 0,u=[];v&&(u.push({type:"separator",label:p(13960,null)}),u.push(...v)),r&&(u.push({type:"separator",label:p(13961,null)}),u.push(...r)),f&&(u.push({type:"separator",label:p(13962,null)}),u.push(...f)),t&&(u.push({type:"separator",label:p(13963,null)}),u.push(...t));const a=this.n.createQuickPick({useSeparators:!0}),h=new E;h.add(a),a.items=u,a.placeholder=p(13964,null),a.sortByLabel=!1,a.show(),a.activeItems.length>0&&this.s(a.activeItems[0]);let y=!1;return l||h.add(P.once(a.onDidChangeValue)(async()=>{const o=await e.all;if(y)return;const w=[...o.fileLinks??[],...o.folderLinks??[],...o.webLinks??[]],c=o.wordLinks?await this.q(o.wordLinks,w):void 0,m=o.fileLinks?await this.q(o.fileLinks):void 0,x=o.folderLinks?await this.q(o.folderLinks):void 0,$=o.webLinks?await this.q(o.webLinks):void 0,d=[];$&&(d.push({type:"separator",label:p(13965,null)}),d.push(...$)),m&&(d.push({type:"separator",label:p(13966,null)}),d.push(...m)),x&&(d.push({type:"separator",label:p(13967,null)}),d.push(...x)),c&&(d.push({type:"separator",label:p(13968,null)}),d.push(...c)),a.items=d})),h.add(a.onDidChangeActive(async()=>{const[o]=a.activeItems;this.s(o)})),new Promise(o=>{h.add(a.onDidHide(({reason:w})=>{if(this.u){const c=this.c?.xterm?.markTracker;c&&(c.restoreScrollState(),c.clear(),this.u=!1)}w===_.Gesture&&this.b.restore(),h.dispose(),a.selectedItems.length===0&&this.j.showLastProvider("terminal"),o()})),h.add(P.once(a.onDidAccept)(()=>{if(this.u){const m=this.c?.xterm?.markTracker;m&&(m.restoreScrollState(),m.clear(),this.u=!1)}y=!0;const w=new j(S.CLICK),c=a.activeItems?.[0];c&&b(c,{link:!0})&&c.link.activate(w,c.label),h.dispose(),o()}))})}async q(i,e){if(!i)return;const n=new Set,l=new Set,s=[];for(const t of i){let r=t.text;if(!n.has(r)&&(!e||!e.some(f=>f.text===r))){n.add(r);let f;if(b(t,{uri:!0})&&t.uri){if((t.type==="LocalFile"||t.type==="LocalFolderInWorkspace"||t.type==="LocalFolderOutsideWorkspace")&&(r=O(t.uri),f=this.m.getUriLabel(A(t.uri),{relative:!0})),t.type==="LocalFile"&&t.parsedLink?.suffix?.row!==void 0&&(r+=`:${t.parsedLink.suffix.row}`,t.parsedLink?.suffix?.rowEnd!==void 0&&(r+=`-${t.parsedLink.suffix.rowEnd}`),t.parsedLink?.suffix?.col!==void 0&&(r+=`:${t.parsedLink.suffix.col}`,t.parsedLink?.suffix?.colEnd!==void 0&&(r+=`-${t.parsedLink.suffix.colEnd}`))),l.has(r+"|"+(f??"")))continue;l.add(r+"|"+(f??""))}s.push({label:r,link:t,description:f})}}return s.length>0?s:void 0}s(i){if(!i||!b(i,{link:!0})||!i.link)return;const e=i.link;this.w(e),!(!b(e,{uri:!0})||!e.uri)&&e.type==="LocalFile"&&this.t(e)}t(i){const e=i.parsedLink?i.parsedLink.suffix:R(i.text),n=e?.row===void 0?void 0:{startLineNumber:e.row??1,startColumn:e.col??1,endLineNumber:e.rowEnd,endColumn:e.colEnd};this.b.set(),this.a.queue(async()=>{await this.b.openTransientEditor({resource:i.uri,options:{preserveFocus:!0,revealIfOpened:!0,ignoreError:!0,selection:n}})})}w(i){const e=this.c?.xterm;e&&(this.u||(e.markTracker.saveScrollState(),this.u=!0),e.markTracker.revealRange(i.range))}};I=q([L(0,K),L(1,Z),L(2,H),L(3,T)],I);export{I as $ZEc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { EventType } from "../../../../../base/browser/dom.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { localize } from "../../../../../nls.js";
+import { IQuickInputService, QuickInputHideReason } from "../../../../../platform/quickinput/common/quickInput.js";
+import { TerminalLinkQuickPickEvent } from "../../../terminal/browser/terminal.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Sequencer, timeout } from "../../../../../base/common/async.js";
+import { PickerEditorState } from "../../../../browser/quickaccess.js";
+import { getLinkSuffix } from "./terminalLinkParsing.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { basenameOrAuthority, dirname } from "../../../../../base/common/resources.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IAccessibleViewService } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { hasKey } from "../../../../../base/common/types.js";
+let TerminalLinkQuickpick = class TerminalLinkQuickpick2 extends DisposableStore {
+  static {
+    __name(this, "TerminalLinkQuickpick");
+  }
+  constructor(_accessibleViewService, instantiationService, _labelService, _quickInputService) {
+    super();
+    this._accessibleViewService = _accessibleViewService;
+    this._labelService = _labelService;
+    this._quickInputService = _quickInputService;
+    this._editorSequencer = new Sequencer();
+    this._onDidRequestMoreLinks = this.add(new Emitter());
+    this.onDidRequestMoreLinks = this._onDidRequestMoreLinks.event;
+    this._terminalScrollStateSaved = false;
+    this._editorViewState = this.add(instantiationService.createInstance(PickerEditorState));
+  }
+  async show(instance, links) {
+    this._instance = instance;
+    const result = await Promise.race([links.all, timeout(500)]);
+    const usingAllLinks = typeof result === "object";
+    const resolvedLinks = usingAllLinks ? result : links.viewport;
+    const wordPicks = resolvedLinks.wordLinks ? await this._generatePicks(resolvedLinks.wordLinks) : void 0;
+    const filePicks = resolvedLinks.fileLinks ? await this._generatePicks(resolvedLinks.fileLinks) : void 0;
+    const folderPicks = resolvedLinks.folderLinks ? await this._generatePicks(resolvedLinks.folderLinks) : void 0;
+    const webPicks = resolvedLinks.webLinks ? await this._generatePicks(resolvedLinks.webLinks) : void 0;
+    const picks = [];
+    if (webPicks) {
+      picks.push({ type: "separator", label: localize("terminal.integrated.urlLinks", "Url") });
+      picks.push(...webPicks);
+    }
+    if (filePicks) {
+      picks.push({ type: "separator", label: localize("terminal.integrated.localFileLinks", "File") });
+      picks.push(...filePicks);
+    }
+    if (folderPicks) {
+      picks.push({ type: "separator", label: localize("terminal.integrated.localFolderLinks", "Folder") });
+      picks.push(...folderPicks);
+    }
+    if (wordPicks) {
+      picks.push({ type: "separator", label: localize("terminal.integrated.searchLinks", "Workspace Search") });
+      picks.push(...wordPicks);
+    }
+    const pick = this._quickInputService.createQuickPick({ useSeparators: true });
+    const disposables = new DisposableStore();
+    disposables.add(pick);
+    pick.items = picks;
+    pick.placeholder = localize("terminal.integrated.openDetectedLink", "Select the link to open, type to filter all links");
+    pick.sortByLabel = false;
+    pick.show();
+    if (pick.activeItems.length > 0) {
+      this._previewItem(pick.activeItems[0]);
+    }
+    let accepted = false;
+    if (!usingAllLinks) {
+      disposables.add(Event.once(pick.onDidChangeValue)(async () => {
+        const allLinks = await links.all;
+        if (accepted) {
+          return;
+        }
+        const wordIgnoreLinks = [...allLinks.fileLinks ?? [], ...allLinks.folderLinks ?? [], ...allLinks.webLinks ?? []];
+        const wordPicks2 = allLinks.wordLinks ? await this._generatePicks(allLinks.wordLinks, wordIgnoreLinks) : void 0;
+        const filePicks2 = allLinks.fileLinks ? await this._generatePicks(allLinks.fileLinks) : void 0;
+        const folderPicks2 = allLinks.folderLinks ? await this._generatePicks(allLinks.folderLinks) : void 0;
+        const webPicks2 = allLinks.webLinks ? await this._generatePicks(allLinks.webLinks) : void 0;
+        const picks2 = [];
+        if (webPicks2) {
+          picks2.push({ type: "separator", label: localize("terminal.integrated.urlLinks", "Url") });
+          picks2.push(...webPicks2);
+        }
+        if (filePicks2) {
+          picks2.push({ type: "separator", label: localize("terminal.integrated.localFileLinks", "File") });
+          picks2.push(...filePicks2);
+        }
+        if (folderPicks2) {
+          picks2.push({ type: "separator", label: localize("terminal.integrated.localFolderLinks", "Folder") });
+          picks2.push(...folderPicks2);
+        }
+        if (wordPicks2) {
+          picks2.push({ type: "separator", label: localize("terminal.integrated.searchLinks", "Workspace Search") });
+          picks2.push(...wordPicks2);
+        }
+        pick.items = picks2;
+      }));
+    }
+    disposables.add(pick.onDidChangeActive(async () => {
+      const [item] = pick.activeItems;
+      this._previewItem(item);
+    }));
+    return new Promise((r) => {
+      disposables.add(pick.onDidHide(({ reason }) => {
+        if (this._terminalScrollStateSaved) {
+          const markTracker = this._instance?.xterm?.markTracker;
+          if (markTracker) {
+            markTracker.restoreScrollState();
+            markTracker.clear();
+            this._terminalScrollStateSaved = false;
+          }
+        }
+        if (reason === QuickInputHideReason.Gesture) {
+          this._editorViewState.restore();
+        }
+        disposables.dispose();
+        if (pick.selectedItems.length === 0) {
+          this._accessibleViewService.showLastProvider(
+            "terminal"
+            /* AccessibleViewProviderId.Terminal */
+          );
+        }
+        r();
+      }));
+      disposables.add(Event.once(pick.onDidAccept)(() => {
+        if (this._terminalScrollStateSaved) {
+          const markTracker = this._instance?.xterm?.markTracker;
+          if (markTracker) {
+            markTracker.restoreScrollState();
+            markTracker.clear();
+            this._terminalScrollStateSaved = false;
+          }
+        }
+        accepted = true;
+        const event = new TerminalLinkQuickPickEvent(EventType.CLICK);
+        const activeItem = pick.activeItems?.[0];
+        if (activeItem && hasKey(activeItem, { link: true })) {
+          activeItem.link.activate(event, activeItem.label);
+        }
+        disposables.dispose();
+        r();
+      }));
+    });
+  }
+  /**
+   * @param ignoreLinks Links with labels to not include in the picks.
+   */
+  async _generatePicks(links, ignoreLinks) {
+    if (!links) {
+      return;
+    }
+    const linkTextKeys = /* @__PURE__ */ new Set();
+    const linkUriKeys = /* @__PURE__ */ new Set();
+    const picks = [];
+    for (const link of links) {
+      let label = link.text;
+      if (!linkTextKeys.has(label) && (!ignoreLinks || !ignoreLinks.some((e) => e.text === label))) {
+        linkTextKeys.add(label);
+        let description;
+        if (hasKey(link, { uri: true }) && link.uri) {
+          if (link.type === "LocalFile" || link.type === "LocalFolderInWorkspace" || link.type === "LocalFolderOutsideWorkspace") {
+            label = basenameOrAuthority(link.uri);
+            description = this._labelService.getUriLabel(dirname(link.uri), { relative: true });
+          }
+          if (link.type === "LocalFile") {
+            if (link.parsedLink?.suffix?.row !== void 0) {
+              label += `:${link.parsedLink.suffix.row}`;
+              if (link.parsedLink?.suffix?.rowEnd !== void 0) {
+                label += `-${link.parsedLink.suffix.rowEnd}`;
+              }
+              if (link.parsedLink?.suffix?.col !== void 0) {
+                label += `:${link.parsedLink.suffix.col}`;
+                if (link.parsedLink?.suffix?.colEnd !== void 0) {
+                  label += `-${link.parsedLink.suffix.colEnd}`;
+                }
+              }
+            }
+          }
+          if (linkUriKeys.has(label + "|" + (description ?? ""))) {
+            continue;
+          }
+          linkUriKeys.add(label + "|" + (description ?? ""));
+        }
+        picks.push({ label, link, description });
+      }
+    }
+    return picks.length > 0 ? picks : void 0;
+  }
+  _previewItem(item) {
+    if (!item || !hasKey(item, { link: true }) || !item.link) {
+      return;
+    }
+    const link = item.link;
+    this._previewItemInTerminal(link);
+    if (!hasKey(link, { uri: true }) || !link.uri) {
+      return;
+    }
+    if (link.type !== "LocalFile") {
+      return;
+    }
+    this._previewItemInEditor(link);
+  }
+  _previewItemInEditor(link) {
+    const linkSuffix = link.parsedLink ? link.parsedLink.suffix : getLinkSuffix(link.text);
+    const selection = linkSuffix?.row === void 0 ? void 0 : {
+      startLineNumber: linkSuffix.row ?? 1,
+      startColumn: linkSuffix.col ?? 1,
+      endLineNumber: linkSuffix.rowEnd,
+      endColumn: linkSuffix.colEnd
+    };
+    this._editorViewState.set();
+    this._editorSequencer.queue(async () => {
+      await this._editorViewState.openTransientEditor({
+        resource: link.uri,
+        options: { preserveFocus: true, revealIfOpened: true, ignoreError: true, selection }
+      });
+    });
+  }
+  _previewItemInTerminal(link) {
+    const xterm = this._instance?.xterm;
+    if (!xterm) {
+      return;
+    }
+    if (!this._terminalScrollStateSaved) {
+      xterm.markTracker.saveScrollState();
+      this._terminalScrollStateSaved = true;
+    }
+    xterm.markTracker.revealRange(link.range);
+  }
+};
+TerminalLinkQuickpick = __decorate([
+  __param(0, IAccessibleViewService),
+  __param(1, IInstantiationService),
+  __param(2, ILabelService),
+  __param(3, IQuickInputService)
+], TerminalLinkQuickpick);
+export {
+  TerminalLinkQuickpick
+};
+//# sourceMappingURL=terminalLinkQuickpick.js.map

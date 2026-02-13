@@ -1,5 +1,245 @@
-import{$0h as R}from"../../../../../base/common/async.js";import{$jk as _}from"../../../../../base/common/htmlContent.js";import{URI as $}from"../../../../../base/common/uri.js";import{$_D as A}from"../../../../../editor/common/core/range.js";import{$3Cc as j}from"./outputHelpers.js";import{$CDc as N}from"./tools/monitoring/outputMonitor.js";import{OutputMonitorState as w}from"./tools/monitoring/types.js";import{Event as I}from"../../../../../base/common/event.js";import{$6c as P}from"../../../../../base/common/types.js";function J(e){const r=e.indexOf(": "),m=e.substring(0,r);let a=r>0?e.substring(r+2):e;return/^\d+$/.test(a)&&(a=e),{taskLabel:a,taskType:m}}function M(e){return"label"in e&&e.label?e.label:"script"in e&&e.script?e.script:"command"in e&&e.command?P(e.command)?e.command:e.command.name?.toString()||"":""}function L(e){return e.getKey()??e.getMapKey()}function O(e,r){return!e||!r?!1:L(e)===L(r)||e.getCommonTaskId?.()===r.getCommonTaskId?.()?!0:e._id===r._id}async function q(e,r,m,a,f,u){let i=0,s;const d=await f.getWorkspaceTasks();let l=[];for(const t of d.keys()){const T=a.getValue("tasks",{resource:$.parse(t)});T?.tasks&&(l=l.concat(T.tasks))}for(const t of l)if(!(!u&&!t.type||"hide"in t&&t.hide)){if((!(t.type&&r.taskType)||t.type===r.taskType)&&(M(t)===r?.taskLabel||e===t.label)){s=t;break}else if(!t.label&&e===`${t.type}: ${i}`){s=t;break}i++}if(!s)return;let c;const n=$.file(m).path;for(const[t,T]of d)if($.parse(t).path===n){c=T;break}if(!c)return;const k=c.configurations?.byIdentifier,g=Object.values(k??{}).find(t=>t.type===s.type&&(t._label===s.label||t._label===`${s.type}: ${M(s)}`||t._label===M(s)));let h;return g&&(h=await f.tryResolveTask(g)),h||(h=c.set?.tasks?.find(T=>s.label===T._label||s.label===T._label)),h}async function Q(e,r,m,a){return e.configurationProperties?.dependsOn?(await Promise.all(e.configurationProperties.dependsOn.map(async u=>{const i=P(u.task)?u.task:u.task?._key;if(i)return await q(i,{taskLabel:i},r,m,a)}))).filter(u=>u!==void 0):void 0}async function X(e,r,m,a,f,u,i,s,d,l){const c=[];if(u.isCancellationRequested)return c;const n={},k={},g={};for(const o of d??[])n[o.getCommonTaskId()]=o,k[o._id]=o,g[o._label]=o;const h=e.map(o=>o.shellLaunchConfig.name??o.title??"unknown");f.report({message:new _(`Checking output for ${h.map(o=>`\`${o}\``).join(", ")}`)});const t=e.map(async o=>{let C=r;if(d?.length){const b=o.reconnectionProperties?.data;b?b.lastTask in n?C=n[b.lastTask]:b.id in k&&(C=k[b.id]):o.shellLaunchConfig.name&&o.shellLaunchConfig.name in g?C=g[o.shellLaunchConfig.name]:o.title in g&&(C=g[o.title])}const D={getOutput:()=>j(o)??"",task:C,isActive:s?()=>s(C):void 0,instance:o,dependencyTasks:d,sessionId:a.sessionId};if(C.configurationProperties.problemMatchers&&C.configurationProperties.problemMatchers.length>0&&l){const x=Date.now();for(;!u.isCancellationRequested&&Date.now()-x<1e3&&!(await l.getBusyTasks()).some(F=>O(F,C));)await R(100)}const p=i.add(m.createInstance(N,D,S,a,u,r._label));await Promise.race([I.toPromise(p.onDidFinishCommand),I.toPromise(u.onCancellationRequested)]);const y=p.pollingResult;return{name:o.shellLaunchConfig.name??o.title??"unknown",output:y?.output??"",pollDurationMs:y?.pollDurationMs??0,resources:y?.resources,state:y?.state||w.Idle,inputToolManualAcceptCount:p.outputMonitorTelemetryCounters.inputToolManualAcceptCount??0,inputToolManualRejectCount:p.outputMonitorTelemetryCounters.inputToolManualRejectCount??0,inputToolManualChars:p.outputMonitorTelemetryCounters.inputToolManualChars??0,inputToolAutoAcceptCount:p.outputMonitorTelemetryCounters.inputToolAutoAcceptCount??0,inputToolAutoChars:p.outputMonitorTelemetryCounters.inputToolAutoChars??0,inputToolManualShownCount:p.outputMonitorTelemetryCounters.inputToolManualShownCount??0,inputToolFreeFormInputShownCount:p.outputMonitorTelemetryCounters.inputToolFreeFormInputShownCount??0,inputToolFreeFormInputCount:p.outputMonitorTelemetryCounters.inputToolFreeFormInputCount??0}}),T=await Promise.all(t);return c.push(...T),c}async function S(e,r,m){if(!r.isCancellationRequested){if(e.task){const a=m.getTaskProblems(e.instance.instanceId);if(a){const f=[],u=[];for(const[i,{resources:s,markers:d}]of a.entries())for(let l=0;l<d.length;l++){const c=s[l],n=d[l];u.push({uri:c,range:n.startLineNumber!==void 0&&n.startColumn!==void 0&&n.endLineNumber!==void 0&&n.endColumn!==void 0?new A(n.startLineNumber,n.startColumn,n.endLineNumber,n.endColumn):void 0});const k=n.message??"";f.push(`Problem: ${k} in ${c.fsPath} coming from ${i} starting on line ${n.startLineNumber}${n.startColumn?`, column ${n.startColumn} and ending on line ${n.endLineNumber}${n.endColumn?`, column ${n.endColumn}`:""}`:""}`)}if(f.length===0){const i=e.getOutput().split(`
-`).filter(s=>s!=="").slice(-10).join(`
-`);return{state:w.Idle,output:`Task completed with output:
-${i}`}}return{state:w.Idle,output:f.join(`
-`),resources:u}}}throw new Error("Polling failed")}}export{S as $ADc,J as $tDc,M as $uDc,L as $vDc,O as $wDc,q as $xDc,Q as $yDc,X as $zDc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { timeout } from "../../../../../base/common/async.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { getOutput } from "./outputHelpers.js";
+import { OutputMonitor } from "./tools/monitoring/outputMonitor.js";
+import { OutputMonitorState } from "./tools/monitoring/types.js";
+import { Event } from "../../../../../base/common/event.js";
+import { isString } from "../../../../../base/common/types.js";
+function getTaskDefinition(id) {
+  const idx = id.indexOf(": ");
+  const taskType = id.substring(0, idx);
+  let taskLabel = idx > 0 ? id.substring(idx + 2) : id;
+  if (/^\d+$/.test(taskLabel)) {
+    taskLabel = id;
+  }
+  return { taskLabel, taskType };
+}
+__name(getTaskDefinition, "getTaskDefinition");
+function getTaskRepresentation(task) {
+  if ("label" in task && task.label) {
+    return task.label;
+  } else if ("script" in task && task.script) {
+    return task.script;
+  } else if ("command" in task && task.command) {
+    return isString(task.command) ? task.command : task.command.name?.toString() || "";
+  }
+  return "";
+}
+__name(getTaskRepresentation, "getTaskRepresentation");
+function getTaskKey(task) {
+  return task.getKey() ?? task.getMapKey();
+}
+__name(getTaskKey, "getTaskKey");
+function tasksMatch(a, b) {
+  if (!a || !b) {
+    return false;
+  }
+  if (getTaskKey(a) === getTaskKey(b)) {
+    return true;
+  }
+  if (a.getCommonTaskId?.() === b.getCommonTaskId?.()) {
+    return true;
+  }
+  return a._id === b._id;
+}
+__name(tasksMatch, "tasksMatch");
+async function getTaskForTool(id, taskDefinition, workspaceFolder, configurationService, taskService, allowParentTask) {
+  let index = 0;
+  let task;
+  const workspaceFolderToTaskMap = await taskService.getWorkspaceTasks();
+  let configTasks = [];
+  for (const folder of workspaceFolderToTaskMap.keys()) {
+    const tasksConfig = configurationService.getValue("tasks", { resource: URI.parse(folder) });
+    if (tasksConfig?.tasks) {
+      configTasks = configTasks.concat(tasksConfig.tasks);
+    }
+  }
+  for (const configTask of configTasks) {
+    if (!allowParentTask && !configTask.type || "hide" in configTask && configTask.hide) {
+      continue;
+    }
+    if ((configTask.type && taskDefinition.taskType ? configTask.type === taskDefinition.taskType : true) && (getTaskRepresentation(configTask) === taskDefinition?.taskLabel || id === configTask.label)) {
+      task = configTask;
+      break;
+    } else if (!configTask.label && id === `${configTask.type}: ${index}`) {
+      task = configTask;
+      break;
+    }
+    index++;
+  }
+  if (!task) {
+    return;
+  }
+  let tasksForWorkspace;
+  const workspaceFolderPath = URI.file(workspaceFolder).path;
+  for (const [folder, tasks] of workspaceFolderToTaskMap) {
+    if (URI.parse(folder).path === workspaceFolderPath) {
+      tasksForWorkspace = tasks;
+      break;
+    }
+  }
+  if (!tasksForWorkspace) {
+    return;
+  }
+  const configuringTasks = tasksForWorkspace.configurations?.byIdentifier;
+  const configuredTask = Object.values(configuringTasks ?? {}).find((t) => {
+    return t.type === task.type && (t._label === task.label || t._label === `${task.type}: ${getTaskRepresentation(task)}` || t._label === getTaskRepresentation(task));
+  });
+  let resolvedTask;
+  if (configuredTask) {
+    resolvedTask = await taskService.tryResolveTask(configuredTask);
+  }
+  if (!resolvedTask) {
+    const customTasks = tasksForWorkspace.set?.tasks;
+    resolvedTask = customTasks?.find((t) => task.label === t._label || task.label === t._label);
+  }
+  return resolvedTask;
+}
+__name(getTaskForTool, "getTaskForTool");
+async function resolveDependencyTasks(parentTask, workspaceFolder, configurationService, taskService) {
+  if (!parentTask.configurationProperties?.dependsOn) {
+    return void 0;
+  }
+  const dependencyTasks = await Promise.all(parentTask.configurationProperties.dependsOn.map(async (dep) => {
+    const depId = isString(dep.task) ? dep.task : dep.task?._key;
+    if (!depId) {
+      return void 0;
+    }
+    return await getTaskForTool(depId, { taskLabel: depId }, workspaceFolder, configurationService, taskService);
+  }));
+  return dependencyTasks.filter((t) => t !== void 0);
+}
+__name(resolveDependencyTasks, "resolveDependencyTasks");
+async function collectTerminalResults(terminals, task, instantiationService, invocationContext, progress, token, disposableStore, isActive, dependencyTasks, taskService) {
+  const results = [];
+  if (token.isCancellationRequested) {
+    return results;
+  }
+  const commonTaskIdToTaskMap = {};
+  const taskIdToTaskMap = {};
+  const taskLabelToTaskMap = {};
+  for (const dependencyTask of dependencyTasks ?? []) {
+    commonTaskIdToTaskMap[dependencyTask.getCommonTaskId()] = dependencyTask;
+    taskIdToTaskMap[dependencyTask._id] = dependencyTask;
+    taskLabelToTaskMap[dependencyTask._label] = dependencyTask;
+  }
+  const terminalNames = terminals.map((t) => t.shellLaunchConfig.name ?? t.title ?? "unknown");
+  progress.report({ message: new MarkdownString(`Checking output for ${terminalNames.map((n) => `\`${n}\``).join(", ")}`) });
+  const terminalPromises = terminals.map(async (instance) => {
+    let terminalTask = task;
+    if (dependencyTasks?.length) {
+      const reconnectionData = instance.reconnectionProperties?.data;
+      if (reconnectionData) {
+        if (reconnectionData.lastTask in commonTaskIdToTaskMap) {
+          terminalTask = commonTaskIdToTaskMap[reconnectionData.lastTask];
+        } else if (reconnectionData.id in taskIdToTaskMap) {
+          terminalTask = taskIdToTaskMap[reconnectionData.id];
+        }
+      } else {
+        if (instance.shellLaunchConfig.name && instance.shellLaunchConfig.name in taskLabelToTaskMap) {
+          terminalTask = taskLabelToTaskMap[instance.shellLaunchConfig.name];
+        } else if (instance.title in taskLabelToTaskMap) {
+          terminalTask = taskLabelToTaskMap[instance.title];
+        }
+      }
+    }
+    const execution = {
+      getOutput: /* @__PURE__ */ __name(() => getOutput(instance) ?? "", "getOutput"),
+      task: terminalTask,
+      isActive: isActive ? () => isActive(terminalTask) : void 0,
+      instance,
+      dependencyTasks,
+      sessionId: invocationContext.sessionId
+    };
+    if (terminalTask.configurationProperties.problemMatchers && terminalTask.configurationProperties.problemMatchers.length > 0 && taskService) {
+      const maxWaitTime = 1e3;
+      const startTime = Date.now();
+      while (!token.isCancellationRequested && Date.now() - startTime < maxWaitTime) {
+        const busyTasks = await taskService.getBusyTasks();
+        if (busyTasks.some((t) => tasksMatch(t, terminalTask))) {
+          break;
+        }
+        await timeout(100);
+      }
+    }
+    const outputMonitor = disposableStore.add(instantiationService.createInstance(OutputMonitor, execution, taskProblemPollFn, invocationContext, token, task._label));
+    await Promise.race([
+      Event.toPromise(outputMonitor.onDidFinishCommand),
+      Event.toPromise(token.onCancellationRequested)
+    ]);
+    const pollingResult = outputMonitor.pollingResult;
+    return {
+      name: instance.shellLaunchConfig.name ?? instance.title ?? "unknown",
+      output: pollingResult?.output ?? "",
+      pollDurationMs: pollingResult?.pollDurationMs ?? 0,
+      resources: pollingResult?.resources,
+      state: pollingResult?.state || OutputMonitorState.Idle,
+      inputToolManualAcceptCount: outputMonitor.outputMonitorTelemetryCounters.inputToolManualAcceptCount ?? 0,
+      inputToolManualRejectCount: outputMonitor.outputMonitorTelemetryCounters.inputToolManualRejectCount ?? 0,
+      inputToolManualChars: outputMonitor.outputMonitorTelemetryCounters.inputToolManualChars ?? 0,
+      inputToolAutoAcceptCount: outputMonitor.outputMonitorTelemetryCounters.inputToolAutoAcceptCount ?? 0,
+      inputToolAutoChars: outputMonitor.outputMonitorTelemetryCounters.inputToolAutoChars ?? 0,
+      inputToolManualShownCount: outputMonitor.outputMonitorTelemetryCounters.inputToolManualShownCount ?? 0,
+      inputToolFreeFormInputShownCount: outputMonitor.outputMonitorTelemetryCounters.inputToolFreeFormInputShownCount ?? 0,
+      inputToolFreeFormInputCount: outputMonitor.outputMonitorTelemetryCounters.inputToolFreeFormInputCount ?? 0
+    };
+  });
+  const parallelResults = await Promise.all(terminalPromises);
+  results.push(...parallelResults);
+  return results;
+}
+__name(collectTerminalResults, "collectTerminalResults");
+async function taskProblemPollFn(execution, token, taskService) {
+  if (token.isCancellationRequested) {
+    return;
+  }
+  if (execution.task) {
+    const data = taskService.getTaskProblems(execution.instance.instanceId);
+    if (data) {
+      const problemList = [];
+      const resultResources = [];
+      for (const [owner, { resources, markers }] of data.entries()) {
+        for (let i = 0; i < markers.length; i++) {
+          const uri = resources[i];
+          const marker = markers[i];
+          resultResources.push({
+            uri,
+            range: marker.startLineNumber !== void 0 && marker.startColumn !== void 0 && marker.endLineNumber !== void 0 && marker.endColumn !== void 0 ? new Range(marker.startLineNumber, marker.startColumn, marker.endLineNumber, marker.endColumn) : void 0
+          });
+          const message = marker.message ?? "";
+          problemList.push(`Problem: ${message} in ${uri.fsPath} coming from ${owner} starting on line ${marker.startLineNumber}${marker.startColumn ? `, column ${marker.startColumn} and ending on line ${marker.endLineNumber}${marker.endColumn ? `, column ${marker.endColumn}` : ""}` : ""}`);
+        }
+      }
+      if (problemList.length === 0) {
+        const lastTenLines = execution.getOutput().split("\n").filter((line) => line !== "").slice(-10).join("\n");
+        return {
+          state: OutputMonitorState.Idle,
+          output: `Task completed with output:
+${lastTenLines}`
+        };
+      }
+      return {
+        state: OutputMonitorState.Idle,
+        output: problemList.join("\n"),
+        resources: resultResources
+      };
+    }
+  }
+  throw new Error("Polling failed");
+}
+__name(taskProblemPollFn, "taskProblemPollFn");
+export {
+  collectTerminalResults,
+  getTaskDefinition,
+  getTaskForTool,
+  getTaskKey,
+  getTaskRepresentation,
+  resolveDependencyTasks,
+  taskProblemPollFn,
+  tasksMatch
+};
+//# sourceMappingURL=taskHelpers.js.map

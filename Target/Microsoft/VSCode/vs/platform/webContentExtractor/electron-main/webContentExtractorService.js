@@ -1,1 +1,59 @@
-import{BrowserWindow as l}from"electron";import{$ci as m}from"../../../base/common/async.js";import{$yo as d}from"../../log/common/log.js";import{$LB as p}from"../../url/common/trustedDomains.js";import{$OB as u}from"./webContentCache.js";import{$QB as $}from"./webPageLoader.js";var s=function(i,t,e,o){var n=arguments.length,r=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,t,e,o);else for(var f=i.length-1;f>=0;f--)(c=i[f])&&(r=(n<3?c(r):n>3?c(t,e,r):c(t,e))||r);return n>3&&r&&Object.defineProperty(t,e,r),r},h=function(i,t){return function(e,o){t(e,o,i)}};let a=class{constructor(t){this.c=t,this.a=new m(3),this.b=new u}extract(t,e){return t.length===0?(this.c.info("No URIs provided for extraction"),Promise.resolve([])):(this.c.info(`Extracting content from ${t.length} URIs`),Promise.all(t.map(o=>this.a.queue(()=>this.doExtract(o,e)))))}async doExtract(t,e){const o=this.b.tryGet(t,e);if(o!==void 0)return this.c.info(`Found cached content for ${t.toString()}`),o;const n=new $(r=>new l(r),this.c,t,e,r=>p(r,e?.trustedDomains||[]));try{const r=await n.load();return this.b.add(t,e,r),r}finally{n.dispose()}}};a=s([h(0,d)],a);export{a as $RB};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { BrowserWindow } from "electron";
+import { Limiter } from "../../../base/common/async.js";
+import { ILogService } from "../../log/common/log.js";
+import { isURLDomainTrusted } from "../../url/common/trustedDomains.js";
+import { WebContentCache } from "./webContentCache.js";
+import { WebPageLoader } from "./webPageLoader.js";
+let NativeWebContentExtractorService = class NativeWebContentExtractorService2 {
+  static {
+    __name(this, "NativeWebContentExtractorService");
+  }
+  constructor(_logger) {
+    this._logger = _logger;
+    this._limiter = new Limiter(3);
+    this._webContentsCache = new WebContentCache();
+  }
+  extract(uris, options) {
+    if (uris.length === 0) {
+      this._logger.info("No URIs provided for extraction");
+      return Promise.resolve([]);
+    }
+    this._logger.info(`Extracting content from ${uris.length} URIs`);
+    return Promise.all(uris.map((uri) => this._limiter.queue(() => this.doExtract(uri, options))));
+  }
+  async doExtract(uri, options) {
+    const cached = this._webContentsCache.tryGet(uri, options);
+    if (cached !== void 0) {
+      this._logger.info(`Found cached content for ${uri.toString()}`);
+      return cached;
+    }
+    const loader = new WebPageLoader((options2) => new BrowserWindow(options2), this._logger, uri, options, (uri2) => isURLDomainTrusted(uri2, options?.trustedDomains || []));
+    try {
+      const result = await loader.load();
+      this._webContentsCache.add(uri, options, result);
+      return result;
+    } finally {
+      loader.dispose();
+    }
+  }
+};
+NativeWebContentExtractorService = __decorate([
+  __param(0, ILogService)
+], NativeWebContentExtractorService);
+export {
+  NativeWebContentExtractorService
+};
+//# sourceMappingURL=webContentExtractorService.js.map

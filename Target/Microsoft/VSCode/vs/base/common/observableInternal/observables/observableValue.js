@@ -1,1 +1,107 @@
-import{$Ye as l}from"../transaction.js";import{$Ne as p}from"./baseObservable.js";import{strictEquals as u}from"../commonFacade/deps.js";import{$6d as n}from"../debugName.js";import{$Re as r}from"../logging/logging.js";import{DebugLocation as o}from"../debugLocation.js";function x(s,e,i=o.ofCaller()){let t;return typeof s=="string"?t=new n(void 0,s,void 0):t=new n(s,void 0,void 0),new f(t,e,u,i)}class f extends p{get debugName(){return this.c.getDebugName(this)??"ObservableValue"}constructor(e,i,t,d){super(d),this.c=e,this.d=t,this.a=i,r()?.handleObservableUpdated(this,{hadValue:!1,newValue:i,change:void 0,didChange:!0,oldValue:void 0})}get(){return this.a}set(e,i,t){if(t===void 0&&this.d(this.a,e))return;let d;i||(i=d=new l(()=>{},()=>`Setting ${this.debugName}`));try{const h=this.a;this.i(e),r()?.handleObservableUpdated(this,{oldValue:h,newValue:e,change:t,didChange:!0,hadValue:!0});for(const a of this.f)i.updateObserver(a,this),a.handleChange(this,t)}finally{d&&d.finish()}}toString(){return`${this.debugName}: ${this.a}`}i(e){this.a=e}debugGetState(){return{value:this.a}}debugSetValue(e){this.a=e}}function C(s,e,i=o.ofCaller()){let t;return typeof s=="string"?t=new n(void 0,s,void 0):t=new n(s,void 0,void 0),new g(t,e,u,i)}class g extends f{i(e){this.a!==e&&(this.a&&this.a.dispose(),this.a=e)}dispose(){this.a?.dispose()}}export{f as $1e,C as $2e,g as $3e,x as $Ze};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { TransactionImpl } from "../transaction.js";
+import { BaseObservable } from "./baseObservable.js";
+import { strictEquals } from "../commonFacade/deps.js";
+import { DebugNameData } from "../debugName.js";
+import { getLogger } from "../logging/logging.js";
+import { DebugLocation } from "../debugLocation.js";
+function observableValue(nameOrOwner, initialValue, debugLocation = DebugLocation.ofCaller()) {
+  let debugNameData;
+  if (typeof nameOrOwner === "string") {
+    debugNameData = new DebugNameData(void 0, nameOrOwner, void 0);
+  } else {
+    debugNameData = new DebugNameData(nameOrOwner, void 0, void 0);
+  }
+  return new ObservableValue(debugNameData, initialValue, strictEquals, debugLocation);
+}
+__name(observableValue, "observableValue");
+class ObservableValue extends BaseObservable {
+  static {
+    __name(this, "ObservableValue");
+  }
+  get debugName() {
+    return this._debugNameData.getDebugName(this) ?? "ObservableValue";
+  }
+  constructor(_debugNameData, initialValue, _equalityComparator, debugLocation) {
+    super(debugLocation);
+    this._debugNameData = _debugNameData;
+    this._equalityComparator = _equalityComparator;
+    this._value = initialValue;
+    getLogger()?.handleObservableUpdated(this, { hadValue: false, newValue: initialValue, change: void 0, didChange: true, oldValue: void 0 });
+  }
+  get() {
+    return this._value;
+  }
+  set(value, tx, change) {
+    if (change === void 0 && this._equalityComparator(this._value, value)) {
+      return;
+    }
+    let _tx;
+    if (!tx) {
+      tx = _tx = new TransactionImpl(() => {
+      }, () => `Setting ${this.debugName}`);
+    }
+    try {
+      const oldValue = this._value;
+      this._setValue(value);
+      getLogger()?.handleObservableUpdated(this, { oldValue, newValue: value, change, didChange: true, hadValue: true });
+      for (const observer of this._observers) {
+        tx.updateObserver(observer, this);
+        observer.handleChange(this, change);
+      }
+    } finally {
+      if (_tx) {
+        _tx.finish();
+      }
+    }
+  }
+  toString() {
+    return `${this.debugName}: ${this._value}`;
+  }
+  _setValue(newValue) {
+    this._value = newValue;
+  }
+  debugGetState() {
+    return {
+      value: this._value
+    };
+  }
+  debugSetValue(value) {
+    this._value = value;
+  }
+}
+function disposableObservableValue(nameOrOwner, initialValue, debugLocation = DebugLocation.ofCaller()) {
+  let debugNameData;
+  if (typeof nameOrOwner === "string") {
+    debugNameData = new DebugNameData(void 0, nameOrOwner, void 0);
+  } else {
+    debugNameData = new DebugNameData(nameOrOwner, void 0, void 0);
+  }
+  return new DisposableObservableValue(debugNameData, initialValue, strictEquals, debugLocation);
+}
+__name(disposableObservableValue, "disposableObservableValue");
+class DisposableObservableValue extends ObservableValue {
+  static {
+    __name(this, "DisposableObservableValue");
+  }
+  _setValue(newValue) {
+    if (this._value === newValue) {
+      return;
+    }
+    if (this._value) {
+      this._value.dispose();
+    }
+    this._value = newValue;
+  }
+  dispose() {
+    this._value?.dispose();
+  }
+}
+export {
+  DisposableObservableValue,
+  ObservableValue,
+  disposableObservableValue,
+  observableValue
+};
+//# sourceMappingURL=observableValue.js.map

@@ -1,1 +1,553 @@
-import{$Ed as G,$Dd as y,$Fd as O}from"../../../../base/common/lifecycle.js";import{$s as q}from"../../../../base/common/platform.js";import{localize as f,localize2 as c}from"../../../../nls.js";import{$vL as h,$qL as u,$sL as $,$wL as p}from"../../../../platform/actions/common/actions.js";import{$0n as F,$ro as z}from"../../../../platform/contextkey/common/contextkey.js";import{$ap as I}from"../../../../platform/userDataProfile/common/userDataProfile.js";import{$WN as X}from"../../../services/lifecycle/common/lifecycle.js";import{$YQ as E,$1Q as P,$ZQ as Y,$SQ as B,$MQ as Q,$LQ as J,$VQ as w,$UQ as V,$WQ as Z,$RQ as K}from"../../../services/userDataProfile/common/userDataProfile.js";import{$YH as k}from"../../../../platform/quickinput/common/quickInput.js";import{$pH as A}from"../../../../platform/notification/common/notification.js";import{URI as W}from"../../../../base/common/uri.js";import{$pp as ee}from"../../../../platform/telemetry/common/telemetry.js";import{$Ml as te}from"../../../../platform/workspace/common/workspace.js";import{$mJc as re}from"../../tags/common/workspaceTags.js";import{$to as j}from"../../../../platform/action/common/actionCommonCategories.js";import{$EP as ie}from"../../../../platform/opener/common/opener.js";import{$jm as S}from"../../../../platform/registry/common/platform.js";import{$aSb as oe}from"../../../browser/editor.js";import{$9M as T}from"../../../common/editor.js";import{$yJc as H,$zJc as D,$AJc as ne}from"./userDataProfilesEditor.js";import{$Kj as se}from"../../../../platform/instantiation/common/descriptors.js";import{$xL as x}from"../../../services/editor/common/editorGroupsService.js";import{$Mj as R}from"../../../../platform/instantiation/common/instantiation.js";import{$gcb as L}from"../../../services/host/browser/host.js";import{$py as ae}from"../../../../platform/url/common/url.js";import{$dcb as ce}from"../../../services/environment/browser/environmentService.js";import{$pdb as le}from"../../../../platform/dnd/browser/dnd.js";import{$$o as fe}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{$9$b as ue}from"../../../services/textfile/common/textEditorService.js";var U=function(g,e,t,r){var o=arguments.length,i=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(g,e,t,r);else for(var n=g.length-1;n>=0;n--)(s=g[n])&&(i=(o<3?s(i):o>3?s(e,t,i):s(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},l=function(g,e){return function(t,r){e(t,r,g)}};const M=new u("OpenProfile"),v=new u("Profiles");let N=class extends G{static{this.ID="workbench.contrib.userDataProfiles"}constructor(e,t,r,o,i,s,n,m,d,a,_,b){super(),this.h=e,this.j=t,this.m=r,this.n=o,this.q=i,this.r=s,this.s=m,this.t=d,this.u=a,this.w=_,this.I=this.D(new O),this.c=E.bindTo(n),this.f=Y.bindTo(n),this.c.set(this.h.currentProfile.id),this.f.set(!!this.h.currentProfile.isTransient),this.D(this.h.onDidChangeCurrentProfile(C=>{this.c.set(this.h.currentProfile.id),this.f.set(!!this.h.currentProfile.isTransient)})),this.g=P.bindTo(n),this.g.set(this.j.profiles.length>1),this.D(this.j.onDidChangeProfiles(C=>this.g.set(this.j.profiles.length>1))),this.z(),this.F(),this.D(this.w.registerHandler(this)),q&&a.when(4).then(()=>t.cleanUp()),this.X(),b.options?.profileToPreview&&a.when(3).then(()=>this.handleURL(W.revive(b.options.profileToPreview))),this.C()}async handleURL(e){if(K(e)){const t=await this.y();if(t)return t.createNewProfile(e),!0}return!1}async y(){return await this.s.activeGroup.openEditor(new D(this.t))}z(){S.as(T.EditorPane).registerEditorPane(oe.create(H,H.ID,f(14750,null)),[new se(D)]),S.as(T.EditorFactory).registerEditorSerializer(D.ID,ne)}C(){const e=S.as(le.DragAndDropContribution),t=this;this.D(e.registerDropHandler(new class{async handleDrop(o,i){const s=i.get(fe),n=i.get(B),m=i.get(x),d=i.get(ue),a=i.get(A);if(s.extUri.extname(o)===`.${Z}`){if(!await n.resolveProfileTemplate(o))return a.warn(f(14751,null)),m.activeGroup.openEditor(d.createTextEditor({resource:o})),!0;const b=await t.y();if(b)try{await b.createNewProfile(o)}catch{return!1}return!0}return!1}}))}F(){this.G(),this.D(this.P()),this.D(this.O()),this.H(),this.M(),this.J(),this.D(this.j.onDidChangeProfiles(()=>this.J())),this.D(this.Q()),this.R(),this.S(),this.U(),this.W()}G(){const e=()=>f(14752,null,this.h.currentProfile.name);$.appendMenuItem(u.GlobalActivity,{get title(){return e()},submenu:v,group:"2_configuration",order:1,when:P}),$.appendMenuItem(u.MenubarPreferencesMenu,{get title(){return e()},submenu:v,group:"2_configuration",order:1,when:P})}H(){$.appendMenuItem(u.MenubarFileMenu,{title:f(14753,null),submenu:M,group:"1_new",order:4})}J(){this.I.value=new y;for(const e of this.j.profiles)e.isTransient||(this.I.value.add(this.L(e)),this.I.value.add(this.N(e)))}L(e){const t=this;return p(class extends h{constructor(){super({id:`workbench.profiles.actions.profileEntry.${e.id}`,title:e.name,metadata:{description:c(14761,"Switch to {0} profile",e.name)},toggled:F.equals(E.key,e.id),menu:[{id:v,group:"0_profiles"}]})}async run(o){if(t.h.currentProfile.id!==e.id)return t.m.switchProfile(e)}})}M(){return p(class extends h{constructor(){super({id:"workbench.profiles.actions.newWindowWithProfile",title:c(14762,"New Window with Profile..."),category:w,precondition:P,f1:!0})}async run(t){const r=t.get(k),o=t.get(I),i=t.get(L),s=await r.pick(o.profiles.map(n=>({label:n.name,profile:n})),{title:f(14754,null),placeHolder:f(14755,null),canPickMany:!1});if(s)return i.openWindow({remoteAuthority:null,forceProfile:s.profile.name})}})}N(e){const t=new y,r=`workbench.action.openProfile.${e.name.replace("/s+/","_")}`,o=P;return t.add(p(class extends h{constructor(){super({id:r,title:c(14763,"{0}",e.name),metadata:{description:c(14764,"Open New Window with {0} Profile",e.name)},menu:{id:M,group:"0_profiles",when:o}})}run(s){return s.get(L).openWindow({remoteAuthority:null,forceProfile:e.name})}})),t.add($.appendMenuItem(u.CommandPalette,{command:{id:r,category:w,title:c(14765,"Open {0} Profile",e.name),precondition:o}})),t}O(){const e=this;return p(class extends h{constructor(){super({id:"workbench.profiles.actions.switchProfile",title:c(14766,"Switch Profile..."),category:w,f1:!0})}async run(r){const o=r.get(k),i=[];for(const n of e.j.profiles)i.push({id:n.id,label:n.id===e.h.currentProfile.id?`$(check) ${n.name}`:n.name,profile:n});const s=await o.pick(i.sort((n,m)=>n.profile.name.localeCompare(m.profile.name)),{placeHolder:f(14756,null)});s&&await e.m.switchProfile(s.profile)}})}P(){const e=new y;return e.add(p(class extends h{constructor(){super({id:"workbench.profiles.actions.manageProfiles",title:{...c(14767,"Profiles"),mnemonicTitle:f(14757,null)},menu:[{id:u.GlobalActivity,group:"2_configuration",order:1,when:P.negate()},{id:u.MenubarPreferencesMenu,group:"2_configuration",order:1,when:P.negate()},{id:v,group:"1_manage",order:1}]})}run(r){const o=r.get(x),i=r.get(R);return o.activeGroup.openEditor(new D(i))}})),e.add($.appendMenuItem(u.CommandPalette,{command:{id:"workbench.profiles.actions.manageProfiles",category:j.Preferences,title:c(14768,"Open Profiles (UI)")}})),e}Q(){const e=this,t=new y,r="workbench.profiles.actions.exportProfile";return t.add(p(class extends h{constructor(){super({id:r,title:c(14769,"Export Profile..."),category:w,f1:!0})}async run(){(await e.y())?.selectProfile(e.h.currentProfile)}})),t.add($.appendMenuItem(u.MenubarShare,{command:{id:r,title:c(14770,"Export Profile ({0})...",e.h.currentProfile.name)}})),t}R(){const e=this;this.D(p(class extends h{constructor(){super({id:"workbench.profiles.actions.createFromCurrentProfile",title:c(14771,"Save Current Profile As..."),category:w,f1:!0})}async run(){(await e.y())?.createNewProfile(e.h.currentProfile)}}))}S(){const e=this;this.D(p(class extends h{constructor(){super({id:"workbench.profiles.actions.createProfile",title:c(14772,"New Profile..."),category:w,f1:!0,menu:[{id:M,group:"1_manage_profiles",order:1}]})}async run(r){return(await e.y())?.createNewProfile()}}))}U(){this.D(p(class extends h{constructor(){super({id:"workbench.profiles.actions.deleteProfile",title:c(14773,"Delete Profile..."),category:w,f1:!0,precondition:P})}async run(t){const r=t.get(k),o=t.get(J),i=t.get(I),s=t.get(Q),n=t.get(A),m=i.profiles.filter(d=>!d.isDefault&&!d.isTransient);if(m.length){const d=await r.pick(m.map(a=>({label:a.name,description:a.id===o.currentProfile.id?f(14758,null):void 0,profile:a})),{title:f(14759,null),placeHolder:f(14760,null),canPickMany:!0});if(d)try{await Promise.all(d.map(a=>s.removeProfile(a.profile)))}catch(a){n.error(a)}}}}))}W(){this.D(p(class extends h{constructor(){super({id:"workbench.profiles.actions.help",title:V,category:j.Help,menu:[{id:u.CommandPalette}]})}run(t){return t.get(ie).open(W.parse("https://aka.ms/vscode-profiles-help"))}}))}async X(){await this.u.when(4),this.j.profiles.length>1&&this.n.publicLog2("profiles:count",{count:this.j.profiles.length-1});const e=await this.r.getTelemetryWorkspaceId(this.q.getWorkspace(),this.q.getWorkbenchState());this.n.publicLog2("workspaceProfileInfo",{workspaceId:e,defaultProfile:this.h.currentProfile.isDefault})}};N=U([l(0,J),l(1,I),l(2,Q),l(3,ee),l(4,te),l(5,re),l(6,z),l(7,x),l(8,R),l(9,X),l(10,ae),l(11,ce)],N);export{M as $BJc,N as $CJc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { CURRENT_PROFILE_CONTEXT, HAS_PROFILES_CONTEXT, IS_CURRENT_PROFILE_TRANSIENT_CONTEXT, IUserDataProfileImportExportService, IUserDataProfileManagementService, IUserDataProfileService, PROFILES_CATEGORY, PROFILES_TITLE, PROFILE_EXTENSION, isProfileURL } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceTagsService } from "../../tags/common/workspaceTags.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { UserDataProfilesEditor, UserDataProfilesEditorInput, UserDataProfilesEditorInputSerializer } from "./userDataProfilesEditor.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IURLService } from "../../../../platform/url/common/url.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { Extensions as DndExtensions } from "../../../../platform/dnd/browser/dnd.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ITextEditorService } from "../../../services/textfile/common/textEditorService.js";
+const OpenProfileMenu = new MenuId("OpenProfile");
+const ProfilesMenu = new MenuId("Profiles");
+let UserDataProfilesWorkbenchContribution = class UserDataProfilesWorkbenchContribution2 extends Disposable {
+  static {
+    __name(this, "UserDataProfilesWorkbenchContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.userDataProfiles";
+  }
+  constructor(userDataProfileService, userDataProfilesService, userDataProfileManagementService, telemetryService, workspaceContextService, workspaceTagsService, contextKeyService, editorGroupsService, instantiationService, lifecycleService, urlService, environmentService) {
+    super();
+    this.userDataProfileService = userDataProfileService;
+    this.userDataProfilesService = userDataProfilesService;
+    this.userDataProfileManagementService = userDataProfileManagementService;
+    this.telemetryService = telemetryService;
+    this.workspaceContextService = workspaceContextService;
+    this.workspaceTagsService = workspaceTagsService;
+    this.editorGroupsService = editorGroupsService;
+    this.instantiationService = instantiationService;
+    this.lifecycleService = lifecycleService;
+    this.urlService = urlService;
+    this.profilesDisposable = this._register(new MutableDisposable());
+    this.currentProfileContext = CURRENT_PROFILE_CONTEXT.bindTo(contextKeyService);
+    this.isCurrentProfileTransientContext = IS_CURRENT_PROFILE_TRANSIENT_CONTEXT.bindTo(contextKeyService);
+    this.currentProfileContext.set(this.userDataProfileService.currentProfile.id);
+    this.isCurrentProfileTransientContext.set(!!this.userDataProfileService.currentProfile.isTransient);
+    this._register(this.userDataProfileService.onDidChangeCurrentProfile((e) => {
+      this.currentProfileContext.set(this.userDataProfileService.currentProfile.id);
+      this.isCurrentProfileTransientContext.set(!!this.userDataProfileService.currentProfile.isTransient);
+    }));
+    this.hasProfilesContext = HAS_PROFILES_CONTEXT.bindTo(contextKeyService);
+    this.hasProfilesContext.set(this.userDataProfilesService.profiles.length > 1);
+    this._register(this.userDataProfilesService.onDidChangeProfiles((e) => this.hasProfilesContext.set(this.userDataProfilesService.profiles.length > 1)));
+    this.registerEditor();
+    this.registerActions();
+    this._register(this.urlService.registerHandler(this));
+    if (isWeb) {
+      lifecycleService.when(
+        4
+        /* LifecyclePhase.Eventually */
+      ).then(() => userDataProfilesService.cleanUp());
+    }
+    this.reportWorkspaceProfileInfo();
+    if (environmentService.options?.profileToPreview) {
+      lifecycleService.when(
+        3
+        /* LifecyclePhase.Restored */
+      ).then(() => this.handleURL(URI.revive(environmentService.options.profileToPreview)));
+    }
+    this.registerDropHandler();
+  }
+  async handleURL(uri) {
+    if (isProfileURL(uri)) {
+      const editor = await this.openProfilesEditor();
+      if (editor) {
+        editor.createNewProfile(uri);
+        return true;
+      }
+    }
+    return false;
+  }
+  async openProfilesEditor() {
+    const editor = await this.editorGroupsService.activeGroup.openEditor(new UserDataProfilesEditorInput(this.instantiationService));
+    return editor;
+  }
+  registerEditor() {
+    Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(UserDataProfilesEditor, UserDataProfilesEditor.ID, localize("userdataprofilesEditor", "Profiles Editor")), [
+      new SyncDescriptor(UserDataProfilesEditorInput)
+    ]);
+    Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(UserDataProfilesEditorInput.ID, UserDataProfilesEditorInputSerializer);
+  }
+  registerDropHandler() {
+    const dndRegistry = Registry.as(DndExtensions.DragAndDropContribution);
+    const that = this;
+    this._register(dndRegistry.registerDropHandler(new class UserDataProfileDropHandler {
+      static {
+        __name(this, "UserDataProfileDropHandler");
+      }
+      async handleDrop(resource, accessor) {
+        const uriIdentityService = accessor.get(IUriIdentityService);
+        const userDataProfileImportExportService = accessor.get(IUserDataProfileImportExportService);
+        const editorGroupsService = accessor.get(IEditorGroupsService);
+        const textEditorService = accessor.get(ITextEditorService);
+        const notificationService = accessor.get(INotificationService);
+        if (uriIdentityService.extUri.extname(resource) === `.${PROFILE_EXTENSION}`) {
+          const template = await userDataProfileImportExportService.resolveProfileTemplate(resource);
+          if (!template) {
+            notificationService.warn(localize("invalid profile", "The dropped profile is invalid."));
+            editorGroupsService.activeGroup.openEditor(textEditorService.createTextEditor({ resource }));
+            return true;
+          }
+          const editor = await that.openProfilesEditor();
+          if (editor) {
+            try {
+              await editor.createNewProfile(resource);
+            } catch (error) {
+              return false;
+            }
+          }
+          return true;
+        }
+        return false;
+      }
+    }()));
+  }
+  registerActions() {
+    this.registerProfileSubMenu();
+    this._register(this.registerManageProfilesAction());
+    this._register(this.registerSwitchProfileAction());
+    this.registerOpenProfileSubMenu();
+    this.registerNewWindowWithProfileAction();
+    this.registerProfilesActions();
+    this._register(this.userDataProfilesService.onDidChangeProfiles(() => this.registerProfilesActions()));
+    this._register(this.registerExportCurrentProfileAction());
+    this.registerCreateFromCurrentProfileAction();
+    this.registerNewProfileAction();
+    this.registerDeleteProfileAction();
+    this.registerHelpAction();
+  }
+  registerProfileSubMenu() {
+    const getProfilesTitle = /* @__PURE__ */ __name(() => {
+      return localize("profiles", "Profile ({0})", this.userDataProfileService.currentProfile.name);
+    }, "getProfilesTitle");
+    MenuRegistry.appendMenuItem(MenuId.GlobalActivity, {
+      get title() {
+        return getProfilesTitle();
+      },
+      submenu: ProfilesMenu,
+      group: "2_configuration",
+      order: 1,
+      when: HAS_PROFILES_CONTEXT
+    });
+    MenuRegistry.appendMenuItem(MenuId.MenubarPreferencesMenu, {
+      get title() {
+        return getProfilesTitle();
+      },
+      submenu: ProfilesMenu,
+      group: "2_configuration",
+      order: 1,
+      when: HAS_PROFILES_CONTEXT
+    });
+  }
+  registerOpenProfileSubMenu() {
+    MenuRegistry.appendMenuItem(MenuId.MenubarFileMenu, {
+      title: localize("New Profile Window", "New Window with Profile"),
+      submenu: OpenProfileMenu,
+      group: "1_new",
+      order: 4
+    });
+  }
+  registerProfilesActions() {
+    this.profilesDisposable.value = new DisposableStore();
+    for (const profile of this.userDataProfilesService.profiles) {
+      if (!profile.isTransient) {
+        this.profilesDisposable.value.add(this.registerProfileEntryAction(profile));
+        this.profilesDisposable.value.add(this.registerNewWindowAction(profile));
+      }
+    }
+  }
+  registerProfileEntryAction(profile) {
+    const that = this;
+    return registerAction2(class ProfileEntryAction extends Action2 {
+      static {
+        __name(this, "ProfileEntryAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.profiles.actions.profileEntry.${profile.id}`,
+          title: profile.name,
+          metadata: {
+            description: localize2("change profile", "Switch to {0} profile", profile.name)
+          },
+          toggled: ContextKeyExpr.equals(CURRENT_PROFILE_CONTEXT.key, profile.id),
+          menu: [
+            {
+              id: ProfilesMenu,
+              group: "0_profiles"
+            }
+          ]
+        });
+      }
+      async run(accessor) {
+        if (that.userDataProfileService.currentProfile.id !== profile.id) {
+          return that.userDataProfileManagementService.switchProfile(profile);
+        }
+      }
+    });
+  }
+  registerNewWindowWithProfileAction() {
+    return registerAction2(class NewWindowWithProfileAction extends Action2 {
+      static {
+        __name(this, "NewWindowWithProfileAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.profiles.actions.newWindowWithProfile`,
+          title: localize2("newWindowWithProfile", "New Window with Profile..."),
+          category: PROFILES_CATEGORY,
+          precondition: HAS_PROFILES_CONTEXT,
+          f1: true
+        });
+      }
+      async run(accessor) {
+        const quickInputService = accessor.get(IQuickInputService);
+        const userDataProfilesService = accessor.get(IUserDataProfilesService);
+        const hostService = accessor.get(IHostService);
+        const pick = await quickInputService.pick(userDataProfilesService.profiles.map((profile) => ({
+          label: profile.name,
+          profile
+        })), {
+          title: localize("new window with profile", "New Window with Profile"),
+          placeHolder: localize("pick profile", "Select Profile"),
+          canPickMany: false
+        });
+        if (pick) {
+          return hostService.openWindow({ remoteAuthority: null, forceProfile: pick.profile.name });
+        }
+      }
+    });
+  }
+  registerNewWindowAction(profile) {
+    const disposables = new DisposableStore();
+    const id = `workbench.action.openProfile.${profile.name.replace("/s+/", "_")}`;
+    const precondition = HAS_PROFILES_CONTEXT;
+    disposables.add(registerAction2(class NewWindowAction extends Action2 {
+      static {
+        __name(this, "NewWindowAction");
+      }
+      constructor() {
+        super({
+          id,
+          title: localize2("openShort", "{0}", profile.name),
+          metadata: {
+            description: localize2("open profile", "Open New Window with {0} Profile", profile.name)
+          },
+          menu: {
+            id: OpenProfileMenu,
+            group: "0_profiles",
+            when: precondition
+          }
+        });
+      }
+      run(accessor) {
+        const hostService = accessor.get(IHostService);
+        return hostService.openWindow({ remoteAuthority: null, forceProfile: profile.name });
+      }
+    }));
+    disposables.add(MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+      command: {
+        id,
+        category: PROFILES_CATEGORY,
+        title: localize2("open", "Open {0} Profile", profile.name),
+        precondition
+      }
+    }));
+    return disposables;
+  }
+  registerSwitchProfileAction() {
+    const that = this;
+    return registerAction2(class SwitchProfileAction extends Action2 {
+      static {
+        __name(this, "SwitchProfileAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.profiles.actions.switchProfile`,
+          title: localize2("switchProfile", "Switch Profile..."),
+          category: PROFILES_CATEGORY,
+          f1: true
+        });
+      }
+      async run(accessor) {
+        const quickInputService = accessor.get(IQuickInputService);
+        const items = [];
+        for (const profile of that.userDataProfilesService.profiles) {
+          items.push({
+            id: profile.id,
+            label: profile.id === that.userDataProfileService.currentProfile.id ? `$(check) ${profile.name}` : profile.name,
+            profile
+          });
+        }
+        const result = await quickInputService.pick(items.sort((a, b) => a.profile.name.localeCompare(b.profile.name)), {
+          placeHolder: localize("selectProfile", "Select Profile")
+        });
+        if (result) {
+          await that.userDataProfileManagementService.switchProfile(result.profile);
+        }
+      }
+    });
+  }
+  registerManageProfilesAction() {
+    const disposables = new DisposableStore();
+    disposables.add(registerAction2(class ManageProfilesAction extends Action2 {
+      static {
+        __name(this, "ManageProfilesAction");
+      }
+      constructor() {
+        super({
+          id: `workbench.profiles.actions.manageProfiles`,
+          title: {
+            ...localize2("manage profiles", "Profiles"),
+            mnemonicTitle: localize({ key: "miOpenProfiles", comment: ["&& denotes a mnemonic"] }, "&&Profiles")
+          },
+          menu: [
+            {
+              id: MenuId.GlobalActivity,
+              group: "2_configuration",
+              order: 1,
+              when: HAS_PROFILES_CONTEXT.negate()
+            },
+            {
+              id: MenuId.MenubarPreferencesMenu,
+              group: "2_configuration",
+              order: 1,
+              when: HAS_PROFILES_CONTEXT.negate()
+            },
+            {
+              id: ProfilesMenu,
+              group: "1_manage",
+              order: 1
+            }
+          ]
+        });
+      }
+      run(accessor) {
+        const editorGroupsService = accessor.get(IEditorGroupsService);
+        const instantiationService = accessor.get(IInstantiationService);
+        return editorGroupsService.activeGroup.openEditor(new UserDataProfilesEditorInput(instantiationService));
+      }
+    }));
+    disposables.add(MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+      command: {
+        id: "workbench.profiles.actions.manageProfiles",
+        category: Categories.Preferences,
+        title: localize2("open profiles", "Open Profiles (UI)")
+      }
+    }));
+    return disposables;
+  }
+  registerExportCurrentProfileAction() {
+    const that = this;
+    const disposables = new DisposableStore();
+    const id = "workbench.profiles.actions.exportProfile";
+    disposables.add(registerAction2(class ExportProfileAction extends Action2 {
+      static {
+        __name(this, "ExportProfileAction");
+      }
+      constructor() {
+        super({
+          id,
+          title: localize2("export profile", "Export Profile..."),
+          category: PROFILES_CATEGORY,
+          f1: true
+        });
+      }
+      async run() {
+        const editor = await that.openProfilesEditor();
+        editor?.selectProfile(that.userDataProfileService.currentProfile);
+      }
+    }));
+    disposables.add(MenuRegistry.appendMenuItem(MenuId.MenubarShare, {
+      command: {
+        id,
+        title: localize2("export profile in share", "Export Profile ({0})...", that.userDataProfileService.currentProfile.name)
+      }
+    }));
+    return disposables;
+  }
+  registerCreateFromCurrentProfileAction() {
+    const that = this;
+    this._register(registerAction2(class CreateFromCurrentProfileAction extends Action2 {
+      static {
+        __name(this, "CreateFromCurrentProfileAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.profiles.actions.createFromCurrentProfile",
+          title: localize2("save profile as", "Save Current Profile As..."),
+          category: PROFILES_CATEGORY,
+          f1: true
+        });
+      }
+      async run() {
+        const editor = await that.openProfilesEditor();
+        editor?.createNewProfile(that.userDataProfileService.currentProfile);
+      }
+    }));
+  }
+  registerNewProfileAction() {
+    const that = this;
+    this._register(registerAction2(class CreateProfileAction extends Action2 {
+      static {
+        __name(this, "CreateProfileAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.profiles.actions.createProfile",
+          title: localize2("create profile", "New Profile..."),
+          category: PROFILES_CATEGORY,
+          f1: true,
+          menu: [
+            {
+              id: OpenProfileMenu,
+              group: "1_manage_profiles",
+              order: 1
+            }
+          ]
+        });
+      }
+      async run(accessor) {
+        const editor = await that.openProfilesEditor();
+        return editor?.createNewProfile();
+      }
+    }));
+  }
+  registerDeleteProfileAction() {
+    this._register(registerAction2(class DeleteProfileAction extends Action2 {
+      static {
+        __name(this, "DeleteProfileAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.profiles.actions.deleteProfile",
+          title: localize2("delete profile", "Delete Profile..."),
+          category: PROFILES_CATEGORY,
+          f1: true,
+          precondition: HAS_PROFILES_CONTEXT
+        });
+      }
+      async run(accessor) {
+        const quickInputService = accessor.get(IQuickInputService);
+        const userDataProfileService = accessor.get(IUserDataProfileService);
+        const userDataProfilesService = accessor.get(IUserDataProfilesService);
+        const userDataProfileManagementService = accessor.get(IUserDataProfileManagementService);
+        const notificationService = accessor.get(INotificationService);
+        const profiles = userDataProfilesService.profiles.filter((p) => !p.isDefault && !p.isTransient);
+        if (profiles.length) {
+          const picks = await quickInputService.pick(profiles.map((profile) => ({
+            label: profile.name,
+            description: profile.id === userDataProfileService.currentProfile.id ? localize("current", "Current") : void 0,
+            profile
+          })), {
+            title: localize("delete specific profile", "Delete Profile..."),
+            placeHolder: localize("pick profile to delete", "Select Profiles to Delete"),
+            canPickMany: true
+          });
+          if (picks) {
+            try {
+              await Promise.all(picks.map((pick) => userDataProfileManagementService.removeProfile(pick.profile)));
+            } catch (error) {
+              notificationService.error(error);
+            }
+          }
+        }
+      }
+    }));
+  }
+  registerHelpAction() {
+    this._register(registerAction2(class HelpAction extends Action2 {
+      static {
+        __name(this, "HelpAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.profiles.actions.help",
+          title: PROFILES_TITLE,
+          category: Categories.Help,
+          menu: [{
+            id: MenuId.CommandPalette
+          }]
+        });
+      }
+      run(accessor) {
+        return accessor.get(IOpenerService).open(URI.parse("https://aka.ms/vscode-profiles-help"));
+      }
+    }));
+  }
+  async reportWorkspaceProfileInfo() {
+    await this.lifecycleService.when(
+      4
+      /* LifecyclePhase.Eventually */
+    );
+    if (this.userDataProfilesService.profiles.length > 1) {
+      this.telemetryService.publicLog2("profiles:count", { count: this.userDataProfilesService.profiles.length - 1 });
+    }
+    const workspaceId = await this.workspaceTagsService.getTelemetryWorkspaceId(this.workspaceContextService.getWorkspace(), this.workspaceContextService.getWorkbenchState());
+    this.telemetryService.publicLog2("workspaceProfileInfo", {
+      workspaceId,
+      defaultProfile: this.userDataProfileService.currentProfile.isDefault
+    });
+  }
+};
+UserDataProfilesWorkbenchContribution = __decorate([
+  __param(0, IUserDataProfileService),
+  __param(1, IUserDataProfilesService),
+  __param(2, IUserDataProfileManagementService),
+  __param(3, ITelemetryService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IWorkspaceTagsService),
+  __param(6, IContextKeyService),
+  __param(7, IEditorGroupsService),
+  __param(8, IInstantiationService),
+  __param(9, ILifecycleService),
+  __param(10, IURLService),
+  __param(11, IBrowserWorkbenchEnvironmentService)
+], UserDataProfilesWorkbenchContribution);
+export {
+  OpenProfileMenu,
+  UserDataProfilesWorkbenchContribution
+};
+//# sourceMappingURL=userDataProfile.js.map

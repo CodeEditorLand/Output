@@ -1,1 +1,42 @@
-import{$u8 as e,$08 as i}from"../../../../../../base/browser/dom.js";import{$Ed as o,$Bd as n,$Cd as h}from"../../../../../../base/common/lifecycle.js";import{$Nj as c}from"../../../../../../platform/instantiation/common/instantiation.js";const l=c("chatMarkdownAnchorService");class p extends o{constructor(){super(...arguments),this.a=[],this.b=void 0}get lastFocusedAnchor(){return this.b}c(t){this.b=t}register(t){if(this.a.some(r=>r===t))throw new Error("Cannot register the same widget multiple times");this.a.push(t);const s=t.getHTMLElement();return i(s)&&this.c(t),n(e(s,"focus",()=>this.c(t)),h(()=>this.a.splice(this.a.indexOf(t),1)),e(s,"blur",()=>{this.b===t&&this.c(void 0)}))}}export{l as $k1b,p as $l1b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { addDisposableListener, isActiveElement } from "../../../../../../base/browser/dom.js";
+import { Disposable, combinedDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../../../platform/instantiation/common/instantiation.js";
+const IChatMarkdownAnchorService = createDecorator("chatMarkdownAnchorService");
+class ChatMarkdownAnchorService extends Disposable {
+  static {
+    __name(this, "ChatMarkdownAnchorService");
+  }
+  constructor() {
+    super(...arguments);
+    this._widgets = [];
+    this._lastFocusedWidget = void 0;
+  }
+  get lastFocusedAnchor() {
+    return this._lastFocusedWidget;
+  }
+  setLastFocusedList(widget) {
+    this._lastFocusedWidget = widget;
+  }
+  register(widget) {
+    if (this._widgets.some((other) => other === widget)) {
+      throw new Error("Cannot register the same widget multiple times");
+    }
+    this._widgets.push(widget);
+    const element = widget.getHTMLElement();
+    if (isActiveElement(element)) {
+      this.setLastFocusedList(widget);
+    }
+    return combinedDisposable(addDisposableListener(element, "focus", () => this.setLastFocusedList(widget)), toDisposable(() => this._widgets.splice(this._widgets.indexOf(widget), 1)), addDisposableListener(element, "blur", () => {
+      if (this._lastFocusedWidget === widget) {
+        this.setLastFocusedList(void 0);
+      }
+    }));
+  }
+}
+export {
+  ChatMarkdownAnchorService,
+  IChatMarkdownAnchorService
+};
+//# sourceMappingURL=chatMarkdownAnchorService.js.map

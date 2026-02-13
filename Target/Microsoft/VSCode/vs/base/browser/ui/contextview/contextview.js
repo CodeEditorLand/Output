@@ -1,4 +1,282 @@
-import{$e8 as C}from"../../canIUse.js";import*as i from"../../dom.js";import{$Ed as p,$Dd as w,$Cd as b}from"../../../common/lifecycle.js";import*as B from"../../../common/platform.js";import{Range as S}from"../../../common/range.js";import"./contextview.css";var x;(function(s){s[s.ABSOLUTE=1]="ABSOLUTE",s[s.FIXED=2]="FIXED",s[s.FIXED_SHADOW=3]="FIXED_SHADOW"})(x||(x={}));function L(s){const t=s;return!!t&&typeof t.x=="number"&&typeof t.y=="number"}var H;(function(s){s[s.LEFT=0]="LEFT",s[s.RIGHT=1]="RIGHT"})(H||(H={}));var I;(function(s){s[s.BELOW=0]="BELOW",s[s.ABOVE=1]="ABOVE"})(I||(I={}));var $;(function(s){s[s.VERTICAL=0]="VERTICAL",s[s.HORIZONTAL=1]="HORIZONTAL"})($||($={}));var E;(function(s){s[s.Before=0]="Before",s[s.After=1]="After"})(E||(E={}));var r;(function(s){s[s.AVOID=0]="AVOID",s[s.ALIGN=1]="ALIGN"})(r||(r={}));function d(s,t,e){const a=e.mode===r.ALIGN?e.offset:e.offset+e.size,o=e.mode===r.ALIGN?e.offset+e.size:e.offset;return e.position===0?t<=s-a?a:t<=o?o-t:Math.max(s-t,0):t<=o?o-t:t<=s-a&&o<t/2?a:0}class g extends p{static{this.a=["click","keydown","focus","blur"]}static{this.b=["click"]}constructor(t,e){super(),this.c=null,this.g=!1,this.h=!1,this.j=null,this.m=p.None,this.n=p.None,this.q=null,this.r=null,this.f=i.$(".context-view"),i.$F9(this.f),this.setContainer(t,e),this.D(b(()=>this.setContainer(null,1)))}setContainer(t,e){this.g=e!==1;const a=this.h;if(this.h=e===3,!(t===this.c&&a===this.h)&&(this.c&&(this.n.dispose(),this.f.remove(),this.q&&(this.q=null,this.r?.remove(),this.r=null),this.c=null),t)){if(this.c=t,this.h){this.r=i.$(".shadow-root-host"),this.c.appendChild(this.r),this.q=this.r.attachShadow({mode:"open"});const h=document.createElement("style");h.textContent=j,this.q.appendChild(h),this.q.appendChild(this.f),this.q.appendChild(i.$("slot"))}else this.c.appendChild(this.f);const o=new w;g.a.forEach(h=>{o.add(i.$v8(this.c,h,l=>{this.u(l,!1)}))}),g.b.forEach(h=>{o.add(i.$v8(this.c,h,l=>{this.u(l,!0)},!0))}),this.n=o}}show(t){this.t()&&this.hide(),i.$t8(this.f),this.f.className="context-view monaco-component",this.f.style.top="0px",this.f.style.left="0px",this.f.style.zIndex=`${2575+(t.layer??0)}`,this.f.style.position=this.g?"fixed":"absolute",i.$E9(this.f),this.m=t.render(this.f)||p.None,this.j=t,this.s(),this.j.focus?.()}getViewElement(){return this.f}layout(){if(this.t()){if(this.j.canRelayout===!1&&!(B.$v&&C.pointerEvents)){this.hide();return}this.j?.layout?.(),this.s()}}s(){if(!this.t())return;const t=this.j.getAnchor();let e;if(i.$f9(t)){const n=i.$R8(t),f=i.$T8(t);e={top:n.top*f,left:n.left*f,width:n.width*f,height:n.height*f}}else L(t)?e={top:t.y,left:t.x,width:t.width||1,height:t.height||2}:e={top:t.posy,left:t.posx,width:2,height:2};const a=i.$U8(this.f),o=i.$Y8(this.f),h=this.j.anchorPosition??0,l=this.j.anchorAlignment??0,D=this.j.anchorAxisAlignment??0;let u,m;const c=i.$b9();if(D===0){const n={offset:e.top-c.pageYOffset,size:e.height,position:h===0?0:1},f={offset:e.left,size:e.width,position:l===0?0:1,mode:r.ALIGN};u=d(c.innerHeight,o,n)+c.pageYOffset,S.intersects({start:u,end:u+o},{start:n.offset,end:n.offset+n.size})&&(f.mode=r.AVOID),m=d(c.innerWidth,a,f)}else{const n={offset:e.left,size:e.width,position:l===0?0:1},f={offset:e.top,size:e.height,position:h===0?0:1,mode:r.ALIGN};m=d(c.innerWidth,a,n),S.intersects({start:m,end:m+a},{start:n.offset,end:n.offset+n.size})&&(f.mode=r.AVOID),u=d(c.innerHeight,o,f)+c.pageYOffset}this.f.classList.remove("top","bottom","left","right"),this.f.classList.add(h===0?"bottom":"top"),this.f.classList.add(l===0?"left":"right"),this.f.classList.toggle("fixed",this.g);const y=i.$R8(this.c),O=this.c.scrollTop||0,A=this.c.scrollLeft||0;this.f.style.top=`${u-(this.g?i.$R8(this.f).top:y.top)+O}px`,this.f.style.left=`${m-(this.g?i.$R8(this.f).left:y.left)+A}px`,this.f.style.width="initial"}hide(t){const e=this.j;this.j=null,e?.onHide&&e.onHide(t),this.m.dispose(),i.$F9(this.f)}t(){return!!this.j}u(t,e){this.j&&(this.j.onDOMEvent?this.j.onDOMEvent(t,i.getWindow(t).document.activeElement):e&&!i.$18(t.target,this.c)&&this.hide())}dispose(){this.hide(),super.dispose()}}const j=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BrowserFeatures } from "../../canIUse.js";
+import * as DOM from "../../dom.js";
+import { Disposable, DisposableStore, toDisposable } from "../../../common/lifecycle.js";
+import * as platform from "../../../common/platform.js";
+import { Range } from "../../../common/range.js";
+import "./contextview.css";
+var ContextViewDOMPosition;
+(function(ContextViewDOMPosition2) {
+  ContextViewDOMPosition2[ContextViewDOMPosition2["ABSOLUTE"] = 1] = "ABSOLUTE";
+  ContextViewDOMPosition2[ContextViewDOMPosition2["FIXED"] = 2] = "FIXED";
+  ContextViewDOMPosition2[ContextViewDOMPosition2["FIXED_SHADOW"] = 3] = "FIXED_SHADOW";
+})(ContextViewDOMPosition || (ContextViewDOMPosition = {}));
+function isAnchor(obj) {
+  const anchor = obj;
+  return !!anchor && typeof anchor.x === "number" && typeof anchor.y === "number";
+}
+__name(isAnchor, "isAnchor");
+var AnchorAlignment;
+(function(AnchorAlignment2) {
+  AnchorAlignment2[AnchorAlignment2["LEFT"] = 0] = "LEFT";
+  AnchorAlignment2[AnchorAlignment2["RIGHT"] = 1] = "RIGHT";
+})(AnchorAlignment || (AnchorAlignment = {}));
+var AnchorPosition;
+(function(AnchorPosition2) {
+  AnchorPosition2[AnchorPosition2["BELOW"] = 0] = "BELOW";
+  AnchorPosition2[AnchorPosition2["ABOVE"] = 1] = "ABOVE";
+})(AnchorPosition || (AnchorPosition = {}));
+var AnchorAxisAlignment;
+(function(AnchorAxisAlignment2) {
+  AnchorAxisAlignment2[AnchorAxisAlignment2["VERTICAL"] = 0] = "VERTICAL";
+  AnchorAxisAlignment2[AnchorAxisAlignment2["HORIZONTAL"] = 1] = "HORIZONTAL";
+})(AnchorAxisAlignment || (AnchorAxisAlignment = {}));
+var LayoutAnchorPosition;
+(function(LayoutAnchorPosition2) {
+  LayoutAnchorPosition2[LayoutAnchorPosition2["Before"] = 0] = "Before";
+  LayoutAnchorPosition2[LayoutAnchorPosition2["After"] = 1] = "After";
+})(LayoutAnchorPosition || (LayoutAnchorPosition = {}));
+var LayoutAnchorMode;
+(function(LayoutAnchorMode2) {
+  LayoutAnchorMode2[LayoutAnchorMode2["AVOID"] = 0] = "AVOID";
+  LayoutAnchorMode2[LayoutAnchorMode2["ALIGN"] = 1] = "ALIGN";
+})(LayoutAnchorMode || (LayoutAnchorMode = {}));
+function layout(viewportSize, viewSize, anchor) {
+  const layoutAfterAnchorBoundary = anchor.mode === LayoutAnchorMode.ALIGN ? anchor.offset : anchor.offset + anchor.size;
+  const layoutBeforeAnchorBoundary = anchor.mode === LayoutAnchorMode.ALIGN ? anchor.offset + anchor.size : anchor.offset;
+  if (anchor.position === 0) {
+    if (viewSize <= viewportSize - layoutAfterAnchorBoundary) {
+      return layoutAfterAnchorBoundary;
+    }
+    if (viewSize <= layoutBeforeAnchorBoundary) {
+      return layoutBeforeAnchorBoundary - viewSize;
+    }
+    return Math.max(viewportSize - viewSize, 0);
+  } else {
+    if (viewSize <= layoutBeforeAnchorBoundary) {
+      return layoutBeforeAnchorBoundary - viewSize;
+    }
+    if (viewSize <= viewportSize - layoutAfterAnchorBoundary && layoutBeforeAnchorBoundary < viewSize / 2) {
+      return layoutAfterAnchorBoundary;
+    }
+    return 0;
+  }
+}
+__name(layout, "layout");
+class ContextView extends Disposable {
+  static {
+    __name(this, "ContextView");
+  }
+  static {
+    this.BUBBLE_UP_EVENTS = ["click", "keydown", "focus", "blur"];
+  }
+  static {
+    this.BUBBLE_DOWN_EVENTS = ["click"];
+  }
+  constructor(container, domPosition) {
+    super();
+    this.container = null;
+    this.useFixedPosition = false;
+    this.useShadowDOM = false;
+    this.delegate = null;
+    this.toDisposeOnClean = Disposable.None;
+    this.toDisposeOnSetContainer = Disposable.None;
+    this.shadowRoot = null;
+    this.shadowRootHostElement = null;
+    this.view = DOM.$(".context-view");
+    DOM.hide(this.view);
+    this.setContainer(container, domPosition);
+    this._register(toDisposable(() => this.setContainer(
+      null,
+      1
+      /* ContextViewDOMPosition.ABSOLUTE */
+    )));
+  }
+  setContainer(container, domPosition) {
+    this.useFixedPosition = domPosition !== 1;
+    const usedShadowDOM = this.useShadowDOM;
+    this.useShadowDOM = domPosition === 3;
+    if (container === this.container && usedShadowDOM === this.useShadowDOM) {
+      return;
+    }
+    if (this.container) {
+      this.toDisposeOnSetContainer.dispose();
+      this.view.remove();
+      if (this.shadowRoot) {
+        this.shadowRoot = null;
+        this.shadowRootHostElement?.remove();
+        this.shadowRootHostElement = null;
+      }
+      this.container = null;
+    }
+    if (container) {
+      this.container = container;
+      if (this.useShadowDOM) {
+        this.shadowRootHostElement = DOM.$(".shadow-root-host");
+        this.container.appendChild(this.shadowRootHostElement);
+        this.shadowRoot = this.shadowRootHostElement.attachShadow({ mode: "open" });
+        const style = document.createElement("style");
+        style.textContent = SHADOW_ROOT_CSS;
+        this.shadowRoot.appendChild(style);
+        this.shadowRoot.appendChild(this.view);
+        this.shadowRoot.appendChild(DOM.$("slot"));
+      } else {
+        this.container.appendChild(this.view);
+      }
+      const toDisposeOnSetContainer = new DisposableStore();
+      ContextView.BUBBLE_UP_EVENTS.forEach((event) => {
+        toDisposeOnSetContainer.add(DOM.addStandardDisposableListener(this.container, event, (e) => {
+          this.onDOMEvent(e, false);
+        }));
+      });
+      ContextView.BUBBLE_DOWN_EVENTS.forEach((event) => {
+        toDisposeOnSetContainer.add(DOM.addStandardDisposableListener(this.container, event, (e) => {
+          this.onDOMEvent(e, true);
+        }, true));
+      });
+      this.toDisposeOnSetContainer = toDisposeOnSetContainer;
+    }
+  }
+  show(delegate) {
+    if (this.isVisible()) {
+      this.hide();
+    }
+    DOM.clearNode(this.view);
+    this.view.className = "context-view monaco-component";
+    this.view.style.top = "0px";
+    this.view.style.left = "0px";
+    this.view.style.zIndex = `${2575 + (delegate.layer ?? 0)}`;
+    this.view.style.position = this.useFixedPosition ? "fixed" : "absolute";
+    DOM.show(this.view);
+    this.toDisposeOnClean = delegate.render(this.view) || Disposable.None;
+    this.delegate = delegate;
+    this.doLayout();
+    this.delegate.focus?.();
+  }
+  getViewElement() {
+    return this.view;
+  }
+  layout() {
+    if (!this.isVisible()) {
+      return;
+    }
+    if (this.delegate.canRelayout === false && !(platform.isIOS && BrowserFeatures.pointerEvents)) {
+      this.hide();
+      return;
+    }
+    this.delegate?.layout?.();
+    this.doLayout();
+  }
+  doLayout() {
+    if (!this.isVisible()) {
+      return;
+    }
+    const anchor = this.delegate.getAnchor();
+    let around;
+    if (DOM.isHTMLElement(anchor)) {
+      const elementPosition = DOM.getDomNodePagePosition(anchor);
+      const zoom = DOM.getDomNodeZoomLevel(anchor);
+      around = {
+        top: elementPosition.top * zoom,
+        left: elementPosition.left * zoom,
+        width: elementPosition.width * zoom,
+        height: elementPosition.height * zoom
+      };
+    } else if (isAnchor(anchor)) {
+      around = {
+        top: anchor.y,
+        left: anchor.x,
+        width: anchor.width || 1,
+        height: anchor.height || 2
+      };
+    } else {
+      around = {
+        top: anchor.posy,
+        left: anchor.posx,
+        // We are about to position the context view where the mouse
+        // cursor is. To prevent the view being exactly under the mouse
+        // when showing and thus potentially triggering an action within,
+        // we treat the mouse location like a small sized block element.
+        width: 2,
+        height: 2
+      };
+    }
+    const viewSizeWidth = DOM.getTotalWidth(this.view);
+    const viewSizeHeight = DOM.getTotalHeight(this.view);
+    const anchorPosition = this.delegate.anchorPosition ?? 0;
+    const anchorAlignment = this.delegate.anchorAlignment ?? 0;
+    const anchorAxisAlignment = this.delegate.anchorAxisAlignment ?? 0;
+    let top;
+    let left;
+    const activeWindow = DOM.getActiveWindow();
+    if (anchorAxisAlignment === 0) {
+      const verticalAnchor = {
+        offset: around.top - activeWindow.pageYOffset,
+        size: around.height,
+        position: anchorPosition === 0 ? 0 : 1
+        /* LayoutAnchorPosition.After */
+      };
+      const horizontalAnchor = { offset: around.left, size: around.width, position: anchorAlignment === 0 ? 0 : 1, mode: LayoutAnchorMode.ALIGN };
+      top = layout(activeWindow.innerHeight, viewSizeHeight, verticalAnchor) + activeWindow.pageYOffset;
+      if (Range.intersects({ start: top, end: top + viewSizeHeight }, { start: verticalAnchor.offset, end: verticalAnchor.offset + verticalAnchor.size })) {
+        horizontalAnchor.mode = LayoutAnchorMode.AVOID;
+      }
+      left = layout(activeWindow.innerWidth, viewSizeWidth, horizontalAnchor);
+    } else {
+      const horizontalAnchor = {
+        offset: around.left,
+        size: around.width,
+        position: anchorAlignment === 0 ? 0 : 1
+        /* LayoutAnchorPosition.After */
+      };
+      const verticalAnchor = { offset: around.top, size: around.height, position: anchorPosition === 0 ? 0 : 1, mode: LayoutAnchorMode.ALIGN };
+      left = layout(activeWindow.innerWidth, viewSizeWidth, horizontalAnchor);
+      if (Range.intersects({ start: left, end: left + viewSizeWidth }, { start: horizontalAnchor.offset, end: horizontalAnchor.offset + horizontalAnchor.size })) {
+        verticalAnchor.mode = LayoutAnchorMode.AVOID;
+      }
+      top = layout(activeWindow.innerHeight, viewSizeHeight, verticalAnchor) + activeWindow.pageYOffset;
+    }
+    this.view.classList.remove("top", "bottom", "left", "right");
+    this.view.classList.add(anchorPosition === 0 ? "bottom" : "top");
+    this.view.classList.add(anchorAlignment === 0 ? "left" : "right");
+    this.view.classList.toggle("fixed", this.useFixedPosition);
+    const containerPosition = DOM.getDomNodePagePosition(this.container);
+    const containerScrollTop = this.container.scrollTop || 0;
+    const containerScrollLeft = this.container.scrollLeft || 0;
+    this.view.style.top = `${top - (this.useFixedPosition ? DOM.getDomNodePagePosition(this.view).top : containerPosition.top) + containerScrollTop}px`;
+    this.view.style.left = `${left - (this.useFixedPosition ? DOM.getDomNodePagePosition(this.view).left : containerPosition.left) + containerScrollLeft}px`;
+    this.view.style.width = "initial";
+  }
+  hide(data) {
+    const delegate = this.delegate;
+    this.delegate = null;
+    if (delegate?.onHide) {
+      delegate.onHide(data);
+    }
+    this.toDisposeOnClean.dispose();
+    DOM.hide(this.view);
+  }
+  isVisible() {
+    return !!this.delegate;
+  }
+  onDOMEvent(e, onCapture) {
+    if (this.delegate) {
+      if (this.delegate.onDOMEvent) {
+        this.delegate.onDOMEvent(e, DOM.getWindow(e).document.activeElement);
+      } else if (onCapture && !DOM.isAncestor(e.target, this.container)) {
+        this.hide();
+      }
+    }
+  }
+  dispose() {
+    this.hide();
+    super.dispose();
+  }
+}
+const SHADOW_ROOT_CSS = (
+  /* css */
+  `
 	:host {
 		all: initial; /* 1st rule so subsequent properties are reset. */
 	}
@@ -37,4 +315,17 @@ import{$e8 as C}from"../../canIUse.js";import*as i from"../../dom.js";import{$Ed
 	:host-context(.linux:lang(zh-Hant)) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans TC", "Source Han Sans TW", "Source Han Sans", sans-serif; }
 	:host-context(.linux:lang(ja)) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans J", "Source Han Sans JP", "Source Han Sans", sans-serif; }
 	:host-context(.linux:lang(ko)) { font-family: system-ui, "Ubuntu", "Droid Sans", "Source Han Sans K", "Source Han Sans JR", "Source Han Sans", "UnDotum", "FBaekmuk Gulim", sans-serif; }
-`;export{g as $A0,L as $y0,d as $z0,H as AnchorAlignment,$ as AnchorAxisAlignment,I as AnchorPosition,x as ContextViewDOMPosition,r as LayoutAnchorMode,E as LayoutAnchorPosition};
+`
+);
+export {
+  AnchorAlignment,
+  AnchorAxisAlignment,
+  AnchorPosition,
+  ContextView,
+  ContextViewDOMPosition,
+  LayoutAnchorMode,
+  LayoutAnchorPosition,
+  isAnchor,
+  layout
+};
+//# sourceMappingURL=contextview.js.map

@@ -1,1 +1,30 @@
-import{localize as i}from"../../../../nls.js";import{$tIc as d}from"./walkThroughInput.js";import{$wIc as o}from"./walkThroughPart.js";import{$xIc as a,$yIc as p,$zIc as $,$AIc as c}from"./walkThroughActions.js";import{$sIc as e}from"../common/walkThroughContentProvider.js";import{$CIc as I,$DIc as m}from"./editor/editorWalkThrough.js";import{$jm as t}from"../../../../platform/registry/common/platform.js";import{$9M as n}from"../../../common/editor.js";import{$Kj as l}from"../../../../platform/instantiation/common/descriptors.js";import{$sL as f,$qL as g,$wL as s}from"../../../../platform/actions/common/actions.js";import{$2N as u}from"../../../common/contributions.js";import{$aSb as y}from"../../../browser/editor.js";import{$mL as r}from"../../../../platform/keybinding/common/keybindingsRegistry.js";t.as(n.EditorPane).registerEditorPane(y.create(o,o.ID,i(15353,null)),[new l(d)]);s(I);t.as(n.EditorFactory).registerEditorSerializer(m.ID,m);u(e.ID,e,{editorTypeId:o.ID});r.registerCommandAndKeybindingRule(a);r.registerCommandAndKeybindingRule(p);r.registerCommandAndKeybindingRule($);r.registerCommandAndKeybindingRule(c);f.appendMenuItem(g.MenubarHelpMenu,{group:"1_welcome",command:{id:"workbench.action.showInteractivePlayground",title:i(15354,null)},order:3});
+import { localize } from "../../../../nls.js";
+import { WalkThroughInput } from "./walkThroughInput.js";
+import { WalkThroughPart } from "./walkThroughPart.js";
+import { WalkThroughArrowUp, WalkThroughArrowDown, WalkThroughPageUp, WalkThroughPageDown } from "./walkThroughActions.js";
+import { WalkThroughSnippetContentProvider } from "../common/walkThroughContentProvider.js";
+import { EditorWalkThroughAction, EditorWalkThroughInputSerializer } from "./editor/editorWalkThrough.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { MenuRegistry, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(WalkThroughPart, WalkThroughPart.ID, localize("walkThrough.editor.label", "Playground")), [new SyncDescriptor(WalkThroughInput)]);
+registerAction2(EditorWalkThroughAction);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(EditorWalkThroughInputSerializer.ID, EditorWalkThroughInputSerializer);
+registerWorkbenchContribution2(WalkThroughSnippetContentProvider.ID, WalkThroughSnippetContentProvider, { editorTypeId: WalkThroughPart.ID });
+KeybindingsRegistry.registerCommandAndKeybindingRule(WalkThroughArrowUp);
+KeybindingsRegistry.registerCommandAndKeybindingRule(WalkThroughArrowDown);
+KeybindingsRegistry.registerCommandAndKeybindingRule(WalkThroughPageUp);
+KeybindingsRegistry.registerCommandAndKeybindingRule(WalkThroughPageDown);
+MenuRegistry.appendMenuItem(MenuId.MenubarHelpMenu, {
+  group: "1_welcome",
+  command: {
+    id: "workbench.action.showInteractivePlayground",
+    title: localize({ key: "miPlayground", comment: ["&& denotes a mnemonic"] }, "Editor Playgrou&&nd")
+  },
+  order: 3
+});
+//# sourceMappingURL=walkThrough.contribution.js.map

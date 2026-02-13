@@ -1,2 +1,135 @@
-import{$Ed as l}from"../../../../base/common/lifecycle.js";import{localize as a}from"../../../../nls.js";import{$wL as i}from"../../../../platform/actions/common/actions.js";import{$vo as b}from"../../../../platform/commands/common/commands.js";import{$Kj as $}from"../../../../platform/instantiation/common/descriptors.js";import{$jm as g}from"../../../../platform/registry/common/platform.js";import{$2N as p}from"../../../common/contributions.js";import{$$Ic as D}from"./actions/signOutOfAccountAction.js";import{$dcb as x}from"../../../services/environment/browser/environmentService.js";import{Extensions as v}from"../../../services/extensionManagement/common/extensionFeatures.js";import{$_Ic as E}from"./actions/manageTrustedExtensionsForAccountAction.js";import{$aJc as _}from"./actions/manageAccountPreferencesForExtensionAction.js";import{$YLb as w}from"../../../services/authentication/browser/authenticationUsageService.js";import{$bJc as C}from"./actions/manageAccountPreferencesForMcpServerAction.js";import{$cJc as j}from"./actions/manageTrustedMcpServersForAccountAction.js";import{$dJc as y}from"./actions/manageDynamicAuthenticationProvidersAction.js";import{$eJc as I}from"./actions/manageAccountsAction.js";var f=function(n,t,o,r){var s=arguments.length,e=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,o):r,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,o,r);else for(var h=n.length-1;h>=0;h--)(c=n[h])&&(e=(s<3?c(e):s>3?c(t,o,e):c(t,o))||e);return s>3&&e&&Object.defineProperty(t,o,e),e},d=function(n,t){return function(o,r){t(o,r,n)}};const R=b.registerCommand("workbench.getCodeExchangeProxyEndpoints",function(n,t){return n.get(x).options?.codeExchangeProxyEndpoints});class J extends l{constructor(){super(...arguments),this.type="table"}shouldRender(t){return!!t.contributes?.authentication}render(t){const o=t.contributes?.authentication||[];if(!o.length)return{data:{headers:[],rows:[]},dispose:()=>{}};const r=[a(4963,null),a(4964,null),a(4965,null)],s=o.sort((e,c)=>e.label.localeCompare(c.label)).map(e=>[e.label,e.id,(e.authorizationServerGlobs??[]).join(`,
-`)]);return{data:{headers:r,rows:s},dispose:()=>{}}}}const P=g.as(v.ExtensionFeaturesRegistry).registerExtensionFeature({id:"authentication",label:a(4966,null),access:{canToggle:!1},renderer:new $(J)});class u extends l{static{this.ID="workbench.contrib.authentication"}constructor(){super(),this.D(R),this.D(P),this.c()}c(){this.D(i(I)),this.D(i(D)),this.D(i(E)),this.D(i(_)),this.D(i(j)),this.D(i(C)),this.D(i(y))}}let m=class{static{this.ID="workbench.contrib.authenticationUsage"}constructor(t){this.c=t,this.d()}async d(){await this.c.initializeExtensionUsageCache()}};m=f([d(0,w)],m);p(u.ID,u,3);p(m.ID,m,4);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { SignOutOfAccountAction } from "./actions/signOutOfAccountAction.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { Extensions } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { ManageTrustedExtensionsForAccountAction } from "./actions/manageTrustedExtensionsForAccountAction.js";
+import { ManageAccountPreferencesForExtensionAction } from "./actions/manageAccountPreferencesForExtensionAction.js";
+import { IAuthenticationUsageService } from "../../../services/authentication/browser/authenticationUsageService.js";
+import { ManageAccountPreferencesForMcpServerAction } from "./actions/manageAccountPreferencesForMcpServerAction.js";
+import { ManageTrustedMcpServersForAccountAction } from "./actions/manageTrustedMcpServersForAccountAction.js";
+import { RemoveDynamicAuthenticationProvidersAction } from "./actions/manageDynamicAuthenticationProvidersAction.js";
+import { ManageAccountsAction } from "./actions/manageAccountsAction.js";
+const codeExchangeProxyCommand = CommandsRegistry.registerCommand("workbench.getCodeExchangeProxyEndpoints", function(accessor, _) {
+  const environmentService = accessor.get(IBrowserWorkbenchEnvironmentService);
+  return environmentService.options?.codeExchangeProxyEndpoints;
+});
+class AuthenticationDataRenderer extends Disposable {
+  static {
+    __name(this, "AuthenticationDataRenderer");
+  }
+  constructor() {
+    super(...arguments);
+    this.type = "table";
+  }
+  shouldRender(manifest) {
+    return !!manifest.contributes?.authentication;
+  }
+  render(manifest) {
+    const authentication = manifest.contributes?.authentication || [];
+    if (!authentication.length) {
+      return { data: { headers: [], rows: [] }, dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose") };
+    }
+    const headers = [
+      localize("authenticationlabel", "Label"),
+      localize("authenticationid", "ID"),
+      localize("authenticationMcpAuthorizationServers", "MCP Authorization Servers")
+    ];
+    const rows = authentication.sort((a, b) => a.label.localeCompare(b.label)).map((auth) => {
+      return [
+        auth.label,
+        auth.id,
+        (auth.authorizationServerGlobs ?? []).join(",\n")
+      ];
+    });
+    return {
+      data: {
+        headers,
+        rows
+      },
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose")
+    };
+  }
+}
+const extensionFeature = Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: "authentication",
+  label: localize("authentication", "Authentication"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(AuthenticationDataRenderer)
+});
+class AuthenticationContribution extends Disposable {
+  static {
+    __name(this, "AuthenticationContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.authentication";
+  }
+  constructor() {
+    super();
+    this._register(codeExchangeProxyCommand);
+    this._register(extensionFeature);
+    this._registerActions();
+  }
+  _registerActions() {
+    this._register(registerAction2(ManageAccountsAction));
+    this._register(registerAction2(SignOutOfAccountAction));
+    this._register(registerAction2(ManageTrustedExtensionsForAccountAction));
+    this._register(registerAction2(ManageAccountPreferencesForExtensionAction));
+    this._register(registerAction2(ManageTrustedMcpServersForAccountAction));
+    this._register(registerAction2(ManageAccountPreferencesForMcpServerAction));
+    this._register(registerAction2(RemoveDynamicAuthenticationProvidersAction));
+  }
+}
+let AuthenticationUsageContribution = class AuthenticationUsageContribution2 {
+  static {
+    __name(this, "AuthenticationUsageContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.authenticationUsage";
+  }
+  constructor(_authenticationUsageService) {
+    this._authenticationUsageService = _authenticationUsageService;
+    this._initializeExtensionUsageCache();
+  }
+  async _initializeExtensionUsageCache() {
+    await this._authenticationUsageService.initializeExtensionUsageCache();
+  }
+};
+AuthenticationUsageContribution = __decorate([
+  __param(0, IAuthenticationUsageService)
+], AuthenticationUsageContribution);
+registerWorkbenchContribution2(
+  AuthenticationContribution.ID,
+  AuthenticationContribution,
+  3
+  /* WorkbenchPhase.AfterRestored */
+);
+registerWorkbenchContribution2(
+  AuthenticationUsageContribution.ID,
+  AuthenticationUsageContribution,
+  4
+  /* WorkbenchPhase.Eventually */
+);
+//# sourceMappingURL=authentication.contribution.js.map

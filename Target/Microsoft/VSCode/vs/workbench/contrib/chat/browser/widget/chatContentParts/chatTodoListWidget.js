@@ -1,1 +1,344 @@
-import*as l from"../../../../../../base/browser/dom.js";import{$b_ as b}from"../../../../../../base/browser/ui/button/button.js";import{$L_ as w}from"../../../../../../base/browser/ui/iconLabel/iconLabel.js";import{$bk as v}from"../../../../../../base/common/codicons.js";import{$Ed as x,$Dd as I}from"../../../../../../base/common/lifecycle.js";import{$Bh as A}from"../../../../../../base/common/resources.js";import{localize as n}from"../../../../../../nls.js";import{$ro as L}from"../../../../../../platform/contextkey/common/contextkey.js";import{$Mj as D}from"../../../../../../platform/instantiation/common/instantiation.js";import{$9rb as P}from"../../../../../../platform/list/browser/listService.js";import{ChatContextKeys as y}from"../../../common/actions/chatContextKeys.js";import{$iPb as S}from"../../../common/tools/chatTodoListService.js";var $=function(u,t,s,e){var o=arguments.length,i=o<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,s):e,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(u,t,s,e);else for(var d=u.length-1;d>=0;d--)(r=u[d])&&(i=(o<3?r(i):o>3?r(t,s,i):r(t,s))||i);return o>3&&i&&Object.defineProperty(t,s,i),i},g=function(u,t){return function(s,e){t(s,e,u)}};class _{getHeight(t){return 22}getTemplateId(t){return f.TEMPLATE_ID}}class f{constructor(){this.templateId=f.TEMPLATE_ID}static{this.TEMPLATE_ID="todoListRenderer"}renderTemplate(t){const s=new I,e=l.$y9(t,l.$("li.todo-item"));e.setAttribute("role","listitem");const o=l.$y9(e,l.$(".todo-status-icon.codicon"));o.setAttribute("aria-hidden","true");const i=l.$y9(e,l.$(".todo-content")),r=s.add(new w(i,{supportIcons:!1}));return{templateDisposables:s,todoElement:e,statusIcon:o,iconLabel:r}}renderElement(t,s,e){const{todoElement:o,statusIcon:i,iconLabel:r}=e;i.className=`todo-status-icon codicon ${this.b(t.status)}`,i.style.color=this.c(t.status),r.setLabel(t.title);const d=this.a(t.status),a=n(6545,null,t.title,d);o.setAttribute("aria-label",a)}disposeTemplate(t){t.templateDisposables.dispose()}a(t){switch(t){case"completed":return n(6546,null);case"in-progress":return n(6547,null);default:return n(6548,null)}}b(t){switch(t){case"completed":return"codicon-pass";case"in-progress":return"codicon-record";default:return"codicon-circle-outline"}}c(t){switch(t){case"completed":return"var(--vscode-charts-green)";case"in-progress":return"var(--vscode-charts-blue)";default:return"var(--vscode-foreground)"}}}let T=class extends x{constructor(t,s,e){super(),this.r=t,this.s=s,this.t=e,this.a=!1,this.b=!1,this.domNode=this.w(),this.D(this.t.onDidChangeContext(o=>{o.affectsSome(new Set([y.requestInProgress.key]))&&this.H()}))}get height(){return this.domNode.style.display==="none"?0:this.domNode.offsetHeight}u(){this.domNode.style.display="none"}w(){const t=l.$(".chat-todo-list-widget");t.style.display="none";const s=l.$(".todo-list-expand");this.c=this.D(new b(s,{supportIcons:!0})),this.c.element.setAttribute("aria-expanded",String(this.a)),this.c.element.setAttribute("aria-controls","todo-list-container");const e=l.$(".todo-list-title-section");return this.f=l.$(".expand-icon.codicon"),this.f.classList.add(this.a?"codicon-chevron-down":"codicon-chevron-right"),this.f.setAttribute("aria-hidden","true"),this.g=l.$(".todo-list-title"),this.g.id="todo-list-title",this.g.textContent=n(6549,null),this.j=l.$(".todo-clear-button-container"),this.y(),e.appendChild(this.f),e.appendChild(this.g),this.c.element.appendChild(e),this.c.element.appendChild(this.j),this.h=l.$(".todo-list-container"),this.h.style.display=this.a?"block":"none",this.h.id="todo-list-container",this.h.setAttribute("role","list"),this.h.setAttribute("aria-labelledby","todo-list-title"),t.appendChild(s),t.appendChild(this.h),this.D(this.c.onDidClick(()=>{this.F()})),t}y(){this.m=new b(this.j,{supportIcons:!0,ariaLabel:n(6550,null)}),this.m.element.tabIndex=0,this.m.icon=v.clearAll,this.D(this.m),this.D(this.m.onDidClick(()=>{this.G()}))}render(t){if(!t){this.u();return}A(this.n,t)||(this.b=!1,this.n=t,this.u()),this.z()}clear(t,s=!1){if(!t||this.domNode.style.display==="none")return;const e=this.r.getTodos(t);(s||e.length>0&&!e.some(i=>i.status!=="completed"))&&this.G()}z(){if(!this.n)return;const t=this.r.getTodos(this.n);if(!(t.length>0)){this.domNode.classList.remove("has-todos");return}this.domNode.classList.add("has-todos"),this.C(t),this.domNode.style.display="block"}C(t){this.I(this.g,t),t.every(a=>a.status==="not-started")&&(this.b=!1),this.q||(this.q=this.D(this.s.createInstance(P,"ChatTodoListRenderer",this.h,new _,[new f],{alwaysConsumeMouseWheel:!1,accessibilityProvider:{getAriaLabel:a=>{const m=this.J(a.status);return n(6551,null,a.title,m)},getWidgetAriaLabel:()=>n(6552,null)}})));const i=Math.min(t.length,6)*22;this.q.layout(i),this.q.getHTMLElement().style.height=`${i}px`,this.q.splice(0,this.q.length,t);const r=t.some(a=>a.status==="in-progress"),d=t.some(a=>a.status==="completed");this.H(),(r||d)&&this.a&&!this.b&&(this.a=!1,this.c.element.setAttribute("aria-expanded","false"),this.h.style.display="none",this.f.classList.remove("codicon-chevron-down"),this.f.classList.add("codicon-chevron-right"),this.I(this.g,t))}F(){if(this.a=!this.a,this.b=!0,this.f.classList.toggle("codicon-chevron-down",this.a),this.f.classList.toggle("codicon-chevron-right",!this.a),this.h.style.display=this.a?"block":"none",this.n){const t=this.r.getTodos(this.n);this.I(this.g,t)}}G(){this.n&&(this.r.setTodos(this.n,[]),this.u())}H(){if(!this.n)return;const s=this.r.getTodos(this.n).some(i=>i.status==="in-progress"),o=(y.requestInProgress.getValue(this.t)??!1)&&s;this.m.enabled=!o,o?this.m.setTitle(n(6553,null)):this.m.setTitle(n(6554,null))}I(t,s){t.textContent="";const e=s.filter(h=>h.status==="completed").length,o=s.length,i=s.filter(h=>h.status==="in-progress"),r=i.length>0?i[0]:void 0,d=s.filter(h=>h.status==="not-started"),a=d.length>0?d[0]:void 0,m=i.length>0?e+1:Math.max(1,e),C=this.a?n(6555,null):n(6556,null);if(this.c.element.setAttribute("aria-label",C),this.c.element.setAttribute("aria-expanded",this.a?"true":"false"),this.a){const h=l.$("span");h.textContent=o>0?n(6557,null,m,o):n(6558,null),t.appendChild(h)}else{const h=r||a;if(h){const c=l.$(".codicon");h===r?(c.classList.add("codicon-record"),c.style.color="var(--vscode-charts-blue)"):(c.classList.add("codicon-circle-outline"),c.style.color="var(--vscode-foreground)"),c.style.marginRight="4px",c.style.verticalAlign="middle",t.appendChild(c);const p=l.$("span");p.textContent=n(6559,null,h.title,m,o),p.style.verticalAlign="middle",p.style.overflow="hidden",p.style.textOverflow="ellipsis",p.style.whiteSpace="nowrap",p.style.minWidth="0",t.appendChild(p)}else if(e>0&&e===o){const c=l.$("span");c.textContent=n(6560,null,o,o),c.style.verticalAlign="middle",t.appendChild(c)}}}J(t){switch(t){case"completed":return n(6561,null);case"in-progress":return n(6562,null);default:return n(6563,null)}}};T=$([g(0,S),g(1,D),g(2,L)],T);export{T as $j4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as dom from "../../../../../../base/browser/dom.js";
+import { Button } from "../../../../../../base/browser/ui/button/button.js";
+import { IconLabel } from "../../../../../../base/browser/ui/iconLabel/iconLabel.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../../base/common/lifecycle.js";
+import { isEqual } from "../../../../../../base/common/resources.js";
+import { localize } from "../../../../../../nls.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchList } from "../../../../../../platform/list/browser/listService.js";
+import { ChatContextKeys } from "../../../common/actions/chatContextKeys.js";
+import { IChatTodoListService } from "../../../common/tools/chatTodoListService.js";
+class TodoListDelegate {
+  static {
+    __name(this, "TodoListDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return TodoListRenderer.TEMPLATE_ID;
+  }
+}
+class TodoListRenderer {
+  static {
+    __name(this, "TodoListRenderer");
+  }
+  constructor() {
+    this.templateId = TodoListRenderer.TEMPLATE_ID;
+  }
+  static {
+    this.TEMPLATE_ID = "todoListRenderer";
+  }
+  renderTemplate(container) {
+    const templateDisposables = new DisposableStore();
+    const todoElement = dom.append(container, dom.$("li.todo-item"));
+    todoElement.setAttribute("role", "listitem");
+    const statusIcon = dom.append(todoElement, dom.$(".todo-status-icon.codicon"));
+    statusIcon.setAttribute("aria-hidden", "true");
+    const todoContent = dom.append(todoElement, dom.$(".todo-content"));
+    const iconLabel = templateDisposables.add(new IconLabel(todoContent, { supportIcons: false }));
+    return { templateDisposables, todoElement, statusIcon, iconLabel };
+  }
+  renderElement(todo, index, templateData) {
+    const { todoElement, statusIcon, iconLabel } = templateData;
+    statusIcon.className = `todo-status-icon codicon ${this.getStatusIconClass(todo.status)}`;
+    statusIcon.style.color = this.getStatusIconColor(todo.status);
+    iconLabel.setLabel(todo.title);
+    const statusText = this.getStatusText(todo.status);
+    const ariaLabel = localize("chat.todoList.item", "{0}, {1}", todo.title, statusText);
+    todoElement.setAttribute("aria-label", ariaLabel);
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+  getStatusText(status) {
+    switch (status) {
+      case "completed":
+        return localize("chat.todoList.status.completed", "completed");
+      case "in-progress":
+        return localize("chat.todoList.status.inProgress", "in progress");
+      case "not-started":
+      default:
+        return localize("chat.todoList.status.notStarted", "not started");
+    }
+  }
+  getStatusIconClass(status) {
+    switch (status) {
+      case "completed":
+        return "codicon-pass";
+      case "in-progress":
+        return "codicon-record";
+      case "not-started":
+      default:
+        return "codicon-circle-outline";
+    }
+  }
+  getStatusIconColor(status) {
+    switch (status) {
+      case "completed":
+        return "var(--vscode-charts-green)";
+      case "in-progress":
+        return "var(--vscode-charts-blue)";
+      case "not-started":
+      default:
+        return "var(--vscode-foreground)";
+    }
+  }
+}
+let ChatTodoListWidget = class ChatTodoListWidget2 extends Disposable {
+  static {
+    __name(this, "ChatTodoListWidget");
+  }
+  constructor(chatTodoListService, instantiationService, contextKeyService) {
+    super();
+    this.chatTodoListService = chatTodoListService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this._isExpanded = false;
+    this._userManuallyExpanded = false;
+    this.domNode = this.createChatTodoWidget();
+    this._register(this.contextKeyService.onDidChangeContext((e) => {
+      if (e.affectsSome(/* @__PURE__ */ new Set([ChatContextKeys.requestInProgress.key]))) {
+        this.updateClearButtonState();
+      }
+    }));
+  }
+  get height() {
+    return this.domNode.style.display === "none" ? 0 : this.domNode.offsetHeight;
+  }
+  hideWidget() {
+    this.domNode.style.display = "none";
+  }
+  createChatTodoWidget() {
+    const container = dom.$(".chat-todo-list-widget");
+    container.style.display = "none";
+    const expandoContainer = dom.$(".todo-list-expand");
+    this.expandoButton = this._register(new Button(expandoContainer, {
+      supportIcons: true
+    }));
+    this.expandoButton.element.setAttribute("aria-expanded", String(this._isExpanded));
+    this.expandoButton.element.setAttribute("aria-controls", "todo-list-container");
+    const titleSection = dom.$(".todo-list-title-section");
+    this.expandIcon = dom.$(".expand-icon.codicon");
+    this.expandIcon.classList.add(this._isExpanded ? "codicon-chevron-down" : "codicon-chevron-right");
+    this.expandIcon.setAttribute("aria-hidden", "true");
+    this.titleElement = dom.$(".todo-list-title");
+    this.titleElement.id = "todo-list-title";
+    this.titleElement.textContent = localize("chat.todoList.title", "Todos");
+    this.clearButtonContainer = dom.$(".todo-clear-button-container");
+    this.createClearButton();
+    titleSection.appendChild(this.expandIcon);
+    titleSection.appendChild(this.titleElement);
+    this.expandoButton.element.appendChild(titleSection);
+    this.expandoButton.element.appendChild(this.clearButtonContainer);
+    this.todoListContainer = dom.$(".todo-list-container");
+    this.todoListContainer.style.display = this._isExpanded ? "block" : "none";
+    this.todoListContainer.id = "todo-list-container";
+    this.todoListContainer.setAttribute("role", "list");
+    this.todoListContainer.setAttribute("aria-labelledby", "todo-list-title");
+    container.appendChild(expandoContainer);
+    container.appendChild(this.todoListContainer);
+    this._register(this.expandoButton.onDidClick(() => {
+      this.toggleExpanded();
+    }));
+    return container;
+  }
+  createClearButton() {
+    this.clearButton = new Button(this.clearButtonContainer, {
+      supportIcons: true,
+      ariaLabel: localize("chat.todoList.clearButton", "Clear all todos")
+    });
+    this.clearButton.element.tabIndex = 0;
+    this.clearButton.icon = Codicon.clearAll;
+    this._register(this.clearButton);
+    this._register(this.clearButton.onDidClick(() => {
+      this.clearAllTodos();
+    }));
+  }
+  render(sessionResource) {
+    if (!sessionResource) {
+      this.hideWidget();
+      return;
+    }
+    if (!isEqual(this._currentSessionResource, sessionResource)) {
+      this._userManuallyExpanded = false;
+      this._currentSessionResource = sessionResource;
+      this.hideWidget();
+    }
+    this.updateTodoDisplay();
+  }
+  clear(sessionResource, force = false) {
+    if (!sessionResource || this.domNode.style.display === "none") {
+      return;
+    }
+    const currentTodos = this.chatTodoListService.getTodos(sessionResource);
+    const shouldClear = force || currentTodos.length > 0 && !currentTodos.some((todo) => todo.status !== "completed");
+    if (shouldClear) {
+      this.clearAllTodos();
+    }
+  }
+  updateTodoDisplay() {
+    if (!this._currentSessionResource) {
+      return;
+    }
+    const todoList = this.chatTodoListService.getTodos(this._currentSessionResource);
+    const shouldShow = todoList.length > 0;
+    if (!shouldShow) {
+      this.domNode.classList.remove("has-todos");
+      return;
+    }
+    this.domNode.classList.add("has-todos");
+    this.renderTodoList(todoList);
+    this.domNode.style.display = "block";
+  }
+  renderTodoList(todoList) {
+    this.updateTitleElement(this.titleElement, todoList);
+    const allIncomplete = todoList.every((todo) => todo.status === "not-started");
+    if (allIncomplete) {
+      this._userManuallyExpanded = false;
+    }
+    if (!this._todoList) {
+      this._todoList = this._register(this.instantiationService.createInstance(WorkbenchList, "ChatTodoListRenderer", this.todoListContainer, new TodoListDelegate(), [new TodoListRenderer()], {
+        alwaysConsumeMouseWheel: false,
+        accessibilityProvider: {
+          getAriaLabel: /* @__PURE__ */ __name((todo) => {
+            const statusText = this.getStatusText(todo.status);
+            return localize("chat.todoList.item", "{0}, {1}", todo.title, statusText);
+          }, "getAriaLabel"),
+          getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("chatTodoList", "Chat Todo List"), "getWidgetAriaLabel")
+        }
+      }));
+    }
+    const maxItemsShown = 6;
+    const itemsShown = Math.min(todoList.length, maxItemsShown);
+    const height = itemsShown * 22;
+    this._todoList.layout(height);
+    this._todoList.getHTMLElement().style.height = `${height}px`;
+    this._todoList.splice(0, this._todoList.length, todoList);
+    const hasInProgressTask = todoList.some((todo) => todo.status === "in-progress");
+    const hasCompletedTask = todoList.some((todo) => todo.status === "completed");
+    this.updateClearButtonState();
+    if ((hasInProgressTask || hasCompletedTask) && this._isExpanded && !this._userManuallyExpanded) {
+      this._isExpanded = false;
+      this.expandoButton.element.setAttribute("aria-expanded", "false");
+      this.todoListContainer.style.display = "none";
+      this.expandIcon.classList.remove("codicon-chevron-down");
+      this.expandIcon.classList.add("codicon-chevron-right");
+      this.updateTitleElement(this.titleElement, todoList);
+    }
+  }
+  toggleExpanded() {
+    this._isExpanded = !this._isExpanded;
+    this._userManuallyExpanded = true;
+    this.expandIcon.classList.toggle("codicon-chevron-down", this._isExpanded);
+    this.expandIcon.classList.toggle("codicon-chevron-right", !this._isExpanded);
+    this.todoListContainer.style.display = this._isExpanded ? "block" : "none";
+    if (this._currentSessionResource) {
+      const todoList = this.chatTodoListService.getTodos(this._currentSessionResource);
+      this.updateTitleElement(this.titleElement, todoList);
+    }
+  }
+  clearAllTodos() {
+    if (!this._currentSessionResource) {
+      return;
+    }
+    this.chatTodoListService.setTodos(this._currentSessionResource, []);
+    this.hideWidget();
+  }
+  updateClearButtonState() {
+    if (!this._currentSessionResource) {
+      return;
+    }
+    const todoList = this.chatTodoListService.getTodos(this._currentSessionResource);
+    const hasInProgressTask = todoList.some((todo) => todo.status === "in-progress");
+    const isRequestInProgress = ChatContextKeys.requestInProgress.getValue(this.contextKeyService) ?? false;
+    const shouldDisable = isRequestInProgress && hasInProgressTask;
+    this.clearButton.enabled = !shouldDisable;
+    if (shouldDisable) {
+      this.clearButton.setTitle(localize("chat.todoList.clearButton.disabled", "Cannot clear todos while a task is in progress"));
+    } else {
+      this.clearButton.setTitle(localize("chat.todoList.clearButton", "Clear all todos"));
+    }
+  }
+  updateTitleElement(titleElement, todoList) {
+    titleElement.textContent = "";
+    const completedCount = todoList.filter((todo) => todo.status === "completed").length;
+    const totalCount = todoList.length;
+    const inProgressTodos = todoList.filter((todo) => todo.status === "in-progress");
+    const firstInProgressTodo = inProgressTodos.length > 0 ? inProgressTodos[0] : void 0;
+    const notStartedTodos = todoList.filter((todo) => todo.status === "not-started");
+    const firstNotStartedTodo = notStartedTodos.length > 0 ? notStartedTodos[0] : void 0;
+    const currentTaskNumber = inProgressTodos.length > 0 ? completedCount + 1 : Math.max(1, completedCount);
+    const expandButtonLabel = this._isExpanded ? localize("chat.todoList.collapseButton", "Collapse Todos") : localize("chat.todoList.expandButton", "Expand Todos");
+    this.expandoButton.element.setAttribute("aria-label", expandButtonLabel);
+    this.expandoButton.element.setAttribute("aria-expanded", this._isExpanded ? "true" : "false");
+    if (this._isExpanded) {
+      const titleText = dom.$("span");
+      titleText.textContent = totalCount > 0 ? localize("chat.todoList.titleWithCount", "Todos ({0}/{1})", currentTaskNumber, totalCount) : localize("chat.todoList.title", "Todos");
+      titleElement.appendChild(titleText);
+    } else {
+      const todoToShow = firstInProgressTodo || firstNotStartedTodo;
+      if (todoToShow) {
+        const icon = dom.$(".codicon");
+        if (todoToShow === firstInProgressTodo) {
+          icon.classList.add("codicon-record");
+          icon.style.color = "var(--vscode-charts-blue)";
+        } else {
+          icon.classList.add("codicon-circle-outline");
+          icon.style.color = "var(--vscode-foreground)";
+        }
+        icon.style.marginRight = "4px";
+        icon.style.verticalAlign = "middle";
+        titleElement.appendChild(icon);
+        const todoText = dom.$("span");
+        todoText.textContent = localize("chat.todoList.currentTask", "{0} ({1}/{2})", todoToShow.title, currentTaskNumber, totalCount);
+        todoText.style.verticalAlign = "middle";
+        todoText.style.overflow = "hidden";
+        todoText.style.textOverflow = "ellipsis";
+        todoText.style.whiteSpace = "nowrap";
+        todoText.style.minWidth = "0";
+        titleElement.appendChild(todoText);
+      } else if (completedCount > 0 && completedCount === totalCount) {
+        const doneText = dom.$("span");
+        doneText.textContent = localize("chat.todoList.titleWithCount", "Todos ({0}/{1})", totalCount, totalCount);
+        doneText.style.verticalAlign = "middle";
+        titleElement.appendChild(doneText);
+      }
+    }
+  }
+  getStatusText(status) {
+    switch (status) {
+      case "completed":
+        return localize("chat.todoList.status.completed", "completed");
+      case "in-progress":
+        return localize("chat.todoList.status.inProgress", "in progress");
+      case "not-started":
+      default:
+        return localize("chat.todoList.status.notStarted", "not started");
+    }
+  }
+};
+ChatTodoListWidget = __decorate([
+  __param(0, IChatTodoListService),
+  __param(1, IInstantiationService),
+  __param(2, IContextKeyService)
+], ChatTodoListWidget);
+export {
+  ChatTodoListWidget
+};
+//# sourceMappingURL=chatTodoListWidget.js.map

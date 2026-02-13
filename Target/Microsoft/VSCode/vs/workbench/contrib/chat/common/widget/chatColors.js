@@ -1,1 +1,39 @@
-import{$Up as h,$Rp as l}from"../../../../../base/common/color.js";import{localize as t}from"../../../../../nls.js";import{$uq as n,$vq as u,$hq as e,$Jq as o,$7q as c,$Qq as i,$bq as g,$2p as r,$7p as a}from"../../../../../platform/theme/common/colorRegistry.js";const s=r("chat.requestBorder",{dark:new h(new l(255,255,255,.1)),light:new h(new l(0,0,0,.1)),hcDark:e,hcLight:e},t(7140,null)),$=r("chat.requestBackground",{dark:a(o,.62),light:a(o,.62),hcDark:i,hcLight:null},t(7141,null)),p=r("chat.slashCommandBackground",{dark:"#26477866",light:"#adceff7a",hcDark:h.white,hcLight:n},t(7142,null)),b=r("chat.slashCommandForeground",{dark:"#85b6ff",light:"#26569e",hcDark:h.black,hcLight:u},t(7143,null)),D=r("chat.avatarBackground",{dark:"#1f1f1f",light:"#f2f2f2",hcDark:h.black,hcLight:h.white},t(7144,null)),x=r("chat.avatarForeground",g,t(7145,null)),B=r("chat.editedFileForeground",{light:"#895503",dark:"#E2C08D",hcDark:"#E2C08D",hcLight:"#895503"},t(7146,null)),m=r("chat.requestCodeBorder",{dark:"#004972B8",light:"#0e639c40",hcDark:null,hcLight:null},t(7147,null),!0),L=r("chat.requestBubbleBackground",{light:a(c,.3),dark:a(c,.3),hcDark:null,hcLight:null},t(7148,null),!0),q=r("chat.requestBubbleHoverBackground",{dark:a(c,.6),light:a(c,.6),hcDark:null,hcLight:null},t(7149,null),!0),C=r("chat.checkpointSeparator",{dark:"#585858",light:"#a9a9a9",hcDark:"#a9a9a9",hcLight:"#a5a5a5"},t(7150,null)),F=r("chat.linesAddedForeground",{dark:"#54B054",light:"#107C10",hcDark:"#54B054",hcLight:"#107C10"},t(7151,null),!0),w=r("chat.linesRemovedForeground",{dark:"#FC6A6A",light:"#BC2F32",hcDark:"#F48771",hcLight:"#B5200D"},t(7152,null),!0),v=r("chat.thinkingShimmer",{dark:"#ffffff",light:"#000000",hcDark:"#ffffff",hcLight:"#000000"},t(7153,null),!0);export{x as $11b,B as $21b,m as $31b,L as $41b,q as $51b,C as $61b,F as $71b,w as $81b,v as $91b,s as $V1b,$ as $W1b,p as $X1b,b as $Y1b,D as $Z1b};
+import { Color, RGBA } from "../../../../../base/common/color.js";
+import { localize } from "../../../../../nls.js";
+import { badgeBackground, badgeForeground, contrastBorder, editorBackground, editorSelectionBackground, editorWidgetBackground, foreground, registerColor, transparent } from "../../../../../platform/theme/common/colorRegistry.js";
+const chatRequestBorder = registerColor("chat.requestBorder", { dark: new Color(new RGBA(255, 255, 255, 0.1)), light: new Color(new RGBA(0, 0, 0, 0.1)), hcDark: contrastBorder, hcLight: contrastBorder }, localize("chat.requestBorder", "The border color of a chat request."));
+const chatRequestBackground = registerColor("chat.requestBackground", { dark: transparent(editorBackground, 0.62), light: transparent(editorBackground, 0.62), hcDark: editorWidgetBackground, hcLight: null }, localize("chat.requestBackground", "The background color of a chat request."));
+const chatSlashCommandBackground = registerColor("chat.slashCommandBackground", { dark: "#26477866", light: "#adceff7a", hcDark: Color.white, hcLight: badgeBackground }, localize("chat.slashCommandBackground", "The background color of a chat slash command."));
+const chatSlashCommandForeground = registerColor("chat.slashCommandForeground", { dark: "#85b6ff", light: "#26569e", hcDark: Color.black, hcLight: badgeForeground }, localize("chat.slashCommandForeground", "The foreground color of a chat slash command."));
+const chatAvatarBackground = registerColor("chat.avatarBackground", { dark: "#1f1f1f", light: "#f2f2f2", hcDark: Color.black, hcLight: Color.white }, localize("chat.avatarBackground", "The background color of a chat avatar."));
+const chatAvatarForeground = registerColor("chat.avatarForeground", foreground, localize("chat.avatarForeground", "The foreground color of a chat avatar."));
+const chatEditedFileForeground = registerColor("chat.editedFileForeground", {
+  light: "#895503",
+  dark: "#E2C08D",
+  hcDark: "#E2C08D",
+  hcLight: "#895503"
+}, localize("chat.editedFileForeground", "The foreground color of a chat edited file in the edited file list."));
+const chatRequestCodeBorder = registerColor("chat.requestCodeBorder", { dark: "#004972B8", light: "#0e639c40", hcDark: null, hcLight: null }, localize("chat.requestCodeBorder", "Border color of code blocks within the chat request bubble."), true);
+const chatRequestBubbleBackground = registerColor("chat.requestBubbleBackground", { light: transparent(editorSelectionBackground, 0.3), dark: transparent(editorSelectionBackground, 0.3), hcDark: null, hcLight: null }, localize("chat.requestBubbleBackground", "Background color of the chat request bubble."), true);
+const chatRequestBubbleHoverBackground = registerColor("chat.requestBubbleHoverBackground", { dark: transparent(editorSelectionBackground, 0.6), light: transparent(editorSelectionBackground, 0.6), hcDark: null, hcLight: null }, localize("chat.requestBubbleHoverBackground", "Background color of the chat request bubble on hover."), true);
+const chatCheckpointSeparator = registerColor("chat.checkpointSeparator", { dark: "#585858", light: "#a9a9a9", hcDark: "#a9a9a9", hcLight: "#a5a5a5" }, localize("chatCheckpointSeparator", "Chat checkpoint separator color."));
+const chatLinesAddedForeground = registerColor("chat.linesAddedForeground", { dark: "#54B054", light: "#107C10", hcDark: "#54B054", hcLight: "#107C10" }, localize("chat.linesAddedForeground", "Foreground color of lines added in chat code block pill."), true);
+const chatLinesRemovedForeground = registerColor("chat.linesRemovedForeground", { dark: "#FC6A6A", light: "#BC2F32", hcDark: "#F48771", hcLight: "#B5200D" }, localize("chat.linesRemovedForeground", "Foreground color of lines removed in chat code block pill."), true);
+const chatThinkingShimmer = registerColor("chat.thinkingShimmer", { dark: "#ffffff", light: "#000000", hcDark: "#ffffff", hcLight: "#000000" }, localize("chat.thinkingShimmer", "Shimmer highlight for thinking/working labels."), true);
+export {
+  chatAvatarBackground,
+  chatAvatarForeground,
+  chatCheckpointSeparator,
+  chatEditedFileForeground,
+  chatLinesAddedForeground,
+  chatLinesRemovedForeground,
+  chatRequestBackground,
+  chatRequestBorder,
+  chatRequestBubbleBackground,
+  chatRequestBubbleHoverBackground,
+  chatRequestCodeBorder,
+  chatSlashCommandBackground,
+  chatSlashCommandForeground,
+  chatThinkingShimmer
+};
+//# sourceMappingURL=chatColors.js.map

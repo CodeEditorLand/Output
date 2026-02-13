@@ -1,2 +1,138 @@
-import{$Nj as p}from"../../../../platform/instantiation/common/instantiation.js";import{$Cd as S}from"../../../../base/common/lifecycle.js";import{$yo as d}from"../../../../platform/log/common/log.js";import{CancellationToken as O}from"../../../../base/common/cancellation.js";import{$rf as x}from"../../../../base/common/stopwatch.js";import{$j1 as b,$i1 as C}from"../../../services/output/common/output.js";import{$jm as E}from"../../../../platform/registry/common/platform.js";import{localize as j}from"../../../../nls.js";var g=function(i,t,n,r){var e=arguments.length,s=e<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,n):r,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(i,t,n,r);else for(var c=i.length-1;c>=0;c--)(o=i[c])&&(s=(e<3?o(s):e>3?o(t,n,s):o(t,n))||s);return e>3&&s&&Object.defineProperty(t,n,s),s},a=function(i,t){return function(n,r){t(n,r,i)}};const f="hooksExecution",w=j(6875,null);var l;(function(i){i[i.Success=1]="Success",i[i.Error=2]="Error"})(l||(l={}));const D=p("hooksExecutionService");let m=class{constructor(t,n){this.e=t,this.f=n,this.b=new Map,this.c=!1,this.d=0}setProxy(t){this.a=t}g(){this.c||(E.as(b.OutputChannels).registerChannel({id:f,label:w,log:!1}),this.c=!0)}h(t,n,r){this.g();const e=this.f.getChannel(f);e&&e.append(`[${new Date().toISOString()}] [#${t}] [${n}] ${r}
-`)}async i(t,n,r,e,s){const o=JSON.stringify({...r,cwd:r.cwd?.fsPath});this.h(t,n,`Running: ${o}`),e!==void 0&&this.h(t,n,`Input: ${JSON.stringify(e)}`);const c=x.create();try{const h=await this.a.runHookCommand(r,e,s);return this.j(t,n,h,c.elapsed()),h}catch(h){const u=h instanceof Error?h.message:String(h);return this.h(t,n,`Error in ${c.elapsed()}ms: ${u}`),{kind:2,result:u}}}j(t,n,r,e){const s=r.kind===1?"Success":"Error",o=typeof r.result=="string"?r.result:JSON.stringify(r.result);o.length>0&&o!=="{}"&&o!=="[]"?(this.h(t,n,`Completed (${s}) in ${e}ms`),this.h(t,n,`Output: ${o}`)):this.h(t,n,`Completed (${s}) in ${e}ms, no output`)}registerHooks(t,n){const r=t.toString();return this.b.set(r,n),S(()=>{this.b.delete(r)})}getHooksForSession(t){return this.b.get(t.toString())}async executeHook(t,n,r){if(!this.a)return[];const e=this.getHooksForSession(n);if(!e)return[];const s=e[t];if(!s||s.length===0)return[];const o=this.d++,c=r?.token??O.None;this.e.debug(`[HooksExecutionService] Executing ${s.length} hook(s) for type '${t}'`),this.h(o,t,`Executing ${s.length} hook(s)`);const h=[];for(const u of s){const $=await this.i(o,t,u,r?.input,c);h.push($)}return h}};m=g([a(0,d),a(1,C)],m);export{f as $S1,D as $T1,m as $U1,l as HookResultKind};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { toDisposable } from "../../../../base/common/lifecycle.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
+import { Extensions, IOutputService } from "../../../services/output/common/output.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { localize } from "../../../../nls.js";
+const hooksOutputChannelId = "hooksExecution";
+const hooksOutputChannelLabel = localize("hooksExecutionChannel", "Hooks");
+var HookResultKind;
+(function(HookResultKind2) {
+  HookResultKind2[HookResultKind2["Success"] = 1] = "Success";
+  HookResultKind2[HookResultKind2["Error"] = 2] = "Error";
+})(HookResultKind || (HookResultKind = {}));
+const IHooksExecutionService = createDecorator("hooksExecutionService");
+let HooksExecutionService = class HooksExecutionService2 {
+  static {
+    __name(this, "HooksExecutionService");
+  }
+  constructor(_logService, _outputService) {
+    this._logService = _logService;
+    this._outputService = _outputService;
+    this._sessionHooks = /* @__PURE__ */ new Map();
+    this._channelRegistered = false;
+    this._requestCounter = 0;
+  }
+  setProxy(proxy) {
+    this._proxy = proxy;
+  }
+  _ensureOutputChannel() {
+    if (this._channelRegistered) {
+      return;
+    }
+    Registry.as(Extensions.OutputChannels).registerChannel({
+      id: hooksOutputChannelId,
+      label: hooksOutputChannelLabel,
+      log: false
+    });
+    this._channelRegistered = true;
+  }
+  _log(requestId, hookType, message) {
+    this._ensureOutputChannel();
+    const channel = this._outputService.getChannel(hooksOutputChannelId);
+    if (channel) {
+      channel.append(`[${(/* @__PURE__ */ new Date()).toISOString()}] [#${requestId}] [${hookType}] ${message}
+`);
+    }
+  }
+  async _runSingleHook(requestId, hookType, hookCommand, input, token) {
+    const hookCommandJson = JSON.stringify({
+      ...hookCommand,
+      cwd: hookCommand.cwd?.fsPath
+    });
+    this._log(requestId, hookType, `Running: ${hookCommandJson}`);
+    if (input !== void 0) {
+      this._log(requestId, hookType, `Input: ${JSON.stringify(input)}`);
+    }
+    const sw = StopWatch.create();
+    try {
+      const result = await this._proxy.runHookCommand(hookCommand, input, token);
+      this._logResult(requestId, hookType, result, sw.elapsed());
+      return result;
+    } catch (err) {
+      const errMessage = err instanceof Error ? err.message : String(err);
+      this._log(requestId, hookType, `Error in ${sw.elapsed()}ms: ${errMessage}`);
+      return { kind: 2, result: errMessage };
+    }
+  }
+  _logResult(requestId, hookType, result, elapsed) {
+    const resultKindStr = result.kind === 1 ? "Success" : "Error";
+    const resultStr = typeof result.result === "string" ? result.result : JSON.stringify(result.result);
+    const hasOutput = resultStr.length > 0 && resultStr !== "{}" && resultStr !== "[]";
+    if (hasOutput) {
+      this._log(requestId, hookType, `Completed (${resultKindStr}) in ${elapsed}ms`);
+      this._log(requestId, hookType, `Output: ${resultStr}`);
+    } else {
+      this._log(requestId, hookType, `Completed (${resultKindStr}) in ${elapsed}ms, no output`);
+    }
+  }
+  registerHooks(sessionResource, hooks) {
+    const key = sessionResource.toString();
+    this._sessionHooks.set(key, hooks);
+    return toDisposable(() => {
+      this._sessionHooks.delete(key);
+    });
+  }
+  getHooksForSession(sessionResource) {
+    return this._sessionHooks.get(sessionResource.toString());
+  }
+  async executeHook(hookType, sessionResource, options) {
+    if (!this._proxy) {
+      return [];
+    }
+    const hooks = this.getHooksForSession(sessionResource);
+    if (!hooks) {
+      return [];
+    }
+    const hookCommands = hooks[hookType];
+    if (!hookCommands || hookCommands.length === 0) {
+      return [];
+    }
+    const requestId = this._requestCounter++;
+    const token = options?.token ?? CancellationToken.None;
+    this._logService.debug(`[HooksExecutionService] Executing ${hookCommands.length} hook(s) for type '${hookType}'`);
+    this._log(requestId, hookType, `Executing ${hookCommands.length} hook(s)`);
+    const results = [];
+    for (const hookCommand of hookCommands) {
+      const result = await this._runSingleHook(requestId, hookType, hookCommand, options?.input, token);
+      results.push(result);
+    }
+    return results;
+  }
+};
+HooksExecutionService = __decorate([
+  __param(0, ILogService),
+  __param(1, IOutputService)
+], HooksExecutionService);
+export {
+  HookResultKind,
+  HooksExecutionService,
+  IHooksExecutionService,
+  hooksOutputChannelId
+};
+//# sourceMappingURL=hooksExecutionService.js.map

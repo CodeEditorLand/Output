@@ -1,6 +1,198 @@
-import{$S0 as b}from"../../../../../base/browser/domStylesheets.js";import{$Jab as S}from"../../../../../base/common/hotReloadHelpers.js";import{$Ed as I}from"../../../../../base/common/lifecycle.js";import{derived as a,mapObservableArrayCached as w,derivedDisposable as v,derivedObservableWithCache as y,constObservable as f,observableValue as $}from"../../../../../base/common/observable.js";import{$Mj as C}from"../../../../../platform/instantiation/common/instantiation.js";import{$Xib as O}from"../../../../browser/observableCodeEditor.js";import{$jE as E}from"../../../../common/core/ranges/lineRange.js";import{$Utb as x}from"../hintsWidget/inlineCompletionsHintsWidget.js";import{$Znb as A}from"../utils.js";import{$Mqb as T,$Lqb as _}from"./ghostText/ghostTextView.js";import{$jtb as j,$gtb as F,$htb as M,$itb as R}from"./inlineEdits/components/gutterIndicatorView.js";import{$ntb as H}from"./inlineEdits/inlineEditsNewUsers.js";import{InlineCompletionViewKind as D,InlineEditTabAction as l}from"./inlineEdits/inlineEditsViewInterface.js";import{$Mtb as V}from"./inlineEdits/inlineEditsViewProducer.js";var m=function(h,n,e,s){var o=arguments.length,t=o<3?n:s===null?s=Object.getOwnPropertyDescriptor(n,e):s,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(h,n,e,s);else for(var r=h.length-1;r>=0;r--)(i=h[r])&&(t=(o<3?i(t):o>3?i(n,e,t):i(n,e))||t);return o>3&&t&&Object.defineProperty(n,e,t),t},p=function(h,n){return function(e,s){n(e,s,h)}};let g=class extends I{static{this.hot=S(this)}constructor(n,e,s,o){super(),this.r=n,this.t=e,this.u=s,this.y=o,this.a=a(this,t=>this.t.read(t)?.ghostTexts.read(t)??[]),this.g=a(this,t=>this.t.read(t)?.inlineEditState.read(t)?.inlineSuggestion),this.h=y(this,(t,i)=>i||!!this.g.read(t)||!!this.t.read(t)?.inlineCompletionState.read(t)?.inlineSuggestion?.showInlineEditMenu),this.j=$(this,void 0),this.m=a(this,t=>(this.t.read(t)?.showCollapsed.read(t)??!1)&&!this.j.read(t)?.read(t)),this.n=v(t=>{if(this.h.read(t))return this.y.createInstance(V,this.r,this.t,this.m)}),this.C=a(t=>{const i=this.t.read(t);if(!i)return;const r=i.state.read(t);if(r?.kind==="ghostText"&&r.inlineSuggestion?.showInlineEditMenu)return{displayRange:E.ofLength(r.primaryGhostText.lineNumber,1),tabAction:a(this,d=>this.c.isFocused.read(d)?l.Accept:l.Inactive),gutterIndicatorOffset:f(L(r.inlineSuggestion,this.r)),inlineSuggestion:r.inlineSuggestion,model:i};if(r?.kind==="inlineEdit"){const d=this.n.read(t)?.view;if(!d)return;const c=d.displayRange.read(t);return c?{displayRange:c,tabAction:a(u=>{if(this.c.isFocused.read(u)){if(i.tabShouldJumpToInlineEdit.read(u))return l.Jump;if(i.tabShouldAcceptInlineEdit.read(u))return l.Accept}return l.Inactive}),gutterIndicatorOffset:d.gutterIndicatorOffset,inlineSuggestion:r.inlineSuggestion,model:i}:void 0}else return}),this.b=A(this.a,this.B),this.c=O(this.r),this.f=w(this,this.b,(t,i)=>i.add(this.z(t))).recomputeInitiallyAndOnChange(this.B),this.n.recomputeInitiallyAndOnChange(this.B),this.q=this.c.getOption(71).map(t=>t.fontFamily),this.D(b(a(t=>`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { createStyleSheetFromObservable } from "../../../../../base/browser/domStylesheets.js";
+import { createHotClass } from "../../../../../base/common/hotReloadHelpers.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { derived, mapObservableArrayCached, derivedDisposable, derivedObservableWithCache, constObservable, observableValue } from "../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { observableCodeEditor } from "../../../../browser/observableCodeEditor.js";
+import { LineRange } from "../../../../common/core/ranges/lineRange.js";
+import { InlineCompletionsHintsWidget } from "../hintsWidget/inlineCompletionsHintsWidget.js";
+import { convertItemsToStableObservables } from "../utils.js";
+import { GhostTextView, GhostTextWidgetWarning } from "./ghostText/ghostTextView.js";
+import { InlineEditsGutterIndicator, InlineEditsGutterIndicatorData, InlineSuggestionGutterMenuData, SimpleInlineSuggestModel } from "./inlineEdits/components/gutterIndicatorView.js";
+import { InlineEditsOnboardingExperience } from "./inlineEdits/inlineEditsNewUsers.js";
+import { InlineCompletionViewKind, InlineEditTabAction } from "./inlineEdits/inlineEditsViewInterface.js";
+import { InlineEditsViewAndDiffProducer } from "./inlineEdits/inlineEditsViewProducer.js";
+let InlineSuggestionsView = class InlineSuggestionsView2 extends Disposable {
+  static {
+    __name(this, "InlineSuggestionsView");
+  }
+  static {
+    this.hot = createHotClass(this);
+  }
+  constructor(_editor, _model, _focusIsInMenu, _instantiationService) {
+    super();
+    this._editor = _editor;
+    this._model = _model;
+    this._focusIsInMenu = _focusIsInMenu;
+    this._instantiationService = _instantiationService;
+    this._ghostTexts = derived(this, (reader) => {
+      const model = this._model.read(reader);
+      return model?.ghostTexts.read(reader) ?? [];
+    });
+    this._inlineEdit = derived(this, (reader) => this._model.read(reader)?.inlineEditState.read(reader)?.inlineSuggestion);
+    this._everHadInlineEdit = derivedObservableWithCache(this, (reader, last) => last || !!this._inlineEdit.read(reader) || !!this._model.read(reader)?.inlineCompletionState.read(reader)?.inlineSuggestion?.showInlineEditMenu);
+    this._indicatorIsHoverVisible = observableValue(this, void 0);
+    this._showInlineEditCollapsed = derived(this, (reader) => {
+      const s = this._model.read(reader)?.showCollapsed.read(reader) ?? false;
+      return s && !this._indicatorIsHoverVisible.read(reader)?.read(reader);
+    });
+    this._inlineEditWidget = derivedDisposable((reader) => {
+      if (!this._everHadInlineEdit.read(reader)) {
+        return void 0;
+      }
+      return this._instantiationService.createInstance(InlineEditsViewAndDiffProducer, this._editor, this._model, this._showInlineEditCollapsed);
+    });
+    this._gutterIndicatorState = derived((reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return void 0;
+      }
+      const state = model.state.read(reader);
+      if (state?.kind === "ghostText" && state.inlineSuggestion?.showInlineEditMenu) {
+        return {
+          displayRange: LineRange.ofLength(state.primaryGhostText.lineNumber, 1),
+          tabAction: derived(this, (reader2) => this._editorObs.isFocused.read(reader2) ? InlineEditTabAction.Accept : InlineEditTabAction.Inactive),
+          gutterIndicatorOffset: constObservable(getGhostTextTopOffset(state.inlineSuggestion, this._editor)),
+          inlineSuggestion: state.inlineSuggestion,
+          model
+        };
+      } else if (state?.kind === "inlineEdit") {
+        const inlineEditWidget = this._inlineEditWidget.read(reader)?.view;
+        if (!inlineEditWidget) {
+          return void 0;
+        }
+        const displayRange = inlineEditWidget.displayRange.read(reader);
+        if (!displayRange) {
+          return void 0;
+        }
+        return {
+          displayRange,
+          tabAction: derived((reader2) => {
+            if (this._editorObs.isFocused.read(reader2)) {
+              if (model.tabShouldJumpToInlineEdit.read(reader2)) {
+                return InlineEditTabAction.Jump;
+              }
+              if (model.tabShouldAcceptInlineEdit.read(reader2)) {
+                return InlineEditTabAction.Accept;
+              }
+            }
+            return InlineEditTabAction.Inactive;
+          }),
+          gutterIndicatorOffset: inlineEditWidget.gutterIndicatorOffset,
+          inlineSuggestion: state.inlineSuggestion,
+          model
+        };
+      } else {
+        return void 0;
+      }
+    });
+    this._stablizedGhostTexts = convertItemsToStableObservables(this._ghostTexts, this._store);
+    this._editorObs = observableCodeEditor(this._editor);
+    this._ghostTextWidgets = mapObservableArrayCached(this, this._stablizedGhostTexts, (ghostText, store) => store.add(this._createGhostText(ghostText))).recomputeInitiallyAndOnChange(this._store);
+    this._inlineEditWidget.recomputeInitiallyAndOnChange(this._store);
+    this._fontFamily = this._editorObs.getOption(
+      71
+      /* EditorOption.inlineSuggest */
+    ).map((val) => val.fontFamily);
+    this._register(createStyleSheetFromObservable(derived((reader) => {
+      const fontFamily = this._fontFamily.read(reader);
+      return `
 .monaco-editor .ghost-text-decoration,
 .monaco-editor .ghost-text-decoration-preview,
 .monaco-editor .ghost-text {
-	font-family: ${this.q.read(t)};
-}`))),this.D(new x(this.r,this.t,this.y)),this.F=this.D(this.y.createInstance(j,this.c,a(t=>{const i=this.C.read(t);if(i)return new F(M.fromInlineSuggestion(i.inlineSuggestion),i.displayRange,R.fromInlineCompletionModel(i.model),i.inlineSuggestion.action?.kind==="edit"?i.inlineSuggestion.action.alternativeAction:void 0)}),this.C.map((t,i)=>t?.tabAction.read(i)??l.Inactive),this.C.map((t,i)=>t?.gutterIndicatorOffset.read(i)??0),this.n.map((t,i)=>t?.view.inlineEditsIsHovered.read(i)??!1),this.u)),this.j.set(this.F.isHoverVisible,void 0),a(t=>{const i=this.n.read(t);if(i)return t.store.add(this.y.createInstance(H,i._inlineEditModel,f(this.F),i.view._inlineCollapsedView))}).recomputeInitiallyAndOnChange(this.B)}z(n){return this.y.createInstance(T,this.r,a(e=>{const s=this.t.read(e),o=s?.inlineCompletionState.read(e)?.inlineSuggestion;return!s||!o?{ghostText:n.read(e),handleInlineCompletionShown:()=>{},warning:void 0}:{ghostText:n.read(e),handleInlineCompletionShown:t=>s.handleInlineSuggestionShown(o,D.GhostText,t,Date.now()),warning:_.from(s?.warning.read(e))}}),{useSyntaxHighlighting:this.c.getOption(71).map(e=>e.syntaxHighlightingEnabled),highlightShortSuggestions:!0})}shouldShowHoverAtViewZone(n){return this.f.get()[0]?.ownsViewZone(n)??!1}};g=m([p(3,C)],g);function L(h,n){const e=h.getSingleTextEdit(),s=n.getModel();if(!s)return 0;const o=s.getEOL();if(e.range.isEmpty()&&e.text.startsWith(o)){const t=n.getLineHeightForPosition(e.range.getStartPosition());return P(e.text,o)*t}return 0}function P(h,n){if(!n.length)return 0;let e=0,s=0;for(;h.startsWith(n,s);)e++,s+=n.length;return e}export{g as $Ntb};
+	font-family: ${fontFamily};
+}`;
+    })));
+    this._register(new InlineCompletionsHintsWidget(this._editor, this._model, this._instantiationService));
+    this._indicator = this._register(this._instantiationService.createInstance(InlineEditsGutterIndicator, this._editorObs, derived((reader) => {
+      const s = this._gutterIndicatorState.read(reader);
+      if (!s) {
+        return void 0;
+      }
+      return new InlineEditsGutterIndicatorData(InlineSuggestionGutterMenuData.fromInlineSuggestion(s.inlineSuggestion), s.displayRange, SimpleInlineSuggestModel.fromInlineCompletionModel(s.model), s.inlineSuggestion.action?.kind === "edit" ? s.inlineSuggestion.action.alternativeAction : void 0);
+    }), this._gutterIndicatorState.map((s, reader) => s?.tabAction.read(reader) ?? InlineEditTabAction.Inactive), this._gutterIndicatorState.map((s, reader) => s?.gutterIndicatorOffset.read(reader) ?? 0), this._inlineEditWidget.map((w, reader) => w?.view.inlineEditsIsHovered.read(reader) ?? false), this._focusIsInMenu));
+    this._indicatorIsHoverVisible.set(this._indicator.isHoverVisible, void 0);
+    derived((reader) => {
+      const w = this._inlineEditWidget.read(reader);
+      if (!w) {
+        return void 0;
+      }
+      return reader.store.add(this._instantiationService.createInstance(InlineEditsOnboardingExperience, w._inlineEditModel, constObservable(this._indicator), w.view._inlineCollapsedView));
+    }).recomputeInitiallyAndOnChange(this._store);
+  }
+  _createGhostText(ghostText) {
+    return this._instantiationService.createInstance(GhostTextView, this._editor, derived((reader) => {
+      const model = this._model.read(reader);
+      const inlineCompletion = model?.inlineCompletionState.read(reader)?.inlineSuggestion;
+      if (!model || !inlineCompletion) {
+        return {
+          ghostText: ghostText.read(reader),
+          handleInlineCompletionShown: /* @__PURE__ */ __name(() => {
+          }, "handleInlineCompletionShown"),
+          warning: void 0
+        };
+      }
+      return {
+        ghostText: ghostText.read(reader),
+        handleInlineCompletionShown: /* @__PURE__ */ __name((viewData) => model.handleInlineSuggestionShown(inlineCompletion, InlineCompletionViewKind.GhostText, viewData, Date.now()), "handleInlineCompletionShown"),
+        warning: GhostTextWidgetWarning.from(model?.warning.read(reader))
+      };
+    }), {
+      useSyntaxHighlighting: this._editorObs.getOption(
+        71
+        /* EditorOption.inlineSuggest */
+      ).map((v) => v.syntaxHighlightingEnabled),
+      highlightShortSuggestions: true
+    });
+  }
+  shouldShowHoverAtViewZone(viewZoneId) {
+    return this._ghostTextWidgets.get()[0]?.ownsViewZone(viewZoneId) ?? false;
+  }
+};
+InlineSuggestionsView = __decorate([
+  __param(3, IInstantiationService)
+], InlineSuggestionsView);
+function getGhostTextTopOffset(inlineCompletion, editor) {
+  const replacement = inlineCompletion.getSingleTextEdit();
+  const textModel = editor.getModel();
+  if (!textModel) {
+    return 0;
+  }
+  const EOL = textModel.getEOL();
+  if (replacement.range.isEmpty() && replacement.text.startsWith(EOL)) {
+    const lineHeight = editor.getLineHeightForPosition(replacement.range.getStartPosition());
+    return countPrefixRepeats(replacement.text, EOL) * lineHeight;
+  }
+  return 0;
+}
+__name(getGhostTextTopOffset, "getGhostTextTopOffset");
+function countPrefixRepeats(str, prefix) {
+  if (!prefix.length) {
+    return 0;
+  }
+  let count = 0;
+  let i = 0;
+  while (str.startsWith(prefix, i)) {
+    count++;
+    i += prefix.length;
+  }
+  return count;
+}
+__name(countPrefixRepeats, "countPrefixRepeats");
+export {
+  InlineSuggestionsView
+};
+//# sourceMappingURL=inlineSuggestionsView.js.map

@@ -1,1 +1,229 @@
-import*as m from"../../../../base/browser/dom.js";import*as v from"../../../../base/browser/domStylesheets.js";import{$u$ as S}from"../../../../base/browser/ui/list/listWidget.js";import{RenderIndentGuides as T}from"../../../../base/browser/ui/tree/abstractTree.js";import{Iterable as A}from"../../../../base/common/iterator.js";import{$Dd as E}from"../../../../base/common/lifecycle.js";import{localize as h}from"../../../../nls.js";import{$0l as _}from"../../../../platform/configuration/common/configuration.js";import{$ro as x}from"../../../../platform/contextkey/common/contextkey.js";import{$jkb as C}from"../../../../platform/hover/browser/hover.js";import{$Mj as D}from"../../../../platform/instantiation/common/instantiation.js";import{$Prb as O,$asb as j}from"../../../../platform/list/browser/listService.js";import{$1jb as B}from"../../../../platform/theme/browser/defaultStyles.js";import{$Jq as l,$gq as P}from"../../../../platform/theme/common/colorRegistry.js";import{$HP as R}from"../../../services/environment/common/environmentService.js";import{$gec as f,$hec as p}from"../common/settingsEditorColorRegistry.js";import{$_ec as k}from"./settingsTree.js";import{$Kec as a,$Mec as w}from"./settingsTreeModels.js";var y=function(i,e,n,t){var o=arguments.length,r=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(i,e,n,t);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(r=(o<3?s(r):o>3?s(e,n,r):s(e,n))||r);return o>3&&r&&Object.defineProperty(e,n,r),r},u=function(i,e){return function(n,t){e(n,t,i)}};const g=m.$;let $=class{constructor(e,n){this.d=e,this.f=n,this.a=null}get settingsTreeRoot(){return this.b}set settingsTreeRoot(e){this.b=e,this.update()}get currentSearchModel(){return this.a}set currentSearchModel(e){this.a=e,this.update()}get children(){return this.b.children}update(){this.b&&this.h(this.b)}h(e){e.children.forEach(t=>{t instanceof a&&this.h(t)});const n=e.children.filter(t=>t instanceof a).reduce((t,o)=>t+o.count,0);e.count=n+this.j(e)}j(e){return e.children.filter(n=>{if(!(n instanceof w)||this.a&&!this.a.root.containsSetting(n.setting.key))return!1;const t=!!this.f.remoteAuthority;return n.matchesScope(this.d.settingsTarget,t)&&n.matchesAllTags(this.d.tagFilters)&&n.matchesAnyFeature(this.d.featureFilters)&&n.matchesAnyExtension(this.d.extensionFilters)&&n.matchesAnyId(this.d.idFilters)}).length}};$=y([u(1,R)],$);const F="settings.toc.entry";class M{constructor(e){this.a=e,this.templateId=F}renderTemplate(e){return{labelElement:m.$y9(e,g(".settings-toc-entry")),countElement:m.$y9(e,g(".settings-toc-count")),elementDisposables:new E}}renderElement(e,n,t){t.elementDisposables.clear();const o=e.element,r=o.count,s=o.label;t.labelElement.textContent=s,t.elementDisposables.add(this.a.setupDelayedHover(t.labelElement,{content:s})),r?t.countElement.textContent=` (${r})`:t.countElement.textContent=""}disposeTemplate(e){e.elementDisposables.dispose()}}class G{getTemplateId(e){return F}getHeight(e){return 22}}function H(i,e){const n=i.children.filter(t=>t instanceof a);return A.map(n,t=>{const o=t.children.some(r=>r instanceof a);return{element:t,collapsed:void 0,collapsible:o,children:t instanceof a?H(t,e):void 0}})}class L{getWidgetAriaLabel(){return h(11700,null)}getAriaLabel(e){return e&&e instanceof a?h(11701,null,e.label):""}getAriaLevel(e){let n=1;for(;e instanceof a&&e.parent;)n++,e=e.parent;return n}}let b=class extends j{constructor(e,n,t,o,r,s,c){const I={filter:c.createInstance(k,n),multipleSelectionSupport:!1,identityProvider:{getId(d){return d.id}},styleController:d=>new S(v.$O0(e),d),accessibilityProvider:c.createInstance(L),collapseByDefault:!0,horizontalScrolling:!1,hideTwistiesOfChildlessElements:!0,renderIndentGuides:T.None};super("SettingsTOC",e,new G,[new M(s)],I,c,t,o,r),this.style(B({listBackground:l,listFocusOutline:P,listActiveSelectionBackground:l,listActiveSelectionForeground:f,listFocusAndSelectionBackground:l,listFocusAndSelectionForeground:f,listFocusBackground:l,listFocusForeground:p,listHoverForeground:p,listHoverBackground:l,listInactiveSelectionBackground:l,listInactiveSelectionForeground:f,listInactiveFocusBackground:l,listInactiveFocusOutline:l,treeIndentGuidesStroke:void 0,treeInactiveIndentGuidesStroke:void 0}))}};b=y([u(2,x),u(3,O),u(4,_),u(5,C),u(6,D)],b);export{$ as $cfc,M as $dfc,H as $efc,b as $ffc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import * as DOM from "../../../../base/browser/dom.js";
+import * as domStylesheetsJs from "../../../../base/browser/domStylesheets.js";
+import { DefaultStyleController } from "../../../../base/browser/ui/list/listWidget.js";
+import { RenderIndentGuides } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IListService, WorkbenchObjectTree } from "../../../../platform/list/browser/listService.js";
+import { getListStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { editorBackground, focusBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { settingsHeaderForeground, settingsHeaderHoverForeground } from "../common/settingsEditorColorRegistry.js";
+import { SettingsTreeFilter } from "./settingsTree.js";
+import { SettingsTreeGroupElement, SettingsTreeSettingElement } from "./settingsTreeModels.js";
+const $ = DOM.$;
+let TOCTreeModel = class TOCTreeModel2 {
+  static {
+    __name(this, "TOCTreeModel");
+  }
+  constructor(_viewState, environmentService) {
+    this._viewState = _viewState;
+    this.environmentService = environmentService;
+    this._currentSearchModel = null;
+  }
+  get settingsTreeRoot() {
+    return this._settingsTreeRoot;
+  }
+  set settingsTreeRoot(value) {
+    this._settingsTreeRoot = value;
+    this.update();
+  }
+  get currentSearchModel() {
+    return this._currentSearchModel;
+  }
+  set currentSearchModel(model) {
+    this._currentSearchModel = model;
+    this.update();
+  }
+  get children() {
+    return this._settingsTreeRoot.children;
+  }
+  update() {
+    if (this._settingsTreeRoot) {
+      this.updateGroupCount(this._settingsTreeRoot);
+    }
+  }
+  updateGroupCount(group) {
+    group.children.forEach((child) => {
+      if (child instanceof SettingsTreeGroupElement) {
+        this.updateGroupCount(child);
+      }
+    });
+    const childCount = group.children.filter((child) => child instanceof SettingsTreeGroupElement).reduce((acc, cur) => acc + cur.count, 0);
+    group.count = childCount + this.getGroupCount(group);
+  }
+  getGroupCount(group) {
+    return group.children.filter((child) => {
+      if (!(child instanceof SettingsTreeSettingElement)) {
+        return false;
+      }
+      if (this._currentSearchModel && !this._currentSearchModel.root.containsSetting(child.setting.key)) {
+        return false;
+      }
+      const isRemote = !!this.environmentService.remoteAuthority;
+      return child.matchesScope(this._viewState.settingsTarget, isRemote) && child.matchesAllTags(this._viewState.tagFilters) && child.matchesAnyFeature(this._viewState.featureFilters) && child.matchesAnyExtension(this._viewState.extensionFilters) && child.matchesAnyId(this._viewState.idFilters);
+    }).length;
+  }
+};
+TOCTreeModel = __decorate([
+  __param(1, IWorkbenchEnvironmentService)
+], TOCTreeModel);
+const TOC_ENTRY_TEMPLATE_ID = "settings.toc.entry";
+class TOCRenderer {
+  static {
+    __name(this, "TOCRenderer");
+  }
+  constructor(_hoverService) {
+    this._hoverService = _hoverService;
+    this.templateId = TOC_ENTRY_TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    return {
+      labelElement: DOM.append(container, $(".settings-toc-entry")),
+      countElement: DOM.append(container, $(".settings-toc-count")),
+      elementDisposables: new DisposableStore()
+    };
+  }
+  renderElement(node, index, template) {
+    template.elementDisposables.clear();
+    const element = node.element;
+    const count = element.count;
+    const label = element.label;
+    template.labelElement.textContent = label;
+    template.elementDisposables.add(this._hoverService.setupDelayedHover(template.labelElement, { content: label }));
+    if (count) {
+      template.countElement.textContent = ` (${count})`;
+    } else {
+      template.countElement.textContent = "";
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+  }
+}
+class TOCTreeDelegate {
+  static {
+    __name(this, "TOCTreeDelegate");
+  }
+  getTemplateId(element) {
+    return TOC_ENTRY_TEMPLATE_ID;
+  }
+  getHeight(element) {
+    return 22;
+  }
+}
+function createTOCIterator(model, tree) {
+  const groupChildren = model.children.filter((c) => c instanceof SettingsTreeGroupElement);
+  return Iterable.map(groupChildren, (g) => {
+    const hasGroupChildren = g.children.some((c) => c instanceof SettingsTreeGroupElement);
+    return {
+      element: g,
+      collapsed: void 0,
+      collapsible: hasGroupChildren,
+      children: g instanceof SettingsTreeGroupElement ? createTOCIterator(g, tree) : void 0
+    };
+  });
+}
+__name(createTOCIterator, "createTOCIterator");
+class SettingsAccessibilityProvider {
+  static {
+    __name(this, "SettingsAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return localize({
+      key: "settingsTOC",
+      comment: ["A label for the table of contents for the full settings list"]
+    }, "Settings Table of Contents");
+  }
+  getAriaLabel(element) {
+    if (!element) {
+      return "";
+    }
+    if (element instanceof SettingsTreeGroupElement) {
+      return localize("groupRowAriaLabel", "{0}, group", element.label);
+    }
+    return "";
+  }
+  getAriaLevel(element) {
+    let i = 1;
+    while (element instanceof SettingsTreeGroupElement && element.parent) {
+      i++;
+      element = element.parent;
+    }
+    return i;
+  }
+}
+let TOCTree = class TOCTree2 extends WorkbenchObjectTree {
+  static {
+    __name(this, "TOCTree");
+  }
+  constructor(container, viewState, contextKeyService, listService, configurationService, hoverService, instantiationService) {
+    const filter = instantiationService.createInstance(SettingsTreeFilter, viewState);
+    const options = {
+      filter,
+      multipleSelectionSupport: false,
+      identityProvider: {
+        getId(e) {
+          return e.id;
+        }
+      },
+      styleController: /* @__PURE__ */ __name((id) => new DefaultStyleController(domStylesheetsJs.createStyleSheet(container), id), "styleController"),
+      accessibilityProvider: instantiationService.createInstance(SettingsAccessibilityProvider),
+      collapseByDefault: true,
+      horizontalScrolling: false,
+      hideTwistiesOfChildlessElements: true,
+      renderIndentGuides: RenderIndentGuides.None
+    };
+    super("SettingsTOC", container, new TOCTreeDelegate(), [new TOCRenderer(hoverService)], options, instantiationService, contextKeyService, listService, configurationService);
+    this.style(getListStyles({
+      listBackground: editorBackground,
+      listFocusOutline: focusBorder,
+      listActiveSelectionBackground: editorBackground,
+      listActiveSelectionForeground: settingsHeaderForeground,
+      listFocusAndSelectionBackground: editorBackground,
+      listFocusAndSelectionForeground: settingsHeaderForeground,
+      listFocusBackground: editorBackground,
+      listFocusForeground: settingsHeaderHoverForeground,
+      listHoverForeground: settingsHeaderHoverForeground,
+      listHoverBackground: editorBackground,
+      listInactiveSelectionBackground: editorBackground,
+      listInactiveSelectionForeground: settingsHeaderForeground,
+      listInactiveFocusBackground: editorBackground,
+      listInactiveFocusOutline: editorBackground,
+      treeIndentGuidesStroke: void 0,
+      treeInactiveIndentGuidesStroke: void 0
+    }));
+  }
+};
+TOCTree = __decorate([
+  __param(2, IContextKeyService),
+  __param(3, IListService),
+  __param(4, IConfigurationService),
+  __param(5, IHoverService),
+  __param(6, IInstantiationService)
+], TOCTree);
+export {
+  TOCRenderer,
+  TOCTree,
+  TOCTreeModel,
+  createTOCIterator
+};
+//# sourceMappingURL=tocTree.js.map

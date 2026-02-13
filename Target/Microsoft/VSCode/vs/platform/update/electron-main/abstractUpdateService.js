@@ -1,1 +1,273 @@
-import{$ii as l,$0h as u}from"../../../base/common/async.js";import{CancellationToken as f,$Jf as y}from"../../../base/common/cancellation.js";import{$xf as m}from"../../../base/common/event.js";import{$0l as b}from"../../configuration/common/configuration.js";import{$5n as w}from"../../environment/electron-main/environmentMainService.js";import{$pw as v}from"../../lifecycle/electron-main/lifecycleMainService.js";import{$yo as $}from"../../log/common/log.js";import{$Vn as g}from"../../product/common/productService.js";import{$Vo as U}from"../../request/common/request.js";import{$Ly as n}from"../common/update.js";var p=function(r,t,e,a){var s=arguments.length,i=s<3?t:a===null?a=Object.getOwnPropertyDescriptor(t,e):a,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,a);else for(var d=r.length-1;d>=0;d--)(h=r[d])&&(i=(s<3?h(i):s>3?h(t,e,i):h(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},o=function(r,t){return function(e,a){t(e,a,r)}};function V(r,t,e,a,s){const i=new URL(`${r}/api/update/${t}/${e}/${a}`);return s?.background&&i.searchParams.set("bg","true"),i.toString()}let c=class{get state(){return this.b}i(t){this.n.info("update#setState",t.type),this.b=t,this.h.fire(t),this.p&&(t.type==="ready"?this.f.cancelAndSet(()=>this.v(),300*1e3):this.f.cancel())}constructor(t,e,a,s,i,h,d){this.j=t,this.k=e,this.l=a,this.m=s,this.n=i,this.o=h,this.p=d,this.b=n.Uninitialized,this.c=!1,this.d=!1,this.f=new l,this.g=!1,this.h=new m,this.onStateChange=this.h.event,t.when(3).finally(()=>this.q())}async q(){if(!this.l.isBuilt){this.i(n.Disabled(0));return}if(this.l.disableUpdates){this.i(n.Disabled(1)),this.n.info("update#ctor - updates are disabled by the environment");return}if(!this.o.updateUrl||!this.o.commit){this.i(n.Disabled(3)),this.n.info("update#ctor - updates are disabled as there is no update URL");return}const t=this.k.getValue("update.mode"),e=this.r(t);if(!e){this.i(n.Disabled(2)),this.n.info("update#ctor - updates are disabled by user preference");return}if(!this.B(e,this.o.commit)){this.i(n.Disabled(4)),this.n.info("update#ctor - updates are disabled as the update URL is badly formed");return}if(this.a=e,this.i(n.Idle(this.x())),await this.z(),t==="manual"){this.n.info("update#ctor - manual checks only; automatic updates are disabled by user preference");return}t==="start"?(this.n.info("update#ctor - startup checks only; automatic updates are disabled by user preference"),setTimeout(()=>this.checkForUpdates(!1),30*1e3)):this.s(30*1e3).then(void 0,a=>this.n.error(a))}r(t){return t==="none"?void 0:this.o.quality}s(t=3600*1e3){return u(t).then(()=>this.checkForUpdates(!1)).then(()=>this.s(3600*1e3))}async checkForUpdates(t){this.n.trace("update#checkForUpdates, state = ",this.state.type),this.state.type==="idle"&&this.C(t)}async downloadUpdate(){this.n.trace("update#downloadUpdate, state = ",this.state.type),this.state.type==="available for download"&&await this.t(this.state)}async t(t){}async applyUpdate(){this.n.trace("update#applyUpdate, state = ",this.state.type),this.state.type==="downloaded"&&await this.u()}async u(){}async quitAndInstall(){if(this.n.trace("update#quitAndInstall, state = ",this.state.type),this.state.type==="ready"){if(this.p&&!this.d&&(this.d=!0,await this.v(!0))){this.n.info("update#quitAndInstall(): overwrite update detected, postponing quitAndInstall");return}return this.n.trace("update#quitAndInstall(): before lifecycle quit()"),this.j.quit(!0).then(t=>{this.n.trace(`update#quitAndInstall(): after lifecycle quit() with veto: ${t}`),!t&&(this.n.trace("update#quitAndInstall(): running raw#quitAndInstall()"),this.y())}),Promise.resolve(void 0)}}async v(t=!1){if(this.b.type!=="ready")return!1;const e=this.b.update.version;let a;try{const s=new y,i=u(2e3).then(()=>{s.cancel()});a=await Promise.race([this.isLatestVersion(e,s.token),i]),s.dispose()}catch(s){return this.n.warn("update#checkForOverwriteUpdates(): failed to check for updates, proceeding with restart"),this.n.warn(s),!1}return a===!1&&this.b.type==="ready"?(this.n.info("update#readyStateCheck: newer update available, restarting update machinery"),await this.A(),this.c=!0,this.i(n.Overwriting(this.b.update,t)),this.C(t,e),!0):!1}async isLatestVersion(t,e=f.None){if(!this.a||this.k.getValue("update.mode")==="none")return;const s=this.B(this.a,t??this.o.commit);if(s)try{return(await this.m.request({url:s},e)).res.statusCode===204}catch(i){this.n.error("update#isLatestVersion(): failed to check for updates"),this.n.error(i);return}}async _applySpecificUpdate(t){}async disableProgressiveReleases(){this.n.info("update#disableProgressiveReleases"),this.g=!0}w(){return this.g}x(){return 1}y(){}async z(){}async A(){}};c=p([o(0,v),o(1,b),o(2,w),o(3,U),o(4,$),o(5,g)],c);export{c as $0y,V as $9y};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { IntervalTimer, timeout } from "../../../base/common/async.js";
+import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { Emitter } from "../../../base/common/event.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IRequestService } from "../../request/common/request.js";
+import { State } from "../common/update.js";
+function createUpdateURL(baseUpdateUrl, platform, quality, commit, options) {
+  const url = new URL(`${baseUpdateUrl}/api/update/${platform}/${quality}/${commit}`);
+  if (options?.background) {
+    url.searchParams.set("bg", "true");
+  }
+  return url.toString();
+}
+__name(createUpdateURL, "createUpdateURL");
+let AbstractUpdateService = class AbstractUpdateService2 {
+  static {
+    __name(this, "AbstractUpdateService");
+  }
+  get state() {
+    return this._state;
+  }
+  setState(state) {
+    this.logService.info("update#setState", state.type);
+    this._state = state;
+    this._onStateChange.fire(state);
+    if (this.supportsUpdateOverwrite) {
+      if (state.type === "ready") {
+        this.overwriteUpdatesCheckInterval.cancelAndSet(() => this.checkForOverwriteUpdates(), 5 * 60 * 1e3);
+      } else {
+        this.overwriteUpdatesCheckInterval.cancel();
+      }
+    }
+  }
+  constructor(lifecycleMainService, configurationService, environmentMainService, requestService, logService, productService, supportsUpdateOverwrite) {
+    this.lifecycleMainService = lifecycleMainService;
+    this.configurationService = configurationService;
+    this.environmentMainService = environmentMainService;
+    this.requestService = requestService;
+    this.logService = logService;
+    this.productService = productService;
+    this.supportsUpdateOverwrite = supportsUpdateOverwrite;
+    this._state = State.Uninitialized;
+    this._overwrite = false;
+    this._hasCheckedForOverwriteOnQuit = false;
+    this.overwriteUpdatesCheckInterval = new IntervalTimer();
+    this._disableProgressiveReleases = false;
+    this._onStateChange = new Emitter();
+    this.onStateChange = this._onStateChange.event;
+    lifecycleMainService.when(
+      3
+      /* LifecycleMainPhase.AfterWindowOpen */
+    ).finally(() => this.initialize());
+  }
+  /**
+   * This must be called before any other call. This is a performance
+   * optimization, to avoid using extra CPU cycles before first window open.
+   * https://github.com/microsoft/vscode/issues/89784
+   */
+  async initialize() {
+    if (!this.environmentMainService.isBuilt) {
+      this.setState(State.Disabled(
+        0
+        /* DisablementReason.NotBuilt */
+      ));
+      return;
+    }
+    if (this.environmentMainService.disableUpdates) {
+      this.setState(State.Disabled(
+        1
+        /* DisablementReason.DisabledByEnvironment */
+      ));
+      this.logService.info("update#ctor - updates are disabled by the environment");
+      return;
+    }
+    if (!this.productService.updateUrl || !this.productService.commit) {
+      this.setState(State.Disabled(
+        3
+        /* DisablementReason.MissingConfiguration */
+      ));
+      this.logService.info("update#ctor - updates are disabled as there is no update URL");
+      return;
+    }
+    const updateMode = this.configurationService.getValue("update.mode");
+    const quality = this.getProductQuality(updateMode);
+    if (!quality) {
+      this.setState(State.Disabled(
+        2
+        /* DisablementReason.ManuallyDisabled */
+      ));
+      this.logService.info("update#ctor - updates are disabled by user preference");
+      return;
+    }
+    if (!this.buildUpdateFeedUrl(quality, this.productService.commit)) {
+      this.setState(State.Disabled(
+        4
+        /* DisablementReason.InvalidConfiguration */
+      ));
+      this.logService.info("update#ctor - updates are disabled as the update URL is badly formed");
+      return;
+    }
+    this.quality = quality;
+    this.setState(State.Idle(this.getUpdateType()));
+    await this.postInitialize();
+    if (updateMode === "manual") {
+      this.logService.info("update#ctor - manual checks only; automatic updates are disabled by user preference");
+      return;
+    }
+    if (updateMode === "start") {
+      this.logService.info("update#ctor - startup checks only; automatic updates are disabled by user preference");
+      setTimeout(() => this.checkForUpdates(false), 30 * 1e3);
+    } else {
+      this.scheduleCheckForUpdates(30 * 1e3).then(void 0, (err) => this.logService.error(err));
+    }
+  }
+  getProductQuality(updateMode) {
+    return updateMode === "none" ? void 0 : this.productService.quality;
+  }
+  scheduleCheckForUpdates(delay = 60 * 60 * 1e3) {
+    return timeout(delay).then(() => this.checkForUpdates(false)).then(() => {
+      return this.scheduleCheckForUpdates(60 * 60 * 1e3);
+    });
+  }
+  async checkForUpdates(explicit) {
+    this.logService.trace("update#checkForUpdates, state = ", this.state.type);
+    if (this.state.type !== "idle") {
+      return;
+    }
+    this.doCheckForUpdates(explicit);
+  }
+  async downloadUpdate() {
+    this.logService.trace("update#downloadUpdate, state = ", this.state.type);
+    if (this.state.type !== "available for download") {
+      return;
+    }
+    await this.doDownloadUpdate(this.state);
+  }
+  async doDownloadUpdate(state) {
+  }
+  async applyUpdate() {
+    this.logService.trace("update#applyUpdate, state = ", this.state.type);
+    if (this.state.type !== "downloaded") {
+      return;
+    }
+    await this.doApplyUpdate();
+  }
+  async doApplyUpdate() {
+  }
+  async quitAndInstall() {
+    this.logService.trace("update#quitAndInstall, state = ", this.state.type);
+    if (this.state.type !== "ready") {
+      return void 0;
+    }
+    if (this.supportsUpdateOverwrite && !this._hasCheckedForOverwriteOnQuit) {
+      this._hasCheckedForOverwriteOnQuit = true;
+      const didOverwrite = await this.checkForOverwriteUpdates(true);
+      if (didOverwrite) {
+        this.logService.info("update#quitAndInstall(): overwrite update detected, postponing quitAndInstall");
+        return;
+      }
+    }
+    this.logService.trace("update#quitAndInstall(): before lifecycle quit()");
+    this.lifecycleMainService.quit(
+      true
+      /* will restart */
+    ).then((vetod) => {
+      this.logService.trace(`update#quitAndInstall(): after lifecycle quit() with veto: ${vetod}`);
+      if (vetod) {
+        return;
+      }
+      this.logService.trace("update#quitAndInstall(): running raw#quitAndInstall()");
+      this.doQuitAndInstall();
+    });
+    return Promise.resolve(void 0);
+  }
+  async checkForOverwriteUpdates(explicit = false) {
+    if (this._state.type !== "ready") {
+      return false;
+    }
+    const pendingUpdateCommit = this._state.update.version;
+    let isLatest;
+    try {
+      const cts = new CancellationTokenSource();
+      const timeoutPromise = timeout(2e3).then(() => {
+        cts.cancel();
+        return void 0;
+      });
+      isLatest = await Promise.race([this.isLatestVersion(pendingUpdateCommit, cts.token), timeoutPromise]);
+      cts.dispose();
+    } catch (error) {
+      this.logService.warn("update#checkForOverwriteUpdates(): failed to check for updates, proceeding with restart");
+      this.logService.warn(error);
+      return false;
+    }
+    if (isLatest === false && this._state.type === "ready") {
+      this.logService.info("update#readyStateCheck: newer update available, restarting update machinery");
+      await this.cancelPendingUpdate();
+      this._overwrite = true;
+      this.setState(State.Overwriting(this._state.update, explicit));
+      this.doCheckForUpdates(explicit, pendingUpdateCommit);
+      return true;
+    }
+    return false;
+  }
+  async isLatestVersion(commit, token = CancellationToken.None) {
+    if (!this.quality) {
+      return void 0;
+    }
+    const mode = this.configurationService.getValue("update.mode");
+    if (mode === "none") {
+      return void 0;
+    }
+    const url = this.buildUpdateFeedUrl(this.quality, commit ?? this.productService.commit);
+    if (!url) {
+      return void 0;
+    }
+    try {
+      const context = await this.requestService.request({ url }, token);
+      return context.res.statusCode === 204;
+    } catch (error) {
+      this.logService.error("update#isLatestVersion(): failed to check for updates");
+      this.logService.error(error);
+      return void 0;
+    }
+  }
+  async _applySpecificUpdate(packagePath) {
+  }
+  async disableProgressiveReleases() {
+    this.logService.info("update#disableProgressiveReleases");
+    this._disableProgressiveReleases = true;
+  }
+  shouldDisableProgressiveReleases() {
+    return this._disableProgressiveReleases;
+  }
+  getUpdateType() {
+    return 1;
+  }
+  doQuitAndInstall() {
+  }
+  async postInitialize() {
+  }
+  async cancelPendingUpdate() {
+  }
+};
+AbstractUpdateService = __decorate([
+  __param(0, ILifecycleMainService),
+  __param(1, IConfigurationService),
+  __param(2, IEnvironmentMainService),
+  __param(3, IRequestService),
+  __param(4, ILogService),
+  __param(5, IProductService)
+], AbstractUpdateService);
+export {
+  AbstractUpdateService,
+  createUpdateURL
+};
+//# sourceMappingURL=abstractUpdateService.js.map

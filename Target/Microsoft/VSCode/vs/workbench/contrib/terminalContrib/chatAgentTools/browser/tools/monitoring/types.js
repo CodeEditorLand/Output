@@ -1,1 +1,24 @@
-var e;(function(i){i.Initial="Initial",i.Idle="Idle",i.PollingForIdle="PollingForIdle",i.Prompting="Prompting",i.Timeout="Timeout",i.Active="Active",i.Cancelled="Cancelled"})(e||(e={}));var a;(function(i){i[i.MinIdleEvents=2]="MinIdleEvents",i[i.MinPollingDuration=500]="MinPollingDuration",i[i.FirstPollingMaxDuration=2e4]="FirstPollingMaxDuration",i[i.ExtendedPollingMaxDuration=12e4]="ExtendedPollingMaxDuration",i[i.MaxPollingIntervalDuration=1e4]="MaxPollingIntervalDuration",i[i.MaxRecursionCount=5]="MaxRecursionCount"})(a||(a={}));export{e as OutputMonitorState,a as PollingConsts};
+var OutputMonitorState;
+(function(OutputMonitorState2) {
+  OutputMonitorState2["Initial"] = "Initial";
+  OutputMonitorState2["Idle"] = "Idle";
+  OutputMonitorState2["PollingForIdle"] = "PollingForIdle";
+  OutputMonitorState2["Prompting"] = "Prompting";
+  OutputMonitorState2["Timeout"] = "Timeout";
+  OutputMonitorState2["Active"] = "Active";
+  OutputMonitorState2["Cancelled"] = "Cancelled";
+})(OutputMonitorState || (OutputMonitorState = {}));
+var PollingConsts;
+(function(PollingConsts2) {
+  PollingConsts2[PollingConsts2["MinIdleEvents"] = 2] = "MinIdleEvents";
+  PollingConsts2[PollingConsts2["MinPollingDuration"] = 500] = "MinPollingDuration";
+  PollingConsts2[PollingConsts2["FirstPollingMaxDuration"] = 2e4] = "FirstPollingMaxDuration";
+  PollingConsts2[PollingConsts2["ExtendedPollingMaxDuration"] = 12e4] = "ExtendedPollingMaxDuration";
+  PollingConsts2[PollingConsts2["MaxPollingIntervalDuration"] = 1e4] = "MaxPollingIntervalDuration";
+  PollingConsts2[PollingConsts2["MaxRecursionCount"] = 5] = "MaxRecursionCount";
+})(PollingConsts || (PollingConsts = {}));
+export {
+  OutputMonitorState,
+  PollingConsts
+};
+//# sourceMappingURL=types.js.map

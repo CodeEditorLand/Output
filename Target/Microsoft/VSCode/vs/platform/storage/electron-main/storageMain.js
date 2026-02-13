@@ -1,1 +1,257 @@
-import*as E from"fs";import{top as M}from"../../../base/common/arrays.js";import{$ui as D}from"../../../base/common/async.js";import{$xf as w}from"../../../base/common/event.js";import{$Ed as I}from"../../../base/common/lifecycle.js";import{$9 as o}from"../../../base/common/path.js";import{$rf as x}from"../../../base/common/stopwatch.js";import{URI as z}from"../../../base/common/uri.js";import{Promises as u}from"../../../base/node/pfs.js";import{$0o as $,$9o as m,StorageHint as a,StorageState as h}from"../../../base/parts/storage/common/storage.js";import{$rw as c}from"../../../base/parts/storage/node/storage.js";import{LogLevel as P}from"../../log/common/log.js";import{$fp as l}from"../common/storage.js";import{$sp as S,$tp as y,$up as C}from"../../telemetry/common/telemetry.js";import{$Nl as O,$Sl as T}from"../../workspace/common/workspace.js";import{Schemas as d}from"../../../base/common/network.js";class n extends I{static{this.a=2e3}get storage(){return this.f}constructor(t,e){super(),this.m=t,this.n=e,this.b=this.D(new w),this.onDidChangeStorage=this.b.event,this.c=this.D(new w),this.onDidCloseStorage=this.c.event,this.f=this.D(new m(new $,{hint:a.STORAGE_IN_MEMORY})),this.g=void 0,this.h=new D,this.whenInit=this.h.p,this.j=h.None}isInMemory(){return this.f.isInMemory()}init(){return this.g||(this.g=(async()=>{if(this.j===h.None)try{const t=this.D(await this.s());this.f.dispose(),this.f=t,this.D(t.onDidChangeStorage(s=>this.b.fire(s))),await this.r(t);const e=t.getBoolean(l);e===void 0?t.set(l,!0):e&&t.set(l,!1)}catch(t){this.m.error(`[storage main] initialize(): Unable to init storage due to ${t}`)}finally{this.j=h.Initialized,this.h.complete()}})()),this.g}q(){return{logTrace:this.m.getLevel()===P.Trace?t=>this.m.trace(t):void 0,logError:t=>this.m.error(t)}}r(t){return t.init()}get items(){return this.f.items}get(t,e){return this.f.get(t,e)}set(t,e){return this.f.set(t,e)}delete(t){return this.f.delete(t)}optimize(){return this.f.optimize()}async close(){const t=new x(!1);await this.u(),t.stop(),t.elapsed()>n.a&&await this.t(t),this.c.fire()}async t(t){if(this.path)try{const e=M(Array.from(this.f.items.entries()).map(([i,r])=>({key:i,length:r.length})),(i,r)=>r.length-i.length,5).map(i=>`${i.key}:${i.length}`).join(", "),s=(await this.n.stat(z.file(this.path))).size;this.m.warn(`[storage main] detected slow close() operation: Time: ${t.elapsed()}ms, DB size: ${s}b, Large Keys: ${e}`)}catch(e){this.m.error("[storage main] figuring out stats for slow DB on close() resulted in an error",e)}}async u(){this.g&&await this.g,this.j=h.Closed,await this.f.close()}}class g extends n{static{this.w="state.vscdb"}get path(){if(!this.z.useInMemoryStorage)return o(this.y.globalStorageHome.with({scheme:d.file}).fsPath,g.w)}constructor(t,e,s,i){super(s,i),this.y=t,this.z=e}async s(){return new m(new c(this.path??c.IN_MEMORY_PATH,{logging:this.q()}),this.path?void 0:{hint:a.STORAGE_IN_MEMORY})}}class B extends g{}class J extends g{constructor(t,e,s,i){super(e.defaultProfile,t,s,i)}async r(t){await super.r(t),this.G(t)}G(t){t.get(y,void 0)===void 0&&t.set(y,new Date().toUTCString());const s=t.get(S,void 0),i=new Date().toUTCString();t.set(C,typeof s>"u"?null:s),t.set(S,i)}}class f extends n{static{this.w="state.vscdb"}static{this.y="workspace.json"}get path(){if(!this.C.useInMemoryStorage)return o(this.F.workspaceStorageHome.with({scheme:d.file}).fsPath,this.z.id,f.w)}constructor(t,e,s,i,r){super(s,r),this.z=t,this.C=e,this.F=i}async s(){const{storageFilePath:t,wasCreated:e}=await this.H();return new m(new c(t,{logging:this.q()}),{hint:this.C.useInMemoryStorage?a.STORAGE_IN_MEMORY:e?a.STORAGE_DOES_NOT_EXIST:void 0})}async H(){if(this.C.useInMemoryStorage)return{storageFilePath:c.IN_MEMORY_PATH,wasCreated:!0};const t=o(this.F.workspaceStorageHome.with({scheme:d.file}).fsPath,this.z.id),e=o(t,f.w);return await u.exists(t)?{storageFilePath:e,wasCreated:!1}:(await E.promises.mkdir(t,{recursive:!0}),this.I(t),{storageFilePath:e,wasCreated:!0})}async I(t){let e;if(O(this.z)?e={folder:this.z.uri.toString()}:T(this.z)&&(e={workspace:this.z.configPath.toString()}),e)try{const s=o(t,f.y);await u.exists(s)||await u.writeFile(s,JSON.stringify(e,void 0,2))}catch(s){this.m.error(`[storage main] ensureWorkspaceStorageFolderMeta(): Unable to create workspace storage metadata due to ${s}`)}}}class K extends n{get path(){}async s(){return new m(new $,{hint:a.STORAGE_IN_MEMORY})}}export{B as $sw,J as $tw,f as $uw,K as $vw};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as fs from "fs";
+import { top } from "../../../base/common/arrays.js";
+import { DeferredPromise } from "../../../base/common/async.js";
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { join } from "../../../base/common/path.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
+import { URI } from "../../../base/common/uri.js";
+import { Promises } from "../../../base/node/pfs.js";
+import { InMemoryStorageDatabase, Storage, StorageHint, StorageState } from "../../../base/parts/storage/common/storage.js";
+import { SQLiteStorageDatabase } from "../../../base/parts/storage/node/storage.js";
+import { LogLevel } from "../../log/common/log.js";
+import { IS_NEW_KEY } from "../common/storage.js";
+import { currentSessionDateStorageKey, firstSessionDateStorageKey, lastSessionDateStorageKey } from "../../telemetry/common/telemetry.js";
+import { isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import { Schemas } from "../../../base/common/network.js";
+class BaseStorageMain extends Disposable {
+  static {
+    __name(this, "BaseStorageMain");
+  }
+  static {
+    this.LOG_SLOW_CLOSE_THRESHOLD = 2e3;
+  }
+  get storage() {
+    return this._storage;
+  }
+  constructor(logService, fileService) {
+    super();
+    this.logService = logService;
+    this.fileService = fileService;
+    this._onDidChangeStorage = this._register(new Emitter());
+    this.onDidChangeStorage = this._onDidChangeStorage.event;
+    this._onDidCloseStorage = this._register(new Emitter());
+    this.onDidCloseStorage = this._onDidCloseStorage.event;
+    this._storage = this._register(new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY }));
+    this.initializePromise = void 0;
+    this.whenInitPromise = new DeferredPromise();
+    this.whenInit = this.whenInitPromise.p;
+    this.state = StorageState.None;
+  }
+  isInMemory() {
+    return this._storage.isInMemory();
+  }
+  init() {
+    if (!this.initializePromise) {
+      this.initializePromise = (async () => {
+        if (this.state !== StorageState.None) {
+          return;
+        }
+        try {
+          const storage = this._register(await this.doCreate());
+          this._storage.dispose();
+          this._storage = storage;
+          this._register(storage.onDidChangeStorage((e) => this._onDidChangeStorage.fire(e)));
+          await this.doInit(storage);
+          const isNewStorage = storage.getBoolean(IS_NEW_KEY);
+          if (isNewStorage === void 0) {
+            storage.set(IS_NEW_KEY, true);
+          } else if (isNewStorage) {
+            storage.set(IS_NEW_KEY, false);
+          }
+        } catch (error) {
+          this.logService.error(`[storage main] initialize(): Unable to init storage due to ${error}`);
+        } finally {
+          this.state = StorageState.Initialized;
+          this.whenInitPromise.complete();
+        }
+      })();
+    }
+    return this.initializePromise;
+  }
+  createLoggingOptions() {
+    return {
+      logTrace: this.logService.getLevel() === LogLevel.Trace ? (msg) => this.logService.trace(msg) : void 0,
+      logError: /* @__PURE__ */ __name((error) => this.logService.error(error), "logError")
+    };
+  }
+  doInit(storage) {
+    return storage.init();
+  }
+  get items() {
+    return this._storage.items;
+  }
+  get(key, fallbackValue) {
+    return this._storage.get(key, fallbackValue);
+  }
+  set(key, value) {
+    return this._storage.set(key, value);
+  }
+  delete(key) {
+    return this._storage.delete(key);
+  }
+  optimize() {
+    return this._storage.optimize();
+  }
+  async close() {
+    const watch = new StopWatch(false);
+    await this.doClose();
+    watch.stop();
+    if (watch.elapsed() > BaseStorageMain.LOG_SLOW_CLOSE_THRESHOLD) {
+      await this.logSlowClose(watch);
+    }
+    this._onDidCloseStorage.fire();
+  }
+  async logSlowClose(watch) {
+    if (!this.path) {
+      return;
+    }
+    try {
+      const largestEntries = top(Array.from(this._storage.items.entries()).map(([key, value]) => ({ key, length: value.length })), (entryA, entryB) => entryB.length - entryA.length, 5).map((entry) => `${entry.key}:${entry.length}`).join(", ");
+      const dbSize = (await this.fileService.stat(URI.file(this.path))).size;
+      this.logService.warn(`[storage main] detected slow close() operation: Time: ${watch.elapsed()}ms, DB size: ${dbSize}b, Large Keys: ${largestEntries}`);
+    } catch (error) {
+      this.logService.error("[storage main] figuring out stats for slow DB on close() resulted in an error", error);
+    }
+  }
+  async doClose() {
+    if (this.initializePromise) {
+      await this.initializePromise;
+    }
+    this.state = StorageState.Closed;
+    await this._storage.close();
+  }
+}
+class BaseProfileAwareStorageMain extends BaseStorageMain {
+  static {
+    __name(this, "BaseProfileAwareStorageMain");
+  }
+  static {
+    this.STORAGE_NAME = "state.vscdb";
+  }
+  get path() {
+    if (!this.options.useInMemoryStorage) {
+      return join(this.profile.globalStorageHome.with({ scheme: Schemas.file }).fsPath, BaseProfileAwareStorageMain.STORAGE_NAME);
+    }
+    return void 0;
+  }
+  constructor(profile, options, logService, fileService) {
+    super(logService, fileService);
+    this.profile = profile;
+    this.options = options;
+  }
+  async doCreate() {
+    return new Storage(new SQLiteStorageDatabase(this.path ?? SQLiteStorageDatabase.IN_MEMORY_PATH, {
+      logging: this.createLoggingOptions()
+    }), !this.path ? { hint: StorageHint.STORAGE_IN_MEMORY } : void 0);
+  }
+}
+class ProfileStorageMain extends BaseProfileAwareStorageMain {
+  static {
+    __name(this, "ProfileStorageMain");
+  }
+}
+class ApplicationStorageMain extends BaseProfileAwareStorageMain {
+  static {
+    __name(this, "ApplicationStorageMain");
+  }
+  constructor(options, userDataProfileService, logService, fileService) {
+    super(userDataProfileService.defaultProfile, options, logService, fileService);
+  }
+  async doInit(storage) {
+    await super.doInit(storage);
+    this.updateTelemetryState(storage);
+  }
+  updateTelemetryState(storage) {
+    const firstSessionDate = storage.get(firstSessionDateStorageKey, void 0);
+    if (firstSessionDate === void 0) {
+      storage.set(firstSessionDateStorageKey, (/* @__PURE__ */ new Date()).toUTCString());
+    }
+    const lastSessionDate = storage.get(currentSessionDateStorageKey, void 0);
+    const currentSessionDate = (/* @__PURE__ */ new Date()).toUTCString();
+    storage.set(lastSessionDateStorageKey, typeof lastSessionDate === "undefined" ? null : lastSessionDate);
+    storage.set(currentSessionDateStorageKey, currentSessionDate);
+  }
+}
+class WorkspaceStorageMain extends BaseStorageMain {
+  static {
+    __name(this, "WorkspaceStorageMain");
+  }
+  static {
+    this.WORKSPACE_STORAGE_NAME = "state.vscdb";
+  }
+  static {
+    this.WORKSPACE_META_NAME = "workspace.json";
+  }
+  get path() {
+    if (!this.options.useInMemoryStorage) {
+      return join(this.environmentService.workspaceStorageHome.with({ scheme: Schemas.file }).fsPath, this.workspace.id, WorkspaceStorageMain.WORKSPACE_STORAGE_NAME);
+    }
+    return void 0;
+  }
+  constructor(workspace, options, logService, environmentService, fileService) {
+    super(logService, fileService);
+    this.workspace = workspace;
+    this.options = options;
+    this.environmentService = environmentService;
+  }
+  async doCreate() {
+    const { storageFilePath, wasCreated } = await this.prepareWorkspaceStorageFolder();
+    return new Storage(new SQLiteStorageDatabase(storageFilePath, {
+      logging: this.createLoggingOptions()
+    }), { hint: this.options.useInMemoryStorage ? StorageHint.STORAGE_IN_MEMORY : wasCreated ? StorageHint.STORAGE_DOES_NOT_EXIST : void 0 });
+  }
+  async prepareWorkspaceStorageFolder() {
+    if (this.options.useInMemoryStorage) {
+      return { storageFilePath: SQLiteStorageDatabase.IN_MEMORY_PATH, wasCreated: true };
+    }
+    const workspaceStorageFolderPath = join(this.environmentService.workspaceStorageHome.with({ scheme: Schemas.file }).fsPath, this.workspace.id);
+    const workspaceStorageDatabasePath = join(workspaceStorageFolderPath, WorkspaceStorageMain.WORKSPACE_STORAGE_NAME);
+    const storageExists = await Promises.exists(workspaceStorageFolderPath);
+    if (storageExists) {
+      return { storageFilePath: workspaceStorageDatabasePath, wasCreated: false };
+    }
+    await fs.promises.mkdir(workspaceStorageFolderPath, { recursive: true });
+    this.ensureWorkspaceStorageFolderMeta(workspaceStorageFolderPath);
+    return { storageFilePath: workspaceStorageDatabasePath, wasCreated: true };
+  }
+  async ensureWorkspaceStorageFolderMeta(workspaceStorageFolderPath) {
+    let meta = void 0;
+    if (isSingleFolderWorkspaceIdentifier(this.workspace)) {
+      meta = { folder: this.workspace.uri.toString() };
+    } else if (isWorkspaceIdentifier(this.workspace)) {
+      meta = { workspace: this.workspace.configPath.toString() };
+    }
+    if (meta) {
+      try {
+        const workspaceStorageMetaPath = join(workspaceStorageFolderPath, WorkspaceStorageMain.WORKSPACE_META_NAME);
+        const storageExists = await Promises.exists(workspaceStorageMetaPath);
+        if (!storageExists) {
+          await Promises.writeFile(workspaceStorageMetaPath, JSON.stringify(meta, void 0, 2));
+        }
+      } catch (error) {
+        this.logService.error(`[storage main] ensureWorkspaceStorageFolderMeta(): Unable to create workspace storage metadata due to ${error}`);
+      }
+    }
+  }
+}
+class InMemoryStorageMain extends BaseStorageMain {
+  static {
+    __name(this, "InMemoryStorageMain");
+  }
+  get path() {
+    return void 0;
+  }
+  async doCreate() {
+    return new Storage(new InMemoryStorageDatabase(), { hint: StorageHint.STORAGE_IN_MEMORY });
+  }
+}
+export {
+  ApplicationStorageMain,
+  InMemoryStorageMain,
+  ProfileStorageMain,
+  WorkspaceStorageMain
+};
+//# sourceMappingURL=storageMain.js.map

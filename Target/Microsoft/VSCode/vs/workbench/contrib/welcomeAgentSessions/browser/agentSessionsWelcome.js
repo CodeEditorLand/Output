@@ -1,1 +1,729 @@
-import"./media/agentSessionsWelcome.css";import{$ as n,$u8 as E,$y9 as a,$t8 as D,getWindow as I,$E8 as M}from"../../../../base/browser/dom.js";import{$H0 as w}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{$l0 as J}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{$G$ as Z}from"../../../../base/browser/ui/toggle/toggle.js";import{CancellationToken as Y}from"../../../../base/common/cancellation.js";import{$bk as g}from"../../../../base/common/codicons.js";import{$Dd as j,$Cd as Q}from"../../../../base/common/lifecycle.js";import{$xf as P}from"../../../../base/common/event.js";import{$Fh as R}from"../../../../base/common/resources.js";import{localize as m}from"../../../../nls.js";import{$uo as tt}from"../../../../platform/commands/common/commands.js";import{$0l as et}from"../../../../platform/configuration/common/configuration.js";import{$ro as L}from"../../../../platform/contextkey/common/contextkey.js";import{$Mj as st}from"../../../../platform/instantiation/common/instantiation.js";import{$Lj as it}from"../../../../platform/instantiation/common/serviceCollection.js";import{$Vn as ot}from"../../../../platform/product/common/productService.js";import{$hp as nt}from"../../../../platform/storage/common/storage.js";import{$pp as rt}from"../../../../platform/telemetry/common/telemetry.js";import{$Jq as k}from"../../../../platform/theme/common/colorRegistry.js";import{$1jb as at,$Ojb as ct}from"../../../../platform/theme/browser/defaultStyles.js";import{$qu as ht}from"../../../../platform/theme/common/themeService.js";import{$vKb as lt}from"../../../browser/parts/editor/editorPane.js";import{$CAb as dt}from"../../../common/theme.js";import{$BL as mt}from"../../../services/editor/common/editorService.js";import{$Eyb as bt}from"../../../services/layout/browser/layoutService.js";import{ChatAgentLocation as v,ChatConfiguration as pt,ChatModeKind as N}from"../../chat/common/constants.js";import{ChatContextKeys as ut}from"../../chat/common/actions/chatContextKeys.js";import{$H4b as ft}from"../../chat/browser/widget/chatWidget.js";import{$tQb as gt}from"../../chat/browser/agentSessions/agentSessionsService.js";import{AgentSessionProviders as St}from"../../chat/browser/agentSessions/agentSessions.js";import{$mIc as wt}from"./agentSessionsWelcomeInput.js";import{$NV as Ct}from"../../chat/common/chatService/chatService.js";import{$24b as yt,$U4b as kt}from"../../chat/browser/chat.js";import{ChatSessionPosition as vt,$buc as Wt}from"../../chat/browser/chatSessions/chatSessions.contribution.js";import{$JP as $t}from"../../../services/chat/common/chatEntitlementService.js";import{$Onc as Dt}from"../../chat/browser/agentSessions/agentSessionsControl.js";import{$rnc as It}from"../../chat/browser/agentSessions/agentSessionsFilter.js";import{$1Gc as Pt}from"../../welcomeGettingStarted/browser/gettingStartedService.js";import{$YGc as xt}from"../../welcomeGettingStarted/browser/gettingStartedInput.js";import{$Ukb as At}from"../../../../platform/markdown/browser/markdownRenderer.js";import{$jk as Ot}from"../../../../base/common/htmlContent.js";import{$Ml as Et}from"../../../../platform/workspace/common/workspace.js";import{$5v as Mt,$7v as W,$6v as $}from"../../../../platform/workspaces/common/workspaces.js";import{$gcb as jt}from"../../../services/host/browser/host.js";import{$2H as Rt}from"../../../../platform/workspace/common/workspaceTrust.js";import{$FN as Nt}from"../../../common/views.js";import{$Lm as B}from"../../../../base/common/errorMessage.js";import{$yo as Bt}from"../../../../platform/log/common/log.js";var q=function(S,t,e,s){var i=arguments.length,o=i<3?t:s===null?s=Object.getOwnPropertyDescriptor(t,e):s,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(S,t,e,s);else for(var d=S.length-1;d>=0;d--)(r=S[d])&&(o=(i<3?r(o):i>3?r(t,e,o):r(t,e))||o);return i>3&&o&&Object.defineProperty(t,e,o),o},l=function(S,t){return function(e,s){t(e,s,S)}},C;const x="workbench.startupEditor",A=6,Ft=10,Lt=10;let F=class extends lt{static{C=this}static{this.ID="agentSessionsWelcomePage"}static{this.COMMAND_ID="workbench.action.openAgentSessionsWelcome"}constructor(t,e,s,i,o,r,d,u,f,p,b,c,h,y,U,V,_,K,T,H,z,G,X){super(C.ID,t,e,s,i),this.ob=i,this.pb=o,this.qb=d,this.rb=u,this.sb=f,this.tb=p,this.ub=b,this.vb=c,this.wb=h,this.xb=y,this.yb=U,this.zb=V,this.Ab=_,this.Bb=K,this.Cb=T,this.Db=H,this.Eb=z,this.Fb=G,this.Gb=X,this.u=this.D(new j),this.y=this.D(new j),this.fb=[],this.gb=St.Local,this.ib=[],this.jb=!1,this.kb="empty",this.lb=0,this.a=n(".agentSessionsWelcome",{role:"document",tabindex:0,"aria-label":m(15032,null)}),this.eb=this.D(r.createScoped(this.a)),ut.inAgentSessionsWelcome.bindTo(this.eb).set(!0),this.D(this.yb.onDidChangeSentiment(()=>{const O=this.input||this.nb;this.yb.sentiment.hidden&&O&&(this.mb="chatHidden",this.group.closeEditor(O))}))}ab(t){t.appendChild(this.a),this.b=n(".agentSessionsWelcome-content"),this.c=this.D(new J(this.b,{className:"agentSessionsWelcome-scrollable",vertical:1})),this.a.appendChild(this.c.getDomNode())}async setInput(t,e,s,i){this.nb=t,this.lb=Date.now(),await super.setInput(t,e,s,i),this.kb=t.workspaceKind??"empty",await this.Ib()}clearInput(){if(this.lb>0){const t=Date.now()-this.lb;this.S.publicLog2("agentSessionsWelcome.closed",{visibleDurationMs:t,closedBy:this.mb??"disposed"}),this.lb=0,this.mb=void 0}super.clearInput()}async Ib(){if(this.y.clear(),this.u.clear(),this.j=void 0,D(this.b),this.jb=this.Ab.getWorkbenchState()===1,this.jb){const d=await this.cc(!0);this.ib=d.slice(0,Ft)}this.fb=this.wb.getWalkthroughs();const t=a(this.b,n(".agentSessionsWelcome-header"));a(t,n("h1.product-name",{},this.vb.nameLong));const e=a(t,n(".agentSessionsWelcome-startEntries"));await this.Jb(e);const s=a(this.b,n(".agentSessionsWelcome-chatSection"));this.Kb(s);const i=a(this.b,n(".agentSessionsWelcome-sessionsSection"));this.Pb(i);const o=a(this.b,n(".agentSessionsWelcome-footer"));this.Wb(o);let r=this.tb.model.sessions.length>0;this.y.add(this.tb.model.onDidChangeSessions(()=>{const d=this.tb.model.sessions.length>0;d!==r&&(r=d,D(i),this.Pb(i)),this.Zb()})),this.c?.scanDomNode()}async Jb(t){const i=[(await this.cc(!1)).length>0?{icon:g.folderOpened,label:m(15033,null),command:"workbench.action.openRecent"}:{icon:g.folderOpened,label:m(15034,null),command:"workbench.action.files.openFolder"},{icon:g.newFile,label:m(15035,null),command:"welcome.showNewFileEntries"},{icon:g.repoClone,label:m(15036,null),command:"git.clone"}];for(const o of i){const r=a(t,n("button.agentSessionsWelcome-startEntry"));r.appendChild(w(o.icon)),r.appendChild(document.createTextNode(o.label)),r.onclick=()=>{this.S.publicLog2("gettingStarted.ActionExecuted",{welcomeKind:"agentSessionsWelcomePage",action:"executeCommand",actionId:o.command}),this.rb.executeCommand(o.command)}}}Kb(t){const e=a(t,n(".agentSessionsWelcome-chatWidget")),s=this.qb.getContainer(I(e)).appendChild(n(".chat-editor-overflow.monaco-editor"));this.y.add(Q(()=>s.remove()));const i=this.y.add(this.eb.createScoped(e)),o=this.y.add(this.pb.createChild(new it([L,i]))),r=this.y.add(new P),d=async c=>{if(this.f&&this.g){this.f.setModel(void 0),this.g.dispose();const h=Wt({type:c,position:vt.Sidebar,displayName:""}),y=await this.xb.loadSessionForResource(h,v.Chat,Y.None);this.g=y??this.xb.startSession(v.Chat),this.y.add(this.g),this.g.object&&this.f.setModel(this.g.object)}},u={getActiveSessionProvider:()=>this.gb,setActiveSessionProvider:c=>{this.gb=c,r.fire(c);try{d(c)}catch{}},onDidChangeActiveSessionProvider:r.event},f=this.y.add(new P),p=this.y.add(new P),b=this.jb?{getWorkspaces:()=>this.ib.map(c=>({uri:this.Mb(c),label:this.Lb(c),isFolder:W(c)})),getSelectedWorkspace:()=>this.hb,setSelectedWorkspace:c=>{this.hb=c,f.fire(c)},onDidChangeSelectedWorkspace:f.event,onDidChangeWorkspaces:p.event,openFolderCommand:"workbench.action.files.openFolder"}:void 0;this.f=this.y.add(o.createInstance(ft,v.Chat,{},{autoScroll:c=>c!==N.Ask,renderFollowups:!1,supportsFileReferences:!0,renderInputOnTop:!0,rendererOptions:{renderTextEditsAsSummary:()=>!0,referencesExpandedWhenEmptyResponse:!1,progressMessageAtBottomOfResponse:c=>c!==N.Ask},editorOverflowWidgetsDomNode:s,enableImplicitContext:!0,enableWorkingSet:"explicit",supportsChangingModes:!0,sessionTypePickerDelegate:u,workspacePickerDelegate:b,submitHandler:this.jb?(c,h)=>this.Nb(c,h):void 0},{listForeground:dt,listBackground:k,overlayBackground:k,inputEditorBackground:k,resultEditorBackground:k})),this.f.render(e),this.f.setVisible(!0),this.y.add(M(I(e),()=>{this.Yb()})),this.g=this.xb.startSession(v.Chat),this.y.add(this.g),this.g.object&&this.f.setModel(this.g.object),this.y.add(E(e,"mousedown",()=>{this.f?.focusInput()})),this.y.add(this.xb.onDidSubmitRequest(({chatSessionResource:c})=>{if(this.g?.object?.sessionResource.toString()===c.toString()){const h=this.f?.input.currentModeObs.get().name.get()||"unknown";this.S.publicLog2("agentSessionsWelcome.chatSubmitted",{mode:h,provider:this.gb,workspaceKind:this.kb,selectedRecentWorkspace:this.hb!==void 0}),this.mb="chatSubmission",this.ac(c)}})),this.Ob()}Lb(t){return W(t)?t.label||R(t.folderUri):$(t)?t.label||R(t.workspace.configPath):""}Mb(t){if(W(t))return t.folderUri;if($(t))return t.workspace.configPath;throw new Error("Invalid workspace type")}async Nb(t,e){if(!this.hb||!t.trim())return!1;const s={query:t,mode:e,timestamp:Date.now()};this.ob.store("chat.welcomeViewPrefill",JSON.stringify(s),-1,1);const i=this.ib.find(o=>this.Mb(o).toString()===this.hb?.uri.toString());if(i)try{return W(i)?await this.Cb.openWindow([{folderUri:i.folderUri}]):$(i)&&await this.Cb.openWindow([{workspaceUri:i.workspace.configPath}]),!0}catch{}return this.ob.remove("chat.welcomeViewPrefill",-1),!1}Ob(){const t=this.ob.get("chat.welcomeViewPrefill",-1);if(t){this.ob.remove("chat.welcomeViewPrefill",-1);try{const{query:e,mode:s,timestamp:i}=JSON.parse(t);if(i&&Date.now()-i>60*1e3)return;e&&this.f&&this.f.setInput(e),s!==void 0&&this.f&&this.f.input.setChatMode(s,!1),this.f?.focusInput()}catch{}}}Pb(t){this.u.clear(),this.j=void 0,this.r=void 0;const e=this.tb.model.sessions.filter(s=>!s.isArchived());e.length>0?this.Sb(t,e):this.Tb(t)}Qb(t){const e=a(t,n(".agentSessionsWelcome-sessionsLoading",{role:"status","aria-busy":"true","aria-label":m(15037,null)}));for(let s=0;s<A;s++){const i=a(e,n(".agentSessionsWelcome-sessionSkeleton",{"aria-hidden":"true"}));a(i,n(".agentSessionsWelcome-sessionSkeleton-icon"));const o=a(i,n(".agentSessionsWelcome-sessionSkeleton-content"));a(o,n(".agentSessionsWelcome-sessionSkeleton-title")),a(o,n(".agentSessionsWelcome-sessionSkeleton-description"))}return e}Rb(){this.r&&(this.r.style.display="none"),this.m&&(this.m.style.display="",this.Zb())}Sb(t,e){this.r=this.Qb(t),this.m=a(t,n(".agentSessionsWelcome-sessionsGrid")),this.m.style.display="none";const s={overrideStyles:at({listBackground:k}),filter:this.u.add(this.pb.createInstance(It,{limitResults:()=>A})),getHoverPosition:()=>2,trackActiveEditorSession:()=>!1,source:"welcomeView",notifySessionOpened:()=>{this.ub.getValue(pt.AgentSessionProjectionEnabled)||(this.mb="sessionClicked",this.$b())}};this.j=this.u.add(this.pb.createInstance(Dt,this.m,s)),this.u.add(this.tb.model.onDidResolve(()=>{this.Rb()})),this.tb.model.resolved&&this.Rb(),this.u.add(M(I(this.m),()=>{this.Zb()}));const i=a(t,n("button.agentSessionsWelcome-openSessionsButton"));i.textContent=m(15038,null),i.onclick=()=>{this.mb="viewAllSessions",this.$b()}}Tb(t){const e=this.fb.filter(h=>!h.when||this.eb.contextMatchesRules(h.when)).slice(0,Lt);if(e.length===0)return;let s=0;const i=a(t,n(".agentSessionsWelcome-walkthroughCard")),o=a(i,n(".agentSessionsWelcome-walkthroughCard-icon")),r=a(i,n(".agentSessionsWelcome-walkthroughCard-content")),d=a(r,n(".agentSessionsWelcome-walkthroughCard-title")),u=a(r,n(".agentSessionsWelcome-walkthroughCard-description")),f=a(i,n(".agentSessionsWelcome-walkthroughCard-nav")),p=a(f,n("button.nav-button"));p.appendChild(w(g.chevronLeft)),p.title=m(15039,null);const b=a(f,n("button.nav-button"));b.appendChild(w(g.chevronRight)),b.title=m(15040,null);const c=()=>{const h=e[s];D(o),h.icon.type==="icon"&&o.appendChild(w(h.icon.icon)),d.textContent=h.title,u.textContent=h.description||"",p.disabled=s===0,b.disabled=s===e.length-1};c(),i.onclick=()=>{const h=e[s];this.S.publicLog2("gettingStarted.ActionExecuted",{welcomeKind:"agentSessionsWelcomePage",action:"openWalkthrough",actionId:h.id});const y={selectedCategory:h.id,returnToCommand:C.COMMAND_ID};this.sb.openEditor({resource:xt.RESOURCE,options:y})},p.onclick=h=>{h.stopPropagation(),s>0&&(s--,c())},b.onclick=h=>{h.stopPropagation(),s<e.length-1&&(s++,c())}}static{this.Ub="agentSessionsWelcome.privacyNoticeDismissed"}Vb(t){if(!this.yb.anonymous||this.ob.getBoolean(C.Ub,-1,!1))return;const e=this.vb.defaultChatAgent?.provider;if(!e||!e.default||!this.vb.defaultChatAgent?.termsStatementUrl||!this.vb.defaultChatAgent?.privacyStatementUrl)return;const s=a(t,n(".agentSessionsWelcome-walkthroughCard.agentSessionsWelcome-tosCard")),i=()=>{this.ob.store(C.Ub,!0,-1,0),s.remove()};this.y.add(this.xb.onDidSubmitRequest(()=>i())),a(s,n(".agentSessionsWelcome-walkthroughCard-icon")).appendChild(w(g.chatSparkle));const r=a(s,n(".agentSessionsWelcome-walkthroughCard-content")),d=a(r,n(".agentSessionsWelcome-walkthroughCard-title"));d.textContent=m(15041,null);const u=a(r,n(".agentSessionsWelcome-walkthroughCard-description")),f=new Ot(m(15042,null,e.default.name,this.vb.defaultChatAgent.termsStatementUrl,this.vb.defaultChatAgent.privacyStatementUrl),{isTrusted:!0}),p=this.zb.render(f);u.appendChild(p.element);const b=a(s,n("button.agentSessionsWelcome-tosCard-dismiss"));b.appendChild(w(g.close)),b.title=m(15043,null),b.onclick=c=>{c.stopPropagation(),i()}}Wb(t){this.Vb(t);const e=a(t,n(".agentSessionsWelcome-showOnStartup")),s=this.y.add(new Z({icon:g.check,actionClassName:"agentSessionsWelcome-checkbox",isChecked:this.ub.getValue(x)==="agentSessionsWelcomePage",title:m(15044,null),...ct({inputActiveOptionBackground:"var(--vscode-descriptionForeground)",inputActiveOptionForeground:"var(--vscode-editor-background)",inputActiveOptionBorder:"var(--vscode-descriptionForeground)"})}));s.domNode.id="showOnStartup";const i=n("label.caption",{for:"showOnStartup"},m(15045,null)),o=()=>{s.checked?this.ub.updateValue(x,"agentSessionsWelcomePage"):this.ub.updateValue(x,"none")};this.y.add(s.onChange(()=>o())),this.y.add(E(i,"click",()=>{s.checked=!s.checked,o()})),e.appendChild(s.domNode),e.appendChild(i)}layout(t){this.Xb=t,this.a.style.height=`${t.height}px`,this.a.style.width=`${t.width}px`,this.Yb(),this.Zb(),this.c?.scanDomNode()}Yb(){if(!this.f||!this.Xb)return;const t=Math.min(800,this.Xb.width-80);this.f.layout(150,t)}Zb(){if(!this.j||!this.m||!this.Xb)return;const t=Math.min(800,this.Xb.width-80),e=Math.min(this.tb.model.sessions.filter(o=>!o.isArchived()).length,A),s=e*52;this.j.layout(s,t);const i=Math.floor(e/2)*52;this.j.element.style.marginBottom=`-${i}px`}focus(){super.focus(),this.f?.focusInput()}async $b(){try{await this.bc()}catch(t){this.Gb.error("Failed to open maximized chat: {0}",B(t))}}async ac(t){try{await this.bc(t)}catch(e){this.Gb.error("Failed to open agent session: {0}",B(e))}}async bc(t){const e=this.input||this.nb;e&&this.group.contains(e)&&await new Promise(i=>{const o=this.group.onDidActiveEditorChange(r=>{o.dispose(),i()});this.group.closeEditor(e)}),t?await this.Fb.openSession(t):await this.rb.executeCommand("workbench.action.chat.open"),this.Eb.getViewLocationById(yt)===2&&this.qb.setAuxiliaryBarMaximized(!0)}async cc(t=!1){const s=(await this.Bb.getRecentlyOpened()).workspaces.map(async r=>{const d=$(r)?r.workspace.configPath:r.folderUri,u=await this.Db.getUriTrustInfo(d);return{workspace:r,trusted:u.trusted}});return(await Promise.all(s)).filter(r=>t?r.trusted:!0).map(r=>r.workspace)}};F=C=q([l(1,rt),l(2,ht),l(3,nt),l(4,st),l(5,L),l(6,bt),l(7,tt),l(8,mt),l(9,gt),l(10,et),l(11,ot),l(12,Pt),l(13,Ct),l(14,$t),l(15,At),l(16,Et),l(17,Mt),l(18,jt),l(19,Rt),l(20,Nt),l(21,kt),l(22,Bt)],F);class Ne{canSerialize(t){return!0}serialize(t){return JSON.stringify({})}deserialize(t,e){return new wt({})}}export{F as $nIc,Ne as $oIc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var AgentSessionsWelcomePage_1;
+import "./media/agentSessionsWelcome.css";
+import { $, addDisposableListener, append, clearNode, getWindow, scheduleAtNextAnimationFrame } from "../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Toggle } from "../../../../base/browser/ui/toggle/toggle.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { basename } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { getListStyles, getToggleStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { SIDE_BAR_FOREGROUND } from "../../../common/theme.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ChatAgentLocation, ChatConfiguration, ChatModeKind } from "../../chat/common/constants.js";
+import { ChatContextKeys } from "../../chat/common/actions/chatContextKeys.js";
+import { ChatWidget } from "../../chat/browser/widget/chatWidget.js";
+import { IAgentSessionsService } from "../../chat/browser/agentSessions/agentSessionsService.js";
+import { AgentSessionProviders } from "../../chat/browser/agentSessions/agentSessions.js";
+import { AgentSessionsWelcomeInput } from "./agentSessionsWelcomeInput.js";
+import { IChatService } from "../../chat/common/chatService/chatService.js";
+import { ChatViewId, IChatWidgetService } from "../../chat/browser/chat.js";
+import { ChatSessionPosition, getResourceForNewChatSession } from "../../chat/browser/chatSessions/chatSessions.contribution.js";
+import { IChatEntitlementService } from "../../../services/chat/common/chatEntitlementService.js";
+import { AgentSessionsControl } from "../../chat/browser/agentSessions/agentSessionsControl.js";
+import { AgentSessionsFilter } from "../../chat/browser/agentSessions/agentSessionsFilter.js";
+import { IWalkthroughsService } from "../../welcomeGettingStarted/browser/gettingStartedService.js";
+import { GettingStartedInput } from "../../welcomeGettingStarted/browser/gettingStartedInput.js";
+import { IMarkdownRendererService } from "../../../../platform/markdown/browser/markdownRenderer.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspacesService, isRecentFolder, isRecentWorkspace } from "../../../../platform/workspaces/common/workspaces.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+const configurationKey = "workbench.startupEditor";
+const MAX_SESSIONS = 6;
+const MAX_REPO_PICKS = 10;
+const MAX_WALKTHROUGHS = 10;
+let AgentSessionsWelcomePage = class AgentSessionsWelcomePage2 extends EditorPane {
+  static {
+    __name(this, "AgentSessionsWelcomePage");
+  }
+  static {
+    AgentSessionsWelcomePage_1 = this;
+  }
+  static {
+    this.ID = "agentSessionsWelcomePage";
+  }
+  static {
+    this.COMMAND_ID = "workbench.action.openAgentSessionsWelcome";
+  }
+  constructor(group, telemetryService, themeService, storageService, instantiationService, contextKeyService, layoutService, commandService, editorService, agentSessionsService, configurationService, productService, walkthroughsService, chatService, chatEntitlementService, markdownRendererService, workspaceContextService, workspacesService, hostService, workspaceTrustManagementService, viewDescriptorService, chatWidgetService, logService) {
+    super(AgentSessionsWelcomePage_1.ID, group, telemetryService, themeService, storageService);
+    this.storageService = storageService;
+    this.instantiationService = instantiationService;
+    this.layoutService = layoutService;
+    this.commandService = commandService;
+    this.editorService = editorService;
+    this.agentSessionsService = agentSessionsService;
+    this.configurationService = configurationService;
+    this.productService = productService;
+    this.walkthroughsService = walkthroughsService;
+    this.chatService = chatService;
+    this.chatEntitlementService = chatEntitlementService;
+    this.markdownRendererService = markdownRendererService;
+    this.workspaceContextService = workspaceContextService;
+    this.workspacesService = workspacesService;
+    this.hostService = hostService;
+    this.workspaceTrustManagementService = workspaceTrustManagementService;
+    this.viewDescriptorService = viewDescriptorService;
+    this.chatWidgetService = chatWidgetService;
+    this.logService = logService;
+    this.sessionsControlDisposables = this._register(new DisposableStore());
+    this.contentDisposables = this._register(new DisposableStore());
+    this.walkthroughs = [];
+    this._selectedSessionProvider = AgentSessionProviders.Local;
+    this._recentTrustedWorkspaces = [];
+    this._isEmptyWorkspace = false;
+    this._workspaceKind = "empty";
+    this._openedAt = 0;
+    this.container = $(".agentSessionsWelcome", {
+      role: "document",
+      tabindex: 0,
+      "aria-label": localize("agentSessionsWelcomeAriaLabel", "Overview of agent sessions and how to get started.")
+    });
+    this.contextService = this._register(contextKeyService.createScoped(this.container));
+    ChatContextKeys.inAgentSessionsWelcome.bindTo(this.contextService).set(true);
+    this._register(this.chatEntitlementService.onDidChangeSentiment(() => {
+      const input = this.input || this._storedInput;
+      if (this.chatEntitlementService.sentiment.hidden && input) {
+        this._closedBy = "chatHidden";
+        this.group.closeEditor(input);
+      }
+    }));
+  }
+  createEditor(parent) {
+    parent.appendChild(this.container);
+    this.contentContainer = $(".agentSessionsWelcome-content");
+    this.scrollableElement = this._register(new DomScrollableElement(this.contentContainer, {
+      className: "agentSessionsWelcome-scrollable",
+      vertical: 1
+      /* ScrollbarVisibility.Auto */
+    }));
+    this.container.appendChild(this.scrollableElement.getDomNode());
+  }
+  async setInput(input, options, context, token) {
+    this._storedInput = input;
+    this._openedAt = Date.now();
+    await super.setInput(input, options, context, token);
+    this._workspaceKind = input.workspaceKind ?? "empty";
+    await this.buildContent();
+  }
+  clearInput() {
+    if (this._openedAt > 0) {
+      const visibleDurationMs = Date.now() - this._openedAt;
+      this.telemetryService.publicLog2("agentSessionsWelcome.closed", {
+        visibleDurationMs,
+        closedBy: this._closedBy ?? "disposed"
+      });
+      this._openedAt = 0;
+      this._closedBy = void 0;
+    }
+    super.clearInput();
+  }
+  async buildContent() {
+    this.contentDisposables.clear();
+    this.sessionsControlDisposables.clear();
+    this.sessionsControl = void 0;
+    clearNode(this.contentContainer);
+    this._isEmptyWorkspace = this.workspaceContextService.getWorkbenchState() === 1;
+    if (this._isEmptyWorkspace) {
+      const recentlyOpened = await this.getRecentlyOpenedWorkspaces(true);
+      this._recentTrustedWorkspaces = recentlyOpened.slice(0, MAX_REPO_PICKS);
+    }
+    this.walkthroughs = this.walkthroughsService.getWalkthroughs();
+    const header = append(this.contentContainer, $(".agentSessionsWelcome-header"));
+    append(header, $("h1.product-name", {}, this.productService.nameLong));
+    const startEntries = append(header, $(".agentSessionsWelcome-startEntries"));
+    await this.buildStartEntries(startEntries);
+    const chatSection = append(this.contentContainer, $(".agentSessionsWelcome-chatSection"));
+    this.buildChatWidget(chatSection);
+    const sessionsSection = append(this.contentContainer, $(".agentSessionsWelcome-sessionsSection"));
+    this.buildSessionsOrPrompts(sessionsSection);
+    const footer = append(this.contentContainer, $(".agentSessionsWelcome-footer"));
+    this.buildFooter(footer);
+    let originalSessions = this.agentSessionsService.model.sessions.length > 0;
+    this.contentDisposables.add(this.agentSessionsService.model.onDidChangeSessions(() => {
+      const hasSessions = this.agentSessionsService.model.sessions.length > 0;
+      if (hasSessions !== originalSessions) {
+        originalSessions = hasSessions;
+        clearNode(sessionsSection);
+        this.buildSessionsOrPrompts(sessionsSection);
+      }
+      this.layoutSessionsControl();
+    }));
+    this.scrollableElement?.scanDomNode();
+  }
+  async buildStartEntries(container) {
+    const workspaces = await this.getRecentlyOpenedWorkspaces(false);
+    const openEntry = workspaces.length > 0 ? { icon: Codicon.folderOpened, label: localize("openRecent", "Open Recent..."), command: "workbench.action.openRecent" } : { icon: Codicon.folderOpened, label: localize("openFolder", "Open Folder..."), command: "workbench.action.files.openFolder" };
+    const entries = [
+      openEntry,
+      { icon: Codicon.newFile, label: localize("newFile", "New file..."), command: "welcome.showNewFileEntries" },
+      { icon: Codicon.repoClone, label: localize("cloneRepo", "Clone Git Repository..."), command: "git.clone" }
+    ];
+    for (const entry of entries) {
+      const button = append(container, $("button.agentSessionsWelcome-startEntry"));
+      button.appendChild(renderIcon(entry.icon));
+      button.appendChild(document.createTextNode(entry.label));
+      button.onclick = () => {
+        this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { welcomeKind: "agentSessionsWelcomePage", action: "executeCommand", actionId: entry.command });
+        this.commandService.executeCommand(entry.command);
+      };
+    }
+  }
+  buildChatWidget(container) {
+    const chatWidgetContainer = append(container, $(".agentSessionsWelcome-chatWidget"));
+    const editorOverflowWidgetsDomNode = this.layoutService.getContainer(getWindow(chatWidgetContainer)).appendChild($(".chat-editor-overflow.monaco-editor"));
+    this.contentDisposables.add(toDisposable(() => editorOverflowWidgetsDomNode.remove()));
+    const scopedContextKeyService = this.contentDisposables.add(this.contextService.createScoped(chatWidgetContainer));
+    const scopedInstantiationService = this.contentDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, scopedContextKeyService])));
+    const onDidChangeActiveSessionProvider = this.contentDisposables.add(new Emitter());
+    const recreateSessionForProvider = /* @__PURE__ */ __name(async (provider) => {
+      if (this.chatWidget && this.chatModelRef) {
+        this.chatWidget.setModel(void 0);
+        this.chatModelRef.dispose();
+        const newResource = getResourceForNewChatSession({
+          type: provider,
+          position: ChatSessionPosition.Sidebar,
+          displayName: ""
+        });
+        const ref = await this.chatService.loadSessionForResource(newResource, ChatAgentLocation.Chat, CancellationToken.None);
+        this.chatModelRef = ref ?? this.chatService.startSession(ChatAgentLocation.Chat);
+        this.contentDisposables.add(this.chatModelRef);
+        if (this.chatModelRef.object) {
+          this.chatWidget.setModel(this.chatModelRef.object);
+        }
+      }
+    }, "recreateSessionForProvider");
+    const sessionTypePickerDelegate = {
+      getActiveSessionProvider: /* @__PURE__ */ __name(() => this._selectedSessionProvider, "getActiveSessionProvider"),
+      setActiveSessionProvider: /* @__PURE__ */ __name((provider) => {
+        this._selectedSessionProvider = provider;
+        onDidChangeActiveSessionProvider.fire(provider);
+        try {
+          recreateSessionForProvider(provider);
+        } catch {
+        }
+      }, "setActiveSessionProvider"),
+      onDidChangeActiveSessionProvider: onDidChangeActiveSessionProvider.event
+    };
+    const onDidChangeSelectedWorkspace = this.contentDisposables.add(new Emitter());
+    const onDidChangeWorkspaces = this.contentDisposables.add(new Emitter());
+    const workspacePickerDelegate = this._isEmptyWorkspace ? {
+      getWorkspaces: /* @__PURE__ */ __name(() => this._recentTrustedWorkspaces.map((w) => ({
+        uri: this.getWorkspaceUri(w),
+        label: this.getWorkspaceLabel(w),
+        isFolder: isRecentFolder(w)
+      })), "getWorkspaces"),
+      getSelectedWorkspace: /* @__PURE__ */ __name(() => this._selectedWorkspace, "getSelectedWorkspace"),
+      setSelectedWorkspace: /* @__PURE__ */ __name((workspace) => {
+        this._selectedWorkspace = workspace;
+        onDidChangeSelectedWorkspace.fire(workspace);
+      }, "setSelectedWorkspace"),
+      onDidChangeSelectedWorkspace: onDidChangeSelectedWorkspace.event,
+      onDidChangeWorkspaces: onDidChangeWorkspaces.event,
+      openFolderCommand: "workbench.action.files.openFolder"
+    } : void 0;
+    this.chatWidget = this.contentDisposables.add(scopedInstantiationService.createInstance(
+      ChatWidget,
+      ChatAgentLocation.Chat,
+      // TODO: @osortega should we have a completely different ID and check that context instead in chatInputPart?
+      {},
+      // Empty resource view context
+      {
+        autoScroll: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "autoScroll"),
+        renderFollowups: false,
+        supportsFileReferences: true,
+        renderInputOnTop: true,
+        rendererOptions: {
+          renderTextEditsAsSummary: /* @__PURE__ */ __name(() => true, "renderTextEditsAsSummary"),
+          referencesExpandedWhenEmptyResponse: false,
+          progressMessageAtBottomOfResponse: /* @__PURE__ */ __name((mode) => mode !== ChatModeKind.Ask, "progressMessageAtBottomOfResponse")
+        },
+        editorOverflowWidgetsDomNode,
+        enableImplicitContext: true,
+        enableWorkingSet: "explicit",
+        supportsChangingModes: true,
+        sessionTypePickerDelegate,
+        workspacePickerDelegate,
+        submitHandler: this._isEmptyWorkspace ? (query, mode) => this.handleWorkspaceSubmission(query, mode) : void 0
+      },
+      {
+        listForeground: SIDE_BAR_FOREGROUND,
+        listBackground: editorBackground,
+        overlayBackground: editorBackground,
+        inputEditorBackground: editorBackground,
+        resultEditorBackground: editorBackground
+      }
+    ));
+    this.chatWidget.render(chatWidgetContainer);
+    this.chatWidget.setVisible(true);
+    this.contentDisposables.add(scheduleAtNextAnimationFrame(getWindow(chatWidgetContainer), () => {
+      this.layoutChatWidget();
+    }));
+    this.chatModelRef = this.chatService.startSession(ChatAgentLocation.Chat);
+    this.contentDisposables.add(this.chatModelRef);
+    if (this.chatModelRef.object) {
+      this.chatWidget.setModel(this.chatModelRef.object);
+    }
+    this.contentDisposables.add(addDisposableListener(chatWidgetContainer, "mousedown", () => {
+      this.chatWidget?.focusInput();
+    }));
+    this.contentDisposables.add(this.chatService.onDidSubmitRequest(({ chatSessionResource }) => {
+      if (this.chatModelRef?.object?.sessionResource.toString() === chatSessionResource.toString()) {
+        const mode = this.chatWidget?.input.currentModeObs.get().name.get() || "unknown";
+        this.telemetryService.publicLog2("agentSessionsWelcome.chatSubmitted", {
+          mode,
+          provider: this._selectedSessionProvider,
+          workspaceKind: this._workspaceKind,
+          selectedRecentWorkspace: this._selectedWorkspace !== void 0
+        });
+        this._closedBy = "chatSubmission";
+        this.openSessionInChat(chatSessionResource);
+      }
+    }));
+    this.applyPrefillData();
+  }
+  getWorkspaceLabel(workspace) {
+    if (isRecentFolder(workspace)) {
+      return workspace.label || basename(workspace.folderUri);
+    } else if (isRecentWorkspace(workspace)) {
+      return workspace.label || basename(workspace.workspace.configPath);
+    }
+    return "";
+  }
+  getWorkspaceUri(workspace) {
+    if (isRecentFolder(workspace)) {
+      return workspace.folderUri;
+    } else if (isRecentWorkspace(workspace)) {
+      return workspace.workspace.configPath;
+    }
+    throw new Error("Invalid workspace type");
+  }
+  async handleWorkspaceSubmission(query, mode) {
+    if (!this._selectedWorkspace) {
+      return false;
+    }
+    if (!query.trim()) {
+      return false;
+    }
+    const prefillData = {
+      query,
+      mode,
+      timestamp: Date.now()
+    };
+    this.storageService.store(
+      "chat.welcomeViewPrefill",
+      JSON.stringify(prefillData),
+      -1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+    const workspace = this._recentTrustedWorkspaces.find((w) => this.getWorkspaceUri(w).toString() === this._selectedWorkspace?.uri.toString());
+    if (workspace) {
+      try {
+        if (isRecentFolder(workspace)) {
+          await this.hostService.openWindow([{ folderUri: workspace.folderUri }]);
+        } else if (isRecentWorkspace(workspace)) {
+          await this.hostService.openWindow([{ workspaceUri: workspace.workspace.configPath }]);
+        }
+        return true;
+      } catch (e) {
+      }
+    }
+    this.storageService.remove(
+      "chat.welcomeViewPrefill",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    return false;
+  }
+  /**
+   * Reads and applies prefill data from storage (used when transferring chat input from another workspace).
+   * This is called after the chat widget is created to populate it with any pending prefill data.
+   */
+  applyPrefillData() {
+    const prefillData = this.storageService.get(
+      "chat.welcomeViewPrefill",
+      -1
+      /* StorageScope.APPLICATION */
+    );
+    if (prefillData) {
+      this.storageService.remove(
+        "chat.welcomeViewPrefill",
+        -1
+        /* StorageScope.APPLICATION */
+      );
+      try {
+        const { query, mode, timestamp } = JSON.parse(prefillData);
+        if (timestamp && Date.now() - timestamp > 60 * 1e3) {
+          return;
+        }
+        if (query && this.chatWidget) {
+          this.chatWidget.setInput(query);
+        }
+        if (mode !== void 0 && this.chatWidget) {
+          this.chatWidget.input.setChatMode(mode, false);
+        }
+        this.chatWidget?.focusInput();
+      } catch {
+      }
+    }
+  }
+  buildSessionsOrPrompts(container) {
+    this.sessionsControlDisposables.clear();
+    this.sessionsControl = void 0;
+    this.sessionsLoadingContainer = void 0;
+    const sessions = this.agentSessionsService.model.sessions.filter((s) => !s.isArchived());
+    if (sessions.length > 0) {
+      this.buildSessionsGrid(container, sessions);
+    } else {
+      this.buildWalkthroughs(container);
+    }
+  }
+  buildLoadingSkeleton(container) {
+    const loadingContainer = append(container, $(".agentSessionsWelcome-sessionsLoading", {
+      "role": "status",
+      "aria-busy": "true",
+      "aria-label": localize("loadingSessions", "Loading sessions...")
+    }));
+    for (let i = 0; i < MAX_SESSIONS; i++) {
+      const skeleton = append(loadingContainer, $(".agentSessionsWelcome-sessionSkeleton", { "aria-hidden": "true" }));
+      append(skeleton, $(".agentSessionsWelcome-sessionSkeleton-icon"));
+      const content = append(skeleton, $(".agentSessionsWelcome-sessionSkeleton-content"));
+      append(content, $(".agentSessionsWelcome-sessionSkeleton-title"));
+      append(content, $(".agentSessionsWelcome-sessionSkeleton-description"));
+    }
+    return loadingContainer;
+  }
+  hideLoadingSkeleton() {
+    if (this.sessionsLoadingContainer) {
+      this.sessionsLoadingContainer.style.display = "none";
+    }
+    if (this.sessionsControlContainer) {
+      this.sessionsControlContainer.style.display = "";
+      this.layoutSessionsControl();
+    }
+  }
+  buildSessionsGrid(container, _sessions) {
+    this.sessionsLoadingContainer = this.buildLoadingSkeleton(container);
+    this.sessionsControlContainer = append(container, $(".agentSessionsWelcome-sessionsGrid"));
+    this.sessionsControlContainer.style.display = "none";
+    const options = {
+      overrideStyles: getListStyles({
+        listBackground: editorBackground
+      }),
+      filter: this.sessionsControlDisposables.add(this.instantiationService.createInstance(AgentSessionsFilter, {
+        limitResults: /* @__PURE__ */ __name(() => MAX_SESSIONS, "limitResults")
+      })),
+      getHoverPosition: /* @__PURE__ */ __name(() => 2, "getHoverPosition"),
+      trackActiveEditorSession: /* @__PURE__ */ __name(() => false, "trackActiveEditorSession"),
+      source: "welcomeView",
+      notifySessionOpened: /* @__PURE__ */ __name(() => {
+        const isProjectionEnabled = this.configurationService.getValue(ChatConfiguration.AgentSessionProjectionEnabled);
+        if (!isProjectionEnabled) {
+          this._closedBy = "sessionClicked";
+          this.revealMaximizedChat();
+        }
+      }, "notifySessionOpened")
+    };
+    this.sessionsControl = this.sessionsControlDisposables.add(this.instantiationService.createInstance(AgentSessionsControl, this.sessionsControlContainer, options));
+    this.sessionsControlDisposables.add(this.agentSessionsService.model.onDidResolve(() => {
+      this.hideLoadingSkeleton();
+    }));
+    if (this.agentSessionsService.model.resolved) {
+      this.hideLoadingSkeleton();
+    }
+    this.sessionsControlDisposables.add(scheduleAtNextAnimationFrame(getWindow(this.sessionsControlContainer), () => {
+      this.layoutSessionsControl();
+    }));
+    const openButton = append(container, $("button.agentSessionsWelcome-openSessionsButton"));
+    openButton.textContent = localize("viewAllSessions", "View All Sessions");
+    openButton.onclick = () => {
+      this._closedBy = "viewAllSessions";
+      this.revealMaximizedChat();
+    };
+  }
+  buildWalkthroughs(container) {
+    const activeWalkthroughs = this.walkthroughs.filter((w) => !w.when || this.contextService.contextMatchesRules(w.when)).slice(0, MAX_WALKTHROUGHS);
+    if (activeWalkthroughs.length === 0) {
+      return;
+    }
+    let currentIndex = 0;
+    const card = append(container, $(".agentSessionsWelcome-walkthroughCard"));
+    const iconContainer = append(card, $(".agentSessionsWelcome-walkthroughCard-icon"));
+    const content = append(card, $(".agentSessionsWelcome-walkthroughCard-content"));
+    const title = append(content, $(".agentSessionsWelcome-walkthroughCard-title"));
+    const desc = append(content, $(".agentSessionsWelcome-walkthroughCard-description"));
+    const navContainer = append(card, $(".agentSessionsWelcome-walkthroughCard-nav"));
+    const prevButton = append(navContainer, $("button.nav-button"));
+    prevButton.appendChild(renderIcon(Codicon.chevronLeft));
+    prevButton.title = localize("previousWalkthrough", "Previous");
+    const nextButton = append(navContainer, $("button.nav-button"));
+    nextButton.appendChild(renderIcon(Codicon.chevronRight));
+    nextButton.title = localize("nextWalkthrough", "Next");
+    const updateContent = /* @__PURE__ */ __name(() => {
+      const walkthrough = activeWalkthroughs[currentIndex];
+      clearNode(iconContainer);
+      if (walkthrough.icon.type === "icon") {
+        iconContainer.appendChild(renderIcon(walkthrough.icon.icon));
+      }
+      title.textContent = walkthrough.title;
+      desc.textContent = walkthrough.description || "";
+      prevButton.disabled = currentIndex === 0;
+      nextButton.disabled = currentIndex === activeWalkthroughs.length - 1;
+    }, "updateContent");
+    updateContent();
+    card.onclick = () => {
+      const walkthrough = activeWalkthroughs[currentIndex];
+      this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { welcomeKind: "agentSessionsWelcomePage", action: "openWalkthrough", actionId: walkthrough.id });
+      const options = {
+        selectedCategory: walkthrough.id,
+        returnToCommand: AgentSessionsWelcomePage_1.COMMAND_ID
+      };
+      this.editorService.openEditor({
+        resource: GettingStartedInput.RESOURCE,
+        options
+      });
+    };
+    prevButton.onclick = (e) => {
+      e.stopPropagation();
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateContent();
+      }
+    };
+    nextButton.onclick = (e) => {
+      e.stopPropagation();
+      if (currentIndex < activeWalkthroughs.length - 1) {
+        currentIndex++;
+        updateContent();
+      }
+    };
+  }
+  static {
+    this.PRIVACY_NOTICE_DISMISSED_KEY = "agentSessionsWelcome.privacyNoticeDismissed";
+  }
+  buildPrivacyNotice(container) {
+    if (!this.chatEntitlementService.anonymous) {
+      return;
+    }
+    if (this.storageService.getBoolean(AgentSessionsWelcomePage_1.PRIVACY_NOTICE_DISMISSED_KEY, -1, false)) {
+      return;
+    }
+    const providers = this.productService.defaultChatAgent?.provider;
+    if (!providers || !providers.default || !this.productService.defaultChatAgent?.termsStatementUrl || !this.productService.defaultChatAgent?.privacyStatementUrl) {
+      return;
+    }
+    const tosCard = append(container, $(".agentSessionsWelcome-walkthroughCard.agentSessionsWelcome-tosCard"));
+    const dismissNotice = /* @__PURE__ */ __name(() => {
+      this.storageService.store(
+        AgentSessionsWelcomePage_1.PRIVACY_NOTICE_DISMISSED_KEY,
+        true,
+        -1,
+        0
+        /* StorageTarget.USER */
+      );
+      tosCard.remove();
+    }, "dismissNotice");
+    this.contentDisposables.add(this.chatService.onDidSubmitRequest(() => dismissNotice()));
+    const iconContainer = append(tosCard, $(".agentSessionsWelcome-walkthroughCard-icon"));
+    iconContainer.appendChild(renderIcon(Codicon.chatSparkle));
+    const content = append(tosCard, $(".agentSessionsWelcome-walkthroughCard-content"));
+    const title = append(content, $(".agentSessionsWelcome-walkthroughCard-title"));
+    title.textContent = localize("tosTitle", "Your GitHub Copilot trial is active");
+    const desc = append(content, $(".agentSessionsWelcome-walkthroughCard-description"));
+    const descriptionMarkdown = new MarkdownString(localize({ key: "tosDescription", comment: ['{Locked="]({1})"}', '{Locked="]({2})"}'] }, "By continuing, you agree to {0}'s [Terms]({1}) and [Privacy Statement]({2}).", providers.default.name, this.productService.defaultChatAgent.termsStatementUrl, this.productService.defaultChatAgent.privacyStatementUrl), { isTrusted: true });
+    const renderedMarkdown = this.markdownRendererService.render(descriptionMarkdown);
+    desc.appendChild(renderedMarkdown.element);
+    const dismissButton = append(tosCard, $("button.agentSessionsWelcome-tosCard-dismiss"));
+    dismissButton.appendChild(renderIcon(Codicon.close));
+    dismissButton.title = localize("dismissPrivacyNotice", "Dismiss");
+    dismissButton.onclick = (e) => {
+      e.stopPropagation();
+      dismissNotice();
+    };
+  }
+  buildFooter(container) {
+    this.buildPrivacyNotice(container);
+    const showOnStartupContainer = append(container, $(".agentSessionsWelcome-showOnStartup"));
+    const showOnStartupCheckbox = this.contentDisposables.add(new Toggle({
+      icon: Codicon.check,
+      actionClassName: "agentSessionsWelcome-checkbox",
+      isChecked: this.configurationService.getValue(configurationKey) === "agentSessionsWelcomePage",
+      title: localize("checkboxTitle", "When checked, this page will be shown on startup."),
+      ...getToggleStyles({
+        inputActiveOptionBackground: "var(--vscode-descriptionForeground)",
+        inputActiveOptionForeground: "var(--vscode-editor-background)",
+        inputActiveOptionBorder: "var(--vscode-descriptionForeground)"
+      })
+    }));
+    showOnStartupCheckbox.domNode.id = "showOnStartup";
+    const showOnStartupLabel = $("label.caption", { for: "showOnStartup" }, localize("showOnStartup", "Show welcome page on startup"));
+    const onShowOnStartupChanged = /* @__PURE__ */ __name(() => {
+      if (showOnStartupCheckbox.checked) {
+        this.configurationService.updateValue(configurationKey, "agentSessionsWelcomePage");
+      } else {
+        this.configurationService.updateValue(configurationKey, "none");
+      }
+    }, "onShowOnStartupChanged");
+    this.contentDisposables.add(showOnStartupCheckbox.onChange(() => onShowOnStartupChanged()));
+    this.contentDisposables.add(addDisposableListener(showOnStartupLabel, "click", () => {
+      showOnStartupCheckbox.checked = !showOnStartupCheckbox.checked;
+      onShowOnStartupChanged();
+    }));
+    showOnStartupContainer.appendChild(showOnStartupCheckbox.domNode);
+    showOnStartupContainer.appendChild(showOnStartupLabel);
+  }
+  layout(dimension) {
+    this.lastDimension = dimension;
+    this.container.style.height = `${dimension.height}px`;
+    this.container.style.width = `${dimension.width}px`;
+    this.layoutChatWidget();
+    this.layoutSessionsControl();
+    this.scrollableElement?.scanDomNode();
+  }
+  layoutChatWidget() {
+    if (!this.chatWidget || !this.lastDimension) {
+      return;
+    }
+    const chatWidth = Math.min(800, this.lastDimension.width - 80);
+    const inputHeight = 150;
+    this.chatWidget.layout(inputHeight, chatWidth);
+  }
+  layoutSessionsControl() {
+    if (!this.sessionsControl || !this.sessionsControlContainer || !this.lastDimension) {
+      return;
+    }
+    const sessionsWidth = Math.min(800, this.lastDimension.width - 80);
+    const visibleSessions = Math.min(this.agentSessionsService.model.sessions.filter((s) => !s.isArchived()).length, MAX_SESSIONS);
+    const sessionsHeight = visibleSessions * 52;
+    this.sessionsControl.layout(sessionsHeight, sessionsWidth);
+    const marginOffset = Math.floor(visibleSessions / 2) * 52;
+    this.sessionsControl.element.style.marginBottom = `-${marginOffset}px`;
+  }
+  focus() {
+    super.focus();
+    this.chatWidget?.focusInput();
+  }
+  async revealMaximizedChat() {
+    try {
+      await this.closeEditorAndMaximizeAuxiliaryBar();
+    } catch (error) {
+      this.logService.error("Failed to open maximized chat: {0}", toErrorMessage(error));
+    }
+  }
+  async openSessionInChat(sessionResource) {
+    try {
+      await this.closeEditorAndMaximizeAuxiliaryBar(sessionResource);
+    } catch (error) {
+      this.logService.error("Failed to open agent session: {0}", toErrorMessage(error));
+    }
+  }
+  async closeEditorAndMaximizeAuxiliaryBar(sessionResource) {
+    const editorToClose = this.input || this._storedInput;
+    if (editorToClose && this.group.contains(editorToClose)) {
+      await new Promise((resolve) => {
+        const disposable = this.group.onDidActiveEditorChange((e) => {
+          disposable.dispose();
+          resolve();
+        });
+        this.group.closeEditor(editorToClose);
+      });
+    }
+    if (sessionResource) {
+      await this.chatWidgetService.openSession(sessionResource);
+    } else {
+      await this.commandService.executeCommand("workbench.action.chat.open");
+    }
+    const chatViewLocation = this.viewDescriptorService.getViewLocationById(ChatViewId);
+    if (chatViewLocation === 2) {
+      this.layoutService.setAuxiliaryBarMaximized(true);
+    }
+  }
+  async getRecentlyOpenedWorkspaces(onlyTrusted = false) {
+    const workspaces = await this.workspacesService.getRecentlyOpened();
+    const trustInfoPromises = workspaces.workspaces.map(async (ws) => {
+      const uri = isRecentWorkspace(ws) ? ws.workspace.configPath : ws.folderUri;
+      const trustInfo = await this.workspaceTrustManagementService.getUriTrustInfo(uri);
+      return { workspace: ws, trusted: trustInfo.trusted };
+    });
+    const trustInfoResults = await Promise.all(trustInfoPromises);
+    const filteredWorkspaces = trustInfoResults.filter((result) => onlyTrusted ? result.trusted : true).map((result) => result.workspace);
+    return filteredWorkspaces;
+  }
+};
+AgentSessionsWelcomePage = AgentSessionsWelcomePage_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IInstantiationService),
+  __param(5, IContextKeyService),
+  __param(6, IWorkbenchLayoutService),
+  __param(7, ICommandService),
+  __param(8, IEditorService),
+  __param(9, IAgentSessionsService),
+  __param(10, IConfigurationService),
+  __param(11, IProductService),
+  __param(12, IWalkthroughsService),
+  __param(13, IChatService),
+  __param(14, IChatEntitlementService),
+  __param(15, IMarkdownRendererService),
+  __param(16, IWorkspaceContextService),
+  __param(17, IWorkspacesService),
+  __param(18, IHostService),
+  __param(19, IWorkspaceTrustManagementService),
+  __param(20, IViewDescriptorService),
+  __param(21, IChatWidgetService),
+  __param(22, ILogService)
+], AgentSessionsWelcomePage);
+class AgentSessionsWelcomeInputSerializer {
+  static {
+    __name(this, "AgentSessionsWelcomeInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(editorInput) {
+    return JSON.stringify({});
+  }
+  deserialize(instantiationService, serializedEditorInput) {
+    return new AgentSessionsWelcomeInput({});
+  }
+}
+export {
+  AgentSessionsWelcomeInputSerializer,
+  AgentSessionsWelcomePage
+};
+//# sourceMappingURL=agentSessionsWelcome.js.map

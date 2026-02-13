@@ -1,1 +1,63 @@
-import{$b9 as u}from"../../../../../../base/browser/dom.js";import{autorun as a}from"../../../../../../base/common/observable.js";import{$NQb as b}from"../../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";import{$jlb as d}from"../../../../../../platform/actionWidget/browser/actionWidget.js";import{$ro as _}from"../../../../../../platform/contextkey/common/contextkey.js";import{$fy as $}from"../../../../../../platform/keybinding/common/keybinding.js";import{$pp as v}from"../../../../../../platform/telemetry/common/telemetry.js";var l=function(n,t,r,o){var i=arguments.length,e=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,t,r,o);else for(var h=n.length-1;h>=0;h--)(s=n[h])&&(e=(i<3?s(e):i>3?s(t,r,e):s(t,r))||e);return i>3&&e&&Object.defineProperty(t,r,e),e},f=function(n,t){return function(r,o){t(r,o,n)}};let m=class extends b{constructor(t,r,o,i,e,s,h){const c={...r,getAnchor:()=>this.R()};super(t,c,i,e,s,h),this.h=o,this.D(a(p=>{this.h.onlyShowIconsForDefaultActions.read(p),this.element&&this.w(this.element)}))}R(){return this.element&&u().document.contains(this.element)?this.element:this.h.getOverflowAnchor?.()??this.element}render(t){super.render(t),t.classList.add("chat-input-picker-item")}};m=l([f(3,d),f(4,$),f(5,_),f(6,v)],m);export{m as $o4b};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+import { getActiveWindow } from "../../../../../../base/browser/dom.js";
+import { autorun } from "../../../../../../base/common/observable.js";
+import { ActionWidgetDropdownActionViewItem } from "../../../../../../platform/actions/browser/actionWidgetDropdownActionViewItem.js";
+import { IActionWidgetService } from "../../../../../../platform/actionWidget/browser/actionWidget.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../../../platform/telemetry/common/telemetry.js";
+let ChatInputPickerActionViewItem = class ChatInputPickerActionViewItem2 extends ActionWidgetDropdownActionViewItem {
+  static {
+    __name(this, "ChatInputPickerActionViewItem");
+  }
+  constructor(action, actionWidgetOptions, pickerOptions, actionWidgetService, keybindingService, contextKeyService, telemetryService) {
+    const optionsWithAnchor = {
+      ...actionWidgetOptions,
+      getAnchor: /* @__PURE__ */ __name(() => this.getAnchorElement(), "getAnchor")
+    };
+    super(action, optionsWithAnchor, actionWidgetService, keybindingService, contextKeyService, telemetryService);
+    this.pickerOptions = pickerOptions;
+    this._register(autorun((reader) => {
+      this.pickerOptions.onlyShowIconsForDefaultActions.read(reader);
+      if (this.element) {
+        this.renderLabel(this.element);
+      }
+    }));
+  }
+  /**
+   * Returns the anchor element for the dropdown.
+   * Falls back to the overflow anchor if this element is not in the DOM.
+   */
+  getAnchorElement() {
+    if (this.element && getActiveWindow().document.contains(this.element)) {
+      return this.element;
+    }
+    return this.pickerOptions.getOverflowAnchor?.() ?? this.element;
+  }
+  render(container) {
+    super.render(container);
+    container.classList.add("chat-input-picker-item");
+  }
+};
+ChatInputPickerActionViewItem = __decorate([
+  __param(3, IActionWidgetService),
+  __param(4, IKeybindingService),
+  __param(5, IContextKeyService),
+  __param(6, ITelemetryService)
+], ChatInputPickerActionViewItem);
+export {
+  ChatInputPickerActionViewItem
+};
+//# sourceMappingURL=chatInputPickerActionItem.js.map

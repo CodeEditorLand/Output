@@ -1,2 +1,422 @@
-import{CancellationToken as V}from"../../../../../base/common/cancellation.js";import{Schemas as L}from"../../../../../base/common/network.js";import{localize2 as W}from"../../../../../nls.js";import{$vL as G,$qL as _,$wL as j}from"../../../../../platform/actions/common/actions.js";import{$0n as A}from"../../../../../platform/contextkey/common/contextkey.js";import{$uo as H}from"../../../../../platform/commands/common/commands.js";import{$VT as K}from"../../common/promptSyntax/service/promptsService.js";import{PromptsConfig as D}from"../../common/promptSyntax/config/config.js";import{PromptsType as m}from"../../common/promptSyntax/promptTypes.js";import{$Fh as w,$Hh as O,$Kh as q}from"../../../../../base/common/resources.js";import{$vk as J}from"../../../../../platform/files/common/files.js";import*as l from"../../../../../nls.js";import{$0l as Q}from"../../../../../platform/configuration/common/configuration.js";import{$BT as T}from"../../common/promptSyntax/config/promptFileLocations.js";import{$3L as X}from"../../../../services/untitled/common/untitledTextEditorService.js";import{$HPb as Y,$OPb as Z}from"./chatActions.js";import{$24b as tt}from"../chat.js";import{ChatContextKeys as U}from"../../common/actions/chatContextKeys.js";import{$Ml as et}from"../../../../../platform/workspace/common/workspace.js";function B(e){return e.split("/").map(s=>encodeURIComponent(s)).join("/")}function x(e,s){const i=e.scheme===L.vscodeUserData?e.with({scheme:L.file}):e;for(const t of s){const n=q(t.uri,i);if(n)return B(n)}return B(i.fsPath.replace(/\\/g,"/"))}const z="\u251C\u2500",k="\u2514\u2500",N="\u274C",F="\u26A0\uFE0F";function Et(){j(class extends G{constructor(){super({id:"workbench.action.chat.diagnostics",title:W(5277,"Diagnostics"),f1:!1,category:Y,menu:[{id:_.ChatContext,group:"z_clear",order:-1},{id:Z,when:A.and(U.enabled,A.equals("view",tt)),order:14,group:"3_configure"},{id:_.ChatWelcomeContext,group:"2_settings",order:0,when:U.inChatEditor.negate()}]})}async run(s){const i=s.get(K),t=s.get(Q),n=s.get(J),u=s.get(X),p=s.get(H),h=s.get(et),d=V.None,g=h.getWorkspace().folders,I=[],R=await st(i,n,d);I.push(R);const v=await nt(i,n,d);I.push(v);const S=await ot(i,n,d);I.push(S);const y=await it(i,t,n,d);I.push(y);const o=await lt(i,t,d),r=ct(I,o,g),a=u.create({initialValue:r,languageId:"markdown"});await p.executeCommand("vscode.open",a.resource)}})}async function st(e,s,i){const t=m.agent,n=!0,u=await e.getResolvedSourceFolders(t),p=await C(u,s),d=(await e.getPromptDiscoveryInfo(t,i)).files.map(M);return{type:t,paths:p,files:d,enabled:n}}async function nt(e,s,i){const t=m.instructions,n=!0,u=await e.getResolvedSourceFolders(t),p=await C(u,s),d=(await e.getPromptDiscoveryInfo(t,i)).files.filter(g=>w(g.uri)!==T).map(M);return{type:t,paths:p,files:d,enabled:n}}async function ot(e,s,i){const t=m.prompt,n=!0,u=await e.getResolvedSourceFolders(t),p=await C(u,s),d=(await e.getPromptDiscoveryInfo(t,i)).files.map(M);return{type:t,paths:p,files:d,enabled:n}}async function it(e,s,i,t){const n=m.skill,u=s.getValue(D.USE_AGENT_SKILLS)??!1,p=await e.getResolvedSourceFolders(n),h=await C(p,i),g=(await e.getPromptDiscoveryInfo(n,t)).files.map(M);return{type:n,paths:h,files:g,enabled:u}}async function lt(e,s,i){const t=s.getValue(D.USE_AGENT_MD)??!1;let n=[];t&&(n=await e.listAgentMDs(i,!1));const u=s.getValue(D.USE_COPILOT_INSTRUCTION_FILES)??!1;let p=[];return u&&(p=await e.listCopilotInstructionsMDs(i)),{agentsMd:{enabled:t,files:n},copilotInstructions:{enabled:u,files:p}}}async function at(e,s){try{return(await e.stat(s)).isDirectory}catch{return!1}}async function C(e,s){const i=[];let t=1;for(const n of e){const u=await at(s,n.uri);i.push({uri:n.uri,exists:u,storage:n.storage,scanOrder:t++,displayPath:n.displayPath??n.uri.path,isDefault:n.isDefault??!1})}return i}function rt(e,s){switch(e){case"missing-name":return l.localize(5252,null);case"missing-description":return l.localize(5253,null);case"name-mismatch":return s??l.localize(5254,null);case"duplicate-name":return l.localize(5255,null);case"parse-error":return s??l.localize(5256,null);case"disabled":return l.localize(5257,null);default:return s??l.localize(5258,null)}}function M(e){return e.status==="loaded"?{uri:e.uri,status:"loaded",name:e.name,storage:e.storage,extensionId:e.extensionId}:e.skipReason==="duplicate-name"&&e.duplicateOf?{uri:e.uri,status:"overwritten",name:e.name,storage:e.storage,overwrittenBy:e.name,extensionId:e.extensionId}:{uri:e.uri,status:"skipped",name:e.name,reason:rt(e.skipReason,e.errorMessage),storage:e.storage,extensionId:e.extensionId}}function ct(e,s,i){const t=[];t.push(`## ${l.localize(5259,null)}`),t.push(`*${l.localize(5260,null)}*`),t.push("");for(const n of e){const u=ft(n.type);if(n.type===m.skill&&!n.enabled){t.push(`**${u}**`),t.push(`*${l.localize(5261,null)}*`),t.push("");continue}const p=n.enabled?"":` *(${l.localize(5262,null)})*`;let h=n.files.filter(o=>o.status==="loaded").length;const d=n.files.filter(o=>o.status==="skipped"||o.status==="overwritten").length;n.type===m.instructions&&(s.agentsMd.enabled&&(h+=s.agentsMd.files.length),s.copilotInstructions.enabled&&(h+=s.copilotInstructions.files.length)),t.push(`**${u}**${p}<br>`);const g=[];h>0&&(n.type===m.skill?g.push(h===1?l.localize(5263,null):l.localize(5264,null,h)):g.push(h===1?l.localize(5265,null):l.localize(5266,null,h))),d>0&&g.push(l.localize(5267,null,d)),g.length>0&&t.push(`*${g.join(", ")}*`),t.push("");const I=n.paths,R=n.files,v=new Map,S=[];for(const o of R){let r=!1;for(const a of I)if(ut(o.uri,a.uri)){const c=a.uri.toString();v.has(c)||v.set(c,[]),v.get(c).push(o),r=!0;break}r||S.push(o)}let y=!1;for(const o of I){const r=v.get(o.uri.toString())||[];if(o.exists?t.push(`${o.displayPath}<br>`):o.isDefault?t.push(`${o.displayPath}<br>`):t.push(`${N} ${o.displayPath} - *${l.localize(5268,null)}*<br>`),o.exists&&r.length>0)for(let a=0;a<r.length;a++){const c=r[a];let f;n.type===m.skill?f=c.name||`${w(O(c.uri))}`:f=w(c.uri);const P=a===r.length-1?k:z,b=x(c.uri,i);c.status==="loaded"?t.push(`${P} [\`${f}\`](${b})<br>`):c.status==="overwritten"?t.push(`${P} ${F} [\`${f}\`](${b}) - *${l.localize(5269,null)}*<br>`):t.push(`${P} ${N} [\`${f}\`](${b}) - *${c.reason}*<br>`)}y=!0}if(S.length>0){const o=new Map;for(const r of S){const a=r.extensionId||"unknown";o.has(a)||o.set(a,[]),o.get(a).push(r)}for(const[r,a]of o){t.push(`${l.localize(5270,null)}: ${r}<br>`);for(let c=0;c<a.length;c++){const f=a[c];let $;n.type===m.skill?$=f.name||`${w(O(f.uri))}`:$=w(f.uri);const b=c===a.length-1?k:z,E=x(f.uri,i);f.status==="loaded"?t.push(`${b} [\`${$}\`](${E})<br>`):f.status==="overwritten"?t.push(`${b} ${F} [\`${$}\`](${E}) - *${l.localize(5271,null)}*<br>`):t.push(`${b} ${N} [\`${$}\`](${E}) - *${f.reason}*<br>`)}}y=!0}if(n.type===m.instructions){if(s.agentsMd.enabled&&s.agentsMd.files.length>0){t.push("AGENTS.md<br>");for(let o=0;o<s.agentsMd.files.length;o++){const r=s.agentsMd.files[o],a=w(r),f=o===s.agentsMd.files.length-1?k:z,$=x(r,i);t.push(`${f} [\`${a}\`](${$})<br>`)}y=!0}else s.agentsMd.enabled||(t.push("AGENTS.md -<br>"),y=!0);if(s.copilotInstructions.enabled&&s.copilotInstructions.files.length>0){t.push(`${T}<br>`);for(let o=0;o<s.copilotInstructions.files.length;o++){const r=s.copilotInstructions.files[o],a=w(r),f=o===s.copilotInstructions.files.length-1?k:z,$=x(r,i);t.push(`${f} [\`${a}\`](${$})<br>`)}y=!0}else s.copilotInstructions.enabled||(t.push(`${T} -<br>`),y=!0)}!y&&n.enabled&&t.push(`*${l.localize(5272,null)}*`),t.push("")}return t.join(`
-`)}function ut(e,s){const i=e.toString(),t=s.toString();return i.startsWith(t+"/")||i.startsWith(t+"\\")}function ft(e){switch(e){case m.agent:return l.localize(5273,null);case m.instructions:return l.localize(5274,null);case m.prompt:return l.localize(5275,null);case m.skill:return l.localize(5276,null);default:return e}}export{Et as $4oc,ct as $5oc};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IPromptsService } from "../../common/promptSyntax/service/promptsService.js";
+import { PromptsConfig } from "../../common/promptSyntax/config/config.js";
+import { PromptsType } from "../../common/promptSyntax/promptTypes.js";
+import { basename, dirname, relativePath } from "../../../../../base/common/resources.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import * as nls from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { COPILOT_CUSTOM_INSTRUCTIONS_FILENAME } from "../../common/promptSyntax/config/promptFileLocations.js";
+import { IUntitledTextEditorService } from "../../../../services/untitled/common/untitledTextEditorService.js";
+import { CHAT_CATEGORY, CHAT_CONFIG_MENU_ID } from "./chatActions.js";
+import { ChatViewId } from "../chat.js";
+import { ChatContextKeys } from "../../common/actions/chatContextKeys.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+function encodePathForMarkdown(path) {
+  return path.split("/").map((segment) => encodeURIComponent(segment)).join("/");
+}
+__name(encodePathForMarkdown, "encodePathForMarkdown");
+function getRelativePath(uri, workspaceFolders) {
+  const normalizedUri = uri.scheme === Schemas.vscodeUserData ? uri.with({ scheme: Schemas.file }) : uri;
+  for (const folder of workspaceFolders) {
+    const relative = relativePath(folder.uri, normalizedUri);
+    if (relative) {
+      return encodePathForMarkdown(relative);
+    }
+  }
+  return encodePathForMarkdown(normalizedUri.fsPath.replace(/\\/g, "/"));
+}
+__name(getRelativePath, "getRelativePath");
+const TREE_BRANCH = "\u251C\u2500";
+const TREE_END = "\u2514\u2500";
+const ICON_ERROR = "\u274C";
+const ICON_WARN = "\u26A0\uFE0F";
+function registerChatCustomizationDiagnosticsAction() {
+  registerAction2(class DiagnosticsAction extends Action2 {
+    static {
+      __name(this, "DiagnosticsAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.diagnostics",
+        title: localize2("chat.diagnostics.label", "Diagnostics"),
+        f1: false,
+        category: CHAT_CATEGORY,
+        menu: [{
+          id: MenuId.ChatContext,
+          group: "z_clear",
+          order: -1
+        }, {
+          id: CHAT_CONFIG_MENU_ID,
+          when: ContextKeyExpr.and(ChatContextKeys.enabled, ContextKeyExpr.equals("view", ChatViewId)),
+          order: 14,
+          group: "3_configure"
+        }, {
+          id: MenuId.ChatWelcomeContext,
+          group: "2_settings",
+          order: 0,
+          when: ChatContextKeys.inChatEditor.negate()
+        }]
+      });
+    }
+    async run(accessor) {
+      const promptsService = accessor.get(IPromptsService);
+      const configurationService = accessor.get(IConfigurationService);
+      const fileService = accessor.get(IFileService);
+      const untitledTextEditorService = accessor.get(IUntitledTextEditorService);
+      const commandService = accessor.get(ICommandService);
+      const workspaceContextService = accessor.get(IWorkspaceContextService);
+      const token = CancellationToken.None;
+      const workspaceFolders = workspaceContextService.getWorkspace().folders;
+      const statusInfos = [];
+      const agentsStatus = await collectAgentsStatus(promptsService, fileService, token);
+      statusInfos.push(agentsStatus);
+      const instructionsStatus = await collectInstructionsStatus(promptsService, fileService, token);
+      statusInfos.push(instructionsStatus);
+      const promptsStatus = await collectPromptsStatus(promptsService, fileService, token);
+      statusInfos.push(promptsStatus);
+      const skillsStatus = await collectSkillsStatus(promptsService, configurationService, fileService, token);
+      statusInfos.push(skillsStatus);
+      const specialFilesStatus = await collectSpecialFilesStatus(promptsService, configurationService, token);
+      const output = formatStatusOutput(statusInfos, specialFilesStatus, workspaceFolders);
+      const untitledModel = untitledTextEditorService.create({
+        initialValue: output,
+        languageId: "markdown"
+      });
+      await commandService.executeCommand("vscode.open", untitledModel.resource);
+    }
+  });
+}
+__name(registerChatCustomizationDiagnosticsAction, "registerChatCustomizationDiagnosticsAction");
+async function collectAgentsStatus(promptsService, fileService, token) {
+  const type = PromptsType.agent;
+  const enabled = true;
+  const resolvedFolders = await promptsService.getResolvedSourceFolders(type);
+  const paths = await convertResolvedFoldersToPathInfo(resolvedFolders, fileService);
+  const discoveryInfo = await promptsService.getPromptDiscoveryInfo(type, token);
+  const files = discoveryInfo.files.map(convertDiscoveryResultToFileStatus);
+  return { type, paths, files, enabled };
+}
+__name(collectAgentsStatus, "collectAgentsStatus");
+async function collectInstructionsStatus(promptsService, fileService, token) {
+  const type = PromptsType.instructions;
+  const enabled = true;
+  const resolvedFolders = await promptsService.getResolvedSourceFolders(type);
+  const paths = await convertResolvedFoldersToPathInfo(resolvedFolders, fileService);
+  const discoveryInfo = await promptsService.getPromptDiscoveryInfo(type, token);
+  const files = discoveryInfo.files.filter((f) => basename(f.uri) !== COPILOT_CUSTOM_INSTRUCTIONS_FILENAME).map(convertDiscoveryResultToFileStatus);
+  return { type, paths, files, enabled };
+}
+__name(collectInstructionsStatus, "collectInstructionsStatus");
+async function collectPromptsStatus(promptsService, fileService, token) {
+  const type = PromptsType.prompt;
+  const enabled = true;
+  const resolvedFolders = await promptsService.getResolvedSourceFolders(type);
+  const paths = await convertResolvedFoldersToPathInfo(resolvedFolders, fileService);
+  const discoveryInfo = await promptsService.getPromptDiscoveryInfo(type, token);
+  const files = discoveryInfo.files.map(convertDiscoveryResultToFileStatus);
+  return { type, paths, files, enabled };
+}
+__name(collectPromptsStatus, "collectPromptsStatus");
+async function collectSkillsStatus(promptsService, configurationService, fileService, token) {
+  const type = PromptsType.skill;
+  const enabled = configurationService.getValue(PromptsConfig.USE_AGENT_SKILLS) ?? false;
+  const resolvedFolders = await promptsService.getResolvedSourceFolders(type);
+  const paths = await convertResolvedFoldersToPathInfo(resolvedFolders, fileService);
+  const discoveryInfo = await promptsService.getPromptDiscoveryInfo(type, token);
+  const files = discoveryInfo.files.map(convertDiscoveryResultToFileStatus);
+  return { type, paths, files, enabled };
+}
+__name(collectSkillsStatus, "collectSkillsStatus");
+async function collectSpecialFilesStatus(promptsService, configurationService, token) {
+  const useAgentMd = configurationService.getValue(PromptsConfig.USE_AGENT_MD) ?? false;
+  let agentMdFiles = [];
+  if (useAgentMd) {
+    agentMdFiles = await promptsService.listAgentMDs(token, false);
+  }
+  const useCopilotInstructions = configurationService.getValue(PromptsConfig.USE_COPILOT_INSTRUCTION_FILES) ?? false;
+  let copilotInstructionsFiles = [];
+  if (useCopilotInstructions) {
+    copilotInstructionsFiles = await promptsService.listCopilotInstructionsMDs(token);
+  }
+  return {
+    agentsMd: { enabled: useAgentMd, files: agentMdFiles },
+    copilotInstructions: { enabled: useCopilotInstructions, files: copilotInstructionsFiles }
+  };
+}
+__name(collectSpecialFilesStatus, "collectSpecialFilesStatus");
+async function checkDirectoryExists(fileService, uri) {
+  try {
+    const stat = await fileService.stat(uri);
+    return stat.isDirectory;
+  } catch {
+    return false;
+  }
+}
+__name(checkDirectoryExists, "checkDirectoryExists");
+async function convertResolvedFoldersToPathInfo(resolvedFolders, fileService) {
+  const paths = [];
+  let scanOrder = 1;
+  for (const folder of resolvedFolders) {
+    const exists = await checkDirectoryExists(fileService, folder.uri);
+    paths.push({
+      uri: folder.uri,
+      exists,
+      storage: folder.storage,
+      scanOrder: scanOrder++,
+      displayPath: folder.displayPath ?? folder.uri.path,
+      isDefault: folder.isDefault ?? false
+    });
+  }
+  return paths;
+}
+__name(convertResolvedFoldersToPathInfo, "convertResolvedFoldersToPathInfo");
+function getSkipReasonMessage(skipReason, errorMessage) {
+  switch (skipReason) {
+    case "missing-name":
+      return nls.localize("status.missingName", "Missing name attribute");
+    case "missing-description":
+      return nls.localize("status.skillMissingDescription", "Missing description attribute");
+    case "name-mismatch":
+      return errorMessage ?? nls.localize("status.skillNameMismatch2", "Name does not match folder");
+    case "duplicate-name":
+      return nls.localize("status.overwrittenByHigherPriority", "Overwritten by higher priority file");
+    case "parse-error":
+      return errorMessage ?? nls.localize("status.parseError", "Parse error");
+    case "disabled":
+      return nls.localize("status.typeDisabled", "Disabled");
+    default:
+      return errorMessage ?? nls.localize("status.unknownError", "Unknown error");
+  }
+}
+__name(getSkipReasonMessage, "getSkipReasonMessage");
+function convertDiscoveryResultToFileStatus(result) {
+  if (result.status === "loaded") {
+    return {
+      uri: result.uri,
+      status: "loaded",
+      name: result.name,
+      storage: result.storage,
+      extensionId: result.extensionId
+    };
+  }
+  if (result.skipReason === "duplicate-name" && result.duplicateOf) {
+    return {
+      uri: result.uri,
+      status: "overwritten",
+      name: result.name,
+      storage: result.storage,
+      overwrittenBy: result.name,
+      extensionId: result.extensionId
+    };
+  }
+  return {
+    uri: result.uri,
+    status: "skipped",
+    name: result.name,
+    reason: getSkipReasonMessage(result.skipReason, result.errorMessage),
+    storage: result.storage,
+    extensionId: result.extensionId
+  };
+}
+__name(convertDiscoveryResultToFileStatus, "convertDiscoveryResultToFileStatus");
+function formatStatusOutput(statusInfos, specialFiles, workspaceFolders) {
+  const lines = [];
+  lines.push(`## ${nls.localize("status.title", "Chat Customization Diagnostics")}`);
+  lines.push(`*${nls.localize("status.sensitiveWarning", "WARNING: This file may contain sensitive information.")}*`);
+  lines.push("");
+  for (const info of statusInfos) {
+    const typeName = getTypeName(info.type);
+    if (info.type === PromptsType.skill && !info.enabled) {
+      lines.push(`**${typeName}**`);
+      lines.push(`*${nls.localize("status.skillsDisabled", "Skills are disabled. Enable them by setting `chat.useAgentSkills` to `true` in your settings.")}*`);
+      lines.push("");
+      continue;
+    }
+    const enabledStatus = info.enabled ? "" : ` *(${nls.localize("status.disabled", "disabled")})*`;
+    let loadedCount = info.files.filter((f) => f.status === "loaded").length;
+    const skippedCount = info.files.filter((f) => f.status === "skipped" || f.status === "overwritten").length;
+    if (info.type === PromptsType.instructions) {
+      if (specialFiles.agentsMd.enabled) {
+        loadedCount += specialFiles.agentsMd.files.length;
+      }
+      if (specialFiles.copilotInstructions.enabled) {
+        loadedCount += specialFiles.copilotInstructions.files.length;
+      }
+    }
+    lines.push(`**${typeName}**${enabledStatus}<br>`);
+    const statsParts = [];
+    if (loadedCount > 0) {
+      if (info.type === PromptsType.skill) {
+        statsParts.push(loadedCount === 1 ? nls.localize("status.skillLoaded", "1 skill loaded") : nls.localize("status.skillsLoaded", "{0} skills loaded", loadedCount));
+      } else {
+        statsParts.push(loadedCount === 1 ? nls.localize("status.fileLoaded", "1 file loaded") : nls.localize("status.filesLoaded", "{0} files loaded", loadedCount));
+      }
+    }
+    if (skippedCount > 0) {
+      statsParts.push(nls.localize("status.skippedCount", "{0} skipped", skippedCount));
+    }
+    if (statsParts.length > 0) {
+      lines.push(`*${statsParts.join(", ")}*`);
+    }
+    lines.push("");
+    const allPaths = info.paths;
+    const allFiles = info.files;
+    const filesByPath = /* @__PURE__ */ new Map();
+    const unmatchedFiles = [];
+    for (const file of allFiles) {
+      let matched = false;
+      for (const path of allPaths) {
+        if (isFileUnderPath(file.uri, path.uri)) {
+          const key = path.uri.toString();
+          if (!filesByPath.has(key)) {
+            filesByPath.set(key, []);
+          }
+          filesByPath.get(key).push(file);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        unmatchedFiles.push(file);
+      }
+    }
+    let hasContent = false;
+    for (const path of allPaths) {
+      const pathFiles = filesByPath.get(path.uri.toString()) || [];
+      if (path.exists) {
+        lines.push(`${path.displayPath}<br>`);
+      } else if (path.isDefault) {
+        lines.push(`${path.displayPath}<br>`);
+      } else {
+        lines.push(`${ICON_ERROR} ${path.displayPath} - *${nls.localize("status.folderNotFound", "Folder does not exist")}*<br>`);
+      }
+      if (path.exists && pathFiles.length > 0) {
+        for (let i = 0; i < pathFiles.length; i++) {
+          const file = pathFiles[i];
+          let fileName;
+          if (info.type === PromptsType.skill) {
+            fileName = file.name || `${basename(dirname(file.uri))}`;
+          } else {
+            fileName = basename(file.uri);
+          }
+          const isLast = i === pathFiles.length - 1;
+          const prefix = isLast ? TREE_END : TREE_BRANCH;
+          const filePath = getRelativePath(file.uri, workspaceFolders);
+          if (file.status === "loaded") {
+            lines.push(`${prefix} [\`${fileName}\`](${filePath})<br>`);
+          } else if (file.status === "overwritten") {
+            lines.push(`${prefix} ${ICON_WARN} [\`${fileName}\`](${filePath}) - *${nls.localize("status.overwrittenByHigherPriority", "Overwritten by higher priority file")}*<br>`);
+          } else {
+            lines.push(`${prefix} ${ICON_ERROR} [\`${fileName}\`](${filePath}) - *${file.reason}*<br>`);
+          }
+        }
+      }
+      hasContent = true;
+    }
+    if (unmatchedFiles.length > 0) {
+      const filesByExtension = /* @__PURE__ */ new Map();
+      for (const file of unmatchedFiles) {
+        const extId = file.extensionId || "unknown";
+        if (!filesByExtension.has(extId)) {
+          filesByExtension.set(extId, []);
+        }
+        filesByExtension.get(extId).push(file);
+      }
+      for (const [extId, extFiles] of filesByExtension) {
+        lines.push(`${nls.localize("status.extension", "Extension")}: ${extId}<br>`);
+        for (let i = 0; i < extFiles.length; i++) {
+          const file = extFiles[i];
+          let fileName;
+          if (info.type === PromptsType.skill) {
+            fileName = file.name || `${basename(dirname(file.uri))}`;
+          } else {
+            fileName = basename(file.uri);
+          }
+          const isLast = i === extFiles.length - 1;
+          const prefix = isLast ? TREE_END : TREE_BRANCH;
+          const filePath = getRelativePath(file.uri, workspaceFolders);
+          if (file.status === "loaded") {
+            lines.push(`${prefix} [\`${fileName}\`](${filePath})<br>`);
+          } else if (file.status === "overwritten") {
+            lines.push(`${prefix} ${ICON_WARN} [\`${fileName}\`](${filePath}) - *${nls.localize("status.overwrittenByHigherPriority", "Overwritten by higher priority file")}*<br>`);
+          } else {
+            lines.push(`${prefix} ${ICON_ERROR} [\`${fileName}\`](${filePath}) - *${file.reason}*<br>`);
+          }
+        }
+      }
+      hasContent = true;
+    }
+    if (info.type === PromptsType.instructions) {
+      if (specialFiles.agentsMd.enabled && specialFiles.agentsMd.files.length > 0) {
+        lines.push(`AGENTS.md<br>`);
+        for (let i = 0; i < specialFiles.agentsMd.files.length; i++) {
+          const file = specialFiles.agentsMd.files[i];
+          const fileName = basename(file);
+          const isLast = i === specialFiles.agentsMd.files.length - 1;
+          const prefix = isLast ? TREE_END : TREE_BRANCH;
+          const filePath = getRelativePath(file, workspaceFolders);
+          lines.push(`${prefix} [\`${fileName}\`](${filePath})<br>`);
+        }
+        hasContent = true;
+      } else if (!specialFiles.agentsMd.enabled) {
+        lines.push(`AGENTS.md -<br>`);
+        hasContent = true;
+      }
+      if (specialFiles.copilotInstructions.enabled && specialFiles.copilotInstructions.files.length > 0) {
+        lines.push(`${COPILOT_CUSTOM_INSTRUCTIONS_FILENAME}<br>`);
+        for (let i = 0; i < specialFiles.copilotInstructions.files.length; i++) {
+          const file = specialFiles.copilotInstructions.files[i];
+          const fileName = basename(file);
+          const isLast = i === specialFiles.copilotInstructions.files.length - 1;
+          const prefix = isLast ? TREE_END : TREE_BRANCH;
+          const filePath = getRelativePath(file, workspaceFolders);
+          lines.push(`${prefix} [\`${fileName}\`](${filePath})<br>`);
+        }
+        hasContent = true;
+      } else if (!specialFiles.copilotInstructions.enabled) {
+        lines.push(`${COPILOT_CUSTOM_INSTRUCTIONS_FILENAME} -<br>`);
+        hasContent = true;
+      }
+    }
+    if (!hasContent && info.enabled) {
+      lines.push(`*${nls.localize("status.noFilesLoaded", "No files loaded")}*`);
+    }
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+__name(formatStatusOutput, "formatStatusOutput");
+function isFileUnderPath(fileUri, pathUri) {
+  const filePath = fileUri.toString();
+  const folderPath = pathUri.toString();
+  return filePath.startsWith(folderPath + "/") || filePath.startsWith(folderPath + "\\");
+}
+__name(isFileUnderPath, "isFileUnderPath");
+function getTypeName(type) {
+  switch (type) {
+    case PromptsType.agent:
+      return nls.localize("status.type.agents", "Custom Agents");
+    case PromptsType.instructions:
+      return nls.localize("status.type.instructions", "Instructions");
+    case PromptsType.prompt:
+      return nls.localize("status.type.prompts", "Prompt Files");
+    case PromptsType.skill:
+      return nls.localize("status.type.skills", "Skills");
+    default:
+      return type;
+  }
+}
+__name(getTypeName, "getTypeName");
+export {
+  formatStatusOutput,
+  registerChatCustomizationDiagnosticsAction
+};
+//# sourceMappingURL=chatCustomizationDiagnosticsAction.js.map
